@@ -1,0 +1,58 @@
+@startuml
+title Security Validation Flow
+start
+:Input received;
+:InputValidator.validate_scope_action();
+if (scope/action valid?) then (no)
+  :Reject: invalid characters;
+  stop
+endif
+:InputValidator.validate_context();
+if (context vars valid?) then (no)
+  :Reject: dangerous values;
+  stop
+endif
+:SecurityValidator.validate_template_spec();
+if (template spec valid?) then (no)
+  :Reject: security violation;
+  stop
+endif
+:SecurityValidator.validate_frontmatter();
+if (frontmatter valid?) then (no)
+  :Reject: invalid frontmatter;
+  stop
+endif
+:SecurityValidator.validate_output_path();
+if (output path safe?) then (no)
+  :Reject: path traversal attempt;
+  stop
+endif
+:SecurityValidator.validate_rdf_sources();
+if (RDF sources safe?) then (no)
+  :Reject: file size/type violation;
+  stop
+endif
+:All validations passed;
+:Proceed to Load Stage;
+stop
+
+note right of "InputValidator.validate_scope_action()"
+  - Check for empty values
+  - Prevent path traversal (.., /, \)
+  - Block dangerous chars (<, >, :, ", |, ?, *)
+end note
+
+note right of "SecurityValidator.validate_output_path()"
+  - Check path length limits
+  - Prevent directory traversal
+  - Validate file extensions
+  - Sanitize output paths
+end note
+
+note right of "SecurityValidator.validate_rdf_sources()"
+  - Check file size limits
+  - Validate file extensions
+  - Prevent symlink attacks
+  - Check file permissions
+end note
+@enduml

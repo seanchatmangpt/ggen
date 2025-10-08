@@ -1,0 +1,13 @@
+@startuml
+title Row parallelism
+start
+:rows R1..Rn;
+fork
+  :worker 1:\nrender r1\ncompute K\nwrite;
+fork again
+  :worker 2:\nrender r2\ncompute K\nwrite;
+fork again
+  :worker k:\nrender rk\ncompute K\nwrite;
+end fork
+stop
+@enduml

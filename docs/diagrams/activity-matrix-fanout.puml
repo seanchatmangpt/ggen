@@ -1,0 +1,51 @@
+@startuml
+title project() – Engine v2 Pipeline
+start
+:Input Validation;
+note right
+  - Validate scope/action
+  - Security checks
+  - Path traversal protection
+end note
+:Load Stage;
+note right
+  - Discover templates
+  - Load RDF graphs
+  - Load SHACL shapes
+  - Performance tracking
+end note
+:Shape Stage;
+note right
+  - SHACL validation
+  - Graph integrity
+  - Performance tracking
+end note
+:hash H_G (data graph);
+:hash H_S (shapes graph);
+:Bind Stage;
+note right
+  - SPARQL variable binding
+  - Context merging
+  - Performance tracking
+end note
+:Matrix Stage;
+if (matrix present?) then (yes)
+  :run SELECT (ORDER BY);
+  :hash H_R (matrix rows);
+  fork
+    :for each row r:\nmerge ctx;\nrender path+body;\ncompute H_T,K;\nwrite if !dry;
+  fork again
+    :for each row r2 ... (parallel);
+  endfork
+else (no)
+  :render single;\ncompute H_T,K;\nwrite if !dry;
+endif
+:Write Stage;
+note right
+  - Generate artifacts
+  - Compute manifest keys
+  - Performance tracking
+  - SLO compliance check
+end note
+stop
+@enduml

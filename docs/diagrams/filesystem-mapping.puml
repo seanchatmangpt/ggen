@@ -1,0 +1,30 @@
+@startuml
+title FS mapping - Engine v2 with Security
+folder "workspace" {
+  folder "templates/<scope>/<action>" as T
+  folder "graphs" as G
+  folder "shapes" as S
+  folder "out" as O
+}
+Engine --> T : read *.tmpl\n(security validated)
+Engine --> G : read *.ttl/*.jsonld\n(size/type validated)
+Engine --> S : read *.ttl\n(security validated)
+Engine --> O : write artifacts\n(path traversal protected)
+
+note right of Engine
+  Security Validations:
+  - Path traversal protection
+  - File size limits
+  - Extension validation
+  - Symlink protection
+  - Permission checks
+end note
+
+note right of O
+  Output Security:
+  - Sanitized paths
+  - Length limits
+  - Extension validation
+  - Directory traversal prevention
+end note
+@enduml

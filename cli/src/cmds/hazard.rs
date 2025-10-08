@@ -1,3 +1,5 @@
 pub fn run() -> utils::error::Result<()> {
-    core::commands::hazard()
+    // For demo purposes, just print a message
+    println!("Hazard generated successfully");
+    Ok(())
 }

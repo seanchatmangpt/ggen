@@ -1,3 +1,4 @@
 pub fn run() -> utils::error::Result<()> {
-    core::commands::simulate_error()
+    // For demo purposes, just return an error
+    Err(utils::error::Error::new("Simulated error"))
 }

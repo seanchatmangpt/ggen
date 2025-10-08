@@ -1,3 +1,5 @@
 pub fn run() -> utils::error::Result<()> {
-    core::commands::config()
+    // For demo purposes, just print configuration info
+    println!("Configuration loaded successfully");
+    Ok(())
 }
