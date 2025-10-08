@@ -56,6 +56,12 @@ pub struct Frontmatter {
     pub backup: Option<bool>,
     #[serde(default)]
     pub idempotent: bool,
+
+    // Additional fields for compatibility
+    #[serde(default, deserialize_with = "string_or_seq")]
+    pub shape: Vec<String>,
+    #[serde(default)]
+    pub determinism: Option<serde_yaml::Value>,
 }
 
 pub struct Template {
@@ -100,8 +106,8 @@ impl Template {
         // Build prolog once
         let prolog = crate::graph::build_prolog(&self.front.prefixes, self.front.base.as_deref());
 
-        // Insert inline RDF (both rdf_inline and rdf treated as TTL blocks)
-        for ttl in self.front.rdf_inline.iter().chain(self.front.rdf.iter()) {
+        // Insert inline RDF
+        for ttl in &self.front.rdf_inline {
             let ttl_rendered = tera.render_str(ttl, vars)?;
             let final_ttl = if prolog.is_empty() {
                 ttl_rendered
@@ -109,6 +115,19 @@ impl Template {
                 format!("{prolog}\n{ttl_rendered}")
             };
             graph.insert_turtle(&final_ttl)?;
+        }
+        
+        // Load RDF files
+        for rdf_file in &self.front.rdf {
+            let rendered_path = tera.render_str(rdf_file, vars)?;
+            if let Ok(ttl_content) = std::fs::read_to_string(&rendered_path) {
+                let final_ttl = if prolog.is_empty() {
+                    ttl_content
+                } else {
+                    format!("{prolog}\n{ttl_content}")
+                };
+                graph.insert_turtle(&final_ttl)?;
+            }
         }
 
         // Execute SPARQL (prepend PREFIX/BASE prolog)
@@ -196,16 +215,24 @@ where
 {
     #[derive(Deserialize)]
     #[serde(untagged)]
-    enum OneOrMap {
+    enum OneOrMapOrSeq {
         One(String),
         Map(BTreeMap<String, String>),
+        Seq(Vec<String>),
     }
-    match OneOrMap::deserialize(de)? {
-        OneOrMap::One(q) => {
+    match OneOrMapOrSeq::deserialize(de)? {
+        OneOrMapOrSeq::One(q) => {
             let mut m = BTreeMap::new();
             m.insert("default".to_string(), q);
             Ok(m)
         }
-        OneOrMap::Map(m) => Ok(m),
+        OneOrMapOrSeq::Map(m) => Ok(m),
+        OneOrMapOrSeq::Seq(queries) => {
+            let mut m = BTreeMap::new();
+            for (i, query) in queries.into_iter().enumerate() {
+                m.insert(format!("query_{}", i), query);
+            }
+            Ok(m)
+        }
     }
 }

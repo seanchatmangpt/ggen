@@ -1,187 +1,342 @@
-use anyhow::{bail, Result};
-use std::path::PathBuf;
+use anyhow::{Context, Result};
+use std::path::{Path, PathBuf};
 use glob::glob;
 
-/// Resolves generator/action patterns to template file paths.
-/// 
-/// Maps Hygen-style `rgen gen <generator> <action>` to template files
-/// under `templates/<generator>/<action>/*.tmpl`.
+use crate::cache::{CacheManager, CachedPack};
+use crate::lockfile::LockfileManager;
+
+/// Template resolver for rpack:template syntax
+#[derive(Debug, Clone)]
 pub struct TemplateResolver {
-    templates_dir: PathBuf,
+    cache_manager: CacheManager,
+    lockfile_manager: LockfileManager,
+}
+
+/// Resolved template source
+#[derive(Debug, Clone)]
+pub struct TemplateSource {
+    pub pack_id: String,
+    pub template_path: PathBuf,
+    pub pack: CachedPack,
+    pub manifest: Option<crate::cache::RpackManifest>,
+}
+
+/// Template search result
+#[derive(Debug, Clone)]
+pub struct TemplateSearchResult {
+    pub pack_id: String,
+    pub template_path: PathBuf,
+    pub pack_name: String,
+    pub pack_description: String,
 }
 
 impl TemplateResolver {
-    /// Create a new resolver for the given templates directory.
-    pub fn new(templates_dir: PathBuf) -> Self {
-        Self { templates_dir }
+    /// Create a new template resolver
+    pub fn new(cache_manager: CacheManager, lockfile_manager: LockfileManager) -> Self {
+        Self {
+            cache_manager,
+            lockfile_manager,
+        }
     }
 
-    /// Resolve generator/action to template paths.
-    /// 
-    /// # Arguments
-    /// * `generator` - The generator name (e.g., "cli")
-    /// * `action` - The action name (e.g., "subcommand") 
-    /// * `name` - Optional template name to filter to specific template
-    /// 
-    /// # Returns
-    /// Vector of template file paths, sorted for deterministic output.
-    /// 
-    /// # Examples
-    /// ```
-    /// // Resolve all CLI subcommand templates
-    /// let paths = resolver.resolve("cli", "subcommand", None)?;
-    /// // Returns: ["templates/cli/subcommand/rust.tmpl", "templates/cli/subcommand/python.tmpl"]
-    /// 
-    /// // Resolve specific template
-    /// let paths = resolver.resolve("cli", "subcommand", Some("rust"))?;
-    /// // Returns: ["templates/cli/subcommand/rust.tmpl"]
-    /// ```
-    pub fn resolve(&self, generator: &str, action: &str, name: Option<&str>) -> Result<Vec<PathBuf>> {
-        // Validate inputs
-        if generator.is_empty() {
-            bail!("Generator name cannot be empty");
-        }
-        if action.is_empty() {
-            bail!("Action name cannot be empty");
+    /// Resolve a template reference in the format "pack_id:template_path"
+    pub fn resolve(&self, template_ref: &str) -> Result<TemplateSource> {
+        let (pack_id, template_path) = self.parse_template_ref(template_ref)?;
+        
+        // Get pack from lockfile
+        let lock_entry = self.lockfile_manager.get(&pack_id)?
+            .with_context(|| format!("Pack '{}' not found in lockfile", pack_id))?;
+        
+        // Load cached pack
+        let cached_pack = self.cache_manager.load_cached(&pack_id, &lock_entry.version)
+            .with_context(|| format!("Pack '{}' not found in cache", pack_id))?;
+        
+        // Resolve template path
+        let full_template_path = self.resolve_template_path(&cached_pack, &template_path)?;
+        
+        // Verify template exists
+        if !full_template_path.exists() {
+            anyhow::bail!("Template '{}' not found in pack '{}'", template_path, pack_id);
         }
         
-        // Sanitize inputs to prevent path traversal
-        if generator.contains("..") || generator.contains('/') || generator.contains('\\') {
-            bail!("Generator name '{}' contains invalid characters", generator);
+        let manifest = cached_pack.manifest.clone();
+        
+        Ok(TemplateSource {
+            pack_id,
+            template_path: full_template_path,
+            pack: cached_pack,
+            manifest,
+        })
+    }
+
+    /// Parse a template reference into pack ID and template path
+    fn parse_template_ref(&self, template_ref: &str) -> Result<(String, String)> {
+        let parts: Vec<&str> = template_ref.split(':').collect();
+        
+        if parts.len() != 2 {
+            anyhow::bail!("Invalid template reference format: '{}'. Expected 'pack_id:template_path'", template_ref);
         }
-        if action.contains("..") || action.contains('/') || action.contains('\\') {
-            bail!("Action name '{}' contains invalid characters", action);
+        
+        let pack_id = parts[0].to_string();
+        let template_path = parts[1].to_string();
+        
+        if pack_id.is_empty() {
+            anyhow::bail!("Empty pack ID in template reference: '{}'", template_ref);
         }
-        if let Some(n) = name {
-            if n.contains("..") || n.contains('/') || n.contains('\\') {
-                bail!("Template name '{}' contains invalid characters", n);
+        
+        if template_path.is_empty() {
+            anyhow::bail!("Empty template path in template reference: '{}'", template_ref);
+        }
+        
+        Ok((pack_id, template_path))
+    }
+
+    /// Resolve template path relative to pack directory
+    fn resolve_template_path(&self, cached_pack: &CachedPack, template_path: &str) -> Result<PathBuf> {
+        // Start with templates directory
+        let mut full_path = cached_pack.path.join("templates");
+        
+        // Add template path components
+        for component in template_path.split('/') {
+            if component == ".." {
+                anyhow::bail!("Template path cannot contain '..': {}", template_path);
             }
+            if component.is_empty() {
+                continue;
+            }
+            full_path = full_path.join(component);
         }
+        
+        Ok(full_path)
+    }
 
-        // Build the search pattern
-        let pattern = if let Some(template_name) = name {
-            // Specific template: templates/generator/action/name.tmpl
-            self.templates_dir
-                .join(generator)
-                .join(action)
-                .join(format!("{}.tmpl", template_name))
-                .to_string_lossy()
-                .to_string()
-        } else {
-            // All templates: templates/generator/action/*.tmpl
-            self.templates_dir
-                .join(generator)
-                .join(action)
-                .join("*.tmpl")
-                .to_string_lossy()
-                .to_string()
-        };
-
-        // Find matching files
-        let mut paths = Vec::new();
-        for entry in glob(&pattern)? {
-            match entry {
-                Ok(path) => {
-                    if path.is_file() {
-                        paths.push(path);
+    /// Search for templates across all installed packs
+    pub fn search_templates(&self, query: Option<&str>) -> Result<Vec<TemplateSearchResult>> {
+        let installed_packs = self.lockfile_manager.installed_packs()?;
+        let mut results = Vec::new();
+        
+        for (pack_id, lock_entry) in installed_packs {
+            if let Ok(cached_pack) = self.cache_manager.load_cached(&pack_id, &lock_entry.version) {
+                let pack_templates = self.find_templates_in_pack(&cached_pack)?;
+                
+                for template_path in pack_templates {
+                    let template_name = template_path.file_name()
+                        .and_then(|n| n.to_str())
+                        .unwrap_or("unknown");
+                    
+                    // Filter by query if provided
+                    if let Some(query) = query {
+                        let query_lower = query.to_lowercase();
+                        if !template_name.to_lowercase().contains(&query_lower) {
+                            continue;
+                        }
                     }
-                }
-                Err(e) => {
-                    // Log glob errors but continue
-                    eprintln!("Warning: glob error: {}", e);
+                    
+                    results.push(TemplateSearchResult {
+                        pack_id: pack_id.clone(),
+                        template_path: template_path.clone(),
+                        pack_name: cached_pack.manifest.as_ref()
+                            .map(|m| m.rpack.name.clone())
+                            .unwrap_or_else(|| pack_id.clone()),
+                        pack_description: cached_pack.manifest.as_ref()
+                            .map(|m| m.rpack.description.clone())
+                            .unwrap_or_else(|| "No description".to_string()),
+                    });
                 }
             }
         }
-
-        // Sort for deterministic output
-        paths.sort();
-
-        // Provide helpful error messages
-        if paths.is_empty() {
-            if let Some(template_name) = name {
-                bail!(
-                    "Template '{}' not found in {}/{}/. Run `rgen list` to see available templates.",
-                    template_name,
-                    generator,
-                    action
-                );
-            } else {
-                bail!(
-                    "No templates found in {}/{}/. Run `rgen list` to see available generators and actions.",
-                    generator,
-                    action
-                );
-            }
-        }
-
-        Ok(paths)
+        
+        // Sort by pack name, then template name
+        results.sort_by(|a, b| {
+            a.pack_name.cmp(&b.pack_name)
+                .then_with(|| a.template_path.cmp(&b.template_path))
+        });
+        
+        Ok(results)
     }
 
-    /// List all available generators (top-level directories in templates/).
-    pub fn list_generators(&self) -> Result<Vec<String>> {
-        if !self.templates_dir.exists() {
-            return Ok(Vec::new());
-        }
-
-        let mut generators = Vec::new();
-        for entry in std::fs::read_dir(&self.templates_dir)? {
-            let entry = entry?;
-            if entry.file_type()?.is_dir() {
-                if let Some(name) = entry.file_name().to_str() {
-                    generators.push(name.to_string());
-                }
-            }
-        }
-
-        generators.sort();
-        Ok(generators)
-    }
-
-    /// List all available actions for a given generator.
-    pub fn list_actions(&self, generator: &str) -> Result<Vec<String>> {
-        let generator_dir = self.templates_dir.join(generator);
-        if !generator_dir.exists() {
-            return Ok(Vec::new());
-        }
-
-        let mut actions = Vec::new();
-        for entry in std::fs::read_dir(&generator_dir)? {
-            let entry = entry?;
-            if entry.file_type()?.is_dir() {
-                if let Some(name) = entry.file_name().to_str() {
-                    actions.push(name.to_string());
-                }
-            }
-        }
-
-        actions.sort();
-        Ok(actions)
-    }
-
-    /// List all available template names for a given generator/action.
-    pub fn list_templates(&self, generator: &str, action: &str) -> Result<Vec<String>> {
-        let action_dir = self.templates_dir.join(generator).join(action);
-        if !action_dir.exists() {
-            return Ok(Vec::new());
-        }
-
+    /// Find all templates in a pack
+    fn find_templates_in_pack(&self, cached_pack: &CachedPack) -> Result<Vec<PathBuf>> {
+        let templates_dir = cached_pack.path.join("templates");
         let mut templates = Vec::new();
-        for entry in std::fs::read_dir(&action_dir)? {
-            let entry = entry?;
-            if entry.file_type()?.is_file() {
-                if let Some(name) = entry.file_name().to_str() {
-                    if name.ends_with(".tmpl") {
-                        // Remove .tmpl extension
-                        let template_name = &name[..name.len() - 5];
-                        templates.push(template_name.to_string());
-                    }
-                }
+        
+        if !templates_dir.exists() {
+            return Ok(templates);
+        }
+        
+        // Use glob to find all .tmpl files
+        let pattern = templates_dir.join("**").join("*.tmpl");
+        let pattern_str = pattern.to_string_lossy();
+        
+        for entry in glob(&pattern_str)
+            .context("Failed to glob template files")? {
+            let entry = entry.context("Failed to read glob entry")?;
+            
+            if entry.is_file() {
+                templates.push(entry);
             }
         }
-
-        templates.sort();
+        
         Ok(templates)
     }
+
+    /// Get available templates for a specific pack
+    pub fn get_pack_templates(&self, pack_id: &str) -> Result<Vec<String>> {
+        let lock_entry = self.lockfile_manager.get(pack_id)?
+            .with_context(|| format!("Pack '{}' not found in lockfile", pack_id))?;
+        
+        let cached_pack = self.cache_manager.load_cached(pack_id, &lock_entry.version)
+            .with_context(|| format!("Pack '{}' not found in cache", pack_id))?;
+        
+        let templates_dir = cached_pack.path.join("templates");
+        let mut template_paths = Vec::new();
+        
+        if !templates_dir.exists() {
+            return Ok(template_paths);
+        }
+        
+        // Find all .tmpl files and convert to relative paths
+        let pattern = templates_dir.join("**").join("*.tmpl");
+        let pattern_str = pattern.to_string_lossy();
+        
+        for entry in glob(&pattern_str)
+            .context("Failed to glob template files")? {
+            let entry = entry.context("Failed to read glob entry")?;
+            
+            if entry.is_file() {
+                // Get relative path from templates directory
+                let relative_path = entry.strip_prefix(&templates_dir)
+                    .context("Failed to get relative template path")?;
+                
+                template_paths.push(relative_path.to_string_lossy().to_string());
+            }
+        }
+        
+        // Sort for consistent output
+        template_paths.sort();
+        
+        Ok(template_paths)
+    }
+
+    /// Get template information including frontmatter
+    pub fn get_template_info(&self, template_ref: &str) -> Result<TemplateInfo> {
+        let template_source = self.resolve(template_ref)?;
+        
+        // Read template content
+        let content = std::fs::read_to_string(&template_source.template_path)
+            .context("Failed to read template file")?;
+        
+        // Parse frontmatter if present
+        let (frontmatter, template_content) = self.parse_frontmatter(&content)?;
+        
+        Ok(TemplateInfo {
+            pack_id: template_source.pack_id,
+            template_path: template_source.template_path,
+            frontmatter,
+            content: template_content,
+            pack_info: template_source.manifest.map(|m| m.rpack),
+        })
+    }
+
+    /// Parse frontmatter from template content
+    fn parse_frontmatter(&self, content: &str) -> Result<(Option<serde_yaml::Value>, String)> {
+        use gray_matter::Matter;
+        
+        let matter = Matter::<gray_matter::engine::YAML>::new();
+        let parsed = matter.parse(content)?;
+        
+        let frontmatter = parsed.data.map(|data: serde_yaml::Value| data.into());
+        let content = parsed.content;
+        
+        Ok((frontmatter, content))
+    }
+
+    /// Validate that all referenced templates exist
+    pub fn validate_templates(&self) -> Result<Vec<TemplateValidationError>> {
+        let installed_packs = self.lockfile_manager.installed_packs()?;
+        let mut errors = Vec::new();
+        
+        for (pack_id, lock_entry) in installed_packs {
+            if let Ok(cached_pack) = self.cache_manager.load_cached(&pack_id, &lock_entry.version) {
+                // Check if templates directory exists
+                let templates_dir = cached_pack.path.join("templates");
+                if !templates_dir.exists() {
+                    errors.push(TemplateValidationError {
+                        pack_id: pack_id.clone(),
+                        error: "Templates directory not found".to_string(),
+                    });
+                    continue;
+                }
+                
+                // Check if any templates exist
+                let templates = self.find_templates_in_pack(&cached_pack)?;
+                if templates.is_empty() {
+                    errors.push(TemplateValidationError {
+                        pack_id: pack_id.clone(),
+                        error: "No template files found".to_string(),
+                    });
+                }
+                
+                // Validate each template
+                for template_path in templates {
+                    if let Err(e) = self.validate_template_file(&template_path) {
+                        errors.push(TemplateValidationError {
+                            pack_id: pack_id.clone(),
+                            error: format!("Template '{}': {}", 
+                                template_path.file_name().unwrap_or_default().to_string_lossy(), e),
+                        });
+                    }
+                }
+            }
+        }
+        
+        Ok(errors)
+    }
+
+    /// Validate a single template file
+    fn validate_template_file(&self, template_path: &Path) -> Result<()> {
+        let content = std::fs::read_to_string(template_path)
+            .context("Failed to read template file")?;
+        
+        // Check if file is not empty
+        if content.trim().is_empty() {
+            anyhow::bail!("Template file is empty");
+        }
+        
+        // Try to parse frontmatter
+        let (frontmatter, _) = self.parse_frontmatter(&content)?;
+        
+        // Validate frontmatter structure if present
+        if let Some(fm) = frontmatter {
+            if let Some(fm_map) = fm.as_mapping() {
+                // Check for required fields
+                if let Some(to_field) = fm_map.get("to") {
+                    if !to_field.is_string() {
+                        anyhow::bail!("Frontmatter 'to' field must be a string");
+                    }
+                }
+            }
+        }
+        
+        Ok(())
+    }
+}
+
+/// Template information
+#[derive(Debug, Clone)]
+pub struct TemplateInfo {
+    pub pack_id: String,
+    pub template_path: PathBuf,
+    pub frontmatter: Option<serde_yaml::Value>,
+    pub content: String,
+    pub pack_info: Option<crate::cache::RpackInfo>,
+}
+
+/// Template validation error
+#[derive(Debug, Clone)]
+pub struct TemplateValidationError {
+    pub pack_id: String,
+    pub error: String,
 }
 
 #[cfg(test)]
@@ -190,125 +345,75 @@ mod tests {
     use tempfile::TempDir;
     use std::fs;
 
-    fn create_test_templates() -> Result<TempDir> {
-        let temp_dir = TempDir::new()?;
-        let templates_dir = temp_dir.path().join("templates");
+    #[test]
+    fn test_parse_template_ref() {
+        let temp_dir = TempDir::new().unwrap();
+        let cache_manager = CacheManager::with_dir(temp_dir.path().join("cache")).unwrap();
+        let lockfile_manager = LockfileManager::new(temp_dir.path());
+        let resolver = TemplateResolver::new(cache_manager, lockfile_manager);
         
-        // Create directory structure
-        fs::create_dir_all(templates_dir.join("cli").join("subcommand"))?;
-        fs::create_dir_all(templates_dir.join("api").join("endpoint"))?;
-        
-        // Create template files
-        fs::write(templates_dir.join("cli").join("subcommand").join("rust.tmpl"), "Rust template")?;
-        fs::write(templates_dir.join("cli").join("subcommand").join("python.tmpl"), "Python template")?;
-        fs::write(templates_dir.join("api").join("endpoint").join("rust.tmpl"), "API Rust template")?;
-        
-        Ok(temp_dir)
+        let (pack_id, template_path) = resolver.parse_template_ref("io.rgen.test:main.tmpl").unwrap();
+        assert_eq!(pack_id, "io.rgen.test");
+        assert_eq!(template_path, "main.tmpl");
     }
 
     #[test]
-    fn test_resolve_all_templates() -> Result<()> {
-        let temp_dir = create_test_templates()?;
-        let resolver = TemplateResolver::new(temp_dir.path().join("templates"));
+    fn test_parse_template_ref_invalid() {
+        let temp_dir = TempDir::new().unwrap();
+        let cache_manager = CacheManager::with_dir(temp_dir.path().join("cache")).unwrap();
+        let lockfile_manager = LockfileManager::new(temp_dir.path());
+        let resolver = TemplateResolver::new(cache_manager, lockfile_manager);
         
-        let paths = resolver.resolve("cli", "subcommand", None)?;
-        assert_eq!(paths.len(), 2);
-        assert!(paths.iter().any(|p| p.ends_with("rust.tmpl")));
-        assert!(paths.iter().any(|p| p.ends_with("python.tmpl")));
+        // Invalid format
+        assert!(resolver.parse_template_ref("invalid").is_err());
         
-        Ok(())
+        // Empty pack ID
+        assert!(resolver.parse_template_ref(":template.tmpl").is_err());
+        
+        // Empty template path
+        assert!(resolver.parse_template_ref("pack:").is_err());
     }
 
     #[test]
-    fn test_resolve_specific_template() -> Result<()> {
-        let temp_dir = create_test_templates()?;
-        let resolver = TemplateResolver::new(temp_dir.path().join("templates"));
+    fn test_resolve_template_path() {
+        let temp_dir = TempDir::new().unwrap();
+        let pack_dir = temp_dir.path().join("pack");
+        let templates_dir = pack_dir.join("templates");
+        fs::create_dir_all(&templates_dir).unwrap();
         
-        let paths = resolver.resolve("cli", "subcommand", Some("rust"))?;
-        assert_eq!(paths.len(), 1);
-        assert!(paths[0].ends_with("rust.tmpl"));
+        let cached_pack = CachedPack {
+            id: "io.rgen.test".to_string(),
+            version: "1.0.0".to_string(),
+            path: pack_dir,
+            sha256: "abc123".to_string(),
+            manifest: None,
+        };
         
-        Ok(())
+        let cache_manager = CacheManager::with_dir(temp_dir.path().join("cache")).unwrap();
+        let lockfile_manager = LockfileManager::new(temp_dir.path());
+        let resolver = TemplateResolver::new(cache_manager, lockfile_manager);
+        
+        let resolved_path = resolver.resolve_template_path(&cached_pack, "main.tmpl").unwrap();
+        assert_eq!(resolved_path, templates_dir.join("main.tmpl"));
     }
 
     #[test]
-    fn test_resolve_nonexistent_generator() -> Result<()> {
-        let temp_dir = create_test_templates()?;
-        let resolver = TemplateResolver::new(temp_dir.path().join("templates"));
+    fn test_resolve_template_path_security() {
+        let temp_dir = TempDir::new().unwrap();
+        let pack_dir = temp_dir.path().join("pack");
+        let cached_pack = CachedPack {
+            id: "io.rgen.test".to_string(),
+            version: "1.0.0".to_string(),
+            path: pack_dir,
+            sha256: "abc123".to_string(),
+            manifest: None,
+        };
         
-        let result = resolver.resolve("nonexistent", "action", None);
-        assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().contains("No templates found"));
+        let cache_manager = CacheManager::with_dir(temp_dir.path().join("cache")).unwrap();
+        let lockfile_manager = LockfileManager::new(temp_dir.path());
+        let resolver = TemplateResolver::new(cache_manager, lockfile_manager);
         
-        Ok(())
-    }
-
-    #[test]
-    fn test_resolve_nonexistent_template() -> Result<()> {
-        let temp_dir = create_test_templates()?;
-        let resolver = TemplateResolver::new(temp_dir.path().join("templates"));
-        
-        let result = resolver.resolve("cli", "subcommand", Some("nonexistent"));
-        assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().contains("Template 'nonexistent' not found"));
-        
-        Ok(())
-    }
-
-    #[test]
-    fn test_path_traversal_protection() -> Result<()> {
-        let temp_dir = create_test_templates()?;
-        let resolver = TemplateResolver::new(temp_dir.path().join("templates"));
-        
-        // Test path traversal attempts
-        assert!(resolver.resolve("..", "action", None).is_err());
-        assert!(resolver.resolve("generator", "../action", None).is_err());
-        assert!(resolver.resolve("generator", "action", Some("../template")).is_err());
-        
-        Ok(())
-    }
-
-    #[test]
-    fn test_list_generators() -> Result<()> {
-        let temp_dir = create_test_templates()?;
-        let resolver = TemplateResolver::new(temp_dir.path().join("templates"));
-        
-        let generators = resolver.list_generators()?;
-        assert_eq!(generators, vec!["api", "cli"]);
-        
-        Ok(())
-    }
-
-    #[test]
-    fn test_list_actions() -> Result<()> {
-        let temp_dir = create_test_templates()?;
-        let resolver = TemplateResolver::new(temp_dir.path().join("templates"));
-        
-        let actions = resolver.list_actions("cli")?;
-        assert_eq!(actions, vec!["subcommand"]);
-        
-        Ok(())
-    }
-
-    #[test]
-    fn test_list_templates() -> Result<()> {
-        let temp_dir = create_test_templates()?;
-        let resolver = TemplateResolver::new(temp_dir.path().join("templates"));
-        
-        let templates = resolver.list_templates("cli", "subcommand")?;
-        assert_eq!(templates, vec!["python", "rust"]);
-        
-        Ok(())
-    }
-
-    #[test]
-    fn test_empty_inputs() -> Result<()> {
-        let temp_dir = create_test_templates()?;
-        let resolver = TemplateResolver::new(temp_dir.path().join("templates"));
-        
-        assert!(resolver.resolve("", "action", None).is_err());
-        assert!(resolver.resolve("generator", "", None).is_err());
-        
-        Ok(())
+        // Should reject path traversal
+        assert!(resolver.resolve_template_path(&cached_pack, "../outside.tmpl").is_err());
     }
 }

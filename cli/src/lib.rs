@@ -31,7 +31,7 @@ pub struct Cli {
     pub command: cmds::Commands,
 }
 
-pub fn cli_match() -> Result<()> {
+pub async fn cli_match() -> Result<()> {
     let cli = Cli::parse();
 
     AppConfig::merge_config(cli.config.as_deref())?;
@@ -40,5 +40,5 @@ pub fn cli_match() -> Result<()> {
     AppConfig::merge_args(matches)?;
 
     // For now, skip rgen.toml loading until we implement the methods
-    cli.command.run()
+    cli.command.run().await
 }

@@ -1,0 +1,24 @@
+@startuml C4_Marketplace_Context
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+LAYOUT_WITH_LEGEND()
+
+title Rgen Marketplace - System Context
+
+Person(developer, "Developer", "Uses rgen to generate code from templates")
+Person(publisher, "Publisher", "Creates and publishes rpacks to the marketplace")
+
+System(rgen_cli, "Rgen CLI", "Command-line interface for code generation")
+System(marketplace, "Rgen Marketplace", "Registry and ecosystem for reusable rpacks")
+System(github, "GitHub", "Hosts rpack repositories and registry index")
+
+Rel(developer, rgen_cli, "Uses", "CLI commands")
+Rel(developer, marketplace, "Discovers rpacks", "Search, browse")
+Rel(publisher, github, "Publishes rpacks", "Git repositories")
+Rel(publisher, marketplace, "Submits rpacks", "PR workflow")
+
+Rel(rgen_cli, marketplace, "Fetches registry", "HTTPS/JSON")
+Rel(rgen_cli, github, "Downloads rpacks", "Git clone")
+Rel(marketplace, github, "Validates rpacks", "CI/CD")
+
+@enduml

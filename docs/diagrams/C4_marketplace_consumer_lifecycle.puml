@@ -1,0 +1,65 @@
+@startuml C4_Marketplace_Consumer_Lifecycle
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_WITH_LEGEND()
+
+title Rgen Marketplace - Consumer Lifecycle
+
+Person(developer, "Developer", "Wants to use rpacks")
+
+System_Boundary(rgen_cli, "Rgen CLI") {
+    Component(search_cmd, "Search Command", "Rust", "rgen search <query>")
+    Component(add_cmd, "Add Command", "Rust", "rgen add <rpack-id>")
+    Component(packs_cmd, "Packs Command", "Rust", "rgen packs")
+    Component(gen_cmd, "Gen Command", "Rust", "rgen gen <rpack>:<template>")
+    Component(update_cmd, "Update Command", "Rust", "rgen update")
+    Component(remove_cmd, "Remove Command", "Rust", "rgen remove <rpack-id>")
+}
+
+System_Boundary(core_engine, "Core Engine") {
+    Component(registry_client, "Registry Client", "Rust", "Fetches from registry.rgen.dev")
+    Component(cache_manager, "Cache Manager", "Rust", "Manages ~/.rgen/rpacks/")
+    Component(lockfile_manager, "Lockfile Manager", "Rust", "Manages rgen.lock")
+    Component(template_resolver, "Template Resolver", "Rust", "Resolves <rpack>:<template>")
+    Component(pipeline, "Generation Pipeline", "Rust", "Processes templates")
+}
+
+System_Boundary(external, "External Systems") {
+    Component(registry_index, "Registry Index", "GitHub Pages", "index.json")
+    Component(rpack_repos, "Rpack Repositories", "GitHub", "Individual rpacks")
+    Component(local_cache, "Local Cache", "File System", "~/.rgen/rpacks/")
+    Component(project_lockfile, "Project Lockfile", "TOML", "rgen.lock")
+}
+
+' Consumer Lifecycle Flow
+Rel(developer, search_cmd, "1. Search for rpacks")
+Rel(search_cmd, registry_client, "Fetches index")
+Rel(registry_client, registry_index, "GET /index.json")
+
+Rel(developer, add_cmd, "2. Add rpack")
+Rel(add_cmd, registry_client, "Resolves version")
+Rel(add_cmd, cache_manager, "Downloads rpack")
+Rel(cache_manager, rpack_repos, "Git clone")
+Rel(add_cmd, lockfile_manager, "Updates lockfile")
+Rel(lockfile_manager, project_lockfile, "Writes rgen.lock")
+
+Rel(developer, packs_cmd, "3. List installed")
+Rel(packs_cmd, lockfile_manager, "Reads lockfile")
+Rel(packs_cmd, cache_manager, "Checks cache status")
+
+Rel(developer, gen_cmd, "4. Generate code")
+Rel(gen_cmd, template_resolver, "Resolves template")
+Rel(template_resolver, cache_manager, "Loads from cache")
+Rel(gen_cmd, pipeline, "Processes template")
+Rel(pipeline, local_cache, "Reads rpack data")
+
+Rel(developer, update_cmd, "5. Update rpacks")
+Rel(update_cmd, registry_client, "Checks for updates")
+Rel(update_cmd, cache_manager, "Downloads new versions")
+Rel(update_cmd, lockfile_manager, "Updates lockfile")
+
+Rel(developer, remove_cmd, "6. Remove rpack")
+Rel(remove_cmd, lockfile_manager, "Removes from lockfile")
+Rel(remove_cmd, cache_manager, "Optionally prunes cache")
+
+@enduml
