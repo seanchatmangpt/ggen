@@ -1,11 +1,9 @@
-use std::{env, path::PathBuf};
+use utils::error::Result;
 
-pub fn run() -> utils::error::Result<()> {
-    let root: PathBuf = env::current_dir().unwrap();
-    let items = core::engine::list(&root)?;
+pub fn run() -> Result<()> {
+    let items = core::fs::list_templates(std::path::Path::new("templates"))?;
     for it in items {
-        // it.scope, it.action, it.count
-        println!("{}/{}  ({})", it.scope, it.action, it.count);
+        println!("{}/{}", it.scope, it.action);
     }
     Ok(())
 }

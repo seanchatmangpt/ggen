@@ -1,14 +1,26 @@
-use std::{collections::HashMap, env, path::PathBuf};
+use std::collections::BTreeMap;
+use clap::Args;
+use utils::error::Result;
 
-pub fn run(scope: &str, action: &str, vars: &Vec<String>, dry_run: bool) -> utils::error::Result<()> {
-    let root: PathBuf = env::current_dir().unwrap();
-    let mut map = HashMap::new();
-    for kv in vars {
-        if let Some((k,v)) = kv.split_once('=') { map.insert(k.to_string(), v.to_string()); }
+#[derive(Args, Debug)]
+pub struct GenArgs {
+    #[arg(value_name = "SCOPE")] pub scope: String,
+    #[arg(value_name = "ACTION")] pub action: String,
+    /// key=value pairs, repeatable
+    #[arg(short = 'v', long = "vars")] pub vars: Vec<String>,
+    /// dry run, print manifest key without writing
+    #[arg(long = "dry-run")] pub dry_run: bool,
+}
+
+pub fn run(args: &GenArgs) -> Result<()> {
+    let mut cli_vars: BTreeMap<String, String> = BTreeMap::new();
+    for kv in &args.vars {
+        if let Some((k, v)) = kv.split_once('=') {
+            cli_vars.insert(k.to_string(), v.to_string());
+        }
     }
-    let report = core::engine::project(&root, scope, action, map, dry_run)?;
-    for a in report.artifacts {
-        println!("{}  {}", a.key, a.out_path);
-    }
+
+    let engine = core::Engine::new();
+    engine.project(&args.scope, &args.action, &cli_vars, args.dry_run)?;
     Ok(())
 }

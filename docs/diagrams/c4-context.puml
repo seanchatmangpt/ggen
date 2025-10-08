@@ -1,0 +1,11 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+title rgen – Context
+Person(dev, "Developer")
+System(rgen, "rgen CLI", "Graph-aware generator")
+System_Ext(fs, "Filesystem", "templates/ graphs/ shapes/ out/")
+System_Ext(ox, "Oxigraph (in-memory)", "RDF store")
+dev -> rgen : runs commands
+rgen -> fs : read templates/graphs/shapes, write out/
+rgen -> ox : SPARQL queries, graph hash
+@enduml

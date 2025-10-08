@@ -1,0 +1,14 @@
+@startuml
+title Hash computation
+node "Data graph" as DG
+node "Shapes graph" as SG
+node "Frontmatter+Body" as TB
+node "Matrix rows (ordered)" as MR
+
+DG --> "H_G=SHA256(sorted N-Quads)"
+SG --> "H_S=SHA256(sorted N-Quads)"
+TB --> "H_T=SHA256(bytes)"
+MR --> "H_R=SHA256(serialized rows)"
+
+"H_G,H_S,H_T,H_R + seed" --> "K=SHA256(seed||H_G||H_S||H_T||H_R)"
+@enduml

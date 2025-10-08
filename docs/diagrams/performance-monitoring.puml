@@ -1,0 +1,66 @@
+@startuml
+title Performance Monitoring & SLO Tracking
+start
+:Engine starts;
+:PerformanceTracker.new();
+:Start timing;
+fork
+  :Load Stage;
+  :tracker.start_stage("load");
+  :Execute load operations;
+  :tracker.end_stage("load");
+fork again
+  :Shape Stage;
+  :tracker.start_stage("shape");
+  :Execute SHACL validation;
+  :tracker.end_stage("shape");
+fork again
+  :Bind Stage;
+  :tracker.start_stage("bind");
+  :Execute SPARQL binding;
+  :tracker.end_stage("bind");
+fork again
+  :Matrix Stage;
+  :tracker.start_stage("matrix");
+  :Execute matrix queries;
+  :tracker.end_stage("matrix");
+fork again
+  :Render Stage;
+  :tracker.start_stage("render");
+  :Execute template rendering;
+  :tracker.end_stage("render");
+fork again
+  :Write Stage;
+  :tracker.start_stage("write");
+  :Execute output generation;
+  :tracker.end_stage("write");
+end fork
+:tracker.finalize();
+:metrics = EngineMetrics;
+if (metrics.meets_slo()?) then (no)
+  :Log SLO violations;
+  :Warn: performance issues;
+else (yes)
+  :Log: SLO compliance;
+endif
+:Log performance summary;
+stop
+
+note right of "PerformanceTracker"
+  SLO Thresholds:
+  - First build: ≤15s
+  - Incremental: ≤2s
+  - RDF processing: ≤5s (1k+ triples)
+  - Memory usage: ≤100MB
+  - CLI scaffolding: ≤3s
+end note
+
+note right of "EngineMetrics"
+  Tracks:
+  - Stage timings
+  - Memory usage
+  - Artifact counts
+  - Error rates
+  - SLO compliance
+end note
+@enduml
