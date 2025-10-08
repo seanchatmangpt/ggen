@@ -28,7 +28,7 @@ fn main() -> Result<()> {
     let _guard = utils::logger::setup_logging()?;
 
     // Initialize Configuration
-    let config_contents = include_str!("resources/default_config.toml");
+    let config_contents = include_str!("resources/rgen_config.toml");
     AppConfig::init(Some(config_contents))?;
 
     // Match Commands

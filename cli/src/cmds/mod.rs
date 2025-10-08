@@ -8,6 +8,7 @@ pub mod completion;
 pub mod hazard;
 
 use clap::Subcommand;
+use utils::project_config::RgenConfig;
 
 #[derive(Subcommand, Debug)]
 pub enum Commands {
@@ -23,6 +24,8 @@ pub enum Commands {
     Lint(lint::LintArgs),
     #[command(name = "graph", about = "Export RDF graph")]
     Graph(graph::GraphArgs),
+    #[command(name = "hazard", about = "Generate hazard report")]
+    Hazard,
     #[command(name = "completion", about = "Generate completion scripts")]
     Completion {
         #[command(subcommand)]
@@ -45,12 +48,25 @@ pub enum CompletionSubcommand {
 impl Commands {
     pub fn run(&self) -> utils::error::Result<()> {
         match self {
-            Commands::Gen(args) => gen::run(args),
+            Commands::Gen(args) => Ok(gen::run(args)?),
             Commands::List => list::run(),
             Commands::Show(args) => show::run(args),
             Commands::Validate(args) => validate::run(args),
             Commands::Lint(args) => lint::run(args),
             Commands::Graph(args) => graph::run(args),
+            Commands::Hazard => hazard::run(),
+            Commands::Completion { subcommand } => completion::run(subcommand),
+        }
+    }
+
+    pub fn run_with_config(&self, rgen_config: Option<RgenConfig>) -> utils::error::Result<()> {
+        match self {
+            Commands::Gen(args) => Ok(gen::run_with_config(args, rgen_config)?),
+            Commands::List => list::run(),
+            Commands::Show(args) => show::run(args),
+            Commands::Validate(args) => validate::run(args),
+            Commands::Graph(args) => graph::run(args),
+            Commands::Hazard => hazard::run(),
             Commands::Completion { subcommand } => completion::run(subcommand),
             Commands::Hazard => hazard::run(),
         }

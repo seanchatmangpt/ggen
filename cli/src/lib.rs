@@ -3,6 +3,7 @@ use std::path::PathBuf;
 
 use utils::app_config::AppConfig;
 use utils::error::Result;
+use utils::project_config::RgenConfig;
 use utils::types::LogLevel;
 
 pub mod cmds;
@@ -12,6 +13,9 @@ pub mod cmds;
 pub struct Cli {
     #[arg(short, long, value_name = "FILE")]
     pub config: Option<PathBuf>,
+
+    #[arg(long, value_name = "PATH", help = "Path to rgen.toml manifest file")]
+    pub manifest_path: Option<PathBuf>,
 
     #[arg(name = "debug", short, long = "debug", value_name = "DEBUG")]
     pub debug: Option<bool>,
@@ -36,5 +40,13 @@ pub fn cli_match() -> Result<()> {
     let matches = app.get_matches();
     AppConfig::merge_args(matches)?;
 
-    cli.command.run()
+    // Load rgen.toml project manifest
+    let rgen_config = if let Some(manifest_path) = &cli.manifest_path {
+        Some(RgenConfig::load_from_path(manifest_path)?)
+    } else {
+        let cwd = std::env::current_dir()?;
+        RgenConfig::find_and_load(&cwd)?
+    };
+
+    cli.command.run_with_config(rgen_config)
 }

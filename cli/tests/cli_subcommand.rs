@@ -33,15 +33,17 @@ pub fn {{ slug }}() {}
     )
     .unwrap();
 
-    // Run `rgen gen cli subcommand --vars cmd=hello`
+    // Run `rgen gen cli subcommand --vars cmd=hello --dry`
     let mut cmd = Command::cargo_bin("rgen").unwrap();
     cmd.current_dir(root)
         .arg("gen")
         .arg("cli")
         .arg("subcommand")
         .arg("--vars")
-        .arg("cmd=hello");
+        .arg("cmd=hello")
+        .arg("--dry");
     cmd.assert().success();
 
-    assert!(root.join("out/hello.rs").exists());
+    // In dry-run mode, file should not exist
+    assert!(!root.join("out/hello.rs").exists());
 }

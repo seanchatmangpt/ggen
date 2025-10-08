@@ -163,7 +163,7 @@ pub fn main() {
         let mut vars = Context::new();
         vars.insert("name", "alice");
         
-        let mut pipeline = Pipeline::new()?;
+        let mut pipeline = Pipeline::new(false)?;
         let output = pipeline.run(input, vars)?;
         
         // Verify the output contains expected elements
@@ -242,7 +242,7 @@ impl Employee {
         vars.insert("name", "alice");
         vars.insert("age", "30");
         
-        let mut pipeline = Pipeline::new()?;
+        let mut pipeline = Pipeline::new(false)?;
         let output = pipeline.run(input, vars)?;
         
         // Verify the output
@@ -285,7 +285,7 @@ pub fn analyze_relationships() {
 "#;
 
         let vars = Context::new();
-        let mut pipeline = Pipeline::new()?;
+        let mut pipeline = Pipeline::new(false)?;
         let output = pipeline.run(input, vars)?;
         
         // Verify the output contains the analysis function
@@ -315,7 +315,7 @@ Result: {{ invalid_result }}
 "#;
 
         let vars = Context::new();
-        let mut pipeline = Pipeline::new()?;
+        let mut pipeline = Pipeline::new(false)?;
         
         // This should return an error due to invalid SPARQL
         let result = pipeline.run(input, vars);
@@ -344,7 +344,7 @@ pub fn test_local_names() {
 "#;
 
         let vars = Context::new();
-        let mut pipeline = Pipeline::new()?;
+        let mut pipeline = Pipeline::new(false)?;
         let output = pipeline.run(input, vars)?;
         
         // Verify all local name extractions work
@@ -373,7 +373,7 @@ pub fn print_environment() {
 "#;
 
         let vars = Context::new();
-        let mut pipeline = Pipeline::new()?;
+        let mut pipeline = Pipeline::new(false)?;
         let output = pipeline.run(input, vars)?;
         
         // Verify environment variables are injected
@@ -409,7 +409,7 @@ pub fn test_precedence() {
         vars.insert("name", "context_name");
         vars.insert("value", "context_value");
         
-        let mut pipeline = Pipeline::new()?;
+        let mut pipeline = Pipeline::new(false)?;
         let output = pipeline.run(input, vars)?;
         
         // Verify the output contains the expected content
