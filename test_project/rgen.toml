@@ -1,0 +1,20 @@
+[project]
+name = "test-project"
+version = "0.1.0"
+description = "Test project for rgen.toml"
+templates_dir = "templates"
+graphs_dir = "graphs"
+output_dir = "generated"
+
+[prefixes]
+ex = "http://example.com/"
+schema = "http://schema.org/"
+
+[rdf]
+files = []
+inline = ["@prefix ex: <http://example.com/> . ex:Test a ex:Type ."]
+
+[vars]
+author = "Test Author"
+license = "MIT"
+year = "2025"

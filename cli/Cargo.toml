@@ -6,6 +6,7 @@ description = "CLI interface for rgen"
 edition = "2021"
 
 [dependencies]
+anyhow = "1.0"
 utils = { path = "../utils" }
 core = { path = "../core" }
 clap_complete = "4.5.50"

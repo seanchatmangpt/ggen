@@ -17,12 +17,7 @@ pub mod tera_env;
 pub mod validate_frontmatter;
 
 // Re-export commonly used types for convenience
-#[deprecated(since = "1.1.0", note = "Use utils::ProjectConfig instead")]
-pub use config::RgenConfig;
-pub use generator::Generator;
+pub use generator::{GenContext, Generator};
 pub use graph::Graph;
 pub use pipeline::{Pipeline, PipelineBuilder};
-
-// New config API
-pub use utils::ProjectConfig;
 pub use template::Template;
