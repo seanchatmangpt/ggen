@@ -1,11 +1,9 @@
 use anyhow::Result;
 use serde_json::Value;
 use std::collections::BTreeMap;
-use std::path::PathBuf;
 use tera::{Context, Function as TeraFunction, Tera};
+use oxigraph::sparql::QueryResults;
 
-use crate::config::RgenConfig;
-use crate::generator::Generator;
 use crate::graph::{build_prolog, Graph};
 use crate::register;
 
@@ -60,7 +58,7 @@ impl PipelineBuilder {
     pub fn with_inline_rdf<S: Into<String>>(mut self, blocks: impl IntoIterator<Item = S>) -> Self {
         self.preload_ttl_inline = blocks.into_iter().map(Into::into).collect(); self
     }
-    pub fn build(mut self) -> Result<Pipeline> {
+    pub fn build(self) -> Result<Pipeline> {
         let mut p = Pipeline::new()?;
         for f in &self.preload_ttl_files {
             let ttl = std::fs::read_to_string(f)?;
@@ -83,14 +81,8 @@ struct SparqlFn {
 }
 
 impl TeraFunction for SparqlFn {
-<<<<<<< HEAD
-    fn call(&self, args: &std::collections::HashMap<String, TeraValue>) -> tera::Result<TeraValue> {
-        let q = args.get("query").and_then(|v| v.as_str())
-            .ok_or_else(|| tera::Error::msg("sparql: query required"))?;
-=======
     fn call(&self, args: &std::collections::HashMap<String, Value>) -> tera::Result<Value> {
         let q = args.get("query").and_then(|v| v.as_str()).ok_or_else(|| tera::Error::msg("sparql: query required"))?;
->>>>>>> 9e917d5db7e9965cbe13b8e646d6750b3bc13877
         let want = args.get("var").and_then(|v| v.as_str());
 
         let final_q = if self.prolog.is_empty() {
@@ -99,10 +91,25 @@ impl TeraFunction for SparqlFn {
             format!("{}\n{}", self.prolog, q)
         };
 
-        let cached = self.graph.query_cached(&final_q)
+        let results = self.graph.query(&final_q)
             .map_err(|e| tera::Error::msg(e.to_string()))?;
 
-        let json_val = cached.to_json();
+        let json_val = match results {
+            QueryResults::Boolean(b) => serde_json::Value::Bool(b),
+            QueryResults::Solutions(solutions) => {
+                let mut rows = Vec::new();
+                for solution in solutions {
+                    let solution = solution.map_err(|e| tera::Error::msg(e.to_string()))?;
+                    let mut row = serde_json::Map::new();
+                    for (var, term) in solution.iter() {
+                        row.insert(var.to_string(), serde_json::Value::String(term.to_string()));
+                    }
+                    rows.push(serde_json::Value::Object(row));
+                }
+                serde_json::Value::Array(rows)
+            }
+            QueryResults::Graph(_) => serde_json::Value::Array(Vec::new()), // Graph results not supported in templates
+        };
 
         // Handle var extraction if requested
         if let Some(var_name) = want {

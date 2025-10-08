@@ -7,4 +7,4 @@ pub mod project_config;
 pub mod time;
 pub mod types;
 
-pub use project_config::{ProjectConfig, RgenConfig as UtilsRgenConfig, GraphConfig};
+pub use project_config::{RgenConfig as UtilsRgenConfig, Project, RdfConfig};

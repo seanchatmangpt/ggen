@@ -1,8 +1,6 @@
 use serde::Deserialize;
 use std::collections::BTreeMap;
-use std::path::{Path, PathBuf};
-
-use super::error::Result;
+use std::path::PathBuf;
 
 #[derive(Debug, Deserialize)]
 pub struct RgenConfig {

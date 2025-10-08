@@ -31,8 +31,6 @@ pub enum Commands {
         #[command(subcommand)]
         subcommand: CompletionSubcommand,
     },
-    #[command(name = "hazard", about = "Generate hazard output")]
-    Hazard,
 }
 
 #[derive(Subcommand, PartialEq, Debug)]
@@ -65,10 +63,10 @@ impl Commands {
             Commands::List => list::run(),
             Commands::Show(args) => show::run(args),
             Commands::Validate(args) => validate::run(args),
+            Commands::Lint(args) => lint::run(args),
             Commands::Graph(args) => graph::run(args),
             Commands::Hazard => hazard::run(),
             Commands::Completion { subcommand } => completion::run(subcommand),
-            Commands::Hazard => hazard::run(),
         }
     }
 }
