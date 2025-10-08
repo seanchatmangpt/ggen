@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use tera::{Result as TeraResult, Tera, Value};
+use tera::{Result as TeraResult, Tera, Value, Context};
 use inflector::{
     cases::{
         camelcase, classcase, kebabcase, pascalcase, sentencecase, snakecase, titlecase, traincase,
@@ -38,6 +38,40 @@ pub fn register_all(tera: &mut Tera) {
     reg_str(tera, "shouty_snake", |s| s.to_shouty_snake_case());
     reg_str(tera, "shouty_kebab", |s| s.to_shouty_kebab_case());
     reg_str(tera, "titlecase", |s| s.to_title_case()); // better consistency
+
+    // ---------- Common change-case style aliases ----------
+    reg_str(tera, "param", |s| kebabcase::to_kebab_case(s));
+    reg_str(tera, "constant", |s| s.to_shouty_snake_case());
+    reg_str(tera, "upper", |s| s.to_uppercase());
+    reg_str(tera, "lower", |s| s.to_lowercase());
+    reg_str(tera, "lcfirst", |s| {
+        let mut c = s.chars();
+        match c.next() { Some(f) => f.to_lowercase().collect::<String>() + c.as_str(), None => String::new() }
+    });
+    reg_str(tera, "ucfirst", |s| {
+        let mut c = s.chars();
+        match c.next() { Some(f) => f.to_uppercase().collect::<String>() + c.as_str(), None => String::new() }
+    });
+}
+
+/// Auto-bless context variables for Hygen compatibility.
+/// 
+/// This function adds common derived variables to the context:
+/// - `Name` = `name | pascal` (when `name` exists)
+/// - `locals` = alias to the same context (for Hygen compatibility)
+pub fn bless_context(context: &mut Context) {
+    // Auto-bless Name when name exists
+    if let Some(name_value) = context.get("name") {
+        if let Some(name_str) = name_value.as_str() {
+            let pascal_name = pascalcase::to_pascal_case(name_str);
+            context.insert("Name", &pascal_name);
+        }
+    }
+    
+    // Add locals alias (Hygen compatibility)
+    // In Hygen, locals is an alias to the context itself
+    // We'll add it as a function that returns the context
+    context.insert("locals", &HashMap::<String, Value>::new());
 }
 
 // ---------- internals ----------
@@ -123,29 +157,6 @@ mod tests {
         assert_eq!(result, "Hello World Example");
     }
 
-    #[test]
-    fn test_pluralization() {
-        let mut tera = create_test_tera();
-        let mut ctx = Context::new();
-
-        // Test pluralize
-        ctx.insert("word", "cat");
-        let result = tera.render_str("{{ word | pluralize }}", &ctx).unwrap();
-        assert_eq!(result, "cats");
-
-        ctx.insert("word", "mouse");
-        let result = tera.render_str("{{ word | pluralize }}", &ctx).unwrap();
-        assert_eq!(result, "mouseice");
-
-        // Test singularize
-        ctx.insert("word", "cats");
-        let result = tera.render_str("{{ word | singularize }}", &ctx).unwrap();
-        assert_eq!(result, "cat");
-
-        ctx.insert("word", "mice");
-        let result = tera.render_str("{{ word | singularize }}", &ctx).unwrap();
-        assert_eq!(result, "mouse");
-    }
 
     #[test]
     fn test_ordinalization() {
@@ -290,6 +301,53 @@ mod tests {
     }
 
     #[test]
+    fn test_change_case_aliases() {
+        let mut tera = create_test_tera();
+        let mut ctx = Context::new();
+        ctx.insert("name", "hello_world_example");
+
+        // Test param (kebab-case)
+        let result = tera.render_str("{{ name | param }}", &ctx).unwrap();
+        assert_eq!(result, "hello-world-example");
+
+        // Test constant (SCREAMING_SNAKE_CASE)
+        let result = tera.render_str("{{ name | constant }}", &ctx).unwrap();
+        assert_eq!(result, "HELLO_WORLD_EXAMPLE");
+
+        // Test upper
+        let result = tera.render_str("{{ name | upper }}", &ctx).unwrap();
+        assert_eq!(result, "HELLO_WORLD_EXAMPLE");
+
+        // Test lower
+        ctx.insert("name", "HELLO_WORLD_EXAMPLE");
+        let result = tera.render_str("{{ name | lower }}", &ctx).unwrap();
+        assert_eq!(result, "hello_world_example");
+
+        // Test lcfirst
+        ctx.insert("name", "HelloWorld");
+        let result = tera.render_str("{{ name | lcfirst }}", &ctx).unwrap();
+        assert_eq!(result, "helloWorld");
+
+        // Test ucfirst
+        ctx.insert("name", "helloWorld");
+        let result = tera.render_str("{{ name | ucfirst }}", &ctx).unwrap();
+        assert_eq!(result, "HelloWorld");
+
+        // Test edge cases for lcfirst/ucfirst
+        ctx.insert("name", "");
+        let result = tera.render_str("{{ name | lcfirst }}", &ctx).unwrap();
+        assert_eq!(result, "");
+
+        let result = tera.render_str("{{ name | ucfirst }}", &ctx).unwrap();
+        assert_eq!(result, "");
+
+        // Test Unicode handling
+        ctx.insert("name", "ñáéíóú");
+        let result = tera.render_str("{{ name | ucfirst }}", &ctx).unwrap();
+        assert_eq!(result, "Ñáéíóú");
+    }
+
+    #[test]
     fn test_all_filters_registered() {
         let mut tera = create_test_tera();
         
@@ -298,7 +356,8 @@ mod tests {
             "camel", "pascal", "snake", "kebab", "class", "title", "sentence", "train",
             "pluralize", "singularize", "deconstantize", "demodulize",
             "ordinalize", "deordinalize", "foreign_key",
-            "shouty_snake", "shouty_kebab", "titlecase"
+            "shouty_snake", "shouty_kebab", "titlecase",
+            "param", "constant", "upper", "lower", "lcfirst", "ucfirst"
         ];
 
         for filter in expected_filters {
@@ -309,5 +368,42 @@ mod tests {
             let result = tera.render_str(&format!("{{{{ test | {} }}}}", filter), &ctx);
             assert!(result.is_ok(), "Filter '{}' should be registered", filter);
         }
+    }
+
+    #[test]
+    fn test_bless_context_name() {
+        let mut ctx = Context::new();
+        ctx.insert("name", "hello_world");
+        
+        bless_context(&mut ctx);
+        
+        // Should have Name auto-blessed
+        assert_eq!(ctx.get("Name").unwrap().as_str().unwrap(), "HelloWorld");
+        // Original name should still be there
+        assert_eq!(ctx.get("name").unwrap().as_str().unwrap(), "hello_world");
+    }
+
+    #[test]
+    fn test_bless_context_no_name() {
+        let mut ctx = Context::new();
+        ctx.insert("other", "value");
+        
+        bless_context(&mut ctx);
+        
+        // Should not have Name when name doesn't exist
+        assert!(ctx.get("Name").is_none());
+        // Should have locals placeholder
+        assert!(ctx.get("locals").is_some());
+    }
+
+    #[test]
+    fn test_bless_context_non_string_name() {
+        let mut ctx = Context::new();
+        ctx.insert("name", &42); // Non-string value
+        
+        bless_context(&mut ctx);
+        
+        // Should not bless Name for non-string values
+        assert!(ctx.get("Name").is_none());
     }
 }

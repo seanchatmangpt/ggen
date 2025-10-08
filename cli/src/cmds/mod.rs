@@ -2,8 +2,10 @@ pub mod gen;
 pub mod list;
 pub mod show;
 pub mod validate;
+pub mod lint;
 pub mod graph;
 pub mod completion;
+pub mod hazard;
 
 use clap::Subcommand;
 
@@ -15,8 +17,10 @@ pub enum Commands {
     List,
     #[command(name = "show", about = "Show template metadata")]
     Show(show::ShowArgs),
-    #[command(name = "validate", about = "Validate RDF/SHACL")]
+    #[command(name = "validate", about = "Validate template frontmatter")]
     Validate(validate::ValidateArgs),
+    #[command(name = "lint", about = "Lint template with schema validation")]
+    Lint(lint::LintArgs),
     #[command(name = "graph", about = "Export RDF graph")]
     Graph(graph::GraphArgs),
     #[command(name = "completion", about = "Generate completion scripts")]
@@ -24,6 +28,8 @@ pub enum Commands {
         #[command(subcommand)]
         subcommand: CompletionSubcommand,
     },
+    #[command(name = "hazard", about = "Generate hazard output")]
+    Hazard,
 }
 
 #[derive(Subcommand, PartialEq, Debug)]
@@ -43,8 +49,10 @@ impl Commands {
             Commands::List => list::run(),
             Commands::Show(args) => show::run(args),
             Commands::Validate(args) => validate::run(args),
+            Commands::Lint(args) => lint::run(args),
             Commands::Graph(args) => graph::run(args),
             Commands::Completion { subcommand } => completion::run(subcommand),
+            Commands::Hazard => hazard::run(),
         }
     }
 }

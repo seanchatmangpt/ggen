@@ -24,6 +24,11 @@ tempfile = "3"
 gray_matter = { version = "0.3.2", features = ["yaml"] }
 Inflector = "0.11"
 heck = "0.5"
+regex = "1.10"
+toml = "0.8"
+lru = "0.12"
+fxhash = "0.2"
+glob = "0.3"
 
 [dev-dependencies]
 tempfile = "3"

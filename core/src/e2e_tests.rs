@@ -1,14 +1,13 @@
-use anyhow::Result;
-use std::collections::BTreeMap;
-use tera::Context;
-
-use crate::graph::{build_prolog, Graph};
-use crate::pipeline::Pipeline;
-use crate::template::Template;
 
 #[cfg(test)]
 mod e2e_tests {
-    use super::*;
+    use anyhow::Result;
+    use std::collections::BTreeMap;
+    use tera::Context;
+
+    use crate::graph::{build_prolog, Graph};
+    use crate::pipeline::Pipeline;
+    use crate::template::Template;
 
     #[test]
     fn test_graph_operations() -> Result<()> {
