@@ -22,6 +22,8 @@ shacl_validation = "0.1"
 srdf = "0.1"
 tempfile = "3"
 gray_matter = { version = "0.3.2", features = ["yaml"] }
+Inflector = "0.11"
+heck = "0.5"
 
 [dev-dependencies]
 tempfile = "3"

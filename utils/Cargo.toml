@@ -12,6 +12,7 @@ syslog = []
 journald = []
 
 [dependencies]
+anyhow = "1.0"
 thiserror = "2.0.12"
 backtrace = "0.3.75"
 color-backtrace = "0.7.0"

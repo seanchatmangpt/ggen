@@ -173,23 +173,31 @@ where
     de.deserialize_any(StrOrSeq)
 }
 
-// Accept either "sparql: '<query>'" or "sparql: { name: '<query>' }"
+// Accept either "sparql: '<query>'", "sparql: ['<query>']", or "sparql: { name: '<query>' }"
 fn sparql_map<'de, D>(de: D) -> Result<BTreeMap<String, String>, D::Error>
 where
     D: serde::Deserializer<'de>,
 {
     #[derive(Deserialize)]
     #[serde(untagged)]
-    enum OneOrMap {
+    enum OneOrArrayOrMap {
         One(String),
+        Array(Vec<String>),
         Map(BTreeMap<String, String>),
     }
-    match OneOrMap::deserialize(de)? {
-        OneOrMap::One(q) => {
+    match OneOrArrayOrMap::deserialize(de)? {
+        OneOrArrayOrMap::One(q) => {
             let mut m = BTreeMap::new();
             m.insert("default".to_string(), q);
             Ok(m)
         }
-        OneOrMap::Map(m) => Ok(m),
+        OneOrArrayOrMap::Array(queries) => {
+            let mut m = BTreeMap::new();
+            for (i, q) in queries.into_iter().enumerate() {
+                m.insert(format!("query_{}", i), q);
+            }
+            Ok(m)
+        }
+        OneOrArrayOrMap::Map(m) => Ok(m),
     }
 }
