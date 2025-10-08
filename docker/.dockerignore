@@ -1,4 +1,8 @@
-/target/
-Cargo.lock
-**/*.rs.bk
-.cache
+target/
+.git/
+.gitignore
+README.md
+LICENSE
+*.md
+.env
+.env.*

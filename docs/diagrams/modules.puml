@@ -1,0 +1,11 @@
+@startuml
+package rgen {
+  [cli] --> [core]
+  [core] --> [frontmatter]
+  [core] --> [rdf]
+  [core] --> [shacl]
+  [core] --> [sparql]
+  [core] --> [render]
+  [core] --> [manifest]
+}
+@enduml

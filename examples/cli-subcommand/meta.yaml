@@ -1,0 +1,3 @@
+cmd: "hello"
+summary: "Print a greeting"
+language: "rust"

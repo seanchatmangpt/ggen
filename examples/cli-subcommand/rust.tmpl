@@ -1,0 +1,28 @@
+---
+to: "src/cmds/{{cmd}}.rs"
+vars:
+  cmd: "hello"
+  summary: "Print a greeting"
+rdf:
+  - "graphs/cli.ttl"
+shape:
+  - "graphs/shapes/cli.shacl.ttl"
+sparql:
+  - "SELECT ?cmd ?summary WHERE { ?cmd rdfs:label ?summary }"
+determinism:
+  seed: "cli-subcommand"
+  sort_order: ["cmd", "summary"]
+---
+use utils::error::Result;
+
+#[derive(clap::Args, Debug)]
+pub struct {{cmd|title}}Args {
+    /// Name to greet
+    #[arg(short, long, default_value = "World")]
+    pub name: String,
+}
+
+pub fn run(args: &{{cmd|title}}Args) -> Result<()> {
+    println!("Hello, {}!", args.name);
+    Ok(())
+}

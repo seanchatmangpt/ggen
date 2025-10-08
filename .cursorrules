@@ -1,0 +1,147 @@
+SPR: rgen — language-agnostic, deterministic code projection CLI
+
+* Identity: Rust CLI that turns ontologies + RDF-like metadata into reproducible code projections.
+
+* Prime: Fast builds. Deterministic outputs. Seamless IDE and tooling integration.
+
+* Non-negotiables: Zero-cost abstractions. Memory safety. Type-level guarantees. Stable toolchain. Drop-in CLI parity.
+
+* Collaborative frame: Rust core optimizes safety and performance. Cursor core optimizes DX and feedback. Goal is compile-time assurance with rapid iteration.
+
+* Repo topology contract: Keep files as declared. Do not move without docs and CI updates.
+
+  * root/src/main.rs
+  * cli/src/{lib.rs,cmds/*}
+  * core/src/{lib.rs,commands.rs,error.rs,hazard.rs}
+  * utils/src/{lib.rs,app_config.rs,error.rs,logger.rs,types.rs}
+  * tests/test_cli.rs
+  * resources/default_config.toml
+  * templates/, docs/, examples/
+
+* SLOs:
+
+  * First build ≤ 15s. Incremental ≤ 2s.
+  * RDF processing ≤ 5s for 1k+ triples.
+  * Generation memory ≤ 100MB.
+  * CLI scaffolding ≤ 3s end-to-end.
+  * 100% reproducible outputs.
+
+* Architecture:
+
+  * Root orchestrates. `cli/` owns arg parsing and subcommands. `core/` owns domain logic. `utils/` centralizes config, logging, error types.
+  * Public surface minimal and explicit.
+
+* Rust practice:
+
+  * Rust stable pinned. MSRV matches.
+  * Deny warnings. Clippy pedantic where feasible.
+  * No `unwrap` or `expect` in libs. `anyhow` only in binaries.
+  * Unsafe only at FFI with safety docs.
+  * Prefer const generics and `const fn` when they reduce runtime cost and encode constraints.
+
+* Errors:
+
+  * Libraries use typed errors via `utils::error::Result`.
+  * Clear, actionable messages. No swallowing.
+
+* Logging:
+
+  * Structured via `utils::logger`. Proper levels. No `println!` in libs.
+
+* Configuration:
+
+  * `utils::app_config::AppConfig` as single source.
+  * File, env, CLI sources. Secure defaults in `resources/default_config.toml`.
+
+* CLI rules:
+
+  * Subcommands in `cli/src/cmds`. Implement `run()`. Clap derives. Rich `--help`. Shell completions supported.
+
+* Template system:
+
+  * `.tmpl` files. Organized under `templates/`.
+  * YAML frontmatter keys: `to`, `vars`, `rdf`, `sparql`, `determinism`.
+  * Multi-language targets supported.
+
+* RDF and queries:
+
+  * RDF/JSON-LD as semantic source of truth.
+  * SPARQL for var extraction. Prefer compile-time checked builders.
+  * Validate graphs and templates before generation.
+  * Deterministic transformation given seed + inputs.
+
+* Advanced Rust for generation:
+
+  * Use proc-macros where compile-time wins exist.
+  * Const generics for template param shapes.
+  * Build scripts for heavy precompute.
+  * Type-level encodings prevent invalid states.
+
+* Performance tactics:
+
+  * Stream large graphs. Avoid whole-graph loads.
+  * Cache repeated query and template steps.
+  * Minimize deps. Enable LTO in release.
+  * Profile hot paths. Optimize allocations.
+
+* Security:
+
+  * Validate all inputs. Sanitize paths. Deny traversal.
+  * Sandbox template execution. No arbitrary code eval.
+  * Audit log security events.
+
+* Testing strategy:
+
+  * Unit tests colocated. Integration tests in `/tests`.
+  * Property tests with proptest for parsers, RDF, templating.
+  * Compile-time assertions for constants and type constraints.
+  * Deterministic snapshots via `insta`.
+  * Single-threaded async tests `--test-threads=1`.
+  * Fixed seeds. Mock FS, network, time.
+  * Run `--release`, `--debug`, and feature variants.
+
+* Determinism:
+
+  * Same inputs → identical bytes. Snapshots guard regressions.
+
+* CI/CD:
+
+  * `cargo make fmt`, `cargo make lint`, `cargo make test`, `cargo make release`.
+  * Matrix over supported Rust versions.
+  * Performance checks against SLOs.
+  * Completion generation validated.
+
+* PR checklist:
+
+  * What changed and why. Link spec or issue.
+  * Perf impact. Tests added. Docs updated.
+  * Backward compatibility considered.
+
+* IDE and DX:
+
+  * Rust-analyzer friendly. Rich error lenses.
+  * Completions for template vars and SPARQL builders.
+  * Live preview of generated code. Source maps for debugging.
+
+* Must not:
+
+  * No new top-level files or renames without docs + CI.
+  * No TODOs or placeholders in libs.
+  * No hardcoded outputs in prod paths.
+  * No cfg mazes. Prefer explicit features.
+  * No swallowing errors. No compromise on type safety.
+
+* Definition of done:
+
+  * Compiles. Clippy clean. Tests deterministic and passing.
+  * Behavior covered by unit, integration, property tests.
+  * Clear errors. Meets SLOs. Docs and examples updated.
+  * Cross-platform validated. No placeholders.
+  * Drop-in compatible. Outputs deterministic. RDF validated.
+
+* Metaphors to prime:
+
+  * Templates are blueprints. RDF graph is the single ledger.
+  * Type system is the contract. Compiler is the auditor.
+  * Determinism is a checksum across the pipeline.
+  * Workspace is an orchestra with `core` as conductor and `cli` as stagehand.

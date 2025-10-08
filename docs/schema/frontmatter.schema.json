@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "rgen frontmatter v1",
+  "type": "object",
+  "required": ["to"],
+  "properties": {
+    "to": { "type": "string" },
+    "vars": { "type": "object", "additionalProperties": { "type": "string" } },
+    "rdf": {
+      "type": "object",
+      "properties": {
+        "include": { "type": "array", "items": { "type": "string" } },
+        "inline": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["mediaType", "text"],
+            "properties": {
+              "mediaType": { "type": "string" },
+              "text": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "shape": {
+      "type": "object",
+      "properties": {
+        "include": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "sparql": {
+      "type": "object",
+      "properties": {
+        "vars": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "query"],
+            "properties": {
+              "name": { "type": "string" },
+              "query": { "type": "string" }
+            }
+          }
+        },
+        "matrix": {
+          "type": "object",
+          "required": ["query", "bind"],
+          "properties": {
+            "query": { "type": "string" },
+            "bind": { "type": "object", "additionalProperties": { "type": "string" } }
+          }
+        }
+      }
+    },
+    "determinism": {
+      "type": "object",
+      "properties": {
+        "seed": { "type": "string" },
+        "sort": { "type": "string" }
+      }
+    }
+  },
+  "additionalProperties": false
+}

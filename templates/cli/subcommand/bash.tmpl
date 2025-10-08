@@ -1,0 +1,31 @@
+---
+to: "commands/{{cmd}}.sh"
+vars:
+  cmd: "example"
+  summary: "Example command"
+rdf:
+  - "graphs/cli.ttl"
+shape:
+  - "graphs/shapes/cli.shacl.ttl"
+sparql:
+  - "SELECT ?cmd ?summary WHERE { ?cmd rdfs:label ?summary }"
+determinism:
+  seed: "cli-subcommand"
+  sort_order: ["cmd", "summary"]
+---
+#!/bin/bash
+# {{summary}}
+
+set -euo pipefail
+
+usage() {
+    echo "Usage: $0 [OPTIONS]"
+    echo "{{summary}}"
+    exit 1
+}
+
+main() {
+    echo "{{summary}}"
+}
+
+main "$@"

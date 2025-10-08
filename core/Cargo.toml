@@ -1,12 +1,23 @@
 [package]
 name = "core"
-version = "2.0.1"
-authors = ["Abid Omar <contact@omarabid.com>"]
-description = "The application core code"
+version = "1.0.0"
+authors = ["Sean Chatman <sean@example.com>"]
+description = "Core graph-aware code generation engine"
 edition = "2021"
 
 [dependencies]
 utils = { path = "../utils" }
-
-rand = "0.9.1"
+tera = "1.0"
+oxigraph = "0.4"
+serde = { version = "1.0", features = ["derive"] }
+serde_yaml = "0.9"
+serde_json = "1.0"
+sha2 = "0.10"
+rayon = "1.8"
+thiserror = "2.0"
 log = "0.4.27"
+rand = "0.8"
+
+[dev-dependencies]
+tempfile = "3"
+serde_json = "1"

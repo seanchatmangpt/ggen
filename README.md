@@ -1,90 +1,173 @@
-<p align="center">
-<a href="https://rust-starter.github.io"><img src="https://raw.githubusercontent.com/rust-starter/rust-starter.github.io/master/docs/images/logo_color.png" height="100px"/></a>
- </p>
-<h1 align="center">rust-starter</h1>
-<div align="center">
- <strong>
-    A simple framework to build Rust CLI Applications
- </strong>
-</div>
-<br/>
+# rgen
 
-[![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/omarabid/rust-starter/blob/master/LICENSE) [![Gitter](https://badges.gitter.im/rust-starter/community.svg)](https://gitter.im/rust-starter/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
-[![Tests](https://github.com/rust-starter/rust-starter/actions/workflows/tests.yml/badge.svg)](https://github.com/rust-starter/rust-starter/actions/workflows/tests.yml)
-[![Build](https://github.com/rust-starter/rust-starter/actions/workflows/build.yml/badge.svg)](https://github.com/rust-starter/rust-starter/actions/workflows/build.yml)
-[![codecov](https://codecov.io/gh/rust-starter/rust-starter/branch/master/graph/badge.svg)](https://codecov.io/gh/rust-starter/rust-starter)
+**Language-agnostic generator for reproducible code projections.**
+`rgen` turns one ontology into CLI subcommands, APIs, schema files, and docs for any target language.
 
-[Website](https://rust-starter.github.io)
+---
 
-`rust-starter` is a starter boilerplate to create a Rust CLI application. It comes with a battery of components like argument parsing and configuration. It also has different tooling to create your binary, or automate your build process.
+## 🧭 Purpose
 
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
+Developers repeat the same scaffolding logic across stacks. `rgen` removes the language barrier.
+You describe the **intent** (command, type, or system capability) once as a graph or RDF-like metadata block.
+rgen projects that intent into any target framework or language.
 
-- [What's New?](#whats-new)
-    - [Version 2.0.0](#version-200)
-- [About](#about)
-- [FAQ](#faq)
-- [Features](#features)
-- [Quick Bootstrapping](#quick-bootstrapping)
-- [How to Contribute](#how-to-contribute)
-  - [Versioning](#versioning)
-- [License](#license)
+---
 
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+## 🚀 Install
 
-## What's New?
+### Homebrew
 
-#### Version 2.0.0
+```bash
+brew tap rgen-dev/tap
+brew install rgen
+rgen --version
+```
 
-What's new in Version 2.0?
+### Cargo
 
-- [x] Upgrade to Clap 4.x
-- [x] Shell Completion
-- [x] Merge AppConfig with Clap/Cli arguments
-- [x] use ConfigBuilder instead of Config
-- [x] rustfmt update
-- [x] Github release action
+```bash
+cargo install rgen
+```
 
-Planned for a 2.x release
+---
 
-- [x] Journald/Syslog as features
-- [x] Fix CI/CD actions and Docker image
+## ⚙️ Quick start
 
-## About
+**Goal:** generate a new CLI subcommand for any language.
 
-`rust-starter` is an empty Rust CLI application with libraries, and few defaults. The goal is to help you bootstrap your next CLI project as quickly as possible while ensuring you make use of the best tools and best-practices that are available today.
+```bash
+rgen gen cli subcommand --vars cmd=hello summary="Print a greeting"
+```
 
-There is no configuration required (though we recommend you check all the possible configurations possible). An empty clone will compile, and has a few sample commands. You can start coding right away!
+Output depends on your template set (Rust, Python, Bash, etc).
+Each output is produced deterministically from the same RDF description.
 
-## FAQ
+---
 
-For the Full FAQ, check the [website](https://rust-starter.github.io/#faq)
+## 🧩 Templates
 
-## Features
+```
+templates/
+  cli/
+    subcommand/
+      rust.tmpl
+      python.tmpl
+      bash.tmpl
+```
 
-- [Clap](https://github.com/clap-rs/clap) for Command Line Argument parsing.
-- Error Chaining with [Failure](https://github.com/rust-lang-nursery/failure).
-- Configuration management with [config-rs](https://github.com/mehcode/config-rs).
-- Multi-Drain, async Logging with [slog](https://github.com/slog-rs/slog).
-- Static binaries with [rust-musl-builder](https://github.com/emk/rust-musl-builder).
-- CI/CD through Github actions.
-- Code Coverage, Justfile, etc..
-- MIT License.
+Each `.tmpl` has a YAML frontmatter header that describes:
 
-## Quick Bootstrapping
+* `to:` — where to write the file
+* `vars:` — default variables
+* `rdf:` — optional RDF or JSON-LD defining the semantic object
+* `sparql:` — queries to extract variables from graph data
+* `determinism:` — optional seed for reproducibility
 
-`rust-starter` should compile and run as is. You just need to clone the repository. A `cargo-generate` template is also [available](https://github.com/rust-starter/rust-starter-generate). For a more detailed introduction, check the [Getting Started](https://rust-starter.github.io/#getting-started) guide.
+### Example: `templates/cli/subcommand/rust.tmpl`
 
-## How to Contribute
+```yaml
+---
+to: src/cmds/{{ slug }}.rs
+vars: { cmd: hello, summary: "Print a greeting" }
+rdf:
+  inline:
+    - mediaType: text/turtle
+      text: |
+        @prefix cli: <urn:rgen:cli#> .
+        [] a cli:Command ;
+           cli:slug "{{ cmd }}" ;
+           cli:summary "{{ summary }}" .
+sparql:
+  vars:
+    - name: slug
+      query: |
+        PREFIX cli: <urn:rgen:cli#>
+        SELECT ?slug WHERE { ?c a cli:Command ; cli:slug ?slug } LIMIT 1
+determinism: { seed: "{{ cmd }}" }
+---
+pub fn {{ slug }}(name: &str) {
+    println!("hello {}", name);
+}
+```
 
-Details on how to contribute can be found in the [CONTRIBUTING.md](.github/CONTRIBUTING.md) file.
+Same RDF + seed → identical files every run.
 
-### Versioning
+---
 
-Rust Starter stricltly adheres to the [SemVer](https://semver.org/) Semantic Versioning.
+## 💡 Commands
 
-## License
+| Command                          | Description                                |
+| -------------------------------- | ------------------------------------------ |
+| `rgen list`                      | List available template scopes and actions |
+| `rgen show <scope> <action>`     | Show template and resolved context         |
+| `rgen validate <scope> <action>` | Validate RDF/SHACL graphs                  |
+| `rgen gen <scope> <action>`      | Render template(s) into outputs            |
+| `rgen graph export`              | Merge RDF sources into a single graph      |
 
-`rust-starter` is licensed under the MIT license. Please read the [LICENSE](LICENSE) file in this repository for more information.
+---
+
+## 🔁 Determinism
+
+rgen computes a manifest hash over:
+
+```
+graph data + shape + frontmatter + template + seed
+```
+
+The same graph + seed = byte-identical results.
+
+---
+
+## 🧠 Example: Multi-language CLI generation
+
+Run:
+
+```bash
+rgen gen cli subcommand --vars cmd=status summary="Show app status"
+```
+
+Creates:
+
+```
+src/cmds/status.rs
+commands/status.py
+commands/status.sh
+```
+
+All derived from one ontology.
+No duplicated logic, no language bias.
+
+---
+
+## 🧰 Integrations
+
+rgen doesn’t care about runtime:
+
+* Works for **Rust**, **Python**, **Bash**, **Go**, **TypeScript**, etc.
+* Graph-aware: uses RDF, JSON-LD, or YAML metadata.
+* Deterministic output: same intent, same projection.
+
+---
+
+## 📦 Extend
+
+Add your own generator:
+
+```bash
+mkdir -p templates/api/endpoint
+cp templates/cli/subcommand/rust.tmpl templates/api/endpoint/rust.tmpl
+```
+
+Edit frontmatter and target path.
+rgen will detect and render automatically.
+
+---
+
+## 🔒 License
+
+MIT © rgen contributors
+
+---
+
+> **rgen** — one intent, many projections.
+> Code is just a projection of knowledge.
