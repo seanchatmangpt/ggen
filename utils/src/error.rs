@@ -107,3 +107,69 @@ impl From<log::SetLoggerError> for Error {
         }
     }
 }
+
+impl From<serde_yaml::Error> for Error {
+    fn from(err: serde_yaml::Error) -> Self {
+        Error {
+            msg: format!("YAML Error: {}", err),
+            #[cfg(feature = "nightly")]
+            backtrace: std::backtrace::Backtrace::capture(),
+            source: Some(Box::new(err)),
+        }
+    }
+}
+
+impl From<serde_json::Error> for Error {
+    fn from(err: serde_json::Error) -> Self {
+        Error {
+            msg: format!("JSON Error: {}", err),
+            #[cfg(feature = "nightly")]
+            backtrace: std::backtrace::Backtrace::capture(),
+            source: Some(Box::new(err)),
+        }
+    }
+}
+
+impl From<tera::Error> for Error {
+    fn from(err: tera::Error) -> Self {
+        Error {
+            msg: format!("Template Error: {}", err),
+            #[cfg(feature = "nightly")]
+            backtrace: std::backtrace::Backtrace::capture(),
+            source: Some(Box::new(err)),
+        }
+    }
+}
+
+impl From<std::string::FromUtf8Error> for Error {
+    fn from(err: std::string::FromUtf8Error) -> Self {
+        Error {
+            msg: format!("UTF-8 Error: {}", err),
+            #[cfg(feature = "nightly")]
+            backtrace: std::backtrace::Backtrace::capture(),
+            source: Some(Box::new(err)),
+        }
+    }
+}
+
+impl From<oxigraph::store::StorageError> for Error {
+    fn from(err: oxigraph::store::StorageError) -> Self {
+        Error {
+            msg: format!("RDF Store Error: {}", err),
+            #[cfg(feature = "nightly")]
+            backtrace: std::backtrace::Backtrace::capture(),
+            source: Some(Box::new(err)),
+        }
+    }
+}
+
+impl From<oxigraph::sparql::EvaluationError> for Error {
+    fn from(err: oxigraph::sparql::EvaluationError) -> Self {
+        Error {
+            msg: format!("SPARQL Evaluation Error: {}", err),
+            #[cfg(feature = "nightly")]
+            backtrace: std::backtrace::Backtrace::capture(),
+            source: Some(Box::new(err)),
+        }
+    }
+}

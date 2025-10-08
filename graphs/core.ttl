@@ -1,0 +1,13 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix ex: <http://example.org/> .
+
+ex:Command rdf:type rdfs:Class ;
+    rdfs:label "Command" .
+
+ex:CLICommand rdf:type rdfs:Class ;
+    rdfs:subClassOf ex:Command ;
+    rdfs:label "CLI Command" .
+
+ex:APIEndpoint rdf:type rdfs:Class ;
+    rdfs:label "API Endpoint" .

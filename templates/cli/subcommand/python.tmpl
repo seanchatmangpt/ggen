@@ -1,0 +1,31 @@
+---
+to: "commands/{{cmd}}.py"
+vars:
+  cmd: "example"
+  summary: "Example command"
+rdf:
+  - "graphs/cli.ttl"
+shape:
+  - "graphs/shapes/cli.shacl.ttl"
+sparql:
+  - "SELECT ?cmd ?summary WHERE { ?cmd rdfs:label ?summary }"
+determinism:
+  seed: "cli-subcommand"
+  sort_order: ["cmd", "summary"]
+---
+#!/usr/bin/env python3
+"""{{summary}}"""
+
+import argparse
+import sys
+
+def main():
+    parser = argparse.ArgumentParser(description="{{summary}}")
+    # TODO: Add arguments
+    args = parser.parse_args()
+    
+    print("{{summary}}")
+    return 0
+
+if __name__ == "__main__":
+    sys.exit(main())

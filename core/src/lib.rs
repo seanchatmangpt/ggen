@@ -1,14 +1,12 @@
-#[macro_use]
-extern crate log;
+pub mod determinism;
+pub mod engine;
+pub mod frontmatter;
+pub mod fs;
+pub mod manifest;
+pub mod rdf;
+pub mod render;
+pub mod shacl;
+pub mod sparql;
 
-pub mod commands;
-pub mod error;
-pub mod hazard;
-
-use utils::error::Result;
-
-pub fn start() -> Result<()> {
-    // does nothing
-
-    Ok(())
-}
+// Re-export the public API from engine module
+pub use engine::{project, RunReport, Artifact, Engine};

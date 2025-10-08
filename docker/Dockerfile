@@ -1,6 +1,5 @@
 FROM ekidd/rust-musl-builder:latest as Builder
 
-
 # Copy project source code
 COPY . .
 ADD --chown=rust:rust . .
@@ -15,5 +14,5 @@ RUN cargo build --release
 
 FROM alpine:latest
 RUN apk --no-cache add ca-certificates
-COPY --from=builder /home/rust/src/target/x86_64-unknown-linux-musl/release/rust-starter /usr/local/bin/rust-starter
-CMD ["/usr/local/bin/rust-starter"]
+COPY --from=builder /home/rust/src/target/x86_64-unknown-linux-musl/release/rgen /usr/local/bin/rgen
+CMD ["/usr/local/bin/rgen"]
