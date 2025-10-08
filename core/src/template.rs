@@ -86,7 +86,7 @@ impl Template {
     }
 
     /// Load RDF and run SPARQL using the rendered frontmatter.
-    pub fn process_graph(&mut self, graph: &Graph, tera: &mut Tera, vars: &Context) -> Result<()> {
+    pub fn process_graph(&mut self, graph: &mut Graph, tera: &mut Tera, vars: &Context) -> Result<()> {
         // Ensure frontmatter is rendered before graph ops
         if self.front.to.is_none()
             && self.front.from.is_none()

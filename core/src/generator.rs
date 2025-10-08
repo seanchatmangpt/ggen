@@ -1,14 +1,12 @@
 use anyhow::Result;
-use regex::Regex;
 use std::collections::BTreeMap;
 use std::env;
 use std::fs;
-use std::path::{Path, PathBuf};
-use std::process::{Command, Stdio};
+use std::path::PathBuf;
 use tera::Context;
 
 use crate::pipeline::Pipeline;
-use crate::template::{Frontmatter, Template};
+use crate::template::Template;
 
 pub struct GenContext {
     pub template_path: PathBuf,
@@ -61,7 +59,7 @@ impl Generator {
         tmpl.render_frontmatter(&mut self.pipeline.tera, &tctx)?;
 
         // Graph ops
-        tmpl.process_graph(&self.pipeline.graph, &mut self.pipeline.tera, &tctx)?;
+        tmpl.process_graph(&mut self.pipeline.graph, &mut self.pipeline.tera, &tctx)?;
 
         // Render body
         let rendered = self.pipeline.render_body(&tmpl.body, &tctx)?;

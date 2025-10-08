@@ -1,7 +1,6 @@
 use anyhow::{bail, Result};
-use oxigraph::io::GraphFormat;
-use oxigraph::model::{GraphName, NamedNode, Quad, Subject, Term};
-use oxigraph::sparql::{Query, QueryOptions, QueryResults};
+use oxigraph::io::RdfFormat;
+use oxigraph::sparql::{Query, QueryResults};
 use oxigraph::store::Store;
 use std::collections::BTreeMap;
 use std::fs::File;
@@ -22,18 +21,16 @@ impl Graph {
     }
 
     pub fn insert_turtle(&mut self, turtle: &str) -> Result<()> {
-        self.inner.load_graph(
+        self.inner.load_from_reader(
+            RdfFormat::Turtle,
             turtle.as_bytes(),
-            GraphFormat::Turtle,
-            GraphName::DefaultGraph,
-            None,
         )?;
         Ok(())
     }
 
     pub fn query(&self, sparql: &str) -> Result<QueryResults> {
         let query = Query::parse(sparql, None)?;
-        Ok(self.inner.query(query, QueryOptions::default())?)
+        Ok(self.inner.query(query)?)
     }
 
     pub fn load_path(&mut self, path: &Path) -> Result<()> {
@@ -41,15 +38,13 @@ impl Graph {
         let reader = BufReader::new(file);
         
         let format = match path.extension().and_then(|s| s.to_str()) {
-            Some("ttl") | Some("turtle") => GraphFormat::Turtle,
-            Some("rdf") | Some("xml") => GraphFormat::RdfXml,
-            Some("json") => GraphFormat::JsonLd,
-            Some("nt") => GraphFormat::NTriples,
-            Some("nq") => GraphFormat::NQuads,
+            Some("ttl") | Some("turtle") => RdfFormat::Turtle,
+            Some("rdf") | Some("xml") => RdfFormat::RdfXml,
+            Some("nt") => RdfFormat::NTriples,
             _ => bail!("Unknown RDF format for file: {}", path.display()),
         };
 
-        self.inner.load_graph(reader, format, GraphName::DefaultGraph, None)?;
+        self.inner.load_from_reader(format, reader)?;
         Ok(())
     }
 }
