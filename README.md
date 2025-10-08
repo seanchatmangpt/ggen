@@ -1,3 +1,24 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [rgen](#rgen)
+  - [🧭 Purpose](#-purpose)
+  - [🚀 Install](#-install)
+    - [Homebrew](#homebrew)
+    - [Cargo](#cargo)
+  - [⚙️ Quick start](#-quick-start)
+  - [🧩 Templates](#-templates)
+    - [Example: `templates/cli/subcommand/rust.tmpl`](#example-templatesclisubcommandrusttmpl)
+  - [💡 Commands](#-commands)
+  - [🔁 Determinism](#-determinism)
+  - [🧠 Example: Multi-language CLI generation](#-example-multi-language-cli-generation)
+  - [🧰 Integrations](#-integrations)
+  - [📦 Extend](#-extend)
+  - [🔒 License](#-license)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # rgen
 
 **Language-agnostic generator for reproducible code projections.**
