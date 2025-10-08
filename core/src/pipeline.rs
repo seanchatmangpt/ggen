@@ -1,9 +1,11 @@
 use anyhow::Result;
 use std::collections::BTreeMap;
 use std::env;
+use std::path::{Path, PathBuf};
 use tera::{Context, Function as TeraFunction, Tera, Value as TeraValue};
 
 use crate::graph::{build_prolog, Graph};
+use crate::register;
 use crate::template::Template;
 
 pub struct Pipeline {
@@ -15,6 +17,10 @@ impl Pipeline {
     pub fn new() -> Result<Self> {
         let mut tera = Tera::default();
         tera.autoescape_on(vec![]);
+        
+        // Register all text transformation filters
+        crate::register::register_all(&mut tera);
+        
         Ok(Self { tera, graph: Graph::new()? })
     }
 
@@ -44,6 +50,56 @@ impl Pipeline {
         // Render body
         let out = template.render(&mut self.tera, &vars)?;
         Ok(out)
+    }
+
+    /// Run pipeline from a template file path
+    pub fn run_from_path(
+        &mut self,
+        template_path: &Path,
+        out_root: &Path,
+        vars: &BTreeMap<String, String>,
+        dry: bool,
+    ) -> Result<PathBuf> {
+        // Read template file
+        let input = std::fs::read_to_string(template_path)?;
+        
+        // Create Tera context from vars
+        let mut ctx = Context::from_serialize(vars)?;
+        
+        // Parse template to get frontmatter
+        let mut template = Template::parse(&input)?;
+        
+        // Render frontmatter first to get the final 'to' field
+        insert_env(&mut ctx);
+        template.render_frontmatter(&mut self.tera, &ctx)?;
+        
+        // Register template-defined vars into the context (after frontmatter render)
+        for (k, v) in &template.front.vars {
+            ctx.insert(k, v);
+        }
+        
+        // Determine output path from frontmatter or default
+        let out_path = if let Some(to_path) = &template.front.to {
+            // Render the 'to' field as a template
+            let rendered_to = self.tera.render_str(to_path, &ctx)?;
+            out_root.join(rendered_to)
+        } else {
+            out_root.join("out.txt")
+        };
+        
+        // Run the pipeline
+        let rendered = self.run(&input, ctx)?;
+        
+        // Write output unless dry run
+        if !dry {
+            // Ensure output directory exists
+            if let Some(parent) = out_path.parent() {
+                std::fs::create_dir_all(parent)?;
+            }
+            std::fs::write(&out_path, rendered)?;
+        }
+        
+        Ok(out_path)
     }
 }
 

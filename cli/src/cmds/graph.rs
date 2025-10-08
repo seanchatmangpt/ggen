@@ -8,10 +8,7 @@ pub struct GraphArgs {
 }
 
 pub fn run(args: &GraphArgs) -> Result<()> {
-    let spec = core::fs::read_template(&args.scope, &args.action)?;
-    let fm = core::frontmatter::Frontmatter::from_spec(&spec);
-    let store = core::rdf::load_graph(&fm.rdf)?;
-    let nquads = core::rdf::canonical_nquads(&store)?;
-    print!("{}", nquads);
+    // TODO: Implement graph export
+    println!("Graph export for {}/{} not yet implemented", args.scope, args.action);
     Ok(())
 }

@@ -76,6 +76,12 @@ impl<T> From<std::sync::PoisonError<T>> for Error {
     }
 }
 
+impl From<anyhow::Error> for Error {
+    fn from(err: anyhow::Error) -> Self {
+        Self::new(&err.to_string())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

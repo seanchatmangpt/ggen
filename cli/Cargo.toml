@@ -1,7 +1,7 @@
 [package]
 name = "cli"
 version = "1.0.0"
-authors = ["Sean Chatman <sean@example.com>"]
+authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "CLI interface for rgen"
 edition = "2021"
 
