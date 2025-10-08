@@ -46,10 +46,10 @@ mod e2e_tests {
         assert!(prolog.contains("PREFIX ex: <http://example.org/>"));
         
         // Test query with prolog
+        let prolog = build_prolog(&prefixes, Some("http://example.org/"));
         let _results = graph.query_with_prolog(
-            "SELECT ?s WHERE { ?s a ex:Person }",
-            &prefixes,
-            Some("http://example.org/")
+            &prolog,
+            "SELECT ?s WHERE { ?s a ex:Person }"
         )?;
         
         // Test graph state
@@ -163,8 +163,8 @@ pub fn main() {
         let mut vars = Context::new();
         vars.insert("name", "alice");
         
-        let mut pipeline = Pipeline::new(false)?;
-        let output = pipeline.run(input, vars)?;
+        let mut pipeline = Pipeline::new()?;
+        let output = pipeline.run(&input, vars)?;
         
         // Verify the output contains expected elements
         assert!(output.contains("// Generated code for alice"));
@@ -242,8 +242,8 @@ impl Employee {
         vars.insert("name", "alice");
         vars.insert("age", "30");
         
-        let mut pipeline = Pipeline::new(false)?;
-        let output = pipeline.run(input, vars)?;
+        let mut pipeline = Pipeline::new()?;
+        let output = pipeline.run(&input, vars)?;
         
         // Verify the output
         assert!(output.contains("pub struct Employee"));
@@ -285,8 +285,8 @@ pub fn analyze_relationships() {
 "#;
 
         let vars = Context::new();
-        let mut pipeline = Pipeline::new(false)?;
-        let output = pipeline.run(input, vars)?;
+        let mut pipeline = Pipeline::new()?;
+        let output = pipeline.run(&input, vars)?;
         
         // Verify the output contains the analysis function
         assert!(output.contains("pub fn analyze_relationships()"));
@@ -315,10 +315,10 @@ Result: {{ invalid_result }}
 "#;
 
         let vars = Context::new();
-        let mut pipeline = Pipeline::new(false)?;
+        let mut pipeline = Pipeline::new()?;
         
         // This should return an error due to invalid SPARQL
-        let result = pipeline.run(input, vars);
+        let result = pipeline.run(&input, vars);
         assert!(result.is_err(), "Expected error for invalid SPARQL query");
         
         Ok(())
@@ -344,8 +344,8 @@ pub fn test_local_names() {
 "#;
 
         let vars = Context::new();
-        let mut pipeline = Pipeline::new(false)?;
-        let output = pipeline.run(input, vars)?;
+        let mut pipeline = Pipeline::new()?;
+        let output = pipeline.run(&input, vars)?;
         
         // Verify all local name extractions work
         assert!(output.contains("assert_eq!(\"alice\", \"alice\")"));
@@ -373,8 +373,8 @@ pub fn print_environment() {
 "#;
 
         let vars = Context::new();
-        let mut pipeline = Pipeline::new(false)?;
-        let output = pipeline.run(input, vars)?;
+        let mut pipeline = Pipeline::new()?;
+        let output = pipeline.run(&input, vars)?;
         
         // Verify environment variables are injected
         assert!(output.contains("// User:"));
@@ -409,8 +409,8 @@ pub fn test_precedence() {
         vars.insert("name", "context_name");
         vars.insert("value", "context_value");
         
-        let mut pipeline = Pipeline::new(false)?;
-        let output = pipeline.run(input, vars)?;
+        let mut pipeline = Pipeline::new()?;
+        let output = pipeline.run(&input, vars)?;
         
         // Verify the output contains the expected content
         // The pipeline processes frontmatter vars and merges them into context

@@ -58,6 +58,12 @@ impl Generator {
         // Render frontmatter (SPARQL functions now available)
         tmpl.render_frontmatter(&mut self.pipeline.tera, &tctx)?;
 
+        // Validate frontmatter after rendering
+        crate::validate_frontmatter::validate_frontmatter(&tmpl.front)?;
+
+        // Auto-bless context variables (Name, locals)
+        crate::register::bless_context(&mut tctx);
+
         // Graph ops
         tmpl.process_graph(&mut self.pipeline.graph, &mut self.pipeline.tera, &tctx)?;
 

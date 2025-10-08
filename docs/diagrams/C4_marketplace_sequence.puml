@@ -1,0 +1,87 @@
+@startuml C4_Marketplace_Sequence
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_WITH_LEGEND()
+
+title Rgen Marketplace - Sequence Diagram
+
+actor Developer
+participant "CLI" as CLI
+participant "Registry Client" as Registry
+participant "Cache Manager" as Cache
+participant "Lockfile Manager" as Lockfile
+participant "Template Resolver" as Resolver
+participant "Generation Pipeline" as Pipeline
+database "Registry Index" as Index
+database "Rpack Repo" as Repo
+database "Local Cache" as LocalCache
+database "Project Lockfile" as LockfileDB
+
+== Search Workflow ==
+Developer -> CLI: rgen search rust
+CLI -> Registry: search("rust")
+Registry -> Index: GET /index.json
+Index --> Registry: JSON response
+Registry --> CLI: Filtered results
+CLI --> Developer: Display results
+
+== Add Workflow ==
+Developer -> CLI: rgen add io.rgen.rust.cli-subcommand
+CLI -> Registry: resolve("io.rgen.rust.cli-subcommand")
+Registry -> Index: GET /index.json
+Index --> Registry: Pack metadata
+Registry --> CLI: ResolvedPack
+CLI -> Cache: ensure(ResolvedPack)
+Cache -> Repo: git clone
+Repo --> Cache: Rpack files
+Cache --> CLI: LocalPack
+CLI -> Lockfile: upsert(LocalPack)
+Lockfile -> LockfileDB: Write rgen.lock
+Lockfile --> CLI: Success
+CLI --> Developer: "Added io.rgen.rust.cli-subcommand@0.2.0"
+
+== Generate Workflow ==
+Developer -> CLI: rgen gen io.rgen.rust.cli-subcommand:main.tmpl name=MyApp
+CLI -> Resolver: locate("io.rgen.rust.cli-subcommand:main.tmpl")
+Resolver -> Lockfile: get("io.rgen.rust.cli-subcommand")
+Lockfile --> Resolver: LockEntry
+Resolver -> Cache: get("io.rgen.rust.cli-subcommand", "0.2.0")
+Cache --> Resolver: LocalPack
+Resolver -> LocalCache: Load template
+LocalCache --> Resolver: Template content
+Resolver --> CLI: TemplateSource
+CLI -> Pipeline: generate(TemplateSource, vars)
+Pipeline -> LocalCache: Load RDF data
+Pipeline -> LocalCache: Load queries
+Pipeline -> Pipeline: Process template
+Pipeline --> CLI: Generated content
+CLI --> Developer: "Generated output/myapp.rs"
+
+== Update Workflow ==
+Developer -> CLI: rgen update
+CLI -> Lockfile: entries()
+Lockfile --> CLI: [LockEntry]
+loop For each installed pack
+    CLI -> Registry: resolve(pack.id, None)
+    Registry -> Index: GET /index.json
+    Index --> Registry: Latest version
+    Registry --> CLI: ResolvedPack
+    alt New version available
+        CLI -> Cache: ensure(ResolvedPack)
+        Cache -> Repo: git clone new version
+        CLI -> Lockfile: upsert(new LocalPack)
+        Lockfile -> LockfileDB: Update rgen.lock
+    end
+end
+CLI --> Developer: "Updated X rpack(s)"
+
+== Remove Workflow ==
+Developer -> CLI: rgen remove io.rgen.rust.cli-subcommand
+CLI -> Lockfile: remove("io.rgen.rust.cli-subcommand")
+Lockfile -> LockfileDB: Update rgen.lock
+Lockfile --> CLI: Success
+CLI -> Cache: remove("io.rgen.rust.cli-subcommand", "0.2.0")
+Cache --> CLI: Success
+CLI --> Developer: "Removed io.rgen.rust.cli-subcommand"
+
+@enduml

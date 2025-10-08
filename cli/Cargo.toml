@@ -12,6 +12,11 @@ core = { path = "../core" }
 clap_complete = "4.5.50"
 sha2 = "0.10"
 tera = "1.0"
+dotenvy = "0.15"
+glob = "0.3"
+tokio = { version = "1.0", features = ["full"] }
+serde_json = "1.0"
+semver = "1.0"
 
 [dependencies.clap]
 version = "4.5.37"

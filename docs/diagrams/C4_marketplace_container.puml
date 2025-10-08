@@ -1,0 +1,37 @@
+@startuml C4_Marketplace_Container
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+LAYOUT_WITH_LEGEND()
+
+title Rgen Marketplace - Container Diagram
+
+Person(developer, "Developer", "Uses rgen CLI")
+Person(publisher, "Publisher", "Creates rpacks")
+
+System_Boundary(rgen_system, "Rgen System") {
+    Container(cli, "CLI", "Rust", "Command-line interface")
+    Container(core, "Core Engine", "Rust", "Template processing, RDF handling")
+    Container(cache, "Local Cache", "File System", "Cached rpacks in ~/.rgen/rpacks/")
+    Container(lockfile, "Lockfile", "TOML", "rgen.lock with pinned versions")
+}
+
+System_Boundary(marketplace_system, "Marketplace System") {
+    Container(registry, "Registry Index", "GitHub Pages", "JSON index at registry.rgen.dev")
+    Container(validation, "CI/CD Pipeline", "GitHub Actions", "Validates and merges rpacks")
+    Container(repositories, "Rpack Repos", "GitHub", "Individual rpack repositories")
+}
+
+Rel(developer, cli, "Uses", "CLI commands")
+Rel(publisher, repositories, "Publishes", "Git push")
+
+Rel(cli, core, "Delegates to", "Internal calls")
+Rel(core, cache, "Reads/Writes", "File I/O")
+Rel(core, lockfile, "Reads/Writes", "TOML parsing")
+Rel(core, registry, "Fetches index", "HTTPS GET /index.json")
+Rel(core, repositories, "Clones rpacks", "Git clone")
+
+Rel(registry, validation, "Updated by", "CI/CD")
+Rel(validation, repositories, "Validates", "Automated checks")
+Rel(repositories, registry, "Indexed in", "Metadata extraction")
+
+@enduml

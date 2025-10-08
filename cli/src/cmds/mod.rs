@@ -1,6 +1,11 @@
+pub mod add;
 pub mod gen;
 pub mod list;
+pub mod packs;
+pub mod remove;
+pub mod search;
 pub mod show;
+pub mod update;
 pub mod validate;
 pub mod lint;
 pub mod graph;
@@ -12,6 +17,16 @@ use utils::project_config::RgenConfig;
 
 #[derive(Subcommand, Debug)]
 pub enum Commands {
+    #[command(name = "search", about = "Search for rpacks in registry")]
+    Search(search::SearchArgs),
+    #[command(name = "add", about = "Add an rpack to the project")]
+    Add(add::AddArgs),
+    #[command(name = "remove", about = "Remove an rpack from the project")]
+    Remove(remove::RemoveArgs),
+    #[command(name = "packs", about = "List installed rpacks")]
+    Packs,
+    #[command(name = "update", about = "Update rpacks to latest compatible versions")]
+    Update(update::UpdateArgs),
     #[command(name = "gen", about = "Generate code from templates")]
     Gen(gen::GenArgs),
     #[command(name = "list", about = "List available templates")]
@@ -44,8 +59,13 @@ pub enum CompletionSubcommand {
 }
 
 impl Commands {
-    pub fn run(&self) -> utils::error::Result<()> {
+    pub async fn run(&self) -> utils::error::Result<()> {
         match self {
+            Commands::Search(args) => Ok(search::run(args).await?),
+            Commands::Add(args) => Ok(add::run(args).await?),
+            Commands::Remove(args) => Ok(remove::run(args)?),
+            Commands::Packs => Ok(packs::run()?),
+            Commands::Update(args) => Ok(update::run(args).await?),
             Commands::Gen(args) => Ok(gen::run(args)?),
             Commands::List => list::run(),
             Commands::Show(args) => show::run(args),
@@ -57,9 +77,14 @@ impl Commands {
         }
     }
 
-    pub fn run_with_config(&self, rgen_config: Option<RgenConfig>) -> utils::error::Result<()> {
+    pub async fn run_with_config(&self, _rgen_config: Option<RgenConfig>) -> utils::error::Result<()> {
         match self {
-            Commands::Gen(args) => Ok(gen::run_with_config(args, rgen_config)?),
+            Commands::Search(args) => Ok(search::run(args).await?),
+            Commands::Add(args) => Ok(add::run(args).await?),
+            Commands::Remove(args) => Ok(remove::run(args)?),
+            Commands::Packs => Ok(packs::run()?),
+            Commands::Update(args) => Ok(update::run(args).await?),
+            Commands::Gen(args) => Ok(gen::run(args)?),
             Commands::List => list::run(),
             Commands::Show(args) => show::run(args),
             Commands::Validate(args) => validate::run(args),

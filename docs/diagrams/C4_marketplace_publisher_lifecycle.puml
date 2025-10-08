@@ -1,0 +1,75 @@
+@startuml C4_Marketplace_Publisher_Lifecycle
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_WITH_LEGEND()
+
+title Rgen Marketplace - Publisher Lifecycle
+
+Person(publisher, "Publisher", "Creates and publishes rpacks")
+
+System_Boundary(publisher_workflow, "Publisher Workflow") {
+    Component(pack_init, "Pack Init", "Rust", "rgen pack init")
+    Component(pack_lint, "Pack Lint", "Rust", "rgen pack lint")
+    Component(pack_test, "Pack Test", "Rust", "rgen pack test")
+    Component(pack_publish, "Pack Publish", "Rust", "rgen pack publish")
+}
+
+System_Boundary(validation_system, "Validation System") {
+    Component(ci_pipeline, "CI/CD Pipeline", "GitHub Actions", "Automated validation")
+    Component(schema_validator, "Schema Validator", "JSON Schema", "Validates rgen.toml")
+    Component(semver_checker, "Semver Checker", "Semantic Versioning", "Validates version format")
+    Component(compatibility_checker, "Compatibility Checker", "Version Range", "Checks rgen_compat")
+    Component(path_validator, "Path Validator", "File System", "Validates file references")
+    Component(license_checker, "License Checker", "Allowlist", "Validates license")
+    Component(size_checker, "Size Checker", "File Size", "Checks pack size limits")
+    Component(security_scanner, "Security Scanner", "Static Analysis", "Scans for security issues")
+}
+
+System_Boundary(registry_system, "Registry System") {
+    Component(registry_repo, "Registry Repository", "GitHub", "rgen-registry repo")
+    Component(index_generator, "Index Generator", "GitHub Actions", "Generates index.json")
+    Component(registry_pages, "Registry Pages", "GitHub Pages", "Serves index.json")
+}
+
+System_Boundary(rpack_repo, "Rpack Repository") {
+    Component(rpack_manifest, "Rpack Manifest", "TOML", "templates/rgen.toml")
+    Component(rpack_templates, "Templates", "Tera", "Template files")
+    Component(rpack_rdf, "RDF Data", "Turtle", "Graph data")
+    Component(rpack_queries, "SPARQL Queries", "SPARQL", "Query files")
+    Component(rpack_shapes, "SHACL Shapes", "Turtle", "Validation shapes")
+}
+
+' Publisher Lifecycle Flow
+Rel(publisher, pack_init, "1. Initialize rpack")
+Rel(pack_init, rpack_manifest, "Creates rgen.toml")
+Rel(pack_init, rpack_templates, "Creates template structure")
+
+Rel(publisher, pack_lint, "2. Lint rpack")
+Rel(pack_lint, schema_validator, "Validates manifest")
+Rel(pack_lint, path_validator, "Checks file references")
+Rel(pack_lint, license_checker, "Validates license")
+
+Rel(publisher, pack_test, "3. Test rpack")
+Rel(pack_test, rpack_templates, "Tests template rendering")
+Rel(pack_test, rpack_rdf, "Tests RDF loading")
+Rel(pack_test, rpack_queries, "Tests SPARQL queries")
+
+Rel(publisher, pack_publish, "4. Publish rpack")
+Rel(pack_publish, registry_repo, "Opens PR to registry")
+Rel(pack_publish, ci_pipeline, "Triggers validation")
+
+' Validation Flow
+Rel(ci_pipeline, schema_validator, "Validates schema")
+Rel(ci_pipeline, semver_checker, "Checks version")
+Rel(ci_pipeline, compatibility_checker, "Checks compatibility")
+Rel(ci_pipeline, path_validator, "Validates paths")
+Rel(ci_pipeline, license_checker, "Checks license")
+Rel(ci_pipeline, size_checker, "Checks size")
+Rel(ci_pipeline, security_scanner, "Scans security")
+
+' Registry Update Flow
+Rel(ci_pipeline, index_generator, "Updates index")
+Rel(index_generator, registry_pages, "Deploys index.json")
+Rel(registry_pages, registry_repo, "Serves from GitHub Pages")
+
+@enduml

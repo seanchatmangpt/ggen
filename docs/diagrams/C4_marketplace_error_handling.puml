@@ -1,0 +1,132 @@
+@startuml C4_Marketplace_Error_Handling
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_WITH_LEGEND()
+
+title Rgen Marketplace - Error Handling & Recovery
+
+actor Developer
+participant "CLI" as CLI
+participant "Registry Client" as Registry
+participant "Cache Manager" as Cache
+participant "Lockfile Manager" as Lockfile
+participant "Template Resolver" as Resolver
+database "Registry Index" as Index
+database "Rpack Repo" as Repo
+database "Local Cache" as LocalCache
+database "Project Lockfile" as LockfileDB
+
+== Error Scenarios ==
+
+=== Network Errors ===
+Developer -> CLI: rgen search rust
+CLI -> Registry: search("rust")
+Registry -> Index: GET /index.json
+Index --> Registry: **NETWORK_ERROR**
+Registry --> CLI: **RegistryUnavailable**
+CLI --> Developer: **"Registry unavailable. Check network connection."**
+
+=== Pack Not Found ===
+Developer -> CLI: rgen add io.rgen.nonexistent
+CLI -> Registry: resolve("io.rgen.nonexistent")
+Registry -> Index: GET /index.json
+Index --> Registry: Pack not found
+Registry --> CLI: **PackNotFound**
+CLI --> Developer: **"Pack 'io.rgen.nonexistent' not found in registry"**
+
+=== Version Resolution Errors ===
+Developer -> CLI: rgen add io.rgen.rust.cli-subcommand@999.0.0
+CLI -> Registry: resolve("io.rgen.rust.cli-subcommand", "999.0.0")
+Registry -> Index: GET /index.json
+Index --> Registry: Version not found
+Registry --> CLI: **VersionNotFound**
+CLI --> Developer: **"Version '999.0.0' not found for pack 'io.rgen.rust.cli-subcommand'"**
+
+=== Download Errors ===
+Developer -> CLI: rgen add io.rgen.rust.cli-subcommand
+CLI -> Registry: resolve("io.rgen.rust.cli-subcommand")
+Registry --> CLI: ResolvedPack
+CLI -> Cache: ensure(ResolvedPack)
+Cache -> Repo: git clone
+Repo --> Cache: **GIT_ERROR**
+Cache --> CLI: **DownloadFailed**
+CLI --> Developer: **"Failed to download rpack. Check repository access."**
+
+=== Integrity Verification Errors ===
+Developer -> CLI: rgen add io.rgen.rust.cli-subcommand
+CLI -> Cache: ensure(ResolvedPack)
+Cache -> Repo: git clone
+Repo --> Cache: Rpack files
+Cache -> Cache: calculate_sha256()
+Cache --> Cache: **SHA256_MISMATCH**
+Cache --> CLI: **IntegrityError**
+CLI --> Developer: **"SHA256 hash mismatch. Pack may be corrupted."**
+
+=== Lockfile Errors ===
+Developer -> CLI: rgen add io.rgen.rust.cli-subcommand
+CLI -> Lockfile: upsert(LocalPack)
+Lockfile -> LockfileDB: Write rgen.lock
+LockfileDB --> Lockfile: **WRITE_ERROR**
+Lockfile --> CLI: **LockfileError**
+CLI --> Developer: **"Failed to update lockfile. Check file permissions."**
+
+=== Template Resolution Errors ===
+Developer -> CLI: rgen gen io.rgen.rust.cli-subcommand:missing.tmpl
+CLI -> Resolver: locate("io.rgen.rust.cli-subcommand:missing.tmpl")
+Resolver -> Lockfile: get("io.rgen.rust.cli-subcommand")
+Lockfile --> Resolver: LockEntry
+Resolver -> Cache: get("io.rgen.rust.cli-subcommand", "0.2.0")
+Cache --> Resolver: LocalPack
+Resolver -> LocalCache: Load template
+LocalCache --> Resolver: **FILE_NOT_FOUND**
+Resolver --> CLI: **TemplateNotFound**
+CLI --> Developer: **"Template 'missing.tmpl' not found in rpack 'io.rgen.rust.cli-subcommand'"**
+
+=== Cache Corruption ===
+Developer -> CLI: rgen gen io.rgen.rust.cli-subcommand:main.tmpl
+CLI -> Resolver: locate("io.rgen.rust.cli-subcommand:main.tmpl")
+Resolver -> Cache: get("io.rgen.rust.cli-subcommand", "0.2.0")
+Cache -> LocalCache: Load manifest
+LocalCache --> Cache: **CORRUPTED_FILE**
+Cache --> CLI: **CacheCorrupted**
+CLI -> Cache: remove("io.rgen.rust.cli-subcommand", "0.2.0")
+CLI --> Developer: **"Cache corrupted. Re-downloading rpack..."**
+CLI -> Cache: ensure(ResolvedPack)
+Cache --> CLI: LocalPack
+CLI --> Developer: **"Successfully recovered from cache corruption"**
+
+=== Compatibility Errors ===
+Developer -> CLI: rgen add io.rgen.old-pack
+CLI -> Registry: resolve("io.rgen.old-pack")
+Registry --> CLI: ResolvedPack (rgen_compat: ">=0.1 <0.2")
+CLI -> CLI: check_compatibility("0.3.0", ">=0.1 <0.2")
+CLI --> CLI: **INCOMPATIBLE_VERSION**
+CLI --> Developer: **"Rpack 'io.rgen.old-pack' requires rgen >=0.1 <0.2, but current version is 0.3.0"**
+
+== Recovery Strategies ==
+
+note over CLI, Cache
+  **Automatic Recovery**
+  - Retry network operations
+  - Clear corrupted cache
+  - Re-download failed packs
+  - Validate integrity
+end note
+
+note over CLI, Lockfile
+  **Data Consistency**
+  - Atomic lockfile updates
+  - Backup before changes
+  - Rollback on failure
+  - Validate lockfile format
+end note
+
+note over CLI, Developer
+  **User Guidance**
+  - Clear error messages
+  - Suggested actions
+  - Helpful diagnostics
+  - Recovery instructions
+end note
+
+@enduml
