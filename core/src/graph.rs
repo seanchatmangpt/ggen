@@ -1,19 +1,17 @@
 use anyhow::{bail, Result};
 use oxigraph::io::GraphFormat;
-use oxigraph::model::{GraphName, NamedNode, Quad, Term};
+use oxigraph::model::{GraphName, NamedNode, Quad, Subject, Term};
 use oxigraph::sparql::{Query, QueryOptions, QueryResults};
 use oxigraph::store::Store;
 use std::collections::BTreeMap;
 use std::fs::File;
 use std::io::BufReader;
 use std::path::Path;
-use std::sync::{Arc, Mutex};
 
-/// Thread-safe Oxigraph wrapper.
-/// One Graph instance should be shared for a full run.
+/// Thread-safe Oxigraph wrapper. Clone is cheap (shared store).
 #[derive(Clone)]
 pub struct Graph {
-    inner: Arc<Mutex<Store>>,
+    inner: Store,
 }
 
 impl Graph {
