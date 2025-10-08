@@ -1,110 +1,77 @@
 use anyhow::Result;
+use serde_json::Value;
 use std::collections::BTreeMap;
-use std::env;
-use std::path::{Path, PathBuf};
-use tera::{Context, Function as TeraFunction, Tera, Value as TeraValue};
+use tera::{Context, Function as TeraFunction, Tera};
 
 use crate::graph::{build_prolog, Graph};
 use crate::register;
-use crate::template::Template;
 
 pub struct Pipeline {
-    pub tera: Tera,
-    pub graph: Graph,
+    pub(crate) tera: Tera,
+    pub(crate) graph: Graph,
 }
 
 impl Pipeline {
     pub fn new() -> Result<Self> {
         let mut tera = Tera::default();
         tera.autoescape_on(vec![]);
-        
-        // Register all text transformation filters
-        crate::register::register_all(&mut tera);
-        
+        register::register_all(&mut tera);
         Ok(Self { tera, graph: Graph::new()? })
     }
 
-    /// Parse → render frontmatter → load RDF → register funcs → render body
-    pub fn run(&mut self, input: &str, mut vars: Context) -> Result<String> {
-        let mut template = Template::parse(input)?;
-
-        insert_env(&mut vars);
-        template.render_frontmatter(&mut self.tera, &vars)?;
-
-        // Register template-defined vars into the context (after frontmatter render)
-        for (k, v) in &template.front.vars {
-            vars.insert(k, v);
-        }
-
-        // Register SPARQL + local() in Tera with prolog from frontmatter
-        let prolog = build_prolog(&template.front.prefixes, template.front.base.as_deref());
-        self.tera.register_function(
-            "sparql",
-            SparqlFn { graph: self.graph.clone(), prolog: prolog.clone() },
-        );
+    /// Register SPARQL + local() for a given BASE+PREFIX set
+    pub fn register_prefixes(&mut self, base: Option<&str>, prefixes: &BTreeMap<String, String>) {
+        let prolog = build_prolog(prefixes, base);
+        self.tera.register_function("sparql", SparqlFn { graph: self.graph.clone(), prolog });
         self.tera.register_function("local", LocalFn);
-
-        // Load RDF and execute SPARQL declared in frontmatter
-        template.process_graph(&self.graph, &mut self.tera, &vars)?;
-
-        // Render body
-        let out = template.render(&mut self.tera, &vars)?;
-        Ok(out)
     }
 
-    /// Run pipeline from a template file path
-    pub fn run_from_path(
-        &mut self,
-        template_path: &Path,
-        out_root: &Path,
-        vars: &BTreeMap<String, String>,
-        dry: bool,
-    ) -> Result<PathBuf> {
-        // Read template file
-        let input = std::fs::read_to_string(template_path)?;
-        
-        // Create Tera context from vars
-        let mut ctx = Context::from_serialize(vars)?;
-        
-        // Parse template to get frontmatter
-        let mut template = Template::parse(&input)?;
-        
-        // Render frontmatter first to get the final 'to' field
-        insert_env(&mut ctx);
-        template.render_frontmatter(&mut self.tera, &ctx)?;
-        
-        // Register template-defined vars into the context (after frontmatter render)
-        for (k, v) in &template.front.vars {
-            ctx.insert(k, v);
+    /// Pure render of a template body with a ready Context.
+    pub fn render_body(&mut self, body: &str, ctx: &Context) -> Result<String> {
+        Ok(self.tera.render_str(body, ctx)?)
+    }
+}
+
+pub struct PipelineBuilder {
+    prefixes: BTreeMap<String, String>,
+    base: Option<String>,
+    preload_ttl_files: Vec<String>,
+    preload_ttl_inline: Vec<String>,
+}
+
+impl PipelineBuilder {
+    pub fn new() -> Self {
+        Self {
+            prefixes: BTreeMap::new(),
+            base: None,
+            preload_ttl_files: vec![],
+            preload_ttl_inline: vec![],
         }
-        
-        // Determine output path from frontmatter or default
-        let out_path = if let Some(to_path) = &template.front.to {
-            // Render the 'to' field as a template
-            let rendered_to = self.tera.render_str(to_path, &ctx)?;
-            out_root.join(rendered_to)
-        } else {
-            out_root.join("out.txt")
-        };
-        
-        // Run the pipeline
-        let rendered = self.run(&input, ctx)?;
-        
-        // Write output unless dry run
-        if !dry {
-            // Ensure output directory exists
-            if let Some(parent) = out_path.parent() {
-                std::fs::create_dir_all(parent)?;
-            }
-            std::fs::write(&out_path, rendered)?;
+    }
+    pub fn with_prefixes(mut self, pfx: BTreeMap<String, String>, base: Option<String>) -> Self {
+        self.prefixes = pfx; self.base = base; self
+    }
+    pub fn with_rdf_files<S: Into<String>>(mut self, files: impl IntoIterator<Item = S>) -> Self {
+        self.preload_ttl_files = files.into_iter().map(Into::into).collect(); self
+    }
+    pub fn with_inline_rdf<S: Into<String>>(mut self, blocks: impl IntoIterator<Item = S>) -> Self {
+        self.preload_ttl_inline = blocks.into_iter().map(Into::into).collect(); self
+    }
+    pub fn build(mut self) -> Result<Pipeline> {
+        let mut p = Pipeline::new()?;
+        for f in &self.preload_ttl_files {
+            let ttl = std::fs::read_to_string(f)?;
+            p.graph.insert_turtle(&ttl)?;
         }
-        
-        Ok(out_path)
+        for ttl in &self.preload_ttl_inline {
+            p.graph.insert_turtle(ttl)?;
+        }
+        p.register_prefixes(self.base.as_deref(), &self.prefixes);
+        Ok(p)
     }
 }
 
 /* ---------- Tera helpers ---------- */
-
 #[derive(Clone)]
 struct SparqlFn {
     graph: Graph,
@@ -112,7 +79,7 @@ struct SparqlFn {
 }
 
 impl TeraFunction for SparqlFn {
-    fn call(&self, args: &std::collections::HashMap<String, TeraValue>) -> tera::Result<TeraValue> {
+    fn call(&self, args: &std::collections::HashMap<String, Value>) -> tera::Result<Value> {
         let q = args.get("query").and_then(|v| v.as_str()).ok_or_else(|| tera::Error::msg("sparql: query required"))?;
         let want = args.get("var").and_then(|v| v.as_str());
 
@@ -150,25 +117,11 @@ impl TeraFunction for SparqlFn {
 #[derive(Clone)]
 struct LocalFn;
 impl TeraFunction for LocalFn {
-    fn call(&self, args: &std::collections::HashMap<String, TeraValue>) -> tera::Result<TeraValue> {
+    fn call(&self, args: &std::collections::HashMap<String, Value>) -> tera::Result<Value> {
         let iri = args.get("iri").and_then(|v| v.as_str()).unwrap_or_default();
         let s = iri.trim();
         let s = s.strip_prefix('<').and_then(|x| x.strip_suffix('>')).unwrap_or(s);
         let idx = s.rfind(|c| c == '#' || c == '/').map(|i| i + 1).unwrap_or(0);
         Ok(serde_json::Value::String(s[idx..].to_string()))
-    }
-}
-
-/* ---------- context helpers ---------- */
-
-fn insert_env(ctx: &mut Context) {
-    let mut env_map: BTreeMap<String, String> = BTreeMap::new();
-    for (k, v) in env::vars() {
-        env_map.insert(k, v);
-    }
-    ctx.insert("env", &env_map);
-
-    if let Ok(cwd) = env::current_dir() {
-        ctx.insert("cwd", &cwd.display().to_string());
     }
 }

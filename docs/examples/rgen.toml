@@ -1,0 +1,49 @@
+# rgen.toml - Project manifest for graph-aware code generation
+# This file defines project-level metadata, template layout, RDF graph defaults, 
+# prefixes, and environment paths for your rgen project.
+
+[project]
+name = "acme-api"
+version = "0.1.0"
+description = "Graph-aware code generation demo"
+
+# Base directories (all relative to project root)
+templates_dir = "templates"
+graphs_dir = "graphs"
+output_dir = "generated"
+
+# Prefixes available globally to RDF/SPARQL
+# These are merged with template-specific prefixes
+[prefixes]
+ex = "http://example.com/"
+schema = "http://schema.org/"
+foaf = "http://xmlns.com/foaf/0.1/"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+rdfs = "http://www.w3.org/2000/01/rdf-schema#"
+owl = "http://www.w3.org/2002/07/owl#"
+sh = "http://www.w3.org/ns/shacl#"
+
+# Default graph(s) to preload for all templates
+[rdf]
+# RDF files to load (relative to project root or absolute paths)
+files = ["graphs/core.ttl", "graphs/shapes.ttl"]
+
+# Inline RDF data (Turtle format)
+inline = [
+  "@prefix ex: <http://example.com/> . ex:Widget a ex:Type .",
+  "@prefix schema: <http://schema.org/> . ex:Person a schema:Person .",
+]
+
+# Default variables for all templates (merged with CLI --var flags)
+# CLI variables take precedence over these defaults
+[vars]
+author = "Acme Corp"
+license = "MIT"
+year = "2025"
+company = "Acme Corporation"
+email = "dev@acme.com"
+
+# Optional shell hooks for pipelines
+[shell]
+before = "echo 'Starting rgen run...'"
+after = "echo 'rgen complete.'"
