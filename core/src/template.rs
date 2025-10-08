@@ -50,6 +50,12 @@ pub struct Frontmatter {
     // Optional template variables defined in frontmatter
     #[serde(default)]
     pub vars: BTreeMap<String, String>,
+
+    // Safety and idempotency
+    #[serde(default)]
+    pub backup: Option<bool>,
+    #[serde(default)]
+    pub idempotent: bool,
 }
 
 pub struct Template {
@@ -120,8 +126,18 @@ impl Template {
     }
 
     /// Render template body with Tera.
+    /// If `from:` is specified in frontmatter, read that file and use as body source.
     pub fn render(&self, tera: &mut Tera, vars: &Context) -> Result<String> {
-        Ok(tera.render_str(&self.body, vars)?)
+        let body_source = if let Some(from_path) = &self.front.from {
+            // Render the from path as a template to resolve variables
+            let rendered_from = tera.render_str(from_path, vars)?;
+            std::fs::read_to_string(&rendered_from)
+                .map_err(|e| anyhow::anyhow!("Failed to read from file '{}': {}", rendered_from, e))?
+        } else {
+            self.body.clone()
+        };
+        
+        Ok(tera.render_str(&body_source, vars)?)
     }
 }
 

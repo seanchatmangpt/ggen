@@ -9,6 +9,8 @@ edition = "2021"
 utils = { path = "../utils" }
 core = { path = "../core" }
 clap_complete = "4.5.50"
+sha2 = "0.10"
+tera = "1.0"
 
 [dependencies.clap]
 version = "4.5.37"

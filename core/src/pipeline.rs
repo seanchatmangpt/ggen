@@ -4,13 +4,24 @@ use std::env;
 use std::path::{Path, PathBuf};
 use tera::{Context, Function as TeraFunction, Tera, Value as TeraValue};
 
+use crate::config::RgenConfig;
+use crate::generator::Generator;
 use crate::graph::{build_prolog, Graph};
-use crate::register;
 use crate::template::Template;
+use crate::tera_env::build_tera_with_glob;
+use crate::register::bless_context;
+use crate::validate_frontmatter::validate_frontmatter;
+// EolNormalizer and SkipIfGenerator are available for future use
 
 pub struct Pipeline {
     pub tera: Tera,
     pub graph: Graph,
+    pub templates_dir: PathBuf,
+}
+
+pub struct PipelineBuilder {
+    config: Option<RgenConfig>,
+    config_dir: Option<PathBuf>,
 }
 
 impl Pipeline {
@@ -21,7 +32,16 @@ impl Pipeline {
         // Register all text transformation filters
         crate::register::register_all(&mut tera);
         
-        Ok(Self { tera, graph: Graph::new()? })
+        Ok(Self { 
+            tera, 
+            graph: Graph::new()?,
+            templates_dir: PathBuf::from("templates"), // Default templates directory
+        })
+    }
+    
+    /// Get the templates directory path.
+    pub fn templates_dir(&self) -> PathBuf {
+        self.templates_dir.clone()
     }
 
     /// Parse → render frontmatter → load RDF → register funcs → render body
@@ -31,6 +51,19 @@ impl Pipeline {
         insert_env(&mut vars);
         template.render_frontmatter(&mut self.tera, &vars)?;
 
+        // Trace frontmatter if RGEN_TRACE is set
+        if env::var("RGEN_TRACE").is_ok() {
+            eprintln!("=== RGEN TRACE ===");
+            eprintln!("Resolved frontmatter:");
+            eprintln!("{:#?}", template.front);
+        }
+
+        // Validate frontmatter after rendering
+        validate_frontmatter(&template.front)?;
+
+        // Auto-bless context variables (Name, locals)
+        bless_context(&mut vars);
+
         // Register template-defined vars into the context (after frontmatter render)
         for (k, v) in &template.front.vars {
             vars.insert(k, v);
@@ -38,6 +71,13 @@ impl Pipeline {
 
         // Register SPARQL + local() in Tera with prolog from frontmatter
         let prolog = build_prolog(&template.front.prefixes, template.front.base.as_deref());
+        
+        // Trace SPARQL prolog if RGEN_TRACE is set
+        if env::var("RGEN_TRACE").is_ok() {
+            eprintln!("SPARQL prolog:");
+            eprintln!("{}", prolog);
+        }
+        
         self.tera.register_function(
             "sparql",
             SparqlFn { graph: self.graph.clone(), prolog: prolog.clone() },
@@ -60,6 +100,12 @@ impl Pipeline {
         vars: &BTreeMap<String, String>,
         dry: bool,
     ) -> Result<PathBuf> {
+        // Trace template path if RGEN_TRACE is set
+        if env::var("RGEN_TRACE").is_ok() {
+            eprintln!("=== RGEN TRACE ===");
+            eprintln!("Template path: {}", template_path.display());
+        }
+        
         // Read template file
         let input = std::fs::read_to_string(template_path)?;
         
@@ -87,19 +133,111 @@ impl Pipeline {
             out_root.join("out.txt")
         };
         
+        // Trace output path if RGEN_TRACE is set
+        if env::var("RGEN_TRACE").is_ok() {
+            eprintln!("Target output path: {}", out_path.display());
+        }
+        
         // Run the pipeline
         let rendered = self.run(&input, ctx)?;
         
+        // Execute pre-hook if not dry run
+        if !dry {
+            Generator::execute_shell_hooks(
+                template.front.sh_before.as_deref(),
+                None,
+                &rendered,
+                vars,
+                dry,
+            )?;
+        }
+        
         // Write output unless dry run
         if !dry {
-            // Ensure output directory exists
-            if let Some(parent) = out_path.parent() {
-                std::fs::create_dir_all(parent)?;
+            // Handle injection vs direct write
+            if template.front.inject {
+                // Apply injection to target file
+                Generator::apply_injection(&out_path, &rendered, &template.front, dry)?;
+            } else {
+                // Direct write to new file
+                if let Some(parent) = out_path.parent() {
+                    std::fs::create_dir_all(parent)?;
+                }
+                std::fs::write(&out_path, &rendered)?;
             }
-            std::fs::write(&out_path, rendered)?;
+        }
+        
+        // Execute post-hook if not dry run
+        if !dry {
+            Generator::execute_shell_hooks(
+                None,
+                template.front.sh_after.as_deref(),
+                &rendered,
+                vars,
+                dry,
+            )?;
         }
         
         Ok(out_path)
+    }
+}
+
+impl PipelineBuilder {
+    /// Create a new PipelineBuilder
+    pub fn new() -> Self {
+        Self {
+            config: None,
+            config_dir: None,
+        }
+    }
+    
+    /// Load rgen.toml config from the current working directory
+    pub fn with_config_discovery(mut self) -> Result<Self> {
+        let cwd = std::env::current_dir()?;
+        if let Some((config, config_path)) = RgenConfig::discover_and_load(&cwd)? {
+            self.config = Some(config);
+            self.config_dir = Some(config_path.parent().unwrap().to_path_buf());
+        }
+        Ok(self)
+    }
+    
+    /// Load rgen.toml config from a specific file
+    pub fn with_config_file(mut self, config_path: &Path) -> Result<Self> {
+        let config = RgenConfig::load_from_file(config_path)?;
+        self.config = Some(config);
+        self.config_dir = Some(config_path.parent().unwrap().to_path_buf());
+        Ok(self)
+    }
+    
+    /// Build the Pipeline with loaded configuration
+    pub fn build(self) -> Result<Pipeline> {
+        let (templates_dir, graph) = if let (Some(config), Some(config_dir)) = (&self.config, &self.config_dir) {
+            // Use config-based templates directory
+            let templates_dir = config.templates_dir_path(config_dir);
+            let graph = Graph::new()?;
+            
+            // Preload RDF data from config
+            for rdf_path in config.rdf_file_paths(config_dir) {
+                if rdf_path.exists() {
+                    graph.load_path(&rdf_path)?;
+                }
+            }
+            
+            // Load inline RDF content
+            for inline_content in config.rdf_inline_content() {
+                graph.insert_turtle(&inline_content)?;
+            }
+            
+            (templates_dir, graph)
+        } else {
+            // Use defaults
+            (PathBuf::from("templates"), Graph::new()?)
+        };
+        
+        // Build Tera with glob support for includes/macros
+        let tera = build_tera_with_glob(&templates_dir)?;
+        
+        Ok(Pipeline { tera, graph, templates_dir })
     }
 }
 
@@ -113,37 +251,34 @@ struct SparqlFn {
 
 impl TeraFunction for SparqlFn {
     fn call(&self, args: &std::collections::HashMap<String, TeraValue>) -> tera::Result<TeraValue> {
-        let q = args.get("query").and_then(|v| v.as_str()).ok_or_else(|| tera::Error::msg("sparql: query required"))?;
+        let q = args.get("query").and_then(|v| v.as_str())
+            .ok_or_else(|| tera::Error::msg("sparql: query required"))?;
         let want = args.get("var").and_then(|v| v.as_str());
 
-        let final_q = if self.prolog.is_empty() { q.to_string() } else { format!("{}\n{}", self.prolog, q) };
-        let res = self.graph.query(&final_q).map_err(|e| tera::Error::msg(e.to_string()))?;
+        let final_q = if self.prolog.is_empty() {
+            q.to_string()
+        } else {
+            format!("{}\n{}", self.prolog, q)
+        };
 
-        use oxigraph::sparql::QueryResults;
-        match res {
-            QueryResults::Solutions(solutions) => {
-                let mut rows = Vec::new();
-                for sol in solutions {
-                    let sol = sol.map_err(|e| tera::Error::msg(e.to_string()))?;
-                    let mut row = serde_json::Map::new();
-                    for (v, term) in sol.iter() {
-                        row.insert(v.as_str().to_string(), serde_json::Value::String(term.to_string()));
+        let cached = self.graph.query_cached(&final_q)
+            .map_err(|e| tera::Error::msg(e.to_string()))?;
+
+        let json_val = cached.to_json();
+
+        // Handle var extraction if requested
+        if let Some(var_name) = want {
+            if let serde_json::Value::Array(rows) = &json_val {
+                if let Some(serde_json::Value::Object(obj)) = rows.first() {
+                    if let Some(val) = obj.get(var_name) {
+                        return Ok(val.clone());
                     }
-                    rows.push(serde_json::Value::Object(row));
                 }
-                if let Some(name) = want {
-                    if let Some(serde_json::Value::Object(obj)) = rows.first() {
-                        if let Some(val) = obj.get(name) {
-                            return Ok(val.clone());
-                        }
-                    }
-                    return Ok(serde_json::Value::String(String::new()));
-                }
-                Ok(serde_json::Value::Array(rows))
             }
-            QueryResults::Boolean(b) => Ok(serde_json::Value::Bool(b)),
-            QueryResults::Graph(_) => Ok(serde_json::Value::String(String::new())),
+            return Ok(serde_json::Value::String(String::new()));
         }
+
+        Ok(json_val)
     }
 }
 

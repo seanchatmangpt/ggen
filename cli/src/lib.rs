@@ -1,4 +1,4 @@
-use clap::{CommandFactory, Parser, Subcommand};
+use clap::{CommandFactory, Parser};
 use std::path::PathBuf;
 
 use utils::app_config::AppConfig;
