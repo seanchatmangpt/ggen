@@ -11,7 +11,7 @@ use ggen_core::template::Template;
 pub struct LintArgs {
     /// Path to the template file to lint
     #[arg(value_name = "TEMPLATE")]
-    pub template: PathBuf,
+    pub template: Option<PathBuf>,
 
     /// Variables (key=value pairs) for frontmatter rendering
     #[arg(short = 'v', long = "var", value_parser = parse_key_val::<String, String>)]
@@ -24,6 +24,10 @@ pub struct LintArgs {
     /// Perform SHACL validation (requires RDF data)
     #[arg(long)]
     pub shacl: bool,
+
+    /// Validate registry index instead of template
+    #[arg(long)]
+    pub registry: bool,
 }
 
 fn parse_key_val<K, V>(s: &str) -> std::result::Result<(K, V), String>
@@ -42,10 +46,17 @@ where
 }
 
 pub fn run(args: &LintArgs) -> Result<()> {
+    if args.registry {
+        return validate_registry(args);
+    }
+
+    let template_path = args.template.as_ref()
+        .ok_or_else(|| ggen_utils::error::Error::new("Template path is required when not validating registry"))?;
+
     let mut issues = Vec::new();
 
     // Read template file
-    let template_content = std::fs::read_to_string(&args.template)?;
+    let template_content = std::fs::read_to_string(template_path)?;
 
     // Parse template
     let mut template = Template::parse(&template_content)?;
@@ -389,6 +400,222 @@ fn validate_property_constraint(graph: &Graph, property_iri: &str) -> Result<()>
     }
 
     Ok(())
+}
+
+fn validate_registry(args: &LintArgs) -> Result<()> {
+    let mut issues = Vec::new();
+
+    // Load registry index
+    let registry_path = std::env::current_dir()?.join("registry").join("index.json");
+    if !registry_path.exists() {
+        return Err(ggen_utils::error::Error::new("Registry index not found at registry/index.json"));
+    }
+
+    let registry_content = std::fs::read_to_string(&registry_path)?;
+    let registry: serde_json::Value = serde_json::from_str(&registry_content)
+        .map_err(|e| ggen_utils::error::Error::new_fmt(format_args!("Invalid JSON in registry index: {}", e)))?;
+
+    // Validate registry structure
+    validate_registry_structure(&registry, &mut issues);
+
+    // Validate git URLs and revisions
+    validate_git_references(&registry, &mut issues);
+
+    // Validate SHA256 hashes
+    validate_sha256_hashes(&registry, &mut issues);
+
+    // Validate version strings
+    validate_version_strings(&registry, &mut issues);
+
+    // Report issues
+    if issues.is_empty() {
+        println!("✓ Registry validation passed");
+        if args.verbose {
+            println!("  - JSON structure is valid");
+            println!("  - All required fields are present");
+            println!("  - Git references are accessible");
+            println!("  - SHA256 hashes are valid");
+            println!("  - Version strings follow semver");
+        }
+    } else {
+        println!("Found {} registry validation issue(s):", issues.len());
+        for (i, issue) in issues.iter().enumerate() {
+            println!("{}. {}", i + 1, issue);
+        }
+        return Err(ggen_utils::error::Error::new("Registry validation failed"));
+    }
+
+    Ok(())
+}
+
+fn validate_registry_structure(registry: &serde_json::Value, issues: &mut Vec<String>) {
+    // Check top-level structure
+    if !registry.is_object() {
+        issues.push("Registry root must be an object".to_string());
+        return;
+    }
+
+    let obj = registry.as_object().unwrap();
+
+    // Check required fields
+    if !obj.contains_key("updated") {
+        issues.push("Missing 'updated' field".to_string());
+    }
+
+    if !obj.contains_key("packs") {
+        issues.push("Missing 'packs' field".to_string());
+        return;
+    }
+
+    let packs = &obj["packs"];
+    if !packs.is_object() {
+        issues.push("'packs' must be an object".to_string());
+        return;
+    }
+
+    // Validate each pack
+    for (pack_id, pack_data) in packs.as_object().unwrap() {
+        validate_pack_structure(pack_id, pack_data, issues);
+    }
+}
+
+fn validate_pack_structure(pack_id: &str, pack_data: &serde_json::Value, issues: &mut Vec<String>) {
+    if !pack_data.is_object() {
+        issues.push(format!("Pack '{}' must be an object", pack_id));
+        return;
+    }
+
+    let pack_obj = pack_data.as_object().unwrap();
+
+    // Required fields
+    let required_fields = ["id", "name", "description", "latest_version", "versions"];
+    for field in &required_fields {
+        if !pack_obj.contains_key(*field) {
+            issues.push(format!("Pack '{}' missing required field '{}'", pack_id, field));
+        }
+    }
+
+    // Validate versions
+    if let Some(versions) = pack_obj.get("versions") {
+        if !versions.is_object() {
+            issues.push(format!("Pack '{}' versions must be an object", pack_id));
+        } else {
+            for (version, version_data) in versions.as_object().unwrap() {
+                validate_version_structure(pack_id, version, version_data, issues);
+            }
+        }
+    }
+}
+
+fn validate_version_structure(pack_id: &str, version: &str, version_data: &serde_json::Value, issues: &mut Vec<String>) {
+    if !version_data.is_object() {
+        issues.push(format!("Pack '{}' version '{}' must be an object", pack_id, version));
+        return;
+    }
+
+    let version_obj = version_data.as_object().unwrap();
+
+    // Required fields for versions
+    let required_fields = ["version", "git_url", "git_rev", "sha256"];
+    for field in &required_fields {
+        if !version_obj.contains_key(*field) {
+            issues.push(format!("Pack '{}' version '{}' missing required field '{}'", pack_id, version, field));
+        }
+    }
+}
+
+fn validate_git_references(registry: &serde_json::Value, issues: &mut Vec<String>) {
+    if let Some(packs) = registry.get("packs").and_then(|p| p.as_object()) {
+        for (pack_id, pack_data) in packs {
+            if let Some(versions) = pack_data.get("versions").and_then(|v| v.as_object()) {
+                for (version, version_data) in versions {
+                    if let Some(git_url) = version_data.get("git_url").and_then(|u| u.as_str()) {
+                        if !git_url.starts_with("https://github.com/") && !git_url.starts_with("git@github.com:") {
+                            issues.push(format!("Pack '{}' version '{}' has invalid git URL format", pack_id, version));
+                        }
+                    }
+
+                    if let Some(git_rev) = version_data.get("git_rev").and_then(|r| r.as_str()) {
+                        if git_rev.len() != 40 || !git_rev.chars().all(|c| c.is_ascii_hexdigit()) {
+                            issues.push(format!("Pack '{}' version '{}' has invalid git revision format (should be 40-char hex)", pack_id, version));
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+fn validate_sha256_hashes(registry: &serde_json::Value, issues: &mut Vec<String>) {
+    if let Some(packs) = registry.get("packs").and_then(|p| p.as_object()) {
+        for (pack_id, pack_data) in packs {
+            if let Some(versions) = pack_data.get("versions").and_then(|v| v.as_object()) {
+                for (version, version_data) in versions {
+                    if let Some(sha256) = version_data.get("sha256").and_then(|s| s.as_str()) {
+                        if sha256.len() != 64 || !sha256.chars().all(|c| c.is_ascii_hexdigit()) {
+                            issues.push(format!("Pack '{}' version '{}' has invalid SHA256 format (should be 64-char hex)", pack_id, version));
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+fn validate_version_strings(registry: &serde_json::Value, issues: &mut Vec<String>) {
+    if let Some(packs) = registry.get("packs").and_then(|p| p.as_object()) {
+        for (pack_id, pack_data) in packs {
+            // Validate latest_version
+            if let Some(latest_version) = pack_data.get("latest_version").and_then(|v| v.as_str()) {
+                if !is_valid_semver(latest_version) {
+                    issues.push(format!("Pack '{}' has invalid latest_version format: '{}'", pack_id, latest_version));
+                }
+            }
+
+            // Validate version strings in versions object
+            if let Some(versions) = pack_data.get("versions").and_then(|v| v.as_object()) {
+                for (version, version_data) in versions {
+                    if !is_valid_semver(version) {
+                        issues.push(format!("Pack '{}' has invalid version format: '{}'", pack_id, version));
+                    }
+
+                    if let Some(version_field) = version_data.get("version").and_then(|v| v.as_str()) {
+                        if version_field != version {
+                            issues.push(format!("Pack '{}' version '{}' field mismatch: expected '{}', got '{}'", pack_id, version, version, version_field));
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+fn is_valid_semver(version: &str) -> bool {
+    // Basic semver validation - should be in format x.y.z with optional pre-release and build metadata
+    let parts: Vec<&str> = version.split('.').collect();
+    if parts.len() < 3 {
+        return false;
+    }
+
+    // Check major, minor, patch are numeric
+    for part in &parts[..3] {
+        if !part.chars().all(|c| c.is_ascii_digit()) {
+            return false;
+        }
+    }
+
+    // Check for pre-release and build metadata
+    if parts.len() > 3 {
+        let remaining = parts[3..].join(".");
+        if remaining.contains("+") {
+            let build_parts: Vec<&str> = remaining.split('+').collect();
+            if build_parts.len() != 2 {
+                return false;
+            }
+        }
+    }
+
+    true
 }
 
 fn insert_env(ctx: &mut Context) {

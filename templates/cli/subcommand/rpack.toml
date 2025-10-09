@@ -1,0 +1,13 @@
+[rpack]
+id = "io.ggen.rust.cli-subcommand"
+name = "Rust CLI Subcommand"
+version = "0.1.0"
+description = "Generate clap subcommands for Rust CLI applications with proper error handling and testing"
+license = "MIT"
+ggen_compat = ">=0.1.0"
+
+[templates]
+patterns = ["*.tmpl"]
+
+[rdf]
+patterns = ["*.ttl"]

@@ -2,6 +2,43 @@
 
 rgen supports configuration through project files and environment variables.
 
+## Environment Variables
+
+### GGEN_REGISTRY_URL
+
+Controls the marketplace registry URL used for searching and installing rpacks.
+
+**Default**: [seanchatmangpt.github.io/ggen](https://seanchatmangpt.github.io/ggen/) (GitHub Pages)
+
+**Examples**:
+```bash
+# Use production marketplace (default)
+export GGEN_REGISTRY_URL="https://seanchatmangpt.github.io/ggen/"
+
+# Use local registry for development/testing
+export GGEN_REGISTRY_URL="file:///path/to/local/registry/"
+
+# Use custom registry
+export GGEN_REGISTRY_URL="https://your-registry.com/"
+
+# Use GitHub raw URLs (legacy)
+export GGEN_REGISTRY_URL="https://raw.githubusercontent.com/seanchatmangpt/ggen/master/registry/"
+```
+
+**Local Development Setup**:
+```bash
+# Clone the repository
+git clone https://github.com/seanchatmangpt/ggen.git
+cd ggen
+
+# Use local registry
+export GGEN_REGISTRY_URL="file://$(pwd)/registry/"
+
+# Test marketplace functionality
+rgen search rust
+rgen add io.ggen.rust.cli-subcommand
+```
+
 ## Project Configuration
 
 ### ggen.toml

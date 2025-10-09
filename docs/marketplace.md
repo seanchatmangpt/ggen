@@ -1,15 +1,16 @@
 # RGen Marketplace
 
-The RGen marketplace provides a curated ecosystem of reusable code generation packs (rpacks) served directly from the GitHub repository.
+The RGen marketplace provides a curated ecosystem of reusable code generation packs (rpacks) served via GitHub Pages with automated validation and deployment.
 
 ## Overview
 
-The marketplace is hosted at `https://github.com/seanchatmangpt/rgen` and serves rpacks via GitHub raw URLs. This approach provides:
+The marketplace is hosted at [seanchatmangpt.github.io/ggen](https://seanchatmangpt.github.io/ggen/) (GitHub Pages) and provides:
 
 - **Transparency**: All templates are open source and version controlled
-- **Reliability**: GitHub's robust infrastructure
+- **Reliability**: GitHub Pages with CDN-backed infrastructure
 - **Community**: Easy contribution via pull requests
 - **Free**: No additional hosting costs
+- **Automated**: CI/CD pipeline validates and publishes registry updates
 
 ## Usage
 
@@ -18,8 +19,8 @@ The marketplace is hosted at `https://github.com/seanchatmangpt/rgen` and serves
 The marketplace URL can be configured using the `GGEN_REGISTRY_URL` environment variable:
 
 ```bash
-# Use GitHub marketplace (default)
-export GGEN_REGISTRY_URL="https://raw.githubusercontent.com/seanchatmangpt/ggen/master/registry/"
+# Use GitHub Pages marketplace (default)
+export GGEN_REGISTRY_URL="https://seanchatmangpt.github.io/ggen/"
 
 # Use local registry for development/testing
 export GGEN_REGISTRY_URL="file:///path/to/local/registry/"
@@ -62,35 +63,153 @@ rgen show io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl
 
 ## Registry Structure
 
-The marketplace registry is defined in `registry/index.json`:
+The marketplace registry is defined in `registry/index.json` and automatically published to GitHub Pages:
 
 ```json
 {
-  "updated": "2024-01-01T00:00:00Z",
+  "updated": "2024-12-19T00:00:00Z",
   "packs": {
-    "io.rgen.rust.cli-subcommand": {
-      "id": "io.rgen.rust.cli-subcommand",
+    "io.ggen.rust.cli-subcommand": {
+      "id": "io.ggen.rust.cli-subcommand",
       "name": "Rust CLI Subcommand",
-      "description": "Generate clap subcommands for Rust CLI applications",
+      "description": "Generate clap subcommands for Rust CLI applications with proper error handling and testing",
       "tags": ["rust", "cli", "clap", "subcommand"],
-      "keywords": ["rust", "cli", "clap"],
+      "keywords": ["rust", "cli", "clap", "command-line", "terminal"],
       "category": "rust",
-      "author": "rgen-team",
+      "author": "ggen-team",
       "latest_version": "0.1.0",
       "versions": {
         "0.1.0": {
           "version": "0.1.0",
-          "git_url": "https://github.com/seanchatmangpt/rgen.git",
-          "git_rev": "master",
-          "sha256": "calculated_hash"
+          "git_url": "https://github.com/seanchatmangpt/ggen.git",
+          "git_rev": "11ea0739a579165c33fde5fb4d5a347bed6f5c58",
+          "sha256": "58db67ac8440401e"
         }
       },
       "license": "MIT",
-      "homepage": "https://github.com/seanchatmangpt/rgen",
-      "repository": "https://github.com/seanchatmangpt/rgen"
+      "homepage": "https://github.com/seanchatmangpt/ggen",
+      "repository": "https://github.com/seanchatmangpt/ggen",
+      "documentation": "https://github.com/seanchatmangpt/ggen/tree/main/templates/cli/subcommand"
     }
   }
 }
+```
+
+## Adding New Rpacks
+
+### 1. Create Rpack Structure
+
+Create a new directory under `templates/` with the following structure:
+
+```
+templates/your-category/your-rpack/
+├── rpack.toml          # Rpack manifest
+├── rust.tmpl           # Template files
+├── meta.yaml           # Metadata
+└── graphs/             # RDF graphs (optional)
+    ├── data.ttl
+    └── shapes.ttl
+```
+
+### 2. Create Rpack Manifest
+
+Create `rpack.toml` with proper metadata:
+
+```toml
+[rpack]
+id = "io.ggen.your-category.your-rpack"
+name = "Your Rpack Name"
+version = "0.1.0"
+description = "Description of what this rpack generates"
+license = "MIT"
+ggen_compat = ">=0.1.0"
+
+[templates]
+patterns = ["*.tmpl"]
+
+[rdf]
+patterns = ["graphs/*.ttl"]
+```
+
+### 3. Generate SHA256 Hash
+
+Use the hash generation script:
+
+```bash
+# Generate hash for your rpack
+cargo make registry-hash PACK_PATH=templates/your-category/your-rpack
+```
+
+### 4. Update Registry Index
+
+Add your rpack to `registry/index.json`:
+
+```json
+{
+  "id": "io.ggen.your-category.your-rpack",
+  "name": "Your Rpack Name",
+  "description": "Description of what this rpack generates",
+  "tags": ["your", "category", "tags"],
+  "keywords": ["keyword1", "keyword2"],
+  "category": "your-category",
+  "author": "your-name",
+  "latest_version": "0.1.0",
+  "versions": {
+    "0.1.0": {
+      "version": "0.1.0",
+      "git_url": "https://github.com/seanchatmangpt/ggen.git",
+      "git_rev": "current-commit-hash",
+      "sha256": "generated-hash"
+    }
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/seanchatmangpt/ggen",
+  "repository": "https://github.com/seanchatmangpt/ggen"
+}
+```
+
+### 5. Validate and Publish
+
+Validate the registry and push to trigger automatic publishing:
+
+```bash
+# Validate registry
+cargo make registry-validate
+
+# Push changes (triggers GitHub Pages deployment)
+git add registry/index.json
+git commit -m "Add new rpack: io.ggen.your-category.your-rpack"
+git push
+```
+
+## Hash Generation Process
+
+The SHA256 hash ensures integrity and reproducibility. It's calculated using the same algorithm as the cache manager:
+
+1. **Walk all files** in the rpack directory
+2. **Hash file contents** in deterministic order
+3. **Produce 64-character hex string**
+
+Use the provided script for consistency:
+
+```bash
+./scripts/generate_registry_hashes templates/your-category/your-rpack
+```
+
+## Validation Requirements
+
+All rpacks must pass validation before being published:
+
+- **JSON Schema**: Valid registry structure
+- **Git References**: Accessible URLs and valid revisions
+- **SHA256 Hashes**: Valid hex format
+- **Version Strings**: Semantic versioning compliance
+- **Required Fields**: All mandatory metadata present
+
+Run validation locally:
+
+```bash
+cargo make registry-validate
 ```
 
 ## Local Development and Testing
