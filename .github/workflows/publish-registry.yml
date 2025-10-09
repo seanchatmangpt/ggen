@@ -1,11 +1,11 @@
 name: Deploy Documentation to GitHub Pages
 
 on:
+  # Trigger whenever there is a push to the default branch
   push:
-    paths:
-      - "docs/**"
     branches:
       - main
+  # Allow manual workflow dispatch
   workflow_dispatch:
 
 permissions:
@@ -18,8 +18,11 @@ concurrency:
   cancel-in-running: true
 
 jobs:
-  build-docs:
+  build-and-deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -81,13 +84,6 @@ jobs:
         with:
           path: docs/book
 
-  deploy:
-    needs: build-docs
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
