@@ -23,9 +23,9 @@ journald = ["utils/journald"]
 syslog = ["utils/syslog"]
 
 [dependencies]
-utils = { path = "utils" }
-cli = { path = "cli" }
-rgen-core = { path = "rgen-core" }
+utils = { path = "utils", version = "0.1.0" }
+cli = { path = "cli", version = "0.1.0" }
+rgen-core = { path = "rgen-core", version = "0.1.0" }
 human-panic = "2.0.0"
 better-panic = "0.3.0"
 log = "0.4.27"
