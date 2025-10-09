@@ -1,3 +1,54 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [rgen v0.1.0](#rgen-v010)
+  - [🚀 Installation](#-installation)
+    - [Build from Source (Recommended)](#build-from-source-recommended)
+  - [⚡ Quick Start](#-quick-start)
+    - [1. Create a Template Directory](#1-create-a-template-directory)
+    - [2. Create Your First Template](#2-create-your-first-template)
+    - [3. List Available Templates](#3-list-available-templates)
+    - [4. Generate Code (Coming Soon)](#4-generate-code-coming-soon)
+  - [📁 Project Structure](#-project-structure)
+  - [🧩 Template Structure](#-template-structure)
+  - [💡 Available Commands](#-available-commands)
+  - [🔍 Hazard Report Example](#-hazard-report-example)
+  - [🎯 Template Features](#-template-features)
+    - [Tera Template Engine](#tera-template-engine)
+    - [RDF & SPARQL Integration](#rdf--sparql-integration)
+    - [File Injection](#file-injection)
+    - [Idempotency](#idempotency)
+    - [Shell Hooks](#shell-hooks)
+  - [🔁 Deterministic Generation](#-deterministic-generation)
+  - [📦 Example Templates](#-example-templates)
+    - [CLI Subcommand Template](#cli-subcommand-template)
+    - [API Endpoint Template](#api-endpoint-template)
+  - [🧰 Development Commands](#-development-commands)
+  - [📚 Template Frontmatter Reference](#-template-frontmatter-reference)
+    - [Core Fields](#core-fields)
+    - [RDF & SPARQL](#rdf--sparql)
+    - [Injection & Idempotency](#injection--idempotency)
+    - [Shell & Determinism](#shell--determinism)
+  - [🏗️ Architecture](#-architecture)
+  - [🔧 Current Limitations (v0.1.0)](#-current-limitations-v010)
+    - [Working ✅](#working-)
+    - [In Development 🚧](#in-development-)
+    - [Requires Backend ⚠️](#requires-backend-)
+  - [🎓 Understanding rgen](#-understanding-rgen)
+    - [Core Concepts](#core-concepts)
+  - [🚧 Roadmap](#-roadmap)
+    - [v0.2.0 (Planned)](#v020-planned)
+    - [v0.3.0 (Planned)](#v030-planned)
+    - [v1.0.0 (Future)](#v100-future)
+  - [🤝 Contributing](#-contributing)
+  - [📖 Documentation](#-documentation)
+  - [🔒 License](#-license)
+  - [🙏 Acknowledgments](#-acknowledgments)
+  - [⚡ Quick Reference](#-quick-reference)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # rgen v0.1.0
 
 **Language-agnostic code generator with RDF-based semantic templates.**
