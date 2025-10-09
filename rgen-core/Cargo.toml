@@ -11,7 +11,7 @@ keywords = ["cli", "code-generation", "rdf", "templates"]
 categories = ["development-tools", "command-line-utilities"]
 
 [dependencies]
-rgen-utils = { path = "../utils" }
+rgen-utils = { path = "../utils", version = "0.1.0" }
 anyhow = "1.0"
 tera = "1.0"
 oxigraph = "0.4"
