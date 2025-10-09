@@ -24,7 +24,7 @@ syslog = ["rgen-utils/syslog"]
 
 [dependencies]
 rgen-utils = { path = "utils", version = "0.1.0" }
-rgen-cli = { path = "cli", version = "0.1.0" }
+rgen-cli-lib = { path = "cli", version = "0.1.0" }
 rgen-core = { path = "rgen-core", version = "0.1.0" }
 human-panic = "2.0.0"
 better-panic = "0.3.0"
