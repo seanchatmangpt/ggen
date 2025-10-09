@@ -8,12 +8,12 @@ rgen supports configuration through project files and environment variables.
 
 Controls the marketplace registry URL used for searching and installing rpacks.
 
-**Default**: [seanchatmangpt.github.io/ggen](https://seanchatmangpt.github.io/ggen/) (GitHub Pages)
+**Default**: [seanchatmangpt.github.io/ggen/registry](https://seanchatmangpt.github.io/ggen/registry/) (GitHub Pages)
 
 **Examples**:
 ```bash
 # Use production marketplace (default)
-export GGEN_REGISTRY_URL="https://seanchatmangpt.github.io/ggen/"
+export GGEN_REGISTRY_URL="https://seanchatmangpt.github.io/ggen/registry/"
 
 # Use local registry for development/testing
 export GGEN_REGISTRY_URL="file:///path/to/local/registry/"
@@ -32,7 +32,7 @@ git clone https://github.com/seanchatmangpt/ggen.git
 cd ggen
 
 # Use local registry
-export GGEN_REGISTRY_URL="file://$(pwd)/registry/"
+export GGEN_REGISTRY_URL="file://$(pwd)/docs/registry/"
 
 # Test marketplace functionality
 rgen search rust

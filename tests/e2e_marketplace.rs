@@ -13,7 +13,7 @@ fn test_marketplace_e2e_workflow() -> Result<()> {
 
     // Setup: Use local registry for testing
     let manifest_dir = env::var("CARGO_MANIFEST_DIR")?;
-    let registry_path = PathBuf::from(manifest_dir).join("registry");
+    let registry_path = PathBuf::from(manifest_dir).join("docs").join("registry");
     let file_url = format!("file://{}/", registry_path.canonicalize()?.display());
 
     // Set environment variable for local registry
@@ -38,7 +38,7 @@ fn test_marketplace_e2e_workflow() -> Result<()> {
     // Copy the rpack to cache (simulating git clone)
     let cached_rpack_dir = cache_dir.join(rpack_id).join(rpack_version);
     fs::create_dir_all(&cached_rpack_dir)?;
-    copy_dir_all(&registry_path.join("..").join("templates").join("cli").join("subcommand"), &cached_rpack_dir)?;
+    copy_dir_all(&registry_path.join("..").join("..").join("templates").join("cli").join("subcommand"), &cached_rpack_dir)?;
 
     println!("✓ Rpack cached to: {}", cached_rpack_dir.display());
 
@@ -99,7 +99,7 @@ source = "https://github.com/seanchatmangpt/ggen.git#11ea0739a579165c33fde5fb4d5
 fn simulate_search(query: &str) -> Result<Vec<String>> {
     // Load registry index
     let manifest_dir = env::var("CARGO_MANIFEST_DIR")?;
-    let registry_path = PathBuf::from(manifest_dir).join("registry").join("index.json");
+    let registry_path = PathBuf::from(manifest_dir).join("docs").join("registry").join("index.json");
     let registry_content = fs::read_to_string(&registry_path)?;
     let registry: serde_json::Value = serde_json::from_str(&registry_content)?;
 
@@ -182,7 +182,7 @@ fn resolve_template(template_ref: &str, project_dir: &std::path::Path) -> Result
 #[test]
 fn test_registry_validation() -> Result<()> {
     let manifest_dir = env::var("CARGO_MANIFEST_DIR")?;
-    let registry_path = PathBuf::from(manifest_dir).join("registry").join("index.json");
+    let registry_path = PathBuf::from(manifest_dir).join("docs").join("registry").join("index.json");
     
     // Load and validate registry
     let registry_content = fs::read_to_string(&registry_path)?;

@@ -23,7 +23,7 @@ fn test_registry_client_creation() -> Result<()> {
 fn test_registry_client_with_file_url() -> Result<()> {
     // Get absolute path to registry directory
     let manifest_dir = env::var("CARGO_MANIFEST_DIR")?;
-    let registry_path = PathBuf::from(manifest_dir).join("registry");
+    let registry_path = PathBuf::from(manifest_dir).join("docs").join("registry");
     let file_url = format!("file://{}/", registry_path.canonicalize()?.display());
 
     // Set environment variable for testing
@@ -43,10 +43,11 @@ fn test_registry_index_json_exists() -> Result<()> {
     // Verify that the registry index.json file exists and is valid JSON
     let manifest_dir = env::var("CARGO_MANIFEST_DIR")?;
     let registry_path = PathBuf::from(manifest_dir)
+        .join("docs")
         .join("registry")
         .join("index.json");
 
-    assert!(registry_path.exists(), "registry/index.json should exist");
+    assert!(registry_path.exists(), "docs/registry/index.json should exist");
 
     // Read and parse the JSON
     let content = std::fs::read_to_string(&registry_path)?;
