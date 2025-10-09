@@ -1,5 +1,5 @@
 use anyhow::Result;
-use core::RegistryClient;
+use rgen_core::RegistryClient;
 use std::path::PathBuf;
 use std::env;
 
@@ -66,7 +66,7 @@ async fn test_advanced_search_from_local_registry() -> Result<()> {
     env::set_var("RGEN_REGISTRY_URL", &file_url);
     
     let client = RegistryClient::new()?;
-    let search_params = core::registry::SearchParams {
+    let search_params = rgen_core::registry::SearchParams {
         query: "rust",
         category: Some("rust"),
         keyword: None,

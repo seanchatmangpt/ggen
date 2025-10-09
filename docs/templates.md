@@ -14,11 +14,15 @@ Marketplace rpacks are curated, versioned template collections published to the 
 ├── templates/          # Template files
 │   └── cli/
 │       └── subcommand/
-│           └── rust.tmpl
+│           ├── rust.tmpl
+│           ├── graphs/         # Local RDF data
+│           │   ├── cli.ttl
+│           │   └── shapes/
+│           │       └── cli.shacl.ttl
+│           └── queries/        # Local SPARQL queries
+│               └── commands.rq
 ├── macros/            # Reusable template fragments
 │   └── common.tera
-├── graphs/            # RDF graphs
-│   └── cli.ttl
 └── tests/             # Golden tests
     └── test_hello.rs
 ```
@@ -44,7 +48,7 @@ includes   = ["macros/**/*.tera"]
 [rdf]
 base = "http://example.org/"
 prefixes.ex = "http://example.org/"
-files  = ["graphs/*.ttl"]
+files  = ["templates/**/graphs/*.ttl"]
 inline = ["@prefix ex: <http://example.org/> . ex:Foo a ex:Type ."]
 ```
 

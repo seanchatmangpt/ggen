@@ -57,11 +57,16 @@ pub struct Graph {
 
 impl Graph {
     pub fn new() -> Result<Self> {
+        let plan_cache_size = NonZeroUsize::new(100)
+            .ok_or_else(|| anyhow::anyhow!("Invalid cache size"))?;
+        let result_cache_size = NonZeroUsize::new(1000)
+            .ok_or_else(|| anyhow::anyhow!("Invalid cache size"))?;
+
         Ok(Self {
             inner: Store::new()?,
             epoch: Arc::new(AtomicU64::new(1)),
-            plan_cache: Arc::new(Mutex::new(LruCache::new(NonZeroUsize::new(100).unwrap()))),
-            result_cache: Arc::new(Mutex::new(LruCache::new(NonZeroUsize::new(1000).unwrap()))),
+            plan_cache: Arc::new(Mutex::new(LruCache::new(plan_cache_size))),
+            result_cache: Arc::new(Mutex::new(LruCache::new(result_cache_size))),
         })
     }
 
@@ -166,13 +171,20 @@ impl Graph {
         let cache_key = (query_hash, epoch);
 
         // Check result cache
-        if let Some(cached) = self.result_cache.lock().unwrap().get(&cache_key).cloned() {
+        if let Some(cached) = self.result_cache
+            .lock()
+            .map_err(|e| anyhow::anyhow!("Cache lock poisoned: {}", e))?
+            .get(&cache_key)
+            .cloned()
+        {
             return Ok(cached);
         }
 
         // Check plan cache or parse
         let query = {
-            let mut cache = self.plan_cache.lock().unwrap();
+            let mut cache = self.plan_cache
+                .lock()
+                .map_err(|e| anyhow::anyhow!("Cache lock poisoned: {}", e))?;
             if let Some(q) = cache.get(&query_hash).cloned() {
                 q
             } else {
@@ -189,7 +201,7 @@ impl Graph {
         // Store in cache
         self.result_cache
             .lock()
-            .unwrap()
+            .map_err(|e| anyhow::anyhow!("Cache lock poisoned: {}", e))?
             .put(cache_key, cached.clone());
 
         Ok(cached)
@@ -233,10 +245,10 @@ impl Graph {
         Ok(self
             .inner
             .quads_for_pattern(
-                s.map(|x| x.as_ref().into()),
-                p.map(|x| x.as_ref().into()),
-                o.map(|x| x.as_ref().into()),
-                g.map(|x| x.as_ref().into()),
+                s.map(|x| x.as_ref()),
+                p.map(|x| x.as_ref()),
+                o.map(|x| x.as_ref()),
+                g.map(|x| x.as_ref()),
             )
             .collect::<Result<Vec<_>, _>>()?)
     }

@@ -116,7 +116,7 @@ impl TeraFunction for LocalFn {
             .and_then(|x| x.strip_suffix('>'))
             .unwrap_or(s);
         let idx = s
-            .rfind(|c| c == '#' || c == '/')
+            .rfind(['#', '/'])
             .map(|i| i + 1)
             .unwrap_or(0);
         Ok(serde_json::Value::String(s[idx..].to_string()))
@@ -207,11 +207,11 @@ fn build_prolog(prefixes: &BTreeMap<String, String>, base: Option<&str>) -> Stri
     let mut s = String::new();
     if let Some(b) = base {
         use std::fmt::Write;
-        let _ = write!(s, "BASE <{}>\n", b);
+        let _ = writeln!(s, "BASE <{}>", b);
     }
     for (pfx, iri) in prefixes {
         use std::fmt::Write;
-        let _ = write!(s, "PREFIX {}: <{}>\n", pfx, iri);
+        let _ = writeln!(s, "PREFIX {}: <{}>", pfx, iri);
     }
     s
 }

@@ -10,7 +10,7 @@ use tempfile::TempDir;
 /// - Command outputs and exit codes
 /// - Captured file contents and hashes
 /// - Registry mocking state
-#[derive(Default)]
+#[derive(Debug, Default, cucumber::World)]
 pub struct RgenWorld {
     /// Temporary directory for test isolation
     pub temp_dir: Option<TempDir>,
@@ -97,10 +97,4 @@ impl RgenWorld {
     }
 }
 
-impl cucumber::World for RgenWorld {
-    type Error = Box<dyn std::error::Error + Send + Sync>;
-
-    fn new() -> Result<Self, Self::Error> {
-        Ok(Self::new())
-    }
-}
+// World trait is automatically implemented by the derive macro

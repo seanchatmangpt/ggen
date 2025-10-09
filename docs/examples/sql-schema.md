@@ -3,7 +3,8 @@
 ```yaml
 ---
 to: db/{{ table }}.sql
-rdf: { include: [graphs/domain.ttl] }
+rdf:
+  - "graphs/domain.ttl"
 sparql:
   matrix:
     query: |

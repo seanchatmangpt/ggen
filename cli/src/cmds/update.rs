@@ -1,6 +1,6 @@
 use anyhow::{Context, Result};
 use clap::Args;
-use core::{CacheManager, LockfileManager, RegistryClient};
+use rgen_core::{CacheManager, LockfileManager, RegistryClient};
 use std::env;
 
 #[derive(Args, Debug)]
@@ -52,7 +52,7 @@ pub async fn run(args: &UpdateArgs) -> Result<()> {
                 println!("Found update: {} -> {}", pack.version, new_pack.version);
 
                 // Download new version
-                let cached_pack = cache_manager
+                let _cached_pack = cache_manager
                     .ensure(&new_pack)
                     .await
                     .with_context(|| format!("Failed to download updated rpack '{}'", pack.id))?;

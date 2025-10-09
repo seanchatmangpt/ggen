@@ -1,7 +1,6 @@
 use anyhow::Result;
 use std::collections::HashMap;
 use std::fs;
-use std::path::PathBuf;
 use tempfile::TempDir;
 
 use rgen::mock_registry::MockGitHubRegistry;

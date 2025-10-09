@@ -260,7 +260,7 @@ impl TemplateResolver {
         let matter = Matter::<gray_matter::engine::YAML>::new();
         let parsed = matter.parse(content)?;
 
-        let frontmatter = parsed.data.map(|data: serde_yaml::Value| data.into());
+        let frontmatter = parsed.data.map(|data: serde_yaml::Value| data);
         let content = parsed.content;
 
         Ok((frontmatter, content))

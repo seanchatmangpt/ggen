@@ -1,5 +1,5 @@
 [package]
-name = "core"
+name = "rgen-core"
 version = "0.1.0"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "Core graph-aware code generation engine"

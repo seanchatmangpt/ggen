@@ -1,6 +1,6 @@
 use anyhow::{bail, Context, Result};
 use clap::Args;
-use core::{CacheManager, LockfileManager, RegistryClient};
+use rgen_core::{CacheManager, LockfileManager, RegistryClient};
 use std::env;
 
 #[derive(Args, Debug)]

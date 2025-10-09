@@ -1,5 +1,5 @@
 use anyhow::Result;
-use core::LockfileManager;
+use rgen_core::LockfileManager;
 use std::env;
 
 pub fn run() -> Result<()> {
@@ -20,8 +20,8 @@ pub fn run() -> Result<()> {
 
     // Header
     println!(
-        "{:<40} {:<12} {:<20} {}",
-        "ID", "VERSION", "SOURCE", "SHA256"
+        "{:<40} {:<12} {:<20} SHA256",
+        "ID", "VERSION", "SOURCE"
     );
     println!("{}", "-".repeat(80));
 

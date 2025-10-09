@@ -17,24 +17,24 @@ use tera::{Context, Result as TeraResult, Tera, Value};
 /// Register all text transformation helpers into Tera.
 pub fn register_all(tera: &mut Tera) {
     // ---------- Inflector canonical ----------
-    reg_str(tera, "camel", |s| camelcase::to_camel_case(s));
-    reg_str(tera, "pascal", |s| pascalcase::to_pascal_case(s));
-    reg_str(tera, "snake", |s| snakecase::to_snake_case(s));
-    reg_str(tera, "kebab", |s| kebabcase::to_kebab_case(s));
-    reg_str(tera, "class", |s| classcase::to_class_case(s));
-    reg_str(tera, "title", |s| titlecase::to_title_case(s));
-    reg_str(tera, "sentence", |s| sentencecase::to_sentence_case(s));
-    reg_str(tera, "train", |s| traincase::to_train_case(s));
+    reg_str(tera, "camel", camelcase::to_camel_case);
+    reg_str(tera, "pascal", pascalcase::to_pascal_case);
+    reg_str(tera, "snake", snakecase::to_snake_case);
+    reg_str(tera, "kebab", kebabcase::to_kebab_case);
+    reg_str(tera, "class", classcase::to_class_case);
+    reg_str(tera, "title", titlecase::to_title_case);
+    reg_str(tera, "sentence", sentencecase::to_sentence_case);
+    reg_str(tera, "train", traincase::to_train_case);
 
-    reg_str(tera, "pluralize", |s| pluralize::to_plural(s));
-    reg_str(tera, "singularize", |s| singularize::to_singular(s));
-    reg_str(tera, "deconstantize", |s| deconstantize::deconstantize(s));
-    reg_str(tera, "demodulize", |s| demodulize::demodulize(s));
+    reg_str(tera, "pluralize", pluralize::to_plural);
+    reg_str(tera, "singularize", singularize::to_singular);
+    reg_str(tera, "deconstantize", deconstantize::deconstantize);
+    reg_str(tera, "demodulize", demodulize::demodulize);
 
-    reg_str(tera, "ordinalize", |s| ordinalize::ordinalize(s));
-    reg_str(tera, "deordinalize", |s| deordinalize::deordinalize(s));
+    reg_str(tera, "ordinalize", ordinalize::ordinalize);
+    reg_str(tera, "deordinalize", deordinalize::deordinalize);
 
-    reg_str(tera, "foreign_key", |s| foreignkey::to_foreign_key(s));
+    reg_str(tera, "foreign_key", foreignkey::to_foreign_key);
 
     // ---------- Heck fill-ins (not in Inflector) ----------
     reg_str(tera, "shouty_snake", |s| s.to_shouty_snake_case());
@@ -42,7 +42,7 @@ pub fn register_all(tera: &mut Tera) {
     reg_str(tera, "titlecase", |s| s.to_title_case()); // better consistency
 
     // ---------- Common change-case style aliases ----------
-    reg_str(tera, "param", |s| kebabcase::to_kebab_case(s));
+    reg_str(tera, "param", kebabcase::to_kebab_case);
     reg_str(tera, "constant", |s| s.to_shouty_snake_case());
     reg_str(tera, "upper", |s| s.to_uppercase());
     reg_str(tera, "lower", |s| s.to_lowercase());

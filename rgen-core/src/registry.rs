@@ -246,7 +246,7 @@ impl RegistryClient {
             if !pack
                 .category
                 .as_ref()
-                .map_or(false, |c| c.to_lowercase() == category.to_lowercase())
+                .is_some_and(|c| c.to_lowercase() == category.to_lowercase())
             {
                 return false;
             }
@@ -268,7 +268,7 @@ impl RegistryClient {
             if !pack
                 .author
                 .as_ref()
-                .map_or(false, |a| a.to_lowercase().contains(&author.to_lowercase()))
+                .is_some_and(|a| a.to_lowercase().contains(&author.to_lowercase()))
             {
                 return false;
             }

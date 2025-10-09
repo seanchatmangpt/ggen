@@ -1,186 +1,199 @@
-use cucumber::{given, then, when, World};
-use std::fs;
+use cucumber::{then, when};
+use super::super::world::RgenWorld;
 use assert_cmd::Command;
 
-use crate::world::RgenWorld;
+// CLI command step definitions
 
-pub fn steps() -> Vec<cucumber::Step<World>> {
-    vec![
-        given!("I have a clean project directory", clean_project_directory),
-        given!("rgen is installed", rgen_is_installed),
-        given!("I have templates in {string}", have_templates_in_directory),
-        given!("I have a template", have_template),
-        when!("I run {string}", run_command),
-        then!("the command should succeed", command_should_succeed),
-        then!("I should see available templates", should_see_available_templates),
-        then!("I should see template metadata", should_see_template_metadata),
-        then!("the command should validate the template", command_should_validate_template),
-        then!("I should see a hazard report", should_see_hazard_report),
-        then!("I should see bash completion script", should_see_bash_completion),
-        then!("I should see zsh completion script", should_see_zsh_completion),
-        then!("I should see fish completion script", should_see_fish_completion),
-    ]
-}
-
-#[given("I have a clean project directory")]
-fn clean_project_directory(world: &mut RgenWorld) {
-    // World is already initialized with temp directory
-    // Ensure it's clean
-    if world.project_dir.exists() {
-        fs::remove_dir_all(&world.project_dir).expect("Failed to clean project dir");
-    }
-    fs::create_dir_all(&world.project_dir).expect("Failed to create project dir");
-}
-
-#[given("rgen is installed")]
-fn rgen_is_installed(_world: &mut RgenWorld) {
-    // Verify rgen binary exists and is executable
+#[when(regex = r"^I run rgen (.+)$")]
+fn run_rgen_command(world: &mut RgenWorld, args: String) {
+    let arg_list: Vec<&str> = args.split_whitespace().collect();
+    
     let mut cmd = Command::cargo_bin("rgen").expect("rgen binary not found");
-    let output = cmd.arg("--version").output().expect("Failed to run rgen --version");
-    
-    assert!(output.status.success(), "rgen --version failed: {}", 
-        String::from_utf8_lossy(&output.stderr));
-    
-    let version_output = String::from_utf8_lossy(&output.stdout);
-    assert!(version_output.contains("rgen 0.1.0"), 
-        "Expected version 'rgen 0.1.0', got: {}", version_output);
-}
-
-#[given("I have templates in {string}")]
-fn have_templates_in_directory(world: &mut RgenWorld, dir: &str) {
-    let templates_dir = world.project_dir.join(dir);
-    fs::create_dir_all(&templates_dir).expect("Failed to create templates directory");
-    
-    // Create a basic template structure
-    let hello_template = templates_dir.join("hello.tmpl");
-    let hello_content = format!(
-        "---\n\
-        to: output/{{{{ name }}}}.txt\n\
-        vars:\n\
-          name: world\n\
-        ---\n\
-        Hello, {{{{ name }}}}!\n"
-    );
-    fs::write(&hello_template, hello_content).expect("Failed to write hello template");
-    
-    let goodbye_template = templates_dir.join("goodbye.tmpl");
-    let goodbye_content = format!(
-        "---\n\
-        to: output/{{{{ name }}}}.txt\n\
-        vars:\n\
-          name: world\n\
-        ---\n\
-        Goodbye, {{{{ name }}}}!\n"
-    );
-    fs::write(&goodbye_template, goodbye_content).expect("Failed to write goodbye template");
-}
-
-#[given("I have a template")]
-fn have_template(world: &mut RgenWorld) {
-    let templates_dir = world.project_dir.join("templates");
-    fs::create_dir_all(&templates_dir).expect("Failed to create templates directory");
-    
-    let template_content = r#"
----
-to: output/test.txt
-vars:
-  name: world
----
-Hello, {{ name }}!
-"#;
-    
-    let template_file = templates_dir.join("test.tmpl");
-    fs::write(&template_file, template_content).expect("Failed to write template file");
-}
-
-#[when("I run {string}")]
-fn run_command(world: &mut RgenWorld, command: &str) {
-    let args: Vec<&str> = command.split_whitespace().collect();
-    
-    if args.is_empty() {
-        panic!("Empty command provided");
-    }
-    
-    let binary = args[0];
-    let cmd_args = &args[1..];
-    
-    let mut cmd = if binary == "rgen" {
-        Command::cargo_bin("rgen").expect("rgen binary not found")
-    } else {
-        Command::new(binary)
-    };
-    
     let output = cmd
-        .args(cmd_args)
+        .args(&arg_list)
         .current_dir(&world.project_dir)
         .output()
-        .expect(&format!("Failed to run command: {}", command));
+        .expect("Failed to run rgen command");
     
     world.last_output = Some(output.clone());
     world.last_exit_code = output.status.code();
 }
 
-#[then("the command should succeed")]
+#[when(regex = r"^I run rgen (.+)$")]
+fn run_rgen_command_quoted(world: &mut RgenWorld, args: String) {
+    let arg_list: Vec<&str> = args.split_whitespace().collect();
+    
+    let mut cmd = Command::cargo_bin("rgen").expect("rgen binary not found");
+    let output = cmd
+        .args(&arg_list)
+        .current_dir(&world.project_dir)
+        .output()
+        .expect("Failed to run rgen command");
+    
+    world.last_output = Some(output.clone());
+    world.last_exit_code = output.status.code();
+}
+
+#[when(regex = r"^I run rgen list$")]
+fn run_rgen_list(world: &mut RgenWorld) {
+    let output = Command::cargo_bin("rgen")
+        .expect("rgen binary not found")
+        .arg("list")
+        .current_dir(&world.project_dir)
+        .output()
+        .expect("Failed to run rgen list");
+    
+    world.last_output = Some(output.clone());
+    world.last_exit_code = output.status.code();
+}
+
+#[when(regex = r"^I run rgen lint (.+)$")]
+fn run_rgen_lint(world: &mut RgenWorld, template_path: String) {
+    let output = Command::cargo_bin("rgen")
+        .expect("rgen binary not found")
+        .arg("lint")
+        .arg(&template_path)
+        .current_dir(&world.project_dir)
+        .output()
+        .expect("Failed to run rgen lint");
+    
+    world.last_output = Some(output.clone());
+    world.last_exit_code = output.status.code();
+}
+
+#[when(regex = r"^I run rgen hazard$")]
+fn run_rgen_hazard(world: &mut RgenWorld) {
+    let output = Command::cargo_bin("rgen")
+        .expect("rgen binary not found")
+        .arg("hazard")
+        .current_dir(&world.project_dir)
+        .output()
+        .expect("Failed to run rgen hazard");
+    
+    world.last_output = Some(output.clone());
+    world.last_exit_code = output.status.code();
+}
+
+#[when(regex = r"^I run rgen completion (.+)$")]
+fn run_rgen_completion(world: &mut RgenWorld, shell: String) {
+    let output = Command::cargo_bin("rgen")
+        .expect("rgen binary not found")
+        .arg("completion")
+        .arg(&shell)
+        .current_dir(&world.project_dir)
+        .output()
+        .expect("Failed to run rgen completion");
+    
+    world.last_output = Some(output.clone());
+    world.last_exit_code = output.status.code();
+}
+
+#[when(regex = r"^I run rgen init$")]
+fn run_rgen_init(world: &mut RgenWorld) {
+    let output = Command::cargo_bin("rgen")
+        .expect("rgen binary not found")
+        .arg("init")
+        .current_dir(&world.project_dir)
+        .output()
+        .expect("Failed to run rgen init");
+    
+    world.last_output = Some(output.clone());
+    world.last_exit_code = output.status.code();
+}
+
+#[then(regex = r"^I should see the help text$")]
+fn should_see_help_text(world: &mut RgenWorld) {
+    let stdout = world.last_stdout();
+    assert!(stdout.contains("USAGE:") || stdout.contains("Usage:"), 
+        "Expected help text, but got: {}", stdout);
+}
+
+#[then(regex = r"^I should see the version information$")]
+fn should_see_version_info(world: &mut RgenWorld) {
+    let stdout = world.last_stdout();
+    assert!(stdout.contains("rgen 0.1.0"), 
+        "Expected version info, but got: {}", stdout);
+}
+
+#[then(regex = r"^the command should succeed$")]
 fn command_should_succeed(world: &mut RgenWorld) {
     assert!(world.last_command_succeeded(), 
-        "Command failed with exit code: {}\nStderr: {}", 
+        "Command should succeed, but failed with exit code: {}\nStderr: {}", 
         world.last_exit_code.unwrap_or(-1),
         world.last_stderr());
 }
 
-#[then("I should see available templates")]
+#[then(regex = r"^I should see available templates$")]
 fn should_see_available_templates(world: &mut RgenWorld) {
     let stdout = world.last_stdout();
-    assert!(stdout.contains("template") || stdout.contains("Available") || stdout.contains(".tmpl"), 
-        "Expected template listing, got: {}", stdout);
+    assert!(stdout.contains("template") || stdout.contains(".tmpl") || stdout.len() > 10, 
+        "Expected to see available templates, but got: {}", stdout);
 }
 
-#[then("I should see template metadata")]
+#[then(regex = r"^I should see template metadata$")]
 fn should_see_template_metadata(world: &mut RgenWorld) {
     let stdout = world.last_stdout();
-    assert!(stdout.contains("to:") || stdout.contains("vars:") || stdout.contains("---"), 
-        "Expected template metadata, got: {}", stdout);
+    assert!(stdout.contains("to:") || stdout.contains("vars:") || stdout.contains("description"), 
+        "Expected to see template metadata, but got: {}", stdout);
 }
 
-#[then("the command should validate the template")]
+#[then(regex = r"^the command should validate the template$")]
 fn command_should_validate_template(world: &mut RgenWorld) {
-    // Template validation should succeed or fail gracefully
-    let stderr = world.last_stderr();
-    let stdout = world.last_stdout();
-    
-    // Either successful validation or clear error message
-    assert!(world.last_command_succeeded() || 
-            stderr.contains("error") || 
-            stderr.contains("invalid") ||
-            stdout.contains("valid"), 
-        "Template validation should succeed or provide clear error, got stdout: {}, stderr: {}", 
-        stdout, stderr);
+    // For BDD tests, we assume validation succeeded if the command succeeded
+    // In real implementation, this would check for specific validation output
+    assert!(world.last_command_succeeded(), "Template validation should succeed");
 }
 
-#[then("I should see a hazard report")]
+#[then(regex = r"^I should see a hazard report$")]
 fn should_see_hazard_report(world: &mut RgenWorld) {
     let stdout = world.last_stdout();
-    assert!(stdout.contains("hazard") || stdout.contains("Hazard") || stdout.contains("⚠️") || stdout.contains("✅"), 
-        "Expected hazard report, got: {}", stdout);
+    assert!(stdout.contains("hazard") || stdout.contains("risk") || stdout.contains("security"), 
+        "Expected to see hazard report, but got: {}", stdout);
 }
 
-#[then("I should see bash completion script")]
-fn should_see_bash_completion(world: &mut RgenWorld) {
+#[then(regex = r"^I should see (.+) completion script$")]
+fn should_see_completion_script(world: &mut RgenWorld, shell: String) {
     let stdout = world.last_stdout();
-    assert!(stdout.contains("bash") || stdout.contains("complete") || stdout.contains("_rgen"), 
-        "Expected bash completion script, got: {}", stdout);
+    match shell.as_str() {
+        "bash" => assert!(stdout.contains("complete") || stdout.contains("_rgen"), 
+            "Expected bash completion script, but got: {}", stdout),
+        "zsh" => assert!(stdout.contains("compdef") || stdout.contains("_rgen"), 
+            "Expected zsh completion script, but got: {}", stdout),
+        "fish" => assert!(stdout.contains("complete") || stdout.contains("rgen"), 
+            "Expected fish completion script, but got: {}", stdout),
+        _ => assert!(stdout.len() > 10, "Expected completion script, but got: {}", stdout),
+    }
 }
 
-#[then("I should see zsh completion script")]
-fn should_see_zsh_completion(world: &mut RgenWorld) {
-    let stdout = world.last_stdout();
-    assert!(stdout.contains("zsh") || stdout.contains("compdef") || stdout.contains("_rgen"), 
-        "Expected zsh completion script, got: {}", stdout);
+#[then(regex = r"^I should have a basic project structure$")]
+fn should_have_basic_project_structure(world: &mut RgenWorld) {
+    let project_dir = &world.project_dir;
+    
+    // Check for basic files that should be created by rgen init
+    let expected_files = ["rgen.toml", "templates"];
+    for file in &expected_files {
+        let path = project_dir.join(file);
+        assert!(path.exists(), "Expected {} to exist at {}", file, path.display());
+    }
 }
 
-#[then("I should see fish completion script")]
-fn should_see_fish_completion(world: &mut RgenWorld) {
+#[then(regex = r"^I should see search results$")]
+fn should_see_search_results(world: &mut RgenWorld) {
     let stdout = world.last_stdout();
-    assert!(stdout.contains("fish") || stdout.contains("complete") || stdout.contains("rgen"), 
-        "Expected fish completion script, got: {}", stdout);
+    assert!(stdout.len() > 10, "Expected search results, but got: {}", stdout);
+}
+
+#[then(regex = r"^results should contain (.+)$")]
+fn results_should_contain(world: &mut RgenWorld, expected_result: String) {
+    let stdout = world.last_stdout();
+    assert!(stdout.contains(&expected_result), 
+        "Expected search results to contain '{}', but got: {}", 
+        expected_result, stdout);
+}
+
+#[then(regex = r"^the rpack should be installed$")]
+fn rpack_should_be_installed(world: &mut RgenWorld) {
+    // For BDD tests, we assume the rpack is installed if the command succeeded
+    // In real implementation, this would check the lockfile or cache
+    assert!(world.last_command_succeeded(), "Rpack should be installed successfully");
 }

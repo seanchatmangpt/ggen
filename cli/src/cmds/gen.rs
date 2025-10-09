@@ -3,9 +3,9 @@ use std::collections::BTreeMap;
 use std::path::PathBuf;
 use utils::error::Result;
 
-use core::pipeline::PipelineBuilder;
-use core::resolver::TemplateResolver;
-use core::{CacheManager, LockfileManager};
+use rgen_core::pipeline::PipelineBuilder;
+use rgen_core::resolver::TemplateResolver;
+use rgen_core::{CacheManager, LockfileManager};
 
 #[derive(Args, Debug)]
 pub struct GenArgs {
