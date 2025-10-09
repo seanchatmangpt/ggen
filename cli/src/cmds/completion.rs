@@ -5,7 +5,7 @@ use clap_complete::{
     shells::{Bash, Fish, Zsh},
 };
 
-pub fn run(sub: &CompletionSubcommand) -> utils::error::Result<()> {
+pub fn run(sub: &CompletionSubcommand) -> rgen_utils::error::Result<()> {
     let mut app = crate::Cli::command();
     match sub {
         CompletionSubcommand::Bash => generate(Bash, &mut app, "rgen", &mut std::io::stdout()),

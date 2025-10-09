@@ -60,7 +60,7 @@ pub enum CompletionSubcommand {
 }
 
 impl Commands {
-    pub async fn run(&self) -> utils::error::Result<()> {
+    pub async fn run(&self) -> rgen_utils::error::Result<()> {
         match self {
             Commands::Search(args) => Ok(search::run(args).await?),
             Commands::Categories(args) => Ok(categories::run(args).await?),
@@ -80,7 +80,7 @@ impl Commands {
 
     pub async fn run_with_config(
         &self, _rgen_config: Option<RgenConfig>,
-    ) -> utils::error::Result<()> {
+    ) -> rgen_utils::error::Result<()> {
         match self {
             Commands::Search(args) => Ok(search::run(args).await?),
             Commands::Categories(args) => Ok(categories::run(args).await?),

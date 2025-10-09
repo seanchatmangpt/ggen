@@ -30,7 +30,7 @@ async fn main() -> Result<()> {
             .install();
     }
 
-    let _guard = utils::logger::setup_logging()?;
+    let _guard = rgen_utils::logger::setup_logging()?;
 
     // Initialize tracing for pipeline debugging
     // rgen_core::tracing::init_tracing()?; // Temporarily disabled
@@ -40,7 +40,7 @@ async fn main() -> Result<()> {
     AppConfig::init(Some(config_contents))?;
 
     // Match Commands
-    cli::cli_match().await?;
+    rgen_cli::cli_match().await?;
 
     Ok(())
 }
