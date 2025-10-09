@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>rgen Documentation - rgen Documentation</title>
+        <title>CLI Reference - rgen Documentation</title>
 
 
         <!-- Custom HTML head -->
@@ -12,34 +12,34 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff">
 
-        <link rel="icon" href="favicon.svg">
-        <link rel="shortcut icon" href="favicon.png">
-        <link rel="stylesheet" href="css/variables.css">
-        <link rel="stylesheet" href="css/general.css">
-        <link rel="stylesheet" href="css/chrome.css">
-        <link rel="stylesheet" href="css/print.css" media="print">
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
 
         <!-- Fonts -->
-        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
-        <link rel="stylesheet" href="fonts/fonts.css">
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
 
         <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" id="highlight-css" href="highlight.css">
-        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
-        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
 
 
         <!-- Provide site root and default themes to javascript -->
         <script>
-            const path_to_root = "";
+            const path_to_root = "../";
             const default_light_theme = "light";
             const default_dark_theme = "navy";
-            window.path_to_searchindex_js = "searchindex.js";
+            window.path_to_searchindex_js = "../searchindex.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc.js"></script>
+        <script src="../toc.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -106,7 +106,7 @@
             <!-- populated by js -->
             <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
             <noscript>
-                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
             </noscript>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -141,13 +141,13 @@
                     <h1 class="menu-title">rgen Documentation</h1>
 
                     <div class="right-buttons">
-                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
                             <i id="print-button" class="fa fa-print"></i>
                         </a>
                         <a href="https://github.com/seanchatmangpt/ggen" title="Git repository" aria-label="Git repository">
                             <i id="git-repository-button" class="fa fa-github"></i>
                         </a>
-                        <a href="https://github.com/seanchatmangpt/ggen/edit/main/docs/src/src/README.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
+                        <a href="https://github.com/seanchatmangpt/ggen/edit/main/docs/src/src/reference/cli.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
                             <i id="git-edit-button" class="fa fa-edit"></i>
                         </a>
 
@@ -181,32 +181,13 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="rgen-documentation"><a class="header" href="#rgen-documentation">rgen Documentation</a></h1>
-<p><strong>Language-agnostic generator for reproducible code projections.</strong></p>
-<p><code>rgen</code> turns one ontology into CLI subcommands, APIs, schema files, and docs for any target language.</p>
-<hr />
-<h2 id="-purpose"><a class="header" href="#-purpose">🧭 Purpose</a></h2>
-<p>Developers repeat the same scaffolding logic across stacks. <code>rgen</code> removes the language barrier.</p>
-<p>You describe the <strong>intent</strong> (command, type, or system capability) once as a graph or RDF-like metadata block. rgen projects that intent into any target framework or language.</p>
-<h2 id="-quick-start"><a class="header" href="#-quick-start">🚀 Quick Start</a></h2>
-<h3 id="using-marketplace-rpacks-recommended"><a class="header" href="#using-marketplace-rpacks-recommended">Using marketplace rpacks (recommended)</a></h3>
-<pre><code class="language-bash"># Search for CLI subcommand templates
-rgen search rust cli
+                        <h1 id="cli"><a class="header" href="#cli">CLI</a></h1>
+<h2 id="marketplace-commands"><a class="header" href="#marketplace-commands">Marketplace Commands</a></h2>
+<h3 id="search-and-discovery"><a class="header" href="#search-and-discovery">Search and Discovery</a></h3>
+<pre><code class="language-bash"># Search for rpacks by keywords
+rgen search &lt;query&gt;
 
-# Install a high-quality rpack
-rgen add io.ggen.rust.cli-subcommand
-
-# Generate using the installed rpack
-rgen gen io.ggen.rust.cli-subcommand:rust.tmpl cmd=hello description="Print a greeting"
-</code></pre>
-<h3 id="using-local-templates"><a class="header" href="#using-local-templates">Using local templates</a></h3>
-<pre><code class="language-bash">rgen gen cli subcommand --vars cmd=hello summary="Print a greeting"
-</code></pre>
-<h2 id="-marketplace"><a class="header" href="#-marketplace">🏪 Marketplace</a></h2>
-<p>The rgen marketplace provides a curated ecosystem of reusable code generation packs (rpacks) served via GitHub Pages with automated validation and deployment.</p>
-<p><strong>Registry API</strong>: <a href="registry/index.json">registry/index.json</a></p>
-<h3 id="discover-rpacks"><a class="header" href="#discover-rpacks">Discover rpacks</a></h3>
-<pre><code class="language-bash"># Search for templates by language and type
+# Examples:
 rgen search rust cli
 rgen search python api
 rgen search typescript react
@@ -214,82 +195,133 @@ rgen search typescript react
 # Browse popular categories
 rgen categories
 
-# Get detailed information about a specific rpack
-rgen show io.ggen.rust.cli-subcommand
+# Get detailed rpack information
+rgen show &lt;rpack-id&gt;
 </code></pre>
-<h3 id="install-and-use"><a class="header" href="#install-and-use">Install and use</a></h3>
-<pre><code class="language-bash"># Install the latest version
-rgen add io.ggen.rust.cli-subcommand
+<h3 id="installation-and-management"><a class="header" href="#installation-and-management">Installation and Management</a></h3>
+<pre><code class="language-bash"># Install rpack (latest version)
+rgen add &lt;rpack-id&gt;
 
 # Install specific version
-rgen add io.ggen.rust.cli-subcommand@0.1.0
+rgen add &lt;rpack-id&gt;@&lt;version&gt;
+
+# Examples:
+rgen add io.rgen.rust.cli-subcommand
+rgen add io.rgen.rust.cli-subcommand@0.2.0
 
 # List installed rpacks
 rgen packs
 
-# Update to latest versions
+# Update all rpacks to latest compatible versions
 rgen update
 
-# Use installed rpack templates
-rgen gen io.ggen.rust.cli-subcommand:rust.tmpl cmd=users
+# Update specific rpack
+rgen update &lt;rpack-id&gt;
+
+# Remove rpack
+rgen remove &lt;rpack-id&gt;
 </code></pre>
-<h2 id="-documentation-sections"><a class="header" href="#-documentation-sections">📚 Documentation Sections</a></h2>
-<h3 id="getting-started"><a class="header" href="#getting-started"><a href="guides/install.html">Getting Started</a></a></h3>
-<p>Get started quickly with installation, basic usage, and template development.</p>
-<h3 id="core-concepts"><a class="header" href="#core-concepts"><a href="concepts/frontmatter.html">Core Concepts</a></a></h3>
-<p>Understand the fundamental ideas behind rgen: templates, RDF integration, projections, and determinism.</p>
-<h3 id="reference"><a class="header" href="#reference"><a href="reference/cli.html">Reference</a></a></h3>
-<p>Complete CLI reference, troubleshooting guides, and technical details.</p>
-<h3 id="advanced"><a class="header" href="#advanced"><a href="advanced/calculus.html">Advanced</a></a></h3>
-<p>Deep dive into mathematical foundations, developer experience features, and rpack development.</p>
-<h3 id="examples"><a class="header" href="#examples"><a href="examples/cli-subcommand-multi.html">Examples</a></a></h3>
-<p>Real-world usage examples and tutorials.</p>
-<h2 id="-installation"><a class="header" href="#-installation">🔧 Installation</a></h2>
-<h3 id="homebrew"><a class="header" href="#homebrew">Homebrew</a></h3>
-<pre><code class="language-bash">brew tap seanchatmangpt/tap
-brew install ggen
-</code></pre>
-<h3 id="cargo"><a class="header" href="#cargo">Cargo</a></h3>
-<pre><code class="language-bash">cargo install rgen
-</code></pre>
-<h2 id="-determinism"><a class="header" href="#-determinism">🔁 Determinism</a></h2>
-<p>rgen computes a manifest hash over:</p>
-<pre><code>graph data + shape + frontmatter + template + seed
-</code></pre>
-<p>The same graph + seed = byte-identical results.</p>
-<h2 id="-extend"><a class="header" href="#-extend">📦 Extend</a></h2>
-<h3 id="create-local-templates"><a class="header" href="#create-local-templates">Create local templates</a></h3>
-<p>Add your own generator:</p>
-<pre><code class="language-bash">mkdir -p templates/api/endpoint
-cp templates/cli/subcommand/rust.tmpl templates/api/endpoint/rust.tmpl
-</code></pre>
-<p>Edit frontmatter and target path. rgen will detect and render automatically.</p>
-<h3 id="publish-rpacks-to-marketplace"><a class="header" href="#publish-rpacks-to-marketplace">Publish rpacks to marketplace</a></h3>
-<p>Share your templates with the community:</p>
+<h3 id="rpack-publishing-for-authors"><a class="header" href="#rpack-publishing-for-authors">Rpack Publishing (for authors)</a></h3>
 <pre><code class="language-bash"># Initialize new rpack
 rgen pack init
 
-# Lint and test your rpack
+# Lint rpack for publishing
 rgen pack lint
+
+# Run tests
 rgen pack test
 
 # Publish to registry
 rgen pack publish
 </code></pre>
-<h2 id="-license"><a class="header" href="#-license">🔒 License</a></h2>
-<p>MIT © rgen contributors</p>
-<hr />
-<blockquote>
-<p><strong>rgen</strong> — one intent, many projections.
-Code is just a projection of knowledge.</p>
-</blockquote>
+<h2 id="generation-commands"><a class="header" href="#generation-commands">Generation Commands</a></h2>
+<h3 id="template-generation"><a class="header" href="#template-generation">Template Generation</a></h3>
+<pre><code class="language-bash"># Generate from rpack template
+rgen gen &lt;rpack-id&gt;:&lt;template-path&gt; [--vars k=v ...] [--dry]
+
+# Generate from local template
+rgen gen &lt;scope&gt; &lt;action&gt; [--vars k=v ...] [--dry]
+
+# Examples:
+rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello
+rgen gen cli subcommand --vars cmd=hello summary="Print greeting"
+</code></pre>
+<h3 id="template-discovery"><a class="header" href="#template-discovery">Template Discovery</a></h3>
+<pre><code class="language-bash"># List available templates (local + rpacks)
+rgen list
+
+# Show template details
+rgen show &lt;template-ref&gt; [--vars k=v ...]
+
+# Examples:
+rgen show io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl
+rgen show cli subcommand
+</code></pre>
+<h2 id="validation-commands"><a class="header" href="#validation-commands">Validation Commands</a></h2>
+<pre><code class="language-bash"># Validate template frontmatter
+rgen validate &lt;template-ref&gt; [--vars k=v ...]
+
+# Lint template with schema validation
+rgen lint &lt;template-ref&gt;
+
+# Examples:
+rgen validate io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl
+rgen lint cli subcommand
+</code></pre>
+<h2 id="utility-commands"><a class="header" href="#utility-commands">Utility Commands</a></h2>
+<pre><code class="language-bash"># Export RDF graph
+rgen graph export &lt;template-ref&gt; --fmt ttl|jsonld
+
+# Generate hazard report
+rgen hazard
+
+# Generate shell completion scripts
+rgen completion bash|zsh|fish
+</code></pre>
+<h2 id="variable-precedence"><a class="header" href="#variable-precedence">Variable Precedence</a></h2>
+<p>Variables are resolved in this order (later values override earlier):</p>
+<ol>
+<li><strong>CLI arguments</strong> (<code>--var key=value</code>)</li>
+<li><strong>Environment variables</strong> (from <code>.env</code> files)</li>
+<li><strong>System environment</strong> (<code>$HOME</code>, <code>$USER</code>, etc.)</li>
+<li><strong>Rpack variables</strong> (from rpack <code>ggen.toml</code>)</li>
+<li><strong>Template frontmatter</strong> (<code>vars:</code> section)</li>
+<li><strong>SPARQL variables</strong> (from queries)</li>
+</ol>
+<h2 id="rpack-template-reference-syntax"><a class="header" href="#rpack-template-reference-syntax">Rpack Template Reference Syntax</a></h2>
+<p>When using rpack templates, use the format:</p>
+<pre><code>&lt;rpack-id&gt;:&lt;template-path&gt;
+</code></pre>
+<p>Examples:</p>
+<ul>
+<li><code>io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl</code></li>
+<li><code>io.rgen.python.api:api/endpoint/fastapi.tmpl</code></li>
+<li><code>io.rgen.typescript.react:components/button.tsx.tmpl</code></li>
+</ul>
+<h2 id="dry-run-mode"><a class="header" href="#dry-run-mode">Dry-Run Mode</a></h2>
+<p>Preview template rendering without writing files:</p>
+<pre><code class="language-bash">rgen gen --template templates/api/endpoint/rust.tmpl --var name=User --dry
+</code></pre>
+<p>Dry-run behavior:</p>
+<ul>
+<li>RDF graphs are loaded (read-only)</li>
+<li>SPARQL queries execute normally</li>
+<li>Templates render completely</li>
+<li>Output shows what would be written</li>
+<li>No files are created or modified</li>
+<li>No shell commands execute (when implemented)</li>
+<li>No injections occur (when implemented)</li>
+</ul>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../concepts/determinism.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
 
-                            <a rel="next prefetch" href="guides/install.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../reference/troubleshooting.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -299,8 +331,11 @@ Code is just a projection of knowledge.</p>
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../concepts/determinism.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
 
-                    <a rel="next prefetch" href="guides/install.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../reference/troubleshooting.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
@@ -317,19 +352,19 @@ Code is just a projection of knowledge.</p>
             window.playground_copyable = true;
         </script>
 
-        <script src="ace.js"></script>
-        <script src="mode-rust.js"></script>
-        <script src="editor.js"></script>
-        <script src="theme-dawn.js"></script>
-        <script src="theme-tomorrow_night.js"></script>
+        <script src="../ace.js"></script>
+        <script src="../mode-rust.js"></script>
+        <script src="../editor.js"></script>
+        <script src="../theme-dawn.js"></script>
+        <script src="../theme-tomorrow_night.js"></script>
 
-        <script src="elasticlunr.min.js"></script>
-        <script src="mark.min.js"></script>
-        <script src="searcher.js"></script>
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
 
-        <script src="clipboard.min.js"></script>
-        <script src="highlight.js"></script>
-        <script src="book.js"></script>
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
 
         <!-- Custom JS scripts -->
 
