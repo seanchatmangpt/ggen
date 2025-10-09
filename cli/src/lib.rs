@@ -1,9 +1,9 @@
 use clap::{CommandFactory, Parser};
 use std::path::PathBuf;
 
-use utils::app_config::AppConfig;
-use utils::error::Result;
-use utils::types::LogLevel;
+use rgen_utils::app_config::AppConfig;
+use rgen_utils::error::Result;
+use rgen_utils::types::LogLevel;
 
 pub mod cmds;
 

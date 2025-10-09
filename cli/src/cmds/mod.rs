@@ -13,7 +13,7 @@ pub mod show;
 pub mod update;
 
 use clap::Subcommand;
-use utils::project_config::RgenConfig;
+use rgen_utils::project_config::RgenConfig;
 
 #[derive(Subcommand, Debug)]
 pub enum Commands {

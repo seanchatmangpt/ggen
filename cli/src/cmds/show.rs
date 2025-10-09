@@ -1,7 +1,7 @@
 use clap::Args;
 use rgen_core::template::Template;
 use std::path::Path;
-use utils::error::Result;
+use rgen_utils::error::Result;
 
 #[derive(Args, Debug)]
 pub struct ShowArgs {

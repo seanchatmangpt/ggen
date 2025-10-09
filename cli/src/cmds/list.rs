@@ -1,7 +1,7 @@
 use rayon::prelude::*;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
-use utils::error::Result;
+use rgen_utils::error::Result;
 use walkdir::WalkDir;
 
 // Cache for template metadata to avoid re-parsing

@@ -30,7 +30,7 @@ use oxigraph::io::RdfFormat;
 use oxigraph::sparql::QueryResults;
 use oxigraph::store::Store;
 
-use utils::error::{Error, Result};
+use rgen_utils::error::{Error, Result};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HygenFrontmatter {
