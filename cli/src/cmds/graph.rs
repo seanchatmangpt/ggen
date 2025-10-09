@@ -1,8 +1,8 @@
 use clap::Args;
 use rgen_core::graph::Graph;
+use rgen_utils::error::Result;
 use std::io::Write;
 use std::path::PathBuf;
-use rgen_utils::error::Result;
 
 #[derive(Args, Debug)]
 pub struct GraphArgs {
@@ -76,7 +76,7 @@ fn load_graph_for_scope_action(scope: &str, action: &str) -> Result<Graph> {
                 format!("templates/{}/{}/graphs/{}.ttl", scope, action, scope),
                 format!("templates/{}/graphs/{}.ttl", scope, scope),
             ];
-            
+
             let mut found = false;
             for graph_path in graph_paths {
                 if std::path::Path::new(&graph_path).exists() {
@@ -85,7 +85,7 @@ fn load_graph_for_scope_action(scope: &str, action: &str) -> Result<Graph> {
                     break;
                 }
             }
-            
+
             if !found {
                 println!(
                     "No graph found for scope '{}' and action '{}'",
@@ -103,7 +103,7 @@ fn load_cli_graphs(graph: &Graph) -> Result<()> {
         "templates/cli/subcommand/graphs/cli.ttl",
         "templates/cli/graphs/cli.ttl",
     ];
-    
+
     for cli_graph_path in cli_graph_paths {
         if std::path::Path::new(cli_graph_path).exists() {
             graph.load_path(cli_graph_path)?;
@@ -120,7 +120,7 @@ fn load_api_graphs(graph: &Graph) -> Result<()> {
         "templates/api/endpoint/graphs/api.ttl",
         "templates/api/graphs/api.ttl",
     ];
-    
+
     for api_graph_path in api_graph_paths {
         if std::path::Path::new(api_graph_path).exists() {
             graph.load_path(api_graph_path)?;
@@ -136,7 +136,7 @@ fn load_core_graphs(graph: &Graph) -> Result<()> {
         "templates/core/graphs/core.ttl",
         "templates/api/endpoint/graphs/api.ttl", // API endpoint contains core concepts
     ];
-    
+
     for core_graph_path in core_graph_paths {
         if std::path::Path::new(core_graph_path).exists() {
             graph.load_path(core_graph_path)?;

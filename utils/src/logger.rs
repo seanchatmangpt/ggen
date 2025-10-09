@@ -7,6 +7,11 @@ use slog_syslog::Facility;
 
 use super::error::Result;
 
+/// Setup logging for the application.
+///
+/// # Errors
+///
+/// Returns an error if logging setup fails.
 pub fn setup_logging() -> Result<slog_scope::GlobalLoggerGuard> {
     // Setup Logging
     let guard = slog_scope::set_global_logger(default_root_logger()?);
@@ -15,22 +20,24 @@ pub fn setup_logging() -> Result<slog_scope::GlobalLoggerGuard> {
     Ok(guard)
 }
 
+/// Create the default root logger.
+///
+/// # Errors
+///
+/// Returns an error if logger creation fails.
 pub fn default_root_logger() -> Result<slog::Logger> {
     // Create drains
-    let drain = slog::Duplicate(default_discard()?, default_discard()?).fuse();
+    let drain = slog::Duplicate(default_discard(), default_discard()).fuse();
 
     // Merge drains
     #[cfg(feature = "termlog")]
-    let drain = slog::Duplicate(default_term_drain().unwrap_or(default_discard()?), drain).fuse();
+    let drain = slog::Duplicate(default_term_drain().unwrap_or(default_discard()), drain).fuse();
     #[cfg(feature = "syslog")]
-    let drain = slog::Duplicate(default_syslog_drain().unwrap_or(default_discard()?), drain).fuse();
+    let drain = slog::Duplicate(default_syslog_drain().unwrap_or(default_discard()), drain).fuse();
     #[cfg(feature = "journald")]
     #[cfg(target_os = "linux")]
-    let drain = slog::Duplicate(
-        default_journald_drain().unwrap_or(default_discard()?),
-        drain,
-    )
-    .fuse();
+    let drain =
+        slog::Duplicate(default_journald_drain().unwrap_or(default_discard()), drain).fuse();
 
     // Create Logger
     let logger = slog::Logger::root(drain, o!("who" => "rust-starter"));
@@ -39,10 +46,8 @@ pub fn default_root_logger() -> Result<slog::Logger> {
     Ok(logger)
 }
 
-fn default_discard() -> Result<slog_async::Async> {
-    let drain = slog_async::Async::default(slog::Discard);
-
-    Ok(drain)
+fn default_discard() -> slog_async::Async {
+    slog_async::Async::default(slog::Discard)
 }
 
 // term drain: Log to Terminal

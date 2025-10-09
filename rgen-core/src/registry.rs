@@ -126,15 +126,18 @@ impl RegistryClient {
 
         // Handle file:// URLs for local testing
         if url.scheme() == "file" {
-            let path = url.to_file_path()
+            let path = url
+                .to_file_path()
                 .map_err(|_| anyhow::anyhow!("Invalid file URL: {}", url))?;
-            
-            let content = std::fs::read_to_string(&path)
-                .context(format!("Failed to read registry index from {}", path.display()))?;
-            
-            let index: RegistryIndex = serde_json::from_str(&content)
-                .context("Failed to parse registry index")?;
-            
+
+            let content = std::fs::read_to_string(&path).context(format!(
+                "Failed to read registry index from {}",
+                path.display()
+            ))?;
+
+            let index: RegistryIndex =
+                serde_json::from_str(&content).context("Failed to parse registry index")?;
+
             return Ok(index);
         }
 

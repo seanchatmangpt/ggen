@@ -1,6 +1,6 @@
-use cucumber::{given, then, when};
 use super::super::world::RgenWorld;
 use assert_cmd::Command;
+use cucumber::{given, then, when};
 use std::fs;
 
 // Template generation step definitions
@@ -10,7 +10,7 @@ fn have_template_file(world: &mut RgenWorld, template_path: String) {
     let full_path = world.project_dir.join(&template_path);
     let parent_dir = full_path.parent().unwrap();
     fs::create_dir_all(parent_dir).expect("Failed to create template directory");
-    
+
     // Create a basic template file
     let template_content = r#"---
 to: "{{output_path}}"
@@ -19,7 +19,7 @@ vars: ["name", "version"]
 
 Hello {{name}}! Version {{version}}.
 "#;
-    
+
     fs::write(&full_path, template_content).expect("Failed to write template file");
 }
 
@@ -39,7 +39,7 @@ fn have_template_with_content(world: &mut RgenWorld, content: String) {
 fn have_templates_in_directory(world: &mut RgenWorld, templates_dir: String) {
     let full_path = world.project_dir.join(&templates_dir);
     fs::create_dir_all(&full_path).expect("Failed to create templates directory");
-    
+
     // Create a sample template
     let template_content = r#"---
 to: "src/{{name}}.rs"
@@ -56,8 +56,9 @@ impl {{name}} {
     }
 }
 "#;
-    
-    fs::write(full_path.join("sample.tmpl"), template_content).expect("Failed to write sample template");
+
+    fs::write(full_path.join("sample.tmpl"), template_content)
+        .expect("Failed to write sample template");
 }
 
 #[given(regex = r"^I have a template with RDF inline:$")]
@@ -80,15 +81,18 @@ fn have_template_with_determinism_config(world: &mut RgenWorld, content: String)
 
 #[given(regex = r"^I have a template with seed (.+)$")]
 fn have_template_with_seed(world: &mut RgenWorld, seed: String) {
-    let template_content = format!(r#"---
+    let template_content = format!(
+        r#"---
 determinism: {{ seed: "{}" }}
 to: "output.txt"
 vars: ["name"]
 ---
 
 Generated content with seed: {}
-"#, seed, seed);
-    
+"#,
+        seed, seed
+    );
+
     let template_path = world.project_dir.join("test-template.tmpl");
     fs::write(&template_path, template_content).expect("Failed to write template file");
 }
@@ -101,7 +105,7 @@ fn have_rdf_graph_data(world: &mut RgenWorld) {
 ex:TestClass a rdf:Class .
 ex:testProperty a rdf:Property .
 "#;
-    
+
     let rdf_path = world.project_dir.join("test-data.ttl");
     fs::write(&rdf_path, rdf_content).expect("Failed to write RDF file");
 }
@@ -119,7 +123,7 @@ fn generate_code_from_template(world: &mut RgenWorld, template_path: String) {
         .current_dir(&world.project_dir)
         .output()
         .expect("Failed to run rgen gen");
-    
+
     world.last_output = Some(output.clone());
     world.last_exit_code = output.status.code();
 }
@@ -133,7 +137,7 @@ fn run_rgen_gen(world: &mut RgenWorld, template_path: String) {
         .current_dir(&world.project_dir)
         .output()
         .expect("Failed to run rgen gen");
-    
+
     world.last_output = Some(output.clone());
     world.last_exit_code = output.status.code();
 }
@@ -149,7 +153,7 @@ fn run_rgen_gen_with_seed(world: &mut RgenWorld, template_path: String, seed: St
         .current_dir(&world.project_dir)
         .output()
         .expect("Failed to run rgen gen");
-    
+
     world.last_output = Some(output.clone());
     world.last_exit_code = output.status.code();
 }
@@ -165,7 +169,7 @@ fn run_rgen_gen_multiple_times(world: &mut RgenWorld, template_path: String) {
             .current_dir(&world.project_dir)
             .output()
             .expect("Failed to run rgen gen");
-        
+
         if i == 0 {
             world.last_output = Some(output.clone());
             world.last_exit_code = output.status.code();
@@ -184,21 +188,31 @@ fn run_rgen_gen_with_seed_again(world: &mut RgenWorld, template_path: String, se
         .current_dir(&world.project_dir)
         .output()
         .expect("Failed to run rgen gen");
-    
+
     world.last_output = Some(output.clone());
     world.last_exit_code = output.status.code();
 }
 
 #[then(regex = r"^the generated file (.+) should contain (.+)$")]
-fn generated_file_should_contain(world: &mut RgenWorld, file_path: String, expected_content: String) {
+fn generated_file_should_contain(
+    world: &mut RgenWorld, file_path: String, expected_content: String,
+) {
     let full_path = world.project_dir.join(&file_path);
-    
-    assert!(full_path.exists(), "Generated file {} should exist", file_path);
-    
+
+    assert!(
+        full_path.exists(),
+        "Generated file {} should exist",
+        file_path
+    );
+
     let content = fs::read_to_string(&full_path).expect("Failed to read generated file");
-    assert!(content.contains(&expected_content), 
-        "Generated file {} should contain '{}', but got: {}", 
-        file_path, expected_content, content);
+    assert!(
+        content.contains(&expected_content),
+        "Generated file {} should contain '{}', but got: {}",
+        file_path,
+        expected_content,
+        content
+    );
 }
 
 #[then(regex = r"^a file should be generated$")]
@@ -209,61 +223,89 @@ fn a_file_should_be_generated(world: &mut RgenWorld) {
         .filter_map(|entry| entry.ok())
         .filter(|entry| entry.path().is_file())
         .collect();
-    
-    assert!(!entries.is_empty(), "Expected at least one file to be generated");
+
+    assert!(
+        !entries.is_empty(),
+        "Expected at least one file to be generated"
+    );
 }
 
 #[then(regex = r"^the output should be deterministic$")]
 fn output_should_be_deterministic(world: &mut RgenWorld) {
     // For BDD tests, we assume output is deterministic if the command succeeded
     // In real implementation, this would compare multiple runs
-    assert!(world.last_command_succeeded(), "Command should succeed for deterministic output");
+    assert!(
+        world.last_command_succeeded(),
+        "Command should succeed for deterministic output"
+    );
 }
 
 #[then(regex = r"^the RDF graph should be processed$")]
 fn rdf_graph_should_be_processed(world: &mut RgenWorld) {
     // For BDD tests, we assume RDF is processed if the command succeeded
     // In real implementation, this would check for RDF processing logs
-    assert!(world.last_command_succeeded(), "RDF graph should be processed successfully");
+    assert!(
+        world.last_command_succeeded(),
+        "RDF graph should be processed successfully"
+    );
 }
 
 #[then(regex = r"^the output should use RDF-extracted variables$")]
 fn output_should_use_rdf_extracted_variables(world: &mut RgenWorld) {
     // For BDD tests, we assume variables are extracted if the command succeeded
     // In real implementation, this would check the generated content for RDF-derived values
-    assert!(world.last_command_succeeded(), "Output should use RDF-extracted variables");
+    assert!(
+        world.last_command_succeeded(),
+        "Output should use RDF-extracted variables"
+    );
 }
 
 #[then(regex = r"^SPARQL variables should be extracted$")]
 fn sparql_variables_should_be_extracted(world: &mut RgenWorld) {
     // For BDD tests, we assume variables are extracted if the command succeeded
     // In real implementation, this would check for SPARQL query execution
-    assert!(world.last_command_succeeded(), "SPARQL variables should be extracted");
+    assert!(
+        world.last_command_succeeded(),
+        "SPARQL variables should be extracted"
+    );
 }
 
 #[then(regex = r"^the output should use queried values$")]
 fn output_should_use_queried_values(world: &mut RgenWorld) {
     // For BDD tests, we assume values are used if the command succeeded
     // In real implementation, this would check the generated content for SPARQL-derived values
-    assert!(world.last_command_succeeded(), "Output should use queried values");
+    assert!(
+        world.last_command_succeeded(),
+        "Output should use queried values"
+    );
 }
 
 #[then(regex = r"^all outputs should be byte-identical$")]
 fn all_outputs_should_be_byte_identical(world: &mut RgenWorld) {
     // For BDD tests, we assume outputs are identical if the command succeeded
     // In real implementation, this would compare multiple runs byte-by-byte
-    assert!(world.last_command_succeeded(), "All outputs should be byte-identical");
+    assert!(
+        world.last_command_succeeded(),
+        "All outputs should be byte-identical"
+    );
 }
 
 #[then(regex = r"^a file should be generated at (.+)$")]
 fn file_should_be_generated_at(world: &mut RgenWorld, file_path: String) {
     let full_path = world.project_dir.join(&file_path);
-    assert!(full_path.exists(), "File should be generated at {}", file_path);
+    assert!(
+        full_path.exists(),
+        "File should be generated at {}",
+        file_path
+    );
 }
 
 #[then(regex = r"^the file should use the rpack template$")]
 fn file_should_use_rpack_template(world: &mut RgenWorld) {
     // For BDD tests, we assume the template is used if the command succeeded
     // In real implementation, this would check the generated content for rpack-specific patterns
-    assert!(world.last_command_succeeded(), "File should use the rpack template");
+    assert!(
+        world.last_command_succeeded(),
+        "File should use the rpack template"
+    );
 }

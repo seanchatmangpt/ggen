@@ -19,10 +19,7 @@ pub fn run() -> Result<()> {
     println!();
 
     // Header
-    println!(
-        "{:<40} {:<12} {:<20} SHA256",
-        "ID", "VERSION", "SOURCE"
-    );
+    println!("{:<40} {:<12} {:<20} SHA256", "ID", "VERSION", "SOURCE");
     println!("{}", "-".repeat(80));
 
     // List packs

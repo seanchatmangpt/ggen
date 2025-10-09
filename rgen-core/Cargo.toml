@@ -6,9 +6,12 @@ description = "Core graph-aware code generation engine"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/seanchatmangpt/rgen"
-# readme = "README.md"  # No README.md in rgen-core directory
+readme = "README.md"
 keywords = ["cli", "code-generation", "rdf", "templates"]
 categories = ["development-tools", "command-line-utilities"]
+
+[lints.clippy]
+multiple_crate_versions = "allow"
 
 [dependencies]
 rgen-utils = { path = "../utils", version = "0.1.0" }

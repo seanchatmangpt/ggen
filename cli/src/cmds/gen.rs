@@ -1,7 +1,7 @@
 use clap::Args;
+use rgen_utils::error::Result;
 use std::collections::BTreeMap;
 use std::path::PathBuf;
-use rgen_utils::error::Result;
 
 use rgen_core::pipeline::PipelineBuilder;
 use rgen_core::resolver::TemplateResolver;

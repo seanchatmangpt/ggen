@@ -57,10 +57,10 @@ pub struct Graph {
 
 impl Graph {
     pub fn new() -> Result<Self> {
-        let plan_cache_size = NonZeroUsize::new(100)
-            .ok_or_else(|| anyhow::anyhow!("Invalid cache size"))?;
-        let result_cache_size = NonZeroUsize::new(1000)
-            .ok_or_else(|| anyhow::anyhow!("Invalid cache size"))?;
+        let plan_cache_size =
+            NonZeroUsize::new(100).ok_or_else(|| anyhow::anyhow!("Invalid cache size"))?;
+        let result_cache_size =
+            NonZeroUsize::new(1000).ok_or_else(|| anyhow::anyhow!("Invalid cache size"))?;
 
         Ok(Self {
             inner: Store::new()?,
@@ -171,7 +171,8 @@ impl Graph {
         let cache_key = (query_hash, epoch);
 
         // Check result cache
-        if let Some(cached) = self.result_cache
+        if let Some(cached) = self
+            .result_cache
             .lock()
             .map_err(|e| anyhow::anyhow!("Cache lock poisoned: {}", e))?
             .get(&cache_key)
@@ -182,7 +183,8 @@ impl Graph {
 
         // Check plan cache or parse
         let query = {
-            let mut cache = self.plan_cache
+            let mut cache = self
+                .plan_cache
                 .lock()
                 .map_err(|e| anyhow::anyhow!("Cache lock poisoned: {}", e))?;
             if let Some(q) = cache.get(&query_hash).cloned() {

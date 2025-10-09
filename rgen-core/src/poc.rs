@@ -115,10 +115,7 @@ impl TeraFunction for LocalFn {
             .strip_prefix('<')
             .and_then(|x| x.strip_suffix('>'))
             .unwrap_or(s);
-        let idx = s
-            .rfind(['#', '/'])
-            .map(|i| i + 1)
-            .unwrap_or(0);
+        let idx = s.rfind(['#', '/']).map(|i| i + 1).unwrap_or(0);
         Ok(serde_json::Value::String(s[idx..].to_string()))
     }
 }

@@ -18,14 +18,14 @@ impl Default for PackConventions {
         Self {
             template_patterns: &["templates/**/*.tmpl", "templates/**/*.tera"],
             rdf_patterns: &[
-                "templates/**/graphs/*.ttl", 
-                "templates/**/graphs/*.rdf", 
-                "templates/**/graphs/*.jsonld"
+                "templates/**/graphs/*.ttl",
+                "templates/**/graphs/*.rdf",
+                "templates/**/graphs/*.jsonld",
             ],
             query_patterns: &["templates/**/queries/*.rq", "templates/**/queries/*.sparql"],
             shape_patterns: &[
-                "templates/**/graphs/shapes/*.shacl.ttl", 
-                "templates/**/shapes/*.ttl"
+                "templates/**/graphs/shapes/*.shacl.ttl",
+                "templates/**/shapes/*.ttl",
             ],
         }
     }

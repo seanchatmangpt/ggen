@@ -1,6 +1,6 @@
-use cucumber::{given, then, when};
 use super::super::world::RgenWorld;
 use assert_cmd::Command;
+use cucumber::{given, then, when};
 use std::fs;
 
 // Marketplace step definitions
@@ -8,7 +8,10 @@ use std::fs;
 #[given(regex = r"^the marketplace is available$")]
 fn marketplace_is_available(_world: &mut RgenWorld) {
     // Set environment variable for registry URL
-    std::env::set_var("RGEN_REGISTRY_URL", "https://raw.githubusercontent.com/seanchatmangpt/rgen/master/registry/");
+    std::env::set_var(
+        "RGEN_REGISTRY_URL",
+        "https://raw.githubusercontent.com/seanchatmangpt/rgen/master/registry/",
+    );
 }
 
 #[given(regex = r"^the marketplace registry is available at (.+)$")]
@@ -26,7 +29,7 @@ fn search_for_rpack(world: &mut RgenWorld, query: String) {
         .current_dir(&world.project_dir)
         .output()
         .expect("Failed to run rgen search");
-    
+
     world.last_output = Some(output.clone());
     world.last_exit_code = output.status.code();
 }
@@ -40,7 +43,7 @@ fn run_rgen_search(world: &mut RgenWorld, query: String) {
         .current_dir(&world.project_dir)
         .output()
         .expect("Failed to run rgen search");
-    
+
     world.last_output = Some(output.clone());
     world.last_exit_code = output.status.code();
 }
@@ -53,7 +56,7 @@ fn run_rgen_categories(world: &mut RgenWorld) {
         .current_dir(&world.project_dir)
         .output()
         .expect("Failed to run rgen categories");
-    
+
     world.last_output = Some(output.clone());
     world.last_exit_code = output.status.code();
 }
@@ -67,7 +70,7 @@ fn run_rgen_show(world: &mut RgenWorld, package_id: String) {
         .current_dir(&world.project_dir)
         .output()
         .expect("Failed to run rgen show");
-    
+
     world.last_output = Some(output.clone());
     world.last_exit_code = output.status.code();
 }
@@ -81,7 +84,7 @@ fn run_rgen_add(world: &mut RgenWorld, package_id: String) {
         .current_dir(&world.project_dir)
         .output()
         .expect("Failed to run rgen add");
-    
+
     world.last_output = Some(output.clone());
     world.last_exit_code = output.status.code();
 }
@@ -94,7 +97,7 @@ fn run_rgen_packs(world: &mut RgenWorld) {
         .current_dir(&world.project_dir)
         .output()
         .expect("Failed to run rgen packs");
-    
+
     world.last_output = Some(output.clone());
     world.last_exit_code = output.status.code();
 }
@@ -107,7 +110,7 @@ fn run_rgen_update(world: &mut RgenWorld) {
         .current_dir(&world.project_dir)
         .output()
         .expect("Failed to run rgen update");
-    
+
     world.last_output = Some(output.clone());
     world.last_exit_code = output.status.code();
 }
@@ -115,37 +118,52 @@ fn run_rgen_update(world: &mut RgenWorld) {
 #[then(regex = r"^I should see results for (.+) templates$")]
 fn should_see_results_for_templates(world: &mut RgenWorld, language: String) {
     let stdout = world.last_stdout();
-    assert!(stdout.contains(&language), 
-        "Expected to see {} templates in search results, but got: {}", 
-        language, stdout);
+    assert!(
+        stdout.contains(&language),
+        "Expected to see {} templates in search results, but got: {}",
+        language,
+        stdout
+    );
 }
 
 #[then(regex = r"^I should see popular categories$")]
 fn should_see_popular_categories(world: &mut RgenWorld) {
     let stdout = world.last_stdout();
-    assert!(stdout.contains("rust") || stdout.contains("python") || stdout.contains("typescript"), 
-        "Expected to see popular categories, but got: {}", stdout);
+    assert!(
+        stdout.contains("rust") || stdout.contains("python") || stdout.contains("typescript"),
+        "Expected to see popular categories, but got: {}",
+        stdout
+    );
 }
 
 #[then(regex = r"^I should see package metadata$")]
 fn should_see_package_metadata(world: &mut RgenWorld) {
     let stdout = world.last_stdout();
-    assert!(stdout.contains("name") || stdout.contains("description") || stdout.contains("version"), 
-        "Expected to see package metadata, but got: {}", stdout);
+    assert!(
+        stdout.contains("name") || stdout.contains("description") || stdout.contains("version"),
+        "Expected to see package metadata, but got: {}",
+        stdout
+    );
 }
 
 #[then(regex = r"^I should see version information$")]
 fn should_see_version_information(world: &mut RgenWorld) {
     let stdout = world.last_stdout();
-    assert!(stdout.contains("version") || stdout.contains("0."), 
-        "Expected to see version information, but got: {}", stdout);
+    assert!(
+        stdout.contains("version") || stdout.contains("0."),
+        "Expected to see version information, but got: {}",
+        stdout
+    );
 }
 
 #[then(regex = r"^I should see description$")]
 fn should_see_description(world: &mut RgenWorld) {
     let stdout = world.last_stdout();
-    assert!(stdout.contains("description") || stdout.len() > 50, 
-        "Expected to see description, but got: {}", stdout);
+    assert!(
+        stdout.contains("description") || stdout.len() > 50,
+        "Expected to see description, but got: {}",
+        stdout
+    );
 }
 
 #[then(regex = r"^the package should be installed$")]
@@ -162,10 +180,14 @@ fn rgen_packs_should_list(world: &mut RgenWorld, package_id: String) {
         .current_dir(&world.project_dir)
         .output()
         .expect("Failed to run rgen packs");
-    
+
     let stdout = String::from_utf8_lossy(&output.stdout);
-    assert!(stdout.contains(&package_id), 
-        "Expected 'rgen packs' to list '{}', but got: {}", package_id, stdout);
+    assert!(
+        stdout.contains(&package_id),
+        "Expected 'rgen packs' to list '{}', but got: {}",
+        package_id,
+        stdout
+    );
 }
 
 #[then(regex = r"^version (.+) should be installed$")]
@@ -197,7 +219,7 @@ fn have_installed_package_with_version(world: &mut RgenWorld, package_with_versi
     let parts: Vec<&str> = package_with_version.split('@').collect();
     let package_id = parts[0];
     let version = parts.get(1).unwrap_or(&"0.1.0");
-    
+
     let lockfile_path = world.project_dir.join("rgen.lock");
     let lockfile_content = format!(
         r#"{{"packages": {{"{}": {{"version": "{}", "installed": true}}}}}}"#,

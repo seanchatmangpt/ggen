@@ -35,37 +35,43 @@ fn copy_dir_all(src: &std::path::Path, dst: &std::path::Path) -> Result<()> {
 fn test_marketplace_search_functionality() -> Result<()> {
     // Test search functionality with mock data
     let mut packs = HashMap::new();
-    
+
     // Add mock pack data
-    packs.insert("io.rgen.rust.cli-subcommand".to_string(), "Rust CLI Subcommand Generator".to_string());
-    packs.insert("io.rgen.python.web-api".to_string(), "Python Web API Generator".to_string());
-    
+    packs.insert(
+        "io.rgen.rust.cli-subcommand".to_string(),
+        "Rust CLI Subcommand Generator".to_string(),
+    );
+    packs.insert(
+        "io.rgen.python.web-api".to_string(),
+        "Python Web API Generator".to_string(),
+    );
+
     // Test basic search
     let search_query = "rust";
     let mut results = Vec::new();
-    
+
     for (id, name) in &packs {
         if name.to_lowercase().contains(&search_query.to_lowercase()) {
             results.push(id.clone());
         }
     }
-    
+
     assert_eq!(results.len(), 1);
     assert_eq!(results[0], "io.rgen.rust.cli-subcommand");
-    
+
     // Test search with different query
     let search_query = "python";
     let mut results = Vec::new();
-    
+
     for (id, name) in &packs {
         if name.to_lowercase().contains(&search_query.to_lowercase()) {
             results.push(id.clone());
         }
     }
-    
+
     assert_eq!(results.len(), 1);
     assert_eq!(results[0], "io.rgen.python.web-api");
-    
+
     Ok(())
 }
 
@@ -113,7 +119,9 @@ source = "https://github.com/mock/rpack-rust-cli.git#def456ghi789"
     fs::write(&lockfile_path, lockfile_content)?;
 
     // Step 4: Simulate generating code using the rpack
-    let template_path = cached_rpack_dir.join("templates").join("cli_subcommand.tmpl");
+    let template_path = cached_rpack_dir
+        .join("templates")
+        .join("cli_subcommand.tmpl");
     if template_path.exists() {
         let template_content = fs::read_to_string(&template_path)?;
         assert!(template_content.contains("subcommand"));
@@ -178,7 +186,9 @@ source = "https://github.com/mock/rpack-rust-cli.git#def456ghi789"
     fs::write(&lockfile_path, lockfile_content)?;
 
     // Step 4: Generate code using the rpack
-    let template_path = cached_rpack_dir.join("templates").join("cli_subcommand.tmpl");
+    let template_path = cached_rpack_dir
+        .join("templates")
+        .join("cli_subcommand.tmpl");
     if template_path.exists() {
         let template_content = fs::read_to_string(&template_path)?;
         assert!(template_content.contains("subcommand"));
@@ -196,24 +206,30 @@ source = "https://github.com/mock/rpack-rust-cli.git#def456ghi789"
 fn test_marketplace_search_standalone() -> Result<()> {
     // Test basic search functionality without external dependencies
     let mut packs = HashMap::new();
-    
+
     // Add mock pack data
-    packs.insert("io.rgen.rust.cli-subcommand".to_string(), "Rust CLI Subcommand Generator".to_string());
-    packs.insert("io.rgen.python.web-api".to_string(), "Python Web API Generator".to_string());
-    
+    packs.insert(
+        "io.rgen.rust.cli-subcommand".to_string(),
+        "Rust CLI Subcommand Generator".to_string(),
+    );
+    packs.insert(
+        "io.rgen.python.web-api".to_string(),
+        "Python Web API Generator".to_string(),
+    );
+
     // Test search function
     let search_query = "rust";
     let mut results = Vec::new();
-    
+
     for (id, name) in &packs {
         if name.to_lowercase().contains(&search_query.to_lowercase()) {
             results.push(id.clone());
         }
     }
-    
+
     assert_eq!(results.len(), 1);
     assert_eq!(results[0], "io.rgen.rust.cli-subcommand");
-    
+
     Ok(())
 }
 
@@ -225,14 +241,14 @@ fn test_marketplace_pack_resolution() -> Result<()> {
     let git_url = "https://github.com/test/repo.git";
     let git_rev = "abc123";
     let sha256 = "def456";
-    
+
     // Test latest version resolution
     assert_eq!(version, "1.2.0");
-    
+
     // Test version lookup
     assert_eq!(version, "1.2.0");
     assert_eq!(git_url, "https://github.com/test/repo.git");
-    
+
     Ok(())
 }
 
@@ -241,13 +257,13 @@ fn test_marketplace_cache_operations() -> Result<()> {
     let temp_dir = TempDir::new()?;
     let cache_dir = temp_dir.path().join("cache");
     fs::create_dir_all(&cache_dir)?;
-    
+
     // Test cache directory structure
     let pack_id = "io.rgen.test.pack";
     let version = "1.0.0";
     let pack_cache_dir = cache_dir.join(pack_id).join(version);
     fs::create_dir_all(&pack_cache_dir)?;
-    
+
     // Create mock pack files
     let manifest_path = pack_cache_dir.join("rpack.toml");
     let manifest_content = r#"
@@ -261,15 +277,15 @@ description = "A test pack"
 patterns = ["*.tmpl"]
 "#;
     fs::write(&manifest_path, manifest_content)?;
-    
+
     // Test manifest reading
     let manifest_content = fs::read_to_string(&manifest_path)?;
     assert!(manifest_content.contains("Test Pack"));
-    
+
     // Test cache cleanup
     fs::remove_dir_all(&pack_cache_dir)?;
     assert!(!pack_cache_dir.exists());
-    
+
     Ok(())
 }
 
@@ -277,7 +293,7 @@ patterns = ["*.tmpl"]
 fn test_marketplace_lockfile_operations() -> Result<()> {
     let temp_dir = TempDir::new()?;
     let lockfile_path = temp_dir.path().join("rgen.lock");
-    
+
     // Test lockfile creation
     let lockfile_content = r#"[[pack]]
 id = "io.rgen.test.pack"
@@ -286,12 +302,12 @@ sha256 = "abc123def456"
 source = "https://github.com/test/repo.git#abc123"
 "#;
     fs::write(&lockfile_path, lockfile_content)?;
-    
+
     // Test lockfile reading
     let content = fs::read_to_string(&lockfile_path)?;
     assert!(content.contains("io.rgen.test.pack"));
     assert!(content.contains("1.0.0"));
-    
+
     // Test lockfile update
     let updated_content = r#"[[pack]]
 id = "io.rgen.test.pack"
@@ -306,13 +322,13 @@ sha256 = "def456ghi789"
 source = "https://github.com/test/another.git#def456"
 "#;
     fs::write(&lockfile_path, updated_content)?;
-    
+
     let updated = fs::read_to_string(&lockfile_path)?;
     assert!(updated.contains("io.rgen.another.pack"));
-    
+
     // Test lockfile removal
     fs::remove_file(&lockfile_path)?;
     assert!(!lockfile_path.exists());
-    
+
     Ok(())
 }
