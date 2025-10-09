@@ -21,8 +21,13 @@ import sys
 
 def main():
     parser = argparse.ArgumentParser(description="{{summary}}")
-    # TODO: Add arguments
+    parser.add_argument("input", nargs="?", help="Input file or directory")
+    parser.add_argument("-o", "--output", help="Output file or directory")
+    parser.add_argument("-v", "--verbose", action="store_true", help="Verbose output")
     args = parser.parse_args()
+    
+    if args.verbose:
+        print(f"Running {{summary}} with input: {args.input}")
     
     print("{{summary}}")
     return 0

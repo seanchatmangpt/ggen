@@ -29,5 +29,8 @@ fn test_hazard_exit_code() {
 #[test]
 fn test_hazard_stdout() {
     let mut cmd = Command::cargo_bin("rgen").expect("Calling binary failed");
-    cmd.arg("hazard").assert().success().stdout(predicate::str::contains("Hazard generated successfully"));
+    cmd.arg("hazard")
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("RGen Hazard Report"));
 }

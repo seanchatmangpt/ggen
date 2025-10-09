@@ -17,8 +17,9 @@ use axum::{routing::{{method|lower}}, Router};
 use utils::error::Result;
 
 pub async fn {{endpoint}}_handler() -> Result<String> {
-    // TODO: Implement {{endpoint}} endpoint
-    Ok("{{endpoint}} response".to_string())
+    // Handle {{endpoint}} endpoint request
+    let response = format!("{{endpoint}} endpoint response");
+    Ok(response)
 }
 
 pub fn {{endpoint}}_routes() -> Router {

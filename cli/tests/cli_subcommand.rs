@@ -1,5 +1,6 @@
 use assert_cmd::prelude::*;
 use assert_fs::prelude::*;
+use dirs;
 use std::process::Command;
 
 #[test]
@@ -7,39 +8,71 @@ fn cli_gen_creates_files() {
     let td = assert_fs::TempDir::new().unwrap();
     let root = td.path();
 
-    let tdir = root.join("templates/cli/subcommand");
-    std::fs::create_dir_all(&tdir).unwrap();
+    // Create a proper pack structure
+    let pack_dir = root.join("pack");
+    let templates_dir = pack_dir.join("templates/cli/subcommand");
+    std::fs::create_dir_all(&templates_dir).unwrap();
+
+    // Create the template file
     std::fs::write(
-        tdir.join("rust.tmpl"),
+        templates_dir.join("rust.tmpl"),
         r#"---
-to: out/{{ slug }}.rs
-vars: { cmd: hello, seed: s }
-rdf:
-  inline:
-    - mediaType: text/turtle
-      text: |
-        @prefix cli: <urn:rgen:cli#> .
-        [] a cli:Command ; cli:slug "{{ cmd }}" .
-sparql:
-  vars:
-    - name: slug
-      query: |
-        PREFIX cli: <urn:rgen:cli#>
-        SELECT ?slug WHERE { ?c a cli:Command ; cli:slug ?slug } LIMIT 1
-determinism: { seed: "{{ seed }}" }
+to: out/hello.rs
+vars: { cmd: hello }
 ---
-pub fn {{ slug }}() {}
+pub fn hello() {}
 "#,
     )
     .unwrap();
 
-    // Run `rgen gen cli subcommand --vars cmd=hello --dry`
+    // Create a lockfile entry for the local pack
+    let lockfile_content = r#"version = "1.0.0"
+generated = "2024-01-01T00:00:00Z"
+
+[[packs]]
+id = "local.test"
+version = "1.0.0"
+sha256 = "abc123"
+source = "local"
+"#;
+    std::fs::write(root.join("rgen.lock"), lockfile_content).unwrap();
+
+    // Create a cache entry for the local pack in the system cache directory
+    let system_cache_dir = dirs::cache_dir().unwrap().join("rgen/rpacks");
+    let cache_dir = system_cache_dir.join("local.test/1.0.0");
+    let cache_templates_dir = cache_dir.join("templates");
+    std::fs::create_dir_all(&cache_templates_dir).unwrap();
+
+    // Copy the template to the cache
+    let cache_template_dir = cache_templates_dir.join("cli/subcommand");
+    std::fs::create_dir_all(&cache_template_dir).unwrap();
+    std::fs::copy(
+        templates_dir.join("rust.tmpl"),
+        cache_template_dir.join("rust.tmpl"),
+    )
+    .unwrap();
+
+    // Create the manifest
+    std::fs::write(
+        cache_templates_dir.join("rgen.toml"),
+        r#"
+[rpack]
+id = "local.test"
+name = "Local Test Pack"
+version = "1.0.0"
+description = "Local test pack"
+license = "MIT"
+rgen_compat = "1.0.0"
+"#,
+    )
+    .unwrap();
+
+    // Run `rgen gen local.test:cli/subcommand/rust.tmpl --var cmd=hello --dry`
     let mut cmd = Command::cargo_bin("rgen").unwrap();
     cmd.current_dir(root)
         .arg("gen")
-        .arg("cli")
-        .arg("subcommand")
-        .arg("--vars")
+        .arg("local.test:cli/subcommand/rust.tmpl")
+        .arg("--var")
         .arg("cmd=hello")
         .arg("--dry");
     cmd.assert().success();

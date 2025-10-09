@@ -44,7 +44,7 @@ impl AppConfig {
         }
 
         // Merge settings with env variables
-        builder = builder.add_source(Environment::with_prefix("APP")); // TODO: Merge settings with Clap Settings Arguments
+        builder = builder.add_source(Environment::with_prefix("APP"));
 
         // Save Config to RwLoc
         {
@@ -56,15 +56,43 @@ impl AppConfig {
     }
 
     pub fn merge_args(args: clap::ArgMatches) -> Result<()> {
+        // Merge Clap arguments with existing configuration
+        // This allows CLI arguments to override environment variables and config files
+
         if args.contains_id("debug") {
             let value: &bool = args.get_one("debug").unwrap_or(&false);
-
             AppConfig::set("debug", &value.to_string())?;
         }
 
         if args.contains_id("log_level") {
             let value: &LogLevel = args.get_one("log_level").unwrap_or(&LogLevel::Info);
             AppConfig::set("log_level", &value.to_string())?;
+        }
+
+        // Add support for more CLI arguments
+        if args.contains_id("config") {
+            if let Some(config_path) = args.get_one::<String>("config") {
+                AppConfig::merge_config(Some(Path::new(config_path)))?;
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Initialize configuration with proper precedence order:
+    /// 1. Default configuration (embedded)
+    /// 2. Configuration file (if specified)
+    /// 3. Environment variables (APP_*)
+    /// 4. CLI arguments (highest precedence)
+    pub fn init_with_args(
+        default_config: Option<&str>, args: Option<clap::ArgMatches>,
+    ) -> Result<()> {
+        // Initialize with defaults and environment variables
+        AppConfig::init(default_config)?;
+
+        // Merge CLI arguments if provided
+        if let Some(arg_matches) = args {
+            AppConfig::merge_args(arg_matches)?;
         }
 
         Ok(())

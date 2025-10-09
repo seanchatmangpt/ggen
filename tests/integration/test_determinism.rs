@@ -73,8 +73,56 @@ fn test_sparql_order_by_enforcement() {
         .expect("Failed to execute command");
 
     // For now, this passes because we haven't implemented matrix validation yet
-    // TODO: Create a template with invalid SPARQL and test rejection
     assert!(output.status.success());
+}
+
+#[test]
+fn test_invalid_sparql_rejection() {
+    use std::fs;
+    use tempfile::TempDir;
+    
+    // Create a temporary directory for testing
+    let temp_dir = TempDir::new().expect("Failed to create temp dir");
+    let template_dir = temp_dir.path().join("templates");
+    fs::create_dir_all(&template_dir).expect("Failed to create template dir");
+    
+    // Create a template with invalid SPARQL
+    let invalid_template = r#"---
+to: "invalid_test.rs"
+vars:
+  name: "InvalidTest"
+rdf_inline:
+  - "@prefix ex: <http://example.org/> . ex:test a ex:Test ."
+sparql:
+  invalid_query: "INVALID SPARQL SYNTAX HERE"
+---
+// This template should fail during generation due to invalid SPARQL
+
+pub struct {{name}} {
+    // Invalid SPARQL should cause an error
+}
+"#;
+    
+    let template_path = template_dir.join("invalid.tmpl");
+    fs::write(&template_path, invalid_template).expect("Failed to write template");
+    
+    // Try to generate from the invalid template
+    let output = Command::new("cargo")
+        .args(&["run", "--", "gen", template_path.to_str().unwrap()])
+        .current_dir("..")
+        .output()
+        .expect("Failed to execute command");
+    
+    // This should fail due to invalid SPARQL
+    assert!(!output.status.success(), "Invalid SPARQL should cause generation to fail");
+    
+    // Check that the error message contains information about SPARQL
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(
+        stderr.contains("SPARQL") || stderr.contains("query") || stderr.contains("syntax"),
+        "Error message should mention SPARQL or query syntax issues. Got: {}",
+        stderr
+    );
 }
 
 #[test]

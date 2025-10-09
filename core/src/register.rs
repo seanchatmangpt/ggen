@@ -1,5 +1,8 @@
-use std::collections::HashMap;
-use tera::{Result as TeraResult, Tera, Value, Context};
+use heck::{
+    ToShoutyKebabCase,
+    ToShoutySnakeCase,
+    ToTitleCase, // supplemental only
+};
 use inflector::{
     cases::{
         camelcase, classcase, kebabcase, pascalcase, sentencecase, snakecase, titlecase, traincase,
@@ -8,9 +11,8 @@ use inflector::{
     string::{deconstantize, demodulize, pluralize, singularize},
     suffix::foreignkey,
 };
-use heck::{
-    ToShoutySnakeCase, ToShoutyKebabCase, ToTitleCase // supplemental only
-};
+use std::collections::HashMap;
+use tera::{Context, Result as TeraResult, Tera, Value};
 
 /// Register all text transformation helpers into Tera.
 pub fn register_all(tera: &mut Tera) {
@@ -46,16 +48,22 @@ pub fn register_all(tera: &mut Tera) {
     reg_str(tera, "lower", |s| s.to_lowercase());
     reg_str(tera, "lcfirst", |s| {
         let mut c = s.chars();
-        match c.next() { Some(f) => f.to_lowercase().collect::<String>() + c.as_str(), None => String::new() }
+        match c.next() {
+            Some(f) => f.to_lowercase().collect::<String>() + c.as_str(),
+            None => String::new(),
+        }
     });
     reg_str(tera, "ucfirst", |s| {
         let mut c = s.chars();
-        match c.next() { Some(f) => f.to_uppercase().collect::<String>() + c.as_str(), None => String::new() }
+        match c.next() {
+            Some(f) => f.to_uppercase().collect::<String>() + c.as_str(),
+            None => String::new(),
+        }
     });
 }
 
 /// Auto-bless context variables for Hygen compatibility.
-/// 
+///
 /// This function adds common derived variables to the context:
 /// - `Name` = `name | pascal` (when `name` exists)
 /// - `locals` = alias to the same context (for Hygen compatibility)
@@ -67,7 +75,7 @@ pub fn bless_context(context: &mut Context) {
             context.insert("Name", &pascal_name);
         }
     }
-    
+
     // Add locals alias (Hygen compatibility)
     // In Hygen, locals is an alias to the context itself
     // We'll add it as a function that returns the context
@@ -79,13 +87,16 @@ fn reg_str<F>(tera: &mut Tera, name: &str, f: F)
 where
     F: Fn(&str) -> String + Send + Sync + 'static,
 {
-    tera.register_filter(name, move |v: &Value, _a: &HashMap<String, Value>| -> TeraResult<Value> {
-        let input_str = match v.as_str() {
-            Some(s) => s.to_string(),
-            None => v.to_string(),
-        };
-        Ok(Value::String(f(&input_str)))
-    });
+    tera.register_filter(
+        name,
+        move |v: &Value, _a: &HashMap<String, Value>| -> TeraResult<Value> {
+            let input_str = match v.as_str() {
+                Some(s) => s.to_string(),
+                None => v.to_string(),
+            };
+            Ok(Value::String(f(&input_str)))
+        },
+    );
 }
 
 #[cfg(test)]
@@ -157,7 +168,6 @@ mod tests {
         assert_eq!(result, "Hello World Example");
     }
 
-
     #[test]
     fn test_ordinalization() {
         let mut tera = create_test_tera();
@@ -222,13 +232,19 @@ mod tests {
         ctx.insert("class_name", "UserProfile");
 
         // Test chaining transformations
-        let result = tera.render_str("{{ class_name | snake | pluralize }}", &ctx).unwrap();
+        let result = tera
+            .render_str("{{ class_name | snake | pluralize }}", &ctx)
+            .unwrap();
         assert_eq!(result, "user_profiles");
 
-        let result = tera.render_str("{{ class_name | kebab | shouty_kebab }}", &ctx).unwrap();
+        let result = tera
+            .render_str("{{ class_name | kebab | shouty_kebab }}", &ctx)
+            .unwrap();
         assert_eq!(result, "USER-PROFILE");
 
-        let result = tera.render_str("{{ class_name | demodulize | snake }}", &ctx).unwrap();
+        let result = tera
+            .render_str("{{ class_name | demodulize | snake }}", &ctx)
+            .unwrap();
         assert_eq!(result, "user_profile");
     }
 
@@ -281,12 +297,16 @@ mod tests {
 
         // Test database table naming
         ctx.insert("model", "UserAccount");
-        let table_name = tera.render_str("{{ model | snake | pluralize }}", &ctx).unwrap();
+        let table_name = tera
+            .render_str("{{ model | snake | pluralize }}", &ctx)
+            .unwrap();
         assert_eq!(table_name, "user_accounts");
 
         // Test API endpoint naming
         ctx.insert("resource", "UserProfile");
-        let endpoint = tera.render_str("{{ resource | kebab | pluralize }}", &ctx).unwrap();
+        let endpoint = tera
+            .render_str("{{ resource | kebab | pluralize }}", &ctx)
+            .unwrap();
         assert_eq!(endpoint, "user-profiles");
 
         // Test constant naming
@@ -350,20 +370,39 @@ mod tests {
     #[test]
     fn test_all_filters_registered() {
         let mut tera = create_test_tera();
-        
+
         // Test that all expected filters are registered
         let expected_filters = vec![
-            "camel", "pascal", "snake", "kebab", "class", "title", "sentence", "train",
-            "pluralize", "singularize", "deconstantize", "demodulize",
-            "ordinalize", "deordinalize", "foreign_key",
-            "shouty_snake", "shouty_kebab", "titlecase",
-            "param", "constant", "upper", "lower", "lcfirst", "ucfirst"
+            "camel",
+            "pascal",
+            "snake",
+            "kebab",
+            "class",
+            "title",
+            "sentence",
+            "train",
+            "pluralize",
+            "singularize",
+            "deconstantize",
+            "demodulize",
+            "ordinalize",
+            "deordinalize",
+            "foreign_key",
+            "shouty_snake",
+            "shouty_kebab",
+            "titlecase",
+            "param",
+            "constant",
+            "upper",
+            "lower",
+            "lcfirst",
+            "ucfirst",
         ];
 
         for filter in expected_filters {
             let mut ctx = Context::new();
             ctx.insert("test", "hello_world");
-            
+
             // This should not panic if the filter is registered
             let result = tera.render_str(&format!("{{{{ test | {} }}}}", filter), &ctx);
             assert!(result.is_ok(), "Filter '{}' should be registered", filter);
@@ -374,9 +413,9 @@ mod tests {
     fn test_bless_context_name() {
         let mut ctx = Context::new();
         ctx.insert("name", "hello_world");
-        
+
         bless_context(&mut ctx);
-        
+
         // Should have Name auto-blessed
         assert_eq!(ctx.get("Name").unwrap().as_str().unwrap(), "HelloWorld");
         // Original name should still be there
@@ -387,9 +426,9 @@ mod tests {
     fn test_bless_context_no_name() {
         let mut ctx = Context::new();
         ctx.insert("other", "value");
-        
+
         bless_context(&mut ctx);
-        
+
         // Should not have Name when name doesn't exist
         assert!(ctx.get("Name").is_none());
         // Should have locals placeholder
@@ -400,9 +439,9 @@ mod tests {
     fn test_bless_context_non_string_name() {
         let mut ctx = Context::new();
         ctx.insert("name", &42); // Non-string value
-        
+
         bless_context(&mut ctx);
-        
+
         // Should not bless Name for non-string values
         assert!(ctx.get("Name").is_none());
     }

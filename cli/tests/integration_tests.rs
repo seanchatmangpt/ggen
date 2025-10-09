@@ -11,9 +11,9 @@ fn test_cli_help() {
 
     assert!(output.status.success());
     let stdout = str::from_utf8(&output.stdout).unwrap();
-    assert!(stdout.contains("rust-starter"));
+    assert!(stdout.contains("rgen"));
     assert!(stdout.contains("hazard"));
-    assert!(stdout.contains("error"));
+    assert!(stdout.contains("gen"));
     assert!(stdout.contains("completion"));
     assert!(stdout.contains("config"));
 }
@@ -68,7 +68,7 @@ fn test_completion_bash() {
     assert!(output.status.success());
     let stdout = str::from_utf8(&output.stdout).unwrap();
     // Bash completion should contain function definitions
-    assert!(stdout.contains("_rust-starter"));
+    assert!(stdout.contains("_rgen"));
 }
 
 #[test]
