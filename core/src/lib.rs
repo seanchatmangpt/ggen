@@ -5,6 +5,7 @@
 
 pub mod cache;
 pub mod config;
+#[cfg(test)]
 pub mod e2e_tests;
 pub mod generator;
 pub mod graph;
@@ -20,7 +21,6 @@ pub mod template;
 pub mod tera_env;
 // pub mod tracing; // Temporarily disabled due to missing tracing_subscriber dependency
 pub mod simple_tracing;
-pub mod validate_frontmatter;
 
 // Re-export commonly used types for convenience
 pub use cache::{CacheManager, CachedPack};

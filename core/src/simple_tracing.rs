@@ -1,5 +1,3 @@
-use anyhow::Result;
-use std::collections::BTreeMap;
 use std::path::Path;
 use std::time::Instant;
 
@@ -101,11 +99,6 @@ impl SimpleTracer {
             Some(&format!("hook:{}", command)));
     }
     
-    /// Log validation
-    pub fn validation(validation_type: &str, passed: bool) {
-        let status = if passed { "passed" } else { "failed" };
-        Self::trace(TraceLevel::Debug, &format!("Validation {}: {}", status, validation_type), Some("validation"));
-    }
     
     /// Log performance metric
     pub fn performance(operation: &str, duration_ms: u64) {
@@ -222,7 +215,6 @@ mod tests {
         
         SimpleTracer::file_injection(&test_path, "append", true);
         SimpleTracer::shell_hook("echo 'test'", "before", 0);
-        SimpleTracer::validation("frontmatter", true);
         SimpleTracer::performance("test_operation", 50);
         SimpleTracer::dry_run(&test_path, 500);
         SimpleTracer::backup_created(&test_path, &temp_dir.path().join("backup.tmpl"));

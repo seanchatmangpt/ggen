@@ -137,20 +137,6 @@ impl RpackManifest {
         Ok(manifest)
     }
 
-    /// Validate the manifest
-    pub fn validate(&self) -> Result<()> {
-        // Validate rgen compatibility
-        self.validate_rgen_compat()?;
-        Ok(())
-    }
-
-    fn validate_rgen_compat(&self) -> Result<()> {
-        // For now, just check that it's not empty
-        if self.metadata.rgen_compat.is_empty() {
-            return Err(anyhow::anyhow!("rgen_compat is required"));
-        }
-        Ok(())
-    }
 
     /// Discover template files using conventions or config
     pub fn discover_templates(&self, base_path: &Path) -> Result<Vec<PathBuf>> {
@@ -249,33 +235,6 @@ vars = { author = "Acme", license = "MIT" }
         assert_eq!(manifest.queries.aliases.len(), 1);
     }
 
-    #[test]
-    fn test_manifest_validation() {
-        let mut manifest = RpackManifest {
-            metadata: RpackMetadata {
-                id: "test".to_string(),
-                name: "Test".to_string(),
-                version: "0.1.0".to_string(),
-                description: "Test pack".to_string(),
-                license: "MIT".to_string(),
-                rgen_compat: ">=0.1 <0.2".to_string(),
-            },
-            dependencies: BTreeMap::new(),
-            templates: TemplatesConfig::default(),
-            macros: MacrosConfig::default(),
-            rdf: RdfConfig::default(),
-            queries: QueriesConfig::default(),
-            shapes: ShapesConfig::default(),
-            preset: PresetConfig::default(),
-        };
-
-        // Should pass validation
-        assert!(manifest.validate().is_ok());
-
-        // Should fail with empty rgen_compat
-        manifest.metadata.rgen_compat = String::new();
-        assert!(manifest.validate().is_err());
-    }
 
     #[test]
     fn test_manifest_load_from_file() {

@@ -233,51 +233,6 @@ impl LockfileManager {
         self.save(&lockfile)
     }
 
-    /// Validate the lockfile format and integrity
-    pub fn validate(&self) -> Result<Vec<String>> {
-        let mut errors = Vec::new();
-
-        match self.load()? {
-            Some(lockfile) => {
-                // Check version
-                if lockfile.version != "1.0" {
-                    errors.push(format!(
-                        "Unsupported lockfile version: {}",
-                        lockfile.version
-                    ));
-                }
-
-                // Check for duplicate pack IDs
-                let mut seen_ids = std::collections::HashSet::new();
-                for entry in &lockfile.packs {
-                    if !seen_ids.insert(&entry.id) {
-                        errors.push(format!("Duplicate pack ID: {}", entry.id));
-                    }
-                }
-
-                // Validate pack entries
-                for entry in &lockfile.packs {
-                    if entry.id.is_empty() {
-                        errors.push("Empty pack ID".to_string());
-                    }
-                    if entry.version.is_empty() {
-                        errors.push(format!("Empty version for pack: {}", entry.id));
-                    }
-                    if entry.sha256.is_empty() {
-                        errors.push(format!("Empty SHA256 for pack: {}", entry.id));
-                    }
-                    if entry.source.is_empty() {
-                        errors.push(format!("Empty source for pack: {}", entry.id));
-                    }
-                }
-            }
-            None => {
-                // Lockfile doesn't exist, which is valid
-            }
-        }
-
-        Ok(errors)
-    }
 
     /// Get lockfile statistics
     pub fn stats(&self) -> Result<LockfileStats> {
@@ -311,7 +266,6 @@ pub struct LockfileStats {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::fs;
     use tempfile::TempDir;
 
     #[test]
@@ -377,18 +331,6 @@ mod tests {
         assert!(!manager.is_installed("io.rgen.test").unwrap());
     }
 
-    #[test]
-    fn test_lockfile_validate() {
-        let temp_dir = TempDir::new().unwrap();
-        let manager = LockfileManager::new(temp_dir.path());
-
-        // Create valid lockfile
-        let lockfile = manager.create().unwrap();
-        manager.save(&lockfile).unwrap();
-
-        let errors = manager.validate().unwrap();
-        assert!(errors.is_empty());
-    }
 
     #[test]
     fn test_lockfile_stats() {

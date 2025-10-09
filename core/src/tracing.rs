@@ -192,22 +192,6 @@ impl PipelineTracer {
         );
     }
     
-    /// Log validation
-    pub fn validation_start(validation_type: &str) {
-        debug!(
-            validation_type = validation_type,
-            "Starting validation"
-        );
-    }
-    
-    /// Log validation completion
-    pub fn validation_complete(validation_type: &str, passed: bool) {
-        debug!(
-            validation_type = validation_type,
-            passed = passed,
-            "Validation completed"
-        );
-    }
     
     /// Log performance metrics
     pub fn performance_metric(operation: &str, duration_ms: u64) {
