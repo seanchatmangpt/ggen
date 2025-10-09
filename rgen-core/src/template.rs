@@ -93,7 +93,8 @@ impl Template {
 
     /// Load RDF and run SPARQL using the rendered frontmatter.
     pub fn process_graph(
-        &mut self, graph: &mut Graph, tera: &mut Tera, vars: &Context, template_path: &std::path::Path,
+        &mut self, graph: &mut Graph, tera: &mut Tera, vars: &Context,
+        template_path: &std::path::Path,
     ) -> Result<()> {
         // Ensure frontmatter is rendered before graph ops
         if self.front.to.is_none()
@@ -122,11 +123,11 @@ impl Template {
         // Load RDF files - resolve relative to template directory
         for rdf_file in &self.front.rdf {
             let rendered_path = tera.render_str(rdf_file, vars)?;
-            
+
             // Resolve relative to template's directory
             let template_dir = template_path.parent().unwrap_or(std::path::Path::new("."));
             let rdf_path = template_dir.join(&rendered_path);
-            
+
             if let Ok(ttl_content) = std::fs::read_to_string(&rdf_path) {
                 let final_ttl = if prolog.is_empty() {
                     ttl_content
@@ -495,7 +496,12 @@ fn main() {
         let mut vars = Context::new();
         vars.insert("name", "Alice");
 
-        template.process_graph(&mut graph, &mut tera, &vars, std::path::Path::new("test.tmpl"))?;
+        template.process_graph(
+            &mut graph,
+            &mut tera,
+            &vars,
+            std::path::Path::new("test.tmpl"),
+        )?;
 
         // Check that the RDF was inserted
         assert!(!graph.is_empty());
@@ -532,7 +538,12 @@ fn main() {
         let mut tera = Tera::default();
         let vars = Context::new();
 
-        template.process_graph(&mut graph, &mut tera, &vars, std::path::Path::new("test.tmpl"))?;
+        template.process_graph(
+            &mut graph,
+            &mut tera,
+            &vars,
+            std::path::Path::new("test.tmpl"),
+        )?;
 
         // Check that the RDF was inserted
         assert!(!graph.is_empty());

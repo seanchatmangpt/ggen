@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use crate::error::Result;
 use std::str::FromStr;
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub enum LogLevel {
     #[serde(rename = "debug")]
     Debug,
@@ -17,13 +17,13 @@ pub enum LogLevel {
 
 impl std::fmt::Display for LogLevel {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        let s = match *self {
-            LogLevel::Debug => "debug",
-            LogLevel::Info => "info",
-            LogLevel::Warn => "warn",
-            LogLevel::Error => "error",
+        let s = match self {
+            Self::Debug => "debug",
+            Self::Info => "info",
+            Self::Warn => "warn",
+            Self::Error => "error",
         };
-        write!(f, "{}", s)
+        write!(f, "{s}")
     }
 }
 
@@ -32,11 +32,10 @@ impl FromStr for LogLevel {
 
     fn from_str(s: &str) -> Result<Self> {
         match s {
-            "debug" => Ok(LogLevel::Debug),
-            "info" => Ok(LogLevel::Info),
-            "warn" => Ok(LogLevel::Warn),
-            "error" => Ok(LogLevel::Error),
-            _ => Ok(LogLevel::Info),
+            "debug" => Ok(Self::Debug),
+            "warn" => Ok(Self::Warn),
+            "error" => Ok(Self::Error),
+            _ => Ok(Self::Info),
         }
     }
 }
@@ -88,7 +87,7 @@ mod tests {
     #[test]
     fn test_log_level_debug() {
         let debug = LogLevel::Debug;
-        let debug_str = format!("{:?}", debug);
+        let debug_str = format!("{debug:?}");
         assert!(debug_str.contains("Debug"));
     }
 }

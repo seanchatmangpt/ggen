@@ -1,6 +1,6 @@
-use cucumber::{given, then, when};
 use super::super::world::RgenWorld;
 use assert_cmd::Command;
+use cucumber::{given, then, when};
 use std::process::Command as StdCommand;
 
 // Installation-specific step definitions
@@ -14,7 +14,7 @@ fn install_rgen_via_cargo(world: &mut RgenWorld) {
         .current_dir(&world.project_dir)
         .output()
         .expect("Failed to run cargo install");
-    
+
     world.last_output = Some(output.clone());
     world.last_exit_code = output.status.code();
 }
@@ -27,7 +27,7 @@ fn install_rgen_via_homebrew(world: &mut RgenWorld) {
         .args(&["install", "rgen"])
         .output()
         .expect("Failed to run brew install");
-    
+
     world.last_output = Some(output.clone());
     world.last_exit_code = output.status.code();
 }
@@ -47,9 +47,12 @@ fn have_built_from_source(world: &mut RgenWorld) {
         .current_dir(&world.project_dir)
         .output()
         .expect("Failed to run cargo build");
-    
-    assert!(output.status.success(), "cargo build failed: {}", 
-        String::from_utf8_lossy(&output.stderr));
+
+    assert!(
+        output.status.success(),
+        "cargo build failed: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
 }
 
 #[when(regex = r"^I run cargo make build$")]
@@ -59,7 +62,7 @@ fn run_cargo_make_build(world: &mut RgenWorld) {
         .current_dir(&world.project_dir)
         .output()
         .expect("Failed to run cargo make build");
-    
+
     world.last_output = Some(output.clone());
     world.last_exit_code = output.status.code();
 }
@@ -71,7 +74,7 @@ fn run_cargo_make_install(world: &mut RgenWorld) {
         .current_dir(&world.project_dir)
         .output()
         .expect("Failed to run cargo make install");
-    
+
     world.last_output = Some(output.clone());
     world.last_exit_code = output.status.code();
 }
@@ -80,16 +83,27 @@ fn run_cargo_make_install(world: &mut RgenWorld) {
 fn rgen_should_be_installed(_world: &mut RgenWorld) {
     // Verify rgen binary exists and is executable
     let mut cmd = Command::cargo_bin("rgen").expect("rgen binary not found");
-    let output = cmd.arg("--version").output().expect("Failed to run rgen --version");
-    
-    assert!(output.status.success(), "rgen --version failed: {}", 
-        String::from_utf8_lossy(&output.stderr));
+    let output = cmd
+        .arg("--version")
+        .output()
+        .expect("Failed to run rgen --version");
+
+    assert!(
+        output.status.success(),
+        "rgen --version failed: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
 }
 
 #[then(regex = r"^the binary (.+) should exist$")]
 fn binary_should_exist(world: &mut RgenWorld, binary_path: String) {
     let full_path = world.project_dir.join(&binary_path);
-    assert!(full_path.exists(), "Binary {} should exist at {}", binary_path, full_path.display());
+    assert!(
+        full_path.exists(),
+        "Binary {} should exist at {}",
+        binary_path,
+        full_path.display()
+    );
 }
 
 #[then(regex = r"^(.+) should be in PATH$")]
@@ -98,7 +112,7 @@ fn should_be_in_path(_world: &mut RgenWorld, binary_name: String) {
         .arg(&binary_name)
         .output()
         .expect("Failed to run which command");
-    
+
     assert!(output.status.success(), "{} should be in PATH", binary_name);
 }
 
@@ -109,6 +123,6 @@ fn command_should_work(_world: &mut RgenWorld, command: String) {
         .args(&args[1..])
         .output()
         .expect(&format!("Failed to run {}", command));
-    
+
     assert!(output.status.success(), "Command '{}' should work", command);
 }

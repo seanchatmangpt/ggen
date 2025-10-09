@@ -1,8 +1,8 @@
 use clap::Args;
+use rgen_utils::error::Result;
 use std::collections::BTreeMap;
 use std::path::PathBuf;
 use tera::Context;
-use rgen_utils::error::Result;
 
 use rgen_core::graph::Graph;
 use rgen_core::template::Template;
@@ -167,7 +167,9 @@ fn validate_frontmatter_schema(
     }
 }
 
-fn validate_sparql_queries(frontmatter: &rgen_core::template::Frontmatter, issues: &mut Vec<String>) {
+fn validate_sparql_queries(
+    frontmatter: &rgen_core::template::Frontmatter, issues: &mut Vec<String>,
+) {
     for (name, query) in &frontmatter.sparql {
         // Basic SPARQL syntax validation
         if !query.to_uppercase().contains("SELECT")

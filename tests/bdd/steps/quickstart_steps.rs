@@ -1,5 +1,5 @@
-use cucumber::{given, then, when};
 use super::super::world::RgenWorld;
+use cucumber::{given, then, when};
 
 // Quickstart-specific step definitions
 
@@ -17,7 +17,7 @@ fn initialize_rgen(world: &mut RgenWorld) {
         .current_dir(&world.project_dir)
         .output()
         .expect("Failed to run rgen init");
-    
+
     world.last_output = Some(output.clone());
     world.last_exit_code = output.status.code();
 }
@@ -25,8 +25,14 @@ fn initialize_rgen(world: &mut RgenWorld) {
 #[then(regex = r"^I should have a basic project structure$")]
 fn should_have_basic_project_structure(world: &mut RgenWorld) {
     let project_dir = &world.project_dir;
-    
+
     // Check for basic files
-    assert!(project_dir.join("rgen.toml").exists(), "rgen.toml should exist");
-    assert!(project_dir.join("templates").exists(), "templates directory should exist");
+    assert!(
+        project_dir.join("rgen.toml").exists(),
+        "rgen.toml should exist"
+    );
+    assert!(
+        project_dir.join("templates").exists(),
+        "templates directory should exist"
+    );
 }

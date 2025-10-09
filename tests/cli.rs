@@ -1,7 +1,9 @@
 use anyhow::Result;
 use assert_cmd::Command;
-use rgen_core::registry::{PackMetadata, RegistryClient, SearchParams, SearchResult, VersionMetadata};
 use predicates::prelude::*;
+use rgen_core::registry::{
+    PackMetadata, RegistryClient, SearchParams, SearchResult, VersionMetadata,
+};
 use std::collections::HashMap;
 use std::fs;
 use tempfile::TempDir;
@@ -201,9 +203,9 @@ impl MockRegistryClient {
                 && (result.latest_version.contains("beta")
                     || result.latest_version.contains("alpha")
                     || result.latest_version.contains("rc"))
-                {
-                    return false;
-                }
+            {
+                return false;
+            }
 
             true
         });
@@ -261,7 +263,7 @@ fn test_cli_help_commands() {
         ("graph", "Export RDF graph"),
         ("hazard", "Generate hazard report"),
     ];
-    
+
     for (cmd_name, expected_text) in &commands {
         let mut cmd = Command::cargo_bin("rgen").unwrap();
         cmd.arg(cmd_name).arg("--help");

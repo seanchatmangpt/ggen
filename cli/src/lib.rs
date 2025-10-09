@@ -37,7 +37,7 @@ pub async fn cli_match() -> Result<()> {
     AppConfig::merge_config(cli.config.as_deref())?;
     let app = Cli::command();
     let matches = app.get_matches();
-    AppConfig::merge_args(matches)?;
+    AppConfig::merge_args(&matches)?;
 
     // For now, skip rgen.toml loading until we implement the methods
     cli.command.run().await

@@ -1,5 +1,5 @@
 [package]
-name = "rgen-tool"
+name = "rgen"
 version = "0.1.0"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 edition = "2021"
@@ -12,6 +12,10 @@ categories = ["development-tools", "command-line-utilities"]
 description = """
 rgen is a deterministic, language-agnostic code generation framework that treats software artifacts as projections of knowledge graphs.
 """
+
+# Allow multiple crate versions due to complex dependency tree
+[workspace.lints.clippy]
+multiple_crate_versions = "allow"
 
 [workspace]
 members = ["utils", "cli", "rgen-core"]

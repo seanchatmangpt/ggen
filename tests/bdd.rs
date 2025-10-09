@@ -1,6 +1,6 @@
 mod bdd {
-    pub mod world;
     pub mod steps;
+    pub mod world;
 }
 
 use bdd::world::RgenWorld;
@@ -17,9 +17,7 @@ use bdd::steps::*;
 
 #[tokio::main]
 async fn main() {
-    RgenWorld::cucumber()
-        .run("tests/bdd/features")
-        .await;
+    RgenWorld::cucumber().run("tests/bdd/features").await;
 }
 
 // Individual feature tests can be run using:

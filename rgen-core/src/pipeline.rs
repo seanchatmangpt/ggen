@@ -268,10 +268,7 @@ impl TeraFunction for LocalFn {
             .strip_prefix('<')
             .and_then(|x| x.strip_suffix('>'))
             .unwrap_or(s);
-        let idx = s
-            .rfind(['#', '/'])
-            .map(|i| i + 1)
-            .unwrap_or(0);
+        let idx = s.rfind(['#', '/']).map(|i| i + 1).unwrap_or(0);
         Ok(serde_json::Value::String(s[idx..].to_string()))
     }
 }
@@ -335,10 +332,11 @@ impl Plan {
 
         // Check if content already exists (idempotent mode)
         if self.frontmatter.idempotent
-            && SkipIfGenerator::content_exists_in_file(&self.content, &self.output_path)? {
-                // PipelineTracer::skip_condition("idempotent", "content already exists"); // Temporarily disabled
-                return Ok(());
-            }
+            && SkipIfGenerator::content_exists_in_file(&self.content, &self.output_path)?
+        {
+            // PipelineTracer::skip_condition("idempotent", "content already exists"); // Temporarily disabled
+            return Ok(());
+        }
 
         // Create backup if requested
         if self.frontmatter.backup.unwrap_or(false) {

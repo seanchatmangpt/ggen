@@ -1,8 +1,8 @@
 use config::builder::DefaultState;
 use config::{Config, ConfigBuilder, Environment};
-use lazy_static::{__Deref, lazy_static};
 use serde::{Deserialize, Serialize};
 use std::path::Path;
+use std::sync::LazyLock;
 use std::sync::RwLock;
 
 use super::error::Result;
@@ -10,9 +10,8 @@ use crate::types::LogLevel;
 
 // CONFIG static variable. It's actually an AppConfig
 // inside an RwLock.
-lazy_static! {
-    pub static ref BUILDER: RwLock<ConfigBuilder<DefaultState>> = RwLock::new(Config::builder());
-}
+static BUILDER: LazyLock<RwLock<ConfigBuilder<DefaultState>>> =
+    LazyLock::new(|| RwLock::new(Config::builder()));
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Database {
@@ -28,7 +27,11 @@ pub struct AppConfig {
 }
 
 impl AppConfig {
-    /// Initialize AppConfig.
+    /// Initialize `AppConfig`.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if configuration parsing fails.
     pub fn init(default_config: Option<&str>) -> Result<()> {
         let mut builder = Config::builder();
 
@@ -55,24 +58,29 @@ impl AppConfig {
         Ok(())
     }
 
-    pub fn merge_args(args: clap::ArgMatches) -> Result<()> {
+    /// Merge CLI arguments with existing configuration.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if configuration merging fails.
+    pub fn merge_args(args: &clap::ArgMatches) -> Result<()> {
         // Merge Clap arguments with existing configuration
         // This allows CLI arguments to override environment variables and config files
 
         if args.contains_id("debug") {
             let value: &bool = args.get_one("debug").unwrap_or(&false);
-            AppConfig::set("debug", &value.to_string())?;
+            Self::set("debug", &value.to_string())?;
         }
 
         if args.contains_id("log_level") {
             let value: &LogLevel = args.get_one("log_level").unwrap_or(&LogLevel::Info);
-            AppConfig::set("log_level", &value.to_string())?;
+            Self::set("log_level", &value.to_string())?;
         }
 
         // Add support for more CLI arguments
         if args.contains_id("config") {
             if let Some(config_path) = args.get_one::<String>("config") {
-                AppConfig::merge_config(Some(Path::new(config_path)))?;
+                Self::merge_config(Some(Path::new(config_path)))?;
             }
         }
 
@@ -84,25 +92,38 @@ impl AppConfig {
     /// 2. Configuration file (if specified)
     /// 3. Environment variables (APP_*)
     /// 4. CLI arguments (highest precedence)
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if configuration initialization or merging fails.
     pub fn init_with_args(
         default_config: Option<&str>, args: Option<clap::ArgMatches>,
     ) -> Result<()> {
         // Initialize with defaults and environment variables
-        AppConfig::init(default_config)?;
+        Self::init(default_config)?;
 
         // Merge CLI arguments if provided
         if let Some(arg_matches) = args {
-            AppConfig::merge_args(arg_matches)?;
+            Self::merge_args(&arg_matches)?;
         }
 
         Ok(())
     }
 
+    /// Merge configuration from a file.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the configuration file cannot be read or parsed.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the `RwLock` is poisoned.
     pub fn merge_config(config_file: Option<&Path>) -> Result<()> {
         // Merge settings with config file if there is one
         if let Some(config_file_path) = config_file {
             {
-                let mut w = BUILDER.write().unwrap();
+                let mut w = BUILDER.write().expect("RwLock should not be poisoned");
                 *w = w.clone().add_source(config::File::with_name(
                     config_file_path.to_str().unwrap_or(""),
                 ));
@@ -111,36 +132,50 @@ impl AppConfig {
         Ok(())
     }
 
-    // Set CONFIG
+    /// Set a configuration value.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the configuration value cannot be set.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the `RwLock` is poisoned.
     pub fn set(key: &str, value: &str) -> Result<()> {
         {
-            let mut w = BUILDER.write().unwrap();
+            let mut w = BUILDER.write().expect("RwLock should not be poisoned");
             *w = w.clone().set_override(key, value)?;
         }
 
         Ok(())
     }
 
-    // Get a single value
+    /// Get a single configuration value.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the configuration value cannot be retrieved or deserialized.
     pub fn get<'de, T>(key: &'de str) -> Result<T>
     where
         T: serde::Deserialize<'de>,
     {
-        Ok(BUILDER.read()?.deref().clone().build()?.get::<T>(key)?)
+        Ok(BUILDER.read()?.clone().build()?.get::<T>(key)?)
     }
 
-    // Get CONFIG
-    // This clones Config (from RwLock<Config>) into a new AppConfig object.
-    // This means you have to fetch this again if you changed the configuration.
-    pub fn fetch() -> Result<AppConfig> {
-        // Get a Read Lock from RwLock
-        let r = BUILDER.read()?;
-
-        // Clone the Config object
-        let config_clone = r.deref().clone().build()?;
+    /// Get the current configuration.
+    ///
+    /// This clones Config (from `RwLock`<Config>) into a new `AppConfig` object.
+    /// This means you have to fetch this again if you changed the configuration.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the configuration cannot be retrieved or deserialized.
+    pub fn fetch() -> Result<Self> {
+        // Clone the Config object and build it
+        let config_clone = BUILDER.read()?.clone().build()?;
 
         // Coerce Config into AppConfig
-        let app_config: AppConfig = config_clone.try_into()?;
+        let app_config: Self = config_clone.try_into()?;
         Ok(app_config)
     }
 }
@@ -151,7 +186,7 @@ impl TryFrom<Config> for AppConfig {
     type Error = crate::error::Error;
 
     fn try_from(config: Config) -> Result<Self> {
-        Ok(AppConfig {
+        Ok(Self {
             debug: config.get_bool("debug")?,
             log_level: config.get::<LogLevel>("log_level")?,
             database: config.get::<Database>("database")?,

@@ -1,5 +1,5 @@
+use rgen_utils::app_config::*;
 use std::sync::Once;
-use utils::app_config::*;
 
 static INIT: Once = Once::new();
 

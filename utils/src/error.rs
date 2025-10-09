@@ -11,6 +11,7 @@ pub struct Error {
 
 impl Error {
     /// Create a new error with a message
+    #[must_use]
     pub fn new(message: &str) -> Self {
         Self {
             message: message.to_string(),
@@ -20,6 +21,7 @@ impl Error {
     }
 
     /// Create a new error with a formatted message
+    #[must_use]
     pub fn new_fmt(args: std::fmt::Arguments) -> Self {
         Self {
             message: args.to_string(),
@@ -29,6 +31,7 @@ impl Error {
     }
 
     /// Create an error with additional context
+    #[must_use]
     pub fn with_context(message: &str, context: &str) -> Self {
         Self {
             message: message.to_string(),
@@ -38,6 +41,7 @@ impl Error {
     }
 
     /// Create an error with a source error
+    #[must_use]
     pub fn with_source(message: &str, source: Box<dyn StdError + Send + Sync>) -> Self {
         Self {
             message: message.to_string(),
@@ -52,11 +56,11 @@ impl fmt::Display for Error {
         write!(f, "{}", self.message)?;
 
         if let Some(context) = &self.context {
-            write!(f, " (context: {})", context)?;
+            write!(f, " (context: {context})")?;
         }
 
         if let Some(source) = &self.source {
-            write!(f, " (caused by: {})", source)?;
+            write!(f, " (caused by: {source})")?;
         }
 
         Ok(())
@@ -142,14 +146,14 @@ mod tests {
     #[test]
     fn test_error_display() {
         let error = Error::new("Test error message");
-        let display = format!("{}", error);
+        let display = format!("{error}");
         assert_eq!(display, "Test error message");
     }
 
     #[test]
     fn test_error_debug() {
         let error = Error::new("Test error message");
-        let debug = format!("{:?}", error);
+        let debug = format!("{error:?}");
         assert!(debug.contains("Test error message"));
     }
 
@@ -193,16 +197,15 @@ mod tests {
 
     #[test]
     fn test_result_type() {
-        fn success_function() -> Result<String> {
-            Ok("success".to_string())
+        fn success_function() -> String {
+            "success".to_string()
         }
 
         fn error_function() -> Result<String> {
             Err(Error::new("error"))
         }
 
-        assert!(success_function().is_ok());
-        assert_eq!(success_function().unwrap(), "success");
+        assert_eq!(success_function(), "success");
 
         assert!(error_function().is_err());
         assert_eq!(error_function().unwrap_err().to_string(), "error");
