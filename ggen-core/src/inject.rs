@@ -95,11 +95,11 @@ impl SkipIfGenerator {
     ///
     /// This is more sophisticated than exact match - it looks for
     /// content that has already been injected by checking for
-    /// rgen-specific markers or patterns.
+    /// ggen-specific markers or patterns.
     pub fn generate_idempotent_pattern(content: &str) -> String {
         // For now, use exact match
         // In the future, this could be enhanced to look for
-        // rgen-specific markers or content signatures
+        // ggen-specific markers or content signatures
         Self::generate_exact_match(content)
     }
 }

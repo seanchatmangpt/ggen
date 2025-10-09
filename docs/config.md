@@ -4,7 +4,7 @@ rgen supports configuration through project files and environment variables.
 
 ## Project Configuration
 
-### rgen.toml
+### ggen.toml
 
 ```toml
 [project]
@@ -123,7 +123,7 @@ export RGEN_TRACE=1
 export RGEN_REGISTRY_TOKEN="your-token"
 
 # Custom registry URL
-export RGEN_REGISTRY_URL="https://custom-registry.com"
+export GGEN_REGISTRY_URL="https://custom-registry.com"
 
 # Disable automatic updates
 export RGEN_NO_UPDATE=1
@@ -135,8 +135,8 @@ Variables are resolved in this order (later values override earlier):
 
 1. **Environment variables** (from `.env` files)
 2. **System environment** (`$HOME`, `$USER`, etc.)
-3. **Project configuration** (`rgen.toml` `[vars]` section)
-4. **Rpack variables** (from rpack `rgen.toml`)
+3. **Project configuration** (`ggen.toml` `[vars]` section)
+4. **Rpack variables** (from rpack `ggen.toml`)
 5. **Template frontmatter** (`vars:` section)
 6. **CLI arguments** (`--var key=value`)
 
@@ -145,7 +145,7 @@ Variables are resolved in this order (later values override earlier):
 ### Basic Project
 
 ```toml
-# rgen.toml
+# ggen.toml
 [project]
 name = "my-cli-tool"
 version = "0.1.0"
@@ -159,7 +159,7 @@ description = "A CLI tool generated with rgen"
 ### Multi-Language Project
 
 ```toml
-# rgen.toml
+# ggen.toml
 [project]
 name = "multi-lang-api"
 version = "0.1.0"
@@ -180,7 +180,7 @@ update_policy = "compatible"
 ### Enterprise Configuration
 
 ```toml
-# rgen.toml
+# ggen.toml
 [project]
 name = "enterprise-tool"
 version = "1.0.0"

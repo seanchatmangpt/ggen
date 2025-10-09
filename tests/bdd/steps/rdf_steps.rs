@@ -1,10 +1,10 @@
-use super::super::world::RgenWorld;
+use super::super::world::GgenWorld;
 use cucumber::{given, then, when};
 
 // RDF/SPARQL step definitions
 
 #[given(regex = r"^I have an RDF ontology file$")]
-fn have_rdf_ontology_file(world: &mut RgenWorld) {
+fn have_rdf_ontology_file(world: &mut GgenWorld) {
     use std::fs;
 
     let rdf_content = r#"@prefix ex: <http://example.org/> .
@@ -22,7 +22,7 @@ ex:name a rdf:Property ;
 }
 
 #[given(regex = r"^I have a SPARQL query file$")]
-fn have_sparql_query_file(world: &mut RgenWorld) {
+fn have_sparql_query_file(world: &mut GgenWorld) {
     use std::fs;
 
     let sparql_content = r#"PREFIX ex: <http://example.org/>
@@ -39,11 +39,11 @@ SELECT ?class ?property WHERE {
 }
 
 #[when(regex = r"^I run the SPARQL query$")]
-fn run_sparql_query(world: &mut RgenWorld) {
+fn run_sparql_query(world: &mut GgenWorld) {
     use assert_cmd::Command;
 
-    let output = Command::cargo_bin("rgen")
-        .expect("rgen binary not found")
+    let output = Command::cargo_bin("ggen")
+        .expect("ggen binary not found")
         .arg("query")
         .arg("ontology.ttl")
         .arg("query.sparql")
@@ -56,7 +56,7 @@ fn run_sparql_query(world: &mut RgenWorld) {
 }
 
 #[then(regex = r"^I should see query results$")]
-fn should_see_query_results(world: &mut RgenWorld) {
+fn should_see_query_results(world: &mut GgenWorld) {
     let stdout = world.last_stdout();
     assert!(
         stdout.contains("ex:Person") || stdout.contains("ex:name"),
@@ -66,7 +66,7 @@ fn should_see_query_results(world: &mut RgenWorld) {
 }
 
 #[then(regex = r"^the results should be in (.+) format$")]
-fn results_should_be_in_format(world: &mut RgenWorld, format: String) {
+fn results_should_be_in_format(world: &mut GgenWorld, format: String) {
     let stdout = world.last_stdout();
 
     match format.as_str() {

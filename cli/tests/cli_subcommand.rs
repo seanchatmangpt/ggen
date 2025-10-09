@@ -35,10 +35,10 @@ version = "1.0.0"
 sha256 = "abc123"
 source = "local"
 "#;
-    std::fs::write(root.join("rgen.lock"), lockfile_content).unwrap();
+    std::fs::write(root.join("ggen.lock"), lockfile_content).unwrap();
 
     // Create a cache entry for the local pack in the system cache directory
-    let system_cache_dir = dirs::cache_dir().unwrap().join("rgen/rpacks");
+    let system_cache_dir = dirs::cache_dir().unwrap().join("ggen/rpacks");
     let cache_dir = system_cache_dir.join("local.test/1.0.0");
     let cache_templates_dir = cache_dir.join("templates");
     std::fs::create_dir_all(&cache_templates_dir).unwrap();
@@ -54,7 +54,7 @@ source = "local"
 
     // Create the manifest
     std::fs::write(
-        cache_templates_dir.join("rgen.toml"),
+        cache_templates_dir.join("ggen.toml"),
         r#"
 [rpack]
 id = "local.test"
@@ -62,13 +62,13 @@ name = "Local Test Pack"
 version = "1.0.0"
 description = "Local test pack"
 license = "MIT"
-rgen_compat = "1.0.0"
+ggen_compat = "1.0.0"
 "#,
     )
     .unwrap();
 
-    // Run `rgen gen local.test:cli/subcommand/rust.tmpl --var cmd=hello --dry`
-    let mut cmd = Command::cargo_bin("rgen").unwrap();
+    // Run `ggen gen local.test:cli/subcommand/rust.tmpl --var cmd=hello --dry`
+    let mut cmd = Command::cargo_bin("ggen").unwrap();
     cmd.current_dir(root)
         .arg("gen")
         .arg("local.test:cli/subcommand/rust.tmpl")

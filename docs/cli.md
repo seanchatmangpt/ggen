@@ -126,7 +126,7 @@ Variables are resolved in this order (later values override earlier):
 1. **CLI arguments** (`--var key=value`)
 2. **Environment variables** (from `.env` files)
 3. **System environment** (`$HOME`, `$USER`, etc.)
-4. **Rpack variables** (from rpack `rgen.toml`)
+4. **Rpack variables** (from rpack `ggen.toml`)
 5. **Template frontmatter** (`vars:` section)
 6. **SPARQL variables** (from queries)
 

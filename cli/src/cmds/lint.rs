@@ -1,11 +1,11 @@
 use clap::Args;
-use rgen_utils::error::Result;
+use ggen_utils::error::Result;
 use std::collections::BTreeMap;
 use std::path::PathBuf;
 use tera::Context;
 
-use rgen_core::graph::Graph;
-use rgen_core::template::Template;
+use ggen_core::graph::Graph;
+use ggen_core::template::Template;
 
 #[derive(Args, Debug)]
 pub struct LintArgs {
@@ -65,7 +65,7 @@ pub fn run(args: &LintArgs) -> Result<()> {
     tera.autoescape_on(vec![]);
 
     // Register text transformation filters
-    rgen_core::register::register_all(&mut tera);
+    ggen_core::register::register_all(&mut tera);
 
     // Render frontmatter
     template.render_frontmatter(&mut tera, &ctx)?;
@@ -92,14 +92,14 @@ pub fn run(args: &LintArgs) -> Result<()> {
         for (i, issue) in issues.iter().enumerate() {
             println!("{}. {}", i + 1, issue);
         }
-        return Err(rgen_utils::error::Error::new("Linting failed"));
+        return Err(ggen_utils::error::Error::new("Linting failed"));
     }
 
     Ok(())
 }
 
 fn validate_frontmatter_schema(
-    frontmatter: &rgen_core::template::Frontmatter, issues: &mut Vec<String>,
+    frontmatter: &ggen_core::template::Frontmatter, issues: &mut Vec<String>,
 ) {
     // Check for unknown or deprecated keys
     // This is a basic validation - in a real implementation, you'd load the JSON schema
@@ -168,7 +168,7 @@ fn validate_frontmatter_schema(
 }
 
 fn validate_sparql_queries(
-    frontmatter: &rgen_core::template::Frontmatter, issues: &mut Vec<String>,
+    frontmatter: &ggen_core::template::Frontmatter, issues: &mut Vec<String>,
 ) {
     for (name, query) in &frontmatter.sparql {
         // Basic SPARQL syntax validation
@@ -197,7 +197,7 @@ fn validate_sparql_queries(
     }
 }
 
-fn validate_rdf_content(frontmatter: &rgen_core::template::Frontmatter, issues: &mut Vec<String>) {
+fn validate_rdf_content(frontmatter: &ggen_core::template::Frontmatter, issues: &mut Vec<String>) {
     // Validate inline RDF content
     for (i, rdf_content) in frontmatter.rdf_inline.iter().enumerate() {
         if rdf_content.trim().is_empty() {
@@ -221,7 +221,7 @@ fn validate_rdf_content(frontmatter: &rgen_core::template::Frontmatter, issues: 
     }
 }
 
-fn validate_shacl(frontmatter: &rgen_core::template::Frontmatter, issues: &mut Vec<String>) {
+fn validate_shacl(frontmatter: &ggen_core::template::Frontmatter, issues: &mut Vec<String>) {
     // Early validation checks
     if frontmatter.rdf.is_empty() && frontmatter.rdf_inline.is_empty() {
         issues.push("SHACL validation requested but no RDF data is available".to_string());
@@ -275,7 +275,7 @@ fn validate_shacl(frontmatter: &rgen_core::template::Frontmatter, issues: &mut V
 }
 
 fn load_rdf_data_into_graph(
-    frontmatter: &rgen_core::template::Frontmatter, graph: &mut Graph,
+    frontmatter: &ggen_core::template::Frontmatter, graph: &mut Graph,
 ) -> Result<()> {
     // Load inline RDF data first (usually smaller and faster)
     for rdf_content in &frontmatter.rdf_inline {
@@ -295,7 +295,7 @@ fn load_rdf_data_into_graph(
 }
 
 fn load_shacl_shapes_into_graph(
-    frontmatter: &rgen_core::template::Frontmatter, graph: &mut Graph,
+    frontmatter: &ggen_core::template::Frontmatter, graph: &mut Graph,
 ) -> Result<()> {
     // Load shape files
     for shape_file in &frontmatter.shape {
@@ -322,7 +322,7 @@ fn perform_optimized_shacl_validation(combined_graph: &Graph) -> Result<Vec<Stri
     let shapes_result = combined_graph.query_cached(shapes_query)?;
 
     match shapes_result {
-        rgen_core::graph::CachedResult::Solutions(solutions) => {
+        ggen_core::graph::CachedResult::Solutions(solutions) => {
             if solutions.is_empty() {
                 validation_errors.push("No SHACL NodeShapes found in shapes graph".to_string());
             } else {
@@ -354,7 +354,7 @@ fn validate_single_shape(graph: &Graph, shape_iri: &str) -> Result<()> {
 
     let properties_result = graph.query_cached(&properties_query)?;
     match properties_result {
-        rgen_core::graph::CachedResult::Solutions(properties) => {
+        ggen_core::graph::CachedResult::Solutions(properties) => {
             // Validate each property constraint
             for property_solution in properties {
                 if let Some(property_iri) = property_solution.get("property") {
@@ -379,7 +379,7 @@ fn validate_property_constraint(graph: &Graph, property_iri: &str) -> Result<()>
 
     let min_count_result = graph.query_cached(&min_count_query)?;
     match min_count_result {
-        rgen_core::graph::CachedResult::Boolean(true) => {
+        ggen_core::graph::CachedResult::Boolean(true) => {
             // Property has minCount constraint - would need to validate against data
             // For now, just note that the constraint exists
         }

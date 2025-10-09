@@ -7,7 +7,7 @@ use std::path::{Path, PathBuf};
 
 // use crate::cache::RpackManifest;
 
-/// Lockfile manager for rgen.lock
+/// Lockfile manager for ggen.lock
 #[derive(Debug, Clone)]
 pub struct LockfileManager {
     lockfile_path: PathBuf,
@@ -34,7 +34,7 @@ pub struct LockEntry {
 impl LockfileManager {
     /// Create a new lockfile manager
     pub fn new(project_dir: &Path) -> Self {
-        let lockfile_path = project_dir.join("rgen.lock");
+        let lockfile_path = project_dir.join("ggen.lock");
         Self { lockfile_path }
     }
 
@@ -270,7 +270,7 @@ mod tests {
         let temp_dir = TempDir::new().unwrap();
         let manager = LockfileManager::new(temp_dir.path());
 
-        assert_eq!(manager.lockfile_path(), temp_dir.path().join("rgen.lock"));
+        assert_eq!(manager.lockfile_path(), temp_dir.path().join("ggen.lock"));
     }
 
     #[test]
@@ -300,12 +300,12 @@ mod tests {
 
         // Upsert a pack
         manager
-            .upsert("io.rgen.test", "1.0.0", "abc123", "https://example.com")
+            .upsert("io.ggen.test", "1.0.0", "abc123", "https://example.com")
             .unwrap();
 
         // Get the pack
-        let entry = manager.get("io.rgen.test").unwrap().unwrap();
-        assert_eq!(entry.id, "io.rgen.test");
+        let entry = manager.get("io.ggen.test").unwrap().unwrap();
+        assert_eq!(entry.id, "io.ggen.test");
         assert_eq!(entry.version, "1.0.0");
         assert_eq!(entry.sha256, "abc123");
         assert_eq!(entry.source, "https://example.com");
@@ -318,14 +318,14 @@ mod tests {
 
         // Add a pack
         manager
-            .upsert("io.rgen.test", "1.0.0", "abc123", "https://example.com")
+            .upsert("io.ggen.test", "1.0.0", "abc123", "https://example.com")
             .unwrap();
-        assert!(manager.is_installed("io.rgen.test").unwrap());
+        assert!(manager.is_installed("io.ggen.test").unwrap());
 
         // Remove the pack
-        let removed = manager.remove("io.rgen.test").unwrap();
+        let removed = manager.remove("io.ggen.test").unwrap();
         assert!(removed);
-        assert!(!manager.is_installed("io.rgen.test").unwrap());
+        assert!(!manager.is_installed("io.ggen.test").unwrap());
     }
 
     #[test]
@@ -341,7 +341,7 @@ mod tests {
 
         // Add a pack
         manager
-            .upsert("io.rgen.test", "1.0.0", "abc123", "https://example.com")
+            .upsert("io.ggen.test", "1.0.0", "abc123", "https://example.com")
             .unwrap();
 
         let stats = manager.stats().unwrap();

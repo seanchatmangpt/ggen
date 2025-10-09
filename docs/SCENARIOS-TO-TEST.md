@@ -366,7 +366,7 @@ rgen add <RPACK_ID>
 Given the rpack "io.rgen.rust.cli-subcommand" exists
 When I run "rgen add io.rgen.rust.cli-subcommand"
 Then the rpack should be downloaded
-And it should be added to rgen.toml
+And it should be added to ggen.toml
 And it should be cached locally
 ```
 
@@ -412,7 +412,7 @@ rgen remove [OPTIONS] <RPACK_ID>
 ```gherkin
 Given the rpack "io.rgen.rust.cli-subcommand" is installed
 When I run "rgen remove io.rgen.rust.cli-subcommand"
-Then it should be removed from rgen.toml
+Then it should be removed from ggen.toml
 And the templates should no longer be available
 But the cache should remain (unless --prune)
 ```
@@ -424,7 +424,7 @@ But the cache should remain (unless --prune)
 ```gherkin
 Given the rpack is installed
 When I run "rgen remove io.rgen.rust.cli-subcommand --prune"
-Then it should be removed from rgen.toml
+Then it should be removed from ggen.toml
 And it should be removed from cache
 And disk space should be freed
 ```
@@ -486,7 +486,7 @@ rgen update [RPACK_ID]
 Given I have installed rpacks with updates available
 When I run "rgen update"
 Then all rpacks should be updated to latest compatible versions
-And rgen.toml should be updated
+And ggen.toml should be updated
 ```
 
 **Feature File:** `marketplace.feature`
@@ -680,7 +680,7 @@ Then I should see valid zsh completion script
 ```bash
 rgen [OPTIONS] <COMMAND>
   -c, --config <FILE>          Custom config file
-      --manifest-path <PATH>   Path to rgen.toml
+      --manifest-path <PATH>   Path to ggen.toml
   -d, --debug <DEBUG>          Enable debug mode
   -l, --log-level <LOG_LEVEL>  Set log level
   -h, --help                   Show help

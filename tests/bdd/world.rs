@@ -11,7 +11,7 @@ use tempfile::TempDir;
 /// - Captured file contents and hashes
 /// - Registry mocking state
 #[derive(Debug, Default, cucumber::World)]
-pub struct RgenWorld {
+pub struct GgenWorld {
     /// Temporary directory for test isolation
     pub temp_dir: Option<TempDir>,
 
@@ -37,7 +37,7 @@ pub struct RgenWorld {
     pub mock_server: Option<mockito::Server>,
 }
 
-impl RgenWorld {
+impl GgenWorld {
     /// Create a new world with a temporary directory
     pub fn new() -> Self {
         let temp_dir = TempDir::new().expect("Failed to create temp dir");

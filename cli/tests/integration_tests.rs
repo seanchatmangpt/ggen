@@ -11,7 +11,7 @@ fn test_cli_help() {
 
     assert!(output.status.success());
     let stdout = str::from_utf8(&output.stdout).unwrap();
-    assert!(stdout.contains("rgen"));
+    assert!(stdout.contains("ggen"));
     assert!(stdout.contains("hazard"));
     assert!(stdout.contains("gen"));
     assert!(stdout.contains("completion"));
@@ -27,7 +27,7 @@ fn test_hazard_command() {
         .expect("Failed to execute command");
 
     // Test passes if command runs without panicking
-    // The actual output depends on the rgen_core::commands::hazard implementation
+    // The actual output depends on the ggen_core::commands::hazard implementation
     assert!(output.status.code().is_some());
 }
 
@@ -40,7 +40,7 @@ fn test_error_command() {
         .expect("Failed to execute command");
 
     // Test passes if command runs without panicking
-    // The actual output depends on the rgen_core::commands::simulate_error implementation
+    // The actual output depends on the ggen_core::commands::simulate_error implementation
     assert!(output.status.code().is_some());
 }
 
@@ -53,7 +53,7 @@ fn test_config_command() {
         .expect("Failed to execute command");
 
     // Test passes if command runs without panicking
-    // The actual output depends on the rgen_core::commands::config implementation
+    // The actual output depends on the ggen_core::commands::config implementation
     assert!(output.status.code().is_some());
 }
 
@@ -68,7 +68,7 @@ fn test_completion_bash() {
     assert!(output.status.success());
     let stdout = str::from_utf8(&output.stdout).unwrap();
     // Bash completion should contain function definitions
-    assert!(stdout.contains("_rgen"));
+    assert!(stdout.contains("_ggen"));
 }
 
 #[test]

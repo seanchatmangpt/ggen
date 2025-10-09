@@ -144,7 +144,7 @@ your-project/
 ├── output/            # Generated files (configurable)
 ├── graphs/            # Optional RDF knowledge graphs
 │   └── *.ttl
-└── rgen.toml          # Optional project configuration
+└── ggen.toml          # Optional project configuration
 ```
 
 ---
@@ -255,7 +255,7 @@ Output:
 2. MEDIUM - No RDF files found in project
    💡 Recommendation: Add RDF files to enable graph-based code generation
 
-3. LOW - Configuration file 'rgen.toml' not found
+3. LOW - Configuration file 'ggen.toml' not found
    💡 Recommendation: Consider adding configuration for better project management
 ```
 

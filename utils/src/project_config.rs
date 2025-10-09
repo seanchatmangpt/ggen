@@ -3,7 +3,7 @@ use std::collections::BTreeMap;
 use std::path::PathBuf;
 
 #[derive(Debug, Deserialize)]
-pub struct RgenConfig {
+pub struct GgenConfig {
     pub project: Project,
     #[serde(default)]
     pub prefixes: BTreeMap<String, String>,

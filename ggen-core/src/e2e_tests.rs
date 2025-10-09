@@ -1,4 +1,4 @@
-//! End-to-end tests for the rgen core functionality
+//! End-to-end tests for the ggen core functionality
 //! These tests verify the complete pipeline from template parsing to code generation
 
 use crate::generator::Generator;

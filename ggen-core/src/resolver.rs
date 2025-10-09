@@ -291,9 +291,9 @@ mod tests {
         let resolver = TemplateResolver::new(cache_manager, lockfile_manager);
 
         let (pack_id, template_path) = resolver
-            .parse_template_ref("io.rgen.test:main.tmpl")
+            .parse_template_ref("io.ggen.test:main.tmpl")
             .unwrap();
-        assert_eq!(pack_id, "io.rgen.test");
+        assert_eq!(pack_id, "io.ggen.test");
         assert_eq!(template_path, "main.tmpl");
     }
 
@@ -322,7 +322,7 @@ mod tests {
         fs::create_dir_all(&templates_dir).unwrap();
 
         let cached_pack = CachedPack {
-            id: "io.rgen.test".to_string(),
+            id: "io.ggen.test".to_string(),
             version: "1.0.0".to_string(),
             path: pack_dir,
             sha256: "abc123".to_string(),
@@ -344,7 +344,7 @@ mod tests {
         let temp_dir = TempDir::new().unwrap();
         let pack_dir = temp_dir.path().join("pack");
         let cached_pack = CachedPack {
-            id: "io.rgen.test".to_string(),
+            id: "io.ggen.test".to_string(),
             version: "1.0.0".to_string(),
             path: pack_dir,
             sha256: "abc123".to_string(),
@@ -381,7 +381,7 @@ mod tests {
         fs::create_dir_all(&templates_dir).unwrap();
 
         let cached_pack = CachedPack {
-            id: "io.rgen.test".to_string(),
+            id: "io.ggen.test".to_string(),
             version: "1.0.0".to_string(),
             path: pack_dir,
             sha256: "abc123".to_string(),
@@ -406,7 +406,7 @@ mod tests {
         fs::create_dir_all(&templates_dir).unwrap();
 
         let cached_pack = CachedPack {
-            id: "io.rgen.test".to_string(),
+            id: "io.ggen.test".to_string(),
             version: "1.0.0".to_string(),
             path: pack_dir,
             sha256: "abc123".to_string(),
@@ -473,12 +473,12 @@ Hello {{ name }}
 
         let manifest = crate::rpack::RpackManifest {
             metadata: crate::rpack::RpackMetadata {
-                id: "io.rgen.test".to_string(),
+                id: "io.ggen.test".to_string(),
                 name: "test-pack".to_string(),
                 version: "1.0.0".to_string(),
                 description: "Test pack".to_string(),
                 license: "MIT".to_string(),
-                rgen_compat: "1.0.0".to_string(),
+                ggen_compat: "1.0.0".to_string(),
             },
             dependencies: std::collections::BTreeMap::new(),
             templates: crate::rpack::TemplatesConfig {
@@ -501,7 +501,7 @@ Hello {{ name }}
         };
 
         let cached_pack = CachedPack {
-            id: "io.rgen.test".to_string(),
+            id: "io.ggen.test".to_string(),
             version: "1.0.0".to_string(),
             path: pack_dir,
             sha256: "abc123".to_string(),
@@ -531,7 +531,7 @@ Hello {{ name }}
         fs::write(templates_dir.join("sub.tmpl"), "template2").unwrap();
 
         let cached_pack = CachedPack {
-            id: "io.rgen.test".to_string(),
+            id: "io.ggen.test".to_string(),
             version: "1.0.0".to_string(),
             path: pack_dir,
             sha256: "abc123".to_string(),

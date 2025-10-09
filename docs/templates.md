@@ -10,7 +10,7 @@ Marketplace rpacks are curated, versioned template collections published to the 
 
 ```
 <rpack-id>/
-├── rgen.toml          # Rpack manifest
+├── ggen.toml          # Rpack manifest
 ├── templates/          # Template files
 │   └── cli/
 │       └── subcommand/
@@ -27,7 +27,7 @@ Marketplace rpacks are curated, versioned template collections published to the 
     └── test_hello.rs
 ```
 
-### Rpack Manifest (`rgen.toml`)
+### Rpack Manifest (`ggen.toml`)
 
 ```toml
 [rpack]
@@ -136,7 +136,7 @@ Dependencies are automatically resolved when installing rpacks.
 
 ### Rpack Versioning
 - Follows semantic versioning (semver)
-- Specified in `rgen.toml` manifest
+- Specified in `ggen.toml` manifest
 - Locked in `rgen.lock` file
 
 ### Compatibility

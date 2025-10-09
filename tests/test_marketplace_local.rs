@@ -6,11 +6,11 @@ use std::path::PathBuf;
 fn test_registry_client_creation() -> Result<()> {
     // Test that RegistryClient can be created with environment variable
     env::set_var(
-        "RGEN_REGISTRY_URL",
-        "https://raw.githubusercontent.com/seanchatmangpt/rgen/master/registry/",
+        "GGEN_REGISTRY_URL",
+        "https://raw.githubusercontent.com/seanchatmangpt/ggen/master/registry/",
     );
 
-    let client = rgen_core::RegistryClient::new()?;
+    let client = ggen_core::RegistryClient::new()?;
 
     // Verify the client was created successfully (we can't access private fields)
     // This test just ensures the client creation doesn't fail
@@ -27,9 +27,9 @@ fn test_registry_client_with_file_url() -> Result<()> {
     let file_url = format!("file://{}/", registry_path.canonicalize()?.display());
 
     // Set environment variable for testing
-    env::set_var("RGEN_REGISTRY_URL", &file_url);
+    env::set_var("GGEN_REGISTRY_URL", &file_url);
 
-    let client = rgen_core::RegistryClient::new()?;
+    let client = ggen_core::RegistryClient::new()?;
 
     // Verify the client was created with file URL (we can't access private fields)
     // This test just ensures the client creation doesn't fail
@@ -50,14 +50,14 @@ fn test_registry_index_json_exists() -> Result<()> {
 
     // Read and parse the JSON
     let content = std::fs::read_to_string(&registry_path)?;
-    let index: rgen_core::registry::RegistryIndex = serde_json::from_str(&content)?;
+    let index: ggen_core::registry::RegistryIndex = serde_json::from_str(&content)?;
 
     // Verify it contains our test pack
     assert!(!index.packs.is_empty());
-    assert!(index.packs.contains_key("io.rgen.rust.cli-subcommand"));
+    assert!(index.packs.contains_key("io.ggen.rust.cli-subcommand"));
 
-    let pack = &index.packs["io.rgen.rust.cli-subcommand"];
-    assert_eq!(pack.id, "io.rgen.rust.cli-subcommand");
+    let pack = &index.packs["io.ggen.rust.cli-subcommand"];
+    assert_eq!(pack.id, "io.ggen.rust.cli-subcommand");
     assert_eq!(pack.name, "Rust CLI Subcommand");
     assert_eq!(pack.latest_version, "0.1.0");
 

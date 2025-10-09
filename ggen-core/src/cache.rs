@@ -28,7 +28,7 @@ impl CacheManager {
     pub fn new() -> Result<Self> {
         let cache_dir = dirs::cache_dir()
             .context("Failed to find cache directory")?
-            .join("rgen")
+            .join("ggen")
             .join("rpacks");
 
         fs::create_dir_all(&cache_dir).context("Failed to create cache directory")?;
@@ -132,7 +132,7 @@ impl CacheManager {
         let sha256 = self.calculate_sha256(&pack_dir)?;
 
         // Try to load manifest
-        let manifest_path = pack_dir.join("templates").join("rgen.toml");
+        let manifest_path = pack_dir.join("templates").join("ggen.toml");
         let manifest = if manifest_path.exists() {
             let content = fs::read_to_string(&manifest_path).context("Failed to read manifest")?;
             Some(toml::from_str(&content).context("Failed to parse manifest")?)

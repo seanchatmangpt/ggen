@@ -51,9 +51,9 @@ impl MockGitHubRegistry {
         let templates_dir = rpack_dir.join("templates");
         fs::create_dir_all(&templates_dir)?;
 
-        // Create mock rgen.toml manifest
+        // Create mock ggen.toml manifest
         let manifest_content = create_mock_rpack_manifest(id, version);
-        fs::write(templates_dir.join("rgen.toml"), manifest_content)?;
+        fs::write(templates_dir.join("ggen.toml"), manifest_content)?;
 
         // Create mock template file
         let template_content = create_mock_template(id);
@@ -68,7 +68,7 @@ fn create_mock_index() -> serde_json::Value {
         "updated": Utc::now().to_rfc3339(),
         "rpacks": [
             {
-                "id": "io.rgen.rust.cli-subcommand",
+                "id": "io.ggen.rust.cli-subcommand",
                 "name": "Rust CLI subcommand",
                 "description": "Generate clap subcommands for Rust CLI applications",
                 "tags": ["rust", "cli", "clap", "subcommand"],
@@ -77,20 +77,20 @@ fn create_mock_index() -> serde_json::Value {
                         "version": "0.1.0",
                         "git_url": "https://github.com/mock/rpack-rust-cli.git",
                         "git_rev": "abc123def456",
-                        "manifest_url": "https://raw.githubusercontent.com/mock/rpack-rust-cli/abc123def456/templates/rgen.toml",
+                        "manifest_url": "https://raw.githubusercontent.com/mock/rpack-rust-cli/abc123def456/templates/ggen.toml",
                         "sha256": "mock_sha256_hash_1"
                     },
                     {
                         "version": "0.2.0",
                         "git_url": "https://github.com/mock/rpack-rust-cli.git",
                         "git_rev": "def456ghi789",
-                        "manifest_url": "https://raw.githubusercontent.com/mock/rpack-rust-cli/def456ghi789/templates/rgen.toml",
+                        "manifest_url": "https://raw.githubusercontent.com/mock/rpack-rust-cli/def456ghi789/templates/ggen.toml",
                         "sha256": "mock_sha256_hash_2"
                     }
                 ]
             },
             {
-                "id": "io.rgen.python.fastapi",
+                "id": "io.ggen.python.fastapi",
                 "name": "FastAPI endpoint",
                 "description": "Generate FastAPI endpoints with Pydantic models",
                 "tags": ["python", "fastapi", "api", "pydantic"],
@@ -99,13 +99,13 @@ fn create_mock_index() -> serde_json::Value {
                         "version": "0.1.0",
                         "git_url": "https://github.com/mock/rpack-python-fastapi.git",
                         "git_rev": "ghi789jkl012",
-                        "manifest_url": "https://raw.githubusercontent.com/mock/rpack-python-fastapi/ghi789jkl012/templates/rgen.toml",
+                        "manifest_url": "https://raw.githubusercontent.com/mock/rpack-python-fastapi/ghi789jkl012/templates/ggen.toml",
                         "sha256": "mock_sha256_hash_3"
                     }
                 ]
             },
             {
-                "id": "io.rgen.macros.std",
+                "id": "io.ggen.macros.std",
                 "name": "Standard macros",
                 "description": "Common template macros and utilities",
                 "tags": ["macros", "utilities", "common"],
@@ -114,7 +114,7 @@ fn create_mock_index() -> serde_json::Value {
                         "version": "0.1.0",
                         "git_url": "https://github.com/mock/rpack-macros-std.git",
                         "git_rev": "jkl012mno345",
-                        "manifest_url": "https://raw.githubusercontent.com/mock/rpack-macros-std/jkl012mno345/templates/rgen.toml",
+                        "manifest_url": "https://raw.githubusercontent.com/mock/rpack-macros-std/jkl012mno345/templates/ggen.toml",
                         "sha256": "mock_sha256_hash_4"
                     }
                 ]
@@ -131,7 +131,7 @@ name = "Mock Rpack"
 version = "{}"
 description = "A mock rpack for testing"
 license = "MIT"
-rgen_compat = ">=0.1 <0.4"
+ggen_compat = ">=0.1 <0.4"
 
 [dependencies]
 
@@ -229,24 +229,24 @@ mod tests {
         let registry = MockGitHubRegistry::new().unwrap();
 
         // Create a mock rpack
-        let rpack_dir = registry.create_mock_rpack("io.rgen.test", "0.1.0").unwrap();
+        let rpack_dir = registry.create_mock_rpack("io.ggen.test", "0.1.0").unwrap();
 
         // Test that the structure was created
         assert!(rpack_dir.exists());
         assert!(rpack_dir.join("templates").exists());
-        assert!(rpack_dir.join("templates").join("rgen.toml").exists());
+        assert!(rpack_dir.join("templates").join("ggen.toml").exists());
         assert!(rpack_dir.join("templates").join("main.tmpl").exists());
 
         // Test manifest content
         let manifest_content =
-            std::fs::read_to_string(rpack_dir.join("templates").join("rgen.toml")).unwrap();
-        assert!(manifest_content.contains("id = \"io.rgen.test\""));
+            std::fs::read_to_string(rpack_dir.join("templates").join("ggen.toml")).unwrap();
+        assert!(manifest_content.contains("id = \"io.ggen.test\""));
         assert!(manifest_content.contains("version = \"0.1.0\""));
 
         // Test template content
         let template_content =
             std::fs::read_to_string(rpack_dir.join("templates").join("main.tmpl")).unwrap();
-        assert!(template_content.contains("Generated by rpack: io.rgen.test"));
+        assert!(template_content.contains("Generated by rpack: io.ggen.test"));
     }
 
     #[test]
@@ -258,7 +258,7 @@ mod tests {
             "updated": Utc::now().to_rfc3339(),
             "rpacks": [
                 {
-                    "id": "io.rgen.test.new",
+                    "id": "io.ggen.test.new",
                     "name": "New Test Pack",
                     "description": "A new test pack",
                     "tags": ["test"],
@@ -267,7 +267,7 @@ mod tests {
                             "version": "1.0.0",
                             "git_url": "https://github.com/test/new.git",
                             "git_rev": "abc123",
-                            "manifest_url": "https://raw.githubusercontent.com/test/new/abc123/templates/rgen.toml",
+                            "manifest_url": "https://raw.githubusercontent.com/test/new/abc123/templates/ggen.toml",
                             "sha256": "new_hash"
                         }
                     ]
@@ -281,6 +281,6 @@ mod tests {
         let content = registry.index_content().unwrap();
         let data: serde_json::Value = serde_json::from_str(&content).unwrap();
         assert_eq!(data["rpacks"].as_array().unwrap().len(), 1);
-        assert_eq!(data["rpacks"][0]["id"], "io.rgen.test.new");
+        assert_eq!(data["rpacks"][0]["id"], "io.ggen.test.new");
     }
 }

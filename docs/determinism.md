@@ -23,7 +23,7 @@ K = SHA256(seed || rpack_version || rpack_deps_hash || graph_hash || shapes_hash
 - **Rows hash**: ordered serialization of matrix rows
 
 ### Marketplace Rpacks
-- **Rpack version**: exact version from `rgen.toml`
+- **Rpack version**: exact version from `ggen.toml`
 - **Rpack deps hash**: hash of all dependency versions
 - **Graph hash**: sorted N-Quads from rpack RDF sources
 - **Shapes hash**: sorted N-Quads from rpack SHACL validation

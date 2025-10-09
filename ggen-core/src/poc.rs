@@ -30,7 +30,7 @@ use oxigraph::io::RdfFormat;
 use oxigraph::sparql::QueryResults;
 use oxigraph::store::Store;
 
-use rgen_utils::error::{Error, Result};
+use ggen_utils::error::{Error, Result};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HygenFrontmatter {
@@ -67,7 +67,7 @@ impl TeraFunction for SparqlFn {
             format!("{}\n{}", self.prolog, q)
         };
         if self.trace {
-            eprintln!("[rgen.sparql] {}", final_q.replace('\n', " "))
+            eprintln!("[ggen.sparql] {}", final_q.replace('\n', " "))
         }
 
         let res = self

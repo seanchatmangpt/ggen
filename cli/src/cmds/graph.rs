@@ -1,6 +1,6 @@
 use clap::Args;
-use rgen_core::graph::Graph;
-use rgen_utils::error::Result;
+use ggen_core::graph::Graph;
+use ggen_utils::error::Result;
 use std::io::Write;
 use std::path::PathBuf;
 
@@ -166,7 +166,7 @@ fn export_graph(
             export_jsonld(graph, output_path)?;
         }
         _ => {
-            return Err(rgen_utils::error::Error::new(&format!(
+            return Err(ggen_utils::error::Error::new(&format!(
                 "Unsupported format: {}. Supported formats: turtle, ntriples, rdfxml, jsonld",
                 format
             )));
@@ -238,7 +238,7 @@ fn export_turtle(
             }
         }
         _ => {
-            return Err(rgen_utils::error::Error::new(
+            return Err(ggen_utils::error::Error::new(
                 "Expected graph results for CONSTRUCT query",
             ));
         }
@@ -289,7 +289,7 @@ fn export_ntriples(graph: &Graph, output_path: Option<&PathBuf>) -> Result<()> {
             }
         }
         _ => {
-            return Err(rgen_utils::error::Error::new(
+            return Err(ggen_utils::error::Error::new(
                 "Expected graph results for CONSTRUCT query",
             ));
         }
@@ -333,7 +333,7 @@ fn export_rdfxml(graph: &Graph, output_path: Option<&PathBuf>) -> Result<()> {
             }
         }
         _ => {
-            return Err(rgen_utils::error::Error::new(
+            return Err(ggen_utils::error::Error::new(
                 "Expected graph results for CONSTRUCT query",
             ));
         }
@@ -386,7 +386,7 @@ fn export_jsonld(graph: &Graph, output_path: Option<&PathBuf>) -> Result<()> {
             }
         }
         _ => {
-            return Err(rgen_utils::error::Error::new(
+            return Err(ggen_utils::error::Error::new(
                 "Expected solutions for SELECT query",
             ));
         }

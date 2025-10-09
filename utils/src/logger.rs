@@ -2,8 +2,8 @@ use slog::o;
 use slog::Drain;
 #[cfg(all(target_os = "linux", feature = "journald"))]
 use slog_journald::JournaldDrain;
-#[cfg(feature = "syslog")]
-use slog_syslog::Facility;
+// #[cfg(feature = "syslog")]
+// use slog_syslog_jl::Facility;  // Temporarily disabled due to vulnerability
 
 use super::error::Result;
 
@@ -32,8 +32,8 @@ pub fn default_root_logger() -> Result<slog::Logger> {
     // Merge drains
     #[cfg(feature = "termlog")]
     let drain = slog::Duplicate(default_term_drain().unwrap_or(default_discard()), drain).fuse();
-    #[cfg(feature = "syslog")]
-    let drain = slog::Duplicate(default_syslog_drain().unwrap_or(default_discard()), drain).fuse();
+    // #[cfg(feature = "syslog")]
+    // let drain = slog::Duplicate(default_syslog_drain().unwrap_or(default_discard()), drain).fuse();
     #[cfg(feature = "journald")]
     #[cfg(target_os = "linux")]
     let drain =
@@ -62,14 +62,14 @@ fn default_term_drain() -> Result<slog_async::Async> {
 }
 
 // syslog drain: Log to syslog
-#[cfg(feature = "syslog")]
-fn default_syslog_drain() -> Result<slog_async::Async> {
-    let syslog = slog_syslog::unix_3164(Facility::LOG_USER)?;
-
-    let drain = slog_async::Async::default(syslog.fuse());
-
-    Ok(drain)
-}
+// #[cfg(feature = "syslog")]
+// fn default_syslog_drain() -> Result<slog_async::Async> {
+//     let syslog = slog_syslog_jl::unix_3164(Facility::LOG_USER)?;
+//
+//     let drain = slog_async::Async::default(syslog.fuse());
+//
+//     Ok(drain)
+// }
 
 #[cfg(all(target_os = "linux", feature = "journald"))]
 fn default_journald_drain() -> Result<slog_async::Async> {

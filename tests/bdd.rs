@@ -3,13 +3,13 @@ mod bdd {
     pub mod world;
 }
 
-use bdd::world::RgenWorld;
+use bdd::world::GgenWorld;
 use cucumber::World as _;
 
 // Import step definitions to ensure they're registered
 use bdd::steps::*;
 
-/// BDD Test Suite for rgen
+/// BDD Test Suite for ggen
 ///
 /// This module contains all BDD tests that validate README claims.
 /// Each feature file corresponds to a section of the README and
@@ -17,7 +17,7 @@ use bdd::steps::*;
 
 #[tokio::main]
 async fn main() {
-    RgenWorld::cucumber().run("tests/bdd/features").await;
+    GgenWorld::cucumber().run("tests/bdd/features").await;
 }
 
 // Individual feature tests can be run using:

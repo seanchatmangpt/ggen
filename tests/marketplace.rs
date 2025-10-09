@@ -3,15 +3,15 @@ use std::collections::HashMap;
 use std::fs;
 use tempfile::TempDir;
 
-use rgen::mock_registry::MockGitHubRegistry;
+use ggen::mock_registry::MockGitHubRegistry;
 
 // Helper function to simulate search
 fn simulate_search(_mock_registry: &MockGitHubRegistry, query: &str) -> Result<Vec<String>> {
     // Simulate search results
     let results = vec![
-        format!("io.rgen.rust.cli-subcommand (matches: {})", query),
-        format!("io.rgen.rust.web-server (matches: {})", query),
-        format!("io.rgen.rust.database-models (matches: {})", query),
+        format!("io.ggen.rust.cli-subcommand (matches: {})", query),
+        format!("io.ggen.rust.web-server (matches: {})", query),
+        format!("io.ggen.rust.database-models (matches: {})", query),
     ];
     Ok(results)
 }
@@ -38,11 +38,11 @@ fn test_marketplace_search_functionality() -> Result<()> {
 
     // Add mock pack data
     packs.insert(
-        "io.rgen.rust.cli-subcommand".to_string(),
+        "io.ggen.rust.cli-subcommand".to_string(),
         "Rust CLI Subcommand Generator".to_string(),
     );
     packs.insert(
-        "io.rgen.python.web-api".to_string(),
+        "io.ggen.python.web-api".to_string(),
         "Python Web API Generator".to_string(),
     );
 
@@ -57,7 +57,7 @@ fn test_marketplace_search_functionality() -> Result<()> {
     }
 
     assert_eq!(results.len(), 1);
-    assert_eq!(results[0], "io.rgen.rust.cli-subcommand");
+    assert_eq!(results[0], "io.ggen.rust.cli-subcommand");
 
     // Test search with different query
     let search_query = "python";
@@ -70,7 +70,7 @@ fn test_marketplace_search_functionality() -> Result<()> {
     }
 
     assert_eq!(results.len(), 1);
-    assert_eq!(results[0], "io.rgen.python.web-api");
+    assert_eq!(results[0], "io.ggen.python.web-api");
 
     Ok(())
 }
@@ -90,14 +90,14 @@ fn test_marketplace_workflow() -> Result<()> {
     assert!(search_results.iter().any(|p| p.contains("rust")));
 
     // Step 2: Simulate adding an rpack
-    let rpack_id = "io.rgen.rust.cli-subcommand";
+    let rpack_id = "io.ggen.rust.cli-subcommand";
     let rpack_version = "0.2.0";
 
     // Create mock rpack repository
     let rpack_dir = mock_registry.create_mock_rpack(rpack_id, rpack_version)?;
 
     // Simulate downloading and caching the rpack
-    let cache_dir = project_path.join(".rgen").join("rpacks");
+    let cache_dir = project_path.join(".ggen").join("rpacks");
     fs::create_dir_all(&cache_dir)?;
 
     // Copy the mock rpack to cache (simulating git clone)
@@ -106,7 +106,7 @@ fn test_marketplace_workflow() -> Result<()> {
     copy_dir_all(&rpack_dir, &cached_rpack_dir)?;
 
     // Step 3: Simulate creating/updating lockfile
-    let lockfile_path = project_path.join("rgen.lock");
+    let lockfile_path = project_path.join("ggen.lock");
     let lockfile_content = format!(
         r#"[[pack]]
 id = "{}"
@@ -149,7 +149,7 @@ fn test_marketplace_demo() -> Result<()> {
     let project_dir = TempDir::new()?;
     let project_path = project_dir.path();
 
-    // Setup: Create mock GitHub registry (simulating registry.rgen.dev)
+    // Setup: Create mock GitHub registry (simulating registry.ggen.dev)
     let mock_registry = MockGitHubRegistry::new()?;
 
     // Step 1: Search for rpacks
@@ -157,14 +157,14 @@ fn test_marketplace_demo() -> Result<()> {
     assert!(!search_results.is_empty());
 
     // Step 2: Add an rpack
-    let rpack_id = "io.rgen.rust.cli-subcommand";
+    let rpack_id = "io.ggen.rust.cli-subcommand";
     let rpack_version = "0.2.0";
 
     // Create mock rpack repository
     let rpack_dir = mock_registry.create_mock_rpack(rpack_id, rpack_version)?;
 
     // Simulate downloading and caching the rpack
-    let cache_dir = project_path.join(".rgen").join("rpacks");
+    let cache_dir = project_path.join(".ggen").join("rpacks");
     fs::create_dir_all(&cache_dir)?;
 
     // Copy the mock rpack to cache (simulating git clone)
@@ -173,7 +173,7 @@ fn test_marketplace_demo() -> Result<()> {
     copy_dir_all(&rpack_dir, &cached_rpack_dir)?;
 
     // Step 3: Create/update lockfile
-    let lockfile_path = project_path.join("rgen.lock");
+    let lockfile_path = project_path.join("ggen.lock");
     let lockfile_content = format!(
         r#"[[pack]]
 id = "{}"
@@ -209,11 +209,11 @@ fn test_marketplace_search_standalone() -> Result<()> {
 
     // Add mock pack data
     packs.insert(
-        "io.rgen.rust.cli-subcommand".to_string(),
+        "io.ggen.rust.cli-subcommand".to_string(),
         "Rust CLI Subcommand Generator".to_string(),
     );
     packs.insert(
-        "io.rgen.python.web-api".to_string(),
+        "io.ggen.python.web-api".to_string(),
         "Python Web API Generator".to_string(),
     );
 
@@ -228,7 +228,7 @@ fn test_marketplace_search_standalone() -> Result<()> {
     }
 
     assert_eq!(results.len(), 1);
-    assert_eq!(results[0], "io.rgen.rust.cli-subcommand");
+    assert_eq!(results[0], "io.ggen.rust.cli-subcommand");
 
     Ok(())
 }
@@ -236,7 +236,7 @@ fn test_marketplace_search_standalone() -> Result<()> {
 #[test]
 fn test_marketplace_pack_resolution() -> Result<()> {
     // Test pack resolution logic
-    let pack_id = "io.rgen.test.pack";
+    let pack_id = "io.ggen.test.pack";
     let version = "1.2.0";
     let git_url = "https://github.com/test/repo.git";
     let git_rev = "abc123";
@@ -259,7 +259,7 @@ fn test_marketplace_cache_operations() -> Result<()> {
     fs::create_dir_all(&cache_dir)?;
 
     // Test cache directory structure
-    let pack_id = "io.rgen.test.pack";
+    let pack_id = "io.ggen.test.pack";
     let version = "1.0.0";
     let pack_cache_dir = cache_dir.join(pack_id).join(version);
     fs::create_dir_all(&pack_cache_dir)?;
@@ -268,7 +268,7 @@ fn test_marketplace_cache_operations() -> Result<()> {
     let manifest_path = pack_cache_dir.join("rpack.toml");
     let manifest_content = r#"
 [pack]
-id = "io.rgen.test.pack"
+id = "io.ggen.test.pack"
 name = "Test Pack"
 version = "1.0.0"
 description = "A test pack"
@@ -292,11 +292,11 @@ patterns = ["*.tmpl"]
 #[test]
 fn test_marketplace_lockfile_operations() -> Result<()> {
     let temp_dir = TempDir::new()?;
-    let lockfile_path = temp_dir.path().join("rgen.lock");
+    let lockfile_path = temp_dir.path().join("ggen.lock");
 
     // Test lockfile creation
     let lockfile_content = r#"[[pack]]
-id = "io.rgen.test.pack"
+id = "io.ggen.test.pack"
 version = "1.0.0"
 sha256 = "abc123def456"
 source = "https://github.com/test/repo.git#abc123"
@@ -305,18 +305,18 @@ source = "https://github.com/test/repo.git#abc123"
 
     // Test lockfile reading
     let content = fs::read_to_string(&lockfile_path)?;
-    assert!(content.contains("io.rgen.test.pack"));
+    assert!(content.contains("io.ggen.test.pack"));
     assert!(content.contains("1.0.0"));
 
     // Test lockfile update
     let updated_content = r#"[[pack]]
-id = "io.rgen.test.pack"
+id = "io.ggen.test.pack"
 version = "1.0.0"
 sha256 = "abc123def456"
 source = "https://github.com/test/repo.git#abc123"
 
 [[pack]]
-id = "io.rgen.another.pack"
+id = "io.ggen.another.pack"
 version = "2.0.0"
 sha256 = "def456ghi789"
 source = "https://github.com/test/another.git#def456"
@@ -324,7 +324,7 @@ source = "https://github.com/test/another.git#def456"
     fs::write(&lockfile_path, updated_content)?;
 
     let updated = fs::read_to_string(&lockfile_path)?;
-    assert!(updated.contains("io.rgen.another.pack"));
+    assert!(updated.contains("io.ggen.another.pack"));
 
     // Test lockfile removal
     fs::remove_file(&lockfile_path)?;

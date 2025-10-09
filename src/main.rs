@@ -4,8 +4,8 @@ use human_panic::setup_panic;
 #[cfg(debug_assertions)]
 extern crate better_panic;
 
-use rgen_utils::app_config::AppConfig;
-use rgen_utils::error::Result;
+use ggen_utils::app_config::AppConfig;
+use ggen_utils::error::Result;
 
 // Declare test modules
 #[allow(dead_code)]
@@ -30,17 +30,17 @@ async fn main() -> Result<()> {
             .install();
     }
 
-    let _guard = rgen_utils::logger::setup_logging()?;
+    let _guard = ggen_utils::logger::setup_logging()?;
 
     // Initialize tracing for pipeline debugging
-    // rgen_core::tracing::init_tracing()?; // Temporarily disabled
+    // ggen_core::tracing::init_tracing()?; // Temporarily disabled
 
     // Initialize Configuration
-    let config_contents = include_str!("resources/rgen_config.toml");
+    let config_contents = include_str!("resources/ggen_config.toml");
     AppConfig::init(Some(config_contents))?;
 
     // Match Commands
-    rgen_cli_lib::cli_match().await?;
+    ggen_cli_lib::cli_match().await?;
 
     Ok(())
 }

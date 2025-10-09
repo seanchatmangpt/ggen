@@ -1,5 +1,5 @@
+use ahash::AHasher;
 use anyhow::{bail, Result};
-use fxhash::FxHasher;
 use lru::LruCache;
 use oxigraph::io::RdfFormat;
 use oxigraph::model::{GraphName, NamedNode, Quad, Subject, Term};
@@ -79,7 +79,7 @@ impl Graph {
     }
 
     fn hash_query(&self, sparql: &str) -> u64 {
-        let mut hasher = FxHasher::default();
+        let mut hasher = AHasher::default();
         sparql.hash(&mut hasher);
         hasher.finish()
     }

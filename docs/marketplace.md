@@ -15,17 +15,17 @@ The marketplace is hosted at `https://github.com/seanchatmangpt/rgen` and serves
 
 ### Environment Configuration
 
-The marketplace URL can be configured using the `RGEN_REGISTRY_URL` environment variable:
+The marketplace URL can be configured using the `GGEN_REGISTRY_URL` environment variable:
 
 ```bash
 # Use GitHub marketplace (default)
-export RGEN_REGISTRY_URL="https://raw.githubusercontent.com/seanchatmangpt/rgen/master/registry/"
+export GGEN_REGISTRY_URL="https://raw.githubusercontent.com/seanchatmangpt/ggen/master/registry/"
 
 # Use local registry for development/testing
-export RGEN_REGISTRY_URL="file:///path/to/local/registry/"
+export GGEN_REGISTRY_URL="file:///path/to/local/registry/"
 
 # Use custom registry
-export RGEN_REGISTRY_URL="https://your-registry.com/"
+export GGEN_REGISTRY_URL="https://your-registry.com/"
 ```
 
 ### Basic Commands
@@ -105,7 +105,7 @@ The marketplace registry is defined in `registry/index.json`:
 
 2. Set up local registry:
    ```bash
-   export RGEN_REGISTRY_URL="file://$(pwd)/registry/"
+   export GGEN_REGISTRY_URL="file://$(pwd)/registry/"
    ```
 
 3. Test marketplace functionality:
@@ -188,7 +188,7 @@ Templates should include:
 
 1. Fork the repository
 2. Add your templates and update the registry
-3. Test locally with `RGEN_REGISTRY_URL="file://$(pwd)/registry/"`
+3. Test locally with `GGEN_REGISTRY_URL="file://$(pwd)/registry/"`
 4. Submit a pull request with:
    - Description of the rpack
    - Example usage
@@ -198,7 +198,7 @@ Templates should include:
 
 ### Common Issues
 
-**Registry not found**: Check that `RGEN_REGISTRY_URL` is set correctly and the URL is accessible.
+**Registry not found**: Check that `GGEN_REGISTRY_URL` is set correctly and the URL is accessible.
 
 **Template not found**: Verify the template path in the registry index matches the actual file location.
 

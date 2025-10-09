@@ -19,7 +19,7 @@ rgen gen <template> key=val ...
 ```bash
 # Automatically finds project configuration
 cd my-project/
-rgen gen cli subcommand name=hello  # Finds rgen.toml automatically
+rgen gen cli subcommand name=hello  # Finds ggen.toml automatically
 
 # Discovers templates directory
 # Loads project-specific RDF graphs
@@ -32,7 +32,7 @@ Variables are resolved in this order (later values override earlier):
 
 1. **Environment variables** (from `.env` files)
 2. **System environment** (`$HOME`, `$USER`, etc.)
-3. **Project presets** (from `rgen.toml` [preset] section)
+3. **Project presets** (from `ggen.toml` [preset] section)
 4. **Template frontmatter** (`vars:` section in template)
 5. **CLI arguments** (`--var key=value`)
 
@@ -40,7 +40,7 @@ Variables are resolved in this order (later values override earlier):
 # .env file
 author=John Doe
 
-# rgen.toml
+# ggen.toml
 [preset]
 vars = { license = "MIT" }
 
@@ -128,7 +128,7 @@ rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=test1
 # 1.0.0 -> 2.0.0 (major: breaking changes)
 
 # Update rpack version
-# Edit rgen.toml:
+# Edit ggen.toml:
 # version = "0.2.1"
 
 # Test before publishing
@@ -525,7 +525,7 @@ rgen add io.rgen.rust.cli-subcommand --net
 ### Project Configuration
 
 ```toml
-# rgen.toml - single source of project config
+# ggen.toml - single source of project config
 [project]
 name = "My CLI Tool"
 version = "0.1.0"
@@ -548,7 +548,7 @@ vars = { author = "Team", license = "MIT" }
 rgen doctor
 
 # Checks:
-# ✓ rgen.toml syntax
+# ✓ ggen.toml syntax
 # ✓ Template frontmatter validity
 # ✓ RDF graph well-formedness
 # ✓ SPARQL query syntax
@@ -559,12 +559,12 @@ rgen doctor
 ### Path Resolution
 
 ```bash
-# All paths resolved relative to rgen.toml location
+# All paths resolved relative to ggen.toml location
 # Printed in --trace mode for debugging
 
 # Project structure:
 # my-project/
-#   rgen.toml
+#   ggen.toml
 #   graphs/cli.ttl
 #   templates/cli/subcommand/rust.tmpl
 

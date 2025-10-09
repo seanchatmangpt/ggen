@@ -1,5 +1,5 @@
 use anyhow::Result;
-use rgen_core::LockfileManager;
+use ggen_core::LockfileManager;
 use std::env;
 
 pub fn run() -> Result<()> {

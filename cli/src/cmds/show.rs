@@ -1,6 +1,6 @@
 use clap::Args;
-use rgen_core::template::Template;
-use rgen_utils::error::Result;
+use ggen_core::template::Template;
+use ggen_utils::error::Result;
 use std::path::Path;
 
 #[derive(Args, Debug)]
@@ -45,7 +45,7 @@ pub fn run(args: &ShowArgs) -> Result<()> {
 
     // Create context and render frontmatter
     let ctx = tera::Context::from_serialize(&vars)?;
-    let mut pipeline = rgen_core::pipeline::PipelineBuilder::new().build()?;
+    let mut pipeline = ggen_core::pipeline::PipelineBuilder::new().build()?;
 
     // Access tera through a helper method since it's pub(crate)
     render_template_frontmatter(&mut template, &mut pipeline, &ctx)?;
@@ -135,7 +135,7 @@ pub fn run(args: &ShowArgs) -> Result<()> {
 
 // Helper function to render template frontmatter
 fn render_template_frontmatter(
-    template: &mut Template, pipeline: &mut rgen_core::pipeline::Pipeline, ctx: &tera::Context,
+    template: &mut Template, pipeline: &mut ggen_core::pipeline::Pipeline, ctx: &tera::Context,
 ) -> Result<()> {
     // Since tera is pub(crate), we can access it from within the crate
     template
