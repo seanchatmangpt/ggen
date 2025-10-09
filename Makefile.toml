@@ -427,3 +427,103 @@ dependencies = ["fmt", "lint", "test", "docs-test"]
 [tasks.release]
 extend = "release"
 dependencies = ["ci", "docs-build"]
+
+# ============================================================================
+# Homebrew Release Tasks
+# ============================================================================
+
+[tasks.brew-update-formula]
+description = "Update Homebrew formula with SHA256 from latest release"
+workspace = false
+script = '''
+#!/bin/bash
+set -e
+
+VERSION=${1:-$(grep '^version = ' Cargo.toml | head -1 | sed 's/version = "\(.*\)"/\1/')}
+./scripts/update-homebrew-formula.sh "$VERSION"
+'''
+
+[tasks.brew-update]
+alias = "brew-update-formula"
+
+[tasks.release-brew]
+description = "Complete release workflow with Homebrew update"
+workspace = false
+dependencies = ["ci", "docs-build"]
+script = '''
+#!/bin/bash
+set -e
+
+VERSION=$(grep '^version = ' Cargo.toml | head -1 | sed 's/version = "\(.*\)"/\1/')
+
+echo "🚀 Starting release workflow for v${VERSION}"
+echo ""
+
+# Check if tag already exists
+if git rev-parse "v${VERSION}" >/dev/null 2>&1; then
+    echo "❌ Tag v${VERSION} already exists"
+    echo "   Delete with: git tag -d v${VERSION} && git push origin :refs/tags/v${VERSION}"
+    exit 1
+fi
+
+echo "1️⃣  Creating and pushing tag v${VERSION}..."
+git tag "v${VERSION}"
+git push origin "v${VERSION}"
+
+echo ""
+echo "2️⃣  Waiting for GitHub release to complete..."
+echo "   Monitor at: https://github.com/${GITHUB_REPO}/actions"
+echo ""
+echo "⏳ Waiting 2 minutes for builds to complete..."
+sleep 120
+
+echo ""
+echo "3️⃣  Updating Homebrew formula..."
+./scripts/update-homebrew-formula.sh "$VERSION"
+
+echo ""
+echo "✅ Release complete!"
+echo ""
+echo "📦 Users can install with:"
+echo "   brew install seanchatmangpt/tap/ggen"
+echo ""
+echo "🔗 Release: https://github.com/${GITHUB_REPO}/releases/tag/v${VERSION}"
+'''
+
+[tasks.release-check]
+description = "Check if release artifacts are ready"
+workspace = false
+script = '''
+#!/bin/bash
+
+VERSION=${1:-$(grep '^version = ' Cargo.toml | head -1 | sed 's/version = "\(.*\)"/\1/')}
+RELEASE_URL="https://github.com/seanchatmangpt/ggen/releases/download/v${VERSION}"
+
+echo "🔍 Checking release v${VERSION}..."
+echo ""
+
+TARGETS=("aarch64-apple-darwin" "x86_64-apple-darwin" "x86_64-unknown-linux-gnu" "aarch64-unknown-linux-gnu")
+
+ALL_READY=true
+for target in "${TARGETS[@]}"; do
+    echo -n "  ${target}: "
+    if curl -s -f -I "${RELEASE_URL}/ggen-${target}.tar.gz" > /dev/null; then
+        echo "✅"
+    else
+        echo "❌"
+        ALL_READY=false
+    fi
+done
+
+echo ""
+if [ "$ALL_READY" = true ]; then
+    echo "✅ All release artifacts are ready!"
+    echo ""
+    echo "Update Homebrew formula with:"
+    echo "  cargo make brew-update-formula ${VERSION}"
+else
+    echo "⏳ Some artifacts are not ready yet"
+    echo "   Check: https://github.com/${GITHUB_REPO}/releases/tag/v${VERSION}"
+fi
+'''
+
