@@ -92,8 +92,12 @@ pub struct ResolvedPack {
 impl RegistryClient {
     /// Create a new registry client
     pub fn new() -> Result<Self> {
-        let base_url =
-            Url::parse("https://registry.rgen.dev").context("Failed to parse registry base URL")?;
+        // Check environment variable for registry URL
+        let registry_url = std::env::var("RGEN_REGISTRY_URL").unwrap_or_else(|_| {
+            "https://raw.githubusercontent.com/seanchatmangpt/rgen/master/registry/".to_string()
+        });
+
+        let base_url = Url::parse(&registry_url).context("Failed to parse registry URL")?;
 
         let client = reqwest::Client::builder()
             .timeout(std::time::Duration::from_secs(30))
@@ -120,15 +124,33 @@ impl RegistryClient {
             .join("index.json")
             .context("Failed to construct index URL")?;
 
+        // Handle file:// URLs for local testing
+        if url.scheme() == "file" {
+            let path = url.to_file_path()
+                .map_err(|_| anyhow::anyhow!("Invalid file URL: {}", url))?;
+            
+            let content = std::fs::read_to_string(&path)
+                .context(format!("Failed to read registry index from {}", path.display()))?;
+            
+            let index: RegistryIndex = serde_json::from_str(&content)
+                .context("Failed to parse registry index")?;
+            
+            return Ok(index);
+        }
+
         let response = self
             .client
-            .get(url)
+            .get(url.clone())
             .send()
             .await
-            .context("Failed to fetch registry index")?;
+            .context(format!("Failed to fetch registry index from {}", url))?;
 
         if !response.status().is_success() {
-            anyhow::bail!("Registry returned status: {}", response.status());
+            anyhow::bail!(
+                "Registry returned status: {} for URL: {}",
+                response.status(),
+                url
+            );
         }
 
         let index: RegistryIndex = response

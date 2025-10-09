@@ -67,7 +67,7 @@ impl Generator {
         tmpl.render_frontmatter(&mut self.pipeline.tera, &tctx)?;
 
         // Process graph
-        tmpl.process_graph(&mut self.pipeline.graph, &mut self.pipeline.tera, &tctx)?;
+        tmpl.process_graph(&mut self.pipeline.graph, &mut self.pipeline.tera, &tctx, &self.ctx.template_path)?;
 
         // Render body
         let rendered = tmpl.render(&mut self.pipeline.tera, &tctx)?;

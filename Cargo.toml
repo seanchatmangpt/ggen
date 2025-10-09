@@ -8,6 +8,7 @@ readme = "README.md"
 license = "MIT"
 keywords = ["cli", "code-generation", "rdf", "templates"]
 homepage = "https://github.com/seanchatmangpt/rgen"
+categories = ["development-tools", "command-line-utilities"]
 description = """
 rgen is a deterministic, language-agnostic code generation framework that treats software artifacts as projections of knowledge graphs.
 """
@@ -42,6 +43,12 @@ serde_json = "1.0"
 tempfile = "3.0"
 anyhow = "1.0"
 chrono = { version = "0.4", features = ["serde"] }
+# BDD testing framework
+cucumber = "0.20"
+assert_fs = "1.0"
+mockito = "1.2"
+insta = "1.34"
+serial_test = "3.0"
 
 [profile.dev]
 opt-level = 0

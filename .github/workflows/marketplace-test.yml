@@ -1,0 +1,20 @@
+name: Marketplace Tests
+
+on: [push, pull_request]
+
+jobs:
+  test-marketplace:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - name: Test local registry
+        run: cargo test test_marketplace_local
+        env:
+          RGEN_REGISTRY_URL: file://${{ github.workspace }}/registry/
+      - name: Test registry client creation
+        run: cargo test -p core --lib registry::tests::test_registry_client_new
+      - name: Test registry index parsing
+        run: cargo test -p core --lib registry::tests::test_registry_index_structure

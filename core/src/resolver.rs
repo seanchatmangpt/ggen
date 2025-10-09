@@ -188,14 +188,14 @@ impl TemplateResolver {
             // Fallback to default convention if no manifest
             let conventions = crate::rpack::PackConventions::default();
             let mut templates = Vec::new();
-            
+
             for pattern in conventions.template_patterns {
                 let full_pattern = cached_pack.path.join(pattern);
                 for entry in glob(&full_pattern.to_string_lossy())? {
                     templates.push(entry?);
                 }
             }
-            
+
             templates.sort();
             Ok(templates)
         }
@@ -265,8 +265,6 @@ impl TemplateResolver {
 
         Ok((frontmatter, content))
     }
-
-
 }
 
 /// Template information
@@ -278,7 +276,6 @@ pub struct TemplateInfo {
     pub content: String,
     pub pack_info: Option<crate::rpack::RpackMetadata>,
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -369,9 +366,9 @@ mod tests {
         let temp_dir = TempDir::new().unwrap();
         let cache_manager = CacheManager::with_dir(temp_dir.path().join("cache")).unwrap();
         let lockfile_manager = LockfileManager::new(temp_dir.path());
-        
+
         let resolver = TemplateResolver::new(cache_manager, lockfile_manager);
-        
+
         // Resolver should be created successfully
         assert!(resolver.cache_manager.cache_dir().exists());
     }
@@ -443,7 +440,7 @@ Hello {{ name }}
 "#;
 
         let (frontmatter, template_content) = resolver.parse_frontmatter(content).unwrap();
-        
+
         assert!(frontmatter.is_some());
         assert!(template_content.contains("Hello {{ name }}"));
     }
@@ -458,11 +455,10 @@ Hello {{ name }}
         let content = "Hello World";
 
         let (frontmatter, template_content) = resolver.parse_frontmatter(content).unwrap();
-        
+
         assert!(frontmatter.is_none());
         assert_eq!(template_content, "Hello World");
     }
-
 
     #[test]
     fn test_find_templates_in_pack_with_manifest() {
@@ -486,7 +482,10 @@ Hello {{ name }}
             },
             dependencies: std::collections::BTreeMap::new(),
             templates: crate::rpack::TemplatesConfig {
-                patterns: vec!["templates/main.tmpl".to_string(), "templates/sub.tmpl".to_string()],
+                patterns: vec![
+                    "templates/main.tmpl".to_string(),
+                    "templates/sub.tmpl".to_string(),
+                ],
                 includes: vec![],
             },
             macros: crate::rpack::MacrosConfig::default(),
@@ -514,7 +513,7 @@ Hello {{ name }}
         let resolver = TemplateResolver::new(cache_manager, lockfile_manager);
 
         let templates = resolver.find_templates_in_pack(&cached_pack).unwrap();
-        
+
         assert_eq!(templates.len(), 2);
         assert!(templates.iter().any(|t| t.ends_with("main.tmpl")));
         assert!(templates.iter().any(|t| t.ends_with("sub.tmpl")));
@@ -544,7 +543,7 @@ Hello {{ name }}
         let resolver = TemplateResolver::new(cache_manager, lockfile_manager);
 
         let templates = resolver.find_templates_in_pack(&cached_pack).unwrap();
-        
+
         assert_eq!(templates.len(), 2);
         assert!(templates.iter().any(|t| t.ends_with("main.tmpl")));
         assert!(templates.iter().any(|t| t.ends_with("sub.tmpl")));
@@ -571,5 +570,4 @@ Hello {{ name }}
         // Should fail for nonexistent pack
         assert!(resolver.get_pack_templates("nonexistent.pack").is_err());
     }
-
 }

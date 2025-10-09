@@ -4,6 +4,11 @@ version = "0.1.0"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "CLI interface for rgen"
 edition = "2021"
+license = "MIT"
+repository = "https://github.com/seanchatmangpt/rgen"
+readme = "README.md"
+keywords = ["cli", "code-generation", "rdf", "templates"]
+categories = ["development-tools", "command-line-utilities"]
 
 [dependencies]
 anyhow = "1.0"

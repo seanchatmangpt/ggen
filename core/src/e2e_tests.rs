@@ -1,10 +1,10 @@
 //! End-to-end tests for the rgen core functionality
 //! These tests verify the complete pipeline from template parsing to code generation
 
+use crate::generator::Generator;
 use anyhow::Result;
 use std::collections::BTreeMap;
 use tempfile::TempDir;
-use crate::generator::Generator;
 
 #[cfg(test)]
 mod tests {
@@ -44,14 +44,15 @@ impl {{ name }} {
         let mut vars = BTreeMap::new();
         vars.insert("name".to_string(), "TestModule".to_string());
         vars.insert("version".to_string(), "1.0.0".to_string());
-        
-        let ctx = crate::generator::GenContext::new(template_path, temp_dir.path().to_path_buf()).with_vars(vars);
+
+        let ctx = crate::generator::GenContext::new(template_path, temp_dir.path().to_path_buf())
+            .with_vars(vars);
         let mut generator = Generator::new(pipeline, ctx);
         let result_path = generator.generate()?;
 
         // Verify the generated file exists
         assert!(result_path.exists());
-        
+
         // Read and verify the content
         let generated_content = std::fs::read_to_string(&result_path)?;
         assert!(generated_content.contains("// Generated module: TestModule"));
@@ -86,7 +87,8 @@ ex:Product a ex:Class ;
 
         // Create template that uses RDF data with absolute path (simplified)
         let rdf_path_str = rdf_path.to_str().unwrap();
-        let template_content = format!(r#"---
+        let template_content = format!(
+            r#"---
 to: "models.rs"
 rdf:
   - "{}"
@@ -103,7 +105,9 @@ pub struct User {{
 pub struct Product {{
     // TODO: Add fields
 }}
-"#, rdf_path_str);
+"#,
+            rdf_path_str
+        );
 
         let template_path = temp_dir.path().join("models.tmpl");
         std::fs::write(&template_path, template_content)?;
@@ -118,14 +122,13 @@ pub struct Product {{
         // Verify the generated file
         assert!(result_path.exists());
         let generated_content = std::fs::read_to_string(&result_path)?;
-        
+
         // Should contain structs for User and Product
         assert!(generated_content.contains("pub struct User"));
         assert!(generated_content.contains("pub struct Product"));
 
         Ok(())
     }
-
 
     #[test]
     fn test_end_to_end_deterministic_output() -> Result<()> {
@@ -155,22 +158,28 @@ pub struct {{ name }} {
         use crate::pipeline::Pipeline;
         let mut vars = BTreeMap::new();
         vars.insert("name".to_string(), "TestModule".to_string());
-        
+
         let pipeline1 = Pipeline::new()?;
-        let ctx1 = crate::generator::GenContext::new(template_path.clone(), temp_dir.path().to_path_buf()).with_vars(vars.clone());
+        let ctx1 =
+            crate::generator::GenContext::new(template_path.clone(), temp_dir.path().to_path_buf())
+                .with_vars(vars.clone());
         let mut generator1 = Generator::new(pipeline1, ctx1);
         let result_path1 = generator1.generate()?;
 
         let pipeline2 = Pipeline::new()?;
-        let ctx2 = crate::generator::GenContext::new(template_path, temp_dir.path().to_path_buf()).with_vars(vars);
+        let ctx2 = crate::generator::GenContext::new(template_path, temp_dir.path().to_path_buf())
+            .with_vars(vars);
         let mut generator2 = Generator::new(pipeline2, ctx2);
         let result_path2 = generator2.generate()?;
 
         // Both should produce identical output
         let content1 = std::fs::read_to_string(&result_path1)?;
         let content2 = std::fs::read_to_string(&result_path2)?;
-        
-        assert_eq!(content1, content2, "Deterministic generation should produce identical output");
+
+        assert_eq!(
+            content1, content2,
+            "Deterministic generation should produce identical output"
+        );
 
         Ok(())
     }
@@ -205,9 +214,12 @@ pub struct Test {
         let ctx = crate::generator::GenContext::new(template_path, output_dir);
         let mut generator = Generator::new(pipeline, ctx);
         let result = generator.generate();
-        
+
         // Should return an error for invalid SPARQL
-        assert!(result.is_err(), "Invalid SPARQL should cause generation to fail");
+        assert!(
+            result.is_err(),
+            "Invalid SPARQL should cause generation to fail"
+        );
 
         Ok(())
     }
