@@ -31,7 +31,7 @@ The marketplace is available immediately after installation. No additional confi
 rgen search rust cli
 
 # Install your first rpack
-rgen add io.rgen.rust.cli-subcommand
+rgen add io.ggen.rust.cli-subcommand
 
 # Verify installation
 rgen packs
@@ -48,7 +48,7 @@ ls -la .rgen/rpacks/
 # Cache structure:
 # .rgen/
 # ├── rpacks/
-# │   └── io.rgen.rust.cli-subcommand/
+# │   └── io.ggen.rust.cli-subcommand/
 # │       └── 0.2.1/
 # │           ├── templates/
 # │           ├── macros/

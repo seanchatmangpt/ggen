@@ -53,6 +53,10 @@ semver = "1.0"
 walkdir = "2.0"
 diff = "0.1"
 tracing = "0.1"
+# Post-Quantum Cryptography (PQC) - NIST-approved algorithms
+pqcrypto-dilithium = "0.5"  # ML-DSA (Dilithium) for signatures
+pqcrypto-traits = "0.3"
+base64 = "0.22"
 
 [dev-dependencies]
 tempfile = "3"

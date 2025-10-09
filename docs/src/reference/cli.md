@@ -30,8 +30,8 @@ rgen add <rpack-id>
 rgen add <rpack-id>@<version>
 
 # Examples:
-rgen add io.rgen.rust.cli-subcommand
-rgen add io.rgen.rust.cli-subcommand@0.2.0
+rgen add io.ggen.rust.cli-subcommand
+rgen add io.ggen.rust.cli-subcommand@0.2.0
 
 # List installed rpacks
 rgen packs
@@ -74,7 +74,7 @@ rgen gen <rpack-id>:<template-path> [--vars k=v ...] [--dry]
 rgen gen <scope> <action> [--vars k=v ...] [--dry]
 
 # Examples:
-rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello
+rgen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello
 rgen gen cli subcommand --vars cmd=hello summary="Print greeting"
 ```
 
@@ -88,7 +88,7 @@ rgen list
 rgen show <template-ref> [--vars k=v ...]
 
 # Examples:
-rgen show io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl
+rgen show io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl
 rgen show cli subcommand
 ```
 
@@ -102,7 +102,7 @@ rgen validate <template-ref> [--vars k=v ...]
 rgen lint <template-ref>
 
 # Examples:
-rgen validate io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl
+rgen validate io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl
 rgen lint cli subcommand
 ```
 
@@ -139,9 +139,9 @@ When using rpack templates, use the format:
 ```
 
 Examples:
-- `io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl`
-- `io.rgen.python.api:api/endpoint/fastapi.tmpl`
-- `io.rgen.typescript.react:components/button.tsx.tmpl`
+- `io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl`
+- `io.ggen.python.api:api/endpoint/fastapi.tmpl`
+- `io.ggen.typescript.react:components/button.tsx.tmpl`
 
 ## Dry-Run Mode
 

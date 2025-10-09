@@ -12,25 +12,25 @@ rgen search rust cli
 
 # Output:
 # ID                                    LATEST     KIND       TAGS
-# io.rgen.rust.cli-subcommand           0.2.1      template   rust, cli, clap
-# io.rgen.rust.api-endpoint             0.1.5      template   rust, api, axum
+# io.ggen.rust.cli-subcommand           0.2.1      template   rust, cli, clap
+# io.ggen.rust.api-endpoint             0.1.5      template   rust, api, axum
 ```
 
 ### 2. Install an Rpack
 
 ```bash
 # Install the latest version
-rgen add io.rgen.rust.cli-subcommand
+rgen add io.ggen.rust.cli-subcommand
 
 # Or install specific version
-rgen add io.rgen.rust.cli-subcommand@0.2.0
+rgen add io.ggen.rust.cli-subcommand@0.2.0
 ```
 
 ### 3. Generate Code
 
 ```bash
 # Use the installed rpack template
-rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello description="Print a greeting"
+rgen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello description="Print a greeting"
 ```
 
 ### 4. Verify Installation
@@ -40,7 +40,7 @@ rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello descrip
 rgen packs
 
 # Show template details
-rgen show io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl
+rgen show io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl
 ```
 
 Result:
@@ -120,18 +120,18 @@ rgen search --help
 rgen packs
 
 # Reinstall if missing
-rgen add io.rgen.rust.cli-subcommand
+rgen add io.ggen.rust.cli-subcommand
 
 # Verify template path
-rgen show io.rgen.rust.cli-subcommand
+rgen show io.ggen.rust.cli-subcommand
 ```
 
 ### Generation Errors
 
 ```bash
 # Use dry run to preview
-rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello --dry
+rgen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello --dry
 
 # Check variable requirements
-rgen show io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl
+rgen show io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl
 ```

@@ -110,11 +110,11 @@ rgen pack publish
 rgen pack test
 
 # Test with different variables
-rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=test1
-rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=test2
+rgen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=test1
+rgen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=test2
 
 # Verify deterministic output
-rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=test1
+rgen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=test1
 # Should produce identical output
 ```
 
@@ -514,7 +514,7 @@ rgen gen template --dry --allow-sh  # Shows what shell commands would run
 # Prevents malicious template behavior
 
 # Enable network for rpack fetching only
-rgen add io.rgen.rust.cli-subcommand --net
+rgen add io.ggen.rust.cli-subcommand --net
 
 # Network only for registry operations
 # Templates cannot make HTTP requests

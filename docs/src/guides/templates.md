@@ -31,7 +31,7 @@ Marketplace rpacks are curated, versioned template collections published to the 
 
 ```toml
 [rpack]
-id = "io.rgen.rust.cli-subcommand"
+id = "io.ggen.rust.cli-subcommand"
 name = "Rust CLI subcommand"
 version = "0.2.1"
 description = "Generate clap subcommands"
@@ -39,7 +39,7 @@ license = "MIT"
 rgen_compat = ">=0.2 <0.4"
 
 [dependencies]
-"io.rgen.macros.std" = "^0.2"
+"io.ggen.macros.std" = "^0.2"
 
 [templates]
 entrypoints = ["cli/subcommand/rust.tmpl"]
@@ -56,10 +56,10 @@ inline = ["@prefix ex: <http://example.org/> . ex:Foo a ex:Type ."]
 
 ```bash
 # Install rpack
-rgen add io.rgen.rust.cli-subcommand
+rgen add io.ggen.rust.cli-subcommand
 
 # Use template
-rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello
+rgen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello
 ```
 
 ## Local Templates
@@ -108,8 +108,8 @@ If both exist, rpack templates take precedence.
 ```
 
 Examples:
-- `io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl`
-- `io.rgen.python.api:api/endpoint/fastapi.tmpl`
+- `io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl`
+- `io.ggen.python.api:api/endpoint/fastapi.tmpl`
 
 ### Local Templates
 ```
@@ -126,8 +126,8 @@ Rpacks can depend on other rpacks for shared functionality:
 
 ```toml
 [dependencies]
-"io.rgen.macros.std" = "^0.2"
-"io.rgen.common.rdf" = "~0.1.0"
+"io.ggen.macros.std" = "^0.2"
+"io.ggen.common.rdf" = "~0.1.0"
 ```
 
 Dependencies are automatically resolved when installing rpacks.

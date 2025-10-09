@@ -58,7 +58,7 @@ my-rpack/
 
 ```toml
 [rpack]
-id = "io.rgen.rust.cli-subcommand"
+id = "io.ggen.rust.cli-subcommand"
 name = "Rust CLI subcommand"
 version = "0.1.0"
 description = "Generate clap subcommands"
@@ -70,7 +70,7 @@ keywords = ["rust", "cli", "clap"]
 rgen_compat = ">=0.2 <0.4"
 
 [dependencies]
-"io.rgen.macros.std" = "^0.2"
+"io.ggen.macros.std" = "^0.2"
 
 [templates]
 entrypoints = ["cli/subcommand/rust.tmpl"]
@@ -403,9 +403,9 @@ Follow semantic versioning (semver):
 ```toml
 # ggen.toml
 [dependencies]
-"io.rgen.macros.std" = "^0.2"
-"io.rgen.common.rdf" = "~0.1.0"
-"io.rgen.rust.cli" = ">=0.1.0 <0.3.0"
+"io.ggen.macros.std" = "^0.2"
+"io.ggen.common.rdf" = "~0.1.0"
+"io.ggen.rust.cli" = ">=0.1.0 <0.3.0"
 ```
 
 ### Dependency Types
@@ -520,7 +520,7 @@ pub fn custom_filter(value: &Value, _: &HashMap<String, Value>) -> Result<Value>
 ```toml
 # ggen.toml
 [plugins]
-"io.rgen.plugin.custom" = "^0.1.0"
+"io.ggen.plugin.custom" = "^0.1.0"
 ```
 
 ### CI/CD Integration
