@@ -55,7 +55,7 @@ fn find_templates_directory() -> Result<PathBuf> {
         }
     }
 
-    Err(utils::error::Error::new(
+    Err(rgen_utils::error::Error::new(
         "No templates directory found. Please ensure you're in a project with templates.",
     ))
 }

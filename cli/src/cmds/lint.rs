@@ -92,7 +92,7 @@ pub fn run(args: &LintArgs) -> Result<()> {
         for (i, issue) in issues.iter().enumerate() {
             println!("{}. {}", i + 1, issue);
         }
-        return Err(utils::error::Error::new("Linting failed"));
+        return Err(rgen_utils::error::Error::new("Linting failed"));
     }
 
     Ok(())

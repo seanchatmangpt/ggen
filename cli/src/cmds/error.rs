@@ -1,4 +1,4 @@
-pub fn run() -> utils::error::Result<()> {
+pub fn run() -> rgen_utils::error::Result<()> {
     // For demo purposes, just return an error
-    Err(utils::error::Error::new("Simulated error"))
+    Err(rgen_utils::error::Error::new("Simulated error"))
 }

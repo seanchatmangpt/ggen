@@ -2,7 +2,7 @@ use colored::*;
 use std::path::Path;
 use walkdir::WalkDir;
 
-pub fn run() -> utils::error::Result<()> {
+pub fn run() -> rgen_utils::error::Result<()> {
     println!("🔍 RGen Hazard Report");
     println!("====================");
 
