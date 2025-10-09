@@ -9,8 +9,43 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  release:
+  create-release:
+    name: Create Release
     runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      version: ${{ steps.get_version.outputs.version }}
+    steps:
+      - name: Get version from tag
+        id: get_version
+        run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+  build-release:
+    name: Build Release
+    needs: create-release
+    strategy:
+      matrix:
+        include:
+          - target: x86_64-apple-darwin
+            os: macos-latest
+          - target: aarch64-apple-darwin
+            os: macos-latest
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+          - target: aarch64-unknown-linux-gnu
+            os: ubuntu-latest
+    runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v4
@@ -19,41 +54,112 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
+          target: ${{ matrix.target }}
           override: true
+
+      - name: Install cross-compilation tools (Linux ARM64)
+        if: matrix.target == 'aarch64-unknown-linux-gnu'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu
 
       - name: Cache cargo registry
         uses: actions/cache@v3
         with:
           path: ~/.cargo/registry
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-${{ matrix.target }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Cache cargo index
         uses: actions/cache@v3
         with:
           path: ~/.cargo/git
-          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-${{ matrix.target }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Cache cargo build
         uses: actions/cache@v3
         with:
           path: target
-          key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-${{ matrix.target }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Build release
-        run: cargo make build-release
+        run: cargo build --release --target ${{ matrix.target }}
+        env:
+          CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: aarch64-linux-gnu-gcc
 
-      - name: Run tests
-        run: cargo make test
-
-      - name: Create release archives
+      - name: Create release archive
         run: |
-          cargo make package
           mkdir -p release
-          cp target/release/rgen release/
-          tar -czf rgen-${{ github.ref_name }}-linux-x86_64.tar.gz -C release rgen
+          cp target/${{ matrix.target }}/release/ggen release/
+          tar -czf ggen-${{ matrix.target }}.tar.gz -C release ggen
+          sha256sum ggen-${{ matrix.target }}.tar.gz > ggen-${{ matrix.target }}.tar.gz.sha256
 
-      - name: Upload release assets
-        uses: actions/upload-artifact@v3
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: rgen-${{ github.ref_name }}-linux-x86_64
-          path: rgen-${{ github.ref_name }}-linux-x86_64.tar.gz
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ./ggen-${{ matrix.target }}.tar.gz
+          asset_name: ggen-${{ matrix.target }}.tar.gz
+          asset_content_type: application/gzip
+
+      - name: Upload SHA256
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ./ggen-${{ matrix.target }}.tar.gz.sha256
+          asset_name: ggen-${{ matrix.target }}.tar.gz.sha256
+          asset_content_type: text/plain
+
+  update-homebrew:
+    name: Update Homebrew Formula
+    needs: [create-release, build-release]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download SHA256 checksums
+        run: |
+          version=${{ needs.create-release.outputs.version }}
+          for target in x86_64-apple-darwin aarch64-apple-darwin x86_64-unknown-linux-gnu aarch64-unknown-linux-gnu; do
+            curl -L -o ${target}.sha256 \
+              "https://github.com/seanchatmangpt/ggen/releases/download/v${version}/ggen-${target}.tar.gz.sha256"
+          done
+
+      - name: Update Homebrew formula
+        run: |
+          version=${{ needs.create-release.outputs.version }}
+
+          # Extract SHA256 values
+          sha_aarch64_darwin=$(cut -d' ' -f1 aarch64-apple-darwin.sha256)
+          sha_x86_64_darwin=$(cut -d' ' -f1 x86_64-apple-darwin.sha256)
+          sha_x86_64_linux=$(cut -d' ' -f1 x86_64-unknown-linux-gnu.sha256)
+          sha_aarch64_linux=$(cut -d' ' -f1 aarch64-unknown-linux-gnu.sha256)
+
+          # Update formula
+          sed -i "s/version \".*\"/version \"${version}\"/" Formula/ggen.rb
+          sed -i "s|download/v[0-9.]\+/|download/v${version}/|g" Formula/ggen.rb
+
+          # Update SHA256 for macOS ARM64
+          sed -i "0,/sha256 \".*\"/{s/sha256 \".*\"/sha256 \"${sha_aarch64_darwin}\"/}" Formula/ggen.rb
+
+          # Update SHA256 for macOS x86_64
+          sed -i "0,/sha256 \".*\"/{s/sha256 \".*\"/sha256 \"${sha_x86_64_darwin}\"/;}" Formula/ggen.rb
+
+          # Update SHA256 for Linux ARM64
+          sed -i "s/sha256 \"REPLACE_WITH_SHA256\"/sha256 \"${sha_aarch64_linux}\"/g" Formula/ggen.rb || true
+
+          # Update SHA256 for Linux x86_64
+          sed -i "s/sha256 \"REPLACE_WITH_SHA256\"/sha256 \"${sha_x86_64_linux}\"/g" Formula/ggen.rb || true
+
+      - name: Commit and push formula update
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add Formula/ggen.rb
+          git commit -m "chore: update Homebrew formula to v${{ needs.create-release.outputs.version }}"
+          git push origin HEAD:master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
