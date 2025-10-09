@@ -68,7 +68,7 @@ fn get_cached_template_infos(
     });
 
     unsafe {
-        if let Some(cache) = &TEMPLATE_CACHE {
+        if let Some(cache) = (*&raw const TEMPLATE_CACHE).as_ref() {
             if !cache.is_empty() {
                 return Ok(cache.clone());
             }
@@ -83,7 +83,7 @@ fn get_cached_template_infos(
         .follow_links(true)
         .into_iter()
         .filter_map(|e| e.ok())
-        .filter(|entry| entry.path().extension().map_or(false, |ext| ext == "tmpl"))
+        .filter(|entry| entry.path().extension().is_some_and(|ext| ext == "tmpl"))
         .map(|entry| entry.path().to_path_buf())
         .collect();
 
@@ -196,10 +196,7 @@ fn extract_frontmatter(content: &str) -> Option<serde_json::Value> {
     if content.starts_with("---\n") {
         if let Some(end_marker) = content[4..].find("\n---\n") {
             let yaml_content = &content[4..4 + end_marker];
-            match serde_yaml::from_str::<serde_json::Value>(yaml_content) {
-                Ok(value) => Some(value),
-                Err(_) => None,
-            }
+            serde_yaml::from_str::<serde_json::Value>(yaml_content).ok()
         } else {
             None
         }

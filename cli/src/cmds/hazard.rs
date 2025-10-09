@@ -52,6 +52,7 @@ struct Hazard {
 }
 
 #[derive(Debug)]
+#[allow(dead_code)]
 enum Severity {
     Low,
     Medium,

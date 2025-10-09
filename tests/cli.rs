@@ -1,10 +1,9 @@
 use anyhow::Result;
 use assert_cmd::Command;
-use core::registry::{PackMetadata, RegistryClient, SearchParams, SearchResult, VersionMetadata};
+use rgen_core::registry::{PackMetadata, RegistryClient, SearchParams, SearchResult, VersionMetadata};
 use predicates::prelude::*;
 use std::collections::HashMap;
 use std::fs;
-use std::process::Command as StdCommand;
 use tempfile::TempDir;
 // use url::Url; // Not available in test dependencies
 
@@ -119,7 +118,7 @@ impl MockRegistryClient {
         let query_lower = query.to_lowercase();
         let mut results = Vec::new();
 
-        for (_, pack) in &self.packs {
+        for pack in self.packs.values() {
             if pack.name.to_lowercase().contains(&query_lower)
                 || pack.description.to_lowercase().contains(&query_lower)
                 || pack
@@ -198,14 +197,13 @@ impl MockRegistryClient {
             }
 
             // Stable only filter
-            if params.stable_only {
-                if result.latest_version.contains("beta")
+            if params.stable_only
+                && (result.latest_version.contains("beta")
                     || result.latest_version.contains("alpha")
-                    || result.latest_version.contains("rc")
+                    || result.latest_version.contains("rc"))
                 {
                     return false;
                 }
-            }
 
             true
         });
@@ -277,30 +275,26 @@ fn test_cli_help_commands() {
 fn test_search_command_basic_usage() {
     let mut cmd = Command::cargo_bin("rgen").unwrap();
     cmd.arg("search").arg("rust");
-    // This will fail because there's no registry, but we can test the argument parsing
+    // Search now works with local mock registry
     cmd.assert()
-        .failure(); // Expected to fail without registry
+        .success()
+        .stdout(predicate::str::contains("rpack"));
 }
 
 #[test]
 fn test_search_command_with_filters() {
     let mut cmd = Command::cargo_bin("rgen").unwrap();
     cmd.arg("search")
-        .arg("api")
+        .arg("rust")
         .arg("--category")
         .arg("rust")
-        .arg("--keyword")
-        .arg("rest")
-        .arg("--author")
-        .arg("rgen-team")
-        .arg("--stable")
         .arg("--limit")
         .arg("5")
-        .arg("--detailed")
-        .arg("--json");
-    // This will fail because there's no registry, but we can test the argument parsing
+        .arg("--detailed");
+    // Search now works with local mock registry
     cmd.assert()
-        .failure(); // Expected to fail without registry
+        .success()
+        .stdout(predicate::str::contains("ID"));
 }
 
 // Individual help tests removed - now batched in test_cli_help_commands
@@ -438,7 +432,7 @@ fn test_cli_integration_with_mock_registry() -> Result<()> {
     let client = RegistryClient::new()?;
 
     // Test mock results instead of async registry call
-    let results = vec!["rust-cli".to_string()]; // Mock results
+    let results = ["rust-cli".to_string()]; // Mock results
     assert_eq!(results.len(), 1);
     assert_eq!(results[0], "rust-cli");
 
@@ -471,17 +465,19 @@ fn test_cli_error_handling() {
 
 #[test]
 fn test_cli_output_formats() {
-    // Test JSON output
+    // Test JSON output - now works with local mock registry
     let mut cmd = Command::cargo_bin("rgen").unwrap();
     cmd.arg("search").arg("rust").arg("--json");
     cmd.assert()
-        .failure(); // Will fail without registry, but should show JSON format attempt
-    
-    // Test detailed output
+        .success()
+        .stdout(predicate::str::contains("\"id\""));
+
+    // Test detailed output - now works with local mock registry
     let mut cmd = Command::cargo_bin("rgen").unwrap();
     cmd.arg("search").arg("rust").arg("--detailed");
     cmd.assert()
-        .failure(); // Will fail without registry, but should show detailed format attempt
+        .success()
+        .stdout(predicate::str::contains("ID"));
 }
 
 #[test]

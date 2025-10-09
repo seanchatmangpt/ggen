@@ -68,11 +68,9 @@ Create `templates/cli/subcommand/rust.tmpl`:
 to: src/cmds/{{ slug }}.rs
 vars: { cmd: hello, summary: "Print a greeting", seed: cosmos }
 rdf:
-  inline:
-    - mediaType: text/turtle
-      text: |
-        @prefix cli: <urn:rgen:cli#> .
-        [] a cli:Command ; cli:slug "{{ cmd }}" ; cli:summary "{{ summary }}" .
+  - "graphs/cli.ttl"              # Local RDF file
+shape:
+  - "graphs/shapes/cli.shacl.ttl" # Local SHACL shapes
 sparql:
   vars:
     - name: slug

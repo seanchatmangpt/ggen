@@ -9,7 +9,6 @@ description = "Graph-aware code generation demo"
 
 # Base directories (all relative to project root)
 templates_dir = "templates"
-graphs_dir = "graphs"
 output_dir = "generated"
 
 # Prefixes available globally to RDF/SPARQL
@@ -26,7 +25,7 @@ sh = "http://www.w3.org/ns/shacl#"
 # Default graph(s) to preload for all templates
 [rdf]
 # RDF files to load (relative to project root or absolute paths)
-files = ["graphs/core.ttl", "graphs/shapes.ttl"]
+files = ["templates/**/graphs/*.ttl"]
 
 # Inline RDF data (Turtle format)
 inline = [

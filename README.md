@@ -136,20 +136,25 @@ Rpacks include templates, RDF schemas, SPARQL queries, and dependencies. They're
 
 ## 🧩 Templates
 
+Templates are self-contained in their directories with local RDF graphs:
+
 ```
 templates/
   cli/
     subcommand/
-      rust.tmpl
-      python.tmpl
-      bash.tmpl
+      rust.tmpl           # Template file
+      graphs/             # Local RDF data
+        cli.ttl
+        shapes/
+          cli.shacl.ttl
 ```
 
 Each `.tmpl` has a YAML frontmatter header that describes:
 
 * `to:` — where to write the file
 * `vars:` — default variables
-* `rdf:` — optional RDF or JSON-LD defining the semantic object
+* `rdf:` — RDF files (relative to template directory)
+* `shape:` — SHACL shape files for validation
 * `sparql:` — queries to extract variables from graph data
 * `determinism:` — optional seed for reproducibility
 
@@ -157,26 +162,33 @@ Each `.tmpl` has a YAML frontmatter header that describes:
 
 ```yaml
 ---
-to: src/cmds/{{ slug }}.rs
-vars: { cmd: hello, summary: "Print a greeting" }
+to: src/cmds/{{ cmd }}.rs
+vars:
+  cmd: "hello"
+  summary: "Print a greeting"
 rdf:
-  inline:
-    - mediaType: text/turtle
-      text: |
-        @prefix cli: <urn:rgen:cli#> .
-        [] a cli:Command ;
-           cli:slug "{{ cmd }}" ;
-           cli:summary "{{ summary }}" .
+  - "graphs/cli.ttl"
+shape:
+  - "graphs/shapes/cli.shacl.ttl"
 sparql:
-  vars:
-    - name: slug
-      query: |
-        PREFIX cli: <urn:rgen:cli#>
-        SELECT ?slug WHERE { ?c a cli:Command ; cli:slug ?slug } LIMIT 1
-determinism: { seed: "{{ cmd }}" }
+  - "SELECT ?cmd ?summary WHERE { ?cmd rdfs:label ?summary }"
+determinism:
+  seed: "cli-subcommand"
+  sort_order: ["cmd", "summary"]
 ---
-pub fn {{ slug }}(name: &str) {
-    println!("hello {}", name);
+use clap::Args;
+use utils::error::Result;
+
+#[derive(Args, Debug)]
+pub struct {{ cmd|title }}Args {
+    /// {{ summary }}
+    #[arg(value_name = "INPUT")]
+    pub input: Option<String>,
+}
+
+pub async fn run(args: &{{ cmd|title }}Args) -> Result<()> {
+    println!("{{ summary }}");
+    Ok(())
 }
 ```
 

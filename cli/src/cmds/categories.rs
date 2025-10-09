@@ -1,6 +1,6 @@
 use clap::Args;
 use colored::*;
-use core::RegistryClient;
+use rgen_core::RegistryClient;
 use utils::error::Result;
 
 #[derive(Args, Debug)]

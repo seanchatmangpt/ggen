@@ -1,4 +1,4 @@
-#![cfg_attr(feature = "nightly", feature(backtrace))]
+// backtrace is stable since 1.65.0, no feature flag needed
 
 pub mod app_config;
 pub mod error;

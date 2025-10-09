@@ -8,6 +8,7 @@ use utils::app_config::AppConfig;
 use utils::error::Result;
 
 // Declare test modules
+#[allow(dead_code)]
 mod mock_registry;
 
 /// The main entry point of the application.
@@ -32,7 +33,7 @@ async fn main() -> Result<()> {
     let _guard = utils::logger::setup_logging()?;
 
     // Initialize tracing for pipeline debugging
-    // core::tracing::init_tracing()?; // Temporarily disabled
+    // rgen_core::tracing::init_tracing()?; // Temporarily disabled
 
     // Initialize Configuration
     let config_contents = include_str!("resources/rgen_config.toml");

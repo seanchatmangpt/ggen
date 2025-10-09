@@ -4,14 +4,10 @@
 to: path/with/{{ vars }}
 vars: { seed: cosmos }
 rdf:
-  include: [graphs/core.ttl, graphs/x.jsonld]
-  inline:
-    - mediaType: text/turtle
-      text: |
-        @prefix ex: <urn:ex#>.
-        [] a ex:Thing ; ex:name "{{ name }}".
+  - "graphs/core.ttl"
+  - "graphs/x.jsonld"
 shape:
-  include: [shapes/domain.ttl]
+  - "graphs/shapes/domain.ttl"
 sparql:
   vars:
     - name: slug

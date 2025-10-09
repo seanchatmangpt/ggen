@@ -534,7 +534,7 @@ version = "0.1.0"
 ex = "http://example.org/"
 
 [rdf]
-files = ["graphs/*.ttl"]
+files = ["templates/**/graphs/*.ttl"]
 inline = ["@prefix ex: <http://example.org/> . ex:Project a ex:Tool ."]
 
 [preset]

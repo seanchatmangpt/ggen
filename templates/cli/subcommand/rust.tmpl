@@ -3,6 +3,15 @@ to: "src/cmds/{{cmd}}.rs"
 vars:
   cmd: "example"
   summary: "Example command"
+rdf:
+  - "graphs/cli.ttl"
+shape:
+  - "graphs/shapes/cli.shacl.ttl"
+sparql:
+  - "SELECT ?cmd ?summary WHERE { ?cmd rdfs:label ?summary }"
+determinism:
+  seed: "cli-subcommand"
+  sort_order: ["cmd", "summary"]
 ---
 use clap::Args;
 use utils::error::Result;

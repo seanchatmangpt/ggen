@@ -1,4 +1,4 @@
-use core::manifest::{ManifestInputs, compute_manifest_key};
+use rgen_core::manifest::{ManifestInputs, compute_manifest_key};
 use std::collections::BTreeMap;
 
 #[test]

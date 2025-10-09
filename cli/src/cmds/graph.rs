@@ -1,5 +1,5 @@
 use clap::Args;
-use core::graph::Graph;
+use rgen_core::graph::Graph;
 use std::io::Write;
 use std::path::PathBuf;
 use utils::error::Result;
@@ -71,11 +71,22 @@ fn load_graph_for_scope_action(scope: &str, action: &str) -> Result<Graph> {
             load_core_graphs(&graph)?;
         }
         _ => {
-            // Try to load from a generic location
-            let graph_path = format!("graphs/{}.ttl", scope);
-            if std::path::Path::new(&graph_path).exists() {
-                graph.load_path(&graph_path)?;
-            } else {
+            // Try to load from template locations
+            let graph_paths = vec![
+                format!("templates/{}/{}/graphs/{}.ttl", scope, action, scope),
+                format!("templates/{}/graphs/{}.ttl", scope, scope),
+            ];
+            
+            let mut found = false;
+            for graph_path in graph_paths {
+                if std::path::Path::new(&graph_path).exists() {
+                    graph.load_path(&graph_path)?;
+                    found = true;
+                    break;
+                }
+            }
+            
+            if !found {
                 println!(
                     "No graph found for scope '{}' and action '{}'",
                     scope, action
@@ -88,29 +99,50 @@ fn load_graph_for_scope_action(scope: &str, action: &str) -> Result<Graph> {
 }
 
 fn load_cli_graphs(graph: &Graph) -> Result<()> {
-    let cli_graph_path = "graphs/cli.ttl";
-    if std::path::Path::new(cli_graph_path).exists() {
-        graph.load_path(cli_graph_path)?;
-        println!("Loaded CLI graph from {}", cli_graph_path);
+    let cli_graph_paths = vec![
+        "templates/cli/subcommand/graphs/cli.ttl",
+        "templates/cli/graphs/cli.ttl",
+    ];
+    
+    for cli_graph_path in cli_graph_paths {
+        if std::path::Path::new(cli_graph_path).exists() {
+            graph.load_path(cli_graph_path)?;
+            println!("Loaded CLI graph from {}", cli_graph_path);
+            return Ok(());
+        }
     }
     Ok(())
 }
 
 fn load_api_graphs(graph: &Graph) -> Result<()> {
     // Look for API-related graphs
-    let api_graph_path = "graphs/api.ttl";
-    if std::path::Path::new(api_graph_path).exists() {
-        graph.load_path(api_graph_path)?;
-        println!("Loaded API graph from {}", api_graph_path);
+    let api_graph_paths = vec![
+        "templates/api/endpoint/graphs/api.ttl",
+        "templates/api/graphs/api.ttl",
+    ];
+    
+    for api_graph_path in api_graph_paths {
+        if std::path::Path::new(api_graph_path).exists() {
+            graph.load_path(api_graph_path)?;
+            println!("Loaded API graph from {}", api_graph_path);
+            return Ok(());
+        }
     }
     Ok(())
 }
 
 fn load_core_graphs(graph: &Graph) -> Result<()> {
-    let core_graph_path = "graphs/core.ttl";
-    if std::path::Path::new(core_graph_path).exists() {
-        graph.load_path(core_graph_path)?;
-        println!("Loaded core graph from {}", core_graph_path);
+    let core_graph_paths = vec![
+        "templates/core/graphs/core.ttl",
+        "templates/api/endpoint/graphs/api.ttl", // API endpoint contains core concepts
+    ];
+    
+    for core_graph_path in core_graph_paths {
+        if std::path::Path::new(core_graph_path).exists() {
+            graph.load_path(core_graph_path)?;
+            println!("Loaded core graph from {}", core_graph_path);
+            return Ok(());
+        }
     }
     Ok(())
 }
@@ -152,7 +184,7 @@ fn export_turtle(
     let results = graph.query(query)?;
 
     match results {
-        oxigraph::sparql::QueryResults::Graph(mut graph_iter) => {
+        oxigraph::sparql::QueryResults::Graph(graph_iter) => {
             // Use streaming writer for better memory efficiency
             let writer: Box<dyn std::io::Write> = if let Some(path) = output_path {
                 Box::new(std::fs::File::create(path)?)
@@ -220,7 +252,7 @@ fn export_ntriples(graph: &Graph, output_path: Option<&PathBuf>) -> Result<()> {
     let results = graph.query(query)?;
 
     match results {
-        oxigraph::sparql::QueryResults::Graph(mut graph_iter) => {
+        oxigraph::sparql::QueryResults::Graph(graph_iter) => {
             // Use streaming writer for better memory efficiency
             let writer: Box<dyn std::io::Write> = if let Some(path) = output_path {
                 Box::new(std::fs::File::create(path)?)
@@ -272,7 +304,7 @@ fn export_rdfxml(graph: &Graph, output_path: Option<&PathBuf>) -> Result<()> {
     let results = graph.query(query)?;
 
     match results {
-        oxigraph::sparql::QueryResults::Graph(mut graph_iter) => {
+        oxigraph::sparql::QueryResults::Graph(graph_iter) => {
             let mut xml_content = String::new();
             xml_content.push_str("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
             xml_content
@@ -316,7 +348,7 @@ fn export_jsonld(graph: &Graph, output_path: Option<&PathBuf>) -> Result<()> {
     let results = graph.query(query)?;
 
     match results {
-        oxigraph::sparql::QueryResults::Solutions(mut solutions) => {
+        oxigraph::sparql::QueryResults::Solutions(solutions) => {
             let mut jsonld_content = serde_json::json!({
                 "@context": {
                     "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",

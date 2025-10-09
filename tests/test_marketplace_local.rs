@@ -7,7 +7,7 @@ fn test_registry_client_creation() -> Result<()> {
     // Test that RegistryClient can be created with environment variable
     env::set_var("RGEN_REGISTRY_URL", "https://raw.githubusercontent.com/seanchatmangpt/rgen/master/registry/");
     
-    let client = core::RegistryClient::new()?;
+    let client = rgen_core::RegistryClient::new()?;
     
     // Verify the client was created successfully (we can't access private fields)
     // This test just ensures the client creation doesn't fail
@@ -26,7 +26,7 @@ fn test_registry_client_with_file_url() -> Result<()> {
     // Set environment variable for testing
     env::set_var("RGEN_REGISTRY_URL", &file_url);
     
-    let client = core::RegistryClient::new()?;
+    let client = rgen_core::RegistryClient::new()?;
     
     // Verify the client was created with file URL (we can't access private fields)
     // This test just ensures the client creation doesn't fail
@@ -45,7 +45,7 @@ fn test_registry_index_json_exists() -> Result<()> {
     
     // Read and parse the JSON
     let content = std::fs::read_to_string(&registry_path)?;
-    let index: core::registry::RegistryIndex = serde_json::from_str(&content)?;
+    let index: rgen_core::registry::RegistryIndex = serde_json::from_str(&content)?;
     
     // Verify it contains our test pack
     assert!(!index.packs.is_empty());

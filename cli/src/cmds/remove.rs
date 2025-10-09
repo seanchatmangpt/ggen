@@ -1,6 +1,6 @@
 use anyhow::Result;
 use clap::Args;
-use core::{CacheManager, LockfileManager};
+use rgen_core::{CacheManager, LockfileManager};
 use std::env;
 
 #[derive(Args, Debug)]

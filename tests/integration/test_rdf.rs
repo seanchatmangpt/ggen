@@ -1,4 +1,4 @@
-use core::rdf;
+use rgen_core::rdf;
 use std::path::Path;
 
 #[test]

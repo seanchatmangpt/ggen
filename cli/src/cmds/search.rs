@@ -1,7 +1,7 @@
 use anyhow::Result;
 use clap::Args;
 use colored::*;
-use core::RegistryClient;
+use rgen_core::RegistryClient;
 use serde_json;
 
 #[derive(Args, Debug)]
@@ -42,7 +42,7 @@ pub async fn run(args: &SearchArgs) -> Result<()> {
     let registry_client = RegistryClient::new()?;
 
     // Build search parameters
-    let search_params = core::registry::SearchParams {
+    let search_params = rgen_core::registry::SearchParams {
         query: &args.query,
         category: args.category.as_deref(),
         keyword: args.keyword.as_deref(),
@@ -77,7 +77,7 @@ pub async fn run(args: &SearchArgs) -> Result<()> {
     Ok(())
 }
 
-fn print_summary_results(results: &[core::SearchResult]) {
+fn print_summary_results(results: &[rgen_core::SearchResult]) {
     // Header with colors
     println!(
         "{:<40} {:<12} {:<20} {}",
@@ -113,7 +113,7 @@ fn print_summary_results(results: &[core::SearchResult]) {
     }
 }
 
-fn print_detailed_results(results: &[core::SearchResult]) {
+fn print_detailed_results(results: &[rgen_core::SearchResult]) {
     for (i, result) in results.iter().enumerate() {
         if i > 0 {
             println!();
