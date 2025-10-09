@@ -115,12 +115,15 @@ jobs:
           asset_name: ggen-${{ matrix.target }}.tar.gz.sha256
           asset_content_type: text/plain
 
-  update-homebrew:
-    name: Update Homebrew Formula
+  create-formula-pr:
+    name: Create Homebrew Formula PR
     needs: [create-release, build-release]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 0
 
       - name: Download SHA256 checksums
         run: |
@@ -156,12 +159,17 @@ jobs:
           # Update SHA256 for Linux x86_64
           sed -i "s/sha256 \"REPLACE_WITH_SHA256\"/sha256 \"${sha_x86_64_linux}\"/g" Formula/ggen.rb || true
 
-      - name: Commit and push formula update
-        run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          git add Formula/ggen.rb
-          git commit -m "chore: update Homebrew formula to v${{ needs.create-release.outputs.version }}"
-          git push origin HEAD:master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: update Homebrew formula to v${{ needs.create-release.outputs.version }}"
+          branch: "homebrew-formula-v${{ needs.create-release.outputs.version }}"
+          title: "chore: update Homebrew formula to v${{ needs.create-release.outputs.version }}"
+          body: |
+            Automated Homebrew formula update for v${{ needs.create-release.outputs.version }}
+
+            - macOS ARM64: ${{ sha_aarch64_darwin }}
+            - macOS x86_64: ${{ sha_x86_64_darwin }}
+            - Linux ARM64: ${{ sha_aarch64_linux }}
+            - Linux x86_64: ${{ sha_x86_64_linux }}
