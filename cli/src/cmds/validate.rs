@@ -11,11 +11,11 @@ pub struct ValidateArgs {
     /// Path to the template file to validate
     #[arg(value_name = "TEMPLATE")]
     pub template: PathBuf,
-    
+
     /// Variables (key=value pairs) for frontmatter rendering
     #[arg(short = 'v', long = "var", value_parser = parse_key_val::<String, String>)]
     pub vars: Vec<(String, String)>,
-    
+
     /// Show detailed validation output
     #[arg(long)]
     pub verbose: bool,
@@ -28,7 +28,9 @@ where
     V: std::str::FromStr,
     V::Err: ToString,
 {
-    let pos = s.find('=').ok_or_else(|| format!("invalid KEY=value: no `=` found in `{s}`"))?;
+    let pos = s
+        .find('=')
+        .ok_or_else(|| format!("invalid KEY=value: no `=` found in `{s}`"))?;
     let key = s[..pos].parse().map_err(|e: K::Err| e.to_string())?;
     let val = s[pos + 1..].parse().map_err(|e: V::Err| e.to_string())?;
     Ok((key, val))
@@ -37,39 +39,39 @@ where
 pub fn run(args: &ValidateArgs) -> Result<()> {
     // Read template file
     let template_content = std::fs::read_to_string(&args.template)?;
-    
+
     // Parse template
     let mut template = Template::parse(&template_content)?;
-    
+
     if args.verbose {
         println!("✓ Template parsed successfully");
         println!("  File: {}", args.template.display());
         println!("  Body length: {} characters", template.body.len());
     }
-    
+
     // Create Tera context from vars
     let mut vars = BTreeMap::new();
     for (k, v) in &args.vars {
         vars.insert(k.clone(), v.clone());
     }
     let mut ctx = Context::from_serialize(&vars)?;
-    
+
     // Insert environment variables
     insert_env(&mut ctx);
-    
+
     // Create Tera instance
     let mut tera = tera::Tera::default();
     tera.autoescape_on(vec![]);
-    
+
     // Register text transformation filters
     core::register::register_all(&mut tera);
-    
+
     // Render frontmatter
     template.render_frontmatter(&mut tera, &ctx)?;
-    
+
     if args.verbose {
         println!("✓ Frontmatter rendered successfully");
-        
+
         // Show rendered frontmatter details
         if let Some(to) = &template.front.to {
             println!("  Output path: {}", to);
@@ -96,22 +98,27 @@ pub fn run(args: &ValidateArgs) -> Result<()> {
             println!("  Template vars: {} defined", template.front.vars.len());
         }
     }
-    
+
     // Validate that required fields are present for injection
     if template.front.inject {
         if template.front.to.is_none() {
-            return Err(utils::error::Error::new("Injection mode requires 'to:' field to specify target file"));
+            return Err(utils::error::Error::new(
+                "Injection mode requires 'to:' field to specify target file",
+            ));
         }
     }
-    
+
     // Validate that from: file exists if specified
     if let Some(from_path) = &template.front.from {
         let rendered_from = tera.render_str(from_path, &ctx)?;
         if !std::path::Path::new(&rendered_from).exists() {
-            return Err(utils::error::Error::new(&format!("Source file '{}' does not exist", rendered_from)));
+            return Err(utils::error::Error::new(&format!(
+                "Source file '{}' does not exist",
+                rendered_from
+            )));
         }
     }
-    
+
     println!("✓ Template validation passed");
     Ok(())
 }

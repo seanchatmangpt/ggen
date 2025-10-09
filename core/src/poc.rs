@@ -38,30 +38,42 @@ pub struct HygenFrontmatter {
     #[serde(default)]
     pub vars: BTreeMap<String, String>,
     #[serde(default)]
-    pub rdf: Vec<String>,           // file paths relative to template dir
+    pub rdf: Vec<String>, // file paths relative to template dir
     #[serde(default)]
-    pub rdf_inline: Vec<String>,    // inline Turtle strings
+    pub rdf_inline: Vec<String>, // inline Turtle strings
     #[serde(default)]
     pub prefixes: BTreeMap<String, String>, // e.g., { ex: "http://example/" }
     #[serde(default)]
-    pub base: Option<String>,       // BASE IRI
+    pub base: Option<String>, // BASE IRI
 }
 
 #[derive(Clone)]
 struct SparqlFn {
     store: Store,
-    prolog: String,            // PREFIX/BASE prelude
+    prolog: String, // PREFIX/BASE prelude
     trace: bool,
 }
 impl TeraFunction for SparqlFn {
     fn call(&self, args: &std::collections::HashMap<String, TeraValue>) -> tera::Result<TeraValue> {
-        let q = args.get("query").and_then(|v| v.as_str()).ok_or_else(|| tera::Error::msg("sparql: query required"))?;
+        let q = args
+            .get("query")
+            .and_then(|v| v.as_str())
+            .ok_or_else(|| tera::Error::msg("sparql: query required"))?;
         let want = args.get("var").and_then(|v| v.as_str());
 
-        let final_q = if self.prolog.is_empty() { q.to_string() } else { format!("{}\n{}", self.prolog, q) };
-        if self.trace { eprintln!("[rgen.sparql] {}", final_q.replace('\n', " ")) }
+        let final_q = if self.prolog.is_empty() {
+            q.to_string()
+        } else {
+            format!("{}\n{}", self.prolog, q)
+        };
+        if self.trace {
+            eprintln!("[rgen.sparql] {}", final_q.replace('\n', " "))
+        }
 
-        let res = self.store.query(&final_q).map_err(|e| tera::Error::msg(format!("sparql: {e}")))?;
+        let res = self
+            .store
+            .query(&final_q)
+            .map_err(|e| tera::Error::msg(format!("sparql: {e}")))?;
         match res {
             QueryResults::Solutions(solutions) => {
                 let mut rows = Vec::new();
@@ -69,13 +81,18 @@ impl TeraFunction for SparqlFn {
                     let sol = sol.map_err(|e| tera::Error::msg(format!("sparql row: {e}")))?;
                     let mut row = serde_json::Map::new();
                     for (v, term) in sol.iter() {
-                        row.insert(v.as_str().to_string(), serde_json::Value::String(term.to_string()));
+                        row.insert(
+                            v.as_str().to_string(),
+                            serde_json::Value::String(term.to_string()),
+                        );
                     }
                     rows.push(serde_json::Value::Object(row));
                 }
                 if let Some(vname) = want {
                     if let Some(serde_json::Value::Object(obj)) = rows.first() {
-                        if let Some(val) = obj.get(vname) { return Ok(val.clone()); }
+                        if let Some(val) = obj.get(vname) {
+                            return Ok(val.clone());
+                        }
                     }
                     return Ok(serde_json::Value::String(String::new()));
                 }
@@ -94,17 +111,20 @@ impl TeraFunction for LocalFn {
         let iri = args.get("iri").and_then(|v| v.as_str()).unwrap_or_default();
         // Strip <...> if present, then take after last '#' or '/'
         let s = iri.trim();
-        let s = s.strip_prefix('<').and_then(|x| x.strip_suffix('>')).unwrap_or(s);
-        let idx = s.rfind(|c| c == '#' || c == '/').map(|i| i + 1).unwrap_or(0);
+        let s = s
+            .strip_prefix('<')
+            .and_then(|x| x.strip_suffix('>'))
+            .unwrap_or(s);
+        let idx = s
+            .rfind(|c| c == '#' || c == '/')
+            .map(|i| i + 1)
+            .unwrap_or(0);
         Ok(serde_json::Value::String(s[idx..].to_string()))
     }
 }
 
 pub fn poc_hygen(
-    template_path: &Path,
-    out_root: &Path,
-    cli_vars: &BTreeMap<String, String>,
-    dry_run: bool,
+    template_path: &Path, out_root: &Path, cli_vars: &BTreeMap<String, String>, dry_run: bool,
 ) -> Result<PathBuf> {
     // Tera env rooted at template directory (enables includes/macros)
     let tpl_root = template_path.parent().unwrap_or_else(|| Path::new("."));
@@ -113,18 +133,25 @@ pub fn poc_hygen(
     // Split frontmatter + body (gray-matter)
     let raw = fs::read_to_string(template_path)?;
     let matter = Matter::<YAML>::new();
-    let ParsedEntity { data, content, .. } =
-        matter.parse::<serde_yaml::Value>(&raw).map_err(|e| Error::new(&format!("gray-matter: {e}")))?;
+    let ParsedEntity { data, content, .. } = matter
+        .parse::<serde_yaml::Value>(&raw)
+        .map_err(|e| Error::new(&format!("gray-matter: {e}")))?;
     let yaml_value = data.ok_or_else(|| Error::new("missing YAML frontmatter"))?;
 
     // Render frontmatter via Tera using CLI vars only
     let yaml_src = serde_yaml::to_string(&yaml_value)?;
-    tera.add_raw_template("__fm__", &yaml_src).map_err(|e| Error::new(&format!("tera add header: {e}")))?;
-    let rendered_yaml = tera.render("__fm__", &tera_context(cli_vars)).map_err(|e| Error::new(&format!("tera header: {e}")))?;
+    tera.add_raw_template("__fm__", &yaml_src)
+        .map_err(|e| Error::new(&format!("tera add header: {e}")))?;
+    let rendered_yaml = tera
+        .render("__fm__", &tera_context(cli_vars))
+        .map_err(|e| Error::new(&format!("tera header: {e}")))?;
 
     // Deserialize → merge defaults + CLI
-    let fm: HygenFrontmatter = serde_yaml::from_str(&rendered_yaml).map_err(|e| Error::new(&format!("frontmatter YAML: {e}")))?;
-    if fm.to.trim().is_empty() { return Err(Error::new("frontmatter `to` required")); }
+    let fm: HygenFrontmatter = serde_yaml::from_str(&rendered_yaml)
+        .map_err(|e| Error::new(&format!("frontmatter YAML: {e}")))?;
+    if fm.to.trim().is_empty() {
+        return Err(Error::new("frontmatter `to` required"));
+    }
     let vars = merged_ctx(&fm.vars, cli_vars);
 
     // Load RDF graph: files + inline
@@ -133,18 +160,31 @@ pub fn poc_hygen(
     // Register SPARQL + local() functions
     let prolog = build_prolog(&fm.prefixes, fm.base.as_deref());
     let trace = std::env::var_os("RGEN_TRACE").is_some();
-    tera.register_function("sparql", SparqlFn { store: store.clone(), prolog, trace });
+    tera.register_function(
+        "sparql",
+        SparqlFn {
+            store: store.clone(),
+            prolog,
+            trace,
+        },
+    );
     tera.register_function("local", LocalFn);
 
     // Resolve output path
-    tera.add_raw_template("__to__", &fm.to).map_err(|e| Error::new(&format!("tera add to: {e}")))?;
-    let rel_out = tera.render("__to__", &tera_context(&vars)).map_err(|e| Error::new(&format!("tera to: {e}")))?;
+    tera.add_raw_template("__to__", &fm.to)
+        .map_err(|e| Error::new(&format!("tera add to: {e}")))?;
+    let rel_out = tera
+        .render("__to__", &tera_context(&vars))
+        .map_err(|e| Error::new(&format!("tera to: {e}")))?;
     let out_path = out_root.join(rel_out);
 
     // Render body
     let virtual_name = virtual_name_for(template_path);
-    tera.add_raw_template(&virtual_name, &content).map_err(|e| Error::new(&format!("tera add body: {e}")))?;
-    let rendered = tera.render(&virtual_name, &tera_context(&vars)).map_err(|e| Error::new(&format!("tera body: {e}")))?;
+    tera.add_raw_template(&virtual_name, &content)
+        .map_err(|e| Error::new(&format!("tera add body: {e}")))?;
+    let rendered = tera
+        .render(&virtual_name, &tera_context(&vars))
+        .map_err(|e| Error::new(&format!("tera body: {e}")))?;
 
     if !dry_run {
         ensure_parent_dirs(&out_path)?;
@@ -208,28 +248,44 @@ fn load_rdf(rdf_paths: &[String], rdf_inline: &[String], base: &Path) -> Result<
     Ok(store)
 }
 
-
-fn merged_ctx(defaults: &BTreeMap<String, String>, cli: &BTreeMap<String, String>) -> BTreeMap<String, String> {
+fn merged_ctx(
+    defaults: &BTreeMap<String, String>, cli: &BTreeMap<String, String>,
+) -> BTreeMap<String, String> {
     let mut out = defaults.clone();
-    for (k, v) in cli { out.insert(k.clone(), v.clone()); }
+    for (k, v) in cli {
+        out.insert(k.clone(), v.clone());
+    }
     out
 }
 
 fn tera_context(vars: &BTreeMap<String, String>) -> TeraContext {
     let mut ctx = TeraContext::new();
-    for (k, v) in vars { ctx.insert(k, v); }
-    ctx.insert("env", &std::env::vars().collect::<BTreeMap<String, String>>());
-    ctx.insert("cwd", &std::env::current_dir().unwrap().display().to_string());
+    for (k, v) in vars {
+        ctx.insert(k, v);
+    }
+    ctx.insert(
+        "env",
+        &std::env::vars().collect::<BTreeMap<String, String>>(),
+    );
+    ctx.insert(
+        "cwd",
+        &std::env::current_dir().unwrap().display().to_string(),
+    );
     ctx
 }
 
 fn ensure_parent_dirs(p: &Path) -> Result<()> {
-    if let Some(parent) = p.parent() { std::fs::create_dir_all(parent)?; }
+    if let Some(parent) = p.parent() {
+        std::fs::create_dir_all(parent)?;
+    }
     Ok(())
 }
 
 fn virtual_name_for(p: &Path) -> String {
-    p.file_name().and_then(|s| s.to_str()).unwrap_or("__body__").to_string()
+    p.file_name()
+        .and_then(|s| s.to_str())
+        .unwrap_or("__body__")
+        .to_string()
 }
 
 #[cfg(test)]
@@ -243,7 +299,9 @@ mod tests {
         let root = dir.path();
 
         let tmpl = root.join("sample.tmpl");
-        fs::write(&tmpl, r#"---
+        fs::write(
+            &tmpl,
+            r#"---
 to: "out/{{ name | lower }}.txt"
 prefixes: { ex: "http://example/" }
 base: "http://example/"
@@ -254,7 +312,9 @@ vars:
 ---
 {% set slug = sparql(query="SELECT ?s WHERE { ?s a ex:Type }", var="s") %}
 {{name}} :: {{license}} :: {{ local(iri=slug) }}
-"#).unwrap();
+"#,
+        )
+        .unwrap();
 
         let mut vars = BTreeMap::new();
         vars.insert("name".into(), "WidgetX".into());
@@ -264,6 +324,4 @@ vars:
         assert!(!out.exists());
         // The test still validates that the template processing works correctly
     }
-
 }
-

@@ -32,7 +32,9 @@ where
     V: std::str::FromStr,
     V::Err: ToString,
 {
-    let pos = s.find('=').ok_or_else(|| format!("invalid KEY=value: no `=` found in `{s}`"))?;
+    let pos = s
+        .find('=')
+        .ok_or_else(|| format!("invalid KEY=value: no `=` found in `{s}`"))?;
     let key = s[..pos].parse().map_err(|e: K::Err| e.to_string())?;
     let val = s[pos + 1..].parse().map_err(|e: V::Err| e.to_string())?;
     Ok((key, val))
@@ -43,22 +45,22 @@ pub fn run(args: &GenArgs) -> Result<()> {
     let cache_manager = CacheManager::new()?;
     let project_dir = std::env::current_dir()?;
     let lockfile_manager = LockfileManager::new(&project_dir);
-    
+
     // Create resolver
     let resolver = TemplateResolver::new(cache_manager, lockfile_manager);
-    
+
     // Resolve template
     let template_source = resolver.resolve(&args.template)?;
-    
+
     // Build pipeline (use default prefixes for now)
     let mut pipeline = PipelineBuilder::new().build()?;
-    
+
     // Convert vars to BTreeMap
     let vars: BTreeMap<String, String> = args.vars.iter().cloned().collect();
-    
+
     // Render template
     let plan = pipeline.render_file(&template_source.template_path, &vars, args.dry)?;
-    
+
     if args.dry {
         println!("DRY RUN - Would generate:");
         println!("  Template: {}", template_source.template_path.display());
@@ -67,6 +69,6 @@ pub fn run(args: &GenArgs) -> Result<()> {
         plan.apply()?;
         println!("Generated successfully");
     }
-    
+
     Ok(())
 }

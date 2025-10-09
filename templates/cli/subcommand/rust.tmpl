@@ -17,7 +17,17 @@ use utils::error::Result;
 
 #[derive(clap::Args, Debug)]
 pub struct {{cmd|title}}Args {
-    // TODO: Add arguments
+    /// Input file or directory
+    #[arg(value_name = "INPUT")]
+    pub input: Option<String>,
+    
+    /// Output file or directory
+    #[arg(short, long, value_name = "OUTPUT")]
+    pub output: Option<String>,
+    
+    /// Verbose output
+    #[arg(short, long)]
+    pub verbose: bool,
 }
 
 pub fn run(args: &{{cmd|title}}Args) -> Result<()> {

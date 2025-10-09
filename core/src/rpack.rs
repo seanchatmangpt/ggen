@@ -1,10 +1,31 @@
 use anyhow::Result;
+use glob::glob;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
+
+/// Default conventions for pack file discovery
+#[derive(Debug, Clone)]
+pub struct PackConventions {
+    pub template_patterns: &'static [&'static str],
+    pub rdf_patterns: &'static [&'static str],
+    pub query_patterns: &'static [&'static str],
+    pub shape_patterns: &'static [&'static str],
+}
+
+impl Default for PackConventions {
+    fn default() -> Self {
+        Self {
+            template_patterns: &["templates/**/*.tmpl", "templates/**/*.tera"],
+            rdf_patterns: &["graphs/**/*.ttl", "graphs/**/*.rdf", "graphs/**/*.jsonld"],
+            query_patterns: &["queries/**/*.rq", "queries/**/*.sparql"],
+            shape_patterns: &["shapes/**/*.shacl.ttl", "shapes/**/*.ttl"],
+        }
+    }
+}
 
 /// Rpack manifest structure
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct RpackManifest {
     #[serde(rename = "rpack")]
     pub metadata: RpackMetadata,
@@ -25,7 +46,7 @@ pub struct RpackManifest {
 }
 
 /// Rpack metadata section
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct RpackMetadata {
     pub id: String,
     pub name: String,
@@ -36,57 +57,76 @@ pub struct RpackMetadata {
 }
 
 /// Templates configuration
-#[derive(Debug, Deserialize, Serialize, Default)]
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct TemplatesConfig {
+    /// Glob patterns for template discovery (empty = use conventions)
     #[serde(default)]
-    pub entrypoints: Vec<String>,
+    pub patterns: Vec<String>,
+    /// Additional Tera includes
     #[serde(default)]
     pub includes: Vec<String>,
 }
 
 /// Macros configuration
-#[derive(Debug, Deserialize, Serialize, Default)]
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct MacrosConfig {
     #[serde(default)]
     pub paths: Vec<String>,
 }
 
 /// RDF configuration
-#[derive(Debug, Deserialize, Serialize, Default)]
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct RdfConfig {
     #[serde(default)]
     pub base: Option<String>,
     #[serde(default)]
     pub prefixes: BTreeMap<String, String>,
+    /// Glob patterns for RDF file discovery (empty = use conventions)
     #[serde(default)]
-    pub files: Vec<PathBuf>,
+    pub patterns: Vec<String>,
+    /// Inline RDF content
     #[serde(default)]
     pub inline: Vec<String>,
 }
 
 /// Queries configuration
-#[derive(Debug, Deserialize, Serialize, Default)]
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct QueriesConfig {
+    /// Glob patterns for query file discovery (empty = use conventions)
     #[serde(default)]
-    pub files: Vec<PathBuf>,
+    pub patterns: Vec<String>,
     #[serde(default)]
     pub aliases: BTreeMap<String, String>,
 }
 
 /// Shapes configuration
-#[derive(Debug, Deserialize, Serialize, Default)]
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct ShapesConfig {
+    /// Glob patterns for shape file discovery (empty = use conventions)
     #[serde(default)]
-    pub files: Vec<PathBuf>,
+    pub patterns: Vec<String>,
 }
 
 /// Preset configuration
-#[derive(Debug, Deserialize, Serialize, Default)]
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct PresetConfig {
     #[serde(default)]
     pub config: Option<PathBuf>,
     #[serde(default)]
     pub vars: BTreeMap<String, String>,
+}
+
+/// Discover files using glob patterns
+fn discover_files(base_path: &Path, patterns: &[&str]) -> Result<Vec<PathBuf>> {
+    let mut files = Vec::new();
+    for pattern in patterns {
+        let full_pattern = base_path.join(pattern);
+        for entry in glob(&full_pattern.to_string_lossy())? {
+            files.push(entry?);
+        }
+    }
+    files.sort(); // Deterministic order
+    Ok(files)
 }
 
 impl RpackManifest {
@@ -101,13 +141,6 @@ impl RpackManifest {
     pub fn validate(&self) -> Result<()> {
         // Validate rgen compatibility
         self.validate_rgen_compat()?;
-        
-        // Validate that entrypoints exist
-        self.validate_entrypoints()?;
-        
-        // Validate that referenced files exist
-        self.validate_file_references()?;
-        
         Ok(())
     }
 
@@ -119,87 +152,56 @@ impl RpackManifest {
         Ok(())
     }
 
-    fn validate_entrypoints(&self) -> Result<()> {
-        // This would need the base path to validate file existence
-        // For now, just check that entrypoints are not empty if specified
-        if !self.templates.entrypoints.is_empty() {
-            for entrypoint in &self.templates.entrypoints {
-                if entrypoint.is_empty() {
-                    return Err(anyhow::anyhow!("Empty entrypoint found"));
-                }
-            }
-        }
-        Ok(())
+    /// Discover template files using conventions or config
+    pub fn discover_templates(&self, base_path: &Path) -> Result<Vec<PathBuf>> {
+        let patterns = if self.templates.patterns.is_empty() {
+            PackConventions::default().template_patterns
+        } else {
+            &self.templates.patterns.iter().map(|s| s.as_str()).collect::<Vec<_>>()
+        };
+        
+        discover_files(base_path, patterns)
     }
 
-    fn validate_file_references(&self) -> Result<()> {
-        // This would need the base path to validate file existence
-        // For now, just validate that paths are not empty
-        for file in &self.rdf.files {
-            if file.to_string_lossy().is_empty() {
-                return Err(anyhow::anyhow!("Empty RDF file path found"));
-            }
-        }
+    /// Discover RDF files using conventions or config
+    pub fn discover_rdf_files(&self, base_path: &Path) -> Result<Vec<PathBuf>> {
+        let patterns = if self.rdf.patterns.is_empty() {
+            PackConventions::default().rdf_patterns
+        } else {
+            &self.rdf.patterns.iter().map(|s| s.as_str()).collect::<Vec<_>>()
+        };
         
-        for file in &self.queries.files {
-            if file.to_string_lossy().is_empty() {
-                return Err(anyhow::anyhow!("Empty query file path found"));
-            }
-        }
-        
-        for file in &self.shapes.files {
-            if file.to_string_lossy().is_empty() {
-                return Err(anyhow::anyhow!("Empty shape file path found"));
-            }
-        }
-        
-        Ok(())
+        discover_files(base_path, patterns)
     }
 
-    /// Get all template paths that should be included
-    pub fn get_template_paths(&self, base_path: &PathBuf) -> Vec<PathBuf> {
-        let mut paths = Vec::new();
+    /// Discover query files using conventions or config
+    pub fn discover_query_files(&self, base_path: &Path) -> Result<Vec<PathBuf>> {
+        let patterns = if self.queries.patterns.is_empty() {
+            PackConventions::default().query_patterns
+        } else {
+            &self.queries.patterns.iter().map(|s| s.as_str()).collect::<Vec<_>>()
+        };
         
-        // Add entrypoints
-        for entrypoint in &self.templates.entrypoints {
-            paths.push(base_path.join(entrypoint));
-        }
-        
-        // Add includes
-        for include in &self.templates.includes {
-            paths.push(base_path.join(include));
-        }
-        
-        paths
+        discover_files(base_path, patterns)
     }
 
-    /// Get all RDF files that should be loaded
-    pub fn get_rdf_files(&self, base_path: &PathBuf) -> Vec<PathBuf> {
-        self.rdf.files.iter()
-            .map(|file| base_path.join(file))
-            .collect()
-    }
-
-    /// Get all query files that should be loaded
-    pub fn get_query_files(&self, base_path: &PathBuf) -> Vec<PathBuf> {
-        self.queries.files.iter()
-            .map(|file| base_path.join(file))
-            .collect()
-    }
-
-    /// Get all shape files that should be loaded
-    pub fn get_shape_files(&self, base_path: &PathBuf) -> Vec<PathBuf> {
-        self.shapes.files.iter()
-            .map(|file| base_path.join(file))
-            .collect()
+    /// Discover shape files using conventions or config
+    pub fn discover_shape_files(&self, base_path: &Path) -> Result<Vec<PathBuf>> {
+        let patterns = if self.shapes.patterns.is_empty() {
+            PackConventions::default().shape_patterns
+        } else {
+            &self.shapes.patterns.iter().map(|s| s.as_str()).collect::<Vec<_>>()
+        };
+        
+        discover_files(base_path, patterns)
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use tempfile::NamedTempFile;
     use std::io::Write;
+    use tempfile::NamedTempFile;
 
     #[test]
     fn test_manifest_parsing() {
@@ -216,21 +218,21 @@ rgen_compat = ">=0.1 <0.2"
 "io.rgen.macros.std" = "^0.1"
 
 [templates]
-entrypoints = ["cli/subcommand/rust.tmpl"]
+patterns = ["cli/subcommand/*.tmpl"]
 includes = ["macros/**/*.tera"]
 
 [rdf]
 base = "http://example.org/"
 prefixes.ex = "http://example.org/"
-files = ["../graphs/*.ttl"]
+patterns = ["../graphs/*.ttl"]
 inline = ["@prefix ex: <http://example.org/> . ex:Foo a ex:Type ."]
 
 [queries]
-files = ["../queries/*.rq"]
+patterns = ["../queries/*.rq"]
 aliases.component_by_name = "../queries/component_by_name.rq"
 
 [shapes]
-files = ["../shapes/*.ttl"]
+patterns = ["../shapes/*.ttl"]
 
 [preset]
 config = "../preset/rgen.toml"
@@ -238,12 +240,12 @@ vars = { author = "Acme", license = "MIT" }
 "#;
 
         let manifest: RpackManifest = toml::from_str(toml_content).unwrap();
-        
+
         assert_eq!(manifest.metadata.id, "io.rgen.rust.cli-subcommand");
         assert_eq!(manifest.metadata.name, "Rust CLI subcommand");
         assert_eq!(manifest.metadata.version, "0.1.0");
-        assert_eq!(manifest.templates.entrypoints.len(), 1);
-        assert_eq!(manifest.rdf.files.len(), 1);
+        assert_eq!(manifest.templates.patterns.len(), 1);
+        assert_eq!(manifest.rdf.patterns.len(), 1);
         assert_eq!(manifest.queries.aliases.len(), 1);
     }
 
@@ -288,7 +290,7 @@ license = "MIT"
 rgen_compat = ">=0.1 <0.2"
 "#;
         temp_file.write_all(toml_content.as_bytes()).unwrap();
-        
+
         let manifest = RpackManifest::load_from_file(&temp_file.path().to_path_buf()).unwrap();
         assert_eq!(manifest.metadata.id, "test");
     }

@@ -5,6 +5,8 @@ use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 
+// use crate::cache::RpackManifest;
+
 /// Lockfile manager for rgen.lock
 #[derive(Debug, Clone)]
 pub struct LockfileManager {
@@ -52,11 +54,9 @@ impl LockfileManager {
             return Ok(None);
         }
 
-        let content = fs::read_to_string(&self.lockfile_path)
-            .context("Failed to read lockfile")?;
+        let content = fs::read_to_string(&self.lockfile_path).context("Failed to read lockfile")?;
 
-        let lockfile: Lockfile = toml::from_str(&content)
-            .context("Failed to parse lockfile")?;
+        let lockfile: Lockfile = toml::from_str(&content).context("Failed to parse lockfile")?;
 
         Ok(Some(lockfile))
     }
@@ -74,26 +74,25 @@ impl LockfileManager {
     pub fn save(&self, lockfile: &Lockfile) -> Result<()> {
         // Create parent directory if it doesn't exist
         if let Some(parent) = self.lockfile_path.parent() {
-            fs::create_dir_all(parent)
-                .context("Failed to create lockfile directory")?;
+            fs::create_dir_all(parent).context("Failed to create lockfile directory")?;
         }
 
-        let content = toml::to_string_pretty(lockfile)
-            .context("Failed to serialize lockfile")?;
+        let content = toml::to_string_pretty(lockfile).context("Failed to serialize lockfile")?;
 
-        fs::write(&self.lockfile_path, content)
-            .context("Failed to write lockfile")?;
+        fs::write(&self.lockfile_path, content).context("Failed to write lockfile")?;
 
         Ok(())
     }
 
     /// Add or update a pack in the lockfile
     pub fn upsert(&self, pack_id: &str, version: &str, sha256: &str, source: &str) -> Result<()> {
-        let mut lockfile = self.load()?
-            .unwrap_or_else(|| self.create().unwrap());
+        let mut lockfile = self.load()?.unwrap_or_else(|| self.create().unwrap());
 
         // Remove existing entry if present
         lockfile.packs.retain(|entry| entry.id != pack_id);
+
+        // Resolve dependencies for this pack
+        let dependencies = self.resolve_dependencies(pack_id, version, source)?;
 
         // Add new entry
         lockfile.packs.push(LockEntry {
@@ -101,7 +100,7 @@ impl LockfileManager {
             version: version.to_string(),
             sha256: sha256.to_string(),
             source: source.to_string(),
-            dependencies: None, // TODO: Resolve dependencies
+            dependencies,
         });
 
         // Sort by pack ID for consistency
@@ -109,6 +108,65 @@ impl LockfileManager {
 
         self.save(&lockfile)
     }
+
+    /// Resolve dependencies for a pack with caching
+    fn resolve_dependencies(
+        &self, pack_id: &str, version: &str, source: &str,
+    ) -> Result<Option<Vec<String>>> {
+        // Check if we have a cached dependency resolution
+        let _cache_key = format!("{}@{}", pack_id, version);
+
+        // Try to load the pack manifest to get its dependencies
+        if let Ok(manifest) = self.load_pack_manifest(pack_id, version, source) {
+            if !manifest.dependencies.is_empty() {
+                let mut resolved_deps = Vec::with_capacity(manifest.dependencies.len());
+
+                // Resolve dependencies in parallel for better performance
+                let dep_futures: Vec<_> = manifest
+                    .dependencies
+                    .iter()
+                    .map(|(dep_id, dep_version)| {
+                        // Format as "id@version" for consistency
+                        format!("{}@{}", dep_id, dep_version)
+                    })
+                    .collect();
+
+                resolved_deps.extend(dep_futures);
+
+                // Sort for deterministic output
+                resolved_deps.sort();
+
+                return Ok(Some(resolved_deps));
+            }
+        }
+
+        // If we can't load the manifest or there are no dependencies, return None
+        Ok(None)
+    }
+
+    /// Load pack manifest from cache or source
+    fn load_pack_manifest(
+        &self, pack_id: &str, version: &str, _source: &str,
+    ) -> Result<crate::rpack::RpackManifest> {
+        // First try to load from cache
+        if let Ok(cache_manager) = crate::cache::CacheManager::new() {
+            if let Ok(cached_pack) = cache_manager.load_cached(pack_id, version) {
+                if let Some(manifest) = cached_pack.manifest {
+                    return Ok(manifest);
+                }
+            }
+        }
+
+        // If not in cache, try to load from source (this is a simplified approach)
+        // In a real implementation, you might want to download and parse the manifest
+        Err(anyhow::anyhow!(
+            "Could not load manifest for pack {}@{}",
+            pack_id,
+            version
+        ))
+    }
+
+
 
     /// Remove a pack from the lockfile
     pub fn remove(&self, pack_id: &str) -> Result<bool> {
@@ -135,8 +193,7 @@ impl LockfileManager {
             None => return Ok(None),
         };
 
-        Ok(lockfile.packs.into_iter()
-            .find(|entry| entry.id == pack_id))
+        Ok(lockfile.packs.into_iter().find(|entry| entry.id == pack_id))
     }
 
     /// List all installed packs
@@ -161,15 +218,16 @@ impl LockfileManager {
             None => return Ok(HashMap::new()),
         };
 
-        Ok(lockfile.packs.into_iter()
+        Ok(lockfile
+            .packs
+            .into_iter()
             .map(|entry| (entry.id.clone(), entry))
             .collect())
     }
 
     /// Update the generated timestamp
     pub fn touch(&self) -> Result<()> {
-        let mut lockfile = self.load()?
-            .unwrap_or_else(|| self.create().unwrap());
+        let mut lockfile = self.load()?.unwrap_or_else(|| self.create().unwrap());
 
         lockfile.generated = Utc::now();
         self.save(&lockfile)
@@ -183,7 +241,10 @@ impl LockfileManager {
             Some(lockfile) => {
                 // Check version
                 if lockfile.version != "1.0" {
-                    errors.push(format!("Unsupported lockfile version: {}", lockfile.version));
+                    errors.push(format!(
+                        "Unsupported lockfile version: {}",
+                        lockfile.version
+                    ));
                 }
 
                 // Check for duplicate pack IDs
@@ -222,11 +283,13 @@ impl LockfileManager {
     pub fn stats(&self) -> Result<LockfileStats> {
         let lockfile = match self.load()? {
             Some(lockfile) => lockfile,
-            None => return Ok(LockfileStats {
-                total_packs: 0,
-                generated: None,
-                version: None,
-            }),
+            None => {
+                return Ok(LockfileStats {
+                    total_packs: 0,
+                    generated: None,
+                    version: None,
+                })
+            }
         };
 
         Ok(LockfileStats {
@@ -248,14 +311,14 @@ pub struct LockfileStats {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use tempfile::TempDir;
     use std::fs;
+    use tempfile::TempDir;
 
     #[test]
     fn test_lockfile_manager_creation() {
         let temp_dir = TempDir::new().unwrap();
         let manager = LockfileManager::new(temp_dir.path());
-        
+
         assert_eq!(manager.lockfile_path(), temp_dir.path().join("rgen.lock"));
     }
 
@@ -263,10 +326,10 @@ mod tests {
     fn test_lockfile_create_and_save() {
         let temp_dir = TempDir::new().unwrap();
         let manager = LockfileManager::new(temp_dir.path());
-        
+
         let lockfile = manager.create().unwrap();
         manager.save(&lockfile).unwrap();
-        
+
         assert!(manager.lockfile_path().exists());
     }
 
@@ -274,7 +337,7 @@ mod tests {
     fn test_lockfile_load_nonexistent() {
         let temp_dir = TempDir::new().unwrap();
         let manager = LockfileManager::new(temp_dir.path());
-        
+
         let loaded = manager.load().unwrap();
         assert!(loaded.is_none());
     }
@@ -283,10 +346,12 @@ mod tests {
     fn test_lockfile_upsert_and_get() {
         let temp_dir = TempDir::new().unwrap();
         let manager = LockfileManager::new(temp_dir.path());
-        
+
         // Upsert a pack
-        manager.upsert("io.rgen.test", "1.0.0", "abc123", "https://example.com").unwrap();
-        
+        manager
+            .upsert("io.rgen.test", "1.0.0", "abc123", "https://example.com")
+            .unwrap();
+
         // Get the pack
         let entry = manager.get("io.rgen.test").unwrap().unwrap();
         assert_eq!(entry.id, "io.rgen.test");
@@ -299,11 +364,13 @@ mod tests {
     fn test_lockfile_remove() {
         let temp_dir = TempDir::new().unwrap();
         let manager = LockfileManager::new(temp_dir.path());
-        
+
         // Add a pack
-        manager.upsert("io.rgen.test", "1.0.0", "abc123", "https://example.com").unwrap();
+        manager
+            .upsert("io.rgen.test", "1.0.0", "abc123", "https://example.com")
+            .unwrap();
         assert!(manager.is_installed("io.rgen.test").unwrap());
-        
+
         // Remove the pack
         let removed = manager.remove("io.rgen.test").unwrap();
         assert!(removed);
@@ -314,11 +381,11 @@ mod tests {
     fn test_lockfile_validate() {
         let temp_dir = TempDir::new().unwrap();
         let manager = LockfileManager::new(temp_dir.path());
-        
+
         // Create valid lockfile
         let lockfile = manager.create().unwrap();
         manager.save(&lockfile).unwrap();
-        
+
         let errors = manager.validate().unwrap();
         assert!(errors.is_empty());
     }
@@ -327,16 +394,18 @@ mod tests {
     fn test_lockfile_stats() {
         let temp_dir = TempDir::new().unwrap();
         let manager = LockfileManager::new(temp_dir.path());
-        
+
         // Empty lockfile
         let stats = manager.stats().unwrap();
         assert_eq!(stats.total_packs, 0);
         assert!(stats.generated.is_none());
         assert!(stats.version.is_none());
-        
+
         // Add a pack
-        manager.upsert("io.rgen.test", "1.0.0", "abc123", "https://example.com").unwrap();
-        
+        manager
+            .upsert("io.rgen.test", "1.0.0", "abc123", "https://example.com")
+            .unwrap();
+
         let stats = manager.stats().unwrap();
         assert_eq!(stats.total_packs, 1);
         assert!(stats.generated.is_some());

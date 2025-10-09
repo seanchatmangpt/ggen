@@ -1,0 +1,11 @@
+---
+to: "output/{{ name }}.txt"
+vars:
+  name: "test"
+---
+Hello {{ name }}!
+
+This is a test template with:
+- Name: {{ name }}
+- Name (pascal): {{ Name }}
+- Current time: {{ "now" | local }}

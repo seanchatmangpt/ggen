@@ -1,5 +1,5 @@
 //! Core graph-aware code generation engine
-//! 
+//!
 //! This crate provides the core functionality for RDF-based code generation,
 //! including template processing, RDF handling, and deterministic output generation.
 
@@ -15,16 +15,18 @@ pub mod poc;
 pub mod register;
 pub mod registry;
 pub mod resolver;
+pub mod rpack;
 pub mod template;
 pub mod tera_env;
 pub mod validate_frontmatter;
 
 // Re-export commonly used types for convenience
-pub use cache::{CacheManager, CachedPack, RpackManifest};
+pub use cache::{CacheManager, CachedPack};
 pub use generator::{GenContext, Generator};
 pub use graph::Graph;
-pub use lockfile::{LockfileManager, LockEntry, Lockfile};
+pub use lockfile::{LockEntry, Lockfile, LockfileManager};
 pub use pipeline::{Pipeline, PipelineBuilder};
 pub use registry::{RegistryClient, RegistryIndex, ResolvedPack, SearchResult};
-pub use resolver::{TemplateResolver, TemplateSource, TemplateInfo};
+pub use resolver::{TemplateResolver, TemplateSearchResult, TemplateSource};
+pub use rpack::RpackManifest;
 pub use template::Template;

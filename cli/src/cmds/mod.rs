@@ -1,5 +1,10 @@
 pub mod add;
+pub mod categories;
+pub mod completion;
 pub mod gen;
+pub mod graph;
+pub mod hazard;
+pub mod lint;
 pub mod list;
 pub mod packs;
 pub mod remove;
@@ -7,10 +12,6 @@ pub mod search;
 pub mod show;
 pub mod update;
 pub mod validate;
-pub mod lint;
-pub mod graph;
-pub mod completion;
-pub mod hazard;
 
 use clap::Subcommand;
 use utils::project_config::RgenConfig;
@@ -19,6 +20,8 @@ use utils::project_config::RgenConfig;
 pub enum Commands {
     #[command(name = "search", about = "Search for rpacks in registry")]
     Search(search::SearchArgs),
+    #[command(name = "categories", about = "Show popular categories and keywords")]
+    Categories(categories::CategoriesArgs),
     #[command(name = "add", about = "Add an rpack to the project")]
     Add(add::AddArgs),
     #[command(name = "remove", about = "Remove an rpack from the project")]
@@ -62,6 +65,7 @@ impl Commands {
     pub async fn run(&self) -> utils::error::Result<()> {
         match self {
             Commands::Search(args) => Ok(search::run(args).await?),
+            Commands::Categories(args) => Ok(categories::run(args).await?),
             Commands::Add(args) => Ok(add::run(args).await?),
             Commands::Remove(args) => Ok(remove::run(args)?),
             Commands::Packs => Ok(packs::run()?),
@@ -77,9 +81,12 @@ impl Commands {
         }
     }
 
-    pub async fn run_with_config(&self, _rgen_config: Option<RgenConfig>) -> utils::error::Result<()> {
+    pub async fn run_with_config(
+        &self, _rgen_config: Option<RgenConfig>,
+    ) -> utils::error::Result<()> {
         match self {
             Commands::Search(args) => Ok(search::run(args).await?),
+            Commands::Categories(args) => Ok(categories::run(args).await?),
             Commands::Add(args) => Ok(add::run(args).await?),
             Commands::Remove(args) => Ok(remove::run(args)?),
             Commands::Packs => Ok(packs::run()?),
