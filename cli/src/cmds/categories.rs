@@ -1,7 +1,7 @@
 use clap::Args;
 use colored::*;
 use rgen_core::RegistryClient;
-use utils::error::Result;
+use rgen_utils::error::Result;
 
 #[derive(Args, Debug)]
 pub struct CategoriesArgs {

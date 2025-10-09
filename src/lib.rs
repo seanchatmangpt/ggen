@@ -7,4 +7,4 @@
 pub mod mock_registry;
 
 // Re-export commonly used types
-pub use utils::error::Result;
+pub use rgen_utils::error::Result;

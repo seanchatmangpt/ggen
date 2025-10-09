@@ -2,7 +2,7 @@ use clap::Args;
 use rgen_core::graph::Graph;
 use std::io::Write;
 use std::path::PathBuf;
-use utils::error::Result;
+use rgen_utils::error::Result;
 
 #[derive(Args, Debug)]
 pub struct GraphArgs {

@@ -17,14 +17,14 @@ rgen is a deterministic, language-agnostic code generation framework that treats
 members = ["utils", "cli", "rgen-core"]
 
 [features]
-nightly = ["utils/nightly"]
-termlog = ["utils/termlog"]
-journald = ["utils/journald"]
-syslog = ["utils/syslog"]
+nightly = ["rgen-utils/nightly"]
+termlog = ["rgen-utils/termlog"]
+journald = ["rgen-utils/journald"]
+syslog = ["rgen-utils/syslog"]
 
 [dependencies]
-utils = { path = "utils", version = "0.1.0" }
-cli = { path = "cli", version = "0.1.0" }
+rgen-utils = { path = "utils", version = "0.1.0" }
+rgen-cli = { path = "cli", version = "0.1.0" }
 rgen-core = { path = "rgen-core", version = "0.1.0" }
 human-panic = "2.0.0"
 better-panic = "0.3.0"

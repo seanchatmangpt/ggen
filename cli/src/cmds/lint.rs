@@ -2,7 +2,7 @@ use clap::Args;
 use std::collections::BTreeMap;
 use std::path::PathBuf;
 use tera::Context;
-use utils::error::Result;
+use rgen_utils::error::Result;
 
 use rgen_core::graph::Graph;
 use rgen_core::template::Template;

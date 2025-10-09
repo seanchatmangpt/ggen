@@ -4,8 +4,8 @@ use human_panic::setup_panic;
 #[cfg(debug_assertions)]
 extern crate better_panic;
 
-use utils::app_config::AppConfig;
-use utils::error::Result;
+use rgen_utils::app_config::AppConfig;
+use rgen_utils::error::Result;
 
 // Declare test modules
 #[allow(dead_code)]
