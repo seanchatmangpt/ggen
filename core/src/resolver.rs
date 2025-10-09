@@ -1,6 +1,6 @@
 use anyhow::{Context, Result};
 use glob::glob;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 use crate::cache::{CacheManager, CachedPack};
 use crate::lockfile::LockfileManager;
@@ -266,84 +266,7 @@ impl TemplateResolver {
         Ok((frontmatter, content))
     }
 
-    /// Validate that all referenced templates exist
-    pub fn validate_templates(&self) -> Result<Vec<TemplateValidationError>> {
-        let installed_packs = self.lockfile_manager.installed_packs()?;
-        let mut errors = Vec::new();
 
-        for (pack_id, lock_entry) in installed_packs {
-            if let Ok(cached_pack) = self
-                .cache_manager
-                .load_cached(&pack_id, &lock_entry.version)
-            {
-                // Check if templates directory exists
-                let templates_dir = cached_pack.path.join("templates");
-                if !templates_dir.exists() {
-                    errors.push(TemplateValidationError {
-                        pack_id: pack_id.clone(),
-                        error: "Templates directory not found".to_string(),
-                    });
-                    continue;
-                }
-
-                // Check if any templates exist
-                let templates = self.find_templates_in_pack(&cached_pack)?;
-                if templates.is_empty() {
-                    errors.push(TemplateValidationError {
-                        pack_id: pack_id.clone(),
-                        error: "No template files found".to_string(),
-                    });
-                }
-
-                // Validate each template
-                for template_path in templates {
-                    if let Err(e) = self.validate_template_file(&template_path) {
-                        errors.push(TemplateValidationError {
-                            pack_id: pack_id.clone(),
-                            error: format!(
-                                "Template '{}': {}",
-                                template_path
-                                    .file_name()
-                                    .unwrap_or_default()
-                                    .to_string_lossy(),
-                                e
-                            ),
-                        });
-                    }
-                }
-            }
-        }
-
-        Ok(errors)
-    }
-
-    /// Validate a single template file
-    fn validate_template_file(&self, template_path: &Path) -> Result<()> {
-        let content =
-            std::fs::read_to_string(template_path).context("Failed to read template file")?;
-
-        // Check if file is not empty
-        if content.trim().is_empty() {
-            anyhow::bail!("Template file is empty");
-        }
-
-        // Try to parse frontmatter
-        let (frontmatter, _) = self.parse_frontmatter(&content)?;
-
-        // Validate frontmatter structure if present
-        if let Some(fm) = frontmatter {
-            if let Some(fm_map) = fm.as_mapping() {
-                // Check for required fields
-                if let Some(to_field) = fm_map.get("to") {
-                    if !to_field.is_string() {
-                        anyhow::bail!("Frontmatter 'to' field must be a string");
-                    }
-                }
-            }
-        }
-
-        Ok(())
-    }
 }
 
 /// Template information
@@ -356,12 +279,6 @@ pub struct TemplateInfo {
     pub pack_info: Option<crate::rpack::RpackMetadata>,
 }
 
-/// Template validation error
-#[derive(Debug, Clone)]
-pub struct TemplateValidationError {
-    pub pack_id: String,
-    pub error: String,
-}
 
 #[cfg(test)]
 mod tests {
@@ -546,72 +463,6 @@ Hello {{ name }}
         assert_eq!(template_content, "Hello World");
     }
 
-    #[test]
-    fn test_validate_template_file_valid() {
-        let temp_dir = TempDir::new().unwrap();
-        let template_path = temp_dir.path().join("test.tmpl");
-        
-        let content = r#"---
-to: "output.txt"
----
-Hello World
-"#;
-        fs::write(&template_path, content).unwrap();
-
-        let cache_manager = CacheManager::with_dir(temp_dir.path().join("cache")).unwrap();
-        let lockfile_manager = LockfileManager::new(temp_dir.path());
-        let resolver = TemplateResolver::new(cache_manager, lockfile_manager);
-
-        // Should validate successfully
-        assert!(resolver.validate_template_file(&template_path).is_ok());
-    }
-
-    #[test]
-    fn test_validate_template_file_empty() {
-        let temp_dir = TempDir::new().unwrap();
-        let template_path = temp_dir.path().join("empty.tmpl");
-        fs::write(&template_path, "").unwrap();
-
-        let cache_manager = CacheManager::with_dir(temp_dir.path().join("cache")).unwrap();
-        let lockfile_manager = LockfileManager::new(temp_dir.path());
-        let resolver = TemplateResolver::new(cache_manager, lockfile_manager);
-
-        // Should fail validation for empty file
-        assert!(resolver.validate_template_file(&template_path).is_err());
-    }
-
-    #[test]
-    fn test_validate_template_file_invalid_frontmatter() {
-        let temp_dir = TempDir::new().unwrap();
-        let template_path = temp_dir.path().join("invalid.tmpl");
-        
-        let content = r#"---
-to: 123
----
-Hello World
-"#;
-        fs::write(&template_path, content).unwrap();
-
-        let cache_manager = CacheManager::with_dir(temp_dir.path().join("cache")).unwrap();
-        let lockfile_manager = LockfileManager::new(temp_dir.path());
-        let resolver = TemplateResolver::new(cache_manager, lockfile_manager);
-
-        // Should fail validation for invalid frontmatter
-        assert!(resolver.validate_template_file(&template_path).is_err());
-    }
-
-    #[test]
-    fn test_validate_template_file_nonexistent() {
-        let temp_dir = TempDir::new().unwrap();
-        let template_path = temp_dir.path().join("nonexistent.tmpl");
-
-        let cache_manager = CacheManager::with_dir(temp_dir.path().join("cache")).unwrap();
-        let lockfile_manager = LockfileManager::new(temp_dir.path());
-        let resolver = TemplateResolver::new(cache_manager, lockfile_manager);
-
-        // Should fail validation for nonexistent file
-        assert!(resolver.validate_template_file(&template_path).is_err());
-    }
 
     #[test]
     fn test_find_templates_in_pack_with_manifest() {
@@ -721,14 +572,4 @@ Hello World
         assert!(resolver.get_pack_templates("nonexistent.pack").is_err());
     }
 
-    #[test]
-    fn test_validate_templates_empty() {
-        let temp_dir = TempDir::new().unwrap();
-        let cache_manager = CacheManager::with_dir(temp_dir.path().join("cache")).unwrap();
-        let lockfile_manager = LockfileManager::new(temp_dir.path());
-        let resolver = TemplateResolver::new(cache_manager, lockfile_manager);
-
-        let errors = resolver.validate_templates().unwrap();
-        assert!(errors.is_empty());
-    }
 }

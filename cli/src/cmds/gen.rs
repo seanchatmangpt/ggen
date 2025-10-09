@@ -72,3 +72,69 @@ pub fn run(args: &GenArgs) -> Result<()> {
 
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_key_val_valid() {
+        let result = parse_key_val::<String, String>("name=value");
+        assert!(result.is_ok());
+        let (key, val) = result.unwrap();
+        assert_eq!(key, "name");
+        assert_eq!(val, "value");
+    }
+
+    #[test]
+    fn test_parse_key_val_with_spaces() {
+        let result = parse_key_val::<String, String>("name=hello world");
+        assert!(result.is_ok());
+        let (key, val) = result.unwrap();
+        assert_eq!(key, "name");
+        assert_eq!(val, "hello world");
+    }
+
+    #[test]
+    fn test_parse_key_val_integer() {
+        let result = parse_key_val::<String, i32>("count=42");
+        assert!(result.is_ok());
+        let (key, val) = result.unwrap();
+        assert_eq!(key, "count");
+        assert_eq!(val, 42);
+    }
+
+    #[test]
+    fn test_parse_key_val_no_equals() {
+        let result = parse_key_val::<String, String>("invalid");
+        assert!(result.is_err());
+        assert!(result.unwrap_err().contains("no `=` found"));
+    }
+
+    #[test]
+    fn test_parse_key_val_empty_key() {
+        let result = parse_key_val::<String, String>("=value");
+        assert!(result.is_ok());
+        let (key, val) = result.unwrap();
+        assert_eq!(key, "");
+        assert_eq!(val, "value");
+    }
+
+    #[test]
+    fn test_parse_key_val_empty_value() {
+        let result = parse_key_val::<String, String>("key=");
+        assert!(result.is_ok());
+        let (key, val) = result.unwrap();
+        assert_eq!(key, "key");
+        assert_eq!(val, "");
+    }
+
+    #[test]
+    fn test_parse_key_val_multiple_equals() {
+        let result = parse_key_val::<String, String>("key=value=extra");
+        assert!(result.is_ok());
+        let (key, val) = result.unwrap();
+        assert_eq!(key, "key");
+        assert_eq!(val, "value=extra");
+    }
+}

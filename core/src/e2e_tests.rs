@@ -1,10 +1,9 @@
 //! End-to-end tests for the rgen core functionality
 //! These tests verify the complete pipeline from template parsing to code generation
 
+use anyhow::Result;
 use std::collections::BTreeMap;
 use tempfile::TempDir;
-use utils::error::Result;
-
 use crate::generator::Generator;
 
 #[cfg(test)]
@@ -127,79 +126,6 @@ pub struct Product {{
         Ok(())
     }
 
-    #[test]
-    #[ignore] // SHACL validation not yet implemented
-    fn test_end_to_end_with_shacl_validation() -> Result<()> {
-        let temp_dir = TempDir::new()?;
-        let output_dir = temp_dir.path().join("output");
-        std::fs::create_dir_all(&output_dir)?;
-
-        // Create SHACL shape
-        let shape_content = r#"@prefix sh: <http://www.w3.org/ns/shacl#> .
-@prefix ex: <http://example.org/> .
-@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-
-ex:UserShape sh:targetClass ex:User ;
-    sh:property [
-        sh:path rdfs:label ;
-        sh:datatype <http://www.w3.org/2001/XMLSchema#string> ;
-        sh:minCount 1 ;
-        sh:maxCount 1 ;
-    ] .
-"#;
-
-        let shape_path = temp_dir.path().join("shapes.ttl");
-        std::fs::write(&shape_path, shape_content)?;
-
-        // Create RDF data
-        let rdf_content = r#"@prefix ex: <http://example.org/> .
-@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-
-ex:alice a ex:User ;
-    rdfs:label "Alice" .
-"#;
-
-        let rdf_path = temp_dir.path().join("data.ttl");
-        std::fs::write(&rdf_path, rdf_content)?;
-
-        // Create template with SHACL validation
-        let template_content = r#"---
-to: "validated_models.rs"
-rdf:
-  - "data.ttl"
-shape:
-  - "shapes.ttl"
----
-// Models validated against SHACL shapes
-
-pub struct User {
-    pub name: String,
-}
-
-impl User {
-    pub fn new(name: String) -> Self {
-        Self { name }
-    }
-}
-"#;
-
-        let template_path = temp_dir.path().join("validated.tmpl");
-        std::fs::write(&template_path, template_content)?;
-
-        // Create generator and run
-        use crate::pipeline::Pipeline;
-        let pipeline = Pipeline::new()?;
-        let ctx = crate::generator::GenContext::new(template_path, output_dir.clone());
-        let mut generator = Generator::new(pipeline, ctx);
-        let result_path = generator.generate()?;
-
-        // Verify the generated file
-        assert!(result_path.exists());
-        let generated_content = std::fs::read_to_string(&result_path)?;
-        assert!(generated_content.contains("pub struct User"));
-
-        Ok(())
-    }
 
     #[test]
     fn test_end_to_end_deterministic_output() -> Result<()> {

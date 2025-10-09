@@ -1,14 +1,147 @@
 # CLI
 
+## Marketplace Commands
+
+### Search and Discovery
+
 ```bash
-rgen list
-rgen show <scope> <action> [--vars k=v ...]
-rgen validate <scope> <action> [--vars k=v ...]
-rgen gen <scope> <action> [--vars k=v ...] [--dry]
-rgen graph export <scope> <action> --fmt ttl|jsonld
+# Search for rpacks by keywords
+rgen search <query>
+
+# Examples:
+rgen search rust cli
+rgen search python api
+rgen search typescript react
+
+# Browse popular categories
+rgen categories
+
+# Get detailed rpack information
+rgen show <rpack-id>
 ```
 
-Precedence: `CLI --vars` > `SPARQL vars` > `frontmatter vars`.
+### Installation and Management
+
+```bash
+# Install rpack (latest version)
+rgen add <rpack-id>
+
+# Install specific version
+rgen add <rpack-id>@<version>
+
+# Examples:
+rgen add io.rgen.rust.cli-subcommand
+rgen add io.rgen.rust.cli-subcommand@0.2.0
+
+# List installed rpacks
+rgen packs
+
+# Update all rpacks to latest compatible versions
+rgen update
+
+# Update specific rpack
+rgen update <rpack-id>
+
+# Remove rpack
+rgen remove <rpack-id>
+```
+
+### Rpack Publishing (for authors)
+
+```bash
+# Initialize new rpack
+rgen pack init
+
+# Lint rpack for publishing
+rgen pack lint
+
+# Run tests
+rgen pack test
+
+# Publish to registry
+rgen pack publish
+```
+
+## Generation Commands
+
+### Template Generation
+
+```bash
+# Generate from rpack template
+rgen gen <rpack-id>:<template-path> [--vars k=v ...] [--dry]
+
+# Generate from local template
+rgen gen <scope> <action> [--vars k=v ...] [--dry]
+
+# Examples:
+rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello
+rgen gen cli subcommand --vars cmd=hello summary="Print greeting"
+```
+
+### Template Discovery
+
+```bash
+# List available templates (local + rpacks)
+rgen list
+
+# Show template details
+rgen show <template-ref> [--vars k=v ...]
+
+# Examples:
+rgen show io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl
+rgen show cli subcommand
+```
+
+## Validation Commands
+
+```bash
+# Validate template frontmatter
+rgen validate <template-ref> [--vars k=v ...]
+
+# Lint template with schema validation
+rgen lint <template-ref>
+
+# Examples:
+rgen validate io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl
+rgen lint cli subcommand
+```
+
+## Utility Commands
+
+```bash
+# Export RDF graph
+rgen graph export <template-ref> --fmt ttl|jsonld
+
+# Generate hazard report
+rgen hazard
+
+# Generate shell completion scripts
+rgen completion bash|zsh|fish
+```
+
+## Variable Precedence
+
+Variables are resolved in this order (later values override earlier):
+
+1. **CLI arguments** (`--var key=value`)
+2. **Environment variables** (from `.env` files)
+3. **System environment** (`$HOME`, `$USER`, etc.)
+4. **Rpack variables** (from rpack `rgen.toml`)
+5. **Template frontmatter** (`vars:` section)
+6. **SPARQL variables** (from queries)
+
+## Rpack Template Reference Syntax
+
+When using rpack templates, use the format:
+
+```
+<rpack-id>:<template-path>
+```
+
+Examples:
+- `io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl`
+- `io.rgen.python.api:api/endpoint/fastapi.tmpl`
+- `io.rgen.typescript.react:components/button.tsx.tmpl`
 
 ## Dry-Run Mode
 

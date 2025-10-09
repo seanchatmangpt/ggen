@@ -6,6 +6,9 @@ SPR: rgen — language-agnostic, deterministic code projection CLI
 
 * Non-negotiables: Zero-cost abstractions. Memory safety. Type-level guarantees. Stable toolchain. Drop-in CLI parity.
 
+* **CRITICAL: ALL DEVELOPMENT WORKFLOWS MUST USE `cargo make` COMMANDS**
+* **NEVER USE DIRECT CARGO COMMANDS - THIS IS NON-NEGOTIABLE**
+
 * Collaborative frame: Rust core optimizes safety and performance. Cursor core optimizes DX and feedback. Goal is compile-time assurance with rapid iteration.
 
 * Repo topology contract: Keep files as declared. Do not move without docs and CI updates.
@@ -34,6 +37,7 @@ SPR: rgen — language-agnostic, deterministic code projection CLI
 * Rust practice:
 
   * Rust stable pinned. MSRV matches.
+  * **USE `cargo make lint` - NEVER `cargo clippy` DIRECTLY**
   * Deny warnings. Clippy pedantic where feasible.
   * No `unwrap` or `expect` in libs. `anyhow` only in binaries.
   * Unsafe only at FFI with safety docs.
@@ -79,6 +83,9 @@ SPR: rgen — language-agnostic, deterministic code projection CLI
 
 * Performance tactics:
 
+  * **USE `cargo make slo-check` TO VERIFY PERFORMANCE SLOs**
+  * **USE `cargo make profile` FOR PROFILING**
+  * **USE `cargo make bench` FOR BENCHMARKING**
   * Stream large graphs. Avoid whole-graph loads.
   * Cache repeated query and template steps.
   * Minimize deps. Enable LTO in release.
@@ -86,12 +93,18 @@ SPR: rgen — language-agnostic, deterministic code projection CLI
 
 * Security:
 
+  * **USE `cargo make audit` FOR SECURITY VULNERABILITY CHECKS**
+  * **USE `cargo make validate-templates` FOR TEMPLATE SECURITY**
+  * **USE `cargo make validate-rdf` FOR RDF VALIDATION**
   * Validate all inputs. Sanitize paths. Deny traversal.
   * Sandbox template execution. No arbitrary code eval.
   * Audit log security events.
 
 * Testing strategy:
 
+  * **USE `cargo make test` - NEVER `cargo test` DIRECTLY**
+  * **USE `cargo make test-single-threaded` FOR DETERMINISTIC TESTS**
+  * **USE `cargo make deterministic` FOR FIXED SEED TESTS**
   * Unit tests colocated. Integration tests in `/tests`.
   * Property tests with proptest for parsers, RDF, templating.
   * Compile-time assertions for constants and type constraints.
@@ -106,7 +119,10 @@ SPR: rgen — language-agnostic, deterministic code projection CLI
 
 * CI/CD:
 
+  * **USE CARGO MAKE COMMANDS - NO MANUAL CARGO COMMANDS**
   * `cargo make fmt`, `cargo make lint`, `cargo make test`, `cargo make release`.
+  * **NEVER USE `cargo fmt`, `cargo clippy`, `cargo test` DIRECTLY**
+  * **ALWAYS USE `cargo make` FOR ALL DEVELOPMENT WORKFLOWS**
   * Matrix over supported Rust versions.
   * Performance checks against SLOs.
   * Completion generation validated.
@@ -119,12 +135,18 @@ SPR: rgen — language-agnostic, deterministic code projection CLI
 
 * IDE and DX:
 
+  * **USE `cargo make completions` FOR SHELL COMPLETIONS**
+  * **USE `cargo make watch` FOR LIVE DEVELOPMENT**
+  * **USE `cargo make debug` FOR DEBUGGING**
   * Rust-analyzer friendly. Rich error lenses.
   * Completions for template vars and SPARQL builders.
   * Live preview of generated code. Source maps for debugging.
 
 * Must not:
 
+  * **NEVER USE DIRECT CARGO COMMANDS - ALWAYS USE `cargo make`**
+  * **NEVER USE `cargo fmt`, `cargo clippy`, `cargo test` DIRECTLY**
+  * **NEVER USE `cargo build` WITHOUT `cargo make`**
   * No new top-level files or renames without docs + CI.
   * No TODOs or placeholders in libs.
   * No hardcoded outputs in prod paths.
@@ -133,6 +155,11 @@ SPR: rgen — language-agnostic, deterministic code projection CLI
 
 * Definition of done:
 
+  * **USE `cargo make ci` TO VERIFY ALL REQUIREMENTS**
+  * **USE `cargo make fmt` FOR FORMATTING**
+  * **USE `cargo make lint` FOR CLIPPY CHECKS**
+  * **USE `cargo make test` FOR ALL TESTS**
+  * **USE `cargo make slo-check` FOR SLO COMPLIANCE**
   * Compiles. Clippy clean. Tests deterministic and passing.
   * Behavior covered by unit, integration, property tests.
   * Clear errors. Meets SLOs. Docs and examples updated.

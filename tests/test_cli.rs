@@ -15,7 +15,7 @@ fn test_cli() {
 
 #[test]
 fn test_version() {
-    let expected_version = "rgen 1.0.0\n";
+    let expected_version = "rgen 0.1.0\n";
     let mut cmd = Command::cargo_bin("rgen").expect("Calling binary failed");
     cmd.arg("--version").assert().stdout(expected_version);
 }

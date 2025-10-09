@@ -32,7 +32,7 @@ async fn main() -> Result<()> {
     let _guard = utils::logger::setup_logging()?;
 
     // Initialize tracing for pipeline debugging
-    core::tracing::init_tracing()?;
+    // core::tracing::init_tracing()?; // Temporarily disabled
 
     // Initialize Configuration
     let config_contents = include_str!("resources/rgen_config.toml");

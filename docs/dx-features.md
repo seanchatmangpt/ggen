@@ -1,6 +1,6 @@
-# Rgen DX Features (Non-Marketplace)
+# Rgen DX Features
 
-This document covers all developer experience features in rgen that are independent of the marketplace system. These features focus on ergonomics, authoring workflows, error handling, and development productivity.
+This document covers all developer experience features in rgen, including both marketplace and local template workflows. These features focus on ergonomics, authoring workflows, error handling, and development productivity.
 
 ## CLI Ergonomics
 
@@ -81,6 +81,61 @@ RGEN_TRACE=1 rgen gen cli subcommand name=hello
 # Target output path: src/cmds/hello.rs
 ```
 
+## Marketplace DX Features
+
+### Rpack Development Workflow
+
+```bash
+# Initialize new rpack
+rgen pack init
+
+# Add templates and dependencies
+mkdir -p templates/cli/subcommand
+# Create template files...
+
+# Test rpack locally
+rgen pack test
+
+# Lint for publishing
+rgen pack lint
+
+# Publish to registry
+rgen pack publish
+```
+
+### Rpack Testing Best Practices
+
+```bash
+# Run golden tests
+rgen pack test
+
+# Test with different variables
+rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=test1
+rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=test2
+
+# Verify deterministic output
+rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=test1
+# Should produce identical output
+```
+
+### Rpack Versioning Strategies
+
+```bash
+# Semantic versioning for rpacks
+# Major.Minor.Patch
+# 1.0.0 -> 1.0.1 (patch: bug fixes)
+# 1.0.0 -> 1.1.0 (minor: new features)
+# 1.0.0 -> 2.0.0 (major: breaking changes)
+
+# Update rpack version
+# Edit rgen.toml:
+# version = "0.2.1"
+
+# Test before publishing
+rgen pack test
+rgen pack lint
+```
+
 ## Authoring Loop
 
 ### Live Development Mode
@@ -97,6 +152,22 @@ rgen dev --watch templates/
 
 # Outputs to temp directory with live diff
 # Perfect for template development
+```
+
+### Rpack Development Mode
+
+```bash
+# Watch mode for rpack development
+rgen pack dev --watch
+
+# Automatically re-renders when:
+# - Rpack templates change
+# - Dependencies update
+# - RDF graphs are modified
+# - Tests need re-running
+
+# Outputs to temp directory with live diff
+# Perfect for rpack development
 ```
 
 ### Template Scaffolding

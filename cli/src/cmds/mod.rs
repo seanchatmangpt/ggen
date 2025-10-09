@@ -11,7 +11,6 @@ pub mod remove;
 pub mod search;
 pub mod show;
 pub mod update;
-pub mod validate;
 
 use clap::Subcommand;
 use utils::project_config::RgenConfig;
@@ -37,7 +36,6 @@ pub enum Commands {
     #[command(name = "show", about = "Show template metadata")]
     Show(show::ShowArgs),
     #[command(name = "validate", about = "Validate template frontmatter")]
-    Validate(validate::ValidateArgs),
     #[command(name = "lint", about = "Lint template with schema validation")]
     Lint(lint::LintArgs),
     #[command(name = "graph", about = "Export RDF graph")]
@@ -73,7 +71,6 @@ impl Commands {
             Commands::Gen(args) => Ok(gen::run(args)?),
             Commands::List => list::run(),
             Commands::Show(args) => show::run(args),
-            Commands::Validate(args) => validate::run(args),
             Commands::Lint(args) => lint::run(args),
             Commands::Graph(args) => graph::run(args),
             Commands::Hazard => hazard::run(),
@@ -94,7 +91,6 @@ impl Commands {
             Commands::Gen(args) => Ok(gen::run(args)?),
             Commands::List => list::run(),
             Commands::Show(args) => show::run(args),
-            Commands::Validate(args) => validate::run(args),
             Commands::Lint(args) => lint::run(args),
             Commands::Graph(args) => graph::run(args),
             Commands::Hazard => hazard::run(),
