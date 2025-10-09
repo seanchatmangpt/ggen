@@ -1,3 +1,15 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Seanchatmangpt Tap](#seanchatmangpt-tap)
+  - [Available Formulae](#available-formulae)
+    - [ggen](#ggen)
+  - [How do I install these formulae?](#how-do-i-install-these-formulae)
+  - [Documentation](#documentation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Seanchatmangpt Tap
 
 Homebrew tap for ggen and other tools.
