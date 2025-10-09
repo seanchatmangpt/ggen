@@ -1,4 +1,4 @@
-name: Publish Docs to GitHub Pages
+name: Deploy Documentation to GitHub Pages
 
 on:
   push:
@@ -18,7 +18,7 @@ concurrency:
   cancel-in-running: true
 
 jobs:
-  validate-registry:
+  build-docs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -30,16 +30,20 @@ jobs:
           toolchain: stable
           components: rustfmt, clippy
 
+      - name: Install mdbook
+        run: |
+          cargo install mdbook --no-default-features --features search
+
       - name: Validate registry index
         run: |
           # Check JSON syntax
-          python3 -m json.tool docs/registry/index.json > /dev/null
+          python3 -m json.tool docs/src/registry/index.json > /dev/null
           echo "✅ Registry index JSON is valid"
 
           # Check required fields
           python3 -c "
           import json
-          with open('docs/registry/index.json') as f:
+          with open('docs/src/registry/index.json') as f:
               data = json.load(f)
 
           # Validate structure
@@ -59,35 +63,31 @@ jobs:
           print('✅ Registry structure validation passed')
           "
 
-      - name: Test registry client
+      - name: Build documentation
         run: |
-          cargo make test-marketplace
+          mdbook build docs
+          echo "✅ Documentation built successfully"
 
-  build-and-deploy:
-    needs: validate-registry
+      - name: Validate HTML output
+        run: |
+          # Check that main pages exist
+          test -f docs/book/index.html || (echo "❌ Missing index.html" && exit 1)
+          test -f docs/book/marketplace.html || (echo "❌ Missing marketplace.html" && exit 1)
+          test -f docs/book/registry/index.html || (echo "❌ Missing registry/index.html" && exit 1)
+          echo "✅ HTML validation passed"
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/book
+
+  deploy:
+    needs: build-docs
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-
-      - name: Prepare docs files
-        run: |
-          mkdir -p _site
-          cp -r docs/* _site/
-
-          # The docs/index.html will be used as the main page
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: _site
-
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
