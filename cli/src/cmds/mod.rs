@@ -13,7 +13,7 @@ pub mod show;
 pub mod update;
 
 use clap::Subcommand;
-use rgen_utils::project_config::RgenConfig;
+use ggen_utils::UtilsGgenConfig as GgenConfig;
 
 #[derive(Subcommand, Debug)]
 pub enum Commands {
@@ -60,7 +60,7 @@ pub enum CompletionSubcommand {
 }
 
 impl Commands {
-    pub async fn run(&self) -> rgen_utils::error::Result<()> {
+    pub async fn run(&self) -> ggen_utils::error::Result<()> {
         match self {
             Commands::Search(args) => Ok(search::run(args).await?),
             Commands::Categories(args) => Ok(categories::run(args).await?),
@@ -79,8 +79,8 @@ impl Commands {
     }
 
     pub async fn run_with_config(
-        &self, _rgen_config: Option<RgenConfig>,
-    ) -> rgen_utils::error::Result<()> {
+        &self, _ggen_config: Option<GgenConfig>,
+    ) -> ggen_utils::error::Result<()> {
         match self {
             Commands::Search(args) => Ok(search::run(args).await?),
             Commands::Categories(args) => Ok(categories::run(args).await?),

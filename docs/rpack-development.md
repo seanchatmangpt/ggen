@@ -21,7 +21,7 @@ Rpacks are versioned template collections that can be shared across the rgen com
 rgen pack init
 
 # This creates:
-# ├── rgen.toml          # Rpack manifest
+# ├── ggen.toml          # Rpack manifest
 # ├── templates/          # Template directory
 # ├── macros/            # Macro directory
 # ├── graphs/            # RDF graphs
@@ -33,7 +33,7 @@ rgen pack init
 
 ```
 my-rpack/
-├── rgen.toml              # Rpack manifest
+├── ggen.toml              # Rpack manifest
 ├── templates/             # Template files
 │   └── cli/
 │       └── subcommand/
@@ -52,7 +52,7 @@ my-rpack/
 └── .gitignore             # Git ignore file
 ```
 
-## Rpack Manifest (`rgen.toml`)
+## Rpack Manifest (`ggen.toml`)
 
 ### Basic Manifest
 
@@ -264,7 +264,7 @@ mod tests {
 ### Test Configuration
 
 ```toml
-# rgen.toml
+# ggen.toml
 [tests]
 golden = ["tests/*.rs"]
 variables = [
@@ -305,7 +305,7 @@ rgen pack lint --fix
 
 The linter checks for:
 
-- **Manifest validity**: Correct `rgen.toml` structure
+- **Manifest validity**: Correct `ggen.toml` structure
 - **Template syntax**: Valid YAML frontmatter
 - **RDF validity**: Well-formed RDF graphs
 - **SPARQL syntax**: Valid SPARQL queries
@@ -318,7 +318,7 @@ The linter checks for:
 
 ```bash
 # Update version
-# Edit rgen.toml:
+# Edit ggen.toml:
 # version = "0.2.0"
 
 # Run tests
@@ -401,7 +401,7 @@ Follow semantic versioning (semver):
 ### Adding Dependencies
 
 ```toml
-# rgen.toml
+# ggen.toml
 [dependencies]
 "io.rgen.macros.std" = "^0.2"
 "io.rgen.common.rdf" = "~0.1.0"
@@ -464,7 +464,7 @@ rgen pack resolve
 rgen pack lint --template templates/cli/subcommand/rust.tmpl
 
 # Verify entrypoints in manifest
-cat rgen.toml | grep entrypoints
+cat ggen.toml | grep entrypoints
 ```
 
 #### Dependency Conflicts
@@ -491,7 +491,7 @@ rgen pack lint --sparql-only
 rgen pack test --verbose
 
 # Check test configuration
-cat rgen.toml | grep -A 10 "\[tests\]"
+cat ggen.toml | grep -A 10 "\[tests\]"
 ```
 
 ### Getting Help
@@ -518,7 +518,7 @@ pub fn custom_filter(value: &Value, _: &HashMap<String, Value>) -> Result<Value>
 ### Plugin System
 
 ```toml
-# rgen.toml
+# ggen.toml
 [plugins]
 "io.rgen.plugin.custom" = "^0.1.0"
 ```

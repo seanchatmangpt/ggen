@@ -1,16 +1,16 @@
 [package]
-name = "rgen"
+name = "ggen"
 version = "0.1.0"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 edition = "2021"
-repository = "https://github.com/seanchatmangpt/rgen"
+repository = "https://github.com/seanchatmangpt/ggen"
 readme = "README.md"
 license = "MIT"
 keywords = ["cli", "code-generation", "rdf", "templates"]
-homepage = "https://github.com/seanchatmangpt/rgen"
+homepage = "https://github.com/seanchatmangpt/ggen"
 categories = ["development-tools", "command-line-utilities"]
 description = """
-rgen is a deterministic, language-agnostic code generation framework that treats software artifacts as projections of knowledge graphs.
+ggen is a deterministic, language-agnostic code generation framework that treats software artifacts as projections of knowledge graphs.
 """
 
 # Allow multiple crate versions due to complex dependency tree
@@ -18,18 +18,18 @@ rgen is a deterministic, language-agnostic code generation framework that treats
 multiple_crate_versions = "allow"
 
 [workspace]
-members = ["utils", "cli", "rgen-core"]
+members = ["utils", "cli", "ggen-core"]
 
 [features]
-nightly = ["rgen-utils/nightly"]
-termlog = ["rgen-utils/termlog"]
-journald = ["rgen-utils/journald"]
-syslog = ["rgen-utils/syslog"]
+nightly = ["ggen-utils/nightly"]
+termlog = ["ggen-utils/termlog"]
+journald = ["ggen-utils/journald"]
+syslog = ["ggen-utils/syslog"]
 
 [dependencies]
-rgen-utils = { path = "utils", version = "0.1.0" }
-rgen-cli-lib = { path = "cli", version = "0.1.0" }
-rgen-core = { path = "rgen-core", version = "0.1.0" }
+ggen-utils = { path = "utils", version = "0.1.0" }
+ggen-cli-lib = { path = "cli", version = "0.1.0" }
+ggen-core = { path = "ggen-core", version = "0.1.0" }
 human-panic = "2.0.0"
 better-panic = "0.3.0"
 log = "0.4.27"

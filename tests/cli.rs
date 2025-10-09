@@ -1,9 +1,9 @@
 use anyhow::Result;
 use assert_cmd::Command;
-use predicates::prelude::*;
-use rgen_core::registry::{
+use ggen_core::registry::{
     PackMetadata, RegistryClient, SearchParams, SearchResult, VersionMetadata,
 };
+use predicates::prelude::*;
 use std::collections::HashMap;
 use std::fs;
 use tempfile::TempDir;
@@ -20,9 +20,9 @@ impl MockRegistryClient {
 
         // Add test packs with comprehensive metadata
         packs.insert(
-            "io.rgen.rust.cli-subcommand".to_string(),
+            "io.ggen.rust.cli-subcommand".to_string(),
             PackMetadata {
-                id: "io.rgen.rust.cli-subcommand".to_string(),
+                id: "io.ggen.rust.cli-subcommand".to_string(),
                 name: "Rust CLI Subcommand Generator".to_string(),
                 description:
                     "Generate clap subcommands for Rust CLI applications with full argument parsing"
@@ -40,7 +40,7 @@ impl MockRegistryClient {
                     "help".to_string(),
                 ],
                 category: Some("rust".to_string()),
-                author: Some("rgen-team".to_string()),
+                author: Some("ggen-team".to_string()),
                 latest_version: "1.2.0".to_string(),
                 versions: {
                     let mut versions = HashMap::new();
@@ -48,7 +48,7 @@ impl MockRegistryClient {
                         "1.2.0".to_string(),
                         VersionMetadata {
                             version: "1.2.0".to_string(),
-                            git_url: "https://github.com/rgen-team/rust-cli-templates.git"
+                            git_url: "https://github.com/ggen-team/rust-cli-templates.git"
                                 .to_string(),
                             git_rev: "abc123".to_string(),
                             manifest_url: None,
@@ -60,16 +60,16 @@ impl MockRegistryClient {
                 downloads: Some(15420),
                 updated: Some(chrono::Utc::now()),
                 license: Some("MIT".to_string()),
-                homepage: Some("https://rgen.dev/templates/rust-cli".to_string()),
-                repository: Some("https://github.com/rgen-team/rust-cli-templates".to_string()),
-                documentation: Some("https://docs.rgen.dev/rust-cli".to_string()),
+                homepage: Some("https://ggen.dev/templates/rust-cli".to_string()),
+                repository: Some("https://github.com/ggen-team/rust-cli-templates".to_string()),
+                documentation: Some("https://docs.ggen.dev/rust-cli".to_string()),
             },
         );
 
         packs.insert(
-            "io.rgen.python.web-api".to_string(),
+            "io.ggen.python.web-api".to_string(),
             PackMetadata {
-                id: "io.rgen.python.web-api".to_string(),
+                id: "io.ggen.python.web-api".to_string(),
                 name: "Python Web API Generator".to_string(),
                 description: "Generate FastAPI web APIs with database models and authentication"
                     .to_string(),
@@ -107,9 +107,9 @@ impl MockRegistryClient {
                 downloads: Some(8932),
                 updated: Some(chrono::Utc::now()),
                 license: Some("Apache-2.0".to_string()),
-                homepage: Some("https://rgen.dev/templates/python-web".to_string()),
+                homepage: Some("https://ggen.dev/templates/python-web".to_string()),
                 repository: Some("https://github.com/python-dev/web-api-templates".to_string()),
-                documentation: Some("https://docs.rgen.dev/python-web".to_string()),
+                documentation: Some("https://docs.ggen.dev/python-web".to_string()),
             },
         );
 
@@ -221,26 +221,26 @@ impl MockRegistryClient {
 
 #[test]
 fn test_cli_basic() {
-    let mut cmd = Command::cargo_bin("rgen").expect("Calling binary failed");
+    let mut cmd = Command::cargo_bin("ggen").expect("Calling binary failed");
     cmd.assert().failure();
 }
 
 #[test]
 fn test_version() {
-    let expected_version = "rgen 0.1.0\n";
-    let mut cmd = Command::cargo_bin("rgen").expect("Calling binary failed");
+    let expected_version = "ggen 0.1.0\n";
+    let mut cmd = Command::cargo_bin("ggen").expect("Calling binary failed");
     cmd.arg("--version").assert().stdout(expected_version);
 }
 
 #[test]
 fn test_hazard_exit_code() {
-    let mut cmd = Command::cargo_bin("rgen").expect("Calling binary failed");
+    let mut cmd = Command::cargo_bin("ggen").expect("Calling binary failed");
     cmd.arg("hazard").assert().success();
 }
 
 #[test]
 fn test_hazard_stdout() {
-    let mut cmd = Command::cargo_bin("rgen").expect("Calling binary failed");
+    let mut cmd = Command::cargo_bin("ggen").expect("Calling binary failed");
     cmd.arg("hazard")
         .assert()
         .success()
@@ -265,7 +265,7 @@ fn test_cli_help_commands() {
     ];
 
     for (cmd_name, expected_text) in &commands {
-        let mut cmd = Command::cargo_bin("rgen").unwrap();
+        let mut cmd = Command::cargo_bin("ggen").unwrap();
         cmd.arg(cmd_name).arg("--help");
         cmd.assert()
             .success()
@@ -275,7 +275,12 @@ fn test_cli_help_commands() {
 
 #[test]
 fn test_search_command_basic_usage() {
-    let mut cmd = Command::cargo_bin("rgen").unwrap();
+    // Set up local registry URL for testing
+    let registry_path = std::env::current_dir().unwrap().join("registry");
+    let registry_url = format!("file://{}/", registry_path.to_string_lossy());
+    std::env::set_var("GGEN_REGISTRY_URL", &registry_url);
+
+    let mut cmd = Command::cargo_bin("ggen").unwrap();
     cmd.arg("search").arg("rust");
     // Search now works with local mock registry
     cmd.assert()
@@ -285,7 +290,12 @@ fn test_search_command_basic_usage() {
 
 #[test]
 fn test_search_command_with_filters() {
-    let mut cmd = Command::cargo_bin("rgen").unwrap();
+    // Set up local registry URL for testing
+    let registry_path = std::env::current_dir().unwrap().join("registry");
+    let registry_url = format!("file://{}/", registry_path.to_string_lossy());
+    std::env::set_var("GGEN_REGISTRY_URL", &registry_url);
+
+    let mut cmd = Command::cargo_bin("ggen").unwrap();
     cmd.arg("search")
         .arg("rust")
         .arg("--category")
@@ -308,12 +318,12 @@ fn test_mock_registry_search() -> Result<()> {
     // Test basic search
     let results = mock_client.search("rust");
     assert_eq!(results.len(), 1);
-    assert_eq!(results[0].id, "io.rgen.rust.cli-subcommand");
+    assert_eq!(results[0].id, "io.ggen.rust.cli-subcommand");
 
     // Test search with different query
     let results = mock_client.search("python");
     assert_eq!(results.len(), 1);
-    assert_eq!(results[0].id, "io.rgen.python.web-api");
+    assert_eq!(results[0].id, "io.ggen.python.web-api");
 
     // Test search with no results
     let results = mock_client.search("nonexistent");
@@ -338,7 +348,7 @@ fn test_mock_registry_advanced_search() -> Result<()> {
 
     let results = mock_client.advanced_search(&search_params);
     assert_eq!(results.len(), 1);
-    assert_eq!(results[0].id, "io.rgen.rust.cli-subcommand");
+    assert_eq!(results[0].id, "io.ggen.rust.cli-subcommand");
 
     // Test keyword filter
     let search_params = SearchParams {
@@ -352,21 +362,21 @@ fn test_mock_registry_advanced_search() -> Result<()> {
 
     let results = mock_client.advanced_search(&search_params);
     assert_eq!(results.len(), 1);
-    assert_eq!(results[0].id, "io.rgen.python.web-api");
+    assert_eq!(results[0].id, "io.ggen.python.web-api");
 
     // Test author filter
     let search_params = SearchParams {
         query: "generator",
         category: None,
         keyword: None,
-        author: Some("rgen-team"),
+        author: Some("ggen-team"),
         stable_only: false,
         limit: 10,
     };
 
     let results = mock_client.advanced_search(&search_params);
     assert_eq!(results.len(), 1);
-    assert_eq!(results[0].id, "io.rgen.rust.cli-subcommand");
+    assert_eq!(results[0].id, "io.ggen.rust.cli-subcommand");
 
     // Test stable-only filter
     let search_params = SearchParams {
@@ -406,14 +416,14 @@ fn test_cli_integration_with_mock_registry() -> Result<()> {
     let mock_index = r#"{
         "updated": "2024-01-01T00:00:00Z",
         "packs": {
-            "io.rgen.rust.cli-subcommand": {
-                "id": "io.rgen.rust.cli-subcommand",
+            "io.ggen.rust.cli-subcommand": {
+                "id": "io.ggen.rust.cli-subcommand",
                 "name": "Rust CLI Subcommand Generator",
                 "description": "Generate clap subcommands for Rust CLI applications",
                 "tags": ["rust", "cli", "clap", "subcommand"],
                 "keywords": ["command-line", "argument-parsing", "interactive", "help"],
                 "category": "rust",
-                "author": "rgen-team",
+                "author": "ggen-team",
                 "latest_version": "1.2.0",
                 "versions": {
                     "1.2.0": {
@@ -444,21 +454,21 @@ fn test_cli_integration_with_mock_registry() -> Result<()> {
 #[test]
 fn test_cli_error_handling() {
     // Test invalid command
-    let mut cmd = Command::cargo_bin("rgen").unwrap();
+    let mut cmd = Command::cargo_bin("ggen").unwrap();
     cmd.arg("invalid-command");
     cmd.assert()
         .failure()
         .stderr(predicate::str::contains("unrecognized subcommand"));
 
     // Test missing required arguments
-    let mut cmd = Command::cargo_bin("rgen").unwrap();
+    let mut cmd = Command::cargo_bin("ggen").unwrap();
     cmd.arg("add");
     cmd.assert()
         .failure()
         .stderr(predicate::str::contains("required"));
 
     // Test invalid arguments
-    let mut cmd = Command::cargo_bin("rgen").unwrap();
+    let mut cmd = Command::cargo_bin("ggen").unwrap();
     cmd.arg("search").arg("--invalid-flag");
     cmd.assert()
         .failure()
@@ -467,15 +477,20 @@ fn test_cli_error_handling() {
 
 #[test]
 fn test_cli_output_formats() {
+    // Set up local registry URL for testing
+    let registry_path = std::env::current_dir().unwrap().join("registry");
+    let registry_url = format!("file://{}/", registry_path.to_string_lossy());
+    std::env::set_var("GGEN_REGISTRY_URL", &registry_url);
+
     // Test JSON output - now works with local mock registry
-    let mut cmd = Command::cargo_bin("rgen").unwrap();
+    let mut cmd = Command::cargo_bin("ggen").unwrap();
     cmd.arg("search").arg("rust").arg("--json");
     cmd.assert()
         .success()
         .stdout(predicate::str::contains("\"id\""));
 
     // Test detailed output - now works with local mock registry
-    let mut cmd = Command::cargo_bin("rgen").unwrap();
+    let mut cmd = Command::cargo_bin("ggen").unwrap();
     cmd.arg("search").arg("rust").arg("--detailed");
     cmd.assert()
         .success()
@@ -485,7 +500,7 @@ fn test_cli_output_formats() {
 #[test]
 fn test_cli_environment_variables() {
     // Test with RGEN_TRACE environment variable
-    let mut cmd = Command::cargo_bin("rgen").unwrap();
+    let mut cmd = Command::cargo_bin("ggen").unwrap();
     cmd.env("RGEN_TRACE", "debug");
     cmd.arg("hazard");
     cmd.assert()
@@ -495,7 +510,7 @@ fn test_cli_environment_variables() {
     // Test with different trace levels
     let trace_levels = ["error", "warn", "info", "debug", "trace"];
     for level in &trace_levels {
-        let mut cmd = Command::cargo_bin("rgen").unwrap();
+        let mut cmd = Command::cargo_bin("ggen").unwrap();
         cmd.env("RGEN_TRACE", level);
         cmd.arg("hazard");
         cmd.assert()

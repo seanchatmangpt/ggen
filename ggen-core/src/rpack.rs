@@ -60,7 +60,7 @@ pub struct RpackMetadata {
     pub version: String,
     pub description: String,
     pub license: String,
-    pub rgen_compat: String,
+    pub ggen_compat: String,
 }
 
 /// Templates configuration
@@ -219,15 +219,15 @@ mod tests {
     fn test_manifest_parsing() {
         let toml_content = r#"
 [rpack]
-id = "io.rgen.rust.cli-subcommand"
+id = "io.ggen.rust.cli-subcommand"
 name = "Rust CLI subcommand"
 version = "0.1.0"
 description = "Generate clap subcommands"
 license = "MIT"
-rgen_compat = ">=0.1 <0.2"
+ggen_compat = ">=0.1 <0.2"
 
 [dependencies]
-"io.rgen.macros.std" = "^0.1"
+"io.ggen.macros.std" = "^0.1"
 
 [templates]
 patterns = ["cli/subcommand/*.tmpl"]
@@ -247,13 +247,13 @@ aliases.component_by_name = "../queries/component_by_name.rq"
 patterns = ["../shapes/*.ttl"]
 
 [preset]
-config = "../preset/rgen.toml"
+config = "../preset/ggen.toml"
 vars = { author = "Acme", license = "MIT" }
 "#;
 
         let manifest: RpackManifest = toml::from_str(toml_content).unwrap();
 
-        assert_eq!(manifest.metadata.id, "io.rgen.rust.cli-subcommand");
+        assert_eq!(manifest.metadata.id, "io.ggen.rust.cli-subcommand");
         assert_eq!(manifest.metadata.name, "Rust CLI subcommand");
         assert_eq!(manifest.metadata.version, "0.1.0");
         assert_eq!(manifest.templates.patterns.len(), 1);
@@ -271,7 +271,7 @@ name = "Test"
 version = "0.1.0"
 description = "Test"
 license = "MIT"
-rgen_compat = ">=0.1 <0.2"
+ggen_compat = ">=0.1 <0.2"
 "#;
         temp_file.write_all(toml_content.as_bytes()).unwrap();
 

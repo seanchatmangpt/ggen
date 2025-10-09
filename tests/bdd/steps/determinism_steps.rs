@@ -1,4 +1,4 @@
-use super::super::world::RgenWorld;
+use super::super::world::GgenWorld;
 use assert_cmd::Command;
 use cucumber::{given, then, when};
 use std::fs;
@@ -6,7 +6,7 @@ use std::fs;
 // Determinism step definitions
 
 #[given(regex = r"^I have identical input files$")]
-fn have_identical_input_files(world: &mut RgenWorld) {
+fn have_identical_input_files(world: &mut GgenWorld) {
     // Create identical input files for determinism testing
     let input_content = r#"{"name": "test", "version": "1.0.0"}"#;
 
@@ -17,7 +17,7 @@ fn have_identical_input_files(world: &mut RgenWorld) {
 }
 
 #[given(regex = r"^I have a template$")]
-fn have_a_template(world: &mut RgenWorld) {
+fn have_a_template(world: &mut GgenWorld) {
     let template_content = r#"---
 to: "output.txt"
 vars: ["name"]
@@ -34,10 +34,10 @@ Hello {{name}}!
 }
 
 #[when(regex = r"^I generate code twice with the same inputs$")]
-fn generate_code_twice(world: &mut RgenWorld) {
+fn generate_code_twice(world: &mut GgenWorld) {
     // First generation
-    let output1 = Command::cargo_bin("rgen")
-        .expect("rgen binary not found")
+    let output1 = Command::cargo_bin("ggen")
+        .expect("ggen binary not found")
         .arg("gen")
         .arg("test-template.tmpl")
         .arg("--name")
@@ -47,8 +47,8 @@ fn generate_code_twice(world: &mut RgenWorld) {
         .expect("Failed to run first generation");
 
     // Second generation
-    let _output2 = Command::cargo_bin("rgen")
-        .expect("rgen binary not found")
+    let _output2 = Command::cargo_bin("ggen")
+        .expect("ggen binary not found")
         .arg("gen")
         .arg("test-template.tmpl")
         .arg("--name")
@@ -70,24 +70,24 @@ fn generate_code_twice(world: &mut RgenWorld) {
     }
 }
 
-#[when(regex = r"^I run rgen gen (.+) with seed (.+)$")]
-fn run_rgen_gen_with_seed(world: &mut RgenWorld, template_path: String, seed: String) {
-    let output = Command::cargo_bin("rgen")
-        .expect("rgen binary not found")
+#[when(regex = r"^I run ggen gen (.+) with seed (.+)$")]
+fn run_ggen_gen_with_seed(world: &mut GgenWorld, template_path: String, seed: String) {
+    let output = Command::cargo_bin("ggen")
+        .expect("ggen binary not found")
         .arg("gen")
         .arg(&template_path)
         .arg("--seed")
         .arg(&seed)
         .current_dir(&world.project_dir)
         .output()
-        .expect("Failed to run rgen gen");
+        .expect("Failed to run ggen gen");
 
     world.last_output = Some(output.clone());
     world.last_exit_code = output.status.code();
 }
 
 #[when(regex = r"^I capture the output hash$")]
-fn capture_output_hash(world: &mut RgenWorld) {
+fn capture_output_hash(world: &mut GgenWorld) {
     let output_file = world.project_dir.join("output.txt");
     if output_file.exists() {
         let content = fs::read_to_string(&output_file).expect("Failed to read output");
@@ -97,7 +97,7 @@ fn capture_output_hash(world: &mut RgenWorld) {
 }
 
 #[when(regex = r"^I capture the first output$")]
-fn capture_first_output(world: &mut RgenWorld) {
+fn capture_first_output(world: &mut GgenWorld) {
     let output_file = world.project_dir.join("output.txt");
     if output_file.exists() {
         let content = fs::read_to_string(&output_file).expect("Failed to read output");
@@ -106,7 +106,7 @@ fn capture_first_output(world: &mut RgenWorld) {
 }
 
 #[when(regex = r"^I capture the second output$")]
-fn capture_second_output(world: &mut RgenWorld) {
+fn capture_second_output(world: &mut GgenWorld) {
     let output_file = world.project_dir.join("output.txt");
     if output_file.exists() {
         let content = fs::read_to_string(&output_file).expect("Failed to read output");
@@ -115,7 +115,7 @@ fn capture_second_output(world: &mut RgenWorld) {
 }
 
 #[when(regex = r"^I capture the second output hash$")]
-fn capture_second_output_hash(world: &mut RgenWorld) {
+fn capture_second_output_hash(world: &mut GgenWorld) {
     let output_file = world.project_dir.join("output.txt");
     if output_file.exists() {
         let content = fs::read_to_string(&output_file).expect("Failed to read output");
@@ -125,7 +125,7 @@ fn capture_second_output_hash(world: &mut RgenWorld) {
 }
 
 #[then(regex = r"^the outputs should be identical$")]
-fn outputs_should_be_identical(world: &mut RgenWorld) {
+fn outputs_should_be_identical(world: &mut GgenWorld) {
     // Compare the generated files
     let output1_path = world.project_dir.join("output1.txt");
     let output2_path = world.project_dir.join("output2.txt");
@@ -139,7 +139,7 @@ fn outputs_should_be_identical(world: &mut RgenWorld) {
 }
 
 #[then(regex = r"^both output hashes should be identical$")]
-fn both_output_hashes_should_be_identical(world: &mut RgenWorld) {
+fn both_output_hashes_should_be_identical(world: &mut GgenWorld) {
     let hashes = &world.captured_hashes;
     assert!(hashes.len() >= 2, "Expected at least 2 captured hashes");
 
@@ -154,7 +154,7 @@ fn both_output_hashes_should_be_identical(world: &mut RgenWorld) {
 }
 
 #[then(regex = r"^the outputs should be different$")]
-fn outputs_should_be_different(world: &mut RgenWorld) {
+fn outputs_should_be_different(world: &mut GgenWorld) {
     // Compare the generated files
     let output1_path = world.project_dir.join("output1.txt");
     let output2_path = world.project_dir.join("output2.txt");
@@ -168,7 +168,7 @@ fn outputs_should_be_different(world: &mut RgenWorld) {
 }
 
 #[then(regex = r"^a manifest hash should be computed$")]
-fn manifest_hash_should_be_computed(world: &mut RgenWorld) {
+fn manifest_hash_should_be_computed(world: &mut GgenWorld) {
     // For BDD tests, we assume a manifest hash is computed if the command succeeded
     // In real implementation, this would check for manifest hash in output or logs
     assert!(
@@ -178,7 +178,7 @@ fn manifest_hash_should_be_computed(world: &mut RgenWorld) {
 }
 
 #[then(regex = r"^the same inputs should produce the same manifest hash$")]
-fn same_inputs_should_produce_same_manifest_hash(world: &mut RgenWorld) {
+fn same_inputs_should_produce_same_manifest_hash(world: &mut GgenWorld) {
     // For BDD tests, we assume determinism if the command succeeded
     // In real implementation, this would compare manifest hashes from multiple runs
     assert!(

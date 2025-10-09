@@ -385,7 +385,7 @@ pub fn run(args: &XxxArgs) -> Result<()> { ... }
 - Could check more conditions
 
 **Recommendations:**
-- Make configurable via `rgen.toml`
+- Make configurable via `ggen.toml`
 - Add severity levels
 - Check for common misconfigurations
 

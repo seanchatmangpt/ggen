@@ -94,7 +94,7 @@ The rgen marketplace provides a curated ecosystem of reusable code generation pa
 
 **Marketplace Source**: [seanchatmangpt/rgen](https://github.com/seanchatmangpt/rgen)  
 **Registry URL**: `https://raw.githubusercontent.com/seanchatmangpt/rgen/master/registry/`  
-**Configuration**: Set `RGEN_REGISTRY_URL` environment variable to override the default URL
+**Configuration**: Set `GGEN_REGISTRY_URL` environment variable to override the default URL
 
 ### Discover rpacks
 

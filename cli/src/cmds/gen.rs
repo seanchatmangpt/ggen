@@ -1,11 +1,11 @@
 use clap::Args;
-use rgen_utils::error::Result;
+use ggen_utils::error::Result;
 use std::collections::BTreeMap;
 use std::path::PathBuf;
 
-use rgen_core::pipeline::PipelineBuilder;
-use rgen_core::resolver::TemplateResolver;
-use rgen_core::{CacheManager, LockfileManager};
+use ggen_core::pipeline::PipelineBuilder;
+use ggen_core::resolver::TemplateResolver;
+use ggen_core::{CacheManager, LockfileManager};
 
 #[derive(Args, Debug)]
 pub struct GenArgs {

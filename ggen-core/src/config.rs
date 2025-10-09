@@ -42,12 +42,12 @@ impl Default for RgenConfig {
 }
 
 impl RgenConfig {
-    /// Load rgen.toml from the given directory, walking up the tree
+    /// Load ggen.toml from the given directory, walking up the tree
     pub fn discover_and_load(start_dir: &Path) -> Result<Option<(Self, PathBuf)>> {
         let mut current = start_dir.to_path_buf();
 
         loop {
-            let config_path = current.join("rgen.toml");
+            let config_path = current.join("ggen.toml");
             if config_path.exists() {
                 let config = Self::load_from_file(&config_path)?;
                 return Ok(Some((config, config_path)));
@@ -63,7 +63,7 @@ impl RgenConfig {
         Ok(None)
     }
 
-    /// Load rgen.toml from a specific file
+    /// Load ggen.toml from a specific file
     pub fn load_from_file(config_path: &Path) -> Result<Self> {
         let content = std::fs::read_to_string(config_path)?;
         let config: RgenConfig = toml::from_str(&content)?;
@@ -119,8 +119,8 @@ mod tests {
         let config_dir = temp_dir.path().join("project").join("subdir");
         fs::create_dir_all(&config_dir)?;
 
-        // Create rgen.toml in project root
-        let config_path = temp_dir.path().join("project").join("rgen.toml");
+        // Create ggen.toml in project root
+        let config_path = temp_dir.path().join("project").join("ggen.toml");
         fs::write(
             &config_path,
             r#"

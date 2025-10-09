@@ -1,4 +1,4 @@
-# rgen.toml - Project manifest for graph-aware code generation
+# ggen.toml - Project manifest for graph-aware code generation
 # This file defines project-level metadata, template layout, RDF graph defaults, 
 # prefixes, and environment paths for your rgen project.
 

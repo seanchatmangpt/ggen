@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use url::Url;
 
-/// Registry client for fetching rpack metadata from registry.rgen.dev
+/// Registry client for fetching rpack metadata from registry.ggen.dev
 #[derive(Debug, Clone)]
 pub struct RegistryClient {
     base_url: Url,
@@ -93,8 +93,8 @@ impl RegistryClient {
     /// Create a new registry client
     pub fn new() -> Result<Self> {
         // Check environment variable for registry URL
-        let registry_url = std::env::var("RGEN_REGISTRY_URL").unwrap_or_else(|_| {
-            "https://raw.githubusercontent.com/seanchatmangpt/rgen/master/registry/".to_string()
+        let registry_url = std::env::var("GGEN_REGISTRY_URL").unwrap_or_else(|_| {
+            "https://raw.githubusercontent.com/seanchatmangpt/ggen/master/registry/".to_string()
         });
 
         let base_url = Url::parse(&registry_url).context("Failed to parse registry URL")?;
@@ -450,8 +450,8 @@ mod tests {
         let mock_index = r#"{
             "updated": "2024-01-01T00:00:00Z",
             "packs": {
-                "io.rgen.rust.cli-subcommand": {
-                    "id": "io.rgen.rust.cli-subcommand",
+                "io.ggen.rust.cli-subcommand": {
+                    "id": "io.ggen.rust.cli-subcommand",
                     "name": "Rust CLI subcommand",
                     "description": "Generate clap subcommands for Rust CLI applications",
                     "tags": ["rust", "cli", "clap", "subcommand"],
@@ -477,7 +477,7 @@ mod tests {
         // Test search
         let results = client.search("rust").await.unwrap();
         assert_eq!(results.len(), 1);
-        assert_eq!(results[0].id, "io.rgen.rust.cli-subcommand");
+        assert_eq!(results[0].id, "io.ggen.rust.cli-subcommand");
     }
 
     #[tokio::test]
@@ -489,8 +489,8 @@ mod tests {
         let mock_index = r#"{
             "updated": "2024-01-01T00:00:00Z",
             "packs": {
-                "io.rgen.rust.cli-subcommand": {
-                    "id": "io.rgen.rust.cli-subcommand",
+                "io.ggen.rust.cli-subcommand": {
+                    "id": "io.ggen.rust.cli-subcommand",
                     "name": "Rust CLI subcommand",
                     "description": "Generate clap subcommands",
                     "tags": ["rust", "cli"],
@@ -514,10 +514,10 @@ mod tests {
 
         // Test resolve
         let resolved = client
-            .resolve("io.rgen.rust.cli-subcommand", None)
+            .resolve("io.ggen.rust.cli-subcommand", None)
             .await
             .unwrap();
-        assert_eq!(resolved.id, "io.rgen.rust.cli-subcommand");
+        assert_eq!(resolved.id, "io.ggen.rust.cli-subcommand");
         assert_eq!(resolved.version, "0.2.1");
         assert_eq!(resolved.git_url, "https://github.com/example/rpack.git");
     }

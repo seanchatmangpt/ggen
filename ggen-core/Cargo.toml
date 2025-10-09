@@ -1,11 +1,11 @@
 [package]
-name = "rgen-core"
+name = "ggen-core"
 version = "0.1.0"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "Core graph-aware code generation engine"
 edition = "2021"
 license = "MIT"
-repository = "https://github.com/seanchatmangpt/rgen"
+repository = "https://github.com/seanchatmangpt/ggen"
 readme = "README.md"
 keywords = ["cli", "code-generation", "rdf", "templates"]
 categories = ["development-tools", "command-line-utilities"]
@@ -14,7 +14,7 @@ categories = ["development-tools", "command-line-utilities"]
 multiple_crate_versions = "allow"
 
 [dependencies]
-rgen-utils = { path = "../utils", version = "0.1.0" }
+ggen-utils = { path = "../utils", version = "0.1.0" }
 anyhow = "1.0"
 tera = "1.0"
 oxigraph = "0.4"
@@ -36,7 +36,7 @@ regex = "1.10"
 colored = "2.0"
 toml = "0.8"
 lru = "0.12"
-fxhash = "0.2"
+ahash = "0.8"
 glob = "0.3"
 tokio = { version = "1.0", features = ["full"] }
 reqwest = { version = "0.11", features = ["json"] }

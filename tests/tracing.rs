@@ -1,6 +1,6 @@
 use anyhow::Result;
-use rgen_core::pipeline::PipelineBuilder;
-use rgen_core::simple_tracing::SimpleTracer;
+use ggen_core::pipeline::PipelineBuilder;
+use ggen_core::simple_tracing::SimpleTracer;
 use std::collections::BTreeMap;
 use std::fs;
 use std::path::Path;
@@ -24,7 +24,7 @@ fn test_simple_tracer_methods() {
     SimpleTracer::template_start(&test_path);
     SimpleTracer::template_complete(&test_path, &test_path, 100);
 
-    let frontmatter = rgen_core::template::Frontmatter::default();
+    let frontmatter = ggen_core::template::Frontmatter::default();
     SimpleTracer::frontmatter_processed(&frontmatter);
 
     SimpleTracer::context_blessed(5);
@@ -32,7 +32,7 @@ fn test_simple_tracer_methods() {
     SimpleTracer::sparql_query("SELECT * WHERE { ?s ?p ?o }", Some(10));
 
     SimpleTracer::trace(
-        rgen_core::simple_tracing::TraceLevel::Debug,
+        ggen_core::simple_tracing::TraceLevel::Debug,
         "Validation frontmatter: true",
         Some("validation"),
     );
@@ -104,19 +104,19 @@ fn test_tracing_performance_measurement() {
 fn test_tracing_error_handling() {
     // Test error logging with SimpleTracer
     SimpleTracer::trace(
-        rgen_core::simple_tracing::TraceLevel::Error,
+        ggen_core::simple_tracing::TraceLevel::Error,
         "Test error message",
         Some("test operation"),
     );
 
     // Test warning logging
     SimpleTracer::trace(
-        rgen_core::simple_tracing::TraceLevel::Warn,
+        ggen_core::simple_tracing::TraceLevel::Warn,
         "Test warning message",
         Some("test context"),
     );
     SimpleTracer::trace(
-        rgen_core::simple_tracing::TraceLevel::Warn,
+        ggen_core::simple_tracing::TraceLevel::Warn,
         "Test warning without context",
         None,
     );
@@ -175,7 +175,7 @@ fn test_tracing_levels() -> Result<()> {
 
         // Test that tracing methods work at different levels
         SimpleTracer::template_start(std::path::Path::new("test.tmpl"));
-        SimpleTracer::frontmatter_processed(&rgen_core::template::Frontmatter::default());
+        SimpleTracer::frontmatter_processed(&ggen_core::template::Frontmatter::default());
         SimpleTracer::context_blessed(5);
         SimpleTracer::rdf_loading(&["file.ttl".to_string()], 1, 100);
         SimpleTracer::sparql_query("SELECT * WHERE { ?s ?p ?o }", Some(10));
@@ -200,13 +200,13 @@ fn test_tracing_levels() -> Result<()> {
 #[test]
 fn test_tracing_performance() -> Result<()> {
     // Test performance timing
-    let timer = rgen_core::simple_tracing::SimpleTimer::start("test_operation");
+    let timer = ggen_core::simple_tracing::SimpleTimer::start("test_operation");
     // Simulate some work instead of sleeping
     let _result = (0..1000).sum::<i32>();
     timer.finish();
 
     // Test macro
-    let result = rgen_core::time_operation!("macro_test", {
+    let result = ggen_core::time_operation!("macro_test", {
         // Simulate some work instead of sleeping
         let _work = (0..500).sum::<i32>();
         42

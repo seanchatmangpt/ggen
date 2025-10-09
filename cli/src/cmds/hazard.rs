@@ -2,7 +2,7 @@ use colored::*;
 use std::path::Path;
 use walkdir::WalkDir;
 
-pub fn run() -> rgen_utils::error::Result<()> {
+pub fn run() -> ggen_utils::error::Result<()> {
     println!("🔍 RGen Hazard Report");
     println!("====================");
 
@@ -131,7 +131,7 @@ fn check_rdf_files(hazards: &mut Vec<Hazard>) {
 }
 
 fn check_configuration(hazards: &mut Vec<Hazard>) {
-    let config_files = ["rgen.toml", "Cargo.toml", "pyproject.toml"];
+    let config_files = ["ggen.toml", "Cargo.toml", "pyproject.toml"];
 
     for config_file in &config_files {
         if !Path::new(config_file).exists() {

@@ -92,7 +92,7 @@ rgen search rust cli --verbose
 ### Invalid Rpack Manifest
 
 ```bash
-# Error: invalid rgen.toml manifest
+# Error: invalid ggen.toml manifest
 # Check manifest syntax
 rgen pack lint
 
