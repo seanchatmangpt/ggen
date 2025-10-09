@@ -43,6 +43,7 @@
 - 🧪 **Template-Based** - YAML frontmatter with Tera templating engine
 - 🔄 **Injection Support** - Modify existing files with idempotent updates
 - 🚀 **GitHub Integration** - Built-in GitHub Pages and Actions API support
+- 🔐 **Post-Quantum Security** (v1.0.0) - ML-DSA (Dilithium3) signatures for quantum-resistant package integrity
 - ⚡ **Performance SLOs** - Fast builds, low memory, reproducible outputs
 
 ## Quick Start

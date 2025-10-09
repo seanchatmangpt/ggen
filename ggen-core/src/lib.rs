@@ -14,6 +14,7 @@ pub mod inject;
 pub mod lockfile;
 pub mod pipeline;
 pub mod poc;
+pub mod pqc;
 pub mod register;
 pub mod registry;
 pub mod resolver;
@@ -30,6 +31,7 @@ pub use github::{GitHubClient, PagesConfig, RepoInfo, WorkflowRun, WorkflowRunsR
 pub use graph::Graph;
 pub use lockfile::{LockEntry, Lockfile, LockfileManager};
 pub use pipeline::{Pipeline, PipelineBuilder};
+pub use pqc::{PqcSigner, PqcVerifier, calculate_sha256, calculate_sha256_file};
 pub use registry::{RegistryClient, RegistryIndex, ResolvedPack, SearchResult};
 pub use resolver::{TemplateResolver, TemplateSearchResult, TemplateSource};
 pub use rpack::RpackManifest;

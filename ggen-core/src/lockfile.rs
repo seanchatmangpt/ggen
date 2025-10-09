@@ -21,7 +21,7 @@ pub struct Lockfile {
     pub packs: Vec<LockEntry>,
 }
 
-/// Individual lock entry for a pack
+/// Individual lock entry for a pack with PQC signature
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LockEntry {
     pub id: String,
@@ -29,6 +29,12 @@ pub struct LockEntry {
     pub sha256: String,
     pub source: String,
     pub dependencies: Option<Vec<String>>,
+    /// Post-quantum signature (ML-DSA/Dilithium3) - base64 encoded
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub pqc_signature: Option<String>,
+    /// Public key for signature verification - base64 encoded
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub pqc_pubkey: Option<String>,
 }
 
 impl LockfileManager {
@@ -86,6 +92,19 @@ impl LockfileManager {
 
     /// Add or update a pack in the lockfile
     pub fn upsert(&self, pack_id: &str, version: &str, sha256: &str, source: &str) -> Result<()> {
+        self.upsert_with_pqc(pack_id, version, sha256, source, None, None)
+    }
+
+    /// Add or update a pack in the lockfile with PQC signature
+    pub fn upsert_with_pqc(
+        &self,
+        pack_id: &str,
+        version: &str,
+        sha256: &str,
+        source: &str,
+        pqc_signature: Option<String>,
+        pqc_pubkey: Option<String>,
+    ) -> Result<()> {
         let mut lockfile = self.load()?.unwrap_or_else(|| self.create().unwrap());
 
         // Remove existing entry if present
@@ -101,6 +120,8 @@ impl LockfileManager {
             sha256: sha256.to_string(),
             source: source.to_string(),
             dependencies,
+            pqc_signature,
+            pqc_pubkey,
         });
 
         // Sort by pack ID for consistency
@@ -309,6 +330,32 @@ mod tests {
         assert_eq!(entry.version, "1.0.0");
         assert_eq!(entry.sha256, "abc123");
         assert_eq!(entry.source, "https://example.com");
+        assert!(entry.pqc_signature.is_none());
+        assert!(entry.pqc_pubkey.is_none());
+    }
+
+    #[test]
+    fn test_lockfile_upsert_with_pqc() {
+        let temp_dir = TempDir::new().unwrap();
+        let manager = LockfileManager::new(temp_dir.path());
+
+        // Upsert a pack with PQC signature
+        manager
+            .upsert_with_pqc(
+                "io.ggen.test",
+                "1.0.0",
+                "abc123",
+                "https://example.com",
+                Some("pqc_sig_base64".to_string()),
+                Some("pqc_pubkey_base64".to_string()),
+            )
+            .unwrap();
+
+        // Get the pack
+        let entry = manager.get("io.ggen.test").unwrap().unwrap();
+        assert_eq!(entry.id, "io.ggen.test");
+        assert_eq!(entry.pqc_signature, Some("pqc_sig_base64".to_string()));
+        assert_eq!(entry.pqc_pubkey, Some("pqc_pubkey_base64".to_string()));
     }
 
     #[test]

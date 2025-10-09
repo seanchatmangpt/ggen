@@ -8,64 +8,64 @@ Targets are just templates. rgen supports both marketplace rpacks and local temp
 
 ```bash
 # Install multi-language CLI rpacks
-rgen add io.rgen.rust.cli-subcommand
-rgen add io.rgen.python.cli-subcommand
-rgen add io.rgen.bash.cli-subcommand
+rgen add io.ggen.rust.cli-subcommand
+rgen add io.ggen.python.cli-subcommand
+rgen add io.ggen.bash.cli-subcommand
 
 # Generate across languages
-rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=status
-rgen gen io.rgen.python.cli-subcommand:cli/subcommand/python.tmpl name=status
-rgen gen io.rgen.bash.cli-subcommand:cli/subcommand/bash.tmpl name=status
+rgen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=status
+rgen gen io.ggen.python.cli-subcommand:cli/subcommand/python.tmpl name=status
+rgen gen io.ggen.bash.cli-subcommand:cli/subcommand/bash.tmpl name=status
 ```
 
 ### API Endpoints
 
 ```bash
 # Install API rpacks
-rgen add io.rgen.rust.api-endpoint
-rgen add io.rgen.python.api-endpoint
-rgen add io.rgen.typescript.api-endpoint
+rgen add io.ggen.rust.api-endpoint
+rgen add io.ggen.python.api-endpoint
+rgen add io.ggen.typescript.api-endpoint
 
 # Generate REST endpoints
-rgen gen io.rgen.rust.api-endpoint:api/endpoint/rust.tmpl name=users
-rgen gen io.rgen.python.api-endpoint:api/endpoint/python.tmpl name=users
-rgen gen io.rgen.typescript.api-endpoint:api/endpoint/typescript.tmpl name=users
+rgen gen io.ggen.rust.api-endpoint:api/endpoint/rust.tmpl name=users
+rgen gen io.ggen.python.api-endpoint:api/endpoint/python.tmpl name=users
+rgen gen io.ggen.typescript.api-endpoint:api/endpoint/typescript.tmpl name=users
 ```
 
 ### SQL DDL from Ontology
 
 ```bash
 # Install SQL generation rpacks
-rgen add io.rgen.sql.schema
-rgen add io.rgen.sql.migrations
+rgen add io.ggen.sql.schema
+rgen add io.ggen.sql.migrations
 
 # Generate database schema
-rgen gen io.rgen.sql.schema:schema/postgres.tmpl name=users
-rgen gen io.rgen.sql.migrations:migration/postgres.tmpl name=add_users_table
+rgen gen io.ggen.sql.schema:schema/postgres.tmpl name=users
+rgen gen io.ggen.sql.migrations:migration/postgres.tmpl name=add_users_table
 ```
 
 ### Edge Function Stubs
 
 ```bash
 # Install edge function rpacks
-rgen add io.rgen.vercel.edge-function
-rgen add io.rgen.cloudflare.worker
+rgen add io.ggen.vercel.edge-function
+rgen add io.ggen.cloudflare.worker
 
 # Generate edge functions
-rgen gen io.rgen.vercel.edge-function:edge/function.ts.tmpl name=api
-rgen gen io.rgen.cloudflare.worker:worker/index.js.tmpl name=api
+rgen gen io.ggen.vercel.edge-function:edge/function.ts.tmpl name=api
+rgen gen io.ggen.cloudflare.worker:worker/index.js.tmpl name=api
 ```
 
 ### Documentation from Graph Annotations
 
 ```bash
 # Install documentation rpacks
-rgen add io.rgen.docs.api-reference
-rgen add io.rgen.docs.user-guide
+rgen add io.ggen.docs.api-reference
+rgen add io.ggen.docs.user-guide
 
 # Generate documentation
-rgen gen io.rgen.docs.api-reference:docs/api.md.tmpl name=users
-rgen gen io.rgen.docs.user-guide:docs/guide.md.tmpl name=getting-started
+rgen gen io.ggen.docs.api-reference:docs/api.md.tmpl name=users
+rgen gen io.ggen.docs.user-guide:docs/guide.md.tmpl name=getting-started
 ```
 
 ## Local Template Examples

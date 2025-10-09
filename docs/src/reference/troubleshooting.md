@@ -13,28 +13,28 @@
 ### Rpack Not Found
 
 ```bash
-# Error: rpack 'io.rgen.rust.cli-subcommand' not found
-rgen add io.rgen.rust.cli-subcommand
+# Error: rpack 'io.ggen.rust.cli-subcommand' not found
+rgen add io.ggen.rust.cli-subcommand
 
 # Check if rpack exists
 rgen search rust cli
 
 # Verify correct rpack ID
-rgen show io.rgen.rust.cli-subcommand
+rgen show io.ggen.rust.cli-subcommand
 ```
 
 ### Version Conflicts
 
 ```bash
-# Error: version conflict for io.rgen.rust.cli-subcommand
+# Error: version conflict for io.ggen.rust.cli-subcommand
 # Check installed versions
 rgen packs
 
 # Remove conflicting version
-rgen remove io.rgen.rust.cli-subcommand
+rgen remove io.ggen.rust.cli-subcommand
 
 # Install specific version
-rgen add io.rgen.rust.cli-subcommand@0.2.1
+rgen add io.ggen.rust.cli-subcommand@0.2.1
 ```
 
 ### Dependency Resolution Failures
@@ -42,10 +42,10 @@ rgen add io.rgen.rust.cli-subcommand@0.2.1
 ```bash
 # Error: dependency resolution failed
 # Check rpack dependencies
-rgen show io.rgen.rust.cli-subcommand
+rgen show io.ggen.rust.cli-subcommand
 
 # Install missing dependencies
-rgen add io.rgen.macros.std
+rgen add io.ggen.macros.std
 
 # Update all rpacks
 rgen update
@@ -56,10 +56,10 @@ rgen update
 ```bash
 # Error: template 'cli/subcommand/rust.tmpl' not found in rpack
 # List available templates
-rgen show io.rgen.rust.cli-subcommand
+rgen show io.ggen.rust.cli-subcommand
 
 # Use correct template path
-rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello
+rgen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello
 ```
 
 ### Cache Corruption
@@ -70,7 +70,7 @@ rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello
 rm -rf .rgen/rpacks/
 
 # Reinstall rpacks
-rgen add io.rgen.rust.cli-subcommand
+rgen add io.ggen.rust.cli-subcommand
 ```
 
 ### Network/Registry Connectivity
@@ -97,7 +97,7 @@ rgen search rust cli --verbose
 rgen pack lint
 
 # Validate against schema
-rgen validate io.rgen.rust.cli-subcommand
+rgen validate io.ggen.rust.cli-subcommand
 ```
 
 ### Template Schema Validation
@@ -105,10 +105,10 @@ rgen validate io.rgen.rust.cli-subcommand
 ```bash
 # Error: template schema validation failed
 # Lint template
-rgen lint io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl
+rgen lint io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl
 
 # Check frontmatter
-rgen show io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl
+rgen show io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl
 ```
 
 ### RDF Graph Validation
@@ -116,10 +116,10 @@ rgen show io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl
 ```bash
 # Error: RDF graph validation failed
 # Validate RDF graphs
-rgen validate io.rgen.rust.cli-subcommand --rdf-only
+rgen validate io.ggen.rust.cli-subcommand --rdf-only
 
 # Check SPARQL queries
-rgen show io.rgen.rust.cli-subcommand --sparql
+rgen show io.ggen.rust.cli-subcommand --sparql
 ```
 
 ## Local Template Issues
@@ -152,13 +152,13 @@ cat templates/cli/subcommand/rust.tmpl
 
 ```bash
 # Enable tracing
-RGEN_TRACE=1 rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello
+RGEN_TRACE=1 rgen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello
 
 # Check for large RDF graphs
-rgen show io.rgen.rust.cli-subcommand --rdf-size
+rgen show io.ggen.rust.cli-subcommand --rdf-size
 
 # Use dry run for testing
-rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello --dry
+rgen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello --dry
 ```
 
 ### Memory Issues
@@ -166,10 +166,10 @@ rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello --dry
 ```bash
 # Error: out of memory
 # Check RDF graph size
-rgen graph export io.rgen.rust.cli-subcommand --fmt ttl | wc -l
+rgen graph export io.ggen.rust.cli-subcommand --fmt ttl | wc -l
 
 # Use smaller graphs
-rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello --vars graph_size=small
+rgen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello --vars graph_size=small
 ```
 
 ## Debugging Tips
@@ -178,10 +178,10 @@ rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello --vars 
 
 ```bash
 # Show detailed execution
-RGEN_TRACE=1 rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello
+RGEN_TRACE=1 rgen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello
 
 # Show variable resolution
-rgen show io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl --vars name=hello --verbose
+rgen show io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl --vars name=hello --verbose
 ```
 
 ### Check System State
