@@ -43,11 +43,26 @@ jobs:
           path: target
           key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
 
+      - name: Install cargo-make
+        run: cargo install cargo-make
+
       - name: Run unit tests
-        run: cargo test --lib --verbose
+        run: cargo make test-unit
 
       - name: Run integration tests
-        run: cargo test --test '*' --verbose
+        run: cargo make test-integration
+
+      - name: Run BDD tests
+        run: cargo make test-bdd
+
+      - name: Generate BDD report
+        run: cargo make bdd-report
+
+      - name: Upload BDD results
+        uses: actions/upload-artifact@v3
+        with:
+          name: bdd-results
+          path: target/bdd-report.xml
 
       - name: Run examples
         run: cargo run --example cli-subcommand

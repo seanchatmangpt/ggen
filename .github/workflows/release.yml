@@ -40,13 +40,14 @@ jobs:
           key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Build release
-        run: cargo build --release --verbose
+        run: cargo make build-release
 
       - name: Run tests
-        run: cargo test --release --verbose
+        run: cargo make test
 
-      - name: Create release archive
+      - name: Create release archives
         run: |
+          cargo make package
           mkdir -p release
           cp target/release/rgen release/
           tar -czf rgen-${{ github.ref_name }}-linux-x86_64.tar.gz -C release rgen

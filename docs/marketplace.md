@@ -1,316 +1,229 @@
-# Rgen Marketplace (Rpacks)
+# RGen Marketplace
 
-The rgen marketplace system provides a frictionless ecosystem for discovering, installing, and using reusable code generation packs. This system enables teams to share and consume high-quality templates, macros, and queries while maintaining security, determinism, and version pinning.
+The RGen marketplace provides a curated ecosystem of reusable code generation packs (rpacks) served directly from the GitHub repository.
 
-## Consumer DX
+## Overview
 
-### Search & Discovery
+The marketplace is hosted at `https://github.com/seanchatmangpt/rgen` and serves rpacks via GitHub raw URLs. This approach provides:
+
+- **Transparency**: All templates are open source and version controlled
+- **Reliability**: GitHub's robust infrastructure
+- **Community**: Easy contribution via pull requests
+- **Free**: No additional hosting costs
+
+## Usage
+
+### Environment Configuration
+
+The marketplace URL can be configured using the `RGEN_REGISTRY_URL` environment variable:
 
 ```bash
-# Search for packs matching query
-rgen search rust cli
+# Use GitHub marketplace (default)
+export RGEN_REGISTRY_URL="https://raw.githubusercontent.com/seanchatmangpt/rgen/master/registry/"
 
-# Get JSON output for tooling integration
-rgen search --json rust cli > results.json
+# Use local registry for development/testing
+export RGEN_REGISTRY_URL="file:///path/to/local/registry/"
 
-# Search output format:
-# ID                                    LATEST     KIND       TAGS
-# io.rgen.rust.cli-subcommand           0.2.1      template   rust, cli, clap
+# Use custom registry
+export RGEN_REGISTRY_URL="https://your-registry.com/"
 ```
 
-### Installation & Management
+### Basic Commands
 
 ```bash
-# Install specific version
-rgen add io.rgen.rust.cli-subcommand@0.2.0
+# Search for rpacks
+rgen search rust cli
 
-# Install latest version
+# Browse categories
+rgen categories
+
+# Install an rpack
 rgen add io.rgen.rust.cli-subcommand
 
-# List installed packs with details
+# List installed rpacks
 rgen packs
 
-# Update all packs to latest compatible versions
+# Update rpacks
 rgen update
 
-# Update specific pack
-rgen update io.rgen.rust.cli-subcommand
-
-# Remove pack and clean up
+# Remove an rpack
 rgen remove io.rgen.rust.cli-subcommand
 ```
 
-### Usage
+### Using Installed Rpacks
 
 ```bash
-# Use rpack template directly
-rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=Users
+# Generate code using installed rpack
+rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello
 
-# Works with all existing rgen features
-rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl \
-  --var name=Users --var description="User management" --dry
-
-# Trace execution for debugging
-RGEN_TRACE=1 rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=Users
+# Show template information
+rgen show io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl
 ```
 
-## Publisher DX
+## Registry Structure
 
-### Pack Development
-
-```bash
-# Initialize new pack
-rgen pack init
-
-# Lint pack for publishing
-rgen pack lint
-
-# Run golden tests
-rgen pack test
-
-# Publish to registry (opens PR)
-rgen pack publish
-```
-
-### Pack Structure
-
-Rpacks follow a standard structure defined in `templates/rgen.toml`:
-
-```toml
-[rpack]
-id = "io.rgen.rust.cli-subcommand"
-name = "Rust CLI subcommand"
-version = "0.2.1"
-description = "Generate clap subcommands"
-license = "MIT"
-rgen_compat = ">=0.2 <0.4"
-
-[dependencies]
-"io.rgen.macros.std" = "^0.2"
-
-[templates]
-entrypoints = ["cli/subcommand/rust.tmpl"]
-includes   = ["macros/**/*.tera"]
-
-[rdf]
-base = "http://example.org/"
-prefixes.ex = "http://example.org/"
-files  = ["../graphs/*.ttl"]
-inline = ["@prefix ex: <http://example.org/> . ex:Foo a ex:Type ."]
-
-[queries]
-files = ["../queries/*.rq"]
-aliases.component_by_name = "../queries/component_by_name.rq"
-
-[shapes]
-files = ["../shapes/*.ttl"]
-
-[preset]
-config = "../preset/rgen.toml"
-vars   = { author = "Acme", license = "MIT" }
-```
-
-## Registry Architecture
-
-### Index Structure
-
-The registry uses a JSON index at `https://registry.rgen.dev/index.json`:
+The marketplace registry is defined in `registry/index.json`:
 
 ```json
 {
+  "updated": "2024-01-01T00:00:00Z",
   "packs": {
     "io.rgen.rust.cli-subcommand": {
       "id": "io.rgen.rust.cli-subcommand",
-      "name": "Rust CLI subcommand",
-      "description": "Generate clap subcommands",
-      "tags": ["rust", "cli", "clap"],
-      "latest_version": "0.2.1",
+      "name": "Rust CLI Subcommand",
+      "description": "Generate clap subcommands for Rust CLI applications",
+      "tags": ["rust", "cli", "clap", "subcommand"],
+      "keywords": ["rust", "cli", "clap"],
+      "category": "rust",
+      "author": "rgen-team",
+      "latest_version": "0.1.0",
       "versions": {
-        "0.2.1": {
-          "version": "0.2.1",
-          "git_url": "https://github.com/example/rpack.git",
-          "git_rev": "abc123...",
-          "manifest_url": "https://cdn.example.com/manifest.toml",
-          "sha256": "def456..."
+        "0.1.0": {
+          "version": "0.1.0",
+          "git_url": "https://github.com/seanchatmangpt/rgen.git",
+          "git_rev": "master",
+          "sha256": "calculated_hash"
         }
-      }
+      },
+      "license": "MIT",
+      "homepage": "https://github.com/seanchatmangpt/rgen",
+      "repository": "https://github.com/seanchatmangpt/rgen"
     }
   }
 }
 ```
 
-### Publishing Workflow
+## Local Development and Testing
 
-1. **Local Development**: Use `rgen pack lint` and `rgen pack test` locally
-2. **PR Creation**: `rgen pack publish` opens a GitHub PR to the registry repo
-3. **CI Validation**: Registry runs validation on the PR
-4. **Merge & Deploy**: After merge, registry rebuilds and deploys updated index
+### Setting Up Local Registry
 
-### Validation Rules
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/seanchatmangpt/rgen.git
+   cd rgen
+   ```
 
-- **Schema Compliance**: Manifest must match JSON schema
-- **Semver Compliance**: Version must follow semantic versioning
-- **Compatibility**: `rgen_compat` range must include current rgen version
-- **Path Validation**: All referenced files and directories must exist
-- **Query Resolution**: All aliased queries must resolve correctly
-- **License Allowlist**: Only approved licenses permitted
-- **Size Limits**: Packs must be under size thresholds
-- **Security**: No install-time shell execution
+2. Set up local registry:
+   ```bash
+   export RGEN_REGISTRY_URL="file://$(pwd)/registry/"
+   ```
 
-## Loader Integration
+3. Test marketplace functionality:
+   ```bash
+   # Test search
+   rgen search rust
 
-### Automatic Wiring
+   # Test installation
+   rgen add io.rgen.rust.cli-subcommand
 
-When `rgen gen` runs, the loader automatically:
+   # Test generation
+   rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=test
+   ```
 
-1. **Reads `rgen.lock`** → determines installed rpacks
-2. **Merges `[preset]`** → project config and variables
-3. **Adds template paths** → to Tera search roots
-4. **Preloads RDF** → base/prefixes/files/inline into shared Graph
-5. **Indexes queries** → exposes `sparql_named(name, var?)`
-6. **Sets precedence** → project > locked rpacks > built-ins
-
-### Trace Output
+### Running Tests
 
 ```bash
-RGEN_TRACE=1 rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=Users
+# Run marketplace tests
+cargo test test_marketplace_local
 
-# Shows:
-# === RGEN TRACE ===
-# Resolved frontmatter:
-# { ... merged from rpack preset ... }
-# SPARQL prolog:
-# @prefix ex: <http://example.org/> . @base <http://example.org/> .
-# Target output path: src/cmds/users.rs
+# Run all tests
+cargo test
 ```
 
-## Lockfile Management
+## Adding New Rpacks
 
-### Structure
+### 1. Create Template Structure
 
-```toml
-[[pack]]
-id = "io.rgen.macros.std"
-version = "0.2.1"
-sha256 = "<tree-hash>"
+Organize your templates in the repository:
 
-[[pack]]
-id = "io.rgen.rust.cli-subcommand"
-version = "0.2.1"
-sha256 = "<tree-hash>"
+```
+templates/
+  your-category/
+    your-template/
+      rust.tmpl
+      python.tmpl
+      README.md
 ```
 
-### Integrity Verification
+### 2. Update Registry Index
 
-- **SHA256 Tree Hash**: Verifies entire pack contents
-- **Version Pinning**: Prevents accidental upgrades
-- **Source Tracking**: Records where each pack came from
-- **Atomic Updates**: Lockfile updated only after successful installation
+Add your rpack to `registry/index.json`:
 
-## Security Model
+```json
+{
+  "io.rgen.your-category.your-template": {
+    "id": "io.rgen.your-category.your-template",
+    "name": "Your Template Name",
+    "description": "Description of what this template generates",
+    "tags": ["tag1", "tag2"],
+    "keywords": ["keyword1", "keyword2"],
+    "category": "your-category",
+    "author": "your-username",
+    "latest_version": "0.1.0",
+    "versions": {
+      "0.1.0": {
+        "version": "0.1.0",
+        "git_url": "https://github.com/seanchatmangpt/rgen.git",
+        "git_rev": "master",
+        "sha256": "calculated_hash"
+      }
+    },
+    "license": "MIT",
+    "homepage": "https://github.com/seanchatmangpt/rgen",
+    "repository": "https://github.com/seanchatmangpt/rgen"
+  }
+}
+```
 
-### Trust & Safety
+### 3. Template Requirements
 
-- **No Runtime Code**: Packs contain only templates, RDF, and queries
-- **SHA256 Verification**: Registry index includes integrity hashes
-- **Sandboxed Paths**: Pack content is read-only during generation
-- **Shell Hook Opt-in**: Requires `--allow-sh` flag for shell execution
-- **License Enforcement**: Registry validates against allowlist
+Templates should include:
 
-### Network Controls
+- **Frontmatter**: YAML header with `to`, `vars`, `rdf`, `sparql` fields
+- **Documentation**: README explaining usage
+- **Examples**: Sample generated output
+- **Tests**: Validation that templates work correctly
 
-- **Registry Only**: No network access except to registry
-- **Cached Index**: Registry index cached locally for performance
-- **Offline Mode**: Works with installed packs without network
+### 4. Submit Pull Request
 
-## Error Handling
+1. Fork the repository
+2. Add your templates and update the registry
+3. Test locally with `RGEN_REGISTRY_URL="file://$(pwd)/registry/"`
+4. Submit a pull request with:
+   - Description of the rpack
+   - Example usage
+   - Test results
 
-### Actionable Messages
+## Troubleshooting
+
+### Common Issues
+
+**Registry not found**: Check that `RGEN_REGISTRY_URL` is set correctly and the URL is accessible.
+
+**Template not found**: Verify the template path in the registry index matches the actual file location.
+
+**Git clone fails**: Ensure the repository URL and revision are correct in the registry index.
+
+**SHA256 mismatch**: The registry index may need to be updated with the correct hash.
+
+### Debug Mode
+
+Enable debug logging to troubleshoot issues:
 
 ```bash
-# Template not found across rpacks
-Error: Template 'cli/subcommand/missing.tmpl' not found in any installed rpack
-Suggestion: Available templates in io.rgen.rust.cli-subcommand:
-  - cli/subcommand/rust.tmpl
-  - cli/subcommand/python.tmpl
-
-# Version compatibility issue
-Error: Rpack 'io.rgen.old-pack' requires rgen >=0.1 <0.2, but current version is 0.3.0
-Suggestion: Update rpack or use rgen update to find compatible version
-
-# Missing query alias
-Error: Query alias 'component_by_name' not found
-Suggestion: Available aliases in io.rgen.macros.std: user_by_id, project_by_slug
+export RUST_LOG=debug
+rgen search rust
 ```
 
-## Examples
+## Contributing
 
-### Basic Workflow
+We welcome contributions to the marketplace! Please see the main repository's contributing guidelines for details on:
 
-```bash
-# Find and install a pack
-rgen search rust cli
-rgen add io.rgen.rust.cli-subcommand@0.2.1
+- Code style and standards
+- Testing requirements
+- Documentation expectations
+- Review process
 
-# Use immediately
-rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=Users
+## License
 
-# See what's installed
-rgen packs
-
-# Update when new versions available
-rgen update
-
-# Remove when no longer needed
-rgen remove io.rgen.rust.cli-subcommand
-```
-
-### Multi-Pack Composition
-
-```bash
-# Install multiple related packs
-rgen add io.rgen.rust.cli-subcommand@0.2.1
-rgen add io.rgen.macros.std@0.2.1
-
-# Use templates from both packs
-rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=Users
-rgen gen io.rgen.macros.std:macros/std.tmpl type=Result
-```
-
-### Publishing Workflow
-
-```bash
-# Initialize new pack
-rgen pack init
-
-# Edit templates/rgen.toml with pack metadata
-
-# Test locally
-rgen pack test
-
-# Lint for publishing
-rgen pack lint
-
-# Publish (opens PR to registry)
-rgen pack publish
-```
-
-## Benefits
-
-### For Consumers
-- **Zero Configuration**: Install and use immediately
-- **Version Safety**: Pinned versions prevent breaking changes
-- **Composability**: Mix and match packs from different publishers
-- **Offline Support**: Works without network after installation
-
-### For Publishers
-- **Simple Publishing**: Git-based workflow with PR validation
-- **Quality Assurance**: Automated linting and testing
-- **Discoverability**: Rich search and tagging system
-- **Version Management**: Semver-aware updates and compatibility
-
-### For Teams
-- **Shared Standards**: Consistent templates across projects
-- **Reduced Duplication**: Reuse proven patterns
-- **Easy Onboarding**: New team members can quickly adopt standards
-- **Governance**: Registry provides quality control and security
+All marketplace templates are licensed under the MIT License unless otherwise specified in the individual template files.

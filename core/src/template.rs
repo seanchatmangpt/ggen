@@ -93,7 +93,7 @@ impl Template {
 
     /// Load RDF and run SPARQL using the rendered frontmatter.
     pub fn process_graph(
-        &mut self, graph: &mut Graph, tera: &mut Tera, vars: &Context,
+        &mut self, graph: &mut Graph, tera: &mut Tera, vars: &Context, template_path: &std::path::Path,
     ) -> Result<()> {
         // Ensure frontmatter is rendered before graph ops
         if self.front.to.is_none()
@@ -119,10 +119,15 @@ impl Template {
             graph.insert_turtle(&final_ttl)?;
         }
 
-        // Load RDF files
+        // Load RDF files - resolve relative to template directory
         for rdf_file in &self.front.rdf {
             let rendered_path = tera.render_str(rdf_file, vars)?;
-            if let Ok(ttl_content) = std::fs::read_to_string(&rendered_path) {
+            
+            // Resolve relative to template's directory
+            let template_dir = template_path.parent().unwrap_or(std::path::Path::new("."));
+            let rdf_path = template_dir.join(&rendered_path);
+            
+            if let Ok(ttl_content) = std::fs::read_to_string(&rdf_path) {
                 let final_ttl = if prolog.is_empty() {
                     ttl_content
                 } else {

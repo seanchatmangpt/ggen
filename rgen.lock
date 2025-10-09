@@ -1,0 +1,8 @@
+version = "1.0"
+generated = "2025-10-09T04:06:33.817971Z"
+
+[[packs]]
+id = "io.rgen.rust.cli-subcommand"
+version = "0.1.0"
+sha256 = "to_be_calculated"
+source = "https://github.com/seanchatmangpt/rgen.git"

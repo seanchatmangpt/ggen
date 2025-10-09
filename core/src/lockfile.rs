@@ -166,8 +166,6 @@ impl LockfileManager {
         ))
     }
 
-
-
     /// Remove a pack from the lockfile
     pub fn remove(&self, pack_id: &str) -> Result<bool> {
         let mut lockfile = match self.load()? {
@@ -232,7 +230,6 @@ impl LockfileManager {
         lockfile.generated = Utc::now();
         self.save(&lockfile)
     }
-
 
     /// Get lockfile statistics
     pub fn stats(&self) -> Result<LockfileStats> {
@@ -330,7 +327,6 @@ mod tests {
         assert!(removed);
         assert!(!manager.is_installed("io.rgen.test").unwrap());
     }
-
 
     #[test]
     fn test_lockfile_stats() {

@@ -1,3 +1,7 @@
+use crate::graph::{build_prolog, Graph};
+use crate::register;
+use crate::simple_tracing::SimpleTracer;
+use crate::template::Frontmatter;
 use anyhow::Result;
 use oxigraph::sparql::QueryResults;
 use serde_json::Value;
@@ -5,10 +9,6 @@ use sha2::{Digest, Sha256};
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 use tera::{Context, Function as TeraFunction, Tera};
-use crate::graph::{build_prolog, Graph};
-use crate::register;
-use crate::template::Frontmatter;
-use crate::simple_tracing::SimpleTracer;
 
 pub struct Pipeline {
     pub(crate) tera: Tera,
@@ -55,45 +55,50 @@ impl Pipeline {
     ) -> Result<Plan> {
         // Start performance timing
         // let _timer = SimpleTimer::start("template_processing"); // Temporarily disabled
-        
+
         // SimpleTracer::template_start(template_path); // Temporarily disabled
-        
+
         // Read template file
         let input = std::fs::read_to_string(template_path)?;
         let _body_lines = input.lines().count();
-        
+
         // Create Tera context from vars
         let mut ctx = Context::from_serialize(vars)?;
         // if SimpleTracer::is_enabled() {
-        //     SimpleTracer::trace(crate::simple_tracing::TraceLevel::Debug, 
+        //     SimpleTracer::trace(crate::simple_tracing::TraceLevel::Debug,
         //         &format!("Created Tera context from {} CLI variables", vars.len()), Some("context"));
         // } // Temporarily disabled
-        
+
         // Parse template to get frontmatter
         let mut template = crate::template::Template::parse(&input)?;
         // if SimpleTracer::is_enabled() {
-        //     SimpleTracer::trace(crate::simple_tracing::TraceLevel::Debug, 
+        //     SimpleTracer::trace(crate::simple_tracing::TraceLevel::Debug,
         //         &format!("Template parsed: {} lines", body_lines), Some("parsing"));
         // } // Temporarily disabled
-        
+
         // Render frontmatter first to get the final 'to' field
         template.render_frontmatter(&mut self.tera, &ctx)?;
         // SimpleTracer::frontmatter_processed(&template.front); // Temporarily disabled
 
-
         // Auto-bless context variables (Name, locals)
         crate::register::bless_context(&mut ctx);
         // SimpleTracer::context_blessed(ctx.len()); // Temporarily disabled
-        
+
         // Register template-defined vars into the context (after frontmatter render)
         for (k, v) in &template.front.vars {
             ctx.insert(k, v);
         }
         if SimpleTracer::is_enabled() {
-            SimpleTracer::trace(crate::simple_tracing::TraceLevel::Debug, 
-                &format!("Registered {} template-defined variables", template.front.vars.len()), Some("context"));
+            SimpleTracer::trace(
+                crate::simple_tracing::TraceLevel::Debug,
+                &format!(
+                    "Registered {} template-defined variables",
+                    template.front.vars.len()
+                ),
+                Some("context"),
+            );
         }
-        
+
         // Determine output path from frontmatter or default
         let out_path = if let Some(to_path) = &template.front.to {
             // Render the 'to' field as a template
@@ -104,9 +109,17 @@ impl Pipeline {
         };
 
         // Load RDF and execute SPARQL declared in frontmatter
-        SimpleTracer::rdf_loading(&template.front.rdf, template.front.rdf_inline.len(), self.graph.len());
-        template.process_graph(&mut self.graph, &mut self.tera, &ctx)?;
-        SimpleTracer::rdf_loading(&template.front.rdf, template.front.rdf_inline.len(), self.graph.len());
+        SimpleTracer::rdf_loading(
+            &template.front.rdf,
+            template.front.rdf_inline.len(),
+            self.graph.len(),
+        );
+        template.process_graph(&mut self.graph, &mut self.tera, &ctx, template_path)?;
+        SimpleTracer::rdf_loading(
+            &template.front.rdf,
+            template.front.rdf_inline.len(),
+            self.graph.len(),
+        );
 
         // Render body
         let rendered = template.render(&mut self.tera, &ctx)?;
@@ -273,7 +286,7 @@ impl Plan {
             SimpleTracer::dry_run(&self.output_path, self.content.len());
             return Ok(());
         }
-        
+
         // Handle injection templates
         if self.frontmatter.inject {
             let _mode = "injection"; // Simplified for now
@@ -281,7 +294,7 @@ impl Plan {
             // SimpleTracer::file_injection(&self.output_path, &mode, result.is_ok()); // Temporarily disabled
             return result;
         }
-        
+
         // Handle regular file generation
         self.apply_regular()
     }
@@ -300,11 +313,11 @@ impl Plan {
             // info!(path = %self.output_path.display(), "Created new file"); // Temporarily disabled
             return Ok(());
         }
-        
+
         // Read existing content
         let existing_content = std::fs::read_to_string(&self.output_path)?;
         // debug!(path = %self.output_path.display(), existing_size = existing_content.len(), "Read existing file content"); // Temporarily disabled
-        
+
         // Check idempotency guards
         if let Some(skip_if) = &self.frontmatter.skip_if {
             if regex::Regex::new(skip_if)?.is_match(&existing_content) {
@@ -312,7 +325,7 @@ impl Plan {
                 return Ok(());
             }
         }
-        
+
         // Check if content already exists (idempotent mode)
         if self.frontmatter.idempotent {
             if SkipIfGenerator::content_exists_in_file(&self.content, &self.output_path)? {
@@ -320,7 +333,7 @@ impl Plan {
                 return Ok(());
             }
         }
-        
+
         // Create backup if requested
         if self.frontmatter.backup.unwrap_or(false) {
             let backup_path = format!("{}.backup", self.output_path.display());
@@ -564,9 +577,9 @@ fn print_colorized_new_file(content: &str, path: &Path) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use tempfile::TempDir;
-    use std::collections::BTreeMap;
     use anyhow::Result;
+    use std::collections::BTreeMap;
+    use tempfile::TempDir;
 
     // Test 1: Pipeline initialization
     #[test]
@@ -582,7 +595,7 @@ mod tests {
         let mut pipeline = Pipeline::new()?;
         let mut ctx = Context::new();
         ctx.insert("name", "World");
-        
+
         let result = pipeline.render_body("Hello {{ name }}", &ctx)?;
         assert_eq!(result, "Hello World");
         Ok(())
@@ -598,13 +611,13 @@ to: "output.txt"
 Hello {{ name }}"#;
         let template_path = temp_dir.path().join("test.tmpl");
         std::fs::write(&template_path, template_content)?;
-        
+
         let mut pipeline = Pipeline::new()?;
         let mut vars = BTreeMap::new();
         vars.insert("name".to_string(), "World".to_string());
-        
+
         let plan = pipeline.render_file(&template_path, &vars, false)?;
-        
+
         assert_eq!(plan.content, "Hello World");
         assert_eq!(plan.output_path.file_name().unwrap(), "output.txt");
         Ok(())
@@ -615,7 +628,7 @@ Hello {{ name }}"#;
     fn test_plan_apply_dry_run() -> Result<()> {
         let temp_dir = TempDir::new()?;
         let output_path = temp_dir.path().join("output.txt");
-        
+
         let plan = Plan {
             template_path: temp_dir.path().join("test.tmpl"),
             output_path: output_path.clone(),
@@ -623,9 +636,9 @@ Hello {{ name }}"#;
             frontmatter: crate::template::Frontmatter::default(),
             dry_run: true,
         };
-        
+
         plan.apply()?;
-        
+
         // Verify file was NOT created
         assert!(!output_path.exists());
         Ok(())
@@ -636,7 +649,7 @@ Hello {{ name }}"#;
     fn test_plan_apply_creates_file() -> Result<()> {
         let temp_dir = TempDir::new()?;
         let output_path = temp_dir.path().join("output.txt");
-        
+
         let plan = Plan {
             template_path: temp_dir.path().join("test.tmpl"),
             output_path: output_path.clone(),
@@ -644,9 +657,9 @@ Hello {{ name }}"#;
             frontmatter: crate::template::Frontmatter::default(),
             dry_run: false,
         };
-        
+
         plan.apply()?;
-        
+
         // Verify file was created with correct content
         assert!(output_path.exists());
         let content = std::fs::read_to_string(&output_path)?;
@@ -659,13 +672,13 @@ Hello {{ name }}"#;
     fn test_plan_unless_exists() -> Result<()> {
         let temp_dir = TempDir::new()?;
         let output_path = temp_dir.path().join("output.txt");
-        
+
         // Create existing file
         std::fs::write(&output_path, "Original content")?;
-        
+
         let mut frontmatter = crate::template::Frontmatter::default();
         frontmatter.unless_exists = true;
-        
+
         let plan = Plan {
             template_path: temp_dir.path().join("test.tmpl"),
             output_path: output_path.clone(),
@@ -673,9 +686,9 @@ Hello {{ name }}"#;
             frontmatter,
             dry_run: false,
         };
-        
+
         plan.apply()?;
-        
+
         // Verify file was NOT overwritten
         let content = std::fs::read_to_string(&output_path)?;
         assert_eq!(content, "Original content");
@@ -687,11 +700,11 @@ Hello {{ name }}"#;
     fn test_pipeline_builder_with_prefixes() -> Result<()> {
         let mut prefixes = BTreeMap::new();
         prefixes.insert("ex".to_string(), "http://example.org/".to_string());
-        
+
         let pipeline = PipelineBuilder::new()
             .with_prefixes(prefixes, Some("http://example.org/base/".to_string()))
             .build()?;
-        
+
         // Just verify it builds successfully
         assert!(!pipeline.graph.is_empty() || pipeline.graph.is_empty());
         Ok(())
@@ -703,9 +716,9 @@ Hello {{ name }}"#;
         let mut pipeline = Pipeline::new()?;
         let mut prefixes = BTreeMap::new();
         prefixes.insert("ex".to_string(), "http://example.org/".to_string());
-        
+
         pipeline.register_prefixes(Some("http://example.org/base/"), &prefixes);
-        
+
         // Verify SPARQL function is registered (try to render)
         let ctx = Context::new();
         let result = pipeline.render_body("{{ 1 + 1 }}", &ctx)?;

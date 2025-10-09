@@ -25,9 +25,9 @@ mod tests {
     fn test_current_timestamp() {
         let timestamp = current_timestamp();
         assert!(timestamp > 0);
-        
+
         // Should be reasonable (after year 2020)
-        assert!(timestamp > 1577836800); // Jan 1, 2020
+        assert!(timestamp > 1_577_836_800); // Jan 1, 2020
     }
 
     #[test]

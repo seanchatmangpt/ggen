@@ -17,9 +17,16 @@ impl Default for PackConventions {
     fn default() -> Self {
         Self {
             template_patterns: &["templates/**/*.tmpl", "templates/**/*.tera"],
-            rdf_patterns: &["graphs/**/*.ttl", "graphs/**/*.rdf", "graphs/**/*.jsonld"],
-            query_patterns: &["queries/**/*.rq", "queries/**/*.sparql"],
-            shape_patterns: &["shapes/**/*.shacl.ttl", "shapes/**/*.ttl"],
+            rdf_patterns: &[
+                "templates/**/graphs/*.ttl", 
+                "templates/**/graphs/*.rdf", 
+                "templates/**/graphs/*.jsonld"
+            ],
+            query_patterns: &["templates/**/queries/*.rq", "templates/**/queries/*.sparql"],
+            shape_patterns: &[
+                "templates/**/graphs/shapes/*.shacl.ttl", 
+                "templates/**/shapes/*.ttl"
+            ],
         }
     }
 }
@@ -137,15 +144,19 @@ impl RpackManifest {
         Ok(manifest)
     }
 
-
     /// Discover template files using conventions or config
     pub fn discover_templates(&self, base_path: &Path) -> Result<Vec<PathBuf>> {
         let patterns = if self.templates.patterns.is_empty() {
             PackConventions::default().template_patterns
         } else {
-            &self.templates.patterns.iter().map(|s| s.as_str()).collect::<Vec<_>>()
+            &self
+                .templates
+                .patterns
+                .iter()
+                .map(|s| s.as_str())
+                .collect::<Vec<_>>()
         };
-        
+
         discover_files(base_path, patterns)
     }
 
@@ -154,9 +165,14 @@ impl RpackManifest {
         let patterns = if self.rdf.patterns.is_empty() {
             PackConventions::default().rdf_patterns
         } else {
-            &self.rdf.patterns.iter().map(|s| s.as_str()).collect::<Vec<_>>()
+            &self
+                .rdf
+                .patterns
+                .iter()
+                .map(|s| s.as_str())
+                .collect::<Vec<_>>()
         };
-        
+
         discover_files(base_path, patterns)
     }
 
@@ -165,9 +181,14 @@ impl RpackManifest {
         let patterns = if self.queries.patterns.is_empty() {
             PackConventions::default().query_patterns
         } else {
-            &self.queries.patterns.iter().map(|s| s.as_str()).collect::<Vec<_>>()
+            &self
+                .queries
+                .patterns
+                .iter()
+                .map(|s| s.as_str())
+                .collect::<Vec<_>>()
         };
-        
+
         discover_files(base_path, patterns)
     }
 
@@ -176,9 +197,14 @@ impl RpackManifest {
         let patterns = if self.shapes.patterns.is_empty() {
             PackConventions::default().shape_patterns
         } else {
-            &self.shapes.patterns.iter().map(|s| s.as_str()).collect::<Vec<_>>()
+            &self
+                .shapes
+                .patterns
+                .iter()
+                .map(|s| s.as_str())
+                .collect::<Vec<_>>()
         };
-        
+
         discover_files(base_path, patterns)
     }
 }
@@ -234,7 +260,6 @@ vars = { author = "Acme", license = "MIT" }
         assert_eq!(manifest.rdf.patterns.len(), 1);
         assert_eq!(manifest.queries.aliases.len(), 1);
     }
-
 
     #[test]
     fn test_manifest_load_from_file() {

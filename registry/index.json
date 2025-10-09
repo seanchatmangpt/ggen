@@ -1,0 +1,26 @@
+{
+  "updated": "2024-01-01T00:00:00Z",
+  "packs": {
+    "io.rgen.rust.cli-subcommand": {
+      "id": "io.rgen.rust.cli-subcommand",
+      "name": "Rust CLI Subcommand",
+      "description": "Generate clap subcommands for Rust CLI applications",
+      "tags": ["rust", "cli", "clap", "subcommand"],
+      "keywords": ["rust", "cli", "clap"],
+      "category": "rust",
+      "author": "rgen-team",
+      "latest_version": "0.1.0",
+      "versions": {
+        "0.1.0": {
+          "version": "0.1.0",
+          "git_url": "https://github.com/seanchatmangpt/rgen.git",
+          "git_rev": "master",
+          "sha256": "to_be_calculated"
+        }
+      },
+      "license": "MIT",
+      "homepage": "https://github.com/seanchatmangpt/rgen",
+      "repository": "https://github.com/seanchatmangpt/rgen"
+    }
+  }
+}

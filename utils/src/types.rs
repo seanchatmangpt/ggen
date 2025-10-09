@@ -59,7 +59,7 @@ mod tests {
         assert_eq!(LogLevel::from_str("info").unwrap(), LogLevel::Info);
         assert_eq!(LogLevel::from_str("warn").unwrap(), LogLevel::Warn);
         assert_eq!(LogLevel::from_str("error").unwrap(), LogLevel::Error);
-        
+
         // Default case
         assert_eq!(LogLevel::from_str("invalid").unwrap(), LogLevel::Info);
         assert_eq!(LogLevel::from_str("").unwrap(), LogLevel::Info);
@@ -70,7 +70,7 @@ mod tests {
         // Test serialization
         let debug_json = serde_json::to_string(&LogLevel::Debug).unwrap();
         assert_eq!(debug_json, "\"debug\"");
-        
+
         let info_json = serde_json::to_string(&LogLevel::Info).unwrap();
         assert_eq!(info_json, "\"info\"");
     }
@@ -80,7 +80,7 @@ mod tests {
         // Test deserialization
         let debug: LogLevel = serde_json::from_str("\"debug\"").unwrap();
         assert_eq!(debug, LogLevel::Debug);
-        
+
         let info: LogLevel = serde_json::from_str("\"info\"").unwrap();
         assert_eq!(info, LogLevel::Info);
     }

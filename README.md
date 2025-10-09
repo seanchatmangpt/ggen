@@ -90,7 +90,11 @@ Each output is produced deterministically from the same RDF description.
 
 ## 🏪 Marketplace
 
-The rgen marketplace provides a curated ecosystem of reusable code generation packs (rpacks). Discover, install, and use high-quality templates from the community.
+The rgen marketplace provides a curated ecosystem of reusable code generation packs (rpacks) served directly from the GitHub repository. Discover, install, and use high-quality templates from the community.
+
+**Marketplace Source**: [seanchatmangpt/rgen](https://github.com/seanchatmangpt/rgen)  
+**Registry URL**: `https://raw.githubusercontent.com/seanchatmangpt/rgen/master/registry/`  
+**Configuration**: Set `RGEN_REGISTRY_URL` environment variable to override the default URL
 
 ### Discover rpacks
 

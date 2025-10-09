@@ -3,21 +3,13 @@ to: "src/cmds/{{cmd}}.rs"
 vars:
   cmd: "example"
   summary: "Example command"
-rdf:
-  - "graphs/cli.ttl"
-shape:
-  - "graphs/shapes/cli.shacl.ttl"
-sparql:
-  - "SELECT ?cmd ?summary WHERE { ?cmd rdfs:label ?summary }"
-determinism:
-  seed: "cli-subcommand"
-  sort_order: ["cmd", "summary"]
 ---
+use clap::Args;
 use utils::error::Result;
 
-#[derive(clap::Args, Debug)]
+#[derive(Args, Debug)]
 pub struct {{cmd|title}}Args {
-    /// Input file or directory
+    /// {{summary}}
     #[arg(value_name = "INPUT")]
     pub input: Option<String>,
     
@@ -30,7 +22,7 @@ pub struct {{cmd|title}}Args {
     pub verbose: bool,
 }
 
-pub fn run(args: &{{cmd|title}}Args) -> Result<()> {
+pub async fn run(args: &{{cmd|title}}Args) -> Result<()> {
     println!("{{summary}}");
     Ok(())
 }
