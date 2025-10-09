@@ -1,3 +1,29 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen - Graph-Aware Code Generation Framework](#ggen---graph-aware-code-generation-framework)
+  - [Features](#features)
+  - [Quick Start](#quick-start)
+    - [Installation](#installation)
+    - [Basic Usage](#basic-usage)
+  - [Template Example](#template-example)
+  - [Architecture](#architecture)
+  - [Key Capabilities](#key-capabilities)
+    - [Deterministic Generation](#deterministic-generation)
+    - [RDF + SPARQL Integration](#rdf--sparql-integration)
+    - [Injection Modes](#injection-modes)
+    - [GitHub Integration](#github-integration)
+  - [Development](#development)
+  - [Marketplace (rpacks)](#marketplace-rpacks)
+  - [Documentation](#documentation)
+  - [Performance SLOs](#performance-slos)
+  - [Contributing](#contributing)
+  - [License](#license)
+  - [Repository](#repository)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen - Graph-Aware Code Generation Framework
 
 [![GitHub Pages](https://img.shields.io/badge/docs-live-success)](https://seanchatmangpt.github.io/ggen/)
