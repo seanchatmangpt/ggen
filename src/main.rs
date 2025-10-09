@@ -30,17 +30,15 @@ async fn main() -> Result<()> {
             .install();
     }
 
-    let _guard = ggen_utils::logger::setup_logging()?;
-
-    // Initialize tracing for pipeline debugging
-    // ggen_core::tracing::init_tracing()?; // Temporarily disabled
+    // Initialize simple logging (avoid slog-scope issues)
+    env_logger::Builder::from_default_env()
+        .filter_level(log::LevelFilter::Info)
+        .init();
 
     // Initialize Configuration
     let config_contents = include_str!("resources/ggen_config.toml");
     AppConfig::init(Some(config_contents))?;
 
     // Match Commands
-    ggen_cli_lib::cli_match().await?;
-
-    Ok(())
+    ggen_cli_lib::cli_match().await
 }
