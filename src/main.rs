@@ -40,7 +40,7 @@ async fn main() -> Result<()> {
     AppConfig::init(Some(config_contents))?;
 
     // Match Commands
-    rgen_cli::cli_match().await?;
+    rgen_cli_lib::cli_match().await?;
 
     Ok(())
 }

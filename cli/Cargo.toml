@@ -1,5 +1,5 @@
 [package]
-name = "rgen-cli"
+name = "rgen-cli-lib"
 version = "0.1.0"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "CLI interface for rgen"
