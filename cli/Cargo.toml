@@ -6,7 +6,7 @@ description = "CLI interface for rgen"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/seanchatmangpt/rgen"
-readme = "README.md"
+# readme = "README.md"  # No README.md in cli directory
 keywords = ["cli", "code-generation", "rdf", "templates"]
 categories = ["development-tools", "command-line-utilities"]
 
