@@ -47,12 +47,12 @@ pub async fn run(args: &AddArgs) -> Result<()> {
 
     println!("Cached rpack to: {}", cached_pack.path.display());
 
-    // Update lockfile
+    // Update lockfile with actual calculated SHA256 from cached pack
     println!("Updating lockfile...");
     lockfile_manager.upsert(
         &resolved_pack.id,
         &resolved_pack.version,
-        &resolved_pack.sha256,
+        &cached_pack.sha256,  // Use actual calculated SHA256, not registry placeholder
         &resolved_pack.git_url,
     )?;
 
