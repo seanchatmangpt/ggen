@@ -446,4 +446,289 @@ mod tests {
             .resolve_template_path(&cached_pack, "../outside.tmpl")
             .is_err());
     }
+
+    #[test]
+    fn test_template_resolver_new() {
+        let temp_dir = TempDir::new().unwrap();
+        let cache_manager = CacheManager::with_dir(temp_dir.path().join("cache")).unwrap();
+        let lockfile_manager = LockfileManager::new(temp_dir.path());
+        
+        let resolver = TemplateResolver::new(cache_manager, lockfile_manager);
+        
+        // Resolver should be created successfully
+        assert!(resolver.cache_manager.cache_dir().exists());
+    }
+
+    #[test]
+    fn test_resolve_template_path_nested() {
+        let temp_dir = TempDir::new().unwrap();
+        let pack_dir = temp_dir.path().join("pack");
+        let templates_dir = pack_dir.join("templates");
+        fs::create_dir_all(&templates_dir).unwrap();
+
+        let cached_pack = CachedPack {
+            id: "io.rgen.test".to_string(),
+            version: "1.0.0".to_string(),
+            path: pack_dir,
+            sha256: "abc123".to_string(),
+            manifest: None,
+        };
+
+        let cache_manager = CacheManager::with_dir(temp_dir.path().join("cache")).unwrap();
+        let lockfile_manager = LockfileManager::new(temp_dir.path());
+        let resolver = TemplateResolver::new(cache_manager, lockfile_manager);
+
+        let resolved_path = resolver
+            .resolve_template_path(&cached_pack, "nested/sub.tmpl")
+            .unwrap();
+        assert_eq!(resolved_path, templates_dir.join("nested").join("sub.tmpl"));
+    }
+
+    #[test]
+    fn test_resolve_template_path_empty_components() {
+        let temp_dir = TempDir::new().unwrap();
+        let pack_dir = temp_dir.path().join("pack");
+        let templates_dir = pack_dir.join("templates");
+        fs::create_dir_all(&templates_dir).unwrap();
+
+        let cached_pack = CachedPack {
+            id: "io.rgen.test".to_string(),
+            version: "1.0.0".to_string(),
+            path: pack_dir,
+            sha256: "abc123".to_string(),
+            manifest: None,
+        };
+
+        let cache_manager = CacheManager::with_dir(temp_dir.path().join("cache")).unwrap();
+        let lockfile_manager = LockfileManager::new(temp_dir.path());
+        let resolver = TemplateResolver::new(cache_manager, lockfile_manager);
+
+        // Should handle empty path components
+        let resolved_path = resolver
+            .resolve_template_path(&cached_pack, "a//b/")
+            .unwrap();
+        assert_eq!(resolved_path, templates_dir.join("a").join("b"));
+    }
+
+    #[test]
+    fn test_parse_frontmatter_basic() {
+        let temp_dir = TempDir::new().unwrap();
+        let cache_manager = CacheManager::with_dir(temp_dir.path().join("cache")).unwrap();
+        let lockfile_manager = LockfileManager::new(temp_dir.path());
+        let resolver = TemplateResolver::new(cache_manager, lockfile_manager);
+
+        let content = r#"---
+to: "output.txt"
+vars:
+  name: "Test"
+---
+Hello {{ name }}
+"#;
+
+        let (frontmatter, template_content) = resolver.parse_frontmatter(content).unwrap();
+        
+        assert!(frontmatter.is_some());
+        assert!(template_content.contains("Hello {{ name }}"));
+    }
+
+    #[test]
+    fn test_parse_frontmatter_no_frontmatter() {
+        let temp_dir = TempDir::new().unwrap();
+        let cache_manager = CacheManager::with_dir(temp_dir.path().join("cache")).unwrap();
+        let lockfile_manager = LockfileManager::new(temp_dir.path());
+        let resolver = TemplateResolver::new(cache_manager, lockfile_manager);
+
+        let content = "Hello World";
+
+        let (frontmatter, template_content) = resolver.parse_frontmatter(content).unwrap();
+        
+        assert!(frontmatter.is_none());
+        assert_eq!(template_content, "Hello World");
+    }
+
+    #[test]
+    fn test_validate_template_file_valid() {
+        let temp_dir = TempDir::new().unwrap();
+        let template_path = temp_dir.path().join("test.tmpl");
+        
+        let content = r#"---
+to: "output.txt"
+---
+Hello World
+"#;
+        fs::write(&template_path, content).unwrap();
+
+        let cache_manager = CacheManager::with_dir(temp_dir.path().join("cache")).unwrap();
+        let lockfile_manager = LockfileManager::new(temp_dir.path());
+        let resolver = TemplateResolver::new(cache_manager, lockfile_manager);
+
+        // Should validate successfully
+        assert!(resolver.validate_template_file(&template_path).is_ok());
+    }
+
+    #[test]
+    fn test_validate_template_file_empty() {
+        let temp_dir = TempDir::new().unwrap();
+        let template_path = temp_dir.path().join("empty.tmpl");
+        fs::write(&template_path, "").unwrap();
+
+        let cache_manager = CacheManager::with_dir(temp_dir.path().join("cache")).unwrap();
+        let lockfile_manager = LockfileManager::new(temp_dir.path());
+        let resolver = TemplateResolver::new(cache_manager, lockfile_manager);
+
+        // Should fail validation for empty file
+        assert!(resolver.validate_template_file(&template_path).is_err());
+    }
+
+    #[test]
+    fn test_validate_template_file_invalid_frontmatter() {
+        let temp_dir = TempDir::new().unwrap();
+        let template_path = temp_dir.path().join("invalid.tmpl");
+        
+        let content = r#"---
+to: 123
+---
+Hello World
+"#;
+        fs::write(&template_path, content).unwrap();
+
+        let cache_manager = CacheManager::with_dir(temp_dir.path().join("cache")).unwrap();
+        let lockfile_manager = LockfileManager::new(temp_dir.path());
+        let resolver = TemplateResolver::new(cache_manager, lockfile_manager);
+
+        // Should fail validation for invalid frontmatter
+        assert!(resolver.validate_template_file(&template_path).is_err());
+    }
+
+    #[test]
+    fn test_validate_template_file_nonexistent() {
+        let temp_dir = TempDir::new().unwrap();
+        let template_path = temp_dir.path().join("nonexistent.tmpl");
+
+        let cache_manager = CacheManager::with_dir(temp_dir.path().join("cache")).unwrap();
+        let lockfile_manager = LockfileManager::new(temp_dir.path());
+        let resolver = TemplateResolver::new(cache_manager, lockfile_manager);
+
+        // Should fail validation for nonexistent file
+        assert!(resolver.validate_template_file(&template_path).is_err());
+    }
+
+    #[test]
+    fn test_find_templates_in_pack_with_manifest() {
+        let temp_dir = TempDir::new().unwrap();
+        let pack_dir = temp_dir.path().join("pack");
+        let templates_dir = pack_dir.join("templates");
+        fs::create_dir_all(&templates_dir).unwrap();
+
+        // Create template files
+        fs::write(templates_dir.join("main.tmpl"), "template1").unwrap();
+        fs::write(templates_dir.join("sub.tmpl"), "template2").unwrap();
+
+        let manifest = crate::rpack::RpackManifest {
+            metadata: crate::rpack::RpackMetadata {
+                id: "io.rgen.test".to_string(),
+                name: "test-pack".to_string(),
+                version: "1.0.0".to_string(),
+                description: "Test pack".to_string(),
+                license: "MIT".to_string(),
+                rgen_compat: "1.0.0".to_string(),
+            },
+            dependencies: std::collections::BTreeMap::new(),
+            templates: crate::rpack::TemplatesConfig {
+                patterns: vec!["templates/main.tmpl".to_string(), "templates/sub.tmpl".to_string()],
+                includes: vec![],
+            },
+            macros: crate::rpack::MacrosConfig::default(),
+            rdf: crate::rpack::RdfConfig {
+                base: None,
+                prefixes: std::collections::BTreeMap::new(),
+                patterns: vec![],
+                inline: vec![],
+            },
+            queries: crate::rpack::QueriesConfig::default(),
+            shapes: crate::rpack::ShapesConfig::default(),
+            preset: crate::rpack::PresetConfig::default(),
+        };
+
+        let cached_pack = CachedPack {
+            id: "io.rgen.test".to_string(),
+            version: "1.0.0".to_string(),
+            path: pack_dir,
+            sha256: "abc123".to_string(),
+            manifest: Some(manifest),
+        };
+
+        let cache_manager = CacheManager::with_dir(temp_dir.path().join("cache")).unwrap();
+        let lockfile_manager = LockfileManager::new(temp_dir.path());
+        let resolver = TemplateResolver::new(cache_manager, lockfile_manager);
+
+        let templates = resolver.find_templates_in_pack(&cached_pack).unwrap();
+        
+        assert_eq!(templates.len(), 2);
+        assert!(templates.iter().any(|t| t.ends_with("main.tmpl")));
+        assert!(templates.iter().any(|t| t.ends_with("sub.tmpl")));
+    }
+
+    #[test]
+    fn test_find_templates_in_pack_without_manifest() {
+        let temp_dir = TempDir::new().unwrap();
+        let pack_dir = temp_dir.path().join("pack");
+        let templates_dir = pack_dir.join("templates");
+        fs::create_dir_all(&templates_dir).unwrap();
+
+        // Create template files
+        fs::write(templates_dir.join("main.tmpl"), "template1").unwrap();
+        fs::write(templates_dir.join("sub.tmpl"), "template2").unwrap();
+
+        let cached_pack = CachedPack {
+            id: "io.rgen.test".to_string(),
+            version: "1.0.0".to_string(),
+            path: pack_dir,
+            sha256: "abc123".to_string(),
+            manifest: None,
+        };
+
+        let cache_manager = CacheManager::with_dir(temp_dir.path().join("cache")).unwrap();
+        let lockfile_manager = LockfileManager::new(temp_dir.path());
+        let resolver = TemplateResolver::new(cache_manager, lockfile_manager);
+
+        let templates = resolver.find_templates_in_pack(&cached_pack).unwrap();
+        
+        assert_eq!(templates.len(), 2);
+        assert!(templates.iter().any(|t| t.ends_with("main.tmpl")));
+        assert!(templates.iter().any(|t| t.ends_with("sub.tmpl")));
+    }
+
+    #[test]
+    fn test_search_templates_empty() {
+        let temp_dir = TempDir::new().unwrap();
+        let cache_manager = CacheManager::with_dir(temp_dir.path().join("cache")).unwrap();
+        let lockfile_manager = LockfileManager::new(temp_dir.path());
+        let resolver = TemplateResolver::new(cache_manager, lockfile_manager);
+
+        let results = resolver.search_templates(None).unwrap();
+        assert!(results.is_empty());
+    }
+
+    #[test]
+    fn test_get_pack_templates_nonexistent_pack() {
+        let temp_dir = TempDir::new().unwrap();
+        let cache_manager = CacheManager::with_dir(temp_dir.path().join("cache")).unwrap();
+        let lockfile_manager = LockfileManager::new(temp_dir.path());
+        let resolver = TemplateResolver::new(cache_manager, lockfile_manager);
+
+        // Should fail for nonexistent pack
+        assert!(resolver.get_pack_templates("nonexistent.pack").is_err());
+    }
+
+    #[test]
+    fn test_validate_templates_empty() {
+        let temp_dir = TempDir::new().unwrap();
+        let cache_manager = CacheManager::with_dir(temp_dir.path().join("cache")).unwrap();
+        let lockfile_manager = LockfileManager::new(temp_dir.path());
+        let resolver = TemplateResolver::new(cache_manager, lockfile_manager);
+
+        let errors = resolver.validate_templates().unwrap();
+        assert!(errors.is_empty());
+    }
 }

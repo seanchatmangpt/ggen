@@ -18,6 +18,8 @@ pub mod resolver;
 pub mod rpack;
 pub mod template;
 pub mod tera_env;
+// pub mod tracing; // Temporarily disabled due to missing tracing_subscriber dependency
+pub mod simple_tracing;
 pub mod validate_frontmatter;
 
 // Re-export commonly used types for convenience

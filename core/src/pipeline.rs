@@ -5,10 +5,10 @@ use sha2::{Digest, Sha256};
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 use tera::{Context, Function as TeraFunction, Tera};
-
 use crate::graph::{build_prolog, Graph};
 use crate::register;
 use crate::template::Frontmatter;
+use crate::simple_tracing::{SimpleTracer, SimpleTimer};
 
 pub struct Pipeline {
     pub(crate) tera: Tera,
@@ -53,43 +53,50 @@ impl Pipeline {
     pub fn render_file(
         &mut self, template_path: &Path, vars: &BTreeMap<String, String>, dry_run: bool,
     ) -> Result<Plan> {
-        use std::env;
-
-        // Trace template path if RGEN_TRACE is set
-        if env::var("RGEN_TRACE").is_ok() {
-            eprintln!("=== RGEN TRACE ===");
-            eprintln!("Template path: {}", template_path.display());
-        }
-
+        // Start performance timing
+        let _timer = SimpleTimer::start("template_processing");
+        
+        // SimpleTracer::template_start(template_path); // Temporarily disabled
+        
         // Read template file
         let input = std::fs::read_to_string(template_path)?;
-
+        let body_lines = input.lines().count();
+        
         // Create Tera context from vars
         let mut ctx = Context::from_serialize(vars)?;
-
+        if SimpleTracer::is_enabled() {
+            SimpleTracer::trace(crate::simple_tracing::TraceLevel::Debug, 
+                &format!("Created Tera context from {} CLI variables", vars.len()), Some("context"));
+        }
+        
         // Parse template to get frontmatter
         let mut template = crate::template::Template::parse(&input)?;
-
+        if SimpleTracer::is_enabled() {
+            SimpleTracer::trace(crate::simple_tracing::TraceLevel::Debug, 
+                &format!("Template parsed: {} lines", body_lines), Some("parsing"));
+        }
+        
         // Render frontmatter first to get the final 'to' field
         template.render_frontmatter(&mut self.tera, &ctx)?;
-
-        // Trace frontmatter if RGEN_TRACE is set
-        if env::var("RGEN_TRACE").is_ok() {
-            eprintln!("Resolved frontmatter:");
-            eprintln!("{:#?}", template.front);
-        }
+        SimpleTracer::frontmatter_processed(&template.front);
 
         // Validate frontmatter after rendering
+        SimpleTracer::validation("frontmatter", true);
         crate::validate_frontmatter::validate_frontmatter(&template.front)?;
 
         // Auto-bless context variables (Name, locals)
         crate::register::bless_context(&mut ctx);
-
+        // SimpleTracer::context_blessed(ctx.len()); // Temporarily disabled
+        
         // Register template-defined vars into the context (after frontmatter render)
         for (k, v) in &template.front.vars {
             ctx.insert(k, v);
         }
-
+        if SimpleTracer::is_enabled() {
+            SimpleTracer::trace(crate::simple_tracing::TraceLevel::Debug, 
+                &format!("Registered {} template-defined variables", template.front.vars.len()), Some("context"));
+        }
+        
         // Determine output path from frontmatter or default
         let out_path = if let Some(to_path) = &template.front.to {
             // Render the 'to' field as a template
@@ -99,16 +106,14 @@ impl Pipeline {
             PathBuf::from("out.txt")
         };
 
-        // Trace output path if RGEN_TRACE is set
-        if env::var("RGEN_TRACE").is_ok() {
-            eprintln!("Target output path: {}", out_path.display());
-        }
-
         // Load RDF and execute SPARQL declared in frontmatter
+        SimpleTracer::rdf_loading(&template.front.rdf, template.front.rdf_inline.len(), self.graph.len());
         template.process_graph(&mut self.graph, &mut self.tera, &ctx)?;
+        SimpleTracer::rdf_loading(&template.front.rdf, template.front.rdf_inline.len(), self.graph.len());
 
         // Render body
         let rendered = template.render(&mut self.tera, &ctx)?;
+        SimpleTracer::template_complete(template_path, &out_path, rendered.len());
 
         // Create plan
         let plan = Plan {
@@ -118,6 +123,10 @@ impl Pipeline {
             frontmatter: template.front,
             dry_run,
         };
+
+        if dry_run {
+            // PipelineTracer::dry_run(&plan.output_path, plan.content.len()); // Temporarily disabled
+        }
 
         Ok(plan)
     }
@@ -192,6 +201,9 @@ impl TeraFunction for SparqlFn {
             format!("{}\n{}", self.prolog, q)
         };
 
+        // Trace SPARQL query execution
+        // debug!(query = final_q, "Executing SPARQL query"); // Temporarily disabled
+
         let results = self
             .graph
             .query(&final_q)
@@ -261,15 +273,23 @@ impl Plan {
     /// Apply the plan by writing the content to the output path
     pub fn apply(&self) -> Result<()> {
         if self.dry_run {
+            // PipelineTracer::dry_run(&self.output_path, self.content.len()); // Temporarily disabled
             return Ok(());
         }
-
+        
         // Handle injection templates
         if self.frontmatter.inject {
-            return self.apply_injection();
+            let mode = "injection"; // Simplified for now
+            // PipelineTracer::file_injection_start(&self.output_path, &mode); // Temporarily disabled
+            let result = self.apply_injection();
+            if result.is_ok() {
+                // PipelineTracer::file_injection_complete(&self.output_path, &mode); // Temporarily disabled
+            }
+            return result;
         }
-
+        
         // Handle regular file generation
+        // let _file_span = PipelineTracer::file_span("write", &self.output_path).entered(); // Temporarily disabled
         self.apply_regular()
     }
 
@@ -284,34 +304,35 @@ impl Plan {
                 std::fs::create_dir_all(parent)?;
             }
             std::fs::write(&self.output_path, &self.content)?;
-            println!("Created: {}", self.output_path.display());
+            // info!(path = %self.output_path.display(), "Created new file"); // Temporarily disabled
             return Ok(());
         }
-
+        
         // Read existing content
         let existing_content = std::fs::read_to_string(&self.output_path)?;
-
+        // debug!(path = %self.output_path.display(), existing_size = existing_content.len(), "Read existing file content"); // Temporarily disabled
+        
         // Check idempotency guards
         if let Some(skip_if) = &self.frontmatter.skip_if {
             if regex::Regex::new(skip_if)?.is_match(&existing_content) {
-                println!("Skipped: pattern '{}' found in existing file", skip_if);
+                // PipelineTracer::skip_condition("skip_if", &format!("pattern '{}' found", skip_if)); // Temporarily disabled
                 return Ok(());
             }
         }
-
+        
         // Check if content already exists (idempotent mode)
         if self.frontmatter.idempotent {
             if SkipIfGenerator::content_exists_in_file(&self.content, &self.output_path)? {
-                println!("Skipped: content already exists in file (idempotent mode)");
+                // PipelineTracer::skip_condition("idempotent", "content already exists"); // Temporarily disabled
                 return Ok(());
             }
         }
-
+        
         // Create backup if requested
         if self.frontmatter.backup.unwrap_or(false) {
             let backup_path = format!("{}.backup", self.output_path.display());
             std::fs::copy(&self.output_path, &backup_path)?;
-            println!("Backup created: {}", backup_path);
+            // PipelineTracer::backup_created(&self.output_path, &PathBuf::from(&backup_path)); // Temporarily disabled
         }
 
         // Normalize EOL for injection content
@@ -450,7 +471,7 @@ impl Plan {
     fn execute_shell_hook(&self, command: &str, timing: &str) -> Result<()> {
         use std::process::Command;
 
-        println!("Executing {} hook: {}", timing, command);
+        // PipelineTracer::shell_hook_start(command, timing); // Temporarily disabled
 
         // Execute the command in the current directory
         let output = Command::new("sh")
@@ -459,8 +480,11 @@ impl Plan {
             .current_dir(std::env::current_dir()?)
             .output()?;
 
+        let exit_code = output.status.code().unwrap_or(-1);
+
         if !output.status.success() {
             let stderr = String::from_utf8_lossy(&output.stderr);
+            // PipelineTracer::shell_hook_complete(command, timing, exit_code); // Temporarily disabled
             return Err(anyhow::anyhow!("Shell hook failed: {}", stderr));
         }
 
@@ -470,6 +494,7 @@ impl Plan {
             print!("{}", stdout);
         }
 
+        // PipelineTracer::shell_hook_complete(command, timing, exit_code); // Temporarily disabled
         Ok(())
     }
 
