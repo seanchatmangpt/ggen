@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ggen Marketplace</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+            font-size: 1.2em;
+        }
+        .section {
+            margin: 40px 0;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        .section h2 {
+            margin-top: 0;
+            color: #667eea;
+        }
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            margin: 20px 0;
+        }
+        .code-block code {
+            background: none;
+            padding: 0;
+            color: inherit;
+        }
+        .api-link {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 10px 10px 0;
+            transition: background 0.3s;
+        }
+        .api-link:hover {
+            background: #5a67d8;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 60px;
+            padding: 20px;
+            border-top: 1px solid #e2e8f0;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🏪 ggen Marketplace</h1>
+        <p>Curated ecosystem of reusable code generation packs (rpacks)</p>
+    </div>
+
+    <div class="section">
+        <h2>📚 About</h2>
+        <p>The ggen marketplace provides a curated ecosystem of reusable code generation packs (rpacks) served via GitHub Pages with automated validation and deployment. Discover, install, and use high-quality templates from the community.</p>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number">1</div>
+                <div>Available Rpack</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">100%</div>
+                <div>Open Source</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">MIT</div>
+                <div>License</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>🔍 Registry API</h2>
+        <p>Access the marketplace registry programmatically:</p>
+        
+        <a href="registry/index.json" class="api-link">📋 Registry Index (JSON)</a>
+        <a href="https://github.com/seanchatmangpt/ggen" class="api-link">📦 Source Repository</a>
+        
+        <div class="code-block">
+            <code># Registry URL: https://seanchatmangpt.github.io/ggen/registry/
+# API Endpoint: https://seanchatmangpt.github.io/ggen/registry/index.json</code>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>🚀 Quick Start</h2>
+        <p>Get started with the ggen marketplace:</p>
+        
+        <div class="code-block">
+            <code># Search for rpacks
+ggen search rust cli
+
+# Install an rpack
+ggen add io.ggen.rust.cli-subcommand
+
+# Use installed rpack
+ggen gen io.ggen.rust.cli-subcommand:rust.tmpl cmd=test</code>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>📦 Available Rpacks</h2>
+        <p>Currently available rpacks in the marketplace:</p>
+        
+        <div class="code-block">
+            <code>io.ggen.rust.cli-subcommand
+├── Generate clap subcommands for Rust CLI applications
+├── Version: 0.1.0
+├── License: MIT
+└── Tags: rust, cli, clap, subcommand</code>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>🔧 Configuration</h2>
+        <p>Configure the marketplace registry URL:</p>
+        
+        <div class="code-block">
+            <code># Use GitHub Pages marketplace (default)
+export GGEN_REGISTRY_URL="https://seanchatmangpt.github.io/ggen/registry/"
+
+# Use local registry for development/testing
+export GGEN_REGISTRY_URL="file:///path/to/local/registry/"
+
+# Use custom registry
+export GGEN_REGISTRY_URL="https://your-registry.com/"</code>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>📖 Documentation</h2>
+        <p>Learn more about using and contributing to the marketplace:</p>
+        
+        <a href="https://github.com/seanchatmangpt/ggen/blob/main/docs/marketplace.md" class="api-link">📖 Marketplace Guide</a>
+        <a href="https://github.com/seanchatmangpt/ggen/blob/main/README.md" class="api-link">🏠 Project README</a>
+    </div>
+
+    <div class="footer">
+        <p>Built with ❤️ by the ggen community | <a href="https://github.com/seanchatmangpt/ggen">GitHub</a></p>
+    </div>
+</body>
+</html>

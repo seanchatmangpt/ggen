@@ -20,7 +20,7 @@ The marketplace URL can be configured using the `GGEN_REGISTRY_URL` environment 
 
 ```bash
 # Use GitHub Pages marketplace (default)
-export GGEN_REGISTRY_URL="https://seanchatmangpt.github.io/ggen/"
+export GGEN_REGISTRY_URL="https://seanchatmangpt.github.io/ggen/registry/"
 
 # Use local registry for development/testing
 export GGEN_REGISTRY_URL="file:///path/to/local/registry/"

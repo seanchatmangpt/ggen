@@ -94,7 +94,7 @@ impl RegistryClient {
     pub fn new() -> Result<Self> {
         // Check environment variable for registry URL
         let registry_url = std::env::var("GGEN_REGISTRY_URL").unwrap_or_else(|_| {
-            "https://seanchatmangpt.github.io/ggen/".to_string()
+            "https://seanchatmangpt.github.io/ggen/registry/".to_string()
         });
 
         let base_url = Url::parse(&registry_url).context("Failed to parse registry URL")?;

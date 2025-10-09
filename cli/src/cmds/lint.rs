@@ -406,9 +406,9 @@ fn validate_registry(args: &LintArgs) -> Result<()> {
     let mut issues = Vec::new();
 
     // Load registry index
-    let registry_path = std::env::current_dir()?.join("registry").join("index.json");
+    let registry_path = std::env::current_dir()?.join("docs").join("registry").join("index.json");
     if !registry_path.exists() {
-        return Err(ggen_utils::error::Error::new("Registry index not found at registry/index.json"));
+        return Err(ggen_utils::error::Error::new("Registry index not found at docs/registry/index.json"));
     }
 
     let registry_content = std::fs::read_to_string(&registry_path)?;
