@@ -8,6 +8,8 @@
     - [Homebrew](#homebrew)
     - [Cargo](#cargo)
   - [⚙️ Quick start](#-quick-start)
+    - [Using marketplace rpacks (recommended)](#using-marketplace-rpacks-recommended)
+    - [Using local templates](#using-local-templates)
   - [🏪 Marketplace](#-marketplace)
     - [Discover rpacks](#discover-rpacks)
     - [Install and use](#install-and-use)
@@ -16,9 +18,14 @@
   - [💡 Commands](#-commands)
   - [🔁 Determinism](#-determinism)
   - [🧠 Example: Multi-language CLI generation](#-example-multi-language-cli-generation)
+    - [Using marketplace rpacks](#using-marketplace-rpacks)
+    - [Using local templates](#using-local-templates-1)
   - [🧰 Integrations](#-integrations)
   - [📦 Extend](#-extend)
+    - [Create local templates](#create-local-templates)
+    - [Publish rpacks to marketplace](#publish-rpacks-to-marketplace)
   - [🔒 License](#-license)
+  - [📚 Documentation](#-documentation)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
