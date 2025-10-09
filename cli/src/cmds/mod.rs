@@ -2,6 +2,7 @@ pub mod add;
 pub mod categories;
 pub mod completion;
 pub mod gen;
+pub mod github;
 pub mod graph;
 pub mod hazard;
 pub mod lint;
@@ -40,6 +41,8 @@ pub enum Commands {
     Lint(lint::LintArgs),
     #[command(name = "graph", about = "Export RDF graph")]
     Graph(graph::GraphArgs),
+    #[command(name = "github", about = "GitHub API operations (Pages, workflows)")]
+    GitHub(github::GitHubArgs),
     #[command(name = "hazard", about = "Generate hazard report")]
     Hazard,
     #[command(name = "completion", about = "Generate completion scripts")]
@@ -73,6 +76,7 @@ impl Commands {
             Commands::Show(args) => show::run(args),
             Commands::Lint(args) => lint::run(args),
             Commands::Graph(args) => graph::run(args),
+            Commands::GitHub(args) => Ok(github::run(args).await?),
             Commands::Hazard => hazard::run(),
             Commands::Completion { subcommand } => completion::run(subcommand),
         }
@@ -93,6 +97,7 @@ impl Commands {
             Commands::Show(args) => show::run(args),
             Commands::Lint(args) => lint::run(args),
             Commands::Graph(args) => graph::run(args),
+            Commands::GitHub(args) => Ok(github::run(args).await?),
             Commands::Hazard => hazard::run(),
             Commands::Completion { subcommand } => completion::run(subcommand),
         }
