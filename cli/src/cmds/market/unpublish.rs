@@ -57,10 +57,10 @@ pub async fn run(args: &UnpublishArgs) -> Result<()> {
         println!("\nThis action cannot be undone.");
         print!("Continue? (y/N): ");
         io::stdout().flush().unwrap();
-        
+
         let mut input = String::new();
         io::stdin().read_line(&mut input).unwrap();
-        
+
         if !input.trim().eq_ignore_ascii_case("y") && !input.trim().eq_ignore_ascii_case("yes") {
             println!("❌ Unpublish cancelled.");
             return Ok(());
@@ -68,10 +68,10 @@ pub async fn run(args: &UnpublishArgs) -> Result<()> {
     }
 
     println!("🗑️  Unpublishing gpack...");
-    
+
     // Placeholder for actual unpublishing logic
     println!("✅ Package unpublished successfully!");
-    
+
     if args.force {
         println!("🧹 Removed all versions of: {}", args.gpack_id);
     } else {
@@ -89,15 +89,20 @@ fn validate_gpack_input(gpack_id: &str) -> Result<()> {
     Ok(())
 }
 
-pub async fn run_with_deps(args: &UnpublishArgs, unpublisher: &dyn PackageUnpublisher) -> Result<()> {
+pub async fn run_with_deps(
+    args: &UnpublishArgs, unpublisher: &dyn PackageUnpublisher,
+) -> Result<()> {
     let result = unpublisher.unpublish_package(&args.gpack_id, args.force)?;
-    
+
     println!("✅ Successfully unpublished {}", result.package_id);
-    
+
     if !result.versions_removed.is_empty() {
-        println!("🗑️  Removed versions: {}", result.versions_removed.join(", "));
+        println!(
+            "🗑️  Removed versions: {}",
+            result.versions_removed.join(", ")
+        );
     }
-    
+
     if let Some(warning) = result.warning_message {
         println!("⚠️  {}", warning);
     }

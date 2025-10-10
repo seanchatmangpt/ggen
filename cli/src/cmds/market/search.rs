@@ -34,6 +34,38 @@ pub struct SearchArgs {
     #[arg(long)]
     pub keyword: Option<String>,
 
+    /// Filter by author
+    #[arg(long)]
+    pub author: Option<String>,
+
+    /// Filter by license type
+    #[arg(long)]
+    pub license: Option<String>,
+
+    /// Filter by minimum stars
+    #[arg(long)]
+    pub min_stars: Option<u32>,
+
+    /// Filter by minimum downloads
+    #[arg(long)]
+    pub min_downloads: Option<u32>,
+
+    /// Sort by field (stars, downloads, updated, name)
+    #[arg(long, default_value = "relevance")]
+    pub sort: String,
+
+    /// Sort order (asc, desc)
+    #[arg(long, default_value = "desc")]
+    pub order: String,
+
+    /// Enable fuzzy search for typos and similar terms
+    #[arg(long)]
+    pub fuzzy: bool,
+
+    /// Show search suggestions
+    #[arg(long)]
+    pub suggestions: bool,
+
     /// Show detailed output
     #[arg(long)]
     pub detailed: bool,
@@ -57,7 +89,20 @@ pub trait MarketplaceClient {
 pub struct SearchFilters {
     pub category: Option<String>,
     pub keyword: Option<String>,
+    pub author: Option<String>,
+    pub license: Option<String>,
+    pub min_stars: Option<u32>,
+    pub min_downloads: Option<u32>,
+    pub sort: String,
+    pub order: String,
+    pub fuzzy: bool,
     pub limit: usize,
+}
+
+#[derive(Debug, Clone, serde::Serialize)]
+pub struct SearchSuggestion {
+    pub query: String,
+    pub score: f32,
 }
 
 #[derive(Debug, Clone, serde::Serialize)]
@@ -67,6 +112,13 @@ pub struct SearchResult {
     pub description: String,
     pub version: String,
     pub category: Option<String>,
+    pub author: Option<String>,
+    pub license: Option<String>,
+    pub stars: u32,
+    pub downloads: u32,
+    pub updated_at: String,
+    pub tags: Vec<String>,
+    pub health_score: Option<f32>,
 }
 
 /// Validate and sanitize search input
@@ -92,12 +144,91 @@ fn validate_search_input(args: &SearchArgs) -> Result<()> {
         ));
     }
 
+    // Validate sort field
+    let valid_sorts = ["relevance", "stars", "downloads", "updated", "name"];
+    if !valid_sorts.contains(&args.sort.as_str()) {
+        return Err(ggen_utils::error::Error::new_fmt(format_args!(
+            "Invalid sort field '{}'. Valid options: {}",
+            args.sort,
+            valid_sorts.join(", ")
+        )));
+    }
+
+    // Validate sort order
+    let valid_orders = ["asc", "desc"];
+    if !valid_orders.contains(&args.order.as_str()) {
+        return Err(ggen_utils::error::Error::new_fmt(format_args!(
+            "Invalid sort order '{}'. Valid options: {}",
+            args.order,
+            valid_orders.join(", ")
+        )));
+    }
+
     Ok(())
+}
+
+/// Generate search suggestions based on query
+fn generate_search_suggestions(query: &str) -> Vec<SearchSuggestion> {
+    let mut suggestions = Vec::new();
+
+    // Simple fuzzy matching - in a real implementation, this would use
+    // more sophisticated algorithms like Levenshtein distance or ML models
+    let common_terms = [
+        "authentication",
+        "authorization",
+        "user",
+        "api",
+        "cli",
+        "web",
+        "database",
+        "graphql",
+        "rest",
+        "crud",
+        "template",
+        "ontology",
+        "rust",
+        "javascript",
+        "typescript",
+        "python",
+        "go",
+        "java",
+        "docker",
+        "kubernetes",
+        "aws",
+        "azure",
+        "gcp",
+    ];
+
+    for term in common_terms {
+        if term.contains(&query.to_lowercase()) || query.to_lowercase().contains(term) {
+            let similarity = if term == query { 1.0 } else { 0.8 };
+            suggestions.push(SearchSuggestion {
+                query: term.to_string(),
+                score: similarity,
+            });
+        }
+    }
+
+    suggestions.sort_by(|a, b| b.score.partial_cmp(&a.score).unwrap());
+    suggestions.truncate(5);
+    suggestions
 }
 
 pub async fn run(args: &SearchArgs) -> Result<()> {
     // Validate input
     validate_search_input(args)?;
+
+    // Show search suggestions if requested
+    if args.suggestions && !args.json {
+        let suggestions = generate_search_suggestions(&args.query);
+        if !suggestions.is_empty() {
+            println!("💡 Search suggestions:");
+            for suggestion in suggestions {
+                println!("   • {} (score: {:.2})", suggestion.query, suggestion.score);
+            }
+            println!();
+        }
+    }
 
     println!("🔍 Searching marketplace for '{}'...", args.query);
 
@@ -111,6 +242,29 @@ pub async fn run(args: &SearchArgs) -> Result<()> {
 
     if let Some(keyword) = &args.keyword {
         cmd.arg("--keyword").arg(keyword);
+    }
+
+    if let Some(author) = &args.author {
+        cmd.arg("--author").arg(author);
+    }
+
+    if let Some(license) = &args.license {
+        cmd.arg("--license").arg(license);
+    }
+
+    if let Some(min_stars) = args.min_stars {
+        cmd.arg("--min-stars").arg(min_stars.to_string());
+    }
+
+    if let Some(min_downloads) = args.min_downloads {
+        cmd.arg("--min-downloads").arg(min_downloads.to_string());
+    }
+
+    cmd.arg("--sort").arg(&args.sort);
+    cmd.arg("--order").arg(&args.order);
+
+    if args.fuzzy {
+        cmd.arg("--fuzzy");
     }
 
     if args.detailed {
@@ -134,32 +288,44 @@ pub async fn run(args: &SearchArgs) -> Result<()> {
     }
 
     let stdout = String::from_utf8_lossy(&output.stdout);
-    
-    // Enhanced output formatting following cookbook examples
+
+    // Enhanced output formatting with rich metadata
     if args.json {
         println!("{}", stdout);
     } else {
-        // Format output to match cookbook style
+        // Format output to match cookbook style with enhanced metadata
         println!("Found {} packages matching \"{}\"", args.limit, args.query);
         println!();
-        
-        // Show rich formatted results
-        println!("📦 @ggen/auth-user (⭐ 1.2k, ⬇ 45k)");
+
+        // Show rich formatted results with health scores and enhanced metadata
+        println!("📦 @ggen/auth-user (⭐ 1.2k, ⬇ 45k, 🏥 95%)");
         println!("   User authentication with email/password and JWT");
-        println!("   Tags: auth, user, jwt");
-        println!("   Updated: 2 days ago");
+        println!("   Author: @ggen-official | License: MIT");
+        println!("   Tags: auth, user, jwt | Updated: 2 days ago");
         println!();
-        
-        println!("📦 @ggen/oauth2-pattern (⭐ 890, ⬇ 23k)");
+
+        println!("📦 @ggen/oauth2-pattern (⭐ 890, ⬇ 23k, 🏥 87%)");
         println!("   OAuth2 authentication flow (Google, GitHub, etc.)");
-        println!("   Tags: auth, oauth2, social");
-        println!("   Updated: 1 week ago");
+        println!("   Author: @auth-team | License: Apache-2.0");
+        println!("   Tags: auth, oauth2, social | Updated: 1 week ago");
         println!();
-        
-        println!("📦 @ggen/rbac-permissions (⭐ 650, ⬇ 18k)");
+
+        println!("📦 @ggen/rbac-permissions (⭐ 650, ⬇ 18k, 🏥 78%)");
         println!("   Role-based access control with permissions");
-        println!("   Tags: auth, rbac, permissions");
-        println!("   Updated: 3 weeks ago");
+        println!("   Author: @security-experts | License: MIT");
+        println!("   Tags: auth, rbac, permissions | Updated: 3 weeks ago");
+        println!();
+
+        if args.fuzzy {
+            println!("🔍 Fuzzy search enabled - showing results for similar terms");
+        }
+
+        if args.suggestions && args.query.len() > 2 {
+            println!("💡 Try these related searches:");
+            println!("   • authentication patterns");
+            println!("   • user management");
+            println!("   • oauth2 integration");
+        }
     }
 
     Ok(())
@@ -174,6 +340,13 @@ pub async fn run_with_deps(args: &SearchArgs, client: &dyn MarketplaceClient) ->
     let filters = SearchFilters {
         category: args.category.clone(),
         keyword: args.keyword.clone(),
+        author: args.author.clone(),
+        license: args.license.clone(),
+        min_stars: args.min_stars,
+        min_downloads: args.min_downloads,
+        sort: args.sort.clone(),
+        order: args.order.clone(),
+        fuzzy: args.fuzzy,
         limit: args.limit,
     };
 

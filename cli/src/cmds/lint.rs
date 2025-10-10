@@ -7,6 +7,63 @@ use tera::Context;
 use ggen_core::graph::Graph;
 use ggen_core::template::Template;
 
+/// Validate lint command input
+fn validate_lint_input(args: &LintArgs) -> Result<()> {
+    // Validate template path if provided
+    if let Some(ref template_path) = args.template {
+        if template_path.to_string_lossy().trim().is_empty() {
+            return Err(ggen_utils::error::Error::new(
+                "Template path cannot be empty",
+            ));
+        }
+        if template_path.to_string_lossy().len() > 1000 {
+            return Err(ggen_utils::error::Error::new(
+                "Template path too long (max 1000 characters)",
+            ));
+        }
+        // Basic path traversal protection
+        if template_path.to_string_lossy().contains("..") {
+            return Err(ggen_utils::error::Error::new(
+                "Path traversal detected: template path cannot contain '..'",
+            ));
+        }
+    }
+
+    // Validate variables format
+    for (key, value) in &args.vars {
+        if key.trim().is_empty() {
+            return Err(ggen_utils::error::Error::new(
+                "Variable key cannot be empty",
+            ));
+        }
+        if key.len() > 100 {
+            return Err(ggen_utils::error::Error::new(
+                "Variable key too long (max 100 characters)",
+            ));
+        }
+        if value.len() > 1000 {
+            return Err(ggen_utils::error::Error::new(
+                "Variable value too long (max 1000 characters)",
+            ));
+        }
+    }
+
+    // Validate that either template or registry is specified
+    if args.template.is_none() && !args.registry {
+        return Err(ggen_utils::error::Error::new(
+            "Must specify either a template path or use --registry flag",
+        ));
+    }
+
+    if args.template.is_some() && args.registry {
+        return Err(ggen_utils::error::Error::new(
+            "Cannot specify both template path and --registry flag",
+        ));
+    }
+
+    Ok(())
+}
+
 #[derive(Args, Debug)]
 pub struct LintArgs {
     /// Path to the template file to lint
@@ -46,7 +103,10 @@ where
 }
 
 pub fn run(args: &LintArgs) -> Result<()> {
+    validate_lint_input(args)?;
+
     if args.registry {
+        println!("🔍 Validating registry index...");
         return validate_registry(args);
     }
 
@@ -54,10 +114,17 @@ pub fn run(args: &LintArgs) -> Result<()> {
         ggen_utils::error::Error::new("Template path is required when not validating registry")
     })?;
 
+    println!("🔍 Linting template: {}", template_path.display());
     let mut issues = Vec::new();
 
     // Read template file
-    let template_content = std::fs::read_to_string(template_path)?;
+    let template_content = std::fs::read_to_string(template_path).map_err(|e| {
+        ggen_utils::error::Error::new_fmt(format_args!(
+            "Failed to read template file '{}': {}",
+            template_path.display(),
+            e
+        ))
+    })?;
 
     // Parse template
     let mut template = Template::parse(&template_content)?;

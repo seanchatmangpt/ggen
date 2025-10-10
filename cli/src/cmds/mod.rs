@@ -2,6 +2,7 @@
 pub mod audit;
 pub mod ci;
 pub mod graph;
+pub mod hook;
 pub mod market;
 pub mod project;
 pub mod shell;
@@ -34,6 +35,11 @@ pub enum Commands {
     Ci(ci::CiCmd),
     #[command(name = "graph", about = "RDF graph operations")]
     Graph(graph::GraphCmd),
+    #[command(
+        name = "hook",
+        about = "Knowledge hooks for autonomic graph regeneration"
+    )]
+    Hook(hook::HookCmd),
     #[command(name = "market", about = "Marketplace operations for gpacks")]
     Market(market::MarketCmd),
     #[command(name = "project", about = "Project scaffolding and generation")]
@@ -122,6 +128,7 @@ impl Commands {
             Commands::Audit(cmd) => cmd.run().await,
             Commands::Ci(cmd) => cmd.run().await,
             Commands::Graph(cmd) => cmd.run().await,
+            Commands::Hook(cmd) => cmd.run().await,
             Commands::Market(cmd) => cmd.run().await,
             Commands::Project(cmd) => cmd.run().await,
             Commands::Shell(cmd) => cmd.run().await,
@@ -152,6 +159,7 @@ impl Commands {
             Commands::Audit(cmd) => cmd.run().await,
             Commands::Ci(cmd) => cmd.run().await,
             Commands::Graph(cmd) => cmd.run().await,
+            Commands::Hook(cmd) => cmd.run().await,
             Commands::Market(cmd) => cmd.run().await,
             Commands::Project(cmd) => cmd.run().await,
             Commands::Shell(cmd) => cmd.run().await,

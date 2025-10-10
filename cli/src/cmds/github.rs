@@ -2,11 +2,118 @@ use anyhow::Result;
 use clap::{Args, Subcommand};
 use colored::*;
 use ggen_core::{GitHubClient, RepoInfo};
+use ggen_utils::error::Result as GgenResult;
 
 #[derive(Args, Debug)]
 pub struct GitHubArgs {
     #[command(subcommand)]
     pub command: GitHubCommand,
+}
+
+/// Validate GitHub command input
+fn validate_github_input(args: &GitHubArgs) -> GgenResult<()> {
+    match &args.command {
+        GitHubCommand::PagesStatus(cmd_args) => validate_pages_status(cmd_args),
+        GitHubCommand::WorkflowStatus(cmd_args) => validate_workflow_status(cmd_args),
+        GitHubCommand::TriggerWorkflow(cmd_args) => validate_trigger_workflow(cmd_args),
+    }
+}
+
+/// Validate pages status arguments
+fn validate_pages_status(args: &PagesStatusArgs) -> GgenResult<()> {
+    if let Some(ref repo) = args.repo {
+        if repo.trim().is_empty() {
+            return Err(ggen_utils::error::Error::new("Repository cannot be empty"));
+        }
+        if repo.len() > 200 {
+            return Err(ggen_utils::error::Error::new(
+                "Repository name too long (max 200 characters)",
+            ));
+        }
+        // Basic format validation: owner/repo
+        if !repo.contains('/') || repo.starts_with('/') || repo.ends_with('/') {
+            return Err(ggen_utils::error::Error::new(
+                "Invalid repository format. Use 'owner/repo' format",
+            ));
+        }
+    }
+    Ok(())
+}
+
+/// Validate workflow status arguments
+fn validate_workflow_status(args: &WorkflowStatusArgs) -> GgenResult<()> {
+    if args.workflow.trim().is_empty() {
+        return Err(ggen_utils::error::Error::new(
+            "Workflow name cannot be empty",
+        ));
+    }
+    if args.workflow.len() > 200 {
+        return Err(ggen_utils::error::Error::new(
+            "Workflow name too long (max 200 characters)",
+        ));
+    }
+    if args.limit == 0 {
+        return Err(ggen_utils::error::Error::new(
+            "Limit must be greater than 0",
+        ));
+    }
+    if args.limit > 1000 {
+        return Err(ggen_utils::error::Error::new("Limit too high (max 1000)"));
+    }
+    if let Some(ref repo) = args.repo {
+        if repo.trim().is_empty() {
+            return Err(ggen_utils::error::Error::new("Repository cannot be empty"));
+        }
+        if repo.len() > 200 {
+            return Err(ggen_utils::error::Error::new(
+                "Repository name too long (max 200 characters)",
+            ));
+        }
+        if !repo.contains('/') || repo.starts_with('/') || repo.ends_with('/') {
+            return Err(ggen_utils::error::Error::new(
+                "Invalid repository format. Use 'owner/repo' format",
+            ));
+        }
+    }
+    Ok(())
+}
+
+/// Validate trigger workflow arguments
+fn validate_trigger_workflow(args: &TriggerWorkflowArgs) -> GgenResult<()> {
+    if args.workflow.trim().is_empty() {
+        return Err(ggen_utils::error::Error::new(
+            "Workflow name cannot be empty",
+        ));
+    }
+    if args.workflow.len() > 200 {
+        return Err(ggen_utils::error::Error::new(
+            "Workflow name too long (max 200 characters)",
+        ));
+    }
+    if args.ref_name.trim().is_empty() {
+        return Err(ggen_utils::error::Error::new("Branch name cannot be empty"));
+    }
+    if args.ref_name.len() > 200 {
+        return Err(ggen_utils::error::Error::new(
+            "Branch name too long (max 200 characters)",
+        ));
+    }
+    if let Some(ref repo) = args.repo {
+        if repo.trim().is_empty() {
+            return Err(ggen_utils::error::Error::new("Repository cannot be empty"));
+        }
+        if repo.len() > 200 {
+            return Err(ggen_utils::error::Error::new(
+                "Repository name too long (max 200 characters)",
+            ));
+        }
+        if !repo.contains('/') || repo.starts_with('/') || repo.ends_with('/') {
+            return Err(ggen_utils::error::Error::new(
+                "Invalid repository format. Use 'owner/repo' format",
+            ));
+        }
+    }
+    Ok(())
 }
 
 #[derive(Subcommand, Debug)]
@@ -65,6 +172,8 @@ pub struct TriggerWorkflowArgs {
 }
 
 pub async fn run(args: &GitHubArgs) -> Result<()> {
+    validate_github_input(args)?;
+
     match &args.command {
         GitHubCommand::PagesStatus(cmd_args) => pages_status(cmd_args).await,
         GitHubCommand::WorkflowStatus(cmd_args) => workflow_status(cmd_args).await,
@@ -73,6 +182,7 @@ pub async fn run(args: &GitHubArgs) -> Result<()> {
 }
 
 async fn pages_status(args: &PagesStatusArgs) -> Result<()> {
+    println!("🔍 Checking GitHub Pages status...");
     let repo_str = get_repository(&args.repo)?;
     let repo = RepoInfo::parse(&repo_str)?;
     let client = GitHubClient::new(repo.clone())?;
@@ -154,6 +264,7 @@ async fn pages_status(args: &PagesStatusArgs) -> Result<()> {
 }
 
 async fn workflow_status(args: &WorkflowStatusArgs) -> Result<()> {
+    println!("📋 Fetching GitHub Actions workflow runs...");
     let repo_str = get_repository(&args.repo)?;
     let repo = RepoInfo::parse(&repo_str)?;
     let client = GitHubClient::new(repo.clone())?;
@@ -172,6 +283,7 @@ async fn workflow_status(args: &WorkflowStatusArgs) -> Result<()> {
 }
 
 async fn trigger_workflow(args: &TriggerWorkflowArgs) -> Result<()> {
+    println!("🚀 Triggering GitHub Actions workflow...");
     let repo_str = get_repository(&args.repo)?;
     let repo = RepoInfo::parse(&repo_str)?;
     let client = GitHubClient::new(repo.clone())?;

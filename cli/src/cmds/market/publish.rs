@@ -41,7 +41,9 @@ pub struct PublishArgs {
 #[cfg_attr(test, mockall::automock)]
 pub trait PackagePublisher {
     fn validate_package(&self, path: &str) -> Result<ValidationResult>;
-    fn publish_package(&self, path: &str, tag: Option<&str>, dry_run: bool) -> Result<PublishResult>;
+    fn publish_package<'a>(
+        &self, path: &str, tag: Option<&'a str>, dry_run: bool,
+    ) -> Result<PublishResult>;
 }
 
 #[derive(Debug, Clone)]
@@ -60,7 +62,7 @@ pub struct PublishResult {
 
 pub async fn run(args: &PublishArgs) -> Result<()> {
     println!("🚀 Publishing gpack...");
-    
+
     if args.dry_run {
         println!("🔍 Dry run mode - validating package...");
         validate_package(&args.package_path)?;
@@ -73,7 +75,7 @@ pub async fn run(args: &PublishArgs) -> Result<()> {
 
     // Publish package
     println!("📦 Publishing package from: {}", args.package_path);
-    
+
     if let Some(tag) = &args.tag {
         println!("🏷️  Publishing with tag: {}", tag);
     }
@@ -87,19 +89,19 @@ pub async fn run(args: &PublishArgs) -> Result<()> {
 
 fn validate_package(path: &str) -> Result<()> {
     println!("🔍 Validating package structure...");
-    
+
     // Check for required files
     let package_json_path = std::path::Path::new(path).join("package.json");
     if !package_json_path.exists() {
         return Err(ggen_utils::error::Error::new(
-            "package.json not found - required for publishing"
+            "package.json not found - required for publishing",
         ));
     }
 
     let knowledge_dir = std::path::Path::new(path).join("knowledge");
     if !knowledge_dir.exists() {
         return Err(ggen_utils::error::Error::new(
-            "knowledge/ directory not found - required for publishing"
+            "knowledge/ directory not found - required for publishing",
         ));
     }
 
@@ -109,7 +111,7 @@ fn validate_package(path: &str) -> Result<()> {
 
 pub async fn run_with_deps(args: &PublishArgs, publisher: &dyn PackagePublisher) -> Result<()> {
     let validation = publisher.validate_package(&args.package_path)?;
-    
+
     if !validation.is_valid {
         return Err(ggen_utils::error::Error::new_fmt(format_args!(
             "Package validation failed: {:?}",
@@ -123,14 +125,18 @@ pub async fn run_with_deps(args: &PublishArgs, publisher: &dyn PackagePublisher)
             println!("  • {}", warning);
         }
         return Err(ggen_utils::error::Error::new(
-            "Package has warnings. Use --force to publish anyway."
+            "Package has warnings. Use --force to publish anyway.",
         ));
     }
 
-    let result = publisher.publish_package(&args.package_path, args.tag.as_deref(), args.dry_run)?;
-    
-    println!("✅ Successfully published {}@{}", result.package_id, result.version);
-    
+    let result =
+        publisher.publish_package(&args.package_path, args.tag.as_deref(), args.dry_run)?;
+
+    println!(
+        "✅ Successfully published {}@{}",
+        result.package_id, result.version
+    );
+
     if let Some(url) = result.published_url {
         println!("🌐 Published to: {}", url);
     }

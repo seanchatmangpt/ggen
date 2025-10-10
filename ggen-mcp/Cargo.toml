@@ -1,0 +1,31 @@
+[package]
+name = "ggen-mcp"
+version = "0.2.4"
+edition = "2021"
+authors = ["Sean Chatman <sean@chatmangpt.com>"]
+description = "MCP server for ggen CLI - exposes template generation, graph operations, and project management"
+license = "MIT"
+
+[dependencies]
+rmcp = { version = "0.8.0", features = ["server"] }
+async-trait = "0.1"
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+anyhow = "1"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+chrono = "0.4"
+uuid = { version = "1", features = ["v4"] }
+
+# Local dependencies
+ggen-core = { path = "../ggen-core" }
+ggen-utils = { path = "../utils" }
+
+[[bin]]
+name = "ggen-mcp"
+path = "src/main.rs"
+
+[lib]
+name = "ggen_mcp"
+path = "src/lib.rs"

@@ -4,31 +4,71 @@ use ggen_utils::error::Result;
 use std::io::Write;
 use std::path::PathBuf;
 
-#[derive(Args, Debug)]
-pub struct GraphArgs {
-    #[arg(value_name = "SCOPE")]
-    pub scope: String,
-    #[arg(value_name = "ACTION")]
-    pub action: String,
+/// Validate graph command input
+fn validate_graph_input(args: &GraphArgs) -> Result<()> {
+    // Validate scope
+    if args.scope.trim().is_empty() {
+        return Err(ggen_utils::error::Error::new("Scope cannot be empty"));
+    }
+    if args.scope.len() > 100 {
+        return Err(ggen_utils::error::Error::new("Scope too long (max 100 characters)"));
+    }
+    if !args.scope.chars().all(|c| c.is_alphanumeric() || c == '-' || c == '_') {
+        return Err(ggen_utils::error::Error::new(
+            "Invalid scope format: only alphanumeric characters, dashes, and underscores allowed",
+        ));
+    }
 
-    /// Output format (turtle, ntriples, rdfxml, jsonld)
-    #[arg(short, long, default_value = "turtle")]
-    pub format: String,
+    // Validate action
+    if args.action.trim().is_empty() {
+        return Err(ggen_utils::error::Error::new("Action cannot be empty"));
+    }
+    if args.action.len() > 100 {
+        return Err(ggen_utils::error::Error::new("Action too long (max 100 characters)"));
+    }
+    if !args.action.chars().all(|c| c.is_alphanumeric() || c == '-' || c == '_') {
+        return Err(ggen_utils::error::Error::new(
+            "Invalid action format: only alphanumeric characters, dashes, and underscores allowed",
+        ));
+    }
 
-    /// Output file path (default: stdout)
-    #[arg(short, long)]
-    pub output: Option<PathBuf>,
+    // Validate format
+    if args.format.trim().is_empty() {
+        return Err(ggen_utils::error::Error::new("Format cannot be empty"));
+    }
+    if args.format.len() > 20 {
+        return Err(ggen_utils::error::Error::new("Format too long (max 20 characters)"));
+    }
+    let valid_formats = ["turtle", "ntriples", "rdfxml", "jsonld"];
+    if !valid_formats.contains(&args.format.to_lowercase().as_str()) {
+        return Err(ggen_utils::error::Error::new_fmt(format_args!(
+            "Invalid format: {}. Supported formats: {}",
+            args.format,
+            valid_formats.join(", ")
+        )));
+    }
 
-    /// Include prefixes in output
-    #[arg(long)]
-    pub include_prefixes: bool,
+    // Validate output path if provided
+    if let Some(ref output_path) = args.output {
+        if output_path.to_string_lossy().trim().is_empty() {
+            return Err(ggen_utils::error::Error::new("Output path cannot be empty"));
+        }
+        if output_path.to_string_lossy().len() > 1000 {
+            return Err(ggen_utils::error::Error::new("Output path too long (max 1000 characters)"));
+        }
+        // Basic path traversal protection
+        if output_path.to_string_lossy().contains("..") {
+            return Err(ggen_utils::error::Error::new("Path traversal detected: output path cannot contain '..'"));
+        }
+    }
+
+    Ok(())
 }
 
 pub fn run(args: &GraphArgs) -> Result<()> {
-    println!(
-        "Exporting graph for scope: {}, action: {}",
-        args.scope, args.action
-    );
+    validate_graph_input(args)?;
+
+    println!("🔍 Loading graph for scope: {}, action: {}", args.scope, args.action);
 
     // Load the appropriate graph based on scope and action
     let graph = load_graph_for_scope_action(&args.scope, &args.action)?;

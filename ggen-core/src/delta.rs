@@ -6,13 +6,12 @@
 //! - Support three-way merging for hybrid files
 
 use ahash::AHasher;
-use anyhow::{bail, Result};
-use oxigraph::model::{Quad, Term};
+use anyhow::Result;
+use oxigraph::model::Quad;
 use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, BTreeSet, HashSet};
+use std::collections::{BTreeMap, BTreeSet};
 use std::fmt;
 use std::hash::{Hash, Hasher};
-use std::path::Path;
 
 use crate::graph::Graph;
 
@@ -93,12 +92,17 @@ impl DeltaType {
 
     /// Check if this delta affects a specific IRI
     pub fn affects_iri(&self, iri: &str) -> bool {
-        self.subjects().iter().any(|s| *s == iri)
-            || self.predicates().iter().any(|p| *p == iri)
+        self.subjects().contains(&iri)
+            || self.predicates().contains(&iri)
             || match self {
-                DeltaType::Addition { object, .. }
-                | DeltaType::Deletion { object, .. }
-                | DeltaType::Modification { new_object, .. } => object == iri,
+                DeltaType::Addition { object, .. } | DeltaType::Deletion { object, .. } => {
+                    object == iri
+                }
+                DeltaType::Modification {
+                    old_object,
+                    new_object,
+                    ..
+                } => old_object == iri || new_object == iri,
             }
     }
 }
@@ -147,11 +151,11 @@ impl GraphDelta {
     /// Create a new delta by comparing two graphs
     pub fn new(baseline: &Graph, current: &Graph) -> Result<Self> {
         let mut deltas = Vec::new();
-        
+
         // Get all quads from both graphs
         let baseline_quads = baseline.get_all_quads()?;
         let current_quads = current.get_all_quads()?;
-        
+
         // Create lookup maps for efficient comparison
         let baseline_map: BTreeMap<(String, String, String), Quad> = baseline_quads
             .iter()
@@ -183,7 +187,7 @@ impl GraphDelta {
 
         // Find additions and modifications
         for ((s, p, o), current_quad) in &current_map {
-            match baseline_map.get(&(*s, p.clone(), o.clone())) {
+            match baseline_map.get(&(s.clone(), p.clone(), o.clone())) {
                 Some(baseline_quad) => {
                     // Check if objects are different (modification)
                     if baseline_quad.object != current_quad.object {
@@ -208,8 +212,8 @@ impl GraphDelta {
         }
 
         // Find deletions
-        for ((s, p, o), baseline_quad) in &baseline_map {
-            if !current_map.contains_key(&(*s, p.clone(), o.clone())) {
+        for (s, p, o) in baseline_map.keys() {
+            if !current_map.contains_key(&(s.to_string(), p.clone(), o.clone())) {
                 deltas.push(DeltaType::Deletion {
                     subject: s.clone(),
                     predicate: p.clone(),
@@ -233,13 +237,16 @@ impl GraphDelta {
             iris.extend(delta.subjects().iter().map(|s| s.to_string()));
             iris.extend(delta.predicates().iter().map(|p| p.to_string()));
             match delta {
-                DeltaType::Addition { object, .. }
-                | DeltaType::Deletion { object, .. }
-                | DeltaType::Modification { new_object, .. } => {
+                DeltaType::Addition { object, .. } | DeltaType::Deletion { object, .. } => {
                     iris.insert(object.clone());
                 }
-                DeltaType::Modification { old_object, .. } => {
+                DeltaType::Modification {
+                    old_object,
+                    new_object,
+                    ..
+                } => {
                     iris.insert(old_object.clone());
+                    iris.insert(new_object.clone());
                 }
             }
         }
@@ -302,7 +309,7 @@ impl GraphDelta {
 impl fmt::Display for GraphDelta {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "GraphDelta ({} changes):", self.deltas.len())?;
-        
+
         let counts = self.counts();
         for (delta_type, count) in counts {
             writeln!(f, "  {}: {}", delta_type, count)?;
@@ -338,10 +345,7 @@ pub struct TemplateImpact {
 impl TemplateImpact {
     /// Create a new template impact analysis
     pub fn new(
-        template_path: String,
-        affected_iris: Vec<String>,
-        confidence: f64,
-        reason: String,
+        template_path: String, affected_iris: Vec<String>, confidence: f64, reason: String,
     ) -> Self {
         Self {
             template_path,
@@ -360,7 +364,14 @@ impl TemplateImpact {
 /// Analyze which templates are affected by a graph delta
 pub struct ImpactAnalyzer {
     /// Cache of template query patterns for performance
+    #[allow(dead_code)]
     template_queries: BTreeMap<String, Vec<String>>,
+}
+
+impl Default for ImpactAnalyzer {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl ImpactAnalyzer {
@@ -373,10 +384,7 @@ impl ImpactAnalyzer {
 
     /// Analyze template impacts for a given delta
     pub fn analyze_impacts(
-        &mut self,
-        delta: &GraphDelta,
-        template_paths: &[String],
-        graph: &Graph,
+        &mut self, delta: &GraphDelta, template_paths: &[String], graph: &Graph,
     ) -> Result<Vec<TemplateImpact>> {
         let mut impacts = Vec::new();
 
@@ -385,7 +393,7 @@ impl ImpactAnalyzer {
             let queries = self.get_template_queries(template_path, graph)?;
 
             // Analyze impact based on query patterns
-            let (confidence, reason) = self.assess_impact(&delta, &queries);
+            let (confidence, reason) = self.assess_impact(delta, &queries);
 
             if confidence > 0.0 {
                 impacts.push(TemplateImpact::new(
@@ -404,7 +412,12 @@ impl ImpactAnalyzer {
     }
 
     /// Get SPARQL queries from a template (simplified - in reality would parse template)
-    fn get_template_queries(&mut self, _template_path: &str, _graph: &Graph) -> Result<Vec<String>> {
+    fn get_template_queries(&mut self, template_path: &str, _graph: &Graph) -> Result<Vec<String>> {
+        // Check if we have cached queries for this template
+        if let Some(queries) = self.template_queries.get(template_path) {
+            return Ok(queries.clone());
+        }
+
         // This is a simplified implementation
         // In practice, would need to parse template frontmatter and extract SPARQL queries
         Ok(vec![
@@ -416,14 +429,14 @@ impl ImpactAnalyzer {
     /// Assess how a delta impacts a set of queries
     fn assess_impact(&self, delta: &GraphDelta, queries: &[String]) -> (f64, String) {
         let affected_iris = delta.affected_iris();
-        
+
         // Simple heuristic: check if any affected IRI appears in any query
         let mut max_relevance = 0.0;
         let mut reasons = Vec::new();
 
         for query in queries {
             let query_lower = query.to_lowercase();
-            
+
             for iri in &affected_iris {
                 if query_lower.contains(&iri.to_lowercase()) {
                     max_relevance = 1.0;
@@ -462,28 +475,21 @@ impl Graph {
     }
 
     /// Compute a deterministic hash of the graph content
-    fn compute_hash(&self) -> Result<String> {
+    pub fn compute_hash(&self) -> Result<String> {
         let quads = self.get_all_quads()?;
         let mut hasher = AHasher::default();
-        
+
         // Create a deterministic string representation
         let mut sorted_quads: Vec<String> = quads
             .iter()
-            .map(|q| {
-                format!(
-                    "{} {} {}",
-                    q.subject.to_string(),
-                    q.predicate.to_string(),
-                    q.object.to_string()
-                )
-            })
+            .map(|q| format!("{} {} {}", q.subject, q.predicate, q.object))
             .collect();
         sorted_quads.sort();
-        
+
         for quad_str in sorted_quads {
             quad_str.hash(&mut hasher);
         }
-        
+
         Ok(format!("{:x}", hasher.finish()))
     }
 }
@@ -495,24 +501,30 @@ mod tests {
 
     fn create_test_graph() -> Result<(Graph, Graph)> {
         let baseline = Graph::new()?;
-        baseline.insert_turtle(r#"
+        baseline.insert_turtle(
+            r#"
             @prefix : <http://example.org/> .
+            @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
             @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
             :User a rdfs:Class .
             :name a rdf:Property ;
                   rdfs:domain :User .
-        "#)?;
+        "#,
+        )?;
 
         let current = Graph::new()?;
-        current.insert_turtle(r#"
+        current.insert_turtle(
+            r#"
             @prefix : <http://example.org/> .
+            @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
             @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
             :User a rdfs:Class .
             :name a rdf:Property ;
                   rdfs:domain :User .
             :email a rdf:Property ;
                     rdfs:domain :User .
-        "#)?;
+        "#,
+        )?;
 
         Ok((baseline, current))
     }
@@ -523,13 +535,13 @@ mod tests {
         let delta = GraphDelta::new(&baseline, &current)?;
 
         assert!(!delta.is_empty());
-        assert!(delta.affects_iri("http://example.org/email"));
-        
-        // Should have one addition (the email property)
+        assert!(delta.affects_iri("<http://example.org/email>"));
+
+        // Should have two additions (the email property has 2 triples: type and domain)
         let counts = delta.counts();
-        assert_eq!(counts.get("additions"), Some(&1));
-        assert_eq!(counts.get("deletions"), Some(&0));
-        assert_eq!(counts.get("modifications"), Some(&0));
+        assert_eq!(counts.get("additions"), Some(&2));
+        assert_eq!(counts.get("deletions"), None); // No deletions
+        assert_eq!(counts.get("modifications"), None); // No modifications
 
         Ok(())
     }
@@ -540,9 +552,9 @@ mod tests {
         let delta = GraphDelta::new(&baseline, &current)?;
 
         let affected = delta.affected_iris();
-        assert!(affected.contains("http://example.org/email"));
-        assert!(affected.contains("http://example.org/User"));
-        assert!(affected.contains("http://www.w3.org/2000/01/rdf-schema#domain"));
+        assert!(affected.contains("<http://example.org/email>"));
+        assert!(affected.contains("<http://example.org/User>"));
+        assert!(affected.contains("<http://www.w3.org/2000/01/rdf-schema#domain>"));
 
         Ok(())
     }
@@ -553,8 +565,8 @@ mod tests {
         let delta = GraphDelta::new(&baseline, &current)?;
 
         // Filter to only User-related changes
-        let filtered = delta.filter_by_iris(&["http://example.org/User".to_string()]);
-        
+        let filtered = delta.filter_by_iris(&["<http://example.org/User>".to_string()]);
+
         // Should still contain the email addition since it affects User
         assert!(!filtered.is_empty());
 
@@ -567,10 +579,16 @@ mod tests {
         let delta = GraphDelta::new(&baseline, &current)?;
 
         let mut analyzer = ImpactAnalyzer::new();
-        let template_paths = vec!["template1.tmpl".to_string(), "template2.tmpl".to_string()];
+        // Add a mock query that should match the email property
+        analyzer.template_queries.insert(
+            "template1.tmpl".to_string(),
+            vec!["SELECT * WHERE { ?s <http://example.org/email> ?o }".to_string()],
+        );
+
+        let template_paths = vec!["template1.tmpl".to_string()];
         let impacts = analyzer.analyze_impacts(&delta, &template_paths, &baseline)?;
 
-        // Should find some impacts (simplified test)
+        // Should find some impacts since template queries match affected IRIs
         assert!(!impacts.is_empty());
 
         Ok(())
@@ -579,13 +597,13 @@ mod tests {
     #[test]
     fn test_graph_hash() -> Result<()> {
         let (baseline, current) = create_test_graph()?;
-        
+
         let hash1 = baseline.compute_hash()?;
         let hash2 = current.compute_hash()?;
-        
+
         // Different graphs should have different hashes
         assert_ne!(hash1, hash2);
-        
+
         // Same graph should have same hash
         let hash3 = baseline.compute_hash()?;
         assert_eq!(hash1, hash3);

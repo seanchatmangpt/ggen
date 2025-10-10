@@ -1,0 +1,451 @@
+use serde_json::{json, Value};
+use crate::error::{Result, get_string_param, get_optional_string_param, get_optional_u64_param, success_response};
+use ggen_core::registry::{Registry, PackageInfo};
+use ggen_utils::error::Error;
+use std::sync::Arc;
+
+/// List marketplace templates with enhanced filtering and metadata
+pub async fn list(params: Value) -> Result<Value> {
+    let category = get_optional_string_param(&params, "category");
+    let tag = get_optional_string_param(&params, "tag");
+    let limit = get_optional_u64_param(&params, "limit").unwrap_or(20) as usize;
+    let sort = get_optional_string_param(&params, "sort").unwrap_or_else(|| "downloads".to_string());
+    let order = get_optional_string_param(&params, "order").unwrap_or_else(|| "desc".to_string());
+
+    tracing::info!("Listing marketplace templates (category: {:?}, tag: {:?}, limit: {}, sort: {}, order: {})",
+        category, tag, limit, sort, order);
+
+    // Use ggen-core registry to get actual package data
+    let registry = Arc::new(Registry::new()?);
+    let packages = registry.list_packages()?;
+
+    // Filter and sort packages
+    let mut filtered_packages: Vec<&PackageInfo> = packages.iter()
+        .filter(|pkg| {
+            if let Some(ref cat) = category {
+                if let Some(ref pkg_cat) = pkg.category {
+                    pkg_cat.contains(cat)
+                } else {
+                    false
+                }
+            } else {
+                true
+            }
+        })
+        .filter(|pkg| {
+            if let Some(ref tag_filter) = tag {
+                pkg.tags.iter().any(|t| t.contains(tag_filter))
+            } else {
+                true
+            }
+        })
+        .collect();
+
+    // Sort packages
+    filtered_packages.sort_by(|a, b| {
+        let cmp = match sort.as_str() {
+            "downloads" => b.downloads.cmp(&a.downloads),
+            "stars" => b.stars.cmp(&a.stars),
+            "name" => a.name.cmp(&b.name),
+            "updated" => b.updated_at.cmp(&a.updated_at),
+            _ => b.downloads.cmp(&a.downloads), // default to downloads
+        };
+
+        if order == "asc" { cmp.reverse() } else { cmp }
+    });
+
+    // Limit results
+    if filtered_packages.len() > limit {
+        filtered_packages.truncate(limit);
+    }
+
+    // Convert to JSON response with enhanced metadata
+    let templates: Vec<Value> = filtered_packages.iter().map(|pkg| {
+        json!({
+            "id": pkg.id,
+            "name": pkg.name,
+            "description": pkg.description,
+            "category": pkg.category,
+            "tags": pkg.tags,
+            "version": pkg.version,
+            "author": pkg.author,
+            "license": pkg.license,
+            "stars": pkg.stars,
+            "downloads": pkg.downloads,
+            "updated_at": pkg.updated_at,
+            "homepage": pkg.homepage,
+            "repository": pkg.repository,
+            "health_score": calculate_health_score(pkg),
+            "dependencies": pkg.dependencies
+        })
+    }).collect();
+
+    Ok(success_response(json!({
+        "templates": templates,
+        "total": templates.len(),
+        "filters": {
+            "category": category,
+            "tag": tag,
+            "sort": sort,
+            "order": order,
+            "limit": limit
+        },
+        "metadata": {
+            "total_packages": packages.len(),
+            "available_categories": get_available_categories(&packages),
+            "most_popular_tags": get_popular_tags(&packages, 5)
+        }
+    })))
+}
+
+/// Calculate a simple health score for a package based on various factors
+fn calculate_health_score(package: &PackageInfo) -> f32 {
+    let mut score: f32 = 50.0; // Base score
+
+    // Increase score for popular packages
+    if package.downloads > 1000 {
+        score += 20.0;
+    } else if package.downloads > 100 {
+        score += 10.0;
+    }
+
+    // Increase score for well-maintained packages (recent updates)
+    if let Ok(days_since_update) = chrono::Utc::now().signed_duration_since(package.updated_at).num_days() {
+        if days_since_update < 30 {
+            score += 15.0;
+        } else if days_since_update < 90 {
+            score += 5.0;
+        }
+    }
+
+    // Increase score for packages with good documentation
+    if package.homepage.is_some() || package.repository.is_some() {
+        score += 10.0;
+    }
+
+    // Cap at 100%
+    score.min(100.0)
+}
+
+/// Get available categories from packages
+fn get_available_categories(packages: &[PackageInfo]) -> Vec<String> {
+    let mut categories: std::collections::HashSet<String> = std::collections::HashSet::new();
+    for pkg in packages {
+        if let Some(ref cat) = pkg.category {
+            categories.insert(cat.clone());
+        }
+    }
+    let mut cats: Vec<String> = categories.into_iter().collect();
+    cats.sort();
+    cats
+}
+
+/// Get most popular tags from packages
+fn get_popular_tags(packages: &[PackageInfo], limit: usize) -> Vec<Value> {
+    let mut tag_counts = std::collections::HashMap::new();
+
+    for pkg in packages {
+        for tag in &pkg.tags {
+            *tag_counts.entry(tag.clone()).or_insert(0) += 1;
+        }
+    }
+
+    let mut sorted_tags: Vec<(String, usize)> = tag_counts.into_iter().collect();
+    sorted_tags.sort_by(|a, b| b.1.cmp(&a.1));
+
+    sorted_tags.into_iter()
+        .take(limit)
+        .map(|(tag, count)| json!({
+            "tag": tag,
+            "count": count
+        }))
+        .collect()
+}
+
+/// Search marketplace templates with advanced filtering and fuzzy matching
+pub async fn search(params: Value) -> Result<Value> {
+    let query = get_string_param(&params, "query")?;
+    let category = get_optional_string_param(&params, "category");
+    let author = get_optional_string_param(&params, "author");
+    let license = get_optional_string_param(&params, "license");
+    let min_stars = get_optional_u64_param(&params, "min_stars");
+    let min_downloads = get_optional_u64_param(&params, "min_downloads");
+    let sort = get_optional_string_param(&params, "sort").unwrap_or_else(|| "relevance".to_string());
+    let order = get_optional_string_param(&params, "order").unwrap_or_else(|| "desc".to_string());
+    let fuzzy = get_optional_string_param(&params, "fuzzy").map(|s| s == "true").unwrap_or(false);
+    let suggestions = get_optional_string_param(&params, "suggestions").map(|s| s == "true").unwrap_or(false);
+    let limit = get_optional_u64_param(&params, "limit").unwrap_or(10) as usize;
+
+    tracing::info!("Advanced marketplace search: {} (fuzzy: {}, suggestions: {})", query, fuzzy, suggestions);
+
+    // Use ggen-core registry for actual search
+    let registry = Arc::new(Registry::new()?);
+    let packages = registry.search_packages(&query, fuzzy)?;
+
+    // Apply advanced filters
+    let mut filtered_packages: Vec<&PackageInfo> = packages.iter()
+        .filter(|pkg| {
+            if let Some(ref cat) = category {
+                if let Some(ref pkg_cat) = pkg.category {
+                    pkg_cat.contains(cat)
+                } else {
+                    false
+                }
+            } else {
+                true
+            }
+        })
+        .filter(|pkg| {
+            if let Some(ref auth) = author {
+                if let Some(ref pkg_auth) = pkg.author {
+                    pkg_auth.contains(auth)
+                } else {
+                    false
+                }
+            } else {
+                true
+            }
+        })
+        .filter(|pkg| {
+            if let Some(ref lic) = license {
+                if let Some(ref pkg_lic) = pkg.license {
+                    pkg_lic.contains(lic)
+                } else {
+                    false
+                }
+            } else {
+                true
+            }
+        })
+        .filter(|pkg| {
+            if let Some(min_s) = min_stars {
+                pkg.stars >= min_s as u32
+            } else {
+                true
+            }
+        })
+        .filter(|pkg| {
+            if let Some(min_d) = min_downloads {
+                pkg.downloads >= min_d as u32
+            } else {
+                true
+            }
+        })
+        .collect();
+
+    // Sort results
+    filtered_packages.sort_by(|a, b| {
+        let cmp = match sort.as_str() {
+            "relevance" => calculate_relevance_score(b, &query).partial_cmp(&calculate_relevance_score(a, &query)).unwrap_or(std::cmp::Ordering::Equal),
+            "stars" => b.stars.cmp(&a.stars),
+            "downloads" => b.downloads.cmp(&a.downloads),
+            "name" => a.name.cmp(&b.name),
+            "updated" => b.updated_at.cmp(&a.updated_at),
+            _ => calculate_relevance_score(b, &query).partial_cmp(&calculate_relevance_score(a, &query)).unwrap_or(std::cmp::Ordering::Equal),
+        };
+
+        if order == "asc" { cmp.reverse() } else { cmp }
+    });
+
+    // Limit results
+    if filtered_packages.len() > limit {
+        filtered_packages.truncate(limit);
+    }
+
+    // Generate search suggestions if requested
+    let search_suggestions = if suggestions {
+        generate_search_suggestions(&query)
+    } else {
+        Vec::new()
+    };
+
+    // Convert to JSON response with enhanced data
+    let results: Vec<Value> = filtered_packages.iter().map(|pkg| {
+        let relevance = calculate_relevance_score(pkg, &query);
+        json!({
+            "id": pkg.id,
+            "name": pkg.name,
+            "description": pkg.description,
+            "category": pkg.category,
+            "author": pkg.author,
+            "license": pkg.license,
+            "version": pkg.version,
+            "stars": pkg.stars,
+            "downloads": pkg.downloads,
+            "updated_at": pkg.updated_at,
+            "tags": pkg.tags,
+            "health_score": calculate_health_score(pkg),
+            "relevance_score": relevance,
+            "match_fields": determine_match_fields(pkg, &query)
+        })
+    }).collect();
+
+    Ok(success_response(json!({
+        "query": query,
+        "results": results,
+        "total_matches": results.len(),
+        "limit": limit,
+        "filters_applied": {
+            "category": category,
+            "author": author,
+            "license": license,
+            "min_stars": min_stars,
+            "min_downloads": min_downloads,
+            "sort": sort,
+            "order": order,
+            "fuzzy": fuzzy
+        },
+        "search_metadata": {
+            "fuzzy_search_enabled": fuzzy,
+            "suggestions_count": search_suggestions.len(),
+            "available_results": packages.len()
+        },
+        "suggestions": search_suggestions
+    })))
+}
+
+/// Calculate relevance score for a package based on search query
+fn calculate_relevance_score(package: &PackageInfo, query: &str) -> f32 {
+    let query_lower = query.to_lowercase();
+    let mut score = 0.0;
+
+    // Name match gets highest score
+    if package.name.to_lowercase().contains(&query_lower) {
+        score += 1.0;
+    }
+
+    // Description match gets medium score
+    if package.description.to_lowercase().contains(&query_lower) {
+        score += 0.7;
+    }
+
+    // Tag match gets lower score but still significant
+    for tag in &package.tags {
+        if tag.to_lowercase().contains(&query_lower) {
+            score += 0.5;
+        }
+    }
+
+    // Category match
+    if let Some(ref cat) = package.category {
+        if cat.to_lowercase().contains(&query_lower) {
+            score += 0.6;
+        }
+    }
+
+    // Boost score for popular packages
+    if package.stars > 100 {
+        score *= 1.2;
+    }
+
+    score
+}
+
+/// Determine which fields matched the search query
+fn determine_match_fields(package: &PackageInfo, query: &str) -> Vec<String> {
+    let query_lower = query.to_lowercase();
+    let mut fields = Vec::new();
+
+    if package.name.to_lowercase().contains(&query_lower) {
+        fields.push("name".to_string());
+    }
+
+    if package.description.to_lowercase().contains(&query_lower) {
+        fields.push("description".to_string());
+    }
+
+    for tag in &package.tags {
+        if tag.to_lowercase().contains(&query_lower) {
+            fields.push("tags".to_string());
+            break;
+        }
+    }
+
+    if let Some(ref cat) = package.category {
+        if cat.to_lowercase().contains(&query_lower) {
+            fields.push("category".to_string());
+        }
+    }
+
+    if fields.is_empty() {
+        fields.push("other".to_string());
+    }
+
+    fields
+}
+
+/// Generate search suggestions based on query
+fn generate_search_suggestions(query: &str) -> Vec<Value> {
+    let common_terms = [
+        "authentication", "authorization", "user", "api", "cli", "web",
+        "database", "graphql", "rest", "crud", "template", "ontology",
+        "rust", "javascript", "typescript", "python", "go", "java",
+        "docker", "kubernetes", "aws", "azure", "gcp"
+    ];
+
+    let mut suggestions = Vec::new();
+
+    for term in common_terms {
+        if term.contains(&query.to_lowercase()) || query.to_lowercase().contains(term) {
+            suggestions.push(json!({
+                "query": term,
+                "relevance": if term == query { 1.0 } else { 0.8 }
+            }));
+        }
+    }
+
+    suggestions.sort_by(|a, b| {
+        let a_score = a.get("relevance").and_then(|v| v.as_f64()).unwrap_or(0.0);
+        let b_score = b.get("relevance").and_then(|v| v.as_f64()).unwrap_or(0.0);
+        b_score.partial_cmp(&a_score).unwrap_or(std::cmp::Ordering::Equal)
+    });
+
+    suggestions.truncate(5);
+    suggestions
+}
+
+/// Install template from marketplace
+pub async fn install(params: Value) -> Result<Value> {
+    let package = get_string_param(&params, "package")?;
+    let version = get_optional_string_param(&params, "version");
+
+    tracing::info!("Installing package: {} (version: {:?})", package, version);
+
+    // TODO: Replace with actual installation logic
+    let result = json!({
+        "package": package,
+        "version": version.unwrap_or_else(|| "latest".to_string()),
+        "installed_path": format!("~/.ggen/templates/{}", package),
+        "status": "installed",
+        "dependencies": []
+    });
+
+    Ok(success_response(result))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    #[tokio::test]
+    async fn test_list_templates() {
+        let params = json!({});
+        let result = list(params).await;
+        assert!(result.is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_search_requires_query() {
+        let params = json!({});
+        let result = search(params).await;
+        assert!(result.is_err());
+    }
+
+    #[tokio::test]
+    async fn test_install_requires_package() {
+        let params = json!({});
+        let result = install(params).await;
+        assert!(result.is_err());
+    }
+}

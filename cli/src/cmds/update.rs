@@ -1,6 +1,7 @@
 use anyhow::{Context, Result};
 use clap::Args;
 use ggen_core::{CacheManager, LockfileManager, RegistryClient};
+use ggen_utils::error::Result as GgenResult;
 use std::env;
 
 #[derive(Args, Debug)]
@@ -9,9 +10,37 @@ pub struct UpdateArgs {
     pub gpack_id: Option<String>,
 }
 
+/// Validate update command input
+fn validate_update_input(args: &UpdateArgs) -> GgenResult<()> {
+    if let Some(ref gpack_id) = args.gpack_id {
+        if gpack_id.trim().is_empty() {
+            return Err(ggen_utils::error::Error::new("Gpack ID cannot be empty"));
+        }
+        if gpack_id.len() > 200 {
+            return Err(ggen_utils::error::Error::new(
+                "Gpack ID too long (max 200 characters)",
+            ));
+        }
+        // Validate gpack ID format (basic pattern check)
+        if !gpack_id
+            .chars()
+            .all(|c| c.is_alphanumeric() || c == '.' || c == '-' || c == '_')
+        {
+            return Err(ggen_utils::error::Error::new(
+                "Invalid gpack ID format: only alphanumeric characters, dots, dashes, and underscores allowed",
+            ));
+        }
+    }
+    Ok(())
+}
+
 pub async fn run(args: &UpdateArgs) -> Result<()> {
+    validate_update_input(args)?;
     // Get current working directory
-    let current_dir = env::current_dir()?;
+    println!("🔍 Loading installed gpacks...");
+    let current_dir = env::current_dir().map_err(|e| {
+        ggen_utils::error::Error::new_fmt(format_args!("Failed to access current directory: {}", e))
+    })?;
     let lockfile_manager = LockfileManager::new(&current_dir);
     let cache_manager = CacheManager::new()?;
     let registry_client = RegistryClient::new()?;
