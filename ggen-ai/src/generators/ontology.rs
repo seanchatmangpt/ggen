@@ -6,6 +6,7 @@ use futures::StreamExt;
 use ggen_core::Graph;
 
 /// AI-powered ontology generator
+#[derive(Debug)]
 pub struct OntologyGenerator {
     client: Box<dyn LlmClient>,
     config: LlmConfig,
@@ -23,6 +24,15 @@ impl OntologyGenerator {
     /// Create a new ontology generator with custom config
     pub fn with_config(client: Box<dyn LlmClient>, config: LlmConfig) -> Self {
         Self { client, config }
+    }
+    
+    /// Create a new ontology generator optimized for Ollama qwen3-coder:30b
+    pub fn with_ollama_qwen3_coder(client: Box<dyn LlmClient>) -> Self {
+        use crate::providers::OllamaClient;
+        Self {
+            client,
+            config: OllamaClient::qwen3_coder_config(),
+        }
     }
     
     /// Generate an ontology from domain description
@@ -304,7 +314,7 @@ mod tests {
         
         // This should succeed with a valid ontology
         assert!(result.is_ok());
-        let ontology = result.unwrap();
+        let ontology = result.expect("Failed to generate ontology");
         assert!(ontology.contains(":Person"));
         assert!(ontology.contains(":hasName"));
     }
@@ -333,13 +343,13 @@ mod tests {
         let mut stream = generator.stream_generate_ontology(
             "Test domain",
             vec!["Test requirement"]
-        ).await.unwrap();
-        
+        ).await.expect("Failed to create ontology stream");
+
         let mut content = String::new();
         while let Some(chunk) = stream.next().await {
-            content.push_str(&chunk.unwrap());
+            content.push_str(&chunk.expect("Failed to read chunk from ontology stream"));
         }
-        
+
         assert_eq!(content, "Streamed ontology");
     }
 }

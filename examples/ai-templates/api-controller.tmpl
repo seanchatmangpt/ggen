@@ -1,0 +1,243 @@
+---
+to: "src/controllers/{{resource}}_controller.rs"
+vars:
+  - resource: string
+  - actions: array
+rdf: |
+  @prefix ex: <http://example.org/> .
+  @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+  @prefix owl: <http://www.w3.org/2002/07/owl#> .
+  @prefix http: <http://www.w3.org/2011/http#> .
+  
+  ex:{{resource | title}}Controller a owl:Class ;
+    rdfs:label "{{resource | title}} Controller" ;
+    rdfs:comment "REST API controller for {{resource}} management" .
+  
+  ex:create{{resource | title}} a owl:ObjectProperty ;
+    rdfs:domain ex:{{resource | title}}Controller ;
+    rdfs:range ex:{{resource | title}} ;
+    rdfs:label "create {{resource}}" .
+  
+  ex:read{{resource | title}} a owl:ObjectProperty ;
+    rdfs:domain ex:{{resource | title}}Controller ;
+    rdfs:range ex:{{resource | title}} ;
+    rdfs:label "read {{resource}}" .
+  
+  ex:update{{resource | title}} a owl:ObjectProperty ;
+    rdfs:domain ex:{{resource | title}}Controller ;
+    rdfs:range ex:{{resource | title}} ;
+    rdfs:label "update {{resource}}" .
+  
+  ex:delete{{resource | title}} a owl:ObjectProperty ;
+    rdfs:domain ex:{{resource | title}}Controller ;
+    rdfs:range ex:{{resource | title}} ;
+    rdfs:label "delete {{resource}}" .
+sparql: |
+  SELECT ?action ?method ?endpoint WHERE {
+    ?controller a ex:{{resource | title}}Controller .
+    ?controller ?action ?resource .
+    ?action rdfs:label ?actionLabel .
+  }
+determinism: true
+---
+
+use actix_web::{web, HttpResponse, Result as ActixResult};
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use uuid::Uuid;
+
+/// {{resource | title}} data model
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct {{resource | title}} {
+    pub id: Uuid,
+    pub name: String,
+    pub description: Option<String>,
+    pub created_at: chrono::DateTime<chrono::Utc>,
+    pub updated_at: chrono::DateTime<chrono::Utc>,
+}
+
+/// Create {{resource}} request
+#[derive(Debug, Deserialize)]
+pub struct Create{{resource | title}}Request {
+    pub name: String,
+    pub description: Option<String>,
+}
+
+/// Update {{resource}} request
+#[derive(Debug, Deserialize)]
+pub struct Update{{resource | title}}Request {
+    pub name: Option<String>,
+    pub description: Option<String>,
+}
+
+/// {{resource | title}} controller
+pub struct {{resource | title}}Controller {
+    // In-memory storage for demo purposes
+    storage: HashMap<Uuid, {{resource | title}}>,
+}
+
+impl {{resource | title}}Controller {
+    /// Create a new controller instance
+    pub fn new() -> Self {
+        Self {
+            storage: HashMap::new(),
+        }
+    }
+    
+    /// Create a new {{resource}}
+    pub async fn create(
+        &mut self,
+        req: Create{{resource | title}}Request,
+    ) -> ActixResult<HttpResponse> {
+        let id = Uuid::new_v4();
+        let now = chrono::Utc::now();
+        
+        let {{resource}} = {{resource | title}} {
+            id,
+            name: req.name,
+            description: req.description,
+            created_at: now,
+            updated_at: now,
+        };
+        
+        self.storage.insert(id, {{resource}}.clone());
+        
+        Ok(HttpResponse::Created().json({{resource}}))
+    }
+    
+    /// Get all {{resource}}s
+    pub async fn list(&self) -> ActixResult<HttpResponse> {
+        let {{resource}}s: Vec<&{{resource | title}}> = self.storage.values().collect();
+        Ok(HttpResponse::Ok().json({{resource}}s))
+    }
+    
+    /// Get a specific {{resource}} by ID
+    pub async fn get(&self, id: web::Path<Uuid>) -> ActixResult<HttpResponse> {
+        match self.storage.get(&id) {
+            Some({{resource}}) => Ok(HttpResponse::Ok().json({{resource}})),
+            None => Ok(HttpResponse::NotFound().json(serde_json::json!({
+                "error": "{{resource | title}} not found"
+            }))),
+        }
+    }
+    
+    /// Update a {{resource}}
+    pub async fn update(
+        &mut self,
+        id: web::Path<Uuid>,
+        req: Update{{resource | title}}Request,
+    ) -> ActixResult<HttpResponse> {
+        match self.storage.get_mut(&id) {
+            Some({{resource}}) => {
+                if let Some(name) = req.name {
+                    {{resource}}.name = name;
+                }
+                if let Some(description) = req.description {
+                    {{resource}}.description = Some(description);
+                }
+                {{resource}}.updated_at = chrono::Utc::now();
+                
+                Ok(HttpResponse::Ok().json({{resource}}.clone()))
+            }
+            None => Ok(HttpResponse::NotFound().json(serde_json::json!({
+                "error": "{{resource | title}} not found"
+            }))),
+        }
+    }
+    
+    /// Delete a {{resource}}
+    pub async fn delete(&mut self, id: web::Path<Uuid>) -> ActixResult<HttpResponse> {
+        match self.storage.remove(&id) {
+            Some(_) => Ok(HttpResponse::NoContent().finish()),
+            None => Ok(HttpResponse::NotFound().json(serde_json::json!({
+                "error": "{{resource | title}} not found"
+            }))),
+        }
+    }
+}
+
+/// Register routes for {{resource}} controller
+pub fn configure_routes(cfg: &mut web::ServiceConfig) {
+    cfg.service(
+        web::scope("/api/{{resource}}s")
+            .route("", web::post().to(create_{{resource}}))
+            .route("", web::get().to(list_{{resource}}s))
+            .route("/{id}", web::get().to(get_{{resource}}))
+            .route("/{id}", web::put().to(update_{{resource}}))
+            .route("/{id}", web::delete().to(delete_{{resource}})),
+    );
+}
+
+// Handler functions
+async fn create_{{resource}}(
+    mut controller: web::Data<std::sync::Mutex<{{resource | title}}Controller>>,
+    req: web::Json<Create{{resource | title}}Request>,
+) -> ActixResult<HttpResponse> {
+    let mut controller = controller.lock().unwrap();
+    controller.create(req.into_inner()).await
+}
+
+async fn list_{{resource}}s(
+    controller: web::Data<std::sync::Mutex<{{resource | title}}Controller>>,
+) -> ActixResult<HttpResponse> {
+    let controller = controller.lock().unwrap();
+    controller.list().await
+}
+
+async fn get_{{resource}}(
+    controller: web::Data<std::sync::Mutex<{{resource | title}}Controller>>,
+    id: web::Path<Uuid>,
+) -> ActixResult<HttpResponse> {
+    let controller = controller.lock().unwrap();
+    controller.get(id).await
+}
+
+async fn update_{{resource}}(
+    mut controller: web::Data<std::sync::Mutex<{{resource | title}}Controller>>,
+    id: web::Path<Uuid>,
+    req: web::Json<Update{{resource | title}}Request>,
+) -> ActixResult<HttpResponse> {
+    let mut controller = controller.lock().unwrap();
+    controller.update(id, req.into_inner()).await
+}
+
+async fn delete_{{resource}}(
+    mut controller: web::Data<std::sync::Mutex<{{resource | title}}Controller>>,
+    id: web::Path<Uuid>,
+) -> ActixResult<HttpResponse> {
+    let mut controller = controller.lock().unwrap();
+    controller.delete(id).await
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use actix_web::test;
+    
+    #[tokio::test]
+    async fn test_create_{{resource}}() {
+        let mut controller = {{resource | title}}Controller::new();
+        let req = Create{{resource | title}}Request {
+            name: "Test {{resource | title}}".to_string(),
+            description: Some("Test description".to_string()),
+        };
+        
+        let response = controller.create(req).await.unwrap();
+        assert_eq!(response.status(), 201);
+    }
+    
+    #[tokio::test]
+    async fn test_list_{{resource}}s() {
+        let controller = {{resource | title}}Controller::new();
+        let response = controller.list().await.unwrap();
+        assert_eq!(response.status(), 200);
+    }
+    
+    #[tokio::test]
+    async fn test_get_{{resource}}() {
+        let controller = {{resource | title}}Controller::new();
+        let id = Uuid::new_v4();
+        let response = controller.get(web::Path::from(id)).await.unwrap();
+        assert_eq!(response.status(), 404);
+    }
+}

@@ -1,0 +1,22 @@
+---
+to: "src/{{name}}.rs"
+vars:
+  - name: string
+determinism: true
+---
+
+// Generated {{name}} struct
+pub struct {{name | title}} {
+    pub id: u32,
+    pub name: String,
+}
+
+impl {{name | title}} {
+    pub fn new(id: u32, name: String) -> Self {
+        Self { id, name }
+    }
+    
+    pub fn display(&self) -> String {
+        format!("{}: {}", self.id, self.name)
+    }
+}

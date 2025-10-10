@@ -10,3 +10,4 @@ pub use template::TemplateGenerator;
 pub use sparql::SparqlGenerator;
 pub use ontology::OntologyGenerator;
 pub use refactor::RefactorAssistant;
+

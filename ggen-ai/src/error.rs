@@ -1,6 +1,5 @@
 //! Error types for ggen-ai
 
-use std::fmt;
 
 /// Errors that can occur in ggen-ai operations
 #[derive(Debug, thiserror::Error)]
@@ -52,6 +51,10 @@ pub enum GgenAiError {
     /// Anyhow errors
     #[error("Generic error: {0}")]
     Anyhow(#[from] anyhow::Error),
+    
+    /// Tera template errors
+    #[error("Template error: {0}")]
+    Tera(#[from] tera::Error),
 }
 
 /// Result type for ggen-ai operations

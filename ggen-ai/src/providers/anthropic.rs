@@ -9,6 +9,8 @@ use crate::client::{LlmClient, LlmConfig, LlmResponse, LlmChunk, UsageStats};
 use crate::error::{GgenAiError, Result};
 
 /// Anthropic API client
+/// Client for interacting with Anthropic API
+#[derive(Debug)]
 pub struct AnthropicClient {
     client: Client,
     api_key: String,
@@ -53,6 +55,7 @@ struct Message {
 }
 
 #[derive(Deserialize)]
+#[allow(dead_code)]
 struct MessageResponse {
     id: String,
     #[serde(rename = "type")]
@@ -66,6 +69,7 @@ struct MessageResponse {
 }
 
 #[derive(Deserialize)]
+#[allow(dead_code)]
 struct ContentBlock {
     #[serde(rename = "type")]
     block_type: String,

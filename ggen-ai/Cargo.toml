@@ -41,7 +41,7 @@ uuid = { version = "1", features = ["v4"] }
 tera = "1"
 
 # MCP server integration
-rmcp = { version = "0.8.0", features = ["server"] }
+rmcp = { version = "0.8.0", features = ["server", "transport-io"] }
 
 # SPARQL support
 oxigraph = "0.4"

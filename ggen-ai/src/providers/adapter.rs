@@ -4,8 +4,10 @@ use crate::client::{LlmClient, LlmConfig, LlmResponse, LlmChunk};
 use crate::error::{GgenAiError, Result};
 use async_trait::async_trait;
 use futures::stream::BoxStream;
+use futures::StreamExt;
 
 /// Mock client for testing
+#[derive(Debug)]
 pub struct MockClient {
     responses: Vec<String>,
     current_index: usize,
@@ -99,8 +101,9 @@ mod tests {
     #[tokio::test]
     async fn test_mock_client() {
         let client = MockClient::with_response("Hello, world!");
-        let response = client.complete("Test prompt", None).await.unwrap();
-        
+        let response = client.complete("Test prompt", None).await
+            .expect("Failed to complete mock request");
+
         assert_eq!(response.content, "Hello, world!");
         assert_eq!(response.model, "mock-model");
         assert!(response.usage.is_some());
@@ -109,11 +112,12 @@ mod tests {
     #[tokio::test]
     async fn test_mock_client_streaming() {
         let client = MockClient::with_response("Hello, world!");
-        let mut stream = client.stream_complete("Test prompt", None).await.unwrap();
-        
+        let mut stream = client.stream_complete("Test prompt", None).await
+            .expect("Failed to create stream");
+
         let mut content = String::new();
         while let Some(chunk) = stream.next().await {
-            let chunk = chunk.unwrap();
+            let chunk = chunk.expect("Failed to read chunk from stream");
             content.push_str(&chunk.content);
             if chunk.done {
                 break;
@@ -123,3 +127,4 @@ mod tests {
         assert_eq!(content, "Hello, world!");
     }
 }
+

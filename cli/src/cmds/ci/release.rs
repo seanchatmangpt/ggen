@@ -221,6 +221,7 @@ async fn run_release_workflows_with_deps(
     Ok(())
 }
 
+#[allow(dead_code)]
 async fn run_release_workflows(args: &RunArgs) -> Result<()> {
     let runner = CargoMakeReleaseRunner;
     run_release_workflows_with_deps(args, &runner).await
@@ -247,6 +248,7 @@ async fn run_release_with_retry_with_deps(
     Ok(())
 }
 
+#[allow(dead_code)]
 async fn run_release_with_retry(args: &RetryArgs) -> Result<()> {
     let runner = CargoMakeReleaseRunner;
     run_release_with_retry_with_deps(args, &runner).await
@@ -273,6 +275,7 @@ async fn run_release_with_metrics_with_deps(
     Ok(())
 }
 
+#[allow(dead_code)]
 async fn run_release_with_metrics(args: &MetricsArgs) -> Result<()> {
     let runner = CargoMakeReleaseRunner;
     run_release_with_metrics_with_deps(args, &runner).await
@@ -299,6 +302,7 @@ async fn run_release_with_timeout_with_deps(
     Ok(())
 }
 
+#[allow(dead_code)]
 async fn run_release_with_timeout(args: &TimeoutArgs) -> Result<()> {
     let runner = CargoMakeReleaseRunner;
     run_release_with_timeout_with_deps(args, &runner).await
@@ -322,6 +326,7 @@ async fn run_release_dry_run_with_deps(
     Ok(())
 }
 
+#[allow(dead_code)]
 async fn run_release_dry_run(args: &DryRunArgs) -> Result<()> {
     let runner = CargoMakeReleaseRunner;
     run_release_dry_run_with_deps(args, &runner).await

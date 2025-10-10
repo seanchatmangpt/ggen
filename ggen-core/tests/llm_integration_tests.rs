@@ -135,10 +135,10 @@ mod tests {
 
     #[test]
     fn test_role_conversion() {
-        assert_eq!(Role::from_str("user"), Some(Role::User));
-        assert_eq!(Role::from_str("SYSTEM"), Some(Role::System));
-        assert_eq!(Role::from_str("assistant"), Some(Role::Assistant));
-        assert_eq!(Role::from_str("invalid"), None);
+        assert_eq!(Role::parse_role("user"), Some(Role::User));
+        assert_eq!(Role::parse_role("SYSTEM"), Some(Role::System));
+        assert_eq!(Role::parse_role("assistant"), Some(Role::Assistant));
+        assert_eq!(Role::parse_role("invalid"), None);
     }
 
     // Mock-based async tests would require actual API keys or mocking framework

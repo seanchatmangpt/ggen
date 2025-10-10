@@ -1,0 +1,18 @@
+[project]
+name = "ai-demo-ontology"
+description = "AI-generated e-commerce domain ontology"
+
+[ai]
+enabled = true
+provider = "openai"
+
+[generation]
+templates = [
+    "ai-ontology.tmpl"
+]
+
+[vars]
+domain = "ECommerce"
+description = "Comprehensive e-commerce ontology with customers, products, orders, payments, and addresses"
+base_uri = "http://example.org/ecommerce#"
+version = "1.0.0"

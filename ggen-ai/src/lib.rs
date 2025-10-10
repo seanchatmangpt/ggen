@@ -18,21 +18,21 @@
 //!
 //! ```rust
 //! use ggen_ai::{LlmClient, TemplateGenerator};
-//! use ggen_ai::providers::OpenAIClient;
+//! use ggen_ai::providers::MockClient;
 //!
 //! #[tokio::main]
 //! async fn main() -> Result<(), Box<dyn std::error::Error>> {
-//!     // Initialize LLM client
-//!     let client = OpenAIClient::new("your-api-key".to_string());
+//!     // Initialize mock client for demonstration
+//!     let client = MockClient::new(vec!["Generated template content".to_string()]);
 //!     
 //!     // Generate template from description
-//!     let generator = TemplateGenerator::new(client);
-//!     let template = generator.generate_template(
+//!     let generator = TemplateGenerator::new(Box::new(client));
+//!     let _template = generator.generate_template(
 //!         "Generate a REST API controller for user management",
 //!         vec!["Include CRUD operations", "Use TypeScript"]
 //!     ).await?;
 //!     
-//!     println!("Generated template: {}", template);
+//!     println!("Template generated successfully!");
 //!     Ok(())
 //! }
 //! ```

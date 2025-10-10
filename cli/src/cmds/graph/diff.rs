@@ -15,11 +15,11 @@ pub struct DiffArgs {
     pub current: PathBuf,
 
     /// Output format (human, json, hash)
-    #[arg(short, long, default_value = "human")]
+    #[arg(short = 'o', long, default_value = "human")]
     pub format: String,
 
     /// Filter results to specific IRIs
-    #[arg(short, long)]
+    #[arg(short = 'f', long)]
     pub filter: Vec<String>,
 
     /// Show affected templates

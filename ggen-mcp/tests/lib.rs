@@ -7,6 +7,7 @@ use serde_json::{json, Value};
 
 // Re-export commonly used test utilities
 pub use proptest::prelude::*;
+pub use proptest::strategy::Strategy;
 pub use test_case::test_case;
 
 /// Mock trait for ggen-core Registry operations
@@ -38,9 +39,9 @@ pub trait TemplateEngineTrait: Send + Sync {
 /// Mock trait for graph operations
 #[automock]
 pub trait GraphStoreTrait: Send + Sync {
-    fn execute_sparql(&self, query: &str, graph: Option<&str>) -> Result<QueryResult, String>;
-    fn load_rdf(&self, file: &str, format: &str, graph: Option<&str>) -> Result<usize, String>;
-    fn export_graph(&self, output: &str, format: &str, graph: Option<&str>) -> Result<usize, String>;
+    fn execute_sparql(&self, query: &str, graph: Option<&'static str>) -> Result<QueryResult, String>;
+    fn load_rdf(&self, file: &str, format: &str, graph: Option<&'static str>) -> Result<usize, String>;
+    fn export_graph(&self, output: &str, format: &str, graph: Option<&'static str>) -> Result<usize, String>;
 }
 
 /// Test data structures
@@ -181,8 +182,8 @@ pub mod properties {
 
     /// Strategy for generating SPARQL queries
     pub fn sparql_query_strategy() -> impl Strategy<Value = String> {
-        prop::collection::vec("[A-Z]+", 1..5)
-            .prop_map(|words| format!("SELECT * WHERE {{ ?s ?p ?o }}")
+        proptest::collection::vec("[A-Z]+", 1..5)
+            .prop_map(|words| format!("SELECT * WHERE {{ ?s ?p ?o }}"))
     }
 }
 

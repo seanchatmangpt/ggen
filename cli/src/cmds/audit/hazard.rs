@@ -155,6 +155,7 @@ async fn scan_hazards_with_deps(args: &ScanArgs, scanner: &dyn HazardScanner) ->
     Ok(())
 }
 
+#[allow(dead_code)]
 async fn scan_hazards(args: &ScanArgs) -> Result<()> {
     let scanner = CargoMakeHazardScanner;
     scan_hazards_with_deps(args, &scanner).await
@@ -176,6 +177,7 @@ async fn list_hazards_with_deps(args: &ListArgs, lister: &dyn HazardLister) -> R
     Ok(())
 }
 
+#[allow(dead_code)]
 async fn list_hazards(args: &ListArgs) -> Result<()> {
     let lister = CargoMakeHazardLister;
     list_hazards_with_deps(args, &lister).await
@@ -197,6 +199,7 @@ async fn check_hazard_type_with_deps(args: &CheckArgs, checker: &dyn HazardCheck
     Ok(())
 }
 
+#[allow(dead_code)]
 async fn check_hazard_type(args: &CheckArgs) -> Result<()> {
     let checker = CargoMakeHazardChecker;
     check_hazard_type_with_deps(args, &checker).await

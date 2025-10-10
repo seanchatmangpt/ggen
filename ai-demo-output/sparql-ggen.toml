@@ -1,0 +1,18 @@
+[project]
+name = "ai-demo-sparql"
+description = "AI-generated SPARQL queries for user management"
+
+[ai]
+enabled = true
+provider = "openai"
+
+[generation]
+templates = [
+    "ai-sparql.tmpl"
+]
+
+[vars]
+domain = "UserManagement"
+description = "SPARQL queries for comprehensive user management operations"
+ontology_prefix = "user"
+base_uri = "http://example.org/user#"

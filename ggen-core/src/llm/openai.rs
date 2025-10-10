@@ -236,8 +236,7 @@ fn parse_sse_chunk(bytes: bytes::Bytes) -> LlmResult<StreamChunk> {
     let text = String::from_utf8_lossy(&bytes);
 
     for line in text.lines() {
-        if line.starts_with("data: ") {
-            let data = &line[6..];
+        if let Some(data) = line.strip_prefix("data: ") {
 
             if data == "[DONE]" {
                 return Ok(StreamChunk::final_chunk("", "stop"));

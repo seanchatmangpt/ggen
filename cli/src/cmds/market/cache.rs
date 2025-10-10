@@ -86,7 +86,6 @@ pub struct CacheValidationResult {
 const CACHE_DIR: &str = ".ggen/cache/market";
 const PACKAGES_FILE: &str = "packages.json";
 const CATEGORIES_FILE: &str = "categories.json";
-const METADATA_FILE: &str = "metadata.json";
 
 pub async fn run(args: &CacheArgs) -> Result<()> {
     match &args.command {
@@ -418,6 +417,9 @@ mod tests {
             oldest_entry: Some("1 week ago".to_string()),
             newest_entry: Some("1 hour ago".to_string()),
             hit_rate: Some(0.85),
+            last_updated: Some("2024-01-01T00:00:00Z".to_string()),
+            cache_size: 1024 * 1024, // 1MB
+            is_stale: false,
         };
 
         assert_eq!(stats.package_count, 100);

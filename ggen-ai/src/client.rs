@@ -27,10 +27,10 @@ pub struct LlmConfig {
 impl Default for LlmConfig {
     fn default() -> Self {
         Self {
-            model: "gpt-3.5-turbo".to_string(),
-            max_tokens: Some(2048),
-            temperature: Some(0.7),
-            top_p: Some(1.0),
+            model: "qwen3-coder:30b".to_string(),
+            max_tokens: Some(4096),
+            temperature: Some(0.3),
+            top_p: Some(0.9),
             stop: None,
             extra: HashMap::new(),
         }
@@ -74,7 +74,7 @@ pub struct LlmChunk {
 
 /// Trait for LLM client implementations
 #[async_trait]
-pub trait LlmClient: Send + Sync {
+pub trait LlmClient: Send + Sync + std::fmt::Debug {
     /// Complete a prompt synchronously
     async fn complete(&self, prompt: &str, config: Option<LlmConfig>) -> Result<LlmResponse>;
     
@@ -181,11 +181,10 @@ impl Default for LlmAdapter {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use mockito::Server;
     
     #[tokio::test]
     async fn test_llm_adapter() {
-        let mut adapter = LlmAdapter::new();
+        let adapter = LlmAdapter::new();
         
         // Test empty adapter
         assert!(adapter.get_client(None).is_err());
@@ -195,3 +194,4 @@ mod tests {
         // This is a placeholder for when we implement the providers
     }
 }
+

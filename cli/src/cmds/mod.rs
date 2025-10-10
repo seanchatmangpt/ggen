@@ -1,4 +1,5 @@
 // New noun-verb structure
+pub mod ai;
 pub mod audit;
 pub mod ci;
 pub mod graph;
@@ -11,7 +12,7 @@ pub mod template;
 // Legacy flat commands (to be migrated)
 pub mod add;
 pub mod categories;
-pub mod completion;
+// pub mod completion; // COMMENTED OUT: Command line completion code
 pub mod gen;
 pub mod github;
 pub mod hazard;
@@ -29,6 +30,8 @@ use ggen_utils::UtilsGgenConfig as GgenConfig;
 #[derive(Subcommand, Debug)]
 pub enum Commands {
     // New noun-verb structure
+    #[command(name = "ai", about = "AI-powered template generation and analysis")]
+    Ai(ai::AiArgs),
     #[command(name = "audit", about = "Security and performance auditing")]
     Audit(audit::AuditCmd),
     #[command(name = "ci", about = "CI/CD operations and GitHub integration")]
@@ -104,27 +107,28 @@ pub enum Commands {
     GitHub(github::GitHubArgs),
     #[command(name = "hazard", about = "Generate hazard report")]
     Hazard,
-    #[command(name = "completion", about = "Generate completion scripts")]
-    Completion {
-        #[command(subcommand)]
-        subcommand: CompletionSubcommand,
-    },
+    // #[command(name = "completion", about = "Generate completion scripts")] // COMMENTED OUT: Command line completion code
+    // Completion {
+    //     #[command(subcommand)]
+    //     subcommand: CompletionSubcommand,
+    // },
 }
 
-#[derive(Subcommand, PartialEq, Debug)]
-pub enum CompletionSubcommand {
-    #[command(about = "generate the autocompletion script for bash")]
-    Bash,
-    #[command(about = "generate the autocompletion script for zsh")]
-    Zsh,
-    #[command(about = "generate the autocompletion script for fish")]
-    Fish,
-}
+// #[derive(Subcommand, PartialEq, Debug)] // COMMENTED OUT: Command line completion code
+// pub enum CompletionSubcommand {
+//     #[command(about = "generate the autocompletion script for bash")]
+//     Bash,
+//     #[command(about = "generate the autocompletion script for zsh")]
+//     Zsh,
+//     #[command(about = "generate the autocompletion script for fish")]
+//     Fish,
+// }
 
 impl Commands {
     pub async fn run(&self) -> ggen_utils::error::Result<()> {
         match self {
             // New noun-verb structure
+            Commands::Ai(args) => ai::run(args).await,
             Commands::Audit(cmd) => cmd.run().await,
             Commands::Ci(cmd) => cmd.run().await,
             Commands::Graph(cmd) => cmd.run().await,
@@ -147,7 +151,7 @@ impl Commands {
             Commands::Lint(args) => lint::run(args),
             Commands::GitHub(args) => Ok(github::run(args).await?),
             Commands::Hazard => hazard::run(),
-            Commands::Completion { subcommand } => completion::run(subcommand),
+            // Commands::Completion { subcommand } => completion::run(subcommand), // COMMENTED OUT: Command line completion code
         }
     }
 
@@ -156,6 +160,7 @@ impl Commands {
     ) -> ggen_utils::error::Result<()> {
         match self {
             // New noun-verb structure
+            Commands::Ai(args) => ai::run(args).await,
             Commands::Audit(cmd) => cmd.run().await,
             Commands::Ci(cmd) => cmd.run().await,
             Commands::Graph(cmd) => cmd.run().await,
@@ -178,7 +183,7 @@ impl Commands {
             Commands::Lint(args) => lint::run(args),
             Commands::GitHub(args) => Ok(github::run(args).await?),
             Commands::Hazard => hazard::run(),
-            Commands::Completion { subcommand } => completion::run(subcommand),
+            // Commands::Completion { subcommand } => completion::run(subcommand), // COMMENTED OUT: Command line completion code
         }
     }
 }

@@ -344,7 +344,14 @@ mod tests {
                     version: "1.0.0".to_string(),
                     author: Some("ggen-team".to_string()),
                     license: Some("MIT".to_string()),
-                    homepage: Some("https://ggen.dev".to_string()),
+                    homepage: Some("https://github.com/ggen/rust-cli".to_string()),
+                    stars: 100,
+                    downloads: 1000,
+                    updated_at: "2024-01-01T00:00:00Z".to_string(),
+                    tags: vec!["rust".to_string(), "cli".to_string()],
+                    health_score: Some(0.95),
+                    dependencies: vec![],
+                    examples: vec![],
                 })
             });
 

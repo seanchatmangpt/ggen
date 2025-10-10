@@ -31,6 +31,10 @@ pub struct Cli {
     pub command: cmds::Commands,
 }
 
+pub fn build_cli() -> clap::Command {
+    Cli::command()
+}
+
 pub async fn cli_match() -> Result<()> {
     let cli = Cli::parse();
 

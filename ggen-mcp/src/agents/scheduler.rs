@@ -5,7 +5,7 @@
 use super::*;
 use serde_json::Value;
 
-/// Task Scheduler Agent
+/// Task Scheduler Agent for managing and executing scheduled tasks
 pub struct TaskScheduler {
     config: AgentConfig,
     status: AgentStatus,
@@ -13,7 +13,7 @@ pub struct TaskScheduler {
     execution_history: Vec<TaskExecutionRecord>,
 }
 
-/// Scheduled task
+/// A scheduled task with priority and execution metadata
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ScheduledTask {
     pub id: Uuid,
@@ -25,6 +25,7 @@ pub struct ScheduledTask {
 }
 
 /// Task execution record
+/// Record of task execution with timing and success status
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TaskExecutionRecord {
     pub task_id: Uuid,
@@ -112,3 +113,4 @@ impl TaskScheduler {
         }))
     }
 }
+
