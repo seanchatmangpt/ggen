@@ -1,3 +1,42 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Recipe Template Format](#recipe-template-format)
+  - [Recipe X.Y: &#91;Action-Oriented Title&#93;](#recipe-xy-action-oriented-title)
+    - [Problem](#problem)
+    - [Solution](#solution)
+    - [Prerequisites](#prerequisites)
+    - [Step-by-Step](#step-by-step)
+      - [1. &#91;First Action&#93;](#1-first-action)
+      - [2. &#91;Second Action&#93;](#2-second-action)
+      - [3. &#91;Third Action&#93;](#3-third-action)
+    - [Complete Example](#complete-example)
+    - [Explanation](#explanation)
+    - [Expected Output](#expected-output)
+    - [Verification](#verification)
+    - [Common Pitfalls](#common-pitfalls)
+    - [Variations](#variations)
+    - [Troubleshooting](#troubleshooting)
+    - [See Also](#see-also)
+    - [Next Steps](#next-steps)
+  - [Template Checklist](#template-checklist)
+  - [Metadata Guidelines](#metadata-guidelines)
+    - [Difficulty Levels](#difficulty-levels)
+    - [Time Estimates](#time-estimates)
+    - [Tag Categories](#tag-categories)
+    - [See Also References](#see-also-references)
+  - [Visual Style Guide](#visual-style-guide)
+    - [Emoji Usage](#emoji-usage)
+    - [Code Block Formatting](#code-block-formatting)
+    - [Section Headers](#section-headers)
+  - [Quality Assurance](#quality-assurance)
+    - [Testing Recipe Examples](#testing-recipe-examples)
+    - [Validation Script](#validation-script)
+    - [Peer Review Checklist](#peer-review-checklist)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Recipe Template Format
 
 This template should be used for ALL cookbook recipes to ensure consistency and quality.
