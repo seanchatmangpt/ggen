@@ -1,3 +1,25 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Quickstart](#quickstart)
+  - [Marketplace Workflow (Recommended)](#marketplace-workflow-recommended)
+    - [1. Search for Templates](#1-search-for-templates)
+    - [2. Install a Gpack](#2-install-a-gpack)
+    - [3. Generate Code](#3-generate-code)
+    - [4. Verify Installation](#4-verify-installation)
+  - [Local Templates (Advanced)](#local-templates-advanced)
+    - [1. Initialize Project Structure](#1-initialize-project-structure)
+    - [2. Create Template](#2-create-template)
+    - [3. Generate](#3-generate)
+  - [Marketplace vs Local Templates](#marketplace-vs-local-templates)
+  - [Troubleshooting](#troubleshooting)
+    - [First-time Setup Issues](#first-time-setup-issues)
+    - [Template Not Found](#template-not-found)
+    - [Generation Errors](#generation-errors)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Quickstart
 
 ## Marketplace Workflow (Recommended)

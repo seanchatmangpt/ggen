@@ -1,3 +1,27 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GitHub Pages Deployment Guide](#github-pages-deployment-guide)
+  - [Current Status](#current-status)
+  - [What Has Been Fixed](#what-has-been-fixed)
+  - [What Needs to Be Done](#what-needs-to-be-done)
+    - [Step 1: Push Changes to GitHub](#step-1-push-changes-to-github)
+    - [Step 2: Enable GitHub Pages in Repository Settings](#step-2-enable-github-pages-in-repository-settings)
+    - [Step 3: Trigger the Workflow](#step-3-trigger-the-workflow)
+    - [Step 4: Wait for Deployment](#step-4-wait-for-deployment)
+    - [Step 5: Verify Deployment](#step-5-verify-deployment)
+  - [Troubleshooting](#troubleshooting)
+    - [Workflow Permissions Error](#workflow-permissions-error)
+    - [404 After Successful Deployment](#404-after-successful-deployment)
+    - [Registry Index Validation Fails](#registry-index-validation-fails)
+  - [Local Testing](#local-testing)
+  - [Continuous Deployment](#continuous-deployment)
+  - [Checking Workflow Status](#checking-workflow-status)
+  - [GitHub Pages Configuration Reference](#github-pages-configuration-reference)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GitHub Pages Deployment Guide
 
 ## Current Status

@@ -1,3 +1,18 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [🏪 Marketplace](#-marketplace)
+  - [📚 About](#-about)
+    - [Key Statistics](#key-statistics)
+  - [🔍 Registry API](#-registry-api)
+  - [🚀 Quick Start](#-quick-start)
+  - [📦 Available Gpacks](#-available-gpacks)
+  - [🔧 Configuration](#-configuration)
+  - [📖 Documentation](#-documentation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 🏪 Marketplace
 
 The ggen marketplace provides a curated ecosystem of reusable code generation packs (gpacks) served via GitHub Pages with automated validation and deployment. Discover, install, and use high-quality templates from the community.

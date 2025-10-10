@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Troubleshooting](#troubleshooting)
+  - [General Issues](#general-issues)
+  - [Marketplace Issues](#marketplace-issues)
+    - [Gpack Not Found](#gpack-not-found)
+    - [Version Conflicts](#version-conflicts)
+    - [Dependency Resolution Failures](#dependency-resolution-failures)
+    - [Template Not Found in Gpack](#template-not-found-in-gpack)
+    - [Cache Corruption](#cache-corruption)
+    - [Network/Registry Connectivity](#networkregistry-connectivity)
+  - [Gpack Validation and Linting Errors](#gpack-validation-and-linting-errors)
+    - [Invalid Gpack Manifest](#invalid-gpack-manifest)
+    - [Template Schema Validation](#template-schema-validation)
+    - [RDF Graph Validation](#rdf-graph-validation)
+  - [Local Template Issues](#local-template-issues)
+    - [Template Discovery](#template-discovery)
+    - [Variable Resolution](#variable-resolution)
+  - [Performance Issues](#performance-issues)
+    - [Slow Generation](#slow-generation)
+    - [Memory Issues](#memory-issues)
+  - [Debugging Tips](#debugging-tips)
+    - [Enable Verbose Output](#enable-verbose-output)
+    - [Check System State](#check-system-state)
+    - [Test with Minimal Example](#test-with-minimal-example)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Troubleshooting
 
 ## General Issues

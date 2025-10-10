@@ -1,3 +1,50 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen v1.0.0 Release Notes](#ggen-v100-release-notes)
+  - [🚀 Major Release: Production Ready with Post-Quantum Security](#-major-release-production-ready-with-post-quantum-security)
+  - [🔐 Headline Feature: Post-Quantum Cryptography](#-headline-feature-post-quantum-cryptography)
+    - [Why This Matters](#why-this-matters)
+    - [What We've Built](#what-weve-built)
+    - [Sales & Marketing Bullets](#sales--marketing-bullets)
+  - [🆕 What's New in v1.0.0](#-whats-new-in-v100)
+    - [Core Features](#core-features)
+      - [1. Post-Quantum Cryptography (PQC)](#1-post-quantum-cryptography-pqc)
+      - [2. Enhanced Lockfile Management](#2-enhanced-lockfile-management)
+      - [3. GitHub API Integration](#3-github-api-integration)
+  - [📊 Technical Specifications](#-technical-specifications)
+    - [Post-Quantum Cryptography Details](#post-quantum-cryptography-details)
+    - [Dependencies](#dependencies)
+  - [🔄 Migration Guide](#-migration-guide)
+    - [From v0.2.0 to v1.0.0](#from-v020-to-v100)
+  - [🎯 Use Cases](#-use-cases)
+    - [1. Enterprise Supply Chain Security](#1-enterprise-supply-chain-security)
+    - [2. Long-Term Archival](#2-long-term-archival)
+    - [3. Regulatory Compliance](#3-regulatory-compliance)
+  - [📈 Performance](#-performance)
+    - [Benchmark Results](#benchmark-results)
+  - [🛠️ Developer Experience](#-developer-experience)
+    - [New APIs](#new-apis)
+      - [PQC Module](#pqc-module)
+      - [Enhanced Lockfile Manager](#enhanced-lockfile-manager)
+  - [🎉 Additional Improvements](#-additional-improvements)
+    - [GitHub Integration](#github-integration)
+    - [Documentation](#documentation)
+    - [Developer Experience](#developer-experience)
+  - [📝 Sales Messaging](#-sales-messaging)
+    - [Elevator Pitch](#elevator-pitch)
+    - [Key Messages](#key-messages)
+    - [Target Audiences](#target-audiences)
+  - [🔜 Roadmap](#-roadmap)
+    - [Planned for v1.1.0](#planned-for-v110)
+    - [Future Considerations](#future-considerations)
+  - [📚 Resources](#-resources)
+  - [🙏 Acknowledgments](#-acknowledgments)
+  - [🎊 Thank You](#-thank-you)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen v1.0.0 Release Notes
 
 ## 🚀 Major Release: Production Ready with Post-Quantum Security
