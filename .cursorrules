@@ -1,4 +1,4 @@
-SPR: rgen — language-agnostic, deterministic code projection CLI
+SPR: ggen — language-agnostic, deterministic code projection CLI
 
 * Identity: Rust CLI that turns ontologies + RDF-like metadata into reproducible code projections.
 

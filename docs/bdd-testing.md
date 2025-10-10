@@ -1,6 +1,6 @@
 # BDD Testing Guide
 
-This document describes the Behavior-Driven Development (BDD) test suite for rgen, which validates all claims made in the README.
+This document describes the Behavior-Driven Development (BDD) test suite for ggen, which validates all claims made in the README.
 
 ## Overview
 
@@ -76,7 +76,7 @@ cargo make bdd-report
 ### Quick Start Features (`quickstart.feature`)
 - ✅ Generate from local template
 - ✅ Search marketplace
-- ✅ Install and use marketplace rpack
+- ✅ Install and use marketplace gpack
 
 ### Template Generation Features (`template_generation.feature`)
 - ✅ Basic template with frontmatter
@@ -91,7 +91,7 @@ cargo make bdd-report
 - ✅ Install latest version
 - ✅ Install specific version
 - ✅ Update packages
-- ✅ Use installed rpack
+- ✅ Use installed gpack
 
 ### CLI Commands Features (`cli_commands.feature`)
 - ✅ Marketplace commands work
@@ -123,7 +123,7 @@ Edit the appropriate `.feature` file in `tests/bdd/features/`:
 ```gherkin
 Scenario: New functionality
   Given I have a clean project directory
-  When I run "rgen new-command"
+  When I run "ggen new-command"
   Then the command should succeed
   And I should see "expected output"
 ```
@@ -134,12 +134,12 @@ Add step definitions to the appropriate `steps/*.rs` file:
 
 ```rust
 #[when("I run {string}")]
-fn run_command(world: &mut RgenWorld, command: &str) {
+fn run_command(world: &mut GgenWorld, command: &str) {
     // Implementation
 }
 
 #[then("I should see {string}")]
-fn should_see_text(world: &mut RgenWorld, expected: &str) {
+fn should_see_text(world: &mut GgenWorld, expected: &str) {
     // Implementation
 }
 ```
@@ -151,7 +151,7 @@ Add the new step definitions to `tests/bdd.rs`:
 ```rust
 #[tokio::test]
 async fn test_new_feature() {
-    let cucumber = Cucumber::<RgenWorld>::new()
+    let cucumber = Cucumber::<GgenWorld>::new()
         .features(&["tests/bdd/features/new_feature.feature"])
         .steps(steps::new_steps::steps());
     
@@ -179,7 +179,7 @@ Add debugging output to step definitions:
 
 ```rust
 #[then("I should see {string}")]
-fn should_see_text(world: &mut RgenWorld, expected: &str) {
+fn should_see_text(world: &mut GgenWorld, expected: &str) {
     println!("Expected: {}", expected);
     println!("Stdout: {}", world.last_stdout());
     println!("Stderr: {}", world.last_stderr());
@@ -191,7 +191,7 @@ fn should_see_text(world: &mut RgenWorld, expected: &str) {
 
 ```rust
 #[then("a file should be generated")]
-fn file_should_be_generated(world: &mut RgenWorld) {
+fn file_should_be_generated(world: &mut GgenWorld) {
     let output_dir = world.project_dir.join("output");
     if output_dir.exists() {
         for entry in fs::read_dir(&output_dir).expect("Failed to read output dir") {
@@ -273,7 +273,7 @@ The BDD test suite aims for 100% coverage of README claims:
 
 1. **Test fails with "binary not found"**
    - Ensure `cargo make build` has been run
-   - Check that the binary exists in `target/debug/rgen`
+   - Check that the binary exists in `target/debug/ggen`
 
 2. **Mock server not working**
    - Verify mockito server is started correctly

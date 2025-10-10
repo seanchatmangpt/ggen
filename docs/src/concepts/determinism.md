@@ -1,6 +1,6 @@
 # Determinism
 
-rgen ensures deterministic, reproducible code generation through manifest hashing and version locking.
+ggen ensures deterministic, reproducible code generation through manifest hashing and version locking.
 
 ## Manifest Key Calculation
 
@@ -9,9 +9,9 @@ For local templates:
 K = SHA256(seed || graph_hash || shapes_hash || frontmatter_hash || rows_hash)
 ```
 
-For marketplace rpacks:
+For marketplace gpacks:
 ```
-K = SHA256(seed || rpack_version || rpack_deps_hash || graph_hash || shapes_hash || frontmatter_hash || rows_hash)
+K = SHA256(seed || gpack_version || gpack_deps_hash || graph_hash || shapes_hash || frontmatter_hash || rows_hash)
 ```
 
 ## Hash Components
@@ -22,27 +22,27 @@ K = SHA256(seed || rpack_version || rpack_deps_hash || graph_hash || shapes_hash
 - **Frontmatter hash**: rendered header + body bytes
 - **Rows hash**: ordered serialization of matrix rows
 
-### Marketplace Rpacks
-- **Rpack version**: exact version from `ggen.toml`
-- **Rpack deps hash**: hash of all dependency versions
-- **Graph hash**: sorted N-Quads from rpack RDF sources
-- **Shapes hash**: sorted N-Quads from rpack SHACL validation
+### Marketplace Gpacks
+- **Gpack version**: exact version from `ggen.toml`
+- **Gpack deps hash**: hash of all dependency versions
+- **Graph hash**: sorted N-Quads from gpack RDF sources
+- **Shapes hash**: sorted N-Quads from gpack SHACL validation
 - **Frontmatter hash**: rendered header + body bytes
 - **Rows hash**: ordered serialization of matrix rows
 
 ## Version Locking
 
-### Rpack Version Management
+### Gpack Version Management
 
 ```bash
 # Install specific version
-rgen add io.ggen.rust.cli-subcommand@0.2.1
+ggen add io.ggen.rust.cli-subcommand@0.2.1
 
 # Check installed versions
-rgen packs
+ggen packs
 
 # View lockfile
-cat rgen.lock
+cat ggen.lock
 ```
 
 ### Lockfile Structure
@@ -51,7 +51,7 @@ cat rgen.lock
 [lockfile]
 version = "1.0"
 
-[rpacks]
+[gpacks]
 "io.ggen.rust.cli-subcommand" = "0.2.1"
 "io.ggen.macros.std" = "0.2.0"
 
@@ -69,10 +69,10 @@ version = "1.0"
 
 ```bash
 # First generation
-rgen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello
+ggen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello
 
 # Second generation (same inputs)
-rgen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello
+ggen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello
 
 # Outputs are byte-identical
 diff src/cmds/hello.rs src/cmds/hello.rs
@@ -83,24 +83,24 @@ diff src/cmds/hello.rs src/cmds/hello.rs
 
 ```bash
 # Generate across languages with same inputs
-rgen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello
-rgen gen io.ggen.python.cli-subcommand:cli/subcommand/python.tmpl name=hello
-rgen gen io.ggen.bash.cli-subcommand:cli/subcommand/bash.tmpl name=hello
+ggen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello
+ggen gen io.ggen.python.cli-subcommand:cli/subcommand/python.tmpl name=hello
+ggen gen io.ggen.bash.cli-subcommand:cli/subcommand/bash.tmpl name=hello
 
 # All outputs share the same semantic model
 # Variable binding is consistent across languages
 ```
 
-## Rpack Dependencies and Determinism
+## Gpack Dependencies and Determinism
 
 ### Dependency Resolution
 
 ```bash
-# Install rpack with dependencies
-rgen add io.ggen.rust.cli-subcommand
+# Install gpack with dependencies
+ggen add io.ggen.rust.cli-subcommand
 
 # Dependencies are automatically resolved
-rgen packs
+ggen packs
 
 # Output:
 # ID                                    VERSION    KIND       TAGS
@@ -114,26 +114,26 @@ Dependencies affect determinism through their versions:
 
 ```bash
 # Check dependency versions
-rgen show io.ggen.rust.cli-subcommand --deps
+ggen show io.ggen.rust.cli-subcommand --deps
 
 # Update dependencies
-rgen update
+ggen update
 
 # Verify determinism after update
-rgen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello --dry
+ggen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello --dry
 ```
 
 ## Ensuring Determinism
 
-### Rpack Development
+### Gpack Development
 
 ```bash
 # Pin versions in development
-rgen add io.ggen.rust.cli-subcommand@0.2.1
+ggen add io.ggen.rust.cli-subcommand@0.2.1
 
 # Test determinism
-rgen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=test1
-rgen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=test1
+ggen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=test1
+ggen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=test1
 # Should produce identical output
 ```
 
@@ -141,15 +141,15 @@ rgen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=test1
 
 ```bash
 # Lock versions for production
-rgen add io.ggen.rust.cli-subcommand@0.2.1
-rgen add io.ggen.python.cli-subcommand@0.1.8
+ggen add io.ggen.rust.cli-subcommand@0.2.1
+ggen add io.ggen.python.cli-subcommand@0.1.8
 
 # Commit lockfile
-git add rgen.lock
-git commit -m "Lock rpack versions for production"
+git add ggen.lock
+git commit -m "Lock gpack versions for production"
 
 # Deploy with locked versions
-rgen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=api
+ggen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=api
 ```
 
 ## Troubleshooting Determinism
@@ -158,24 +158,24 @@ rgen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=api
 
 ```bash
 # Check for version changes
-rgen packs
+ggen packs
 
 # Verify lockfile
-cat rgen.lock
+cat ggen.lock
 
 # Check for dependency updates
-rgen update --dry
+ggen update --dry
 ```
 
 ### Manifest Key Changes
 
 ```bash
 # Enable tracing to see hash components
-RGEN_TRACE=1 rgen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello
+GGEN_TRACE=1 ggen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello
 
 # Output shows:
 # Manifest key: sha256:abc123...
-# Rpack version: 0.2.1
+# Gpack version: 0.2.1
 # Graph hash: sha256:def456...
 # Frontmatter hash: sha256:ghi789...
 ```
@@ -183,11 +183,11 @@ RGEN_TRACE=1 rgen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=
 ### Cross-Environment Consistency
 
 ```bash
-# Ensure same rpack versions across environments
-rgen add io.ggen.rust.cli-subcommand@0.2.1
+# Ensure same gpack versions across environments
+ggen add io.ggen.rust.cli-subcommand@0.2.1
 
 # Verify environment consistency
-rgen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello --dry
+ggen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello --dry
 ```
 
 ## Best Practices
@@ -210,4 +210,4 @@ rgen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello --dry
 - Use golden tests for validation
 - Monitor manifest key changes
 
-Same inputs + same rpack versions + same dependencies ⇒ byte-identical outputs across all environments.
+Same inputs + same gpack versions + same dependencies ⇒ byte-identical outputs across all environments.

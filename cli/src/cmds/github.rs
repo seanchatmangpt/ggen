@@ -78,7 +78,11 @@ async fn pages_status(args: &PagesStatusArgs) -> Result<()> {
     let client = GitHubClient::new(repo.clone())?;
 
     if !client.is_authenticated() {
-        eprintln!("{} {}", "Warning:".yellow(), "Not authenticated. Set GITHUB_TOKEN or GH_TOKEN for full access.");
+        eprintln!(
+            "{} {}",
+            "Warning:".yellow(),
+            "Not authenticated. Set GITHUB_TOKEN or GH_TOKEN for full access."
+        );
         eprintln!();
     }
 
@@ -103,10 +107,17 @@ async fn pages_status(args: &PagesStatusArgs) -> Result<()> {
                 } else {
                     println!("{}", "GitHub Pages Configuration:".bold());
                     println!("{}", "─".repeat(60).dimmed());
-                    println!("{} GitHub Pages is not configured for {}", "❌".red(), repo.as_str());
+                    println!(
+                        "{} GitHub Pages is not configured for {}",
+                        "❌".red(),
+                        repo.as_str()
+                    );
                     println!();
                     println!("{}", "To enable GitHub Pages:".yellow());
-                    println!("  1. Go to https://github.com/{}/settings/pages", repo.as_str());
+                    println!(
+                        "  1. Go to https://github.com/{}/settings/pages",
+                        repo.as_str()
+                    );
                     println!("  2. Under 'Build and deployment', set Source to 'GitHub Actions'");
                     println!("  3. Save settings");
                 }
@@ -130,7 +141,12 @@ async fn pages_status(args: &PagesStatusArgs) -> Result<()> {
                 println!("{} Site returns 404: {}", "❌".red(), url.dimmed());
                 println!("  {}", "Deployment may still be in progress...".yellow());
             } else {
-                println!("{} Unexpected status {}: {}", "⚠️".yellow(), status, url.dimmed());
+                println!(
+                    "{} Unexpected status {}: {}",
+                    "⚠️".yellow(),
+                    status,
+                    url.dimmed()
+                );
             }
         }
     }
@@ -143,7 +159,9 @@ async fn workflow_status(args: &WorkflowStatusArgs) -> Result<()> {
     let repo = RepoInfo::parse(&repo_str)?;
     let client = GitHubClient::new(repo.clone())?;
 
-    let runs = client.get_workflow_runs(&repo, &args.workflow, args.limit).await?;
+    let runs = client
+        .get_workflow_runs(&repo, &args.workflow, args.limit)
+        .await?;
 
     if args.json {
         println!("{}", serde_json::to_string_pretty(&runs)?);
@@ -163,17 +181,23 @@ async fn trigger_workflow(args: &TriggerWorkflowArgs) -> Result<()> {
         anyhow::bail!("GitHub token required to trigger workflows. Set GITHUB_TOKEN or GH_TOKEN environment variable.");
     }
 
-    println!("{} Triggering workflow {} on branch {}...",
+    println!(
+        "{} Triggering workflow {} on branch {}...",
         "🚀".bold(),
         args.workflow.cyan(),
         args.ref_name.yellow()
     );
 
-    client.trigger_workflow(&repo, &args.workflow, &args.ref_name).await?;
+    client
+        .trigger_workflow(&repo, &args.workflow, &args.ref_name)
+        .await?;
 
     println!("{} Workflow triggered successfully!", "✅".green());
     println!();
-    println!("View status at: https://github.com/{}/actions", repo.as_str());
+    println!(
+        "View status at: https://github.com/{}/actions",
+        repo.as_str()
+    );
 
     Ok(())
 }
@@ -205,7 +229,14 @@ fn print_pages_status(config: &ggen_core::PagesConfig, repo: &RepoInfo) {
     }
 
     if let Some(https) = config.https_enforced {
-        println!("HTTPS:  {}", if https { "✅ Enforced".green() } else { "❌ Not enforced".red() });
+        println!(
+            "HTTPS:  {}",
+            if https {
+                "✅ Enforced".green()
+            } else {
+                "❌ Not enforced".red()
+            }
+        );
     }
 
     println!();
@@ -215,7 +246,8 @@ fn print_pages_status(config: &ggen_core::PagesConfig, repo: &RepoInfo) {
 }
 
 fn print_workflow_runs(runs: &ggen_core::WorkflowRunsResponse, workflow: &str, repo: &RepoInfo) {
-    println!("{} {} {}",
+    println!(
+        "{} {} {}",
         "Workflow Runs for".bold(),
         workflow.cyan(),
         format!("({})", repo.as_str()).dimmed()
@@ -227,7 +259,8 @@ fn print_workflow_runs(runs: &ggen_core::WorkflowRunsResponse, workflow: &str, r
         return;
     }
 
-    println!("{:<8} {:<12} {:<12} {:<15} {:<25} {}",
+    println!(
+        "{:<8} {:<12} {:<12} {:<15} {:<25} {}",
         "RUN".bold(),
         "STATUS".bold(),
         "CONCLUSION".bold(),
@@ -253,7 +286,8 @@ fn print_workflow_runs(runs: &ggen_core::WorkflowRunsResponse, workflow: &str, r
         };
 
         // Extract just the date and time part of the RFC3339 string
-        let created = run.created_at
+        let created = run
+            .created_at
             .split('T')
             .next()
             .and_then(|date| {
@@ -264,10 +298,15 @@ fn print_workflow_runs(runs: &ggen_core::WorkflowRunsResponse, workflow: &str, r
             })
             .unwrap_or_else(|| run.created_at.clone());
 
-        println!("{:<8} {:<12} {:<12} {:<15} {:<25} {}",
+        println!(
+            "{:<8} {:<12} {:<12} {:<15} {:<25} {}",
             format!("#{}", run.run_number),
             format!("{} {}", status_icon, run.status),
-            format!("{} {}", conclusion_icon, run.conclusion.as_deref().unwrap_or("-")),
+            format!(
+                "{} {}",
+                conclusion_icon,
+                run.conclusion.as_deref().unwrap_or("-")
+            ),
             run.head_branch.yellow(),
             created.dimmed(),
             run.html_url.cyan()
@@ -290,7 +329,9 @@ fn get_repository(repo_arg: &Option<String>) -> Result<String> {
         .output()?;
 
     if !output.status.success() {
-        anyhow::bail!("Could not determine repository. Provide --repo or run from a git repository.");
+        anyhow::bail!(
+            "Could not determine repository. Provide --repo or run from a git repository."
+        );
     }
 
     let remote_url = String::from_utf8(output.stdout)?.trim().to_string();
@@ -300,11 +341,13 @@ fn get_repository(repo_arg: &Option<String>) -> Result<String> {
     // SSH: git@github.com:owner/repo.git
     let repo = if remote_url.contains("github.com") {
         let parts: Vec<&str> = if remote_url.contains("https://") {
-            remote_url.trim_end_matches(".git")
+            remote_url
+                .trim_end_matches(".git")
                 .split("github.com/")
                 .collect()
         } else {
-            remote_url.trim_end_matches(".git")
+            remote_url
+                .trim_end_matches(".git")
                 .split("github.com:")
                 .collect()
         };
@@ -312,7 +355,10 @@ fn get_repository(repo_arg: &Option<String>) -> Result<String> {
         if parts.len() == 2 {
             parts[1].to_string()
         } else {
-            anyhow::bail!("Could not parse GitHub repository from remote URL: {}", remote_url);
+            anyhow::bail!(
+                "Could not parse GitHub repository from remote URL: {}",
+                remote_url
+            );
         }
     } else {
         anyhow::bail!("Remote URL is not a GitHub repository: {}", remote_url);

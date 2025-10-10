@@ -1,6 +1,6 @@
-# rgen-core
+# ggen-core
 
-Core graph-aware code generation engine for rgen, providing RDF processing, template management, and code generation capabilities.
+Core graph-aware code generation engine for ggen, providing RDF processing, template management, and code generation capabilities.
 
 ## Features
 
@@ -12,4 +12,4 @@ Core graph-aware code generation engine for rgen, providing RDF processing, temp
 
 ## Usage
 
-This crate is primarily used internally by the main rgen binary. See the main rgen documentation for usage examples.
+This crate is primarily used internally by the main ggen binary. See the main ggen documentation for usage examples.

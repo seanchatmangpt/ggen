@@ -1,16 +1,16 @@
 # 🏪 Marketplace
 
-The ggen marketplace provides a curated ecosystem of reusable code generation packs (rpacks) served via GitHub Pages with automated validation and deployment. Discover, install, and use high-quality templates from the community.
+The ggen marketplace provides a curated ecosystem of reusable code generation packs (gpacks) served via GitHub Pages with automated validation and deployment. Discover, install, and use high-quality templates from the community.
 
 ## 📚 About
 
-The ggen marketplace provides a curated ecosystem of reusable code generation packs (rpacks) served via GitHub Pages with automated validation and deployment. Discover, install, and use high-quality templates from the community.
+The ggen marketplace provides a curated ecosystem of reusable code generation packs (gpacks) served via GitHub Pages with automated validation and deployment. Discover, install, and use high-quality templates from the community.
 
 ### Key Statistics
 
 | Metric | Value |
 |--------|-------|
-| Available Rpacks | 1 |
+| Available Gpacks | 1 |
 | Open Source | 100% |
 | License | MIT |
 
@@ -31,19 +31,19 @@ Access the marketplace registry programmatically:
 Get started with the ggen marketplace:
 
 ```bash
-# Search for rpacks
+# Search for gpacks
 ggen search rust cli
 
-# Install an rpack
+# Install an gpack
 ggen add io.ggen.rust.cli-subcommand
 
-# Use installed rpack
+# Use installed gpack
 ggen gen io.ggen.rust.cli-subcommand:rust.tmpl cmd=test
 ```
 
-## 📦 Available Rpacks
+## 📦 Available Gpacks
 
-Currently available rpacks in the marketplace:
+Currently available gpacks in the marketplace:
 
 ```
 io.ggen.rust.cli-subcommand

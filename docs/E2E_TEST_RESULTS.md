@@ -239,7 +239,7 @@ env::set_var("RUST_LOG", "ggen=info,warn,error");
 ```bash
 ggen search "rust"
 # Should only show:
-# Found 1 rpack(s):
+# Found 1 gpack(s):
 # ID  LATEST  TAGS  DESCRIPTION
 ```
 

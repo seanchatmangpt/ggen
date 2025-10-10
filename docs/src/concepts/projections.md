@@ -1,71 +1,71 @@
 # Projections
 
-Targets are just templates. rgen supports both marketplace rpacks and local templates for generating code projections.
+Targets are just templates. ggen supports both marketplace gpacks and local templates for generating code projections.
 
-## Marketplace Rpack Examples
+## Marketplace Gpack Examples
 
 ### CLI Subcommands
 
 ```bash
-# Install multi-language CLI rpacks
-rgen add io.ggen.rust.cli-subcommand
-rgen add io.ggen.python.cli-subcommand
-rgen add io.ggen.bash.cli-subcommand
+# Install multi-language CLI gpacks
+ggen add io.ggen.rust.cli-subcommand
+ggen add io.ggen.python.cli-subcommand
+ggen add io.ggen.bash.cli-subcommand
 
 # Generate across languages
-rgen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=status
-rgen gen io.ggen.python.cli-subcommand:cli/subcommand/python.tmpl name=status
-rgen gen io.ggen.bash.cli-subcommand:cli/subcommand/bash.tmpl name=status
+ggen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=status
+ggen gen io.ggen.python.cli-subcommand:cli/subcommand/python.tmpl name=status
+ggen gen io.ggen.bash.cli-subcommand:cli/subcommand/bash.tmpl name=status
 ```
 
 ### API Endpoints
 
 ```bash
-# Install API rpacks
-rgen add io.ggen.rust.api-endpoint
-rgen add io.ggen.python.api-endpoint
-rgen add io.ggen.typescript.api-endpoint
+# Install API gpacks
+ggen add io.ggen.rust.api-endpoint
+ggen add io.ggen.python.api-endpoint
+ggen add io.ggen.typescript.api-endpoint
 
 # Generate REST endpoints
-rgen gen io.ggen.rust.api-endpoint:api/endpoint/rust.tmpl name=users
-rgen gen io.ggen.python.api-endpoint:api/endpoint/python.tmpl name=users
-rgen gen io.ggen.typescript.api-endpoint:api/endpoint/typescript.tmpl name=users
+ggen gen io.ggen.rust.api-endpoint:api/endpoint/rust.tmpl name=users
+ggen gen io.ggen.python.api-endpoint:api/endpoint/python.tmpl name=users
+ggen gen io.ggen.typescript.api-endpoint:api/endpoint/typescript.tmpl name=users
 ```
 
 ### SQL DDL from Ontology
 
 ```bash
-# Install SQL generation rpacks
-rgen add io.ggen.sql.schema
-rgen add io.ggen.sql.migrations
+# Install SQL generation gpacks
+ggen add io.ggen.sql.schema
+ggen add io.ggen.sql.migrations
 
 # Generate database schema
-rgen gen io.ggen.sql.schema:schema/postgres.tmpl name=users
-rgen gen io.ggen.sql.migrations:migration/postgres.tmpl name=add_users_table
+ggen gen io.ggen.sql.schema:schema/postgres.tmpl name=users
+ggen gen io.ggen.sql.migrations:migration/postgres.tmpl name=add_users_table
 ```
 
 ### Edge Function Stubs
 
 ```bash
-# Install edge function rpacks
-rgen add io.ggen.vercel.edge-function
-rgen add io.ggen.cloudflare.worker
+# Install edge function gpacks
+ggen add io.ggen.vercel.edge-function
+ggen add io.ggen.cloudflare.worker
 
 # Generate edge functions
-rgen gen io.ggen.vercel.edge-function:edge/function.ts.tmpl name=api
-rgen gen io.ggen.cloudflare.worker:worker/index.js.tmpl name=api
+ggen gen io.ggen.vercel.edge-function:edge/function.ts.tmpl name=api
+ggen gen io.ggen.cloudflare.worker:worker/index.js.tmpl name=api
 ```
 
 ### Documentation from Graph Annotations
 
 ```bash
-# Install documentation rpacks
-rgen add io.ggen.docs.api-reference
-rgen add io.ggen.docs.user-guide
+# Install documentation gpacks
+ggen add io.ggen.docs.api-reference
+ggen add io.ggen.docs.user-guide
 
 # Generate documentation
-rgen gen io.ggen.docs.api-reference:docs/api.md.tmpl name=users
-rgen gen io.ggen.docs.user-guide:docs/guide.md.tmpl name=getting-started
+ggen gen io.ggen.docs.api-reference:docs/api.md.tmpl name=users
+ggen gen io.ggen.docs.user-guide:docs/guide.md.tmpl name=getting-started
 ```
 
 ## Local Template Examples
@@ -87,57 +87,57 @@ pub struct {{ name | pascal }} {
 EOF
 
 # Generate custom projection
-rgen gen custom projection --vars name=user
+ggen gen custom projection --vars name=user
 ```
 
-## Discovering Projection Rpacks
+## Discovering Projection Gpacks
 
 ### By Category
 
 ```bash
 # Browse categories
-rgen categories
+ggen categories
 
 # Search by projection type
-rgen search cli subcommand
-rgen search api endpoint
-rgen search sql schema
-rgen search docs reference
+ggen search cli subcommand
+ggen search api endpoint
+ggen search sql schema
+ggen search docs reference
 ```
 
 ### By Language
 
 ```bash
 # Search by language
-rgen search rust
-rgen search python
-rgen search typescript
-rgen search go
+ggen search rust
+ggen search python
+ggen search typescript
+ggen search go
 ```
 
 ### By Framework
 
 ```bash
 # Search by framework
-rgen search clap
-rgen search fastapi
-rgen search express
-rgen search gin
+ggen search clap
+ggen search fastapi
+ggen search express
+ggen search gin
 ```
 
 ## Cross-Language Projections
 
-Marketplace rpacks enable consistent projections across multiple languages:
+Marketplace gpacks enable consistent projections across multiple languages:
 
 ### Same RDF Ontology
-All language-specific rpacks use the same semantic model:
+All language-specific gpacks use the same semantic model:
 - Consistent variable binding
 - Identical SPARQL queries
 - Unified frontmatter structure
 
 ### Deterministic Output
 Version locking ensures reproducible results:
-- Same rpack versions → identical outputs
+- Same gpack versions → identical outputs
 - Cross-language consistency
 - Deterministic generation
 
@@ -149,8 +149,8 @@ Version locking ensures reproducible results:
 3. **Render per target** - Generate language-specific code
 
 ### Marketplace Pattern
-1. **Search for rpacks** - Find language-specific templates
-2. **Install dependencies** - Get rpacks and dependencies
+1. **Search for gpacks** - Find language-specific templates
+2. **Install dependencies** - Get gpacks and dependencies
 3. **Generate consistently** - Use same RDF across languages
 
 ### Local Pattern
@@ -160,9 +160,9 @@ Version locking ensures reproducible results:
 
 ## Best Practices
 
-### Rpack Selection
-- Choose rpacks with active maintenance
-- Verify compatibility with your rgen version
+### Gpack Selection
+- Choose gpacks with active maintenance
+- Verify compatibility with your ggen version
 - Check dependency requirements
 - Review example outputs
 
@@ -173,7 +173,7 @@ Version locking ensures reproducible results:
 - Maintain lockfile consistency
 
 ### Custom Projections
-- Start with marketplace rpacks
+- Start with marketplace gpacks
 - Extend with local templates
-- Share via rpack publishing
+- Share via gpack publishing
 - Document projection patterns

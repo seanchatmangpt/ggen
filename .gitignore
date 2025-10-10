@@ -11,7 +11,7 @@ Cargo.lock
 
 # Project-specific config overrides
 custom_config.toml
-.rgenrc.yaml
+.ggenrc.yaml
 
 # macOS
 .DS_Store
@@ -110,6 +110,25 @@ lcov.info
 /book/
 /docs/build/
 /docs/.vuepress/dist
+
+# mdbook generated files
+docs/book/
+docs/*.html
+docs/*.js
+docs/*.css
+docs/FontAwesome/
+docs/ace.js
+docs/book.js
+docs/highlight.js
+docs/mark.min.js
+docs/searcher.js
+docs/theme-*.js
+docs/toc.html
+docs/toc.js
+docs/searchindex.js
+docs/print.html
+docs/404.html
+docs/.nojekyll
 
 # OS generated files
 Icon?
@@ -802,7 +821,7 @@ CMakeLists.txt.user
 ehthumbs.db
 Thumbs.db
 
-# Project specific patterns for rgen
+# Project specific patterns for ggen
 # Template generation artifacts
 **/*.generated
 **/*.scaffold

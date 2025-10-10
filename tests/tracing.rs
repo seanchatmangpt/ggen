@@ -9,7 +9,7 @@ use tempfile::TempDir;
 #[test]
 fn test_tracing_initialization() {
     // Test that tracing can be initialized without errors
-    std::env::set_var("RGEN_TRACE", "debug");
+    std::env::set_var("GGEN_TRACE", "debug");
     // SimpleTracer doesn't need initialization
     assert!(SimpleTracer::is_enabled());
 }
@@ -42,17 +42,17 @@ fn test_simple_tracer_methods() {
 
 #[test]
 fn test_tracing_environment_variables() {
-    // Test different RGEN_TRACE values
+    // Test different GGEN_TRACE values
     let test_values = [
         "error", "warn", "info", "debug", "trace", "1", "0", "true", "false",
     ];
 
     for value in &test_values {
-        std::env::set_var("RGEN_TRACE", value);
+        std::env::set_var("GGEN_TRACE", value);
         // SimpleTracer doesn't need initialization - just check it's enabled
         assert!(
             SimpleTracer::is_enabled() || *value == "0" || *value == "false",
-            "Tracing should be enabled with RGEN_TRACE={}",
+            "Tracing should be enabled with GGEN_TRACE={}",
             value
         );
     }
@@ -140,7 +140,7 @@ fn test_tracing_structured_logging() {
 #[test]
 fn test_tracing_conditional_logging() {
     // Test that tracing respects log levels
-    std::env::set_var("RGEN_TRACE", "error");
+    std::env::set_var("GGEN_TRACE", "error");
 
     // These should not panic even with error level
     SimpleTracer::template_start(Path::new("test.tmpl"));
@@ -171,7 +171,7 @@ fn test_tracing_levels() -> Result<()> {
     let test_levels = ["error", "warn", "info", "debug", "trace"];
 
     for level in &test_levels {
-        std::env::set_var("RGEN_TRACE", level);
+        std::env::set_var("GGEN_TRACE", level);
 
         // Test that tracing methods work at different levels
         SimpleTracer::template_start(std::path::Path::new("test.tmpl"));
@@ -218,8 +218,8 @@ fn test_tracing_performance() -> Result<()> {
 
 #[test]
 fn test_tracing_disabled() -> Result<()> {
-    // Test that tracing is disabled when RGEN_TRACE is not set
-    std::env::remove_var("RGEN_TRACE");
+    // Test that tracing is disabled when GGEN_TRACE is not set
+    std::env::remove_var("GGEN_TRACE");
 
     // These should not output anything
     SimpleTracer::template_start(std::path::Path::new("test.tmpl"));
@@ -230,8 +230,8 @@ fn test_tracing_disabled() -> Result<()> {
 
 #[test]
 fn test_tracing_enabled() -> Result<()> {
-    // Test that tracing is enabled when RGEN_TRACE is set
-    std::env::set_var("RGEN_TRACE", "info");
+    // Test that tracing is enabled when GGEN_TRACE is set
+    std::env::set_var("GGEN_TRACE", "info");
 
     // These should output to stderr
     SimpleTracer::template_start(std::path::Path::new("test.tmpl"));
@@ -242,7 +242,7 @@ fn test_tracing_enabled() -> Result<()> {
 
 #[test]
 fn test_tracing_error_handling_detailed() -> Result<()> {
-    std::env::set_var("RGEN_TRACE", "error");
+    std::env::set_var("GGEN_TRACE", "error");
 
     // Test error logging
     let error = anyhow::anyhow!("Test error message");
@@ -257,7 +257,7 @@ fn test_tracing_error_handling_detailed() -> Result<()> {
 
 #[test]
 fn test_tracing_structured_data() -> Result<()> {
-    std::env::set_var("RGEN_TRACE", "debug");
+    std::env::set_var("GGEN_TRACE", "debug");
 
     let temp_dir = TempDir::new()?;
     let test_path = temp_dir.path().join("test.tmpl");
@@ -276,7 +276,7 @@ fn test_tracing_structured_data() -> Result<()> {
 
 #[test]
 fn test_tracing_memory_safety_extended() -> Result<()> {
-    std::env::set_var("RGEN_TRACE", "debug");
+    std::env::set_var("GGEN_TRACE", "debug");
 
     // Test that tracing doesn't cause memory issues with many events (optimized: reduced from 1000 to 10)
     for i in 0..10 {
@@ -295,7 +295,7 @@ fn test_tracing_memory_safety_extended() -> Result<()> {
 
 #[test]
 fn test_tracing_concurrent_access() -> Result<()> {
-    std::env::set_var("RGEN_TRACE", "debug");
+    std::env::set_var("GGEN_TRACE", "debug");
 
     use std::thread;
 

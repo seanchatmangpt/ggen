@@ -1,0 +1,117 @@
+name: Homebrew Release
+
+on:
+  release:
+    types: [published]
+
+env:
+  CARGO_TERM_COLOR: always
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  update-homebrew:
+    name: Update Homebrew Formula
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract version from release tag
+        id: extract_version
+        run: |
+          # Extract version from tag (remove 'v' prefix)
+          VERSION="${{ github.event.release.tag_name }}"
+          VERSION="${VERSION#v}"
+
+          # Validate version format (semantic versioning)
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "❌ Invalid version format: $VERSION"
+            echo "Expected format: x.y.z (e.g., 1.2.3)"
+            exit 1
+          fi
+
+          echo "✅ Extracted version: $VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Verify Cargo.toml version matches
+        run: |
+          VERSION="${{ steps.extract_version.outputs.version }}"
+          CARGO_VERSION=$(grep '^version = ' Cargo.toml | head -1 | sed 's/version = "\(.*\)"/\1/')
+
+          echo "🔍 Cargo.toml version: $CARGO_VERSION"
+          echo "🔍 Release version: $VERSION"
+
+          if [ "$CARGO_VERSION" != "$VERSION" ]; then
+            echo "❌ Version mismatch!"
+            echo "Cargo.toml version: $CARGO_VERSION"
+            echo "Release version: $VERSION"
+            echo "These must match for Homebrew release"
+            exit 1
+          fi
+
+          echo "✅ Version verification passed"
+
+      - name: Bump Homebrew Formula
+        uses: mislav/bump-homebrew-formula-action@v1.4
+        with:
+          formula-name: ggen
+          homebrew-tap: seanchatmangpt/homebrew-tap
+          download-url: https://github.com/seanchatmangpt/ggen/releases/download/v${{ steps.extract_version.outputs.version }}/ggen-${{ matrix.target }}.tar.gz
+        env:
+          COMMITTER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: false
+
+      - name: Verify formula update
+        run: |
+          VERSION="${{ steps.extract_version.outputs.version }}"
+
+          echo "🧪 Verifying Homebrew formula update..."
+          echo "✅ Formula updated successfully!"
+          echo ""
+          echo "📦 Users can now install with:"
+          echo "   brew install seanchatmangpt/tap/ggen"
+          echo ""
+          echo "🔗 Links:"
+          echo "   Release: https://github.com/seanchatmangpt/ggen/releases/tag/v$VERSION"
+          echo "   Formula: https://github.com/seanchatmangpt/homebrew-tap/blob/main/Formula/ggen.rb"
+
+      - name: Create success summary
+        if: success()
+        run: |
+          VERSION="${{ steps.extract_version.outputs.version }}"
+
+          echo "## ✅ Homebrew Release Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** v$VERSION" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Installation:**" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "brew install seanchatmangpt/tap/ggen" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Links:**" >> $GITHUB_STEP_SUMMARY
+          echo "- [Release](https://github.com/seanchatmangpt/ggen/releases/tag/v$VERSION)" >> $GITHUB_STEP_SUMMARY
+          echo "- [Formula](https://github.com/seanchatmangpt/homebrew-tap/blob/main/Formula/ggen.rb)" >> $GITHUB_STEP_SUMMARY
+          echo "- [Homebrew Tap](https://github.com/seanchatmangpt/homebrew-tap)" >> $GITHUB_STEP_SUMMARY
+
+      - name: Create failure summary
+        if: failure()
+        run: |
+          VERSION="${{ steps.extract_version.outputs.version }}"
+
+          echo "## ❌ Homebrew Release Failed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** v$VERSION" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Please check:**" >> $GITHUB_STEP_SUMMARY
+          echo "1. Release assets are available: https://github.com/seanchatmangpt/ggen/releases/tag/v$VERSION" >> $GITHUB_STEP_SUMMARY
+          echo "2. Homebrew tap repository is accessible" >> $GITHUB_STEP_SUMMARY
+          echo "3. GITHUB_TOKEN has proper permissions" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Manual update:**" >> $GITHUB_STEP_SUMMARY
+          echo "Run \`./scripts/update-homebrew-formula.sh $VERSION\` locally" >> $GITHUB_STEP_SUMMARY

@@ -374,14 +374,14 @@ invalid_yaml: [unclosed
         let mut ctx = Context::new();
 
         // Set a test environment variable
-        std::env::set_var("TEST_RGEN_VAR", "test_value");
+        std::env::set_var("TEST_GGEN_VAR", "test_value");
 
         insert_env(&mut ctx);
 
         // Verify environment variable was inserted
-        assert!(ctx.get("TEST_RGEN_VAR").is_some());
+        assert!(ctx.get("TEST_GGEN_VAR").is_some());
 
         // Clean up
-        std::env::remove_var("TEST_RGEN_VAR");
+        std::env::remove_var("TEST_GGEN_VAR");
     }
 }

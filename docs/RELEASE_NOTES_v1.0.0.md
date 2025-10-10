@@ -148,7 +148,7 @@ base64 = "0.22"              # Encoding for storage
    ```
 
 2. **Update Documentation References**:
-   - All references updated from "rgen" to "ggen"
+   - All references updated from "ggen" to "ggen"
    - mdBook documentation now consistent
 
 ---
@@ -260,7 +260,7 @@ manager.upsert_with_pqc(
 - ✅ Auto-detect repository from git remote
 
 ### Documentation
-- ✅ Fixed all "rgen" → "ggen" references
+- ✅ Fixed all "ggen" → "ggen" references
 - ✅ Added PQC feature documentation
 - ✅ GitHub integration guides
 - ✅ Comprehensive API reference

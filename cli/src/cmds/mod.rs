@@ -18,17 +18,17 @@ use ggen_utils::UtilsGgenConfig as GgenConfig;
 
 #[derive(Subcommand, Debug)]
 pub enum Commands {
-    #[command(name = "search", about = "Search for rpacks in registry")]
+    #[command(name = "search", about = "Search for gpacks in registry")]
     Search(search::SearchArgs),
     #[command(name = "categories", about = "Show popular categories and keywords")]
     Categories(categories::CategoriesArgs),
-    #[command(name = "add", about = "Add an rpack to the project")]
+    #[command(name = "add", about = "Add an gpack to the project")]
     Add(add::AddArgs),
-    #[command(name = "remove", about = "Remove an rpack from the project")]
+    #[command(name = "remove", about = "Remove an gpack from the project")]
     Remove(remove::RemoveArgs),
-    #[command(name = "packs", about = "List installed rpacks")]
+    #[command(name = "packs", about = "List installed gpacks")]
     Packs,
-    #[command(name = "update", about = "Update rpacks to latest compatible versions")]
+    #[command(name = "update", about = "Update gpacks to latest compatible versions")]
     Update(update::UpdateArgs),
     #[command(name = "gen", about = "Generate code from templates")]
     Gen(gen::GenArgs),

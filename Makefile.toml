@@ -4,6 +4,57 @@ GITHUB_REPO = "seanchatmangpt/ggen"
 GITHUB_API = "https://api.github.com"
 GITHUB_PAGES_URL = "https://seanchatmangpt.github.io/ggen"
 
+# Core development tasks
+[tasks.check]
+description = "Check code without building"
+command = "cargo"
+args = ["check"]
+
+[tasks.build]
+description = "Build in debug mode"
+command = "cargo"
+args = ["build"]
+
+[tasks.build-release]
+description = "Build in release mode"
+command = "cargo"
+args = ["build", "--release"]
+
+[tasks.clean]
+description = "Clean build artifacts"
+command = "cargo"
+args = ["clean"]
+
+[tasks.fmt]
+description = "Format code"
+command = "cargo"
+args = ["fmt", "--all"]
+
+[tasks.lint]
+description = "Run clippy with strict settings"
+command = "cargo"
+args = ["clippy", "--all-targets", "--all-features", "--", "-D", "warnings"]
+
+[tasks.test]
+description = "Run all tests"
+command = "cargo"
+args = ["test"]
+
+[tasks.test-unit]
+description = "Unit tests only"
+command = "cargo"
+args = ["test", "--lib"]
+
+[tasks.test-integration]
+description = "Integration tests only"
+command = "cargo"
+args = ["test", "--test"]
+
+[tasks.audit]
+description = "Security audit"
+command = "cargo"
+args = ["audit"]
+
 # mdbook documentation tasks (workspace-level only)
 
 [tasks.docs-build]
@@ -41,13 +92,7 @@ args = ["Documentation built successfully"]
 description = "Validate documentation structure and links"
 workspace = false
 dependencies = ["docs-build"]
-script = '''
-#!/bin/bash
-echo "Validating documentation..."
-test -f docs/book/index.html || (echo "❌ Missing index.html" && exit 1)
-test -f docs/book/marketplace.html || (echo "❌ Missing marketplace.html" && exit 1)
-echo "✅ Documentation validation passed"
-'''
+command = "./scripts/docs-validate.sh"
 
 [tasks.docs-deploy]
 description = "Build and validate documentation for deployment"
@@ -59,373 +104,42 @@ dependencies = ["docs-clean", "docs-build", "docs-validate"]
 [tasks.gh-pages-status]
 description = "Check GitHub Pages configuration and deployment status via API"
 workspace = false
-script = '''
-#!/bin/bash
-set -e
-
-REPO="${GITHUB_REPO}"
-API="${GITHUB_API}"
-
-echo "🔍 Checking GitHub Pages status for ${REPO}..."
-echo ""
-
-# Check if gh CLI is available
-if command -v gh &> /dev/null; then
-    echo "📊 Using GitHub CLI for authenticated requests"
-
-    # Get Pages configuration
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "📄 GitHub Pages Configuration:"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    gh api repos/${REPO}/pages 2>&1 || echo "⚠️  GitHub Pages not configured or not accessible"
-    echo ""
-
-    # Get latest deployment
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "🚀 Latest Pages Deployment:"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    gh api repos/${REPO}/pages/deployments --jq '.[0] | {status_url: .status_url, environment: .environment, created_at: .created_at, updated_at: .updated_at}' 2>&1 || echo "⚠️  No deployments found"
-    echo ""
-
-    # Get workflow runs for Pages deployment
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "⚙️  Recent Workflow Runs (Pages deployment):"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    gh run list --workflow="Deploy Documentation to GitHub Pages" --limit 5 2>&1 || echo "⚠️  No workflow runs found"
-    echo ""
-else
-    echo "⚠️  GitHub CLI not available, using curl with public API"
-    echo "   Install gh CLI for authenticated access: brew install gh"
-    echo ""
-
-    # Use curl for unauthenticated requests
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "📄 GitHub Pages Configuration (public data):"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    curl -s "${API}/repos/${REPO}/pages" | python3 -m json.tool 2>&1 || echo "⚠️  Could not fetch Pages configuration"
-    echo ""
-fi
-
-# Check if site is actually accessible
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "🌐 Testing Site Accessibility:"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${GITHUB_PAGES_URL}" 2>&1)
-if [ "$HTTP_STATUS" = "200" ]; then
-    echo "✅ Site is accessible: ${GITHUB_PAGES_URL}"
-    echo "   HTTP Status: ${HTTP_STATUS}"
-elif [ "$HTTP_STATUS" = "404" ]; then
-    echo "❌ Site returns 404: ${GITHUB_PAGES_URL}"
-    echo "   HTTP Status: ${HTTP_STATUS}"
-    echo ""
-    echo "💡 Possible issues:"
-    echo "   1. GitHub Pages not enabled in repository settings"
-    echo "   2. No successful deployment yet"
-    echo "   3. Source not set to 'GitHub Actions'"
-else
-    echo "⚠️  Unexpected status: ${HTTP_STATUS}"
-fi
-echo ""
-
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "📋 Quick Setup Checklist:"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "1. [ ] GitHub Pages enabled in repo settings"
-echo "2. [ ] Source set to 'GitHub Actions'"
-echo "3. [ ] Workflow has run successfully"
-echo "4. [ ] Site returns 200 status code"
-echo ""
-echo "🔗 Repository Settings: https://github.com/${REPO}/settings/pages"
-echo "🔗 Workflow Runs: https://github.com/${REPO}/actions"
-'''
+command = "./scripts/gh-pages-status.sh"
 
 [tasks.gh-workflow-status]
 description = "Check GitHub Actions workflow status for Pages deployment"
 workspace = false
-script = '''
-#!/bin/bash
-set -e
-
-REPO="${GITHUB_REPO}"
-
-if ! command -v gh &> /dev/null; then
-    echo "❌ GitHub CLI (gh) is required for this task"
-    echo "   Install: brew install gh"
-    echo "   Then run: gh auth login"
-    exit 1
-fi
-
-echo "⚙️  Checking workflow status for ${REPO}..."
-echo ""
-
-# List recent workflow runs
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "📊 Recent Workflow Runs:"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-gh run list --workflow="Deploy Documentation to GitHub Pages" --limit 10
-
-echo ""
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "🔍 Latest Run Details:"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-LATEST_RUN=$(gh run list --workflow="Deploy Documentation to GitHub Pages" --limit 1 --json databaseId --jq '.[0].databaseId')
-
-if [ -n "$LATEST_RUN" ]; then
-    gh run view "$LATEST_RUN"
-    echo ""
-    echo "💡 To view logs: gh run view $LATEST_RUN --log"
-    echo "💡 To rerun: gh run rerun $LATEST_RUN"
-else
-    echo "⚠️  No workflow runs found"
-    echo ""
-    echo "💡 Trigger manually with: gh workflow run 'Deploy Documentation to GitHub Pages'"
-fi
-'''
+command = "./scripts/gh-workflow-status.sh"
 
 [tasks.gh-pages-compare]
 description = "Compare local docs build with deployed version"
 workspace = false
 dependencies = ["docs-build"]
-script = '''
-#!/bin/bash
-set -e
-
-LOCAL_DIR="docs/book"
-REMOTE_URL="${GITHUB_PAGES_URL}"
-
-echo "🔄 Comparing local build with deployed version..."
-echo ""
-
-# Check if local build exists
-if [ ! -d "$LOCAL_DIR" ]; then
-    echo "❌ Local build not found at $LOCAL_DIR"
-    echo "   Run: cargo make docs-build"
-    exit 1
-fi
-
-# Check if remote is accessible
-HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$REMOTE_URL" 2>&1)
-if [ "$HTTP_STATUS" != "200" ]; then
-    echo "❌ Remote site not accessible (HTTP $HTTP_STATUS): $REMOTE_URL"
-    echo "   Run: cargo make gh-pages-status"
-    exit 1
-fi
-
-# Create temp directory for comparison
-TEMP_DIR=$(mktemp -d)
-trap 'rm -rf "$TEMP_DIR"' EXIT
-
-echo "📥 Downloading deployed version..."
-wget -q -r -np -nH -P "$TEMP_DIR" "$REMOTE_URL" 2>&1 || echo "⚠️  Some files could not be downloaded"
-
-echo ""
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "📊 File Comparison:"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-
-# Count files
-LOCAL_COUNT=$(find "$LOCAL_DIR" -type f | wc -l | tr -d ' ')
-REMOTE_COUNT=$(find "$TEMP_DIR" -type f | wc -l | tr -d ' ')
-
-echo "Local files:  $LOCAL_COUNT"
-echo "Remote files: $REMOTE_COUNT"
-echo ""
-
-# Compare key files
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "🔍 Key File Comparison:"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-
-KEY_FILES=("index.html" "marketplace.html" "searchindex.js")
-for file in "${KEY_FILES[@]}"; do
-    LOCAL_FILE="$LOCAL_DIR/$file"
-    REMOTE_FILE="$TEMP_DIR/$file"
-
-    if [ -f "$LOCAL_FILE" ] && [ -f "$REMOTE_FILE" ]; then
-        LOCAL_SIZE=$(wc -c < "$LOCAL_FILE" | tr -d ' ')
-        REMOTE_SIZE=$(wc -c < "$REMOTE_FILE" | tr -d ' ')
-
-        if [ "$LOCAL_SIZE" -eq "$REMOTE_SIZE" ]; then
-            echo "✅ $file: Same size ($LOCAL_SIZE bytes)"
-        else
-            echo "⚠️  $file: Different sizes (Local: $LOCAL_SIZE, Remote: $REMOTE_SIZE)"
-        fi
-    elif [ -f "$LOCAL_FILE" ]; then
-        echo "⚠️  $file: Only in local build"
-    elif [ -f "$REMOTE_FILE" ]; then
-        echo "⚠️  $file: Only in remote deployment"
-    else
-        echo "❌ $file: Missing in both"
-    fi
-done
-
-echo ""
-echo "💡 To see detailed diff, check: $TEMP_DIR"
-'''
+command = "./scripts/gh-pages-compare.sh"
 
 [tasks.gh-pages-trigger]
 description = "Trigger GitHub Pages deployment workflow manually"
 workspace = false
-script = '''
-#!/bin/bash
-set -e
-
-if ! command -v gh &> /dev/null; then
-    echo "❌ GitHub CLI (gh) is required for this task"
-    echo "   Install: brew install gh"
-    echo "   Then run: gh auth login"
-    exit 1
-fi
-
-echo "🚀 Triggering GitHub Pages deployment workflow..."
-echo ""
-
-gh workflow run "Deploy Documentation to GitHub Pages" --ref master
-
-echo "✅ Workflow triggered successfully"
-echo ""
-echo "💡 Check status with: cargo make gh-workflow-status"
-echo "💡 Or visit: https://github.com/${GITHUB_REPO}/actions"
-'''
+command = "./scripts/gh-pages-trigger.sh"
 
 [tasks.gh-pages-logs]
 description = "View logs from latest GitHub Pages deployment"
 workspace = false
-script = '''
-#!/bin/bash
-set -e
-
-if ! command -v gh &> /dev/null; then
-    echo "❌ GitHub CLI (gh) is required for this task"
-    echo "   Install: brew install gh"
-    echo "   Then run: gh auth login"
-    exit 1
-fi
-
-echo "📋 Fetching logs from latest deployment..."
-echo ""
-
-LATEST_RUN=$(gh run list --workflow="Deploy Documentation to GitHub Pages" --limit 1 --json databaseId --jq '.[0].databaseId')
-
-if [ -n "$LATEST_RUN" ]; then
-    gh run view "$LATEST_RUN" --log
-else
-    echo "⚠️  No workflow runs found"
-fi
-'''
+command = "./scripts/gh-pages-logs.sh"
 
 [tasks.gh-pages-setup-check]
 description = "Comprehensive GitHub Pages setup validation"
 workspace = false
-script = '''
-#!/bin/bash
-set -e
-
-REPO="${GITHUB_REPO}"
-
-echo "🔍 GitHub Pages Setup Validation"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo ""
-
-ERRORS=0
-WARNINGS=0
-
-# Check 1: Local build
-echo "1️⃣  Checking local build..."
-if [ -f "docs/book/index.html" ]; then
-    echo "   ✅ Local docs built successfully"
-else
-    echo "   ❌ Local docs not built - run: cargo make docs-build"
-    ERRORS=$((ERRORS + 1))
-fi
-
-# Check 2: Workflow file
-echo "2️⃣  Checking workflow file..."
-if [ -f ".github/workflows/publish-registry.yml" ]; then
-    BRANCH=$(grep -A2 "push:" .github/workflows/publish-registry.yml | grep "branches:" -A1 | grep -v "branches:" | tr -d ' -')
-    if [ "$BRANCH" = "master" ]; then
-        echo "   ✅ Workflow configured for master branch"
-    else
-        echo "   ⚠️  Workflow configured for: $BRANCH"
-        WARNINGS=$((WARNINGS + 1))
-    fi
-else
-    echo "   ❌ Workflow file not found"
-    ERRORS=$((ERRORS + 1))
-fi
-
-# Check 3: mdbook installation
-echo "3️⃣  Checking mdbook installation..."
-if command -v mdbook &> /dev/null; then
-    VERSION=$(mdbook --version)
-    echo "   ✅ $VERSION"
-else
-    echo "   ⚠️  mdbook not installed locally (not required for CI)"
-    WARNINGS=$((WARNINGS + 1))
-fi
-
-# Check 4: GitHub CLI
-echo "4️⃣  Checking GitHub CLI..."
-if command -v gh &> /dev/null; then
-    if gh auth status &> /dev/null; then
-        echo "   ✅ GitHub CLI authenticated"
-    else
-        echo "   ⚠️  GitHub CLI installed but not authenticated"
-        echo "      Run: gh auth login"
-        WARNINGS=$((WARNINGS + 1))
-    fi
-else
-    echo "   ⚠️  GitHub CLI not installed (recommended)"
-    echo "      Install: brew install gh"
-    WARNINGS=$((WARNINGS + 1))
-fi
-
-# Check 5: Remote accessibility
-echo "5️⃣  Checking remote site..."
-HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${GITHUB_PAGES_URL}" 2>&1)
-if [ "$HTTP_STATUS" = "200" ]; then
-    echo "   ✅ Site is live: ${GITHUB_PAGES_URL}"
-elif [ "$HTTP_STATUS" = "404" ]; then
-    echo "   ❌ Site returns 404 - GitHub Pages may not be configured"
-    echo "      Visit: https://github.com/${REPO}/settings/pages"
-    ERRORS=$((ERRORS + 1))
-else
-    echo "   ⚠️  Unexpected HTTP status: $HTTP_STATUS"
-    WARNINGS=$((WARNINGS + 1))
-fi
-
-# Summary
-echo ""
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "📊 Summary:"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "Errors:   $ERRORS"
-echo "Warnings: $WARNINGS"
-echo ""
-
-if [ $ERRORS -eq 0 ] && [ $WARNINGS -eq 0 ]; then
-    echo "✅ All checks passed!"
-elif [ $ERRORS -eq 0 ]; then
-    echo "⚠️  Setup is functional but has warnings"
-else
-    echo "❌ Setup has errors that need to be fixed"
-    echo ""
-    echo "Next steps:"
-    echo "1. Fix errors listed above"
-    echo "2. Run: cargo make docs-deploy (local test)"
-    echo "3. Push changes: git push origin master"
-    echo "4. Configure Pages: https://github.com/${REPO}/settings/pages"
-    exit 1
-fi
-'''
+command = "./scripts/gh-pages-setup-check.sh"
 
 # Add docs tasks to existing workflows (if they exist)
 [tasks.ci]
-extend = "ci"
-dependencies = ["fmt", "lint", "test", "docs-test"]
+description = "Run CI pipeline"
+workspace = false
+dependencies = ["format", "clippy-ci-flow", "test-verbose", "docs-test"]
 
 [tasks.release]
-extend = "release"
+description = "Create a release"
 dependencies = ["ci", "docs-build"]
 
 # ============================================================================
@@ -435,13 +149,8 @@ dependencies = ["ci", "docs-build"]
 [tasks.brew-update-formula]
 description = "Update Homebrew formula with SHA256 from latest release"
 workspace = false
-script = '''
-#!/bin/bash
-set -e
-
-VERSION=${1:-$(grep '^version = ' Cargo.toml | head -1 | sed 's/version = "\(.*\)"/\1/')}
-./scripts/update-homebrew-formula.sh "$VERSION"
-'''
+command = "./scripts/update-homebrew-formula.sh"
+args = ["${1}"]
 
 [tasks.brew-update]
 alias = "brew-update-formula"
@@ -450,82 +159,13 @@ alias = "brew-update-formula"
 description = "Complete release workflow with Homebrew update"
 workspace = false
 dependencies = ["ci", "docs-build"]
-script = '''
-#!/bin/bash
-set -e
-
-VERSION=$(grep '^version = ' Cargo.toml | head -1 | sed 's/version = "\(.*\)"/\1/')
-
-echo "🚀 Starting release workflow for v${VERSION}"
-echo ""
-
-# Check if tag already exists
-if git rev-parse "v${VERSION}" >/dev/null 2>&1; then
-    echo "❌ Tag v${VERSION} already exists"
-    echo "   Delete with: git tag -d v${VERSION} && git push origin :refs/tags/v${VERSION}"
-    exit 1
-fi
-
-echo "1️⃣  Creating and pushing tag v${VERSION}..."
-git tag "v${VERSION}"
-git push origin "v${VERSION}"
-
-echo ""
-echo "2️⃣  Waiting for GitHub release to complete..."
-echo "   Monitor at: https://github.com/${GITHUB_REPO}/actions"
-echo ""
-echo "⏳ Waiting 2 minutes for builds to complete..."
-sleep 120
-
-echo ""
-echo "3️⃣  Updating Homebrew formula..."
-./scripts/update-homebrew-formula.sh "$VERSION"
-
-echo ""
-echo "✅ Release complete!"
-echo ""
-echo "📦 Users can install with:"
-echo "   brew install seanchatmangpt/tap/ggen"
-echo ""
-echo "🔗 Release: https://github.com/${GITHUB_REPO}/releases/tag/v${VERSION}"
-'''
+command = "./scripts/release-brew.sh"
 
 [tasks.release-check]
 description = "Check if release artifacts are ready"
 workspace = false
-script = '''
-#!/bin/bash
-
-VERSION=${1:-$(grep '^version = ' Cargo.toml | head -1 | sed 's/version = "\(.*\)"/\1/')}
-RELEASE_URL="https://github.com/seanchatmangpt/ggen/releases/download/v${VERSION}"
-
-echo "🔍 Checking release v${VERSION}..."
-echo ""
-
-TARGETS=("aarch64-apple-darwin" "x86_64-apple-darwin" "x86_64-unknown-linux-gnu" "aarch64-unknown-linux-gnu")
-
-ALL_READY=true
-for target in "${TARGETS[@]}"; do
-    echo -n "  ${target}: "
-    if curl -s -f -I "${RELEASE_URL}/ggen-${target}.tar.gz" > /dev/null; then
-        echo "✅"
-    else
-        echo "❌"
-        ALL_READY=false
-    fi
-done
-
-echo ""
-if [ "$ALL_READY" = true ]; then
-    echo "✅ All release artifacts are ready!"
-    echo ""
-    echo "Update Homebrew formula with:"
-    echo "  cargo make brew-update-formula ${VERSION}"
-else
-    echo "⏳ Some artifacts are not ready yet"
-    echo "   Check: https://github.com/${GITHUB_REPO}/releases/tag/v${VERSION}"
-fi
-'''
+command = "./scripts/release-check.sh"
+args = ["${1}"]
 
 # ============================================================================
 # GitHub Actions Workflow Health Check
@@ -534,211 +174,7 @@ fi
 [tasks.ci-check]
 description = "Check GitHub Actions workflow health and report failures"
 workspace = false
-script = '''
-#!/bin/bash
-set -e
-
-REPO="${GITHUB_REPO}"
-WORKFLOWS_DIR=".github/workflows"
-
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "🔍 GitHub Actions Workflow Health Check"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo ""
-
-# Check if GitHub CLI is available
-HAS_GH=false
-if command -v gh &> /dev/null && gh auth status &> /dev/null; then
-    HAS_GH=true
-    echo "✅ Using GitHub CLI for live workflow status"
-else
-    echo "⚠️  GitHub CLI not available - checking local workflow files only"
-    echo "   Install: brew install gh && gh auth login"
-fi
-echo ""
-
-# Parse all workflow files
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "📋 Workflow Files:"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-
-WORKFLOW_COUNT=0
-for workflow in "$WORKFLOWS_DIR"/*.yml; do
-    if [ -f "$workflow" ]; then
-        WORKFLOW_COUNT=$((WORKFLOW_COUNT + 1))
-        WORKFLOW_NAME=$(basename "$workflow" .yml)
-        echo "  $WORKFLOW_COUNT. $WORKFLOW_NAME.yml"
-    fi
-done
-echo ""
-echo "Total workflows: $WORKFLOW_COUNT"
-echo ""
-
-# Check for common issues in workflow files
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "🔎 Local Workflow Validation:"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-
-ISSUES_FOUND=0
-
-# Check for deprecated actions
-echo ""
-echo "1️⃣  Checking for deprecated actions..."
-DEPRECATED_ACTIONS=(
-    "actions/checkout@v1"
-    "actions/checkout@v2"
-    "actions/cache@v1"
-    "actions/cache@v2"
-    "actions/upload-artifact@v1"
-    "actions/upload-artifact@v2"
-    "actions/download-artifact@v1"
-    "actions/create-release@v1"
-    "actions/upload-release-asset@v1"
-    "actions-rs/toolchain"
-    "actions-rs/cargo"
-)
-
-for action in "${DEPRECATED_ACTIONS[@]}"; do
-    if grep -r "$action" "$WORKFLOWS_DIR" --include="*.yml" -q; then
-        FILES=$(grep -r "$action" "$WORKFLOWS_DIR" --include="*.yml" -l | xargs basename -a)
-        echo "   ❌ Found deprecated: $action"
-        echo "      In: $FILES"
-        ISSUES_FOUND=$((ISSUES_FOUND + 1))
-    fi
-done
-
-if [ $ISSUES_FOUND -eq 0 ]; then
-    echo "   ✅ No deprecated actions found"
-fi
-echo ""
-
-# Check for ::set-output usage (deprecated)
-echo "2️⃣  Checking for deprecated ::set-output..."
-if grep -r "::set-output" "$WORKFLOWS_DIR" --include="*.yml" -q; then
-    FILES=$(grep -r "::set-output" "$WORKFLOWS_DIR" --include="*.yml" -l | xargs basename -a)
-    echo "   ❌ Found deprecated ::set-output command"
-    echo "      In: $FILES"
-    echo "      Replace with: echo \"key=value\" >> \$GITHUB_OUTPUT"
-    ISSUES_FOUND=$((ISSUES_FOUND + 1))
-else
-    echo "   ✅ No deprecated ::set-output usage"
-fi
-echo ""
-
-# Check for missing timeout-minutes
-echo "3️⃣  Checking for missing timeout-minutes..."
-MISSING_TIMEOUT=0
-for workflow in "$WORKFLOWS_DIR"/*.yml; do
-    if [ -f "$workflow" ]; then
-        WORKFLOW_NAME=$(basename "$workflow" .yml)
-        if ! grep -q "timeout-minutes:" "$workflow"; then
-            echo "   ⚠️  Missing timeout in: $WORKFLOW_NAME.yml"
-            MISSING_TIMEOUT=$((MISSING_TIMEOUT + 1))
-        fi
-    fi
-done
-
-if [ $MISSING_TIMEOUT -eq 0 ]; then
-    echo "   ✅ All workflows have timeouts"
-else
-    echo "   ⚠️  $MISSING_TIMEOUT workflows missing timeout-minutes"
-fi
-echo ""
-
-# Check for missing concurrency control
-echo "4️⃣  Checking for missing concurrency control..."
-MISSING_CONCURRENCY=0
-for workflow in "$WORKFLOWS_DIR"/*.yml; do
-    if [ -f "$workflow" ]; then
-        WORKFLOW_NAME=$(basename "$workflow" .yml)
-        if ! grep -q "concurrency:" "$workflow"; then
-            echo "   ⚠️  Missing concurrency in: $WORKFLOW_NAME.yml"
-            MISSING_CONCURRENCY=$((MISSING_CONCURRENCY + 1))
-        fi
-    fi
-done
-
-if [ $MISSING_CONCURRENCY -eq 0 ]; then
-    echo "   ✅ All workflows have concurrency control"
-else
-    echo "   ⚠️  $MISSING_CONCURRENCY workflows missing concurrency control"
-fi
-echo ""
-
-# If GitHub CLI is available, check live workflow runs
-if [ "$HAS_GH" = true ]; then
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "🚀 Live Workflow Status (Last 10 runs):"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo ""
-
-    # Get recent workflow runs with status
-    gh run list --limit 10 --json name,status,conclusion,createdAt,displayTitle | \
-        jq -r ".[] | \"\(.name): \(.status) (\(.conclusion // \"running\")) - \(.displayTitle)\"" | \
-        while IFS= read -r line; do
-            if echo "$line" | grep -q "failure"; then
-                echo "   ❌ $line"
-            elif echo "$line" | grep -q "success"; then
-                echo "   ✅ $line"
-            elif echo "$line" | grep -q "cancelled"; then
-                echo "   ⚪ $line"
-            else
-                echo "   🔄 $line"
-            fi
-        done
-    echo ""
-
-    # Check for failing workflows
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "❌ Failed Workflows (if any):"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo ""
-
-    FAILED_RUNS=$(gh run list --limit 20 --json name,status,conclusion,databaseId,url | \
-        jq -r ".[] | select(.conclusion == \"failure\") | \"\(.name) (ID: \(.databaseId)) - \(.url)\"")
-
-    if [ -z "$FAILED_RUNS" ]; then
-        echo "   ✅ No recent workflow failures"
-    else
-        echo "$FAILED_RUNS" | while IFS= read -r run; do
-            echo "   ❌ $run"
-            ISSUES_FOUND=$((ISSUES_FOUND + 1))
-        done
-        echo ""
-        echo "   💡 View logs: gh run view <ID> --log"
-        echo "   💡 Rerun failed: gh run rerun <ID>"
-    fi
-    echo ""
-fi
-
-# Summary
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "📊 Summary:"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo ""
-echo "  Workflows:             $WORKFLOW_COUNT"
-echo "  Issues Found:          $ISSUES_FOUND"
-echo "  Missing Timeouts:      $MISSING_TIMEOUT"
-echo "  Missing Concurrency:   $MISSING_CONCURRENCY"
-echo ""
-
-if [ $ISSUES_FOUND -eq 0 ] && [ $MISSING_TIMEOUT -eq 0 ]; then
-    echo "✅ All workflow health checks passed!"
-elif [ $ISSUES_FOUND -eq 0 ]; then
-    echo "⚠️  No critical issues, but some improvements recommended"
-else
-    echo "❌ Found $ISSUES_FOUND issues that should be addressed"
-    echo ""
-    echo "💡 Next steps:"
-    echo "   1. Update deprecated actions to latest versions"
-    echo "   2. Add timeout-minutes to prevent hung jobs"
-    echo "   3. Add concurrency control to save CI minutes"
-    echo "   4. Check failed workflow logs: gh run view <ID> --log"
-fi
-echo ""
-echo "🔗 View all runs: https://github.com/${REPO}/actions"
-'''
+command = "./scripts/ci-health-check.sh"
 
 [tasks.ci-health]
 alias = "ci-check"
-

@@ -1,6 +1,6 @@
-# Rgen Marketplace C4 Diagrams
+# Ggen Marketplace C4 Diagrams
 
-This directory contains comprehensive C4 architecture diagrams for the Rgen Marketplace system, documenting the full end-to-end lifecycles and system interactions.
+This directory contains comprehensive C4 architecture diagrams for the Ggen Marketplace system, documenting the full end-to-end lifecycles and system interactions.
 
 ## Diagram Overview
 
@@ -8,7 +8,7 @@ This directory contains comprehensive C4 architecture diagrams for the Rgen Mark
 **Purpose**: High-level view of the marketplace system and its external interactions
 **Key Elements**:
 - Developer and Publisher personas
-- Rgen CLI system
+- Ggen CLI system
 - Marketplace registry
 - GitHub hosting platform
 
@@ -18,10 +18,10 @@ This directory contains comprehensive C4 architecture diagrams for the Rgen Mark
 - CLI and Core Engine containers
 - Local Cache and Lockfile
 - Registry Index and CI/CD Pipeline
-- Rpack Repositories
+- Gpack Repositories
 
 ### 3. Consumer Lifecycle (`C4_marketplace_consumer_lifecycle.puml`)
-**Purpose**: Detailed workflow for developers using rpacks
+**Purpose**: Detailed workflow for developers using gpacks
 **Key Elements**:
 - Search, Add, List, Generate, Update, Remove commands
 - Registry Client, Cache Manager, Lockfile Manager
@@ -29,12 +29,12 @@ This directory contains comprehensive C4 architecture diagrams for the Rgen Mark
 - External systems (Registry, Repos, Cache, Lockfile)
 
 ### 4. Publisher Lifecycle (`C4_marketplace_publisher_lifecycle.puml`)
-**Purpose**: Detailed workflow for publishers creating rpacks
+**Purpose**: Detailed workflow for publishers creating gpacks
 **Key Elements**:
 - Pack Init, Lint, Test, Publish commands
 - Validation System (Schema, Semver, Compatibility, Path, License, Size, Security)
 - Registry System (Repository, Index Generator, Pages)
-- Rpack Repository structure
+- Gpack Repository structure
 
 ### 5. Data Flow (`C4_marketplace_data_flow.puml`)
 **Purpose**: Shows how data flows through the system
@@ -42,7 +42,7 @@ This directory contains comprehensive C4 architecture diagrams for the Rgen Mark
 - Search, Add, Generate, Publish, Update data flows
 - Local System (CLI, Cache, Lockfile, Config)
 - Registry System (Index, Pages)
-- Rpack Repositories (Manifest, Templates, RDF, Queries)
+- Gpack Repositories (Manifest, Templates, RDF, Queries)
 
 ### 6. Sequence Diagram (`C4_marketplace_sequence.puml`)
 **Purpose**: Detailed sequence of interactions for key workflows
@@ -57,7 +57,7 @@ This directory contains comprehensive C4 architecture diagrams for the Rgen Mark
 **Purpose**: Shows how the system is deployed across different environments
 **Key Elements**:
 - Developer Machine (Local installation)
-- GitHub Platform (Registry repo, Rpack repos, Pages)
+- GitHub Platform (Registry repo, Gpack repos, Pages)
 - Network (HTTPS, Git protocol)
 - Security considerations
 
@@ -104,16 +104,16 @@ plantuml docs/diagrams/C4_marketplace_context.puml
 ## Key Lifecycle Flows
 
 ### Consumer Lifecycle
-1. **Search** → Find rpacks in registry
-2. **Add** → Download and cache rpacks
-3. **List** → Show installed rpacks
-4. **Generate** → Use rpack templates
+1. **Search** → Find gpacks in registry
+2. **Add** → Download and cache gpacks
+3. **List** → Show installed gpacks
+4. **Generate** → Use gpack templates
 5. **Update** → Update to latest versions
-6. **Remove** → Clean up rpacks
+6. **Remove** → Clean up gpacks
 
 ### Publisher Lifecycle
-1. **Init** → Create new rpack structure
-2. **Lint** → Validate rpack manifest
+1. **Init** → Create new gpack structure
+2. **Lint** → Validate gpack manifest
 3. **Test** → Test template rendering
 4. **Publish** → Submit to registry via PR
 5. **Validation** → Automated CI/CD checks

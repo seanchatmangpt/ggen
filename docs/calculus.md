@@ -1,4 +1,4 @@
-# rgen calculus (v1)
+# ggen calculus (v1)
 
 State Σ = ⟨T,G,S,C,B,A,M,σ⟩.
 

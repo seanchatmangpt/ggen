@@ -5,8 +5,8 @@ use std::env;
 
 #[derive(Args, Debug)]
 pub struct RemoveArgs {
-    /// Rpack ID to remove
-    pub rpack_id: String,
+    /// Gpack ID to remove
+    pub gpack_id: String,
 
     /// Also remove from cache (frees disk space)
     #[arg(long)]
@@ -20,35 +20,35 @@ pub fn run(args: &RemoveArgs) -> Result<()> {
     let cache_manager = CacheManager::new()?;
 
     // Check if pack is installed
-    if !lockfile_manager.is_installed(&args.rpack_id)? {
-        println!("Rpack '{}' is not installed", args.rpack_id);
+    if !lockfile_manager.is_installed(&args.gpack_id)? {
+        println!("Gpack '{}' is not installed", args.gpack_id);
         return Ok(());
     }
 
     // Get pack info before removal
     let pack_entry = lockfile_manager
-        .get(&args.rpack_id)?
+        .get(&args.gpack_id)?
         .expect("Pack should exist since is_installed returned true");
 
     // Remove from lockfile
-    let removed = lockfile_manager.remove(&args.rpack_id)?;
+    let removed = lockfile_manager.remove(&args.gpack_id)?;
     if !removed {
-        println!("Failed to remove rpack '{}' from lockfile", args.rpack_id);
+        println!("Failed to remove gpack '{}' from lockfile", args.gpack_id);
         return Ok(());
     }
 
     // Remove from cache if requested
     if args.prune {
-        if let Err(e) = cache_manager.remove(&args.rpack_id, &pack_entry.version) {
-            println!("Warning: Failed to remove rpack from cache: {}", e);
+        if let Err(e) = cache_manager.remove(&args.gpack_id, &pack_entry.version) {
+            println!("Warning: Failed to remove gpack from cache: {}", e);
         } else {
-            println!("Removed rpack from cache");
+            println!("Removed gpack from cache");
         }
     }
 
     println!(
-        "✅ Successfully removed rpack '{}' version {}",
-        args.rpack_id, pack_entry.version
+        "✅ Successfully removed gpack '{}' version {}",
+        args.gpack_id, pack_entry.version
     );
 
     Ok(())

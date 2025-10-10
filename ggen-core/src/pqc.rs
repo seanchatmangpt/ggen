@@ -2,7 +2,6 @@
 ///!
 ///! Uses ML-DSA (Dilithium3) - NIST-approved post-quantum signature scheme
 ///! Provides quantum-resistant signatures for lockfile integrity verification
-
 use anyhow::{Context, Result};
 use base64::{engine::general_purpose, Engine as _};
 use pqcrypto_dilithium::dilithium3;
@@ -97,14 +96,18 @@ impl PqcVerifier {
 
     /// Create verifier from base64-encoded public key
     pub fn from_base64(public_key_b64: &str) -> Result<Self> {
-        let public_key_bytes =
-            general_purpose::STANDARD.decode(public_key_b64).context("Failed to decode public key")?;
+        let public_key_bytes = general_purpose::STANDARD
+            .decode(public_key_b64)
+            .context("Failed to decode public key")?;
         Self::from_public_key(&public_key_bytes)
     }
 
     /// Verify a signature
     pub fn verify(&self, message: &[u8], signature: &[u8]) -> Result<bool> {
-        match dilithium3::open(&SignedMessage::from_bytes(signature).unwrap(), &self.public_key) {
+        match dilithium3::open(
+            &SignedMessage::from_bytes(signature).unwrap(),
+            &self.public_key,
+        ) {
             Ok(verified_msg) => Ok(verified_msg == message),
             Err(_) => Ok(false),
         }
@@ -115,7 +118,9 @@ impl PqcVerifier {
         &self, pack_id: &str, version: &str, sha256: &str, signature_b64: &str,
     ) -> Result<bool> {
         let message = format!("{}:{}:{}", pack_id, version, sha256);
-        let signature = general_purpose::STANDARD.decode(signature_b64).context("Failed to decode signature")?;
+        let signature = general_purpose::STANDARD
+            .decode(signature_b64)
+            .context("Failed to decode signature")?;
         self.verify(message.as_bytes(), &signature)
     }
 

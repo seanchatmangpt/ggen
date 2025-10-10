@@ -1,7 +1,7 @@
 [book]
-title = "rgen Documentation"
+title = "ggen Documentation"
 description = "Language-agnostic generator for reproducible code projections"
-authors = ["rgen contributors"]
+authors = ["ggen contributors"]
 language = "en"
 multilingual = false
 src = "src"

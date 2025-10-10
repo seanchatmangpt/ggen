@@ -75,7 +75,10 @@ impl RepoInfo {
     pub fn parse(repo_str: &str) -> Result<Self> {
         let parts: Vec<&str> = repo_str.split('/').collect();
         if parts.len() != 2 {
-            anyhow::bail!("Invalid repository format. Expected 'owner/repo', got '{}'", repo_str);
+            anyhow::bail!(
+                "Invalid repository format. Expected 'owner/repo', got '{}'",
+                repo_str
+            );
         }
         Ok(Self {
             owner: parts[0].to_string(),
@@ -92,11 +95,12 @@ impl RepoInfo {
 impl GitHubClient {
     /// Create a new GitHub API client
     pub fn new(_repo: RepoInfo) -> Result<Self> {
-        let base_url = Url::parse("https://api.github.com")
-            .context("Failed to parse GitHub API base URL")?;
+        let base_url =
+            Url::parse("https://api.github.com").context("Failed to parse GitHub API base URL")?;
 
         // Check for GitHub token in environment
-        let token = env::var("GITHUB_TOKEN").ok()
+        let token = env::var("GITHUB_TOKEN")
+            .ok()
             .or_else(|| env::var("GH_TOKEN").ok());
 
         let mut client_builder = reqwest::Client::builder()
@@ -132,18 +136,23 @@ impl GitHubClient {
 
     /// Get Pages configuration for a repository
     pub async fn get_pages_config(&self, repo: &RepoInfo) -> Result<PagesConfig> {
-        let url = self.base_url
+        let url = self
+            .base_url
             .join(&format!("repos/{}/pages", repo.as_str()))
             .context("Failed to construct Pages API URL")?;
 
-        let response = self.client
+        let response = self
+            .client
             .get(url.clone())
             .send()
             .await
             .context(format!("Failed to fetch Pages config from {}", url))?;
 
         if response.status() == 404 {
-            anyhow::bail!("GitHub Pages not configured for repository {}", repo.as_str());
+            anyhow::bail!(
+                "GitHub Pages not configured for repository {}",
+                repo.as_str()
+            );
         }
 
         if !response.status().is_success() {
@@ -164,12 +173,10 @@ impl GitHubClient {
 
     /// Get workflow runs for a specific workflow file
     pub async fn get_workflow_runs(
-        &self,
-        repo: &RepoInfo,
-        workflow_file: &str,
-        per_page: u32,
+        &self, repo: &RepoInfo, workflow_file: &str, per_page: u32,
     ) -> Result<WorkflowRunsResponse> {
-        let url = self.base_url
+        let url = self
+            .base_url
             .join(&format!(
                 "repos/{}/actions/workflows/{}/runs?per_page={}",
                 repo.as_str(),
@@ -178,7 +185,8 @@ impl GitHubClient {
             ))
             .context("Failed to construct workflow runs API URL")?;
 
-        let response = self.client
+        let response = self
+            .client
             .get(url.clone())
             .send()
             .await
@@ -201,16 +209,14 @@ impl GitHubClient {
     }
 
     /// Get a specific workflow run by ID
-    pub async fn get_workflow_run(
-        &self,
-        repo: &RepoInfo,
-        run_id: u64,
-    ) -> Result<WorkflowRun> {
-        let url = self.base_url
+    pub async fn get_workflow_run(&self, repo: &RepoInfo, run_id: u64) -> Result<WorkflowRun> {
+        let url = self
+            .base_url
             .join(&format!("repos/{}/actions/runs/{}", repo.as_str(), run_id))
             .context("Failed to construct workflow run API URL")?;
 
-        let response = self.client
+        let response = self
+            .client
             .get(url.clone())
             .send()
             .await
@@ -243,7 +249,8 @@ impl GitHubClient {
             anyhow::bail!("GitHub token required to trigger workflows. Set GITHUB_TOKEN or GH_TOKEN environment variable.");
         }
 
-        let url = self.base_url
+        let url = self
+            .base_url
             .join(&format!(
                 "repos/{}/actions/workflows/{}/dispatches",
                 repo.as_str(),
@@ -259,7 +266,8 @@ impl GitHubClient {
 
         let body = DispatchRequest { ref_name };
 
-        let response = self.client
+        let response = self
+            .client
             .post(url.clone())
             .json(&body)
             .send()
@@ -267,10 +275,7 @@ impl GitHubClient {
             .context(format!("Failed to trigger workflow at {}", url))?;
 
         if !response.status().is_success() {
-            anyhow::bail!(
-                "Failed to trigger workflow. Status: {}",
-                response.status()
-            );
+            anyhow::bail!("Failed to trigger workflow. Status: {}", response.status());
         }
 
         Ok(())
@@ -278,7 +283,8 @@ impl GitHubClient {
 
     /// Check if a GitHub Pages site is accessible
     pub async fn check_site_status(&self, pages_url: &str) -> Result<u16> {
-        let response = self.client
+        let response = self
+            .client
             .get(pages_url)
             .send()
             .await

@@ -5,12 +5,12 @@ use std::env;
 
 #[derive(Args, Debug)]
 pub struct AddArgs {
-    /// Rpack ID with optional version (e.g., "io.rgen.rust.cli-subcommand@0.2.0")
-    pub rpack_id: String,
+    /// Gpack ID with optional version (e.g., "io.ggen.rust.cli-subcommand@0.2.0")
+    pub gpack_id: String,
 }
 
 pub async fn run(args: &AddArgs) -> Result<()> {
-    let (pack_id, version) = parse_rpack_spec(&args.rpack_id)?;
+    let (pack_id, version) = parse_gpack_spec(&args.gpack_id)?;
 
     // Get current working directory
     let current_dir = env::current_dir().context("Failed to get current directory")?;
@@ -22,42 +22,42 @@ pub async fn run(args: &AddArgs) -> Result<()> {
 
     // Check if already installed
     if lockfile_manager.is_installed(&pack_id)? {
-        println!("Rpack '{}' is already installed", pack_id);
+        println!("Gpack '{}' is already installed", pack_id);
         return Ok(());
     }
 
     // Resolve pack from registry
-    println!("Resolving rpack '{}'...", pack_id);
+    println!("Resolving gpack '{}'...", pack_id);
     let resolved_pack = registry_client
         .resolve(&pack_id, version.as_deref())
         .await
-        .with_context(|| format!("Failed to resolve rpack '{}'", pack_id))?;
+        .with_context(|| format!("Failed to resolve gpack '{}'", pack_id))?;
 
     println!(
-        "Found rpack '{}' version {}",
+        "Found gpack '{}' version {}",
         resolved_pack.id, resolved_pack.version
     );
 
     // Download and cache the pack
-    println!("Downloading rpack...");
+    println!("Downloading gpack...");
     let cached_pack = cache_manager
         .ensure(&resolved_pack)
         .await
-        .with_context(|| format!("Failed to download rpack '{}'", pack_id))?;
+        .with_context(|| format!("Failed to download gpack '{}'", pack_id))?;
 
-    println!("Cached rpack to: {}", cached_pack.path.display());
+    println!("Cached gpack to: {}", cached_pack.path.display());
 
     // Update lockfile with actual calculated SHA256 from cached pack
     println!("Updating lockfile...");
     lockfile_manager.upsert(
         &resolved_pack.id,
         &resolved_pack.version,
-        &cached_pack.sha256,  // Use actual calculated SHA256, not registry placeholder
+        &cached_pack.sha256, // Use actual calculated SHA256, not registry placeholder
         &resolved_pack.git_url,
     )?;
 
     println!(
-        "✅ Successfully added rpack '{}' version {}",
+        "✅ Successfully added gpack '{}' version {}",
         resolved_pack.id, resolved_pack.version
     );
 
@@ -74,9 +74,9 @@ pub async fn run(args: &AddArgs) -> Result<()> {
     Ok(())
 }
 
-fn parse_rpack_spec(spec: &str) -> Result<(String, Option<String>)> {
+fn parse_gpack_spec(spec: &str) -> Result<(String, Option<String>)> {
     if spec.is_empty() {
-        bail!("Invalid rpack spec: empty string. Expected format: <rpack-id>[@version]");
+        bail!("Invalid gpack spec: empty string. Expected format: <gpack-id>[@version]");
     }
 
     if let Some(at_pos) = spec.rfind('@') {
@@ -85,7 +85,7 @@ fn parse_rpack_spec(spec: &str) -> Result<(String, Option<String>)> {
 
         if id.is_empty() || version.is_empty() {
             bail!(
-                "Invalid rpack spec: '{}'. Expected format: <rpack-id>[@version]",
+                "Invalid gpack spec: '{}'. Expected format: <gpack-id>[@version]",
                 spec
             );
         }
@@ -101,20 +101,20 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_parse_rpack_spec() {
-        let (id, version) = parse_rpack_spec("io.rgen.test").unwrap();
-        assert_eq!(id, "io.rgen.test");
+    fn test_parse_gpack_spec() {
+        let (id, version) = parse_gpack_spec("io.ggen.test").unwrap();
+        assert_eq!(id, "io.ggen.test");
         assert_eq!(version, None);
 
-        let (id, version) = parse_rpack_spec("io.rgen.test@0.1.0").unwrap();
-        assert_eq!(id, "io.rgen.test");
+        let (id, version) = parse_gpack_spec("io.ggen.test@0.1.0").unwrap();
+        assert_eq!(id, "io.ggen.test");
         assert_eq!(version, Some("0.1.0".to_string()));
     }
 
     #[test]
-    fn test_parse_rpack_spec_invalid() {
-        assert!(parse_rpack_spec("@0.1.0").is_err());
-        assert!(parse_rpack_spec("io.rgen.test@").is_err());
-        assert!(parse_rpack_spec("").is_err());
+    fn test_parse_gpack_spec_invalid() {
+        assert!(parse_gpack_spec("@0.1.0").is_err());
+        assert!(parse_gpack_spec("io.ggen.test@").is_err());
+        assert!(parse_gpack_spec("").is_err());
     }
 }

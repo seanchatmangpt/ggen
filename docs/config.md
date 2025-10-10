@@ -1,12 +1,12 @@
 # Configuration
 
-rgen supports configuration through project files and environment variables.
+ggen supports configuration through project files and environment variables.
 
 ## Environment Variables
 
 ### GGEN_REGISTRY_URL
 
-Controls the marketplace registry URL used for searching and installing rpacks.
+Controls the marketplace registry URL used for searching and installing gpacks.
 
 **Default**: [seanchatmangpt.github.io/ggen/registry](https://seanchatmangpt.github.io/ggen/registry/) (GitHub Pages)
 
@@ -35,8 +35,8 @@ cd ggen
 export GGEN_REGISTRY_URL="file://$(pwd)/docs/registry/"
 
 # Test marketplace functionality
-rgen search rust
-rgen add io.ggen.rust.cli-subcommand
+ggen search rust
+ggen add io.ggen.rust.cli-subcommand
 ```
 
 ## Project Configuration
@@ -47,7 +47,7 @@ rgen add io.ggen.rust.cli-subcommand
 [project]
 name = "my-project"
 version = "0.1.0"
-description = "My rgen project"
+description = "My ggen project"
 
 [vars]
 # Default variables available to all templates
@@ -65,7 +65,7 @@ prefixes.ex = "http://example.org/"
 # Override default folder paths
 templates = "templates/"
 output = "generated/"
-cache = ".rgen/"
+cache = ".ggen/"
 
 [determinism]
 # Determinism configuration
@@ -73,7 +73,7 @@ sort = "name"  # Default matrix sort key
 seed = "project"  # Default seed for reproducibility
 ```
 
-### .rgenrc.yaml (Legacy)
+### .ggenrc.yaml (Legacy)
 
 ```yaml
 vars:
@@ -90,7 +90,7 @@ graph:
 paths:
   templates: "templates/"
   output: "generated/"
-  cache: ".rgen/"
+  cache: ".ggen/"
 
 determinism:
   sort: "name"
@@ -103,23 +103,23 @@ determinism:
 
 ```toml
 [registry]
-# Registry URL (default: https://registry.rgen.io)
-url = "https://registry.rgen.io"
+# Registry URL (default: https://registry.ggen.io)
+url = "https://registry.ggen.io"
 
 # Authentication token for private registries
 token = "your-token-here"
 
 # Cache settings
-cache_dir = ".rgen/cache"
+cache_dir = ".ggen/cache"
 cache_ttl = "1h"
 ```
 
-### Rpack Management
+### Gpack Management
 
 ```toml
-[rpacks]
-# Default rpack installation directory
-install_dir = ".rgen/rpacks/"
+[gpacks]
+# Default gpack installation directory
+install_dir = ".ggen/gpacks/"
 
 # Update policy
 update_policy = "compatible"  # compatible, latest, pinned
@@ -141,29 +141,29 @@ lock_versions = true
 
 ```bash
 # Override configuration file location
-export RGEN_CONFIG_FILE="custom.toml"
+export GGEN_CONFIG_FILE="custom.toml"
 
 # Override cache directory
-export RGEN_CACHE_DIR="/tmp/rgen-cache"
+export GGEN_CACHE_DIR="/tmp/ggen-cache"
 
 # Enable debug output
-export RGEN_DEBUG=1
+export GGEN_DEBUG=1
 
 # Enable trace output
-export RGEN_TRACE=1
+export GGEN_TRACE=1
 ```
 
 ### Marketplace Settings
 
 ```bash
 # Registry authentication
-export RGEN_REGISTRY_TOKEN="your-token"
+export GGEN_REGISTRY_TOKEN="your-token"
 
 # Custom registry URL
 export GGEN_REGISTRY_URL="https://custom-registry.com"
 
 # Disable automatic updates
-export RGEN_NO_UPDATE=1
+export GGEN_NO_UPDATE=1
 ```
 
 ## Variable Precedence
@@ -173,7 +173,7 @@ Variables are resolved in this order (later values override earlier):
 1. **Environment variables** (from `.env` files)
 2. **System environment** (`$HOME`, `$USER`, etc.)
 3. **Project configuration** (`ggen.toml` `[vars]` section)
-4. **Rpack variables** (from rpack `ggen.toml`)
+4. **Gpack variables** (from gpack `ggen.toml`)
 5. **Template frontmatter** (`vars:` section)
 6. **CLI arguments** (`--var key=value`)
 
@@ -190,7 +190,7 @@ version = "0.1.0"
 [vars]
 author = "Jane Smith"
 license = "MIT"
-description = "A CLI tool generated with rgen"
+description = "A CLI tool generated with ggen"
 ```
 
 ### Multi-Language Project
@@ -210,7 +210,7 @@ description = "Multi-language API"
 base = "http://api.example.org/"
 prefixes.api = "http://api.example.org/"
 
-[rpacks]
+[gpacks]
 update_policy = "compatible"
 ```
 
@@ -224,9 +224,9 @@ version = "1.0.0"
 
 [registry]
 url = "https://internal-registry.company.com"
-token = "${RGEN_REGISTRY_TOKEN}"
+token = "${GGEN_REGISTRY_TOKEN}"
 
-[rpacks]
+[gpacks]
 update_policy = "pinned"
 resolve_deps = true
 lock_versions = true
@@ -241,13 +241,13 @@ allow_remote = false  # Security: no remote RDF
 
 ```bash
 # Validate project configuration
-rgen config validate
+ggen config validate
 
 # Check configuration syntax
-rgen config check
+ggen config check
 
 # Show effective configuration
-rgen config show
+ggen config show
 ```
 
 ### Configuration Errors

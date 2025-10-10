@@ -49,10 +49,19 @@ jobs:
           path: target
           key: ${{ runner.os }}-${{ matrix.rust }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
 
+      - name: Cache cargo-make
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin/cargo-make
+          key: ${{ runner.os }}-cargo-make
+
+      - name: Install cargo-make
+        run: cargo install cargo-make --locked
+
       - name: Build
-        run: cargo build --verbose
+        run: cargo make build
         continue-on-error: ${{ matrix.rust == 'nightly' }}
 
       - name: Run tests
-        run: cargo test --verbose
+        run: cargo make test
         continue-on-error: ${{ matrix.rust == 'nightly' }}

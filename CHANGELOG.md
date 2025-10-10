@@ -5,10 +5,10 @@ All notable changes to this project will be documented in this file.
 ## [0.1.0] - 2025-01-XX
 
 ### Added
-- Initial release of rgen CLI tool
+- Initial release of ggen CLI tool
 - Language-agnostic code generation from RDF ontologies
 - Template system with YAML frontmatter support
-- Marketplace ecosystem for reusable rpacks (search, add, remove, update, packs)
+- Marketplace ecosystem for reusable gpacks (search, add, remove, update, packs)
 - Deterministic code generation with manifest hashing
 - Multi-language template support (Rust, Python, Bash, TypeScript, Go)
 - CLI commands: gen, list, show, lint, validate, graph, hazard, completion
@@ -33,4 +33,4 @@ All notable changes to this project will be documented in this file.
 - CLI reference
 - Troubleshooting guide
 
-[0.1.0]: https://github.com/seanchatmangpt/rgen/releases/tag/v0.1.0
+[0.1.0]: https://github.com/seanchatmangpt/ggen/releases/tag/v0.1.0

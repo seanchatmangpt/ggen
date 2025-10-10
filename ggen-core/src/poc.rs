@@ -156,7 +156,7 @@ pub fn poc_hygen(
 
     // Register SPARQL + local() functions
     let prolog = build_prolog(&fm.prefixes, fm.base.as_deref());
-    let trace = std::env::var_os("RGEN_TRACE").is_some();
+    let trace = std::env::var_os("GGEN_TRACE").is_some();
     tera.register_function(
         "sparql",
         SparqlFn {

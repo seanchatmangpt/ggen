@@ -15,7 +15,7 @@
     - [Injection Modes](#injection-modes)
     - [GitHub Integration](#github-integration)
   - [Development](#development)
-  - [Marketplace (rpacks)](#marketplace-rpacks)
+  - [Marketplace (gpacks)](#marketplace-gpacks)
   - [Documentation](#documentation)
   - [Performance SLOs](#performance-slos)
   - [Contributing](#contributing)
@@ -39,7 +39,7 @@
 - 🎯 **Deterministic Generation** - Byte-identical output with fixed seeds
 - 🌐 **Language-Agnostic** - Generate code in any language from the same ontology
 - 🔗 **RDF Knowledge Graphs** - Embed semantic metadata with SPARQL queries
-- 📦 **Marketplace Integration** - Reusable template packages (rpacks) with versioning
+- 📦 **Marketplace Integration** - Reusable template packages (gpacks) with versioning
 - 🧪 **Template-Based** - YAML frontmatter with Tera templating engine
 - 🔄 **Injection Support** - Modify existing files with idempotent updates
 - 🚀 **GitHub Integration** - Built-in GitHub Pages and Actions API support
@@ -73,7 +73,7 @@ ggen gen templates/rust-module.tmpl --vars name=my_module
 ggen search "rust cli"
 
 # Add a template pack
-ggen add io.rgen.rust.cli-subcommand
+ggen add io.ggen.rust.cli-subcommand
 
 # List available templates
 ggen list
@@ -206,24 +206,24 @@ cargo make docs-build           # Build documentation
 cargo make gh-pages-status      # Check Pages status
 ```
 
-## Marketplace (rpacks)
+## Marketplace (gpacks)
 
-Rpacks are versioned, reusable template packages:
+Gpacks are versioned, reusable template packages:
 
 ```bash
-# Search for rpacks
+# Search for gpacks
 ggen search "rust"
 
 # View categories
 ggen categories
 
-# Add an rpack
-ggen add io.rgen.rust.cli-subcommand
+# Add an gpack
+ggen add io.ggen.rust.cli-subcommand
 
-# List installed rpacks
+# List installed gpacks
 ggen packs
 
-# Update rpacks
+# Update gpacks
 ggen update
 ```
 

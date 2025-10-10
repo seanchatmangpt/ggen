@@ -38,7 +38,7 @@ source = "local"
     std::fs::write(root.join("ggen.lock"), lockfile_content).unwrap();
 
     // Create a cache entry for the local pack in the system cache directory
-    let system_cache_dir = dirs::cache_dir().unwrap().join("ggen/rpacks");
+    let system_cache_dir = dirs::cache_dir().unwrap().join("ggen/gpacks");
     let cache_dir = system_cache_dir.join("local.test/1.0.0");
     let cache_templates_dir = cache_dir.join("templates");
     std::fs::create_dir_all(&cache_templates_dir).unwrap();
@@ -56,7 +56,7 @@ source = "local"
     std::fs::write(
         cache_templates_dir.join("ggen.toml"),
         r#"
-[rpack]
+[gpack]
 id = "local.test"
 name = "Local Test Pack"
 version = "1.0.0"

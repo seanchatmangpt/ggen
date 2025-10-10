@@ -300,12 +300,12 @@ fn file_should_be_generated_at(world: &mut GgenWorld, file_path: String) {
     );
 }
 
-#[then(regex = r"^the file should use the rpack template$")]
-fn file_should_use_rpack_template(world: &mut GgenWorld) {
+#[then(regex = r"^the file should use the gpack template$")]
+fn file_should_use_gpack_template(world: &mut GgenWorld) {
     // For BDD tests, we assume the template is used if the command succeeded
-    // In real implementation, this would check the generated content for rpack-specific patterns
+    // In real implementation, this would check the generated content for gpack-specific patterns
     assert!(
         world.last_command_succeeded(),
-        "File should use the rpack template"
+        "File should use the gpack template"
     );
 }

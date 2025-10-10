@@ -5,7 +5,7 @@ use std::path::PathBuf;
 use crate::cache::{CacheManager, CachedPack};
 use crate::lockfile::LockfileManager;
 
-/// Template resolver for rpack:template syntax
+/// Template resolver for gpack:template syntax
 #[derive(Debug, Clone)]
 pub struct TemplateResolver {
     cache_manager: CacheManager,
@@ -18,7 +18,7 @@ pub struct TemplateSource {
     pub pack_id: String,
     pub template_path: PathBuf,
     pub pack: CachedPack,
-    pub manifest: Option<crate::rpack::RpackManifest>,
+    pub manifest: Option<crate::gpack::GpackManifest>,
 }
 
 /// Template search result
@@ -186,7 +186,7 @@ impl TemplateResolver {
             manifest.discover_templates(&cached_pack.path)
         } else {
             // Fallback to default convention if no manifest
-            let conventions = crate::rpack::PackConventions::default();
+            let conventions = crate::gpack::PackConventions::default();
             let mut templates = Vec::new();
 
             for pattern in conventions.template_patterns {
@@ -274,7 +274,7 @@ pub struct TemplateInfo {
     pub template_path: PathBuf,
     pub frontmatter: Option<serde_yaml::Value>,
     pub content: String,
-    pub pack_info: Option<crate::rpack::RpackMetadata>,
+    pub pack_info: Option<crate::gpack::GpackMetadata>,
 }
 
 #[cfg(test)]
@@ -471,8 +471,8 @@ Hello {{ name }}
         fs::write(templates_dir.join("main.tmpl"), "template1").unwrap();
         fs::write(templates_dir.join("sub.tmpl"), "template2").unwrap();
 
-        let manifest = crate::rpack::RpackManifest {
-            metadata: crate::rpack::RpackMetadata {
+        let manifest = crate::gpack::GpackManifest {
+            metadata: crate::gpack::GpackMetadata {
                 id: "io.ggen.test".to_string(),
                 name: "test-pack".to_string(),
                 version: "1.0.0".to_string(),
@@ -481,23 +481,23 @@ Hello {{ name }}
                 ggen_compat: "1.0.0".to_string(),
             },
             dependencies: std::collections::BTreeMap::new(),
-            templates: crate::rpack::TemplatesConfig {
+            templates: crate::gpack::TemplatesConfig {
                 patterns: vec![
                     "templates/main.tmpl".to_string(),
                     "templates/sub.tmpl".to_string(),
                 ],
                 includes: vec![],
             },
-            macros: crate::rpack::MacrosConfig::default(),
-            rdf: crate::rpack::RdfConfig {
+            macros: crate::gpack::MacrosConfig::default(),
+            rdf: crate::gpack::RdfConfig {
                 base: None,
                 prefixes: std::collections::BTreeMap::new(),
                 patterns: vec![],
                 inline: vec![],
             },
-            queries: crate::rpack::QueriesConfig::default(),
-            shapes: crate::rpack::ShapesConfig::default(),
-            preset: crate::rpack::PresetConfig::default(),
+            queries: crate::gpack::QueriesConfig::default(),
+            shapes: crate::gpack::ShapesConfig::default(),
+            preset: crate::gpack::PresetConfig::default(),
         };
 
         let cached_pack = CachedPack {

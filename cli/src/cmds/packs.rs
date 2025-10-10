@@ -11,11 +11,11 @@ pub fn run() -> Result<()> {
     let installed_packs = lockfile_manager.list()?;
 
     if installed_packs.is_empty() {
-        println!("No rpacks installed in this project");
+        println!("No gpacks installed in this project");
         return Ok(());
     }
 
-    println!("Installed rpacks ({}):", installed_packs.len());
+    println!("Installed gpacks ({}):", installed_packs.len());
     println!();
 
     // Header

@@ -18,24 +18,24 @@ impl Default for PackConventions {
         Self {
             template_patterns: &["templates/**/*.tmpl", "templates/**/*.tera"],
             rdf_patterns: &[
-                "templates/**/graphs/*.ttl",
-                "templates/**/graphs/*.rdf",
-                "templates/**/graphs/*.jsonld",
+                "templates/**/graphs/*.ttl", 
+                "templates/**/graphs/*.rdf", 
+                "templates/**/graphs/*.jsonld"
             ],
             query_patterns: &["templates/**/queries/*.rq", "templates/**/queries/*.sparql"],
             shape_patterns: &[
-                "templates/**/graphs/shapes/*.shacl.ttl",
-                "templates/**/shapes/*.ttl",
+                "templates/**/graphs/shapes/*.shacl.ttl", 
+                "templates/**/shapes/*.ttl"
             ],
         }
     }
 }
 
-/// Rpack manifest structure
+/// Gpack manifest structure
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct RpackManifest {
-    #[serde(rename = "rpack")]
-    pub metadata: RpackMetadata,
+pub struct GpackManifest {
+    #[serde(rename = "gpack")]
+    pub metadata: GpackMetadata,
     #[serde(default)]
     pub dependencies: BTreeMap<String, String>,
     #[serde(default)]
@@ -52,9 +52,9 @@ pub struct RpackManifest {
     pub preset: PresetConfig,
 }
 
-/// Rpack metadata section
+/// Gpack metadata section
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct RpackMetadata {
+pub struct GpackMetadata {
     pub id: String,
     pub name: String,
     pub version: String,
@@ -136,11 +136,11 @@ fn discover_files(base_path: &Path, patterns: &[&str]) -> Result<Vec<PathBuf>> {
     Ok(files)
 }
 
-impl RpackManifest {
+impl GpackManifest {
     /// Load manifest from a file
     pub fn load_from_file(path: &PathBuf) -> Result<Self> {
         let content = std::fs::read_to_string(path)?;
-        let manifest: RpackManifest = toml::from_str(&content)?;
+        let manifest: GpackManifest = toml::from_str(&content)?;
         Ok(manifest)
     }
 
@@ -218,7 +218,7 @@ mod tests {
     #[test]
     fn test_manifest_parsing() {
         let toml_content = r#"
-[rpack]
+[gpack]
 id = "io.ggen.rust.cli-subcommand"
 name = "Rust CLI subcommand"
 version = "0.1.0"
@@ -251,7 +251,7 @@ config = "../preset/ggen.toml"
 vars = { author = "Acme", license = "MIT" }
 "#;
 
-        let manifest: RpackManifest = toml::from_str(toml_content).unwrap();
+        let manifest: GpackManifest = toml::from_str(toml_content).unwrap();
 
         assert_eq!(manifest.metadata.id, "io.ggen.rust.cli-subcommand");
         assert_eq!(manifest.metadata.name, "Rust CLI subcommand");
@@ -265,7 +265,7 @@ vars = { author = "Acme", license = "MIT" }
     fn test_manifest_load_from_file() {
         let mut temp_file = NamedTempFile::new().unwrap();
         let toml_content = r#"
-[rpack]
+[gpack]
 id = "test"
 name = "Test"
 version = "0.1.0"
@@ -275,7 +275,7 @@ ggen_compat = ">=0.1 <0.2"
 "#;
         temp_file.write_all(toml_content.as_bytes()).unwrap();
 
-        let manifest = RpackManifest::load_from_file(&temp_file.path().to_path_buf()).unwrap();
+        let manifest = GpackManifest::load_from_file(&temp_file.path().to_path_buf()).unwrap();
         assert_eq!(manifest.metadata.id, "test");
     }
 }

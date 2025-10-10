@@ -244,19 +244,19 @@ fn test_hazard_stdout() {
     cmd.arg("hazard")
         .assert()
         .success()
-        .stdout(predicate::str::contains("RGen Hazard Report"));
+        .stdout(predicate::str::contains("GGen Hazard Report"));
 }
 
 #[test]
 fn test_cli_help_commands() {
     // Batch test all help commands to reduce process spawning
     let commands = [
-        ("search", "Search for rpacks in registry"),
+        ("search", "Search for gpacks in registry"),
         ("categories", "Show popular categories and keywords"),
-        ("add", "Add an rpack to the project"),
-        ("remove", "Remove an rpack from the project"),
-        ("packs", "List installed rpacks"),
-        ("update", "Update rpacks to latest compatible versions"),
+        ("add", "Add an gpack to the project"),
+        ("remove", "Remove an gpack from the project"),
+        ("packs", "List installed gpacks"),
+        ("update", "Update gpacks to latest compatible versions"),
         ("gen", "Generate code from templates"),
         ("show", "Show template metadata"),
         ("lint", "Lint template with schema validation"),
@@ -285,7 +285,7 @@ fn test_search_command_basic_usage() {
     // Search now works with local mock registry
     cmd.assert()
         .success()
-        .stdout(predicate::str::contains("rpack"));
+        .stdout(predicate::str::contains("gpack"));
 }
 
 #[test]
@@ -428,7 +428,7 @@ fn test_cli_integration_with_mock_registry() -> Result<()> {
                 "versions": {
                     "1.2.0": {
                         "version": "1.2.0",
-                        "git_url": "https://github.com/example/rpack.git",
+                        "git_url": "https://github.com/example/gpack.git",
                         "git_rev": "abc123",
                         "sha256": "def456"
                     }
@@ -499,22 +499,22 @@ fn test_cli_output_formats() {
 
 #[test]
 fn test_cli_environment_variables() {
-    // Test with RGEN_TRACE environment variable
+    // Test with GGEN_TRACE environment variable
     let mut cmd = Command::cargo_bin("ggen").unwrap();
-    cmd.env("RGEN_TRACE", "debug");
+    cmd.env("GGEN_TRACE", "debug");
     cmd.arg("hazard");
     cmd.assert()
         .success()
-        .stdout(predicate::str::contains("RGen Hazard Report"));
+        .stdout(predicate::str::contains("GGen Hazard Report"));
 
     // Test with different trace levels
     let trace_levels = ["error", "warn", "info", "debug", "trace"];
     for level in &trace_levels {
         let mut cmd = Command::cargo_bin("ggen").unwrap();
-        cmd.env("RGEN_TRACE", level);
+        cmd.env("GGEN_TRACE", level);
         cmd.arg("hazard");
         cmd.assert()
             .success()
-            .stdout(predicate::str::contains("RGen Hazard Report"));
+            .stdout(predicate::str::contains("GGen Hazard Report"));
     }
 }

@@ -230,11 +230,7 @@ source = "https://github.com/test/repo.git"
     let content = fs::read_to_string(&lockfile_path)?;
     let parsed: toml::Value = toml::from_str(&content)?;
 
-    let sha256 = parsed
-        .get("packs")
-        .unwrap()
-        .as_array()
-        .unwrap()[0]
+    let sha256 = parsed.get("packs").unwrap().as_array().unwrap()[0]
         .get("sha256")
         .unwrap()
         .as_str()
@@ -307,11 +303,7 @@ fn test_lockfile_manager_upsert_uses_correct_sha256() -> Result<()> {
 
     // Parse and verify structure
     let parsed: toml::Value = toml::from_str(&content)?;
-    let sha256 = parsed
-        .get("packs")
-        .unwrap()
-        .as_array()
-        .unwrap()[0]
+    let sha256 = parsed.get("packs").unwrap().as_array().unwrap()[0]
         .get("sha256")
         .unwrap()
         .as_str()

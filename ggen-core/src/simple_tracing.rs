@@ -7,12 +7,12 @@ pub struct SimpleTracer;
 impl SimpleTracer {
     /// Check if tracing is enabled
     pub fn is_enabled() -> bool {
-        std::env::var("RGEN_TRACE").is_ok()
+        std::env::var("GGEN_TRACE").is_ok()
     }
 
     /// Get trace level
     pub fn trace_level() -> TraceLevel {
-        match std::env::var("RGEN_TRACE")
+        match std::env::var("GGEN_TRACE")
             .unwrap_or_default()
             .to_lowercase()
             .as_str()
@@ -48,9 +48,9 @@ impl SimpleTracer {
         };
 
         if let Some(ctx) = context {
-            eprintln!("[RGEN {}] {}: {}", prefix, ctx, message);
+            eprintln!("[GGEN {}] {}: {}", prefix, ctx, message);
         } else {
-            eprintln!("[RGEN {}] {}", prefix, message);
+            eprintln!("[GGEN {}] {}", prefix, message);
         }
     }
 
@@ -311,13 +311,13 @@ mod tests {
 
     #[test]
     fn test_tracing_environment_variables() {
-        // Test different RGEN_TRACE values
+        // Test different GGEN_TRACE values
         let test_values = [
             "error", "warn", "info", "debug", "trace", "1", "0", "true", "false",
         ];
 
         for value in &test_values {
-            std::env::set_var("RGEN_TRACE", value);
+            std::env::set_var("GGEN_TRACE", value);
             let level = SimpleTracer::trace_level();
             assert!(matches!(
                 level,

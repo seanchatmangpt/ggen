@@ -14,5 +14,5 @@ RUN cargo build --release
 
 FROM alpine:latest
 RUN apk --no-cache add ca-certificates
-COPY --from=builder /home/rust/src/target/x86_64-unknown-linux-musl/release/rgen /usr/local/bin/rgen
-CMD ["/usr/local/bin/rgen"]
+COPY --from=builder /home/rust/src/target/x86_64-unknown-linux-musl/release/ggen /usr/local/bin/ggen
+CMD ["/usr/local/bin/ggen"]

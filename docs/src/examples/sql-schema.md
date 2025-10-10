@@ -24,5 +24,5 @@ CREATE TABLE {{ table }} (
 Run:
 
 ```bash
-rgen gen db schema
+ggen gen db schema
 ```

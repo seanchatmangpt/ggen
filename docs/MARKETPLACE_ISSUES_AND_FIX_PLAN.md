@@ -44,7 +44,7 @@
    - **Root Cause**: Lockfile is not being created/updated when pack is installed
 
 2. **Documentation References**
-   - mdBook documentation still references "rgen" instead of "ggen"
+   - mdBook documentation still references "ggen" instead of "ggen"
    - Makes entire documentation invalid/confusing
 
 3. **Logger Panic**
@@ -101,19 +101,19 @@
 2. Or suppress HTTP library logging
 3. Or switch to different logging backend
 
-### Issue #4: Documentation References "rgen"
+### Issue #4: Documentation References "ggen"
 
 **Severity**: HIGH - User confusion
 
 **Location**: `docs/src/**/*.md` files
 
 **Problem**:
-- All mdBook documentation refers to "rgen" (old name)
+- All mdBook documentation refers to "ggen" (old name)
 - Should be "ggen" throughout
 - Makes documentation invalid and confusing
 
 **Fix Required**:
-1. Search and replace "rgen" → "ggen" in all docs
+1. Search and replace "ggen" → "ggen" in all docs
 2. Update examples and code snippets
 3. Update package names and URLs
 4. Rebuild mdBook
@@ -208,26 +208,26 @@ env_logger::builder()
 
 ### Phase 2: Fix Documentation
 
-#### Task 2.1: Find All "rgen" References
+#### Task 2.1: Find All "ggen" References
 ```bash
 cd docs
-grep -r "rgen" src/ | wc -l
+grep -r "ggen" src/ | wc -l
 ```
 
-#### Task 2.2: Replace "rgen" with "ggen"
+#### Task 2.2: Replace "ggen" with "ggen"
 **Strategy**: Use sed with careful patterns
 
 ```bash
 cd docs/src
 
 # Find all references
-grep -r "rgen" . --include="*.md"
+grep -r "ggen" . --include="*.md"
 
-# Replace rgen → ggen (but not in URLs or specific contexts)
-find . -name "*.md" -exec sed -i '' 's/\brgen\b/ggen/g' {} \;
+# Replace ggen → ggen (but not in URLs or specific contexts)
+find . -name "*.md" -exec sed -i '' 's/\bggen\b/ggen/g' {} \;
 
 # Manual fixes for:
-# - Package names (io.rgen.* → io.ggen.*)
+# - Package names (io.ggen.* → io.ggen.*)
 # - Repository URLs
 # - Code examples
 # - CLI commands
@@ -244,8 +244,8 @@ find . -name "*.md" -exec sed -i '' 's/\brgen\b/ggen/g' {} \;
 
 #### Task 2.3: Update Examples
 **Changes needed**:
-- CLI commands: `rgen gen` → `ggen gen`
-- Package references: `io.rgen.*` → `io.ggen.*`
+- CLI commands: `ggen gen` → `ggen gen`
+- Package references: `io.ggen.*` → `io.ggen.*`
 - Repository URLs
 - Installation commands
 
@@ -257,7 +257,7 @@ mdbook serve --open
 
 # Verify:
 # 1. All pages render correctly
-# 2. No "rgen" references remain
+# 2. No "ggen" references remain
 # 3. Examples are accurate
 # 4. Links work
 ```
@@ -308,12 +308,12 @@ echo "=== SUCCESS ==="
 ```bash
 #!/bin/bash
 
-echo "=== Verify No 'rgen' References ==="
+echo "=== Verify No 'ggen' References ==="
 cd docs/src
-RGEN_COUNT=$(grep -r "rgen" . --include="*.md" | wc -l)
-if [ "$RGEN_COUNT" -gt 0 ]; then
-    echo "ERROR: Found $RGEN_COUNT 'rgen' references:"
-    grep -r "rgen" . --include="*.md"
+GGEN_COUNT=$(grep -r "ggen" . --include="*.md" | wc -l)
+if [ "$GGEN_COUNT" -gt 0 ]; then
+    echo "ERROR: Found $GGEN_COUNT 'ggen' references:"
+    grep -r "ggen" . --include="*.md"
     exit 1
 fi
 
@@ -339,7 +339,7 @@ echo "=== SUCCESS ==="
 
 ### After Code Fixes
 4. ✅ **Test end-to-end workflow** (verify everything works)
-5. ✅ **Fix rgen→ggen in docs** (search and replace)
+5. ✅ **Fix ggen→ggen in docs** (search and replace)
 6. ✅ **Manual review of docs** (check context-sensitive changes)
 7. ✅ **Rebuild mdBook** (generate updated docs)
 8. ✅ **Verify deployed docs** (check GitHub Pages)
@@ -385,7 +385,7 @@ echo "=== SUCCESS ==="
 2. ✅ `cargo run -- gen <pack>:<template>` generates file
 3. ✅ SHA256 shows actual hash, not "to_be_calculated"
 4. ✅ No logger panics during normal operations
-5. ✅ Documentation contains zero "rgen" references
+5. ✅ Documentation contains zero "ggen" references
 6. ✅ All mdBook pages render correctly
 7. ✅ Examples in docs are copy-pasteable and work
 8. ✅ GitHub Pages shows updated documentation
@@ -410,7 +410,7 @@ echo "=== SUCCESS ==="
 Given the issues found:
 
 **Option A: Quick Doc Fix Only** (30 minutes)
-- Fix rgen→ggen in docs
+- Fix ggen→ggen in docs
 - Rebuild mdBook
 - Note known issues in documentation
 - ⚠️ Users will find broken marketplace functionality

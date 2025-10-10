@@ -53,8 +53,8 @@ cargo test pqc
 ### ✅ Documentation Updates - 100% Complete
 
 **Fixed**:
-- ✅ All "rgen" → "ggen" references (15 files)
-- ✅ All "io.rgen.*" → "io.ggen.*" package names
+- ✅ All "ggen" → "ggen" references (15 files)
+- ✅ All "io.ggen.*" → "io.ggen.*" package names
 - ✅ README updated with PQC feature
 - ✅ GitHub Pages link prominent in README
 
@@ -183,7 +183,7 @@ Error: No templates directory found
 - Works correctly
 
 ✅ **Documentation** (High Value):
-- All branding fixed (rgen→ggen)
+- All branding fixed (ggen→ggen)
 - Release notes ready
 - Marketing materials complete
 
@@ -303,7 +303,7 @@ Error: No templates directory found
 
 ### Documentation
 - **Files Created**: 6 major docs
-- **References Fixed**: 15 files (rgen→ggen)
+- **References Fixed**: 15 files (ggen→ggen)
 - **Sales Materials**: Release notes, sales bullets, specs
 
 ### Performance

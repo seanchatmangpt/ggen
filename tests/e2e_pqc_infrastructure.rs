@@ -74,8 +74,7 @@ fn test_pqc_verify_detects_tampering() -> Result<()> {
     assert!(is_valid, "Original signature should be valid");
 
     // Tampered data should fail verification
-    let is_valid_tampered =
-        verifier.verify_pack(pack_id, version, "tampered_hash", &signature)?;
+    let is_valid_tampered = verifier.verify_pack(pack_id, version, "tampered_hash", &signature)?;
     assert!(
         !is_valid_tampered,
         "Signature with tampered data should be invalid"
@@ -170,10 +169,7 @@ fn test_lockfile_supports_optional_pqc_fields() -> Result<()> {
     // Second pack has PQC fields
     assert!(parsed.packs[1].pqc_signature.is_some());
     assert!(parsed.packs[1].pqc_pubkey.is_some());
-    assert_eq!(
-        parsed.packs[1].pqc_signature.as_ref().unwrap(),
-        &signature
-    );
+    assert_eq!(parsed.packs[1].pqc_signature.as_ref().unwrap(), &signature);
     assert_eq!(parsed.packs[1].pqc_pubkey.as_ref().unwrap(), &pubkey);
 
     Ok(())

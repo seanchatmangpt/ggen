@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use url::Url;
 
-/// Registry client for fetching rpack metadata from registry.ggen.dev
+/// Registry client for fetching gpack metadata from registry.ggen.dev
 #[derive(Debug, Clone)]
 pub struct RegistryClient {
     base_url: Url,
@@ -19,7 +19,7 @@ pub struct RegistryIndex {
     pub packs: HashMap<String, PackMetadata>,
 }
 
-/// Metadata for a single rpack
+/// Metadata for a single gpack
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PackMetadata {
     pub id: String,
@@ -39,7 +39,7 @@ pub struct PackMetadata {
     pub documentation: Option<String>,
 }
 
-/// Metadata for a specific version of an rpack
+/// Metadata for a specific version of an gpack
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VersionMetadata {
     pub version: String,
@@ -49,7 +49,7 @@ pub struct VersionMetadata {
     pub sha256: String,
 }
 
-/// Search result for rpacks
+/// Search result for gpacks
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SearchResult {
     pub id: String,
@@ -93,9 +93,8 @@ impl RegistryClient {
     /// Create a new registry client
     pub fn new() -> Result<Self> {
         // Check environment variable for registry URL
-        let registry_url = std::env::var("GGEN_REGISTRY_URL").unwrap_or_else(|_| {
-            "https://seanchatmangpt.github.io/ggen/registry/".to_string()
-        });
+        let registry_url = std::env::var("GGEN_REGISTRY_URL")
+            .unwrap_or_else(|_| "https://seanchatmangpt.github.io/ggen/registry/".to_string());
 
         let base_url = Url::parse(&registry_url).context("Failed to parse registry URL")?;
 
@@ -164,7 +163,7 @@ impl RegistryClient {
         Ok(index)
     }
 
-    /// Search for rpacks matching the query
+    /// Search for gpacks matching the query
     pub async fn search(&self, query: &str) -> Result<Vec<SearchResult>> {
         let index = self.fetch_index().await?;
         let query_lower = query.to_lowercase();
@@ -459,7 +458,7 @@ mod tests {
                     "versions": {
                         "0.2.1": {
                             "version": "0.2.1",
-                            "git_url": "https://github.com/example/rpack.git",
+                            "git_url": "https://github.com/example/gpack.git",
                             "git_rev": "abc123",
                             "sha256": "def456"
                         }
@@ -498,7 +497,7 @@ mod tests {
                     "versions": {
                         "0.2.1": {
                             "version": "0.2.1",
-                            "git_url": "https://github.com/example/rpack.git",
+                            "git_url": "https://github.com/example/gpack.git",
                             "git_rev": "abc123",
                             "sha256": "def456"
                         }
@@ -519,6 +518,6 @@ mod tests {
             .unwrap();
         assert_eq!(resolved.id, "io.ggen.rust.cli-subcommand");
         assert_eq!(resolved.version, "0.2.1");
-        assert_eq!(resolved.git_url, "https://github.com/example/rpack.git");
+        assert_eq!(resolved.git_url, "https://github.com/example/gpack.git");
     }
 }

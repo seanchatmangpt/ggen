@@ -21,7 +21,7 @@ fn marketplace_registry_available_at(world: &mut GgenWorld, registry_url: String
 }
 
 #[when(regex = r"^I search for (.+)$")]
-fn search_for_rpack(world: &mut GgenWorld, query: String) {
+fn search_for_gpack(world: &mut GgenWorld, query: String) {
     let output = Command::cargo_bin("ggen")
         .expect("ggen binary not found")
         .arg("search")

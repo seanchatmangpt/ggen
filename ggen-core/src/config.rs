@@ -4,7 +4,7 @@ use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct RgenConfig {
+pub struct GgenConfig {
     /// Templates directory (relative to config file)
     pub templates_dir: Option<String>,
 
@@ -30,7 +30,7 @@ pub struct RdfConfig {
     pub inline: Vec<String>,
 }
 
-impl Default for RgenConfig {
+impl Default for GgenConfig {
     fn default() -> Self {
         Self {
             templates_dir: Some("templates".to_string()),
@@ -41,7 +41,7 @@ impl Default for RgenConfig {
     }
 }
 
-impl RgenConfig {
+impl GgenConfig {
     /// Load ggen.toml from the given directory, walking up the tree
     pub fn discover_and_load(start_dir: &Path) -> Result<Option<(Self, PathBuf)>> {
         let mut current = start_dir.to_path_buf();
@@ -66,7 +66,7 @@ impl RgenConfig {
     /// Load ggen.toml from a specific file
     pub fn load_from_file(config_path: &Path) -> Result<Self> {
         let content = std::fs::read_to_string(config_path)?;
-        let config: RgenConfig = toml::from_str(&content)?;
+        let config: GgenConfig = toml::from_str(&content)?;
         Ok(config)
     }
 
@@ -132,7 +132,7 @@ rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 "#,
         )?;
 
-        let (config, found_path) = RgenConfig::discover_and_load(&config_dir)?.unwrap();
+        let (config, found_path) = GgenConfig::discover_and_load(&config_dir)?.unwrap();
 
         assert_eq!(found_path, config_path);
         assert_eq!(config.templates_dir, Some("custom_templates".to_string()));
@@ -148,14 +148,14 @@ rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     #[test]
     fn test_config_not_found() -> Result<()> {
         let temp_dir = TempDir::new()?;
-        let result = RgenConfig::discover_and_load(temp_dir.path())?;
+        let result = GgenConfig::discover_and_load(temp_dir.path())?;
         assert!(result.is_none());
         Ok(())
     }
 
     #[test]
     fn test_path_resolution() -> Result<()> {
-        let config = RgenConfig::default();
+        let config = GgenConfig::default();
         let config_dir = Path::new("/project");
 
         // Relative path
@@ -184,7 +184,7 @@ inline = [
 ]
 "#;
 
-        let config: RgenConfig = toml::from_str(config_content)?;
+        let config: GgenConfig = toml::from_str(config_content)?;
         let config_dir = Path::new("/project");
 
         let rdf_paths = config.rdf_file_paths(config_dir);

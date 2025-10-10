@@ -31,7 +31,7 @@ fn test_search_production_registry() -> Result<()> {
 
         // Should return search results
         assert!(
-            stdout.contains("io.ggen") || stdout.contains("rpack") || stdout.contains("rust"),
+            stdout.contains("io.ggen") || stdout.contains("gpack") || stdout.contains("rust"),
             "Search should return results from production registry"
         );
     } else {
@@ -184,7 +184,10 @@ fn test_production_registry_index_accessible() -> Result<()> {
             );
         }
         Err(e) => {
-            println!("Note: Could not access production registry (network issue): {}", e);
+            println!(
+                "Note: Could not access production registry (network issue): {}",
+                e
+            );
         }
     }
 
@@ -224,10 +227,7 @@ fn test_search_with_detailed_output() -> Result<()> {
 fn test_search_with_category_filter() -> Result<()> {
     // Test search with category filter
     let mut cmd = Command::cargo_bin("ggen")?;
-    cmd.arg("search")
-        .arg("cli")
-        .arg("--category")
-        .arg("rust");
+    cmd.arg("search").arg("cli").arg("--category").arg("rust");
 
     cmd.env(
         "GGEN_REGISTRY_URL",
@@ -418,10 +418,7 @@ fn test_marketplace_workflow_end_to_end() -> Result<()> {
 
     // Step 3: Verify lockfile was created with correct content
     let lockfile_path = project_dir.join("ggen.lock");
-    assert!(
-        lockfile_path.exists(),
-        "Lockfile should exist after add"
-    );
+    assert!(lockfile_path.exists(), "Lockfile should exist after add");
 
     let lockfile_content = fs::read_to_string(&lockfile_path)?;
     assert!(lockfile_content.contains("io.ggen.rust.cli-subcommand"));

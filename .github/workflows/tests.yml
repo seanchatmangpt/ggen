@@ -43,5 +43,14 @@ jobs:
           path: target
           key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
 
+      - name: Cache cargo-make
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin/cargo-make
+          key: ${{ runner.os }}-cargo-make
+
+      - name: Install cargo-make
+        run: cargo install cargo-make --locked
+
       - name: Run cargo test
-        run: cargo test --verbose
+        run: cargo make test

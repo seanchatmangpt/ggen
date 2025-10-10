@@ -14,18 +14,18 @@ This document reports the results of testing all instructions provided in README
 
 ### 1. Local Binary Building
 - ✅ `cargo make build` successfully builds the project
-- ✅ Binary version reports correctly: `rgen 1.0.0`
+- ✅ Binary version reports correctly: `ggen 1.0.0`
 
 ### 2. CLI Commands Available
 The following commands are implemented and functional:
-- ✅ `rgen --help` - Shows comprehensive help
-- ✅ `rgen packs` - Lists installed rpacks (shows "No rpacks installed" when none present)
-- ✅ `rgen list` - Lists available local templates
-- ✅ `rgen hazard` - Generates hazard report with useful recommendations
-- ✅ `rgen completion <shell>` - Generates shell completion scripts (bash, zsh, fish)
+- ✅ `ggen --help` - Shows comprehensive help
+- ✅ `ggen packs` - Lists installed gpacks (shows "No gpacks installed" when none present)
+- ✅ `ggen list` - Lists available local templates
+- ✅ `ggen hazard` - Generates hazard report with useful recommendations
+- ✅ `ggen completion <shell>` - Generates shell completion scripts (bash, zsh, fish)
 
 ### 3. Template Discovery
-- ✅ `rgen list` correctly finds and displays templates in `templates/` directory
+- ✅ `ggen list` correctly finds and displays templates in `templates/` directory
 - ✅ Shows template metadata including output path and variables
 
 ---
@@ -36,19 +36,19 @@ The following commands are implemented and functional:
 
 #### Homebrew Installation (BROKEN)
 ```bash
-brew tap rgen-dev/tap
-brew install rgen
+brew tap ggen-dev/tap
+brew install ggen
 ```
-**Issue:** Repository `https://github.com/rgen-dev/homebrew-tap/` does not exist
-**Error:** `fatal: repository 'https://github.com/rgen-dev/homebrew-tap/' not found`
+**Issue:** Repository `https://github.com/ggen-dev/homebrew-tap/` does not exist
+**Error:** `fatal: repository 'https://github.com/ggen-dev/homebrew-tap/' not found`
 **Impact:** HIGH - Primary installation method documented in README is non-functional
 
 #### Cargo Installation (BROKEN)
 ```bash
-cargo install rgen
+cargo install ggen
 ```
-**Issue:** Published crate `rgen v0.5.0` on crates.io is a library, not a binary
-**Error:** `there is nothing to install in rgen v0.5.0, because it has no binaries`
+**Issue:** Published crate `ggen v0.5.0` on crates.io is a library, not a binary
+**Error:** `there is nothing to install in ggen v0.5.0, because it has no binaries`
 **Impact:** HIGH - Alternative installation method is also non-functional
 **Note:** Local version is `1.0.0`, but published version is `0.5.0` (out of sync)
 
@@ -58,36 +58,36 @@ All marketplace-related commands fail due to missing registry backend:
 
 #### Search Command (BROKEN)
 ```bash
-rgen search "rust cli"
+ggen search "rust cli"
 ```
 **Error:** `Failed to fetch registry index`
 **Impact:** HIGH - Core marketplace feature is non-functional
 
 #### Categories Command (BROKEN)
 ```bash
-rgen categories
+ggen categories
 ```
 **Error:** `Failed to fetch registry index`
 **Impact:** HIGH - Cannot browse marketplace categories
 
 #### Add Command (BROKEN)
 ```bash
-rgen add io.rgen.rust.cli-subcommand
+ggen add io.ggen.rust.cli-subcommand
 ```
-**Error:** `Failed to resolve rpack 'io.rgen.rust.cli-subcommand'`
+**Error:** `Failed to resolve gpack 'io.ggen.rust.cli-subcommand'`
 **Impact:** HIGH - Cannot install marketplace packages
 
 ### 3. Template Generation Syntax (INCORRECT IN README)
 
 #### README Shows (WRONG):
 ```bash
-rgen gen cli subcommand --vars cmd=hello summary="Print a greeting"
+ggen gen cli subcommand --vars cmd=hello summary="Print a greeting"
 ```
 
 #### Actual Syntax Required:
 ```bash
 # For local templates - format appears broken
-rgen gen cli/subcommand/rust.tmpl --var slug=hello
+ggen gen cli/subcommand/rust.tmpl --var slug=hello
 ```
 
 **Issues:**
@@ -103,15 +103,15 @@ rgen gen cli/subcommand/rust.tmpl --var slug=hello
 
 #### Validate Command (MISSING)
 ```bash
-rgen validate <template>
+ggen validate <template>
 ```
 **Error:** `unrecognized subcommand 'validate'`
-**Actual Command:** `rgen lint` (for template validation)
+**Actual Command:** `ggen lint` (for template validation)
 **Impact:** MEDIUM - README documentation is incorrect
 
 ### 5. Show Command (BROKEN)
 ```bash
-rgen show cli/subcommand/rust.tmpl
+ggen show cli/subcommand/rust.tmpl
 ```
 **Error:** `Template rendering error: Failed to render '__tera_one_off'`
 **Impact:** MEDIUM - Cannot preview template metadata
@@ -122,10 +122,10 @@ All marketplace examples in README are non-functional:
 
 ```bash
 # None of these work:
-rgen search rust cli              # Fails: registry not found
-rgen show io.rgen.rust.cli-subcommand  # Fails: registry not found
-rgen add io.rgen.rust.cli-subcommand   # Fails: registry not found
-rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello  # Fails: rpack not installed
+ggen search rust cli              # Fails: registry not found
+ggen show io.ggen.rust.cli-subcommand  # Fails: registry not found
+ggen add io.ggen.rust.cli-subcommand   # Fails: registry not found
+ggen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello  # Fails: gpack not installed
 ```
 
 ---
@@ -137,7 +137,7 @@ rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello  # Fail
 1. **Installation Section:**
    - Both Homebrew and Cargo install methods are broken
    - No working installation instructions provided
-   - Recommend adding: "Build from source: `git clone && cd rgen && cargo make build`"
+   - Recommend adding: "Build from source: `git clone && cd ggen && cargo make build`"
 
 2. **Quick Start Section:**
    - Marketplace quick start completely non-functional (registry doesn't exist)
@@ -146,8 +146,8 @@ rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello  # Fail
    - Template path format unclear
 
 3. **Commands Table:**
-   - Lists `rgen validate <template>` but should be `rgen lint <template>`
-   - Search command syntax shown as `rgen search <query>` but doesn't specify query must be quoted if multi-word
+   - Lists `ggen validate <template>` but should be `ggen lint <template>`
+   - Search command syntax shown as `ggen search <query>` but doesn't specify query must be quoted if multi-word
    - No mention that marketplace commands require a working registry backend
 
 4. **Marketplace Section:**
@@ -166,7 +166,7 @@ rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello  # Fail
 ### High Priority
 
 1. **Fix Installation Methods:**
-   - Create `rgen-dev/homebrew-tap` repository OR remove Homebrew instructions
+   - Create `ggen-dev/homebrew-tap` repository OR remove Homebrew instructions
    - Publish binary crate to crates.io OR document source installation only
    - Update version sync between local (1.0.0) and published (0.5.0)
 
@@ -191,13 +191,13 @@ rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello  # Fail
    ```markdown
    ## Development Build
 
-   To build and test rgen locally:
+   To build and test ggen locally:
 
    ```bash
-   git clone https://github.com/seanchatman/rgen
-   cd rgen
+   git clone https://github.com/seanchatman/ggen
+   cd ggen
    cargo make build
-   ./target/debug/rgen --help
+   ./target/debug/ggen --help
    ```
 
 6. **Add "Known Limitations" Section:**
@@ -214,26 +214,26 @@ Commands that were tested and their results:
 | Command | Status | Notes |
 |---------|--------|-------|
 | `cargo make build` | ✅ Works | Successfully builds project |
-| `rgen --version` | ✅ Works | Shows version 1.0.0 |
-| `rgen --help` | ✅ Works | Comprehensive help text |
-| `rgen list` | ✅ Works | Lists local templates |
-| `rgen packs` | ✅ Works | Shows installed rpacks |
-| `rgen hazard` | ✅ Works | Generates useful report |
-| `rgen completion bash` | ✅ Works | Generates completions |
-| `brew tap rgen-dev/tap` | ❌ Broken | Repo doesn't exist |
-| `cargo install rgen` | ❌ Broken | Published crate is library only |
-| `rgen search <query>` | ❌ Broken | Registry not found |
-| `rgen categories` | ❌ Broken | Registry not found |
-| `rgen add <rpack>` | ❌ Broken | Registry not found |
-| `rgen show <template>` | ❌ Broken | Template rendering error |
-| `rgen validate <template>` | ❌ Wrong Command | Should be `rgen lint` |
-| `rgen gen cli subcommand --vars ...` | ❌ Broken | Wrong syntax in README |
+| `ggen --version` | ✅ Works | Shows version 1.0.0 |
+| `ggen --help` | ✅ Works | Comprehensive help text |
+| `ggen list` | ✅ Works | Lists local templates |
+| `ggen packs` | ✅ Works | Shows installed gpacks |
+| `ggen hazard` | ✅ Works | Generates useful report |
+| `ggen completion bash` | ✅ Works | Generates completions |
+| `brew tap ggen-dev/tap` | ❌ Broken | Repo doesn't exist |
+| `cargo install ggen` | ❌ Broken | Published crate is library only |
+| `ggen search <query>` | ❌ Broken | Registry not found |
+| `ggen categories` | ❌ Broken | Registry not found |
+| `ggen add <gpack>` | ❌ Broken | Registry not found |
+| `ggen show <template>` | ❌ Broken | Template rendering error |
+| `ggen validate <template>` | ❌ Wrong Command | Should be `ggen lint` |
+| `ggen gen cli subcommand --vars ...` | ❌ Broken | Wrong syntax in README |
 
 ---
 
 ## 📝 Conclusion
 
-The rgen codebase has solid core functionality for local template-based generation, but the README documentation is significantly out of sync with the implementation:
+The ggen codebase has solid core functionality for local template-based generation, but the README documentation is significantly out of sync with the implementation:
 
 **Major Issues:**
 - No working installation methods (Homebrew tap missing, crates.io version wrong)
@@ -252,8 +252,8 @@ The rgen codebase has solid core functionality for local template-based generati
 Users who clone the repo and build locally CAN successfully:
 - Build with `cargo make build`
 - Create local templates in `templates/` directory
-- List templates with `rgen list`
+- List templates with `ggen list`
 - Generate code (once correct syntax is determined)
-- Get helpful diagnostics with `rgen hazard`
+- Get helpful diagnostics with `ggen hazard`
 
 The project shows promise but needs significant documentation updates to match reality.
