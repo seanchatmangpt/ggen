@@ -88,25 +88,22 @@ mod tests {
     #[tokio::test]
     async fn test_list_displays_templates() {
         let mut mock_lister = MockTemplateLister::new();
-        mock_lister
-            .expect_list_templates()
-            .times(1)
-            .returning(|_| {
-                Ok(vec![
-                    TemplateInfo {
-                        name: "hello.tmpl".to_string(),
-                        path: "templates/hello.tmpl".to_string(),
-                        source: TemplateSource::Local,
-                        description: Some("Hello world template".to_string()),
-                    },
-                    TemplateInfo {
-                        name: "rust-cli".to_string(),
-                        path: "gpacks/io.ggen.rust.cli/template.tmpl".to_string(),
-                        source: TemplateSource::Gpack("io.ggen.rust.cli".to_string()),
-                        description: None,
-                    },
-                ])
-            });
+        mock_lister.expect_list_templates().times(1).returning(|_| {
+            Ok(vec![
+                TemplateInfo {
+                    name: "hello.tmpl".to_string(),
+                    path: "templates/hello.tmpl".to_string(),
+                    source: TemplateSource::Local,
+                    description: Some("Hello world template".to_string()),
+                },
+                TemplateInfo {
+                    name: "rust-cli".to_string(),
+                    path: "gpacks/io.ggen.rust.cli/template.tmpl".to_string(),
+                    source: TemplateSource::Gpack("io.ggen.rust.cli".to_string()),
+                    description: None,
+                },
+            ])
+        });
 
         let args = ListArgs {
             pattern: None,

@@ -2,10 +2,10 @@ use clap::{Args, Subcommand};
 use ggen_utils::error::Result;
 
 // Declare verb modules
-pub mod gen;
-pub mod plan;
 pub mod apply;
 pub mod diff;
+pub mod gen;
+pub mod plan;
 
 #[derive(Args, Debug)]
 pub struct ProjectCmd {

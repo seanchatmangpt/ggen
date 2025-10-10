@@ -13,7 +13,7 @@
 //! base: "http://example/"
 //! rdf_inline:
 //!   - "@prefix ex: <http://example/> . ex:x a ex:Type ."
-//! vars: { license: "MIT" }
+//!     vars: { license: "MIT" }
 //! ---
 //! {% set slug = sparql(query="SELECT ?s WHERE { ?s a ex:Type }", var="s") %}
 //! /// {{name}} ({{ local(iri=slug) }}) | {{license}}

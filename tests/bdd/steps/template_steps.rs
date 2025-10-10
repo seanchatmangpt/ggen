@@ -5,8 +5,8 @@ use std::fs;
 
 // Template generation step definitions
 
-#[given(regex = r"^I have a template file (.+)$")]
-fn have_template_file(world: &mut GgenWorld, template_path: String) {
+#[given(regex = r"^I have a template file at path (.+)$")]
+fn have_template_file_at_path(world: &mut GgenWorld, template_path: String) {
     let full_path = world.project_dir.join(&template_path);
     let parent_dir = full_path.parent().unwrap();
     fs::create_dir_all(parent_dir).expect("Failed to create template directory");
@@ -23,14 +23,13 @@ Hello {{name}}! Version {{version}}.
     fs::write(&full_path, template_content).expect("Failed to write template file");
 }
 
-#[given(regex = r"^I have a template (.+)$")]
-fn have_template(world: &mut GgenWorld, template_name: String) {
-    let template_path = format!("templates/{}.tmpl", template_name);
-    have_template_file(world, template_path);
+#[given(regex = r"^I have a template file located at (.+)$")]
+fn have_template_file_located_at(world: &mut GgenWorld, template_path: String) {
+    have_template_file_at_path(world, template_path);
 }
 
-#[given(regex = r"^I have a template with:$")]
-fn have_template_with_content(world: &mut GgenWorld, content: String) {
+#[given(regex = r"^I have a basic template with:$")]
+fn have_basic_template_with_content(world: &mut GgenWorld, content: String) {
     let template_path = world.project_dir.join("test-template.tmpl");
     fs::write(&template_path, content).expect("Failed to write template file");
 }
@@ -61,20 +60,20 @@ impl {{name}} {
         .expect("Failed to write sample template");
 }
 
-#[given(regex = r"^I have a template with RDF inline:$")]
-fn have_template_with_rdf_inline(world: &mut GgenWorld, content: String) {
+#[given(regex = r"^I have a template with RDF inline data:$")]
+fn have_template_with_rdf_inline_data(world: &mut GgenWorld, content: String) {
     let template_path = world.project_dir.join("test-template.tmpl");
     fs::write(&template_path, content).expect("Failed to write template file");
 }
 
-#[given(regex = r"^I have a template with SPARQL query:$")]
-fn have_template_with_sparql_query(world: &mut GgenWorld, content: String) {
+#[given(regex = r"^I have a template with SPARQL query definition:$")]
+fn have_template_with_sparql_query_definition(world: &mut GgenWorld, content: String) {
     let template_path = world.project_dir.join("test-template.tmpl");
     fs::write(&template_path, content).expect("Failed to write template file");
 }
 
-#[given(regex = r"^I have a template with determinism config:$")]
-fn have_template_with_determinism_config(world: &mut GgenWorld, content: String) {
+#[given(regex = r"^I have a template with determinism configuration:$")]
+fn have_template_with_determinism_configuration(world: &mut GgenWorld, content: String) {
     let template_path = world.project_dir.join("test-template.tmpl");
     fs::write(&template_path, content).expect("Failed to write template file");
 }

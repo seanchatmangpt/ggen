@@ -1,7 +1,7 @@
-///! Post-Quantum Cryptography (PQC) module for ggen
-///!
-///! Uses ML-DSA (Dilithium3) - NIST-approved post-quantum signature scheme
-///! Provides quantum-resistant signatures for lockfile integrity verification
+//! Post-Quantum Cryptography (PQC) module for ggen
+//!
+//! Uses ML-DSA (Dilithium3) - NIST-approved post-quantum signature scheme
+//! Provides quantum-resistant signatures for lockfile integrity verification
 use anyhow::{Context, Result};
 use base64::{engine::general_purpose, Engine as _};
 use pqcrypto_dilithium::dilithium3;

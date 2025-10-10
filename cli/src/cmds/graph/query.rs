@@ -42,7 +42,7 @@ pub async fn run_with_deps(args: &QueryArgs, executor: &dyn SparqlExecutor) -> R
     match args.format.as_str() {
         "json" => {
             let json = serde_json::to_string_pretty(&results.bindings)
-                .map_err(|e| ggen_utils::error::Error::from(e))?;
+                .map_err(ggen_utils::error::Error::from)?;
             println!("{}", json);
         }
         "csv" => {
@@ -58,7 +58,7 @@ pub async fn run_with_deps(args: &QueryArgs, executor: &dyn SparqlExecutor) -> R
                 println!("{}", row.join(","));
             }
         }
-        "table" | _ => {
+        "table" => {
             // Print table header
             println!("{}", results.variables.join(" | "));
             println!("{}", "-".repeat(results.variables.len() * 20));
@@ -71,6 +71,12 @@ pub async fn run_with_deps(args: &QueryArgs, executor: &dyn SparqlExecutor) -> R
                     .collect();
                 println!("{}", row.join(" | "));
             }
+        }
+        _ => {
+            return Err(ggen_utils::error::Error::new(&format!(
+                "Unsupported output format: {}. Supported formats: json, csv, table",
+                args.format
+            )));
         }
     }
 

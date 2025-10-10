@@ -107,20 +107,17 @@ mod tests {
     #[tokio::test]
     async fn test_validate_non_conforming_graph() {
         let mut mock_validator = MockShaclValidator::new();
-        mock_validator
-            .expect_validate()
-            .times(1)
-            .returning(|_, _| {
-                Ok(ValidationReport {
-                    conforms: false,
-                    violations: vec![Violation {
-                        focus_node: "ex:Person1".to_string(),
-                        property: Some("ex:age".to_string()),
-                        message: "Value must be greater than 0".to_string(),
-                        severity: Severity::Violation,
-                    }],
-                })
-            });
+        mock_validator.expect_validate().times(1).returning(|_, _| {
+            Ok(ValidationReport {
+                conforms: false,
+                violations: vec![Violation {
+                    focus_node: "ex:Person1".to_string(),
+                    property: Some("ex:age".to_string()),
+                    message: "Value must be greater than 0".to_string(),
+                    severity: Severity::Violation,
+                }],
+            })
+        });
 
         let args = ValidateArgs {
             shapes: "shapes.ttl".to_string(),
@@ -134,28 +131,25 @@ mod tests {
     #[tokio::test]
     async fn test_validate_multiple_violations() {
         let mut mock_validator = MockShaclValidator::new();
-        mock_validator
-            .expect_validate()
-            .times(1)
-            .returning(|_, _| {
-                Ok(ValidationReport {
-                    conforms: false,
-                    violations: vec![
-                        Violation {
-                            focus_node: "ex:Person1".to_string(),
-                            property: Some("ex:name".to_string()),
-                            message: "Missing required property".to_string(),
-                            severity: Severity::Violation,
-                        },
-                        Violation {
-                            focus_node: "ex:Person2".to_string(),
-                            property: Some("ex:email".to_string()),
-                            message: "Invalid email format".to_string(),
-                            severity: Severity::Warning,
-                        },
-                    ],
-                })
-            });
+        mock_validator.expect_validate().times(1).returning(|_, _| {
+            Ok(ValidationReport {
+                conforms: false,
+                violations: vec![
+                    Violation {
+                        focus_node: "ex:Person1".to_string(),
+                        property: Some("ex:name".to_string()),
+                        message: "Missing required property".to_string(),
+                        severity: Severity::Violation,
+                    },
+                    Violation {
+                        focus_node: "ex:Person2".to_string(),
+                        property: Some("ex:email".to_string()),
+                        message: "Invalid email format".to_string(),
+                        severity: Severity::Warning,
+                    },
+                ],
+            })
+        });
 
         let args = ValidateArgs {
             shapes: "shapes.ttl".to_string(),

@@ -57,9 +57,7 @@ mod tests {
     #[tokio::test]
     async fn test_remove_fails_if_not_installed() {
         let mut mock_uninstaller = MockGpackUninstaller::new();
-        mock_uninstaller
-            .expect_uninstall()
-            .returning(|_| Ok(false));
+        mock_uninstaller.expect_uninstall().returning(|_| Ok(false));
 
         let args = RemoveArgs {
             gpack_id: "io.ggen.nonexistent".to_string(),

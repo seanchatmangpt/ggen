@@ -38,21 +38,18 @@ mod tests {
     #[tokio::test]
     async fn test_categories_lists_all() {
         let mut mock_lister = MockCategoryLister::new();
-        mock_lister
-            .expect_list_categories()
-            .times(1)
-            .returning(|| {
-                Ok(vec![
-                    Category {
-                        name: "rust".to_string(),
-                        count: 10,
-                    },
-                    Category {
-                        name: "python".to_string(),
-                        count: 8,
-                    },
-                ])
-            });
+        mock_lister.expect_list_categories().times(1).returning(|| {
+            Ok(vec![
+                Category {
+                    name: "rust".to_string(),
+                    count: 10,
+                },
+                Category {
+                    name: "python".to_string(),
+                    count: 8,
+                },
+            ])
+        });
 
         let args = CategoriesArgs {};
 

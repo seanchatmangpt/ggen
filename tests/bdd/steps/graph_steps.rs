@@ -50,8 +50,7 @@ ex:Alice a ex:Person ;
 "#;
 
     let file_path = world.project_dir.join("person_data.ttl");
-    fs::write(&file_path, turtle)
-        .unwrap_or_else(|e| panic!("Failed to write person data: {}", e));
+    fs::write(&file_path, turtle).unwrap_or_else(|e| panic!("Failed to write person data: {}", e));
 
     // Load it into the graph
     let output = Command::cargo_bin("ggen")
@@ -79,12 +78,14 @@ async fn create_graph_with_n_triples(world: &mut GgenWorld, count: usize) {
     let mut turtle = String::from("@prefix ex: <http://example.org/> .\n\n");
 
     for i in 0..count {
-        turtle.push_str(&format!("ex:subject{} ex:predicate{} ex:object{} .\n", i, i, i));
+        turtle.push_str(&format!(
+            "ex:subject{} ex:predicate{} ex:object{} .\n",
+            i, i, i
+        ));
     }
 
     let file_path = world.project_dir.join("data.ttl");
-    fs::write(&file_path, turtle)
-        .unwrap_or_else(|e| panic!("Failed to write RDF data: {}", e));
+    fs::write(&file_path, turtle).unwrap_or_else(|e| panic!("Failed to write RDF data: {}", e));
 
     // Load it
     let output = Command::cargo_bin("ggen")
@@ -110,8 +111,7 @@ ex:RustLang a ex:ProgrammingLanguage .
 "#;
 
     let file_path = world.project_dir.join("types.ttl");
-    fs::write(&file_path, turtle)
-        .unwrap_or_else(|e| panic!("Failed to write types data: {}", e));
+    fs::write(&file_path, turtle).unwrap_or_else(|e| panic!("Failed to write types data: {}", e));
 
     let output = Command::cargo_bin("ggen")
         .expect("ggen binary not found")
@@ -137,8 +137,7 @@ async fn create_graph_with_n_people(world: &mut GgenWorld, count: usize) {
     }
 
     let file_path = world.project_dir.join("people.ttl");
-    fs::write(&file_path, turtle)
-        .unwrap_or_else(|e| panic!("Failed to write people data: {}", e));
+    fs::write(&file_path, turtle).unwrap_or_else(|e| panic!("Failed to write people data: {}", e));
 
     let output = Command::cargo_bin("ggen")
         .expect("ggen binary not found")
@@ -276,8 +275,7 @@ async fn file_should_contain_valid_turtle(world: &mut GgenWorld) {
 async fn file_should_be_valid_jsonld(world: &mut GgenWorld) {
     let file_path = world.project_dir.join("export.jsonld");
     if file_path.exists() {
-        let content = fs::read_to_string(&file_path)
-            .expect("Failed to read JSON-LD file");
+        let content = fs::read_to_string(&file_path).expect("Failed to read JSON-LD file");
         serde_json::from_str::<serde_json::Value>(&content)
             .unwrap_or_else(|e| panic!("File is not valid JSON-LD: {}", e));
     }

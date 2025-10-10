@@ -41,7 +41,10 @@ pub async fn run_with_deps(args: &UpdateArgs, updater: &dyn GpackUpdater) -> Res
                 result.gpack_id, result.old_version, result.new_version
             );
         } else {
-            println!("{} is already up to date ({})", result.gpack_id, result.old_version);
+            println!(
+                "{} is already up to date ({})",
+                result.gpack_id, result.old_version
+            );
         }
     }
 

@@ -10,7 +10,7 @@ fn install_ggen_via_cargo(world: &mut GgenWorld) {
     // For BDD tests, we assume ggen is already built and available
     // In real scenarios, this would run: cargo install ggen
     let output = StdCommand::new("cargo")
-        .args(&["install", "--path", "."])
+        .args(["install", "--path", "."])
         .current_dir(&world.project_dir)
         .output()
         .expect("Failed to run cargo install");
@@ -24,7 +24,7 @@ fn install_ggen_via_homebrew(world: &mut GgenWorld) {
     // For BDD tests, we simulate homebrew installation
     // In real scenarios, this would run: brew install ggen
     let output = StdCommand::new("brew")
-        .args(&["install", "ggen"])
+        .args(["install", "ggen"])
         .output()
         .expect("Failed to run brew install");
 
@@ -43,7 +43,7 @@ fn clone_repository(world: &mut GgenWorld) {
 fn have_built_from_source(world: &mut GgenWorld) {
     // Build the project
     let output = StdCommand::new("cargo")
-        .args(&["build"])
+        .args(["build"])
         .current_dir(&world.project_dir)
         .output()
         .expect("Failed to run cargo build");
@@ -58,7 +58,7 @@ fn have_built_from_source(world: &mut GgenWorld) {
 #[when(regex = r"^I run cargo make build$")]
 fn run_cargo_make_build(world: &mut GgenWorld) {
     let output = StdCommand::new("cargo")
-        .args(&["make", "build"])
+        .args(["make", "build"])
         .current_dir(&world.project_dir)
         .output()
         .expect("Failed to run cargo make build");
@@ -70,7 +70,7 @@ fn run_cargo_make_build(world: &mut GgenWorld) {
 #[when(regex = r"^I run cargo make install$")]
 fn run_cargo_make_install(world: &mut GgenWorld) {
     let output = StdCommand::new("cargo")
-        .args(&["make", "install"])
+        .args(["make", "install"])
         .current_dir(&world.project_dir)
         .output()
         .expect("Failed to run cargo make install");
@@ -122,7 +122,7 @@ fn command_should_work(_world: &mut GgenWorld, command: String) {
     let output = StdCommand::new(args[0])
         .args(&args[1..])
         .output()
-        .expect(&format!("Failed to run {}", command));
+        .unwrap_or_else(|_| panic!("Failed to run {}", command));
 
     assert!(output.status.success(), "Command '{}' should work", command);
 }

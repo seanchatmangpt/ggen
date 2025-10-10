@@ -68,7 +68,10 @@ fn get_cached_template_infos(
     });
 
     unsafe {
-        if let Some(cache) = (*&raw const TEMPLATE_CACHE).as_ref() {
+        #[allow(static_mut_refs)]
+        if TEMPLATE_CACHE.is_some() {
+            #[allow(static_mut_refs)]
+            let cache = TEMPLATE_CACHE.as_ref().unwrap();
             if !cache.is_empty() {
                 return Ok(cache.clone());
             }
@@ -193,8 +196,8 @@ fn display_template_info_cached(info: &TemplateInfo) {
 
 fn extract_frontmatter(content: &str) -> Option<serde_json::Value> {
     // Look for YAML frontmatter between --- markers
-    if content.starts_with("---\n") {
-        if let Some(end_marker) = content[4..].find("\n---\n") {
+    if let Some(stripped) = content.strip_prefix("---\n") {
+        if let Some(end_marker) = stripped.find("\n---\n") {
             let yaml_content = &content[4..4 + end_marker];
             serde_yaml::from_str::<serde_json::Value>(yaml_content).ok()
         } else {

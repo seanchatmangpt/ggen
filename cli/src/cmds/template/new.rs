@@ -42,9 +42,7 @@ pub async fn run(args: &NewArgs) -> Result<()> {
 }
 
 pub async fn run_with_deps(
-    args: &NewArgs,
-    creator: &dyn TemplateCreator,
-    wizard: Option<&dyn InteractiveWizard>,
+    args: &NewArgs, creator: &dyn TemplateCreator, wizard: Option<&dyn InteractiveWizard>,
 ) -> Result<()> {
     if args.interactive {
         if let Some(wizard) = wizard {

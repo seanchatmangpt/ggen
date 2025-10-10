@@ -79,9 +79,8 @@ async fn pages_status(args: &PagesStatusArgs) -> Result<()> {
 
     if !client.is_authenticated() {
         eprintln!(
-            "{} {}",
-            "Warning:".yellow(),
-            "Not authenticated. Set GITHUB_TOKEN or GH_TOKEN for full access."
+            "{} Not authenticated. Set GITHUB_TOKEN or GH_TOKEN for full access.",
+            "Warning:".yellow()
         );
         eprintln!();
     }
@@ -325,7 +324,7 @@ fn get_repository(repo_arg: &Option<String>) -> Result<String> {
 
     // Try to get from git remote
     let output = std::process::Command::new("git")
-        .args(&["remote", "get-url", "origin"])
+        .args(["remote", "get-url", "origin"])
         .output()?;
 
     if !output.status.success() {

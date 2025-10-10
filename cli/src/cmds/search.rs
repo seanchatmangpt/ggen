@@ -105,7 +105,7 @@ fn print_rust_style_results(results: &[ggen_core::SearchResult], args: &SearchAr
         "{} {}",
         count_str.bold().green(),
         if args.category.is_some() || args.keyword.is_some() || args.author.is_some() {
-            format!("(filtered)")
+            "(filtered)".to_string()
         } else {
             String::new()
         }

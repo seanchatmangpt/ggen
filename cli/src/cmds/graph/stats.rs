@@ -70,22 +70,19 @@ mod tests {
     #[tokio::test]
     async fn test_stats_displays_basic_info() {
         let mut mock_analyzer = MockGraphAnalyzer::new();
-        mock_analyzer
-            .expect_analyze()
-            .times(1)
-            .returning(|_| {
-                Ok(GraphStats {
-                    total_triples: 100,
-                    unique_subjects: 25,
-                    unique_predicates: 10,
-                    unique_objects: 50,
-                    namespaces: vec![
-                        "http://example.org/".to_string(),
-                        "http://xmlns.com/foaf/0.1/".to_string(),
-                    ],
-                    predicate_counts: HashMap::new(),
-                })
-            });
+        mock_analyzer.expect_analyze().times(1).returning(|_| {
+            Ok(GraphStats {
+                total_triples: 100,
+                unique_subjects: 25,
+                unique_predicates: 10,
+                unique_objects: 50,
+                namespaces: vec![
+                    "http://example.org/".to_string(),
+                    "http://xmlns.com/foaf/0.1/".to_string(),
+                ],
+                predicate_counts: HashMap::new(),
+            })
+        });
 
         let args = StatsArgs {
             graph: None,
@@ -99,24 +96,21 @@ mod tests {
     #[tokio::test]
     async fn test_stats_detailed_mode() {
         let mut mock_analyzer = MockGraphAnalyzer::new();
-        mock_analyzer
-            .expect_analyze()
-            .times(1)
-            .returning(|_| {
-                let mut predicate_counts = HashMap::new();
-                predicate_counts.insert("rdf:type".to_string(), 25);
-                predicate_counts.insert("foaf:name".to_string(), 20);
-                predicate_counts.insert("ex:hasValue".to_string(), 15);
+        mock_analyzer.expect_analyze().times(1).returning(|_| {
+            let mut predicate_counts = HashMap::new();
+            predicate_counts.insert("rdf:type".to_string(), 25);
+            predicate_counts.insert("foaf:name".to_string(), 20);
+            predicate_counts.insert("ex:hasValue".to_string(), 15);
 
-                Ok(GraphStats {
-                    total_triples: 60,
-                    unique_subjects: 20,
-                    unique_predicates: 3,
-                    unique_objects: 40,
-                    namespaces: vec!["http://example.org/".to_string()],
-                    predicate_counts,
-                })
-            });
+            Ok(GraphStats {
+                total_triples: 60,
+                unique_subjects: 20,
+                unique_predicates: 3,
+                unique_objects: 40,
+                namespaces: vec!["http://example.org/".to_string()],
+                predicate_counts,
+            })
+        });
 
         let args = StatsArgs {
             graph: Some("data.ttl".to_string()),
@@ -130,19 +124,16 @@ mod tests {
     #[tokio::test]
     async fn test_stats_empty_graph() {
         let mut mock_analyzer = MockGraphAnalyzer::new();
-        mock_analyzer
-            .expect_analyze()
-            .times(1)
-            .returning(|_| {
-                Ok(GraphStats {
-                    total_triples: 0,
-                    unique_subjects: 0,
-                    unique_predicates: 0,
-                    unique_objects: 0,
-                    namespaces: vec![],
-                    predicate_counts: HashMap::new(),
-                })
-            });
+        mock_analyzer.expect_analyze().times(1).returning(|_| {
+            Ok(GraphStats {
+                total_triples: 0,
+                unique_subjects: 0,
+                unique_predicates: 0,
+                unique_objects: 0,
+                namespaces: vec![],
+                predicate_counts: HashMap::new(),
+            })
+        });
 
         let args = StatsArgs {
             graph: None,

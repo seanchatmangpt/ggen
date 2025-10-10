@@ -19,20 +19,6 @@ fn run_ggen_command(world: &mut GgenWorld, args: String) {
     world.last_exit_code = output.status.code();
 }
 
-#[when(regex = r"^I run ggen (.+)$")]
-fn run_ggen_command_quoted(world: &mut GgenWorld, args: String) {
-    let arg_list: Vec<&str> = args.split_whitespace().collect();
-
-    let mut cmd = Command::cargo_bin("ggen").expect("ggen binary not found");
-    let output = cmd
-        .args(&arg_list)
-        .current_dir(&world.project_dir)
-        .output()
-        .expect("Failed to run ggen command");
-
-    world.last_output = Some(output.clone());
-    world.last_exit_code = output.status.code();
-}
 
 #[when(regex = r"^I run ggen list$")]
 fn run_ggen_list(world: &mut GgenWorld) {

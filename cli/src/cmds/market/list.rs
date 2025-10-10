@@ -57,17 +57,14 @@ mod tests {
     #[tokio::test]
     async fn test_list_displays_installed_gpacks() {
         let mut mock_lister = MockGpackLister::new();
-        mock_lister
-            .expect_list_installed()
-            .times(1)
-            .returning(|| {
-                Ok(vec![InstalledGpack {
-                    id: "io.ggen.rust.cli".to_string(),
-                    version: "1.0.0".to_string(),
-                    sha256: "abc123".to_string(),
-                    source: "https://github.com/example/repo".to_string(),
-                }])
-            });
+        mock_lister.expect_list_installed().times(1).returning(|| {
+            Ok(vec![InstalledGpack {
+                id: "io.ggen.rust.cli".to_string(),
+                version: "1.0.0".to_string(),
+                sha256: "abc123".to_string(),
+                source: "https://github.com/example/repo".to_string(),
+            }])
+        });
 
         let args = ListArgs { detailed: false };
 

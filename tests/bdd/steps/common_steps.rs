@@ -68,7 +68,7 @@ fn run_command(world: &mut GgenWorld, command: String) {
         .args(cmd_args)
         .current_dir(&world.project_dir)
         .output()
-        .expect(&format!("Failed to run command: {}", command));
+        .unwrap_or_else(|_| panic!("Failed to run command: {}", command));
 
     world.last_output = Some(output.clone());
     world.last_exit_code = output.status.code();

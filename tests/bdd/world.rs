@@ -41,6 +41,7 @@ pub struct GgenWorld {
 
 impl GgenWorld {
     /// Create a new world with a temporary directory
+    #[allow(dead_code)]
     pub fn new() -> Self {
         let temp_dir = TempDir::new().expect("Failed to create temp dir");
         let project_dir = temp_dir.path().to_path_buf();
@@ -53,6 +54,7 @@ impl GgenWorld {
     }
 
     /// Get the project directory path
+    #[allow(dead_code)]
     pub fn project_dir(&self) -> &PathBuf {
         &self.project_dir
     }
@@ -73,13 +75,14 @@ impl GgenWorld {
     }
 
     /// Get last captured hash
+    #[allow(dead_code)]
     pub fn last_hash(&self) -> Option<&String> {
         self.captured_hashes.last()
     }
 
     /// Check if last command succeeded
     pub fn last_command_succeeded(&self) -> bool {
-        self.last_exit_code.map_or(false, |code| code == 0)
+        self.last_exit_code == Some(0)
     }
 
     /// Get last command stdout as string
