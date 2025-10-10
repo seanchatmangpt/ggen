@@ -1,3 +1,44 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Tool Integration Test Results](#tool-integration-test-results)
+  - [Summary](#summary)
+  - [Test Coverage (80/20 Priority)](#test-coverage-8020-priority)
+    - [🔴 HIGHEST PRIORITY: project_gen (Core Functionality)](#-highest-priority-project_gen-core-functionality)
+    - [🟡 HIGH PRIORITY: market_search (Discovery Functionality)](#-high-priority-market_search-discovery-functionality)
+    - [🟢 MEDIUM PRIORITY: graph_query (Advanced Functionality)](#-medium-priority-graph_query-advanced-functionality)
+    - [⚡ CONCURRENT EXECUTION TESTS](#-concurrent-execution-tests)
+    - [🔧 ADDITIONAL TOOL TESTS](#-additional-tool-tests)
+    - [🚨 ERROR HANDLING & EDGE CASES](#-error-handling--edge-cases)
+  - [Test Quality Metrics](#test-quality-metrics)
+    - [Code Coverage](#code-coverage)
+    - [Test Characteristics](#test-characteristics)
+  - [Performance Validation](#performance-validation)
+    - [Execution Time Tracking](#execution-time-tracking)
+    - [Sequential Call Performance](#sequential-call-performance)
+  - [Key Findings](#key-findings)
+    - [✅ Strengths](#-strengths)
+    - [🔍 Test Implementation Details](#-test-implementation-details)
+      - [Direct Tool Testing](#direct-tool-testing)
+      - [Response Format Validation](#response-format-validation)
+      - [Error Response Pattern](#error-response-pattern)
+  - [Recommendations](#recommendations)
+    - [✅ Production Ready](#-production-ready)
+    - [🎯 Future Enhancements](#-future-enhancements)
+  - [Test Execution](#test-execution)
+  - [Rust Best Practices Applied](#rust-best-practices-applied)
+    - [✅ Test Organization](#-test-organization)
+    - [✅ Async Testing](#-async-testing)
+    - [✅ Error Handling](#-error-handling)
+    - [✅ Concurrent Testing](#-concurrent-testing)
+  - [Coordination Hooks](#coordination-hooks)
+    - [Pre-Task Hook](#pre-task-hook)
+    - [Post-Edit Hook](#post-edit-hook)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Tool Integration Test Results
 
 ## Summary

@@ -1,3 +1,41 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Test Infrastructure Implementation Summary](#test-infrastructure-implementation-summary)
+  - [Overview](#overview)
+  - [Components Implemented](#components-implemented)
+    - [1. Test Helpers Module (`tests/common/mod.rs`)](#1-test-helpers-module-testscommonmodrs)
+    - [2. Test Fixtures (`tests/common/fixtures.rs`)](#2-test-fixtures-testscommonfixturesrs)
+    - [3. Integration Tests (`tests/integration_server.rs`)](#3-integration-tests-testsintegration_serverrs)
+    - [4. Performance Benchmarks (`benches/server_benchmarks.rs`)](#4-performance-benchmarks-benchesserver_benchmarksrs)
+    - [5. Test Data Files](#5-test-data-files)
+    - [6. Cargo Configuration (`.cargo/config.toml`)](#6-cargo-configuration-cargoconfigtoml)
+    - [7. Updated Dependencies (`Cargo.toml`)](#7-updated-dependencies-cargotoml)
+  - [Test Organization](#test-organization)
+  - [Running Tests](#running-tests)
+    - [Standard Tests](#standard-tests)
+    - [Stress Tests](#stress-tests)
+    - [Benchmarks](#benchmarks)
+  - [Key Features](#key-features)
+    - [1. **Isolation**](#1-isolation)
+    - [2. **Reusability**](#2-reusability)
+    - [3. **Performance**](#3-performance)
+    - [4. **CI/CD Ready**](#4-cicd-ready)
+    - [5. **Best Practices**](#5-best-practices)
+  - [Test Coverage](#test-coverage)
+    - [Integration Tests (17 tests)](#integration-tests-17-tests)
+    - [Benchmarks (5 suites)](#benchmarks-5-suites)
+  - [Documentation](#documentation)
+    - [Test README (`tests/README.md`)](#test-readme-testsreadmemd)
+  - [Rust Best Practices Applied](#rust-best-practices-applied)
+  - [Files Created](#files-created)
+  - [Memory Storage](#memory-storage)
+  - [Next Steps](#next-steps)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Test Infrastructure Implementation Summary
 
 ## Overview
