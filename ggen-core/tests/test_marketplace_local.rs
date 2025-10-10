@@ -35,7 +35,7 @@ async fn test_resolve_from_local_registry() -> Result<()> {
     let resolved = client.resolve("io.ggen.rust.cli-subcommand", None).await?;
 
     assert_eq!(resolved.id, "io.ggen.rust.cli-subcommand");
-    assert_eq!(resolved.version, "0.1.0");
+    assert_eq!(resolved.version, "1.2.0");
 
     Ok(())
 }
