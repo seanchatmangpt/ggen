@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GOLDEN PATTERN: DELTA-DRIVEN PROJECTION ***](#golden-pattern-delta-driven-projection-)
+  - [Context](#context)
+  - [Problem](#problem)
+  - [Forces](#forces)
+  - [Solution](#solution)
+  - [Result](#result)
+  - [Graph Example](#graph-example)
+  - [Template Example](#template-example)
+  - [CLI Invocation](#cli-invocation)
+  - [Expected Output](#expected-output)
+  - [Verification](#verification)
+  - [Delta Detection Algorithm](#delta-detection-algorithm)
+    - [1. **Graph-Level Deltas**](#1-graph-level-deltas)
+    - [2. **Template Impact Analysis**](#2-template-impact-analysis)
+    - [3. **Three-Way Merge Strategy**](#3-three-way-merge-strategy)
+  - [Snapshot Format](#snapshot-format)
+  - [Anti-Patterns](#anti-patterns)
+  - [Advanced Features](#advanced-features)
+    - [1. **Selective Regeneration**](#1-selective-regeneration)
+    - [2. **Conflict Resolution**](#2-conflict-resolution)
+    - [3. **CI/CD Integration**](#3-cicd-integration)
+    - [4. **Audit Trail**](#4-audit-trail)
+  - [Related Patterns](#related-patterns)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GOLDEN PATTERN: DELTA-DRIVEN PROJECTION ***
 
 ## Context

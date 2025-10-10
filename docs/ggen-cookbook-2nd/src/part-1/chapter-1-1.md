@@ -1,3 +1,38 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [1.1 What is a Pattern Language?](#11-what-is-a-pattern-language)
+  - [The Problem of Complexity](#the-problem-of-complexity)
+  - [Pattern Languages: A Proven Solution](#pattern-languages-a-proven-solution)
+  - [The Structure of Patterns](#the-structure-of-patterns)
+    - [1. **Context**](#1-context)
+    - [2. **Problem**](#2-problem)
+    - [3. **Solution**](#3-solution)
+    - [4. **Consequences**](#4-consequences)
+  - [Patterns in Software](#patterns-in-software)
+  - [Patterns for Code Generation](#patterns-for-code-generation)
+    - [**Generation Patterns**](#generation-patterns)
+    - [**Data Patterns**](#data-patterns)
+    - [**Workflow Patterns**](#workflow-patterns)
+  - [Why Patterns Matter for Code Generation](#why-patterns-matter-for-code-generation)
+    - [1. **Scalability**](#1-scalability)
+    - [2. **Consistency**](#2-consistency)
+    - [3. **Composability**](#3-composability)
+    - [4. **Learning**](#4-learning)
+    - [5. **Evolution**](#5-evolution)
+  - [Example: The Knowledge-First Pattern](#example-the-knowledge-first-pattern)
+  - [The Pattern Language Approach](#the-pattern-language-approach)
+  - [Benefits for Teams](#benefits-for-teams)
+    - [**Shared Understanding**](#shared-understanding)
+    - [**Proven Solutions**](#proven-solutions)
+    - [**Gradual Adoption**](#gradual-adoption)
+    - [**Knowledge Transfer**](#knowledge-transfer)
+  - [Getting Started](#getting-started)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 1.1 What is a Pattern Language?
 
 ## The Problem of Complexity

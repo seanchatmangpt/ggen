@@ -1,3 +1,25 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Pattern 014: Fan-Out Projection](#pattern-014-fan-out-projection)
+  - [Intent](#intent)
+  - [Motivation](#motivation)
+  - [Applicability](#applicability)
+  - [Structure](#structure)
+  - [Implementation](#implementation)
+    - [Step 1: Define Your Graph Data](#step-1-define-your-graph-data)
+    - [Step 2: Create Fan-Out Template](#step-2-create-fan-out-template)
+    - [Step 3: Execute Fan-Out Generation](#step-3-execute-fan-out-generation)
+    - [Generated Output Examples](#generated-output-examples)
+  - [Advanced Example: REST API Generation](#advanced-example-rest-api-generation)
+  - [Benefits](#benefits)
+  - [Related Patterns](#related-patterns)
+  - [Known Uses](#known-uses)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Pattern 014: Fan-Out Projection
 
 ## Intent

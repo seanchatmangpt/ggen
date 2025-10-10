@@ -7,6 +7,12 @@
   - [Problem](#problem)
   - [Forces](#forces)
   - [Solution](#solution)
+  - [Template Example](#template-example)
+  - [CLI Invocation](#cli-invocation)
+  - [Expected Output](#expected-output)
+  - [Verification](#verification)
+  - [Anti-Patterns](#anti-patterns)
+  - [Related Patterns](#related-patterns)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 

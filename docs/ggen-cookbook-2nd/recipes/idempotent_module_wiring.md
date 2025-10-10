@@ -1,3 +1,44 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Recipe: Wiring a Module with Idempotent Injection](#recipe-wiring-a-module-with-idempotent-injection)
+  - [What You'll Build](#what-youll-build)
+  - [Prerequisites](#prerequisites)
+  - [The Problem](#the-problem)
+  - [The Recipe](#the-recipe)
+    - [Step 1: Define Module Dependency Graph](#step-1-define-module-dependency-graph)
+    - [Step 2: Create Module Initialization Template](#step-2-create-module-initialization-template)
+    - [Step 3: Create Module Interface Template](#step-3-create-module-interface-template)
+    - [Step 4: Create Dependency Graph Validator](#step-4-create-dependency-graph-validator)
+    - [Step 5: Generate All Module Code](#step-5-generate-all-module-code)
+    - [Step 6: Implement Module Logic](#step-6-implement-module-logic)
+    - [Step 7: Use AppState in Your Application](#step-7-use-appstate-in-your-application)
+    - [Step 8: Add a New Module and Regenerate](#step-8-add-a-new-module-and-regenerate)
+  - [What's Happening?](#whats-happening)
+    - [Dependency Resolution](#dependency-resolution)
+    - [Idempotent Wiring](#idempotent-wiring)
+    - [The SPARQL Query (Auto-generated)](#the-sparql-query-auto-generated)
+  - [Advanced Patterns](#advanced-patterns)
+    - [1. Feature Flags](#1-feature-flags)
+    - [2. Environment-Specific Modules](#2-environment-specific-modules)
+    - [3. Lazy Initialization](#3-lazy-initialization)
+  - [Testing the Module System](#testing-the-module-system)
+    - [Unit Tests](#unit-tests)
+    - [Integration Tests](#integration-tests)
+  - [Troubleshooting](#troubleshooting)
+    - [Circular Dependency Detected](#circular-dependency-detected)
+    - [Modules Initialize in Wrong Order](#modules-initialize-in-wrong-order)
+    - [Module Not Found After Regeneration](#module-not-found-after-regeneration)
+  - [Performance Considerations](#performance-considerations)
+    - [Parallel Initialization](#parallel-initialization)
+    - [Connection Pooling](#connection-pooling)
+    - [Lazy Loading](#lazy-loading)
+  - [Next Steps](#next-steps)
+  - [Related Patterns](#related-patterns)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Recipe: Wiring a Module with Idempotent Injection
 
 **Time:** 25 minutes

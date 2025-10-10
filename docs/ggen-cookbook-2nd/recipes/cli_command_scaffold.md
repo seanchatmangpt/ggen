@@ -1,3 +1,40 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Recipe: Scaffolding a CLI Command with Freeze Blocks](#recipe-scaffolding-a-cli-command-with-freeze-blocks)
+  - [What You'll Build](#what-youll-build)
+  - [Prerequisites](#prerequisites)
+  - [The Problem](#the-problem)
+  - [The Recipe](#the-recipe)
+    - [Step 1: Create Command Definitions](#step-1-create-command-definitions)
+    - [Step 2: Create Command Template with Freeze Blocks](#step-2-create-command-template-with-freeze-blocks)
+    - [Step 3: Generate Initial Commands](#step-3-generate-initial-commands)
+    - [Step 4: Customize Your Implementation](#step-4-customize-your-implementation)
+    - [Step 5: Add a New Command and Regenerate](#step-5-add-a-new-command-and-regenerate)
+    - [Step 6: Verify Freeze Blocks Preserved](#step-6-verify-freeze-blocks-preserved)
+  - [What's Happening?](#whats-happening)
+    - [The Freeze Block System](#the-freeze-block-system)
+    - [Template Helpers](#template-helpers)
+    - [The Graph Query (Auto-generated)](#the-graph-query-auto-generated)
+  - [Complete Working Example](#complete-working-example)
+    - [Project Structure](#project-structure)
+    - [Main CLI Entry Point](#main-cli-entry-point)
+    - [Test It](#test-it)
+  - [Common Patterns](#common-patterns)
+    - [1. Conditional Arguments](#1-conditional-arguments)
+    - [2. Nested Subcommands](#2-nested-subcommands)
+    - [3. Shared Validation Logic](#3-shared-validation-logic)
+  - [Troubleshooting](#troubleshooting)
+    - [Freeze Blocks Not Preserved](#freeze-blocks-not-preserved)
+    - [New Command Not Appearing](#new-command-not-appearing)
+    - [Compilation Errors After Generation](#compilation-errors-after-generation)
+  - [Advanced: Template Helpers](#advanced-template-helpers)
+  - [Next Steps](#next-steps)
+  - [Related Patterns](#related-patterns)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Recipe: Scaffolding a CLI Command with Freeze Blocks
 
 **Time:** 15 minutes

@@ -1,3 +1,35 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Chapter 5: The Noun-Verb CLI Design](#chapter-5-the-noun-verb-cli-design)
+  - [Philosophy: Commands as Sentences](#philosophy-commands-as-sentences)
+  - [The Core Nouns](#the-core-nouns)
+    - [1. `project`](#1-project)
+    - [2. `market`](#2-market)
+    - [3. `template`](#3-template)
+    - [4. `graph`](#4-graph)
+  - [Command Structure](#command-structure)
+  - [Flags and Options](#flags-and-options)
+  - [The Daily Workflow](#the-daily-workflow)
+    - [Morning: Set up or sync](#morning-set-up-or-sync)
+    - [During Development: Modify knowledge](#during-development-modify-knowledge)
+    - [Generate Code](#generate-code)
+    - [Query and Explore](#query-and-explore)
+    - [Install Patterns](#install-patterns)
+    - [Iterate](#iterate)
+  - [Configuration](#configuration)
+  - [Intelligent Defaults](#intelligent-defaults)
+  - [Advanced Commands](#advanced-commands)
+    - [Audit and Diff](#audit-and-diff)
+    - [Migration](#migration)
+    - [Multi-Language](#multi-language)
+  - [Shell Completion](#shell-completion)
+  - [Help System](#help-system)
+  - [The Design Philosophy](#the-design-philosophy)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Chapter 5: The Noun-Verb CLI Design
 
 ## Philosophy: Commands as Sentences

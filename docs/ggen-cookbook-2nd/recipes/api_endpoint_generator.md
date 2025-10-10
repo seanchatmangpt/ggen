@@ -1,3 +1,46 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Recipe: REST API Endpoint Generator with Fan-Out](#recipe-rest-api-endpoint-generator-with-fan-out)
+  - [What You'll Build](#what-youll-build)
+  - [Prerequisites](#prerequisites)
+  - [The Problem](#the-problem)
+  - [The Recipe](#the-recipe)
+    - [Step 1: Define API Endpoints](#step-1-define-api-endpoints)
+    - [Step 2: Create Handler Template](#step-2-create-handler-template)
+    - [Step 3: Create Routes Template](#step-3-create-routes-template)
+    - [Step 4: Create OpenAPI Documentation Template](#step-4-create-openapi-documentation-template)
+    - [Step 5: Create Test Template](#step-5-create-test-template)
+    - [Step 6: Generate All Files (Fan-Out)](#step-6-generate-all-files-fan-out)
+    - [Step 7: Implement Custom Handler Logic](#step-7-implement-custom-handler-logic)
+    - [Step 8: Add a New Endpoint and Regenerate](#step-8-add-a-new-endpoint-and-regenerate)
+  - [What's Happening?](#whats-happening)
+    - [Fan-Out Pattern](#fan-out-pattern)
+    - [Freeze Block Strategy](#freeze-block-strategy)
+    - [Template Helpers Used](#template-helpers-used)
+  - [Complete Project Structure](#complete-project-structure)
+  - [Testing the Generated API](#testing-the-generated-api)
+    - [Step 1: Create AppState and Error Types](#step-1-create-appstate-and-error-types)
+    - [Step 2: Run the Server](#step-2-run-the-server)
+    - [Step 3: Test with curl](#step-3-test-with-curl)
+  - [Advanced Patterns](#advanced-patterns)
+    - [1. Middleware Generation](#1-middleware-generation)
+    - [2. Database Query Generation](#2-database-query-generation)
+    - [3. Versioned APIs](#3-versioned-apis)
+  - [Troubleshooting](#troubleshooting)
+    - [Missing Fields in Generated Code](#missing-fields-in-generated-code)
+    - [Freeze Blocks Overwritten](#freeze-blocks-overwritten)
+    - [Routes Not Matching](#routes-not-matching)
+    - [Type Mismatches](#type-mismatches)
+  - [Performance Optimization](#performance-optimization)
+    - [Parallel Generation](#parallel-generation)
+    - [Incremental Generation](#incremental-generation)
+  - [Next Steps](#next-steps)
+  - [Related Patterns](#related-patterns)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Recipe: REST API Endpoint Generator with Fan-Out
 
 **Time:** 20 minutes

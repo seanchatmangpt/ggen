@@ -1,3 +1,25 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Recipe: Your First Template](#recipe-your-first-template)
+  - [What You'll Build](#what-youll-build)
+  - [Prerequisites](#prerequisites)
+  - [The Recipe](#the-recipe)
+    - [Step 1: Create Your Graph Data](#step-1-create-your-graph-data)
+    - [Step 2: Create Your Template](#step-2-create-your-template)
+    - [Step 3: Generate Code](#step-3-generate-code)
+    - [Step 4: Verify the Output](#step-4-verify-the-output)
+    - [Step 5: Test It (Optional)](#step-5-test-it-optional)
+  - [What Just Happened?](#what-just-happened)
+  - [The Hidden Magic](#the-hidden-magic)
+  - [Common Mistakes](#common-mistakes)
+  - [Next Steps](#next-steps)
+  - [Related Patterns](#related-patterns)
+  - [Troubleshooting](#troubleshooting)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Recipe: Your First Template
 
 **Time:** 5 minutes

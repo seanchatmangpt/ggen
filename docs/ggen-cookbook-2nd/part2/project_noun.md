@@ -1,3 +1,39 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Chapter 6: The `project` Noun](#chapter-6-the-project-noun)
+  - [What is a GGen Project?](#what-is-a-ggen-project)
+  - [Creating a Project](#creating-a-project)
+    - [Basic Initialization](#basic-initialization)
+    - [Template-Based Initialization](#template-based-initialization)
+    - [Interactive Initialization](#interactive-initialization)
+  - [Project Structure](#project-structure)
+    - [Knowledge Directory](#knowledge-directory)
+    - [Configuration](#configuration)
+    - [Templates Directory](#templates-directory)
+  - [Core Commands](#core-commands)
+    - [`ggen project generate`](#ggen-project-generate)
+    - [`ggen project validate`](#ggen-project-validate)
+    - [`ggen project query`](#ggen-project-query)
+    - [`ggen project sync`](#ggen-project-sync)
+    - [`ggen project diff`](#ggen-project-diff)
+    - [`ggen project audit`](#ggen-project-audit)
+  - [Workflow Examples](#workflow-examples)
+    - [Daily Development](#daily-development)
+    - [Refactoring](#refactoring)
+    - [Team Collaboration](#team-collaboration)
+  - [Advanced Features](#advanced-features)
+    - [Incremental Generation](#incremental-generation)
+    - [Multi-Language Output](#multi-language-output)
+    - [Migration Generation](#migration-generation)
+    - [Custom Hooks](#custom-hooks)
+  - [Best Practices](#best-practices)
+  - [Troubleshooting](#troubleshooting)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Chapter 6: The `project` Noun
 
 ## What is a GGen Project?

@@ -1,3 +1,30 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Chapter: Knowledge Hooks - Reactive Graph Maintenance](#chapter-knowledge-hooks---reactive-graph-maintenance)
+  - [From Manual to Autonomic](#from-manual-to-autonomic)
+  - [Core Pattern: Pattern 021 (Knowledge Hooks)](#core-pattern-pattern-021-knowledge-hooks)
+    - [Hook Types](#hook-types)
+    - [Anatomy of a Pre-Commit Hook](#anatomy-of-a-pre-commit-hook)
+    - [Example: CI/CD Hook (GitHub Actions)](#example-cicd-hook-github-actions)
+  - [Development Workflow Integration](#development-workflow-integration)
+    - [File System Watcher (Dev Mode)](#file-system-watcher-dev-mode)
+    - [Hook Installation](#hook-installation)
+  - [Configuration](#configuration)
+  - [Advanced Patterns](#advanced-patterns)
+    - [Selective Regeneration](#selective-regeneration)
+    - [Rollback on Failure](#rollback-on-failure)
+    - [Performance Monitoring](#performance-monitoring)
+  - [Anti-Patterns](#anti-patterns)
+    - [❌ Full Rebuild on Every Commit](#-full-rebuild-on-every-commit)
+    - [❌ Ignoring Hook Failures](#-ignoring-hook-failures)
+    - [❌ No Validation](#-no-validation)
+  - [Testing Hooks](#testing-hooks)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Chapter: Knowledge Hooks - Reactive Graph Maintenance
 
 ## From Manual to Autonomic

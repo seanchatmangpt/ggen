@@ -1,3 +1,18 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Preface](#preface)
+  - [What's New in the Second Edition](#whats-new-in-the-second-edition)
+  - [Why a Pattern Language?](#why-a-pattern-language)
+  - [Who This Book Is For](#who-this-book-is-for)
+  - [How to Read This Book](#how-to-read-this-book)
+  - [Conventions Used in This Book](#conventions-used-in-this-book)
+  - [Acknowledgments](#acknowledgments)
+  - [A Living Document](#a-living-document)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Preface
 
 Welcome to the second edition of the **GGen Cookbook: A Pattern Language for Autonomic Code Generation**.

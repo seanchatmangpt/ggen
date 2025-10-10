@@ -1,3 +1,38 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Pattern 004: NOUN-VERB CLI ***](#pattern-004-noun-verb-cli-)
+  - [Context](#context)
+  - [Problem](#problem)
+  - [Forces](#forces)
+  - [Solution](#solution)
+  - [Result](#result)
+  - [Command Structure](#command-structure)
+    - [**Graph Operations**](#graph-operations)
+    - [**Template Operations**](#template-operations)
+    - [**Project Operations**](#project-operations)
+    - [**Marketplace Operations**](#marketplace-operations)
+    - [**Audit Operations**](#audit-operations)
+    - [**CI/CD Operations**](#cicd-operations)
+  - [Example: Complete Workflow](#example-complete-workflow)
+  - [Command Discovery](#command-discovery)
+    - [**Help System**](#help-system)
+    - [**Tab Completion**](#tab-completion)
+    - [**Command Validation**](#command-validation)
+  - [Advanced Usage](#advanced-usage)
+    - [**Chaining Operations**](#chaining-operations)
+    - [**Scripting Integration**](#scripting-integration)
+    - [**Configuration Integration**](#configuration-integration)
+  - [Error Handling](#error-handling)
+    - [**Semantic Errors**](#semantic-errors)
+    - [**Template Errors**](#template-errors)
+    - [**Project Errors**](#project-errors)
+  - [Anti-Patterns](#anti-patterns)
+  - [Related Patterns](#related-patterns)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Pattern 004: NOUN-VERB CLI ***
 
 ## Context

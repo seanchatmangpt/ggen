@@ -1,3 +1,28 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Getting Started with GGen](#getting-started-with-ggen)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+    - [Option 1: Cargo Install (Recommended)](#option-1-cargo-install-recommended)
+    - [Option 2: From Source](#option-2-from-source)
+    - [Option 3: Pre-built Binaries](#option-3-pre-built-binaries)
+  - [Verification](#verification)
+  - [First Generation](#first-generation)
+    - [1. Create a Simple Template](#1-create-a-simple-template)
+    - [2. Generate Code](#2-generate-code)
+    - [3. View Generated Code](#3-view-generated-code)
+    - [4. Test Generated Code](#4-test-generated-code)
+  - [Using Variables](#using-variables)
+  - [Next Steps](#next-steps)
+  - [Troubleshooting](#troubleshooting)
+    - [Common Issues](#common-issues)
+    - [Getting Help](#getting-help)
+  - [Advanced Usage](#advanced-usage)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Getting Started with GGen
 
 This recipe walks you through setting up GGen and generating your first code artifacts.

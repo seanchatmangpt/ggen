@@ -1,3 +1,32 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Pattern 009: PROJECT PLAN](#pattern-009-project-plan)
+  - [Problem](#problem)
+  - [Solution](#solution)
+  - [Prerequisites](#prerequisites)
+  - [Step-by-Step](#step-by-step)
+    - [1. Create a Plan from a Single Template](#1-create-a-plan-from-a-single-template)
+    - [2. Review the Plan](#2-review-the-plan)
+    - [3. Create Plans for Multiple Templates](#3-create-plans-for-multiple-templates)
+  - [Complete Example](#complete-example)
+  - [Explanation](#explanation)
+    - [How Planning Works](#how-planning-works)
+    - [Plan File Structure](#plan-file-structure)
+    - [Key Features](#key-features)
+  - [Expected Output](#expected-output)
+  - [Common Pitfalls](#common-pitfalls)
+  - [Variations](#variations)
+    - [💡 Plan with Environment-Specific Variables](#-plan-with-environment-specific-variables)
+    - [💡 Plan for Multiple Templates in Sequence](#-plan-for-multiple-templates-in-sequence)
+    - [💡 Plan with RDF Data](#-plan-with-rdf-data)
+  - [Troubleshooting](#troubleshooting)
+  - [See Also](#see-also)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Pattern 009: PROJECT PLAN
 
 **Difficulty**: ⭐⭐ Intermediate
