@@ -48,7 +48,7 @@ chrono = { version = "0.4", features = ["serde"] }
 git2 = { version = "0.18", features = ["vendored-openssl"] }
 tar = "0.4"
 flate2 = "1.0"
-dirs = "5.0"
+dirs = "6.0"
 semver = "1.0"
 walkdir = "2.0"
 diff = "0.1"
