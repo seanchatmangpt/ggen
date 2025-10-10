@@ -56,9 +56,22 @@ pub async fn list(params: Value) -> Result<Value> {
     })))
 }
 
-/// Search marketplace templates
+/// Search marketplace templates with enhanced error handling
 pub async fn search(params: Value) -> Result<Value> {
-    let query = get_string_param(&params, "query")?;
+    let query = get_string_param(&params, "query")
+        .map_err(|e| {
+            tracing::error!("Missing query parameter for market search: {}", e);
+            e
+        })?;
+
+    // Validate query is not empty
+    if query.trim().is_empty() {
+        tracing::error!("Empty search query provided");
+        return Err(crate::error::GgenMcpError::InvalidParameter(
+            "Search query cannot be empty".to_string()
+        ));
+    }
+
     let category = get_optional_string_param(&params, "category");
     let author = get_optional_string_param(&params, "author");
     let license = get_optional_string_param(&params, "license");
@@ -69,6 +82,14 @@ pub async fn search(params: Value) -> Result<Value> {
     let fuzzy = get_optional_string_param(&params, "fuzzy").map(|s| s == "true").unwrap_or(false);
     let suggestions = get_optional_string_param(&params, "suggestions").map(|s| s == "true").unwrap_or(false);
     let limit = get_optional_u64_param(&params, "limit").unwrap_or(10) as usize;
+
+    // Validate limit
+    if limit == 0 || limit > 100 {
+        tracing::error!("Invalid limit: {}", limit);
+        return Err(crate::error::GgenMcpError::InvalidParameter(
+            format!("Limit must be between 1 and 100, got {}", limit)
+        ));
+    }
 
     tracing::info!("Searching marketplace: query={}, category={:?}, author={:?}, license={:?}, min_stars={:?}, min_downloads={:?}, sort={}, order={}, fuzzy={}, suggestions={}, limit={}",
                    query, category, author, license, min_stars, min_downloads, sort, order, fuzzy, suggestions, limit);
@@ -185,9 +206,22 @@ pub async fn search(params: Value) -> Result<Value> {
     })))
 }
 
-/// Install marketplace template
+/// Install marketplace template with validation
 pub async fn install(params: Value) -> Result<Value> {
-    let package = get_string_param(&params, "package")?;
+    let package = get_string_param(&params, "package")
+        .map_err(|e| {
+            tracing::error!("Missing package parameter for install: {}", e);
+            e
+        })?;
+
+    // Validate package name
+    if package.trim().is_empty() {
+        tracing::error!("Empty package name provided");
+        return Err(crate::error::GgenMcpError::InvalidParameter(
+            "Package name cannot be empty".to_string()
+        ));
+    }
+
     let version = get_optional_string_param(&params, "version");
 
     tracing::info!("Installing marketplace package: {} (version: {:?})", package, version);
@@ -250,14 +284,27 @@ pub async fn recommend(params: Value) -> Result<Value> {
     })))
 }
 
-/// Get detailed package information
+/// Get detailed package information with validation
 pub async fn info(params: Value) -> Result<Value> {
-    let package_id = get_string_param(&params, "package_id")?;
+    let package_id = get_string_param(&params, "package_id")
+        .map_err(|e| {
+            tracing::error!("Missing package_id parameter for info: {}", e);
+            e
+        })?;
+
+    // Validate package_id
+    if package_id.trim().is_empty() {
+        tracing::error!("Empty package_id provided");
+        return Err(crate::error::GgenMcpError::InvalidParameter(
+            "Package ID cannot be empty".to_string()
+        ));
+    }
+
     let examples = get_optional_string_param(&params, "examples").map(|s| s == "true").unwrap_or(false);
     let dependencies = get_optional_string_param(&params, "dependencies").map(|s| s == "true").unwrap_or(false);
     let health = get_optional_string_param(&params, "health").map(|s| s == "true").unwrap_or(false);
 
-    tracing::info!("Getting package info: package_id={}, examples={}, dependencies={}, health={}", 
+    tracing::info!("Getting package info: package_id={}, examples={}, dependencies={}, health={}",
                    package_id, examples, dependencies, health);
 
     // TODO: Replace with actual package info retrieval

@@ -75,6 +75,26 @@ impl AiMcpTools {
         self.with_ollama()
     }
     
+    /// Check if template generator is initialized
+    pub fn has_template_generator(&self) -> bool {
+        self.template_generator.is_some()
+    }
+    
+    /// Check if SPARQL generator is initialized
+    pub fn has_sparql_generator(&self) -> bool {
+        self.sparql_generator.is_some()
+    }
+    
+    /// Check if ontology generator is initialized
+    pub fn has_ontology_generator(&self) -> bool {
+        self.ontology_generator.is_some()
+    }
+    
+    /// Check if refactor assistant is initialized
+    pub fn has_refactor_assistant(&self) -> bool {
+        self.refactor_assistant.is_some()
+    }
+    
     
     /// Initialize with mock client for testing
     pub fn with_mock(mut self) -> Self {

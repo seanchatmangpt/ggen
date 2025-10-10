@@ -45,6 +45,9 @@ pub mod generators;
 pub mod mcp;
 pub mod error;
 
+#[cfg(feature = "ollama-integration")]
+pub mod test_helpers;
+
 // Re-export main types for convenience
 pub use client::{LlmClient, LlmAdapter};
 pub use config::{AiConfig, OpenAIConfig, AnthropicConfig, OllamaConfig};

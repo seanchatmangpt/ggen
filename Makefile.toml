@@ -57,6 +57,58 @@ description = "Integration tests only"
 command = "cargo"
 args = ["test", "--test"]
 
+[tasks.test-ollama]
+description = "Run Ollama integration tests (requires Ollama running with qwen3-coder:30b)"
+workspace = false
+command = "cargo"
+args = [
+  "test",
+  "--package",
+  "ggen-ai",
+  "--features",
+  "ollama-integration",
+  "--test",
+  "ollama_integration",
+]
+
+[tasks.test-ollama-performance]
+description = "Run Ollama performance and stress tests"
+workspace = false
+command = "cargo"
+args = [
+  "test",
+  "--package",
+  "ggen-ai",
+  "--features",
+  "ollama-integration",
+  "--test",
+  "ollama_performance",
+]
+
+[tasks.test-ollama-resilience]
+description = "Run Ollama resilience and error recovery tests"
+workspace = false
+command = "cargo"
+args = [
+  "test",
+  "--package",
+  "ggen-ai",
+  "--features",
+  "ollama-integration",
+  "--test",
+  "ollama_resilience",
+]
+
+[tasks.test-ollama-all]
+description = "Run all Ollama integration tests (integration, performance, resilience)"
+workspace = false
+dependencies = ["test-ollama", "test-ollama-performance", "test-ollama-resilience"]
+
+[tasks.validate-ollama]
+description = "Validate Ollama integration (checks service, model, and runs tests)"
+workspace = false
+command = "./scripts/validate-ollama.sh"
+
 # GitHub Actions local testing with act
 [tasks.act-list]
 description = "List available GitHub Actions workflows"

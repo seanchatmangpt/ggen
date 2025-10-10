@@ -27,6 +27,7 @@ members = [
   "agents",
   "examples/frontmatter-cli",
   "examples/natural-market-search",
+  "examples/ai-template-project",
 ]
 
 [features]
