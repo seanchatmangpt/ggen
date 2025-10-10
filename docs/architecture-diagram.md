@@ -1,3 +1,26 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen-ai Architecture Diagram](#ggen-ai-architecture-diagram)
+  - [High-Level Architecture](#high-level-architecture)
+  - [Data Flow](#data-flow)
+    - [1. Template Generation Flow](#1-template-generation-flow)
+    - [2. Error Handling Flow](#2-error-handling-flow)
+  - [Recommended Architecture (After Refactoring)](#recommended-architecture-after-refactoring)
+  - [Component Interaction Matrix](#component-interaction-matrix)
+  - [Module Dependencies](#module-dependencies)
+  - [Security Architecture](#security-architecture)
+  - [Testing Architecture](#testing-architecture)
+  - [Configuration Flow](#configuration-flow)
+  - [Implementation Priority Map](#implementation-priority-map)
+  - [Key Takeaways](#key-takeaways)
+    - [Current Strengths](#current-strengths)
+    - [Areas for Improvement](#areas-for-improvement)
+    - [Implementation Benefits](#implementation-benefits)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen-ai Architecture Diagram
 
 ## High-Level Architecture
