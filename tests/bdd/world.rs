@@ -12,7 +12,8 @@ use tempfile::TempDir;
 /// - Registry mocking state
 #[derive(Debug, Default, cucumber::World)]
 pub struct GgenWorld {
-    /// Temporary directory for test isolation
+    /// Temporary directory for test isolation (kept alive for test duration)
+    #[allow(dead_code)]
     pub temp_dir: Option<TempDir>,
 
     /// Project directory path (usually temp_dir.path())
@@ -33,7 +34,8 @@ pub struct GgenWorld {
     /// Registry URL override for testing
     pub registry_url: Option<String>,
 
-    /// Mock server for registry testing
+    /// Mock server for registry testing (kept alive for test duration)
+    #[allow(dead_code)]
     pub mock_server: Option<mockito::Server>,
 }
 

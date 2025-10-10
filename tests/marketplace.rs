@@ -236,11 +236,11 @@ fn test_marketplace_search_standalone() -> Result<()> {
 #[test]
 fn test_marketplace_pack_resolution() -> Result<()> {
     // Test pack resolution logic
-    let pack_id = "io.ggen.test.pack";
+    let _pack_id = "io.ggen.test.pack";
     let version = "1.2.0";
     let git_url = "https://github.com/test/repo.git";
-    let git_rev = "abc123";
-    let sha256 = "def456";
+    let _git_rev = "abc123";
+    let _sha256 = "def456";
 
     // Test latest version resolution
     assert_eq!(version, "1.2.0");
