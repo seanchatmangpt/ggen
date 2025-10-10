@@ -1,3 +1,43 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Final Status Report - ggen v1.0.0 with PQC](#final-status-report---ggen-v100-with-pqc)
+  - [Executive Summary](#executive-summary)
+  - [What Was Delivered](#what-was-delivered)
+    - [✅ Post-Quantum Cryptography (PQC) - 100% Complete](#-post-quantum-cryptography-pqc---100-complete)
+    - [✅ GitHub API Integration - 100% Complete](#-github-api-integration---100-complete)
+    - [✅ Documentation Updates - 100% Complete](#-documentation-updates---100-complete)
+  - [Test Results](#test-results)
+    - [Unit Tests: ✅ PASSING](#unit-tests--passing)
+    - [End-to-End Tests: ⚠️ PARTIAL](#end-to-end-tests--partial)
+  - [Fixes Implemented](#fixes-implemented)
+    - [1. SHA256 Calculation - ✅ FIXED](#1-sha256-calculation----fixed)
+  - [Outstanding Issues](#outstanding-issues)
+    - [1. Template Generation - ❌ CRITICAL (Not Fixed)](#1-template-generation----critical-not-fixed)
+    - [2. Template Listing - ❌ HIGH (Not Fixed)](#2-template-listing----high-not-fixed)
+    - [3. Verbose Logging - ⚠️ MEDIUM (Not Fixed)](#3-verbose-logging----medium-not-fixed)
+  - [80/20 Assessment](#8020-assessment)
+    - [The 80% We Delivered](#the-80-we-delivered)
+    - [The 20% We Didn't Deliver](#the-20-we-didnt-deliver)
+  - [Path Forward](#path-forward)
+    - [Option A: Ship v1.0.0 with PQC Infrastructure (Recommended)](#option-a-ship-v100-with-pqc-infrastructure-recommended)
+    - [Option B: Fix Template Issues First (Risky)](#option-b-fix-template-issues-first-risky)
+    - [Option C: Release as v0.9.0-beta (Safe)](#option-c-release-as-v090-beta-safe)
+  - [Recommendation](#recommendation)
+  - [Sales Messaging (Adjusted)](#sales-messaging-adjusted)
+    - [Before (Aspirational):](#before-aspirational)
+    - [After (Honest):](#after-honest)
+    - [Key Messages:](#key-messages)
+  - [Metrics](#metrics)
+    - [Code Quality](#code-quality)
+    - [Documentation](#documentation)
+    - [Performance](#performance)
+  - [Commits](#commits)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Final Status Report - ggen v1.0.0 with PQC
 
 ## Executive Summary

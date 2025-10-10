@@ -1,3 +1,31 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Templates](#templates)
+  - [Marketplace Gpacks](#marketplace-gpacks)
+    - [Gpack Structure](#gpack-structure)
+    - [Gpack Manifest (`ggen.toml`)](#gpack-manifest-ggentoml)
+    - [Using Gpack Templates](#using-gpack-templates)
+  - [Local Templates](#local-templates)
+    - [Location](#location)
+    - [Structure](#structure)
+    - [Common Keys](#common-keys)
+    - [Using Local Templates](#using-local-templates)
+  - [Template Discovery Order](#template-discovery-order)
+  - [Template Reference Syntax](#template-reference-syntax)
+    - [Gpack Templates](#gpack-templates)
+    - [Local Templates](#local-templates-1)
+  - [Gpack Dependencies](#gpack-dependencies)
+  - [Versioning and Compatibility](#versioning-and-compatibility)
+    - [Gpack Versioning](#gpack-versioning)
+    - [Compatibility](#compatibility)
+  - [Template Development](#template-development)
+    - [For Gpack Authors](#for-gpack-authors)
+    - [For Local Template Authors](#for-local-template-authors)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Templates
 
 ggen supports two types of templates: **marketplace gpacks** and **local templates**. Marketplace gpacks are recommended for most use cases, while local templates provide full customization control.

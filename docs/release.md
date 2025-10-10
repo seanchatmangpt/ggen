@@ -1,3 +1,35 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Release Process](#release-process)
+  - [Quick Start](#quick-start)
+    - [Automated Release (Recommended)](#automated-release-recommended)
+    - [Manual Release](#manual-release)
+  - [Available Commands](#available-commands)
+    - [`cargo make release-brew`](#cargo-make-release-brew)
+    - [`cargo make release-check [VERSION]`](#cargo-make-release-check-version)
+    - [`cargo make brew-update-formula [VERSION]`](#cargo-make-brew-update-formula-version)
+    - [Manual Script](#manual-script)
+  - [GitHub Actions Workflow](#github-actions-workflow)
+    - [Platforms Built](#platforms-built)
+  - [Homebrew Formula Update](#homebrew-formula-update)
+    - [Formula Location](#formula-location)
+  - [Troubleshooting](#troubleshooting)
+    - [Release artifacts not ready](#release-artifacts-not-ready)
+    - [Homebrew formula update fails](#homebrew-formula-update-fails)
+    - [Build failures](#build-failures)
+  - [Version Management](#version-management)
+    - [Updating Version](#updating-version)
+    - [Tag Format](#tag-format)
+  - [Testing Locally](#testing-locally)
+  - [Post-Release](#post-release)
+  - [CI/CD Architecture](#cicd-architecture)
+  - [Security Notes](#security-notes)
+  - [Future Improvements](#future-improvements)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Release Process
 
 This document describes the automated release process for ggen, including Homebrew formula updates.

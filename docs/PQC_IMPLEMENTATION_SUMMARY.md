@@ -1,3 +1,48 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Post-Quantum Cryptography (PQC) Implementation Summary](#post-quantum-cryptography-pqc-implementation-summary)
+  - [✅ Implementation Complete - v1.0.0 Ready](#-implementation-complete---v100-ready)
+  - [🎯 What Was Implemented (The 80%)](#-what-was-implemented-the-80)
+    - [1. Core PQC Module (`ggen-core/src/pqc.rs`)](#1-core-pqc-module-ggen-coresrcpqcrs)
+    - [2. Enhanced Lockfile (`ggen-core/src/lockfile.rs`)](#2-enhanced-lockfile-ggen-coresrclockfilers)
+    - [3. Dependencies (`ggen-core/Cargo.toml`)](#3-dependencies-ggen-corecargotoml)
+    - [4. Documentation](#4-documentation)
+  - [📊 Technical Specifications](#-technical-specifications)
+  - [🚀 Key Features Delivered](#-key-features-delivered)
+    - [For Developers](#for-developers)
+    - [For Security Teams](#for-security-teams)
+    - [For Enterprise](#for-enterprise)
+  - [🎬 Usage Examples](#-usage-examples)
+    - [Signing a Package](#signing-a-package)
+    - [Verifying a Package](#verifying-a-package)
+  - [📝 What Was NOT Implemented (The 20%)](#-what-was-not-implemented-the-20)
+    - [Deferred to v1.1.0](#deferred-to-v110)
+    - [Deferred to v1.2.0+](#deferred-to-v120)
+    - [Reasoning for Deferral](#reasoning-for-deferral)
+  - [🎯 Sales & Marketing Positioning](#-sales--marketing-positioning)
+    - [Elevator Pitch](#elevator-pitch)
+    - [Key Differentiators](#key-differentiators)
+    - [Target Markets](#target-markets)
+  - [🧪 Testing & Validation](#-testing--validation)
+    - [Unit Tests](#unit-tests)
+    - [Build Validation](#build-validation)
+    - [Backward Compatibility](#backward-compatibility)
+  - [📈 Performance Metrics](#-performance-metrics)
+    - [Benchmark Results (M1 MacBook Pro)](#benchmark-results-m1-macbook-pro)
+  - [🔮 Future Roadmap](#-future-roadmap)
+    - [v1.1.0 - Automatic PQC Integration](#v110---automatic-pqc-integration)
+    - [v1.2.0 - Advanced Features](#v120---advanced-features)
+    - [v2.0.0 - Enterprise PKI](#v200---enterprise-pki)
+  - [📚 Documentation Links](#-documentation-links)
+  - [✅ Acceptance Criteria Met](#-acceptance-criteria-met)
+    - [v1.0.0 Goals](#v100-goals)
+    - [Marketing Goals](#marketing-goals)
+  - [🎉 Summary](#-summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Post-Quantum Cryptography (PQC) Implementation Summary
 
 ## ✅ Implementation Complete - v1.0.0 Ready

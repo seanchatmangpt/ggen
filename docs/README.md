@@ -1,3 +1,21 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen docs](#ggen-docs)
+  - [Getting Started](#getting-started)
+  - [Core Concepts](#core-concepts)
+  - [Advanced Topics](#advanced-topics)
+  - [Reference](#reference)
+  - [Marketplace Ecosystem](#marketplace-ecosystem)
+    - [Key Benefits](#key-benefits)
+    - [Workflow](#workflow)
+  - [Documentation Structure](#documentation-structure)
+  - [Contributing](#contributing)
+  - [Support](#support)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen docs
 
 Purpose: project one ontology into many artifacts. Deterministic. Language-agnostic.

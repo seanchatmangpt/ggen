@@ -1,3 +1,40 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Marketplace and Documentation Issues - Analysis and Fix Plan](#marketplace-and-documentation-issues---analysis-and-fix-plan)
+  - [Testing Results Summary](#testing-results-summary)
+    - [✅ What Works](#-what-works)
+    - [❌ What Doesn't Work](#-what-doesnt-work)
+  - [Issues Breakdown](#issues-breakdown)
+    - [Issue &#035;1: Lockfile Not Created on Pack Installation](#issue-1-lockfile-not-created-on-pack-installation)
+    - [Issue &#035;2: SHA256 Not Calculated](#issue-2-sha256-not-calculated)
+    - [Issue &#035;3: Logger Not Initialized](#issue-3-logger-not-initialized)
+    - [Issue &#035;4: Documentation References "ggen"](#issue-4-documentation-references-ggen)
+  - [Comprehensive Fix Plan](#comprehensive-fix-plan)
+    - [Phase 1: Fix Critical Blockers (Required Before Docs)](#phase-1-fix-critical-blockers-required-before-docs)
+      - [Task 1.1: Fix Lockfile Creation](#task-11-fix-lockfile-creation)
+      - [Task 1.2: Calculate SHA256](#task-12-calculate-sha256)
+      - [Task 1.3: Fix Logger Initialization](#task-13-fix-logger-initialization)
+    - [Phase 2: Fix Documentation](#phase-2-fix-documentation)
+      - [Task 2.1: Find All "ggen" References](#task-21-find-all-ggen-references)
+      - [Task 2.2: Replace "ggen" with "ggen"](#task-22-replace-ggen-with-ggen)
+      - [Task 2.3: Update Examples](#task-23-update-examples)
+      - [Task 2.4: Rebuild and Verify](#task-24-rebuild-and-verify)
+    - [Phase 3: Integration Testing](#phase-3-integration-testing)
+      - [Task 3.1: End-to-End Test Script](#task-31-end-to-end-test-script)
+      - [Task 3.2: Documentation Verification](#task-32-documentation-verification)
+  - [Priority Order](#priority-order)
+    - [Must Fix (Blocking Documentation)](#must-fix-blocking-documentation)
+    - [After Code Fixes](#after-code-fixes)
+  - [Estimated Time](#estimated-time)
+  - [Risk Assessment](#risk-assessment)
+  - [Success Criteria](#success-criteria)
+  - [Next Steps](#next-steps)
+  - [Recommendation](#recommendation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Marketplace and Documentation Issues - Analysis and Fix Plan
 
 ## Testing Results Summary

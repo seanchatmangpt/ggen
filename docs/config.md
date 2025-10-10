@@ -1,3 +1,35 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Configuration](#configuration)
+  - [Environment Variables](#environment-variables)
+    - [GGEN_REGISTRY_URL](#ggen_registry_url)
+  - [Project Configuration](#project-configuration)
+    - [ggen.toml](#ggentoml)
+    - [.ggenrc.yaml (Legacy)](#ggenrcyaml-legacy)
+  - [Marketplace Configuration](#marketplace-configuration)
+    - [Registry Settings](#registry-settings)
+    - [Gpack Management](#gpack-management)
+    - [Update Policies](#update-policies)
+  - [Environment Variables](#environment-variables-1)
+    - [Global Settings](#global-settings)
+    - [Marketplace Settings](#marketplace-settings)
+  - [Variable Precedence](#variable-precedence)
+  - [Configuration Examples](#configuration-examples)
+    - [Basic Project](#basic-project)
+    - [Multi-Language Project](#multi-language-project)
+    - [Enterprise Configuration](#enterprise-configuration)
+  - [Configuration Validation](#configuration-validation)
+    - [Validate Configuration](#validate-configuration)
+    - [Configuration Errors](#configuration-errors)
+  - [Best Practices](#best-practices)
+    - [Project Configuration](#project-configuration-1)
+    - [Marketplace Configuration](#marketplace-configuration-1)
+    - [Team Configuration](#team-configuration)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Configuration
 
 ggen supports configuration through project files and environment variables.

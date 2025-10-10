@@ -1,3 +1,34 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Projections](#projections)
+  - [Marketplace Gpack Examples](#marketplace-gpack-examples)
+    - [CLI Subcommands](#cli-subcommands)
+    - [API Endpoints](#api-endpoints)
+    - [SQL DDL from Ontology](#sql-ddl-from-ontology)
+    - [Edge Function Stubs](#edge-function-stubs)
+    - [Documentation from Graph Annotations](#documentation-from-graph-annotations)
+  - [Local Template Examples](#local-template-examples)
+    - [Custom Projections](#custom-projections)
+  - [Discovering Projection Gpacks](#discovering-projection-gpacks)
+    - [By Category](#by-category)
+    - [By Language](#by-language)
+    - [By Framework](#by-framework)
+  - [Cross-Language Projections](#cross-language-projections)
+    - [Same RDF Ontology](#same-rdf-ontology)
+    - [Deterministic Output](#deterministic-output)
+  - [Projection Patterns](#projection-patterns)
+    - [Standard Pattern](#standard-pattern)
+    - [Marketplace Pattern](#marketplace-pattern)
+    - [Local Pattern](#local-pattern)
+  - [Best Practices](#best-practices)
+    - [Gpack Selection](#gpack-selection)
+    - [Version Management](#version-management)
+    - [Custom Projections](#custom-projections-1)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Projections
 
 Targets are just templates. ggen supports both marketplace gpacks and local templates for generating code projections.
