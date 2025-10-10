@@ -25,33 +25,34 @@ fn validate_gpack_id(gpack_id: &Option<String>) -> Result<()> {
     if let Some(id) = gpack_id {
         // Validate gpack ID is not empty
         if id.trim().is_empty() {
-            return Err(ggen_utils::error::Error::new(
-                "Gpack ID cannot be empty",
-            ));
+            return Err(ggen_utils::error::Error::new("Gpack ID cannot be empty"));
         }
-        
+
         // Validate gpack ID length
         if id.len() > 200 {
             return Err(ggen_utils::error::Error::new(
                 "Gpack ID too long (max 200 characters)",
             ));
         }
-        
+
         // Validate gpack ID format (basic pattern check)
-        if !id.chars().all(|c| c.is_alphanumeric() || c == '.' || c == '-' || c == '_') {
+        if !id
+            .chars()
+            .all(|c| c.is_alphanumeric() || c == '.' || c == '-' || c == '_')
+        {
             return Err(ggen_utils::error::Error::new(
                 "Invalid gpack ID format: only alphanumeric characters, dots, dashes, and underscores allowed",
             ));
         }
     }
-    
+
     Ok(())
 }
 
 pub async fn run(args: &UpdateArgs) -> Result<()> {
     // Validate input
     validate_gpack_id(&args.gpack_id)?;
-    
+
     println!("🚧 Placeholder: market update");
     if let Some(id) = &args.gpack_id {
         println!("  Gpack ID: {}", id.trim());
@@ -64,14 +65,14 @@ pub async fn run(args: &UpdateArgs) -> Result<()> {
 pub async fn run_with_deps(args: &UpdateArgs, updater: &dyn GpackUpdater) -> Result<()> {
     // Validate input
     validate_gpack_id(&args.gpack_id)?;
-    
+
     // Show progress for update operation
     if args.gpack_id.is_some() {
         println!("🔍 Checking for updates...");
     } else {
         println!("🔍 Checking all gpacks for updates...");
     }
-    
+
     let results = updater.update(args.gpack_id.clone())?;
 
     if results.is_empty() {

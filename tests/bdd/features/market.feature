@@ -102,7 +102,7 @@ Feature: Marketplace Operations
     And I should see "rust" or "python" or "typescript" in output
 
   Scenario: Show detailed gpack information
-    When I run "ggen market show io.ggen.rust.cli-subcommand"
+    When I run "ggen market info io.ggen.rust.cli-subcommand"
     Then the command should succeed
     And I should see package metadata
     And I should see description

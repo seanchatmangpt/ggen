@@ -1,5 +1,27 @@
+//! RDF graph export and serialization functionality.
+//!
+//! This module provides comprehensive RDF graph export capabilities, supporting
+//! multiple output formats (Turtle, N-Triples, RDF/XML, JSON-LD) with pretty
+//! printing options. It validates output paths and formats to ensure secure
+//! and reliable data export.
+//!
+//! # Examples
+//!
+//! ```bash
+//! ggen graph export output.ttl --format turtle --pretty
+//! ggen graph export data.jsonld --format jsonld
+//! ggen graph export triples.nt --format ntriples
+//! ```
+//!
+//! # Errors
+//!
+//! Returns errors if the output path is invalid or contains traversal attempts,
+//! the RDF format is unsupported, the file cannot be written, or if RDF
+//! serialization fails due to graph structure issues.
+
 use clap::Args;
 use ggen_utils::error::Result;
+use std::path::{Component, Path};
 
 #[derive(Args, Debug)]
 pub struct ExportArgs {
@@ -34,28 +56,32 @@ fn validate_output_path(output: &str) -> Result<()> {
             "Output file path cannot be empty",
         ));
     }
-    
+
     // Validate output path length
     if output.len() > 1000 {
         return Err(ggen_utils::error::Error::new(
             "Output file path too long (max 1000 characters)",
         ));
     }
-    
-    // Basic path traversal protection
-    if output.contains("..") {
+
+    // Use Path components for proper traversal protection
+    let path = Path::new(output);
+    if path.components().any(|c| matches!(c, Component::ParentDir)) {
         return Err(ggen_utils::error::Error::new(
-            "Path traversal detected: output file path cannot contain '..'",
+            "Path traversal detected: paths containing '..' are not allowed",
         ));
     }
-    
+
     // Validate output path format (basic pattern check)
-    if !output.chars().all(|c| c.is_alphanumeric() || c == '.' || c == '/' || c == '-' || c == '_' || c == '\\') {
+    if !output
+        .chars()
+        .all(|c| c.is_alphanumeric() || c == '.' || c == '/' || c == '-' || c == '_' || c == '\\')
+    {
         return Err(ggen_utils::error::Error::new(
             "Invalid output file path format: only alphanumeric characters, dots, slashes, dashes, underscores, and backslashes allowed",
         ));
     }
-    
+
     Ok(())
 }
 
@@ -63,18 +89,16 @@ fn validate_output_path(output: &str) -> Result<()> {
 fn validate_rdf_format(format: &str) -> Result<()> {
     // Validate format is not empty
     if format.trim().is_empty() {
-        return Err(ggen_utils::error::Error::new(
-            "RDF format cannot be empty",
-        ));
+        return Err(ggen_utils::error::Error::new("RDF format cannot be empty"));
     }
-    
+
     // Validate format length
     if format.len() > 20 {
         return Err(ggen_utils::error::Error::new(
             "RDF format too long (max 20 characters)",
         ));
     }
-    
+
     // Validate against known formats
     let valid_formats = ["turtle", "ntriples", "rdfxml", "jsonld", "n3"];
     if !valid_formats.contains(&format.to_lowercase().as_str()) {
@@ -82,7 +106,7 @@ fn validate_rdf_format(format: &str) -> Result<()> {
             "Unsupported RDF format: supported formats are turtle, ntriples, rdfxml, jsonld, n3",
         ));
     }
-    
+
     Ok(())
 }
 
@@ -90,7 +114,7 @@ pub async fn run(args: &ExportArgs) -> Result<()> {
     // Validate inputs
     validate_output_path(&args.output)?;
     validate_rdf_format(&args.format)?;
-    
+
     println!("🚧 Placeholder: graph export");
     println!("  Output: {}", args.output.trim());
     println!("  Format: {}", args.format.trim());
@@ -102,10 +126,10 @@ pub async fn run_with_deps(args: &ExportArgs, exporter: &dyn GraphExporter) -> R
     // Validate inputs
     validate_output_path(&args.output)?;
     validate_rdf_format(&args.format)?;
-    
+
     // Show progress for export operation
     println!("🔍 Exporting graph...");
-    
+
     let stats = exporter.export(args.output.clone(), args.format.clone(), args.pretty)?;
 
     println!(
@@ -126,7 +150,11 @@ mod tests {
         let mut mock_exporter = MockGraphExporter::new();
         mock_exporter
             .expect_export()
-            .with(eq(String::from("output.ttl")), eq(String::from("turtle")), eq(true))
+            .with(
+                eq(String::from("output.ttl")),
+                eq(String::from("turtle")),
+                eq(true),
+            )
             .times(1)
             .returning(|_, _, _| {
                 Ok(ExportStats {

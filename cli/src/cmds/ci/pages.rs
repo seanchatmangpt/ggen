@@ -20,6 +20,7 @@
 
 use clap::{Args, Subcommand};
 use ggen_utils::error::Result;
+use std::path::{Component, Path};
 // CLI output only - no library logging
 
 #[cfg_attr(test, mockall::automock)]
@@ -139,31 +140,63 @@ pub struct CompareArgs {
     pub files: Option<Vec<String>>,
 }
 
+/// Validate and sanitize file paths
+fn validate_file_paths(files: &Option<Vec<String>>) -> Result<()> {
+    if let Some(files) = files {
+        for file in files {
+            // Validate file path is not empty
+            if file.trim().is_empty() {
+                return Err(ggen_utils::error::Error::new("File path cannot be empty"));
+            }
+
+            // Validate file path length
+            if file.len() > 1000 {
+                return Err(ggen_utils::error::Error::new(
+                    "File path too long (max 1000 characters)",
+                ));
+            }
+
+            // Use Path components for proper traversal protection
+            let path = Path::new(file);
+            if path.components().any(|c| matches!(c, Component::ParentDir)) {
+                return Err(ggen_utils::error::Error::new(
+                    "Path traversal detected: paths containing '..' are not allowed",
+                ));
+            }
+        }
+    }
+    Ok(())
+}
+
 pub async fn run(args: &PagesArgs) -> Result<()> {
     let deployer = CargoMakePagesDeployer;
     let status_checker = CargoMakePagesStatusChecker;
     let log_viewer = CargoMakePagesLogViewer;
     let comparer = CargoMakePagesComparer;
-    
+
     run_with_deps(args, &deployer, &status_checker, &log_viewer, &comparer).await
 }
 
 pub async fn run_with_deps(
-    args: &PagesArgs,
-    deployer: &dyn GitHubPagesDeployer,
-    status_checker: &dyn GitHubPagesStatusChecker,
-    log_viewer: &dyn GitHubPagesLogViewer,
+    args: &PagesArgs, deployer: &dyn GitHubPagesDeployer,
+    status_checker: &dyn GitHubPagesStatusChecker, log_viewer: &dyn GitHubPagesLogViewer,
     comparer: &dyn GitHubPagesComparer,
 ) -> Result<()> {
     match &args.action {
         PagesAction::Deploy(deploy_args) => deploy_pages_with_deps(deploy_args, deployer).await,
-        PagesAction::Status(status_args) => check_status_with_deps(status_args, status_checker).await,
+        PagesAction::Status(status_args) => {
+            check_status_with_deps(status_args, status_checker).await
+        }
         PagesAction::Logs(logs_args) => view_logs_with_deps(logs_args, log_viewer).await,
-        PagesAction::Compare(compare_args) => compare_deployment_with_deps(compare_args, comparer).await,
+        PagesAction::Compare(compare_args) => {
+            compare_deployment_with_deps(compare_args, comparer).await
+        }
     }
 }
 
-async fn deploy_pages_with_deps(args: &DeployArgs, deployer: &dyn GitHubPagesDeployer) -> Result<()> {
+async fn deploy_pages_with_deps(
+    args: &DeployArgs, deployer: &dyn GitHubPagesDeployer,
+) -> Result<()> {
     println!("📚 Deploying documentation to GitHub Pages");
 
     let result = deployer.deploy(args.force, args.wait, &args.branch)?;
@@ -184,7 +217,9 @@ async fn deploy_pages(args: &DeployArgs) -> Result<()> {
     deploy_pages_with_deps(args, &deployer).await
 }
 
-async fn check_status_with_deps(args: &StatusArgs, status_checker: &dyn GitHubPagesStatusChecker) -> Result<()> {
+async fn check_status_with_deps(
+    args: &StatusArgs, status_checker: &dyn GitHubPagesStatusChecker,
+) -> Result<()> {
     println!("🔍 Checking GitHub Pages deployment status");
 
     let result = status_checker.check_status(args.verbose, args.json)?;
@@ -226,7 +261,12 @@ async fn view_logs(args: &LogsArgs) -> Result<()> {
     view_logs_with_deps(args, &log_viewer).await
 }
 
-async fn compare_deployment_with_deps(args: &CompareArgs, comparer: &dyn GitHubPagesComparer) -> Result<()> {
+async fn compare_deployment_with_deps(
+    args: &CompareArgs, comparer: &dyn GitHubPagesComparer,
+) -> Result<()> {
+    // Validate file paths if provided
+    validate_file_paths(&args.files)?;
+
     println!("🔍 Comparing local documentation with deployed version");
 
     let result = comparer.compare(args.diff)?;
@@ -349,11 +389,13 @@ mod tests {
         mock.expect_deploy()
             .with(eq(false), eq(false), eq("main"))
             .times(1)
-            .returning(|_, _, _| Ok(DeployResult {
-                stdout: "Deploy complete".to_string(),
-                stderr: "".to_string(),
-                success: true,
-            }));
+            .returning(|_, _, _| {
+                Ok(DeployResult {
+                    stdout: "Deploy complete".to_string(),
+                    stderr: "".to_string(),
+                    success: true,
+                })
+            });
 
         let args = DeployArgs {
             force: false,
@@ -370,11 +412,13 @@ mod tests {
         mock.expect_deploy()
             .with(eq(false), eq(false), eq("main"))
             .times(1)
-            .returning(|_, _, _| Ok(DeployResult {
-                stdout: "".to_string(),
-                stderr: "Deploy failed".to_string(),
-                success: false,
-            }));
+            .returning(|_, _, _| {
+                Ok(DeployResult {
+                    stdout: "".to_string(),
+                    stderr: "Deploy failed".to_string(),
+                    success: false,
+                })
+            });
 
         let args = DeployArgs {
             force: false,
@@ -383,7 +427,10 @@ mod tests {
         };
         let result = deploy_pages_with_deps(&args, &mock).await;
         assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().contains("Pages deployment failed"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("Pages deployment failed"));
     }
 
     #[tokio::test]
@@ -392,11 +439,13 @@ mod tests {
         mock.expect_check_status()
             .with(eq(false), eq(false))
             .times(1)
-            .returning(|_, _| Ok(StatusResult {
-                stdout: "Status OK".to_string(),
-                stderr: "".to_string(),
-                success: true,
-            }));
+            .returning(|_, _| {
+                Ok(StatusResult {
+                    stdout: "Status OK".to_string(),
+                    stderr: "".to_string(),
+                    success: true,
+                })
+            });
 
         let args = StatusArgs {
             verbose: false,
@@ -412,11 +461,13 @@ mod tests {
         mock.expect_view_logs()
             .with(eq(false))
             .times(1)
-            .returning(|_| Ok(LogsResult {
-                stdout: "Log output".to_string(),
-                stderr: "".to_string(),
-                success: true,
-            }));
+            .returning(|_| {
+                Ok(LogsResult {
+                    stdout: "Log output".to_string(),
+                    stderr: "".to_string(),
+                    success: true,
+                })
+            });
 
         let args = LogsArgs {
             follow: false,
@@ -432,11 +483,13 @@ mod tests {
         mock.expect_compare()
             .with(eq(false))
             .times(1)
-            .returning(|_| Ok(CompareResult {
-                stdout: "Comparison complete".to_string(),
-                stderr: "".to_string(),
-                success: true,
-            }));
+            .returning(|_| {
+                Ok(CompareResult {
+                    stdout: "Comparison complete".to_string(),
+                    stderr: "".to_string(),
+                    success: true,
+                })
+            });
 
         let args = CompareArgs {
             diff: false,
@@ -453,11 +506,13 @@ mod tests {
             .expect_deploy()
             .with(eq(false), eq(false), eq("main"))
             .times(1)
-            .returning(|_, _, _| Ok(DeployResult {
-                stdout: "Deploy complete".to_string(),
-                stderr: "".to_string(),
-                success: true,
-            }));
+            .returning(|_, _, _| {
+                Ok(DeployResult {
+                    stdout: "Deploy complete".to_string(),
+                    stderr: "".to_string(),
+                    success: true,
+                })
+            });
 
         let mock_status_checker = MockGitHubPagesStatusChecker::new();
         let mock_log_viewer = MockGitHubPagesLogViewer::new();
@@ -471,7 +526,14 @@ mod tests {
             }),
         };
 
-        let result = run_with_deps(&args, &mock_deployer, &mock_status_checker, &mock_log_viewer, &mock_comparer).await;
+        let result = run_with_deps(
+            &args,
+            &mock_deployer,
+            &mock_status_checker,
+            &mock_log_viewer,
+            &mock_comparer,
+        )
+        .await;
         assert!(result.is_ok());
     }
 

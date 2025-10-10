@@ -71,12 +71,11 @@ pub async fn run(args: &PlanArgs) -> Result<()> {
 
     // Serialize plan
     let content = match args.format.as_str() {
-        "json" => serde_json::to_string_pretty(&plan)
-            .map_err(|e| ggen_utils::error::Error::new(e.to_string().as_str()))?,
-        "yaml" => serde_yaml::to_string(&plan)
-            .map_err(|e| ggen_utils::error::Error::new(e.to_string().as_str()))?,
-        "toml" => toml::to_string_pretty(&plan)
-            .map_err(|e| ggen_utils::error::Error::new(e.to_string().as_str()))?,
+        "json" => serde_json::to_string_pretty(&plan).map_err(ggen_utils::error::Error::from)?,
+        "yaml" => serde_yaml::to_string(&plan).map_err(ggen_utils::error::Error::from)?,
+        "toml" => toml::to_string_pretty(&plan).map_err(|e| {
+            ggen_utils::error::Error::new_fmt(format_args!("TOML serialization failed: {}", e))
+        })?,
         _ => {
             return Err(ggen_utils::error::Error::new_fmt(format_args!(
                 "Unsupported format: {}. Supported: json, yaml, toml",
@@ -87,8 +86,7 @@ pub async fn run(args: &PlanArgs) -> Result<()> {
 
     // Validate output path and write plan file
     validate_path(&output_path)?;
-    fs::write(&output_path, content)
-        .map_err(|e| ggen_utils::error::Error::new(e.to_string().as_str()))?;
+    fs::write(&output_path, content).map_err(ggen_utils::error::Error::from)?;
 
     println!("✅ Generation plan created: {}", output_path.display());
     println!("Plan saved to: {}", output_path.display());

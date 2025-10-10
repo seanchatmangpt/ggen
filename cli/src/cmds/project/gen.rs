@@ -1,3 +1,24 @@
+//! Project generation from templates with variable substitution.
+//!
+//! This module provides the core functionality for generating project artifacts
+//! from templates, supporting variable substitution, dry-run mode, and force
+//! overwrite capabilities. It integrates with the template system to produce
+//! deterministic, reproducible project scaffolding.
+//!
+//! # Examples
+//!
+//! ```bash
+//! ggen project gen "rust-cli-template" --var name=myapp --var version=1.0.0
+//! ggen project gen "web-template" --dry-run --var framework=react
+//! ggen project gen "api-template" --force --var language=typescript
+//! ```
+//!
+//! # Errors
+//!
+//! Returns errors if the template reference is invalid, required variables are
+//! missing, file operations fail, or if the generation process encounters
+//! template rendering errors.
+
 use clap::Args;
 use ggen_utils::error::Result;
 use std::collections::HashMap;
@@ -117,10 +138,36 @@ pub async fn run(args: &GenArgs) -> Result<()> {
     // Validate input
     validate_gen_input(args)?;
 
-    // TODO: Replace with real implementations from ggen-core
-    println!("🚧 Placeholder: project gen");
-    println!("  Template: {}", args.template_ref.trim());
-    println!("  Vars: {:?}", args.vars);
+    println!("🚀 Generating project artifacts...");
+
+    let mut cmd = std::process::Command::new("cargo");
+    cmd.args(["make", "project-gen"]);
+    cmd.arg("--template").arg(&args.template_ref);
+
+    for var in &args.vars {
+        cmd.arg("--var").arg(var);
+    }
+
+    if args.dry_run {
+        cmd.arg("--dry-run");
+    }
+
+    if args.force {
+        cmd.arg("--force");
+    }
+
+    let output = cmd.output().map_err(ggen_utils::error::Error::from)?;
+
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        return Err(ggen_utils::error::Error::new_fmt(format_args!(
+            "Generation failed: {}",
+            stderr
+        )));
+    }
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    println!("{}", stdout);
     println!("  Dry run: {}", args.dry_run);
 
     Ok(())

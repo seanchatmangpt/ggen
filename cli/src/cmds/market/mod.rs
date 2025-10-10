@@ -4,10 +4,12 @@ use ggen_utils::error::Result;
 // Declare verb modules
 pub mod add;
 pub mod categories;
+pub mod info;
 pub mod list;
+pub mod publish;
 pub mod remove;
 pub mod search;
-pub mod show;
+pub mod unpublish;
 pub mod update;
 
 #[derive(Args, Debug)]
@@ -56,9 +58,10 @@ pub enum Verb {
     /// Show detailed information about a gpack
     ///
     /// Examples:
-    ///   ggen market show "rust-cli-template"
-    ///   ggen market show "web-api" --json
-    Show(show::ShowArgs),
+    ///   ggen market info "rust-cli-template"
+    ///   ggen market info "web-api" --examples
+    ///   ggen market info "web-api" --dependencies
+    Info(info::InfoArgs),
 
     /// Show popular categories and keywords
     ///
@@ -66,6 +69,21 @@ pub enum Verb {
     ///   ggen market categories
     ///   ggen market categories --json
     Categories(categories::CategoriesArgs),
+
+    /// Publish a gpack to the marketplace
+    ///
+    /// Examples:
+    ///   ggen market publish
+    ///   ggen market publish --tag beta
+    ///   ggen market publish --dry-run
+    Publish(publish::PublishArgs),
+
+    /// Unpublish a gpack from the marketplace
+    ///
+    /// Examples:
+    ///   ggen market unpublish "my-package@1.0.0"
+    ///   ggen market unpublish "my-package" --force
+    Unpublish(unpublish::UnpublishArgs),
 }
 
 impl MarketCmd {
@@ -76,8 +94,10 @@ impl MarketCmd {
             Verb::Remove(args) => remove::run(args).await,
             Verb::List(args) => list::run(args).await,
             Verb::Update(args) => update::run(args).await,
-            Verb::Show(args) => show::run(args).await,
+            Verb::Info(args) => info::run(args).await,
             Verb::Categories(args) => categories::run(args).await,
+            Verb::Publish(args) => publish::run(args).await,
+            Verb::Unpublish(args) => unpublish::run(args).await,
         }
     }
 }

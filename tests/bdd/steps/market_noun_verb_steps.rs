@@ -11,7 +11,7 @@ use std::fs;
 /// - market remove: Uninstall gpacks
 /// - market list: List installed gpacks
 /// - market update: Update gpacks
-/// - market show: Show gpack details
+/// - market info: Show gpack details
 /// - market categories: Show popular categories
 
 // ============================================================================
@@ -314,7 +314,7 @@ fn run_market_search(world: &mut GgenWorld, query: String) {
         .current_dir(&world.project_dir)
         .output()
         .expect("Failed to run market search");
-    
+
     world.last_output = Some(output.clone());
     world.last_exit_code = output.status.code();
 }
@@ -329,22 +329,22 @@ fn run_market_remove(world: &mut GgenWorld, package_id: String) {
         .current_dir(&world.project_dir)
         .output()
         .expect("Failed to run market remove");
-    
+
     world.last_output = Some(output.clone());
     world.last_exit_code = output.status.code();
 }
 
-#[when(regex = r#"^I run "ggen market show (.+)"$"#)]
-fn run_market_show(world: &mut GgenWorld, package_id: String) {
+#[when(regex = r#"^I run "ggen market info (.+)"$"#)]
+fn run_market_info(world: &mut GgenWorld, package_id: String) {
     let output = Command::cargo_bin("ggen")
         .expect("ggen binary not found")
         .arg("market")
-        .arg("show")
+        .arg("info")
         .arg(&package_id)
         .current_dir(&world.project_dir)
         .output()
-        .expect("Failed to run market show");
-    
+        .expect("Failed to run market info");
+
     world.last_output = Some(output.clone());
     world.last_exit_code = output.status.code();
 }
@@ -358,7 +358,7 @@ fn run_market_categories(world: &mut GgenWorld) {
         .current_dir(&world.project_dir)
         .output()
         .expect("Failed to run market categories");
-    
+
     world.last_output = Some(output.clone());
     world.last_exit_code = output.status.code();
 }
@@ -372,7 +372,7 @@ fn run_market_list(world: &mut GgenWorld) {
         .current_dir(&world.project_dir)
         .output()
         .expect("Failed to run market list");
-    
+
     world.last_output = Some(output.clone());
     world.last_exit_code = output.status.code();
 }
@@ -386,7 +386,7 @@ fn run_market_update(world: &mut GgenWorld) {
         .current_dir(&world.project_dir)
         .output()
         .expect("Failed to run market update");
-    
+
     world.last_output = Some(output.clone());
     world.last_exit_code = output.status.code();
 }
@@ -401,7 +401,7 @@ fn run_market_update_specific(world: &mut GgenWorld, package_id: String) {
         .current_dir(&world.project_dir)
         .output()
         .expect("Failed to run market update specific");
-    
+
     world.last_output = Some(output.clone());
     world.last_exit_code = output.status.code();
 }

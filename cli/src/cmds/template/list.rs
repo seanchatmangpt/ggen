@@ -47,40 +47,47 @@ fn validate_pattern(pattern: &Option<String>) -> Result<()> {
     if let Some(pattern) = pattern {
         // Validate pattern is not empty
         if pattern.trim().is_empty() {
-            return Err(ggen_utils::error::Error::new(
-                "Pattern cannot be empty",
-            ));
+            return Err(ggen_utils::error::Error::new("Pattern cannot be empty"));
         }
-        
+
         // Validate pattern length
         if pattern.len() > 200 {
             return Err(ggen_utils::error::Error::new(
                 "Pattern too long (max 200 characters)",
             ));
         }
-        
+
         // Basic path traversal protection
         if pattern.contains("..") {
             return Err(ggen_utils::error::Error::new(
                 "Path traversal detected: pattern cannot contain '..'",
             ));
         }
-        
+
         // Validate pattern format (basic pattern check)
-        if !pattern.chars().all(|c| c.is_alphanumeric() || c == '.' || c == '*' || c == '?' || c == '[' || c == ']' || c == '-' || c == '_') {
+        if !pattern.chars().all(|c| {
+            c.is_alphanumeric()
+                || c == '.'
+                || c == '*'
+                || c == '?'
+                || c == '['
+                || c == ']'
+                || c == '-'
+                || c == '_'
+        }) {
             return Err(ggen_utils::error::Error::new(
                 "Invalid pattern format: only alphanumeric characters, dots, wildcards, brackets, dashes, and underscores allowed",
             ));
         }
     }
-    
+
     Ok(())
 }
 
 pub async fn run(args: &ListArgs) -> Result<()> {
     // Validate input
     validate_pattern(&args.pattern)?;
-    
+
     println!("🚧 Placeholder: template list");
     if let Some(pattern) = &args.pattern {
         println!("  Pattern: {}", pattern.trim());
@@ -93,10 +100,10 @@ pub async fn run(args: &ListArgs) -> Result<()> {
 pub async fn run_with_deps(args: &ListArgs, lister: &dyn TemplateLister) -> Result<()> {
     // Validate input
     validate_pattern(&args.pattern)?;
-    
+
     // Show progress for listing operation
     println!("🔍 Listing templates...");
-    
+
     let filters = ListFilters {
         pattern: args.pattern.clone(),
         local_only: args.local,

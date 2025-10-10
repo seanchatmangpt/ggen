@@ -45,28 +45,31 @@ fn validate_shapes_path(shapes: &str) -> Result<()> {
             "Shapes file path cannot be empty",
         ));
     }
-    
+
     // Validate shapes path length
     if shapes.len() > 1000 {
         return Err(ggen_utils::error::Error::new(
             "Shapes file path too long (max 1000 characters)",
         ));
     }
-    
+
     // Basic path traversal protection
     if shapes.contains("..") {
         return Err(ggen_utils::error::Error::new(
             "Path traversal detected: shapes file path cannot contain '..'",
         ));
     }
-    
+
     // Validate shapes path format (basic pattern check)
-    if !shapes.chars().all(|c| c.is_alphanumeric() || c == '.' || c == '/' || c == '-' || c == '_' || c == '\\') {
+    if !shapes
+        .chars()
+        .all(|c| c.is_alphanumeric() || c == '.' || c == '/' || c == '-' || c == '_' || c == '\\')
+    {
         return Err(ggen_utils::error::Error::new(
             "Invalid shapes file path format: only alphanumeric characters, dots, slashes, dashes, underscores, and backslashes allowed",
         ));
     }
-    
+
     Ok(())
 }
 
@@ -79,29 +82,31 @@ fn validate_graph_path(graph: &Option<String>) -> Result<()> {
                 "Graph file path cannot be empty",
             ));
         }
-        
+
         // Validate graph path length
         if graph.len() > 1000 {
             return Err(ggen_utils::error::Error::new(
                 "Graph file path too long (max 1000 characters)",
             ));
         }
-        
+
         // Basic path traversal protection
         if graph.contains("..") {
             return Err(ggen_utils::error::Error::new(
                 "Path traversal detected: graph file path cannot contain '..'",
             ));
         }
-        
+
         // Validate graph path format (basic pattern check)
-        if !graph.chars().all(|c| c.is_alphanumeric() || c == '.' || c == '/' || c == '-' || c == '_' || c == '\\') {
+        if !graph.chars().all(|c| {
+            c.is_alphanumeric() || c == '.' || c == '/' || c == '-' || c == '_' || c == '\\'
+        }) {
             return Err(ggen_utils::error::Error::new(
                 "Invalid graph file path format: only alphanumeric characters, dots, slashes, dashes, underscores, and backslashes allowed",
             ));
         }
     }
-    
+
     Ok(())
 }
 
@@ -109,7 +114,7 @@ pub async fn run(args: &ValidateArgs) -> Result<()> {
     // Validate inputs
     validate_shapes_path(&args.shapes)?;
     validate_graph_path(&args.graph)?;
-    
+
     println!("🚧 Placeholder: graph validate");
     println!("  Shapes: {}", args.shapes.trim());
     if let Some(graph) = &args.graph {
@@ -121,6 +126,13 @@ pub async fn run(args: &ValidateArgs) -> Result<()> {
 }
 
 pub async fn run_with_deps(args: &ValidateArgs, validator: &dyn ShaclValidator) -> Result<()> {
+    // Validate inputs
+    validate_shapes_path(&args.shapes)?;
+    validate_graph_path(&args.graph)?;
+
+    // Show progress for validation operation
+    println!("🔍 Validating graph against SHACL shapes...");
+
     let report = validator.validate(args.shapes.clone(), args.graph.clone())?;
 
     if report.conforms {
@@ -129,7 +141,12 @@ pub async fn run_with_deps(args: &ValidateArgs, validator: &dyn ShaclValidator) 
     }
 
     println!("❌ Graph does not conform to SHACL shapes");
-    println!("\nViolations:");
+    println!("\n📋 Violations:");
+
+    // Show progress for large violation sets
+    if report.violations.len() > 20 {
+        println!("📊 Processing {} violations...", report.violations.len());
+    }
 
     for violation in &report.violations {
         let severity_symbol = match violation.severity {
@@ -162,7 +179,10 @@ mod tests {
         let mut mock_validator = MockShaclValidator::new();
         mock_validator
             .expect_validate()
-            .with(eq(String::from("shapes.ttl")), eq(Some(String::from("data.ttl"))))
+            .with(
+                eq(String::from("shapes.ttl")),
+                eq(Some(String::from("data.ttl"))),
+            )
             .times(1)
             .returning(|_, _| {
                 Ok(ValidationReport {

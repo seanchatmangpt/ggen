@@ -1,3 +1,22 @@
+//! GitHub Actions workflow triggering and management.
+//!
+//! This module provides functionality to trigger GitHub Actions workflows,
+//! manage workflow runs, and monitor execution status. It integrates with
+//! GitHub API to provide comprehensive workflow management capabilities.
+//!
+//! # Examples
+//!
+//! ```bash
+//! ggen ci trigger workflow --name "build" --ref "main"
+//! ggen ci trigger dispatch --event "release" --payload '{"version": "1.0.0"}'
+//! ggen ci trigger rerun --run-id "12345"
+//! ```
+//!
+//! # Errors
+//!
+//! Returns errors if GitHub API calls fail, workflows don't exist, or if
+//! authentication is not properly configured.
+
 use clap::{Args, Subcommand};
 use ggen_utils::error::Result;
 // CLI output only - no library logging
@@ -69,7 +88,99 @@ pub async fn run(args: &TriggerArgs) -> Result<()> {
     }
 }
 
+/// Validate and sanitize workflow name input
+fn validate_workflow_name(workflow: &str) -> Result<()> {
+    // Validate workflow name is not empty
+    if workflow.trim().is_empty() {
+        return Err(ggen_utils::error::Error::new(
+            "Workflow name cannot be empty",
+        ));
+    }
+
+    // Validate workflow name length
+    if workflow.len() > 200 {
+        return Err(ggen_utils::error::Error::new(
+            "Workflow name too long (max 200 characters)",
+        ));
+    }
+
+    // Validate workflow name format (basic pattern check)
+    if !workflow
+        .chars()
+        .all(|c| c.is_alphanumeric() || c == '-' || c == '_' || c == '.')
+    {
+        return Err(ggen_utils::error::Error::new(
+            "Invalid workflow name format: only alphanumeric characters, dashes, underscores, and dots allowed",
+        ));
+    }
+
+    Ok(())
+}
+
+/// Validate and sanitize branch name input
+fn validate_branch_name(branch: &str) -> Result<()> {
+    // Validate branch name is not empty
+    if branch.trim().is_empty() {
+        return Err(ggen_utils::error::Error::new("Branch name cannot be empty"));
+    }
+
+    // Validate branch name length
+    if branch.len() > 200 {
+        return Err(ggen_utils::error::Error::new(
+            "Branch name too long (max 200 characters)",
+        ));
+    }
+
+    // Validate branch name format (basic pattern check)
+    if !branch
+        .chars()
+        .all(|c| c.is_alphanumeric() || c == '-' || c == '_' || c == '/' || c == '.')
+    {
+        return Err(ggen_utils::error::Error::new(
+            "Invalid branch name format: only alphanumeric characters, dashes, underscores, slashes, and dots allowed",
+        ));
+    }
+
+    Ok(())
+}
+
+/// Validate and sanitize input parameters
+fn validate_inputs(inputs: &Option<Vec<String>>) -> Result<()> {
+    if let Some(inputs) = inputs {
+        for input in inputs {
+            // Validate input is not empty
+            if input.trim().is_empty() {
+                return Err(ggen_utils::error::Error::new(
+                    "Input parameter cannot be empty",
+                ));
+            }
+
+            // Validate input length
+            if input.len() > 1000 {
+                return Err(ggen_utils::error::Error::new(
+                    "Input parameter too long (max 1000 characters)",
+                ));
+            }
+
+            // Validate input format (key=value)
+            if !input.contains('=') {
+                return Err(ggen_utils::error::Error::new_fmt(format_args!(
+                    "Invalid input format: '{}'. Expected 'key=value'",
+                    input
+                )));
+            }
+        }
+    }
+
+    Ok(())
+}
+
 async fn trigger_workflow(args: &WorkflowTriggerArgs) -> Result<()> {
+    // Validate inputs
+    validate_workflow_name(&args.workflow)?;
+    validate_branch_name(&args.branch)?;
+    validate_inputs(&args.inputs)?;
+
     println!("🚀 Triggering workflow: {}", args.workflow);
 
     let mut cmd = std::process::Command::new("gh");
@@ -99,7 +210,10 @@ async fn trigger_workflow(args: &WorkflowTriggerArgs) -> Result<()> {
 }
 
 async fn trigger_all_workflows(args: &AllTriggerArgs) -> Result<()> {
-    println!("Triggering all workflows on branch: {}", args.branch);
+    // Validate inputs
+    validate_branch_name(&args.branch)?;
+
+    println!("🚀 Triggering all workflows on branch: {}", args.branch);
 
     // Get list of workflows
     let mut list_cmd = std::process::Command::new("gh");
@@ -121,10 +235,10 @@ async fn trigger_all_workflows(args: &AllTriggerArgs) -> Result<()> {
         .filter_map(|line| line.split_whitespace().next())
         .collect();
 
-    println!("Found {} workflows to trigger", workflows.len());
+    println!("📋 Found {} workflows to trigger", workflows.len());
 
     for workflow in workflows {
-        println!("Triggering workflow: {}", workflow);
+        println!("🚀 Triggering workflow: {}", workflow);
 
         let mut cmd = std::process::Command::new("gh");
         cmd.args(["workflow", "run", workflow]);
@@ -134,7 +248,7 @@ async fn trigger_all_workflows(args: &AllTriggerArgs) -> Result<()> {
 
         if !output.status.success() {
             let stderr = String::from_utf8_lossy(&output.stderr);
-            println!("Failed to trigger workflow {}: {}", workflow, stderr);
+            println!("❌ Failed to trigger workflow {}: {}", workflow, stderr);
             continue;
         }
 
@@ -142,7 +256,7 @@ async fn trigger_all_workflows(args: &AllTriggerArgs) -> Result<()> {
     }
 
     if args.wait {
-        println!("Waiting for workflows to complete...");
+        println!("⏳ Waiting for workflows to complete...");
         // This would implement waiting logic
         // For now, just show a message
         println!("Use 'ggen ci workflow status' to check progress");
@@ -152,7 +266,10 @@ async fn trigger_all_workflows(args: &AllTriggerArgs) -> Result<()> {
 }
 
 async fn trigger_local_testing(args: &LocalTriggerArgs) -> Result<()> {
-    println!("Running local testing with act");
+    // Validate inputs
+    validate_workflow_name(&args.workflow)?;
+
+    println!("🧪 Running local testing with act");
 
     let mut cmd = std::process::Command::new("cargo");
     cmd.args(["make"]);

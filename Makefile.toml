@@ -150,6 +150,7 @@ args = [
 
 [tasks.act-release]
 description = "Run release workflows locally with act (parallel execution)"
+workspace = false
 script_runner = "@shell"
 script = '''
 ./scripts/act-release.sh
@@ -157,6 +158,7 @@ script = '''
 
 [tasks.act-release-dry-run]
 description = "Show what act-release would execute without running"
+workspace = false
 script_runner = "@shell"
 script = '''
 ./scripts/act-release.sh --dry-run
@@ -164,6 +166,7 @@ script = '''
 
 [tasks.act-release-workflow-only]
 description = "Run only the release workflow with act"
+workspace = false
 script_runner = "@shell"
 script = '''
 ./scripts/act-release.sh --workflow-only
@@ -171,6 +174,7 @@ script = '''
 
 [tasks.act-release-homebrew-only]
 description = "Run only the homebrew-release workflow with act"
+workspace = false
 script_runner = "@shell"
 script = '''
 ./scripts/act-release.sh --homebrew-only
@@ -178,6 +182,7 @@ script = '''
 
 [tasks.act-release-debug]
 description = "Run release workflows with debug output"
+workspace = false
 script_runner = "@shell"
 script = '''
 DEBUG=true ./scripts/act-release.sh
@@ -185,6 +190,7 @@ DEBUG=true ./scripts/act-release.sh
 
 [tasks.act-release-json]
 description = "Run release workflows with JSON output"
+workspace = false
 script_runner = "@shell"
 script = '''
 ./scripts/act-release.sh --json
@@ -192,6 +198,7 @@ script = '''
 
 [tasks.act-release-retry]
 description = "Run release workflows with retry logic"
+workspace = false
 script_runner = "@shell"
 script = '''
 ./scripts/act-release.sh --retry-failed
@@ -199,6 +206,7 @@ script = '''
 
 [tasks.act-release-metrics]
 description = "Run release workflows with metrics collection"
+workspace = false
 script_runner = "@shell"
 script = '''
 ./scripts/act-release.sh --metrics
@@ -206,6 +214,7 @@ script = '''
 
 [tasks.act-release-timeout]
 description = "Run release workflows with custom timeout"
+workspace = false
 script_runner = "@shell"
 script = '''
 ./scripts/act-release.sh --timeout 3600
@@ -213,6 +222,7 @@ script = '''
 
 [tasks.act-release-verbose]
 description = "Run release workflows with verbose output"
+workspace = false
 script_runner = "@shell"
 script = '''
 ./scripts/act-release.sh --verbose

@@ -1,0 +1,66 @@
+---
+name: "Knowledge-First Projection Example"
+description: "Demonstrates Pattern 001: Knowledge-First Projection with RDF semantic model"
+variables:
+  - name: domain_prefix
+    description: "Domain prefix for RDF URIs"
+    type: string
+    default: "http://example.org/"
+query: |
+  PREFIX : <{{domain_prefix}}>
+  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+  PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+  
+  SELECT ?className ?propName ?propType ?propLabel
+  WHERE {
+    ?class a rdfs:Class ;
+           rdfs:label ?className .
+    ?prop rdfs:domain ?class ;
+          rdfs:label ?propLabel ;
+          rdfs:range ?propType .
+    BIND(?propLabel AS ?propName)
+  }
+  ORDER BY ?className ?propName
+---
+
+// Knowledge-First Projection Example
+// Pattern 001: KNOWLEDGE-FIRST PROJECTION
+// 
+// This template demonstrates how semantic knowledge graphs
+// serve as the single source of truth for code generation.
+// All generated code traces back to specific RDF triples.
+
+{{#each results}}
+// Generated from semantic model:
+// Class: {{className}}
+// Property: {{propName}} ({{propType}})
+// Source: {{domain_prefix}}{{className}} rdfs:label "{{className}}"
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct {{pascalCase className}} {
+    pub {{snake_case propName}}: {{propType}},
+}
+
+impl {{pascalCase className}} {
+    pub fn new({{snake_case propName}}: {{propType}}) -> Self {
+        Self {
+            {{snake_case propName}},
+        }
+    }
+    
+    pub fn get_{{snake_case propName}}(&self) -> &{{propType}} {
+        &self.{{snake_case propName}}
+    }
+    
+    pub fn set_{{snake_case propName}}(&mut self, {{snake_case propName}}: {{propType}}) {
+        self.{{snake_case propName}} = {{snake_case propName}};
+    }
+}
+
+{{/each}}
+
+// This demonstrates the benefits of knowledge-first projection:
+// 1. Semantic consistency across all generated artifacts
+// 2. Traceability from generated code back to domain concepts
+// 3. Multi-language generation from the same semantic source
+// 4. Validation against semantic constraints

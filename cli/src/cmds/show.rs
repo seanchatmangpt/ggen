@@ -15,7 +15,40 @@ pub struct ShowArgs {
     pub vars: Vec<String>,
 }
 
+/// Validate and sanitize template reference input
+fn validate_template_ref(template_ref: &str) -> Result<()> {
+    // Validate template reference is not empty
+    if template_ref.trim().is_empty() {
+        return Err(ggen_utils::error::Error::new(
+            "Template reference cannot be empty",
+        ));
+    }
+    // Validate template reference length
+    if template_ref.len() > 500 {
+        return Err(ggen_utils::error::Error::new(
+            "Template reference too long (max 500 characters)",
+        ));
+    }
+    // Basic path traversal protection
+    if template_ref.contains("..") {
+        return Err(ggen_utils::error::Error::new(
+            "Path traversal detected: template reference cannot contain '..'",
+        ));
+    }
+    // Validate template reference format (basic pattern check)
+    if !template_ref
+        .chars()
+        .all(|c| c.is_alphanumeric() || c == '.' || c == '/' || c == ':' || c == '-' || c == '_')
+    {
+        return Err(ggen_utils::error::Error::new(
+            "Invalid template reference format: only alphanumeric characters, dots, slashes, colons, dashes, and underscores allowed",
+        ));
+    }
+    Ok(())
+}
+
 pub fn run(args: &ShowArgs) -> Result<()> {
+    validate_template_ref(&args.template)?;
     // Parse template path
     let template_path = if args.template.contains(':') {
         // Pack-based template reference
@@ -32,6 +65,7 @@ pub fn run(args: &ShowArgs) -> Result<()> {
     }
 
     // Read and parse template
+    println!("🔍 Loading template...");
     let content = std::fs::read_to_string(template_path)?;
     let mut template = Template::parse(&content)?;
 
@@ -44,6 +78,7 @@ pub fn run(args: &ShowArgs) -> Result<()> {
     }
 
     // Create context and render frontmatter
+    println!("⚙️  Processing variables...");
     let ctx = tera::Context::from_serialize(&vars)?;
     let mut pipeline = ggen_core::pipeline::PipelineBuilder::new().build()?;
 

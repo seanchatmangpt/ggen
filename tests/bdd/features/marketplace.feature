@@ -18,7 +18,7 @@ Feature: Marketplace
     Then I should see popular categories
 
   Scenario: Get package details
-    When I run "ggen market show io.ggen.rust.cli-subcommand"
+    When I run "ggen market info io.ggen.rust.cli-subcommand"
     Then I should see package metadata
     And I should see version information
     And I should see description

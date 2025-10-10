@@ -475,7 +475,7 @@ fn create_shacl_shapes(world: &mut GgenWorld) {
 ex:PersonShape a sh:NodeShape ;
     sh:targetClass ex:Person ;
     sh:property [ sh:path ex:name ; sh:minCount 1 ] ."#;
-    
+
     let file_path = world.project_dir.join("shapes.ttl");
     fs::write(&file_path, shacl).expect("Failed to write SHACL shapes");
 }
@@ -491,7 +491,7 @@ ex:ValidationShape a sh:NodeShape ;
         sh:minCount 1 ;
         sh:maxCount 1 
     ] ."#;
-    
+
     let file_path = world.project_dir.join("validation_shapes.ttl");
     fs::write(&file_path, shacl).expect("Failed to write validation shapes");
 }
@@ -500,7 +500,9 @@ ex:ValidationShape a sh:NodeShape ;
 fn should_see_validation_report(world: &mut GgenWorld) {
     let stdout = world.last_stdout();
     assert!(
-        stdout.contains("validation") || stdout.contains("conforms") || stdout.contains("violation"),
+        stdout.contains("validation")
+            || stdout.contains("conforms")
+            || stdout.contains("violation"),
         "Expected to see validation report in output, but got: {}",
         stdout
     );
@@ -564,9 +566,12 @@ fn should_see_total_triple_count(world: &mut GgenWorld) {
 fn should_see_graph_statistics(world: &mut GgenWorld) {
     let stdout = world.last_stdout();
     assert!(
-        stdout.contains("statistics") || stdout.contains("stats") || 
-        stdout.contains("subjects") || stdout.contains("predicates") || 
-        stdout.contains("objects") || stdout.contains("triples"),
+        stdout.contains("statistics")
+            || stdout.contains("stats")
+            || stdout.contains("subjects")
+            || stdout.contains("predicates")
+            || stdout.contains("objects")
+            || stdout.contains("triples"),
         "Expected to see graph statistics in output, but got: {}",
         stdout
     );

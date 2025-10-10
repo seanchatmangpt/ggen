@@ -1,3 +1,22 @@
+//! Performance analysis and optimization tools.
+//!
+//! This module provides functionality to analyze code performance characteristics,
+//! benchmark execution times, and identify optimization opportunities. It integrates
+//! with cargo-make to perform comprehensive performance analysis.
+//!
+//! # Examples
+//!
+//! ```bash
+//! ggen audit performance analyze --path ./src --benchmark
+//! ggen audit performance benchmark --iterations 1000
+//! ggen audit performance optimize --aggressive
+//! ```
+//!
+//! # Errors
+//!
+//! Returns errors if the underlying cargo-make commands fail or if
+//! the specified paths don't exist.
+
 use clap::{Args, Subcommand};
 use ggen_utils::error::Result;
 // CLI output only - no library logging
@@ -73,7 +92,69 @@ pub async fn run(args: &PerformanceArgs) -> Result<()> {
     }
 }
 
+/// Validate iterations count
+fn validate_iterations(iterations: usize) -> Result<()> {
+    if iterations == 0 {
+        return Err(ggen_utils::error::Error::new(
+            "Iterations must be greater than 0",
+        ));
+    }
+
+    if iterations > 10000 {
+        return Err(ggen_utils::error::Error::new(
+            "Iterations too high (max 10000)",
+        ));
+    }
+
+    Ok(())
+}
+
+/// Validate memory limit
+fn validate_memory_limit(limit: usize) -> Result<()> {
+    if limit == 0 {
+        return Err(ggen_utils::error::Error::new(
+            "Memory limit must be greater than 0",
+        ));
+    }
+
+    if limit > 10000 {
+        return Err(ggen_utils::error::Error::new(
+            "Memory limit too high (max 10000 MB)",
+        ));
+    }
+
+    Ok(())
+}
+
+/// Validate SLO name
+fn validate_slo_name(slo: &str) -> Result<()> {
+    if slo.trim().is_empty() {
+        return Err(ggen_utils::error::Error::new("SLO name cannot be empty"));
+    }
+
+    if slo.len() > 100 {
+        return Err(ggen_utils::error::Error::new(
+            "SLO name too long (max 100 characters)",
+        ));
+    }
+
+    // Validate SLO name format (basic pattern check)
+    if !slo
+        .chars()
+        .all(|c| c.is_alphanumeric() || c == '-' || c == '_')
+    {
+        return Err(ggen_utils::error::Error::new(
+            "Invalid SLO name format: only alphanumeric characters, dashes, and underscores allowed",
+        ));
+    }
+
+    Ok(())
+}
+
 async fn run_benchmark(args: &BenchmarkArgs) -> Result<()> {
+    // Validate input
+    validate_iterations(args.iterations)?;
+
     println!("⚡ Running performance benchmarks");
 
     let mut cmd = std::process::Command::new("cargo");
@@ -105,6 +186,9 @@ async fn run_benchmark(args: &BenchmarkArgs) -> Result<()> {
 }
 
 async fn check_memory(args: &MemoryArgs) -> Result<()> {
+    // Validate input
+    validate_memory_limit(args.limit)?;
+
     println!("💾 Checking memory usage");
 
     let mut cmd = std::process::Command::new("cargo");
@@ -136,6 +220,9 @@ async fn check_memory(args: &MemoryArgs) -> Result<()> {
 }
 
 async fn check_slo(args: &SloArgs) -> Result<()> {
+    // Validate input
+    validate_slo_name(&args.slo)?;
+
     println!("📊 Checking performance SLOs");
 
     let mut cmd = std::process::Command::new("cargo");

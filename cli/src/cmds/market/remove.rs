@@ -16,32 +16,33 @@ pub trait GpackUninstaller {
 fn validate_gpack_id(gpack_id: &str) -> Result<()> {
     // Validate gpack ID is not empty
     if gpack_id.trim().is_empty() {
-        return Err(ggen_utils::error::Error::new(
-            "Gpack ID cannot be empty",
-        ));
+        return Err(ggen_utils::error::Error::new("Gpack ID cannot be empty"));
     }
-    
+
     // Validate gpack ID length
     if gpack_id.len() > 200 {
         return Err(ggen_utils::error::Error::new(
             "Gpack ID too long (max 200 characters)",
         ));
     }
-    
+
     // Validate gpack ID format (basic pattern check)
-    if !gpack_id.chars().all(|c| c.is_alphanumeric() || c == '.' || c == '-' || c == '_') {
+    if !gpack_id
+        .chars()
+        .all(|c| c.is_alphanumeric() || c == '.' || c == '-' || c == '_')
+    {
         return Err(ggen_utils::error::Error::new(
             "Invalid gpack ID format: only alphanumeric characters, dots, dashes, and underscores allowed",
         ));
     }
-    
+
     Ok(())
 }
 
 pub async fn run(args: &RemoveArgs) -> Result<()> {
     // Validate input
     validate_gpack_id(&args.gpack_id)?;
-    
+
     println!("🚧 Placeholder: market remove");
     println!("  Gpack ID: {}", args.gpack_id.trim());
     Ok(())
@@ -50,10 +51,10 @@ pub async fn run(args: &RemoveArgs) -> Result<()> {
 pub async fn run_with_deps(args: &RemoveArgs, uninstaller: &dyn GpackUninstaller) -> Result<()> {
     // Validate input
     validate_gpack_id(&args.gpack_id)?;
-    
+
     // Show progress for removal
     println!("🔍 Removing gpack...");
-    
+
     let was_installed = uninstaller.uninstall(&args.gpack_id)?;
 
     if was_installed {

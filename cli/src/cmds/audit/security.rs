@@ -1,3 +1,22 @@
+//! Security vulnerability scanning and analysis.
+//!
+//! This module provides functionality to scan codebases for security vulnerabilities,
+//! analyze dependencies for known CVEs, and perform security audits. It integrates with
+//! cargo-make to perform comprehensive security analysis.
+//!
+//! # Examples
+//!
+//! ```bash
+//! ggen audit security scan --path ./src --verbose
+//! ggen audit security cve --package "serde" --version "1.0.0"
+//! ggen audit security audit --all
+//! ```
+//!
+//! # Errors
+//!
+//! Returns errors if the underlying cargo-make commands fail or if
+//! the specified paths don't exist.
+
 use clap::{Args, Subcommand};
 use ggen_utils::error::Result;
 // CLI output only - no library logging
@@ -77,7 +96,69 @@ pub async fn run(args: &SecurityArgs) -> Result<()> {
     }
 }
 
+/// Validate and sanitize path input
+fn validate_path(path: &str) -> Result<()> {
+    // Validate path is not empty
+    if path.trim().is_empty() {
+        return Err(ggen_utils::error::Error::new("Path cannot be empty"));
+    }
+
+    // Validate path length
+    if path.len() > 1000 {
+        return Err(ggen_utils::error::Error::new(
+            "Path too long (max 1000 characters)",
+        ));
+    }
+
+    // Basic path traversal protection
+    if path.contains("..") {
+        return Err(ggen_utils::error::Error::new(
+            "Path traversal detected: path cannot contain '..'",
+        ));
+    }
+
+    Ok(())
+}
+
+/// Validate and sanitize file path input (if provided)
+fn validate_file_path(file: &Option<String>) -> Result<()> {
+    if let Some(file) = file {
+        // Validate file path is not empty
+        if file.trim().is_empty() {
+            return Err(ggen_utils::error::Error::new("File path cannot be empty"));
+        }
+
+        // Validate file path length
+        if file.len() > 1000 {
+            return Err(ggen_utils::error::Error::new(
+                "File path too long (max 1000 characters)",
+            ));
+        }
+
+        // Basic path traversal protection
+        if file.contains("..") {
+            return Err(ggen_utils::error::Error::new(
+                "Path traversal detected: file path cannot contain '..'",
+            ));
+        }
+
+        // Validate file path format (basic pattern check)
+        if !file.chars().all(|c| {
+            c.is_alphanumeric() || c == '.' || c == '/' || c == '-' || c == '_' || c == '\\'
+        }) {
+            return Err(ggen_utils::error::Error::new(
+                "Invalid file path format: only alphanumeric characters, dots, slashes, dashes, underscores, and backslashes allowed",
+            ));
+        }
+    }
+
+    Ok(())
+}
+
 async fn scan_security(args: &ScanArgs) -> Result<()> {
+    // Validate input
+    validate_path(&args.path)?;
+
     println!("🔒 Scanning for security vulnerabilities");
 
     let mut cmd = std::process::Command::new("cargo");
@@ -146,6 +227,9 @@ async fn check_dependencies(args: &DependenciesArgs) -> Result<()> {
 }
 
 async fn audit_config(args: &ConfigArgs) -> Result<()> {
+    // Validate input
+    validate_file_path(&args.file)?;
+
     println!("⚙️ Auditing configuration files for security issues");
 
     let mut cmd = std::process::Command::new("cargo");

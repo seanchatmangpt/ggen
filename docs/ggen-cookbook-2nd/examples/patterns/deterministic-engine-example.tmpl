@@ -1,0 +1,67 @@
+---
+name: "Deterministic Engine Example"
+description: "Demonstrates Pattern 002: Deterministic Engine with reproducible generation"
+variables:
+  - name: service_name
+    description: "Name of the service"
+    type: string
+    default: "UserService"
+  - name: version
+    description: "API version"
+    type: string
+    default: "v1.0.0"
+determinism:
+  seed: "fixed-seed-for-determinism"
+  sort_results: true
+  canonical_order: true
+  no_timestamps: true
+  no_random: true
+query: |
+  PREFIX : <http://example.org/>
+  
+  SELECT ?endpointPath ?method ?order
+  WHERE {
+    ?endpoint a :Endpoint ;
+              :path ?endpointPath ;
+              :method ?method ;
+              :order ?order .
+  }
+  ORDER BY ?order ASC
+---
+
+// Deterministic Engine Example
+// Pattern 002: DETERMINISTIC ENGINE
+//
+// This template demonstrates how GGen ensures reproducible
+// generation by eliminating all sources of non-determinism.
+// Same inputs always produce identical outputs.
+
+// Generated service (deterministic)
+// Version: {{version}}
+// Service: {{service_name}}
+// Content hash: {{content_hash}}
+
+{{#each results}}
+// Endpoint {{@index}}: {{method}} {{endpointPath}}
+fn handle_{{uppercase method}}_{{snake_case endpointPath}}() {
+    // Implementation for {{method}} {{endpointPath}}
+    // Order: {{order}}
+}
+
+{{/each}}
+
+// Key deterministic features:
+// ✅ ORDER BY ?order ASC ensures consistent query results
+// ✅ {{@index}} uses loop position, not random IDs
+// ✅ {{content_hash}} computed from template content, not timestamp
+// ✅ No {{now}}, {{uuid}}, or {{random}} helpers
+// ✅ Fixed seed ensures reproducible pseudo-random operations
+// ✅ Canonical ordering of all data structures
+
+// This enables:
+// - Reproducible builds (same input graph = same output)
+// - Content-addressable caching (hash outputs to detect changes)
+// - Snapshot testing (generated code can be committed and diffed)
+// - Time-travel debugging (reproduce any historical generation exactly)
+// - AI-friendly (LLMs can predict outputs deterministically)
+// - Parallel safety (multiple workers generate identical results)

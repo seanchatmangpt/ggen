@@ -23,25 +23,26 @@ pub struct InstallResult {
 fn validate_gpack_input(spec: &str) -> Result<()> {
     // Validate gpack ID is not empty
     if spec.trim().is_empty() {
-        return Err(ggen_utils::error::Error::new(
-            "Gpack ID cannot be empty",
-        ));
+        return Err(ggen_utils::error::Error::new("Gpack ID cannot be empty"));
     }
-    
+
     // Validate gpack ID length
     if spec.len() > 200 {
         return Err(ggen_utils::error::Error::new(
             "Gpack ID too long (max 200 characters)",
         ));
     }
-    
+
     // Validate gpack ID format (basic pattern check)
-    if !spec.chars().all(|c| c.is_alphanumeric() || c == '.' || c == '@' || c == '-' || c == '_') {
+    if !spec
+        .chars()
+        .all(|c| c.is_alphanumeric() || c == '.' || c == '@' || c == '-' || c == '_')
+    {
         return Err(ggen_utils::error::Error::new(
             "Invalid gpack ID format: only alphanumeric characters, dots, dashes, underscores, and @ allowed",
         ));
     }
-    
+
     // Validate version format if present
     if let Some(pos) = spec.rfind('@') {
         let version = &spec[pos + 1..];
@@ -50,15 +51,18 @@ fn validate_gpack_input(spec: &str) -> Result<()> {
                 "Version cannot be empty when @ is specified",
             ));
         }
-        
+
         // Basic semantic version validation
-        if !version.chars().all(|c| c.is_alphanumeric() || c == '.' || c == '-') {
+        if !version
+            .chars()
+            .all(|c| c.is_alphanumeric() || c == '.' || c == '-')
+        {
             return Err(ggen_utils::error::Error::new(
                 "Invalid version format: only alphanumeric characters, dots, and dashes allowed",
             ));
         }
     }
-    
+
     Ok(())
 }
 
@@ -73,21 +77,17 @@ fn parse_gpack_spec(spec: &str) -> (String, Option<String>) {
 }
 
 pub async fn run(args: &AddArgs) -> Result<()> {
-    // Validate input
-    validate_gpack_input(&args.gpack_id)?;
-    
-    println!("🚧 Placeholder: market add");
-    println!("  Gpack ID: {}", args.gpack_id.trim());
-    Ok(())
+    let installer = CargoMakeGpackInstaller;
+    run_with_deps(args, &installer).await
 }
 
 pub async fn run_with_deps(args: &AddArgs, installer: &dyn GpackInstaller) -> Result<()> {
     // Validate input
     validate_gpack_input(&args.gpack_id)?;
-    
+
     // Show progress for installation
     println!("🔍 Installing gpack...");
-    
+
     let (gpack_id, version) = parse_gpack_spec(&args.gpack_id);
     let result = installer.install(gpack_id, version)?;
 
@@ -127,7 +127,10 @@ mod tests {
         let mut mock_installer = MockGpackInstaller::new();
         mock_installer
             .expect_install()
-            .with(eq(String::from("io.ggen.rust.cli")), eq(Some(String::from("1.0.0"))))
+            .with(
+                eq(String::from("io.ggen.rust.cli")),
+                eq(Some(String::from("1.0.0"))),
+            )
             .times(1)
             .returning(|id, version| {
                 Ok(InstallResult {
@@ -143,5 +146,38 @@ mod tests {
 
         let result = run_with_deps(&args, &mock_installer).await;
         assert!(result.is_ok());
+    }
+}
+
+// Concrete implementation for production use
+pub struct CargoMakeGpackInstaller;
+
+impl GpackInstaller for CargoMakeGpackInstaller {
+    fn install(&self, gpack_id: String, version: Option<String>) -> Result<InstallResult> {
+        // Use cargo make for gpack installation
+        let mut cmd = std::process::Command::new("cargo");
+        cmd.args(["make", "gpack-install"]);
+
+        cmd.arg("--gpack-id").arg(&gpack_id);
+
+        if let Some(ref version) = version {
+            cmd.arg("--version").arg(version);
+        }
+
+        let output = cmd.output()?;
+
+        if !output.status.success() {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            return Err(ggen_utils::error::Error::new_fmt(format_args!(
+                "Gpack installation failed: {}",
+                stderr
+            )));
+        }
+
+        Ok(InstallResult {
+            gpack_id,
+            version: version.unwrap_or_else(|| "latest".to_string()),
+            already_installed: false,
+        })
     }
 }
