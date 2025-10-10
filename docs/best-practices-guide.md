@@ -1,3 +1,43 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen-ai Best Practices Guide](#ggen-ai-best-practices-guide)
+  - [Table of Contents](#table-of-contents)
+  - [Architecture Overview](#architecture-overview)
+    - [Current Structure](#current-structure)
+    - [Key Design Patterns](#key-design-patterns)
+  - [Configuration Management](#configuration-management)
+    - [Problem Areas Identified](#problem-areas-identified)
+    - [Best Practice Solution](#best-practice-solution)
+      - [1. Create a Configuration Module](#1-create-a-configuration-module)
+      - [2. Configuration File Template](#2-configuration-file-template)
+      - [3. Environment Variables Template](#3-environment-variables-template)
+  - [Error Handling Patterns](#error-handling-patterns)
+    - [Current Implementation Analysis](#current-implementation-analysis)
+    - [Enhanced Error Handling](#enhanced-error-handling)
+      - [1. Enhanced Error Type](#1-enhanced-error-type)
+      - [2. Retry Logic Template](#2-retry-logic-template)
+  - [Testing Strategies](#testing-strategies)
+    - [Current Testing Analysis](#current-testing-analysis)
+    - [Comprehensive Testing Strategy](#comprehensive-testing-strategy)
+      - [1. Test Organization Structure](#1-test-organization-structure)
+      - [2. Test Fixtures Template](#2-test-fixtures-template)
+      - [3. Integration Test Template](#3-integration-test-template)
+      - [4. Property-Based Testing Template](#4-property-based-testing-template)
+  - [Code Organization](#code-organization)
+    - [Module Design Principles](#module-design-principles)
+    - [File Size Guidelines](#file-size-guidelines)
+    - [Module Split Template](#module-split-template)
+  - [Implementation Templates](#implementation-templates)
+    - [1. Provider Implementation Template](#1-provider-implementation-template)
+    - [2. Generator Implementation Template](#2-generator-implementation-template)
+  - [Summary](#summary)
+    - [Implementation Checklist](#implementation-checklist)
+    - [Quick Reference](#quick-reference)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen-ai Best Practices Guide
 
 ## Table of Contents
