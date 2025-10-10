@@ -1,3 +1,42 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen MCP Documentation Index](#ggen-mcp-documentation-index)
+  - [📁 Documentation Structure](#-documentation-structure)
+  - [📚 Documentation Files](#-documentation-files)
+    - [MCP_SERVER.md](#mcp_servermd)
+    - [MCP_USAGE_GUIDE.md](#mcp_usage_guidemd)
+    - [MCP_QUICK_REFERENCE.md](#mcp_quick_referencemd)
+  - [🎯 Examples](#-examples)
+    - [examples/mcp/README.md](#examplesmcpreadmemd)
+    - [Specific Examples](#specific-examples)
+  - [🚀 Quick Navigation](#-quick-navigation)
+    - [I want to...](#i-want-to)
+  - [📖 Reading Order](#-reading-order)
+    - [For Beginners](#for-beginners)
+    - [For Developers](#for-developers)
+    - [For Production Deployments](#for-production-deployments)
+  - [🔍 Search Guide](#-search-guide)
+    - [Search by Topic](#search-by-topic)
+    - [Search by Tool Category](#search-by-tool-category)
+  - [🎓 Learning Path](#-learning-path)
+    - [Beginner (30 minutes)](#beginner-30-minutes)
+    - [Intermediate (2 hours)](#intermediate-2-hours)
+    - [Advanced (1 day)](#advanced-1-day)
+  - [📝 Key Concepts](#-key-concepts)
+    - [What is MCP?](#what-is-mcp)
+    - [What is ggen?](#what-is-ggen)
+    - [Why ggen + MCP?](#why-ggen--mcp)
+  - [🆘 Getting Help](#-getting-help)
+    - [In-Documentation](#in-documentation)
+    - [External Resources](#external-resources)
+    - [Debug Commands](#debug-commands)
+  - [📊 Documentation Statistics](#-documentation-statistics)
+  - [🔗 Related Documentation](#-related-documentation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen MCP Documentation Index
 
 Complete guide to the ggen Model Context Protocol (MCP) server documentation.

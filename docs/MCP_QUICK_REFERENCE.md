@@ -1,3 +1,36 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen MCP Quick Reference](#ggen-mcp-quick-reference)
+  - [🚀 Quick Start](#-quick-start)
+    - [Install ggen](#install-ggen)
+    - [Configure Claude Desktop](#configure-claude-desktop)
+    - [Test](#test)
+  - [🛠️ Top 10 Tools](#-top-10-tools)
+  - [📝 Common Workflows](#-common-workflows)
+    - [Workflow 1: Find & Use Template](#workflow-1-find--use-template)
+    - [Workflow 2: RDF → Code](#workflow-2-rdf-%E2%86%92-code)
+    - [Workflow 3: Inject Without Duplicates](#workflow-3-inject-without-duplicates)
+  - [🔧 Configuration](#-configuration)
+    - [Environment Variables](#environment-variables)
+    - [Transport Options](#transport-options)
+  - [🐛 Troubleshooting](#-troubleshooting)
+    - [Server won't start](#server-wont-start)
+    - [Templates not found](#templates-not-found)
+    - [SPARQL queries fail](#sparql-queries-fail)
+  - [📚 Full Documentation](#-full-documentation)
+  - [🎯 Key Concepts](#-key-concepts)
+    - [Deterministic Generation](#deterministic-generation)
+    - [RDF-Backed Templates](#rdf-backed-templates)
+    - [Idempotent Injection](#idempotent-injection)
+  - [📊 Tool Categories](#-tool-categories)
+  - [⚡ Performance Tips](#-performance-tips)
+  - [🔒 Security](#-security)
+  - [🆘 Getting Help](#-getting-help)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen MCP Quick Reference
 
 Fast reference for using ggen with the Model Context Protocol.

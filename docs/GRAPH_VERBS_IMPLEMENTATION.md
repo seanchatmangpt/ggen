@@ -1,3 +1,35 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Graph Verbs Implementation Summary](#graph-verbs-implementation-summary)
+  - [Overview](#overview)
+  - [Implementation Status](#implementation-status)
+    - [✅ Fully Implemented](#-fully-implemented)
+  - [Command Examples](#command-examples)
+    - [1. Query - SPARQL Execution](#1-query---sparql-execution)
+    - [2. Validate - SHACL Validation](#2-validate---shacl-validation)
+    - [3. Load - RDF Data Ingestion](#3-load---rdf-data-ingestion)
+    - [4. Export - Graph Serialization](#4-export---graph-serialization)
+    - [5. Diff - Semantic Comparison](#5-diff---semantic-comparison)
+    - [6. Stats - Graph Analytics](#6-stats---graph-analytics)
+    - [7. Snapshot - Delta-Driven Projection](#7-snapshot---delta-driven-projection)
+  - [Architecture](#architecture)
+    - [Core Components](#core-components)
+    - [Security Features](#security-features)
+    - [Testing](#testing)
+  - [Core Graph Implementation](#core-graph-implementation)
+  - [Dependencies](#dependencies)
+  - [Usage Patterns](#usage-patterns)
+    - [1. Simple Query Workflow](#1-simple-query-workflow)
+    - [2. Validation Workflow](#2-validation-workflow)
+    - [3. Delta Analysis Workflow](#3-delta-analysis-workflow)
+  - [Future Enhancements](#future-enhancements)
+  - [Integration](#integration)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Graph Verbs Implementation Summary
 
 ## Overview
