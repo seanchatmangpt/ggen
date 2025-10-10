@@ -204,7 +204,7 @@ impl GgenMcpServer {
         }
     }
 
-    async fn execute_tool(&self, name: &str, params: Value) -> Result<Value> {
+    pub async fn execute_tool(&self, name: &str, params: Value) -> Result<Value> {
         match name {
             // Project tools
             "project_gen" => project::gen(params).await,

@@ -38,6 +38,7 @@
 //! ```
 
 pub mod client;
+pub mod config;
 pub mod providers;
 pub mod prompts;
 pub mod generators;
@@ -46,7 +47,8 @@ pub mod error;
 
 // Re-export main types for convenience
 pub use client::{LlmClient, LlmAdapter};
-pub use generators::{TemplateGenerator, SparqlGenerator, OntologyGenerator, RefactorAssistant};
+pub use config::{AiConfig, OpenAIConfig, AnthropicConfig, OllamaConfig};
+pub use generators::{TemplateGenerator, SparqlGenerator, OntologyGenerator, RefactorAssistant, TemplateValidator, ValidationResult, ValidationIssue, QualityMetrics};
 pub use error::{GgenAiError, Result};
 
 /// Version information

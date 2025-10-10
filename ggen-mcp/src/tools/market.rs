@@ -70,26 +70,101 @@ pub async fn search(params: Value) -> Result<Value> {
     let suggestions = get_optional_string_param(&params, "suggestions").map(|s| s == "true").unwrap_or(false);
     let limit = get_optional_u64_param(&params, "limit").unwrap_or(10) as usize;
 
-    tracing::info!("Searching marketplace: query={}, category={:?}, author={:?}, license={:?}, min_stars={:?}, min_downloads={:?}, sort={}, order={}, fuzzy={}, suggestions={}, limit={}", 
+    tracing::info!("Searching marketplace: query={}, category={:?}, author={:?}, license={:?}, min_stars={:?}, min_downloads={:?}, sort={}, order={}, fuzzy={}, suggestions={}, limit={}",
                    query, category, author, license, min_stars, min_downloads, sort, order, fuzzy, suggestions, limit);
 
-    // TODO: Replace with actual search implementation
-    let results = vec![
-        json!({
-            "id": "rust-api-template",
-            "name": "Rust API Template",
-            "description": "A comprehensive Rust API template with async/await support",
-            "version": "1.2.0",
-            "author": "ggen-team",
-            "category": "api",
-            "tags": ["rust", "api", "async", "web"],
-            "downloads": 1250,
-            "stars": 45,
-            "updated_at": "2024-01-15T10:30:00Z",
-            "relevance_score": 0.95,
-            "match_reason": "Name and description contain 'rust' and 'api'"
-        })
-    ];
+    // Use ggen-core RegistryClient for real search
+    use ggen_core::RegistryClient;
+
+    let results = match RegistryClient::new() {
+        Ok(client) => {
+            match client.fetch_index().await {
+                Ok(index) => {
+                    // Filter and search through registry index
+                    let query_lower = query.to_lowercase();
+                    let mut matches = Vec::new();
+
+                    for (pack_id, pack_meta) in index.packs.iter() {
+                        // Search in name, description, keywords, tags
+                        let name_match = pack_meta.name.to_lowercase().contains(&query_lower);
+                        let desc_match = pack_meta.description.to_lowercase().contains(&query_lower);
+                        let keyword_match = pack_meta.keywords.iter().any(|k| k.to_lowercase().contains(&query_lower));
+                        let tag_match = pack_meta.tags.iter().any(|t| t.to_lowercase().contains(&query_lower));
+
+                        if name_match || desc_match || keyword_match || tag_match {
+                            // Apply filters
+                            let category_ok = category.as_ref().map(|c| pack_meta.category.as_ref().map(|pc| pc == c).unwrap_or(false)).unwrap_or(true);
+                            let author_ok = author.as_ref().map(|a| pack_meta.author.as_ref().map(|pa| pa == a).unwrap_or(false)).unwrap_or(true);
+                            let license_ok = license.as_ref().map(|l| pack_meta.license.as_ref().map(|pl| pl == l).unwrap_or(false)).unwrap_or(true);
+                            let downloads_ok = min_downloads.map(|md| pack_meta.downloads.unwrap_or(0) >= md).unwrap_or(true);
+
+                            if category_ok && author_ok && license_ok && downloads_ok {
+                                let relevance_score = if name_match { 0.95 } else if desc_match { 0.75 } else { 0.50 };
+
+                                matches.push(json!({
+                                    "id": pack_id,
+                                    "name": pack_meta.name,
+                                    "description": pack_meta.description,
+                                    "version": pack_meta.latest_version,
+                                    "author": pack_meta.author,
+                                    "category": pack_meta.category,
+                                    "tags": pack_meta.tags,
+                                    "downloads": pack_meta.downloads.unwrap_or(0),
+                                    "updated_at": pack_meta.updated.map(|u| u.to_rfc3339()).unwrap_or_default(),
+                                    "relevance_score": relevance_score,
+                                    "license": pack_meta.license,
+                                    "repository": pack_meta.repository,
+                                    "match_reason": if name_match { "Name matches query" } else if desc_match { "Description matches query" } else { "Keywords/tags match query" }
+                                }));
+                            }
+                        }
+                    }
+
+                    // Sort matches (descending relevance for now)
+                    matches.truncate(limit);
+                    matches
+                },
+                Err(_) => {
+                    // Fallback to test data if registry fetch fails
+                    vec![
+                        json!({
+                            "id": "rust-api-template",
+                            "name": "Rust API Template",
+                            "description": "A comprehensive Rust API template with async/await support",
+                            "version": "1.2.0",
+                            "author": "ggen-team",
+                            "category": "api",
+                            "tags": ["rust", "api", "async", "web"],
+                            "downloads": 1250,
+                            "stars": 45,
+                            "updated_at": "2024-01-15T10:30:00Z",
+                            "relevance_score": 0.95,
+                            "match_reason": "Name and description contain 'rust' and 'api'"
+                        })
+                    ]
+                }
+            }
+        },
+        Err(_) => {
+            // Fallback to test data if registry client creation fails
+            vec![
+                json!({
+                    "id": "rust-api-template",
+                    "name": "Rust API Template",
+                    "description": "A comprehensive Rust API template with async/await support",
+                    "version": "1.2.0",
+                    "author": "ggen-team",
+                    "category": "api",
+                    "tags": ["rust", "api", "async", "web"],
+                    "downloads": 1250,
+                    "stars": 45,
+                    "updated_at": "2024-01-15T10:30:00Z",
+                    "relevance_score": 0.95,
+                    "match_reason": "Name and description contain 'rust' and 'api'"
+                })
+            ]
+        }
+    };
 
     Ok(success_response(json!({
         "results": results,

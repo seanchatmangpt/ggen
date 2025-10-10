@@ -204,3 +204,4 @@ fn show_example(template_type: String) -> Result<(), Box<dyn std::error::Error>>
 
     Ok(())
 }
+

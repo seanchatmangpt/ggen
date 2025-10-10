@@ -2,7 +2,7 @@
 
 use crate::client::{LlmClient, LlmConfig};
 use crate::error::{GgenAiError, Result};
-use crate::prompts::{SparqlPromptBuilder, SparqlPrompts};
+use crate::prompts::SparqlPromptBuilder;
 use futures::StreamExt;
 use ggen_core::Graph;
 use oxigraph::sparql::Query;
@@ -200,17 +200,21 @@ impl SparqlGenerator {
 
         // FILTER conditions
         for filter in &json_query.filters {
-            sparql.push_str(&format!("FILTER ({})\n", filter));
+            if !filter.trim().is_empty() {
+                sparql.push_str(&format!("FILTER ({})\n", filter));
+            }
         }
 
         // ORDER BY clause
         if let Some(order_by) = &json_query.order_by {
-            sparql.push_str("ORDER BY ");
-            let clauses: Vec<String> = order_by.iter()
-                .map(|clause| format!("{}({})", clause.direction, clause.variable))
-                .collect();
-            sparql.push_str(&clauses.join(" "));
-            sparql.push('\n');
+            if !order_by.is_empty() {
+                sparql.push_str("ORDER BY ");
+                let clauses: Vec<String> = order_by.iter()
+                    .map(|clause| format!("{}({})", clause.direction, clause.variable))
+                    .collect();
+                sparql.push_str(&clauses.join(" "));
+                sparql.push('\n');
+            }
         }
 
         // LIMIT clause
@@ -540,12 +544,6 @@ mod tests {
             .expect("Failed to insert turtle data");
 
         let result = generator.generate_query(&graph, "Find all triples").await;
-
-        // Debug the result
-        match &result {
-            Ok(query) => println!("Generated query: {}", query),
-            Err(e) => println!("Error: {:?}", e),
-        }
 
         // This should succeed with a valid SPARQL query
         assert!(result.is_ok());

@@ -18,7 +18,16 @@ ggen is a deterministic, language-agnostic code generation framework that treats
 multiple_crate_versions = "allow"
 
 [workspace]
-members = ["utils", "cli", "ggen-core", "ggen-mcp", "ggen-ai", "agents"]
+members = [
+  "utils",
+  "cli",
+  "ggen-core",
+  "ggen-mcp",
+  "ggen-ai",
+  "agents",
+  "examples/frontmatter-cli",
+  "examples/natural-market-search",
+]
 
 [features]
 nightly = ["ggen-utils/nightly"]

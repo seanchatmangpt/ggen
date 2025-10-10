@@ -24,6 +24,37 @@ pub struct LlmConfig {
     pub extra: HashMap<String, serde_json::Value>,
 }
 
+impl LlmConfig {
+    /// Validate the configuration
+    pub fn validate(&self) -> Result<()> {
+        if self.model.is_empty() {
+            return Err(GgenAiError::invalid_config("model", "Model name cannot be empty"));
+        }
+
+        if let Some(max_tokens) = self.max_tokens {
+            if max_tokens == 0 {
+                return Err(GgenAiError::invalid_config("max_tokens", "Must be greater than 0"));
+            }
+            if max_tokens > 128000 {
+                return Err(GgenAiError::invalid_config(
+                    "max_tokens",
+                    "Cannot exceed 128000 tokens",
+                ));
+            }
+        }
+
+        if let Some(temp) = self.temperature {
+            GgenAiError::validate_temperature(temp, "temperature")?;
+        }
+
+        if let Some(top_p) = self.top_p {
+            GgenAiError::validate_top_p(top_p, "top_p")?;
+        }
+
+        Ok(())
+    }
+}
+
 impl Default for LlmConfig {
     fn default() -> Self {
         Self {
@@ -185,13 +216,49 @@ mod tests {
     #[tokio::test]
     async fn test_llm_adapter() {
         let adapter = LlmAdapter::new();
-        
+
         // Test empty adapter
         assert!(adapter.get_client(None).is_err());
         assert!(adapter.complete("test", None).await.is_err());
-        
+
         // Test with mock client (would need actual implementation)
         // This is a placeholder for when we implement the providers
+    }
+
+    #[test]
+    fn test_llm_config_validation() {
+        // Valid config
+        let config = LlmConfig::default();
+        assert!(config.validate().is_ok());
+
+        // Empty model
+        let mut config = LlmConfig::default();
+        config.model = "".to_string();
+        assert!(config.validate().is_err());
+
+        // Invalid max_tokens
+        let mut config = LlmConfig::default();
+        config.max_tokens = Some(0);
+        assert!(config.validate().is_err());
+
+        config.max_tokens = Some(200000);
+        assert!(config.validate().is_err());
+
+        // Invalid temperature
+        let mut config = LlmConfig::default();
+        config.temperature = Some(-0.1);
+        assert!(config.validate().is_err());
+
+        config.temperature = Some(2.5);
+        assert!(config.validate().is_err());
+
+        // Invalid top_p
+        let mut config = LlmConfig::default();
+        config.top_p = Some(-0.1);
+        assert!(config.validate().is_err());
+
+        config.top_p = Some(1.5);
+        assert!(config.validate().is_err());
     }
 }
 

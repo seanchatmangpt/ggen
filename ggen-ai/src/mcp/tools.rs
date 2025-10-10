@@ -28,10 +28,12 @@ impl AiMcpTools {
     
     /// Initialize with OpenAI client
     pub fn with_openai(mut self, api_key: String) -> Self {
-        let client1 = Box::new(OpenAIClient::new(api_key.clone()));
-        let client2 = Box::new(OpenAIClient::new(api_key.clone()));
-        let client3 = Box::new(OpenAIClient::new(api_key.clone()));
-        let client4 = Box::new(OpenAIClient::new(api_key));
+        use crate::config::OpenAIConfig;
+        let config = OpenAIConfig::new(api_key);
+        let client1 = Box::new(OpenAIClient::new(config.clone()).unwrap());
+        let client2 = Box::new(OpenAIClient::new(config.clone()).unwrap());
+        let client3 = Box::new(OpenAIClient::new(config.clone()).unwrap());
+        let client4 = Box::new(OpenAIClient::new(config).unwrap());
         self.template_generator = Some(TemplateGenerator::new(client1));
         self.sparql_generator = Some(SparqlGenerator::new(client2));
         self.ontology_generator = Some(OntologyGenerator::new(client3));
@@ -41,10 +43,11 @@ impl AiMcpTools {
     
     /// Initialize with Anthropic client
     pub fn with_anthropic(mut self, api_key: String) -> Self {
-        let client1 = Box::new(AnthropicClient::new(api_key.clone()));
-        let client2 = Box::new(AnthropicClient::new(api_key.clone()));
-        let client3 = Box::new(AnthropicClient::new(api_key.clone()));
-        let client4 = Box::new(AnthropicClient::new(api_key));
+        let config = crate::config::AnthropicConfig::new(api_key);
+        let client1 = Box::new(AnthropicClient::new(config.clone()).expect("Failed to create Anthropic client"));
+        let client2 = Box::new(AnthropicClient::new(config.clone()).expect("Failed to create Anthropic client"));
+        let client3 = Box::new(AnthropicClient::new(config.clone()).expect("Failed to create Anthropic client"));
+        let client4 = Box::new(AnthropicClient::new(config).expect("Failed to create Anthropic client"));
         self.template_generator = Some(TemplateGenerator::new(client1));
         self.sparql_generator = Some(SparqlGenerator::new(client2));
         self.ontology_generator = Some(OntologyGenerator::new(client3));
@@ -54,10 +57,11 @@ impl AiMcpTools {
     
     /// Initialize with Ollama client using qwen3-coder:30b model
     pub fn with_ollama(mut self) -> Self {
-        let client1 = Box::new(OllamaClient::new());
-        let client2 = Box::new(OllamaClient::new());
-        let client3 = Box::new(OllamaClient::new());
-        let client4 = Box::new(OllamaClient::new());
+        let config = crate::config::OllamaConfig::new().with_default_model("qwen3-coder:30b");
+        let client1 = Box::new(OllamaClient::new(config.clone()).expect("Failed to create Ollama client"));
+        let client2 = Box::new(OllamaClient::new(config.clone()).expect("Failed to create Ollama client"));
+        let client3 = Box::new(OllamaClient::new(config.clone()).expect("Failed to create Ollama client"));
+        let client4 = Box::new(OllamaClient::new(config).expect("Failed to create Ollama client"));
         self.template_generator = Some(TemplateGenerator::with_ollama_qwen3_coder(client1));
         self.sparql_generator = Some(SparqlGenerator::with_ollama_qwen3_coder(client2));
         self.ontology_generator = Some(OntologyGenerator::with_ollama_qwen3_coder(client3));
@@ -66,7 +70,7 @@ impl AiMcpTools {
     }
     
     /// Initialize with Ollama client and specific model
-    pub fn with_ollama_model(mut self, _model: &str) -> Self {
+    pub fn with_ollama_model(self, _model: &str) -> Self {
         // Always use qwen3-coder:30b configuration regardless of model parameter
         self.with_ollama()
     }
