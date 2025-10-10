@@ -1,6 +1,6 @@
 [package]
 name = "ggen-cli-lib"
-version = "0.2.2"
+version = "0.2.3"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "CLI interface for ggen"
 edition = "2021"
@@ -15,8 +15,8 @@ multiple_crate_versions = "allow"
 
 [dependencies]
 anyhow = "1.0"
-ggen-utils = { path = "../utils", version = "0.2.2" }
-ggen-core = { path = "../ggen-core", version = "0.2.2" }
+ggen-utils = { path = "../utils", version = "0.2.3" }
+ggen-core = { path = "../ggen-core", version = "0.2.3" }
 clap_complete = "4.5.50"
 sha2 = "0.10"
 tera = "1.0"
