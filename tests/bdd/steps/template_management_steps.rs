@@ -33,8 +33,8 @@ Hello, {{ name }}!
         .unwrap_or_else(|e| panic!("Failed to write template {}: {}", filename, e));
 }
 
-#[given(regex = r#"^I have a template "([^"]+)" with content:$"#)]
-async fn have_template_with_content(world: &mut GgenWorld, filename: String, content: String) {
+#[given(regex = r#"^I have a managed template "([^"]+)" with content:$"#)]
+async fn have_managed_template_with_content(world: &mut GgenWorld, filename: String, content: String) {
     let file_path = world.project_dir.join(&filename);
     if let Some(parent) = file_path.parent() {
         fs::create_dir_all(parent).expect("Failed to create template directory");
@@ -52,10 +52,7 @@ async fn have_file_with_content(world: &mut GgenWorld, filename: String, content
 
 #[given(regex = r#"^I have templates "([^"]+)", "([^"]+)", "([^"]+)"$"#)]
 async fn have_multiple_templates(
-    world: &mut GgenWorld,
-    tmpl1: String,
-    tmpl2: String,
-    tmpl3: String,
+    world: &mut GgenWorld, tmpl1: String, tmpl2: String, tmpl3: String,
 ) {
     for tmpl in [tmpl1, tmpl2, tmpl3] {
         have_local_template(world, tmpl).await;
@@ -188,7 +185,7 @@ async fn should_see_gpack_templates(world: &mut GgenWorld) {
     let stdout = world.last_stdout();
     // Would check for gpack template patterns (io.ggen.*)
     assert!(
-        stdout.contains("io.ggen") || stdout.contains("gpack") || stdout.len() > 0,
+        stdout.contains("io.ggen") || stdout.contains("gpack") || !stdout.is_empty(),
         "Expected to see gpack templates, but got: {}",
         stdout
     );

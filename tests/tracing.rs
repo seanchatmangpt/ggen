@@ -163,7 +163,7 @@ fn test_tracing_memory_safety() {
     }
 
     // Should not cause memory issues
-    assert!(true);
+    // Test passes
 }
 
 #[test]
@@ -288,7 +288,7 @@ fn test_tracing_memory_safety_extended() -> Result<()> {
     }
 
     // Should not cause memory issues
-    assert!(true);
+    // Test passes
 
     Ok(())
 }

@@ -2,13 +2,13 @@ use clap::{Args, Subcommand};
 use ggen_utils::error::Result;
 
 // Declare verb modules
-pub mod search;
 pub mod add;
-pub mod remove;
-pub mod list;
-pub mod update;
-pub mod show;
 pub mod categories;
+pub mod list;
+pub mod remove;
+pub mod search;
+pub mod show;
+pub mod update;
 
 #[derive(Args, Debug)]
 pub struct MarketCmd {

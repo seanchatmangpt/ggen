@@ -88,9 +88,7 @@ pub async fn run(args: &GenArgs) -> Result<()> {
 
 /// Testable implementation with dependency injection (London TDD)
 pub async fn run_with_deps(
-    args: &GenArgs,
-    resolver: &dyn TemplateResolver,
-    generator: &dyn PlanGenerator,
+    args: &GenArgs, resolver: &dyn TemplateResolver, generator: &dyn PlanGenerator,
     applier: &dyn PlanApplier,
 ) -> Result<()> {
     // Step 1: Resolve template
@@ -136,11 +134,7 @@ mod tests {
         mock_generator
             .expect_generate_plan()
             .times(1)
-            .returning(|_, _| {
-                Ok(Plan {
-                    operations: vec![],
-                })
-            });
+            .returning(|_, _| Ok(Plan { operations: vec![] }));
 
         let mut mock_applier = MockPlanApplier::new();
         mock_applier.expect_apply().times(1).returning(|_| Ok(()));
@@ -163,12 +157,12 @@ mod tests {
     #[tokio::test]
     async fn test_gen_parses_variables() {
         let mut mock_resolver = MockTemplateResolver::new();
-        mock_resolver
-            .expect_resolve()
-            .returning(|_| Ok(Template {
+        mock_resolver.expect_resolve().returning(|_| {
+            Ok(Template {
                 content: String::new(),
                 frontmatter: HashMap::new(),
-            }));
+            })
+        });
 
         let mut mock_generator = MockPlanGenerator::new();
         mock_generator
@@ -198,12 +192,12 @@ mod tests {
     #[tokio::test]
     async fn test_gen_dry_run_skips_apply() {
         let mut mock_resolver = MockTemplateResolver::new();
-        mock_resolver
-            .expect_resolve()
-            .returning(|_| Ok(Template {
+        mock_resolver.expect_resolve().returning(|_| {
+            Ok(Template {
                 content: String::new(),
                 frontmatter: HashMap::new(),
-            }));
+            })
+        });
 
         let mut mock_generator = MockPlanGenerator::new();
         mock_generator

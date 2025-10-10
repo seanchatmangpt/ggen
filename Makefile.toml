@@ -68,31 +68,92 @@ args = ["--list"]
 description = "Run lint workflow locally with act"
 workspace = false
 command = "act"
-args = ["--container-architecture", "${ACT_CONTAINER_ARCH}", "--platform", "${ACT_PLATFORM}", "--memory", "${ACT_MEMORY}", "--cpus", "${ACT_CPUS}", "-j", "lint"]
+args = [
+  "--container-architecture",
+  "${ACT_CONTAINER_ARCH}",
+  "--platform",
+  "${ACT_PLATFORM}",
+  "--memory",
+  "${ACT_MEMORY}",
+  "--cpus",
+  "${ACT_CPUS}",
+  "-j",
+  "lint",
+]
 
 [tasks.act-test]
 description = "Run test workflow locally with act"
 workspace = false
 command = "act"
-args = ["--container-architecture", "${ACT_CONTAINER_ARCH}", "--platform", "${ACT_PLATFORM}", "--memory", "${ACT_MEMORY}", "--cpus", "${ACT_CPUS}", "-j", "test"]
+args = [
+  "--container-architecture",
+  "${ACT_CONTAINER_ARCH}",
+  "--platform",
+  "${ACT_PLATFORM}",
+  "--memory",
+  "${ACT_MEMORY}",
+  "--cpus",
+  "${ACT_CPUS}",
+  "-j",
+  "test",
+]
 
 [tasks.act-build]
 description = "Run build workflow locally with act"
 workspace = false
 command = "act"
-args = ["--container-architecture", "${ACT_CONTAINER_ARCH}", "--platform", "${ACT_PLATFORM}", "--memory", "${ACT_MEMORY}", "--cpus", "${ACT_CPUS}", "-j", "build"]
+args = [
+  "--container-architecture",
+  "${ACT_CONTAINER_ARCH}",
+  "--platform",
+  "${ACT_PLATFORM}",
+  "--memory",
+  "${ACT_MEMORY}",
+  "--cpus",
+  "${ACT_CPUS}",
+  "-j",
+  "build",
+]
 
 [tasks.act-audit]
 description = "Run security audit workflow locally with act"
 workspace = false
 command = "act"
-args = ["--container-architecture", "${ACT_CONTAINER_ARCH}", "--platform", "${ACT_PLATFORM}", "--memory", "${ACT_MEMORY}", "--cpus", "${ACT_CPUS}", "-j", "audit"]
+args = [
+  "--container-architecture",
+  "${ACT_CONTAINER_ARCH}",
+  "--platform",
+  "${ACT_PLATFORM}",
+  "--memory",
+  "${ACT_MEMORY}",
+  "--cpus",
+  "${ACT_CPUS}",
+  "-j",
+  "audit",
+]
 
 [tasks.act-all]
 description = "Run all workflows locally with act (lightweight)"
 workspace = false
 command = "act"
-args = ["--container-architecture", "${ACT_CONTAINER_ARCH}", "--platform", "${ACT_PLATFORM}", "--memory", "${ACT_MEMORY}", "--cpus", "${ACT_CPUS}", "--matrix"]
+args = [
+  "--container-architecture",
+  "${ACT_CONTAINER_ARCH}",
+  "--platform",
+  "${ACT_PLATFORM}",
+  "--memory",
+  "${ACT_MEMORY}",
+  "--cpus",
+  "${ACT_CPUS}",
+  "--matrix",
+]
+
+[tasks.act-release]
+description = "Run release workflows locally with act (parallel)"
+script_runner = "@shell"
+script = '''
+./scripts/act-release.sh
+'''
 
 [tasks.act-parallel]
 description = "Run multiple workflows in parallel"
@@ -114,25 +175,76 @@ echo "✅ Act cleanup complete"
 description = "Run lint workflow locally with act (lightweight, no cargo-make)"
 workspace = false
 command = "act"
-args = ["--container-architecture", "${ACT_CONTAINER_ARCH}", "--platform", "${ACT_PLATFORM}", "--memory", "1g", "--cpus", "1", "-W", ".github/workflows/lint.yml", "-j", "lint", "--artifact-server-path", "/tmp/act-artifacts"]
+args = [
+  "--container-architecture",
+  "${ACT_CONTAINER_ARCH}",
+  "--platform",
+  "${ACT_PLATFORM}",
+  "--memory",
+  "1g",
+  "--cpus",
+  "1",
+  "-W",
+  ".github/workflows/lint.yml",
+  "-j",
+  "lint",
+  "--artifact-server-path",
+  "/tmp/act-artifacts",
+]
 
 [tasks.act-test-light]
 description = "Run test workflow locally with act (lightweight)"
 workspace = false
 command = "act"
-args = ["--container-architecture", "${ACT_CONTAINER_ARCH}", "--platform", "${ACT_PLATFORM}", "--memory", "1g", "--cpus", "1", "-W", ".github/workflows/test.yml", "-j", "test", "--artifact-server-path", "/tmp/act-artifacts"]
+args = [
+  "--container-architecture",
+  "${ACT_CONTAINER_ARCH}",
+  "--platform",
+  "${ACT_PLATFORM}",
+  "--memory",
+  "1g",
+  "--cpus",
+  "1",
+  "-W",
+  ".github/workflows/test.yml",
+  "-j",
+  "test",
+  "--artifact-server-path",
+  "/tmp/act-artifacts",
+]
 
 [tasks.act-build-light]
 description = "Run build workflow locally with act (lightweight)"
 workspace = false
 command = "act"
-args = ["--container-architecture", "${ACT_CONTAINER_ARCH}", "--platform", "${ACT_PLATFORM}", "--memory", "1g", "--cpus", "1", "-W", ".github/workflows/build.yml", "-j", "build", "--artifact-server-path", "/tmp/act-artifacts"]
+args = [
+  "--container-architecture",
+  "${ACT_CONTAINER_ARCH}",
+  "--platform",
+  "${ACT_PLATFORM}",
+  "--memory",
+  "1g",
+  "--cpus",
+  "1",
+  "-W",
+  ".github/workflows/build.yml",
+  "-j",
+  "build",
+  "--artifact-server-path",
+  "/tmp/act-artifacts",
+]
 
 [tasks.act-dry-run]
 description = "Dry run all workflows (no execution)"
 workspace = false
 command = "act"
-args = ["--container-architecture", "${ACT_CONTAINER_ARCH}", "--platform", "${ACT_PLATFORM}", "--dryrun"]
+args = [
+  "--container-architecture",
+  "${ACT_CONTAINER_ARCH}",
+  "--platform",
+  "${ACT_PLATFORM}",
+  "--dryrun",
+]
 
 [tasks.act-status]
 description = "Check act installation and Docker status"

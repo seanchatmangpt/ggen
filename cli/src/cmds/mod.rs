@@ -1,8 +1,8 @@
 // New noun-verb structure
-pub mod project;
-pub mod market;
-pub mod template;
 pub mod graph;
+pub mod market;
+pub mod project;
+pub mod template;
 
 // Legacy flat commands (to be migrated)
 pub mod add;
@@ -35,25 +35,55 @@ pub enum Commands {
     Graph(graph::GraphCmd),
 
     // Legacy flat commands (deprecated, use nouns instead)
-    #[command(name = "search", about = "Search for gpacks in registry (deprecated: use 'ggen market search')")]
+    #[command(
+        name = "search",
+        about = "Search for gpacks in registry (deprecated: use 'ggen market search')"
+    )]
     Search(search::SearchArgs),
-    #[command(name = "categories", about = "Show popular categories and keywords (deprecated: use 'ggen market categories')")]
+    #[command(
+        name = "categories",
+        about = "Show popular categories and keywords (deprecated: use 'ggen market categories')"
+    )]
     Categories(categories::CategoriesArgs),
-    #[command(name = "add", about = "Add an gpack to the project (deprecated: use 'ggen market add')")]
+    #[command(
+        name = "add",
+        about = "Add an gpack to the project (deprecated: use 'ggen market add')"
+    )]
     Add(add::AddArgs),
-    #[command(name = "remove", about = "Remove an gpack from the project (deprecated: use 'ggen market remove')")]
+    #[command(
+        name = "remove",
+        about = "Remove an gpack from the project (deprecated: use 'ggen market remove')"
+    )]
     Remove(remove::RemoveArgs),
-    #[command(name = "packs", about = "List installed gpacks (deprecated: use 'ggen market list')")]
+    #[command(
+        name = "packs",
+        about = "List installed gpacks (deprecated: use 'ggen market list')"
+    )]
     Packs,
-    #[command(name = "update", about = "Update gpacks to latest compatible versions (deprecated: use 'ggen market update')")]
+    #[command(
+        name = "update",
+        about = "Update gpacks to latest compatible versions (deprecated: use 'ggen market update')"
+    )]
     Update(update::UpdateArgs),
-    #[command(name = "gen", about = "Generate code from templates (deprecated: use 'ggen project gen')")]
+    #[command(
+        name = "gen",
+        about = "Generate code from templates (deprecated: use 'ggen project gen')"
+    )]
     Gen(gen::GenArgs),
-    #[command(name = "list", about = "List available templates (deprecated: use 'ggen template list')")]
+    #[command(
+        name = "list",
+        about = "List available templates (deprecated: use 'ggen template list')"
+    )]
     List,
-    #[command(name = "show", about = "Show template metadata (deprecated: use 'ggen template show')")]
+    #[command(
+        name = "show",
+        about = "Show template metadata (deprecated: use 'ggen template show')"
+    )]
     Show(show::ShowArgs),
-    #[command(name = "lint", about = "Lint template with schema validation (deprecated: use 'ggen template lint')")]
+    #[command(
+        name = "lint",
+        about = "Lint template with schema validation (deprecated: use 'ggen template lint')"
+    )]
     Lint(lint::LintArgs),
     #[command(name = "github", about = "GitHub API operations (Pages, workflows)")]
     GitHub(github::GitHubArgs),

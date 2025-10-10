@@ -48,11 +48,6 @@ async fn create_plan_file(world: &mut GgenWorld, filename: String, content: Stri
         .unwrap_or_else(|e| panic!("Failed to write plan file {}: {}", filename, e));
 }
 
-#[given(regex = r"^the marketplace registry is available$")]
-async fn marketplace_registry_available(_world: &mut GgenWorld) {
-    // In a real test, we'd set up a mock registry
-    // For now, we'll skip tests that require the registry
-}
 
 #[given(regex = r#"^I have installed the gpack "([^"]+)"$"#)]
 async fn install_gpack(_world: &mut GgenWorld, _gpack_id: String) {
@@ -199,7 +194,7 @@ async fn should_see_pattern_in_output(world: &mut GgenWorld, pattern: String) {
 async fn both_outputs_should_be_identical(world: &mut GgenWorld) {
     // This requires capturing multiple outputs
     // For now, we'll use file hash comparison
-    if let Some(hash1) = world.captured_hashes.get(0) {
+    if let Some(hash1) = world.captured_hashes.first() {
         if let Some(hash2) = world.captured_hashes.get(1) {
             assert_eq!(
                 hash1, hash2,
@@ -216,8 +211,10 @@ async fn should_see_generated_in_output(world: &mut GgenWorld) {
     let stderr = world.last_stderr();
 
     assert!(
-        stdout.contains("Generated") || stdout.contains("generated") ||
-        stderr.contains("Generated") || stderr.contains("generated"),
+        stdout.contains("Generated")
+            || stdout.contains("generated")
+            || stderr.contains("Generated")
+            || stderr.contains("generated"),
         "Expected to see 'Generated' in output, but got:\nStdout: {}\nStderr: {}",
         stdout,
         stderr

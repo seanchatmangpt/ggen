@@ -127,9 +127,7 @@ mod tests {
         let mut mock_client = MockMarketplaceClient::new();
         mock_client
             .expect_search()
-            .withf(|_, filters| {
-                filters.category == Some("rust".to_string()) && filters.limit == 5
-            })
+            .withf(|_, filters| filters.category == Some("rust".to_string()) && filters.limit == 5)
             .times(1)
             .returning(|_, _| Ok(vec![]));
 

@@ -172,10 +172,10 @@ fn resolve_template(template_ref: &str, project_dir: &std::path::Path) -> Result
                 .iter()
                 .position(|l| l.contains(&format!("id = \"{}\"", pack_id)))
             {
-                for i in (idx + 1)..(idx + 5).min(lines.len()) {
-                    if lines[i].starts_with("version = ") {
+                for line in lines.iter().take((idx + 5).min(lines.len())).skip(idx + 1) {
+                    if line.starts_with("version = ") {
                         pack_version = Some(
-                            lines[i]
+                            line
                                 .trim_start_matches("version = \"")
                                 .trim_end_matches("\""),
                         );

@@ -18,8 +18,8 @@ use std::fs;
 // GIVEN steps - Setup preconditions
 // ============================================================================
 
-#[given(regex = r"^the marketplace registry is available$")]
-async fn marketplace_registry_available(_world: &mut GgenWorld) {
+#[given(regex = r"^the marketplace registry is available for market commands$")]
+async fn marketplace_registry_available_for_market(_world: &mut GgenWorld) {
     // Set environment variable for registry URL
     std::env::set_var(
         "GGEN_REGISTRY_URL",
@@ -40,9 +40,7 @@ async fn have_installed_gpack(world: &mut GgenWorld, package_id: String) {
 
 #[given(regex = r#"^I have installed the gpack "([^"]+)@([^"]+)"$"#)]
 async fn have_installed_gpack_with_version(
-    world: &mut GgenWorld,
-    package_id: String,
-    version: String,
+    world: &mut GgenWorld, package_id: String, version: String,
 ) {
     let lockfile_path = world.project_dir.join("ggen.lock");
     let lockfile_content = format!(
@@ -139,8 +137,8 @@ async fn output_should_be_valid_json(world: &mut GgenWorld) {
 #[then(regex = r#"^the JSON should contain a "([^"]+)" array$"#)]
 async fn json_should_contain_array(world: &mut GgenWorld, field: String) {
     let stdout = world.last_stdout();
-    let json: serde_json::Value = serde_json::from_str(&stdout)
-        .unwrap_or_else(|e| panic!("Failed to parse JSON: {}", e));
+    let json: serde_json::Value =
+        serde_json::from_str(&stdout).unwrap_or_else(|e| panic!("Failed to parse JSON: {}", e));
 
     assert!(
         json.get(&field).and_then(|v| v.as_array()).is_some(),
@@ -153,18 +151,11 @@ async fn json_should_contain_array(world: &mut GgenWorld, field: String) {
 #[then(regex = r#"^the gpack should be listed in "([^"]+)"$"#)]
 async fn gpack_should_be_in_lockfile(world: &mut GgenWorld, lockfile: String) {
     let lockfile_path = world.project_dir.join(&lockfile);
-    assert!(
-        lockfile_path.exists(),
-        "Lockfile {} should exist",
-        lockfile
-    );
+    assert!(lockfile_path.exists(), "Lockfile {} should exist", lockfile);
 
     let content = fs::read_to_string(&lockfile_path)
         .unwrap_or_else(|e| panic!("Failed to read lockfile: {}", e));
-    assert!(
-        !content.is_empty(),
-        "Lockfile should not be empty"
-    );
+    assert!(!content.is_empty(), "Lockfile should not be empty");
 }
 
 #[then(regex = r"^the gpack should be cached locally$")]
@@ -195,6 +186,7 @@ async fn gpack_should_not_be_in_lockfile(world: &mut GgenWorld, lockfile: String
             .unwrap_or_else(|e| panic!("Failed to read lockfile: {}", e));
         // In a real test, we'd check that the specific gpack is not listed
         // For now, we just verify the file exists or is empty
+        println!("Lockfile content: {}", content);
     }
 }
 
@@ -246,8 +238,11 @@ async fn gpack_updated_to_latest(_world: &mut GgenWorld) {
 async fn should_see_popular_categories(world: &mut GgenWorld) {
     let stdout = world.last_stdout();
     assert!(
-        stdout.contains("rust") || stdout.contains("python") || stdout.contains("typescript") ||
-        stdout.contains("category") || stdout.contains("Category"),
+        stdout.contains("rust")
+            || stdout.contains("python")
+            || stdout.contains("typescript")
+            || stdout.contains("category")
+            || stdout.contains("Category"),
         "Expected to see popular categories, but got: {}",
         stdout
     );

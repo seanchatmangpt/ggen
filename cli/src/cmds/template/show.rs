@@ -31,10 +31,7 @@ pub async fn run(args: &ShowArgs) -> Result<()> {
     Ok(())
 }
 
-pub async fn run_with_deps(
-    args: &ShowArgs,
-    fetcher: &dyn TemplateMetadataFetcher,
-) -> Result<()> {
+pub async fn run_with_deps(args: &ShowArgs, fetcher: &dyn TemplateMetadataFetcher) -> Result<()> {
     let metadata = fetcher.fetch_metadata(&args.template_ref)?;
 
     println!("Template: {}", metadata.name);
@@ -117,7 +114,10 @@ mod tests {
             .times(1)
             .returning(|_| {
                 let mut queries = HashMap::new();
-                queries.insert("get_classes".to_string(), "SELECT ?class WHERE { ?class a owl:Class }".to_string());
+                queries.insert(
+                    "get_classes".to_string(),
+                    "SELECT ?class WHERE { ?class a owl:Class }".to_string(),
+                );
 
                 Ok(TemplateMetadata {
                     name: "ontology.tmpl".to_string(),

@@ -22,11 +22,7 @@ pub struct LoadArgs {
 #[cfg_attr(test, mockall::automock)]
 pub trait RdfLoader {
     fn load(
-        &self,
-        file: String,
-        format: Option<String>,
-        base: Option<String>,
-        merge: bool,
+        &self, file: String, format: Option<String>, base: Option<String>, merge: bool,
     ) -> Result<LoadStats>;
 }
 
