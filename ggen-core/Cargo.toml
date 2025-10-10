@@ -33,7 +33,7 @@ gray_matter = { version = "0.3.2", features = ["yaml"] }
 Inflector = "0.11"
 heck = "0.5"
 regex = "1.10"
-colored = "2.0"
+colored = "3.0"
 toml = "0.8"
 lru = "0.12"
 ahash = "0.8"
