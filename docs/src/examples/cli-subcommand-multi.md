@@ -1,3 +1,24 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Multi-language CLI subcommand](#multi-language-cli-subcommand)
+  - [Using Marketplace Gpacks (Recommended)](#using-marketplace-gpacks-recommended)
+    - [1. Install Language-Specific Gpacks](#1-install-language-specific-gpacks)
+    - [2. Generate Across Languages](#2-generate-across-languages)
+    - [3. Verify Deterministic Output](#3-verify-deterministic-output)
+  - [Using Local Templates (Advanced)](#using-local-templates-advanced)
+  - [Determinism Verification](#determinism-verification)
+    - [Gpack Version Locking](#gpack-version-locking)
+    - [Lockfile Management](#lockfile-management)
+  - [Cross-Language Consistency](#cross-language-consistency)
+  - [Best Practices](#best-practices)
+    - [Gpack Selection](#gpack-selection)
+    - [Version Management](#version-management)
+    - [Testing Multi-Language Output](#testing-multi-language-output)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Multi-language CLI subcommand
 
 ## Using Marketplace Gpacks (Recommended)

@@ -1,3 +1,18 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Example: CLI subcommand](#example-cli-subcommand)
+  - [Using Marketplace Gpack (Recommended)](#using-marketplace-gpack-recommended)
+    - [1. Search and Install](#1-search-and-install)
+    - [2. Generate Code](#2-generate-code)
+    - [3. Verify Output](#3-verify-output)
+  - [Using Local Template (Advanced)](#using-local-template-advanced)
+  - [Comparison](#comparison)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Example: CLI subcommand
 
 ## Using Marketplace Gpack (Recommended)

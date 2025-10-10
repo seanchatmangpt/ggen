@@ -1,3 +1,35 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Determinism](#determinism)
+  - [Manifest Key Calculation](#manifest-key-calculation)
+  - [Hash Components](#hash-components)
+    - [Local Templates](#local-templates)
+    - [Marketplace Gpacks](#marketplace-gpacks)
+  - [Version Locking](#version-locking)
+    - [Gpack Version Management](#gpack-version-management)
+    - [Lockfile Structure](#lockfile-structure)
+  - [Deterministic Behavior](#deterministic-behavior)
+    - [Same Inputs → Identical Outputs](#same-inputs-%E2%86%92-identical-outputs)
+    - [Cross-Language Consistency](#cross-language-consistency)
+  - [Gpack Dependencies and Determinism](#gpack-dependencies-and-determinism)
+    - [Dependency Resolution](#dependency-resolution)
+    - [Dependency Hashing](#dependency-hashing)
+  - [Ensuring Determinism](#ensuring-determinism)
+    - [Gpack Development](#gpack-development)
+    - [Production Deployment](#production-deployment)
+  - [Troubleshooting Determinism](#troubleshooting-determinism)
+    - [Non-Deterministic Output](#non-deterministic-output)
+    - [Manifest Key Changes](#manifest-key-changes)
+    - [Cross-Environment Consistency](#cross-environment-consistency)
+  - [Best Practices](#best-practices)
+    - [Version Pinning](#version-pinning)
+    - [Dependency Management](#dependency-management)
+    - [Deterministic Testing](#deterministic-testing)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Determinism
 
 ggen ensures deterministic, reproducible code generation through manifest hashing and version locking.

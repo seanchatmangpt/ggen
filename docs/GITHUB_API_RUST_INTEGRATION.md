@@ -1,3 +1,41 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GitHub API Rust Integration](#github-api-rust-integration)
+  - [Overview](#overview)
+  - [Architecture](#architecture)
+    - [Code Overlap with Marketplace](#code-overlap-with-marketplace)
+    - [File Structure](#file-structure)
+  - [New Rust Modules](#new-rust-modules)
+    - [1. `ggen-core/src/github.rs`](#1-ggen-coresrcgithubrs)
+    - [2. `cli/src/cmds/github.rs`](#2-clisrccmdsgithubrs)
+  - [Usage Examples](#usage-examples)
+    - [Check GitHub Pages Status](#check-github-pages-status)
+    - [View Workflow Status](#view-workflow-status)
+    - [Trigger Workflow](#trigger-workflow)
+  - [Integration with cargo-make](#integration-with-cargo-make)
+    - [Before (bash + Python):](#before-bash--python)
+    - [After (Rust CLI):](#after-rust-cli)
+  - [Benefits of Rust Implementation](#benefits-of-rust-implementation)
+    - [1. **Code Reuse**](#1-code-reuse)
+    - [2. **Type Safety**](#2-type-safety)
+    - [3. **Better Error Messages**](#3-better-error-messages)
+    - [4. **Performance**](#4-performance)
+    - [5. **Maintainability**](#5-maintainability)
+    - [6. **Cross-Platform**](#6-cross-platform)
+  - [Authentication](#authentication)
+  - [Comparison: Old vs New](#comparison-old-vs-new)
+  - [Future Enhancements](#future-enhancements)
+  - [Testing](#testing)
+    - [Unit Tests](#unit-tests)
+    - [Integration Tests](#integration-tests)
+  - [Related Documentation](#related-documentation)
+  - [Migration Guide](#migration-guide)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GitHub API Rust Integration
 
 ## Overview

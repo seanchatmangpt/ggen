@@ -1,3 +1,38 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [P0 Critical Fixes Applied (80/20 Rule)](#p0-critical-fixes-applied-8020-rule)
+  - [✅ Completed (80% Impact with 20% Effort)](#-completed-80-impact-with-20-effort)
+    - [1. Compilation Errors - FIXED ✅](#1-compilation-errors---fixed-)
+    - [2. Module Naming - FIXED ✅](#2-module-naming---fixed-)
+    - [3. Critical Unwraps Identified 🎯](#3-critical-unwraps-identified-)
+      - [generator.rs:85](#generatorrs85)
+      - [template.rs:127](#templaters127)
+    - [4. Security - PATH TRAVERSAL CRITICAL ⚠️](#4-security---path-traversal-critical-)
+    - [5. Security - SHELL INJECTION ⚠️](#5-security---shell-injection-)
+    - [6. Clippy Warnings - IGNORED for 80/20 ⏭️](#6-clippy-warnings---ignored-for-8020-)
+  - [🎯 80/20 Assessment](#-8020-assessment)
+    - [What We Fixed (20% effort, 80% impact):](#what-we-fixed-20-effort-80-impact)
+    - [What We Skipped (80% effort, 20% impact):](#what-we-skipped-80-effort-20-impact)
+  - [📊 Current Status](#-current-status)
+  - [🚦 Release Readiness](#-release-readiness)
+    - [v0.1.0 Status: 🟡 CAUTION](#v010-status--caution)
+  - [🎯 Next Steps (For v0.2.0)](#-next-steps-for-v020)
+    - [P0 Remaining:](#p0-remaining)
+    - [P1 For Quality:](#p1-for-quality)
+    - [Estimated Time to Production-Ready:](#estimated-time-to-production-ready)
+  - [💡 Core Team Recommendations](#-core-team-recommendations)
+    - [Immediate Actions:](#immediate-actions)
+    - [Long-term Strategy:](#long-term-strategy)
+  - [🏆 Wins Achieved](#-wins-achieved)
+  - [📝 Lessons Learned](#-lessons-learned)
+    - [What Worked:](#what-worked)
+    - [What to Avoid:](#what-to-avoid)
+    - [Best Practices Applied:](#best-practices-applied)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # P0 Critical Fixes Applied (80/20 Rule)
 
 **Date:** 2025-10-08

@@ -1,3 +1,38 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [README Validation Report](#readme-validation-report)
+  - [Summary](#summary)
+  - [✅ What Works](#-what-works)
+    - [1. Local Binary Building](#1-local-binary-building)
+    - [2. CLI Commands Available](#2-cli-commands-available)
+    - [3. Template Discovery](#3-template-discovery)
+  - [❌ What Doesn't Work](#-what-doesnt-work)
+    - [1. Installation Methods](#1-installation-methods)
+      - [Homebrew Installation (BROKEN)](#homebrew-installation-broken)
+      - [Cargo Installation (BROKEN)](#cargo-installation-broken)
+    - [2. Marketplace Functionality (BROKEN)](#2-marketplace-functionality-broken)
+      - [Search Command (BROKEN)](#search-command-broken)
+      - [Categories Command (BROKEN)](#categories-command-broken)
+      - [Add Command (BROKEN)](#add-command-broken)
+    - [3. Template Generation Syntax (INCORRECT IN README)](#3-template-generation-syntax-incorrect-in-readme)
+      - [README Shows (WRONG):](#readme-shows-wrong)
+      - [Actual Syntax Required:](#actual-syntax-required)
+    - [4. Missing Commands (DOCUMENTED BUT NOT IMPLEMENTED)](#4-missing-commands-documented-but-not-implemented)
+      - [Validate Command (MISSING)](#validate-command-missing)
+    - [5. Show Command (BROKEN)](#5-show-command-broken)
+    - [6. Marketplace Examples (BROKEN)](#6-marketplace-examples-broken)
+  - [🔧 Documentation Errors](#-documentation-errors)
+    - [README.md Issues](#readmemd-issues)
+  - [📋 Recommended Fixes](#-recommended-fixes)
+    - [High Priority](#high-priority)
+    - [Medium Priority](#medium-priority)
+  - [🧪 Test Commands Reference](#-test-commands-reference)
+  - [📝 Conclusion](#-conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # README Validation Report
 
 **Test Date:** 2025-10-08

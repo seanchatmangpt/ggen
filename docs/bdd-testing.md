@@ -1,3 +1,47 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [BDD Testing Guide](#bdd-testing-guide)
+  - [Overview](#overview)
+  - [Test Structure](#test-structure)
+  - [Running BDD Tests](#running-bdd-tests)
+    - [Run All BDD Tests](#run-all-bdd-tests)
+    - [Run Specific Feature](#run-specific-feature)
+    - [Run with Coverage](#run-with-coverage)
+    - [Generate Report](#generate-report)
+  - [Feature Coverage](#feature-coverage)
+    - [Installation Features (`installation.feature`)](#installation-features-installationfeature)
+    - [Quick Start Features (`quickstart.feature`)](#quick-start-features-quickstartfeature)
+    - [Template Generation Features (`template_generation.feature`)](#template-generation-features-template_generationfeature)
+    - [Marketplace Features (`marketplace.feature`)](#marketplace-features-marketplacefeature)
+    - [CLI Commands Features (`cli_commands.feature`)](#cli-commands-features-cli_commandsfeature)
+    - [Determinism Features (`determinism.feature`)](#determinism-features-determinismfeature)
+    - [Multi-language Features (`multi_language.feature`)](#multi-language-features-multi_languagefeature)
+    - [RDF & SPARQL Features (`rdf_sparql.feature`)](#rdf--sparql-features-rdf_sparqlfeature)
+  - [Adding New Scenarios](#adding-new-scenarios)
+    - [1. Add Scenario to Feature File](#1-add-scenario-to-feature-file)
+    - [2. Implement Step Definitions](#2-implement-step-definitions)
+    - [3. Update Test Runner](#3-update-test-runner)
+  - [Debugging Failing Scenarios](#debugging-failing-scenarios)
+    - [1. Run with Verbose Output](#1-run-with-verbose-output)
+    - [2. Run Single Scenario](#2-run-single-scenario)
+    - [3. Check World State](#3-check-world-state)
+    - [4. Inspect Generated Files](#4-inspect-generated-files)
+  - [Best Practices](#best-practices)
+    - [1. Isolation](#1-isolation)
+    - [2. Determinism](#2-determinism)
+    - [3. Readability](#3-readability)
+    - [4. Maintainability](#4-maintainability)
+  - [Integration with CI](#integration-with-ci)
+  - [Coverage Expectations](#coverage-expectations)
+  - [Success Criteria](#success-criteria)
+  - [Troubleshooting](#troubleshooting)
+    - [Common Issues](#common-issues)
+    - [Getting Help](#getting-help)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # BDD Testing Guide
 
 This document describes the Behavior-Driven Development (BDD) test suite for ggen, which validates all claims made in the README.

@@ -1,3 +1,18 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Summary](#summary)
+  - [Getting Started](#getting-started)
+  - [Core Concepts](#core-concepts)
+  - [Reference](#reference)
+  - [Advanced Topics](#advanced-topics)
+  - [Examples](#examples)
+  - [Marketplace](#marketplace)
+  - [Architecture](#architecture)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Summary
 
 [ggen Documentation](README.md)
