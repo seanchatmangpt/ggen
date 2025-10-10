@@ -1,3 +1,39 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen-mcp Integration Test Suite Summary](#ggen-mcp-integration-test-suite-summary)
+  - [📊 Overview](#-overview)
+  - [✅ Test Suites Created](#-test-suites-created)
+    - [New Test Files (Testing Agent)](#new-test-files-testing-agent)
+      - [1. **e2e_workflow_tests.rs** (11 tests, 380 lines)](#1-e2e_workflow_testsrs-11-tests-380-lines)
+      - [2. **advanced_integration_tests.rs** (20+ tests, 520 lines)](#2-advanced_integration_testsrs-20-tests-520-lines)
+      - [3. **performance_stress_tests.rs** (14 tests, 470 lines)](#3-performance_stress_testsrs-14-tests-470-lines)
+    - [Existing Test Files (Pre-Implementation)](#existing-test-files-pre-implementation)
+      - [4. **integration_server.rs** (23 tests)](#4-integration_serverrs-23-tests)
+      - [5. **protocol_compliance.rs** (18 tests)](#5-protocol_compliancers-18-tests)
+      - [6. **tool_integration.rs** (30 tests)](#6-tool_integrationrs-30-tests)
+      - [7. **error_handling.rs** (31+ tests)](#7-error_handlingrs-31-tests)
+      - [8. **lib.rs** (5 tests)](#8-librs-5-tests)
+  - [📁 Test Infrastructure](#-test-infrastructure)
+    - [Common Utilities](#common-utilities)
+    - [Test Patterns](#test-patterns)
+  - [🎯 Coverage Areas](#-coverage-areas)
+    - [Core Functionality (95%+)](#core-functionality-95)
+    - [Tool Integration (90%+)](#tool-integration-90)
+    - [Error Handling (95%+)](#error-handling-95)
+    - [Performance (100%)](#performance-100)
+  - [⚠️ Current Status](#-current-status)
+  - [📊 Performance Targets](#-performance-targets)
+  - [🔄 Coordination & Memory](#-coordination--memory)
+  - [📝 Files Created](#-files-created)
+    - [Test Files (3 new, 1,370 lines)](#test-files-3-new-1370-lines)
+    - [Documentation (1 new)](#documentation-1-new)
+  - [🚀 Next Steps](#-next-steps)
+  - [✨ Summary](#-summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen-mcp Integration Test Suite Summary
 
 ## 📊 Overview
