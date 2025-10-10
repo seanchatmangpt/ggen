@@ -1,3 +1,21 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Validation Summary - Critical Findings](#validation-summary---critical-findings)
+  - [🔍 Issue Analysis](#-issue-analysis)
+    - [Root Cause Identified](#root-cause-identified)
+    - [Actual Problem](#actual-problem)
+  - [✅ What's Working](#-whats-working)
+  - [🚨 What Needs Fixing](#-what-needs-fixing)
+    - [File: `/Users/sac/ggen/ggen-ai/src/mcp/server.rs:119`](#file-userssacggenggen-aisrcmcpserverrs119)
+  - [📊 Validation Metrics](#-validation-metrics)
+  - [🎯 Immediate Action Required](#-immediate-action-required)
+  - [🔄 Next Steps](#-next-steps)
+  - [📝 Coordination Notes](#-coordination-notes)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Validation Summary - Critical Findings
 
 **Validation Agent Report**

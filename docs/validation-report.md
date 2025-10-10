@@ -1,3 +1,49 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Validation Report - ggen-ai Quality Assurance](#validation-report---ggen-ai-quality-assurance)
+  - [Executive Summary](#executive-summary)
+  - [1. Compilation Validation](#1-compilation-validation)
+    - [✅ Cargo Check Results](#-cargo-check-results)
+  - [2. Test Suite Validation](#2-test-suite-validation)
+    - [✅ Test Execution Summary](#-test-execution-summary)
+    - [Test Categories Validated:](#test-categories-validated)
+      - [2.1 Client & Adapter Tests (3 tests)](#21-client--adapter-tests-3-tests)
+      - [2.2 Generator Tests (15 tests)](#22-generator-tests-15-tests)
+      - [2.3 MCP Integration Tests (6 tests)](#23-mcp-integration-tests-6-tests)
+      - [2.4 Provider Tests (9 tests)](#24-provider-tests-9-tests)
+      - [2.5 Prompt Tests (12 tests)](#25-prompt-tests-12-tests)
+      - [2.6 Documentation Tests (1 test)](#26-documentation-tests-1-test)
+  - [3. Workspace Validation](#3-workspace-validation)
+    - [✅ Full Workspace Check](#-full-workspace-check)
+  - [4. Code Quality Analysis](#4-code-quality-analysis)
+    - [⚠️ Clippy Analysis](#-clippy-analysis)
+    - [Performance Profile](#performance-profile)
+  - [5. Regression Analysis](#5-regression-analysis)
+    - [🚨 CRITICAL REGRESSION DETECTED](#-critical-regression-detected)
+  - [6. Quality Metrics](#6-quality-metrics)
+  - [7. Recommendations](#7-recommendations)
+    - [🚨 CRITICAL - Immediate Actions Required:](#-critical---immediate-actions-required)
+    - [✅ Completed Actions:](#-completed-actions)
+    - [Code Quality Improvements:](#code-quality-improvements)
+    - [Maintenance Tasks:](#maintenance-tasks)
+  - [8. Validated Changes](#8-validated-changes)
+    - [Successfully Validated Components:](#successfully-validated-components)
+      - [Generators Module](#generators-module)
+      - [Providers Module](#providers-module)
+      - [MCP Integration](#mcp-integration)
+      - [Prompts Module](#prompts-module)
+  - [9. Test Coverage Analysis](#9-test-coverage-analysis)
+    - [Coverage by Module:](#coverage-by-module)
+    - [Test Quality Indicators:](#test-quality-indicators)
+  - [10. Production Readiness](#10-production-readiness)
+    - [✅ Production Ready Status](#-production-ready-status)
+  - [Conclusion](#conclusion)
+    - [Action Items:](#action-items)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Validation Report - ggen-ai Quality Assurance
 
 **Date:** 2025-10-10
