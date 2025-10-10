@@ -49,9 +49,38 @@ pub struct SearchResult {
     pub category: Option<String>,
 }
 
+/// Validate and sanitize search input
+fn validate_search_input(args: &SearchArgs) -> Result<()> {
+    // Validate query is not empty
+    if args.query.trim().is_empty() {
+        return Err(ggen_utils::error::Error::new(
+            "Search query cannot be empty",
+        ));
+    }
+
+    // Validate query length
+    if args.query.len() > 1000 {
+        return Err(ggen_utils::error::Error::new(
+            "Search query too long (max 1000 characters)",
+        ));
+    }
+
+    // Validate limit is reasonable
+    if args.limit > 100 {
+        return Err(ggen_utils::error::Error::new(
+            "Result limit too high (max 100)",
+        ));
+    }
+
+    Ok(())
+}
+
 pub async fn run(args: &SearchArgs) -> Result<()> {
+    // Validate input
+    validate_search_input(args)?;
+
     println!("🚧 Placeholder: market search");
-    println!("  Query: {}", args.query);
+    println!("  Query: {}", args.query.trim());
     println!("  Category: {:?}", args.category);
     println!("  Detailed: {}", args.detailed);
     println!("  JSON: {}", args.json);
@@ -59,6 +88,11 @@ pub async fn run(args: &SearchArgs) -> Result<()> {
 }
 
 pub async fn run_with_deps(args: &SearchArgs, client: &dyn MarketplaceClient) -> Result<()> {
+    // Show progress for long operations
+    if args.limit > 10 {
+        println!("🔍 Searching marketplace... (this may take a moment)");
+    }
+
     let filters = SearchFilters {
         category: args.category.clone(),
         keyword: args.keyword.clone(),
@@ -66,6 +100,11 @@ pub async fn run_with_deps(args: &SearchArgs, client: &dyn MarketplaceClient) ->
     };
 
     let results = client.search(&args.query, &filters)?;
+
+    // Show progress for large result sets
+    if results.len() > 20 {
+        println!("📊 Processing {} results...", results.len());
+    }
 
     if args.json {
         let json = serde_json::to_string_pretty(&results)?;
@@ -97,7 +136,7 @@ mod tests {
         let mut mock_client = MockMarketplaceClient::new();
         mock_client
             .expect_search()
-            .with(eq("rust"), always())
+            .with(eq(String::from("rust")), always())
             .times(1)
             .returning(|_, _| {
                 Ok(vec![SearchResult {

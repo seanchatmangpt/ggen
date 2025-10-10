@@ -1,6 +1,13 @@
 ---
-to: "output.txt"
-vars: ["name"]
----
+to: output.txt
+rdf: entities.ttl
+sparql: |
+  PREFIX ex: <http://example.org/>
+  SELECT ?name WHERE {
+    ?person a ex:Person ;
+      ex:name ?name .
+  }
+vars:
+  - name
 
 Hello {{name}}!

@@ -186,3 +186,23 @@ fn same_inputs_should_produce_same_manifest_hash(world: &mut GgenWorld) {
         "Same inputs should produce same manifest hash"
     );
 }
+
+// ============================================================================
+// Missing step definitions for determinism.feature
+// ============================================================================
+
+#[when(regex = r#"^I run "ggen gen test-template" with seed "([^"]+)"$"#)]
+fn run_ggen_gen_test_template_with_seed(world: &mut GgenWorld, seed: String) {
+    let output = Command::cargo_bin("ggen")
+        .expect("ggen binary not found")
+        .arg("gen")
+        .arg("test-template.tmpl")
+        .arg("--seed")
+        .arg(&seed)
+        .current_dir(&world.project_dir)
+        .output()
+        .expect("Failed to run generation with seed");
+
+    world.last_output = Some(output.clone());
+    world.last_exit_code = output.status.code();
+}

@@ -45,8 +45,8 @@ fn ggen_is_installed(_world: &mut GgenWorld) {
     );
 }
 
-#[when(regex = r"^I run (.+)$")]
-fn run_command(world: &mut GgenWorld, command: String) {
+#[when(regex = r"^I run the command (.+)$")]
+fn run_generic_command(world: &mut GgenWorld, command: String) {
     let args: Vec<&str> = command.split_whitespace().collect();
 
     if args.is_empty() {

@@ -15,7 +15,7 @@ Feature: Template Generation
           println!("hello {}", name);
       }
       """
-    When I run "ggen gen test-template"
+    When I run "ggen project gen test-template"
     Then the file "src/cmds/hello.rs" should exist
     And it should contain "pub fn hello(name: &str)"
 
@@ -36,7 +36,7 @@ Feature: Template Generation
       ---
       pub fn {{ slug }}(name: &str) { }
       """
-    When I run "ggen gen test-template"
+    When I run "ggen project gen test-template"
     Then the RDF graph should be processed
     And the output should use RDF-extracted variables
 
@@ -53,7 +53,7 @@ Feature: Template Generation
       ---
       pub fn {{ slug }}() { }
       """
-    When I run "ggen gen test-template"
+    When I run "ggen project gen test-template"
     Then SPARQL variables should be extracted
     And the output should use queried values
 
@@ -64,5 +64,5 @@ Feature: Template Generation
       determinism: { seed: "{{ cmd }}" }
       ---
       """
-    When I run "ggen gen test-template" multiple times
+    When I run "ggen project gen test-template" multiple times
     Then all outputs should be byte-identical

@@ -19,7 +19,6 @@ fn run_ggen_command(world: &mut GgenWorld, args: String) {
     world.last_exit_code = output.status.code();
 }
 
-
 #[when(regex = r"^I run ggen list$")]
 fn run_ggen_list(world: &mut GgenWorld) {
     let output = Command::cargo_bin("ggen")

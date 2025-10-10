@@ -16,7 +16,7 @@ use std::fs;
 // ============================================================================
 
 #[given(regex = r#"^I have a local template "([^"]+)"$"#)]
-async fn have_local_template(world: &mut GgenWorld, filename: String) {
+fn have_local_template(world: &mut GgenWorld, filename: String) {
     let template_content = r#"---
 to: "output.txt"
 vars:
@@ -33,34 +33,25 @@ Hello, {{ name }}!
         .unwrap_or_else(|e| panic!("Failed to write template {}: {}", filename, e));
 }
 
-#[given(regex = r#"^I have a managed template "([^"]+)" with content:$"#)]
-async fn have_managed_template_with_content(world: &mut GgenWorld, filename: String, content: String) {
-    let file_path = world.project_dir.join(&filename);
-    if let Some(parent) = file_path.parent() {
-        fs::create_dir_all(parent).expect("Failed to create template directory");
-    }
-    fs::write(&file_path, content.trim())
-        .unwrap_or_else(|e| panic!("Failed to write template {}: {}", filename, e));
-}
+// REMOVED: Duplicate step definition - handled by project_steps.rs
+// This step was causing ambiguity with project_steps.rs:27
 
 #[given(regex = r#"^I have a file "([^"]+)" with "([^"]+)"$"#)]
-async fn have_file_with_content(world: &mut GgenWorld, filename: String, content: String) {
+fn have_file_with_content(world: &mut GgenWorld, filename: String, content: String) {
     let file_path = world.project_dir.join(&filename);
     fs::write(&file_path, content)
         .unwrap_or_else(|e| panic!("Failed to write file {}: {}", filename, e));
 }
 
 #[given(regex = r#"^I have templates "([^"]+)", "([^"]+)", "([^"]+)"$"#)]
-async fn have_multiple_templates(
-    world: &mut GgenWorld, tmpl1: String, tmpl2: String, tmpl3: String,
-) {
+fn have_multiple_templates(world: &mut GgenWorld, tmpl1: String, tmpl2: String, tmpl3: String) {
     for tmpl in [tmpl1, tmpl2, tmpl3] {
-        have_local_template(world, tmpl).await;
+        have_local_template(world, tmpl);
     }
 }
 
 #[given(regex = r"^I have multiple templates with descriptions$")]
-async fn have_templates_with_descriptions(world: &mut GgenWorld) {
+fn have_templates_with_descriptions(world: &mut GgenWorld) {
     let template_with_desc = r#"---
 to: "output.txt"
 description: "A template with a description"
@@ -77,8 +68,8 @@ Content
         .expect("Failed to write template");
 }
 
-#[given(regex = r#"^I have a template "([^"]+)" with "([^"]+)"$"#)]
-async fn have_template_with_field(world: &mut GgenWorld, filename: String, field: String) {
+#[given(regex = r#"^I have a management template "([^"]+)" with field "([^"]+)"$"#)]
+fn have_management_template_with_field(world: &mut GgenWorld, filename: String, field: String) {
     let content = format!(
         r#"---
 to: "output.txt"
@@ -98,8 +89,8 @@ Content
 // WHEN steps - Execute actions
 // ============================================================================
 
-#[when(regex = r#"^I run "ggen template (.+)"$"#)]
-async fn run_ggen_template_command(world: &mut GgenWorld, args: String) {
+#[when(regex = r#"^I run "ggen template management (.+)"$"#)]
+fn run_ggen_template_management_command(world: &mut GgenWorld, args: String) {
     // Parse command line, handling quoted arguments
     let arg_list = shell_words::split(&args)
         .unwrap_or_else(|e| panic!("Failed to parse arguments '{}': {}", args, e));
@@ -117,7 +108,7 @@ async fn run_ggen_template_command(world: &mut GgenWorld, args: String) {
 }
 
 #[when(regex = r#"^I answer "([^"]+)" to "([^"]+)"$"#)]
-async fn answer_interactive_prompt(_world: &mut GgenWorld, _answer: String, _prompt: String) {
+fn answer_interactive_prompt(_world: &mut GgenWorld, _answer: String, _prompt: String) {
     // Interactive input handling would be implemented here
     // For now, this is a placeholder
 }
@@ -127,7 +118,7 @@ async fn answer_interactive_prompt(_world: &mut GgenWorld, _answer: String, _pro
 // ============================================================================
 
 #[then(regex = r"^the command should succeed$")]
-async fn command_should_succeed(world: &mut GgenWorld) {
+fn command_should_succeed(world: &mut GgenWorld) {
     assert!(
         world.last_command_succeeded(),
         "Command failed with exit code: {}\nStderr: {}",
@@ -136,8 +127,28 @@ async fn command_should_succeed(world: &mut GgenWorld) {
     );
 }
 
+#[then(regex = r"^I should see gpacks templates in output$")]
+fn should_see_gpacks_templates_in_output(world: &mut GgenWorld) {
+    let stdout = world.last_stdout();
+    assert!(
+        stdout.contains("gpack") || stdout.contains("io.ggen"),
+        "Expected to see gpack templates in output, but got: {}",
+        stdout
+    );
+}
+
+#[then(regex = r"^I should not see gpack templates in output$")]
+fn should_not_see_gpacks_templates_in_output(world: &mut GgenWorld) {
+    let stdout = world.last_stdout();
+    assert!(
+        !stdout.contains("gpack") && !stdout.contains("io.ggen"),
+        "Expected NOT to see gpack templates in output, but got: {}",
+        stdout
+    );
+}
+
 #[then(regex = r#"^the file "([^"]+)" should exist$"#)]
-async fn file_should_exist(world: &mut GgenWorld, filename: String) {
+fn file_should_exist(world: &mut GgenWorld, filename: String) {
     let file_path = world.project_dir.join(&filename);
     assert!(
         file_path.exists(),
@@ -148,14 +159,14 @@ async fn file_should_exist(world: &mut GgenWorld, filename: String) {
 }
 
 #[then(regex = r"^the file should contain valid YAML frontmatter$")]
-async fn file_should_contain_yaml_frontmatter(world: &mut GgenWorld) {
+fn file_should_contain_yaml_frontmatter(world: &mut GgenWorld) {
     // Would validate YAML frontmatter structure
     // For now, we just check the command succeeded
     assert!(world.last_command_succeeded());
 }
 
 #[then(regex = r#"^I should see "([^"]+)" in output$"#)]
-async fn should_see_in_output(world: &mut GgenWorld, expected: String) {
+fn should_see_in_output(world: &mut GgenWorld, expected: String) {
     let stdout = world.last_stdout();
     let stderr = world.last_stderr();
 
@@ -169,19 +180,19 @@ async fn should_see_in_output(world: &mut GgenWorld, expected: String) {
 }
 
 #[then(regex = r#"^the template should have "([^"]+)" set to "([^"]+)"$"#)]
-async fn template_should_have_field(world: &mut GgenWorld, field: String, value: String) {
+fn template_should_have_field(world: &mut GgenWorld, field: String, value: String) {
     // Would parse template and verify field value
     // For now, we verify the command succeeded
     let _ = (world, field, value);
 }
 
 #[then(regex = r#"^the template should have variables "([^"]+)" and "([^"]+)"$"#)]
-async fn template_should_have_variables(_world: &mut GgenWorld, _var1: String, _var2: String) {
+fn template_should_have_variables(_world: &mut GgenWorld, _var1: String, _var2: String) {
     // Would parse template and verify variables
 }
 
 #[then(regex = r"^I should see gpacks templates in output$")]
-async fn should_see_gpack_templates(world: &mut GgenWorld) {
+fn should_see_gpack_templates(world: &mut GgenWorld) {
     let stdout = world.last_stdout();
     // Would check for gpack template patterns (io.ggen.*)
     assert!(
@@ -192,7 +203,7 @@ async fn should_see_gpack_templates(world: &mut GgenWorld) {
 }
 
 #[then(regex = r"^I should not see gpack templates in output$")]
-async fn should_not_see_gpack_templates(world: &mut GgenWorld) {
+fn should_not_see_gpack_templates(world: &mut GgenWorld) {
     let stdout = world.last_stdout();
     assert!(
         !stdout.contains("io.ggen"),
@@ -202,7 +213,7 @@ async fn should_not_see_gpack_templates(world: &mut GgenWorld) {
 }
 
 #[then(regex = r"^I should see template metadata$")]
-async fn should_see_template_metadata(world: &mut GgenWorld) {
+fn should_see_template_metadata(world: &mut GgenWorld) {
     let stdout = world.last_stdout();
     assert!(
         stdout.contains("to:") || stdout.contains("vars:") || stdout.contains("description"),
@@ -212,20 +223,130 @@ async fn should_see_template_metadata(world: &mut GgenWorld) {
 }
 
 #[then(regex = r"^RDF validation should pass$")]
-async fn rdf_validation_should_pass(_world: &mut GgenWorld) {
+fn rdf_validation_should_pass(_world: &mut GgenWorld) {
     // Would validate RDF syntax
 }
 
 #[then(regex = r"^the command should fail$")]
-async fn command_should_fail(world: &mut GgenWorld) {
+fn command_should_fail(world: &mut GgenWorld) {
     assert!(
         !world.last_command_succeeded(),
         "Command should have failed but succeeded"
     );
 }
 
+// ============================================================================
+// Missing step definitions for template.feature
+// ============================================================================
+
+#[when(regex = r#"^I run "ggen template (.+)"$"#)]
+fn run_ggen_template_command(world: &mut GgenWorld, args: String) {
+    // Parse the command line, handling quoted arguments
+    let parts: Vec<&str> = args.split_whitespace().collect();
+    let mut cmd = Command::cargo_bin("ggen").expect("ggen binary not found");
+    cmd.arg("template");
+
+    for part in parts {
+        cmd.arg(part);
+    }
+
+    let output = cmd
+        .current_dir(&world.project_dir)
+        .output()
+        .expect("Failed to run ggen template command");
+
+    world.last_output = Some(output.clone());
+    world.last_exit_code = output.status.code();
+}
+
+#[given(regex = r#"^I have a template "([^"]+)" with content:$"#)]
+fn have_template_with_content_named(world: &mut GgenWorld, filename: String, content: String) {
+    let file_path = world.project_dir.join(&filename);
+    if let Some(parent) = file_path.parent() {
+        fs::create_dir_all(parent).expect("Failed to create template dir");
+    }
+    fs::write(&file_path, content.trim())
+        .unwrap_or_else(|e| panic!("Failed to write template {}: {}", filename, e));
+}
+
+#[given(regex = r#"^I have a template "([^"]+)"$"#)]
+fn have_template_named(world: &mut GgenWorld, filename: String) {
+    let template_content = format!(
+        r#"---
+to: {}.rs
+vars: {{ name: "hello" }}
+---
+fn main() {{
+    println!("Hello, {{name}}!");
+}}
+"#,
+        filename.trim_end_matches(".tmpl")
+    );
+
+    let file_path = world.project_dir.join(&filename);
+    if let Some(parent) = file_path.parent() {
+        fs::create_dir_all(parent).expect("Failed to create template dir");
+    }
+    fs::write(&file_path, template_content)
+        .unwrap_or_else(|e| panic!("Failed to write template {}: {}", filename, e));
+}
+
+#[given(regex = r#"^I have a template "([^"]+)" with "([^"]+)"$"#)]
+fn have_template_with_version(world: &mut GgenWorld, filename: String, version: String) {
+    let template_content = format!(
+        r#"---
+to: {}.rs
+vars: {{ name: "hello", version: "{}" }}
+---
+fn main() {{
+    println!("Hello, {{name}}! Version {{version}}");
+}}
+"#,
+        filename.trim_end_matches(".tmpl"),
+        version
+    );
+
+    let file_path = world.project_dir.join(&filename);
+    if let Some(parent) = file_path.parent() {
+        fs::create_dir_all(parent).expect("Failed to create template dir");
+    }
+    fs::write(&file_path, template_content)
+        .unwrap_or_else(|e| panic!("Failed to write template {}: {}", filename, e));
+}
+
+#[given(regex = r"^I have multiple templates with descriptions$")]
+fn have_multiple_templates_with_descriptions(world: &mut GgenWorld) {
+    let templates_dir = world.project_dir.join("templates");
+    fs::create_dir_all(&templates_dir).expect("Failed to create templates directory");
+
+    let templates = vec![
+        ("hello.tmpl", "Simple hello world template"),
+        ("goodbye.tmpl", "Farewell message template"),
+        ("test.tmpl", "Unit test template"),
+    ];
+
+    for (filename, description) in templates {
+        let template_content = format!(
+            r#"---
+to: {}.rs
+vars: {{ name: "world" }}
+description: "{}"
+---
+fn main() {{
+    println!("Hello, {{name}}!");
+}}
+"#,
+            filename.trim_end_matches(".tmpl"),
+            description
+        );
+
+        fs::write(templates_dir.join(filename), template_content)
+            .unwrap_or_else(|_| panic!("Failed to write template {}", filename));
+    }
+}
+
 #[then(regex = r#"^I should see "([^"]+)" in stderr$"#)]
-async fn should_see_in_stderr(world: &mut GgenWorld, expected: String) {
+fn should_see_in_stderr(world: &mut GgenWorld, expected: String) {
     let stderr = world.last_stderr();
     assert!(
         stderr.contains(&expected),
@@ -236,13 +357,13 @@ async fn should_see_in_stderr(world: &mut GgenWorld, expected: String) {
 }
 
 #[then(regex = r#"^a template should be created from "([^"]+)"$"#)]
-async fn template_created_from_file(world: &mut GgenWorld, _source: String) {
+fn template_created_from_file(world: &mut GgenWorld, _source: String) {
     // Would verify template was created from existing file
     assert!(world.last_command_succeeded());
 }
 
 #[then(regex = r#"^I should not see "([^"]+)" in output$"#)]
-async fn should_not_see_in_output(world: &mut GgenWorld, unexpected: String) {
+fn should_not_see_in_output(world: &mut GgenWorld, unexpected: String) {
     let stdout = world.last_stdout();
     let stderr = world.last_stderr();
 
@@ -256,22 +377,22 @@ async fn should_not_see_in_output(world: &mut GgenWorld, unexpected: String) {
 }
 
 #[then(regex = r"^I should see a preview of rendered output$")]
-async fn should_see_preview_of_output(_world: &mut GgenWorld) {
+fn should_see_preview_of_output(_world: &mut GgenWorld) {
     // Would verify preview output
 }
 
 #[then(regex = r"^the template should have RDF frontmatter section$")]
-async fn template_should_have_rdf_section(_world: &mut GgenWorld) {
+fn template_should_have_rdf_section(_world: &mut GgenWorld) {
     // Would verify RDF section in template
 }
 
 #[then(regex = r"^the template should have SPARQL section$")]
-async fn template_should_have_sparql_section(_world: &mut GgenWorld) {
+fn template_should_have_sparql_section(_world: &mut GgenWorld) {
     // Would verify SPARQL section in template
 }
 
 #[then(regex = r"^I should see descriptions for each template$")]
-async fn should_see_descriptions_for_templates(world: &mut GgenWorld) {
+fn should_see_descriptions_for_templates(world: &mut GgenWorld) {
     let stdout = world.last_stdout();
     assert!(
         stdout.contains("description") || stdout.contains("Description"),
@@ -281,6 +402,6 @@ async fn should_see_descriptions_for_templates(world: &mut GgenWorld) {
 }
 
 #[then(regex = r"^I should see compatibility information$")]
-async fn should_see_compatibility_info(_world: &mut GgenWorld) {
+fn should_see_compatibility_info(_world: &mut GgenWorld) {
     // Would verify compatibility information
 }

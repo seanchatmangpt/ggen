@@ -245,10 +245,10 @@ impl RegistryClient {
     fn matches_filters(&self, pack: &PackMetadata, params: &SearchParams<'_>) -> bool {
         // Category filter
         if let Some(category) = params.category {
-              if pack
-                  .category
-                  .as_ref()
-                  .is_none_or(|c| c.to_lowercase() != category.to_lowercase())
+            if pack
+                .category
+                .as_ref()
+                .is_none_or(|c| c.to_lowercase() != category.to_lowercase())
             {
                 return false;
             }

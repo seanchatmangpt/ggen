@@ -1,8 +1,1 @@
-version = "1.0"
-generated = "2025-10-09T04:06:33.817971Z"
-
-[[packs]]
-id = "io.ggen.rust.cli-subcommand"
-version = "0.1.0"
-sha256 = "to_be_calculated"
-source = "https://github.com/seanchatmangpt/ggen.git"
+{"packages": {"io.ggen.rust.cli-subcommand": {"version": "0.2.0", "sha256": "abc123", "installed": true}}}

@@ -37,10 +37,86 @@ pub enum Severity {
     Info,
 }
 
+/// Validate and sanitize shapes file path input
+fn validate_shapes_path(shapes: &str) -> Result<()> {
+    // Validate shapes path is not empty
+    if shapes.trim().is_empty() {
+        return Err(ggen_utils::error::Error::new(
+            "Shapes file path cannot be empty",
+        ));
+    }
+    
+    // Validate shapes path length
+    if shapes.len() > 1000 {
+        return Err(ggen_utils::error::Error::new(
+            "Shapes file path too long (max 1000 characters)",
+        ));
+    }
+    
+    // Basic path traversal protection
+    if shapes.contains("..") {
+        return Err(ggen_utils::error::Error::new(
+            "Path traversal detected: shapes file path cannot contain '..'",
+        ));
+    }
+    
+    // Validate shapes path format (basic pattern check)
+    if !shapes.chars().all(|c| c.is_alphanumeric() || c == '.' || c == '/' || c == '-' || c == '_' || c == '\\') {
+        return Err(ggen_utils::error::Error::new(
+            "Invalid shapes file path format: only alphanumeric characters, dots, slashes, dashes, underscores, and backslashes allowed",
+        ));
+    }
+    
+    Ok(())
+}
+
+/// Validate and sanitize graph file path input (if provided)
+fn validate_graph_path(graph: &Option<String>) -> Result<()> {
+    if let Some(graph) = graph {
+        // Validate graph path is not empty
+        if graph.trim().is_empty() {
+            return Err(ggen_utils::error::Error::new(
+                "Graph file path cannot be empty",
+            ));
+        }
+        
+        // Validate graph path length
+        if graph.len() > 1000 {
+            return Err(ggen_utils::error::Error::new(
+                "Graph file path too long (max 1000 characters)",
+            ));
+        }
+        
+        // Basic path traversal protection
+        if graph.contains("..") {
+            return Err(ggen_utils::error::Error::new(
+                "Path traversal detected: graph file path cannot contain '..'",
+            ));
+        }
+        
+        // Validate graph path format (basic pattern check)
+        if !graph.chars().all(|c| c.is_alphanumeric() || c == '.' || c == '/' || c == '-' || c == '_' || c == '\\') {
+            return Err(ggen_utils::error::Error::new(
+                "Invalid graph file path format: only alphanumeric characters, dots, slashes, dashes, underscores, and backslashes allowed",
+            ));
+        }
+    }
+    
+    Ok(())
+}
+
 pub async fn run(args: &ValidateArgs) -> Result<()> {
+    // Validate inputs
+    validate_shapes_path(&args.shapes)?;
+    validate_graph_path(&args.graph)?;
+    
     println!("🚧 Placeholder: graph validate");
-    println!("  Shapes: {}", args.shapes);
-    println!("  Graph: {:?}", args.graph);
+    println!("  Shapes: {}", args.shapes.trim());
+    if let Some(graph) = &args.graph {
+        println!("  Graph: {}", graph.trim());
+    } else {
+        println!("  Graph: current");
+    }
     Ok(())
 }
 
@@ -86,7 +162,7 @@ mod tests {
         let mut mock_validator = MockShaclValidator::new();
         mock_validator
             .expect_validate()
-            .with(eq("shapes.ttl"), eq(Some("data.ttl")))
+            .with(eq(String::from("shapes.ttl")), eq(Some(String::from("data.ttl"))))
             .times(1)
             .returning(|_, _| {
                 Ok(ValidationReport {

@@ -32,6 +32,8 @@ walkdir = "2.0"
 serde_yaml = "0.9"
 rayon = "1.8"
 colored = "2.0"
+chrono = { version = "0.4", features = ["serde"] }
+toml = "0.8"
 
 [dependencies.clap]
 version = "4.5.37"

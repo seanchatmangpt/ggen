@@ -18,8 +18,8 @@ use std::fs;
 // GIVEN steps - Setup preconditions
 // ============================================================================
 
-#[given(regex = r"^the marketplace registry is available for market commands$")]
-async fn marketplace_registry_available_for_market(_world: &mut GgenWorld) {
+#[given(regex = r"^the marketplace registry is available$")]
+fn marketplace_registry_available(_world: &mut GgenWorld) {
     // Set environment variable for registry URL
     std::env::set_var(
         "GGEN_REGISTRY_URL",
@@ -27,8 +27,17 @@ async fn marketplace_registry_available_for_market(_world: &mut GgenWorld) {
     );
 }
 
-#[given(regex = r#"^I have installed the gpack "([^"]+)"$"#)]
-async fn have_installed_gpack(world: &mut GgenWorld, package_id: String) {
+#[given(regex = r"^the marketplace registry is available for market commands$")]
+fn marketplace_registry_available_for_market(_world: &mut GgenWorld) {
+    // Set environment variable for registry URL
+    std::env::set_var(
+        "GGEN_REGISTRY_URL",
+        "https://raw.githubusercontent.com/seanchatmangpt/ggen/master/registry/",
+    );
+}
+
+#[given(regex = r#"^I have installed the gpack "([^"]+)" without version$"#)]
+fn have_installed_gpack(world: &mut GgenWorld, package_id: String) {
     // Simulate having a package installed by creating a mock lockfile entry
     let lockfile_path = world.project_dir.join("ggen.lock");
     let lockfile_content = format!(
@@ -38,10 +47,8 @@ async fn have_installed_gpack(world: &mut GgenWorld, package_id: String) {
     fs::write(&lockfile_path, lockfile_content).expect("Failed to write mock lockfile");
 }
 
-#[given(regex = r#"^I have installed the gpack "([^"]+)@([^"]+)"$"#)]
-async fn have_installed_gpack_with_version(
-    world: &mut GgenWorld, package_id: String, version: String,
-) {
+#[given(regex = r#"^I have installed the gpack "([^"]+)@([^"]+)" with specific version$"#)]
+fn have_installed_gpack_with_version(world: &mut GgenWorld, package_id: String, version: String) {
     let lockfile_path = world.project_dir.join("ggen.lock");
     let lockfile_content = format!(
         r#"{{"packages": {{"{}": {{"version": "{}", "sha256": "abc123", "installed": true}}}}}}"#,
@@ -51,13 +58,13 @@ async fn have_installed_gpack_with_version(
 }
 
 #[given(regex = r#"^a newer version "([^"]+)" is available$"#)]
-async fn newer_version_available(_world: &mut GgenWorld, _version: String) {
+fn newer_version_available(_world: &mut GgenWorld, _version: String) {
     // Would configure mock registry to return newer version
     // For now, this is a no-op
 }
 
 #[given(regex = r#"^the gpack "([^"]+)" has a PQC signature$"#)]
-async fn gpack_has_pqc_signature(_world: &mut GgenWorld, _package_id: String) {
+fn gpack_has_pqc_signature(_world: &mut GgenWorld, _package_id: String) {
     // Would configure mock registry with PQC signature
 }
 
@@ -66,7 +73,7 @@ async fn gpack_has_pqc_signature(_world: &mut GgenWorld, _package_id: String) {
 // ============================================================================
 
 #[when(regex = r#"^I run "ggen market (.+)"$"#)]
-async fn run_ggen_market_command(world: &mut GgenWorld, args: String) {
+fn run_ggen_market_command(world: &mut GgenWorld, args: String) {
     // Parse command line, handling quoted arguments and JSON
     let arg_list = shell_words::split(&args)
         .unwrap_or_else(|e| panic!("Failed to parse arguments '{}': {}", args, e));
@@ -88,7 +95,7 @@ async fn run_ggen_market_command(world: &mut GgenWorld, args: String) {
 // ============================================================================
 
 #[then(regex = r"^the command should succeed$")]
-async fn command_should_succeed(world: &mut GgenWorld) {
+fn command_should_succeed(world: &mut GgenWorld) {
     assert!(
         world.last_command_succeeded(),
         "Command failed with exit code: {}\nStderr: {}",
@@ -98,7 +105,7 @@ async fn command_should_succeed(world: &mut GgenWorld) {
 }
 
 #[then(regex = r"^I should see results for rust gpacks$")]
-async fn should_see_rust_results(world: &mut GgenWorld) {
+fn should_see_rust_results(world: &mut GgenWorld) {
     let stdout = world.last_stdout();
     assert!(
         stdout.contains("rust") || stdout.contains("Rust"),
@@ -108,7 +115,7 @@ async fn should_see_rust_results(world: &mut GgenWorld) {
 }
 
 #[then(regex = r#"^I should see "([^"]+)" in output$"#)]
-async fn should_see_in_output(world: &mut GgenWorld, expected: String) {
+fn should_see_in_output(world: &mut GgenWorld, expected: String) {
     let stdout = world.last_stdout();
     let stderr = world.last_stderr();
 
@@ -122,12 +129,12 @@ async fn should_see_in_output(world: &mut GgenWorld, expected: String) {
 }
 
 #[then(regex = r"^results should only show rust category gpacks$")]
-async fn results_should_show_rust_category(_world: &mut GgenWorld) {
+fn results_should_show_rust_category(_world: &mut GgenWorld) {
     // Would validate that all results have rust category
 }
 
 #[then(regex = r"^the output should be valid JSON$")]
-async fn output_should_be_valid_json(world: &mut GgenWorld) {
+fn output_should_be_valid_json(world: &mut GgenWorld) {
     let stdout = world.last_stdout();
 
     serde_json::from_str::<serde_json::Value>(&stdout)
@@ -135,7 +142,7 @@ async fn output_should_be_valid_json(world: &mut GgenWorld) {
 }
 
 #[then(regex = r#"^the JSON should contain a "([^"]+)" array$"#)]
-async fn json_should_contain_array(world: &mut GgenWorld, field: String) {
+fn json_should_contain_array(world: &mut GgenWorld, field: String) {
     let stdout = world.last_stdout();
     let json: serde_json::Value =
         serde_json::from_str(&stdout).unwrap_or_else(|e| panic!("Failed to parse JSON: {}", e));
@@ -149,7 +156,7 @@ async fn json_should_contain_array(world: &mut GgenWorld, field: String) {
 }
 
 #[then(regex = r#"^the gpack should be listed in "([^"]+)"$"#)]
-async fn gpack_should_be_in_lockfile(world: &mut GgenWorld, lockfile: String) {
+fn gpack_should_be_in_lockfile(world: &mut GgenWorld, lockfile: String) {
     let lockfile_path = world.project_dir.join(&lockfile);
     assert!(lockfile_path.exists(), "Lockfile {} should exist", lockfile);
 
@@ -159,12 +166,12 @@ async fn gpack_should_be_in_lockfile(world: &mut GgenWorld, lockfile: String) {
 }
 
 #[then(regex = r"^the gpack should be cached locally$")]
-async fn gpack_should_be_cached(_world: &mut GgenWorld) {
+fn gpack_should_be_cached(_world: &mut GgenWorld) {
     // Would check the local cache directory
 }
 
 #[then(regex = r#"^the lockfile should show version "([^"]+)"$"#)]
-async fn lockfile_should_show_version(world: &mut GgenWorld, version: String) {
+fn lockfile_should_show_version(world: &mut GgenWorld, version: String) {
     let lockfile_path = world.project_dir.join("ggen.lock");
     if lockfile_path.exists() {
         let content = fs::read_to_string(&lockfile_path)
@@ -179,7 +186,7 @@ async fn lockfile_should_show_version(world: &mut GgenWorld, version: String) {
 }
 
 #[then(regex = r#"^the gpack should not be in "([^"]+)"$"#)]
-async fn gpack_should_not_be_in_lockfile(world: &mut GgenWorld, lockfile: String) {
+fn gpack_should_not_be_in_lockfile(world: &mut GgenWorld, lockfile: String) {
     let lockfile_path = world.project_dir.join(&lockfile);
     if lockfile_path.exists() {
         let content = fs::read_to_string(&lockfile_path)
@@ -191,7 +198,7 @@ async fn gpack_should_not_be_in_lockfile(world: &mut GgenWorld, lockfile: String
 }
 
 #[then(regex = r"^the command should fail$")]
-async fn command_should_fail(world: &mut GgenWorld) {
+fn command_should_fail(world: &mut GgenWorld) {
     assert!(
         !world.last_command_succeeded(),
         "Command should have failed but succeeded"
@@ -199,7 +206,7 @@ async fn command_should_fail(world: &mut GgenWorld) {
 }
 
 #[then(regex = r#"^I should see "([^"]+)" in stderr$"#)]
-async fn should_see_in_stderr(world: &mut GgenWorld, expected: String) {
+fn should_see_in_stderr(world: &mut GgenWorld, expected: String) {
     let stderr = world.last_stderr();
     assert!(
         stderr.contains(&expected),
@@ -210,7 +217,7 @@ async fn should_see_in_stderr(world: &mut GgenWorld, expected: String) {
 }
 
 #[then(regex = r"^I should see version information$")]
-async fn should_see_version_information(world: &mut GgenWorld) {
+fn should_see_version_information(world: &mut GgenWorld) {
     let stdout = world.last_stdout();
     assert!(
         stdout.contains("version") || stdout.contains("Version") || stdout.contains("0."),
@@ -220,7 +227,7 @@ async fn should_see_version_information(world: &mut GgenWorld) {
 }
 
 #[then(regex = r"^I should see source URLs$")]
-async fn should_see_source_urls(world: &mut GgenWorld) {
+fn should_see_source_urls(world: &mut GgenWorld) {
     let stdout = world.last_stdout();
     assert!(
         stdout.contains("http") || stdout.contains("source") || stdout.contains("url"),
@@ -230,12 +237,12 @@ async fn should_see_source_urls(world: &mut GgenWorld) {
 }
 
 #[then(regex = r"^the gpack should be updated to latest version$")]
-async fn gpack_updated_to_latest(_world: &mut GgenWorld) {
+fn gpack_updated_to_latest(_world: &mut GgenWorld) {
     // Would verify lockfile has latest version
 }
 
 #[then(regex = r"^I should see popular categories$")]
-async fn should_see_popular_categories(world: &mut GgenWorld) {
+fn should_see_popular_categories(world: &mut GgenWorld) {
     let stdout = world.last_stdout();
     assert!(
         stdout.contains("rust")
@@ -249,7 +256,7 @@ async fn should_see_popular_categories(world: &mut GgenWorld) {
 }
 
 #[then(regex = r"^I should see package metadata$")]
-async fn should_see_package_metadata(world: &mut GgenWorld) {
+fn should_see_package_metadata(world: &mut GgenWorld) {
     let stdout = world.last_stdout();
     assert!(
         stdout.contains("name") || stdout.contains("description") || stdout.contains("version"),
@@ -259,7 +266,7 @@ async fn should_see_package_metadata(world: &mut GgenWorld) {
 }
 
 #[then(regex = r"^I should see description$")]
-async fn should_see_description(world: &mut GgenWorld) {
+fn should_see_description(world: &mut GgenWorld) {
     let stdout = world.last_stdout();
     assert!(
         stdout.contains("description") || stdout.contains("Description") || stdout.len() > 50,
@@ -269,7 +276,7 @@ async fn should_see_description(world: &mut GgenWorld) {
 }
 
 #[then(regex = r"^I should see SHA256 hash for each gpack$")]
-async fn should_see_sha256_hashes(world: &mut GgenWorld) {
+fn should_see_sha256_hashes(world: &mut GgenWorld) {
     let stdout = world.last_stdout();
     assert!(
         stdout.contains("sha256") || stdout.contains("SHA256") || stdout.contains("hash"),
@@ -279,16 +286,156 @@ async fn should_see_sha256_hashes(world: &mut GgenWorld) {
 }
 
 #[then(regex = r"^the SHA256 should be 64 hex characters$")]
-async fn sha256_should_be_valid(_world: &mut GgenWorld) {
+fn sha256_should_be_valid(_world: &mut GgenWorld) {
     // Would validate SHA256 format (64 hex chars)
 }
 
 #[then(regex = r"^the lockfile should contain the PQC signature$")]
-async fn lockfile_should_contain_pqc_signature(_world: &mut GgenWorld) {
+fn lockfile_should_contain_pqc_signature(_world: &mut GgenWorld) {
     // Would verify PQC signature in lockfile
 }
 
 #[then(regex = r"^the lockfile should contain the PQC public key$")]
-async fn lockfile_should_contain_pqc_public_key(_world: &mut GgenWorld) {
+fn lockfile_should_contain_pqc_public_key(_world: &mut GgenWorld) {
     // Would verify PQC public key in lockfile
+}
+
+// ============================================================================
+// Market Search and Remove Steps
+// ============================================================================
+
+#[when(regex = r#"^I run "ggen market search (.+)"$"#)]
+fn run_market_search(world: &mut GgenWorld, query: String) {
+    let output = Command::cargo_bin("ggen")
+        .expect("ggen binary not found")
+        .arg("market")
+        .arg("search")
+        .arg(&query)
+        .current_dir(&world.project_dir)
+        .output()
+        .expect("Failed to run market search");
+    
+    world.last_output = Some(output.clone());
+    world.last_exit_code = output.status.code();
+}
+
+#[when(regex = r#"^I run "ggen market remove (.+)"$"#)]
+fn run_market_remove(world: &mut GgenWorld, package_id: String) {
+    let output = Command::cargo_bin("ggen")
+        .expect("ggen binary not found")
+        .arg("market")
+        .arg("remove")
+        .arg(&package_id)
+        .current_dir(&world.project_dir)
+        .output()
+        .expect("Failed to run market remove");
+    
+    world.last_output = Some(output.clone());
+    world.last_exit_code = output.status.code();
+}
+
+#[when(regex = r#"^I run "ggen market show (.+)"$"#)]
+fn run_market_show(world: &mut GgenWorld, package_id: String) {
+    let output = Command::cargo_bin("ggen")
+        .expect("ggen binary not found")
+        .arg("market")
+        .arg("show")
+        .arg(&package_id)
+        .current_dir(&world.project_dir)
+        .output()
+        .expect("Failed to run market show");
+    
+    world.last_output = Some(output.clone());
+    world.last_exit_code = output.status.code();
+}
+
+#[when(regex = r#"^I run "ggen market categories"$"#)]
+fn run_market_categories(world: &mut GgenWorld) {
+    let output = Command::cargo_bin("ggen")
+        .expect("ggen binary not found")
+        .arg("market")
+        .arg("categories")
+        .current_dir(&world.project_dir)
+        .output()
+        .expect("Failed to run market categories");
+    
+    world.last_output = Some(output.clone());
+    world.last_exit_code = output.status.code();
+}
+
+#[when(regex = r#"^I run "ggen market list"$"#)]
+fn run_market_list(world: &mut GgenWorld) {
+    let output = Command::cargo_bin("ggen")
+        .expect("ggen binary not found")
+        .arg("market")
+        .arg("list")
+        .current_dir(&world.project_dir)
+        .output()
+        .expect("Failed to run market list");
+    
+    world.last_output = Some(output.clone());
+    world.last_exit_code = output.status.code();
+}
+
+#[when(regex = r#"^I run "ggen market update"$"#)]
+fn run_market_update(world: &mut GgenWorld) {
+    let output = Command::cargo_bin("ggen")
+        .expect("ggen binary not found")
+        .arg("market")
+        .arg("update")
+        .current_dir(&world.project_dir)
+        .output()
+        .expect("Failed to run market update");
+    
+    world.last_output = Some(output.clone());
+    world.last_exit_code = output.status.code();
+}
+
+#[when(regex = r#"^I run "ggen market update (.+)"$"#)]
+fn run_market_update_specific(world: &mut GgenWorld, package_id: String) {
+    let output = Command::cargo_bin("ggen")
+        .expect("ggen binary not found")
+        .arg("market")
+        .arg("update")
+        .arg(&package_id)
+        .current_dir(&world.project_dir)
+        .output()
+        .expect("Failed to run market update specific");
+    
+    world.last_output = Some(output.clone());
+    world.last_exit_code = output.status.code();
+}
+
+#[then(regex = r"^I should see search results$")]
+fn should_see_search_results(world: &mut GgenWorld) {
+    let stdout = world.last_stdout();
+    assert!(
+        !stdout.is_empty(),
+        "Expected to see search results, but got empty output"
+    );
+}
+
+#[then(regex = r"^I should see no results$")]
+fn should_see_no_results(world: &mut GgenWorld) {
+    let stdout = world.last_stdout();
+    assert!(
+        stdout.is_empty() || stdout.contains("No results") || stdout.contains("not found"),
+        "Expected to see no results, but got: {}",
+        stdout
+    );
+}
+
+#[then(regex = r"^the gpack should be removed from lockfile$")]
+fn gpack_should_be_removed_from_lockfile(world: &mut GgenWorld) {
+    let lockfile_path = world.project_dir.join("ggen.lock");
+    if lockfile_path.exists() {
+        let content = fs::read_to_string(&lockfile_path)
+            .unwrap_or_else(|e| panic!("Failed to read lockfile: {}", e));
+        // In a real implementation, we'd check that the specific package is not in the lockfile
+        assert!(
+            content.is_empty() || !content.contains("io.ggen.rust.cli-subcommand"),
+            "Gpack should be removed from lockfile, but lockfile still contains it: {}",
+            content
+        );
+    }
 }

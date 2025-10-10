@@ -28,22 +28,31 @@ pub async fn run(args: &ListArgs) -> Result<()> {
 }
 
 pub async fn run_with_deps(args: &ListArgs, lister: &dyn GpackLister) -> Result<()> {
+    // Show progress for listing operation
+    println!("🔍 Listing installed gpacks...");
+    
     let gpacks = lister.list_installed()?;
 
     if gpacks.is_empty() {
-        println!("No gpacks installed");
+        println!("ℹ️  No gpacks installed");
         return Ok(());
     }
 
+    // Show progress for large result sets
+    if gpacks.len() > 20 {
+        println!("📊 Processing {} installed gpacks...", gpacks.len());
+    }
+
+    println!("📦 Installed Gpacks:");
     for gpack in gpacks {
         if args.detailed {
-            println!("ID: {}", gpack.id);
-            println!("Version: {}", gpack.version);
-            println!("SHA256: {}", gpack.sha256);
-            println!("Source: {}", gpack.source);
+            println!("  ID: {}", gpack.id);
+            println!("  Version: {}", gpack.version);
+            println!("  SHA256: {}", gpack.sha256);
+            println!("  Source: {}", gpack.source);
             println!();
         } else {
-            println!("{} ({})", gpack.id, gpack.version);
+            println!("  {} ({})", gpack.id, gpack.version);
         }
     }
 

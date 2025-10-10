@@ -1,5 +1,6 @@
 use clap::Args;
 use ggen_utils::error::Result;
+use std::process::Command;
 
 #[derive(Args, Debug)]
 pub struct DiffArgs {
@@ -21,11 +22,61 @@ pub struct DiffArgs {
 
 /// Main entry point for `ggen project diff`
 pub async fn run(args: &DiffArgs) -> Result<()> {
-    println!("🚧 Placeholder: project diff");
-    println!("  Template: {}", args.template_ref);
-    println!("  Vars: {:?}", args.vars);
-    println!("  Context lines: {}", args.context);
-    println!("  Color: {}", args.color);
+    println!("Generating unified diff");
+
+    // Validate template reference
+    if args.template_ref.is_empty() {
+        return Err(ggen_utils::error::Error::new(
+            "Template reference cannot be empty",
+        ));
+    }
+
+    // Parse variables
+    let mut variables = std::collections::HashMap::new();
+    for var in &args.vars {
+        if let Some((key, value)) = var.split_once('=') {
+            variables.insert(key.to_string(), value.to_string());
+        } else {
+            return Err(ggen_utils::error::Error::new_fmt(format_args!(
+                "Invalid variable format: {}. Expected key=value",
+                var
+            )));
+        }
+    }
+
+    // Generate diff using cargo make
+    let mut cmd = Command::new("cargo");
+    cmd.args(["make", "project-diff"]);
+    cmd.arg("--template").arg(&args.template_ref);
+    cmd.arg("--context").arg(args.context.to_string());
+
+    if args.color {
+        cmd.arg("--color");
+    }
+
+    for (key, value) in &variables {
+        cmd.arg("--var").arg(format!("{}={}", key, value));
+    }
+
+    let output = cmd.output().map_err(ggen_utils::error::Error::from)?;
+
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        return Err(ggen_utils::error::Error::new_fmt(format_args!(
+            "Diff generation failed: {}",
+            stderr
+        )));
+    }
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+
+    if stdout.trim().is_empty() {
+        println!("✅ No differences found");
+        println!("No differences found between template output and current project state.");
+    } else {
+        println!("✅ Diff generated successfully");
+        println!("{}", stdout);
+    }
 
     Ok(())
 }

@@ -175,8 +175,7 @@ fn resolve_template(template_ref: &str, project_dir: &std::path::Path) -> Result
                 for line in lines.iter().take((idx + 5).min(lines.len())).skip(idx + 1) {
                     if line.starts_with("version = ") {
                         pack_version = Some(
-                            line
-                                .trim_start_matches("version = \"")
+                            line.trim_start_matches("version = \"")
                                 .trim_end_matches("\""),
                         );
                         break;

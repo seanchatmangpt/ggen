@@ -75,11 +75,51 @@ fn parse_vars(vars: &[String]) -> Result<HashMap<String, String>> {
     Ok(map)
 }
 
+/// Validate and sanitize generation input
+fn validate_gen_input(args: &GenArgs) -> Result<()> {
+    // Validate template reference is not empty
+    if args.template_ref.trim().is_empty() {
+        return Err(ggen_utils::error::Error::new(
+            "Template reference cannot be empty",
+        ));
+    }
+
+    // Validate template reference length
+    if args.template_ref.len() > 500 {
+        return Err(ggen_utils::error::Error::new(
+            "Template reference too long (max 500 characters)",
+        ));
+    }
+
+    // Validate variables format
+    for var in &args.vars {
+        if !var.contains('=') {
+            return Err(ggen_utils::error::Error::new_fmt(format_args!(
+                "Invalid variable format: '{}'. Expected format: key=value",
+                var
+            )));
+        }
+
+        let parts: Vec<&str> = var.splitn(2, '=').collect();
+        if parts.len() != 2 || parts[0].trim().is_empty() {
+            return Err(ggen_utils::error::Error::new_fmt(format_args!(
+                "Invalid variable format: '{}'. Key cannot be empty",
+                var
+            )));
+        }
+    }
+
+    Ok(())
+}
+
 /// Main entry point for `ggen project gen`
 pub async fn run(args: &GenArgs) -> Result<()> {
+    // Validate input
+    validate_gen_input(args)?;
+
     // TODO: Replace with real implementations from ggen-core
     println!("🚧 Placeholder: project gen");
-    println!("  Template: {}", args.template_ref);
+    println!("  Template: {}", args.template_ref.trim());
     println!("  Vars: {:?}", args.vars);
     println!("  Dry run: {}", args.dry_run);
 
@@ -92,19 +132,24 @@ pub async fn run_with_deps(
     applier: &dyn PlanApplier,
 ) -> Result<()> {
     // Step 1: Resolve template
+    println!("🔍 Resolving template...");
     let template = resolver.resolve(&args.template_ref)?;
 
     // Step 2: Parse variables
+    println!("⚙️  Processing variables...");
     let vars = parse_vars(&args.vars)?;
 
     // Step 3: Generate plan
+    println!("📋 Generating plan...");
     let plan = generator.generate_plan(&template, &vars)?;
 
     // Step 4: Apply plan (unless dry-run)
     if !args.dry_run {
+        println!("🚀 Applying changes...");
         applier.apply(&plan)?;
+        println!("✅ Generation completed successfully!");
     } else {
-        println!("Dry run - plan generated but not applied");
+        println!("🔍 Dry run completed - no changes applied");
     }
 
     Ok(())
@@ -121,7 +166,7 @@ mod tests {
         let mut mock_resolver = MockTemplateResolver::new();
         mock_resolver
             .expect_resolve()
-            .with(eq("hello.tmpl"))
+            .with(eq(String::from("hello.tmpl")))
             .times(1)
             .returning(|_| {
                 Ok(Template {

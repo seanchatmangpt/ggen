@@ -16,15 +16,32 @@ pub struct ProjectCmd {
 #[derive(Subcommand, Debug)]
 pub enum Verb {
     /// Generate artifacts from a template directly
+    ///
+    /// Examples:
+    ///   ggen project gen "rust-cli-template" --var name=myapp
+    ///   ggen project gen "web-api.tmpl" --dry-run
+    ///   ggen project gen "template.tmpl" --seed 12345
     Gen(gen::GenArgs),
 
     /// Create a machine-readable plan of changes without applying them (dry-run)
+    ///
+    /// Examples:
+    ///   ggen project plan "rust-cli-template" --var name=myapp
+    ///   ggen project plan "template.tmpl" --format yaml
     Plan(plan::PlanArgs),
 
     /// Apply a previously generated plan to the filesystem
+    ///
+    /// Examples:
+    ///   ggen project apply plan.json
+    ///   ggen project apply plan.yaml --dry-run
     Apply(apply::ApplyArgs),
 
     /// Show a unified diff of what a generation would change
+    ///
+    /// Examples:
+    ///   ggen project diff "rust-cli-template" --var name=myapp
+    ///   ggen project diff "template.tmpl" --var version=1.0.0
     Diff(diff::DiffArgs),
 }
 
