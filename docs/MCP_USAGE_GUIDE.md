@@ -1,3 +1,55 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen MCP Usage Guide](#ggen-mcp-usage-guide)
+  - [📋 Table of Contents](#-table-of-contents)
+  - [Introduction](#introduction)
+    - [How It Works](#how-it-works)
+  - [Transport Options Deep Dive](#transport-options-deep-dive)
+    - [Stdio Transport](#stdio-transport)
+    - [SSE Transport](#sse-transport)
+    - [HTTP Transport](#http-transport)
+  - [Tool Categories and Workflows](#tool-categories-and-workflows)
+    - [Workflow 1: Template Discovery → Generation](#workflow-1-template-discovery-%E2%86%92-generation)
+    - [Workflow 2: RDF-Driven Multi-File Generation](#workflow-2-rdf-driven-multi-file-generation)
+    - [Workflow 3: Idempotent File Injection](#workflow-3-idempotent-file-injection)
+    - [Workflow 4: Deterministic Multi-Language Generation](#workflow-4-deterministic-multi-language-generation)
+  - [Real-World Conversation Examples](#real-world-conversation-examples)
+    - [Example 1: Building a REST API from Scratch](#example-1-building-a-rest-api-from-scratch)
+    - [Example 2: Migrating Legacy Code](#example-2-migrating-legacy-code)
+    - [Example 3: Generating Documentation](#example-3-generating-documentation)
+  - [Error Handling](#error-handling)
+    - [Client-Side Error Handling](#client-side-error-handling)
+      - [Rust Client](#rust-client)
+      - [Python Client](#python-client)
+    - [Server-Side Error Handling](#server-side-error-handling)
+  - [Performance Tuning](#performance-tuning)
+    - [Benchmarking](#benchmarking)
+    - [Optimization Strategies](#optimization-strategies)
+      - [1. Template Compilation](#1-template-compilation)
+      - [2. SPARQL Query Caching](#2-sparql-query-caching)
+      - [3. Parallel Batch Generation](#3-parallel-batch-generation)
+      - [4. Graph Indexing](#4-graph-indexing)
+      - [5. Streaming Large Outputs](#5-streaming-large-outputs)
+  - [Advanced Usage Patterns](#advanced-usage-patterns)
+    - [Pattern 1: Multi-Stage Generation Pipeline](#pattern-1-multi-stage-generation-pipeline)
+    - [Pattern 2: Conditional Template Selection](#pattern-2-conditional-template-selection)
+    - [Pattern 3: Incremental Graph Building](#pattern-3-incremental-graph-building)
+    - [Pattern 4: Template Hot-Reloading](#pattern-4-template-hot-reloading)
+  - [Security Best Practices](#security-best-practices)
+    - [1. Input Validation](#1-input-validation)
+    - [2. Template Sandboxing](#2-template-sandboxing)
+    - [3. Graph Access Control](#3-graph-access-control)
+    - [4. Rate Limiting](#4-rate-limiting)
+    - [5. Audit Logging](#5-audit-logging)
+  - [Troubleshooting Guide](#troubleshooting-guide)
+    - [Issue: "Template rendering is slow"](#issue-template-rendering-is-slow)
+    - [Issue: "SPARQL queries return empty results"](#issue-sparql-queries-return-empty-results)
+    - [Issue: "Marketplace connection fails"](#issue-marketplace-connection-fails)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen MCP Usage Guide
 
 A comprehensive guide to using the ggen MCP server for AI-assisted code generation with practical workflows, examples, and best practices.
