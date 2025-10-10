@@ -44,6 +44,9 @@ uuid = { version = "1", features = ["v4"] }
 # Template engine (for prompt templating)
 tera = "1"
 
+# Multi-provider AI client
+genai = "0.1"
+
 # MCP server integration
 rmcp = { version = "0.8.0", features = ["server", "transport-io"] }
 
@@ -55,7 +58,10 @@ tempfile = "3"
 
 [features]
 default = []
-ollama-integration = []
+ollama-integration = []  # Already exists
+openai-integration = []
+anthropic-integration = []
+all-integrations = ["ollama-integration", "openai-integration", "anthropic-integration"]
 
 [dev-dependencies]
 tokio-test = "0.4"

@@ -585,7 +585,7 @@ impl TemplateValidator {
     where
         F: Fn(&ValidationResult) -> Result<Option<String>>,
     {
-        let mut current_template = template.clone();
+        let current_template = template.clone();
         let mut iteration = 0;
         let max_iterations = 3;
 

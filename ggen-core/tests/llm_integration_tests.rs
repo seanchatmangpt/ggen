@@ -145,7 +145,7 @@ mod tests {
     // These are marked with #[ignore] for now
 
     #[tokio::test]
-    #[ignore] // Requires API key
+    #[cfg(feature = "live-llm-tests")]
     async fn test_openai_chat_completion() {
         let api_key = std::env::var("OPENAI_API_KEY").expect("OPENAI_API_KEY not set");
         let provider = OpenAiProvider::new(api_key);
@@ -163,7 +163,7 @@ mod tests {
     }
 
     #[tokio::test]
-    #[ignore] // Requires API key
+    #[cfg(feature = "live-llm-tests")]
     async fn test_provider_validation() {
         let api_key = std::env::var("OPENAI_API_KEY").expect("OPENAI_API_KEY not set");
         let provider = OpenAiProvider::new(api_key);
@@ -175,7 +175,7 @@ mod tests {
     }
 
     #[tokio::test]
-    #[ignore] // Requires API key
+    #[cfg(feature = "live-llm-tests")]
     async fn test_streaming_response() {
         use futures::StreamExt;
 

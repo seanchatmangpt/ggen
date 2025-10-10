@@ -45,7 +45,8 @@ args = ["clippy", "--all-targets", "--all-features", "--", "-D", "warnings"]
 [tasks.test]
 description = "Run all tests"
 command = "cargo"
-args = ["test"]
+args = ["test", "--workspace", "--no-default-features"]
+workspace = false
 
 [tasks.test-unit]
 description = "Unit tests only"
@@ -57,19 +58,27 @@ description = "Integration tests only"
 command = "cargo"
 args = ["test", "--test"]
 
-[tasks.test-ollama]
-description = "Run Ollama integration tests (requires Ollama running with qwen3-coder:30b)"
-workspace = false
+[tasks.test-live]
+description = "Run tests with live LLM integrations (requires API keys)"
 command = "cargo"
-args = [
-  "test",
-  "--package",
-  "ggen-ai",
-  "--features",
-  "ollama-integration",
-  "--test",
-  "ollama_integration",
-]
+args = ["test", "--features", "live-llm-tests,all-integrations"]
+
+[tasks.test-ollama]
+description = "Run Ollama integration tests (requires Ollama running)"
+command = "cargo"
+args = ["test", "--features", "ollama-integration", "--test", "ollama_integration", "-p", "ggen-ai"]
+
+[tasks.test-openai]
+description = "Run OpenAI integration tests (requires OPENAI_API_KEY)"
+command = "cargo"
+args = ["test", "--features", "openai-integration,live-llm-tests"]
+env = { "RUST_LOG" = "info" }
+
+[tasks.test-anthropic]
+description = "Run Anthropic integration tests (requires ANTHROPIC_API_KEY)"
+command = "cargo"
+args = ["test", "--features", "anthropic-integration,live-llm-tests"]
+env = { "RUST_LOG" = "info" }
 
 [tasks.test-ollama-performance]
 description = "Run Ollama performance and stress tests"

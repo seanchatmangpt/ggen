@@ -79,6 +79,8 @@ pub struct LlmResponse {
     pub model: String,
     /// Finish reason
     pub finish_reason: Option<String>,
+    /// Additional metadata
+    pub extra: HashMap<String, serde_json::Value>,
 }
 
 /// Usage statistics for LLM requests
@@ -97,38 +99,30 @@ pub struct UsageStats {
 pub struct LlmChunk {
     /// Partial content
     pub content: String,
-    /// Whether this is the final chunk
-    pub done: bool,
+    /// Model used
+    pub model: String,
+    /// Finish reason
+    pub finish_reason: Option<String>,
     /// Usage statistics (only in final chunk)
     pub usage: Option<UsageStats>,
+    /// Additional metadata
+    pub extra: HashMap<String, serde_json::Value>,
 }
 
 /// Trait for LLM client implementations
 #[async_trait]
 pub trait LlmClient: Send + Sync + std::fmt::Debug {
     /// Complete a prompt synchronously
-    async fn complete(&self, prompt: &str, config: Option<LlmConfig>) -> Result<LlmResponse>;
+    async fn complete(&self, prompt: &str) -> Result<LlmResponse>;
     
     /// Stream completion of a prompt
-    async fn stream_complete(
-        &self,
-        prompt: &str,
-        config: Option<LlmConfig>,
-    ) -> Result<BoxStream<'static, Result<LlmChunk>>>;
+    async fn stream_complete(&self, prompt: &str) -> Result<BoxStream<LlmChunk>>;
     
-    /// Generate embeddings for text
-    async fn embed(&self, text: &str) -> Result<Vec<f32>>;
+    /// Get the current configuration
+    fn get_config(&self) -> &LlmConfig;
     
-    /// Get the provider name
-    fn provider_name(&self) -> &str;
-    
-    /// Get supported models
-    fn supported_models(&self) -> Vec<String>;
-    
-    /// Check if a model is supported
-    fn supports_model(&self, model: &str) -> bool {
-        self.supported_models().contains(&model.to_string())
-    }
+    /// Update the configuration
+    fn update_config(&mut self, config: LlmConfig);
 }
 
 /// Unified adapter for multiple LLM providers
