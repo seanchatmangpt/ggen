@@ -1,3 +1,38 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen-mcp Integration Test Results](#ggen-mcp-integration-test-results)
+  - [🎯 Test Objectives](#-test-objectives)
+  - [✅ Tests Passed](#-tests-passed)
+    - [1. Server Startup ✅](#1-server-startup-)
+    - [2. Market Tools ✅](#2-market-tools-)
+    - [3. Template Creation ✅](#3-template-creation-)
+    - [4. Template Validation ✅](#4-template-validation-)
+    - [5. Project Generation ✅](#5-project-generation-)
+  - [⚠️ Critical Findings - Implementation Issues](#-critical-findings---implementation-issues)
+    - [Issue &#035;1: Mock Data Implementations (CRITICAL)](#issue-1-mock-data-implementations-critical)
+    - [Issue &#035;2: Incomplete ggen-core Integration](#issue-2-incomplete-ggen-core-integration)
+    - [Issue &#035;3: Missing File Operations](#issue-3-missing-file-operations)
+  - [📊 MCP Protocol Compliance](#-mcp-protocol-compliance)
+    - [✅ What Works Well](#-what-works-well)
+    - [⚠️ Protocol Gaps](#-protocol-gaps)
+  - [🔧 Recommendations (Priority Order)](#-recommendations-priority-order)
+    - [P0 - Critical (Breaks JTBD)](#p0---critical-breaks-jtbd)
+    - [P1 - High (Improves Reliability)](#p1---high-improves-reliability)
+    - [P2 - Medium (Better UX)](#p2---medium-better-ux)
+    - [P3 - Low (Nice to Have)](#p3---low-nice-to-have)
+  - [🎯 JTBD Analysis: "Make sure entire template etc work"](#-jtbd-analysis-make-sure-entire-template-etc-work)
+    - [Current State: ⚠️ PARTIALLY WORKING](#current-state--partially-working)
+  - [📋 Test Summary](#-test-summary)
+  - [🚀 Next Actions](#-next-actions)
+    - [Immediate (Fix P0 Issues)](#immediate-fix-p0-issues)
+    - [Short-term (Complete Integration)](#short-term-complete-integration)
+    - [Long-term (Production Ready)](#long-term-production-ready)
+  - [💡 Conclusion](#-conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen-mcp Integration Test Results
 
 **Test Date**: 2025-10-10
