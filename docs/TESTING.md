@@ -1,3 +1,31 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Testing Guide](#testing-guide)
+  - [Running Tests](#running-tests)
+    - [Fast Tests (Default - No API Calls)](#fast-tests-default---no-api-calls)
+    - [Live LLM Integration Tests (Opt-In)](#live-llm-integration-tests-opt-in)
+      - [Ollama Tests](#ollama-tests)
+      - [OpenAI Tests](#openai-tests)
+      - [Anthropic Tests](#anthropic-tests)
+      - [All Live Tests](#all-live-tests)
+  - [Feature Flags](#feature-flags)
+    - [ggen-core](#ggen-core)
+    - [ggen-ai](#ggen-ai)
+  - [Test Environment Detection](#test-environment-detection)
+  - [Examples with Live API Calls](#examples-with-live-api-calls)
+  - [CI/CD Configuration](#cicd-configuration)
+  - [Best Practices](#best-practices)
+  - [Troubleshooting](#troubleshooting)
+    - [Tests are slow](#tests-are-slow)
+    - [API key errors](#api-key-errors)
+    - [Ollama connection errors](#ollama-connection-errors)
+  - [Performance Expectations](#performance-expectations)
+  - [Security Considerations](#security-considerations)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Testing Guide
 
 This guide explains how to run tests for ggen, including fast unit tests and opt-in live LLM integration tests.

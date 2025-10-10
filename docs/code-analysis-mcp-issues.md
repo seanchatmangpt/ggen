@@ -1,3 +1,42 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Code Analysis: ggen-mcp MCP Connection Issues](#code-analysis-ggen-mcp-mcp-connection-issues)
+  - [Executive Summary](#executive-summary)
+  - [Critical Issues Found](#critical-issues-found)
+    - [1. Tool Implementation Issues ✅ PARTIALLY FIXED](#1-tool-implementation-issues--partially-fixed)
+      - [Duplicate Helper Functions - ✅ FIXED](#duplicate-helper-functions----fixed)
+      - [Async Functions Without Actual Async Work - NEEDS REFACTORING](#async-functions-without-actual-async-work---needs-refactoring)
+      - [Incomplete ggen-core Integration - ARCHITECTURAL ISSUE](#incomplete-ggen-core-integration---architectural-issue)
+    - [2. MCP Protocol Implementation ✅ CORRECT](#2-mcp-protocol-implementation--correct)
+      - [Strengths:](#strengths)
+      - [Response Format - ✅ VALIDATED](#response-format----validated)
+      - [Schema Validation - ENHANCEMENT OPPORTUNITY](#schema-validation---enhancement-opportunity)
+    - [3. Error Handling ✅ IMPROVED](#3-error-handling--improved)
+      - [Enhanced Error Context - ✅ ADDED](#enhanced-error-context----added)
+      - [Parameter Validation - ✅ ENHANCED](#parameter-validation----enhanced)
+      - [Error Propagation - ✅ WORKING](#error-propagation----working)
+      - [Remaining Error Handling Issues](#remaining-error-handling-issues)
+    - [4. Async/Await Patterns - NEEDS REVIEW](#4-asyncawait-patterns---needs-review)
+      - [Issue: Unnecessary Async Functions](#issue-unnecessary-async-functions)
+      - [Missing Actual Async Operations](#missing-actual-async-operations)
+      - [Recommendation:](#recommendation)
+  - [Test Coverage Analysis](#test-coverage-analysis)
+    - [Integration Tests ✅ COMPREHENSIVE](#integration-tests--comprehensive)
+  - [Priority Recommendations](#priority-recommendations)
+    - [🔴 Critical (Fix Immediately)](#-critical-fix-immediately)
+    - [🟡 Important (Fix Soon)](#-important-fix-soon)
+    - [🟢 Enhancement (Nice to Have)](#-enhancement-nice-to-have)
+  - [Code Quality Metrics](#code-quality-metrics)
+    - [Strengths ✅](#strengths-)
+    - [Weaknesses ❌](#weaknesses-)
+  - [Files Modified During Analysis](#files-modified-during-analysis)
+  - [Next Steps](#next-steps)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Code Analysis: ggen-mcp MCP Connection Issues
 
 **Date:** 2025-10-10
