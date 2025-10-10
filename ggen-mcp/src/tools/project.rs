@@ -6,9 +6,22 @@ use tracing::info;
 
 use crate::error::{Result, get_string_param, get_optional_string_param, get_optional_object_param, get_bool_param, success_response};
 
-/// Generate project from template with ggen-core integration
+/// Generate project from template with ggen-core integration and enhanced error handling
 pub async fn gen(params: Value) -> Result<Value> {
-    let template = get_string_param(&params, "template")?;
+    let template = get_string_param(&params, "template")
+        .map_err(|e| {
+            tracing::error!("Missing template parameter for project gen: {}", e);
+            e
+        })?;
+
+    // Validate template name
+    if template.trim().is_empty() {
+        tracing::error!("Empty template name provided");
+        return Err(crate::error::GgenMcpError::InvalidParameter(
+            "Template name cannot be empty".to_string()
+        ));
+    }
+
     let vars_json = get_optional_object_param(&params, "vars").unwrap_or_default();
     let output_dir = get_optional_string_param(&params, "output_dir").unwrap_or_else(|| ".".to_string());
     let dry_run = get_bool_param(&params, "dry_run", false);
@@ -74,9 +87,22 @@ pub async fn gen(params: Value) -> Result<Value> {
     Ok(success_response(result))
 }
 
-/// Plan project generation
+/// Plan project generation with validation
 pub async fn plan(params: Value) -> Result<Value> {
-    let template = get_string_param(&params, "template")?;
+    let template = get_string_param(&params, "template")
+        .map_err(|e| {
+            tracing::error!("Missing template parameter for project plan: {}", e);
+            e
+        })?;
+
+    // Validate template name
+    if template.trim().is_empty() {
+        tracing::error!("Empty template name provided for planning");
+        return Err(crate::error::GgenMcpError::InvalidParameter(
+            "Template name cannot be empty".to_string()
+        ));
+    }
+
     let vars = get_optional_object_param(&params, "vars").unwrap_or_default();
     let output_dir = get_optional_string_param(&params, "output_dir").unwrap_or_else(|| ".".to_string());
 
@@ -97,9 +123,22 @@ pub async fn plan(params: Value) -> Result<Value> {
     Ok(success_response(plan))
 }
 
-/// Apply project changes
+/// Apply project changes with validation
 pub async fn apply(params: Value) -> Result<Value> {
-    let template = get_string_param(&params, "template")?;
+    let template = get_string_param(&params, "template")
+        .map_err(|e| {
+            tracing::error!("Missing template parameter for project apply: {}", e);
+            e
+        })?;
+
+    // Validate template name
+    if template.trim().is_empty() {
+        tracing::error!("Empty template name provided for apply");
+        return Err(crate::error::GgenMcpError::InvalidParameter(
+            "Template name cannot be empty".to_string()
+        ));
+    }
+
     let _vars = get_optional_object_param(&params, "vars").unwrap_or_default();
     let output_dir = get_optional_string_param(&params, "output_dir").unwrap_or_else(|| ".".to_string());
     let force = get_bool_param(&params, "force", false);
@@ -119,9 +158,22 @@ pub async fn apply(params: Value) -> Result<Value> {
     Ok(success_response(result))
 }
 
-/// Diff project changes
+/// Diff project changes with validation
 pub async fn diff(params: Value) -> Result<Value> {
-    let template = get_string_param(&params, "template")?;
+    let template = get_string_param(&params, "template")
+        .map_err(|e| {
+            tracing::error!("Missing template parameter for project diff: {}", e);
+            e
+        })?;
+
+    // Validate template name
+    if template.trim().is_empty() {
+        tracing::error!("Empty template name provided for diff");
+        return Err(crate::error::GgenMcpError::InvalidParameter(
+            "Template name cannot be empty".to_string()
+        ));
+    }
+
     let output_dir = get_optional_string_param(&params, "output_dir").unwrap_or_else(|| ".".to_string());
 
     info!("Diffing project changes: template={}, output_dir={}", template, output_dir);

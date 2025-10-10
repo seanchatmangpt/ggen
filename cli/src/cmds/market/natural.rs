@@ -67,12 +67,12 @@ pub struct PackageResult {
 
 /// AI-powered natural language query interpreter
 pub struct NaturalLanguageInterpreter {
-    model: String,
+    _model: String,
 }
 
 impl NaturalLanguageInterpreter {
     pub fn new(model: String) -> Self {
-        Self { model }
+        Self { _model: model }
     }
 
     /// Interpret natural language query and convert to search parameters

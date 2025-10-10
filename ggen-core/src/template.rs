@@ -64,6 +64,7 @@ pub struct Frontmatter {
     pub determinism: Option<serde_yaml::Value>,
 }
 
+#[derive(Clone)]
 pub struct Template {
     raw_frontmatter: serde_yaml::Value,
     pub front: Frontmatter, // populated after render_frontmatter()

@@ -303,18 +303,39 @@ impl ServerHandler for GgenMcpServer {
         params: CallToolRequestParam,
         _context: RequestContext<RoleServer>,
     ) -> std::result::Result<CallToolResult, ErrorData> {
+        tracing::debug!("Executing tool: {}", params.name);
+
         let args = Value::Object(params.arguments.unwrap_or_default());
-        let result = self
-            .execute_tool(&params.name, args)
-            .await
-            .map_err(|e| ErrorData::internal_error(e.to_string(), None))?;
+
+        // Execute tool with proper error handling
+        let result = match self.execute_tool(&params.name, args).await {
+            Ok(value) => {
+                tracing::info!("Tool '{}' executed successfully", params.name);
+                value
+            }
+            Err(e) => {
+                tracing::error!("Tool '{}' execution failed: {}", params.name, e);
+                // Return structured error response following MCP protocol
+                return Err(ErrorData::invalid_params(
+                    format!("Tool execution failed: {}", e),
+                    None
+                ));
+            }
+        };
+
+        // Format response according to MCP protocol
+        let formatted_response = serde_json::to_string_pretty(&result)
+            .map_err(|e| {
+                tracing::error!("Failed to serialize tool response: {}", e);
+                ErrorData::internal_error(
+                    format!("Response serialization failed: {}", e),
+                    None
+                )
+            })?;
 
         Ok(CallToolResult {
-            content: vec![Content::text(
-                serde_json::to_string_pretty(&result)
-                    .map_err(|e| ErrorData::internal_error(e.to_string(), None))?,
-            )],
-            is_error: None,
+            content: vec![Content::text(formatted_response)],
+            is_error: Some(false),
             meta: None,
             structured_content: None,
         })

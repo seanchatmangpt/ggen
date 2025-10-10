@@ -53,6 +53,10 @@ oxigraph = "0.4"
 # Temporary files
 tempfile = "3"
 
+[features]
+default = []
+ollama-integration = []
+
 [dev-dependencies]
 tokio-test = "0.4"
 mockito = "1.2"
