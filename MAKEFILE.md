@@ -1,6 +1,6 @@
-# Cargo Make Tasks for Rgen
+# Cargo Make Tasks for Ggen
 
-This document describes the comprehensive `Makefile.toml` that standardizes all development, testing, and deployment workflows for the rgen project.
+This document describes the comprehensive `Makefile.toml` that standardizes all development, testing, and deployment workflows for the ggen project.
 
 ## Installation
 
@@ -188,8 +188,8 @@ cargo make completions-fish # Fish completions
 ## Utilities
 
 ```bash
-cargo make install         # Install rgen binary
-cargo make uninstall       # Uninstall rgen binary
+cargo make install         # Install ggen binary
+cargo make uninstall       # Uninstall ggen binary
 cargo make update          # Update dependencies
 cargo make tree            # Show dependency tree
 cargo make size            # Show binary size

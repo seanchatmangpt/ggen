@@ -3,7 +3,7 @@ use std::path::Path;
 use walkdir::WalkDir;
 
 pub fn run() -> ggen_utils::error::Result<()> {
-    println!("🔍 RGen Hazard Report");
+    println!("🔍 GGen Hazard Report");
     println!("====================");
 
     let mut hazards = Vec::new();

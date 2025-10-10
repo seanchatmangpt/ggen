@@ -26,8 +26,14 @@ jobs:
           path: ~/.cargo/registry
           key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
 
-      - name: Install cargo-audit
-        run: cargo install cargo-audit --locked
+      - name: Cache cargo-make
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin/cargo-make
+          key: ${{ runner.os }}-cargo-make
+
+      - name: Install cargo-make
+        run: cargo install cargo-make --locked
 
       - name: Run cargo audit
-        run: cargo audit
+        run: cargo make audit

@@ -7,20 +7,20 @@ use tempfile::TempDir;
 
 use crate::registry::ResolvedPack;
 
-/// Local cache manager for rpacks
+/// Local cache manager for gpacks
 #[derive(Debug, Clone)]
 pub struct CacheManager {
     cache_dir: PathBuf,
 }
 
-/// Cached rpack information
+/// Cached gpack information
 #[derive(Debug, Clone)]
 pub struct CachedPack {
     pub id: String,
     pub version: String,
     pub path: PathBuf,
     pub sha256: String,
-    pub manifest: Option<crate::rpack::RpackManifest>,
+    pub manifest: Option<crate::gpack::GpackManifest>,
 }
 
 impl CacheManager {
@@ -29,7 +29,7 @@ impl CacheManager {
         let cache_dir = dirs::cache_dir()
             .context("Failed to find cache directory")?
             .join("ggen")
-            .join("rpacks");
+            .join("gpacks");
 
         fs::create_dir_all(&cache_dir).context("Failed to create cache directory")?;
 
@@ -132,7 +132,7 @@ impl CacheManager {
         let sha256 = self.calculate_sha256(&pack_dir)?;
 
         // Try to load manifest
-        let manifest_path = pack_dir.join("rpack.toml");
+        let manifest_path = pack_dir.join("gpack.toml");
         let manifest = if manifest_path.exists() {
             let content = fs::read_to_string(&manifest_path).context("Failed to read manifest")?;
             Some(toml::from_str(&content).context("Failed to parse manifest")?)

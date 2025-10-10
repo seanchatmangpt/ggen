@@ -1,6 +1,6 @@
-# Rgen DX Features
+# Ggen DX Features
 
-This document covers all developer experience features in rgen, including both marketplace and local template workflows. These features focus on ergonomics, authoring workflows, error handling, and development productivity.
+This document covers all developer experience features in ggen, including both marketplace and local template workflows. These features focus on ergonomics, authoring workflows, error handling, and development productivity.
 
 ## CLI Ergonomics
 
@@ -8,10 +8,10 @@ This document covers all developer experience features in rgen, including both m
 
 ```bash
 # Single command for everything
-rgen gen <template> key=val ...
+ggen gen <template> key=val ...
 
 # No complex subcommand trees
-# Just: rgen gen [template-ref] [options] [variables]
+# Just: ggen gen [template-ref] [options] [variables]
 ```
 
 ### Auto-Discovery
@@ -19,7 +19,7 @@ rgen gen <template> key=val ...
 ```bash
 # Automatically finds project configuration
 cd my-project/
-rgen gen cli subcommand name=hello  # Finds ggen.toml automatically
+ggen gen cli subcommand name=hello  # Finds ggen.toml automatically
 
 # Discovers templates directory
 # Loads project-specific RDF graphs
@@ -50,7 +50,7 @@ vars:
   feature: "basic"
 
 # CLI call
-rgen gen cli subcommand --var author="CLI Author" --var feature="advanced"
+ggen gen cli subcommand --var author="CLI Author" --var feature="advanced"
 # Result: author="CLI Author", license="MIT", feature="advanced"
 ```
 
@@ -58,7 +58,7 @@ rgen gen cli subcommand --var author="CLI Author" --var feature="advanced"
 
 ```bash
 # Side-by-side diff view
-rgen gen cli subcommand name=hello --dry
+ggen gen cli subcommand name=hello --dry
 
 # Shows unified diff with context
 # Displays target paths and variable summary
@@ -69,71 +69,71 @@ rgen gen cli subcommand name=hello --dry
 
 ```bash
 # See everything that happens during generation
-RGEN_TRACE=1 rgen gen cli subcommand name=hello
+GGEN_TRACE=1 ggen gen cli subcommand name=hello
 
 # Outputs:
-# === RGEN TRACE ===
+# === GGEN TRACE ===
 # Template path: templates/cli/subcommand/rust.tmpl
 # Resolved frontmatter:
 # {to: "src/cmds/{{name}}.rs", vars: {name: "hello"}, ...}
 # SPARQL prolog:
-# @prefix cli: <urn:rgen:cli#> . @base <http://example.org/> .
+# @prefix cli: <urn:ggen:cli#> . @base <http://example.org/> .
 # Target output path: src/cmds/hello.rs
 ```
 
 ## Marketplace DX Features
 
-### Rpack Development Workflow
+### Gpack Development Workflow
 
 ```bash
-# Initialize new rpack
-rgen pack init
+# Initialize new gpack
+ggen pack init
 
 # Add templates and dependencies
 mkdir -p templates/cli/subcommand
 # Create template files...
 
-# Test rpack locally
-rgen pack test
+# Test gpack locally
+ggen pack test
 
 # Lint for publishing
-rgen pack lint
+ggen pack lint
 
 # Publish to registry
-rgen pack publish
+ggen pack publish
 ```
 
-### Rpack Testing Best Practices
+### Gpack Testing Best Practices
 
 ```bash
 # Run golden tests
-rgen pack test
+ggen pack test
 
 # Test with different variables
-rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=test1
-rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=test2
+ggen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=test1
+ggen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=test2
 
 # Verify deterministic output
-rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=test1
+ggen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=test1
 # Should produce identical output
 ```
 
-### Rpack Versioning Strategies
+### Gpack Versioning Strategies
 
 ```bash
-# Semantic versioning for rpacks
+# Semantic versioning for gpacks
 # Major.Minor.Patch
 # 1.0.0 -> 1.0.1 (patch: bug fixes)
 # 1.0.0 -> 1.1.0 (minor: new features)
 # 1.0.0 -> 2.0.0 (major: breaking changes)
 
-# Update rpack version
+# Update gpack version
 # Edit ggen.toml:
 # version = "0.2.1"
 
 # Test before publishing
-rgen pack test
-rgen pack lint
+ggen pack test
+ggen pack lint
 ```
 
 ## Authoring Loop
@@ -142,7 +142,7 @@ rgen pack lint
 
 ```bash
 # Watch mode for rapid iteration
-rgen dev --watch templates/
+ggen dev --watch templates/
 
 # Automatically re-renders when:
 # - Template files change
@@ -154,27 +154,27 @@ rgen dev --watch templates/
 # Perfect for template development
 ```
 
-### Rpack Development Mode
+### Gpack Development Mode
 
 ```bash
-# Watch mode for rpack development
-rgen pack dev --watch
+# Watch mode for gpack development
+ggen pack dev --watch
 
 # Automatically re-renders when:
-# - Rpack templates change
+# - Gpack templates change
 # - Dependencies update
 # - RDF graphs are modified
 # - Tests need re-running
 
 # Outputs to temp directory with live diff
-# Perfect for rpack development
+# Perfect for gpack development
 ```
 
 ### Template Scaffolding
 
 ```bash
 # Generate new template with sensible defaults
-rgen new template cli/subcommand/typescript
+ggen new template cli/subcommand/typescript
 
 # Creates:
 # templates/cli/subcommand/typescript.tmpl
@@ -187,7 +187,7 @@ rgen new template cli/subcommand/typescript
 
 ```bash
 # Get help for any template
-rgen help cli/subcommand/rust.tmpl
+ggen help cli/subcommand/rust.tmpl
 
 # Shows:
 # Template: cli/subcommand/rust.tmpl
@@ -198,7 +198,7 @@ rgen help cli/subcommand/rust.tmpl
 # Optional Variables:
 #   author (string): Code author
 # Examples:
-#   rgen gen cli/subcommand/rust.tmpl name=status description="Show status"
+#   ggen gen cli/subcommand/rust.tmpl name=status description="Show status"
 # Dependencies:
 #   RDF: graphs/cli.ttl
 #   Queries: SELECT ?name ?description WHERE { ?cmd rdfs:label ?name }
@@ -208,7 +208,7 @@ rgen help cli/subcommand/rust.tmpl
 
 ```bash
 # See what would be generated without running templates
-rgen plan cli subcommand
+ggen plan cli subcommand
 
 # Shows:
 # Would generate:
@@ -263,7 +263,7 @@ Suggestion: Use string instead of array for single file
 # Shows prepended prolog and failing variable binding
 SPARQL Error in templates/api/endpoint/rust.tmpl:
 Query:
-  @prefix api: <urn:rgen:api#> .
+  @prefix api: <urn:ggen:api#> .
   @base <http://example.org/> .
   SELECT ?name ?type WHERE {
     ?endpoint a api:Endpoint .
@@ -361,7 +361,7 @@ skip_if: "// GENERATED CODE"
 
 ```bash
 # Diff shown by default in --dry mode
-rgen gen cli subcommand name=hello --dry
+ggen gen cli subcommand name=hello --dry
 
 # Unified diff format:
 # --- templates/cli/subcommand/rust.tmpl
@@ -382,7 +382,7 @@ rgen gen cli subcommand name=hello --dry
 
 ```bash
 # Printed after successful write
-rgen gen cli subcommand name=hello
+ggen gen cli subcommand name=hello
 
 # Output:
 # Generated: src/cmds/hello.rs
@@ -396,7 +396,7 @@ rgen gen cli subcommand name=hello
 
 ```bash
 # --idempotency-key seeds stable ordering
-rgen gen cli subcommand --idempotency-key "my-project"
+ggen gen cli subcommand --idempotency-key "my-project"
 
 # Multi-file generation produces consistent output order
 # Same key → same file ordering across runs
@@ -436,13 +436,13 @@ pub struct {{cmd.name}}Args;
 ```yaml
 # Frontmatter automatically builds prolog:
 prefixes:
-  cli: "urn:rgen:cli#"
+  cli: "urn:ggen:cli#"
   ex: "http://example.org/"
 
 base: "http://example.org/"
 
 # Generates:
-# @prefix cli: <urn:rgen:cli#> .
+# @prefix cli: <urn:ggen:cli#> .
 # @prefix ex: <http://example.org/> .
 # @base <http://example.org/> .
 ```
@@ -484,13 +484,13 @@ base: "http://example.org/"
 
 ```bash
 # Safe write root = current directory
-rgen gen cli subcommand name=hello
+ggen gen cli subcommand name=hello
 
 # Generates: ./src/cmds/hello.rs
 # Cannot write outside project root
 
 # Override with --unsafe-write (requires explicit opt-in)
-rgen gen cli subcommand name=hello --unsafe-write /tmp/output
+ggen gen cli subcommand name=hello --unsafe-write /tmp/output
 ```
 
 ### Shell Hook Controls
@@ -501,10 +501,10 @@ sh_before: "echo 'Generating...'"    # Not executed
 sh_after: "cargo fmt"                # Not executed
 
 # Enable with --allow-sh flag
-rgen gen template --allow-sh
+ggen gen template --allow-sh
 
 # Always preview in --dry mode
-rgen gen template --dry --allow-sh  # Shows what shell commands would run
+ggen gen template --dry --allow-sh  # Shows what shell commands would run
 ```
 
 ### Network Restrictions
@@ -513,8 +513,8 @@ rgen gen template --dry --allow-sh  # Shows what shell commands would run
 # No network during render by default
 # Prevents malicious template behavior
 
-# Enable network for rpack fetching only
-rgen add io.rgen.rust.cli-subcommand --net
+# Enable network for gpack fetching only
+ggen add io.ggen.rust.cli-subcommand --net
 
 # Network only for registry operations
 # Templates cannot make HTTP requests
@@ -545,7 +545,7 @@ vars = { author = "Team", license = "MIT" }
 
 ```bash
 # Validate entire project setup
-rgen doctor
+ggen doctor
 
 # Checks:
 # ✓ ggen.toml syntax
@@ -553,7 +553,7 @@ rgen doctor
 # ✓ RDF graph well-formedness
 # ✓ SPARQL query syntax
 # ✓ File path resolution
-# ✓ Rpack compatibility
+# ✓ Gpack compatibility
 ```
 
 ### Path Resolution
@@ -579,7 +579,7 @@ rgen doctor
 
 ```bash
 # Run golden tests for specific template
-rgen test cli/subcommand/rust.tmpl
+ggen test cli/subcommand/rust.tmpl
 
 # Test structure:
 # tests/golden/cli/subcommand/rust.tmpl/
@@ -587,7 +587,7 @@ rgen test cli/subcommand/rust.tmpl
 #   output.rs      # Expected output
 
 # Update goldens after changes
-rgen test cli/subcommand/rust.tmpl --update-goldens
+ggen test cli/subcommand/rust.tmpl --update-goldens
 ```
 
 ### Test Organization
@@ -677,7 +677,7 @@ Error: Template 'missing.tmpl' not found
 Suggestion: Available templates:
   - cli/subcommand/rust.tmpl
   - api/endpoint/typescript.tmpl
-  - Run 'rgen list' to see all options
+  - Run 'ggen list' to see all options
 ```
 
 ## Performance Optimizations
@@ -710,7 +710,7 @@ Suggestion: Available templates:
 # 3. Check --trace output
 # 4. Iterate quickly
 
-rgen gen template --dry --trace
+ggen gen template --dry --trace
 # → See exactly what happens
 # → Fix issues immediately
 # → No waiting for file writes
@@ -720,7 +720,7 @@ rgen gen template --dry --trace
 
 ```bash
 # Debug template logic step by step
-RGEN_TRACE=1 rgen gen template
+GGEN_TRACE=1 ggen gen template
 
 # See:
 # - Frontmatter resolution
@@ -746,7 +746,7 @@ RGEN_TRACE=1 rgen gen template
 
 ```bash
 # JSON output for CI/CD
-rgen gen template --dry --json > plan.json
+ggen gen template --dry --json > plan.json
 
 # Machine-readable error format
 # Structured logging for dashboards

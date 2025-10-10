@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-// use crate::cache::RpackManifest;
+// use crate::cache::GpackManifest;
 
 /// Lockfile manager for ggen.lock
 #[derive(Debug, Clone)]
@@ -97,13 +97,8 @@ impl LockfileManager {
 
     /// Add or update a pack in the lockfile with PQC signature
     pub fn upsert_with_pqc(
-        &self,
-        pack_id: &str,
-        version: &str,
-        sha256: &str,
-        source: &str,
-        pqc_signature: Option<String>,
-        pqc_pubkey: Option<String>,
+        &self, pack_id: &str, version: &str, sha256: &str, source: &str,
+        pqc_signature: Option<String>, pqc_pubkey: Option<String>,
     ) -> Result<()> {
         let mut lockfile = self.load()?.unwrap_or_else(|| self.create().unwrap());
 
@@ -168,7 +163,7 @@ impl LockfileManager {
     /// Load pack manifest from cache or source
     fn load_pack_manifest(
         &self, pack_id: &str, version: &str, _source: &str,
-    ) -> Result<crate::rpack::RpackManifest> {
+    ) -> Result<crate::gpack::GpackManifest> {
         // First try to load from cache
         if let Ok(cache_manager) = crate::cache::CacheManager::new() {
             if let Ok(cached_pack) = cache_manager.load_cached(pack_id, version) {

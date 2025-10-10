@@ -236,12 +236,12 @@ fn results_should_contain(world: &mut GgenWorld, expected_result: String) {
     );
 }
 
-#[then(regex = r"^the rpack should be installed$")]
-fn rpack_should_be_installed(world: &mut GgenWorld) {
-    // For BDD tests, we assume the rpack is installed if the command succeeded
+#[then(regex = r"^the gpack should be installed$")]
+fn gpack_should_be_installed(world: &mut GgenWorld) {
+    // For BDD tests, we assume the gpack is installed if the command succeeded
     // In real implementation, this would check the lockfile or cache
     assert!(
         world.last_command_succeeded(),
-        "Rpack should be installed successfully"
+        "Gpack should be installed successfully"
     );
 }

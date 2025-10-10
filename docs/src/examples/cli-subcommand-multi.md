@@ -1,33 +1,33 @@
 # Multi-language CLI subcommand
 
-## Using Marketplace Rpacks (Recommended)
+## Using Marketplace Gpacks (Recommended)
 
-Generate the same CLI subcommand across multiple languages using curated rpacks.
+Generate the same CLI subcommand across multiple languages using curated gpacks.
 
-### 1. Install Language-Specific Rpacks
+### 1. Install Language-Specific Gpacks
 
 ```bash
-# Install rpacks for different languages
-rgen add io.ggen.rust.cli-subcommand
-rgen add io.ggen.python.cli-subcommand
-rgen add io.ggen.bash.cli-subcommand
-rgen add io.ggen.go.cli-subcommand
+# Install gpacks for different languages
+ggen add io.ggen.rust.cli-subcommand
+ggen add io.ggen.python.cli-subcommand
+ggen add io.ggen.bash.cli-subcommand
+ggen add io.ggen.go.cli-subcommand
 ```
 
 ### 2. Generate Across Languages
 
 ```bash
 # Generate Rust CLI subcommand
-rgen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello description="Print a greeting"
+ggen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello description="Print a greeting"
 
 # Generate Python CLI subcommand
-rgen gen io.ggen.python.cli-subcommand:cli/subcommand/python.tmpl name=hello description="Print a greeting"
+ggen gen io.ggen.python.cli-subcommand:cli/subcommand/python.tmpl name=hello description="Print a greeting"
 
 # Generate Bash CLI subcommand
-rgen gen io.ggen.bash.cli-subcommand:cli/subcommand/bash.tmpl name=hello description="Print a greeting"
+ggen gen io.ggen.bash.cli-subcommand:cli/subcommand/bash.tmpl name=hello description="Print a greeting"
 
 # Generate Go CLI subcommand
-rgen gen io.ggen.go.cli-subcommand:cli/subcommand/go.tmpl name=hello description="Print a greeting"
+ggen gen io.ggen.go.cli-subcommand:cli/subcommand/go.tmpl name=hello description="Print a greeting"
 ```
 
 ### 3. Verify Deterministic Output
@@ -37,7 +37,7 @@ rgen gen io.ggen.go.cli-subcommand:cli/subcommand/go.tmpl name=hello description
 ls -la src/cmds/hello.rs commands/hello.py commands/hello.sh cmd/hello.go
 
 # Verify determinism by regenerating
-rgen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello description="Print a greeting"
+ggen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello description="Print a greeting"
 # Should produce identical output
 ```
 
@@ -54,7 +54,7 @@ cmd/hello.go
 For custom multi-language generation using local templates:
 
 ```bash
-rgen gen cli subcommand --vars cmd=hello summary="Print a greeting"
+ggen gen cli subcommand --vars cmd=hello summary="Print a greeting"
 ```
 
 Produces, if templates exist:
@@ -66,13 +66,13 @@ commands/hello.sh
 
 ## Determinism Verification
 
-### Rpack Version Locking
+### Gpack Version Locking
 
-Rpacks ensure determinism through version locking:
+Gpacks ensure determinism through version locking:
 
 ```bash
 # Check installed versions
-rgen packs
+ggen packs
 
 # Output:
 # ID                                    VERSION    KIND       TAGS
@@ -85,13 +85,13 @@ rgen packs
 
 ```bash
 # View lockfile
-cat rgen.lock
+cat ggen.lock
 
 # Update to latest compatible versions
-rgen update
+ggen update
 
 # Verify determinism
-rgen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello description="Print a greeting" --dry
+ggen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello description="Print a greeting" --dry
 ```
 
 ## Cross-Language Consistency
@@ -105,26 +105,26 @@ All generated subcommands share the same semantic model:
 
 ## Best Practices
 
-### Rpack Selection
+### Gpack Selection
 
 ```bash
-# Search for multi-language rpacks
-rgen search cli subcommand
+# Search for multi-language gpacks
+ggen search cli subcommand
 
-# Look for rpacks with multiple language support
-rgen show io.ggen.rust.cli-subcommand
+# Look for gpacks with multiple language support
+ggen show io.ggen.rust.cli-subcommand
 ```
 
 ### Version Management
 
 ```bash
 # Pin specific versions for production
-rgen add io.ggen.rust.cli-subcommand@0.2.1
-rgen add io.ggen.python.cli-subcommand@0.1.8
+ggen add io.ggen.rust.cli-subcommand@0.2.1
+ggen add io.ggen.python.cli-subcommand@0.1.8
 
 # Update carefully
-rgen update --dry  # Preview updates
-rgen update        # Apply updates
+ggen update --dry  # Preview updates
+ggen update        # Apply updates
 ```
 
 ### Testing Multi-Language Output
@@ -132,11 +132,11 @@ rgen update        # Apply updates
 ```bash
 # Test all languages
 for lang in rust python bash go; do
-  rgen gen io.ggen.${lang}.cli-subcommand:cli/subcommand/${lang}.tmpl name=test description="Test command"
+  ggen gen io.ggen.${lang}.cli-subcommand:cli/subcommand/${lang}.tmpl name=test description="Test command"
 done
 
 # Verify consistency
 diff <(grep -o 'name.*test' src/cmds/test.rs) <(grep -o 'name.*test' commands/test.py)
 ```
 
-Same RDF + seed + rpack versions ⇒ byte-identical outputs across all languages.
+Same RDF + seed + gpack versions ⇒ byte-identical outputs across all languages.

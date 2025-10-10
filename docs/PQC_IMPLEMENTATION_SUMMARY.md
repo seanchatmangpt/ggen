@@ -58,8 +58,8 @@ base64 = "0.22"              # Encoding
 **Created/Updated**:
 - ✅ `docs/RELEASE_NOTES_v1.0.0.md` - Comprehensive release notes with sales bullets
 - ✅ `README.md` - Added PQC as headline feature
-- ✅ Fixed ALL "rgen" → "ggen" references across 15 mdBook files
-- ✅ Fixed ALL "io.rgen.*" → "io.ggen.*" package names
+- ✅ Fixed ALL "ggen" → "ggen" references across 15 mdBook files
+- ✅ Fixed ALL "io.ggen.*" → "io.ggen.*" package names
 - ✅ `docs/MARKETPLACE_ISSUES_AND_FIX_PLAN.md` - Analysis and future work
 
 ---
@@ -320,7 +320,7 @@ cargo make build
 - ✅ Lockfile enhanced with optional PQC fields
 - ✅ Unit tests covering core functionality
 - ✅ Documentation updated (README, release notes)
-- ✅ All "rgen" references fixed in docs
+- ✅ All "ggen" references fixed in docs
 - ✅ Build successful, no regressions
 - ✅ Backward compatibility maintained
 

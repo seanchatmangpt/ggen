@@ -2,7 +2,7 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
-- [rgen v0.1.0](#rgen-v010)
+- [ggen v0.1.0](#ggen-v010)
   - [🚀 Installation](#-installation)
     - [Build from Source (Recommended)](#build-from-source-recommended)
   - [⚡ Quick Start](#-quick-start)
@@ -35,7 +35,7 @@
     - [Working ✅](#working-)
     - [In Development 🚧](#in-development-)
     - [Requires Backend ⚠️](#requires-backend-)
-  - [🎓 Understanding rgen](#-understanding-rgen)
+  - [🎓 Understanding ggen](#-understanding-ggen)
     - [Core Concepts](#core-concepts)
   - [🚧 Roadmap](#-roadmap)
     - [v0.2.0 (Planned)](#v020-planned)
@@ -49,11 +49,11 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-# rgen v0.1.0
+# ggen v0.1.0
 
 **Language-agnostic code generator with RDF-based semantic templates.**
 
-`rgen` is a deterministic code generation framework that treats software artifacts as projections of knowledge graphs. Define your intent once using RDF/SPARQL metadata, then generate code for any target language.
+`ggen` is a deterministic code generation framework that treats software artifacts as projections of knowledge graphs. Define your intent once using RDF/SPARQL metadata, then generate code for any target language.
 
 ---
 
@@ -63,15 +63,15 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/seanchatmangpt/rgen
-cd rgen
+git clone https://github.com/seanchatmangpt/ggen
+cd ggen
 
 # Build with cargo-make (required)
 cargo make build
 
-# Run rgen
-./target/debug/rgen --version
-# Output: rgen 0.1.0
+# Run ggen
+./target/debug/ggen --version
+# Output: ggen 0.1.0
 
 # Optional: Install to system
 cargo make install
@@ -108,7 +108,7 @@ vars:
 ### 3. List Available Templates
 
 ```bash
-rgen list
+ggen list
 ```
 
 Output:
@@ -218,19 +218,19 @@ pub mod {{ module }} {
 
 | Command | Description | Status |
 |---------|-------------|--------|
-| `rgen list` | List available templates in `templates/` directory | ✅ Working |
-| `rgen hazard` | Generate project hazard/health report | ✅ Working |
-| `rgen packs` | List installed rpacks (marketplace packages) | ✅ Working |
-| `rgen completion <shell>` | Generate shell completions (bash, zsh, fish) | ✅ Working |
-| `rgen gen <template>` | Generate code from template | 🚧 In Development |
-| `rgen show <template>` | Show template metadata | 🚧 Has Issues |
-| `rgen lint <template>` | Validate template syntax | 🚧 Has Issues |
-| `rgen search <query>` | Search marketplace (requires registry) | ⚠️ Requires Backend |
-| `rgen add <rpack>` | Install marketplace package | ⚠️ Requires Backend |
-| `rgen categories` | Browse marketplace categories | ⚠️ Requires Backend |
-| `rgen update` | Update installed packages | ⚠️ Requires Backend |
-| `rgen remove <rpack>` | Remove installed package | ⚠️ Requires Backend |
-| `rgen graph` | Export merged RDF graph | 📝 Documented |
+| `ggen list` | List available templates in `templates/` directory | ✅ Working |
+| `ggen hazard` | Generate project hazard/health report | ✅ Working |
+| `ggen packs` | List installed gpacks (marketplace packages) | ✅ Working |
+| `ggen completion <shell>` | Generate shell completions (bash, zsh, fish) | ✅ Working |
+| `ggen gen <template>` | Generate code from template | 🚧 In Development |
+| `ggen show <template>` | Show template metadata | 🚧 Has Issues |
+| `ggen lint <template>` | Validate template syntax | 🚧 Has Issues |
+| `ggen search <query>` | Search marketplace (requires registry) | ⚠️ Requires Backend |
+| `ggen add <gpack>` | Install marketplace package | ⚠️ Requires Backend |
+| `ggen categories` | Browse marketplace categories | ⚠️ Requires Backend |
+| `ggen update` | Update installed packages | ⚠️ Requires Backend |
+| `ggen remove <gpack>` | Remove installed package | ⚠️ Requires Backend |
+| `ggen graph` | Export merged RDF graph | 📝 Documented |
 
 ---
 
@@ -239,12 +239,12 @@ pub mod {{ module }} {
 The `hazard` command provides helpful project health checks:
 
 ```bash
-rgen hazard
+ggen hazard
 ```
 
 Output:
 ```
-🔍 RGen Hazard Report
+🔍 GGen Hazard Report
 ====================
 
 ⚠️  Found 3 potential hazard(s):
@@ -265,7 +265,7 @@ Output:
 
 ### Tera Template Engine
 
-rgen uses [Tera](https://keats.github.io/tera/) for template rendering:
+ggen uses [Tera](https://keats.github.io/tera/) for template rendering:
 
 ```jinja2
 {{ variable }}                    {# Basic variable #}
@@ -347,7 +347,7 @@ sh_after: "rustfmt {{ output_path }}"
 
 ## 🔁 Deterministic Generation
 
-rgen ensures byte-identical output for the same inputs:
+ggen ensures byte-identical output for the same inputs:
 
 ```yaml
 ---
@@ -472,10 +472,10 @@ cargo make clean       # Clean build artifacts
 
 ## 🏗️ Architecture
 
-rgen is organized as a Rust workspace:
+ggen is organized as a Rust workspace:
 
 ```
-rgen/
+ggen/
 ├── src/           # Binary entry point
 ├── cli/           # CLI argument parsing & subcommands
 ├── core/          # Generation engine
@@ -503,33 +503,33 @@ rgen/
 ## 🔧 Current Limitations (v0.1.0)
 
 ### Working ✅
-- Template discovery and listing (`rgen list`)
-- Project health checks (`rgen hazard`)
-- Shell completion generation (`rgen completion`)
+- Template discovery and listing (`ggen list`)
+- Project health checks (`ggen hazard`)
+- Shell completion generation (`ggen completion`)
 - Template parsing with frontmatter
 - RDF graph loading and SPARQL queries
 - Local template organization
 
 ### In Development 🚧
-- Template generation via CLI (`rgen gen`)
-- Template preview (`rgen show` - has rendering issues)
-- Template validation (`rgen lint` - has rendering issues)
+- Template generation via CLI (`ggen gen`)
+- Template preview (`ggen show` - has rendering issues)
+- Template validation (`ggen lint` - has rendering issues)
 - Complete end-to-end generation workflow
 
 ### Requires Backend ⚠️
-- Marketplace search (`rgen search`)
-- Package installation (`rgen add`)
-- Package updates (`rgen update`)
+- Marketplace search (`ggen search`)
+- Package installation (`ggen add`)
+- Package updates (`ggen update`)
 - Registry synchronization
 
 **Note:** The marketplace features require a registry backend at:
-`https://raw.githubusercontent.com/seanchatmangpt/rgen/master/registry/`
+`https://raw.githubusercontent.com/seanchatmangpt/ggen/master/registry/`
 
 This is currently under development.
 
 ---
 
-## 🎓 Understanding rgen
+## 🎓 Understanding ggen
 
 ### Core Concepts
 
@@ -566,9 +566,9 @@ This is currently under development.
 
 ### v0.3.0 (Planned)
 - 🏪 Marketplace backend implementation
-- 📦 Rpack creation and publishing tools
+- 📦 Gpack creation and publishing tools
 - 🔍 Working search and package management
-- 🔄 Dependency resolution for rpacks
+- 🔄 Dependency resolution for gpacks
 
 ### v1.0.0 (Future)
 - 🎯 Production-ready marketplace
@@ -580,7 +580,7 @@ This is currently under development.
 
 ## 🤝 Contributing
 
-rgen follows strict development practices:
+ggen follows strict development practices:
 
 1. **Always use `cargo make`** - Direct cargo commands are not allowed
 2. **No `unwrap()` in libraries** - All errors must be handled
@@ -621,7 +621,7 @@ Built with:
 
 ```bash
 # Setup
-git clone https://github.com/seanchatmangpt/rgen && cd rgen
+git clone https://github.com/seanchatmangpt/ggen && cd ggen
 cargo make build
 
 # Create templates
@@ -629,13 +629,13 @@ mkdir -p templates/myapp
 # Add .tmpl files to templates/
 
 # Discover templates
-rgen list
+ggen list
 
 # Check project health
-rgen hazard
+ggen hazard
 
 # Generate completions
-rgen completion bash > ~/.bash_completion.d/rgen
+ggen completion bash > ~/.bash_completion.d/ggen
 
 # Development
 cargo make quick  # Fast iteration
@@ -645,5 +645,5 @@ cargo make ci     # Full validation
 ---
 
 **Version:** 0.1.0
-**Repository:** https://github.com/seanchatmangpt/rgen
+**Repository:** https://github.com/seanchatmangpt/ggen
 **Status:** Early Development - Local Template Features Working

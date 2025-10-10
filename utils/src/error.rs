@@ -1,7 +1,7 @@
 use std::error::Error as StdError;
 use std::fmt;
 
-/// Custom error type for the rgen project
+/// Custom error type for the ggen project
 #[derive(Debug)]
 pub struct Error {
     message: String,
@@ -75,7 +75,7 @@ impl StdError for Error {
     }
 }
 
-/// Result type alias for the rgen project
+/// Result type alias for the ggen project
 pub type Result<T> = std::result::Result<T, Error>;
 
 // Implement From for common error types

@@ -15,7 +15,7 @@ Feature: Template Generation
           println!("hello {}", name);
       }
       """
-    When I run "rgen gen test-template"
+    When I run "ggen gen test-template"
     Then the file "src/cmds/hello.rs" should exist
     And it should contain "pub fn hello(name: &str)"
 
@@ -29,14 +29,14 @@ Feature: Template Generation
         inline:
           - mediaType: text/turtle
             text: |
-              @prefix cli: <urn:rgen:cli#> .
+              @prefix cli: <urn:ggen:cli#> .
               [] a cli:Command ;
                  cli:slug "{{ cmd }}" ;
                  cli:summary "{{ summary }}" .
       ---
       pub fn {{ slug }}(name: &str) { }
       """
-    When I run "rgen gen test-template"
+    When I run "ggen gen test-template"
     Then the RDF graph should be processed
     And the output should use RDF-extracted variables
 
@@ -48,12 +48,12 @@ Feature: Template Generation
         vars:
           - name: slug
             query: |
-              PREFIX cli: <urn:rgen:cli#>
+              PREFIX cli: <urn:ggen:cli#>
               SELECT ?slug WHERE { ?c a cli:Command ; cli:slug ?slug } LIMIT 1
       ---
       pub fn {{ slug }}() { }
       """
-    When I run "rgen gen test-template"
+    When I run "ggen gen test-template"
     Then SPARQL variables should be extracted
     And the output should use queried values
 
@@ -64,5 +64,5 @@ Feature: Template Generation
       determinism: { seed: "{{ cmd }}" }
       ---
       """
-    When I run "rgen gen test-template" multiple times
+    When I run "ggen gen test-template" multiple times
     Then all outputs should be byte-identical

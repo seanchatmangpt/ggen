@@ -50,8 +50,9 @@ pub fn run(args: &LintArgs) -> Result<()> {
         return validate_registry(args);
     }
 
-    let template_path = args.template.as_ref()
-        .ok_or_else(|| ggen_utils::error::Error::new("Template path is required when not validating registry"))?;
+    let template_path = args.template.as_ref().ok_or_else(|| {
+        ggen_utils::error::Error::new("Template path is required when not validating registry")
+    })?;
 
     let mut issues = Vec::new();
 
@@ -406,14 +407,20 @@ fn validate_registry(args: &LintArgs) -> Result<()> {
     let mut issues = Vec::new();
 
     // Load registry index
-    let registry_path = std::env::current_dir()?.join("docs").join("registry").join("index.json");
+    let registry_path = std::env::current_dir()?
+        .join("docs")
+        .join("registry")
+        .join("index.json");
     if !registry_path.exists() {
-        return Err(ggen_utils::error::Error::new("Registry index not found at docs/registry/index.json"));
+        return Err(ggen_utils::error::Error::new(
+            "Registry index not found at docs/registry/index.json",
+        ));
     }
 
     let registry_content = std::fs::read_to_string(&registry_path)?;
-    let registry: serde_json::Value = serde_json::from_str(&registry_content)
-        .map_err(|e| ggen_utils::error::Error::new_fmt(format_args!("Invalid JSON in registry index: {}", e)))?;
+    let registry: serde_json::Value = serde_json::from_str(&registry_content).map_err(|e| {
+        ggen_utils::error::Error::new_fmt(format_args!("Invalid JSON in registry index: {}", e))
+    })?;
 
     // Validate registry structure
     validate_registry_structure(&registry, &mut issues);
@@ -491,7 +498,10 @@ fn validate_pack_structure(pack_id: &str, pack_data: &serde_json::Value, issues:
     let required_fields = ["id", "name", "description", "latest_version", "versions"];
     for field in &required_fields {
         if !pack_obj.contains_key(*field) {
-            issues.push(format!("Pack '{}' missing required field '{}'", pack_id, field));
+            issues.push(format!(
+                "Pack '{}' missing required field '{}'",
+                pack_id, field
+            ));
         }
     }
 
@@ -507,9 +517,14 @@ fn validate_pack_structure(pack_id: &str, pack_data: &serde_json::Value, issues:
     }
 }
 
-fn validate_version_structure(pack_id: &str, version: &str, version_data: &serde_json::Value, issues: &mut Vec<String>) {
+fn validate_version_structure(
+    pack_id: &str, version: &str, version_data: &serde_json::Value, issues: &mut Vec<String>,
+) {
     if !version_data.is_object() {
-        issues.push(format!("Pack '{}' version '{}' must be an object", pack_id, version));
+        issues.push(format!(
+            "Pack '{}' version '{}' must be an object",
+            pack_id, version
+        ));
         return;
     }
 
@@ -519,7 +534,10 @@ fn validate_version_structure(pack_id: &str, version: &str, version_data: &serde
     let required_fields = ["version", "git_url", "git_rev", "sha256"];
     for field in &required_fields {
         if !version_obj.contains_key(*field) {
-            issues.push(format!("Pack '{}' version '{}' missing required field '{}'", pack_id, version, field));
+            issues.push(format!(
+                "Pack '{}' version '{}' missing required field '{}'",
+                pack_id, version, field
+            ));
         }
     }
 }
@@ -530,8 +548,13 @@ fn validate_git_references(registry: &serde_json::Value, issues: &mut Vec<String
             if let Some(versions) = pack_data.get("versions").and_then(|v| v.as_object()) {
                 for (version, version_data) in versions {
                     if let Some(git_url) = version_data.get("git_url").and_then(|u| u.as_str()) {
-                        if !git_url.starts_with("https://github.com/") && !git_url.starts_with("git@github.com:") {
-                            issues.push(format!("Pack '{}' version '{}' has invalid git URL format", pack_id, version));
+                        if !git_url.starts_with("https://github.com/")
+                            && !git_url.starts_with("git@github.com:")
+                        {
+                            issues.push(format!(
+                                "Pack '{}' version '{}' has invalid git URL format",
+                                pack_id, version
+                            ));
                         }
                     }
 
@@ -568,7 +591,10 @@ fn validate_version_strings(registry: &serde_json::Value, issues: &mut Vec<Strin
             // Validate latest_version
             if let Some(latest_version) = pack_data.get("latest_version").and_then(|v| v.as_str()) {
                 if !is_valid_semver(latest_version) {
-                    issues.push(format!("Pack '{}' has invalid latest_version format: '{}'", pack_id, latest_version));
+                    issues.push(format!(
+                        "Pack '{}' has invalid latest_version format: '{}'",
+                        pack_id, latest_version
+                    ));
                 }
             }
 
@@ -576,12 +602,20 @@ fn validate_version_strings(registry: &serde_json::Value, issues: &mut Vec<Strin
             if let Some(versions) = pack_data.get("versions").and_then(|v| v.as_object()) {
                 for (version, version_data) in versions {
                     if !is_valid_semver(version) {
-                        issues.push(format!("Pack '{}' has invalid version format: '{}'", pack_id, version));
+                        issues.push(format!(
+                            "Pack '{}' has invalid version format: '{}'",
+                            pack_id, version
+                        ));
                     }
 
-                    if let Some(version_field) = version_data.get("version").and_then(|v| v.as_str()) {
+                    if let Some(version_field) =
+                        version_data.get("version").and_then(|v| v.as_str())
+                    {
                         if version_field != version {
-                            issues.push(format!("Pack '{}' version '{}' field mismatch: expected '{}', got '{}'", pack_id, version, version, version_field));
+                            issues.push(format!(
+                                "Pack '{}' version '{}' field mismatch: expected '{}', got '{}'",
+                                pack_id, version, version, version_field
+                            ));
                         }
                     }
                 }

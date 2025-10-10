@@ -5,8 +5,8 @@ use std::env;
 
 #[derive(Args, Debug)]
 pub struct UpdateArgs {
-    /// Specific rpack ID to update (if not provided, updates all)
-    pub rpack_id: Option<String>,
+    /// Specific gpack ID to update (if not provided, updates all)
+    pub gpack_id: Option<String>,
 }
 
 pub async fn run(args: &UpdateArgs) -> Result<()> {
@@ -20,23 +20,23 @@ pub async fn run(args: &UpdateArgs) -> Result<()> {
     let installed_packs = lockfile_manager.list()?;
 
     if installed_packs.is_empty() {
-        println!("No rpacks installed in this project");
+        println!("No gpacks installed in this project");
         return Ok(());
     }
 
     // Filter packs to update
-    let packs_to_update = if let Some(rpack_id) = &args.rpack_id {
+    let packs_to_update = if let Some(gpack_id) = &args.gpack_id {
         installed_packs
             .into_iter()
-            .filter(|pack| pack.id == *rpack_id)
+            .filter(|pack| pack.id == *gpack_id)
             .collect::<Vec<_>>()
     } else {
         installed_packs
     };
 
     if packs_to_update.is_empty() {
-        if let Some(rpack_id) = &args.rpack_id {
-            println!("Rpack '{}' is not installed", rpack_id);
+        if let Some(gpack_id) = &args.gpack_id {
+            println!("Gpack '{}' is not installed", gpack_id);
         }
         return Ok(());
     }
@@ -55,7 +55,7 @@ pub async fn run(args: &UpdateArgs) -> Result<()> {
                 let _cached_pack = cache_manager
                     .ensure(&new_pack)
                     .await
-                    .with_context(|| format!("Failed to download updated rpack '{}'", pack.id))?;
+                    .with_context(|| format!("Failed to download updated gpack '{}'", pack.id))?;
 
                 // Update lockfile
                 lockfile_manager.upsert(
@@ -78,9 +78,9 @@ pub async fn run(args: &UpdateArgs) -> Result<()> {
     }
 
     if updated_count > 0 {
-        println!("\nUpdated {} rpack(s)", updated_count);
+        println!("\nUpdated {} gpack(s)", updated_count);
     } else {
-        println!("\nAll rpacks are up to date");
+        println!("\nAll gpacks are up to date");
     }
 
     Ok(())

@@ -1,6 +1,6 @@
 # Summary
 
-[rgen Documentation](README.md)
+[ggen Documentation](README.md)
 
 ---
 
@@ -26,7 +26,7 @@
 
 - [Mathematical Foundations](advanced/calculus.md)
 - [Developer Experience](advanced/dx-features.md)
-- [Rpack Development](advanced/rpack-development.md)
+- [Gpack Development](advanced/gpack-development.md)
 
 ## Examples
 

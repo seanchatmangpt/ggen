@@ -7,12 +7,12 @@ use tracing::{debug, error, info, span, trace, warn, Level, Span};
 pub fn init_tracing() -> Result<()> {
     use tracing_subscriber::{fmt, EnvFilter};
     
-    // Check for RGEN_TRACE environment variable
-    let trace_level = std::env::var("RGEN_TRACE")
+    // Check for GGEN_TRACE environment variable
+    let trace_level = std::env::var("GGEN_TRACE")
         .unwrap_or_else(|_| "info".to_string())
         .to_lowercase();
     
-    // Map RGEN_TRACE values to tracing levels
+    // Map GGEN_TRACE values to tracing levels
     let filter = match trace_level.as_str() {
         "error" => EnvFilter::new("error"),
         "warn" => EnvFilter::new("warn"),
@@ -305,7 +305,7 @@ mod tests {
     #[test]
     fn test_tracing_initialization() {
         // Test that tracing can be initialized without errors
-        std::env::set_var("RGEN_TRACE", "debug");
+        std::env::set_var("GGEN_TRACE", "debug");
         let result = init_tracing();
         assert!(result.is_ok());
     }

@@ -1,4 +1,4 @@
-//! Rgen - Language-agnostic, deterministic code projection CLI
+//! Ggen - Language-agnostic, deterministic code projection CLI
 //!
 //! This crate provides the core functionality for RDF-based code generation,
 //! including template processing, RDF handling, and deterministic output generation.

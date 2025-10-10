@@ -2,9 +2,14 @@ on: [push]
 
 name: Code Coverage
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   codecov:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -12,11 +17,11 @@ jobs:
       - name: Install stable toolchain
         uses: dtolnay/rust-toolchain@stable
 
+      - name: Install cargo-tarpaulin
+        run: cargo install cargo-tarpaulin --locked
+
       - name: Run cargo-tarpaulin
-        uses: actions-rs/tarpaulin@v0.1
-        with:
-          version: '0.22.0'
-          args: '-- --test-threads 1'
+        run: cargo tarpaulin --test-threads 1 --out Xml
 
       - name: Upload to codecov.io
         uses: codecov/codecov-action@v4

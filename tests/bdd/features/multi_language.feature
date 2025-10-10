@@ -5,18 +5,18 @@ Feature: Multi-language CLI Generation
     Given I have a clean project directory
 
   Scenario: Generate for multiple languages using marketplace
-    When I run "rgen add io.rgen.rust.cli-subcommand"
-    And I run "rgen add io.rgen.python.cli-subcommand"
-    And I run "rgen add io.rgen.bash.cli-subcommand"
-    When I run "rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=status description='Show app status'"
+    When I run "ggen add io.ggen.rust.cli-subcommand"
+    And I run "ggen add io.ggen.python.cli-subcommand"
+    And I run "ggen add io.ggen.bash.cli-subcommand"
+    When I run "ggen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=status description='Show app status'"
     Then the file "src/cmds/status.rs" should exist
-    When I run "rgen gen io.rgen.python.cli-subcommand:cli/subcommand/python.tmpl name=status description='Show app status'"
+    When I run "ggen gen io.ggen.python.cli-subcommand:cli/subcommand/python.tmpl name=status description='Show app status'"
     Then the file "commands/status.py" should exist
-    When I run "rgen gen io.rgen.bash.cli-subcommand:cli/subcommand/bash.tmpl name=status description='Show app status'"
+    When I run "ggen gen io.ggen.bash.cli-subcommand:cli/subcommand/bash.tmpl name=status description='Show app status'"
     Then the file "commands/status.sh" should exist
 
   Scenario: Generate for multiple languages using local templates
     Given I have templates for Rust, Python, and Bash
-    When I run "rgen gen cli subcommand --vars cmd=status summary='Show app status'"
+    When I run "ggen gen cli subcommand --vars cmd=status summary='Show app status'"
     Then files should be generated for all languages
     And all files should derive from the same ontology

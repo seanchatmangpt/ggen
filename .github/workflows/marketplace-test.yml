@@ -39,13 +39,22 @@ jobs:
           path: target
           key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
 
+      - name: Cache cargo-make
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin/cargo-make
+          key: ${{ runner.os }}-cargo-make
+
+      - name: Install cargo-make
+        run: cargo install cargo-make --locked
+
       - name: Test local registry
-        run: cargo test test_marketplace_local
+        run: cargo make test -- test_marketplace_local
         env:
-          RGEN_REGISTRY_URL: file://${{ github.workspace }}/registry/
+          GGEN_REGISTRY_URL: file://${{ github.workspace }}/registry/
 
       - name: Test registry client creation
-        run: cargo test -p ggen-core --lib registry::tests::test_registry_client_new
+        run: cargo make test -- -p ggen-core --lib registry::tests::test_registry_client_new
 
       - name: Test registry index parsing
-        run: cargo test -p ggen-core --lib registry::tests::test_registry_index_structure
+        run: cargo make test -- -p ggen-core --lib registry::tests::test_registry_index_structure

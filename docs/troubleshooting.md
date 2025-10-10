@@ -10,67 +10,67 @@
 
 ## Marketplace Issues
 
-### Rpack Not Found
+### Gpack Not Found
 
 ```bash
-# Error: rpack 'io.rgen.rust.cli-subcommand' not found
-rgen add io.rgen.rust.cli-subcommand
+# Error: gpack 'io.ggen.rust.cli-subcommand' not found
+ggen add io.ggen.rust.cli-subcommand
 
-# Check if rpack exists
-rgen search rust cli
+# Check if gpack exists
+ggen search rust cli
 
-# Verify correct rpack ID
-rgen show io.rgen.rust.cli-subcommand
+# Verify correct gpack ID
+ggen show io.ggen.rust.cli-subcommand
 ```
 
 ### Version Conflicts
 
 ```bash
-# Error: version conflict for io.rgen.rust.cli-subcommand
+# Error: version conflict for io.ggen.rust.cli-subcommand
 # Check installed versions
-rgen packs
+ggen packs
 
 # Remove conflicting version
-rgen remove io.rgen.rust.cli-subcommand
+ggen remove io.ggen.rust.cli-subcommand
 
 # Install specific version
-rgen add io.rgen.rust.cli-subcommand@0.2.1
+ggen add io.ggen.rust.cli-subcommand@0.2.1
 ```
 
 ### Dependency Resolution Failures
 
 ```bash
 # Error: dependency resolution failed
-# Check rpack dependencies
-rgen show io.rgen.rust.cli-subcommand
+# Check gpack dependencies
+ggen show io.ggen.rust.cli-subcommand
 
 # Install missing dependencies
-rgen add io.rgen.macros.std
+ggen add io.ggen.macros.std
 
-# Update all rpacks
-rgen update
+# Update all gpacks
+ggen update
 ```
 
-### Template Not Found in Rpack
+### Template Not Found in Gpack
 
 ```bash
-# Error: template 'cli/subcommand/rust.tmpl' not found in rpack
+# Error: template 'cli/subcommand/rust.tmpl' not found in gpack
 # List available templates
-rgen show io.rgen.rust.cli-subcommand
+ggen show io.ggen.rust.cli-subcommand
 
 # Use correct template path
-rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello
+ggen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello
 ```
 
 ### Cache Corruption
 
 ```bash
-# Error: corrupted rpack cache
+# Error: corrupted gpack cache
 # Clear cache
-rm -rf .rgen/rpacks/
+rm -rf .ggen/gpacks/
 
-# Reinstall rpacks
-rgen add io.rgen.rust.cli-subcommand
+# Reinstall gpacks
+ggen add io.ggen.rust.cli-subcommand
 ```
 
 ### Network/Registry Connectivity
@@ -78,26 +78,26 @@ rgen add io.rgen.rust.cli-subcommand
 ```bash
 # Error: failed to connect to registry
 # Check network connectivity
-ping registry.rgen.io
+ping registry.ggen.io
 
 # Verify registry URL
-rgen search --help
+ggen search --help
 
 # Try with verbose output
-rgen search rust cli --verbose
+ggen search rust cli --verbose
 ```
 
-## Rpack Validation and Linting Errors
+## Gpack Validation and Linting Errors
 
-### Invalid Rpack Manifest
+### Invalid Gpack Manifest
 
 ```bash
 # Error: invalid ggen.toml manifest
 # Check manifest syntax
-rgen pack lint
+ggen pack lint
 
 # Validate against schema
-rgen validate io.rgen.rust.cli-subcommand
+ggen validate io.ggen.rust.cli-subcommand
 ```
 
 ### Template Schema Validation
@@ -105,10 +105,10 @@ rgen validate io.rgen.rust.cli-subcommand
 ```bash
 # Error: template schema validation failed
 # Lint template
-rgen lint io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl
+ggen lint io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl
 
 # Check frontmatter
-rgen show io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl
+ggen show io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl
 ```
 
 ### RDF Graph Validation
@@ -116,10 +116,10 @@ rgen show io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl
 ```bash
 # Error: RDF graph validation failed
 # Validate RDF graphs
-rgen validate io.rgen.rust.cli-subcommand --rdf-only
+ggen validate io.ggen.rust.cli-subcommand --rdf-only
 
 # Check SPARQL queries
-rgen show io.rgen.rust.cli-subcommand --sparql
+ggen show io.ggen.rust.cli-subcommand --sparql
 ```
 
 ## Local Template Issues
@@ -132,7 +132,7 @@ rgen show io.rgen.rust.cli-subcommand --sparql
 ls -la templates/cli/subcommand/
 
 # Verify template structure
-rgen list
+ggen list
 ```
 
 ### Variable Resolution
@@ -140,7 +140,7 @@ rgen list
 ```bash
 # Error: unbound variable 'name'
 # Check variable precedence
-rgen gen cli subcommand --vars name=hello
+ggen gen cli subcommand --vars name=hello
 
 # Verify template frontmatter
 cat templates/cli/subcommand/rust.tmpl
@@ -152,13 +152,13 @@ cat templates/cli/subcommand/rust.tmpl
 
 ```bash
 # Enable tracing
-RGEN_TRACE=1 rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello
+GGEN_TRACE=1 ggen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello
 
 # Check for large RDF graphs
-rgen show io.rgen.rust.cli-subcommand --rdf-size
+ggen show io.ggen.rust.cli-subcommand --rdf-size
 
 # Use dry run for testing
-rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello --dry
+ggen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello --dry
 ```
 
 ### Memory Issues
@@ -166,10 +166,10 @@ rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello --dry
 ```bash
 # Error: out of memory
 # Check RDF graph size
-rgen graph export io.rgen.rust.cli-subcommand --fmt ttl | wc -l
+ggen graph export io.ggen.rust.cli-subcommand --fmt ttl | wc -l
 
 # Use smaller graphs
-rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello --vars graph_size=small
+ggen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello --vars graph_size=small
 ```
 
 ## Debugging Tips
@@ -178,23 +178,23 @@ rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello --vars 
 
 ```bash
 # Show detailed execution
-RGEN_TRACE=1 rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello
+GGEN_TRACE=1 ggen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello
 
 # Show variable resolution
-rgen show io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl --vars name=hello --verbose
+ggen show io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl --vars name=hello --verbose
 ```
 
 ### Check System State
 
 ```bash
 # Verify installation
-rgen --version
+ggen --version
 
-# Check rpack cache
-ls -la .rgen/rpacks/
+# Check gpack cache
+ls -la .ggen/gpacks/
 
 # View lockfile
-cat rgen.lock
+cat ggen.lock
 ```
 
 ### Test with Minimal Example
@@ -204,7 +204,7 @@ cat rgen.lock
 echo '---\nto: test.txt\nvars:\n  name: world\n---\nHello {{ name }}!' > test.tmpl
 
 # Test generation
-rgen gen test.tmpl --vars name=world
+ggen gen test.tmpl --vars name=world
 
 # Verify output
 cat test.txt

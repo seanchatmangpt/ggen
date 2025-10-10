@@ -1,4 +1,4 @@
-# rgen docs
+# ggen docs
 
 Purpose: project one ontology into many artifacts. Deterministic. Language-agnostic.
 
@@ -6,9 +6,9 @@ Purpose: project one ontology into many artifacts. Deterministic. Language-agnos
 
 Read in order:
 1. [install.md](install.md) - Installation and setup
-2. [quickstart.md](quickstart.md) - Quick start with marketplace rpacks
+2. [quickstart.md](quickstart.md) - Quick start with marketplace gpacks
 3. [templates.md](templates.md) - Template development guide
-4. [marketplace.md](marketplace.md) - Using and publishing rpacks
+4. [marketplace.md](marketplace.md) - Using and publishing gpacks
 
 ## Core Concepts
 
@@ -21,7 +21,7 @@ Read in order:
 
 9. [calculus.md](calculus.md) - Mathematical foundations
 10. [dx-features.md](dx-features.md) - Developer experience features
-11. [rpack-development.md](rpack-development.md) - Creating and publishing rpacks
+11. [gpack-development.md](gpack-development.md) - Creating and publishing gpacks
 
 ## Reference
 
@@ -31,12 +31,12 @@ Read in order:
 
 ## Marketplace Ecosystem
 
-The rgen marketplace provides a curated ecosystem of reusable code generation packs (rpacks):
+The ggen marketplace provides a curated ecosystem of reusable code generation packs (gpacks):
 
-- **Discover**: Search and browse rpacks by language, framework, or use case
-- **Install**: Add rpacks to your project with version management
-- **Generate**: Use rpack templates for consistent code generation
-- **Publish**: Share your own rpacks with the community
+- **Discover**: Search and browse gpacks by language, framework, or use case
+- **Install**: Add gpacks to your project with version management
+- **Generate**: Use gpack templates for consistent code generation
+- **Publish**: Share your own gpacks with the community
 
 ### Key Benefits
 
@@ -47,24 +47,24 @@ The rgen marketplace provides a curated ecosystem of reusable code generation pa
 
 ### Workflow
 
-1. **Search** for rpacks matching your needs
-2. **Install** rpacks and their dependencies
-3. **Generate** code using rpack templates
+1. **Search** for gpacks matching your needs
+2. **Install** gpacks and their dependencies
+3. **Generate** code using gpack templates
 4. **Customize** with local templates if needed
-5. **Publish** your own rpacks to contribute back
+5. **Publish** your own gpacks to contribute back
 
 ## Documentation Structure
 
 - **Getting Started**: Installation and quick start guides
 - **Core Concepts**: Templates, RDF, projections, determinism
-- **Advanced Topics**: Mathematical foundations, DX features, rpack development
+- **Advanced Topics**: Mathematical foundations, DX features, gpack development
 - **Reference**: CLI reference, troubleshooting, examples
 - **Marketplace**: Ecosystem overview and workflows
 
 ## Contributing
 
 - **Documentation**: Improve guides and examples
-- **Rpacks**: Create and publish template collections
+- **Gpacks**: Create and publish template collections
 - **Examples**: Share usage patterns and best practices
 - **Feedback**: Report issues and suggest improvements
 

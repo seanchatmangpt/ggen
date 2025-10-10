@@ -59,7 +59,9 @@ pub async fn run(args: &SearchArgs) -> Result<()> {
 
     // Sort results
     match args.sort.as_str() {
-        "downloads" => results.sort_by(|a, b| b.downloads.unwrap_or(0).cmp(&a.downloads.unwrap_or(0))),
+        "downloads" => {
+            results.sort_by(|a, b| b.downloads.unwrap_or(0).cmp(&a.downloads.unwrap_or(0)))
+        }
         "updated" => results.sort_by(|a, b| b.updated.cmp(&a.updated)),
         "name" => results.sort_by(|a, b| a.name.cmp(&b.name)),
         _ => {} // relevance (default order from search)
@@ -79,7 +81,11 @@ pub async fn run(args: &SearchArgs) -> Result<()> {
 
 fn print_rust_style_results(results: &[ggen_core::SearchResult], args: &SearchArgs) {
     if results.is_empty() {
-        println!("{} No rpacks found matching '{}'", "note:".bold().cyan(), args.query.bold());
+        println!(
+            "{} No gpacks found matching '{}'",
+            "note:".bold().cyan(),
+            args.query.bold()
+        );
         println!();
         println!("{}", "Try:".bold());
         println!("  • Broaden your search terms");
@@ -90,12 +96,13 @@ fn print_rust_style_results(results: &[ggen_core::SearchResult], args: &SearchAr
 
     // Header with result count
     let count_str = if results.len() == 1 {
-        "1 rpack".to_string()
+        "1 gpack".to_string()
     } else {
-        format!("{} rpacks", results.len())
+        format!("{} gpacks", results.len())
     };
 
-    println!("{} {}",
+    println!(
+        "{} {}",
         count_str.bold().green(),
         if args.category.is_some() || args.keyword.is_some() || args.author.is_some() {
             format!("(filtered)")
@@ -114,7 +121,8 @@ fn print_rust_style_results(results: &[ggen_core::SearchResult], args: &SearchAr
     // Helpful footer (like cargo search)
     println!();
     if results.len() >= args.limit {
-        println!("{} Showing {} results. Use {} to see more.",
+        println!(
+            "{} Showing {} results. Use {} to see more.",
             "note:".bold().cyan(),
             args.limit,
             format!("--limit {}", args.limit + 10).bold()
@@ -125,16 +133,19 @@ fn print_rust_style_results(results: &[ggen_core::SearchResult], args: &SearchAr
     if !results.is_empty() {
         println!("{}", "Next steps:".bold());
         let first_id = &results[0].id;
-        println!("  {} {}",
+        println!(
+            "  {} {}",
             "Install:".bold(),
             format!("ggen add {}", first_id).cyan()
         );
-        println!("  {} {}",
+        println!(
+            "  {} {}",
             "Details:".bold(),
             format!("ggen show {}", first_id).cyan()
         );
         if !args.detailed {
-            println!("  {} {}",
+            println!(
+                "  {} {}",
                 "Detailed view:".bold(),
                 format!("ggen search {} --detailed", args.query).cyan()
             );
@@ -144,14 +155,16 @@ fn print_rust_style_results(results: &[ggen_core::SearchResult], args: &SearchAr
 
 fn print_compact_table(results: &[ggen_core::SearchResult]) {
     // Calculate column widths dynamically
-    let max_name_width = results.iter()
+    let max_name_width = results
+        .iter()
         .map(|r| r.name.len())
         .max()
         .unwrap_or(20)
         .min(40); // Cap at 40 chars
 
     // Header
-    println!("{:<width$}  {:<8}  {:<30}  {}",
+    println!(
+        "{:<width$}  {:<8}  {:<30}  {}",
         "NAME".bold(),
         "VERSION".bold(),
         "DESCRIPTION".bold(),
@@ -163,7 +176,7 @@ fn print_compact_table(results: &[ggen_core::SearchResult]) {
     // Results
     for result in results {
         let name = if result.name.len() > max_name_width {
-            format!("{}…", &result.name[..max_name_width-1])
+            format!("{}…", &result.name[..max_name_width - 1])
         } else {
             result.name.clone()
         };
@@ -175,7 +188,9 @@ fn print_compact_table(results: &[ggen_core::SearchResult]) {
         };
 
         // Show up to 3 tags
-        let tags: Vec<_> = result.tags.iter()
+        let tags: Vec<_> = result
+            .tags
+            .iter()
             .take(3)
             .map(|t| t.cyan().to_string())
             .collect();
@@ -196,7 +211,8 @@ fn print_compact_table(results: &[ggen_core::SearchResult]) {
             String::new()
         };
 
-        println!("{:<width$}  {:<8}  {:<30}  {}{}",
+        println!(
+            "{:<width$}  {:<8}  {:<30}  {}{}",
             name.green(),
             result.latest_version.dimmed(),
             desc,
@@ -216,7 +232,11 @@ fn print_detailed_results(results: &[ggen_core::SearchResult]) {
         }
 
         // Package header (like cargo info)
-        println!("{} {}", result.name.bold().green(), result.latest_version.yellow());
+        println!(
+            "{} {}",
+            result.name.bold().green(),
+            result.latest_version.yellow()
+        );
         println!("{}", result.id.dimmed());
 
         if !result.description.is_empty() {
@@ -228,7 +248,9 @@ fn print_detailed_results(results: &[ggen_core::SearchResult]) {
 
         // Metadata table
         if !result.tags.is_empty() {
-            let tags = result.tags.iter()
+            let tags = result
+                .tags
+                .iter()
                 .map(|t| t.cyan().to_string())
                 .collect::<Vec<_>>()
                 .join(", ");
@@ -253,11 +275,19 @@ fn print_detailed_results(results: &[ggen_core::SearchResult]) {
         }
 
         if let Some(updated) = &result.updated {
-            println!("{:>12}: {}", "Updated".bold(), updated.format("%Y-%m-%d").to_string().dimmed());
+            println!(
+                "{:>12}: {}",
+                "Updated".bold(),
+                updated.format("%Y-%m-%d").to_string().dimmed()
+            );
         }
 
         // Installation command
         println!();
-        println!("{:>12}  {}", "Install:".bold(), format!("ggen add {}", result.id).cyan());
+        println!(
+            "{:>12}  {}",
+            "Install:".bold(),
+            format!("ggen add {}", result.id).cyan()
+        );
     }
 }

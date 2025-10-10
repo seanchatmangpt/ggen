@@ -1,4 +1,4 @@
-[rpack]
+[gpack]
 id = "io.ggen.rust.cli-subcommand"
 name = "Rust CLI Subcommand"
 version = "0.1.0"

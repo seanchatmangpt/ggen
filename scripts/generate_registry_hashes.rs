@@ -1,5 +1,5 @@
 #!/usr/bin/env rust-script
-//! Generate SHA256 hashes for rpack registry entries
+//! Generate SHA256 hashes for gpack registry entries
 //! 
 //! This script calculates SHA256 hashes using the same algorithm as CacheManager::calculate_sha256()
 //! to ensure consistency between registry entries and runtime validation.

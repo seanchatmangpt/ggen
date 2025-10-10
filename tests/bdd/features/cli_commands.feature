@@ -3,34 +3,34 @@ Feature: CLI Commands
 
   Background:
     Given I have a clean project directory
-    And rgen is installed
+    And ggen is installed
 
   Scenario: Marketplace commands work
-    When I run "rgen search rust"
+    When I run "ggen search rust"
     Then the command should succeed
-    When I run "rgen categories"
+    When I run "ggen categories"
     Then the command should succeed
-    When I run "rgen packs"
+    When I run "ggen packs"
     Then the command should succeed
 
   Scenario: Generation commands work
     Given I have templates in "templates/"
-    When I run "rgen list"
+    When I run "ggen list"
     Then I should see available templates
-    When I run "rgen show templates/test.tmpl"
+    When I run "ggen show templates/test.tmpl"
     Then I should see template metadata
 
   Scenario: Validation commands work
     Given I have a template
-    When I run "rgen lint templates/test.tmpl"
+    When I run "ggen lint templates/test.tmpl"
     Then the command should validate the template
 
   Scenario: Utility commands work
-    When I run "rgen hazard"
+    When I run "ggen hazard"
     Then I should see a hazard report
-    When I run "rgen completion bash"
+    When I run "ggen completion bash"
     Then I should see bash completion script
-    When I run "rgen completion zsh"
+    When I run "ggen completion zsh"
     Then I should see zsh completion script
-    When I run "rgen completion fish"
+    When I run "ggen completion fish"
     Then I should see fish completion script

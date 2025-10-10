@@ -47,7 +47,10 @@ fn test_registry_index_json_exists() -> Result<()> {
         .join("registry")
         .join("index.json");
 
-    assert!(registry_path.exists(), "docs/registry/index.json should exist");
+    assert!(
+        registry_path.exists(),
+        "docs/registry/index.json should exist"
+    );
 
     // Read and parse the JSON
     let content = std::fs::read_to_string(&registry_path)?;

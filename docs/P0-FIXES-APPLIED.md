@@ -18,9 +18,9 @@
 
 ### 2. Module Naming - FIXED ✅
 
-**Issue:** Workspace renamed from `core` to `rgen-core`
+**Issue:** Workspace renamed from `core` to `ggen-core`
 **Impact:** HIGH - Import errors throughout codebase
-**Fix:** All imports already updated to `rgen_core`
+**Fix:** All imports already updated to `ggen_core`
 **Status:** ✅ No import errors
 
 ---

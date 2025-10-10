@@ -1,6 +1,6 @@
-# RGen Marketplace
+# GGen Marketplace
 
-The RGen marketplace provides a curated ecosystem of reusable code generation packs (rpacks) served via GitHub Pages with automated validation and deployment.
+The GGen marketplace provides a curated ecosystem of reusable code generation packs (gpacks) served via GitHub Pages with automated validation and deployment.
 
 ## Overview
 
@@ -32,33 +32,33 @@ export GGEN_REGISTRY_URL="https://your-registry.com/"
 ### Basic Commands
 
 ```bash
-# Search for rpacks
-rgen search rust cli
+# Search for gpacks
+ggen search rust cli
 
 # Browse categories
-rgen categories
+ggen categories
 
-# Install an rpack
-rgen add io.rgen.rust.cli-subcommand
+# Install a gpack
+ggen add io.ggen.rust.cli-subcommand
 
-# List installed rpacks
-rgen packs
+# List installed gpacks
+ggen packs
 
-# Update rpacks
-rgen update
+# Update gpacks
+ggen update
 
-# Remove an rpack
-rgen remove io.rgen.rust.cli-subcommand
+# Remove a gpack
+ggen remove io.ggen.rust.cli-subcommand
 ```
 
-### Using Installed Rpacks
+### Using Installed Gpacks
 
 ```bash
-# Generate code using installed rpack
-rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello
+# Generate code using installed gpack
+ggen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello
 
 # Show template information
-rgen show io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl
+ggen show io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl
 ```
 
 ## Registry Structure
@@ -95,15 +95,15 @@ The marketplace registry is defined in `registry/index.json` and automatically p
 }
 ```
 
-## Adding New Rpacks
+## Adding New Gpacks
 
-### 1. Create Rpack Structure
+### 1. Create Gpack Structure
 
 Create a new directory under `templates/` with the following structure:
 
 ```
-templates/your-category/your-rpack/
-├── rpack.toml          # Rpack manifest
+templates/your-category/your-gpack/
+├── gpack.toml          # Gpack manifest
 ├── rust.tmpl           # Template files
 ├── meta.yaml           # Metadata
 └── graphs/             # RDF graphs (optional)
@@ -111,16 +111,16 @@ templates/your-category/your-rpack/
     └── shapes.ttl
 ```
 
-### 2. Create Rpack Manifest
+### 2. Create Gpack Manifest
 
-Create `rpack.toml` with proper metadata:
+Create `gpack.toml` with proper metadata:
 
 ```toml
-[rpack]
-id = "io.ggen.your-category.your-rpack"
-name = "Your Rpack Name"
+[gpack]
+id = "io.ggen.your-category.your-gpack"
+name = "Your Gpack Name"
 version = "0.1.0"
-description = "Description of what this rpack generates"
+description = "Description of what this gpack generates"
 license = "MIT"
 ggen_compat = ">=0.1.0"
 
@@ -136,19 +136,19 @@ patterns = ["graphs/*.ttl"]
 Use the hash generation script:
 
 ```bash
-# Generate hash for your rpack
-cargo make registry-hash PACK_PATH=templates/your-category/your-rpack
+# Generate hash for your gpack
+cargo make registry-hash PACK_PATH=templates/your-category/your-gpack
 ```
 
 ### 4. Update Registry Index
 
-Add your rpack to `registry/index.json`:
+Add your gpack to `registry/index.json`:
 
 ```json
 {
-  "id": "io.ggen.your-category.your-rpack",
-  "name": "Your Rpack Name",
-  "description": "Description of what this rpack generates",
+  "id": "io.ggen.your-category.your-gpack",
+  "name": "Your Gpack Name",
+  "description": "Description of what this gpack generates",
   "tags": ["your", "category", "tags"],
   "keywords": ["keyword1", "keyword2"],
   "category": "your-category",
@@ -178,7 +178,7 @@ cargo make registry-validate
 
 # Push changes (triggers GitHub Pages deployment)
 git add registry/index.json
-git commit -m "Add new rpack: io.ggen.your-category.your-rpack"
+git commit -m "Add new gpack: io.ggen.your-category.your-gpack"
 git push
 ```
 
@@ -186,19 +186,19 @@ git push
 
 The SHA256 hash ensures integrity and reproducibility. It's calculated using the same algorithm as the cache manager:
 
-1. **Walk all files** in the rpack directory
+1. **Walk all files** in the gpack directory
 2. **Hash file contents** in deterministic order
 3. **Produce 64-character hex string**
 
 Use the provided script for consistency:
 
 ```bash
-./scripts/generate_registry_hashes templates/your-category/your-rpack
+./scripts/generate_registry_hashes templates/your-category/your-gpack
 ```
 
 ## Validation Requirements
 
-All rpacks must pass validation before being published:
+All gpacks must pass validation before being published:
 
 - **JSON Schema**: Valid registry structure
 - **Git References**: Accessible URLs and valid revisions
@@ -218,8 +218,8 @@ cargo make registry-validate
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/seanchatmangpt/rgen.git
-   cd rgen
+   git clone https://github.com/seanchatmangpt/ggen.git
+   cd ggen
    ```
 
 2. Set up local registry:
@@ -230,13 +230,13 @@ cargo make registry-validate
 3. Test marketplace functionality:
    ```bash
    # Test search
-   rgen search rust
+   ggen search rust
 
    # Test installation
-   rgen add io.rgen.rust.cli-subcommand
+   ggen add io.ggen.rust.cli-subcommand
 
    # Test generation
-   rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=test
+   ggen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=test
    ```
 
 ### Running Tests
@@ -249,7 +249,7 @@ cargo test test_marketplace_local
 cargo test
 ```
 
-## Adding New Rpacks
+## Adding New Gpacks
 
 ### 1. Create Template Structure
 
@@ -266,12 +266,12 @@ templates/
 
 ### 2. Update Registry Index
 
-Add your rpack to `registry/index.json`:
+Add your gpack to `registry/index.json`:
 
 ```json
 {
-  "io.rgen.your-category.your-template": {
-    "id": "io.rgen.your-category.your-template",
+  "io.ggen.your-category.your-template": {
+    "id": "io.ggen.your-category.your-template",
     "name": "Your Template Name",
     "description": "Description of what this template generates",
     "tags": ["tag1", "tag2"],
@@ -282,14 +282,14 @@ Add your rpack to `registry/index.json`:
     "versions": {
       "0.1.0": {
         "version": "0.1.0",
-        "git_url": "https://github.com/seanchatmangpt/rgen.git",
+        "git_url": "https://github.com/seanchatmangpt/ggen.git",
         "git_rev": "master",
         "sha256": "calculated_hash"
       }
     },
     "license": "MIT",
-    "homepage": "https://github.com/seanchatmangpt/rgen",
-    "repository": "https://github.com/seanchatmangpt/rgen"
+    "homepage": "https://github.com/seanchatmangpt/ggen",
+    "repository": "https://github.com/seanchatmangpt/ggen"
   }
 }
 ```
@@ -309,7 +309,7 @@ Templates should include:
 2. Add your templates and update the registry
 3. Test locally with `GGEN_REGISTRY_URL="file://$(pwd)/registry/"`
 4. Submit a pull request with:
-   - Description of the rpack
+   - Description of the gpack
    - Example usage
    - Test results
 
@@ -331,7 +331,7 @@ Enable debug logging to troubleshoot issues:
 
 ```bash
 export RUST_LOG=debug
-rgen search rust
+ggen search rust
 ```
 
 ## Contributing

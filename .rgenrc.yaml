@@ -1,0 +1,17 @@
+# default CLI variables
+vars:
+  seed: cosmos
+
+# graph policy
+graph:
+  allow_remote: false
+
+# paths
+paths:
+  templates: templates
+  graphs: graphs
+  shapes: shapes
+
+# determinism defaults
+determinism:
+  sort: slug

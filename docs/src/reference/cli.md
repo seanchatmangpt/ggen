@@ -5,61 +5,61 @@
 ### Search and Discovery
 
 ```bash
-# Search for rpacks by keywords
-rgen search <query>
+# Search for gpacks by keywords
+ggen search <query>
 
 # Examples:
-rgen search rust cli
-rgen search python api
-rgen search typescript react
+ggen search rust cli
+ggen search python api
+ggen search typescript react
 
 # Browse popular categories
-rgen categories
+ggen categories
 
-# Get detailed rpack information
-rgen show <rpack-id>
+# Get detailed gpack information
+ggen show <gpack-id>
 ```
 
 ### Installation and Management
 
 ```bash
-# Install rpack (latest version)
-rgen add <rpack-id>
+# Install gpack (latest version)
+ggen add <gpack-id>
 
 # Install specific version
-rgen add <rpack-id>@<version>
+ggen add <gpack-id>@<version>
 
 # Examples:
-rgen add io.ggen.rust.cli-subcommand
-rgen add io.ggen.rust.cli-subcommand@0.2.0
+ggen add io.ggen.rust.cli-subcommand
+ggen add io.ggen.rust.cli-subcommand@0.2.0
 
-# List installed rpacks
-rgen packs
+# List installed gpacks
+ggen packs
 
-# Update all rpacks to latest compatible versions
-rgen update
+# Update all gpacks to latest compatible versions
+ggen update
 
-# Update specific rpack
-rgen update <rpack-id>
+# Update specific gpack
+ggen update <gpack-id>
 
-# Remove rpack
-rgen remove <rpack-id>
+# Remove gpack
+ggen remove <gpack-id>
 ```
 
-### Rpack Publishing (for authors)
+### Gpack Publishing (for authors)
 
 ```bash
-# Initialize new rpack
-rgen pack init
+# Initialize new gpack
+ggen pack init
 
-# Lint rpack for publishing
-rgen pack lint
+# Lint gpack for publishing
+ggen pack lint
 
 # Run tests
-rgen pack test
+ggen pack test
 
 # Publish to registry
-rgen pack publish
+ggen pack publish
 ```
 
 ## Generation Commands
@@ -67,56 +67,56 @@ rgen pack publish
 ### Template Generation
 
 ```bash
-# Generate from rpack template
-rgen gen <rpack-id>:<template-path> [--vars k=v ...] [--dry]
+# Generate from gpack template
+ggen gen <gpack-id>:<template-path> [--vars k=v ...] [--dry]
 
 # Generate from local template
-rgen gen <scope> <action> [--vars k=v ...] [--dry]
+ggen gen <scope> <action> [--vars k=v ...] [--dry]
 
 # Examples:
-rgen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello
-rgen gen cli subcommand --vars cmd=hello summary="Print greeting"
+ggen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello
+ggen gen cli subcommand --vars cmd=hello summary="Print greeting"
 ```
 
 ### Template Discovery
 
 ```bash
-# List available templates (local + rpacks)
-rgen list
+# List available templates (local + gpacks)
+ggen list
 
 # Show template details
-rgen show <template-ref> [--vars k=v ...]
+ggen show <template-ref> [--vars k=v ...]
 
 # Examples:
-rgen show io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl
-rgen show cli subcommand
+ggen show io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl
+ggen show cli subcommand
 ```
 
 ## Validation Commands
 
 ```bash
 # Validate template frontmatter
-rgen validate <template-ref> [--vars k=v ...]
+ggen validate <template-ref> [--vars k=v ...]
 
 # Lint template with schema validation
-rgen lint <template-ref>
+ggen lint <template-ref>
 
 # Examples:
-rgen validate io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl
-rgen lint cli subcommand
+ggen validate io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl
+ggen lint cli subcommand
 ```
 
 ## Utility Commands
 
 ```bash
 # Export RDF graph
-rgen graph export <template-ref> --fmt ttl|jsonld
+ggen graph export <template-ref> --fmt ttl|jsonld
 
 # Generate hazard report
-rgen hazard
+ggen hazard
 
 # Generate shell completion scripts
-rgen completion bash|zsh|fish
+ggen completion bash|zsh|fish
 ```
 
 ## Variable Precedence
@@ -126,16 +126,16 @@ Variables are resolved in this order (later values override earlier):
 1. **CLI arguments** (`--var key=value`)
 2. **Environment variables** (from `.env` files)
 3. **System environment** (`$HOME`, `$USER`, etc.)
-4. **Rpack variables** (from rpack `ggen.toml`)
+4. **Gpack variables** (from gpack `ggen.toml`)
 5. **Template frontmatter** (`vars:` section)
 6. **SPARQL variables** (from queries)
 
-## Rpack Template Reference Syntax
+## Gpack Template Reference Syntax
 
-When using rpack templates, use the format:
+When using gpack templates, use the format:
 
 ```
-<rpack-id>:<template-path>
+<gpack-id>:<template-path>
 ```
 
 Examples:
@@ -148,7 +148,7 @@ Examples:
 Preview template rendering without writing files:
 
 ```bash
-rgen gen --template templates/api/endpoint/rust.tmpl --var name=User --dry
+ggen gen --template templates/api/endpoint/rust.tmpl --var name=User --dry
 ```
 
 Dry-run behavior:

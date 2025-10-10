@@ -1,4 +1,4 @@
-# Test Scenarios for rgen CLI
+# Test Scenarios for ggen CLI
 
 **Purpose:** Comprehensive test scenarios mapping all CLI commands to Jobs To Be Done (JTBD) to ensure complete functionality coverage.
 
@@ -19,13 +19,13 @@
 
 ## Core Generation Commands
 
-### 1. `rgen gen` - Generate code from templates
+### 1. `ggen gen` - Generate code from templates
 
 **JTBD:** "When I need to generate code, I want to use a template with variables, so that I can create consistent, reproducible artifacts."
 
 #### Command Syntax
 ```bash
-rgen gen [OPTIONS] <TEMPLATE>
+ggen gen [OPTIONS] <TEMPLATE>
   -o, --out <OUT>   Output directory root [default: .]
   -v, --var <VARS>  Variables (key=value pairs)
       --dry         Dry run (no write)
@@ -36,7 +36,7 @@ rgen gen [OPTIONS] <TEMPLATE>
 ##### ✅ Scenario 1.1: Generate from local template
 ```gherkin
 Given I have a local template at "templates/cli/subcommand/rust.tmpl"
-When I run "rgen gen templates/cli/subcommand/rust.tmpl --var cmd=hello --var summary='Print greeting'"
+When I run "ggen gen templates/cli/subcommand/rust.tmpl --var cmd=hello --var summary='Print greeting'"
 Then a file should be created at "src/cmds/hello.rs"
 And the file should contain "fn hello"
 And the file should contain "Print greeting"
@@ -47,8 +47,8 @@ And the file should contain "Print greeting"
 
 ##### ✅ Scenario 1.2: Generate with pack reference
 ```gherkin
-Given I have installed rpack "io.rgen.rust.cli-subcommand"
-When I run "rgen gen io.rgen.rust.cli-subcommand:cli/subcommand/rust.tmpl --var cmd=test"
+Given I have installed gpack "io.ggen.rust.cli-subcommand"
+When I run "ggen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl --var cmd=test"
 Then a file should be created at "src/cmds/test.rs"
 ```
 
@@ -58,7 +58,7 @@ Then a file should be created at "src/cmds/test.rs"
 ##### ✅ Scenario 1.3: Dry run (preview without writing)
 ```gherkin
 Given I have a local template
-When I run "rgen gen templates/cli/subcommand/rust.tmpl --dry --var cmd=preview"
+When I run "ggen gen templates/cli/subcommand/rust.tmpl --dry --var cmd=preview"
 Then no files should be created
 And I should see the preview output
 ```
@@ -69,7 +69,7 @@ And I should see the preview output
 ##### ✅ Scenario 1.4: Generate to custom output directory
 ```gherkin
 Given I have a local template
-When I run "rgen gen templates/cli/subcommand/rust.tmpl --out ./custom --var cmd=test"
+When I run "ggen gen templates/cli/subcommand/rust.tmpl --out ./custom --var cmd=test"
 Then a file should be created at "./custom/src/cmds/test.rs"
 ```
 
@@ -108,13 +108,13 @@ Then the SPARQL query results should be injected into the template
 
 ---
 
-### 2. `rgen list` - List available templates
+### 2. `ggen list` - List available templates
 
 **JTBD:** "When I need to know what templates are available, I want to see a list with metadata, so that I can choose the right template."
 
 #### Command Syntax
 ```bash
-rgen list
+ggen list
 ```
 
 #### Test Scenarios
@@ -122,7 +122,7 @@ rgen list
 ##### ✅ Scenario 2.1: List local templates
 ```gherkin
 Given I have templates in "templates/" directory
-When I run "rgen list"
+When I run "ggen list"
 Then I should see a list of templates
 And each template should show:
   - Template path
@@ -138,7 +138,7 @@ And each template should show:
 ##### ✅ Scenario 2.2: List shows template metadata
 ```gherkin
 Given I have a template "templates/cli/subcommand/rust.tmpl"
-When I run "rgen list"
+When I run "ggen list"
 Then I should see:
   """
   📄 cli/subcommand/rust.tmpl
@@ -157,7 +157,7 @@ Then I should see:
 ##### ✅ Scenario 2.3: Empty template directory
 ```gherkin
 Given I have no templates
-When I run "rgen list"
+When I run "ggen list"
 Then I should see "No templates found"
 ```
 
@@ -166,13 +166,13 @@ Then I should see "No templates found"
 
 ---
 
-### 3. `rgen show` - Show template metadata
+### 3. `ggen show` - Show template metadata
 
 **JTBD:** "When I need detailed information about a template, I want to see its full configuration, so that I understand how to use it."
 
 #### Command Syntax
 ```bash
-rgen show [OPTIONS] <TEMPLATE>
+ggen show [OPTIONS] <TEMPLATE>
   -v, --vars <VARS>  Variables (key=value pairs)
 ```
 
@@ -181,7 +181,7 @@ rgen show [OPTIONS] <TEMPLATE>
 ##### ✅ Scenario 3.1: Show template frontmatter
 ```gherkin
 Given I have a template with complete frontmatter
-When I run "rgen show templates/cli/subcommand/rust.tmpl"
+When I run "ggen show templates/cli/subcommand/rust.tmpl"
 Then I should see:
   - Output path pattern
   - All variables with defaults
@@ -197,7 +197,7 @@ Then I should see:
 ##### ✅ Scenario 3.2: Show with variable substitution
 ```gherkin
 Given I have a template with Tera syntax in frontmatter
-When I run "rgen show templates/test.tmpl --vars name=Alice"
+When I run "ggen show templates/test.tmpl --vars name=Alice"
 Then the frontmatter should be rendered with "Alice"
 ```
 
@@ -207,7 +207,7 @@ Then the frontmatter should be rendered with "Alice"
 ##### ✅ Scenario 3.3: Show template body preview
 ```gherkin
 Given I have a template
-When I run "rgen show templates/test.tmpl"
+When I run "ggen show templates/test.tmpl"
 Then I should see a preview of the first 10 lines
 And a count of remaining lines if > 10
 ```
@@ -219,13 +219,13 @@ And a count of remaining lines if > 10
 
 ## Marketplace Commands
 
-### 4. `rgen search` - Search for rpacks in registry
+### 4. `ggen search` - Search for gpacks in registry
 
 **JTBD:** "When I need to find a template package, I want to search the marketplace, so that I can discover and install the right solution."
 
 #### Command Syntax
 ```bash
-rgen search [OPTIONS] <QUERY>
+ggen search [OPTIONS] <QUERY>
   -c, --category <CATEGORY>  Filter by category
   -k, --keyword <KEYWORD>    Filter by keyword
   -a, --author <AUTHOR>      Filter by author/owner
@@ -239,9 +239,9 @@ rgen search [OPTIONS] <QUERY>
 
 ##### ✅ Scenario 4.1: Basic search (WORKING)
 ```gherkin
-Given the registry has rpacks
-When I run "rgen search rust"
-Then I should see matching rpacks
+Given the registry has gpacks
+When I run "ggen search rust"
+Then I should see matching gpacks
 And each result should show:
   - ID
   - Latest version
@@ -255,9 +255,9 @@ And each result should show:
 
 ##### ✅ Scenario 4.2: Search with category filter
 ```gherkin
-Given the registry has rpacks in multiple categories
-When I run "rgen search api --category rust"
-Then I should only see Rust category rpacks
+Given the registry has gpacks in multiple categories
+When I run "ggen search api --category rust"
+Then I should only see Rust category gpacks
 ```
 
 **Current Status:** ✅ Working
@@ -266,8 +266,8 @@ Then I should only see Rust category rpacks
 
 ##### ✅ Scenario 4.3: Search with JSON output (WORKING)
 ```gherkin
-Given the registry has rpacks
-When I run "rgen search rust --json"
+Given the registry has gpacks
+When I run "ggen search rust --json"
 Then I should receive valid JSON
 And it should contain fields: id, name, description, tags, version
 ```
@@ -278,8 +278,8 @@ And it should contain fields: id, name, description, tags, version
 
 ##### ✅ Scenario 4.4: Search with detailed output
 ```gherkin
-Given the registry has rpacks
-When I run "rgen search rust --detailed"
+Given the registry has gpacks
+When I run "ggen search rust --detailed"
 Then I should see full information including:
   - ID, name, version
   - Full description
@@ -296,9 +296,9 @@ Then I should see full information including:
 
 ##### ⚠️ Scenario 4.5: Search with no results
 ```gherkin
-Given the registry has rpacks
-When I run "rgen search nonexistent-xyz-123"
-Then I should see "No rpacks found matching your criteria"
+Given the registry has gpacks
+When I run "ggen search nonexistent-xyz-123"
+Then I should see "No gpacks found matching your criteria"
 ```
 
 **Feature File:** `marketplace.feature`
@@ -306,13 +306,13 @@ Then I should see "No rpacks found matching your criteria"
 
 ---
 
-### 5. `rgen categories` - Show popular categories and keywords
+### 5. `ggen categories` - Show popular categories and keywords
 
 **JTBD:** "When I want to explore the marketplace, I want to see popular categories and keywords, so that I can discover relevant templates."
 
 #### Command Syntax
 ```bash
-rgen categories [OPTIONS]
+ggen categories [OPTIONS]
       --keywords  Show popular keywords instead
   -d, --detailed  Show detailed statistics
       --json      Output as JSON
@@ -322,8 +322,8 @@ rgen categories [OPTIONS]
 
 ##### ⚠️ Scenario 5.1: List categories
 ```gherkin
-Given the registry has rpacks in multiple categories
-When I run "rgen categories"
+Given the registry has gpacks in multiple categories
+When I run "ggen categories"
 Then I should see popular categories like:
   - rust
   - python
@@ -336,8 +336,8 @@ Then I should see popular categories like:
 
 ##### ⚠️ Scenario 5.2: List keywords
 ```gherkin
-Given the registry has rpacks with keywords
-When I run "rgen categories --keywords"
+Given the registry has gpacks with keywords
+When I run "ggen categories --keywords"
 Then I should see popular keywords like:
   - api
   - database
@@ -350,22 +350,22 @@ Then I should see popular keywords like:
 
 ---
 
-### 6. `rgen add` - Add an rpack to the project
+### 6. `ggen add` - Add an gpack to the project
 
 **JTBD:** "When I find a useful template package, I want to install it to my project, so that I can use its templates locally."
 
 #### Command Syntax
 ```bash
-rgen add <RPACK_ID>
+ggen add <GPACK_ID>
 ```
 
 #### Test Scenarios
 
 ##### ⚠️ Scenario 6.1: Add latest version
 ```gherkin
-Given the rpack "io.rgen.rust.cli-subcommand" exists
-When I run "rgen add io.rgen.rust.cli-subcommand"
-Then the rpack should be downloaded
+Given the gpack "io.ggen.rust.cli-subcommand" exists
+When I run "ggen add io.ggen.rust.cli-subcommand"
+Then the gpack should be downloaded
 And it should be added to ggen.toml
 And it should be cached locally
 ```
@@ -375,18 +375,18 @@ And it should be cached locally
 
 ##### ⚠️ Scenario 6.2: Add specific version
 ```gherkin
-Given the rpack has multiple versions
-When I run "rgen add io.rgen.rust.cli-subcommand@0.2.0"
+Given the gpack has multiple versions
+When I run "ggen add io.ggen.rust.cli-subcommand@0.2.0"
 Then version 0.2.0 should be installed
 ```
 
 **Feature File:** `marketplace.feature`
 **BDD Status:** Needs implementation
 
-##### ⚠️ Scenario 6.3: Add already installed rpack
+##### ⚠️ Scenario 6.3: Add already installed gpack
 ```gherkin
-Given the rpack is already installed
-When I run "rgen add io.rgen.rust.cli-subcommand"
+Given the gpack is already installed
+When I run "ggen add io.ggen.rust.cli-subcommand"
 Then I should see "Already installed at version X.X.X"
 And no changes should be made
 ```
@@ -396,22 +396,22 @@ And no changes should be made
 
 ---
 
-### 7. `rgen remove` - Remove an rpack from the project
+### 7. `ggen remove` - Remove an gpack from the project
 
 **JTBD:** "When I no longer need a template package, I want to uninstall it, so that my project stays clean."
 
 #### Command Syntax
 ```bash
-rgen remove [OPTIONS] <RPACK_ID>
+ggen remove [OPTIONS] <GPACK_ID>
       --prune  Also remove from cache
 ```
 
 #### Test Scenarios
 
-##### ⚠️ Scenario 7.1: Remove rpack
+##### ⚠️ Scenario 7.1: Remove gpack
 ```gherkin
-Given the rpack "io.rgen.rust.cli-subcommand" is installed
-When I run "rgen remove io.rgen.rust.cli-subcommand"
+Given the gpack "io.ggen.rust.cli-subcommand" is installed
+When I run "ggen remove io.ggen.rust.cli-subcommand"
 Then it should be removed from ggen.toml
 And the templates should no longer be available
 But the cache should remain (unless --prune)
@@ -422,8 +422,8 @@ But the cache should remain (unless --prune)
 
 ##### ⚠️ Scenario 7.2: Remove with cache cleanup
 ```gherkin
-Given the rpack is installed
-When I run "rgen remove io.rgen.rust.cli-subcommand --prune"
+Given the gpack is installed
+When I run "ggen remove io.ggen.rust.cli-subcommand --prune"
 Then it should be removed from ggen.toml
 And it should be removed from cache
 And disk space should be freed
@@ -434,22 +434,22 @@ And disk space should be freed
 
 ---
 
-### 8. `rgen packs` - List installed rpacks
+### 8. `ggen packs` - List installed gpacks
 
 **JTBD:** "When I need to see what packages are installed, I want a list with versions, so that I can manage my dependencies."
 
 #### Command Syntax
 ```bash
-rgen packs
+ggen packs
 ```
 
 #### Test Scenarios
 
-##### ⚠️ Scenario 8.1: List installed rpacks
+##### ⚠️ Scenario 8.1: List installed gpacks
 ```gherkin
-Given I have installed 2 rpacks
-When I run "rgen packs"
-Then I should see both rpacks with:
+Given I have installed 2 gpacks
+When I run "ggen packs"
+Then I should see both gpacks with:
   - ID
   - Version
   - Template count
@@ -458,11 +458,11 @@ Then I should see both rpacks with:
 **Feature File:** `marketplace.feature`
 **BDD Status:** Needs implementation
 
-##### ⚠️ Scenario 8.2: No rpacks installed
+##### ⚠️ Scenario 8.2: No gpacks installed
 ```gherkin
-Given I have no rpacks installed
-When I run "rgen packs"
-Then I should see "No rpacks installed"
+Given I have no gpacks installed
+When I run "ggen packs"
+Then I should see "No gpacks installed"
 ```
 
 **Feature File:** `marketplace.feature`
@@ -470,33 +470,33 @@ Then I should see "No rpacks installed"
 
 ---
 
-### 9. `rgen update` - Update rpacks to latest versions
+### 9. `ggen update` - Update gpacks to latest versions
 
 **JTBD:** "When new versions are available, I want to update my packages, so that I have the latest features and fixes."
 
 #### Command Syntax
 ```bash
-rgen update [RPACK_ID]
+ggen update [GPACK_ID]
 ```
 
 #### Test Scenarios
 
-##### ⚠️ Scenario 9.1: Update all rpacks
+##### ⚠️ Scenario 9.1: Update all gpacks
 ```gherkin
-Given I have installed rpacks with updates available
-When I run "rgen update"
-Then all rpacks should be updated to latest compatible versions
+Given I have installed gpacks with updates available
+When I run "ggen update"
+Then all gpacks should be updated to latest compatible versions
 And ggen.toml should be updated
 ```
 
 **Feature File:** `marketplace.feature`
 **BDD Status:** Needs implementation
 
-##### ⚠️ Scenario 9.2: Update specific rpack
+##### ⚠️ Scenario 9.2: Update specific gpack
 ```gherkin
-Given "io.rgen.rust.cli-subcommand" has an update
-When I run "rgen update io.rgen.rust.cli-subcommand"
-Then only that rpack should be updated
+Given "io.ggen.rust.cli-subcommand" has an update
+When I run "ggen update io.ggen.rust.cli-subcommand"
+Then only that gpack should be updated
 ```
 
 **Feature File:** `marketplace.feature`
@@ -506,13 +506,13 @@ Then only that rpack should be updated
 
 ## Discovery Commands
 
-### 10. `rgen lint` - Lint template with schema validation
+### 10. `ggen lint` - Lint template with schema validation
 
 **JTBD:** "When I create a template, I want to validate it, so that I catch errors before using it."
 
 #### Command Syntax
 ```bash
-rgen lint [OPTIONS] <TEMPLATE>
+ggen lint [OPTIONS] <TEMPLATE>
   -v, --var <VARS>  Variables for frontmatter rendering
       --verbose     Show detailed output
       --shacl       Perform SHACL validation
@@ -523,7 +523,7 @@ rgen lint [OPTIONS] <TEMPLATE>
 ##### ⚠️ Scenario 10.1: Lint valid template
 ```gherkin
 Given I have a valid template
-When I run "rgen lint templates/test.tmpl"
+When I run "ggen lint templates/test.tmpl"
 Then I should see "✓ Template is valid"
 ```
 
@@ -533,7 +533,7 @@ Then I should see "✓ Template is valid"
 ##### ⚠️ Scenario 10.2: Lint invalid frontmatter
 ```gherkin
 Given I have a template with invalid YAML frontmatter
-When I run "rgen lint templates/invalid.tmpl"
+When I run "ggen lint templates/invalid.tmpl"
 Then I should see syntax errors
 And line numbers where errors occur
 ```
@@ -544,7 +544,7 @@ And line numbers where errors occur
 ##### ⚠️ Scenario 10.3: SHACL validation
 ```gherkin
 Given I have a template with RDF data
-When I run "rgen lint templates/test.tmpl --shacl"
+When I run "ggen lint templates/test.tmpl --shacl"
 Then SHACL constraints should be validated
 ```
 
@@ -555,13 +555,13 @@ Then SHACL constraints should be validated
 
 ## Utility Commands
 
-### 11. `rgen graph` - Export RDF graph
+### 11. `ggen graph` - Export RDF graph
 
 **JTBD:** "When I need to inspect RDF data, I want to export the graph, so that I can debug or analyze it."
 
 #### Command Syntax
 ```bash
-rgen graph [OPTIONS] <SCOPE> <ACTION>
+ggen graph [OPTIONS] <SCOPE> <ACTION>
   -f, --format <FORMAT>   turtle, ntriples, rdfxml, jsonld [default: turtle]
   -o, --output <OUTPUT>   Output file (default: stdout)
       --include-prefixes  Include prefixes
@@ -572,7 +572,7 @@ rgen graph [OPTIONS] <SCOPE> <ACTION>
 ##### ⚠️ Scenario 11.1: Export graph as Turtle
 ```gherkin
 Given I have RDF data for scope "cli" and action "subcommand"
-When I run "rgen graph cli subcommand"
+When I run "ggen graph cli subcommand"
 Then I should see Turtle format RDF output
 ```
 
@@ -582,7 +582,7 @@ Then I should see Turtle format RDF output
 ##### ⚠️ Scenario 11.2: Export to file
 ```gherkin
 Given I have RDF data
-When I run "rgen graph cli subcommand --output graph.ttl"
+When I run "ggen graph cli subcommand --output graph.ttl"
 Then a file "graph.ttl" should be created
 And it should contain valid Turtle syntax
 ```
@@ -593,7 +593,7 @@ And it should contain valid Turtle syntax
 ##### ⚠️ Scenario 11.3: Export as JSON-LD
 ```gherkin
 Given I have RDF data
-When I run "rgen graph cli subcommand --format jsonld"
+When I run "ggen graph cli subcommand --format jsonld"
 Then I should see valid JSON-LD output
 ```
 
@@ -602,13 +602,13 @@ Then I should see valid JSON-LD output
 
 ---
 
-### 12. `rgen hazard` - Generate hazard report
+### 12. `ggen hazard` - Generate hazard report
 
 **JTBD:** "When I want to assess code safety, I want a hazard report, so that I can identify potential risks."
 
 #### Command Syntax
 ```bash
-rgen hazard
+ggen hazard
 ```
 
 #### Test Scenarios
@@ -616,7 +616,7 @@ rgen hazard
 ##### ✅ Scenario 12.1: Generate hazard report
 ```gherkin
 Given I have templates with various patterns
-When I run "rgen hazard"
+When I run "ggen hazard"
 Then I should see a report of potential hazards
 ```
 
@@ -627,7 +627,7 @@ Then I should see a report of potential hazards
 ##### ✅ Scenario 12.2: Hazard exit code
 ```gherkin
 Given I have templates
-When I run "rgen hazard"
+When I run "ggen hazard"
 Then the exit code should be 0 (success)
 ```
 
@@ -637,13 +637,13 @@ Then the exit code should be 0 (success)
 
 ---
 
-### 13. `rgen completion` - Generate shell completion scripts
+### 13. `ggen completion` - Generate shell completion scripts
 
-**JTBD:** "When I use rgen frequently, I want shell completions, so that I can work faster with tab completion."
+**JTBD:** "When I use ggen frequently, I want shell completions, so that I can work faster with tab completion."
 
 #### Command Syntax
 ```bash
-rgen completion <SHELL>
+ggen completion <SHELL>
   bash, zsh, fish
 ```
 
@@ -651,9 +651,9 @@ rgen completion <SHELL>
 
 ##### ⚠️ Scenario 13.1: Generate bash completion
 ```gherkin
-When I run "rgen completion bash"
+When I run "ggen completion bash"
 Then I should see valid bash completion script
-And it should include all rgen commands
+And it should include all ggen commands
 ```
 
 **Feature File:** `cli_commands.feature`
@@ -661,7 +661,7 @@ And it should include all rgen commands
 
 ##### ⚠️ Scenario 13.2: Generate zsh completion
 ```gherkin
-When I run "rgen completion zsh"
+When I run "ggen completion zsh"
 Then I should see valid zsh completion script
 ```
 
@@ -678,7 +678,7 @@ Then I should see valid zsh completion script
 
 #### Command Syntax
 ```bash
-rgen [OPTIONS] <COMMAND>
+ggen [OPTIONS] <COMMAND>
   -c, --config <FILE>          Custom config file
       --manifest-path <PATH>   Path to ggen.toml
   -d, --debug <DEBUG>          Enable debug mode
@@ -691,8 +691,8 @@ rgen [OPTIONS] <COMMAND>
 
 ##### ✅ Scenario 14.1: Version command
 ```gherkin
-When I run "rgen --version"
-Then I should see "rgen 0.1.0"
+When I run "ggen --version"
+Then I should see "ggen 0.1.0"
 ```
 
 **Current Status:** ✅ Working
@@ -700,7 +700,7 @@ Then I should see "rgen 0.1.0"
 
 ##### ✅ Scenario 14.2: Help command
 ```gherkin
-When I run "rgen --help"
+When I run "ggen --help"
 Then I should see all available commands
 And usage examples
 ```
@@ -710,7 +710,7 @@ And usage examples
 
 ##### ✅ Scenario 14.3: Subcommand help
 ```gherkin
-When I run "rgen gen --help"
+When I run "ggen gen --help"
 Then I should see gen-specific options
 And usage examples for gen
 ```
@@ -720,8 +720,8 @@ And usage examples for gen
 
 ##### ✅ Scenario 14.4: Environment variables
 ```gherkin
-Given RGEN_TRACE is set to "1"
-When I run any rgen command
+Given GGEN_TRACE is set to "1"
+When I run any ggen command
 Then tracing output should be enabled
 ```
 
@@ -730,7 +730,7 @@ Then tracing output should be enabled
 
 ##### ✅ Scenario 14.5: Error handling
 ```gherkin
-When I run "rgen gen nonexistent.tmpl"
+When I run "ggen gen nonexistent.tmpl"
 Then I should see a clear error message
 And the exit code should be non-zero
 ```
@@ -746,7 +746,7 @@ And the exit code should be non-zero
 
 | Test Suite | Tests | Status | Notes |
 |------------|-------|--------|-------|
-| rgen-core lib | 3 | ✅ PASS | Core functionality |
+| ggen-core lib | 3 | ✅ PASS | Core functionality |
 | utils lib | 3 | ✅ PASS | Utilities |
 | CLI integration | 13 | ✅ PASS | All CLI scenarios |
 | E2E tests | 7 | ✅ PASS | End-to-end flows |
@@ -771,19 +771,19 @@ And the exit code should be non-zero
 
 | Command | Basic Test | Advanced Test | BDD Scenario | Notes |
 |---------|-----------|---------------|--------------|-------|
-| `rgen gen` | ✅ | ✅ | ✅ | Local & pack templates |
-| `rgen list` | ✅ | ✅ | ✅ | Template listing |
-| `rgen show` | ✅ | ⚠️ | ✅ | Frontmatter display |
-| `rgen search` | ✅ | ✅ | ✅ | **NOW WORKING!** |
-| `rgen categories` | ⚠️ | ⚠️ | ⚠️ | Needs implementation |
-| `rgen add` | ⚠️ | ⚠️ | ✅ | Step defs exist |
-| `rgen remove` | ⚠️ | ⚠️ | ⚠️ | Needs implementation |
-| `rgen packs` | ⚠️ | ⚠️ | ⚠️ | Needs implementation |
-| `rgen update` | ⚠️ | ⚠️ | ⚠️ | Needs implementation |
-| `rgen lint` | ⚠️ | ⚠️ | ⚠️ | Needs implementation |
-| `rgen graph` | ⚠️ | ⚠️ | ⚠️ | Needs implementation |
-| `rgen hazard` | ✅ | ✅ | ✅ | Fully tested |
-| `rgen completion` | ⚠️ | ⚠️ | ⚠️ | Needs implementation |
+| `ggen gen` | ✅ | ✅ | ✅ | Local & pack templates |
+| `ggen list` | ✅ | ✅ | ✅ | Template listing |
+| `ggen show` | ✅ | ⚠️ | ✅ | Frontmatter display |
+| `ggen search` | ✅ | ✅ | ✅ | **NOW WORKING!** |
+| `ggen categories` | ⚠️ | ⚠️ | ⚠️ | Needs implementation |
+| `ggen add` | ⚠️ | ⚠️ | ✅ | Step defs exist |
+| `ggen remove` | ⚠️ | ⚠️ | ⚠️ | Needs implementation |
+| `ggen packs` | ⚠️ | ⚠️ | ⚠️ | Needs implementation |
+| `ggen update` | ⚠️ | ⚠️ | ⚠️ | Needs implementation |
+| `ggen lint` | ⚠️ | ⚠️ | ⚠️ | Needs implementation |
+| `ggen graph` | ⚠️ | ⚠️ | ⚠️ | Needs implementation |
+| `ggen hazard` | ✅ | ✅ | ✅ | Fully tested |
+| `ggen completion` | ⚠️ | ⚠️ | ⚠️ | Needs implementation |
 | Global options | ✅ | ✅ | ✅ | Help, version, etc. |
 
 **Legend:**
@@ -796,24 +796,24 @@ And the exit code should be non-zero
 ## Priority Test Implementation Plan
 
 ### Phase 1: Core v0.1.0 (COMPLETE ✅)
-- [x] rgen gen (all modes)
-- [x] rgen list
-- [x] rgen show
-- [x] rgen search (NOW WORKING!)
-- [x] rgen hazard
+- [x] ggen gen (all modes)
+- [x] ggen list
+- [x] ggen show
+- [x] ggen search (NOW WORKING!)
+- [x] ggen hazard
 - [x] Global options (help, version, debug)
 
 ### Phase 2: Marketplace v0.2.0 (Future)
-- [ ] rgen add (with version support)
-- [ ] rgen remove (with prune)
-- [ ] rgen packs (detailed listing)
-- [ ] rgen update (all & specific)
-- [ ] rgen categories (with keywords)
+- [ ] ggen add (with version support)
+- [ ] ggen remove (with prune)
+- [ ] ggen packs (detailed listing)
+- [ ] ggen update (all & specific)
+- [ ] ggen categories (with keywords)
 
 ### Phase 3: Advanced v0.3.0 (Future)
-- [ ] rgen lint (with SHACL)
-- [ ] rgen graph (all formats)
-- [ ] rgen completion (all shells)
+- [ ] ggen lint (with SHACL)
+- [ ] ggen graph (all formats)
+- [ ] ggen completion (all shells)
 - [ ] Advanced RDF/SPARQL scenarios
 - [ ] Multi-language edge cases
 

@@ -51,8 +51,8 @@ cargo make pre-push             # Pre-push comprehensive checks (alias: push)
 ```bash
 cargo make run -- gen <template> --vars key=value     # Generate from template
 cargo make run -- search <query>                      # Search marketplace
-cargo make run -- add <rpack-id>                      # Install rpack
-cargo make run -- packs                               # List installed rpacks
+cargo make run -- add <gpack-id>                      # Install gpack
+cargo make run -- packs                               # List installed gpacks
 cargo make run -- list                                # List templates
 cargo make run -- show <template>                     # Show template details
 ```
@@ -68,7 +68,7 @@ ggen/
 │       └── cmds/         # Subcommand implementations
 │           ├── gen.rs    # Code generation
 │           ├── search.rs # Marketplace search
-│           ├── add.rs    # Install rpacks
+│           ├── add.rs    # Install gpacks
 │           └── ...       # Other commands
 ├── ggen-core/            # Core domain logic
 │   └── src/
@@ -78,7 +78,7 @@ ggen/
 │       ├── generator.rs  # High-level generation orchestration
 │       ├── registry.rs   # Marketplace client
 │       ├── resolver.rs   # Template source resolution
-│       ├── rpack.rs      # Rpack manifest handling
+│       ├── gpack.rs      # Gpack manifest handling
 │       └── inject.rs     # File injection modes
 ├── utils/                # Cross-cutting concerns
 │   └── src/
@@ -115,9 +115,9 @@ ggen/
 - Key methods: `new()`, `insert_turtle()`, `query()`, `len()`
 
 **Registry (ggen-core/src/registry.rs)**
-- Marketplace client for discovering and installing rpacks
+- Marketplace client for discovering and installing gpacks
 - Handles versioning, dependencies, lockfiles
-- Local cache management for installed rpacks
+- Local cache management for installed gpacks
 - Key methods: `search()`, `resolve()`, `install()`
 
 **Generator (ggen-core/src/generator.rs)**
@@ -130,7 +130,7 @@ ggen/
 1. **CLI Layer** (`cli/`) parses arguments via Clap
 2. **Command Handler** (`cli/src/cmds/`) processes subcommand
 3. **Generator** (`ggen-core/`) orchestrates:
-   - **Resolver** locates template (local, rpack, or marketplace)
+   - **Resolver** locates template (local, gpack, or marketplace)
    - **Pipeline** loads template and parses frontmatter
    - Frontmatter rendered first to resolve `to` field and variables
    - RDF data loaded into **Graph** from `rdf`/`rdf_inline` fields
@@ -252,13 +252,13 @@ cargo make test-core            # Core module tests
 
 Verify with: `cargo make slo-check`
 
-## Marketplace (rpacks)
+## Marketplace (gpacks)
 
-Rpacks are versioned, reusable template packages with:
+Gpacks are versioned, reusable template packages with:
 - Templates with frontmatter
 - RDF schemas and SHACL shapes
 - SPARQL queries
-- Dependencies on other rpacks
+- Dependencies on other gpacks
 
 ```bash
 cargo make run -- search rust
