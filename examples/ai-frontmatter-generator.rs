@@ -164,3 +164,4 @@ fn generate_fallback_frontmatter() -> String {
     
     serde_yaml::to_string(&frontmatter_json).unwrap_or_default()
 }
+

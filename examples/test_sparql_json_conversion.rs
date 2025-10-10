@@ -2,6 +2,7 @@
 // This tests the json_to_sparql and json_string_to_sparql methods
 
 use ggen_ai::generators::SparqlGenerator;
+use ggen_ai::generators::sparql::SparqlQueryJson;
 use ggen_ai::providers::MockClient;
 use serde_json::json;
 
@@ -34,7 +35,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Input JSON: {}", serde_json::to_string_pretty(&sparql_json)?);
 
     // Convert JSON to SPARQL
-    let sparql_result = generator.json_to_sparql_with_prefixes(&sparql_json)?;
+    let sparql_query_json: SparqlQueryJson = serde_json::from_value(sparql_json.clone())?;
+    let sparql_result = generator.json_to_sparql_with_prefixes(&sparql_query_json)?;
     println!("✅ Converted SPARQL:");
     println!("{}", sparql_result);
 
@@ -81,7 +83,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         "offset": null
     });
 
-    let complex_sparql = generator.json_to_sparql_with_prefixes(&complex_json)?;
+    let complex_query_json: SparqlQueryJson = serde_json::from_value(complex_json.clone())?;
+    let complex_sparql = generator.json_to_sparql_with_prefixes(&complex_query_json)?;
     println!("\n🏗️ Complex SPARQL query:");
     println!("{}", complex_sparql);
 
@@ -102,7 +105,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         "offset": null
     });
 
-    let ask_sparql = generator.json_to_sparql_with_prefixes(&ask_json)?;
+    let ask_query_json: SparqlQueryJson = serde_json::from_value(ask_json.clone())?;
+    let ask_sparql = generator.json_to_sparql_with_prefixes(&ask_query_json)?;
     println!("\n❓ ASK query:");
     println!("{}", ask_sparql);
 

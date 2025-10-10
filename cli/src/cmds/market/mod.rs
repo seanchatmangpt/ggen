@@ -15,6 +15,7 @@ pub mod search;
 pub mod sync;
 pub mod unpublish;
 pub mod update;
+pub mod natural;
 
 #[derive(Args, Debug)]
 pub struct MarketCmd {
@@ -120,6 +121,14 @@ pub enum Verb {
     ///   ggen market unpublish "my-package@1.0.0"
     ///   ggen market unpublish "my-package" --force
     Unpublish(unpublish::UnpublishArgs),
+
+    /// Natural language search using AI
+    ///
+    /// Examples:
+    ///   ggen market natural "I need a user authentication system"
+    ///   ggen market natural "Find me web frameworks for APIs" --detailed
+    ///   ggen market natural "What packages help with database operations?" --json
+    Natural(natural::NaturalArgs),
 }
 
 impl MarketCmd {
@@ -138,6 +147,7 @@ impl MarketCmd {
             Verb::Categories(args) => categories::run(args).await,
             Verb::Publish(args) => publish::run(args).await,
             Verb::Unpublish(args) => unpublish::run(args).await,
+            Verb::Natural(args) => natural::run(args).await,
         }
     }
 }

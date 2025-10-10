@@ -6,6 +6,7 @@ use reqwest::Client;
 use serde::{Deserialize, Serialize};
 
 use crate::client::{LlmClient, LlmConfig, LlmResponse, LlmChunk, UsageStats};
+use crate::config::OpenAIConfig;
 use crate::error::{GgenAiError, Result};
 
 /// OpenAI API client
@@ -17,16 +18,34 @@ pub struct OpenAIClient {
 }
 
 impl OpenAIClient {
-    /// Create a new OpenAI client
-    pub fn new(api_key: String) -> Self {
+    /// Create a new OpenAI client from configuration
+    pub fn new(config: OpenAIConfig) -> Result<Self> {
+        config.validate()?;
+        Ok(Self {
+            client: Client::new(),
+            api_key: config.api_key,
+            base_url: config.base_url,
+        })
+    }
+
+    /// Create a new OpenAI client from environment variables
+    pub fn from_env() -> Result<Self> {
+        let config = OpenAIConfig::from_env()?;
+        Self::new(config)
+    }
+
+    /// Create a new OpenAI client with API key (deprecated - use new() with config)
+    #[deprecated(since = "0.2.4", note = "Use new() with OpenAIConfig instead")]
+    pub fn with_api_key(api_key: String) -> Self {
         Self {
             client: Client::new(),
             api_key,
             base_url: "https://api.openai.com/v1".to_string(),
         }
     }
-    
-    /// Create a new OpenAI client with custom base URL
+
+    /// Create a new OpenAI client with custom base URL (deprecated - use new() with config)
+    #[deprecated(since = "0.2.4", note = "Use new() with OpenAIConfig instead")]
     pub fn with_base_url(api_key: String, base_url: String) -> Self {
         Self {
             client: Client::new(),
@@ -106,7 +125,16 @@ struct EmbeddingData {
 impl LlmClient for OpenAIClient {
     async fn complete(&self, prompt: &str, config: Option<LlmConfig>) -> Result<LlmResponse> {
         let config = config.unwrap_or_default();
-        
+
+        // Validate configuration
+        config.validate()?;
+        if let Some(temp) = config.temperature {
+            GgenAiError::validate_temperature(temp, "temperature")?;
+        }
+        if let Some(top_p) = config.top_p {
+            GgenAiError::validate_top_p(top_p, "top_p")?;
+        }
+
         let request = ChatCompletionRequest {
             model: config.model,
             messages: vec![Message {
@@ -127,17 +155,35 @@ impl LlmClient for OpenAIClient {
             .header("Content-Type", "application/json")
             .json(&request)
             .send()
-            .await?;
-        
-        if !response.status().is_success() {
+            .await
+            .map_err(|e| {
+                if e.is_timeout() {
+                    GgenAiError::timeout("openai", 30)
+                } else if e.is_connect() {
+                    GgenAiError::network_error(format!("Failed to connect to OpenAI API: {}", e))
+                } else {
+                    GgenAiError::network_error(e.to_string())
+                }
+            })?;
+
+        let status = response.status();
+        if !status.is_success() {
             let error_text = response.text().await.unwrap_or_default();
-            return Err(GgenAiError::llm_provider(format!(
-                "OpenAI API error: {}",
-                error_text
-            )));
+
+            return Err(if status.as_u16() == 429 {
+                GgenAiError::rate_limit("openai", None)
+            } else if status.as_u16() == 401 {
+                GgenAiError::invalid_api_key("openai", "Invalid or expired API key")
+            } else {
+                GgenAiError::openai(
+                    format!("API request failed: {}", error_text),
+                    status.as_u16(),
+                )
+            });
         }
-        
-        let completion: ChatCompletionResponse = response.json().await?;
+
+        let completion: ChatCompletionResponse = response.json().await
+            .map_err(|e| GgenAiError::parse_error("openai", format!("Failed to parse response: {}", e)))?;
         
         let content = completion
             .choices
@@ -169,7 +215,16 @@ impl LlmClient for OpenAIClient {
         config: Option<LlmConfig>,
     ) -> Result<futures::stream::BoxStream<'static, Result<LlmChunk>>> {
         let config = config.unwrap_or_default();
-        
+
+        // Validate configuration
+        config.validate()?;
+        if let Some(temp) = config.temperature {
+            GgenAiError::validate_temperature(temp, "temperature")?;
+        }
+        if let Some(top_p) = config.top_p {
+            GgenAiError::validate_top_p(top_p, "top_p")?;
+        }
+
         let request = ChatCompletionRequest {
             model: config.model,
             messages: vec![Message {
@@ -190,14 +245,31 @@ impl LlmClient for OpenAIClient {
             .header("Content-Type", "application/json")
             .json(&request)
             .send()
-            .await?;
-        
-        if !response.status().is_success() {
+            .await
+            .map_err(|e| {
+                if e.is_timeout() {
+                    GgenAiError::timeout("openai", 30)
+                } else if e.is_connect() {
+                    GgenAiError::network_error(format!("Failed to connect to OpenAI API: {}", e))
+                } else {
+                    GgenAiError::network_error(e.to_string())
+                }
+            })?;
+
+        let status = response.status();
+        if !status.is_success() {
             let error_text = response.text().await.unwrap_or_default();
-            return Err(GgenAiError::llm_provider(format!(
-                "OpenAI API error: {}",
-                error_text
-            )));
+
+            return Err(if status.as_u16() == 429 {
+                GgenAiError::rate_limit("openai", None)
+            } else if status.as_u16() == 401 {
+                GgenAiError::invalid_api_key("openai", "Invalid or expired API key")
+            } else {
+                GgenAiError::openai(
+                    format!("Streaming request failed: {}", error_text),
+                    status.as_u16(),
+                )
+            });
         }
         
         let stream = response
@@ -257,23 +329,41 @@ impl LlmClient for OpenAIClient {
             .header("Content-Type", "application/json")
             .json(&request)
             .send()
-            .await?;
-        
-        if !response.status().is_success() {
+            .await
+            .map_err(|e| {
+                if e.is_timeout() {
+                    GgenAiError::timeout("openai", 30)
+                } else if e.is_connect() {
+                    GgenAiError::network_error(format!("Failed to connect to OpenAI API: {}", e))
+                } else {
+                    GgenAiError::network_error(e.to_string())
+                }
+            })?;
+
+        let status = response.status();
+        if !status.is_success() {
             let error_text = response.text().await.unwrap_or_default();
-            return Err(GgenAiError::llm_provider(format!(
-                "OpenAI API error: {}",
-                error_text
-            )));
+
+            return Err(if status.as_u16() == 429 {
+                GgenAiError::rate_limit("openai", None)
+            } else if status.as_u16() == 401 {
+                GgenAiError::invalid_api_key("openai", "Invalid or expired API key")
+            } else {
+                GgenAiError::openai(
+                    format!("Embedding request failed: {}", error_text),
+                    status.as_u16(),
+                )
+            });
         }
-        
-        let embedding_response: EmbeddingResponse = response.json().await?;
-        
+
+        let embedding_response: EmbeddingResponse = response.json().await
+            .map_err(|e| GgenAiError::parse_error("openai", format!("Failed to parse embedding response: {}", e)))?;
+
         embedding_response
             .data
             .first()
             .map(|data| data.embedding.clone())
-            .ok_or_else(|| GgenAiError::llm_provider("No embedding data returned"))
+            .ok_or_else(|| GgenAiError::llm_provider("openai", "No embedding data returned"))
     }
     
     fn provider_name(&self) -> &str {
@@ -282,8 +372,14 @@ impl LlmClient for OpenAIClient {
     
     fn supported_models(&self) -> Vec<String> {
         vec![
+            // GPT-4 models
             "gpt-4".to_string(),
             "gpt-4-turbo".to_string(),
+            "gpt-4-turbo-preview".to_string(),
+            // GPT-4o models (latest)
+            "gpt-4o".to_string(),
+            "gpt-4o-mini".to_string(),
+            // GPT-3.5 models
             "gpt-3.5-turbo".to_string(),
             "gpt-3.5-turbo-16k".to_string(),
         ]
@@ -296,18 +392,18 @@ mod tests {
     
     #[tokio::test]
     async fn test_openai_client_creation() {
-        let client = OpenAIClient::new("test-key".to_string());
+        let config = OpenAIConfig::new("test-key");
+        let client = OpenAIClient::new(config).unwrap();
         assert_eq!(client.provider_name(), "openai");
         assert!(client.supports_model("gpt-3.5-turbo"));
         assert!(!client.supports_model("unknown-model"));
     }
-    
+
     #[tokio::test]
     async fn test_openai_client_with_base_url() {
-        let client = OpenAIClient::with_base_url(
-            "test-key".to_string(),
-            "https://custom.openai.com".to_string(),
-        );
+        let config = OpenAIConfig::new("test-key")
+            .with_base_url("https://custom.openai.com");
+        let client = OpenAIClient::new(config).unwrap();
         assert_eq!(client.base_url, "https://custom.openai.com");
     }
 }

@@ -1,0 +1,32 @@
+# Cargo configuration for ggen-mcp testing
+
+[build]
+# Increase parallel jobs for faster test builds
+jobs = 4
+
+[target.x86_64-unknown-linux-gnu]
+# Linux-specific test configuration
+rustflags = ["-C", "link-arg=-fuse-ld=lld"]
+
+[target.x86_64-apple-darwin]
+# macOS-specific test configuration
+rustflags = ["-C", "link-arg=-fuse-ld=lld"]
+
+[alias]
+# Convenient test aliases
+test-all = "test --all-features"
+test-integration = "test --test '*' --all-features"
+test-unit = "test --lib --all-features"
+bench-all = "bench --all-features"
+test-ci = "test --all-features --no-fail-fast"
+
+[profile.test]
+# Optimize test builds for faster execution
+opt-level = 1
+debug = true
+
+[profile.bench]
+# Benchmark profile
+opt-level = 3
+debug = false
+lto = true

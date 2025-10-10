@@ -6,6 +6,7 @@ use reqwest::Client;
 use serde::{Deserialize, Serialize};
 
 use crate::client::{LlmClient, LlmConfig, LlmResponse, LlmChunk, UsageStats};
+use crate::config::OllamaConfig;
 use crate::error::{GgenAiError, Result};
 
 /// Ollama API client for local models
@@ -17,22 +18,39 @@ pub struct OllamaClient {
 }
 
 impl OllamaClient {
-    /// Create a new Ollama client
-    pub fn new() -> Self {
+    /// Create a new Ollama client from configuration
+    pub fn new(config: OllamaConfig) -> Result<Self> {
+        config.validate()?;
+        Ok(Self {
+            client: Client::new(),
+            base_url: config.base_url,
+        })
+    }
+
+    /// Create a new Ollama client from environment variables
+    pub fn from_env() -> Result<Self> {
+        let config = OllamaConfig::from_env()?;
+        Self::new(config)
+    }
+
+    /// Create a new Ollama client with default settings (deprecated - use new() with config)
+    #[deprecated(since = "0.2.4", note = "Use new() with OllamaConfig instead")]
+    pub fn with_defaults() -> Self {
         Self {
             client: Client::new(),
             base_url: "http://localhost:11434".to_string(),
         }
     }
-    
-    /// Create a new Ollama client with custom base URL
+
+    /// Create a new Ollama client with custom base URL (deprecated - use new() with config)
+    #[deprecated(since = "0.2.4", note = "Use new() with OllamaConfig instead")]
     pub fn with_base_url(base_url: String) -> Self {
         Self {
             client: Client::new(),
             base_url,
         }
     }
-    
+
     /// Create a configuration optimized for qwen3-coder:30b
     pub fn qwen3_coder_config() -> LlmConfig {
         LlmConfig {
@@ -93,7 +111,17 @@ struct EmbeddingResponse {
 impl LlmClient for OllamaClient {
     async fn complete(&self, prompt: &str, config: Option<LlmConfig>) -> Result<LlmResponse> {
         let config = config.unwrap_or_default();
-        
+
+        // Validate configuration
+        config.validate()?;
+        if let Some(temp) = config.temperature {
+            GgenAiError::validate_temperature(temp, "temperature")?;
+        }
+        if let Some(top_p) = config.top_p {
+            GgenAiError::validate_top_p(top_p, "top_p")?;
+        }
+
+        let model_name = config.model.clone();
         let request = GenerateRequest {
             model: config.model,
             prompt: prompt.to_string(),
@@ -111,17 +139,36 @@ impl LlmClient for OllamaClient {
             .post(&format!("{}/api/generate", self.base_url))
             .json(&request)
             .send()
-            .await?;
-        
+            .await
+            .map_err(|e| {
+                if e.is_timeout() {
+                    GgenAiError::timeout("ollama", 30)
+                } else if e.is_connect() {
+                    GgenAiError::network_error(format!(
+                        "Failed to connect to Ollama at {}. Is Ollama running? Start with: ollama serve",
+                        self.base_url
+                    ))
+                } else {
+                    GgenAiError::network_error(e.to_string())
+                }
+            })?;
+
         if !response.status().is_success() {
+            let status = response.status().as_u16();
             let error_text = response.text().await.unwrap_or_default();
-            return Err(GgenAiError::llm_provider(format!(
-                "Ollama API error: {}",
-                error_text
-            )));
+
+            return Err(if status == 404 {
+                GgenAiError::ollama(format!(
+                    "Model '{}' not found. Pull it with: ollama pull {}",
+                    model_name, model_name
+                ))
+            } else {
+                GgenAiError::ollama(format!("API request failed ({}): {}", status, error_text))
+            });
         }
-        
-        let generate_response: GenerateResponse = response.json().await?;
+
+        let generate_response: GenerateResponse = response.json().await
+            .map_err(|e| GgenAiError::parse_error("ollama", format!("Failed to parse response: {}", e)))?;
         
         let usage = UsageStats {
             prompt_tokens: generate_response.prompt_eval_count.unwrap_or(0),
@@ -144,7 +191,17 @@ impl LlmClient for OllamaClient {
         config: Option<LlmConfig>,
     ) -> Result<futures::stream::BoxStream<'static, Result<LlmChunk>>> {
         let config = config.unwrap_or_default();
-        
+
+        // Validate configuration
+        config.validate()?;
+        if let Some(temp) = config.temperature {
+            GgenAiError::validate_temperature(temp, "temperature")?;
+        }
+        if let Some(top_p) = config.top_p {
+            GgenAiError::validate_top_p(top_p, "top_p")?;
+        }
+
+        let model_name = config.model.clone();
         let request = GenerateRequest {
             model: config.model,
             prompt: prompt.to_string(),
@@ -162,14 +219,32 @@ impl LlmClient for OllamaClient {
             .post(&format!("{}/api/generate", self.base_url))
             .json(&request)
             .send()
-            .await?;
-        
+            .await
+            .map_err(|e| {
+                if e.is_timeout() {
+                    GgenAiError::timeout("ollama", 30)
+                } else if e.is_connect() {
+                    GgenAiError::network_error(format!(
+                        "Failed to connect to Ollama at {}. Is Ollama running? Start with: ollama serve",
+                        self.base_url
+                    ))
+                } else {
+                    GgenAiError::network_error(e.to_string())
+                }
+            })?;
+
         if !response.status().is_success() {
+            let status = response.status().as_u16();
             let error_text = response.text().await.unwrap_or_default();
-            return Err(GgenAiError::llm_provider(format!(
-                "Ollama API error: {}",
-                error_text
-            )));
+
+            return Err(if status == 404 {
+                GgenAiError::ollama(format!(
+                    "Model '{}' not found. Pull it with: ollama pull {}",
+                    model_name, model_name
+                ))
+            } else {
+                GgenAiError::ollama(format!("Streaming request failed ({}): {}", status, error_text))
+            });
         }
         
         let stream = response
@@ -222,17 +297,35 @@ impl LlmClient for OllamaClient {
             .post(&format!("{}/api/embeddings", self.base_url))
             .json(&request)
             .send()
-            .await?;
-        
+            .await
+            .map_err(|e| {
+                if e.is_timeout() {
+                    GgenAiError::timeout("ollama", 30)
+                } else if e.is_connect() {
+                    GgenAiError::network_error(format!(
+                        "Failed to connect to Ollama at {}. Is Ollama running? Start with: ollama serve",
+                        self.base_url
+                    ))
+                } else {
+                    GgenAiError::network_error(e.to_string())
+                }
+            })?;
+
         if !response.status().is_success() {
+            let status = response.status().as_u16();
             let error_text = response.text().await.unwrap_or_default();
-            return Err(GgenAiError::llm_provider(format!(
-                "Ollama API error: {}",
-                error_text
-            )));
+
+            return Err(if status == 404 {
+                GgenAiError::ollama(
+                    "Embedding model 'nomic-embed-text' not found. Pull it with: ollama pull nomic-embed-text".to_string()
+                )
+            } else {
+                GgenAiError::ollama(format!("Embedding request failed ({}): {}", status, error_text))
+            });
         }
-        
-        let embedding_response: EmbeddingResponse = response.json().await?;
+
+        let embedding_response: EmbeddingResponse = response.json().await
+            .map_err(|e| GgenAiError::parse_error("ollama", format!("Failed to parse embedding response: {}", e)))?;
         Ok(embedding_response.embedding)
     }
     
@@ -255,7 +348,7 @@ impl LlmClient for OllamaClient {
 
 impl Default for OllamaClient {
     fn default() -> Self {
-        Self::new()
+        Self::new(OllamaConfig::default()).expect("Failed to create default Ollama client")
     }
 }
 
@@ -265,15 +358,17 @@ mod tests {
     
     #[tokio::test]
     async fn test_ollama_client_creation() {
-        let client = OllamaClient::new();
+        let config = OllamaConfig::new();
+        let client = OllamaClient::new(config).unwrap();
         assert_eq!(client.provider_name(), "ollama");
         assert!(client.supports_model("llama2"));
         assert!(!client.supports_model("unknown-model"));
     }
-    
+
     #[tokio::test]
     async fn test_ollama_client_with_base_url() {
-        let client = OllamaClient::with_base_url("http://custom:11434".to_string());
+        let config = OllamaConfig::new().with_base_url("http://custom:11434");
+        let client = OllamaClient::new(config).unwrap();
         assert_eq!(client.base_url, "http://custom:11434");
     }
 }

@@ -3,6 +3,7 @@
 use crate::client::{LlmClient, LlmConfig};
 use crate::error::{GgenAiError, Result};
 use crate::prompts::{TemplatePromptBuilder, TemplatePrompts};
+use crate::generators::validator::{TemplateValidator, ValidationResult};
 use futures::StreamExt;
 use ggen_core::Template;
 
@@ -209,6 +210,102 @@ impl TemplateGenerator {
     /// Update the configuration
     pub fn set_config(&mut self, config: LlmConfig) {
         self.config = config;
+    }
+
+    /// Validate a generated template
+    pub async fn validate_template(&self, template: &Template) -> Result<ValidationResult> {
+        let validator = TemplateValidator::new();
+        validator.validate_template(template).await
+    }
+
+    /// Generate template with iterative improvement
+    pub async fn generate_template_with_validation(
+        &self,
+        description: &str,
+        requirements: Vec<&str>,
+        max_iterations: usize,
+    ) -> Result<Template> {
+        let mut current_template = self.generate_template(description, requirements.clone()).await?;
+
+        let validator = TemplateValidator::new();
+        let mut iteration = 0;
+
+        while iteration < max_iterations {
+            iteration += 1;
+
+            // Validate current template
+            let validation = validator.validate_template(&current_template).await?;
+
+            // Check if template meets quality requirements
+            if validation.is_valid && validation.quality_score >= 0.7 {
+                println!("✅ Template validation passed after {} iterations (score: {:.2})", iteration, validation.quality_score);
+                return Ok(current_template);
+            }
+
+            // Generate improvement feedback
+            let feedback = self.generate_improvement_feedback(&validation, &requirements).await?;
+
+            if feedback.is_empty() {
+                break; // No more improvements possible
+            }
+
+            // Generate improved template based on feedback
+            println!("🔄 Iteration {}: Improving template (current score: {:.2})", iteration, validation.quality_score);
+
+            let improved_description = format!(
+                "{}\n\nPlease improve this template based on the following feedback:\n{}",
+                description, feedback
+            );
+
+            current_template = self.generate_template(&improved_description, requirements.clone()).await?;
+        }
+
+        println!("✅ Final template after {} iterations", iteration);
+        Ok(current_template)
+    }
+
+    /// Generate improvement feedback based on validation results
+    async fn generate_improvement_feedback(
+        &self,
+        validation: &ValidationResult,
+        requirements: &[&str],
+    ) -> Result<String> {
+        if validation.issues.is_empty() && validation.quality_score >= 0.7 {
+            return Ok(String::new());
+        }
+
+        let mut feedback = String::new();
+
+        // Add general feedback
+        feedback.push_str("The generated template needs improvement. ");
+
+        if !validation.is_valid {
+            feedback.push_str("Critical issues must be fixed: ");
+            let errors: Vec<_> = validation.issues.iter()
+                .filter(|i| matches!(i.severity, crate::generators::validator::Severity::Error))
+                .collect();
+            for (i, error) in errors.iter().enumerate() {
+                if i > 0 { feedback.push_str(", "); }
+                feedback.push_str(&error.description);
+            }
+            feedback.push('\n');
+        }
+
+        // Add quality improvement suggestions
+        if validation.quality_score < 0.7 {
+            feedback.push_str("Quality improvements needed:\n");
+            for suggestion in &validation.suggestions {
+                feedback.push_str(&format!("- {}\n", suggestion));
+            }
+        }
+
+        // Add requirement-specific feedback
+        feedback.push_str("\nOriginal requirements:\n");
+        for req in requirements {
+            feedback.push_str(&format!("- {}\n", req));
+        }
+
+        Ok(feedback)
     }
 }
 

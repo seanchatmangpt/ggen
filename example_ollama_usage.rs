@@ -111,3 +111,4 @@ fn get_user(id: i32) -> Result<User, String> {
     println!("\n🎉 ggen-ai with Ollama qwen3-coder:30b completed!");
     Ok(())
 }
+

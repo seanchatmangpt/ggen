@@ -116,7 +116,7 @@ impl GgenAiMcpServer {
     
     /// Initialize with Ollama client and specific model
     pub fn with_ollama_model(mut self, model: &str) -> Self {
-        self.ai_tools = self.ai_tools.with_ollama();
+        self.ai_tools = self.ai_tools.with_ollama_model(model);
         self
     }
     

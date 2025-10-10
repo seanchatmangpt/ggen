@@ -395,11 +395,39 @@ impl RefactorAssistant {
     }
     
     /// Parse suggestions from text (fallback)
-    fn parse_suggestions_from_text(&self, _content: &str) -> Result<Vec<RefactoringSuggestion>> {
+    fn parse_suggestions_from_text(&self, content: &str) -> Result<Vec<RefactoringSuggestion>> {
         // Simple text parsing implementation
-        // This is a placeholder - in a real implementation, you'd parse the text
-        // to extract suggestions
-        Ok(vec![])
+        // Extract suggestions from markdown-style text format
+        let mut suggestions = Vec::new();
+        let lines: Vec<&str> = content.lines().collect();
+
+        let mut i = 0;
+        while i < lines.len() {
+            let line = lines[i].trim();
+
+            // Look for numbered suggestions (e.g., "1. **ExtractMethod**: Description")
+            if line.starts_with(char::is_numeric) && line.contains("**") {
+                if let Some(type_start) = line.find("**") {
+                    if let Some(type_end) = line[type_start + 2..].find("**") {
+                        let suggestion_type_str = &line[type_start + 2..type_start + 2 + type_end];
+                        let description = line[type_start + 4 + type_end..].trim_start_matches(':').trim();
+
+                        suggestions.push(RefactoringSuggestion {
+                            suggestion_type: self.parse_suggestion_type(suggestion_type_str),
+                            description: description.to_string(),
+                            suggested_code: String::new(),
+                            confidence: 0.7,
+                            reasoning: String::new(),
+                            impact: ImpactLevel::Medium,
+                        });
+                    }
+                }
+            }
+
+            i += 1;
+        }
+
+        Ok(suggestions)
     }
     
     /// Get the LLM client

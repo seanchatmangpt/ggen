@@ -4,7 +4,6 @@ use crate::client::{LlmClient, LlmConfig, LlmResponse, LlmChunk};
 use crate::error::{GgenAiError, Result};
 use async_trait::async_trait;
 use futures::stream::BoxStream;
-use futures::StreamExt;
 
 /// Mock client for testing
 #[derive(Debug)]
@@ -32,7 +31,7 @@ impl MockClient {
 impl LlmClient for MockClient {
     async fn complete(&self, prompt: &str, _config: Option<LlmConfig>) -> Result<LlmResponse> {
         let response = self.responses.get(self.current_index)
-            .ok_or_else(|| GgenAiError::llm_provider("No more mock responses"))?;
+            .ok_or_else(|| GgenAiError::llm_provider("MockClient", "No more mock responses"))?;
         
         Ok(LlmResponse {
             content: response.clone(),
@@ -52,7 +51,7 @@ impl LlmClient for MockClient {
         _config: Option<LlmConfig>,
     ) -> Result<BoxStream<'static, Result<LlmChunk>>> {
         let response = self.responses.get(self.current_index)
-            .ok_or_else(|| GgenAiError::llm_provider("No more mock responses"))?;
+            .ok_or_else(|| GgenAiError::llm_provider("MockClient", "No more mock responses"))?;
         
         // Split response into chunks for streaming
         let chunks: Vec<LlmChunk> = response
@@ -97,6 +96,7 @@ impl LlmClient for MockClient {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use futures::StreamExt;
     
     #[tokio::test]
     async fn test_mock_client() {

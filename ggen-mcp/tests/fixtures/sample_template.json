@@ -1,0 +1,25 @@
+{
+  "name": "sample-rust-api",
+  "version": "1.0.0",
+  "description": "Sample Rust API template for testing",
+  "author": "Test Suite",
+  "files": [
+    {
+      "path": "src/main.rs",
+      "content": "use actix_web::{web, App, HttpServer};\n\n#[actix_web::main]\nasync fn main() -> std::io::Result<()> {\n    HttpServer::new(|| {\n        App::new()\n            .route(\"/\", web::get().to(|| async { \"Hello World!\" }))\n    })\n    .bind((\"127.0.0.1\", 8080))?\n    .run()\n    .await\n}\n"
+    },
+    {
+      "path": "Cargo.toml",
+      "content": "[package]\nname = \"{{project_name}}\"\nversion = \"0.1.0\"\nedition = \"2021\"\n\n[dependencies]\nactix-web = \"4.4\"\ntokio = { version = \"1\", features = [\"full\"] }\n"
+    },
+    {
+      "path": "README.md",
+      "content": "# {{project_name}}\n\nA simple Rust API server built with Actix-web.\n\n## Running\n\n```bash\ncargo run\n```\n"
+    }
+  ],
+  "variables": {
+    "project_name": "rust-api-server",
+    "author": "Your Name",
+    "description": "API server"
+  }
+}

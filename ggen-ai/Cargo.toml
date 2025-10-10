@@ -20,6 +20,10 @@ async-trait = "0.1"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 
+# Configuration and environment
+dotenvy = "0.15"
+toml = "0.8"
+
 # Error handling
 anyhow = "1"
 thiserror = "1"
