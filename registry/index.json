@@ -1,0 +1,51 @@
+{
+  "updated": "2025-10-09T00:00:00Z",
+  "packs": {
+    "io.ggen.rust.cli-subcommand": {
+      "id": "io.ggen.rust.cli-subcommand",
+      "name": "Rust CLI Subcommand Generator",
+      "description": "Generate clap subcommands for Rust CLI applications with full argument parsing",
+      "tags": ["rust", "cli", "clap", "subcommand"],
+      "keywords": ["command-line", "argument-parsing", "interactive", "help"],
+      "category": "rust",
+      "author": "ggen-team",
+      "latest_version": "1.2.0",
+      "downloads": 15420,
+      "license": "MIT",
+      "homepage": "https://ggen.dev/templates/rust-cli",
+      "repository": "https://github.com/ggen-team/rust-cli-templates",
+      "documentation": "https://docs.ggen.dev/rust-cli",
+      "versions": {
+        "1.2.0": {
+          "version": "1.2.0",
+          "git_url": "https://github.com/ggen-team/rust-cli-templates.git",
+          "git_rev": "abc123",
+          "sha256": "def456"
+        }
+      }
+    },
+    "io.ggen.python.web-api": {
+      "id": "io.ggen.python.web-api",
+      "name": "Python Web API Generator",
+      "description": "Generate FastAPI web APIs with database models and authentication",
+      "tags": ["python", "web", "api", "fastapi"],
+      "keywords": ["rest-api", "database", "auth", "swagger", "async"],
+      "category": "python",
+      "author": "python-dev",
+      "latest_version": "2.1.0-beta.1",
+      "downloads": 8932,
+      "license": "Apache-2.0",
+      "homepage": "https://ggen.dev/templates/python-web",
+      "repository": "https://github.com/python-dev/web-api-templates",
+      "documentation": "https://docs.ggen.dev/python-web",
+      "versions": {
+        "2.1.0-beta.1": {
+          "version": "2.1.0-beta.1",
+          "git_url": "https://github.com/python-dev/web-api-templates.git",
+          "git_rev": "xyz789",
+          "sha256": "ghi012"
+        }
+      }
+    }
+  }
+}

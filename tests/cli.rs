@@ -227,7 +227,7 @@ fn test_cli_basic() {
 
 #[test]
 fn test_version() {
-    let expected_version = "ggen 0.2.0\n";
+    let expected_version = "ggen 0.2.3\n";
     let mut cmd = Command::cargo_bin("ggen").expect("Calling binary failed");
     cmd.arg("--version").assert().stdout(expected_version);
 }
@@ -441,7 +441,7 @@ fn test_cli_integration_with_mock_registry() -> Result<()> {
 
     // Test that the mock registry works
     // Note: Simplified test without URL dependency
-    let client = RegistryClient::new()?;
+    let _client = RegistryClient::new()?;
 
     // Test mock results instead of async registry call
     let results = ["rust-cli".to_string()]; // Mock results

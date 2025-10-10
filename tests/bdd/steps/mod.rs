@@ -8,13 +8,22 @@ pub mod quickstart_steps;
 pub mod rdf_steps;
 pub mod template_steps;
 
-// Import all step definitions so they're registered with cucumber
-use cli_steps::*;
-use common_steps::*;
-use determinism_steps::*;
-use installation_steps::*;
-use marketplace_steps::*;
-use multilang_steps::*;
-use quickstart_steps::*;
-use rdf_steps::*;
-use template_steps::*;
+// Re-export step modules for cucumber registration
+#[allow(unused_imports)]
+pub use cli_steps::*;
+#[allow(unused_imports)]
+pub use common_steps::*;
+#[allow(unused_imports)]
+pub use determinism_steps::*;
+#[allow(unused_imports)]
+pub use installation_steps::*;
+#[allow(unused_imports)]
+pub use marketplace_steps::*;
+#[allow(unused_imports)]
+pub use multilang_steps::*;
+#[allow(unused_imports)]
+pub use quickstart_steps::*;
+#[allow(unused_imports)]
+pub use rdf_steps::*;
+#[allow(unused_imports)]
+pub use template_steps::*;

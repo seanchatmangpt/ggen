@@ -7,6 +7,7 @@ use bdd::world::GgenWorld;
 use cucumber::World as _;
 
 // Import step definitions to ensure they're registered
+#[allow(unused_imports)]
 use bdd::steps::*;
 
 /// BDD Test Suite for ggen
