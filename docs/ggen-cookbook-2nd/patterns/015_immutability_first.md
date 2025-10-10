@@ -1,3 +1,28 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Pattern 015: Immutability First (Freeze Blocks)](#pattern-015-immutability-first-freeze-blocks)
+  - [Intent](#intent)
+  - [Motivation](#motivation)
+  - [Applicability](#applicability)
+  - [Structure](#structure)
+  - [Implementation](#implementation)
+    - [Basic Freeze Block](#basic-freeze-block)
+    - [First Generation Output](#first-generation-output)
+    - [After Manual Customization](#after-manual-customization)
+    - [Regeneration with Template Update](#regeneration-with-template-update)
+  - [Advanced Example: Multi-Level Freeze](#advanced-example-multi-level-freeze)
+  - [Freeze Block Naming Conventions](#freeze-block-naming-conventions)
+  - [Best Practices](#best-practices)
+  - [Anti-Patterns](#anti-patterns)
+  - [Benefits](#benefits)
+  - [Related Patterns](#related-patterns)
+  - [Known Uses](#known-uses)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Pattern 015: Immutability First (Freeze Blocks)
 
 ## Intent

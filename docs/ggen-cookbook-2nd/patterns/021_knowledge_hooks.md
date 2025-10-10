@@ -1,3 +1,38 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Pattern 021: Knowledge Hooks](#pattern-021-knowledge-hooks)
+  - [Intent](#intent)
+  - [Also Known As](#also-known-as)
+  - [Motivation](#motivation)
+  - [Applicability](#applicability)
+  - [Structure](#structure)
+    - [Key Components](#key-components)
+  - [Implementation](#implementation)
+    - [Git Pre-Commit Hook](#git-pre-commit-hook)
+    - [Git Post-Merge Hook](#git-post-merge-hook)
+    - [CI/CD Pipeline Hook (GitHub Actions)](#cicd-pipeline-hook-github-actions)
+    - [File System Watcher (Development Mode)](#file-system-watcher-development-mode)
+  - [Sample Code](#sample-code)
+    - [Smart Hook with Change Analysis](#smart-hook-with-change-analysis)
+    - [Rollback-Safe Hook](#rollback-safe-hook)
+  - [Consequences](#consequences)
+    - [Benefits](#benefits)
+    - [Drawbacks](#drawbacks)
+    - [Mitigations](#mitigations)
+  - [Implementation Notes](#implementation-notes)
+    - [Hook Installation Automation](#hook-installation-automation)
+    - [Configuration for Hook Behavior](#configuration-for-hook-behavior)
+  - [Related Patterns](#related-patterns)
+  - [Known Uses](#known-uses)
+    - [Linux Kernel SPARQL Interface](#linux-kernel-sparql-interface)
+    - [Rust Compiler Documentation](#rust-compiler-documentation)
+    - [Enterprise Code Search](#enterprise-code-search)
+  - [Example: Complete Hook Suite](#example-complete-hook-suite)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Pattern 021: Knowledge Hooks
 
 ## Intent

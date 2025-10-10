@@ -1,3 +1,38 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [A Knowledge Hook for Documentation Sync](#a-knowledge-hook-for-documentation-sync)
+  - [What You'll Build](#what-youll-build)
+  - [Prerequisites](#prerequisites)
+  - [Step-by-Step Instructions](#step-by-step-instructions)
+    - [1. Extend the Module Graph with Documentation Metadata](#1-extend-the-module-graph-with-documentation-metadata)
+    - [2. Create the Documentation Generator Template](#2-create-the-documentation-generator-template)
+  - [Examples](#examples)
+    - [{{getProperty props "doc:title"}}](#getproperty-props-doctitle)
+  - [Integration](#integration)
+    - [4. Generate the Documentation](#4-generate-the-documentation)
+    - [5. Verify Generated Documentation](#5-verify-generated-documentation)
+    - [`verify`](#verify)
+  - [Examples](#examples-1)
+    - [Basic Login Flow](#basic-login-flow)
+    - [7. Add a Git Pre-Commit Hook](#7-add-a-git-pre-commit-hook)
+    - [8. Test the Hook](#8-test-the-hook)
+  - [Expected Output](#expected-output)
+  - [Verification Steps](#verification-steps)
+  - [What's Happening](#whats-happening)
+    - [Knowledge Graph as Source of Truth](#knowledge-graph-as-source-of-truth)
+    - [Relationship Traversal for Documentation](#relationship-traversal-for-documentation)
+    - [Bidirectional Sync](#bidirectional-sync)
+  - [Try These Experiments](#try-these-experiments)
+  - [Next Steps](#next-steps)
+    - [Related Patterns](#related-patterns)
+    - [More Recipes](#more-recipes)
+    - [Advanced Topics](#advanced-topics)
+  - [Common Issues](#common-issues)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # A Knowledge Hook for Documentation Sync
 
 ⏱️ **15 minutes** | 🎯 **Advanced** | 🏷️ `knowledge-hooks` `documentation` `automation` `markdown`

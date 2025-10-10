@@ -1,3 +1,41 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Pattern 024: Git-as-Runtime](#pattern-024-git-as-runtime)
+  - [Intent](#intent)
+  - [Also Known As](#also-known-as)
+  - [Motivation](#motivation)
+  - [Applicability](#applicability)
+  - [Structure](#structure)
+    - [Key Components](#key-components)
+  - [Implementation](#implementation)
+    - [Repository Structure](#repository-structure)
+    - [Git Hooks Integration](#git-hooks-integration)
+      - [Pre-Commit Hook (Graph Generation)](#pre-commit-hook-graph-generation)
+      - [Post-Merge Hook (Consistency Rebuild)](#post-merge-hook-consistency-rebuild)
+      - [Post-Checkout Hook (Branch Sync)](#post-checkout-hook-branch-sync)
+    - [Git-LFS for Large Graphs](#git-lfs-for-large-graphs)
+    - [CI/CD Integration](#cicd-integration)
+  - [Sample Code](#sample-code)
+    - [Graph Versioning CLI](#graph-versioning-cli)
+    - [CLI Commands for Git Integration](#cli-commands-for-git-integration)
+  - [Consequences](#consequences)
+    - [Benefits](#benefits)
+    - [Drawbacks](#drawbacks)
+    - [Mitigations](#mitigations)
+  - [Implementation Notes](#implementation-notes)
+    - [Semantic Graph Diffs](#semantic-graph-diffs)
+    - [Hook Installation Script](#hook-installation-script)
+  - [Related Patterns](#related-patterns)
+  - [Known Uses](#known-uses)
+    - [Linux Kernel Documentation](#linux-kernel-documentation)
+    - [Rust Language Reference](#rust-language-reference)
+    - [Scientific Reproducibility](#scientific-reproducibility)
+  - [Example: Complete Workflow](#example-complete-workflow)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Pattern 024: Git-as-Runtime
 
 ## Intent

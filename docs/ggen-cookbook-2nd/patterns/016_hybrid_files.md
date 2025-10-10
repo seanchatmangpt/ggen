@@ -1,3 +1,30 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Pattern 016: Hybrid Files (Once Tags)](#pattern-016-hybrid-files-once-tags)
+  - [Intent](#intent)
+  - [Motivation](#motivation)
+  - [Applicability](#applicability)
+  - [Structure](#structure)
+  - [Implementation](#implementation)
+    - [Basic Once Block](#basic-once-block)
+    - [First Generation](#first-generation)
+    - [User Customizes Once Block](#user-customizes-once-block)
+    - [Template Updated with New Field](#template-updated-with-new-field)
+    - [After Regeneration](#after-regeneration)
+  - [Advanced Example: Database Migrations](#advanced-example-database-migrations)
+  - [Combining Once and Freeze Blocks](#combining-once-and-freeze-blocks)
+  - [Comparison Table](#comparison-table)
+  - [Best Practices](#best-practices)
+  - [Anti-Patterns](#anti-patterns)
+  - [Benefits](#benefits)
+  - [Related Patterns](#related-patterns)
+  - [Known Uses](#known-uses)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Pattern 016: Hybrid Files (Once Tags)
 
 ## Intent

@@ -1,3 +1,32 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Chapter: Scheduling - Temporal Patterns for Autonomic Maintenance](#chapter-scheduling---temporal-patterns-for-autonomic-maintenance)
+  - [Beyond Reactive: Proactive Graph Maintenance](#beyond-reactive-proactive-graph-maintenance)
+  - [Pattern: Scheduled Graph Maintenance](#pattern-scheduled-graph-maintenance)
+    - [Use Cases](#use-cases)
+    - [Implementation Strategies](#implementation-strategies)
+      - [1. Cron-Based Scheduling (Linux/Unix)](#1-cron-based-scheduling-linuxunix)
+      - [2. GitHub Actions (CI/CD Scheduling)](#2-github-actions-cicd-scheduling)
+      - [3. SystemD Timers (Linux Systems)](#3-systemd-timers-linux-systems)
+  - [Scheduled Task Types](#scheduled-task-types)
+    - [1. Consistency Validation](#1-consistency-validation)
+    - [2. Performance Optimization](#2-performance-optimization)
+    - [3. Metrics Collection](#3-metrics-collection)
+    - [4. Cleanup and Pruning](#4-cleanup-and-pruning)
+  - [Configuration](#configuration)
+  - [Monitoring and Alerting](#monitoring-and-alerting)
+    - [Health Checks](#health-checks)
+    - [Alerting](#alerting)
+  - [Advanced Patterns](#advanced-patterns)
+    - [Incremental Metrics (Time-Series)](#incremental-metrics-time-series)
+    - [Self-Healing](#self-healing)
+  - [Testing Scheduled Tasks](#testing-scheduled-tasks)
+  - [Summary: The Temporal Layer](#summary-the-temporal-layer)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Chapter: Scheduling - Temporal Patterns for Autonomic Maintenance
 
 ## Beyond Reactive: Proactive Graph Maintenance

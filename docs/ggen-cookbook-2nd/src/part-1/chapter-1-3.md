@@ -1,3 +1,45 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [1.3 Why Patterns for Code Generation?](#13-why-patterns-for-code-generation)
+  - [The Unique Challenges of Code Generation](#the-unique-challenges-of-code-generation)
+  - [Why Traditional Approaches Fall Short](#why-traditional-approaches-fall-short)
+    - [**Monolithic Generators**](#monolithic-generators)
+    - [**Ad-hoc Templates**](#ad-hoc-templates)
+    - [**Framework-Specific Tools**](#framework-specific-tools)
+  - [How Patterns Address These Challenges](#how-patterns-address-these-challenges)
+    - [**1. Scalable Complexity**](#1-scalable-complexity)
+    - [**2. Consistent Approaches**](#2-consistent-approaches)
+    - [**3. Composability**](#3-composability)
+    - [**4. Testability**](#4-testability)
+  - [The GGen Pattern Language](#the-ggen-pattern-language)
+    - [**Foundation Patterns**](#foundation-patterns)
+    - [**Generation Patterns**](#generation-patterns)
+    - [**Workflow Patterns**](#workflow-patterns)
+    - [**Integration Patterns**](#integration-patterns)
+  - [Real-World Benefits](#real-world-benefits)
+    - [**For Individual Developers**](#for-individual-developers)
+    - [**For Teams**](#for-teams)
+    - [**For Organizations**](#for-organizations)
+  - [Example: Building an API Generator](#example-building-an-api-generator)
+    - [**Problem**: Generate a REST API with models, endpoints, and tests](#problem-generate-a-rest-api-with-models-endpoints-and-tests)
+    - [**Pattern Composition**:](#pattern-composition)
+    - [**Result**: A complete, consistent, testable API generator](#result-a-complete-consistent-testable-api-generator)
+  - [The Pattern Language Advantage](#the-pattern-language-advantage)
+    - [**1. Emergent Complexity**](#1-emergent-complexity)
+    - [**2. Living System**](#2-living-system)
+    - [**3. Context Sensitivity**](#3-context-sensitivity)
+    - [**4. Wholeness**](#4-wholeness)
+  - [Getting Started with Patterns](#getting-started-with-patterns)
+    - [**1. Study Existing Patterns**](#1-study-existing-patterns)
+    - [**2. Identify Your Context**](#2-identify-your-context)
+    - [**3. Apply Relevant Patterns**](#3-apply-relevant-patterns)
+    - [**4. Document New Patterns**](#4-document-new-patterns)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 1.3 Why Patterns for Code Generation?
 
 ## The Unique Challenges of Code Generation

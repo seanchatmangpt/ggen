@@ -1,3 +1,21 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Chapter 1: The Problem with Code](#chapter-1-the-problem-with-code)
+  - [The Paradox of Modern Development](#the-paradox-of-modern-development)
+  - [The 80/20 Inversion](#the-8020-inversion)
+  - [The Root Cause: Code as Primary Artifact](#the-root-cause-code-as-primary-artifact)
+    - [The Consequences](#the-consequences)
+  - [A Real-World Example](#a-real-world-example)
+  - [The Question](#the-question)
+  - [The Vision](#the-vision)
+  - [The GGen Answer](#the-ggen-answer)
+  - [What You'll Learn](#what-youll-learn)
+  - [The Journey Ahead](#the-journey-ahead)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Chapter 1: The Problem with Code
 
 ## The Paradox of Modern Development

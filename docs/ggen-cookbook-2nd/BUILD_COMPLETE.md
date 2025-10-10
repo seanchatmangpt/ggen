@@ -1,3 +1,36 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GGen Cookbook 2nd Edition - Build Complete ✅](#ggen-cookbook-2nd-edition---build-complete-)
+  - [📚 Book Overview](#-book-overview)
+  - [🎯 What Was Built](#-what-was-built)
+    - [Core Structure](#core-structure)
+    - [Part I: The Foundation (Philosophy)](#part-i-the-foundation-philosophy)
+    - [Part II: Core Engine & CLI (Practice)](#part-ii-core-engine--cli-practice)
+    - [Part III: Authoring Language (Templates)](#part-iii-authoring-language-templates)
+    - [Part IV: Autonomic System (Self-Healing)](#part-iv-autonomic-system-self-healing)
+    - [Part V: The Ecosystem (Marketplace)](#part-v-the-ecosystem-marketplace)
+    - [Part VI: Advanced & Enterprise](#part-vi-advanced--enterprise)
+  - [📋 Patterns Documented (13 Complete)](#-patterns-documented-13-complete)
+    - [Foundational Patterns (★★★)](#foundational-patterns-%E2%98%85%E2%98%85%E2%98%85)
+    - [Workflow Patterns (★★★)](#workflow-patterns-%E2%98%85%E2%98%85%E2%98%85)
+    - [Template Authoring Patterns (★★★/★★)](#template-authoring-patterns-%E2%98%85%E2%98%85%E2%98%85%E2%98%85%E2%98%85)
+    - [Autonomic Patterns (★★★/★★)](#autonomic-patterns-%E2%98%85%E2%98%85%E2%98%85%E2%98%85%E2%98%85)
+  - [🍳 Recipes Created (5 Complete)](#-recipes-created-5-complete)
+  - [📖 Appendices](#-appendices)
+  - [📊 Statistics](#-statistics)
+  - [🎯 Definition of Done Compliance](#-definition-of-done-compliance)
+  - [🚀 How to Use](#-how-to-use)
+    - [View the Book](#view-the-book)
+    - [Build the Book](#build-the-book)
+    - [Structure](#structure)
+  - [🎨 Key Features](#-key-features)
+  - [📝 Next Steps](#-next-steps)
+  - [🏆 Achievement Unlocked](#-achievement-unlocked)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GGen Cookbook 2nd Edition - Build Complete ✅
 
 ## 📚 Book Overview

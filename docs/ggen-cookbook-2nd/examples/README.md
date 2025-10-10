@@ -1,3 +1,23 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GGen Cookbook Examples](#ggen-cookbook-examples)
+  - [Organization](#organization)
+  - [Running Examples](#running-examples)
+    - [Prerequisites](#prerequisites)
+    - [Basic Usage](#basic-usage)
+    - [Advanced Usage](#advanced-usage)
+  - [Example Categories](#example-categories)
+    - [Chapter Examples](#chapter-examples)
+    - [Pattern Examples](#pattern-examples)
+    - [Recipe Examples](#recipe-examples)
+  - [Contributing Examples](#contributing-examples)
+  - [Getting Help](#getting-help)
+  - [License](#license)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GGen Cookbook Examples
 
 This directory contains runnable examples that demonstrate GGen's pattern language approach to code generation. All examples are tested, documented, and ready to use.
