@@ -1,3 +1,32 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Chapter: Git-as-Runtime - Version Control as Execution Substrate](#chapter-git-as-runtime---version-control-as-execution-substrate)
+  - [The Central Insight](#the-central-insight)
+  - [Pattern 024: Git-as-Runtime](#pattern-024-git-as-runtime)
+    - [Core Principles](#core-principles)
+    - [Repository Structure](#repository-structure)
+    - [Why This Works](#why-this-works)
+  - [Git Operations as Computation Triggers](#git-operations-as-computation-triggers)
+    - [Pre-Commit: Incremental Updates](#pre-commit-incremental-updates)
+    - [Post-Merge: Consistency Rebuilds](#post-merge-consistency-rebuilds)
+    - [Post-Checkout: Branch Synchronization](#post-checkout-branch-synchronization)
+  - [Git History as Graph Evolution](#git-history-as-graph-evolution)
+    - [Time Travel Queries](#time-travel-queries)
+    - [Graph History Log](#graph-history-log)
+  - [Handling Large Graphs: Git LFS](#handling-large-graphs-git-lfs)
+  - [CI/CD Integration](#cicd-integration)
+    - [Graph Validation Pipeline](#graph-validation-pipeline)
+    - [Auto-Update on Merge](#auto-update-on-merge)
+  - [Merge Conflict Resolution](#merge-conflict-resolution)
+  - [Semantic Diff Tooling](#semantic-diff-tooling)
+  - [Benefits Recap](#benefits-recap)
+  - [Limitations and Mitigations](#limitations-and-mitigations)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Chapter: Git-as-Runtime - Version Control as Execution Substrate
 
 ## The Central Insight

@@ -1,3 +1,23 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GGen Cookbook 2nd Edition - Structure Complete](#ggen-cookbook-2nd-edition---structure-complete)
+  - [✅ Deliverables Completed](#-deliverables-completed)
+    - [1. mdBook Configuration (`book.toml`)](#1-mdbook-configuration-booktoml)
+    - [2. Complete Table of Contents (`SUMMARY.md`)](#2-complete-table-of-contents-summarymd)
+    - [3. Preface](#3-preface)
+    - [4. Introduction](#4-introduction)
+  - [📁 Complete Structure](#-complete-structure)
+  - [📊 Statistics](#-statistics)
+  - [🎯 Pattern Language Structure](#-pattern-language-structure)
+  - [🚀 Building the Book](#-building-the-book)
+  - [✅ Build Verification](#-build-verification)
+  - [📝 Next Steps](#-next-steps)
+  - [🔗 Key Files](#-key-files)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GGen Cookbook 2nd Edition - Structure Complete
 
 ## ✅ Deliverables Completed

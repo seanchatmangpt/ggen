@@ -1,3 +1,36 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GGen Cookbook Recipes](#ggen-cookbook-recipes)
+  - [Recipe Categories](#recipe-categories)
+    - [Quick Start](#quick-start)
+    - [Common Tasks](#common-tasks)
+    - [Advanced](#advanced)
+    - [Enterprise](#enterprise)
+    - [Troubleshooting](#troubleshooting)
+  - [How to Use Recipes](#how-to-use-recipes)
+    - [1. Choose a Recipe](#1-choose-a-recipe)
+    - [2. Follow Step-by-Step](#2-follow-step-by-step)
+    - [3. Customize for Your Needs](#3-customize-for-your-needs)
+    - [4. Share Your Improvements](#4-share-your-improvements)
+  - [Recipe Structure](#recipe-structure)
+    - [Overview](#overview)
+    - [Step-by-Step Instructions](#step-by-step-instructions)
+    - [Advanced Usage](#advanced-usage)
+    - [Troubleshooting](#troubleshooting-1)
+  - [Contributing Recipes](#contributing-recipes)
+    - [Recipe Guidelines](#recipe-guidelines)
+    - [Submission Process](#submission-process)
+    - [Review Process](#review-process)
+  - [Getting Help](#getting-help)
+    - [Documentation](#documentation)
+    - [Community](#community)
+    - [Professional Support](#professional-support)
+  - [License](#license)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GGen Cookbook Recipes
 
 This directory contains practical, step-by-step recipes for common code generation tasks using GGen's pattern language approach.

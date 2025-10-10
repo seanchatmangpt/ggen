@@ -1,3 +1,38 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Pattern 022: Delta-Driven Regeneration](#pattern-022-delta-driven-regeneration)
+  - [Intent](#intent)
+  - [Also Known As](#also-known-as)
+  - [Motivation](#motivation)
+  - [Applicability](#applicability)
+  - [Structure](#structure)
+    - [Key Components](#key-components)
+  - [Implementation](#implementation)
+    - [Basic Delta Detection (Git-Based)](#basic-delta-detection-git-based)
+    - [Impact Analysis via Dependency Graph](#impact-analysis-via-dependency-graph)
+    - [Incremental Graph Update](#incremental-graph-update)
+  - [Sample Code](#sample-code)
+    - [CLI Integration](#cli-integration)
+    - [Pre-Commit Hook with Delta Detection](#pre-commit-hook-with-delta-detection)
+  - [Consequences](#consequences)
+    - [Benefits](#benefits)
+    - [Drawbacks](#drawbacks)
+    - [Mitigations](#mitigations)
+  - [Implementation Notes](#implementation-notes)
+    - [Consistency Validation](#consistency-validation)
+    - [Dependency Graph Caching](#dependency-graph-caching)
+    - [Performance Benchmarks](#performance-benchmarks)
+  - [Related Patterns](#related-patterns)
+  - [Known Uses](#known-uses)
+    - [Rust Analyzer](#rust-analyzer)
+    - [TypeScript Language Server](#typescript-language-server)
+    - [Bazel Build System](#bazel-build-system)
+  - [Example: Full vs. Incremental Comparison](#example-full-vs-incremental-comparison)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Pattern 022: Delta-Driven Regeneration
 
 ## Intent

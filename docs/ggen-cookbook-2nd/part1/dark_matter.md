@@ -1,3 +1,30 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Chapter 2: Dark Matter—The 80/20 of Software](#chapter-2-dark-matterthe-8020-of-software)
+  - [The Invisible Mass](#the-invisible-mass)
+  - [What is Software Dark Matter?](#what-is-software-dark-matter)
+  - [Category 1: Synchronization Work](#category-1-synchronization-work)
+    - [The Type Treadmill](#the-type-treadmill)
+    - [The Documentation Decay](#the-documentation-decay)
+  - [Category 2: Boilerplate Ritual](#category-2-boilerplate-ritual)
+    - [CRUD Multiplication](#crud-multiplication)
+    - [Error Handling Boilerplate](#error-handling-boilerplate)
+  - [Category 3: Migration Gymnastics](#category-3-migration-gymnastics)
+    - [Schema Evolution Dance](#schema-evolution-dance)
+    - [Version Synchronization](#version-synchronization)
+  - [Category 4: Test Maintenance](#category-4-test-maintenance)
+    - [The Test Mirror](#the-test-mirror)
+  - [Measuring the Dark Matter](#measuring-the-dark-matter)
+  - [The Compounding Effect](#the-compounding-effect)
+  - [Why We Accept This](#why-we-accept-this)
+  - [The Knowledge-First Alternative](#the-knowledge-first-alternative)
+  - [The Promise](#the-promise)
+  - [The Path Forward](#the-path-forward)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Chapter 2: Dark Matter—The 80/20 of Software
 
 ## The Invisible Mass

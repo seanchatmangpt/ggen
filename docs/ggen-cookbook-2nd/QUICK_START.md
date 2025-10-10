@@ -1,3 +1,38 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GGen Cookbook 2nd Edition - Quick Start Guide](#ggen-cookbook-2nd-edition---quick-start-guide)
+  - [🚀 For Readers](#-for-readers)
+    - [View the Book Locally](#view-the-book-locally)
+    - [Build Static HTML](#build-static-html)
+  - [✍️ For Content Authors](#-for-content-authors)
+    - [File Locations](#file-locations)
+    - [Content Priority Order](#content-priority-order)
+    - [Writing Guidelines](#writing-guidelines)
+    - [Pattern Template](#pattern-template)
+  - [🔧 Development Workflow](#-development-workflow)
+    - [Before Writing](#before-writing)
+    - [While Writing](#while-writing)
+    - [After Writing](#after-writing)
+  - [📚 Markdown Tips](#-markdown-tips)
+    - [Code Blocks](#code-blocks)
+    - [Callouts](#callouts)
+    - [Cross-References](#cross-references)
+    - [Diagrams](#diagrams)
+  - [🎯 Quality Checklist](#-quality-checklist)
+  - [📖 Style Guide](#-style-guide)
+    - [Voice and Tone](#voice-and-tone)
+    - [Formatting](#formatting)
+    - [Code Examples](#code-examples)
+  - [🔗 Resources](#-resources)
+    - [mdBook Documentation](#mdbook-documentation)
+    - [GGen Resources](#ggen-resources)
+    - [Pattern Language](#pattern-language)
+  - [🆘 Getting Help](#-getting-help)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GGen Cookbook 2nd Edition - Quick Start Guide
 
 ## 🚀 For Readers

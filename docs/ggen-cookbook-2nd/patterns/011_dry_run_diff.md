@@ -1,3 +1,42 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Pattern 011: DRY-RUN DIFF](#pattern-011-dry-run-diff)
+  - [Problem](#problem)
+  - [Solution](#solution)
+  - [Prerequisites](#prerequisites)
+  - [Step-by-Step](#step-by-step)
+    - [1. Preview Changes for a Template](#1-preview-changes-for-a-template)
+    - [2. Preview Changes from a Plan](#2-preview-changes-from-a-plan)
+    - [3. Save Diff for Review](#3-save-diff-for-review)
+  - [Complete Example](#complete-example)
+  - [Explanation](#explanation)
+    - [Diff Output Format](#diff-output-format)
+      - [New File Creation](#new-file-creation)
+      - [File Modification](#file-modification)
+      - [No Changes (Idempotent)](#no-changes-idempotent)
+    - [Diff Modes](#diff-modes)
+      - [1. **Template Diff** (default)](#1-template-diff-default)
+      - [2. **Plan Diff**](#2-plan-diff)
+      - [3. **Unified Diff Format**](#3-unified-diff-format)
+  - [Expected Output](#expected-output)
+  - [Common Pitfalls](#common-pitfalls)
+  - [Variations](#variations)
+    - [💡 Filter Diff by Path](#-filter-diff-by-path)
+    - [💡 Context Lines](#-context-lines)
+    - [💡 Side-by-Side Diff](#-side-by-side-diff)
+    - [💡 Stats Only](#-stats-only)
+  - [Troubleshooting](#troubleshooting)
+  - [Code Review Integration](#code-review-integration)
+    - [GitHub PR Comments](#github-pr-comments)
+    - [Git Pre-commit Hook](#git-pre-commit-hook)
+    - [CI/CD Verification](#cicd-verification)
+  - [See Also](#see-also)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Pattern 011: DRY-RUN DIFF
 
 **Difficulty**: ⭐ Beginner

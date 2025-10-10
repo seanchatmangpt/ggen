@@ -1,3 +1,22 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Chapter 1: The Pattern Language](#chapter-1-the-pattern-language)
+  - [Overview](#overview)
+  - [What You'll Learn](#what-youll-learn)
+  - [Chapter Structure](#chapter-structure)
+  - [Key Concepts](#key-concepts)
+    - [**Pattern Language**](#pattern-language)
+    - [**Alexandrian Approach**](#alexandrian-approach)
+    - [**Code Generation Patterns**](#code-generation-patterns)
+    - [**Composability**](#composability)
+  - [The Pattern Language Advantage](#the-pattern-language-advantage)
+  - [Example: The Knowledge-First Pattern](#example-the-knowledge-first-pattern)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Chapter 1: The Pattern Language
 
 ## Overview

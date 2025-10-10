@@ -1,3 +1,18 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Summary](#summary)
+- [Part I: The Foundation](#part-i-the-foundation)
+- [Part II: Core Engine & CLI](#part-ii-core-engine--cli)
+- [Part III: Authoring Language](#part-iii-authoring-language)
+- [Part IV: Autonomic System](#part-iv-autonomic-system)
+- [Part V: The Ecosystem](#part-v-the-ecosystem)
+- [Part VI: Advanced & Enterprise](#part-vi-advanced--enterprise)
+- [Appendices](#appendices)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Summary
 
 [Preface](./preface.md)

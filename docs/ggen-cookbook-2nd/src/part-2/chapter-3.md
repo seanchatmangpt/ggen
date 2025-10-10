@@ -1,3 +1,29 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Chapter 3: The GGen Engine](#chapter-3-the-ggen-engine)
+  - [Overview](#overview)
+  - [What You'll Learn](#what-youll-learn)
+  - [Chapter Structure](#chapter-structure)
+  - [Key Concepts](#key-concepts)
+    - [**Autonomic Engine**](#autonomic-engine)
+    - [**Template Processing Pipeline**](#template-processing-pipeline)
+    - [**Registry System**](#registry-system)
+    - [**Extension Points**](#extension-points)
+  - [Architecture Principles](#architecture-principles)
+  - [The Generate-Validate-Refine Loop](#the-generate-validate-refine-loop)
+  - [Core Components](#core-components)
+    - [**Template Engine**](#template-engine)
+    - [**Graph Store**](#graph-store)
+    - [**Query Engine**](#query-engine)
+    - [**Validation System**](#validation-system)
+    - [**Registry Client**](#registry-client)
+  - [Performance Characteristics](#performance-characteristics)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Chapter 3: The GGen Engine
 
 ## Overview

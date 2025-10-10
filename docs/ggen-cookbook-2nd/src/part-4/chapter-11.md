@@ -1,3 +1,58 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Chapter 11: Self-Configuration](#chapter-11-self-configuration)
+  - [Overview](#overview)
+  - [What You'll Learn](#what-youll-learn)
+  - [Chapter Structure](#chapter-structure)
+  - [Key Concepts](#key-concepts)
+    - [**Self-Configuration**](#self-configuration)
+    - [**Template Discovery**](#template-discovery)
+    - [**Context Detection**](#context-detection)
+    - [**Intelligent Defaults**](#intelligent-defaults)
+  - [The Self-Configuration Loop](#the-self-configuration-loop)
+  - [Context Detection](#context-detection-1)
+    - [**Project Type Detection**](#project-type-detection)
+    - [**Environment Detection**](#environment-detection)
+    - [**Dependency Detection**](#dependency-detection)
+  - [Template Discovery](#template-discovery-1)
+    - [**Local Discovery**](#local-discovery)
+    - [**Registry Discovery**](#registry-discovery)
+    - [**Intelligent Selection**](#intelligent-selection)
+  - [Intelligent Defaults](#intelligent-defaults-1)
+    - [**Language-Specific Defaults**](#language-specific-defaults)
+    - [**Framework-Specific Defaults**](#framework-specific-defaults)
+    - [**Environment-Specific Defaults**](#environment-specific-defaults)
+  - [Configuration Inheritance](#configuration-inheritance)
+    - [**Global Configuration**](#global-configuration)
+    - [**Project Configuration**](#project-configuration)
+    - [**Inheritance Rules**](#inheritance-rules)
+  - [Example: Automatic Web API Generation](#example-automatic-web-api-generation)
+    - [**1. Context Detection**](#1-context-detection)
+    - [**2. Template Discovery**](#2-template-discovery)
+    - [**3. Default Application**](#3-default-application)
+    - [**4. Configuration Validation**](#4-configuration-validation)
+  - [Benefits of Self-Configuration](#benefits-of-self-configuration)
+    - [**1. Reduced Cognitive Load**](#1-reduced-cognitive-load)
+    - [**2. Consistency**](#2-consistency)
+    - [**3. Best Practices**](#3-best-practices)
+    - [**4. Adaptability**](#4-adaptability)
+    - [**5. Error Prevention**](#5-error-prevention)
+  - [Customization and Overrides](#customization-and-overrides)
+    - [**Configuration Files**](#configuration-files)
+    - [**Environment Variables**](#environment-variables)
+    - [**Command Line Overrides**](#command-line-overrides)
+  - [Best Practices](#best-practices)
+    - [**1. Trust the Defaults**](#1-trust-the-defaults)
+    - [**2. Document Overrides**](#2-document-overrides)
+    - [**3. Use Hierarchical Configuration**](#3-use-hierarchical-configuration)
+    - [**4. Validate Changes**](#4-validate-changes)
+    - [**5. Monitor Configuration**](#5-monitor-configuration)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Chapter 11: Self-Configuration
 
 ## Overview

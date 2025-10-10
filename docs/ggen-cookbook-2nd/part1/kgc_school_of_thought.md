@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Chapter 4: The KGC School of Thought](#chapter-4-the-kgc-school-of-thought)
+  - [Knowledge-Graph-Code: A New Paradigm](#knowledge-graph-code-a-new-paradigm)
+  - [The Three Pillars](#the-three-pillars)
+    - [Pillar 1: Knowledge Representation](#pillar-1-knowledge-representation)
+    - [Pillar 2: Graph Structure](#pillar-2-graph-structure)
+    - [Pillar 3: Code Projection](#pillar-3-code-projection)
+  - [The KGC Workflow](#the-kgc-workflow)
+    - [Phase 1: Model Knowledge](#phase-1-model-knowledge)
+    - [Phase 2: Project Code](#phase-2-project-code)
+    - [Phase 3: Customize Business Logic](#phase-3-customize-business-logic)
+    - [Phase 4: Regenerate on Changes](#phase-4-regenerate-on-changes)
+  - [Core Principles of KGC](#core-principles-of-kgc)
+    - [1. Knowledge is Primary](#1-knowledge-is-primary)
+    - [2. Graphs Over Trees](#2-graphs-over-trees)
+    - [3. Generation Over Mutation](#3-generation-over-mutation)
+    - [4. Templates as Patterns](#4-templates-as-patterns)
+    - [5. Semantic Validation](#5-semantic-validation)
+    - [6. Hybrid Reality](#6-hybrid-reality)
+  - [Benefits Recap](#benefits-recap)
+  - [Challenges and Limitations](#challenges-and-limitations)
+  - [The KGC Manifesto](#the-kgc-manifesto)
+  - [Real-World Adoption](#real-world-adoption)
+  - [The Path Forward](#the-path-forward)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Chapter 4: The KGC School of Thought
 
 ## Knowledge-Graph-Code: A New Paradigm

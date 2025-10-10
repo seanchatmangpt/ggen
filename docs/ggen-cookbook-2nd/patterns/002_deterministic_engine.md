@@ -1,3 +1,22 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Pattern 002: DETERMINISTIC ENGINE ***](#pattern-002-deterministic-engine-)
+  - [Context](#context)
+  - [Problem](#problem)
+  - [Forces](#forces)
+  - [Solution](#solution)
+  - [Template Example](#template-example)
+  - [CLI Invocation](#cli-invocation)
+  - [Expected Output](#expected-output)
+  - [Verification](#verification)
+  - [Anti-Patterns](#anti-patterns)
+  - [Deterministic Patterns Checklist](#deterministic-patterns-checklist)
+  - [Related Patterns](#related-patterns)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Pattern 002: DETERMINISTIC ENGINE ***
 
 ## Context
