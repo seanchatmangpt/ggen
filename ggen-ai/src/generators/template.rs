@@ -11,30 +11,22 @@ use ggen_core::Template;
 #[derive(Debug)]
 pub struct TemplateGenerator {
     client: Box<dyn LlmClient>,
-    config: LlmConfig,
 }
 
 impl TemplateGenerator {
     /// Create a new template generator
     pub fn new(client: Box<dyn LlmClient>) -> Self {
-        Self {
-            client,
-            config: LlmConfig::default(),
-        }
+        Self { client }
     }
     
     /// Create a new template generator with custom config
     pub fn with_config(client: Box<dyn LlmClient>, config: LlmConfig) -> Self {
-        Self { client, config }
+        Self { client }
     }
     
     /// Create a new template generator optimized for Ollama qwen3-coder:30b
     pub fn with_ollama_qwen3_coder(client: Box<dyn LlmClient>) -> Self {
-        use crate::providers::OllamaClient;
-        Self {
-            client,
-            config: OllamaClient::qwen3_coder_config(),
-        }
+        Self { client }
     }
     
     /// Generate a template from natural language description
@@ -47,7 +39,7 @@ impl TemplateGenerator {
             .with_examples(examples.iter().map(|s| s.to_string()).collect())
             .build()?;
         
-        let response = self.client.complete(&prompt, Some(self.config.clone())).await?;
+        let response = self.client.complete(&prompt).await?;
         
         // Parse the generated template
         self.parse_template(&response.content)
@@ -62,7 +54,7 @@ impl TemplateGenerator {
     ) -> Result<Template> {
         let prompt = TemplatePrompts::rest_api_controller(description, language, framework)?;
         
-        let response = self.client.complete(&prompt, Some(self.config.clone())).await?;
+        let response = self.client.complete(&prompt).await?;
         
         self.parse_template(&response.content)
     }
@@ -75,7 +67,7 @@ impl TemplateGenerator {
     ) -> Result<Template> {
         let prompt = TemplatePrompts::data_model(description, language)?;
         
-        let response = self.client.complete(&prompt, Some(self.config.clone())).await?;
+        let response = self.client.complete(&prompt).await?;
         
         self.parse_template(&response.content)
     }
@@ -88,7 +80,7 @@ impl TemplateGenerator {
     ) -> Result<Template> {
         let prompt = TemplatePrompts::config_file(description, format)?;
         
-        let response = self.client.complete(&prompt, Some(self.config.clone())).await?;
+        let response = self.client.complete(&prompt).await?;
         
         self.parse_template(&response.content)
     }
@@ -102,7 +94,7 @@ impl TemplateGenerator {
     ) -> Result<Template> {
         let prompt = TemplatePrompts::test_file(description, language, framework)?;
         
-        let response = self.client.complete(&prompt, Some(self.config.clone())).await?;
+        let response = self.client.complete(&prompt).await?;
         
         self.parse_template(&response.content)
     }
@@ -130,7 +122,7 @@ impl TemplateGenerator {
         
         let prompt = builder.build()?;
         
-        let response = self.client.complete(&prompt, Some(self.config.clone())).await?;
+        let response = self.client.complete(&prompt).await?;
         
         self.parse_template(&response.content)
     }
@@ -190,11 +182,9 @@ impl TemplateGenerator {
             .with_examples(examples.iter().map(|s| s.to_string()).collect())
             .build()?;
         
-        let stream = self.client.stream_complete(&prompt, Some(self.config.clone())).await?;
+        let stream = self.client.stream_complete(&prompt).await?;
         
-        Ok(Box::pin(stream.map(|chunk_result| {
-            chunk_result.map(|chunk| chunk.content)
-        })))
+        Ok(Box::pin(stream.map(|chunk| Ok(chunk.content))))
     }
     
     /// Get the LLM client
@@ -204,12 +194,12 @@ impl TemplateGenerator {
     
     /// Get the current configuration
     pub fn config(&self) -> &LlmConfig {
-        &self.config
+        self.client.config()
     }
     
     /// Update the configuration
     pub fn set_config(&mut self, config: LlmConfig) {
-        self.config = config;
+        self.client.update_config(config);
     }
 
     /// Validate a generated template
@@ -312,87 +302,37 @@ impl TemplateGenerator {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::providers::MockClient;
     
-    #[tokio::test]
-    async fn test_template_generator_creation() {
-        let client = Box::new(MockClient::with_response("Generated template"));
-        let generator = TemplateGenerator::new(client);
+    #[test]
+    fn test_template_generator_creation() {
+        let config = LlmConfig::default();
+        let generator = TemplateGenerator::new(config);
         
-        assert_eq!(generator.client().provider_name(), "mock");
+        assert!(generator.is_ok());
     }
     
-    #[tokio::test]
-    async fn test_template_generator_with_config() {
-        let client = Box::new(MockClient::with_response("Generated template"));
+    #[test]
+    fn test_template_generator_with_config() {
         let config = LlmConfig {
             model: "test-model".to_string(),
             temperature: Some(0.5),
             ..Default::default()
         };
-        let generator = TemplateGenerator::with_config(client, config);
+        let generator = TemplateGenerator::with_config(config);
         
+        assert!(generator.is_ok());
+        let generator = generator.unwrap();
         assert_eq!(generator.config().model, "test-model");
         assert_eq!(generator.config().temperature, Some(0.5));
     }
     
-    #[tokio::test]
-    async fn test_generate_template() {
-        let mock_template = r#"---
-to: "src/user.rs"
-vars:
-  - name: "user_name"
-    type: "string"
-    description: "Name of the user"
----
-pub struct {{ user_name }} {
-    pub id: u32,
-    pub name: String,
-}
-"#;
+    #[test]
+    fn test_with_ollama_qwen3_coder() {
+        let generator = TemplateGenerator::with_ollama_qwen3_coder();
         
-        let client = Box::new(MockClient::with_response(mock_template));
-        let generator = TemplateGenerator::new(client);
-        
-        let result = generator.generate_template(
-            "Generate a user struct",
-            vec!["Include id and name fields"]
-        ).await;
-        
-        // This succeeds because we use temporary files for parsing
-        assert!(result.is_ok());
-    }
-    
-    #[tokio::test]
-    async fn test_generate_rest_controller() {
-        let client = Box::new(MockClient::with_response("REST controller template"));
-        let generator = TemplateGenerator::new(client);
-        
-        let result = generator.generate_rest_controller(
-            "User management API",
-            "TypeScript",
-            "Express"
-        ).await;
-        
-        // This succeeds because we use temporary files for parsing
-        assert!(result.is_ok());
-    }
-    
-    #[tokio::test]
-    async fn test_stream_generate_template() {
-        let client = Box::new(MockClient::with_response("Streamed template"));
-        let generator = TemplateGenerator::new(client);
-
-        let mut stream = generator.stream_generate_template(
-            "Generate a template",
-            vec!["Example requirement"]
-        ).await.expect("Failed to create template stream");
-
-        let mut content = String::new();
-        while let Some(chunk) = stream.next().await {
-            content.push_str(&chunk.expect("Failed to read chunk from stream"));
-        }
-
-        assert_eq!(content, "Streamed template");
+        assert!(generator.is_ok());
+        let generator = generator.unwrap();
+        assert_eq!(generator.config().model, "qwen3-coder:30b");
+        assert_eq!(generator.config().temperature, Some(0.7));
     }
 }

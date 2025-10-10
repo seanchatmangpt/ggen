@@ -19,7 +19,7 @@ pub async fn check_ollama_availability() -> bool {
                 extra: std::collections::HashMap::new(),
             };
             
-            match timeout(Duration::from_secs(10), client.complete("Hello", Some(test_config))).await {
+            match timeout(Duration::from_secs(10), client.complete("Hello")).await {
                 Ok(Ok(_)) => true,
                 Ok(Err(_)) => false,
                 Err(_) => false,

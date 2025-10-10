@@ -3,8 +3,7 @@
 use async_trait::async_trait;
 use futures::stream::BoxStream;
 use futures::StreamExt;
-use genai::{Client, ChatRequest, ChatMessage, ChatOptions};
-use serde_json::Value;
+use genai::{Client, chat::{ChatRequest, ChatMessage, ChatOptions, ChatResponse}};
 use std::collections::HashMap;
 
 use crate::client::{LlmClient, LlmConfig, LlmResponse, LlmChunk, UsageStats};
@@ -65,7 +64,7 @@ impl GenAiClient {
     }
 
     /// Convert genai response to our LlmResponse format
-    fn convert_response(&self, response: genai::ChatResponse) -> LlmResponse {
+    fn convert_response(&self, response: ChatResponse) -> LlmResponse {
         let usage = response.usage().map(|u| UsageStats {
             prompt_tokens: u.prompt_tokens.unwrap_or(0),
             completion_tokens: u.completion_tokens.unwrap_or(0),
@@ -94,7 +93,7 @@ impl LlmClient for GenAiClient {
         let response = self.client
             .exec_chat(&self.model, chat_req, Some(chat_options))
             .await
-            .map_err(|e| GgenAiError::llm_client(format!("GenAI request failed: {}", e)))?;
+            .map_err(|e| GgenAiError::llm_provider("GenAI", &format!("Request failed: {}", e)))?;
 
         Ok(self.convert_response(response))
     }
@@ -109,7 +108,7 @@ impl LlmClient for GenAiClient {
         let stream = self.client
             .exec_chat_stream(&self.model, chat_req, Some(chat_options))
             .await
-            .map_err(|e| GgenAiError::llm_client(format!("GenAI stream request failed: {}", e)))?;
+            .map_err(|e| GgenAiError::llm_provider("GenAI", &format!("Stream request failed: {}", e)))?;
 
         let model = self.model.clone();
         let stream = stream.map(move |chunk| {

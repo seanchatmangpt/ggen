@@ -1,188 +1,80 @@
-use serde_json::{json, Value};
-use std::time::Instant;
+///! Graph tools - delegates to ggen CLI commands
+
+use serde_json::Value;
+use crate::cli_helper::call_ggen_cli;
 use crate::error::{Result, get_string_param, get_optional_string_param, success_response};
 
-/// Execute SPARQL query with enhanced error handling and context
+/// Execute SPARQL query - delegates to `ggen graph query`
 pub async fn query(params: Value) -> Result<Value> {
-    let sparql = get_string_param(&params, "sparql")
-        .map_err(|e| {
-            tracing::error!("Missing SPARQL parameter: {}", e);
-            e
-        })?;
+    let sparql = get_string_param(&params, "sparql")?;
     let graph_name = get_optional_string_param(&params, "graph");
 
-    tracing::info!("Executing SPARQL query on graph: {:?}", graph_name);
+    tracing::info!("Delegating to ggen graph query");
 
-    let start = Instant::now();
+    let mut args = vec!["graph", "query", &sparql];
+    let graph_str;
 
-    // Use ggen-core Graph for real SPARQL execution
-    use ggen_core::Graph;
+    if let Some(g) = graph_name {
+        args.push("--graph");
+        graph_str = g;
+        args.push(&graph_str);
+    }
 
-    let result = match Graph::new() {
-        Ok(graph) => {
-            // Execute SPARQL query on the graph using query_cached
-            match graph.query_cached(&sparql) {
-                Ok(cached_result) => {
-                    let execution_time_ms = start.elapsed().as_millis() as u64;
-
-                    // Convert CachedResult to JSON with proper error handling
-                    match cached_result {
-                        ggen_core::graph::CachedResult::Solutions(rows) => {
-                            let binding_list: Vec<Value> = rows.iter().map(|row| {
-                                let mut binding = serde_json::Map::new();
-                                for (k, v) in row {
-                                    binding.insert(k.clone(), json!(v));
-                                }
-                                Value::Object(binding)
-                            }).collect();
-
-                            tracing::debug!("Query returned {} bindings", binding_list.len());
-
-                            json!({
-                                "query": sparql,
-                                "graph": graph_name,
-                                "bindings": binding_list,
-                                "count": binding_list.len(),
-                                "execution_time_ms": execution_time_ms,
-                                "cache_hit": true
-                            })
-                        },
-                        ggen_core::graph::CachedResult::Boolean(b) => {
-                            tracing::debug!("Boolean query result: {}", b);
-                            json!({
-                                "query": sparql,
-                                "graph": graph_name,
-                                "result": b,
-                                "execution_time_ms": execution_time_ms,
-                                "cache_hit": true
-                            })
-                        },
-                        ggen_core::graph::CachedResult::Graph(triples) => {
-                            tracing::debug!("Graph query returned {} triples", triples.len());
-                            json!({
-                                "query": sparql,
-                                "graph": graph_name,
-                                "triples": triples,
-                                "count": triples.len(),
-                                "execution_time_ms": execution_time_ms,
-                                "cache_hit": true
-                            })
-                        }
-                    }
-                },
-                Err(e) => {
-                    tracing::warn!("SPARQL query execution failed: {}", e);
-                    // Fallback to test data for existing tests
-                    json!({
-                        "query": sparql,
-                        "graph": graph_name,
-                        "bindings": [
-                            {
-                                "subject": "http://example.org/entity/1",
-                                "predicate": "http://example.org/hasProperty",
-                                "object": "value1"
-                            }
-                        ],
-                        "count": 1,
-                        "execution_time_ms": start.elapsed().as_millis() as u64,
-                        "fallback": true,
-                        "error": e.to_string()
-                    })
-                }
-            }
-        },
-        Err(e) => {
-            tracing::warn!("Failed to create graph: {}", e);
-            // Fallback to test data for existing tests
-            json!({
-                "query": sparql,
-                "graph": graph_name,
-                "bindings": [
-                    {
-                        "subject": "http://example.org/entity/1",
-                        "predicate": "http://example.org/hasProperty",
-                        "object": "value1"
-                    }
-                ],
-                "count": 1,
-                "execution_time_ms": start.elapsed().as_millis() as u64,
-                "fallback": true,
-                "error": e.to_string()
-            })
-        }
-    };
-
+    let result = call_ggen_cli(&args).await?;
     Ok(success_response(result))
 }
 
-/// Load RDF data from file with proper validation and error handling
+/// Load RDF data from file - delegates to `ggen graph load`
 pub async fn load(params: Value) -> Result<Value> {
-    let file = get_string_param(&params, "file")
-        .map_err(|e| {
-            tracing::error!("Missing file parameter: {}", e);
-            e
-        })?;
+    let file = get_string_param(&params, "file")?;
     let graph = get_optional_string_param(&params, "graph");
-    let format = get_optional_string_param(&params, "format")
-        .unwrap_or_else(|| "turtle".to_string());
+    let format = get_optional_string_param(&params, "format");
 
-    // Validate format
-    let valid_formats = vec!["turtle", "ntriples", "rdfxml", "jsonld"];
-    if !valid_formats.contains(&format.as_str()) {
-        tracing::error!("Invalid RDF format: {}", format);
-        return Err(crate::error::GgenMcpError::InvalidParameter(
-            format!("Invalid format '{}'. Must be one of: {:?}", format, valid_formats)
-        ));
+    tracing::info!("Delegating to ggen graph load: {}", file);
+
+    let mut args = vec!["graph", "load", &file];
+    let graph_str;
+    let format_str;
+
+    if let Some(g) = graph {
+        args.push("--graph");
+        graph_str = g;
+        args.push(&graph_str);
+    }
+    if let Some(f) = format {
+        args.push("--format");
+        format_str = f;
+        args.push(&format_str);
     }
 
-    tracing::info!("Loading RDF file: {} (format: {}, graph: {:?})", file, format, graph);
-
-    // TODO: Replace with actual graph loading logic using ggen-core
-    let result = json!({
-        "file": file,
-        "format": format,
-        "graph": graph,
-        "triples_loaded": 156,
-        "status": "success",
-        "validated": true
-    });
-
+    let result = call_ggen_cli(&args).await?;
     Ok(success_response(result))
 }
 
-/// Export graph to file with validation and error handling
+/// Export graph to file - delegates to `ggen graph export`
 pub async fn export(params: Value) -> Result<Value> {
-    let output = get_string_param(&params, "output")
-        .map_err(|e| {
-            tracing::error!("Missing output parameter: {}", e);
-            e
-        })?;
+    let output = get_string_param(&params, "output")?;
     let graph = get_optional_string_param(&params, "graph");
-    let format = get_optional_string_param(&params, "format")
-        .unwrap_or_else(|| "turtle".to_string());
+    let format = get_optional_string_param(&params, "format");
 
-    // Validate format
-    let valid_formats = vec!["turtle", "ntriples", "rdfxml", "jsonld"];
-    if !valid_formats.contains(&format.as_str()) {
-        tracing::error!("Invalid export format: {}", format);
-        return Err(crate::error::GgenMcpError::InvalidParameter(
-            format!("Invalid format '{}'. Must be one of: {:?}", format, valid_formats)
-        ));
+    tracing::info!("Delegating to ggen graph export to: {}", output);
+
+    let mut args = vec!["graph", "export", &output];
+    let graph_str;
+    let format_str;
+
+    if let Some(g) = graph {
+        args.push("--graph");
+        graph_str = g;
+        args.push(&graph_str);
+    }
+    if let Some(f) = format {
+        args.push("--format");
+        format_str = f;
+        args.push(&format_str);
     }
 
-    tracing::info!("Exporting graph to: {} (format: {}, graph: {:?})", output, format, graph);
-
-    // TODO: Replace with actual export logic using ggen-core
-    let result = json!({
-        "output": output,
-        "format": format,
-        "graph": graph,
-        "triples_exported": 156,
-        "file_size_bytes": 4096,
-        "status": "success",
-        "validated": true
-    });
-
+    let result = call_ggen_cli(&args).await?;
     Ok(success_response(result))
 }
 

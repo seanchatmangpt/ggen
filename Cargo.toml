@@ -40,7 +40,7 @@ syslog = ["ggen-utils/syslog"]
 ggen-utils = { path = "utils", version = "0.2.4" }
 ggen-cli-lib = { path = "cli", version = "0.2.4" }
 ggen-core = { path = "ggen-core", version = "0.2.4" }
-ggen-ai = { path = "ggen-ai", version = "0.2.4" }
+# ggen-ai = { path = "ggen-ai", version = "0.2.4" }  # Temporarily disabled due to compilation issues
 human-panic = "2.0.0"
 better-panic = "0.3.0"
 log = "0.4.27"

@@ -153,10 +153,63 @@ ex:another_{} a ex:{} ;
         println!("📊 Loaded graph contains {} triples", loaded_graph.len());
     }
 
+    // Create reference file for programmatic access
+    let reference_path = format!("{}_reference.rs", output_path.replace(&format!(".{}", args.format), ""));
+    let reference_content = format!(
+        "// Reference to generated RDF graph: {}
+// This file provides a programmatic reference to the generated graph
+// Follows core team best practices for deterministic outputs and proper error handling
+
+use ggen_core::Graph;
+use ggen_utils::error::Result;
+
+/// Generated graph metadata
+pub struct GeneratedGraphInfo {{
+    pub path: &'static str,
+    pub description: &'static str,
+    pub format: &'static str,
+    pub generated_at: &'static str,
+}}
+
+/// Load the generated graph for use in code
+/// Returns an error if the graph cannot be loaded (follows error handling best practices)
+pub fn load_generated_graph() -> Result<Graph> {{
+    let graph = Graph::load_from_file(\"{}\")?;
+    Ok(graph)
+}}
+
+/// Get information about the generated graph
+pub fn get_generated_graph_info() -> GeneratedGraphInfo {{
+    GeneratedGraphInfo {{
+        path: \"{}\",
+        description: \"{}\",
+        format: \"{}\",
+        generated_at: \"{}\",
+    }}
+}}
+
+/// Verify the graph can be loaded (used for testing and validation)
+pub fn verify_graph_integrity() -> Result<usize> {{
+    let graph = load_generated_graph()?;
+    Ok(graph.len())
+}}",
+        output_path,
+        output_path,
+        args.description,
+        args.format,
+        chrono::Utc::now().to_rfc3339()
+    );
+
+    fs::write(&reference_path, reference_content)
+        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to write reference file: {}", e)))?;
+
+    println!("🔗 Generated reference file: {}", reference_path);
+
     println!("✅ Graph generation completed successfully!");
     println!("📋 Summary:");
     println!("   • Generated {} triples", "N/A (count not available)");
     println!("   • Written to: {}", output_path);
+    println!("   • Reference created: {}", reference_path);
     if args.verify {
         println!("   • Graph verification: PASSED");
     }

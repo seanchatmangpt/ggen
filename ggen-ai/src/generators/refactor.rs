@@ -96,7 +96,7 @@ impl RefactorAssistant {
     ) -> Result<Vec<RefactoringSuggestion>> {
         let prompt = self.build_refactoring_prompt(code, context)?;
         
-        let response = self.client.complete(&prompt, Some(self.config.clone())).await?;
+        let response = self.client.complete(&prompt).await?;
         
         // Parse suggestions from response
         self.parse_suggestions(&response.content)
@@ -290,7 +290,7 @@ impl RefactorAssistant {
         
         prompt.push_str("Generate the refactored code:\n\n");
         
-        let response = self.client.complete(&prompt, Some(self.config.clone())).await?;
+        let response = self.client.complete(&prompt).await?;
         
         // Extract code from markdown code blocks if present
         let refactored_code = if response.content.contains("```") {

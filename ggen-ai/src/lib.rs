@@ -7,7 +7,7 @@
 //!
 //! ## Features
 //!
-//! - **Multi-provider LLM support**: OpenAI, Anthropic, Ollama
+//! - **Multi-provider LLM support**: OpenAI, Anthropic, Ollama, Gemini, DeepSeek, xAI/Grok, Groq, Cohere (via genai)
 //! - **Intelligent template generation**: Natural language to ggen templates
 //! - **SPARQL query generation**: Intent-based query construction
 //! - **Ontology generation**: Domain descriptions to RDF/OWL
@@ -18,12 +18,12 @@
 //!
 //! ```rust
 //! use ggen_ai::{LlmClient, TemplateGenerator};
-//! use ggen_ai::providers::MockClient;
+//! use ggen_ai::providers::{MockClient, GenAiClient};
 //!
 //! #[tokio::main]
 //! async fn main() -> Result<(), Box<dyn std::error::Error>> {
 //!     // Initialize mock client for demonstration
-//!     let client = MockClient::new(vec!["Generated template content".to_string()]);
+//!     let client = MockClient::with_response("Generated template content");
 //!     
 //!     // Generate template from description
 //!     let generator = TemplateGenerator::new(Box::new(client));
@@ -49,8 +49,7 @@ pub mod error;
 pub mod test_helpers;
 
 // Re-export main types for convenience
-pub use client::{LlmClient, LlmAdapter};
-pub use config::{AiConfig, OpenAIConfig, AnthropicConfig, OllamaConfig};
+pub use client::{LlmClient, LlmConfig, LlmResponse, LlmChunk, UsageStats};
 pub use generators::{TemplateGenerator, SparqlGenerator, OntologyGenerator, RefactorAssistant, TemplateValidator, ValidationResult, ValidationIssue, QualityMetrics};
 pub use error::{GgenAiError, Result};
 

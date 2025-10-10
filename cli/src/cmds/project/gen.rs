@@ -43,6 +43,22 @@ pub struct GenArgs {
     /// Force overwrite existing files
     #[arg(short = 'f', long)]
     pub force: bool,
+
+    /// Use AI-powered generation
+    #[arg(long)]
+    pub ai: bool,
+
+    /// AI model to use (openai, anthropic, ollama)
+    #[arg(long, default_value = "ollama")]
+    pub ai_provider: String,
+
+    /// AI model name
+    #[arg(long)]
+    pub ai_model: Option<String>,
+
+    /// Maximum iterations for AI validation
+    #[arg(long, default_value = "3")]
+    pub ai_max_iterations: usize,
 }
 
 /// London TDD: Define trait boundaries for testability

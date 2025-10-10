@@ -1,436 +1,212 @@
-use serde_json::{json, Value};
-use crate::error::Result;
-use crate::utils::*;
+///! Market tools - delegates to ggen CLI commands
 
-/// List marketplace templates with enhanced filtering and metadata
+use serde_json::{json, Value};
+use crate::cli_helper::call_ggen_cli;
+use crate::error::{Result, get_string_param, get_optional_string_param, get_optional_u64_param, get_bool_param, success_response};
+
+/// List marketplace templates - delegates to `ggen market list`
 pub async fn list(params: Value) -> Result<Value> {
     let category = get_optional_string_param(&params, "category");
     let tag = get_optional_string_param(&params, "tag");
-    let limit = get_optional_u64_param(&params, "limit").unwrap_or(20) as usize;
-    let sort = get_optional_string_param(&params, "sort").unwrap_or_else(|| "downloads".to_string());
-    let order = get_optional_string_param(&params, "order").unwrap_or_else(|| "desc".to_string());
 
-    tracing::info!("Listing marketplace packages: category={:?}, tag={:?}, limit={}, sort={}, order={}", 
-                   category, tag, limit, sort, order);
+    tracing::info!("Delegating to ggen market list");
 
-    // TODO: Replace with actual marketplace API
-    let packages = vec![
-        json!({
-            "id": "rust-api-template",
-            "name": "Rust API Template",
-            "description": "A comprehensive Rust API template with async/await support",
-            "version": "1.2.0",
-            "author": "ggen-team",
-            "category": "api",
-            "tags": ["rust", "api", "async", "web"],
-            "downloads": 1250,
-            "stars": 45,
-            "updated_at": "2024-01-15T10:30:00Z",
-            "dependencies": ["tokio", "serde", "axum"]
-        }),
-        json!({
-            "id": "typescript-react-template",
-            "name": "TypeScript React Template",
-            "description": "Modern React application with TypeScript and Vite",
-            "version": "2.1.0",
-            "author": "ggen-team",
-            "category": "frontend",
-            "tags": ["typescript", "react", "vite", "frontend"],
-            "downloads": 2100,
-            "stars": 78,
-            "updated_at": "2024-01-14T15:45:00Z",
-            "dependencies": ["react", "typescript", "vite"]
-        })
-    ];
+    let mut args = vec!["market", "list"];
+    let category_str;
+    let tag_str;
 
-    Ok(success_response(json!({
-        "packages": packages,
-        "total": packages.len(),
-        "limit": limit,
-        "sort": sort,
-        "order": order,
-        "filters": {
-            "category": category,
-            "tag": tag
-        }
-    })))
-}
-
-/// Search marketplace templates with enhanced error handling
-pub async fn search(params: Value) -> Result<Value> {
-    let query = get_string_param(&params, "query")
-        .map_err(|e| {
-            tracing::error!("Missing query parameter for market search: {}", e);
-            e
-        })?;
-
-    // Validate query is not empty
-    if query.trim().is_empty() {
-        tracing::error!("Empty search query provided");
-        return Err(crate::error::GgenMcpError::InvalidParameter(
-            "Search query cannot be empty".to_string()
-        ));
+    if let Some(c) = category {
+        args.push("--category");
+        category_str = c;
+        args.push(&category_str);
+    }
+    if let Some(t) = tag {
+        args.push("--tag");
+        tag_str = t;
+        args.push(&tag_str);
     }
 
-    let category = get_optional_string_param(&params, "category");
-    let author = get_optional_string_param(&params, "author");
-    let license = get_optional_string_param(&params, "license");
-    let min_stars = get_optional_u64_param(&params, "min_stars");
-    let min_downloads = get_optional_u64_param(&params, "min_downloads");
-    let sort = get_optional_string_param(&params, "sort").unwrap_or_else(|| "relevance".to_string());
-    let order = get_optional_string_param(&params, "order").unwrap_or_else(|| "desc".to_string());
-    let fuzzy = get_optional_string_param(&params, "fuzzy").map(|s| s == "true").unwrap_or(false);
-    let suggestions = get_optional_string_param(&params, "suggestions").map(|s| s == "true").unwrap_or(false);
-    let limit = get_optional_u64_param(&params, "limit").unwrap_or(10) as usize;
-
-    // Validate limit
-    if limit == 0 || limit > 100 {
-        tracing::error!("Invalid limit: {}", limit);
-        return Err(crate::error::GgenMcpError::InvalidParameter(
-            format!("Limit must be between 1 and 100, got {}", limit)
-        ));
-    }
-
-    tracing::info!("Searching marketplace: query={}, category={:?}, author={:?}, license={:?}, min_stars={:?}, min_downloads={:?}, sort={}, order={}, fuzzy={}, suggestions={}, limit={}",
-                   query, category, author, license, min_stars, min_downloads, sort, order, fuzzy, suggestions, limit);
-
-    // Use ggen-core RegistryClient for real search
-    use ggen_core::RegistryClient;
-
-    let results = match RegistryClient::new() {
-        Ok(client) => {
-            match client.fetch_index().await {
-                Ok(index) => {
-                    // Filter and search through registry index
-                    let query_lower = query.to_lowercase();
-                    let mut matches = Vec::new();
-
-                    for (pack_id, pack_meta) in index.packs.iter() {
-                        // Search in name, description, keywords, tags
-                        let name_match = pack_meta.name.to_lowercase().contains(&query_lower);
-                        let desc_match = pack_meta.description.to_lowercase().contains(&query_lower);
-                        let keyword_match = pack_meta.keywords.iter().any(|k| k.to_lowercase().contains(&query_lower));
-                        let tag_match = pack_meta.tags.iter().any(|t| t.to_lowercase().contains(&query_lower));
-
-                        if name_match || desc_match || keyword_match || tag_match {
-                            // Apply filters
-                            let category_ok = category.as_ref().map(|c| pack_meta.category.as_ref().map(|pc| pc == c).unwrap_or(false)).unwrap_or(true);
-                            let author_ok = author.as_ref().map(|a| pack_meta.author.as_ref().map(|pa| pa == a).unwrap_or(false)).unwrap_or(true);
-                            let license_ok = license.as_ref().map(|l| pack_meta.license.as_ref().map(|pl| pl == l).unwrap_or(false)).unwrap_or(true);
-                            let downloads_ok = min_downloads.map(|md| pack_meta.downloads.unwrap_or(0) >= md).unwrap_or(true);
-
-                            if category_ok && author_ok && license_ok && downloads_ok {
-                                let relevance_score = if name_match { 0.95 } else if desc_match { 0.75 } else { 0.50 };
-
-                                matches.push(json!({
-                                    "id": pack_id,
-                                    "name": pack_meta.name,
-                                    "description": pack_meta.description,
-                                    "version": pack_meta.latest_version,
-                                    "author": pack_meta.author,
-                                    "category": pack_meta.category,
-                                    "tags": pack_meta.tags,
-                                    "downloads": pack_meta.downloads.unwrap_or(0),
-                                    "updated_at": pack_meta.updated.map(|u| u.to_rfc3339()).unwrap_or_default(),
-                                    "relevance_score": relevance_score,
-                                    "license": pack_meta.license,
-                                    "repository": pack_meta.repository,
-                                    "match_reason": if name_match { "Name matches query" } else if desc_match { "Description matches query" } else { "Keywords/tags match query" }
-                                }));
-                            }
-                        }
-                    }
-
-                    // Sort matches (descending relevance for now)
-                    matches.truncate(limit);
-                    matches
-                },
-                Err(_) => {
-                    // Fallback to test data if registry fetch fails
-                    vec![
-                        json!({
-                            "id": "rust-api-template",
-                            "name": "Rust API Template",
-                            "description": "A comprehensive Rust API template with async/await support",
-                            "version": "1.2.0",
-                            "author": "ggen-team",
-                            "category": "api",
-                            "tags": ["rust", "api", "async", "web"],
-                            "downloads": 1250,
-                            "stars": 45,
-                            "updated_at": "2024-01-15T10:30:00Z",
-                            "relevance_score": 0.95,
-                            "match_reason": "Name and description contain 'rust' and 'api'"
-                        })
-                    ]
-                }
-            }
-        },
-        Err(_) => {
-            // Fallback to test data if registry client creation fails
-            vec![
-                json!({
-                    "id": "rust-api-template",
-                    "name": "Rust API Template",
-                    "description": "A comprehensive Rust API template with async/await support",
-                    "version": "1.2.0",
-                    "author": "ggen-team",
-                    "category": "api",
-                    "tags": ["rust", "api", "async", "web"],
-                    "downloads": 1250,
-                    "stars": 45,
-                    "updated_at": "2024-01-15T10:30:00Z",
-                    "relevance_score": 0.95,
-                    "match_reason": "Name and description contain 'rust' and 'api'"
-                })
-            ]
-        }
-    };
-
-    Ok(success_response(json!({
-        "results": results,
-        "total": results.len(),
-        "query": query,
-        "filters": {
-            "category": category,
-            "author": author,
-            "license": license,
-            "min_stars": min_stars,
-            "min_downloads": min_downloads
-        },
-        "sort": sort,
-        "order": order,
-        "fuzzy": fuzzy,
-        "suggestions": suggestions,
-        "limit": limit
-    })))
-}
-
-/// Install marketplace template with validation
-pub async fn install(params: Value) -> Result<Value> {
-    let package = get_string_param(&params, "package")
-        .map_err(|e| {
-            tracing::error!("Missing package parameter for install: {}", e);
-            e
-        })?;
-
-    // Validate package name
-    if package.trim().is_empty() {
-        tracing::error!("Empty package name provided");
-        return Err(crate::error::GgenMcpError::InvalidParameter(
-            "Package name cannot be empty".to_string()
-        ));
-    }
-
-    let version = get_optional_string_param(&params, "version");
-
-    tracing::info!("Installing marketplace package: {} (version: {:?})", package, version);
-
-    // TODO: Replace with actual installation logic
-    let result = json!({
-        "package": package,
-        "version": version.unwrap_or_else(|| "latest".to_string()),
-        "installed_at": chrono::Utc::now().to_rfc3339(),
-        "location": format!("./templates/{}", package),
-        "files_installed": [
-            "template.tmpl",
-            "README.md",
-            "examples/"
-        ]
-    });
-
+    let result = call_ggen_cli(&args).await?;
     Ok(success_response(result))
 }
 
-/// Get package recommendations
+/// Search marketplace templates - delegates to `ggen market search`
+pub async fn search(params: Value) -> Result<Value> {
+    let query = get_string_param(&params, "query")?;
+    let category = get_optional_string_param(&params, "category");
+    let limit = get_optional_u64_param(&params, "limit");
+
+    tracing::info!("Delegating to ggen market search: {}", query);
+
+    let mut args = vec!["market", "search", &query];
+    let category_str;
+    let limit_str;
+
+    if let Some(c) = category {
+        args.push("--category");
+        category_str = c;
+        args.push(&category_str);
+    }
+    if let Some(l) = limit {
+        args.push("--limit");
+        limit_str = l.to_string();
+        args.push(&limit_str);
+    }
+
+    let result = call_ggen_cli(&args).await?;
+    Ok(success_response(result))
+}
+
+/// Install marketplace template - delegates to `ggen market add`
+pub async fn install(params: Value) -> Result<Value> {
+    let package = get_string_param(&params, "package")?;
+    let version = get_optional_string_param(&params, "version");
+
+    tracing::info!("Delegating to ggen market add: {}", package);
+
+    let mut args = vec!["market", "add", &package];
+    let version_str;
+
+    if let Some(v) = version {
+        args.push("--version");
+        version_str = v;
+        args.push(&version_str);
+    }
+
+    let result = call_ggen_cli(&args).await?;
+    Ok(success_response(result))
+}
+
+/// Get package info - delegates to `ggen market info`
+pub async fn info(params: Value) -> Result<Value> {
+    let package_id = get_string_param(&params, "package_id")?;
+
+    tracing::info!("Delegating to ggen market info: {}", package_id);
+
+    let result = call_ggen_cli(&["market", "info", &package_id]).await?;
+    Ok(success_response(result))
+}
+
+/// Get package recommendations - delegates to `ggen market recommend`
 pub async fn recommend(params: Value) -> Result<Value> {
     let based_on = get_optional_string_param(&params, "based_on");
     let category = get_optional_string_param(&params, "category");
-    let limit = get_optional_u64_param(&params, "limit").unwrap_or(5) as usize;
-    let explain = get_bool_param(&params, "explain", false);
+    let limit = get_optional_u64_param(&params, "limit");
 
-    tracing::info!("Getting recommendations: based_on={:?}, category={:?}, limit={}, explain={}", 
-                   based_on, category, limit, explain);
+    tracing::info!("Delegating to ggen market recommend");
 
-    // TODO: Replace with actual recommendation logic
-    let recommendations = vec![
-        json!({
-            "id": "rust-api-template",
-            "name": "Rust API Template",
-            "description": "A comprehensive Rust API template with async/await support",
-            "version": "1.2.0",
-            "author": "ggen-team",
-            "category": "api",
-            "tags": ["rust", "api", "async", "web"],
-            "downloads": 1250,
-            "stars": 45,
-            "updated_at": "2024-01-15T10:30:00Z",
-            "recommendation_score": 0.92,
-            "reason": "Similar to your current project structure"
-        })
-    ];
+    let mut args = vec!["market", "recommend"];
+    let based_on_str;
+    let category_str;
+    let limit_str;
 
-    Ok(success_response(json!({
-        "recommendations": recommendations,
-        "total": recommendations.len(),
-        "based_on": based_on,
-        "category": category,
-        "limit": limit,
-        "explanation": if explain {
-            serde_json::Value::String("Recommendations are based on package co-occurrence patterns and popularity metrics".to_string())
-        } else {
-            serde_json::Value::Null
-        }
-    })))
-}
-
-/// Get detailed package information with validation
-pub async fn info(params: Value) -> Result<Value> {
-    let package_id = get_string_param(&params, "package_id")
-        .map_err(|e| {
-            tracing::error!("Missing package_id parameter for info: {}", e);
-            e
-        })?;
-
-    // Validate package_id
-    if package_id.trim().is_empty() {
-        tracing::error!("Empty package_id provided");
-        return Err(crate::error::GgenMcpError::InvalidParameter(
-            "Package ID cannot be empty".to_string()
-        ));
+    if let Some(b) = based_on {
+        args.push("--based-on");
+        based_on_str = b;
+        args.push(&based_on_str);
+    }
+    if let Some(c) = category {
+        args.push("--category");
+        category_str = c;
+        args.push(&category_str);
+    }
+    if let Some(l) = limit {
+        args.push("--limit");
+        limit_str = l.to_string();
+        args.push(&limit_str);
     }
 
-    let examples = get_optional_string_param(&params, "examples").map(|s| s == "true").unwrap_or(false);
-    let dependencies = get_optional_string_param(&params, "dependencies").map(|s| s == "true").unwrap_or(false);
-    let health = get_optional_string_param(&params, "health").map(|s| s == "true").unwrap_or(false);
-
-    tracing::info!("Getting package info: package_id={}, examples={}, dependencies={}, health={}",
-                   package_id, examples, dependencies, health);
-
-    // TODO: Replace with actual package info retrieval
-    let package_info = json!({
-        "id": package_id,
-        "name": "Rust API Template",
-        "description": "A comprehensive Rust API template with async/await support",
-        "version": "1.2.0",
-        "author": "ggen-team",
-        "category": "api",
-        "tags": ["rust", "api", "async", "web"],
-        "downloads": 1250,
-        "stars": 45,
-        "updated_at": "2024-01-15T10:30:00Z",
-        "created_at": "2023-12-01T09:00:00Z",
-        "license": "MIT",
-        "repository": "https://github.com/ggen-team/rust-api-template",
-        "documentation": "https://docs.ggen.dev/templates/rust-api",
-        "examples": if examples { vec!["basic-api", "with-auth", "microservice"] } else { vec![] },
-        "dependencies": if dependencies { vec!["tokio", "serde", "axum"] } else { vec![] },
-        "health": if health { 
-            json!({
-                "status": "healthy",
-                "last_checked": "2024-01-15T10:30:00Z",
-                "issues": [],
-                "maintenance": "active"
-            })
-        } else { 
-            serde_json::Value::Null 
-        }
-    });
-
-    Ok(success_response(package_info))
+    let result = call_ggen_cli(&args).await?;
+    Ok(success_response(result))
 }
 
-/// Search offline cache
+/// Search offline cache - delegates to `ggen market offline`
 pub async fn offline_search(params: Value) -> Result<Value> {
     let query = get_string_param(&params, "query")?;
     let category = get_optional_string_param(&params, "category");
-    let limit = get_optional_u64_param(&params, "limit").unwrap_or(10) as usize;
+    let limit = get_optional_u64_param(&params, "limit");
 
-    tracing::info!("Searching offline cache: query={}, category={:?}, limit={}", query, category, limit);
+    tracing::info!("Delegating to ggen market offline: {}", query);
 
-    // TODO: Replace with actual offline search implementation
-    let cached_packages = vec![
-        json!({
-            "id": "rust-api-template",
-            "name": "Rust API Template",
-            "description": "A comprehensive Rust API template with async/await support",
-            "version": "1.2.0",
-            "author": "ggen-team",
-            "category": "api",
-            "tags": ["rust", "api", "async", "web"],
-            "downloads": 1250,
-            "stars": 45,
-            "updated_at": "2024-01-15T10:30:00Z",
-            "cached_at": "2024-01-15T10:00:00Z"
-        })
-    ];
+    let mut args = vec!["market", "offline", &query];
+    let category_str;
+    let limit_str;
 
-    Ok(success_response(json!({
-        "packages": cached_packages,
-        "total": cached_packages.len(),
-        "query": query,
-        "category": category,
-        "limit": limit,
-        "cache_status": "up_to_date"
-    })))
+    if let Some(c) = category {
+        args.push("--category");
+        category_str = c;
+        args.push(&category_str);
+    }
+    if let Some(l) = limit {
+        args.push("--limit");
+        limit_str = l.to_string();
+        args.push(&limit_str);
+    }
+
+    let result = call_ggen_cli(&args).await?;
+    Ok(success_response(result))
 }
 
-/// Get cache status
+/// Get cache status - delegates to `ggen market cache`
 pub async fn cache_status(_params: Value) -> Result<Value> {
-    tracing::info!("Getting cache status");
+    tracing::info!("Delegating to ggen market cache");
 
-    // TODO: Replace with actual cache status implementation
-    let stats = json!({
-        "total_packages": 150,
-        "cached_packages": 120,
-        "cache_size_mb": 45.2,
-        "last_updated": "2024-01-15T10:00:00Z",
-        "cache_hit_rate": 0.85,
-        "categories": {
-            "api": 25,
-            "frontend": 30,
-            "backend": 20,
-            "mobile": 15,
-            "other": 30
-        }
-    });
-
-    Ok(success_response(json!({
-        "status": "healthy",
-        "stats": stats,
-        "recommendations": [
-            "Cache is up to date",
-            "Consider clearing old packages to free space"
-        ]
-    })))
+    let result = call_ggen_cli(&["market", "cache"]).await?;
+    Ok(success_response(result))
 }
 
-/// Sync marketplace cache
+/// Sync marketplace cache - delegates to `ggen market sync`
 pub async fn sync(params: Value) -> Result<Value> {
     let category = get_optional_string_param(&params, "category");
     let force = get_bool_param(&params, "force", false);
 
-    tracing::info!("Syncing marketplace for category: {:?}, force: {}", category, force);
+    tracing::info!("Delegating to ggen market sync");
 
-    // Simulate a long-running operation
-    if !force {
-        return Ok(success_response(json!({
-            "status": "pending",
-            "message": "Marketplace sync initiated. Check back later for results.",
-            "estimated_duration": "12 seconds"
-        })));
+    let mut args = vec!["market", "sync"];
+    let category_str;
+
+    if let Some(c) = category {
+        args.push("--category");
+        category_str = c;
+        args.push(&category_str);
+    }
+    if force {
+        args.push("--force");
     }
 
-    // Perform actual sync
-    // TODO: Implement sync manager
-    let result = json!({
-        "packages_synced": 25,
-        "categories_synced": 5,
-        "conflicts_resolved": 2,
-        "sync_duration_seconds": 8.5,
-        "category_filter": category,
-        "force_sync": force
-    });
-
+    let result = call_ggen_cli(&args).await?;
     Ok(success_response(result))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_search_requires_query() {
+        let params = json!({});
+        let result = search(params).await;
+        assert!(result.is_err());
+    }
+
+    #[tokio::test]
+    async fn test_install_requires_package() {
+        let params = json!({});
+        let result = install(params).await;
+        assert!(result.is_err());
+    }
+
+    #[tokio::test]
+    async fn test_info_requires_package_id() {
+        let params = json!({});
+        let result = info(params).await;
+        assert!(result.is_err());
+    }
+
+    #[tokio::test]
+    async fn test_offline_search_requires_query() {
+        let params = json!({});
+        let result = offline_search(params).await;
+        assert!(result.is_err());
+    }
 }

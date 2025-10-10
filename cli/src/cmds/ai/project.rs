@@ -77,9 +77,9 @@ pub async fn run(args: &ProjectArgs) -> Result<()> {
 
     // Create Ollama client with qwen3-coder:30b model
     let config = OllamaConfig::new();
-    let client = OllamaClient::new(config)
-        .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?;
-    let generator = TemplateGenerator::with_ollama_qwen3_coder(Box::new(client));
+    let client = Box::new(OllamaClient::new(config)
+        .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?);
+    let generator = TemplateGenerator::new(client);
 
     // Generate project description
     let project_description = format!(

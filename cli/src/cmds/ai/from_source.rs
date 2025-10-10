@@ -2,11 +2,11 @@
 
 use clap::Args;
 use ggen_utils::error::Result;
-use ggen_ai::TemplateGenerator;
-use ggen_ai::providers::OllamaClient;
-use ggen_ai::config::OllamaConfig;
+use ggen_ai::{TemplateGenerator, GenAiClient};
 use anyhow;
 use std::fs;
+
+use super::config::AiConfigArgs;
 
 #[derive(Debug, Args)]
 pub struct FromSourceArgs {
@@ -37,6 +37,34 @@ pub struct FromSourceArgs {
     /// Extract variables from the source code
     #[arg(long)]
     pub extract_variables: bool,
+
+    /// AI model to use (e.g., gpt-4, claude-3-sonnet, qwen3-coder:30b)
+    #[arg(short, long, default_value = "qwen3-coder:30b")]
+    pub model: String,
+
+    /// Maximum tokens to generate
+    #[arg(long, default_value = "4096")]
+    pub max_tokens: u32,
+
+    /// Temperature for sampling (0.0 to 2.0)
+    #[arg(long, default_value = "0.7")]
+    pub temperature: f32,
+
+    /// Top-p for nucleus sampling (0.0 to 1.0)
+    #[arg(long, default_value = "0.9")]
+    pub top_p: f32,
+
+    /// Stop sequences (comma-separated)
+    #[arg(long)]
+    pub stop: Option<String>,
+
+    /// Provider-specific API key (overrides environment variables)
+    #[arg(long)]
+    pub api_key: Option<String>,
+
+    /// Custom endpoint URL (for self-hosted models)
+    #[arg(long)]
+    pub endpoint: Option<String>,
 }
 
 pub async fn run(args: &FromSourceArgs) -> Result<()> {
@@ -50,6 +78,21 @@ pub async fn run(args: &FromSourceArgs) -> Result<()> {
     
     println!("Include RDF: {}", args.include_rdf);
     println!("Extract variables: {}", args.extract_variables);
+    println!("AI Model: {}", args.model);
+
+    // Validate AI configuration
+    let ai_config = AiConfigArgs {
+        model: args.model.clone(),
+        max_tokens: args.max_tokens,
+        temperature: args.temperature,
+        top_p: args.top_p,
+        stop: args.stop.clone(),
+        api_key: args.api_key.clone(),
+        endpoint: args.endpoint.clone(),
+    };
+    
+    ai_config.validate()?;
+    println!("Provider: {}", ai_config.provider_name());
 
     // Read the source file
     let source_content = fs::read_to_string(&args.source_file)
@@ -57,11 +100,10 @@ pub async fn run(args: &FromSourceArgs) -> Result<()> {
 
     println!("📖 Read {} bytes from source file", source_content.len());
 
-    // Create Ollama client with qwen3-coder:30b model
-    let config = OllamaConfig::new();
-    let client = OllamaClient::new(config)
+    // Create GenAI client
+    let client = ai_config.create_client()
         .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?;
-    let generator = TemplateGenerator::with_ollama_qwen3_coder(Box::new(client));
+    let generator = TemplateGenerator::new(Box::new(client));
 
     // Generate template description based on source analysis
     let analysis_description = format!(

@@ -42,10 +42,8 @@ pub async fn run(args: &SparqlArgs) -> Result<()> {
     // Load RDF graph if provided
     let graph = if let Some(graph_path) = &args.graph {
         println!("📊 Loading RDF graph from: {}", graph_path);
-        // TODO: Implement Graph::load_from_file when available
-        println!("⚠️  Graph loading not yet implemented, using empty graph");
-        Graph::new()
-            .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to create empty graph: {}", e)))?
+        Graph::load_from_file(graph_path)
+            .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to load graph: {}", e)))?
     } else {
         println!("📊 Using empty graph for query generation");
         Graph::new()

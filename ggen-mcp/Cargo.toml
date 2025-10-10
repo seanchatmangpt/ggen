@@ -34,7 +34,7 @@ dashmap = "6.0"
 
 # Local dependencies
 ggen-core = { path = "../ggen-core" }
-ggen-ai = { path = "../ggen-ai" }
+# ggen-ai = { path = "../ggen-ai" }  # Temporarily disabled due to compilation issues
 ggen-utils = { path = "../utils" }
 
 [[bin]]

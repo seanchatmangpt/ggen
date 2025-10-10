@@ -66,7 +66,15 @@ args = ["test", "--features", "live-llm-tests,all-integrations"]
 [tasks.test-ollama]
 description = "Run Ollama integration tests (requires Ollama running)"
 command = "cargo"
-args = ["test", "--features", "ollama-integration", "--test", "ollama_integration", "-p", "ggen-ai"]
+args = [
+  "test",
+  "--features",
+  "ollama-integration",
+  "--test",
+  "ollama_integration",
+  "-p",
+  "ggen-ai",
+]
 
 [tasks.test-openai]
 description = "Run OpenAI integration tests (requires OPENAI_API_KEY)"
@@ -111,7 +119,11 @@ args = [
 [tasks.test-ollama-all]
 description = "Run all Ollama integration tests (integration, performance, resilience)"
 workspace = false
-dependencies = ["test-ollama", "test-ollama-performance", "test-ollama-resilience"]
+dependencies = [
+  "test-ollama",
+  "test-ollama-performance",
+  "test-ollama-resilience",
+]
 
 [tasks.validate-ollama]
 description = "Validate Ollama integration (checks service, model, and runs tests)"
