@@ -1,6 +1,6 @@
 [package]
 name = "ggen"
-version = "0.2.3"
+version = "0.2.4"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 edition = "2021"
 repository = "https://github.com/seanchatmangpt/ggen"
@@ -27,9 +27,9 @@ journald = ["ggen-utils/journald"]
 syslog = ["ggen-utils/syslog"]
 
 [dependencies]
-ggen-utils = { path = "utils", version = "0.2.3" }
-ggen-cli-lib = { path = "cli", version = "0.2.3" }
-ggen-core = { path = "ggen-core", version = "0.2.3" }
+ggen-utils = { path = "utils", version = "0.2.4" }
+ggen-cli-lib = { path = "cli", version = "0.2.4" }
+ggen-core = { path = "ggen-core", version = "0.2.4" }
 human-panic = "2.0.0"
 better-panic = "0.3.0"
 log = "0.4.27"

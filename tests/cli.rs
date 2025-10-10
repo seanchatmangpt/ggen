@@ -227,7 +227,7 @@ fn test_cli_basic() {
 
 #[test]
 fn test_version() {
-    let expected_version = "ggen 0.2.3\n";
+    let expected_version = "ggen 0.2.4\n";
     let mut cmd = Command::cargo_bin("ggen").expect("Calling binary failed");
     cmd.arg("--version").assert().stdout(expected_version);
 }
@@ -306,7 +306,7 @@ fn test_search_command_with_filters() {
     // Search now works with local mock registry
     cmd.assert()
         .success()
-        .stdout(predicate::str::contains("ID"));
+        .stdout(predicate::str::contains("io.ggen.rust.cli-subcommand"));
 }
 
 // Individual help tests removed - now batched in test_cli_help_commands
@@ -494,7 +494,7 @@ fn test_cli_output_formats() {
     cmd.arg("search").arg("rust").arg("--detailed");
     cmd.assert()
         .success()
-        .stdout(predicate::str::contains("ID"));
+        .stdout(predicate::str::contains("io.ggen.rust.cli-subcommand"));
 }
 
 #[test]
