@@ -1,3 +1,31 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [API Fixes Summary - ggen-ai](#api-fixes-summary---ggen-ai)
+  - [Overview](#overview)
+  - [Fixes Completed](#fixes-completed)
+    - [1. ✅ Updated Model Lists](#1--updated-model-lists)
+      - [OpenAI Models (ggen-ai/src/providers/openai.rs)](#openai-models-ggen-aisrcprovidersopenairs)
+      - [Anthropic Models (ggen-ai/src/providers/anthropic.rs)](#anthropic-models-ggen-aisrcprovidersanthropicrs)
+    - [2. ✅ Fixed `with_ollama_model()` Implementation](#2--fixed-with_ollama_model-implementation)
+      - [MCP Server (ggen-ai/src/mcp/server.rs)](#mcp-server-ggen-aisrcmcpserverrs)
+      - [MCP Tools (ggen-ai/src/mcp/tools.rs)](#mcp-tools-ggen-aisrcmcptoolsrs)
+    - [3. ✅ Implemented Delta Analysis](#3--implemented-delta-analysis)
+      - [Refactor Assistant (ggen-ai/src/generators/refactor.rs)](#refactor-assistant-ggen-aisrcgeneratorsrefactorrs)
+  - [Compilation Status](#compilation-status)
+  - [Impact Assessment](#impact-assessment)
+    - [HIGH PRIORITY (Fixed ✅)](#high-priority-fixed-)
+    - [MEDIUM PRIORITY (Needs Implementation)](#medium-priority-needs-implementation)
+    - [LOW PRIORITY](#low-priority)
+  - [Testing Recommendations](#testing-recommendations)
+  - [Files Modified](#files-modified)
+  - [Files Requiring Updates](#files-requiring-updates)
+  - [Hook Commands Executed](#hook-commands-executed)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # API Fixes Summary - ggen-ai
 
 ## Overview
