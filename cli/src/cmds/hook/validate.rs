@@ -65,38 +65,34 @@ pub async fn run(args: &ValidateArgs) -> Result<()> {
     // 5. Check variable definitions
     // 6. Verify git hook installation (for git triggers)
 
-    let mut checks = Vec::new();
-
     // Mock validation checks
-    checks.push(ValidationCheck {
-        name: "Configuration file exists".to_string(),
-        passed: true,
-        message: "Hook configuration found at .ggen/hooks/pre-commit.json".to_string(),
-    });
-
-    checks.push(ValidationCheck {
-        name: "Configuration syntax valid".to_string(),
-        passed: true,
-        message: "JSON syntax is valid".to_string(),
-    });
-
-    checks.push(ValidationCheck {
-        name: "Template reference valid".to_string(),
-        passed: true,
-        message: "Template 'graph-gen.tmpl' exists".to_string(),
-    });
-
-    checks.push(ValidationCheck {
-        name: "Trigger configuration valid".to_string(),
-        passed: true,
-        message: "Git pre-commit hook properly configured".to_string(),
-    });
-
-    checks.push(ValidationCheck {
-        name: "Variables defined correctly".to_string(),
-        passed: true,
-        message: "All required variables have default values".to_string(),
-    });
+    let checks = vec![
+        ValidationCheck {
+            name: "Configuration file exists".to_string(),
+            passed: true,
+            message: "Hook configuration found at .ggen/hooks/pre-commit.json".to_string(),
+        },
+        ValidationCheck {
+            name: "Configuration syntax valid".to_string(),
+            passed: true,
+            message: "JSON syntax is valid".to_string(),
+        },
+        ValidationCheck {
+            name: "Template reference valid".to_string(),
+            passed: true,
+            message: "Template 'graph-gen.tmpl' exists".to_string(),
+        },
+        ValidationCheck {
+            name: "Trigger configuration valid".to_string(),
+            passed: true,
+            message: "Git pre-commit hook properly configured".to_string(),
+        },
+        ValidationCheck {
+            name: "Variables defined correctly".to_string(),
+            passed: true,
+            message: "All required variables have default values".to_string(),
+        },
+    ];
 
     let errors: Vec<String> = checks
         .iter()

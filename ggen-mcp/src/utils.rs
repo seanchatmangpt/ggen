@@ -32,3 +32,4 @@ pub fn success_response(data: Value) -> Value {
         "data": data
     })
 }
+

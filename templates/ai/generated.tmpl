@@ -1,0 +1,51 @@
+---
+to: "src/{{name}}.rs"
+vars:
+  name: "user"
+  description: "User management"
+rdf:
+  inline: |
+    @prefix ex: <http://example.org/> .
+    @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+    ex:User a rdfs:Class ;
+        rdfs:label "User" .
+    ex:id a rdf:Property ;
+        rdfs:label "ID" .
+    ex:name a rdf:Property ;
+        rdfs:label "Name" .
+    ex:email a rdf:Property ;
+        rdfs:label "Email" .
+sparql:
+  - "SELECT ?field ?label WHERE { ?field rdfs:label ?label }"
+determinism:
+  seed: "ai-generated"
+  sort_order: ["field"]
+---
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct {{name|title}} {
+    {{#each fields}}
+    /// {{this|title}} field
+    pub {{this}}: String,
+    {{/each}}
+}
+
+impl {{name|title}} {
+    pub fn new({{#each fields}}{{this}}: String{{#unless @last}}, {{/unless}}{{/each}}) -> Self {
+        Self {
+            {{#each fields}}
+            {{this}},
+            {{/each}}
+        }
+    }
+    
+    pub fn validate(&self) -> Result<(), String> {
+        {{#each fields}}
+        if self.{{this}}.is_empty() {
+            return Err("{{this|title}} cannot be empty".to_string());
+        }
+        {{/each}}
+        Ok(())
+    }
+}

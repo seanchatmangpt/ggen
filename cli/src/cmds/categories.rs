@@ -23,9 +23,6 @@ use ggen_core::RegistryClient;
 use ggen_utils::error::Result;
 use serde_json;
 
-#[cfg(test)]
-use mockall::predicate::*;
-
 /// Categories command arguments with validation
 #[derive(Args, Debug)]
 pub struct CategoriesArgs {
@@ -153,7 +150,6 @@ fn display_keywords(keywords: &[(String, u64)], detailed: bool, json: bool) -> R
 #[cfg(test)]
 mod tests {
     use super::*;
-    use mockall::predicate::*;
 
     #[tokio::test]
     async fn test_categories_default_display() {

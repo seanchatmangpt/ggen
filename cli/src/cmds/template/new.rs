@@ -109,6 +109,7 @@ fn validate_template_input(args: &NewArgs) -> Result<()> {
 }
 
 /// Validate and sanitize output path
+#[allow(dead_code)]
 fn validate_output_path(path: &str) -> Result<()> {
     // Validate path is not empty
     if path.trim().is_empty() {

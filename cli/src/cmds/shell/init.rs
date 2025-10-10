@@ -145,6 +145,7 @@ async fn init_shell_with_deps(
     Ok(())
 }
 
+#[allow(dead_code)]
 async fn init_shell(args: &ShellInitArgs) -> Result<()> {
     let shell_init = CargoMakeShellInitializer;
     init_shell_with_deps(args, &shell_init).await
@@ -169,6 +170,7 @@ async fn init_project_with_deps(
     Ok(())
 }
 
+#[allow(dead_code)]
 async fn init_project(args: &ProjectInitArgs) -> Result<()> {
     let project_init = CargoMakeProjectInitializer;
     init_project_with_deps(args, &project_init).await
@@ -191,6 +193,7 @@ async fn init_dev_with_deps(_args: &DevInitArgs, dev_init: &dyn DevInitializer) 
     Ok(())
 }
 
+#[allow(dead_code)]
 async fn init_dev(args: &DevInitArgs) -> Result<()> {
     let dev_init = CargoMakeDevInitializer;
     init_dev_with_deps(args, &dev_init).await

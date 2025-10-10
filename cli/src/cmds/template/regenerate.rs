@@ -28,15 +28,15 @@ pub struct RegenerateArgs {
     pub dry_run: bool,
 
     /// Show diff of changes
-    #[arg(short, long)]
+    #[arg(short = 'd', long)]
     pub show_diff: bool,
 
     /// Filter to specific IRIs
-    #[arg(short, long)]
+    #[arg(short = 'f', long)]
     pub filter: Vec<String>,
 
     /// Snapshot directory
-    #[arg(short, long, default_value = ".ggen/snapshots")]
+    #[arg(short = 'S', long, default_value = ".ggen/snapshots")]
     pub snapshot_dir: PathBuf,
 }
 

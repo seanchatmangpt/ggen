@@ -1,6 +1,6 @@
 //! Prompt templates for SPARQL query generation
 
-use crate::error::{GgenAiError, Result};
+use crate::error::Result;
 
 /// Builder for SPARQL query generation prompts
 pub struct SparqlPromptBuilder {
@@ -257,8 +257,8 @@ mod tests {
             .with_constraints(vec!["Return user names".to_string()])
             .with_examples(vec!["SELECT ?user WHERE { ?user a ex:User }".to_string()])
             .build()
-            .unwrap();
-        
+            .expect("Failed to build SPARQL prompt");
+
         assert!(prompt.contains("Find all users"));
         assert!(prompt.contains("ex: <http://example.org/>"));
         assert!(prompt.contains("Return user names"));
@@ -270,8 +270,8 @@ mod tests {
         let prompt = SparqlPrompts::find_instances(
             "ex:Person",
             vec![("ex".to_string(), "http://example.org/".to_string())]
-        ).unwrap();
-        
+        ).expect("Failed to create find instances prompt");
+
         assert!(prompt.contains("ex:Person"));
         assert!(prompt.contains("instances"));
     }
@@ -281,8 +281,8 @@ mod tests {
         let prompt = SparqlPrompts::find_properties(
             "ex:resource",
             vec![("ex".to_string(), "http://example.org/".to_string())]
-        ).unwrap();
-        
+        ).expect("Failed to create find properties prompt");
+
         assert!(prompt.contains("ex:resource"));
         assert!(prompt.contains("properties"));
     }

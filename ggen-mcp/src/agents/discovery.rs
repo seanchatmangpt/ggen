@@ -5,14 +5,14 @@
 use super::*;
 use serde_json::Value;
 
-/// Service Discovery Agent
+/// Service Discovery Agent for finding and registering services in the system
 pub struct ServiceDiscovery {
     config: AgentConfig,
     status: AgentStatus,
     registered_services: Vec<ServiceRecord>,
 }
 
-/// Service record
+/// Record of a discovered service with its metadata and health status
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ServiceRecord {
     pub id: Uuid,
@@ -97,3 +97,4 @@ impl ServiceDiscovery {
         }))
     }
 }
+

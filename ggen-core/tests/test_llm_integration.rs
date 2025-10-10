@@ -37,9 +37,9 @@ mod integration_tests {
 
     #[test]
     fn test_role_conversions() {
-        assert_eq!(Role::from_str("user"), Some(Role::User));
-        assert_eq!(Role::from_str("SYSTEM"), Some(Role::System));
-        assert_eq!(Role::from_str("invalid"), None);
+        assert_eq!(Role::parse_role("user"), Some(Role::User));
+        assert_eq!(Role::parse_role("SYSTEM"), Some(Role::System));
+        assert_eq!(Role::parse_role("invalid"), None);
     }
 
     #[test]

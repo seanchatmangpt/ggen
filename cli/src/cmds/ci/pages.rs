@@ -212,6 +212,7 @@ async fn deploy_pages_with_deps(
     Ok(())
 }
 
+#[allow(dead_code)]
 async fn deploy_pages(args: &DeployArgs) -> Result<()> {
     let deployer = CargoMakePagesDeployer;
     deploy_pages_with_deps(args, &deployer).await
@@ -235,6 +236,7 @@ async fn check_status_with_deps(
     Ok(())
 }
 
+#[allow(dead_code)]
 async fn check_status(args: &StatusArgs) -> Result<()> {
     let status_checker = CargoMakePagesStatusChecker;
     check_status_with_deps(args, &status_checker).await
@@ -256,6 +258,7 @@ async fn view_logs_with_deps(args: &LogsArgs, log_viewer: &dyn GitHubPagesLogVie
     Ok(())
 }
 
+#[allow(dead_code)]
 async fn view_logs(args: &LogsArgs) -> Result<()> {
     let log_viewer = CargoMakePagesLogViewer;
     view_logs_with_deps(args, &log_viewer).await
@@ -282,6 +285,7 @@ async fn compare_deployment_with_deps(
     Ok(())
 }
 
+#[allow(dead_code)]
 async fn compare_deployment(args: &CompareArgs) -> Result<()> {
     let comparer = CargoMakePagesComparer;
     compare_deployment_with_deps(args, &comparer).await

@@ -37,6 +37,7 @@ pub trait ShellLister {
     fn list(&self) -> Result<ShellListResult>;
 }
 
+/// Result of shell completion generation
 #[derive(Debug, Clone)]
 pub struct CompletionResult {
     pub stdout: String,
@@ -44,6 +45,7 @@ pub struct CompletionResult {
     pub success: bool,
 }
 
+/// Result of shell completion installation
 #[derive(Debug, Clone)]
 pub struct InstallResult {
     pub stdout: String,
@@ -51,6 +53,7 @@ pub struct InstallResult {
     pub success: bool,
 }
 
+/// Result of listing available shells
 #[derive(Debug, Clone)]
 pub struct ShellListResult {
     pub stdout: String,
@@ -103,20 +106,40 @@ pub struct CargoMakeCompletionGenerator;
 
 impl CompletionGenerator for CargoMakeCompletionGenerator {
     fn generate(&self, shell: &str, output: Option<String>) -> Result<CompletionResult> {
-        let mut cmd = std::process::Command::new("cargo");
-        cmd.args(["make", "completions"]);
+        // Use clap_complete to generate completions directly
+        use clap_complete::{generate, Shell};
+        
+        let shell_type = match shell {
+            "bash" => Shell::Bash,
+            "zsh" => Shell::Zsh,
+            "fish" => Shell::Fish,
+            "powershell" => Shell::PowerShell,
+            _ => {
+                return Ok(CompletionResult {
+                    stdout: "".to_string(),
+                    stderr: format!("Unsupported shell: {}", shell),
+                    success: false,
+                });
+            }
+        };
 
-        cmd.arg("--shell").arg(shell);
-
-        if let Some(output) = output {
-            cmd.arg("--output").arg(output);
+        // Get the CLI app from the main binary
+        let mut app = crate::build_cli();
+        
+        let mut buf = Vec::new();
+        generate(shell_type, &mut app, "ggen", &mut buf);
+        
+        let completion_script = String::from_utf8_lossy(&buf).to_string();
+        
+        // Write to output file if specified
+        if let Some(output_path) = output {
+            std::fs::write(&output_path, &completion_script)?;
         }
 
-        let output = cmd.output()?;
         Ok(CompletionResult {
-            stdout: String::from_utf8_lossy(&output.stdout).to_string(),
-            stderr: String::from_utf8_lossy(&output.stderr).to_string(),
-            success: output.status.success(),
+            stdout: completion_script,
+            stderr: "".to_string(),
+            success: true,
         })
     }
 }
@@ -197,6 +220,7 @@ async fn generate_completion_with_deps(
     Ok(())
 }
 
+#[allow(dead_code)]
 async fn generate_completion(args: &GenerateArgs) -> Result<()> {
     let generator = CargoMakeCompletionGenerator;
     generate_completion_with_deps(args, &generator).await
@@ -221,6 +245,7 @@ async fn install_completion_with_deps(
     Ok(())
 }
 
+#[allow(dead_code)]
 async fn install_completion(args: &InstallArgs) -> Result<()> {
     let installer = CargoMakeCompletionInstaller;
     install_completion_with_deps(args, &installer).await
@@ -242,6 +267,7 @@ async fn list_shells_with_deps(lister: &dyn ShellLister) -> Result<()> {
     Ok(())
 }
 
+#[allow(dead_code)]
 async fn list_shells() -> Result<()> {
     let lister = CargoMakeShellLister;
     list_shells_with_deps(&lister).await

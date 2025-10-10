@@ -1,0 +1,194 @@
+---
+to: "queries/{{query_name}}.sparql"
+vars:
+  - query_name: string
+  - domain: string
+rdf: |
+  @prefix ex: <http://example.org/> .
+  @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+  @prefix owl: <http://www.w3.org/2002/07/owl#> .
+  @prefix foaf: <http://xmlns.com/foaf/0.1/> .
+  @prefix dc: <http://purl.org/dc/elements/1.1/> .
+  
+  ex:Person a owl:Class ;
+    rdfs:label "Person" ;
+    rdfs:comment "A person in the {{domain}} domain" .
+  
+  ex:Organization a owl:Class ;
+    rdfs:label "Organization" ;
+    rdfs:comment "An organization in the {{domain}} domain" .
+  
+  foaf:name a owl:DatatypeProperty ;
+    rdfs:domain ex:Person ;
+    rdfs:range xsd:string ;
+    rdfs:label "name" .
+  
+  foaf:email a owl:DatatypeProperty ;
+    rdfs:domain ex:Person ;
+    rdfs:range xsd:string ;
+    rdfs:label "email" .
+  
+  ex:worksFor a owl:ObjectProperty ;
+    rdfs:domain ex:Person ;
+    rdfs:range ex:Organization ;
+    rdfs:label "works for" .
+  
+  ex:hasRole a owl:DatatypeProperty ;
+    rdfs:domain ex:Person ;
+    rdfs:range xsd:string ;
+    rdfs:label "has role" .
+sparql: |
+  PREFIX ex: <http://example.org/>
+  PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+  
+  SELECT ?person ?name ?email ?organization ?role WHERE {
+    ?person a ex:Person ;
+      foaf:name ?name ;
+      foaf:email ?email ;
+      ex:worksFor ?organization ;
+      ex:hasRole ?role .
+    
+    ?organization a ex:Organization ;
+      rdfs:label ?orgName .
+  }
+  ORDER BY ?name
+determinism: true
+---
+
+# {{query_name | title}} Query for {{domain | title}} Domain
+
+## Description
+This SPARQL query retrieves {{query_name}} information from the {{domain}} knowledge graph.
+
+## Query Parameters
+- **domain**: {{domain}}
+- **query_type**: {{query_name}}
+
+## SPARQL Query
+
+```sparql
+PREFIX ex: <http://example.org/>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+
+# {{query_name | title}} Query
+# Domain: {{domain}}
+# Generated: {{now | date(format="%Y-%m-%d %H:%M:%S")}}
+
+SELECT ?subject ?name ?email ?organization ?role ?description WHERE {
+  ?subject a ex:Person ;
+    foaf:name ?name ;
+    foaf:email ?email ;
+    ex:worksFor ?organization ;
+    ex:hasRole ?role .
+  
+  OPTIONAL {
+    ?subject dc:description ?description .
+  }
+  
+  ?organization a ex:Organization ;
+    rdfs:label ?orgName .
+    
+  # Filter by domain if specified
+  {% if domain != "all" %}
+  FILTER(CONTAINS(LCASE(?orgName), LCASE("{{domain}}")))
+  {% endif %}
+}
+ORDER BY ?name
+LIMIT 100
+```
+
+## Alternative Queries
+
+### Count Query
+```sparql
+PREFIX ex: <http://example.org/>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+SELECT (COUNT(?subject) as ?total_{{query_name}}s) WHERE {
+  ?subject a ex:Person ;
+    foaf:name ?name ;
+    ex:worksFor ?organization .
+    
+  ?organization a ex:Organization .
+}
+```
+
+### Organization Summary
+```sparql
+PREFIX ex: <http://example.org/>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?organization ?orgName (COUNT(?person) as ?employee_count) WHERE {
+  ?person a ex:Person ;
+    ex:worksFor ?organization .
+    
+  ?organization a ex:Organization ;
+    rdfs:label ?orgName .
+}
+GROUP BY ?organization ?orgName
+ORDER BY DESC(?employee_count)
+```
+
+### Role Distribution
+```sparql
+PREFIX ex: <http://example.org/>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+SELECT ?role (COUNT(?person) as ?role_count) WHERE {
+  ?person a ex:Person ;
+    ex:hasRole ?role .
+}
+GROUP BY ?role
+ORDER BY DESC(?role_count)
+```
+
+## Usage Examples
+
+### Using with ggen CLI
+```bash
+# Execute the query
+ggen graph query queries/{{query_name}}.sparql --format json
+
+# Execute with specific output format
+ggen graph query queries/{{query_name}}.sparql --format csv --output results.csv
+
+# Execute with graph context
+ggen graph query queries/{{query_name}}.sparql --graph http://example.org/{{domain}}
+```
+
+### Using with SPARQL endpoint
+```bash
+# POST to SPARQL endpoint
+curl -X POST \
+  -H "Content-Type: application/sparql-query" \
+  -H "Accept: application/sparql-results+json" \
+  --data-binary @queries/{{query_name}}.sparql \
+  http://localhost:8080/sparql
+```
+
+## Expected Results
+
+The query should return results in the following format:
+
+| subject | name | email | organization | role | description |
+|---------|------|-------|--------------|------|-------------|
+| ex:person1 | John Doe | john@example.com | ex:org1 | Developer | Senior software engineer |
+| ex:person2 | Jane Smith | jane@example.com | ex:org1 | Manager | Team lead |
+
+## Performance Notes
+
+- Query uses LIMIT 100 to prevent large result sets
+- Consider adding indexes on frequently queried properties
+- Use ORDER BY for consistent result ordering
+- OPTIONAL clauses may impact performance on large datasets
+
+## Related Queries
+
+- `person_details.sparql` - Detailed person information
+- `organization_structure.sparql` - Organization hierarchy
+- `role_analysis.sparql` - Role distribution analysis

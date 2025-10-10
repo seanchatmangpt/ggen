@@ -275,8 +275,7 @@ fn parse_anthropic_sse(bytes: bytes::Bytes) -> LlmResult<StreamChunk> {
     let text = String::from_utf8_lossy(&bytes);
 
     for line in text.lines() {
-        if line.starts_with("data: ") {
-            let data = &line[6..];
+        if let Some(data) = line.strip_prefix("data: ") {
 
             let event: serde_json::Value = serde_json::from_str(data)?;
 

@@ -8,6 +8,7 @@ use tera::Context;
 use crate::pipeline::Pipeline;
 use crate::template::Template;
 
+/// Context for template generation with paths, variables, and configuration
 pub struct GenContext {
     pub template_path: PathBuf,
     pub output_root: PathBuf,
@@ -45,6 +46,7 @@ impl GenContext {
     }
 }
 
+/// Main generator that orchestrates template processing and file generation
 pub struct Generator {
     pub pipeline: Pipeline,
     pub ctx: GenContext,

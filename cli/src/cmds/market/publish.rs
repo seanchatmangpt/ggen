@@ -19,6 +19,7 @@
 use clap::Args;
 use ggen_utils::error::Result;
 
+/// Arguments for publishing a gpack to the marketplace
 #[derive(Args, Debug)]
 pub struct PublishArgs {
     /// Path to the package directory to publish
@@ -41,11 +42,12 @@ pub struct PublishArgs {
 #[cfg_attr(test, mockall::automock)]
 pub trait PackagePublisher {
     fn validate_package(&self, path: &str) -> Result<ValidationResult>;
-    fn publish_package<'a>(
-        &self, path: &str, tag: Option<&'a str>, dry_run: bool,
+    fn publish_package(
+        &self, path: &str, tag: Option<String>, dry_run: bool,
     ) -> Result<PublishResult>;
 }
 
+/// Result of package validation with warnings and errors
 #[derive(Debug, Clone)]
 pub struct ValidationResult {
     pub is_valid: bool,
@@ -53,6 +55,7 @@ pub struct ValidationResult {
     pub errors: Vec<String>,
 }
 
+/// Result of successful package publication
 #[derive(Debug, Clone)]
 pub struct PublishResult {
     pub package_id: String,
@@ -130,7 +133,7 @@ pub async fn run_with_deps(args: &PublishArgs, publisher: &dyn PackagePublisher)
     }
 
     let result =
-        publisher.publish_package(&args.package_path, args.tag.as_deref(), args.dry_run)?;
+        publisher.publish_package(&args.package_path, args.tag.clone(), args.dry_run)?;
 
     println!(
         "✅ Successfully published {}@{}",

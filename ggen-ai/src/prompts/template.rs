@@ -1,6 +1,6 @@
 //! Prompt templates for template generation
 
-use crate::error::{GgenAiError, Result};
+use crate::error::Result;
 
 /// Builder for template generation prompts
 pub struct TemplatePromptBuilder {
@@ -228,8 +228,8 @@ mod tests {
             .with_requirements(vec!["Include authentication".to_string()])
             .with_examples(vec!["User registration".to_string()])
             .build()
-            .unwrap();
-        
+            .expect("Failed to build template prompt");
+
         assert!(prompt.contains("user management system"));
         assert!(prompt.contains("TypeScript"));
         assert!(prompt.contains("Express"));
@@ -243,8 +243,8 @@ mod tests {
             "User management API",
             "TypeScript",
             "Express"
-        ).unwrap();
-        
+        ).expect("Failed to create REST API controller prompt");
+
         assert!(prompt.contains("User management API"));
         assert!(prompt.contains("TypeScript"));
         assert!(prompt.contains("Express"));
@@ -253,10 +253,12 @@ mod tests {
     
     #[test]
     fn test_data_model_prompt() {
-        let prompt = TemplatePrompts::data_model("User entity", "Rust").unwrap();
-        
+        let prompt = TemplatePrompts::data_model("User entity", "Rust")
+            .expect("Failed to create data model prompt");
+
         assert!(prompt.contains("User entity"));
         assert!(prompt.contains("Rust"));
         assert!(prompt.contains("type definitions"));
     }
 }
+

@@ -194,6 +194,7 @@ async fn list_workflows_with_deps(args: &ListArgs, lister: &dyn WorkflowLister) 
     Ok(())
 }
 
+#[allow(dead_code)]
 async fn list_workflows(args: &ListArgs) -> Result<()> {
     let lister = CargoMakeWorkflowLister;
     list_workflows_with_deps(args, &lister).await
@@ -217,6 +218,7 @@ async fn check_workflow_status_with_deps(
     Ok(())
 }
 
+#[allow(dead_code)]
 async fn check_workflow_status(args: &StatusArgs) -> Result<()> {
     let status_checker = CargoMakeWorkflowStatusChecker;
     check_workflow_status_with_deps(args, &status_checker).await
@@ -240,6 +242,7 @@ async fn view_workflow_logs_with_deps(
     Ok(())
 }
 
+#[allow(dead_code)]
 async fn view_workflow_logs(args: &LogsArgs) -> Result<()> {
     let log_viewer = CargoMakeWorkflowLogViewer;
     view_workflow_logs_with_deps(args, &log_viewer).await
@@ -284,6 +287,7 @@ async fn cancel_workflows_with_deps(
     Ok(())
 }
 
+#[allow(dead_code)]
 async fn cancel_workflows(args: &CancelArgs) -> Result<()> {
     let canceler = CargoMakeWorkflowCanceler;
     cancel_workflows_with_deps(args, &canceler).await

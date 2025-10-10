@@ -10,3 +10,4 @@ pub use adapter::*;
 pub use openai::OpenAIClient;
 pub use anthropic::AnthropicClient;
 pub use ollama::OllamaClient;
+

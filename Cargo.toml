@@ -30,6 +30,7 @@ syslog = ["ggen-utils/syslog"]
 ggen-utils = { path = "utils", version = "0.2.4" }
 ggen-cli-lib = { path = "cli", version = "0.2.4" }
 ggen-core = { path = "ggen-core", version = "0.2.4" }
+ggen-ai = { path = "ggen-ai", version = "0.2.4" }
 human-panic = "2.0.0"
 better-panic = "0.3.0"
 log = "0.4.27"
@@ -38,11 +39,19 @@ tokio = { version = "1.0", features = ["full"] }
 anyhow = "1.0"
 chrono = { version = "0.4", features = ["serde"] }
 serde_json = "1.0"
+serde_yaml = "0.9"
+clap = { version = "4.0", features = ["derive"] }
 tempfile = "3.0"
 tera = "1.0"
 async-trait = "0.1"
 serde = { version = "1.0", features = ["derive"] }
 uuid = { version = "1.0", features = ["v4"] }
+genai = "0.1"
+tracing-subscriber = "0.3"
+
+[[example]]
+name = "test_sparql_json_conversion"
+path = "examples/test_sparql_json_conversion.rs"
 
 [dev-dependencies]
 assert_cmd = "2.0.17"

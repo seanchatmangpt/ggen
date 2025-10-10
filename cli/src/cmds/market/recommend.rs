@@ -215,6 +215,18 @@ fn get_simulated_installed_packages() -> Vec<InstalledPackage> {
             version: "1.0.0".to_string(),
         },
         InstalledPackage {
+            id: "io.ggen.go.cli".to_string(),
+            name: "Go CLI Templates".to_string(),
+            category: "cli".to_string(),
+            version: "1.2.0".to_string(),
+        },
+        InstalledPackage {
+            id: "io.ggen.python.cli".to_string(),
+            name: "Python CLI Templates".to_string(),
+            category: "cli".to_string(),
+            version: "0.9.0".to_string(),
+        },
+        InstalledPackage {
             id: "io.ggen.auth.user".to_string(),
             name: "User Authentication".to_string(),
             category: "auth".to_string(),
@@ -314,7 +326,6 @@ pub async fn run_with_deps(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use mockall::predicate::*;
 
     #[test]
     fn test_recommendation_generation() {

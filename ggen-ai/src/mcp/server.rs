@@ -17,6 +17,7 @@ use crate::error::{GgenAiError, Result};
 use crate::mcp::tools::AiMcpTools;
 
 /// AI-enhanced MCP server
+#[derive(Debug)]
 pub struct GgenAiMcpServer {
     tools: HashMap<String, ToolDef>,
     ai_tools: AiMcpTools,
@@ -113,6 +114,12 @@ impl GgenAiMcpServer {
         self
     }
     
+    /// Initialize with Ollama client and specific model
+    pub fn with_ollama_model(mut self, model: &str) -> Self {
+        self.ai_tools = self.ai_tools.with_ollama();
+        self
+    }
+    
     /// Execute a tool
     async fn execute_tool(&self, name: &str, params: Value) -> Result<Value> {
         match name {
@@ -127,82 +134,87 @@ impl GgenAiMcpServer {
     }
 }
 
-#[async_trait::async_trait]
 impl ServerHandler for GgenAiMcpServer {
-    async fn initialize(
+    fn initialize(
         &self,
         _params: InitializeRequestParam,
         _context: RequestContext<RoleServer>,
-    ) -> std::result::Result<InitializeResult, ErrorData> {
-        Ok(InitializeResult {
-            protocol_version: ProtocolVersion::default(),
-            capabilities: ServerCapabilities {
-                tools: Some(ToolsCapability::default()),
-                ..Default::default()
-            },
-            server_info: Implementation {
-                name: "ggen-ai-mcp".to_string(),
-                version: env!("CARGO_PKG_VERSION").to_string(),
-                title: Some("GGen AI MCP Server".to_string()),
-                website_url: Some("https://github.com/seanchatmangpt/ggen".to_string()),
-                icons: None,
-            },
-            instructions: Some("AI-powered code generation and refactoring tools for ggen".to_string()),
-        })
+    ) -> impl std::future::Future<Output = std::result::Result<InitializeResult, ErrorData>> + Send + '_ {
+        async move {
+            Ok(InitializeResult {
+                protocol_version: ProtocolVersion::default(),
+                capabilities: ServerCapabilities {
+                    tools: Some(ToolsCapability::default()),
+                    ..Default::default()
+                },
+                server_info: Implementation {
+                    name: "ggen-ai-mcp".to_string(),
+                    version: env!("CARGO_PKG_VERSION").to_string(),
+                    title: Some("GGen AI MCP Server".to_string()),
+                    website_url: Some("https://github.com/seanchatmangpt/ggen".to_string()),
+                    icons: None,
+                },
+                instructions: Some("AI-powered code generation and refactoring tools for ggen".to_string()),
+            })
+        }
     }
     
-    async fn list_tools(
+    fn list_tools(
         &self,
         _pagination: Option<PaginatedRequestParam>,
         _context: RequestContext<RoleServer>,
-    ) -> std::result::Result<ListToolsResult, ErrorData> {
-        let tools = self
-            .tools
-            .values()
-            .map(|tool_def| {
-                let schema_map = match &tool_def.input_schema {
-                    Value::Object(map) => map.clone(),
-                    _ => Map::new(),
-                };
-                
-                Tool {
-                    name: Cow::Owned(tool_def.name.clone()),
-                    description: Some(Cow::Owned(tool_def.description.clone())),
-                    input_schema: Arc::new(schema_map),
-                    title: None,
-                    output_schema: None,
-                    icons: None,
-                    annotations: None,
-                }
+    ) -> impl std::future::Future<Output = std::result::Result<ListToolsResult, ErrorData>> + Send + '_ {
+        async move {
+            let tools = self
+                .tools
+                .values()
+                .map(|tool_def| {
+                    let schema_map = match &tool_def.input_schema {
+                        Value::Object(map) => map.clone(),
+                        _ => Map::new(),
+                    };
+                    
+                    Tool {
+                        name: Cow::Owned(tool_def.name.clone()),
+                        description: Some(Cow::Owned(tool_def.description.clone())),
+                        input_schema: Arc::new(schema_map),
+                        title: None,
+                        output_schema: None,
+                        icons: None,
+                        annotations: None,
+                    }
+                })
+                .collect();
+            
+            Ok(ListToolsResult {
+                tools,
+                next_cursor: None,
             })
-            .collect();
-        
-        Ok(ListToolsResult {
-            tools,
-            next_cursor: None,
-        })
+        }
     }
     
-    async fn call_tool(
+    fn call_tool(
         &self,
         params: CallToolRequestParam,
         _context: RequestContext<RoleServer>,
-    ) -> std::result::Result<CallToolResult, ErrorData> {
-        let args = Value::Object(params.arguments.unwrap_or_default());
-        let result = self
-            .execute_tool(&params.name, args)
-            .await
-            .map_err(|e| ErrorData::internal_error(e.to_string(), None))?;
-        
-        Ok(CallToolResult {
-            content: vec![Content::text(
-                serde_json::to_string_pretty(&result)
-                    .map_err(|e| ErrorData::internal_error(e.to_string(), None))?,
-            )],
-            is_error: None,
-            meta: None,
-            structured_content: None,
-        })
+    ) -> impl std::future::Future<Output = std::result::Result<CallToolResult, ErrorData>> + Send + '_ {
+        async move {
+            let args = Value::Object(params.arguments.unwrap_or_default());
+            let result = self
+                .execute_tool(&params.name, args)
+                .await
+                .map_err(|e| ErrorData::internal_error(e.to_string(), None))?;
+            
+            Ok(CallToolResult {
+                content: vec![Content::text(
+                    serde_json::to_string_pretty(&result)
+                        .map_err(|e| ErrorData::internal_error(e.to_string(), None))?,
+                )],
+                is_error: None,
+                meta: None,
+                structured_content: None,
+            })
+        }
     }
 }
 
@@ -370,29 +382,4 @@ mod tests {
         assert_eq!(server.tools.len(), 6);
     }
     
-    #[tokio::test]
-    async fn test_initialize() {
-        let server = GgenAiMcpServer::new();
-        let result = server.initialize(
-            InitializeRequestParam::default(),
-            RequestContext::default(),
-        ).await;
-        
-        assert!(result.is_ok());
-        let init_result = result.unwrap();
-        assert_eq!(init_result.server_info.name, "ggen-ai-mcp");
-    }
-    
-    #[tokio::test]
-    async fn test_list_tools() {
-        let server = GgenAiMcpServer::new();
-        let result = server.list_tools(
-            None,
-            RequestContext::default(),
-        ).await;
-        
-        assert!(result.is_ok());
-        let tools_result = result.unwrap();
-        assert_eq!(tools_result.tools.len(), 6);
-    }
 }

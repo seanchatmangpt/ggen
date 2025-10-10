@@ -21,8 +21,8 @@ use std::fs;
 use std::path::Path;
 
 // Import cache functions
-use super::cache::run_cache_stats;
 
+/// Arguments for offline marketplace operations using cached data
 #[derive(Args, Debug)]
 pub struct OfflineArgs {
     #[command(subcommand)]
@@ -84,12 +84,14 @@ pub trait OfflineMarketClient {
     fn get_cache_status(&self) -> Result<CacheStatus>;
 }
 
+/// Filters for searching cached packages offline
 #[derive(Debug, Clone)]
 pub struct OfflineSearchFilters {
     pub category: Option<String>,
     pub limit: usize,
 }
 
+/// Cached package information with metadata
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct CachedPackage {
     pub id: String,
@@ -106,6 +108,7 @@ pub struct CachedPackage {
     pub cached_at: String,
 }
 
+/// Current status of the local cache
 #[derive(Debug, Clone)]
 pub struct CacheStatus {
     pub package_count: usize,
@@ -114,6 +117,7 @@ pub struct CacheStatus {
     pub is_stale: bool,
 }
 
+/// Result of cache update operation
 #[derive(Debug, Clone)]
 pub struct CacheUpdateResult {
     pub packages_added: usize,
@@ -173,7 +177,7 @@ async fn run_offline_search(
         })
         .filter(|pkg| {
             if let Some(cat) = &filters.category {
-                pkg.category.as_ref().map_or(false, |c| c == cat)
+                pkg.category.as_ref() == Some(cat)
             } else {
                 true
             }
@@ -371,7 +375,12 @@ pub async fn run_with_deps(args: &OfflineArgs, client: &dyn OfflineMarketClient)
                 limit: *limit,
             };
             let results = client.search_cache(query, &filters)?;
-            display_offline_search_results(&results, query);
+            if *json {
+                let json_output = serde_json::to_string_pretty(&results)?;
+                println!("{}", json_output);
+            } else {
+                display_offline_search_results(&results, query);
+            }
         }
         OfflineCommand::Info {
             package_id,
@@ -439,7 +448,7 @@ mod tests {
             cached_at: "now".to_string(),
         }];
 
-        let filters = OfflineSearchFilters {
+        let _filters = OfflineSearchFilters {
             category: Some("test".to_string()),
             limit: 10,
         };

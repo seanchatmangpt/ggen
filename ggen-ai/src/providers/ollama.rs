@@ -9,6 +9,8 @@ use crate::client::{LlmClient, LlmConfig, LlmResponse, LlmChunk, UsageStats};
 use crate::error::{GgenAiError, Result};
 
 /// Ollama API client for local models
+/// Client for interacting with Ollama local LLM service
+#[derive(Debug)]
 pub struct OllamaClient {
     client: Client,
     base_url: String,
@@ -30,6 +32,18 @@ impl OllamaClient {
             base_url,
         }
     }
+    
+    /// Create a configuration optimized for qwen3-coder:30b
+    pub fn qwen3_coder_config() -> LlmConfig {
+        LlmConfig {
+            model: "qwen3-coder:30b".to_string(),
+            max_tokens: Some(4096),
+            temperature: Some(0.1), // Lower temperature for more deterministic code generation
+            top_p: Some(0.9),
+            stop: None, // Remove stop sequences to allow full template generation
+            extra: std::collections::HashMap::new(),
+        }
+    }
 }
 
 #[derive(Serialize)]
@@ -49,6 +63,7 @@ struct GenerateOptions {
 }
 
 #[derive(Deserialize)]
+#[allow(dead_code)]
 struct GenerateResponse {
     model: String,
     created_at: String,
@@ -227,6 +242,7 @@ impl LlmClient for OllamaClient {
     
     fn supported_models(&self) -> Vec<String> {
         vec![
+            "qwen3-coder:30b".to_string(),
             "llama2".to_string(),
             "codellama".to_string(),
             "mistral".to_string(),

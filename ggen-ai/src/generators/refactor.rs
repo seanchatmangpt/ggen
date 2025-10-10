@@ -5,6 +5,7 @@ use crate::error::{GgenAiError, Result};
 use ggen_core::{ThreeWayMerger, MergeStrategy};
 
 /// Code refactoring suggestion
+/// A refactoring suggestion with type, description, and impact assessment
 #[derive(Debug, Clone)]
 pub struct RefactoringSuggestion {
     /// Type of refactoring
@@ -58,6 +59,7 @@ pub enum ImpactLevel {
 }
 
 /// AI-powered code refactoring assistant
+#[derive(Debug)]
 pub struct RefactorAssistant {
     client: Box<dyn LlmClient>,
     config: LlmConfig,
@@ -75,6 +77,15 @@ impl RefactorAssistant {
     /// Create a new refactoring assistant with custom config
     pub fn with_config(client: Box<dyn LlmClient>, config: LlmConfig) -> Self {
         Self { client, config }
+    }
+    
+    /// Create a new refactoring assistant optimized for Ollama qwen3-coder:30b
+    pub fn with_ollama_qwen3_coder(client: Box<dyn LlmClient>) -> Self {
+        use crate::providers::OllamaClient;
+        Self {
+            client,
+            config: OllamaClient::qwen3_coder_config(),
+        }
     }
     
     /// Suggest refactoring improvements for code
@@ -283,13 +294,15 @@ impl RefactorAssistant {
         
         // Extract code from markdown code blocks if present
         let refactored_code = if response.content.contains("```") {
-            let start = response.content.find("```").unwrap_or(0);
-            let end = response.content.rfind("```").unwrap_or(response.content.len());
+            let start = response.content.find("```")
+                .ok_or_else(|| GgenAiError::validation("Could not find opening ``` marker"))?;
+            let end = response.content.rfind("```")
+                .ok_or_else(|| GgenAiError::validation("Could not find closing ``` marker"))?;
             response.content[start + 3..end].trim().to_string()
         } else {
             response.content.trim().to_string()
         };
-        
+
         Ok(refactored_code)
     }
     
@@ -498,16 +511,16 @@ mod tests {
                 }
             ]
         }"#;
-        
+
         let client = Box::new(MockClient::with_response(mock_response));
         let assistant = RefactorAssistant::new(client);
-        
+
         let context = RefactoringContext::new("JavaScript".to_string());
         let result = assistant.suggest_refactoring("function test() { if (input.length > 0) { return true; } }", &context).await;
-        
+
         // This should succeed with parsed suggestions
         assert!(result.is_ok());
-        let suggestions = result.unwrap();
+        let suggestions = result.expect("Failed to get refactoring suggestions");
         assert_eq!(suggestions.len(), 1);
         assert!(matches!(suggestions[0].suggestion_type, SuggestionType::ExtractMethod));
     }
@@ -516,7 +529,7 @@ mod tests {
     async fn test_apply_refactoring() {
         let client = Box::new(MockClient::with_response("function test() { return validate(input); }"));
         let assistant = RefactorAssistant::new(client);
-        
+
         let suggestions = vec![RefactoringSuggestion {
             suggestion_type: SuggestionType::ExtractMethod,
             description: "Extract validation".to_string(),
@@ -525,16 +538,16 @@ mod tests {
             reasoning: "Repeated logic".to_string(),
             impact: ImpactLevel::Low,
         }];
-        
+
         let result = assistant.apply_refactoring(
             "function test() { if (input.length > 0) { return true; } }",
             suggestions,
             MergeStrategy::GeneratedWins,
         ).await;
-        
+
         // This should succeed with refactored code
         assert!(result.is_ok());
-        let refactored = result.unwrap();
+        let refactored = result.expect("Failed to apply refactoring");
         assert!(refactored.contains("validate"));
     }
 }

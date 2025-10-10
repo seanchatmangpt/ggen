@@ -519,3 +519,4 @@ struct ValidationResult {
     data: Value,
     error: Option<String>,
 }
+

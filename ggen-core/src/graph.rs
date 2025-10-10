@@ -70,6 +70,13 @@ impl Graph {
         })
     }
 
+    /// Load RDF data from a file into a new Graph
+    pub fn load_from_file<P: AsRef<Path>>(path: P) -> Result<Self> {
+        let mut graph = Self::new()?;
+        graph.load_path(path)?;
+        Ok(graph)
+    }
+
     fn current_epoch(&self) -> u64 {
         self.epoch.load(Ordering::Relaxed)
     }

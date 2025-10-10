@@ -9,6 +9,7 @@ use crate::client::{LlmClient, LlmConfig, LlmResponse, LlmChunk, UsageStats};
 use crate::error::{GgenAiError, Result};
 
 /// OpenAI API client
+#[derive(Debug)]
 pub struct OpenAIClient {
     client: Client,
     api_key: String,
@@ -53,6 +54,7 @@ struct Message {
 }
 
 #[derive(Deserialize)]
+#[allow(dead_code)]
 struct ChatCompletionResponse {
     id: String,
     object: String,
@@ -63,6 +65,7 @@ struct ChatCompletionResponse {
 }
 
 #[derive(Deserialize)]
+#[allow(dead_code)]
 struct Choice {
     index: u32,
     message: Option<Message>,
@@ -71,6 +74,7 @@ struct Choice {
 }
 
 #[derive(Deserialize)]
+#[allow(dead_code)]
 struct Delta {
     role: Option<String>,
     content: Option<String>,
@@ -84,6 +88,7 @@ struct Usage {
 }
 
 #[derive(Deserialize)]
+#[allow(dead_code)]
 struct EmbeddingResponse {
     data: Vec<EmbeddingData>,
     model: String,
@@ -91,6 +96,7 @@ struct EmbeddingResponse {
 }
 
 #[derive(Deserialize)]
+#[allow(dead_code)]
 struct EmbeddingData {
     embedding: Vec<f32>,
     index: u32,

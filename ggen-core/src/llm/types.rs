@@ -81,6 +81,7 @@ impl ChatRequest {
 
 /// Builder for ChatRequest
 #[derive(Default)]
+/// Builder for constructing chat requests with fluent API
 pub struct ChatRequestBuilder {
     model: Option<String>,
     messages: Vec<Message>,
@@ -179,7 +180,7 @@ pub struct TokenUsage {
 
 impl Role {
     /// Convert string to Role
-    pub fn from_str(s: &str) -> Option<Self> {
+    pub fn parse_role(s: &str) -> Option<Self> {
         match s.to_lowercase().as_str() {
             "system" => Some(Role::System),
             "user" => Some(Role::User),
@@ -191,7 +192,7 @@ impl Role {
 
 impl From<&str> for Role {
     fn from(s: &str) -> Self {
-        Role::from_str(s).unwrap_or(Role::User)
+        Role::parse_role(s).unwrap_or(Role::User)
     }
 }
 
@@ -228,8 +229,8 @@ mod tests {
 
     #[test]
     fn test_role_from_str() {
-        assert_eq!(Role::from_str("user"), Some(Role::User));
-        assert_eq!(Role::from_str("SYSTEM"), Some(Role::System));
-        assert_eq!(Role::from_str("invalid"), None);
+        assert_eq!(Role::parse_role("user"), Some(Role::User));
+        assert_eq!(Role::parse_role("SYSTEM"), Some(Role::System));
+        assert_eq!(Role::parse_role("invalid"), None);
     }
 }

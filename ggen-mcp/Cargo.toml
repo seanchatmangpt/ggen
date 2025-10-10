@@ -48,6 +48,8 @@ path = "src/lib.rs"
 criterion = { version = "0.5", features = ["html_reports", "async_tokio"] }
 tokio-test = "0.4"
 futures = "0.3"
+proptest = "1.4"
+test-case = "3.3"
 
 [[bench]]
 name = "tools"

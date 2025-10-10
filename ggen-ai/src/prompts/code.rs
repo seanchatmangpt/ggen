@@ -1,6 +1,6 @@
 //! Prompt templates for code generation
 
-use crate::error::{GgenAiError, Result};
+use crate::error::Result;
 
 /// Builder for code generation prompts
 pub struct CodePromptBuilder {
@@ -334,8 +334,8 @@ mod tests {
             .with_requirements(vec!["Include authentication".to_string()])
             .with_examples(vec!["User registration".to_string()])
             .build()
-            .unwrap();
-        
+            .expect("Failed to build code prompt");
+
         assert!(prompt.contains("User management system"));
         assert!(prompt.contains("Rust"));
         assert!(prompt.contains("Actix"));
@@ -349,8 +349,8 @@ mod tests {
             "User API",
             "TypeScript",
             "Express"
-        ).unwrap();
-        
+        ).expect("Failed to create REST controller prompt");
+
         assert!(prompt.contains("User API"));
         assert!(prompt.contains("TypeScript"));
         assert!(prompt.contains("Express"));
@@ -359,10 +359,12 @@ mod tests {
     
     #[test]
     fn test_data_model_prompt() {
-        let prompt = CodePrompts::data_model("User entity", "Rust").unwrap();
-        
+        let prompt = CodePrompts::data_model("User entity", "Rust")
+            .expect("Failed to create data model prompt");
+
         assert!(prompt.contains("User entity"));
         assert!(prompt.contains("Rust"));
         assert!(prompt.contains("validation rules"));
     }
 }
+

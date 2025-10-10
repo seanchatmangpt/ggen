@@ -480,3 +480,45 @@ command = "./scripts/ci-health-check.sh"
 
 [tasks.ci-health]
 alias = "ci-check"
+
+# ============================================================================
+# Shell Completion Tasks
+# ============================================================================
+
+[tasks.completions]
+description = "Generate shell completion scripts"
+command = "cargo"
+args = [
+  "run",
+  "--bin",
+  "ggen",
+  "--",
+  "shell",
+  "completion",
+  "generate",
+  "--shell",
+  "${SHELL}",
+  "--output",
+  "${OUTPUT}",
+]
+
+[tasks.completions-install]
+description = "Install shell completion scripts"
+command = "cargo"
+args = [
+  "run",
+  "--bin",
+  "ggen",
+  "--",
+  "shell",
+  "completion",
+  "install",
+  "--shell",
+  "${SHELL}",
+  "--force",
+]
+
+[tasks.completions-list]
+description = "List supported shell completion types"
+command = "cargo"
+args = ["run", "--bin", "ggen", "--", "shell", "completion", "list"]
