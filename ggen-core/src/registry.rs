@@ -338,6 +338,12 @@ impl RegistryClient {
         a.name.cmp(&b.name)
     }
 
+    /// List all packages in the registry
+    pub async fn list_packages(&self) -> Result<Vec<PackMetadata>> {
+        let index = self.fetch_index().await?;
+        Ok(index.packs.into_values().collect())
+    }
+
     /// Resolve a pack ID to a specific version
     pub async fn resolve(&self, pack_id: &str, version: Option<&str>) -> Result<ResolvedPack> {
         let index = self.fetch_index().await?;

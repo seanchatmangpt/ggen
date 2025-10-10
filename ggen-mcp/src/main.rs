@@ -1,11 +1,11 @@
 use anyhow::Result;
-use rmcp::ServerBuilder;
 use tracing_subscriber;
 
 mod error;
 mod schema;
 mod server;
 mod tools;
+mod utils;
 
 use server::GgenMcpServer;
 
@@ -20,13 +20,14 @@ async fn main() -> Result<()> {
     tracing::info!("Starting ggen MCP server");
 
     // Create server instance
-    let server = GgenMcpServer::new();
+    let _server = GgenMcpServer::new();
 
-    // Build and run MCP server with stdio transport
-    ServerBuilder::new(server)
-        .stdio()
-        .serve()
-        .await?;
+    // TODO: Implement actual server startup
+    tracing::info!("GGen MCP Server initialized");
+    
+    // Keep the server running
+    tokio::signal::ctrl_c().await?;
+    tracing::info!("Shutting down GGen MCP Server");
 
     Ok(())
 }

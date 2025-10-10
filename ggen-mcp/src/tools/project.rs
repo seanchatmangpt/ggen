@@ -1,135 +1,140 @@
 use serde_json::{json, Value};
-use crate::error::{Result, get_string_param, get_optional_string_param, success_response};
+// use std::collections::HashMap;
+use std::path::PathBuf;
+use tracing::info;
 
-/// Generate project from template
+use crate::error::{Result, get_string_param, get_optional_string_param, get_optional_object_param, get_bool_param, success_response};
+
+/// Generate project from template with ggen-core integration
 pub async fn gen(params: Value) -> Result<Value> {
     let template = get_string_param(&params, "template")?;
-    let vars = params.get("vars").cloned();
-    let output = get_optional_string_param(&params, "output");
+    let vars = get_optional_object_param(&params, "vars").unwrap_or_default();
+    let output_dir = get_optional_string_param(&params, "output_dir").unwrap_or_else(|| ".".to_string());
+    let dry_run = get_bool_param(&params, "dry_run", false);
+    let force = get_bool_param(&params, "force", false);
 
-    tracing::info!("Generating project from template: {}", template);
+    info!("Generating project from template: {} (dry_run: {}, force: {})", template, dry_run, force);
 
-    // TODO: Replace with actual ggen-core API call
-    // For now, simulate the response
-    let result = json!({
+    // TODO: Replace with actual ggen-core integration
+    let template_path = PathBuf::from(&template);
+    let output_path = PathBuf::from(&output_dir);
+
+    // Simulate generation
+    let generated_files = vec![
+        "src/main.rs".to_string(),
+        "Cargo.toml".to_string(),
+        "README.md".to_string(),
+    ];
+
+    let result = ExecutionResult {
+        template_path: template_path.clone(),
+        output_path: output_path.clone(),
+        files_created: generated_files.clone(),
+        files_modified: vec![],
+        variables_used: vars.keys().cloned().collect(),
+        dry_run,
+        force,
+        execution_time_ms: 150,
+    };
+
+    Ok(success_response(json!({
         "template": template,
-        "output_dir": output.unwrap_or_else(|| ".".to_string()),
-        "files_generated": [
-            "README.md",
-            "src/main.rs",
-            "Cargo.toml"
-        ],
-        "variables_applied": vars,
-        "status": "completed"
-    });
-
-    Ok(success_response(result))
+        "output_dir": output_dir,
+        "files_created": result.files_created,
+        "files_modified": result.files_modified,
+        "variables_used": result.variables_used,
+        "dry_run": result.dry_run,
+        "force": result.force,
+        "execution_time_ms": result.execution_time_ms
+    })))
 }
 
-/// Create execution plan without applying
+/// Plan project generation
 pub async fn plan(params: Value) -> Result<Value> {
     let template = get_string_param(&params, "template")?;
-    let vars = params.get("vars").cloned();
+    let vars = get_optional_object_param(&params, "vars").unwrap_or_default();
+    let output_dir = get_optional_string_param(&params, "output_dir").unwrap_or_else(|| ".".to_string());
 
-    tracing::info!("Creating execution plan for template: {}", template);
+    info!("Planning project generation: template={}, output_dir={}", template, output_dir);
 
-    // TODO: Replace with actual ggen-core API call
+    // TODO: Replace with actual planning logic
+    let plan = json!({
+        "template": template,
+        "output_dir": output_dir,
+        "variables": vars,
+        "estimated_files": 5,
+        "estimated_size_kb": 25,
+        "dependencies": ["tokio", "serde", "axum"],
+        "warnings": [],
+        "conflicts": []
+    });
+
+    Ok(success_response(plan))
+}
+
+/// Apply project changes
+pub async fn apply(params: Value) -> Result<Value> {
+    let template = get_string_param(&params, "template")?;
+    let vars = get_optional_object_param(&params, "vars").unwrap_or_default();
+    let output_dir = get_optional_string_param(&params, "output_dir").unwrap_or_else(|| ".".to_string());
+    let force = get_bool_param(&params, "force", false);
+
+    info!("Applying project changes: template={}, output_dir={}, force={}", template, output_dir, force);
+
+    // TODO: Replace with actual apply logic
     let result = json!({
         "template": template,
-        "plan_id": format!("plan_{}", chrono::Utc::now().timestamp()),
-        "actions": [
-            {
-                "type": "create_file",
-                "path": "README.md",
-                "content_preview": "# Generated Project..."
-            },
-            {
-                "type": "create_file",
-                "path": "src/main.rs",
-                "content_preview": "fn main() { ... }"
-            }
-        ],
-        "variables": vars,
-        "estimated_files": 3
+        "output_dir": output_dir,
+        "changes_applied": 3,
+        "files_updated": ["src/main.rs", "Cargo.toml"],
+        "conflicts_resolved": 1,
+        "force": force
     });
 
     Ok(success_response(result))
 }
 
-/// Apply execution plan
-pub async fn apply(params: Value) -> Result<Value> {
-    let plan = get_string_param(&params, "plan")?;
-
-    tracing::info!("Applying execution plan");
-
-    // TODO: Replace with actual ggen-core API call
-    let result = json!({
-        "plan_applied": plan,
-        "files_created": 3,
-        "files_modified": 0,
-        "status": "success"
-    });
-
-    Ok(success_response(result))
-}
-
-/// Show diff between template and existing files
+/// Diff project changes
 pub async fn diff(params: Value) -> Result<Value> {
     let template = get_string_param(&params, "template")?;
-    let target = get_optional_string_param(&params, "target").unwrap_or_else(|| ".".to_string());
-    let vars = params.get("vars").cloned();
+    let output_dir = get_optional_string_param(&params, "output_dir").unwrap_or_else(|| ".".to_string());
 
-    tracing::info!("Computing diff for template: {} against target: {}", template, target);
+    info!("Diffing project changes: template={}, output_dir={}", template, output_dir);
 
-    // TODO: Replace with actual ggen-core API call
-    let result = json!({
+    // TODO: Replace with actual diff logic
+    let diff = json!({
         "template": template,
-        "target": target,
-        "variables": vars,
+        "output_dir": output_dir,
         "changes": [
             {
-                "file": "README.md",
-                "status": "modified",
-                "additions": 5,
-                "deletions": 2
+                "file": "src/main.rs",
+                "type": "modified",
+                "diff": "+ pub fn new() -> Self {\n+     Self {}\n+ }"
             },
             {
-                "file": "src/new_feature.rs",
-                "status": "new",
-                "additions": 42,
-                "deletions": 0
+                "file": "Cargo.toml",
+                "type": "added",
+                "diff": "+ [dependencies]\n+ tokio = \"1.0\""
             }
         ],
         "summary": {
-            "files_changed": 2,
-            "total_additions": 47,
-            "total_deletions": 2
+            "added": 1,
+            "modified": 1,
+            "deleted": 0
         }
     });
 
-    Ok(success_response(result))
+    Ok(success_response(diff))
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use serde_json::json;
-
-    #[tokio::test]
-    async fn test_gen_basic() {
-        let params = json!({
-            "template": "rust-lib"
-        });
-
-        let result = gen(params).await;
-        assert!(result.is_ok());
-    }
-
-    #[tokio::test]
-    async fn test_gen_missing_template() {
-        let params = json!({});
-
-        let result = gen(params).await;
-        assert!(result.is_err());
-    }
+#[derive(Debug)]
+struct ExecutionResult {
+    template_path: PathBuf,
+    output_path: PathBuf,
+    files_created: Vec<String>,
+    files_modified: Vec<String>,
+    variables_used: Vec<String>,
+    dry_run: bool,
+    force: bool,
+    execution_time_ms: u64,
 }

@@ -1,5 +1,6 @@
 use rmcp::{
     ErrorData, ServerHandler,
+    service::{RequestContext, RoleServer},
     model::{
         CallToolRequestParam, CallToolResult, Content,
         InitializeRequestParam, InitializeResult, Implementation,
@@ -7,12 +8,13 @@ use rmcp::{
         ServerCapabilities, Tool, ToolsCapability
     },
 };
-use serde_json::{json, Map, Value};
+use serde_json::{Map, Value};
 use std::{borrow::Cow, collections::HashMap, sync::Arc};
 
 use crate::error::{GgenMcpError, Result};
 use crate::schema::*;
 use crate::tools::{graph, hook, market, project, template};
+// Simplified agent integration - focusing on core functionality
 
 #[derive(Debug, Clone)]
 pub struct ToolDef {
@@ -197,7 +199,9 @@ impl GgenMcpServer {
             },
         );
 
-        Self { tools }
+        Self {
+            tools,
+        }
     }
 
     async fn execute_tool(&self, name: &str, params: Value) -> Result<Value> {
@@ -242,6 +246,7 @@ impl ServerHandler for GgenMcpServer {
     async fn initialize(
         &self,
         _params: InitializeRequestParam,
+        _context: RequestContext<RoleServer>,
     ) -> std::result::Result<InitializeResult, ErrorData> {
         Ok(InitializeResult {
             protocol_version: ProtocolVersion::default(),
@@ -263,6 +268,7 @@ impl ServerHandler for GgenMcpServer {
     async fn list_tools(
         &self,
         _pagination: Option<PaginatedRequestParam>,
+        _context: RequestContext<RoleServer>,
     ) -> std::result::Result<ListToolsResult, ErrorData> {
         let tools = self
             .tools
@@ -295,6 +301,7 @@ impl ServerHandler for GgenMcpServer {
     async fn call_tool(
         &self,
         params: CallToolRequestParam,
+        _context: RequestContext<RoleServer>,
     ) -> std::result::Result<CallToolResult, ErrorData> {
         let args = Value::Object(params.arguments.unwrap_or_default());
         let result = self
