@@ -124,14 +124,12 @@ pub async fn run(args: &HazardArgs) -> Result<()> {
     let scanner = CargoMakeHazardScanner;
     let lister = CargoMakeHazardLister;
     let checker = CargoMakeHazardChecker;
-    
+
     run_with_deps(args, &scanner, &lister, &checker).await
 }
 
 pub async fn run_with_deps(
-    args: &HazardArgs,
-    scanner: &dyn HazardScanner,
-    lister: &dyn HazardLister,
+    args: &HazardArgs, scanner: &dyn HazardScanner, lister: &dyn HazardLister,
     checker: &dyn HazardChecker,
 ) -> Result<()> {
     match &args.action {
@@ -293,11 +291,13 @@ mod tests {
         mock.expect_scan()
             .with(eq("."), eq(false), eq(false), eq(false))
             .times(1)
-            .returning(|_, _, _, _| Ok(ScanResult {
-                stdout: "Scan complete".to_string(),
-                stderr: "".to_string(),
-                success: true,
-            }));
+            .returning(|_, _, _, _| {
+                Ok(ScanResult {
+                    stdout: "Scan complete".to_string(),
+                    stderr: "".to_string(),
+                    success: true,
+                })
+            });
 
         let args = ScanArgs {
             path: ".".to_string(),
@@ -315,11 +315,13 @@ mod tests {
         mock.expect_scan()
             .with(eq("."), eq(false), eq(false), eq(false))
             .times(1)
-            .returning(|_, _, _, _| Ok(ScanResult {
-                stdout: "".to_string(),
-                stderr: "Scan failed".to_string(),
-                success: false,
-            }));
+            .returning(|_, _, _, _| {
+                Ok(ScanResult {
+                    stdout: "".to_string(),
+                    stderr: "Scan failed".to_string(),
+                    success: false,
+                })
+            });
 
         let args = ScanArgs {
             path: ".".to_string(),
@@ -329,7 +331,10 @@ mod tests {
         };
         let result = scan_hazards_with_deps(&args, &mock).await;
         assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().contains("Hazard scan failed"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("Hazard scan failed"));
     }
 
     #[tokio::test]
@@ -338,11 +343,13 @@ mod tests {
         mock.expect_list()
             .with(eq(false), eq(false))
             .times(1)
-            .returning(|_, _| Ok(ListResult {
-                stdout: "Hazard list".to_string(),
-                stderr: "".to_string(),
-                success: true,
-            }));
+            .returning(|_, _| {
+                Ok(ListResult {
+                    stdout: "Hazard list".to_string(),
+                    stderr: "".to_string(),
+                    success: true,
+                })
+            });
 
         let args = ListArgs {
             critical: false,
@@ -358,11 +365,13 @@ mod tests {
         mock.expect_check()
             .with(eq("unsafe"), eq("."), eq(false))
             .times(1)
-            .returning(|_, _, _| Ok(CheckResult {
-                stdout: "Check complete".to_string(),
-                stderr: "".to_string(),
-                success: true,
-            }));
+            .returning(|_, _, _| {
+                Ok(CheckResult {
+                    stdout: "Check complete".to_string(),
+                    stderr: "".to_string(),
+                    success: true,
+                })
+            });
 
         let args = CheckArgs {
             hazard_type: "unsafe".to_string(),
@@ -380,11 +389,13 @@ mod tests {
             .expect_scan()
             .with(eq("."), eq(false), eq(false), eq(false))
             .times(1)
-            .returning(|_, _, _, _| Ok(ScanResult {
-                stdout: "Scan complete".to_string(),
-                stderr: "".to_string(),
-                success: true,
-            }));
+            .returning(|_, _, _, _| {
+                Ok(ScanResult {
+                    stdout: "Scan complete".to_string(),
+                    stderr: "".to_string(),
+                    success: true,
+                })
+            });
 
         let mock_lister = MockHazardLister::new();
         let mock_checker = MockHazardChecker::new();

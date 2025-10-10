@@ -1,3 +1,20 @@
+//! Marketplace categories listing and management.
+//!
+//! This module provides functionality to list and explore marketplace categories,
+//! helping users discover gpacks by browsing popular categories and their
+//! associated package counts.
+//!
+//! # Examples
+//!
+//! ```bash
+//! ggen market categories
+//! ```
+//!
+//! # Errors
+//!
+//! Returns errors if the marketplace registry is unavailable or if the
+//! categories listing operation fails.
+
 use clap::Args;
 use ggen_utils::error::Result;
 
@@ -16,7 +33,24 @@ pub struct Category {
 }
 
 pub async fn run(_args: &CategoriesArgs) -> Result<()> {
-    println!("🚧 Placeholder: market categories");
+    println!("📂 Fetching marketplace categories...");
+
+    let mut cmd = std::process::Command::new("cargo");
+    cmd.args(["make", "market-categories"]);
+
+    let output = cmd.output().map_err(ggen_utils::error::Error::from)?;
+
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        return Err(ggen_utils::error::Error::new_fmt(format_args!(
+            "Categories fetch failed: {}",
+            stderr
+        )));
+    }
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    println!("{}", stdout);
+
     Ok(())
 }
 

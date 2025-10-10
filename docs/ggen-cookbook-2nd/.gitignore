@@ -1,0 +1,10 @@
+# mdBook build output
+book/
+*.swp
+*~
+.DS_Store
+
+# Editor files
+.vscode/
+.idea/
+*.iml

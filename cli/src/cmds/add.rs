@@ -1,6 +1,7 @@
 use anyhow::{bail, Context, Result};
 use clap::Args;
 use ggen_core::{CacheManager, LockfileManager, RegistryClient};
+use ggen_utils::error::Result as GgenResult;
 use std::env;
 
 #[derive(Args, Debug)]
@@ -9,7 +10,50 @@ pub struct AddArgs {
     pub gpack_id: String,
 }
 
+/// Validate and sanitize gpack specification input
+fn validate_gpack_input(spec: &str) -> GgenResult<()> {
+    // Validate gpack ID is not empty
+    if spec.trim().is_empty() {
+        return Err(ggen_utils::error::Error::new("Gpack ID cannot be empty"));
+    }
+    // Validate gpack ID length
+    if spec.len() > 200 {
+        return Err(ggen_utils::error::Error::new(
+            "Gpack ID too long (max 200 characters)",
+        ));
+    }
+    // Validate gpack ID format (basic pattern check)
+    if !spec
+        .chars()
+        .all(|c| c.is_alphanumeric() || c == '.' || c == '@' || c == '-' || c == '_')
+    {
+        return Err(ggen_utils::error::Error::new(
+            "Invalid gpack ID format: only alphanumeric characters, dots, dashes, underscores, and @ allowed",
+        ));
+    }
+    // Validate version format if present
+    if let Some(pos) = spec.rfind('@') {
+        let version = &spec[pos + 1..];
+        if version.is_empty() {
+            return Err(ggen_utils::error::Error::new(
+                "Version cannot be empty when @ is specified",
+            ));
+        }
+        // Basic semantic version validation
+        if !version
+            .chars()
+            .all(|c| c.is_alphanumeric() || c == '.' || c == '-')
+        {
+            return Err(ggen_utils::error::Error::new(
+                "Invalid version format: only alphanumeric characters, dots, and dashes allowed",
+            ));
+        }
+    }
+    Ok(())
+}
+
 pub async fn run(args: &AddArgs) -> Result<()> {
+    validate_gpack_input(&args.gpack_id)?;
     let (pack_id, version) = parse_gpack_spec(&args.gpack_id)?;
 
     // Get current working directory
@@ -27,7 +71,7 @@ pub async fn run(args: &AddArgs) -> Result<()> {
     }
 
     // Resolve pack from registry
-    println!("Resolving gpack '{}'...", pack_id);
+    println!("🔍 Resolving gpack '{}'...", pack_id);
     let resolved_pack = registry_client
         .resolve(&pack_id, version.as_deref())
         .await
@@ -39,7 +83,7 @@ pub async fn run(args: &AddArgs) -> Result<()> {
     );
 
     // Download and cache the pack
-    println!("Downloading gpack...");
+    println!("📦 Downloading gpack...");
     let cached_pack = cache_manager
         .ensure(&resolved_pack)
         .await
@@ -48,7 +92,7 @@ pub async fn run(args: &AddArgs) -> Result<()> {
     println!("Cached gpack to: {}", cached_pack.path.display());
 
     // Update lockfile with actual calculated SHA256 from cached pack
-    println!("Updating lockfile...");
+    println!("📝 Updating lockfile...");
     lockfile_manager.upsert(
         &resolved_pack.id,
         &resolved_pack.version,

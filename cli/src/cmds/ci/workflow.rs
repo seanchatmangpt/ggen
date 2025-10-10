@@ -29,12 +29,14 @@ pub trait WorkflowLister {
 
 #[cfg_attr(test, mockall::automock)]
 pub trait WorkflowStatusChecker {
-    fn check_status(&self, workflow: Option<&str>, verbose: bool, json: bool) -> Result<WorkflowStatusResult>;
+    fn check_status(
+        &self, workflow: Option<String>, verbose: bool, json: bool,
+    ) -> Result<WorkflowStatusResult>;
 }
 
 #[cfg_attr(test, mockall::automock)]
 pub trait WorkflowLogViewer {
-    fn view_logs(&self, workflow: Option<&str>, follow: bool) -> Result<WorkflowLogsResult>;
+    fn view_logs(&self, workflow: Option<String>, follow: bool) -> Result<WorkflowLogsResult>;
 }
 
 #[cfg_attr(test, mockall::automock)]
@@ -44,6 +46,9 @@ pub trait WorkflowCanceler {
 
 // Mock implementations for testing
 pub struct CargoMakeWorkflowLister;
+pub struct CargoMakeWorkflowStatusChecker;
+pub struct CargoMakeWorkflowLogViewer;
+pub struct CargoMakeWorkflowCanceler;
 
 #[derive(Debug, Clone)]
 pub struct WorkflowListResult {
@@ -151,22 +156,25 @@ pub async fn run(args: &WorkflowArgs) -> Result<()> {
     let status_checker = CargoMakeWorkflowStatusChecker;
     let log_viewer = CargoMakeWorkflowLogViewer;
     let canceler = CargoMakeWorkflowCanceler;
-    
+
     run_with_deps(args, &lister, &status_checker, &log_viewer, &canceler).await
 }
 
 pub async fn run_with_deps(
-    args: &WorkflowArgs,
-    lister: &dyn WorkflowLister,
-    status_checker: &dyn WorkflowStatusChecker,
-    log_viewer: &dyn WorkflowLogViewer,
-    canceler: &dyn WorkflowCanceler,
+    args: &WorkflowArgs, lister: &dyn WorkflowLister, status_checker: &dyn WorkflowStatusChecker,
+    log_viewer: &dyn WorkflowLogViewer, canceler: &dyn WorkflowCanceler,
 ) -> Result<()> {
     match &args.action {
         WorkflowAction::List(list_args) => list_workflows_with_deps(list_args, lister).await,
-        WorkflowAction::Status(status_args) => check_workflow_status_with_deps(status_args, status_checker).await,
-        WorkflowAction::Logs(logs_args) => view_workflow_logs_with_deps(logs_args, log_viewer).await,
-        WorkflowAction::Cancel(cancel_args) => cancel_workflows_with_deps(cancel_args, canceler).await,
+        WorkflowAction::Status(status_args) => {
+            check_workflow_status_with_deps(status_args, status_checker).await
+        }
+        WorkflowAction::Logs(logs_args) => {
+            view_workflow_logs_with_deps(logs_args, log_viewer).await
+        }
+        WorkflowAction::Cancel(cancel_args) => {
+            cancel_workflows_with_deps(cancel_args, canceler).await
+        }
     }
 }
 
@@ -191,10 +199,12 @@ async fn list_workflows(args: &ListArgs) -> Result<()> {
     list_workflows_with_deps(args, &lister).await
 }
 
-async fn check_workflow_status_with_deps(args: &StatusArgs, status_checker: &dyn WorkflowStatusChecker) -> Result<()> {
+async fn check_workflow_status_with_deps(
+    args: &StatusArgs, status_checker: &dyn WorkflowStatusChecker,
+) -> Result<()> {
     println!("Checking GitHub Actions workflow status");
 
-    let result = status_checker.check_status(args.workflow.as_deref(), args.verbose, args.json)?;
+    let result = status_checker.check_status(args.workflow.clone(), args.verbose, args.json)?;
 
     if !result.success {
         return Err(ggen_utils::error::Error::new_fmt(format_args!(
@@ -212,10 +222,12 @@ async fn check_workflow_status(args: &StatusArgs) -> Result<()> {
     check_workflow_status_with_deps(args, &status_checker).await
 }
 
-async fn view_workflow_logs_with_deps(args: &LogsArgs, log_viewer: &dyn WorkflowLogViewer) -> Result<()> {
+async fn view_workflow_logs_with_deps(
+    args: &LogsArgs, log_viewer: &dyn WorkflowLogViewer,
+) -> Result<()> {
     println!("Viewing GitHub Actions workflow logs");
 
-    let result = log_viewer.view_logs(args.workflow.as_deref(), args.follow)?;
+    let result = log_viewer.view_logs(args.workflow.clone(), args.follow)?;
 
     if !result.success {
         return Err(ggen_utils::error::Error::new_fmt(format_args!(
@@ -233,13 +245,15 @@ async fn view_workflow_logs(args: &LogsArgs) -> Result<()> {
     view_workflow_logs_with_deps(args, &log_viewer).await
 }
 
-async fn cancel_workflows_with_deps(args: &CancelArgs, canceler: &dyn WorkflowCanceler) -> Result<()> {
+async fn cancel_workflows_with_deps(
+    args: &CancelArgs, canceler: &dyn WorkflowCanceler,
+) -> Result<()> {
     println!("Cancelling GitHub Actions workflows");
 
     if args.all {
         println!("Cancelling all running workflows");
         let result = canceler.cancel("all")?;
-        
+
         if !result.success {
             return Err(ggen_utils::error::Error::new_fmt(format_args!(
                 "Failed to cancel all workflows: {}",
@@ -299,9 +313,10 @@ impl WorkflowLister for CargoMakeWorkflowLister {
     }
 }
 
-
 impl WorkflowStatusChecker for CargoMakeWorkflowStatusChecker {
-    fn check_status(&self, workflow: Option<&str>, verbose: bool, json: bool) -> Result<WorkflowStatusResult> {
+    fn check_status(
+        &self, workflow: Option<String>, verbose: bool, json: bool,
+    ) -> Result<WorkflowStatusResult> {
         let mut cmd = std::process::Command::new("cargo");
         cmd.args(["make", "gh-workflow-status"]);
 
@@ -326,9 +341,8 @@ impl WorkflowStatusChecker for CargoMakeWorkflowStatusChecker {
     }
 }
 
-
 impl WorkflowLogViewer for CargoMakeWorkflowLogViewer {
-    fn view_logs(&self, workflow: Option<&str>, follow: bool) -> Result<WorkflowLogsResult> {
+    fn view_logs(&self, workflow: Option<String>, follow: bool) -> Result<WorkflowLogsResult> {
         let mut cmd = std::process::Command::new("cargo");
         cmd.args(["make", "gh-workflow-logs"]);
 
@@ -348,7 +362,6 @@ impl WorkflowLogViewer for CargoMakeWorkflowLogViewer {
         })
     }
 }
-
 
 impl WorkflowCanceler for CargoMakeWorkflowCanceler {
     fn cancel(&self, workflow: &str) -> Result<WorkflowCancelResult> {
@@ -379,11 +392,13 @@ mod tests {
         mock.expect_list()
             .with(eq(false), eq(false))
             .times(1)
-            .returning(|_, _| Ok(WorkflowListResult {
-                stdout: "Workflow list".to_string(),
-                stderr: "".to_string(),
-                success: true,
-            }));
+            .returning(|_, _| {
+                Ok(WorkflowListResult {
+                    stdout: "Workflow list".to_string(),
+                    stderr: "".to_string(),
+                    success: true,
+                })
+            });
 
         let args = ListArgs {
             active: false,
@@ -397,13 +412,15 @@ mod tests {
     async fn test_status_calls_checker() {
         let mut mock = MockWorkflowStatusChecker::new();
         mock.expect_check_status()
-            .with(eq(Some("build")), eq(false), eq(false))
+            .with(eq(Some("build".to_string())), eq(false), eq(false))
             .times(1)
-            .returning(|_, _, _| Ok(WorkflowStatusResult {
-                stdout: "Status OK".to_string(),
-                stderr: "".to_string(),
-                success: true,
-            }));
+            .returning(|_, _, _| {
+                Ok(WorkflowStatusResult {
+                    stdout: "Status OK".to_string(),
+                    stderr: "".to_string(),
+                    success: true,
+                })
+            });
 
         let args = StatusArgs {
             workflow: Some("build".to_string()),
@@ -418,13 +435,15 @@ mod tests {
     async fn test_logs_calls_viewer() {
         let mut mock = MockWorkflowLogViewer::new();
         mock.expect_view_logs()
-            .with(eq(Some("test")), eq(false))
+            .with(eq(Some("test".to_string())), eq(false))
             .times(1)
-            .returning(|_, _| Ok(WorkflowLogsResult {
-                stdout: "Log output".to_string(),
-                stderr: "".to_string(),
-                success: true,
-            }));
+            .returning(|_, _| {
+                Ok(WorkflowLogsResult {
+                    stdout: "Log output".to_string(),
+                    stderr: "".to_string(),
+                    success: true,
+                })
+            });
 
         let args = LogsArgs {
             workflow: Some("test".to_string()),
@@ -441,11 +460,13 @@ mod tests {
         mock.expect_cancel()
             .with(eq("deploy"))
             .times(1)
-            .returning(|_| Ok(WorkflowCancelResult {
-                stdout: "Cancel complete".to_string(),
-                stderr: "".to_string(),
-                success: true,
-            }));
+            .returning(|_| {
+                Ok(WorkflowCancelResult {
+                    stdout: "Cancel complete".to_string(),
+                    stderr: "".to_string(),
+                    success: true,
+                })
+            });
 
         let args = CancelArgs {
             workflow: Some("deploy".to_string()),
@@ -461,11 +482,13 @@ mod tests {
         mock.expect_cancel()
             .with(eq("all"))
             .times(1)
-            .returning(|_| Ok(WorkflowCancelResult {
-                stdout: "All cancelled".to_string(),
-                stderr: "".to_string(),
-                success: true,
-            }));
+            .returning(|_| {
+                Ok(WorkflowCancelResult {
+                    stdout: "All cancelled".to_string(),
+                    stderr: "".to_string(),
+                    success: true,
+                })
+            });
 
         let args = CancelArgs {
             workflow: None,
@@ -485,7 +508,10 @@ mod tests {
         };
         let result = cancel_workflows_with_deps(&args, &mock).await;
         assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().contains("Must specify either --workflow or --all"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("Must specify either --workflow or --all"));
     }
 
     #[tokio::test]
@@ -495,11 +521,13 @@ mod tests {
             .expect_list()
             .with(eq(false), eq(false))
             .times(1)
-            .returning(|_, _| Ok(WorkflowListResult {
-                stdout: "Workflow list".to_string(),
-                stderr: "".to_string(),
-                success: true,
-            }));
+            .returning(|_, _| {
+                Ok(WorkflowListResult {
+                    stdout: "Workflow list".to_string(),
+                    stderr: "".to_string(),
+                    success: true,
+                })
+            });
 
         let mock_status_checker = MockWorkflowStatusChecker::new();
         let mock_log_viewer = MockWorkflowLogViewer::new();
@@ -512,7 +540,14 @@ mod tests {
             }),
         };
 
-        let result = run_with_deps(&args, &mock_lister, &mock_status_checker, &mock_log_viewer, &mock_canceler).await;
+        let result = run_with_deps(
+            &args,
+            &mock_lister,
+            &mock_status_checker,
+            &mock_log_viewer,
+            &mock_canceler,
+        )
+        .await;
         assert!(result.is_ok());
     }
 

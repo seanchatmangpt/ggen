@@ -37,36 +37,38 @@ fn validate_graph_path(graph: &Option<String>) -> Result<()> {
                 "Graph file path cannot be empty",
             ));
         }
-        
+
         // Validate graph path length
         if graph.len() > 1000 {
             return Err(ggen_utils::error::Error::new(
                 "Graph file path too long (max 1000 characters)",
             ));
         }
-        
+
         // Basic path traversal protection
         if graph.contains("..") {
             return Err(ggen_utils::error::Error::new(
                 "Path traversal detected: graph file path cannot contain '..'",
             ));
         }
-        
+
         // Validate graph path format (basic pattern check)
-        if !graph.chars().all(|c| c.is_alphanumeric() || c == '.' || c == '/' || c == '-' || c == '_' || c == '\\') {
+        if !graph.chars().all(|c| {
+            c.is_alphanumeric() || c == '.' || c == '/' || c == '-' || c == '_' || c == '\\'
+        }) {
             return Err(ggen_utils::error::Error::new(
                 "Invalid graph file path format: only alphanumeric characters, dots, slashes, dashes, underscores, and backslashes allowed",
             ));
         }
     }
-    
+
     Ok(())
 }
 
 pub async fn run(args: &StatsArgs) -> Result<()> {
     // Validate inputs
     validate_graph_path(&args.graph)?;
-    
+
     println!("🚧 Placeholder: graph stats");
     if let Some(graph) = &args.graph {
         println!("  Graph: {}", graph.trim());
@@ -80,10 +82,10 @@ pub async fn run(args: &StatsArgs) -> Result<()> {
 pub async fn run_with_deps(args: &StatsArgs, analyzer: &dyn GraphAnalyzer) -> Result<()> {
     // Validate inputs
     validate_graph_path(&args.graph)?;
-    
+
     // Show progress for analysis operation
     println!("🔍 Analyzing graph...");
-    
+
     let stats = analyzer.analyze(args.graph.clone())?;
 
     println!("📊 Graph Statistics:");

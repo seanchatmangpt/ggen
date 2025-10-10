@@ -2,6 +2,7 @@ use anyhow::Result;
 use clap::Args;
 use colored::*;
 use ggen_core::RegistryClient;
+use ggen_utils::error::Result as GgenResult;
 use serde_json;
 
 #[derive(Args, Debug)]
@@ -42,7 +43,44 @@ pub struct SearchArgs {
     pub sort: String,
 }
 
+/// Validate and sanitize search input
+fn validate_search_input(args: &SearchArgs) -> GgenResult<()> {
+    // Validate search query is not empty
+    if args.query.trim().is_empty() {
+        return Err(ggen_utils::error::Error::new(
+            "Search query cannot be empty",
+        ));
+    }
+    // Validate search query length
+    if args.query.len() > 500 {
+        return Err(ggen_utils::error::Error::new(
+            "Search query too long (max 500 characters)",
+        ));
+    }
+    // Validate limit
+    if args.limit == 0 {
+        return Err(ggen_utils::error::Error::new(
+            "Limit must be greater than 0",
+        ));
+    }
+    if args.limit > 1000 {
+        return Err(ggen_utils::error::Error::new("Limit too high (max 1000)"));
+    }
+    // Validate sort option
+    if !matches!(
+        args.sort.as_str(),
+        "relevance" | "downloads" | "updated" | "name"
+    ) {
+        return Err(ggen_utils::error::Error::new(
+            "Invalid sort option. Must be one of: relevance, downloads, updated, name",
+        ));
+    }
+    Ok(())
+}
+
 pub async fn run(args: &SearchArgs) -> Result<()> {
+    validate_search_input(args)?;
+    println!("🔍 Searching marketplace...");
     let registry_client = RegistryClient::new()?;
 
     // Build search parameters

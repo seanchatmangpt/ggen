@@ -1,5 +1,27 @@
+//! RDF graph loading and data ingestion functionality.
+//!
+//! This module provides comprehensive RDF data loading capabilities, supporting
+//! multiple formats (Turtle, N-Triples, RDF/XML, JSON-LD) with format detection,
+//! base IRI resolution, and merge operations. It validates input paths and
+//! formats to ensure secure and reliable data loading.
+//!
+//! # Examples
+//!
+//! ```bash
+//! ggen graph load data.ttl
+//! ggen graph load ontology.rdf --format rdfxml --base http://example.org/
+//! ggen graph load additional.ttl --merge
+//! ```
+//!
+//! # Errors
+//!
+//! Returns errors if the file path is invalid or contains traversal attempts,
+//! the RDF format is unsupported, the file cannot be read, or if RDF parsing
+//! fails due to malformed data.
+
 use clap::Args;
 use ggen_utils::error::Result;
+use std::path::{Component, Path};
 
 #[derive(Args, Debug)]
 pub struct LoadArgs {
@@ -37,32 +59,34 @@ pub struct LoadStats {
 fn validate_file_path(file: &str) -> Result<()> {
     // Validate file path is not empty
     if file.trim().is_empty() {
-        return Err(ggen_utils::error::Error::new(
-            "File path cannot be empty",
-        ));
+        return Err(ggen_utils::error::Error::new("File path cannot be empty"));
     }
-    
+
     // Validate file path length
     if file.len() > 1000 {
         return Err(ggen_utils::error::Error::new(
             "File path too long (max 1000 characters)",
         ));
     }
-    
-    // Basic path traversal protection
-    if file.contains("..") {
+
+    // Use Path components for proper traversal protection
+    let path = Path::new(file);
+    if path.components().any(|c| matches!(c, Component::ParentDir)) {
         return Err(ggen_utils::error::Error::new(
-            "Path traversal detected: file path cannot contain '..'",
+            "Path traversal detected: paths containing '..' are not allowed",
         ));
     }
-    
+
     // Validate file path format (basic pattern check)
-    if !file.chars().all(|c| c.is_alphanumeric() || c == '.' || c == '/' || c == '-' || c == '_' || c == '\\') {
+    if !file
+        .chars()
+        .all(|c| c.is_alphanumeric() || c == '.' || c == '/' || c == '-' || c == '_' || c == '\\')
+    {
         return Err(ggen_utils::error::Error::new(
             "Invalid file path format: only alphanumeric characters, dots, slashes, dashes, underscores, and backslashes allowed",
         ));
     }
-    
+
     Ok(())
 }
 
@@ -71,25 +95,26 @@ fn validate_format(format: &Option<String>) -> Result<()> {
     if let Some(format) = format {
         // Validate format is not empty
         if format.trim().is_empty() {
-            return Err(ggen_utils::error::Error::new(
-                "Format cannot be empty",
-            ));
+            return Err(ggen_utils::error::Error::new("Format cannot be empty"));
         }
-        
+
         // Validate format length
         if format.len() > 50 {
             return Err(ggen_utils::error::Error::new(
                 "Format too long (max 50 characters)",
             ));
         }
-        
+
         // Validate format format (basic pattern check)
-        if !format.chars().all(|c| c.is_alphanumeric() || c == '-' || c == '_') {
+        if !format
+            .chars()
+            .all(|c| c.is_alphanumeric() || c == '-' || c == '_')
+        {
             return Err(ggen_utils::error::Error::new(
                 "Invalid format: only alphanumeric characters, dashes, and underscores allowed",
             ));
         }
-        
+
         // Validate against known formats
         let valid_formats = ["turtle", "ntriples", "rdfxml", "jsonld", "n3"];
         if !valid_formats.contains(&format.to_lowercase().as_str()) {
@@ -98,7 +123,7 @@ fn validate_format(format: &Option<String>) -> Result<()> {
             ));
         }
     }
-    
+
     Ok(())
 }
 
@@ -107,26 +132,27 @@ fn validate_base_iri(base: &Option<String>) -> Result<()> {
     if let Some(base) = base {
         // Validate base IRI is not empty
         if base.trim().is_empty() {
-            return Err(ggen_utils::error::Error::new(
-                "Base IRI cannot be empty",
-            ));
+            return Err(ggen_utils::error::Error::new("Base IRI cannot be empty"));
         }
-        
+
         // Validate base IRI length
         if base.len() > 500 {
             return Err(ggen_utils::error::Error::new(
                 "Base IRI too long (max 500 characters)",
             ));
         }
-        
+
         // Basic URI validation
-        if !base.starts_with("http://") && !base.starts_with("https://") && !base.starts_with("file://") {
+        if !base.starts_with("http://")
+            && !base.starts_with("https://")
+            && !base.starts_with("file://")
+        {
             return Err(ggen_utils::error::Error::new(
                 "Invalid base IRI: must start with http://, https://, or file://",
             ));
         }
     }
-    
+
     Ok(())
 }
 
@@ -135,7 +161,7 @@ pub async fn run(args: &LoadArgs) -> Result<()> {
     validate_file_path(&args.file)?;
     validate_format(&args.format)?;
     validate_base_iri(&args.base)?;
-    
+
     println!("🚧 Placeholder: graph load");
     println!("  File: {}", args.file.trim());
     if let Some(format) = &args.format {
@@ -153,10 +179,10 @@ pub async fn run_with_deps(args: &LoadArgs, loader: &dyn RdfLoader) -> Result<()
     validate_file_path(&args.file)?;
     validate_format(&args.format)?;
     validate_base_iri(&args.base)?;
-    
+
     // Show progress for loading operation
     println!("🔍 Loading RDF file...");
-    
+
     let stats = loader.load(
         args.file.clone(),
         args.format.clone(),
@@ -221,7 +247,12 @@ mod tests {
         let mut mock_loader = MockRdfLoader::new();
         mock_loader
             .expect_load()
-            .with(eq(String::from("additional.ttl")), always(), always(), eq(true))
+            .with(
+                eq(String::from("additional.ttl")),
+                always(),
+                always(),
+                eq(true),
+            )
             .times(1)
             .returning(|_, _, _, _| {
                 Ok(LoadStats {

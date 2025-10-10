@@ -36,29 +36,37 @@ fn validate_sparql_query(query: &str) -> Result<()> {
             "SPARQL query cannot be empty",
         ));
     }
-    
+
     // Validate query length
     if query.len() > 10000 {
         return Err(ggen_utils::error::Error::new(
             "SPARQL query too long (max 10000 characters)",
         ));
     }
-    
+
     // Basic SPARQL syntax validation
     let query_upper = query.to_uppercase();
-    if !query_upper.contains("SELECT") && !query_upper.contains("ASK") && !query_upper.contains("CONSTRUCT") && !query_upper.contains("DESCRIBE") {
+    if !query_upper.contains("SELECT")
+        && !query_upper.contains("ASK")
+        && !query_upper.contains("CONSTRUCT")
+        && !query_upper.contains("DESCRIBE")
+    {
         return Err(ggen_utils::error::Error::new(
             "Invalid SPARQL query: must contain SELECT, ASK, CONSTRUCT, or DESCRIBE",
         ));
     }
-    
+
     // Check for potentially dangerous patterns
-    if query.contains("DROP") || query.contains("DELETE") || query.contains("INSERT") || query.contains("CREATE") {
+    if query.contains("DROP")
+        || query.contains("DELETE")
+        || query.contains("INSERT")
+        || query.contains("CREATE")
+    {
         return Err(ggen_utils::error::Error::new(
             "Write operations not allowed: only SELECT, ASK, CONSTRUCT, and DESCRIBE queries are permitted",
         ));
     }
-    
+
     Ok(())
 }
 
@@ -70,14 +78,14 @@ fn validate_output_format(format: &str) -> Result<()> {
             "Output format cannot be empty",
         ));
     }
-    
+
     // Validate format length
     if format.len() > 20 {
         return Err(ggen_utils::error::Error::new(
             "Output format too long (max 20 characters)",
         ));
     }
-    
+
     // Validate against known formats
     let valid_formats = ["json", "csv", "table"];
     if !valid_formats.contains(&format.to_lowercase().as_str()) {
@@ -85,7 +93,7 @@ fn validate_output_format(format: &str) -> Result<()> {
             "Unsupported output format: supported formats are json, csv, table",
         ));
     }
-    
+
     Ok(())
 }
 
@@ -98,29 +106,31 @@ fn validate_graph_path(graph: &Option<String>) -> Result<()> {
                 "Graph file path cannot be empty",
             ));
         }
-        
+
         // Validate graph path length
         if graph.len() > 1000 {
             return Err(ggen_utils::error::Error::new(
                 "Graph file path too long (max 1000 characters)",
             ));
         }
-        
+
         // Basic path traversal protection
         if graph.contains("..") {
             return Err(ggen_utils::error::Error::new(
                 "Path traversal detected: graph file path cannot contain '..'",
             ));
         }
-        
+
         // Validate graph path format (basic pattern check)
-        if !graph.chars().all(|c| c.is_alphanumeric() || c == '.' || c == '/' || c == '-' || c == '_' || c == '\\') {
+        if !graph.chars().all(|c| {
+            c.is_alphanumeric() || c == '.' || c == '/' || c == '-' || c == '_' || c == '\\'
+        }) {
             return Err(ggen_utils::error::Error::new(
                 "Invalid graph file path format: only alphanumeric characters, dots, slashes, dashes, underscores, and backslashes allowed",
             ));
         }
     }
-    
+
     Ok(())
 }
 
@@ -129,7 +139,7 @@ pub async fn run(args: &QueryArgs) -> Result<()> {
     validate_sparql_query(&args.query)?;
     validate_output_format(&args.format)?;
     validate_graph_path(&args.graph)?;
-    
+
     println!("🚧 Placeholder: graph query");
     println!("  Query: {}", args.query.trim());
     println!("  Format: {}", args.format.trim());
@@ -144,10 +154,10 @@ pub async fn run_with_deps(args: &QueryArgs, executor: &dyn SparqlExecutor) -> R
     validate_sparql_query(&args.query)?;
     validate_output_format(&args.format)?;
     validate_graph_path(&args.graph)?;
-    
+
     // Show progress for query execution
     println!("🔍 Executing SPARQL query...");
-    
+
     let results = executor.execute(args.query.clone(), args.graph.clone())?;
 
     // Show progress for large result sets

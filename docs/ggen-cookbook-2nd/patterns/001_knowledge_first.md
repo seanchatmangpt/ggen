@@ -62,3 +62,142 @@ The knowledge graph becomes the authoritative representation of your domain. Tem
     │  User   │  ========>   │ :name "Alice"  │ ───> │   name: str │
     │  name   │              │ :email "..."    │      │   email:str │
     └─────────┘              └─────────────────┘      └─────────────┘
+
+## Result
+
+You achieve:
+
+- **Semantic Consistency**: All generated artifacts share the same domain vocabulary
+- **Traceability**: Every generated element traces back to specific graph nodes
+- **Query-Driven Design**: Templates declare their data needs via SPARQL
+- **Multi-Target Generation**: Same graph projects to Rust, Python, TypeScript, etc.
+- **Validation**: Invalid queries fail before template execution
+- **Composability**: Queries can be composed and extended
+
+This pattern enables → **Pattern 002: DETERMINISTIC ENGINE** (same input graph = same output)
+This pattern enables → **Pattern 003: GRAPH-TEMPLATE BINDING** (SPARQL frontmatter)
+This pattern enables → **Pattern 004: NOUN-VERB CLI** (semantic operations)
+
+## Graph Example
+
+**File**: `docs/examples/user_model.ttl`
+
+```turtle
+@prefix : <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+:User a rdfs:Class ;
+    rdfs:label "User" ;
+    rdfs:comment "A system user with authentication" .
+
+:name a rdf:Property ;
+    rdfs:domain :User ;
+    rdfs:range xsd:string ;
+    rdfs:label "name" .
+
+:email a rdf:Property ;
+    rdfs:domain :User ;
+    rdfs:range xsd:string ;
+    rdfs:label "email" .
+
+:alice a :User ;
+    :name "Alice Johnson" ;
+    :email "alice@example.com" .
+
+:bob a :User ;
+    :name "Bob Smith" ;
+    :email "bob@example.com" .
+```
+
+## Template Example
+
+**File**: `templates/rust_struct.tmpl`
+
+```handlebars
+---
+query: |
+  PREFIX : <http://example.org/>
+  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+  SELECT ?className ?propName ?propType
+  WHERE {
+    ?class a rdfs:Class ;
+           rdfs:label ?className .
+    ?prop rdfs:domain ?class ;
+          rdfs:label ?propName ;
+          rdfs:range ?propType .
+  }
+  ORDER BY ?className ?propName
+---
+// Generated from semantic model
+{{#each results}}
+pub struct {{className}} {
+    pub {{propName}}: {{propType}},
+{{/each}}
+}
+```
+
+## CLI Invocation
+
+```bash
+# Step 1: Load the knowledge graph
+ggen graph load docs/examples/user_model.ttl
+
+# Step 2: Verify graph contents
+ggen graph query "SELECT ?s ?p ?o WHERE { ?s ?p ?o } LIMIT 10"
+
+# Step 3: Generate from template using graph data
+ggen template apply templates/rust_struct.tmpl > src/models/user.rs
+```
+
+## Expected Output
+
+**File**: `src/models/user.rs`
+
+```rust
+// Generated from semantic model
+pub struct User {
+    pub name: String,
+    pub email: String,
+}
+```
+
+## Verification
+
+```bash
+# Verify the graph is loaded and queryable
+ggen graph query "PREFIX : <http://example.org/> SELECT (COUNT(?user) as ?count) WHERE { ?user a :User }"
+
+# Expected output:
+# count: 2
+
+# Verify template received projected data
+ggen template apply templates/rust_struct.tmpl --dry-run --show-data
+
+# Expected JSON projection:
+# {
+#   "results": [
+#     {"className": "User", "propName": "name", "propType": "string"},
+#     {"className": "User", "propName": "email", "propType": "string"}
+#   ]
+# }
+
+# Verify generated code compiles
+rustc --crate-type lib src/models/user.rs
+```
+
+## Anti-Patterns
+
+❌ **Direct Template Data**: Passing JSON directly to templates bypasses semantic grounding
+❌ **Graph as Cache**: Loading graphs only for performance, not as source of truth
+❌ **Template-Side Queries**: Embedding SPARQL in template logic instead of frontmatter
+❌ **Multiple Sources**: Mixing graph data with configuration files or environment variables
+
+## Related Patterns
+
+- **Pattern 002: DETERMINISTIC ENGINE** - Ensures same graph → same output
+- **Pattern 003: GRAPH-TEMPLATE BINDING** - How templates declare graph dependencies
+- **Pattern 004: NOUN-VERB CLI** - Semantic operations on graph entities
+- **Pattern 005: MULTI-LANGUAGE PROJECTION** - Same graph → multiple languages

@@ -62,35 +62,38 @@ fn validate_template_ref(template_ref: &str) -> Result<()> {
             "Template reference cannot be empty",
         ));
     }
-    
+
     // Validate template reference length
     if template_ref.len() > 500 {
         return Err(ggen_utils::error::Error::new(
             "Template reference too long (max 500 characters)",
         ));
     }
-    
+
     // Basic path traversal protection
     if template_ref.contains("..") {
         return Err(ggen_utils::error::Error::new(
             "Path traversal detected: template reference cannot contain '..'",
         ));
     }
-    
+
     // Validate template reference format (basic pattern check)
-    if !template_ref.chars().all(|c| c.is_alphanumeric() || c == '.' || c == '/' || c == ':' || c == '-' || c == '_') {
+    if !template_ref
+        .chars()
+        .all(|c| c.is_alphanumeric() || c == '.' || c == '/' || c == ':' || c == '-' || c == '_')
+    {
         return Err(ggen_utils::error::Error::new(
             "Invalid template reference format: only alphanumeric characters, dots, slashes, colons, dashes, and underscores allowed",
         ));
     }
-    
+
     Ok(())
 }
 
 pub async fn run(args: &LintArgs) -> Result<()> {
     // Validate input
     validate_template_ref(&args.template_ref)?;
-    
+
     println!("🚧 Placeholder: template lint");
     println!("  Template: {}", args.template_ref.trim());
     println!("  SPARQL: {}", args.sparql);
@@ -101,10 +104,10 @@ pub async fn run(args: &LintArgs) -> Result<()> {
 pub async fn run_with_deps(args: &LintArgs, linter: &dyn TemplateLinter) -> Result<()> {
     // Validate input
     validate_template_ref(&args.template_ref)?;
-    
+
     // Show progress for linting operation
     println!("🔍 Linting template...");
-    
+
     let options = LintOptions {
         check_sparql: args.sparql,
         check_schema: args.schema,

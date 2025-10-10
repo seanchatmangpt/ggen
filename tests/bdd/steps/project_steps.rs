@@ -230,7 +230,7 @@ fn run_project_gen_with_seed(world: &mut GgenWorld, template: String, seed: Stri
         .current_dir(&world.project_dir)
         .output()
         .expect("Failed to run project gen with seed");
-    
+
     world.last_output = Some(output.clone());
     world.last_exit_code = output.status.code();
 }
@@ -247,13 +247,15 @@ fn run_project_gen_with_variable(world: &mut GgenWorld, template: String, variab
         .current_dir(&world.project_dir)
         .output()
         .expect("Failed to run project gen with variable");
-    
+
     world.last_output = Some(output.clone());
     world.last_exit_code = output.status.code();
 }
 
 #[when(regex = r#"^I run "ggen project gen (.+)" with variables "([^"]+)" and "([^"]+)"$"#)]
-fn run_project_gen_with_multiple_variables(world: &mut GgenWorld, template: String, var1: String, var2: String) {
+fn run_project_gen_with_multiple_variables(
+    world: &mut GgenWorld, template: String, var1: String, var2: String,
+) {
     let output = Command::cargo_bin("ggen")
         .expect("ggen binary not found")
         .arg("project")
@@ -266,7 +268,7 @@ fn run_project_gen_with_multiple_variables(world: &mut GgenWorld, template: Stri
         .current_dir(&world.project_dir)
         .output()
         .expect("Failed to run project gen with multiple variables");
-    
+
     world.last_output = Some(output.clone());
     world.last_exit_code = output.status.code();
 }
@@ -283,7 +285,7 @@ fn run_project_plan_with_seed(world: &mut GgenWorld, template: String, seed: Str
         .current_dir(&world.project_dir)
         .output()
         .expect("Failed to run project plan with seed");
-    
+
     world.last_output = Some(output.clone());
     world.last_exit_code = output.status.code();
 }
@@ -300,7 +302,7 @@ fn run_project_diff_with_variable(world: &mut GgenWorld, template: String, varia
         .current_dir(&world.project_dir)
         .output()
         .expect("Failed to run project diff with variable");
-    
+
     world.last_output = Some(output.clone());
     world.last_exit_code = output.status.code();
 }
@@ -315,7 +317,7 @@ fn run_project_apply(world: &mut GgenWorld, plan_file: String) {
         .current_dir(&world.project_dir)
         .output()
         .expect("Failed to run project apply");
-    
+
     world.last_output = Some(output.clone());
     world.last_exit_code = output.status.code();
 }
@@ -332,8 +334,10 @@ fn output_should_be_deterministic(world: &mut GgenWorld) {
 fn should_see_plan_output(world: &mut GgenWorld) {
     let stdout = world.last_stdout();
     assert!(
-        stdout.contains("plan") || stdout.contains("Plan") || 
-        stdout.contains("changes") || stdout.contains("actions"),
+        stdout.contains("plan")
+            || stdout.contains("Plan")
+            || stdout.contains("changes")
+            || stdout.contains("actions"),
         "Expected to see plan output, but got: {}",
         stdout
     );
@@ -343,9 +347,12 @@ fn should_see_plan_output(world: &mut GgenWorld) {
 fn should_see_diff_output(world: &mut GgenWorld) {
     let stdout = world.last_stdout();
     assert!(
-        stdout.contains("diff") || stdout.contains("Diff") || 
-        stdout.contains("+") || stdout.contains("-") || 
-        stdout.contains("changed") || stdout.contains("modified"),
+        stdout.contains("diff")
+            || stdout.contains("Diff")
+            || stdout.contains("+")
+            || stdout.contains("-")
+            || stdout.contains("changed")
+            || stdout.contains("modified"),
         "Expected to see diff output, but got: {}",
         stdout
     );

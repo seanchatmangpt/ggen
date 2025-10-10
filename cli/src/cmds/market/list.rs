@@ -1,3 +1,21 @@
+//! Installed gpacks listing and management.
+//!
+//! This module provides functionality to list installed gpacks in the current
+//! project, showing their versions, sources, and metadata. It helps users
+//! understand what packages are currently installed and manage their dependencies.
+//!
+//! # Examples
+//!
+//! ```bash
+//! ggen market list
+//! ggen market list --detailed
+//! ```
+//!
+//! # Errors
+//!
+//! Returns errors if the lockfile cannot be read, the project is not properly
+//! initialized, or if the listing operation fails.
+
 use clap::Args;
 use ggen_utils::error::Result;
 
@@ -22,15 +40,35 @@ pub struct InstalledGpack {
 }
 
 pub async fn run(args: &ListArgs) -> Result<()> {
-    println!("🚧 Placeholder: market list");
-    println!("  Detailed: {}", args.detailed);
+    println!("📦 Listing installed gpacks...");
+
+    let mut cmd = std::process::Command::new("cargo");
+    cmd.args(["make", "market-list"]);
+
+    if args.detailed {
+        cmd.arg("--detailed");
+    }
+
+    let output = cmd.output().map_err(ggen_utils::error::Error::from)?;
+
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        return Err(ggen_utils::error::Error::new_fmt(format_args!(
+            "List failed: {}",
+            stderr
+        )));
+    }
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    println!("{}", stdout);
+
     Ok(())
 }
 
 pub async fn run_with_deps(args: &ListArgs, lister: &dyn GpackLister) -> Result<()> {
     // Show progress for listing operation
     println!("🔍 Listing installed gpacks...");
-    
+
     let gpacks = lister.list_installed()?;
 
     if gpacks.is_empty() {

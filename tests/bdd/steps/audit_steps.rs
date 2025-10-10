@@ -31,7 +31,7 @@ fn have_project_with_dependencies(world: &mut GgenWorld) {
             }
         }
     }"#;
-    
+
     let lockfile_path = world.project_dir.join("ggen.lock");
     fs::write(&lockfile_path, lockfile_content).expect("Failed to write mock lockfile");
 }
@@ -49,7 +49,7 @@ fn have_vulnerable_dependencies(world: &mut GgenWorld) {
             }
         }
     }"#;
-    
+
     let lockfile_path = world.project_dir.join("ggen.lock");
     fs::write(&lockfile_path, lockfile_content).expect("Failed to write vulnerable lockfile");
 }
@@ -64,7 +64,7 @@ fn slow_function() {
         std::thread::sleep(std::time::Duration::from_millis(1));
     }
 }"#;
-    
+
     let source_path = world.project_dir.join("src/main.rs");
     fs::create_dir_all(source_path.parent().unwrap()).expect("Failed to create src directory");
     fs::write(&source_path, source_content).expect("Failed to write performance-critical code");
@@ -83,7 +83,7 @@ fn run_audit_hazard(world: &mut GgenWorld) {
         .current_dir(&world.project_dir)
         .output()
         .expect("Failed to run audit hazard");
-    
+
     world.last_output = Some(output.clone());
     world.last_exit_code = output.status.code();
 }
@@ -97,7 +97,7 @@ fn run_audit_performance(world: &mut GgenWorld) {
         .current_dir(&world.project_dir)
         .output()
         .expect("Failed to run audit performance");
-    
+
     world.last_output = Some(output.clone());
     world.last_exit_code = output.status.code();
 }
@@ -111,7 +111,7 @@ fn run_audit_security(world: &mut GgenWorld) {
         .current_dir(&world.project_dir)
         .output()
         .expect("Failed to run audit security");
-    
+
     world.last_output = Some(output.clone());
     world.last_exit_code = output.status.code();
 }
@@ -125,7 +125,7 @@ fn run_audit_command(world: &mut GgenWorld, subcommand: String) {
         .current_dir(&world.project_dir)
         .output()
         .expect("Failed to run audit command");
-    
+
     world.last_output = Some(output.clone());
     world.last_exit_code = output.status.code();
 }
@@ -138,9 +138,12 @@ fn run_audit_command(world: &mut GgenWorld, subcommand: String) {
 fn should_see_hazard_report(world: &mut GgenWorld) {
     let stdout = world.last_stdout();
     assert!(
-        stdout.contains("hazard") || stdout.contains("Hazard") || 
-        stdout.contains("risk") || stdout.contains("Risk") ||
-        stdout.contains("report") || stdout.contains("Report"),
+        stdout.contains("hazard")
+            || stdout.contains("Hazard")
+            || stdout.contains("risk")
+            || stdout.contains("Risk")
+            || stdout.contains("report")
+            || stdout.contains("Report"),
         "Expected to see hazard report, but got: {}",
         stdout
     );
@@ -150,9 +153,12 @@ fn should_see_hazard_report(world: &mut GgenWorld) {
 fn should_see_performance_analysis(world: &mut GgenWorld) {
     let stdout = world.last_stdout();
     assert!(
-        stdout.contains("performance") || stdout.contains("Performance") ||
-        stdout.contains("slow") || stdout.contains("optimization") ||
-        stdout.contains("bottleneck") || stdout.contains("timing"),
+        stdout.contains("performance")
+            || stdout.contains("Performance")
+            || stdout.contains("slow")
+            || stdout.contains("optimization")
+            || stdout.contains("bottleneck")
+            || stdout.contains("timing"),
         "Expected to see performance analysis, but got: {}",
         stdout
     );
@@ -162,10 +168,13 @@ fn should_see_performance_analysis(world: &mut GgenWorld) {
 fn should_see_security_vulnerabilities(world: &mut GgenWorld) {
     let stdout = world.last_stdout();
     assert!(
-        stdout.contains("security") || stdout.contains("Security") ||
-        stdout.contains("vulnerability") || stdout.contains("Vulnerability") ||
-        stdout.contains("CVE") || stdout.contains("exploit") ||
-        stdout.contains("threat"),
+        stdout.contains("security")
+            || stdout.contains("Security")
+            || stdout.contains("vulnerability")
+            || stdout.contains("Vulnerability")
+            || stdout.contains("CVE")
+            || stdout.contains("exploit")
+            || stdout.contains("threat"),
         "Expected to see security vulnerabilities, but got: {}",
         stdout
     );
@@ -175,9 +184,11 @@ fn should_see_security_vulnerabilities(world: &mut GgenWorld) {
 fn should_see_no_vulnerabilities(world: &mut GgenWorld) {
     let stdout = world.last_stdout();
     assert!(
-        stdout.contains("No vulnerabilities") || stdout.contains("no vulnerabilities") ||
-        stdout.contains("clean") || stdout.contains("secure") ||
-        stdout.is_empty(),
+        stdout.contains("No vulnerabilities")
+            || stdout.contains("no vulnerabilities")
+            || stdout.contains("clean")
+            || stdout.contains("secure")
+            || stdout.is_empty(),
         "Expected to see no vulnerabilities, but got: {}",
         stdout
     );
@@ -187,11 +198,16 @@ fn should_see_no_vulnerabilities(world: &mut GgenWorld) {
 fn should_see_risk_assessment(world: &mut GgenWorld) {
     let stdout = world.last_stdout();
     assert!(
-        stdout.contains("risk") || stdout.contains("Risk") ||
-        stdout.contains("assessment") || stdout.contains("Assessment") ||
-        stdout.contains("severity") || stdout.contains("Severity") ||
-        stdout.contains("critical") || stdout.contains("high") ||
-        stdout.contains("medium") || stdout.contains("low"),
+        stdout.contains("risk")
+            || stdout.contains("Risk")
+            || stdout.contains("assessment")
+            || stdout.contains("Assessment")
+            || stdout.contains("severity")
+            || stdout.contains("Severity")
+            || stdout.contains("critical")
+            || stdout.contains("high")
+            || stdout.contains("medium")
+            || stdout.contains("low"),
         "Expected to see risk assessment, but got: {}",
         stdout
     );
@@ -201,10 +217,14 @@ fn should_see_risk_assessment(world: &mut GgenWorld) {
 fn should_see_recommendations(world: &mut GgenWorld) {
     let stdout = world.last_stdout();
     assert!(
-        stdout.contains("recommendation") || stdout.contains("Recommendation") ||
-        stdout.contains("suggestion") || stdout.contains("Suggestion") ||
-        stdout.contains("fix") || stdout.contains("Fix") ||
-        stdout.contains("improve") || stdout.contains("Improve"),
+        stdout.contains("recommendation")
+            || stdout.contains("Recommendation")
+            || stdout.contains("suggestion")
+            || stdout.contains("Suggestion")
+            || stdout.contains("fix")
+            || stdout.contains("Fix")
+            || stdout.contains("improve")
+            || stdout.contains("Improve"),
         "Expected to see recommendations, but got: {}",
         stdout
     );
@@ -221,9 +241,11 @@ fn report_should_be_json_format(world: &mut GgenWorld) {
 fn report_should_be_html_format(world: &mut GgenWorld) {
     let stdout = world.last_stdout();
     assert!(
-        stdout.contains("<html") || stdout.contains("<HTML") ||
-        stdout.contains("<body") || stdout.contains("<head") ||
-        stdout.contains("<!DOCTYPE"),
+        stdout.contains("<html")
+            || stdout.contains("<HTML")
+            || stdout.contains("<body")
+            || stdout.contains("<head")
+            || stdout.contains("<!DOCTYPE"),
         "Expected to see HTML format, but got: {}",
         stdout
     );

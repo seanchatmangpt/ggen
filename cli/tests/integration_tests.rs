@@ -135,3 +135,233 @@ fn test_debug_flag() {
     // Should handle debug flag without issues
     assert!(output.status.code().is_some());
 }
+
+// Integration tests for noun-verb command structure
+
+#[test]
+fn test_audit_hazard_help() {
+    let output = Command::new("cargo")
+        .args(&["run", "--", "audit", "hazard", "--help"])
+        .current_dir("..")
+        .output()
+        .expect("Failed to execute command");
+
+    assert!(output.status.success());
+    let stdout = str::from_utf8(&output.stdout).unwrap();
+    assert!(stdout.contains("hazardous patterns"));
+    assert!(stdout.contains("scan"));
+    assert!(stdout.contains("list"));
+    assert!(stdout.contains("check"));
+}
+
+#[test]
+fn test_audit_security_help() {
+    let output = Command::new("cargo")
+        .args(&["run", "--", "audit", "security", "--help"])
+        .current_dir("..")
+        .output()
+        .expect("Failed to execute command");
+
+    assert!(output.status.success());
+    let stdout = str::from_utf8(&output.stdout).unwrap();
+    assert!(stdout.contains("security"));
+    assert!(stdout.contains("vulnerability"));
+}
+
+#[test]
+fn test_audit_performance_help() {
+    let output = Command::new("cargo")
+        .args(&["run", "--", "audit", "performance", "--help"])
+        .current_dir("..")
+        .output()
+        .expect("Failed to execute command");
+
+    assert!(output.status.success());
+    let stdout = str::from_utf8(&output.stdout).unwrap();
+    assert!(stdout.contains("performance"));
+    assert!(stdout.contains("benchmark"));
+}
+
+#[test]
+fn test_ci_pages_help() {
+    let output = Command::new("cargo")
+        .args(&["run", "--", "ci", "pages", "--help"])
+        .current_dir("..")
+        .output()
+        .expect("Failed to execute command");
+
+    assert!(output.status.success());
+    let stdout = str::from_utf8(&output.stdout).unwrap();
+    assert!(stdout.contains("GitHub Pages"));
+    assert!(stdout.contains("deploy"));
+    assert!(stdout.contains("status"));
+    assert!(stdout.contains("logs"));
+    assert!(stdout.contains("compare"));
+}
+
+#[test]
+fn test_ci_workflow_help() {
+    let output = Command::new("cargo")
+        .args(&["run", "--", "ci", "workflow", "--help"])
+        .current_dir("..")
+        .output()
+        .expect("Failed to execute command");
+
+    assert!(output.status.success());
+    let stdout = str::from_utf8(&output.stdout).unwrap();
+    assert!(stdout.contains("workflow"));
+    assert!(stdout.contains("list"));
+    assert!(stdout.contains("status"));
+    assert!(stdout.contains("logs"));
+    assert!(stdout.contains("cancel"));
+}
+
+#[test]
+fn test_ci_trigger_help() {
+    let output = Command::new("cargo")
+        .args(&["run", "--", "ci", "trigger", "--help"])
+        .current_dir("..")
+        .output()
+        .expect("Failed to execute command");
+
+    assert!(output.status.success());
+    let stdout = str::from_utf8(&output.stdout).unwrap();
+    assert!(stdout.contains("trigger"));
+    assert!(stdout.contains("workflow"));
+}
+
+#[test]
+fn test_shell_completion_help() {
+    let output = Command::new("cargo")
+        .args(&["run", "--", "shell", "completion", "--help"])
+        .current_dir("..")
+        .output()
+        .expect("Failed to execute command");
+
+    assert!(output.status.success());
+    let stdout = str::from_utf8(&output.stdout).unwrap();
+    assert!(stdout.contains("completion"));
+    assert!(stdout.contains("generate"));
+    assert!(stdout.contains("install"));
+    assert!(stdout.contains("list"));
+}
+
+#[test]
+fn test_shell_init_help() {
+    let output = Command::new("cargo")
+        .args(&["run", "--", "shell", "init", "--help"])
+        .current_dir("..")
+        .output()
+        .expect("Failed to execute command");
+
+    assert!(output.status.success());
+    let stdout = str::from_utf8(&output.stdout).unwrap();
+    assert!(stdout.contains("init"));
+    assert!(stdout.contains("shell"));
+    assert!(stdout.contains("project"));
+    assert!(stdout.contains("dev"));
+}
+
+#[test]
+fn test_audit_hazard_scan_help() {
+    let output = Command::new("cargo")
+        .args(&["run", "--", "audit", "hazard", "scan", "--help"])
+        .current_dir("..")
+        .output()
+        .expect("Failed to execute command");
+
+    assert!(output.status.success());
+    let stdout = str::from_utf8(&output.stdout).unwrap();
+    assert!(stdout.contains("scan"));
+    assert!(stdout.contains("path"));
+    assert!(stdout.contains("json"));
+    assert!(stdout.contains("verbose"));
+    assert!(stdout.contains("fix"));
+}
+
+#[test]
+fn test_ci_pages_deploy_help() {
+    let output = Command::new("cargo")
+        .args(&["run", "--", "ci", "pages", "deploy", "--help"])
+        .current_dir("..")
+        .output()
+        .expect("Failed to execute command");
+
+    assert!(output.status.success());
+    let stdout = str::from_utf8(&output.stdout).unwrap();
+    assert!(stdout.contains("deploy"));
+    assert!(stdout.contains("force"));
+    assert!(stdout.contains("wait"));
+    assert!(stdout.contains("branch"));
+}
+
+#[test]
+fn test_shell_completion_generate_help() {
+    let output = Command::new("cargo")
+        .args(&["run", "--", "shell", "completion", "generate", "--help"])
+        .current_dir("..")
+        .output()
+        .expect("Failed to execute command");
+
+    assert!(output.status.success());
+    let stdout = str::from_utf8(&output.stdout).unwrap();
+    assert!(stdout.contains("generate"));
+    assert!(stdout.contains("shell"));
+    assert!(stdout.contains("output"));
+}
+
+#[test]
+fn test_shell_init_shell_help() {
+    let output = Command::new("cargo")
+        .args(&["run", "--", "shell", "init", "shell", "--help"])
+        .current_dir("..")
+        .output()
+        .expect("Failed to execute command");
+
+    assert!(output.status.success());
+    let stdout = str::from_utf8(&output.stdout).unwrap();
+    assert!(stdout.contains("shell"));
+    assert!(stdout.contains("config"));
+    assert!(stdout.contains("force"));
+}
+
+// Test error cases for noun-verb commands
+
+#[test]
+fn test_audit_invalid_subcommand() {
+    let output = Command::new("cargo")
+        .args(&["run", "--", "audit", "invalid"])
+        .current_dir("..")
+        .output()
+        .expect("Failed to execute command");
+
+    assert!(!output.status.success());
+    let stderr = str::from_utf8(&output.stderr).unwrap();
+    assert!(stderr.contains("error"));
+}
+
+#[test]
+fn test_ci_invalid_subcommand() {
+    let output = Command::new("cargo")
+        .args(&["run", "--", "ci", "invalid"])
+        .current_dir("..")
+        .output()
+        .expect("Failed to execute command");
+
+    assert!(!output.status.success());
+    let stderr = str::from_utf8(&output.stderr).unwrap();
+    assert!(stderr.contains("error"));
+}
+
+#[test]
+fn test_shell_invalid_subcommand() {
+    let output = Command::new("cargo")
+        .args(&["run", "--", "shell", "invalid"])
+        .current_dir("..")
+        .output()
+        .expect("Failed to execute command");
+
+    assert!(!output.status.success());
+    let stderr = str::from_utf8(&output.stderr).unwrap();
+    assert!(stderr.contains("error"));
+}
