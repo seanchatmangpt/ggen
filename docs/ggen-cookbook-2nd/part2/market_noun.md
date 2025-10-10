@@ -1,3 +1,34 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Chapter 7: The `market` Noun](#chapter-7-the-market-noun)
+  - [What is the GGen Market?](#what-is-the-ggen-market)
+  - [Why the Market Exists](#why-the-market-exists)
+  - [Market Structure](#market-structure)
+    - [Package Types](#package-types)
+  - [Core Commands](#core-commands)
+    - [`ggen market search`](#ggen-market-search)
+    - [`ggen market install`](#ggen-market-install)
+    - [`ggen market info`](#ggen-market-info)
+    - [`ggen market update`](#ggen-market-update)
+    - [`ggen market publish`](#ggen-market-publish)
+    - [`ggen market unpublish`](#ggen-market-unpublish)
+  - [Working with Market Packages](#working-with-market-packages)
+    - [Browsing the Market](#browsing-the-market)
+    - [Installing and Using](#installing-and-using)
+    - [Extending Market Packages](#extending-market-packages)
+  - [Market Best Practices](#market-best-practices)
+    - [For Package Consumers](#for-package-consumers)
+    - [For Package Publishers](#for-package-publishers)
+  - [Real-World Examples](#real-world-examples)
+    - [Example 1: Building a SaaS App](#example-1-building-a-saas-app)
+    - [Example 2: Custom E-commerce](#example-2-custom-e-commerce)
+    - [Example 3: Publishing a Pattern](#example-3-publishing-a-pattern)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Chapter 7: The `market` Noun
 
 ## What is the GGen Market?

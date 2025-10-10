@@ -1,3 +1,38 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Chapter 8: The Generation Workflow](#chapter-8-the-generation-workflow)
+  - [What is Code Generation?](#what-is-code-generation)
+  - [The Generation Pipeline](#the-generation-pipeline)
+  - [Step 1: Load Knowledge](#step-1-load-knowledge)
+  - [Step 2: Validate with SHACL](#step-2-validate-with-shacl)
+  - [Step 3: Query with SPARQL](#step-3-query-with-sparql)
+  - [Step 4: Apply Templates](#step-4-apply-templates)
+  - [Step 5: Write Output Files](#step-5-write-output-files)
+  - [Step 6: Run Hooks](#step-6-run-hooks)
+  - [Generation Modes](#generation-modes)
+    - [Mode 1: Full Generation](#mode-1-full-generation)
+    - [Mode 2: Incremental Generation](#mode-2-incremental-generation)
+    - [Mode 3: Selective Generation](#mode-3-selective-generation)
+    - [Mode 4: Watch Mode](#mode-4-watch-mode)
+  - [Multi-Target Generation](#multi-target-generation)
+  - [Template Configuration](#template-configuration)
+  - [Custom Templates](#custom-templates)
+  - [Template Helpers](#template-helpers)
+  - [Generation Workflow Examples](#generation-workflow-examples)
+    - [Example 1: Daily Feature Development](#example-1-daily-feature-development)
+    - [Example 2: Schema Migration](#example-2-schema-migration)
+    - [Example 3: Multi-Language Generation](#example-3-multi-language-generation)
+  - [Troubleshooting Generation](#troubleshooting-generation)
+    - [Problem: Template errors](#problem-template-errors)
+    - [Problem: Generated code doesn't compile](#problem-generated-code-doesnt-compile)
+    - [Problem: Generation is slow](#problem-generation-is-slow)
+  - [Best Practices](#best-practices)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Chapter 8: The Generation Workflow
 
 ## What is Code Generation?

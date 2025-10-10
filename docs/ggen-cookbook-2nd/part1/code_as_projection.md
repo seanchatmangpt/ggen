@@ -1,3 +1,24 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Chapter 3: Code as a Projection of Knowledge](#chapter-3-code-as-a-projection-of-knowledge)
+  - [The Fundamental Insight](#the-fundamental-insight)
+  - [The Architect's Blueprints](#the-architects-blueprints)
+  - [Software's False Primary Artifact](#softwares-false-primary-artifact)
+  - [What is Knowledge?](#what-is-knowledge)
+  - [The Current Approach: Knowledge Imprisonment](#the-current-approach-knowledge-imprisonment)
+  - [The Knowledge-First Approach](#the-knowledge-first-approach)
+  - [The Projection Layer](#the-projection-layer)
+  - [The Knowledge Graph](#the-knowledge-graph)
+  - [Real-World Example: The E-commerce Knowledge Graph](#real-world-example-the-e-commerce-knowledge-graph)
+  - [Benefits of Code as Projection](#benefits-of-code-as-projection)
+  - [The Shift in Mindset](#the-shift-in-mindset)
+  - [Limitations and Trade-offs](#limitations-and-trade-offs)
+  - [The Path Forward](#the-path-forward)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Chapter 3: Code as a Projection of Knowledge
 
 ## The Fundamental Insight

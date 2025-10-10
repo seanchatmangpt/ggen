@@ -1,3 +1,55 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [1.4 Reading This Book](#14-reading-this-book)
+  - [How This Book Is Organized](#how-this-book-is-organized)
+    - [**Part I: The Foundation** (Chapters 1-2)](#part-i-the-foundation-chapters-1-2)
+    - [**Part II: Core Engine & CLI** (Chapters 3-4)](#part-ii-core-engine--cli-chapters-3-4)
+    - [**Part III: Authoring Language** (Chapters 5-10)](#part-iii-authoring-language-chapters-5-10)
+    - [**Part IV: Autonomic System** (Chapters 11-13)](#part-iv-autonomic-system-chapters-11-13)
+    - [**Part V: The Ecosystem** (Chapters 14-15)](#part-v-the-ecosystem-chapters-14-15)
+    - [**Part VI: Advanced & Enterprise** (Chapters 16-17)](#part-vi-advanced--enterprise-chapters-16-17)
+    - [**Appendices** (A-C)](#appendices-a-c)
+  - [How to Read This Book](#how-to-read-this-book)
+    - [**For Beginners**](#for-beginners)
+    - [**For Practitioners**](#for-practitioners)
+    - [**For Template Authors**](#for-template-authors)
+    - [**For Enterprise Architects**](#for-enterprise-architects)
+  - [Reading Patterns](#reading-patterns)
+    - [**Sequential Reading**](#sequential-reading)
+    - [**Pattern-Focused Reading**](#pattern-focused-reading)
+    - [**Problem-Driven Reading**](#problem-driven-reading)
+    - [**Reference Reading**](#reference-reading)
+  - [Understanding Pattern Descriptions](#understanding-pattern-descriptions)
+    - [**Pattern Name and Number**](#pattern-name-and-number)
+    - [**Context**](#context)
+    - [**Problem**](#problem)
+    - [**Solution**](#solution)
+    - [**Consequences**](#consequences)
+    - [**Related Patterns**](#related-patterns)
+    - [**Examples**](#examples)
+  - [Using the Examples](#using-the-examples)
+    - [**Runnable Examples**](#runnable-examples)
+    - [**Experimenting with Examples**](#experimenting-with-examples)
+    - [**Example Organization**](#example-organization)
+  - [Cross-References and Navigation](#cross-references-and-navigation)
+    - [**Pattern Cross-References**](#pattern-cross-references)
+    - [**Chapter Cross-References**](#chapter-cross-references)
+    - [**External References**](#external-references)
+  - [Contributing to This Book](#contributing-to-this-book)
+    - [**Reporting Issues**](#reporting-issues)
+    - [**Contributing Content**](#contributing-content)
+    - [**Community Participation**](#community-participation)
+  - [Getting the Most from This Book](#getting-the-most-from-this-book)
+    - [**1. Read Actively**](#1-read-actively)
+    - [**2. Experiment**](#2-experiment)
+    - [**3. Connect Patterns**](#3-connect-patterns)
+    - [**4. Share Your Experience**](#4-share-your-experience)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 1.4 Reading This Book
 
 ## How This Book Is Organized

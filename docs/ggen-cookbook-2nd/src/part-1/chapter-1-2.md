@@ -1,3 +1,53 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [1.2 The Alexandrian Approach](#12-the-alexandrian-approach)
+  - [Christopher Alexander's Vision](#christopher-alexanders-vision)
+  - [The Three Books](#the-three-books)
+    - [1. **The Timeless Way of Building** (1979)](#1-the-timeless-way-of-building-1979)
+    - [2. **A Pattern Language** (1977)](#2-a-pattern-language-1977)
+    - [3. **The Oregon Experiment** (1975)](#3-the-oregon-experiment-1975)
+  - [Core Principles](#core-principles)
+    - [1. **Wholeness**](#1-wholeness)
+    - [2. **Living Structure**](#2-living-structure)
+    - [3. **Emergence**](#3-emergence)
+    - [4. **Context Sensitivity**](#4-context-sensitivity)
+  - [The Pattern Format](#the-pattern-format)
+  - [Adaptation to Software](#adaptation-to-software)
+    - [**Design Patterns** (Gang of Four, 1994)](#design-patterns-gang-of-four-1994)
+    - [**Architectural Patterns** (Buschmann et al., 1996)](#architectural-patterns-buschmann-et-al-1996)
+    - [**Domain-Specific Patterns**](#domain-specific-patterns)
+  - [GGen's Adaptation](#ggens-adaptation)
+    - [**Scale Hierarchy**](#scale-hierarchy)
+    - [**Context Awareness**](#context-awareness)
+    - [**Living Documentation**](#living-documentation)
+  - [Example: The Knowledge-First Pattern](#example-the-knowledge-first-pattern)
+    - [**Pattern 001: KNOWLEDGE-FIRST PROJECTION**](#pattern-001-knowledge-first-projection)
+  - [The Pattern Language Structure](#the-pattern-language-structure)
+    - [**1. Foundation Patterns**](#1-foundation-patterns)
+    - [**2. Generation Patterns**](#2-generation-patterns)
+    - [**3. Workflow Patterns**](#3-workflow-patterns)
+    - [**4. Integration Patterns**](#4-integration-patterns)
+  - [The Living Pattern Language](#the-living-pattern-language)
+    - [**Evolution**](#evolution)
+    - [**Community**](#community)
+    - [**Validation**](#validation)
+  - [Benefits of the Alexandrian Approach](#benefits-of-the-alexandrian-approach)
+    - [**1. Scalability**](#1-scalability)
+    - [**2. Consistency**](#2-consistency)
+    - [**3. Composability**](#3-composability)
+    - [**4. Learning**](#4-learning)
+    - [**5. Evolution**](#5-evolution)
+  - [Applying the Approach](#applying-the-approach)
+    - [**1. Start with the Whole**](#1-start-with-the-whole)
+    - [**2. Identify Patterns**](#2-identify-patterns)
+    - [**3. Compose Patterns**](#3-compose-patterns)
+    - [**4. Evolve the Language**](#4-evolve-the-language)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 1.2 The Alexandrian Approach
 
 ## Christopher Alexander's Vision

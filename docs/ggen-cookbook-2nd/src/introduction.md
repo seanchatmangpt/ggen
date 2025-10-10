@@ -1,3 +1,25 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Introduction](#introduction)
+  - [The Challenge of Code Generation](#the-challenge-of-code-generation)
+  - [The GGen Philosophy](#the-ggen-philosophy)
+    - [1. Templates as First-Class Artifacts](#1-templates-as-first-class-artifacts)
+    - [2. Autonomic Properties](#2-autonomic-properties)
+    - [3. Pattern Language Approach](#3-pattern-language-approach)
+  - [What is a Pattern Language?](#what-is-a-pattern-language)
+  - [The Generate-Validate-Refine Loop](#the-generate-validate-refine-loop)
+  - [A Simple Example](#a-simple-example)
+  - [Key Concepts](#key-concepts)
+  - [The Journey Ahead](#the-journey-ahead)
+  - [Prerequisites](#prerequisites)
+  - [Setup](#setup)
+  - [A Note on Examples](#a-note-on-examples)
+  - [Contributing to This Book](#contributing-to-this-book)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Introduction
 
 ## The Challenge of Code Generation

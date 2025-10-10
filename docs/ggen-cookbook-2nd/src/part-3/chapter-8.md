@@ -1,3 +1,39 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Chapter 8: Data-Driven Generation](#chapter-8-data-driven-generation)
+  - [Overview](#overview)
+  - [What You'll Learn](#what-youll-learn)
+  - [Chapter Structure](#chapter-structure)
+  - [Key Concepts](#key-concepts)
+    - [**Data-Driven Generation**](#data-driven-generation)
+    - [**Semantic Models**](#semantic-models)
+    - [**Schema Mapping**](#schema-mapping)
+    - [**API-First Generation**](#api-first-generation)
+  - [Data Source Hierarchy](#data-source-hierarchy)
+  - [Pattern 001: Knowledge-First Projection](#pattern-001-knowledge-first-projection)
+  - [Data Processing Pipeline](#data-processing-pipeline)
+  - [Example: Multi-Source Generation](#example-multi-source-generation)
+    - [**1. Domain Model (RDF)**](#1-domain-model-rdf)
+    - [**2. Database Schema**](#2-database-schema)
+    - [**3. API Specification**](#3-api-specification)
+    - [**4. Generated Code**](#4-generated-code)
+  - [Benefits of Data-Driven Generation](#benefits-of-data-driven-generation)
+    - [**1. Consistency**](#1-consistency)
+    - [**2. Traceability**](#2-traceability)
+    - [**3. Multi-Target Generation**](#3-multi-target-generation)
+    - [**4. Evolution**](#4-evolution)
+    - [**5. Validation**](#5-validation)
+  - [Best Practices](#best-practices)
+    - [**1. Choose the Right Data Source**](#1-choose-the-right-data-source)
+    - [**2. Validate Early**](#2-validate-early)
+    - [**3. Use Semantic Queries**](#3-use-semantic-queries)
+    - [**4. Maintain Data Sources**](#4-maintain-data-sources)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Chapter 8: Data-Driven Generation
 
 ## Overview

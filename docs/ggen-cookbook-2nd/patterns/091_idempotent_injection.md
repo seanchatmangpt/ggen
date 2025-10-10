@@ -1,3 +1,28 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Pattern 091: Idempotent Injection](#pattern-091-idempotent-injection)
+  - [Intent](#intent)
+  - [Motivation](#motivation)
+  - [Applicability](#applicability)
+  - [Structure](#structure)
+  - [Implementation](#implementation)
+    - [Basic Idempotent Injection](#basic-idempotent-injection)
+    - [Advanced Example: Import Management](#advanced-example-import-management)
+  - [Multi-Anchor Injection](#multi-anchor-injection)
+  - [Injection Strategies](#injection-strategies)
+  - [Idempotency Key Patterns](#idempotency-key-patterns)
+  - [Database Migration Example](#database-migration-example)
+  - [Benefits](#benefits)
+  - [Best Practices](#best-practices)
+  - [Anti-Patterns](#anti-patterns)
+  - [Related Patterns](#related-patterns)
+  - [Known Uses](#known-uses)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Pattern 091: Idempotent Injection
 
 ## Intent

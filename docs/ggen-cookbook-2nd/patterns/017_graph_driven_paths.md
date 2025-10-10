@@ -1,3 +1,25 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Pattern 017: Graph-Driven Paths](#pattern-017-graph-driven-paths)
+  - [Intent](#intent)
+  - [Motivation](#motivation)
+  - [Applicability](#applicability)
+  - [Structure](#structure)
+  - [Implementation](#implementation)
+    - [Basic Graph-Driven Paths](#basic-graph-driven-paths)
+  - [Advanced Example: Microservices with Bounded Contexts](#advanced-example-microservices-with-bounded-contexts)
+  - [Multi-Language Code Generation](#multi-language-code-generation)
+  - [Dynamic Path Computation](#dynamic-path-computation)
+  - [Benefits](#benefits)
+  - [Related Patterns](#related-patterns)
+  - [Best Practices](#best-practices)
+  - [Anti-Patterns](#anti-patterns)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Pattern 017: Graph-Driven Paths
 
 ## Intent

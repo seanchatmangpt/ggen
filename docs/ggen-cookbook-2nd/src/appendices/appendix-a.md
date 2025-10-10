@@ -1,3 +1,43 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Appendix A: Template Reference](#appendix-a-template-reference)
+  - [Overview](#overview)
+  - [Template Structure](#template-structure)
+  - [Frontmatter Fields](#frontmatter-fields)
+    - [**Required Fields**](#required-fields)
+    - [**Optional Fields**](#optional-fields)
+  - [Variable Definitions](#variable-definitions)
+    - [**Variable Types**](#variable-types)
+    - [**Validation Rules**](#validation-rules)
+  - [Handlebars Syntax](#handlebars-syntax)
+    - [**Basic Syntax**](#basic-syntax)
+    - [**Built-in Helpers**](#built-in-helpers)
+      - [**String Helpers**](#string-helpers)
+      - [**Number Helpers**](#number-helpers)
+      - [**Array Helpers**](#array-helpers)
+      - [**Object Helpers**](#object-helpers)
+      - [**Utility Helpers**](#utility-helpers)
+  - [SPARQL Integration](#sparql-integration)
+    - [**Query Results**](#query-results)
+  - [Deterministic Generation](#deterministic-generation)
+    - [**Deterministic Settings**](#deterministic-settings)
+    - [**Best Practices**](#best-practices)
+  - [Template Hooks](#template-hooks)
+  - [Template Dependencies](#template-dependencies)
+  - [Error Handling](#error-handling)
+  - [Validation](#validation)
+  - [Best Practices](#best-practices-1)
+    - [**1. Clear Naming**](#1-clear-naming)
+    - [**2. Comprehensive Documentation**](#2-comprehensive-documentation)
+    - [**3. Validation Rules**](#3-validation-rules)
+    - [**4. Error Handling**](#4-error-handling)
+    - [**5. Testing**](#5-testing)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Appendix A: Template Reference
 
 ## Overview

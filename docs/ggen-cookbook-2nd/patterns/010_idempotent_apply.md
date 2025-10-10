@@ -1,3 +1,39 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Pattern 010: IDEMPOTENT APPLY](#pattern-010-idempotent-apply)
+  - [Problem](#problem)
+  - [Solution](#solution)
+  - [Prerequisites](#prerequisites)
+  - [Step-by-Step](#step-by-step)
+    - [1. Apply a Plan File](#1-apply-a-plan-file)
+    - [2. Re-run the Same Apply (Idempotent)](#2-re-run-the-same-apply-idempotent)
+    - [3. Apply with Verification](#3-apply-with-verification)
+  - [Complete Example](#complete-example)
+  - [Explanation](#explanation)
+    - [Idempotency Mechanisms](#idempotency-mechanisms)
+      - [1. `unless_exists`](#1-unless_exists)
+      - [2. `skip_if`](#2-skip_if)
+      - [3. `idempotent: true`](#3-idempotent-true)
+      - [4. Content Hash Verification](#4-content-hash-verification)
+    - [Apply Behavior Matrix](#apply-behavior-matrix)
+  - [Expected Output](#expected-output)
+  - [Common Pitfalls](#common-pitfalls)
+  - [Variations](#variations)
+    - [💡 Force Apply (Override Checks)](#-force-apply-override-checks)
+    - [💡 Selective Apply](#-selective-apply)
+    - [💡 Dry-Run Apply](#-dry-run-apply)
+  - [Troubleshooting](#troubleshooting)
+  - [Automation Examples](#automation-examples)
+    - [CI/CD Pipeline (GitHub Actions)](#cicd-pipeline-github-actions)
+    - [Makefile Integration](#makefile-integration)
+    - [Pre-commit Hook](#pre-commit-hook)
+  - [See Also](#see-also)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Pattern 010: IDEMPOTENT APPLY
 
 **Difficulty**: ⭐⭐ Intermediate

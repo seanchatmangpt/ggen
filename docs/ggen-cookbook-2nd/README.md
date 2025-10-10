@@ -1,3 +1,18 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GGen Cookbook: A Pattern Language for Autonomic Code Generation (2nd Edition)](#ggen-cookbook-a-pattern-language-for-autonomic-code-generation-2nd-edition)
+  - [Building the Book](#building-the-book)
+    - [Prerequisites](#prerequisites)
+    - [Building](#building)
+    - [Testing](#testing)
+  - [Structure](#structure)
+  - [Contributing](#contributing)
+  - [License](#license)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GGen Cookbook: A Pattern Language for Autonomic Code Generation (2nd Edition)
 
 This is the source for the GGen Cookbook 2nd Edition, built with [mdBook](https://rust-lang.github.io/mdBook/).

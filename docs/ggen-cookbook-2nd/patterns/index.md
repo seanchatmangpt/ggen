@@ -1,3 +1,44 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GGen Pattern Language Index](#ggen-pattern-language-index)
+  - [Foundation Patterns](#foundation-patterns)
+    - [**Pattern 001: KNOWLEDGE-FIRST PROJECTION** ⭐⭐⭐](#pattern-001-knowledge-first-projection-)
+    - [**Pattern 002: DETERMINISTIC ENGINE** ⭐⭐⭐](#pattern-002-deterministic-engine-)
+    - [**Pattern 003: GRAPH-TEMPLATE BINDING** ⭐⭐⭐](#pattern-003-graph-template-binding-)
+    - [**Pattern 004: NOUN-VERB CLI** ⭐⭐](#pattern-004-noun-verb-cli-)
+  - [Generation Patterns](#generation-patterns)
+    - [**Pattern 005: MULTI-LANGUAGE PROJECTION** ⭐⭐](#pattern-005-multi-language-projection-)
+    - [**Pattern 006: LOCKFILE VERSIONING** ⭐⭐](#pattern-006-lockfile-versioning-)
+    - [**Pattern 007: SNAPSHOT TESTING** ⭐⭐](#pattern-007-snapshot-testing-)
+    - [**Pattern 008: TEMPLATE INHERITANCE** ⭐⭐](#pattern-008-template-inheritance-)
+    - [**Pattern 009: CONDITIONAL GENERATION** ⭐⭐](#pattern-009-conditional-generation-)
+    - [**Pattern 010: INCREMENTAL GENERATION** ⭐⭐](#pattern-010-incremental-generation-)
+  - [Workflow Patterns](#workflow-patterns)
+    - [**Pattern 011: GENERATE-VALIDATE-REFINE** ⭐⭐⭐](#pattern-011-generate-validate-refine-)
+    - [**Pattern 012: CI/CD INTEGRATION** ⭐⭐](#pattern-012-cicd-integration-)
+    - [**Pattern 013: TEMPLATE MARKETPLACE** ⭐⭐](#pattern-013-template-marketplace-)
+    - [**Pattern 014: TEMPLATE TESTING** ⭐⭐](#pattern-014-template-testing-)
+  - [Enterprise Patterns](#enterprise-patterns)
+    - [**Pattern 015: MULTI-TENANT TEMPLATES** ⭐⭐](#pattern-015-multi-tenant-templates-)
+    - [**Pattern 016: COMPLIANCE & GOVERNANCE** ⭐⭐](#pattern-016-compliance--governance-)
+    - [**Pattern 017: SECRETS MANAGEMENT** ⭐⭐](#pattern-017-secrets-management-)
+    - [**Pattern 018: SCALE & PERFORMANCE** ⭐⭐](#pattern-018-scale--performance-)
+  - [Pattern Relationships](#pattern-relationships)
+    - [**Dependency Graph**](#dependency-graph)
+    - [**Composition Patterns**](#composition-patterns)
+  - [Using This Index](#using-this-index)
+    - [**For Beginners**](#for-beginners)
+    - [**For Practitioners**](#for-practitioners)
+    - [**For Teams**](#for-teams)
+    - [**For Enterprises**](#for-enterprises)
+  - [Contributing Patterns](#contributing-patterns)
+  - [Pattern Status](#pattern-status)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GGen Pattern Language Index
 
 This index provides a comprehensive overview of all patterns in the GGen pattern language, organized by category and use case.

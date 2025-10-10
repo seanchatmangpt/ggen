@@ -1,3 +1,25 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [API Generation Recipe](#api-generation-recipe)
+  - [Overview](#overview)
+  - [Prerequisites](#prerequisites)
+  - [Step 1: Define the Domain Model](#step-1-define-the-domain-model)
+  - [Step 2: Create the API Template](#step-2-create-the-api-template)
+  - [Step 3: Generate the API](#step-3-generate-the-api)
+  - [Step 4: Set Up Dependencies](#step-4-set-up-dependencies)
+  - [Step 5: Set Up Database](#step-5-set-up-database)
+  - [Step 6: Test the API](#step-6-test-the-api)
+  - [Step 7: Test API Endpoints](#step-7-test-api-endpoints)
+  - [Step 8: Add Documentation](#step-8-add-documentation)
+  - [Step 9: Docker Configuration](#step-9-docker-configuration)
+  - [Step 10: Deploy](#step-10-deploy)
+  - [Benefits of This Approach](#benefits-of-this-approach)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # API Generation Recipe
 
 This recipe shows how to generate a complete REST API with models, handlers, tests, and documentation using GGen's pattern language approach.

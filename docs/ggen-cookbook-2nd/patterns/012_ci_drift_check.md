@@ -1,3 +1,43 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Pattern 012: CI DRIFT CHECK](#pattern-012-ci-drift-check)
+  - [Problem](#problem)
+  - [Solution](#solution)
+  - [Prerequisites](#prerequisites)
+  - [Step-by-Step](#step-by-step)
+    - [1. Create Reproducible Plans](#1-create-reproducible-plans)
+    - [2. Add CI Drift Check Script](#2-add-ci-drift-check-script)
+    - [3. Integrate into CI Pipeline](#3-integrate-into-ci-pipeline)
+  - [Complete Example](#complete-example)
+    - [Project Structure](#project-structure)
+    - [Template (`templates/config.tmpl`)](#template-templatesconfigtmpl)
+    - [Generate Plans for Each Environment](#generate-plans-for-each-environment)
+    - [Comprehensive Drift Check Script](#comprehensive-drift-check-script)
+    - [CI Configuration (GitLab CI)](#ci-configuration-gitlab-ci)
+  - [Explanation](#explanation)
+    - [Drift Detection Strategies](#drift-detection-strategies)
+      - [1. **Plan-Based Verification** (Recommended)](#1-plan-based-verification-recommended)
+      - [2. **Regeneration Comparison**](#2-regeneration-comparison)
+      - [3. **Content Hash Verification**](#3-content-hash-verification)
+    - [Handling Drift](#handling-drift)
+      - [Option 1: Accept Drift (Update Plan)](#option-1-accept-drift-update-plan)
+      - [Option 2: Reject Drift (Regenerate)](#option-2-reject-drift-regenerate)
+      - [Option 3: Merge Drift](#option-3-merge-drift)
+  - [Expected Output](#expected-output)
+  - [Common Pitfalls](#common-pitfalls)
+  - [Variations](#variations)
+    - [💡 Scheduled Drift Detection](#-scheduled-drift-detection)
+    - [💡 Drift Auto-Fix PR](#-drift-auto-fix-pr)
+    - [💡 Drift Severity Levels](#-drift-severity-levels)
+    - [💡 Environment-Specific Checks](#-environment-specific-checks)
+  - [Troubleshooting](#troubleshooting)
+  - [See Also](#see-also)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Pattern 012: CI DRIFT CHECK
 
 **Difficulty**: ⭐⭐⭐ Advanced

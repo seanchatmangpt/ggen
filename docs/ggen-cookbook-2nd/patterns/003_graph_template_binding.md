@@ -1,3 +1,27 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Pattern 003: GRAPH-TEMPLATE BINDING ***](#pattern-003-graph-template-binding-)
+  - [Context](#context)
+  - [Problem](#problem)
+  - [Forces](#forces)
+  - [Solution](#solution)
+  - [Result](#result)
+  - [Graph Example](#graph-example)
+  - [Template Example](#template-example)
+  - [CLI Invocation](#cli-invocation)
+  - [Expected Output](#expected-output)
+  - [Verification](#verification)
+  - [Advanced Binding Patterns](#advanced-binding-patterns)
+    - [**Conditional Queries**](#conditional-queries)
+    - [**Composed Queries**](#composed-queries)
+    - [**Parameterized Queries**](#parameterized-queries)
+  - [Anti-Patterns](#anti-patterns)
+  - [Related Patterns](#related-patterns)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Pattern 003: GRAPH-TEMPLATE BINDING ***
 
 ## Context

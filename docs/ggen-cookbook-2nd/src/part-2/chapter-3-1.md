@@ -1,3 +1,40 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [3.1 Architecture Overview](#31-architecture-overview)
+  - [System Design Philosophy](#system-design-philosophy)
+  - [High-Level Architecture](#high-level-architecture)
+  - [Core Components](#core-components)
+    - [**1. CLI Layer**](#1-cli-layer)
+    - [**2. Engine Core**](#2-engine-core)
+    - [**3. Registry System**](#3-registry-system)
+  - [Data Flow Architecture](#data-flow-architecture)
+    - [**Input Sources**](#input-sources)
+    - [**Processing Pipeline**](#processing-pipeline)
+    - [**Output Generation**](#output-generation)
+  - [Autonomic Properties](#autonomic-properties)
+    - [**Self-Configuration**](#self-configuration)
+    - [**Self-Optimization**](#self-optimization)
+    - [**Self-Healing**](#self-healing)
+  - [Extension Points](#extension-points)
+    - [**Custom Helpers**](#custom-helpers)
+    - [**Custom Processors**](#custom-processors)
+    - [**Custom Validators**](#custom-validators)
+  - [Performance Architecture](#performance-architecture)
+    - [**Caching Strategy**](#caching-strategy)
+    - [**Parallel Processing**](#parallel-processing)
+    - [**Resource Management**](#resource-management)
+  - [Security Architecture](#security-architecture)
+    - [**Input Validation**](#input-validation)
+    - [**Output Sanitization**](#output-sanitization)
+  - [Monitoring and Observability](#monitoring-and-observability)
+    - [**Metrics Collection**](#metrics-collection)
+    - [**Logging and Tracing**](#logging-and-tracing)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 3.1 Architecture Overview
 
 ## System Design Philosophy
