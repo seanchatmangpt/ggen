@@ -1,3 +1,29 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Ggen Marketplace C4 Diagrams](#ggen-marketplace-c4-diagrams)
+  - [Diagram Overview](#diagram-overview)
+    - [1. System Context (`C4_marketplace_context.puml`)](#1-system-context-c4_marketplace_contextpuml)
+    - [2. Container Diagram (`C4_marketplace_container.puml`)](#2-container-diagram-c4_marketplace_containerpuml)
+    - [3. Consumer Lifecycle (`C4_marketplace_consumer_lifecycle.puml`)](#3-consumer-lifecycle-c4_marketplace_consumer_lifecyclepuml)
+    - [4. Publisher Lifecycle (`C4_marketplace_publisher_lifecycle.puml`)](#4-publisher-lifecycle-c4_marketplace_publisher_lifecyclepuml)
+    - [5. Data Flow (`C4_marketplace_data_flow.puml`)](#5-data-flow-c4_marketplace_data_flowpuml)
+    - [6. Sequence Diagram (`C4_marketplace_sequence.puml`)](#6-sequence-diagram-c4_marketplace_sequencepuml)
+    - [7. Deployment Diagram (`C4_marketplace_deployment.puml`)](#7-deployment-diagram-c4_marketplace_deploymentpuml)
+    - [8. Security Model (`C4_marketplace_security.puml`)](#8-security-model-c4_marketplace_securitypuml)
+    - [9. Error Handling (`C4_marketplace_error_handling.puml`)](#9-error-handling-c4_marketplace_error_handlingpuml)
+    - [10. Performance & Scalability (`C4_marketplace_performance.puml`)](#10-performance--scalability-c4_marketplace_performancepuml)
+  - [Usage](#usage)
+  - [Key Lifecycle Flows](#key-lifecycle-flows)
+    - [Consumer Lifecycle](#consumer-lifecycle)
+    - [Publisher Lifecycle](#publisher-lifecycle)
+    - [Error Recovery](#error-recovery)
+  - [Security Considerations](#security-considerations)
+  - [Performance Characteristics](#performance-characteristics)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Ggen Marketplace C4 Diagrams
 
 This directory contains comprehensive C4 architecture diagrams for the Ggen Marketplace system, documenting the full end-to-end lifecycles and system interactions.

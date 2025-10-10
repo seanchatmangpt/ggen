@@ -1,3 +1,38 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GGen Marketplace](#ggen-marketplace)
+  - [Overview](#overview)
+  - [Usage](#usage)
+    - [Environment Configuration](#environment-configuration)
+    - [Basic Commands](#basic-commands)
+    - [Using Installed Gpacks](#using-installed-gpacks)
+  - [Registry Structure](#registry-structure)
+  - [Adding New Gpacks](#adding-new-gpacks)
+    - [1. Create Gpack Structure](#1-create-gpack-structure)
+    - [2. Create Gpack Manifest](#2-create-gpack-manifest)
+    - [3. Generate SHA256 Hash](#3-generate-sha256-hash)
+    - [4. Update Registry Index](#4-update-registry-index)
+    - [5. Validate and Publish](#5-validate-and-publish)
+  - [Hash Generation Process](#hash-generation-process)
+  - [Validation Requirements](#validation-requirements)
+  - [Local Development and Testing](#local-development-and-testing)
+    - [Setting Up Local Registry](#setting-up-local-registry)
+    - [Running Tests](#running-tests)
+  - [Adding New Gpacks](#adding-new-gpacks-1)
+    - [1. Create Template Structure](#1-create-template-structure)
+    - [2. Update Registry Index](#2-update-registry-index)
+    - [3. Template Requirements](#3-template-requirements)
+    - [4. Submit Pull Request](#4-submit-pull-request)
+  - [Troubleshooting](#troubleshooting)
+    - [Common Issues](#common-issues)
+    - [Debug Mode](#debug-mode)
+  - [Contributing](#contributing)
+  - [License](#license)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GGen Marketplace
 
 The GGen marketplace provides a curated ecosystem of reusable code generation packs (gpacks) served via GitHub Pages with automated validation and deployment.

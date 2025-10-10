@@ -1,3 +1,32 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GitHub Pages API Scripts Reference](#github-pages-api-scripts-reference)
+  - [Quick Start](#quick-start)
+  - [Available Scripts](#available-scripts)
+    - [1. `gh-pages-setup-check` - Comprehensive Validation](#1-gh-pages-setup-check---comprehensive-validation)
+    - [2. `gh-pages-status` - API Status Check](#2-gh-pages-status---api-status-check)
+    - [3. `gh-workflow-status` - Workflow Run History](#3-gh-workflow-status---workflow-run-history)
+    - [4. `gh-pages-trigger` - Manual Workflow Trigger](#4-gh-pages-trigger---manual-workflow-trigger)
+    - [5. `gh-pages-logs` - View Deployment Logs](#5-gh-pages-logs---view-deployment-logs)
+    - [6. `gh-pages-compare` - Local vs Remote Comparison](#6-gh-pages-compare---local-vs-remote-comparison)
+  - [Common Workflows](#common-workflows)
+    - [Initial Setup and Deployment](#initial-setup-and-deployment)
+    - [Debugging Failed Deployment](#debugging-failed-deployment)
+    - [Verifying Deployment Matches Local Build](#verifying-deployment-matches-local-build)
+  - [GitHub API Endpoints Used](#github-api-endpoints-used)
+  - [Authentication](#authentication)
+  - [Environment Variables](#environment-variables)
+  - [Troubleshooting](#troubleshooting)
+    - ["GitHub Pages not configured or not accessible"](#github-pages-not-configured-or-not-accessible)
+    - ["No workflow runs found"](#no-workflow-runs-found)
+    - ["gh CLI not available"](#gh-cli-not-available)
+    - ["Site returns 404"](#site-returns-404)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GitHub Pages API Scripts Reference
 
 This document describes the cargo-make scripts for diagnosing and managing GitHub Pages deployment via GitHub's API.

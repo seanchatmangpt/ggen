@@ -1,3 +1,32 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Documentation](#ggen-documentation)
+  - [🧭 Purpose](#-purpose)
+  - [🚀 Quick Start](#-quick-start)
+    - [Using marketplace gpacks (recommended)](#using-marketplace-gpacks-recommended)
+    - [Using local templates](#using-local-templates)
+  - [🏪 Marketplace](#-marketplace)
+    - [Discover gpacks](#discover-gpacks)
+    - [Install and use](#install-and-use)
+  - [📚 Documentation Sections](#-documentation-sections)
+    - [Getting Started](#getting-started)
+    - [Core Concepts](#core-concepts)
+    - [Reference](#reference)
+    - [Advanced](#advanced)
+    - [Examples](#examples)
+  - [🔧 Installation](#-installation)
+    - [Homebrew](#homebrew)
+    - [Cargo](#cargo)
+  - [🔁 Determinism](#-determinism)
+  - [📦 Extend](#-extend)
+    - [Create local templates](#create-local-templates)
+    - [Publish gpacks to marketplace](#publish-gpacks-to-marketplace)
+  - [🔒 License](#-license)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Documentation
 
 **Language-agnostic generator for reproducible code projections.**

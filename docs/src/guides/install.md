@@ -1,3 +1,29 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Install](#install)
+  - [Homebrew](#homebrew)
+  - [Cargo](#cargo)
+  - [Verify Installation](#verify-installation)
+  - [Post-Installation Setup](#post-installation-setup)
+    - [Marketplace Access](#marketplace-access)
+    - [First Gpack Installation](#first-gpack-installation)
+    - [Gpack Cache Location](#gpack-cache-location)
+    - [Registry Configuration](#registry-configuration)
+    - [Shell Completions (Optional)](#shell-completions-optional)
+  - [Troubleshooting Installation](#troubleshooting-installation)
+    - [Command Not Found](#command-not-found)
+    - [Marketplace Access Issues](#marketplace-access-issues)
+    - [Permission Issues](#permission-issues)
+  - [Next Steps](#next-steps)
+  - [Uninstallation](#uninstallation)
+    - [Homebrew](#homebrew-1)
+    - [Cargo](#cargo-1)
+    - [Cleanup](#cleanup)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Install
 
 ## Homebrew

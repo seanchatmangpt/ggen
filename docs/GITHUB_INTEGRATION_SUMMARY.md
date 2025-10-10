@@ -1,3 +1,45 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GitHub API Rust Integration - Summary](#github-api-rust-integration---summary)
+  - [Overview](#overview)
+  - [What Was Implemented](#what-was-implemented)
+    - [1. Core GitHub API Client (`ggen-core/src/github.rs`)](#1-core-github-api-client-ggen-coresrcgithubrs)
+    - [2. CLI Commands (`cli/src/cmds/github.rs`)](#2-cli-commands-clisrccmdsgithubrs)
+      - [`pages-status`](#pages-status)
+      - [`workflow-status`](#workflow-status)
+      - [`trigger-workflow`](#trigger-workflow)
+    - [3. Repository Auto-Detection](#3-repository-auto-detection)
+    - [4. Integration with Existing Codebase](#4-integration-with-existing-codebase)
+  - [Benefits Over Bash+Python Scripts](#benefits-over-bashpython-scripts)
+    - [1. Code Reuse](#1-code-reuse)
+    - [2. Type Safety](#2-type-safety)
+    - [3. Better Error Messages](#3-better-error-messages)
+    - [4. Performance](#4-performance)
+    - [5. Maintainability](#5-maintainability)
+    - [6. Cross-Platform](#6-cross-platform)
+  - [Usage Examples](#usage-examples)
+    - [Check Current Deployment Status](#check-current-deployment-status)
+    - [View Recent Workflow Runs](#view-recent-workflow-runs)
+    - [Trigger Deployment](#trigger-deployment)
+  - [Testing](#testing)
+    - [Unit Tests](#unit-tests)
+    - [Integration Tests](#integration-tests)
+  - [Migration from Bash Scripts](#migration-from-bash-scripts)
+    - [Before (bash + Python):](#before-bash--python)
+    - [After (Rust CLI):](#after-rust-cli)
+  - [Authentication Setup](#authentication-setup)
+  - [Files Created/Modified](#files-createdmodified)
+    - [New Files:](#new-files)
+    - [Modified Files:](#modified-files)
+  - [Current Status](#current-status)
+  - [Future Enhancements](#future-enhancements)
+  - [Related Documentation](#related-documentation)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GitHub API Rust Integration - Summary
 
 ## Overview

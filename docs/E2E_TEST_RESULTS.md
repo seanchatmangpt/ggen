@@ -1,3 +1,53 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [End-to-End Test Results - v1.0.0 PQC Implementation](#end-to-end-test-results---v100-pqc-implementation)
+  - [Test Date: October 9, 2025](#test-date-october-9-2025)
+  - [✅ What Works](#-what-works)
+    - [1. Marketplace Search (PASS)](#1-marketplace-search-pass)
+    - [2. Package Installation (PASS)](#2-package-installation-pass)
+    - [3. Lockfile Creation (PASS)](#3-lockfile-creation-pass)
+  - [❌ What Doesn't Work](#-what-doesnt-work)
+    - [1. Template Listing (FAIL)](#1-template-listing-fail)
+    - [2. Template Generation (FAIL)](#2-template-generation-fail)
+    - [3. SHA256 Calculation (PARTIAL)](#3-sha256-calculation-partial)
+    - [4. PQC Signatures (NOT IMPLEMENTED)](#4-pqc-signatures-not-implemented)
+  - [📊 Test Summary](#-test-summary)
+  - [🔧 Required Fixes for v1.0.0 Release](#-required-fixes-for-v100-release)
+    - [CRITICAL (Must Fix Before Release)](#critical-must-fix-before-release)
+      - [1. Template Generation Failure](#1-template-generation-failure)
+    - [HIGH (Should Fix Before Release)](#high-should-fix-before-release)
+      - [2. Template Listing](#2-template-listing)
+      - [3. SHA256 Calculation](#3-sha256-calculation)
+    - [MEDIUM (Nice to Have)](#medium-nice-to-have)
+      - [4. Verbose Logging](#4-verbose-logging)
+  - [🎯 80/20 Assessment](#-8020-assessment)
+    - [What We Built (The 80%)](#what-we-built-the-80)
+    - [What's Missing (The 20%)](#whats-missing-the-20)
+  - [🚦 Release Recommendation](#-release-recommendation)
+    - [Current Status: ⚠️ **NOT READY FOR v1.0.0 RELEASE**](#current-status--not-ready-for-v100-release)
+    - [Two Paths Forward](#two-paths-forward)
+      - [Path A: Fix Critical Issues (Recommended)](#path-a-fix-critical-issues-recommended)
+      - [Path B: Release as v0.9.0 Beta](#path-b-release-as-v090-beta)
+  - [✅ What Works Well (Positive Findings)](#-what-works-well-positive-findings)
+    - [1. PQC Module Quality](#1-pqc-module-quality)
+    - [2. Lockfile Format](#2-lockfile-format)
+    - [3. Marketplace Integration](#3-marketplace-integration)
+  - [📝 Detailed Test Log](#-detailed-test-log)
+    - [Test Environment](#test-environment)
+    - [Test Sequence](#test-sequence)
+  - [🎬 Next Steps](#-next-steps)
+    - [Immediate (Before Any Release)](#immediate-before-any-release)
+    - [Short-term (v1.0.0)](#short-term-v100)
+    - [Medium-term (v1.1.0)](#medium-term-v110)
+  - [💡 Recommendations](#-recommendations)
+    - [For v1.0.0 Success](#for-v100-success)
+    - [Sales Messaging Adjustment](#sales-messaging-adjustment)
+  - [🏁 Conclusion](#-conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # End-to-End Test Results - v1.0.0 PQC Implementation
 
 ## Test Date: October 9, 2025

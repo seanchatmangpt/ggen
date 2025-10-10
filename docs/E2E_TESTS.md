@@ -1,3 +1,39 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [End-to-End (E2E) Tests Documentation](#end-to-end-e2e-tests-documentation)
+  - [Overview](#overview)
+  - [Test Suites](#test-suites)
+    - [1. PQC Infrastructure Tests (`tests/e2e_pqc_infrastructure.rs`)](#1-pqc-infrastructure-tests-testse2e_pqc_infrastructurers)
+    - [2. Lockfile SHA256 Tests (`tests/e2e_lockfile_sha256.rs`)](#2-lockfile-sha256-tests-testse2e_lockfile_sha256rs)
+    - [3. GitHub Integration Tests (`tests/e2e_github_integration.rs`)](#3-github-integration-tests-testse2e_github_integrationrs)
+    - [4. Production Marketplace Tests (`tests/e2e_production_marketplace.rs`)](#4-production-marketplace-tests-testse2e_production_marketplacers)
+  - [Running Tests](#running-tests)
+    - [Run All E2E Tests (Local Only)](#run-all-e2e-tests-local-only)
+    - [Run All E2E Tests (Including Network Tests)](#run-all-e2e-tests-including-network-tests)
+    - [Run Only Ignored (Network) Tests](#run-only-ignored-network-tests)
+    - [Run via cargo-make](#run-via-cargo-make)
+  - [Test Coverage Summary](#test-coverage-summary)
+  - [Ignored Tests](#ignored-tests)
+  - [Why Ignore Network Tests?](#why-ignore-network-tests)
+  - [Test Patterns](#test-patterns)
+    - [CLI Execution](#cli-execution)
+    - [Isolated Environments](#isolated-environments)
+    - [Real Binaries](#real-binaries)
+  - [CI/CD Integration](#cicd-integration)
+    - [Local CI (No Network)](#local-ci-no-network)
+    - [Full CI (With Network)](#full-ci-with-network)
+  - [Adding New E2E Tests](#adding-new-e2e-tests)
+  - [Dependencies](#dependencies)
+  - [Troubleshooting](#troubleshooting)
+    - [All Tests Fail](#all-tests-fail)
+    - [Network Tests Fail](#network-tests-fail)
+    - [Lockfile Tests Fail](#lockfile-tests-fail)
+  - [Maintenance](#maintenance)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # End-to-End (E2E) Tests Documentation
 
 ## Overview

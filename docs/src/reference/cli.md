@@ -1,3 +1,23 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [CLI](#cli)
+  - [Marketplace Commands](#marketplace-commands)
+    - [Search and Discovery](#search-and-discovery)
+    - [Installation and Management](#installation-and-management)
+    - [Gpack Publishing (for authors)](#gpack-publishing-for-authors)
+  - [Generation Commands](#generation-commands)
+    - [Template Generation](#template-generation)
+    - [Template Discovery](#template-discovery)
+  - [Validation Commands](#validation-commands)
+  - [Utility Commands](#utility-commands)
+  - [Variable Precedence](#variable-precedence)
+  - [Gpack Template Reference Syntax](#gpack-template-reference-syntax)
+  - [Dry-Run Mode](#dry-run-mode)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # CLI
 
 ## Marketplace Commands
