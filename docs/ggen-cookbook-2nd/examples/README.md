@@ -33,7 +33,7 @@ Examples are organized by chapter and pattern:
 
 2. Run the example:
    ```bash
-   ggen template apply pattern-language-example.tmpl
+   ggen project gen pattern-language-example.tmpl
    ```
 
 3. View generated output:
@@ -45,22 +45,22 @@ Examples are organized by chapter and pattern:
 
 1. Use with custom variables:
    ```bash
-   ggen template apply pattern-language-example.tmpl \
-     --set user_name="Bob" \
-     --set user_email="bob@example.com"
+   ggen project gen pattern-language-example.tmpl \
+     --var user_name="Bob" \
+     --var user_email="bob@example.com"
    ```
 
 2. Use with knowledge graphs:
    ```bash
    ggen graph load domain-model.ttl
-   ggen template apply knowledge-first-example.tmpl
+   ggen project gen knowledge-first-example.tmpl
    ```
 
 3. Use with recipes:
    ```bash
-   ggen template apply quick-start-api.tmpl \
-     --set api_name="MyAPI" \
-     --set resource_name="Product"
+   ggen project gen quick-start-api.tmpl \
+     --var api_name="MyAPI" \
+     --var resource_name="Product"
    ```
 
 ## Example Categories

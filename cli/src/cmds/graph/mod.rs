@@ -1,9 +1,11 @@
 use clap::Subcommand;
 use ggen_utils::error::Result;
 
+pub mod diff;
 pub mod export;
 pub mod load;
 pub mod query;
+pub mod snapshot;
 pub mod stats;
 pub mod validate;
 
@@ -25,6 +27,10 @@ pub enum Verb {
     Validate(validate::ValidateArgs),
     /// Show graph statistics
     Stats(stats::StatsArgs),
+    /// Compare two RDF graphs and show differences
+    Diff(diff::DiffArgs),
+    /// Manage graph snapshots for delta-driven projection
+    Snapshot(snapshot::SnapshotArgs),
 }
 
 impl GraphCmd {
@@ -35,6 +41,8 @@ impl GraphCmd {
             Verb::Export(args) => export::run(args).await,
             Verb::Validate(args) => validate::run(args).await,
             Verb::Stats(args) => stats::run(args).await,
+            Verb::Diff(args) => diff::run(args).await,
+            Verb::Snapshot(args) => snapshot::run(args).await,
         }
     }
 }

@@ -3,12 +3,16 @@ use ggen_utils::error::Result;
 
 // Declare verb modules
 pub mod add;
+pub mod cache;
 pub mod categories;
 pub mod info;
 pub mod list;
+pub mod offline;
 pub mod publish;
+pub mod recommend;
 pub mod remove;
 pub mod search;
+pub mod sync;
 pub mod unpublish;
 pub mod update;
 
@@ -63,6 +67,38 @@ pub enum Verb {
     ///   ggen market info "web-api" --dependencies
     Info(info::InfoArgs),
 
+    /// Get personalized package recommendations
+    ///
+    /// Examples:
+    ///   ggen market recommend
+    ///   ggen market recommend --based-on "rust-cli"
+    ///   ggen market recommend --category "web" --limit 5
+    Recommend(recommend::RecommendArgs),
+
+    /// Browse marketplace offline using cached data
+    ///
+    /// Examples:
+    ///   ggen market offline search "rust"
+    ///   ggen market offline info "rust-cli"
+    ///   ggen market offline categories
+    Offline(offline::OfflineArgs),
+
+    /// Manage marketplace cache (clear, stats, validate)
+    ///
+    /// Examples:
+    ///   ggen market cache clear
+    ///   ggen market cache stats
+    ///   ggen market cache validate
+    Cache(cache::CacheArgs),
+
+    /// Synchronize with remote marketplace
+    ///
+    /// Examples:
+    ///   ggen market sync
+    ///   ggen market sync --category "rust"
+    ///   ggen market sync --force
+    Sync(sync::SyncArgs),
+
     /// Show popular categories and keywords
     ///
     /// Examples:
@@ -95,6 +131,10 @@ impl MarketCmd {
             Verb::List(args) => list::run(args).await,
             Verb::Update(args) => update::run(args).await,
             Verb::Info(args) => info::run(args).await,
+            Verb::Recommend(args) => recommend::run(args).await,
+            Verb::Offline(args) => offline::run(args).await,
+            Verb::Cache(args) => cache::run(args).await,
+            Verb::Sync(args) => sync::run(args).await,
             Verb::Categories(args) => categories::run(args).await,
             Verb::Publish(args) => publish::run(args).await,
             Verb::Unpublish(args) => unpublish::run(args).await,

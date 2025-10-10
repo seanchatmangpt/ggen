@@ -5,7 +5,7 @@
 //! - Track generation metadata and hashes
 //! - Support rollback and drift detection
 
-use anyhow::{bail, Result};
+use anyhow::Result;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -35,15 +35,13 @@ pub struct Snapshot {
 impl Snapshot {
     /// Create a new snapshot from current state
     pub fn new(
-        name: String,
-        graph: &Graph,
-        files: Vec<(PathBuf, String)>,
+        name: String, graph: &Graph, files: Vec<(PathBuf, String)>,
         templates: Vec<(PathBuf, String)>,
     ) -> Result<Self> {
         let now = Utc::now();
-        
+
         let graph_snapshot = GraphSnapshot::from_graph(graph)?;
-        
+
         let file_snapshots = files
             .into_iter()
             .map(|(path, content)| FileSnapshot::new(path, content))
@@ -109,7 +107,7 @@ impl GraphSnapshot {
     pub fn from_graph(graph: &Graph) -> Result<Self> {
         let hash = graph.compute_hash()?;
         let triple_count = graph.len();
-        
+
         Ok(Self {
             hash,
             triple_count,
@@ -139,16 +137,14 @@ pub struct FileSnapshot {
 impl FileSnapshot {
     /// Create from file path and content
     pub fn new(path: PathBuf, content: String) -> Result<Self> {
-        use std::os::unix::fs::MetadataExt;
-        
         let metadata = fs::metadata(&path)?;
         let hash = Self::compute_hash(&content);
-        
+
         Ok(Self {
             path,
             hash,
             size: metadata.len(),
-            modified_at: metadata.modified().into(),
+            modified_at: metadata.modified()?.into(),
             generated_regions: Self::detect_regions(&content),
             manual_regions: Self::detect_regions(&content),
         })
@@ -193,7 +189,7 @@ impl TemplateSnapshot {
     pub fn new(path: PathBuf, content: String) -> Result<Self> {
         let hash = Self::compute_hash(&content);
         let queries = Self::extract_queries(&content);
-        
+
         Ok(Self {
             path,
             hash,
@@ -227,7 +223,7 @@ pub struct Region {
     pub region_type: RegionType,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum RegionType {
     Generated,
     Manual,
@@ -268,7 +264,7 @@ impl SnapshotManager {
     pub fn list(&self) -> Result<Vec<String>> {
         let mut snapshots = Vec::new();
         let entries = fs::read_dir(&self.snapshot_dir)?;
-        
+
         for entry in entries {
             let entry = entry?;
             let path = entry.path();
@@ -276,7 +272,7 @@ impl SnapshotManager {
                 snapshots.push(name.to_string());
             }
         }
-        
+
         snapshots.sort();
         Ok(snapshots)
     }
@@ -308,17 +304,19 @@ mod tests {
     fn test_snapshot_creation() -> Result<()> {
         let graph = Graph::new()?;
         graph.insert_turtle("@prefix : <http://example.org/> . :test a :Class .")?;
-        
+
         let temp_dir = tempdir()?;
-        let files = vec![(temp_dir.path().join("test.txt"), "test content".to_string())];
-        let templates = vec![(temp_dir.path().join("test.tmpl"), "template content".to_string())];
-        
-        let snapshot = Snapshot::new(
-            "test_snapshot".to_string(),
-            &graph,
-            files,
-            templates,
-        )?;
+        let test_file = temp_dir.path().join("test.txt");
+        let test_template = temp_dir.path().join("test.tmpl");
+
+        // Create the actual files
+        fs::write(&test_file, "test content")?;
+        fs::write(&test_template, "template content")?;
+
+        let files = vec![(test_file, "test content".to_string())];
+        let templates = vec![(test_template, "template content".to_string())];
+
+        let snapshot = Snapshot::new("test_snapshot".to_string(), &graph, files, templates)?;
 
         assert_eq!(snapshot.name, "test_snapshot");
         assert_eq!(snapshot.files.len(), 1);
@@ -335,13 +333,8 @@ mod tests {
 
         let graph = Graph::new()?;
         graph.insert_turtle("@prefix : <http://example.org/> . :test a :Class .")?;
-        
-        let snapshot = Snapshot::new(
-            "manager_test".to_string(),
-            &graph,
-            vec![],
-            vec![],
-        )?;
+
+        let snapshot = Snapshot::new("manager_test".to_string(), &graph, vec![], vec![])?;
 
         // Save snapshot
         manager.save(&snapshot)?;

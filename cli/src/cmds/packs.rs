@@ -1,10 +1,23 @@
 use anyhow::Result;
 use ggen_core::LockfileManager;
+use ggen_utils::error::Result as GgenResult;
 use std::env;
 
+/// Validate packs command input (no arguments needed)
+fn validate_packs_input() -> GgenResult<()> {
+    // No specific validation needed for packs command
+    // Main validation is ensuring current directory access
+    Ok(())
+}
+
 pub fn run() -> Result<()> {
+    validate_packs_input()?;
+
     // Get current working directory
-    let current_dir = env::current_dir()?;
+    println!("🔍 Loading installed gpacks...");
+    let current_dir = env::current_dir().map_err(|e| {
+        ggen_utils::error::Error::new_fmt(format_args!("Failed to access current directory: {}", e))
+    })?;
     let lockfile_manager = LockfileManager::new(&current_dir);
 
     // Load installed packs

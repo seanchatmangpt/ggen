@@ -4,6 +4,13 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use walkdir::WalkDir;
 
+/// Validate list command input (no arguments needed)
+fn validate_list_input() -> Result<()> {
+    // No specific validation needed for list command
+    // Main validation is ensuring templates directory access
+    Ok(())
+}
+
 // Cache for template metadata to avoid re-parsing
 static mut TEMPLATE_CACHE: Option<Arc<std::collections::HashMap<PathBuf, TemplateInfo>>> = None;
 static CACHE_INIT: std::sync::Once = std::sync::Once::new();
@@ -18,6 +25,9 @@ struct TemplateInfo {
 }
 
 pub fn run() -> Result<()> {
+    validate_list_input()?;
+
+    println!("🔍 Scanning for available templates...");
     let templates_dir = find_templates_directory()?;
 
     println!("Available templates:");

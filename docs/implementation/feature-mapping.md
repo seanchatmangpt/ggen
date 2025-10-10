@@ -1,0 +1,1272 @@
+# Rust-Genai to ggen Feature Mapping
+
+## Executive Summary
+
+This document maps rust-genai patterns and features to the ggen codebase, identifying integration points, required modifications, and implementation paths. The goal is to enhance ggen with modern LLM capabilities while maintaining its graph-aware, deterministic code generation philosophy.
+
+**Date:** 2025-10-10
+**Agent:** Codebase Mapping Agent
+**Session:** swarm-llm-integration
+
+---
+
+## 1. Current ggen Architecture Overview
+
+### Core Modules (ggen-core)
+
+```
+ggen-core/src/
+├── lib.rs              # Main exports
+├── pipeline.rs         # Template processing pipeline (Tera + RDF)
+├── template.rs         # Template parsing and frontmatter
+├── generator.rs        # Code generation orchestration
+├── graph.rs            # RDF/SPARQL graph operations
+├── tera_env.rs         # Tera template environment setup
+├── register.rs         # Tera custom functions/filters
+├── resolver.rs         # Template resolution (local/registry)
+├── cache.rs            # Package cache management
+├── registry.rs         # Marketplace integration
+├── lockfile.rs         # Dependency locking
+├── snapshot.rs         # Graph snapshot/diff tracking
+├── delta.rs            # Change impact analysis
+├── merge.rs            # Three-way merge strategies
+├── inject.rs           # Code injection patterns
+├── github.rs           # GitHub API integration
+├── gpack.rs            # Package manifest
+├── pqc.rs              # Post-quantum cryptography
+└── config.rs           # Configuration management
+```
+
+### CLI Structure (cli/src/cmds)
+
+```
+cli/src/cmds/
+├── mod.rs              # Command router
+├── gen.rs              # Legacy generation (to be enhanced)
+├── graph/              # RDF graph operations (noun-verb)
+├── template/           # Template management (noun-verb)
+├── project/            # Project scaffolding (noun-verb)
+├── market/             # Marketplace operations (noun-verb)
+├── hook/               # Knowledge hooks (NEW)
+├── audit/              # Security/performance audits
+├── ci/                 # CI/CD operations
+└── shell/              # Shell completions
+```
+
+### MCP Server (ggen-mcp)
+
+```
+ggen-mcp/src/
+├── server.rs           # MCP server implementation
+├── tools/
+│   ├── graph.rs        # Graph operation tools
+│   ├── template.rs     # Template tools
+│   ├── project.rs      # Project tools
+│   ├── market.rs       # Marketplace tools
+│   └── hook.rs         # Hook tools
+└── schema.rs           # MCP schema definitions
+```
+
+---
+
+## 2. Rust-Genai Pattern Analysis
+
+### Key Features to Integrate
+
+1. **Multi-Provider LLM Support**
+   - OpenAI (GPT-4, GPT-3.5)
+   - Anthropic (Claude)
+   - Cohere
+   - Groq
+   - Ollama (local models)
+   - Gemini (Google)
+
+2. **Advanced Chat Patterns**
+   - Streaming responses
+   - Function/tool calling
+   - Conversation history management
+   - Context window management
+
+3. **Adapter Pattern**
+   - Unified interface across providers
+   - Provider-specific optimizations
+   - Error handling and retries
+   - Rate limiting
+
+4. **Template Enhancement**
+   - LLM-powered variable inference
+   - Intelligent code completion
+   - Context-aware suggestions
+
+---
+
+## 3. Integration Points Mapping
+
+### 3.1 New Core Module: `ggen-core/src/llm/`
+
+**Location:** Create new directory `/Users/sac/ggen/ggen-core/src/llm/`
+
+**Structure:**
+```rust
+ggen-core/src/llm/
+├── mod.rs              // Public API and re-exports
+├── adapter.rs          // Unified LLM adapter trait
+├── providers/
+│   ├── mod.rs          // Provider registry
+│   ├── openai.rs       // OpenAI implementation
+│   ├── anthropic.rs    // Claude implementation
+│   ├── ollama.rs       // Ollama (local) implementation
+│   └── common.rs       // Shared provider utilities
+├── chat.rs             // Chat session management
+├── stream.rs           // Streaming response handling
+├── context.rs          // Context window management
+├── tools.rs            // Function/tool calling
+└── config.rs           // LLM configuration
+```
+
+**Dependencies to Add (ggen-core/Cargo.toml):**
+```toml
+# LLM Integration
+async-openai = "0.23"           # OpenAI client
+anthropic-sdk = "0.2"           # Anthropic Claude (or custom implementation)
+reqwest = { version = "0.12", features = ["json", "stream"] }
+tokio-stream = "0.1"
+serde_json = "1.0"
+futures = "0.3"
+```
+
+**Integration with Existing Code:**
+- **pipeline.rs:** Add LLM-powered template rendering
+- **template.rs:** Extend frontmatter with LLM directives
+- **generator.rs:** Add LLM-assisted generation mode
+
+---
+
+### 3.2 Enhanced Template Frontmatter
+
+**File:** `/Users/sac/ggen/ggen-core/src/template.rs`
+
+**Current Frontmatter Structure:**
+```rust
+pub struct Frontmatter {
+    pub to: Option<String>,
+    pub from: Option<String>,
+    pub force: bool,
+    pub inject: bool,
+    pub prefixes: BTreeMap<String, String>,
+    pub rdf_inline: Vec<String>,
+    pub sparql: BTreeMap<String, String>,
+    // ... existing fields
+}
+```
+
+**Enhanced Frontmatter (Add these fields):**
+```rust
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct Frontmatter {
+    // ... existing fields ...
+
+    // NEW: LLM Integration Fields
+    #[serde(default)]
+    pub llm: Option<LlmConfig>,
+
+    #[serde(default)]
+    pub ai_enhance: bool,
+
+    #[serde(default)]
+    pub ai_complete: Vec<String>,  // Fields to auto-complete with LLM
+
+    #[serde(default)]
+    pub ai_validate: bool,         // Use LLM to validate output
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct LlmConfig {
+    pub provider: String,          // "openai", "anthropic", "ollama"
+    pub model: Option<String>,     // Model override
+    pub temperature: Option<f32>,  // Creativity level
+    pub max_tokens: Option<u32>,   // Response limit
+    pub system_prompt: Option<String>, // System instructions
+}
+```
+
+**Example Enhanced Template:**
+```yaml
+---
+to: "src/{{module}}/{{name | snake_case}}.rs"
+llm:
+  provider: "anthropic"
+  model: "claude-3-5-sonnet-20241022"
+  temperature: 0.2
+  system_prompt: "You are a Rust code expert focusing on clean, idiomatic code."
+ai_enhance: true
+ai_complete:
+  - description
+  - test_cases
+prefixes:
+  ex: "http://example.org/"
+rdf_inline:
+  - "ex:{{name}} a ex:RustModule ."
+---
+// Generated Rust module
+pub struct {{name | pascal_case}} {
+    // {{ai.field_suggestions}}
+}
+```
+
+---
+
+### 3.3 Enhanced Pipeline with LLM Support
+
+**File:** `/Users/sac/ggen/ggen-core/src/pipeline.rs`
+
+**Current Pipeline:**
+```rust
+pub struct Pipeline {
+    pub(crate) tera: Tera,
+    pub(crate) graph: Graph,
+}
+```
+
+**Enhanced Pipeline:**
+```rust
+use crate::llm::{LlmAdapter, LlmProvider};
+
+pub struct Pipeline {
+    pub(crate) tera: Tera,
+    pub(crate) graph: Graph,
+    // NEW: LLM adapter for AI-powered features
+    pub(crate) llm: Option<Box<dyn LlmAdapter>>,
+}
+
+impl Pipeline {
+    pub fn new() -> Result<Self> {
+        let mut tera = Tera::default();
+        tera.autoescape_on(vec![]);
+        register::register_all(&mut tera);
+        Ok(Self {
+            tera,
+            graph: Graph::new()?,
+            llm: None, // Initialize without LLM by default
+        })
+    }
+
+    /// Enable LLM support with specific provider
+    pub fn with_llm(mut self, provider: LlmProvider) -> Result<Self> {
+        self.llm = Some(provider.create_adapter()?);
+        Ok(self)
+    }
+
+    /// NEW: AI-enhanced template rendering
+    pub async fn render_file_with_ai(
+        &mut self,
+        template_path: &Path,
+        vars: &BTreeMap<String, String>,
+        dry_run: bool,
+    ) -> Result<Plan> {
+        // Parse template
+        let input = std::fs::read_to_string(template_path)?;
+        let mut template = crate::template::Template::parse(&input)?;
+
+        // Render frontmatter
+        let mut ctx = Context::from_serialize(vars)?;
+        template.render_frontmatter(&mut self.tera, &ctx)?;
+
+        // NEW: If LLM config present, enhance context
+        if let Some(ref llm_config) = template.front.llm {
+            if let Some(ref llm) = self.llm {
+                self.enhance_context_with_llm(&mut ctx, llm_config, llm).await?;
+            }
+        }
+
+        // Continue with normal rendering...
+        // ... existing code ...
+    }
+
+    async fn enhance_context_with_llm(
+        &self,
+        ctx: &mut Context,
+        config: &LlmConfig,
+        llm: &Box<dyn LlmAdapter>,
+    ) -> Result<()> {
+        // Use LLM to fill in missing context variables
+        // This is where the magic happens!
+        todo!("Implement LLM context enhancement")
+    }
+}
+```
+
+---
+
+### 3.4 New CLI Command: `ggen ai`
+
+**File:** Create `/Users/sac/ggen/cli/src/cmds/ai/mod.rs`
+
+**Command Structure:**
+```rust
+use clap::Subcommand;
+use ggen_utils::error::Result;
+
+#[derive(Debug, clap::Args)]
+pub struct AiCmd {
+    #[command(subcommand)]
+    pub subcommand: AiSubcommand,
+}
+
+#[derive(Debug, Subcommand)]
+pub enum AiSubcommand {
+    /// Configure LLM providers (API keys, models)
+    Configure(ConfigureArgs),
+
+    /// Test LLM connection and capabilities
+    Test(TestArgs),
+
+    /// Generate code with AI assistance
+    Generate(GenerateArgs),
+
+    /// Chat with AI about templates/code
+    Chat(ChatArgs),
+
+    /// Enhance existing template with AI
+    Enhance(EnhanceArgs),
+
+    /// List available LLM providers and models
+    Providers,
+}
+
+#[derive(Debug, clap::Args)]
+pub struct ConfigureArgs {
+    /// Provider to configure (openai, anthropic, ollama)
+    #[arg(long)]
+    pub provider: String,
+
+    /// API key (will be stored securely)
+    #[arg(long)]
+    pub api_key: Option<String>,
+
+    /// Default model to use
+    #[arg(long)]
+    pub model: Option<String>,
+
+    /// Set as default provider
+    #[arg(long)]
+    pub set_default: bool,
+}
+
+impl AiCmd {
+    pub async fn run(&self) -> Result<()> {
+        match &self.subcommand {
+            AiSubcommand::Configure(args) => configure(args).await,
+            AiSubcommand::Test(args) => test(args).await,
+            AiSubcommand::Generate(args) => generate(args).await,
+            AiSubcommand::Chat(args) => chat(args).await,
+            AiSubcommand::Enhance(args) => enhance(args).await,
+            AiSubcommand::Providers => list_providers().await,
+        }
+    }
+}
+```
+
+**Example Usage:**
+```bash
+# Configure Anthropic provider
+ggen ai configure --provider anthropic --api-key sk-ant-... --set-default
+
+# Test connection
+ggen ai test --provider anthropic
+
+# Generate with AI assistance
+ggen ai generate --template rust-service --ai-complete vars
+
+# Interactive chat
+ggen ai chat "Help me design a REST API for user management"
+
+# Enhance existing template
+ggen ai enhance templates/api.tmpl --add-tests --optimize
+```
+
+---
+
+### 3.5 MCP Tool Integration
+
+**File:** `/Users/sac/ggen/ggen-mcp/src/tools/ai.rs` (NEW)
+
+**MCP Tools to Add:**
+```rust
+use rmcp::*;
+use serde_json::Value;
+
+/// MCP tool: ai/generate
+/// Generate code using AI with ggen templates
+pub async fn ai_generate(params: Value) -> Result<Value> {
+    // Extract parameters
+    let template = params["template"].as_str().ok_or("Missing template")?;
+    let vars = params["vars"].as_object().ok_or("Missing vars")?;
+    let provider = params.get("provider").and_then(|v| v.as_str());
+
+    // Use ggen-core to generate with AI
+    todo!("Implement AI generation via MCP")
+}
+
+/// MCP tool: ai/chat
+/// Interactive chat session with AI about code/templates
+pub async fn ai_chat(params: Value) -> Result<Value> {
+    let message = params["message"].as_str().ok_or("Missing message")?;
+    let context = params.get("context");
+
+    todo!("Implement AI chat via MCP")
+}
+
+/// MCP tool: ai/complete
+/// Auto-complete template variables using AI
+pub async fn ai_complete(params: Value) -> Result<Value> {
+    let template = params["template"].as_str().ok_or("Missing template")?;
+    let partial_vars = params.get("vars");
+
+    todo!("Implement AI completion via MCP")
+}
+```
+
+**Update:** `/Users/sac/ggen/ggen-mcp/src/tools/mod.rs`
+```rust
+pub mod ai;       // NEW: AI/LLM tools
+pub mod graph;
+pub mod hook;
+pub mod market;
+pub mod project;
+pub mod template;
+```
+
+---
+
+## 4. Implementation Roadmap
+
+### Phase 1: Foundation (Week 1)
+
+**Goal:** Set up basic LLM infrastructure
+
+1. **Create LLM module structure**
+   - [ ] Create `ggen-core/src/llm/` directory
+   - [ ] Implement `mod.rs` with public API
+   - [ ] Define `LlmAdapter` trait
+   - [ ] Add dependencies to Cargo.toml
+
+2. **Implement basic adapters**
+   - [ ] OpenAI adapter (most mature ecosystem)
+   - [ ] Anthropic adapter (Claude integration)
+   - [ ] Mock adapter for testing
+
+3. **Add configuration**
+   - [ ] Extend `ggen-core/src/config.rs` for LLM settings
+   - [ ] Add secure API key storage
+   - [ ] Environment variable support
+
+**Files to Create:**
+- `/Users/sac/ggen/ggen-core/src/llm/mod.rs`
+- `/Users/sac/ggen/ggen-core/src/llm/adapter.rs`
+- `/Users/sac/ggen/ggen-core/src/llm/providers/mod.rs`
+- `/Users/sac/ggen/ggen-core/src/llm/providers/openai.rs`
+- `/Users/sac/ggen/ggen-core/src/llm/providers/anthropic.rs`
+- `/Users/sac/ggen/ggen-core/src/llm/providers/common.rs`
+- `/Users/sac/ggen/ggen-core/src/llm/config.rs`
+
+**Files to Modify:**
+- `/Users/sac/ggen/ggen-core/src/lib.rs` (add `pub mod llm;`)
+- `/Users/sac/ggen/ggen-core/Cargo.toml` (add dependencies)
+- `/Users/sac/ggen/ggen-core/src/config.rs` (extend with LLM config)
+
+---
+
+### Phase 2: Template Enhancement (Week 2)
+
+**Goal:** Extend templates with LLM capabilities
+
+1. **Enhance frontmatter**
+   - [ ] Add `llm:` field to Frontmatter struct
+   - [ ] Add `ai_enhance`, `ai_complete` fields
+   - [ ] Update template parser
+
+2. **Extend pipeline**
+   - [ ] Add LLM field to Pipeline
+   - [ ] Implement `with_llm()` builder
+   - [ ] Create `render_file_with_ai()` method
+
+3. **Add Tera functions**
+   - [ ] `{{ ai_complete("description") }}` function
+   - [ ] `{{ ai_suggest("field_name") }}` function
+   - [ ] `{{ ai_validate("code_snippet") }}` function
+
+**Files to Modify:**
+- `/Users/sac/ggen/ggen-core/src/template.rs`
+- `/Users/sac/ggen/ggen-core/src/pipeline.rs`
+- `/Users/sac/ggen/ggen-core/src/register.rs`
+
+**New Tera Functions to Add:**
+```rust
+// In register.rs
+pub fn register_ai_functions(tera: &mut Tera, llm: &Box<dyn LlmAdapter>) {
+    tera.register_function("ai_complete", AiCompleteFn::new(llm.clone()));
+    tera.register_function("ai_suggest", AiSuggestFn::new(llm.clone()));
+    tera.register_function("ai_validate", AiValidateFn::new(llm.clone()));
+}
+```
+
+---
+
+### Phase 3: CLI Integration (Week 3)
+
+**Goal:** Add user-facing AI commands
+
+1. **Create AI command module**
+   - [ ] Create `cli/src/cmds/ai/` directory
+   - [ ] Implement `mod.rs` with subcommands
+   - [ ] Add to main command router
+
+2. **Implement subcommands**
+   - [ ] `ggen ai configure` - Setup providers
+   - [ ] `ggen ai test` - Test connections
+   - [ ] `ggen ai generate` - AI-assisted generation
+   - [ ] `ggen ai chat` - Interactive chat
+   - [ ] `ggen ai providers` - List providers
+
+3. **Update existing commands**
+   - [ ] Add `--ai` flag to `ggen gen`
+   - [ ] Add `--ai-complete` to `ggen project gen`
+
+**Files to Create:**
+- `/Users/sac/ggen/cli/src/cmds/ai/mod.rs`
+- `/Users/sac/ggen/cli/src/cmds/ai/configure.rs`
+- `/Users/sac/ggen/cli/src/cmds/ai/test.rs`
+- `/Users/sac/ggen/cli/src/cmds/ai/generate.rs`
+- `/Users/sac/ggen/cli/src/cmds/ai/chat.rs`
+- `/Users/sac/ggen/cli/src/cmds/ai/providers.rs`
+
+**Files to Modify:**
+- `/Users/sac/ggen/cli/src/cmds/mod.rs` (add AI command)
+- `/Users/sac/ggen/cli/src/cmds/gen.rs` (add --ai flag)
+- `/Users/sac/ggen/cli/src/cmds/project/gen.rs` (add AI support)
+
+---
+
+### Phase 4: MCP Server Integration (Week 4)
+
+**Goal:** Expose LLM features via MCP
+
+1. **Create AI tools**
+   - [ ] Create `ggen-mcp/src/tools/ai.rs`
+   - [ ] Implement `ai/generate` tool
+   - [ ] Implement `ai/chat` tool
+   - [ ] Implement `ai/complete` tool
+
+2. **Update MCP server**
+   - [ ] Register AI tools in server
+   - [ ] Add AI tool schemas
+   - [ ] Update documentation
+
+**Files to Create:**
+- `/Users/sac/ggen/ggen-mcp/src/tools/ai.rs`
+
+**Files to Modify:**
+- `/Users/sac/ggen/ggen-mcp/src/tools/mod.rs`
+- `/Users/sac/ggen/ggen-mcp/src/server.rs`
+- `/Users/sac/ggen/ggen-mcp/src/schema.rs`
+
+---
+
+## 5. Detailed Code Examples
+
+### 5.1 LLM Adapter Trait
+
+**File:** `/Users/sac/ggen/ggen-core/src/llm/adapter.rs`
+
+```rust
+use async_trait::async_trait;
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Message {
+    pub role: String,      // "system", "user", "assistant"
+    pub content: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ChatRequest {
+    pub messages: Vec<Message>,
+    pub temperature: Option<f32>,
+    pub max_tokens: Option<u32>,
+    pub tools: Option<Vec<Tool>>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ChatResponse {
+    pub content: String,
+    pub tool_calls: Option<Vec<ToolCall>>,
+    pub finish_reason: String,
+    pub usage: TokenUsage,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TokenUsage {
+    pub prompt_tokens: u32,
+    pub completion_tokens: u32,
+    pub total_tokens: u32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Tool {
+    pub name: String,
+    pub description: String,
+    pub parameters: serde_json::Value,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ToolCall {
+    pub id: String,
+    pub function: String,
+    pub arguments: serde_json::Value,
+}
+
+/// Unified LLM adapter trait
+#[async_trait]
+pub trait LlmAdapter: Send + Sync {
+    /// Send a chat completion request
+    async fn chat(&self, request: ChatRequest) -> anyhow::Result<ChatResponse>;
+
+    /// Stream a chat completion (returns chunks)
+    async fn chat_stream(
+        &self,
+        request: ChatRequest,
+    ) -> anyhow::Result<Box<dyn futures::Stream<Item = Result<String, anyhow::Error>>>>;
+
+    /// Get provider name
+    fn provider_name(&self) -> &str;
+
+    /// Get default model name
+    fn default_model(&self) -> &str;
+
+    /// Check if provider is available (API key set, etc.)
+    async fn is_available(&self) -> bool;
+}
+```
+
+### 5.2 OpenAI Adapter Implementation
+
+**File:** `/Users/sac/ggen/ggen-core/src/llm/providers/openai.rs`
+
+```rust
+use crate::llm::adapter::*;
+use async_openai::{
+    Client,
+    types::{
+        ChatCompletionRequestMessage,
+        CreateChatCompletionRequest,
+        CreateChatCompletionRequestArgs,
+    },
+};
+use async_trait::async_trait;
+
+pub struct OpenAiAdapter {
+    client: Client,
+    model: String,
+}
+
+impl OpenAiAdapter {
+    pub fn new(api_key: String, model: Option<String>) -> anyhow::Result<Self> {
+        let client = Client::new().with_api_key(api_key);
+        Ok(Self {
+            client,
+            model: model.unwrap_or_else(|| "gpt-4o".to_string()),
+        })
+    }
+}
+
+#[async_trait]
+impl LlmAdapter for OpenAiAdapter {
+    async fn chat(&self, request: ChatRequest) -> anyhow::Result<ChatResponse> {
+        // Convert our generic Message format to OpenAI format
+        let messages: Vec<ChatCompletionRequestMessage> = request
+            .messages
+            .iter()
+            .map(|m| match m.role.as_str() {
+                "system" => ChatCompletionRequestMessage::System(m.content.clone().into()),
+                "user" => ChatCompletionRequestMessage::User(m.content.clone().into()),
+                "assistant" => ChatCompletionRequestMessage::Assistant(m.content.clone().into()),
+                _ => ChatCompletionRequestMessage::User(m.content.clone().into()),
+            })
+            .collect();
+
+        // Build OpenAI request
+        let req = CreateChatCompletionRequestArgs::default()
+            .model(&self.model)
+            .messages(messages)
+            .temperature(request.temperature.unwrap_or(0.7))
+            .max_tokens(request.max_tokens.unwrap_or(2048))
+            .build()?;
+
+        // Make API call
+        let response = self.client.chat().create(req).await?;
+
+        // Extract first choice
+        let choice = response.choices.first()
+            .ok_or_else(|| anyhow::anyhow!("No choices in response"))?;
+
+        // Convert to our format
+        Ok(ChatResponse {
+            content: choice.message.content.clone().unwrap_or_default(),
+            tool_calls: None, // TODO: Handle tool calls
+            finish_reason: choice.finish_reason.clone().unwrap_or_default(),
+            usage: TokenUsage {
+                prompt_tokens: response.usage.prompt_tokens,
+                completion_tokens: response.usage.completion_tokens,
+                total_tokens: response.usage.total_tokens,
+            },
+        })
+    }
+
+    async fn chat_stream(
+        &self,
+        request: ChatRequest,
+    ) -> anyhow::Result<Box<dyn futures::Stream<Item = Result<String, anyhow::Error>>>> {
+        // TODO: Implement streaming
+        todo!("Implement OpenAI streaming")
+    }
+
+    fn provider_name(&self) -> &str {
+        "openai"
+    }
+
+    fn default_model(&self) -> &str {
+        &self.model
+    }
+
+    async fn is_available(&self) -> bool {
+        // Try to list models to verify API key
+        self.client.models().list().await.is_ok()
+    }
+}
+```
+
+### 5.3 Enhanced Template Example
+
+**File:** Example template using AI features
+
+```yaml
+---
+to: "src/services/{{name | snake_case}}_service.rs"
+llm:
+  provider: "anthropic"
+  model: "claude-3-5-sonnet-20241022"
+  temperature: 0.2
+  system_prompt: |
+    You are a Rust backend expert. Generate clean, idiomatic code following:
+    - Error handling with anyhow/thiserror
+    - Async/await patterns
+    - Proper trait abstractions
+    - Comprehensive documentation
+ai_complete:
+  - methods
+  - error_types
+  - test_cases
+prefixes:
+  ex: "http://example.org/"
+  svc: "http://example.org/service/"
+rdf_inline:
+  - |
+    svc:{{name | pascal_case}}Service a ex:RustService ;
+      ex:hasModule "{{module}}" ;
+      ex:createdAt "{{now()}}" .
+---
+//! {{name | title_case}} Service
+//!
+//! {{ai_complete("description")}}
+
+use anyhow::Result;
+use async_trait::async_trait;
+
+{{#if ai_enhance}}
+// AI-suggested imports
+{{ai_suggest("imports")}}
+{{/if}}
+
+/// {{name | title_case}} service trait
+#[async_trait]
+pub trait {{name | pascal_case}}Service {
+    {{#each (ai_complete "methods") as |method|}}
+    /// {{method.description}}
+    async fn {{method.name}}(&self{{#each method.params}}, {{this.name}}: {{this.type}}{{/each}}) -> Result<{{method.return_type}}>;
+    {{/each}}
+}
+
+/// Default implementation of {{name | pascal_case}}Service
+pub struct Default{{name | pascal_case}}Service {
+    // Fields
+    {{ai_suggest("fields")}}
+}
+
+impl Default{{name | pascal_case}}Service {
+    pub fn new({{ai_suggest("constructor_params")}}) -> Self {
+        Self {
+            // Initialize fields
+            {{ai_suggest("field_initialization")}}
+        }
+    }
+}
+
+{{#if ai_validate}}
+// AI validation ensures this code compiles and follows best practices
+{{/if}}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    {{#each (ai_complete "test_cases") as |test|}}
+    #[tokio::test]
+    async fn {{test.name}}() -> Result<()> {
+        {{test.code}}
+        Ok(())
+    }
+    {{/each}}
+}
+```
+
+---
+
+## 6. Migration Strategy
+
+### 6.1 Backwards Compatibility
+
+**Principle:** All existing templates MUST continue to work without modification.
+
+1. **Opt-in AI features**
+   - LLM fields in frontmatter are optional
+   - `--ai` flags are opt-in
+   - Default behavior unchanged
+
+2. **Graceful degradation**
+   - If LLM not configured, skip AI features
+   - Show warning but don't fail
+   - Fall back to existing behavior
+
+3. **Configuration detection**
+   ```rust
+   impl Pipeline {
+       fn should_use_ai(&self, frontmatter: &Frontmatter) -> bool {
+           // Only use AI if:
+           // 1. LLM is configured in pipeline
+           // 2. Template has llm: field OR ai_enhance: true
+           // 3. User didn't pass --no-ai flag
+           self.llm.is_some()
+               && (frontmatter.llm.is_some() || frontmatter.ai_enhance)
+               && !self.config.disable_ai
+       }
+   }
+   ```
+
+### 6.2 Testing Strategy
+
+1. **Unit tests**
+   - Test each LLM adapter in isolation
+   - Mock LLM responses for deterministic tests
+   - Test error handling and retries
+
+2. **Integration tests**
+   - Test full pipeline with AI
+   - Test backwards compatibility
+   - Test with real API calls (optional)
+
+3. **Example templates**
+   - Create example templates showcasing AI features
+   - Add to `examples/ai/` directory
+
+**Test Files to Create:**
+- `/Users/sac/ggen/ggen-core/tests/llm_adapter_tests.rs`
+- `/Users/sac/ggen/ggen-core/tests/ai_pipeline_tests.rs`
+- `/Users/sac/ggen/cli/tests/ai_command_tests.rs`
+
+---
+
+## 7. Performance Considerations
+
+### 7.1 Caching
+
+**Problem:** LLM API calls are expensive and slow.
+
+**Solution:** Implement multi-level caching.
+
+```rust
+// In ggen-core/src/llm/cache.rs
+use lru::LruCache;
+use sha2::{Digest, Sha256};
+
+pub struct LlmCache {
+    memory: LruCache<String, CachedResponse>,
+    disk: Option<PathBuf>,
+}
+
+impl LlmCache {
+    pub fn new(capacity: usize, disk_cache_dir: Option<PathBuf>) -> Self {
+        Self {
+            memory: LruCache::new(capacity),
+            disk: disk_cache_dir,
+        }
+    }
+
+    pub fn get(&mut self, request: &ChatRequest) -> Option<ChatResponse> {
+        let key = self.hash_request(request);
+
+        // Try memory cache first
+        if let Some(response) = self.memory.get(&key) {
+            return Some(response.clone());
+        }
+
+        // Try disk cache
+        if let Some(ref disk_dir) = self.disk {
+            if let Ok(cached) = self.load_from_disk(disk_dir, &key) {
+                self.memory.put(key, cached.clone());
+                return Some(cached);
+            }
+        }
+
+        None
+    }
+
+    pub fn put(&mut self, request: &ChatRequest, response: ChatResponse) {
+        let key = self.hash_request(request);
+
+        // Store in memory
+        self.memory.put(key.clone(), response.clone());
+
+        // Store on disk if enabled
+        if let Some(ref disk_dir) = self.disk {
+            let _ = self.save_to_disk(disk_dir, &key, &response);
+        }
+    }
+
+    fn hash_request(&self, request: &ChatRequest) -> String {
+        let json = serde_json::to_string(request).unwrap();
+        let mut hasher = Sha256::new();
+        hasher.update(json.as_bytes());
+        format!("{:x}", hasher.finalize())
+    }
+}
+```
+
+### 7.2 Rate Limiting
+
+**Problem:** API rate limits can cause failures.
+
+**Solution:** Implement adaptive rate limiting with exponential backoff.
+
+```rust
+// In ggen-core/src/llm/ratelimit.rs
+use std::time::{Duration, Instant};
+use tokio::time::sleep;
+
+pub struct RateLimiter {
+    requests_per_minute: u32,
+    last_request: Option<Instant>,
+    backoff_ms: u64,
+}
+
+impl RateLimiter {
+    pub fn new(requests_per_minute: u32) -> Self {
+        Self {
+            requests_per_minute,
+            last_request: None,
+            backoff_ms: 0,
+        }
+    }
+
+    pub async fn acquire(&mut self) {
+        if let Some(last) = self.last_request {
+            let min_interval = Duration::from_secs(60) / self.requests_per_minute;
+            let elapsed = last.elapsed();
+
+            if elapsed < min_interval {
+                let wait = min_interval - elapsed + Duration::from_millis(self.backoff_ms);
+                sleep(wait).await;
+            }
+        }
+
+        self.last_request = Some(Instant::now());
+    }
+
+    pub fn on_error(&mut self) {
+        // Exponential backoff on errors
+        self.backoff_ms = if self.backoff_ms == 0 {
+            100
+        } else {
+            (self.backoff_ms * 2).min(30000) // Max 30s
+        };
+    }
+
+    pub fn on_success(&mut self) {
+        // Reset backoff on success
+        self.backoff_ms = 0;
+    }
+}
+```
+
+### 7.3 Parallelization
+
+**Problem:** Generating multiple files sequentially is slow.
+
+**Solution:** Use `rayon` for parallel generation (already in dependencies).
+
+```rust
+use rayon::prelude::*;
+
+impl Pipeline {
+    pub async fn render_directory_with_ai(
+        &mut self,
+        template_dir: &Path,
+        vars: &BTreeMap<String, String>,
+    ) -> Result<Vec<Plan>> {
+        // Find all templates
+        let templates = self.find_templates(template_dir)?;
+
+        // Render in parallel
+        let plans: Vec<_> = templates
+            .par_iter()
+            .map(|template_path| {
+                // Each thread gets its own pipeline
+                let mut pipeline = self.clone();
+                tokio::runtime::Runtime::new()
+                    .unwrap()
+                    .block_on(pipeline.render_file_with_ai(template_path, vars, false))
+            })
+            .collect::<Result<Vec<_>>>()?;
+
+        Ok(plans)
+    }
+}
+```
+
+---
+
+## 8. Security Considerations
+
+### 8.1 API Key Storage
+
+**Problem:** API keys are sensitive credentials.
+
+**Solution:** Use OS keychain for secure storage.
+
+```toml
+# Add to ggen-core/Cargo.toml
+keyring = "2.0"
+```
+
+```rust
+// In ggen-core/src/llm/config.rs
+use keyring::Entry;
+
+pub struct LlmConfig {
+    provider: String,
+}
+
+impl LlmConfig {
+    pub fn set_api_key(&self, api_key: &str) -> Result<()> {
+        let entry = Entry::new("ggen", &format!("{}_api_key", self.provider))?;
+        entry.set_password(api_key)?;
+        Ok(())
+    }
+
+    pub fn get_api_key(&self) -> Result<String> {
+        let entry = Entry::new("ggen", &format!("{}_api_key", self.provider))?;
+        Ok(entry.get_password()?)
+    }
+}
+```
+
+### 8.2 Prompt Injection Protection
+
+**Problem:** User input in templates could inject malicious prompts.
+
+**Solution:** Sanitize and validate all user-provided content.
+
+```rust
+pub fn sanitize_user_input(input: &str) -> String {
+    // Remove potential prompt injection patterns
+    input
+        .replace("```", "")  // Remove code blocks
+        .replace("system:", "") // Remove role instructions
+        .replace("assistant:", "")
+        .trim()
+        .to_string()
+}
+```
+
+---
+
+## 9. Documentation Updates Required
+
+1. **README.md**
+   - Add AI features section
+   - Update installation instructions
+   - Add quick start for AI
+
+2. **docs/AI_INTEGRATION.md** (NEW)
+   - Comprehensive guide to AI features
+   - Provider setup instructions
+   - Template examples
+   - Best practices
+
+3. **docs/API.md**
+   - Document new LLM module API
+   - Document enhanced Pipeline API
+   - Document MCP AI tools
+
+4. **examples/ai/** (NEW)
+   - Create example templates
+   - Create example CLI workflows
+   - Create MCP integration examples
+
+---
+
+## 10. Success Metrics
+
+### Phase 1 Success Criteria
+- [ ] LLM module compiles without errors
+- [ ] At least 2 providers implemented (OpenAI + Anthropic)
+- [ ] Unit tests pass with 80%+ coverage
+- [ ] Documentation complete
+
+### Phase 2 Success Criteria
+- [ ] Templates can use `llm:` frontmatter field
+- [ ] AI-enhanced rendering works end-to-end
+- [ ] Backwards compatibility maintained (existing templates work)
+- [ ] Integration tests pass
+
+### Phase 3 Success Criteria
+- [ ] `ggen ai` commands work
+- [ ] Configuration persists securely
+- [ ] User documentation complete
+- [ ] Example templates provided
+
+### Phase 4 Success Criteria
+- [ ] MCP AI tools functional
+- [ ] MCP server can generate code with AI
+- [ ] Performance acceptable (<2s for simple generation)
+- [ ] Security audit passed
+
+---
+
+## 11. Risk Mitigation
+
+### Risk 1: API Cost Overruns
+**Mitigation:**
+- Implement aggressive caching
+- Add cost estimation before generation
+- Set configurable limits
+- Default to free/local models (Ollama)
+
+### Risk 2: Breaking Changes
+**Mitigation:**
+- Comprehensive backwards compatibility tests
+- Feature flags for gradual rollout
+- Clear migration guide
+- Deprecation warnings, not immediate removal
+
+### Risk 3: Performance Degradation
+**Mitigation:**
+- Make AI opt-in, not default
+- Use async/await throughout
+- Implement timeouts (30s default)
+- Parallel processing where possible
+
+### Risk 4: Security Vulnerabilities
+**Mitigation:**
+- Security audit of prompt handling
+- Sandboxed LLM execution
+- Input validation and sanitization
+- Regular dependency updates
+
+---
+
+## 12. Next Steps
+
+### Immediate Actions (Today)
+
+1. **Create skeleton structure**
+   ```bash
+   mkdir -p ggen-core/src/llm/providers
+   touch ggen-core/src/llm/{mod.rs,adapter.rs,config.rs,cache.rs}
+   touch ggen-core/src/llm/providers/{mod.rs,openai.rs,anthropic.rs}
+   ```
+
+2. **Update Cargo.toml**
+   - Add LLM dependencies
+   - Verify compatibility
+
+3. **Implement basic adapter**
+   - Start with OpenAI (best ecosystem)
+   - Create mock adapter for testing
+
+### This Week
+
+1. **Complete Phase 1** (Foundation)
+   - Working OpenAI adapter
+   - Working Anthropic adapter
+   - Basic configuration
+   - Unit tests
+
+2. **Begin Phase 2** (Template Enhancement)
+   - Extend Frontmatter struct
+   - Update template parser
+   - Basic AI-enhanced rendering
+
+### Next Week
+
+1. **Complete Phase 2**
+2. **Begin Phase 3** (CLI)
+3. **Create example templates**
+
+---
+
+## 13. Questions for Discussion
+
+1. **Provider Priority**
+   - Should we prioritize Anthropic (Claude) over OpenAI?
+   - Should we support Ollama for local/free usage?
+
+2. **Cost Management**
+   - Should we track and report API costs?
+   - Should we set hard limits by default?
+
+3. **Caching Strategy**
+   - Where should disk cache be stored? `~/.ggen/cache/llm/`?
+   - Should cache be shared across projects?
+
+4. **Feature Scope**
+   - Should we include streaming in Phase 1?
+   - Should we include function calling in Phase 1?
+
+---
+
+## 14. Conclusion
+
+This mapping provides a comprehensive blueprint for integrating rust-genai patterns into ggen. The key principles are:
+
+1. **Backwards Compatibility:** All existing templates continue to work
+2. **Opt-in AI:** LLM features are optional, not required
+3. **Provider Agnostic:** Support multiple LLM providers
+4. **Performance First:** Caching, rate limiting, parallel processing
+5. **Security Conscious:** Secure storage, input validation, sandboxing
+
+The phased approach allows for:
+- Early feedback and iteration
+- Gradual learning curve for users
+- Risk mitigation through incremental changes
+- Clear milestones and success metrics
+
+**Total Estimated Timeline:** 4 weeks for core features + 2 weeks for polish and documentation.
+
+---
+
+**Generated by:** Codebase Mapping Agent
+**Session ID:** swarm-llm-integration
+**Date:** 2025-10-10
+**Status:** Complete
