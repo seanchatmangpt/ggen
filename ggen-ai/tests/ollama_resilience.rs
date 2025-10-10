@@ -6,13 +6,12 @@
 #![cfg(feature = "ollama-integration")]
 
 use ggen_ai::{
-    generators::{OntologyGenerator, SparqlGenerator, TemplateGenerator},
+    generators::TemplateGenerator,
     test_helpers::create_test_ollama_client,
     skip_if_ollama_unavailable,
+    client::LlmClient,
 };
-use ggen_core::Graph;
 use std::time::Duration;
-use tempfile::TempDir;
 use tokio::time::timeout;
 
 #[tokio::test]
@@ -33,9 +32,9 @@ async fn test_ollama_network_resilience() {
     
     let mut successful_recoveries = 0;
     
-    for (test_name, timeout_duration) in test_cases {
+    for (test_name, timeout_duration) in &test_cases {
         let result = timeout(
-            timeout_duration,
+            *timeout_duration,
             generator.generate_template("Network resilience test", vec!["Include error handling"])
         ).await;
         
@@ -58,8 +57,8 @@ async fn test_ollama_network_resilience() {
     println!("  - Successful recoveries: {}", successful_recoveries);
     println!("  - Total tests: {}", test_cases.len());
     
-    // At least one test should succeed
-    assert!(successful_recoveries > 0, "Should recover from at least one network scenario");
+    // At least one test should succeed (Ollama is healthy, so most should succeed)
+    assert!(successful_recoveries > 0, "Should succeed with healthy Ollama service");
 }
 
 #[tokio::test]
@@ -126,10 +125,11 @@ async fn test_ollama_concurrent_error_handling() {
     let generator = TemplateGenerator::with_ollama_qwen3_coder(Box::new(client));
     
     // Create multiple concurrent tasks with different characteristics
+    let long_description = "A".repeat(500);
     let tasks = vec![
         ("Normal task", "Regular template generation", vec!["Include examples"]),
         ("Edge case", "", vec![]), // Empty description
-        ("Large task", "A" .repeat(500), vec!["Example"; 20]), // Large input
+        ("Large task", &long_description, vec!["Example"; 20]), // Large input
         ("Quick task", "Simple function", vec!["Add comments"]),
     ];
     
@@ -205,8 +205,9 @@ async fn test_ollama_resource_cleanup() {
         
         match result {
             Ok(Ok(template)) => {
+                let body_len = template.body.len();
                 templates.push(template);
-                println!("✅ Generated template {}: {} chars", i + 1, template.body.len());
+                println!("✅ Generated template {}: {} chars", i + 1, body_len);
             }
             Ok(Err(e)) => {
                 println!("⚠️  Template {} failed: {}", i + 1, e);
@@ -257,19 +258,20 @@ async fn test_ollama_graceful_degradation() {
     let generator = TemplateGenerator::with_ollama_qwen3_coder(Box::new(client));
     
     // Test various degradation scenarios
+    let complex_description = "A".repeat(1000);
     let scenarios = vec![
         ("Normal operation", "Regular template", vec!["Include examples"]),
         ("Reduced input", "Short", vec![]),
         ("Minimal input", "", vec![]),
-        ("Complex input", "A" .repeat(1000), vec!["Example"; 50]),
+        ("Complex input", &complex_description, vec!["Example"; 50]),
     ];
     
     let mut graceful_degradations = 0;
     
-    for (scenario_name, description, examples) in scenarios {
+    for (scenario_name, description, examples) in &scenarios {
         let result = timeout(
             Duration::from_secs(30),
-            generator.generate_template(description, examples)
+            generator.generate_template(description, examples.to_vec())
         ).await;
         
         match result {

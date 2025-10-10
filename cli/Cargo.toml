@@ -37,6 +37,10 @@ chrono = { version = "0.4", features = ["serde"] }
 toml = "0.8"
 genai = "0.1"
 
+[features]
+default = []
+live-llm-tests = []  # Opt-in for live LLM integration tests
+
 [dependencies.clap]
 version = "4.5.37"
 features = ["cargo", "derive"]

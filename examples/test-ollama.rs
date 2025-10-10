@@ -5,6 +5,14 @@ use ggen_ai::client::LlmClient;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Warn if running example without explicit confirmation
+    if std::env::var("GGEN_ALLOW_LIVE_CALLS").is_err() {
+        eprintln!("⚠️  This example makes live API calls to Ollama.");
+        eprintln!("Set GGEN_ALLOW_LIVE_CALLS=1 to proceed.");
+        eprintln!("Or use: GGEN_ALLOW_LIVE_CALLS=1 cargo run --example test-ollama");
+        return Ok(());
+    }
+    
     println!("🧪 Testing Ollama client with qwen3-coder:30b");
     println!("=============================================");
 
