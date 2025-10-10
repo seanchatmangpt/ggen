@@ -14,7 +14,7 @@ use super::config::ProviderConfig;
 use super::error::{LlmError, LlmResult};
 use super::provider::LlmProvider;
 use super::streaming::StreamChunk;
-use super::types::{ChatRequest, ChatResponse, Message, Role, TokenUsage};
+use super::types::{ChatRequest, ChatResponse, Role, TokenUsage};
 
 const ANTHROPIC_API_BASE: &str = "https://api.anthropic.com/v1";
 const ANTHROPIC_VERSION: &str = "2023-06-01";

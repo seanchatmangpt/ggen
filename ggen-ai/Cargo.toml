@@ -1,0 +1,63 @@
+[package]
+name = "ggen-ai"
+version = "0.2.4"
+edition = "2021"
+authors = ["Sean Chatman <sean@chatmangpt.com>"]
+description = "AI-powered code generation capabilities for ggen - LLM integration for intelligent template generation and graph operations"
+license = "MIT"
+
+[dependencies]
+# Core ggen dependencies
+ggen-core = { path = "../ggen-core", version = "0.2.4" }
+ggen-utils = { path = "../utils", version = "0.2.4" }
+
+# HTTP client and async runtime
+reqwest = { version = "0.12", features = ["json", "stream"] }
+tokio = { version = "1", features = ["full"] }
+async-trait = "0.1"
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Error handling
+anyhow = "1"
+thiserror = "1"
+
+# Streaming and futures
+futures = "0.3"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = "0.3"
+
+# Time handling
+chrono = { version = "0.4", features = ["serde"] }
+
+# UUID generation
+uuid = { version = "1", features = ["v4"] }
+
+# Template engine (for prompt templating)
+tera = "1"
+
+# MCP server integration
+rmcp = { version = "0.8.0", features = ["server"] }
+
+# SPARQL support
+oxigraph = "0.4"
+
+# Temporary files
+tempfile = "3"
+
+[dev-dependencies]
+tokio-test = "0.4"
+mockito = "1.2"
+tempfile = "3"
+
+[[bin]]
+name = "ggen-ai-mcp"
+path = "src/mcp/bin.rs"
+
+[lib]
+name = "ggen_ai"
+path = "src/lib.rs"

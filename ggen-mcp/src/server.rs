@@ -95,6 +95,51 @@ impl GgenMcpServer {
             },
         );
 
+        tools.insert(
+            "market_recommend".to_string(),
+            ToolDef {
+                name: "market_recommend".to_string(),
+                description: "Get personalized package recommendations based on installed packages and categories".to_string(),
+                input_schema: market_recommend_schema(),
+            },
+        );
+
+        tools.insert(
+            "market_info".to_string(),
+            ToolDef {
+                name: "market_info".to_string(),
+                description: "Get detailed information about a specific package with examples and health metrics".to_string(),
+                input_schema: market_info_schema(),
+            },
+        );
+
+        tools.insert(
+            "market_offline_search".to_string(),
+            ToolDef {
+                name: "market_offline_search".to_string(),
+                description: "Search marketplace packages using cached offline data".to_string(),
+                input_schema: market_offline_search_schema(),
+            },
+        );
+
+        tools.insert(
+            "market_cache_status".to_string(),
+            ToolDef {
+                name: "market_cache_status".to_string(),
+                description: "Get status and statistics about the marketplace cache".to_string(),
+                input_schema: market_cache_status_schema(),
+            },
+        );
+
+        tools.insert(
+            "market_sync".to_string(),
+            ToolDef {
+                name: "market_sync".to_string(),
+                description: "Synchronize local cache with remote marketplace".to_string(),
+                input_schema: market_sync_schema(),
+            },
+        );
+
         // Graph tools
         tools.insert(
             "graph_query".to_string(),
@@ -167,6 +212,11 @@ impl GgenMcpServer {
             "market_list" => market::list(params).await,
             "market_search" => market::search(params).await,
             "market_install" => market::install(params).await,
+            "market_recommend" => market::recommend(params).await,
+            "market_info" => market::info(params).await,
+            "market_offline_search" => market::offline_search(params).await,
+            "market_cache_status" => market::cache_status(params).await,
+            "market_sync" => market::sync(params).await,
 
             // Graph tools
             "graph_query" => graph::query(params).await,
