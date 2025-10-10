@@ -19,7 +19,7 @@ pub enum Verb {
     Query(query::QueryArgs),
     /// Load RDF data into graph
     Load(load::LoadArgs),
-    /// Export graph to file
+    /// Export RDF graph
     Export(export::ExportArgs),
     /// Validate graph against SHACL shapes
     Validate(validate::ValidateArgs),

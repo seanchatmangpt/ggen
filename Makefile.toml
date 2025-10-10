@@ -4,6 +4,13 @@ GITHUB_REPO = "seanchatmangpt/ggen"
 GITHUB_API = "https://api.github.com"
 GITHUB_PAGES_URL = "https://seanchatmangpt.github.io/ggen"
 
+# Act configuration for local GitHub Actions testing
+[env.ACT]
+ACT_CONTAINER_ARCH = "linux/amd64"
+ACT_PLATFORM = "ubuntu-latest=catthehacker/ubuntu:act-latest"
+ACT_MEMORY = "2g"
+ACT_CPUS = "2"
+
 # Core development tasks
 [tasks.check]
 description = "Check code without building"
@@ -49,6 +56,116 @@ args = ["test", "--lib"]
 description = "Integration tests only"
 command = "cargo"
 args = ["test", "--test"]
+
+# GitHub Actions local testing with act
+[tasks.act-list]
+description = "List available GitHub Actions workflows"
+workspace = false
+command = "act"
+args = ["--list"]
+
+[tasks.act-lint]
+description = "Run lint workflow locally with act"
+workspace = false
+command = "act"
+args = ["--container-architecture", "${ACT_CONTAINER_ARCH}", "--platform", "${ACT_PLATFORM}", "--memory", "${ACT_MEMORY}", "--cpus", "${ACT_CPUS}", "-j", "lint"]
+
+[tasks.act-test]
+description = "Run test workflow locally with act"
+workspace = false
+command = "act"
+args = ["--container-architecture", "${ACT_CONTAINER_ARCH}", "--platform", "${ACT_PLATFORM}", "--memory", "${ACT_MEMORY}", "--cpus", "${ACT_CPUS}", "-j", "test"]
+
+[tasks.act-build]
+description = "Run build workflow locally with act"
+workspace = false
+command = "act"
+args = ["--container-architecture", "${ACT_CONTAINER_ARCH}", "--platform", "${ACT_PLATFORM}", "--memory", "${ACT_MEMORY}", "--cpus", "${ACT_CPUS}", "-j", "build"]
+
+[tasks.act-audit]
+description = "Run security audit workflow locally with act"
+workspace = false
+command = "act"
+args = ["--container-architecture", "${ACT_CONTAINER_ARCH}", "--platform", "${ACT_PLATFORM}", "--memory", "${ACT_MEMORY}", "--cpus", "${ACT_CPUS}", "-j", "audit"]
+
+[tasks.act-all]
+description = "Run all workflows locally with act (lightweight)"
+workspace = false
+command = "act"
+args = ["--container-architecture", "${ACT_CONTAINER_ARCH}", "--platform", "${ACT_PLATFORM}", "--memory", "${ACT_MEMORY}", "--cpus", "${ACT_CPUS}", "--matrix"]
+
+[tasks.act-parallel]
+description = "Run multiple workflows in parallel"
+workspace = false
+dependencies = ["act-lint", "act-test", "act-build"]
+
+[tasks.act-cleanup]
+description = "Clean up act containers and images"
+workspace = false
+script = '''
+echo "🧹 Cleaning up act containers..."
+docker ps -a --filter "label=act" --format "table {{.ID}}\t{{.Status}}\t{{.Names}}" | grep act || true
+docker container prune -f --filter "label=act" || true
+docker image prune -f --filter "label=act" || true
+echo "✅ Act cleanup complete"
+'''
+
+[tasks.act-lint-light]
+description = "Run lint workflow locally with act (lightweight, no cargo-make)"
+workspace = false
+command = "act"
+args = ["--container-architecture", "${ACT_CONTAINER_ARCH}", "--platform", "${ACT_PLATFORM}", "--memory", "1g", "--cpus", "1", "-W", ".github/workflows/lint.yml", "-j", "lint", "--artifact-server-path", "/tmp/act-artifacts"]
+
+[tasks.act-test-light]
+description = "Run test workflow locally with act (lightweight)"
+workspace = false
+command = "act"
+args = ["--container-architecture", "${ACT_CONTAINER_ARCH}", "--platform", "${ACT_PLATFORM}", "--memory", "1g", "--cpus", "1", "-W", ".github/workflows/test.yml", "-j", "test", "--artifact-server-path", "/tmp/act-artifacts"]
+
+[tasks.act-build-light]
+description = "Run build workflow locally with act (lightweight)"
+workspace = false
+command = "act"
+args = ["--container-architecture", "${ACT_CONTAINER_ARCH}", "--platform", "${ACT_PLATFORM}", "--memory", "1g", "--cpus", "1", "-W", ".github/workflows/build.yml", "-j", "build", "--artifact-server-path", "/tmp/act-artifacts"]
+
+[tasks.act-dry-run]
+description = "Dry run all workflows (no execution)"
+workspace = false
+command = "act"
+args = ["--container-architecture", "${ACT_CONTAINER_ARCH}", "--platform", "${ACT_PLATFORM}", "--dryrun"]
+
+[tasks.act-status]
+description = "Check act installation and Docker status"
+workspace = false
+script = '''
+echo "🔍 Checking act installation..."
+act --version || echo "❌ act not installed"
+echo ""
+echo "🐳 Checking Docker status..."
+docker --version || echo "❌ Docker not available"
+docker ps > /dev/null 2>&1 && echo "✅ Docker daemon running" || echo "❌ Docker daemon not running"
+echo ""
+echo "📊 Docker resource usage:"
+docker system df
+'''
+
+[tasks.test-bdd]
+description = "Run BDD tests (Cucumber feature tests)"
+workspace = false
+command = "cargo"
+args = ["test", "--test", "bdd"]
+
+[tasks.test-bdd-feature]
+description = "Run specific BDD feature (usage: cargo make test-bdd-feature FEATURE=graph)"
+workspace = false
+command = "cargo"
+args = ["test", "--test", "bdd", "test_${FEATURE}_features"]
+
+[tasks.test-bdd-verbose]
+description = "Run BDD tests with verbose output"
+workspace = false
+command = "cargo"
+args = ["test", "--test", "bdd", "--", "--nocapture"]
 
 [tasks.audit]
 description = "Security audit"

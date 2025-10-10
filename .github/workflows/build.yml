@@ -59,9 +59,9 @@ jobs:
         run: cargo install cargo-make --locked
 
       - name: Build
-        run: cargo make build
+        run: cargo build --verbose
         continue-on-error: ${{ matrix.rust == 'nightly' }}
 
       - name: Run tests
-        run: cargo make test
+        run: cargo test --verbose
         continue-on-error: ${{ matrix.rust == 'nightly' }}
