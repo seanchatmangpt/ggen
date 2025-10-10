@@ -33,10 +33,62 @@ pub struct TemplateSpec {
     pub variables: Vec<String>,
 }
 
+/// Validate and sanitize template input
+fn validate_template_input(args: &NewArgs) -> Result<()> {
+    // Validate template name is not empty
+    if args.name.trim().is_empty() {
+        return Err(ggen_utils::error::Error::new(
+            "Template name cannot be empty",
+        ));
+    }
+    
+    // Validate template name length
+    if args.name.len() > 100 {
+        return Err(ggen_utils::error::Error::new(
+            "Template name too long (max 100 characters)",
+        ));
+    }
+    
+    // Validate template name format (basic pattern check)
+    if !args.name.chars().all(|c| c.is_alphanumeric() || c == '-' || c == '_') {
+        return Err(ggen_utils::error::Error::new(
+            "Invalid template name format: only alphanumeric characters, dashes, and underscores allowed",
+        ));
+    }
+    
+    // Validate template type if provided
+    if let Some(template_type) = &args.template_type {
+        if template_type.trim().is_empty() {
+            return Err(ggen_utils::error::Error::new(
+                "Template type cannot be empty",
+            ));
+        }
+        
+        if template_type.len() > 50 {
+            return Err(ggen_utils::error::Error::new(
+                "Template type too long (max 50 characters)",
+            ));
+        }
+        
+        if !template_type.chars().all(|c| c.is_alphanumeric() || c == '-' || c == '_') {
+            return Err(ggen_utils::error::Error::new(
+                "Invalid template type format: only alphanumeric characters, dashes, and underscores allowed",
+            ));
+        }
+    }
+    
+    Ok(())
+}
+
 pub async fn run(args: &NewArgs) -> Result<()> {
+    // Validate input
+    validate_template_input(args)?;
+    
     println!("🚧 Placeholder: template new");
-    println!("  Name: {}", args.name);
-    println!("  Type: {:?}", args.template_type);
+    println!("  Name: {}", args.name.trim());
+    if let Some(template_type) = &args.template_type {
+        println!("  Type: {}", template_type.trim());
+    }
     println!("  Interactive: {}", args.interactive);
     Ok(())
 }
@@ -44,9 +96,14 @@ pub async fn run(args: &NewArgs) -> Result<()> {
 pub async fn run_with_deps(
     args: &NewArgs, creator: &dyn TemplateCreator, wizard: Option<&dyn InteractiveWizard>,
 ) -> Result<()> {
+    // Validate input
+    validate_template_input(args)?;
+    
     if args.interactive {
+        println!("🔍 Starting interactive template wizard...");
         if let Some(wizard) = wizard {
             let spec = wizard.run_wizard()?;
+            println!("⚙️  Creating template...");
             let path = creator.create(spec.name.clone(), Some(spec.template_type.clone()))?;
             println!("✅ Created template '{}' at {}", spec.name, path);
             Ok(())
@@ -56,6 +113,7 @@ pub async fn run_with_deps(
             ))
         }
     } else {
+        println!("⚙️  Creating template...");
         let path = creator.create(args.name.clone(), args.template_type.clone())?;
         println!("✅ Created template '{}' at {}", args.name, path);
         Ok(())
@@ -72,7 +130,7 @@ mod tests {
         let mut mock_creator = MockTemplateCreator::new();
         mock_creator
             .expect_create()
-            .with(eq("hello"), eq(Some("rust")))
+            .with(eq(String::from("hello")), eq(Some(String::from("rust"))))
             .times(1)
             .returning(|name, _| Ok(format!("templates/{}.tmpl", name)));
 
@@ -101,7 +159,7 @@ mod tests {
         let mut mock_creator = MockTemplateCreator::new();
         mock_creator
             .expect_create()
-            .with(eq("my-template"), eq(Some("python")))
+            .with(eq(String::from("my-template")), eq(Some(String::from("python"))))
             .times(1)
             .returning(|name, _| Ok(format!("templates/{}.tmpl", name)));
 

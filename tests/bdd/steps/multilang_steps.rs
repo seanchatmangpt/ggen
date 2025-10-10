@@ -117,3 +117,10 @@ fn should_have_valid_language_code(world: &mut GgenWorld, language: String) {
         "Generated file should contain marker"
     );
 }
+
+// ============================================================================
+// Missing step definitions for multi_language.feature
+// ============================================================================
+
+// REMOVED: Generic step definition causing ambiguity
+// Specific noun-verb steps should be used instead

@@ -28,31 +28,79 @@ pub struct GraphStats {
     pub predicate_counts: HashMap<String, usize>,
 }
 
+/// Validate and sanitize graph file path input (if provided)
+fn validate_graph_path(graph: &Option<String>) -> Result<()> {
+    if let Some(graph) = graph {
+        // Validate graph path is not empty
+        if graph.trim().is_empty() {
+            return Err(ggen_utils::error::Error::new(
+                "Graph file path cannot be empty",
+            ));
+        }
+        
+        // Validate graph path length
+        if graph.len() > 1000 {
+            return Err(ggen_utils::error::Error::new(
+                "Graph file path too long (max 1000 characters)",
+            ));
+        }
+        
+        // Basic path traversal protection
+        if graph.contains("..") {
+            return Err(ggen_utils::error::Error::new(
+                "Path traversal detected: graph file path cannot contain '..'",
+            ));
+        }
+        
+        // Validate graph path format (basic pattern check)
+        if !graph.chars().all(|c| c.is_alphanumeric() || c == '.' || c == '/' || c == '-' || c == '_' || c == '\\') {
+            return Err(ggen_utils::error::Error::new(
+                "Invalid graph file path format: only alphanumeric characters, dots, slashes, dashes, underscores, and backslashes allowed",
+            ));
+        }
+    }
+    
+    Ok(())
+}
+
 pub async fn run(args: &StatsArgs) -> Result<()> {
+    // Validate inputs
+    validate_graph_path(&args.graph)?;
+    
     println!("🚧 Placeholder: graph stats");
-    println!("  Graph: {:?}", args.graph);
+    if let Some(graph) = &args.graph {
+        println!("  Graph: {}", graph.trim());
+    } else {
+        println!("  Graph: current");
+    }
     println!("  Detailed: {}", args.detailed);
     Ok(())
 }
 
 pub async fn run_with_deps(args: &StatsArgs, analyzer: &dyn GraphAnalyzer) -> Result<()> {
+    // Validate inputs
+    validate_graph_path(&args.graph)?;
+    
+    // Show progress for analysis operation
+    println!("🔍 Analyzing graph...");
+    
     let stats = analyzer.analyze(args.graph.clone())?;
 
-    println!("Graph Statistics:");
+    println!("📊 Graph Statistics:");
     println!("  Total triples: {}", stats.total_triples);
     println!("  Unique subjects: {}", stats.unique_subjects);
     println!("  Unique predicates: {}", stats.unique_predicates);
     println!("  Unique objects: {}", stats.unique_objects);
 
     if !stats.namespaces.is_empty() {
-        println!("\nNamespaces:");
+        println!("\n📋 Namespaces:");
         for ns in &stats.namespaces {
             println!("  - {}", ns);
         }
     }
 
     if args.detailed && !stats.predicate_counts.is_empty() {
-        println!("\nPredicate usage:");
+        println!("\n📈 Predicate usage:");
         let mut counts: Vec<_> = stats.predicate_counts.iter().collect();
         counts.sort_by(|a, b| b.1.cmp(a.1));
         for (predicate, count) in counts {

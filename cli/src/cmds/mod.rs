@@ -1,7 +1,10 @@
 // New noun-verb structure
+pub mod audit;
+pub mod ci;
 pub mod graph;
 pub mod market;
 pub mod project;
+pub mod shell;
 pub mod template;
 
 // Legacy flat commands (to be migrated)
@@ -25,14 +28,20 @@ use ggen_utils::UtilsGgenConfig as GgenConfig;
 #[derive(Subcommand, Debug)]
 pub enum Commands {
     // New noun-verb structure
-    #[command(name = "project", about = "Project scaffolding and generation")]
-    Project(project::ProjectCmd),
-    #[command(name = "market", about = "Marketplace operations for gpacks")]
-    Market(market::MarketCmd),
-    #[command(name = "template", about = "Template management")]
-    Template(template::TemplateCmd),
+    #[command(name = "audit", about = "Security and performance auditing")]
+    Audit(audit::AuditCmd),
+    #[command(name = "ci", about = "CI/CD operations and GitHub integration")]
+    Ci(ci::CiCmd),
     #[command(name = "graph", about = "RDF graph operations")]
     Graph(graph::GraphCmd),
+    #[command(name = "market", about = "Marketplace operations for gpacks")]
+    Market(market::MarketCmd),
+    #[command(name = "project", about = "Project scaffolding and generation")]
+    Project(project::ProjectCmd),
+    #[command(name = "shell", about = "Shell integration and completion")]
+    Shell(shell::ShellCmd),
+    #[command(name = "template", about = "Template management")]
+    Template(template::TemplateCmd),
 
     // Legacy flat commands (deprecated, use nouns instead)
     #[command(
@@ -110,10 +119,13 @@ impl Commands {
     pub async fn run(&self) -> ggen_utils::error::Result<()> {
         match self {
             // New noun-verb structure
-            Commands::Project(cmd) => cmd.run().await,
-            Commands::Market(cmd) => cmd.run().await,
-            Commands::Template(cmd) => cmd.run().await,
+            Commands::Audit(cmd) => cmd.run().await,
+            Commands::Ci(cmd) => cmd.run().await,
             Commands::Graph(cmd) => cmd.run().await,
+            Commands::Market(cmd) => cmd.run().await,
+            Commands::Project(cmd) => cmd.run().await,
+            Commands::Shell(cmd) => cmd.run().await,
+            Commands::Template(cmd) => cmd.run().await,
 
             // Legacy flat commands
             Commands::Search(args) => Ok(search::run(args).await?),
@@ -137,10 +149,13 @@ impl Commands {
     ) -> ggen_utils::error::Result<()> {
         match self {
             // New noun-verb structure
-            Commands::Project(cmd) => cmd.run().await,
-            Commands::Market(cmd) => cmd.run().await,
-            Commands::Template(cmd) => cmd.run().await,
+            Commands::Audit(cmd) => cmd.run().await,
+            Commands::Ci(cmd) => cmd.run().await,
             Commands::Graph(cmd) => cmd.run().await,
+            Commands::Market(cmd) => cmd.run().await,
+            Commands::Project(cmd) => cmd.run().await,
+            Commands::Shell(cmd) => cmd.run().await,
+            Commands::Template(cmd) => cmd.run().await,
 
             // Legacy flat commands
             Commands::Search(args) => Ok(search::run(args).await?),

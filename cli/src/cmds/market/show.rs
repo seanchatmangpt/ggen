@@ -23,28 +23,64 @@ pub struct GpackMetadata {
     pub homepage: Option<String>,
 }
 
+/// Validate and sanitize gpack ID input
+fn validate_gpack_id(gpack_id: &str) -> Result<()> {
+    // Validate gpack ID is not empty
+    if gpack_id.trim().is_empty() {
+        return Err(ggen_utils::error::Error::new(
+            "Gpack ID cannot be empty",
+        ));
+    }
+    
+    // Validate gpack ID length
+    if gpack_id.len() > 200 {
+        return Err(ggen_utils::error::Error::new(
+            "Gpack ID too long (max 200 characters)",
+        ));
+    }
+    
+    // Validate gpack ID format (basic pattern check)
+    if !gpack_id.chars().all(|c| c.is_alphanumeric() || c == '.' || c == '-' || c == '_') {
+        return Err(ggen_utils::error::Error::new(
+            "Invalid gpack ID format: only alphanumeric characters, dots, dashes, and underscores allowed",
+        ));
+    }
+    
+    Ok(())
+}
+
 pub async fn run(args: &ShowArgs) -> Result<()> {
+    // Validate input
+    validate_gpack_id(&args.gpack_id)?;
+    
     println!("🚧 Placeholder: market show");
-    println!("  Gpack ID: {}", args.gpack_id);
+    println!("  Gpack ID: {}", args.gpack_id.trim());
     Ok(())
 }
 
 pub async fn run_with_deps(args: &ShowArgs, fetcher: &dyn GpackMetadataFetcher) -> Result<()> {
+    // Validate input
+    validate_gpack_id(&args.gpack_id)?;
+    
+    // Show progress for metadata fetching
+    println!("🔍 Fetching gpack metadata...");
+    
     let metadata = fetcher.fetch_metadata(&args.gpack_id)?;
 
-    println!("ID: {}", metadata.id);
-    println!("Name: {}", metadata.name);
-    println!("Description: {}", metadata.description);
-    println!("Version: {}", metadata.version);
+    println!("📦 Gpack Information:");
+    println!("  ID: {}", metadata.id);
+    println!("  Name: {}", metadata.name);
+    println!("  Description: {}", metadata.description);
+    println!("  Version: {}", metadata.version);
 
     if let Some(author) = metadata.author {
-        println!("Author: {}", author);
+        println!("  Author: {}", author);
     }
     if let Some(license) = metadata.license {
-        println!("License: {}", license);
+        println!("  License: {}", license);
     }
     if let Some(homepage) = metadata.homepage {
-        println!("Homepage: {}", homepage);
+        println!("  Homepage: {}", homepage);
     }
 
     Ok(())
@@ -60,7 +96,7 @@ mod tests {
         let mut mock_fetcher = MockGpackMetadataFetcher::new();
         mock_fetcher
             .expect_fetch_metadata()
-            .with(eq("io.ggen.rust.cli"))
+            .with(eq(String::from("io.ggen.rust.cli")))
             .times(1)
             .returning(|id| {
                 Ok(GpackMetadata {

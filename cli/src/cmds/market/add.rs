@@ -19,6 +19,49 @@ pub struct InstallResult {
     pub already_installed: bool,
 }
 
+/// Validate and sanitize gpack specification input
+fn validate_gpack_input(spec: &str) -> Result<()> {
+    // Validate gpack ID is not empty
+    if spec.trim().is_empty() {
+        return Err(ggen_utils::error::Error::new(
+            "Gpack ID cannot be empty",
+        ));
+    }
+    
+    // Validate gpack ID length
+    if spec.len() > 200 {
+        return Err(ggen_utils::error::Error::new(
+            "Gpack ID too long (max 200 characters)",
+        ));
+    }
+    
+    // Validate gpack ID format (basic pattern check)
+    if !spec.chars().all(|c| c.is_alphanumeric() || c == '.' || c == '@' || c == '-' || c == '_') {
+        return Err(ggen_utils::error::Error::new(
+            "Invalid gpack ID format: only alphanumeric characters, dots, dashes, underscores, and @ allowed",
+        ));
+    }
+    
+    // Validate version format if present
+    if let Some(pos) = spec.rfind('@') {
+        let version = &spec[pos + 1..];
+        if version.is_empty() {
+            return Err(ggen_utils::error::Error::new(
+                "Version cannot be empty when @ is specified",
+            ));
+        }
+        
+        // Basic semantic version validation
+        if !version.chars().all(|c| c.is_alphanumeric() || c == '.' || c == '-') {
+            return Err(ggen_utils::error::Error::new(
+                "Invalid version format: only alphanumeric characters, dots, and dashes allowed",
+            ));
+        }
+    }
+    
+    Ok(())
+}
+
 fn parse_gpack_spec(spec: &str) -> (String, Option<String>) {
     if let Some(pos) = spec.rfind('@') {
         let id = spec[..pos].to_string();
@@ -30,17 +73,26 @@ fn parse_gpack_spec(spec: &str) -> (String, Option<String>) {
 }
 
 pub async fn run(args: &AddArgs) -> Result<()> {
+    // Validate input
+    validate_gpack_input(&args.gpack_id)?;
+    
     println!("🚧 Placeholder: market add");
-    println!("  Gpack ID: {}", args.gpack_id);
+    println!("  Gpack ID: {}", args.gpack_id.trim());
     Ok(())
 }
 
 pub async fn run_with_deps(args: &AddArgs, installer: &dyn GpackInstaller) -> Result<()> {
+    // Validate input
+    validate_gpack_input(&args.gpack_id)?;
+    
+    // Show progress for installation
+    println!("🔍 Installing gpack...");
+    
     let (gpack_id, version) = parse_gpack_spec(&args.gpack_id);
     let result = installer.install(gpack_id, version)?;
 
     if result.already_installed {
-        println!("Gpack '{}' is already installed", result.gpack_id);
+        println!("ℹ️  Gpack '{}' is already installed", result.gpack_id);
     } else {
         println!(
             "✅ Successfully added gpack '{}' version {}",
@@ -75,7 +127,7 @@ mod tests {
         let mut mock_installer = MockGpackInstaller::new();
         mock_installer
             .expect_install()
-            .with(eq("io.ggen.rust.cli"), eq(Some("1.0.0")))
+            .with(eq(String::from("io.ggen.rust.cli")), eq(Some(String::from("1.0.0"))))
             .times(1)
             .returning(|id, version| {
                 Ok(InstallResult {

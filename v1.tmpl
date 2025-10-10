@@ -1,5 +1,7 @@
 ---
-to: "output.txt"
-version: 1.0
+to: v1.rs
+vars: { name: "hello", version: "version: 1.0" }
 ---
-Content
+fn main() {
+    println!("Hello, {name}! Version {version}");
+}

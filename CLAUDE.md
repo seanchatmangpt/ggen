@@ -1,287 +1,352 @@
-# CLAUDE.md
+# Claude Code Configuration - SPARC Development Environment
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+## 🚨 CRITICAL: CONCURRENT EXECUTION & FILE MANAGEMENT
+
+**ABSOLUTE RULES**:
+1. ALL operations MUST be concurrent/parallel in a single message
+2. **NEVER save working files, text/mds and tests to the root folder**
+3. ALWAYS organize files in appropriate subdirectories
+4. **USE CLAUDE CODE'S TASK TOOL** for spawning agents concurrently, not just MCP
+
+### ⚡ GOLDEN RULE: "1 MESSAGE = ALL RELATED OPERATIONS"
+
+**MANDATORY PATTERNS:**
+- **TodoWrite**: ALWAYS batch ALL todos in ONE call (5-10+ todos minimum)
+- **Task tool (Claude Code)**: ALWAYS spawn ALL agents in ONE message with full instructions
+- **File operations**: ALWAYS batch ALL reads/writes/edits in ONE message
+- **Bash commands**: ALWAYS batch ALL terminal operations in ONE message
+- **Memory operations**: ALWAYS batch ALL memory store/retrieve in ONE message
+
+### 🎯 CRITICAL: Claude Code Task Tool for Agent Execution
+
+**Claude Code's Task tool is the PRIMARY way to spawn agents:**
+```javascript
+// ✅ CORRECT: Use Claude Code's Task tool for parallel agent execution
+[Single Message]:
+  Task("Research agent", "Analyze requirements and patterns...", "researcher")
+  Task("Coder agent", "Implement core features...", "coder")
+  Task("Tester agent", "Create comprehensive tests...", "tester")
+  Task("Reviewer agent", "Review code quality...", "reviewer")
+  Task("Architect agent", "Design system architecture...", "system-architect")
+```
+
+**MCP tools are ONLY for coordination setup:**
+- `mcp__claude-flow__swarm_init` - Initialize coordination topology
+- `mcp__claude-flow__agent_spawn` - Define agent types for coordination
+- `mcp__claude-flow__task_orchestrate` - Orchestrate high-level workflows
+
+### 📁 File Organization Rules
+
+**NEVER save to root folder. Use these directories:**
+- `/src` - Source code files
+- `/tests` - Test files
+- `/docs` - Documentation and markdown files
+- `/config` - Configuration files
+- `/scripts` - Utility scripts
+- `/examples` - Example code
 
 ## Project Overview
 
-**ggen** is a deterministic, language-agnostic code generation framework that treats software artifacts as projections of RDF knowledge graphs. It uses template-based generation with semantic metadata (RDF, SPARQL) to produce reproducible, multi-language code from a single ontology.
+This project uses SPARC (Specification, Pseudocode, Architecture, Refinement, Completion) methodology with Claude-Flow orchestration for systematic Test-Driven Development.
 
-## Critical Rule: Use cargo-make for ALL Development
+## SPARC Commands
 
-**NEVER use direct cargo commands (`cargo build`, `cargo test`, `cargo fmt`, `cargo clippy`). ALWAYS use `cargo make` commands.**
+### Core Commands
+- `npx claude-flow sparc modes` - List available modes
+- `npx claude-flow sparc run <mode> "<task>"` - Execute specific mode
+- `npx claude-flow sparc tdd "<feature>"` - Run complete TDD workflow
+- `npx claude-flow sparc info <mode>` - Get mode details
 
-This is non-negotiable per `.cursorrules`. All development workflows must use the comprehensive `cargo-make` task system.
+### Batchtools Commands
+- `npx claude-flow sparc batch <modes> "<task>"` - Parallel execution
+- `npx claude-flow sparc pipeline "<task>"` - Full pipeline processing
+- `npx claude-flow sparc concurrent <mode> "<tasks-file>"` - Multi-task processing
 
-## Essential Commands
+### Build Commands
+- `npm run build` - Build project
+- `npm run test` - Run tests
+- `npm run lint` - Linting
+- `npm run typecheck` - Type checking
 
-### Quick Development Workflow
+## SPARC Workflow Phases
+
+1. **Specification** - Requirements analysis (`sparc run spec-pseudocode`)
+2. **Pseudocode** - Algorithm design (`sparc run spec-pseudocode`)
+3. **Architecture** - System design (`sparc run architect`)
+4. **Refinement** - TDD implementation (`sparc tdd`)
+5. **Completion** - Integration (`sparc run integration`)
+
+## Code Style & Best Practices
+
+- **Modular Design**: Files under 500 lines
+- **Environment Safety**: Never hardcode secrets
+- **Test-First**: Write tests before implementation
+- **Clean Architecture**: Separate concerns
+- **Documentation**: Keep updated
+
+## 🚀 Available Agents (54 Total)
+
+### Core Development
+`coder`, `reviewer`, `tester`, `planner`, `researcher`
+
+### Swarm Coordination
+`hierarchical-coordinator`, `mesh-coordinator`, `adaptive-coordinator`, `collective-intelligence-coordinator`, `swarm-memory-manager`
+
+### Consensus & Distributed
+`byzantine-coordinator`, `raft-manager`, `gossip-coordinator`, `consensus-builder`, `crdt-synchronizer`, `quorum-manager`, `security-manager`
+
+### Performance & Optimization
+`perf-analyzer`, `performance-benchmarker`, `task-orchestrator`, `memory-coordinator`, `smart-agent`
+
+### GitHub & Repository
+`github-modes`, `pr-manager`, `code-review-swarm`, `issue-tracker`, `release-manager`, `workflow-automation`, `project-board-sync`, `repo-architect`, `multi-repo-swarm`
+
+### SPARC Methodology
+`sparc-coord`, `sparc-coder`, `specification`, `pseudocode`, `architecture`, `refinement`
+
+### Specialized Development
+`backend-dev`, `mobile-dev`, `ml-developer`, `cicd-engineer`, `api-docs`, `system-architect`, `code-analyzer`, `base-template-generator`
+
+### Testing & Validation
+`tdd-london-swarm`, `production-validator`
+
+### Migration & Planning
+`migration-planner`, `swarm-init`
+
+## 🎯 Claude Code vs MCP Tools
+
+### Claude Code Handles ALL EXECUTION:
+- **Task tool**: Spawn and run agents concurrently for actual work
+- File operations (Read, Write, Edit, MultiEdit, Glob, Grep)
+- Code generation and programming
+- Bash commands and system operations
+- Implementation work
+- Project navigation and analysis
+- TodoWrite and task management
+- Git operations
+- Package management
+- Testing and debugging
+
+### MCP Tools ONLY COORDINATE:
+- Swarm initialization (topology setup)
+- Agent type definitions (coordination patterns)
+- Task orchestration (high-level planning)
+- Memory management
+- Neural features
+- Performance tracking
+- GitHub integration
+
+**KEY**: MCP coordinates the strategy, Claude Code's Task tool executes with real agents.
+
+## 🚀 Quick Setup
+
 ```bash
-cargo make quick      # Format and run unit tests (alias: q)
-cargo make dev        # Format, lint (allow warnings), and test
-cargo make check      # Check code without building (alias: c)
-cargo make build      # Build in debug mode (alias: b)
+# Add MCP servers (Claude Flow required, others optional)
+claude mcp add claude-flow npx claude-flow@alpha mcp start
+claude mcp add ruv-swarm npx ruv-swarm mcp start  # Optional: Enhanced coordination
+claude mcp add flow-nexus npx flow-nexus@latest mcp start  # Optional: Cloud features
 ```
 
-### Testing
+## MCP Tool Categories
+
+### Coordination
+`swarm_init`, `agent_spawn`, `task_orchestrate`
+
+### Monitoring
+`swarm_status`, `agent_list`, `agent_metrics`, `task_status`, `task_results`
+
+### Memory & Neural
+`memory_usage`, `neural_status`, `neural_train`, `neural_patterns`
+
+### GitHub Integration
+`github_swarm`, `repo_analyze`, `pr_enhance`, `issue_triage`, `code_review`
+
+### System
+`benchmark_run`, `features_detect`, `swarm_monitor`
+
+### Flow-Nexus MCP Tools (Optional Advanced Features)
+Flow-Nexus extends MCP capabilities with 70+ cloud-based orchestration tools:
+
+**Key MCP Tool Categories:**
+- **Swarm & Agents**: `swarm_init`, `swarm_scale`, `agent_spawn`, `task_orchestrate`
+- **Sandboxes**: `sandbox_create`, `sandbox_execute`, `sandbox_upload` (cloud execution)
+- **Templates**: `template_list`, `template_deploy` (pre-built project templates)
+- **Neural AI**: `neural_train`, `neural_patterns`, `seraphina_chat` (AI assistant)
+- **GitHub**: `github_repo_analyze`, `github_pr_manage` (repository management)
+- **Real-time**: `execution_stream_subscribe`, `realtime_subscribe` (live monitoring)
+- **Storage**: `storage_upload`, `storage_list` (cloud file management)
+
+**Authentication Required:**
+- Register: `mcp__flow-nexus__user_register` or `npx flow-nexus@latest register`
+- Login: `mcp__flow-nexus__user_login` or `npx flow-nexus@latest login`
+- Access 70+ specialized MCP tools for advanced orchestration
+
+## 🚀 Agent Execution Flow with Claude Code
+
+### The Correct Pattern:
+
+1. **Optional**: Use MCP tools to set up coordination topology
+2. **REQUIRED**: Use Claude Code's Task tool to spawn agents that do actual work
+3. **REQUIRED**: Each agent runs hooks for coordination
+4. **REQUIRED**: Batch all operations in single messages
+
+### Example Full-Stack Development:
+
+```javascript
+// Single message with all agent spawning via Claude Code's Task tool
+[Parallel Agent Execution]:
+  Task("Backend Developer", "Build REST API with Express. Use hooks for coordination.", "backend-dev")
+  Task("Frontend Developer", "Create React UI. Coordinate with backend via memory.", "coder")
+  Task("Database Architect", "Design PostgreSQL schema. Store schema in memory.", "code-analyzer")
+  Task("Test Engineer", "Write Jest tests. Check memory for API contracts.", "tester")
+  Task("DevOps Engineer", "Setup Docker and CI/CD. Document in memory.", "cicd-engineer")
+  Task("Security Auditor", "Review authentication. Report findings via hooks.", "reviewer")
+  
+  // All todos batched together
+  TodoWrite { todos: [...8-10 todos...] }
+  
+  // All file operations together
+  Write "backend/server.js"
+  Write "frontend/App.jsx"
+  Write "database/schema.sql"
+```
+
+## 📋 Agent Coordination Protocol
+
+### Every Agent Spawned via Task Tool MUST:
+
+**1️⃣ BEFORE Work:**
 ```bash
-cargo make test                 # Run all tests (alias: t)
-cargo make test-unit            # Unit tests only
-cargo make test-integration     # Integration tests only
-cargo make test-single-threaded # Single-threaded for determinism
-cargo make deterministic        # Fixed seeds + single-threaded (alias: det)
-cargo make test-coverage        # Generate coverage report (alias: cov)
+npx claude-flow@alpha hooks pre-task --description "[task]"
+npx claude-flow@alpha hooks session-restore --session-id "swarm-[id]"
 ```
 
-### Code Quality
+**2️⃣ DURING Work:**
 ```bash
-cargo make fmt                  # Format all code (alias: f)
-cargo make lint                 # Strict clippy (denies all warnings)
-cargo make lint-allow           # Clippy with warnings allowed (alias: l)
-cargo make audit                # Security vulnerability scan
+npx claude-flow@alpha hooks post-edit --file "[file]" --memory-key "swarm/[agent]/[step]"
+npx claude-flow@alpha hooks notify --message "[what was done]"
 ```
 
-### CI/CD Workflows
+**3️⃣ AFTER Work:**
 ```bash
-cargo make ci                   # Full CI workflow (alias: full)
-cargo make pre-commit           # Pre-commit checks (alias: prep)
-cargo make pre-push             # Pre-push comprehensive checks (alias: push)
+npx claude-flow@alpha hooks post-task --task-id "[task]"
+npx claude-flow@alpha hooks session-end --export-metrics true
 ```
 
-### ggen CLI Commands (via cargo make)
-```bash
-cargo make run -- gen <template> --vars key=value     # Generate from template
-cargo make run -- search <query>                      # Search marketplace
-cargo make run -- add <gpack-id>                      # Install gpack
-cargo make run -- packs                               # List installed gpacks
-cargo make run -- list                                # List templates
-cargo make run -- show <template>                     # Show template details
+## 🎯 Concurrent Execution Examples
+
+### ✅ CORRECT WORKFLOW: MCP Coordinates, Claude Code Executes
+
+```javascript
+// Step 1: MCP tools set up coordination (optional, for complex tasks)
+[Single Message - Coordination Setup]:
+  mcp__claude-flow__swarm_init { topology: "mesh", maxAgents: 6 }
+  mcp__claude-flow__agent_spawn { type: "researcher" }
+  mcp__claude-flow__agent_spawn { type: "coder" }
+  mcp__claude-flow__agent_spawn { type: "tester" }
+
+// Step 2: Claude Code Task tool spawns ACTUAL agents that do the work
+[Single Message - Parallel Agent Execution]:
+  // Claude Code's Task tool spawns real agents concurrently
+  Task("Research agent", "Analyze API requirements and best practices. Check memory for prior decisions.", "researcher")
+  Task("Coder agent", "Implement REST endpoints with authentication. Coordinate via hooks.", "coder")
+  Task("Database agent", "Design and implement database schema. Store decisions in memory.", "code-analyzer")
+  Task("Tester agent", "Create comprehensive test suite with 90% coverage.", "tester")
+  Task("Reviewer agent", "Review code quality and security. Document findings.", "reviewer")
+  
+  // Batch ALL todos in ONE call
+  TodoWrite { todos: [
+    {id: "1", content: "Research API patterns", status: "in_progress", priority: "high"},
+    {id: "2", content: "Design database schema", status: "in_progress", priority: "high"},
+    {id: "3", content: "Implement authentication", status: "pending", priority: "high"},
+    {id: "4", content: "Build REST endpoints", status: "pending", priority: "high"},
+    {id: "5", content: "Write unit tests", status: "pending", priority: "medium"},
+    {id: "6", content: "Integration tests", status: "pending", priority: "medium"},
+    {id: "7", content: "API documentation", status: "pending", priority: "low"},
+    {id: "8", content: "Performance optimization", status: "pending", priority: "low"}
+  ]}
+  
+  // Parallel file operations
+  Bash "mkdir -p app/{src,tests,docs,config}"
+  Write "app/package.json"
+  Write "app/src/server.js"
+  Write "app/tests/server.test.js"
+  Write "app/docs/API.md"
 ```
 
-## Workspace Structure
-
-```
-ggen/
-├── src/main.rs           # Binary entry point with panic handlers
-├── cli/                  # CLI layer
-│   └── src/
-│       ├── lib.rs        # Clap CLI definition
-│       └── cmds/         # Subcommand implementations
-│           ├── gen.rs    # Code generation
-│           ├── search.rs # Marketplace search
-│           ├── add.rs    # Install gpacks
-│           └── ...       # Other commands
-├── ggen-core/            # Core domain logic
-│   └── src/
-│       ├── pipeline.rs   # Template rendering pipeline
-│       ├── template.rs   # Frontmatter + body parsing
-│       ├── graph.rs      # RDF graph with SPARQL caching
-│       ├── generator.rs  # High-level generation orchestration
-│       ├── registry.rs   # Marketplace client
-│       ├── resolver.rs   # Template source resolution
-│       ├── gpack.rs      # Gpack manifest handling
-│       └── inject.rs     # File injection modes
-├── utils/                # Cross-cutting concerns
-│   └── src/
-│       ├── app_config.rs # Configuration management
-│       ├── logger.rs     # Structured logging
-│       └── error.rs      # Error types
-├── templates/            # Local template files (.tmpl)
-└── tests/                # Integration tests
+### ❌ WRONG (Multiple Messages):
+```javascript
+Message 1: mcp__claude-flow__swarm_init
+Message 2: Task("agent 1")
+Message 3: TodoWrite { todos: [single todo] }
+Message 4: Write "file.js"
+// This breaks parallel coordination!
 ```
 
-## Architecture
+## Performance Benefits
 
-### Key Components
+- **84.8% SWE-Bench solve rate**
+- **32.3% token reduction**
+- **2.8-4.4x speed improvement**
+- **27+ neural models**
 
-**Pipeline (ggen-core/src/pipeline.rs)**
-- Orchestrates template rendering with Tera
-- Manages RDF graph state and SPARQL execution
-- Renders frontmatter variables first, then body
-- Produces `Plan` objects for dry-run or apply
-- Key methods: `new()`, `render_file()`, `register_prefixes()`
+## Hooks Integration
 
-**Template (ggen-core/src/template.rs)**
-- Parses YAML frontmatter + template body
-- Frontmatter fields: `to`, `from`, `inject`, `vars`, `rdf`, `sparql`, `determinism`, `force`, `unless_exists`
-- Supports injection modes: `prepend`, `append`, `before`, `after`, `at_line`
-- Shell hooks: `sh_before`, `sh_after`
-- Key methods: `parse()`, `render_frontmatter()`, `render()`, `process_graph()`
+### Pre-Operation
+- Auto-assign agents by file type
+- Validate commands for safety
+- Prepare resources automatically
+- Optimize topology by complexity
+- Cache searches
 
-**Graph (ggen-core/src/graph.rs)**
-- Thread-safe Oxigraph wrapper with SPARQL caching
-- LRU cache for query plans and results
-- Epoch-based cache invalidation on graph mutations
-- Supports Turtle, N-Triples, RDF/XML formats
-- Key methods: `new()`, `insert_turtle()`, `query()`, `len()`
+### Post-Operation
+- Auto-format code
+- Train neural patterns
+- Update memory
+- Analyze performance
+- Track token usage
 
-**Registry (ggen-core/src/registry.rs)**
-- Marketplace client for discovering and installing gpacks
-- Handles versioning, dependencies, lockfiles
-- Local cache management for installed gpacks
-- Key methods: `search()`, `resolve()`, `install()`
+### Session Management
+- Generate summaries
+- Persist state
+- Track metrics
+- Restore context
+- Export workflows
 
-**Generator (ggen-core/src/generator.rs)**
-- High-level orchestration of generation workflow
-- Coordinates Pipeline, Resolver, and Registry
-- Key type: `GenContext` with vars, template paths, and options
+## Advanced Features (v2.0.0)
 
-### Data Flow
+- 🚀 Automatic Topology Selection
+- ⚡ Parallel Execution (2.8-4.4x speed)
+- 🧠 Neural Training
+- 📊 Bottleneck Analysis
+- 🤖 Smart Auto-Spawning
+- 🛡️ Self-Healing Workflows
+- 💾 Cross-Session Memory
+- 🔗 GitHub Integration
 
-1. **CLI Layer** (`cli/`) parses arguments via Clap
-2. **Command Handler** (`cli/src/cmds/`) processes subcommand
-3. **Generator** (`ggen-core/`) orchestrates:
-   - **Resolver** locates template (local, gpack, or marketplace)
-   - **Pipeline** loads template and parses frontmatter
-   - Frontmatter rendered first to resolve `to` field and variables
-   - RDF data loaded into **Graph** from `rdf`/`rdf_inline` fields
-   - SPARQL queries executed and results injected into context
-   - Template body rendered with full context
-   - **Plan** created with output path and content
-4. **Plan** applied to write file or show diff (dry-run)
+## Integration Tips
 
-## Template System
+1. Start with basic swarm init
+2. Scale agents gradually
+3. Use memory for context
+4. Monitor progress regularly
+5. Train patterns from success
+6. Enable hooks automation
+7. Use GitHub tools first
 
-Templates use YAML frontmatter to declare metadata:
+## Support
 
-```yaml
+- Documentation: https://github.com/ruvnet/claude-flow
+- Issues: https://github.com/ruvnet/claude-flow/issues
+- Flow-Nexus Platform: https://flow-nexus.ruv.io (registration required for cloud features)
+
 ---
-to: "{{name}}.rs"                        # Output path (supports Tera vars)
-from: "source.rs"                        # Alternative source (overrides body)
-vars:                                    # Default variables
-  author: "Sean Chatman"
-rdf_inline:                              # Inline RDF data
-  - "@prefix ex: <http://example.org/> ."
-sparql:                                  # SPARQL queries
-  get_name: "SELECT ?name WHERE { ?person ex:name ?name }"
-prefixes:                                # Namespace prefixes
-  ex: "http://example.org/"
-base: "http://example.org/"              # Base IRI
-determinism: 42                          # Seed for reproducibility
-inject: true                             # Enable injection mode
-force: false                             # Overwrite existing files
-unless_exists: false                     # Skip if file exists
----
-Template body here with {{ variables }}
-```
 
-### Injection Modes
-- `prepend: true` - Add content at start of file
-- `append: true` - Add content at end of file
-- `before: "pattern"` - Insert before matching line
-- `after: "pattern"` - Insert after matching line
-- `at_line: N` - Insert at specific line number
-- `skip_if: "pattern"` - Skip if pattern exists (idempotency)
-- `idempotent: true` - Skip if content already exists
+Remember: **Claude Flow coordinates, Claude Code creates!**
 
-### Shell Hooks
-- `sh_before: "command"` - Run before file write
-- `sh_after: "cargo fmt"` - Run after file write
-
-## Determinism
-
-ggen ensures byte-identical output given:
-- Same template + frontmatter
-- Same RDF graph data
-- Same seed in `determinism` field
-- Same variable inputs
-
-Use `cargo make deterministic` (sets `RNG_SEED=42` and `--test-threads=1`) for deterministic test execution.
-
-## RDF and SPARQL Integration
-
-Templates can embed RDF knowledge graphs and query them:
-
-```yaml
----
-prefixes:
-  ex: "http://example.org/"
-base: "http://example.org/"
-rdf_inline:
-  - "@prefix ex: <http://example.org/> . ex:{{name}} a ex:Person ; ex:age 30 ."
-sparql:
-  get_age: "SELECT ?age WHERE { ex:{{name}} ex:age ?age }"
----
-Person age: {{ sparql(query=get_age, var="age") }}
-```
-
-SPARQL queries execute within templates using the `sparql()` Tera function.
-
-## Error Handling
-
-- Libraries use typed errors via `utils::error::Result`
-- Binary uses `anyhow` for error context
-- No `unwrap()` or `expect()` in library code (per `.cursorrules`)
-- Panic handlers: `better-panic` (debug), `human-panic` (release)
-
-## Logging
-
-Uses structured logging via `utils::logger`:
-```rust
-log::info!("Generated file");
-log::debug!("Processing template: {}", path);
-log::error!("Failed to parse: {}", err);
-```
-
-Avoid `println!` in library code (CLI output is acceptable).
-
-## Testing Strategy
-
-- Unit tests colocated with implementation
-- Integration tests in `/tests`
-- Use `insta` for snapshot testing of generated output
-- Fixed seeds for determinism tests
-- Mock filesystem and network in tests
-
-**ALWAYS use cargo-make for testing:**
-```bash
-cargo make test                 # Run all tests
-cargo make test-single-threaded # Single-threaded execution
-cargo make deterministic        # Fixed seeds (RNG_SEED=42)
-cargo make test-cli             # CLI-specific tests
-cargo make test-core            # Core module tests
-```
-
-## Performance SLOs
-
-- First build: ≤ 15s
-- Incremental build: ≤ 2s
-- RDF processing: ≤ 5s for 1k+ triples
-- Generation memory: ≤ 100MB
-- CLI scaffolding: ≤ 3s end-to-end
-- 100% reproducible outputs
-
-Verify with: `cargo make slo-check`
-
-## Marketplace (gpacks)
-
-Gpacks are versioned, reusable template packages with:
-- Templates with frontmatter
-- RDF schemas and SHACL shapes
-- SPARQL queries
-- Dependencies on other gpacks
-
-```bash
-cargo make run -- search rust
-cargo make run -- add io.ggen.rust.cli-subcommand
-cargo make run -- gen io.ggen.rust.cli-subcommand:template.tmpl name=hello
-```
-
-## Development Rules from .cursorrules
-
-1. **NEVER use direct cargo commands** - Always use `cargo make`
-2. No `unwrap()` or `expect()` in library code
-3. Deny warnings in production code
-4. No hardcoded outputs in production paths
-5. No TODOs or placeholders in library code
-6. All errors must be handled explicitly
-
-## Definition of Done
-
-Run `cargo make ci` to verify all requirements:
-- ✅ `cargo make fmt` - Code formatted
-- ✅ `cargo make lint` - Clippy clean (strict)
-- ✅ `cargo make test` - All tests passing
-- ✅ `cargo make slo-check` - SLO compliance verified
-- ✅ `cargo make audit` - No security vulnerabilities
-- ✅ Clear, actionable error messages
-- ✅ Deterministic outputs verified
+# important-instruction-reminders
+Do what has been asked; nothing more, nothing less.
+NEVER create files unless they're absolutely necessary for achieving your goal.
+ALWAYS prefer editing an existing file to creating a new one.
+NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
+Never save working files, text/mds and tests to the root folder.

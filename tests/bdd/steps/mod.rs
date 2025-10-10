@@ -10,6 +10,8 @@ pub mod rdf_steps;
 pub mod template_steps;
 
 // New noun-verb command step definitions
+pub mod audit_steps;
+pub mod ci_steps;
 pub mod graph_steps;
 pub mod market_noun_verb_steps;
 pub mod project_steps;
@@ -36,6 +38,10 @@ pub use rdf_steps::*;
 pub use template_steps::*;
 
 // Re-export new noun-verb step modules
+#[allow(unused_imports)]
+pub use audit_steps::*;
+#[allow(unused_imports)]
+pub use ci_steps::*;
 #[allow(unused_imports)]
 pub use graph_steps::*;
 #[allow(unused_imports)]

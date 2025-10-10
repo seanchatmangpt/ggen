@@ -28,6 +28,12 @@ fn have_template_file_located_at(world: &mut GgenWorld, template_path: String) {
     have_template_file_at_path(world, template_path);
 }
 
+#[given(regex = r"^I have a template with:$")]
+fn have_template_with_content(world: &mut GgenWorld, content: String) {
+    let template_path = world.project_dir.join("test-template.tmpl");
+    fs::write(&template_path, content.trim()).expect("Failed to write template file");
+}
+
 #[given(regex = r"^I have a basic template with:$")]
 fn have_basic_template_with_content(world: &mut GgenWorld, content: String) {
     let template_path = world.project_dir.join("test-template.tmpl");
@@ -76,6 +82,67 @@ fn have_template_with_sparql_query_definition(world: &mut GgenWorld, content: St
 fn have_template_with_determinism_configuration(world: &mut GgenWorld, content: String) {
     let template_path = world.project_dir.join("test-template.tmpl");
     fs::write(&template_path, content).expect("Failed to write template file");
+}
+
+#[given(regex = r"^I have a template with RDF inline:$")]
+fn have_template_with_rdf_inline(world: &mut GgenWorld, content: String) {
+    let template_path = world.project_dir.join("test-template.tmpl");
+    fs::write(&template_path, content.trim()).expect("Failed to write template file");
+}
+
+#[given(regex = r"^I have a template with SPARQL query:$")]
+fn have_template_with_sparql_query(world: &mut GgenWorld, content: String) {
+    let template_path = world.project_dir.join("test-template.tmpl");
+    fs::write(&template_path, content.trim()).expect("Failed to write template file");
+}
+
+#[given(regex = r"^I have a template with determinism config:$")]
+fn have_template_with_determinism_config(world: &mut GgenWorld, content: String) {
+    let template_path = world.project_dir.join("test-template.tmpl");
+    fs::write(&template_path, content.trim()).expect("Failed to write template file");
+}
+
+#[given(regex = r"^I have templates for Rust, Python, and Bash$")]
+fn have_templates_for_multiple_languages(world: &mut GgenWorld) {
+    let templates_dir = world.project_dir.join("templates");
+    fs::create_dir_all(&templates_dir).expect("Failed to create templates directory");
+
+    // Rust template
+    let rust_template = r#"---
+to: src/main.rs
+vars: { name: "hello" }
+---
+fn main() {{
+    println!("Hello, {{name}}!");
+}}
+"#;
+    fs::write(templates_dir.join("rust.tmpl"), rust_template)
+        .expect("Failed to write Rust template");
+
+    // Python template
+    let python_template = r#"---
+to: main.py
+vars: { name: "hello" }
+---
+def main():
+    print("Hello, {{name}}!")
+
+if __name__ == "__main__":
+    main()
+"#;
+    fs::write(templates_dir.join("python.tmpl"), python_template)
+        .expect("Failed to write Python template");
+
+    // Bash template
+    let bash_template = r#"---
+to: script.sh
+vars: { name: "hello" }
+---
+#!/bin/bash
+echo "Hello, {{name}}!"
+"#;
+    fs::write(templates_dir.join("bash.tmpl"), bash_template)
+        .expect("Failed to write Bash template");
 }
 
 #[given(regex = r"^I have a template with seed (.+)$")]

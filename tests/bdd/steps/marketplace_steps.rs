@@ -102,6 +102,49 @@ fn run_ggen_packs(world: &mut GgenWorld) {
     world.last_exit_code = output.status.code();
 }
 
+// ============================================================================
+// Missing step definitions for marketplace.feature
+// ============================================================================
+
+// REMOVED: Duplicate function definition - already exists at line 79
+
+#[when(regex = r#"^I run "ggen add (.+)@(.+)"$"#)]
+fn run_ggen_add_with_version(world: &mut GgenWorld, package_id: String, version: String) {
+    let package_with_version = format!("{}@{}", package_id, version);
+    let output = Command::cargo_bin("ggen")
+        .expect("ggen binary not found")
+        .arg("add")
+        .arg(&package_with_version)
+        .current_dir(&world.project_dir)
+        .output()
+        .expect("Failed to run ggen add");
+
+    world.last_output = Some(output.clone());
+    world.last_exit_code = output.status.code();
+}
+
+#[given(regex = r#"^I have installed "([^"]+)"$"#)]
+fn have_installed_package(world: &mut GgenWorld, package_id: String) {
+    // Simulate having a package installed by creating a mock lockfile entry
+    let lockfile_path = world.project_dir.join("ggen.lock");
+    let lockfile_content = format!(
+        r#"{{"packages": {{"{}": {{"version": "0.2.0", "sha256": "abc123", "installed": true}}}}}}"#,
+        package_id
+    );
+    fs::write(&lockfile_path, lockfile_content).expect("Failed to write mock lockfile");
+}
+
+#[given(regex = r#"^I have installed "([^"]+)@([^"]+)"$"#)]
+fn have_installed_package_with_version(world: &mut GgenWorld, package_id: String, version: String) {
+    // Simulate having a package installed by creating a mock lockfile entry
+    let lockfile_path = world.project_dir.join("ggen.lock");
+    let lockfile_content = format!(
+        r#"{{"packages": {{"{}": {{"version": "{}", "sha256": "abc123", "installed": true}}}}}}"#,
+        package_id, version
+    );
+    fs::write(&lockfile_path, lockfile_content).expect("Failed to write mock lockfile");
+}
+
 #[when(regex = r"^I run ggen update$")]
 fn run_ggen_update(world: &mut GgenWorld) {
     let output = Command::cargo_bin("ggen")
@@ -202,28 +245,16 @@ fn package_should_be_updated(_world: &mut GgenWorld) {
     // In real implementation, this would check the lockfile for version changes
 }
 
-#[given(regex = r"^I have installed (.+)$")]
-fn have_installed_package(world: &mut GgenWorld, package_id: String) {
-    // Simulate having a package installed by creating a mock lockfile entry
-    let lockfile_path = world.project_dir.join("ggen.lock");
-    let lockfile_content = format!(
-        r#"{{"packages": {{"{}": {{"version": "0.1.0", "installed": true}}}}}}"#,
-        package_id
-    );
-    fs::write(&lockfile_path, lockfile_content).expect("Failed to write mock lockfile");
-}
+#[when(regex = r"^I run ggen remove (.+)$")]
+fn run_ggen_remove(world: &mut GgenWorld, package_id: String) {
+    let output = Command::cargo_bin("ggen")
+        .expect("ggen binary not found")
+        .arg("remove")
+        .arg(&package_id)
+        .current_dir(&world.project_dir)
+        .output()
+        .expect("Failed to run ggen remove");
 
-#[given(regex = r"^I have installed (.+)$")]
-fn have_installed_package_with_version(world: &mut GgenWorld, package_with_version: String) {
-    // Parse package@version format
-    let parts: Vec<&str> = package_with_version.split('@').collect();
-    let package_id = parts[0];
-    let version = parts.get(1).unwrap_or(&"0.1.0");
-
-    let lockfile_path = world.project_dir.join("ggen.lock");
-    let lockfile_content = format!(
-        r#"{{"packages": {{"{}": {{"version": "{}", "installed": true}}}}}}"#,
-        package_id, version
-    );
-    fs::write(&lockfile_path, lockfile_content).expect("Failed to write mock lockfile");
+    world.last_output = Some(output.clone());
+    world.last_exit_code = output.status.code();
 }
