@@ -1,3 +1,40 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [MCP Protocol Compliance Test Report](#mcp-protocol-compliance-test-report)
+  - [Overview](#overview)
+  - [Test Results](#test-results)
+  - [Test Categories](#test-categories)
+    - [1. Unit Tests (3 tests)](#1-unit-tests-3-tests)
+    - [2. Metadata Tests (2 tests)](#2-metadata-tests-2-tests)
+    - [3. Tool Tests (3 tests)](#3-tool-tests-3-tests)
+    - [4. Schema Tests (6 tests)](#4-schema-tests-6-tests)
+    - [5. Performance Tests (2 tests)](#5-performance-tests-2-tests)
+    - [6. Integration Tests (2 tests)](#6-integration-tests-2-tests)
+  - [Critical Protocol Features Validated](#critical-protocol-features-validated)
+    - [1. Protocol Handshake ✅](#1-protocol-handshake-)
+    - [2. Tool Discovery ✅](#2-tool-discovery-)
+    - [3. Schema Validation ✅](#3-schema-validation-)
+    - [4. Performance ✅](#4-performance-)
+  - [Detailed Tool Inventory](#detailed-tool-inventory)
+    - [Project Tools (4)](#project-tools-4)
+    - [Market Tools (8)](#market-tools-8)
+    - [Graph Tools (3)](#graph-tools-3)
+    - [Template Tools (2)](#template-tools-2)
+    - [Hook Tools (1)](#hook-tools-1)
+  - [Test Implementation Details](#test-implementation-details)
+  - [Performance Benchmarks](#performance-benchmarks)
+  - [Best Practices Followed](#best-practices-followed)
+  - [Recommendations](#recommendations)
+    - [Completed ✅](#completed-)
+    - [Future Enhancements](#future-enhancements)
+  - [Conclusion](#conclusion)
+  - [Test Execution](#test-execution)
+  - [Test File Location](#test-file-location)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # MCP Protocol Compliance Test Report
 
 ## Overview
