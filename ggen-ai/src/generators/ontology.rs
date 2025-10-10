@@ -43,7 +43,7 @@ impl OntologyGenerator {
     ) -> Result<String> {
         let prompt = self.build_ontology_prompt(domain, requirements)?;
         
-        let response = self.client.complete(&prompt, Some(self.config.clone())).await?;
+        let response = self.client.complete(&prompt).await?;
         
         // Extract and validate the ontology
         self.extract_and_validate_ontology(&response.content).await
@@ -58,7 +58,7 @@ impl OntologyGenerator {
     ) -> Result<String> {
         let prompt = self.build_domain_ontology_prompt(domain, entities, relationships)?;
         
-        let response = self.client.complete(&prompt, Some(self.config.clone())).await?;
+        let response = self.client.complete(&prompt).await?;
         
         self.extract_and_validate_ontology(&response.content).await
     }
@@ -71,7 +71,7 @@ impl OntologyGenerator {
     ) -> Result<String> {
         let prompt = self.build_pattern_ontology_prompt(domain, patterns)?;
         
-        let response = self.client.complete(&prompt, Some(self.config.clone())).await?;
+        let response = self.client.complete(&prompt).await?;
         
         self.extract_and_validate_ontology(&response.content).await
     }
@@ -243,7 +243,7 @@ impl OntologyGenerator {
     ) -> Result<futures::stream::BoxStream<'static, Result<String>>> {
         let prompt = self.build_ontology_prompt(domain, requirements)?;
         
-        let stream = self.client.stream_complete(&prompt, Some(self.config.clone())).await?;
+        let stream = self.client.stream_complete(&prompt).await?;
         
         Ok(Box::pin(stream.map(|chunk_result| {
             chunk_result.map(|chunk| chunk.content)

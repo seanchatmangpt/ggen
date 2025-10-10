@@ -70,11 +70,7 @@ impl SparqlGenerator {
     
     /// Create a new SPARQL generator optimized for Ollama qwen3-coder:30b
     pub fn with_ollama_qwen3_coder(client: Box<dyn LlmClient>) -> Self {
-        use crate::providers::OllamaClient;
-        Self {
-            client,
-            config: OllamaClient::qwen3_coder_config(),
-        }
+        Self { client }
     }
     
     /// Generate a SPARQL query from natural language intent
@@ -266,7 +262,7 @@ Do not include any markdown formatting, explanations, or additional text. Only t
             schema, intent
         );
 
-        let response = self.client.complete(&prompt, Some(self.config.clone())).await?;
+        let response = self.client.complete(&prompt).await?;
 
         // Parse JSON response
         let json_query: SparqlQueryJson = serde_json::from_str(&response.content)
@@ -419,7 +415,7 @@ Do not include any markdown formatting, explanations, or additional text. Only t
             .with_prefixes(prefixes)
             .build()?;
 
-        let stream = self.client.stream_complete(&prompt, Some(self.config.clone())).await?;
+        let stream = self.client.stream_complete(&prompt).await?;
 
         Ok(Box::pin(stream.map(|chunk_result| {
             chunk_result.map(|chunk| chunk.content)

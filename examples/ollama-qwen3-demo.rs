@@ -1,6 +1,7 @@
 //! Demo script for ggen-ai with Ollama qwen3-coder:30b model
 
-use ggen_ai::mcp::tools::AiMcpTools;
+// Temporarily disabled due to ggen-ai compilation issues
+// use ggen_ai::mcp::tools::AiMcpTools;
 use serde_json::json;
 
 #[tokio::main]

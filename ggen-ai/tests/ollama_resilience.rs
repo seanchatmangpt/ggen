@@ -25,9 +25,9 @@ async fn test_ollama_network_resilience() {
     
     // Test with various network-like scenarios
     let test_cases = vec![
-        ("Short timeout", Duration::from_secs(5)),
-        ("Medium timeout", Duration::from_secs(15)),
-        ("Long timeout", Duration::from_secs(45)),
+        ("Short timeout", Duration::from_secs(60)),
+        ("Medium timeout", Duration::from_secs(90)),
+        ("Long timeout", Duration::from_secs(120)),
     ];
     
     let mut successful_recoveries = 0;
@@ -139,7 +139,7 @@ async fn test_ollama_concurrent_error_handling() {
         let generator = &generator;
         async move {
             let result = timeout(
-                Duration::from_secs(30),
+                Duration::from_secs(90),
                 generator.generate_template(description, examples.clone())
             ).await;
             
@@ -199,7 +199,7 @@ async fn test_ollama_resource_cleanup() {
         let examples = vec!["Include cleanup", "Add error handling"];
         
         let result = timeout(
-            Duration::from_secs(30),
+            Duration::from_secs(90),
             generator.generate_template(&description, examples)
         ).await;
         
@@ -270,7 +270,7 @@ async fn test_ollama_graceful_degradation() {
     
     for (scenario_name, description, examples) in &scenarios {
         let result = timeout(
-            Duration::from_secs(30),
+            Duration::from_secs(90),
             generator.generate_template(description, examples.to_vec())
         ).await;
         

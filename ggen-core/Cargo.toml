@@ -65,7 +65,7 @@ bytes = "1.5"
 
 [features]
 default = []
-live-llm-tests = []  # Opt-in for OpenAI/Anthropic integration tests
+live-llm-tests = [] # Opt-in for OpenAI/Anthropic integration tests
 
 [dev-dependencies]
 tempfile = "3"

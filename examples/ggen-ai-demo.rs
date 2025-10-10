@@ -1,7 +1,8 @@
 //! Demo script for ggen-ai template generation using Ollama with qwen3-coder:30b
 
-use ggen_ai::generators::TemplateGenerator;
-use ggen_ai::providers::OllamaClient;
+// Temporarily disabled due to ggen-ai compilation issues
+// use ggen_ai::generators::TemplateGenerator;
+// use ggen_ai::providers::OllamaClient;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

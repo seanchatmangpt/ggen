@@ -2,7 +2,7 @@
 
 use crate::error::{GgenAiError, Result};
 use crate::generators::{TemplateGenerator, SparqlGenerator, OntologyGenerator, RefactorAssistant};
-use crate::providers::{OpenAIClient, AnthropicClient, OllamaClient, MockClient};
+use crate::providers::{GenAiClient, MockClient};
 use ggen_core::Graph;
 use serde_json::Value;
 

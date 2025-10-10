@@ -58,10 +58,14 @@ tempfile = "3"
 
 [features]
 default = []
-ollama-integration = []  # Already exists
+ollama-integration = [] # Already exists
 openai-integration = []
 anthropic-integration = []
-all-integrations = ["ollama-integration", "openai-integration", "anthropic-integration"]
+all-integrations = [
+  "ollama-integration",
+  "openai-integration",
+  "anthropic-integration",
+]
 
 [dev-dependencies]
 tokio-test = "0.4"

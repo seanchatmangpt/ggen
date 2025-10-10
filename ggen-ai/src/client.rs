@@ -1,7 +1,6 @@
-//! LLM client abstraction and adapter
+//! Simplified client interface using rust-genai
 
-use async_trait::async_trait;
-use futures::stream::BoxStream;
+use genai::{Client, chat::{ChatRequest, ChatMessage, ChatOptions}};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -109,116 +108,118 @@ pub struct LlmChunk {
     pub extra: HashMap<String, serde_json::Value>,
 }
 
-/// Trait for LLM client implementations
-#[async_trait]
-pub trait LlmClient: Send + Sync + std::fmt::Debug {
+/// Simplified LLM client using rust-genai
+#[derive(Debug)]
+pub struct LlmClient {
+    client: Client,
+    config: LlmConfig,
+}
+
+impl LlmClient {
+    /// Create a new LLM client with configuration
+    pub fn new(config: LlmConfig) -> Result<Self> {
+        config.validate()?;
+        Ok(Self {
+            client: Client::default(),
+            config,
+        })
+    }
+
     /// Complete a prompt synchronously
-    async fn complete(&self, prompt: &str) -> Result<LlmResponse>;
-    
+    pub async fn complete(&self, prompt: &str) -> Result<LlmResponse> {
+        let chat_req = ChatRequest::new(vec![
+            ChatMessage::user(prompt),
+        ]);
+
+        let chat_options = self.create_chat_options();
+        
+        let response = self.client
+            .exec_chat(&self.config.model, chat_req, Some(chat_options))
+            .await
+            .map_err(|e| GgenAiError::llm_provider("GenAI", &format!("Request failed: {}", e)))?;
+
+        Ok(LlmResponse {
+            content: response.first_text().unwrap_or_default(),
+            usage: response.usage().map(|u| UsageStats {
+                prompt_tokens: u.prompt_tokens.unwrap_or(0),
+                completion_tokens: u.completion_tokens.unwrap_or(0),
+                total_tokens: u.total_tokens.unwrap_or(0),
+            }),
+            model: self.config.model.clone(),
+            finish_reason: Some("stop".to_string()),
+            extra: HashMap::new(),
+        })
+    }
+
     /// Stream completion of a prompt
-    async fn stream_complete(&self, prompt: &str) -> Result<BoxStream<LlmChunk>>;
-    
+    pub async fn stream_complete(&self, prompt: &str) -> Result<futures::stream::BoxStream<'static, LlmChunk>> {
+        let chat_req = ChatRequest::new(vec![
+            ChatMessage::user(prompt),
+        ]);
+
+        let chat_options = self.create_chat_options();
+        
+        let stream = self.client
+            .exec_chat_stream(&self.config.model, chat_req, Some(chat_options))
+            .await
+            .map_err(|e| GgenAiError::llm_provider("GenAI", &format!("Stream request failed: {}", e)))?;
+
+        let model = self.config.model.clone();
+        let stream = stream.map(move |chunk| {
+            match chunk {
+                Ok(genai_chunk) => {
+                    let content = genai_chunk.first_text().unwrap_or_default();
+                    LlmChunk {
+                        content,
+                        model: model.clone(),
+                        finish_reason: if genai_chunk.is_finished() { Some("stop".to_string()) } else { None },
+                        usage: genai_chunk.usage().map(|u| UsageStats {
+                            prompt_tokens: u.prompt_tokens.unwrap_or(0),
+                            completion_tokens: u.completion_tokens.unwrap_or(0),
+                            total_tokens: u.total_tokens.unwrap_or(0),
+                        }),
+                        extra: HashMap::new(),
+                    }
+                }
+                Err(e) => {
+                    LlmChunk {
+                        content: format!("Error: {}", e),
+                        model: model.clone(),
+                        finish_reason: Some("error".to_string()),
+                        usage: None,
+                        extra: HashMap::new(),
+                    }
+                }
+            }
+        });
+
+        Ok(Box::pin(stream))
+    }
+
+    /// Create chat options from config
+    fn create_chat_options(&self) -> ChatOptions {
+        ChatOptions::default()
+            .with_temperature(self.config.temperature.unwrap_or(0.7))
+            .with_max_tokens(self.config.max_tokens.unwrap_or(4096))
+            .with_top_p(self.config.top_p.unwrap_or(0.9))
+    }
+
     /// Get the current configuration
-    fn get_config(&self) -> &LlmConfig;
-    
+    pub fn config(&self) -> &LlmConfig {
+        &self.config
+    }
+
     /// Update the configuration
-    fn update_config(&mut self, config: LlmConfig);
-}
-
-/// Unified adapter for multiple LLM providers
-pub struct LlmAdapter {
-    clients: HashMap<String, Box<dyn LlmClient>>,
-    default_client: String,
-}
-
-impl LlmAdapter {
-    /// Create a new adapter
-    pub fn new() -> Self {
-        Self {
-            clients: HashMap::new(),
-            default_client: String::new(),
-        }
-    }
-    
-    /// Add a client to the adapter
-    pub fn add_client(&mut self, name: String, client: Box<dyn LlmClient>) {
-        if self.clients.is_empty() {
-            self.default_client = name.clone();
-        }
-        self.clients.insert(name, client);
-    }
-    
-    /// Set the default client
-    pub fn set_default(&mut self, name: &str) -> Result<()> {
-        if self.clients.contains_key(name) {
-            self.default_client = name.to_string();
-            Ok(())
-        } else {
-            Err(GgenAiError::configuration(format!("Client '{}' not found", name)))
-        }
-    }
-    
-    /// Get a client by name
-    pub fn get_client(&self, name: Option<&str>) -> Result<&dyn LlmClient> {
-        let name = name.unwrap_or(&self.default_client);
-        self.clients
-            .get(name)
-            .map(|client| client.as_ref())
-            .ok_or_else(|| GgenAiError::configuration(format!("Client '{}' not found", name)))
-    }
-    
-    /// Complete using the default client
-    pub async fn complete(&self, prompt: &str, config: Option<LlmConfig>) -> Result<LlmResponse> {
-        self.get_client(None)?.complete(prompt, config).await
-    }
-    
-    /// Stream completion using the default client
-    pub async fn stream_complete(
-        &self,
-        prompt: &str,
-        config: Option<LlmConfig>,
-    ) -> Result<BoxStream<'static, Result<LlmChunk>>> {
-        self.get_client(None)?.stream_complete(prompt, config).await
-    }
-    
-    /// Generate embeddings using the default client
-    pub async fn embed(&self, text: &str) -> Result<Vec<f32>> {
-        self.get_client(None)?.embed(text).await
-    }
-    
-    /// List available clients
-    pub fn list_clients(&self) -> Vec<String> {
-        self.clients.keys().cloned().collect()
-    }
-    
-    /// Get the default client name
-    pub fn default_client(&self) -> &str {
-        &self.default_client
+    pub fn update_config(&mut self, config: LlmConfig) {
+        self.config = config;
     }
 }
 
-impl Default for LlmAdapter {
-    fn default() -> Self {
-        Self::new()
-    }
-}
 
 #[cfg(test)]
 mod tests {
     use super::*;
     
-    #[tokio::test]
-    async fn test_llm_adapter() {
-        let adapter = LlmAdapter::new();
-
-        // Test empty adapter
-        assert!(adapter.get_client(None).is_err());
-        assert!(adapter.complete("test", None).await.is_err());
-
-        // Test with mock client (would need actual implementation)
-        // This is a placeholder for when we implement the providers
-    }
-
     #[test]
     fn test_llm_config_validation() {
         // Valid config
@@ -253,6 +254,13 @@ mod tests {
 
         config.top_p = Some(1.5);
         assert!(config.validate().is_err());
+    }
+
+    #[test]
+    fn test_llm_client_creation() {
+        let config = LlmConfig::default();
+        let client = LlmClient::new(config);
+        assert!(client.is_ok());
     }
 }
 

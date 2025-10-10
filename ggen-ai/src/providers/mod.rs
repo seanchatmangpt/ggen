@@ -1,13 +1,7 @@
-//! LLM provider implementations
+//! LLM provider implementations using genai
 
 pub mod adapter;
-pub mod openai;
-pub mod anthropic;
-pub mod ollama;
 
 // Re-export provider types
 pub use adapter::*;
-pub use openai::OpenAIClient;
-pub use anthropic::AnthropicClient;
-pub use ollama::OllamaClient;
 
