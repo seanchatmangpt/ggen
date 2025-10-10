@@ -1,0 +1,63 @@
+[package]
+name = "ggen-agents"
+version = "0.2.4"
+edition = "2021"
+authors = ["Sean Chatman <sean@chatmangpt.com>"]
+description = "Ultrathink multi-agent system for ggen - 12 hyper advanced agents for testing, security, performance, and development"
+license = "MIT"
+
+[dependencies]
+# Core async runtime
+tokio = { version = "1", features = ["full"] }
+async-trait = "0.1"
+futures = "0.3"
+
+# Serialization and data structures
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Command line argument parsing
+clap = { version = "4", features = ["derive"] }
+uuid = { version = "1", features = ["v4"] }
+
+# Error handling
+anyhow = "1"
+thiserror = "1"
+
+# Logging and tracing
+tracing = "0.1"
+tracing-subscriber = "0.3"
+
+# Concurrency and parallelism
+rayon = "1.8"
+dashmap = "5.5"
+
+# Time and scheduling
+chrono = "0.4"
+tokio-cron-scheduler = "0.9"
+
+# HTTP and networking
+reqwest = { version = "0.11", features = ["json"] }
+
+# Local dependencies
+ggen-core = { path = "../ggen-core" }
+ggen-utils = { path = "../utils" }
+
+# Agent-specific dependencies
+mockall = "0.12"
+proptest = "1.4"
+regex = "1.10"
+glob = "0.3"
+
+[dev-dependencies]
+tempfile = "3.8"
+assert_cmd = "2.0"
+predicates = "3.0"
+
+[[bin]]
+name = "ggen-agents"
+path = "src/main.rs"
+
+[lib]
+name = "ggen_agents"
+path = "src/lib.rs"

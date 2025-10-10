@@ -16,7 +16,21 @@ anyhow = "1"
 tracing = "0.1"
 tracing-subscriber = "0.3"
 chrono = "0.4"
-uuid = { version = "1", features = ["v4"] }
+uuid = { version = "1", features = ["v4", "serde"] }
+regex = "1.10"
+rand = "0.8"
+mockall = "0.12"
+tempfile = "3.8"
+thiserror = "1.0"
+metrics = "0.21"
+metrics-exporter-prometheus = "0.12"
+tokio-util = "0.7"
+futures = "0.3"
+
+# Performance optimization
+lru = "0.12"
+parking_lot = "0.12"
+dashmap = "6.0"
 
 # Local dependencies
 ggen-core = { path = "../ggen-core" }
@@ -29,3 +43,28 @@ path = "src/main.rs"
 [lib]
 name = "ggen_mcp"
 path = "src/lib.rs"
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports", "async_tokio"] }
+tokio-test = "0.4"
+futures = "0.3"
+
+[[bench]]
+name = "tools"
+harness = false
+
+[[bench]]
+name = "transport"
+harness = false
+
+[[bench]]
+name = "cache"
+harness = false
+
+[profile.release]
+lto = true
+codegen-units = 1
+opt-level = 3
+
+[profile.bench]
+inherits = "release"

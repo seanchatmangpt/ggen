@@ -1,32 +1,48 @@
 use serde_json::json;
-use std::fmt;
+// use std::fmt;
+use ggen_utils::error::Error as GgenError;
+use anyhow::Error as AnyhowError;
 
-#[derive(Debug)]
+#[derive(Debug, thiserror::Error)]
 pub enum GgenMcpError {
+    #[error("Missing required parameter: {0}")]
     MissingParameter(String),
+    
+    #[error("Invalid parameter: {0}")]
     InvalidParameter(String),
+    
+    #[error("Execution failed: {0}")]
     ExecutionFailed(String),
+    
+    #[error("Registry error: {0}")]
     RegistryError(String),
+    
+    #[error("Graph error: {0}")]
     GraphError(String),
+    
+    #[error("Template error: {0}")]
     TemplateError(String),
+    
+    #[error("Serialization error: {0}")]
     SerializationError(String),
+    
+    #[error("Timeout error: {0}")]
+    Timeout(String),
+    
+    #[error("Generation failed: {0}")]
+    GenerationFailed(String),
+    
+    #[error("Core error: {0}")]
+    Core(#[from] GgenError),
+    
+    #[error("Anyhow error: {0}")]
+    Anyhow(#[from] AnyhowError),
+    
+    #[error("MCP protocol error: {0}")]
+    Protocol(#[from] rmcp::Error),
 }
 
-impl fmt::Display for GgenMcpError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::MissingParameter(p) => write!(f, "Missing required parameter: {}", p),
-            Self::InvalidParameter(p) => write!(f, "Invalid parameter: {}", p),
-            Self::ExecutionFailed(e) => write!(f, "Execution failed: {}", e),
-            Self::RegistryError(e) => write!(f, "Registry error: {}", e),
-            Self::GraphError(e) => write!(f, "Graph error: {}", e),
-            Self::TemplateError(e) => write!(f, "Template error: {}", e),
-            Self::SerializationError(e) => write!(f, "Serialization error: {}", e),
-        }
-    }
-}
-
-impl std::error::Error for GgenMcpError {}
+// Display implementation is now handled by thiserror::Error derive
 
 impl From<GgenMcpError> for rmcp::ErrorData {
     fn from(err: GgenMcpError) -> Self {
@@ -64,6 +80,11 @@ pub fn get_optional_u64_param(params: &serde_json::Value, key: &str) -> Option<u
 /// Helper to extract boolean parameter
 pub fn get_bool_param(params: &serde_json::Value, key: &str, default: bool) -> bool {
     params.get(key).and_then(|v| v.as_bool()).unwrap_or(default)
+}
+
+/// Helper to extract optional object parameter
+pub fn get_optional_object_param(params: &serde_json::Value, key: &str) -> Option<serde_json::Map<String, serde_json::Value>> {
+    params.get(key).and_then(|v| v.as_object()).map(|obj| obj.clone())
 }
 
 /// Helper to create success response
