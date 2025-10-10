@@ -129,6 +129,116 @@ pub fn market_install_schema() -> Value {
     })
 }
 
+/// Schema for market_recommend tool
+pub fn market_recommend_schema() -> Value {
+    json!({
+        "type": "object",
+        "properties": {
+            "based_on": {
+                "type": "string",
+                "description": "Base recommendations on a specific installed package"
+            },
+            "category": {
+                "type": "string",
+                "description": "Recommend packages from specific category"
+            },
+            "limit": {
+                "type": "number",
+                "description": "Maximum number of recommendations",
+                "default": 5
+            },
+            "explain": {
+                "type": "boolean",
+                "description": "Show recommendation reasoning",
+                "default": false
+            }
+        }
+    })
+}
+
+/// Schema for market_info tool
+pub fn market_info_schema() -> Value {
+    json!({
+        "type": "object",
+        "required": ["package_id"],
+        "properties": {
+            "package_id": {
+                "type": "string",
+                "description": "Package ID to get information for"
+            },
+            "examples": {
+                "type": "boolean",
+                "description": "Include usage examples",
+                "default": false
+            },
+            "dependencies": {
+                "type": "boolean",
+                "description": "Include dependency information",
+                "default": false
+            },
+            "health": {
+                "type": "boolean",
+                "description": "Include detailed health metrics",
+                "default": false
+            }
+        }
+    })
+}
+
+/// Schema for market_offline_search tool
+pub fn market_offline_search_schema() -> Value {
+    json!({
+        "type": "object",
+        "required": ["query"],
+        "properties": {
+            "query": {
+                "type": "string",
+                "description": "Search query string"
+            },
+            "category": {
+                "type": "string",
+                "description": "Filter by category"
+            },
+            "limit": {
+                "type": "number",
+                "description": "Maximum number of results",
+                "default": 10
+            }
+        }
+    })
+}
+
+/// Schema for market_cache_status tool
+pub fn market_cache_status_schema() -> Value {
+    json!({
+        "type": "object",
+        "properties": {}
+    })
+}
+
+/// Schema for market_sync tool
+pub fn market_sync_schema() -> Value {
+    json!({
+        "type": "object",
+        "properties": {
+            "category": {
+                "type": "string",
+                "description": "Sync specific category only"
+            },
+            "force": {
+                "type": "boolean",
+                "description": "Force sync even if cache is fresh",
+                "default": false
+            },
+            "dry_run": {
+                "type": "boolean",
+                "description": "Show what would be synced without performing sync",
+                "default": false
+            }
+        }
+    })
+}
+
 /// Schema for graph_query tool
 pub fn graph_query_schema() -> Value {
     json!({

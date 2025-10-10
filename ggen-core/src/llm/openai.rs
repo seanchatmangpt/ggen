@@ -6,7 +6,7 @@
 use async_trait::async_trait;
 use futures::{Stream, StreamExt};
 use reqwest::Client;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use std::pin::Pin;
 use std::time::Duration;
 

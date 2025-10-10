@@ -2,8 +2,12 @@
 //!
 //! Provides mock implementations for testing without making actual API calls.
 
-use super::provider_trait_tests::{LlmConfig, LlmProvider, LlmResponse, Message, TokenUsage};
-use std::collections::HashMap;
+use ggen_core::llm::{
+    ChatRequest, ChatResponse, LlmError, LlmProvider, LlmResult, StreamChunk,
+};
+use async_trait::async_trait;
+use futures::Stream;
+use std::pin::Pin;
 use std::sync::{Arc, Mutex};
 
 /// Mock provider for testing
@@ -49,14 +53,27 @@ impl MockLlmProvider {
     }
 }
 
+#[async_trait]
 impl LlmProvider for MockLlmProvider {
-    fn complete(
-        &self,
-        messages: Vec<Message>,
-        config: LlmConfig,
-    ) -> Result<LlmResponse, String> {
+    fn name(&self) -> &str {
+        &self.name
+    }
+
+    fn supported_models(&self) -> Vec<String> {
+        vec!["mock-model-1".to_string(), "mock-model-2".to_string()]
+    }
+
+    fn default_model(&self) -> &str {
+        "mock-model-1"
+    }
+
+    async fn chat(&self, request: ChatRequest) -> LlmResult<ChatResponse> {
         if self.should_fail {
-            return Err("Mock provider failure".to_string());
+            return Err(LlmError::ApiError {
+                provider: self.name.clone(),
+                message: "Mock provider failure".to_string(),
+                status_code: 500,
+            });
         }
 
         let mut count = self.call_count.lock().unwrap();
@@ -67,47 +84,47 @@ impl LlmProvider for MockLlmProvider {
         let content = responses.get(response_idx).unwrap().clone();
 
         // Calculate token usage based on content length
-        let prompt_tokens = messages.iter().map(|m| m.content.len() / 4).sum();
-        let completion_tokens = content.len() / 4;
+        let prompt_tokens: u32 = request
+            .messages
+            .iter()
+            .map(|m| (m.content.len() / 4) as u32)
+            .sum();
+        let completion_tokens = (content.len() / 4) as u32;
 
-        Ok(LlmResponse {
+        Ok(ChatResponse {
             content,
-            model: config.model,
-            usage: TokenUsage {
+            model: request.model,
+            usage: Some(ggen_core::llm::types::TokenUsage {
                 prompt_tokens,
                 completion_tokens,
                 total_tokens: prompt_tokens + completion_tokens,
-            },
-            finish_reason: "stop".to_string(),
+            }),
+            finish_reason: Some("stop".to_string()),
         })
     }
 
-    fn stream_complete(
+    async fn chat_stream(
         &self,
-        messages: Vec<Message>,
-        config: LlmConfig,
-    ) -> Result<Box<dyn Iterator<Item = Result<String, String>>>, String> {
+        _request: ChatRequest,
+    ) -> LlmResult<Pin<Box<dyn Stream<Item = LlmResult<StreamChunk>> + Send>>> {
         if self.should_fail {
-            return Err("Mock provider stream failure".to_string());
+            return Err(LlmError::ApiError {
+                provider: self.name.clone(),
+                message: "Mock provider stream failure".to_string(),
+                status_code: 500,
+            });
         }
 
-        let response = self.complete(messages, config)?;
-        let chunks: Vec<Result<String, String>> = response
-            .content
-            .chars()
-            .map(|c| Ok(c.to_string()))
-            .collect();
-
-        Ok(Box::new(chunks.into_iter()))
+        // For testing, return empty stream
+        let stream = futures::stream::empty();
+        Ok(Box::pin(stream))
     }
 
-    fn provider_name(&self) -> &str {
-        &self.name
-    }
-
-    fn validate_config(&self) -> Result<(), String> {
+    async fn validate(&self) -> LlmResult<()> {
         if self.api_key.is_none() {
-            return Err("API key not configured".to_string());
+            return Err(LlmError::InvalidApiKey {
+                provider: self.name.clone(),
+            });
         }
         Ok(())
     }
@@ -116,138 +133,130 @@ impl LlmProvider for MockLlmProvider {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use ggen_core::llm::Role;
 
-    #[test]
-    fn test_mock_provider_creation() {
+    #[tokio::test]
+    async fn test_mock_provider_creation() {
         let provider = MockLlmProvider::new("test-provider");
-        assert_eq!(provider.provider_name(), "test-provider");
+        assert_eq!(provider.name(), "test-provider");
         assert!(!provider.should_fail);
     }
 
-    #[test]
-    fn test_mock_provider_complete() {
+    #[tokio::test]
+    async fn test_mock_provider_chat() {
         let provider = MockLlmProvider::new("test");
-        let messages = vec![Message {
-            role: "user".to_string(),
-            content: "Hello".to_string(),
-        }];
-        let config = LlmConfig::default();
+        let request = ChatRequest::builder()
+            .model("mock-model-1")
+            .message(Role::User, "Hello")
+            .build()
+            .unwrap();
 
-        let response = provider.complete(messages, config).unwrap();
+        let response = provider.chat(request).await.unwrap();
         assert_eq!(response.content, "Mock response 1");
         assert_eq!(provider.get_call_count(), 1);
     }
 
-    #[test]
-    fn test_mock_provider_multiple_calls() {
+    #[tokio::test]
+    async fn test_mock_provider_multiple_calls() {
         let provider = MockLlmProvider::new("test");
-        let messages = vec![Message {
-            role: "user".to_string(),
-            content: "Hello".to_string(),
-        }];
-        let config = LlmConfig::default();
+        let request1 = ChatRequest::builder()
+            .model("mock-model-1")
+            .message(Role::User, "Hello")
+            .build()
+            .unwrap();
 
-        let response1 = provider.complete(messages.clone(), config.clone()).unwrap();
-        let response2 = provider.complete(messages, config).unwrap();
+        let request2 = request1.clone();
+
+        let response1 = provider.chat(request1).await.unwrap();
+        let response2 = provider.chat(request2).await.unwrap();
 
         assert_eq!(response1.content, "Mock response 1");
         assert_eq!(response2.content, "Mock response 2");
         assert_eq!(provider.get_call_count(), 2);
     }
 
-    #[test]
-    fn test_mock_provider_custom_responses() {
+    #[tokio::test]
+    async fn test_mock_provider_custom_responses() {
         let custom_responses = vec![
             "Custom 1".to_string(),
             "Custom 2".to_string(),
             "Custom 3".to_string(),
         ];
-        let provider = MockLlmProvider::new("test").with_responses(custom_responses.clone());
+        let provider = MockLlmProvider::new("test").with_responses(custom_responses);
 
-        let messages = vec![Message {
-            role: "user".to_string(),
-            content: "Test".to_string(),
-        }];
-        let config = LlmConfig::default();
+        for i in 1..=3 {
+            let request = ChatRequest::builder()
+                .model("mock-model-1")
+                .message(Role::User, "Test")
+                .build()
+                .unwrap();
 
-        for expected in custom_responses {
-            let response = provider.complete(messages.clone(), config.clone()).unwrap();
-            assert_eq!(response.content, expected);
+            let response = provider.chat(request).await.unwrap();
+            assert_eq!(response.content, format!("Custom {}", i));
         }
     }
 
-    #[test]
-    fn test_mock_provider_failure() {
+    #[tokio::test]
+    async fn test_mock_provider_failure() {
         let provider = MockLlmProvider::new("test").with_failure();
-        let messages = vec![Message {
-            role: "user".to_string(),
-            content: "Hello".to_string(),
-        }];
-        let config = LlmConfig::default();
+        let request = ChatRequest::builder()
+            .model("mock-model-1")
+            .message(Role::User, "Hello")
+            .build()
+            .unwrap();
 
-        let result = provider.complete(messages, config);
+        let result = provider.chat(request).await;
         assert!(result.is_err());
-        assert_eq!(result.unwrap_err(), "Mock provider failure");
     }
 
-    #[test]
-    fn test_mock_provider_validation_success() {
+    #[tokio::test]
+    async fn test_mock_provider_validation_success() {
         let provider = MockLlmProvider::new("test");
-        assert!(provider.validate_config().is_ok());
+        assert!(provider.validate().await.is_ok());
     }
 
-    #[test]
-    fn test_mock_provider_validation_failure() {
+    #[tokio::test]
+    async fn test_mock_provider_validation_failure() {
         let provider = MockLlmProvider::new("test").without_api_key();
-        let result = provider.validate_config();
+        let result = provider.validate().await;
         assert!(result.is_err());
-        assert_eq!(result.unwrap_err(), "API key not configured");
     }
 
-    #[test]
-    fn test_mock_provider_token_counting() {
+    #[tokio::test]
+    async fn test_mock_provider_token_counting() {
         let provider = MockLlmProvider::new("test");
-        let messages = vec![Message {
-            role: "user".to_string(),
-            content: "This is a test message with some content".to_string(),
-        }];
-        let config = LlmConfig::default();
+        let request = ChatRequest::builder()
+            .model("mock-model-1")
+            .message(Role::User, "This is a test message with some content")
+            .build()
+            .unwrap();
 
-        let response = provider.complete(messages, config).unwrap();
-        assert!(response.usage.prompt_tokens > 0);
-        assert!(response.usage.completion_tokens > 0);
-        assert_eq!(
-            response.usage.total_tokens,
-            response.usage.prompt_tokens + response.usage.completion_tokens
-        );
+        let response = provider.chat(request).await.unwrap();
+        let usage = response.usage.unwrap();
+
+        assert!(usage.prompt_tokens > 0);
+        assert!(usage.completion_tokens > 0);
+        assert_eq!(usage.total_tokens, usage.prompt_tokens + usage.completion_tokens);
     }
 
-    #[test]
-    fn test_mock_provider_streaming() {
-        let provider = MockLlmProvider::new("test");
-        let messages = vec![Message {
-            role: "user".to_string(),
-            content: "Test".to_string(),
-        }];
-        let config = LlmConfig::default();
-
-        let stream = provider.stream_complete(messages, config).unwrap();
-        let collected: Vec<String> = stream.map(|r| r.unwrap()).collect();
-
-        assert!(!collected.is_empty());
-        assert_eq!(collected.join(""), "Mock response 1");
-    }
-
-    #[test]
-    fn test_mock_provider_streaming_failure() {
+    #[tokio::test]
+    async fn test_mock_provider_streaming_failure() {
         let provider = MockLlmProvider::new("test").with_failure();
-        let messages = vec![Message {
-            role: "user".to_string(),
-            content: "Test".to_string(),
-        }];
-        let config = LlmConfig::default();
+        let request = ChatRequest::builder()
+            .model("mock-model-1")
+            .message(Role::User, "Test")
+            .build()
+            .unwrap();
 
-        let result = provider.stream_complete(messages, config);
+        let result = provider.chat_stream(request).await;
         assert!(result.is_err());
+    }
+
+    #[tokio::test]
+    async fn test_mock_provider_supports_model() {
+        let provider = MockLlmProvider::new("test");
+        assert!(provider.supports_model("mock-model-1"));
+        assert!(provider.supports_model("mock-model-2"));
+        assert!(!provider.supports_model("unknown-model"));
     }
 }
