@@ -1,3 +1,54 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Cookbook Structure](#ggen-cookbook-structure)
+  - [Document Purpose](#document-purpose)
+  - [📖 Cookbook Organization](#-cookbook-organization)
+    - [Chapter 1: Introduction & Setup (5 recipes)](#chapter-1-introduction--setup-5-recipes)
+    - [Chapter 2: Quick Start Recipes (10 recipes)](#chapter-2-quick-start-recipes-10-recipes)
+    - [Chapter 3: Template Authoring (15 recipes)](#chapter-3-template-authoring-15-recipes)
+    - [Chapter 4: RDF & Knowledge Graphs (12 recipes)](#chapter-4-rdf--knowledge-graphs-12-recipes)
+    - [Chapter 5: File Injection & Modification (8 recipes)](#chapter-5-file-injection--modification-8-recipes)
+    - [Chapter 6: Deterministic Generation (6 recipes)](#chapter-6-deterministic-generation-6-recipes)
+    - [Chapter 7: Marketplace & gpacks (10 recipes)](#chapter-7-marketplace--gpacks-10-recipes)
+    - [Chapter 8: Multi-Language Patterns (12 recipes)](#chapter-8-multi-language-patterns-12-recipes)
+    - [Chapter 9: GitHub Integration (7 recipes)](#chapter-9-github-integration-7-recipes)
+    - [Chapter 10: Advanced Workflows (15 recipes)](#chapter-10-advanced-workflows-15-recipes)
+    - [Chapter 11: Project Command Deep Dive (8 recipes)](#chapter-11-project-command-deep-dive-8-recipes)
+    - [Chapter 12: CLI Commands Reference (10 recipes)](#chapter-12-cli-commands-reference-10-recipes)
+    - [Chapter 13: Testing & Validation (8 recipes)](#chapter-13-testing--validation-8-recipes)
+    - [Chapter 14: Performance & Optimization (7 recipes)](#chapter-14-performance--optimization-7-recipes)
+    - [Chapter 15: Troubleshooting & FAQs (12 recipes)](#chapter-15-troubleshooting--faqs-12-recipes)
+    - [Appendices](#appendices)
+      - [Appendix A: Recipe Template Format](#appendix-a-recipe-template-format)
+    - [Explanation](#explanation)
+    - [Expected Output](#expected-output)
+    - [Common Pitfalls](#common-pitfalls)
+    - [See Also](#see-also)
+      - [2. &#91;Second Action&#93;](#2-second-action)
+      - [3. &#91;Third Action&#93;](#3-third-action)
+    - [Complete Example](#complete-example)
+    - [Explanation](#explanation-1)
+    - [Expected Output](#expected-output-1)
+    - [Verification](#verification)
+    - [Common Pitfalls](#common-pitfalls-1)
+    - [Variations](#variations)
+    - [Troubleshooting](#troubleshooting)
+    - [See Also](#see-also-1)
+    - [Next Steps](#next-steps)
+  - [📚 Table of Contents Format](#-table-of-contents-format)
+  - [🔄 Maintenance Plan](#-maintenance-plan)
+    - [Version Updates](#version-updates)
+    - [Community Contributions](#community-contributions)
+    - [Quality Assurance](#quality-assurance)
+  - [📖 Publishing Strategy](#-publishing-strategy)
+    - [Formats](#formats)
+    - [Distribution](#distribution)
+    - [Versioning](#versioning)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Cookbook Structure
 
 ## Document Purpose

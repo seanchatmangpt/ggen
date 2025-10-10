@@ -1,3 +1,15 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Pattern 001: KNOWLEDGE-FIRST PROJECTION ***](#pattern-001-knowledge-first-projection-)
+  - [Context](#context)
+  - [Problem](#problem)
+  - [Forces](#forces)
+  - [Solution](#solution)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Pattern 001: KNOWLEDGE-FIRST PROJECTION ***
 
 ## Context
