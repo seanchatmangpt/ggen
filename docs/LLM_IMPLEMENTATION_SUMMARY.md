@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [LLM Integration Implementation Summary](#llm-integration-implementation-summary)
+  - [Overview](#overview)
+  - [Architecture](#architecture)
+    - [Core Components](#core-components)
+    - [Provider Implementations](#provider-implementations)
+      - [OpenAI Provider (`ggen-core/src/llm/openai.rs`)](#openai-provider-ggen-coresrcllmopenairs)
+      - [Anthropic Provider (`ggen-core/src/llm/anthropic.rs`)](#anthropic-provider-ggen-coresrcllmanthropicrs)
+  - [Usage Examples](#usage-examples)
+    - [Basic Chat Completion](#basic-chat-completion)
+    - [Streaming Responses](#streaming-responses)
+    - [Multi-Provider Configuration](#multi-provider-configuration)
+  - [Test Coverage](#test-coverage)
+    - [Unit Tests (24 passing)](#unit-tests-24-passing)
+    - [Integration Tests (9 tests)](#integration-tests-9-tests)
+  - [Dependencies Added](#dependencies-added)
+  - [Design Patterns](#design-patterns)
+  - [Features](#features)
+  - [Files Created](#files-created)
+  - [Exported API](#exported-api)
+  - [Future Enhancements](#future-enhancements)
+  - [Coordination Metrics](#coordination-metrics)
+  - [Documentation](#documentation)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # LLM Integration Implementation Summary
 
 ## Overview

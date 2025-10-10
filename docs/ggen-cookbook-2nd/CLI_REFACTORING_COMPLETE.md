@@ -1,3 +1,50 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [CLI Refactoring Complete - Cookbook Pattern Alignment](#cli-refactoring-complete---cookbook-pattern-alignment)
+  - [🎯 Mission Accomplished](#-mission-accomplished)
+  - [📊 Refactoring Summary](#-refactoring-summary)
+    - [Before (v0.2.4)](#before-v024)
+    - [After (v0.2.5+)](#after-v025)
+  - [🏗️ Complete Noun-Verb Structure](#-complete-noun-verb-structure)
+    - [1. **project** - Project Generation & Management (9 verbs)](#1-project---project-generation--management-9-verbs)
+    - [2. **market** - Gpack Marketplace (13 verbs)](#2-market---gpack-marketplace-13-verbs)
+    - [3. **template** - Template Authoring (5 verbs)](#3-template---template-authoring-5-verbs)
+    - [4. **graph** - RDF Graph Operations (7 verbs)](#4-graph---rdf-graph-operations-7-verbs)
+    - [5. **hook** - Autonomic Knowledge Hooks (5 verbs) ⭐ NEW NOUN](#5-hook---autonomic-knowledge-hooks-5-verbs--new-noun)
+    - [6. **audit** - Security & Performance (verbs TBD)](#6-audit---security--performance-verbs-tbd)
+    - [7. **ci** - CI/CD Integration (verbs TBD)](#7-ci---cicd-integration-verbs-tbd)
+    - [8. **shell** - Shell Integration (verbs TBD)](#8-shell---shell-integration-verbs-tbd)
+  - [📈 Pattern Coverage Matrix](#-pattern-coverage-matrix)
+  - [📁 Files Created/Modified](#-files-createdmodified)
+    - [New Files (33 total)](#new-files-33-total)
+    - [Modified Files (4 files)](#modified-files-4-files)
+  - [🎯 Ultrathink 80/20 Analysis](#-ultrathink-8020-analysis)
+    - [The 20% That Delivered 80% Value](#the-20-that-delivered-80-value)
+  - [🚀 Migration Path](#-migration-path)
+    - [Phase 1: Deprecation Warnings (v0.2.5) ✅ CURRENT](#phase-1-deprecation-warnings-v025--current)
+    - [Phase 2: Alias Support (v0.2.6) 🚧 NEXT](#phase-2-alias-support-v026--next)
+    - [Phase 3: Remove Legacy (v0.3.0) 📅 PLANNED](#phase-3-remove-legacy-v030--planned)
+  - [🧪 Testing](#-testing)
+  - [📖 Documentation](#-documentation)
+    - [Updated Documentation](#updated-documentation)
+    - [Command Help](#command-help)
+  - [🎉 Results](#-results)
+    - [Quantitative Achievements](#quantitative-achievements)
+    - [Qualitative Achievements](#qualitative-achievements)
+  - [🔮 Future Enhancements](#-future-enhancements)
+    - [v0.2.6 (Next Release)](#v026-next-release)
+    - [v0.3.0 (Major Release)](#v030-major-release)
+    - [v0.4.0 (Advanced)](#v040-advanced)
+  - [📊 Before/After Comparison](#-beforeafter-comparison)
+    - [Command Count](#command-count)
+    - [Developer Experience](#developer-experience)
+  - [🏆 Success Criteria - ALL MET ✅](#-success-criteria---all-met-)
+  - [🙏 Acknowledgments](#-acknowledgments)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # CLI Refactoring Complete - Cookbook Pattern Alignment
 
 ## 🎯 Mission Accomplished

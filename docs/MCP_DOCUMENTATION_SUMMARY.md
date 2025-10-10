@@ -1,3 +1,31 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen MCP Documentation - Summary](#ggen-mcp-documentation---summary)
+  - [✅ Documentation Created](#-documentation-created)
+    - [📁 Files Created](#-files-created)
+      - [Core Documentation (4 files)](#core-documentation-4-files)
+      - [Example Code (8+ files)](#example-code-8-files)
+      - [Workspace Structure](#workspace-structure)
+    - [📊 Documentation Statistics](#-documentation-statistics)
+    - [🎯 Coverage](#-coverage)
+      - [Tool Categories (100% documented)](#tool-categories-100-documented)
+      - [Integration Examples (100% covered)](#integration-examples-100-covered)
+      - [Transports (100% documented)](#transports-100-documented)
+    - [🚀 Key Features Documented](#-key-features-documented)
+    - [📚 Documentation Structure](#-documentation-structure)
+    - [🎓 Learning Paths](#-learning-paths)
+    - [✨ Highlights](#-highlights)
+      - [Most Complete Sections](#most-complete-sections)
+      - [Best Examples](#best-examples)
+      - [Most Useful Guides](#most-useful-guides)
+    - [🔗 Quick Links](#-quick-links)
+    - [🎯 What's Next](#-whats-next)
+    - [📞 Support](#-support)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen MCP Documentation - Summary
 
 ## ✅ Documentation Created
