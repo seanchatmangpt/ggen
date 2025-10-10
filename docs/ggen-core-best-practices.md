@@ -1,3 +1,51 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen-core Best Practices Research Report](#ggen-core-best-practices-research-report)
+  - [Executive Summary](#executive-summary)
+  - [1. Configuration Management](#1-configuration-management)
+    - [1.1 Core Patterns](#11-core-patterns)
+    - [1.2 Environment Variable Integration](#12-environment-variable-integration)
+    - [1.3 Configuration Validation](#13-configuration-validation)
+  - [2. Error Handling](#2-error-handling)
+    - [2.1 Error Type Design](#21-error-type-design)
+    - [2.2 Error Conversions](#22-error-conversions)
+    - [2.3 Error Handling in API Calls](#23-error-handling-in-api-calls)
+  - [3. LLM Provider Integration](#3-llm-provider-integration)
+    - [3.1 Provider Trait Design](#31-provider-trait-design)
+    - [3.2 Provider Implementation Structure](#32-provider-implementation-structure)
+    - [3.3 HTTP Request Building](#33-http-request-building)
+    - [3.4 Streaming Implementation](#34-streaming-implementation)
+  - [4. Type Definitions and Traits](#4-type-definitions-and-traits)
+    - [4.1 Message Type Design](#41-message-type-design)
+    - [4.2 Builder Pattern for Complex Types](#42-builder-pattern-for-complex-types)
+    - [4.3 Enum Design](#43-enum-design)
+  - [5. Generator Patterns](#5-generator-patterns)
+    - [5.1 Context Pattern](#51-context-pattern)
+    - [5.2 Generator Orchestration](#52-generator-orchestration)
+  - [6. Testing Patterns](#6-testing-patterns)
+    - [6.1 Unit Test Structure](#61-unit-test-structure)
+    - [6.2 Async Testing](#62-async-testing)
+    - [6.3 Test Helpers and Fixtures](#63-test-helpers-and-fixtures)
+  - [7. Module Organization](#7-module-organization)
+    - [7.1 Module Structure](#71-module-structure)
+    - [7.2 Documentation](#72-documentation)
+  - [8. Dependency Management](#8-dependency-management)
+    - [8.1 Cargo.toml Organization](#81-cargotoml-organization)
+  - [9. Key Refactoring Recommendations for ggen-ai](#9-key-refactoring-recommendations-for-ggen-ai)
+    - [9.1 Immediate Actions](#91-immediate-actions)
+    - [9.2 Structural Improvements](#92-structural-improvements)
+    - [9.3 Code Quality](#93-code-quality)
+  - [10. Migration Path](#10-migration-path)
+    - [Phase 1: Foundation (Week 1)](#phase-1-foundation-week-1)
+    - [Phase 2: Provider Standardization (Week 2)](#phase-2-provider-standardization-week-2)
+    - [Phase 3: Testing & Documentation (Week 3)](#phase-3-testing--documentation-week-3)
+    - [Phase 4: Optimization (Week 4)](#phase-4-optimization-week-4)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen-core Best Practices Research Report
 
 ## Executive Summary

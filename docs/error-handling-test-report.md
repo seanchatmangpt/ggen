@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Error Handling Test Report - ggen-mcp](#error-handling-test-report---ggen-mcp)
+  - [Executive Summary](#executive-summary)
+  - [Test Coverage Breakdown](#test-coverage-breakdown)
+    - [1. Invalid Parameter Tests (10 tests) - CRITICAL 80/20](#1-invalid-parameter-tests-10-tests---critical-8020)
+    - [2. Resource Error Tests (4 tests)](#2-resource-error-tests-4-tests)
+    - [3. Protocol Error Tests (4 tests)](#3-protocol-error-tests-4-tests)
+    - [4. Error Trait Implementation Tests (6 tests)](#4-error-trait-implementation-tests-6-tests)
+    - [5. Error Message Quality Tests (3 tests)](#5-error-message-quality-tests-3-tests)
+    - [6. Concurrent Error Handling Tests (2 tests)](#6-concurrent-error-handling-tests-2-tests)
+    - [7. Integration Tests (2 tests)](#7-integration-tests-2-tests)
+  - [Error Type Coverage](#error-type-coverage)
+  - [Performance Metrics](#performance-metrics)
+  - [Rust Best Practices Applied](#rust-best-practices-applied)
+  - [Test Utilities](#test-utilities)
+    - [Custom Macro: `assert_error_variant!`](#custom-macro-assert_error_variant)
+  - [Code Quality Observations](#code-quality-observations)
+    - [Strengths](#strengths)
+    - [Improvement Opportunities](#improvement-opportunities)
+  - [Files Modified](#files-modified)
+  - [Recommendations](#recommendations)
+    - [Immediate](#immediate)
+    - [Future Enhancements](#future-enhancements)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Error Handling Test Report - ggen-mcp
 
 **Date:** 2025-10-10

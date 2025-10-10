@@ -1,3 +1,38 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen-mcp Integration with Claude Code](#ggen-mcp-integration-with-claude-code)
+  - [✅ Successfully Connected!](#-successfully-connected)
+  - [🎯 Connection Status](#-connection-status)
+  - [🛠️ Available Tools (40+)](#-available-tools-40)
+    - [Project Tools](#project-tools)
+    - [Marketplace Tools](#marketplace-tools)
+    - [Graph Tools (RDF/SPARQL)](#graph-tools-rdfsparql)
+    - [Template Tools](#template-tools)
+    - [Hook Tools](#hook-tools)
+  - [🚀 Usage Examples](#-usage-examples)
+    - [Generate Project from Template](#generate-project-from-template)
+    - [Search Marketplace](#search-marketplace)
+    - [Query RDF Graph](#query-rdf-graph)
+  - [📁 Configuration](#-configuration)
+    - [Claude Code Config Location](#claude-code-config-location)
+    - [Server Binary Location](#server-binary-location)
+    - [Server Configuration](#server-configuration)
+  - [🔧 Technical Details](#-technical-details)
+    - [Implementation](#implementation)
+    - [Features Enabled](#features-enabled)
+    - [Dependencies](#dependencies)
+  - [📊 Server Capabilities](#-server-capabilities)
+  - [🎯 Integration with Claude-Flow](#-integration-with-claude-flow)
+    - [Example Combined Workflow](#example-combined-workflow)
+  - [🔄 Rebuilding the Server](#-rebuilding-the-server)
+  - [📚 Documentation References](#-documentation-references)
+  - [🎉 Success Criteria](#-success-criteria)
+  - [🚀 Next Steps](#-next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen-mcp Integration with Claude Code
 
 ## ✅ Successfully Connected!

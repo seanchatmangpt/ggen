@@ -1,3 +1,57 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Code Quality Analysis Report: ggen-ai Codebase](#code-quality-analysis-report-ggen-ai-codebase)
+  - [Executive Summary](#executive-summary)
+  - [1. Hardcoded Values](#1-hardcoded-values)
+    - [CRITICAL ISSUES](#critical-issues)
+      - [1.1 API Base URLs (High Priority)](#11-api-base-urls-high-priority)
+      - [1.2 Model Names (Medium Priority)](#12-model-names-medium-priority)
+      - [1.3 Default Configuration Values (Medium Priority)](#13-default-configuration-values-medium-priority)
+      - [1.4 API Version Strings (Low Priority)](#14-api-version-strings-low-priority)
+      - [1.5 Magic Numbers (Low Priority)](#15-magic-numbers-low-priority)
+      - [1.6 Namespace/URI Prefixes (Low Priority)](#16-namespaceuri-prefixes-low-priority)
+  - [2. Mock/Placeholder Implementations](#2-mockplaceholder-implementations)
+    - [HIGH PRIORITY ISSUES](#high-priority-issues)
+      - [2.1 Empty Fallback Implementations](#21-empty-fallback-implementations)
+      - [2.2 Anthropic Embedding Not Supported](#22-anthropic-embedding-not-supported)
+      - [2.3 Unused Model Parameter](#23-unused-model-parameter)
+      - [2.4 Simplified Test Implementations](#24-simplified-test-implementations)
+  - [3. Empty Implementations & Incomplete Logic](#3-empty-implementations--incomplete-logic)
+    - [MEDIUM PRIORITY ISSUES](#medium-priority-issues)
+      - [3.1 Unused Parameters](#31-unused-parameters)
+  - [4. Configuration & Architecture Issues](#4-configuration--architecture-issues)
+    - [HIGH PRIORITY ISSUES](#high-priority-issues-1)
+      - [4.1 No Environment Variable Support](#41-no-environment-variable-support)
+      - [4.2 No Configuration File Support](#42-no-configuration-file-support)
+      - [4.3 SSE Streaming Parsing Issues](#43-sse-streaming-parsing-issues)
+  - [5. Code Smells](#5-code-smells)
+    - [MEDIUM PRIORITY](#medium-priority)
+      - [5.1 Dead Code / Allow(dead_code)](#51-dead-code--allowdead_code)
+      - [5.2 Long Method](#52-long-method)
+      - [5.3 Code Duplication](#53-code-duplication)
+  - [6. Security Concerns](#6-security-concerns)
+    - [CRITICAL PRIORITY](#critical-priority)
+      - [6.1 API Key Handling](#61-api-key-handling)
+      - [6.2 Input Validation](#62-input-validation)
+  - [7. Positive Findings](#7-positive-findings)
+    - [Strengths](#strengths)
+  - [8. Recommended Refactoring Priorities](#8-recommended-refactoring-priorities)
+    - [Phase 1 (Immediate - Critical Issues)](#phase-1-immediate---critical-issues)
+    - [Phase 2 (Short-term - High Priority)](#phase-2-short-term---high-priority)
+    - [Phase 3 (Medium-term - Medium Priority)](#phase-3-medium-term---medium-priority)
+    - [Phase 4 (Long-term - Low Priority)](#phase-4-long-term---low-priority)
+  - [9. Technical Debt Estimate](#9-technical-debt-estimate)
+  - [10. Conclusion](#10-conclusion)
+  - [Appendix A: All Hardcoded Values Found](#appendix-a-all-hardcoded-values-found)
+    - [URLs](#urls)
+    - [Models](#models)
+    - [Configuration Values](#configuration-values)
+    - [Test Values](#test-values)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Code Quality Analysis Report: ggen-ai Codebase
 
 **Date:** 2025-10-10
