@@ -57,16 +57,16 @@ jobs:
         run: cargo install cargo-make --locked
 
       - name: Run unit tests
-        run: cargo make test-unit
+        run: cargo test --lib
 
       - name: Run integration tests
-        run: cargo make test-integration
+        run: cargo test --test cli --test marketplace --test e2e_github_integration --test e2e_lockfile_sha256 --test e2e_marketplace --test e2e_pqc_infrastructure --test e2e_production_marketplace
 
       - name: Run BDD tests
-        run: cargo make test-bdd
+        run: cargo test --test bdd
 
       - name: Generate BDD report
-        run: cargo make bdd-report
+        run: cargo test --test bdd -- --nocapture
 
       - name: Upload BDD results
         uses: actions/upload-artifact@v4

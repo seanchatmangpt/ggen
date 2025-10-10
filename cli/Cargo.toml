@@ -40,4 +40,4 @@ features = ["cargo", "derive"]
 [dev-dependencies]
 assert_cmd = "2"
 assert_fs = "1"
-mockall = "0.13"  # London TDD mocking framework
+mockall = "0.13" # London TDD mocking framework

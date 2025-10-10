@@ -49,12 +49,12 @@ jobs:
         run: cargo install cargo-make --locked
 
       - name: Test local registry
-        run: cargo make test -- test_marketplace_local
+        run: cargo test test_marketplace_local
         env:
           GGEN_REGISTRY_URL: file://${{ github.workspace }}/registry/
 
       - name: Test registry client creation
-        run: cargo make test -- -p ggen-core --lib registry::tests::test_registry_client_new
+        run: cargo test -p ggen-core --lib registry::tests::test_registry_client_new
 
       - name: Test registry index parsing
-        run: cargo make test -- -p ggen-core --lib registry::tests::test_registry_index_structure
+        run: cargo test -p ggen-core --lib registry::tests::test_registry_index_structure
