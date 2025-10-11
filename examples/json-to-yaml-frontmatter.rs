@@ -1,6 +1,6 @@
 //! Example showing how to generate frontmatter as JSON then convert to YAML
 
-use serde_json::{json, Value};
+use serde_json::json;
 use serde_yaml;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {

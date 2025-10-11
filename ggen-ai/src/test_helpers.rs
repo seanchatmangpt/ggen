@@ -40,7 +40,10 @@
 use crate::{
     client::{LlmClient, LlmConfig},
     config::OllamaConfig,
-    generators::{OntologyGenerator, RefactorAssistant, SparqlGenerator, TemplateGenerator},
+    generators::{
+        NaturalSearchGenerator, OntologyGenerator, RefactorAssistant, SparqlGenerator,
+        TemplateGenerator,
+    },
     providers::MockClient,
     OllamaClient,
 };
@@ -51,7 +54,7 @@ use tokio::time::timeout;
 /// Check if Ollama is available and running with qwen3-coder:30b model
 pub async fn check_ollama_availability() -> bool {
     let config = create_test_llm_config();
-    match OllamaClient::new(config) {
+    match GenAiClient::new(config) {
         Ok(client) => {
             // Try a simple completion to verify Ollama is running
             let test_config = LlmConfig {
@@ -85,9 +88,9 @@ macro_rules! skip_if_ollama_unavailable {
 }
 
 /// Create a test Ollama client with qwen3-coder:30b configuration
-pub fn create_test_ollama_client() -> Result<OllamaClient, crate::error::GgenAiError> {
+pub fn create_test_ollama_client() -> Result<GenAiClient, crate::error::GgenAiError> {
     let config = create_test_llm_config();
-    OllamaClient::new(config)
+    GenAiClient::new(config)
 }
 
 /// Create a test LlmConfig for qwen3-coder:30b
@@ -297,6 +300,61 @@ pub fn create_template_generator_with_response(response: &str) -> TemplateGenera
 /// When tests need specific refactoring suggestions different from standard response
 pub fn create_refactor_assistant_with_response(response: &str) -> RefactorAssistant {
     create_mock_generator(response, RefactorAssistant::new)
+}
+
+/// Create a mock natural search generator with standard test response
+///
+/// # Intent-Driven Design
+/// This function expresses: "I need a natural search generator for testing"
+///
+/// # Standard Response Format
+/// Returns a generator that produces valid JSON with search results
+///
+/// # Example
+/// ```rust
+/// use ggen_ai::test_helpers::create_natural_search_test_generator;
+///
+/// #[tokio::test]
+/// async fn test_package_search() {
+///     let mut generator = create_natural_search_test_generator();
+///     let result = generator.search("authentication").await;
+///     assert!(result.is_ok());
+/// }
+/// ```
+pub fn create_natural_search_test_generator() -> NaturalSearchGenerator {
+    let response = r#"```json
+{
+  "interpretation": "User is looking for packages",
+  "keywords": ["test", "search"],
+  "category": "testing",
+  "confidence": 0.9,
+  "packages": [
+    {
+      "id": "io.ggen.test",
+      "name": "Test Package",
+      "description": "A test package",
+      "category": "testing",
+      "tags": ["test"],
+      "relevance_score": 0.95,
+      "ai_reasoning": "Perfect match"
+    }
+  ],
+  "suggestions": ["Try: 'test query'"]
+}
+```"#;
+    let client = MockClient::with_response(response);
+    NaturalSearchGenerator::new(Arc::new(client)).unwrap()
+}
+
+/// Create a natural search generator with custom mock response
+///
+/// # Use Case
+/// When tests need specific search results different from standard response
+pub fn create_natural_search_generator_with_response(
+    response: &str,
+) -> Result<NaturalSearchGenerator, crate::error::GgenAiError> {
+    let client = MockClient::with_response(response);
+    NaturalSearchGenerator::new(Arc::new(client))
 }
 
 #[cfg(test)]

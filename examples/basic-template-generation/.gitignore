@@ -1,0 +1,12 @@
+# Generated output (will be recreated by running examples)
+generated/
+
+# Temporary files
+*.tmp
+*.log
+*.swp
+*~
+
+# OS-specific
+.DS_Store
+Thumbs.db

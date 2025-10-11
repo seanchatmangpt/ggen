@@ -60,17 +60,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 if let Some(response) = chat_res.first_text() {
                     println!("{}", response);
 
-                    if let Some(usage) = chat_res.usage {
-                        println!();
-                        println!("📊 Stats:");
-                        println!("   - Time: {:?}", duration);
-                        println!("   - Input tokens: {}", usage.prompt_tokens.unwrap_or(0));
-                        println!(
-                            "   - Output tokens: {}",
-                            usage.completion_tokens.unwrap_or(0)
-                        );
-                        println!("   - Total tokens: {}", usage.total_tokens.unwrap_or(0));
-                    }
+                    // Usage is now directly accessible, not Option
+                    let usage = &chat_res.usage;
+                    println!();
+                    println!("📊 Stats:");
+                    println!("   - Time: {:?}", duration);
+                    println!("   - Input tokens: {}", usage.prompt_tokens.unwrap_or(0));
+                    println!(
+                        "   - Output tokens: {}",
+                        usage.completion_tokens.unwrap_or(0)
+                    );
+                    println!("   - Total tokens: {}", usage.total_tokens.unwrap_or(0));
                 } else {
                     println!("(no response)");
                 }

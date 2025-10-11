@@ -1,0 +1,9 @@
+# Ignore generated output
+output/
+
+# Rust build artifacts
+**/target/
+**/*.log
+
+# OS files
+.DS_Store

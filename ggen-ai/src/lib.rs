@@ -78,7 +78,7 @@ pub use generators::{
     OntologyGenerator, QualityMetrics, RefactorAssistant, SparqlGenerator, TemplateGenerator,
     TemplateValidator, ValidationIssue,
 };
-pub use providers::adapter::{AnthropicClient, MockClient, OllamaClient, OpenAIClient};
+pub use providers::adapter::{MockClient, ollama_default_config, ollama_qwen3_coder_config};
 pub use security::{MaskApiKey, SecretString};
 pub use streaming::StreamConfig;
 

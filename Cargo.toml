@@ -94,9 +94,7 @@ uuid = { version = "1.0", features = ["v4"] }
 genai = "0.4"
 tracing-subscriber = "0.3"
 
-[[example]]
-name = "test_sparql_json_conversion"
-path = "examples/test_sparql_json_conversion.rs"
+# Example definitions removed - examples now discovered automatically by Cargo
 
 [dev-dependencies]
 assert_cmd = "2.0.17"

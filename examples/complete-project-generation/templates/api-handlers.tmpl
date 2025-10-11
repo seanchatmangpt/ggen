@@ -1,0 +1,115 @@
+use actix_web::{web, HttpResponse, Responder};
+use log::info;
+use std::sync::Mutex;
+use uuid::Uuid;
+use validator::Validate;
+
+use crate::models::{
+    CreateProductRequest, CreateUserRequest, Product, ProductId, User, UserId,
+};
+
+// In-memory storage (for demo purposes)
+pub struct AppState {
+    pub users: Mutex<Vec<User>>,
+    pub products: Mutex<Vec<Product>>,
+}
+
+impl AppState {
+    pub fn new() -> Self {
+        Self {
+            users: Mutex::new(Vec::new()),
+            products: Mutex::new(Vec::new()),
+        }
+    }
+}
+
+// User Handlers
+
+pub async fn list_users(data: web::Data<AppState>) -> impl Responder {
+    info!("Listing all users");
+    let users = data.users.lock().unwrap();
+    HttpResponse::Ok().json(&*users)
+}
+
+pub async fn get_user(
+    data: web::Data<AppState>,
+    user_id: web::Path<UserId>,
+) -> impl Responder {
+    info!("Getting user: {}", user_id);
+    let users = data.users.lock().unwrap();
+
+    match users.iter().find(|u| u.id == *user_id) {
+        Some(user) => HttpResponse::Ok().json(user),
+        None => HttpResponse::NotFound().json(serde_json::json!({
+            "error": "User not found"
+        })),
+    }
+}
+
+pub async fn create_user(
+    data: web::Data<AppState>,
+    req: web::Json<CreateUserRequest>,
+) -> impl Responder {
+    info!("Creating user: {}", req.name);
+
+    // Validate request
+    if let Err(e) = req.validate() {
+        return HttpResponse::BadRequest().json(serde_json::json!({
+            "error": format!("Validation error: {}", e)
+        }));
+    }
+
+    let user = User::new(req.name.clone(), req.email.clone());
+    let mut users = data.users.lock().unwrap();
+    users.push(user.clone());
+
+    HttpResponse::Created().json(user)
+}
+
+// Product Handlers
+
+pub async fn list_products(data: web::Data<AppState>) -> impl Responder {
+    info!("Listing all products");
+    let products = data.products.lock().unwrap();
+    HttpResponse::Ok().json(&*products)
+}
+
+pub async fn get_product(
+    data: web::Data<AppState>,
+    product_id: web::Path<ProductId>,
+) -> impl Responder {
+    info!("Getting product: {}", product_id);
+    let products = data.products.lock().unwrap();
+
+    match products.iter().find(|p| p.id == *product_id) {
+        Some(product) => HttpResponse::Ok().json(product),
+        None => HttpResponse::NotFound().json(serde_json::json!({
+            "error": "Product not found"
+        })),
+    }
+}
+
+pub async fn create_product(
+    data: web::Data<AppState>,
+    req: web::Json<CreateProductRequest>,
+) -> impl Responder {
+    info!("Creating product: {}", req.name);
+
+    // Validate request
+    if let Err(e) = req.validate() {
+        return HttpResponse::BadRequest().json(serde_json::json!({
+            "error": format!("Validation error: {}", e)
+        }));
+    }
+
+    let product = Product::new(
+        req.name.clone(),
+        req.description.clone(),
+        req.price,
+        req.stock,
+    );
+    let mut products = data.products.lock().unwrap();
+    products.push(product.clone());
+
+    HttpResponse::Created().json(product)
+}

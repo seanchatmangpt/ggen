@@ -39,21 +39,21 @@ impl AiMcpTools {
 
     /// Initialize with OpenAI client
     pub fn with_openai(mut self, config: LlmConfig) -> Self {
-        use crate::providers::OpenAIClient;
+        use crate::client::GenAiClient;
 
-        if let Ok(client) = OpenAIClient::new(config.clone()) {
+        if let Ok(client) = GenAiClient::new(config.clone()) {
             self.template_generator = Some(TemplateGenerator::with_client(Arc::new(client)));
         }
 
-        if let Ok(client) = OpenAIClient::new(config.clone()) {
+        if let Ok(client) = GenAiClient::new(config.clone()) {
             self.sparql_generator = Some(SparqlGenerator::with_client(Arc::new(client)));
         }
 
-        if let Ok(client) = OpenAIClient::new(config.clone()) {
+        if let Ok(client) = GenAiClient::new(config.clone()) {
             self.ontology_generator = Some(OntologyGenerator::with_client(Arc::new(client)));
         }
 
-        if let Ok(client) = OpenAIClient::new(config) {
+        if let Ok(client) = GenAiClient::new(config) {
             self.refactor_assistant = Some(RefactorAssistant::with_client(Arc::new(client)));
         }
 
@@ -62,21 +62,21 @@ impl AiMcpTools {
 
     /// Initialize with Anthropic client
     pub fn with_anthropic(mut self, config: LlmConfig) -> Self {
-        use crate::providers::AnthropicClient;
+        use crate::client::GenAiClient;
 
-        if let Ok(client) = AnthropicClient::new(config.clone()) {
+        if let Ok(client) = GenAiClient::new(config.clone()) {
             self.template_generator = Some(TemplateGenerator::with_client(Arc::new(client)));
         }
 
-        if let Ok(client) = AnthropicClient::new(config.clone()) {
+        if let Ok(client) = GenAiClient::new(config.clone()) {
             self.sparql_generator = Some(SparqlGenerator::with_client(Arc::new(client)));
         }
 
-        if let Ok(client) = AnthropicClient::new(config.clone()) {
+        if let Ok(client) = GenAiClient::new(config.clone()) {
             self.ontology_generator = Some(OntologyGenerator::with_client(Arc::new(client)));
         }
 
-        if let Ok(client) = AnthropicClient::new(config) {
+        if let Ok(client) = GenAiClient::new(config) {
             self.refactor_assistant = Some(RefactorAssistant::with_client(Arc::new(client)));
         }
 
@@ -85,22 +85,23 @@ impl AiMcpTools {
 
     /// Initialize with Ollama client
     pub fn with_ollama(mut self) -> Self {
-        use crate::providers::OllamaClient;
+        use crate::client::GenAiClient;
+        use crate::providers::adapter::ollama_default_config;
 
-        let config = OllamaClient::default_config();
-        if let Ok(client) = OllamaClient::new(config.clone()) {
+        let config = ollama_default_config();
+        if let Ok(client) = GenAiClient::new(config.clone()) {
             self.template_generator = Some(TemplateGenerator::with_client(Arc::new(client)));
         }
 
-        if let Ok(client) = OllamaClient::new(config.clone()) {
+        if let Ok(client) = GenAiClient::new(config.clone()) {
             self.sparql_generator = Some(SparqlGenerator::with_client(Arc::new(client)));
         }
 
-        if let Ok(client) = OllamaClient::new(config.clone()) {
+        if let Ok(client) = GenAiClient::new(config.clone()) {
             self.ontology_generator = Some(OntologyGenerator::with_client(Arc::new(client)));
         }
 
-        if let Ok(client) = OllamaClient::new(config) {
+        if let Ok(client) = GenAiClient::new(config) {
             self.refactor_assistant = Some(RefactorAssistant::with_client(Arc::new(client)));
         }
 

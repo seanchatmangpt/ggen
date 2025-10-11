@@ -93,131 +93,28 @@ impl LlmClient for MockClient {
     }
 }
 
-/// Ollama client adapter using GenAI
-#[derive(Debug)]
-pub struct OllamaClient {
-    client: GenAiClient,
-}
+// Provider-specific helper functions for common configurations
 
-impl OllamaClient {
-    /// Create a new Ollama client
-    pub fn new(config: LlmConfig) -> Result<Self> {
-        let client = GenAiClient::new(config)?;
-        Ok(Self { client })
-    }
-
-    /// Create Ollama client with default configuration
-    pub fn default_config() -> LlmConfig {
-        LlmConfig {
-            model: "llama3.2".to_string(), // Default Ollama model
-            max_tokens: Some(2048),
-            temperature: Some(0.7),
-            top_p: Some(0.9),
-            stop: None,
-            extra: HashMap::new(),
-        }
-    }
-
-    /// Create Ollama client with qwen3-coder:30b configuration
-    pub fn qwen3_coder_config() -> LlmConfig {
-        LlmConfig {
-            model: "qwen3-coder:30b".to_string(),
-            max_tokens: Some(2048),
-            temperature: Some(0.7),
-            top_p: Some(0.9),
-            stop: None,
-            extra: HashMap::new(),
-        }
+/// Create Ollama client default configuration
+pub fn ollama_default_config() -> LlmConfig {
+    LlmConfig {
+        model: "llama3.2".to_string(), // Default Ollama model
+        max_tokens: Some(2048),
+        temperature: Some(0.7),
+        top_p: Some(0.9),
+        stop: None,
+        extra: HashMap::new(),
     }
 }
 
-#[async_trait]
-impl LlmClient for OllamaClient {
-    async fn complete(&self, prompt: &str) -> Result<LlmResponse> {
-        self.client.complete(prompt).await
-    }
-
-    async fn complete_stream(
-        &self, prompt: &str,
-    ) -> Result<futures::stream::BoxStream<'static, LlmChunk>> {
-        self.client.complete_stream(prompt).await
-    }
-
-    fn get_config(&self) -> &LlmConfig {
-        self.client.get_config()
-    }
-
-    fn update_config(&mut self, config: LlmConfig) {
-        self.client.update_config(config);
-    }
-}
-
-/// OpenAI client adapter using GenAI
-#[derive(Debug)]
-pub struct OpenAIClient {
-    client: GenAiClient,
-}
-
-impl OpenAIClient {
-    /// Create a new OpenAI client
-    pub fn new(config: LlmConfig) -> Result<Self> {
-        let client = GenAiClient::new(config)?;
-        Ok(Self { client })
-    }
-}
-
-#[async_trait]
-impl LlmClient for OpenAIClient {
-    async fn complete(&self, prompt: &str) -> Result<LlmResponse> {
-        self.client.complete(prompt).await
-    }
-
-    async fn complete_stream(
-        &self, prompt: &str,
-    ) -> Result<futures::stream::BoxStream<'static, LlmChunk>> {
-        self.client.complete_stream(prompt).await
-    }
-
-    fn get_config(&self) -> &LlmConfig {
-        self.client.get_config()
-    }
-
-    fn update_config(&mut self, config: LlmConfig) {
-        self.client.update_config(config);
-    }
-}
-
-/// Anthropic client adapter using GenAI
-#[derive(Debug)]
-pub struct AnthropicClient {
-    client: GenAiClient,
-}
-
-impl AnthropicClient {
-    /// Create a new Anthropic client
-    pub fn new(config: LlmConfig) -> Result<Self> {
-        let client = GenAiClient::new(config)?;
-        Ok(Self { client })
-    }
-}
-
-#[async_trait]
-impl LlmClient for AnthropicClient {
-    async fn complete(&self, prompt: &str) -> Result<LlmResponse> {
-        self.client.complete(prompt).await
-    }
-
-    async fn complete_stream(
-        &self, prompt: &str,
-    ) -> Result<futures::stream::BoxStream<'static, LlmChunk>> {
-        self.client.complete_stream(prompt).await
-    }
-
-    fn get_config(&self) -> &LlmConfig {
-        self.client.get_config()
-    }
-
-    fn update_config(&mut self, config: LlmConfig) {
-        self.client.update_config(config);
+/// Create Ollama client with qwen3-coder:30b configuration
+pub fn ollama_qwen3_coder_config() -> LlmConfig {
+    LlmConfig {
+        model: "qwen3-coder:30b".to_string(),
+        max_tokens: Some(2048),
+        temperature: Some(0.7),
+        top_p: Some(0.9),
+        stop: None,
+        extra: HashMap::new(),
     }
 }

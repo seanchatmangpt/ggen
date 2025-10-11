@@ -204,7 +204,9 @@ impl NaturalSearchGenerator {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::providers::adapter::MockClient;
+    use crate::test_helpers::{
+        create_natural_search_generator_with_response, create_natural_search_test_generator,
+    };
 
     #[tokio::test]
     async fn test_natural_search_generation() {
@@ -229,8 +231,8 @@ mod tests {
 }
 ```"#;
 
-        let client = MockClient::with_response(mock_response);
-        let mut generator = NaturalSearchGenerator::new(Arc::new(client)).unwrap();
+        let mut generator =
+            create_natural_search_generator_with_response(mock_response).unwrap();
 
         let result = generator
             .search("I need user authentication")
@@ -245,15 +247,142 @@ mod tests {
 
     #[tokio::test]
     async fn test_json_extraction() {
-        let client = MockClient::with_response("{}");
-        let generator = NaturalSearchGenerator::new(Arc::new(client)).unwrap();
+        let generator = create_natural_search_test_generator();
 
         // Test with code block
-        let json_str = generator.extract_json("```json\n{\"test\": true}\n```").unwrap();
+        let json_str = generator
+            .extract_json("```json\n{\"test\": true}\n```")
+            .unwrap();
         assert!(json_str.contains("test"));
 
         // Test with direct JSON
         let json_str = generator.extract_json("{\"test\": true}").unwrap();
         assert!(json_str.contains("test"));
+    }
+
+    #[tokio::test]
+    async fn test_json_extraction_edge_cases() {
+        let generator = create_natural_search_test_generator();
+
+        // Test with unmarked code block (should still extract JSON object)
+        let json_str = generator
+            .extract_json("```\n{\"test\": true}\n```")
+            .unwrap();
+        assert!(json_str.contains("test"));
+
+        // Test with JSON embedded in text
+        let json_str = generator
+            .extract_json("Here is the result: {\"test\": true} and more text")
+            .unwrap();
+        assert!(json_str.contains("test"));
+
+        // Test with nested JSON
+        let json_str = generator
+            .extract_json("{\"outer\": {\"inner\": \"value\"}}")
+            .unwrap();
+        assert!(json_str.contains("outer"));
+        assert!(json_str.contains("inner"));
+
+        // Test with multiline JSON
+        let multiline = r#"{
+            "interpretation": "test",
+            "confidence": 0.8
+        }"#;
+        let json_str = generator.extract_json(multiline).unwrap();
+        assert!(json_str.contains("interpretation"));
+        assert!(json_str.contains("confidence"));
+    }
+
+    #[tokio::test]
+    async fn test_json_extraction_failures() {
+        let generator = create_natural_search_test_generator();
+
+        // Test with no JSON (should fail)
+        let result = generator.extract_json("No JSON here");
+        assert!(result.is_err());
+
+        // Test with incomplete JSON (should still extract)
+        let result = generator.extract_json("Some text before {\"incomplete\": ");
+        assert!(result.is_err());
+
+        // Test with empty string
+        let result = generator.extract_json("");
+        assert!(result.is_err());
+    }
+
+    #[tokio::test]
+    async fn test_search_with_minimal_response() {
+        let mock_response = r#"{
+            "interpretation": "Basic search"
+        }"#;
+
+        let mut generator =
+            create_natural_search_generator_with_response(mock_response).unwrap();
+
+        // Should handle minimal response with fallback values
+        let result = generator.search("test query").await.unwrap();
+
+        assert_eq!(result.query, "test query");
+        assert_eq!(result.interpretation, "Basic search");
+        assert!(result.confidence > 0.0); // Should have default confidence
+        assert!(!result.suggestions.is_empty()); // Should have fallback suggestions
+    }
+
+    #[tokio::test]
+    async fn test_search_with_invalid_json() {
+        let mock_response = "Not valid JSON at all!";
+
+        let mut generator =
+            create_natural_search_generator_with_response(mock_response).unwrap();
+
+        // Should return error for completely invalid response
+        let result = generator.search("test query").await;
+        assert!(result.is_err());
+    }
+
+    #[tokio::test]
+    async fn test_package_result_parsing() {
+        let generator = create_natural_search_test_generator();
+
+        // Valid package
+        let valid_package = serde_json::json!({
+            "id": "test.package",
+            "name": "Test Package",
+            "description": "A test package",
+            "category": "testing",
+            "tags": ["test", "demo"],
+            "relevance_score": 0.95,
+            "ai_reasoning": "Perfect match"
+        });
+
+        let result = generator.parse_package_result(&valid_package);
+        assert!(result.is_some());
+        let pkg = result.unwrap();
+        assert_eq!(pkg.id, "test.package");
+        assert_eq!(pkg.relevance_score, 0.95);
+        assert_eq!(pkg.tags.len(), 2);
+
+        // Package with missing optional fields
+        let minimal_package = serde_json::json!({
+            "id": "minimal.package",
+            "name": "Minimal Package",
+            "description": "Minimal test package"
+        });
+
+        let result = generator.parse_package_result(&minimal_package);
+        assert!(result.is_some());
+        let pkg = result.unwrap();
+        assert_eq!(pkg.id, "minimal.package");
+        assert!(pkg.category.is_none());
+        assert!(pkg.tags.is_empty());
+        assert_eq!(pkg.relevance_score, 0.5); // Default value
+
+        // Invalid package (missing required fields)
+        let invalid_package = serde_json::json!({
+            "name": "No ID Package"
+        });
+
+        let result = generator.parse_package_result(&invalid_package);
+        assert!(result.is_none());
     }
 }

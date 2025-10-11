@@ -2,7 +2,8 @@
 
 use crate::client::{LlmClient, LlmConfig};
 use crate::error::{GgenAiError, Result};
-use crate::{AnthropicClient, MockClient, OllamaClient, OpenAIClient};
+use crate::client::GenAiClient;
+use crate::MockClient;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -284,16 +285,8 @@ impl GlobalLlmConfig {
             .clone();
 
         match provider {
-            LlmProvider::OpenAI => {
-                let client = OpenAIClient::new(config)?;
-                Ok(Arc::new(client))
-            }
-            LlmProvider::Anthropic => {
-                let client = AnthropicClient::new(config)?;
-                Ok(Arc::new(client))
-            }
-            LlmProvider::Ollama => {
-                let client = OllamaClient::new(config)?;
+            LlmProvider::OpenAI | LlmProvider::Anthropic | LlmProvider::Ollama => {
+                let client = GenAiClient::new(config)?;
                 Ok(Arc::new(client))
             }
             LlmProvider::Mock => {
