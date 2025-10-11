@@ -82,18 +82,18 @@ Purpose: project one ontology into many artifacts. Deterministic. Language-agnos
 35. **[DISPLACEMENT_VALIDATION.md](DISPLACEMENT_VALIDATION.md)** - Validation testing framework
 
 ### Development & Architecture
-36. **[CODE-REVIEW.md](CODE-REVIEW.md)** - Code review guidelines *(NEW)*
-37. **[GRAPH_VERBS_IMPLEMENTATION.md](GRAPH_VERBS_IMPLEMENTATION.md)** - Graph verb implementation *(NEW)*
-38. **[GITHUB_API_RUST_INTEGRATION.md](GITHUB_API_RUST_INTEGRATION.md)** - GitHub API integration *(NEW)*
+36. **[CODE-REVIEW.md](CODE-REVIEW.md)** - Code review guidelines
+37. **[GRAPH_VERBS_IMPLEMENTATION.md](GRAPH_VERBS_IMPLEMENTATION.md)** - Graph verb implementation
+38. **[GITHUB_API_RUST_INTEGRATION.md](GITHUB_API_RUST_INTEGRATION.md)** - GitHub API integration
 
 ## Reference
 
-39. **[CHANGELOG.md](CHANGELOG.md)** - Complete changelog with semantic versioning *(NEW)*
-40. **[RECENT_FIXES_AND_IMPROVEMENTS.md](RECENT_FIXES_AND_IMPROVEMENTS.md)** - Summary of recent fixes and improvements *(NEW)*
-41. **[P0-FIXES-APPLIED.md](P0-FIXES-APPLIED.md)** - P0 critical fixes and security assessment *(NEW)*
-42. **[IMPLEMENTATION_COMPLETE.md](IMPLEMENTATION_COMPLETE.md)** - Core team recommendations implementation summary *(NEW)*
-43. **[FINAL_STATUS_REPORT.md](FINAL_STATUS_REPORT.md)** - Final status report and project assessment *(NEW)*
-44. **[DEPLOYMENT.md](DEPLOYMENT.md)** - GitHub Pages deployment guide *(NEW)*
+39. **[CHANGELOG.md](CHANGELOG.md)** - Complete changelog with semantic versioning
+40. **[RECENT_FIXES_AND_IMPROVEMENTS.md](RECENT_FIXES_AND_IMPROVEMENTS.md)** - Summary of recent fixes and improvements
+41. **[P0-FIXES-APPLIED.md](P0-FIXES-APPLIED.md)** - P0 critical fixes and security assessment
+42. **[IMPLEMENTATION_COMPLETE.md](IMPLEMENTATION_COMPLETE.md)** - Core team recommendations implementation summary
+43. **[FINAL_STATUS_REPORT.md](FINAL_STATUS_REPORT.md)** - Final status report and project assessment
+44. **[DEPLOYMENT.md](DEPLOYMENT.md)** - GitHub Pages deployment guide
 45. [cli.md](cli.md) - Complete CLI reference
 46. [troubleshooting.md](troubleshooting.md) - Common issues and solutions
 47. [examples/](examples/) - Usage examples and tutorials
