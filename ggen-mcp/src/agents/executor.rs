@@ -196,10 +196,11 @@ impl TemplateExecutor {
         // TODO: Initialize with actual GGen core configuration
         let template_path = PathBuf::from("templates");
         let output_root = PathBuf::from("output");
-        
-        let ctx = GenContext::new(template_path, output_root);
-        let generator = Generator::new(ctx);
-        
+
+        let ctx = GenContext::new(template_path.clone(), output_root);
+        let pipeline = ggen_core::Pipeline::new()?;
+        let generator = Generator::new(pipeline, ctx);
+
         Ok(generator)
     }
     
@@ -330,7 +331,8 @@ impl TemplateExecutor {
         match tokio::time::timeout(timeout_duration, execution_future).await {
             Ok(result) => {
                 let result = result?;
-                execution.files_generated = result.files_generated;
+                let files = result.files_generated.clone();
+                execution.files_generated = files;
                 execution.metrics.files_processed = result.files_generated.len();
                 execution.metrics.lines_generated = result.lines_generated;
                 

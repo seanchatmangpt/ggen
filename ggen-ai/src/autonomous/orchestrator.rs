@@ -60,12 +60,14 @@ pub struct OrchestratorConfig {
 
 impl Default for OrchestratorConfig {
     fn default() -> Self {
+        use crate::constants::autonomous;
+
         Self {
             autonomous: true,
             max_concurrent: num_cpus::get(),
-            target_cycle_ms: 30000, // 30 seconds
+            target_cycle_ms: autonomous::TARGET_CYCLE_TIME_MS,
             adaptive_optimization: true,
-            health_check_interval_secs: 60,
+            health_check_interval_secs: autonomous::HEALTH_CHECK_INTERVAL_SECS,
         }
     }
 }
@@ -118,6 +120,7 @@ impl Default for OrchestrationStats {
 pub struct RegenerationOrchestrator {
     config: OrchestratorConfig,
     regeneration_engine: Arc<RegenerationEngine>,
+    #[allow(dead_code)] // Deployment kept for future automated deployment features
     deployment: Arc<RwLock<DeploymentAutomation>>,
     telemetry: Arc<TelemetryCollector>,
     notifier: Arc<GraphChangeNotifier>,
@@ -234,20 +237,37 @@ impl RegenerationOrchestrator {
             "Starting regeneration cycle"
         );
 
-        let mut execution = ParallelExecution {
-            id: execution_id.clone(),
+        let mut execution = self.initialize_execution(&execution_id, events.len());
+
+        // Process events and collect results
+        let results = self.process_events_parallel(events).await;
+        self.collect_results(&mut execution, results);
+
+        // Finalize execution
+        self.finalize_execution(&mut execution, start_time, &execution_id).await;
+
+        // Check performance targets
+        self.check_performance_targets(&execution).await;
+
+        Ok(execution)
+    }
+
+    /// Initialize execution tracking structure
+    fn initialize_execution(&self, execution_id: &str, num_events: usize) -> ParallelExecution {
+        ParallelExecution {
+            id: execution_id.to_string(),
             started_at: chrono::Utc::now(),
             completed_at: None,
             duration_ms: None,
-            tasks_executed: events.len(),
+            tasks_executed: num_events,
             tasks_succeeded: 0,
             tasks_failed: 0,
             parallelism: self.config.max_concurrent,
-        };
+        }
+    }
 
-        // Process events in parallel
-        let results = self.process_events_parallel(events).await;
-
+    /// Collect results from parallel event processing
+    fn collect_results(&self, execution: &mut ParallelExecution, results: Vec<Result<()>>) {
         for result in results {
             match result {
                 Ok(_) => execution.tasks_succeeded += 1,
@@ -257,24 +277,49 @@ impl RegenerationOrchestrator {
                 }
             }
         }
+    }
 
+    /// Finalize execution: update stats, record telemetry, log summary
+    async fn finalize_execution(
+        &self,
+        execution: &mut ParallelExecution,
+        start_time: Instant,
+        execution_id: &str,
+    ) {
         let duration = start_time.elapsed();
         execution.completed_at = Some(chrono::Utc::now());
         execution.duration_ms = Some(duration.as_millis() as u64);
 
         // Update stats
-        {
-            let mut stats = self.stats.write().await;
-            stats.total_cycles += 1;
-            let total = stats.total_cycles as f64;
-            if let Some(duration_ms) = execution.duration_ms {
-                stats.avg_cycle_time_ms =
-                    (stats.avg_cycle_time_ms * (total - 1.0) + duration_ms as f64) / total;
-            }
-            stats.events_processed += execution.tasks_executed as u64;
-        }
+        self.update_orchestration_stats(execution).await;
 
         // Record telemetry
+        self.record_cycle_telemetry(execution_id, execution).await;
+
+        // Log summary
+        info!(
+            execution_id = %execution_id,
+            duration_ms = execution.duration_ms.unwrap_or(0),
+            succeeded = execution.tasks_succeeded,
+            failed = execution.tasks_failed,
+            "Regeneration cycle completed"
+        );
+    }
+
+    /// Update orchestration statistics
+    async fn update_orchestration_stats(&self, execution: &ParallelExecution) {
+        let mut stats = self.stats.write().await;
+        stats.total_cycles += 1;
+        let total = stats.total_cycles as f64;
+        if let Some(duration_ms) = execution.duration_ms {
+            stats.avg_cycle_time_ms =
+                (stats.avg_cycle_time_ms * (total - 1.0) + duration_ms as f64) / total;
+        }
+        stats.events_processed += execution.tasks_executed as u64;
+    }
+
+    /// Record telemetry for cycle completion
+    async fn record_cycle_telemetry(&self, execution_id: &str, execution: &ParallelExecution) {
         self.telemetry
             .record(
                 TelemetryEvent::new(
@@ -290,16 +335,10 @@ impl RegenerationOrchestrator {
                 .with_data("tasks_failed", serde_json::json!(execution.tasks_failed)),
             )
             .await;
+    }
 
-        info!(
-            execution_id = %execution_id,
-            duration_ms = execution.duration_ms.unwrap_or(0),
-            succeeded = execution.tasks_succeeded,
-            failed = execution.tasks_failed,
-            "Regeneration cycle completed"
-        );
-
-        // Check if we're meeting target cycle time
+    /// Check if cycle met performance targets and trigger optimization if needed
+    async fn check_performance_targets(&self, execution: &ParallelExecution) {
         if let Some(duration_ms) = execution.duration_ms {
             if duration_ms > self.config.target_cycle_ms {
                 warn!(
@@ -313,8 +352,6 @@ impl RegenerationOrchestrator {
                 }
             }
         }
-
-        Ok(execution)
     }
 
     /// Process events in parallel
@@ -355,9 +392,12 @@ impl RegenerationOrchestrator {
         }
 
         // Check success rate
-        if metrics.success_rate < 0.9 {
+        use crate::constants::autonomous;
+
+        if metrics.success_rate < autonomous::MIN_SUCCESS_RATE {
             warn!(
                 success_rate = metrics.success_rate,
+                threshold = autonomous::MIN_SUCCESS_RATE,
                 "Low success rate detected - investigate common failures"
             );
         }

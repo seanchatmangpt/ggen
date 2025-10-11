@@ -191,7 +191,7 @@ mod tests {
 ```"#;
 
         let client = MockClient::with_response(mock_response);
-        let mut generator = NaturalSearchGenerator::new(Arc::new(client)).unwrap();
+        let mut generator = NaturalSearchGenerator::new(std::sync::Arc::new(client)).unwrap();
 
         let result = generator.search("I need user authentication").await.unwrap();
 

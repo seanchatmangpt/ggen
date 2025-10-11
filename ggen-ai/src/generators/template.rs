@@ -296,22 +296,10 @@ impl TemplateGenerator {
     /// Parse generated template content
     fn parse_template(&self, content: &str) -> Result<Template> {
         // Extract template content from markdown code blocks if present
-        let template_content = if content.contains("```yaml") {
-            // Extract content between ```yaml and ```
-            let start = content.find("```yaml").ok_or_else(|| {
-                GgenAiError::template_generation(
-                    "Could not find opening ```yaml marker".to_string(),
-                )
-            })?;
-            let search_start = start + 7;
-            let end_offset = content[search_start..].find("```").ok_or_else(|| {
-                GgenAiError::template_generation("Could not find closing ``` marker".to_string())
-            })?;
-            let yaml_content = &content[search_start..search_start + end_offset].trim();
-
+        let template_content = if let Some(yaml_content) = crate::parsing_utils::extract_code_block(content, "yaml") {
             // Check if this is already a complete template with frontmatter
             if yaml_content.starts_with("---") {
-                yaml_content.to_string()
+                yaml_content
             } else {
                 // Wrap in frontmatter if not present
                 format!("---\n{}\n---\nTemplate content", yaml_content)
@@ -344,14 +332,11 @@ impl TemplateGenerator {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::providers::MockClient;
+    use crate::test_helpers::{create_template_test_generator, create_template_generator_with_response};
 
     #[tokio::test]
     async fn test_template_generation() {
-        let client = MockClient::with_response(
-            "---\nto: \"test.tmpl\"\nvars:\n  name: \"test\"\n---\nHello {{ name }}!",
-        );
-        let generator = TemplateGenerator::new(Arc::new(client));
+        let generator = create_template_test_generator();
 
         let template = generator
             .generate_template("A simple greeting template", vec!["Include name variable"])
@@ -363,10 +348,8 @@ mod tests {
 
     #[tokio::test]
     async fn test_template_generation_with_markdown() {
-        let client = MockClient::with_response(
-            "```yaml\n---\nto: \"test.tmpl\"\nvars:\n  name: \"test\"\n---\nHello {{ name }}!\n```",
-        );
-        let generator = TemplateGenerator::new(Arc::new(client));
+        let response = "```yaml\n---\nto: \"test.tmpl\"\nvars:\n  name: \"test\"\n---\nHello {{ name }}!\n```";
+        let generator = create_template_generator_with_response(response);
 
         let template = generator
             .generate_template("A simple greeting template", vec!["Include name variable"])

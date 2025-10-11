@@ -39,7 +39,9 @@
 pub mod autonomous;
 pub mod client;
 pub mod config;
+pub mod constants;
 pub mod generators;
+pub mod parsing_utils;
 pub mod prompts;
 pub mod ultrathink;
 // Swarm module is implemented as a directory
@@ -47,14 +49,18 @@ pub mod ultrathink;
 pub mod cache;
 pub mod cli;
 pub mod error;
+pub mod error_utils;
 pub mod governance;
 pub mod mcp;
 pub mod providers;
 pub mod security;
 pub mod streaming;
+pub mod types;
 // pub mod wip_integration; // TODO: Implement WIP integration
 
-#[cfg(feature = "ollama-integration")]
+// Test helpers are always available (not gated by features)
+// They provide mock client factories that work without external dependencies
+#[cfg(test)]
 pub mod test_helpers;
 
 // Re-export main types for convenience
@@ -87,6 +93,7 @@ pub use governance::{
     ApprovalWorkflow, AuditTrail, Dashboard, Decision, DecisionOutcome, GovernanceConfig,
     GovernanceCoordinator, Policy, PolicyEngine, SafetyController,
 };
+pub use types::{DecisionId, PolicyId, RequestId, RuleId};
 // pub use wip_integration::{WipConnector, WipConfig, WipEvent, WipEventType, WipResponse, load_wip_config};
 
 /// Version information

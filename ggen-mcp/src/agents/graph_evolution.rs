@@ -291,16 +291,16 @@ impl GraphEvolutionAgent {
 
         for change in changes {
             match change.change_type {
-                ChangeType::AddEntity => confidence *= 0.9,
-                ChangeType::AddRelationship => confidence *= 0.85,
-                ChangeType::UpdateProperty => confidence *= 0.95,
-                ChangeType::RemoveEntity => confidence *= 0.7,
-                ChangeType::ModifyRelationship => confidence *= 0.8,
-                ChangeType::AddConstraint => confidence *= 0.9,
+                ChangeType::AddEntity => confidence *= 0.9_f64,
+                ChangeType::AddRelationship => confidence *= 0.85_f64,
+                ChangeType::UpdateProperty => confidence *= 0.95_f64,
+                ChangeType::RemoveEntity => confidence *= 0.7_f64,
+                ChangeType::ModifyRelationship => confidence *= 0.8_f64,
+                ChangeType::AddConstraint => confidence *= 0.9_f64,
             }
         }
 
-        Ok(confidence.min(1.0).max(0.0))
+        Ok(confidence.min(1.0_f64).max(0.0_f64))
     }
 
     /// Build analysis prompt for AI
@@ -392,7 +392,7 @@ impl Agent for GraphEvolutionAgent {
             }
             AgentMessage::HealthCheck { .. } => {
                 Ok(AgentMessage::HealthResponse {
-                    status: self.status(),
+                    status: self.status.clone(),
                     metrics: Some(serde_json::json!({
                         "active_proposals": self.active_proposals.read().await.len(),
                         "evolution_history_size": self.evolution_history.read().await.len(),

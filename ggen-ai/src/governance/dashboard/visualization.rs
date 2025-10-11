@@ -103,13 +103,15 @@ impl DataVisualizer {
     pub fn moving_average(
         &self, data: &[TimeSeriesPoint], window_size: usize,
     ) -> Vec<TimeSeriesPoint> {
-        if data.len() < window_size {
+        if data.len() < window_size || window_size == 0 {
             return data.to_vec();
         }
 
         let mut result = Vec::new();
         for i in window_size - 1..data.len() {
-            let avg = data[i - window_size + 1..=i]
+            // Use saturating_sub to prevent overflow
+            let start_idx = i.saturating_sub(window_size - 1);
+            let avg = data[start_idx..=i]
                 .iter()
                 .map(|p| p.value)
                 .sum::<f64>()

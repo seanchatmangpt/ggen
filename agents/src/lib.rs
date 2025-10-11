@@ -41,7 +41,7 @@ pub use coordination::{AgentCoordinator, ExecutionPlan, Task};
 pub use core::{Agent, AgentContext, AgentError, AgentResult, ExecutionContext};
 pub use protocols::{Message, MessageType, Protocol};
 pub use swarm::{UltrathinkSwarm, SwarmStatus, SwarmPerformanceMetrics, demonstrate_autonomous_workflows, run_ultrathink_swarm};
-pub use ultrathink_core::{UltrathinkCore, UltrathinkStatus, UltrathinkMetrics, demonstrate_focused_autonomous_workflows, run_ultrathink_core};
+// ultrathink_core module doesn't exist - removed to fix compilation
 
 // Re-export commonly used types
 pub use async_trait::async_trait;

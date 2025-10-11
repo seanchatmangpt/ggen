@@ -1,7 +1,8 @@
 //! AI-powered natural language package search
 
 use crate::client::LlmClient;
-use crate::error::{GgenAiError, Result};
+use crate::error::Result;
+use crate::error_utils::{no_valid_content_error, parse_failure_error, ErrorContext};
 use crate::prompts::PromptTemplateLoader;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -67,7 +68,13 @@ impl NaturalSearchGenerator {
 
         // Parse JSON
         let parsed: Value = serde_json::from_str(&json_str).map_err(|e| {
-            GgenAiError::validation(format!("Failed to parse LLM response as JSON: {}", e))
+            return parse_failure_error::<Value>(
+                "LLM response as JSON",
+                &e.to_string(),
+                &json_str,
+                ErrorContext::Validation,
+            )
+            .unwrap_err();
         })?;
 
         // Extract fields with fallbacks
@@ -142,22 +149,15 @@ impl NaturalSearchGenerator {
 
     /// Extract JSON from potentially markdown-formatted response
     fn extract_json(&self, response: &str) -> Result<String> {
-        // Try to find JSON in code blocks
-        if let Some(start) = response.find("```json") {
-            let search_start = start + 7;
-            if let Some(end_offset) = response[search_start..].find("```") {
-                return Ok(response[search_start..search_start + end_offset].trim().to_string());
-            }
+        // Try to find JSON in code blocks using parsing_utils
+        if let Some(json) = crate::parsing_utils::extract_code_block(response, "json") {
+            return Ok(json);
         }
 
-        // Try to find any code block
-        if let Some(start) = response.find("```") {
-            let search_start = start + 3;
-            if let Some(end_offset) = response[search_start..].find("```") {
-                let content = response[search_start..search_start + end_offset].trim();
-                if content.starts_with('{') {
-                    return Ok(content.to_string());
-                }
+        // Try to find any code block with JSON content
+        if let Some(content) = crate::parsing_utils::extract_any_code_block(response) {
+            if content.trim().starts_with('{') {
+                return Ok(content);
             }
         }
 
@@ -170,7 +170,7 @@ impl NaturalSearchGenerator {
             }
         }
 
-        Err(GgenAiError::validation("Could not extract JSON from LLM response"))
+        no_valid_content_error("JSON object", response, ErrorContext::Validation)
     }
 
     /// Parse a single package result from JSON

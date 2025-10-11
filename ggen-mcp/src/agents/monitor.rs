@@ -23,7 +23,7 @@ pub struct GraphMonitor {
 }
 
 /// Graph state information
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct GraphState {
     pub current_graph: Option<Graph>,
     pub graph_hash: Option<String>,
@@ -95,7 +95,7 @@ pub enum ValidationStatus {
 }
 
 /// Consistency checker for graph integrity
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct ConsistencyChecker {
     pub last_check: Option<chrono::DateTime<chrono::Utc>>,
     pub check_interval_ms: u64,

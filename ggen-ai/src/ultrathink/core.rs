@@ -17,6 +17,7 @@ use crate::error::Result;
 /// Ultrathink Core - Main autonomous intelligence system
 pub struct UltrathinkCore {
     /// Core configuration
+    #[allow(dead_code)] // Config kept for future configuration updates
     config: UltrathinkConfig,
     /// Active agents (simplified to 3 core agents)
     agents: Arc<RwLock<Vec<CoreAgent>>>,
@@ -27,6 +28,7 @@ pub struct UltrathinkCore {
     /// Neural intelligence engine
     neural_engine: Arc<NeuralEngine>,
     /// Communication channels
+    #[allow(dead_code)] // Channels kept for future agent communication features
     channels: CoreChannels,
     /// Core metrics
     metrics: Arc<RwLock<CoreMetrics>>,

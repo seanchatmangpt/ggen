@@ -177,12 +177,12 @@ pub struct RegenerationEngine {
 }
 
 #[derive(Debug, Default)]
-struct RegenerationStats {
-    total_regenerations: u64,
-    successful_regenerations: u64,
-    failed_regenerations: u64,
-    total_time_ms: u64,
-    events_processed: u64,
+pub struct RegenerationStats {
+    pub total_regenerations: u64,
+    pub successful_regenerations: u64,
+    pub failed_regenerations: u64,
+    pub total_time_ms: u64,
+    pub events_processed: u64,
 }
 
 impl RegenerationEngine {
@@ -243,12 +243,14 @@ impl RegenerationEngine {
 
         info!("Found {} affected templates", affected.len());
 
+        use crate::constants::autonomous;
+
         // Create delta change
         let delta = DeltaChange {
             event: event.clone(),
             affected_templates: affected.clone(),
             dependencies: Vec::new(),
-            estimated_time_ms: (affected.len() as u64) * 1000, // Rough estimate
+            estimated_time_ms: (affected.len() as u64) * autonomous::ESTIMATED_REGEN_TIME_PER_TEMPLATE_MS,
         };
 
         // Trigger regeneration
@@ -272,60 +274,75 @@ impl RegenerationEngine {
 
     /// Identify which templates are affected by a change
     async fn identify_affected_templates(&self, event: &ChangeEvent) -> Result<Vec<String>> {
-        let mut affected = Vec::new();
+        let mut affected = self.find_directly_affected_templates(event).await;
 
-        // Different strategies based on change type
-        match event.change_type {
-            ChangeType::NodeAdded | ChangeType::NodeUpdated | ChangeType::NodeRemoved => {
-                // Find templates that reference this node
-                let subject = &event.subject;
-                for (template_id, _) in self.artifacts.read().await.iter() {
-                    // Simple heuristic: template affects this if it's in the same namespace
-                    if subject.contains(template_id) || template_id.contains(subject) {
-                        affected.push(template_id.clone());
-                    }
-                }
-            }
-            ChangeType::EdgeAdded | ChangeType::EdgeUpdated | ChangeType::EdgeRemoved => {
-                // Find templates that use this relationship
-                if let (Some(pred), Some(obj)) = (&event.predicate, &event.object) {
-                    for (template_id, _) in self.artifacts.read().await.iter() {
-                        if template_id.contains(pred) || template_id.contains(obj) {
-                            affected.push(template_id.clone());
-                        }
-                    }
-                }
-            }
-            ChangeType::SchemaChanged => {
-                // Schema changes affect all templates
-                affected.extend(
-                    self.artifacts
-                        .read()
-                        .await
-                        .keys()
-                        .cloned()
-                        .collect::<Vec<_>>(),
-                );
-            }
-            ChangeType::TemplateChanged => {
-                // Direct template change
-                affected.push(event.subject.clone());
-            }
-        }
-
-        // Expand to include dependents
+        // Expand to include dependents if dependency tracking is enabled
         if self.config.track_dependencies {
-            let deps = self.dependencies.read().await;
-            let mut expanded = HashSet::new();
-
-            for template_id in &affected {
-                expanded.extend(deps.get_affected(template_id));
-            }
-
-            affected = expanded.into_iter().collect();
+            affected = self.expand_to_dependents(affected).await;
         }
 
         Ok(affected)
+    }
+
+    /// Find templates directly affected by the change event
+    async fn find_directly_affected_templates(&self, event: &ChangeEvent) -> Vec<String> {
+        match event.change_type {
+            ChangeType::NodeAdded | ChangeType::NodeUpdated | ChangeType::NodeRemoved => {
+                self.find_templates_referencing_node(&event.subject).await
+            }
+            ChangeType::EdgeAdded | ChangeType::EdgeUpdated | ChangeType::EdgeRemoved => {
+                self.find_templates_using_relationship(event).await
+            }
+            ChangeType::SchemaChanged => self.find_all_templates().await,
+            ChangeType::TemplateChanged => vec![event.subject.clone()],
+        }
+    }
+
+    /// Find templates that reference a specific node
+    async fn find_templates_referencing_node(&self, subject: &str) -> Vec<String> {
+        let mut affected = Vec::new();
+        for (template_id, _) in self.artifacts.read().await.iter() {
+            // Simple heuristic: template affects this if it's in the same namespace
+            if subject.contains(template_id) || template_id.contains(subject) {
+                affected.push(template_id.clone());
+            }
+        }
+        affected
+    }
+
+    /// Find templates that use a specific relationship
+    async fn find_templates_using_relationship(&self, event: &ChangeEvent) -> Vec<String> {
+        let mut affected = Vec::new();
+        if let (Some(pred), Some(obj)) = (&event.predicate, &event.object) {
+            for (template_id, _) in self.artifacts.read().await.iter() {
+                if template_id.contains(pred) || template_id.contains(obj) {
+                    affected.push(template_id.clone());
+                }
+            }
+        }
+        affected
+    }
+
+    /// Find all registered templates
+    async fn find_all_templates(&self) -> Vec<String> {
+        self.artifacts
+            .read()
+            .await
+            .keys()
+            .cloned()
+            .collect::<Vec<_>>()
+    }
+
+    /// Expand affected templates to include all dependents
+    async fn expand_to_dependents(&self, initial_affected: Vec<String>) -> Vec<String> {
+        let deps = self.dependencies.read().await;
+        let mut expanded = HashSet::new();
+
+        for template_id in &initial_affected {
+            expanded.extend(deps.get_affected(template_id));
+        }
+
+        expanded.into_iter().collect()
     }
 
     /// Regenerate affected templates
@@ -540,7 +557,6 @@ impl EventSubscriber for RegenerationEngine {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::autonomous::events::ChangeEvent;
     use crate::providers::MockClient;
 
     #[tokio::test]

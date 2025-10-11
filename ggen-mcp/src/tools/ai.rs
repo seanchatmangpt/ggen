@@ -141,7 +141,7 @@ pub async fn generate_template(params: Value) -> Result<Value> {
     if let Some(output_path) = output_file {
         // Write template body to file
         std::fs::write(&output_path, &template_content.body)
-            .map_err(|e| crate::error::GgenMcpError::Io(e.to_string()))?;
+            .map_err(crate::error::GgenMcpError::Io)?;
 
         Ok(success_response(json!({
             "template_body": template_content.body,
@@ -181,7 +181,7 @@ pub async fn generate_sparql(params: Value) -> Result<Value> {
     // Save to file if specified
     if let Some(output_path) = output_file {
         std::fs::write(&output_path, &query)
-            .map_err(|e| crate::error::GgenMcpError::Io(e.to_string()))?;
+            .map_err(crate::error::GgenMcpError::Io)?;
 
         Ok(success_response(json!({
             "query": query,
@@ -221,7 +221,7 @@ pub async fn generate_ontology(params: Value) -> Result<Value> {
     // Save to file if specified
     if let Some(output_path) = output_file {
         std::fs::write(&output_path, &ontology)
-            .map_err(|e| crate::error::GgenMcpError::Io(e.to_string()))?;
+            .map_err(crate::error::GgenMcpError::Io)?;
 
         Ok(success_response(json!({
             "ontology": ontology,
@@ -292,17 +292,17 @@ pub async fn generate_project(params: Value) -> Result<Value> {
     // Create output directory if specified
     if let Some(dir) = &output_dir {
         std::fs::create_dir_all(dir)
-            .map_err(|e| crate::error::GgenMcpError::Io(e.to_string()))?;
+            .map_err(crate::error::GgenMcpError::Io)?;
 
         // Write all files
         for (file_path, content) in &project_files {
             let full_path = std::path::Path::new(dir).join(file_path);
             if let Some(parent) = full_path.parent() {
                 std::fs::create_dir_all(parent)
-                    .map_err(|e| crate::error::GgenMcpError::Io(e.to_string()))?;
+                    .map_err(crate::error::GgenMcpError::Io)?;
             }
             std::fs::write(&full_path, content)
-                .map_err(|e| crate::error::GgenMcpError::Io(e.to_string()))?;
+                .map_err(crate::error::GgenMcpError::Io)?;
         }
     }
 
@@ -345,20 +345,24 @@ use std::net::SocketAddr;
 async fn main() {{
     // build our application with a single route
     let app = Router::new()
-        .route("/", get(|| async {{ format!("Hello, {}!", name) }}))
+        .route("/", get(root_handler))
         .route("/health", get(health_check));
 
     // run our app with hyper, listening globally on port 3000
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
-    println!("🚀 {} is listening on {:?}", name, listener.local_addr().unwrap());
+    println!("🚀 {{}} is listening on {{:?}}", "{}", listener.local_addr().unwrap());
 
     axum::serve(listener, app).await.unwrap();
+}}
+
+async fn root_handler() -> impl IntoResponse {{
+    (StatusCode::OK, "Hello from {}!")
 }}
 
 async fn health_check() -> impl IntoResponse {{
     (StatusCode::OK, "OK")
 }}
-"#, name))
+"#, name, name))
 }
 
 fn generate_axum_lib(name: &str) -> Result<String> {
@@ -449,7 +453,7 @@ pub async fn extend_graph(params: Value) -> Result<Value> {
     // Load new content as temporary graph and merge
     let temp_file = std::env::temp_dir().join("temp_ontology.ttl");
     std::fs::write(&temp_file, &new_content)
-        .map_err(|e| crate::error::GgenMcpError::Io(e.to_string()))?;
+        .map_err(crate::error::GgenMcpError::Io)?;
     let new_graph = Graph::load_from_file(&temp_file)?;
 
     // Extend existing graph with new triples (ggen_core::Graph extends method)

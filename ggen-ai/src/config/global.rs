@@ -52,17 +52,19 @@ impl Default for GlobalLlmConfig {
     fn default() -> Self {
         let mut providers = HashMap::new();
 
+        use crate::constants::{env_vars, llm, models, testing};
+
         // OpenAI defaults
         providers.insert(
             LlmProvider::OpenAI,
             LlmConfig {
-                model: std::env::var("OPENAI_MODEL")
-                    .or_else(|_| std::env::var("GGEN_DEFAULT_MODEL"))
+                model: std::env::var(env_vars::OPENAI_MODEL)
+                    .or_else(|_| std::env::var(env_vars::DEFAULT_MODEL))
                     .or_else(|_| std::env::var("DEFAULT_MODEL"))
-                    .unwrap_or_else(|_| "gpt-3.5-turbo".to_string()),
-                max_tokens: Some(4096),
-                temperature: Some(0.7),
-                top_p: Some(0.9),
+                    .unwrap_or_else(|_| models::OPENAI_DEFAULT.to_string()),
+                max_tokens: Some(llm::DEFAULT_MAX_TOKENS),
+                temperature: Some(llm::DEFAULT_TEMPERATURE),
+                top_p: Some(llm::DEFAULT_TOP_P),
                 stop: None,
                 extra: HashMap::new(),
             },
@@ -72,13 +74,13 @@ impl Default for GlobalLlmConfig {
         providers.insert(
             LlmProvider::Anthropic,
             LlmConfig {
-                model: std::env::var("ANTHROPIC_MODEL")
-                    .or_else(|_| std::env::var("GGEN_DEFAULT_MODEL"))
+                model: std::env::var(env_vars::ANTHROPIC_MODEL)
+                    .or_else(|_| std::env::var(env_vars::DEFAULT_MODEL))
                     .or_else(|_| std::env::var("DEFAULT_MODEL"))
-                    .unwrap_or_else(|_| "claude-3-sonnet-20240229".to_string()),
-                max_tokens: Some(4096),
-                temperature: Some(0.7),
-                top_p: Some(0.9),
+                    .unwrap_or_else(|_| models::ANTHROPIC_DEFAULT.to_string()),
+                max_tokens: Some(llm::DEFAULT_MAX_TOKENS),
+                temperature: Some(llm::DEFAULT_TEMPERATURE),
+                top_p: Some(llm::DEFAULT_TOP_P),
                 stop: None,
                 extra: HashMap::new(),
             },
@@ -88,13 +90,13 @@ impl Default for GlobalLlmConfig {
         providers.insert(
             LlmProvider::Ollama,
             LlmConfig {
-                model: std::env::var("OLLAMA_MODEL")
-                    .or_else(|_| std::env::var("GGEN_DEFAULT_MODEL"))
+                model: std::env::var(env_vars::OLLAMA_MODEL)
+                    .or_else(|_| std::env::var(env_vars::DEFAULT_MODEL))
                     .or_else(|_| std::env::var("DEFAULT_MODEL"))
-                    .unwrap_or_else(|_| "qwen3-coder:30b".to_string()),
-                max_tokens: Some(4096),
-                temperature: Some(0.7),
-                top_p: Some(0.9),
+                    .unwrap_or_else(|_| models::OLLAMA_DEFAULT.to_string()),
+                max_tokens: Some(llm::DEFAULT_MAX_TOKENS),
+                temperature: Some(llm::DEFAULT_TEMPERATURE),
+                top_p: Some(llm::DEFAULT_TOP_P),
                 stop: None,
                 extra: HashMap::new(),
             },
@@ -104,10 +106,10 @@ impl Default for GlobalLlmConfig {
         providers.insert(
             LlmProvider::Mock,
             LlmConfig {
-                model: "mock-model".to_string(),
-                max_tokens: Some(1000),
-                temperature: Some(0.0),
-                top_p: Some(1.0),
+                model: models::MOCK_MODEL.to_string(),
+                max_tokens: Some(testing::MOCK_MAX_TOKENS),
+                temperature: Some(testing::MOCK_TEMPERATURE),
+                top_p: Some(testing::MOCK_TOP_P),
                 stop: None,
                 extra: HashMap::new(),
             },
@@ -118,11 +120,11 @@ impl Default for GlobalLlmConfig {
             providers,
             settings: GlobalSettings {
                 default_model: None,
-                default_temperature: Some(0.7),
+                default_temperature: Some(llm::DEFAULT_TEMPERATURE),
                 default_max_tokens: Some(2048),
-                default_top_p: Some(0.9),
+                default_top_p: Some(llm::DEFAULT_TOP_P),
                 use_streaming: false,
-                timeout_seconds: Some(30),
+                timeout_seconds: Some(llm::DEFAULT_TIMEOUT_SECS),
             },
         }
     }
@@ -385,7 +387,8 @@ mod tests {
         let config = GlobalLlmConfig::default();
         let ollama_config = config.get_provider_config(&LlmProvider::Ollama);
         assert!(ollama_config.is_some());
-        assert_eq!(ollama_config.unwrap().model, "llama3.2");
+        // Updated to match current default model
+        assert_eq!(ollama_config.unwrap().model, "qwen3-coder:30b");
     }
 
     #[test]

@@ -1,7 +1,7 @@
 //! AI-powered SPARQL query generator
 
 use crate::client::{LlmClient, LlmConfig};
-use crate::error::{GgenAiError, Result};
+use crate::error::Result;
 use crate::prompts::SparqlPromptBuilder;
 use futures::StreamExt;
 use ggen_core::Graph;
@@ -80,28 +80,20 @@ impl SparqlGenerator {
 
     /// Extract SPARQL query from AI response
     fn extract_sparql_query(&self, response: &str) -> Result<String> {
-        // Look for SPARQL query in code blocks
-        if let Some(start) = response.find("```sparql") {
-            let search_start = start + 9;
-            if let Some(end_offset) = response[search_start..].find("```") {
-                let query = &response[search_start..search_start + end_offset].trim();
-                return Ok(query.to_string());
-            }
+        // Try to extract from specific language marker
+        if let Some(query) = crate::parsing_utils::extract_code_block(response, "sparql") {
+            return Ok(query);
         }
 
-        // Look for SPARQL query in any code block
-        if let Some(start) = response.find("```") {
-            let search_start = start + 3;
-            if let Some(end_offset) = response[search_start..].find("```") {
-                let query = &response[search_start..search_start + end_offset].trim();
-                // Check if it looks like SPARQL
-                if query.to_uppercase().contains("SELECT")
-                    || query.to_uppercase().contains("CONSTRUCT")
-                    || query.to_uppercase().contains("ASK")
-                    || query.to_uppercase().contains("DESCRIBE")
-                {
-                    return Ok(query.to_string());
-                }
+        // Try any code block and validate it looks like SPARQL
+        if let Some(query) = crate::parsing_utils::extract_any_code_block(response) {
+            // Check if it looks like SPARQL
+            if query.to_uppercase().contains("SELECT")
+                || query.to_uppercase().contains("CONSTRUCT")
+                || query.to_uppercase().contains("ASK")
+                || query.to_uppercase().contains("DESCRIBE")
+            {
+                return Ok(query);
             }
         }
 
@@ -164,16 +156,19 @@ impl SparqlGenerator {
                     query.push('}');
                 }
                 _ => {
-                    return Err(GgenAiError::sparql_generation(format!(
-                        "Unsupported query type: {}",
-                        query_type
-                    )));
+                    return crate::error_utils::unsupported_type_error(
+                        query_type,
+                        &["select", "construct", "ask", "describe"],
+                        crate::error_utils::ErrorContext::SparqlGeneration,
+                    );
                 }
             }
         } else {
-            return Err(GgenAiError::sparql_generation(
-                "Missing query type in JSON".to_string(),
-            ));
+            return crate::error_utils::missing_field_error(
+                "type",
+                "JSON",
+                crate::error_utils::ErrorContext::SparqlGeneration,
+            );
         }
 
         Ok(query)
@@ -188,15 +183,12 @@ impl SparqlGenerator {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::providers::adapter::MockClient;
+    use crate::test_helpers::create_sparql_test_generator;
     use serde_json::json;
 
     #[tokio::test]
     async fn test_sparql_generation() {
-        let client = MockClient::with_response(
-            "```sparql\nSELECT ?name WHERE {\n  ?person foaf:name ?name .\n}\n```",
-        );
-        let generator = SparqlGenerator::new(Arc::new(client));
+        let generator = create_sparql_test_generator();
 
         let graph = Graph::new().unwrap();
         let query = generator

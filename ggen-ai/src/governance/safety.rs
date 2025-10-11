@@ -284,31 +284,28 @@ impl SafetyController {
         );
 
         let start_time = std::time::Instant::now();
-        let mut rollback_success = true;
-        let mut rollback_reason = "Manual rollback".to_string();
 
-        // Implement actual rollback logic
-        // This would restore system state from the snapshot
-        match self.restore_system_state(&snapshot.data).await {
-            Ok(_) => {
-                tracing::info!(
-                    snapshot_id = %target_snapshot_id,
-                    "Successfully restored system state from snapshot"
-                );
-            }
-            Err(e) => {
-                let _ = rollback_success; // Used for potential future rollback logic
-                rollback_success = false;
-                rollback_reason = format!("Rollback failed: {}", e);
-                tracing::error!(
-                    snapshot_id = %target_snapshot_id,
-                    error = %e,
-                    "Failed to restore system state"
-                );
+        // Implement actual rollback logic - this would restore system state from the snapshot
+        let (rollback_success, rollback_reason) =
+            match self.restore_system_state(&snapshot.data).await {
+                Ok(_) => {
+                    tracing::info!(
+                        snapshot_id = %target_snapshot_id,
+                        "Successfully restored system state from snapshot"
+                    );
+                    (true, "Manual rollback".to_string())
+                }
+                Err(e) => {
+                    let reason = format!("Rollback failed: {}", e);
+                    tracing::error!(
+                        snapshot_id = %target_snapshot_id,
+                        error = %e,
+                        "Failed to restore system state"
+                    );
 
-                return Err(GovernanceError::SafetyError(rollback_reason));
-            }
-        }
+                    return Err(GovernanceError::SafetyError(reason));
+                }
+            };
 
         let duration = start_time.elapsed().as_millis() as u64;
 
@@ -316,7 +313,7 @@ impl SafetyController {
             id: Uuid::new_v4().to_string(),
             triggered_at: Utc::now(),
             target_snapshot: target_snapshot_id.to_string(),
-            reason: rollback_reason.clone(),
+            reason: rollback_reason,
             success: rollback_success,
         };
 

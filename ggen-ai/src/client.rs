@@ -31,22 +31,24 @@ pub struct LlmConfig {
 
 impl Default for LlmConfig {
     fn default() -> Self {
+        use crate::constants::{env_vars, llm};
+
         Self {
-            model: std::env::var("GGEN_DEFAULT_MODEL")
+            model: std::env::var(env_vars::DEFAULT_MODEL)
                 .or_else(|_| std::env::var("DEFAULT_MODEL"))
-                .unwrap_or_else(|_| "gpt-3.5-turbo".to_string()),
-            max_tokens: std::env::var("GGEN_MAX_TOKENS")
+                .unwrap_or_else(|_| llm::DEFAULT_MODEL.to_string()),
+            max_tokens: std::env::var(env_vars::LLM_MAX_TOKENS)
                 .ok()
                 .and_then(|v| v.parse().ok())
-                .or(Some(4096)),
-            temperature: std::env::var("GGEN_TEMPERATURE")
+                .or(Some(llm::DEFAULT_MAX_TOKENS)),
+            temperature: std::env::var(env_vars::LLM_TEMPERATURE)
                 .ok()
                 .and_then(|v| v.parse().ok())
-                .or(Some(0.7)),
-            top_p: std::env::var("GGEN_TOP_P")
+                .or(Some(llm::DEFAULT_TEMPERATURE)),
+            top_p: std::env::var(env_vars::LLM_TOP_P)
                 .ok()
                 .and_then(|v| v.parse().ok())
-                .or(Some(0.9)),
+                .or(Some(llm::DEFAULT_TOP_P)),
             stop: None,
             extra: HashMap::new(),
         }
@@ -56,30 +58,32 @@ impl Default for LlmConfig {
 impl LlmConfig {
     /// Validate the configuration
     pub fn validate(&self) -> Result<()> {
+        use crate::constants::llm;
+
         if self.model.is_empty() {
             return Err(GgenAiError::configuration("Model name cannot be empty"));
         }
 
         if let Some(max_tokens) = self.max_tokens {
-            if max_tokens == 0 || max_tokens >= 200000 {
+            if max_tokens < llm::MIN_TOKEN_LIMIT || max_tokens > llm::MAX_TOKEN_LIMIT {
                 return Err(GgenAiError::configuration(
-                    "Max tokens must be between 1 and 199999",
+                    &format!("Max tokens must be between {} and {}", llm::MIN_TOKEN_LIMIT, llm::MAX_TOKEN_LIMIT),
                 ));
             }
         }
 
         if let Some(temperature) = self.temperature {
-            if temperature < 0.0 || temperature > 2.0 {
+            if temperature < llm::MIN_TEMPERATURE || temperature > llm::MAX_TEMPERATURE {
                 return Err(GgenAiError::configuration(
-                    "Temperature must be between 0.0 and 2.0",
+                    &format!("Temperature must be between {} and {}", llm::MIN_TEMPERATURE, llm::MAX_TEMPERATURE),
                 ));
             }
         }
 
         if let Some(top_p) = self.top_p {
-            if top_p < 0.0 || top_p > 1.0 {
+            if top_p < llm::MIN_TOP_P || top_p > llm::MAX_TOP_P {
                 return Err(GgenAiError::configuration(
-                    "Top-p must be between 0.0 and 1.0",
+                    &format!("Top-p must be between {} and {}", llm::MIN_TOP_P, llm::MAX_TOP_P),
                 ));
             }
         }
