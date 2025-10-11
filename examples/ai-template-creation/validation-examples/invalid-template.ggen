@@ -1,0 +1,86 @@
+# Invalid User Template
+# This template has multiple issues that need to be fixed
+
+struct User {
+    id: uuid,
+    name: string,
+    email: string,  # ❌ Missing validation pattern
+    age: integer,
+    phone: string,
+    address: Address,  # ❌ Type 'Address' not defined
+    created_at: timestamp
+}
+
+# ❌ Missing validation rules
+# ❌ No indexes defined
+# ❌ No rate limiting
+
+# API endpoints (incomplete)
+api {
+    base_path: "/api/users",
+
+    endpoints: {
+        # ❌ Missing request/response schemas
+        POST /: {},
+        GET /:id: {},
+        # ❌ No error handling specified
+    }
+}
+
+# ============================================
+# VALIDATION RESULT: ✗ FAIL
+# ============================================
+# ✗ Missing field validation for 'email'
+#   → Email field should have regex pattern:
+#     pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+#
+# ✗ Type 'Address' referenced but not defined
+#   → Define Address struct or use inline type:
+#     address: { street: string, city: string, ... }
+#
+# ✗ Warning: No validation rules defined
+#   → Add validation block:
+#     validation {
+#       name: required,
+#       email: required, unique, email_format
+#     }
+#
+# ✗ Warning: No rate limiting specified
+#   → Add rate limit in validation:
+#     api_rate_limit: 100 requests per minute
+#
+# ✗ Warning: No unique constraints on 'id' or 'email'
+#   → Add unique constraints:
+#     id: { required: true, unique: true }
+#     email: { required: true, unique: true }
+#
+# ✗ Warning: Missing indexes for performance
+#   → Add indexes block:
+#     indexes {
+#       email: unique,
+#       created_at: standard
+#     }
+#
+# ✗ Error: API endpoint schemas incomplete
+#   → Specify request/response types:
+#     POST /: {
+#       request: { name, email },
+#       response: User,
+#       status: 201
+#     }
+#
+# Issues: 4 errors, 3 warnings
+# ============================================
+#
+# FIXES NEEDED:
+#
+# 1. Add email validation pattern
+# 2. Define Address type or use inline definition
+# 3. Add validation rules block
+# 4. Add rate limiting configuration
+# 5. Add unique constraints on id and email
+# 6. Add indexes for performance
+# 7. Complete API endpoint schemas
+#
+# See fixed-template.ggen for corrected version.
+# ============================================

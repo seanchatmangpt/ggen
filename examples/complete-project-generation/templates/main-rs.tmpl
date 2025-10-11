@@ -1,0 +1,38 @@
+use actix_web::{middleware, web, App, HttpServer};
+use log::info;
+use std::io;
+
+mod api;
+mod config;
+mod models;
+
+#[actix_web::main]
+async fn main() -> io::Result<()> {
+    // Initialize logger
+    env_logger::init_from_env(env_logger::Env::new().default_filter_or("{{log_level}}"));
+
+    // Load configuration
+    let settings = config::Settings::new();
+    let bind_address = format!("127.0.0.1:{}", settings.port);
+
+    info!("Starting {{project_name}} v{{version}}");
+    info!("Server running at http://{}", bind_address);
+
+    // Start HTTP server
+    HttpServer::new(|| {
+        App::new()
+            // Enable logger middleware
+            .wrap(middleware::Logger::default())
+            // Configure routes
+            .configure(api::routes::configure)
+            // Health check endpoint
+            .route("/health", web::get().to(health_check))
+    })
+    .bind(&bind_address)?
+    .run()
+    .await
+}
+
+async fn health_check() -> &'static str {
+    "OK"
+}

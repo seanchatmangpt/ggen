@@ -1,0 +1,129 @@
+# Valid User Template
+# This template passes all validation checks
+
+struct User {
+    id: uuid {
+        required: true,
+        unique: true,
+        description: "Unique identifier for the user"
+    },
+
+    name: string {
+        min_length: 1,
+        max_length: 100,
+        required: true,
+        description: "User's full name"
+    },
+
+    email: string {
+        pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+        required: true,
+        unique: true,
+        description: "User's email address (validated format)"
+    },
+
+    age: integer {
+        min: 0,
+        max: 150,
+        optional: true,
+        description: "User's age in years"
+    },
+
+    created_at: timestamp {
+        auto: "now",
+        description: "Account creation timestamp"
+    },
+
+    updated_at: timestamp {
+        auto: "update",
+        description: "Last update timestamp"
+    }
+}
+
+# Validation rules
+validation {
+    # Field validations
+    name: required, length(1, 100),
+    email: required, unique, email_format,
+    id: required, unique,
+    age: optional, range(0, 150),
+
+    # Business rules
+    email_domain: allowed_domains("example.com", "company.com"),
+
+    # Rate limiting
+    api_rate_limit: 100 requests per minute
+}
+
+# Indexes for performance
+indexes {
+    email: unique,
+    created_at: standard,
+    name: standard
+}
+
+# API endpoints
+api {
+    base_path: "/api/v1/users",
+
+    endpoints: {
+        # Create user
+        POST /: {
+            request: { name, email, age? },
+            response: User,
+            status: 201
+        },
+
+        # Get user by ID
+        GET /:id: {
+            response: User,
+            status: 200,
+            errors: { 404: "User not found" }
+        },
+
+        # Update user
+        PUT /:id: {
+            request: { name?, email?, age? },
+            response: User,
+            status: 200,
+            errors: { 404: "User not found" }
+        },
+
+        # Delete user
+        DELETE /:id: {
+            status: 204,
+            errors: { 404: "User not found" }
+        },
+
+        # List users with pagination
+        GET /: {
+            query: { page: integer, per_page: integer },
+            response: { users: [User], total: integer },
+            status: 200
+        }
+    }
+}
+
+# Documentation
+docs {
+    title: "User Management API",
+    description: "CRUD operations for user management",
+    version: "1.0.0"
+}
+
+# ============================================
+# VALIDATION RESULT: ✓ PASS
+# ============================================
+# ✓ Valid template structure
+# ✓ All types are defined
+# ✓ Proper validation rules
+# ✓ Email validation with regex pattern
+# ✓ Performance indexes specified
+# ✓ Rate limiting configured
+# ✓ API endpoints documented
+# ✓ Unique constraints on id and email
+# ✓ Auto-generated timestamps
+#
+# Issues: 0
+# Warnings: 0
+# ============================================

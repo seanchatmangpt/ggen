@@ -1,0 +1,10 @@
+# Ignore test outputs
+*.log
+test-output/
+
+# Ignore local config overrides
+local-config.json
+
+# Ignore temporary files
+*.tmp
+.DS_Store

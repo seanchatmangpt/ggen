@@ -1,0 +1,66 @@
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
+use uuid::Uuid;
+use validator::Validate;
+
+pub type UserId = Uuid;
+
+#[derive(Debug, Clone, Serialize, Deserialize, Validate)]
+pub struct User {
+    pub id: UserId,
+
+    #[validate(length(min = 1, max = 100))]
+    pub name: String,
+
+    #[validate(email)]
+    pub email: String,
+
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+impl User {
+    pub fn new(name: String, email: String) -> Self {
+        let now = Utc::now();
+        Self {
+            id: Uuid::new_v4(),
+            name,
+            email,
+            created_at: now,
+            updated_at: now,
+        }
+    }
+}
+
+#[derive(Debug, Deserialize, Validate)]
+pub struct CreateUserRequest {
+    #[validate(length(min = 1, max = 100))]
+    pub name: String,
+
+    #[validate(email)]
+    pub email: String,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_user_creation() {
+        let user = User::new("John Doe".to_string(), "john@example.com".to_string());
+        assert_eq!(user.name, "John Doe");
+        assert_eq!(user.email, "john@example.com");
+    }
+
+    #[test]
+    fn test_user_validation() {
+        let user = User::new("John Doe".to_string(), "john@example.com".to_string());
+        assert!(user.validate().is_ok());
+    }
+
+    #[test]
+    fn test_invalid_email() {
+        let user = User::new("John Doe".to_string(), "invalid-email".to_string());
+        assert!(user.validate().is_err());
+    }
+}

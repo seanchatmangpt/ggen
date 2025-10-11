@@ -103,16 +103,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     // Add assistant response to conversation
                     conversation.push(ChatMessage::assistant(response_text));
 
-                    // Show token usage if available
-                    if let Some(usage) = chat_res.usage {
-                        println!();
-                        println!(
-                            "📊 Tokens - Input: {}, Output: {}, Total: {}",
-                            usage.prompt_tokens.unwrap_or(0),
-                            usage.completion_tokens.unwrap_or(0),
-                            usage.total_tokens.unwrap_or(0)
-                        );
-                    }
+                    // Show token usage - usage is now directly accessible, not Option
+                    let usage = &chat_res.usage;
+                    println!();
+                    println!(
+                        "📊 Tokens - Input: {}, Output: {}, Total: {}",
+                        usage.prompt_tokens.unwrap_or(0),
+                        usage.completion_tokens.unwrap_or(0),
+                        usage.total_tokens.unwrap_or(0)
+                    );
                 } else {
                     println!("(no response)");
                 }

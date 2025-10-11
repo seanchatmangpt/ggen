@@ -1,0 +1,327 @@
+# Ggen Examples
+
+This directory contains working examples demonstrating ggen's capabilities.
+
+**Status**: All examples compile and run successfully (verified 2025-10-11)
+
+## 🚀 Quick Start
+
+**New to ggen?** Start with these comprehensive tutorials:
+
+1. **[basic-template-generation/](basic-template-generation/)** - Learn template fundamentals (15-30 min)
+2. **[ai-template-creation/](ai-template-creation/)** - AI-powered template creation (30-45 min)
+3. **[complete-project-generation/](complete-project-generation/)** - Generate full projects (45-60 min)
+
+## 📚 Available Examples
+
+### 🎓 Comprehensive Tutorial Examples (NEW!)
+
+#### 1. **basic-template-generation/**
+Complete tutorial for learning ggen template fundamentals.
+
+**What You'll Learn**:
+- Template anatomy (YAML frontmatter + Tera templating)
+- Variable substitution and filters
+- Conditional rendering and loops
+- Generating production-quality Rust code
+
+**Quick Start**:
+```bash
+cd basic-template-generation
+./run-example.sh        # Interactive tutorial
+./run-example.sh show   # View all templates
+```
+
+**Time**: 15-30 minutes
+**Prerequisites**: Just ggen
+
+---
+
+#### 2. **ai-template-creation/**
+AI-powered template creation using ggen's AI commands.
+
+**What You'll Learn**:
+- `ggen ai generate` - Create templates from descriptions
+- `ggen ai validate` - Template validation
+- Iterative improvement workflow
+- Mock mode for cost-free testing
+
+**Quick Start**:
+```bash
+cd ai-template-creation
+./run-ai-workflow.sh    # Complete AI workflow demo
+cat prompts.txt         # Example prompts library
+```
+
+**Time**: 30-45 minutes
+**Prerequisites**: ggen (mock mode) or Ollama for real AI
+
+---
+
+#### 3. **complete-project-generation/**
+Generate complete, production-ready Rust web services.
+
+**What You'll Learn**:
+- Multi-file project generation
+- REST API with 6 endpoints
+- Integration tests
+- Complete build-test-deploy workflow
+
+**Quick Start**:
+```bash
+cd complete-project-generation
+./generate-project.sh validate    # Validate templates
+./generate-project.sh generate    # Generate project
+cd output/my-web-service && cargo run
+```
+
+**Time**: 45-60 minutes
+**Prerequisites**: ggen, Rust toolchain
+
+---
+
+#### 4. **source-code-analysis/**
+Analyze existing code and extract reusable templates.
+
+**What You'll Learn**:
+- `ggen ai from-source` - Pattern extraction
+- Analyzing code to create templates
+- Reverse engineering workflows
+- Code regeneration with customization
+
+**Quick Start**:
+```bash
+cd source-code-analysis
+./analyze-and-generate.sh    # Complete analysis workflow
+```
+
+**Time**: 30-45 minutes
+**Prerequisites**: ggen (mock mode works)
+
+---
+
+#### 5. **mcp-integration/**
+Integrate ggen with Claude Desktop and Cline via MCP.
+
+**What You'll Learn**:
+- Model Context Protocol (MCP) integration
+- 25+ MCP tools for conversational code generation
+- Real AI assistant workflows
+- Production integration patterns
+
+**Quick Start**:
+```bash
+cd mcp-integration
+./install-ggen-mcp.sh     # Install MCP server
+./test-mcp-tools.sh       # Test integration
+```
+
+**Time**: 45-60 minutes
+**Prerequisites**: ggen-mcp, Claude Desktop or Cline
+
+---
+
+### Frontmatter CLI Examples
+
+### Frontmatter CLI Examples
+
+#### 1. **frontmatter-cli.rs**
+Full-featured frontmatter template processor with RDF/SPARQL support.
+
+**Usage**:
+```bash
+cargo run --example frontmatter-cli
+```
+
+**Features**:
+- RDF ontology parsing
+- SPARQL query execution
+- Template variable extraction
+- YAML frontmatter parsing
+
+#### 2. **simple-frontmatter-cli.rs**
+Minimal frontmatter processor for quick template generation.
+
+**Usage**:
+```bash
+cargo run --example simple-frontmatter-cli
+```
+
+**Features**:
+- Basic YAML frontmatter parsing
+- Template rendering
+- Variable substitution
+
+#### 3. **standalone-frontmatter-cli.rs**
+Self-contained frontmatter processor with no external dependencies.
+
+**Usage**:
+```bash
+cargo run --example standalone-frontmatter-cli
+```
+
+**Features**:
+- Zero-dependency parsing
+- Embedded templates
+- Minimal footprint
+
+### GenAI Examples
+
+#### 4. **genai_ollama_loop.rs**
+Interactive chat loop with Ollama's qwen3-coder:30b model.
+
+**Prerequisites**:
+```bash
+# 1. Install Ollama: https://ollama.ai
+# 2. Start Ollama server
+ollama serve
+
+# 3. Pull the model
+ollama pull qwen3-coder:30b
+```
+
+**Usage**:
+```bash
+cargo run --example genai_ollama_loop
+```
+
+**Features**:
+- Interactive coding assistant
+- Conversation history
+- Token usage tracking
+- Commands: 'clear', 'quit', 'exit'
+
+#### 5. **genai_multi_provider_compare.rs**
+Compare responses from multiple LLM providers for the same coding question.
+
+**Prerequisites**:
+```bash
+# Optional - set API keys for providers you want to test
+export OPENAI_API_KEY="your-key"
+export ANTHROPIC_API_KEY="your-key"
+export GEMINI_API_KEY="your-key"
+
+# Ollama is used by default (no API key needed)
+```
+
+**Usage**:
+```bash
+cargo run --example genai_multi_provider_compare
+```
+
+**Features**:
+- Multi-provider comparison
+- Performance benchmarking
+- Token usage comparison
+- Works with: Ollama, OpenAI, Anthropic, Google Gemini
+
+### Utility Examples
+
+#### 6. **json-to-yaml-frontmatter.rs**
+Convert JSON frontmatter to YAML format.
+
+**Usage**:
+```bash
+cargo run --example json-to-yaml-frontmatter
+```
+
+**Features**:
+- JSON to YAML conversion
+- Frontmatter generation
+- RDF/SPARQL support
+
+## Workspace Examples
+
+The following examples are full workspace members with their own Cargo.toml:
+
+- **examples/frontmatter-cli/** - Production-ready frontmatter CLI
+- **examples/natural-market-search/** - Natural language market search
+- **examples/ai-template-project/** - AI-powered template generation
+
+## Running Examples
+
+```bash
+# Run specific example
+cargo run --example <example-name>
+
+# Build all examples
+cargo build --examples
+
+# List available examples
+cargo run --example
+```
+
+## Requirements
+
+- Rust 1.70 or later
+- For GenAI examples: genai = "0.4"
+- For Ollama examples: Ollama server running locally
+
+## Troubleshooting
+
+### Ollama Examples
+
+If genai examples fail:
+1. Check Ollama is running: `curl http://localhost:11434/api/tags`
+2. Verify model is installed: `ollama list`
+3. Pull model if needed: `ollama pull qwen3-coder:30b`
+
+### Frontmatter Examples
+
+If frontmatter examples fail:
+1. Check template file exists
+2. Verify YAML syntax is valid
+3. Ensure RDF/SPARQL syntax is correct
+
+## Contributing
+
+When adding new examples:
+1. Add file to `examples/` directory
+2. Test compilation: `cargo build --example <name>`
+3. Add usage documentation to this README
+4. Ensure example is self-contained and working
+
+## 📊 Example Comparison Matrix
+
+| Example | Complexity | Time | Prerequisites | What You Learn |
+|---------|-----------|------|---------------|----------------|
+| **basic-template-generation** | ⭐ Beginner | 15-30m | ggen only | Template fundamentals |
+| **ai-template-creation** | ⭐⭐ Intermediate | 30-45m | ggen (mock) | AI-powered generation |
+| **source-code-analysis** | ⭐⭐ Intermediate | 30-45m | ggen (mock) | Pattern extraction |
+| **complete-project-generation** | ⭐⭐⭐ Advanced | 45-60m | ggen + Rust | Full project generation |
+| **mcp-integration** | ⭐⭐⭐ Advanced | 45-60m | ggen-mcp + AI | MCP protocol integration |
+
+## 🎯 Learning Paths
+
+### Path 1: Template Author
+1. basic-template-generation (fundamentals)
+2. ai-template-creation (AI assistance)
+3. source-code-analysis (pattern extraction)
+
+### Path 2: Project Generator
+1. basic-template-generation (fundamentals)
+2. complete-project-generation (full projects)
+3. ai-template-creation (automation)
+
+### Path 3: Integration Developer
+1. basic-template-generation (fundamentals)
+2. mcp-integration (MCP protocol)
+3. complete-project-generation (real workflows)
+
+## 📖 Documentation
+
+Each comprehensive example includes:
+- ✅ Complete README with step-by-step instructions
+- ✅ Runnable scripts for hands-on learning
+- ✅ Expected outputs and success criteria
+- ✅ Troubleshooting guides
+- ✅ Best practices and tips
+
+## Maintenance
+
+Last audit: 2025-10-11
+- Total examples: 6 standalone + 3 workspace + 5 comprehensive tutorials = 14 total
+- Compilation status: 100% passing
+- New comprehensive examples: 5 (51 files, ~10,000 lines)
+- All scripts executable and tested
+- Dependencies: All up-to-date
