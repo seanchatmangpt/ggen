@@ -40,7 +40,7 @@ tracing-subscriber = { workspace = true }
 chrono = { workspace = true }
 
 # WebSocket client for WIP integration
-tokio-tungstenite = "0.21"
+tokio-tungstenite = "0.28"
 
 # UUID generation
 uuid = { workspace = true }
@@ -64,7 +64,7 @@ moka = { version = "0.12", features = ["future"] }
 futures-util = { workspace = true }
 
 # SPARQL support
-oxigraph = "0.4"
+oxigraph = "0.5"
 
 # Temporary files
 tempfile = "3"

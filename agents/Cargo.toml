@@ -34,17 +34,17 @@ dashmap = "5.5"
 
 # Time and scheduling
 chrono = "0.4"
-tokio-cron-scheduler = "0.9"
+tokio-cron-scheduler = "0.15"
 
 # HTTP and networking
-reqwest = { version = "0.11", features = ["json"] }
+reqwest = { version = "0.12", features = ["json"] }
 
 # Local dependencies with versions
 ggen-core = { path = "../ggen-core", version = "1.0.0" }
 ggen-utils = { path = "../utils", version = "1.0.0" }
 
 # Agent-specific dependencies
-mockall = "0.12"
+mockall = "0.13"
 proptest = "1.4"
 regex = "1.10"
 glob = "0.3"
