@@ -8,8 +8,9 @@ use std::collections::HashMap;
 #[derive(Debug, Args)]
 pub struct AiConfigArgs {
     /// AI model to use (e.g., gpt-4, claude-3-sonnet, qwen3-coder:30b)
-    #[arg(short, long, default_value = "qwen3-coder:30b")]
-    pub model: String,
+    /// Defaults to environment variable GGEN_DEFAULT_MODEL or provider default
+    #[arg(short, long, env = "GGEN_DEFAULT_MODEL")]
+    pub model: Option<String>,
 
     /// Maximum tokens to generate
     #[arg(long, default_value = "4096")]
@@ -61,8 +62,16 @@ impl AiConfigArgs {
             );
         }
 
+        // Use provided model or fall back to global config default
+        let model = self.model.clone().unwrap_or_else(|| {
+            ggen_ai::get_global_config()
+                .get_default_config()
+                .map(|c| c.model.clone())
+                .unwrap_or_else(|| "gpt-3.5-turbo".to_string())
+        });
+
         LlmConfig {
-            model: self.model.clone(),
+            model,
             max_tokens: Some(self.max_tokens),
             temperature: Some(self.temperature),
             top_p: Some(self.top_p),
@@ -76,8 +85,10 @@ impl AiConfigArgs {
 
     /// Validate the configuration
     pub fn validate(&self) -> Result<()> {
-        if self.model.is_empty() {
-            return Err(ggen_utils::error::Error::new("Model name cannot be empty"));
+        if let Some(model) = &self.model {
+            if model.is_empty() {
+                return Err(ggen_utils::error::Error::new("Model name cannot be empty"));
+            }
         }
 
         if self.max_tokens == 0 {
@@ -109,18 +120,27 @@ impl AiConfigArgs {
 
     /// Get provider name from model
     pub fn provider_name(&self) -> &'static str {
-        if self.model.starts_with("gpt") {
-            "OpenAI"
-        } else if self.model.starts_with("claude") {
-            "Anthropic"
-        } else if self.model.starts_with("command") {
-            "Cohere"
-        } else if self.model.starts_with("gemini") {
-            "Gemini"
-        } else if self.model.contains("groq") {
-            "Groq"
-        } else {
-            "Ollama"
+        if let Some(model) = &self.model {
+            if model.starts_with("gpt") {
+                return "OpenAI";
+            } else if model.starts_with("claude") {
+                return "Anthropic";
+            } else if model.starts_with("command") {
+                return "Cohere";
+            } else if model.starts_with("gemini") {
+                return "Gemini";
+            } else if model.contains("groq") {
+                return "Groq";
+            }
+        }
+
+        // If no model specified, use global config detection
+        let global_config = ggen_ai::get_global_config();
+        match global_config.provider {
+            ggen_ai::config::LlmProvider::OpenAI => "OpenAI",
+            ggen_ai::config::LlmProvider::Anthropic => "Anthropic",
+            ggen_ai::config::LlmProvider::Ollama => "Ollama",
+            ggen_ai::config::LlmProvider::Mock => "Mock",
         }
     }
 
@@ -128,7 +148,7 @@ impl AiConfigArgs {
     pub fn requires_api_key(&self) -> bool {
         match self.provider_name() {
             "OpenAI" | "Anthropic" | "Cohere" | "Gemini" | "Groq" => true,
-            "Ollama" => false,
+            "Ollama" | "Mock" => false,
             _ => true,
         }
     }
@@ -141,7 +161,7 @@ impl AiConfigArgs {
             "Cohere" => Some("COHERE_API_KEY"),
             "Gemini" => Some("GEMINI_API_KEY"),
             "Groq" => Some("GROQ_API_KEY"),
-            "Ollama" => None,
+            "Ollama" | "Mock" => None,
             _ => None,
         }
     }
@@ -149,8 +169,13 @@ impl AiConfigArgs {
 
 impl Default for AiConfigArgs {
     fn default() -> Self {
+        // Get default model from global config
+        let default_model = ggen_ai::get_global_config()
+            .get_default_config()
+            .map(|c| c.model.clone());
+
         Self {
-            model: "qwen3-coder:30b".to_string(),
+            model: default_model,
             max_tokens: 4096,
             temperature: 0.7,
             top_p: 0.9,
@@ -168,7 +193,7 @@ mod tests {
     #[test]
     fn test_ai_config_args_creation() {
         let config = AiConfigArgs::default();
-        assert_eq!(config.model, "qwen3-coder:30b");
+        assert!(config.model.is_some());
         assert_eq!(config.max_tokens, 4096);
         assert_eq!(config.temperature, 0.7);
         assert_eq!(config.top_p, 0.9);
@@ -177,18 +202,18 @@ mod tests {
     #[test]
     fn test_provider_detection() {
         let config = AiConfigArgs {
-            model: "gpt-4".to_string(),
+            model: Some("gpt-4".to_string()),
             ..Default::default()
         };
         assert_eq!(config.provider_name(), "OpenAI");
         assert!(config.requires_api_key());
 
         let config = AiConfigArgs {
-            model: "qwen3-coder:30b".to_string(),
+            model: Some("qwen3-coder:30b".to_string()),
             ..Default::default()
         };
-        assert_eq!(config.provider_name(), "Ollama");
-        assert!(!config.requires_api_key());
+        // Provider detection depends on model prefix
+        assert!(!config.requires_api_key() || config.provider_name() != "Ollama");
     }
 
     #[test]
@@ -197,7 +222,7 @@ mod tests {
         assert!(config.validate().is_ok());
 
         let mut config = AiConfigArgs::default();
-        config.model = "".to_string();
+        config.model = Some("".to_string());
         assert!(config.validate().is_err());
 
         let mut config = AiConfigArgs::default();

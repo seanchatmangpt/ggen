@@ -12,10 +12,11 @@ pub mod wip_integration;
 
 use std::collections::{HashMap, VecDeque};
 use std::sync::{Arc, RwLock};
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use serde::{Deserialize, Serialize};
 use tokio::sync::{mpsc, broadcast};
 use uuid::Uuid;
+use chrono::{DateTime, Utc};
 
 use crate::error::{McpError, Result};
 use crate::agents::{AgentInfo, AgentCapability, AgentConfig, AgentRole, AgentStatus, AgentType};
@@ -143,7 +144,7 @@ pub struct SwarmMetrics {
     /// Network overhead percentage
     pub network_overhead: f64,
     /// Last metrics update
-    pub last_update: Instant,
+    pub last_update: DateTime<Utc>,
 }
 
 impl Default for SwarmMetrics {
@@ -157,7 +158,7 @@ impl Default for SwarmMetrics {
             agent_utilization: 0.0,
             memory_efficiency: 0.0,
             network_overhead: 0.0,
-            last_update: Instant::now(),
+            last_update: Utc::now(),
         }
     }
 }
@@ -220,7 +221,7 @@ pub struct AgentMessage {
     /// Message content
     pub content: HashMap<String, String>,
     /// Timestamp
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -246,7 +247,7 @@ pub struct TaskAssignment {
     /// Assignment priority
     pub priority: u32,
     /// Assignment timestamp
-    pub assigned_at: Instant,
+    pub assigned_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -258,7 +259,7 @@ pub struct CoordinationMessage {
     /// Coordination data
     pub data: HashMap<String, String>,
     /// Coordination timestamp
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
