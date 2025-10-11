@@ -516,6 +516,7 @@ ex:Person ex:hasName "John" .
             timestamp: chrono::Utc::now(),
             properties: std::collections::HashMap::new(),
             source: "test".to_string(),
+            metadata: std::collections::HashMap::new(),
         };
 
         assert!(DeltaDetector::affects_templates(&event, &["UserTemplate"]));

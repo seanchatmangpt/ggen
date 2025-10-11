@@ -1,4 +1,34 @@
 //! Core regeneration engine with delta-driven template regeneration
+//!
+//! # Regeneration Engine - Event-Driven Code Generation
+//!
+//! ## PURPOSE
+//! Implements delta-driven, incremental code regeneration from knowledge graph changes.
+//! Provides highly concurrent, language-agnostic template regeneration with dependency tracking.
+//!
+//! ## RESPONSIBILITIES
+//! - **Delta Detection**: Track knowledge graph changes and compute affected artifacts
+//! - **Dependency Management**: Build and maintain template dependency graphs (DAG)
+//! - **Parallel Regeneration**: Coordinate concurrent template generation across multiple workers
+//! - **Version Control**: Maintain artifact version consistency across regeneration cycles
+//! - **Multi-Language Support**: Generate code for Rust, TypeScript, and Python targets
+//! - **Error Recovery**: Continue regeneration on partial failures with detailed error tracking
+//!
+//! ## CONSTRAINTS
+//! - Language support: Rust, TypeScript, Python (configurable)
+//! - Templates must be Handlebars format (.hbs extension)
+//! - Parallel workers: 1-16 (configurable via RegenerationConfig)
+//! - Dependency graph must be acyclic (DAG) for topological ordering
+//!
+//! ## INVARIANTS
+//! - All artifacts maintain version consistency within a regeneration cycle
+//! - Templates always regenerated in topological dependency order
+//! - Delta changes processed as atomic units (all or nothing)
+//!
+//! ## REFACTORING PRIORITIES (from REFACTORING_ANALYSIS.md)
+//! - **P0-1**: Extract core regeneration logic to separate modules (200+ line method)
+//! - **P2-1**: Optimize parallel execution with work-stealing scheduler
+//! - **Future**: Incremental compilation with template caching
 
 use crate::autonomous::events::{ChangeEvent, ChangeType, EventSubscriber, GraphChangeNotifier};
 use crate::client::LlmClient;
@@ -528,7 +558,7 @@ mod tests {
     #[tokio::test]
     async fn test_regeneration_engine_creation() {
         let config = RegenerationConfig::default();
-        let client = Box::new(MockClient::with_response("test"));
+        let client = Arc::new(MockClient::with_response("test"));
         let notifier = Arc::new(GraphChangeNotifier::default());
 
         let engine = RegenerationEngine::new(config, client, notifier);
@@ -541,7 +571,7 @@ mod tests {
     #[tokio::test]
     async fn test_artifact_registration() {
         let config = RegenerationConfig::default();
-        let client = Box::new(MockClient::with_response("test"));
+        let client = Arc::new(MockClient::with_response("test"));
         let notifier = Arc::new(GraphChangeNotifier::default());
 
         let engine = RegenerationEngine::new(config, client, notifier);

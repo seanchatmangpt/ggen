@@ -1,4 +1,57 @@
 //! Ultrathink Swarm Agent - Autonomous coordination for self-generating workflows
+//!
+//! # Autonomous Swarm Workflow Coordination System
+//!
+//! ## PURPOSE
+//! This module SHOULD provide a comprehensive autonomous workflow coordination system that
+//! intelligently responds to system changes through trigger-based regeneration. It SHOULD
+//! orchestrate multiple specialized agents to maintain system health, adapt to requirements,
+//! and continuously improve code quality without human intervention.
+//!
+//! ## RESPONSIBILITIES
+//!
+//! ### Core Coordination
+//! - SHOULD manage lifecycle of 6 specialized autonomous agents with distinct capabilities
+//! - SHOULD detect and classify 5 types of system triggers requiring regeneration workflows
+//! - SHOULD orchestrate multi-agent workflows for autonomous code evolution
+//! - SHOULD maintain coordination state across distributed agent swarm
+//! - SHOULD provide real-time workflow monitoring and health metrics
+//!
+//! ### Trigger Detection & Classification
+//! - SHOULD monitor for RequirementsChange triggers from specification updates
+//! - SHOULD detect RuntimeTelemetry triggers from production monitoring data
+//! - SHOULD identify ApiChange triggers from interface evolution
+//! - SHOULD recognize SecurityVulnerability triggers from security scans
+//! - SHOULD track PerformanceRegression triggers from benchmark degradation
+//!
+//! ### Agent Orchestration
+//! - SHOULD coordinate AutonomousCoordinator for high-level workflow management
+//! - SHOULD utilize TriggerMonitor for continuous system state observation
+//! - SHOULD leverage KnowledgeEvolver for pattern learning and knowledge graph updates
+//! - SHOULD employ CodeRegenerator for automated code transformation
+//! - SHOULD integrate QualityValidator for multi-dimensional quality assurance
+//! - SHOULD activate PerformanceOptimizer for benchmark-driven improvements
+//!
+//! ## CONSTRAINTS
+//! - Trigger detection latency MUST NOT exceed 100ms for critical triggers
+//! - Workflow execution MUST support concurrent processing of 10+ triggers
+//! - Memory footprint per agent SHOULD NOT exceed 50MB baseline
+//! - Agent communication MUST be encrypted end-to-end
+//! - Failed regenerations MUST NOT corrupt existing system state
+//!
+//! ## INVARIANTS
+//! - Each trigger MUST be processed exactly once per workflow instance
+//! - Workflow state transitions MUST follow defined FSM (pending → running → completed/failed)
+//! - Knowledge graph updates MUST be atomic per workflow step
+//! - Workflow metrics MUST be persisted before workflow completion
+//! - Failed workflows MUST leave system in previous known-good state
+//!
+//! ## REFACTORING PRIORITIES
+//! 1. **Extract Agent Trait Hierarchy** (Lines 100-400) - Reduces 400+ lines of duplication
+//! 2. **Separate Workflow Engine** (Lines 500-700) - Enable workflow versioning and A/B testing
+//! 3. **Implement Circuit Breaker for External Deps** - Prevents cascading failures
+//! 4. **Connection Pooling for MCP Client** - Reduces latency from ~200ms to ~20ms
+//! 5. **Structured Tracing Integration** - Enables distributed tracing for debugging
 
 use crate::coordination::{AgentCoordinator, Task};
 use crate::core::{Agent, AgentContext, AgentResult, ExecutionContext};
@@ -575,6 +628,25 @@ impl SwarmAgent {
             Ok(CodeRegenerationResult::default())
         }
     }
+
+    async fn execute_task(&self, task: &Task) -> AgentResult<String> {
+        // Execute specific task based on task type
+        match task.task_type.as_str() {
+            "requirements_analysis" => {
+                // Analyze requirements
+                Ok("Requirements analyzed".to_string())
+            }
+            "graph_extension" => {
+                // Extend knowledge graph
+                Ok("Graph extended".to_string())
+            }
+            "code_regeneration" => {
+                // Regenerate code
+                Ok("Code regenerated".to_string())
+            }
+            _ => Ok(format!("Task {} completed", task.id)),
+        }
+    }
 }
 
 impl Agent for SwarmAgent {
@@ -633,25 +705,6 @@ impl Agent for SwarmAgent {
         self.status = AgentStatus::Idle;
         self.current_task = None;
         Ok(())
-    }
-}
-
-async fn execute_task(&self, task: &Task) -> AgentResult<String> {
-    // Execute specific task based on task type
-    match task.task_type.as_str() {
-        "requirements_analysis" => {
-            // Analyze requirements
-            Ok("Requirements analyzed".to_string())
-        }
-        "graph_extension" => {
-            // Extend knowledge graph
-            Ok("Graph extended".to_string())
-        }
-        "code_regeneration" => {
-            // Regenerate code
-            Ok("Code regenerated".to_string())
-        }
-        _ => Ok(format!("Task {} completed", task.id)),
     }
 }
 
