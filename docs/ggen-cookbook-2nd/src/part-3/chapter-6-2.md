@@ -2,7 +2,37 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
-- [Pattern 2 - Placeholder](#pattern-2---placeholder)
+- [Pattern 2: Multi-File Project](#pattern-2-multi-file-project)
+  - [Intent](#intent)
+  - [Motivation](#motivation)
+  - [Applicability](#applicability)
+  - [Structure](#structure)
+  - [Implementation](#implementation)
+    - [1. Define Multiple Outputs](#1-define-multiple-outputs)
+    - [2. Structure Shared Data](#2-structure-shared-data)
+    - [3. Generate Cross-Referenced Files](#3-generate-cross-referenced-files)
+  - [Example: Complete API Module](#example-complete-api-module)
+    - [Input Data](#input-data)
+    - [Generated Files](#generated-files)
+      - [`src/user_api.rs`](#srcuser_apirs)
+      - [`src/user_api/models.rs`](#srcuser_apimodelsrs)
+      - [`src/user_api/handlers.rs`](#srcuser_apihandlersrs)
+      - [`src/user_api_tests.rs`](#srcuser_api_testsrs)
+  - [Example: Database Model Suite](#example-database-model-suite)
+    - [Input Data](#input-data-1)
+    - [Generated Files](#generated-files-1)
+      - [`src/models/product.rs`](#srcmodelsproductrs)
+      - [`src/models/product_repository.rs`](#srcmodelsproduct_repositoryrs)
+      - [`migrations/001_create_products_table.sql`](#migrations001_create_products_tablesql)
+  - [Example: Service Implementation](#example-service-implementation)
+    - [Input Data](#input-data-2)
+    - [Generated Files](#generated-files-2)
+      - [`src/services/email_service.rs`](#srcservicesemail_servicers)
+      - [`src/services/email_service_tests.rs`](#srcservicesemail_service_testsrs)
+  - [Consequences](#consequences)
+    - [Benefits](#benefits)
+    - [Drawbacks](#drawbacks)
+  - [Related Patterns](#related-patterns)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
