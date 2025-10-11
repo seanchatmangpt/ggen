@@ -1,0 +1,64 @@
+---
+to: "{{ project_name }}/src/cmds/{{ noun }}/{{ verb }}.rs"
+vars:
+  noun: "resource"
+  verb: "create"
+  noun_description: "resource"
+---
+//! {{ verb | capitalize }} {{ noun_description }} command
+
+use clap::Args;
+
+type Result<T> = std::result::Result<T, anyhow::Error>;
+
+#[derive(Debug, Args)]
+pub struct {{ verb | capitalize }}Args {
+    /// Name of the {{ noun_description }}
+    #[arg(short, long)]
+    pub name: String,
+
+    /// Description
+    #[arg(short, long)]
+    pub description: Option<String>,
+
+    /// Output format (json, yaml, table)
+    #[arg(short = 'f', long, default_value = "table")]
+    pub format: String,
+
+    /// Enable verbose output
+    #[arg(short, long)]
+    pub verbose: bool,
+}
+
+pub async fn run(args: &{{ verb | capitalize }}Args) -> Result<()> {
+    if args.verbose {
+        println!("{{ verb | capitalize }}ing {{ noun_description }}: {}", args.name);
+    }
+
+    // TODO: Implement {{ verb }} logic here
+    println!("✅ {{ noun | capitalize }} '{}' {{ verb }}d successfully!", args.name);
+
+    if let Some(desc) = &args.description {
+        println!("   Description: {}", desc);
+    }
+
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_{{ verb }}_basic() {
+        let args = {{ verb | capitalize }}Args {
+            name: "test-{{ noun }}".to_string(),
+            description: Some("Test {{ noun_description }}".to_string()),
+            format: "table".to_string(),
+            verbose: false,
+        };
+
+        let result = run(&args).await;
+        assert!(result.is_ok());
+    }
+}
