@@ -1,4 +1,35 @@
 //! Machine-timescale orchestration with parallel execution
+//!
+//! # Autonomous Orchestrator - Machine-Timescale Coordination
+//!
+//! ## PURPOSE
+//! Coordinates autonomous regeneration cycles at machine timescale (sub-30 second target),
+//! managing parallel event processing, deployment automation, and continuous optimization
+//! without human intervention.
+//!
+//! ## RESPONSIBILITIES
+//! - **Parallel Event Processing**: Execute regeneration events concurrently with configurable limits
+//! - **Cycle Time Optimization**: Monitor and optimize regeneration cycles to achieve sub-30s target
+//! - **Health Monitoring**: Continuous health checks of regeneration pipeline with automatic recovery
+//! - **Graceful Degradation**: Handle partial failures without stopping the orchestration loop
+//! - **Metrics Collection**: Track cycle time, success rate, concurrent operations for optimization
+//!
+//! ## CONSTRAINTS
+//! - Cycle Time Target: Must complete regeneration cycles in <30 seconds under normal load
+//! - Concurrency Limits: Respects `max_concurrent_operations` to prevent resource exhaustion
+//! - Single Orchestrator: Only one orchestrator instance should run at a time per deployment
+//! - Event Ordering: Events processed in parallel but dependencies must be respected
+//!
+//! ## INVARIANTS
+//! 1. Only one orchestrator instance active per deployment context
+//! 2. All events processed without data loss, even during errors
+//! 3. Health checks run continuously and independently from event processing
+//! 4. OrchestrationStats accurately reflect actual system behavior
+//!
+//! ## REFACTORING PRIORITIES (from REFACTORING_ANALYSIS.md)
+//! - **P0-1**: Extract error handling utility to reduce duplication
+//! - **P1-3**: Add progress indicators for long operations
+//! - **P2-1**: Break down execute_cycle (91 lines) into focused methods
 
 use crate::autonomous::telemetry::TelemetryEventType;
 use crate::autonomous::{
@@ -408,7 +439,7 @@ mod tests {
         let telemetry_config = TelemetryConfig::default();
         let orch_config = OrchestratorConfig::default();
 
-        let client = Box::new(MockClient::with_response("test"));
+        let client = Arc::new(MockClient::with_response("test"));
         let notifier = Arc::new(GraphChangeNotifier::default());
         let telemetry = Arc::new(TelemetryCollector::new(telemetry_config));
 
@@ -438,7 +469,7 @@ mod tests {
         let deploy_config = DeploymentConfig::default();
         let telemetry_config = TelemetryConfig::default();
 
-        let client = Box::new(MockClient::with_response("test"));
+        let client = Arc::new(MockClient::with_response("test"));
         let notifier = Arc::new(GraphChangeNotifier::default());
         let telemetry = Arc::new(TelemetryCollector::new(telemetry_config));
 
