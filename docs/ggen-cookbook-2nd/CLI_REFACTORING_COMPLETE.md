@@ -6,7 +6,7 @@
   - [🎯 Mission Accomplished](#-mission-accomplished)
   - [📊 Refactoring Summary](#-refactoring-summary)
     - [Before (v0.2.4)](#before-v024)
-    - [After (v0.2.5+)](#after-v025)
+    - [After (v1.0.0+)](#after-v100)
   - [🏗️ Complete Noun-Verb Structure](#-complete-noun-verb-structure)
     - [1. **project** - Project Generation & Management (9 verbs)](#1-project---project-generation--management-9-verbs)
     - [2. **market** - Gpack Marketplace (13 verbs)](#2-market---gpack-marketplace-13-verbs)
@@ -23,9 +23,9 @@
   - [🎯 Ultrathink 80/20 Analysis](#-ultrathink-8020-analysis)
     - [The 20% That Delivered 80% Value](#the-20-that-delivered-80-value)
   - [🚀 Migration Path](#-migration-path)
-    - [Phase 1: Deprecation Warnings (v0.2.5) ✅ CURRENT](#phase-1-deprecation-warnings-v025--current)
-    - [Phase 2: Alias Support (v0.2.6) 🚧 NEXT](#phase-2-alias-support-v026--next)
-    - [Phase 3: Remove Legacy (v0.3.0) 📅 PLANNED](#phase-3-remove-legacy-v030--planned)
+    - [Phase 1: Deprecation Warnings (v1.0.0) ✅ CURRENT](#phase-1-deprecation-warnings-v100--current)
+    - [Phase 2: Alias Support (v1.1.0) 🚧 NEXT](#phase-2-alias-support-v110--next)
+    - [Phase 3: Remove Legacy (v1.2.0) 📅 PLANNED](#phase-3-remove-legacy-v120--planned)
   - [🧪 Testing](#-testing)
   - [📖 Documentation](#-documentation)
     - [Updated Documentation](#updated-documentation)
@@ -34,9 +34,9 @@
     - [Quantitative Achievements](#quantitative-achievements)
     - [Qualitative Achievements](#qualitative-achievements)
   - [🔮 Future Enhancements](#-future-enhancements)
-    - [v0.2.6 (Next Release)](#v026-next-release)
-    - [v0.3.0 (Major Release)](#v030-major-release)
-    - [v0.4.0 (Advanced)](#v040-advanced)
+    - [v1.1.0 (Next Release)](#v110-next-release)
+    - [v1.2.0 (Major Release)](#v120-major-release)
+    - [v2.0.0 (Advanced)](#v200-advanced)
   - [📊 Before/After Comparison](#-beforeafter-comparison)
     - [Command Count](#command-count)
     - [Developer Experience](#developer-experience)
@@ -337,7 +337,7 @@ ggen gen → ggen project gen
 ggen list → ggen template list
 ```
 
-### Phase 3: Remove Legacy (v0.3.0) 📅 PLANNED
+### Phase 3: Remove Legacy (v1.2.0) 📅 PLANNED
 - Delete legacy command files
 - Update all documentation
 - Release notes with migration guide
@@ -407,7 +407,7 @@ Every command has:
 - [ ] Add shell completion scripts
 - [ ] Legacy command aliases
 
-### v0.3.0 (Major Release)
+### v1.2.0 (Major Release)
 - [ ] Remove all legacy commands
 - [ ] Add hook execution engine
 - [ ] File watch daemon

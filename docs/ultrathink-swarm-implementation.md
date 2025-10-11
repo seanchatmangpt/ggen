@@ -544,16 +544,16 @@ learning_enabled = true
 
 ```bash
 # Start swarm in autonomous mode
-ggen swarm start --autonomous --continuous
+ggen ultrathink start
 
 # Monitor swarm status
-ggen swarm status
+ggen ultrathink status
 
-# Execute manual operation
-ggen swarm execute --event "manual_trigger" --parameters '{"target": "templates"}'
+# Submit task to swarm
+ggen ultrathink task --description "Execute manual operation"
 
-# Shutdown swarm gracefully
-ggen swarm shutdown
+# Synchronize with WIP systems
+ggen ultrathink sync
 ```
 
 ### Environment Variables

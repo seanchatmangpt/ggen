@@ -25,6 +25,7 @@
       - [2. Test Fixtures Template](#2-test-fixtures-template)
       - [3. Integration Test Template](#3-integration-test-template)
       - [4. Property-Based Testing Template](#4-property-based-testing-template)
+      - [5. Modern Testing Tools and Practices](#5-modern-testing-tools-and-practices)
   - [Code Organization](#code-organization)
     - [Module Design Principles](#module-design-principles)
     - [File Size Guidelines](#file-size-guidelines)
@@ -436,6 +437,217 @@ GGEN_AI_ENABLE_RETRIES=true
 ---
 
 ## Error Handling Patterns
+
+### Core Team Best Practices
+
+**Typed Error Pattern** (Required for all libraries):
+```rust
+use ggen_utils::error::{Result, GgenError};
+
+// ✅ GOOD: Typed error with context
+pub fn process_template(template: &str) -> Result<String> {
+    if template.is_empty() {
+        return Err(GgenError::Validation("Template cannot be empty".into()));
+    }
+
+    // Process template...
+    Ok(processed_content)
+}
+
+// ❌ BAD: Generic error or panic
+pub fn bad_process_template(template: &str) -> String {
+    if template.is_empty() {
+        panic!("Template is empty"); // Don't use panic in libraries
+    }
+    template.to_string()
+}
+```
+
+**Structured Error Context**:
+```rust
+use ggen_utils::error::{Result, GgenError};
+
+// ✅ GOOD: Rich error context for debugging
+pub fn load_ontology(path: &Path) -> Result<Graph> {
+    let content = std::fs::read_to_string(path)
+        .map_err(|e| GgenError::Io {
+            message: format!("Failed to read ontology file: {}", path.display()),
+            source: e.into(),
+        })?;
+
+    Graph::from_turtle(&content)
+        .map_err(|e| GgenError::Rdf {
+            message: "Invalid Turtle syntax in ontology".into(),
+            source: e.into(),
+        })
+}
+```
+
+**Actionable Error Messages**:
+```rust
+// ✅ GOOD: Clear, actionable error messages
+Err(GgenError::Validation(
+    "Template 'user_model' is missing required field 'id_type'. \
+     Available types: uuid, auto_increment, string".into()
+))
+
+// ❌ BAD: Unclear error messages
+Err(GgenError::Validation("Invalid configuration".into()))
+```
+
+### Structured Logging Best Practices
+
+**Core Team Pattern** (Required for all libraries):
+```rust
+use ggen_utils::logger::{setup_logging, Result};
+use slog::{info, warn, error, debug};
+
+// ✅ GOOD: Structured logging with context
+pub fn process_generation_request(request: &GenerationRequest) -> Result<String> {
+    let logger = slog_scope::logger();
+
+    info!(logger, "Starting template generation";
+          "template_id" => &request.template_id,
+          "output_format" => &request.output_format,
+          "variables_count" => request.variables.len());
+
+    // Process request...
+    match generate_from_template(request) {
+        Ok(result) => {
+            info!(logger, "Template generation completed";
+                  "template_id" => &request.template_id,
+                  "output_size" => result.len());
+            Ok(result)
+        }
+        Err(e) => {
+            error!(logger, "Template generation failed";
+                   "template_id" => &request.template_id,
+                   "error" => %e);
+            Err(e)
+        }
+    }
+}
+
+// ❌ BAD: Using println! in libraries
+pub fn bad_process_request(request: &str) {
+    println!("Processing request: {}", request); // Don't use println in libs
+}
+```
+
+**Log Levels and Usage**:
+```rust
+// ✅ GOOD: Appropriate log levels with context
+debug!(logger, "Loading configuration"; "config_file" => &path);
+info!(logger, "Template cache hit"; "template_id" => &id, "cache_size" => cache.len());
+warn!(logger, "Deprecated API usage"; "api_version" => deprecated_version);
+error!(logger, "Critical failure"; "error" => %e, "retry_count" => attempts);
+```
+
+**Performance Logging**:
+```rust
+use std::time::Instant;
+
+// ✅ GOOD: Performance measurement with structured logging
+let start = Instant::now();
+let result = expensive_operation().await?;
+let duration = start.elapsed();
+
+info!(logger, "Operation completed";
+      "operation" => "template_compilation",
+      "duration_ms" => duration.as_millis(),
+      "success" => true);
+```
+
+### Testing Best Practices
+
+**Core Team Pattern** (Required for all modules):
+```rust
+use ggen_utils::error::Result;
+
+// ✅ GOOD: Property-based testing with proptest
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use proptest::prelude::*;
+
+    proptest! {
+        #[test]
+        fn test_template_generation_deterministic(
+            template in ".*",  // Any string template
+            variables in prop::collection::hash_map(
+                "[a-z]+",  // Variable names
+                "[^}]*",   // Variable values
+                0..10      // 0-10 variables
+            )
+        ) {
+            // Test that same inputs produce same outputs
+            let result1 = generate_template(&template, &variables)?;
+            let result2 = generate_template(&template, &variables)?;
+            prop_assert_eq!(result1, result2);
+        }
+    }
+
+    // ✅ GOOD: Integration tests with real dependencies
+    #[tokio::test]
+    async fn test_end_to_end_generation() {
+        let temp_dir = tempfile::tempdir().unwrap();
+        let template_path = temp_dir.path().join("template.tmpl");
+
+        // Setup test template
+        std::fs::write(&template_path, "Hello {{name}}!").unwrap();
+
+        // Test full generation pipeline
+        let result = generate_from_file(&template_path, &[("name", "World")]).await?;
+        assert_eq!(result, "Hello World!");
+    }
+}
+
+// ❌ BAD: Brittle unit tests
+#[test]
+fn bad_test() {
+    let result = hardcoded_function();
+    assert_eq!(result, "expected hardcoded value"); // Breaks on any change
+}
+```
+
+**Test Organization**:
+```rust
+// ✅ GOOD: Tests colocated with implementation
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_unit_functionality() {
+        // Unit tests here
+    }
+
+    #[tokio::test]
+    async fn test_async_functionality() {
+        // Async tests here
+    }
+}
+
+// In /tests/ directory for integration tests
+#[cfg(test)]
+mod integration_tests {
+    // Integration tests that test multiple modules
+}
+```
+
+**Deterministic Testing**:
+```rust
+// ✅ GOOD: Fixed seeds for reproducible tests
+#[test]
+fn test_with_fixed_seed() {
+    use rand::SeedableRng;
+    let mut rng = StdRng::seed_from_u64(42); // Fixed seed
+
+    // Test with predictable randomness
+    let result = generate_random_value(&mut rng);
+    assert_eq!(result, expected_value);
+}
+```
 
 ### Current Implementation Analysis
 
@@ -1040,6 +1252,152 @@ proptest! {
     }
 }
 ```
+
+#### 5. Modern Testing Tools and Practices
+
+**Recommended tools for enhanced testing workflows:**
+
+##### cargo-nextest - Faster Test Execution
+
+```bash
+# Install for 60% faster test runs
+cargo install cargo-nextest
+
+# Run tests faster
+cargo nextest run --workspace
+
+# With retry logic for flaky tests
+cargo nextest run --workspace --retries 3 -j 16
+
+# CI integration
+name: Tests
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cargo install cargo-nextest
+      - run: cargo nextest run --workspace --retries 3
+```
+
+**Benefits:**
+- 60% faster test execution
+- Better test output formatting
+- Parallel execution with job control
+- CI/CD optimization
+
+##### Code Coverage with cargo-tarpaulin
+
+```bash
+# Install coverage tracking
+cargo install cargo-tarpaulin
+
+# Generate coverage reports
+cargo tarpaulin --workspace --out Html --out Lcov
+
+# CI integration with codecov
+cargo tarpaulin --workspace --out Lcov
+# Upload to codecov automatically
+```
+
+**Benefits:**
+- Identify untested code paths
+- Track coverage trends over time
+- Professional project image
+- Better code review decisions
+
+##### Mutation Testing with cargo-mutants
+
+```bash
+# Install mutation testing
+cargo install cargo-mutants
+
+# Run mutation testing (CI only - takes time)
+cargo mutants --workspace
+
+# Focus on specific modules
+cargo mutants --lib
+```
+
+**Benefits:**
+- Verify tests actually catch bugs
+- Find weak or incomplete tests
+- Improve overall test quality
+- Catch issues users would never manually test
+
+##### Benchmark Testing with criterion
+
+```bash
+# Install benchmarking framework
+cargo install criterion
+
+# Run benchmarks
+cargo criterion
+
+# Compare against baseline
+cargo criterion --bench template_generation
+```
+
+**Benefits:**
+- Track performance regressions
+- Identify slow operations
+- Optimize critical code paths
+- Data-driven performance decisions
+
+##### Pre-commit Hooks for Quality
+
+```bash
+# Install pre-commit framework
+pip install pre-commit
+
+# .pre-commit-config.yaml
+repos:
+  - repo: local
+    hooks:
+      - id: cargo-fmt
+        name: cargo fmt
+        entry: cargo fmt --all --
+        language: system
+        types: [rust]
+        pass_filenames: false
+
+      - id: cargo-clippy
+        name: cargo clippy
+        entry: cargo clippy --workspace -- -D warnings
+        language: system
+        types: [rust]
+        pass_filenames: false
+
+      - id: cargo-test
+        name: cargo test
+        entry: cargo nextest run --workspace
+        language: system
+        types: [rust]
+        pass_filenames: false
+```
+
+**Benefits:**
+- Catch issues before commit
+- Consistent code style
+- Faster PR reviews
+- Fewer CI failures
+
+##### Quick Development Aliases
+
+```bash
+# Add to ~/.bashrc or ~/.zshrc
+alias cw="cargo watch -c -x 'check --workspace'"
+alias ct="cargo nextest run --workspace"
+alias cc="cargo check --workspace"
+alias ca="cargo audit"
+alias co="cargo outdated --workspace"
+```
+
+**Benefits:**
+- Faster development workflow
+- Instant feedback on changes
+- Consistent command usage
 
 ---
 

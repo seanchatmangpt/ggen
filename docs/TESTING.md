@@ -40,8 +40,13 @@ This guide explains how to run tests for ggen, including fast unit tests and opt
 
 ### Fast Tests (Default - No API Calls)
 ```bash
+# Standard tests (recommended for development)
 cargo make test
+
+# Even faster with cargo-nextest (60% faster)
+cargo nextest run --workspace
 ```
+
 Runs all unit tests and integration tests with mocked LLM responses. This is the default test mode and should be fast.
 
 ### AI Integration Tests
@@ -141,6 +146,80 @@ In CI/CD pipelines, live tests should be run separately and conditionally:
   run: cargo make test-live
 ```
 
+## Advanced Testing Practices
+
+### Property-Based Testing with proptest
+
+For testing complex behaviors that should hold for all possible inputs:
+
+```bash
+# Install proptest for property-based testing
+cargo add proptest --dev
+
+# Run property tests
+cargo nextest run --workspace --test property_tests
+```
+
+**Example property test:**
+```rust
+use proptest::prelude::*;
+
+proptest! {
+    #[test]
+    fn test_template_rendering_never_panics(
+        template in ".*",
+        variables in any::<HashMap<String, String>>()
+    ) {
+        // Should never panic, even with invalid input
+        let result = render_template(&template, &variables);
+        assert!(result.is_ok() || result.is_err()); // Should either succeed or fail gracefully
+    }
+}
+```
+
+### Code Coverage Tracking
+
+Monitor test coverage to identify untested code paths:
+
+```bash
+# Install coverage tools
+cargo install cargo-tarpaulin
+
+# Generate coverage report
+cargo tarpaulin --workspace --out Html --out Lcov
+
+# CI integration example
+cargo tarpaulin --workspace --out Lcov
+# Upload to codecov or similar service
+```
+
+### Mutation Testing
+
+Verify that tests actually catch bugs:
+
+```bash
+# Install mutation testing
+cargo install cargo-mutants
+
+# Run mutation testing (takes time, run on CI)
+cargo mutants --workspace
+```
+
+### Benchmark Testing
+
+Track performance regressions:
+
+```bash
+# Install benchmarking framework
+cargo install criterion
+
+# Run benchmarks
+cargo criterion
+
+# Compare against baseline
+cargo criterion --bench template_generation
+```
+
 ## Best Practices
 
 1. **Always use `cargo make` commands** - Never use direct `cargo` commands
@@ -155,7 +234,9 @@ In CI/CD pipelines, live tests should be run separately and conditionally:
 ### Tests are slow
 - Ensure you're not running live LLM tests by default
 - Use `cargo make test` for fast tests
+- Use `cargo nextest run` for 60% faster test execution
 - Check that feature flags are not enabled by default
+- Run property tests and benchmarks on CI, not locally
 
 ### API key errors
 - Live tests require API keys to be set
@@ -170,9 +251,12 @@ In CI/CD pipelines, live tests should be run separately and conditionally:
 ## Performance Expectations
 
 - **Fast tests**: Should complete in under 30 seconds
+- **cargo-nextest**: Should complete in under 15 seconds (60% faster)
 - **Ollama tests**: May take 1-2 minutes depending on model size
 - **OpenAI/Anthropic tests**: May take 10-30 seconds depending on API latency
 - **All live tests**: May take 2-5 minutes total
+- **Property tests**: May take 5-10 minutes (run on CI)
+- **Mutation tests**: May take 30+ minutes (run on CI only)
 
 ## AI Implementation Testing
 

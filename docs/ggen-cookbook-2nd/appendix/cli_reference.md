@@ -135,7 +135,7 @@ cargo install ggen
 # Build from source
 git clone https://github.com/ggen-project/ggen
 cd ggen
-cargo build --release
+cargo make release
 ```
 
 Verify installation:

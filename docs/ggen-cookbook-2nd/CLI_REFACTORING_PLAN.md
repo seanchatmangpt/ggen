@@ -26,10 +26,10 @@
   - [Consistency Matrix: Verbs Across Nouns](#consistency-matrix-verbs-across-nouns)
     - [Missing Verbs Analysis](#missing-verbs-analysis)
   - [Migration Strategy: Removing Legacy Commands](#migration-strategy-removing-legacy-commands)
-    - [Phase 1: Add Deprecation Warnings (v0.2.5)](#phase-1-add-deprecation-warnings-v025)
-    - [Phase 2: Update Documentation (v0.2.5)](#phase-2-update-documentation-v025)
-    - [Phase 3: Add Alias Support (v0.2.6)](#phase-3-add-alias-support-v026)
-    - [Phase 4: Remove Legacy Commands (v0.3.0)](#phase-4-remove-legacy-commands-v030)
+    - [Phase 1: Add Deprecation Warnings (v1.0.0)](#phase-1-add-deprecation-warnings-v100)
+    - [Phase 2: Update Documentation (v1.0.0)](#phase-2-update-documentation-v100)
+    - [Phase 3: Add Alias Support (v1.1.0)](#phase-3-add-alias-support-v110)
+    - [Phase 4: Remove Legacy Commands (v1.2.0)](#phase-4-remove-legacy-commands-v120)
   - [New Commands: Detailed Specifications](#new-commands-detailed-specifications)
     - [1. `project test` Verb (Pattern 009)](#1-project-test-verb-pattern-009)
     - [2. `project inject` Verb (Pattern 091)](#2-project-inject-verb-pattern-091)
@@ -38,12 +38,12 @@
     - [5. `template validate` Verb](#5-template-validate-verb)
     - [6. `ci drift-check` Verb (Pattern 012)](#6-ci-drift-check-verb-pattern-012)
   - [Implementation Priority](#implementation-priority)
-    - [Phase 1: Foundation (v0.2.5 - 1 month)](#phase-1-foundation-v025---1-month)
-    - [Phase 2: Pattern Completion (v0.2.6 - 1 month)](#phase-2-pattern-completion-v026---1-month)
-    - [Phase 3: Legacy Removal (v0.3.0 - 1 month)](#phase-3-legacy-removal-v030---1-month)
-    - [Phase 4: Polish (v0.3.1 - 2 weeks)](#phase-4-polish-v031---2-weeks)
+    - [Phase 1: Foundation (v1.0.0 - 1 month)](#phase-1-foundation-v100---1-month)
+    - [Phase 2: Pattern Completion (v1.1.0 - 1 month)](#phase-2-pattern-completion-v110---1-month)
+    - [Phase 3: Legacy Removal (v1.2.0 - 1 month)](#phase-3-legacy-removal-v120---1-month)
+    - [Phase 4: Polish (v1.2.1 - 2 weeks)](#phase-4-polish-v121---2-weeks)
   - [Breaking Changes Documentation](#breaking-changes-documentation)
-    - [v0.3.0 Breaking Changes](#v030-breaking-changes)
+    - [v1.2.0 Breaking Changes](#v120-breaking-changes)
   - [Anti-Patterns to Avoid](#anti-patterns-to-avoid)
     - [❌ Don't: Mix verb-noun and noun-verb](#-dont-mix-verb-noun-and-noun-verb)
     - [✅ Do: Consistent noun-verb](#-do-consistent-noun-verb)
@@ -57,13 +57,13 @@
     - [BDD Tests](#bdd-tests)
   - [Success Metrics](#success-metrics)
     - [Before Refactoring (v0.2.4)](#before-refactoring-v024)
-    - [After Refactoring (v0.3.0)](#after-refactoring-v030)
+    - [After Refactoring (v1.2.0)](#after-refactoring-v120)
     - [KPIs](#kpis)
   - [Timeline](#timeline)
-    - [Sprint 1 (Weeks 1-2): v0.2.5](#sprint-1-weeks-1-2-v025)
-    - [Sprint 2 (Weeks 3-4): v0.2.6](#sprint-2-weeks-3-4-v026)
-    - [Sprint 3 (Weeks 5-6): v0.3.0](#sprint-3-weeks-5-6-v030)
-    - [Sprint 4 (Week 7): v0.3.1](#sprint-4-week-7-v031)
+    - [Sprint 1 (Weeks 1-2): v1.0.0](#sprint-1-weeks-1-2-v100)
+    - [Sprint 2 (Weeks 3-4): v1.1.0](#sprint-2-weeks-3-4-v110)
+    - [Sprint 3 (Weeks 5-6): v1.2.0](#sprint-3-weeks-5-6-v120)
+    - [Sprint 4 (Week 7): v1.2.1](#sprint-4-week-7-v121)
   - [Risk Mitigation](#risk-mitigation)
     - [Risk 1: User Backlash](#risk-1-user-backlash)
     - [Risk 2: Breaking CI/CD Pipelines](#risk-2-breaking-cicd-pipelines)
@@ -71,7 +71,7 @@
     - [Risk 4: Documentation Lag](#risk-4-documentation-lag)
   - [Appendix A: Complete Command Reference](#appendix-a-complete-command-reference)
     - [Current Commands (v0.2.4)](#current-commands-v024)
-    - [New Commands (v0.3.0)](#new-commands-v030)
+    - [New Commands (v1.2.0)](#new-commands-v120)
   - [Appendix B: Pattern Implementation Checklist](#appendix-b-pattern-implementation-checklist)
   - [Conclusion](#conclusion)
 
@@ -332,15 +332,15 @@ This matrix shows which verbs should be available for each noun, ensuring **sema
 
 ## Migration Strategy: Removing Legacy Commands
 
-### Phase 1: Add Deprecation Warnings (v0.2.5)
+### Phase 1: Add Deprecation Warnings (v1.0.0)
 **Duration**: 1 release cycle (1 month)
 
 ```rust
 // cli/src/cmds/search.rs
-#[deprecated(since = "0.2.5", note = "Use `ggen market search` instead")]
+#[deprecated(since = "1.0.0", note = "Use `ggen market search` instead")]
 pub async fn run(args: &SearchArgs) -> Result<()> {
     eprintln!("⚠️  WARNING: 'ggen search' is deprecated. Use 'ggen market search' instead.");
-    eprintln!("   This command will be removed in v0.3.0");
+    eprintln!("   This command will be removed in v1.2.0");
     // ... existing implementation
 }
 ```
@@ -353,7 +353,7 @@ pub async fn run(args: &SearchArgs) -> Result<()> {
 
 ---
 
-### Phase 2: Update Documentation (v0.2.5)
+### Phase 2: Update Documentation (v1.0.0)
 **Duration**: Concurrent with Phase 1
 
 **Tasks**:
@@ -364,7 +364,7 @@ pub async fn run(args: &SearchArgs) -> Result<()> {
 
 ---
 
-### Phase 3: Add Alias Support (v0.2.6)
+### Phase 3: Add Alias Support (v1.1.0)
 **Duration**: 1 release cycle (1 month)
 
 ```bash
@@ -392,7 +392,7 @@ pub enum AliasVerb {
 
 ---
 
-### Phase 4: Remove Legacy Commands (v0.3.0)
+### Phase 4: Remove Legacy Commands (v1.2.0)
 **Duration**: 1 release cycle (1 month)
 
 **Breaking Changes**:
@@ -785,11 +785,11 @@ ggen ci drift-check --report --format json > drift-report.json
 **Deliverables**:
 - 100% noun-verb CLI
 - Clean codebase
-- v0.3.0 release
+- v1.2.0 release
 
 ---
 
-### Phase 4: Polish (v0.3.1 - 2 weeks)
+### Phase 4: Polish (v1.2.1 - 2 weeks)
 **Goal**: Improve UX and consistency
 
 1. ✅ Standardize error messages
@@ -807,11 +807,11 @@ ggen ci drift-check --report --format json > drift-report.json
 
 ## Breaking Changes Documentation
 
-### v0.3.0 Breaking Changes
+### v1.2.0 Breaking Changes
 
 **Removed Commands**:
 ```bash
-# These commands are REMOVED in v0.3.0:
+# These commands are REMOVED in v1.2.0:
 ggen search        # Use: ggen market search
 ggen add           # Use: ggen market add
 ggen remove        # Use: ggen market remove
@@ -827,10 +827,10 @@ ggen lint          # Use: ggen template lint
 **Migration Script**:
 ```bash
 #!/bin/bash
-# scripts/migrate-to-v0.3.0.sh
+# scripts/migrate-to-v1.2.0.sh
 # Automated migration helper
 
-echo "Migrating ggen commands to v0.3.0..."
+echo "Migrating ggen commands to v1.2.0..."
 
 # Create aliases
 ggen alias add search "market search"

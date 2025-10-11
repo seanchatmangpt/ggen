@@ -111,7 +111,7 @@ ggen add io.ggen.rust.cli-subcommand@1.0.0
 
 ```bash
 # Use the installed gpack template
-ggen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello description="Print a greeting"
+ggen project gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl --vars name=hello description="Print a greeting"
 ```
 
 ### 4. Verify Installation
@@ -166,7 +166,7 @@ pub fn {{ slug }}(name:&str){ println!("hello {}", name); }
 ### 3. Generate
 
 ```bash
-ggen gen cli subcommand --vars cmd=hello summary="Print a greeting"
+ggen project gen cli subcommand --vars cmd=hello summary="Print a greeting"
 ```
 
 ## Marketplace vs Local Templates
@@ -211,7 +211,7 @@ ggen show io.ggen.rust.cli-subcommand
 
 ```bash
 # Use dry run to preview
-ggen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello --dry
+ggen project gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl --vars name=hello --dry
 
 # Check variable requirements
 ggen show io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl
