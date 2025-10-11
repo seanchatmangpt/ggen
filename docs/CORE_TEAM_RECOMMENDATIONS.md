@@ -127,7 +127,10 @@ reqwest v0.12.x (in workspace dependencies)
 ```toml
 # Root Cargo.toml - force single versions
 [workspace.dependencies]
-reqwest = { version = "0.12", features = ["json", "rustls-tls"] }
+reqwest = { version = "0.12", features = [
+  "json",
+  "rustls-tls",
+] }
 base64 = "0.22.1"
 
 # ggen-core/Cargo.toml - update old reqwest
@@ -664,7 +667,11 @@ cargo expand path::to::module
 **Enhancement:**
 ```toml
 [dependencies]
-tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+tracing-subscriber = { version = "0.3", features = [
+  "env-filter",
+  "json",
+  "ansi",
+] }
 tracing-bunyan-formatter = "0.3"
 tracing-log = "0.2"
 ```
@@ -837,7 +844,11 @@ color-eyre = "0.6"  # Beautiful error reports with backtraces
 miette = "7.0"  # Fancy diagnostic reporting
 
 # Structured logging (upgrade current setup)
-tracing-subscriber = { version = "0.3", features = ["env-filter", "json", "ansi"] }
+tracing-subscriber = { version = "0.3", features = [
+  "env-filter",
+  "json",
+  "ansi",
+] }
 tracing-appender = "0.2"  # Log rotation
 
 # Performance profiling

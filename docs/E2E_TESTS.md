@@ -227,7 +227,10 @@ assert_cmd = "2.0.17"
 tempfile = "3.0"
 anyhow = "1.0"
 toml = "0.8"
-reqwest = { version = "0.12", features = ["blocking", "json"] }
+reqwest = { version = "0.12", features = [
+  "blocking",
+  "json",
+] }
 ```
 
 ## Troubleshooting

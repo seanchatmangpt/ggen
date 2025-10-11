@@ -244,7 +244,10 @@ ggen ai frontmatter -d "API endpoints" --json --yaml
 [dependencies]
 # Core AI integration
 genai = "0.1"                # Multi-provider AI client
-reqwest = { version = "0.12", features = ["json", "stream"] }
+reqwest = { version = "0.12", features = [
+  "json",
+  "stream",
+] }
 tokio = { version = "1", features = ["full"] }
 
 # Configuration management

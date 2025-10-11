@@ -76,6 +76,10 @@ pub struct EvolveArgs {
     /// Verbose output
     #[arg(short, long)]
     pub verbose: bool,
+
+    /// Use mock client for testing
+    #[arg(long)]
+    pub mock: bool,
 }
 
 #[derive(Args, Debug)]
@@ -239,16 +243,54 @@ mod evolve {
             println!("🔄 Initializing AI clients...");
         }
 
-        // Create LLM clients using get_global_config
-        let mut llm_config = ggen_ai::get_global_config().clone();
-        llm_config.set_provider(provider);
-        if let Some(model) = &args.model {
-            llm_config.settings.default_model = Some(model.clone());
-        }
-        let parser_client = create_client_with_config(&llm_config)
-            .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?;
-        let validator_client = create_client_with_config(&llm_config)
-            .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?;
+        // Create LLM clients using get_global_config or mock
+        use std::sync::Arc;
+        use ggen_ai::client::LlmClient;
+
+        let (parser_client, validator_client): (Arc<dyn LlmClient>, Arc<dyn LlmClient>) = if args.mock || cfg!(test) {
+            println!("ℹ️  Using mock client for testing");
+            use ggen_ai::providers::MockClient;
+
+            // Create a mock response with properly formatted Turtle code
+            // The parser expects a complete Turtle document with code blocks
+            let mock_response = r#"```turtle
+ex:User a owl:Class .
+ex:User rdfs:label "User"@en .
+ex:User rdfs:comment "Represents a user in the system"@en .
+ex:name a owl:DatatypeProperty .
+ex:name rdfs:domain ex:User .
+ex:name rdfs:range xsd:string .
+ex:name rdfs:label "name"@en .
+ex:email a owl:DatatypeProperty .
+ex:email rdfs:domain ex:User .
+ex:email rdfs:range xsd:string .
+ex:email rdfs:label "email"@en .
+```
+
+```json
+[
+    {"subject": "ex:User", "predicate": "rdf:type", "object": "owl:Class", "confidence": 0.95, "reasoning": "User class definition"},
+    {"subject": "ex:User", "predicate": "rdfs:label", "object": "\"User\"@en", "confidence": 0.95, "reasoning": "User label"},
+    {"subject": "ex:name", "predicate": "rdf:type", "object": "owl:DatatypeProperty", "confidence": 0.90, "reasoning": "Name property"},
+    {"subject": "ex:email", "predicate": "rdf:type", "object": "owl:DatatypeProperty", "confidence": 0.90, "reasoning": "Email property"}
+]
+```"#;
+
+            let parser = Arc::new(MockClient::with_response(mock_response)) as Arc<dyn LlmClient>;
+            let validator = Arc::new(MockClient::with_response(mock_response)) as Arc<dyn LlmClient>;
+            (parser, validator)
+        } else {
+            let mut llm_config = ggen_ai::get_global_config().clone();
+            llm_config.set_provider(provider);
+            if let Some(model) = &args.model {
+                llm_config.settings.default_model = Some(model.clone());
+            }
+            let parser_client = create_client_with_config(&llm_config)
+                .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?;
+            let validator_client = create_client_with_config(&llm_config)
+                .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?;
+            (parser_client, validator_client)
+        };
 
         if args.verbose {
             println!("✅ AI clients initialized");

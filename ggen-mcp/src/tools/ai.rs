@@ -139,13 +139,12 @@ pub async fn generate_template(params: Value) -> Result<Value> {
 
     // Save to file if specified
     if let Some(output_path) = output_file {
-        // Template has a to_string method that outputs the frontmatter + body
-        std::fs::write(&output_path, format!("{}", template_content))
+        // Write template body to file
+        std::fs::write(&output_path, &template_content.body)
             .map_err(|e| crate::error::GgenMcpError::Io(e.to_string()))?;
 
         Ok(success_response(json!({
             "template_body": template_content.body,
-            "template_frontmatter": template_content.raw_frontmatter,
             "output_file": output_path,
             "generated": true,
             "validated": validate,
@@ -154,7 +153,6 @@ pub async fn generate_template(params: Value) -> Result<Value> {
     } else {
         Ok(success_response(json!({
             "template_body": template_content.body,
-            "template_frontmatter": template_content.raw_frontmatter,
             "generated": true,
             "validated": validate,
             "validation_errors": validation_errors

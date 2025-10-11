@@ -126,7 +126,7 @@ impl OntologyGenerator {
 
     /// Extract ontology content from AI response
     fn extract_ontology_content(&self, response: &str) -> Result<String> {
-        // Look for Turtle/RDF content in code blocks
+        // Look for Turtle/RDF content in code blocks with "turtle" language marker
         if let Some(start) = response.find("```turtle") {
             let search_start = start + 9;
             if let Some(end_offset) = response[search_start..].find("```") {
@@ -135,7 +135,17 @@ impl OntologyGenerator {
             }
         }
 
+        // Look for code blocks with "ttl" language marker
         if let Some(start) = response.find("```ttl") {
+            let search_start = start + 6;
+            if let Some(end_offset) = response[search_start..].find("```") {
+                let content = &response[search_start..search_start + end_offset].trim();
+                return Ok(content.to_string());
+            }
+        }
+
+        // Look for code blocks with "rdf" language marker
+        if let Some(start) = response.find("```rdf") {
             let search_start = start + 6;
             if let Some(end_offset) = response[search_start..].find("```") {
                 let content = &response[search_start..search_start + end_offset].trim();
@@ -145,18 +155,40 @@ impl OntologyGenerator {
 
         // Look for any code block that might contain RDF
         if let Some(start) = response.find("```") {
-            let search_start = start + 3;
+            // Skip the opening ```
+            let mut search_start = start + 3;
+
+            // Skip language identifier if present (e.g., "```python" -> skip "python")
+            if let Some(newline_pos) = response[search_start..].find('\n') {
+                search_start += newline_pos + 1;
+            }
+
             if let Some(end_offset) = response[search_start..].find("```") {
-                let content = &response[search_start..search_start + end_offset].trim();
-                // Check if it looks like RDF/Turtle
-                if content.contains("@prefix") || content.contains("a ") || content.contains(":") {
+                let content = response[search_start..search_start + end_offset].trim();
+                // Check if it looks like RDF/Turtle with more robust detection
+                if content.contains("@prefix")
+                    || (content.contains(" a ") && content.contains(";"))
+                    || (content.contains("rdfs:") || content.contains("owl:") || content.contains("rdf:")) {
                     return Ok(content.to_string());
                 }
             }
         }
 
-        // Fallback: return the entire response
-        Ok(response.trim().to_string())
+        // Check if the entire response looks like Turtle without code blocks
+        let trimmed = response.trim();
+        if trimmed.contains("@prefix")
+            || (trimmed.contains(" a ") && trimmed.contains(";"))
+            || (trimmed.contains("rdfs:") || trimmed.contains("owl:") || trimmed.contains("rdf:")) {
+            return Ok(trimmed.to_string());
+        }
+
+        // If we couldn't find valid Turtle content, return a more helpful error
+        Err(crate::error::GgenAiError::ontology_generation(
+            format!(
+                "No Turtle code block found in response. Please ensure the LLM provider returns Turtle/RDF in a code block. Response preview: {}",
+                &response[..response.len().min(200)]
+            )
+        ))
     }
 }
 

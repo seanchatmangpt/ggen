@@ -1004,25 +1004,41 @@ println!("Cache savings: {} tokens", usage.cache_hits);
 ```toml
 [dependencies]
 # Async runtime
-tokio = { version = "1", features = ["macros", "rt-multi-thread", "io-std", "test-util"] }
+tokio = { version = "1", features = [
+  "macros",
+  "rt-multi-thread",
+  "io-std",
+  "test-util",
+] }
 futures = "0.3"
 tokio-stream = "0.1"
 
 # JSON handling
-serde = { version = "1", features = ["derive", "rc"] }
+serde = { version = "1", features = [
+  "derive",
+  "rc",
+] }
 serde_json = "1"
 serde_with = "3.12.0"
 value-ext = "0.1.2"  # Custom JSON value extensions
 
 # HTTP client
-reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+reqwest = { version = "0.12", default-features = false, features = [
+  "json",
+  "rustls-tls",
+] }
 reqwest-eventsource = "0.6"  # SSE streaming
 eventsource-stream = "0.2"
 bytes = "1.6"
 
 # Utilities
-derive_more = { version = "2", features = ["from", "display"] }
-tracing = { version = "0.1", features = ["default"] }
+derive_more = { version = "2", features = [
+  "from",
+  "display",
+] }
+tracing = { version = "0.1", features = [
+  "default",
+] }
 ```
 
 **Key Choice**: `reqwest` for HTTP (not `hyper` directly) enables cleaner async API.
@@ -1226,7 +1242,9 @@ All major features have runnable examples:
 
 ```toml
 [dependencies]
-tracing = { version = "0.1", features = ["default"] }
+tracing = { version = "0.1", features = [
+  "default",
+] }
 
 [dev-dependencies]
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }

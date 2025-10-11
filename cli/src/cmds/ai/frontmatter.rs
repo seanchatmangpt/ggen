@@ -19,17 +19,64 @@ pub struct FrontmatterArgs {
     /// Output file path
     #[arg(short, long)]
     pub output: Option<String>,
+
+    /// Use mock client for testing
+    #[arg(long)]
+    pub mock: bool,
+
+    /// Model name to use
+    #[arg(long)]
+    pub model: Option<String>,
+
+    /// Temperature for generation
+    #[arg(long)]
+    pub temperature: Option<f32>,
+
+    /// Maximum tokens to generate
+    #[arg(long)]
+    pub max_tokens: Option<u32>,
 }
 
 pub async fn run(args: &FrontmatterArgs) -> Result<()> {
     println!("📋 Generating frontmatter with AI...");
     println!("Description: {}", args.description);
 
-    // Use global config to auto-detect and create appropriate client
+    // Use global config for proper provider detection
     let global_config = ggen_ai::get_global_config();
-    let client = global_config
-        .create_contextual_client()
-        .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?;
+
+    use ggen_ai::client::{GenAiClient, LlmClient};
+    use ggen_ai::{LlmConfig, MockClient};
+    use std::sync::Arc;
+
+    let client: Arc<dyn LlmClient> = if args.mock {
+        println!("ℹ️  Using mock client for testing");
+        Arc::new(MockClient::with_response("Generated frontmatter content"))
+    } else {
+        println!("ℹ️  Using {} provider", global_config.provider_name());
+
+        // Create client with proper configuration
+        if let Some(model) = &args.model {
+            // Use custom model if specified
+            let llm_config = LlmConfig {
+                model: model.clone(),
+                max_tokens: args.max_tokens,
+                temperature: args.temperature,
+                top_p: Some(0.9),
+                stop: None,
+                extra: std::collections::HashMap::new(),
+            };
+            Arc::new(
+                GenAiClient::new(llm_config)
+                    .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?,
+            )
+        } else {
+            // Use contextual client with auto-detection
+            global_config
+                .create_contextual_client()
+                .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?
+        }
+    };
+
     let generator = TemplateGenerator::with_client(client);
 
     // Generate template with frontmatter

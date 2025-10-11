@@ -142,7 +142,12 @@ impl GlobalLlmConfig {
             };
         }
 
-        // 2. Check for API keys (prefer cloud providers if keys are available)
+        // 2. Prefer Ollama if available locally (default for ggen)
+        if Self::check_ollama_available() {
+            return LlmProvider::Ollama;
+        }
+
+        // 3. Check for API keys as fallback
         if std::env::var("OPENAI_API_KEY").is_ok() {
             return LlmProvider::OpenAI;
         }
@@ -150,14 +155,10 @@ impl GlobalLlmConfig {
             return LlmProvider::Anthropic;
         }
 
-        // 3. Check if Ollama is available locally
-        if Self::check_ollama_available() {
-            return LlmProvider::Ollama;
-        }
-
         // 4. Fallback to Mock provider with warning
         eprintln!("Warning: No LLM provider detected. Using Mock provider.");
         eprintln!("Set OPENAI_API_KEY, ANTHROPIC_API_KEY, or install Ollama.");
+        eprintln!("To use Ollama, start it with: ollama serve");
         LlmProvider::Mock
     }
 

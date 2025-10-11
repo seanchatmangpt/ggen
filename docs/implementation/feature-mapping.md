@@ -187,7 +187,10 @@ ggen-core/src/llm/
 # LLM Integration
 async-openai = "0.23"           # OpenAI client
 anthropic-sdk = "0.2"           # Anthropic Claude (or custom implementation)
-reqwest = { version = "0.12", features = ["json", "stream"] }
+reqwest = { version = "0.12", features = [
+  "json",
+  "stream",
+] }
 tokio-stream = "0.1"
 serde_json = "1.0"
 futures = "0.3"

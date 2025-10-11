@@ -291,6 +291,8 @@ impl ByzantineValidator {
         
         let duration_ms = Utc::now().signed_duration_since(start_time).num_milliseconds() as u64;
         
+        let metrics = self.get_validation_metrics(&validation_result).await?;
+
         Ok(AgentMessage::TaskCompletion {
             task_id,
             result: TaskResult {
@@ -299,7 +301,7 @@ impl ByzantineValidator {
                 result: Some(validation_result.data),
                 error: validation_result.error,
                 duration_ms,
-                metrics: Some(self.get_validation_metrics(&validation_result).await?),
+                metrics: Some(metrics),
             },
         })
     }

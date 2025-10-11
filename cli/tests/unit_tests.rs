@@ -156,16 +156,16 @@ async fn test_generate_creates_valid_template_structure() {
     use ggen_ai::MockClient;
     use ggen_ai::TemplateGenerator;
     use std::sync::Arc;
-    use tera::{Context, Tera};
 
-    // Create a mock response that looks like a real template
+    // Create a mock response without template variables in frontmatter
+    // (TemplateGenerator will render with empty context)
     let mock_response = r#"---
-to: "generated/{{ name }}.rs"
+to: "generated/example.rs"
 vars:
   name: "example"
   version: "1.0.0"
 ---
-pub fn {{ name }}() {
+pub fn example() {
     println!("Generated function");
 }
 "#;
@@ -173,8 +173,8 @@ pub fn {{ name }}() {
     let mock_client = MockClient::with_response(mock_response);
     let generator = TemplateGenerator::new(Arc::new(mock_client));
 
-    // Generate a template
-    let mut template = generator
+    // Generate a template (TemplateGenerator.parse_template() already renders frontmatter)
+    let template = generator
         .generate_template(
             "Create a Rust function template",
             vec!["Example 1", "Example 2"],
@@ -182,22 +182,18 @@ pub fn {{ name }}() {
         .await
         .unwrap();
 
-    // Render frontmatter to populate the front struct
-    let mut tera = Tera::default();
-    let mut vars = Context::new();
-    vars.insert("name", "example");
-    template
-        .render_frontmatter(&mut tera, &vars)
-        .expect("Frontmatter rendering should succeed");
-
     // Verify the generated template has frontmatter and body
     assert!(
         !template.front.vars.is_empty(),
-        "Generated template should have variables after rendering"
+        "Generated template should have variables"
     );
     assert!(
         !template.body.is_empty(),
         "Generated template should have body"
+    );
+    assert!(
+        template.front.to.is_some(),
+        "Generated template should have 'to' field"
     );
 }
 
@@ -603,41 +599,36 @@ async fn test_mock_client_can_be_used_in_generator() {
 async fn test_full_template_generation_workflow() {
     use ggen_ai::{MockClient, TemplateGenerator};
     use std::sync::Arc;
-    use tera::{Context, Tera};
 
-    // 1. Generate template using mock client
+    // 1. Generate template using mock client (no template vars in frontmatter)
     let mock_response = r#"---
-to: "output/{{ name }}.rs"
+to: "output/workflow_test.rs"
 vars:
   name: "workflow_test"
 ---
-pub fn {{ name }}() {}
+pub fn workflow_test() {}
 "#;
 
     let mock_client = MockClient::with_response(mock_response);
     let generator = TemplateGenerator::new(Arc::new(mock_client));
 
-    let mut generated = generator
+    let generated = generator
         .generate_template("Create a function", vec!["Example"])
         .await
         .unwrap();
 
-    // 2. Render frontmatter to populate the front struct
-    let mut tera = Tera::default();
-    let mut vars = Context::new();
-    vars.insert("name", "workflow_test");
-    generated
-        .render_frontmatter(&mut tera, &vars)
-        .expect("Frontmatter rendering should succeed");
-
-    // 3. Verify the workflow completed successfully
+    // 2. Verify the workflow completed successfully (TemplateGenerator already rendered frontmatter)
     assert!(
         !generated.body.is_empty(),
         "Generated template should have body content"
     );
     assert!(
         generated.front.to.is_some(),
-        "Generated template should have 'to' field after rendering"
+        "Generated template should have 'to' field"
+    );
+    assert!(
+        !generated.front.vars.is_empty(),
+        "Generated template should have variables"
     );
 }
 
@@ -645,7 +636,6 @@ pub fn {{ name }}() {}
 async fn test_from_source_to_template_workflow() {
     use ggen_ai::{MockClient, TemplateGenerator};
     use std::sync::Arc;
-    use tera::{Context, Tera};
 
     let temp_dir = TempDir::new().unwrap();
 
@@ -660,35 +650,31 @@ async fn test_from_source_to_template_workflow() {
     let content = fs::read_to_string(&source_path).unwrap();
     assert_eq!(content, source_code);
 
-    // 3. Generate a template from it
+    // 3. Generate a template from it (no template vars in frontmatter)
     let mock_template = format!(
-        "---\nto: \"generated/{{{{ name }}}}.rs\"\nvars:\n  name: \"from_source\"\n---\n{}",
+        "---\nto: \"generated/from_source.rs\"\nvars:\n  name: \"from_source\"\n---\n{}",
         content
     );
 
     let mock_client = MockClient::with_response(&mock_template);
     let generator = TemplateGenerator::new(Arc::new(mock_client));
 
-    let mut template = generator
+    let template = generator
         .generate_template("Convert source to template", vec![&content])
         .await
         .unwrap();
 
-    // 4. Render frontmatter to populate the front struct
-    let mut tera = Tera::default();
-    let mut vars = Context::new();
-    vars.insert("name", "from_source");
-    template
-        .render_frontmatter(&mut tera, &vars)
-        .expect("Frontmatter rendering should succeed");
-
-    // 5. Verify template contains original code
+    // 4. Verify template contains original code (TemplateGenerator already rendered frontmatter)
     assert!(
         !template.body.is_empty(),
         "Template should have body from source"
     );
     assert!(
         template.front.vars.contains_key("name"),
-        "Template should have variables after rendering"
+        "Template should have variables"
+    );
+    assert!(
+        template.front.to.is_some(),
+        "Template should have 'to' field"
     );
 }

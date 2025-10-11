@@ -101,6 +101,55 @@ ggen ultrathink task --description "implement user authentication"
 ggen ultrathink config --reasoning-depth 3 --creativity 0.8
 ```
 
+## Governance Commands
+
+AI-powered governance and safety workflows for autonomous systems.
+
+### Autonomous System Management
+
+```bash
+# Show current autonomous system status
+ggen autonomous status
+
+# Enable autonomous mode with monitoring
+ggen autonomous enable --watch
+
+# Disable autonomous mode
+ggen autonomous disable
+
+# Run autonomous analysis on project
+ggen autonomous analyze --depth deep --output analysis.md
+```
+
+### Governance Operations
+
+```bash
+# Review pending governance operations
+ggen autonomous governance list
+
+# Approve a pending governance operation
+ggen autonomous governance approve --operation-id abc123
+
+# Reject a governance operation with reason
+ggen autonomous governance reject --operation-id abc123 --reason "Insufficient testing"
+
+# View governance history
+ggen autonomous governance history --days 7
+```
+
+### Safety and Compliance
+
+```bash
+# Run safety validation
+ggen autonomous safety validate --strict
+
+# Check compliance against policies
+ggen autonomous compliance check --policy security
+
+# Generate safety report
+ggen autonomous safety report --format pdf --output safety-report.pdf
+```
+
 ## Marketplace Commands
 
 ### Search and Discovery
@@ -132,7 +181,7 @@ ggen add <gpack-id>@<version>
 
 # Examples:
 ggen add io.ggen.rust.cli-subcommand
-ggen add io.ggen.rust.cli-subcommand@0.2.0
+ggen add io.ggen.rust.cli-subcommand@1.0.0
 
 # List installed gpacks
 ggen packs

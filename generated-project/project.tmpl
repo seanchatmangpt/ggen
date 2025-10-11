@@ -1,0 +1,3 @@
+Frontmatter { to: Some("generated.tmpl"), from: None, force: false, unless_exists: false, inject: false, before: None, after: None, prepend: false, append: false, at_line: None, eof_last: false, skip_if: None, sh_before: None, sh_after: None, base: None, prefixes: {}, rdf_inline: [], rdf: [], sparql: {}, vars: {"name": "example"}, backup: None, idempotent: false, shape: [], determinism: None }
+---
+Generated project structure content

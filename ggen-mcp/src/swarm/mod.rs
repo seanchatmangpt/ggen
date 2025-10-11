@@ -349,7 +349,7 @@ impl SwarmCoordinator {
         let metrics = self.get_metrics();
 
         // Check if performance thresholds are met
-        if metrics.tasks_completed as f64 / metrics.tasks_executed.max(1) as f64 < self.config.thresholds.success_rate_target {
+        if metrics.tasks_completed as f64 / (metrics.tasks_executed.max(1) as f64) < self.config.thresholds.success_rate_target {
             // Optimize for better success rate
             self.optimize_success_rate()?;
         }

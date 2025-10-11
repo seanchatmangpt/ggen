@@ -23,6 +23,7 @@
   - [Advanced Usage](#advanced-usage)
     - [Custom Prompts](#custom-prompts)
     - [Batch Generation](#batch-generation)
+    - [Streaming Responses](#streaming-responses)
     - [Integration with Templates](#integration-with-templates)
   - [Best Practices](#best-practices)
     - [Prompt Engineering](#prompt-engineering)
@@ -296,6 +297,35 @@ model = "claude-3-sonnet-20240229"
 ```
 
 ## Advanced Usage
+
+### Streaming Responses
+
+Real-time streaming responses for interactive AI experiences:
+
+```bash
+# Basic streaming usage (Rust API)
+use ggen_ai::{GenAiClient, LlmConfig};
+use futures::StreamExt;
+
+let client = GenAiClient::new(LlmConfig::default())?;
+let mut stream = client.complete_stream("Write a function").await?;
+
+while let Some(chunk) = stream.next().await {
+    print!("{}", chunk.content);
+}
+```
+
+**Key Features:**
+- **Real-time output** - Process tokens as they arrive
+- **Memory efficient** - No need to buffer entire response
+- **Provider agnostic** - Works with all supported providers
+- **Tool call support** - Handles function calling in streams
+
+**Supported Providers:**
+- ✅ OpenAI (including tool calls and reasoning)
+- ✅ Anthropic Claude
+- ✅ Ollama (local models)
+- ✅ All other genai-supported providers
 
 ### Custom Prompts
 

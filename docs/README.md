@@ -70,35 +70,33 @@ Purpose: project one ontology into many artifacts. Deterministic. Language-agnos
 ## Additional Resources
 
 ### Integration & Implementation
-28. **[GENAI_GGEN_INTEGRATION_PLAN.md](GENAI_GGEN_INTEGRATION_PLAN.md)** - AI integration roadmap *(NEW)*
+28. **[GENAI_GGEN_INTEGRATION_PLAN.md](GENAI_GGEN_INTEGRATION_PLAN.md)** - AI integration roadmap
 29. **[GENAI_INTEGRATION_STATUS.md](GENAI_INTEGRATION_STATUS.md)** - Current AI integration status *(UPDATED)*
-30. **[GENAI_OLLAMA_INTEGRATION.md](GENAI_OLLAMA_INTEGRATION.md)** - Ollama provider integration *(NEW)*
-31. **[GGEN_AI_USER_GUIDE.md](GGEN_AI_USER_GUIDE.md)** - Complete AI usage guide *(NEW)*
-32. **[AI_IMPLEMENTATION_V1_PREP.md](AI_IMPLEMENTATION_V1_PREP.md)** - AI implementation preparation *(NEW)*
+30. **[GENAI_OLLAMA_INTEGRATION.md](GENAI_OLLAMA_INTEGRATION.md)** - Ollama provider integration
+31. **[GGEN_AI_USER_GUIDE.md](GGEN_AI_USER_GUIDE.md)** - Complete AI usage guide
+32. **[AI_IMPLEMENTATION_V1_PREP.md](AI_IMPLEMENTATION_V1_PREP.md)** - AI implementation preparation
 
 ### Testing & Validation
 33. **[E2E_TESTS.md](E2E_TESTS.md)** - End-to-end testing guide
 34. **[E2E_TEST_RESULTS.md](E2E_TEST_RESULTS.md)** - Test results and analysis
 35. **[DISPLACEMENT_VALIDATION.md](DISPLACEMENT_VALIDATION.md)** - Validation testing framework
-36. **[COMPILATION_ERROR_FIX_GUIDE.md](COMPILATION_ERROR_FIX_GUIDE.md)** - Compilation troubleshooting *(NEW)*
 
 ### Development & Architecture
-37. **[CODE-REVIEW.md](CODE-REVIEW.md)** - Code review guidelines
-38. **[GRAPH_VERBS_IMPLEMENTATION.md](GRAPH_VERBS_IMPLEMENTATION.md)** - Graph verb implementation
-39. **[GITHUB_API_RUST_INTEGRATION.md](GITHUB_API_RUST_INTEGRATION.md)** - GitHub API integration
-40. **[DEPLOYMENT.md](DEPLOYMENT.md)** - Deployment and release guide
+36. **[CODE-REVIEW.md](CODE-REVIEW.md)** - Code review guidelines *(NEW)*
+37. **[GRAPH_VERBS_IMPLEMENTATION.md](GRAPH_VERBS_IMPLEMENTATION.md)** - Graph verb implementation *(NEW)*
+38. **[GITHUB_API_RUST_INTEGRATION.md](GITHUB_API_RUST_INTEGRATION.md)** - GitHub API integration *(NEW)*
 
 ## Reference
 
-41. **[CHANGELOG.md](CHANGELOG.md)** - Complete changelog with semantic versioning *(NEW)*
-42. **[RECENT_FIXES_AND_IMPROVEMENTS.md](RECENT_FIXES_AND_IMPROVEMENTS.md)** - Summary of recent fixes and improvements *(NEW)*
-43. **[P0-FIXES-APPLIED.md](P0-FIXES-APPLIED.md)** - P0 critical fixes and security assessment *(NEW)*
-44. **[IMPLEMENTATION_COMPLETE.md](IMPLEMENTATION_COMPLETE.md)** - Core team recommendations implementation summary
-45. **[FINAL_STATUS_REPORT.md](FINAL_STATUS_REPORT.md)** - Final status report and project assessment
-46. **[DEPLOYMENT.md](DEPLOYMENT.md)** - GitHub Pages deployment guide
-47. [cli.md](cli.md) - Complete CLI reference
-48. [troubleshooting.md](troubleshooting.md) - Common issues and solutions
-49. [examples/](examples/) - Usage examples and tutorials
+39. **[CHANGELOG.md](CHANGELOG.md)** - Complete changelog with semantic versioning *(NEW)*
+40. **[RECENT_FIXES_AND_IMPROVEMENTS.md](RECENT_FIXES_AND_IMPROVEMENTS.md)** - Summary of recent fixes and improvements *(NEW)*
+41. **[P0-FIXES-APPLIED.md](P0-FIXES-APPLIED.md)** - P0 critical fixes and security assessment *(NEW)*
+42. **[IMPLEMENTATION_COMPLETE.md](IMPLEMENTATION_COMPLETE.md)** - Core team recommendations implementation summary *(NEW)*
+43. **[FINAL_STATUS_REPORT.md](FINAL_STATUS_REPORT.md)** - Final status report and project assessment *(NEW)*
+44. **[DEPLOYMENT.md](DEPLOYMENT.md)** - GitHub Pages deployment guide *(NEW)*
+45. [cli.md](cli.md) - Complete CLI reference
+46. [troubleshooting.md](troubleshooting.md) - Common issues and solutions
+47. [examples/](examples/) - Usage examples and tutorials
 
 ## Marketplace Ecosystem
 
