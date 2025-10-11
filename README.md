@@ -10,6 +10,7 @@
   - [Template Example](#template-example)
   - [Architecture](#architecture)
   - [Key Capabilities](#key-capabilities)
+    - [AI-Powered Generation](#ai-powered-generation)
     - [Deterministic Generation](#deterministic-generation)
     - [RDF + SPARQL Integration](#rdf--sparql-integration)
     - [Injection Modes](#injection-modes)
