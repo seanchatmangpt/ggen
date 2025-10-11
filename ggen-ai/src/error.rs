@@ -3,7 +3,6 @@
 //! Provides comprehensive error handling for LLM provider interactions,
 //! configuration issues, validation failures, and generation operations.
 
-use crate::security::MaskApiKey;
 
 /// Errors that can occur in ggen-ai operations
 #[derive(Debug, thiserror::Error)]

@@ -3,7 +3,6 @@
 use crate::error::{GgenAiError, Result};
 use crate::generators::{TemplateGenerator, SparqlGenerator, OntologyGenerator, RefactorAssistant};
 use crate::client::{LlmClient, LlmConfig};
-use crate::providers::adapter::{MockClient, OllamaClient, OpenAIClient, AnthropicClient};
 use crate::autonomous::{
     GraphEvolutionEngine, EvolutionConfig, GraphChangeNotifier, RegenerationOrchestrator,
     RegenerationEngine, RegenerationConfig, OrchestratorConfig, TelemetryCollector,
@@ -111,7 +110,7 @@ impl AiMcpTools {
     /// Initialize with Ollama client and specific model
     pub fn with_ollama_model(self, model: &str) -> Self {
         use crate::client::LlmConfig;
-        use crate::providers::OllamaClient;
+        
         
         let _config = LlmConfig {
             model: model.to_string(),

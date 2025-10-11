@@ -15,6 +15,7 @@ use tokio::sync::{mpsc, RwLock as AsyncRwLock};
 use uuid::Uuid;
 use tokio_tungstenite::{connect_async, tungstenite::Message};
 use futures_util::{SinkExt, StreamExt};
+use chrono::{DateTime, Utc};
 
 use crate::error::{McpError, Result};
 use super::ultrathink::{WipEntry, WipOperation, WipConflict, WipStatus, WipEntryType, Priority, ConflictResolutionStrategy};

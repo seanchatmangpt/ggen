@@ -114,10 +114,10 @@ pub async fn generate_template(params: Value) -> Result<Value> {
     tracing::info!("AI template generation: {}", description);
 
     let client = get_ai_client(&provider).await?;
-    let generator = TemplateGenerator::new(client);
+    let generator = TemplateGenerator::new(std::sync::Arc::new(client));
 
     // Generate template with AI
-    let template_content = generator.generate_template(&description, &Vec::new()).await?;
+    let template_content: String = generator.generate_template(&description, &Vec::new()).await.map_err(|e| crate::error::GgenMcpError::Ai(e.to_string()))?;
 
     // Optionally validate the generated template
     let mut validation_errors = Vec::new();
@@ -173,7 +173,7 @@ pub async fn generate_sparql(params: Value) -> Result<Value> {
     let graph = Graph::load_from_file(&graph_file)?;
 
     let client = get_ai_client(&provider).await?;
-    let generator = SparqlGenerator::new(client);
+    let generator = SparqlGenerator::new(std::sync::Arc::new(client));
 
     // Generate SPARQL query
     let query = generator.generate_query(&graph, &description).await?;
@@ -208,7 +208,7 @@ pub async fn generate_ontology(params: Value) -> Result<Value> {
     tracing::info!("AI ontology generation: {}", description);
 
     let client = get_ai_client(&provider).await?;
-    let generator = OntologyGenerator::new(client);
+    let generator = OntologyGenerator::new(std::sync::Arc::new(client));
 
     // Convert requirements to Vec<&str>
     let req_refs: Vec<&str> = requirements.iter()
@@ -438,7 +438,7 @@ pub async fn extend_graph(params: Value) -> Result<Value> {
     let mut graph = Graph::load_from_file(&graph_file)?;
 
     let client = get_ai_client(&provider).await?;
-    let generator = OntologyGenerator::new(client);
+    let generator = OntologyGenerator::new(std::sync::Arc::new(client));
 
     // Generate new ontology content based on description
     let new_content = generator.generate_ontology(&description, Vec::new()).await?;

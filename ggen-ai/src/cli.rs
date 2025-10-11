@@ -1,10 +1,9 @@
 //! CLI integration for ggen-ai
 
 use crate::config::{GlobalLlmConfig, LlmProvider, get_global_config};
-use crate::client::{LlmClient, LlmConfig};
+use crate::client::LlmClient;
 use crate::error::Result;
 use clap::{Arg, ArgMatches, Command};
-use std::collections::HashMap;
 use std::sync::Arc;
 
 /// CLI configuration builder for ggen-ai

@@ -31,7 +31,7 @@ use std::collections::HashMap;
 use std::process::Command;
 use std::path::PathBuf;
 use uuid::Uuid;
-use chrono::Utc;
+use chrono::{DateTime, Utc};
 
 /// CLI execution result
 #[derive(Debug, Clone, Serialize, Deserialize)]

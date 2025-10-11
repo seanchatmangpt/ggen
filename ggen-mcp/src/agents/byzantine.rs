@@ -30,7 +30,7 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 use tokio::time::{Duration, Instant};
 use uuid::Uuid;
-use chrono::Utc;
+use chrono::{DateTime, Utc};
 
 /// Byzantine consensus result
 #[derive(Debug, Clone, Serialize, Deserialize)]

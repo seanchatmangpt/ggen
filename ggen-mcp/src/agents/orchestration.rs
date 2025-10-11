@@ -30,7 +30,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use uuid::Uuid;
-use chrono::Utc;
+use chrono::{DateTime, Utc};
 
 /// Workflow definition
 #[derive(Debug, Clone, Serialize, Deserialize)]

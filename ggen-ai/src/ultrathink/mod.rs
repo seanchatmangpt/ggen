@@ -12,7 +12,6 @@ use std::sync::Arc;
 use crate::error::Result;
 use uuid::Uuid;
 use crate::error::GgenAiError;
-use crate::client::{LlmClient, LlmConfig};
 
 /// Re-export core ultrathink types
 pub use core::*;

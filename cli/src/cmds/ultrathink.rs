@@ -9,11 +9,8 @@ use clap::Args;
 use ggen_utils::error::Result;
 use ggen_ai::ultrathink::{
     initialize_ultrathink,
-    submit_ultrathink_task,
-    sync_ultrathink_wip,
-    get_ultrathink_status,
     create_task,
-    core::{TaskType, TaskPriority, UltrathinkTask},
+    core::{TaskType, TaskPriority},
 };
 
 #[derive(Debug, Args)]

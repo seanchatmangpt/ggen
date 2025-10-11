@@ -12,8 +12,7 @@ use std::path::PathBuf;
 
 // Import autonomous system types
 use ggen_ai::{
-    GraphEvolutionEngine, EvolutionConfig, EvolutionResult,
-    GovernanceCoordinator, GovernanceConfig, Decision, DecisionOutcome,
+    GraphEvolutionEngine, EvolutionConfig, EvolutionResult, DecisionOutcome,
     create_client_with_config, LlmProvider,
 };
 

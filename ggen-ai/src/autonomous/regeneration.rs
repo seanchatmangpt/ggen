@@ -1,17 +1,16 @@
 //! Core regeneration engine with delta-driven template regeneration
 
 use crate::client::LlmClient;
-use crate::error::{GgenAiError, Result};
+use crate::error::Result;
 use crate::generators::TemplateGenerator;
 use crate::autonomous::events::{ChangeEvent, ChangeType, EventSubscriber, GraphChangeNotifier};
 use async_trait::async_trait;
-use ggen_core::Template;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use tracing::{debug, info, warn, error};
+use tracing::{debug, info, error};
 
 /// Configuration for the regeneration engine
 #[derive(Debug, Clone, Serialize, Deserialize)]

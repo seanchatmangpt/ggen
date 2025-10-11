@@ -33,7 +33,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::time::{Duration, Instant};
 use uuid::Uuid;
-use chrono::Utc;
+use chrono::{DateTime, Utc};
 
 /// Metric value types
 #[derive(Debug, Clone, Serialize, Deserialize)]

@@ -32,7 +32,7 @@ use crate::error::{GgenMcpError, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use uuid::Uuid;
-use chrono::Utc;
+use chrono::{DateTime, Utc};
 
 /// Audit result
 #[derive(Debug, Clone, Serialize, Deserialize)]

@@ -5,15 +5,14 @@
 //! - Focus on WIP integration, task processing, and autonomous intelligence
 //! - Simplified architecture for maximum impact
 
-use std::collections::{HashMap, VecDeque};
+use std::collections::VecDeque;
 use std::sync::{Arc, RwLock};
 use std::time::{Duration, Instant};
 use serde::{Deserialize, Serialize};
 use tokio::sync::{mpsc, broadcast};
 use uuid::Uuid;
 
-use crate::error::{GgenAiError, Result};
-use crate::client::{LlmClient, LlmConfig};
+use crate::error::Result;
 
 /// Ultrathink Core - Main autonomous intelligence system
 pub struct UltrathinkCore {

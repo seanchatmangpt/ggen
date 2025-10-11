@@ -9,7 +9,7 @@ use crate::autonomous::{
     delta_detector::{DeltaDetector, GraphDelta},
 };
 use crate::client::LlmClient;
-use crate::error::{GgenAiError, Result};
+use crate::error::Result;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use std::sync::Arc;

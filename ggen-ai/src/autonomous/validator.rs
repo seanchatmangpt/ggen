@@ -7,7 +7,6 @@ use std::sync::Arc;
 use crate::client::LlmClient;
 use crate::error::{GgenAiError, Result};
 use async_trait::async_trait;
-use oxigraph::model::GraphNameRef;
 use oxigraph::sparql::QueryResults;
 use oxigraph::store::Store;
 use serde::{Deserialize, Serialize};
