@@ -1,4 +1,54 @@
 //! AI-powered ontology generator
+//!
+//! # WHAT THIS MODULE SHOULD DO (Intent-Driven Architecture)
+//!
+//! ## PURPOSE
+//! This module should bridge the gap between LLM-generated content and valid RDF/Turtle,
+//! extracting ontology definitions from varied AI responses and converting them into
+//! machine-readable semantic graphs.
+//!
+//! ## RESPONSIBILITIES
+//! 1. **Prompt Engineering**: Should craft prompts that elicit valid Turtle/RDF from LLMs
+//! 2. **Content Extraction**: Should parse varied response formats (code blocks, plain text, etc.)
+//! 3. **Format Normalization**: Should ensure extracted content is valid Turtle
+//! 4. **Streaming Support**: Should enable real-time ontology generation for UX
+//! 5. **Error Recovery**: Should suggest fixes when LLM returns invalid format
+//!
+//! ## CONSTRAINTS
+//! - Must handle multiple LLM providers (OpenAI, Anthropic, Ollama, etc.)
+//! - Must support both streaming and batch modes
+//! - Must extract Turtle from code blocks with various language markers
+//! - Must validate extracted content is parseable Turtle before returning
+//! - Must never hallucinate prefixes or namespaces
+//!
+//! ## DEPENDENCIES
+//! - `LlmClient`: Should be provider-agnostic for multi-LLM support
+//! - `OntologyPromptBuilder`: Should generate effective prompts
+//! - Turtle parser: Should validate extracted content
+//!
+//! ## INVARIANTS
+//! - Extracted content must be valid Turtle (prefix-complete, well-formed)
+//! - All responses must include provenance metadata
+//! - Stream chunks must be concatenatable into valid Turtle
+//!
+//! ## ERROR HANDLING STRATEGY
+//! - No Turtle found → Provide response preview, suggest prompt improvements
+//! - Invalid Turtle → Attempt auto-repair (add prefixes), then fail with details
+//! - Streaming errors → Buffer partial content, return what's valid
+//! - Multiple code blocks → Extract first valid Turtle block
+//!
+//! ## TESTING STRATEGY
+//! - Test extraction with multiple code block formats (turtle, ttl, rdf, none)
+//! - Test with/without prefixes
+//! - Test streaming with incomplete chunks
+//! - Mock different LLM response patterns
+//!
+//! ## REFACTORING PRIORITIES
+//! - [P0] Add Turtle validation after extraction (currently trusts LLM)
+//! - [P0] Standardize error messages with examples
+//! - [P1] Extract code block parsing into reusable utility
+//! - [P1] Add caching for repeated prompts
+//! - [P2] Support SHACL constraint generation
 
 use crate::client::{LlmClient, LlmConfig};
 use crate::error::Result;
