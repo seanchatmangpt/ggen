@@ -4,6 +4,8 @@
 
 - [Build Optimization Guide](#build-optimization-guide)
   - [Current Build Performance](#current-build-performance)
+  - [Recent Performance Improvements](#recent-performance-improvements)
+    - [Applied Optimizations (v1.0.0)](#applied-optimizations-v100)
   - [Applied Optimizations](#applied-optimizations)
     - [1. Incremental Compilation (Cargo.toml)](#1-incremental-compilation-cargotoml)
     - [2. Parallel Builds (.cargo/config.toml)](#2-parallel-builds-cargoconfigtoml)

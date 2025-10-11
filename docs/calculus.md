@@ -3,6 +3,20 @@
 **Table of Contents**
 
 - [ggen calculus (v1)](#ggen-calculus-v1)
+  - [State Definition](#state-definition)
+  - [Projection Pipeline](#projection-pipeline)
+    - [Pipeline Stages](#pipeline-stages)
+  - [Fundamental Laws](#fundamental-laws)
+    - [1. Determinism](#1-determinism)
+    - [2. Idempotent Write](#2-idempotent-write)
+    - [3. Precedence Hierarchy](#3-precedence-hierarchy)
+    - [4. Matrix Ordering Requirement](#4-matrix-ordering-requirement)
+  - [Mathematical Properties](#mathematical-properties)
+    - [Commutativity](#commutativity)
+    - [Associativity](#associativity)
+    - [Identity Elements](#identity-elements)
+  - [Applications](#applications)
+  - [Verification](#verification)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 

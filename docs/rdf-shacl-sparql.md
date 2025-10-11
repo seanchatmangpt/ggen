@@ -2,7 +2,29 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
-- [RDF / SHACL / SPARQL](#rdf--shacl--sparql)
+- [RDF / SHACL / SPARQL Integration](#rdf--shacl--sparql-integration)
+  - [RDF Data Sources](#rdf-data-sources)
+    - [Supported Formats](#supported-formats)
+    - [Data Graph Structure](#data-graph-structure)
+  - [SHACL Validation](#shacl-validation)
+    - [Supported SHACL Features](#supported-shacl-features)
+    - [SHACL Shapes Example](#shacl-shapes-example)
+  - [SPARQL Query Language](#sparql-query-language)
+    - [Query Types](#query-types)
+    - [Template Variable Queries](#template-variable-queries)
+    - [Matrix Projection Queries](#matrix-projection-queries)
+  - [Deterministic Processing](#deterministic-processing)
+    - [Hash-Based Validation](#hash-based-validation)
+    - [Processing Guarantees](#processing-guarantees)
+  - [Integration Benefits](#integration-benefits)
+    - [Type Safety](#type-safety)
+    - [Knowledge Representation](#knowledge-representation)
+    - [Tooling Integration](#tooling-integration)
+  - [Best Practices](#best-practices)
+    - [RDF Modeling](#rdf-modeling)
+    - [SHACL Design](#shacl-design)
+    - [SPARQL Optimization](#sparql-optimization)
+  - [Examples](#examples)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 

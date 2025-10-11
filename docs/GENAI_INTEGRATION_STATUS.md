@@ -12,7 +12,7 @@
       - [`/Users/sac/ggen/examples/genai_multi_provider_compare.rs`](#userssacggenexamplesgenai_multi_provider_comparers)
     - [3. Documentation Created](#3-documentation-created)
       - [`/Users/sac/ggen/docs/GENAI_OLLAMA_INTEGRATION.md` (521 lines)](#userssacggendocsgenai_ollama_integrationmd-521-lines)
-      - [`/Users/sac/ggen/docs/GENAI_GGEN_INTEGRATION_PLAN.md`](#userssacggendocsgenai_ggen_integration_planmd)
+      - [`/Users/sac/ggen/docs/GENAI_GGEN_INTEGRATION_PLAN.md` (New)](#userssacggendocsgenai_ggen_integration_planmd-new)
       - [Updated: `/Users/sac/ggen/docs/GENAI_OLLAMA_INTEGRATION.md`](#updated-userssacggendocsgenai_ollama_integrationmd)
     - [4. Code Patterns Established](#4-code-patterns-established)
   - [🔧 Known Blockers](#-known-blockers)

@@ -1,3 +1,37 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Documentation Upgrade Recommendations](#documentation-upgrade-recommendations)
+  - [Executive Summary](#executive-summary)
+  - [🔍 Evaluation Methodology](#-evaluation-methodology)
+  - [🚨 Critical Issues Found](#-critical-issues-found)
+    - [1. Outdated "(New)" Markers](#1-outdated-new-markers)
+    - [2. Compilation Status Documentation](#2-compilation-status-documentation)
+    - [3. Version Reference Inconsistencies](#3-version-reference-inconsistencies)
+    - [4. Missing Recent Feature Documentation](#4-missing-recent-feature-documentation)
+  - [📋 Detailed Recommendations](#-detailed-recommendations)
+    - [Priority 1: Immediate Updates (Critical)](#priority-1-immediate-updates-critical)
+      - [1.1 Remove Outdated "(New)" Markers](#11-remove-outdated-new-markers)
+      - [1.2 Clarify Compilation Status](#12-clarify-compilation-status)
+      - [1.3 Fix Version References](#13-fix-version-references)
+    - [Priority 2: Content Enhancement (High)](#priority-2-content-enhancement-high)
+      - [2.1 Enhanced Feature Documentation](#21-enhanced-feature-documentation)
+      - [2.2 User Guide Updates](#22-user-guide-updates)
+    - [Priority 3: Structural Improvements (Medium)](#priority-3-structural-improvements-medium)
+      - [3.1 Documentation Organization Review](#31-documentation-organization-review)
+      - [3.2 Example Currency](#32-example-currency)
+  - [✅ Already Addressed](#-already-addressed)
+  - [🔄 Implementation Plan](#-implementation-plan)
+    - [Phase 1: Immediate (Week 1)](#phase-1-immediate-week-1)
+    - [Phase 2: Enhancement (Week 2-3)](#phase-2-enhancement-week-2-3)
+    - [Phase 3: Structural (Week 4)](#phase-3-structural-week-4)
+  - [📊 Success Metrics](#-success-metrics)
+  - [🎯 Next Steps](#-next-steps)
+  - [📚 References](#-references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Documentation Upgrade Recommendations
 
 ## Executive Summary
