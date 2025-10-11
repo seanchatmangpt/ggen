@@ -1,0 +1,73 @@
+---
+to: "{{ project_name }}/src/cmds/{{ noun }}/{{ verb }}.rs"
+vars:
+  noun: "resource"
+  verb: "delete"
+  noun_description: "resource"
+---
+//! {{ verb | capitalize }} {{ noun_description }} command
+
+use clap::Args;
+
+type Result<T> = std::result::Result<T, anyhow::Error>;
+
+#[derive(Debug, Args)]
+pub struct {{ verb | capitalize }}Args {
+    /// ID or name of the {{ noun_description }}
+    pub id: String,
+
+    /// Force deletion without confirmation
+    #[arg(short, long)]
+    pub force: bool,
+
+    /// Dry run (don't actually delete)
+    #[arg(long)]
+    pub dry_run: bool,
+
+    /// Enable verbose output
+    #[arg(short, long)]
+    pub verbose: bool,
+}
+
+pub async fn run(args: &{{ verb | capitalize }}Args) -> Result<()> {
+    if args.verbose {
+        println!("{{ verb | capitalize }}ing {{ noun_description }}: {}", args.id);
+    }
+
+    if args.dry_run {
+        println!("🔍 Dry run mode - nothing will be deleted");
+    }
+
+    if !args.force && !args.dry_run {
+        println!("⚠️  Are you sure you want to delete '{}' ? Use --force to confirm", args.id);
+        return Ok(());
+    }
+
+    // TODO: Implement {{ verb }} logic here
+    if !args.dry_run {
+        println!("🗑️  {{ verb | capitalize }}ing {{ noun_description }}: {}", args.id);
+        println!("✅ {{ noun | capitalize }} '{}' deleted successfully!", args.id);
+    } else {
+        println!("Would delete {{ noun_description }}: {}", args.id);
+    }
+
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_{{ verb }}_dry_run() {
+        let args = {{ verb | capitalize }}Args {
+            id: "test-123".to_string(),
+            force: true,
+            dry_run: true,
+            verbose: false,
+        };
+
+        let result = run(&args).await;
+        assert!(result.is_ok());
+    }
+}

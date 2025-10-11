@@ -1,0 +1,35 @@
+---
+to: "{{ project_name }}/src/main.rs"
+vars:
+  project_name: "my-cli"
+  cli_description: "A noun-verb CLI application"
+---
+//! {{ cli_description }}
+
+use clap::Parser;
+use std::process;
+
+mod cmds;
+
+#[derive(Parser, Debug)]
+#[command(
+    name = "{{ project_name }}",
+    about = "{{ cli_description }}",
+    version,
+    propagate_version = true,
+    arg_required_else_help = true
+)]
+struct Cli {
+    #[command(subcommand)]
+    command: cmds::Command,
+}
+
+#[tokio::main]
+async fn main() {
+    let cli = Cli::parse();
+
+    if let Err(e) = cli.command.run().await {
+        eprintln!("Error: {}", e);
+        process::exit(1);
+    }
+}

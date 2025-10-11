@@ -1,0 +1,77 @@
+---
+to: "{{ project_name }}/src/cmds/{{ noun }}/{{ verb }}.rs"
+vars:
+  noun: "resource"
+  verb: "get"
+  noun_description: "resource"
+---
+//! {{ verb | capitalize }} {{ noun_description }} command
+
+use clap::Args;
+
+type Result<T> = std::result::Result<T, anyhow::Error>;
+
+#[derive(Debug, Args)]
+pub struct {{ verb | capitalize }}Args {
+    /// ID or name of the {{ noun_description }}
+    pub id: String,
+
+    /// Output format (json, yaml, table)
+    #[arg(short = 'f', long, default_value = "table")]
+    pub format: String,
+
+    /// Show detailed information
+    #[arg(short, long)]
+    pub detailed: bool,
+}
+
+pub async fn run(args: &{{ verb | capitalize }}Args) -> Result<()> {
+    println!("🔍 Getting {{ noun_description }}: {}", args.id);
+
+    // TODO: Implement {{ verb }} logic here
+    let resource_data = serde_json::json!({
+        "id": args.id,
+        "name": format!("{{ noun }}-{}", args.id),
+        "description": "Example {{ noun_description }}",
+        "created_at": "2025-10-10T12:00:00Z",
+        "status": "active"
+    });
+
+    match args.format.as_str() {
+        "json" => {
+            println!("{}", serde_json::to_string_pretty(&resource_data)?);
+        }
+        "yaml" => {
+            println!("{}", serde_yaml::to_string(&resource_data)?);
+        }
+        "table" => {
+            println!("\n{{ noun | capitalize }} Details:");
+            println!("{}", "=".repeat(50));
+            if let Some(obj) = resource_data.as_object() {
+                for (key, value) in obj {
+                    println!("{:<15} {}", format!("{}:", key), value);
+                }
+            }
+        }
+        _ => println!("{:?}", resource_data),
+    }
+
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_{{ verb }}_basic() {
+        let args = {{ verb | capitalize }}Args {
+            id: "test-123".to_string(),
+            format: "table".to_string(),
+            detailed: false,
+        };
+
+        let result = run(&args).await;
+        assert!(result.is_ok());
+    }
+}
