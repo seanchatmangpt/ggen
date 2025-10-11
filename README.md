@@ -37,13 +37,14 @@
 ## Features
 
 - 🎯 **Deterministic Generation** - Byte-identical output with fixed seeds
+- 🤖 **AI-Powered Generation** - Generate templates, SPARQL queries, and RDF graphs using LLMs
 - 🌐 **Language-Agnostic** - Generate code in any language from the same ontology
 - 🔗 **RDF Knowledge Graphs** - Embed semantic metadata with SPARQL queries
 - 📦 **Marketplace Integration** - Reusable template packages (gpacks) with versioning
 - 🧪 **Template-Based** - YAML frontmatter with Tera templating engine
 - 🔄 **Injection Support** - Modify existing files with idempotent updates
 - 🚀 **GitHub Integration** - Built-in GitHub Pages and Actions API support
-- 🔐 **Post-Quantum Security** (v1.0.0) - ML-DSA (Dilithium3) signatures for quantum-resistant package integrity
+- 🔐 **Post-Quantum Security** (planned for v1.0.0) - ML-DSA (Dilithium3) signatures for quantum-resistant package integrity
 - ⚡ **Performance SLOs** - Fast builds, low memory, reproducible outputs
 
 ## Quick Start
@@ -68,6 +69,15 @@ cargo make build-release
 ```bash
 # Generate from a template
 ggen gen templates/rust-module.tmpl --vars name=my_module
+
+# AI-powered template generation
+ggen ai generate -d "REST API module" -o api_module.rs
+
+# AI-powered SPARQL query generation
+ggen ai sparql -d "Find all people" -g ontology.ttl -o query.sparql
+
+# AI-powered RDF graph generation
+ggen ai graph -d "Person ontology" -o person.ttl
 
 # Search marketplace for templates
 ggen search "rust cli"
@@ -124,11 +134,35 @@ ggen/
 │   ├── generator.rs  # Generation orchestration
 │   ├── registry.rs   # Marketplace client
 │   └── github.rs     # GitHub API integration
+├── ggen-ai/       # AI-powered generation capabilities
+│   ├── providers/    # Multi-provider AI client support
+│   ├── generators/   # AI template, SPARQL, graph generators
+│   ├── config/       # AI provider configuration
+│   └── mcp/         # MCP server integration
 ├── utils/         # Configuration, logging, errors
 └── templates/     # Built-in templates
 ```
 
 ## Key Capabilities
+
+### AI-Powered Generation
+Generate templates, SPARQL queries, and RDF graphs using LLMs:
+
+```bash
+# Generate a template using AI
+ggen ai generate -d "Database model" --ollama
+
+# Generate SPARQL queries from natural language
+ggen ai sparql -d "Find all active users" -g schema.ttl
+
+# Generate RDF graphs from descriptions
+ggen ai graph -d "E-commerce product ontology" -o products.ttl
+
+# Generate complete project structures
+ggen ai project -d "Web service with authentication" -n my-api
+```
+
+Available AI providers: Ollama, OpenAI, Anthropic with MCP server support.
 
 ### Deterministic Generation
 Generate byte-identical output with fixed seeds:
@@ -200,6 +234,11 @@ cargo make audit                # Security scan
 # Build
 cargo make build-release        # Release build
 cargo make ci                   # Full CI workflow
+
+# AI Development
+cargo make validate-templates   # Validate AI templates
+cargo make validate-rdf         # Validate RDF graphs
+cargo make completions          # Generate shell completions
 
 # GitHub/Pages
 cargo make docs-build           # Build documentation
