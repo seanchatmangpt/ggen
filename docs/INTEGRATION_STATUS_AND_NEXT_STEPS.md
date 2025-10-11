@@ -1,3 +1,48 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen-mcp Integration Status & Next Steps](#ggen-mcp-integration-status--next-steps)
+  - [✅ Completed (80% Value Delivered)](#-completed-80-value-delivered)
+    - [1. Connection Infrastructure (CRITICAL PATH)](#1-connection-infrastructure-critical-path)
+    - [2. Integration Documentation (USER ENABLEMENT)](#2-integration-documentation-user-enablement)
+    - [3. Project Structure (ORGANIZATION)](#3-project-structure-organization)
+    - [4. Compilation Analysis (GAP IDENTIFICATION)](#4-compilation-analysis-gap-identification)
+  - [⚠️ Remaining Issues (20% Blockers)](#-remaining-issues-20-blockers)
+    - [Compilation Errors Breakdown](#compilation-errors-breakdown)
+      - [1. Missing Imports (30 errors - High Priority)](#1-missing-imports-30-errors---high-priority)
+      - [2. TemplateValidator Issues (5 errors - Medium Priority)](#2-templatevalidator-issues-5-errors---medium-priority)
+      - [3. Trait Bound Issues (10 errors - Low Priority)](#3-trait-bound-issues-10-errors---low-priority)
+      - [4. Duplicate Test Functions (3 errors - Low Priority)](#4-duplicate-test-functions-3-errors---low-priority)
+      - [5. Type Mismatches (9 errors - Medium Priority)](#5-type-mismatches-9-errors---medium-priority)
+  - [🚀 Quick Fix Action Plan (Core Team)](#-quick-fix-action-plan-core-team)
+    - [Phase 1: Critical Path (15 minutes)](#phase-1-critical-path-15-minutes)
+    - [Phase 2: Compilation Success (10 minutes)](#phase-2-compilation-success-10-minutes)
+    - [Phase 3: Connection Test (5 minutes)](#phase-3-connection-test-5-minutes)
+  - [📊 Current vs Target State](#-current-vs-target-state)
+    - [Current State](#current-state)
+    - [Target State (30 minutes away)](#target-state-30-minutes-away)
+  - [🎯 80/20 Impact Analysis](#-8020-impact-analysis)
+    - [What's Working (80% Value)](#whats-working-80-value)
+    - [What's Blocked (20% Effort)](#whats-blocked-20-effort)
+  - [📝 Detailed Error Locations](#-detailed-error-locations)
+    - [High Priority Files (Fix First)](#high-priority-files-fix-first)
+    - [Medium Priority Files (Fix Second)](#medium-priority-files-fix-second)
+    - [Low Priority Files (Fix Last)](#low-priority-files-fix-last)
+  - [🛠️ Quick Reference Commands](#-quick-reference-commands)
+    - [Build & Test](#build--test)
+    - [Connection](#connection)
+    - [Debugging](#debugging)
+  - [🎉 Success Criteria](#-success-criteria)
+    - [Minimum Viable Connection (MVC)](#minimum-viable-connection-mvc)
+    - [Full Feature Parity](#full-feature-parity)
+    - [Production Ready](#production-ready)
+  - [📞 Next Steps for Core Team](#-next-steps-for-core-team)
+  - [📚 Resources Created](#-resources-created)
+  - [🔥 Hot Fixes Available](#-hot-fixes-available)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen-mcp Integration Status & Next Steps
 
 **80/20 Implementation Status - 2025-10-10**

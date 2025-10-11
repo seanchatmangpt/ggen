@@ -1,3 +1,45 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Configuration Migration Plan](#configuration-migration-plan)
+  - [Overview](#overview)
+  - [Current State ✅](#current-state-)
+  - [Implementation Plan](#implementation-plan)
+    - [Phase 1: Documentation & Defaults (Immediate - This PR)](#phase-1-documentation--defaults-immediate---this-pr)
+    - [Phase 2: TOML Config Loader (Next PR)](#phase-2-toml-config-loader-next-pr)
+    - [Phase 3: GitHub Enterprise Support (Next PR)](#phase-3-github-enterprise-support-next-pr)
+    - [Phase 4: Watch & CI Timeout Configuration (Future)](#phase-4-watch--ci-timeout-configuration-future)
+    - [Phase 5: Config Management CLI (Future)](#phase-5-config-management-cli-future)
+  - [Migration Guide for Users](#migration-guide-for-users)
+    - [Current Usage (No Changes Required)](#current-usage-no-changes-required)
+    - [New Usage (Optional, After Phase 2)](#new-usage-optional-after-phase-2)
+  - [Risk Assessment](#risk-assessment)
+    - [Low Risk ✅](#low-risk-)
+    - [Medium Risk ⚠️](#medium-risk-)
+    - [Potential Issues](#potential-issues)
+  - [Testing Strategy](#testing-strategy)
+    - [Unit Tests](#unit-tests)
+    - [Integration Tests](#integration-tests)
+    - [Manual Testing](#manual-testing)
+  - [Rollout Plan](#rollout-plan)
+    - [Week 1: Documentation (Phase 1) ✅](#week-1-documentation-phase-1-)
+    - [Week 2: TOML Support (Phase 2)](#week-2-toml-support-phase-2)
+    - [Week 3: GitHub Enterprise (Phase 3)](#week-3-github-enterprise-phase-3)
+    - [Week 4: Timeouts (Phase 4)](#week-4-timeouts-phase-4)
+    - [Future: CLI Commands (Phase 5)](#future-cli-commands-phase-5)
+  - [Success Metrics](#success-metrics)
+    - [User Experience](#user-experience)
+    - [Code Quality](#code-quality)
+    - [Adoption](#adoption)
+  - [Decision Log](#decision-log)
+    - [Why TOML over YAML/JSON?](#why-toml-over-yamljson)
+    - [Why Not Break Backwards Compatibility?](#why-not-break-backwards-compatibility)
+    - [Why Not Immediate Full Implementation?](#why-not-immediate-full-implementation)
+  - [Next Actions](#next-actions)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Configuration Migration Plan
 
 ## Overview

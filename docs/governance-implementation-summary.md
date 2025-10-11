@@ -1,3 +1,43 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Governance Layer Implementation Summary](#governance-layer-implementation-summary)
+  - [Overview](#overview)
+  - [Implementation Status: ✅ COMPLETE](#implementation-status--complete)
+    - [✅ 1. Policy Engine (`ggen-ai/src/governance/policy.rs`)](#-1-policy-engine-ggen-aisrcgovernancepolicyrs)
+    - [✅ 2. Audit Trail (`ggen-ai/src/governance/audit.rs`)](#-2-audit-trail-ggen-aisrcgovernanceauditrs)
+    - [✅ 3. Observability Dashboard (`ggen-ai/src/governance/dashboard.rs`)](#-3-observability-dashboard-ggen-aisrcgovernancedashboardrs)
+    - [✅ 4. Safety Controller (`ggen-ai/src/governance/safety.rs`)](#-4-safety-controller-ggen-aisrcgovernancesafetyrs)
+    - [✅ 5. Approval Workflow (`ggen-ai/src/governance/workflow.rs`)](#-5-approval-workflow-ggen-aisrcgovernanceworkflowrs)
+    - [✅ 6. Governance Coordinator (`ggen-ai/src/governance/mod.rs`)](#-6-governance-coordinator-ggen-aisrcgovernancemodrs)
+    - [✅ 7. Type System (`ggen-ai/src/governance/types.rs`)](#-7-type-system-ggen-aisrcgovernancetypesrs)
+    - [✅ 8. Error Handling (`ggen-ai/src/governance/error.rs`)](#-8-error-handling-ggen-aisrcgovernanceerrorrs)
+  - [Architecture Highlights](#architecture-highlights)
+    - [Decision Validation Flow](#decision-validation-flow)
+    - [Component Integration](#component-integration)
+  - [File Structure](#file-structure)
+  - [Testing Coverage](#testing-coverage)
+  - [Integration Points](#integration-points)
+    - [With Autonomous System](#with-autonomous-system)
+    - [Graph Evolution Tracking](#graph-evolution-tracking)
+  - [Configuration Example](#configuration-example)
+  - [Usage Examples](#usage-examples)
+    - [1. Create and Register a Policy](#1-create-and-register-a-policy)
+    - [2. Handle Emergency Stop](#2-handle-emergency-stop)
+    - [3. Approval Workflow](#3-approval-workflow)
+    - [4. Export Metrics](#4-export-metrics)
+  - [Performance Characteristics](#performance-characteristics)
+  - [Security Features](#security-features)
+  - [Documentation](#documentation)
+    - [Generated Documentation](#generated-documentation)
+    - [Build Status](#build-status)
+  - [Future Enhancements](#future-enhancements)
+  - [Integration Checklist](#integration-checklist)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Governance Layer Implementation Summary
 
 ## Overview

@@ -1,3 +1,57 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Compilation Error Fix Guide](#ggen-compilation-error-fix-guide)
+  - [Overview](#overview)
+  - [Error Categories Summary](#error-categories-summary)
+  - [1. Missing Import Errors (11 errors)](#1-missing-import-errors-11-errors)
+    - [Issue](#issue)
+    - [Affected Files](#affected-files)
+      - [File: `ggen-ai/src/generators/ontology.rs`](#file-ggen-aisrcgeneratorsontologyrs)
+      - [File: `ggen-ai/src/ultrathink/mod.rs`](#file-ggen-aisrcultrathinkmodrs)
+  - [2. Arc vs Box Type Mismatch Errors (93 errors)](#2-arc-vs-box-type-mismatch-errors-93-errors)
+    - [Issue](#issue-1)
+    - [Root Cause](#root-cause)
+    - [Strategy](#strategy)
+    - [Affected Files and Fixes](#affected-files-and-fixes)
+      - [File: `ggen-ai/src/generators/refactor.rs`](#file-ggen-aisrcgeneratorsrefactorrs)
+      - [File: `ggen-ai/src/mcp/tools.rs`](#file-ggen-aisrcmcptoolsrs)
+      - [File: `ggen-ai/src/generators/template.rs`](#file-ggen-aisrcgeneratorstemplaters)
+      - [File: `ggen-ai/src/generators/sparql.rs`](#file-ggen-aisrcgeneratorssparqlrs)
+      - [File: `ggen-ai/src/generators/ontology.rs`](#file-ggen-aisrcgeneratorsontologyrs-1)
+    - [Summary of Arc vs Box Changes](#summary-of-arc-vs-box-changes)
+  - [3. Missing Struct Fields Errors](#3-missing-struct-fields-errors)
+    - [Issue](#issue-2)
+    - [Affected File](#affected-file)
+    - [Investigation Required](#investigation-required)
+    - [Likely Fix Pattern](#likely-fix-pattern)
+  - [4. Async Recursion Error (1 error)](#4-async-recursion-error-1-error)
+    - [Issue](#issue-3)
+    - [Affected File](#affected-file-1)
+    - [Fix](#fix)
+  - [5. Unused Variable Warnings (33 warnings)](#5-unused-variable-warnings-33-warnings)
+    - [Issue](#issue-4)
+    - [Examples](#examples)
+      - [File: `ggen-ai/src/mcp/server.rs`](#file-ggen-aisrcmcpserverrs)
+      - [File: `ggen-ai/src/mcp/tools.rs`](#file-ggen-aisrcmcptoolsrs-1)
+      - [File: `ggen-ai/src/config/global.rs`](#file-ggen-aisrcconfigglobalrs)
+      - [File: `ggen-ai/src/generators/ontology.rs`](#file-ggen-aisrcgeneratorsontologyrs-2)
+      - [File: `ggen-ai/src/generators/validator/constraints.rs`](#file-ggen-aisrcgeneratorsvalidatorconstraintsrs)
+  - [Step-by-Step Fix Order](#step-by-step-fix-order)
+    - [Phase 1: Add Missing Imports (fixes 11 errors)](#phase-1-add-missing-imports-fixes-11-errors)
+    - [Phase 2: Standardize Arc Usage (fixes 93 errors)](#phase-2-standardize-arc-usage-fixes-93-errors)
+    - [Phase 3: Fix Async Recursion (fixes 1 error)](#phase-3-fix-async-recursion-fixes-1-error)
+    - [Phase 4: Investigate and Fix Validator Struct (fixes remaining errors)](#phase-4-investigate-and-fix-validator-struct-fixes-remaining-errors)
+    - [Phase 5: Clean Up Warnings (fixes 33 warnings)](#phase-5-clean-up-warnings-fixes-33-warnings)
+  - [Testing After Fixes](#testing-after-fixes)
+  - [Verification Checklist](#verification-checklist)
+  - [Notes](#notes)
+  - [Estimated Time to Fix](#estimated-time-to-fix)
+  - [Support](#support)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Compilation Error Fix Guide
 
 **Status**: 104 compilation errors preventing build

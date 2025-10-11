@@ -1,3 +1,40 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen-ai](#ggen-ai)
+  - [🚀 **NEW: v1.0.0 with rust-genai Integration**](#-new-v100-with-rust-genai-integration)
+  - [Features](#features)
+  - [Quick Start](#quick-start)
+    - [Installation](#installation)
+    - [Basic Setup](#basic-setup)
+    - [Basic Usage](#basic-usage)
+    - [CLI Usage](#cli-usage)
+  - [API Reference](#api-reference)
+    - [Core Types](#core-types)
+    - [Template Generation](#template-generation)
+    - [SPARQL Query Generation](#sparql-query-generation)
+    - [Ontology Generation](#ontology-generation)
+    - [Code Refactoring](#code-refactoring)
+  - [MCP Tools](#mcp-tools)
+    - [`ai_generate_template`](#ai_generate_template)
+    - [`ai_generate_sparql`](#ai_generate_sparql)
+    - [`ai_generate_ontology`](#ai_generate_ontology)
+    - [`ai_refactor_code`](#ai_refactor_code)
+    - [`ai_explain_graph`](#ai_explain_graph)
+    - [`ai_suggest_delta`](#ai_suggest_delta)
+  - [Configuration](#configuration)
+    - [Environment Variables](#environment-variables)
+    - [LLM Configuration](#llm-configuration)
+  - [Examples](#examples)
+    - [Complete Template Generation Workflow](#complete-template-generation-workflow)
+    - [SPARQL Query Generation](#sparql-query-generation-1)
+  - [Testing](#testing)
+  - [Contributing](#contributing)
+  - [License](#license)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen-ai
 
 **AI-powered code generation capabilities for ggen** - Unified LLM integration using `rust-genai` for intelligent template generation, SPARQL queries, and RDF graph operations.

@@ -1,3 +1,42 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Autonomous System - Governance Guide](#ggen-autonomous-system---governance-guide)
+  - [Table of Contents](#table-of-contents)
+  - [Policy Configuration](#policy-configuration)
+    - [Policy Types](#policy-types)
+    - [Configuration File Format](#configuration-file-format)
+    - [Loading Policies](#loading-policies)
+    - [Policy Validation](#policy-validation)
+    - [Dynamic Policy Updates](#dynamic-policy-updates)
+  - [Approval Workflows](#approval-workflows)
+    - [Approval Types](#approval-types)
+    - [Approval Configuration](#approval-configuration)
+    - [Requesting Approval](#requesting-approval)
+    - [Providing Approval](#providing-approval)
+    - [Approval Webhooks](#approval-webhooks)
+  - [Audit Trail Usage](#audit-trail-usage)
+    - [Audit Log Schema](#audit-log-schema)
+    - [Audit Configuration](#audit-configuration)
+    - [Writing Audit Logs](#writing-audit-logs)
+    - [Querying Audit Logs](#querying-audit-logs)
+    - [Audit Visualization](#audit-visualization)
+  - [Security Best Practices](#security-best-practices)
+    - [1. Secret Management](#1-secret-management)
+    - [2. Input Validation](#2-input-validation)
+    - [3. Least Privilege Principle](#3-least-privilege-principle)
+    - [4. Network Security](#4-network-security)
+    - [5. Byzantine Fault Tolerance](#5-byzantine-fault-tolerance)
+    - [6. Secure Defaults](#6-secure-defaults)
+    - [7. Regular Security Audits](#7-regular-security-audits)
+    - [8. Incident Response](#8-incident-response)
+    - [9. Compliance Standards](#9-compliance-standards)
+    - [10. Security Monitoring](#10-security-monitoring)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Autonomous System - Governance Guide
 
 ## Table of Contents

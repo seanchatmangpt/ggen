@@ -1,3 +1,32 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Autonomous System - Quick Reference](#ggen-autonomous-system---quick-reference)
+  - [Common Commands](#common-commands)
+    - [Setup & Configuration](#setup--configuration)
+    - [Template Generation](#template-generation)
+    - [Graph Operations](#graph-operations)
+    - [Project Management](#project-management)
+    - [Monitoring & Debugging](#monitoring--debugging)
+  - [Configuration Templates](#configuration-templates)
+    - [Basic Configuration](#basic-configuration)
+    - [Production Configuration](#production-configuration)
+    - [Development Configuration](#development-configuration)
+  - [Troubleshooting Checklist](#troubleshooting-checklist)
+    - [Template Generation Issues](#template-generation-issues)
+    - [MCP Server Issues](#mcp-server-issues)
+    - [Graph Loading Issues](#graph-loading-issues)
+    - [Performance Issues](#performance-issues)
+  - [Error Code Reference](#error-code-reference)
+  - [Key Keyboard Shortcuts](#key-keyboard-shortcuts)
+  - [Environment Variables](#environment-variables)
+  - [Performance Tips](#performance-tips)
+  - [Support Resources](#support-resources)
+  - [Quick Links](#quick-links)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Autonomous System - Quick Reference
 
 ## Common Commands

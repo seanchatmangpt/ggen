@@ -24,6 +24,18 @@
   - [Future Enhancements](#future-enhancements)
   - [Coordination Metrics](#coordination-metrics)
   - [Documentation](#documentation)
+  - [✅ Recent Implementation Updates (V1 Preparation)](#-recent-implementation-updates-v1-preparation)
+    - [AI Command Integration Complete](#ai-command-integration-complete)
+      - [1. **Template Generation** (`ggen ai generate`)](#1-template-generation-ggen-ai-generate)
+      - [2. **SPARQL Query Generation** (`ggen ai sparql`)](#2-sparql-query-generation-ggen-ai-sparql)
+      - [3. **RDF Graph Generation** (`ggen ai graph`)](#3-rdf-graph-generation-ggen-ai-graph)
+      - [4. **Project Scaffolding** (`ggen ai project`)](#4-project-scaffolding-ggen-ai-project)
+      - [5. **Template Validation** (`ggen ai validate`)](#5-template-validation-ggen-ai-validate)
+      - [6. **Multi-Provider Management** (`ggen ai models`)](#6-multi-provider-management-ggen-ai-models)
+      - [7. **MCP Server Integration** (`ggen ai server`)](#7-mcp-server-integration-ggen-ai-server)
+      - [8. **Frontmatter Enhancement** (`ggen ai frontmatter`)](#8-frontmatter-enhancement-ggen-ai-frontmatter)
+    - [Enhanced Error Handling](#enhanced-error-handling)
+    - [Quality Assurance Improvements](#quality-assurance-improvements)
   - [Next Steps](#next-steps)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->

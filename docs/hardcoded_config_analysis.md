@@ -1,3 +1,46 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Hardcoded Configuration Analysis](#hardcoded-configuration-analysis)
+  - [Executive Summary](#executive-summary)
+  - [Critical Findings](#critical-findings)
+    - [🔴 MUST BE CONFIGURABLE (Production Impact)](#-must-be-configurable-production-impact)
+      - [1. LLM Provider Endpoints & Credentials](#1-llm-provider-endpoints--credentials)
+      - [2. GitHub API Configuration](#2-github-api-configuration)
+      - [3. Registry Configuration](#3-registry-configuration)
+      - [4. File Watch & Debounce Settings](#4-file-watch--debounce-settings)
+      - [5. CI/Release Timeouts](#5-cirelease-timeouts)
+    - [🟡 ACCEPTABLE DEFAULTS (Good Practices)](#-acceptable-defaults-good-practices)
+      - [6. LLM Generation Parameters](#6-llm-generation-parameters)
+      - [7. Global LLM Settings](#7-global-llm-settings)
+      - [8. Performance Test Targets](#8-performance-test-targets)
+      - [9. Test Timeouts](#9-test-timeouts)
+      - [10. WIP Integration Settings](#10-wip-integration-settings)
+    - [🟢 TEST/DEVELOPMENT ONLY (Safe to Keep Hardcoded)](#-testdevelopment-only-safe-to-keep-hardcoded)
+      - [11. Example URLs in Tests](#11-example-urls-in-tests)
+      - [12. Magic Numbers in Algorithms](#12-magic-numbers-in-algorithms)
+  - [Recommended Configuration Architecture](#recommended-configuration-architecture)
+    - [1. Configuration Priority (Highest to Lowest)](#1-configuration-priority-highest-to-lowest)
+    - [2. Proposed TOML Structure](#2-proposed-toml-structure)
+    - [3. Environment Variable Mapping](#3-environment-variable-mapping)
+    - [4. Implementation Priority](#4-implementation-priority)
+      - [Phase 1: Critical (Immediate)](#phase-1-critical-immediate)
+      - [Phase 2: Important (Next Release)](#phase-2-important-next-release)
+      - [Phase 3: Nice-to-Have (Future)](#phase-3-nice-to-have-future)
+    - [5. Security Considerations](#5-security-considerations)
+      - [Never Store in Config Files](#never-store-in-config-files)
+      - [Always Use Environment Variables or Secret Management](#always-use-environment-variables-or-secret-management)
+      - [Sensitive Configuration Files](#sensitive-configuration-files)
+  - [Summary Matrix](#summary-matrix)
+  - [Next Steps](#next-steps)
+  - [Example Usage Patterns](#example-usage-patterns)
+    - [Development (Local Ollama)](#development-local-ollama)
+    - [Production (Cloud APIs)](#production-cloud-apis)
+    - [Enterprise (Self-Hosted)](#enterprise-self-hosted)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Hardcoded Configuration Analysis
 
 ## Executive Summary

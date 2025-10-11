@@ -1,3 +1,51 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Autonomous System - API Reference](#ggen-autonomous-system---api-reference)
+  - [Table of Contents](#table-of-contents)
+  - [MCP Tool Specifications](#mcp-tool-specifications)
+    - [Base Endpoint](#base-endpoint)
+    - [Tool Categories](#tool-categories)
+    - [Template Operations](#template-operations)
+      - [`generate_template`](#generate_template)
+      - [`validate_template`](#validate_template)
+    - [Graph Operations](#graph-operations)
+      - [`generate_graph`](#generate_graph)
+      - [`execute_sparql`](#execute_sparql)
+      - [`validate_graph`](#validate_graph)
+    - [AI Operations](#ai-operations)
+      - [`ai_chat`](#ai_chat)
+      - [`ai_refactor`](#ai_refactor)
+    - [Project Management](#project-management)
+      - [`create_project`](#create_project)
+    - [Marketplace Operations](#marketplace-operations)
+      - [`search_templates`](#search_templates)
+      - [`publish_template`](#publish_template)
+  - [Rust API Documentation](#rust-api-documentation)
+    - [Core Traits](#core-traits)
+      - [`AiProvider` Trait](#aiprovider-trait)
+      - [`Agent` Trait](#agent-trait)
+    - [Key Structs](#key-structs)
+      - [`TemplateGenerator`](#templategenerator)
+      - [`GraphEngine`](#graphengine)
+      - [`ByzantineValidator`](#byzantinevalidator)
+  - [Request/Response Formats](#requestresponse-formats)
+    - [JSON-RPC 2.0](#json-rpc-20)
+    - [Streaming Responses](#streaming-responses)
+  - [Error Codes](#error-codes)
+    - [Standard Error Codes](#standard-error-codes)
+    - [Custom Error Codes](#custom-error-codes)
+      - [AI Provider Errors (1000-1099)](#ai-provider-errors-1000-1099)
+      - [Generation Errors (1100-1199)](#generation-errors-1100-1199)
+      - [Graph Errors (1200-1299)](#graph-errors-1200-1299)
+      - [Agent Errors (1300-1399)](#agent-errors-1300-1399)
+      - [Project Errors (1400-1499)](#project-errors-1400-1499)
+      - [Marketplace Errors (1500-1599)](#marketplace-errors-1500-1599)
+    - [Error Response Examples](#error-response-examples)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Autonomous System - API Reference
 
 ## Table of Contents

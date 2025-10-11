@@ -1,3 +1,40 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Autonomous MCP-AI Loop - Architecture Summary](#autonomous-mcp-ai-loop---architecture-summary)
+  - [🎯 Vision Achieved](#-vision-achieved)
+  - [📚 Architecture Deliverables](#-architecture-deliverables)
+    - [1. Event-Driven Architecture Diagram ✅](#1-event-driven-architecture-diagram-)
+    - [2. Autonomous Agent Coordination Protocol ✅](#2-autonomous-agent-coordination-protocol-)
+    - [3. Graph Evolution and Validation Strategy ✅](#3-graph-evolution-and-validation-strategy-)
+    - [4. Integration Points with Existing Codebase ✅](#4-integration-points-with-existing-codebase-)
+    - [5. Deployment Automation Approach ✅](#5-deployment-automation-approach-)
+  - [🏗️ System Architecture Overview](#-system-architecture-overview)
+  - [🔑 Key Design Decisions](#-key-design-decisions)
+    - [ADR-001: Event-Driven Architecture](#adr-001-event-driven-architecture)
+    - [ADR-002: Deterministic Validation](#adr-002-deterministic-validation)
+    - [ADR-003: AI-First Regeneration](#adr-003-ai-first-regeneration)
+  - [📊 Success Metrics](#-success-metrics)
+  - [🛠️ Implementation Roadmap](#-implementation-roadmap)
+    - [Phase 1: Foundation (Weeks 1-2)](#phase-1-foundation-weeks-1-2)
+    - [Phase 2: Core Loop (Weeks 3-4)](#phase-2-core-loop-weeks-3-4)
+    - [Phase 3: Feedback Loop (Weeks 5-6)](#phase-3-feedback-loop-weeks-5-6)
+    - [Phase 4: Production Ready (Weeks 7-8)](#phase-4-production-ready-weeks-7-8)
+    - [Phase 5: Optimization (Weeks 9-10)](#phase-5-optimization-weeks-9-10)
+  - [🔐 Risk Mitigation Strategies](#-risk-mitigation-strategies)
+    - [Risk 1: AI Hallucinations](#risk-1-ai-hallucinations)
+    - [Risk 2: Infinite Loops](#risk-2-infinite-loops)
+    - [Risk 3: High LLM Costs](#risk-3-high-llm-costs)
+    - [Risk 4: Production Outages](#risk-4-production-outages)
+  - [📝 Next Steps](#-next-steps)
+    - [Immediate Actions](#immediate-actions)
+    - [Dependencies](#dependencies)
+    - [Team Requirements](#team-requirements)
+  - [🎉 Architecture Design Complete](#-architecture-design-complete)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Autonomous MCP-AI Loop - Architecture Summary
 
 **Status**: Design Phase Complete ✅

@@ -3,6 +3,7 @@
 **Table of Contents**
 
 - [ggen - Graph-Aware Code Generation Framework](#ggen---graph-aware-code-generation-framework)
+  - [🚀 **NEW: AI-Powered Generation v1.0.0**](#-new-ai-powered-generation-v100)
   - [Features](#features)
   - [Quick Start](#quick-start)
     - [Installation](#installation)
