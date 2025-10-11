@@ -29,18 +29,33 @@
 [![GitHub Pages](https://img.shields.io/badge/docs-live-success)](https://seanchatmangpt.github.io/ggen/)
 [![Rust](https://img.shields.io/badge/rust-1.70%2B-orange.svg)](https://www.rust-lang.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Crates.io](https://img.shields.io/crates/v/ggen)](https://crates.io/crates/ggen)
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](#)
 
-**ggen** is a deterministic, language-agnostic code generation framework that treats software artifacts as projections of RDF knowledge graphs. Generate reproducible, multi-language code from a single semantic ontology using template-based generation with SPARQL queries.
+**ggen** is a deterministic, language-agnostic code generation framework that treats software artifacts as projections of RDF knowledge graphs. Generate reproducible, multi-language code from a single semantic ontology using template-based generation with SPARQL queries and AI-powered enhancements.
+
+## 🚀 **NEW: AI-Powered Generation v1.0.0**
+
+- 🤖 **AI-Enhanced Templates** - Generate templates, SPARQL queries, and RDF graphs using advanced LLMs via rust-genai
+- 🧠 **Intelligent Project Scaffolding** - Create entire project structures with AI assistance
+- 🔍 **Natural Language Search** - Find templates and packages using conversational queries
+- 📋 **Smart Frontmatter** - Generate and convert metadata using AI
+- 🎯 **Latest Model Support** - GPT-4o, Claude 3.5, Qwen3-coder:30b, and more
+- 🎪 **MCP Server** - Model Context Protocol server for AI tool integration
+- 🔧 **Multi-Provider Support** - OpenAI, Anthropic, Ollama with unified configuration
 
 📚 **[Full Documentation](https://seanchatmangpt.github.io/ggen/)**
 
 ## Features
 
 - 🎯 **Deterministic Generation** - Byte-identical output with fixed seeds
-- 🤖 **AI-Powered Generation** - Generate templates, SPARQL queries, and RDF graphs using LLMs
+- 🤖 **AI-Powered Generation** - Generate templates, SPARQL queries, and RDF graphs using advanced LLMs (GPT-4o, Claude 3.5, Qwen3-coder:30b)
+- 🧠 **Intelligent Project Scaffolding** - Create entire multi-language projects with AI assistance
+- 🔍 **Natural Language Search** - Find templates and packages using conversational queries
+- 📋 **Smart Frontmatter** - Generate and convert YAML/JSON metadata using AI
 - 🌐 **Language-Agnostic** - Generate code in any language from the same ontology
 - 🔗 **RDF Knowledge Graphs** - Embed semantic metadata with SPARQL queries
-- 📦 **Marketplace Integration** - Reusable template packages (gpacks) with versioning
+- 📦 **Marketplace Integration** - Reusable template packages (gpacks) with versioning and AI discovery
 - 🧪 **Template-Based** - YAML frontmatter with Tera templating engine
 - 🔄 **Injection Support** - Modify existing files with idempotent updates
 - 🚀 **GitHub Integration** - Built-in GitHub Pages and Actions API support
@@ -67,19 +82,31 @@ cargo make build-release
 ### Basic Usage
 
 ```bash
-# Generate from a template
+# Traditional template generation
 ggen gen templates/rust-module.tmpl --vars name=my_module
 
-# AI-powered template generation
+# 🤖 AI-powered template generation
 ggen ai generate -d "REST API module" -o api_module.rs
 
-# AI-powered SPARQL query generation
+# 🧠 AI-powered SPARQL query generation
 ggen ai sparql -d "Find all people" -g ontology.ttl -o query.sparql
 
-# AI-powered RDF graph generation
+# 📊 AI-powered RDF graph generation
 ggen ai graph -d "Person ontology" -o person.ttl
 
-# Search marketplace for templates
+# 🏗️ AI-powered project scaffolding
+ggen ai project -d "Web service in Rust" -n myproject --rust
+
+# 🔍 Natural language AI search
+ggen ai search -d "I need a user authentication system"
+
+# 📦 Smart frontmatter generation
+ggen ai frontmatter -d "API controller" --json --yaml
+
+# 🎪 Start MCP server for AI tools
+ggen ai server --openai-key $OPENAI_API_KEY
+
+# 📦 Search marketplace for templates
 ggen search "rust cli"
 
 # Add a template pack
@@ -127,6 +154,7 @@ impl {{name | capitalize}} {
 ```
 ggen/
 ├── cli/           # Clap CLI with subcommands
+│   └── cmds/      # Individual command implementations
 ├── ggen-core/     # Core generation engine
 │   ├── pipeline.rs   # Template rendering pipeline
 │   ├── template.rs   # Frontmatter + body parsing
@@ -135,10 +163,11 @@ ggen/
 │   ├── registry.rs   # Marketplace client
 │   └── github.rs     # GitHub API integration
 ├── ggen-ai/       # AI-powered generation capabilities
-│   ├── providers/    # Multi-provider AI client support
+│   ├── client.rs     # Unified LLM client (rust-genai)
 │   ├── generators/   # AI template, SPARQL, graph generators
-│   ├── config/       # AI provider configuration
-│   └── mcp/         # MCP server integration
+│   ├── config/       # AI provider configuration (OpenAI, Anthropic, Ollama)
+│   ├── mcp/         # Model Context Protocol server
+│   └── security/     # Post-quantum cryptography
 ├── utils/         # Configuration, logging, errors
 └── templates/     # Built-in templates
 ```
@@ -149,20 +178,27 @@ ggen/
 Generate templates, SPARQL queries, and RDF graphs using LLMs:
 
 ```bash
-# Generate a template using AI
-ggen ai generate -d "Database model" --ollama
+# Generate a template using AI (with rust-genai)
+ggen ai generate -d "Database model" --provider openai --model gpt-4o
 
 # Generate SPARQL queries from natural language
-ggen ai sparql -d "Find all active users" -g schema.ttl
+ggen ai sparql -d "Find all active users" -g schema.ttl --provider anthropic
 
 # Generate RDF graphs from descriptions
-ggen ai graph -d "E-commerce product ontology" -o products.ttl
+ggen ai graph -d "E-commerce product ontology" -o products.ttl --provider ollama
 
 # Generate complete project structures
-ggen ai project -d "Web service with authentication" -n my-api
+ggen ai project -d "Web service with authentication" -n my-api --rust
+
+# Start MCP server for AI tool integration
+ggen ai server --provider openai --model gpt-4o
 ```
 
-Available AI providers: Ollama, OpenAI, Anthropic with MCP server support.
+**Supported AI Providers:**
+- **OpenAI** - GPT-4o, GPT-4o-mini (via rust-genai)
+- **Anthropic** - Claude 3.5 Sonnet, Claude 3.5 Haiku (via rust-genai)
+- **Ollama** - Qwen3-coder:30b, Llama 3, and more (local models)
+- **MCP Server** - Model Context Protocol for AI assistant integration
 
 ### Deterministic Generation
 Generate byte-identical output with fixed seeds:
@@ -236,6 +272,13 @@ cargo make build-release        # Release build
 cargo make ci                   # Full CI workflow
 
 # AI Development
+cargo make ai-dev               # AI module development
+cargo make ai-test              # AI tests only
+cargo make ai-lint              # AI linting
+cargo make ai-integration       # Test AI CLI commands
+cargo make ai-demo              # Run AI demo
+cargo make ai-models            # Test all AI providers
+cargo make ai-models-local      # Test with local Ollama
 cargo make validate-templates   # Validate AI templates
 cargo make validate-rdf         # Validate RDF graphs
 cargo make completions          # Generate shell completions
@@ -269,6 +312,7 @@ ggen update
 ## Documentation
 
 - 📚 **[Full Documentation](https://seanchatmangpt.github.io/ggen/)** - Complete guides and API reference
+🤖 **[AI Guide](docs/ai-guide.md)** - Comprehensive AI-powered generation guide
 - 🚀 **[Deployment Guide](docs/DEPLOYMENT.md)** - GitHub Pages setup
 - 🔧 **[GitHub API Integration](docs/GITHUB_API_RUST_INTEGRATION.md)** - Rust-based GitHub integration
 - 📝 **[CLAUDE.md](CLAUDE.md)** - Development guidelines for Claude Code

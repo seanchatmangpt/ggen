@@ -3,8 +3,8 @@
 //! This example shows how ggen-ai can validate and iteratively improve generated templates
 //! to ensure they meet quality standards and best practices.
 
-use ggen_ai::{TemplateGenerator, TemplateValidator, ValidationResult};
 use ggen_ai::providers::MockClient;
+use ggen_ai::{TemplateGenerator, TemplateValidator, ValidationResult};
 use ggen_core::Template;
 use std::fs;
 use std::path::Path;
@@ -42,8 +42,8 @@ impl {{ name }} {
         Self {}
     }
 }
-"#.to_string(),
-
+"#
+        .to_string(),
         // Second iteration - improved template with better structure
         r#"---
 to: "user_service.rs"
@@ -151,17 +151,24 @@ pub fn create_user_router() -> Router {
         .route("/users/:id", get(get_user_handler))
         .with_state(service)
 }
-"#.to_string(),
+"#
+        .to_string(),
     ]));
 
     let generator = TemplateGenerator::new(client);
 
     // Step 1: Generate initial template
     println!("\n📝 Step 1: Generating initial template...");
-    let initial_template = generator.generate_template(
-        "Generate a Rust service for user management with basic CRUD operations",
-        vec!["Include REST API endpoints", "Use proper error handling", "Add database integration points"]
-    ).await?;
+    let initial_template = generator
+        .generate_template(
+            "Generate a Rust service for user management with basic CRUD operations",
+            vec![
+                "Include REST API endpoints",
+                "Use proper error handling",
+                "Add database integration points",
+            ],
+        )
+        .await?;
 
     println!("✅ Initial template generated");
 
@@ -213,7 +220,10 @@ pub fn create_user_router() -> Router {
     println!("📊 Improved Validation Results:");
     println!("  Valid: {}", improved_validation.is_valid);
     println!("  Quality Score: {:.2}", improved_validation.quality_score);
-    println!("  Improvement: +{:.2} points", improved_validation.quality_score - validation_result.quality_score);
+    println!(
+        "  Improvement: +{:.2} points",
+        improved_validation.quality_score - validation_result.quality_score
+    );
 
     // Step 5: Save the final template
     println!("\n💾 Step 5: Saving final template...");
@@ -224,12 +234,18 @@ pub fn create_user_router() -> Router {
     }
 
     let template_path = demo_dir.join("improved_user_service.tmpl");
-    let template_content = format!("{}\n---\n{}", improved_template.front, improved_template.body);
+    let template_content = format!(
+        "{}\n---\n{}",
+        improved_template.front, improved_template.body
+    );
     fs::write(&template_path, template_content)?;
 
     println!("✅ Template saved to: {}", template_path.display());
     println!("\n📋 Template preview:");
-    println!("{}", &improved_template.body[..200.min(improved_template.body.len())]);
+    println!(
+        "{}",
+        &improved_template.body[..200.min(improved_template.body.len())]
+    );
     println!("...");
 
     // Step 6: Demonstrate metrics
@@ -237,12 +253,27 @@ pub fn create_user_router() -> Router {
     println!("==================================");
 
     println!("📈 Quality Metrics:");
-    println!("  Completeness: {:.2}", improved_validation.metrics.completeness);
-    println!("  Correctness: {:.2}", improved_validation.metrics.correctness);
-    println!("  Maintainability: {:.2}", improved_validation.metrics.maintainability);
-    println!("  Performance: {:.2}", improved_validation.metrics.performance);
+    println!(
+        "  Completeness: {:.2}",
+        improved_validation.metrics.completeness
+    );
+    println!(
+        "  Correctness: {:.2}",
+        improved_validation.metrics.correctness
+    );
+    println!(
+        "  Maintainability: {:.2}",
+        improved_validation.metrics.maintainability
+    );
+    println!(
+        "  Performance: {:.2}",
+        improved_validation.metrics.performance
+    );
     println!("  Security: {:.2}", improved_validation.metrics.security);
-    println!("  Readability: {:.2}", improved_validation.metrics.readability);
+    println!(
+        "  Readability: {:.2}",
+        improved_validation.metrics.readability
+    );
 
     println!("\n✅ Demo completed successfully!");
     println!("\n🎯 Key Features Demonstrated:");
@@ -254,4 +285,3 @@ pub fn create_user_router() -> Router {
 
     Ok(())
 }
-

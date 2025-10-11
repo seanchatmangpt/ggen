@@ -103,9 +103,7 @@ impl LlmConfig {
 
     /// Add a provider configuration
     pub fn add_provider(
-        mut self,
-        name: impl Into<String>,
-        config: ProviderConfig,
+        mut self, name: impl Into<String>, config: ProviderConfig,
     ) -> LlmResult<Self> {
         config.validate()?;
         self.providers.insert(name.into(), config);
@@ -120,18 +118,21 @@ impl LlmConfig {
 
     /// Get a provider configuration
     pub fn get_provider(&self, name: &str) -> LlmResult<&ProviderConfig> {
-        self.providers.get(name).ok_or_else(|| LlmError::ConfigError {
-            message: format!("Provider '{}' not found in configuration", name),
-        })
+        self.providers
+            .get(name)
+            .ok_or_else(|| LlmError::ConfigError {
+                message: format!("Provider '{}' not found in configuration", name),
+            })
     }
 
     /// Get the default provider configuration
     pub fn get_default_provider(&self) -> LlmResult<(&str, &ProviderConfig)> {
-        let name = self.default_provider.as_ref().ok_or_else(|| {
-            LlmError::ConfigError {
+        let name = self
+            .default_provider
+            .as_ref()
+            .ok_or_else(|| LlmError::ConfigError {
                 message: "No default provider set".to_string(),
-            }
-        })?;
+            })?;
 
         Ok((name, self.get_provider(name)?))
     }

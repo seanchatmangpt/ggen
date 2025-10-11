@@ -145,8 +145,11 @@ impl AgentRegistry {
         self.agents.keys().map(|s| s.as_str()).collect()
     }
 
-    pub fn get_by_specialization(&self, specialization: &AgentSpecialization) -> Vec<&Box<dyn SimpleAgent>> {
-        self.agents.values()
+    pub fn get_by_specialization(
+        &self, specialization: &AgentSpecialization,
+    ) -> Vec<&Box<dyn SimpleAgent>> {
+        self.agents
+            .values()
             .filter(|agent| agent.specialization() == *specialization)
             .collect()
     }
@@ -250,8 +253,11 @@ impl TaskCoordinator {
         results
     }
 
-    fn select_agent_for_task<'a>(&self, task: &CoordinationTask, agents: &'a AgentRegistry) -> Option<&'a Box<dyn SimpleAgent>> {
-        agents.get_by_specialization(&task.required_specialization)
+    fn select_agent_for_task<'a>(
+        &self, task: &CoordinationTask, agents: &'a AgentRegistry,
+    ) -> Option<&'a Box<dyn SimpleAgent>> {
+        agents
+            .get_by_specialization(&task.required_specialization)
             .first()
             .copied()
     }

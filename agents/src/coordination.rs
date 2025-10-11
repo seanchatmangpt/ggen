@@ -4,7 +4,10 @@
 //! Focuses on the 20% of coordination patterns that deliver 80% of the value.
 
 use crate::{
-    core::{Agent, AgentContext, AgentError, AgentId, AgentResult, ExecutionContext, ExecutionResult, ExecutionState, ExecutionStatus, SerializableTask, PlanId},
+    core::{
+        Agent, AgentContext, AgentError, AgentId, AgentResult, ExecutionContext, ExecutionResult,
+        ExecutionState, ExecutionStatus, PlanId, SerializableTask,
+    },
     protocols::{Message, MessageType},
 };
 use async_trait::async_trait;
@@ -86,7 +89,9 @@ impl AgentCoordinator {
     }
 
     /// Register an agent with the coordinator
-    pub async fn register_agent(&self, mut agent: Box<dyn Agent>, context: AgentContext) -> AgentResult<()> {
+    pub async fn register_agent(
+        &self, mut agent: Box<dyn Agent>, context: AgentContext,
+    ) -> AgentResult<()> {
         agent.initialize(&context).await?;
 
         let agent_id = agent.id().to_string();
@@ -98,12 +103,17 @@ impl AgentCoordinator {
     }
 
     /// Execute an execution plan
-    pub async fn execute_plan(&self, mut plan: ExecutionPlan) -> AgentResult<HashMap<String, ExecutionResult>> {
+    pub async fn execute_plan(
+        &self, mut plan: ExecutionPlan,
+    ) -> AgentResult<HashMap<String, ExecutionResult>> {
         tracing::info!("Executing plan: {}", plan.plan_id);
 
         // Initialize plan state
         plan.state = ExecutionState::Running;
-        self.execution_plans.write().await.insert(plan.plan_id.to_string(), plan.clone());
+        self.execution_plans
+            .write()
+            .await
+            .insert(plan.plan_id.to_string(), plan.clone());
 
         // Execute tasks in dependency order
         let results = self.execute_tasks_in_order(&plan).await?;
@@ -120,7 +130,9 @@ impl AgentCoordinator {
     }
 
     /// Execute tasks respecting dependencies
-    async fn execute_tasks_in_order(&self, plan: &ExecutionPlan) -> AgentResult<HashMap<String, ExecutionResult>> {
+    async fn execute_tasks_in_order(
+        &self, plan: &ExecutionPlan,
+    ) -> AgentResult<HashMap<String, ExecutionResult>> {
         let mut results = HashMap::new();
         let mut completed_tasks = std::collections::HashSet::new();
 
@@ -134,7 +146,8 @@ impl AgentCoordinator {
                 }
 
                 // Check if all dependencies are completed
-                let dependencies_met = plan.dependencies
+                let dependencies_met = plan
+                    .dependencies
                     .get(&task.task_id)
                     .map(|deps| deps.iter().all(|dep| completed_tasks.contains(dep)))
                     .unwrap_or(true);
@@ -148,13 +161,16 @@ impl AgentCoordinator {
 
                     // Update shared state with task results
                     let mut shared_state = self.shared_state.write().await;
-                    shared_state.insert(format!("task_result_{}", task.task_id), result.output.clone());
+                    shared_state.insert(
+                        format!("task_result_{}", task.task_id),
+                        result.output.clone(),
+                    );
                 }
             }
 
             if !progress && completed_tasks.len() < plan.tasks.len() {
                 return Err(AgentError::ExecutionFailed(
-                    "Circular dependency detected in execution plan".to_string()
+                    "Circular dependency detected in execution plan".to_string(),
                 ));
             }
 
@@ -168,8 +184,9 @@ impl AgentCoordinator {
 
     /// Execute a single task
     async fn execute_task(&self, task: &SerializableTask) -> AgentResult<ExecutionResult> {
-        let agent = self.agents.get(&task.agent_id)
-            .ok_or_else(|| AgentError::ExecutionFailed(format!("Agent {} not found", task.agent_id)))?;
+        let agent = self.agents.get(&task.agent_id).ok_or_else(|| {
+            AgentError::ExecutionFailed(format!("Agent {} not found", task.agent_id))
+        })?;
 
         let start_time = std::time::Instant::now();
 
@@ -199,7 +216,7 @@ impl Default for AgentCoordinator {
 
 /// Create a standard execution plan for ggen development workflow
 pub fn create_ggen_development_plan() -> ExecutionPlan {
-        let plan_id = PlanId::new();
+    let plan_id = PlanId::new();
 
     // Define tasks following 80/20 principle - focus on high-value activities
     let tasks = vec![

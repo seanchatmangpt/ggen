@@ -1,9 +1,9 @@
 //! Generate complete template projects
 
-use clap::Args;
-use ggen_utils::error::Result;
-use ggen_ai::{TemplateGenerator, LlmConfig, MockClient};
 use anyhow;
+use clap::Args;
+use ggen_ai::{LlmConfig, MockClient, TemplateGenerator};
+use ggen_utils::error::Result;
 use std::fs;
 
 #[derive(Debug, Args)]
@@ -62,11 +62,11 @@ pub async fn run(args: &ProjectArgs) -> Result<()> {
     println!("Project: {}", args.name);
     println!("Description: {}", args.description);
     println!("Language: {}", args.language);
-    
+
     if let Some(framework) = &args.framework {
         println!("Framework: {}", framework);
     }
-    
+
     println!("Output directory: {}", args.output);
     println!("Include tests: {}", args.tests);
     println!("Include docs: {}", args.docs);
@@ -82,16 +82,14 @@ pub async fn run(args: &ProjectArgs) -> Result<()> {
         stop: Some(vec!["```".to_string()]),
         extra: std::collections::HashMap::new(),
     };
-    
+
     let client = MockClient::with_response("Generated project structure");
     let generator = TemplateGenerator::new(Box::new(client));
 
     // Generate project description
     let project_description = format!(
         "Generate a complete {} project structure for '{}' with the following requirements: {}",
-        args.language,
-        args.name,
-        args.description
+        args.language, args.name, args.description
     );
 
     let mut examples = vec![
@@ -116,41 +114,64 @@ pub async fn run(args: &ProjectArgs) -> Result<()> {
     }
 
     // Generate the project structure template
-    let template = generator.generate_template(
-        &project_description,
-        examples.iter().map(|s| s.as_str()).collect()
-    ).await.map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?;
+    let template = generator
+        .generate_template(
+            &project_description,
+            examples.iter().map(|s| s.as_str()).collect(),
+        )
+        .await
+        .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?;
 
     println!("✅ Project structure generated successfully!");
 
     // Create output directory
-    std::fs::create_dir_all(&args.output)
-        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to create output directory: {}", e)))?;
+    std::fs::create_dir_all(&args.output).map_err(|e| {
+        ggen_utils::error::Error::new(&format!("Failed to create output directory: {}", e))
+    })?;
 
     // Write the main project template
     let main_template_path = format!("{}/project.tmpl", args.output);
-    fs::write(&main_template_path, format!("{:?}\n---\n{}", template.front, template.body))?;
+    fs::write(
+        &main_template_path,
+        format!("{:?}\n---\n{}", template.front, template.body),
+    )?;
     println!("📁 Saved project template to: {}", main_template_path);
 
     // Generate additional project files
     let project_files = vec![
-        ("README.md", "Generate a comprehensive README.md for the project"),
-        ("Cargo.toml", "Generate Cargo.toml configuration for Rust project"),
+        (
+            "README.md",
+            "Generate a comprehensive README.md for the project",
+        ),
+        (
+            "Cargo.toml",
+            "Generate Cargo.toml configuration for Rust project",
+        ),
         ("src/main.rs", "Generate main.rs entry point"),
     ];
 
     for (file_path, description) in &project_files {
-        let file_description = format!("{} for project '{}': {}", description, args.name, args.description);
-        let file_template = generator.generate_template(
-            &file_description,
-            examples.iter().map(|s| s.as_str()).collect()
-        ).await.map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?;
+        let file_description = format!(
+            "{} for project '{}': {}",
+            description, args.name, args.description
+        );
+        let file_template = generator
+            .generate_template(
+                &file_description,
+                examples.iter().map(|s| s.as_str()).collect(),
+            )
+            .await
+            .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?;
 
         let full_path = format!("{}/{}", args.output, file_path);
-        std::fs::create_dir_all(std::path::Path::new(&full_path).parent().unwrap())
-            .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to create directory: {}", e)))?;
+        std::fs::create_dir_all(std::path::Path::new(&full_path).parent().unwrap()).map_err(
+            |e| ggen_utils::error::Error::new(&format!("Failed to create directory: {}", e)),
+        )?;
 
-        fs::write(&full_path, format!("{:?}\n---\n{}", file_template.front, file_template.body))?;
+        fs::write(
+            &full_path,
+            format!("{:?}\n---\n{}", file_template.front, file_template.body),
+        )?;
         println!("📁 Generated: {}", full_path);
     }
 

@@ -51,9 +51,7 @@ pub struct Message {
 impl Message {
     /// Create a new message
     pub fn new(
-        message_type: MessageType,
-        sender_id: String,
-        target_id: Option<String>,
+        message_type: MessageType, sender_id: String, target_id: Option<String>,
         payload: serde_json::Value,
     ) -> Self {
         Self {

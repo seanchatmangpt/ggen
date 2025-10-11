@@ -5,32 +5,33 @@ use crate::error::{GgenAiError, Result};
 use crate::prompts::TemplatePromptBuilder;
 use crate::generators::validator::{TemplateValidator, ValidationResult};
 use futures::StreamExt;
+use std::sync::Arc;
 use ggen_core::Template;
 
 /// AI-powered template generator
 #[derive(Debug)]
 pub struct TemplateGenerator {
-    client: Box<dyn LlmClient>,
+    client: Arc<dyn LlmClient>,
 }
 
 impl TemplateGenerator {
     /// Create a new template generator
-    pub fn new(client: Box<dyn LlmClient>) -> Self {
+    pub fn new(client: Arc<dyn LlmClient>) -> Self {
         Self { client }
     }
     
     /// Create a new template generator with custom config
-    pub fn with_config(client: Box<dyn LlmClient>, _config: LlmConfig) -> Self {
+    pub fn with_config(client: Arc<dyn LlmClient>, _config: LlmConfig) -> Self {
         Self { client }
     }
     
     /// Create a new template generator with a client
-    pub fn with_client(client: Box<dyn LlmClient>) -> Self {
+    pub fn with_client(client: Arc<dyn LlmClient>) -> Self {
         Self { client }
     }
     
     /// Create a new template generator optimized for Ollama qwen3-coder:30b
-    pub fn with_ollama_qwen3_coder(client: Box<dyn LlmClient>) -> Self {
+    pub fn with_ollama_qwen3_coder(client: Arc<dyn LlmClient>) -> Self {
         Self { client }
     }
     
@@ -67,7 +68,7 @@ impl TemplateGenerator {
     
     /// Get the LLM client
     pub fn client(&self) -> &dyn LlmClient {
-        self.client.as_ref()
+        &self.client
     }
     
     /// Get the current configuration
@@ -167,12 +168,12 @@ mod tests {
     #[tokio::test]
     async fn test_template_generation() {
         let client = MockClient::with_response("---\nto: \"test.tmpl\"\nvars:\n  name: \"test\"\n---\nHello {{ name }}!");
-        let generator = TemplateGenerator::new(Box::new(client));
+        let generator = TemplateGenerator::new(Arc::new(client));
         
         let template = generator.generate_template(
             "A simple greeting template",
             vec!["Include name variable"]
-        ).await.unwrap();
+        ).await.expect("Template generation should succeed in test");
         
         assert_eq!(template.body, "Hello {{ name }}!");
     }
@@ -180,12 +181,12 @@ mod tests {
     #[tokio::test]
     async fn test_template_generation_with_markdown() {
         let client = MockClient::with_response("```yaml\n---\nto: \"test.tmpl\"\nvars:\n  name: \"test\"\n---\nHello {{ name }}!\n```");
-        let generator = TemplateGenerator::new(Box::new(client));
+        let generator = TemplateGenerator::new(Arc::new(client));
         
         let template = generator.generate_template(
             "A simple greeting template",
             vec!["Include name variable"]
-        ).await.unwrap();
+        ).await.expect("Template generation should succeed in test");
         
         assert_eq!(template.body, "Hello {{ name }}!");
     }

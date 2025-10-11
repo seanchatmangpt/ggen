@@ -5,7 +5,7 @@
 //! 2. Resource Errors - File not found, permission denied, I/O failures
 //! 3. Protocol Errors - Invalid JSON-RPC, unknown methods, malformed requests
 
-use ggen_mcp::error::{GgenMcpError, get_string_param, get_optional_string_param, get_bool_param};
+use ggen_mcp::error::{get_bool_param, get_optional_string_param, get_string_param, GgenMcpError};
 use ggen_mcp::GgenMcpServer;
 use serde_json::{json, Value};
 
@@ -17,18 +17,25 @@ use serde_json::{json, Value};
 macro_rules! assert_error_variant {
     ($result:expr, $pattern:pat) => {
         match $result {
-            Err($pattern) => {},
+            Err($pattern) => {}
             Ok(_) => panic!("Expected error, got Ok"),
-            Err(e) => panic!("Wrong error variant. Expected {}, got: {:?}",
-                           stringify!($pattern), e),
+            Err(e) => panic!(
+                "Wrong error variant. Expected {}, got: {:?}",
+                stringify!($pattern),
+                e
+            ),
         }
     };
     ($result:expr, $pattern:pat, $msg:expr) => {
         match $result {
-            Err($pattern) => {},
+            Err($pattern) => {}
             Ok(_) => panic!("Expected error, got Ok: {}", $msg),
-            Err(e) => panic!("Wrong error variant. Expected {}, got: {:?}. {}",
-                           stringify!($pattern), e, $msg),
+            Err(e) => panic!(
+                "Wrong error variant. Expected {}, got: {:?}. {}",
+                stringify!($pattern),
+                e,
+                $msg
+            ),
         }
     };
 }
@@ -56,8 +63,10 @@ mod invalid_parameter_tests {
 
         // Verify error message is helpful
         if let Err(GgenMcpError::MissingParameter(msg)) = result {
-            assert!(msg.contains("template"),
-                   "Error message should mention the missing parameter name");
+            assert!(
+                msg.contains("template"),
+                "Error message should mention the missing parameter name"
+            );
         }
     }
 
@@ -134,7 +143,7 @@ mod invalid_parameter_tests {
         match result {
             Ok(_) => {
                 // Implementation chose to handle gracefully
-            },
+            }
             Err(e) => {
                 // Implementation chose to reject
                 println!("Invalid vars rejected: {:?}", e);
@@ -155,10 +164,10 @@ mod invalid_parameter_tests {
         match result {
             Ok(_) => {
                 // Implementation may use default or abs value
-            },
+            }
             Err(GgenMcpError::InvalidParameter(_)) => {
                 // Proper validation
-            },
+            }
             Err(e) => panic!("Unexpected error type: {:?}", e),
         }
     }
@@ -228,10 +237,9 @@ mod resource_error_tests {
 
         // Should fail with appropriate error
         match result {
-            Err(GgenMcpError::TemplateError(_)) |
-            Err(GgenMcpError::ExecutionFailed(_)) => {
+            Err(GgenMcpError::TemplateError(_)) | Err(GgenMcpError::ExecutionFailed(_)) => {
                 // Expected error types
-            },
+            }
             Err(e) => println!("File not found handled with: {:?}", e),
             Ok(_) => {
                 // Current implementation may simulate success
@@ -251,8 +259,7 @@ mod resource_error_tests {
 
         // Should handle missing file gracefully
         match result {
-            Err(GgenMcpError::GraphError(_)) |
-            Err(GgenMcpError::ExecutionFailed(_)) => {},
+            Err(GgenMcpError::GraphError(_)) | Err(GgenMcpError::ExecutionFailed(_)) => {}
             Err(e) => println!("Invalid file handled with: {:?}", e),
             Ok(_) => println!("Implementation may simulate success"),
         }
@@ -316,10 +323,14 @@ mod protocol_error_tests {
         );
 
         if let Err(GgenMcpError::InvalidParameter(msg)) = result {
-            assert!(msg.contains("Unknown tool"),
-                   "Error should indicate tool is unknown");
-            assert!(msg.contains("nonexistent_tool"),
-                   "Error should include the tool name");
+            assert!(
+                msg.contains("Unknown tool"),
+                "Error should indicate tool is unknown"
+            );
+            assert!(
+                msg.contains("nonexistent_tool"),
+                "Error should include the tool name"
+            );
         }
     }
 
@@ -395,7 +406,10 @@ mod error_trait_tests {
         let json_error = serde_json::from_str::<Value>("{ invalid json }").unwrap_err();
         let mcp_error: GgenMcpError = json_error.into();
 
-        assert_error_variant!(Err::<Value, GgenMcpError>(mcp_error), GgenMcpError::SerializationError(_));
+        assert_error_variant!(
+            Err::<Value, GgenMcpError>(mcp_error),
+            GgenMcpError::SerializationError(_)
+        );
     }
 
     #[test]
@@ -433,10 +447,16 @@ mod error_trait_tests {
 
         for error in errors {
             let message = error.to_string();
-            assert!(!message.is_empty(),
-                   "Error {:?} should have non-empty message", error);
-            assert!(message.len() > 5,
-                   "Error {:?} message should be descriptive", error);
+            assert!(
+                !message.is_empty(),
+                "Error {:?} should have non-empty message",
+                error
+            );
+            assert!(
+                message.len() > 5,
+                "Error {:?} message should be descriptive",
+                error
+            );
         }
     }
 }
@@ -458,14 +478,20 @@ mod error_message_tests {
         if let Err(e) = result1 {
             let msg = e.to_string();
             assert!(msg.len() > 10, "Error message should be descriptive");
-            assert!(!msg.contains("Error"), "Should be more specific than just 'Error'");
+            assert!(
+                !msg.contains("Error"),
+                "Should be more specific than just 'Error'"
+            );
         }
 
         // Test 2: Unknown tool error message
         let result2 = server.execute_tool("fake_tool", json!({})).await;
         if let Err(e) = result2 {
             let msg = e.to_string();
-            assert!(msg.contains("fake_tool"), "Should mention the invalid tool name");
+            assert!(
+                msg.contains("fake_tool"),
+                "Should mention the invalid tool name"
+            );
         }
     }
 
@@ -476,22 +502,36 @@ mod error_message_tests {
         let message = error.to_string();
 
         // Message should include the parameter name
-        assert!(message.contains(param_name),
-               "Error message should include parameter name for context");
+        assert!(
+            message.contains(param_name),
+            "Error message should include parameter name for context"
+        );
     }
 
     #[test]
     fn test_error_messages_are_user_friendly() {
         let errors = vec![
-            (GgenMcpError::MissingParameter("template".to_string()), "Missing required parameter"),
-            (GgenMcpError::InvalidParameter("wrong type".to_string()), "Invalid parameter"),
-            (GgenMcpError::TemplateError("not found".to_string()), "Template error"),
+            (
+                GgenMcpError::MissingParameter("template".to_string()),
+                "Missing required parameter",
+            ),
+            (
+                GgenMcpError::InvalidParameter("wrong type".to_string()),
+                "Invalid parameter",
+            ),
+            (
+                GgenMcpError::TemplateError("not found".to_string()),
+                "Template error",
+            ),
         ];
 
         for (error, expected_text) in errors {
             let message = error.to_string().to_lowercase();
-            assert!(message.contains(&expected_text.to_lowercase()),
-                   "Error message should contain '{}'", expected_text);
+            assert!(
+                message.contains(&expected_text.to_lowercase()),
+                "Error message should contain '{}'",
+                expected_text
+            );
         }
     }
 }
@@ -514,7 +554,9 @@ mod concurrent_error_tests {
         for i in 0..10 {
             let server_clone = server.clone();
             join_set.spawn(async move {
-                server_clone.execute_tool("nonexistent_tool", json!({"id": i})).await
+                server_clone
+                    .execute_tool("nonexistent_tool", json!({"id": i}))
+                    .await
             });
         }
 
@@ -525,7 +567,10 @@ mod concurrent_error_tests {
             }
         }
 
-        assert_eq!(error_count, 10, "All concurrent calls should fail with errors");
+        assert_eq!(
+            error_count, 10,
+            "All concurrent calls should fail with errors"
+        );
     }
 
     #[tokio::test]
@@ -537,8 +582,16 @@ mod concurrent_error_tests {
         for i in 0..100 {
             let server_clone = server.clone();
             let task = tokio::spawn(async move {
-                let tool = if i % 3 == 0 { "project_gen" } else { "unknown_tool" };
-                let params = if i % 2 == 0 { json!({}) } else { json!({"template": "test"}) };
+                let tool = if i % 3 == 0 {
+                    "project_gen"
+                } else {
+                    "unknown_tool"
+                };
+                let params = if i % 2 == 0 {
+                    json!({})
+                } else {
+                    json!({"template": "test"})
+                };
                 server_clone.execute_tool(tool, params).await
             });
             tasks.push(task);
@@ -568,16 +621,26 @@ mod integration_error_tests {
         assert!(result1.is_err(), "Should fail with missing params");
 
         // Step 2: Try with invalid params
-        let result2 = server.execute_tool("project_gen", json!({
-            "template": 123 // Wrong type
-        })).await;
+        let result2 = server
+            .execute_tool(
+                "project_gen",
+                json!({
+                    "template": 123 // Wrong type
+                }),
+            )
+            .await;
         assert!(result2.is_err(), "Should fail with invalid params");
 
         // Step 3: Try with valid params (should succeed or fail gracefully)
-        let result3 = server.execute_tool("project_gen", json!({
-            "template": "test-template",
-            "vars": {}
-        })).await;
+        let result3 = server
+            .execute_tool(
+                "project_gen",
+                json!({
+                    "template": "test-template",
+                    "vars": {}
+                }),
+            )
+            .await;
 
         match result3 {
             Ok(_) => println!("Successfully executed with valid params"),

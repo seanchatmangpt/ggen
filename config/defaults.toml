@@ -1,0 +1,352 @@
+# ggen Default Configuration
+# =========================
+# This file documents all configurable settings with their default values.
+# Copy sections to your config file to customize behavior.
+#
+# Configuration priority (highest to lowest):
+# 1. Command-line arguments
+# 2. Environment variables (GGEN_*, OLLAMA_*, OPENAI_*, etc.)
+# 3. Project config (./ggen.toml)
+# 4. User config (~/.config/ggen/config.toml)
+# 5. System config (/etc/ggen/config.toml)
+# 6. These defaults
+
+# ==============================================================================
+# LLM Configuration
+# ==============================================================================
+
+[llm]
+# Default LLM provider: "openai", "anthropic", "ollama", or "mock"
+# Override with: GGEN_LLM_PROVIDER
+provider = "ollama"
+
+# Global LLM settings (can be overridden per provider)
+# Override with: GGEN_LLM_MODEL, GGEN_LLM_TEMPERATURE, etc.
+default_model = "llama3.2"
+default_temperature = 0.7
+default_max_tokens = 2048
+default_top_p = 0.9
+timeout_seconds = 30
+use_streaming = false
+
+# ------------------------------------------------------------------------------
+# Ollama Provider (Local AI Models)
+# ------------------------------------------------------------------------------
+[llm.providers.ollama]
+# Ollama server base URL
+# Override with: OLLAMA_BASE_URL
+base_url = "http://localhost:11434"
+
+# Default model for Ollama
+# Popular options: "llama3.2", "qwen3-coder:30b", "mistral", "codellama"
+# Override with: OLLAMA_MODEL
+model = "qwen3-coder:30b"
+
+# Request timeout in seconds
+# Override with: OLLAMA_TIMEOUT
+timeout = 30
+
+# ------------------------------------------------------------------------------
+# OpenAI Provider (GPT Models)
+# ------------------------------------------------------------------------------
+[llm.providers.openai]
+# OpenAI API base URL
+# Override with: OPENAI_BASE_URL
+base_url = "https://api.openai.com/v1"
+
+# Default model for OpenAI
+# Popular options: "gpt-4", "gpt-3.5-turbo", "gpt-4-turbo"
+# Override with: OPENAI_MODEL
+model = "gpt-3.5-turbo"
+
+# OpenAI organization ID (optional)
+# Override with: OPENAI_ORGANIZATION
+# organization = ""
+
+# ⚠️  SECURITY: Never store API keys in config files!
+# Set via environment variable: OPENAI_API_KEY=sk-...
+
+# ------------------------------------------------------------------------------
+# Anthropic Provider (Claude Models)
+# ------------------------------------------------------------------------------
+[llm.providers.anthropic]
+# Anthropic API base URL
+# Override with: ANTHROPIC_BASE_URL
+base_url = "https://api.anthropic.com"
+
+# Default model for Anthropic
+# Popular options: "claude-3-opus-20240229", "claude-3-sonnet-20240229",
+#                  "claude-3-haiku-20240307"
+# Override with: ANTHROPIC_MODEL
+model = "claude-3-sonnet-20240229"
+
+# ⚠️  SECURITY: Never store API keys in config files!
+# Set via environment variable: ANTHROPIC_API_KEY=sk-ant-...
+
+# ------------------------------------------------------------------------------
+# Mock Provider (Testing)
+# ------------------------------------------------------------------------------
+[llm.providers.mock]
+# Mock provider for testing (no external API calls)
+model = "mock-model"
+response = "Mock response for testing"
+
+# ==============================================================================
+# GitHub Integration
+# ==============================================================================
+
+[github]
+# GitHub API base URL
+# Override with: GGEN_GITHUB_BASE_URL
+base_url = "https://api.github.com"
+
+# For GitHub Enterprise, set to your instance:
+# enterprise_base_url = "https://github.company.com/api/v3"
+# Override with: GGEN_GITHUB_ENTERPRISE_URL
+
+# Request timeout in seconds
+# Override with: GGEN_GITHUB_TIMEOUT
+timeout_seconds = 30
+
+# User agent for GitHub API requests
+# Override with: GGEN_GITHUB_USER_AGENT
+user_agent = "ggen-cli"
+
+# ⚠️  SECURITY: Never store tokens in config files!
+# Set via environment variable: GITHUB_TOKEN=ghp_... or GH_TOKEN=ghp_...
+
+# ==============================================================================
+# Package Registry
+# ==============================================================================
+
+[registry]
+# Main registry URL
+# Override with: GGEN_REGISTRY_URL
+url = "https://seanchatmangpt.github.io/ggen/registry/"
+
+# Request timeout in seconds
+# Override with: GGEN_REGISTRY_TIMEOUT
+timeout_seconds = 30
+
+# Mirror URLs (fallback registries)
+# Override with: GGEN_REGISTRY_MIRRORS (comma-separated)
+# mirror_urls = [
+#     "https://mirror1.example.com/registry/",
+#     "https://mirror2.example.com/registry/"
+# ]
+
+# Cache TTL in hours
+# Override with: GGEN_REGISTRY_CACHE_TTL
+# cache_ttl_hours = 24
+
+# ==============================================================================
+# File Watching
+# ==============================================================================
+
+[watch]
+# Default file system polling interval in milliseconds
+# Lower values = more responsive but higher CPU usage
+# Override with: GGEN_WATCH_POLL_INTERVAL
+default_poll_interval_ms = 1000
+
+# Default debounce time in milliseconds
+# Prevents multiple rapid triggers from single file change
+# Override with: GGEN_WATCH_DEBOUNCE
+default_debounce_ms = 500
+
+# Watch subdirectories recursively by default
+# Override with: GGEN_WATCH_RECURSIVE
+# recursive = false
+
+# Clear terminal screen on file change
+# Override with: GGEN_WATCH_CLEAR
+# clear_screen = false
+
+# ==============================================================================
+# CI/CD Configuration
+# ==============================================================================
+
+[ci.release]
+# Default timeout for release workflows in seconds (30 minutes)
+# Override with: GGEN_CI_RELEASE_TIMEOUT
+default_timeout_seconds = 1800
+
+# Timeout for GitHub Actions workflow in seconds (60 minutes)
+# Override with: GGEN_CI_WORKFLOW_TIMEOUT
+workflow_timeout_seconds = 3600
+
+# Timeout for Homebrew publishing in seconds (30 minutes)
+# Override with: GGEN_CI_HOMEBREW_TIMEOUT
+homebrew_timeout_seconds = 1800
+
+# ==============================================================================
+# Code Generation
+# ==============================================================================
+
+[generation]
+# Temperature for generation (0.0 = deterministic, 2.0 = very creative)
+# Override with: GGEN_GENERATION_TEMPERATURE
+temperature = 0.7
+
+# Maximum tokens to generate
+# Override with: GGEN_GENERATION_MAX_TOKENS
+max_tokens = 4096
+
+# Top-p nucleus sampling (0.0 to 1.0)
+# Override with: GGEN_GENERATION_TOP_P
+top_p = 0.9
+
+# Enable streaming responses
+# Override with: GGEN_GENERATION_STREAMING
+streaming = false
+
+# Stop sequences (generation stops when these are encountered)
+# Override with: GGEN_GENERATION_STOP_SEQUENCES (comma-separated)
+# stop_sequences = ["```", "END"]
+
+# ==============================================================================
+# Security
+# ==============================================================================
+
+[security]
+# Enable event signature verification
+# Override with: GGEN_SECURITY_VALIDATE_SIGNATURES
+validate_signatures = false
+
+# Ed25519 public key for signature verification (if enabled)
+# Override with: GGEN_SECURITY_PUBLIC_KEY
+# public_key = "ed25519:0123456789abcdef..."
+
+# Enable rate limiting for API requests
+# Override with: GGEN_SECURITY_RATE_LIMIT
+# enable_rate_limit = true
+
+# Maximum requests per minute
+# Override with: GGEN_SECURITY_MAX_REQUESTS_PER_MINUTE
+# max_requests_per_minute = 60
+
+# ==============================================================================
+# Logging
+# ==============================================================================
+
+[logging]
+# Log level: "trace", "debug", "info", "warn", "error"
+# Override with: GGEN_LOG_LEVEL or RUST_LOG
+level = "info"
+
+# Log format: "pretty", "json", "compact"
+# Override with: GGEN_LOG_FORMAT
+format = "pretty"
+
+# Optional log file path (logs to stdout if not set)
+# Override with: GGEN_LOG_FILE
+# log_file = "/var/log/ggen/ggen.log"
+
+# Enable ANSI colors in log output
+# Override with: GGEN_LOG_COLOR
+# color = true
+
+# ==============================================================================
+# Performance Tuning
+# ==============================================================================
+
+[performance]
+# Connection pool size for HTTP clients
+# Override with: GGEN_PERFORMANCE_POOL_SIZE
+# http_pool_size = 10
+
+# Request retry attempts
+# Override with: GGEN_PERFORMANCE_RETRY_ATTEMPTS
+# retry_attempts = 3
+
+# Retry backoff in milliseconds
+# Override with: GGEN_PERFORMANCE_RETRY_BACKOFF
+# retry_backoff_ms = 1000
+
+# Cache size in MB
+# Override with: GGEN_PERFORMANCE_CACHE_SIZE
+# cache_size_mb = 100
+
+# ==============================================================================
+# Development & Testing
+# ==============================================================================
+
+[dev]
+# Enable development mode (more verbose logging, mock providers)
+# Override with: GGEN_DEV_MODE
+# dev_mode = false
+
+# Enable test mode (uses mock clients, skips live API calls)
+# Override with: GGEN_TEST_MODE
+# test_mode = false
+
+# Allow live API calls in tests
+# Override with: GGEN_ALLOW_LIVE_CALLS
+# allow_live_calls = false
+
+# ==============================================================================
+# Environment-Specific Profiles
+# ==============================================================================
+# You can define environment-specific settings that override defaults
+
+[environments.development]
+# Development environment settings
+llm.provider = "ollama"
+llm.providers.ollama.base_url = "http://localhost:11434"
+logging.level = "debug"
+# dev.dev_mode = true
+
+[environments.staging]
+# Staging environment settings
+llm.provider = "openai"
+logging.level = "info"
+github.base_url = "https://github-staging.company.com/api/v3"
+
+[environments.production]
+# Production environment settings
+llm.provider = "anthropic"
+logging.level = "warn"
+security.validate_signatures = true
+# performance.http_pool_size = 20
+
+# ==============================================================================
+# Usage Examples
+# ==============================================================================
+#
+# 1. Local Development with Ollama:
+#    - Use defaults (no changes needed)
+#    - Or create ~/.config/ggen/config.toml with custom model
+#
+# 2. Production with OpenAI:
+#    export GGEN_LLM_PROVIDER=openai
+#    export OPENAI_API_KEY=sk-...
+#
+# 3. Enterprise with GitHub Enterprise:
+#    [github]
+#    base_url = "https://github.company.com/api/v3"
+#
+# 4. Custom Registry:
+#    export GGEN_REGISTRY_URL=https://registry.company.com/
+#
+# 5. Select Environment:
+#    export GGEN_ENVIRONMENT=production
+#    # This loads settings from [environments.production]
+#
+# ==============================================================================
+# Configuration File Locations
+# ==============================================================================
+#
+# System-wide:  /etc/ggen/config.toml
+# User-specific: ~/.config/ggen/config.toml
+# Project-specific: ./ggen.toml (in project root)
+#
+# To generate a config file:
+#   ggen config init [--system|--user|--project]
+#
+# To validate config:
+#   ggen config validate
+#
+# To show effective config:
+#   ggen config show
+#
+# ==============================================================================

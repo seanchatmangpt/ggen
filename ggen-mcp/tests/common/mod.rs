@@ -120,13 +120,21 @@ pub fn mock_resource_request(uri: &str) -> Value {
 
 /// Test assertion helper for JSON responses
 pub fn assert_json_success(response: &Value) {
-    assert!(response.get("result").is_some(), "Response should have result field");
-    assert!(response.get("error").is_none(), "Response should not have error field");
+    assert!(
+        response.get("result").is_some(),
+        "Response should have result field"
+    );
+    assert!(
+        response.get("error").is_none(),
+        "Response should not have error field"
+    );
 }
 
 /// Test assertion helper for error responses
 pub fn assert_json_error(response: &Value, expected_code: Option<i64>) {
-    let error = response.get("error").expect("Response should have error field");
+    let error = response
+        .get("error")
+        .expect("Response should have error field");
     if let Some(code) = expected_code {
         assert_eq!(
             error.get("code").and_then(|c| c.as_i64()),

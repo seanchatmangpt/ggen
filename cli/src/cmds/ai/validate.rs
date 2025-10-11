@@ -1,8 +1,8 @@
 //! Validate templates
 
+use anyhow;
 use clap::Args;
 use ggen_utils::error::Result;
-use anyhow;
 use std::fs;
 
 #[derive(Debug, Args)]
@@ -27,7 +27,10 @@ pub async fn run(args: &ValidateArgs) -> Result<()> {
     let validator = ggen_ai::TemplateValidator::new();
 
     // Validate template
-    let result = validator.validate_template(&template).await.map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?;
+    let result = validator
+        .validate_template(&template)
+        .await
+        .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?;
 
     println!("Validation Results:");
     println!("  Valid: {}", result.is_valid);
@@ -52,4 +55,3 @@ pub async fn run(args: &ValidateArgs) -> Result<()> {
 
     Ok(())
 }
-

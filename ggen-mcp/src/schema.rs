@@ -366,3 +366,184 @@ pub fn hook_register_schema() -> Value {
         }
     })
 }
+
+/// Schema for ai_generate_template tool
+pub fn ai_generate_template_schema() -> Value {
+    json!({
+        "type": "object",
+        "required": ["description"],
+        "properties": {
+            "description": {
+                "type": "string",
+                "description": "Natural language description of the template to generate"
+            },
+            "provider": {
+                "type": "string",
+                "description": "AI provider to use (ollama, openai, anthropic)",
+                "default": "ollama"
+            },
+            "output_file": {
+                "type": "string",
+                "description": "Optional output file path for the generated template"
+            },
+            "validate": {
+                "type": "boolean",
+                "description": "Whether to validate and improve the generated template",
+                "default": false
+            }
+        }
+    })
+}
+
+/// Schema for ai_generate_sparql tool
+pub fn ai_generate_sparql_schema() -> Value {
+    json!({
+        "type": "object",
+        "required": ["description", "graph_file"],
+        "properties": {
+            "description": {
+                "type": "string",
+                "description": "Natural language description of the SPARQL query intent"
+            },
+            "graph_file": {
+                "type": "string",
+                "description": "Path to RDF graph file for context"
+            },
+            "provider": {
+                "type": "string",
+                "description": "AI provider to use (ollama, openai, anthropic)",
+                "default": "ollama"
+            },
+            "output_file": {
+                "type": "string",
+                "description": "Optional output file path for the generated SPARQL query"
+            }
+        }
+    })
+}
+
+/// Schema for ai_generate_ontology tool
+pub fn ai_generate_ontology_schema() -> Value {
+    json!({
+        "type": "object",
+        "required": ["description"],
+        "properties": {
+            "description": {
+                "type": "string",
+                "description": "Domain description for ontology generation"
+            },
+            "provider": {
+                "type": "string",
+                "description": "AI provider to use (ollama, openai, anthropic)",
+                "default": "ollama"
+            },
+            "output_file": {
+                "type": "string",
+                "description": "Optional output file path for the generated ontology"
+            },
+            "requirements": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "Additional requirements for the ontology"
+            }
+        }
+    })
+}
+
+/// Schema for ai_generate_project tool
+pub fn ai_generate_project_schema() -> Value {
+    json!({
+        "type": "object",
+        "required": ["description", "name"],
+        "properties": {
+            "description": {
+                "type": "string",
+                "description": "Natural language description of the project"
+            },
+            "name": {
+                "type": "string",
+                "description": "Project name"
+            },
+            "provider": {
+                "type": "string",
+                "description": "AI provider to use (ollama, openai, anthropic)",
+                "default": "ollama"
+            },
+            "language": {
+                "type": "string",
+                "description": "Programming language (rust, python, javascript, go)",
+                "default": "rust"
+            },
+            "framework": {
+                "type": "string",
+                "description": "Web framework to use (axum, fastapi, express, gin)"
+            },
+            "output_dir": {
+                "type": "string",
+                "description": "Output directory for generated project"
+            }
+        }
+    })
+}
+
+/// Schema for ai_extend_graph tool
+pub fn ai_extend_graph_schema() -> Value {
+    json!({
+        "type": "object",
+        "required": ["graph_file", "description"],
+        "properties": {
+            "graph_file": {
+                "type": "string",
+                "description": "Path to existing RDF graph file to extend"
+            },
+            "description": {
+                "type": "string",
+                "description": "Description of new knowledge to add to the graph"
+            },
+            "provider": {
+                "type": "string",
+                "description": "AI provider to use (ollama, openai, anthropic)",
+                "default": "ollama"
+            }
+        }
+    })
+}
+
+/// Schema for ai_validate_and_improve tool
+pub fn ai_validate_and_improve_schema() -> Value {
+    json!({
+        "type": "object",
+        "required": ["content"],
+        "properties": {
+            "content": {
+                "type": "string",
+                "description": "Content to validate and improve (code or template)"
+            },
+            "content_type": {
+                "type": "string",
+                "description": "Type of content (code, template, documentation)",
+                "default": "code"
+            },
+            "provider": {
+                "type": "string",
+                "description": "AI provider to use (ollama, openai, anthropic)",
+                "default": "ollama"
+            },
+            "max_iterations": {
+                "type": "number",
+                "description": "Maximum validation iterations",
+                "default": 3,
+                "minimum": 1,
+                "maximum": 10
+            }
+        }
+    })
+}
+
+/// Schema for ai_list_providers tool
+pub fn ai_list_providers_schema() -> Value {
+    json!({
+        "type": "object",
+        "properties": {}
+    })
+}

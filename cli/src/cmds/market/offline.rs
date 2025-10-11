@@ -264,9 +264,22 @@ async fn run_offline_cache_status() -> Result<()> {
     };
 
     println!("📦 Packages cached: {}", status.package_count);
-    println!("💾 Cache size: {:.2} MB", status.cache_size as f64 / 1024.0 / 1024.0);
-    println!("🕒 Last updated: {}", status.last_updated.as_deref().unwrap_or("Never"));
-    println!("🔄 Status: {}", if status.is_stale { "Stale (needs update)" } else { "Fresh" });
+    println!(
+        "💾 Cache size: {:.2} MB",
+        status.cache_size as f64 / 1024.0 / 1024.0
+    );
+    println!(
+        "🕒 Last updated: {}",
+        status.last_updated.as_deref().unwrap_or("Never")
+    );
+    println!(
+        "🔄 Status: {}",
+        if status.is_stale {
+            "Stale (needs update)"
+        } else {
+            "Fresh"
+        }
+    );
 
     Ok(())
 }

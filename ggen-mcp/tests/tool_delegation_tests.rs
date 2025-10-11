@@ -559,7 +559,7 @@ mod graph_tools {
 
 #[tokio::test]
 async fn test_multiple_tools_can_be_called_sequentially() {
-    use ggen_mcp::tools::{project, market, graph};
+    use ggen_mcp::tools::{graph, market, project};
 
     // Call different tools in sequence
     let _ = market::list(json!({})).await;
@@ -572,7 +572,7 @@ async fn test_multiple_tools_can_be_called_sequentially() {
 
 #[tokio::test]
 async fn test_tools_maintain_independent_state() {
-    use ggen_mcp::tools::{project, market};
+    use ggen_mcp::tools::{market, project};
 
     // First tool call
     let _ = project::gen(json!({"template": "test1"})).await;
@@ -588,7 +588,7 @@ async fn test_tools_maintain_independent_state() {
 
 #[tokio::test]
 async fn test_concurrent_tool_delegations() {
-    use ggen_mcp::tools::{project, market, graph};
+    use ggen_mcp::tools::{graph, market, project};
 
     let mut handles = vec![];
 
@@ -683,7 +683,7 @@ async fn test_delegation_with_newlines_in_params() {
 async fn test_delegation_error_contains_context() {
     use ggen_mcp::tools::project;
 
-    let params = json!({});  // Missing required param
+    let params = json!({}); // Missing required param
 
     let result = project::gen(params).await;
 
@@ -698,7 +698,7 @@ async fn test_delegation_error_contains_context() {
 
 #[tokio::test]
 async fn test_delegation_errors_are_consistent() {
-    use ggen_mcp::tools::{project, market, graph};
+    use ggen_mcp::tools::{graph, market, project};
 
     // Collect errors from different tools
     let err1 = project::gen(json!({})).await.unwrap_err();

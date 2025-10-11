@@ -3,6 +3,7 @@
 use crate::client::{LlmClient, LlmConfig};
 use crate::error::{GgenAiError, Result};
 use ggen_core::{ThreeWayMerger, MergeStrategy};
+use std::sync::Arc;
 
 /// Code refactoring suggestion
 /// A refactoring suggestion with type, description, and impact assessment
@@ -61,29 +62,29 @@ pub enum ImpactLevel {
 /// AI-powered code refactoring assistant
 #[derive(Debug)]
 pub struct RefactorAssistant {
-    client: Box<dyn LlmClient>,
+    client: Arc<dyn LlmClient>,
 }
 
 impl RefactorAssistant {
     /// Create a new refactoring assistant
-    pub fn new(client: Box<dyn LlmClient>) -> Self {
+    pub fn new(client: Arc<dyn LlmClient>) -> Self {
         Self {
             client,
         }
     }
-    
+
     /// Create a new refactoring assistant with custom config
-    pub fn with_config(client: Box<dyn LlmClient>, _config: LlmConfig) -> Self {
+    pub fn with_config(client: Arc<dyn LlmClient>, _config: LlmConfig) -> Self {
         Self { client }
     }
-    
+
     /// Create a new refactoring assistant with a client
-    pub fn with_client(client: Box<dyn LlmClient>) -> Self {
+    pub fn with_client(client: Arc<dyn LlmClient>) -> Self {
         Self { client }
     }
     
     /// Create a new refactoring assistant optimized for Ollama qwen3-coder:30b
-    pub fn with_ollama_qwen3_coder(client: Box<dyn LlmClient>) -> Self {
+    pub fn with_ollama_qwen3_coder(client: Arc<dyn LlmClient>) -> Self {
         Self { client }
     }
     
@@ -432,7 +433,7 @@ impl RefactorAssistant {
     
     /// Get the LLM client
     pub fn client(&self) -> &dyn LlmClient {
-        &*self.client
+        &self.client
     }
     
     /// Get the current configuration from the client
@@ -505,7 +506,7 @@ mod tests {
     
     #[tokio::test]
     async fn test_refactor_assistant_creation() {
-        let client = Box::new(MockClient::with_response("Refactoring suggestions"));
+        let client = Arc::new(MockClient::with_response("Refactoring suggestions"));
         let assistant = RefactorAssistant::new(client);
         
         // Test passes if assistant was created successfully
@@ -513,7 +514,7 @@ mod tests {
     
     #[tokio::test]
     async fn test_refactor_assistant_with_config() {
-        let client = Box::new(MockClient::with_response("Refactoring suggestions"));
+        let client = Arc::new(MockClient::with_response("Refactoring suggestions"));
         let assistant = RefactorAssistant::with_config(client, LlmConfig::default());
         
         // Test that the assistant was created successfully
@@ -535,7 +536,7 @@ mod tests {
             ]
         }"#;
 
-        let client = Box::new(MockClient::with_response(mock_response));
+        let client = Arc::new(MockClient::with_response(mock_response));
         let assistant = RefactorAssistant::new(client);
 
         let context = RefactoringContext::new("JavaScript".to_string());
@@ -550,7 +551,7 @@ mod tests {
     
     #[tokio::test]
     async fn test_apply_refactoring() {
-        let client = Box::new(MockClient::with_response("function test() { return validate(input); }"));
+        let client = Arc::new(MockClient::with_response("function test() { return validate(input); }"));
         let assistant = RefactorAssistant::new(client);
 
         let suggestions = vec![RefactoringSuggestion {

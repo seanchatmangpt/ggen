@@ -10,7 +10,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Initialize AI tools with Ollama client (uses qwen3-coder:30b by default)
     let tools = AiMcpTools::new().with_ollama();
-    
+
     println!("✅ Initialized Ollama client with qwen3-coder:30b model");
     println!("📡 Make sure Ollama is running with qwen3-coder:30b model installed\n");
 
@@ -22,7 +22,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         "language": "Rust",
         "framework": "Actix Web"
     });
-    
+
     match tools.ai_generate_template(template_params).await {
         Ok(result) => {
             println!("✅ Template generation successful!");
@@ -38,9 +38,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!("💡 Make sure Ollama is running and qwen3-coder:30b model is installed");
         }
     }
-    
+
     println!("\n{}\n", "=".repeat(50));
-    
+
     // Test 2: Generate SPARQL query
     println!("🔍 Test 2: Generating SPARQL query...");
     let sparql_params = json!({
@@ -68,7 +68,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 ex:status "inactive" .
         "#
     });
-    
+
     match tools.ai_generate_sparql(sparql_params).await {
         Ok(result) => {
             println!("✅ SPARQL generation successful!");
@@ -81,9 +81,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!("❌ SPARQL generation failed: {}", e);
         }
     }
-    
+
     println!("\n{}\n", "=".repeat(50));
-    
+
     // Test 3: Generate ontology
     println!("🏗️ Test 3: Generating ontology...");
     let ontology_params = json!({
@@ -94,7 +94,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             "Define relationships between entities"
         ]
     });
-    
+
     match tools.ai_generate_ontology(ontology_params).await {
         Ok(result) => {
             println!("✅ Ontology generation successful!");
@@ -107,9 +107,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!("❌ Ontology generation failed: {}", e);
         }
     }
-    
+
     println!("\n{}\n", "=".repeat(50));
-    
+
     // Test 4: Code refactoring
     println!("🔧 Test 4: Code refactoring suggestions...");
     let refactor_params = json!({
@@ -131,13 +131,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         "#,
         "language": "Rust"
     });
-    
+
     match tools.ai_refactor_code(refactor_params).await {
         Ok(result) => {
             println!("✅ Code refactoring successful!");
             if let Some(suggestions) = result.get("suggestions") {
                 if let Some(suggestions_array) = suggestions.as_array() {
-                    println!("Generated {} refactoring suggestions:", suggestions_array.len());
+                    println!(
+                        "Generated {} refactoring suggestions:",
+                        suggestions_array.len()
+                    );
                     for (i, suggestion) in suggestions_array.iter().enumerate() {
                         if let Some(desc) = suggestion.get("description") {
                             println!("  {}. {}", i + 1, desc.as_str().unwrap_or("No description"));
@@ -150,9 +153,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!("❌ Code refactoring failed: {}", e);
         }
     }
-    
+
     println!("\n{}\n", "=".repeat(50));
-    
+
     // Test 5: Graph explanation
     println!("📊 Test 5: Graph explanation...");
     let explain_params = json!({
@@ -186,22 +189,25 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         "#,
         "focus": "organizational structure and relationships"
     });
-    
+
     match tools.ai_explain_graph(explain_params).await {
         Ok(result) => {
             println!("✅ Graph explanation successful!");
             if let Some(explanation) = result.get("explanation") {
                 println!("Graph explanation:");
-                println!("{}", explanation.as_str().unwrap_or("No explanation content"));
+                println!(
+                    "{}",
+                    explanation.as_str().unwrap_or("No explanation content")
+                );
             }
         }
         Err(e) => {
             println!("❌ Graph explanation failed: {}", e);
         }
     }
-    
+
     println!("\n{}\n", "=".repeat(50));
-    
+
     // Test 6: Delta merge strategy
     println!("🔄 Test 6: Delta merge strategy suggestion...");
     let delta_params = json!({
@@ -221,22 +227,28 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
         "#
     });
-    
+
     match tools.ai_suggest_delta(delta_params).await {
         Ok(result) => {
             println!("✅ Delta suggestion successful!");
             if let Some(strategy) = result.get("suggested_strategy") {
-                println!("Suggested merge strategy: {}", strategy.as_str().unwrap_or("Unknown"));
+                println!(
+                    "Suggested merge strategy: {}",
+                    strategy.as_str().unwrap_or("Unknown")
+                );
             }
             if let Some(reasoning) = result.get("reasoning") {
-                println!("Reasoning: {}", reasoning.as_str().unwrap_or("No reasoning provided"));
+                println!(
+                    "Reasoning: {}",
+                    reasoning.as_str().unwrap_or("No reasoning provided")
+                );
             }
         }
         Err(e) => {
             println!("❌ Delta suggestion failed: {}", e);
         }
     }
-    
+
     println!("\n🎉 All tests completed!");
     println!("\n💡 To use this in your projects:");
     println!("   1. Install Ollama: https://ollama.ai/");
@@ -244,7 +256,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("   3. Start Ollama service: ollama serve");
     println!("   4. Use ggen-ai CLI: cargo run -- ai generate --description 'your description'");
     println!("   5. Or use MCP server: cargo run --bin ggen-ai-mcp");
-    
+
     Ok(())
 }
-

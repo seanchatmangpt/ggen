@@ -15,6 +15,9 @@ pub mod recovery;
 pub mod consensus;
 pub mod discovery;
 pub mod scheduler;
+pub mod graph_evolution;
+pub mod regeneration;
+pub mod feedback;
 
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -336,3 +339,6 @@ pub use recovery::RecoveryAgent;
 pub use consensus::ConsensusManager;
 pub use discovery::ServiceDiscovery;
 pub use scheduler::TaskScheduler;
+pub use graph_evolution::GraphEvolutionAgent;
+pub use regeneration::RegenerationAgent;
+pub use feedback::FeedbackAgent;

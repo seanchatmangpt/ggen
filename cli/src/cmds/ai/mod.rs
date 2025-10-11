@@ -4,16 +4,16 @@ use clap::{Args, Subcommand};
 use ggen_utils::error::Result;
 
 pub mod config;
-pub mod generate;
-pub mod sparql;
-pub mod graph;
 pub mod demo;
-pub mod server;
-pub mod frontmatter;
-pub mod models;
-pub mod validate;
-pub mod project;
 pub mod from_source;
+pub mod frontmatter;
+pub mod generate;
+pub mod graph;
+pub mod models;
+pub mod project;
+pub mod server;
+pub mod sparql;
+pub mod validate;
 
 #[derive(Debug, Args)]
 pub struct AiArgs {
@@ -59,4 +59,3 @@ pub async fn run(args: &AiArgs) -> Result<()> {
         AiCommand::FromSource(args) => from_source::run(args).await,
     }
 }
-

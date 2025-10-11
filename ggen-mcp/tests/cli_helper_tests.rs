@@ -377,9 +377,15 @@ fn test_multiple_optional_params_all_present() {
         "tag": "rust"
     });
 
-    assert_eq!(get_optional_string_param(&params, "category"), Some("api".to_string()));
+    assert_eq!(
+        get_optional_string_param(&params, "category"),
+        Some("api".to_string())
+    );
     assert_eq!(get_optional_u64_param(&params, "limit"), Some(10));
-    assert_eq!(get_optional_string_param(&params, "tag"), Some("rust".to_string()));
+    assert_eq!(
+        get_optional_string_param(&params, "tag"),
+        Some("rust".to_string())
+    );
 }
 
 #[test]
@@ -391,14 +397,17 @@ fn test_multiple_optional_params_partial() {
         // limit and tag are missing
     });
 
-    assert_eq!(get_optional_string_param(&params, "category"), Some("api".to_string()));
+    assert_eq!(
+        get_optional_string_param(&params, "category"),
+        Some("api".to_string())
+    );
     assert_eq!(get_optional_u64_param(&params, "limit"), None);
     assert_eq!(get_optional_string_param(&params, "tag"), None);
 }
 
 #[test]
 fn test_required_and_optional_params_mixed() {
-    use ggen_mcp::error::{get_string_param, get_optional_string_param};
+    use ggen_mcp::error::{get_optional_string_param, get_string_param};
 
     let params = json!({
         "query": "test",
@@ -426,9 +435,7 @@ async fn test_concurrent_param_extraction() {
 
     for _ in 0..10 {
         let params_clone = params.clone();
-        let handle = tokio::spawn(async move {
-            get_string_param(&params_clone, "template")
-        });
+        let handle = tokio::spawn(async move { get_string_param(&params_clone, "template") });
         handles.push(handle);
     }
 

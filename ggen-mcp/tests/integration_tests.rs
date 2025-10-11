@@ -1,8 +1,7 @@
 ///! Integration tests for ggen-mcp server
 ///!
 ///! Tests the MCP protocol implementation and tool execution
-
-use ggen_mcp::{GgenMcpServer, error::Result};
+use ggen_mcp::{error::Result, GgenMcpServer};
 use serde_json::json;
 
 #[tokio::test]
@@ -17,7 +16,12 @@ async fn test_tool_routing_project_tools() {
     let server = GgenMcpServer::new();
 
     // Test that project tools are routable (they will fail without valid inputs, but routing works)
-    let tools = vec!["project_gen", "project_plan", "project_apply", "project_diff"];
+    let tools = vec![
+        "project_gen",
+        "project_plan",
+        "project_apply",
+        "project_diff",
+    ];
 
     for tool in tools {
         assert!(
@@ -137,7 +141,10 @@ async fn test_hook_register_success() {
     assert!(result.is_ok(), "Hook registration should succeed");
 
     let response = result.unwrap();
-    assert!(response.get("status").is_some(), "Response should have status");
+    assert!(
+        response.get("status").is_some(),
+        "Response should have status"
+    );
 }
 
 #[tokio::test]
@@ -160,11 +167,19 @@ async fn test_tool_count_is_correct() {
     let server = GgenMcpServer::new();
     let tool_count = server.tool_count();
 
-    assert_eq!(tool_count, 18, "Should have exactly 18 tools, got {}", tool_count);
+    assert_eq!(
+        tool_count, 18,
+        "Should have exactly 18 tools, got {}",
+        tool_count
+    );
 
     // Verify we can get tool names
     let tool_names = server.tool_names();
-    assert_eq!(tool_names.len(), tool_count, "tool_names should match tool_count");
+    assert_eq!(
+        tool_names.len(),
+        tool_count,
+        "tool_names should match tool_count"
+    );
 }
 
 #[tokio::test]
@@ -173,34 +188,42 @@ async fn test_concurrent_tool_execution() {
 
     // Test that multiple tools can be executed concurrently
     let futures = vec![
-        server.execute_tool("hook_register", json!({
-            "event": "pre_gen",
-            "command": "echo 1"
-        })),
-        server.execute_tool("hook_register", json!({
-            "event": "post_gen",
-            "command": "echo 2"
-        })),
-        server.execute_tool("hook_register", json!({
-            "event": "pre_apply",
-            "command": "echo 3"
-        })),
+        server.execute_tool(
+            "hook_register",
+            json!({
+                "event": "pre_gen",
+                "command": "echo 1"
+            }),
+        ),
+        server.execute_tool(
+            "hook_register",
+            json!({
+                "event": "post_gen",
+                "command": "echo 2"
+            }),
+        ),
+        server.execute_tool(
+            "hook_register",
+            json!({
+                "event": "pre_apply",
+                "command": "echo 3"
+            }),
+        ),
     ];
 
     let results = futures_util::future::join_all(futures).await;
 
     // All should succeed
     for (i, result) in results.iter().enumerate() {
-        assert!(
-            result.is_ok(),
-            "Concurrent execution {} should succeed",
-            i
-        );
+        assert!(result.is_ok(), "Concurrent execution {} should succeed", i);
     }
 }
 
 #[tokio::test]
 async fn test_server_default_trait() {
     let server = GgenMcpServer::default();
-    assert!(server.tool_count() >= 18, "Default server should have tools");
+    assert!(
+        server.tool_count() >= 18,
+        "Default server should have tools"
+    );
 }

@@ -32,10 +32,7 @@ impl StreamChunk {
     }
 
     /// Create a final stream chunk
-    pub fn final_chunk(
-        content: impl Into<String>,
-        finish_reason: impl Into<String>,
-    ) -> Self {
+    pub fn final_chunk(content: impl Into<String>, finish_reason: impl Into<String>) -> Self {
         Self {
             content: content.into(),
             is_final: true,

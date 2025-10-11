@@ -55,9 +55,7 @@ impl OpenAiProvider {
         let mut headers = reqwest::header::HeaderMap::new();
         headers.insert(
             "Authorization",
-            format!("Bearer {}", self.config.api_key)
-                .parse()
-                .unwrap(),
+            format!("Bearer {}", self.config.api_key).parse().unwrap(),
         );
         headers.insert("Content-Type", "application/json".parse().unwrap());
 
@@ -125,8 +123,7 @@ impl LlmProvider for OpenAiProvider {
     }
 
     async fn chat_stream(
-        &self,
-        mut request: ChatRequest,
+        &self, mut request: ChatRequest,
     ) -> LlmResult<Pin<Box<dyn Stream<Item = LlmResult<StreamChunk>> + Send>>> {
         request.stream = true;
 
@@ -237,7 +234,6 @@ fn parse_sse_chunk(bytes: bytes::Bytes) -> LlmResult<StreamChunk> {
 
     for line in text.lines() {
         if let Some(data) = line.strip_prefix("data: ") {
-
             if data == "[DONE]" {
                 return Ok(StreamChunk::final_chunk("", "stop"));
             }

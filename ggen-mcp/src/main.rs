@@ -1,7 +1,7 @@
 use anyhow::Result;
+use ggen_mcp::GgenMcpServer;
 use rmcp::{transport::stdio, ServiceExt};
 use tracing_subscriber;
-use ggen_mcp::GgenMcpServer;
 
 #[tokio::main]
 async fn main() -> Result<()> {

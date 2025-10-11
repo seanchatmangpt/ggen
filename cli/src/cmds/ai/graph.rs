@@ -1,11 +1,11 @@
 //! Generate RDF graphs using AI
 
-use clap::Args;
-use ggen_utils::error::Result;
-use ggen_core::Graph;
 use anyhow;
-use ggen_ai::{LlmConfig, client::GenAiClient, MockClient};
+use clap::Args;
 use ggen_ai::client::LlmClient;
+use ggen_ai::{client::GenAiClient, LlmConfig, MockClient};
+use ggen_core::Graph;
+use ggen_utils::error::Result;
 use std::fs;
 
 #[derive(Debug, Args)]
@@ -82,15 +82,20 @@ pub async fn run(args: &GraphArgs) -> Result<()> {
     } else {
         println!("Using GenAI client with provider: {}", args.llm_provider);
         let llm_config = LlmConfig {
-            model: args.model.clone().unwrap_or_else(|| "gpt-3.5-turbo".to_string()),
+            model: args
+                .model
+                .clone()
+                .unwrap_or_else(|| "gpt-3.5-turbo".to_string()),
             max_tokens: args.max_tokens,
             temperature: args.temperature,
             top_p: Some(0.9),
             stop: None,
             extra: std::collections::HashMap::new(),
         };
-        Box::new(GenAiClient::new(llm_config)
-            .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?)
+        Box::new(
+            GenAiClient::new(llm_config)
+                .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?,
+        )
     };
 
     // Generate basic RDF graph content (placeholder for AI generation)
@@ -151,8 +156,9 @@ ex:another_{} a ex:{} ;
     println!("✅ RDF graph generated successfully!");
 
     // Write to disk following best practices
-    let output_path = args.output.as_ref()
-        .ok_or_else(|| ggen_utils::error::Error::new("Output path is required for graph generation"))?;
+    let output_path = args.output.as_ref().ok_or_else(|| {
+        ggen_utils::error::Error::new("Output path is required for graph generation")
+    })?;
 
     // Ensure deterministic output by using consistent formatting
     let final_content = format!(
@@ -169,8 +175,9 @@ ex:another_{} a ex:{} ;
     );
 
     // Write the graph to disk
-    fs::write(output_path, &final_content)
-        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to write graph to disk: {}", e)))?;
+    fs::write(output_path, &final_content).map_err(|e| {
+        ggen_utils::error::Error::new(&format!("Failed to write graph to disk: {}", e))
+    })?;
 
     println!("💾 Graph written to: {}", output_path);
 
@@ -179,15 +186,22 @@ ex:another_{} a ex:{} ;
         println!("🔍 Verifying generated graph can be loaded...");
 
         // Load the generated graph to verify it's valid
-        let loaded_graph = Graph::load_from_file(output_path)
-            .map_err(|e| ggen_utils::error::Error::new(&format!("Generated graph is invalid and cannot be loaded: {}", e)))?;
+        let loaded_graph = Graph::load_from_file(output_path).map_err(|e| {
+            ggen_utils::error::Error::new(&format!(
+                "Generated graph is invalid and cannot be loaded: {}",
+                e
+            ))
+        })?;
 
         println!("✅ Graph verification successful!");
         println!("📊 Loaded graph contains {} triples", loaded_graph.len());
     }
 
     // Create reference file for programmatic access
-    let reference_path = format!("{}_reference.rs", output_path.replace(&format!(".{}", args.format), ""));
+    let reference_path = format!(
+        "{}_reference.rs",
+        output_path.replace(&format!(".{}", args.format), "")
+    );
     let reference_content = format!(
         "// Reference to generated RDF graph: {}
 // This file provides a programmatic reference to the generated graph
@@ -234,8 +248,9 @@ pub fn verify_graph_integrity() -> Result<usize> {{
         output_path
     );
 
-    fs::write(&reference_path, reference_content)
-        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to write reference file: {}", e)))?;
+    fs::write(&reference_path, reference_content).map_err(|e| {
+        ggen_utils::error::Error::new(&format!("Failed to write reference file: {}", e))
+    })?;
 
     println!("🔗 Generated reference file: {}", reference_path);
 

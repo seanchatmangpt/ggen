@@ -174,8 +174,8 @@ pub mod resources {
 
 /// Test data generators
 pub mod generators {
-    use rand::{thread_rng, Rng};
     use rand::distributions::Alphanumeric;
+    use rand::{thread_rng, Rng};
 
     /// Generate random template name
     pub fn random_template_name() -> String {

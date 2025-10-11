@@ -89,24 +89,12 @@ const CATEGORIES_FILE: &str = "categories.json";
 
 pub async fn run(args: &CacheArgs) -> Result<()> {
     match &args.command {
-        CacheCommand::Clear => {
-            run_cache_clear().await
-        }
-        CacheCommand::Stats => {
-            run_cache_stats().await
-        }
-        CacheCommand::Validate => {
-            run_cache_validate().await
-        }
-        CacheCommand::Cleanup => {
-            run_cache_cleanup().await
-        }
-        CacheCommand::Compact => {
-            run_cache_compact().await
-        }
-        CacheCommand::Status => {
-            run_cache_stats().await
-        }
+        CacheCommand::Clear => run_cache_clear().await,
+        CacheCommand::Stats => run_cache_stats().await,
+        CacheCommand::Validate => run_cache_validate().await,
+        CacheCommand::Cleanup => run_cache_cleanup().await,
+        CacheCommand::Compact => run_cache_compact().await,
+        CacheCommand::Status => run_cache_stats().await,
     }
 }
 
@@ -137,7 +125,10 @@ pub async fn run_cache_stats() -> Result<()> {
 
     println!("📦 Packages cached: {}", stats.package_count);
     println!("📂 Categories cached: {}", stats.category_count);
-    println!("💾 Total size: {:.2} MB", stats.total_size as f64 / 1024.0 / 1024.0);
+    println!(
+        "💾 Total size: {:.2} MB",
+        stats.total_size as f64 / 1024.0 / 1024.0
+    );
 
     if let Some(oldest) = &stats.oldest_entry {
         println!("📅 Oldest entry: {}", oldest);
@@ -170,9 +161,22 @@ pub async fn run_cache_status() -> Result<()> {
     };
 
     println!("📦 Packages cached: {}", status.package_count);
-    println!("💾 Cache size: {:.2} MB", status.cache_size as f64 / 1024.0 / 1024.0);
-    println!("🕒 Last updated: {}", status.last_updated.as_deref().unwrap_or("Never"));
-    println!("🔄 Status: {}", if status.is_stale { "Stale (needs update)" } else { "Fresh" });
+    println!(
+        "💾 Cache size: {:.2} MB",
+        status.cache_size as f64 / 1024.0 / 1024.0
+    );
+    println!(
+        "🕒 Last updated: {}",
+        status.last_updated.as_deref().unwrap_or("Never")
+    );
+    println!(
+        "🔄 Status: {}",
+        if status.is_stale {
+            "Stale (needs update)"
+        } else {
+            "Fresh"
+        }
+    );
 
     Ok(())
 }
@@ -208,7 +212,10 @@ async fn run_cache_cleanup() -> Result<()> {
 
     if cleanup_result.affected_entries > 0 {
         println!("✅ Cleanup completed!");
-        println!("🗑️  Removed {} orphaned entries", cleanup_result.affected_entries);
+        println!(
+            "🗑️  Removed {} orphaned entries",
+            cleanup_result.affected_entries
+        );
     } else {
         println!("✅ Cache is clean - no orphaned entries found");
     }
@@ -302,8 +309,10 @@ fn validate_cache_integrity() -> Result<CacheValidationResult> {
         if let Err(e) = fs::read_to_string(&packages_file) {
             errors.push(format!("Cannot read packages file: {}", e));
         } else {
-            match serde_json::from_str::<Vec<serde_json::Value>>(&fs::read_to_string(&packages_file)?) {
-                Ok(_) => {},
+            match serde_json::from_str::<Vec<serde_json::Value>>(&fs::read_to_string(
+                &packages_file,
+            )?) {
+                Ok(_) => {}
                 Err(e) => errors.push(format!("Invalid JSON in packages file: {}", e)),
             }
         }
@@ -318,7 +327,7 @@ fn validate_cache_integrity() -> Result<CacheValidationResult> {
             errors.push(format!("Cannot read categories file: {}", e));
         } else {
             match serde_json::from_str::<Vec<String>>(&fs::read_to_string(&categories_file)?) {
-                Ok(_) => {},
+                Ok(_) => {}
                 Err(e) => errors.push(format!("Invalid JSON in categories file: {}", e)),
             }
         }
@@ -371,13 +380,22 @@ pub async fn run_with_deps(args: &CacheArgs, manager: &dyn CacheManager) -> Resu
             let stats = manager.get_cache_stats()?;
             println!("📦 Packages cached: {}", stats.package_count);
             println!("📂 Categories cached: {}", stats.category_count);
-            println!("💾 Total size: {:.2} MB", stats.total_size as f64 / 1024.0 / 1024.0);
+            println!(
+                "💾 Total size: {:.2} MB",
+                stats.total_size as f64 / 1024.0 / 1024.0
+            );
         }
         CacheCommand::Status => {
             let status = manager.get_cache_stats()?;
             println!("📦 Packages cached: {}", status.package_count);
-            println!("💾 Cache size: {:.2} MB", status.cache_size as f64 / 1024.0 / 1024.0);
-            println!("🕒 Last updated: {}", status.last_updated.as_deref().unwrap_or("Never"));
+            println!(
+                "💾 Cache size: {:.2} MB",
+                status.cache_size as f64 / 1024.0 / 1024.0
+            );
+            println!(
+                "🕒 Last updated: {}",
+                status.last_updated.as_deref().unwrap_or("Never")
+            );
         }
         CacheCommand::Validate => {
             let validation = manager.validate_cache()?;
@@ -402,7 +420,6 @@ pub async fn run_with_deps(args: &CacheArgs, manager: &dyn CacheManager) -> Resu
 
     Ok(())
 }
-
 
 #[cfg(test)]
 mod tests {

@@ -1,7 +1,10 @@
 // New noun-verb structure
 pub mod ai;
 pub mod audit;
+pub mod autonomous;
 pub mod ci;
+pub mod swarm;
+pub mod ultrathink;
 pub mod graph;
 pub mod hook;
 pub mod market;
@@ -30,12 +33,18 @@ use ggen_utils::UtilsGgenConfig as GgenConfig;
 #[derive(Subcommand, Debug)]
 pub enum Commands {
     // New noun-verb structure
-        #[command(name = "ai", about = "AI-powered template generation and analysis")]
-        Ai(ai::AiArgs),
+    #[command(name = "ai", about = "AI-powered template generation and analysis")]
+    Ai(ai::AiArgs),
     #[command(name = "audit", about = "Security and performance auditing")]
     Audit(audit::AuditCmd),
+    #[command(name = "autonomous", about = "Autonomous graph evolution and regeneration")]
+    Autonomous(autonomous::AutonomousCmd),
     #[command(name = "ci", about = "CI/CD operations and GitHub integration")]
     Ci(ci::CiCmd),
+    #[command(name = "ultrathink", about = "Ultrathink swarm intelligence for autonomous development")]
+    Ultrathink(ultrathink::UltrathinkArgs),
+    #[command(name = "swarm", about = "Ultrathink swarm intelligence and WIP integration")]
+    Swarm(swarm::SwarmArgs),
     #[command(name = "graph", about = "RDF graph operations")]
     Graph(graph::GraphCmd),
     #[command(
@@ -49,6 +58,8 @@ pub enum Commands {
     Project(project::ProjectCmd),
     #[command(name = "shell", about = "Shell integration and completion")]
     Shell(shell::ShellCmd),
+    #[command(name = "swarm", about = "Ultrathink swarm orchestration and WIP integration")]
+    Swarm(swarm::SwarmCmd),
     #[command(name = "template", about = "Template management")]
     Template(template::TemplateCmd),
 
@@ -130,12 +141,16 @@ impl Commands {
             // New noun-verb structure
             Commands::Ai(args) => ai::run(args).await,
             Commands::Audit(cmd) => cmd.run().await,
+            Commands::Autonomous(cmd) => cmd.run().await,
             Commands::Ci(cmd) => cmd.run().await,
+            Commands::Ultrathink(cmd) => ultrathink::run(cmd).await,
+            Commands::Swarm(cmd) => swarm::run(cmd).await,
             Commands::Graph(cmd) => cmd.run().await,
             Commands::Hook(cmd) => cmd.run().await,
             Commands::Market(cmd) => cmd.run().await,
             Commands::Project(cmd) => cmd.run().await,
             Commands::Shell(cmd) => cmd.run().await,
+            Commands::Swarm(cmd) => cmd.run().await,
             Commands::Template(cmd) => cmd.run().await,
 
             // Legacy flat commands
@@ -162,12 +177,16 @@ impl Commands {
             // New noun-verb structure
             Commands::Ai(args) => ai::run(args).await,
             Commands::Audit(cmd) => cmd.run().await,
+            Commands::Autonomous(cmd) => cmd.run().await,
             Commands::Ci(cmd) => cmd.run().await,
+            Commands::Ultrathink(cmd) => ultrathink::run(cmd).await,
+            Commands::Swarm(cmd) => swarm::run(cmd).await,
             Commands::Graph(cmd) => cmd.run().await,
             Commands::Hook(cmd) => cmd.run().await,
             Commands::Market(cmd) => cmd.run().await,
             Commands::Project(cmd) => cmd.run().await,
             Commands::Shell(cmd) => cmd.run().await,
+            Commands::Swarm(cmd) => cmd.run().await,
             Commands::Template(cmd) => cmd.run().await,
 
             // Legacy flat commands

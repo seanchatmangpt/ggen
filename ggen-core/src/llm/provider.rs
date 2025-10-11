@@ -47,8 +47,7 @@ pub trait LlmProvider: Send + Sync {
     /// # Returns
     /// A stream of response chunks that can be processed incrementally
     async fn chat_stream(
-        &self,
-        request: ChatRequest,
+        &self, request: ChatRequest,
     ) -> LlmResult<Pin<Box<dyn Stream<Item = LlmResult<StreamChunk>> + Send>>>;
 
     /// Validate configuration (API key, model availability, etc.)
@@ -88,8 +87,7 @@ mod tests {
         }
 
         async fn chat_stream(
-            &self,
-            _request: ChatRequest,
+            &self, _request: ChatRequest,
         ) -> LlmResult<Pin<Box<dyn Stream<Item = LlmResult<StreamChunk>> + Send>>> {
             unimplemented!("Streaming not implemented for mock")
         }

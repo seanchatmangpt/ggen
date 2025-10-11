@@ -7,17 +7,23 @@
 use serde_json::{json, Value};
 
 // Import the tool modules directly
-use ggen_mcp::tools::{project, market, graph};
 use ggen_mcp::error::{GgenMcpError, Result};
+use ggen_mcp::tools::{graph, market, project};
 
 // Helper to validate success response structure
 fn assert_success_response(result: &Value) {
     // Check for "success" field which can be either true boolean or "success" string
-    let has_success = result.get("success").and_then(|v| v.as_bool()).unwrap_or(false)
+    let has_success = result
+        .get("success")
+        .and_then(|v| v.as_bool())
+        .unwrap_or(false)
         || result.get("status").and_then(|v| v.as_str()) == Some("success");
 
     assert!(has_success, "Expected success response, got: {:?}", result);
-    assert!(result.get("data").is_some(), "Missing data field in response");
+    assert!(
+        result.get("data").is_some(),
+        "Missing data field in response"
+    );
 }
 
 // Helper to validate error response
@@ -42,14 +48,23 @@ async fn test_project_gen_with_valid_params() {
 
     let result = project::gen(params).await;
 
-    assert!(result.is_ok(), "project_gen should succeed with valid params");
+    assert!(
+        result.is_ok(),
+        "project_gen should succeed with valid params"
+    );
     let response = result.unwrap();
 
     assert_success_response(&response);
 
     let data = response.get("data").unwrap();
-    assert!(data.get("files_created").is_some(), "Should return files_created");
-    assert!(data.get("execution_time_ms").is_some(), "Should return execution time");
+    assert!(
+        data.get("files_created").is_some(),
+        "Should return files_created"
+    );
+    assert!(
+        data.get("execution_time_ms").is_some(),
+        "Should return execution time"
+    );
 }
 
 #[tokio::test]
@@ -162,7 +177,10 @@ async fn test_market_search_basic_query() {
 
     let result = market::search(params).await;
 
-    assert!(result.is_ok(), "market_search should succeed with basic query");
+    assert!(
+        result.is_ok(),
+        "market_search should succeed with basic query"
+    );
     let response = result.unwrap();
 
     assert_success_response(&response);
@@ -238,10 +256,7 @@ async fn test_market_search_with_fuzzy_mode() {
     let response = result.unwrap();
     let data = response.get("data").unwrap();
 
-    assert_eq!(
-        data.get("fuzzy").and_then(|v| v.as_bool()),
-        Some(true)
-    );
+    assert_eq!(data.get("fuzzy").and_then(|v| v.as_bool()), Some(true));
 }
 
 #[tokio::test]
@@ -272,7 +287,10 @@ async fn test_graph_query_simple_select() {
 
     let result = graph::query(params).await;
 
-    assert!(result.is_ok(), "graph_query should succeed with valid SPARQL");
+    assert!(
+        result.is_ok(),
+        "graph_query should succeed with valid SPARQL"
+    );
     let response = result.unwrap();
 
     assert_success_response(&response);
@@ -361,9 +379,7 @@ async fn test_concurrent_project_gen_calls() {
             "vars": {}
         });
 
-        let handle = tokio::spawn(async move {
-            project::gen(params).await
-        });
+        let handle = tokio::spawn(async move { project::gen(params).await });
 
         handles.push(handle);
     }
@@ -388,9 +404,7 @@ async fn test_concurrent_market_search_calls() {
             "query": query
         });
 
-        let handle = tokio::spawn(async move {
-            market::search(params).await
-        });
+        let handle = tokio::spawn(async move { market::search(params).await });
 
         handles.push(handle);
     }
@@ -413,19 +427,22 @@ async fn test_concurrent_mixed_tool_calls() {
         project::gen(json!({
             "template": "test",
             "vars": {}
-        })).await
+        }))
+        .await
     }));
 
     handles.push(tokio::spawn(async {
         market::search(json!({
             "query": "rust"
-        })).await
+        }))
+        .await
     }));
 
     handles.push(tokio::spawn(async {
         graph::query(json!({
             "sparql": "SELECT * WHERE { ?s ?p ?o } LIMIT 1"
-        })).await
+        }))
+        .await
     }));
 
     let results = futures::future::join_all(handles).await;
@@ -564,17 +581,24 @@ async fn test_project_gen_execution_time_tracking() {
     let elapsed = start.elapsed();
 
     let data = result.get("data").unwrap();
-    let execution_time = data.get("execution_time_ms")
+    let execution_time = data
+        .get("execution_time_ms")
         .and_then(|v| v.as_u64())
         .expect("Should have execution time");
 
     // Execution time should be reasonable
-    assert!(execution_time < 5000, "Execution should complete in under 5 seconds");
+    assert!(
+        execution_time < 5000,
+        "Execution should complete in under 5 seconds"
+    );
     // The actual elapsed time should be close to the reported execution time
     // Allow some tolerance for measurement differences
-    assert!(elapsed.as_millis() as u64 <= execution_time + 100,
-            "Elapsed time {} should be close to reported time {}",
-            elapsed.as_millis(), execution_time);
+    assert!(
+        elapsed.as_millis() as u64 <= execution_time + 100,
+        "Elapsed time {} should be close to reported time {}",
+        elapsed.as_millis(),
+        execution_time
+    );
 }
 
 #[tokio::test]

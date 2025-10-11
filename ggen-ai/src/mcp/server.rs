@@ -90,7 +90,35 @@ impl GgenAiMcpServer {
                 input_schema: ai_suggest_delta_schema(),
             },
         );
-        
+
+        // Autonomous tools
+        tools.insert(
+            "autonomous_evolve_graph".to_string(),
+            ToolDef {
+                name: "autonomous_evolve_graph".to_string(),
+                description: "Evolve RDF graph from natural language using autonomous AI inference".to_string(),
+                input_schema: autonomous_evolve_graph_schema(),
+            },
+        );
+
+        tools.insert(
+            "autonomous_regenerate".to_string(),
+            ToolDef {
+                name: "autonomous_regenerate".to_string(),
+                description: "Trigger autonomous template regeneration based on graph changes".to_string(),
+                input_schema: autonomous_regenerate_schema(),
+            },
+        );
+
+        tools.insert(
+            "autonomous_status".to_string(),
+            ToolDef {
+                name: "autonomous_status".to_string(),
+                description: "Get status of autonomous MCP-AI system including evolution engine and orchestrator".to_string(),
+                input_schema: autonomous_status_schema(),
+            },
+        );
+
         Self {
             tools,
             ai_tools: AiMcpTools::new(),
@@ -98,8 +126,8 @@ impl GgenAiMcpServer {
     }
     
     /// Initialize with OpenAI client
-    pub fn with_openai(mut self, api_key: String) -> Self {
-        let config = LlmConfig {
+    pub fn with_openai(mut self, _api_key: String) -> Self {
+        let _config = LlmConfig {
             model: "gpt-3.5-turbo".to_string(),
             max_tokens: Some(4096),
             temperature: Some(0.7),
@@ -112,8 +140,8 @@ impl GgenAiMcpServer {
     }
     
     /// Initialize with Anthropic client
-    pub fn with_anthropic(mut self, api_key: String) -> Self {
-        let config = LlmConfig {
+    pub fn with_anthropic(mut self, _api_key: String) -> Self {
+        let _config = LlmConfig {
             model: "claude-3-sonnet-20240229".to_string(),
             max_tokens: Some(4096),
             temperature: Some(0.7),
@@ -127,7 +155,7 @@ impl GgenAiMcpServer {
     
     /// Initialize with Ollama client
     pub fn with_ollama(mut self) -> Self {
-        let config = LlmConfig {
+        let _config = LlmConfig {
             model: "qwen3-coder:30b".to_string(),
             max_tokens: Some(4096),
             temperature: Some(0.7),
@@ -154,6 +182,9 @@ impl GgenAiMcpServer {
             "ai_refactor_code" => self.ai_tools.ai_refactor_code(params).await,
             "ai_explain_graph" => self.ai_tools.ai_explain_graph(params).await,
             "ai_suggest_delta" => self.ai_tools.ai_suggest_delta(params).await,
+            "autonomous_evolve_graph" => self.ai_tools.autonomous_evolve_graph(params).await,
+            "autonomous_regenerate" => self.ai_tools.autonomous_regenerate(params).await,
+            "autonomous_status" => self.ai_tools.autonomous_status(params).await,
             _ => Err(GgenAiError::validation(format!("Unknown tool: {}", name))),
         }
     }
@@ -380,31 +411,76 @@ mod tests {
     #[tokio::test]
     async fn test_server_creation() {
         let server = GgenAiMcpServer::new();
-        assert_eq!(server.tools.len(), 6);
+        assert_eq!(server.tools.len(), 9);
         assert!(server.tools.contains_key("ai_generate_template"));
         assert!(server.tools.contains_key("ai_generate_sparql"));
         assert!(server.tools.contains_key("ai_generate_ontology"));
         assert!(server.tools.contains_key("ai_refactor_code"));
         assert!(server.tools.contains_key("ai_explain_graph"));
         assert!(server.tools.contains_key("ai_suggest_delta"));
+        assert!(server.tools.contains_key("autonomous_evolve_graph"));
+        assert!(server.tools.contains_key("autonomous_regenerate"));
+        assert!(server.tools.contains_key("autonomous_status"));
     }
     
     #[tokio::test]
     async fn test_server_with_openai() {
         let server = GgenAiMcpServer::new().with_openai("test-key".to_string());
-        assert_eq!(server.tools.len(), 6);
+        assert_eq!(server.tools.len(), 9);
     }
-    
+
     #[tokio::test]
     async fn test_server_with_anthropic() {
         let server = GgenAiMcpServer::new().with_anthropic("test-key".to_string());
-        assert_eq!(server.tools.len(), 6);
+        assert_eq!(server.tools.len(), 9);
     }
-    
+
     #[tokio::test]
     async fn test_server_with_ollama() {
         let server = GgenAiMcpServer::new().with_ollama();
-        assert_eq!(server.tools.len(), 6);
+        assert_eq!(server.tools.len(), 9);
     }
-    
 }
+
+/// Schema for autonomous_evolve_graph tool
+fn autonomous_evolve_graph_schema() -> Value {
+    json!({
+        "type": "object",
+        "properties": {
+            "text": {
+                "type": "string",
+                "description": "Natural language description of graph changes"
+            },
+            "confidence_threshold": {
+                "type": "number",
+                "description": "Minimum confidence threshold for accepting inferred triples (0.0-1.0)",
+                "default": 0.7
+            }
+        },
+        "required": ["text"]
+    })
+}
+
+/// Schema for autonomous_regenerate tool
+fn autonomous_regenerate_schema() -> Value {
+    json!({
+        "type": "object",
+        "properties": {
+            "template_id": {
+                "type": "string",
+                "description": "Template identifier to regenerate"
+            }
+        },
+        "required": ["template_id"]
+    })
+}
+
+/// Schema for autonomous_status tool
+fn autonomous_status_schema() -> Value {
+    json!({
+        "type": "object",
+        "properties": {},
+        "required": []
+    })
+}
+

@@ -2,11 +2,9 @@
 //!
 //! Provides mock implementations for testing without making actual API calls.
 
-use ggen_core::llm::{
-    ChatRequest, ChatResponse, LlmError, LlmProvider, LlmResult, StreamChunk,
-};
 use async_trait::async_trait;
 use futures::Stream;
+use ggen_core::llm::{ChatRequest, ChatResponse, LlmError, LlmProvider, LlmResult, StreamChunk};
 use std::pin::Pin;
 use std::sync::{Arc, Mutex};
 
@@ -104,8 +102,7 @@ impl LlmProvider for MockLlmProvider {
     }
 
     async fn chat_stream(
-        &self,
-        _request: ChatRequest,
+        &self, _request: ChatRequest,
     ) -> LlmResult<Pin<Box<dyn Stream<Item = LlmResult<StreamChunk>> + Send>>> {
         if self.should_fail {
             return Err(LlmError::ApiError {
@@ -236,7 +233,10 @@ mod tests {
 
         assert!(usage.prompt_tokens > 0);
         assert!(usage.completion_tokens > 0);
-        assert_eq!(usage.total_tokens, usage.prompt_tokens + usage.completion_tokens);
+        assert_eq!(
+            usage.total_tokens,
+            usage.prompt_tokens + usage.completion_tokens
+        );
     }
 
     #[tokio::test]

@@ -1,5 +1,5 @@
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
-use ggen_mcp::tools::{project, market, graph, template};
+use ggen_mcp::tools::{graph, market, project, template};
 use serde_json::json;
 use tokio::runtime::Runtime;
 
@@ -190,20 +190,28 @@ fn benchmark_concurrent_load(c: &mut Criterion) {
     group.bench_function("market_search_100", |b| {
         b.to_async(&rt).iter(|| async {
             let queries = vec![
-                "authentication", "authorization", "database", "api", "web",
-                "cli", "template", "graphql", "rest", "crud"
+                "authentication",
+                "authorization",
+                "database",
+                "api",
+                "web",
+                "cli",
+                "template",
+                "graphql",
+                "rest",
+                "crud",
             ];
 
-            let tasks: Vec<_> = (0..100).map(|i| {
-                let query = queries[i % queries.len()];
-                let params = json!({
-                    "query": query,
-                    "limit": 5
-                });
-                tokio::spawn(async move {
-                    market::search(params).await
+            let tasks: Vec<_> = (0..100)
+                .map(|i| {
+                    let query = queries[i % queries.len()];
+                    let params = json!({
+                        "query": query,
+                        "limit": 5
+                    });
+                    tokio::spawn(async move { market::search(params).await })
                 })
-            }).collect();
+                .collect();
 
             for task in tasks {
                 let _ = task.await;
@@ -214,17 +222,17 @@ fn benchmark_concurrent_load(c: &mut Criterion) {
     // 100 parallel project generations
     group.bench_function("project_gen_100", |b| {
         b.to_async(&rt).iter(|| async {
-            let tasks: Vec<_> = (0..100).map(|i| {
-                let params = json!({
-                    "template": "rust-lib",
-                    "vars": {
-                        "name": format!("test-{}", i)
-                    }
-                });
-                tokio::spawn(async move {
-                    project::gen(params).await
+            let tasks: Vec<_> = (0..100)
+                .map(|i| {
+                    let params = json!({
+                        "template": "rust-lib",
+                        "vars": {
+                            "name": format!("test-{}", i)
+                        }
+                    });
+                    tokio::spawn(async move { project::gen(params).await })
                 })
-            }).collect();
+                .collect();
 
             for task in tasks {
                 let _ = task.await;
@@ -235,28 +243,31 @@ fn benchmark_concurrent_load(c: &mut Criterion) {
     // Mixed workload
     group.bench_function("mixed_workload_100", |b| {
         b.to_async(&rt).iter(|| async {
-            let tasks: Vec<_> = (0..100).map(|i| {
-                tokio::spawn(async move {
-                    match i % 4 {
-                        0 => {
-                            let params = json!({"query": "test", "limit": 5});
-                            market::search(params).await
-                        },
-                        1 => {
-                            let params = json!({"template": "rust-lib"});
-                            project::gen(params).await
-                        },
-                        2 => {
-                            let params = json!({});
-                            market::list(params).await
-                        },
-                        _ => {
-                            let params = json!({"sparql": "SELECT * WHERE { ?s ?p ?o } LIMIT 5"});
-                            graph::query(params).await
-                        },
-                    }
+            let tasks: Vec<_> = (0..100)
+                .map(|i| {
+                    tokio::spawn(async move {
+                        match i % 4 {
+                            0 => {
+                                let params = json!({"query": "test", "limit": 5});
+                                market::search(params).await
+                            }
+                            1 => {
+                                let params = json!({"template": "rust-lib"});
+                                project::gen(params).await
+                            }
+                            2 => {
+                                let params = json!({});
+                                market::list(params).await
+                            }
+                            _ => {
+                                let params =
+                                    json!({"sparql": "SELECT * WHERE { ?s ?p ?o } LIMIT 5"});
+                                graph::query(params).await
+                            }
+                        }
+                    })
                 })
-            }).collect();
+                .collect();
 
             for task in tasks {
                 let _ = task.await;

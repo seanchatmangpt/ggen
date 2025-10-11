@@ -15,7 +15,6 @@ pub struct ShellCmd {
 pub enum Verb {
     // /// Generate shell completion scripts // COMMENTED OUT: Command line completion code
     // Completion(completion::CompletionArgs),
-
     /// Initialize shell integration
     Init(init::InitArgs),
 }

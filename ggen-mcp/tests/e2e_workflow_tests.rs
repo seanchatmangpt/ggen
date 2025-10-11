@@ -122,7 +122,10 @@ async fn test_template_validation_workflow() {
         )
         .await;
 
-    assert!(validate_result.is_ok(), "Template validation should succeed");
+    assert!(
+        validate_result.is_ok(),
+        "Template validation should succeed"
+    );
     let validate_data = validate_result.unwrap();
 
     // Check validation results
@@ -198,9 +201,7 @@ async fn test_market_sync_workflow() {
     let server = GgenMcpServer::new();
 
     // Step 1: Check cache status
-    let status_result = server
-        .execute_tool("market_cache_status", json!({}))
-        .await;
+    let status_result = server.execute_tool("market_cache_status", json!({})).await;
 
     println!("Cache status: {:?}", status_result);
 

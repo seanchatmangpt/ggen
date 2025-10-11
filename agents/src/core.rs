@@ -11,8 +11,8 @@ use thiserror::Error;
 use tokio::sync::{mpsc, RwLock};
 use uuid::Uuid;
 
-use crate::protocols::Message;
 use crate::coordination::Task;
+use crate::protocols::Message;
 
 /// Unique identifier for agents (serialized as string)
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -39,7 +39,6 @@ impl From<Uuid> for AgentId {
         Self(uuid)
     }
 }
-
 
 impl std::fmt::Display for AgentId {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -294,4 +293,3 @@ pub struct AgentCapability {
     /// Output schema for this capability
     pub output_schema: serde_json::Value,
 }
-

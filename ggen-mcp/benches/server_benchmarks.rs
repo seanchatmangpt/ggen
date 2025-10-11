@@ -2,7 +2,7 @@
 //!
 //! Run with: cargo bench
 
-use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId};
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
 use ggen_mcp::server::GgenMcpServer;
 use serde_json::json;
 
@@ -80,9 +80,7 @@ fn benchmark_concurrent_requests(c: &mut Criterion) {
 fn benchmark_memory_allocation(c: &mut Criterion) {
     c.bench_function("server_memory_footprint", |b| {
         b.iter(|| {
-            let servers: Vec<_> = (0..100)
-                .map(|_| GgenMcpServer::new())
-                .collect();
+            let servers: Vec<_> = (0..100).map(|_| GgenMcpServer::new()).collect();
             black_box(servers);
         });
     });

@@ -132,8 +132,7 @@ pub async fn run_with_deps(args: &PublishArgs, publisher: &dyn PackagePublisher)
         ));
     }
 
-    let result =
-        publisher.publish_package(&args.package_path, args.tag.clone(), args.dry_run)?;
+    let result = publisher.publish_package(&args.package_path, args.tag.clone(), args.dry_run)?;
 
     println!(
         "✅ Successfully published {}@{}",

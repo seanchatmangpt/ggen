@@ -10,7 +10,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Initialize AI tools with mock client for testing
     let tools = AiMcpTools::new().with_mock();
-    
+
     // Test 1: Generate a basic template
     println!("📝 Test 1: Generating basic template...");
     let template_params = json!({
@@ -19,7 +19,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         "language": "Rust",
         "framework": "Actix Web"
     });
-    
+
     match tools.ai_generate_template(template_params).await {
         Ok(result) => {
             println!("✅ Template generation successful!");
@@ -29,9 +29,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!("❌ Template generation failed: {}", e);
         }
     }
-    
+
     println!("\n{}\n", "=".repeat(50));
-    
+
     // Test 2: Generate SPARQL query
     println!("🔍 Test 2: Generating SPARQL query...");
     let sparql_params = json!({
@@ -51,7 +51,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 ex:department "Marketing" .
         "#
     });
-    
+
     match tools.ai_generate_sparql(sparql_params).await {
         Ok(result) => {
             println!("✅ SPARQL generation successful!");
@@ -61,9 +61,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!("❌ SPARQL generation failed: {}", e);
         }
     }
-    
+
     println!("\n{}\n", "=".repeat(50));
-    
+
     // Test 3: Generate ontology
     println!("🏗️ Test 3: Generating ontology...");
     let ontology_params = json!({
@@ -74,7 +74,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             "Define relationships between entities"
         ]
     });
-    
+
     match tools.ai_generate_ontology(ontology_params).await {
         Ok(result) => {
             println!("✅ Ontology generation successful!");
@@ -84,9 +84,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!("❌ Ontology generation failed: {}", e);
         }
     }
-    
+
     println!("\n{}\n", "=".repeat(50));
-    
+
     // Test 4: Code refactoring
     println!("🔧 Test 4: Code refactoring suggestions...");
     let refactor_params = json!({
@@ -101,7 +101,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         "#,
         "language": "Rust"
     });
-    
+
     match tools.ai_refactor_code(refactor_params).await {
         Ok(result) => {
             println!("✅ Code refactoring successful!");
@@ -111,9 +111,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!("❌ Code refactoring failed: {}", e);
         }
     }
-    
+
     println!("\n{}\n", "=".repeat(50));
-    
+
     // Test 5: Graph explanation
     println!("📊 Test 5: Graph explanation...");
     let explain_params = json!({
@@ -136,7 +136,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         "#,
         "focus": "employee relationships"
     });
-    
+
     match tools.ai_explain_graph(explain_params).await {
         Ok(result) => {
             println!("✅ Graph explanation successful!");
@@ -146,9 +146,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!("❌ Graph explanation failed: {}", e);
         }
     }
-    
+
     println!("\n{}\n", "=".repeat(50));
-    
+
     // Test 6: Delta suggestion
     println!("🔄 Test 6: Delta merge strategy suggestion...");
     let delta_params = json!({
@@ -168,7 +168,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
         "#
     });
-    
+
     match tools.ai_suggest_delta(delta_params).await {
         Ok(result) => {
             println!("✅ Delta suggestion successful!");
@@ -178,8 +178,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!("❌ Delta suggestion failed: {}", e);
         }
     }
-    
+
     println!("\n🎉 All tests completed!");
-    
+
     Ok(())
 }

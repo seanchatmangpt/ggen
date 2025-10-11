@@ -69,7 +69,7 @@
 
 # ggen-ai Migration Guide
 
-**Version:** 2.0.0
+**Version:** 1.0.0
 **Date:** 2025-10-10
 **Status:** Official Migration Guide
 
@@ -79,37 +79,39 @@
 
 ### What Changed
 
-The ggen-ai crate has undergone a comprehensive refactoring to align with Rust best practices and the patterns established in ggen-core. The changes focus on:
+The ggen-ai crate has undergone a **major architectural migration** from custom LLM client implementations to `rust-genai` for production-ready multi-provider AI integration. The changes focus on:
 
-1. **Configuration Management**: Moved from hardcoded values to environment-based configuration
-2. **Error Handling**: Replaced string-based errors with structured error types
-3. **API Modernization**: Updated provider model lists and fixed unused parameters
-4. **Type Safety**: Introduced builder patterns and proper validation
+1. **🔄 Complete LLM Provider Migration**: Replaced custom OpenAI, Anthropic, and Ollama clients with `rust-genai`
+2. **🏗️ Unified Client Architecture**: Single `GenAiClient` supporting all providers
+3. **⚙️ Environment-Based Configuration**: Structured configuration management
+4. **🛡️ Production-Ready Error Handling**: Structured error types with proper context
+5. **🧪 Comprehensive Testing**: Full test coverage with integration tests
 
 ### Why These Changes Were Made
 
 **Previous Issues:**
-- Hardcoded API endpoints and model names prevented flexibility
-- String-based errors made debugging difficult
-- Missing environment variable support required code changes for configuration
-- Outdated model lists excluded newer, better models
-- Unused parameters created misleading APIs
+- Custom LLM implementations were maintenance-heavy and inconsistent
+- No unified configuration system across providers
+- Limited error handling and debugging capabilities
+- Missing integration testing for LLM providers
+- Hardcoded endpoints and model names reduced flexibility
 
 **Benefits:**
-- **Configuration Flexibility**: Use `.env` files or environment variables
-- **Better Error Messages**: Structured errors with context
-- **Latest Models**: Support for GPT-4o, Claude 3.5, and more
-- **Type Safety**: Compile-time validation of configurations
-- **Production Ready**: Follows industry best practices
+- **🚀 Production Ready**: Industry-standard `rust-genai` library
+- **🔧 Unified API**: Consistent interface across all LLM providers
+- **⚙️ Flexible Configuration**: Environment variables and structured config
+- **🛡️ Better Error Handling**: Structured errors with actionable context
+- **🧪 Comprehensive Testing**: Full integration test coverage
+- **📈 Maintainability**: Single dependency instead of multiple custom clients
 
 ### Impact Assessment
 
 | Impact Level | Description | Migration Effort |
 |--------------|-------------|------------------|
-| **High** | Provider initialization | 30 minutes |
-| **Medium** | Configuration setup | 15 minutes |
+| **High** | Provider initialization (major API changes) | 45 minutes |
+| **Medium** | Configuration system overhaul | 20 minutes |
 | **Low** | Model name updates | 5 minutes |
-| **None** | LLM interactions | No changes needed |
+| **None** | Generator APIs (TemplateGenerator, etc.) | No changes needed |
 
 **Total Migration Time:** ~1 hour for typical projects
 
@@ -117,146 +119,114 @@ The ggen-ai crate has undergone a comprehensive refactoring to align with Rust b
 
 ## Breaking Changes
 
-### 1. Provider Initialization
+### 1. Complete Provider Architecture Migration
 
-#### OpenAI Client
+**Major Change:** All LLM providers now use `rust-genai` instead of custom implementations.
 
-**Before (v1.x):**
+#### Before (v0.x):
 ```rust
-use ggen_ai::providers::OpenAIClient;
+// Custom provider clients
+use ggen_ai::providers::{OpenAIClient, AnthropicClient, OllamaClient};
 
-let client = OpenAIClient::new("sk-your-api-key");
+let openai = OpenAIClient::new("api-key");
+let anthropic = AnthropicClient::new("api-key");
+let ollama = OllamaClient::new();
 ```
 
-**After (v2.0):**
+#### After (v1.0):
 ```rust
-use ggen_ai::{OpenAIClient, OpenAIConfig};
+// Unified client using rust-genai
+use ggen_ai::{LlmConfig, GenAiClient};
 
-// Method 1: From environment variables
-let config = OpenAIConfig::from_env()?;
-let client = OpenAIClient::new(config)?;
+let config = LlmConfig {
+    model: "gpt-4o".to_string(),
+    max_tokens: Some(4096),
+    temperature: Some(0.7),
+    top_p: Some(0.9),
+    stop: None,
+    extra: std::collections::HashMap::new(),
+};
 
-// Method 2: Explicit configuration
-let config = OpenAIConfig::new("sk-your-api-key")
-    .with_default_model("gpt-4o")
-    .with_timeout(60);
-let client = OpenAIClient::new(config)?;
-
-// Method 3: Builder pattern
-let config = OpenAIConfig::builder()
-    .api_key("sk-your-api-key")
-    .default_model("gpt-4o-mini")
-    .timeout_secs(120)
-    .build()?;
-let client = OpenAIClient::new(config)?;
+let client = GenAiClient::new(config)?;
 ```
 
-#### Anthropic Client
+### 2. Configuration System Overhaul
 
-**Before (v1.x):**
+#### Before (v0.x):
 ```rust
-use ggen_ai::providers::AnthropicClient;
-
-let client = AnthropicClient::new("sk-ant-your-api-key");
+// Hardcoded configuration
+let client = OpenAIClient::new("sk-hardcoded-key");
 ```
 
-**After (v2.0):**
+#### After (v1.0):
 ```rust
-use ggen_ai::{AnthropicClient, AnthropicConfig};
+// Environment-based configuration
+dotenvy::dotenv().ok();
 
-// From environment
-let config = AnthropicConfig::from_env()?;
-let client = AnthropicClient::new(config)?;
+let config = LlmConfig {
+    model: "gpt-4o".to_string(),
+    max_tokens: Some(4096),
+    temperature: Some(0.7),
+    top_p: Some(0.9),
+    stop: None,
+    extra: std::collections::HashMap::new(),
+};
 
-// Explicit
-let config = AnthropicConfig::new("sk-ant-your-api-key")
-    .with_default_model("claude-3-5-sonnet-20241022");
-let client = AnthropicClient::new(config)?;
+let client = GenAiClient::new(config)?;
 ```
 
-#### Ollama Client
+### 3. Error Handling Transformation
 
-**Before (v1.x):**
+#### Before (v0.x):
 ```rust
-use ggen_ai::providers::OllamaClient;
-
-// Always connected to localhost:11434
-let client = OllamaClient::new();
-```
-
-**After (v2.0):**
-```rust
-use ggen_ai::{OllamaClient, OllamaConfig};
-
-// From environment (supports remote Ollama)
-let config = OllamaConfig::from_env()?;
-let client = OllamaClient::new(config)?;
-
-// Custom endpoint
-let config = OllamaConfig::new()
-    .with_base_url("http://my-server:11434")
-    .with_default_model("qwen3-coder:30b");
-let client = OllamaClient::new(config)?;
-```
-
-### 2. Error Handling Changes
-
-**Before (v1.x):**
-```rust
-// Errors were generic strings
+// Generic string errors
 match client.complete("prompt").await {
     Ok(response) => println!("{}", response),
     Err(e) => eprintln!("Error: {}", e), // Just a string
 }
 ```
 
-**After (v2.0):**
+#### After (v1.0):
 ```rust
+// Structured error types
 use ggen_ai::error::GgenAiError;
 
 match client.complete("prompt").await {
     Ok(response) => println!("{}", response),
-    Err(GgenAiError::Configuration(msg)) => {
-        eprintln!("Config error: {}", msg);
+    Err(GgenAiError::RateLimited { retry_after }) => {
+        eprintln!("Rate limited, retry after {} seconds", retry_after);
     }
-    Err(GgenAiError::LlmProvider { provider, message }) => {
-        eprintln!("Provider {} error: {}", provider, message);
+    Err(GgenAiError::InvalidApiKey { provider }) => {
+        eprintln!("Invalid API key for {}", provider);
     }
-    Err(GgenAiError::Network(msg)) => {
-        eprintln!("Network error: {}", msg);
-    }
-    Err(e) => eprintln!("Other error: {}", e),
+    Err(e) => eprintln!("Error: {}", e),
 }
 ```
 
-### 3. Model Name Updates
+### 4. Model Name Updates
 
-Several models have been added or updated. Review your code for hardcoded model names.
+Several models have been updated to latest versions:
 
-**OpenAI - New Models Available:**
+**OpenAI Models:**
 ```rust
-// Old models (still supported)
-"gpt-4"
+// Recommended: Latest models
+"gpt-4o"              // Latest GPT-4 Omni (recommended)
+"gpt-4o-mini"         // Cost-effective GPT-4o
+
+// Legacy models (still supported)
 "gpt-4-turbo"
 "gpt-3.5-turbo"
-
-// NEW: Latest models (recommended)
-"gpt-4o"              // Latest GPT-4 Omni
-"gpt-4o-mini"         // Cost-effective GPT-4o
-"gpt-4-turbo-preview" // Preview of next generation
 ```
 
-**Anthropic - New Models Available:**
+**Anthropic Models:**
 ```rust
-// Old models (still supported)
+// Recommended: Latest models
+"claude-3-5-sonnet-20241022"  // Latest Sonnet (recommended)
+"claude-3-5-haiku-20241022"   // Latest Haiku
+
+// Legacy models (still supported)
 "claude-3-opus-20240229"
 "claude-3-sonnet-20240229"
-"claude-3-haiku-20240307"
-
-// NEW: Claude 3.5 models (faster and smarter)
-"claude-3-5-sonnet-20241022"  // Latest Sonnet (recommended)
-"claude-3-5-sonnet-20240620"  // Previous Sonnet
-"claude-3-5-haiku-20241022"   // Latest Haiku
 ```
 
 **Migration Tip:** Search your codebase for old model names:
@@ -272,49 +242,41 @@ grep -r "claude-3-opus-20240229\|claude-3-sonnet-20240229" --include="*.rs"
 
 ## Configuration Migration
 
-### Step 1: Create `.env` File
+### Step 1: Update Dependencies
 
-Create a `.env` file in your project root (or copy from `ggen-ai/.env.example`):
+Update your `Cargo.toml` to use the new version:
+
+```toml
+[dependencies]
+ggen-ai = "1.0"           # Updated version
+dotenvy = "0.15"          # For environment configuration
+tokio = { version = "1.0", features = ["full"] }
+```
+
+### Step 2: Create `.env` File
+
+Create a `.env` file in your project root:
 
 ```bash
 # OpenAI Configuration
 OPENAI_API_KEY=sk-your-openai-key-here
-# OPENAI_BASE_URL=https://api.openai.com/v1  # Optional: custom endpoint
-# OPENAI_DEFAULT_MODEL=gpt-4o  # Optional: default model
-# OPENAI_TIMEOUT_SECS=30  # Optional: request timeout
+OPENAI_BASE_URL=https://api.openai.com/v1  # Optional: custom endpoint
+OPENAI_DEFAULT_MODEL=gpt-4o
 
 # Anthropic Configuration
 ANTHROPIC_API_KEY=sk-ant-your-anthropic-key-here
-# ANTHROPIC_BASE_URL=https://api.anthropic.com/v1  # Optional
-# ANTHROPIC_DEFAULT_MODEL=claude-3-5-sonnet-20241022  # Optional
-# ANTHROPIC_TIMEOUT_SECS=30  # Optional
+ANTHROPIC_BASE_URL=https://api.anthropic.com/v1
+ANTHROPIC_DEFAULT_MODEL=claude-3-5-sonnet-20241022
 
-# Ollama Configuration (all optional)
-# OLLAMA_BASE_URL=http://localhost:11434
-# OLLAMA_DEFAULT_MODEL=qwen3-coder:30b
-# OLLAMA_TIMEOUT_SECS=60
+# Ollama Configuration (local models)
+OLLAMA_BASE_URL=http://localhost:11434
+OLLAMA_DEFAULT_MODEL=qwen3-coder:30b
 
 # Global Configuration
-# AI_DEFAULT_PROVIDER=openai  # Which provider to use by default
+AI_DEFAULT_PROVIDER=openai
 
 # Logging
 RUST_LOG=ggen_ai=info
-
-# Feature Flags
-GGEN_AI_ENABLE_STREAMING=true
-GGEN_AI_ENABLE_CACHING=false
-GGEN_AI_ENABLE_RETRIES=true
-```
-
-### Step 2: Add Dependencies
-
-Ensure your `Cargo.toml` includes:
-
-```toml
-[dependencies]
-ggen-ai = "2.0"
-dotenvy = "0.15"  # For loading .env files
-tokio = { version = "1.0", features = ["full"] }
 ```
 
 ### Step 3: Load Environment Variables
@@ -322,55 +284,60 @@ tokio = { version = "1.0", features = ["full"] }
 In your application entry point:
 
 ```rust
-use ggen_ai::{OpenAIConfig, OpenAIClient};
+use ggen_ai::{LlmConfig, GenAiClient};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Load .env file
     dotenvy::dotenv().ok();
 
-    // Create client from environment
-    let config = OpenAIConfig::from_env()?;
-    let client = OpenAIClient::new(config)?;
+    // Configure and create unified client
+    let config = LlmConfig {
+        model: "gpt-4o".to_string(),
+        max_tokens: Some(4096),
+        temperature: Some(0.7),
+        top_p: Some(0.9),
+        stop: None,
+        extra: std::collections::HashMap::new(),
+    };
+
+    let client = GenAiClient::new(config)?;
 
     // Your code here
     Ok(())
 }
 ```
 
-### Step 4: Optional - Use TOML Configuration
+### Step 4: Update Client Initialization
 
-For more complex setups, create `config.toml`:
+Replace all provider-specific client initialization with the unified `GenAiClient`:
 
-```toml
-[openai]
-api_key = "sk-your-key"
-base_url = "https://api.openai.com/v1"
-default_model = "gpt-4o"
-timeout_secs = 60
+**Before (v0.x):**
+```rust
+// Multiple different clients
+use ggen_ai::providers::{OpenAIClient, AnthropicClient, OllamaClient};
 
-[anthropic]
-api_key = "sk-ant-your-key"
-base_url = "https://api.anthropic.com/v1"
-default_model = "claude-3-5-sonnet-20241022"
-timeout_secs = 30
-
-[ollama]
-base_url = "http://localhost:11434"
-default_model = "qwen3-coder:30b"
-timeout_secs = 90
-
-default_provider = "openai"
+let openai = OpenAIClient::new("key1");
+let anthropic = AnthropicClient::new("key2");
+let ollama = OllamaClient::new();
 ```
 
-Load with:
-
+**After (v1.0):**
 ```rust
-use ggen_ai::config::AiConfig;
+// Single unified client
+use ggen_ai::{LlmConfig, GenAiClient};
 
-let config = AiConfig::from_file("config.toml")?;
-let openai_config = config.get_openai()?;
-let client = OpenAIClient::new(openai_config.clone())?;
+// Configure for OpenAI
+let config = LlmConfig {
+    model: "gpt-4o".to_string(),
+    max_tokens: Some(4096),
+    temperature: Some(0.7),
+    top_p: Some(0.9),
+    stop: None,
+    extra: std::collections::HashMap::new(),
+};
+
+let client = GenAiClient::new(config)?;
 ```
 
 ---
@@ -392,14 +359,21 @@ async fn old_way() {
 
 **After:**
 ```rust
-use ggen_ai::{OpenAIClient, OpenAIConfig};
+use ggen_ai::{LlmConfig, GenAiClient};
 
 async fn new_way() -> Result<(), Box<dyn std::error::Error>> {
     dotenvy::dotenv().ok();
 
-    let config = OpenAIConfig::from_env()?;
-    let client = OpenAIClient::new(config)?;
+    let config = LlmConfig {
+        model: "gpt-4o".to_string(),
+        max_tokens: Some(4096),
+        temperature: Some(0.7),
+        top_p: Some(0.9),
+        stop: None,
+        extra: std::collections::HashMap::new(),
+    };
 
+    let client = GenAiClient::new(config)?;
     let response = client.complete("Hello").await?;
     println!("{}", response);
     Ok(())
@@ -410,18 +384,41 @@ async fn new_way() -> Result<(), Box<dyn std::error::Error>> {
 
 **Before:**
 ```rust
+// Multiple different client types
+use ggen_ai::providers::{OpenAIClient, AnthropicClient, OllamaClient};
+
 let openai = OpenAIClient::new("key1");
 let anthropic = AnthropicClient::new("key2");
+let ollama = OllamaClient::new();
 ```
 
 **After:**
 ```rust
-use ggen_ai::config::AiConfig;
+// Single client with different configurations
+use ggen_ai::{LlmConfig, GenAiClient};
 
-let config = AiConfig::from_env()?;
+// OpenAI config
+let openai_config = LlmConfig {
+    model: "gpt-4o".to_string(),
+    max_tokens: Some(4096),
+    temperature: Some(0.7),
+    top_p: Some(0.9),
+    stop: None,
+    extra: std::collections::HashMap::new(),
+};
 
-let openai = OpenAIClient::new(config.get_openai()?.clone())?;
-let anthropic = AnthropicClient::new(config.get_anthropic()?.clone())?;
+// Anthropic config
+let anthropic_config = LlmConfig {
+    model: "claude-3-5-sonnet-20241022".to_string(),
+    max_tokens: Some(4096),
+    temperature: Some(0.7),
+    top_p: Some(0.9),
+    stop: None,
+    extra: std::collections::HashMap::new(),
+};
+
+let openai_client = GenAiClient::new(openai_config)?;
+let anthropic_client = GenAiClient::new(anthropic_config)?;
 ```
 
 ### Example 3: Custom Configuration

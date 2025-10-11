@@ -1,71 +1,142 @@
 # ggen-ai
 
-AI-powered code generation capabilities for ggen - LLM integration for intelligent template generation and graph operations.
+**AI-powered code generation capabilities for ggen** - Unified LLM integration using `rust-genai` for intelligent template generation, SPARQL queries, and RDF graph operations.
+
+## 🚀 **NEW: v1.0.0 with rust-genai Integration**
+
+**Major Update:** Complete migration from custom LLM clients to `rust-genai` for production-ready multi-provider AI integration.
 
 ## Features
 
-- **Multi-provider LLM support**: OpenAI, Anthropic, Ollama
-- **Intelligent template generation**: Natural language to ggen templates
-- **SPARQL query generation**: Intent-based query construction
-- **Ontology generation**: Domain descriptions to RDF/OWL
-- **Code refactoring**: AI-assisted code improvement suggestions
-- **MCP server integration**: Expose AI capabilities via Model Context Protocol
+- **🔧 Multi-provider LLM support**: OpenAI, Anthropic, Ollama via rust-genai
+- **🤖 Intelligent template generation**: Natural language to ggen templates
+- **🔍 SPARQL query generation**: Intent-based query construction from RDF graphs
+- **📊 Ontology generation**: Domain descriptions to RDF/OWL schemas
+- **🔄 Code refactoring**: AI-assisted code improvement suggestions
+- **🎪 MCP server integration**: Model Context Protocol for AI tool integration
+- **⚡ Production-ready**: Structured error handling, configuration management, and comprehensive testing
 
 ## Quick Start
 
 ### Installation
 
 ```bash
-# Install dependencies
-cargo build --release
-
-# Set up environment variables
-export OPENAI_API_KEY="your-openai-key"
-# OR
-export ANTHROPIC_API_KEY="your-anthropic-key"
-# OR
-export USE_OLLAMA=true
+# Add to your Cargo.toml
+[dependencies]
+ggen-ai = "1.0"
+dotenvy = "0.15"  # For environment configuration
+tokio = { version = "1.0", features = ["full"] }
 ```
+
+### Basic Setup
 
 ### Basic Usage
 
 ```rust
-use ggen_ai::{LlmClient, TemplateGenerator};
-use ggen_ai::providers::OpenAIClient;
+use ggen_ai::{LlmClient, TemplateGenerator, LlmConfig};
+use ggen_ai::client::GenAiClient;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // Initialize LLM client
-    let client = OpenAIClient::new("your-api-key".to_string());
-    
-    // Generate template from description
+    // Load environment configuration
+    dotenvy::dotenv().ok();
+
+    // Configure LLM client (supports OpenAI, Anthropic, Ollama)
+    let config = LlmConfig {
+        model: "gpt-4o".to_string(),
+        max_tokens: Some(4096),
+        temperature: Some(0.7),
+        top_p: Some(0.9),
+        stop: None,
+        extra: std::collections::HashMap::new(),
+    };
+
+    // Initialize unified LLM client
+    let client = GenAiClient::new(config)?;
     let generator = TemplateGenerator::new(Box::new(client));
+
+    // Generate template from description
     let template = generator.generate_template(
         "Generate a REST API controller for user management",
         vec!["Include CRUD operations", "Use TypeScript"]
     ).await?;
-    
+
     println!("Generated template: {}", template);
     Ok(())
 }
 ```
 
-### MCP Server
+### CLI Usage
 
 ```bash
-# Start the MCP server
-cargo run --bin ggen-ai-mcp
+# Generate template using AI
+ggen ai generate -d "Database model" --provider openai --model gpt-4o
 
-# Or with specific client
-OPENAI_API_KEY="your-key" cargo run --bin ggen-ai-mcp
+# Generate SPARQL query from graph
+ggen ai sparql -d "Find all users" -g schema.ttl --provider anthropic
+
+# Generate RDF ontology
+ggen ai graph -d "E-commerce ontology" -o products.ttl --provider ollama
+
+# Start MCP server for AI tools
+ggen ai server --provider openai --model gpt-4o
 ```
 
 ## API Reference
+
+### Core Types
+
+```rust
+use ggen_ai::{LlmClient, LlmConfig, LlmResponse, LlmChunk, UsageStats};
+use ggen_ai::client::GenAiClient;
+
+// Configuration for all LLM providers
+#[derive(Debug, Clone)]
+pub struct LlmConfig {
+    pub model: String,
+    pub max_tokens: Option<u32>,
+    pub temperature: Option<f32>,
+    pub top_p: Option<f32>,
+    pub stop: Option<Vec<String>>,
+    pub extra: HashMap<String, Value>,
+}
+
+// Response from LLM completion
+#[derive(Debug, Clone)]
+pub struct LlmResponse {
+    pub content: String,
+    pub usage: Option<UsageStats>,
+    pub model: String,
+    pub finish_reason: Option<String>,
+    pub extra: HashMap<String, Value>,
+}
+
+// Streaming chunk from LLM
+#[derive(Debug, Clone)]
+pub struct LlmChunk {
+    pub content: String,
+    pub model: String,
+    pub finish_reason: Option<String>,
+    pub usage: Option<UsageStats>,
+    pub extra: HashMap<String, Value>,
+}
+
+// Usage statistics
+#[derive(Debug, Clone)]
+pub struct UsageStats {
+    pub prompt_tokens: u32,
+    pub completion_tokens: u32,
+    pub total_tokens: u32,
+}
+```
 
 ### Template Generation
 
 ```rust
 use ggen_ai::generators::TemplateGenerator;
+
+// Create generator with LLM client
+let generator = TemplateGenerator::new(Box::new(client));
 
 // Generate REST API controller
 let template = generator.generate_rest_controller(
@@ -80,13 +151,10 @@ let template = generator.generate_data_model(
     "Rust"
 ).await?;
 
-// Generate with custom requirements
-let template = generator.generate_with_requirements(
-    "E-commerce system",
-    vec!["Include payment processing", "Add inventory management"],
-    vec!["User registration", "Product catalog"],
-    Some("TypeScript"),
-    Some("Next.js")
+// Generate from natural language description
+let template = generator.generate_template(
+    "E-commerce system with payment processing",
+    vec!["Include inventory management", "Add user registration"]
 ).await?;
 ```
 
@@ -94,22 +162,21 @@ let template = generator.generate_with_requirements(
 
 ```rust
 use ggen_ai::generators::SparqlGenerator;
+use ggen_core::Graph;
 
-// Generate query from intent
+// Create generator with LLM client
+let generator = SparqlGenerator::new(Box::new(client));
+
+// Generate query from natural language intent
 let query = generator.generate_query(
     &graph,
     "Find all users with email addresses"
 ).await?;
 
-// Generate specific query types
-let query = generator.generate_find_instances(
+// Generate query with specific intent
+let query = generator.generate_query_with_intent(
     &graph,
-    "ex:Person"
-).await?;
-
-let query = generator.generate_find_properties(
-    &graph,
-    "ex:user1"
+    "Find all people and their properties"
 ).await?;
 ```
 
@@ -118,7 +185,10 @@ let query = generator.generate_find_properties(
 ```rust
 use ggen_ai::generators::OntologyGenerator;
 
-// Generate ontology from domain
+// Create generator with LLM client
+let generator = OntologyGenerator::new(Box::new(client));
+
+// Generate ontology from domain description
 let ontology = generator.generate_ontology(
     "E-commerce system",
     vec!["Include Product and Customer classes", "Add Order relationships"]
@@ -135,41 +205,44 @@ let ontology = generator.generate_domain_ontology(
 ### Code Refactoring
 
 ```rust
-use ggen_ai::generators::{RefactorAssistant, RefactoringContext};
+use ggen_ai::generators::RefactorAssistant;
+
+// Create refactoring assistant with LLM client
+let assistant = RefactorAssistant::new(Box::new(client));
 
 // Suggest refactoring improvements
-let context = RefactoringContext::new("TypeScript".to_string())
-    .with_framework("React".to_string())
-    .with_focus_areas(vec!["performance".to_string(), "readability".to_string()]);
-
-let suggestions = assistant.suggest_refactoring(&code, &context).await?;
-
-// Apply refactoring with three-way merge
-let refactored = assistant.apply_refactoring(
-    &original_code,
-    suggestions,
-    MergeStrategy::GeneratedWins
+let suggestions = assistant.suggest_refactoring(
+    &code,
+    "TypeScript",
+    vec!["performance", "readability"]
 ).await?;
+
+// Get detailed suggestions with explanations
+for suggestion in suggestions {
+    println!("Suggestion: {}", suggestion.description);
+    println!("Impact: {:?}", suggestion.impact);
+    println!("Confidence: {:.2}", suggestion.confidence);
+}
 ```
 
 ## MCP Tools
 
-The ggen-ai MCP server provides the following tools:
+The ggen-ai MCP server provides the following tools for AI assistant integration:
 
 ### `ai_generate_template`
 Generate ggen templates from natural language descriptions.
 
 **Parameters:**
 - `description` (string, required): Natural language description
-- `examples` (array, optional): Example requirements
+- `examples` (array, optional): Example requirements or context
 - `language` (string, optional): Target programming language
 - `framework` (string, optional): Target framework
 
 ### `ai_generate_sparql`
-Generate SPARQL queries from natural language intent.
+Generate SPARQL queries from natural language intent and RDF graphs.
 
 **Parameters:**
-- `intent` (string, required): Natural language description
+- `intent` (string, required): Natural language query description
 - `graph` (string, required): RDF graph data in Turtle format
 
 ### `ai_generate_ontology`
@@ -177,21 +250,21 @@ Generate RDF/OWL ontologies from domain descriptions.
 
 **Parameters:**
 - `domain` (string, required): Domain description
-- `requirements` (array, optional): Specific requirements
+- `requirements` (array, optional): Specific requirements or classes
 
 ### `ai_refactor_code`
-Suggest code refactoring improvements using AI.
+Suggest code refactoring improvements using AI analysis.
 
 **Parameters:**
-- `code` (string, required): Code to refactor
-- `language` (string, optional): Programming language
+- `code` (string, required): Code to analyze and refactor
+- `language` (string, optional): Programming language for context
 
 ### `ai_explain_graph`
 Explain RDF graph content in natural language.
 
 **Parameters:**
 - `graph` (string, required): RDF graph data in Turtle format
-- `focus` (string, optional): What aspect to focus on
+- `focus` (string, optional): Specific aspect to explain
 
 ### `ai_suggest_delta`
 Suggest intelligent merge strategies for delta-driven projection.
@@ -199,32 +272,52 @@ Suggest intelligent merge strategies for delta-driven projection.
 **Parameters:**
 - `baseline` (string, required): Baseline version
 - `current` (string, required): Current generated version
-- `manual` (string, optional): Manual modifications
+- `manual` (string, optional): Manual modifications made
 
 ## Configuration
 
 ### Environment Variables
 
-- `OPENAI_API_KEY`: OpenAI API key
-- `ANTHROPIC_API_KEY`: Anthropic API key
-- `USE_OLLAMA`: Set to "true" to use Ollama (default: false)
-- `RUST_LOG`: Logging level (default: "ggen_ai=info")
+Configure LLM providers using environment variables:
 
-### LLM Configuration
+```bash
+# OpenAI Configuration
+export OPENAI_API_KEY="sk-your-openai-key"
+export OPENAI_BASE_URL="https://api.openai.com/v1"  # Optional custom endpoint
+export OPENAI_DEFAULT_MODEL="gpt-4o"
+
+# Anthropic Configuration
+export ANTHROPIC_API_KEY="sk-ant-your-anthropic-key"
+export ANTHROPIC_BASE_URL="https://api.anthropic.com/v1"
+export ANTHROPIC_DEFAULT_MODEL="claude-3-5-sonnet-20241022"
+
+# Ollama Configuration (local models)
+export OLLAMA_BASE_URL="http://localhost:11434"
+export OLLAMA_DEFAULT_MODEL="qwen3-coder:30b"
+
+# Global Configuration
+export AI_DEFAULT_PROVIDER="openai"
+export RUST_LOG="ggen_ai=info"
+```
+
+### Programmatic Configuration
 
 ```rust
-use ggen_ai::client::{LlmConfig, LlmClient};
+use ggen_ai::{LlmConfig, GenAiClient};
 
+// Configure for OpenAI
 let config = LlmConfig {
-    model: "gpt-4".to_string(),
+    model: "gpt-4o".to_string(),
     max_tokens: Some(4096),
     temperature: Some(0.7),
-    top_p: Some(1.0),
-    stop: Some(vec!["```".to_string()]),
-    extra: HashMap::new(),
+    top_p: Some(0.9),
+    stop: None,
+    extra: std::collections::HashMap::new(),
 };
 
-let generator = TemplateGenerator::with_config(client, config);
+// Create client
+let client = GenAiClient::new(config)?;
+let generator = TemplateGenerator::new(Box::new(client));
 ```
 
 ## Examples
@@ -232,25 +325,36 @@ let generator = TemplateGenerator::with_config(client, config);
 ### Complete Template Generation Workflow
 
 ```rust
-use ggen_ai::{LlmClient, TemplateGenerator};
-use ggen_ai::providers::OpenAIClient;
+use ggen_ai::{LlmClient, TemplateGenerator, LlmConfig, GenAiClient};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // Initialize client
-    let client = OpenAIClient::new("your-api-key".to_string());
+    // Load environment configuration
+    dotenvy::dotenv().ok();
+
+    // Configure and initialize LLM client
+    let config = LlmConfig {
+        model: "gpt-4o".to_string(),
+        max_tokens: Some(4096),
+        temperature: Some(0.7),
+        top_p: Some(0.9),
+        stop: None,
+        extra: std::collections::HashMap::new(),
+    };
+
+    let client = GenAiClient::new(config)?;
     let generator = TemplateGenerator::new(Box::new(client));
-    
-    // Generate template
+
+    // Generate REST API controller
     let template = generator.generate_rest_controller(
         "User management API with authentication",
         "TypeScript",
         "Express"
     ).await?;
-    
+
     // Save template
     std::fs::write("user-api.tmpl", template.content)?;
-    
+
     println!("Template generated successfully!");
     Ok(())
 }
@@ -302,17 +406,27 @@ cargo test
 # Run integration tests
 cargo test --test integration
 
-# Run with logging
-RUST_LOG=debug cargo test
+# Run with debug logging
+RUST_LOG=ggen_ai=debug cargo test
+
+# Test specific provider
+OPENAI_API_KEY="test-key" cargo test test_openai_client
 ```
 
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests
-5. Submit a pull request
+1. **Follow core team best practices** - Use `cargo make` commands, no direct `cargo` usage
+2. **Add comprehensive tests** - Unit, integration, and property tests
+3. **Update documentation** - Keep README and guides current
+4. **Use structured error handling** - No `.unwrap()` or `.expect()` in library code
+
+## Migration from v0.x
+
+**Major Update:** ggen-ai v1.0.0 migrates from custom LLM clients to `rust-genai` for production-ready multi-provider support.
+
+- **Breaking Changes:** Provider initialization now uses configuration objects
+- **New Features:** Environment-based configuration, structured error handling
+- **Migration Guide:** See [docs/ggen-ai-migration-guide.md](../docs/ggen-ai-migration-guide.md)
 
 ## License
 

@@ -5,7 +5,10 @@
 //! while maintaining correctness and availability.
 
 use crate::{
-    core::{Agent, AgentCapability, AgentContext, AgentError, AgentId, AgentResult, ExecutionContext, ExecutionResult, ExecutionStatus},
+    core::{
+        Agent, AgentCapability, AgentContext, AgentError, AgentId, AgentResult, ExecutionContext,
+        ExecutionResult, ExecutionStatus,
+    },
     protocols::Message,
 };
 use async_trait::async_trait;
@@ -33,7 +36,9 @@ impl ByzanteneAgent {
     }
 
     /// Analyze system for Byzantine fault tolerance requirements
-    async fn analyze_fault_tolerance(&self, system_spec: &SystemSpecification) -> AgentResult<FaultToleranceAnalysis> {
+    async fn analyze_fault_tolerance(
+        &self, system_spec: &SystemSpecification,
+    ) -> AgentResult<FaultToleranceAnalysis> {
         let mut vulnerabilities = Vec::new();
         let mut recommendations = Vec::new();
 
@@ -81,7 +86,9 @@ impl ByzanteneAgent {
     }
 
     /// Identify potential failure modes in the system
-    async fn identify_failure_modes(&self, system_spec: &SystemSpecification) -> AgentResult<Vec<FailureMode>> {
+    async fn identify_failure_modes(
+        &self, system_spec: &SystemSpecification,
+    ) -> AgentResult<Vec<FailureMode>> {
         let mut failure_modes = Vec::new();
 
         // Crash failures
@@ -132,7 +139,9 @@ impl ByzanteneAgent {
     }
 
     /// Calculate overall system resilience score
-    fn calculate_resilience_score(&self, vulnerabilities: &[ByzantineVulnerability], failure_modes: &[FailureMode]) -> u32 {
+    fn calculate_resilience_score(
+        &self, vulnerabilities: &[ByzantineVulnerability], failure_modes: &[FailureMode],
+    ) -> u32 {
         let mut score = 100;
 
         // Deduct points for each vulnerability
@@ -147,7 +156,10 @@ impl ByzanteneAgent {
 
         // Deduct points for high-impact failure modes
         for failure_mode in failure_modes {
-            if matches!(failure_mode.impact, FailureImpact::High | FailureImpact::Critical) {
+            if matches!(
+                failure_mode.impact,
+                FailureImpact::High | FailureImpact::Critical
+            ) {
                 score -= 10;
             }
         }
@@ -156,7 +168,9 @@ impl ByzanteneAgent {
     }
 
     /// Generate Byzantine fault tolerance implementation patterns
-    async fn generate_fault_tolerance_patterns(&self, analysis: &FaultToleranceAnalysis) -> AgentResult<Vec<FaultTolerancePattern>> {
+    async fn generate_fault_tolerance_patterns(
+        &self, analysis: &FaultToleranceAnalysis,
+    ) -> AgentResult<Vec<FaultTolerancePattern>> {
         let mut patterns = Vec::new();
 
         for recommendation in &analysis.recommendations {
@@ -211,7 +225,9 @@ impl Agent for ByzanteneAgent {
 
     async fn initialize(&mut self, _context: &AgentContext) -> AgentResult<()> {
         if self.initialized {
-            return Err(AgentError::InitializationFailed("Agent already initialized".to_string()));
+            return Err(AgentError::InitializationFailed(
+                "Agent already initialized".to_string(),
+            ));
         }
 
         tracing::info!("Initializing Byzantene Agent");
@@ -230,9 +246,14 @@ impl Agent for ByzanteneAgent {
 
         // Extract system specification from input
         let system_spec = serde_json::from_value::<SystemSpecification>(context.input.clone())
-            .map_err(|e| AgentError::ValidationError(format!("Invalid system specification: {}", e)))?;
+            .map_err(|e| {
+                AgentError::ValidationError(format!("Invalid system specification: {}", e))
+            })?;
 
-        tracing::info!("Analyzing system for Byzantine fault tolerance: {:?}", system_spec);
+        tracing::info!(
+            "Analyzing system for Byzantine fault tolerance: {:?}",
+            system_spec
+        );
 
         // Perform fault tolerance analysis
         let analysis = self.analyze_fault_tolerance(&system_spec).await?;
@@ -256,12 +277,20 @@ impl Agent for ByzanteneAgent {
             output,
             metadata: HashMap::from([
                 ("agent_type".to_string(), "byzantene".to_string()),
-                ("resilience_score".to_string(), analysis.resilience_score.to_string()),
-                ("vulnerabilities_found".to_string(), analysis.vulnerabilities.len().to_string()),
+                (
+                    "resilience_score".to_string(),
+                    analysis.resilience_score.to_string(),
+                ),
+                (
+                    "vulnerabilities_found".to_string(),
+                    analysis.vulnerabilities.len().to_string(),
+                ),
                 ("patterns_generated".to_string(), patterns.len().to_string()),
             ]),
             duration_ms,
-            messages: analysis.vulnerabilities.iter()
+            messages: analysis
+                .vulnerabilities
+                .iter()
                 .map(|v| format!("{}: {}", v.vulnerability_type, v.description))
                 .collect(),
         })
@@ -276,7 +305,8 @@ impl Agent for ByzanteneAgent {
         vec![
             AgentCapability {
                 name: "fault_tolerance_analysis".to_string(),
-                description: "Analyze system for Byzantine fault tolerance requirements".to_string(),
+                description: "Analyze system for Byzantine fault tolerance requirements"
+                    .to_string(),
                 input_schema: json!({
                     "type": "object",
                     "properties": {
@@ -316,7 +346,8 @@ impl Agent for ByzanteneAgent {
             },
             AgentCapability {
                 name: "byzantine_pattern_generation".to_string(),
-                description: "Generate Byzantine fault tolerance implementation patterns".to_string(),
+                description: "Generate Byzantine fault tolerance implementation patterns"
+                    .to_string(),
                 input_schema: json!({
                     "type": "object",
                     "properties": {

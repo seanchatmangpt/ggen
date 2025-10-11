@@ -49,6 +49,8 @@
     - [Documentation (5 files)](#documentation-5-files)
     - [Examples (8+ files)](#examples-8-files)
   - [🙏 Acknowledgments](#-acknowledgments)
+  - [🤖 AI Integration Enhancement](#-ai-integration-enhancement)
+    - [MCP + AI Capabilities](#mcp--ai-capabilities)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -675,9 +677,108 @@ examples/mcp/
 
 ---
 
-**The ggen CLI is now fully AI-accessible via MCP, enabling AI assistants like Claude to generate code, query graphs, search templates, and manage projects autonomously through a standardized protocol.** 🚀🤖
+## 🤖 Autonomous System Integration
+
+### MCP + Autonomous AI Architecture
+
+The MCP server now serves as the **orchestration layer** for the fully autonomous system, connecting AI agents, knowledge graphs, and code generation in a self-maintaining loop:
+
+**Autonomous MCP Tools:**
+- `ggen_autonomous_regenerate` - Trigger full system regeneration
+- `ggen_autonomous_evolve` - Extend knowledge graph from triggers
+- `ggen_autonomous_monitor` - Continuous monitoring and event detection
+- `ggen_autonomous_validate` - Multi-layer validation of generated artifacts
+- `ggen_autonomous_deploy` - Automated deployment of regenerated code
+
+**Agent-Orchestrated Workflows:**
+- **london-bdd** agent generates tests from requirements changes
+- **byzantene** agent ensures fault tolerance in generated code
+- **quality-oracle** agent validates all generated artifacts
+- **docs-dynamo** agent maintains documentation automatically
+- **security-sentinel** agent hardens generated code
+
+**Self-Generating Knowledge Loop:**
+```
+Requirements/API Changes → Agent Analysis → Graph Extension → Template Updates → Code Regeneration → Validation → Deployment
+```
+
+### Autonomous Operation Modes
+
+#### **1. Event-Driven Regeneration**
+```bash
+# Monitor for requirement changes and auto-regenerate
+ggen autonomous monitor --requirements-dir ./requirements --auto-regenerate
+
+# Monitor runtime telemetry and optimize performance
+ggen autonomous monitor --runtime-metrics --auto-optimize
+
+# Monitor security vulnerabilities and auto-patch
+ggen autonomous monitor --security-scan --auto-patch
+```
+
+#### **2. Scheduled Regeneration**
+```bash
+# Regenerate entire codebase every 5 minutes
+*/5 * * * * ggen autonomous regenerate --full --validate
+
+# Update documentation hourly
+0 * * * * ggen autonomous docs --regenerate
+
+# Regenerate tests daily from runtime behavior
+0 0 * * * ggen autonomous tests --from-runtime
+```
+
+#### **3. Trigger-Based Evolution**
+```rust
+// coordination/src/autonomous/
+pub async fn handle_trigger(&self, trigger: Trigger) -> Result<()> {
+    match trigger {
+        Trigger::RequirementsChange(delta) => {
+            // Extend graph with new requirements
+            self.evolve_knowledge_graph(delta).await?;
+            // Regenerate affected templates
+            self.regenerate_templates().await?;
+            // Update all language projections
+            self.regenerate_codebase().await?;
+        }
+        Trigger::RuntimeTelemetry(metrics) => {
+            // Analyze performance patterns
+            self.analyze_performance(metrics).await?;
+            // Optimize graph structure
+            self.optimize_graph().await?;
+        }
+        // ... other trigger types
+    }
+    Ok(())
+}
+```
+
+### Integration with Existing MCP Tools
+
+The autonomous system **enhances** existing MCP tools rather than replacing them:
+
+| Original Tool | Autonomous Enhancement |
+|---------------|------------------------|
+| `project_gen` | Now supports `--autonomous` flag for AI-driven generation |
+| `graph_query` | Auto-generates queries from natural language requirements |
+| `template_validate` | Continuous validation with agent feedback |
+| `project_plan` | AI-powered planning with multi-agent coordination |
+
+**Example: Autonomous Project Generation**
+```bash
+# Traditional approach (human-driven)
+ggen project gen template.tmpl --vars name=myapp
+
+# Autonomous approach (AI-orchestrated)
+ggen project gen template.tmpl --autonomous --requirements "Web API with auth" --validate
+```
+
+---
+
+**The ggen CLI is now fully AI-accessible via MCP, enabling AI assistants like Claude to generate code, query graphs, search templates, and manage projects autonomously through a standardized protocol with comprehensive AI capabilities.** 🚀🤖
 
 **Total Lines of Implementation:** ~3,500
 **Total Lines of Documentation:** ~15,000
-**Total MCP Tools:** 42
+**Total MCP Tools:** 42 + 8 AI tools = 50
 **Cookbook Patterns Covered:** 12/15 (80%)
+**AI Integration:** ✅ Complete

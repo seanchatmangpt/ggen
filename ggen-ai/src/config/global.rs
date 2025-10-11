@@ -1,10 +1,10 @@
 //! Global LLM configuration management
 
 use crate::client::{LlmConfig, LlmClient};
-use crate::client::GenAiClient;
 use crate::{MockClient, OllamaClient, OpenAIClient, AnthropicClient};
 use crate::error::{GgenAiError, Result};
 use std::collections::HashMap;
+use std::sync::Arc;
 use serde::{Deserialize, Serialize};
 
 /// Global LLM configuration manager
@@ -192,12 +192,12 @@ impl GlobalLlmConfig {
     }
     
     /// Create an LLM client for the default provider
-    pub fn create_client(&self) -> Result<Box<dyn LlmClient>> {
+    pub fn create_client(&self) -> Result<Arc<dyn LlmClient>> {
         self.create_provider_client(&self.provider)
     }
-    
+
     /// Create an LLM client for a specific provider
-    pub fn create_provider_client(&self, provider: &LlmProvider) -> Result<Box<dyn LlmClient>> {
+    pub fn create_provider_client(&self, provider: &LlmProvider) -> Result<Arc<dyn LlmClient>> {
         let config = self.get_provider_config(provider)
             .ok_or_else(|| GgenAiError::configuration(&format!("No configuration found for provider: {:?}", provider)))?
             .clone();
@@ -205,26 +205,26 @@ impl GlobalLlmConfig {
         match provider {
             LlmProvider::OpenAI => {
                 let client = OpenAIClient::new(config)?;
-                Ok(Box::new(client))
+                Ok(Arc::new(client))
             }
             LlmProvider::Anthropic => {
                 let client = AnthropicClient::new(config)?;
-                Ok(Box::new(client))
+                Ok(Arc::new(client))
             }
             LlmProvider::Ollama => {
                 let client = OllamaClient::new(config)?;
-                Ok(Box::new(client))
+                Ok(Arc::new(client))
             }
             LlmProvider::Mock => {
                 let client = MockClient::with_response("Mock response");
-                Ok(Box::new(client))
+                Ok(Arc::new(client))
             }
         }
     }
     
     /// Create a mock client for testing
-    pub fn create_mock_client(&self, response: &str) -> Box<dyn LlmClient> {
-        Box::new(MockClient::with_response(response))
+    pub fn create_mock_client(&self, response: &str) -> Arc<dyn LlmClient> {
+        Arc::new(MockClient::with_response(response))
     }
     
     /// Check if we're in test mode
@@ -235,7 +235,7 @@ impl GlobalLlmConfig {
     }
     
     /// Create a client appropriate for the current context (test vs production)
-    pub fn create_contextual_client(&self) -> Result<Box<dyn LlmClient>> {
+    pub fn create_contextual_client(&self) -> Result<Arc<dyn LlmClient>> {
         if self.is_test_mode() {
             Ok(self.create_mock_client("Mock response for testing"))
         } else {
@@ -254,7 +254,7 @@ pub fn init_global_config() -> &'static GlobalLlmConfig {
         INIT.call_once(|| {
             GLOBAL_CONFIG = Some(GlobalLlmConfig::from_env());
         });
-        GLOBAL_CONFIG.as_ref().unwrap()
+        GLOBAL_CONFIG.as_ref().expect("Global config should be initialized after call_once")
     }
 }
 
@@ -264,7 +264,7 @@ pub fn get_global_config() -> &'static GlobalLlmConfig {
         if GLOBAL_CONFIG.is_none() {
             init_global_config();
         }
-        GLOBAL_CONFIG.as_ref().unwrap()
+        GLOBAL_CONFIG.as_ref().expect("Global config should be initialized")
     }
 }
 

@@ -39,9 +39,15 @@ pub trait TemplateEngineTrait: Send + Sync {
 /// Mock trait for graph operations
 #[automock]
 pub trait GraphStoreTrait: Send + Sync {
-    fn execute_sparql(&self, query: &str, graph: Option<&'static str>) -> Result<QueryResult, String>;
-    fn load_rdf(&self, file: &str, format: &str, graph: Option<&'static str>) -> Result<usize, String>;
-    fn export_graph(&self, output: &str, format: &str, graph: Option<&'static str>) -> Result<usize, String>;
+    fn execute_sparql(
+        &self, query: &str, graph: Option<&'static str>,
+    ) -> Result<QueryResult, String>;
+    fn load_rdf(
+        &self, file: &str, format: &str, graph: Option<&'static str>,
+    ) -> Result<usize, String>;
+    fn export_graph(
+        &self, output: &str, format: &str, graph: Option<&'static str>,
+    ) -> Result<usize, String>;
 }
 
 /// Test data structures
@@ -142,9 +148,7 @@ pub mod bdd {
 
     /// When: Perform the action being tested
     pub async fn when_searching_packages(
-        mock: &mut MockRegistryTrait,
-        query: &str,
-        results: Vec<PackageInfo>,
+        mock: &mut MockRegistryTrait, query: &str, results: Vec<PackageInfo>,
     ) {
         mock.expect_search_packages()
             .with(eq(query.to_string()), always())

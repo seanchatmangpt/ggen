@@ -13,8 +13,9 @@ use std::{borrow::Cow, collections::HashMap, sync::Arc};
 
 use crate::error::{GgenMcpError, Result};
 use crate::schema::*;
-use crate::tools::{graph, hook, market, project, template};
-// Simplified agent integration - focusing on core functionality
+use crate::swarm;
+use crate::tools::{graph, hook, market, project, template, ai};
+// Ultrathink swarm integration for autonomous operations
 
 #[derive(Debug, Clone)]
 pub struct ToolDef {
@@ -25,11 +26,17 @@ pub struct ToolDef {
 
 pub struct GgenMcpServer {
     tools: HashMap<String, ToolDef>,
+    ultrathink_swarm: Option<Arc<swarm::ultrathink::UltrathinkSwarm>>,
 }
 
 impl GgenMcpServer {
-    pub fn new() -> Self {
+    pub async fn new() -> Result<Self> {
         let mut tools = HashMap::new();
+
+        // Initialize ultrathink swarm for WIP connectivity
+        let ultrathink_config = swarm::ultrathink::UltrathinkConfig::default();
+        let ultrathink_swarm = swarm::ultrathink::UltrathinkSwarm::new(ultrathink_config).await?;
+        let ultrathink_swarm = Arc::new(ultrathink_swarm);
 
         // Project tools
         tools.insert(
@@ -199,9 +206,74 @@ impl GgenMcpServer {
             },
         );
 
-        Self {
+        // AI tools - Autonomous code generation
+        tools.insert(
+            "ai_generate_template".to_string(),
+            ToolDef {
+                name: "ai_generate_template".to_string(),
+                description: "Generate a template from natural language description using AI".to_string(),
+                input_schema: ai_generate_template_schema(),
+            },
+        );
+
+        tools.insert(
+            "ai_generate_sparql".to_string(),
+            ToolDef {
+                name: "ai_generate_sparql".to_string(),
+                description: "Generate SPARQL query from natural language intent using AI".to_string(),
+                input_schema: ai_generate_sparql_schema(),
+            },
+        );
+
+        tools.insert(
+            "ai_generate_ontology".to_string(),
+            ToolDef {
+                name: "ai_generate_ontology".to_string(),
+                description: "Generate RDF ontology from domain description using AI".to_string(),
+                input_schema: ai_generate_ontology_schema(),
+            },
+        );
+
+        tools.insert(
+            "ai_generate_project".to_string(),
+            ToolDef {
+                name: "ai_generate_project".to_string(),
+                description: "Generate complete project structure from description using AI".to_string(),
+                input_schema: ai_generate_project_schema(),
+            },
+        );
+
+        tools.insert(
+            "ai_extend_graph".to_string(),
+            ToolDef {
+                name: "ai_extend_graph".to_string(),
+                description: "Extend existing RDF graph with new knowledge using AI".to_string(),
+                input_schema: ai_extend_graph_schema(),
+            },
+        );
+
+        tools.insert(
+            "ai_validate_and_improve".to_string(),
+            ToolDef {
+                name: "ai_validate_and_improve".to_string(),
+                description: "Validate and improve existing code or templates using AI".to_string(),
+                input_schema: ai_validate_and_improve_schema(),
+            },
+        );
+
+        tools.insert(
+            "ai_list_providers".to_string(),
+            ToolDef {
+                name: "ai_list_providers".to_string(),
+                description: "List available AI providers and their capabilities".to_string(),
+                input_schema: ai_list_providers_schema(),
+            },
+        );
+
+        Ok(Self {
             tools,
-        }
+            ultrathink_swarm: Some(ultrathink_swarm),
+        })
     }
 
     /// Get the number of registered tools
@@ -303,6 +375,36 @@ impl GgenMcpServer {
             "hook_register" => {
                 tracing::trace!("Executing hook_register");
                 hook::register(params).await
+            }
+
+            // AI tools - Autonomous code generation
+            "ai_generate_template" => {
+                tracing::trace!("Executing ai_generate_template");
+                ai::generate_template(params).await
+            }
+            "ai_generate_sparql" => {
+                tracing::trace!("Executing ai_generate_sparql");
+                ai::generate_sparql(params).await
+            }
+            "ai_generate_ontology" => {
+                tracing::trace!("Executing ai_generate_ontology");
+                ai::generate_ontology(params).await
+            }
+            "ai_generate_project" => {
+                tracing::trace!("Executing ai_generate_project");
+                ai::generate_project(params).await
+            }
+            "ai_extend_graph" => {
+                tracing::trace!("Executing ai_extend_graph");
+                ai::extend_graph(params).await
+            }
+            "ai_validate_and_improve" => {
+                tracing::trace!("Executing ai_validate_and_improve");
+                ai::validate_and_improve(params).await
+            }
+            "ai_list_providers" => {
+                tracing::trace!("Executing ai_list_providers");
+                ai::list_providers(params).await
             }
 
             _ => {
