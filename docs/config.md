@@ -32,7 +32,74 @@
 
 # Configuration
 
-ggen supports configuration through project files and environment variables.
+ggen supports configuration through project files and environment variables, following core team best practices with typed configuration management.
+
+## Core Team Configuration Pattern
+
+**AppConfig Pattern** (Required for all applications):
+```rust
+use ggen_utils::app_config::AppConfig;
+
+// ✅ GOOD: Typed configuration with validation
+pub struct Database {
+    pub url: String,
+    pub pool_size: usize,
+}
+
+pub struct AppConfig {
+    pub debug: bool,
+    pub log_level: LogLevel,
+    pub database: Database,
+    pub ai_providers: Vec<AiProvider>,
+}
+
+impl AppConfig {
+    /// Initialize configuration with validation
+    pub fn init() -> Result<Self> {
+        // Load from file, env vars, and defaults
+        let config = Self::load_from_sources()?;
+        Self::validate(&config)?;
+        Ok(config)
+    }
+
+    fn validate(config: &Self) -> Result<()> {
+        if config.database.url.is_empty() {
+            return Err(GgenError::Validation(
+                "Database URL cannot be empty".into()
+            ));
+        }
+        Ok(())
+    }
+}
+```
+
+**Environment Variable Integration**:
+```rust
+use ggen_utils::app_config::AppConfig;
+
+// ✅ GOOD: Structured env var integration
+impl AppConfig {
+    fn load_from_sources() -> Result<Self> {
+        let mut builder = Config::builder();
+
+        // Load default config file
+        builder = builder.add_source(
+            config::File::from_str(include_str!("../config/default.toml"),
+            config::FileFormat::Toml)
+        );
+
+        // Override with env vars (APP_ prefix)
+        builder = builder.add_source(
+            Environment::with_prefix("APP")
+                .prefix_separator("_")
+                .separator("_")
+        );
+
+        let config: Self = builder.build()?.try_deserialize()?;
+        Ok(config)
+    }
+}
+```
 
 ## Environment Variables
 

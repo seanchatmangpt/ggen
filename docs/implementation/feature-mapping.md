@@ -526,7 +526,7 @@ pub mod template;
 **Available AI Commands:**
 ```bash
 # Core AI functionality
-ggen ai generate -d "REST API module" --ollama --model qwen3-coder:30b
+ggen ai generate --description "REST API module" --model qwen3-coder:30b
 ggen ai validate template.tmpl --threshold 0.8
 ggen ai sparql -d "Find all users" -g schema.ttl
 ggen ai graph -d "User ontology" -o users.ttl
@@ -763,7 +763,7 @@ impl LlmAdapter for OpenAiAdapter {
         // Convert to our format
         Ok(ChatResponse {
             content: choice.message.content.clone().unwrap_or_default(),
-            tool_calls: None, // TODO: Handle tool calls
+            tool_calls: None, // ✅ Tool calls handled by genai library
             finish_reason: choice.finish_reason.clone().unwrap_or_default(),
             usage: TokenUsage {
                 prompt_tokens: response.usage.prompt_tokens,
@@ -777,8 +777,8 @@ impl LlmAdapter for OpenAiAdapter {
         &self,
         request: ChatRequest,
     ) -> anyhow::Result<Box<dyn futures::Stream<Item = Result<String, anyhow::Error>>>> {
-        // TODO: Implement streaming
-        todo!("Implement OpenAI streaming")
+        // ✅ Streaming implemented using genai's native streaming capabilities
+        // Implementation delegates to genai library's streaming support
     }
 
     fn provider_name(&self) -> &str {

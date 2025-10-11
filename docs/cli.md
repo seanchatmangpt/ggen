@@ -39,6 +39,83 @@
 
 # CLI
 
+## Core Team CLI Best Practices
+
+**Command Structure Pattern** (Required for all subcommands):
+```rust
+use clap::Parser;
+use ggen_utils::error::Result;
+
+#[derive(Parser)]
+#[command(name = "ai")]
+#[command(about = "AI-powered template generation and analysis")]
+pub struct AiCommand {
+    #[command(subcommand)]
+    pub command: AiSubcommands,
+}
+
+#[derive(Parser)]
+pub enum AiSubcommands {
+    #[command(about = "Generate templates using AI")]
+    Generate {
+        #[arg(short, long, help = "Description of what to generate")]
+        description: String,
+
+        #[arg(short, long, help = "Examples or requirements")]
+        examples: Option<String>,
+
+        #[arg(short = 'o', long, help = "Output file path")]
+        output: Option<PathBuf>,
+    },
+}
+
+impl AiCommand {
+    pub async fn run(self) -> Result<()> {
+        use ggen_utils::logger;
+
+        let logger = slog_scope::logger();
+        info!(logger, "Starting AI command"; "command" => "ai");
+
+        match self.command {
+            AiSubcommands::Generate { description, examples, output } => {
+                self.generate_template(description, examples, output).await
+            }
+        }
+    }
+
+    async fn generate_template(
+        &self,
+        description: String,
+        examples: Option<String>,
+        output: Option<PathBuf>,
+    ) -> Result<()> {
+        // Implementation with proper error handling and logging
+        Ok(())
+    }
+}
+```
+
+**Error Handling in CLI**:
+```rust
+// ✅ GOOD: Proper CLI error handling
+pub async fn run(self) -> Result<()> {
+    match self.execute().await {
+        Ok(_) => Ok(()),
+        Err(e) => {
+            eprintln!("Error: {}", e);
+            std::process::exit(1);
+        }
+    }
+}
+
+// ❌ BAD: Panic in CLI
+pub fn bad_run() {
+    if some_condition {
+        panic!("Something went wrong"); // Don't panic in CLI
+    }
+}
+```
+
 ## Advanced Commands
 
 ### Swarm Intelligence
@@ -46,14 +123,17 @@
 Ultrathink swarm intelligence for autonomous development workflows.
 
 ```bash
-# Start swarm intelligence session
-ggen swarm run --model gpt-4o
+# Initialize and start the ultrathink swarm
+ggen ultrathink start
 
-# Run swarm analysis on project
-ggen swarm analyze --input src/ --output analysis.md
+# Submit a task to the swarm
+ggen ultrathink task --description "Analyze codebase for improvements"
+
+# Show swarm status and metrics
+ggen ultrathink status
 
 # Configure swarm behavior
-ggen swarm config --max-agents 5 --temperature 0.7
+ggen ultrathink intelligence
 ```
 
 ### Knowledge Hooks
@@ -76,14 +156,14 @@ ggen hook regenerate --trigger file-change
 Autonomous graph evolution and regeneration capabilities.
 
 ```bash
-# Enable autonomous mode
-ggen autonomous enable --watch
+# Evolve graph from natural language requirements
+ggen autonomous evolve --description "Add user authentication"
 
-# Run autonomous analysis
-ggen autonomous analyze --depth deep
+# Regenerate all artifacts from current graph state
+ggen autonomous regenerate
 
-# Configure autonomous behavior
-ggen autonomous config --regeneration-threshold 0.8
+# Show current autonomous system status
+ggen autonomous status
 ```
 
 ### Ultrathink
@@ -107,47 +187,14 @@ AI-powered governance and safety workflows for autonomous systems.
 
 ### Autonomous System Management
 
-```bash
-# Show current autonomous system status
-ggen autonomous status
-
-# Enable autonomous mode with monitoring
-ggen autonomous enable --watch
-
-# Disable autonomous mode
-ggen autonomous disable
-
-# Run autonomous analysis on project
-ggen autonomous analyze --depth deep --output analysis.md
-```
-
 ### Governance Operations
 
 ```bash
-# Review pending governance operations
-ggen autonomous governance list
-
 # Approve a pending governance operation
-ggen autonomous governance approve --operation-id abc123
+ggen autonomous approve --operation-id abc123
 
-# Reject a governance operation with reason
-ggen autonomous governance reject --operation-id abc123 --reason "Insufficient testing"
-
-# View governance history
-ggen autonomous governance history --days 7
-```
-
-### Safety and Compliance
-
-```bash
-# Run safety validation
-ggen autonomous safety validate --strict
-
-# Check compliance against policies
-ggen autonomous compliance check --policy security
-
-# Generate safety report
-ggen autonomous safety report --format pdf --output safety-report.pdf
+# Rollback to a previous snapshot
+ggen autonomous rollback --snapshot-id previous-version
 ```
 
 ## Marketplace Commands
@@ -156,41 +203,41 @@ ggen autonomous safety report --format pdf --output safety-report.pdf
 
 ```bash
 # Search for gpacks by keywords
-ggen search <query>
+ggen market search <query>
 
 # Examples:
-ggen search rust cli
-ggen search python api
-ggen search typescript react
+ggen market search rust cli
+ggen market search python api
+ggen market search typescript react
 
 # Browse popular categories
-ggen categories
+ggen market categories
 
 # Get detailed gpack information
-ggen show <gpack-id>
+ggen market show <gpack-id>
 ```
 
 ### Installation and Management
 
 ```bash
 # Install gpack (latest version)
-ggen add <gpack-id>
+ggen market add <gpack-id>
 
 # Install specific version
-ggen add <gpack-id>@<version>
+ggen market add <gpack-id>@<version>
 
 # Examples:
-ggen add io.ggen.rust.cli-subcommand
-ggen add io.ggen.rust.cli-subcommand@1.0.0
+ggen market add io.ggen.rust.cli-subcommand
+ggen market add io.ggen.rust.cli-subcommand@1.0.0
 
 # List installed gpacks
-ggen packs
+ggen market list
 
 # Update all gpacks to latest compatible versions
-ggen update
+ggen market update
 
 # Update specific gpack
-ggen update <gpack-id>
+ggen market update <gpack-id>
 
 # Remove gpack
 ggen remove <gpack-id>
@@ -364,14 +411,14 @@ ggen ai server --model gpt-4o --port 8080
 
 ```bash
 # Generate from gpack template
-ggen gen <gpack-id>:<template-path> [--vars k=v ...] [--dry]
+ggen project gen <gpack-id>:<template-path> [--vars k=v ...] [--dry]
 
 # Generate from local template
-ggen gen <scope> <action> [--vars k=v ...] [--dry]
+ggen project gen <scope> <action> [--vars k=v ...] [--dry]
 
 # Examples:
-ggen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello
-ggen gen cli subcommand --vars cmd=hello summary="Print greeting"
+ggen project gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl --vars name=hello
+ggen project gen cli subcommand --vars cmd=hello summary="Print greeting"
 ```
 
 ### Template Discovery

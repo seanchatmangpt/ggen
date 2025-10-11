@@ -28,6 +28,7 @@
     - [6.1 Unit Test Structure](#61-unit-test-structure)
     - [6.2 Async Testing](#62-async-testing)
     - [6.3 Test Helpers and Fixtures](#63-test-helpers-and-fixtures)
+    - [6.4 Modern Testing Tools and Practices](#64-modern-testing-tools-and-practices)
   - [7. Module Organization](#7-module-organization)
     - [7.1 Module Structure](#71-module-structure)
     - [7.2 Documentation](#72-documentation)
@@ -777,6 +778,185 @@ fn create_test_template(content: &str) -> (TempDir, PathBuf) {
 - ✅ Use `tempfile::TempDir` for temporary files
 - ✅ Return both temp dir and paths (prevents early cleanup)
 - ✅ Use descriptive helper names
+
+### 6.4 Modern Testing Tools and Practices
+
+**Recommended tools for enhanced testing workflows:**
+
+#### cargo-nextest - Faster Test Execution
+
+```bash
+# Install for 60% faster test runs
+cargo install cargo-nextest
+
+# Run tests faster
+cargo nextest run --workspace
+
+# With retry logic for flaky tests
+cargo nextest run --workspace --retries 3 -j 16
+
+# CI integration example
+name: Tests
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cargo install cargo-nextest
+      - run: cargo nextest run --workspace --retries 3
+```
+
+**Benefits:**
+- 60% faster test execution
+- Better test output formatting
+- Parallel execution with job control
+- CI/CD optimization
+
+#### Code Coverage with cargo-tarpaulin
+
+```bash
+# Install coverage tracking
+cargo install cargo-tarpaulin
+
+# Generate coverage reports
+cargo tarpaulin --workspace --out Html --out Lcov
+
+# CI integration with codecov
+cargo tarpaulin --workspace --out Lcov
+# Upload to codecov automatically
+```
+
+**Benefits:**
+- Identify untested code paths
+- Track coverage trends over time
+- Professional project image
+- Better code review decisions
+
+#### Property-Based Testing with proptest
+
+```rust
+// ggen-core/tests/property_tests.rs
+use proptest::prelude::*;
+use ggen_core::template::*;
+
+proptest! {
+    #[test]
+    fn test_template_rendering_never_panics(
+        template_content in ".*",
+        variables in any::<HashMap<String, String>>()
+    ) {
+        // Should never panic, even with invalid input
+        let result = render_template(&template_content, &variables);
+        assert!(result.is_ok() || result.is_err()); // Should either succeed or fail gracefully
+    }
+
+    #[test]
+    fn test_variable_substitution_properties(
+        template in "[a-zA-Z]+",
+        value in "[a-zA-Z0-9]+"
+    ) {
+        let mut vars = HashMap::new();
+        vars.insert(template.clone(), value.clone());
+
+        let result = render_template(&format!("{{{{{}}}}}", template), &vars);
+        assert_eq!(result.unwrap(), value);
+    }
+}
+```
+
+**Benefits:**
+- Find edge cases automatically
+- Better test coverage
+- Confidence in refactoring
+- Catches issues users would never manually test
+
+#### Mutation Testing with cargo-mutants
+
+```bash
+# Install mutation testing
+cargo install cargo-mutants
+
+# Run mutation testing (CI only - takes time)
+cargo mutants --workspace
+
+# Focus on specific modules
+cargo mutants --lib
+```
+
+**Benefits:**
+- Verify tests actually catch bugs
+- Find weak or incomplete tests
+- Improve overall test quality
+
+#### Benchmark Testing with criterion
+
+```rust
+// benches/template_generation.rs
+use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use ggen_core::template::*;
+
+fn benchmark_template_rendering(c: &mut Criterion) {
+    let template = Template::new("Hello {{name}}!".to_string());
+    let variables = HashMap::from([("name".to_string(), "World".to_string())]);
+
+    c.bench_function("template_rendering", |b| {
+        b.iter(|| render_template(black_box(&template), black_box(&variables)))
+    });
+}
+
+criterion_group!(benches, benchmark_template_rendering);
+criterion_main!(benches);
+```
+
+**Benefits:**
+- Track performance regressions
+- Identify slow operations
+- Optimize critical code paths
+- Data-driven performance decisions
+
+#### Pre-commit Hooks for Quality
+
+```bash
+# .pre-commit-config.yaml
+repos:
+  - repo: local
+    hooks:
+      - id: cargo-fmt
+        name: cargo fmt
+        entry: cargo fmt --all --
+        language: system
+        types: [rust]
+        pass_filenames: false
+
+      - id: cargo-clippy
+        name: cargo clippy
+        entry: cargo clippy --workspace -- -D warnings
+        language: system
+        types: [rust]
+        pass_filenames: false
+
+      - id: cargo-test
+        name: cargo test
+        entry: cargo nextest run --workspace
+        language: system
+        types: [rust]
+        pass_filenames: false
+```
+
+**Benefits:**
+- Catch issues before commit
+- Consistent code style
+- Faster PR reviews
+- Fewer CI failures
+
+**Best Practices:**
+- ✅ Use `cargo-nextest` for faster test execution
+- ✅ Track code coverage with `cargo-tarpaulin`
+- ✅ Use property testing for edge cases
+- ✅ Run mutation testing on CI to verify test quality
+- ✅ Use benchmarks to track performance regressions
+- ✅ Set up pre-commit hooks for consistent quality
 
 ---
 
