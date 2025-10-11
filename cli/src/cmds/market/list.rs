@@ -1,8 +1,49 @@
 //! Installed gpacks listing and management.
 //!
-//! This module provides functionality to list installed gpacks in the current
-//! project, showing their versions, sources, and metadata. It helps users
-//! understand what packages are currently installed and manage their dependencies.
+//! # WHAT THIS MODULE SHOULD DO (Intent-Driven Architecture)
+//!
+//! ## PURPOSE
+//! This module should provide visibility into project dependencies by reading
+//! the lockfile and presenting installed gpacks with their metadata, helping
+//! developers understand and audit their dependency tree.
+//!
+//! ## RESPONSIBILITIES
+//! 1. **Dependency Reading**: Should parse .ggen/lock.json for installed packages
+//! 2. **Metadata Display**: Should show versions, sources, checksums, licenses
+//! 3. **Tree View**: Should optionally display dependency relationships
+//! 4. **Outdated Detection**: Should flag packages with newer versions available
+//! 5. **Security Audit**: Should warn about known vulnerabilities
+//!
+//! ## CONSTRAINTS
+//! - Must handle missing or corrupt lockfile gracefully
+//! - Must support both detailed and summary views
+//! - Must verify checksums match lockfile
+//! - Must work offline (reads local state only)
+//! - Must handle large dependency trees efficiently
+//!
+//! ## DEPENDENCIES
+//! - Lockfile (.ggen/lock.json): Should be the source of truth
+//! - `GpackLister` trait: Should be mockable for testing
+//! - Filesystem: Should read package metadata
+//!
+//! ## ERROR HANDLING STRATEGY
+//! - Missing lockfile → Helpful message explaining initialization
+//! - Corrupt lockfile → Suggest regeneration command
+//! - Missing packages → Flag as inconsistent state
+//! - Checksum mismatch → Security warning, suggest reinstall
+//!
+//! ## TESTING STRATEGY
+//! - Mock GpackLister for deterministic tests
+//! - Test with empty, small, and large dependency lists
+//! - Test detailed vs summary modes
+//! - Test error handling (missing files, corrupt JSON)
+//!
+//! ## REFACTORING PRIORITIES
+//! - [P0] Implement actual lockfile reading (currently placeholder)
+//! - [P0] Add checksum verification
+//! - [P1] Implement dependency tree visualization
+//! - [P1] Add outdated package detection
+//! - [P2] Support license compliance checking
 //!
 //! # Examples
 //!

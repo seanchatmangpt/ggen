@@ -1,8 +1,48 @@
 //! Marketplace categories listing and management.
 //!
-//! This module provides functionality to list and explore marketplace categories,
-//! helping users discover gpacks by browsing popular categories and their
-//! associated package counts.
+//! # WHAT THIS MODULE SHOULD DO (Intent-Driven Architecture)
+//!
+//! ## PURPOSE
+//! This module should facilitate package discovery through browsing by providing
+//! organized categories with package counts, making it easy for developers to
+//! explore related gpacks in their domain of interest.
+//!
+//! ## RESPONSIBILITIES
+//! 1. **Category Listing**: Should fetch current categories from marketplace
+//! 2. **Package Counts**: Should show number of packages per category
+//! 3. **Trending Info**: Should highlight trending categories
+//! 4. **Navigation**: Should integrate with search (filter by category)
+//! 5. **Metadata**: Should show category descriptions and examples
+//!
+//! ## CONSTRAINTS
+//! - Must display categories in logical order (popular, alphabetical, etc.)
+//! - Must handle marketplace API unavailability
+//! - Must support both human-readable and machine-readable output
+//! - Must update dynamically as marketplace evolves
+//! - Must be fast enough for interactive browsing
+//!
+//! ## DEPENDENCIES
+//! - Marketplace API: Should query category endpoint
+//! - `CategoryLister` trait: Should be mockable for testing
+//! - Cache: Should cache categories for offline browsing
+//!
+//! ## ERROR HANDLING STRATEGY
+//! - API unavailable → Show cached categories
+//! - Empty categories → Helpful message for new marketplace
+//! - Network timeout → Fail fast with cached fallback
+//!
+//! ## TESTING STRATEGY
+//! - Mock CategoryLister for deterministic tests
+//! - Test with empty, small, and large category lists
+//! - Test sorting options
+//! - Test integration with search filters
+//!
+//! ## REFACTORING PRIORITIES
+//! - [P0] Implement actual marketplace API integration (currently placeholder)
+//! - [P0] Add category caching for offline use
+//! - [P1] Show trending/popular indicators
+//! - [P1] Add category descriptions and examples
+//! - [P2] Support category hierarchies (parent/child)
 //!
 //! # Examples
 //!
