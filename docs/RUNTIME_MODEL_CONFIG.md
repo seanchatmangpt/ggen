@@ -1,3 +1,41 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Runtime Model Configuration](#runtime-model-configuration)
+  - [Overview](#overview)
+  - [Environment Variables](#environment-variables)
+    - [Primary Configuration Variables](#primary-configuration-variables)
+    - [Provider-Specific Variables](#provider-specific-variables)
+    - [Additional Configuration](#additional-configuration)
+  - [Priority Order](#priority-order)
+    - [Example Priority for OpenAI](#example-priority-for-openai)
+  - [Usage Examples](#usage-examples)
+    - [Basic Usage](#basic-usage)
+    - [Provider-Specific Models](#provider-specific-models)
+    - [Complete Configuration](#complete-configuration)
+    - [Using with Ollama](#using-with-ollama)
+    - [Testing Different Models](#testing-different-models)
+  - [Configuration Files Affected](#configuration-files-affected)
+  - [Default Values](#default-values)
+  - [Benefits](#benefits)
+  - [Best Practices](#best-practices)
+    - [Development](#development)
+    - [Testing](#testing)
+    - [Production](#production)
+    - [Cost Optimization](#cost-optimization)
+  - [Troubleshooting](#troubleshooting)
+    - [Model Not Found](#model-not-found)
+    - [API Key Issues](#api-key-issues)
+    - [Invalid Configuration](#invalid-configuration)
+  - [Migration Guide](#migration-guide)
+    - [From Hardcoded Models](#from-hardcoded-models)
+    - [From Config Files](#from-config-files)
+  - [Examples](#examples)
+  - [Further Reading](#further-reading)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Runtime Model Configuration
 
 ## Overview
