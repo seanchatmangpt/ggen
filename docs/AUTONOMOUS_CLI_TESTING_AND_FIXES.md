@@ -1,3 +1,46 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Autonomous CLI Testing & Fixes](#autonomous-cli-testing--fixes)
+  - [Overview](#overview)
+  - [Test Environment](#test-environment)
+  - [Commands Tested](#commands-tested)
+    - [✅ 1. Autonomous Evolve (`ggen autonomous evolve`)](#-1-autonomous-evolve-ggen-autonomous-evolve)
+      - [Fix &#035;1: Add Mock Support to Autonomous Commands](#fix-1-add-mock-support-to-autonomous-commands)
+      - [Fix &#035;2: Improve Ontology Extractor](#fix-2-improve-ontology-extractor)
+      - [Fix &#035;3: Auto-Add Prefixes in Validator](#fix-3-auto-add-prefixes-in-validator)
+    - [✅ 2. Autonomous Regenerate (`ggen autonomous regenerate`)](#-2-autonomous-regenerate-ggen-autonomous-regenerate)
+    - [✅ 3. Autonomous Status (`ggen autonomous status`)](#-3-autonomous-status-ggen-autonomous-status)
+    - [✅ 4. Autonomous Approve (`ggen autonomous approve`)](#-4-autonomous-approve-ggen-autonomous-approve)
+    - [✅ 5. Autonomous Rollback (`ggen autonomous rollback`)](#-5-autonomous-rollback-ggen-autonomous-rollback)
+  - [Other Commands Checked](#other-commands-checked)
+    - [Ultrathink Commands](#ultrathink-commands)
+    - [CI Commands](#ci-commands)
+  - [Core Team Best Practices Applied](#core-team-best-practices-applied)
+    - [1. **Consistent Mock Support**](#1-consistent-mock-support)
+    - [2. **Error Handling**](#2-error-handling)
+    - [3. **Robust Parsing**](#3-robust-parsing)
+    - [4. **Validation Flexibility**](#4-validation-flexibility)
+    - [5. **User Feedback**](#5-user-feedback)
+    - [6. **Type Safety**](#6-type-safety)
+  - [Files Modified](#files-modified)
+    - [CLI Commands](#cli-commands)
+    - [Core Library](#core-library)
+  - [Test Coverage Summary](#test-coverage-summary)
+  - [Validation Checklist](#validation-checklist)
+  - [Key Technical Insights](#key-technical-insights)
+    - [1. RDF Triple Parsing Pipeline](#1-rdf-triple-parsing-pipeline)
+    - [2. Mock Response Format](#2-mock-response-format)
+    - [3. Prefix Auto-Detection](#3-prefix-auto-detection)
+  - [Integration with Previous Work](#integration-with-previous-work)
+  - [Build Status](#build-status)
+    - [Final Build](#final-build)
+  - [Next Steps (Recommended)](#next-steps-recommended)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Autonomous CLI Testing & Fixes
 
 ## Overview

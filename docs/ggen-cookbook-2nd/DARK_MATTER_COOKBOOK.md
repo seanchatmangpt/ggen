@@ -1,3 +1,45 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [GGen Dark Matter Cookbook: The 80/20 Revolution](#ggen-dark-matter-cookbook-the-8020-revolution)
+  - [Executive Summary](#executive-summary)
+  - [The Problem: Software's Dark Matter Crisis](#the-problem-softwares-dark-matter-crisis)
+    - [Traditional Development Reality](#traditional-development-reality)
+    - [The Four Categories of Dark Matter](#the-four-categories-of-dark-matter)
+      - [1. Synchronization Work (96% eliminable)](#1-synchronization-work-96-eliminable)
+      - [2. Boilerplate Ritual (94% eliminable)](#2-boilerplate-ritual-94-eliminable)
+      - [3. Migration Gymnastics (99.2% eliminable)](#3-migration-gymnastics-992-eliminable)
+      - [4. Test Maintenance (70% eliminable)](#4-test-maintenance-70-eliminable)
+  - [The Solution: Knowledge-First Development](#the-solution-knowledge-first-development)
+    - [The 80/20 Inversion](#the-8020-inversion)
+    - [Core Patterns](#core-patterns)
+      - [Pattern 1: Knowledge-First Projection](#pattern-1-knowledge-first-projection)
+      - [Pattern 2: Delta-Driven Regeneration](#pattern-2-delta-driven-regeneration)
+      - [Pattern 3: Deterministic Templates](#pattern-3-deterministic-templates)
+  - [Implementation Roadmap](#implementation-roadmap)
+    - [Phase 1: Audit Your Dark Matter (Week 1)](#phase-1-audit-your-dark-matter-week-1)
+    - [Phase 2: Model the 20% (Week 2-3)](#phase-2-model-the-20-week-2-3)
+    - [Phase 3: Generate the 80% (Week 4-6)](#phase-3-generate-the-80-week-4-6)
+    - [Phase 4: Evolve with Confidence (Ongoing)](#phase-4-evolve-with-confidence-ongoing)
+  - [Measuring Success](#measuring-success)
+    - [Quantitative Metrics](#quantitative-metrics)
+    - [Qualitative Benefits](#qualitative-benefits)
+  - [Cookbook Sections](#cookbook-sections)
+    - [Part 1: The Dark Matter Problem](#part-1-the-dark-matter-problem)
+    - [Part 2: The 80/20 Solution](#part-2-the-8020-solution)
+    - [Part 3: Implementation Patterns](#part-3-implementation-patterns)
+    - [Part 4: Practical Recipes](#part-4-practical-recipes)
+    - [Part 5: Real-World Examples](#part-5-real-world-examples)
+  - [Getting Started](#getting-started)
+    - [Step 1: Install GGen](#step-1-install-ggen)
+    - [Step 2: Create Your First Knowledge Model](#step-2-create-your-first-knowledge-model)
+    - [Step 3: Generate Your First Projection](#step-3-generate-your-first-projection)
+    - [Step 4: Experience the 80/20 Revolution](#step-4-experience-the-8020-revolution)
+  - [The Transformation](#the-transformation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GGen Dark Matter Cookbook: The 80/20 Revolution
 
 ## Executive Summary

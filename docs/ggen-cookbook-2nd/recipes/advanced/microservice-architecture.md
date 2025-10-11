@@ -1,3 +1,22 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Microservice Architecture Generator](#microservice-architecture-generator)
+  - [Context](#context)
+  - [Problem](#problem)
+  - [Forces](#forces)
+  - [Solution](#solution)
+  - [Implementation](#implementation)
+    - [Service Template](#service-template)
+    - [Infrastructure Template](#infrastructure-template)
+  - [Usage](#usage)
+  - [Verification](#verification)
+  - [Benefits](#benefits)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Microservice Architecture Generator
 
 ## Context

@@ -1,3 +1,41 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [LLM Streaming Simplification](#llm-streaming-simplification)
+  - [Overview](#overview)
+  - [Changes Made](#changes-made)
+    - [1. Simplified `ggen-ai/src/streaming.rs`](#1-simplified-ggen-aisrcstreamingrs)
+    - [2. Updated `ggen-ai/src/lib.rs` Exports](#2-updated-ggen-aisrclibrs-exports)
+    - [3. Removed Unnecessary Dependencies](#3-removed-unnecessary-dependencies)
+  - [Benefits](#benefits)
+    - [1. **Simpler Codebase**](#1-simpler-codebase)
+    - [2. **Better Provider Support**](#2-better-provider-support)
+    - [3. **Fewer Dependencies**](#3-fewer-dependencies)
+    - [4. **Easier Maintenance**](#4-easier-maintenance)
+  - [Usage Example](#usage-example)
+    - [Before (Custom Implementation)](#before-custom-implementation)
+    - [After (Native genai)](#after-native-genai)
+  - [Implementation Details](#implementation-details)
+    - [client.rs (Lines 200-272)](#clientrs-lines-200-272)
+  - [Migration Path](#migration-path)
+    - [For Code Using `LlmStream`](#for-code-using-llmstream)
+    - [For Code Using `StreamChunk`](#for-code-using-streamchunk)
+    - [For Code Using `StreamMetadata`](#for-code-using-streammetadata)
+  - [genai Library Features](#genai-library-features)
+    - [Supported Providers](#supported-providers)
+    - [Streaming Features](#streaming-features)
+    - [Custom Headers Support](#custom-headers-support)
+  - [Build Results](#build-results)
+    - [Before Simplification](#before-simplification)
+    - [After Simplification](#after-simplification)
+  - [Testing](#testing)
+    - [Library Build](#library-build)
+    - [Core Streaming Test](#core-streaming-test)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # LLM Streaming Simplification
 
 ## Overview

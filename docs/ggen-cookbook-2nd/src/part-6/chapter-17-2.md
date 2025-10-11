@@ -2,7 +2,23 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
-- [Chapter 17.2 - Placeholder](#chapter-172---placeholder)
+- [Chapter 17.2: Plugin Architecture](#chapter-172-plugin-architecture)
+  - [Context](#context)
+  - [Problem](#problem)
+  - [Forces](#forces)
+  - [Solution](#solution)
+  - [Diagram](#diagram)
+  - [Implementation](#implementation)
+    - [Plugin Manifest Format](#plugin-manifest-format)
+    - [Plugin Interface Trait](#plugin-interface-trait)
+    - [Sandbox Implementation](#sandbox-implementation)
+    - [Plugin Registry](#plugin-registry)
+  - [Result](#result)
+    - [Benefits Achieved](#benefits-achieved)
+    - [Related Patterns](#related-patterns)
+    - [Example: Custom RDF Validator Plugin](#example-custom-rdf-validator-plugin)
+  - [Verification](#verification)
+  - [Next Steps](#next-steps)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 

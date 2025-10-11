@@ -1,3 +1,42 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [CLI Commands Testing & Fixes](#cli-commands-testing--fixes)
+  - [Overview](#overview)
+  - [Test Environment](#test-environment)
+  - [Commands Tested](#commands-tested)
+    - [✅ 1. AI Generate (`ggen ai generate`)](#-1-ai-generate-ggen-ai-generate)
+    - [✅ 2. AI SPARQL (`ggen ai sparql`)](#-2-ai-sparql-ggen-ai-sparql)
+    - [✅ 3. AI Graph (`ggen ai graph`)](#-3-ai-graph-ggen-ai-graph)
+    - [✅ 4. AI Frontmatter (`ggen ai frontmatter`)](#-4-ai-frontmatter-ggen-ai-frontmatter)
+    - [✅ 5. AI Models (`ggen ai models`)](#-5-ai-models-ggen-ai-models)
+    - [✅ 6. AI Project (`ggen ai project`)](#-6-ai-project-ggen-ai-project)
+    - [✅ 7. AI From-Source (`ggen ai from-source`)](#-7-ai-from-source-ggen-ai-from-source)
+  - [Issues Found & Fixed](#issues-found--fixed)
+    - [Issue &#035;1: Duplicate Short Flags (graph command)](#issue-1-duplicate-short-flags-graph-command)
+    - [Issue &#035;2: Missing Mock Flags (frontmatter, project, from-source)](#issue-2-missing-mock-flags-frontmatter-project-from-source)
+    - [Issue &#035;3: Inconsistent Client Initialization](#issue-3-inconsistent-client-initialization)
+  - [Core Team Best Practices Applied](#core-team-best-practices-applied)
+    - [1. **Error Handling**](#1-error-handling)
+    - [2. **User Feedback**](#2-user-feedback)
+    - [3. **Configuration Management**](#3-configuration-management)
+    - [4. **Testability**](#4-testability)
+    - [5. **File Organization**](#5-file-organization)
+    - [6. **Documentation**](#6-documentation)
+  - [Streaming API Usage](#streaming-api-usage)
+    - [Non-Streaming Usage](#non-streaming-usage)
+    - [Streaming Usage (if needed)](#streaming-usage-if-needed)
+  - [Build Status](#build-status)
+    - [Final Build Results](#final-build-results)
+  - [Test Coverage Summary](#test-coverage-summary)
+  - [Validation Checklist](#validation-checklist)
+  - [Conclusion](#conclusion)
+  - [Next Steps](#next-steps)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # CLI Commands Testing & Fixes
 
 ## Overview

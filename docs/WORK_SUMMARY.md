@@ -1,3 +1,47 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Work Summary: CLI Commands Testing & Streaming Simplification](#work-summary-cli-commands-testing--streaming-simplification)
+  - [Executive Summary](#executive-summary)
+  - [Timeline](#timeline)
+  - [Work Completed](#work-completed)
+    - [1. Streaming Simplification ✅](#1-streaming-simplification-)
+    - [2. CLI Commands Testing ✅](#2-cli-commands-testing-)
+    - [3. Issues Found & Fixed ✅](#3-issues-found--fixed-)
+      - [Issue #1: Duplicate Short Flags (`ai graph`)](#issue-1-duplicate-short-flags-ai-graph)
+      - [Issue #2: Missing Mock Flags (`ai frontmatter`)](#issue-2-missing-mock-flags-ai-frontmatter)
+      - [Issue #3: Missing Mock Flags (`ai project`, `ai from-source`)](#issue-3-missing-mock-flags-ai-project-ai-from-source)
+  - [Core Team Best Practices Applied](#core-team-best-practices-applied)
+    - [1. Error Handling](#1-error-handling)
+    - [2. User Experience](#2-user-experience)
+    - [3. Configuration Management](#3-configuration-management)
+    - [4. Testability](#4-testability)
+    - [5. File Organization](#5-file-organization)
+    - [6. Documentation](#6-documentation)
+  - [Files Modified](#files-modified)
+    - [Core Library (`ggen-ai`)](#core-library-ggen-ai)
+    - [CLI Commands (`cli/src/cmds/ai`)](#cli-commands-clisrccmdsai)
+  - [Documentation Created](#documentation-created)
+  - [Build & Test Status](#build--test-status)
+    - [Build Results](#build-results)
+    - [Test Results](#test-results)
+    - [Dependencies](#dependencies)
+  - [Impact Analysis](#impact-analysis)
+    - [Codebase Health](#codebase-health)
+    - [Developer Experience](#developer-experience)
+    - [User Experience](#user-experience)
+  - [Technical Highlights](#technical-highlights)
+    - [Streaming Simplification](#streaming-simplification)
+    - [CLI Fixes](#cli-fixes)
+    - [Best Practices](#best-practices)
+  - [Validation Checklist](#validation-checklist)
+  - [Next Steps (Recommended)](#next-steps-recommended)
+  - [Conclusion](#conclusion)
+  - [Metrics](#metrics)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Work Summary: CLI Commands Testing & Streaming Simplification
 
 ## Executive Summary
