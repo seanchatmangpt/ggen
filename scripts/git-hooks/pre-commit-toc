@@ -1,4 +1,38 @@
 #!/bin/sh
+# WHAT THIS HOOK SHOULD DO (Intent-Driven Architecture)
+#
+# PURPOSE:
+# This hook should automatically update Table of Contents in markdown files
+# before each commit, ensuring documentation stays synchronized with content
+# without requiring manual TOC regeneration.
+#
+# RESPONSIBILITIES:
+# 1. Detect markdown files with TOC markers in staged changes
+# 2. Regenerate TOC for those files automatically
+# 3. Re-stage files with updated TOC
+# 4. Handle missing dependencies gracefully (optional hook)
+# 5. Provide clear feedback about what was updated
+#
+# CONSTRAINTS:
+# - Must only process staged files (not entire repo)
+# - Must only update files with TOC markers (<!-- toc -->)
+# - Must be fast enough for interactive use (<2s typical)
+# - Must handle missing npx/markdown-toc gracefully
+# - Must be POSIX shell compatible (no bash-isms)
+#
+# ERROR HANDLING:
+# - npx not installed → Skip with warning, continue commit
+# - markdown-toc error → Log error, skip that file, continue
+# - File read/write error → Fail commit with clear message
+#
+# CORE TEAM BEST PRACTICE:
+# Pre-commit hooks help developers, they never surprise them.
+# Hook failures should be rare and clearly explained.
+#
+# REFACTORING PRIORITIES:
+# - [P2] Add option to skip via environment variable
+# - [P2] Cache markdown-toc for faster execution
+#
 # Pre-commit hook to generate TOC for markdown files
 # This ensures TOC is always up to date before committing
 #

@@ -1,3 +1,36 @@
+# WHAT THIS WORKFLOW SHOULD DO (Intent-Driven Architecture)
+#
+# PURPOSE:
+# This workflow should ensure Table of Contents in markdown files stays synchronized
+# with actual content WITHOUT automatically modifying the repository. It should fail
+# CI if TOC is out of date, forcing developers to update it locally.
+#
+# RESPONSIBILITIES:
+# 1. Validate TOC is current in all markdown documentation
+# 2. Fail CI check if TOC is outdated
+# 3. Provide clear instructions on how to fix TOC issues
+# 4. Only run when markdown files are modified (path filtering)
+# 5. Never commit changes automatically to avoid merge conflicts
+#
+# CONSTRAINTS:
+# - Must use CHECK_ONLY mode (never auto-commit)
+# - Must only trigger on pull requests, not pushes to master
+# - Must filter for markdown file changes only
+# - Must complete quickly (<5 minutes typical)
+# - Must provide actionable error messages when failing
+#
+# ERROR HANDLING:
+# - TOC outdated → Fail check with instructions on how to regenerate
+# - Tool error → Fail with diagnostic information
+# - Network issue → Retry once, then fail
+#
+# CORE TEAM BEST PRACTICE:
+# CI validates, it never modifies. Developers own their commits completely.
+#
+# REFACTORING PRIORITIES:
+# - [P1] Add comment to PR when TOC validation fails with fix command
+# - [P2] Cache dependencies for faster runs
+
 name: TOC Validation
 
 on:

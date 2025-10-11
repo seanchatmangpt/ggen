@@ -1,3 +1,153 @@
+//! Core template system - The heart of ggen's code generation
+//!
+//! # WHAT THIS MODULE SHOULD DO (Intent-Driven Architecture)
+//!
+//! ## PURPOSE
+//! This module should serve as the foundational template representation and processing system,
+//! parsing YAML frontmatter, rendering Tera templates, and integrating with RDF/SPARQL for
+//! semantic code generation. It should be the single source of truth for template structure.
+//!
+//! ## RESPONSIBILITIES
+//! 1. **Parse Templates**: Should split frontmatter (YAML) from body content using gray-matter
+//! 2. **Flexible Frontmatter**: Should accept varied YAML structures (maps, arrays, strings) for max LLM compatibility
+//! 3. **Two-Phase Rendering**: Should render frontmatter FIRST (resolve {{vars}}), THEN render body
+//! 4. **Graph Integration**: Should load RDF triples and execute SPARQL from frontmatter
+//! 5. **File Injection**: Should support injecting generated content into existing files
+//! 6. **Hygen Compatibility**: Should maintain compatibility with Hygen templates while extending
+//! 7. **Idempotency**: Should support safe, repeatable template application
+//!
+//! ## CONSTRAINTS
+//! - Must use gray-matter for frontmatter parsing (industry standard, battle-tested)
+//! - Must use Tera for template rendering (Jinja2-compatible, familiar to users)
+//! - Must preserve exact body whitespace (no trimming/modification)
+//! - Must handle templates with no frontmatter gracefully
+//! - Must never crash on malformed YAML (return descriptive errors)
+//! - Must support relative file paths (resolve relative to template directory)
+//!
+//! ## DEPENDENCIES
+//! - `gray-matter`: Should parse frontmatter + body split
+//! - `Tera`: Should render {{variables}} in frontmatter and body
+//! - `serde_yaml`: Should deserialize frontmatter into Frontmatter struct
+//! - `Graph`: Should manage RDF triples and SPARQL execution
+//!
+//! ## INVARIANTS
+//! - Template parsing must NEVER modify body content
+//! - Frontmatter must be rendered BEFORE body rendering (vars resolved first)
+//! - `raw_frontmatter` must remain immutable after parsing
+//! - All file paths must be resolved relative to template directory
+//! - Graph operations must prepend prefix declarations when needed
+//!
+//! ## DATA FLOW
+//! ```text
+//! Raw Template String
+//!   ↓
+//! Template::parse()
+//!   ├─ gray-matter: Split frontmatter from body
+//!   ├─ Store raw_frontmatter (serde_yaml::Value)
+//!   └─ Store body (String)
+//!   ↓
+//! Template::render_frontmatter()
+//!   ├─ Serialize raw_frontmatter to YAML string
+//!   ├─ Render YAML through Tera (resolve {{vars}})
+//!   ├─ Deserialize rendered YAML into Frontmatter struct
+//!   └─ Populate self.front
+//!   ↓
+//! Template::process_graph() [Optional]
+//!   ├─ Load RDF from inline triples (rdf_inline)
+//!   ├─ Load RDF from files (rdf)
+//!   ├─ Execute SPARQL queries (sparql)
+//!   └─ Populate graph with semantic data
+//!   ↓
+//! Template::render()
+//!   ├─ If from: specified, read file as body source
+//!   ├─ Render body through Tera with final vars
+//!   └─ Return rendered output
+//! ```
+//!
+//! ## ERROR HANDLING STRATEGY
+//! - Parse errors → Context about what failed, show line/column
+//! - Missing files → Full path, suggest corrections
+//! - Invalid RDF/SPARQL → Show query, explain parse error
+//! - Deserialization errors → Show YAML snippet, suggest format
+//! - Never silently fail or return partially-initialized state
+//!
+//! ## FRONTMATTER FIELD CONTRACTS
+//!
+//! ### Core Fields (Hygen compatibility)
+//! - `to: String` → SHOULD specify output file path (supports {{vars}})
+//! - `from: String` → SHOULD read body from external file
+//! - `force: bool` → SHOULD overwrite existing files
+//! - `unless_exists: bool` → SHOULD skip if file exists
+//!
+//! ### Injection Fields (for modifying existing files)
+//! - `inject: bool` → SHOULD enable injection mode
+//! - `before/after: String` → SHOULD inject relative to marker
+//! - `prepend/append: bool` → SHOULD inject at file start/end
+//! - `at_line: u32` → SHOULD inject at specific line number
+//! - `skip_if: String` → SHOULD skip if pattern found
+//!
+//! ### Graph Fields (ggen extensions)
+//! - `base: String` → SHOULD set RDF base IRI
+//! - `prefixes: Map<String, String>` → SHOULD define namespace prefixes
+//! - `rdf_inline: Vec<String>` → SHOULD accept inline Turtle triples
+//! - `rdf: Vec<String>` → SHOULD load Turtle from file paths
+//! - `sparql: Map<String, String>` → SHOULD execute named SPARQL queries
+//!
+//! ### vars Field (CRITICAL - Maximum Flexibility)
+//! **PROBLEM**: LLMs generate varied YAML formats
+//! **SOLUTION**: Accept ANY valid YAML value type
+//!
+//! ```yaml
+//! # Map format (preferred)
+//! vars:
+//!   name: "Alice"
+//!   age: 30
+//!
+//! # Array format (auto-convert to {var0, var1, ...})
+//! vars:
+//!   - "item1"
+//!   - "item2"
+//!
+//! # Single value (auto-convert to {var0})
+//! vars: "single_value"
+//!
+//! # Null/missing (empty map)
+//! vars: null
+//! ```
+//!
+//! ## TESTING STRATEGY
+//! - Test parse with/without frontmatter
+//! - Test empty frontmatter
+//! - Test flexible vars (map, array, string, null)
+//! - Test two-phase rendering (frontmatter then body)
+//! - Test relative file path resolution
+//! - Test RDF/SPARQL integration
+//! - Test injection modes
+//! - Property test: parse→render cycle preserves body content
+//!
+//! ## REFACTORING PRIORITIES
+//! - [P0] Add validation for frontmatter after render (catch bad YAML early)
+//! - [P0] Improve error messages with YAML line numbers
+//! - [P1] Extract flexible deserializers into shared utility module
+//! - [P1] Add caching for rendered frontmatter (avoid re-rendering)
+//! - [P2] Support YAML anchors/aliases in frontmatter
+//! - [P2] Add frontmatter schema validation (JSON Schema)
+//! - [P3] Support multiple template bodies (multi-file generation)
+//!
+//! ## CORE TEAM BEST PRACTICES APPLIED
+//! 1. **Lenient Parsing**: Accept varied input formats (Postel's Law)
+//! 2. **Strict Validation**: Validate before use, fail fast with context
+//! 3. **Immutability**: raw_frontmatter never mutates after parse
+//! 4. **Explicit Phases**: Two-phase rendering makes intent clear
+//! 5. **Zero Magic**: No hidden conversions, all transforms explicit
+//! 6. **Testing First**: Contract defined before implementation
+//!
+//! ## COMPATIBILITY NOTES
+//! - **Hygen Templates**: Should parse and execute without modification
+//! - **Jekyll/Hugo Frontmatter**: Should accept static site frontmatter
+//! - **LLM Output**: Should handle varied AI-generated YAML structures
+//! - **Gray-Matter**: Should use latest gray-matter parsing behavior
+
 use anyhow::Result;
 use gray_matter::{engine::YAML, Matter, ParsedEntity};
 use serde::{Deserialize, Serialize};
