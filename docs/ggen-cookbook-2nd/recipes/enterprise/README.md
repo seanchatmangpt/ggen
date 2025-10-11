@@ -1,3 +1,12 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Enterprise Recipes](#enterprise-recipes)
+  - [Available Recipes](#available-recipes)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Enterprise Recipes
 
 This directory contains enterprise-grade recipes for large-scale, mission-critical GGen deployments.

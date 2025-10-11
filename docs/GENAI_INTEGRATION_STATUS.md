@@ -27,7 +27,7 @@
     - [Future Integration Points](#future-integration-points)
   - [📊 Integration Benefits](#-integration-benefits)
     - [Achieved](#achieved)
-    - [Pending (After agents Crate Fix)](#pending-after-agents-crate-fix)
+    - [Pending (After ggen-ai Fix)](#pending-after-ggen-ai-fix)
   - [🎓 Key Learnings](#-key-learnings)
     - [genai Library Strengths](#genai-library-strengths)
     - [Integration Patterns](#integration-patterns)

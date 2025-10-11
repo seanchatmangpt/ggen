@@ -2,7 +2,22 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
-- [Chapter 17.4 - Placeholder](#chapter-174---placeholder)
+- [Chapter 17.4: Contributing to Core](#chapter-174-contributing-to-core)
+  - [Context](#context)
+  - [Problem](#problem)
+  - [Forces](#forces)
+  - [Solution](#solution)
+  - [Diagram](#diagram)
+  - [Implementation](#implementation)
+    - [Contribution Portal](#contribution-portal)
+    - [Automated Quality Checks](#automated-quality-checks)
+    - [Mentorship Program](#mentorship-program)
+  - [Result](#result)
+    - [Benefits Achieved](#benefits-achieved)
+    - [Related Patterns](#related-patterns)
+    - [Example: First Contribution Workflow](#example-first-contribution-workflow)
+  - [Verification](#verification)
+  - [Next Steps](#next-steps)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 

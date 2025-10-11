@@ -2,7 +2,24 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
-- [Chapter 17.3 - Placeholder](#chapter-173---placeholder)
+- [Chapter 17.3: Foreign Function Interface](#chapter-173-foreign-function-interface)
+  - [Context](#context)
+  - [Problem](#problem)
+  - [Forces](#forces)
+  - [Solution](#solution)
+  - [Diagram](#diagram)
+  - [Implementation](#implementation)
+    - [FFI Type System](#ffi-type-system)
+    - [Python Integration (PyO3)](#python-integration-pyo3)
+    - [JavaScript Integration (QuickJS)](#javascript-integration-quickjs)
+    - [C Library Integration (bindgen)](#c-library-integration-bindgen)
+    - [Async FFI Support](#async-ffi-support)
+  - [Result](#result)
+    - [Benefits Achieved](#benefits-achieved)
+    - [Related Patterns](#related-patterns)
+    - [Example: Multi-Language Code Analysis Pipeline](#example-multi-language-code-analysis-pipeline)
+  - [Verification](#verification)
+  - [Next Steps](#next-steps)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 

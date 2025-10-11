@@ -3,6 +3,7 @@
 **Table of Contents**
 
 - [GGen Cookbook: A Pattern Language for Autonomic Code Generation (2nd Edition)](#ggen-cookbook-a-pattern-language-for-autonomic-code-generation-2nd-edition)
+  - [🔥 New in This Edition: The Dark Matter Cookbook](#-new-in-this-edition-the-dark-matter-cookbook)
   - [Building the Book](#building-the-book)
     - [Prerequisites](#prerequisites)
     - [Building](#building)
