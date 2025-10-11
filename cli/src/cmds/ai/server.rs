@@ -50,3 +50,4 @@ pub async fn run(args: &ServerArgs) -> Result<()> {
 
     Ok(())
 }
+

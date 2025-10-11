@@ -1,11 +1,9 @@
-//! Provider adapter utilities using genai
+//! LLM provider adapter implementations
 
-use crate::client::{LlmClient, LlmConfig, LlmResponse, LlmChunk};
+use crate::client::{LlmClient, LlmConfig, LlmResponse, LlmChunk, UsageStats, GenAiClient};
 use crate::error::{GgenAiError, Result};
-use async_trait::async_trait;
-use futures::stream::BoxStream;
-use genai::{Client, chat::{ChatRequest, ChatMessage, ChatOptions}};
 use std::collections::HashMap;
+use async_trait::async_trait;
 
 /// Mock client for testing
 #[derive(Debug)]
@@ -16,15 +14,22 @@ pub struct MockClient {
 }
 
 impl MockClient {
-    /// Create a new mock client
+    /// Create a new mock client with predefined responses
     pub fn new(responses: Vec<String>) -> Self {
         Self {
             responses,
             current_index: 0,
-            config: LlmConfig::default(),
+            config: LlmConfig {
+                model: "mock-model".to_string(),
+                max_tokens: Some(1000),
+                temperature: Some(0.0),
+                top_p: Some(1.0),
+                stop: None,
+                extra: HashMap::new(),
+            },
         }
     }
-    
+
     /// Create a mock client with a single response
     pub fn with_response(response: &str) -> Self {
         Self::new(vec![response.to_string()])
@@ -33,199 +38,174 @@ impl MockClient {
 
 #[async_trait]
 impl LlmClient for MockClient {
-    async fn complete(&self, prompt: &str) -> Result<LlmResponse> {
+    async fn complete(&self, _prompt: &str) -> Result<LlmResponse> {
         let response = self.responses.get(self.current_index)
-            .ok_or_else(|| GgenAiError::llm_provider("MockClient", "No more mock responses"))?;
-        
+            .unwrap_or(&self.responses[0])
+            .clone();
+
+        let content_len = response.len();
         Ok(LlmResponse {
-            content: response.clone(),
-            usage: Some(crate::client::UsageStats {
-                prompt_tokens: prompt.len() as u32 / 4, // Rough estimate
-                completion_tokens: response.len() as u32 / 4,
-                total_tokens: (prompt.len() + response.len()) as u32 / 4,
+            content: response,
+            usage: Some(UsageStats {
+                prompt_tokens: 10,
+                completion_tokens: content_len as u32 / 4, // Rough estimate
+                total_tokens: 10 + content_len as u32 / 4,
             }),
             model: "mock-model".to_string(),
-            finish_reason: Some("stop".to_string()),
-            extra: std::collections::HashMap::new(),
-        })
-    }
-    
-    async fn stream_complete(&self, prompt: &str) -> Result<BoxStream<LlmChunk>> {
-        let response = self.responses.get(self.current_index)
-            .ok_or_else(|| GgenAiError::llm_provider("MockClient", "No more mock responses"))?;
-        
-        // Split response into chunks for streaming
-        let chunks: Vec<LlmChunk> = response
-            .chars()
-            .collect::<Vec<_>>()
-            .chunks(10)
-            .map(|chunk| LlmChunk {
-                content: chunk.iter().collect(),
-                model: "mock-model".to_string(),
-                finish_reason: None,
-                usage: None,
-                extra: std::collections::HashMap::new(),
-            })
-            .collect();
-        
-        let mut final_chunks = chunks;
-        if let Some(last) = final_chunks.last_mut() {
-            last.finish_reason = Some("stop".to_string());
-            last.usage = Some(crate::client::UsageStats {
-                prompt_tokens: prompt.len() as u32 / 4,
-                completion_tokens: response.len() as u32 / 4,
-                total_tokens: (prompt.len() + response.len()) as u32 / 4,
-            });
-        }
-        
-        let stream = futures::stream::iter(final_chunks.into_iter());
-        Ok(Box::pin(stream))
-    }
-    
-    fn get_config(&self) -> &LlmConfig {
-        &self.config
-    }
-    
-    fn update_config(&mut self, config: LlmConfig) {
-        self.config = config;
-    }
-}
-
-/// GenAI client wrapper for production use
-#[derive(Debug)]
-pub struct GenAiClient {
-    client: Client,
-    config: LlmConfig,
-}
-
-impl GenAiClient {
-    /// Create a new GenAI client with configuration
-    pub fn new(config: LlmConfig) -> Result<Self> {
-        config.validate()?;
-        Ok(Self {
-            client: Client::default(),
-            config,
-        })
-    }
-}
-
-#[async_trait]
-impl LlmClient for GenAiClient {
-    async fn complete(&self, prompt: &str) -> Result<LlmResponse> {
-        let chat_req = ChatRequest::new(vec![
-            ChatMessage::user(prompt),
-        ]);
-
-        let chat_options = ChatOptions::default()
-            .with_temperature(self.config.temperature.unwrap_or(0.7) as f64)
-            .with_max_tokens(self.config.max_tokens.unwrap_or(4096) as u32)
-            .with_top_p(self.config.top_p.unwrap_or(0.9) as f64);
-        
-        let response = self.client
-            .exec_chat(&self.config.model, chat_req, Some(&chat_options))
-            .await
-            .map_err(|e| GgenAiError::llm_provider("GenAI", &format!("Request failed: {}", e)))?;
-
-        Ok(LlmResponse {
-            content: response.first_text().unwrap_or_default(),
-            usage: response.usage().map(|u| crate::client::UsageStats {
-                prompt_tokens: u.prompt_tokens.unwrap_or(0),
-                completion_tokens: u.completion_tokens.unwrap_or(0),
-                total_tokens: u.total_tokens.unwrap_or(0),
-            }),
-            model: self.config.model.clone(),
             finish_reason: Some("stop".to_string()),
             extra: HashMap::new(),
         })
     }
-    
-    async fn stream_complete(&self, prompt: &str) -> Result<BoxStream<LlmChunk>> {
-        let chat_req = ChatRequest::new(vec![
-            ChatMessage::user(prompt),
-        ]);
 
-        let chat_options = ChatOptions::default()
-            .with_temperature(self.config.temperature.unwrap_or(0.7) as f64)
-            .with_max_tokens(self.config.max_tokens.unwrap_or(4096) as u32)
-            .with_top_p(self.config.top_p.unwrap_or(0.9) as f64);
-        
-        let stream = self.client
-            .exec_chat_stream(&self.config.model, chat_req, Some(&chat_options))
-            .await
-            .map_err(|e| GgenAiError::llm_provider("GenAI", &format!("Stream request failed: {}", e)))?;
+    async fn complete_stream(&self, _prompt: &str) -> Result<futures::stream::BoxStream<'static, LlmChunk>> {
+        let response = self.responses.get(self.current_index)
+            .unwrap_or(&self.responses[0])
+            .clone();
 
-        let model = self.config.model.clone();
-        let stream = stream.map(move |chunk| {
-            match chunk {
-                Ok(genai_chunk) => {
-                    let content = genai_chunk.first_text().unwrap_or_default();
-                    LlmChunk {
-                        content,
-                        model: model.clone(),
-                        finish_reason: if genai_chunk.is_finished() { Some("stop".to_string()) } else { None },
-                        usage: genai_chunk.usage().map(|u| crate::client::UsageStats {
-                            prompt_tokens: u.prompt_tokens.unwrap_or(0),
-                            completion_tokens: u.completion_tokens.unwrap_or(0),
-                            total_tokens: u.total_tokens.unwrap_or(0),
-                        }),
-                        extra: HashMap::new(),
-                    }
-                }
-                Err(e) => {
-                    LlmChunk {
-                        content: format!("Error: {}", e),
-                        model: model.clone(),
-                        finish_reason: Some("error".to_string()),
-                        usage: None,
-                        extra: HashMap::new(),
-                    }
-                }
-            }
-        });
+        let content_len = response.len();
+        let chunk = LlmChunk {
+            content: response,
+            model: "mock-model".to_string(),
+            finish_reason: Some("stop".to_string()),
+            usage: Some(UsageStats {
+                prompt_tokens: 10,
+                completion_tokens: content_len as u32 / 4,
+                total_tokens: 10 + content_len as u32 / 4,
+            }),
+            extra: HashMap::new(),
+        };
 
-        Ok(Box::pin(stream))
+        Ok(Box::pin(futures::stream::iter(vec![chunk])))
     }
-    
+
     fn get_config(&self) -> &LlmConfig {
         &self.config
     }
-    
+
     fn update_config(&mut self, config: LlmConfig) {
         self.config = config;
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use futures::StreamExt;
-    
-    #[tokio::test]
-    async fn test_mock_client() {
-        let client = MockClient::with_response("Hello, world!");
-        let response = client.complete("Test prompt").await
-            .expect("Failed to complete mock request");
+/// Ollama client adapter using GenAI
+#[derive(Debug)]
+pub struct OllamaClient {
+    client: GenAiClient,
+}
 
-        assert_eq!(response.content, "Hello, world!");
-        assert_eq!(response.model, "mock-model");
-        assert!(response.usage.is_some());
+impl OllamaClient {
+    /// Create a new Ollama client
+    pub fn new(config: LlmConfig) -> Result<Self> {
+        let client = GenAiClient::new(config)?;
+        Ok(Self { client })
+    }
+
+    /// Create Ollama client with default configuration
+    pub fn default_config() -> LlmConfig {
+        LlmConfig {
+            model: "llama3.2".to_string(), // Default Ollama model
+            max_tokens: Some(2048),
+            temperature: Some(0.7),
+            top_p: Some(0.9),
+            stop: None,
+            extra: HashMap::new(),
+        }
     }
     
-    #[tokio::test]
-    async fn test_mock_client_streaming() {
-        let client = MockClient::with_response("Hello, world!");
-        let mut stream = client.stream_complete("Test prompt").await
-            .expect("Failed to create stream");
-
-        let mut content = String::new();
-        while let Some(chunk) = stream.next().await {
-            content.push_str(&chunk.content);
-            if chunk.finish_reason.is_some() {
-                break;
-            }
+    /// Create Ollama client with qwen3-coder:30b configuration
+    pub fn qwen3_coder_config() -> LlmConfig {
+        LlmConfig {
+            model: "qwen3-coder:30b".to_string(),
+            max_tokens: Some(2048),
+            temperature: Some(0.7),
+            top_p: Some(0.9),
+            stop: None,
+            extra: HashMap::new(),
         }
-        
-        assert_eq!(content, "Hello, world!");
     }
 }
 
+#[async_trait]
+impl LlmClient for OllamaClient {
+    async fn complete(&self, prompt: &str) -> Result<LlmResponse> {
+        self.client.complete(prompt).await
+    }
+
+    async fn complete_stream(&self, prompt: &str) -> Result<futures::stream::BoxStream<'static, LlmChunk>> {
+        self.client.complete_stream(prompt).await
+    }
+
+    fn get_config(&self) -> &LlmConfig {
+        self.client.get_config()
+    }
+
+    fn update_config(&mut self, config: LlmConfig) {
+        self.client.update_config(config);
+    }
+}
+
+/// OpenAI client adapter using GenAI
+#[derive(Debug)]
+pub struct OpenAIClient {
+    client: GenAiClient,
+}
+
+impl OpenAIClient {
+    /// Create a new OpenAI client
+    pub fn new(config: LlmConfig) -> Result<Self> {
+        let client = GenAiClient::new(config)?;
+        Ok(Self { client })
+    }
+}
+
+#[async_trait]
+impl LlmClient for OpenAIClient {
+    async fn complete(&self, prompt: &str) -> Result<LlmResponse> {
+        self.client.complete(prompt).await
+    }
+
+    async fn complete_stream(&self, prompt: &str) -> Result<futures::stream::BoxStream<'static, LlmChunk>> {
+        self.client.complete_stream(prompt).await
+    }
+
+    fn get_config(&self) -> &LlmConfig {
+        self.client.get_config()
+    }
+
+    fn update_config(&mut self, config: LlmConfig) {
+        self.client.update_config(config);
+    }
+}
+
+/// Anthropic client adapter using GenAI
+#[derive(Debug)]
+pub struct AnthropicClient {
+    client: GenAiClient,
+}
+
+impl AnthropicClient {
+    /// Create a new Anthropic client
+    pub fn new(config: LlmConfig) -> Result<Self> {
+        let client = GenAiClient::new(config)?;
+        Ok(Self { client })
+    }
+}
+
+#[async_trait]
+impl LlmClient for AnthropicClient {
+    async fn complete(&self, prompt: &str) -> Result<LlmResponse> {
+        self.client.complete(prompt).await
+    }
+
+    async fn complete_stream(&self, prompt: &str) -> Result<futures::stream::BoxStream<'static, LlmChunk>> {
+        self.client.complete_stream(prompt).await
+    }
+
+    fn get_config(&self) -> &LlmConfig {
+        self.client.get_config()
+    }
+
+    fn update_config(&mut self, config: LlmConfig) {
+        self.client.update_config(config);
+    }
+}

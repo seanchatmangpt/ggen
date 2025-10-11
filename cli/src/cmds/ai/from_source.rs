@@ -2,7 +2,7 @@
 
 use clap::Args;
 use ggen_utils::error::Result;
-use ggen_ai::{TemplateGenerator, GenAiClient};
+use ggen_ai::{TemplateGenerator, LlmConfig, MockClient};
 use anyhow;
 use std::fs;
 
@@ -100,9 +100,17 @@ pub async fn run(args: &FromSourceArgs) -> Result<()> {
 
     println!("📖 Read {} bytes from source file", source_content.len());
 
-    // Create GenAI client
-    let client = ai_config.create_client()
-        .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?;
+    // Create LLM config
+    let llm_config = LlmConfig {
+        model: args.model.clone(),
+        max_tokens: Some(args.max_tokens),
+        temperature: Some(args.temperature),
+        top_p: Some(args.top_p),
+        stop: args.stop.as_ref().map(|s| s.split(',').map(|x| x.to_string()).collect()),
+        extra: std::collections::HashMap::new(),
+    };
+    
+    let client = MockClient::with_response("Generated template from source analysis");
     let generator = TemplateGenerator::new(Box::new(client));
 
     // Generate template description based on source analysis

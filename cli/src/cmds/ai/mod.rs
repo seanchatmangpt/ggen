@@ -59,3 +59,4 @@ pub async fn run(args: &AiArgs) -> Result<()> {
         AiCommand::FromSource(args) => from_source::run(args).await,
     }
 }
+

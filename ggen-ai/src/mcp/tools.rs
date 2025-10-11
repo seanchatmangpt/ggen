@@ -2,7 +2,8 @@
 
 use crate::error::{GgenAiError, Result};
 use crate::generators::{TemplateGenerator, SparqlGenerator, OntologyGenerator, RefactorAssistant};
-use crate::providers::{GenAiClient, MockClient};
+use crate::client::{LlmClient, LlmConfig};
+use crate::providers::adapter::{MockClient, OllamaClient, OpenAIClient, AnthropicClient};
 use ggen_core::Graph;
 use serde_json::Value;
 
@@ -27,51 +28,89 @@ impl AiMcpTools {
     }
     
     /// Initialize with OpenAI client
-    pub fn with_openai(mut self, api_key: String) -> Self {
-        use crate::config::OpenAIConfig;
-        let config = OpenAIConfig::new(api_key);
-        let client1 = Box::new(OpenAIClient::new(config.clone()).unwrap());
-        let client2 = Box::new(OpenAIClient::new(config.clone()).unwrap());
-        let client3 = Box::new(OpenAIClient::new(config.clone()).unwrap());
-        let client4 = Box::new(OpenAIClient::new(config).unwrap());
-        self.template_generator = Some(TemplateGenerator::new(client1));
-        self.sparql_generator = Some(SparqlGenerator::new(client2));
-        self.ontology_generator = Some(OntologyGenerator::new(client3));
-        self.refactor_assistant = Some(RefactorAssistant::new(client4));
+    pub fn with_openai(mut self, config: LlmConfig) -> Self {
+        use crate::providers::OpenAIClient;
+        
+        if let Ok(client) = OpenAIClient::new(config.clone()) {
+            self.template_generator = Some(TemplateGenerator::with_client(Box::new(client)));
+        }
+        
+        if let Ok(client) = OpenAIClient::new(config.clone()) {
+            self.sparql_generator = Some(SparqlGenerator::with_client(Box::new(client)));
+        }
+        
+        if let Ok(client) = OpenAIClient::new(config.clone()) {
+            self.ontology_generator = Some(OntologyGenerator::with_client(Box::new(client)));
+        }
+        
+        if let Ok(client) = OpenAIClient::new(config) {
+            self.refactor_assistant = Some(RefactorAssistant::with_client(Box::new(client)));
+        }
+        
         self
     }
     
     /// Initialize with Anthropic client
-    pub fn with_anthropic(mut self, api_key: String) -> Self {
-        let config = crate::config::AnthropicConfig::new(api_key);
-        let client1 = Box::new(AnthropicClient::new(config.clone()).expect("Failed to create Anthropic client"));
-        let client2 = Box::new(AnthropicClient::new(config.clone()).expect("Failed to create Anthropic client"));
-        let client3 = Box::new(AnthropicClient::new(config.clone()).expect("Failed to create Anthropic client"));
-        let client4 = Box::new(AnthropicClient::new(config).expect("Failed to create Anthropic client"));
-        self.template_generator = Some(TemplateGenerator::new(client1));
-        self.sparql_generator = Some(SparqlGenerator::new(client2));
-        self.ontology_generator = Some(OntologyGenerator::new(client3));
-        self.refactor_assistant = Some(RefactorAssistant::new(client4));
+    pub fn with_anthropic(mut self, config: LlmConfig) -> Self {
+        use crate::providers::AnthropicClient;
+        
+        if let Ok(client) = AnthropicClient::new(config.clone()) {
+            self.template_generator = Some(TemplateGenerator::with_client(Box::new(client)));
+        }
+        
+        if let Ok(client) = AnthropicClient::new(config.clone()) {
+            self.sparql_generator = Some(SparqlGenerator::with_client(Box::new(client)));
+        }
+        
+        if let Ok(client) = AnthropicClient::new(config.clone()) {
+            self.ontology_generator = Some(OntologyGenerator::with_client(Box::new(client)));
+        }
+        
+        if let Ok(client) = AnthropicClient::new(config) {
+            self.refactor_assistant = Some(RefactorAssistant::with_client(Box::new(client)));
+        }
+        
         self
     }
     
-    /// Initialize with Ollama client using qwen3-coder:30b model
+    /// Initialize with Ollama client
     pub fn with_ollama(mut self) -> Self {
-        let config = crate::config::OllamaConfig::new().with_default_model("qwen3-coder:30b");
-        let client1 = Box::new(OllamaClient::new(config.clone()).expect("Failed to create Ollama client"));
-        let client2 = Box::new(OllamaClient::new(config.clone()).expect("Failed to create Ollama client"));
-        let client3 = Box::new(OllamaClient::new(config.clone()).expect("Failed to create Ollama client"));
-        let client4 = Box::new(OllamaClient::new(config).expect("Failed to create Ollama client"));
-        self.template_generator = Some(TemplateGenerator::with_ollama_qwen3_coder(client1));
-        self.sparql_generator = Some(SparqlGenerator::with_ollama_qwen3_coder(client2));
-        self.ontology_generator = Some(OntologyGenerator::with_ollama_qwen3_coder(client3));
-        self.refactor_assistant = Some(RefactorAssistant::with_ollama_qwen3_coder(client4));
+        use crate::providers::OllamaClient;
+        
+        let config = OllamaClient::default_config();
+        if let Ok(client) = OllamaClient::new(config.clone()) {
+            self.template_generator = Some(TemplateGenerator::with_client(Box::new(client)));
+        }
+        
+        if let Ok(client) = OllamaClient::new(config.clone()) {
+            self.sparql_generator = Some(SparqlGenerator::with_client(Box::new(client)));
+        }
+        
+        if let Ok(client) = OllamaClient::new(config.clone()) {
+            self.ontology_generator = Some(OntologyGenerator::with_client(Box::new(client)));
+        }
+        
+        if let Ok(client) = OllamaClient::new(config) {
+            self.refactor_assistant = Some(RefactorAssistant::with_client(Box::new(client)));
+        }
+        
         self
     }
     
     /// Initialize with Ollama client and specific model
-    pub fn with_ollama_model(self, _model: &str) -> Self {
-        // Always use qwen3-coder:30b configuration regardless of model parameter
+    pub fn with_ollama_model(self, model: &str) -> Self {
+        use crate::client::LlmConfig;
+        use crate::providers::OllamaClient;
+        
+        let config = LlmConfig {
+            model: model.to_string(),
+            max_tokens: Some(2048),
+            temperature: Some(0.7),
+            top_p: Some(0.9),
+            stop: None,
+            extra: std::collections::HashMap::new(),
+        };
+        
         self.with_ollama()
     }
     
@@ -98,14 +137,18 @@ impl AiMcpTools {
     
     /// Initialize with mock client for testing
     pub fn with_mock(mut self) -> Self {
-        let client1 = Box::new(MockClient::new(vec!["Generated template content".to_string()]));
-        let client2 = Box::new(MockClient::new(vec![r#"{"query_type":"SELECT","variables":["?s"],"where_clause":[{"subject":"?s","predicate":"rdf:type","object":"ex:User"}],"filters":[],"order_by":[],"limit":null,"offset":null}"#.to_string()]));
-        let client3 = Box::new(MockClient::new(vec!["@prefix ex: <http://example.org/> . @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> . ex:User a rdfs:Class .".to_string()]));
-        let client4 = Box::new(MockClient::new(vec!["Refactoring suggestion".to_string()]));
-        self.template_generator = Some(TemplateGenerator::new(client1));
-        self.sparql_generator = Some(SparqlGenerator::new(client2));
-        self.ontology_generator = Some(OntologyGenerator::new(client3));
-        self.refactor_assistant = Some(RefactorAssistant::new(client4));
+        use crate::providers::MockClient;
+        
+        let client1 = Box::new(MockClient::with_response("Generated template content"));
+        let client2 = Box::new(MockClient::with_response(r#"{"query_type":"SELECT","variables":["?s","?p","?o"],"patterns":[{"subject":"?s","predicate":"?p","object":"?o"}]}"#));
+        let client3 = Box::new(MockClient::with_response("@prefix ex: <http://example.org/> . ex:Person a owl:Class ."));
+        let client4 = Box::new(MockClient::with_response("Refactoring suggestion"));
+        
+        self.template_generator = Some(TemplateGenerator::with_client(client1));
+        self.sparql_generator = Some(SparqlGenerator::with_client(client2));
+        self.ontology_generator = Some(OntologyGenerator::with_client(client3));
+        self.refactor_assistant = Some(RefactorAssistant::with_client(client4));
+        
         self
     }
     
@@ -126,13 +169,7 @@ impl AiMcpTools {
         let generator = self.template_generator.as_ref()
             .ok_or_else(|| GgenAiError::configuration("Template generator not initialized"))?;
         
-        let template = if let (Some(lang), Some(fw)) = (language, framework) {
-            generator.generate_rest_controller(description, lang, fw).await?
-        } else if let Some(lang) = language {
-            generator.generate_data_model(description, lang).await?
-        } else {
-            generator.generate_template(description, examples).await?
-        };
+        let template = generator.generate_template(description, examples).await?;
         
         Ok(serde_json::json!({
             "status": "success",
@@ -332,7 +369,9 @@ mod tests {
     
     #[tokio::test]
     async fn test_ai_mcp_tools_with_openai() {
-        let tools = AiMcpTools::new().with_openai("test-key".to_string());
+        use crate::client::LlmConfig;
+        let config = LlmConfig::default();
+        let tools = AiMcpTools::new().with_openai(config);
         assert!(tools.template_generator.is_some());
         assert!(tools.sparql_generator.is_some());
         assert!(tools.ontology_generator.is_some());
@@ -341,7 +380,9 @@ mod tests {
     
     #[tokio::test]
     async fn test_ai_generate_template() {
-        let tools = AiMcpTools::new().with_openai("test-key".to_string());
+        use crate::client::LlmConfig;
+        let config = LlmConfig::default();
+        let tools = AiMcpTools::new().with_openai(config);
         
         let params = serde_json::json!({
             "description": "User management system",

@@ -1,6 +1,6 @@
 ///! Template tools - delegates to ggen CLI commands
 
-use serde_json::{json, Value};
+use serde_json::Value;
 use crate::cli_helper::call_ggen_cli;
 use crate::error::{Result, get_string_param, get_optional_string_param, success_response};
 
@@ -12,11 +12,12 @@ pub async fn create(params: Value) -> Result<Value> {
     tracing::info!("Delegating to ggen template new: {}", name);
 
     let mut args = vec!["template", "new", &name];
-    let template_type_str;
+    let mut owned_args: Vec<String> = Vec::new();
+
     if let Some(tt) = template_type {
         args.push("--template-type");
-        template_type_str = tt;
-        args.push(&template_type_str);
+        owned_args.push(tt);
+        args.push(owned_args.last().unwrap());
     }
 
     let result = call_ggen_cli(&args).await?;
@@ -36,6 +37,7 @@ pub async fn validate(params: Value) -> Result<Value> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serde_json::json;
 
     #[tokio::test]
     async fn test_create_requires_name_and_content() {

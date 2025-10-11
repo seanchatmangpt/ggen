@@ -1,6 +1,6 @@
 //! Test helpers for ggen-ai integration tests
 
-use crate::{config::OllamaConfig, providers::OllamaClient, client::{LlmConfig, LlmClient}};
+use crate::{config::OllamaConfig, OllamaClient, client::{LlmConfig, LlmClient}};
 use std::time::Duration;
 use tokio::time::timeout;
 

@@ -3,6 +3,7 @@
 //! Provides comprehensive error handling for LLM provider interactions,
 //! configuration issues, validation failures, and generation operations.
 
+use crate::security::MaskApiKey;
 
 /// Errors that can occur in ggen-ai operations
 #[derive(Debug, thiserror::Error)]
@@ -22,6 +23,10 @@ pub enum GgenAiError {
     /// Generic LLM provider error
     #[error("LLM provider '{provider}' error: {message}")]
     LlmProvider { provider: String, message: String },
+
+    /// Configuration error
+    #[error("Configuration error: {message}")]
+    Config { message: String },
 
     /// Missing required environment variable
     #[error("Missing required environment variable: {0}. Set it with: export {0}=your_key")]
@@ -117,6 +122,10 @@ pub enum GgenAiError {
     /// Tera template errors
     #[error("Template error: {0}")]
     Tera(#[from] tera::Error),
+
+    /// Generic error from Box<dyn std::error::Error>
+    #[error("Generic error: {message}")]
+    Other { message: String },
 }
 
 /// Result type for ggen-ai operations
@@ -152,6 +161,11 @@ impl GgenAiError {
             provider: provider.into(),
             message: message.into(),
         }
+    }
+
+    /// Create a new configuration error
+    pub fn config_error(message: impl Into<String>) -> Self {
+        Self::Configuration(message.into())
     }
 
     /// Create a missing environment variable error
@@ -311,6 +325,14 @@ impl GgenAiError {
             ));
         }
         Ok(())
+    }
+}
+
+impl From<Box<dyn std::error::Error>> for GgenAiError {
+    fn from(err: Box<dyn std::error::Error>) -> Self {
+        GgenAiError::Other {
+            message: err.to_string(),
+        }
     }
 }
 

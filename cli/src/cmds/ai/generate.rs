@@ -2,10 +2,8 @@
 
 use clap::Args;
 use ggen_utils::error::Result;
-use ggen_ai::{TemplateGenerator};
-use ggen_ai::providers::{OllamaClient, OpenAIClient, AnthropicClient, MockClient};
+use ggen_ai::{TemplateGenerator, LlmConfig, client::GenAiClient, MockClient};
 use ggen_ai::client::LlmClient;
-use ggen_ai::config::{OllamaConfig, OpenAIConfig, AnthropicConfig};
 use std::fs;
 use anyhow;
 
@@ -23,18 +21,6 @@ pub struct GenerateArgs {
     #[arg(short, long)]
     pub output: Option<String>,
 
-    /// Use OpenAI client
-    #[arg(long)]
-    pub openai: bool,
-
-    /// Use Anthropic client
-    #[arg(long)]
-    pub anthropic: bool,
-
-    /// Use Ollama client
-    #[arg(long)]
-    pub ollama: bool,
-
     /// Enable iterative validation and improvement
     #[arg(long)]
     pub validate: bool,
@@ -42,29 +28,47 @@ pub struct GenerateArgs {
     /// Maximum iterations for validation
     #[arg(long, default_value = "3")]
     pub max_iterations: usize,
+
+    /// Use mock client for testing
+    #[arg(long)]
+    pub mock: bool,
+
+    /// LLM provider to use
+    #[arg(long, default_value = "mock")]
+    pub llm_provider: String,
+
+    /// Model name to use
+    #[arg(long)]
+    pub model: Option<String>,
+
+    /// Temperature for generation
+    #[arg(long)]
+    pub temperature: Option<f32>,
+
+    /// Maximum tokens to generate
+    #[arg(long)]
+    pub max_tokens: Option<u32>,
 }
 
 pub async fn run(args: &GenerateArgs) -> Result<()> {
     println!("Generating template with AI...");
-
+    
     // Initialize the AI client
-    let client: Box<dyn LlmClient> = if args.openai {
-        println!("Using OpenAI client");
-        Box::new(OpenAIClient::new(OpenAIConfig::new("dummy-key"))
-            .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?)
-    } else if args.anthropic {
-        println!("Using Anthropic client");
-        Box::new(AnthropicClient::new(AnthropicConfig::new("dummy-key"))
-            .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?)
-    } else if args.ollama {
-        println!("Using Ollama client");
-        let mut config = OllamaConfig::new();
-        config.default_model = Some("qwen3-coder:30b".to_string());
-        Box::new(OllamaClient::new(config)
-            .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?)
+    let client: Box<dyn LlmClient> = if args.mock || args.llm_provider == "mock" {
+        println!("Using mock client for testing");
+        Box::new(MockClient::with_response("Generated template content"))
     } else {
-        println!("Using mock client for demonstration");
-        Box::new(MockClient::new(vec!["Generated template content".to_string()]))
+        println!("Using GenAI client with provider: {}", args.llm_provider);
+        let llm_config = LlmConfig {
+            model: args.model.clone().unwrap_or_else(|| "gpt-3.5-turbo".to_string()),
+            max_tokens: args.max_tokens,
+            temperature: args.temperature,
+            top_p: Some(0.9),
+            stop: None,
+            extra: std::collections::HashMap::new(),
+        };
+        Box::new(GenAiClient::new(llm_config)
+            .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?)
     };
 
     let generator = TemplateGenerator::new(client);

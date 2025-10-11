@@ -1,6 +1,6 @@
 ///! Market tools - delegates to ggen CLI commands
 
-use serde_json::{json, Value};
+use serde_json::Value;
 use crate::cli_helper::call_ggen_cli;
 use crate::error::{Result, get_string_param, get_optional_string_param, get_optional_u64_param, get_bool_param, success_response};
 
@@ -12,18 +12,26 @@ pub async fn list(params: Value) -> Result<Value> {
     tracing::info!("Delegating to ggen market list");
 
     let mut args = vec!["market", "list"];
-    let category_str;
-    let tag_str;
+    let mut owned_args: Vec<String> = Vec::new();
 
-    if let Some(c) = category {
-        args.push("--category");
-        category_str = c;
-        args.push(&category_str);
+    if let Some(ref c) = category {
+        owned_args.push(c.clone());
     }
-    if let Some(t) = tag {
+    if let Some(ref t) = tag {
+        owned_args.push(t.clone());
+    }
+
+    let owned_refs: Vec<&str> = owned_args.iter().map(|s| s.as_str()).collect();
+    let mut ref_idx = 0;
+
+    if category.is_some() {
+        args.push("--category");
+        args.push(owned_refs[ref_idx]);
+        ref_idx += 1;
+    }
+    if tag.is_some() {
         args.push("--tag");
-        tag_str = t;
-        args.push(&tag_str);
+        args.push(owned_refs[ref_idx]);
     }
 
     let result = call_ggen_cli(&args).await?;
@@ -39,18 +47,26 @@ pub async fn search(params: Value) -> Result<Value> {
     tracing::info!("Delegating to ggen market search: {}", query);
 
     let mut args = vec!["market", "search", &query];
-    let category_str;
-    let limit_str;
+    let mut owned_args: Vec<String> = Vec::new();
 
-    if let Some(c) = category {
-        args.push("--category");
-        category_str = c;
-        args.push(&category_str);
+    if let Some(ref c) = category {
+        owned_args.push(c.clone());
     }
     if let Some(l) = limit {
+        owned_args.push(l.to_string());
+    }
+
+    let owned_refs: Vec<&str> = owned_args.iter().map(|s| s.as_str()).collect();
+    let mut ref_idx = 0;
+
+    if category.is_some() {
+        args.push("--category");
+        args.push(owned_refs[ref_idx]);
+        ref_idx += 1;
+    }
+    if limit.is_some() {
         args.push("--limit");
-        limit_str = l.to_string();
-        args.push(&limit_str);
+        args.push(owned_refs[ref_idx]);
     }
 
     let result = call_ggen_cli(&args).await?;
@@ -65,12 +81,17 @@ pub async fn install(params: Value) -> Result<Value> {
     tracing::info!("Delegating to ggen market add: {}", package);
 
     let mut args = vec!["market", "add", &package];
-    let version_str;
+    let mut owned_args: Vec<String> = Vec::new();
 
-    if let Some(v) = version {
+    if let Some(ref v) = version {
+        owned_args.push(v.clone());
+    }
+
+    let owned_refs: Vec<&str> = owned_args.iter().map(|s| s.as_str()).collect();
+
+    if version.is_some() {
         args.push("--version");
-        version_str = v;
-        args.push(&version_str);
+        args.push(owned_refs[0]);
     }
 
     let result = call_ggen_cli(&args).await?;
@@ -96,24 +117,34 @@ pub async fn recommend(params: Value) -> Result<Value> {
     tracing::info!("Delegating to ggen market recommend");
 
     let mut args = vec!["market", "recommend"];
-    let based_on_str;
-    let category_str;
-    let limit_str;
+    let mut owned_args: Vec<String> = Vec::new();
 
-    if let Some(b) = based_on {
-        args.push("--based-on");
-        based_on_str = b;
-        args.push(&based_on_str);
+    if let Some(ref b) = based_on {
+        owned_args.push(b.clone());
     }
-    if let Some(c) = category {
-        args.push("--category");
-        category_str = c;
-        args.push(&category_str);
+    if let Some(ref c) = category {
+        owned_args.push(c.clone());
     }
     if let Some(l) = limit {
+        owned_args.push(l.to_string());
+    }
+
+    let owned_refs: Vec<&str> = owned_args.iter().map(|s| s.as_str()).collect();
+    let mut ref_idx = 0;
+
+    if based_on.is_some() {
+        args.push("--based-on");
+        args.push(owned_refs[ref_idx]);
+        ref_idx += 1;
+    }
+    if category.is_some() {
+        args.push("--category");
+        args.push(owned_refs[ref_idx]);
+        ref_idx += 1;
+    }
+    if limit.is_some() {
         args.push("--limit");
-        limit_str = l.to_string();
-        args.push(&limit_str);
+        args.push(owned_refs[ref_idx]);
     }
 
     let result = call_ggen_cli(&args).await?;
@@ -129,18 +160,26 @@ pub async fn offline_search(params: Value) -> Result<Value> {
     tracing::info!("Delegating to ggen market offline: {}", query);
 
     let mut args = vec!["market", "offline", &query];
-    let category_str;
-    let limit_str;
+    let mut owned_args: Vec<String> = Vec::new();
 
-    if let Some(c) = category {
-        args.push("--category");
-        category_str = c;
-        args.push(&category_str);
+    if let Some(ref c) = category {
+        owned_args.push(c.clone());
     }
     if let Some(l) = limit {
+        owned_args.push(l.to_string());
+    }
+
+    let owned_refs: Vec<&str> = owned_args.iter().map(|s| s.as_str()).collect();
+    let mut ref_idx = 0;
+
+    if category.is_some() {
+        args.push("--category");
+        args.push(owned_refs[ref_idx]);
+        ref_idx += 1;
+    }
+    if limit.is_some() {
         args.push("--limit");
-        limit_str = l.to_string();
-        args.push(&limit_str);
+        args.push(owned_refs[ref_idx]);
     }
 
     let result = call_ggen_cli(&args).await?;
@@ -163,12 +202,17 @@ pub async fn sync(params: Value) -> Result<Value> {
     tracing::info!("Delegating to ggen market sync");
 
     let mut args = vec!["market", "sync"];
-    let category_str;
+    let mut owned_args: Vec<String> = Vec::new();
 
-    if let Some(c) = category {
+    if let Some(ref c) = category {
+        owned_args.push(c.clone());
+    }
+
+    let owned_refs: Vec<&str> = owned_args.iter().map(|s| s.as_str()).collect();
+
+    if category.is_some() {
         args.push("--category");
-        category_str = c;
-        args.push(&category_str);
+        args.push(owned_refs[0]);
     }
     if force {
         args.push("--force");
@@ -181,6 +225,7 @@ pub async fn sync(params: Value) -> Result<Value> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serde_json::json;
 
     #[tokio::test]
     async fn test_search_requires_query() {
