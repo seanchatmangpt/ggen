@@ -1,3 +1,22 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Multi-Tenant Architecture Generator](#multi-tenant-architecture-generator)
+  - [Context](#context)
+  - [Problem](#problem)
+  - [Forces](#forces)
+  - [Solution](#solution)
+  - [Implementation](#implementation)
+    - [Tenant-Aware Service Template](#tenant-aware-service-template)
+    - [Tenant Registry Template](#tenant-registry-template)
+  - [Usage](#usage)
+  - [Verification](#verification)
+  - [Benefits](#benefits)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Multi-Tenant Architecture Generator
 
 ## Context

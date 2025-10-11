@@ -2,7 +2,28 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
-- [Pattern 1 - Placeholder](#pattern-1---placeholder)
+- [Pattern 1: Single File Generator](#pattern-1-single-file-generator)
+  - [Intent](#intent)
+  - [Motivation](#motivation)
+  - [Applicability](#applicability)
+  - [Structure](#structure)
+  - [Implementation](#implementation)
+    - [1. Define the Output Location](#1-define-the-output-location)
+    - [2. Structure the Data](#2-structure-the-data)
+    - [3. Generate the Implementation](#3-generate-the-implementation)
+  - [Example: User Struct](#example-user-struct)
+    - [Input Data](#input-data)
+    - [Generated Output](#generated-output)
+  - [Example: Configuration File](#example-configuration-file)
+    - [Input Data](#input-data-1)
+    - [Generated Output](#generated-output-1)
+  - [Example: Utility Function](#example-utility-function)
+    - [Input Data](#input-data-2)
+    - [Generated Output](#generated-output-2)
+  - [Consequences](#consequences)
+    - [Benefits](#benefits)
+    - [Drawbacks](#drawbacks)
+  - [Related Patterns](#related-patterns)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 

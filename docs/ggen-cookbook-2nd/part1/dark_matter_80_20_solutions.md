@@ -1,3 +1,40 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Chapter 3: Dark Matter Solutions—The 80/20 Revolution](#chapter-3-dark-matter-solutionsthe-8020-revolution)
+  - [The 80/20 Principle Applied to Software Dark Matter](#the-8020-principle-applied-to-software-dark-matter)
+  - [Category 1: Synchronization Work (80% → 20%)](#category-1-synchronization-work-80-%E2%86%92-20)
+    - [The Type Treadmill Problem](#the-type-treadmill-problem)
+    - [GGen's 80/20 Solution: Single Source of Truth](#ggens-8020-solution-single-source-of-truth)
+  - [Category 2: Boilerplate Ritual (80% → 15%)](#category-2-boilerplate-ritual-80-%E2%86%92-15)
+    - [CRUD Multiplication Problem](#crud-multiplication-problem)
+  - [Category 3: Migration Gymnastics (80% → 10%)](#category-3-migration-gymnastics-80-%E2%86%92-10)
+    - [Schema Evolution Dance Problem](#schema-evolution-dance-problem)
+  - [Category 4: Test Maintenance (80% → 25%)](#category-4-test-maintenance-80-%E2%86%92-25)
+    - [The Test Mirror Problem](#the-test-mirror-problem)
+  - [The Compounding 80/20 Effect](#the-compounding-8020-effect)
+    - [Traditional Development (Dark Matter Compounds)](#traditional-development-dark-matter-compounds)
+    - [GGen Development (Value Compounds)](#ggen-development-value-compounds)
+  - [Measuring GGen's 80/20 Impact](#measuring-ggens-8020-impact)
+    - [Quantitative Metrics](#quantitative-metrics)
+    - [Qualitative Benefits](#qualitative-benefits)
+  - [The Knowledge-First 80/20 Inversion](#the-knowledge-first-8020-inversion)
+    - [Traditional Software Development](#traditional-software-development)
+    - [GGen-Powered Software Development](#ggen-powered-software-development)
+  - [Implementing the 80/20 Solution](#implementing-the-8020-solution)
+    - [Step 1: Identify Your Dark Matter (Audit Phase)](#step-1-identify-your-dark-matter-audit-phase)
+    - [Step 2: Model the 20% (Knowledge Phase)](#step-2-model-the-20-knowledge-phase)
+    - [Step 3: Generate the 80% (Projection Phase)](#step-3-generate-the-80-projection-phase)
+    - [Step 4: Evolve with Confidence (Delta Phase)](#step-4-evolve-with-confidence-delta-phase)
+  - [The 80/20 Pattern Language](#the-8020-pattern-language)
+    - [Pattern 1: Knowledge-First Projection](#pattern-1-knowledge-first-projection)
+    - [Pattern 2: Deterministic Engine](#pattern-2-deterministic-engine)
+    - [Pattern 3: Delta-Driven Regeneration](#pattern-3-delta-driven-regeneration)
+  - [Conclusion: The 80/20 Revolution](#conclusion-the-8020-revolution)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Chapter 3: Dark Matter Solutions—The 80/20 Revolution
 
 ## The 80/20 Principle Applied to Software Dark Matter

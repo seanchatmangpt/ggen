@@ -2,7 +2,27 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
-- [Chapter 6 - Core Patterns](#chapter-6---core-patterns)
+- [Core Patterns](#core-patterns)
+  - [Pattern 1: Single File Generator](#pattern-1-single-file-generator)
+    - [Problem](#problem)
+    - [Solution](#solution)
+    - [Use Cases](#use-cases)
+  - [Pattern 2: Multi-File Project](#pattern-2-multi-file-project)
+    - [Problem](#problem-1)
+    - [Solution](#solution-1)
+    - [Use Cases](#use-cases-1)
+  - [Pattern 3: Conditional Generation](#pattern-3-conditional-generation)
+    - [Problem](#problem-2)
+    - [Solution](#solution-2)
+    - [Use Cases](#use-cases-2)
+  - [Pattern 4: Template Inheritance](#pattern-4-template-inheritance)
+    - [Problem](#problem-3)
+    - [Solution](#solution-3)
+    - [Use Cases](#use-cases-3)
+  - [Pattern 5: Dynamic Variables](#pattern-5-dynamic-variables)
+    - [Problem](#problem-4)
+    - [Solution](#solution-4)
+    - [Use Cases](#use-cases-4)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
