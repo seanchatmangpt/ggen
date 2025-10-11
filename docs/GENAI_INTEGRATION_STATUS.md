@@ -1,3 +1,48 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [genai + Ollama Integration Status](#genai--ollama-integration-status)
+  - [🎯 Executive Summary](#-executive-summary)
+  - [✅ Completed Work](#-completed-work)
+    - [1. Dependency Updates](#1-dependency-updates)
+    - [2. Working Examples Created](#2-working-examples-created)
+      - [`/Users/sac/ggen/examples/genai_ollama_loop.rs`](#userssacggenexamplesgenai_ollama_looprs)
+      - [`/Users/sac/ggen/examples/genai_ollama_stream.rs`](#userssacggenexamplesgenai_ollama_streamrs)
+      - [`/Users/sac/ggen/examples/genai_multi_provider_compare.rs`](#userssacggenexamplesgenai_multi_provider_comparers)
+    - [3. Documentation Created](#3-documentation-created)
+      - [`/Users/sac/ggen/docs/GENAI_OLLAMA_INTEGRATION.md` (521 lines)](#userssacggendocsgenai_ollama_integrationmd-521-lines)
+      - [`/Users/sac/ggen/docs/GENAI_GGEN_INTEGRATION_PLAN.md` (New)](#userssacggendocsgenai_ggen_integration_planmd-new)
+      - [Updated: `/Users/sac/ggen/docs/GENAI_OLLAMA_INTEGRATION.md`](#updated-userssacggendocsgenai_ollama_integrationmd)
+    - [4. Code Patterns Established](#4-code-patterns-established)
+  - [🔧 Known Blockers](#-known-blockers)
+    - [ggen-ai Compilation Errors](#ggen-ai-compilation-errors)
+  - [🎯 What Works NOW](#-what-works-now)
+    - [Standalone Examples (No ggen-ai dependency)](#standalone-examples-no-ggen-ai-dependency)
+    - [Prerequisites](#prerequisites)
+    - [Use Cases Ready](#use-cases-ready)
+  - [🚧 What's Blocked (Until ggen-ai Compiles)](#-whats-blocked-until-ggen-ai-compiles)
+    - [Waiting on ggen-ai Fix](#waiting-on-ggen-ai-fix)
+    - [Future Integration Points](#future-integration-points)
+  - [📊 Integration Benefits](#-integration-benefits)
+    - [Achieved](#achieved)
+    - [Pending (After ggen-ai Fix)](#pending-after-ggen-ai-fix)
+  - [🎓 Key Learnings](#-key-learnings)
+    - [genai Library Strengths](#genai-library-strengths)
+    - [Integration Patterns](#integration-patterns)
+    - [Best Practices](#best-practices)
+  - [📋 Next Actions](#-next-actions)
+    - [Immediate (User Can Do Now)](#immediate-user-can-do-now)
+    - [Core Team (After ggen-ai Fix)](#core-team-after-ggen-ai-fix)
+    - [Long Term](#long-term)
+  - [📚 References](#-references)
+    - [Documentation](#documentation)
+    - [Examples](#examples)
+    - [External Links](#external-links)
+  - [✨ Summary](#-summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # genai + Ollama Integration Status
 
 **Date:** 2025-10-10

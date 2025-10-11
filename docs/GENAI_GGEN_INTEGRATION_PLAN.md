@@ -1,3 +1,36 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [genai + ggen Integration Plan](#genai--ggen-integration-plan)
+  - [Overview](#overview)
+  - [Current Status](#current-status)
+    - [✅ Completed](#-completed)
+    - [🔧 Blocked](#-blocked)
+  - [Integration Architecture](#integration-architecture)
+    - [Pattern 1: genai as LlmClient Adapter](#pattern-1-genai-as-llmclient-adapter)
+    - [Pattern 2: Direct genai Usage in SPARQL Generator](#pattern-2-direct-genai-usage-in-sparql-generator)
+    - [Pattern 3: MCP Server Integration](#pattern-3-mcp-server-integration)
+  - [Benefits of Integration](#benefits-of-integration)
+    - [1. Multi-Provider Support](#1-multi-provider-support)
+    - [2. Enhanced Features](#2-enhanced-features)
+    - [3. Ecosystem Compatibility](#3-ecosystem-compatibility)
+  - [Testing Plan](#testing-plan)
+    - [Test 1: Standalone genai Examples](#test-1-standalone-genai-examples)
+    - [Test 2: SPARQL Generation with genai](#test-2-sparql-generation-with-genai)
+    - [Test 3: MCP Server with genai](#test-3-mcp-server-with-genai)
+  - [Next Steps](#next-steps)
+    - [Immediate (When ggen-ai Compiles)](#immediate-when-ggen-ai-compiles)
+    - [Short Term (1-2 weeks)](#short-term-1-2-weeks)
+    - [Long Term (1-2 months)](#long-term-1-2-months)
+  - [Code Examples](#code-examples)
+    - [Example 1: SPARQL Generation (Future)](#example-1-sparql-generation-future)
+    - [Example 2: Streaming SPARQL (Future)](#example-2-streaming-sparql-future)
+  - [Configuration](#configuration)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # genai + ggen Integration Plan
 
 ## Overview

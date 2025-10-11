@@ -1,3 +1,55 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Ollama qwen3-coder:30b Integration with genai](#ollama-qwen3-coder30b-integration-with-genai)
+  - [🎯 Overview](#-overview)
+  - [📋 Prerequisites](#-prerequisites)
+    - [1. Install Ollama](#1-install-ollama)
+    - [2. Pull qwen3-coder:30b](#2-pull-qwen3-coder30b)
+    - [3. Start Ollama Server](#3-start-ollama-server)
+    - [4. Add genai to Your Project](#4-add-genai-to-your-project)
+  - [🚀 Quick Start](#-quick-start)
+    - [Basic Loop Example](#basic-loop-example)
+  - [📚 Examples](#-examples)
+    - [1. Interactive Loop (examples/genai_ollama_loop.rs)](#1-interactive-loop-examplesgenai_ollama_looprs)
+    - [2. Streaming Responses (examples/genai_ollama_stream.rs)](#2-streaming-responses-examplesgenai_ollama_streamrs)
+    - [3. Multi-Provider Comparison (examples/genai_multi_provider_compare.rs)](#3-multi-provider-comparison-examplesgenai_multi_provider_comparers)
+  - [🔧 Configuration Options](#-configuration-options)
+    - [Chat Options](#chat-options)
+    - [System Prompts](#system-prompts)
+    - [Model Selection](#model-selection)
+  - [🎨 Use Cases](#-use-cases)
+    - [1. Code Generation](#1-code-generation)
+    - [2. Code Review](#2-code-review)
+    - [3. Documentation Generation](#3-documentation-generation)
+    - [4. Bug Fixing](#4-bug-fixing)
+    - [5. Architecture Design](#5-architecture-design)
+  - [🔄 Conversation Management](#-conversation-management)
+    - [Basic Conversation](#basic-conversation)
+    - [Context Window Management](#context-window-management)
+    - [Conversation Branching](#conversation-branching)
+  - [📊 Token Usage and Monitoring](#-token-usage-and-monitoring)
+    - [Track Token Usage](#track-token-usage)
+    - [Cost Estimation (for cloud providers)](#cost-estimation-for-cloud-providers)
+  - [🚨 Error Handling](#-error-handling)
+    - [Comprehensive Error Handling](#comprehensive-error-handling)
+    - [Retry Logic](#retry-logic)
+  - [🔐 Multi-Provider Support](#-multi-provider-support)
+    - [Dynamic Provider Selection](#dynamic-provider-selection)
+  - [📝 Best Practices](#-best-practices)
+    - [1. Model Selection](#1-model-selection)
+    - [2. Temperature Settings](#2-temperature-settings)
+    - [3. Token Limits](#3-token-limits)
+    - [4. System Prompts](#4-system-prompts)
+  - [🔗 Integration with ggen](#-integration-with-ggen)
+    - [Current Status](#current-status)
+    - [Use with Minimal MCP Server (Works Now)](#use-with-minimal-mcp-server-works-now)
+    - [Future: SPARQL Generator with genai (After ggen-ai Fix)](#future-sparql-generator-with-genai-after-ggen-ai-fix)
+  - [🎯 Next Steps](#-next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Ollama qwen3-coder:30b Integration with genai
 
 Complete guide for using Ollama's qwen3-coder:30b model with the genai library in the ggen ecosystem.
