@@ -1247,7 +1247,9 @@ tracing = { version = "0.1", features = [
 ] }
 
 [dev-dependencies]
-tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+tracing-subscriber = { version = "0.3", features = [
+  "env-filter",
+] }
 ```
 
 **Usage**: Built-in observability for debugging provider interactions.

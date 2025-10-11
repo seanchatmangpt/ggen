@@ -3,7 +3,7 @@
 **Table of Contents**
 
 - [Quickstart](#quickstart)
-  - [AI-Powered Generation (NEW)](#ai-powered-generation-new)
+  - [AI-Powered Generation](#ai-powered-generation)
     - [1. Generate Templates with AI](#1-generate-templates-with-ai)
     - [2. Generate SPARQL Queries with AI](#2-generate-sparql-queries-with-ai)
     - [3. Generate RDF Graphs with AI](#3-generate-rdf-graphs-with-ai)
@@ -27,7 +27,7 @@
 
 # Quickstart
 
-## AI-Powered Generation (NEW)
+## AI-Powered Generation
 
 **ggen-ai v1.0.0** introduces intelligent code generation using advanced LLMs with multi-provider support.
 
@@ -93,8 +93,8 @@ ggen search rust cli
 
 # Output:
 # ID                                    LATEST     KIND       TAGS
-# io.ggen.rust.cli-subcommand           0.2.1      template   rust, cli, clap
-# io.ggen.rust.api-endpoint             0.1.5      template   rust, api, axum
+# io.ggen.rust.cli-subcommand           1.0.0      template   rust, cli, clap
+# io.ggen.rust.api-endpoint             1.0.0      template   rust, api, axum
 ```
 
 ### 2. Install an Gpack
@@ -104,7 +104,7 @@ ggen search rust cli
 ggen add io.ggen.rust.cli-subcommand
 
 # Or install specific version
-ggen add io.ggen.rust.cli-subcommand@0.2.0
+ggen add io.ggen.rust.cli-subcommand@1.0.0
 ```
 
 ### 3. Generate Code

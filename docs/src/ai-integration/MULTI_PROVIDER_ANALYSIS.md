@@ -843,7 +843,7 @@ The following methods will be **deprecated** (with warnings):
 
 ```rust
 // DEPRECATED - Will be removed in v1.1.0
-#[deprecated(since = "0.2.5", note = "Use `new()` instead - provider is determined by client configuration")]
+#[deprecated(since = "1.0.0", note = "Use `new()` instead - provider is determined by client configuration")]
 pub fn with_ollama_qwen3_coder(client: Arc<dyn LlmClient>) -> Self {
     Self::new(client)
 }
