@@ -33,7 +33,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::RwLock;
 use uuid::Uuid;
-use chrono::Utc;
+use chrono::{DateTime, Utc};
 
 /// Configuration entry
 #[derive(Debug, Clone, Serialize, Deserialize)]

@@ -61,9 +61,8 @@ pub use workflow::{ApprovalWorkflow, ApprovalRequest, ApprovalStatus, Approver};
 pub use types::{GovernanceConfig, Decision, DecisionOutcome};
 pub use error::{GovernanceError, Result};
 
-use chrono::{DateTime, Utc};
+use chrono::Utc;
 use std::sync::Arc;
-use tokio::sync::RwLock;
 
 /// Main governance coordinator that orchestrates all governance components
 pub struct GovernanceCoordinator {

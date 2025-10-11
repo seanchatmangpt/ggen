@@ -28,7 +28,7 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 use tempfile::TempDir;
 use uuid::Uuid;
-use chrono::Utc;
+use chrono::{DateTime, Utc};
 
 /// Test execution result
 #[derive(Debug, Clone, Serialize, Deserialize)]

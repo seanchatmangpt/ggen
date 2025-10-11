@@ -4,7 +4,6 @@
 //! and triggers regeneration pipelines.
 
 use crate::error::{GgenAiError, Result};
-use oxigraph::model::{GraphNameRef, Quad, Term};
 use oxigraph::store::Store;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};

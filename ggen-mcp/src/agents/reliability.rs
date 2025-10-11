@@ -34,8 +34,8 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::time::{Duration, Instant};
 use uuid::Uuid;
-use chrono::Utc;
 use rand::Rng;
+use chrono::{DateTime, Utc};
 
 /// Error classification
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
