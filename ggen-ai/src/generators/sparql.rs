@@ -29,14 +29,9 @@ impl SparqlGenerator {
     pub fn with_client(client: Arc<dyn LlmClient>) -> Self {
         Self { client }
     }
-    
-    /// Create a new SPARQL generator optimized for Ollama qwen3-coder:30b
-    pub fn with_ollama_qwen3_coder(client: Arc<dyn LlmClient>) -> Self {
-        Self { client }
-    }
 
     /// Generate a SPARQL query from a natural language description
-    pub async fn generate_query(&self, graph: &Graph, intent: &str) -> Result<String> {
+    pub async fn generate_query(&self, _graph: &Graph, intent: &str) -> Result<String> {
         // Build prompt with graph schema and intent
         let prompt = SparqlPromptBuilder::new(intent.to_string())
             .with_schema("Graph schema not available".to_string())
@@ -68,7 +63,7 @@ impl SparqlGenerator {
     }
 
     /// Get the LLM client
-    pub fn client(&self) -> &dyn LlmClient {
+    pub fn client(&self) -> &Arc<dyn LlmClient> {
         &self.client
     }
 

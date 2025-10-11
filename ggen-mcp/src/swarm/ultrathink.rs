@@ -15,9 +15,8 @@ use tokio::sync::{mpsc, broadcast};
 use uuid::Uuid;
 
 use crate::error::{McpError, Result};
-use crate::agents::{Agent, AgentCapability, AgentType, AgentStatus};
-use crate::swarm::{SwarmConfig, SwarmMetrics, SwarmEvent};
-use super::coordinator::{SwarmCoordinator, CoordinationStrategy};
+use crate::agents::{AgentInfo, AgentCapability, AgentType, AgentStatus};
+use crate::swarm::{SwarmConfig, SwarmMetrics, SwarmEvent, CoordinationStrategy};
 
 /// Ultrathink Swarm Configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]

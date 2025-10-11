@@ -1,6 +1,6 @@
 [package]
 name = "ggen-ai"
-version = "0.2.4"
+version = "0.2.5"
 edition = "2021"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "AI-powered code generation capabilities for ggen - LLM integration for intelligent template generation and graph operations"
@@ -8,8 +8,8 @@ license = "MIT"
 
 [dependencies]
 # Core ggen dependencies
-ggen-core = { path = "../ggen-core", version = "0.2.4" }
-ggen-utils = { path = "../utils", version = "0.2.4" }
+ggen-core = { path = "../ggen-core", version = "0.2.5" }
+ggen-utils = { path = "../utils", version = "0.2.5" }
 
 # HTTP client and async runtime
 reqwest = { version = "0.12", features = ["json", "stream"] }
@@ -43,7 +43,7 @@ chrono = { version = "0.4", features = ["serde"] }
 tokio-tungstenite = "0.21"
 
 # UUID generation
-uuid = { version = "1", features = ["v4"] }
+uuid = { version = "1", features = ["v4", "serde"] }
 
 # Template engine (for prompt templating)
 tera = "1"

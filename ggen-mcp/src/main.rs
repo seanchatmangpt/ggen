@@ -24,7 +24,7 @@ async fn main() -> Result<()> {
     tracing::info!("Log level: {}", log_level);
 
     // Create server instance and start stdio transport
-    let server = GgenMcpServer::new();
+    let server = GgenMcpServer::new().await?;
 
     tracing::info!("GGen MCP Server initialized");
     tracing::info!("Serving on stdio transport (MCP protocol)");

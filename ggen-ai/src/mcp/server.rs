@@ -127,8 +127,11 @@ impl GgenAiMcpServer {
     
     /// Initialize with OpenAI client
     pub fn with_openai(mut self, _api_key: String) -> Self {
-        let _config = LlmConfig {
-            model: "gpt-3.5-turbo".to_string(),
+        let config = LlmConfig {
+            model: std::env::var("OPENAI_MODEL")
+                .or_else(|_| std::env::var("GGEN_DEFAULT_MODEL"))
+                .or_else(|_| std::env::var("DEFAULT_MODEL"))
+                .unwrap_or_else(|_| "qwen3-coder:30b".to_string()),
             max_tokens: Some(4096),
             temperature: Some(0.7),
             top_p: Some(0.9),
@@ -141,8 +144,11 @@ impl GgenAiMcpServer {
     
     /// Initialize with Anthropic client
     pub fn with_anthropic(mut self, _api_key: String) -> Self {
-        let _config = LlmConfig {
-            model: "claude-3-sonnet-20240229".to_string(),
+        let config = LlmConfig {
+            model: std::env::var("ANTHROPIC_MODEL")
+                .or_else(|_| std::env::var("GGEN_DEFAULT_MODEL"))
+                .or_else(|_| std::env::var("DEFAULT_MODEL"))
+                .unwrap_or_else(|_| "qwen3-coder:30b".to_string()),
             max_tokens: Some(4096),
             temperature: Some(0.7),
             top_p: Some(0.9),
@@ -155,8 +161,11 @@ impl GgenAiMcpServer {
     
     /// Initialize with Ollama client
     pub fn with_ollama(mut self) -> Self {
-        let _config = LlmConfig {
-            model: "qwen3-coder:30b".to_string(),
+        let config = LlmConfig {
+            model: std::env::var("OLLAMA_MODEL")
+                .or_else(|_| std::env::var("GGEN_DEFAULT_MODEL"))
+                .or_else(|_| std::env::var("DEFAULT_MODEL"))
+                .unwrap_or_else(|_| "qwen3-coder:30b".to_string()),
             max_tokens: Some(4096),
             temperature: Some(0.7),
             top_p: Some(0.9),

@@ -1,0 +1,326 @@
+{
+  "analysis_timestamp": "2025-10-11T03:52:30Z",
+  "crate": "ggen-mcp",
+  "version": "0.2.4",
+  "summary": {
+    "total_errors": 23,
+    "critical_issues": 8,
+    "estimated_fix_time": "45-60 minutes",
+    "confidence": "high"
+  },
+  "error_categories": {
+    "imports": [
+      {
+        "file": "ggen-mcp/src/swarm/ultrathink.rs",
+        "line": 18,
+        "error": "unresolved import `crate::agents`",
+        "missing": "Agent, AgentCapability, AgentType, AgentStatus",
+        "reason": "AgentType and AgentCapability exist in agents/mod.rs but not exported properly",
+        "fix": "Add AgentType and AgentCapability exports to agents/mod.rs"
+      },
+      {
+        "file": "ggen-mcp/src/swarm/mod.rs",
+        "line": 21,
+        "error": "unresolved import `crate::agents`",
+        "missing": "Agent, AgentCapability, AgentType, AgentStatus",
+        "reason": "Same as above - missing type exports",
+        "fix": "Add missing exports to agents/mod.rs"
+      },
+      {
+        "file": "ggen-mcp/src/swarm/ultrathink.rs",
+        "line": 17,
+        "error": "unresolved import `crate::error::McpError`",
+        "missing": "McpError",
+        "reason": "McpError type alias was added but may have sync issues",
+        "fix": "Already fixed - McpError type alias exists in error.rs"
+      },
+      {
+        "file": "ggen-mcp/src/tools/ai.rs",
+        "line": 7,
+        "error": "unresolved import `ggen_ai::GenAiClient`",
+        "missing": "GenAiClient",
+        "reason": "ggen-ai does not export GenAiClient - should use LlmClient trait",
+        "fix": "Replace GenAiClient with LlmClient and Box<dyn LlmClient>"
+      },
+      {
+        "file": "ggen-mcp/src/swarm/wip_integration.rs",
+        "line": 16,
+        "error": "unresolved import `tokio_tungstenite`",
+        "missing": "tokio_tungstenite",
+        "reason": "Dependency added to Cargo.toml but may need rebuild",
+        "fix": "Already added to Cargo.toml - needs cargo clean"
+      },
+      {
+        "file": "ggen-mcp/src/swarm/wip_integration.rs",
+        "line": 17,
+        "error": "unresolved import `futures_util`",
+        "missing": "futures_util",
+        "reason": "Dependency added to Cargo.toml but may need rebuild",
+        "fix": "Already added to Cargo.toml - needs cargo clean"
+      }
+    ],
+    "modules": [
+      {
+        "file": "ggen-mcp/src/swarm/ultrathink.rs",
+        "line": 20,
+        "error": "unresolved import `super::coordinator`",
+        "missing": "coordinator module in swarm/",
+        "reason": "swarm/coordinator.rs does not exist",
+        "fix": "Create swarm/coordinator.rs or remove import"
+      },
+      {
+        "file": "ggen-mcp/src/swarm/mod.rs",
+        "line": 388,
+        "error": "use of unresolved module `ultrathink`",
+        "missing": "ultrathink module reference issue",
+        "reason": "Module path conflict or visibility issue",
+        "fix": "Use crate::swarm::ultrathink instead of super::ultrathink"
+      },
+      {
+        "file": "ggen-mcp/src/swarm/mod.rs",
+        "line": 389,
+        "error": "unresolved import `super::wip_integration`",
+        "missing": "wip_integration types",
+        "reason": "Module path issue or missing exports",
+        "fix": "Use crate::swarm::wip_integration instead of super::"
+      }
+    ],
+    "types": [
+      {
+        "file": "ggen-mcp/src/agents/mod.rs",
+        "missing": "AgentType enum definition",
+        "status": "EXISTS_LINE_43",
+        "fix": "Add to public exports"
+      },
+      {
+        "file": "ggen-mcp/src/agents/mod.rs",
+        "missing": "AgentCapability enum definition",
+        "status": "EXISTS_LINE_63",
+        "fix": "Add to public exports"
+      },
+      {
+        "file": "ggen-mcp/src/swarm/mod.rs",
+        "line": 193,
+        "error": "cannot find type `VecDeque`",
+        "missing": "VecDeque import",
+        "reason": "Missing import from std::collections",
+        "fix": "Already added to imports (line 13)"
+      },
+      {
+        "file": "ggen-mcp/src/swarm/mod.rs",
+        "line": 423,
+        "error": "cannot find type `UltrathinkSwarm`",
+        "missing": "UltrathinkSwarm type",
+        "reason": "ultrathink module visibility or import issue",
+        "fix": "Ensure ultrathink::UltrathinkSwarm is public"
+      },
+      {
+        "file": "ggen-mcp/src/swarm/mod.rs",
+        "line": 430,
+        "error": "cannot find type `WipIntegrationManager`",
+        "missing": "WipIntegrationManager type",
+        "reason": "wip_integration module visibility issue",
+        "fix": "Ensure wip_integration::WipIntegrationManager is public"
+      }
+    ],
+    "structure": [
+      {
+        "file": "ggen-mcp/src/swarm/mod.rs",
+        "line": 299,
+        "error": "could not find `agents` in the crate root",
+        "reason": "Incorrect use of crate::agents::Agent",
+        "fix": "Module exists but Agent struct may not be properly defined"
+      },
+      {
+        "file": "ggen-mcp/src/server.rs",
+        "line": 542,
+        "error": "Default trait calls async new()",
+        "reason": "impl Default for GgenMcpServer calls async fn new()",
+        "fix": "Remove Default impl or make it blocking"
+      }
+    ],
+    "crates": [
+      {
+        "name": "reqwest",
+        "status": "ADDED_TO_CARGO_TOML",
+        "usage": "swarm/ultrathink.rs:959, :951",
+        "fix": "Run cargo clean && cargo build"
+      },
+      {
+        "name": "tokio_tungstenite",
+        "status": "ADDED_TO_CARGO_TOML",
+        "usage": "swarm/wip_integration.rs:16, :263",
+        "fix": "Run cargo clean && cargo build"
+      },
+      {
+        "name": "futures_util",
+        "status": "ADDED_TO_CARGO_TOML",
+        "usage": "swarm/wip_integration.rs:17",
+        "fix": "Run cargo clean && cargo build"
+      }
+    ]
+  },
+  "dependencies_needed": [
+    {
+      "crate": "tokio-tungstenite",
+      "version": "0.23",
+      "features": [],
+      "status": "ADDED",
+      "line_in_cargo": 31
+    },
+    {
+      "crate": "futures-util",
+      "version": "0.3",
+      "features": [],
+      "status": "ADDED",
+      "line_in_cargo": 32
+    },
+    {
+      "crate": "reqwest",
+      "version": "0.12",
+      "features": ["json", "rustls-tls"],
+      "status": "ADDED",
+      "line_in_cargo": 33
+    }
+  ],
+  "fix_priority": [
+    {
+      "priority": 1,
+      "category": "CRITICAL",
+      "task": "Fix agents/mod.rs exports",
+      "actions": [
+        "Add AgentType and AgentCapability to public exports in agents/mod.rs",
+        "Verify Agent trait and struct are properly exposed"
+      ],
+      "files": ["ggen-mcp/src/agents/mod.rs"],
+      "estimated_time": "5 minutes"
+    },
+    {
+      "priority": 2,
+      "category": "CRITICAL",
+      "task": "Fix ggen-ai imports in tools/ai.rs",
+      "actions": [
+        "Replace GenAiClient with Box<dyn LlmClient>",
+        "Update all AI client initialization code",
+        "Verify ggen-ai exports LlmClient trait"
+      ],
+      "files": ["ggen-mcp/src/tools/ai.rs"],
+      "estimated_time": "10 minutes"
+    },
+    {
+      "priority": 3,
+      "category": "CRITICAL",
+      "task": "Fix swarm module structure",
+      "actions": [
+        "Create swarm/coordinator.rs or remove ultrathink.rs dependency on it",
+        "Fix module path imports in swarm/mod.rs (use crate::swarm:: not super::)",
+        "Ensure ultrathink and wip_integration modules export required types"
+      ],
+      "files": [
+        "ggen-mcp/src/swarm/mod.rs",
+        "ggen-mcp/src/swarm/ultrathink.rs",
+        "ggen-mcp/src/swarm/coordinator.rs"
+      ],
+      "estimated_time": "15 minutes"
+    },
+    {
+      "priority": 4,
+      "category": "HIGH",
+      "task": "Fix GgenMcpServer Default impl",
+      "actions": [
+        "Remove impl Default for GgenMcpServer from server.rs:542",
+        "Update main.rs to handle async new() properly (already done)"
+      ],
+      "files": ["ggen-mcp/src/server.rs", "ggen-mcp/src/main.rs"],
+      "estimated_time": "5 minutes"
+    },
+    {
+      "priority": 5,
+      "category": "MEDIUM",
+      "task": "Clean build and verify dependencies",
+      "actions": [
+        "Run: cargo clean",
+        "Run: cargo update",
+        "Run: cargo build",
+        "Verify tokio-tungstenite, futures-util, reqwest are properly resolved"
+      ],
+      "files": [],
+      "estimated_time": "10 minutes"
+    }
+  ],
+  "detailed_fixes": {
+    "agents_mod_rs": {
+      "file": "ggen-mcp/src/agents/mod.rs",
+      "current_exports": [
+        "AgentId",
+        "AgentStatus",
+        "AgentConfig",
+        "AgentRole",
+        "Agent (trait)",
+        "AgentMessage",
+        "TaskDefinition",
+        "TaskType",
+        "TaskPriority",
+        "All agent implementations"
+      ],
+      "missing_exports": [
+        "AgentType (exists at line 43)",
+        "AgentCapability (exists at line 63)"
+      ],
+      "fix": "Add at end of file:\npub use AgentType;\npub use AgentCapability;"
+    },
+    "tools_ai_rs": {
+      "file": "ggen-mcp/src/tools/ai.rs",
+      "problem": "GenAiClient does not exist in ggen-ai",
+      "available_in_ggen_ai": [
+        "LlmClient (trait)",
+        "LlmConfig",
+        "LlmResponse",
+        "LlmChunk",
+        "MockClient",
+        "OllamaClient",
+        "OpenAIClient",
+        "AnthropicClient",
+        "TemplateGenerator",
+        "SparqlGenerator",
+        "OntologyGenerator"
+      ],
+      "fix": "Replace 'GenAiClient' with 'Box<dyn LlmClient>' throughout the file"
+    },
+    "swarm_coordinator": {
+      "file": "ggen-mcp/src/swarm/ultrathink.rs:20",
+      "problem": "Imports SwarmCoordinator from super::coordinator but coordinator.rs does not exist in swarm/",
+      "options": [
+        "Create swarm/coordinator.rs with SwarmCoordinator implementation",
+        "Remove the import and related code from ultrathink.rs",
+        "Use the SwarmCoordinator defined in swarm/mod.rs instead"
+      ],
+      "recommended": "Use crate::swarm::SwarmCoordinator from mod.rs"
+    },
+    "server_default_impl": {
+      "file": "ggen-mcp/src/server.rs:542-545",
+      "problem": "impl Default calls async new() which is not allowed",
+      "current_code": "impl Default for GgenMcpServer {\n    fn default() -> Self {\n        Self::new()\n    }\n}",
+      "fix": "Remove this impl block entirely",
+      "reason": "main.rs already properly calls GgenMcpServer::new().await"
+    }
+  },
+  "verification_steps": [
+    "1. Apply all fixes in priority order",
+    "2. Run: cargo clean",
+    "3. Run: cargo update",
+    "4. Run: cargo check --all-targets",
+    "5. Run: cargo build --all-targets",
+    "6. Run: cargo test --all-targets",
+    "7. Verify MCP server starts: cargo run --bin ggen-mcp"
+  ],
+  "estimated_time": "45-60 minutes",
+  "confidence_level": "HIGH",
+  "notes": [
+    "Most dependencies are already added to Cargo.toml",
+    "Main issues are missing type exports and incorrect module imports",
+    "Several fixes were already partially applied (McpError, VecDeque import, dependencies)",
+    "The codebase structure is sound - mostly integration issues",
+    "After fixes, comprehensive testing recommended"
+  ]
+}

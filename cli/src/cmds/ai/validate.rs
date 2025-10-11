@@ -33,8 +33,7 @@ pub async fn run(args: &ValidateArgs) -> Result<()> {
         .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?;
 
     println!("Validation Results:");
-    println!("  Valid: {}", result.is_valid);
-    println!("  Quality Score: {:.2}", result.quality_score);
+    println!("  Valid: {}", result.valid);
     println!("  Issues Found: {}", result.issues.len());
 
     for issue in &result.issues {
@@ -43,15 +42,10 @@ pub async fn run(args: &ValidateArgs) -> Result<()> {
             ggen_ai::generators::validator::Severity::Warning => "WARNING",
             ggen_ai::generators::validator::Severity::Info => "INFO",
         };
-        println!("  {}: {}", severity, issue.description);
+        println!("  {}: {}", severity, issue.message);
     }
 
-    if !result.suggestions.is_empty() {
-        println!("\nSuggestions for improvement:");
-        for suggestion in &result.suggestions {
-            println!("  - {}", suggestion);
-        }
-    }
+    // Note: Suggestions are part of individual ValidationIssue messages
 
     Ok(())
 }

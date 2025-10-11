@@ -82,11 +82,6 @@ impl OntologyGenerator {
     pub fn with_client(client: Arc<dyn LlmClient>) -> Self {
         Self { client }
     }
-    
-    /// Create a new ontology generator optimized for Ollama qwen3-coder:30b
-    pub fn with_ollama_qwen3_coder(client: Arc<dyn LlmClient>) -> Self {
-        Self { client }
-    }
 
     /// Generate an ontology from a natural language description
     pub async fn generate_ontology(
@@ -120,7 +115,7 @@ impl OntologyGenerator {
     }
 
     /// Get the LLM client
-    pub fn client(&self) -> &dyn LlmClient {
+    pub fn client(&self) -> &Arc<dyn LlmClient> {
         &self.client
     }
 

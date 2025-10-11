@@ -1,6 +1,6 @@
 [package]
 name = "ggen-agents"
-version = "0.2.4"
+version = "0.2.5"
 edition = "2021"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "Ultrathink multi-agent system for ggen - 12 hyper advanced agents for testing, security, performance, and development"

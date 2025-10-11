@@ -316,6 +316,7 @@ impl DeltaDetector {
         for triple in new_triples {
             if !old_triples.contains(triple) {
                 changes.push(ChangeEvent {
+                    metadata: std::collections::HashMap::new(),
                     id: uuid::Uuid::new_v4().to_string(),
                     change_type: ChangeType::NodeAdded,
                     subject: Self::extract_subject(triple),
@@ -338,6 +339,7 @@ impl DeltaDetector {
         for triple in old_triples {
             if !new_triples.contains(triple) {
                 changes.push(ChangeEvent {
+                    metadata: std::collections::HashMap::new(),
                     id: uuid::Uuid::new_v4().to_string(),
                     change_type: ChangeType::NodeRemoved,
                     subject: Self::extract_subject(triple),
@@ -376,6 +378,7 @@ impl DeltaDetector {
                         let new_object = Self::extract_object(new_triple);
                         if old_object != new_object {
                             changes.push(ChangeEvent {
+                    metadata: std::collections::HashMap::new(),
                                 id: uuid::Uuid::new_v4().to_string(),
                                 change_type: ChangeType::NodeUpdated,
                                 subject: subject.clone(),

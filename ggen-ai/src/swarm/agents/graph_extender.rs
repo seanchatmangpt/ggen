@@ -102,28 +102,6 @@ impl GraphExtenderAgent {
         }
     }
 
-    /// Create with Ollama qwen3-coder configuration
-    pub fn with_ollama_qwen3_coder(graph_context: GraphContext) -> Result<Self> {
-        let config = OllamaClient::qwen3_coder_config();
-        let client = Box::new(OllamaClient::new(config)?);
-
-        Ok(Self::new(client, graph_context))
-    }
-
-    /// Create with default configuration
-    pub fn default_config(graph_context: GraphContext) -> Self {
-        let config = LlmConfig {
-            model: "qwen3-coder:30b".to_string(),
-            max_tokens: Some(2048),
-            temperature: Some(0.7),
-            top_p: Some(0.9),
-            stop: None,
-            extra: HashMap::new(),
-        };
-        let client = Box::new(OllamaClient::new(config).expect("Failed to create Ollama client"));
-
-        Self::new(client, graph_context)
-    }
 
     /// Infer facts from system events
     async fn infer_facts_from_events(&self, events: &[SystemEvent]) -> Result<InferredFacts> {

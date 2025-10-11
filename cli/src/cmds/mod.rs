@@ -12,20 +12,20 @@ pub mod project;
 pub mod shell;
 pub mod template;
 
-// Legacy flat commands (to be migrated)
-pub mod add;
-pub mod categories;
+// Legacy flat commands (COMMENTED OUT - migrated to noun-verb structure)
+// pub mod add;
+// pub mod categories;
 // pub mod completion; // COMMENTED OUT: Command line completion code
-pub mod gen;
-pub mod github;
-pub mod hazard;
-pub mod lint;
-pub mod list;
-pub mod packs;
-pub mod remove;
-pub mod search;
-pub mod show;
-pub mod update;
+// pub mod gen;
+// pub mod github;
+// pub mod hazard;
+// pub mod lint;
+// pub mod list;
+// pub mod packs;
+// pub mod remove;
+// pub mod search;
+// pub mod show;
+// pub mod update;
 
 use clap::Subcommand;
 use ggen_utils::UtilsGgenConfig as GgenConfig;
@@ -43,8 +43,6 @@ pub enum Commands {
     Ci(ci::CiCmd),
     #[command(name = "ultrathink", about = "Ultrathink swarm intelligence for autonomous development")]
     Ultrathink(ultrathink::UltrathinkArgs),
-    #[command(name = "swarm", about = "Ultrathink swarm intelligence and WIP integration")]
-    Swarm(swarm::SwarmArgs),
     #[command(name = "graph", about = "RDF graph operations")]
     Graph(graph::GraphCmd),
     #[command(
@@ -59,65 +57,79 @@ pub enum Commands {
     #[command(name = "shell", about = "Shell integration and completion")]
     Shell(shell::ShellCmd),
     #[command(name = "swarm", about = "Ultrathink swarm orchestration and WIP integration")]
-    Swarm(swarm::SwarmCmd),
+    Swarm(swarm::SwarmArgs),
     #[command(name = "template", about = "Template management")]
     Template(template::TemplateCmd),
 
-    // Legacy flat commands (deprecated, use nouns instead)
-    #[command(
-        name = "search",
-        about = "Search for gpacks in registry (deprecated: use 'ggen market search')"
-    )]
-    Search(search::SearchArgs),
-    #[command(
-        name = "categories",
-        about = "Show popular categories and keywords (deprecated: use 'ggen market categories')"
-    )]
-    Categories(categories::CategoriesArgs),
-    #[command(
-        name = "add",
-        about = "Add an gpack to the project (deprecated: use 'ggen market add')"
-    )]
-    Add(add::AddArgs),
-    #[command(
-        name = "remove",
-        about = "Remove an gpack from the project (deprecated: use 'ggen market remove')"
-    )]
-    Remove(remove::RemoveArgs),
-    #[command(
-        name = "packs",
-        about = "List installed gpacks (deprecated: use 'ggen market list')"
-    )]
-    Packs,
-    #[command(
-        name = "update",
-        about = "Update gpacks to latest compatible versions (deprecated: use 'ggen market update')"
-    )]
-    Update(update::UpdateArgs),
-    #[command(
-        name = "gen",
-        about = "Generate code from templates (deprecated: use 'ggen project gen')"
-    )]
-    Gen(gen::GenArgs),
-    #[command(
-        name = "list",
-        about = "List available templates (deprecated: use 'ggen template list')"
-    )]
-    List,
-    #[command(
-        name = "show",
-        about = "Show template metadata (deprecated: use 'ggen template show')"
-    )]
-    Show(show::ShowArgs),
-    #[command(
-        name = "lint",
-        about = "Lint template with schema validation (deprecated: use 'ggen template lint')"
-    )]
-    Lint(lint::LintArgs),
-    #[command(name = "github", about = "GitHub API operations (Pages, workflows)")]
-    GitHub(github::GitHubArgs),
-    #[command(name = "hazard", about = "Generate hazard report")]
-    Hazard,
+    // Legacy flat commands (COMMENTED OUT - migrated to noun-verb structure)
+    // Use the new noun-verb equivalents instead:
+    // - search -> ggen market search
+    // - categories -> ggen market categories
+    // - add -> ggen market add
+    // - remove -> ggen market remove
+    // - packs -> ggen market list
+    // - update -> ggen market update
+    // - gen -> ggen project gen
+    // - list -> ggen template list
+    // - show -> ggen template show
+    // - lint -> ggen template lint
+    // - github -> ggen ci github
+    // - hazard -> ggen audit hazard
+
+    // #[command(
+    //     name = "search",
+    //     about = "Search for gpacks in registry (deprecated: use 'ggen market search')"
+    // )]
+    // Search(search::SearchArgs),
+    // #[command(
+    //     name = "categories",
+    //     about = "Show popular categories and keywords (deprecated: use 'ggen market categories')"
+    // )]
+    // Categories(categories::CategoriesArgs),
+    // #[command(
+    //     name = "add",
+    //     about = "Add an gpack to the project (deprecated: use 'ggen market add')"
+    // )]
+    // Add(add::AddArgs),
+    // #[command(
+    //     name = "remove",
+    //     about = "Remove an gpack from the project (deprecated: use 'ggen market remove')"
+    // )]
+    // Remove(remove::RemoveArgs),
+    // #[command(
+    //     name = "packs",
+    //     about = "List installed gpacks (deprecated: use 'ggen market list')"
+    // )]
+    // Packs,
+    // #[command(
+    //     name = "update",
+    //     about = "Update gpacks to latest compatible versions (deprecated: use 'ggen market update')"
+    // )]
+    // Update(update::UpdateArgs),
+    // #[command(
+    //     name = "gen",
+    //     about = "Generate code from templates (deprecated: use 'ggen project gen')"
+    // )]
+    // Gen(gen::GenArgs),
+    // #[command(
+    //     name = "list",
+    //     about = "List available templates (deprecated: use 'ggen template list')"
+    // )]
+    // List,
+    // #[command(
+    //     name = "show",
+    //     about = "Show template metadata (deprecated: use 'ggen template show')"
+    // )]
+    // Show(show::ShowArgs),
+    // #[command(
+    //     name = "lint",
+    //     about = "Lint template with schema validation (deprecated: use 'ggen template lint')"
+    // )]
+    // Lint(lint::LintArgs),
+    // #[command(name = "github", about = "GitHub API operations (Pages, workflows)")]
+    // GitHub(github::GitHubArgs),
+    // #[command(name = "hazard", about = "Generate hazard report")]
+    // Hazard,
     // #[command(name = "completion", about = "Generate completion scripts")] // COMMENTED OUT: Command line completion code
     // Completion {
     //     #[command(subcommand)]
@@ -150,22 +162,21 @@ impl Commands {
             Commands::Market(cmd) => cmd.run().await,
             Commands::Project(cmd) => cmd.run().await,
             Commands::Shell(cmd) => cmd.run().await,
-            Commands::Swarm(cmd) => cmd.run().await,
             Commands::Template(cmd) => cmd.run().await,
 
-            // Legacy flat commands
-            Commands::Search(args) => Ok(search::run(args).await?),
-            Commands::Categories(args) => Ok(categories::run(args).await?),
-            Commands::Add(args) => Ok(add::run(args).await?),
-            Commands::Remove(args) => Ok(remove::run(args)?),
-            Commands::Packs => Ok(packs::run()?),
-            Commands::Update(args) => Ok(update::run(args).await?),
-            Commands::Gen(args) => Ok(gen::run(args)?),
-            Commands::List => list::run(),
-            Commands::Show(args) => show::run(args),
-            Commands::Lint(args) => lint::run(args),
-            Commands::GitHub(args) => Ok(github::run(args).await?),
-            Commands::Hazard => hazard::run(),
+            // Legacy flat commands (COMMENTED OUT)
+            // Commands::Search(args) => Ok(search::run(args).await?),
+            // Commands::Categories(args) => Ok(categories::run(args).await?),
+            // Commands::Add(args) => Ok(add::run(args).await?),
+            // Commands::Remove(args) => Ok(remove::run(args)?),
+            // Commands::Packs => Ok(packs::run()?),
+            // Commands::Update(args) => Ok(update::run(args).await?),
+            // Commands::Gen(args) => Ok(gen::run(args)?),
+            // Commands::List => list::run(),
+            // Commands::Show(args) => show::run(args),
+            // Commands::Lint(args) => lint::run(args),
+            // Commands::GitHub(args) => Ok(github::run(args).await?),
+            // Commands::Hazard => hazard::run(),
             // Commands::Completion { subcommand } => completion::run(subcommand), // COMMENTED OUT: Command line completion code
         }
     }
@@ -186,22 +197,21 @@ impl Commands {
             Commands::Market(cmd) => cmd.run().await,
             Commands::Project(cmd) => cmd.run().await,
             Commands::Shell(cmd) => cmd.run().await,
-            Commands::Swarm(cmd) => cmd.run().await,
             Commands::Template(cmd) => cmd.run().await,
 
-            // Legacy flat commands
-            Commands::Search(args) => Ok(search::run(args).await?),
-            Commands::Categories(args) => Ok(categories::run(args).await?),
-            Commands::Add(args) => Ok(add::run(args).await?),
-            Commands::Remove(args) => Ok(remove::run(args)?),
-            Commands::Packs => Ok(packs::run()?),
-            Commands::Update(args) => Ok(update::run(args).await?),
-            Commands::Gen(args) => Ok(gen::run(args)?),
-            Commands::List => list::run(),
-            Commands::Show(args) => show::run(args),
-            Commands::Lint(args) => lint::run(args),
-            Commands::GitHub(args) => Ok(github::run(args).await?),
-            Commands::Hazard => hazard::run(),
+            // Legacy flat commands (COMMENTED OUT)
+            // Commands::Search(args) => Ok(search::run(args).await?),
+            // Commands::Categories(args) => Ok(categories::run(args).await?),
+            // Commands::Add(args) => Ok(add::run(args).await?),
+            // Commands::Remove(args) => Ok(remove::run(args)?),
+            // Commands::Packs => Ok(packs::run()?),
+            // Commands::Update(args) => Ok(update::run(args).await?),
+            // Commands::Gen(args) => Ok(gen::run(args)?),
+            // Commands::List => list::run(),
+            // Commands::Show(args) => show::run(args),
+            // Commands::Lint(args) => lint::run(args),
+            // Commands::GitHub(args) => Ok(github::run(args).await?),
+            // Commands::Hazard => hazard::run(),
             // Commands::Completion { subcommand } => completion::run(subcommand), // COMMENTED OUT: Command line completion code
         }
     }

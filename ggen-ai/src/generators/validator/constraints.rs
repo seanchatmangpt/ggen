@@ -77,9 +77,12 @@ impl ConstraintValidator for BasicConstraintValidator {
         let passed = match constraint.constraint_type {
             ConstraintType::RequiredField => !input.trim().is_empty(),
             ConstraintType::Length => {
-                if let Ok(min_len) = constraint.parameters.get("min_length")
-                    .and_then(|v| v.parse::<usize>()) {
-                    input.len() >= min_len
+                if let Some(min_len_str) = constraint.parameters.get("min_length") {
+                    if let Ok(min_len) = min_len_str.parse::<usize>() {
+                        input.len() >= min_len
+                    } else {
+                        true
+                    }
                 } else {
                     true
                 }

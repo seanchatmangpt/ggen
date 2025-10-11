@@ -1,6 +1,6 @@
 [package]
 name = "ggen-mcp"
-version = "0.2.4"
+version = "0.2.5"
 edition = "2021"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "MCP server for ggen CLI - exposes template generation, graph operations, and project management"
@@ -26,6 +26,11 @@ metrics = "0.21"
 metrics-exporter-prometheus = "0.12"
 tokio-util = "0.7"
 futures = "0.3"
+
+# WebSocket and HTTP support for WIP integration
+tokio-tungstenite = "0.23"
+futures-util = "0.3"
+reqwest = { version = "0.12", features = ["json", "rustls-tls"] }
 
 # Performance optimization
 lru = "0.12"

@@ -30,11 +30,6 @@ impl TemplateGenerator {
         Self { client }
     }
     
-    /// Create a new template generator optimized for Ollama qwen3-coder:30b
-    pub fn with_ollama_qwen3_coder(client: Arc<dyn LlmClient>) -> Self {
-        Self { client }
-    }
-    
     /// Generate a template from natural language description
     pub async fn generate_template(
         &self,
@@ -67,7 +62,7 @@ impl TemplateGenerator {
     }
     
     /// Get the LLM client
-    pub fn client(&self) -> &dyn LlmClient {
+    pub fn client(&self) -> &Arc<dyn LlmClient> {
         &self.client
     }
     

@@ -88,7 +88,9 @@ impl AiConfig {
     pub fn from_env() -> Result<Self> {
         let llm = LlmConfig {
             model: std::env::var("GGEN_LLM_MODEL")
-                .unwrap_or_else(|_| "gpt-3.5-turbo".to_string()),
+                .or_else(|_| std::env::var("GGEN_DEFAULT_MODEL"))
+                .or_else(|_| std::env::var("DEFAULT_MODEL"))
+                .unwrap_or_else(|_| "qwen3-coder:30b".to_string()),
             max_tokens: std::env::var("GGEN_LLM_MAX_TOKENS")
                 .ok()
                 .and_then(|s| s.parse().ok()),

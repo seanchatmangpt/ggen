@@ -7,39 +7,79 @@ use anyhow::Error as AnyhowError;
 pub enum GgenMcpError {
     #[error("Missing required parameter: {0}")]
     MissingParameter(String),
-    
+
     #[error("Invalid parameter: {0}")]
     InvalidParameter(String),
-    
+
     #[error("Execution failed: {0}")]
     ExecutionFailed(String),
-    
+
     #[error("Registry error: {0}")]
     RegistryError(String),
-    
+
     #[error("Graph error: {0}")]
     GraphError(String),
-    
+
     #[error("Template error: {0}")]
     TemplateError(String),
-    
+
     #[error("Serialization error: {0}")]
     SerializationError(String),
-    
+
     #[error("Timeout error: {0}")]
     Timeout(String),
-    
+
     #[error("Generation failed: {0}")]
     GenerationFailed(String),
-    
+
     #[error("Core error: {0}")]
     Core(#[from] GgenError),
-    
+
     #[error("Anyhow error: {0}")]
     Anyhow(#[from] AnyhowError),
-    
+
     #[error("MCP protocol error: {0}")]
     Protocol(#[from] rmcp::Error),
+
+    #[error("Not found: {0}")]
+    NotFound(String),
+
+    #[error("Connection error: {0}")]
+    ConnectionError(String),
+
+    #[error("Network error: {0}")]
+    NetworkError(String),
+
+    #[error("Validation error: {0}")]
+    ValidationError(String),
+
+    #[error("Configuration error: {0}")]
+    Configuration(String),
+
+    #[error("IO error: {0}")]
+    Io(String),
+}
+
+// McpError type alias for compatibility with swarm module
+pub type McpError = GgenMcpError;
+
+// Additional helper methods for McpError
+impl GgenMcpError {
+    pub fn not_found(msg: &str) -> Self {
+        Self::NotFound(msg.to_string())
+    }
+
+    pub fn connection(msg: &str) -> Self {
+        Self::ConnectionError(msg.to_string())
+    }
+
+    pub fn network(msg: &str) -> Self {
+        Self::NetworkError(msg.to_string())
+    }
+
+    pub fn validation(msg: &str) -> Self {
+        Self::ValidationError(msg.to_string())
+    }
 }
 
 // Display implementation is now handled by thiserror::Error derive

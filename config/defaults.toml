@@ -16,13 +16,14 @@
 # ==============================================================================
 
 [llm]
-# Default LLM provider: "openai", "anthropic", "ollama", or "mock"
-# Override with: GGEN_LLM_PROVIDER
-provider = "ollama"
+# Default LLM provider: auto-detected based on available API keys and Ollama installation
+# Can be explicitly set to: "openai", "anthropic", "ollama", or "mock"
+# Override with: GGEN_LLM_PROVIDER environment variable
+# provider = "auto"  # Auto-detection (checks OPENAI_API_KEY, ANTHROPIC_API_KEY, Ollama status)
 
 # Global LLM settings (can be overridden per provider)
 # Override with: GGEN_LLM_MODEL, GGEN_LLM_TEMPERATURE, etc.
-default_model = "llama3.2"
+default_model = "qwen3-coder:30b"
 default_temperature = 0.7
 default_max_tokens = 2048
 default_top_p = 0.9
@@ -38,7 +39,7 @@ use_streaming = false
 base_url = "http://localhost:11434"
 
 # Default model for Ollama
-# Popular options: "llama3.2", "qwen3-coder:30b", "mistral", "codellama"
+# Popular options: "qwen3-coder:30b", "mistral", "codellama", "qwen2.5-coder"
 # Override with: OLLAMA_MODEL
 model = "qwen3-coder:30b"
 

@@ -69,11 +69,21 @@ pub trait Validator: Send + Sync {
 }
 
 /// Self-validation engine implementation
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct SelfValidator {
     client: Arc<dyn LlmClient>,
     store: Store,
     learned_patterns: HashMap<String, Vec<String>>,
+}
+
+impl std::fmt::Debug for SelfValidator {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("SelfValidator")
+            .field("client", &"Arc<dyn LlmClient>")
+            .field("store", &"Store")
+            .field("learned_patterns", &self.learned_patterns)
+            .finish()
+    }
 }
 
 impl SelfValidator {

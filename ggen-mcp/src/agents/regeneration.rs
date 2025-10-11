@@ -517,7 +517,7 @@ struct TemplateChange {
 
 #[async_trait::async_trait]
 impl Agent for RegenerationAgent {
-    async fn initialize(&mut self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    async fn initialize(&mut self) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>> {
         tracing::info!("Initializing RegenerationAgent with ID: {}", self.config.id);
 
         // Ensure artifacts directory exists
@@ -530,7 +530,7 @@ impl Agent for RegenerationAgent {
         Ok(())
     }
 
-    async fn start(&mut self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    async fn start(&mut self) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>> {
         tracing::info!("Starting RegenerationAgent");
 
         // Start regeneration queue processor
@@ -543,7 +543,7 @@ impl Agent for RegenerationAgent {
         Ok(())
     }
 
-    async fn stop(&mut self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    async fn stop(&mut self) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>> {
         tracing::info!("Stopping RegenerationAgent");
 
         // Notify shutdown
@@ -561,7 +561,7 @@ impl Agent for RegenerationAgent {
         &self.config
     }
 
-    async fn handle_message(&mut self, message: AgentMessage) -> Result<AgentMessage, Box<dyn std::error::Error + Send + Sync>> {
+    async fn handle_message(&mut self, message: AgentMessage) -> std::result::Result<AgentMessage, Box<dyn std::error::Error + Send + Sync>> {
         match message {
             AgentMessage::TaskAssignment { task_id, task } => {
                 let result = self.handle_task(task).await?;

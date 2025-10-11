@@ -15,6 +15,7 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 
 /// AI-specific MCP tools
+#[derive(Debug)]
 pub struct AiMcpTools {
     template_generator: Option<TemplateGenerator>,
     sparql_generator: Option<SparqlGenerator>,
@@ -151,7 +152,7 @@ impl AiMcpTools {
 
         self.template_generator = Some(TemplateGenerator::with_client(Arc::new(MockClient::with_response("Generated template content"))));
         self.sparql_generator = Some(SparqlGenerator::with_client(Arc::new(MockClient::with_response(r#"{"query_type":"SELECT","variables":["?s","?p","?o"],"patterns":[{"subject":"?s","predicate":"?p","object":"?o"}]}"#))));
-        self.ontology_generator = Some(OntologyGenerator::with_client(Box::new(MockClient::with_response("@prefix ex: <http://example.org/> . ex:Person a owl:Class ."))));
+        self.ontology_generator = Some(OntologyGenerator::with_client(Arc::new(MockClient::with_response("@prefix ex: <http://example.org/> . ex:Person a owl:Class ."))));
         self.refactor_assistant = Some(RefactorAssistant::with_client(Arc::new(MockClient::with_response("Refactoring suggestion"))));
 
         // Initialize autonomous components
@@ -210,8 +211,8 @@ impl AiMcpTools {
             .map(|arr| arr.iter().filter_map(|v| v.as_str()).collect::<Vec<_>>())
             .unwrap_or_default();
         
-        let language = params.get("language").and_then(|l| l.as_str());
-        let framework = params.get("framework").and_then(|f| f.as_str());
+        let _language = params.get("language").and_then(|l| l.as_str());
+        let _framework = params.get("framework").and_then(|f| f.as_str());
         
         let generator = self.template_generator.as_ref()
             .ok_or_else(|| GgenAiError::configuration("Template generator not initialized"))?;
@@ -285,10 +286,10 @@ impl AiMcpTools {
         let language = params.get("language")
             .and_then(|l| l.as_str())
             .unwrap_or("unknown");
-        
+
         let assistant = self.refactor_assistant.as_ref()
             .ok_or_else(|| GgenAiError::configuration("Refactor assistant not initialized"))?;
-        
+
         let context = crate::generators::refactor::RefactoringContext::new(language.to_string());
         let suggestions = assistant.suggest_refactoring(code, &context).await?;
         
