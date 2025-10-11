@@ -212,7 +212,7 @@ impl ByzantineValidator {
     async fn handle_consensus_request(&mut self, proposal: ConsensusProposal) -> Result<AgentMessage, Box<dyn std::error::Error + Send + Sync>> {
         tracing::info!("Handling consensus request: {}", proposal.id);
         
-        let start_time = Instant::now();
+        let start_time = Utc::now();
         
         // Check if we already have a consensus result for this proposal
         if let Some(cached_result) = self.consensus_cache.get(&proposal.id.to_string()) {
@@ -237,7 +237,7 @@ impl ByzantineValidator {
             validators: vec![self.config.id], // TODO: Get actual validator list
             consensus_result: consensus_result.clone(),
             timestamp: chrono::Utc::now(),
-            duration_ms: start_time.elapsed().as_millis() as u64,
+            duration_ms: Utc::now().signed_duration_since(start_time).num_milliseconds() as u64,
         };
         
         self.validation_history.push(validation_record);
@@ -270,7 +270,7 @@ impl ByzantineValidator {
     async fn handle_validation_task(&mut self, task_id: Uuid, task: TaskDefinition) -> Result<AgentMessage, Box<dyn std::error::Error + Send + Sync>> {
         tracing::info!("Handling validation task: {}", task_id);
         
-        let start_time = Instant::now();
+        let start_time = Utc::now();
         
         // Perform validation based on task type
         let validation_result = match task.task_type {
@@ -288,7 +288,7 @@ impl ByzantineValidator {
             }
         };
         
-        let duration_ms = start_time.elapsed().as_millis() as u64;
+        let duration_ms = Utc::now().signed_duration_since(start_time).num_milliseconds() as u64;
         
         Ok(AgentMessage::TaskCompletion {
             task_id,

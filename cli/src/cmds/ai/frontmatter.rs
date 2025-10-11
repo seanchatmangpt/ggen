@@ -5,7 +5,6 @@ use clap::Args;
 use ggen_ai::TemplateGenerator;
 use ggen_utils::error::Result;
 use std::fs;
-use std::sync::Arc;
 
 #[derive(Debug, Args)]
 pub struct FrontmatterArgs {

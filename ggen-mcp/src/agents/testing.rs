@@ -109,12 +109,12 @@ impl TestingAgent {
 
     /// Execute unit test
     pub async fn execute_unit_test(&mut self, test_name: &str, test_code: &str) -> Result<TestExecutionResult> {
-        let start_time = std::time::Instant::now();
+        let start_time = chrono::Utc::now();
         
         // In a real implementation, this would compile and execute Rust test code
         // For now, we simulate test execution
         let success = self.simulate_test_execution(test_code);
-        let duration = start_time.elapsed().as_millis() as u64;
+        let duration = Utc::now().signed_duration_since(start_time).num_milliseconds() as u64;
 
         let result = TestExecutionResult {
             test_name: test_name.to_string(),
@@ -136,11 +136,11 @@ impl TestingAgent {
 
     /// Execute BDD scenario
     pub async fn execute_bdd_scenario(&mut self, scenario_name: &str, feature_file: &str, steps: Vec<String>) -> Result<BddScenarioResult> {
-        let start_time = std::time::Instant::now();
+        let start_time = chrono::Utc::now();
         
         // Simulate BDD scenario execution
         let success = self.simulate_bdd_execution(&steps);
-        let duration = start_time.elapsed().as_millis() as u64;
+        let duration = Utc::now().signed_duration_since(start_time).num_milliseconds() as u64;
 
         let result = BddScenarioResult {
             scenario_name: scenario_name.to_string(),
@@ -174,11 +174,11 @@ impl TestingAgent {
 
     /// Execute integration test
     pub async fn execute_integration_test(&mut self, test_name: &str, test_config: serde_json::Value) -> Result<TestExecutionResult> {
-        let start_time = std::time::Instant::now();
+        let start_time = chrono::Utc::now();
         
         // Simulate integration test execution
         let success = self.simulate_integration_test(&test_config);
-        let duration = start_time.elapsed().as_millis() as u64;
+        let duration = Utc::now().signed_duration_since(start_time).num_milliseconds() as u64;
 
         let result = TestExecutionResult {
             test_name: test_name.to_string(),

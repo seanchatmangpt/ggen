@@ -779,7 +779,7 @@ impl UltrathinkSwarm {
                 adaptation_rate: 0.0,
                 transfer_efficiency: 0.0,
             },
-            last_activity: Instant::now(),
+            last_activity: Utc::now(),
         };
 
         agents.insert(neural_agent.id, neural_agent);
@@ -816,7 +816,7 @@ impl UltrathinkSwarm {
                 adaptation_rate: 0.0,
                 transfer_efficiency: 0.0,
             },
-            last_activity: Instant::now(),
+            last_activity: Utc::now(),
         };
 
         agents.insert(quantum_agent.id, quantum_agent);

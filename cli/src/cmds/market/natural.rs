@@ -1,8 +1,8 @@
 //! Natural language search functionality for the marketplace using AI.
 //!
 //! This module provides AI-powered natural language search capabilities for the ggen marketplace,
-//! allowing users to search for packages using conversational queries. It uses Ollama with
-//! qwen3-coder:30b to understand user intent and convert natural language queries into
+//! allowing users to search for packages using conversational queries. It uses the configured
+//! LLM provider to understand user intent and convert natural language queries into
 //! structured search parameters.
 //!
 //! # Examples
@@ -39,9 +39,9 @@ pub struct NaturalArgs {
     #[arg(long)]
     pub explain: bool,
 
-    /// Use specific AI model (default: qwen3-coder:30b)
-    #[arg(long, default_value = "qwen3-coder:30b")]
-    pub model: String,
+    /// Use specific AI model (defaults to environment or provider default)
+    #[arg(long)]
+    pub model: Option<String>,
 }
 
 #[derive(Debug, Clone, serde::Serialize)]
@@ -67,18 +67,18 @@ pub struct PackageResult {
 
 /// AI-powered natural language query interpreter
 pub struct NaturalLanguageInterpreter {
-    _model: String,
+    _model: Option<String>,
 }
 
 impl NaturalLanguageInterpreter {
-    pub fn new(model: String) -> Self {
+    pub fn new(model: Option<String>) -> Self {
         Self { _model: model }
     }
 
     /// Interpret natural language query and convert to search parameters
     pub async fn interpret_query(&self, query: &str) -> Result<NaturalSearchResult> {
-        // For now, we'll use a mock implementation since ggen-ai has compilation issues
-        // In a real implementation, this would use Ollama with qwen3-coder:30b
+        // For now, we'll use a mock implementation
+        // In a real implementation, this would use the configured LLM provider
 
         let interpretation = self.generate_interpretation(query).await?;
         let search_params = self.extract_search_params(query, &interpretation).await?;
@@ -97,7 +97,7 @@ impl NaturalLanguageInterpreter {
     }
 
     async fn generate_interpretation(&self, query: &str) -> Result<String> {
-        // Mock AI interpretation - in real implementation, this would call Ollama
+        // Mock AI interpretation - in real implementation, this would call the configured provider
         let query_lower = query.to_lowercase();
 
         if query_lower.contains("authentication")
@@ -365,7 +365,13 @@ impl NaturalLanguageInterpreter {
 }
 
 pub async fn run(args: &NaturalArgs) -> Result<()> {
-    println!("🤖 Natural language search using AI model: {}", args.model);
+    let model_display = args.model.clone().unwrap_or_else(|| {
+        ggen_ai::get_global_config()
+            .get_default_config()
+            .map(|c| c.model.clone())
+            .unwrap_or_else(|| "default".to_string())
+    });
+    println!("🤖 Natural language search using AI model: {}", model_display);
     println!("Query: \"{}\"", args.query);
     println!();
 
@@ -464,7 +470,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_natural_language_interpreter() {
-        let interpreter = NaturalLanguageInterpreter::new("qwen3-coder:30b".to_string());
+        let interpreter = NaturalLanguageInterpreter::new(None);
         let result = interpreter
             .interpret_query("I need user authentication")
             .await
@@ -478,7 +484,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_authentication_query() {
-        let interpreter = NaturalLanguageInterpreter::new("qwen3-coder:30b".to_string());
+        let interpreter = NaturalLanguageInterpreter::new(None);
         let result = interpreter
             .interpret_query("authentication system")
             .await
@@ -490,7 +496,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_web_api_query() {
-        let interpreter = NaturalLanguageInterpreter::new("qwen3-coder:30b".to_string());
+        let interpreter = NaturalLanguageInterpreter::new(None);
         let result = interpreter
             .interpret_query("web API framework")
             .await
@@ -505,7 +511,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_database_query() {
-        let interpreter = NaturalLanguageInterpreter::new("qwen3-coder:30b".to_string());
+        let interpreter = NaturalLanguageInterpreter::new(None);
         let result = interpreter
             .interpret_query("database operations")
             .await

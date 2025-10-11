@@ -266,7 +266,7 @@ pub struct WipClient {
     /// Connection status
     status: ConnectionStatus,
     /// Last heartbeat
-    last_heartbeat: Instant,
+    last_heartbeat: DateTime<Utc>,
 }
 
 impl WipClient {
@@ -280,7 +280,7 @@ impl WipClient {
             endpoint: endpoint.to_string(),
             connection: Some(ws_stream),
             status: ConnectionStatus::Connected,
-            last_heartbeat: Instant::now(),
+            last_heartbeat: Utc::now(),
         })
     }
 
@@ -343,7 +343,7 @@ pub struct WipStatusResponse {
     /// Pending operations count
     pub pending_operations: usize,
     /// Last synchronization time
-    pub last_sync: Option<Instant>,
+    pub last_sync: Option<DateTime<Utc>>,
 }
 
 /// Connection status for WIP clients
@@ -455,7 +455,7 @@ pub struct ConflictResolution {
     /// Resolution strategy used
     pub strategy: ConflictResolutionStrategy,
     /// Resolution timestamp
-    pub resolved_at: Instant,
+    pub resolved_at: DateTime<Utc>,
     /// Resolution outcome
     pub outcome: ResolutionOutcome,
     /// Resolution metadata
@@ -511,7 +511,7 @@ pub struct WipMetrics {
     /// Connection uptime
     pub connection_uptime: Duration,
     /// Last synchronization timestamp
-    pub last_sync: Option<Instant>,
+    pub last_sync: Option<DateTime<Utc>>,
 }
 
 impl Default for WipMetrics {
@@ -560,7 +560,7 @@ impl WipMetrics {
             }
         }
 
-        self.last_sync = Some(Instant::now());
+        self.last_sync = Some(Utc::now());
     }
 }
 

@@ -259,7 +259,7 @@ impl GraphMonitor {
     async fn handle_graph_operation(&mut self, task_id: Uuid, task: TaskDefinition) -> Result<AgentMessage, Box<dyn std::error::Error + Send + Sync>> {
         tracing::info!("Handling graph operation task: {}", task_id);
         
-        let start_time = Instant::now();
+        let start_time = Utc::now();
         let operation_type = self.determine_operation_type(&task.task_type);
         
         // Create operation record
@@ -280,7 +280,7 @@ impl GraphMonitor {
             Ok(result) => {
                 operation.success = true;
                 operation.triple_count_after = self.graph_state.triple_count;
-                operation.duration_ms = start_time.elapsed().as_millis() as u64;
+                operation.duration_ms = Utc::now().signed_duration_since(start_time).num_milliseconds() as u64;
                 
                 self.operation_history.push(operation.clone());
                 self.update_metrics(&operation);
@@ -300,7 +300,7 @@ impl GraphMonitor {
             Err(e) => {
                 operation.success = false;
                 operation.error = Some(e.to_string());
-                operation.duration_ms = start_time.elapsed().as_millis() as u64;
+                operation.duration_ms = Utc::now().signed_duration_since(start_time).num_milliseconds() as u64;
                 
                 self.operation_history.push(operation.clone());
                 self.update_metrics(&operation);
@@ -373,12 +373,12 @@ impl GraphMonitor {
         
         // TODO: Use actual GGen core graph querying
         // For now, simulate query execution
-        let query_start = Instant::now();
+        let query_start = Utc::now();
         
         // Simulate query processing
         tokio::time::sleep(Duration::from_millis(50)).await;
         
-        let query_duration = query_start.elapsed().as_millis() as u64;
+        let query_duration = query_start&.signed_duration_since(start_time).num_milliseconds() as u64;
         
         // Update query performance metrics
         self.metrics.query_performance.total_queries += 1;

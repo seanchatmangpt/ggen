@@ -93,7 +93,7 @@ pub struct CircuitBreaker {
     pub failure_threshold: u32,
     pub success_threshold: u32,
     pub timeout: Duration,
-    pub last_failure_time: Option<Instant>,
+    pub last_failure_time: Option<DateTime<Utc>>,
 }
 
 impl CircuitBreaker {
@@ -140,7 +140,7 @@ impl CircuitBreaker {
     pub fn record_failure(&mut self) {
         self.failure_count += 1;
         self.success_count = 0;
-        self.last_failure_time = Some(Instant::now());
+        self.last_failure_time = Some(Utc::now());
 
         if self.failure_count >= self.failure_threshold {
             self.state = CircuitBreakerState::Open;
@@ -172,7 +172,7 @@ impl ByzantineAgent {
 
     /// Attempt Byzantine consensus on an operation
     pub async fn attempt_consensus(&mut self, operation: &str, input: serde_json::Value) -> Result<ConsensusResult> {
-        let start_time = Instant::now();
+        let start_time = Utc::now();
         
         // Get healthy agents
         let healthy_agents = self.coordinator.get_healthy_agents().await;
@@ -223,7 +223,7 @@ impl ByzantineAgent {
             confidence: majority_agreement,
             metadata: HashMap::from([
                 ("operation".to_string(), serde_json::Value::String(operation.to_string())),
-                ("execution_time_ms".to_string(), serde_json::Value::Number(serde_json::Number::from(start_time.elapsed().as_millis() as u64))),
+                ("execution_time_ms".to_string(), serde_json::Value::Number(serde_json::Number::from(Utc::now().signed_duration_since(start_time).num_milliseconds() as u64))),
                 ("required_agreement".to_string(), serde_json::Value::Number(serde_json::Number::from(required_agreement))),
             ]),
         };

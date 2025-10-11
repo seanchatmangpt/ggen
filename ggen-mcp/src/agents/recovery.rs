@@ -1,3 +1,5 @@
+// Chrono for DateTime timestamps
+use chrono::{DateTime, Utc};
 //! Recovery Agent
 //! 
 //! Handles failure recovery and system restoration
@@ -104,7 +106,7 @@ impl RecoveryAgent {
     async fn handle_recovery_request(&mut self, failed_agent: AgentId, context: Value) -> Result<AgentMessage, Box<dyn std::error::Error + Send + Sync>> {
         tracing::info!("Handling recovery request for agent: {}", failed_agent);
 
-        let start_time = std::time::Instant::now();
+        let start_time = chrono::Utc::now();
 
         // Determine failure type from context
         let failure_type = self.analyze_failure(&context)?;
@@ -132,7 +134,7 @@ impl RecoveryAgent {
             &context
         ).await?;
 
-        let duration = start_time.elapsed().as_millis() as u64;
+        let duration = Utc::now().signed_duration_since(start_time).num_milliseconds() as u64;
 
         // Record recovery attempt
         let record = RecoveryRecord {

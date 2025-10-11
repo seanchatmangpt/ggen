@@ -409,7 +409,7 @@ impl Agent for GraphEvolutionAgent {
 impl GraphEvolutionAgent {
     /// Handle task execution for graph evolution
     async fn handle_task(&self, task: TaskDefinition) -> Result<TaskResult> {
-        let start_time = std::time::Instant::now();
+        let start_time = chrono::Utc::now();
 
         match task.task_type {
             crate::agents::TaskType::TemplateGeneration => {
@@ -421,7 +421,7 @@ impl GraphEvolutionAgent {
                         "message": "Graph evolution task completed"
                     })),
                     error: None,
-                    duration_ms: start_time.elapsed().as_millis() as u64,
+                    duration_ms: Utc::now().signed_duration_since(start_time).num_milliseconds() as u64,
                     metrics: Some(serde_json::json!({
                         "changes_applied": 0,
                         "validation_passed": true
@@ -434,7 +434,7 @@ impl GraphEvolutionAgent {
                     success: false,
                     result: None,
                     error: Some("Unsupported task type".to_string()),
-                    duration_ms: start_time.elapsed().as_millis() as u64,
+                    duration_ms: Utc::now().signed_duration_since(start_time).num_milliseconds() as u64,
                     metrics: None,
                 })
             }

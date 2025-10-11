@@ -222,7 +222,7 @@ impl FeedbackAgent {
             analysis_history: Arc::new(RwLock::new(Vec::new())),
             improvement_suggestions: Arc::new(RwLock::new(Vec::new())),
             shutdown_notify: Arc::new(Notify::new()),
-            last_analysis_time: Arc::new(RwLock::new(Instant::now())),
+            last_analysis_time: Arc::new(RwLock::new(Utc::now())),
         }
     }
 
@@ -601,7 +601,7 @@ impl FeedbackAgent {
 
 #[async_trait::async_trait]
 impl Agent for FeedbackAgent {
-    async fn initialize(&mut self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    async fn initialize(&mut self) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>> {
         tracing::info!("Initializing FeedbackAgent with ID: {}", self.config.id);
 
         // Start telemetry collection
@@ -611,7 +611,7 @@ impl Agent for FeedbackAgent {
         Ok(())
     }
 
-    async fn start(&mut self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    async fn start(&mut self) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>> {
         tracing::info!("Starting FeedbackAgent");
 
         // Start periodic analysis
@@ -624,7 +624,7 @@ impl Agent for FeedbackAgent {
         Ok(())
     }
 
-    async fn stop(&mut self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    async fn stop(&mut self) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>> {
         tracing::info!("Stopping FeedbackAgent");
 
         // Notify shutdown
@@ -642,7 +642,7 @@ impl Agent for FeedbackAgent {
         &self.config
     }
 
-    async fn handle_message(&mut self, message: AgentMessage) -> Result<AgentMessage, Box<dyn std::error::Error + Send + Sync>> {
+    async fn handle_message(&mut self, message: AgentMessage) -> std::result::Result<AgentMessage, Box<dyn std::error::Error + Send + Sync>> {
         match message {
             AgentMessage::TaskAssignment { task_id, task } => {
                 let result = self.handle_task(task).await?;
@@ -709,7 +709,7 @@ impl FeedbackAgent {
 
     /// Handle task execution for feedback analysis
     async fn handle_task(&self, task: TaskDefinition) -> Result<TaskResult> {
-        let start_time = std::time::Instant::now();
+        let start_time = chrono::Utc::now();
 
         match task.task_type {
             crate::agents::TaskType::TemplateGeneration => {
@@ -721,7 +721,7 @@ impl FeedbackAgent {
                         "message": "Feedback analysis task completed"
                     })),
                     error: None,
-                    duration_ms: start_time.elapsed().as_millis() as u64,
+                    duration_ms: Utc::now().signed_duration_since(start_time).num_milliseconds() as u64,
                     metrics: Some(serde_json::json!({
                         "patterns_detected": 0,
                         "improvements_suggested": 0
@@ -734,7 +734,7 @@ impl FeedbackAgent {
                     success: false,
                     result: None,
                     error: Some("Unsupported task type".to_string()),
-                    duration_ms: start_time.elapsed().as_millis() as u64,
+                    duration_ms: Utc::now().signed_duration_since(start_time).num_milliseconds() as u64,
                     metrics: None,
                 })
             }
