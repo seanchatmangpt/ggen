@@ -5,11 +5,11 @@
 //! - Focus on WIP integration, task processing, and autonomous intelligence
 //! - Simplified architecture for maximum impact
 
+use serde::{Deserialize, Serialize};
 use std::collections::VecDeque;
 use std::sync::{Arc, RwLock};
 use std::time::{Duration, Instant};
-use serde::{Deserialize, Serialize};
-use tokio::sync::{mpsc, broadcast};
+use tokio::sync::{broadcast, mpsc};
 use uuid::Uuid;
 
 use crate::error::Result;
@@ -271,7 +271,10 @@ impl UltrathinkCore {
         // Agent 1: Neural Learner (handles pattern recognition)
         agents.push(CoreAgent::NeuralLearner(NeuralAgent {
             id: Uuid::new_v4(),
-            capabilities: vec!["pattern_recognition".to_string(), "nlp_processing".to_string()],
+            capabilities: vec![
+                "pattern_recognition".to_string(),
+                "nlp_processing".to_string(),
+            ],
             performance: 0.85,
             last_activity: Instant::now(),
         }));
@@ -321,8 +324,7 @@ impl UltrathinkCore {
 
     /// Process task queue (80/20: simple round-robin assignment)
     async fn process_task_queue(
-        task_queue: Arc<RwLock<VecDeque<UltrathinkTask>>>,
-        agents: Arc<RwLock<Vec<CoreAgent>>>,
+        task_queue: Arc<RwLock<VecDeque<UltrathinkTask>>>, agents: Arc<RwLock<Vec<CoreAgent>>>,
     ) {
         loop {
             tokio::time::sleep(Duration::from_millis(100)).await;
@@ -473,9 +475,7 @@ pub struct WipEntry {
 
 /// Create a new ultrathink task
 pub fn create_ultrathink_task(
-    task_type: TaskType,
-    description: String,
-    priority: TaskPriority,
+    task_type: TaskType, description: String, priority: TaskPriority,
 ) -> UltrathinkTask {
     UltrathinkTask {
         id: Uuid::new_v4(),

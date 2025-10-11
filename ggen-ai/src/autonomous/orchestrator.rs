@@ -1,11 +1,11 @@
 //! Machine-timescale orchestration with parallel execution
 
-use crate::error::{GgenAiError, Result};
-use crate::autonomous::{
-    RegenerationEngine, DeploymentAutomation, TelemetryCollector,
-    ChangeEvent, GraphChangeNotifier, TelemetryEvent,
-};
 use crate::autonomous::telemetry::TelemetryEventType;
+use crate::autonomous::{
+    ChangeEvent, DeploymentAutomation, GraphChangeNotifier, RegenerationEngine, TelemetryCollector,
+    TelemetryEvent,
+};
+use crate::error::{GgenAiError, Result};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use std::time::Instant;
@@ -111,10 +111,8 @@ impl std::fmt::Debug for RegenerationOrchestrator {
 impl RegenerationOrchestrator {
     /// Create a new orchestrator
     pub fn new(
-        config: OrchestratorConfig,
-        regeneration_engine: Arc<RegenerationEngine>,
-        deployment: Arc<RwLock<DeploymentAutomation>>,
-        telemetry: Arc<TelemetryCollector>,
+        config: OrchestratorConfig, regeneration_engine: Arc<RegenerationEngine>,
+        deployment: Arc<RwLock<DeploymentAutomation>>, telemetry: Arc<TelemetryCollector>,
         notifier: Arc<GraphChangeNotifier>,
     ) -> Self {
         Self {
@@ -133,7 +131,9 @@ impl RegenerationOrchestrator {
         {
             let mut running = self.running.write().await;
             if *running {
-                return Err(GgenAiError::orchestration("Orchestrator is already running".to_string()));
+                return Err(GgenAiError::orchestration(
+                    "Orchestrator is already running".to_string(),
+                ));
             }
             *running = true;
         }
@@ -146,9 +146,12 @@ impl RegenerationOrchestrator {
         );
 
         // Record telemetry
-        self.telemetry.record(
-            TelemetryEvent::new(TelemetryEventType::RegenerationStarted, "orchestrator".to_string())
-        ).await;
+        self.telemetry
+            .record(TelemetryEvent::new(
+                TelemetryEventType::RegenerationStarted,
+                "orchestrator".to_string(),
+            ))
+            .await;
 
         // Start regeneration engine
         self.regeneration_engine.clone().start().await?;
@@ -173,9 +176,12 @@ impl RegenerationOrchestrator {
         *running = false;
 
         // Record telemetry
-        self.telemetry.record(
-            TelemetryEvent::new(TelemetryEventType::RegenerationCompleted, "orchestrator".to_string())
-        ).await;
+        self.telemetry
+            .record(TelemetryEvent::new(
+                TelemetryEventType::RegenerationCompleted,
+                "orchestrator".to_string(),
+            ))
+            .await;
 
         info!("Orchestrator stopped");
         Ok(())
@@ -238,13 +244,21 @@ impl RegenerationOrchestrator {
         }
 
         // Record telemetry
-        self.telemetry.record(
-            TelemetryEvent::new(TelemetryEventType::RegenerationCompleted, "orchestrator".to_string())
+        self.telemetry
+            .record(
+                TelemetryEvent::new(
+                    TelemetryEventType::RegenerationCompleted,
+                    "orchestrator".to_string(),
+                )
                 .with_data("execution_id", serde_json::json!(execution_id))
                 .with_data("duration_ms", serde_json::json!(execution.duration_ms))
-                .with_data("tasks_succeeded", serde_json::json!(execution.tasks_succeeded))
-                .with_data("tasks_failed", serde_json::json!(execution.tasks_failed))
-        ).await;
+                .with_data(
+                    "tasks_succeeded",
+                    serde_json::json!(execution.tasks_succeeded),
+                )
+                .with_data("tasks_failed", serde_json::json!(execution.tasks_failed)),
+            )
+            .await;
 
         info!(
             execution_id = %execution_id,
@@ -344,12 +358,17 @@ impl RegenerationOrchestrator {
             );
 
             // Record health check telemetry
-            self.telemetry.record(
-                TelemetryEvent::new(TelemetryEventType::PerformanceMetric, "health-check".to_string())
+            self.telemetry
+                .record(
+                    TelemetryEvent::new(
+                        TelemetryEventType::PerformanceMetric,
+                        "health-check".to_string(),
+                    )
                     .with_data("cycles", serde_json::json!(stats.total_cycles))
                     .with_data("avg_cycle_ms", serde_json::json!(stats.avg_cycle_time_ms))
-                    .with_data("success_rate", serde_json::json!(metrics.success_rate))
-            ).await;
+                    .with_data("success_rate", serde_json::json!(metrics.success_rate)),
+                )
+                .await;
         }
 
         info!("Health check loop stopped");
@@ -379,8 +398,8 @@ impl RegenerationOrchestrator {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::autonomous::{DeploymentConfig, RegenerationConfig, TelemetryConfig};
     use crate::providers::MockClient;
-    use crate::autonomous::{RegenerationConfig, DeploymentConfig, TelemetryConfig};
 
     #[tokio::test]
     async fn test_orchestrator_creation() {
@@ -439,13 +458,11 @@ mod tests {
             notifier,
         );
 
-        let events = vec![
-            ChangeEvent::new(
-                crate::autonomous::events::ChangeType::NodeAdded,
-                "http://example.org/node1".to_string(),
-                "test".to_string(),
-            ),
-        ];
+        let events = vec![ChangeEvent::new(
+            crate::autonomous::events::ChangeType::NodeAdded,
+            "http://example.org/node1".to_string(),
+            "test".to_string(),
+        )];
 
         let result = orchestrator.execute_cycle(events).await.unwrap();
         assert_eq!(result.tasks_executed, 1);

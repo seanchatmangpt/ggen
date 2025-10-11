@@ -1,11 +1,11 @@
 //! Global LLM configuration management
 
-use crate::client::{LlmConfig, LlmClient};
-use crate::{MockClient, OllamaClient, OpenAIClient, AnthropicClient};
+use crate::client::{LlmClient, LlmConfig};
 use crate::error::{GgenAiError, Result};
+use crate::{AnthropicClient, MockClient, OllamaClient, OpenAIClient};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
-use serde::{Deserialize, Serialize};
 
 /// Global LLM configuration manager
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -53,54 +53,66 @@ impl Default for GlobalLlmConfig {
         let mut providers = HashMap::new();
 
         // OpenAI defaults
-        providers.insert(LlmProvider::OpenAI, LlmConfig {
-            model: std::env::var("OPENAI_MODEL")
-                .or_else(|_| std::env::var("GGEN_DEFAULT_MODEL"))
-                .or_else(|_| std::env::var("DEFAULT_MODEL"))
-                .unwrap_or_else(|_| "gpt-3.5-turbo".to_string()),
-            max_tokens: Some(4096),
-            temperature: Some(0.7),
-            top_p: Some(0.9),
-            stop: None,
-            extra: HashMap::new(),
-        });
+        providers.insert(
+            LlmProvider::OpenAI,
+            LlmConfig {
+                model: std::env::var("OPENAI_MODEL")
+                    .or_else(|_| std::env::var("GGEN_DEFAULT_MODEL"))
+                    .or_else(|_| std::env::var("DEFAULT_MODEL"))
+                    .unwrap_or_else(|_| "gpt-3.5-turbo".to_string()),
+                max_tokens: Some(4096),
+                temperature: Some(0.7),
+                top_p: Some(0.9),
+                stop: None,
+                extra: HashMap::new(),
+            },
+        );
 
         // Anthropic defaults
-        providers.insert(LlmProvider::Anthropic, LlmConfig {
-            model: std::env::var("ANTHROPIC_MODEL")
-                .or_else(|_| std::env::var("GGEN_DEFAULT_MODEL"))
-                .or_else(|_| std::env::var("DEFAULT_MODEL"))
-                .unwrap_or_else(|_| "claude-3-sonnet-20240229".to_string()),
-            max_tokens: Some(4096),
-            temperature: Some(0.7),
-            top_p: Some(0.9),
-            stop: None,
-            extra: HashMap::new(),
-        });
+        providers.insert(
+            LlmProvider::Anthropic,
+            LlmConfig {
+                model: std::env::var("ANTHROPIC_MODEL")
+                    .or_else(|_| std::env::var("GGEN_DEFAULT_MODEL"))
+                    .or_else(|_| std::env::var("DEFAULT_MODEL"))
+                    .unwrap_or_else(|_| "claude-3-sonnet-20240229".to_string()),
+                max_tokens: Some(4096),
+                temperature: Some(0.7),
+                top_p: Some(0.9),
+                stop: None,
+                extra: HashMap::new(),
+            },
+        );
 
         // Ollama defaults
-        providers.insert(LlmProvider::Ollama, LlmConfig {
-            model: std::env::var("OLLAMA_MODEL")
-                .or_else(|_| std::env::var("GGEN_DEFAULT_MODEL"))
-                .or_else(|_| std::env::var("DEFAULT_MODEL"))
-                .unwrap_or_else(|_| "qwen3-coder:30b".to_string()),
-            max_tokens: Some(4096),
-            temperature: Some(0.7),
-            top_p: Some(0.9),
-            stop: None,
-            extra: HashMap::new(),
-        });
-        
+        providers.insert(
+            LlmProvider::Ollama,
+            LlmConfig {
+                model: std::env::var("OLLAMA_MODEL")
+                    .or_else(|_| std::env::var("GGEN_DEFAULT_MODEL"))
+                    .or_else(|_| std::env::var("DEFAULT_MODEL"))
+                    .unwrap_or_else(|_| "qwen3-coder:30b".to_string()),
+                max_tokens: Some(4096),
+                temperature: Some(0.7),
+                top_p: Some(0.9),
+                stop: None,
+                extra: HashMap::new(),
+            },
+        );
+
         // Mock defaults
-        providers.insert(LlmProvider::Mock, LlmConfig {
-            model: "mock-model".to_string(),
-            max_tokens: Some(1000),
-            temperature: Some(0.0),
-            top_p: Some(1.0),
-            stop: None,
-            extra: HashMap::new(),
-        });
-        
+        providers.insert(
+            LlmProvider::Mock,
+            LlmConfig {
+                model: "mock-model".to_string(),
+                max_tokens: Some(1000),
+                temperature: Some(0.0),
+                top_p: Some(1.0),
+                stop: None,
+                extra: HashMap::new(),
+            },
+        );
+
         Self {
             provider: Self::detect_available_provider(), // Auto-detect available provider
             providers,
@@ -153,7 +165,14 @@ impl GlobalLlmConfig {
     fn check_ollama_available() -> bool {
         // Try to connect to Ollama's health endpoint
         std::process::Command::new("curl")
-            .args(&["-s", "-o", "/dev/null", "-w", "%{http_code}", "http://localhost:11434/api/tags"])
+            .args(&[
+                "-s",
+                "-o",
+                "/dev/null",
+                "-w",
+                "%{http_code}",
+                "http://localhost:11434/api/tags",
+            ])
             .output()
             .ok()
             .and_then(|output| String::from_utf8(output.stdout).ok())
@@ -165,11 +184,11 @@ impl GlobalLlmConfig {
     pub fn new() -> Self {
         Self::default()
     }
-    
+
     /// Load configuration from environment variables
     pub fn from_env() -> Self {
         let mut config = Self::default();
-        
+
         // Provider selection
         if let Ok(provider) = std::env::var("GGEN_LLM_PROVIDER") {
             config.provider = match provider.to_lowercase().as_str() {
@@ -180,31 +199,31 @@ impl GlobalLlmConfig {
                 _ => LlmProvider::Ollama,
             };
         }
-        
+
         // Model selection
         if let Ok(model) = std::env::var("GGEN_LLM_MODEL") {
             config.settings.default_model = Some(model);
         }
-        
+
         // Temperature
         if let Ok(temp) = std::env::var("GGEN_LLM_TEMPERATURE") {
             if let Ok(temp_val) = temp.parse::<f32>() {
                 config.settings.default_temperature = Some(temp_val);
             }
         }
-        
+
         // Max tokens
         if let Ok(tokens) = std::env::var("GGEN_LLM_MAX_TOKENS") {
             if let Ok(tokens_val) = tokens.parse::<u32>() {
                 config.settings.default_max_tokens = Some(tokens_val);
             }
         }
-        
+
         // Streaming
         if let Ok(streaming) = std::env::var("GGEN_LLM_STREAMING") {
             config.settings.use_streaming = streaming.to_lowercase() == "true" || streaming == "1";
         }
-        
+
         // Update provider configs with global settings
         for (_, provider_config) in config.providers.iter_mut() {
             if let Some(ref model) = config.settings.default_model {
@@ -220,30 +239,30 @@ impl GlobalLlmConfig {
                 provider_config.top_p = Some(top_p);
             }
         }
-        
+
         config
     }
-    
+
     /// Get configuration for a specific provider
     pub fn get_provider_config(&self, provider: &LlmProvider) -> Option<&LlmConfig> {
         self.providers.get(provider)
     }
-    
+
     /// Get configuration for the default provider
     pub fn get_default_config(&self) -> Option<&LlmConfig> {
         self.get_provider_config(&self.provider)
     }
-    
+
     /// Set the default provider
     pub fn set_provider(&mut self, provider: LlmProvider) {
         self.provider = provider;
     }
-    
+
     /// Update provider configuration
     pub fn update_provider_config(&mut self, provider: LlmProvider, config: LlmConfig) {
         self.providers.insert(provider, config);
     }
-    
+
     /// Create an LLM client for the default provider
     pub fn create_client(&self) -> Result<Arc<dyn LlmClient>> {
         self.create_provider_client(&self.provider)
@@ -251,10 +270,16 @@ impl GlobalLlmConfig {
 
     /// Create an LLM client for a specific provider
     pub fn create_provider_client(&self, provider: &LlmProvider) -> Result<Arc<dyn LlmClient>> {
-        let config = self.get_provider_config(provider)
-            .ok_or_else(|| GgenAiError::configuration(&format!("No configuration found for provider: {:?}", provider)))?
+        let config = self
+            .get_provider_config(provider)
+            .ok_or_else(|| {
+                GgenAiError::configuration(&format!(
+                    "No configuration found for provider: {:?}",
+                    provider
+                ))
+            })?
             .clone();
-        
+
         match provider {
             LlmProvider::OpenAI => {
                 let client = OpenAIClient::new(config)?;
@@ -274,19 +299,19 @@ impl GlobalLlmConfig {
             }
         }
     }
-    
+
     /// Create a mock client for testing
     pub fn create_mock_client(&self, response: &str) -> Arc<dyn LlmClient> {
         Arc::new(MockClient::with_response(response))
     }
-    
+
     /// Check if we're in test mode
     pub fn is_test_mode(&self) -> bool {
-        std::env::var("GGEN_TEST_MODE").is_ok() || 
-        std::env::var("GGEN_ALLOW_LIVE_CALLS").is_err() ||
-        cfg!(test)
+        std::env::var("GGEN_TEST_MODE").is_ok()
+            || std::env::var("GGEN_ALLOW_LIVE_CALLS").is_err()
+            || cfg!(test)
     }
-    
+
     /// Create a client appropriate for the current context (test vs production)
     pub fn create_contextual_client(&self) -> Result<Arc<dyn LlmClient>> {
         if self.is_test_mode() {
@@ -317,7 +342,9 @@ pub fn init_global_config() -> &'static GlobalLlmConfig {
         INIT.call_once(|| {
             GLOBAL_CONFIG = Some(GlobalLlmConfig::from_env());
         });
-        GLOBAL_CONFIG.as_ref().expect("Global config should be initialized after call_once")
+        GLOBAL_CONFIG
+            .as_ref()
+            .expect("Global config should be initialized after call_once")
     }
 }
 
@@ -327,7 +354,9 @@ pub fn get_global_config() -> &'static GlobalLlmConfig {
         if GLOBAL_CONFIG.is_none() {
             init_global_config();
         }
-        GLOBAL_CONFIG.as_ref().expect("Global config should be initialized")
+        GLOBAL_CONFIG
+            .as_ref()
+            .expect("Global config should be initialized")
     }
 }
 
@@ -341,7 +370,7 @@ pub fn set_global_config(config: GlobalLlmConfig) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[test]
     fn test_default_config() {
         let config = GlobalLlmConfig::default();
@@ -351,7 +380,7 @@ mod tests {
         assert!(config.providers.contains_key(&LlmProvider::Ollama));
         assert!(config.providers.contains_key(&LlmProvider::Mock));
     }
-    
+
     #[test]
     fn test_provider_config_access() {
         let config = GlobalLlmConfig::default();
@@ -359,7 +388,7 @@ mod tests {
         assert!(ollama_config.is_some());
         assert_eq!(ollama_config.unwrap().model, "llama3.2");
     }
-    
+
     #[test]
     fn test_mock_client_creation() {
         let config = GlobalLlmConfig::default();

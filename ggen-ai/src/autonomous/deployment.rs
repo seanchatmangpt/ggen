@@ -123,9 +123,7 @@ impl DeploymentAutomation {
 
     /// Deploy generated code to configured environments
     pub async fn deploy(
-        &mut self,
-        source_dir: &Path,
-        version: &str,
+        &mut self, source_dir: &Path, version: &str,
     ) -> Result<Vec<DeploymentResult>> {
         if !self.config.enabled {
             info!("Auto-deployment is disabled");
@@ -158,10 +156,7 @@ impl DeploymentAutomation {
 
     /// Deploy to a specific environment
     async fn deploy_to_environment(
-        &self,
-        source_dir: &Path,
-        version: &str,
-        env: &DeploymentEnvironment,
+        &self, source_dir: &Path, version: &str, env: &DeploymentEnvironment,
     ) -> DeploymentResult {
         let start_time = std::time::Instant::now();
 
@@ -204,7 +199,10 @@ impl DeploymentAutomation {
         }
 
         // Run pre-deploy commands
-        if let Err(e) = self.run_commands(&self.config.pre_deploy_commands, env).await {
+        if let Err(e) = self
+            .run_commands(&self.config.pre_deploy_commands, env)
+            .await
+        {
             error!(error = %e, "Pre-deploy commands failed");
             return self.create_failed_result(env, version, e.to_string());
         }
@@ -226,7 +224,10 @@ impl DeploymentAutomation {
         };
 
         // Run post-deploy commands
-        if let Err(e) = self.run_commands(&self.config.post_deploy_commands, env).await {
+        if let Err(e) = self
+            .run_commands(&self.config.post_deploy_commands, env)
+            .await
+        {
             error!(error = %e, "Post-deploy commands failed");
             // Attempt rollback if configured
             if self.config.rollback_strategy == RollbackStrategy::Automatic {
@@ -302,9 +303,7 @@ impl DeploymentAutomation {
 
     /// Run validation tests
     async fn run_validation(
-        &self,
-        source_dir: &Path,
-        env: &DeploymentEnvironment,
+        &self, source_dir: &Path, env: &DeploymentEnvironment,
     ) -> Result<Vec<ValidationResult>> {
         debug!("Running validation tests for {}", source_dir.display());
         let mut results = Vec::new();
@@ -330,8 +329,7 @@ impl DeploymentAutomation {
 
     /// Run integration tests
     async fn run_integration_tests(
-        &self,
-        env: &DeploymentEnvironment,
+        &self, env: &DeploymentEnvironment,
     ) -> Result<Vec<ValidationResult>> {
         debug!("Running integration tests for environment: {}", env.name);
         let mut results = Vec::new();
@@ -352,11 +350,7 @@ impl DeploymentAutomation {
     }
 
     /// Run shell commands
-    async fn run_commands(
-        &self,
-        commands: &[String],
-        env: &DeploymentEnvironment,
-    ) -> Result<()> {
+    async fn run_commands(&self, commands: &[String], env: &DeploymentEnvironment) -> Result<()> {
         for cmd in commands {
             debug!(command = %cmd, "Executing command");
 
@@ -420,9 +414,9 @@ impl DeploymentAutomation {
         }
 
         // Restore backup
-        fs::rename(backup_dir, target_dir).await.map_err(|e| {
-            GgenAiError::deployment(format!("Failed to restore backup: {}", e))
-        })?;
+        fs::rename(backup_dir, target_dir)
+            .await
+            .map_err(|e| GgenAiError::deployment(format!("Failed to restore backup: {}", e)))?;
 
         info!("Rollback completed successfully");
         Ok(())
@@ -443,21 +437,22 @@ impl DeploymentAutomation {
 
         // Implement recursive file copy
         let mut copied_files = Vec::new();
-        
+
         if let Ok(entries) = fs::read_dir(source).await {
             let mut entries = entries;
             while let Some(entry) = entries.next_entry().await? {
                 let source_path = entry.path();
-                let file_name = source_path.file_name()
+                let file_name = source_path
+                    .file_name()
                     .ok_or_else(|| GgenAiError::deployment("Invalid file name"))?;
                 let target_path = target.join(file_name);
-                
+
                 if source_path.is_dir() {
                     // Recursively copy directory
                     fs::create_dir_all(&target_path).await.map_err(|e| {
                         GgenAiError::deployment(format!("Failed to create directory: {}", e))
                     })?;
-                    
+
                     let sub_files = Box::pin(self.copy_files(&source_path, &target_path)).await?;
                     copied_files.extend(sub_files);
                 } else {
@@ -475,10 +470,7 @@ impl DeploymentAutomation {
 
     /// Create a failed deployment result
     fn create_failed_result(
-        &self,
-        env: &DeploymentEnvironment,
-        version: &str,
-        error: String,
+        &self, env: &DeploymentEnvironment, version: &str, error: String,
     ) -> DeploymentResult {
         DeploymentResult {
             success: false,
@@ -513,10 +505,10 @@ impl DeploymentAutomation {
     /// Validate syntax of generated files
     async fn validate_syntax(&self, source_dir: &Path) -> Result<ValidationResult> {
         let start = std::time::Instant::now();
-        
+
         // Check for common syntax issues in generated files
         let mut issues = Vec::new();
-        
+
         // Validate Rust files
         if let Ok(entries) = fs::read_dir(source_dir).await {
             let mut entries = entries;
@@ -538,7 +530,7 @@ impl DeploymentAutomation {
 
         let duration_ms = start.elapsed().as_millis() as u64;
         let passed = issues.is_empty();
-        
+
         Ok(ValidationResult {
             name: "syntax_check".to_string(),
             passed,
@@ -554,9 +546,9 @@ impl DeploymentAutomation {
     /// Validate security aspects of generated files
     async fn validate_security(&self, source_dir: &Path) -> Result<ValidationResult> {
         let start = std::time::Instant::now();
-        
+
         let mut issues = Vec::new();
-        
+
         // Check for dangerous patterns
         if let Ok(entries) = fs::read_dir(source_dir).await {
             let mut entries = entries;
@@ -579,7 +571,7 @@ impl DeploymentAutomation {
 
         let duration_ms = start.elapsed().as_millis() as u64;
         let passed = issues.is_empty();
-        
+
         Ok(ValidationResult {
             name: "security_check".to_string(),
             passed,
@@ -595,9 +587,9 @@ impl DeploymentAutomation {
     /// Validate performance characteristics
     async fn validate_performance(&self, source_dir: &Path) -> Result<ValidationResult> {
         let start = std::time::Instant::now();
-        
+
         let mut issues = Vec::new();
-        
+
         // Check for performance anti-patterns
         if let Ok(entries) = fs::read_dir(source_dir).await {
             let mut entries = entries;
@@ -605,10 +597,16 @@ impl DeploymentAutomation {
                 let path = entry.path();
                 if let Ok(content) = fs::read_to_string(&path).await {
                     // Check for performance issues
-                    if content.contains("Vec::new()") && content.contains("push") && content.contains("for") {
+                    if content.contains("Vec::new()")
+                        && content.contains("push")
+                        && content.contains("for")
+                    {
                         issues.push("Potential vector reallocation in loop".to_string());
                     }
-                    if content.contains("String::new()") && content.contains("push_str") && content.contains("for") {
+                    if content.contains("String::new()")
+                        && content.contains("push_str")
+                        && content.contains("for")
+                    {
                         issues.push("Potential string reallocation in loop".to_string());
                     }
                     if content.contains("clone()") && content.contains("for") {
@@ -620,7 +618,7 @@ impl DeploymentAutomation {
 
         let duration_ms = start.elapsed().as_millis() as u64;
         let passed = issues.is_empty();
-        
+
         Ok(ValidationResult {
             name: "performance_check".to_string(),
             passed,
@@ -634,11 +632,13 @@ impl DeploymentAutomation {
     }
 
     /// Validate environment-specific requirements
-    async fn validate_environment(&self, source_dir: &Path, env: &DeploymentEnvironment) -> Result<ValidationResult> {
+    async fn validate_environment(
+        &self, source_dir: &Path, env: &DeploymentEnvironment,
+    ) -> Result<ValidationResult> {
         let start = std::time::Instant::now();
-        
+
         let mut issues = Vec::new();
-        
+
         // Environment-specific validation
         match env.name.as_str() {
             "production" => {
@@ -657,11 +657,11 @@ impl DeploymentAutomation {
                         }
                     }
                 }
-            },
+            }
             "development" => {
                 // Development-specific checks (more lenient)
                 debug!("Development environment validation - lenient checks");
-            },
+            }
             _ => {
                 // Other environments
                 debug!("Environment {} validation", env.name);
@@ -670,14 +670,18 @@ impl DeploymentAutomation {
 
         let duration_ms = start.elapsed().as_millis() as u64;
         let passed = issues.is_empty();
-        
+
         Ok(ValidationResult {
             name: "environment_check".to_string(),
             passed,
             message: if passed {
                 format!("Environment validation passed for {}", env.name)
             } else {
-                format!("Environment issues found for {}: {}", env.name, issues.join(", "))
+                format!(
+                    "Environment issues found for {}: {}",
+                    env.name,
+                    issues.join(", ")
+                )
             },
             duration_ms,
         })
@@ -722,7 +726,10 @@ impl DeploymentAutomation {
             while let Some(entry) = entries.next_entry().await? {
                 let path = entry.path();
                 if let Some(file_name) = path.file_name().and_then(|n| n.to_str()) {
-                    if file_name.contains("api") || file_name.contains("server") || file_name.contains("endpoint") {
+                    if file_name.contains("api")
+                        || file_name.contains("server")
+                        || file_name.contains("endpoint")
+                    {
                         has_api_files = true;
                         break;
                     }
@@ -755,7 +762,9 @@ impl DeploymentAutomation {
     }
 
     /// Run database integration test
-    async fn run_database_tests(&self, env: &DeploymentEnvironment) -> Result<Vec<ValidationResult>> {
+    async fn run_database_tests(
+        &self, env: &DeploymentEnvironment,
+    ) -> Result<Vec<ValidationResult>> {
         let start = std::time::Instant::now();
 
         // Check for database-related configuration
@@ -770,7 +779,10 @@ impl DeploymentAutomation {
             while let Some(entry) = entries.next_entry().await? {
                 let path = entry.path();
                 if let Some(file_name) = path.file_name().and_then(|n| n.to_str()) {
-                    if file_name.contains("database") || file_name.contains("db") || file_name.contains("sql") {
+                    if file_name.contains("database")
+                        || file_name.contains("db")
+                        || file_name.contains("sql")
+                    {
                         has_db_config = true;
                         break;
                     }
@@ -813,19 +825,23 @@ mod tests {
         let temp_dir = TempDir::new().expect("Failed to create temp dir");
         let config = DeploymentConfig::default();
         let automation = DeploymentAutomation::new(config);
-        
+
         // Create test files
         let test_file = temp_dir.path().join("test.rs");
-        std::fs::write(&test_file, "fn main() { println!(\"Hello\"); }").expect("Failed to write test file");
-        
+        std::fs::write(&test_file, "fn main() { println!(\"Hello\"); }")
+            .expect("Failed to write test file");
+
         let env = DeploymentEnvironment {
             name: "test".to_string(),
             target_dir: temp_dir.path().to_path_buf(),
             env_vars: std::collections::HashMap::new(),
             auto_deploy: true,
         };
-        
-        let results = automation.run_validation(temp_dir.path(), &env).await.expect("Validation should succeed");
+
+        let results = automation
+            .run_validation(temp_dir.path(), &env)
+            .await
+            .expect("Validation should succeed");
         assert!(!results.is_empty());
         assert!(results.iter().any(|r| r.name == "syntax_check"));
     }
@@ -835,15 +851,18 @@ mod tests {
         let temp_dir = TempDir::new().expect("Failed to create temp dir");
         let config = DeploymentConfig::default();
         let automation = DeploymentAutomation::new(config);
-        
+
         let env = DeploymentEnvironment {
             name: "test".to_string(),
             target_dir: temp_dir.path().to_path_buf(),
             env_vars: std::collections::HashMap::new(),
             auto_deploy: true,
         };
-        
-        let results = automation.run_integration_tests(&env).await.expect("Integration tests should succeed");
+
+        let results = automation
+            .run_integration_tests(&env)
+            .await
+            .expect("Integration tests should succeed");
         assert!(!results.is_empty());
         assert!(results.iter().any(|r| r.name == "basic_integration"));
     }
@@ -853,15 +872,19 @@ mod tests {
         let temp_dir = TempDir::new().expect("Failed to create temp dir");
         let config = DeploymentConfig::default();
         let automation = DeploymentAutomation::new(config);
-        
+
         // Create source directory with files
         let source_dir = temp_dir.path().join("source");
         std::fs::create_dir_all(&source_dir).expect("Failed to create source dir");
-        std::fs::write(source_dir.join("test.txt"), "Hello World").expect("Failed to write test file");
-        
+        std::fs::write(source_dir.join("test.txt"), "Hello World")
+            .expect("Failed to write test file");
+
         let target_dir = temp_dir.path().join("target");
-        
-        let copied_files = automation.copy_files(&source_dir, &target_dir).await.expect("File copy should succeed");
+
+        let copied_files = automation
+            .copy_files(&source_dir, &target_dir)
+            .await
+            .expect("File copy should succeed");
         assert!(!copied_files.is_empty());
         assert!(target_dir.join("test.txt").exists());
     }

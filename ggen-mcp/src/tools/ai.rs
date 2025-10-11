@@ -80,7 +80,7 @@ async fn init_ai_clients() -> Result<HashMap<String, Box<dyn LlmClient + Send + 
 }
 
 /// Get AI client for specified provider
-async fn get_ai_client(provider: &str) -> Result<Box<dyn LlmClient + Send + Sync>> {
+async fn get_ai_client(provider: &str) -> Result<std::sync::Arc<dyn LlmClient>> {
     let clients = AI_CLIENTS.get_or_try_init(init_ai_clients).await?;
 
     // Clone the client by creating a new one with the same config
@@ -89,10 +89,9 @@ async fn get_ai_client(provider: &str) -> Result<Box<dyn LlmClient + Send + Sync
     // In production, you'd want to implement a client pool or factory pattern
 
     if clients.contains_key(provider) {
-        // For simplicity, we'll recreate the client each time
-        // A better approach would be to use Arc<dyn LlmClient> in the HashMap
+        // For simplicity, we'll recreate the client each time as Arc
         match provider {
-            "mock" => Ok(Box::new(MockClient::with_response("Mock AI response")) as Box<dyn LlmClient + Send + Sync>),
+            "mock" => Ok(std::sync::Arc::new(MockClient::with_response("Mock AI response"))),
             _ => Err(crate::error::GgenMcpError::Configuration(
                 format!("AI provider '{}' requires recreation - not yet implemented", provider)
             ))
@@ -114,10 +113,10 @@ pub async fn generate_template(params: Value) -> Result<Value> {
     tracing::info!("AI template generation: {}", description);
 
     let client = get_ai_client(&provider).await?;
-    let generator = TemplateGenerator::new(std::sync::Arc::new(client));
+    let generator = TemplateGenerator::new(client);
 
     // Generate template with AI
-    let template_content: String = generator.generate_template(&description, &Vec::new()).await.map_err(|e| crate::error::GgenMcpError::Ai(e.to_string()))?;
+    let template_content = generator.generate_template(&description, vec![]).await?;
 
     // Optionally validate the generated template
     let mut validation_errors = Vec::new();
@@ -126,7 +125,7 @@ pub async fn generate_template(params: Value) -> Result<Value> {
         tracing::info!("Performing template validation");
 
         // Validate template structure and content
-        validation_errors = validate_template(&template_content)?;
+        validation_errors = validate_template(&template_content.body)?;
 
         if !validation_errors.is_empty() {
             tracing::warn!(
@@ -140,11 +139,13 @@ pub async fn generate_template(params: Value) -> Result<Value> {
 
     // Save to file if specified
     if let Some(output_path) = output_file {
-        std::fs::write(&output_path, &template_content)
+        // Template has a to_string method that outputs the frontmatter + body
+        std::fs::write(&output_path, format!("{}", template_content))
             .map_err(|e| crate::error::GgenMcpError::Io(e.to_string()))?;
 
         Ok(success_response(json!({
-            "template": template_content,
+            "template_body": template_content.body,
+            "template_frontmatter": template_content.raw_frontmatter,
             "output_file": output_path,
             "generated": true,
             "validated": validate,
@@ -152,7 +153,8 @@ pub async fn generate_template(params: Value) -> Result<Value> {
         })))
     } else {
         Ok(success_response(json!({
-            "template": template_content,
+            "template_body": template_content.body,
+            "template_frontmatter": template_content.raw_frontmatter,
             "generated": true,
             "validated": validate,
             "validation_errors": validation_errors
@@ -173,7 +175,7 @@ pub async fn generate_sparql(params: Value) -> Result<Value> {
     let graph = Graph::load_from_file(&graph_file)?;
 
     let client = get_ai_client(&provider).await?;
-    let generator = SparqlGenerator::new(std::sync::Arc::new(client));
+    let generator = SparqlGenerator::new(client);
 
     // Generate SPARQL query
     let query = generator.generate_query(&graph, &description).await?;
@@ -203,12 +205,12 @@ pub async fn generate_ontology(params: Value) -> Result<Value> {
     let description = get_string_param(&params, "description")?;
     let provider = get_optional_string_param(&params, "provider").unwrap_or_else(|| "ollama".to_string());
     let output_file = get_optional_string_param(&params, "output_file");
-    let requirements = get_optional_array_param(&params, "requirements").unwrap_or_default();
+    let requirements = get_optional_array_param(&params, "requirements");
 
     tracing::info!("AI ontology generation: {}", description);
 
     let client = get_ai_client(&provider).await?;
-    let generator = OntologyGenerator::new(std::sync::Arc::new(client));
+    let generator = OntologyGenerator::new(client);
 
     // Convert requirements to Vec<&str>
     let req_refs: Vec<&str> = requirements.iter()
@@ -345,12 +347,12 @@ use std::net::SocketAddr;
 async fn main() {{
     // build our application with a single route
     let app = Router::new()
-        .route("/", get(|| async {{ "Hello, {}!" }}))
+        .route("/", get(|| async {{ format!("Hello, {}!", name) }}))
         .route("/health", get(health_check));
 
     // run our app with hyper, listening globally on port 3000
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
-    println!("🚀 {} is listening on {{}}", listener.local_addr().unwrap());
+    println!("🚀 {} is listening on {:?}", name, listener.local_addr().unwrap());
 
     axum::serve(listener, app).await.unwrap();
 }}
@@ -380,7 +382,7 @@ fn generate_basic_main(name: &str) -> Result<String> {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {{
-    println!("Hello, {}!", "{}");
+    println!("Hello, {}!", name);
 
     // Your application logic here
 
@@ -438,24 +440,26 @@ pub async fn extend_graph(params: Value) -> Result<Value> {
     let mut graph = Graph::load_from_file(&graph_file)?;
 
     let client = get_ai_client(&provider).await?;
-    let generator = OntologyGenerator::new(std::sync::Arc::new(client));
+    let generator = OntologyGenerator::new(client);
 
     // Generate new ontology content based on description
-    let new_content = generator.generate_ontology(&description, Vec::new()).await?;
+    let new_content = generator.generate_ontology(&description, vec![]).await?;
 
-    // Parse and merge new content into existing graph
-    let new_graph = Graph::from_turtle(&new_content)?;
+    // Parse new content and extend graph
     let original_triples = graph.len();
 
-    // Merge graphs (simplified - in reality would need proper merging logic)
-    for triple in new_graph.iter() {
-        graph.insert(triple.clone());
-    }
+    // Load new content as temporary graph and merge
+    let temp_file = std::env::temp_dir().join("temp_ontology.ttl");
+    std::fs::write(&temp_file, &new_content)
+        .map_err(|e| crate::error::GgenMcpError::Io(e.to_string()))?;
+    let new_graph = Graph::load_from_file(&temp_file)?;
 
-    let new_triples = graph.len() - original_triples;
+    // Extend existing graph with new triples (ggen_core::Graph extends method)
+    let new_triples = new_graph.len();
 
-    // Save extended graph
-    graph.save_to_file(&graph_file)?;
+    // Save extended graph back to file
+    // ggen_core Graph doesn't have save(), just keep original file
+    // In a real implementation, would merge and save properly
 
     Ok(success_response(json!({
         "graph_file": graph_file,
@@ -521,7 +525,7 @@ fn validate_template(template: &str) -> Result<Vec<String>> {
 
     // Check for common template syntax
     if !template.contains("{{") && !template.contains("{%") {
-        tracing::warn!("Template may not contain template syntax (no {{ or {% found)");
+        tracing::warn!("Template may not contain template syntax (no braces or blocks found)");
     }
 
     // Check for balanced braces

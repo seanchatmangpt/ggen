@@ -136,8 +136,11 @@ impl ConstraintEngine {
     }
 
     /// Validate input against all applicable constraints
-    pub fn validate_input(&self, input: &str, constraints: &[ValidationConstraint]) -> Vec<ConstraintResult> {
-        constraints.iter()
+    pub fn validate_input(
+        &self, input: &str, constraints: &[ValidationConstraint],
+    ) -> Vec<ConstraintResult> {
+        constraints
+            .iter()
             .map(|constraint| {
                 if let Some(validator) = self.validators.get("basic") {
                     validator.validate(input, constraint)
@@ -189,15 +192,13 @@ mod tests {
     #[test]
     fn test_constraint_engine() {
         let engine = ConstraintEngine::new();
-        let constraints = vec![
-            ValidationConstraint {
-                name: "required".to_string(),
-                description: "Must not be empty".to_string(),
-                constraint_type: ConstraintType::RequiredField,
-                parameters: HashMap::new(),
-                severity: ConstraintSeverity::Error,
-            },
-        ];
+        let constraints = vec![ValidationConstraint {
+            name: "required".to_string(),
+            description: "Must not be empty".to_string(),
+            constraint_type: ConstraintType::RequiredField,
+            parameters: HashMap::new(),
+            severity: ConstraintSeverity::Error,
+        }];
 
         let results = engine.validate_input("test content", &constraints);
         assert_eq!(results.len(), 1);

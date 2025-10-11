@@ -45,7 +45,7 @@
 
 # ggen-mcp Integration Status & Next Steps
 
-**80/20 Implementation Status - 2025-10-10**
+**80/20 Implementation Status - 2025-10-12**
 
 ## ✅ Completed (80% Value Delivered)
 
@@ -227,7 +227,7 @@ cargo build --package ggen-mcp --release
           │    compilation
           │
 ┌─────────▼───────────────┐
-│ ggen-mcp (v0.2.4)       │
+│ ggen-mcp (v1.0.0)       │
 │ - 27 MCP tools defined  │
 │ - Server architecture   │
 │ - Connection script     │
@@ -237,7 +237,7 @@ cargo build --package ggen-mcp --release
           │ Depends on
           │
 ┌─────────▼───────────────┐
-│ ggen-ai (v0.2.4)        │
+│ ggen-ai (v1.0.0)        │
 │ ❌ 57 compilation errors│
 │ - Missing imports       │
 │ - Incomplete impls      │
@@ -254,7 +254,7 @@ cargo build --package ggen-mcp --release
           │ MCP Protocol
           │
 ┌─────────▼───────────────┐
-│ ggen-mcp (v0.2.4)       │
+│ ggen-mcp (v1.0.0)       │
 │ ✅ 27 tools available   │
 │ ✅ Compiled             │
 │ ✅ Running              │
@@ -263,7 +263,7 @@ cargo build --package ggen-mcp --release
           │ Uses
           │
 ┌─────────▼───────────────┐
-│ ggen-ai (v0.2.4)        │
+│ ggen-ai (v1.0.0)        │
 │ ✅ Compiled             │
 │ ✅ All imports          │
 │ ✅ Complete impls       │

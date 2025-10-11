@@ -6,12 +6,11 @@
 
 use anyhow;
 use clap::Args;
-use ggen_utils::error::Result;
 use ggen_ai::ultrathink::{
-    initialize_ultrathink,
-    create_task,
-    core::{TaskType, TaskPriority},
+    core::{TaskPriority, TaskType},
+    create_task, initialize_ultrathink,
 };
+use ggen_utils::error::Result;
 
 #[derive(Debug, Args)]
 pub struct UltrathinkArgs {
@@ -53,9 +52,11 @@ pub async fn run(args: &UltrathinkArgs) -> Result<()> {
     match &args.command {
         UltrathinkCommand::Start => run_ultrathink_start().await,
         UltrathinkCommand::Status => run_ultrathink_status().await,
-        UltrathinkCommand::Task { description, task_type, priority } => {
-            run_ultrathink_task(description, task_type, priority).await
-        }
+        UltrathinkCommand::Task {
+            description,
+            task_type,
+            priority,
+        } => run_ultrathink_task(description, task_type, priority).await,
         UltrathinkCommand::Sync => run_ultrathink_sync().await,
         UltrathinkCommand::Intelligence => run_ultrathink_intelligence().await,
         UltrathinkCommand::Demo => run_ultrathink_demo().await,
@@ -68,7 +69,8 @@ async fn run_ultrathink_start() -> Result<()> {
     println!("===========================================================");
 
     // Initialize the ultrathink system
-    initialize_ultrathink().await
+    initialize_ultrathink()
+        .await
         .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?;
 
     println!("✅ Ultrathink system initialized successfully!");
@@ -126,15 +128,15 @@ async fn run_ultrathink_task(description: &str, task_type: &str, priority: &str)
         "high" => TaskPriority::High,
         "medium" => TaskPriority::Medium,
         "low" => TaskPriority::Low,
-        _ => return Err(ggen_utils::error::Error::new("Invalid priority. Use: critical, high, medium, low")),
+        _ => {
+            return Err(ggen_utils::error::Error::new(
+                "Invalid priority. Use: critical, high, medium, low",
+            ))
+        }
     };
 
     // Create the task using the actual API
-    let task = create_task(
-        task_type_enum,
-        description.to_string(),
-        priority_enum,
-    );
+    let task = create_task(task_type_enum, description.to_string(), priority_enum);
 
     println!("✅ Task created successfully!");
     println!("🆔 Task ID: {}", task.id);

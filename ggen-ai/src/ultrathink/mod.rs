@@ -9,9 +9,9 @@ pub mod core;
 
 use std::sync::Arc;
 
+use crate::error::GgenAiError;
 use crate::error::Result;
 use uuid::Uuid;
-use crate::error::GgenAiError;
 
 /// Re-export core ultrathink types
 pub use core::*;
@@ -23,9 +23,7 @@ pub async fn initialize_ultrathink() -> Result<()> {
 
 /// Create a new ultrathink task
 pub fn create_task(
-    task_type: core::TaskType,
-    description: String,
-    priority: core::TaskPriority,
+    task_type: core::TaskType, description: String, priority: core::TaskPriority,
 ) -> core::UltrathinkTask {
     core::create_ultrathink_task(task_type, description, priority)
 }
@@ -85,13 +83,10 @@ pub fn get_ultrathink_system() -> Option<&'static UltrathinkSystem> {
 
 /// Submit a task to the ultrathink system
 pub async fn submit_ultrathink_task(
-    task_type: core::TaskType,
-    description: String,
-    priority: core::TaskPriority,
+    task_type: core::TaskType, description: String, priority: core::TaskPriority,
 ) -> Result<Uuid> {
-    let system = get_ultrathink_system().ok_or_else(|| {
-        GgenAiError::configuration("Ultrathink system not initialized")
-    })?;
+    let system = get_ultrathink_system()
+        .ok_or_else(|| GgenAiError::configuration("Ultrathink system not initialized"))?;
 
     let task = create_task(task_type, description, priority);
     system.submit_task(task).await
@@ -99,27 +94,24 @@ pub async fn submit_ultrathink_task(
 
 /// Synchronize with WIP systems
 pub async fn sync_ultrathink_wip() -> Result<()> {
-    let system = get_ultrathink_system().ok_or_else(|| {
-        GgenAiError::configuration("Ultrathink system not initialized")
-    })?;
+    let system = get_ultrathink_system()
+        .ok_or_else(|| GgenAiError::configuration("Ultrathink system not initialized"))?;
 
     system.sync_with_wip().await
 }
 
 /// Get ultrathink system status
 pub async fn get_ultrathink_status() -> Result<CoreMetrics> {
-    let system = get_ultrathink_system().ok_or_else(|| {
-        GgenAiError::configuration("Ultrathink system not initialized")
-    })?;
+    let system = get_ultrathink_system()
+        .ok_or_else(|| GgenAiError::configuration("Ultrathink system not initialized"))?;
 
     system.get_status().await
 }
 
 /// Process WIP entries
 pub async fn process_ultrathink_wip_entries() -> Result<Vec<WipOperation>> {
-    let system = get_ultrathink_system().ok_or_else(|| {
-        GgenAiError::configuration("Ultrathink system not initialized")
-    })?;
+    let system = get_ultrathink_system()
+        .ok_or_else(|| GgenAiError::configuration("Ultrathink system not initialized"))?;
 
     system.process_wip_entries().await
 }

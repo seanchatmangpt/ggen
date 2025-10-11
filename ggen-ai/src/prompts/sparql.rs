@@ -24,58 +24,62 @@ impl SparqlPromptBuilder {
             output_format: None,
         }
     }
-    
+
     /// Add graph schema information
     pub fn with_schema(mut self, schema: String) -> Self {
         self.graph_schema = Some(schema);
         self
     }
-    
+
     /// Add prefixes
     pub fn with_prefixes(mut self, prefixes: Vec<(String, String)>) -> Self {
         self.prefixes = prefixes;
         self
     }
-    
+
     /// Add examples
     pub fn with_examples(mut self, examples: Vec<String>) -> Self {
         self.examples = examples;
         self
     }
-    
+
     /// Add constraints
     pub fn with_constraints(mut self, constraints: Vec<String>) -> Self {
         self.constraints = constraints;
         self
     }
-    
+
     /// Set output format
     pub fn with_output_format(mut self, format: String) -> Self {
         self.output_format = Some(format);
         self
     }
-    
+
     /// Build the final prompt
     pub fn build(self) -> Result<String> {
         let mut prompt = String::new();
-        
+
         // System prompt
         prompt.push_str("You are an expert SPARQL query generator. ");
-        prompt.push_str("Generate accurate, efficient SPARQL queries based on natural language intent. ");
-        prompt.push_str("Ensure queries are syntactically correct and follow SPARQL best practices.\n\n");
-        
+        prompt.push_str(
+            "Generate accurate, efficient SPARQL queries based on natural language intent. ",
+        );
+        prompt.push_str(
+            "Ensure queries are syntactically correct and follow SPARQL best practices.\n\n",
+        );
+
         // Intent section
         prompt.push_str("## Query Intent\n");
         prompt.push_str(&self.intent);
         prompt.push_str("\n\n");
-        
+
         // Schema section
         if let Some(schema) = &self.graph_schema {
             prompt.push_str("## Graph Schema\n");
             prompt.push_str(schema);
             prompt.push_str("\n\n");
         }
-        
+
         // Prefixes section
         if !self.prefixes.is_empty() {
             prompt.push_str("## Available Prefixes\n");
@@ -84,7 +88,7 @@ impl SparqlPromptBuilder {
             }
             prompt.push_str("\n");
         }
-        
+
         // Constraints section
         if !self.constraints.is_empty() {
             prompt.push_str("## Constraints\n");
@@ -93,7 +97,7 @@ impl SparqlPromptBuilder {
             }
             prompt.push_str("\n");
         }
-        
+
         // Examples section
         if !self.examples.is_empty() {
             prompt.push_str("## Example Queries\n");
@@ -102,12 +106,12 @@ impl SparqlPromptBuilder {
             }
             prompt.push_str("\n");
         }
-        
+
         // Output format instructions
         if let Some(format) = &self.output_format {
             prompt.push_str(&format!("## Output Format\n{}\n\n", format));
         }
-        
+
         // Query generation instructions
         prompt.push_str("## Query Generation Rules\n");
         prompt.push_str("1. Use appropriate SPARQL syntax\n");
@@ -118,7 +122,7 @@ impl SparqlPromptBuilder {
         prompt.push_str("6. Include LIMIT clauses for large result sets\n");
         prompt.push_str("7. Use OPTIONAL for optional data\n");
         prompt.push_str("8. Use UNION for alternative patterns\n\n");
-        
+
         // Common patterns
         prompt.push_str("## Common SPARQL Patterns\n");
         prompt.push_str("```sparql\n");
@@ -143,10 +147,10 @@ impl SparqlPromptBuilder {
         prompt.push_str("  { ?s ex:type2 ?o }\n");
         prompt.push_str("}\n");
         prompt.push_str("```\n\n");
-        
+
         // Output instructions
         prompt.push_str("Generate the SPARQL query now:\n\n");
-        
+
         Ok(prompt)
     }
 }
@@ -169,7 +173,7 @@ impl SparqlPrompts {
             ])
             .build()
     }
-    
+
     /// Generate a query to find properties of a resource
     pub fn find_properties(resource_uri: &str, prefixes: Vec<(String, String)>) -> Result<String> {
         SparqlPromptBuilder::new(format!("Find all properties of the resource {}", resource_uri))
@@ -184,9 +188,11 @@ impl SparqlPrompts {
             ])
             .build()
     }
-    
+
     /// Generate a query to find relationships between resources
-    pub fn find_relationships(subject_uri: &str, object_uri: &str, prefixes: Vec<(String, String)>) -> Result<String> {
+    pub fn find_relationships(
+        subject_uri: &str, object_uri: &str, prefixes: Vec<(String, String)>,
+    ) -> Result<String> {
         SparqlPromptBuilder::new(format!("Find relationships between {} and {}", subject_uri, object_uri))
             .with_prefixes(prefixes)
             .with_constraints(vec![
@@ -199,24 +205,32 @@ impl SparqlPrompts {
             ])
             .build()
     }
-    
+
     /// Generate a query to find resources by property value
-    pub fn find_by_property_value(property_uri: &str, value: &str, prefixes: Vec<(String, String)>) -> Result<String> {
-        SparqlPromptBuilder::new(format!("Find resources where {} equals '{}'", property_uri, value))
-            .with_prefixes(prefixes)
-            .with_constraints(vec![
-                "Return subject resources".to_string(),
-                "Handle both literal and URI values".to_string(),
-            ])
-            .with_examples(vec![
-                "SELECT ?resource WHERE { ?resource ex:property \"value\" }".to_string(),
-                "SELECT ?resource WHERE { ?resource ex:property ?value . FILTER(?value = \"value\") }".to_string(),
-            ])
-            .build()
+    pub fn find_by_property_value(
+        property_uri: &str, value: &str, prefixes: Vec<(String, String)>,
+    ) -> Result<String> {
+        SparqlPromptBuilder::new(format!(
+            "Find resources where {} equals '{}'",
+            property_uri, value
+        ))
+        .with_prefixes(prefixes)
+        .with_constraints(vec![
+            "Return subject resources".to_string(),
+            "Handle both literal and URI values".to_string(),
+        ])
+        .with_examples(vec![
+            "SELECT ?resource WHERE { ?resource ex:property \"value\" }".to_string(),
+            "SELECT ?resource WHERE { ?resource ex:property ?value . FILTER(?value = \"value\") }"
+                .to_string(),
+        ])
+        .build()
     }
-    
+
     /// Generate a query to find resources with missing properties
-    pub fn find_missing_properties(class_uri: &str, property_uri: &str, prefixes: Vec<(String, String)>) -> Result<String> {
+    pub fn find_missing_properties(
+        class_uri: &str, property_uri: &str, prefixes: Vec<(String, String)>,
+    ) -> Result<String> {
         SparqlPromptBuilder::new(format!("Find instances of {} that don't have {}", class_uri, property_uri))
             .with_prefixes(prefixes)
             .with_constraints(vec![
@@ -229,7 +243,7 @@ impl SparqlPrompts {
             ])
             .build()
     }
-    
+
     /// Generate a query to find the most connected resources
     pub fn find_most_connected(prefixes: Vec<(String, String)>) -> Result<String> {
         SparqlPromptBuilder::new("Find resources with the most connections".to_string())
@@ -249,7 +263,7 @@ impl SparqlPrompts {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[test]
     fn test_sparql_prompt_builder() {
         let prompt = SparqlPromptBuilder::new("Find all users".to_string())
@@ -264,24 +278,26 @@ mod tests {
         assert!(prompt.contains("Return user names"));
         assert!(prompt.contains("SELECT ?user WHERE"));
     }
-    
+
     #[test]
     fn test_find_instances_prompt() {
         let prompt = SparqlPrompts::find_instances(
             "ex:Person",
-            vec![("ex".to_string(), "http://example.org/".to_string())]
-        ).expect("Failed to create find instances prompt");
+            vec![("ex".to_string(), "http://example.org/".to_string())],
+        )
+        .expect("Failed to create find instances prompt");
 
         assert!(prompt.contains("ex:Person"));
         assert!(prompt.contains("instances"));
     }
-    
+
     #[test]
     fn test_find_properties_prompt() {
         let prompt = SparqlPrompts::find_properties(
             "ex:resource",
-            vec![("ex".to_string(), "http://example.org/".to_string())]
-        ).expect("Failed to create find properties prompt");
+            vec![("ex".to_string(), "http://example.org/".to_string())],
+        )
+        .expect("Failed to create find properties prompt");
 
         assert!(prompt.contains("ex:resource"));
         assert!(prompt.contains("properties"));

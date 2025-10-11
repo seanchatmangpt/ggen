@@ -3,12 +3,12 @@
 //! Converts natural language specifications, documentation, and traces
 //! into RDF triples using AI inference.
 
-use std::sync::Arc;
 use crate::client::LlmClient;
 use crate::error::{GgenAiError, Result};
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::sync::Arc;
 use tracing::{debug, info, warn};
 
 /// Parsed RDF triples from natural language
@@ -102,10 +102,22 @@ impl NaturalLanguageParser {
     /// Get default namespace prefixes
     fn default_prefixes() -> HashMap<String, String> {
         let mut prefixes = HashMap::new();
-        prefixes.insert("rdf".to_string(), "http://www.w3.org/1999/02/22-rdf-syntax-ns#".to_string());
-        prefixes.insert("rdfs".to_string(), "http://www.w3.org/2000/01/rdf-schema#".to_string());
-        prefixes.insert("owl".to_string(), "http://www.w3.org/2002/07/owl#".to_string());
-        prefixes.insert("xsd".to_string(), "http://www.w3.org/2001/XMLSchema#".to_string());
+        prefixes.insert(
+            "rdf".to_string(),
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#".to_string(),
+        );
+        prefixes.insert(
+            "rdfs".to_string(),
+            "http://www.w3.org/2000/01/rdf-schema#".to_string(),
+        );
+        prefixes.insert(
+            "owl".to_string(),
+            "http://www.w3.org/2002/07/owl#".to_string(),
+        );
+        prefixes.insert(
+            "xsd".to_string(),
+            "http://www.w3.org/2001/XMLSchema#".to_string(),
+        );
         prefixes
     }
 
@@ -134,7 +146,9 @@ impl NaturalLanguageParser {
         prompt.push_str("Requirements:\n");
         prompt.push_str("1. Generate valid Turtle RDF triples\n");
         prompt.push_str("2. Infer relationships and properties not explicitly stated\n");
-        prompt.push_str("3. Use appropriate RDF/OWL constructs (classes, properties, restrictions)\n");
+        prompt.push_str(
+            "3. Use appropriate RDF/OWL constructs (classes, properties, restrictions)\n",
+        );
         prompt.push_str("4. Include rdfs:label and rdfs:comment for human readability\n");
         prompt.push_str("5. Provide confidence scores (0.0-1.0) for inferred relationships\n\n");
 
@@ -172,7 +186,9 @@ impl NaturalLanguageParser {
             }
         }
 
-        Err(GgenAiError::ontology_generation("No Turtle code block found in response"))
+        Err(GgenAiError::ontology_generation(
+            "No Turtle code block found in response",
+        ))
     }
 
     /// Extract inferred relations from AI response
@@ -183,8 +199,10 @@ impl NaturalLanguageParser {
             if let Some(end_offset) = response[search_start..].find("```") {
                 let json_str = &response[search_start..search_start + end_offset].trim();
 
-                let relations: Vec<InferredRelation> = serde_json::from_str(json_str)
-                    .map_err(|e| GgenAiError::parse_error("NL Parser", format!("Invalid JSON: {}", e)))?;
+                let relations: Vec<InferredRelation> =
+                    serde_json::from_str(json_str).map_err(|e| {
+                        GgenAiError::parse_error("NL Parser", format!("Invalid JSON: {}", e))
+                    })?;
 
                 return Ok(relations);
             }
@@ -211,14 +229,21 @@ impl NlParser for NaturalLanguageParser {
         // Build confidence map
         let mut confidence = HashMap::new();
         for relation in &relations {
-            let key = format!("{}-{}-{}", relation.subject, relation.predicate, relation.object);
+            let key = format!(
+                "{}-{}-{}",
+                relation.subject, relation.predicate, relation.object
+            );
             confidence.insert(key, relation.confidence);
         }
 
         let duration = start.elapsed();
 
-        info!("Parsed {} triples, {} inferred relations in {:?}",
-              triples.len(), relations.len(), duration);
+        info!(
+            "Parsed {} triples, {} inferred relations in {:?}",
+            triples.len(),
+            relations.len(),
+            duration
+        );
 
         Ok(ParsedTriples {
             triples,
@@ -240,7 +265,10 @@ impl NlParser for NaturalLanguageParser {
         debug!("Parsing with ontology context: {}", ontology_uri);
 
         // In production, would load ontology from URI
-        let context = format!("# Ontology: {}\n# (context would be loaded here)", ontology_uri);
+        let context = format!(
+            "# Ontology: {}\n# (context would be loaded here)",
+            ontology_uri
+        );
 
         let prompt = self.build_prompt(text, Some(&context));
         let response = self.client.complete(&prompt).await?;
@@ -250,7 +278,10 @@ impl NlParser for NaturalLanguageParser {
 
         let mut confidence = HashMap::new();
         for relation in &relations {
-            let key = format!("{}-{}-{}", relation.subject, relation.predicate, relation.object);
+            let key = format!(
+                "{}-{}-{}",
+                relation.subject, relation.predicate, relation.object
+            );
             confidence.insert(key, relation.confidence);
         }
 

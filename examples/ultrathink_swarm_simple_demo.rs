@@ -3,14 +3,14 @@
 //! A focused demonstration of the ultrathink swarm connecting WIP components
 //! using core team best practices. Shows the autonomous system vision in action.
 
+use agents::agents::{ApiSpec, RuntimeMetrics, SecurityVulnerability};
 use agents::{
     agents::{Trigger, WorkflowResult},
     core::{AgentResult, ExecutionContext},
 };
-use agents::agents::{RuntimeMetrics, ApiSpec, SecurityVulnerability};
-use ggen_mcp::GgenMcpServer;
-use ggen_ai::{GenAIClient, config::GlobalConfig};
+use ggen_ai::{config::GlobalConfig, GenAIClient};
 use ggen_core::GraphManager;
+use ggen_mcp::GgenMcpServer;
 use std::sync::Arc;
 use tokio;
 
@@ -49,17 +49,22 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("\n📊 Autonomous System Performance:");
     println!("  Workflows Executed: {}", metrics.workflows_executed);
     println!("  Success Rate: {:.1}%", metrics.success_rate);
-    println!("  Average Execution: {}ms", metrics.average_execution_time_ms);
+    println!(
+        "  Average Execution: {}ms",
+        metrics.average_execution_time_ms
+    );
     println!("  Artifacts Generated: {}", metrics.artifacts_generated);
 
     // 6. Show recent workflows
     println!("\n📋 Recent Autonomous Workflows:");
     let recent_workflows = coordinator.get_recent_workflows(3).await;
     for (i, workflow) in recent_workflows.iter().enumerate() {
-        println!("  {}. {} - {} actions",
-                 i + 1,
-                 format!("{:?}", workflow.trigger),
-                 workflow.actions_taken.len());
+        println!(
+            "  {}. {} - {} actions",
+            i + 1,
+            format!("{:?}", workflow.trigger),
+            workflow.actions_taken.len()
+        );
     }
 
     println!("\n✅ Autonomous demonstration completed!");
@@ -142,7 +147,8 @@ impl AutonomousWorkflowCoordinator {
         tokio::spawn(async move {
             let mut interval = tokio::time::interval(tokio::time::Duration::from_secs(5));
 
-            for _ in 0..10 { // Run for 50 seconds
+            for _ in 0..10 {
+                // Run for 50 seconds
                 interval.tick().await;
 
                 // Simulate autonomous triggers
@@ -158,9 +164,8 @@ impl AutonomousWorkflowCoordinator {
     /// Process autonomous trigger (simplified implementation)
     async fn process_autonomous_trigger(&mut self) -> AgentResult<()> {
         // Simulate requirements change trigger
-        let trigger = Trigger::RequirementsChange(
-            "Add user authentication with OAuth 2.0".to_string()
-        );
+        let trigger =
+            Trigger::RequirementsChange("Add user authentication with OAuth 2.0".to_string());
 
         let workflow_result = self.execute_autonomous_workflow(trigger.clone()).await?;
 
@@ -177,7 +182,8 @@ impl AutonomousWorkflowCoordinator {
 
         self.performance_metrics.total_execution_time_ms += workflow_result.execution_time_ms;
         self.performance_metrics.actions_executed += workflow_result.actions_taken.len() as u64;
-        self.performance_metrics.artifacts_generated += workflow_result.artifacts_generated.len() as u64;
+        self.performance_metrics.artifacts_generated +=
+            workflow_result.artifacts_generated.len() as u64;
 
         Ok(())
     }
@@ -236,7 +242,9 @@ impl AutonomousWorkflowCoordinator {
     }
 
     /// Extend knowledge graph
-    async fn extend_knowledge_graph(&self, analysis: &RequirementsAnalysis) -> AgentResult<GraphExtension> {
+    async fn extend_knowledge_graph(
+        &self, analysis: &RequirementsAnalysis,
+    ) -> AgentResult<GraphExtension> {
         println!("  🗂️  Extending knowledge graph...");
 
         // Simulate graph extension (would use ggen-core in production)
@@ -391,12 +399,16 @@ async fn demonstrate_autonomous_workflows(
     // 1. Requirements change
     println!("1️⃣ Requirements Change Trigger");
     let requirements_trigger = Trigger::RequirementsChange(
-        "Add comprehensive user profile system with social features".to_string()
+        "Add comprehensive user profile system with social features".to_string(),
     );
 
     let result = coordinator.trigger_workflow(requirements_trigger).await?;
     println!("  ✅ Requirements analyzed and system updated");
-    println!("  📊 Actions: {}, Time: {}ms", result.actions_taken.len(), result.execution_time_ms);
+    println!(
+        "  📊 Actions: {}, Time: {}ms",
+        result.actions_taken.len(),
+        result.execution_time_ms
+    );
 
     // 2. Performance optimization
     println!("\n2️⃣ Performance Optimization Trigger");
@@ -409,7 +421,11 @@ async fn demonstrate_autonomous_workflows(
 
     let result = coordinator.trigger_workflow(performance_trigger).await?;
     println!("  ✅ Performance optimized");
-    println!("  📊 Actions: {}, Time: {}ms", result.actions_taken.len(), result.execution_time_ms);
+    println!(
+        "  📊 Actions: {}, Time: {}ms",
+        result.actions_taken.len(),
+        result.execution_time_ms
+    );
 
     // 3. Security hardening
     println!("\n3️⃣ Security Hardening Trigger");
@@ -421,7 +437,11 @@ async fn demonstrate_autonomous_workflows(
 
     let result = coordinator.trigger_workflow(security_trigger).await?;
     println!("  ✅ Security vulnerabilities addressed");
-    println!("  📊 Actions: {}, Time: {}ms", result.actions_taken.len(), result.execution_time_ms);
+    println!(
+        "  📊 Actions: {}, Time: {}ms",
+        result.actions_taken.len(),
+        result.execution_time_ms
+    );
 
     // 4. API evolution
     println!("\n4️⃣ API Evolution Trigger");
@@ -433,7 +453,11 @@ async fn demonstrate_autonomous_workflows(
 
     let result = coordinator.trigger_workflow(api_trigger).await?;
     println!("  ✅ API evolved successfully");
-    println!("  📊 Actions: {}, Time: {}ms", result.actions_taken.len(), result.execution_time_ms);
+    println!(
+        "  📊 Actions: {}, Time: {}ms",
+        result.actions_taken.len(),
+        result.execution_time_ms
+    );
 
     println!("\n✅ All autonomous workflows completed successfully!");
 

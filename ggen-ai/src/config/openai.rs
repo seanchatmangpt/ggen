@@ -73,15 +73,17 @@ impl OpenAIConfig {
         if self.api_key.is_empty() {
             return Err(GgenAiError::configuration("OpenAI API key cannot be empty"));
         }
-        
+
         if self.base_url.is_empty() {
-            return Err(GgenAiError::configuration("OpenAI base URL cannot be empty"));
+            return Err(GgenAiError::configuration(
+                "OpenAI base URL cannot be empty",
+            ));
         }
-        
+
         if self.model.is_empty() {
             return Err(GgenAiError::configuration("OpenAI model cannot be empty"));
         }
-        
+
         Ok(())
     }
 
@@ -99,8 +101,9 @@ impl OpenAIConfig {
 
     /// Create from environment variables
     pub fn from_env() -> Result<Self> {
-        let api_key = std::env::var("OPENAI_API_KEY")
-            .map_err(|_| GgenAiError::configuration("OPENAI_API_KEY environment variable not set"))?;
+        let api_key = std::env::var("OPENAI_API_KEY").map_err(|_| {
+            GgenAiError::configuration("OPENAI_API_KEY environment variable not set")
+        })?;
 
         let base_url = std::env::var("OPENAI_BASE_URL")
             .unwrap_or_else(|_| "https://api.openai.com/v1".to_string());
@@ -123,4 +126,3 @@ impl OpenAIConfig {
         Ok(config)
     }
 }
-

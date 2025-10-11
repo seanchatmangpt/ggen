@@ -27,37 +27,74 @@ Purpose: project one ontology into many artifacts. Deterministic. Language-agnos
 
 1. **[RELEASE_NOTES_v1.0.0.md](RELEASE_NOTES_v1.0.0.md)** - What's new in v1.0.0 *(AI Revolution)*
 2. **[install.md](install.md)** - Installation and AI setup
-3. **[ai-guide.md](ai-guide.md)** - Complete AI usage guide *(NEW)*
+3. **[ai-guide.md](ai-guide.md)** - Complete AI usage guide
 4. **[ggen-ai-integration.md](ggen-ai-integration.md)** - Technical AI integration details
+5. **[AI_INTEGRATION_CLARIFICATION.md](AI_INTEGRATION_CLARIFICATION.md)** - AI integration approach and CLI commands
+6. **[GENAI_GGEN_INTEGRATION_PLAN.md](GENAI_GGEN_INTEGRATION_PLAN.md)** - AI integration roadmap and milestones
+7. **[GENAI_OLLAMA_INTEGRATION.md](GENAI_OLLAMA_INTEGRATION.md)** - Ollama provider integration guide
+8. **[MULTI_PROVIDER_ANALYSIS.md](MULTI_PROVIDER_ANALYSIS.md)** - Multi-provider AI analysis
+9. **[RUNTIME_MODEL_CONFIG.md](RUNTIME_MODEL_CONFIG.md)** - Runtime model configuration
+10. **[GENAI_INTEGRATION_STATUS.md](GENAI_INTEGRATION_STATUS.md)** - Current integration status
 
 ## 📚 Core Documentation
 
 **Traditional ggen workflow (still supported):**
-5. [quickstart.md](quickstart.md) - Quick start with marketplace gpacks
-6. [templates.md](templates.md) - Template development guide
-7. [marketplace.md](marketplace.md) - Using and publishing gpacks
+11. [quickstart.md](quickstart.md) - Quick start with marketplace gpacks
+12. [templates.md](templates.md) - Template development guide
+13. [marketplace.md](marketplace.md) - Using and publishing gpacks
 
 ## Core Concepts
 
-6. [frontmatter.md](frontmatter.md) - Template frontmatter syntax
-7. [rdf-shacl-sparql.md](rdf-shacl-sparql.md) - Semantic web integration
-8. [projections.md](projections.md) - Code projection patterns
-9. [determinism.md](determinism.md) - Reproducible generation
+14. [frontmatter.md](frontmatter.md) - Template frontmatter syntax
+15. [rdf-shacl-sparql.md](rdf-shacl-sparql.md) - Semantic web integration
+16. [projections.md](projections.md) - Code projection patterns
+17. [determinism.md](determinism.md) - Reproducible generation
 
 ## Advanced Topics
 
-10. [calculus.md](calculus.md) - Mathematical foundations
-11. [dx-features.md](dx-features.md) - Developer experience features
-12. [gpack-development.md](gpack-development.md) - Creating and publishing gpacks
-13. **[MCP_INTEGRATION_COMPLETE.md](MCP_INTEGRATION_COMPLETE.md)** - MCP server integration *(UPDATED)*
-14. **[autonomous-systems-vision.md](autonomous-systems-vision.md)** - Path to autonomous software *(NEW)*
-15. **[ultrathink-swarm-implementation.md](ultrathink-swarm-implementation.md)** - Multi-agent autonomous systems *(NEW)*
+18. [calculus.md](calculus.md) - Mathematical foundations
+19. [dx-features.md](dx-features.md) - Developer experience features
+20. [gpack-development.md](gpack-development.md) - Creating and publishing gpacks
+21. **[CARGO_BEST_PRACTICES.md](CARGO_BEST_PRACTICES.md)** - Cargo.toml optimization and best practices
+22. **[BUILD_OPTIMIZATION.md](BUILD_OPTIMIZATION.md)** - Build performance optimization
+23. **[CORE_TEAM_RECOMMENDATIONS.md](CORE_TEAM_RECOMMENDATIONS.md)** - Core team recommendations for next development priorities
+24. **[MCP_DOCUMENTATION_INDEX.md](MCP_DOCUMENTATION_INDEX.md)** - MCP documentation index and navigation
+25. **[MCP_INTEGRATION_COMPLETE.md](MCP_INTEGRATION_COMPLETE.md)** - MCP server integration
+26. **[autonomous-systems-vision.md](autonomous-systems-vision.md)** - Path to autonomous software
+27. **[ultrathink-swarm-implementation.md](ultrathink-swarm-implementation.md)** - Multi-agent autonomous systems
+
+## Additional Resources
+
+### Integration & Implementation
+28. **[GENAI_GGEN_INTEGRATION_PLAN.md](GENAI_GGEN_INTEGRATION_PLAN.md)** - AI integration roadmap *(NEW)*
+29. **[GENAI_INTEGRATION_STATUS.md](GENAI_INTEGRATION_STATUS.md)** - Current AI integration status *(UPDATED)*
+30. **[GENAI_OLLAMA_INTEGRATION.md](GENAI_OLLAMA_INTEGRATION.md)** - Ollama provider integration *(NEW)*
+31. **[GGEN_AI_USER_GUIDE.md](GGEN_AI_USER_GUIDE.md)** - Complete AI usage guide *(NEW)*
+32. **[AI_IMPLEMENTATION_V1_PREP.md](AI_IMPLEMENTATION_V1_PREP.md)** - AI implementation preparation *(NEW)*
+
+### Testing & Validation
+33. **[E2E_TESTS.md](E2E_TESTS.md)** - End-to-end testing guide
+34. **[E2E_TEST_RESULTS.md](E2E_TEST_RESULTS.md)** - Test results and analysis
+35. **[DISPLACEMENT_VALIDATION.md](DISPLACEMENT_VALIDATION.md)** - Validation testing framework
+36. **[COMPILATION_ERROR_FIX_GUIDE.md](COMPILATION_ERROR_FIX_GUIDE.md)** - Compilation troubleshooting *(NEW)*
+
+### Development & Architecture
+37. **[CODE-REVIEW.md](CODE-REVIEW.md)** - Code review guidelines
+38. **[GRAPH_VERBS_IMPLEMENTATION.md](GRAPH_VERBS_IMPLEMENTATION.md)** - Graph verb implementation
+39. **[GITHUB_API_RUST_INTEGRATION.md](GITHUB_API_RUST_INTEGRATION.md)** - GitHub API integration
+40. **[DEPLOYMENT.md](DEPLOYMENT.md)** - Deployment and release guide
 
 ## Reference
 
-16. [cli.md](cli.md) - Complete CLI reference
-17. [troubleshooting.md](troubleshooting.md) - Common issues and solutions
-18. [examples/](examples/) - Usage examples and tutorials
+41. **[CHANGELOG.md](CHANGELOG.md)** - Complete changelog with semantic versioning *(NEW)*
+42. **[RECENT_FIXES_AND_IMPROVEMENTS.md](RECENT_FIXES_AND_IMPROVEMENTS.md)** - Summary of recent fixes and improvements *(NEW)*
+43. **[P0-FIXES-APPLIED.md](P0-FIXES-APPLIED.md)** - P0 critical fixes and security assessment *(NEW)*
+44. **[IMPLEMENTATION_COMPLETE.md](IMPLEMENTATION_COMPLETE.md)** - Core team recommendations implementation summary
+45. **[FINAL_STATUS_REPORT.md](FINAL_STATUS_REPORT.md)** - Final status report and project assessment
+46. **[DEPLOYMENT.md](DEPLOYMENT.md)** - GitHub Pages deployment guide
+47. [cli.md](cli.md) - Complete CLI reference
+48. [troubleshooting.md](troubleshooting.md) - Common issues and solutions
+49. [examples/](examples/) - Usage examples and tutorials
 
 ## Marketplace Ecosystem
 

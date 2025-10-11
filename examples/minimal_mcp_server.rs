@@ -15,8 +15,8 @@
 
 use rmcp::{
     model::{
-        CallToolRequestParam, CallToolResult, Content, InitializeRequestParam, InitializeResult,
-        Implementation, ListToolsResult, PaginatedRequestParam, ProtocolVersion,
+        CallToolRequestParam, CallToolResult, Content, Implementation, InitializeRequestParam,
+        InitializeResult, ListToolsResult, PaginatedRequestParam, ProtocolVersion,
         ServerCapabilities, Tool, ToolsCapability,
     },
     service::{RequestContext, RoleServer},
@@ -123,9 +123,7 @@ impl Default for MinimalMcpServer {
 
 impl ServerHandler for MinimalMcpServer {
     async fn initialize(
-        &self,
-        _params: InitializeRequestParam,
-        _context: RequestContext<RoleServer>,
+        &self, _params: InitializeRequestParam, _context: RequestContext<RoleServer>,
     ) -> std::result::Result<InitializeResult, ErrorData> {
         eprintln!("[MINIMAL-MCP] Server initializing...");
 
@@ -152,9 +150,7 @@ impl ServerHandler for MinimalMcpServer {
     }
 
     async fn list_tools(
-        &self,
-        _pagination: Option<PaginatedRequestParam>,
-        _context: RequestContext<RoleServer>,
+        &self, _pagination: Option<PaginatedRequestParam>, _context: RequestContext<RoleServer>,
     ) -> std::result::Result<ListToolsResult, ErrorData> {
         eprintln!("[MINIMAL-MCP] Listing tools...");
 
@@ -236,9 +232,7 @@ impl ServerHandler for MinimalMcpServer {
     }
 
     async fn call_tool(
-        &self,
-        params: CallToolRequestParam,
-        _context: RequestContext<RoleServer>,
+        &self, params: CallToolRequestParam, _context: RequestContext<RoleServer>,
     ) -> std::result::Result<CallToolResult, ErrorData> {
         let tool_name = params.name.to_string();
         eprintln!("[MINIMAL-MCP] Tool called: {}", tool_name);
@@ -248,10 +242,7 @@ impl ServerHandler for MinimalMcpServer {
         match self.execute_tool(&tool_name, args) {
             Ok(result) => {
                 let response = serde_json::to_string_pretty(&result).map_err(|e| {
-                    ErrorData::internal_error(
-                        format!("Failed to serialize response: {}", e),
-                        None,
-                    )
+                    ErrorData::internal_error(format!("Failed to serialize response: {}", e), None)
                 })?;
 
                 Ok(CallToolResult {

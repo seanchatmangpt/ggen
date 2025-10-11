@@ -7,6 +7,17 @@
     - [Search and Discovery](#search-and-discovery)
     - [Installation and Management](#installation-and-management)
     - [Gpack Publishing (for authors)](#gpack-publishing-for-authors)
+  - [AI Commands](#ai-commands)
+    - [AI Template Generation](#ai-template-generation)
+    - [AI SPARQL Generation](#ai-sparql-generation)
+    - [AI RDF Graph Generation](#ai-rdf-graph-generation)
+    - [AI Project Scaffolding](#ai-project-scaffolding)
+    - [AI Source File Analysis](#ai-source-file-analysis)
+    - [AI Model Management](#ai-model-management)
+    - [AI Template Validation](#ai-template-validation)
+    - [AI Demo](#ai-demo)
+    - [AI Frontmatter Generation](#ai-frontmatter-generation)
+    - [AI MCP Server](#ai-mcp-server)
   - [Generation Commands](#generation-commands)
     - [Template Generation](#template-generation)
     - [Template Discovery](#template-discovery)
@@ -80,6 +91,118 @@ ggen pack test
 
 # Publish to registry
 ggen pack publish
+```
+
+## AI Commands
+
+**ggen-ai v1.0.0** provides intelligent code generation using advanced LLMs with multi-provider support (OpenAI, Anthropic, Ollama, Gemini, Groq, Cohere).
+
+### AI Template Generation
+
+```bash
+# Generate templates from natural language descriptions
+ggen ai generate <description> [--language LANG] [--framework FRAMEWORK] [--output FILE]
+
+# Examples:
+ggen ai generate "A Rust REST API controller for user management" --language rust --framework axum --output user_controller.tmpl
+ggen ai generate "Python CLI tool for data processing" --language python --output data_tool.py.tmpl
+ggen ai generate "React component for user profiles" --language typescript --framework react --output profile.tsx.tmpl
+```
+
+### AI SPARQL Generation
+
+```bash
+# Generate SPARQL queries from natural language intent
+ggen ai sparql <intent> [--graph FILE] [--output FILE] [--prefixes PREFIX=URI]
+
+# Examples:
+ggen ai sparql "Find all users with admin role" --graph data.ttl --output admin_query.sparql
+ggen ai sparql "Get all properties of a resource" --graph ontology.ttl --output properties.sparql
+```
+
+### AI RDF Graph Generation
+
+```bash
+# Generate RDF ontologies from domain descriptions
+ggen ai graph <description> [--output FILE] [--format FORMAT]
+
+# Examples:
+ggen ai graph "Person management system with roles and permissions" --output person.ttl
+ggen ai graph "E-commerce product catalog" --output catalog.ttl --format jsonld
+```
+
+### AI Project Scaffolding
+
+```bash
+# Generate complete project structures
+ggen ai project <description> --name NAME --language LANG [--framework FRAMEWORK] [--output DIR] [--tests] [--docs] [--ci]
+
+# Examples:
+ggen ai project "E-commerce API with authentication" --name shop-api --language rust --framework axum --tests --docs --output generated-shop-api/
+ggen ai project "Python web application" --name webapp --language python --framework fastapi --output webapp/
+```
+
+### AI Source File Analysis
+
+```bash
+# Generate templates from existing source files
+ggen ai from-source <file> [--language LANG] [--output FILE] [--extract-variables] [--include-rdf]
+
+# Examples:
+ggen ai from-source src/main.rs --language rust --output main_template.tmpl
+ggen ai from-source lib/utils.js --language javascript --extract-variables --output utils.tmpl
+```
+
+### AI Model Management
+
+```bash
+# List available AI models and providers
+ggen ai models
+
+# Output shows supported models across all providers
+```
+
+### AI Template Validation
+
+```bash
+# Validate templates with AI assistance
+ggen ai validate <template> [--vars KEY=VALUE]
+
+# Examples:
+ggen ai validate templates/api.tmpl
+ggen ai validate templates/cli.tmpl --vars name=hello
+```
+
+### AI Demo
+
+```bash
+# Run the AI template demo
+ggen ai demo
+
+# Examples:
+ggen ai demo --model qwen3-coder:30b
+```
+
+### AI Frontmatter Generation
+
+```bash
+# Generate frontmatter for templates using AI
+ggen ai frontmatter <template-file> [--description DESC] [--model MODEL]
+
+# Examples:
+ggen ai frontmatter api_controller.tmpl --description "REST API controller for user management"
+ggen ai frontmatter data_processor.py.tmpl --model gpt-4o
+```
+
+### AI MCP Server
+
+```bash
+# Start MCP server for AI tool integration
+ggen ai server [--model MODEL] [--port PORT] [--host HOST]
+
+# Examples:
+ggen ai server --model qwen3-coder:30b
+ggen ai server --model gpt-4o --port 8080
 ```
 
 ## Generation Commands

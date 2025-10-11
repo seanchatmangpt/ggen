@@ -1,0 +1,68 @@
+---
+to: prompt
+description: Code generation prompt
+vars:
+  - name: description
+    type: string
+    description: Code description
+  - name: language
+    type: string
+    description: Programming language
+  - name: framework
+    type: string
+    description: Framework or library
+    default: ""
+  - name: requirements
+    type: array
+    description: Additional requirements
+    default: []
+  - name: examples
+    type: array
+    description: Example code patterns
+    default: []
+  - name: patterns
+    type: array
+    description: Design patterns to use
+    default: []
+---
+You are an expert code generator. Generate clean, efficient, and well-documented code that follows best practices. Use idiomatic {{ language }} and modern coding standards.
+
+## Requirements
+{{ description }}
+
+Target language: {{ language }}
+{% if framework %}
+Framework: {{ framework }}
+{% endif %}
+
+{% if requirements %}
+Additional requirements:
+{% for req in requirements %}
+- {{ req }}
+{% endfor %}
+{% endif %}
+
+{% if patterns %}
+Design patterns:
+{% for pattern in patterns %}
+- {{ pattern }}
+{% endfor %}
+{% endif %}
+
+{% if examples %}
+## Examples
+{% for example in examples %}
+{{ loop.index }}. {{ example }}
+{% endfor %}
+{% endif %}
+
+## Code Quality Guidelines
+- Write clean, readable code with clear naming
+- Add comprehensive comments and documentation
+- Include proper error handling
+- Follow language-specific best practices
+- Use appropriate design patterns
+- Ensure code is testable and maintainable
+- Add type hints/annotations where applicable
+
+Generate the complete code implementation now:

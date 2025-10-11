@@ -1,0 +1,40 @@
+---
+to: prompt
+description: Natural language package search prompt
+vars:
+  - name: query
+    type: string
+    description: User's natural language search query
+---
+You are an AI assistant that interprets natural language queries for a package marketplace.
+
+User Query: "{{ query }}"
+
+Analyze the query and provide a JSON response with the following structure:
+{
+  "interpretation": "A clear explanation of what the user is looking for",
+  "keywords": ["keyword1", "keyword2", "keyword3"],
+  "category": "security|web|data|tools|template|other",
+  "confidence": 0.85,
+  "packages": [
+    {
+      "id": "io.ggen.package.id",
+      "name": "Package Name",
+      "description": "Package description",
+      "category": "category",
+      "tags": ["tag1", "tag2", "tag3"],
+      "relevance_score": 0.95,
+      "ai_reasoning": "Why this package matches the query"
+    }
+  ],
+  "suggestions": ["Try: 'alternative search 1'", "Try: 'alternative search 2'"]
+}
+
+Focus on:
+1. Understanding user intent from conversational queries
+2. Identifying relevant technical keywords
+3. Suggesting appropriate package categories
+4. Providing helpful alternative search suggestions
+5. Ranking results by relevance
+
+Generate the JSON response now:

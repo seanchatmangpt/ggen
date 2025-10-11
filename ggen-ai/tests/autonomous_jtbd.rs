@@ -7,13 +7,13 @@
 //! - Feedback loop operations
 
 use ggen_ai::{
-    GraphEvolutionEngine, EvolutionConfig, MockClient,
     autonomous::{
-        regeneration::{RegenerationEngine, RegenerationConfig, AffectedArtifact},
-        events::{ChangeEvent, GraphChangeNotifier},
         deployment::{DeploymentAutomation, DeploymentConfig},
+        events::{ChangeEvent, GraphChangeNotifier},
+        regeneration::{AffectedArtifact, RegenerationConfig, RegenerationEngine},
     },
-    governance::{GovernanceCoordinator, GovernanceConfig, Decision},
+    governance::{Decision, GovernanceConfig, GovernanceCoordinator},
+    EvolutionConfig, GraphEvolutionEngine, MockClient,
 };
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -77,12 +77,13 @@ ex:orderedBy a owl:ObjectProperty ;
     let parser_client = MockClient::with_response(mock_response);
     let validator_client = MockClient::with_response("valid");
 
-    let mut engine = GraphEvolutionEngine::with_defaults(
-        Box::new(parser_client),
-        Box::new(validator_client)
-    ).expect("Failed to create engine");
+    let mut engine =
+        GraphEvolutionEngine::with_defaults(Box::new(parser_client), Box::new(validator_client))
+            .expect("Failed to create engine");
 
-    let result = engine.evolve_from_nl(documentation).await
+    let result = engine
+        .evolve_from_nl(documentation)
+        .await
         .expect("Schema evolution failed");
 
     // Verify the schema was evolved
@@ -94,8 +95,14 @@ ex:orderedBy a owl:ObjectProperty ;
 
     // Verify specific entities were created
     let turtle = engine.export_turtle();
-    assert!(turtle.contains("ex:Product"), "Should contain Product class");
-    assert!(turtle.contains("ex:Customer"), "Should contain Customer class");
+    assert!(
+        turtle.contains("ex:Product"),
+        "Should contain Product class"
+    );
+    assert!(
+        turtle.contains("ex:Customer"),
+        "Should contain Customer class"
+    );
     assert!(turtle.contains("ex:Order"), "Should contain Order class");
 
     println!("✓ Schema evolved successfully from documentation");
@@ -124,10 +131,9 @@ ex:hasEmail a owl:DatatypeProperty .
     // Step 1: Initialize system
     let parser_client = MockClient::with_response(mock_response);
     let validator_client = MockClient::with_response("valid");
-    let mut engine = GraphEvolutionEngine::with_defaults(
-        Box::new(parser_client),
-        Box::new(validator_client)
-    ).expect("Failed to create engine");
+    let mut engine =
+        GraphEvolutionEngine::with_defaults(Box::new(parser_client), Box::new(validator_client))
+            .expect("Failed to create engine");
 
     // Step 2: Set up regeneration engine
     let template_client = MockClient::with_response("// Generated User model\npub struct User {}");
@@ -179,7 +185,9 @@ ex:hasEmail a owl:DatatypeProperty .
     });
 
     // Step 3: Evolve schema (simulates developer changing schema)
-    let result = engine.evolve_from_nl("Add email property to User").await
+    let result = engine
+        .evolve_from_nl("Add email property to User")
+        .await
         .expect("Evolution failed");
     assert!(result.success);
 
@@ -196,8 +204,14 @@ ex:hasEmail a owl:DatatypeProperty .
 
     // Step 5: Verify code was regenerated
     let stats = regen_engine.get_stats().await;
-    assert!(stats.events_processed > 0, "Should process schema change event");
-    assert!(stats.total_regenerations > 0, "Should trigger code regeneration");
+    assert!(
+        stats.events_processed > 0,
+        "Should process schema change event"
+    );
+    assert!(
+        stats.total_regenerations > 0,
+        "Should trigger code regeneration"
+    );
 
     println!("✓ Code automatically regenerated on schema change");
 }
@@ -223,12 +237,13 @@ ex:Entity a owl:Class .
     // Step 1: Evolve schema
     let parser_client = MockClient::with_response(mock_response);
     let validator_client = MockClient::with_response("valid");
-    let mut engine = GraphEvolutionEngine::with_defaults(
-        Box::new(parser_client),
-        Box::new(validator_client)
-    ).expect("Failed to create engine");
+    let mut engine =
+        GraphEvolutionEngine::with_defaults(Box::new(parser_client), Box::new(validator_client))
+            .expect("Failed to create engine");
 
-    let result = engine.evolve_from_nl("Create entity").await
+    let result = engine
+        .evolve_from_nl("Create entity")
+        .await
         .expect("Evolution failed");
     assert!(result.success);
 
@@ -252,10 +267,9 @@ ex:Entity a owl:Class .
     let mut deployment = DeploymentAutomation::new(deploy_config);
 
     // Step 4: Attempt deployment
-    let deploy_result = deployment.deploy(
-        &PathBuf::from("generated"),
-        "1.0.0"
-    ).await;
+    let deploy_result = deployment
+        .deploy(&PathBuf::from("generated"), "1.0.0")
+        .await;
 
     assert!(deploy_result.is_ok(), "Deployment pipeline should execute");
 
@@ -282,12 +296,14 @@ async fn jtbd_scenario_rollback_on_failed_deployment() {
     let mut deployment = DeploymentAutomation::new(deploy_config);
 
     // Attempt deployment (will fail due to pre-deploy command)
-    let result = deployment.deploy(
-        &PathBuf::from("generated"),
-        "1.0.0"
-    ).await;
+    let result = deployment
+        .deploy(&PathBuf::from("generated"), "1.0.0")
+        .await;
 
-    assert!(result.is_ok(), "Should handle deployment failure gracefully");
+    assert!(
+        result.is_ok(),
+        "Should handle deployment failure gracefully"
+    );
 
     // Check that rollback was attempted
     let results = result.unwrap();
@@ -304,16 +320,16 @@ async fn jtbd_scenario_governance_approval_for_critical_changes() {
     // approval, so that breaking changes are reviewed.
 
     let config = GovernanceConfig::default();
-    let governance = GovernanceCoordinator::new(config).await
+    let governance = GovernanceCoordinator::new(config)
+        .await
         .expect("Failed to create governance");
 
     // Simulate critical change
-    let critical_change = Decision::new_critical(
-        "drop_table",
-        "Remove core entity from schema"
-    );
+    let critical_change = Decision::new_critical("drop_table", "Remove core entity from schema");
 
-    let outcome = governance.validate_decision(&critical_change).await
+    let outcome = governance
+        .validate_decision(&critical_change)
+        .await
         .expect("Validation failed");
 
     // Critical changes should require approval
@@ -325,7 +341,10 @@ async fn jtbd_scenario_governance_approval_for_critical_changes() {
             println!("✓ Critical change blocked: {}", reason);
         }
         ggen_ai::governance::DecisionOutcome::Approved { auto_approved, .. } => {
-            assert!(!auto_approved, "Critical changes should not be auto-approved");
+            assert!(
+                !auto_approved,
+                "Critical changes should not be auto-approved"
+            );
             println!("✓ Critical change approved (with human review)");
         }
     }
@@ -351,17 +370,12 @@ ex:Entity a owl:Class .
 
     let parser_client = MockClient::with_response(mock_response);
     let validator_client = MockClient::with_response("valid");
-    let mut engine = GraphEvolutionEngine::with_defaults(
-        Box::new(parser_client),
-        Box::new(validator_client)
-    ).expect("Failed to create engine");
+    let mut engine =
+        GraphEvolutionEngine::with_defaults(Box::new(parser_client), Box::new(validator_client))
+            .expect("Failed to create engine");
 
     // Perform multiple evolutions
-    let changes = vec![
-        "Create base entity",
-        "Add properties",
-        "Add relationships",
-    ];
+    let changes = vec!["Create base entity", "Add properties", "Add relationships"];
 
     for change in changes {
         let _ = engine.evolve_from_nl(change).await;
@@ -373,10 +387,10 @@ ex:Entity a owl:Class .
 
     // Verify history contains change information
     for (idx, delta) in history.iter().enumerate() {
-        println!("Change {}: {} additions, {} deletions",
-                 idx,
-                 delta.stats.additions_count,
-                 delta.stats.deletions_count);
+        println!(
+            "Change {}: {} additions, {} deletions",
+            idx, delta.stats.additions_count, delta.stats.deletions_count
+        );
     }
 
     println!("✓ Schema evolution history tracked successfully");
@@ -391,8 +405,7 @@ async fn jtbd_scenario_feedback_loop_for_improvement() {
     use ggen_ai::SelfValidator;
 
     let client = MockClient::with_response("validation query");
-    let mut validator = SelfValidator::new(Box::new(client))
-        .expect("Failed to create validator");
+    let mut validator = SelfValidator::new(Box::new(client)).expect("Failed to create validator");
 
     // Simulate learning from successful pattern
     validator.learn_pattern(
@@ -402,8 +415,10 @@ async fn jtbd_scenario_feedback_loop_for_improvement() {
 
     // Check learned patterns
     let patterns = validator.get_learned_patterns();
-    assert!(patterns.contains_key("valid_class_pattern"),
-            "Should learn from validation patterns");
+    assert!(
+        patterns.contains_key("valid_class_pattern"),
+        "Should learn from validation patterns"
+    );
 
     println!("✓ Feedback loop captures learned patterns");
 }
@@ -442,13 +457,11 @@ ex:Comment a owl:Class .
 
     let parser_client = MockClient::with_response(mock_response);
     let validator_client = MockClient::with_response("valid");
-    let mut engine = GraphEvolutionEngine::with_defaults(
-        Box::new(parser_client),
-        Box::new(validator_client)
-    ).expect("Failed to create engine");
+    let mut engine =
+        GraphEvolutionEngine::with_defaults(Box::new(parser_client), Box::new(validator_client))
+            .expect("Failed to create engine");
 
-    let result = engine.evolve_from_nl(spec).await
-        .expect("Evolution failed");
+    let result = engine.evolve_from_nl(spec).await.expect("Evolution failed");
     assert!(result.success);
     println!("   ✓ Schema evolved successfully");
 
@@ -486,7 +499,9 @@ ex:Comment a owl:Class .
     let deploy_config = DeploymentConfig::default();
     let mut deployment = DeploymentAutomation::new(deploy_config);
 
-    let _ = deployment.deploy(&PathBuf::from("generated"), "1.0.0").await;
+    let _ = deployment
+        .deploy(&PathBuf::from("generated"), "1.0.0")
+        .await;
     println!("   ✓ Deployment pipeline executed");
 
     println!("\n=== Workflow Complete ===\n");

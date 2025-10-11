@@ -1,14 +1,14 @@
 //! Common types for governance system
 
-use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use uuid::Uuid;
 
-use super::workflow::CriticalityLevel;
-use super::policy::PolicyConfig;
 use super::dashboard::DashboardConfig;
+use super::policy::PolicyConfig;
 use super::safety::SafetyConfig;
+use super::workflow::CriticalityLevel;
 use super::workflow::WorkflowConfig;
 
 /// Main governance configuration
@@ -52,9 +52,7 @@ pub struct Decision {
 impl Decision {
     /// Create a new decision
     pub fn new(
-        action: impl Into<String>,
-        description: impl Into<String>,
-        criticality: CriticalityLevel,
+        action: impl Into<String>, description: impl Into<String>, criticality: CriticalityLevel,
         data: serde_json::Value,
     ) -> Self {
         Self {

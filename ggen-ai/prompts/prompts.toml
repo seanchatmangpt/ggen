@@ -1,0 +1,33 @@
+# Prompt Template Configuration
+# Define prompt templates and their metadata
+
+[templates.code_generation]
+path = "system/code_generation.hbs"
+description = "Generate production-ready code from specifications"
+variables = ["language", "framework", "style_guide", "requirements"]
+tags = ["generation", "code", "production"]
+
+[templates.refactoring]
+path = "system/refactoring.hbs"
+description = "Refactor existing code for better quality"
+variables = ["language", "current_code", "goals", "preserve_api"]
+tags = ["refactoring", "quality", "maintenance"]
+
+[templates.documentation]
+path = "system/documentation.hbs"
+description = "Generate comprehensive documentation"
+variables = ["code", "language", "doc_style"]
+tags = ["documentation", "comments", "readme"]
+
+[templates.testing]
+path = "system/testing.hbs"
+description = "Generate test cases and test suites"
+variables = ["code", "language", "test_framework", "coverage_target"]
+tags = ["testing", "quality", "tdd"]
+
+# Default values for common variables
+[defaults]
+style_guide = "idiomatic"
+test_framework = "auto-detect"
+coverage_target = 80
+doc_style = "markdown"

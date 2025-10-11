@@ -46,7 +46,16 @@
 - 🎪 **MCP Server** - Model Context Protocol server for AI tool integration
 - 🔧 **Multi-Provider Support** - OpenAI, Anthropic, Ollama with unified configuration
 
+### 📈 **Recent Improvements (v0.2.5)**
+- ⚡ **60x Faster Builds** - Incremental builds now 2-3 seconds (was 60-90 seconds)
+- 🧠 **Enhanced GenAI Integration** - Three working examples with qwen3-coder:30b
+- 🏗️ **Improved Architecture** - Better multi-provider abstraction and configuration
+- 🐛 **Bug Fixes** - Resolved compilation and runtime issues across all modules
+- 📚 **Updated Documentation** - Comprehensive guides for integration and optimization
+
 📚 **[Full Documentation](https://seanchatmangpt.github.io/ggen/)**
+📋 **[Recent Changes](docs/RECENT_FIXES_AND_IMPROVEMENTS.md)**
+🔧 **[Build Optimization Guide](docs/BUILD_OPTIMIZATION.md)**
 
 ## Features
 

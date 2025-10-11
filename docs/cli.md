@@ -13,6 +13,8 @@
     - [AI RDF Graph Generation](#ai-rdf-graph-generation)
     - [AI Project Scaffolding](#ai-project-scaffolding)
     - [AI Source File Analysis](#ai-source-file-analysis)
+    - [AI Demo](#ai-demo)
+    - [AI Frontmatter Generation](#ai-frontmatter-generation)
     - [AI Model Management](#ai-model-management)
     - [AI Template Validation](#ai-template-validation)
     - [AI MCP Server](#ai-mcp-server)
@@ -20,6 +22,11 @@
     - [Template Generation](#template-generation)
     - [Template Discovery](#template-discovery)
   - [Validation Commands](#validation-commands)
+  - [Advanced Commands](#advanced-commands)
+    - [Swarm Intelligence](#swarm-intelligence)
+    - [Knowledge Hooks](#knowledge-hooks)
+    - [Autonomous Systems](#autonomous-systems)
+    - [Ultrathink](#ultrathink)
   - [Utility Commands](#utility-commands)
   - [Variable Precedence](#variable-precedence)
   - [Gpack Template Reference Syntax](#gpack-template-reference-syntax)
@@ -28,6 +35,68 @@
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # CLI
+
+## Advanced Commands
+
+### Swarm Intelligence
+
+Ultrathink swarm intelligence for autonomous development workflows.
+
+```bash
+# Start swarm intelligence session
+ggen swarm run --model gpt-4o
+
+# Run swarm analysis on project
+ggen swarm analyze --input src/ --output analysis.md
+
+# Configure swarm behavior
+ggen swarm config --max-agents 5 --temperature 0.7
+```
+
+### Knowledge Hooks
+
+Autonomic graph regeneration hooks for continuous evolution.
+
+```bash
+# Install knowledge hooks for a project
+ggen hook install --project my-project
+
+# Run hook validation
+ggen hook validate --path .ggen/hooks/
+
+# Execute knowledge regeneration
+ggen hook regenerate --trigger file-change
+```
+
+### Autonomous Systems
+
+Autonomous graph evolution and regeneration capabilities.
+
+```bash
+# Enable autonomous mode
+ggen autonomous enable --watch
+
+# Run autonomous analysis
+ggen autonomous analyze --depth deep
+
+# Configure autonomous behavior
+ggen autonomous config --regeneration-threshold 0.8
+```
+
+### Ultrathink
+
+Advanced reasoning and problem-solving using swarm intelligence.
+
+```bash
+# Run ultrathink reasoning
+ggen ultrathink reason --query "optimize database queries"
+
+# Execute ultrathink task
+ggen ultrathink task --description "implement user authentication"
+
+# Configure ultrathink parameters
+ggen ultrathink config --reasoning-depth 3 --creativity 0.8
+```
 
 ## Marketplace Commands
 
@@ -169,6 +238,61 @@ ggen ai validate <template> [--vars KEY=VALUE]
 # Examples:
 ggen ai validate templates/api.tmpl
 ggen ai validate templates/cli.tmpl --vars name=hello
+```
+
+### AI Demo
+
+```bash
+# Run the AI template demo
+ggen ai demo
+
+# Examples:
+ggen ai demo --model qwen3-coder:30b
+```
+
+### AI Frontmatter Generation
+
+```bash
+# Generate frontmatter for templates using AI
+ggen ai frontmatter <template-file> [--description DESC] [--model MODEL]
+
+# Examples:
+ggen ai frontmatter api_controller.tmpl --description "REST API controller for user management"
+ggen ai frontmatter data_processor.py.tmpl --model gpt-4o
+```
+
+### AI Model Management
+
+```bash
+# List available AI models
+ggen ai models [--provider PROVIDER]
+
+# Examples:
+ggen ai models
+ggen ai models --provider ollama
+ggen ai models --provider openai
+```
+
+### AI Project Scaffolding
+
+```bash
+# Generate complete template projects using AI
+ggen ai project <description> [--language LANG] [--framework FRAMEWORK] [--output DIR]
+
+# Examples:
+ggen ai project "A full-stack web application" --language typescript --framework nextjs --output my-app
+ggen ai project "A Rust CLI tool" --language rust --output cli-tool
+```
+
+### AI Source File Analysis
+
+```bash
+# Generate templates from existing source files
+ggen ai from-source <source-file> [--output FILE] [--description DESC]
+
+# Examples:
+ggen ai from-source src/main.rs --output main_template.tmpl
+ggen ai from-source components/UserProfile.tsx --description "React user profile component"
 ```
 
 ### AI MCP Server

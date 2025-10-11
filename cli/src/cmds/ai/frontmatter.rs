@@ -27,7 +27,8 @@ pub async fn run(args: &FrontmatterArgs) -> Result<()> {
 
     // Use global config to auto-detect and create appropriate client
     let global_config = ggen_ai::get_global_config();
-    let client = global_config.create_contextual_client()
+    let client = global_config
+        .create_contextual_client()
         .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?;
     let generator = TemplateGenerator::with_client(client);
 

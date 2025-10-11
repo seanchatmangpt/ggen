@@ -26,65 +26,69 @@ impl CodePromptBuilder {
             output_format: None,
         }
     }
-    
+
     /// Set the framework
     pub fn with_framework(mut self, framework: String) -> Self {
         self.framework = Some(framework);
         self
     }
-    
+
     /// Add requirements
     pub fn with_requirements(mut self, requirements: Vec<String>) -> Self {
         self.requirements = requirements;
         self
     }
-    
+
     /// Add examples
     pub fn with_examples(mut self, examples: Vec<String>) -> Self {
         self.examples = examples;
         self
     }
-    
+
     /// Add patterns
     pub fn with_patterns(mut self, patterns: Vec<String>) -> Self {
         self.patterns = patterns;
         self
     }
-    
+
     /// Set output format
     pub fn with_output_format(mut self, format: String) -> Self {
         self.output_format = Some(format);
         self
     }
-    
+
     /// Build the final prompt
     pub fn build(self) -> Result<String> {
         let mut prompt = String::new();
-        
+
         // System prompt
         prompt.push_str("You are an expert code generator. ");
-        prompt.push_str("Generate clean, efficient, and well-documented code that follows best practices. ");
-        prompt.push_str("Ensure the code is production-ready and includes proper error handling.\n\n");
-        
+        prompt.push_str(
+            "Generate clean, efficient, and well-documented code that follows best practices. ",
+        );
+        prompt.push_str(
+            "Ensure the code is production-ready and includes proper error handling.\n\n",
+        );
+
         // Description section
         prompt.push_str("## Code Description\n");
         prompt.push_str(&self.description);
         prompt.push_str("\n\n");
-        
+
         // Language and framework section
         prompt.push_str("## Target Environment\n");
         prompt.push_str(&format!("Language: {}\n", self.language));
-        
+
         if let Some(framework) = &self.framework {
             prompt.push_str(&format!("Framework: {}\n", framework));
         }
-        
+
         if let Some(format) = &self.output_format {
             prompt.push_str(&format!("Output format: {}\n", format));
         }
-        
+
         prompt.push_str("\n");
-        
+
         // Requirements section
         if !self.requirements.is_empty() {
             prompt.push_str("## Requirements\n");
@@ -93,7 +97,7 @@ impl CodePromptBuilder {
             }
             prompt.push_str("\n");
         }
-        
+
         // Examples section
         if !self.examples.is_empty() {
             prompt.push_str("## Examples\n");
@@ -102,7 +106,7 @@ impl CodePromptBuilder {
             }
             prompt.push_str("\n");
         }
-        
+
         // Patterns section
         if !self.patterns.is_empty() {
             prompt.push_str("## Code Patterns\n");
@@ -111,10 +115,10 @@ impl CodePromptBuilder {
             }
             prompt.push_str("\n");
         }
-        
+
         // Language-specific instructions
         self.add_language_specific_instructions(&mut prompt)?;
-        
+
         // Best practices
         prompt.push_str("## Best Practices\n");
         prompt.push_str("1. Use meaningful variable and function names\n");
@@ -125,13 +129,13 @@ impl CodePromptBuilder {
         prompt.push_str("6. Include input validation\n");
         prompt.push_str("7. Use appropriate design patterns\n");
         prompt.push_str("8. Ensure code is testable\n\n");
-        
+
         // Output instructions
         prompt.push_str("Generate the complete code implementation now:\n\n");
-        
+
         Ok(prompt)
     }
-    
+
     fn add_language_specific_instructions(&self, prompt: &mut String) -> Result<()> {
         match self.language.to_lowercase().as_str() {
             "rust" => {
@@ -201,7 +205,7 @@ impl CodePromptBuilder {
                 prompt.push_str("8. Follow security best practices\n\n");
             }
         }
-        
+
         Ok(())
     }
 }
@@ -234,7 +238,7 @@ impl CodePrompts {
             ])
             .build()
     }
-    
+
     /// Generate a data model
     pub fn data_model(description: &str, language: &str) -> Result<String> {
         CodePromptBuilder::new(description.to_string(), language.to_string())
@@ -255,7 +259,7 @@ impl CodePrompts {
             ])
             .build()
     }
-    
+
     /// Generate a service class
     pub fn service_class(description: &str, language: &str) -> Result<String> {
         CodePromptBuilder::new(description.to_string(), language.to_string())
@@ -276,7 +280,7 @@ impl CodePrompts {
             ])
             .build()
     }
-    
+
     /// Generate a test file
     pub fn test_file(description: &str, language: &str, framework: &str) -> Result<String> {
         CodePromptBuilder::new(description.to_string(), language.to_string())
@@ -299,7 +303,7 @@ impl CodePrompts {
             ])
             .build()
     }
-    
+
     /// Generate a configuration class
     pub fn config_class(description: &str, language: &str) -> Result<String> {
         CodePromptBuilder::new(description.to_string(), language.to_string())
@@ -326,15 +330,16 @@ impl CodePrompts {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[test]
     fn test_code_prompt_builder() {
-        let prompt = CodePromptBuilder::new("User management system".to_string(), "Rust".to_string())
-            .with_framework("Actix".to_string())
-            .with_requirements(vec!["Include authentication".to_string()])
-            .with_examples(vec!["User registration".to_string()])
-            .build()
-            .expect("Failed to build code prompt");
+        let prompt =
+            CodePromptBuilder::new("User management system".to_string(), "Rust".to_string())
+                .with_framework("Actix".to_string())
+                .with_requirements(vec!["Include authentication".to_string()])
+                .with_examples(vec!["User registration".to_string()])
+                .build()
+                .expect("Failed to build code prompt");
 
         assert!(prompt.contains("User management system"));
         assert!(prompt.contains("Rust"));
@@ -342,21 +347,18 @@ mod tests {
         assert!(prompt.contains("authentication"));
         assert!(prompt.contains("User registration"));
     }
-    
+
     #[test]
     fn test_rest_controller_prompt() {
-        let prompt = CodePrompts::rest_controller(
-            "User API",
-            "TypeScript",
-            "Express"
-        ).expect("Failed to create REST controller prompt");
+        let prompt = CodePrompts::rest_controller("User API", "TypeScript", "Express")
+            .expect("Failed to create REST controller prompt");
 
         assert!(prompt.contains("User API"));
         assert!(prompt.contains("TypeScript"));
         assert!(prompt.contains("Express"));
         assert!(prompt.contains("CRUD operations"));
     }
-    
+
     #[test]
     fn test_data_model_prompt() {
         let prompt = CodePrompts::data_model("User entity", "Rust")
@@ -367,4 +369,3 @@ mod tests {
         assert!(prompt.contains("validation rules"));
     }
 }
-

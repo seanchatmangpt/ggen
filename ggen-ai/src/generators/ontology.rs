@@ -84,26 +84,20 @@ impl OntologyGenerator {
     }
 
     /// Generate an ontology from a natural language description
-    pub async fn generate_ontology(
-        &self,
-        domain: &str,
-        requirements: Vec<&str>,
-    ) -> Result<String> {
+    pub async fn generate_ontology(&self, domain: &str, requirements: Vec<&str>) -> Result<String> {
         let prompt = OntologyPromptBuilder::new(domain.to_string())
             .with_requirements(requirements.iter().map(|s| s.to_string()).collect())
             .build()?;
 
         let response = self.client.complete(&prompt).await?;
-        
+
         // Extract ontology content from response
         self.extract_ontology_content(&response.content)
     }
 
     /// Stream ontology generation from a natural language description
     pub async fn stream_ontology(
-        &self,
-        domain: &str,
-        requirements: Vec<&str>,
+        &self, domain: &str, requirements: Vec<&str>,
     ) -> Result<futures::stream::BoxStream<'static, Result<String>>> {
         let prompt = OntologyPromptBuilder::new(domain.to_string())
             .with_requirements(requirements.iter().map(|s| s.to_string()).collect())
@@ -175,22 +169,22 @@ mod tests {
     async fn test_ontology_generation() {
         let client = MockClient::with_response("```turtle\n@prefix ex: <http://example.org/> .\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n\nex:Person a rdf:Class .\n```");
         let generator = OntologyGenerator::new(Arc::new(client));
-        
-        let ontology = generator.generate_ontology(
-            "Person management",
-            vec!["Include Person class", "Use RDF/OWL"]
-        ).await.unwrap();
-        
+
+        let ontology = generator
+            .generate_ontology(
+                "Person management",
+                vec!["Include Person class", "Use RDF/OWL"],
+            )
+            .await
+            .unwrap();
+
         assert!(ontology.contains("@prefix"));
         assert!(ontology.contains("Person"));
     }
 
     /// Evolve an existing graph based on natural language requirements
     pub async fn evolve_graph(
-        &self,
-        graph: &Graph,
-        requirements: &str,
-        context: Option<&str>,
+        &self, graph: &Graph, requirements: &str, context: Option<&str>,
     ) -> Result<GraphEvolution> {
         // Analyze current graph structure
         let schema = self.analyze_graph_for_evolution(graph).await?;
@@ -235,29 +229,35 @@ Return only the JSON object.",
             current_stats.classes, current_stats.properties, current_stats.triples, schema, requirements
         );
 
-        let response = self.client.complete(&prompt, Some(self.config.clone())).await?;
+        let response = self
+            .client
+            .complete(&prompt, Some(self.config.clone()))
+            .await?;
 
         // Parse JSON response
-        let evolution: GraphEvolution = serde_json::from_str(&response.content)
-            .map_err(|e| GgenAiError::ontology_generation(format!("Invalid evolution JSON: {}", e)))?;
+        let evolution: GraphEvolution = serde_json::from_str(&response.content).map_err(|e| {
+            GgenAiError::ontology_generation(format!("Invalid evolution JSON: {}", e))
+        })?;
 
         // Validate evolution operations
-        self.validate_evolution_operations(&evolution, graph).await?;
+        self.validate_evolution_operations(&evolution, graph)
+            .await?;
 
         Ok(evolution)
     }
 
     /// Apply graph evolution operations to a graph
     pub async fn apply_evolution(
-        &self,
-        graph: &mut Graph,
-        evolution: &GraphEvolution,
+        &self, graph: &mut Graph, evolution: &GraphEvolution,
     ) -> Result<()> {
         for operation in &evolution.operations {
             match operation.operation_type {
                 OperationType::Add => {
                     // Add the triple
-                    graph.insert_turtle(&format!("{} {} {} .", operation.subject, operation.predicate, operation.object))?;
+                    graph.insert_turtle(&format!(
+                        "{} {} {} .",
+                        operation.subject, operation.predicate, operation.object
+                    ))?;
                 }
                 OperationType::Remove => {
                     // Remove the triple (would need more sophisticated logic)
@@ -300,15 +300,14 @@ Return only the JSON object.",
 
     /// Validate evolution operations before applying them
     async fn validate_evolution_operations(
-        &self,
-        evolution: &GraphEvolution,
-        graph: &Graph,
+        &self, evolution: &GraphEvolution, graph: &Graph,
     ) -> Result<()> {
         // Check confidence threshold
         if evolution.confidence < 0.7 {
-            return Err(GgenAiError::ontology_generation(
-                format!("Evolution confidence too low: {:.2}", evolution.confidence)
-            ));
+            return Err(GgenAiError::ontology_generation(format!(
+                "Evolution confidence too low: {:.2}",
+                evolution.confidence
+            )));
         }
 
         // Validate each operation
@@ -317,14 +316,18 @@ Return only the JSON object.",
                 OperationType::Add | OperationType::Remove | OperationType::Modify => {
                     // Basic URI validation
                     if !operation.subject.starts_with('<') && !operation.subject.starts_with('?') {
-                        return Err(GgenAiError::ontology_generation(
-                            format!("Invalid subject URI: {}", operation.subject)
-                        ));
+                        return Err(GgenAiError::ontology_generation(format!(
+                            "Invalid subject URI: {}",
+                            operation.subject
+                        )));
                     }
-                    if !operation.predicate.starts_with('<') && !operation.predicate.starts_with('?') {
-                        return Err(GgenAiError::ontology_generation(
-                            format!("Invalid predicate URI: {}", operation.predicate)
-                        ));
+                    if !operation.predicate.starts_with('<')
+                        && !operation.predicate.starts_with('?')
+                    {
+                        return Err(GgenAiError::ontology_generation(format!(
+                            "Invalid predicate URI: {}",
+                            operation.predicate
+                        )));
                     }
                 }
                 _ => {} // Class/property operations are handled differently
@@ -335,7 +338,7 @@ Return only the JSON object.",
         let operation_count = evolution.operations.len();
         if operation_count > 50 {
             return Err(GgenAiError::ontology_generation(
-                "Too many operations in single evolution (max 50)"
+                "Too many operations in single evolution (max 50)",
             ));
         }
 
@@ -391,7 +394,8 @@ Return only the JSON object.",
     /// Get basic graph statistics
     async fn get_graph_statistics(&self, graph: &Graph) -> Result<GraphStats> {
         let classes_query = "SELECT (COUNT(DISTINCT ?class) as ?count) WHERE { ?s a ?class }";
-        let properties_query = "SELECT (COUNT(DISTINCT ?property) as ?count) WHERE { ?s ?property ?o }";
+        let properties_query =
+            "SELECT (COUNT(DISTINCT ?property) as ?count) WHERE { ?s ?property ?o }";
         let triples_query = "SELECT (COUNT(*) as ?count) WHERE { ?s ?p ?o }";
 
         let classes_count = self.extract_count(graph, classes_query).await?;

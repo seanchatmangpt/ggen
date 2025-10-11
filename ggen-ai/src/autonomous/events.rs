@@ -55,11 +55,7 @@ pub struct ChangeEvent {
 
 impl ChangeEvent {
     /// Create a new change event
-    pub fn new(
-        change_type: ChangeType,
-        subject: String,
-        source: String,
-    ) -> Self {
+    pub fn new(change_type: ChangeType, subject: String, source: String) -> Self {
         Self {
             id: uuid::Uuid::new_v4().to_string(),
             change_type,
@@ -74,7 +70,9 @@ impl ChangeEvent {
     }
 
     /// Create a node addition event
-    pub fn node_added(uri: String, properties: HashMap<String, serde_json::Value>, source: String) -> Self {
+    pub fn node_added(
+        uri: String, properties: HashMap<String, serde_json::Value>, source: String,
+    ) -> Self {
         Self {
             id: uuid::Uuid::new_v4().to_string(),
             change_type: ChangeType::NodeAdded,
@@ -105,8 +103,7 @@ impl ChangeEvent {
 
     /// Check if this event affects a specific subject
     pub fn affects(&self, uri: &str) -> bool {
-        self.subject == uri
-            || self.object.as_ref().map_or(false, |o| o == uri)
+        self.subject == uri || self.object.as_ref().map_or(false, |o| o == uri)
     }
 
     /// Get all affected URIs
@@ -205,7 +202,10 @@ impl GraphChangeNotifier {
 
     /// Register a subscriber
     pub async fn register_subscriber(&self, subscriber: Arc<dyn EventSubscriber>) {
-        info!(subscriber = subscriber.name(), "Registering event subscriber");
+        info!(
+            subscriber = subscriber.name(),
+            "Registering event subscriber"
+        );
         let mut subscribers = self.subscribers.write().await;
         subscribers.push(subscriber);
     }
@@ -252,10 +252,7 @@ pub struct DeltaDetector;
 
 impl DeltaDetector {
     /// Detect changes between two graph states
-    pub async fn detect_changes(
-        old_state: &str,
-        new_state: &str,
-    ) -> Result<Vec<ChangeEvent>> {
+    pub async fn detect_changes(old_state: &str, new_state: &str) -> Result<Vec<ChangeEvent>> {
         debug!("Detecting changes between graph states");
         let mut changes = Vec::new();
 
@@ -294,25 +291,27 @@ impl DeltaDetector {
     fn parse_turtle_to_triples(turtle: &str) -> Result<Vec<String>> {
         let mut triples = Vec::new();
         let lines: Vec<&str> = turtle.lines().collect();
-        
+
         for line in lines {
             let line = line.trim();
             if line.is_empty() || line.starts_with('#') || line.starts_with('@') {
                 continue;
             }
-            
+
             if line.ends_with('.') {
                 triples.push(line.to_string());
             }
         }
-        
+
         Ok(triples)
     }
 
     /// Detect additions between old and new triples
-    fn detect_additions(old_triples: &[String], new_triples: &[String]) -> Result<Vec<ChangeEvent>> {
+    fn detect_additions(
+        old_triples: &[String], new_triples: &[String],
+    ) -> Result<Vec<ChangeEvent>> {
         let mut changes = Vec::new();
-        
+
         for triple in new_triples {
             if !old_triples.contains(triple) {
                 changes.push(ChangeEvent {
@@ -328,14 +327,16 @@ impl DeltaDetector {
                 });
             }
         }
-        
+
         Ok(changes)
     }
 
     /// Detect deletions between old and new triples
-    fn detect_deletions(old_triples: &[String], new_triples: &[String]) -> Result<Vec<ChangeEvent>> {
+    fn detect_deletions(
+        old_triples: &[String], new_triples: &[String],
+    ) -> Result<Vec<ChangeEvent>> {
         let mut changes = Vec::new();
-        
+
         for triple in old_triples {
             if !new_triples.contains(triple) {
                 changes.push(ChangeEvent {
@@ -351,34 +352,37 @@ impl DeltaDetector {
                 });
             }
         }
-        
+
         Ok(changes)
     }
 
     /// Detect modifications between old and new triples
-    fn detect_modifications(old_triples: &[String], new_triples: &[String]) -> Result<Vec<ChangeEvent>> {
+    fn detect_modifications(
+        old_triples: &[String], new_triples: &[String],
+    ) -> Result<Vec<ChangeEvent>> {
         let mut changes = Vec::new();
-        
+
         // Group triples by subject
         let old_by_subject = Self::group_triples_by_subject(old_triples);
         let new_by_subject = Self::group_triples_by_subject(new_triples);
-        
+
         for (subject, old_subject_triples) in &old_by_subject {
             if let Some(new_subject_triples) = new_by_subject.get(subject) {
                 // Check for property changes
                 for old_triple in old_subject_triples {
                     let predicate = Self::extract_predicate(old_triple);
                     let old_object = Self::extract_object(old_triple);
-                    
+
                     // Find corresponding triple in new state
-                    let new_triple = new_subject_triples.iter()
+                    let new_triple = new_subject_triples
+                        .iter()
                         .find(|t| Self::extract_predicate(t) == predicate);
-                    
+
                     if let Some(new_triple) = new_triple {
                         let new_object = Self::extract_object(new_triple);
                         if old_object != new_object {
                             changes.push(ChangeEvent {
-                    metadata: std::collections::HashMap::new(),
+                                metadata: std::collections::HashMap::new(),
                                 id: uuid::Uuid::new_v4().to_string(),
                                 change_type: ChangeType::NodeUpdated,
                                 subject: subject.clone(),
@@ -387,7 +391,10 @@ impl DeltaDetector {
                                 timestamp: chrono::Utc::now(),
                                 properties: {
                                     let mut meta = std::collections::HashMap::new();
-                                    meta.insert("old_value".to_string(), serde_json::Value::String(old_object));
+                                    meta.insert(
+                                        "old_value".to_string(),
+                                        serde_json::Value::String(old_object),
+                                    );
                                     meta
                                 },
                                 source: "delta_detection".to_string(),
@@ -397,24 +404,18 @@ impl DeltaDetector {
                 }
             }
         }
-        
+
         Ok(changes)
     }
 
     /// Extract subject from triple
     fn extract_subject(triple: &str) -> String {
-        triple.split_whitespace()
-            .next()
-            .unwrap_or("")
-            .to_string()
+        triple.split_whitespace().next().unwrap_or("").to_string()
     }
 
     /// Extract predicate from triple
     fn extract_predicate(triple: &str) -> String {
-        triple.split_whitespace()
-            .nth(1)
-            .unwrap_or("")
-            .to_string()
+        triple.split_whitespace().nth(1).unwrap_or("").to_string()
     }
 
     /// Extract object from triple
@@ -428,14 +429,19 @@ impl DeltaDetector {
     }
 
     /// Group triples by subject
-    fn group_triples_by_subject(triples: &[String]) -> std::collections::HashMap<String, Vec<String>> {
+    fn group_triples_by_subject(
+        triples: &[String],
+    ) -> std::collections::HashMap<String, Vec<String>> {
         let mut grouped = std::collections::HashMap::new();
-        
+
         for triple in triples {
             let subject = Self::extract_subject(triple);
-            grouped.entry(subject).or_insert_with(Vec::new).push(triple.clone());
+            grouped
+                .entry(subject)
+                .or_insert_with(Vec::new)
+                .push(triple.clone());
         }
-        
+
         grouped
     }
 }
@@ -459,12 +465,18 @@ ex:Person ex:hasName "Jane" .
 ex:Person ex:hasAge "25" .
 "#;
 
-        let changes = DeltaDetector::detect_changes(old_state, new_state).await.expect("Delta detection should succeed");
-        
+        let changes = DeltaDetector::detect_changes(old_state, new_state)
+            .await
+            .expect("Delta detection should succeed");
+
         // Should detect modification (name change) and addition (age)
         assert!(!changes.is_empty());
-        assert!(changes.iter().any(|c| matches!(c.change_type, ChangeType::NodeUpdated)));
-        assert!(changes.iter().any(|c| matches!(c.change_type, ChangeType::NodeAdded)));
+        assert!(changes
+            .iter()
+            .any(|c| matches!(c.change_type, ChangeType::NodeUpdated)));
+        assert!(changes
+            .iter()
+            .any(|c| matches!(c.change_type, ChangeType::NodeAdded)));
     }
 
     #[tokio::test]
@@ -482,11 +494,15 @@ ex:Person a owl:Class .
 ex:Person ex:hasName "John" .
 "#;
 
-        let changes = DeltaDetector::detect_changes(old_state, new_state).await.expect("Delta detection should succeed");
-        
+        let changes = DeltaDetector::detect_changes(old_state, new_state)
+            .await
+            .expect("Delta detection should succeed");
+
         // Should detect deletion (age property)
         assert!(!changes.is_empty());
-        assert!(changes.iter().any(|c| matches!(c.change_type, ChangeType::NodeRemoved)));
+        assert!(changes
+            .iter()
+            .any(|c| matches!(c.change_type, ChangeType::NodeRemoved)));
     }
 
     #[test]
@@ -503,7 +519,10 @@ ex:Person ex:hasName "John" .
         };
 
         assert!(DeltaDetector::affects_templates(&event, &["UserTemplate"]));
-        assert!(!DeltaDetector::affects_templates(&event, &["OtherTemplate"]));
+        assert!(!DeltaDetector::affects_templates(
+            &event,
+            &["OtherTemplate"]
+        ));
     }
 
     #[test]
@@ -514,10 +533,13 @@ ex:Person a owl:Class .
 ex:Person ex:hasName "John" .
 "#;
 
-        let triples = DeltaDetector::parse_turtle_to_triples(turtle).expect("Parsing should succeed");
+        let triples =
+            DeltaDetector::parse_turtle_to_triples(turtle).expect("Parsing should succeed");
         assert_eq!(triples.len(), 2);
         assert!(triples.iter().any(|t| t.contains("ex:Person a owl:Class")));
-        assert!(triples.iter().any(|t| t.contains("ex:Person ex:hasName \"John\"")));
+        assert!(triples
+            .iter()
+            .any(|t| t.contains("ex:Person ex:hasName \"John\"")));
     }
 
     struct TestSubscriber {

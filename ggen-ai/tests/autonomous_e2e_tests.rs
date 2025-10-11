@@ -4,14 +4,14 @@
 //! Includes multi-iteration evolution, rollback scenarios, and error recovery.
 
 use ggen_ai::{
-    GraphEvolutionEngine, EvolutionConfig, NaturalLanguageParser,
-    SelfValidator, DeltaDetector, MockClient,
     autonomous::{
-        events::{ChangeEvent, ChangeType, GraphChangeNotifier},
-        regeneration::{RegenerationEngine, RegenerationConfig, AffectedArtifact},
         deployment::{DeploymentAutomation, DeploymentConfig, RollbackStrategy},
+        events::{ChangeEvent, ChangeType, GraphChangeNotifier},
+        regeneration::{AffectedArtifact, RegenerationConfig, RegenerationEngine},
     },
-    governance::{GovernanceCoordinator, GovernanceConfig, Decision, DecisionOutcome},
+    governance::{Decision, DecisionOutcome, GovernanceConfig, GovernanceCoordinator},
+    DeltaDetector, EvolutionConfig, GraphEvolutionEngine, MockClient, NaturalLanguageParser,
+    SelfValidator,
 };
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -58,21 +58,27 @@ ex:hasEndpoint a owl:DatatypeProperty ;
     config.auto_validate = true;
     config.auto_rollback = true;
 
-    let mut engine = GraphEvolutionEngine::new(
-        Box::new(parser_client),
-        Box::new(validator_client),
-        config
-    ).expect("Failed to create evolution engine");
+    let mut engine =
+        GraphEvolutionEngine::new(Box::new(parser_client), Box::new(validator_client), config)
+            .expect("Failed to create evolution engine");
 
     // Step 2: Evolve graph from natural language
     let nl_input = "Create a microservice with a port and REST endpoint properties";
-    let evolution_result = engine.evolve_from_nl(nl_input).await
+    let evolution_result = engine
+        .evolve_from_nl(nl_input)
+        .await
         .expect("Evolution failed");
 
     assert!(evolution_result.success, "Evolution should succeed");
-    assert!(evolution_result.parsed.is_some(), "Should have parsed triples");
+    assert!(
+        evolution_result.parsed.is_some(),
+        "Should have parsed triples"
+    );
     assert!(evolution_result.delta.is_some(), "Should have delta");
-    assert!(evolution_result.metadata.committed, "Changes should be committed");
+    assert!(
+        evolution_result.metadata.committed,
+        "Changes should be committed"
+    );
 
     // Verify graph state
     let graph = engine.get_current_graph();
@@ -115,12 +121,18 @@ ex:hasEndpoint a owl:DatatypeProperty ;
         std::collections::HashMap::new(),
         "autonomous".to_string(),
     );
-    notifier.publish(change_event).await.expect("Failed to publish event");
+    notifier
+        .publish(change_event)
+        .await
+        .expect("Failed to publish event");
 
     // Start regeneration engine
     let regen_clone = regen_engine.clone();
     tokio::spawn(async move {
-        regen_clone.start().await.expect("Regeneration engine failed to start");
+        regen_clone
+            .start()
+            .await
+            .expect("Regeneration engine failed to start");
     });
 
     // Wait for regeneration to process
@@ -145,12 +157,14 @@ ex:hasEndpoint a owl:DatatypeProperty ;
     let mut deployment = DeploymentAutomation::new(deploy_config);
 
     // Step 7: Deploy (would fail in test due to no actual files, but tests the flow)
-    let deploy_result = deployment.deploy(
-        &PathBuf::from("generated"),
-        "1.0.0"
-    ).await;
+    let deploy_result = deployment
+        .deploy(&PathBuf::from("generated"), "1.0.0")
+        .await;
 
-    assert!(deploy_result.is_ok(), "Deployment should not error (even if empty)");
+    assert!(
+        deploy_result.is_ok(),
+        "Deployment should not error (even if empty)"
+    );
 }
 
 /// Test multi-iteration evolution with feedback loop
@@ -158,12 +172,19 @@ ex:hasEndpoint a owl:DatatypeProperty ;
 async fn test_multi_iteration_evolution_with_feedback() {
     let iterations = vec![
         ("Create a Person class", "ex:Person a owl:Class"),
-        ("Add name property to Person", "ex:hasName a owl:DatatypeProperty"),
-        ("Add age property to Person", "ex:hasAge a owl:DatatypeProperty"),
+        (
+            "Add name property to Person",
+            "ex:hasName a owl:DatatypeProperty",
+        ),
+        (
+            "Add age property to Person",
+            "ex:hasAge a owl:DatatypeProperty",
+        ),
     ];
 
     for (idx, (nl_input, expected_content)) in iterations.iter().enumerate() {
-        let mock_response = format!(r#"
+        let mock_response = format!(
+            r#"
 ```turtle
 @prefix ex: <http://example.org/> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
@@ -175,17 +196,22 @@ async fn test_multi_iteration_evolution_with_feedback() {
     {{"subject": "ex:Entity", "predicate": "rdf:type", "object": "owl:Class", "confidence": 0.95, "reasoning": "Iteration {}"}}
 ]
 ```
-"#, expected_content, idx);
+"#,
+            expected_content, idx
+        );
 
         let parser_client = MockClient::with_response(&mock_response);
         let validator_client = MockClient::with_response("valid");
 
         let mut engine = GraphEvolutionEngine::with_defaults(
             Box::new(parser_client),
-            Box::new(validator_client)
-        ).expect("Failed to create engine");
+            Box::new(validator_client),
+        )
+        .expect("Failed to create engine");
 
-        let result = engine.evolve_from_nl(nl_input).await
+        let result = engine
+            .evolve_from_nl(nl_input)
+            .await
             .expect("Evolution failed");
 
         assert!(result.success, "Iteration {} should succeed", idx);
@@ -193,7 +219,11 @@ async fn test_multi_iteration_evolution_with_feedback() {
 
         // Verify graph grows with each iteration
         let graph = engine.get_current_graph();
-        assert!(!graph.is_empty(), "Graph should not be empty after iteration {}", idx);
+        assert!(
+            !graph.is_empty(),
+            "Graph should not be empty after iteration {}",
+            idx
+        );
     }
 }
 
@@ -222,13 +252,13 @@ ex:ValidEntity a owl:Class .
     config.auto_validate = true;
     config.auto_rollback = true;
 
-    let mut engine = GraphEvolutionEngine::new(
-        Box::new(parser_client),
-        Box::new(validator_client),
-        config
-    ).expect("Failed to create engine");
+    let mut engine =
+        GraphEvolutionEngine::new(Box::new(parser_client), Box::new(validator_client), config)
+            .expect("Failed to create engine");
 
-    let result1 = engine.evolve_from_nl("Create a valid entity").await
+    let result1 = engine
+        .evolve_from_nl("Create a valid entity")
+        .await
         .expect("First evolution failed");
     assert!(result1.success);
 
@@ -242,15 +272,20 @@ ex:ValidEntity a owl:Class .
     engine = GraphEvolutionEngine::new(
         Box::new(parser_client2),
         Box::new(validator_client2),
-        engine.config().clone()
-    ).expect("Failed to recreate engine");
+        engine.config().clone(),
+    )
+    .expect("Failed to recreate engine");
 
-    let result2 = engine.evolve_from_nl("Add invalid entity").await
+    let result2 = engine
+        .evolve_from_nl("Add invalid entity")
+        .await
         .expect("Second evolution failed");
 
     // Should fail and not commit
-    assert!(!result2.success || !result2.metadata.committed,
-            "Invalid evolution should fail or not commit");
+    assert!(
+        !result2.success || !result2.metadata.committed,
+        "Invalid evolution should fail or not commit"
+    );
 
     // Graph should not have grown (rollback occurred)
     // Note: Since we recreated the engine, graph state resets.
@@ -283,8 +318,9 @@ ex:Entity a owl:Class .
 
         let mut engine = GraphEvolutionEngine::with_defaults(
             Box::new(parser_client),
-            Box::new(validator_client)
-        ).expect("Failed to create engine");
+            Box::new(validator_client),
+        )
+        .expect("Failed to create engine");
 
         let result = engine.evolve_from_nl("Create entity").await;
 
@@ -302,16 +338,19 @@ ex:Entity a owl:Class .
 #[tokio::test]
 async fn test_governance_integration_with_evolution() {
     let config = GovernanceConfig::default();
-    let governance = GovernanceCoordinator::new(config).await
+    let governance = GovernanceCoordinator::new(config)
+        .await
         .expect("Failed to create governance");
 
     // Test low-risk autonomous decision
     let low_risk_decision = Decision::new_low_risk(
         "add_property",
-        "Add a simple data property to existing class"
+        "Add a simple data property to existing class",
     );
 
-    let outcome = governance.validate_decision(&low_risk_decision).await
+    let outcome = governance
+        .validate_decision(&low_risk_decision)
+        .await
         .expect("Validation failed");
 
     match outcome {
@@ -322,12 +361,11 @@ async fn test_governance_integration_with_evolution() {
     }
 
     // Test high-risk decision requiring approval
-    let high_risk_decision = Decision::new_high_risk(
-        "schema_change",
-        "Major schema refactoring"
-    );
+    let high_risk_decision = Decision::new_high_risk("schema_change", "Major schema refactoring");
 
-    let outcome2 = governance.validate_decision(&high_risk_decision).await
+    let outcome2 = governance
+        .validate_decision(&high_risk_decision)
+        .await
         .expect("Validation failed");
 
     match outcome2 {
@@ -367,8 +405,9 @@ ex:Entity a owl:Class .
 
             let mut engine = GraphEvolutionEngine::with_defaults(
                 Box::new(parser_client),
-                Box::new(validator_client)
-            ).expect("Failed to create engine");
+                Box::new(validator_client),
+            )
+            .expect("Failed to create engine");
 
             engine.evolve_from_nl(&format!("Create entity {}", i)).await
         });
@@ -377,7 +416,8 @@ ex:Entity a owl:Class .
 
     let results = futures::future::join_all(handles).await;
 
-    let successful = results.iter()
+    let successful = results
+        .iter()
         .filter(|r| r.is_ok() && r.as_ref().unwrap().as_ref().unwrap().success)
         .count();
 
@@ -403,14 +443,15 @@ ex:Entity a owl:Class .
     let parser_client = MockClient::with_response(mock_response);
     let validator_client = MockClient::with_response("valid");
 
-    let mut engine = GraphEvolutionEngine::with_defaults(
-        Box::new(parser_client),
-        Box::new(validator_client)
-    ).expect("Failed to create engine");
+    let mut engine =
+        GraphEvolutionEngine::with_defaults(Box::new(parser_client), Box::new(validator_client))
+            .expect("Failed to create engine");
 
     // Perform multiple evolutions
     for i in 0..3 {
-        engine.evolve_from_nl(&format!("Evolution step {}", i)).await
+        engine
+            .evolve_from_nl(&format!("Evolution step {}", i))
+            .await
             .expect("Evolution failed");
     }
 

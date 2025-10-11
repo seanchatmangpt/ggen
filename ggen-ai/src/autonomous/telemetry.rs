@@ -198,7 +198,8 @@ impl TelemetryCollector {
                         // Running average
                         let total = metrics.total_regenerations as f64;
                         metrics.avg_regeneration_time_ms =
-                            (metrics.avg_regeneration_time_ms * (total - 1.0) + duration_ms) / total;
+                            (metrics.avg_regeneration_time_ms * (total - 1.0) + duration_ms)
+                                / total;
                     }
                 }
             }
@@ -234,29 +235,31 @@ impl TelemetryCollector {
     }
 
     /// Get recent events
-    pub async fn get_events(&self, limit: usize, event_type: Option<TelemetryEventType>) -> Vec<TelemetryEvent> {
+    pub async fn get_events(
+        &self, limit: usize, event_type: Option<TelemetryEventType>,
+    ) -> Vec<TelemetryEvent> {
         let events = self.events.read().await;
         let filtered: Vec<_> = if let Some(et) = event_type {
-            events.iter()
+            events
+                .iter()
                 .filter(|e| e.event_type == et)
                 .rev()
                 .take(limit)
                 .cloned()
                 .collect()
         } else {
-            events.iter()
-                .rev()
-                .take(limit)
-                .cloned()
-                .collect()
+            events.iter().rev().take(limit).cloned().collect()
         };
         filtered
     }
 
     /// Get events by component
-    pub async fn get_events_by_component(&self, component: &str, limit: usize) -> Vec<TelemetryEvent> {
+    pub async fn get_events_by_component(
+        &self, component: &str, limit: usize,
+    ) -> Vec<TelemetryEvent> {
         let events = self.events.read().await;
-        events.iter()
+        events
+            .iter()
             .filter(|e| e.component == component)
             .rev()
             .take(limit)
@@ -283,11 +286,13 @@ impl TelemetryCollector {
         let metrics = self.get_metrics().await;
         let events = self.events.read().await;
 
-        let errors = events.iter()
+        let errors = events
+            .iter()
             .filter(|e| e.event_type == TelemetryEventType::Error)
             .count();
 
-        let warnings = events.iter()
+        let warnings = events
+            .iter()
             .filter(|e| e.tags.get("severity").map_or(false, |s| s == "warning"))
             .count();
 
@@ -342,7 +347,10 @@ impl FeedbackLoop {
             recommendations.push(Recommendation {
                 category: "reliability".to_string(),
                 severity: "error".to_string(),
-                message: format!("Success rate is below 90% ({:.1}%). Investigate common failure patterns.", metrics.success_rate * 100.0),
+                message: format!(
+                    "Success rate is below 90% ({:.1}%). Investigate common failure patterns.",
+                    metrics.success_rate * 100.0
+                ),
                 suggested_action: Some("Review error logs and improve validation".to_string()),
             });
         }
@@ -403,15 +411,23 @@ mod tests {
         let collector = TelemetryCollector::new(config);
 
         // Record successful regeneration
-        collector.record(
-            TelemetryEvent::new(TelemetryEventType::RegenerationCompleted, "test".to_string())
-                .with_data("duration_ms", serde_json::json!(1000))
-        ).await;
+        collector
+            .record(
+                TelemetryEvent::new(
+                    TelemetryEventType::RegenerationCompleted,
+                    "test".to_string(),
+                )
+                .with_data("duration_ms", serde_json::json!(1000)),
+            )
+            .await;
 
         // Record failed regeneration
-        collector.record(
-            TelemetryEvent::new(TelemetryEventType::RegenerationFailed, "test".to_string())
-        ).await;
+        collector
+            .record(TelemetryEvent::new(
+                TelemetryEventType::RegenerationFailed,
+                "test".to_string(),
+            ))
+            .await;
 
         let metrics = collector.get_metrics().await;
         assert_eq!(metrics.total_regenerations, 2);

@@ -11,7 +11,7 @@
 //! Usage:
 //!   cargo run --example genai_ollama_loop
 
-use genai::chat::{ChatMessage, ChatRequest, ChatOptions};
+use genai::chat::{ChatMessage, ChatOptions, ChatRequest};
 use genai::Client;
 use std::io::{self, Write};
 
@@ -54,13 +54,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .with_max_tokens(2048);
 
     // Conversation history
-    let mut conversation: Vec<ChatMessage> = vec![
-        ChatMessage::system(
-            "You are qwen3-coder:30b, an expert coding assistant. \
+    let mut conversation: Vec<ChatMessage> = vec![ChatMessage::system(
+        "You are qwen3-coder:30b, an expert coding assistant. \
              Provide clear, concise, and well-documented code examples. \
-             Explain your reasoning and best practices."
-        ),
-    ];
+             Explain your reasoning and best practices.",
+    )];
 
     // Main interaction loop
     loop {
@@ -108,7 +106,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     // Show token usage if available
                     if let Some(usage) = chat_res.usage {
                         println!();
-                        println!("📊 Tokens - Input: {}, Output: {}, Total: {}",
+                        println!(
+                            "📊 Tokens - Input: {}, Output: {}, Total: {}",
                             usage.prompt_tokens.unwrap_or(0),
                             usage.completion_tokens.unwrap_or(0),
                             usage.total_tokens.unwrap_or(0)
@@ -137,17 +136,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// Check if Ollama is accessible
 async fn check_ollama_status() -> Result<String, Box<dyn std::error::Error>> {
     let client = reqwest::Client::new();
-    let response = client
-        .get("http://localhost:11434/api/tags")
-        .send()
-        .await?;
+    let response = client.get("http://localhost:11434/api/tags").send().await?;
 
     if response.status().is_success() {
         let body: serde_json::Value = response.json().await?;
-        let models = body["models"]
-            .as_array()
-            .map(|m| m.len())
-            .unwrap_or(0);
+        let models = body["models"].as_array().map(|m| m.len()).unwrap_or(0);
         Ok(format!("Running ({} models available)", models))
     } else {
         Err("Ollama not responding".into())

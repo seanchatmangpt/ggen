@@ -1,6 +1,10 @@
 //! Test helpers for ggen-ai integration tests
 
-use crate::{config::OllamaConfig, OllamaClient, client::{LlmConfig, LlmClient}};
+use crate::{
+    client::{LlmClient, LlmConfig},
+    config::OllamaConfig,
+    OllamaClient,
+};
 use std::time::Duration;
 use tokio::time::timeout;
 
@@ -18,7 +22,7 @@ pub async fn check_ollama_availability() -> bool {
                 stop: None,
                 extra: std::collections::HashMap::new(),
             };
-            
+
             match timeout(Duration::from_secs(10), client.complete("Hello")).await {
                 Ok(Ok(_)) => true,
                 Ok(Err(_)) => false,
@@ -42,8 +46,7 @@ macro_rules! skip_if_ollama_unavailable {
 
 /// Create a test Ollama client with qwen3-coder:30b configuration
 pub fn create_test_ollama_client() -> Result<OllamaClient, crate::error::GgenAiError> {
-    let config = OllamaConfig::new()
-        .with_default_model("qwen3-coder:30b");
+    let config = OllamaConfig::new().with_default_model("qwen3-coder:30b");
     OllamaClient::new(config)
 }
 

@@ -1,6 +1,6 @@
 [package]
 name = "ggen-core"
-version = "0.2.5"
+version = "1.0.0"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "Core graph-aware code generation engine"
 edition = "2021"
@@ -14,7 +14,7 @@ categories = ["development-tools", "command-line-utilities"]
 multiple_crate_versions = "allow"
 
 [dependencies]
-ggen-utils = { path = "../utils", version = "0.2.5" }
+ggen-utils = { path = "../utils", version = "1.0.0" }
 anyhow = "1.0"
 tera = "1.0"
 oxigraph = "0.4"
@@ -39,11 +39,7 @@ lru = "0.12"
 ahash = "0.8"
 glob = "0.3"
 tokio = { version = "1.0", features = ["full"] }
-reqwest = { version = "0.11", features = [
-  "json",
-  "rustls-tls",
-  "stream",
-], default-features = false }
+reqwest = { workspace = true, features = ["rustls-tls", "stream"] }
 url = "2.4"
 chrono = { version = "0.4", features = ["serde"] }
 git2 = { version = "0.18", features = ["vendored-openssl"] }
@@ -55,7 +51,7 @@ walkdir = "2.0"
 diff = "0.1"
 tracing = "0.1"
 # Post-Quantum Cryptography (PQC) - NIST-approved algorithms
-pqcrypto-dilithium = "0.5" # ML-DSA (Dilithium) for signatures
+pqcrypto-mldsa = "0.1"  # ML-DSA (maintained replacement for Dilithium)
 pqcrypto-traits = "0.3"
 base64 = "0.22"
 # LLM integration dependencies

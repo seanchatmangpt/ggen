@@ -675,8 +675,8 @@ examples/mcp/
 - GGen Cookbook 2nd Edition patterns
 - Pattern 013: AGENT-READY INTERFACE (MCP)
 
-**Build Date:** 2025-10-09
-**Version:** v0.2.5-alpha
+**Build Date:** 2025-10-12
+**Version:** v1.0.0
 **MCP Protocol:** 2024-11-05
 **Pattern Language:** Alexandrian
 

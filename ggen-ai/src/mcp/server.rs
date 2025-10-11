@@ -1,21 +1,20 @@
 //! AI-enhanced MCP server
 
 use rmcp::{
-    ErrorData, ServerHandler,
     model::{
-        CallToolRequestParam, CallToolResult, Content,
-        InitializeRequestParam, InitializeResult, Implementation,
-        ListToolsResult, PaginatedRequestParam, ProtocolVersion,
-        ServerCapabilities, Tool, ToolsCapability
+        CallToolRequestParam, CallToolResult, Content, Implementation, InitializeRequestParam,
+        InitializeResult, ListToolsResult, PaginatedRequestParam, ProtocolVersion,
+        ServerCapabilities, Tool, ToolsCapability,
     },
-    service::RequestContext, RoleServer
+    service::RequestContext,
+    ErrorData, RoleServer, ServerHandler,
 };
 use serde_json::{json, Map, Value};
 use std::{borrow::Cow, collections::HashMap, sync::Arc};
 
+use crate::client::LlmConfig;
 use crate::error::{GgenAiError, Result};
 use crate::mcp::tools::AiMcpTools;
-use crate::client::LlmConfig;
 
 /// AI-enhanced MCP server
 #[derive(Debug)]
@@ -35,17 +34,18 @@ impl GgenAiMcpServer {
     /// Create a new AI-enhanced MCP server
     pub fn new() -> Self {
         let mut tools = HashMap::new();
-        
+
         // AI-specific tools
         tools.insert(
             "ai_generate_template".to_string(),
             ToolDef {
                 name: "ai_generate_template".to_string(),
-                description: "Generate ggen templates from natural language descriptions".to_string(),
+                description: "Generate ggen templates from natural language descriptions"
+                    .to_string(),
                 input_schema: ai_generate_template_schema(),
             },
         );
-        
+
         tools.insert(
             "ai_generate_sparql".to_string(),
             ToolDef {
@@ -54,7 +54,7 @@ impl GgenAiMcpServer {
                 input_schema: ai_generate_sparql_schema(),
             },
         );
-        
+
         tools.insert(
             "ai_generate_ontology".to_string(),
             ToolDef {
@@ -63,7 +63,7 @@ impl GgenAiMcpServer {
                 input_schema: ai_generate_ontology_schema(),
             },
         );
-        
+
         tools.insert(
             "ai_refactor_code".to_string(),
             ToolDef {
@@ -72,7 +72,7 @@ impl GgenAiMcpServer {
                 input_schema: ai_refactor_code_schema(),
             },
         );
-        
+
         tools.insert(
             "ai_explain_graph".to_string(),
             ToolDef {
@@ -81,12 +81,13 @@ impl GgenAiMcpServer {
                 input_schema: ai_explain_graph_schema(),
             },
         );
-        
+
         tools.insert(
             "ai_suggest_delta".to_string(),
             ToolDef {
                 name: "ai_suggest_delta".to_string(),
-                description: "Suggest intelligent merge strategies for delta-driven projection".to_string(),
+                description: "Suggest intelligent merge strategies for delta-driven projection"
+                    .to_string(),
                 input_schema: ai_suggest_delta_schema(),
             },
         );
@@ -96,7 +97,8 @@ impl GgenAiMcpServer {
             "autonomous_evolve_graph".to_string(),
             ToolDef {
                 name: "autonomous_evolve_graph".to_string(),
-                description: "Evolve RDF graph from natural language using autonomous AI inference".to_string(),
+                description: "Evolve RDF graph from natural language using autonomous AI inference"
+                    .to_string(),
                 input_schema: autonomous_evolve_graph_schema(),
             },
         );
@@ -105,7 +107,8 @@ impl GgenAiMcpServer {
             "autonomous_regenerate".to_string(),
             ToolDef {
                 name: "autonomous_regenerate".to_string(),
-                description: "Trigger autonomous template regeneration based on graph changes".to_string(),
+                description: "Trigger autonomous template regeneration based on graph changes"
+                    .to_string(),
                 input_schema: autonomous_regenerate_schema(),
             },
         );
@@ -124,7 +127,7 @@ impl GgenAiMcpServer {
             ai_tools: AiMcpTools::new(),
         }
     }
-    
+
     /// Initialize with OpenAI client
     pub fn with_openai(mut self, _api_key: String) -> Self {
         let config = LlmConfig {
@@ -141,7 +144,7 @@ impl GgenAiMcpServer {
         self.ai_tools = self.ai_tools.with_openai(config);
         self
     }
-    
+
     /// Initialize with Anthropic client
     pub fn with_anthropic(mut self, _api_key: String) -> Self {
         let config = LlmConfig {
@@ -158,10 +161,10 @@ impl GgenAiMcpServer {
         self.ai_tools = self.ai_tools.with_anthropic(config);
         self
     }
-    
+
     /// Initialize with Ollama client
     pub fn with_ollama(mut self) -> Self {
-        let config = LlmConfig {
+        let _config = LlmConfig {
             model: std::env::var("OLLAMA_MODEL")
                 .or_else(|_| std::env::var("GGEN_DEFAULT_MODEL"))
                 .or_else(|_| std::env::var("DEFAULT_MODEL"))
@@ -175,13 +178,13 @@ impl GgenAiMcpServer {
         self.ai_tools = self.ai_tools.with_ollama();
         self
     }
-    
+
     /// Initialize with Ollama client and specific model
     pub fn with_ollama_model(mut self, model: &str) -> Self {
         self.ai_tools = self.ai_tools.with_ollama_model(model);
         self
     }
-    
+
     /// Execute a tool
     async fn execute_tool(&self, name: &str, params: Value) -> Result<Value> {
         match name {
@@ -201,10 +204,9 @@ impl GgenAiMcpServer {
 
 impl ServerHandler for GgenAiMcpServer {
     fn initialize(
-        &self,
-        _params: InitializeRequestParam,
-        _context: RequestContext<RoleServer>,
-    ) -> impl std::future::Future<Output = std::result::Result<InitializeResult, ErrorData>> + Send + '_ {
+        &self, _params: InitializeRequestParam, _context: RequestContext<RoleServer>,
+    ) -> impl std::future::Future<Output = std::result::Result<InitializeResult, ErrorData>> + Send + '_
+    {
         async move {
             Ok(InitializeResult {
                 protocol_version: ProtocolVersion::default(),
@@ -219,16 +221,17 @@ impl ServerHandler for GgenAiMcpServer {
                     website_url: Some("https://github.com/seanchatmangpt/ggen".to_string()),
                     icons: None,
                 },
-                instructions: Some("AI-powered code generation and refactoring tools for ggen".to_string()),
+                instructions: Some(
+                    "AI-powered code generation and refactoring tools for ggen".to_string(),
+                ),
             })
         }
     }
-    
+
     fn list_tools(
-        &self,
-        _pagination: Option<PaginatedRequestParam>,
-        _context: RequestContext<RoleServer>,
-    ) -> impl std::future::Future<Output = std::result::Result<ListToolsResult, ErrorData>> + Send + '_ {
+        &self, _pagination: Option<PaginatedRequestParam>, _context: RequestContext<RoleServer>,
+    ) -> impl std::future::Future<Output = std::result::Result<ListToolsResult, ErrorData>> + Send + '_
+    {
         async move {
             let tools = self
                 .tools
@@ -238,7 +241,7 @@ impl ServerHandler for GgenAiMcpServer {
                         Value::Object(map) => map.clone(),
                         _ => Map::new(),
                     };
-                    
+
                     Tool {
                         name: Cow::Owned(tool_def.name.clone()),
                         description: Some(Cow::Owned(tool_def.description.clone())),
@@ -250,26 +253,25 @@ impl ServerHandler for GgenAiMcpServer {
                     }
                 })
                 .collect();
-            
+
             Ok(ListToolsResult {
                 tools,
                 next_cursor: None,
             })
         }
     }
-    
+
     fn call_tool(
-        &self,
-        params: CallToolRequestParam,
-        _context: RequestContext<RoleServer>,
-    ) -> impl std::future::Future<Output = std::result::Result<CallToolResult, ErrorData>> + Send + '_ {
+        &self, params: CallToolRequestParam, _context: RequestContext<RoleServer>,
+    ) -> impl std::future::Future<Output = std::result::Result<CallToolResult, ErrorData>> + Send + '_
+    {
         async move {
             let args = Value::Object(params.arguments.unwrap_or_default());
             let result = self
                 .execute_tool(&params.name, args)
                 .await
                 .map_err(|e| ErrorData::internal_error(e.to_string(), None))?;
-            
+
             Ok(CallToolResult {
                 content: vec![Content::text(
                     serde_json::to_string_pretty(&result)
@@ -416,7 +418,7 @@ fn ai_suggest_delta_schema() -> Value {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[tokio::test]
     async fn test_server_creation() {
         let server = GgenAiMcpServer::new();
@@ -431,7 +433,7 @@ mod tests {
         assert!(server.tools.contains_key("autonomous_regenerate"));
         assert!(server.tools.contains_key("autonomous_status"));
     }
-    
+
     #[tokio::test]
     async fn test_server_with_openai() {
         let server = GgenAiMcpServer::new().with_openai("test-key".to_string());
@@ -492,4 +494,3 @@ fn autonomous_status_schema() -> Value {
         "required": []
     })
 }
-

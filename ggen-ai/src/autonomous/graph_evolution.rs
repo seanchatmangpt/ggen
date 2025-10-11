@@ -4,16 +4,16 @@
 //! NL parsing, delta detection, validation, and atomic commits.
 
 use crate::autonomous::{
-    nl_parser::{NaturalLanguageParser, NlParser, ParsedTriples},
-    validator::{SelfValidator, Validator, ValidationResult},
     delta_detector::{DeltaDetector, GraphDelta},
+    nl_parser::{NaturalLanguageParser, NlParser, ParsedTriples},
+    validator::{SelfValidator, ValidationResult, Validator},
 };
 use crate::client::LlmClient;
 use crate::error::Result;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use std::sync::Arc;
-use tracing::{debug, info, warn, error};
+use tracing::{debug, error, info, warn};
 
 /// Evolution engine configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -87,7 +87,10 @@ pub struct GraphEvolutionEngine {
 
 impl GraphEvolutionEngine {
     /// Create a new evolution engine
-    pub fn new(parser_client: Arc<dyn LlmClient>, validator_client: Arc<dyn LlmClient>, config: EvolutionConfig) -> Result<Self> {
+    pub fn new(
+        parser_client: Arc<dyn LlmClient>, validator_client: Arc<dyn LlmClient>,
+        config: EvolutionConfig,
+    ) -> Result<Self> {
         let mut parser = NaturalLanguageParser::new(parser_client);
         parser.add_prefix("ex".to_string(), config.base_uri.clone());
 
@@ -104,7 +107,9 @@ impl GraphEvolutionEngine {
     }
 
     /// Create with default configuration
-    pub fn with_defaults(parser_client: Arc<dyn LlmClient>, validator_client: Arc<dyn LlmClient>) -> Result<Self> {
+    pub fn with_defaults(
+        parser_client: Arc<dyn LlmClient>, validator_client: Arc<dyn LlmClient>,
+    ) -> Result<Self> {
         Self::new(parser_client, validator_client, EvolutionConfig::default())
     }
 
@@ -142,12 +147,15 @@ impl GraphEvolutionEngine {
         };
 
         // Filter by confidence threshold
-        let accepted_triples: Vec<String> = parsed.triples.iter()
+        let accepted_triples: Vec<String> = parsed
+            .triples
+            .iter()
             .filter(|triple| {
                 // Check if this triple has a confidence score
                 let has_confidence = parsed.relations.iter().any(|rel| {
                     let triple_str = format!("{} {} {}", rel.subject, rel.predicate, rel.object);
-                    triple.contains(&triple_str) && rel.confidence >= self.config.confidence_threshold
+                    triple.contains(&triple_str)
+                        && rel.confidence >= self.config.confidence_threshold
                 });
 
                 // Accept if no confidence info or meets threshold
@@ -156,8 +164,11 @@ impl GraphEvolutionEngine {
             .cloned()
             .collect();
 
-        info!("Accepted {}/{} triples after confidence filtering",
-              accepted_triples.len(), parsed.triples.len());
+        info!(
+            "Accepted {}/{} triples after confidence filtering",
+            accepted_triples.len(),
+            parsed.triples.len()
+        );
 
         // 2. Compute delta
         debug!("Step 2: Computing graph delta");
@@ -220,8 +231,10 @@ impl GraphEvolutionEngine {
         // Check validation passed
         if let Some(ref val) = validation_result {
             if !val.passed && self.config.auto_rollback {
-                error!("Validation failed with {} violations, rolling back",
-                       val.violations.len());
+                error!(
+                    "Validation failed with {} violations, rolling back",
+                    val.violations.len()
+                );
                 return Ok(EvolutionResult {
                     success: false,
                     parsed: Some(parsed),
@@ -244,7 +257,10 @@ impl GraphEvolutionEngine {
         self.delta_detector.apply_delta(&delta)?;
         operations_count += 1;
 
-        info!("Graph evolution completed successfully in {:?}", start.elapsed());
+        info!(
+            "Graph evolution completed successfully in {:?}",
+            start.elapsed()
+        );
 
         Ok(EvolutionResult {
             success: true,
@@ -274,7 +290,8 @@ impl GraphEvolutionEngine {
     /// Check if regeneration is needed based on threshold
     pub fn needs_regeneration(&self) -> bool {
         if let Some(last_delta) = self.delta_detector.get_history().last() {
-            self.delta_detector.is_significant(last_delta, self.config.regeneration_threshold)
+            self.delta_detector
+                .is_significant(last_delta, self.config.regeneration_threshold)
         } else {
             false
         }

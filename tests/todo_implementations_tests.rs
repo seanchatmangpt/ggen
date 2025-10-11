@@ -4,14 +4,19 @@
 
 #[cfg(test)]
 mod tests {
+    use chrono::Utc;
     use ggen_ai::governance::{
-        policy::{Policy, PolicyEngine, PolicyConfig, PolicyRule, RuleCondition, RuleAction, Severity},
-        safety::{SafetyController, SafetyConfig},
-        workflow::{ApprovalWorkflow, WorkflowConfig, ApprovalRequest, Approver, CriticalityLevel, ApprovalStatus},
+        policy::{
+            Policy, PolicyConfig, PolicyEngine, PolicyRule, RuleAction, RuleCondition, Severity,
+        },
+        safety::{SafetyConfig, SafetyController},
         types::Decision,
+        workflow::{
+            ApprovalRequest, ApprovalStatus, ApprovalWorkflow, Approver, CriticalityLevel,
+            WorkflowConfig,
+        },
     };
     use std::collections::HashMap;
-    use chrono::Utc;
     use uuid::Uuid;
 
     #[tokio::test]
@@ -133,8 +138,8 @@ mod tests {
     #[tokio::test]
     async fn test_deployment_backup_recursive_copy() {
         use ggen_ai::autonomous::deployment::{DeploymentAutomation, DeploymentConfig};
-        use tempfile::TempDir;
         use std::fs;
+        use tempfile::TempDir;
 
         // Create test directories
         let temp_dir = TempDir::new().unwrap();
@@ -154,7 +159,10 @@ mod tests {
         let automation = DeploymentAutomation::new(config);
 
         // Test recursive copy via copy_files
-        let copied_files = automation.copy_files(&source_dir, &target_dir).await.unwrap();
+        let copied_files = automation
+            .copy_files(&source_dir, &target_dir)
+            .await
+            .unwrap();
 
         // Verify all files were copied
         assert!(copied_files.len() >= 3);
@@ -165,9 +173,9 @@ mod tests {
 
     #[tokio::test]
     async fn test_regeneration_output_writing() {
-        use ggen_ai::autonomous::regeneration::{RegenerationEngine, RegenerationConfig};
-        use ggen_ai::providers::MockClient;
         use ggen_ai::autonomous::events::GraphChangeNotifier;
+        use ggen_ai::autonomous::regeneration::{RegenerationConfig, RegenerationEngine};
+        use ggen_ai::providers::MockClient;
         use std::sync::Arc;
         use tempfile::TempDir;
 
@@ -175,7 +183,9 @@ mod tests {
         let mut config = RegenerationConfig::default();
         config.output_dir = temp_dir.path().to_path_buf();
 
-        let client = Box::new(MockClient::with_response("fn main() { println!(\"Hello\"); }"));
+        let client = Box::new(MockClient::with_response(
+            "fn main() { println!(\"Hello\"); }",
+        ));
         let notifier = Arc::new(GraphChangeNotifier::default());
 
         let engine = RegenerationEngine::new(config, client, notifier);
@@ -216,7 +226,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_recovery_agent_logic() {
-        use ggen_mcp::agents::{RecoveryAgent, AgentConfig, AgentRole, Agent};
+        use ggen_mcp::agents::{Agent, AgentConfig, AgentRole, RecoveryAgent};
         use uuid::Uuid;
 
         let config = AgentConfig {
@@ -278,10 +288,16 @@ mod tests {
         let unbalanced = "{{ name } {% if condition %}content{% endif %}";
 
         // Test balanced template
-        assert_eq!(balanced.matches("{{").count(), balanced.matches("}}").count());
+        assert_eq!(
+            balanced.matches("{{").count(),
+            balanced.matches("}}").count()
+        );
 
         // Test unbalanced template
-        assert_ne!(unbalanced.matches("{{").count(), unbalanced.matches("}}").count());
+        assert_ne!(
+            unbalanced.matches("{{").count(),
+            unbalanced.matches("}}").count()
+        );
     }
 
     #[tokio::test]

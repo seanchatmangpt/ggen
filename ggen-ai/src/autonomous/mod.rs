@@ -7,25 +7,28 @@
 //! - Atomic commit/rollback operations
 //! - Evolution history tracking
 
-pub mod graph_evolution;
-pub mod nl_parser;
-pub mod validator;
 pub mod delta_detector;
-pub mod regeneration;
-pub mod orchestrator;
-pub mod telemetry;
 pub mod deployment;
 pub mod events;
+pub mod graph_evolution;
+pub mod nl_parser;
+pub mod orchestrator;
+pub mod regeneration;
+pub mod telemetry;
+pub mod validator;
 
-pub use graph_evolution::{GraphEvolutionEngine, EvolutionConfig, EvolutionResult};
-pub use nl_parser::{NaturalLanguageParser, ParsedTriples, InferredRelation};
-pub use validator::{SelfValidator, ValidationResult, ConstraintViolation};
-pub use delta_detector::{DeltaDetector, GraphDelta, DeltaOperation};
-pub use regeneration::{RegenerationEngine, RegenerationConfig, AffectedArtifact, DeltaChange};
-pub use orchestrator::{RegenerationOrchestrator, OrchestratorConfig, ParallelExecution};
-pub use telemetry::{TelemetryCollector, TelemetryConfig, TelemetryEvent, TelemetryEventType, PerformanceMetrics, FeedbackLoop};
+pub use delta_detector::{DeltaDetector, DeltaOperation, GraphDelta};
 pub use deployment::{DeploymentAutomation, DeploymentConfig, DeploymentResult};
-pub use events::{GraphChangeNotifier, ChangeEvent, ChangeType, EventSubscriber};
+pub use events::{ChangeEvent, ChangeType, EventSubscriber, GraphChangeNotifier};
+pub use graph_evolution::{EvolutionConfig, EvolutionResult, GraphEvolutionEngine};
+pub use nl_parser::{InferredRelation, NaturalLanguageParser, ParsedTriples};
+pub use orchestrator::{OrchestratorConfig, ParallelExecution, RegenerationOrchestrator};
+pub use regeneration::{AffectedArtifact, DeltaChange, RegenerationConfig, RegenerationEngine};
+pub use telemetry::{
+    FeedbackLoop, PerformanceMetrics, TelemetryCollector, TelemetryConfig, TelemetryEvent,
+    TelemetryEventType,
+};
+pub use validator::{ConstraintViolation, SelfValidator, ValidationResult};
 
 /// Re-export commonly used types
 pub use crate::error::{GgenAiError, Result};

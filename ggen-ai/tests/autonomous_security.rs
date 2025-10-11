@@ -4,11 +4,11 @@
 //! audit trail completeness, and security boundaries.
 
 use ggen_ai::{
-    security::{SecretString, MaskApiKey},
     governance::{
-        GovernanceCoordinator, GovernanceConfig, Decision, DecisionOutcome,
-        Policy, PolicyEngine, AuditTrail, SafetyController,
+        AuditTrail, Decision, DecisionOutcome, GovernanceConfig, GovernanceCoordinator, Policy,
+        PolicyEngine, SafetyController,
     },
+    security::{MaskApiKey, SecretString},
     GraphEvolutionEngine, MockClient,
 };
 
@@ -23,10 +23,8 @@ async fn test_api_key_masking_in_evolution_errors() {
     let parser_client = Box::new(mock_client);
     let validator_client = Box::new(MockClient::with_response("valid"));
 
-    let mut engine = GraphEvolutionEngine::with_defaults(
-        parser_client,
-        validator_client
-    ).expect("Failed to create engine");
+    let mut engine = GraphEvolutionEngine::with_defaults(parser_client, validator_client)
+        .expect("Failed to create engine");
 
     let result = engine.evolve_from_nl("test").await;
 
@@ -35,8 +33,14 @@ async fn test_api_key_masking_in_evolution_errors() {
         let error_str = format!("{}", e);
         let masked = error_str.mask_api_key();
 
-        assert!(!masked.contains("1234567890"), "API key should be masked in errors");
-        assert!(!masked.contains("abcdefghij"), "API key should be masked in errors");
+        assert!(
+            !masked.contains("1234567890"),
+            "API key should be masked in errors"
+        );
+        assert!(
+            !masked.contains("abcdefghij"),
+            "API key should be masked in errors"
+        );
     }
 }
 
@@ -46,16 +50,16 @@ async fn test_governance_policy_blocks_unauthorized_ops() {
     let mut config = GovernanceConfig::default();
     config.require_approval_for_all = false; // Allow some auto-approval
 
-    let governance = GovernanceCoordinator::new(config).await
+    let governance = GovernanceCoordinator::new(config)
+        .await
         .expect("Failed to create governance");
 
     // Test that critical operations are blocked without approval
-    let critical_decision = Decision::new_critical(
-        "delete_schema",
-        "Delete entire schema"
-    );
+    let critical_decision = Decision::new_critical("delete_schema", "Delete entire schema");
 
-    let outcome = governance.validate_decision(&critical_decision).await
+    let outcome = governance
+        .validate_decision(&critical_decision)
+        .await
         .expect("Validation failed");
 
     match outcome {
@@ -66,7 +70,10 @@ async fn test_governance_policy_blocks_unauthorized_ops() {
             // Also acceptable - requires human approval
         }
         DecisionOutcome::Approved { auto_approved, .. } => {
-            assert!(!auto_approved, "Critical operations should not be auto-approved");
+            assert!(
+                !auto_approved,
+                "Critical operations should not be auto-approved"
+            );
         }
     }
 }
@@ -75,7 +82,8 @@ async fn test_governance_policy_blocks_unauthorized_ops() {
 #[tokio::test]
 async fn test_governance_enforces_rate_limits() {
     let config = GovernanceConfig::default();
-    let governance = GovernanceCoordinator::new(config).await
+    let governance = GovernanceCoordinator::new(config)
+        .await
         .expect("Failed to create governance");
 
     // Rapidly submit many decisions
@@ -83,12 +91,11 @@ async fn test_governance_enforces_rate_limits() {
     let mut rejections = 0;
 
     for i in 0..100 {
-        let decision = Decision::new_low_risk(
-            &format!("operation_{}", i),
-            "Rapid operation"
-        );
+        let decision = Decision::new_low_risk(&format!("operation_{}", i), "Rapid operation");
 
-        let outcome = governance.validate_decision(&decision).await
+        let outcome = governance
+            .validate_decision(&decision)
+            .await
             .expect("Validation failed");
 
         match outcome {
@@ -113,7 +120,8 @@ async fn test_audit_trail_records_all_operations() {
     let temp_dir = TempDir::new().expect("Failed to create temp dir");
     let db_path = temp_dir.path().join("audit.db");
 
-    let audit_trail = AuditTrail::new(db_path.to_str().unwrap()).await
+    let audit_trail = AuditTrail::new(db_path.to_str().unwrap())
+        .await
         .expect("Failed to create audit trail");
 
     let config = GovernanceConfig {
@@ -121,7 +129,8 @@ async fn test_audit_trail_records_all_operations() {
         ..Default::default()
     };
 
-    let governance = GovernanceCoordinator::new(config).await
+    let governance = GovernanceCoordinator::new(config)
+        .await
         .expect("Failed to create governance");
 
     // Perform operations
@@ -143,7 +152,9 @@ async fn test_audit_trail_records_all_operations() {
         limit: 100,
     };
 
-    let events = governance.query_audit_trail(query).await
+    let events = governance
+        .query_audit_trail(query)
+        .await
         .expect("Failed to query audit trail");
 
     println!("Audit trail events: {}", events.len());
@@ -156,22 +167,32 @@ async fn test_audit_trail_records_all_operations() {
 #[tokio::test]
 async fn test_safety_controller_emergency_stop() {
     let config = GovernanceConfig::default();
-    let governance = GovernanceCoordinator::new(config).await
+    let governance = GovernanceCoordinator::new(config)
+        .await
         .expect("Failed to create governance");
 
     // Trigger emergency stop
-    governance.emergency_stop("Security breach detected").await
+    governance
+        .emergency_stop("Security breach detected")
+        .await
         .expect("Emergency stop failed");
 
     // Verify system is in emergency mode
-    let health = governance.get_health_status().await
+    let health = governance
+        .get_health_status()
+        .await
         .expect("Failed to get health status");
 
-    assert!(health.emergency_stop_active, "Emergency stop should be active");
+    assert!(
+        health.emergency_stop_active,
+        "Emergency stop should be active"
+    );
 
     // Try to perform operation (should be blocked)
     let decision = Decision::new_low_risk("test_op", "Test operation");
-    let outcome = governance.validate_decision(&decision).await
+    let outcome = governance
+        .validate_decision(&decision)
+        .await
         .expect("Validation failed");
 
     match outcome {
@@ -182,13 +203,20 @@ async fn test_safety_controller_emergency_stop() {
     }
 
     // Resume operations
-    governance.resume_operations("admin").await
+    governance
+        .resume_operations("admin")
+        .await
         .expect("Resume failed");
 
-    let health2 = governance.get_health_status().await
+    let health2 = governance
+        .get_health_status()
+        .await
         .expect("Failed to get health status");
 
-    assert!(!health2.emergency_stop_active, "Emergency stop should be cleared");
+    assert!(
+        !health2.emergency_stop_active,
+        "Emergency stop should be cleared"
+    );
 }
 
 /// Test secret string never leaks in debug output
@@ -206,18 +234,27 @@ fn test_secret_string_protection_comprehensive() {
 
         // Test Debug
         let debug_output = format!("{:?}", secret_str);
-        assert!(!debug_output.contains(&secret[10..20]),
-                "Secret leaked in debug: {}", secret);
+        assert!(
+            !debug_output.contains(&secret[10..20]),
+            "Secret leaked in debug: {}",
+            secret
+        );
 
         // Test Display
         let display_output = format!("{}", secret_str);
-        assert!(!display_output.contains(&secret[10..20]),
-                "Secret leaked in display: {}", secret);
+        assert!(
+            !display_output.contains(&secret[10..20]),
+            "Secret leaked in display: {}",
+            secret
+        );
 
         // Test JSON serialization
         let json = serde_json::to_string(&secret_str).unwrap();
-        assert!(!json.contains(&secret[10..20]),
-                "Secret leaked in JSON: {}", secret);
+        assert!(
+            !json.contains(&secret[10..20]),
+            "Secret leaked in JSON: {}",
+            secret
+        );
     }
 }
 
@@ -225,7 +262,8 @@ fn test_secret_string_protection_comprehensive() {
 #[tokio::test]
 async fn test_governance_policies_are_enforceable() {
     let config = GovernanceConfig::default();
-    let governance = GovernanceCoordinator::new(config).await
+    let governance = GovernanceCoordinator::new(config)
+        .await
         .expect("Failed to create governance");
 
     // Define custom policy
@@ -257,7 +295,8 @@ async fn test_rollback_preserves_audit_trail() {
         ..Default::default()
     };
 
-    let governance = GovernanceCoordinator::new(config).await
+    let governance = GovernanceCoordinator::new(config)
+        .await
         .expect("Failed to create governance");
 
     // Perform operation
@@ -275,7 +314,9 @@ async fn test_rollback_preserves_audit_trail() {
         limit: 100,
     };
 
-    let events = governance.query_audit_trail(query).await
+    let events = governance
+        .query_audit_trail(query)
+        .await
         .expect("Failed to query audit trail");
 
     // Should have at least 2 events (operation + rollback)
@@ -286,16 +327,17 @@ async fn test_rollback_preserves_audit_trail() {
 #[tokio::test]
 async fn test_unauthorized_access_blocked() {
     let config = GovernanceConfig::default();
-    let governance = GovernanceCoordinator::new(config).await
+    let governance = GovernanceCoordinator::new(config)
+        .await
         .expect("Failed to create governance");
 
     // Attempt unauthorized critical operation
-    let unauthorized_decision = Decision::new_critical(
-        "admin_operation",
-        "Perform system-level change"
-    );
+    let unauthorized_decision =
+        Decision::new_critical("admin_operation", "Perform system-level change");
 
-    let outcome = governance.validate_decision(&unauthorized_decision).await
+    let outcome = governance
+        .validate_decision(&unauthorized_decision)
+        .await
         .expect("Validation failed");
 
     // Critical operations should require approval or be rejected
@@ -322,11 +364,12 @@ fn test_sensitive_data_redaction_in_logs() {
         let redacted = message.mask_api_key();
 
         // Should not contain sensitive parts
-        assert!(!redacted.contains("1234567890"),
-                "Sensitive data leaked: {}", message);
-        assert!(!redacted.contains("eyJhbGci"),
-                "Token leaked: {}", message);
-        assert!(!redacted.contains("abcdefghijk"),
-                "Key leaked: {}", message);
+        assert!(
+            !redacted.contains("1234567890"),
+            "Sensitive data leaked: {}",
+            message
+        );
+        assert!(!redacted.contains("eyJhbGci"), "Token leaked: {}", message);
+        assert!(!redacted.contains("abcdefghijk"), "Key leaked: {}", message);
     }
 }

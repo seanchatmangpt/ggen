@@ -10,8 +10,8 @@
 //! Usage:
 //!   cargo run --example genai_ollama_stream
 
-use genai::chat::{ChatMessage, ChatRequest, ChatOptions};
 use genai::chat::printer::{print_chat_stream, PrintChatStreamOptions};
+use genai::chat::{ChatMessage, ChatOptions, ChatRequest};
 use genai::Client;
 use std::io::{self, Write};
 
@@ -39,12 +39,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let print_options = PrintChatStreamOptions::from_print_events(false);
 
-    let mut conversation: Vec<ChatMessage> = vec![
-        ChatMessage::system(
-            "You are qwen3-coder:30b, an expert Rust coding assistant. \
-             Provide clear, well-documented code with explanations."
-        ),
-    ];
+    let mut conversation: Vec<ChatMessage> = vec![ChatMessage::system(
+        "You are qwen3-coder:30b, an expert Rust coding assistant. \
+             Provide clear, well-documented code with explanations.",
+    )];
 
     loop {
         print!("\n💬 You: ");
@@ -70,7 +68,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         print!("🤖 qwen3-coder:30b: ");
         io::stdout().flush()?;
 
-        match client.exec_chat_stream(MODEL, chat_req, Some(&chat_options)).await {
+        match client
+            .exec_chat_stream(MODEL, chat_req, Some(&chat_options))
+            .await
+        {
             Ok(chat_stream) => {
                 // Print stream in real-time
                 match print_chat_stream(chat_stream, Some(&print_options)).await {

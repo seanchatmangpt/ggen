@@ -44,22 +44,22 @@
 //! # }
 //! ```
 
-pub mod policy;
 pub mod audit;
 pub mod dashboard;
-pub mod safety;
-pub mod workflow;
-pub mod types;
 pub mod error;
+pub mod policy;
+pub mod safety;
+pub mod types;
+pub mod workflow;
 
 // Re-export main types
-pub use policy::{Policy, PolicyEngine, PolicyRule, PolicyViolation, Constraint};
-pub use audit::{AuditTrail, AuditEvent, AuditQuery, EventType};
-pub use dashboard::{Dashboard, MetricsSnapshot, HealthStatus};
-pub use safety::{SafetyController, EmergencyStop, Rollback, ValidationGate};
-pub use workflow::{ApprovalWorkflow, ApprovalRequest, ApprovalStatus, Approver};
-pub use types::{GovernanceConfig, Decision, DecisionOutcome};
+pub use audit::{AuditEvent, AuditQuery, AuditTrail, EventType};
+pub use dashboard::{Dashboard, HealthStatus, MetricsSnapshot};
 pub use error::{GovernanceError, Result};
+pub use policy::{Constraint, Policy, PolicyEngine, PolicyRule, PolicyViolation};
+pub use safety::{EmergencyStop, Rollback, SafetyController, ValidationGate};
+pub use types::{Decision, DecisionOutcome, GovernanceConfig};
+pub use workflow::{ApprovalRequest, ApprovalStatus, ApprovalWorkflow, Approver};
 
 use chrono::Utc;
 use std::sync::Arc;
@@ -100,7 +100,9 @@ impl GovernanceCoordinator {
 
         // Check safety constraints first
         if let Some(violation) = self.safety_controller.check_safety(decision).await? {
-            self.audit_trail.log_safety_violation(decision, &violation).await?;
+            self.audit_trail
+                .log_safety_violation(decision, &violation)
+                .await?;
             return Ok(DecisionOutcome::Rejected {
                 reason: format!("Safety violation: {}", violation),
                 requires_review: true,
@@ -123,7 +125,9 @@ impl GovernanceCoordinator {
             }
             Ok(false) | Err(_) => {
                 let violations = self.policy_engine.get_violations(decision).await?;
-                self.audit_trail.log_policy_violations(decision, &violations).await?;
+                self.audit_trail
+                    .log_policy_violations(decision, &violations)
+                    .await?;
                 Ok(DecisionOutcome::Rejected {
                     reason: format!("Policy violations: {:?}", violations),
                     requires_review: true,
@@ -134,8 +138,7 @@ impl GovernanceCoordinator {
 
     /// Check if a decision requires human approval
     async fn requires_approval(&self, decision: &Decision) -> Result<bool> {
-        Ok(decision.criticality.requires_approval()
-            || self.config.require_approval_for_all)
+        Ok(decision.criticality.requires_approval() || self.config.require_approval_for_all)
     }
 
     /// Submit decision for human approval
@@ -143,7 +146,9 @@ impl GovernanceCoordinator {
         let request = ApprovalRequest::from_decision(decision);
         let request_id = self.workflow.submit(request).await?;
 
-        self.audit_trail.log_approval_requested(decision, &request_id).await?;
+        self.audit_trail
+            .log_approval_requested(decision, &request_id)
+            .await?;
 
         Ok(DecisionOutcome::PendingApproval {
             request_id,
@@ -153,7 +158,9 @@ impl GovernanceCoordinator {
 
     /// Emergency stop - halt all autonomous operations
     pub async fn emergency_stop(&self, reason: &str) -> Result<()> {
-        self.safety_controller.trigger_emergency_stop(reason).await?;
+        self.safety_controller
+            .trigger_emergency_stop(reason)
+            .await?;
         self.audit_trail.log_emergency_stop(reason).await?;
         self.dashboard.update_emergency_status(true).await?;
         Ok(())
@@ -210,7 +217,8 @@ mod tests {
 
         // Test auto-approval for low-risk decision
         let decision = Decision::new_low_risk("test_action", "test data");
-        let outcome = coordinator.validate_decision(&decision)
+        let outcome = coordinator
+            .validate_decision(&decision)
             .await
             .expect("Failed to validate decision");
 
@@ -234,11 +242,13 @@ mod tests {
             .await
             .expect("Failed to create governance coordinator");
 
-        coordinator.emergency_stop("test emergency")
+        coordinator
+            .emergency_stop("test emergency")
             .await
             .expect("Failed to trigger emergency stop");
 
-        let status = coordinator.get_health_status()
+        let status = coordinator
+            .get_health_status()
             .await
             .expect("Failed to get health status");
         assert!(

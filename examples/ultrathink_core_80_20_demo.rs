@@ -4,8 +4,10 @@
 //! workflows delivering 80% of the value, using core team best practices.
 
 use agents::{
-    agents::{Trigger, RuntimeMetrics, ApiSpec, SecurityVulnerability},
-    ultrathink_core::{UltrathinkCore, demonstrate_focused_autonomous_workflows, run_ultrathink_core},
+    agents::{ApiSpec, RuntimeMetrics, SecurityVulnerability, Trigger},
+    ultrathink_core::{
+        demonstrate_focused_autonomous_workflows, run_ultrathink_core, UltrathinkCore,
+    },
 };
 use std::env;
 
@@ -72,14 +74,19 @@ async fn demonstrate_gap_filling() -> Result<(), Box<dyn std::error::Error>> {
     println!("   80/20 Solution: AI-powered requirements analysis → automatic graph extension → deterministic code regeneration");
 
     let requirements_trigger = Trigger::RequirementsChange(
-        "Implement user authentication with OAuth 2.0, JWT tokens, and role-based access control".to_string()
+        "Implement user authentication with OAuth 2.0, JWT tokens, and role-based access control"
+            .to_string(),
     );
 
-    let result = ultrathink.trigger_focused_workflow(requirements_trigger).await?;
-    println!("   ✅ Filled: {} actions executed, {} artifacts generated in {}ms",
-             result.actions_taken.len(),
-             result.artifacts_generated.len(),
-             result.execution_time_ms);
+    let result = ultrathink
+        .trigger_focused_workflow(requirements_trigger)
+        .await?;
+    println!(
+        "   ✅ Filled: {} actions executed, {} artifacts generated in {}ms",
+        result.actions_taken.len(),
+        result.artifacts_generated.len(),
+        result.execution_time_ms
+    );
 
     // 2. Critical security vulnerabilities (highest value gap)
     println!("\n2️⃣ Critical Security Vulnerabilities → Auto-Patching");
@@ -92,11 +99,15 @@ async fn demonstrate_gap_filling() -> Result<(), Box<dyn std::error::Error>> {
         affected_components: vec!["authentication".to_string(), "authorization".to_string()],
     });
 
-    let result = ultrathink.trigger_focused_workflow(security_trigger).await?;
-    println!("   ✅ Filled: {} actions executed, {} artifacts generated in {}ms",
-             result.actions_taken.len(),
-             result.artifacts_generated.len(),
-             result.execution_time_ms);
+    let result = ultrathink
+        .trigger_focused_workflow(security_trigger)
+        .await?;
+    println!(
+        "   ✅ Filled: {} actions executed, {} artifacts generated in {}ms",
+        result.actions_taken.len(),
+        result.artifacts_generated.len(),
+        result.execution_time_ms
+    );
 
     // 3. Breaking API changes (highest value gap)
     println!("\n3️⃣ Breaking API Changes → Migration");
@@ -113,10 +124,12 @@ async fn demonstrate_gap_filling() -> Result<(), Box<dyn std::error::Error>> {
     });
 
     let result = ultrathink.trigger_focused_workflow(api_trigger).await?;
-    println!("   ✅ Filled: {} actions executed, {} artifacts generated in {}ms",
-             result.actions_taken.len(),
-             result.artifacts_generated.len(),
-             result.execution_time_ms);
+    println!(
+        "   ✅ Filled: {} actions executed, {} artifacts generated in {}ms",
+        result.actions_taken.len(),
+        result.artifacts_generated.len(),
+        result.execution_time_ms
+    );
 
     // 4. Performance regressions (conditional high value)
     println!("\n4️⃣ Performance Regressions → Optimization (Conditional)");
@@ -131,11 +144,15 @@ async fn demonstrate_gap_filling() -> Result<(), Box<dyn std::error::Error>> {
         threshold: 150.0,
     });
 
-    let result = ultrathink.trigger_focused_workflow(significant_regression).await?;
-    println!("   ✅ Filled: {} actions executed, {} artifacts generated in {}ms",
-             result.actions_taken.len(),
-             result.artifacts_generated.len(),
-             result.execution_time_ms);
+    let result = ultrathink
+        .trigger_focused_workflow(significant_regression)
+        .await?;
+    println!(
+        "   ✅ Filled: {} actions executed, {} artifacts generated in {}ms",
+        result.actions_taken.len(),
+        result.artifacts_generated.len(),
+        result.execution_time_ms
+    );
 
     // Minor regression (low value - filtered)
     println!("\n5️⃣ Minor Performance Changes → Filtered (Low Value)");
@@ -149,9 +166,13 @@ async fn demonstrate_gap_filling() -> Result<(), Box<dyn std::error::Error>> {
         threshold: 150.0,
     });
 
-    let result = ultrathink.trigger_focused_workflow(minor_regression).await?;
-    println!("   ✅ Filtered: Only {} action (analysis only), no regeneration needed",
-             result.actions_taken.len());
+    let result = ultrathink
+        .trigger_focused_workflow(minor_regression)
+        .await?;
+    println!(
+        "   ✅ Filtered: Only {} action (analysis only), no regeneration needed",
+        result.actions_taken.len()
+    );
 
     // Show gap-filling results
     println!("\n📊 Gap-Filling Results (80/20 Principle):");
@@ -159,11 +180,20 @@ async fn demonstrate_gap_filling() -> Result<(), Box<dyn std::error::Error>> {
     println!("  Agents Utilized: {}", status.total_agents);
     println!("  High-Value Gaps Filled: {}", status.workflows_executed);
     println!("  Success Rate: {:.1}%", status.success_rate);
-    println!("  Average Execution: {}ms", status.average_execution_time_ms);
+    println!(
+        "  Average Execution: {}ms",
+        status.average_execution_time_ms
+    );
 
     let metrics = ultrathink.get_performance_metrics().await;
-    println!("  High-Value Triggers Processed: {}", metrics.high_value_triggers_processed);
-    println!("  Low-Value Triggers Filtered: {}", metrics.low_value_triggers_filtered);
+    println!(
+        "  High-Value Triggers Processed: {}",
+        metrics.high_value_triggers_processed
+    );
+    println!(
+        "  Low-Value Triggers Filtered: {}",
+        metrics.low_value_triggers_filtered
+    );
 
     println!("\n🎯 Gap-Filling Summary:");
     println!("  ✅ Requirements changes → 100% automated");
@@ -206,10 +236,10 @@ mod tests {
 
         // Low-value performance trigger
         let trigger = Trigger::RuntimeTelemetry(RuntimeMetrics {
-            cpu_usage: 45.0,      // Below 80% threshold
-            memory_usage: 60.0,   // Below 85% threshold
+            cpu_usage: 45.0,       // Below 80% threshold
+            memory_usage: 60.0,    // Below 85% threshold
             response_time_ms: 200, // Below 1000ms threshold
-            error_rate: 0.01,     // Low error rate
+            error_rate: 0.01,      // Low error rate
         });
 
         let result = ultrathink.trigger_focused_workflow(trigger).await.unwrap();

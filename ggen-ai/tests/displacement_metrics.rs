@@ -3,14 +3,14 @@
 //! This test suite validates the 90-95% automation displacement claim by measuring
 //! human effort reduction across all layers of the autonomous system.
 
-use ggen_ai::{
-    GraphEvolutionEngine, EvolutionConfig, NaturalLanguageParser, SelfValidator,
-    DeltaDetector, RegenerationEngine, RegenerationConfig, DeploymentAutomation,
-    DeploymentConfig, TelemetryCollector, TelemetryConfig,
-};
 use ggen_ai::providers::MockClient;
+use ggen_ai::{
+    DeltaDetector, DeploymentAutomation, DeploymentConfig, EvolutionConfig, GraphEvolutionEngine,
+    NaturalLanguageParser, RegenerationConfig, RegenerationEngine, SelfValidator,
+    TelemetryCollector, TelemetryConfig,
+};
+use serde::{Deserialize, Serialize};
 use std::time::Instant;
-use serde::{Serialize, Deserialize};
 
 /// Displacement metrics structure
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -30,7 +30,10 @@ pub struct DisplacementMetrics {
 }
 
 impl DisplacementMetrics {
-    fn new(task_name: &str, manual_effort: f64, automated_effort: f64, duration_secs: f64, quality_score: f64) -> Self {
+    fn new(
+        task_name: &str, manual_effort: f64, automated_effort: f64, duration_secs: f64,
+        quality_score: f64,
+    ) -> Self {
         Self {
             manual_effort,
             automated_effort,
@@ -125,13 +128,15 @@ ex:placedBy a owl:ObjectProperty ;
     let parser_client = MockClient::with_response(mock_response);
     let validator_client = MockClient::with_response("validation");
 
-    let mut engine = GraphEvolutionEngine::with_defaults(
-        Box::new(parser_client),
-        Box::new(validator_client),
-    ).expect("Failed to create engine");
+    let mut engine =
+        GraphEvolutionEngine::with_defaults(Box::new(parser_client), Box::new(validator_client))
+            .expect("Failed to create engine");
 
     let nl_input = "Design a schema for e-commerce with products, customers, and orders";
-    let result = engine.evolve_from_nl(nl_input).await.expect("Evolution failed");
+    let result = engine
+        .evolve_from_nl(nl_input)
+        .await
+        .expect("Evolution failed");
 
     let duration = start.elapsed();
 
@@ -149,13 +154,22 @@ ex:placedBy a owl:ObjectProperty ;
     );
 
     println!("  ✅ Displacement: {:.1}%", metrics.displacement_percent());
-    println!("  ⏱️  Duration: {:.2}s (vs ~90 minutes manual)", duration.as_secs_f64());
+    println!(
+        "  ⏱️  Duration: {:.2}s (vs ~90 minutes manual)",
+        duration.as_secs_f64()
+    );
     println!("  📊 Quality: {:.1}%", metrics.quality_score * 100.0);
 
     assert!(result.success, "Schema design should succeed");
-    assert!(metrics.displacement >= 0.85, "Should achieve at least 85% displacement");
+    assert!(
+        metrics.displacement >= 0.85,
+        "Should achieve at least 85% displacement"
+    );
     assert!(metrics.quality_score >= 0.80, "Quality should be high");
-    assert!(duration.as_secs() < 30, "Should complete in under 30 seconds");
+    assert!(
+        duration.as_secs() < 30,
+        "Should complete in under 30 seconds"
+    );
 }
 
 #[tokio::test]
@@ -179,11 +193,9 @@ async fn test_code_generation_displacement() {
     let parser_client = MockClient::with_response(mock_response);
     let validator_client = MockClient::with_response("validation");
 
-    let engine = GraphEvolutionEngine::new(
-        Box::new(parser_client),
-        Box::new(validator_client),
-        config,
-    ).expect("Failed to create engine");
+    let engine =
+        GraphEvolutionEngine::new(Box::new(parser_client), Box::new(validator_client), config)
+            .expect("Failed to create engine");
 
     let duration = start.elapsed();
 
@@ -201,13 +213,22 @@ async fn test_code_generation_displacement() {
     );
 
     println!("  ✅ Displacement: {:.1}%", metrics.displacement_percent());
-    println!("  ⏱️  Duration: {:.2}s (vs ~210 minutes manual)", duration.as_secs_f64());
+    println!(
+        "  ⏱️  Duration: {:.2}s (vs ~210 minutes manual)",
+        duration.as_secs_f64()
+    );
     println!("  📊 Quality: {:.1}%", metrics.quality_score * 100.0);
 
     assert_eq!(metrics.manual_effort, 0.0, "Should be fully automated");
-    assert_eq!(metrics.displacement, 1.0, "Should achieve 100% displacement");
+    assert_eq!(
+        metrics.displacement, 1.0,
+        "Should achieve 100% displacement"
+    );
     assert!(metrics.quality_score >= 0.85, "Quality should be excellent");
-    assert!(duration.as_secs() < 15, "Should complete in under 15 seconds");
+    assert!(
+        duration.as_secs() < 15,
+        "Should complete in under 15 seconds"
+    );
 }
 
 #[tokio::test]
@@ -233,7 +254,10 @@ async fn test_validation_displacement() {
         "ex:hasName a owl:DatatypeProperty .".to_string(),
     ];
 
-    let result = validator.validate(&triples).await.expect("Validation failed");
+    let result = validator
+        .validate(&triples)
+        .await
+        .expect("Validation failed");
 
     let duration = start.elapsed();
 
@@ -251,13 +275,28 @@ async fn test_validation_displacement() {
     );
 
     println!("  ✅ Displacement: {:.1}%", metrics.displacement_percent());
-    println!("  ⏱️  Duration: {:.2}s (vs ~165 minutes manual)", duration.as_secs_f64());
+    println!(
+        "  ⏱️  Duration: {:.2}s (vs ~165 minutes manual)",
+        duration.as_secs_f64()
+    );
     println!("  📊 Quality: {:.1}%", metrics.quality_score * 100.0);
 
-    assert!(!result.queries_executed.is_empty(), "Should execute validation");
-    assert!(metrics.displacement >= 0.93, "Should achieve at least 93% displacement");
-    assert!(metrics.quality_score >= 0.98, "Validation accuracy should be very high");
-    assert!(duration.as_secs() < 10, "Should complete in under 10 seconds");
+    assert!(
+        !result.queries_executed.is_empty(),
+        "Should execute validation"
+    );
+    assert!(
+        metrics.displacement >= 0.93,
+        "Should achieve at least 93% displacement"
+    );
+    assert!(
+        metrics.quality_score >= 0.98,
+        "Validation accuracy should be very high"
+    );
+    assert!(
+        duration.as_secs() < 10,
+        "Should complete in under 10 seconds"
+    );
 }
 
 #[tokio::test]
@@ -296,12 +335,24 @@ async fn test_deployment_displacement() {
     );
 
     println!("  ✅ Displacement: {:.1}%", metrics.displacement_percent());
-    println!("  ⏱️  Duration: {:.2}s (vs ~65 minutes manual)", duration.as_secs_f64());
+    println!(
+        "  ⏱️  Duration: {:.2}s (vs ~65 minutes manual)",
+        duration.as_secs_f64()
+    );
     println!("  📊 Quality: {:.1}%", metrics.quality_score * 100.0);
 
-    assert!(metrics.displacement >= 0.90, "Should achieve at least 90% displacement");
-    assert!(metrics.quality_score >= 0.90, "Deployment reliability should be high");
-    assert!(duration.as_secs() < 20, "Should complete in under 20 seconds");
+    assert!(
+        metrics.displacement >= 0.90,
+        "Should achieve at least 90% displacement"
+    );
+    assert!(
+        metrics.quality_score >= 0.90,
+        "Deployment reliability should be high"
+    );
+    assert!(
+        duration.as_secs() < 20,
+        "Should complete in under 20 seconds"
+    );
 }
 
 #[tokio::test]
@@ -328,13 +379,15 @@ ex:Entity a owl:Class .
     let parser_client = MockClient::with_response(mock_response);
     let validator_client = MockClient::with_response("validation");
 
-    let mut engine = GraphEvolutionEngine::with_defaults(
-        Box::new(parser_client),
-        Box::new(validator_client),
-    ).expect("Failed to create engine");
+    let mut engine =
+        GraphEvolutionEngine::with_defaults(Box::new(parser_client), Box::new(validator_client))
+            .expect("Failed to create engine");
 
     // Full autonomous cycle
-    let result = engine.evolve_from_nl("Create a complete system").await.expect("Evolution failed");
+    let result = engine
+        .evolve_from_nl("Create a complete system")
+        .await
+        .expect("Evolution failed");
 
     let duration = start.elapsed();
 
@@ -349,7 +402,8 @@ ex:Entity a owl:Class .
         schema_metrics.displacement * 0.25 +  // 25% weight
         code_metrics.displacement * 0.35 +     // 35% weight
         validation_metrics.displacement * 0.20 + // 20% weight
-        deployment_metrics.displacement * 0.20   // 20% weight
+        deployment_metrics.displacement * 0.20
+        // 20% weight
     );
 
     let aggregate = AggregateMetrics {
@@ -362,13 +416,31 @@ ex:Entity a owl:Class .
     };
 
     println!("\n📊 Overall Displacement Report:");
-    println!("  Schema Design:    {:.1}%", aggregate.schema_design.displacement_percent());
-    println!("  Code Generation:  {:.1}%", aggregate.code_generation.displacement_percent());
-    println!("  Validation:       {:.1}%", aggregate.validation.displacement_percent());
-    println!("  Deployment:       {:.1}%", aggregate.deployment.displacement_percent());
+    println!(
+        "  Schema Design:    {:.1}%",
+        aggregate.schema_design.displacement_percent()
+    );
+    println!(
+        "  Code Generation:  {:.1}%",
+        aggregate.code_generation.displacement_percent()
+    );
+    println!(
+        "  Validation:       {:.1}%",
+        aggregate.validation.displacement_percent()
+    );
+    println!(
+        "  Deployment:       {:.1}%",
+        aggregate.deployment.displacement_percent()
+    );
     println!("  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-    println!("  OVERALL:          {:.1}%", aggregate.overall_displacement_percent());
-    println!("  ⏱️  Total Duration: {:.2}s", aggregate.overall_duration_secs);
+    println!(
+        "  OVERALL:          {:.1}%",
+        aggregate.overall_displacement_percent()
+    );
+    println!(
+        "  ⏱️  Total Duration: {:.2}s",
+        aggregate.overall_duration_secs
+    );
     println!("  🎯 Target Range: 90-95%");
 
     // Manual total: ~530 minutes (8.8 hours)
@@ -376,17 +448,30 @@ ex:Entity a owl:Class .
     // Time savings: ~99.9%
 
     assert!(result.success, "Full pipeline should succeed");
-    assert!(aggregate.meets_overall_target(),
+    assert!(
+        aggregate.meets_overall_target(),
         "Overall displacement should be 90-95%, got {:.1}%",
         aggregate.overall_displacement_percent()
     );
-    assert!(aggregate.overall_displacement >= 0.90, "Should exceed 90% displacement");
-    assert!(aggregate.overall_displacement <= 0.95, "Should stay within 95% for human oversight");
+    assert!(
+        aggregate.overall_displacement >= 0.90,
+        "Should exceed 90% displacement"
+    );
+    assert!(
+        aggregate.overall_displacement <= 0.95,
+        "Should stay within 95% for human oversight"
+    );
 
     // Machine timescale validation: < 6 minutes (360 seconds)
-    assert!(duration.as_secs() < 360, "Should complete in under 6 minutes");
+    assert!(
+        duration.as_secs() < 360,
+        "Should complete in under 6 minutes"
+    );
 
-    println!("\n✅ VALIDATION PASSED: {:.1}% Displacement Achieved!", aggregate.overall_displacement_percent());
+    println!(
+        "\n✅ VALIDATION PASSED: {:.1}% Displacement Achieved!",
+        aggregate.overall_displacement_percent()
+    );
 }
 
 #[tokio::test]
@@ -424,24 +509,29 @@ ex:manages a owl:ObjectProperty .
     let parser_client = MockClient::with_response(mock_response);
     let validator_client = MockClient::with_response("validation");
 
-    let mut engine = GraphEvolutionEngine::with_defaults(
-        Box::new(parser_client),
-        Box::new(validator_client),
-    ).expect("Failed to create engine");
+    let mut engine =
+        GraphEvolutionEngine::with_defaults(Box::new(parser_client), Box::new(validator_client))
+            .expect("Failed to create engine");
 
     // Simulate full cycle with multiple operations
     for i in 0..3 {
-        let _ = engine.evolve_from_nl(&format!("Iteration {}: Add more entities", i + 1)).await;
+        let _ = engine
+            .evolve_from_nl(&format!("Iteration {}: Add more entities", i + 1))
+            .await;
     }
 
     let duration = start.elapsed();
 
     println!("  ⏱️  Execution Time: {:.2}s", duration.as_secs_f64());
     println!("  🎯 Target: < 360s (6 minutes)");
-    println!("  📊 Performance: {:.1}% of target", (duration.as_secs_f64() / 360.0) * 100.0);
+    println!(
+        "  📊 Performance: {:.1}% of target",
+        (duration.as_secs_f64() / 360.0) * 100.0
+    );
 
     // Target: Complete in under 6 minutes
-    assert!(duration.as_secs() < 360,
+    assert!(
+        duration.as_secs() < 360,
         "Machine timescale should be < 360 seconds, got {}s",
         duration.as_secs()
     );
@@ -483,11 +573,17 @@ async fn test_economic_impact_calculation() {
 
     println!("\n  📊 Annual Impact (100 projects):");
     println!("     Savings: ${:.2}", annual_savings);
-    println!("     Time Saved: {:.0} hours", (manual_hours - autonomous_hours) * annual_projects as f64);
+    println!(
+        "     Time Saved: {:.0} hours",
+        (manual_hours - autonomous_hours) * annual_projects as f64
+    );
 
     assert!(savings > 0.0, "Should generate positive ROI");
     assert!(roi_percent > 90.0, "ROI should exceed 90%");
-    assert!(annual_savings > 50_000.0, "Annual savings should be substantial");
+    assert!(
+        annual_savings > 50_000.0,
+        "Annual savings should be substantial"
+    );
 
     println!("✅ Economic Impact Validation PASSED");
 }
@@ -514,12 +610,14 @@ ex:HighQuality a owl:Class .
     let parser_client = MockClient::with_response(mock_response);
     let validator_client = MockClient::with_response("validation");
 
-    let mut engine = GraphEvolutionEngine::with_defaults(
-        Box::new(parser_client),
-        Box::new(validator_client),
-    ).expect("Failed to create engine");
+    let mut engine =
+        GraphEvolutionEngine::with_defaults(Box::new(parser_client), Box::new(validator_client))
+            .expect("Failed to create engine");
 
-    let result = engine.evolve_from_nl("High quality schema").await.expect("Evolution failed");
+    let result = engine
+        .evolve_from_nl("High quality schema")
+        .await
+        .expect("Evolution failed");
 
     // Quality thresholds
     let min_quality = 0.80; // 80% minimum quality
@@ -531,14 +629,21 @@ ex:HighQuality a owl:Class .
     println!("  🎯 Minimum: {:.1}%", min_quality * 100.0);
     println!("  ⭐ Target: {:.1}%", target_quality * 100.0);
 
-    assert!(quality_score >= min_quality, "Quality must meet minimum threshold");
-    assert!(quality_score >= target_quality, "Quality should meet target threshold");
+    assert!(
+        quality_score >= min_quality,
+        "Quality must meet minimum threshold"
+    );
+    assert!(
+        quality_score >= target_quality,
+        "Quality should meet target threshold"
+    );
 
     println!("✅ Quality Retention Validation PASSED");
 }
 
 /// Helper function to measure full pipeline displacement
-async fn measure_full_pipeline_displacement() -> Result<AggregateMetrics, Box<dyn std::error::Error>> {
+async fn measure_full_pipeline_displacement() -> Result<AggregateMetrics, Box<dyn std::error::Error>>
+{
     let start = Instant::now();
 
     let mock_response = r#"
@@ -558,10 +663,8 @@ ex:Test a owl:Class .
     let parser_client = MockClient::with_response(mock_response);
     let validator_client = MockClient::with_response("validation");
 
-    let mut engine = GraphEvolutionEngine::with_defaults(
-        Box::new(parser_client),
-        Box::new(validator_client),
-    )?;
+    let mut engine =
+        GraphEvolutionEngine::with_defaults(Box::new(parser_client), Box::new(validator_client))?;
 
     let _ = engine.evolve_from_nl("Test input").await?;
 
@@ -572,12 +675,10 @@ ex:Test a owl:Class .
     let validation_metrics = DisplacementMetrics::new("Validation", 0.05, 0.95, 3.0, 0.99);
     let deployment_metrics = DisplacementMetrics::new("Deployment", 0.05, 0.95, 15.0, 0.92);
 
-    let overall = (
-        schema_metrics.displacement * 0.25 +
-        code_metrics.displacement * 0.35 +
-        validation_metrics.displacement * 0.20 +
-        deployment_metrics.displacement * 0.20
-    );
+    let overall = (schema_metrics.displacement * 0.25
+        + code_metrics.displacement * 0.35
+        + validation_metrics.displacement * 0.20
+        + deployment_metrics.displacement * 0.20);
 
     Ok(AggregateMetrics {
         schema_design: schema_metrics,

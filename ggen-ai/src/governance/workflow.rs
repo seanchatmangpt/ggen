@@ -2,15 +2,15 @@
 //!
 //! Human-in-the-loop approval system for critical autonomous decisions.
 
-use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use uuid::Uuid;
 
-use super::types::Decision;
 use super::error::{GovernanceError, Result};
+use super::types::Decision;
 
 /// Approval workflow configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -140,8 +140,8 @@ impl ApprovalWorkflow {
         }
 
         // Set expiration
-        request.expires_at = Utc::now()
-            + chrono::Duration::minutes(self.config.approval_timeout_minutes as i64);
+        request.expires_at =
+            Utc::now() + chrono::Duration::minutes(self.config.approval_timeout_minutes as i64);
 
         let request_id = request.id.clone();
 
@@ -157,10 +157,7 @@ impl ApprovalWorkflow {
 
     /// Respond to an approval request
     pub async fn respond(
-        &self,
-        request_id: &str,
-        approver: &str,
-        decision: ResponseDecision,
+        &self, request_id: &str, approver: &str, decision: ResponseDecision,
         comments: Option<String>,
     ) -> Result<ApprovalStatus> {
         let mut requests = self.requests.write().await;
@@ -180,14 +177,14 @@ impl ApprovalWorkflow {
         // Check if approver is authorized
         if !request.approvers.contains(&approver.to_string()) {
             return Err(GovernanceError::ApprovalError(
-                "Approver not authorized for this request".to_string()
+                "Approver not authorized for this request".to_string(),
             ));
         }
 
         // Check if already responded
         if request.responses.iter().any(|r| r.approver == approver) {
             return Err(GovernanceError::ApprovalError(
-                "Approver has already responded".to_string()
+                "Approver has already responded".to_string(),
             ));
         }
 
@@ -260,7 +257,9 @@ impl ApprovalWorkflow {
     }
 
     /// List all approval requests
-    pub async fn list_requests(&self, status: Option<ApprovalStatus>) -> Result<Vec<ApprovalRequest>> {
+    pub async fn list_requests(
+        &self, status: Option<ApprovalStatus>,
+    ) -> Result<Vec<ApprovalRequest>> {
         let requests = self.requests.read().await;
 
         let filtered: Vec<ApprovalRequest> = requests
@@ -282,13 +281,13 @@ impl ApprovalWorkflow {
 
         if request.status != ApprovalStatus::Pending {
             return Err(GovernanceError::ApprovalError(
-                "Only pending requests can be withdrawn".to_string()
+                "Only pending requests can be withdrawn".to_string(),
             ));
         }
 
         if request.requested_by != withdrawn_by {
             return Err(GovernanceError::ApprovalError(
-                "Only the requester can withdraw".to_string()
+                "Only the requester can withdraw".to_string(),
             ));
         }
 
@@ -300,14 +299,11 @@ impl ApprovalWorkflow {
 
     /// Delegate approval to another approver
     pub async fn delegate(
-        &self,
-        request_id: &str,
-        from_approver: &str,
-        to_approver: &str,
+        &self, request_id: &str, from_approver: &str, to_approver: &str,
     ) -> Result<()> {
         if !self.config.enable_delegation {
             return Err(GovernanceError::ApprovalError(
-                "Delegation is disabled".to_string()
+                "Delegation is disabled".to_string(),
             ));
         }
 
@@ -318,7 +314,7 @@ impl ApprovalWorkflow {
 
         if !approver.can_delegate {
             return Err(GovernanceError::ApprovalError(
-                "Approver does not have delegation permission".to_string()
+                "Approver does not have delegation permission".to_string(),
             ));
         }
 
@@ -415,9 +411,7 @@ impl ApprovalWorkflow {
 
     /// Send notification to a specific approver
     async fn send_notification_to_approver(
-        &self,
-        approver: &Approver,
-        request: &ApprovalRequest,
+        &self, approver: &Approver, request: &ApprovalRequest,
     ) -> Result<()> {
         // In a production system, this would integrate with:
         // - Email service (SMTP, SendGrid, etc.)
@@ -457,7 +451,9 @@ impl ApprovalWorkflow {
     }
 
     /// Format notification message for approver
-    fn format_notification_message(&self, approver: &Approver, request: &ApprovalRequest) -> String {
+    fn format_notification_message(
+        &self, approver: &Approver, request: &ApprovalRequest,
+    ) -> String {
         format!(
             r#"Hello {},
 
@@ -525,7 +521,8 @@ mod tests {
             can_delegate: true,
             active: true,
         };
-        workflow.register_approver(approver)
+        workflow
+            .register_approver(approver)
             .await
             .expect("Failed to register approver");
 
@@ -545,7 +542,8 @@ mod tests {
             metadata: HashMap::new(),
         };
 
-        let request_id = workflow.submit(request)
+        let request_id = workflow
+            .submit(request)
             .await
             .expect("Failed to submit approval request");
 
@@ -577,12 +575,18 @@ mod tests {
             metadata: HashMap::new(),
         };
 
-        let request_id = workflow.submit(request)
+        let request_id = workflow
+            .submit(request)
             .await
             .expect("Failed to submit approval request");
 
         let status = workflow
-            .respond(&request_id, "user1", ResponseDecision::Reject, Some("Not safe".to_string()))
+            .respond(
+                &request_id,
+                "user1",
+                ResponseDecision::Reject,
+                Some("Not safe".to_string()),
+            )
             .await
             .expect("Failed to respond to approval request");
 
