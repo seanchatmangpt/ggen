@@ -36,6 +36,7 @@
 //! }
 //! ```
 
+pub mod agents;
 pub mod autonomous;
 pub mod client;
 pub mod config;
@@ -64,6 +65,7 @@ pub mod types;
 pub mod test_helpers;
 
 // Re-export main types for convenience
+pub use agents::{Agent, AgentHealth, AgentInput, AgentOutput, AgentRegistry, HealthStatus};
 pub use cache::{CacheConfig, CacheStats, LlmCache};
 pub use cli::{
     add_llm_args, create_client_from_args, create_client_with_config, extract_llm_config,
