@@ -1,3 +1,55 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Autonomous MCP-AI Loop Architecture](#autonomous-mcp-ai-loop-architecture)
+  - [Executive Summary](#executive-summary)
+  - [1. Event-Driven Graph Evolution](#1-event-driven-graph-evolution)
+    - [1.1 Architecture Diagram](#11-architecture-diagram)
+    - [1.2 Event Sources](#12-event-sources)
+      - [Natural Language Input Listener](#natural-language-input-listener)
+      - [Runtime Trace Listener](#runtime-trace-listener)
+      - [Business Document Listener](#business-document-listener)
+    - [1.3 AI Agent Swarm for Graph Evolution](#13-ai-agent-swarm-for-graph-evolution)
+    - [1.4 Deterministic Validation](#14-deterministic-validation)
+  - [2. Continuous Regeneration Pipeline](#2-continuous-regeneration-pipeline)
+    - [2.1 Architecture](#21-architecture)
+    - [2.2 Implementation](#22-implementation)
+    - [2.3 Scheduled Regeneration](#23-scheduled-regeneration)
+  - [3. Self-Validation Loop](#3-self-validation-loop)
+    - [3.1 Runtime Feedback Architecture](#31-runtime-feedback-architecture)
+    - [3.2 Implementation](#32-implementation)
+  - [4. Integration with Existing ggen-ai/ggen-mcp](#4-integration-with-existing-ggen-aiggen-mcp)
+    - [4.1 Extension Points](#41-extension-points)
+    - [4.2 MCP Tool Extensions](#42-mcp-tool-extensions)
+    - [4.3 New Crates Structure](#43-new-crates-structure)
+  - [5. Deployment Automation](#5-deployment-automation)
+    - [5.1 Continuous Deployment Pipeline](#51-continuous-deployment-pipeline)
+    - [5.2 Machine Timescale Operations](#52-machine-timescale-operations)
+  - [6. Decision Records](#6-decision-records)
+    - [ADR-001: Event-Driven Architecture](#adr-001-event-driven-architecture)
+    - [ADR-002: Deterministic Validation Before Commit](#adr-002-deterministic-validation-before-commit)
+    - [ADR-003: AI-First Regeneration](#adr-003-ai-first-regeneration)
+  - [7. Quality Attributes](#7-quality-attributes)
+    - [Performance](#performance)
+    - [Scalability](#scalability)
+    - [Reliability](#reliability)
+    - [Security](#security)
+  - [8. Risk Mitigation](#8-risk-mitigation)
+    - [Risk 1: AI Hallucinations Leading to Bad Graph Changes](#risk-1-ai-hallucinations-leading-to-bad-graph-changes)
+    - [Risk 2: Infinite Regeneration Loops](#risk-2-infinite-regeneration-loops)
+    - [Risk 3: High LLM Costs](#risk-3-high-llm-costs)
+    - [Risk 4: Production Outages from Bad Deployments](#risk-4-production-outages-from-bad-deployments)
+  - [9. Success Metrics](#9-success-metrics)
+  - [10. Implementation Roadmap](#10-implementation-roadmap)
+    - [Phase 1: Foundation (Weeks 1-2)](#phase-1-foundation-weeks-1-2)
+    - [Phase 2: Core Loop (Weeks 3-4)](#phase-2-core-loop-weeks-3-4)
+    - [Phase 3: Feedback Loop (Weeks 5-6)](#phase-3-feedback-loop-weeks-5-6)
+    - [Phase 4: Production Ready (Weeks 7-8)](#phase-4-production-ready-weeks-7-8)
+    - [Phase 5: Optimization (Weeks 9-10)](#phase-5-optimization-weeks-9-10)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Autonomous MCP-AI Loop Architecture
 
 **Vision:** Natural language → AI agent → RDF graph → SPARQL queries → templates → code/data → feedback to graph

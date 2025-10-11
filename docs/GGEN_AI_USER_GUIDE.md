@@ -1,3 +1,37 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen-ai User Guide](#ggen-ai-user-guide)
+  - [Overview](#overview)
+  - [Architecture](#architecture)
+    - [Noun-Verb Command Structure](#noun-verb-command-structure)
+    - [AI Integration](#ai-integration)
+  - [Quick Start](#quick-start)
+    - [1. Prerequisites](#1-prerequisites)
+    - [2. Basic Usage](#2-basic-usage)
+    - [3. Environment Configuration](#3-environment-configuration)
+  - [Command Reference](#command-reference)
+    - [`ggen project gen --ai`](#ggen-project-gen---ai)
+    - [`ggen project validate`](#ggen-project-validate)
+    - [`ggen ai models`](#ggen-ai-models)
+  - [Validation & Quality Assessment](#validation--quality-assessment)
+    - [Quality Metrics](#quality-metrics)
+    - [Validation Issues](#validation-issues)
+  - [MCP Server Integration](#mcp-server-integration)
+    - [VS Code/Cursor Integration](#vs-codecursor-integration)
+  - [Advanced Configuration](#advanced-configuration)
+    - [Custom Model Configuration](#custom-model-configuration)
+    - [Quality Thresholds](#quality-thresholds)
+  - [Troubleshooting](#troubleshooting)
+    - [Common Issues](#common-issues)
+  - [Examples](#examples)
+    - [Complete Workflow](#complete-workflow)
+    - [AI-Enhanced Development](#ai-enhanced-development)
+  - [Migration from Solo AI Command](#migration-from-solo-ai-command)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen-ai User Guide
 
 ## Overview

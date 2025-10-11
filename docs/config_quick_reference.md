@@ -1,3 +1,43 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Configuration Quick Reference](#configuration-quick-reference)
+  - [Environment Variables Cheat Sheet](#environment-variables-cheat-sheet)
+    - [LLM Providers](#llm-providers)
+    - [GitHub Integration](#github-integration)
+    - [Package Registry](#package-registry)
+    - [Code Generation](#code-generation)
+    - [Logging](#logging)
+    - [Development/Testing](#developmenttesting)
+  - [Common Configurations](#common-configurations)
+    - [🏠 Local Development (Ollama)](#-local-development-ollama)
+    - [☁️ Cloud Development (OpenAI)](#-cloud-development-openai)
+    - [🏢 Enterprise Setup](#-enterprise-setup)
+    - [🧪 Testing/CI](#-testingci)
+  - [Configuration Files (Coming in Phase 2)](#configuration-files-coming-in-phase-2)
+    - [User Config: `~/.config/ggen/config.toml`](#user-config-configggenconfigtoml)
+    - [Project Config: `./ggen.toml`](#project-config-ggentoml)
+  - [Priority Order](#priority-order)
+  - [Validation](#validation)
+    - [Check Your Configuration](#check-your-configuration)
+    - [Common Issues](#common-issues)
+  - [Security Best Practices](#security-best-practices)
+    - [✅ DO:](#-do)
+    - [❌ DON'T:](#-dont)
+  - [Platform-Specific Config Locations](#platform-specific-config-locations)
+    - [Linux](#linux)
+    - [macOS](#macos)
+    - [Windows](#windows)
+  - [Quick Examples](#quick-examples)
+    - [Use Different Model](#use-different-model)
+    - [Increase Timeout](#increase-timeout)
+    - [Verbose Logging](#verbose-logging)
+    - [Multiple Environments](#multiple-environments)
+  - [Reference Documents](#reference-documents)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Configuration Quick Reference
 
 ## Environment Variables Cheat Sheet

@@ -1,3 +1,46 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Autonomous Code Regeneration System](#autonomous-code-regeneration-system)
+  - [Overview](#overview)
+  - [Architecture](#architecture)
+    - [Core Components](#core-components)
+  - [Key Features](#key-features)
+    - [1. Event-Driven Delta Detection](#1-event-driven-delta-detection)
+    - [2. Multi-Language Template Regeneration](#2-multi-language-template-regeneration)
+    - [3. Auto-Deployment with Validation](#3-auto-deployment-with-validation)
+    - [4. Telemetry Feedback Loop](#4-telemetry-feedback-loop)
+  - [Complete Integration Example](#complete-integration-example)
+  - [Performance Characteristics](#performance-characteristics)
+    - [Machine-Timescale Operation](#machine-timescale-operation)
+    - [Scalability](#scalability)
+  - [Error Handling and Reliability](#error-handling-and-reliability)
+    - [Automatic Rollback](#automatic-rollback)
+    - [Validation Gates](#validation-gates)
+    - [Telemetry and Monitoring](#telemetry-and-monitoring)
+  - [Configuration](#configuration)
+    - [RegenerationConfig](#regenerationconfig)
+    - [DeploymentConfig](#deploymentconfig)
+    - [OrchestratorConfig](#orchestratorconfig)
+  - [Best Practices](#best-practices)
+    - [1. Start Simple](#1-start-simple)
+    - [2. Monitor Performance](#2-monitor-performance)
+    - [3. Use Dependency Tracking](#3-use-dependency-tracking)
+    - [4. Configure Appropriate Workers](#4-configure-appropriate-workers)
+    - [5. Enable Validation](#5-enable-validation)
+  - [Troubleshooting](#troubleshooting)
+    - [Slow Regeneration](#slow-regeneration)
+    - [High Failure Rate](#high-failure-rate)
+    - [Deployment Issues](#deployment-issues)
+  - [Future Enhancements](#future-enhancements)
+  - [Files and Modules](#files-and-modules)
+    - [Core Implementation](#core-implementation)
+    - [Integration](#integration)
+  - [License](#license)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Autonomous Code Regeneration System
 
 ## Overview

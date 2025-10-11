@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Autonomous Agent Coordination Protocol](#autonomous-agent-coordination-protocol)
+  - [1. Overview](#1-overview)
+  - [2. Agent Types and Roles](#2-agent-types-and-roles)
+    - [2.1 Agent Hierarchy](#21-agent-hierarchy)
+    - [2.2 Agent Capabilities](#22-agent-capabilities)
+  - [3. Message Protocol](#3-message-protocol)
+    - [3.1 Message Types](#31-message-types)
+    - [3.2 Message Routing](#32-message-routing)
+  - [4. Consensus Mechanisms](#4-consensus-mechanisms)
+    - [4.1 Proposal Voting](#41-proposal-voting)
+    - [4.2 Conflict Resolution](#42-conflict-resolution)
+  - [5. Coordination Patterns](#5-coordination-patterns)
+    - [5.1 Work Distribution](#51-work-distribution)
+    - [5.2 Failure Recovery](#52-failure-recovery)
+  - [6. Agent Implementation Template](#6-agent-implementation-template)
+  - [7. Coordination Guarantees](#7-coordination-guarantees)
+    - [Safety Properties](#safety-properties)
+    - [Liveness Properties](#liveness-properties)
+    - [Performance Properties](#performance-properties)
+  - [8. Testing Strategy](#8-testing-strategy)
+    - [Unit Tests](#unit-tests)
+    - [Integration Tests](#integration-tests)
+    - [Chaos Tests](#chaos-tests)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Autonomous Agent Coordination Protocol
 
 **Document**: Autonomous Agent Coordination Protocol v1.0

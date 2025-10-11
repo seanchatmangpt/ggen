@@ -1,3 +1,27 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Graph Evolution and Validation Strategy](#graph-evolution-and-validation-strategy)
+  - [1. Overview](#1-overview)
+  - [2. Validation Architecture](#2-validation-architecture)
+    - [2.1 Multi-Layer Validation](#21-multi-layer-validation)
+    - [2.2 Implementation](#22-implementation)
+  - [3. Layer Implementations](#3-layer-implementations)
+    - [3.1 Syntax Validator](#31-syntax-validator)
+    - [3.2 Schema Validator](#32-schema-validator)
+    - [3.3 SPARQL Constraint Validator](#33-sparql-constraint-validator)
+    - [3.4 Integrity Validator](#34-integrity-validator)
+  - [4. Transaction Management and Rollback](#4-transaction-management-and-rollback)
+    - [4.1 Transaction Log](#41-transaction-log)
+    - [4.2 Automatic Rollback on Failure](#42-automatic-rollback-on-failure)
+  - [5. Performance Optimization](#5-performance-optimization)
+    - [5.1 Validation Caching](#51-validation-caching)
+    - [5.2 Parallel Validation](#52-parallel-validation)
+  - [6. Quality Metrics](#6-quality-metrics)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Graph Evolution and Validation Strategy
 
 **Document**: Graph Evolution and Validation Strategy v1.0

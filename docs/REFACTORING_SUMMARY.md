@@ -1,3 +1,41 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Module Refactoring Summary](#module-refactoring-summary)
+  - [Overview](#overview)
+  - [Refactored Files](#refactored-files)
+    - [1. autonomous/deployment.rs (886 lines)](#1-autonomousdeploymentrs-886-lines)
+    - [2. governance/dashboard.rs (644 lines)](#2-governancedashboardrs-644-lines)
+    - [3. generators/validator.rs (638 lines)](#3-generatorsvalidatorrs-638-lines)
+  - [Migration Guide](#migration-guide)
+    - [For deployment module users:](#for-deployment-module-users)
+    - [For dashboard module users:](#for-dashboard-module-users)
+    - [For validator module users:](#for-validator-module-users)
+  - [Design Principles Applied](#design-principles-applied)
+    - [1. Single Responsibility Principle](#1-single-responsibility-principle)
+    - [2. Open/Closed Principle](#2-openclosed-principle)
+    - [3. Dependency Inversion](#3-dependency-inversion)
+    - [4. Interface Segregation](#4-interface-segregation)
+    - [5. DRY (Don't Repeat Yourself)](#5-dry-dont-repeat-yourself)
+  - [Benefits Achieved](#benefits-achieved)
+    - [Maintainability](#maintainability)
+    - [Testability](#testability)
+    - [Extensibility](#extensibility)
+    - [Reusability](#reusability)
+    - [Performance](#performance)
+  - [File Size Comparison](#file-size-comparison)
+  - [Next Steps](#next-steps)
+  - [Testing Strategy](#testing-strategy)
+    - [Unit Tests](#unit-tests)
+    - [Integration Tests](#integration-tests)
+    - [Regression Tests](#regression-tests)
+  - [Compilation Status](#compilation-status)
+  - [Metrics](#metrics)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Module Refactoring Summary
 
 ## Overview

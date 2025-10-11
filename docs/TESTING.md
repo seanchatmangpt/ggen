@@ -5,6 +5,7 @@
 - [Testing Guide](#testing-guide)
   - [Running Tests](#running-tests)
     - [Fast Tests (Default - No API Calls)](#fast-tests-default---no-api-calls)
+    - [AI Integration Tests](#ai-integration-tests)
     - [Live LLM Integration Tests (Opt-In)](#live-llm-integration-tests-opt-in)
       - [Ollama Tests](#ollama-tests)
       - [OpenAI Tests](#openai-tests)
@@ -22,6 +23,11 @@
     - [API key errors](#api-key-errors)
     - [Ollama connection errors](#ollama-connection-errors)
   - [Performance Expectations](#performance-expectations)
+  - [AI Implementation Testing](#ai-implementation-testing)
+    - [Graph Reference File Generation](#graph-reference-file-generation)
+    - [SPARQL Query Generation with Context](#sparql-query-generation-with-context)
+    - [Iterative Template Validation](#iterative-template-validation)
+    - [Enhanced Error Handling](#enhanced-error-handling)
   - [Security Considerations](#security-considerations)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->

@@ -1,3 +1,48 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Autonomous System - Architecture Deep Dive](#ggen-autonomous-system---architecture-deep-dive)
+  - [Table of Contents](#table-of-contents)
+  - [System Overview](#system-overview)
+    - [High-Level Architecture](#high-level-architecture)
+  - [Component Architecture](#component-architecture)
+    - [1. Ultrathink Swarm Coordinator](#1-ultrathink-swarm-coordinator)
+      - [Components](#components)
+      - [Coordination Strategies](#coordination-strategies)
+    - [2. 12-Agent Architecture](#2-12-agent-architecture)
+      - [Agent 1: London BDD Coordinator](#agent-1-london-bdd-coordinator)
+      - [Agent 2: Byzantine Validator](#agent-2-byzantine-validator)
+      - [Agent 3: Template Executor](#agent-3-template-executor)
+      - [Agent 4: Graph Monitor](#agent-4-graph-monitor)
+      - [Agent 5: Cache Manager](#agent-5-cache-manager)
+      - [Agent 6: Security Agent](#agent-6-security-agent)
+      - [Agent 7: Metrics Collector](#agent-7-metrics-collector)
+      - [Agent 8: Health Monitor](#agent-8-health-monitor)
+      - [Agent 9: Recovery Agent](#agent-9-recovery-agent)
+      - [Agent 10: Consensus Manager](#agent-10-consensus-manager)
+      - [Agent 11: Service Discovery](#agent-11-service-discovery)
+      - [Agent 12: Task Scheduler](#agent-12-task-scheduler)
+    - [3. Core Services Layer](#3-core-services-layer)
+      - [ggen-ai: AI Integration](#ggen-ai-ai-integration)
+      - [ggen-core: Graph Engine](#ggen-core-graph-engine)
+  - [Data Flow](#data-flow)
+    - [1. Template Generation Flow](#1-template-generation-flow)
+    - [2. Byzantine Consensus Flow](#2-byzantine-consensus-flow)
+    - [3. Graph Evolution Flow](#3-graph-evolution-flow)
+  - [Integration Points](#integration-points)
+    - [1. MCP Protocol Integration](#1-mcp-protocol-integration)
+    - [2. External AI Provider Integration](#2-external-ai-provider-integration)
+    - [3. Git Repository Integration](#3-git-repository-integration)
+  - [Performance Characteristics](#performance-characteristics)
+    - [Latency Metrics](#latency-metrics)
+    - [Throughput Characteristics](#throughput-characteristics)
+    - [Scalability](#scalability)
+    - [Resource Consumption](#resource-consumption)
+    - [Optimization Strategies](#optimization-strategies)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Autonomous System - Architecture Deep Dive
 
 ## Table of Contents

@@ -1,3 +1,39 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Governance Layer Architecture](#governance-layer-architecture)
+  - [Overview](#overview)
+  - [Architecture Diagram](#architecture-diagram)
+  - [Core Components](#core-components)
+    - [1. GovernanceCoordinator](#1-governancecoordinator)
+    - [2. PolicyEngine](#2-policyengine)
+    - [3. AuditTrail](#3-audittrail)
+    - [4. Dashboard](#4-dashboard)
+    - [5. SafetyController](#5-safetycontroller)
+    - [6. ApprovalWorkflow](#6-approvalworkflow)
+  - [Decision Validation Flow](#decision-validation-flow)
+  - [Integration with Autonomous System](#integration-with-autonomous-system)
+    - [1. Pre-Decision Hook](#1-pre-decision-hook)
+    - [2. Graph Evolution Tracking](#2-graph-evolution-tracking)
+    - [3. Continuous Monitoring](#3-continuous-monitoring)
+  - [Configuration](#configuration)
+  - [Usage Examples](#usage-examples)
+    - [Example 1: Basic Policy Definition](#example-1-basic-policy-definition)
+    - [Example 2: Emergency Stop](#example-2-emergency-stop)
+    - [Example 3: Approval Workflow](#example-3-approval-workflow)
+    - [Example 4: Metrics Export](#example-4-metrics-export)
+  - [Performance Characteristics](#performance-characteristics)
+  - [Security Considerations](#security-considerations)
+  - [Future Enhancements](#future-enhancements)
+  - [Testing Strategy](#testing-strategy)
+  - [Deployment](#deployment)
+    - [Standalone Mode](#standalone-mode)
+    - [Embedded Mode](#embedded-mode)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Governance Layer Architecture
 
 ## Overview

@@ -1,3 +1,43 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Autonomous System - User Guide](#ggen-autonomous-system---user-guide)
+  - [Table of Contents](#table-of-contents)
+  - [Getting Started](#getting-started)
+    - [Prerequisites](#prerequisites)
+    - [Installation](#installation)
+    - [Quick Start](#quick-start)
+  - [CLI Command Reference](#cli-command-reference)
+    - [Core Commands](#core-commands)
+      - [`ggen ai project`](#ggen-ai-project)
+      - [`ggen ai generate`](#ggen-ai-generate)
+      - [`ggen ai graph`](#ggen-ai-graph)
+      - [`ggen ai sparql`](#ggen-ai-sparql)
+    - [Autonomous Agent Commands](#autonomous-agent-commands)
+      - [`ggen-mcp`](#ggen-mcp)
+    - [Configuration Commands](#configuration-commands)
+      - [`ggen ai config`](#ggen-ai-config)
+  - [Example Workflows](#example-workflows)
+    - [Workflow 1: Autonomous Test-Driven Development](#workflow-1-autonomous-test-driven-development)
+    - [Workflow 2: Knowledge Graph-Driven Architecture](#workflow-2-knowledge-graph-driven-architecture)
+    - [Workflow 3: Distributed System with Fault Tolerance](#workflow-3-distributed-system-with-fault-tolerance)
+    - [Workflow 4: Template Market Integration](#workflow-4-template-market-integration)
+    - [Workflow 5: Continuous Autonomous Refactoring](#workflow-5-continuous-autonomous-refactoring)
+  - [Troubleshooting](#troubleshooting)
+    - [Common Issues](#common-issues)
+      - [Issue: "API key not found"](#issue-api-key-not-found)
+      - [Issue: "MCP server connection failed"](#issue-mcp-server-connection-failed)
+      - [Issue: "Validation failed after max iterations"](#issue-validation-failed-after-max-iterations)
+      - [Issue: "Graph loading error"](#issue-graph-loading-error)
+      - [Issue: "Agent timeout"](#issue-agent-timeout)
+    - [Debug Mode](#debug-mode)
+    - [Getting Help](#getting-help)
+    - [Performance Optimization](#performance-optimization)
+    - [Reporting Issues](#reporting-issues)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Autonomous System - User Guide
 
 ## Table of Contents

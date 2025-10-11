@@ -49,8 +49,13 @@
     - [Documentation (5 files)](#documentation-5-files)
     - [Examples (8+ files)](#examples-8-files)
   - [🙏 Acknowledgments](#-acknowledgments)
-  - [🤖 AI Integration Enhancement](#-ai-integration-enhancement)
-    - [MCP + AI Capabilities](#mcp--ai-capabilities)
+  - [🤖 Autonomous System Integration](#-autonomous-system-integration)
+    - [MCP + Autonomous AI Architecture](#mcp--autonomous-ai-architecture)
+    - [Autonomous Operation Modes](#autonomous-operation-modes)
+      - [**1. Event-Driven Regeneration**](#1-event-driven-regeneration)
+      - [**2. Scheduled Regeneration**](#2-scheduled-regeneration)
+      - [**3. Trigger-Based Evolution**](#3-trigger-based-evolution)
+    - [Integration with Existing MCP Tools](#integration-with-existing-mcp-tools)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 

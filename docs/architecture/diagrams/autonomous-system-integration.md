@@ -1,3 +1,15 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Autonomous System Integration Diagram](#autonomous-system-integration-diagram)
+  - [Complete System Architecture](#complete-system-architecture)
+  - [Integration with Existing Codebase](#integration-with-existing-codebase)
+  - [Key Performance Characteristics](#key-performance-characteristics)
+  - [Safety Guarantees](#safety-guarantees)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Autonomous System Integration Diagram
 
 ## Complete System Architecture
