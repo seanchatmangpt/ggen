@@ -20,7 +20,6 @@ members = [
   "ggen-core",
   "ggen-mcp",
   "ggen-ai",
-  "agents",
   "examples/frontmatter-cli",
   "examples/natural-market-search",
   "examples/ai-template-project",
