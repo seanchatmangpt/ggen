@@ -1,0 +1,8 @@
+[build]
+jobs = 16
+pipelining = true
+incremental = true
+
+[term]
+verbose = false
+quiet = false

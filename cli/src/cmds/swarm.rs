@@ -5,11 +5,12 @@
 
 use clap::{Args, Subcommand};
 use ggen_utils::error::Result;
-use ggen_ai::{
-    SwarmCoordinator, WipDiscoveryAgent, McpSwarmServer, McpSwarmConfig,
-    WipIntegration, Task, TaskType, WipEntry, WipEntryType, WipStatus, Priority,
-};
-use std::collections::HashMap;
+// Note: These types are not yet implemented in ggen_ai, command provides placeholder functionality
+// use ggen_ai::{
+//     SwarmCoordinator, WipDiscoveryAgent, McpSwarmServer, McpSwarmConfig,
+//     WipIntegration, Task, TaskType, WipEntry, WipEntryType, WipStatus, Priority,
+// };
+// use std::collections::HashMap;
 
 /// Swarm command arguments
 #[derive(Debug, Args)]
@@ -127,31 +128,90 @@ pub enum SwarmCommands {
 }
 
 /// Main swarm command implementation
-pub struct SwarmCmd;
-
-impl SwarmCmd {
-    /// Run the swarm command
-    pub async fn run() -> Result<()> {
-        // For now, just show swarm capabilities
-        // In a full implementation, this would parse arguments and execute subcommands
-        println!("🤖 Ultrathink Swarm - Autonomous AI Agent Coordination");
-        println!();
-        println!("🚀 Available Commands:");
-        println!("   swarm server     - Start MCP swarm server with WIP integration");
-        println!("   swarm status     - Show swarm status and statistics");
-        println!("   swarm register   - Register a new AI agent");
-        println!("   swarm submit     - Submit a task for swarm processing");
-        println!("   swarm discover-wip - Discover WIP entries");
-        println!("   swarm process-wip  - Process a specific WIP entry");
-        println!("   swarm config     - Show swarm configuration");
-        println!();
-        println!("🔗 The swarm enables autonomous software development through:");
-        println!("   • Distributed AI agent coordination");
-        println!("   • WIP (Work In Progress) integration");
-        println!("   • Consensus-based decision making");
-        println!("   • Continuous autonomous regeneration");
-
-        Ok(())
+pub async fn run(args: &SwarmArgs) -> Result<()> {
+    match &args.command {
+        SwarmCommands::Server { port, enable_wip, wip_endpoint, max_agents } => {
+            println!("🚀 Starting Ultrathink Swarm MCP Server...");
+            println!("   Port: {}", port);
+            println!("   Max Agents: {}", max_agents);
+            println!("   WIP Integration: {}", if *enable_wip { "Enabled" } else { "Disabled" });
+            if let Some(endpoint) = wip_endpoint {
+                println!("   WIP Endpoint: {}", endpoint);
+            }
+            println!();
+            println!("⚠️  Server implementation pending - use 'ggen ultrathink' for full functionality");
+            Ok(())
+        }
+        SwarmCommands::Status => {
+            println!("🤖 Ultrathink Swarm Status");
+            println!();
+            println!("⚠️  Status command pending - use 'ggen ultrathink status' for full functionality");
+            Ok(())
+        }
+        SwarmCommands::Register { capability, name, config } => {
+            println!("📝 Registering Agent: {}", name);
+            println!("   Capability: {}", capability);
+            if let Some(cfg) = config {
+                println!("   Config: {}", cfg);
+            }
+            println!();
+            println!("⚠️  Registration pending - use 'ggen ultrathink' for full functionality");
+            Ok(())
+        }
+        SwarmCommands::Submit { description, task_type, priority, input, wip_entry } => {
+            println!("📤 Submitting Task: {}", description);
+            println!("   Type: {}", task_type);
+            println!("   Priority: {}", priority);
+            if let Some(data) = input {
+                println!("   Input: {}", data);
+            }
+            if let Some(wip) = wip_entry {
+                println!("   WIP Entry: {}", wip);
+            }
+            println!();
+            println!("⚠️  Task submission pending - use 'ggen ultrathink' for full functionality");
+            Ok(())
+        }
+        SwarmCommands::ListAgents => {
+            println!("👥 Registered Agents");
+            println!();
+            println!("⚠️  Agent listing pending - use 'ggen ultrathink' for full functionality");
+            Ok(())
+        }
+        SwarmCommands::DiscoverWip => {
+            println!("🔍 Discovering WIP Entries...");
+            println!();
+            println!("⚠️  WIP discovery pending - use 'ggen ultrathink' for full functionality");
+            Ok(())
+        }
+        SwarmCommands::ProcessWip { entry_id, force } => {
+            println!("⚙️  Processing WIP Entry: {}", entry_id);
+            println!("   Force: {}", if *force { "Yes" } else { "No" });
+            println!();
+            println!("⚠️  WIP processing pending - use 'ggen ultrathink' for full functionality");
+            Ok(())
+        }
+        SwarmCommands::Config => {
+            println!("⚙️  Swarm Configuration");
+            println!();
+            println!("⚠️  Config display pending - use 'ggen ultrathink' for full functionality");
+            Ok(())
+        }
+        SwarmCommands::UpdateConfig { max_agents, wip_sync_interval, enable_wip } => {
+            println!("🔧 Updating Swarm Configuration...");
+            if let Some(max) = max_agents {
+                println!("   Max Agents: {}", max);
+            }
+            if let Some(interval) = wip_sync_interval {
+                println!("   WIP Sync Interval: {}s", interval);
+            }
+            if let Some(enabled) = enable_wip {
+                println!("   WIP Integration: {}", if *enabled { "Enabled" } else { "Disabled" });
+            }
+            println!();
+            println!("⚠️  Config update pending - use 'ggen ultrathink' for full functionality");
+            Ok(())
+        }
     }
 }
 

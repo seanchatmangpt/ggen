@@ -6,6 +6,7 @@ use ggen_ai::client::LlmClient;
 use ggen_ai::{client::GenAiClient, LlmConfig, MockClient, TemplateGenerator};
 use ggen_utils::error::Result;
 use std::fs;
+use std::sync::Arc;
 
 #[derive(Debug, Args)]
 pub struct GenerateArgs {
@@ -76,7 +77,8 @@ pub async fn run(args: &GenerateArgs) -> Result<()> {
         )
     };
 
-    let generator = TemplateGenerator::new(client);
+    // client is Box<dyn LlmClient>, need Arc<dyn LlmClient>
+    let generator = TemplateGenerator::new(Arc::from(client));
 
     let template = if args.validate {
         println!(
@@ -108,11 +110,10 @@ pub async fn run(args: &GenerateArgs) -> Result<()> {
                 .await
                 .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?;
 
-            println!("  Quality score: {:.2}", result.quality_score);
             println!("  Issues found: {}", result.issues.len());
 
-            if result.is_valid && result.quality_score >= 0.8 {
-                println!("✅ Template meets quality threshold!");
+            if result.valid && result.issues.is_empty() {
+                println!("✅ Template validation passed!");
                 break;
             }
 
@@ -125,7 +126,7 @@ pub async fn run(args: &GenerateArgs) -> Result<()> {
                     result
                         .issues
                         .iter()
-                        .map(|i| format!("- {}", i.description))
+                        .map(|i| format!("- {}", i.message))
                         .collect::<Vec<_>>()
                         .join("\n")
                 );

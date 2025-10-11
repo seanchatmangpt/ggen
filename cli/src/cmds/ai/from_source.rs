@@ -3,6 +3,7 @@
 use anyhow;
 use clap::Args;
 use ggen_ai::{LlmConfig, MockClient, TemplateGenerator};
+use std::sync::Arc;
 use ggen_utils::error::Result;
 use std::fs;
 
@@ -115,7 +116,7 @@ pub async fn run(args: &FromSourceArgs) -> Result<()> {
     };
 
     let client = MockClient::with_response("Generated template from source analysis");
-    let generator = TemplateGenerator::new(Box::new(client));
+    let generator = TemplateGenerator::new(Arc::new(client));
 
     // Generate template description based on source analysis
     let analysis_description = format!(

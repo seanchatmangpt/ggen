@@ -124,14 +124,6 @@ impl TemplateGeneratorAgent {
         }
     }
 
-    /// Create with Ollama qwen3-coder configuration
-    pub fn with_ollama_qwen3_coder(
-        client: Box<dyn LlmClient>,
-        template_context: TemplateContext
-    ) -> Self {
-        let template_gen = TemplateGenerator::new(client);
-        Self::new(template_gen, template_context)
-    }
 
     /// Find templates affected by graph changes
     async fn find_affected_templates(&self, graph_delta: &Value) -> Result<Vec<String>> {

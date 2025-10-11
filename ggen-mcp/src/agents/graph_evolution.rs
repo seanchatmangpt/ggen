@@ -346,7 +346,7 @@ Respond in JSON format with the following structure:
 
 #[async_trait::async_trait]
 impl Agent for GraphEvolutionAgent {
-    async fn initialize(&mut self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    async fn initialize(&mut self) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>> {
         tracing::info!("Initializing GraphEvolutionAgent with ID: {}", self.config.id);
 
         // Ensure graph directory exists
@@ -356,7 +356,7 @@ impl Agent for GraphEvolutionAgent {
         Ok(())
     }
 
-    async fn start(&mut self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    async fn start(&mut self) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>> {
         tracing::info!("Starting GraphEvolutionAgent");
 
         // Start evolution monitoring/scheduling
@@ -366,7 +366,7 @@ impl Agent for GraphEvolutionAgent {
         Ok(())
     }
 
-    async fn stop(&mut self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    async fn stop(&mut self) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>> {
         tracing::info!("Stopping GraphEvolutionAgent");
 
         self.status = AgentStatus::Healthy; // Could be set to stopped status
@@ -381,7 +381,7 @@ impl Agent for GraphEvolutionAgent {
         &self.config
     }
 
-    async fn handle_message(&mut self, message: AgentMessage) -> Result<AgentMessage, Box<dyn std::error::Error + Send + Sync>> {
+    async fn handle_message(&mut self, message: AgentMessage) -> std::result::Result<AgentMessage, Box<dyn std::error::Error + Send + Sync>> {
         match message {
             AgentMessage::TaskAssignment { task_id, task } => {
                 let result = self.handle_task(task).await?;

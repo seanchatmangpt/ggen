@@ -7,6 +7,7 @@ use ggen_ai::providers::OllamaClient;
 use ggen_ai::TemplateGenerator;
 use ggen_utils::error::Result;
 use std::fs;
+use std::sync::Arc;
 
 #[derive(Debug, Args)]
 pub struct FrontmatterArgs {
@@ -31,7 +32,7 @@ pub async fn run(args: &FrontmatterArgs) -> Result<()> {
     let config = OllamaClient::qwen3_coder_config();
     let client = OllamaClient::new(config)
         .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?;
-    let generator = TemplateGenerator::with_ollama_qwen3_coder(Box::new(client));
+    let generator = TemplateGenerator::with_client(Arc::new(client));
 
     // Generate template with frontmatter
     let template = generator

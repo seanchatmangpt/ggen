@@ -351,24 +351,6 @@ impl DeploymentAutomation {
         Ok(results)
     }
 
-    /// Run basic functionality tests
-    async fn run_basic_tests(&self, _env: &DeploymentEnvironment) -> Result<Vec<ValidationResult>> {
-        // Basic functionality tests
-        Ok(vec![])
-    }
-
-    /// Run API endpoint tests
-    async fn run_api_tests(&self, _env: &DeploymentEnvironment) -> Result<Vec<ValidationResult>> {
-        // API endpoint tests
-        Ok(vec![])
-    }
-
-    /// Run database connectivity tests
-    async fn run_database_tests(&self, _env: &DeploymentEnvironment) -> Result<Vec<ValidationResult>> {
-        // Database connectivity tests
-        Ok(vec![])
-    }
-
     /// Run shell commands
     async fn run_commands(
         &self,

@@ -27,6 +27,9 @@ use uuid::Uuid;
 /// Agent ID type for unique identification
 pub type AgentId = Uuid;
 
+/// Consensus result type - true if consensus reached, false otherwise
+pub type ConsensusResult = bool;
+
 /// Agent status for health monitoring
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum AgentStatus {
@@ -34,6 +37,68 @@ pub enum AgentStatus {
     Degraded,
     Unhealthy,
     Recovering,
+    Active,
+    Idle,
+}
+
+/// Agent type for different agent specializations
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub enum AgentType {
+    LondonBdd,
+    Byzantine,
+    Template,
+    Graph,
+    Cache,
+    Security,
+    Metrics,
+    Health,
+    Recovery,
+    Consensus,
+    Discovery,
+    Scheduler,
+    GraphEvolution,
+    Regeneration,
+    Feedback,
+}
+
+/// Agent capabilities for skill-based coordination
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub enum AgentCapability {
+    TemplateGeneration,
+    GraphQuery,
+    Validation,
+    Caching,
+    SecurityCheck,
+    MetricsCollection,
+    HealthCheck,
+    Recovery,
+    Consensus,
+    Discovery,
+    Scheduling,
+    Evolution,
+    Regeneration,
+    Feedback,
+}
+
+/// Basic Agent info struct for swarm coordination
+/// Note: This is different from the `Agent` trait which defines the async interface
+#[derive(Debug, Clone)]
+pub struct AgentInfo {
+    pub id: AgentId,
+    pub agent_type: AgentType,
+    pub status: AgentStatus,
+    pub capabilities: Vec<AgentCapability>,
+}
+
+impl AgentInfo {
+    pub fn new(id: AgentId, agent_type: AgentType, status: AgentStatus, capabilities: Vec<AgentCapability>) -> Self {
+        Self {
+            id,
+            agent_type,
+            status,
+            capabilities,
+        }
+    }
 }
 
 /// Agent configuration

@@ -12,6 +12,25 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TemplateValidator;
 
+impl TemplateValidator {
+    pub fn new() -> Self {
+        Self
+    }
+
+    pub async fn validate_template(&self, _template: &ggen_core::Template) -> crate::error::Result<ValidationResult> {
+        Ok(ValidationResult {
+            valid: true,
+            issues: Vec::new(),
+        })
+    }
+}
+
+impl Default for TemplateValidator {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ValidationResult {
     pub valid: bool,

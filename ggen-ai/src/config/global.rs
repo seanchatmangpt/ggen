@@ -51,31 +51,40 @@ pub struct GlobalSettings {
 impl Default for GlobalLlmConfig {
     fn default() -> Self {
         let mut providers = HashMap::new();
-        
+
         // OpenAI defaults
         providers.insert(LlmProvider::OpenAI, LlmConfig {
-            model: "gpt-3.5-turbo".to_string(),
+            model: std::env::var("OPENAI_MODEL")
+                .or_else(|_| std::env::var("GGEN_DEFAULT_MODEL"))
+                .or_else(|_| std::env::var("DEFAULT_MODEL"))
+                .unwrap_or_else(|_| "gpt-3.5-turbo".to_string()),
             max_tokens: Some(4096),
             temperature: Some(0.7),
             top_p: Some(0.9),
             stop: None,
             extra: HashMap::new(),
         });
-        
+
         // Anthropic defaults
         providers.insert(LlmProvider::Anthropic, LlmConfig {
-            model: "claude-3-sonnet-20240229".to_string(),
+            model: std::env::var("ANTHROPIC_MODEL")
+                .or_else(|_| std::env::var("GGEN_DEFAULT_MODEL"))
+                .or_else(|_| std::env::var("DEFAULT_MODEL"))
+                .unwrap_or_else(|_| "claude-3-sonnet-20240229".to_string()),
             max_tokens: Some(4096),
             temperature: Some(0.7),
             top_p: Some(0.9),
             stop: None,
             extra: HashMap::new(),
         });
-        
+
         // Ollama defaults
         providers.insert(LlmProvider::Ollama, LlmConfig {
-            model: "llama3.2".to_string(),
-            max_tokens: Some(2048),
+            model: std::env::var("OLLAMA_MODEL")
+                .or_else(|_| std::env::var("GGEN_DEFAULT_MODEL"))
+                .or_else(|_| std::env::var("DEFAULT_MODEL"))
+                .unwrap_or_else(|_| "qwen3-coder:30b".to_string()),
+            max_tokens: Some(4096),
             temperature: Some(0.7),
             top_p: Some(0.9),
             stop: None,
@@ -93,7 +102,7 @@ impl Default for GlobalLlmConfig {
         });
         
         Self {
-            provider: LlmProvider::Ollama, // Default to Ollama for local development
+            provider: Self::detect_available_provider(), // Auto-detect available provider
             providers,
             settings: GlobalSettings {
                 default_model: None,
@@ -108,6 +117,50 @@ impl Default for GlobalLlmConfig {
 }
 
 impl GlobalLlmConfig {
+    /// Auto-detect best available LLM provider
+    fn detect_available_provider() -> LlmProvider {
+        // 1. Check for explicit environment variable
+        if let Ok(provider) = std::env::var("GGEN_LLM_PROVIDER") {
+            return match provider.to_lowercase().as_str() {
+                "openai" => LlmProvider::OpenAI,
+                "anthropic" => LlmProvider::Anthropic,
+                "ollama" => LlmProvider::Ollama,
+                "mock" => LlmProvider::Mock,
+                _ => LlmProvider::Ollama,
+            };
+        }
+
+        // 2. Check for API keys (prefer cloud providers if keys are available)
+        if std::env::var("OPENAI_API_KEY").is_ok() {
+            return LlmProvider::OpenAI;
+        }
+        if std::env::var("ANTHROPIC_API_KEY").is_ok() {
+            return LlmProvider::Anthropic;
+        }
+
+        // 3. Check if Ollama is available locally
+        if Self::check_ollama_available() {
+            return LlmProvider::Ollama;
+        }
+
+        // 4. Fallback to Mock provider with warning
+        eprintln!("Warning: No LLM provider detected. Using Mock provider.");
+        eprintln!("Set OPENAI_API_KEY, ANTHROPIC_API_KEY, or install Ollama.");
+        LlmProvider::Mock
+    }
+
+    /// Check if Ollama is running locally
+    fn check_ollama_available() -> bool {
+        // Try to connect to Ollama's health endpoint
+        std::process::Command::new("curl")
+            .args(&["-s", "-o", "/dev/null", "-w", "%{http_code}", "http://localhost:11434/api/tags"])
+            .output()
+            .ok()
+            .and_then(|output| String::from_utf8(output.stdout).ok())
+            .map(|status| status == "200")
+            .unwrap_or(false)
+    }
+
     /// Create a new global configuration
     pub fn new() -> Self {
         Self::default()

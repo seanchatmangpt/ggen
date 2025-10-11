@@ -66,13 +66,15 @@ impl WipIntegrationManager {
 
     /// Handle messages from a WIP client
     async fn handle_client_messages(endpoint: String, event_tx: mpsc::UnboundedSender<WipEvent>) {
-        let clients = match crate::swarm::wip_integration::WIP_INTEGRATION_MANAGER.clients.read().await.get(&endpoint) {
-            Some(client) => client,
-            None => return,
-        };
-
-        // Implementation would handle WebSocket messages
+        // Implementation would handle WebSocket messages from the endpoint
+        // This is now a simplified version that doesn't access the global static
         println!("Handling messages for WIP endpoint: {}", endpoint);
+
+        // In a full implementation, this would:
+        // 1. Receive messages from the WebSocket connection
+        // 2. Parse and validate messages
+        // 3. Send events through event_tx
+        // 4. Handle reconnection logic
     }
 
     /// Submit WIP operation for synchronization

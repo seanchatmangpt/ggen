@@ -128,14 +128,6 @@ impl CodeGeneratorAgent {
         }
     }
 
-    /// Create with Ollama qwen3-coder configuration
-    pub fn with_ollama_qwen3_coder(
-        client: Box<dyn LlmClient>,
-        code_context: CodeContext
-    ) -> Self {
-        let template_gen = TemplateGenerator::new(client);
-        Self::new(template_gen, code_context)
-    }
 
     /// Generate code from templates and context
     async fn generate_code_from_templates(
