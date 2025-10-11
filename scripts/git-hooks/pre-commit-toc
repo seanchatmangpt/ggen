@@ -1,0 +1,45 @@
+#!/bin/sh
+# Pre-commit hook to generate TOC for markdown files
+# This ensures TOC is always up to date before committing
+#
+# Installation:
+#   ln -s ../../scripts/git-hooks/pre-commit-toc .git/hooks/pre-commit
+#   chmod +x .git/hooks/pre-commit
+
+set -e
+
+echo "🔍 Checking TOC in markdown files..."
+
+# Check if npx is available
+if ! command -v npx > /dev/null 2>&1; then
+    echo "⚠️  npx not found - skipping TOC generation"
+    echo "   Install Node.js to enable automatic TOC generation"
+    exit 0
+fi
+
+# Function to update TOC in a file
+update_toc() {
+    local file="$1"
+    if [ -f "$file" ]; then
+        # Check if file has TOC markers
+        if grep -q "<!-- toc -->" "$file" 2>/dev/null; then
+            echo "  Updating TOC in $file"
+            npx markdown-toc -i "$file" 2>/dev/null || true
+            git add "$file"
+        fi
+    fi
+}
+
+# Get list of staged markdown files
+STAGED_MD_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep '\.md$' || true)
+
+if [ -n "$STAGED_MD_FILES" ]; then
+    for file in $STAGED_MD_FILES; do
+        update_toc "$file"
+    done
+    echo "✅ TOC updated successfully"
+else
+    echo "ℹ️  No markdown files to update"
+fi
+
+exit 0
