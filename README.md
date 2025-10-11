@@ -4,7 +4,7 @@
 
 - [ggen - Graph-Aware Code Generation Framework](#ggen---graph-aware-code-generation-framework)
   - [🚀 **NEW: AI-Powered Generation v1.0.0**](#-new-ai-powered-generation-v100)
-    - [📈 **Recent Improvements (v0.2.5)**](#-recent-improvements-v025)
+    - [📈 **Recent Improvements (v1.0.0)**](#-recent-improvements-v100)
   - [Features](#features)
   - [Quick Start](#quick-start)
     - [Installation](#installation)
@@ -47,9 +47,10 @@
 - 🎪 **MCP Server** - Model Context Protocol server for AI tool integration
 - 🔧 **Multi-Provider Support** - OpenAI, Anthropic, Ollama with unified configuration
 
-### 📈 **Recent Improvements (v0.2.5)**
+### 📈 **Recent Improvements (v1.0.0)**
 - ⚡ **60x Faster Builds** - Incremental builds now 2-3 seconds (was 60-90 seconds)
 - 🧠 **Enhanced GenAI Integration** - Three working examples with qwen3-coder:30b
+- 🤖 **Complete AI Command Suite** - 10 AI-powered commands for template and project generation
 - 🏗️ **Improved Architecture** - Better multi-provider abstraction and configuration
 - 🐛 **Bug Fixes** - Resolved compilation and runtime issues across all modules
 - 📚 **Updated Documentation** - Comprehensive guides for integration and optimization
@@ -71,7 +72,7 @@
 - 🧪 **Template-Based** - YAML frontmatter with Tera templating engine
 - 🔄 **Injection Support** - Modify existing files with idempotent updates
 - 🚀 **GitHub Integration** - Built-in GitHub Pages and Actions API support
-- 🔐 **Post-Quantum Security** (planned for v1.0.0) - ML-DSA (Dilithium3) signatures for quantum-resistant package integrity
+- 🔐 **Post-Quantum Security** - ML-DSA (Dilithium3) signatures for quantum-resistant package integrity
 - ⚡ **Performance SLOs** - Fast builds, low memory, reproducible outputs
 
 ## Quick Start

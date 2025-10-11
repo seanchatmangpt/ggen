@@ -308,9 +308,7 @@ impl GlobalLlmConfig {
 
     /// Check if we're in test mode
     pub fn is_test_mode(&self) -> bool {
-        std::env::var("GGEN_TEST_MODE").is_ok()
-            || std::env::var("GGEN_ALLOW_LIVE_CALLS").is_err()
-            || cfg!(test)
+        std::env::var("GGEN_TEST_MODE").is_ok() || cfg!(test)
     }
 
     /// Create a client appropriate for the current context (test vs production)

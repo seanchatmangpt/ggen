@@ -1,0 +1,144 @@
+---
+to: "{{ project_name }}/README.md"
+vars:
+  project_name: "my-cli"
+  description: "A noun-verb CLI application"
+  nouns: ["resource"]
+---
+# {{ project_name }}
+
+{{ description }}
+
+## Installation
+
+```bash
+cargo install --path .
+```
+
+## Usage
+
+### General Help
+
+```bash
+{{ project_name }} --help
+```
+
+{% for noun in nouns %}
+### {{ noun | capitalize }} Commands
+
+#### Create a {{ noun }}
+
+```bash
+{{ project_name }} {{ noun }} create --name "my-{{ noun }}" --description "Example {{ noun }}"
+```
+
+#### List {{ noun }}s
+
+```bash
+# List all {{ noun }}s
+{{ project_name }} {{ noun }} list
+
+# List with filter
+{{ project_name }} {{ noun }} list --filter "my"
+
+# List with limit
+{{ project_name }} {{ noun }} list --limit 10
+
+# JSON output
+{{ project_name }} {{ noun }} list --format json
+```
+
+#### Get a {{ noun }}
+
+```bash
+# Table format (default)
+{{ project_name }} {{ noun }} get <id>
+
+# JSON format
+{{ project_name }} {{ noun }} get <id> --format json
+
+# Detailed view
+{{ project_name }} {{ noun }} get <id> --detailed
+```
+
+#### Update a {{ noun }}
+
+```bash
+# Update name
+{{ project_name }} {{ noun }} update <id> --name "new-name"
+
+# Update description
+{{ project_name }} {{ noun }} update <id> --description "New description"
+
+# Dry run
+{{ project_name }} {{ noun }} update <id> --name "test" --dry-run
+```
+
+#### Delete a {{ noun }}
+
+```bash
+# Delete (requires confirmation)
+{{ project_name }} {{ noun }} delete <id>
+
+# Force delete
+{{ project_name }} {{ noun }} delete <id> --force
+
+# Dry run
+{{ project_name }} {{ noun }} delete <id> --dry-run
+```
+
+{% endfor %}
+## Development
+
+### Build
+
+```bash
+cargo build
+```
+
+### Test
+
+```bash
+cargo test
+```
+
+### Run
+
+```bash
+cargo run -- --help
+```
+
+## Architecture
+
+This CLI follows the **noun-verb pattern**:
+
+```
+{{ project_name }} <noun> <verb> [arguments]
+```
+
+- **Noun**: The resource type (e.g., resource, user, project)
+- **Verb**: The action to perform (e.g., create, list, get, update, delete)
+
+### Project Structure
+
+```
+{{ project_name }}/
+├── Cargo.toml
+├── src/
+│   ├── main.rs          # Entry point
+│   └── cmds/
+│       ├── mod.rs       # Command router
+│       └── <noun>/      # Noun-specific commands
+│           ├── mod.rs   # Verb router for noun
+│           ├── create.rs
+│           ├── list.rs
+│           ├── get.rs
+│           ├── update.rs
+│           └── delete.rs
+└── tests/
+    └── integration_test.rs
+```
+
+## License
+
+MIT OR Apache-2.0

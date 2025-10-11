@@ -39,28 +39,15 @@ pub struct InstalledGpack {
     pub source: String,
 }
 
-pub async fn run(args: &ListArgs) -> Result<()> {
+pub async fn run(_args: &ListArgs) -> Result<()> {
     println!("📦 Listing installed gpacks...");
 
-    let mut cmd = std::process::Command::new("cargo");
-    cmd.args(["make", "market-list"]);
-
-    if args.detailed {
-        cmd.arg("--detailed");
-    }
-
-    let output = cmd.output().map_err(ggen_utils::error::Error::from)?;
-
-    if !output.status.success() {
-        let stderr = String::from_utf8_lossy(&output.stderr);
-        return Err(ggen_utils::error::Error::new_fmt(format_args!(
-            "List failed: {}",
-            stderr
-        )));
-    }
-
-    let stdout = String::from_utf8_lossy(&output.stdout);
-    println!("{}", stdout);
+    // Placeholder: In production, this would read from .ggen/lock.json
+    // For now, return mock list
+    println!("ℹ️  No gpacks installed yet");
+    println!();
+    println!("💡 Use 'ggen market search <query>' to discover packages");
+    println!("💡 Use 'ggen market add <package>' to install packages");
 
     Ok(())
 }

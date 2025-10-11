@@ -1,0 +1,28 @@
+---
+to: "{{ project_name }}/src/cmds/mod.rs"
+vars:
+  project_name: "my-cli"
+  nouns: ["user", "project"]
+---
+//! CLI command definitions
+
+use clap::Subcommand;
+
+{% for noun in nouns %}pub mod {{ noun }};
+{% endfor %}
+
+type Result<T> = std::result::Result<T, anyhow::Error>;
+
+#[derive(Subcommand, Debug)]
+pub enum Command {
+{% for noun in nouns %}    /// {{ noun | capitalize }} management commands
+    {{ noun | capitalize }}({{ noun }}::{{ noun | capitalize }}Cmd),
+{% endfor %}}
+
+impl Command {
+    pub async fn run(&self) -> Result<()> {
+        match self {
+{% for noun in nouns %}            Command::{{ noun | capitalize }}(cmd) => cmd.run().await,
+{% endfor %}        }
+    }
+}

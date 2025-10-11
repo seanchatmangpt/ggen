@@ -1,0 +1,90 @@
+---
+to: "{{ project_name }}/src/cmds/{{ noun }}/{{ verb }}.rs"
+vars:
+  noun: "resource"
+  verb: "update"
+  noun_description: "resource"
+---
+//! {{ verb | capitalize }} {{ noun_description }} command
+
+use clap::Args;
+
+type Result<T> = std::result::Result<T, anyhow::Error>;
+
+#[derive(Debug, Args)]
+pub struct {{ verb | capitalize }}Args {
+    /// ID or name of the {{ noun_description }}
+    pub id: String,
+
+    /// New name
+    #[arg(short, long)]
+    pub name: Option<String>,
+
+    /// New description
+    #[arg(short, long)]
+    pub description: Option<String>,
+
+    /// Dry run (don't apply changes)
+    #[arg(long)]
+    pub dry_run: bool,
+
+    /// Enable verbose output
+    #[arg(short, long)]
+    pub verbose: bool,
+}
+
+pub async fn run(args: &{{ verb | capitalize }}Args) -> Result<()> {
+    if args.verbose {
+        println!("{{ verb | capitalize }}ing {{ noun_description }}: {}", args.id);
+    }
+
+    if args.dry_run {
+        println!("🔍 Dry run mode - no changes will be applied");
+    }
+
+    // TODO: Implement {{ verb }} logic here
+    let mut changes = Vec::new();
+
+    if let Some(name) = &args.name {
+        changes.push(format!("name: {}", name));
+    }
+
+    if let Some(desc) = &args.description {
+        changes.push(format!("description: {}", desc));
+    }
+
+    if changes.is_empty() {
+        println!("⚠️  No changes specified");
+        return Ok(());
+    }
+
+    println!("\nChanges to apply:");
+    for change in &changes {
+        println!("  • {}", change);
+    }
+
+    if !args.dry_run {
+        println!("\n✅ {{ noun | capitalize }} '{}' updated successfully!", args.id);
+    }
+
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_{{ verb }}_basic() {
+        let args = {{ verb | capitalize }}Args {
+            id: "test-123".to_string(),
+            name: Some("new-name".to_string()),
+            description: None,
+            dry_run: true,
+            verbose: false,
+        };
+
+        let result = run(&args).await;
+        assert!(result.is_ok());
+    }
+}

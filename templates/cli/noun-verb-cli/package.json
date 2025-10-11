@@ -1,0 +1,64 @@
+{
+  "name": "@ggen/noun-verb-cli-generator",
+  "version": "1.0.0",
+  "description": "Generate production-ready noun-verb pattern CLIs following industry best practices from kubectl, docker, aws-cli, and gcloud",
+  "keywords": [
+    "cli",
+    "generator",
+    "noun-verb",
+    "clap",
+    "rust",
+    "production",
+    "kubectl",
+    "docker",
+    "aws-cli",
+    "code-generation"
+  ],
+  "author": "ggen-ai <noreply@ggen.io>",
+  "license": "MIT OR Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/seanchatmangpt/ggen.git",
+    "directory": "templates/cli/noun-verb-cli"
+  },
+  "homepage": "https://github.com/seanchatmangpt/ggen/tree/master/templates/cli",
+  "bugs": {
+    "url": "https://github.com/seanchatmangpt/ggen/issues"
+  },
+  "files": [
+    "templates/**/*.tmpl",
+    "scripts/**/*.sh",
+    "docs/**/*.md",
+    "README.md",
+    "gpack.toml"
+  ],
+  "scripts": {
+    "generate": "./scripts/generate-noun-verb-cli.sh"
+  },
+  "ggen": {
+    "templateDir": "templates/cli",
+    "scriptDir": "scripts",
+    "docsDir": "docs",
+    "requiredFiles": [
+      "scaffold/Cargo.toml.tmpl",
+      "scaffold/main.rs.tmpl",
+      "noun/mod.rs.tmpl",
+      "verb/create.rs.tmpl",
+      "verb/list.rs.tmpl",
+      "verb/get.rs.tmpl",
+      "verb/update.rs.tmpl",
+      "verb/delete.rs.tmpl"
+    ]
+  },
+  "categories": [
+    "development-tools",
+    "command-line-utilities",
+    "code-generation"
+  ],
+  "engines": {
+    "ggen": ">=1.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
