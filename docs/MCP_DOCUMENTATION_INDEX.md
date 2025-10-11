@@ -308,8 +308,8 @@ ggen mcp tools --describe ggen_gen_with_vars
 
 ---
 
-**Last Updated:** 2024-10-10
+**Last Updated:** 2025-10-12
 **Version:** 1.0.0
-**Status:** Complete ✅
+**Status:** Complete ✅ (Updated with AI integration)
 
 **Built with ❤️ using Rust, RDF, SPARQL, and the Model Context Protocol**

@@ -2,15 +2,15 @@
 //!
 //! Defines and enforces policies that constrain autonomous system behavior.
 
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use chrono::{DateTime, Utc};
 use uuid::Uuid;
 
-use super::types::Decision;
 use super::error::{GovernanceError, Result};
+use super::types::Decision;
 
 /// A policy rule that constrains autonomous behavior
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -45,14 +45,9 @@ pub enum RuleCondition {
         max_operations: u64,
     },
     /// Check if mutation count exceeded
-    MutationLimit {
-        max_mutations: u64,
-    },
+    MutationLimit { max_mutations: u64 },
     /// Check if field matches pattern
-    FieldMatch {
-        field: String,
-        pattern: String,
-    },
+    FieldMatch { field: String, pattern: String },
     /// Check if value in allowed list
     AllowList {
         field: String,
@@ -153,7 +148,8 @@ impl PolicyEngine {
     /// Remove a policy
     pub async fn remove_policy(&self, policy_id: &str) -> Result<()> {
         let mut policies = self.policies.write().await;
-        policies.remove(policy_id)
+        policies
+            .remove(policy_id)
             .ok_or_else(|| GovernanceError::PolicyNotFound(policy_id.to_string()))?;
         Ok(())
     }
@@ -161,7 +157,8 @@ impl PolicyEngine {
     /// Get a policy by ID
     pub async fn get_policy(&self, policy_id: &str) -> Result<Policy> {
         let policies = self.policies.read().await;
-        policies.get(policy_id)
+        policies
+            .get(policy_id)
             .cloned()
             .ok_or_else(|| GovernanceError::PolicyNotFound(policy_id.to_string()))
     }
@@ -214,8 +211,12 @@ impl PolicyEngine {
     /// Evaluate a single rule against a decision
     async fn evaluate_rule(&self, rule: &PolicyRule, decision: &Decision) -> Result<bool> {
         match &rule.condition {
-            RuleCondition::RateLimit { window_seconds, max_operations } => {
-                self.check_rate_limit(*window_seconds, *max_operations, decision).await
+            RuleCondition::RateLimit {
+                window_seconds,
+                max_operations,
+            } => {
+                self.check_rate_limit(*window_seconds, *max_operations, decision)
+                    .await
             }
             RuleCondition::MutationLimit { max_mutations } => {
                 self.check_mutation_limit(*max_mutations, decision).await
@@ -223,22 +224,28 @@ impl PolicyEngine {
             RuleCondition::FieldMatch { field, pattern } => {
                 self.check_field_match(field, pattern, decision).await
             }
-            RuleCondition::AllowList { field, allowed_values } => {
-                self.check_allow_list(field, allowed_values, decision).await
-            }
-            RuleCondition::BlockList { field, blocked_values } => {
-                self.check_block_list(field, blocked_values, decision).await
-            }
+            RuleCondition::AllowList {
+                field,
+                allowed_values,
+            } => self.check_allow_list(field, allowed_values, decision).await,
+            RuleCondition::BlockList {
+                field,
+                blocked_values,
+            } => self.check_block_list(field, blocked_values, decision).await,
             RuleCondition::Custom { name, parameters } => {
-                self.evaluate_custom_condition(name, parameters, decision).await
+                self.evaluate_custom_condition(name, parameters, decision)
+                    .await
             }
         }
     }
 
     /// Check rate limit using sliding window algorithm
-    async fn check_rate_limit(&self, window_seconds: u64, max_operations: u64, decision: &Decision) -> Result<bool> {
+    async fn check_rate_limit(
+        &self, window_seconds: u64, max_operations: u64, decision: &Decision,
+    ) -> Result<bool> {
         // Extract decision context for rate limiting
-        let decision_key = decision.metadata
+        let decision_key = decision
+            .metadata
             .get("rate_limit_key")
             .unwrap_or(&decision.action)
             .clone();
@@ -252,11 +259,12 @@ impl PolicyEngine {
         let history_key = format!("rate_limit_history_{}", decision_key);
 
         // Parse operation history from metadata
-        let mut operation_times: Vec<u64> = if let Some(history) = decision.metadata.get(&history_key) {
-            serde_json::from_str(history).unwrap_or_default()
-        } else {
-            Vec::new()
-        };
+        let mut operation_times: Vec<u64> =
+            if let Some(history) = decision.metadata.get(&history_key) {
+                serde_json::from_str(history).unwrap_or_default()
+            } else {
+                Vec::new()
+            };
 
         // Filter operations within sliding window
         operation_times.retain(|&timestamp| timestamp >= window_start);
@@ -299,7 +307,9 @@ impl PolicyEngine {
     }
 
     /// Check field match against pattern
-    async fn check_field_match(&self, field: &str, pattern: &str, decision: &Decision) -> Result<bool> {
+    async fn check_field_match(
+        &self, field: &str, pattern: &str, decision: &Decision,
+    ) -> Result<bool> {
         if let Some(value) = decision.metadata.get(field) {
             let regex = regex::Regex::new(pattern)
                 .map_err(|e| GovernanceError::InvalidPattern(e.to_string()))?;
@@ -309,7 +319,9 @@ impl PolicyEngine {
     }
 
     /// Check if field value is in allow list
-    async fn check_allow_list(&self, field: &str, allowed_values: &[String], decision: &Decision) -> Result<bool> {
+    async fn check_allow_list(
+        &self, field: &str, allowed_values: &[String], decision: &Decision,
+    ) -> Result<bool> {
         if let Some(value) = decision.metadata.get(field) {
             return Ok(!allowed_values.contains(value));
         }
@@ -317,7 +329,9 @@ impl PolicyEngine {
     }
 
     /// Check if field value is in block list
-    async fn check_block_list(&self, field: &str, blocked_values: &[String], decision: &Decision) -> Result<bool> {
+    async fn check_block_list(
+        &self, field: &str, blocked_values: &[String], decision: &Decision,
+    ) -> Result<bool> {
         if let Some(value) = decision.metadata.get(field) {
             return Ok(blocked_values.contains(value));
         }
@@ -325,18 +339,25 @@ impl PolicyEngine {
     }
 
     /// Evaluate custom condition (extensibility point)
-    async fn evaluate_custom_condition(&self, _name: &str, _parameters: &HashMap<String, String>, _decision: &Decision) -> Result<bool> {
+    async fn evaluate_custom_condition(
+        &self, _name: &str, _parameters: &HashMap<String, String>, _decision: &Decision,
+    ) -> Result<bool> {
         // TODO: Implement plugin system for custom conditions
         Ok(false)
     }
 
     /// Record a policy violation
-    async fn record_violation(&self, policy: &Policy, rule: &PolicyRule, decision: &Decision) -> Result<()> {
+    async fn record_violation(
+        &self, policy: &Policy, rule: &PolicyRule, decision: &Decision,
+    ) -> Result<()> {
         let violation = PolicyViolation {
             policy_id: policy.id.clone(),
             rule_id: rule.id.clone(),
             severity: rule.severity.clone(),
-            message: format!("Policy '{}' violated by decision '{}'", policy.name, decision.id),
+            message: format!(
+                "Policy '{}' violated by decision '{}'",
+                policy.name, decision.id
+            ),
             details: decision.metadata.clone(),
         };
 
@@ -350,7 +371,13 @@ impl PolicyEngine {
         let history = self.violation_history.read().await;
         Ok(history
             .iter()
-            .filter(|v| decision.metadata.get("decision_id").map(|id| id == &decision.id).unwrap_or(false))
+            .filter(|v| {
+                decision
+                    .metadata
+                    .get("decision_id")
+                    .map(|id| id == &decision.id)
+                    .unwrap_or(false)
+            })
             .cloned()
             .collect())
     }
@@ -449,10 +476,12 @@ mod tests {
             .build()
             .expect("Failed to build policy");
 
-        engine.register_policy(policy.clone())
+        engine
+            .register_policy(policy.clone())
             .await
             .expect("Failed to register policy");
-        let retrieved = engine.get_policy(&policy.id)
+        let retrieved = engine
+            .get_policy(&policy.id)
             .await
             .expect("Failed to retrieve policy");
         assert_eq!(retrieved.name, "test");

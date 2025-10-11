@@ -1,6 +1,6 @@
 [package]
 name = "ggen-ai"
-version = "0.2.5"
+version = "1.0.0"
 edition = "2021"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "AI-powered code generation capabilities for ggen - LLM integration for intelligent template generation and graph operations"
@@ -8,8 +8,8 @@ license = "MIT"
 
 [dependencies]
 # Core ggen dependencies
-ggen-core = { path = "../ggen-core", version = "0.2.5" }
-ggen-utils = { path = "../utils", version = "0.2.5" }
+ggen-core = { path = "../ggen-core", version = "1.0.0" }
+ggen-utils = { path = "../utils", version = "1.0.0" }
 
 # HTTP client and async runtime
 reqwest = { workspace = true, features = ["stream"] }
@@ -51,11 +51,17 @@ tera = { workspace = true }
 # Regular expressions for security scanning
 regex = { workspace = true }
 
-# Multi-provider AI client
-genai = "0.1"
+# Multi-provider AI client - updated to latest
+genai = "0.4"
 
-# MCP server integration
+# MCP server integration - update when rmcp updates paste dependency
 rmcp = { version = "0.8.0", features = ["server", "transport-io"] }
+
+# LLM Response Caching
+moka = { version = "0.12", features = ["future"] }
+
+# Async streaming utilities (genai handles streaming natively)
+futures-util = { workspace = true }
 
 # SPARQL support
 oxigraph = "0.4"
@@ -65,6 +71,9 @@ tempfile = "3"
 
 # CPU count for parallel workers
 num_cpus = "1"
+
+# Crypto for caching
+sha2 = "0.10"
 
 [features]
 default = []

@@ -14,4 +14,4 @@ pub use api::{DashboardApi, ExportFormat};
 pub use metrics::{
     Dashboard, DashboardConfig, HealthStatus, MetricsSnapshot, ResourceUsage, SystemStatus,
 };
-pub use visualization::{TimescaleMetrics, TimeSeriesPoint};
+pub use visualization::{TimeSeriesPoint, TimescaleMetrics};

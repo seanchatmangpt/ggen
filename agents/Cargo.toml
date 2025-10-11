@@ -1,6 +1,6 @@
 [package]
 name = "ggen-agents"
-version = "0.2.5"
+version = "1.0.0"
 edition = "2021"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "Ultrathink multi-agent system for ggen - 12 hyper advanced agents for testing, security, performance, and development"
@@ -40,8 +40,8 @@ tokio-cron-scheduler = "0.9"
 reqwest = { version = "0.11", features = ["json"] }
 
 # Local dependencies with versions
-ggen-core = { path = "../ggen-core", version = "0.2.5" }
-ggen-utils = { path = "../utils", version = "0.2.5" }
+ggen-core = { path = "../ggen-core", version = "1.0.0" }
+ggen-utils = { path = "../utils", version = "1.0.0" }
 
 # Agent-specific dependencies
 mockall = "0.12"

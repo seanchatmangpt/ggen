@@ -1,0 +1,43 @@
+---
+to: prompt
+description: RDF/OWL ontology generation prompt
+vars:
+  - name: domain
+    type: string
+    description: Domain description
+  - name: requirements
+    type: array
+    description: Ontology requirements
+    default: []
+  - name: examples
+    type: array
+    description: Example patterns
+    default: []
+  - name: format
+    type: string
+    description: Output format
+    default: "turtle"
+---
+Generate an RDF/OWL ontology for the following domain:
+
+Domain: {{ domain }}
+
+{% if requirements %}
+Requirements:
+{% for req in requirements %}
+- {{ req }}
+{% endfor %}
+{% endif %}
+
+{% if examples %}
+Examples:
+{% for example in examples %}
+- {{ example }}
+{% endfor %}
+{% endif %}
+
+{% if format %}
+Output format: {{ format }}
+{% endif %}
+
+Please generate a complete RDF/OWL ontology in Turtle format with appropriate classes, properties, and relationships.

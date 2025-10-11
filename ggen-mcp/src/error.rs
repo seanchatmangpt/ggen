@@ -96,6 +96,12 @@ impl From<serde_json::Error> for GgenMcpError {
     }
 }
 
+impl From<ggen_ai::error::GgenAiError> for GgenMcpError {
+    fn from(err: ggen_ai::error::GgenAiError) -> Self {
+        GgenMcpError::GenerationFailed(err.to_string())
+    }
+}
+
 pub type Result<T> = std::result::Result<T, GgenMcpError>;
 
 /// Helper to extract string parameter

@@ -100,7 +100,9 @@ impl DataVisualizer {
     }
 
     /// Calculate moving average
-    pub fn moving_average(&self, data: &[TimeSeriesPoint], window_size: usize) -> Vec<TimeSeriesPoint> {
+    pub fn moving_average(
+        &self, data: &[TimeSeriesPoint], window_size: usize,
+    ) -> Vec<TimeSeriesPoint> {
         if data.len() < window_size {
             return data.to_vec();
         }

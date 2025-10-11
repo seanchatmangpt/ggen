@@ -4,7 +4,7 @@
 //! Provides quantum-resistant signatures for lockfile integrity verification
 use anyhow::{Context, Result};
 use base64::{engine::general_purpose, Engine as _};
-use pqcrypto_dilithium::dilithium3;
+use pqcrypto_mldsa::mldsa65;
 use pqcrypto_traits::sign::{PublicKey, SecretKey, SignedMessage};
 use sha2::{Digest, Sha256};
 use std::fs;
@@ -12,14 +12,14 @@ use std::path::Path;
 
 /// PQC signer for creating quantum-resistant signatures
 pub struct PqcSigner {
-    secret_key: dilithium3::SecretKey,
-    public_key: dilithium3::PublicKey,
+    secret_key: mldsa65::SecretKey,
+    public_key: mldsa65::PublicKey,
 }
 
 impl PqcSigner {
     /// Generate a new keypair
     pub fn new() -> Self {
-        let (public_key, secret_key) = dilithium3::keypair();
+        let (public_key, secret_key) = mldsa65::keypair();
         Self {
             secret_key,
             public_key,
@@ -31,9 +31,9 @@ impl PqcSigner {
         let sk_bytes = fs::read(secret_key_path).context("Failed to read secret key")?;
         let pk_bytes = fs::read(public_key_path).context("Failed to read public key")?;
 
-        let secret_key = dilithium3::SecretKey::from_bytes(&sk_bytes)
+        let secret_key = mldsa65::SecretKey::from_bytes(&sk_bytes)
             .map_err(|_| anyhow::anyhow!("Invalid secret key format"))?;
-        let public_key = dilithium3::PublicKey::from_bytes(&pk_bytes)
+        let public_key = mldsa65::PublicKey::from_bytes(&pk_bytes)
             .map_err(|_| anyhow::anyhow!("Invalid public key format"))?;
 
         Ok(Self {
@@ -53,7 +53,7 @@ impl PqcSigner {
 
     /// Sign a message (pack content hash)
     pub fn sign(&self, message: &[u8]) -> Vec<u8> {
-        let signed = dilithium3::sign(message, &self.secret_key);
+        let signed = mldsa65::sign(message, &self.secret_key);
         signed.as_bytes().to_vec()
     }
 
@@ -83,13 +83,13 @@ impl Default for PqcSigner {
 
 /// PQC verifier for checking quantum-resistant signatures
 pub struct PqcVerifier {
-    public_key: dilithium3::PublicKey,
+    public_key: mldsa65::PublicKey,
 }
 
 impl PqcVerifier {
     /// Create verifier from public key bytes
     pub fn from_public_key(public_key_bytes: &[u8]) -> Result<Self> {
-        let public_key = dilithium3::PublicKey::from_bytes(public_key_bytes)
+        let public_key = mldsa65::PublicKey::from_bytes(public_key_bytes)
             .map_err(|_| anyhow::anyhow!("Invalid public key format"))?;
         Ok(Self { public_key })
     }
@@ -104,7 +104,7 @@ impl PqcVerifier {
 
     /// Verify a signature
     pub fn verify(&self, message: &[u8], signature: &[u8]) -> Result<bool> {
-        match dilithium3::open(
+        match mldsa65::open(
             &SignedMessage::from_bytes(signature).unwrap(),
             &self.public_key,
         ) {

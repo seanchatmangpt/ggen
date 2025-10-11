@@ -99,7 +99,8 @@ pub async fn run(args: &SparqlArgs) -> Result<()> {
             )
         } else {
             // Use contextual client with auto-detection
-            global_config.create_contextual_client()
+            global_config
+                .create_contextual_client()
                 .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?
         }
     };

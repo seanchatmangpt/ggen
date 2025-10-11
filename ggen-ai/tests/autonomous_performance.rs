@@ -4,11 +4,11 @@
 //! Tests parallel regeneration speed, memory usage, and concurrent operations.
 
 use ggen_ai::{
-    GraphEvolutionEngine, EvolutionConfig, MockClient,
     autonomous::{
-        regeneration::{RegenerationEngine, RegenerationConfig, AffectedArtifact},
         events::{ChangeEvent, ChangeType, GraphChangeNotifier},
+        regeneration::{AffectedArtifact, RegenerationConfig, RegenerationEngine},
     },
+    EvolutionConfig, GraphEvolutionEngine, MockClient,
 };
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -47,12 +47,13 @@ ex:FastEntity a owl:Class .
     let parser_client = MockClient::with_response(mock_response);
     let validator_client = MockClient::with_response("valid");
 
-    let mut engine = GraphEvolutionEngine::with_defaults(
-        Box::new(parser_client),
-        Box::new(validator_client)
-    ).expect("Failed to create engine");
+    let mut engine =
+        GraphEvolutionEngine::with_defaults(Box::new(parser_client), Box::new(validator_client))
+            .expect("Failed to create engine");
 
-    let evolution_result = engine.evolve_from_nl("Create fast entity").await
+    let evolution_result = engine
+        .evolve_from_nl("Create fast entity")
+        .await
         .expect("Evolution failed");
 
     let evolution_time = evolution_start.elapsed();
@@ -143,12 +144,13 @@ ex:Entity a owl:Class .
     let parser_client = MockClient::with_response(mock_response);
     let validator_client = MockClient::with_response("valid");
 
-    let mut engine = GraphEvolutionEngine::with_defaults(
-        Box::new(parser_client),
-        Box::new(validator_client)
-    ).expect("Failed to create engine");
+    let mut engine =
+        GraphEvolutionEngine::with_defaults(Box::new(parser_client), Box::new(validator_client))
+            .expect("Failed to create engine");
 
-    let result = engine.evolve_from_nl("Quick evolution").await
+    let result = engine
+        .evolve_from_nl("Quick evolution")
+        .await
         .expect("Evolution failed");
 
     let elapsed = start.elapsed();
@@ -267,8 +269,9 @@ ex:Entity a owl:Class .
 
         let mut engine = GraphEvolutionEngine::with_defaults(
             Box::new(parser_client),
-            Box::new(validator_client)
-        ).expect("Failed to create engine");
+            Box::new(validator_client),
+        )
+        .expect("Failed to create engine");
 
         let _ = engine.evolve_from_nl(&format!("Entity {}", i)).await;
     }
@@ -316,8 +319,9 @@ ex:Entity a owl:Class .
 
                 let mut engine = GraphEvolutionEngine::with_defaults(
                     Box::new(parser_client),
-                    Box::new(validator_client)
-                ).expect("Failed to create engine");
+                    Box::new(validator_client),
+                )
+                .expect("Failed to create engine");
 
                 engine.evolve_from_nl(&format!("Entity {}", i)).await
             });
@@ -357,7 +361,9 @@ async fn test_delta_detection_performance() {
         .collect();
 
     let start = Instant::now();
-    detector.set_baseline(&baseline).expect("Failed to set baseline");
+    detector
+        .set_baseline(&baseline)
+        .expect("Failed to set baseline");
     let baseline_time = start.elapsed();
 
     println!("Baseline set time: {:?}", baseline_time);
@@ -366,23 +372,26 @@ async fn test_delta_detection_performance() {
     let mut new_state: Vec<String> = (0..990)
         .map(|i| format!("ex:Entity{} rdf:type owl:Class .", i))
         .collect();
-    new_state.extend(
-        (1000..1010).map(|i| format!("ex:NewEntity{} rdf:type owl:Class .", i))
-    );
+    new_state.extend((1000..1010).map(|i| format!("ex:NewEntity{} rdf:type owl:Class .", i)));
 
     let start = Instant::now();
-    let delta = detector.compute_delta(&new_state).expect("Failed to compute delta");
+    let delta = detector
+        .compute_delta(&new_state)
+        .expect("Failed to compute delta");
     let delta_time = start.elapsed();
 
     println!("Delta computation time: {:?}", delta_time);
-    println!("Delta: {} additions, {} deletions",
-             delta.stats.additions_count,
-             delta.stats.deletions_count);
+    println!(
+        "Delta: {} additions, {} deletions",
+        delta.stats.additions_count, delta.stats.deletions_count
+    );
 
     // Delta detection should be fast even for large graphs
-    assert!(delta_time.as_millis() < 1000,
-            "Delta detection should be under 1s, took {}ms",
-            delta_time.as_millis());
+    assert!(
+        delta_time.as_millis() < 1000,
+        "Delta detection should be under 1s, took {}ms",
+        delta_time.as_millis()
+    );
 }
 
 /// Test validation performance
@@ -391,8 +400,7 @@ async fn test_validation_performance() {
     use ggen_ai::SelfValidator;
 
     let client = MockClient::with_response("valid");
-    let validator = SelfValidator::new(Box::new(client))
-        .expect("Failed to create validator");
+    let validator = SelfValidator::new(Box::new(client)).expect("Failed to create validator");
 
     // Create triples to validate
     let triples: Vec<String> = (0..100)
@@ -400,7 +408,9 @@ async fn test_validation_performance() {
         .collect();
 
     let start = Instant::now();
-    let result = validator.validate(&triples).await
+    let result = validator
+        .validate(&triples)
+        .await
         .expect("Validation failed");
     let elapsed = start.elapsed();
 

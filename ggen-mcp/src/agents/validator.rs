@@ -278,7 +278,7 @@ impl ByzantineValidator {
             TaskType::TemplateGeneration => {
                 self.validate_template_generation(&task.parameters).await?
             }
-            TaskType::GraphOperation => {
+            TaskType::GraphQuery => {
                 self.validate_graph_operation(&task.parameters).await?
             }
             TaskType::SecurityCheck => {

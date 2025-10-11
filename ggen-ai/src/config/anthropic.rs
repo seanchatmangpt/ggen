@@ -64,17 +64,23 @@ impl AnthropicConfig {
     /// Validate the configuration
     pub fn validate(&self) -> Result<()> {
         if self.api_key.is_empty() {
-            return Err(GgenAiError::configuration("Anthropic API key cannot be empty"));
+            return Err(GgenAiError::configuration(
+                "Anthropic API key cannot be empty",
+            ));
         }
-        
+
         if self.base_url.is_empty() {
-            return Err(GgenAiError::configuration("Anthropic base URL cannot be empty"));
+            return Err(GgenAiError::configuration(
+                "Anthropic base URL cannot be empty",
+            ));
         }
-        
+
         if self.model.is_empty() {
-            return Err(GgenAiError::configuration("Anthropic model cannot be empty"));
+            return Err(GgenAiError::configuration(
+                "Anthropic model cannot be empty",
+            ));
         }
-        
+
         Ok(())
     }
 
@@ -92,8 +98,9 @@ impl AnthropicConfig {
 
     /// Create from environment variables
     pub fn from_env() -> Result<Self> {
-        let api_key = std::env::var("ANTHROPIC_API_KEY")
-            .map_err(|_| GgenAiError::configuration("ANTHROPIC_API_KEY environment variable not set"))?;
+        let api_key = std::env::var("ANTHROPIC_API_KEY").map_err(|_| {
+            GgenAiError::configuration("ANTHROPIC_API_KEY environment variable not set")
+        })?;
 
         let base_url = std::env::var("ANTHROPIC_BASE_URL")
             .unwrap_or_else(|_| "https://api.anthropic.com".to_string());
@@ -111,4 +118,3 @@ impl AnthropicConfig {
         Ok(config)
     }
 }
-

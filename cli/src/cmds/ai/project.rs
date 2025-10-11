@@ -3,9 +3,9 @@
 use anyhow;
 use clap::Args;
 use ggen_ai::TemplateGenerator;
-use std::sync::Arc;
 use ggen_utils::error::Result;
 use std::fs;
+use std::sync::Arc;
 
 #[derive(Debug, Args)]
 pub struct ProjectArgs {
@@ -80,23 +80,31 @@ pub async fn run(args: &ProjectArgs) -> Result<()> {
     // Determine which client to use based on flags
     let client: Arc<dyn ggen_ai::client::LlmClient> = if args.openai {
         println!("ℹ️  Using OpenAI provider");
-        let _config = global_config.get_provider_config(&ggen_ai::config::LlmProvider::OpenAI)
+        let _config = global_config
+            .get_provider_config(&ggen_ai::config::LlmProvider::OpenAI)
             .ok_or_else(|| ggen_utils::error::Error::new("OpenAI configuration not found"))?
             .clone();
-        global_config.create_provider_client(&ggen_ai::config::LlmProvider::OpenAI)
+        global_config
+            .create_provider_client(&ggen_ai::config::LlmProvider::OpenAI)
             .map_err(|e| ggen_utils::error::Error::new(&e.to_string()))?
     } else if args.anthropic {
         println!("ℹ️  Using Anthropic provider");
-        global_config.create_provider_client(&ggen_ai::config::LlmProvider::Anthropic)
+        global_config
+            .create_provider_client(&ggen_ai::config::LlmProvider::Anthropic)
             .map_err(|e| ggen_utils::error::Error::new(&e.to_string()))?
     } else if args.ollama {
         println!("ℹ️  Using Ollama provider");
-        global_config.create_provider_client(&ggen_ai::config::LlmProvider::Ollama)
+        global_config
+            .create_provider_client(&ggen_ai::config::LlmProvider::Ollama)
             .map_err(|e| ggen_utils::error::Error::new(&e.to_string()))?
     } else {
         // Use contextual client (auto-detect or mock for testing)
-        println!("ℹ️  Using {} provider (auto-detected)", global_config.provider_name());
-        global_config.create_contextual_client()
+        println!(
+            "ℹ️  Using {} provider (auto-detected)",
+            global_config.provider_name()
+        );
+        global_config
+            .create_contextual_client()
             .map_err(|e| ggen_utils::error::Error::new(&e.to_string()))?
     };
 

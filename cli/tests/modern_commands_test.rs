@@ -208,7 +208,15 @@ fn test_autonomous_evolve_requires_requirements() {
 #[test]
 fn test_autonomous_evolve_help() {
     let output = Command::new("cargo")
-        .args(&["run", "--bin", "ggen", "--", "autonomous", "evolve", "--help"])
+        .args(&[
+            "run",
+            "--bin",
+            "ggen",
+            "--",
+            "autonomous",
+            "evolve",
+            "--help",
+        ])
         .current_dir(project_root())
         .output()
         .expect("Failed to execute autonomous evolve help");
@@ -223,7 +231,15 @@ fn test_autonomous_evolve_help() {
 #[test]
 fn test_autonomous_regenerate_help() {
     let output = Command::new("cargo")
-        .args(&["run", "--bin", "ggen", "--", "autonomous", "regenerate", "--help"])
+        .args(&[
+            "run",
+            "--bin",
+            "ggen",
+            "--",
+            "autonomous",
+            "regenerate",
+            "--help",
+        ])
         .current_dir(project_root())
         .output()
         .expect("Failed to execute autonomous regenerate help");
@@ -437,8 +453,7 @@ fn test_ai_project_requires_description_and_name() {
     assert!(!output.status.success());
     let stderr = str::from_utf8(&output.stderr).unwrap();
     assert!(
-        stderr.contains("required")
-        && (stderr.contains("description") || stderr.contains("name"))
+        stderr.contains("required") && (stderr.contains("description") || stderr.contains("name"))
     );
 }
 

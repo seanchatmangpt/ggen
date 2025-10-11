@@ -14,14 +14,18 @@
 //! 2. LLM API keys configured (ANTHROPIC_API_KEY or OPENAI_API_KEY)
 //! 3. Configuration file at config/wip_integration.toml
 
+use clap::Parser;
 use ggen_ai::{
-    wip_integration::{WipConnector, load_wip_config},
-    autonomous::{GraphEvolutionEngine, EvolutionConfig, RegenerationOrchestrator, OrchestratorConfig, RegenerationEngine, DeploymentAutomation, TelemetryCollector, GraphChangeNotifier},
-    create_client_from_args, LlmProvider,
+    autonomous::{
+        DeploymentAutomation, EvolutionConfig, GraphChangeNotifier, GraphEvolutionEngine,
+        OrchestratorConfig, RegenerationEngine, RegenerationOrchestrator, TelemetryCollector,
+    },
+    create_client_from_args,
+    wip_integration::{load_wip_config, WipConnector},
+    LlmProvider,
 };
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use clap::Parser;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -93,9 +97,11 @@ async fn main() -> anyhow::Result<()> {
         history_path: Some(".swarm/evolution_history.json".into()),
     };
 
-    let evolution_engine = Arc::new(RwLock::new(
-        GraphEvolutionEngine::new(parser_client.clone(), validator_client.clone(), evolution_config)?
-    ));
+    let evolution_engine = Arc::new(RwLock::new(GraphEvolutionEngine::new(
+        parser_client.clone(),
+        validator_client.clone(),
+        evolution_config,
+    )?));
 
     tracing::info!("Created graph evolution engine");
 
@@ -129,11 +135,7 @@ async fn main() -> anyhow::Result<()> {
     tracing::info!("Created regeneration orchestrator");
 
     // Create WIP connector
-    let mut connector = WipConnector::new(
-        wip_config,
-        evolution_engine,
-        orchestrator,
-    );
+    let mut connector = WipConnector::new(wip_config, evolution_engine, orchestrator);
 
     tracing::info!("Starting WIP event listener...");
     tracing::info!("Press Ctrl+C to stop");

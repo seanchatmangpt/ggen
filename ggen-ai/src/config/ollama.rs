@@ -47,17 +47,21 @@ impl OllamaConfig {
     /// Validate the configuration
     pub fn validate(&self) -> Result<()> {
         if self.base_url.is_empty() {
-            return Err(GgenAiError::configuration("Ollama base URL cannot be empty"));
+            return Err(GgenAiError::configuration(
+                "Ollama base URL cannot be empty",
+            ));
         }
-        
+
         if self.model.is_empty() {
             return Err(GgenAiError::configuration("Ollama model cannot be empty"));
         }
-        
+
         if self.timeout == 0 {
-            return Err(GgenAiError::configuration("Ollama timeout must be greater than 0"));
+            return Err(GgenAiError::configuration(
+                "Ollama timeout must be greater than 0",
+            ));
         }
-        
+
         Ok(())
     }
 
@@ -77,23 +81,21 @@ impl OllamaConfig {
     pub fn from_env() -> Result<Self> {
         let base_url = std::env::var("OLLAMA_BASE_URL")
             .unwrap_or_else(|_| "http://localhost:11434".to_string());
-        
-        let model = std::env::var("OLLAMA_MODEL")
-            .unwrap_or_else(|_| "qwen3-coder:30b".to_string());
-        
+
+        let model = std::env::var("OLLAMA_MODEL").unwrap_or_else(|_| "qwen3-coder:30b".to_string());
+
         let timeout = std::env::var("OLLAMA_TIMEOUT")
             .unwrap_or_else(|_| "30".to_string())
             .parse()
             .map_err(|_| GgenAiError::configuration("Invalid OLLAMA_TIMEOUT value"))?;
-        
+
         let config = Self {
             base_url,
             model,
             timeout,
         };
-        
+
         config.validate()?;
         Ok(config)
     }
 }
-

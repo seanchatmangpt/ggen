@@ -6,16 +6,17 @@
 //! Usage:
 //!   cargo run --example genai_multi_provider_compare
 
-use genai::chat::{ChatMessage, ChatRequest, ChatOptions};
+use genai::chat::{ChatMessage, ChatOptions, ChatRequest};
 use genai::Client;
 use std::time::Instant;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let question = "Write a Rust function that calculates the Fibonacci sequence recursively with memoization";
+    let question =
+        "Write a Rust function that calculates the Fibonacci sequence recursively with memoization";
 
     let models = vec![
-        ("qwen3-coder:30b", ""),  // Ollama - no API key needed
+        ("qwen3-coder:30b", ""), // Ollama - no API key needed
         ("gpt-4o-mini", "OPENAI_API_KEY"),
         ("claude-3-haiku-20240307", "ANTHROPIC_API_KEY"),
         ("gemini-2.0-flash", "GEMINI_API_KEY"),
@@ -49,7 +50,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         let start = Instant::now();
 
-        match client.exec_chat(model, chat_req.clone(), Some(&chat_options)).await {
+        match client
+            .exec_chat(model, chat_req.clone(), Some(&chat_options))
+            .await
+        {
             Ok(chat_res) => {
                 let duration = start.elapsed();
 
@@ -61,7 +65,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         println!("📊 Stats:");
                         println!("   - Time: {:?}", duration);
                         println!("   - Input tokens: {}", usage.prompt_tokens.unwrap_or(0));
-                        println!("   - Output tokens: {}", usage.completion_tokens.unwrap_or(0));
+                        println!(
+                            "   - Output tokens: {}",
+                            usage.completion_tokens.unwrap_or(0)
+                        );
                         println!("   - Total tokens: {}", usage.total_tokens.unwrap_or(0));
                     }
                 } else {

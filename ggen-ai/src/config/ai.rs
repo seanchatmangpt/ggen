@@ -68,19 +68,25 @@ impl AiConfig {
     /// Validate the configuration
     pub fn validate(&self) -> Result<()> {
         self.llm.validate()?;
-        
+
         if self.generation.temperature < 0.0 || self.generation.temperature > 2.0 {
-            return Err(GgenAiError::configuration("Temperature must be between 0.0 and 2.0"));
+            return Err(GgenAiError::configuration(
+                "Temperature must be between 0.0 and 2.0",
+            ));
         }
-        
+
         if self.generation.top_p < 0.0 || self.generation.top_p > 1.0 {
-            return Err(GgenAiError::configuration("Top-p must be between 0.0 and 1.0"));
+            return Err(GgenAiError::configuration(
+                "Top-p must be between 0.0 and 1.0",
+            ));
         }
-        
+
         if self.generation.max_tokens == 0 {
-            return Err(GgenAiError::configuration("Max tokens must be greater than 0"));
+            return Err(GgenAiError::configuration(
+                "Max tokens must be greater than 0",
+            ));
         }
-        
+
         Ok(())
     }
 
@@ -103,7 +109,7 @@ impl AiConfig {
             stop: None,
             extra: HashMap::new(),
         };
-        
+
         let generation = GenerationConfig {
             temperature: std::env::var("GGEN_GENERATION_TEMPERATURE")
                 .unwrap_or_else(|_| "0.7".to_string())
@@ -122,10 +128,9 @@ impl AiConfig {
                 .parse()
                 .unwrap_or(false),
         };
-        
+
         let config = Self { llm, generation };
         config.validate()?;
         Ok(config)
     }
 }
-

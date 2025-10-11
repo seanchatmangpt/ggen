@@ -12,8 +12,8 @@ use std::path::PathBuf;
 
 // Import autonomous system types
 use ggen_ai::{
-    GraphEvolutionEngine, EvolutionConfig, EvolutionResult, DecisionOutcome,
-    create_client_with_config, LlmProvider,
+    create_client_with_config, DecisionOutcome, EvolutionConfig, EvolutionResult,
+    GraphEvolutionEngine, LlmProvider,
 };
 
 #[derive(Args, Debug)]
@@ -217,9 +217,12 @@ mod evolve {
             "ollama" => LlmProvider::Ollama,
             "openai" => LlmProvider::OpenAI,
             "anthropic" => LlmProvider::Anthropic,
-            _ => return Err(ggen_utils::error::Error::new_fmt(
-                format_args!("Unsupported provider: {}", args.provider)
-            )),
+            _ => {
+                return Err(ggen_utils::error::Error::new_fmt(format_args!(
+                    "Unsupported provider: {}",
+                    args.provider
+                )))
+            }
         };
 
         // Create evolution config
@@ -254,11 +257,8 @@ mod evolve {
         }
 
         // Create evolution engine
-        let mut engine = GraphEvolutionEngine::new(
-            parser_client,
-            validator_client,
-            config,
-        ).map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?;
+        let mut engine = GraphEvolutionEngine::new(parser_client, validator_client, config)
+            .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?;
 
         // Execute evolution (method is evolve_from_nl, not evolve)
         let result = engine.evolve_from_nl(&args.requirements).await;
@@ -289,7 +289,10 @@ mod evolve {
                     Ok(())
                 } else {
                     Err(ggen_utils::error::Error::new(
-                        evolution_result.error.as_deref().unwrap_or("Evolution failed")
+                        evolution_result
+                            .error
+                            .as_deref()
+                            .unwrap_or("Evolution failed"),
                     ))
                 }
             }
@@ -308,12 +311,16 @@ mod evolve {
                         println!("{}", serde_json::to_string_pretty(&json_output)?);
                     }
                 }
-                Err(ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))
+                Err(ggen_utils::error::Error::from(anyhow::anyhow!(
+                    e.to_string()
+                )))
             }
         }
     }
 
-    fn print_evolution_result(result: &EvolutionResult, duration: std::time::Duration, verbose: bool) {
+    fn print_evolution_result(
+        result: &EvolutionResult, duration: std::time::Duration, verbose: bool,
+    ) {
         if result.success {
             println!("✅ Graph Evolution Completed Successfully");
             println!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
@@ -391,7 +398,8 @@ mod regenerate {
         // Simulate regeneration progress
         for i in 0..operations_count {
             if args.verbose {
-                println!("  [{}/%] Processing template {}",
+                println!(
+                    "  [{}/%] Processing template {}",
                     (i + 1) * 100 / operations_count,
                     i + 1
                 );
@@ -403,7 +411,14 @@ mod regenerate {
                 println!("\n✅ Regeneration Completed");
                 println!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
                 println!("📊 Templates processed: {}", operations_count);
-                println!("✓ Validation: {}", if args.skip_validation { "skipped" } else { "passed" });
+                println!(
+                    "✓ Validation: {}",
+                    if args.skip_validation {
+                        "skipped"
+                    } else {
+                        "passed"
+                    }
+                );
                 if args.dry_run {
                     println!("🔍 Dry run completed - no actual changes made");
                 }
@@ -444,7 +459,14 @@ mod status {
             OutputFormat::Text => {
                 println!("📊 Autonomous System Status");
                 println!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-                println!("Status: {}", if status.running { "🟢 Running" } else { "🔴 Stopped" });
+                println!(
+                    "Status: {}",
+                    if status.running {
+                        "🟢 Running"
+                    } else {
+                        "🔴 Stopped"
+                    }
+                );
                 println!("State: {}", status.current_state);
                 println!("Operations: {}", status.operations_count);
                 if let Some(last_evolution) = &status.last_evolution {
@@ -530,7 +552,10 @@ mod rollback {
 
     pub async fn run(args: &RollbackArgs) -> Result<()> {
         if !args.yes {
-            println!("⚠️  WARNING: This will rollback to snapshot {}", args.snapshot_id);
+            println!(
+                "⚠️  WARNING: This will rollback to snapshot {}",
+                args.snapshot_id
+            );
             println!("All changes after this snapshot will be lost!");
             print!("\nContinue? [y/N]: ");
 

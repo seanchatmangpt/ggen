@@ -39,19 +39,19 @@ impl SparqlGenerator {
             .build()?;
 
         let response = self.client.complete(&prompt).await?;
-        
+
         // Extract SPARQL query from response
         self.extract_sparql_query(&response.content)
     }
 
     /// Stream SPARQL query generation from a natural language description
     pub async fn stream_sparql(
-        &self,
-        graph: &Graph,
-        intent: &str,
-        prefixes: &[(&str, &str)],
+        &self, graph: &Graph, intent: &str, prefixes: &[(&str, &str)],
     ) -> Result<futures::stream::BoxStream<'static, Result<String>>> {
-        let prefix_vec: Vec<(String, String)> = prefixes.iter().map(|(k, v)| (k.to_string(), v.to_string())).collect();
+        let prefix_vec: Vec<(String, String)> = prefixes
+            .iter()
+            .map(|(k, v)| (k.to_string(), v.to_string()))
+            .collect();
         let prompt = SparqlPromptBuilder::new(intent.to_string())
             .with_schema(format!("Graph with {} triples", graph.len()))
             .with_prefixes(prefix_vec)
@@ -95,10 +95,11 @@ impl SparqlGenerator {
             if let Some(end_offset) = response[search_start..].find("```") {
                 let query = &response[search_start..search_start + end_offset].trim();
                 // Check if it looks like SPARQL
-                if query.to_uppercase().contains("SELECT") ||
-                   query.to_uppercase().contains("CONSTRUCT") ||
-                   query.to_uppercase().contains("ASK") ||
-                   query.to_uppercase().contains("DESCRIBE") {
+                if query.to_uppercase().contains("SELECT")
+                    || query.to_uppercase().contains("CONSTRUCT")
+                    || query.to_uppercase().contains("ASK")
+                    || query.to_uppercase().contains("DESCRIBE")
+                {
                     return Ok(query.to_string());
                 }
             }
@@ -111,20 +112,21 @@ impl SparqlGenerator {
     /// Convert JSON to SPARQL query
     pub fn json_to_sparql(json: &Value, prefixes: &[(&str, &str)]) -> Result<String> {
         let mut query = String::new();
-        
+
         // Add prefixes
         for (prefix, uri) in prefixes {
             query.push_str(&format!("PREFIX {}: <{}>\n", prefix, uri));
         }
         query.push('\n');
-        
+
         // Extract query type and variables
         if let Some(query_type) = json.get("type").and_then(|v| v.as_str()) {
             match query_type {
                 "select" => {
                     query.push_str("SELECT ");
                     if let Some(vars) = json.get("variables").and_then(|v| v.as_array()) {
-                        let var_list: Vec<String> = vars.iter()
+                        let var_list: Vec<String> = vars
+                            .iter()
                             .filter_map(|v| v.as_str())
                             .map(|s| format!("?{}", s))
                             .collect();
@@ -133,12 +135,12 @@ impl SparqlGenerator {
                         query.push('*');
                     }
                     query.push_str(" WHERE {\n");
-                    
+
                     // Add WHERE clause
                     if let Some(where_clause) = json.get("where").and_then(|v| v.as_str()) {
                         query.push_str(&format!("  {}\n", where_clause));
                     }
-                    
+
                     query.push('}');
                 }
                 "construct" => {
@@ -147,11 +149,11 @@ impl SparqlGenerator {
                         query.push_str(&format!("  {}\n", template));
                     }
                     query.push_str("} WHERE {\n");
-                    
+
                     if let Some(where_clause) = json.get("where").and_then(|v| v.as_str()) {
                         query.push_str(&format!("  {}\n", where_clause));
                     }
-                    
+
                     query.push('}');
                 }
                 "ask" => {
@@ -162,17 +164,18 @@ impl SparqlGenerator {
                     query.push('}');
                 }
                 _ => {
-                    return Err(GgenAiError::sparql_generation(
-                        format!("Unsupported query type: {}", query_type)
-                    ));
+                    return Err(GgenAiError::sparql_generation(format!(
+                        "Unsupported query type: {}",
+                        query_type
+                    )));
                 }
             }
         } else {
             return Err(GgenAiError::sparql_generation(
-                "Missing query type in JSON".to_string()
+                "Missing query type in JSON".to_string(),
             ));
         }
-        
+
         Ok(query)
     }
 
@@ -190,12 +193,17 @@ mod tests {
 
     #[tokio::test]
     async fn test_sparql_generation() {
-        let client = MockClient::with_response("```sparql\nSELECT ?name WHERE {\n  ?person foaf:name ?name .\n}\n```");
+        let client = MockClient::with_response(
+            "```sparql\nSELECT ?name WHERE {\n  ?person foaf:name ?name .\n}\n```",
+        );
         let generator = SparqlGenerator::new(Arc::new(client));
-        
+
         let graph = Graph::new().unwrap();
-        let query = generator.generate_query(&graph, "Find all person names").await.unwrap();
-        
+        let query = generator
+            .generate_query(&graph, "Find all person names")
+            .await
+            .unwrap();
+
         assert!(query.contains("SELECT"));
         assert!(query.contains("WHERE"));
     }
@@ -207,10 +215,10 @@ mod tests {
             "variables": ["name"],
             "where": "?person foaf:name ?name ."
         });
-        
+
         let prefixes = [("foaf", "http://xmlns.com/foaf/0.1/")];
         let query = SparqlGenerator::json_to_sparql(&json, &prefixes).unwrap();
-        
+
         assert!(query.contains("PREFIX foaf:"));
         assert!(query.contains("SELECT ?name"));
         assert!(query.contains("WHERE"));

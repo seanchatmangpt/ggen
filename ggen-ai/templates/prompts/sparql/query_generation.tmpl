@@ -1,0 +1,93 @@
+---
+to: prompt
+description: SPARQL query generation prompt
+vars:
+  - name: intent
+    type: string
+    description: Natural language description of query intent
+  - name: schema
+    type: string
+    description: Graph schema information
+    default: ""
+  - name: prefixes
+    type: array
+    description: Available RDF prefixes
+    default: []
+  - name: examples
+    type: array
+    description: Example queries
+    default: []
+  - name: constraints
+    type: array
+    description: Query constraints
+    default: []
+---
+You are an expert SPARQL query generator. Generate accurate, efficient SPARQL queries based on natural language intent. Ensure queries are syntactically correct and follow SPARQL best practices.
+
+## Query Intent
+{{ intent }}
+
+{% if schema %}
+## Graph Schema
+{{ schema }}
+{% endif %}
+
+{% if prefixes %}
+## Available Prefixes
+{% for prefix in prefixes %}
+PREFIX {{ prefix.0 }}: <{{ prefix.1 }}>
+{% endfor %}
+{% endif %}
+
+{% if constraints %}
+## Constraints
+{% for constraint in constraints %}
+- {{ constraint }}
+{% endfor %}
+{% endif %}
+
+{% if examples %}
+## Example Queries
+{% for example in examples %}
+{{ loop.index }}. {{ example }}
+{% endfor %}
+{% endif %}
+
+## Query Generation Rules
+1. Use appropriate SPARQL syntax
+2. Include necessary PREFIX declarations
+3. Use efficient query patterns
+4. Add appropriate FILTER clauses when needed
+5. Use proper variable naming conventions
+6. Include LIMIT clauses for large result sets
+7. Use OPTIONAL for optional data
+8. Use UNION for alternative patterns
+
+## Common SPARQL Patterns
+```sparql
+# Basic SELECT query
+SELECT ?s ?p ?o WHERE {
+  ?s ?p ?o .
+}
+
+# Query with FILTER
+SELECT ?s ?p ?o WHERE {
+  ?s ?p ?o .
+  FILTER(?o > 100)
+}
+
+# Query with OPTIONAL
+SELECT ?s ?p ?o ?optional WHERE {
+  ?s ?p ?o .
+  OPTIONAL { ?s ex:optional ?optional }
+}
+
+# Query with UNION
+SELECT ?s ?p ?o WHERE {
+  { ?s ex:type1 ?o }
+  UNION
+  { ?s ex:type2 ?o }
+}
+```
+
+Generate the SPARQL query now:

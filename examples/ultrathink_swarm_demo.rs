@@ -5,8 +5,8 @@
 //! knowledge graphs and continuous code regeneration.
 
 use agents::{
-    agents::{Trigger, RuntimeMetrics, ApiSpec, SecurityVulnerability},
-    swarm::{UltrathinkSwarm, demonstrate_autonomous_workflows, run_ultrathink_swarm},
+    agents::{ApiSpec, RuntimeMetrics, SecurityVulnerability, Trigger},
+    swarm::{demonstrate_autonomous_workflows, run_ultrathink_swarm, UltrathinkSwarm},
 };
 use std::env;
 
@@ -65,12 +65,16 @@ async fn run_custom_demo() -> Result<(), Box<dyn std::error::Error>> {
     // Custom workflow: requirements → analysis → graph extension → code generation
     println!("\n1️⃣ Requirements Change Workflow");
     let requirements_trigger = Trigger::RequirementsChange(
-        "Add comprehensive user profile system with social features".to_string()
+        "Add comprehensive user profile system with social features".to_string(),
     );
 
     let result = swarm.trigger_workflow(requirements_trigger).await?;
     println!("  ✅ Requirements analyzed and system updated");
-    println!("  📊 Actions: {}, Time: {}ms", result.actions_taken.len(), result.execution_time_ms);
+    println!(
+        "  📊 Actions: {}, Time: {}ms",
+        result.actions_taken.len(),
+        result.execution_time_ms
+    );
 
     // Custom workflow: performance optimization
     println!("\n2️⃣ Performance Optimization Workflow");
@@ -83,7 +87,11 @@ async fn run_custom_demo() -> Result<(), Box<dyn std::error::Error>> {
 
     let result = swarm.trigger_workflow(performance_trigger).await?;
     println!("  ✅ Performance optimized");
-    println!("  📊 Actions: {}, Time: {}ms", result.actions_taken.len(), result.execution_time_ms);
+    println!(
+        "  📊 Actions: {}, Time: {}ms",
+        result.actions_taken.len(),
+        result.execution_time_ms
+    );
 
     // Custom workflow: API evolution
     println!("\n3️⃣ API Evolution Workflow");
@@ -99,7 +107,11 @@ async fn run_custom_demo() -> Result<(), Box<dyn std::error::Error>> {
 
     let result = swarm.trigger_workflow(api_trigger).await?;
     println!("  ✅ API evolved successfully");
-    println!("  📊 Actions: {}, Time: {}ms", result.actions_taken.len(), result.execution_time_ms);
+    println!(
+        "  📊 Actions: {}, Time: {}ms",
+        result.actions_taken.len(),
+        result.execution_time_ms
+    );
 
     // Custom workflow: security hardening
     println!("\n4️⃣ Security Hardening Workflow");
@@ -115,7 +127,11 @@ async fn run_custom_demo() -> Result<(), Box<dyn std::error::Error>> {
 
     let result = swarm.trigger_workflow(security_trigger).await?;
     println!("  ✅ Security vulnerabilities addressed");
-    println!("  📊 Actions: {}, Time: {}ms", result.actions_taken.len(), result.execution_time_ms);
+    println!(
+        "  📊 Actions: {}, Time: {}ms",
+        result.actions_taken.len(),
+        result.execution_time_ms
+    );
 
     // Show comprehensive results
     println!("\n📋 Custom Demo Summary:");
@@ -123,7 +139,10 @@ async fn run_custom_demo() -> Result<(), Box<dyn std::error::Error>> {
     println!("  Total Agents: {}", status.total_agents);
     println!("  Workflows Executed: {}", status.workflows_executed);
     println!("  Success Rate: {:.1}%", status.success_rate);
-    println!("  Average Execution: {}ms", status.average_execution_time_ms);
+    println!(
+        "  Average Execution: {}ms",
+        status.average_execution_time_ms
+    );
 
     let metrics = swarm.get_performance_metrics().await;
     println!("  Artifacts Generated: {}", metrics.artifacts_generated);
@@ -131,10 +150,12 @@ async fn run_custom_demo() -> Result<(), Box<dyn std::error::Error>> {
     let recent_workflows = swarm.get_recent_workflows(4).await;
     println!("\n📋 Recent Workflows:");
     for (i, workflow) in recent_workflows.iter().enumerate() {
-        println!("  {}. {} - {} actions",
-                 i + 1,
-                 format!("{:?}", workflow.trigger),
-                 workflow.actions_taken.len());
+        println!(
+            "  {}. {} - {} actions",
+            i + 1,
+            format!("{:?}", workflow.trigger),
+            workflow.actions_taken.len()
+        );
     }
 
     swarm.stop().await?;

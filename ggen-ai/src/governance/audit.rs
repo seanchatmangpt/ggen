@@ -2,16 +2,16 @@
 //!
 //! Comprehensive logging and querying of all governance decisions and events.
 
+use chrono::{DateTime, Duration, Utc};
 use serde::{Deserialize, Serialize};
-use chrono::{DateTime, Utc, Duration};
-use uuid::Uuid;
 use std::path::Path;
-use tokio::sync::RwLock;
 use std::sync::Arc;
+use tokio::sync::RwLock;
+use uuid::Uuid;
 
-use super::types::Decision;
-use super::policy::PolicyViolation;
 use super::error::{GovernanceError, Result};
+use super::policy::PolicyViolation;
+use super::types::Decision;
 
 /// Type of audit event
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -91,8 +91,9 @@ impl AuditTrail {
 
         // Ensure parent directory exists
         if let Some(parent) = Path::new(&db_path).parent() {
-            tokio::fs::create_dir_all(parent).await
-                .map_err(|e| GovernanceError::AuditError(format!("Failed to create audit directory: {}", e)))?;
+            tokio::fs::create_dir_all(parent).await.map_err(|e| {
+                GovernanceError::AuditError(format!("Failed to create audit directory: {}", e))
+            })?;
         }
 
         let trail = Self {
@@ -102,18 +103,20 @@ impl AuditTrail {
         };
 
         // Log startup
-        trail.log_event(AuditEvent {
-            id: Uuid::new_v4().to_string(),
-            event_type: EventType::SystemStartup,
-            timestamp: Utc::now(),
-            actor: "system".to_string(),
-            decision_id: None,
-            policy_id: None,
-            severity: AuditSeverity::Info,
-            message: "Audit trail initialized".to_string(),
-            details: serde_json::json!({"db_path": trail.db_path}),
-            metadata: serde_json::json!({}),
-        }).await?;
+        trail
+            .log_event(AuditEvent {
+                id: Uuid::new_v4().to_string(),
+                event_type: EventType::SystemStartup,
+                timestamp: Utc::now(),
+                actor: "system".to_string(),
+                decision_id: None,
+                policy_id: None,
+                severity: AuditSeverity::Info,
+                message: "Audit trail initialized".to_string(),
+                details: serde_json::json!({"db_path": trail.db_path}),
+                metadata: serde_json::json!({}),
+            })
+            .await?;
 
         Ok(trail)
     }
@@ -143,7 +146,8 @@ impl AuditTrail {
             details: serde_json::to_value(decision)
                 .map_err(|e| GovernanceError::SerializationError(e.to_string()))?,
             metadata: serde_json::json!({}),
-        }).await
+        })
+        .await
     }
 
     /// Log auto-approval
@@ -160,11 +164,14 @@ impl AuditTrail {
             details: serde_json::to_value(decision)
                 .map_err(|e| GovernanceError::SerializationError(e.to_string()))?,
             metadata: serde_json::json!({"auto_approved": true}),
-        }).await
+        })
+        .await
     }
 
     /// Log policy violations
-    pub async fn log_policy_violations(&self, decision: &Decision, violations: &[PolicyViolation]) -> Result<()> {
+    pub async fn log_policy_violations(
+        &self, decision: &Decision, violations: &[PolicyViolation],
+    ) -> Result<()> {
         for violation in violations {
             self.log_event(AuditEvent {
                 id: Uuid::new_v4().to_string(),
@@ -183,7 +190,8 @@ impl AuditTrail {
                 details: serde_json::to_value(violation)
                     .map_err(|e| GovernanceError::SerializationError(e.to_string()))?,
                 metadata: serde_json::json!({}),
-            }).await?;
+            })
+            .await?;
         }
         Ok(())
     }
@@ -202,11 +210,14 @@ impl AuditTrail {
             details: serde_json::to_value(decision)
                 .map_err(|e| GovernanceError::SerializationError(e.to_string()))?,
             metadata: serde_json::json!({}),
-        }).await
+        })
+        .await
     }
 
     /// Log approval requested
-    pub async fn log_approval_requested(&self, decision: &Decision, request_id: &str) -> Result<()> {
+    pub async fn log_approval_requested(
+        &self, decision: &Decision, request_id: &str,
+    ) -> Result<()> {
         self.log_event(AuditEvent {
             id: Uuid::new_v4().to_string(),
             event_type: EventType::ApprovalRequested,
@@ -218,7 +229,8 @@ impl AuditTrail {
             message: format!("Approval requested for decision: {}", decision.action),
             details: serde_json::json!({"request_id": request_id}),
             metadata: serde_json::json!({}),
-        }).await
+        })
+        .await
     }
 
     /// Log emergency stop
@@ -234,7 +246,8 @@ impl AuditTrail {
             message: format!("Emergency stop triggered: {}", reason),
             details: serde_json::json!({"reason": reason}),
             metadata: serde_json::json!({}),
-        }).await
+        })
+        .await
     }
 
     /// Log system resume
@@ -250,7 +263,8 @@ impl AuditTrail {
             message: format!("System resumed by {}", approved_by),
             details: serde_json::json!({"approved_by": approved_by}),
             metadata: serde_json::json!({}),
-        }).await
+        })
+        .await
     }
 
     /// Log rollback
@@ -266,14 +280,16 @@ impl AuditTrail {
             message: format!("System rolled back to state: {}", target_state),
             details: serde_json::json!({"target_state": target_state}),
             metadata: serde_json::json!({}),
-        }).await
+        })
+        .await
     }
 
     /// Query audit trail
     pub async fn query(&self, query: AuditQuery) -> Result<Vec<AuditEvent>> {
         let events = self.events.read().await;
 
-        let mut filtered: Vec<AuditEvent> = events.iter()
+        let mut filtered: Vec<AuditEvent> = events
+            .iter()
             .filter(|e| {
                 // Filter by event type
                 if let Some(ref types) = query.event_types {
@@ -365,7 +381,8 @@ mod tests {
             .expect("Failed to create audit trail");
 
         // Should have startup event
-        let events = trail.query(AuditQuery::default())
+        let events = trail
+            .query(AuditQuery::default())
             .await
             .expect("Failed to query audit trail");
         assert_eq!(events.len(), 1);
@@ -381,7 +398,8 @@ mod tests {
             .expect("Failed to create audit trail");
 
         // Log some events
-        trail.log_emergency_stop("test")
+        trail
+            .log_emergency_stop("test")
             .await
             .expect("Failed to log emergency stop");
 
@@ -391,7 +409,8 @@ mod tests {
             ..Default::default()
         };
 
-        let events = trail.query(query)
+        let events = trail
+            .query(query)
             .await
             .expect("Failed to query audit trail");
         assert_eq!(events.len(), 1);

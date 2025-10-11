@@ -1,7 +1,7 @@
 //! # ggen-ai
 //!
 //! AI-powered code generation capabilities for ggen.
-//! 
+//!
 //! This crate provides LLM integration for intelligent template generation,
 //! SPARQL query construction, ontology generation, and code refactoring.
 //!
@@ -36,40 +36,56 @@
 //! }
 //! ```
 
+pub mod autonomous;
 pub mod client;
 pub mod config;
-pub mod prompts;
 pub mod generators;
-pub mod autonomous;
+pub mod prompts;
 pub mod ultrathink;
 // Swarm module is implemented as a directory
 // pub mod swarm;
-pub mod mcp;
-pub mod error;
-pub mod providers;
+pub mod cache;
 pub mod cli;
-pub mod security;
+pub mod error;
 pub mod governance;
+pub mod mcp;
+pub mod providers;
+pub mod security;
+pub mod streaming;
 // pub mod wip_integration; // TODO: Implement WIP integration
 
 #[cfg(feature = "ollama-integration")]
 pub mod test_helpers;
 
 // Re-export main types for convenience
-pub use client::{LlmClient, LlmConfig, LlmResponse, LlmChunk, UsageStats};
-pub use providers::adapter::{MockClient, OllamaClient, OpenAIClient, AnthropicClient};
-pub use config::{AiConfig, GlobalLlmConfig, LlmProvider, get_global_config, init_global_config};
-pub use cli::{CliConfigBuilder, extract_llm_config, create_client_from_args, create_client_with_config, add_llm_args};
-pub use generators::{TemplateGenerator, SparqlGenerator, OntologyGenerator, RefactorAssistant, TemplateValidator, ValidationIssue, QualityMetrics};
+pub use cache::{CacheConfig, CacheStats, LlmCache};
+pub use cli::{
+    add_llm_args, create_client_from_args, create_client_with_config, extract_llm_config,
+    CliConfigBuilder,
+};
+pub use client::{GenAiClient, LlmChunk, LlmClient, LlmConfig, LlmResponse, UsageStats};
+pub use config::{get_global_config, init_global_config, AiConfig, GlobalLlmConfig, LlmProvider};
 pub use error::{GgenAiError, Result};
-pub use security::{SecretString, MaskApiKey};
+pub use generators::{
+    OntologyGenerator, QualityMetrics, RefactorAssistant, SparqlGenerator, TemplateGenerator,
+    TemplateValidator, ValidationIssue,
+};
+pub use providers::adapter::{AnthropicClient, MockClient, OllamaClient, OpenAIClient};
+pub use security::{MaskApiKey, SecretString};
+pub use streaming::StreamConfig;
+
+// Note: Use LlmClient::complete_stream() for streaming - it uses genai's native streaming
+// which supports all major providers (OpenAI, Anthropic, Gemini, Ollama, etc.)
 // NOTE: Ultrathink swarm types are implemented in ggen-mcp, not ggen-ai
 // pub use ultrathink::{UltrathinkSwarm, UltrathinkConfig, UltrathinkTask, SwarmAgent, WipEntry, initialize_ultrathink_swarm};
-pub use autonomous::{GraphEvolutionEngine, EvolutionConfig, EvolutionResult, NaturalLanguageParser, SelfValidator, DeltaDetector};
+pub use autonomous::{
+    DeltaDetector, EvolutionConfig, EvolutionResult, GraphEvolutionEngine, NaturalLanguageParser,
+    SelfValidator,
+};
 // pub use swarm::{SwarmAgent, SwarmCoordinator, SwarmConfig};
 pub use governance::{
-    GovernanceCoordinator, GovernanceConfig, Policy, PolicyEngine, AuditTrail,
-    Dashboard, SafetyController, ApprovalWorkflow, Decision, DecisionOutcome,
+    ApprovalWorkflow, AuditTrail, Dashboard, Decision, DecisionOutcome, GovernanceConfig,
+    GovernanceCoordinator, Policy, PolicyEngine, SafetyController,
 };
 // pub use wip_integration::{WipConnector, WipConfig, WipEvent, WipEventType, WipResponse, load_wip_config};
 
@@ -79,11 +95,11 @@ pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 /// Initialize tracing for the ggen-ai crate
 pub fn init_logging() {
     use tracing_subscriber::{fmt, EnvFilter};
-    
+
     if std::env::var("RUST_LOG").is_err() {
         std::env::set_var("RUST_LOG", "ggen_ai=info");
     }
-    
+
     let _ = fmt()
         .with_env_filter(EnvFilter::from_default_env())
         .with_target(false)

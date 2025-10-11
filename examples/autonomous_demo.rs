@@ -23,13 +23,13 @@
 
 use ggen_ai::{
     autonomous::{
-        GraphEvolutionEngine, EvolutionConfig, RegenerationEngine, RegenerationConfig,
-        AffectedArtifact, GraphChangeNotifier,
+        AffectedArtifact, EvolutionConfig, GraphChangeNotifier, GraphEvolutionEngine,
+        RegenerationConfig, RegenerationEngine,
     },
-    MockClient, LlmClient,
+    LlmClient, MockClient,
 };
-use std::sync::Arc;
 use std::path::PathBuf;
+use std::sync::Arc;
 use tokio;
 
 #[tokio::main]
@@ -117,14 +117,13 @@ ex:purchases a owl:ObjectProperty ;
         regeneration_threshold: 3,
         history_path: Some(PathBuf::from(".swarm/evolution_history.json")),
     };
-    println!("  ⚙️  Configuration: confidence_threshold={}, auto_validate={}",
-             config.confidence_threshold, config.auto_validate);
+    println!(
+        "  ⚙️  Configuration: confidence_threshold={}, auto_validate={}",
+        config.confidence_threshold, config.auto_validate
+    );
 
     // Create graph evolution engine
-    let mut engine = GraphEvolutionEngine::with_defaults(
-        parser_client,
-        validator_client,
-    )?;
+    let mut engine = GraphEvolutionEngine::with_defaults(parser_client, validator_client)?;
     engine.update_config(config);
     println!("  🔧 Graph Evolution Engine: READY\n");
 
@@ -176,7 +175,10 @@ ex:purchases a owl:ObjectProperty ;
         println!("  • Total Duration: {:?}", duration);
         println!("  • Operations: {}", result.metadata.operations_count);
         println!("  • Committed: {}", result.metadata.committed);
-        println!("  • Timestamp: {}\n", result.metadata.timestamp.format("%Y-%m-%d %H:%M:%S UTC"));
+        println!(
+            "  • Timestamp: {}\n",
+            result.metadata.timestamp.format("%Y-%m-%d %H:%M:%S UTC")
+        );
 
         // Show parsed triples
         if let Some(ref parsed) = result.parsed {
@@ -190,10 +192,19 @@ ex:purchases a owl:ObjectProperty ;
             println!();
 
             // Show inferred relations with confidence scores
-            println!("🎯 Inferred Relations: {} identified", parsed.relations.len());
+            println!(
+                "🎯 Inferred Relations: {} identified",
+                parsed.relations.len()
+            );
             for (i, rel) in parsed.relations.iter().take(3).enumerate() {
-                println!("  {}. {} → {} → {} (confidence: {:.2})",
-                    i + 1, rel.subject, rel.predicate, rel.object, rel.confidence);
+                println!(
+                    "  {}. {} → {} → {} (confidence: {:.2})",
+                    i + 1,
+                    rel.subject,
+                    rel.predicate,
+                    rel.object,
+                    rel.confidence
+                );
                 println!("     Reasoning: {}", rel.reasoning);
             }
             if parsed.relations.len() > 3 {
@@ -213,7 +224,14 @@ ex:purchases a owl:ObjectProperty ;
 
         // Show validation results
         if let Some(ref validation) = result.validation {
-            println!("✓  Validation: {}", if validation.passed { "PASSED" } else { "FAILED" });
+            println!(
+                "✓  Validation: {}",
+                if validation.passed {
+                    "PASSED"
+                } else {
+                    "FAILED"
+                }
+            );
             println!("  • Validated Triples: {}", validation.validated_triples);
             println!("  • Violations: {}", validation.violations.len());
             println!("  • Warnings: {}", validation.warnings.len());
@@ -232,7 +250,6 @@ ex:purchases a owl:ObjectProperty ;
             println!("... {} more lines", lines.len() - 15);
         }
         println!("─────────────────────────────────────────\n");
-
     } else {
         println!("❌ Autonomous Evolution: FAILED");
         if let Some(ref error) = result.error {
@@ -248,11 +265,16 @@ ex:purchases a owl:ObjectProperty ;
 
     // Check if regeneration is needed based on delta significance
     let needs_regen = engine.needs_regeneration();
-    println!("🔍 Regeneration Required: {}", if needs_regen { "YES" } else { "NO" });
+    println!(
+        "🔍 Regeneration Required: {}",
+        if needs_regen { "YES" } else { "NO" }
+    );
 
     if needs_regen {
-        println!("   Reason: Delta exceeded threshold of {} changes\n",
-                 engine.config().regeneration_threshold);
+        println!(
+            "   Reason: Delta exceeded threshold of {} changes\n",
+            engine.config().regeneration_threshold
+        );
 
         // Initialize regeneration engine
         println!("⚙️  Initializing Regeneration Engine:");
@@ -270,7 +292,10 @@ ex:purchases a owl:ObjectProperty ;
             track_dependencies: true,
         };
         println!("  • Parallel Workers: {}", regen_config.parallel_workers);
-        println!("  • Target Languages: {}", regen_config.target_languages.join(", "));
+        println!(
+            "  • Target Languages: {}",
+            regen_config.target_languages.join(", ")
+        );
         println!("  • Incremental Build: {}", regen_config.incremental);
 
         let notifier = Arc::new(GraphChangeNotifier::default());
@@ -311,10 +336,12 @@ ex:purchases a owl:ObjectProperty ;
         ];
 
         for artifact in artifacts {
-            println!("  • {} ({}) → {}",
-                     artifact.id,
-                     artifact.language,
-                     artifact.output_path.display());
+            println!(
+                "  • {} ({}) → {}",
+                artifact.id,
+                artifact.language,
+                artifact.output_path.display()
+            );
             regen_engine.register_artifact(artifact).await;
         }
         println!();

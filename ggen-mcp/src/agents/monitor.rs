@@ -379,7 +379,7 @@ impl GraphMonitor {
         // Simulate query processing
         tokio::time::sleep(Duration::from_millis(50)).await;
         
-        let query_duration = query_start&.signed_duration_since(start_time).num_milliseconds() as u64;
+        let query_duration = Utc::now().signed_duration_since(query_start).num_milliseconds() as u64;
         
         // Update query performance metrics
         self.metrics.query_performance.total_queries += 1;

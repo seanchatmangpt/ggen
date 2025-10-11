@@ -3,7 +3,6 @@
 //! Provides comprehensive error handling for LLM provider interactions,
 //! configuration issues, validation failures, and generation operations.
 
-
 /// Errors that can occur in ggen-ai operations
 #[derive(Debug, thiserror::Error)]
 pub enum GgenAiError {
@@ -52,7 +51,9 @@ pub enum GgenAiError {
     InvalidConfig { field: String, reason: String },
 
     /// Model not found or not supported
-    #[error("Model '{model}' not found or not supported by {provider}. Supported models: {supported:?}")]
+    #[error(
+        "Model '{model}' not found or not supported by {provider}. Supported models: {supported:?}"
+    )]
     ModelNotFound {
         provider: String,
         model: String,
@@ -223,9 +224,7 @@ impl GgenAiError {
 
     /// Create a model not found error
     pub fn model_not_found(
-        provider: impl Into<String>,
-        model: impl Into<String>,
-        supported: Vec<String>,
+        provider: impl Into<String>, model: impl Into<String>, supported: Vec<String>,
     ) -> Self {
         Self::ModelNotFound {
             provider: provider.into(),
@@ -306,10 +305,7 @@ impl GgenAiError {
     /// Validate API key is not empty and has reasonable length
     pub fn validate_api_key(api_key: &str, provider: &str) -> Result<()> {
         if api_key.is_empty() {
-            return Err(Self::invalid_api_key(
-                provider,
-                "API key is empty",
-            ));
+            return Err(Self::invalid_api_key(provider, "API key is empty"));
         }
         if api_key.len() < 10 {
             return Err(Self::invalid_api_key(

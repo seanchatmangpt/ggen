@@ -2,15 +2,15 @@
 //!
 //! Emergency stop, rollback, and validation mechanisms to prevent dangerous operations.
 
-use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use uuid::Uuid;
 
-use super::types::Decision;
 use super::error::{GovernanceError, Result};
+use super::types::Decision;
 
 /// Safety controller configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -151,7 +151,10 @@ impl SafetyController {
         if emergency.active {
             return Ok(Some(format!(
                 "Emergency stop active: {}",
-                emergency.reason.as_ref().unwrap_or(&"Unknown reason".to_string())
+                emergency
+                    .reason
+                    .as_ref()
+                    .unwrap_or(&"Unknown reason".to_string())
             )));
         }
         drop(emergency);
@@ -172,7 +175,11 @@ impl SafetyController {
         }
 
         // Check if operation requires confirmation gate
-        if self.config.require_confirmation_for.contains(&decision.action) {
+        if self
+            .config
+            .require_confirmation_for
+            .contains(&decision.action)
+        {
             if !self.check_validation_gate(&decision.id).await? {
                 return Ok(Some(format!(
                     "Operation requires validation gate approval: {}",
@@ -194,7 +201,7 @@ impl SafetyController {
     pub async fn trigger_emergency_stop(&self, reason: &str) -> Result<()> {
         if !self.config.enable_emergency_stop {
             return Err(GovernanceError::SafetyError(
-                "Emergency stop is disabled".to_string()
+                "Emergency stop is disabled".to_string(),
             ));
         }
 
@@ -221,7 +228,9 @@ impl SafetyController {
     }
 
     /// Create a state snapshot
-    pub async fn create_snapshot(&self, description: &str, data: serde_json::Value) -> Result<String> {
+    pub async fn create_snapshot(
+        &self, description: &str, data: serde_json::Value,
+    ) -> Result<String> {
         let snapshot = StateSnapshot {
             id: Uuid::new_v4().to_string(),
             timestamp: Utc::now(),
@@ -248,7 +257,7 @@ impl SafetyController {
     pub async fn rollback(&self, target_snapshot_id: &str) -> Result<()> {
         if !self.config.enable_auto_rollback {
             return Err(GovernanceError::SafetyError(
-                "Auto rollback is disabled".to_string()
+                "Auto rollback is disabled".to_string(),
             ));
         }
 
@@ -261,10 +270,10 @@ impl SafetyController {
         // Validate snapshot integrity
         let calculated_checksum = self.calculate_checksum(&snapshot.data);
         if calculated_checksum != snapshot.checksum {
-            return Err(GovernanceError::SafetyError(
-                format!("Snapshot checksum mismatch: expected {}, got {}",
-                    snapshot.checksum, calculated_checksum)
-            ));
+            return Err(GovernanceError::SafetyError(format!(
+                "Snapshot checksum mismatch: expected {}, got {}",
+                snapshot.checksum, calculated_checksum
+            )));
         }
 
         tracing::info!(
@@ -288,6 +297,7 @@ impl SafetyController {
                 );
             }
             Err(e) => {
+                let _ = rollback_success; // Used for potential future rollback logic
                 rollback_success = false;
                 rollback_reason = format!("Rollback failed: {}", e);
                 tracing::error!(
@@ -324,7 +334,9 @@ impl SafetyController {
     }
 
     /// Create a validation gate for critical operation
-    pub async fn create_validation_gate(&self, operation: &str, required_confirmations: usize) -> Result<String> {
+    pub async fn create_validation_gate(
+        &self, operation: &str, required_confirmations: usize,
+    ) -> Result<String> {
         let gate = ValidationGate {
             id: Uuid::new_v4().to_string(),
             operation: operation.to_string(),
@@ -342,7 +354,9 @@ impl SafetyController {
     }
 
     /// Add confirmation to validation gate
-    pub async fn confirm_gate(&self, gate_id: &str, confirmed_by: &str, notes: Option<String>) -> Result<()> {
+    pub async fn confirm_gate(
+        &self, gate_id: &str, confirmed_by: &str, notes: Option<String>,
+    ) -> Result<()> {
         let mut gates = self.validation_gates.write().await;
 
         let gate = gates
@@ -350,9 +364,10 @@ impl SafetyController {
             .ok_or_else(|| GovernanceError::ValidationGateNotFound(gate_id.to_string()))?;
 
         if gate.status != GateStatus::Pending {
-            return Err(GovernanceError::SafetyError(
-                format!("Validation gate is not pending: {:?}", gate.status)
-            ));
+            return Err(GovernanceError::SafetyError(format!(
+                "Validation gate is not pending: {:?}",
+                gate.status
+            )));
         }
 
         gate.confirmations.push(Confirmation {
@@ -412,10 +427,9 @@ impl SafetyController {
         tracing::debug!("Restoring system state from snapshot");
 
         // Parse snapshot structure
-        let state_map = snapshot_data.as_object()
-            .ok_or_else(|| GovernanceError::SafetyError(
-                "Invalid snapshot format: expected object".to_string()
-            ))?;
+        let state_map = snapshot_data.as_object().ok_or_else(|| {
+            GovernanceError::SafetyError("Invalid snapshot format: expected object".to_string())
+        })?;
 
         // Restore different components based on snapshot content
         for (component, data) in state_map {
@@ -465,7 +479,8 @@ mod tests {
     async fn test_emergency_stop() {
         let controller = SafetyController::new(SafetyConfig::default());
 
-        controller.trigger_emergency_stop("test emergency")
+        controller
+            .trigger_emergency_stop("test emergency")
             .await
             .expect("Failed to trigger emergency stop");
 
@@ -483,11 +498,13 @@ mod tests {
         let controller = SafetyController::new(SafetyConfig::default());
 
         let data = serde_json::json!({"test": "data"});
-        let snapshot_id = controller.create_snapshot("test", data)
+        let snapshot_id = controller
+            .create_snapshot("test", data)
             .await
             .expect("Failed to create snapshot");
 
-        let snapshots = controller.list_snapshots()
+        let snapshots = controller
+            .list_snapshots()
             .await
             .expect("Failed to list snapshots");
         assert_eq!(snapshots.len(), 1);
@@ -498,25 +515,30 @@ mod tests {
     async fn test_validation_gate() {
         let controller = SafetyController::new(SafetyConfig::default());
 
-        let gate_id = controller.create_validation_gate("test_op", 2)
+        let gate_id = controller
+            .create_validation_gate("test_op", 2)
             .await
             .expect("Failed to create validation gate");
 
-        controller.confirm_gate(&gate_id, "user1", None)
+        controller
+            .confirm_gate(&gate_id, "user1", None)
             .await
             .expect("Failed to confirm gate for user1");
         assert!(
-            !controller.check_validation_gate(&gate_id)
+            !controller
+                .check_validation_gate(&gate_id)
                 .await
                 .expect("Failed to check validation gate"),
             "Expected gate to not be approved after 1 confirmation"
         );
 
-        controller.confirm_gate(&gate_id, "user2", None)
+        controller
+            .confirm_gate(&gate_id, "user2", None)
             .await
             .expect("Failed to confirm gate for user2");
         assert!(
-            controller.check_validation_gate(&gate_id)
+            controller
+                .check_validation_gate(&gate_id)
                 .await
                 .expect("Failed to check validation gate"),
             "Expected gate to be approved after 2 confirmations"

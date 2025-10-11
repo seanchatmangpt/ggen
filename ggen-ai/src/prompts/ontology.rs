@@ -1,7 +1,7 @@
 //! Ontology generation prompts
 
-use serde::{Deserialize, Serialize};
 use crate::error::Result;
+use serde::{Deserialize, Serialize};
 
 /// Builder for ontology generation prompts
 #[derive(Debug, Clone)]
@@ -62,10 +62,10 @@ impl OntologyPromptBuilder {
     /// Build the prompt
     pub fn build(self) -> Result<String> {
         let mut prompt = String::new();
-        
+
         prompt.push_str("Generate an RDF/OWL ontology for the following domain:\n\n");
         prompt.push_str(&format!("Domain: {}\n\n", self.domain));
-        
+
         if !self.requirements.is_empty() {
             prompt.push_str("Requirements:\n");
             for req in &self.requirements {
@@ -73,7 +73,7 @@ impl OntologyPromptBuilder {
             }
             prompt.push('\n');
         }
-        
+
         if !self.examples.is_empty() {
             prompt.push_str("Examples:\n");
             for example in &self.examples {
@@ -81,13 +81,13 @@ impl OntologyPromptBuilder {
             }
             prompt.push('\n');
         }
-        
+
         if let Some(format) = self.format {
             prompt.push_str(&format!("Output format: {}\n\n", format));
         }
-        
+
         prompt.push_str("Please generate a complete RDF/OWL ontology in Turtle format with appropriate classes, properties, and relationships.");
-        
+
         Ok(prompt)
     }
 }

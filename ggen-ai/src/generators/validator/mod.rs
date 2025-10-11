@@ -17,7 +17,9 @@ impl TemplateValidator {
         Self
     }
 
-    pub async fn validate_template(&self, _template: &ggen_core::Template) -> crate::error::Result<ValidationResult> {
+    pub async fn validate_template(
+        &self, _template: &ggen_core::Template,
+    ) -> crate::error::Result<ValidationResult> {
         Ok(ValidationResult {
             valid: true,
             issues: Vec::new(),

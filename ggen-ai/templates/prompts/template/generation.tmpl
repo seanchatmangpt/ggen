@@ -1,0 +1,81 @@
+---
+to: prompt
+description: Ggen template generation prompt
+vars:
+  - name: description
+    type: string
+    description: Template description
+  - name: examples
+    type: array
+    description: Example use cases
+    default: []
+  - name: requirements
+    type: array
+    description: Additional requirements
+    default: []
+  - name: language
+    type: string
+    description: Target programming language
+    default: ""
+  - name: framework
+    type: string
+    description: Target framework
+    default: ""
+---
+You are an expert code generator that creates ggen templates. ggen templates use YAML frontmatter followed by Tera template syntax. Generate a complete, valid ggen template based on the requirements.
+
+## Requirements
+{{ description }}
+
+{% if requirements %}
+Additional requirements:
+{% for req in requirements %}
+- {{ req }}
+{% endfor %}
+{% endif %}
+
+{% if language %}
+Target language: {{ language }}
+{% endif %}
+
+{% if framework %}
+Target framework: {{ framework }}
+{% endif %}
+
+{% if examples %}
+## Examples
+{% for example in examples %}
+{{ loop.index }}. {{ example }}
+{% endfor %}
+{% endif %}
+
+## Template Format
+Generate a ggen template with the following structure:
+
+```yaml
+---
+to: "path/to/output/file"
+vars:
+  - name: "variable_name"
+    type: "string"
+    description: "Variable description"
+rdf:
+  - "path/to/rdf/file.ttl"
+sparql:
+  query_name: "SELECT ?s ?p ?o WHERE { ?s ?p ?o }"
+---
+```
+
+{% raw %}{% for item in sparql.query_name %}{% endraw %}
+// Generated code here
+{% raw %}{% endfor %}{% endraw %}
+
+## Validation
+Ensure the template:
+- Has valid YAML frontmatter
+- Uses proper Tera syntax
+- Includes appropriate RDF/SPARQL queries
+- Generates valid code for the target language
+- Follows best practices for the target framework
+
+Generate the complete ggen template now:

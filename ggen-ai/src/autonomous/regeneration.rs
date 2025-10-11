@@ -1,16 +1,16 @@
 //! Core regeneration engine with delta-driven template regeneration
 
+use crate::autonomous::events::{ChangeEvent, ChangeType, EventSubscriber, GraphChangeNotifier};
 use crate::client::LlmClient;
 use crate::error::Result;
 use crate::generators::TemplateGenerator;
-use crate::autonomous::events::{ChangeEvent, ChangeType, EventSubscriber, GraphChangeNotifier};
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use tracing::{debug, info, error};
+use tracing::{debug, error, info};
 
 /// Configuration for the regeneration engine
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -158,9 +158,7 @@ struct RegenerationStats {
 impl RegenerationEngine {
     /// Create a new regeneration engine
     pub fn new(
-        config: RegenerationConfig,
-        client: Arc<dyn LlmClient>,
-        notifier: Arc<GraphChangeNotifier>,
+        config: RegenerationConfig, client: Arc<dyn LlmClient>, notifier: Arc<GraphChangeNotifier>,
     ) -> Self {
         // For now, we'll create a placeholder - in a real implementation,
         // we'd need to handle the client type conversion properly
@@ -181,7 +179,9 @@ impl RegenerationEngine {
         info!("Starting regeneration engine");
 
         // Register as event subscriber
-        self.notifier.register_subscriber(self.clone() as Arc<dyn EventSubscriber>).await;
+        self.notifier
+            .register_subscriber(self.clone() as Arc<dyn EventSubscriber>)
+            .await;
 
         info!("Regeneration engine started and listening for events");
         Ok(())
@@ -274,7 +274,7 @@ impl RegenerationEngine {
                         .await
                         .keys()
                         .cloned()
-                        .collect::<Vec<_>>()
+                        .collect::<Vec<_>>(),
                 );
             }
             ChangeType::TemplateChanged => {
@@ -334,9 +334,7 @@ impl RegenerationEngine {
         let results = stream::iter(template_ids)
             .map(move |template_id| {
                 let self_ref = self_clone.clone();
-                async move {
-                    self_ref.regenerate_template(&template_id).await
-                }
+                async move { self_ref.regenerate_template(&template_id).await }
             })
             .buffer_unordered(workers)
             .collect::<Vec<_>>()
@@ -419,7 +417,10 @@ impl RegenerationEngine {
         let target_language = format!("Target language: {}", language);
         let examples = vec![target_language.as_str()];
 
-        let _template = self.generator.generate_template(&description, examples).await?;
+        let _template = self
+            .generator
+            .generate_template(&description, examples)
+            .await?;
 
         // TODO: Write generated code to output directory
         // For now, just log success
@@ -451,7 +452,10 @@ impl RegenerationEngine {
             "Registering artifact"
         );
 
-        self.artifacts.write().await.insert(artifact.id.clone(), artifact);
+        self.artifacts
+            .write()
+            .await
+            .insert(artifact.id.clone(), artifact);
     }
 
     /// Add a template dependency
@@ -462,7 +466,10 @@ impl RegenerationEngine {
             "Adding dependency"
         );
 
-        self.dependencies.write().await.add_dependency(template_id, depends_on);
+        self.dependencies
+            .write()
+            .await
+            .add_dependency(template_id, depends_on);
     }
 
     /// Get regeneration statistics
@@ -503,8 +510,8 @@ impl EventSubscriber for RegenerationEngine {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::providers::MockClient;
     use crate::autonomous::events::ChangeEvent;
+    use crate::providers::MockClient;
 
     #[tokio::test]
     async fn test_dependency_graph() {

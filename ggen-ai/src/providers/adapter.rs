@@ -1,9 +1,9 @@
 //! LLM provider adapter implementations
 
-use crate::client::{LlmClient, LlmConfig, LlmResponse, LlmChunk, UsageStats, GenAiClient};
+use crate::client::{GenAiClient, LlmChunk, LlmClient, LlmConfig, LlmResponse, UsageStats};
 use crate::error::Result;
-use std::collections::HashMap;
 use async_trait::async_trait;
+use std::collections::HashMap;
 
 /// Mock client for testing
 #[derive(Debug, Clone)]
@@ -39,7 +39,9 @@ impl MockClient {
 #[async_trait]
 impl LlmClient for MockClient {
     async fn complete(&self, _prompt: &str) -> Result<LlmResponse> {
-        let response = self.responses.get(self.current_index)
+        let response = self
+            .responses
+            .get(self.current_index)
             .unwrap_or(&self.responses[0])
             .clone();
 
@@ -57,8 +59,12 @@ impl LlmClient for MockClient {
         })
     }
 
-    async fn complete_stream(&self, _prompt: &str) -> Result<futures::stream::BoxStream<'static, LlmChunk>> {
-        let response = self.responses.get(self.current_index)
+    async fn complete_stream(
+        &self, _prompt: &str,
+    ) -> Result<futures::stream::BoxStream<'static, LlmChunk>> {
+        let response = self
+            .responses
+            .get(self.current_index)
             .unwrap_or(&self.responses[0])
             .clone();
 
@@ -111,7 +117,7 @@ impl OllamaClient {
             extra: HashMap::new(),
         }
     }
-    
+
     /// Create Ollama client with qwen3-coder:30b configuration
     pub fn qwen3_coder_config() -> LlmConfig {
         LlmConfig {
@@ -131,7 +137,9 @@ impl LlmClient for OllamaClient {
         self.client.complete(prompt).await
     }
 
-    async fn complete_stream(&self, prompt: &str) -> Result<futures::stream::BoxStream<'static, LlmChunk>> {
+    async fn complete_stream(
+        &self, prompt: &str,
+    ) -> Result<futures::stream::BoxStream<'static, LlmChunk>> {
         self.client.complete_stream(prompt).await
     }
 
@@ -164,7 +172,9 @@ impl LlmClient for OpenAIClient {
         self.client.complete(prompt).await
     }
 
-    async fn complete_stream(&self, prompt: &str) -> Result<futures::stream::BoxStream<'static, LlmChunk>> {
+    async fn complete_stream(
+        &self, prompt: &str,
+    ) -> Result<futures::stream::BoxStream<'static, LlmChunk>> {
         self.client.complete_stream(prompt).await
     }
 
@@ -197,7 +207,9 @@ impl LlmClient for AnthropicClient {
         self.client.complete(prompt).await
     }
 
-    async fn complete_stream(&self, prompt: &str) -> Result<futures::stream::BoxStream<'static, LlmChunk>> {
+    async fn complete_stream(
+        &self, prompt: &str,
+    ) -> Result<futures::stream::BoxStream<'static, LlmChunk>> {
         self.client.complete_stream(prompt).await
     }
 

@@ -74,8 +74,9 @@ impl DeltaDetector {
     /// Create a new delta detector
     pub fn new() -> Result<Self> {
         Ok(Self {
-            store: Store::new()
-                .map_err(|e| GgenAiError::configuration(format!("Failed to create RDF store: {}", e)))?,
+            store: Store::new().map_err(|e| {
+                GgenAiError::configuration(format!("Failed to create RDF store: {}", e))
+            })?,
             baseline: HashMap::new(),
             evolution_history: Vec::new(),
         })
@@ -207,11 +208,13 @@ impl DeltaDetector {
         // Store in history
         self.evolution_history.push(delta.clone());
 
-        info!("Delta computed: {} additions, {} deletions, {} modifications in {:?}",
-              delta.stats.additions_count,
-              delta.stats.deletions_count,
-              delta.stats.modifications_count,
-              start.elapsed());
+        info!(
+            "Delta computed: {} additions, {} deletions, {} modifications in {:?}",
+            delta.stats.additions_count,
+            delta.stats.deletions_count,
+            delta.stats.modifications_count,
+            start.elapsed()
+        );
 
         Ok(delta)
     }
@@ -316,9 +319,7 @@ mod tests {
     fn test_apply_delta() {
         let mut detector = DeltaDetector::new().unwrap();
 
-        let baseline = vec![
-            "ex:Person1 rdf:type ex:Person .".to_string(),
-        ];
+        let baseline = vec!["ex:Person1 rdf:type ex:Person .".to_string()];
 
         detector.set_baseline(&baseline).unwrap();
 

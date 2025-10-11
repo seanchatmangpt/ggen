@@ -1,6 +1,6 @@
 [package]
 name = "ggen-mcp"
-version = "0.2.5"
+version = "1.0.0"
 edition = "2021"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "MCP server for ggen CLI - exposes template generation, graph operations, and project management"
@@ -38,9 +38,9 @@ parking_lot = "0.12"
 dashmap = "6.0"
 
 # Local dependencies with versions
-ggen-core = { path = "../ggen-core", version = "0.2.5" }
-ggen-ai = { path = "../ggen-ai", version = "0.2.5" }
-ggen-utils = { path = "../utils", version = "0.2.5" }
+ggen-core = { path = "../ggen-core", version = "1.0.0" }
+ggen-ai = { path = "../ggen-ai", version = "1.0.0" }
+ggen-utils = { path = "../utils", version = "1.0.0" }
 
 [[bin]]
 name = "ggen-mcp"

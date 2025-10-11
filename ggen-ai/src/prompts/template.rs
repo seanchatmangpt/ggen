@@ -24,51 +24,51 @@ impl TemplatePromptBuilder {
             output_format: None,
         }
     }
-    
+
     /// Add examples to the prompt
     pub fn with_examples(mut self, examples: Vec<String>) -> Self {
         self.examples = examples;
         self
     }
-    
+
     /// Add requirements to the prompt
     pub fn with_requirements(mut self, requirements: Vec<String>) -> Self {
         self.requirements = requirements;
         self
     }
-    
+
     /// Set the target language
     pub fn with_language(mut self, language: String) -> Self {
         self.language = Some(language);
         self
     }
-    
+
     /// Set the target framework
     pub fn with_framework(mut self, framework: String) -> Self {
         self.framework = Some(framework);
         self
     }
-    
+
     /// Set the output format
     pub fn with_output_format(mut self, format: String) -> Self {
         self.output_format = Some(format);
         self
     }
-    
+
     /// Build the final prompt
     pub fn build(self) -> Result<String> {
         let mut prompt = String::new();
-        
+
         // System prompt
         prompt.push_str("You are an expert code generator that creates ggen templates. ");
         prompt.push_str("ggen templates use YAML frontmatter followed by Tera template syntax. ");
         prompt.push_str("Generate a complete, valid ggen template based on the requirements.\n\n");
-        
+
         // Requirements section
         prompt.push_str("## Requirements\n");
         prompt.push_str(&self.description);
         prompt.push_str("\n\n");
-        
+
         if !self.requirements.is_empty() {
             prompt.push_str("Additional requirements:\n");
             for req in &self.requirements {
@@ -76,22 +76,22 @@ impl TemplatePromptBuilder {
             }
             prompt.push_str("\n");
         }
-        
+
         // Context section
         if let Some(language) = &self.language {
             prompt.push_str(&format!("Target language: {}\n", language));
         }
-        
+
         if let Some(framework) = &self.framework {
             prompt.push_str(&format!("Target framework: {}\n", framework));
         }
-        
+
         if let Some(format) = &self.output_format {
             prompt.push_str(&format!("Output format: {}\n", format));
         }
-        
+
         prompt.push_str("\n");
-        
+
         // Examples section
         if !self.examples.is_empty() {
             prompt.push_str("## Examples\n");
@@ -100,7 +100,7 @@ impl TemplatePromptBuilder {
             }
             prompt.push_str("\n");
         }
-        
+
         // Template format instructions
         prompt.push_str("## Template Format\n");
         prompt.push_str("Generate a ggen template with the following structure:\n\n");
@@ -120,7 +120,7 @@ impl TemplatePromptBuilder {
         prompt.push_str("{{% for item in sparql.query_name %}}\n");
         prompt.push_str("// Generated code here\n");
         prompt.push_str("{{% endfor %}}\n\n");
-        
+
         // Validation instructions
         prompt.push_str("## Validation\n");
         prompt.push_str("Ensure the template:\n");
@@ -129,10 +129,10 @@ impl TemplatePromptBuilder {
         prompt.push_str("- Includes appropriate RDF/SPARQL queries\n");
         prompt.push_str("- Generates valid code for the target language\n");
         prompt.push_str("- Follows best practices for the target framework\n\n");
-        
+
         // Output instructions
         prompt.push_str("Generate the complete ggen template now:\n\n");
-        
+
         Ok(prompt)
     }
 }
@@ -142,7 +142,9 @@ pub struct TemplatePrompts;
 
 impl TemplatePrompts {
     /// Generate a REST API controller template
-    pub fn rest_api_controller(description: &str, language: &str, framework: &str) -> Result<String> {
+    pub fn rest_api_controller(
+        description: &str, language: &str, framework: &str,
+    ) -> Result<String> {
         TemplatePromptBuilder::new(description.to_string())
             .with_language(language.to_string())
             .with_framework(framework.to_string())
@@ -160,7 +162,7 @@ impl TemplatePrompts {
             ])
             .build()
     }
-    
+
     /// Generate a data model template
     pub fn data_model(description: &str, language: &str) -> Result<String> {
         TemplatePromptBuilder::new(description.to_string())
@@ -177,7 +179,7 @@ impl TemplatePrompts {
             ])
             .build()
     }
-    
+
     /// Generate a configuration file template
     pub fn config_file(description: &str, format: &str) -> Result<String> {
         TemplatePromptBuilder::new(description.to_string())
@@ -195,7 +197,7 @@ impl TemplatePrompts {
             ])
             .build()
     }
-    
+
     /// Generate a test file template
     pub fn test_file(description: &str, language: &str, framework: &str) -> Result<String> {
         TemplatePromptBuilder::new(description.to_string())
@@ -219,7 +221,7 @@ impl TemplatePrompts {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[test]
     fn test_template_prompt_builder() {
         let prompt = TemplatePromptBuilder::new("Generate a user management system".to_string())
@@ -236,21 +238,19 @@ mod tests {
         assert!(prompt.contains("authentication"));
         assert!(prompt.contains("User registration"));
     }
-    
+
     #[test]
     fn test_rest_api_controller_prompt() {
-        let prompt = TemplatePrompts::rest_api_controller(
-            "User management API",
-            "TypeScript",
-            "Express"
-        ).expect("Failed to create REST API controller prompt");
+        let prompt =
+            TemplatePrompts::rest_api_controller("User management API", "TypeScript", "Express")
+                .expect("Failed to create REST API controller prompt");
 
         assert!(prompt.contains("User management API"));
         assert!(prompt.contains("TypeScript"));
         assert!(prompt.contains("Express"));
         assert!(prompt.contains("CRUD operations"));
     }
-    
+
     #[test]
     fn test_data_model_prompt() {
         let prompt = TemplatePrompts::data_model("User entity", "Rust")
@@ -261,4 +261,3 @@ mod tests {
         assert!(prompt.contains("type definitions"));
     }
 }
-

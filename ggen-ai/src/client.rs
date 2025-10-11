@@ -1,11 +1,14 @@
 //! Simplified client interface using rust-genai
 
-use genai::{Client, chat::{ChatRequest, ChatMessage, ChatOptions}};
-use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use async_trait::async_trait;
 use futures::stream::BoxStream;
 use futures::StreamExt;
-use async_trait::async_trait;
+use genai::{
+    chat::{ChatMessage, ChatOptions, ChatRequest},
+    Client,
+};
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 use crate::error::{GgenAiError, Result};
 
@@ -56,25 +59,31 @@ impl LlmConfig {
         if self.model.is_empty() {
             return Err(GgenAiError::configuration("Model name cannot be empty"));
         }
-        
+
         if let Some(max_tokens) = self.max_tokens {
             if max_tokens == 0 || max_tokens >= 200000 {
-                return Err(GgenAiError::configuration("Max tokens must be between 1 and 199999"));
+                return Err(GgenAiError::configuration(
+                    "Max tokens must be between 1 and 199999",
+                ));
             }
         }
-        
+
         if let Some(temperature) = self.temperature {
             if temperature < 0.0 || temperature > 2.0 {
-                return Err(GgenAiError::configuration("Temperature must be between 0.0 and 2.0"));
+                return Err(GgenAiError::configuration(
+                    "Temperature must be between 0.0 and 2.0",
+                ));
             }
         }
-        
+
         if let Some(top_p) = self.top_p {
             if top_p < 0.0 || top_p > 1.0 {
-                return Err(GgenAiError::configuration("Top-p must be between 0.0 and 1.0"));
+                return Err(GgenAiError::configuration(
+                    "Top-p must be between 0.0 and 1.0",
+                ));
             }
         }
-        
+
         Ok(())
     }
 }
@@ -125,13 +134,13 @@ pub struct LlmChunk {
 pub trait LlmClient: Send + Sync + std::fmt::Debug {
     /// Complete a prompt synchronously
     async fn complete(&self, prompt: &str) -> Result<LlmResponse>;
-    
+
     /// Stream completion of a prompt
     async fn complete_stream(&self, prompt: &str) -> Result<BoxStream<'static, LlmChunk>>;
-    
+
     /// Get the current configuration
     fn get_config(&self) -> &LlmConfig;
-    
+
     /// Update the configuration
     fn update_config(&mut self, config: LlmConfig);
 }
@@ -153,7 +162,6 @@ impl GenAiClient {
         })
     }
 
-
     /// Create chat options from config
     fn create_chat_options(&self) -> ChatOptions {
         ChatOptions::default()
@@ -166,19 +174,18 @@ impl GenAiClient {
 #[async_trait]
 impl LlmClient for GenAiClient {
     async fn complete(&self, prompt: &str) -> Result<LlmResponse> {
-        let chat_req = ChatRequest::new(vec![
-            ChatMessage::user(prompt),
-        ]);
+        let chat_req = ChatRequest::new(vec![ChatMessage::user(prompt)]);
 
         let chat_options = self.create_chat_options();
-        
-        let response = self.client
+
+        let response = self
+            .client
             .exec_chat(&self.config.model, chat_req, Some(&chat_options))
             .await
             .map_err(|e| GgenAiError::llm_provider("GenAI", &format!("Request failed: {}", e)))?;
 
         Ok(LlmResponse {
-            content: response.content_text_as_str().unwrap_or_default().to_string(),
+            content: response.first_text().unwrap_or_default().to_string(),
             usage: Some(UsageStats {
                 prompt_tokens: response.usage.prompt_tokens.unwrap_or(0) as u32,
                 completion_tokens: response.usage.completion_tokens.unwrap_or(0) as u32,
@@ -191,54 +198,25 @@ impl LlmClient for GenAiClient {
     }
 
     async fn complete_stream(&self, prompt: &str) -> Result<BoxStream<'static, LlmChunk>> {
-        let chat_req = ChatRequest::new(vec![
-            ChatMessage::user(prompt),
-        ]);
+        let chat_req = ChatRequest::new(vec![ChatMessage::user(prompt)]);
 
         let chat_options = self.create_chat_options();
-        
-        let stream = self.client
+
+        let stream = self
+            .client
             .exec_chat_stream(&self.config.model, chat_req, Some(&chat_options))
             .await
-            .map_err(|e| GgenAiError::llm_provider("GenAI", &format!("Stream request failed: {}", e)))?;
+            .map_err(|e| {
+                GgenAiError::llm_provider("GenAI", &format!("Stream request failed: {}", e))
+            })?;
 
         let model = self.config.model.clone();
         let stream = stream.stream.map(move |chunk_result| {
             match chunk_result {
                 Ok(event) => {
                     match event {
-                        genai::chat::ChatStreamEvent::Chunk(chunk) => {
-                            LlmChunk {
-                                content: chunk.content,
-                                model: model.clone(),
-                                finish_reason: None,
-                                usage: None,
-                                extra: HashMap::new(),
-                            }
-                        }
-                        genai::chat::ChatStreamEvent::ReasoningChunk(chunk) => {
-                            LlmChunk {
-                                content: chunk.content,
-                                model: model.clone(),
-                                finish_reason: None,
-                                usage: None,
-                                extra: HashMap::new(),
-                            }
-                        }
-                        genai::chat::ChatStreamEvent::End(end) => {
-                            LlmChunk {
-                                content: String::new(),
-                                model: model.clone(),
-                                finish_reason: Some("stop".to_string()),
-                                usage: end.captured_usage.map(|u| UsageStats {
-                                    prompt_tokens: u.prompt_tokens.unwrap_or(0) as u32,
-                                    completion_tokens: u.completion_tokens.unwrap_or(0) as u32,
-                                    total_tokens: u.total_tokens.unwrap_or(0) as u32,
-                                }),
-                                extra: HashMap::new(),
-                            }
-                        }
-                        genai::chat::ChatStreamEvent::Start => {
+                        genai::chat::ChatStreamEvent::ToolCallChunk(_) => {
+                            // Tool calls not yet supported in streaming
                             LlmChunk {
                                 content: String::new(),
                                 model: model.clone(),
@@ -247,17 +225,47 @@ impl LlmClient for GenAiClient {
                                 extra: HashMap::new(),
                             }
                         }
+                        genai::chat::ChatStreamEvent::Chunk(chunk) => LlmChunk {
+                            content: chunk.content,
+                            model: model.clone(),
+                            finish_reason: None,
+                            usage: None,
+                            extra: HashMap::new(),
+                        },
+                        genai::chat::ChatStreamEvent::ReasoningChunk(chunk) => LlmChunk {
+                            content: chunk.content,
+                            model: model.clone(),
+                            finish_reason: None,
+                            usage: None,
+                            extra: HashMap::new(),
+                        },
+                        genai::chat::ChatStreamEvent::End(end) => LlmChunk {
+                            content: String::new(),
+                            model: model.clone(),
+                            finish_reason: Some("stop".to_string()),
+                            usage: end.captured_usage.map(|u| UsageStats {
+                                prompt_tokens: u.prompt_tokens.unwrap_or(0) as u32,
+                                completion_tokens: u.completion_tokens.unwrap_or(0) as u32,
+                                total_tokens: u.total_tokens.unwrap_or(0) as u32,
+                            }),
+                            extra: HashMap::new(),
+                        },
+                        genai::chat::ChatStreamEvent::Start => LlmChunk {
+                            content: String::new(),
+                            model: model.clone(),
+                            finish_reason: None,
+                            usage: None,
+                            extra: HashMap::new(),
+                        },
                     }
                 }
-                Err(e) => {
-                    LlmChunk {
-                        content: format!("Error: {}", e),
-                        model: model.clone(),
-                        finish_reason: Some("error".to_string()),
-                        usage: None,
-                        extra: HashMap::new(),
-                    }
-                }
+                Err(e) => LlmChunk {
+                    content: format!("Error: {}", e),
+                    model: model.clone(),
+                    finish_reason: Some("error".to_string()),
+                    usage: None,
+                    extra: HashMap::new(),
+                },
             }
         });
 
@@ -276,7 +284,7 @@ impl LlmClient for GenAiClient {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[test]
     fn test_llm_config_validation() {
         // Valid config

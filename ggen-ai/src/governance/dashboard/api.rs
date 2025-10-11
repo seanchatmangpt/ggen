@@ -112,8 +112,8 @@ impl DashboardApi {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use super::super::metrics::DashboardConfig;
+    use super::*;
 
     #[tokio::test]
     async fn test_json_export() {

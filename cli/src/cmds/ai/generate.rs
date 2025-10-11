@@ -80,7 +80,8 @@ pub async fn run(args: &GenerateArgs) -> Result<()> {
             )
         } else {
             // Use contextual client with auto-detection
-            global_config.create_contextual_client()
+            global_config
+                .create_contextual_client()
                 .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?
         }
     };
@@ -120,9 +121,7 @@ pub async fn run(args: &GenerateArgs) -> Result<()> {
             let result = validator
                 .validate_template(&current_template)
                 .await
-                .map_err(|e| {
-                    ggen_utils::error::Error::new(&format!("Validation failed: {}", e))
-                })?;
+                .map_err(|e| ggen_utils::error::Error::new(&format!("Validation failed: {}", e)))?;
 
             println!("  ℹ️  Issues found: {}", result.issues.len());
 
@@ -153,13 +152,13 @@ pub async fn run(args: &GenerateArgs) -> Result<()> {
                     )
                     .await
                     .map_err(|e| {
-                        ggen_utils::error::Error::new(&format!(
-                            "Failed to improve template: {}",
-                            e
-                        ))
+                        ggen_utils::error::Error::new(&format!("Failed to improve template: {}", e))
                     })?;
             } else {
-                println!("⚠️  Max iterations reached with {} remaining issues", result.issues.len());
+                println!(
+                    "⚠️  Max iterations reached with {} remaining issues",
+                    result.issues.len()
+                );
             }
         }
 

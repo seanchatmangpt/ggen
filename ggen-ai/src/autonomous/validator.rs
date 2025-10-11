@@ -3,7 +3,6 @@
 //! Automatically generates SPARQL validation queries and checks
 //! constraints before committing changes to the graph.
 
-use std::sync::Arc;
 use crate::client::LlmClient;
 use crate::error::{GgenAiError, Result};
 use async_trait::async_trait;
@@ -11,6 +10,7 @@ use oxigraph::sparql::QueryResults;
 use oxigraph::store::Store;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::sync::Arc;
 use tracing::{debug, info, warn};
 
 /// Validation result
@@ -61,7 +61,9 @@ pub trait Validator: Send + Sync {
     async fn validate(&self, triples: &[String]) -> Result<ValidationResult>;
 
     /// Validate with custom SPARQL queries
-    async fn validate_with_queries(&self, triples: &[String], queries: Vec<String>) -> Result<ValidationResult>;
+    async fn validate_with_queries(
+        &self, triples: &[String], queries: Vec<String>,
+    ) -> Result<ValidationResult>;
 
     /// Generate validation queries from ontology
     async fn generate_validation_queries(&self, ontology: &str) -> Result<Vec<String>>;
@@ -88,8 +90,9 @@ impl std::fmt::Debug for SelfValidator {
 impl SelfValidator {
     /// Create a new self-validator
     pub fn new(client: Arc<dyn LlmClient>) -> Result<Self> {
-        let store = Store::new()
-            .map_err(|e| GgenAiError::configuration(format!("Failed to create RDF store: {}", e)))?;
+        let store = Store::new().map_err(|e| {
+            GgenAiError::configuration(format!("Failed to create RDF store: {}", e))
+        })?;
 
         Ok(Self {
             client,
@@ -102,24 +105,26 @@ impl SelfValidator {
     fn load_triples(&self, triples: &[String]) -> Result<()> {
         let turtle_doc = triples.join("\n");
 
-        self.store.load_from_reader(
-            oxigraph::io::RdfFormat::Turtle,
-            turtle_doc.as_bytes(),
-        ).map_err(|e| GgenAiError::validation(format!("Failed to load triples: {}", e)))?;
+        self.store
+            .load_from_reader(oxigraph::io::RdfFormat::Turtle, turtle_doc.as_bytes())
+            .map_err(|e| GgenAiError::validation(format!("Failed to load triples: {}", e)))?;
 
         Ok(())
     }
 
     /// Execute SPARQL query
     fn execute_query(&self, query: &str) -> Result<QueryResults> {
-        self.store.query(query)
+        self.store
+            .query(query)
             .map_err(|e| GgenAiError::validation(format!("SPARQL query failed: {}", e)))
     }
 
     /// Build validation prompt
     fn build_validation_prompt(&self, ontology: &str) -> String {
         let mut prompt = String::from("You are an expert in RDF/OWL validation and SPARQL.\n\n");
-        prompt.push_str("Given the following ontology, generate SPARQL validation queries to check:\n");
+        prompt.push_str(
+            "Given the following ontology, generate SPARQL validation queries to check:\n",
+        );
         prompt.push_str("1. Class and property consistency\n");
         prompt.push_str("2. Domain and range constraints\n");
         prompt.push_str("3. Cardinality restrictions\n");
@@ -185,7 +190,9 @@ impl SelfValidator {
 
                     violations.push(ConstraintViolation {
                         constraint_type: "Constraint".to_string(),
-                        description: "Validation query returned results indicating constraint violation".to_string(),
+                        description:
+                            "Validation query returned results indicating constraint violation"
+                                .to_string(),
                         severity: ViolationSeverity::Warning,
                         affected_entities: affected,
                         suggested_fix: None,
@@ -252,10 +259,12 @@ impl Validator for SelfValidator {
         let duration = start.elapsed();
         let passed = all_violations.is_empty();
 
-        info!("Validation {}, {} violations found in {:?}",
-              if passed { "passed" } else { "failed" },
-              all_violations.len(),
-              duration);
+        info!(
+            "Validation {}, {} violations found in {:?}",
+            if passed { "passed" } else { "failed" },
+            all_violations.len(),
+            duration
+        );
 
         Ok(ValidationResult {
             passed,
@@ -266,7 +275,9 @@ impl Validator for SelfValidator {
         })
     }
 
-    async fn validate_with_queries(&self, triples: &[String], queries: Vec<String>) -> Result<ValidationResult> {
+    async fn validate_with_queries(
+        &self, triples: &[String], queries: Vec<String>,
+    ) -> Result<ValidationResult> {
         let start = std::time::Instant::now();
         let timestamp = chrono::Utc::now();
 
@@ -353,7 +364,10 @@ SELECT ?p WHERE { ?s ?p ?o . FILTER NOT EXISTS { ?p a owl:ObjectProperty } }
         let validator = SelfValidator::new(Arc::new(client)).unwrap();
 
         let ontology = "@prefix ex: <http://example.org/> .\nex:Person a owl:Class .";
-        let queries = validator.generate_validation_queries(ontology).await.unwrap();
+        let queries = validator
+            .generate_validation_queries(ontology)
+            .await
+            .unwrap();
 
         assert_eq!(queries.len(), 2);
     }

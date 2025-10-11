@@ -6,6 +6,7 @@
   - [Getting Started](#getting-started)
   - [Core Concepts](#core-concepts)
   - [Reference](#reference)
+  - [🤖 AI Integration *(NEW v1.0.0)*](#-ai-integration-new-v100)
   - [Advanced Topics](#advanced-topics)
   - [Examples](#examples)
   - [Marketplace](#marketplace)
@@ -24,6 +25,7 @@
 - [Installation](guides/install.md)
 - [Quick Start](guides/quickstart.md)
 - [Templates](guides/templates.md)
+- [🚀 AI-Powered Generation](guides/ai-guide.md) *(NEW v1.0.0)*
 
 ## Core Concepts
 
@@ -36,6 +38,17 @@
 
 - [CLI Reference](reference/cli.md)
 - [Troubleshooting](reference/troubleshooting.md)
+
+## 🤖 AI Integration *(NEW v1.0.0)*
+
+- [AI Integration Overview](ai-integration/GENAI_GGEN_INTEGRATION_PLAN.md)
+- [Current Integration Status](ai-integration/GENAI_INTEGRATION_STATUS.md)
+- [AI Integration Clarification](ai-integration/AI_INTEGRATION_CLARIFICATION.md)
+- [Ollama Integration Guide](ai-integration/GENAI_OLLAMA_INTEGRATION.md)
+- [Multi-Provider Analysis](ai-integration/MULTI_PROVIDER_ANALYSIS.md)
+- [Runtime Model Configuration](ai-integration/RUNTIME_MODEL_CONFIG.md)
+- [Build Optimization](ai-integration/BUILD_OPTIMIZATION.md)
+- [Cargo Best Practices](ai-integration/CARGO_BEST_PRACTICES.md)
 
 ## Advanced Topics
 
