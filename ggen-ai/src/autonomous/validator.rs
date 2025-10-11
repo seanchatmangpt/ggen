@@ -1,7 +1,56 @@
 //! Self-Validation Engine
 //!
-//! Automatically generates SPARQL validation queries and checks
-//! constraints before committing changes to the graph.
+//! # WHAT THIS MODULE SHOULD DO (Intent-Driven Architecture)
+//!
+//! ## PURPOSE
+//! This module should act as the safety net for the autonomous system, preventing
+//! invalid RDF triples from corrupting the graph by validating them against
+//! ontological constraints before any commit operation.
+//!
+//! ## RESPONSIBILITIES
+//! 1. **Constraint Generation**: Should generate SPARQL queries from ontology definitions
+//! 2. **Pre-Commit Validation**: Should check all triples before they enter the graph
+//! 3. **Violation Detection**: Should identify specific constraint violations with context
+//! 4. **Fix Suggestions**: Should recommend corrections for common violations
+//! 5. **Pattern Learning**: Should learn from successful validations to improve over time
+//!
+//! ## CONSTRAINTS
+//! - Must validate before ANY commit (never skip validation)
+//! - Must support both prefix-included and prefix-free triple lists
+//! - Must auto-add standard RDF/OWL prefixes when missing
+//! - Must fail loudly on critical violations
+//! - Must be fast enough for interactive use (<1s for typical validations)
+//!
+//! ## DEPENDENCIES
+//! - `LlmClient`: Should generate context-aware validation queries
+//! - `oxigraph::Store`: Should execute SPARQL queries efficiently
+//! - Turtle parser: Should load triples into validation store
+//!
+//! ## INVARIANTS
+//! - All triples in store must be parseable Turtle
+//! - Validation results must be deterministic
+//! - Critical violations must block commit
+//! - Learned patterns must be persisted across sessions
+//!
+//! ## ERROR HANDLING STRATEGY
+//! - Turtle parse error → Auto-add prefixes, retry once, then fail with details
+//! - SPARQL error → Log query, suggest simpler validation, continue
+//! - Missing ontology → Use default constraints (classes, properties, domains)
+//! - LLM unavailable → Fall back to built-in validation rules
+//!
+//! ## TESTING STRATEGY
+//! - Test with/without prefixes in triples
+//! - Test each violation severity level
+//! - Test learned pattern persistence
+//! - Mock LLM for query generation tests
+//! - Test with large triple sets (performance)
+//!
+//! ## REFACTORING PRIORITIES
+//! - [P0] Implement learned pattern persistence (currently in-memory only)
+//! - [P0] Add more built-in validation rules (cardinality, datatypes)
+//! - [P1] Support custom validation rules from user
+//! - [P1] Parallelize query execution for large graphs
+//! - [P2] Add validation rule explanations for users
 
 use crate::client::LlmClient;
 use crate::error::{GgenAiError, Result};

@@ -1,9 +1,51 @@
 //! Marketplace search functionality for discovering and filtering gpacks.
 //!
-//! This module provides comprehensive search capabilities for the ggen marketplace,
-//! allowing users to find gpacks by query, category, keyword, and other criteria.
-//! It integrates with the marketplace registry to provide real-time search results
-//! with filtering and output formatting options.
+//! # WHAT THIS MODULE SHOULD DO (Intent-Driven Architecture)
+//!
+//! ## PURPOSE
+//! This module should enable developers to quickly discover reusable code patterns
+//! (gpacks) through natural language search, filtering, and categorization, reducing
+//! code duplication and accelerating development.
+//!
+//! ## RESPONSIBILITIES
+//! 1. **Discovery**: Should connect to marketplace registry API for real-time results
+//! 2. **Filtering**: Should support category, author, license, popularity filters
+//! 3. **Relevance**: Should rank results by relevance, not just recency
+//! 4. **Fuzzy Search**: Should handle typos and similar terms gracefully
+//! 5. **Suggestions**: Should recommend related searches and popular packages
+//!
+//! ## CONSTRAINTS
+//! - Must validate search input (length, characters, injection attempts)
+//! - Must limit result sets to prevent overwhelming users
+//! - Must support both human-readable and JSON output
+//! - Must provide helpful feedback when no results found
+//! - Must handle marketplace API unavailability gracefully
+//!
+//! ## DEPENDENCIES
+//! - Marketplace API: Should query central package registry
+//! - HTTP client: Should handle timeouts and retries
+//! - `MarketplaceClient` trait: Should be mockable for testing
+//!
+//! ## ERROR HANDLING STRATEGY
+//! - Empty query → Clear error message with examples
+//! - Query too long → Suggest query refinement
+//! - API unavailable → Show cached results or helpful message
+//! - Invalid filters → Explain valid options
+//! - Network timeout → Retry, then fallback to local cache
+//!
+//! ## TESTING STRATEGY
+//! - Mock MarketplaceClient for deterministic tests
+//! - Test all filter combinations
+//! - Test validation (empty, too long, limits)
+//! - Test both text and JSON output modes
+//! - Test fuzzy search and suggestions
+//!
+//! ## REFACTORING PRIORITIES
+//! - [P0] Implement actual marketplace API integration (currently placeholder)
+//! - [P0] Add result caching for offline operation
+//! - [P1] Implement actual fuzzy search algorithm
+//! - [P1] Add search analytics (popular queries, no-result queries)
+//! - [P2] Support advanced query syntax (AND/OR/NOT)
 //!
 //! # Examples
 //!

@@ -1,7 +1,52 @@
 //! Ultrathink Swarm CLI Commands
 //!
-//! Provides CLI interface for managing and orchestrating the ultrathink swarm,
-//! including WIP integration, agent management, and autonomous task execution.
+//! # WHAT THIS MODULE SHOULD DO (Intent-Driven Architecture)
+//!
+//! ## PURPOSE
+//! This module should provide a CLI interface for managing multi-agent AI swarms
+//! that can autonomously discover, coordinate, and complete work-in-progress tasks
+//! through intelligent agent collaboration and WIP integration.
+//!
+//! ## RESPONSIBILITIES
+//! 1. **Server Management**: Should start/stop the MCP swarm server
+//! 2. **Agent Registry**: Should register and manage specialized AI agents
+//! 3. **Task Distribution**: Should assign tasks to appropriate agents
+//! 4. **WIP Integration**: Should sync with WIP endpoints for task discovery
+//! 5. **Monitoring**: Should provide visibility into swarm status and metrics
+//!
+//! ## CONSTRAINTS
+//! - Must prevent duplicate short flags in clap arguments
+//! - Must validate agent capabilities before registration
+//! - Must handle WIP endpoint unavailability gracefully
+//! - Must support both interactive and daemon modes
+//! - Must preserve agent state across restarts
+//!
+//! ## DEPENDENCIES
+//! - SwarmCoordinator: Should orchestrate agent collaboration
+//! - WipIntegration: Should connect to WIP endpoints
+//! - McpSwarmServer: Should provide MCP protocol interface
+//! - Agent types: Should be extensible for new capabilities
+//!
+//! ## ERROR HANDLING STRATEGY
+//! - Agent registration collision → Reject with clear error
+//! - WIP endpoint down → Queue tasks locally, retry
+//! - Server port in use → Suggest alternative port
+//! - Invalid config → Show validation errors with examples
+//! - Agent crash → Auto-restart with backoff
+//!
+//! ## TESTING STRATEGY
+//! - Mock SwarmCoordinator for integration tests
+//! - Test agent registration with various configs
+//! - Test WIP sync with mock endpoints
+//! - Test error recovery (agent failures, network issues)
+//! - Test configuration validation
+//!
+//! ## REFACTORING PRIORITIES
+//! - [P0] Implement actual swarm coordinator (currently placeholder)
+//! - [P0] Add WIP integration implementation
+//! - [P1] Add agent health monitoring
+//! - [P1] Implement task queueing and retry logic
+//! - [P2] Add swarm telemetry and metrics
 
 use clap::{Args, Subcommand};
 use ggen_utils::error::Result;

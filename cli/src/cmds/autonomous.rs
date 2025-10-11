@@ -1,8 +1,50 @@
 //! Autonomous system commands for intelligent graph evolution and regeneration
 //!
-//! This module provides CLI commands for interacting with the autonomous
-//! RDF graph evolution system, including natural language requirement processing,
-//! automatic artifact regeneration, governance workflows, and state management.
+//! # WHAT THIS MODULE SHOULD DO (Intent-Driven Architecture)
+//!
+//! ## PURPOSE
+//! This module should serve as the CLI interface for autonomous RDF graph evolution,
+//! enabling users to evolve ontologies through natural language while maintaining
+//! safety, validation, and governance throughout the process.
+//!
+//! ## RESPONSIBILITIES
+//! 1. **Natural Language Interface**: Should translate user requirements into RDF evolution operations
+//! 2. **Safety First**: Should validate all changes before committing to prevent data corruption
+//! 3. **Governance**: Should require approval for high-risk operations
+//! 4. **State Management**: Should maintain snapshots for rollback capability
+//! 5. **User Feedback**: Should provide clear, actionable feedback at each step
+//!
+//! ## CONSTRAINTS
+//! - Must never commit unvalidated changes to the graph
+//! - Must preserve provenance (who/what/when) for all modifications
+//! - Must support rollback to any previous snapshot
+//! - Must handle LLM failures gracefully without data loss
+//! - Must provide both text and JSON output formats
+//!
+//! ## DEPENDENCIES
+//! - `GraphEvolutionEngine`: Should orchestrate the evolution process
+//! - `LlmClient`: Should be mockable for testing without API costs
+//! - `SelfValidator`: Should validate changes before commit
+//! - Filesystem: Should persist history for rollback
+//!
+//! ## ERROR HANDLING STRATEGY
+//! - Network errors → Retry with exponential backoff
+//! - Validation errors → Block commit, suggest fixes
+//! - LLM format errors → Extract content with multiple strategies
+//! - File I/O errors → Preserve state, fail loudly
+//!
+//! ## TESTING STRATEGY
+//! - Mock LLM client for deterministic testing
+//! - Test error paths extensively (validation failures, network errors)
+//! - Verify rollback functionality with snapshot states
+//! - Test both text and JSON output modes
+//!
+//! ## REFACTORING PRIORITIES (P0 = Critical, P1 = Important, P2 = Nice-to-have)
+//! - [P0] Extract duplicate error handling into shared utility
+//! - [P0] Implement proper governance workflow (currently placeholder)
+//! - [P1] Add progress indicators for long-running operations
+//! - [P1] Implement actual regeneration logic (currently mock)
+//! - [P2] Add telemetry for operation metrics
 
 use anyhow;
 use clap::{Args, Subcommand};

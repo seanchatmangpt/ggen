@@ -1,9 +1,52 @@
 //! Shell and project initialization utilities.
 //!
-//! This module provides functionality to initialize shell integration,
-//! project configurations, and development environments. It supports
-//! setting up shell configurations, creating project templates, and
-//! configuring development workflows.
+//! # WHAT THIS MODULE SHOULD DO (Intent-Driven Architecture)
+//!
+//! ## PURPOSE
+//! This module should streamline the onboarding experience by automating
+//! shell integration, project setup, and development environment configuration,
+//! reducing friction for new users and ensuring consistent setups.
+//!
+//! ## RESPONSIBILITIES
+//! 1. **Shell Integration**: Should configure shell RC files for completions/aliases
+//! 2. **Project Init**: Should scaffold new projects from templates
+//! 3. **Dev Environment**: Should configure tools (git, editor, linters)
+//! 4. **Cross-Platform**: Should support bash, zsh, fish, powershell
+//! 5. **Safe Updates**: Should backup configs before modification
+//!
+//! ## CONSTRAINTS
+//! - Must detect shell type automatically when possible
+//! - Must validate config file paths before writing
+//! - Must support force flag for re-initialization
+//! - Must provide clear help messages for all options
+//! - Must preserve user's existing shell configurations
+//!
+//! ## DEPENDENCIES
+//! - Cargo make: Should delegate to makefile tasks
+//! - Initializer traits: Should be mockable for testing
+//! - Filesystem: Should safely modify config files
+//! - Templates: Should access project scaffolding templates
+//!
+//! ## ERROR HANDLING STRATEGY
+//! - Unsupported shell → List supported shells, suggest manual config
+//! - Config file missing → Offer to create it
+//! - Permission denied → Suggest running with appropriate permissions
+//! - Template not found → List available templates
+//! - Init already done → Suggest --force flag
+//!
+//! ## TESTING STRATEGY
+//! - Mock all three initializer traits separately
+//! - Test each shell type with mock configs
+//! - Test force flag behavior
+//! - Test error paths (missing files, permissions)
+//! - Test integration between subcommands
+//!
+//! ## REFACTORING PRIORITIES
+//! - [P0] Implement actual shell config modification (currently delegates to cargo make)
+//! - [P1] Add auto-detection of shell type
+//! - [P1] Create backup before modifying configs
+//! - [P1] Add project template selection UI
+//! - [P2] Support custom template repositories
 //!
 //! # Examples
 //!
