@@ -2,7 +2,26 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
-- [Frontmatter schema (v1)](#frontmatter-schema-v1)
+- [Frontmatter Schema (v1)](#frontmatter-schema-v1)
+  - [Schema Overview](#schema-overview)
+  - [Field Reference](#field-reference)
+    - [`to` (Required)](#to-required)
+    - [`vars` (Optional)](#vars-optional)
+    - [`rdf` (Optional)](#rdf-optional)
+    - [`shape` (Optional)](#shape-optional)
+    - [`sparql` (Optional)](#sparql-optional)
+      - [`vars` Subfield](#vars-subfield)
+      - [`matrix` Subfield](#matrix-subfield)
+    - [`determinism` (Optional)](#determinism-optional)
+      - [`sort` Subfield](#sort-subfield)
+      - [`seed` Subfield](#seed-subfield)
+  - [Complete Example](#complete-example)
+  - [Validation](#validation)
+  - [Best Practices](#best-practices)
+    - [File Organization](#file-organization)
+    - [Query Design](#query-design)
+    - [Template Variables](#template-variables)
+    - [Determinism](#determinism)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
