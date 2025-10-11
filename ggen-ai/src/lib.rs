@@ -17,8 +17,7 @@
 //! ## Quick Start
 //!
 //! ```rust
-//! use ggen_ai::{LlmClient, TemplateGenerator};
-//! use ggen_ai::providers::{MockClient, GenAiClient};
+//! use ggen_ai::{LlmClient, TemplateGenerator, MockClient};
 //!
 //! #[tokio::main]
 //! async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -39,19 +38,25 @@
 
 pub mod client;
 pub mod config;
-pub mod providers;
 pub mod prompts;
 pub mod generators;
 pub mod mcp;
 pub mod error;
+pub mod providers;
+pub mod cli;
+pub mod security;
 
 #[cfg(feature = "ollama-integration")]
 pub mod test_helpers;
 
 // Re-export main types for convenience
 pub use client::{LlmClient, LlmConfig, LlmResponse, LlmChunk, UsageStats};
+pub use providers::adapter::{MockClient, OllamaClient, OpenAIClient, AnthropicClient};
+pub use config::{AiConfig, GlobalLlmConfig, LlmProvider, get_global_config, init_global_config};
+pub use cli::{CliConfigBuilder, extract_llm_config, create_client_from_args, create_client_with_config, add_llm_args};
 pub use generators::{TemplateGenerator, SparqlGenerator, OntologyGenerator, RefactorAssistant, TemplateValidator, ValidationResult, ValidationIssue, QualityMetrics};
 pub use error::{GgenAiError, Result};
+pub use security::{SecretString, MaskApiKey};
 
 /// Version information
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");

@@ -17,7 +17,7 @@ multiple_crate_versions = "allow"
 anyhow = "1.0"
 ggen-utils = { path = "../utils", version = "0.2.4" }
 ggen-core = { path = "../ggen-core", version = "0.2.4" }
-# ggen-ai = { path = "../ggen-ai", version = "0.2.4" }  # Temporarily disabled due to compilation issues
+ggen-ai = { path = "../ggen-ai", version = "0.2.4" }
 clap_complete = "4.5.50"
 sha2 = "0.10"
 tera = "1.0"

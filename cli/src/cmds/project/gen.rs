@@ -253,6 +253,10 @@ mod tests {
             dry_run: false,
             seed: None,
             force: false,
+            ai: false,
+            ai_provider: "mock".to_string(),
+            ai_model: None,
+            ai_max_iterations: 3,
         };
 
         // Act
@@ -291,6 +295,10 @@ mod tests {
             dry_run: false,
             seed: None,
             force: false,
+            ai: false,
+            ai_provider: "mock".to_string(),
+            ai_model: None,
+            ai_max_iterations: 3,
         };
 
         let result = run_with_deps(&args, &mock_resolver, &mock_generator, &mock_applier).await;
@@ -323,6 +331,10 @@ mod tests {
             dry_run: true, // Dry run enabled
             seed: None,
             force: false,
+            ai: false,
+            ai_provider: "mock".to_string(),
+            ai_model: None,
+            ai_max_iterations: 3,
         };
 
         let result = run_with_deps(&args, &mock_resolver, &mock_generator, &mock_applier).await;

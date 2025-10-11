@@ -1,6 +1,6 @@
 ///! Project tools - delegates to ggen CLI commands
 
-use serde_json::{json, Value};
+use serde_json::Value;
 use crate::cli_helper::{call_ggen_cli, call_ggen_with_vars};
 use crate::error::{Result, get_string_param, get_optional_object_param, get_bool_param, success_response};
 
@@ -60,6 +60,7 @@ pub async fn diff(params: Value) -> Result<Value> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serde_json::json;
 
     #[tokio::test]
     async fn test_gen_requires_template() {

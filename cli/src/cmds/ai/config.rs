@@ -1,7 +1,7 @@
 //! AI configuration for CLI commands
 
 use clap::Args;
-use ggen_ai::{LlmConfig, GenAiClient};
+use ggen_ai::{LlmConfig, client::GenAiClient};
 use ggen_utils::error::Result;
 use std::collections::HashMap;
 
@@ -40,7 +40,7 @@ impl AiConfigArgs {
     /// Create a GenAI client from the configuration
     pub fn create_client(&self) -> Result<GenAiClient> {
         let config = self.to_llm_config();
-        GenAiClient::new(self.model.clone(), config)
+        GenAiClient::new(config).map_err(|e| ggen_utils::error::Error::new(&e.to_string()))
     }
 
     /// Convert to LlmConfig
@@ -192,3 +192,4 @@ mod tests {
         assert!(config.validate().is_err());
     }
 }
+

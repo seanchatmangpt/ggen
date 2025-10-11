@@ -204,41 +204,122 @@ impl GgenMcpServer {
         }
     }
 
+    /// Get the number of registered tools
+    pub fn tool_count(&self) -> usize {
+        self.tools.len()
+    }
+
+    /// Check if a tool is registered
+    pub fn has_tool(&self, name: &str) -> bool {
+        self.tools.contains_key(name)
+    }
+
+    /// Get all registered tool names
+    pub fn tool_names(&self) -> Vec<String> {
+        self.tools.keys().cloned().collect()
+    }
+
     pub async fn execute_tool(&self, name: &str, params: Value) -> Result<Value> {
-        match name {
+        tracing::debug!("Routing tool '{}' to handler", name);
+
+        let result = match name {
             // Project tools
-            "project_gen" => project::gen(params).await,
-            "project_plan" => project::plan(params).await,
-            "project_apply" => project::apply(params).await,
-            "project_diff" => project::diff(params).await,
+            "project_gen" => {
+                tracing::trace!("Executing project_gen");
+                project::gen(params).await
+            }
+            "project_plan" => {
+                tracing::trace!("Executing project_plan");
+                project::plan(params).await
+            }
+            "project_apply" => {
+                tracing::trace!("Executing project_apply");
+                project::apply(params).await
+            }
+            "project_diff" => {
+                tracing::trace!("Executing project_diff");
+                project::diff(params).await
+            }
 
             // Market tools
-            "market_list" => market::list(params).await,
-            "market_search" => market::search(params).await,
-            "market_install" => market::install(params).await,
-            "market_recommend" => market::recommend(params).await,
-            "market_info" => market::info(params).await,
-            "market_offline_search" => market::offline_search(params).await,
-            "market_cache_status" => market::cache_status(params).await,
-            "market_sync" => market::sync(params).await,
+            "market_list" => {
+                tracing::trace!("Executing market_list");
+                market::list(params).await
+            }
+            "market_search" => {
+                tracing::trace!("Executing market_search");
+                market::search(params).await
+            }
+            "market_install" => {
+                tracing::trace!("Executing market_install");
+                market::install(params).await
+            }
+            "market_recommend" => {
+                tracing::trace!("Executing market_recommend");
+                market::recommend(params).await
+            }
+            "market_info" => {
+                tracing::trace!("Executing market_info");
+                market::info(params).await
+            }
+            "market_offline_search" => {
+                tracing::trace!("Executing market_offline_search");
+                market::offline_search(params).await
+            }
+            "market_cache_status" => {
+                tracing::trace!("Executing market_cache_status");
+                market::cache_status(params).await
+            }
+            "market_sync" => {
+                tracing::trace!("Executing market_sync");
+                market::sync(params).await
+            }
 
             // Graph tools
-            "graph_query" => graph::query(params).await,
-            "graph_load" => graph::load(params).await,
-            "graph_export" => graph::export(params).await,
+            "graph_query" => {
+                tracing::trace!("Executing graph_query");
+                graph::query(params).await
+            }
+            "graph_load" => {
+                tracing::trace!("Executing graph_load");
+                graph::load(params).await
+            }
+            "graph_export" => {
+                tracing::trace!("Executing graph_export");
+                graph::export(params).await
+            }
 
             // Template tools
-            "template_create" => template::create(params).await,
-            "template_validate" => template::validate(params).await,
+            "template_create" => {
+                tracing::trace!("Executing template_create");
+                template::create(params).await
+            }
+            "template_validate" => {
+                tracing::trace!("Executing template_validate");
+                template::validate(params).await
+            }
 
             // Hook tools
-            "hook_register" => hook::register(params).await,
+            "hook_register" => {
+                tracing::trace!("Executing hook_register");
+                hook::register(params).await
+            }
 
-            _ => Err(GgenMcpError::InvalidParameter(format!(
-                "Unknown tool: {}",
-                name
-            ))),
+            _ => {
+                tracing::warn!("Unknown tool requested: {}", name);
+                Err(GgenMcpError::InvalidParameter(format!(
+                    "Unknown tool: {}",
+                    name
+                )))
+            }
+        };
+
+        match &result {
+            Ok(_) => tracing::debug!("Tool '{}' handler completed successfully", name),
+            Err(e) => tracing::error!("Tool '{}' handler failed: {}", name, e),
         }
+
+        result
     }
 }
 
@@ -303,18 +384,26 @@ impl ServerHandler for GgenMcpServer {
         params: CallToolRequestParam,
         _context: RequestContext<RoleServer>,
     ) -> std::result::Result<CallToolResult, ErrorData> {
-        tracing::debug!("Executing tool: {}", params.name);
+        let tool_name = params.name.clone();
+        tracing::info!("MCP call_tool invoked: {}", tool_name);
+        tracing::debug!("Tool arguments: {:?}", params.arguments);
 
         let args = Value::Object(params.arguments.unwrap_or_default());
 
-        // Execute tool with proper error handling
-        let result = match self.execute_tool(&params.name, args).await {
+        // Execute tool with comprehensive error handling and logging
+        let result = match self.execute_tool(&tool_name, args.clone()).await {
             Ok(value) => {
-                tracing::info!("Tool '{}' executed successfully", params.name);
+                tracing::info!("Tool '{}' executed successfully", tool_name);
+                tracing::debug!("Tool '{}' result: {:?}", tool_name, value);
                 value
             }
             Err(e) => {
-                tracing::error!("Tool '{}' execution failed: {}", params.name, e);
+                tracing::error!(
+                    "Tool '{}' execution failed: {} (args: {:?})",
+                    tool_name,
+                    e,
+                    args
+                );
                 // Return structured error response following MCP protocol
                 return Err(ErrorData::invalid_params(
                     format!("Tool execution failed: {}", e),
@@ -326,12 +415,18 @@ impl ServerHandler for GgenMcpServer {
         // Format response according to MCP protocol
         let formatted_response = serde_json::to_string_pretty(&result)
             .map_err(|e| {
-                tracing::error!("Failed to serialize tool response: {}", e);
+                tracing::error!(
+                    "Failed to serialize tool '{}' response: {}",
+                    tool_name,
+                    e
+                );
                 ErrorData::internal_error(
                     format!("Response serialization failed: {}", e),
                     None
                 )
             })?;
+
+        tracing::debug!("Tool '{}' response formatted: {} bytes", tool_name, formatted_response.len());
 
         Ok(CallToolResult {
             content: vec![Content::text(formatted_response)],

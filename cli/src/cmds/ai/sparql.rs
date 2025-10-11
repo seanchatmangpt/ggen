@@ -5,9 +5,8 @@ use ggen_utils::error::Result;
 use ggen_core::Graph;
 use serde_json::json;
 use anyhow;
-use ggen_ai::SparqlGenerator;
-use ggen_ai::providers::OllamaClient;
-use ggen_ai::config::OllamaConfig;
+use ggen_ai::{SparqlGenerator, LlmConfig, client::GenAiClient, MockClient};
+use ggen_ai::client::LlmClient;
 use std::fs;
 
 #[derive(Debug, Args)]
@@ -27,6 +26,26 @@ pub struct SparqlArgs {
     /// Output file path
     #[arg(short, long)]
     pub output: Option<String>,
+
+    /// Use mock client for testing
+    #[arg(long)]
+    pub mock: bool,
+
+    /// LLM provider to use
+    #[arg(long, default_value = "mock")]
+    pub llm_provider: String,
+
+    /// Model name to use
+    #[arg(long)]
+    pub model: Option<String>,
+
+    /// Temperature for generation
+    #[arg(long)]
+    pub temperature: Option<f32>,
+
+    /// Maximum tokens to generate
+    #[arg(long)]
+    pub max_tokens: Option<u32>,
 }
 
 pub async fn run(args: &SparqlArgs) -> Result<()> {
@@ -50,11 +69,24 @@ pub async fn run(args: &SparqlArgs) -> Result<()> {
             .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to create empty graph: {}", e)))?
     };
 
-    // Create Ollama client with qwen3-coder:30b model
-    let config = OllamaConfig::new();
-    let client = OllamaClient::new(config)
-        .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?;
-    let generator = SparqlGenerator::with_ollama_qwen3_coder(Box::new(client));
+    // Create AI client
+    let client: Box<dyn LlmClient> = if args.mock || args.llm_provider == "mock" {
+        println!("Using mock client for testing");
+        Box::new(MockClient::with_response("SELECT ?s ?p ?o WHERE { ?s ?p ?o }"))
+    } else {
+        println!("Using GenAI client with provider: {}", args.llm_provider);
+        let llm_config = LlmConfig {
+            model: args.model.clone().unwrap_or_else(|| "gpt-3.5-turbo".to_string()),
+            max_tokens: args.max_tokens,
+            temperature: args.temperature,
+            top_p: Some(0.9),
+            stop: None,
+            extra: std::collections::HashMap::new(),
+        };
+        Box::new(GenAiClient::new(llm_config)
+            .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?)
+    };
+    let generator = SparqlGenerator::new(client);
 
     // Generate SPARQL query
     let sparql_query = generator.generate_query(&graph, &args.description)

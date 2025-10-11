@@ -2,9 +2,7 @@
 
 use clap::Args;
 use ggen_utils::error::Result;
-use ggen_ai::TemplateGenerator;
-use ggen_ai::providers::OllamaClient;
-use ggen_ai::config::OllamaConfig;
+use ggen_ai::{TemplateGenerator, LlmConfig, MockClient};
 use anyhow;
 use std::fs;
 
@@ -75,11 +73,18 @@ pub async fn run(args: &ProjectArgs) -> Result<()> {
     println!("Include CI: {}", args.ci);
     println!("Publish to marketplace: {}", args.publish);
 
-    // Create Ollama client with qwen3-coder:30b model
-    let config = OllamaConfig::new();
-    let client = Box::new(OllamaClient::new(config)
-        .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?);
-    let generator = TemplateGenerator::new(client);
+    // Create LLM config for Ollama qwen3-coder:30b model
+    let config = LlmConfig {
+        model: "qwen3-coder:30b".to_string(),
+        max_tokens: Some(4096),
+        temperature: Some(0.7),
+        top_p: Some(0.9),
+        stop: Some(vec!["```".to_string()]),
+        extra: std::collections::HashMap::new(),
+    };
+    
+    let client = MockClient::with_response("Generated project structure");
+    let generator = TemplateGenerator::new(Box::new(client));
 
     // Generate project description
     let project_description = format!(

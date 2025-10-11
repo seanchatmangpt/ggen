@@ -15,6 +15,7 @@ use std::{borrow::Cow, collections::HashMap, sync::Arc};
 
 use crate::error::{GgenAiError, Result};
 use crate::mcp::tools::AiMcpTools;
+use crate::client::LlmConfig;
 
 /// AI-enhanced MCP server
 #[derive(Debug)]
@@ -98,18 +99,42 @@ impl GgenAiMcpServer {
     
     /// Initialize with OpenAI client
     pub fn with_openai(mut self, api_key: String) -> Self {
-        self.ai_tools = self.ai_tools.with_openai(api_key);
+        let config = LlmConfig {
+            model: "gpt-3.5-turbo".to_string(),
+            max_tokens: Some(4096),
+            temperature: Some(0.7),
+            top_p: Some(0.9),
+            stop: None,
+            extra: std::collections::HashMap::new(),
+        };
+        self.ai_tools = self.ai_tools.with_openai(config);
         self
     }
     
     /// Initialize with Anthropic client
     pub fn with_anthropic(mut self, api_key: String) -> Self {
-        self.ai_tools = self.ai_tools.with_anthropic(api_key);
+        let config = LlmConfig {
+            model: "claude-3-sonnet-20240229".to_string(),
+            max_tokens: Some(4096),
+            temperature: Some(0.7),
+            top_p: Some(0.9),
+            stop: None,
+            extra: std::collections::HashMap::new(),
+        };
+        self.ai_tools = self.ai_tools.with_anthropic(config);
         self
     }
     
     /// Initialize with Ollama client
     pub fn with_ollama(mut self) -> Self {
+        let config = LlmConfig {
+            model: "qwen3-coder:30b".to_string(),
+            max_tokens: Some(4096),
+            temperature: Some(0.7),
+            top_p: Some(0.9),
+            stop: None,
+            extra: std::collections::HashMap::new(),
+        };
         self.ai_tools = self.ai_tools.with_ollama();
         self
     }

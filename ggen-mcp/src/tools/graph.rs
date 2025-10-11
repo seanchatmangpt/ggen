@@ -12,12 +12,12 @@ pub async fn query(params: Value) -> Result<Value> {
     tracing::info!("Delegating to ggen graph query");
 
     let mut args = vec!["graph", "query", &sparql];
-    let graph_str;
+    let mut owned_args: Vec<String> = Vec::new();
 
     if let Some(g) = graph_name {
         args.push("--graph");
-        graph_str = g;
-        args.push(&graph_str);
+        owned_args.push(g);
+        args.push(owned_args.last().unwrap());
     }
 
     let result = call_ggen_cli(&args).await?;
@@ -33,18 +33,28 @@ pub async fn load(params: Value) -> Result<Value> {
     tracing::info!("Delegating to ggen graph load: {}", file);
 
     let mut args = vec!["graph", "load", &file];
-    let graph_str;
-    let format_str;
+    let mut owned_args: Vec<String> = Vec::new();
 
-    if let Some(g) = graph {
-        args.push("--graph");
-        graph_str = g;
-        args.push(&graph_str);
+    // Collect all owned strings first
+    if let Some(ref g) = graph {
+        owned_args.push(g.clone());
     }
-    if let Some(f) = format {
+    if let Some(ref f) = format {
+        owned_args.push(f.clone());
+    }
+
+    // Now add references
+    let owned_refs: Vec<&str> = owned_args.iter().map(|s| s.as_str()).collect();
+    let mut ref_idx = 0;
+
+    if graph.is_some() {
+        args.push("--graph");
+        args.push(owned_refs[ref_idx]);
+        ref_idx += 1;
+    }
+    if format.is_some() {
         args.push("--format");
-        format_str = f;
-        args.push(&format_str);
+        args.push(owned_refs[ref_idx]);
     }
 
     let result = call_ggen_cli(&args).await?;
@@ -60,18 +70,28 @@ pub async fn export(params: Value) -> Result<Value> {
     tracing::info!("Delegating to ggen graph export to: {}", output);
 
     let mut args = vec!["graph", "export", &output];
-    let graph_str;
-    let format_str;
+    let mut owned_args: Vec<String> = Vec::new();
 
-    if let Some(g) = graph {
-        args.push("--graph");
-        graph_str = g;
-        args.push(&graph_str);
+    // Collect all owned strings first
+    if let Some(ref g) = graph {
+        owned_args.push(g.clone());
     }
-    if let Some(f) = format {
+    if let Some(ref f) = format {
+        owned_args.push(f.clone());
+    }
+
+    // Now add references
+    let owned_refs: Vec<&str> = owned_args.iter().map(|s| s.as_str()).collect();
+    let mut ref_idx = 0;
+
+    if graph.is_some() {
+        args.push("--graph");
+        args.push(owned_refs[ref_idx]);
+        ref_idx += 1;
+    }
+    if format.is_some() {
         args.push("--format");
-        format_str = f;
-        args.push(&format_str);
+        args.push(owned_refs[ref_idx]);
     }
 
     let result = call_ggen_cli(&args).await?;

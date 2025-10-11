@@ -1,5 +1,5 @@
 // New noun-verb structure
-// pub mod ai;  // Temporarily disabled due to ggen-ai compilation issues
+pub mod ai;
 pub mod audit;
 pub mod ci;
 pub mod graph;
@@ -30,8 +30,8 @@ use ggen_utils::UtilsGgenConfig as GgenConfig;
 #[derive(Subcommand, Debug)]
 pub enum Commands {
     // New noun-verb structure
-    // #[command(name = "ai", about = "AI-powered template generation and analysis")]
-    // Ai(ai::AiArgs),  // Temporarily disabled due to ggen-ai compilation issues
+        #[command(name = "ai", about = "AI-powered template generation and analysis")]
+        Ai(ai::AiArgs),
     #[command(name = "audit", about = "Security and performance auditing")]
     Audit(audit::AuditCmd),
     #[command(name = "ci", about = "CI/CD operations and GitHub integration")]
@@ -128,7 +128,7 @@ impl Commands {
     pub async fn run(&self) -> ggen_utils::error::Result<()> {
         match self {
             // New noun-verb structure
-            // Commands::Ai(args) => ai::run(args).await,  // Temporarily disabled due to ggen-ai compilation issues
+            Commands::Ai(args) => ai::run(args).await,
             Commands::Audit(cmd) => cmd.run().await,
             Commands::Ci(cmd) => cmd.run().await,
             Commands::Graph(cmd) => cmd.run().await,
@@ -160,7 +160,7 @@ impl Commands {
     ) -> ggen_utils::error::Result<()> {
         match self {
             // New noun-verb structure
-            // Commands::Ai(args) => ai::run(args).await,  // Temporarily disabled due to ggen-ai compilation issues
+            Commands::Ai(args) => ai::run(args).await,
             Commands::Audit(cmd) => cmd.run().await,
             Commands::Ci(cmd) => cmd.run().await,
             Commands::Graph(cmd) => cmd.run().await,

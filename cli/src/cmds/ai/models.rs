@@ -57,3 +57,4 @@ pub async fn run(args: &ModelsArgs) -> Result<()> {
 
     Ok(())
 }
+

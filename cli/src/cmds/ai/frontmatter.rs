@@ -28,7 +28,7 @@ pub async fn run(args: &FrontmatterArgs) -> Result<()> {
     println!("Description: {}", args.description);
 
     // Create Ollama client with qwen3-coder:30b model
-    let config = OllamaConfig::new();
+    let config = OllamaClient::qwen3_coder_config();
     let client = OllamaClient::new(config)
         .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?;
     let generator = TemplateGenerator::with_ollama_qwen3_coder(Box::new(client));
@@ -59,3 +59,4 @@ pub async fn run(args: &FrontmatterArgs) -> Result<()> {
 
     Ok(())
 }
+

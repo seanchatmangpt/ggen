@@ -52,3 +52,4 @@ pub async fn run(args: &ValidateArgs) -> Result<()> {
 
     Ok(())
 }
+
