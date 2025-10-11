@@ -52,33 +52,40 @@ pub struct GenerateArgs {
 }
 
 pub async fn run(args: &GenerateArgs) -> Result<()> {
-    println!("Generating template with AI...");
+    println!("🔧 Generating template with AI...");
 
-    // Initialize the AI client
-    let client: Box<dyn LlmClient> = if args.mock || args.llm_provider == "mock" {
-        println!("Using mock client for testing");
-        Box::new(MockClient::with_response("Generated template content"))
+    // Use global config for proper provider detection
+    let global_config = ggen_ai::get_global_config();
+
+    let client: Arc<dyn LlmClient> = if args.mock || args.llm_provider == "mock" {
+        println!("ℹ️  Using mock client for testing");
+        Arc::new(MockClient::with_response("Generated template content"))
     } else {
-        println!("Using GenAI client with provider: {}", args.llm_provider);
-        let llm_config = LlmConfig {
-            model: args
-                .model
-                .clone()
-                .unwrap_or_else(|| "gpt-3.5-turbo".to_string()),
-            max_tokens: args.max_tokens,
-            temperature: args.temperature,
-            top_p: Some(0.9),
-            stop: None,
-            extra: std::collections::HashMap::new(),
-        };
-        Box::new(
-            GenAiClient::new(llm_config)
-                .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?,
-        )
+        println!("ℹ️  Using {} provider", global_config.provider_name());
+
+        // Create client with proper configuration
+        if let Some(model) = &args.model {
+            // Use custom model if specified
+            let llm_config = LlmConfig {
+                model: model.clone(),
+                max_tokens: args.max_tokens,
+                temperature: args.temperature,
+                top_p: Some(0.9),
+                stop: None,
+                extra: std::collections::HashMap::new(),
+            };
+            Arc::new(
+                GenAiClient::new(llm_config)
+                    .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?,
+            )
+        } else {
+            // Use contextual client with auto-detection
+            global_config.create_contextual_client()
+                .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?
+        }
     };
 
-    // client is Box<dyn LlmClient>, need Arc<dyn LlmClient>
-    let generator = TemplateGenerator::new(Arc::from(client));
+    let generator = TemplateGenerator::with_client(client);
 
     let template = if args.validate {
         println!(
@@ -89,18 +96,23 @@ pub async fn run(args: &GenerateArgs) -> Result<()> {
         // Create validator
         let validator = ggen_ai::TemplateValidator::new();
 
-        // Generate and validate iteratively
+        // Generate and validate iteratively with proper error handling
         let mut current_template = generator
             .generate_template(
                 &args.description,
                 args.examples.iter().map(|s| s.as_str()).collect(),
             )
             .await
-            .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?;
+            .map_err(|e| {
+                ggen_utils::error::Error::new(&format!(
+                    "Failed to generate initial template: {}",
+                    e
+                ))
+            })?;
 
         for iteration in 0..args.max_iterations {
             println!(
-                "Iteration {}/{}: Validating...",
+                "📊 Iteration {}/{}: Validating...",
                 iteration + 1,
                 args.max_iterations
             );
@@ -108,9 +120,11 @@ pub async fn run(args: &GenerateArgs) -> Result<()> {
             let result = validator
                 .validate_template(&current_template)
                 .await
-                .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?;
+                .map_err(|e| {
+                    ggen_utils::error::Error::new(&format!("Validation failed: {}", e))
+                })?;
 
-            println!("  Issues found: {}", result.issues.len());
+            println!("  ℹ️  Issues found: {}", result.issues.len());
 
             if result.valid && result.issues.is_empty() {
                 println!("✅ Template validation passed!");
@@ -119,6 +133,7 @@ pub async fn run(args: &GenerateArgs) -> Result<()> {
 
             if iteration < args.max_iterations - 1 {
                 println!("🔄 Improving template based on feedback...");
+
                 // Generate improved version based on issues
                 let improvement_context = format!(
                     "{}\n\nPrevious issues:\n{}",
@@ -137,7 +152,14 @@ pub async fn run(args: &GenerateArgs) -> Result<()> {
                         args.examples.iter().map(|s| s.as_str()).collect(),
                     )
                     .await
-                    .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?;
+                    .map_err(|e| {
+                        ggen_utils::error::Error::new(&format!(
+                            "Failed to improve template: {}",
+                            e
+                        ))
+                    })?;
+            } else {
+                println!("⚠️  Max iterations reached with {} remaining issues", result.issues.len());
             }
         }
 
@@ -149,10 +171,12 @@ pub async fn run(args: &GenerateArgs) -> Result<()> {
                 args.examples.iter().map(|s| s.as_str()).collect(),
             )
             .await
-            .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?
+            .map_err(|e| {
+                ggen_utils::error::Error::new(&format!("Template generation failed: {}", e))
+            })?
     };
 
-    println!("Template generated successfully!");
+    println!("✅ Template generated successfully!");
 
     if let Some(output_path) = &args.output {
         fs::write(

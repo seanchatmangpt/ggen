@@ -1,3 +1,5 @@
+// Chrono for DateTime timestamps
+use chrono::{DateTime, Utc};
 //! WIP Integration Demo for Ultrathink Swarm
 //!
 //! This module provides a demonstration of the ultrathink swarm connecting to WIP systems
@@ -73,8 +75,8 @@ async fn create_demo_wip_entries(wip_manager: &WipIntegrationManager) -> Result<
             map.insert("complexity".to_string(), "medium".to_string());
             map
         },
-        created_at: Instant::now(),
-        modified_at: Instant::now(),
+        created_at: Utc::now(),
+        modified_at: Utc::now(),
     };
 
     wip_manager.submit_operation(super::ultrathink::WipOperation::Create(feature_entry)).await?;
@@ -96,8 +98,8 @@ async fn create_demo_wip_entries(wip_manager: &WipIntegrationManager) -> Result<
             map.insert("affected_components".to_string(), "template,rendering".to_string());
             map
         },
-        created_at: Instant::now(),
-        modified_at: Instant::now(),
+        created_at: Utc::now(),
+        modified_at: Utc::now(),
     };
 
     wip_manager.submit_operation(super::ultrathink::WipOperation::Create(bugfix_entry)).await?;
@@ -288,8 +290,8 @@ pub async fn run_interactive_wip_demo() -> Result<()> {
                         priority: Priority::Low,
                         status: WipStatus::Created,
                         metadata: std::collections::HashMap::new(),
-                        created_at: std::time::Instant::now(),
-                        modified_at: std::time::Instant::now(),
+                        created_at: chrono::Utc::now(),
+                        modified_at: chrono::Utc::now(),
                     };
 
                     wip_manager.submit_operation(super::ultrathink::WipOperation::Create(entry)).await?;

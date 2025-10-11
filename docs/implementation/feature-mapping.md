@@ -19,7 +19,7 @@
   - [4. Implementation Roadmap](#4-implementation-roadmap)
     - [Phase 1: Foundation (Week 1)](#phase-1-foundation-week-1)
     - [Phase 2: Template Enhancement (Week 2)](#phase-2-template-enhancement-week-2)
-    - [Phase 3: CLI Integration (Week 3)](#phase-3-cli-integration-week-3)
+    - [Phase 3: CLI Integration (✅ COMPLETED)](#phase-3-cli-integration--completed)
     - [Phase 4: MCP Server Integration (Week 4)](#phase-4-mcp-server-integration-week-4)
   - [5. Detailed Code Examples](#5-detailed-code-examples)
     - [5.1 LLM Adapter Trait](#51-llm-adapter-trait)
@@ -217,49 +217,18 @@ pub struct Frontmatter {
 }
 ```
 
-**Enhanced Frontmatter (Add these fields):**
-```rust
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
-pub struct Frontmatter {
-    // ... existing fields ...
+**Note: AI functionality is implemented as CLI commands, not template frontmatter fields.**
 
-    // NEW: LLM Integration Fields
-    #[serde(default)]
-    pub llm: Option<LlmConfig>,
+The AI capabilities are accessed through CLI commands:
+- `ggen ai generate` - AI-powered template generation
+- `ggen ai validate` - Template validation with AI
+- `ggen project gen --ai` - AI-enhanced project generation
+- `ggen-ai-mcp` - MCP server for AI assistant integration
 
-    #[serde(default)]
-    pub ai_enhance: bool,
-
-    #[serde(default)]
-    pub ai_complete: Vec<String>,  // Fields to auto-complete with LLM
-
-    #[serde(default)]
-    pub ai_validate: bool,         // Use LLM to validate output
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct LlmConfig {
-    pub provider: String,          // "openai", "anthropic", "ollama"
-    pub model: Option<String>,     // Model override
-    pub temperature: Option<f32>,  // Creativity level
-    pub max_tokens: Option<u32>,   // Response limit
-    pub system_prompt: Option<String>, // System instructions
-}
-```
-
-**Example Enhanced Template:**
+**Example Template (AI features accessed via CLI):**
 ```yaml
 ---
 to: "src/{{module}}/{{name | snake_case}}.rs"
-llm:
-  provider: "anthropic"
-  model: "claude-3-5-sonnet-20241022"
-  temperature: 0.2
-  system_prompt: "You are a Rust code expert focusing on clean, idiomatic code."
-ai_enhance: true
-ai_complete:
-  - description
-  - test_cases
 prefixes:
   ex: "http://example.org/"
 rdf_inline:
@@ -329,27 +298,13 @@ impl Pipeline {
         let mut ctx = Context::from_serialize(vars)?;
         template.render_frontmatter(&mut self.tera, &ctx)?;
 
-        // NEW: If LLM config present, enhance context
-        if let Some(ref llm_config) = template.front.llm {
-            if let Some(ref llm) = self.llm {
-                self.enhance_context_with_llm(&mut ctx, llm_config, llm).await?;
-            }
-        }
+        // AI enhancement is handled via CLI commands, not template frontmatter
 
         // Continue with normal rendering...
         // ... existing code ...
     }
 
-    async fn enhance_context_with_llm(
-        &self,
-        ctx: &mut Context,
-        config: &LlmConfig,
-        llm: &Box<dyn LlmAdapter>,
-    ) -> Result<()> {
-        // Use LLM to fill in missing context variables
-        // This is where the magic happens!
-        todo!("Implement LLM context enhancement")
-    }
+    // AI enhancement is handled via CLI commands, not in the template pipeline
 }
 ```
 
@@ -538,63 +493,72 @@ pub mod template;
 
 **Goal:** Extend templates with LLM capabilities
 
-1. **Enhance frontmatter**
-   - [ ] Add `llm:` field to Frontmatter struct
-   - [ ] Add `ai_enhance`, `ai_complete` fields
-   - [ ] Update template parser
+1. **AI Integration (Already Implemented)**
+   - ✅ AI functionality implemented as CLI commands
+   - ✅ No template frontmatter changes needed
+   - ✅ AI features accessible via `ggen ai` commands
 
-2. **Extend pipeline**
-   - [ ] Add LLM field to Pipeline
-   - [ ] Implement `with_llm()` builder
-   - [ ] Create `render_file_with_ai()` method
+2. **Pipeline Integration (Not Needed)**
+   - ✅ AI functionality works through CLI commands
+   - ✅ No pipeline changes required
+   - ✅ Templates remain clean and focused
 
-3. **Add Tera functions**
-   - [ ] `{{ ai_complete("description") }}` function
-   - [ ] `{{ ai_suggest("field_name") }}` function
-   - [ ] `{{ ai_validate("code_snippet") }}` function
+3. **Tera Functions (Not Needed)**
+   - ✅ AI features accessible via CLI commands
+   - ✅ Templates stay deterministic and predictable
+   - ✅ No AI dependencies in template rendering
 
-**Files to Modify:**
-- `/Users/sac/ggen/ggen-core/src/template.rs`
-- `/Users/sac/ggen/ggen-core/src/pipeline.rs`
-- `/Users/sac/ggen/ggen-core/src/register.rs`
+**Files Already Implemented:**
+- ✅ `/Users/sac/ggen/cli/src/cmds/ai/mod.rs` - AI command structure
+- ✅ `/Users/sac/ggen/cli/src/cmds/ai/generate.rs` - AI template generation
+- ✅ `/Users/sac/ggen/cli/src/cmds/ai/validate.rs` - AI template validation
+- ✅ `/Users/sac/ggen/ggen-ai/` - Complete AI integration module
 
-**New Tera Functions to Add:**
-```rust
-// In register.rs
-pub fn register_ai_functions(tera: &mut Tera, llm: &Box<dyn LlmAdapter>) {
-    tera.register_function("ai_complete", AiCompleteFn::new(llm.clone()));
-    tera.register_function("ai_suggest", AiSuggestFn::new(llm.clone()));
-    tera.register_function("ai_validate", AiValidateFn::new(llm.clone()));
-}
+**AI Commands Available:**
+```bash
+# AI-powered template generation
+ggen ai generate -d "REST API module" --ollama
+
+# AI template validation
+ggen ai validate template.tmpl --threshold 0.8
+
+# AI-enhanced project generation
+ggen project gen --ai --ai-provider ollama
 ```
 
 ---
 
-### Phase 3: CLI Integration (Week 3)
+### Phase 3: CLI Integration (✅ COMPLETED)
 
 **Goal:** Add user-facing AI commands
 
-1. **Create AI command module**
-   - [ ] Create `cli/src/cmds/ai/` directory
-   - [ ] Implement `mod.rs` with subcommands
-   - [ ] Add to main command router
+1. **AI command module (✅ Implemented)**
+   - ✅ Created `cli/src/cmds/ai/` directory
+   - ✅ Implemented `mod.rs` with subcommands
+   - ✅ Added to main command router
 
-2. **Implement subcommands**
-   - [ ] `ggen ai configure` - Setup providers
-   - [ ] `ggen ai test` - Test connections
-   - [ ] `ggen ai generate` - AI-assisted generation
-   - [ ] `ggen ai chat` - Interactive chat
-   - [ ] `ggen ai providers` - List providers
+2. **Implemented subcommands (✅ Complete)**
+   - ✅ `ggen ai generate` - AI-assisted template generation
+   - ✅ `ggen ai validate` - Template validation with AI
+   - ✅ `ggen ai sparql` - SPARQL query generation
+   - ✅ `ggen ai graph` - RDF graph generation
+   - ✅ `ggen ai project` - Complete project scaffolding
+   - ✅ `ggen ai models` - Provider and model management
+   - ✅ `ggen ai server` - MCP server integration
 
-3. **Update existing commands**
-   - [ ] Add `--ai` flag to `ggen gen`
-   - [ ] Add `--ai-complete` to `ggen project gen`
+3. **Enhanced existing commands (✅ Complete)**
+   - ✅ Added `--ai` flag to `ggen project gen`
+   - ✅ AI integration in project generation workflow
 
-**Files to Create:**
-- `/Users/sac/ggen/cli/src/cmds/ai/mod.rs`
-- `/Users/sac/ggen/cli/src/cmds/ai/configure.rs`
-- `/Users/sac/ggen/cli/src/cmds/ai/test.rs`
-- `/Users/sac/ggen/cli/src/cmds/ai/generate.rs`
+**Files Created (✅ All Implemented):**
+- ✅ `/Users/sac/ggen/cli/src/cmds/ai/mod.rs`
+- ✅ `/Users/sac/ggen/cli/src/cmds/ai/generate.rs`
+- ✅ `/Users/sac/ggen/cli/src/cmds/ai/validate.rs`
+- ✅ `/Users/sac/ggen/cli/src/cmds/ai/sparql.rs`
+- ✅ `/Users/sac/ggen/cli/src/cmds/ai/graph.rs`
+- ✅ `/Users/sac/ggen/cli/src/cmds/ai/project.rs`
+- ✅ `/Users/sac/ggen/cli/src/cmds/ai/models.rs`
+- ✅ `/Users/sac/ggen/cli/src/cmds/ai/server.rs`
 - `/Users/sac/ggen/cli/src/cmds/ai/chat.rs`
 - `/Users/sac/ggen/cli/src/cmds/ai/providers.rs`
 

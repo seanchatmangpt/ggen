@@ -305,7 +305,7 @@ impl IntegrationAgent {
 
     /// Execute CLI command with MCP parameters
     pub async fn execute_cli_command(&mut self, tool_name: &str, mcp_params: serde_json::Value) -> Result<CliExecutionResult> {
-        let start_time = std::time::Instant::now();
+        let start_time = chrono::Utc::now();
         
         // Get tool configuration
         let config = self.tool_configs.get(tool_name)
@@ -322,7 +322,7 @@ impl IntegrationAgent {
         let output = cmd.output()
             .map_err(|e| GgenMcpError::ExecutionFailed(format!("CLI execution failed: {}", e)))?;
 
-        let execution_time = start_time.elapsed().as_millis() as u64;
+        let execution_time = Utc::now().signed_duration_since(start_time).num_milliseconds() as u64;
 
         let result = CliExecutionResult {
             success: output.status.success(),

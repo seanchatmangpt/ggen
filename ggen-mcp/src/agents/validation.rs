@@ -353,7 +353,7 @@ impl ValidationAgent {
 
     /// Validate data against schema
     pub fn validate_against_schema(&mut self, schema_name: &str, data: serde_json::Value) -> Result<ValidationResult> {
-        let start_time = std::time::Instant::now();
+        let start_time = chrono::Utc::now();
         
         let schema = self.schemas.get(schema_name)
             .ok_or_else(|| GgenMcpError::InvalidParameter(format!("Unknown schema: {}", schema_name)))?;
@@ -430,7 +430,7 @@ impl ValidationAgent {
             }
         }
 
-        let validation_time = start_time.elapsed().as_millis() as u64;
+        let validation_time = Utc::now().signed_duration_since(start_time).num_milliseconds() as u64;
         let is_valid = errors.is_empty();
 
         let result = ValidationResult {

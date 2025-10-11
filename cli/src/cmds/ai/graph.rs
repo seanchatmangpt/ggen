@@ -7,6 +7,7 @@ use ggen_ai::{client::GenAiClient, LlmConfig, MockClient};
 use ggen_core::Graph;
 use ggen_utils::error::Result;
 use std::fs;
+use std::sync::Arc;
 
 #[derive(Debug, Args)]
 pub struct GraphArgs {
@@ -75,27 +76,35 @@ pub async fn run(args: &GraphArgs) -> Result<()> {
     println!("Include examples: {}", args.include_examples);
     println!("Verify graph: {}", args.verify);
 
-    // Create AI client
-    let _client: Box<dyn LlmClient> = if args.mock || args.llm_provider == "mock" {
-        println!("Using mock client for testing");
-        Box::new(MockClient::with_response("Generated RDF graph content"))
+    // Use global config for proper provider detection
+    let global_config = ggen_ai::get_global_config();
+
+    let _client: Arc<dyn LlmClient> = if args.mock || args.llm_provider == "mock" {
+        println!("ℹ️  Using mock client for testing");
+        Arc::new(MockClient::with_response("Generated RDF graph content"))
     } else {
-        println!("Using GenAI client with provider: {}", args.llm_provider);
-        let llm_config = LlmConfig {
-            model: args
-                .model
-                .clone()
-                .unwrap_or_else(|| "gpt-3.5-turbo".to_string()),
-            max_tokens: args.max_tokens,
-            temperature: args.temperature,
-            top_p: Some(0.9),
-            stop: None,
-            extra: std::collections::HashMap::new(),
-        };
-        Box::new(
-            GenAiClient::new(llm_config)
-                .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?,
-        )
+        println!("ℹ️  Using {} provider", global_config.provider_name());
+
+        // Create client with proper configuration
+        if let Some(model) = &args.model {
+            // Use custom model if specified
+            let llm_config = LlmConfig {
+                model: model.clone(),
+                max_tokens: args.max_tokens,
+                temperature: args.temperature,
+                top_p: Some(0.9),
+                stop: None,
+                extra: std::collections::HashMap::new(),
+            };
+            Arc::new(
+                GenAiClient::new(llm_config)
+                    .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?,
+            )
+        } else {
+            // Use contextual client with auto-detection
+            global_config.create_contextual_client()
+                .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?
+        }
     };
 
     // Generate basic RDF graph content (placeholder for AI generation)

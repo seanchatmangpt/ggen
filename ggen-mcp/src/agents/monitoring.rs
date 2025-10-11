@@ -304,11 +304,11 @@ impl MonitoringAgent {
 
     /// Perform health check
     pub async fn perform_health_check(&mut self, component: String) -> HealthCheckResult {
-        let start_time = Instant::now();
+        let start_time = Utc::now();
         
         // Simulate health check
         let (status, message) = self.simulate_health_check(&component).await;
-        let response_time = start_time.elapsed().as_millis() as u64;
+        let response_time = Utc::now().signed_duration_since(start_time).num_milliseconds() as u64;
 
         let result = HealthCheckResult {
             component: component.clone(),

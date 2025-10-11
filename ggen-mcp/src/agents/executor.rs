@@ -221,7 +221,7 @@ impl TemplateExecutor {
             });
         }
         
-        let start_time = Instant::now();
+        let start_time = Utc::now();
         self.execution_pool.current_executions += 1;
         
         // Create execution record
@@ -251,7 +251,7 @@ impl TemplateExecutor {
             Ok(result) => {
                 execution.status = ExecutionStatus::Completed;
                 execution.end_time = Some(chrono::Utc::now());
-                execution.metrics.duration_ms = start_time.elapsed().as_millis() as u64;
+                execution.metrics.duration_ms = Utc::now().signed_duration_since(start_time).num_milliseconds() as u64;
                 
                 self.execution_history.push(execution.clone());
                 self.execution_pool.current_executions -= 1;
@@ -272,7 +272,7 @@ impl TemplateExecutor {
                 execution.status = ExecutionStatus::Failed;
                 execution.end_time = Some(chrono::Utc::now());
                 execution.errors.push(e.to_string());
-                execution.metrics.duration_ms = start_time.elapsed().as_millis() as u64;
+                execution.metrics.duration_ms = Utc::now().signed_duration_since(start_time).num_milliseconds() as u64;
                 
                 self.execution_history.push(execution.clone());
                 self.execution_pool.current_executions -= 1;

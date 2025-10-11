@@ -9,7 +9,7 @@ use std::collections::HashMap;
 pub struct AiConfigArgs {
     /// AI model to use (e.g., gpt-4, claude-3-sonnet, qwen3-coder:30b)
     /// Defaults to environment variable GGEN_DEFAULT_MODEL or provider default
-    #[arg(short, long, env = "GGEN_DEFAULT_MODEL")]
+    #[arg(short, long)]
     pub model: Option<String>,
 
     /// Maximum tokens to generate

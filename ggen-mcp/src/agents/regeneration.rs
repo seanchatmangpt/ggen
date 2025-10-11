@@ -146,7 +146,7 @@ impl RegenerationAgent {
             regeneration_queue: Arc::new(RwLock::new(Vec::new())),
             regeneration_history: Arc::new(RwLock::new(Vec::new())),
             shutdown_notify: Arc::new(Notify::new()),
-            last_scan_time: Arc::new(RwLock::new(Instant::now())),
+            last_scan_time: Arc::new(RwLock::new(Utc::now())),
         }
     }
 
@@ -178,7 +178,7 @@ impl RegenerationAgent {
     /// Scan for file changes and trigger regeneration
     async fn scan_for_changes(&self) -> Result<()> {
         let mut last_scan = self.last_scan_time.write().await;
-        *last_scan = Instant::now();
+        *last_scan = Utc::now();
 
         let mut triggers = Vec::new();
 
@@ -343,7 +343,7 @@ impl RegenerationAgent {
         }
 
         let trigger = queue.remove(0);
-        let start_time = Instant::now();
+        let start_time = Utc::now();
 
         tracing::info!("Processing regeneration trigger: {:?} for {} artifacts",
                      trigger.trigger_type, trigger.target_artifacts.len());
@@ -366,7 +366,7 @@ impl RegenerationAgent {
             }
         }
 
-        let duration_ms = start_time.elapsed().as_millis() as u64;
+        let duration_ms = Utc::now().signed_duration_since(start_time).num_milliseconds() as u64;
 
         let metrics = RegenerationMetrics {
             total_artifacts: trigger.target_artifacts.len(),
@@ -610,7 +610,7 @@ impl RegenerationAgent {
 
     /// Handle task execution for regeneration
     async fn handle_task(&self, task: TaskDefinition) -> Result<TaskResult> {
-        let start_time = std::time::Instant::now();
+        let start_time = chrono::Utc::now();
 
         match task.task_type {
             crate::agents::TaskType::TemplateGeneration => {
@@ -622,7 +622,7 @@ impl RegenerationAgent {
                         "message": "Regeneration task completed"
                     })),
                     error: None,
-                    duration_ms: start_time.elapsed().as_millis() as u64,
+                    duration_ms: Utc::now().signed_duration_since(start_time).num_milliseconds() as u64,
                     metrics: Some(serde_json::json!({
                         "artifacts_regenerated": 0,
                         "cache_hits": 0
@@ -635,7 +635,7 @@ impl RegenerationAgent {
                     success: false,
                     result: None,
                     error: Some("Unsupported task type".to_string()),
-                    duration_ms: start_time.elapsed().as_millis() as u64,
+                    duration_ms: Utc::now().signed_duration_since(start_time).num_milliseconds() as u64,
                     metrics: None,
                 })
             }

@@ -295,6 +295,16 @@ impl GlobalLlmConfig {
             self.create_client()
         }
     }
+
+    /// Get the name of the current provider as a string
+    pub fn provider_name(&self) -> &'static str {
+        match self.provider {
+            LlmProvider::OpenAI => "OpenAI",
+            LlmProvider::Anthropic => "Anthropic",
+            LlmProvider::Ollama => "Ollama",
+            LlmProvider::Mock => "Mock",
+        }
+    }
 }
 
 /// Global configuration instance

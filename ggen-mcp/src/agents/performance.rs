@@ -88,9 +88,9 @@ pub struct PerformanceBudget {
 pub struct CacheEntry {
     pub key: String,
     pub value: serde_json::Value,
-    pub created_at: Instant,
+    pub created_at: DateTime<Utc>,
     pub access_count: u32,
-    pub last_accessed: Instant,
+    pub last_accessed: DateTime<Utc>,
 }
 
 /// Performance Agent implementation
@@ -175,7 +175,7 @@ impl PerformanceAgent {
         // Update cache statistics
         if let Some(cache_entry) = self.cache.get_mut(&metrics.operation_name) {
             cache_entry.access_count += 1;
-            cache_entry.last_accessed = Instant::now();
+            cache_entry.last_accessed = Utc::now();
         }
     }
 
@@ -297,9 +297,9 @@ impl PerformanceAgent {
         let entry = CacheEntry {
             key: key.clone(),
             value,
-            created_at: Instant::now(),
+            created_at: Utc::now(),
             access_count: 0,
-            last_accessed: Instant::now(),
+            last_accessed: Utc::now(),
         };
 
         self.cache.insert(key, entry);
@@ -316,7 +316,7 @@ impl PerformanceAgent {
 
             // Update access statistics
             entry.access_count += 1;
-            entry.last_accessed = Instant::now();
+            entry.last_accessed = Utc::now();
 
             Some(entry.value.clone())
         } else {
@@ -326,7 +326,7 @@ impl PerformanceAgent {
 
     /// Clean up expired cache entries
     fn cleanup_expired_cache(&mut self) {
-        let now = Instant::now();
+        let now = Utc::now();
         self.cache.retain(|_, entry| now.duration_since(entry.created_at) <= self.cache_ttl);
     }
 
