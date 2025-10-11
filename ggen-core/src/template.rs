@@ -48,8 +48,9 @@ pub struct Frontmatter {
     pub sparql: BTreeMap<String, String>,
 
     // Optional template variables defined in frontmatter
-    #[serde(default)]
-    pub vars: BTreeMap<String, String>,
+    // Accepts maps, arrays, or single values for maximum flexibility
+    #[serde(default, deserialize_with = "deserialize_flexible_vars")]
+    pub vars: BTreeMap<String, serde_yaml::Value>,
 
     // Safety and idempotency
     #[serde(default)]
@@ -218,6 +219,56 @@ where
     de.deserialize_any(StrOrSeq)
 }
 
+/// Accept vars as map, array, string, or any YAML value
+/// This provides maximum flexibility for LLM-generated templates
+///
+/// Examples:
+/// - `vars: {key: "value"}` → kept as-is
+/// - `vars: ["item1", "item2"]` → converted to {var0: "item1", var1: "item2"}
+/// - `vars: "single"` → converted to {var0: "single"}
+fn deserialize_flexible_vars<'de, D>(
+    deserializer: D,
+) -> Result<BTreeMap<String, serde_yaml::Value>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    use serde::de::Error;
+
+    let value = serde_yaml::Value::deserialize(deserializer)?;
+
+    match value {
+        serde_yaml::Value::Mapping(map) => {
+            // Already a map - convert keys to strings
+            let mut result = BTreeMap::new();
+            for (k, v) in map {
+                let key = k.as_str()
+                    .ok_or_else(|| Error::custom("Map keys must be strings"))?
+                    .to_string();
+                result.insert(key, v);
+            }
+            Ok(result)
+        }
+        serde_yaml::Value::Sequence(seq) => {
+            // Array - convert to indexed map
+            let mut result = BTreeMap::new();
+            for (i, v) in seq.into_iter().enumerate() {
+                result.insert(format!("var{}", i), v);
+            }
+            Ok(result)
+        }
+        serde_yaml::Value::Null => {
+            // Null or missing - return empty map
+            Ok(BTreeMap::new())
+        }
+        other => {
+            // Single value - wrap in map
+            let mut result = BTreeMap::new();
+            result.insert("var0".to_string(), other);
+            Ok(result)
+        }
+    }
+}
+
 // Accept either "sparql: '<query>'" or "sparql: { name: '<query>' }"
 fn sparql_map<'de, D>(de: D) -> Result<BTreeMap<String, String>, D::Error>
 where
@@ -323,10 +374,10 @@ fn main() {
         template.render_frontmatter(&mut tera, &vars)?;
 
         assert_eq!(template.front.to, Some("Alice.rs".to_string()));
-        assert_eq!(
-            template.front.vars.get("greeting"),
-            Some(&"Hello".to_string())
-        );
+        let greeting = template.front.vars.get("greeting")
+            .and_then(|v| v.as_str())
+            .expect("greeting should be a string");
+        assert_eq!(greeting, "Hello");
 
         Ok(())
     }
@@ -636,6 +687,57 @@ fn main() {
         assert!(frontmatter.sparql.is_empty());
         assert!(frontmatter.vars.is_empty());
         assert!(frontmatter.shape.is_empty());
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_flexible_vars_map() -> Result<()> {
+        let yaml_str = r#"vars:
+  name: "Alice"
+  age: 30"#;
+        let frontmatter: Frontmatter = serde_yaml::from_str(yaml_str)?;
+
+        assert_eq!(frontmatter.vars.len(), 2);
+        assert_eq!(frontmatter.vars.get("name").and_then(|v| v.as_str()), Some("Alice"));
+        assert_eq!(frontmatter.vars.get("age").and_then(|v| v.as_i64()), Some(30));
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_flexible_vars_array() -> Result<()> {
+        let yaml_str = r#"vars:
+  - "item1"
+  - "item2"
+  - "item3""#;
+        let frontmatter: Frontmatter = serde_yaml::from_str(yaml_str)?;
+
+        assert_eq!(frontmatter.vars.len(), 3);
+        assert_eq!(frontmatter.vars.get("var0").and_then(|v| v.as_str()), Some("item1"));
+        assert_eq!(frontmatter.vars.get("var1").and_then(|v| v.as_str()), Some("item2"));
+        assert_eq!(frontmatter.vars.get("var2").and_then(|v| v.as_str()), Some("item3"));
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_flexible_vars_string() -> Result<()> {
+        let yaml_str = r#"vars: "single_value""#;
+        let frontmatter: Frontmatter = serde_yaml::from_str(yaml_str)?;
+
+        assert_eq!(frontmatter.vars.len(), 1);
+        assert_eq!(frontmatter.vars.get("var0").and_then(|v| v.as_str()), Some("single_value"));
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_flexible_vars_null() -> Result<()> {
+        let yaml_str = r#"vars: null"#;
+        let frontmatter: Frontmatter = serde_yaml::from_str(yaml_str)?;
+
+        assert!(frontmatter.vars.is_empty());
 
         Ok(())
     }

@@ -67,15 +67,15 @@ pub enum InitAction {
 #[derive(Args, Debug)]
 pub struct ShellInitArgs {
     /// Shell type (bash, zsh, fish, powershell)
-    #[arg(long)]
+    #[arg(long, help = "Shell type: bash, zsh, fish, or powershell")]
     pub shell: String,
 
     /// Configuration file path [default: auto-detect]
-    #[arg(long)]
+    #[arg(long, help = "Path to shell configuration file (auto-detected if not provided)")]
     pub config: Option<String>,
 
     /// Force initialization even if already configured
-    #[arg(long)]
+    #[arg(long, help = "Force re-initialization even if already configured")]
     pub force: bool,
 }
 

@@ -741,7 +741,7 @@ ggen ci drift-check --report --format json > drift-report.json
 
 ## Implementation Priority
 
-### Phase 1: Foundation (v0.2.5 - 1 month)
+### Phase 1: Foundation (v1.0.0 - 1 month)
 **Goal**: Remove legacy commands, add critical missing verbs
 
 1. ✅ Add deprecation warnings to all legacy commands
@@ -757,7 +757,7 @@ ggen ci drift-check --report --format json > drift-report.json
 
 ---
 
-### Phase 2: Pattern Completion (v0.2.6 - 1 month)
+### Phase 2: Pattern Completion (v1.1.0 - 1 month)
 **Goal**: Implement remaining pattern-required commands
 
 1. ✅ Implement `project inject` verb
@@ -773,7 +773,7 @@ ggen ci drift-check --report --format json > drift-report.json
 
 ---
 
-### Phase 3: Legacy Removal (v0.3.0 - 1 month)
+### Phase 3: Legacy Removal (v1.2.0 - 1 month)
 **Goal**: Remove all legacy commands (breaking release)
 
 1. ✅ Delete legacy command modules
@@ -1003,7 +1003,7 @@ Feature: Noun-Verb CLI Structure
 - Pattern coverage: 60%
 - CLI consistency score: 6/10
 
-### After Refactoring (v0.3.0)
+### After Refactoring (v1.2.0)
 - Legacy commands: 0 ✅
 - Noun-verb commands: 8 nouns ✅
 - Pattern coverage: 95% ✅
@@ -1020,25 +1020,25 @@ Feature: Noun-Verb CLI Structure
 
 ## Timeline
 
-### Sprint 1 (Weeks 1-2): v0.2.5
+### Sprint 1 (Weeks 1-2): v1.0.0
 - Add deprecation warnings
 - Update documentation
 - Implement `project test`
 - Implement `hook` noun
 
-### Sprint 2 (Weeks 3-4): v0.2.6
+### Sprint 2 (Weeks 3-4): v1.1.0
 - Implement `project inject`
 - Implement `project freeze`
 - Implement `ci drift-check`
 - Add alias support
 
-### Sprint 3 (Weeks 5-6): v0.3.0
+### Sprint 3 (Weeks 5-6): v1.2.0
 - Remove legacy commands
 - Update all tests
 - Final documentation
-- Release v0.3.0
+- Release v1.2.0
 
-### Sprint 4 (Week 7): v0.3.1
+### Sprint 4 (Week 7): v1.2.1
 - Polish UX
 - Performance optimizations
 - Bug fixes
@@ -1135,7 +1135,7 @@ Feature: Noun-Verb CLI Structure
 
 ---
 
-### New Commands (v0.3.0)
+### New Commands (v1.2.0)
 
 **Noun: `project`** (additions)
 - `test` - Test template/plan ✨ NEW

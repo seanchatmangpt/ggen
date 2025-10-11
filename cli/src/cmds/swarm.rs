@@ -58,7 +58,7 @@ pub enum SwarmCommands {
         name: String,
 
         /// Agent configuration JSON
-        #[arg(short, long)]
+        #[arg(long)]
         config: Option<String>,
     },
 

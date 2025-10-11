@@ -1,0 +1,99 @@
+[package]
+name = "noun-verb-cli-generator"
+version = "1.0.0"
+description = "Generate production-ready noun-verb pattern CLIs following industry best practices from kubectl, docker, aws-cli, and gcloud"
+authors = ["ggen-ai <noreply@ggen.io>"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/seanchatmangpt/ggen"
+keywords = ["cli", "generator", "noun-verb", "clap", "production"]
+categories = ["development-tools", "command-line-utilities", "code-generation"]
+
+[metadata]
+readme = "README.md"
+documentation = "docs/CLI_GENERATOR_GUIDE.md"
+homepage = "https://github.com/seanchatmangpt/ggen/tree/master/templates/cli"
+
+[dependencies]
+# No runtime dependencies - generates self-contained CLIs
+
+[features]
+# Templates for different CLI patterns
+scaffold = ["scaffold/Cargo.toml.tmpl", "scaffold/main.rs.tmpl", "scaffold/cmds-mod.rs.tmpl"]
+crud = ["verb/create.rs.tmpl", "verb/list.rs.tmpl", "verb/get.rs.tmpl", "verb/update.rs.tmpl", "verb/delete.rs.tmpl"]
+testing = ["tests/integration.rs.tmpl"]
+documentation = ["README.md.tmpl", "docs/*"]
+
+[templates]
+# Core scaffold templates
+"scaffold/Cargo.toml.tmpl" = { description = "Cargo project configuration with clap, tokio, anyhow" }
+"scaffold/main.rs.tmpl" = { description = "CLI entry point with clap Parser and async main" }
+"scaffold/cmds-mod.rs.tmpl" = { description = "Command router for noun dispatch" }
+
+# Noun routing template
+"noun/mod.rs.tmpl" = { description = "Noun module with verb routing enum" }
+
+# CRUD verb templates
+"verb/create.rs.tmpl" = { description = "Create command with validation and error handling" }
+"verb/list.rs.tmpl" = { description = "List command with filtering and multiple formats" }
+"verb/get.rs.tmpl" = { description = "Get command with detailed view and format options" }
+"verb/update.rs.tmpl" = { description = "Update command with dry-run and partial updates" }
+"verb/delete.rs.tmpl" = { description = "Delete command with safety features and confirmations" }
+
+# Testing templates
+"tests/integration.rs.tmpl" = { description = "Full CLI integration test suite with assert_cmd" }
+
+# Documentation templates
+"README.md.tmpl" = { description = "Auto-generated README with usage examples" }
+
+[scripts]
+generate = "generate-noun-verb-cli.sh"
+
+[examples]
+# Example: Generate a cloud management CLI
+cloud-manager = """
+./scripts/generate-noun-verb-cli.sh cloud-manager "server,database,network" ./my-cloud-cli
+cd ./my-cloud-cli
+cargo build
+cargo test
+cargo run -- server create --name web-1
+"""
+
+# Example: Generate a user management CLI
+user-admin = """
+./scripts/generate-noun-verb-cli.sh user-admin "user,team,role" ./user-admin-cli
+cd ./user-admin-cli
+cargo build
+cargo run -- user list --format json
+"""
+
+# Example: Generate a project management CLI
+project-mgr = """
+./scripts/generate-noun-verb-cli.sh project-mgr "project,task,milestone" ./project-cli
+cd ./project-cli
+cargo test
+cargo run -- project create --name "Q4 Goals"
+"""
+
+[validation]
+# Require these files to be present
+required_files = [
+    "scripts/generate-noun-verb-cli.sh",
+    "templates/cli/scaffold/Cargo.toml.tmpl",
+    "templates/cli/scaffold/main.rs.tmpl",
+    "templates/cli/noun/mod.rs.tmpl",
+    "templates/cli/verb/create.rs.tmpl",
+    "templates/cli/verb/list.rs.tmpl",
+    "templates/cli/verb/get.rs.tmpl",
+    "templates/cli/verb/update.rs.tmpl",
+    "templates/cli/verb/delete.rs.tmpl",
+    "docs/CLI_GENERATOR_GUIDE.md"
+]
+
+# Minimum ggen version required
+min_ggen_version = "1.0.0"
+
+[tags]
+stable = true
+production-ready = true
+tested = true
+documented = true
