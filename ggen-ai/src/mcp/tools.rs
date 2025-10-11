@@ -4,16 +4,24 @@ use crate::error::{GgenAiError, Result};
 use crate::generators::{TemplateGenerator, SparqlGenerator, OntologyGenerator, RefactorAssistant};
 use crate::client::{LlmClient, LlmConfig};
 use crate::providers::adapter::{MockClient, OllamaClient, OpenAIClient, AnthropicClient};
+use crate::autonomous::{
+    GraphEvolutionEngine, EvolutionConfig, GraphChangeNotifier, RegenerationOrchestrator,
+    RegenerationEngine, RegenerationConfig, OrchestratorConfig, TelemetryCollector,
+    TelemetryConfig, DeploymentAutomation, DeploymentConfig,
+};
 use ggen_core::Graph;
 use serde_json::Value;
+use std::sync::Arc;
+use tokio::sync::RwLock;
 
 /// AI-specific MCP tools
-#[derive(Debug)]
 pub struct AiMcpTools {
     template_generator: Option<TemplateGenerator>,
     sparql_generator: Option<SparqlGenerator>,
     ontology_generator: Option<OntologyGenerator>,
     refactor_assistant: Option<RefactorAssistant>,
+    evolution_engine: Option<Arc<RwLock<GraphEvolutionEngine>>>,
+    orchestrator: Option<Arc<RegenerationOrchestrator>>,
 }
 
 impl AiMcpTools {
@@ -24,6 +32,8 @@ impl AiMcpTools {
             sparql_generator: None,
             ontology_generator: None,
             refactor_assistant: None,
+            evolution_engine: None,
+            orchestrator: None,
         }
     }
     
@@ -32,19 +42,19 @@ impl AiMcpTools {
         use crate::providers::OpenAIClient;
         
         if let Ok(client) = OpenAIClient::new(config.clone()) {
-            self.template_generator = Some(TemplateGenerator::with_client(Box::new(client)));
+            self.template_generator = Some(TemplateGenerator::with_client(Arc::new(client)));
         }
-        
+
         if let Ok(client) = OpenAIClient::new(config.clone()) {
-            self.sparql_generator = Some(SparqlGenerator::with_client(Box::new(client)));
+            self.sparql_generator = Some(SparqlGenerator::with_client(Arc::new(client)));
         }
-        
+
         if let Ok(client) = OpenAIClient::new(config.clone()) {
-            self.ontology_generator = Some(OntologyGenerator::with_client(Box::new(client)));
+            self.ontology_generator = Some(OntologyGenerator::with_client(Arc::new(client)));
         }
         
         if let Ok(client) = OpenAIClient::new(config) {
-            self.refactor_assistant = Some(RefactorAssistant::with_client(Box::new(client)));
+            self.refactor_assistant = Some(RefactorAssistant::with_client(Arc::new(client)));
         }
         
         self
@@ -55,19 +65,19 @@ impl AiMcpTools {
         use crate::providers::AnthropicClient;
         
         if let Ok(client) = AnthropicClient::new(config.clone()) {
-            self.template_generator = Some(TemplateGenerator::with_client(Box::new(client)));
+            self.template_generator = Some(TemplateGenerator::with_client(Arc::new(client)));
         }
-        
+
         if let Ok(client) = AnthropicClient::new(config.clone()) {
-            self.sparql_generator = Some(SparqlGenerator::with_client(Box::new(client)));
+            self.sparql_generator = Some(SparqlGenerator::with_client(Arc::new(client)));
         }
-        
+
         if let Ok(client) = AnthropicClient::new(config.clone()) {
-            self.ontology_generator = Some(OntologyGenerator::with_client(Box::new(client)));
+            self.ontology_generator = Some(OntologyGenerator::with_client(Arc::new(client)));
         }
         
         if let Ok(client) = AnthropicClient::new(config) {
-            self.refactor_assistant = Some(RefactorAssistant::with_client(Box::new(client)));
+            self.refactor_assistant = Some(RefactorAssistant::with_client(Arc::new(client)));
         }
         
         self
@@ -79,19 +89,19 @@ impl AiMcpTools {
         
         let config = OllamaClient::default_config();
         if let Ok(client) = OllamaClient::new(config.clone()) {
-            self.template_generator = Some(TemplateGenerator::with_client(Box::new(client)));
+            self.template_generator = Some(TemplateGenerator::with_client(Arc::new(client)));
         }
-        
+
         if let Ok(client) = OllamaClient::new(config.clone()) {
-            self.sparql_generator = Some(SparqlGenerator::with_client(Box::new(client)));
+            self.sparql_generator = Some(SparqlGenerator::with_client(Arc::new(client)));
         }
-        
+
         if let Ok(client) = OllamaClient::new(config.clone()) {
-            self.ontology_generator = Some(OntologyGenerator::with_client(Box::new(client)));
+            self.ontology_generator = Some(OntologyGenerator::with_client(Arc::new(client)));
         }
         
         if let Ok(client) = OllamaClient::new(config) {
-            self.refactor_assistant = Some(RefactorAssistant::with_client(Box::new(client)));
+            self.refactor_assistant = Some(RefactorAssistant::with_client(Arc::new(client)));
         }
         
         self
@@ -102,7 +112,7 @@ impl AiMcpTools {
         use crate::client::LlmConfig;
         use crate::providers::OllamaClient;
         
-        let config = LlmConfig {
+        let _config = LlmConfig {
             model: model.to_string(),
             max_tokens: Some(2048),
             temperature: Some(0.7),
@@ -138,17 +148,54 @@ impl AiMcpTools {
     /// Initialize with mock client for testing
     pub fn with_mock(mut self) -> Self {
         use crate::providers::MockClient;
-        
-        let client1 = Box::new(MockClient::with_response("Generated template content"));
-        let client2 = Box::new(MockClient::with_response(r#"{"query_type":"SELECT","variables":["?s","?p","?o"],"patterns":[{"subject":"?s","predicate":"?p","object":"?o"}]}"#));
-        let client3 = Box::new(MockClient::with_response("@prefix ex: <http://example.org/> . ex:Person a owl:Class ."));
-        let client4 = Box::new(MockClient::with_response("Refactoring suggestion"));
-        
-        self.template_generator = Some(TemplateGenerator::with_client(client1));
-        self.sparql_generator = Some(SparqlGenerator::with_client(client2));
-        self.ontology_generator = Some(OntologyGenerator::with_client(client3));
-        self.refactor_assistant = Some(RefactorAssistant::with_client(client4));
-        
+
+        self.template_generator = Some(TemplateGenerator::with_client(Arc::new(MockClient::with_response("Generated template content"))));
+        self.sparql_generator = Some(SparqlGenerator::with_client(Arc::new(MockClient::with_response(r#"{"query_type":"SELECT","variables":["?s","?p","?o"],"patterns":[{"subject":"?s","predicate":"?p","object":"?o"}]}"#))));
+        self.ontology_generator = Some(OntologyGenerator::with_client(Box::new(MockClient::with_response("@prefix ex: <http://example.org/> . ex:Person a owl:Class ."))));
+        self.refactor_assistant = Some(RefactorAssistant::with_client(Arc::new(MockClient::with_response("Refactoring suggestion"))));
+
+        // Initialize autonomous components
+        let parser_client = Arc::new(MockClient::with_response("@prefix ex: <http://example.org/> . ex:Node a owl:Class ."));
+        let validator_client = Arc::new(MockClient::with_response("Validation passed"));
+
+        if let Ok(engine) = GraphEvolutionEngine::new(parser_client, validator_client, EvolutionConfig::default()) {
+            self.evolution_engine = Some(Arc::new(RwLock::new(engine)));
+        }
+
+        self
+    }
+
+    /// Initialize autonomous components with client
+    pub fn with_autonomous(mut self, parser_client: Arc<dyn LlmClient>, validator_client: Arc<dyn LlmClient>) -> Self {
+
+        // Create evolution engine
+        if let Ok(engine) = GraphEvolutionEngine::new(
+            parser_client.clone(),
+            validator_client.clone(),
+            EvolutionConfig::default()
+        ) {
+            self.evolution_engine = Some(Arc::new(RwLock::new(engine)));
+        }
+
+        // Create orchestrator
+        let notifier = Arc::new(GraphChangeNotifier::default());
+        let telemetry = Arc::new(TelemetryCollector::new(TelemetryConfig::default()));
+        let regen_engine = Arc::new(RegenerationEngine::new(
+            RegenerationConfig::default(),
+            parser_client,
+            notifier.clone(),
+        ));
+        let deployment = Arc::new(RwLock::new(DeploymentAutomation::new(DeploymentConfig::default())));
+
+        let orchestrator = Arc::new(RegenerationOrchestrator::new(
+            OrchestratorConfig::default(),
+            regen_engine,
+            deployment,
+            telemetry,
+            notifier,
+        ));
+
+        self.orchestrator = Some(orchestrator);
         self
     }
     
@@ -346,6 +393,84 @@ impl AiMcpTools {
             "suggestions_count": suggestions.len()
         }))
     }
+
+    /// Evolve graph from natural language
+    pub async fn autonomous_evolve_graph(&self, params: Value) -> Result<Value> {
+        let text = params.get("text")
+            .and_then(|t| t.as_str())
+            .ok_or_else(|| GgenAiError::validation("Missing 'text' parameter"))?;
+
+        let engine = self.evolution_engine.as_ref()
+            .ok_or_else(|| GgenAiError::configuration("Evolution engine not initialized"))?;
+
+        let mut engine_guard = engine.write().await;
+        let result = engine_guard.evolve_from_nl(text).await?;
+
+        Ok(serde_json::json!({
+            "status": "success",
+            "result": {
+                "success": result.success,
+                "committed": result.metadata.committed,
+                "operations_count": result.metadata.operations_count,
+                "duration_ms": result.metadata.duration_ms,
+                "timestamp": result.metadata.timestamp.to_rfc3339(),
+                "error": result.error
+            },
+            "graph": engine_guard.export_turtle()
+        }))
+    }
+
+    /// Trigger autonomous regeneration
+    pub async fn autonomous_regenerate(&self, params: Value) -> Result<Value> {
+        let template_id = params.get("template_id")
+            .and_then(|t| t.as_str())
+            .ok_or_else(|| GgenAiError::validation("Missing 'template_id' parameter"))?;
+
+        let orchestrator = self.orchestrator.as_ref()
+            .ok_or_else(|| GgenAiError::configuration("Orchestrator not initialized"))?;
+
+        orchestrator.trigger_regeneration(template_id).await?;
+
+        Ok(serde_json::json!({
+            "status": "success",
+            "message": format!("Regeneration triggered for template: {}", template_id)
+        }))
+    }
+
+    /// Get autonomous system status
+    pub async fn autonomous_status(&self, _params: Value) -> Result<Value> {
+        let mut status = serde_json::json!({
+            "evolution_engine": self.evolution_engine.is_some(),
+            "orchestrator": self.orchestrator.is_some()
+        });
+
+        if let Some(engine) = &self.evolution_engine {
+            let engine_guard = engine.read().await;
+            let config = engine_guard.config();
+            status["evolution_config"] = serde_json::json!({
+                "base_uri": config.base_uri,
+                "confidence_threshold": config.confidence_threshold,
+                "auto_validate": config.auto_validate,
+                "auto_rollback": config.auto_rollback,
+                "regeneration_threshold": config.regeneration_threshold
+            });
+        }
+
+        if let Some(orch) = &self.orchestrator {
+            let stats = orch.get_stats().await;
+            status["orchestrator_stats"] = serde_json::json!({
+                "running": orch.is_running().await,
+                "total_cycles": stats.total_cycles,
+                "avg_cycle_ms": stats.avg_cycle_time_ms,
+                "events_processed": stats.events_processed
+            });
+        }
+
+        Ok(serde_json::json!({
+            "status": "success",
+            "autonomous_system": status
+        }))
+    }
 }
 
 impl Default for AiMcpTools {
@@ -370,7 +495,7 @@ mod tests {
     #[tokio::test]
     async fn test_ai_mcp_tools_with_openai() {
         use crate::client::LlmConfig;
-        let config = LlmConfig::default();
+        let _config = LlmConfig::default();
         let tools = AiMcpTools::new().with_openai(config);
         assert!(tools.template_generator.is_some());
         assert!(tools.sparql_generator.is_some());
@@ -381,7 +506,7 @@ mod tests {
     #[tokio::test]
     async fn test_ai_generate_template() {
         use crate::client::LlmConfig;
-        let config = LlmConfig::default();
+        let _config = LlmConfig::default();
         let tools = AiMcpTools::new().with_openai(config);
         
         let params = serde_json::json!({

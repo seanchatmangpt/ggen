@@ -21,39 +21,39 @@ enum Commands {
         /// Description of the template to generate
         #[arg(short, long)]
         description: String,
-        
+
         /// Output file path
         #[arg(short, long)]
         output: Option<String>,
-        
+
         /// Convert to YAML format
         #[arg(long)]
         yaml: bool,
-        
+
         /// Include RDF ontology
         #[arg(long)]
         rdf: bool,
-        
+
         /// Include SPARQL queries
         #[arg(long)]
         sparql: bool,
-        
+
         /// Template type (user, api, query)
         #[arg(short, long, default_value = "user")]
         template_type: String,
     },
-    
+
     /// Convert JSON frontmatter to YAML
     Convert {
         /// Input JSON file
         #[arg(short, long)]
         input: String,
-        
+
         /// Output YAML file
         #[arg(short, long)]
         output: Option<String>,
     },
-    
+
     /// Show example frontmatter
     Example {
         /// Template type
@@ -66,7 +66,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = Cli::parse();
 
     match cli.command {
-        Commands::Generate { description, output, yaml, rdf, sparql, template_type } => {
+        Commands::Generate {
+            description,
+            output,
+            yaml,
+            rdf,
+            sparql,
+            template_type,
+        } => {
             generate_frontmatter(description, output, yaml, rdf, sparql, template_type)?;
         }
         Commands::Convert { input, output } => {
@@ -81,11 +88,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 fn generate_frontmatter(
-    description: String,
-    output: Option<String>,
-    yaml: bool,
-    rdf: bool,
-    sparql: bool,
+    description: String, output: Option<String>, yaml: bool, rdf: bool, sparql: bool,
     template_type: String,
 ) -> Result<(), Box<dyn std::error::Error>> {
     println!("🚀 Generating frontmatter for: {}", description);
@@ -140,7 +143,7 @@ fn generate_frontmatter(
     if yaml {
         // Convert to YAML
         let frontmatter_yaml = serde_yaml::to_string(&frontmatter_json)?;
-        
+
         println!("\n🔄 Converted to YAML:");
         println!("{}", frontmatter_yaml);
 
@@ -161,7 +164,9 @@ fn generate_frontmatter(
     Ok(())
 }
 
-fn convert_json_to_yaml(input: String, output: Option<String>) -> Result<(), Box<dyn std::error::Error>> {
+fn convert_json_to_yaml(
+    input: String, output: Option<String>,
+) -> Result<(), Box<dyn std::error::Error>> {
     println!("🔄 Converting JSON to YAML: {}", input);
 
     // Read JSON file
@@ -233,4 +238,3 @@ fn show_example(template_type: String) -> Result<(), Box<dyn std::error::Error>>
 
     Ok(())
 }
-

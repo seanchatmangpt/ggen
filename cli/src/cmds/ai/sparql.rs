@@ -1,12 +1,12 @@
 //! Generate SPARQL queries using AI
 
-use clap::Args;
-use ggen_utils::error::Result;
-use ggen_core::Graph;
-use serde_json::json;
 use anyhow;
-use ggen_ai::{SparqlGenerator, LlmConfig, client::GenAiClient, MockClient};
+use clap::Args;
 use ggen_ai::client::LlmClient;
+use ggen_ai::{client::GenAiClient, LlmConfig, MockClient, SparqlGenerator};
+use ggen_core::Graph;
+use ggen_utils::error::Result;
+use serde_json::json;
 use std::fs;
 
 #[derive(Debug, Args)]
@@ -65,31 +65,40 @@ pub async fn run(args: &SparqlArgs) -> Result<()> {
             .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to load graph: {}", e)))?
     } else {
         println!("📊 Using empty graph for query generation");
-        Graph::new()
-            .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to create empty graph: {}", e)))?
+        Graph::new().map_err(|e| {
+            ggen_utils::error::Error::new(&format!("Failed to create empty graph: {}", e))
+        })?
     };
 
     // Create AI client
     let client: Box<dyn LlmClient> = if args.mock || args.llm_provider == "mock" {
         println!("Using mock client for testing");
-        Box::new(MockClient::with_response("SELECT ?s ?p ?o WHERE { ?s ?p ?o }"))
+        Box::new(MockClient::with_response(
+            "SELECT ?s ?p ?o WHERE { ?s ?p ?o }",
+        ))
     } else {
         println!("Using GenAI client with provider: {}", args.llm_provider);
         let llm_config = LlmConfig {
-            model: args.model.clone().unwrap_or_else(|| "gpt-3.5-turbo".to_string()),
+            model: args
+                .model
+                .clone()
+                .unwrap_or_else(|| "gpt-3.5-turbo".to_string()),
             max_tokens: args.max_tokens,
             temperature: args.temperature,
             top_p: Some(0.9),
             stop: None,
             extra: std::collections::HashMap::new(),
         };
-        Box::new(GenAiClient::new(llm_config)
-            .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?)
+        Box::new(
+            GenAiClient::new(llm_config)
+                .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?,
+        )
     };
     let generator = SparqlGenerator::new(client);
 
     // Generate SPARQL query
-    let sparql_query = generator.generate_query(&graph, &args.description)
+    let sparql_query = generator
+        .generate_query(&graph, &args.description)
         .await
         .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?;
 
@@ -114,8 +123,9 @@ pub async fn run(args: &SparqlArgs) -> Result<()> {
                 }
             });
 
-            serde_json::to_string_pretty(&json_sparql)
-                .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to serialize JSON: {}", e)))?
+            serde_json::to_string_pretty(&json_sparql).map_err(|e| {
+                ggen_utils::error::Error::new(&format!("Failed to serialize JSON: {}", e))
+            })?
         }
         "sparql" | _ => {
             println!("📄 Returning SPARQL format...");

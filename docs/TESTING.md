@@ -38,6 +38,21 @@ cargo make test
 ```
 Runs all unit tests and integration tests with mocked LLM responses. This is the default test mode and should be fast.
 
+### AI Integration Tests
+```bash
+# Test AI-powered template generation
+cargo make test-ai-generate
+
+# Test AI-powered SPARQL query generation
+cargo make test-ai-sparql
+
+# Test AI-powered RDF graph generation
+cargo make test-ai-graph
+
+# Test complete AI project generation
+cargo make test-ai-project
+```
+
 ### Live LLM Integration Tests (Opt-In)
 
 #### Ollama Tests
@@ -152,6 +167,30 @@ In CI/CD pipelines, live tests should be run separately and conditionally:
 - **Ollama tests**: May take 1-2 minutes depending on model size
 - **OpenAI/Anthropic tests**: May take 10-30 seconds depending on API latency
 - **All live tests**: May take 2-5 minutes total
+
+## AI Implementation Testing
+
+Recent AI module enhancements include comprehensive testing for:
+
+### Graph Reference File Generation
+- Tests verify automatic `*_reference.rs` file creation for generated RDF graphs
+- Validates metadata extraction and type-safe access
+- Ensures deterministic outputs and proper error handling
+
+### SPARQL Query Generation with Context
+- Tests actual graph loading instead of placeholder implementations
+- Verifies SPARQL queries are generated based on real graph data
+- Ensures proper error handling for missing or invalid graph files
+
+### Iterative Template Validation
+- Tests iterative validation logic with configurable thresholds
+- Validates automatic improvement based on validation feedback
+- Ensures proper progress reporting and iteration limits
+
+### Enhanced Error Handling
+- Tests verify no `.unwrap()` or `.expect()` calls in AI command code
+- Validates proper error propagation with `Result<T>` types
+- Ensures clear, actionable error messages for users
 
 ## Security Considerations
 

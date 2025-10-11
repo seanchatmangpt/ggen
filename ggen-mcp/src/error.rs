@@ -102,3 +102,19 @@ pub fn error_response(message: &str) -> serde_json::Value {
         "message": message
     })
 }
+
+/// Helper to extract optional array parameter
+pub fn get_optional_array_param(params: &serde_json::Value, key: &str) -> Vec<serde_json::Value> {
+    params.get(key)
+        .and_then(|v| v.as_array())
+        .map(|arr| arr.clone())
+        .unwrap_or_else(|| Vec::new())
+}
+
+/// Helper to extract u32 parameter with default
+pub fn get_u32_param(params: &serde_json::Value, key: &str, default: u32) -> u32 {
+    params.get(key)
+        .and_then(|v| v.as_u64())
+        .map(|u| u as u32)
+        .unwrap_or(default)
+}

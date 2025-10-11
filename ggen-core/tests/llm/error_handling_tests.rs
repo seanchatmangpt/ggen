@@ -8,9 +8,7 @@ mod tests {
 
     #[test]
     fn test_builder_requires_model() {
-        let result = ChatRequest::builder()
-            .message(Role::User, "Test")
-            .build();
+        let result = ChatRequest::builder().message(Role::User, "Test").build();
 
         assert!(result.is_err());
         assert_eq!(result.unwrap_err(), "Model is required");
@@ -18,9 +16,7 @@ mod tests {
 
     #[test]
     fn test_builder_requires_messages() {
-        let result = ChatRequest::builder()
-            .model("gpt-4")
-            .build();
+        let result = ChatRequest::builder().model("gpt-4").build();
 
         assert!(result.is_err());
         assert_eq!(result.unwrap_err(), "At least one message is required");

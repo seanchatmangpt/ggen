@@ -46,8 +46,12 @@ fn test_complex_template_structure() {
     let files = template["files"].as_array().unwrap();
 
     assert!(files.len() >= 5);
-    assert!(files.iter().any(|f| f["path"].as_str().unwrap().contains("backend")));
-    assert!(files.iter().any(|f| f["path"].as_str().unwrap().contains("frontend")));
+    assert!(files
+        .iter()
+        .any(|f| f["path"].as_str().unwrap().contains("backend")));
+    assert!(files
+        .iter()
+        .any(|f| f["path"].as_str().unwrap().contains("frontend")));
 }
 
 #[test]
@@ -109,9 +113,7 @@ fn test_random_template_generation() {
 #[test]
 #[ignore] // Slow test, run with --ignored
 fn stress_test_many_workspaces() {
-    let workspaces: Vec<_> = (0..1000)
-        .map(|_| create_temp_workspace())
-        .collect();
+    let workspaces: Vec<_> = (0..1000).map(|_| create_temp_workspace()).collect();
 
     assert_eq!(workspaces.len(), 1000);
     for workspace in &workspaces {
@@ -149,11 +151,7 @@ async fn test_async_server_operations() {
 #[tokio::test]
 async fn test_concurrent_server_creation() {
     let handles: Vec<_> = (0..10)
-        .map(|_| {
-            tokio::spawn(async {
-                create_test_server()
-            })
-        })
+        .map(|_| tokio::spawn(async { create_test_server() }))
         .collect();
 
     for handle in handles {

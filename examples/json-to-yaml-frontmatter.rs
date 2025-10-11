@@ -24,7 +24,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Convert JSON to YAML
     let frontmatter_yaml = serde_yaml::to_string(&frontmatter_json)?;
-    
+
     println!("\n🔄 Converted to YAML:");
     println!("{}", frontmatter_yaml);
 
@@ -39,4 +39,3 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(())
 }
-

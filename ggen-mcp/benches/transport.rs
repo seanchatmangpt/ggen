@@ -16,16 +16,12 @@ fn benchmark_json_operations(c: &mut Criterion) {
     });
 
     group.bench_function("serialize_small", |b| {
-        b.iter(|| {
-            black_box(serde_json::to_string(&small_payload).unwrap())
-        });
+        b.iter(|| black_box(serde_json::to_string(&small_payload).unwrap()));
     });
 
     group.bench_function("deserialize_small", |b| {
         let json_str = serde_json::to_string(&small_payload).unwrap();
-        b.iter(|| {
-            black_box(serde_json::from_str::<Value>(&json_str).unwrap())
-        });
+        b.iter(|| black_box(serde_json::from_str::<Value>(&json_str).unwrap()));
     });
 
     // Medium payload (typical marketplace response)
@@ -42,16 +38,12 @@ fn benchmark_json_operations(c: &mut Criterion) {
     });
 
     group.bench_function("serialize_medium", |b| {
-        b.iter(|| {
-            black_box(serde_json::to_string(&medium_payload).unwrap())
-        });
+        b.iter(|| black_box(serde_json::to_string(&medium_payload).unwrap()));
     });
 
     group.bench_function("deserialize_medium", |b| {
         let json_str = serde_json::to_string(&medium_payload).unwrap();
-        b.iter(|| {
-            black_box(serde_json::from_str::<Value>(&json_str).unwrap())
-        });
+        b.iter(|| black_box(serde_json::from_str::<Value>(&json_str).unwrap()));
     });
 
     // Large payload (bulk operations)
@@ -67,16 +59,12 @@ fn benchmark_json_operations(c: &mut Criterion) {
     });
 
     group.bench_function("serialize_large", |b| {
-        b.iter(|| {
-            black_box(serde_json::to_string(&large_payload).unwrap())
-        });
+        b.iter(|| black_box(serde_json::to_string(&large_payload).unwrap()));
     });
 
     group.bench_function("deserialize_large", |b| {
         let json_str = serde_json::to_string(&large_payload).unwrap();
-        b.iter(|| {
-            black_box(serde_json::from_str::<Value>(&json_str).unwrap())
-        });
+        b.iter(|| black_box(serde_json::from_str::<Value>(&json_str).unwrap()));
     });
 
     group.finish();
@@ -105,13 +93,15 @@ fn benchmark_message_batching(c: &mut Criterion) {
     // Batched message processing
     group.bench_function("batched_100", |b| {
         b.to_async(&rt).iter(|| async {
-            let messages: Vec<_> = (0..100).map(|i| {
-                json!({
-                    "id": i,
-                    "method": "market/search",
-                    "params": {"query": "test"}
+            let messages: Vec<_> = (0..100)
+                .map(|i| {
+                    json!({
+                        "id": i,
+                        "method": "market/search",
+                        "params": {"query": "test"}
+                    })
                 })
-            }).collect();
+                .collect();
 
             let batch = json!({
                 "batch": messages
@@ -123,16 +113,18 @@ fn benchmark_message_batching(c: &mut Criterion) {
     // Parallel message processing
     group.bench_function("parallel_100", |b| {
         b.to_async(&rt).iter(|| async {
-            let tasks: Vec<_> = (0..100).map(|i| {
-                tokio::spawn(async move {
-                    let message = json!({
-                        "id": i,
-                        "method": "market/search",
-                        "params": {"query": "test"}
-                    });
-                    serde_json::to_string(&message).unwrap()
+            let tasks: Vec<_> = (0..100)
+                .map(|i| {
+                    tokio::spawn(async move {
+                        let message = json!({
+                            "id": i,
+                            "method": "market/search",
+                            "params": {"query": "test"}
+                        });
+                        serde_json::to_string(&message).unwrap()
+                    })
                 })
-            }).collect();
+                .collect();
 
             for task in tasks {
                 let _ = task.await;
@@ -254,10 +246,14 @@ fn benchmark_request_response(c: &mut Criterion) {
             // Simulate processing delay
             tokio::time::sleep(tokio::time::Duration::from_micros(200)).await;
 
-            let results: Vec<_> = (0..100).map(|i| json!({
-                "id": i,
-                "name": format!("item_{}", i)
-            })).collect();
+            let results: Vec<_> = (0..100)
+                .map(|i| {
+                    json!({
+                        "id": i,
+                        "name": format!("item_{}", i)
+                    })
+                })
+                .collect();
 
             let response = json!({
                 "result": {
@@ -301,15 +297,17 @@ fn benchmark_pipeline(c: &mut Criterion) {
     // Pipelined requests (don't wait for response before sending next)
     group.bench_function("pipelined", |b| {
         b.to_async(&rt).iter(|| async {
-            let tasks: Vec<_> = (0..10).map(|i| {
-                tokio::spawn(async move {
-                    let request = json!({"id": i});
-                    let request_str = serde_json::to_string(&request).unwrap();
-                    tokio::time::sleep(tokio::time::Duration::from_micros(10)).await;
-                    let response = json!({"result": i});
-                    serde_json::to_string(&response).unwrap()
+            let tasks: Vec<_> = (0..10)
+                .map(|i| {
+                    tokio::spawn(async move {
+                        let request = json!({"id": i});
+                        let request_str = serde_json::to_string(&request).unwrap();
+                        tokio::time::sleep(tokio::time::Duration::from_micros(10)).await;
+                        let response = json!({"result": i});
+                        serde_json::to_string(&response).unwrap()
+                    })
                 })
-            }).collect();
+                .collect();
 
             let results: Vec<_> = futures::future::join_all(tasks)
                 .await

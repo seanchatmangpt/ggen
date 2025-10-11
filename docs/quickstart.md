@@ -3,6 +3,11 @@
 **Table of Contents**
 
 - [Quickstart](#quickstart)
+  - [AI-Powered Generation (NEW)](#ai-powered-generation-new)
+    - [1. Generate Templates with AI](#1-generate-templates-with-ai)
+    - [2. Generate SPARQL Queries with AI](#2-generate-sparql-queries-with-ai)
+    - [3. Generate RDF Graphs with AI](#3-generate-rdf-graphs-with-ai)
+    - [4. Generate Complete Projects with AI](#4-generate-complete-projects-with-ai)
   - [Marketplace Workflow (Recommended)](#marketplace-workflow-recommended)
     - [1. Search for Templates](#1-search-for-templates)
     - [2. Install an Gpack](#2-install-an-gpack)
@@ -21,6 +26,60 @@
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # Quickstart
+
+## AI-Powered Generation (NEW)
+
+**ggen-ai v1.0.0** introduces intelligent code generation using advanced LLMs with multi-provider support.
+
+### 1. Generate Templates with AI
+
+```bash
+# Generate a REST API controller
+ggen ai generate "A Rust REST API controller for user management" \
+  --language rust --framework axum --output user_controller.tmpl
+
+# Generate a Python CLI tool
+ggen ai generate "Python CLI tool for data processing" \
+  --language python --output data_tool.py.tmpl
+```
+
+### 2. Generate SPARQL Queries with AI
+
+```bash
+# Generate queries from natural language intent
+ggen ai sparql "Find all users with admin role" \
+  --graph data.ttl --output admin_query.sparql
+
+# Generate complex queries
+ggen ai sparql "Get all properties and relationships for resources" \
+  --graph ontology.ttl --output properties.sparql
+```
+
+### 3. Generate RDF Graphs with AI
+
+```bash
+# Generate ontologies from domain descriptions
+ggen ai graph "Person management system with roles and permissions" \
+  --output person.ttl
+
+# Generate domain-specific graphs
+ggen ai graph "E-commerce product catalog with categories" \
+  --output catalog.ttl
+```
+
+### 4. Generate Complete Projects with AI
+
+```bash
+# Generate entire project structures
+ggen ai project "E-commerce API with authentication" \
+  --name shop-api --language rust --framework axum \
+  --tests --docs --output generated-shop-api/
+
+# Generate web applications
+ggen ai project "Python web application with database" \
+  --name webapp --language python --framework fastapi \
+  --output webapp/
+```
 
 ## Marketplace Workflow (Recommended)
 

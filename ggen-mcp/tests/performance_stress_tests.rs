@@ -90,9 +90,10 @@ async fn test_concurrent_request_capacity() {
     let results = futures::future::join_all(handles).await;
     let duration = start.elapsed();
 
-    let success_count = results.iter().filter(|r| {
-        r.is_ok() && r.as_ref().unwrap().is_ok()
-    }).count();
+    let success_count = results
+        .iter()
+        .filter(|r| r.is_ok() && r.as_ref().unwrap().is_ok())
+        .count();
 
     println!(
         "Handled {} concurrent requests in {:?} ({} succeeded)",
@@ -112,7 +113,10 @@ async fn test_memory_usage_stability() {
     let server = GgenMcpServer::new();
     let iterations = 10000;
 
-    println!("Starting memory stability test with {} iterations", iterations);
+    println!(
+        "Starting memory stability test with {} iterations",
+        iterations
+    );
 
     for i in 0..iterations {
         let _ = server
@@ -216,17 +220,20 @@ async fn test_large_payload_performance() {
             "name": "test",
             "data": {}
         }}"#,
-        serde_json::json!((0..1000).map(|i| {
-            json!({
-                "id": i,
-                "value": format!("value-{}", i),
-                "nested": {
-                    "field1": i * 2,
-                    "field2": format!("nested-{}", i)
-                }
+        serde_json::json!((0..1000)
+            .map(|i| {
+                json!({
+                    "id": i,
+                    "value": format!("value-{}", i),
+                    "nested": {
+                        "field1": i * 2,
+                        "field2": format!("nested-{}", i)
+                    }
+                })
             })
-        }).collect::<Vec<_>>())
-    )).unwrap();
+            .collect::<Vec<_>>())
+    ))
+    .unwrap();
 
     let start = Instant::now();
     let result = server
@@ -242,7 +249,10 @@ async fn test_large_payload_performance() {
 
     println!("Large payload processed in {:?}", duration);
     assert!(result.is_ok(), "Should handle large payloads");
-    assert!(duration.as_secs() < 5, "Should process large payload quickly");
+    assert!(
+        duration.as_secs() < 5,
+        "Should process large payload quickly"
+    );
 }
 
 /// Test burst traffic handling
@@ -258,11 +268,8 @@ async fn test_burst_traffic() {
 
     for i in 0..burst_size {
         let server_clone = server.clone();
-        let handle = tokio::spawn(async move {
-            server_clone
-                .execute_tool("market_list", json!({}))
-                .await
-        });
+        let handle =
+            tokio::spawn(async move { server_clone.execute_tool("market_list", json!({})).await });
         handles.push(handle);
     }
 
@@ -295,8 +302,14 @@ async fn test_burst_traffic() {
     );
     println!("Burst 2: {}/{} succeeded", success2, burst_size);
 
-    assert!(success1 >= burst_size * 9 / 10, "Should handle first burst well");
-    assert!(success2 >= burst_size * 9 / 10, "Should handle second burst well");
+    assert!(
+        success1 >= burst_size * 9 / 10,
+        "Should handle first burst well"
+    );
+    assert!(
+        success2 >= burst_size * 9 / 10,
+        "Should handle second burst well"
+    );
 }
 
 /// Test parallel tool execution performance
@@ -308,7 +321,10 @@ async fn test_parallel_tool_execution() {
         ("market_search", json!({"query": "test"})),
         ("market_list", json!({})),
         ("project_plan", json!({"template": "test"})),
-        ("graph_query", json!({"sparql": "SELECT * WHERE { ?s ?p ?o } LIMIT 1"})),
+        (
+            "graph_query",
+            json!({"sparql": "SELECT * WHERE { ?s ?p ?o } LIMIT 1"}),
+        ),
     ];
 
     let iterations = 10;
@@ -322,9 +338,8 @@ async fn test_parallel_tool_execution() {
             let tool = tool.to_string();
             let params = params.clone();
 
-            let handle = tokio::spawn(async move {
-                server_clone.execute_tool(&tool, params).await
-            });
+            let handle =
+                tokio::spawn(async move { server_clone.execute_tool(&tool, params).await });
             handles.push(handle);
         }
 
@@ -369,7 +384,8 @@ async fn test_cache_performance() {
 
     // If caching is implemented, hit should be faster
     if hit_duration < miss_duration {
-        println!("Cache is working! Hit is {}x faster",
+        println!(
+            "Cache is working! Hit is {}x faster",
             miss_duration.as_secs_f64() / hit_duration.as_secs_f64()
         );
     }
@@ -384,7 +400,10 @@ async fn test_tool_performance_comparison() {
         ("market_search", json!({"query": "test"})),
         ("market_list", json!({"limit": 10})),
         ("project_plan", json!({"template": "test"})),
-        ("graph_query", json!({"sparql": "SELECT * WHERE { ?s ?p ?o } LIMIT 1"})),
+        (
+            "graph_query",
+            json!({"sparql": "SELECT * WHERE { ?s ?p ?o } LIMIT 1"}),
+        ),
         ("template_validate", json!({"template": "{{name}}"})),
     ];
 
@@ -419,9 +438,7 @@ async fn test_error_handling_performance() {
     // Test success cases
     for i in 0..20 {
         let start = Instant::now();
-        let _ = server
-            .execute_tool("market_list", json!({}))
-            .await;
+        let _ = server.execute_tool("market_list", json!({})).await;
         success_latencies.push(start.elapsed().as_micros());
     }
 

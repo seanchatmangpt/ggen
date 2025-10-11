@@ -6,31 +6,32 @@ use crate::prompts::SparqlPromptBuilder;
 use futures::StreamExt;
 use ggen_core::Graph;
 use serde_json::Value;
+use std::sync::Arc;
 
 /// AI-powered SPARQL query generator
 #[derive(Debug)]
 pub struct SparqlGenerator {
-    client: Box<dyn LlmClient>,
+    client: Arc<dyn LlmClient>,
 }
 
 impl SparqlGenerator {
     /// Create a new SPARQL generator
-    pub fn new(client: Box<dyn LlmClient>) -> Self {
+    pub fn new(client: Arc<dyn LlmClient>) -> Self {
         Self { client }
     }
 
     /// Create a new SPARQL generator with custom config
-    pub fn with_config(client: Box<dyn LlmClient>, _config: LlmConfig) -> Self {
+    pub fn with_config(client: Arc<dyn LlmClient>, _config: LlmConfig) -> Self {
         Self { client }
     }
 
     /// Create a new SPARQL generator with a client
-    pub fn with_client(client: Box<dyn LlmClient>) -> Self {
+    pub fn with_client(client: Arc<dyn LlmClient>) -> Self {
         Self { client }
     }
     
     /// Create a new SPARQL generator optimized for Ollama qwen3-coder:30b
-    pub fn with_ollama_qwen3_coder(client: Box<dyn LlmClient>) -> Self {
+    pub fn with_ollama_qwen3_coder(client: Arc<dyn LlmClient>) -> Self {
         Self { client }
     }
 
@@ -68,7 +69,7 @@ impl SparqlGenerator {
 
     /// Get the LLM client
     pub fn client(&self) -> &dyn LlmClient {
-        &*self.client
+        &self.client
     }
 
     /// Get the current configuration
@@ -195,7 +196,7 @@ mod tests {
     #[tokio::test]
     async fn test_sparql_generation() {
         let client = MockClient::with_response("```sparql\nSELECT ?name WHERE {\n  ?person foaf:name ?name .\n}\n```");
-        let generator = SparqlGenerator::new(Box::new(client));
+        let generator = SparqlGenerator::new(Arc::new(client));
         
         let graph = Graph::new().unwrap();
         let query = generator.generate_query(&graph, "Find all person names").await.unwrap();

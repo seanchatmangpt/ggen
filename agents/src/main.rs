@@ -6,7 +6,7 @@
 use clap::{Parser, Subcommand};
 use ggen_agents::{
     agents::{create_all_agents, get_agent_by_name, list_agent_names},
-    coordination::{AgentCoordinator, create_ggen_development_plan},
+    coordination::{create_ggen_development_plan, AgentCoordinator},
     core::{AgentContext, ExecutionContext, ExecutionState, SerializableTask},
     protocols::Message,
 };
@@ -77,14 +77,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let project_spec = spec
                 .as_ref()
                 .and_then(|s| serde_json::from_str(s).ok())
-                .unwrap_or_else(|| serde_json::json!({
-                    "distributed": true,
-                    "stateful": true,
-                    "network_sensitive": true,
-                    "security_sensitive": true,
-                    "real_time": false,
-                    "concurrent_access": true
-                }));
+                .unwrap_or_else(|| {
+                    serde_json::json!({
+                        "distributed": true,
+                        "stateful": true,
+                        "network_sensitive": true,
+                        "security_sensitive": true,
+                        "real_time": false,
+                        "concurrent_access": true
+                    })
+                });
 
             execute_workflow(project_spec).await?;
         }
@@ -98,9 +100,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 /// Execute a single agent
-async fn execute_single_agent(agent_name: &str, input: serde_json::Value) -> Result<(), Box<dyn std::error::Error>> {
-    let mut agent = get_agent_by_name(agent_name)
-        .ok_or_else(|| format!("Agent '{}' not found", agent_name))?;
+async fn execute_single_agent(
+    agent_name: &str, input: serde_json::Value,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let mut agent =
+        get_agent_by_name(agent_name).ok_or_else(|| format!("Agent '{}' not found", agent_name))?;
 
     // Create minimal context for agent initialization
     let (message_tx, _message_rx) = mpsc::unbounded_channel();
@@ -138,13 +142,18 @@ async fn execute_single_agent(agent_name: &str, input: serde_json::Value) -> Res
 
     println!("✅ Agent '{}' executed successfully", agent_name);
     println!("📊 Execution time: {}ms", result.duration_ms);
-    println!("📋 Result: {}", serde_json::to_string_pretty(&result.output)?);
+    println!(
+        "📋 Result: {}",
+        serde_json::to_string_pretty(&result.output)?
+    );
 
     Ok(())
 }
 
 /// Execute the full development workflow using multiple agents
-async fn execute_workflow(project_spec: serde_json::Value) -> Result<(), Box<dyn std::error::Error>> {
+async fn execute_workflow(
+    project_spec: serde_json::Value,
+) -> Result<(), Box<dyn std::error::Error>> {
     println!("🚀 Executing ultrathink development workflow...");
 
     // Create agent coordinator

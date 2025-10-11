@@ -7,9 +7,9 @@
 //! - Logging
 //! - Serialization
 
-use ggen_ai::security::{SecretString, MaskApiKey};
-use ggen_ai::config::{OpenAIConfig, AnthropicConfig};
+use ggen_ai::config::{AnthropicConfig, OpenAIConfig};
 use ggen_ai::error::GgenAiError;
+use ggen_ai::security::{MaskApiKey, SecretString};
 
 #[test]
 fn test_secret_string_never_leaks_in_debug() {
@@ -50,8 +50,7 @@ fn test_secret_string_never_leaks_in_json() {
 
 #[test]
 fn test_openai_config_never_leaks_key_in_debug() {
-    let config = OpenAIConfig::default()
-        .with_api_key("sk-1234567890abcdefghijklmnop".to_string());
+    let config = OpenAIConfig::default().with_api_key("sk-1234567890abcdefghijklmnop".to_string());
 
     let debug_output = format!("{:?}", config);
 
@@ -64,8 +63,8 @@ fn test_openai_config_never_leaks_key_in_debug() {
 
 #[test]
 fn test_anthropic_config_never_leaks_key_in_debug() {
-    let config = AnthropicConfig::default()
-        .with_api_key("sk-ant-1234567890abcdefghijklmnop".to_string());
+    let config =
+        AnthropicConfig::default().with_api_key("sk-ant-1234567890abcdefghijklmnop".to_string());
 
     let debug_output = format!("{:?}", config);
 
@@ -78,8 +77,7 @@ fn test_anthropic_config_never_leaks_key_in_debug() {
 
 #[test]
 fn test_openai_config_serialization_masks_key() {
-    let config = OpenAIConfig::default()
-        .with_api_key("sk-1234567890abcdefghijklmnop".to_string());
+    let config = OpenAIConfig::default().with_api_key("sk-1234567890abcdefghijklmnop".to_string());
 
     let json = serde_json::to_string(&config).unwrap();
 
@@ -92,8 +90,8 @@ fn test_openai_config_serialization_masks_key() {
 
 #[test]
 fn test_anthropic_config_serialization_masks_key() {
-    let config = AnthropicConfig::default()
-        .with_api_key("sk-ant-1234567890abcdefghijklmnop".to_string());
+    let config =
+        AnthropicConfig::default().with_api_key("sk-ant-1234567890abcdefghijklmnop".to_string());
 
     let json = serde_json::to_string(&config).unwrap();
 
@@ -106,7 +104,8 @@ fn test_anthropic_config_serialization_masks_key() {
 
 #[test]
 fn test_error_message_masks_api_keys() {
-    let error_message = "Failed to authenticate with OpenAI using key sk-1234567890abcdefghijklmnop";
+    let error_message =
+        "Failed to authenticate with OpenAI using key sk-1234567890abcdefghijklmnop";
     let masked = error_message.mask_api_key();
 
     // Should mask the key
@@ -196,8 +195,7 @@ fn test_ggen_ai_error_doesnt_leak_keys() {
 #[test]
 fn test_logging_scenario() {
     // Simulate a logging scenario where we might log a config
-    let config = OpenAIConfig::default()
-        .with_api_key("sk-1234567890abcdefghijklmnop".to_string());
+    let config = OpenAIConfig::default().with_api_key("sk-1234567890abcdefghijklmnop".to_string());
 
     // When logging with Debug
     let log_message = format!("Using config: {:?}", config);
@@ -226,8 +224,14 @@ fn test_case_insensitive_api_key_pattern() {
 #[test]
 fn test_real_world_error_scenarios() {
     let scenarios = vec![
-        ("Request failed with sk-1234567890abcdefghijklmnop", "sk-1..."),
-        ("Invalid credentials: sk-ant-abcdefghijklmnopqrstuvwxyz", "sk-ant-..."),
+        (
+            "Request failed with sk-1234567890abcdefghijklmnop",
+            "sk-1...",
+        ),
+        (
+            "Invalid credentials: sk-ant-abcdefghijklmnopqrstuvwxyz",
+            "sk-ant-...",
+        ),
         ("Auth failed for api_key=secret123", "[masked]"),
         ("Token Bearer abc.def.ghi expired", "Bearer [masked]"),
     ];

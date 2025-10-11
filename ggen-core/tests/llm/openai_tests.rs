@@ -119,15 +119,11 @@ mod tests {
     #[test]
     fn test_openai_builder_validation() {
         // Should fail without model
-        let result = ChatRequest::builder()
-            .message(Role::User, "Test")
-            .build();
+        let result = ChatRequest::builder().message(Role::User, "Test").build();
         assert!(result.is_err());
 
         // Should fail without messages
-        let result = ChatRequest::builder()
-            .model("gpt-4")
-            .build();
+        let result = ChatRequest::builder().model("gpt-4").build();
         assert!(result.is_err());
     }
 }

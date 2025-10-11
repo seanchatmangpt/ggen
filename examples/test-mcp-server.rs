@@ -1,8 +1,8 @@
 //! Test script for ggen-ai MCP server
 
 use serde_json::{json, Value};
-use std::process::{Command, Stdio};
 use std::io::{BufRead, BufReader, Write};
+use std::process::{Command, Stdio};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -45,7 +45,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Read the response
     let reader = BufReader::new(stdout);
     let mut lines = reader.lines();
-    
+
     if let Some(line) = lines.next() {
         let response: Value = serde_json::from_str(&line?)?;
         println!("✅ Server initialized: {}", response);
@@ -118,4 +118,3 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(())
 }
-

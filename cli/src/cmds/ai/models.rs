@@ -1,9 +1,9 @@
 //! List available AI models
 
 use clap::Args;
-use ggen_utils::error::Result;
 use genai::adapter::AdapterKind;
 use genai::Client;
+use ggen_utils::error::Result;
 
 #[derive(Debug, Args)]
 pub struct ModelsArgs {
@@ -57,4 +57,3 @@ pub async fn run(args: &ModelsArgs) -> Result<()> {
 
     Ok(())
 }
-

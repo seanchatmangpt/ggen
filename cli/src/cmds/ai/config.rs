@@ -1,7 +1,7 @@
 //! AI configuration for CLI commands
 
 use clap::Args;
-use ggen_ai::{LlmConfig, client::GenAiClient};
+use ggen_ai::{client::GenAiClient, LlmConfig};
 use ggen_utils::error::Result;
 use std::collections::HashMap;
 
@@ -46,13 +46,19 @@ impl AiConfigArgs {
     /// Convert to LlmConfig
     pub fn to_llm_config(&self) -> LlmConfig {
         let mut extra = HashMap::new();
-        
+
         if let Some(api_key) = &self.api_key {
-            extra.insert("api_key".to_string(), serde_json::Value::String(api_key.clone()));
+            extra.insert(
+                "api_key".to_string(),
+                serde_json::Value::String(api_key.clone()),
+            );
         }
-        
+
         if let Some(endpoint) = &self.endpoint {
-            extra.insert("endpoint".to_string(), serde_json::Value::String(endpoint.clone()));
+            extra.insert(
+                "endpoint".to_string(),
+                serde_json::Value::String(endpoint.clone()),
+            );
         }
 
         LlmConfig {
@@ -60,7 +66,10 @@ impl AiConfigArgs {
             max_tokens: Some(self.max_tokens),
             temperature: Some(self.temperature),
             top_p: Some(self.top_p),
-            stop: self.stop.as_ref().map(|s| s.split(',').map(|s| s.trim().to_string()).collect()),
+            stop: self
+                .stop
+                .as_ref()
+                .map(|s| s.split(',').map(|s| s.trim().to_string()).collect()),
             extra,
         }
     }
@@ -72,19 +81,27 @@ impl AiConfigArgs {
         }
 
         if self.max_tokens == 0 {
-            return Err(ggen_utils::error::Error::new("Max tokens must be greater than 0"));
+            return Err(ggen_utils::error::Error::new(
+                "Max tokens must be greater than 0",
+            ));
         }
 
         if self.max_tokens > 128000 {
-            return Err(ggen_utils::error::Error::new("Max tokens cannot exceed 128000"));
+            return Err(ggen_utils::error::Error::new(
+                "Max tokens cannot exceed 128000",
+            ));
         }
 
         if self.temperature < 0.0 || self.temperature > 2.0 {
-            return Err(ggen_utils::error::Error::new("Temperature must be between 0.0 and 2.0"));
+            return Err(ggen_utils::error::Error::new(
+                "Temperature must be between 0.0 and 2.0",
+            ));
         }
 
         if self.top_p < 0.0 || self.top_p > 1.0 {
-            return Err(ggen_utils::error::Error::new("Top-p must be between 0.0 and 1.0"));
+            return Err(ggen_utils::error::Error::new(
+                "Top-p must be between 0.0 and 1.0",
+            ));
         }
 
         Ok(())
@@ -192,4 +209,3 @@ mod tests {
         assert!(config.validate().is_err());
     }
 }
-

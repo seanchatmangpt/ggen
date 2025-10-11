@@ -19,14 +19,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     println!("Sending prompt to Ollama...");
-    let response = client.complete("Write a hello world in Rust", Some(llm_config)).await?;
+    let response = client
+        .complete("Write a hello world in Rust", Some(llm_config))
+        .await?;
 
     println!("\n✅ Response received:");
     println!("{}", response.content);
     println!("\nModel: {}", response.model);
     if let Some(usage) = response.usage {
-        println!("Tokens: {} prompt + {} completion = {} total",
-            usage.prompt_tokens, usage.completion_tokens, usage.total_tokens);
+        println!(
+            "Tokens: {} prompt + {} completion = {} total",
+            usage.prompt_tokens, usage.completion_tokens, usage.total_tokens
+        );
     }
 
     Ok(())

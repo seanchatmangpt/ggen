@@ -161,10 +161,16 @@ mod tool_tests {
         );
 
         // Verify expected categories
-        assert!(categories.contains_key("project"), "Missing project category");
+        assert!(
+            categories.contains_key("project"),
+            "Missing project category"
+        );
         assert!(categories.contains_key("market"), "Missing market category");
         assert!(categories.contains_key("graph"), "Missing graph category");
-        assert!(categories.contains_key("template"), "Missing template category");
+        assert!(
+            categories.contains_key("template"),
+            "Missing template category"
+        );
         assert!(categories.contains_key("hook"), "Missing hook category");
     }
 }
@@ -186,7 +192,10 @@ mod schema_tests {
         assert!(schema["properties"].is_object());
 
         let required = schema["required"].as_array().unwrap();
-        assert!(required.contains(&json!("template")), "template should be required");
+        assert!(
+            required.contains(&json!("template")),
+            "template should be required"
+        );
 
         let properties = schema["properties"].as_object().unwrap();
         assert!(properties.contains_key("template"));
@@ -203,7 +212,10 @@ mod schema_tests {
         assert_eq!(schema["type"], "object");
 
         let required = schema["required"].as_array().unwrap();
-        assert!(required.contains(&json!("query")), "query should be required");
+        assert!(
+            required.contains(&json!("query")),
+            "query should be required"
+        );
 
         let properties = schema["properties"].as_object().unwrap();
         assert!(properties.contains_key("query"));
@@ -224,7 +236,10 @@ mod schema_tests {
         assert_eq!(schema["type"], "object");
 
         let required = schema["required"].as_array().unwrap();
-        assert!(required.contains(&json!("sparql")), "sparql should be required");
+        assert!(
+            required.contains(&json!("sparql")),
+            "sparql should be required"
+        );
 
         let properties = schema["properties"].as_object().unwrap();
         assert!(properties.contains_key("sparql"));
@@ -291,13 +306,29 @@ mod schema_tests {
             ("market_search", market_search_schema(), vec!["query"]),
             ("market_install", market_install_schema(), vec!["package"]),
             ("market_info", market_info_schema(), vec!["package_id"]),
-            ("market_offline_search", market_offline_search_schema(), vec!["query"]),
+            (
+                "market_offline_search",
+                market_offline_search_schema(),
+                vec!["query"],
+            ),
             ("graph_query", graph_query_schema(), vec!["sparql"]),
             ("graph_load", graph_load_schema(), vec!["file"]),
             ("graph_export", graph_export_schema(), vec!["output"]),
-            ("template_create", template_create_schema(), vec!["name", "content"]),
-            ("template_validate", template_validate_schema(), vec!["template"]),
-            ("hook_register", hook_register_schema(), vec!["event", "command"]),
+            (
+                "template_create",
+                template_create_schema(),
+                vec!["name", "content"],
+            ),
+            (
+                "template_validate",
+                template_validate_schema(),
+                vec!["template"],
+            ),
+            (
+                "hook_register",
+                hook_register_schema(),
+                vec!["event", "command"],
+            ),
         ];
 
         for (name, schema, expected_required) in schemas_with_required {

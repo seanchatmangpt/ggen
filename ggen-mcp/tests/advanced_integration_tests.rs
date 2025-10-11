@@ -198,9 +198,24 @@ async fn test_mixed_concurrent_load() {
         let server_clone = server.clone();
         let handle = tokio::spawn(async move {
             match i % 4 {
-                0 => server_clone.execute_tool("market_search", json!({"query": format!("query-{}", i)})).await,
-                1 => server_clone.execute_tool("project_plan", json!({"template": format!("tmpl-{}", i)})).await,
-                2 => server_clone.execute_tool("graph_query", json!({"sparql": "SELECT * WHERE { ?s ?p ?o } LIMIT 1"})).await,
+                0 => {
+                    server_clone
+                        .execute_tool("market_search", json!({"query": format!("query-{}", i)}))
+                        .await
+                }
+                1 => {
+                    server_clone
+                        .execute_tool("project_plan", json!({"template": format!("tmpl-{}", i)}))
+                        .await
+                }
+                2 => {
+                    server_clone
+                        .execute_tool(
+                            "graph_query",
+                            json!({"sparql": "SELECT * WHERE { ?s ?p ?o } LIMIT 1"}),
+                        )
+                        .await
+                }
                 _ => server_clone.execute_tool("market_list", json!({})).await,
             }
         });
@@ -211,9 +226,16 @@ async fn test_mixed_concurrent_load() {
 
     // Count successes
     let success_count = results.iter().filter(|r| r.is_ok()).count();
-    println!("Concurrent load: {} / {} succeeded", success_count, results.len());
+    println!(
+        "Concurrent load: {} / {} succeeded",
+        success_count,
+        results.len()
+    );
 
-    assert!(success_count >= 15, "Most concurrent operations should succeed");
+    assert!(
+        success_count >= 15,
+        "Most concurrent operations should succeed"
+    );
 }
 
 /// Test memory usage with repeated operations
@@ -239,11 +261,12 @@ async fn test_memory_stability() {
     }
 
     // Server should still be responsive
-    let final_result = server
-        .execute_tool("market_list", json!({}))
-        .await;
+    let final_result = server.execute_tool("market_list", json!({})).await;
 
-    assert!(final_result.is_ok(), "Server should remain stable after many operations");
+    assert!(
+        final_result.is_ok(),
+        "Server should remain stable after many operations"
+    );
 }
 
 /// Test retry logic and timeout handling

@@ -3,7 +3,8 @@
 **Table of Contents**
 
 - [ggen docs](#ggen-docs)
-  - [Getting Started](#getting-started)
+  - [🚀 Getting Started with AI (v1.0.0)](#-getting-started-with-ai-v100)
+  - [📚 Core Documentation](#-core-documentation)
   - [Core Concepts](#core-concepts)
   - [Advanced Topics](#advanced-topics)
   - [Reference](#reference)
@@ -18,34 +19,45 @@
 
 # ggen docs
 
-Purpose: project one ontology into many artifacts. Deterministic. Language-agnostic.
+Purpose: project one ontology into many artifacts. Deterministic. Language-agnostic. **AI-powered**.
 
-## Getting Started
+## 🚀 Getting Started with AI (v1.0.0)
 
-Read in order:
-1. [install.md](install.md) - Installation and setup
-2. [quickstart.md](quickstart.md) - Quick start with marketplace gpacks
-3. [templates.md](templates.md) - Template development guide
-4. [marketplace.md](marketplace.md) - Using and publishing gpacks
+**New to ggen? Start here for AI-powered development:**
+
+1. **[RELEASE_NOTES_v1.0.0.md](RELEASE_NOTES_v1.0.0.md)** - What's new in v1.0.0 *(AI Revolution)*
+2. **[install.md](install.md)** - Installation and AI setup
+3. **[ai-guide.md](ai-guide.md)** - Complete AI usage guide *(NEW)*
+4. **[ggen-ai-integration.md](ggen-ai-integration.md)** - Technical AI integration details
+
+## 📚 Core Documentation
+
+**Traditional ggen workflow (still supported):**
+5. [quickstart.md](quickstart.md) - Quick start with marketplace gpacks
+6. [templates.md](templates.md) - Template development guide
+7. [marketplace.md](marketplace.md) - Using and publishing gpacks
 
 ## Core Concepts
 
-5. [frontmatter.md](frontmatter.md) - Template frontmatter syntax
-6. [rdf-shacl-sparql.md](rdf-shacl-sparql.md) - Semantic web integration
-7. [projections.md](projections.md) - Code projection patterns
-8. [determinism.md](determinism.md) - Reproducible generation
+6. [frontmatter.md](frontmatter.md) - Template frontmatter syntax
+7. [rdf-shacl-sparql.md](rdf-shacl-sparql.md) - Semantic web integration
+8. [projections.md](projections.md) - Code projection patterns
+9. [determinism.md](determinism.md) - Reproducible generation
 
 ## Advanced Topics
 
-9. [calculus.md](calculus.md) - Mathematical foundations
-10. [dx-features.md](dx-features.md) - Developer experience features
-11. [gpack-development.md](gpack-development.md) - Creating and publishing gpacks
+10. [calculus.md](calculus.md) - Mathematical foundations
+11. [dx-features.md](dx-features.md) - Developer experience features
+12. [gpack-development.md](gpack-development.md) - Creating and publishing gpacks
+13. **[MCP_INTEGRATION_COMPLETE.md](MCP_INTEGRATION_COMPLETE.md)** - MCP server integration *(UPDATED)*
+14. **[autonomous-systems-vision.md](autonomous-systems-vision.md)** - Path to autonomous software *(NEW)*
+15. **[ultrathink-swarm-implementation.md](ultrathink-swarm-implementation.md)** - Multi-agent autonomous systems *(NEW)*
 
 ## Reference
 
-12. [cli.md](cli.md) - Complete CLI reference
-13. [troubleshooting.md](troubleshooting.md) - Common issues and solutions
-14. [examples/](examples/) - Usage examples and tutorials
+16. [cli.md](cli.md) - Complete CLI reference
+17. [troubleshooting.md](troubleshooting.md) - Common issues and solutions
+18. [examples/](examples/) - Usage examples and tutorials
 
 ## Marketplace Ecosystem
 

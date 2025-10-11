@@ -7,6 +7,7 @@ pub mod cache;
 pub mod categories;
 pub mod info;
 pub mod list;
+pub mod natural;
 pub mod offline;
 pub mod publish;
 pub mod recommend;
@@ -15,7 +16,6 @@ pub mod search;
 pub mod sync;
 pub mod unpublish;
 pub mod update;
-pub mod natural;
 
 #[derive(Args, Debug)]
 pub struct MarketCmd {

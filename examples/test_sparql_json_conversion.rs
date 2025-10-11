@@ -1,8 +1,8 @@
 // Test script for SPARQL JSON conversion functionality
 // This tests the json_to_sparql and json_string_to_sparql methods
 
-use ggen_ai::generators::SparqlGenerator;
 use ggen_ai::generators::sparql::SparqlQueryJson;
+use ggen_ai::generators::SparqlGenerator;
 use ggen_ai::providers::MockClient;
 use serde_json::json;
 
@@ -32,7 +32,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     });
 
     println!("📝 Testing JSON to SPARQL conversion...");
-    println!("Input JSON: {}", serde_json::to_string_pretty(&sparql_json)?);
+    println!(
+        "Input JSON: {}",
+        serde_json::to_string_pretty(&sparql_json)?
+    );
 
     // Convert JSON to SPARQL
     let sparql_query_json: SparqlQueryJson = serde_json::from_value(sparql_json.clone())?;

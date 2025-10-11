@@ -1,9 +1,9 @@
 //! Generate template from existing source file
 
-use clap::Args;
-use ggen_utils::error::Result;
-use ggen_ai::{TemplateGenerator, LlmConfig, MockClient};
 use anyhow;
+use clap::Args;
+use ggen_ai::{LlmConfig, MockClient, TemplateGenerator};
+use ggen_utils::error::Result;
 use std::fs;
 
 use super::config::AiConfigArgs;
@@ -71,11 +71,11 @@ pub async fn run(args: &FromSourceArgs) -> Result<()> {
     println!("📂 Generating template from source file...");
     println!("Source file: {}", args.source_file);
     println!("Language: {}", args.language);
-    
+
     if let Some(framework) = &args.framework {
         println!("Framework: {}", framework);
     }
-    
+
     println!("Include RDF: {}", args.include_rdf);
     println!("Extract variables: {}", args.extract_variables);
     println!("AI Model: {}", args.model);
@@ -90,13 +90,14 @@ pub async fn run(args: &FromSourceArgs) -> Result<()> {
         api_key: args.api_key.clone(),
         endpoint: args.endpoint.clone(),
     };
-    
+
     ai_config.validate()?;
     println!("Provider: {}", ai_config.provider_name());
 
     // Read the source file
-    let source_content = fs::read_to_string(&args.source_file)
-        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to read source file: {}", e)))?;
+    let source_content = fs::read_to_string(&args.source_file).map_err(|e| {
+        ggen_utils::error::Error::new(&format!("Failed to read source file: {}", e))
+    })?;
 
     println!("📖 Read {} bytes from source file", source_content.len());
 
@@ -106,10 +107,13 @@ pub async fn run(args: &FromSourceArgs) -> Result<()> {
         max_tokens: Some(args.max_tokens),
         temperature: Some(args.temperature),
         top_p: Some(args.top_p),
-        stop: args.stop.as_ref().map(|s| s.split(',').map(|x| x.to_string()).collect()),
+        stop: args
+            .stop
+            .as_ref()
+            .map(|s| s.split(',').map(|x| x.to_string()).collect()),
         extra: std::collections::HashMap::new(),
     };
-    
+
     let client = MockClient::with_response("Generated template from source analysis");
     let generator = TemplateGenerator::new(Box::new(client));
 
@@ -140,26 +144,30 @@ pub async fn run(args: &FromSourceArgs) -> Result<()> {
     }
 
     // Generate the template
-    let template = generator.generate_template(
-        &analysis_description,
-        examples.iter().map(|s| s.as_str()).collect()
-    ).await.map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?;
+    let template = generator
+        .generate_template(
+            &analysis_description,
+            examples.iter().map(|s| s.as_str()).collect(),
+        )
+        .await
+        .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?;
 
     println!("✅ Template generated successfully!");
 
     // Determine output path
-    let output_path = args.output.as_ref()
-        .map(|s| s.as_str())
-        .unwrap_or_else(|| {
-            let source_name = std::path::Path::new(&args.source_file)
-                .file_stem()
-                .and_then(|s| s.to_str())
-                .unwrap_or("generated");
-            format!("{}.tmpl", source_name).leak()
-        });
+    let output_path = args.output.as_ref().map(|s| s.as_str()).unwrap_or_else(|| {
+        let source_name = std::path::Path::new(&args.source_file)
+            .file_stem()
+            .and_then(|s| s.to_str())
+            .unwrap_or("generated");
+        format!("{}.tmpl", source_name).leak()
+    });
 
     // Write the template
-    fs::write(output_path, format!("{:?}\n---\n{}", template.front, template.body))?;
+    fs::write(
+        output_path,
+        format!("{:?}\n---\n{}", template.front, template.body),
+    )?;
     println!("📁 Saved template to: {}", output_path);
 
     // Generate analysis report

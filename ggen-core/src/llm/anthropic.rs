@@ -155,8 +155,7 @@ impl LlmProvider for AnthropicProvider {
     }
 
     async fn chat_stream(
-        &self,
-        request: ChatRequest,
+        &self, request: ChatRequest,
     ) -> LlmResult<Pin<Box<dyn Stream<Item = LlmResult<StreamChunk>> + Send>>> {
         let mut anthropic_request = self.to_anthropic_request(&request);
         anthropic_request.stream = Some(true);
@@ -276,7 +275,6 @@ fn parse_anthropic_sse(bytes: bytes::Bytes) -> LlmResult<StreamChunk> {
 
     for line in text.lines() {
         if let Some(data) = line.strip_prefix("data: ") {
-
             let event: serde_json::Value = serde_json::from_str(data)?;
 
             match event["type"].as_str() {

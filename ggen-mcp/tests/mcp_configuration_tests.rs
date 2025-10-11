@@ -4,8 +4,8 @@
 //! and capability negotiation following the Model Context Protocol spec.
 
 use ggen_mcp::server::GgenMcpServer;
-use serde_json::json;
 use rmcp::model::{InitializeRequestParam, ProtocolVersion};
+use serde_json::json;
 
 // ============================================================================
 // SERVER INITIALIZATION TESTS
@@ -76,9 +76,14 @@ async fn test_server_capabilities_exposed() {
 
     // Server should expose its capabilities
     // Test by attempting to execute a tool
-    let result = server.execute_tool("project_gen", json!({
-        "template": "test"
-    })).await;
+    let result = server
+        .execute_tool(
+            "project_gen",
+            json!({
+                "template": "test"
+            }),
+        )
+        .await;
 
     // Should succeed or fail gracefully (not panic)
     match result {
@@ -95,7 +100,12 @@ async fn test_server_capabilities_exposed() {
 async fn test_all_project_tools_registered() {
     let server = GgenMcpServer::new();
 
-    let project_tools = vec!["project_gen", "project_plan", "project_apply", "project_diff"];
+    let project_tools = vec![
+        "project_gen",
+        "project_plan",
+        "project_apply",
+        "project_diff",
+    ];
 
     for tool in project_tools {
         let result = server.execute_tool(tool, json!({})).await;
@@ -155,7 +165,11 @@ async fn test_all_graph_tools_registered() {
 async fn test_all_template_tools_registered() {
     let server = GgenMcpServer::new();
 
-    let template_tools = vec!["template_validate", "template_render", "template_from_source"];
+    let template_tools = vec![
+        "template_validate",
+        "template_render",
+        "template_from_source",
+    ];
 
     for tool in template_tools {
         let result = server.execute_tool(tool, json!({})).await;
@@ -242,7 +256,9 @@ fn test_required_fields_specified_in_schemas() {
         assert!(required.is_array());
         let required_array = required.as_array().unwrap();
         assert!(
-            required_array.iter().any(|v| v.as_str() == Some("template")),
+            required_array
+                .iter()
+                .any(|v| v.as_str() == Some("template")),
             "project_gen should require 'template' parameter"
         );
     }
@@ -277,9 +293,7 @@ async fn test_concurrent_server_initialization() {
     let mut handles = vec![];
 
     for _ in 0..10 {
-        let handle = tokio::spawn(async {
-            GgenMcpServer::new()
-        });
+        let handle = tokio::spawn(async { GgenMcpServer::new() });
         handles.push(handle);
     }
 
@@ -298,10 +312,9 @@ async fn test_concurrent_tool_execution() {
     for i in 0..20 {
         let server_clone = server.clone();
         let handle = tokio::spawn(async move {
-            server_clone.execute_tool(
-                "market_search",
-                json!({"query": format!("test-{}", i)}),
-            ).await
+            server_clone
+                .execute_tool("market_search", json!({"query": format!("test-{}", i)}))
+                .await
         });
         handles.push(handle);
     }
@@ -401,7 +414,10 @@ fn test_success_response_format() {
     let response = success_response(data);
 
     // Should have success status
-    assert_eq!(response.get("status").and_then(|v| v.as_str()), Some("success"));
+    assert_eq!(
+        response.get("status").and_then(|v| v.as_str()),
+        Some("success")
+    );
     assert!(response.get("data").is_some());
 }
 
@@ -428,19 +444,15 @@ async fn test_rapid_sequential_tool_calls() {
 
     // Execute 100 rapid calls
     for i in 0..100 {
-        let _ = server.execute_tool(
-            "market_search",
-            json!({"query": format!("test-{}", i)}),
-        ).await;
+        let _ = server
+            .execute_tool("market_search", json!({"query": format!("test-{}", i)}))
+            .await;
     }
 
     let duration = start.elapsed();
 
     // Should complete in reasonable time (< 30 seconds)
-    assert!(
-        duration.as_secs() < 30,
-        "100 calls should complete quickly"
-    );
+    assert!(duration.as_secs() < 30, "100 calls should complete quickly");
 }
 
 // ============================================================================

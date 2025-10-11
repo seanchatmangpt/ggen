@@ -5,7 +5,10 @@
 //! follows the "London School" approach of mocking dependencies and testing behavior over state.
 
 use crate::{
-    core::{Agent, AgentCapability, AgentContext, AgentError, AgentId, AgentResult, ExecutionContext, ExecutionResult, ExecutionStatus},
+    core::{
+        Agent, AgentCapability, AgentContext, AgentError, AgentId, AgentResult, ExecutionContext,
+        ExecutionResult, ExecutionStatus,
+    },
     protocols::Message,
 };
 use async_trait::async_trait;
@@ -33,27 +36,25 @@ impl LondonBddAgent {
     /// Generate BDD test scenarios from requirements
     async fn generate_bdd_scenarios(&self, requirements: &str) -> AgentResult<Vec<BddScenario>> {
         // Parse requirements and generate Given-When-Then scenarios
-        let scenarios = vec![
-            BddScenario {
-                title: "Basic functionality".to_string(),
-                given: "a user has valid input".to_string(),
-                when: "the system processes the input".to_string(),
-                then: "the expected output is produced".to_string(),
-                examples: vec![
-                    ScenarioExample {
-                        description: "Valid string input".to_string(),
-                        input: json!({"text": "hello world"}),
-                        expected_output: json!({"processed": true, "length": 11}),
-                    },
-                ],
-            },
-        ];
+        let scenarios = vec![BddScenario {
+            title: "Basic functionality".to_string(),
+            given: "a user has valid input".to_string(),
+            when: "the system processes the input".to_string(),
+            then: "the expected output is produced".to_string(),
+            examples: vec![ScenarioExample {
+                description: "Valid string input".to_string(),
+                input: json!({"text": "hello world"}),
+                expected_output: json!({"processed": true, "length": 11}),
+            }],
+        }];
 
         Ok(scenarios)
     }
 
     /// Generate London School TDD test structure
-    async fn generate_london_school_tests(&self, scenarios: &[BddScenario]) -> AgentResult<LondonSchoolTestSuite> {
+    async fn generate_london_school_tests(
+        &self, scenarios: &[BddScenario],
+    ) -> AgentResult<LondonSchoolTestSuite> {
         let mut tests = Vec::new();
 
         for scenario in scenarios {
@@ -79,7 +80,9 @@ impl LondonBddAgent {
     }
 
     /// Generate mocks for a scenario (London School principle)
-    async fn generate_mocks_for_scenario(&self, scenario: &BddScenario) -> AgentResult<Vec<MockDefinition>> {
+    async fn generate_mocks_for_scenario(
+        &self, scenario: &BddScenario,
+    ) -> AgentResult<Vec<MockDefinition>> {
         // Identify dependencies that need to be mocked
         let mocks = vec![
             MockDefinition {
@@ -101,13 +104,11 @@ impl LondonBddAgent {
             MockDefinition {
                 name: "network_client".to_string(),
                 interface: "HttpClient".to_string(),
-                methods: vec![
-                    MockMethod {
-                        name: "get".to_string(),
-                        return_value: json!({"status": 200, "data": "mock response"}),
-                        side_effects: Vec::new(),
-                    },
-                ],
+                methods: vec![MockMethod {
+                    name: "get".to_string(),
+                    return_value: json!({"status": 200, "data": "mock response"}),
+                    side_effects: Vec::new(),
+                }],
             },
         ];
 
@@ -115,7 +116,9 @@ impl LondonBddAgent {
     }
 
     /// Generate assertions for a scenario
-    async fn generate_assertions_for_scenario(&self, scenario: &BddScenario) -> AgentResult<Vec<TestAssertion>> {
+    async fn generate_assertions_for_scenario(
+        &self, scenario: &BddScenario,
+    ) -> AgentResult<Vec<TestAssertion>> {
         let assertions = vec![
             TestAssertion {
                 description: "Output matches expected result".to_string(),
@@ -135,20 +138,29 @@ impl LondonBddAgent {
     }
 
     /// Validate that tests follow London School principles
-    async fn validate_london_school_compliance(&self, test_suite: &LondonSchoolTestSuite) -> AgentResult<ComplianceReport> {
+    async fn validate_london_school_compliance(
+        &self, test_suite: &LondonSchoolTestSuite,
+    ) -> AgentResult<ComplianceReport> {
         let mut issues = Vec::new();
         let mut score = 100;
 
         // Check for proper mocking
         for test in &test_suite.tests {
             if test.mocks.is_empty() {
-                issues.push("Test lacks proper dependency mocking (London School principle)".to_string());
+                issues.push(
+                    "Test lacks proper dependency mocking (London School principle)".to_string(),
+                );
                 score -= 20;
             }
 
             // Check for behavior over state testing
-            if !test.assertions.iter().any(|a| a.assertion_type.contains("behavior") || a.assertion_type.contains("interaction")) {
-                issues.push("Test focuses on state rather than behavior (London School principle)".to_string());
+            if !test.assertions.iter().any(|a| {
+                a.assertion_type.contains("behavior") || a.assertion_type.contains("interaction")
+            }) {
+                issues.push(
+                    "Test focuses on state rather than behavior (London School principle)"
+                        .to_string(),
+                );
                 score -= 15;
             }
         }
@@ -187,7 +199,9 @@ impl Agent for LondonBddAgent {
 
     async fn initialize(&mut self, _context: &AgentContext) -> AgentResult<()> {
         if self.initialized {
-            return Err(AgentError::InitializationFailed("Agent already initialized".to_string()));
+            return Err(AgentError::InitializationFailed(
+                "Agent already initialized".to_string(),
+            ));
         }
 
         tracing::info!("Initializing London BDD Agent");
@@ -205,7 +219,9 @@ impl Agent for LondonBddAgent {
         let start_time = std::time::Instant::now();
 
         // Extract requirements or specifications from input
-        let requirements = context.input.get("requirements")
+        let requirements = context
+            .input
+            .get("requirements")
             .or_else(|| context.input.get("specs"))
             .or_else(|| context.input.get("user_story"))
             .and_then(|v| v.as_str())
@@ -242,8 +258,14 @@ impl Agent for LondonBddAgent {
             output,
             metadata: HashMap::from([
                 ("agent_type".to_string(), "london_bdd".to_string()),
-                ("scenarios_generated".to_string(), scenarios.len().to_string()),
-                ("london_school_score".to_string(), compliance_report.score.to_string()),
+                (
+                    "scenarios_generated".to_string(),
+                    scenarios.len().to_string(),
+                ),
+                (
+                    "london_school_score".to_string(),
+                    compliance_report.score.to_string(),
+                ),
             ]),
             duration_ms,
             messages: compliance_report.issues,
@@ -330,7 +352,10 @@ pub struct BddScenario {
 
 impl BddScenario {
     pub fn description(&self) -> String {
-        format!("{}: Given {}, When {}, Then {}", self.title, self.given, self.when, self.then)
+        format!(
+            "{}: Given {}, When {}, Then {}",
+            self.title, self.given, self.when, self.then
+        )
     }
 }
 

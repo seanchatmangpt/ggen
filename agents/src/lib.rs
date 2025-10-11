@@ -30,18 +30,22 @@
 //! - **api-artisan**: API design and interface evolution
 //! - **knowledge-weaver**: Cross-domain pattern synthesis
 
-pub mod core;
 pub mod agents;
 pub mod coordination;
+pub mod core;
 pub mod protocols;
+pub mod swarm;
+pub mod ultrathink_core;
 
-pub use core::{Agent, AgentContext, AgentError, AgentResult, ExecutionContext};
 pub use coordination::{AgentCoordinator, ExecutionPlan, Task};
+pub use core::{Agent, AgentContext, AgentError, AgentResult, ExecutionContext};
 pub use protocols::{Message, MessageType, Protocol};
+pub use swarm::{UltrathinkSwarm, SwarmStatus, SwarmPerformanceMetrics, demonstrate_autonomous_workflows, run_ultrathink_swarm};
+pub use ultrathink_core::{UltrathinkCore, UltrathinkStatus, UltrathinkMetrics, demonstrate_focused_autonomous_workflows, run_ultrathink_core};
 
 // Re-export commonly used types
 pub use async_trait::async_trait;
 pub use serde::{Deserialize, Serialize};
 pub use tokio::sync::{mpsc, RwLock};
+pub use tokio;
 pub use uuid::Uuid;
-

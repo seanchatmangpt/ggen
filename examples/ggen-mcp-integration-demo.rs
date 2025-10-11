@@ -7,7 +7,7 @@
 //!
 //! Run with: cargo run --example ggen-mcp-integration-demo
 
-use ggen_mcp::tools::{project, market, graph};
+use ggen_mcp::tools::{graph, market, project};
 use serde_json::json;
 use std::fs;
 use tempfile::TempDir;

@@ -1,8 +1,8 @@
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
-use std::sync::Arc;
+use dashmap::DashMap;
 use lru::LruCache;
 use parking_lot::Mutex;
-use dashmap::DashMap;
+use std::sync::Arc;
 
 /// Benchmark LRU cache performance for template lookups
 fn benchmark_lru_cache(c: &mut Criterion) {
@@ -15,9 +15,7 @@ fn benchmark_lru_cache(c: &mut Criterion) {
             cache.put(format!("key_{}", i), format!("value_{}", i));
         }
 
-        b.iter(|| {
-            black_box(cache.get(&"key_50".to_string()))
-        });
+        b.iter(|| black_box(cache.get(&"key_50".to_string())));
     });
 
     group.bench_function("get_miss", |b| {
@@ -26,9 +24,7 @@ fn benchmark_lru_cache(c: &mut Criterion) {
             cache.put(format!("key_{}", i), format!("value_{}", i));
         }
 
-        b.iter(|| {
-            black_box(cache.get(&"missing_key".to_string()))
-        });
+        b.iter(|| black_box(cache.get(&"missing_key".to_string())));
     });
 
     group.bench_function("put_new", |b| {
@@ -60,9 +56,7 @@ fn benchmark_lru_cache(c: &mut Criterion) {
                 cache.put(format!("key_{}", i), format!("value_{}", i));
             }
 
-            b.iter(|| {
-                black_box(cache.get(&format!("key_{}", size / 2)))
-            });
+            b.iter(|| black_box(cache.get(&format!("key_{}", size / 2))));
         });
     }
 
@@ -75,7 +69,9 @@ fn benchmark_concurrent_cache(c: &mut Criterion) {
 
     // Arc<Mutex<LruCache>> benchmark
     group.bench_function("mutex_lru_get", |b| {
-        let cache = Arc::new(Mutex::new(LruCache::new(std::num::NonZeroUsize::new(1000).unwrap())));
+        let cache = Arc::new(Mutex::new(LruCache::new(
+            std::num::NonZeroUsize::new(1000).unwrap(),
+        )));
         {
             let mut cache_lock = cache.lock();
             for i in 0..100 {
@@ -90,7 +86,9 @@ fn benchmark_concurrent_cache(c: &mut Criterion) {
     });
 
     group.bench_function("mutex_lru_put", |b| {
-        let cache = Arc::new(Mutex::new(LruCache::new(std::num::NonZeroUsize::new(1000).unwrap())));
+        let cache = Arc::new(Mutex::new(LruCache::new(
+            std::num::NonZeroUsize::new(1000).unwrap(),
+        )));
         let mut counter = 0;
 
         b.iter(|| {
@@ -107,9 +105,7 @@ fn benchmark_concurrent_cache(c: &mut Criterion) {
             cache.insert(format!("key_{}", i), format!("value_{}", i));
         }
 
-        b.iter(|| {
-            black_box(cache.get(&"key_50".to_string()))
-        });
+        b.iter(|| black_box(cache.get(&"key_50".to_string())));
     });
 
     group.bench_function("dashmap_insert", |b| {
@@ -133,12 +129,12 @@ fn benchmark_concurrent_cache(c: &mut Criterion) {
         b.to_async(&rt).iter(|| {
             let cache = cache.clone();
             async move {
-                let tasks: Vec<_> = (0..100).map(|i| {
-                    let cache = cache.clone();
-                    tokio::spawn(async move {
-                        cache.get(&format!("key_{}", i % 1000))
+                let tasks: Vec<_> = (0..100)
+                    .map(|i| {
+                        let cache = cache.clone();
+                        tokio::spawn(async move { cache.get(&format!("key_{}", i % 1000)) })
                     })
-                }).collect();
+                    .collect();
 
                 for task in tasks {
                     let _ = task.await;
@@ -190,9 +186,7 @@ fn benchmark_marketplace_cache(c: &mut Criterion) {
         };
         cache.insert("test-id".to_string(), pkg);
 
-        b.iter(|| {
-            black_box(cache.get(&"test-id".to_string()))
-        });
+        b.iter(|| black_box(cache.get(&"test-id".to_string())));
     });
 
     // Benchmark search result caching
@@ -210,9 +204,7 @@ fn benchmark_marketplace_cache(c: &mut Criterion) {
         let results: Vec<String> = (0..20).map(|i| format!("result_{}", i)).collect();
         cache.insert("query:auth".to_string(), results);
 
-        b.iter(|| {
-            black_box(cache.get(&"query:auth".to_string()))
-        });
+        b.iter(|| black_box(cache.get(&"query:auth".to_string())));
     });
 
     group.finish();
@@ -238,12 +230,14 @@ fn benchmark_cache_warming(c: &mut Criterion) {
         b.to_async(&rt).iter(|| async {
             let cache = Arc::new(DashMap::new());
 
-            let tasks: Vec<_> = (0..100).map(|i| {
-                let cache = cache.clone();
-                tokio::spawn(async move {
-                    cache.insert(format!("key_{}", i), format!("value_{}", i));
+            let tasks: Vec<_> = (0..100)
+                .map(|i| {
+                    let cache = cache.clone();
+                    tokio::spawn(async move {
+                        cache.insert(format!("key_{}", i), format!("value_{}", i));
+                    })
                 })
-            }).collect();
+                .collect();
 
             for task in tasks {
                 let _ = task.await;

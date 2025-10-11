@@ -46,6 +46,43 @@ ggen --version
 
 ## Post-Installation Setup
 
+### 🚀 AI-Powered Features (v1.0.0)
+
+**ggen v1.0.0** includes powerful AI capabilities. To unlock them:
+
+#### Option 1: Local AI (Recommended for Privacy)
+
+```bash
+# Install Ollama for local AI
+curl -fsSL https://ollama.ai/install.sh | sh
+
+# Pull the recommended model (no API keys needed!)
+ollama pull qwen3-coder:30b
+
+# Test AI generation
+ggen ai generate -d "Hello world function in Rust" -o hello.rs
+```
+
+#### Option 2: Cloud AI (OpenAI/Anthropic)
+
+```bash
+# Create .env file for API keys
+echo "OPENAI_API_KEY=sk-your-key-here" >> ~/.config/ggen/.env
+echo "ANTHROPIC_API_KEY=sk-ant-your-key-here" >> ~/.config/ggen/.env
+
+# Test with OpenAI
+ggen ai generate -d "REST API endpoint" -o api.rs
+
+# Test with Anthropic
+ANTHROPIC_API_KEY=sk-ant-your-key ggen ai generate -d "Database model" -o model.rs
+```
+
+**AI Features Available:**
+- 🤖 **Template Generation** - Create templates from natural language
+- 🏗️ **Project Scaffolding** - Generate complete projects with AI
+- 🔍 **Natural Language Search** - Find templates conversationally
+- 📋 **Smart Frontmatter** - AI-generated metadata
+
 ### Marketplace Access
 
 The marketplace is available immediately after installation. No additional configuration is required.

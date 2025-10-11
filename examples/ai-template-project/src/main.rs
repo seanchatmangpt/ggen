@@ -1,5 +1,5 @@
 //! AI-powered template project generator for ggen marketplace
-//! 
+//!
 //! This tool generates complete template projects using AI and publishes them
 //! to the ggen marketplace. It follows core team best practices for project
 //! structure, code quality, and marketplace integration.
@@ -25,70 +25,70 @@ enum Commands {
         /// Project description
         #[arg(short, long)]
         description: String,
-        
+
         /// Project name
         #[arg(short, long)]
         name: String,
-        
+
         /// Target programming language
         #[arg(short, long, default_value = "rust")]
         language: String,
-        
+
         /// Target framework
         #[arg(short, long)]
         framework: Option<String>,
-        
+
         /// Output directory
         #[arg(short, long, default_value = "./generated-project")]
         output: String,
-        
+
         /// Publish to marketplace after generation
         #[arg(long)]
         publish: bool,
-        
+
         /// Include tests
         #[arg(long)]
         tests: bool,
-        
+
         /// Include documentation
         #[arg(long)]
         docs: bool,
-        
+
         /// Include CI/CD configuration
         #[arg(long)]
         ci: bool,
-        
+
         /// Use mock AI (for testing)
         #[arg(long)]
         mock: bool,
     },
-    
+
     /// List available templates in marketplace
     List {
         /// Filter by language
         #[arg(short, long)]
         language: Option<String>,
-        
+
         /// Filter by framework
         #[arg(short, long)]
         framework: Option<String>,
-        
+
         /// Show only AI-generated templates
         #[arg(long)]
         ai_generated: bool,
     },
-    
+
     /// Validate a template project
     Validate {
         /// Project directory to validate
         #[arg(short, long)]
         project: String,
-        
+
         /// Strict validation mode
         #[arg(long)]
         strict: bool,
     },
-    
+
     /// Show example projects
     Examples,
 }
@@ -119,14 +119,8 @@ impl AiTemplateGenerator {
     }
 
     async fn generate_project(
-        &self,
-        description: &str,
-        name: &str,
-        language: &str,
-        framework: Option<&str>,
-        tests: bool,
-        docs: bool,
-        ci: bool,
+        &self, description: &str, name: &str, language: &str, framework: Option<&str>, tests: bool,
+        docs: bool, ci: bool,
     ) -> Result<ProjectStructure, Box<dyn std::error::Error>> {
         println!("🤖 AI Template Generator");
         println!("Description: {}", description);
@@ -146,30 +140,88 @@ impl AiTemplateGenerator {
         // Generate core project files based on language
         match language {
             "rust" => {
-                self.generate_rust_project(&mut files, &mut dependencies, &mut features, name, framework, tests, docs, ci).await?;
-            },
+                self.generate_rust_project(
+                    &mut files,
+                    &mut dependencies,
+                    &mut features,
+                    name,
+                    framework,
+                    tests,
+                    docs,
+                    ci,
+                )
+                .await?;
+            }
             "python" => {
-                self.generate_python_project(&mut files, &mut dependencies, &mut features, name, framework, tests, docs, ci).await?;
-            },
+                self.generate_python_project(
+                    &mut files,
+                    &mut dependencies,
+                    &mut features,
+                    name,
+                    framework,
+                    tests,
+                    docs,
+                    ci,
+                )
+                .await?;
+            }
             "javascript" => {
-                self.generate_javascript_project(&mut files, &mut dependencies, &mut features, name, framework, tests, docs, ci).await?;
-            },
+                self.generate_javascript_project(
+                    &mut files,
+                    &mut dependencies,
+                    &mut features,
+                    name,
+                    framework,
+                    tests,
+                    docs,
+                    ci,
+                )
+                .await?;
+            }
             "go" => {
-                self.generate_go_project(&mut files, &mut dependencies, &mut features, name, framework, tests, docs, ci).await?;
-            },
+                self.generate_go_project(
+                    &mut files,
+                    &mut dependencies,
+                    &mut features,
+                    name,
+                    framework,
+                    tests,
+                    docs,
+                    ci,
+                )
+                .await?;
+            }
             _ => {
                 return Err(format!("Unsupported language: {}", language).into());
             }
         }
 
         // Add metadata
-        metadata.insert("generated_by".to_string(), Value::String("ggen-ai".to_string()));
-        metadata.insert("generation_date".to_string(), Value::String(chrono::Utc::now().format("%Y-%m-%d").to_string()));
+        metadata.insert(
+            "generated_by".to_string(),
+            Value::String("ggen-ai".to_string()),
+        );
+        metadata.insert(
+            "generation_date".to_string(),
+            Value::String(chrono::Utc::now().format("%Y-%m-%d").to_string()),
+        );
         metadata.insert("language".to_string(), Value::String(language.to_string()));
-        metadata.insert("framework".to_string(), Value::String(framework.unwrap_or("none").to_string()));
-        metadata.insert("description".to_string(), Value::String(description.to_string()));
-        metadata.insert("quality_score".to_string(), Value::Number(serde_json::Number::from_f64(0.85).unwrap()));
-        metadata.insert("ai_model".to_string(), Value::String("qwen3-coder:30b".to_string()));
+        metadata.insert(
+            "framework".to_string(),
+            Value::String(framework.unwrap_or("none").to_string()),
+        );
+        metadata.insert(
+            "description".to_string(),
+            Value::String(description.to_string()),
+        );
+        metadata.insert(
+            "quality_score".to_string(),
+            Value::Number(serde_json::Number::from_f64(0.85).unwrap()),
+        );
+        metadata.insert(
+            "ai_model".to_string(),
+            Value::String("qwen3-coder:30b".to_string()),
+        );
 
         Ok(ProjectStructure {
             files,
@@ -180,14 +232,8 @@ impl AiTemplateGenerator {
     }
 
     async fn generate_rust_project(
-        &self,
-        files: &mut Vec<ProjectFile>,
-        _dependencies: &mut Vec<String>,
-        features: &mut Vec<String>,
-        name: &str,
-        framework: Option<&str>,
-        tests: bool,
-        docs: bool,
+        &self, files: &mut Vec<ProjectFile>, _dependencies: &mut Vec<String>,
+        features: &mut Vec<String>, name: &str, framework: Option<&str>, tests: bool, docs: bool,
         ci: bool,
     ) -> Result<(), Box<dyn std::error::Error>> {
         // Cargo.toml
@@ -203,21 +249,23 @@ impl AiTemplateGenerator {
                     cargo_deps.push(("actix-web".to_string(), "4.0".to_string()));
                     cargo_deps.push(("actix-rt".to_string(), "2.0".to_string()));
                     features.push("web".to_string());
-                },
+                }
                 "axum" => {
                     cargo_deps.push(("axum".to_string(), "0.7".to_string()));
                     cargo_deps.push(("tower".to_string(), "0.4".to_string()));
                     features.push("web".to_string());
-                },
+                }
                 "clap" => {
                     cargo_deps.push(("clap".to_string(), "4.0".to_string()));
                     features.push("cli".to_string());
-                },
+                }
                 _ => {}
             }
         }
 
-        let cargo_toml = self.generate_cargo_toml(name, &cargo_deps, &features).await?;
+        let cargo_toml = self
+            .generate_cargo_toml(name, &cargo_deps, &features)
+            .await?;
         files.push(ProjectFile {
             path: "Cargo.toml".to_string(),
             content_type: "config".to_string(),
@@ -254,7 +302,7 @@ impl AiTemplateGenerator {
                         description: "HTTP handlers".to_string(),
                         content: handlers,
                     });
-                },
+                }
                 "axum" => {
                     let routes = self.generate_axum_routes().await?;
                     files.push(ProjectFile {
@@ -263,7 +311,7 @@ impl AiTemplateGenerator {
                         description: "API routes".to_string(),
                         content: routes,
                     });
-                },
+                }
                 "clap" => {
                     let cli = self.generate_clap_cli().await?;
                     files.push(ProjectFile {
@@ -272,7 +320,7 @@ impl AiTemplateGenerator {
                         description: "CLI interface".to_string(),
                         content: cli,
                     });
-                },
+                }
                 _ => {}
             }
         }
@@ -290,7 +338,9 @@ impl AiTemplateGenerator {
 
         // Documentation
         if docs {
-            let readme = self.generate_readme(name, "rust", framework, &features).await?;
+            let readme = self
+                .generate_readme(name, "rust", framework, &features)
+                .await?;
             files.push(ProjectFile {
                 path: "README.md".to_string(),
                 content_type: "documentation".to_string(),
@@ -317,21 +367,12 @@ impl AiTemplateGenerator {
     }
 
     async fn generate_python_project(
-        &self,
-        files: &mut Vec<ProjectFile>,
-        _dependencies: &mut Vec<String>,
-        features: &mut Vec<String>,
-        name: &str,
-        framework: Option<&str>,
-        tests: bool,
-        docs: bool,
+        &self, files: &mut Vec<ProjectFile>, _dependencies: &mut Vec<String>,
+        features: &mut Vec<String>, name: &str, framework: Option<&str>, tests: bool, docs: bool,
         ci: bool,
     ) -> Result<(), Box<dyn std::error::Error>> {
         // pyproject.toml
-        let mut py_deps = vec![
-            "pydantic".to_string(),
-            "typing-extensions".to_string(),
-        ];
+        let mut py_deps = vec!["pydantic".to_string(), "typing-extensions".to_string()];
 
         if let Some(fw) = framework {
             match fw {
@@ -339,15 +380,15 @@ impl AiTemplateGenerator {
                     py_deps.push("fastapi".to_string());
                     py_deps.push("uvicorn".to_string());
                     features.push("api".to_string());
-                },
+                }
                 "django" => {
                     py_deps.push("django".to_string());
                     features.push("web".to_string());
-                },
+                }
                 "flask" => {
                     py_deps.push("flask".to_string());
                     features.push("web".to_string());
-                },
+                }
                 _ => {}
             }
         }
@@ -391,7 +432,9 @@ impl AiTemplateGenerator {
 
         // Documentation
         if docs {
-            let readme = self.generate_readme(name, "python", framework, &features).await?;
+            let readme = self
+                .generate_readme(name, "python", framework, &features)
+                .await?;
             files.push(ProjectFile {
                 path: "README.md".to_string(),
                 content_type: "documentation".to_string(),
@@ -416,20 +459,12 @@ impl AiTemplateGenerator {
     }
 
     async fn generate_javascript_project(
-        &self,
-        files: &mut Vec<ProjectFile>,
-        _dependencies: &mut Vec<String>,
-        features: &mut Vec<String>,
-        name: &str,
-        framework: Option<&str>,
-        tests: bool,
-        docs: bool,
+        &self, files: &mut Vec<ProjectFile>, _dependencies: &mut Vec<String>,
+        features: &mut Vec<String>, name: &str, framework: Option<&str>, tests: bool, docs: bool,
         ci: bool,
     ) -> Result<(), Box<dyn std::error::Error>> {
         // package.json
-        let mut js_deps = vec![
-            "express".to_string(),
-        ];
+        let mut js_deps = vec!["express".to_string()];
 
         if let Some(fw) = framework {
             match fw {
@@ -437,17 +472,17 @@ impl AiTemplateGenerator {
                     js_deps.push("express".to_string());
                     js_deps.push("cors".to_string());
                     features.push("web".to_string());
-                },
+                }
                 "next" => {
                     js_deps.push("next".to_string());
                     js_deps.push("react".to_string());
                     features.push("web".to_string());
-                },
+                }
                 "nestjs" => {
                     js_deps.push("@nestjs/core".to_string());
                     js_deps.push("@nestjs/common".to_string());
                     features.push("api".to_string());
-                },
+                }
                 _ => {}
             }
         }
@@ -482,7 +517,9 @@ impl AiTemplateGenerator {
 
         // Documentation
         if docs {
-            let readme = self.generate_readme(name, "javascript", framework, &features).await?;
+            let readme = self
+                .generate_readme(name, "javascript", framework, &features)
+                .await?;
             files.push(ProjectFile {
                 path: "README.md".to_string(),
                 content_type: "documentation".to_string(),
@@ -507,14 +544,8 @@ impl AiTemplateGenerator {
     }
 
     async fn generate_go_project(
-        &self,
-        files: &mut Vec<ProjectFile>,
-        _dependencies: &mut Vec<String>,
-        features: &mut Vec<String>,
-        name: &str,
-        framework: Option<&str>,
-        tests: bool,
-        docs: bool,
+        &self, files: &mut Vec<ProjectFile>, _dependencies: &mut Vec<String>,
+        features: &mut Vec<String>, name: &str, framework: Option<&str>, tests: bool, docs: bool,
         ci: bool,
     ) -> Result<(), Box<dyn std::error::Error>> {
         // go.mod
@@ -548,7 +579,9 @@ impl AiTemplateGenerator {
 
         // Documentation
         if docs {
-            let readme = self.generate_readme(name, "go", framework, &features).await?;
+            let readme = self
+                .generate_readme(name, "go", framework, &features)
+                .await?;
             files.push(ProjectFile {
                 path: "README.md".to_string(),
                 content_type: "documentation".to_string(),
@@ -572,7 +605,9 @@ impl AiTemplateGenerator {
     }
 
     // Mock AI generation methods
-    async fn generate_cargo_toml(&self, name: &str, deps: &[(String, String)], features: &[String]) -> Result<String, Box<dyn std::error::Error>> {
+    async fn generate_cargo_toml(
+        &self, name: &str, deps: &[(String, String)], features: &[String],
+    ) -> Result<String, Box<dyn std::error::Error>> {
         let mut content = format!(
             r#"[package]
 name = "{}"
@@ -602,19 +637,23 @@ categories = ["templates"]
             }
         }
 
-        content.push_str(r#"
+        content.push_str(
+            r#"
 [package.metadata.ggen]
 generated_by = "ggen-ai"
 generation_date = "2024-01-01"
 language = "rust"
 quality_score = 0.85
 ai_model = "qwen3-coder:30b"
-"#);
+"#,
+        );
 
         Ok(content)
     }
 
-    async fn generate_rust_main(&self, name: &str, framework: Option<&str>) -> Result<String, Box<dyn std::error::Error>> {
+    async fn generate_rust_main(
+        &self, name: &str, framework: Option<&str>,
+    ) -> Result<String, Box<dyn std::error::Error>> {
         let content = match framework {
             Some("actix-web") => format!(
                 r#"use actix_web::{{web, App, HttpServer, Result}};
@@ -1017,7 +1056,9 @@ async fn test_health_endpoint() {{
         Ok(content)
     }
 
-    async fn generate_pyproject_toml(&self, name: &str, deps: &[String]) -> Result<String, Box<dyn std::error::Error>> {
+    async fn generate_pyproject_toml(
+        &self, name: &str, deps: &[String],
+    ) -> Result<String, Box<dyn std::error::Error>> {
         let mut content = format!(
             r#"[build-system]
 requires = ["hatchling"]
@@ -1042,7 +1083,8 @@ dependencies = [
             content.push_str(&format!("    \"{}\",\n", dep));
         }
 
-        content.push_str(r#"]
+        content.push_str(
+            r#"]
 keywords = ["ai-generated", "template", "python"]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -1079,12 +1121,15 @@ target-version = ['py38']
 [tool.isort]
 profile = "black"
 line_length = 88
-"#);
+"#,
+        );
 
         Ok(content)
     }
 
-    async fn generate_python_main(&self, name: &str, framework: Option<&str>) -> Result<String, Box<dyn std::error::Error>> {
+    async fn generate_python_main(
+        &self, name: &str, framework: Option<&str>,
+    ) -> Result<String, Box<dyn std::error::Error>> {
         let content = match framework {
             Some("fastapi") => format!(
                 r#"from fastapi import FastAPI, HTTPException
@@ -1246,7 +1291,9 @@ __all__ = ["main", "Config"]
         Ok(content)
     }
 
-    async fn generate_python_tests(&self, _name: &str) -> Result<String, Box<dyn std::error::Error>> {
+    async fn generate_python_tests(
+        &self, _name: &str,
+    ) -> Result<String, Box<dyn std::error::Error>> {
         let content = format!(
             r#"import pytest
 from src.main import Config, main
@@ -1274,7 +1321,9 @@ def test_main():
         Ok(content)
     }
 
-    async fn generate_javascript_main(&self, name: &str, framework: Option<&str>) -> Result<String, Box<dyn std::error::Error>> {
+    async fn generate_javascript_main(
+        &self, name: &str, framework: Option<&str>,
+    ) -> Result<String, Box<dyn std::error::Error>> {
         let content = match framework {
             Some("express") => format!(
                 r#"const express = require('express');
@@ -1454,7 +1503,9 @@ module.exports = {{ Config, main }};
         Ok(content)
     }
 
-    async fn generate_package_json(&self, name: &str, deps: &[String]) -> Result<String, Box<dyn std::error::Error>> {
+    async fn generate_package_json(
+        &self, name: &str, deps: &[String],
+    ) -> Result<String, Box<dyn std::error::Error>> {
         let mut content = format!(
             r#"{{
     "name": "{}",
@@ -1483,7 +1534,8 @@ module.exports = {{ Config, main }};
             content.push_str(&format!("        \"{}\": \"latest\",\n", dep));
         }
 
-        content.push_str(r#"    },
+        content.push_str(
+            r#"    },
     "devDependencies": {
         "jest": "^29.0.0",
         "nodemon": "^3.0.0"
@@ -1498,12 +1550,15 @@ module.exports = {{ Config, main }};
         "quality_score": 0.85,
         "ai_model": "qwen3-coder:30b"
     }
-}"#);
+}"#,
+        );
 
         Ok(content)
     }
 
-    async fn generate_javascript_tests(&self, name: &str) -> Result<String, Box<dyn std::error::Error>> {
+    async fn generate_javascript_tests(
+        &self, name: &str,
+    ) -> Result<String, Box<dyn std::error::Error>> {
         let content = format!(
             r#"const {{ Config, main }} = require('../src/index');
 
@@ -1586,7 +1641,9 @@ require (
         Ok(content)
     }
 
-    async fn generate_go_main(&self, name: &str, framework: Option<&str>) -> Result<String, Box<dyn std::error::Error>> {
+    async fn generate_go_main(
+        &self, name: &str, framework: Option<&str>,
+    ) -> Result<String, Box<dyn std::error::Error>> {
         let content = match framework {
             Some("gin") => format!(
                 r#"package main
@@ -1762,7 +1819,9 @@ func contains(s, substr string) bool {{
         Ok(content)
     }
 
-    async fn generate_readme(&self, name: &str, language: &str, framework: Option<&str>, features: &[String]) -> Result<String, Box<dyn std::error::Error>> {
+    async fn generate_readme(
+        &self, name: &str, language: &str, framework: Option<&str>, features: &[String],
+    ) -> Result<String, Box<dyn std::error::Error>> {
         let mut content = format!(
             r#"# {}
 
@@ -1783,18 +1842,24 @@ This project was automatically generated using AI to provide a complete, product
         }
 
         if let Some(fw) = framework {
-            content.push_str(&format!("\n## Framework\n\nThis project uses **{}** as the main framework.\n\n", fw));
+            content.push_str(&format!(
+                "\n## Framework\n\nThis project uses **{}** as the main framework.\n\n",
+                fw
+            ));
         }
 
-        content.push_str(r#"## Getting Started
+        content.push_str(
+            r#"## Getting Started
 
 ### Prerequisites
 
-"#);
+"#,
+        );
 
         match language {
             "rust" => {
-                content.push_str(r#"- Rust 1.70 or later
+                content.push_str(
+                    r#"- Rust 1.70 or later
 - Cargo (comes with Rust)
 
 ### Installation
@@ -1802,9 +1867,11 @@ This project was automatically generated using AI to provide a complete, product
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd "#);
+cd "#,
+                );
                 content.push_str(name);
-                content.push_str(r#""
+                content.push_str(
+                    r#""
 
 # Build the project
 cargo build
@@ -1822,10 +1889,12 @@ cargo test
 # Run tests with output
 cargo test -- --nocapture
 ```
-"#);
-            },
+"#,
+                );
+            }
             "python" => {
-                content.push_str(r#"- Python 3.8 or later
+                content.push_str(
+                    r#"- Python 3.8 or later
 - pip or uv
 
 ### Installation
@@ -1833,9 +1902,11 @@ cargo test -- --nocapture
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd "#);
+cd "#,
+                );
                 content.push_str(name);
-                content.push_str(r#""
+                content.push_str(
+                    r#""
 
 # Install dependencies
 pip install -e .
@@ -1857,10 +1928,12 @@ python src/main.py
 # Run tests
 pytest
 ```
-"#);
-            },
+"#,
+                );
+            }
             "javascript" => {
-                content.push_str(r#"- Node.js 16 or later
+                content.push_str(
+                    r#"- Node.js 16 or later
 - npm or yarn
 
 ### Installation
@@ -1868,9 +1941,11 @@ pytest
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd "#);
+cd "#,
+                );
                 content.push_str(name);
-                content.push_str(r#""
+                content.push_str(
+                    r#""
 
 # Install dependencies
 npm install
@@ -1895,19 +1970,23 @@ npm run dev
 # Run tests
 npm test
 ```
-"#);
-            },
+"#,
+                );
+            }
             "go" => {
-                content.push_str(r#"- Go 1.21 or later
+                content.push_str(
+                    r#"- Go 1.21 or later
 
 ### Installation
 
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd "#);
+cd "#,
+                );
                 content.push_str(name);
-                content.push_str(r#""
+                content.push_str(
+                    r#""
 
 # Download dependencies
 go mod download
@@ -1920,9 +1999,11 @@ go mod download
 go run main.go
 
 # Build the application
-go build -o "#);
+go build -o "#,
+                );
                 content.push_str(name);
-                content.push_str(r#""
+                content.push_str(
+                    r#""
 ```
 
 ### Testing
@@ -1934,27 +2015,33 @@ go test
 # Run tests with verbose output
 go test -v
 ```
-"#);
-            },
+"#,
+                );
+            }
             _ => {}
         }
 
-        content.push_str(r#"
+        content.push_str(
+            r#"
 
 ## Project Structure
 
-This AI-generated project follows best practices for "#);
+This AI-generated project follows best practices for "#,
+        );
         content.push_str(language);
-        content.push_str(r#" development:
+        content.push_str(
+            r#" development:
 
 ```
-"#);
+"#,
+        );
         content.push_str(name);
         content.push_str(r#"/"#);
 
         match language {
             "rust" => {
-                content.push_str(r#"
+                content.push_str(
+                    r#"
 ├── Cargo.toml          # Project configuration
 ├── src/
 │   ├── main.rs         # Main application
@@ -1962,10 +2049,12 @@ This AI-generated project follows best practices for "#);
 ├── tests/              # Integration tests
 └── README.md           # This file
 ```
-"#);
-            },
+"#,
+                );
+            }
             "python" => {
-                content.push_str(r#"
+                content.push_str(
+                    r#"
 ├── pyproject.toml      # Project configuration
 ├── src/
 │   ├── main.py         # Main application
@@ -1973,39 +2062,47 @@ This AI-generated project follows best practices for "#);
 ├── tests/              # Unit tests
 └── README.md           # This file
 ```
-"#);
-            },
+"#,
+                );
+            }
             "javascript" => {
-                content.push_str(r#"
+                content.push_str(
+                    r#"
 ├── package.json        # Project configuration
 ├── src/
 │   └── index.js       # Main application
 ├── tests/              # Unit tests
 └── README.md           # This file
 ```
-"#);
-            },
+"#,
+                );
+            }
             "go" => {
-                content.push_str(r#"
+                content.push_str(
+                    r#"
 ├── go.mod              # Module configuration
 ├── main.go             # Main application
 ├── main_test.go        # Unit tests
 └── README.md           # This file
 ```
-"#);
-            },
+"#,
+                );
+            }
             _ => {}
         }
 
-        content.push_str(r#"
+        content.push_str(
+            r#"
 
 ## AI Generation Details
 
 - **Generated by**: ggen-ai
 - **AI Model**: qwen3-coder:30b
-- **Generation Date**: "#);
+- **Generation Date**: "#,
+        );
         content.push_str(&chrono::Utc::now().format("%Y-%m-%d").to_string());
-        content.push_str(r#"**
+        content.push_str(
+            r#"**
 - **Quality Score**: 85/100
 - **Validation**: Passed
 
@@ -2023,14 +2120,18 @@ For issues and questions:
 - GitHub Issues: [Create an issue](https://github.com/ggen/)
 - Documentation: [ggen.dev](https://ggen.dev)
 - Community: [Discord](https://discord.gg/ggen)
-"#);
+"#,
+        );
 
         Ok(content)
     }
 
-    async fn generate_github_actions(&self, language: &str) -> Result<String, Box<dyn std::error::Error>> {
+    async fn generate_github_actions(
+        &self, language: &str,
+    ) -> Result<String, Box<dyn std::error::Error>> {
         let content = match language {
-            "rust" => r#"name: CI
+            "rust" => {
+                r#"name: CI
 
 on:
   push:
@@ -2095,8 +2196,10 @@ jobs:
       run: |
         cargo install cargo-audit
         cargo audit
-"#,
-            "python" => r#"name: CI
+"#
+            }
+            "python" => {
+                r#"name: CI
 
 on:
   push:
@@ -2149,8 +2252,10 @@ jobs:
       uses: codecov/codecov-action@v3
       with:
         file: ./coverage.xml
-"#,
-            "javascript" => r#"name: CI
+"#
+            }
+            "javascript" => {
+                r#"name: CI
 
 on:
   push:
@@ -2190,8 +2295,10 @@ jobs:
       uses: codecov/codecov-action@v3
       with:
         file: ./coverage/lcov.info
-"#,
-            "go" => r#"name: CI
+"#
+            }
+            "go" => {
+                r#"name: CI
 
 on:
   push:
@@ -2249,8 +2356,10 @@ jobs:
       uses: golangci/golangci-lint-action@v3
       with:
         version: latest
-"#,
-            _ => r#"name: CI
+"#
+            }
+            _ => {
+                r#"name: CI
 
 on:
   push:
@@ -2267,7 +2376,8 @@ jobs:
     
     - name: Run tests
       run: echo "No specific tests configured for this language"
-"#,
+"#
+            }
         };
 
         Ok(content.to_string())
@@ -2302,7 +2412,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 docs,
                 ci,
                 mock,
-            ).await?;
+            )
+            .await?;
         }
         Commands::List {
             language,
@@ -2323,16 +2434,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 async fn generate_project(
-    description: String,
-    name: String,
-    language: String,
-    framework: Option<String>,
-    output: String,
-    publish: bool,
-    tests: bool,
-    docs: bool,
-    ci: bool,
-    mock: bool,
+    description: String, name: String, language: String, framework: Option<String>, output: String,
+    publish: bool, tests: bool, docs: bool, ci: bool, mock: bool,
 ) -> Result<(), Box<dyn std::error::Error>> {
     println!("🚀 AI Template Project Generator");
     println!("=================================");
@@ -2345,34 +2448,46 @@ async fn generate_project(
     let generator = AiTemplateGenerator::new(mock);
 
     // Generate project structure
-    let project_structure = generator.generate_project(
-        &description,
-        &name,
-        &language,
-        framework.as_deref(),
-        tests,
-        docs,
-        ci,
-    ).await?;
+    let project_structure = generator
+        .generate_project(
+            &description,
+            &name,
+            &language,
+            framework.as_deref(),
+            tests,
+            docs,
+            ci,
+        )
+        .await?;
 
     // Write files
     for file in &project_structure.files {
         let file_path = Path::new(&output).join(&file.path);
-        
+
         // Create directory if needed
         if let Some(parent) = file_path.parent() {
             fs::create_dir_all(parent)?;
         }
-        
+
         fs::write(&file_path, &file.content)?;
         println!("📁 Generated: {}", file_path.display());
     }
 
     // Generate marketplace metadata
-    let metadata = generate_marketplace_metadata(&name, &description, &language, &framework, &project_structure).await?;
+    let metadata = generate_marketplace_metadata(
+        &name,
+        &description,
+        &language,
+        &framework,
+        &project_structure,
+    )
+    .await?;
     let metadata_path = Path::new(&output).join("ggen.toml");
     fs::write(&metadata_path, metadata)?;
-    println!("📄 Generated marketplace metadata: {}", metadata_path.display());
+    println!(
+        "📄 Generated marketplace metadata: {}",
+        metadata_path.display()
+    );
 
     // Publish to marketplace if requested
     if publish {
@@ -2382,21 +2497,21 @@ async fn generate_project(
     println!();
     println!("✅ Project generated successfully!");
     println!("📂 Project location: {}", output);
-    
+
     if publish {
         println!("📦 Published to marketplace as: {}", name);
     } else {
-        println!("💡 To publish to marketplace: ggen market publish --project {}", output);
+        println!(
+            "💡 To publish to marketplace: ggen market publish --project {}",
+            output
+        );
     }
 
     Ok(())
 }
 
 async fn generate_marketplace_metadata(
-    name: &str,
-    description: &str,
-    language: &str,
-    framework: &Option<String>,
+    name: &str, description: &str, language: &str, framework: &Option<String>,
     structure: &ProjectStructure,
 ) -> Result<String, Box<dyn std::error::Error>> {
     let metadata = format!(
@@ -2447,7 +2562,10 @@ validation_passed = true
         structure.files.iter().map(|f| &f.path).collect::<Vec<_>>(),
         structure.files.len(),
         structure.files.iter().any(|f| f.content_type == "test"),
-        structure.files.iter().any(|f| f.content_type == "documentation"),
+        structure
+            .files
+            .iter()
+            .any(|f| f.content_type == "documentation"),
         structure.files.iter().any(|f| f.path.contains(".github")),
         description
     );
@@ -2455,9 +2573,11 @@ validation_passed = true
     Ok(metadata)
 }
 
-async fn publish_to_marketplace(project_path: &str, name: &str) -> Result<(), Box<dyn std::error::Error>> {
+async fn publish_to_marketplace(
+    project_path: &str, name: &str,
+) -> Result<(), Box<dyn std::error::Error>> {
     println!("📦 Publishing to marketplace...");
-    
+
     // Validate project before publishing
     let metadata_path = Path::new(project_path).join("ggen.toml");
     if !metadata_path.exists() {
@@ -2476,9 +2596,7 @@ async fn publish_to_marketplace(project_path: &str, name: &str) -> Result<(), Bo
 }
 
 async fn list_templates(
-    language: Option<String>,
-    framework: Option<String>,
-    ai_generated: bool,
+    language: Option<String>, framework: Option<String>, ai_generated: bool,
 ) -> Result<(), Box<dyn std::error::Error>> {
     println!("📦 Available Templates in Marketplace");
     println!("====================================");
@@ -2488,7 +2606,12 @@ async fn list_templates(
     let templates = vec![
         ("rust-cli-template", "rust", Some("clap"), true),
         ("python-api-template", "python", Some("fastapi"), true),
-        ("javascript-web-template", "javascript", Some("express"), true),
+        (
+            "javascript-web-template",
+            "javascript",
+            Some("express"),
+            true,
+        ),
         ("go-microservice-template", "go", Some("gin"), true),
         ("rust-web-template", "rust", Some("actix-web"), true),
         ("python-cli-template", "python", None, false),
@@ -2498,9 +2621,9 @@ async fn list_templates(
     let filtered_templates: Vec<_> = templates
         .into_iter()
         .filter(|(_, lang, fw, ai)| {
-            language.as_ref().map_or(true, |l| l == *lang) &&
-            framework.as_ref().map_or(true, |f| Some(f.as_ref()) == *fw) &&
-            (!ai_generated || *ai)
+            language.as_ref().map_or(true, |l| l == *lang)
+                && framework.as_ref().map_or(true, |f| Some(f.as_ref()) == *fw)
+                && (!ai_generated || *ai)
         })
         .collect();
 
@@ -2551,14 +2674,14 @@ async fn validate_project(project: String, strict: bool) -> Result<(), Box<dyn s
     // Check metadata
     let metadata_path = project_path.join("ggen.toml");
     let _metadata_content = fs::read_to_string(&metadata_path)?;
-    
+
     println!("✅ Required files present");
     println!("✅ Metadata file found");
-    
+
     if strict {
         // Additional strict validation
         println!("🔍 Running strict validation...");
-        
+
         // Check for source files
         let source_extensions = get_source_extensions();
         let source_files = find_files_with_extension(project_path, &source_extensions)?;
@@ -2567,7 +2690,7 @@ async fn validate_project(project: String, strict: bool) -> Result<(), Box<dyn s
         } else {
             println!("✅ Source files found: {}", source_files.len());
         }
-        
+
         // Check for tests
         let test_files = find_files_with_pattern(project_path, "*test*")?;
         if test_files.is_empty() {
@@ -2575,7 +2698,7 @@ async fn validate_project(project: String, strict: bool) -> Result<(), Box<dyn s
         } else {
             println!("✅ Test files found: {}", test_files.len());
         }
-        
+
         // Check for documentation
         let doc_files = find_files_with_pattern(project_path, "README*")?;
         if doc_files.is_empty() {
@@ -2592,14 +2715,16 @@ async fn validate_project(project: String, strict: bool) -> Result<(), Box<dyn s
     Ok(())
 }
 
-fn find_files_with_extension(dir: &Path, extensions: &[&str]) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+fn find_files_with_extension(
+    dir: &Path, extensions: &[&str],
+) -> Result<Vec<String>, Box<dyn std::error::Error>> {
     let mut files = Vec::new();
-    
+
     if dir.is_dir() {
         for entry in fs::read_dir(dir)? {
             let entry = entry?;
             let path = entry.path();
-            
+
             if path.is_file() {
                 if let Some(ext) = path.extension() {
                     if let Some(ext_str) = ext.to_str() {
@@ -2613,18 +2738,20 @@ fn find_files_with_extension(dir: &Path, extensions: &[&str]) -> Result<Vec<Stri
             }
         }
     }
-    
+
     Ok(files)
 }
 
-fn find_files_with_pattern(dir: &Path, pattern: &str) -> Result<Vec<String>, Box<dyn std::error::Error>> {
+fn find_files_with_pattern(
+    dir: &Path, pattern: &str,
+) -> Result<Vec<String>, Box<dyn std::error::Error>> {
     let mut files = Vec::new();
-    
+
     if dir.is_dir() {
         for entry in fs::read_dir(dir)? {
             let entry = entry?;
             let path = entry.path();
-            
+
             if path.is_file() {
                 if let Some(name) = path.file_name() {
                     if let Some(name_str) = name.to_str() {
@@ -2638,7 +2765,7 @@ fn find_files_with_pattern(dir: &Path, pattern: &str) -> Result<Vec<String>, Box
             }
         }
     }
-    
+
     Ok(files)
 }
 
@@ -2652,12 +2779,42 @@ async fn show_examples() -> Result<(), Box<dyn std::error::Error>> {
     println!();
 
     let examples = vec![
-        ("Rust CLI Application", "rust", Some("clap"), "A command-line interface application with argument parsing and help generation"),
-        ("Python FastAPI Service", "python", Some("fastapi"), "A REST API service with automatic documentation and validation"),
-        ("JavaScript Express App", "javascript", Some("express"), "A web application with routing, middleware, and JSON APIs"),
-        ("Go Microservice", "go", Some("gin"), "A lightweight microservice with HTTP routing and JSON responses"),
-        ("Rust Web Server", "rust", Some("actix-web"), "A high-performance web server with async request handling"),
-        ("Python Django App", "python", Some("django"), "A full-stack web application with admin interface and ORM"),
+        (
+            "Rust CLI Application",
+            "rust",
+            Some("clap"),
+            "A command-line interface application with argument parsing and help generation",
+        ),
+        (
+            "Python FastAPI Service",
+            "python",
+            Some("fastapi"),
+            "A REST API service with automatic documentation and validation",
+        ),
+        (
+            "JavaScript Express App",
+            "javascript",
+            Some("express"),
+            "A web application with routing, middleware, and JSON APIs",
+        ),
+        (
+            "Go Microservice",
+            "go",
+            Some("gin"),
+            "A lightweight microservice with HTTP routing and JSON responses",
+        ),
+        (
+            "Rust Web Server",
+            "rust",
+            Some("actix-web"),
+            "A high-performance web server with async request handling",
+        ),
+        (
+            "Python Django App",
+            "python",
+            Some("django"),
+            "A full-stack web application with admin interface and ORM",
+        ),
     ];
 
     for (_name, language, framework, description) in examples {

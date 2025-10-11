@@ -38,14 +38,14 @@ pub mod streaming;
 pub mod types;
 
 // Provider implementations
-pub mod openai;
 pub mod anthropic;
+pub mod openai;
 
 // Re-exports for convenience
 pub use config::{LlmConfig, ProviderConfig};
 pub use error::{LlmError, LlmResult};
 pub use provider::LlmProvider;
-pub use streaming::{StreamHandler, StreamChunk};
+pub use streaming::{StreamChunk, StreamHandler};
 pub use types::{ChatRequest, ChatResponse, Message, Role};
 
 // Provider re-exports
