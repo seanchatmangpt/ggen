@@ -1,3 +1,36 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Build Optimization Guide](#build-optimization-guide)
+  - [Current Build Performance](#current-build-performance)
+  - [Applied Optimizations](#applied-optimizations)
+    - [1. Incremental Compilation (Cargo.toml)](#1-incremental-compilation-cargotoml)
+    - [2. Parallel Builds (.cargo/config.toml)](#2-parallel-builds-cargoconfigtoml)
+    - [3. Optimized Profiles](#3-optimized-profiles)
+  - [Why Builds Were Slow](#why-builds-were-slow)
+    - [Root Causes Fixed:](#root-causes-fixed)
+    - [Heavy Dependencies:](#heavy-dependencies)
+  - [Best Practices](#best-practices)
+    - [DO:](#do)
+    - [DON'T:](#dont)
+  - [Troubleshooting](#troubleshooting)
+    - [Still Rebuilding Everything?](#still-rebuilding-everything)
+    - [Profile Warning](#profile-warning)
+  - [Performance Tips](#performance-tips)
+    - [1. Use `cargo-watch` for Auto-Rebuild](#1-use-cargo-watch-for-auto-rebuild)
+    - [2. Use `sccache` for Shared Cache](#2-use-sccache-for-shared-cache)
+    - [3. Optimize Linking (macOS)](#3-optimize-linking-macos)
+    - [4. Use Rust Analyzer](#4-use-rust-analyzer)
+  - [Benchmark Your Builds](#benchmark-your-builds)
+  - [Cache Sizes](#cache-sizes)
+  - [Monitoring Build Times](#monitoring-build-times)
+  - [When to Clean](#when-to-clean)
+  - [Environment Variables](#environment-variables)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Build Optimization Guide
 
 ## Current Build Performance
