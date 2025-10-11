@@ -24,15 +24,79 @@ This document outlines the comprehensive security and observability practices ap
 ## 🛡️ Security Controls
 
 ### 1. Dependency Security
+
+#### Automated Security Auditing
 ```bash
+# Install security auditing tools
+cargo install cargo-audit
+cargo install cargo-deny
+cargo install cargo-udeps
+cargo install cargo-outdated
+
 # Continuous security auditing
 cargo audit
 
-# Dependency vulnerability scanning
+# Comprehensive security scanning
 cargo audit --json > security-report.json
 
-# License compliance checking
-cargo license --json > license-report.json
+# License compliance and policy enforcement
+cargo deny check licenses bans sources
+cargo deny check --config deny.toml
+
+# Unused dependencies cleanup
+cargo +nightly udeps --workspace
+
+# Outdated dependencies check
+cargo outdated --workspace --root-deps-only
+```
+
+#### CI/CD Security Integration
+```yaml
+# .github/workflows/security.yml
+name: Security Audit
+on: [push, pull_request, schedule: '0 6 * * *']
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cargo install cargo-audit cargo-deny cargo-udeps cargo-outdated
+      - run: cargo audit --exit-code 1
+      - run: cargo deny check --config deny.toml
+      - run: cargo +nightly udeps --workspace
+      - run: cargo outdated --workspace --exit-code 1
+```
+
+#### Security Policies (deny.toml)
+```toml
+# deny.toml
+[licenses]
+allow = [
+    "MIT",
+    "Apache-2.0",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "Unicode-DFS-2016",
+    "CC0-1.0",
+]
+
+deny = [
+    "GPL-3.0",
+    "GPL-2.0",
+]
+
+[ban]
+# Ban known vulnerable crates
+crates = [
+    { name = "vulnerable-crate", version = "*" },
+]
+
+[sources]
+allow-git = [
+    "https://github.com/trusted-org/*",
+]
 ```
 
 ### 2. Code Security
