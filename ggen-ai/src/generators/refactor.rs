@@ -83,11 +83,6 @@ impl RefactorAssistant {
         Self { client }
     }
     
-    /// Create a new refactoring assistant optimized for Ollama qwen3-coder:30b
-    pub fn with_ollama_qwen3_coder(client: Arc<dyn LlmClient>) -> Self {
-        Self { client }
-    }
-    
     
     /// Suggest refactoring improvements for code
     pub async fn suggest_refactoring(
@@ -432,7 +427,7 @@ impl RefactorAssistant {
     }
     
     /// Get the LLM client
-    pub fn client(&self) -> &dyn LlmClient {
+    pub fn client(&self) -> &Arc<dyn LlmClient> {
         &self.client
     }
     
@@ -440,11 +435,9 @@ impl RefactorAssistant {
     pub fn config(&self) -> &LlmConfig {
         self.client.get_config()
     }
-    
-    /// Update the configuration
-    pub fn set_config(&mut self, config: LlmConfig) {
-        self.client.update_config(config);
-    }
+
+    // Note: set_config() removed - Arc<dyn LlmClient> doesn't support interior mutability
+    // If config updates are needed, create a new RefactorAssistant instance with the new config
 }
 
 /// Context for refactoring analysis

@@ -4,6 +4,7 @@
 //! RDF graph evolution system, including natural language requirement processing,
 //! automatic artifact regeneration, governance workflows, and state management.
 
+use anyhow;
 use clap::{Args, Subcommand};
 use ggen_utils::error::Result;
 use serde::{Deserialize, Serialize};
@@ -236,9 +237,16 @@ mod evolve {
             println!("🔄 Initializing AI clients...");
         }
 
-        // Create LLM clients
-        let parser_client = create_client_with_config(provider, args.model.clone())?;
-        let validator_client = create_client_with_config(provider, args.model.clone())?;
+        // Create LLM clients using get_global_config
+        let mut llm_config = ggen_ai::get_global_config().clone();
+        llm_config.set_provider(provider);
+        if let Some(model) = &args.model {
+            llm_config.settings.default_model = Some(model.clone());
+        }
+        let parser_client = create_client_with_config(&llm_config)
+            .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?;
+        let validator_client = create_client_with_config(&llm_config)
+            .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?;
 
         if args.verbose {
             println!("✅ AI clients initialized");
@@ -251,10 +259,10 @@ mod evolve {
             parser_client,
             validator_client,
             config,
-        )?;
+        ).map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?;
 
-        // Execute evolution
-        let result = engine.evolve(&args.requirements).await;
+        // Execute evolution (method is evolve_from_nl, not evolve)
+        let result = engine.evolve_from_nl(&args.requirements).await;
 
         let duration = start.elapsed();
 
@@ -270,7 +278,7 @@ mod evolve {
                             "success": evolution_result.success,
                             "duration_ms": duration.as_millis(),
                             "parsed_triples": evolution_result.parsed.as_ref().map(|p| p.triples.len()).unwrap_or(0),
-                            "operations": evolution_result.delta.as_ref().map(|d| d.operations.len()).unwrap_or(0),
+                            "operations": evolution_result.delta.as_ref().map(|d| d.stats.total_changes).unwrap_or(0),
                             "validated": evolution_result.validation.is_some(),
                             "committed": evolution_result.metadata.committed,
                         });
@@ -301,7 +309,7 @@ mod evolve {
                         println!("{}", serde_json::to_string_pretty(&json_output)?);
                     }
                 }
-                Err(ggen_utils::error::Error::from(e))
+                Err(ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))
             }
         }
     }
@@ -316,7 +324,7 @@ mod evolve {
                 if verbose && !parsed.triples.is_empty() {
                     println!("\n📝 Triples:");
                     for (i, triple) in parsed.triples.iter().enumerate().take(10) {
-                        println!("  {}. {} - {} - {}", i + 1, triple.subject, triple.predicate, triple.object);
+                        println!("  {}. {}", i + 1, triple);
                     }
                     if parsed.triples.len() > 10 {
                         println!("  ... and {} more", parsed.triples.len() - 10);
@@ -325,14 +333,14 @@ mod evolve {
             }
 
             if let Some(delta) = &result.delta {
-                println!("🔄 Detected {} operations", delta.operations.len());
+                println!("🔄 Detected {} operations", delta.stats.total_changes);
             }
 
             if let Some(validation) = &result.validation {
-                if validation.is_valid {
+                if validation.passed {
                     println!("✓ Validation passed");
                 } else {
-                    println!("⚠️  Validation warnings: {}", validation.violations.len());
+                    println!("⚠️  Validation violations: {}", validation.violations.len());
                 }
             }
 

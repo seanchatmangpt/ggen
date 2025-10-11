@@ -3,6 +3,7 @@
 use anyhow;
 use clap::Args;
 use ggen_ai::{LlmConfig, MockClient, TemplateGenerator};
+use std::sync::Arc;
 use ggen_utils::error::Result;
 use std::fs;
 
@@ -84,7 +85,7 @@ pub async fn run(args: &ProjectArgs) -> Result<()> {
     };
 
     let client = MockClient::with_response("Generated project structure");
-    let generator = TemplateGenerator::new(Box::new(client));
+    let generator = TemplateGenerator::new(Arc::new(client));
 
     // Generate project description
     let project_description = format!(

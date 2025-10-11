@@ -24,7 +24,10 @@ impl Default for OpenAIConfig {
         Self {
             api_key: SecretString::new(String::new()),
             base_url: "https://api.openai.com/v1".to_string(),
-            model: "gpt-3.5-turbo".to_string(),
+            model: std::env::var("OPENAI_MODEL")
+                .or_else(|_| std::env::var("GGEN_DEFAULT_MODEL"))
+                .or_else(|_| std::env::var("DEFAULT_MODEL"))
+                .unwrap_or_else(|_| "qwen3-coder:30b".to_string()),
             organization: None,
         }
     }
@@ -103,7 +106,9 @@ impl OpenAIConfig {
             .unwrap_or_else(|_| "https://api.openai.com/v1".to_string());
 
         let model = std::env::var("OPENAI_MODEL")
-            .unwrap_or_else(|_| "gpt-3.5-turbo".to_string());
+            .or_else(|_| std::env::var("GGEN_DEFAULT_MODEL"))
+            .or_else(|_| std::env::var("DEFAULT_MODEL"))
+            .unwrap_or_else(|_| "qwen3-coder:30b".to_string());
 
         let organization = std::env::var("OPENAI_ORGANIZATION").ok();
 

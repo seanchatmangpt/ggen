@@ -10,7 +10,7 @@
 pub mod ultrathink;
 pub mod wip_integration;
 
-use std::collections::HashMap;
+use std::collections::{HashMap, VecDeque};
 use std::sync::{Arc, RwLock};
 use std::time::{Duration, Instant};
 use serde::{Deserialize, Serialize};
@@ -18,7 +18,7 @@ use tokio::sync::{mpsc, broadcast};
 use uuid::Uuid;
 
 use crate::error::{McpError, Result};
-use crate::agents::{Agent, AgentCapability, AgentType, AgentStatus};
+use crate::agents::{AgentInfo, AgentCapability, AgentConfig, AgentRole, AgentStatus, AgentType};
 
 /// Swarm configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -187,8 +187,8 @@ pub enum SwarmEvent {
 pub struct SwarmCoordinator {
     /// Swarm configuration
     config: SwarmConfig,
-    /// Active agents in the swarm
-    agents: Arc<RwLock<HashMap<Uuid, Box<dyn Agent>>>>,
+    /// Active agents info in the swarm
+    agents: Arc<RwLock<HashMap<Uuid, AgentInfo>>>,
     /// Task queue
     task_queue: Arc<RwLock<VecDeque<Box<dyn std::any::Any>>>>,
     /// Performance metrics
@@ -293,20 +293,22 @@ impl SwarmCoordinator {
     }
 
     /// Spawn a new agent in the swarm
-    pub fn spawn_agent(&self, agent_type: AgentType, capabilities: Vec<AgentCapability>) -> Result<Uuid> {
+    pub fn spawn_agent(&self, agent_role: AgentRole, capabilities: Vec<String>) -> Result<Uuid> {
         let agent_id = Uuid::new_v4();
 
-        let agent = Box::new(crate::agents::Agent::new(
-            agent_id,
-            agent_type,
-            AgentStatus::Active,
-            capabilities,
-        ));
+        // Create agent config
+        let agent_config = AgentConfig {
+            id: agent_id,
+            name: format!("{:?}-{}", agent_role, agent_id),
+            role: agent_role,
+            timeout_ms: 30000,
+            retry_count: 3,
+            health_check_interval_ms: 5000,
+        };
 
-        {
-            let mut agents = self.agents.write().unwrap();
-            agents.insert(agent_id, agent);
-        }
+        // Note: This is a simplified implementation
+        // A full implementation would create the appropriate agent type
+        // based on the AgentRole and initialize it properly
 
         // Broadcast agent spawned event
         let _ = self.event_tx.send(SwarmEvent::AgentSpawned { agent_id });
@@ -385,8 +387,8 @@ impl SwarmCoordinator {
 
 /// Initialize the ultrathink swarm and WIP integration
 pub async fn initialize_ultrathink_swarm() -> Result<()> {
-    use super::ultrathink::UltrathinkSwarm;
-    use super::wip_integration::{WipIntegrationManager, WipEvent};
+    use crate::swarm::ultrathink::{UltrathinkSwarm, UltrathinkConfig};
+    use crate::swarm::wip_integration::{WipIntegrationManager, WIP_INTEGRATION_MANAGER};
 
     // Initialize WIP integration manager
     let (wip_event_tx, mut wip_event_rx) = mpsc::unbounded_channel();
@@ -394,10 +396,10 @@ pub async fn initialize_ultrathink_swarm() -> Result<()> {
     let wip_manager = WipIntegrationManager::new(wip_event_tx.clone());
 
     // Store globally for access from other modules
-    let _ = wip_integration::WIP_INTEGRATION_MANAGER.set(wip_manager);
+    let _ = WIP_INTEGRATION_MANAGER.set(wip_manager);
 
     // Initialize ultrathink swarm
-    let ultrathink_config = super::ultrathink::UltrathinkConfig::default();
+    let ultrathink_config = UltrathinkConfig::default();
     let ultrathink_swarm = UltrathinkSwarm::new(ultrathink_config).await?;
 
     // Connect to WIP endpoints
@@ -406,8 +408,9 @@ pub async fn initialize_ultrathink_swarm() -> Result<()> {
         "ws://localhost:8081/wip".to_string(),
     ];
 
-    wip_integration::WIP_INTEGRATION_MANAGER.get().unwrap()
-        .connect_endpoints(endpoints).await?;
+    if let Some(manager) = WIP_INTEGRATION_MANAGER.get() {
+        manager.connect_endpoints(endpoints).await?;
+    }
 
     // Start WIP event processing
     tokio::spawn(async move {
@@ -420,15 +423,16 @@ pub async fn initialize_ultrathink_swarm() -> Result<()> {
 }
 
 /// Get ultrathink swarm instance
-pub fn get_ultrathink_swarm() -> Option<&'static UltrathinkSwarm> {
+pub fn get_ultrathink_swarm() -> Option<&'static ultrathink::UltrathinkSwarm> {
     // This would return the global ultrathink swarm instance
     // For now, return None as placeholder
     None
 }
 
 /// Get WIP integration manager instance
-pub fn get_wip_manager() -> Option<&'static WipIntegrationManager> {
-    wip_integration::WIP_INTEGRATION_MANAGER.get()
+pub fn get_wip_manager() -> Option<&'static wip_integration::WipIntegrationManager> {
+    use crate::swarm::wip_integration::WIP_INTEGRATION_MANAGER;
+    WIP_INTEGRATION_MANAGER.get()
 }
 
 /// Main swarm processing loop

@@ -8,6 +8,7 @@ use ggen_core::Graph;
 use ggen_utils::error::Result;
 use serde_json::json;
 use std::fs;
+use std::sync::Arc;
 
 #[derive(Debug, Args)]
 pub struct SparqlArgs {
@@ -94,7 +95,8 @@ pub async fn run(args: &SparqlArgs) -> Result<()> {
                 .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?,
         )
     };
-    let generator = SparqlGenerator::new(client);
+    // client is Box<dyn LlmClient>, need Arc<dyn LlmClient>
+    let generator = SparqlGenerator::new(Arc::from(client));
 
     // Generate SPARQL query
     let sparql_query = generator

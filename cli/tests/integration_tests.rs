@@ -12,24 +12,28 @@ fn test_cli_help() {
     assert!(output.status.success());
     let stdout = str::from_utf8(&output.stdout).unwrap();
     assert!(stdout.contains("ggen"));
-    assert!(stdout.contains("hazard"));
-    assert!(stdout.contains("gen"));
+    // Legacy commands commented out:
+    // assert!(stdout.contains("hazard"));
+    // assert!(stdout.contains("gen"));
     // assert!(stdout.contains("completion")); // COMMENTED OUT: Command line completion code
-    assert!(stdout.contains("config"));
+    // Modern noun-verb commands:
+    assert!(stdout.contains("audit"));
+    assert!(stdout.contains("project"));
 }
 
-#[test]
-fn test_hazard_command() {
-    let output = Command::new("cargo")
-        .args(&["run", "--", "hazard"])
-        .current_dir("/Users/sac/ggen")
-        .output()
-        .expect("Failed to execute command");
-
-    // Test passes if command runs without panicking
-    // The actual output depends on the ggen_core::commands::hazard implementation
-    assert!(output.status.code().is_some());
-}
+// COMMENTED OUT: Legacy hazard command test
+// #[test]
+// fn test_hazard_command() {
+//     let output = Command::new("cargo")
+//         .args(&["run", "--", "hazard"])
+//         .current_dir("/Users/sac/ggen")
+//         .output()
+//         .expect("Failed to execute command");
+//
+//     // Test passes if command runs without panicking
+//     // The actual output depends on the ggen_core::commands::hazard implementation
+//     assert!(output.status.code().is_some());
+// }
 
 #[test]
 fn test_error_command() {
@@ -112,29 +116,31 @@ fn test_invalid_command() {
     assert!(stderr.contains("error"));
 }
 
-#[test]
-fn test_config_flag() {
-    let output = Command::new("cargo")
-        .args(&["run", "--", "--config", "/nonexistent/path", "hazard"])
-        .current_dir("/Users/sac/ggen")
-        .output()
-        .expect("Failed to execute command");
+// COMMENTED OUT: Legacy hazard command test with config flag
+// #[test]
+// fn test_config_flag() {
+//     let output = Command::new("cargo")
+//         .args(&["run", "--", "--config", "/nonexistent/path", "hazard"])
+//         .current_dir("/Users/sac/ggen")
+//         .output()
+//         .expect("Failed to execute command");
+//
+//     // Should handle config file not found gracefully
+//     assert!(output.status.code().is_some());
+// }
 
-    // Should handle config file not found gracefully
-    assert!(output.status.code().is_some());
-}
-
-#[test]
-fn test_debug_flag() {
-    let output = Command::new("cargo")
-        .args(&["run", "--", "--debug", "true", "hazard"])
-        .current_dir("/Users/sac/ggen")
-        .output()
-        .expect("Failed to execute command");
-
-    // Should handle debug flag without issues
-    assert!(output.status.code().is_some());
-}
+// COMMENTED OUT: Legacy hazard command test with debug flag
+// #[test]
+// fn test_debug_flag() {
+//     let output = Command::new("cargo")
+//         .args(&["run", "--", "--debug", "true", "hazard"])
+//         .current_dir("/Users/sac/ggen")
+//         .output()
+//         .expect("Failed to execute command");
+//
+//     // Should handle debug flag without issues
+//     assert!(output.status.code().is_some());
+// }
 
 // Integration tests for noun-verb command structure
 

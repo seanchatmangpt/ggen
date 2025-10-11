@@ -61,6 +61,16 @@ pub struct DeltaDetector {
     evolution_history: Vec<GraphDelta>,
 }
 
+impl std::fmt::Debug for DeltaDetector {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("DeltaDetector")
+            .field("store", &"Store")
+            .field("baseline", &self.baseline)
+            .field("evolution_history", &self.evolution_history)
+            .finish()
+    }
+}
+
 impl DeltaDetector {
     /// Create a new delta detector
     pub fn new() -> Result<Self> {

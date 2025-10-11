@@ -29,10 +29,21 @@ pub struct LlmConfig {
 impl Default for LlmConfig {
     fn default() -> Self {
         Self {
-            model: "gpt-3.5-turbo".to_string(),
-            max_tokens: Some(4096),
-            temperature: Some(0.7),
-            top_p: Some(0.9),
+            model: std::env::var("GGEN_DEFAULT_MODEL")
+                .or_else(|_| std::env::var("DEFAULT_MODEL"))
+                .unwrap_or_else(|_| "gpt-3.5-turbo".to_string()),
+            max_tokens: std::env::var("GGEN_MAX_TOKENS")
+                .ok()
+                .and_then(|v| v.parse().ok())
+                .or(Some(4096)),
+            temperature: std::env::var("GGEN_TEMPERATURE")
+                .ok()
+                .and_then(|v| v.parse().ok())
+                .or(Some(0.7)),
+            top_p: std::env::var("GGEN_TOP_P")
+                .ok()
+                .and_then(|v| v.parse().ok())
+                .or(Some(0.9)),
             stop: None,
             extra: HashMap::new(),
         }

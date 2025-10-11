@@ -76,6 +76,8 @@ pub struct NeuralAgent {
     pub id: Uuid,
     pub capabilities: Vec<String>,
     pub performance: f64,
+    #[serde(skip)]
+    #[serde(default = "Instant::now")]
     pub last_activity: Instant,
 }
 
@@ -85,6 +87,7 @@ pub struct WipAgent {
     pub id: Uuid,
     pub connected_endpoints: Vec<String>,
     pub sync_status: SyncStatus,
+    #[serde(skip)]
     pub last_sync: Option<Instant>,
 }
 
@@ -105,6 +108,8 @@ pub struct UltrathinkTask {
     pub description: String,
     pub priority: TaskPriority,
     pub wip_entry_id: Option<Uuid>,
+    #[serde(skip)]
+    #[serde(default = "Instant::now")]
     pub created_at: Instant,
     pub status: TaskStatus,
 }
@@ -164,6 +169,8 @@ pub struct AgentMessage {
     pub to: Option<Uuid>,
     pub message_type: MessageType,
     pub content: String,
+    #[serde(skip)]
+    #[serde(default = "Instant::now")]
     pub timestamp: Instant,
 }
 
@@ -181,6 +188,8 @@ pub enum MessageType {
 pub struct WipEvent {
     pub event_type: WipEventType,
     pub wip_entry_id: Option<Uuid>,
+    #[serde(skip)]
+    #[serde(default = "Instant::now")]
     pub timestamp: Instant,
 }
 
@@ -332,7 +341,7 @@ impl UltrathinkCore {
                     println!("✅ Task {} assigned to core agent", task.id);
 
                     // Update metrics
-                    let mut metrics = task_queue.read().unwrap();
+                    let _metrics = task_queue.read().unwrap();
                     // In a real implementation, this would update metrics
                 }
             }
@@ -361,7 +370,15 @@ impl UltrathinkCore {
 
     /// Get core status and metrics
     pub async fn get_status(&self) -> Result<CoreMetrics> {
-        Ok(self.metrics.read().unwrap().clone())
+        let metrics = self.metrics.read().unwrap();
+        Ok(CoreMetrics {
+            tasks_processed: metrics.tasks_processed,
+            tasks_completed: metrics.tasks_completed,
+            tasks_failed: metrics.tasks_failed,
+            wip_entries_processed: metrics.wip_entries_processed,
+            avg_processing_time_ms: metrics.avg_processing_time_ms,
+            swarm_efficiency: metrics.swarm_efficiency,
+        })
     }
 
     /// Process WIP entries for autonomous development
@@ -450,6 +467,8 @@ pub struct WipEntry {
     pub description: String,
     pub priority: String,
     pub status: String,
+    #[serde(skip)]
+    #[serde(default = "Instant::now")]
     pub created_at: Instant,
 }
 

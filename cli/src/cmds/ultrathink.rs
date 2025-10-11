@@ -4,9 +4,17 @@
 //! the 80/20 rule - focusing on the core 20% of functionality that delivers
 //! 80% of the value for autonomous software development.
 
+use anyhow;
 use clap::Args;
 use ggen_utils::error::Result;
-use ggen_ai::ultrathink::{initialize_ultrathink, submit_ultrathink_task, sync_ultrathink_wip, get_ultrathink_status, TaskType, TaskPriority};
+use ggen_ai::ultrathink::{
+    initialize_ultrathink,
+    submit_ultrathink_task,
+    sync_ultrathink_wip,
+    get_ultrathink_status,
+    create_task,
+    core::{TaskType, TaskPriority, UltrathinkTask},
+};
 
 #[derive(Debug, Args)]
 pub struct UltrathinkArgs {
@@ -63,7 +71,8 @@ async fn run_ultrathink_start() -> Result<()> {
     println!("===========================================================");
 
     // Initialize the ultrathink system
-    initialize_ultrathink().await?;
+    initialize_ultrathink().await
+        .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?;
 
     println!("✅ Ultrathink system initialized successfully!");
     println!("🤖 Ready for autonomous software development");
@@ -107,39 +116,26 @@ async fn run_ultrathink_task(description: &str, task_type: &str, priority: &str)
 
     // Convert task type string to enum
     let task_type_enum = match task_type {
-        "code-generation" => ggen_ai::ultrathink::UltrathinkTaskType::CodeGeneration,
-        "sparql-generation" => ggen_ai::ultrathink::UltrathinkTaskType::SparqlGeneration,
-        "rdf-generation" => ggen_ai::ultrathink::UltrathinkTaskType::RdfGeneration,
-        "code-analysis" => ggen_ai::ultrathink::UltrathinkTaskType::CodeAnalysis,
-        "quality-validation" => ggen_ai::ultrathink::UltrathinkTaskType::QualityValidation,
-        "security-assessment" => ggen_ai::ultrathink::UltrathinkTaskType::SecurityAssessment,
-        "performance-optimization" => ggen_ai::ultrathink::UltrathinkTaskType::PerformanceOptimization,
-        "wip-synchronization" => ggen_ai::ultrathink::UltrathinkTaskType::WipSynchronization,
-        _ => return Err(ggen_utils::error::Error::new("Invalid task type. Use: code-generation, sparql-generation, rdf-generation, code-analysis, quality-validation, security-assessment, performance-optimization, wip-synchronization")),
+        "code-generation" => TaskType::CodeGeneration,
+        "sparql-generation" => TaskType::SparqlGeneration,
+        "wip-sync" => TaskType::WipSync,
+        "quality-validation" => TaskType::QualityValidation,
+        _ => return Err(ggen_utils::error::Error::new("Invalid task type. Use: code-generation, sparql-generation, wip-sync, quality-validation")),
     };
 
     // Convert priority string to enum
     let priority_enum = match priority {
-        "critical" => ggen_ai::ultrathink::TaskPriority::Critical,
-        "high" => ggen_ai::ultrathink::TaskPriority::High,
-        "medium" => ggen_ai::ultrathink::TaskPriority::Medium,
-        "low" => ggen_ai::ultrathink::TaskPriority::Low,
+        "critical" => TaskPriority::Critical,
+        "high" => TaskPriority::High,
+        "medium" => TaskPriority::Medium,
+        "low" => TaskPriority::Low,
         _ => return Err(ggen_utils::error::Error::new("Invalid priority. Use: critical, high, medium, low")),
     };
 
-    // Create task input
-    let input = ggen_ai::ultrathink::TaskInput {
-        data: description.as_bytes().to_vec(),
-        format: ggen_ai::ultrathink::InputFormat::NaturalLanguage,
-        context: std::collections::HashMap::new(),
-        dependencies: vec![],
-    };
-
-    // Create the task
-    let task = ggen_ai::ultrathink::create_ultrathink_task(
+    // Create the task using the actual API
+    let task = create_task(
         task_type_enum,
         description.to_string(),
-        input,
         priority_enum,
     );
 

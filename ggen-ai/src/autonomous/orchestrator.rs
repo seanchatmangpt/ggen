@@ -94,6 +94,20 @@ pub struct RegenerationOrchestrator {
     running: Arc<RwLock<bool>>,
 }
 
+impl std::fmt::Debug for RegenerationOrchestrator {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("RegenerationOrchestrator")
+            .field("config", &self.config)
+            .field("regeneration_engine", &"Arc<RegenerationEngine>")
+            .field("deployment", &"Arc<RwLock<DeploymentAutomation>>")
+            .field("telemetry", &"Arc<TelemetryCollector>")
+            .field("notifier", &"Arc<GraphChangeNotifier>")
+            .field("stats", &"Arc<RwLock<OrchestrationStats>>")
+            .field("running", &"Arc<RwLock<bool>>")
+            .finish()
+    }
+}
+
 impl RegenerationOrchestrator {
     /// Create a new orchestrator
     pub fn new(
