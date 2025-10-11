@@ -57,7 +57,7 @@ jobs:
           echo "✅ Version verification passed"
 
       - name: Bump Homebrew Formula
-        uses: mislav/bump-homebrew-formula-action@v1.4
+        uses: mislav/bump-homebrew-formula-action@v3.6
         with:
           formula-name: ggen
           homebrew-tap: seanchatmangpt/homebrew-tap
