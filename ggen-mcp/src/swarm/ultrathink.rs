@@ -9,10 +9,11 @@
 
 use std::collections::{HashMap, VecDeque};
 use std::sync::{Arc, RwLock};
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use serde::{Deserialize, Serialize};
 use tokio::sync::{mpsc, broadcast};
 use uuid::Uuid;
+use chrono::{DateTime, Utc};
 
 use crate::error::{McpError, Result};
 use crate::agents::{AgentInfo, AgentCapability, AgentType, AgentStatus};
@@ -148,7 +149,7 @@ pub struct UltrathinkAgent {
     /// Performance metrics
     pub metrics: AgentMetrics,
     /// Last activity timestamp
-    pub last_activity: Instant,
+    pub last_activity: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -192,7 +193,7 @@ pub struct QuantumState {
     /// Coherence level (0.0 to 1.0)
     pub coherence: f64,
     /// Last coherence update
-    pub last_update: Instant,
+    pub last_update: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -200,7 +201,7 @@ pub struct WipState {
     /// Connected WIP endpoints
     pub connected_endpoints: Vec<String>,
     /// Last synchronization timestamp
-    pub last_sync: Option<Instant>,
+    pub last_sync: Option<DateTime<Utc>>,
     /// Pending WIP operations
     pub pending_operations: Vec<WipOperation>,
     /// Conflict resolution queue
@@ -254,9 +255,9 @@ pub struct WipEntry {
     /// Metadata and context
     pub metadata: HashMap<String, String>,
     /// Creation timestamp
-    pub created_at: Instant,
+    pub created_at: DateTime<Utc>,
     /// Last modification timestamp
-    pub modified_at: Instant,
+    pub modified_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -386,7 +387,7 @@ pub struct UltrathinkTask {
     /// Priority level
     pub priority: Priority,
     /// Deadline for completion
-    pub deadline: Option<Instant>,
+    pub deadline: Option<DateTime<Utc>>,
     /// Resource requirements
     pub resource_requirements: ResourceRequirements,
 }
@@ -568,7 +569,7 @@ pub struct AgentMessage {
     /// Message payload
     pub payload: HashMap<String, String>,
     /// Message timestamp
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -594,7 +595,7 @@ pub struct TaskAssignment {
     /// Assignment priority
     pub priority: Priority,
     /// Assignment timestamp
-    pub assigned_at: Instant,
+    pub assigned_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -606,7 +607,7 @@ pub struct LearningEvent {
     /// Learning context
     pub context: HashMap<String, String>,
     /// Timestamp
-    pub timestamp: Instant,
+    pub timestamp: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -763,7 +764,7 @@ impl UltrathinkSwarm {
                 superposition: vec![1.0 / (self.config.neural_layers.len() as f64).sqrt(); self.config.neural_layers.len()],
                 entanglement: vec![vec![0.0; self.config.neural_layers.len()]; self.config.neural_layers.len()],
                 coherence: 1.0,
-                last_update: Instant::now(),
+                last_update: Utc::now(),
             },
             wip_state: WipState {
                 connected_endpoints: self.config.wip_integration.endpoints.clone(),
@@ -800,7 +801,7 @@ impl UltrathinkSwarm {
                 superposition: vec![1.0; self.config.neural_layers.len()],
                 entanglement: vec![vec![self.config.quantum_params.entanglement_factor; self.config.neural_layers.len()]; self.config.neural_layers.len()],
                 coherence: self.config.quantum_params.superposition_threshold,
-                last_update: Instant::now(),
+                last_update: Utc::now(),
             },
             wip_state: WipState {
                 connected_endpoints: self.config.wip_integration.endpoints.clone(),
@@ -881,7 +882,7 @@ impl UltrathinkSwarm {
                         task,
                         agent_id,
                         priority: Priority::Medium,
-                        assigned_at: Instant::now(),
+                        assigned_at: Utc::now(),
                     };
 
                     // Send assignment via channel (simplified)

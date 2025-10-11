@@ -2,8 +2,6 @@
 
 use anyhow;
 use clap::Args;
-use ggen_ai::config::OllamaConfig;
-use ggen_ai::providers::OllamaClient;
 use ggen_ai::TemplateGenerator;
 use ggen_utils::error::Result;
 use std::fs;
@@ -28,11 +26,11 @@ pub async fn run(args: &FrontmatterArgs) -> Result<()> {
     println!("📋 Generating frontmatter with AI...");
     println!("Description: {}", args.description);
 
-    // Create Ollama client with qwen3-coder:30b model
-    let config = OllamaClient::qwen3_coder_config();
-    let client = OllamaClient::new(config)
+    // Use global config to auto-detect and create appropriate client
+    let global_config = ggen_ai::get_global_config();
+    let client = global_config.create_contextual_client()
         .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?;
-    let generator = TemplateGenerator::with_client(Arc::new(client));
+    let generator = TemplateGenerator::with_client(client);
 
     // Generate template with frontmatter
     let template = generator
