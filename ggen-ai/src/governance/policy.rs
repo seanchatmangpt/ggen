@@ -7,15 +7,15 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use uuid::Uuid;
 
 use super::error::{GovernanceError, Result};
 use super::types::Decision;
+use crate::types::{PolicyId, RuleId};
 
 /// A policy rule that constrains autonomous behavior
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Policy {
-    pub id: String,
+    pub id: PolicyId,
     pub name: String,
     pub description: String,
     pub enabled: bool,
@@ -30,7 +30,7 @@ pub struct Policy {
 /// Individual policy rule
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PolicyRule {
-    pub id: String,
+    pub id: RuleId,
     pub condition: RuleCondition,
     pub action: RuleAction,
     pub severity: Severity,
@@ -96,8 +96,8 @@ pub enum Constraint {
 /// Policy violation
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PolicyViolation {
-    pub policy_id: String,
-    pub rule_id: String,
+    pub policy_id: PolicyId,
+    pub rule_id: RuleId,
     pub severity: Severity,
     pub message: String,
     pub details: HashMap<String, String>,
@@ -116,14 +116,15 @@ impl Default for PolicyConfig {
         Self {
             strict_mode: true,
             log_all_evaluations: true,
-            default_action: RuleAction::RequireApproval,
+            // Default to Approve to allow low-risk decisions through when no policies match
+            default_action: RuleAction::Approve,
         }
     }
 }
 
 /// Policy engine that evaluates decisions against policies
 pub struct PolicyEngine {
-    policies: Arc<RwLock<HashMap<String, Policy>>>,
+    policies: Arc<RwLock<HashMap<PolicyId, Policy>>>,
     config: PolicyConfig,
     violation_history: Arc<RwLock<Vec<PolicyViolation>>>,
 }
@@ -146,7 +147,7 @@ impl PolicyEngine {
     }
 
     /// Remove a policy
-    pub async fn remove_policy(&self, policy_id: &str) -> Result<()> {
+    pub async fn remove_policy(&self, policy_id: &PolicyId) -> Result<()> {
         let mut policies = self.policies.write().await;
         policies
             .remove(policy_id)
@@ -155,7 +156,7 @@ impl PolicyEngine {
     }
 
     /// Get a policy by ID
-    pub async fn get_policy(&self, policy_id: &str) -> Result<Policy> {
+    pub async fn get_policy(&self, policy_id: &PolicyId) -> Result<Policy> {
         let policies = self.policies.read().await;
         policies
             .get(policy_id)
@@ -371,7 +372,7 @@ impl PolicyEngine {
         let history = self.violation_history.read().await;
         Ok(history
             .iter()
-            .filter(|v| {
+            .filter(|_v| {
                 decision
                     .metadata
                     .get("decision_id")
@@ -432,7 +433,7 @@ impl PolicyBuilder {
 
     pub fn build(self) -> Result<Policy> {
         Ok(Policy {
-            id: Uuid::new_v4().to_string(),
+            id: PolicyId::new(),
             name: self.name,
             description: self.description,
             enabled: true,

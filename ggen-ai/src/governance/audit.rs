@@ -179,7 +179,7 @@ impl AuditTrail {
                 timestamp: Utc::now(),
                 actor: "policy_engine".to_string(),
                 decision_id: Some(decision.id.clone()),
-                policy_id: Some(violation.policy_id.clone()),
+                policy_id: Some(violation.policy_id.to_string()),
                 severity: match violation.severity {
                     super::policy::Severity::Info => AuditSeverity::Info,
                     super::policy::Severity::Warning => AuditSeverity::Warning,
@@ -216,7 +216,7 @@ impl AuditTrail {
 
     /// Log approval requested
     pub async fn log_approval_requested(
-        &self, decision: &Decision, request_id: &str,
+        &self, decision: &Decision, request_id: &crate::types::RequestId,
     ) -> Result<()> {
         self.log_event(AuditEvent {
             id: Uuid::new_v4().to_string(),
@@ -227,7 +227,7 @@ impl AuditTrail {
             policy_id: None,
             severity: AuditSeverity::Info,
             message: format!("Approval requested for decision: {}", decision.action),
-            details: serde_json::json!({"request_id": request_id}),
+            details: serde_json::json!({"request_id": request_id.to_string()}),
             metadata: serde_json::json!({}),
         })
         .await

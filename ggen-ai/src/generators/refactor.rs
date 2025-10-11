@@ -2,6 +2,7 @@
 
 use crate::client::{LlmClient, LlmConfig};
 use crate::error::{GgenAiError, Result};
+use crate::error_utils::{missing_closing_marker_error, ErrorContext};
 use ggen_core::{MergeStrategy, ThreeWayMerger};
 use std::sync::Arc;
 
@@ -293,7 +294,14 @@ impl RefactorAssistant {
             let end = response
                 .content
                 .rfind("```")
-                .ok_or_else(|| GgenAiError::validation("Could not find closing ``` marker"))?;
+                .ok_or_else(|| {
+                    return missing_closing_marker_error::<String>(
+                        "```",
+                        "",
+                        ErrorContext::RefactorGeneration,
+                    )
+                    .unwrap_err();
+                })?;
             response.content[start + 3..end].trim().to_string()
         } else {
             response.content.trim().to_string()
@@ -507,14 +515,14 @@ impl RefactoringContext {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::test_helpers::{create_refactor_test_assistant, create_refactor_assistant_with_response};
     use crate::providers::MockClient;
 
     #[tokio::test]
     async fn test_refactor_assistant_creation() {
-        let client = Arc::new(MockClient::with_response("Refactoring suggestions"));
-        let assistant = RefactorAssistant::new(client);
-
+        let assistant = create_refactor_test_assistant();
         // Test passes if assistant was created successfully
+        assert!(assistant.client.get_config().model.len() > 0);
     }
 
     #[tokio::test]
@@ -528,21 +536,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_suggest_refactoring() {
-        let mock_response = r#"{
-            "suggestions": [
-                {
-                    "type": "ExtractMethod",
-                    "description": "Extract validation logic",
-                    "suggested_code": "function validate(input) { return input.length > 0; }",
-                    "confidence": 0.9,
-                    "reasoning": "Repeated validation logic",
-                    "impact": "Low"
-                }
-            ]
-        }"#;
-
-        let client = Arc::new(MockClient::with_response(mock_response));
-        let assistant = RefactorAssistant::new(client);
+        let assistant = create_refactor_test_assistant();
 
         let context = RefactoringContext::new("JavaScript".to_string());
         let result = assistant
@@ -564,10 +558,8 @@ mod tests {
 
     #[tokio::test]
     async fn test_apply_refactoring() {
-        let client = Arc::new(MockClient::with_response(
-            "function test() { return validate(input); }",
-        ));
-        let assistant = RefactorAssistant::new(client);
+        let response = "function test() { return validate(input); }";
+        let assistant = create_refactor_assistant_with_response(response);
 
         let suggestions = vec![RefactoringSuggestion {
             suggestion_type: SuggestionType::ExtractMethod,

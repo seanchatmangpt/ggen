@@ -539,8 +539,4 @@ impl ServerHandler for GgenMcpServer {
     }
 }
 
-impl Default for GgenMcpServer {
-    fn default() -> Self {
-        Self::new()
-    }
-}
+// Note: Default impl removed - use GgenMcpServer::new().await instead

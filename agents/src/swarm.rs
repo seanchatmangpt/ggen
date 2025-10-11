@@ -9,8 +9,7 @@ use crate::{
     core::{AgentContext, ExecutionContext, AgentResult},
 };
 use ggen_mcp::GgenMcpServer;
-use ggen_ai::{GenAIClient, config::GlobalConfig};
-use ggen_core::GraphManager;
+use ggen_ai::{LlmClient, config::GlobalLlmConfig};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio;
@@ -20,8 +19,7 @@ use tokio;
 pub struct UltrathinkSwarm {
     coordinator: SwarmCoordinator,
     mcp_server: Arc<GgenMcpServer>,
-    ai_client: GenAIClient,
-    graph_manager: GraphManager,
+    ai_client: Arc<dyn LlmClient>,
     is_running: bool,
 }
 
@@ -32,14 +30,13 @@ impl UltrathinkSwarm {
 
         // Initialize core components
         let mcp_server = Arc::new(GgenMcpServer::new());
-        let ai_client = GenAIClient::new(GlobalConfig::from_env()?)?;
-        let graph_manager = GraphManager::new("ultrathink_swarm")?;
+        let global_config = GlobalLlmConfig::new();
+        let ai_client = global_config.create_client()?;
 
         // Create swarm coordinator
         let coordinator = create_swarm_coordinator()
             .with_mcp(mcp_server.clone())
             .with_ai(ai_client.clone())
-            .with_graph_manager(graph_manager.clone())
             .build()
             .await?;
 
@@ -49,7 +46,6 @@ impl UltrathinkSwarm {
             coordinator,
             mcp_server,
             ai_client,
-            graph_manager,
             is_running: false,
         })
     }
@@ -90,7 +86,6 @@ impl UltrathinkSwarm {
             is_running: coordinator_status.is_running,
             mcp_connected: true,
             ai_connected: true,
-            graph_connected: true,
         }
     }
 
@@ -140,7 +135,6 @@ pub struct SwarmStatus {
     pub is_running: bool,
     pub mcp_connected: bool,
     pub ai_connected: bool,
-    pub graph_connected: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

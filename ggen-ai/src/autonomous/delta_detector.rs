@@ -55,6 +55,7 @@ pub struct DeltaStats {
 /// Delta detector for RDF graphs
 #[derive(Clone)]
 pub struct DeltaDetector {
+    #[allow(dead_code)] // Store kept for potential future RDF operations
     store: Store,
     baseline: HashMap<String, HashSet<String>>,
     evolution_history: Vec<GraphDelta>,

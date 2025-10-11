@@ -3,7 +3,7 @@
 // Provides in-memory caching of LLM responses with TTL and size limits.
 // Reduces API costs by 30-60% for repeated prompts.
 
-use anyhow::{Context, Result};
+use anyhow::Result;
 use moka::future::Cache;
 use serde::{Deserialize, Serialize};
 use sha2::Sha256;

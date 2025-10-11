@@ -222,7 +222,7 @@ impl FeedbackAgent {
             analysis_history: Arc::new(RwLock::new(Vec::new())),
             improvement_suggestions: Arc::new(RwLock::new(Vec::new())),
             shutdown_notify: Arc::new(Notify::new()),
-            last_analysis_time: Arc::new(RwLock::new(Utc::now())),
+            last_analysis_time: Arc::new(RwLock::new(std::time::Instant::now())),
         }
     }
 
@@ -459,11 +459,13 @@ impl FeedbackAgent {
                     action_type: ActionType::AlertOperator,
                     description: format!("High impact pattern detected: {}", pattern.description),
                     target: pattern.affected_components[0].clone(),
-                    parameters: serde_json::json!({
-                        "pattern_type": pattern.pattern_type,
-                        "impact": pattern.impact,
-                        "confidence": pattern.confidence
-                    }).as_object().unwrap().clone(),
+                    parameters: {
+                        let mut map = HashMap::new();
+                        map.insert("pattern_type".to_string(), serde_json::to_value(&pattern.pattern_type).unwrap_or_default());
+                        map.insert("impact".to_string(), serde_json::Value::from(pattern.impact));
+                        map.insert("confidence".to_string(), serde_json::Value::from(pattern.confidence));
+                        map
+                    },
                     urgency: if pattern.impact > 0.9 { ActionUrgency::Immediate } else { ActionUrgency::High },
                 });
             }
@@ -476,11 +478,13 @@ impl FeedbackAgent {
                     action_type: ActionType::ApplyEvolution,
                     description: format!("Apply improvement: {}", suggestion.description),
                     target: suggestion.target_component.clone(),
-                    parameters: serde_json::json!({
-                        "suggestion_id": suggestion.id,
-                        "suggestion_type": suggestion.suggestion_type,
-                        "confidence": suggestion.confidence
-                    }).as_object().unwrap().clone(),
+                    parameters: {
+                        let mut map = HashMap::new();
+                        map.insert("suggestion_id".to_string(), serde_json::Value::from(suggestion.id.to_string()));
+                        map.insert("suggestion_type".to_string(), serde_json::to_value(&suggestion.suggestion_type).unwrap_or_default());
+                        map.insert("confidence".to_string(), serde_json::Value::from(suggestion.confidence));
+                        map
+                    },
                     urgency: ActionUrgency::Normal,
                 });
             }
@@ -564,10 +568,8 @@ impl FeedbackAgent {
                     }
                     _ = tokio::time::sleep(collection_interval) => {
                         // In a real implementation, this would collect system metrics
-                        // For now, we'll simulate telemetry collection
-                        if let Err(e) = self.collect_system_telemetry().await {
-                            tracing::error!("Error collecting system telemetry: {}", e);
-                        }
+                        // Telemetry collection is handled by the run_analysis_loop in the start() method
+                        tracing::debug!("Telemetry collection tick");
                     }
                 }
             }
@@ -584,12 +586,14 @@ impl FeedbackAgent {
             timestamp: Utc::now(),
             component: "system".to_string(),
             event_type: TelemetryEventType::Performance,
-            metrics: serde_json::json!({
-                "cpu_usage_percent": 45.2,
-                "memory_usage_mb": 512.8,
-                "response_time_ms": 120.5,
-                "active_connections": 23
-            }).as_object().unwrap().clone(),
+            metrics: {
+                let mut map = HashMap::new();
+                map.insert("cpu_usage_percent".to_string(), serde_json::Value::from(45.2));
+                map.insert("memory_usage_mb".to_string(), serde_json::Value::from(512.8));
+                map.insert("response_time_ms".to_string(), serde_json::Value::from(120.5));
+                map.insert("active_connections".to_string(), serde_json::Value::from(23));
+                map
+            },
             context: HashMap::new(),
             severity: TelemetrySeverity::Info,
         };
@@ -653,7 +657,7 @@ impl Agent for FeedbackAgent {
             }
             AgentMessage::HealthCheck { .. } => {
                 Ok(AgentMessage::HealthResponse {
-                    status: self.status(),
+                    status: self.status.clone(),
                     metrics: Some(serde_json::json!({
                         "telemetry_records": self.get_telemetry_count().await,
                         "analysis_history_size": self.analysis_history.read().await.len(),

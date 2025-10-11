@@ -7,10 +7,10 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use uuid::Uuid;
 
 use super::error::{GovernanceError, Result};
 use super::types::Decision;
+use crate::types::{DecisionId, RequestId};
 
 /// Approval workflow configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -37,8 +37,8 @@ impl Default for WorkflowConfig {
 /// Approval request
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ApprovalRequest {
-    pub id: String,
-    pub decision_id: String,
+    pub id: RequestId,
+    pub decision_id: DecisionId,
     pub title: String,
     pub description: String,
     pub criticality: CriticalityLevel,
@@ -111,7 +111,7 @@ pub struct Approver {
 /// Approval workflow engine
 pub struct ApprovalWorkflow {
     config: WorkflowConfig,
-    requests: Arc<RwLock<HashMap<String, ApprovalRequest>>>,
+    requests: Arc<RwLock<HashMap<RequestId, ApprovalRequest>>>,
     approvers: Arc<RwLock<HashMap<String, Approver>>>,
 }
 
@@ -133,7 +133,7 @@ impl ApprovalWorkflow {
     }
 
     /// Submit an approval request
-    pub async fn submit(&self, mut request: ApprovalRequest) -> Result<String> {
+    pub async fn submit(&self, mut request: ApprovalRequest) -> Result<RequestId> {
         // Set default approvers if not specified
         if request.approvers.is_empty() {
             request.approvers = self.config.default_approvers.clone();
@@ -157,7 +157,7 @@ impl ApprovalWorkflow {
 
     /// Respond to an approval request
     pub async fn respond(
-        &self, request_id: &str, approver: &str, decision: ResponseDecision,
+        &self, request_id: &RequestId, approver: &str, decision: ResponseDecision,
         comments: Option<String>,
     ) -> Result<ApprovalStatus> {
         let mut requests = self.requests.write().await;
@@ -248,7 +248,7 @@ impl ApprovalWorkflow {
     }
 
     /// Get an approval request
-    pub async fn get_request(&self, request_id: &str) -> Result<ApprovalRequest> {
+    pub async fn get_request(&self, request_id: &RequestId) -> Result<ApprovalRequest> {
         let requests = self.requests.read().await;
         requests
             .get(request_id)
@@ -272,7 +272,7 @@ impl ApprovalWorkflow {
     }
 
     /// Withdraw an approval request
-    pub async fn withdraw(&self, request_id: &str, withdrawn_by: &str) -> Result<()> {
+    pub async fn withdraw(&self, request_id: &RequestId, withdrawn_by: &str) -> Result<()> {
         let mut requests = self.requests.write().await;
 
         let request = requests
@@ -299,7 +299,7 @@ impl ApprovalWorkflow {
 
     /// Delegate approval to another approver
     pub async fn delegate(
-        &self, request_id: &str, from_approver: &str, to_approver: &str,
+        &self, request_id: &RequestId, from_approver: &str, to_approver: &str,
     ) -> Result<()> {
         if !self.config.enable_delegation {
             return Err(GovernanceError::ApprovalError(
@@ -488,8 +488,8 @@ impl ApprovalRequest {
     /// Create an approval request from a decision
     pub fn from_decision(decision: &Decision) -> Self {
         Self {
-            id: Uuid::new_v4().to_string(),
-            decision_id: decision.id.clone(),
+            id: RequestId::new(),
+            decision_id: DecisionId::from_string(decision.id.clone()),
             title: format!("Approval required: {}", decision.action),
             description: decision.description.clone(),
             criticality: decision.criticality.clone(),
@@ -528,8 +528,8 @@ mod tests {
 
         // Submit request
         let request = ApprovalRequest {
-            id: Uuid::new_v4().to_string(),
-            decision_id: "test-decision".to_string(),
+            id: RequestId::new(),
+            decision_id: DecisionId::from("test-decision"),
             title: "Test Request".to_string(),
             description: "Test".to_string(),
             criticality: CriticalityLevel::High,
@@ -561,8 +561,8 @@ mod tests {
         let workflow = ApprovalWorkflow::new(WorkflowConfig::default());
 
         let request = ApprovalRequest {
-            id: Uuid::new_v4().to_string(),
-            decision_id: "test-decision".to_string(),
+            id: RequestId::new(),
+            decision_id: DecisionId::from("test-decision"),
             title: "Test Request".to_string(),
             description: "Test".to_string(),
             criticality: CriticalityLevel::High,

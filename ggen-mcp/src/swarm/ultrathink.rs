@@ -279,7 +279,7 @@ pub enum Priority {
     Low,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub enum WipStatus {
     /// Just created, needs analysis
     Created,
@@ -624,7 +624,7 @@ pub enum LearningEventType {
     NeuralAdaptation,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UltrathinkMetrics {
     /// Swarm performance metrics
     pub swarm_metrics: SwarmMetrics,
@@ -638,7 +638,7 @@ pub struct UltrathinkMetrics {
     pub learning_metrics: LearningMetrics,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NeuralMetrics {
     /// Pattern recognition accuracy
     pub pattern_accuracy: f64,
@@ -650,7 +650,7 @@ pub struct NeuralMetrics {
     pub retention_rate: f64,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct QuantumMetrics {
     /// Entanglement efficiency
     pub entanglement_efficiency: f64,
@@ -662,7 +662,7 @@ pub struct QuantumMetrics {
     pub coherence_rate: f64,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WipMetrics {
     /// Synchronization success rate
     pub sync_success_rate: f64,
@@ -674,7 +674,7 @@ pub struct WipMetrics {
     pub integration_accuracy: f64,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LearningMetrics {
     /// Cross-domain transfer success
     pub transfer_success_rate: f64,

@@ -57,7 +57,7 @@ pub enum GgenMcpError {
     Configuration(String),
 
     #[error("IO error: {0}")]
-    Io(String),
+    Io(#[from] std::io::Error),
 }
 
 // McpError type alias for compatibility with swarm module

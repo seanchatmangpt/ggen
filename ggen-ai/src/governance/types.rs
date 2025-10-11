@@ -3,13 +3,13 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use uuid::Uuid;
 
 use super::dashboard::DashboardConfig;
 use super::policy::PolicyConfig;
 use super::safety::SafetyConfig;
 use super::workflow::CriticalityLevel;
 use super::workflow::WorkflowConfig;
+use crate::types::{DecisionId, RequestId};
 
 /// Main governance configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -56,7 +56,7 @@ impl Decision {
         data: serde_json::Value,
     ) -> Self {
         Self {
-            id: Uuid::new_v4().to_string(),
+            id: DecisionId::new().to_string(),
             action: action.into(),
             description: description.into(),
             criticality,
@@ -106,7 +106,7 @@ pub enum DecisionOutcome {
         requires_review: bool,
     },
     PendingApproval {
-        request_id: String,
+        request_id: RequestId,
         submitted_at: DateTime<Utc>,
     },
 }

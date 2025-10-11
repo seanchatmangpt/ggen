@@ -111,6 +111,7 @@ impl Default for DashboardConfig {
 
 /// Metrics collector and dashboard
 pub struct Dashboard {
+    #[allow(dead_code)] // Config kept for future configuration updates
     config: DashboardConfig,
     current_metrics: Arc<RwLock<MetricsSnapshot>>,
     health_status: Arc<RwLock<HealthStatus>>,

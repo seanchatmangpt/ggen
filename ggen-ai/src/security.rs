@@ -149,21 +149,21 @@ impl MaskApiKey for &str {
 fn mask_sensitive_patterns(input: &str) -> String {
     let mut result = input.to_string();
 
+    // Pattern: sk-ant-... (Anthropic) - MUST come before general sk- pattern!
+    let ant_pattern = regex::Regex::new(r"sk-ant-[a-zA-Z0-9_-]{20,}").unwrap();
+    result = ant_pattern
+        .replace_all(&result, |caps: &regex::Captures| {
+            let matched = caps.get(0).unwrap().as_str();
+            format!("{}...", &matched[..7])
+        })
+        .to_string();
+
     // Pattern: sk-... (OpenAI and similar)
     let sk_pattern = regex::Regex::new(r"sk-[a-zA-Z0-9_-]{20,}").unwrap();
     result = sk_pattern
         .replace_all(&result, |caps: &regex::Captures| {
             let matched = caps.get(0).unwrap().as_str();
             format!("{}...", &matched[..4])
-        })
-        .to_string();
-
-    // Pattern: sk-ant-... (Anthropic)
-    let ant_pattern = regex::Regex::new(r"sk-ant-[a-zA-Z0-9_-]{20,}").unwrap();
-    result = ant_pattern
-        .replace_all(&result, |caps: &regex::Captures| {
-            let matched = caps.get(0).unwrap().as_str();
-            format!("{}...", &matched[..7])
         })
         .to_string();
 
