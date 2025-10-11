@@ -1,3 +1,34 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [AI Integration Clarification](#ai-integration-clarification)
+  - [✅ **Correct Approach: CLI Commands, Not Template Frontmatter**](#-correct-approach-cli-commands-not-template-frontmatter)
+  - [🎯 **Why CLI Commands Are Better**](#-why-cli-commands-are-better)
+    - [**1. Separation of Concerns**](#1-separation-of-concerns)
+    - [**2. User Experience**](#2-user-experience)
+    - [**3. Maintainability**](#3-maintainability)
+  - [🚀 **Available AI Commands**](#-available-ai-commands)
+    - [**Template Generation**](#template-generation)
+    - [**Template Validation**](#template-validation)
+    - [**Project Generation**](#project-generation)
+    - [**SPARQL & RDF Generation**](#sparql--rdf-generation)
+    - [**MCP Server Integration**](#mcp-server-integration)
+  - [📋 **Template System Status**](#-template-system-status)
+    - [**✅ Current Template Features (No AI Dependencies)**](#-current-template-features-no-ai-dependencies)
+    - [**✅ AI Features (CLI Commands)**](#-ai-features-cli-commands)
+  - [🎯 **Best Practices**](#-best-practices)
+    - [**For Template Authors**](#for-template-authors)
+    - [**For Users**](#for-users)
+    - [**For Developers**](#for-developers)
+  - [🔧 **Implementation Details**](#-implementation-details)
+    - [**Template System (`ggen-core`)**](#template-system-ggen-core)
+    - [**AI Integration (`ggen-ai`)**](#ai-integration-ggen-ai)
+    - [**CLI Commands (`cli/src/cmds/ai/`)**](#cli-commands-clisrccmdsai)
+  - [📊 **Summary**](#-summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # AI Integration Clarification
 
 ## ✅ **Correct Approach: CLI Commands, Not Template Frontmatter**
