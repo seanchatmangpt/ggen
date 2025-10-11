@@ -15,7 +15,20 @@
 
 # GGen Cookbook: A Pattern Language for Autonomic Code Generation (2nd Edition)
 
+**The complete guide to eliminating software's "dark matter" using knowledge-first development and the 80/20 principle.**
+
+This cookbook shows how GGen **inverts the 80/20 equation**:
+- **Traditional development**: 80% dark matter, 20% value creation
+- **GGen development**: 20% dark matter, 80% value creation
+
 This is the source for the GGen Cookbook 2nd Edition, built with [mdBook](https://rust-lang.github.io/mdBook/).
+
+## 🔥 New in This Edition: The Dark Matter Cookbook
+
+- **[DARK_MATTER_COOKBOOK.md](DARK_MATTER_COOKBOOK.md)** - Complete 80/20 transformation guide
+- **Dark Matter Solutions** - Specific patterns for eliminating each category of dark matter
+- **Implementation Roadmap** - Step-by-step transformation from traditional to knowledge-first development
+- **Quantitative Metrics** - Measure your dark matter elimination success
 
 ## Building the Book
 

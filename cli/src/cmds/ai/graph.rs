@@ -16,7 +16,7 @@ pub struct GraphArgs {
     pub description: String,
 
     /// Domain or context for the graph
-    #[arg(short, long)]
+    #[arg(long)]
     pub domain: Option<String>,
 
     /// Base IRI for the ontology
@@ -42,10 +42,6 @@ pub struct GraphArgs {
     /// Use mock client for testing
     #[arg(long)]
     pub mock: bool,
-
-    /// LLM provider to use
-    #[arg(long, default_value = "mock")]
-    pub llm_provider: String,
 
     /// Model name to use
     #[arg(long)]
@@ -79,7 +75,7 @@ pub async fn run(args: &GraphArgs) -> Result<()> {
     // Use global config for proper provider detection
     let global_config = ggen_ai::get_global_config();
 
-    let _client: Arc<dyn LlmClient> = if args.mock || args.llm_provider == "mock" {
+    let _client: Arc<dyn LlmClient> = if args.mock {
         println!("ℹ️  Using mock client for testing");
         Arc::new(MockClient::with_response("Generated RDF graph content"))
     } else {

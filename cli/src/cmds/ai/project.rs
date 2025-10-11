@@ -56,6 +56,10 @@ pub struct ProjectArgs {
     /// Use Ollama client
     #[arg(long)]
     pub ollama: bool,
+
+    /// Use mock client for testing
+    #[arg(long)]
+    pub mock: bool,
 }
 
 pub async fn run(args: &ProjectArgs) -> Result<()> {
@@ -78,7 +82,11 @@ pub async fn run(args: &ProjectArgs) -> Result<()> {
     let global_config = ggen_ai::get_global_config();
 
     // Determine which client to use based on flags
-    let client: Arc<dyn ggen_ai::client::LlmClient> = if args.openai {
+    use ggen_ai::MockClient;
+    let client: Arc<dyn ggen_ai::client::LlmClient> = if args.mock {
+        println!("ℹ️  Using mock client for testing");
+        Arc::new(MockClient::with_response("Generated project structure content"))
+    } else if args.openai {
         println!("ℹ️  Using OpenAI provider");
         let _config = global_config
             .get_provider_config(&ggen_ai::config::LlmProvider::OpenAI)

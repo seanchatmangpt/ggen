@@ -21,12 +21,12 @@
     - [Standalone Examples (No ggen-ai dependency)](#standalone-examples-no-ggen-ai-dependency)
     - [Prerequisites](#prerequisites)
     - [Use Cases Ready](#use-cases-ready)
-  - [🚧 What's Blocked (Until ggen-ai Compiles)](#-whats-blocked-until-ggen-ai-compiles)
-    - [Waiting on ggen-ai Fix](#waiting-on-ggen-ai-fix)
+  - [🚧 What's Blocked (Until agents Crate Compiles)](#-whats-blocked-until-agents-crate-compiles)
+    - [Waiting on agents Crate Fix](#waiting-on-agents-crate-fix)
     - [Future Integration Points](#future-integration-points)
   - [📊 Integration Benefits](#-integration-benefits)
     - [Achieved](#achieved)
-    - [Pending (After ggen-ai Fix)](#pending-after-ggen-ai-fix)
+    - [Pending (After agents Crate Fix)](#pending-after-agents-crate-fix)
   - [🎓 Key Learnings](#-key-learnings)
     - [genai Library Strengths](#genai-library-strengths)
     - [Integration Patterns](#integration-patterns)
@@ -174,10 +174,10 @@ loop {
 
 ## 🔧 Known Blockers
 
-### ggen-ai Compilation Errors
-**Status:** 9 compilation errors prevent full integration
-**Location:** `/Users/sac/ggen/ggen-ai/`
-**Impact:** Cannot use SparqlGenerator with genai yet
+### ggen-ai vs agents Crate Compilation Status
+**ggen-ai Status:** ✅ Compiles successfully (warnings only)
+**agents Status:** ❌ Has compilation errors (separate crate issue)
+**Impact:** Core ggen-ai functionality works, but agents integration needs fixes
 
 **Specific Errors:**
 - Missing Arc imports (multiple files)
@@ -216,17 +216,17 @@ User must have:
 - ✅ Token usage tracking
 - ✅ Error handling and retries
 
-## 🚧 What's Blocked (Until ggen-ai Compiles)
+## 🚧 What's Blocked (Until agents Crate Compiles)
 
-### Waiting on ggen-ai Fix
-- ❌ Direct SPARQL generation with qwen3-coder:30b
-- ❌ Template generation using genai
-- ❌ Full MCP server AI tools integration
+### Waiting on agents Crate Fix
+- ❌ Swarm agent functionality (agents crate compilation errors)
+- ❌ Full autonomous system integration
+- ⚠️ Core ggen-ai functionality works but agents integration blocked
 - ❌ LlmClient adapter implementation
 
 ### Future Integration Points
 ```rust
-// Will work after ggen-ai compilation:
+// Will work after agents crate fixes:
 use ggen_ai::generators::SparqlGenerator;
 use genai_adapter::GenAiClientAdapter;
 
@@ -333,7 +333,7 @@ cat docs/GENAI_GGEN_INTEGRATION_PLAN.md
 
 **Status:**
 - 🟢 genai examples work independently NOW
-- 🟡 Full ggen integration blocked by ggen-ai compilation
+- 🟡 Agents integration blocked by compilation errors (ggen-ai core works)
 - 🔵 Clear path forward documented
 
 **Value Delivered:**

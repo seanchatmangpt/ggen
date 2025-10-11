@@ -837,9 +837,14 @@ track_usage = true
 ```toml
 [dependencies]
 # HTTP client
-reqwest = { version = "0.12", features = ["json", "stream"] }
+reqwest = { version = "0.12", features = [
+  "json",
+  "stream",
+] }
 # Async runtime (already in workspace)
-tokio = { version = "1.0", features = ["full"] }
+tokio = { version = "1.0", features = [
+  "full",
+] }
 # Streaming
 futures = "0.3"
 async-stream = "0.3"
@@ -847,10 +852,14 @@ async-stream = "0.3"
 thiserror = "1.0"
 anyhow = "1.0"
 # Serialization
-serde = { version = "1.0", features = ["derive"] }
+serde = { version = "1.0", features = [
+  "derive",
+] }
 serde_json = "1.0"
 # UUID generation
-uuid = { version = "1.0", features = ["v4"] }
+uuid = { version = "1.0", features = [
+  "v4",
+] }
 ```
 
 ### 8.2 Phase 2: Provider Implementation (Weeks 3-4)

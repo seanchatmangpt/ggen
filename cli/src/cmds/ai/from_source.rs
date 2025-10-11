@@ -67,6 +67,10 @@ pub struct FromSourceArgs {
     /// Custom endpoint URL (for self-hosted models)
     #[arg(long)]
     pub endpoint: Option<String>,
+
+    /// Use mock client for testing
+    #[arg(long)]
+    pub mock: bool,
 }
 
 pub async fn run(args: &FromSourceArgs) -> Result<()> {
@@ -112,8 +116,9 @@ pub async fn run(args: &FromSourceArgs) -> Result<()> {
 
     // Use global config to create appropriate client
     let global_config = ggen_ai::get_global_config();
-    let client = if cfg!(test) || std::env::var("GGEN_TEST_MODE").is_ok() {
+    let client = if args.mock || cfg!(test) || std::env::var("GGEN_TEST_MODE").is_ok() {
         // Use mock client for testing
+        println!("ℹ️  Using mock client for testing");
         Arc::new(MockClient::with_response(
             "Generated template from source analysis",
         )) as Arc<dyn ggen_ai::client::LlmClient>

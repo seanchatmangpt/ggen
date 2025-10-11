@@ -103,7 +103,29 @@ impl SelfValidator {
 
     /// Load triples into validation store
     fn load_triples(&self, triples: &[String]) -> Result<()> {
-        let turtle_doc = triples.join("\n");
+        // Add standard RDF/OWL prefixes if not present
+        let mut turtle_doc = String::new();
+
+        // Check if triples already contain prefix declarations
+        let has_prefixes = triples.iter().any(|t| t.starts_with("@prefix"));
+
+        if !has_prefixes {
+            // Add standard prefixes
+            turtle_doc.push_str("@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n");
+            turtle_doc.push_str("@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n");
+            turtle_doc.push_str("@prefix owl: <http://www.w3.org/2002/07/owl#> .\n");
+            turtle_doc.push_str("@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n");
+            turtle_doc.push_str("@prefix ex: <http://example.org/> .\n\n");
+        }
+
+        // Add all triples
+        for triple in triples {
+            turtle_doc.push_str(triple);
+            if !triple.ends_with('.') && !triple.starts_with("@prefix") {
+                turtle_doc.push_str(" .");
+            }
+            turtle_doc.push('\n');
+        }
 
         self.store
             .load_from_reader(oxigraph::io::RdfFormat::Turtle, turtle_doc.as_bytes())

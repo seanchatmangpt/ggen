@@ -32,10 +32,6 @@ pub struct SparqlArgs {
     #[arg(long)]
     pub mock: bool,
 
-    /// LLM provider to use
-    #[arg(long, default_value = "mock")]
-    pub llm_provider: String,
-
     /// Model name to use
     #[arg(long)]
     pub model: Option<String>,
@@ -74,7 +70,7 @@ pub async fn run(args: &SparqlArgs) -> Result<()> {
     // Use global config for proper provider detection
     let global_config = ggen_ai::get_global_config();
 
-    let client: Arc<dyn LlmClient> = if args.mock || args.llm_provider == "mock" {
+    let client: Arc<dyn LlmClient> = if args.mock {
         println!("ℹ️  Using mock client for testing");
         Arc::new(MockClient::with_response(
             "SELECT ?s ?p ?o WHERE { ?s ?p ?o }",

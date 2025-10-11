@@ -35,7 +35,7 @@ pub mod coordination;
 pub mod core;
 pub mod protocols;
 pub mod swarm;
-pub mod ultrathink_core;
+// ultrathink_core is in swarm/ subdirectory
 
 pub use coordination::{AgentCoordinator, ExecutionPlan, Task};
 pub use core::{Agent, AgentContext, AgentError, AgentResult, ExecutionContext};
