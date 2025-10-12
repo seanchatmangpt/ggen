@@ -81,6 +81,7 @@ This index provides organized access to all ggen documentation, examples, and re
 
 #### **Code Quality & Testing**
 - ✅ [`TESTING_AND_QUALITY_ASSURANCE.md`](TESTING_AND_QUALITY_ASSURANCE.md) - Testing framework
+- 🐳 [`TESTCONTAINERS_PRODUCTION_READINESS.md`](TESTCONTAINERS_PRODUCTION_READINESS.md) - Testcontainers validation
 - 🔍 [`CODE-REVIEW.md`](CODE-REVIEW.md) - Code review guidelines
 - 📊 [`testability-analysis.md`](testability-analysis.md) - Testability analysis
 - 🎯 [`LONDON_SCHOOL_TDD_GUIDE.md`](LONDON_SCHOOL_TDD_GUIDE.md) - TDD methodology
@@ -182,7 +183,7 @@ This index provides organized access to all ggen documentation, examples, and re
 
 ### **Advanced Examples**
 - 🔄 [`advanced-lifecycle-demo/`](examples/advanced-lifecycle-demo/) - Complex lifecycle workflows
-- 📦 [`marketplace-demo/`](examples/marketplace-demo/) - Marketplace integration
+- 📦 [`marketplace/packages/`](marketplace/packages/) - Marketplace packages (use `ggen market` commands)
 - ⚡ [`lib-benchmarks/`](examples/lib-benchmarks/) - Performance benchmarking
 - 🔒 [`advanced-error-handling/`](examples/advanced-error-handling/) - Error handling patterns
 

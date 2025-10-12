@@ -1,7 +1,17 @@
 {
   "version": "1.0.0",
-  "updated_at": "2025-10-12T06:58:01.168735+00:00",
+  "updated_at": "2025-10-12T07:22:34.731276+00:00",
   "packages": {
+    "rust-cli-template": {
+      "name": "rust-cli-template",
+      "full_name": "ggen/rust-cli-template",
+      "version": "0.1.0",
+      "checksum": "placeholder-checksum",
+      "source": "registry",
+      "path": ".ggen/packages/rust-cli-template",
+      "installed_at": "2025-10-12T07:22:34.731064+00:00",
+      "dependencies": []
+    },
     "hello-world": {
       "name": "hello-world",
       "full_name": "hello-world-utils",

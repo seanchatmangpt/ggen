@@ -6,6 +6,7 @@
 //! - Simplified architecture for maximum impact
 
 pub mod core;
+pub mod cleanroom;
 
 use std::sync::Arc;
 
@@ -114,4 +115,9 @@ pub async fn process_ultrathink_wip_entries() -> Result<Vec<WipOperation>> {
         .ok_or_else(|| GgenAiError::configuration("Ultrathink system not initialized"))?;
 
     system.process_wip_entries().await
+}
+
+/// Run enhanced cleanroom tests with all new capabilities
+pub async fn run_enhanced_cleanroom_tests() -> Result<()> {
+    cleanroom::run_enhanced_cleanroom_tests().await
 }

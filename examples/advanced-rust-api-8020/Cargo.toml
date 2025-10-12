@@ -16,9 +16,11 @@ path = "src/lib.rs"
 name = "server"
 path = "src/bin/server.rs"
 
-[[bin]]
-name = "ai-generator"
-path = "src/bin/ai_generator.rs"
+# AI generator binary disabled in standalone marketplace version
+# Requires ggen-core and ggen-ai dependencies
+# [[bin]]
+# name = "ai-generator"
+# path = "src/bin/ai_generator.rs"
 
 [dependencies]
 # Web framework
@@ -50,14 +52,22 @@ uuid = { version = "1.0", features = ["serde", "v4"] }
 chrono = { version = "0.4", features = ["serde"] }
 dotenvy = "0.15"
 
-# ggen integration
-ggen-core = { path = "../../ggen-core" }
-ggen-ai = { path = "../../ggen-ai" }
+# ggen integration (optional - for AI-powered generation)
+# NOTE: These are only available when building from the ggen monorepo
+# Marketplace standalone version doesn't include AI generation features
+# ggen-core = { path = "../../ggen-core", optional = true }
+# ggen-ai = { path = "../../ggen-ai", optional = true }
 
 [dev-dependencies]
 mockall = "0.12"
 assert_fs = "1.0"
 tempfile = "3.0"
+
+[features]
+default = []
+# AI generation features disabled in standalone marketplace version
+# When ggen-core and ggen-ai are published to crates.io, this can be re-enabled:
+# ai-generation = ["ggen-core", "ggen-ai"]
 
 [profile.release]
 opt-level = 3

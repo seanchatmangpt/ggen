@@ -68,6 +68,8 @@ all-integrations = []
 [dev-dependencies]
 tokio-test = "0.4"
 tempfile = "3"
+testcontainers = "0.22"
+rand = "0.8"
 
 [lib]
 name = "ggen_ai"

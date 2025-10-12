@@ -58,6 +58,43 @@ description = "Integration tests only"
 command = "cargo"
 args = ["test", "--test"]
 
+[tasks.test-testcontainers]
+description = "Run testcontainers production readiness validation tests"
+command = "cargo"
+args = ["test", "--package", "ggen-cli-lib", "--test", "integration"]
+env = { "RUST_LOG" = "info" }
+
+[tasks.test-cleanroom]
+description = "Run cleanroom production tests with testcontainers"
+command = "cargo"
+args = [
+  "test",
+  "--package",
+  "ggen-cli-lib",
+  "--test",
+  "integration",
+  "testcontainers_cleanroom",
+]
+env = { "RUST_LOG" = "info" }
+
+[tasks.production-readiness]
+description = "Comprehensive production readiness validation with testcontainers"
+workspace = false
+dependencies = [
+  "test-testcontainers",
+  "test-cleanroom",
+  "test-unit",
+  "test-integration",
+  "lint",
+  "build-release",
+]
+
+[tasks.production-readiness-script]
+description = "Run production readiness validation script"
+workspace = false
+command = "./scripts/production-readiness-validation.sh"
+args = ["--full"]
+
 [tasks.test-live]
 description = "Run tests with live LLM integrations (requires API keys)"
 command = "cargo"

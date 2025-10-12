@@ -2,35 +2,43 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
-- [GGen Cookbook Examples](#ggen-cookbook-examples)
+- [GGen Cookbook Examples (80/20 Edition)](#ggen-cookbook-examples-8020-edition)
+  - [Overview](#overview)
   - [Organization](#organization)
-  - [Running Examples](#running-examples)
+  - [Running Examples (Marketplace-First)](#running-examples-marketplace-first)
     - [Prerequisites](#prerequisites)
-    - [Basic Usage](#basic-usage)
-    - [Advanced Usage](#advanced-usage)
+    - [Basic Usage (80/20 Workflow)](#basic-usage-8020-workflow)
   - [Example Categories](#example-categories)
-    - [Chapter Examples](#chapter-examples)
-    - [Pattern Examples](#pattern-examples)
+    - [Essential Examples](#essential-examples)
+    - [Production Examples](#production-examples)
+    - [AI Examples](#ai-examples)
     - [Recipe Examples](#recipe-examples)
-  - [Contributing Examples](#contributing-examples)
   - [Getting Help](#getting-help)
-  - [License](#license)
+  - [Contributing](#contributing)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-# GGen Cookbook Examples
+# GGen Cookbook Examples (80/20 Edition)
 
-This directory contains runnable examples that demonstrate GGen's pattern language approach to code generation. All examples are tested, documented, and ready to use.
+This directory contains runnable examples that demonstrate GGen's **marketplace-first development workflow** and **80/20 approach** to eliminating software's dark matter.
+
+## Overview
+
+All examples follow the 80/20 rule - focusing on the 20% of features that provide 80% of development value:
+
+- **Marketplace Discovery** - Search for proven patterns first
+- **Production Readiness** - Validate before deployment
+- **Essential Commands** - Workflow over configuration complexity
 
 ## Organization
 
-Examples are organized by chapter and pattern:
+Examples are organized to demonstrate the 80/20 workflow:
 
-- **`chapter-*/`**: Examples relevant to specific chapters
-- **`patterns/`**: Examples demonstrating specific patterns
-- **`recipes/`**: Complete, runnable recipes for common tasks
+- **`chapter-*/`**: Examples showing marketplace-first patterns
+- **`patterns/`**: Essential patterns that provide 80% of value
+- **`recipes/`**: Complete recipes using marketplace packages
 
-## Running Examples
+## Running Examples (Marketplace-First)
 
 ### Prerequisites
 
@@ -41,111 +49,80 @@ Examples are organized by chapter and pattern:
 
 2. Verify installation:
    ```bash
-   ggen --version
+   ggen --version && ggen market list
    ```
 
-### Basic Usage
+### Basic Usage (80/20 Workflow)
 
-1. Navigate to an example directory:
+1. **Search marketplace for proven solutions**:
    ```bash
-   cd examples/chapter-1
+   ggen market search "rust web service"
+   ggen market categories
    ```
 
-2. Run the example:
+2. **Install required packages**:
    ```bash
-   ggen project gen pattern-language-example.tmpl
+   ggen market add "rust-axum-service"
+   ggen market add "postgresql-database"
    ```
 
-3. View generated output:
+3. **Initialize project structure**:
    ```bash
-   cat generated_output.rs
+   ggen lifecycle run init
    ```
 
-### Advanced Usage
-
-1. Use with custom variables:
+4. **Generate using marketplace templates**:
    ```bash
-   ggen project gen pattern-language-example.tmpl \
-     --var user_name="Bob" \
-     --var user_email="bob@example.com"
+   ggen template generate rust-axum-service:user-service.tmpl
+   ggen template generate postgresql-database:schema.tmpl
    ```
 
-2. Use with knowledge graphs:
+5. **Validate production readiness**:
    ```bash
-   ggen graph load domain-model.ttl
-   ggen project gen knowledge-first-example.tmpl
+   ggen lifecycle readiness
+   ggen lifecycle validate --env development
    ```
 
-3. Use with recipes:
+6. **Deploy with confidence**:
    ```bash
-   ggen project gen quick-start-api.tmpl \
-     --var api_name="MyAPI" \
-     --var resource_name="Product"
+   ggen lifecycle run deploy --env development
    ```
 
 ## Example Categories
 
-### Chapter Examples
+### Essential Examples
+- **Marketplace discovery** and package installation
+- **Lifecycle management** and project initialization
+- **Template generation** from marketplace patterns
+- **Production readiness** validation
 
-- **Chapter 1**: Pattern language fundamentals
-- **Chapter 2**: Philosophy and vision
-- **Chapter 3**: Engine architecture
-- **Chapter 4**: CLI usage
-- **Chapter 5**: Template anatomy
-- **Chapter 6**: Core patterns
-- **Chapter 7**: Advanced patterns
-- **Chapter 8**: Data-driven generation
-- **Chapter 9**: Best practices
-- **Chapter 10**: Pattern catalog
-- **Chapter 11**: Self-configuration
-- **Chapter 12**: Self-optimization
-- **Chapter 13**: Self-healing
-- **Chapter 14**: Marketplace
-- **Chapter 15**: Integration
-- **Chapter 16**: Enterprise patterns
-- **Chapter 17**: Extending GGen
+### Production Examples
+- **Microservices architecture** using marketplace patterns
+- **Multi-environment deployment** with validation
+- **Production-ready services** with comprehensive testing
 
-### Pattern Examples
-
-- **Pattern 001**: Knowledge-First Projection
-- **Pattern 002**: Deterministic Engine
-- **Pattern 003**: Graph-Template Binding
-- **Pattern 004**: Noun-Verb CLI
-- **Pattern 005**: Multi-Language Projection
-- **Pattern 006**: Lockfile Versioning
-- **Pattern 007**: Snapshot Testing
-- **Pattern 008**: Incremental Generation
-- **Pattern 009**: Template Inheritance
-- **Pattern 010**: Conditional Generation
+### AI Examples
+- **AI-powered development** workflows
+- **Template enhancement** with AI assistance
+- **Natural language** to code generation
 
 ### Recipe Examples
-
-- **Quick Start API**: Complete REST API generation
-- **Database Schema**: Database-to-code generation
-- **API Client**: Client generation from OpenAPI specs
-- **Testing Suite**: Comprehensive test generation
-- **Documentation**: Automated documentation generation
-- **Deployment**: CI/CD pipeline generation
-- **Monitoring**: Observability stack generation
-- **Security**: Security scanning and compliance
-
-## Contributing Examples
-
-We welcome contributions of new examples:
-
-1. Follow the existing structure and naming conventions
-2. Include comprehensive documentation
-3. Test examples thoroughly
-4. Use the pattern language approach
-5. Submit pull requests for review
+- **Complete end-to-end** solutions
+- **Domain-specific** generators
+- **Integration patterns** for complex systems
 
 ## Getting Help
 
-- **Documentation**: See the main cookbook for detailed explanations
-- **Community**: Join the GGen community for support
-- **Issues**: Report problems via GitHub issues
-- **Discussions**: Use GitHub discussions for questions
+- **Main Documentation**: See `CLAUDE.md` for essential workflow
+- **Command Reference**: See `docs/cli.md` for complete commands
+- **Marketplace Guide**: See `docs/marketplace.md` for package management
+- **Examples Directory**: Each example includes detailed README
 
-## License
+## Contributing
 
-Examples are licensed under the same terms as GGen itself.
+Examples should demonstrate the 80/20 approach:
+
+1. **Focus on marketplace-first** workflow
+2. **Include production readiness** validation
+3. **Use essential commands** (avoid complex configuration)
+4. **Document the 20%** that provides 80% of value

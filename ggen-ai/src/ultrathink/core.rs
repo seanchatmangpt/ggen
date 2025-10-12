@@ -283,9 +283,19 @@ impl UltrathinkCore {
         }));
 
         // Agent 2: WIP Integrator (handles WIP synchronization)
+        let wip_endpoints = if let Some(ref connections) = wip_manager.cleanroom_connections {
+            if let Some(ref wip_url) = connections.wip_server_url {
+                vec![wip_url.clone()]
+            } else {
+                vec!["ws://localhost:8080/wip".to_string()]
+            }
+        } else {
+            vec!["ws://localhost:8080/wip".to_string()]
+        };
+
         agents.push(CoreAgent::WipIntegrator(WipAgent {
             id: Uuid::new_v4(),
-            connected_endpoints: vec!["ws://localhost:8080/wip".to_string()],
+            connected_endpoints: wip_endpoints,
             sync_status: SyncStatus::Connected,
             last_sync: Some(Instant::now()),
         }));
@@ -394,12 +404,74 @@ impl UltrathinkCore {
     pub async fn process_wip_entries(&self) -> Result<Vec<WipOperation>> {
         self.wip_manager.process_pending_entries().await
     }
+
+    /// Create Ultrathink core with cleanroom testing configuration
+    pub async fn new_with_cleanroom_config() -> Result<Self> {
+        let config = UltrathinkConfig {
+            max_agents: 3,
+            wip_sync_interval_seconds: 10, // Faster sync for testing
+            task_batch_size: 10,
+            enable_learning: true,
+        };
+
+        // Create cleanroom connections (will be populated by test environment)
+        let cleanroom_connections = CleanroomConnections {
+            postgres_url: None,
+            redis_url: None,
+            wip_server_url: None,
+        };
+
+        let wip_manager = WipManager::new_with_cleanroom(cleanroom_connections).await?;
+
+        // Create core with enhanced constructor
+        let mut core = Self {
+            config,
+            agents: Arc::new(RwLock::new(Vec::new())),
+            task_queue: Arc::new(RwLock::new(VecDeque::new())),
+            wip_manager: Arc::new(wip_manager),
+            neural_engine: Arc::new(NeuralEngine::new()),
+            channels: CoreChannels {
+                task_submission: mpsc::unbounded_channel().0,
+                wip_events: mpsc::unbounded_channel().0,
+                agent_communication: mpsc::unbounded_channel().0,
+            },
+            metrics: Arc::new(RwLock::new(CoreMetrics::default())),
+            event_tx: broadcast::channel(1000).0,
+        };
+
+        // Initialize agents
+        core.initialize_core_agents().await?;
+
+        Ok(core)
+    }
+
+    /// Create Ultrathink core with custom WIP manager (for testing)
+    pub async fn new_with_wip_manager(config: UltrathinkConfig, wip_manager: WipManager) -> Result<Self> {
+        let mut core = Self::new(config).await?;
+
+        // Replace the WIP manager
+        core.wip_manager = Arc::new(wip_manager);
+
+        Ok(core)
+    }
 }
 
-/// WIP Manager (simplified core functionality)
+/// WIP Manager (enhanced with cleanroom testing support)
 pub struct WipManager {
     endpoints: Vec<String>,
     sync_interval: Duration,
+    /// Cleanroom testing mode flag
+    pub cleanroom_mode: bool,
+    /// Testcontainers-provided connection strings for cleanroom testing
+    pub cleanroom_connections: Option<CleanroomConnections>,
+}
+
+/// Cleanroom connections for Testcontainers-based testing
+#[derive(Debug, Clone)]
+pub struct CleanroomConnections {
+    pub postgres_url: Option<String>,
+    pub redis_url: Option<String>,
+    pub wip_server_url: Option<String>,
 }
 
 impl WipManager {
@@ -408,6 +480,26 @@ impl WipManager {
         Ok(Self {
             endpoints: vec!["ws://localhost:8080/wip".to_string()],
             sync_interval: Duration::from_secs(30),
+            cleanroom_mode: false,
+            cleanroom_connections: None,
+        })
+    }
+
+    /// Create a new WIP manager with cleanroom testing configuration
+    pub async fn new_with_cleanroom(connections: CleanroomConnections) -> Result<Self> {
+        let mut endpoints = Vec::new();
+
+        if let Some(ref wip_url) = connections.wip_server_url {
+            endpoints.push(wip_url.clone());
+        } else {
+            endpoints.push("ws://localhost:8080/wip".to_string());
+        }
+
+        Ok(Self {
+            endpoints,
+            sync_interval: Duration::from_secs(10), // Faster sync for testing
+            cleanroom_mode: true,
+            cleanroom_connections: Some(connections),
         })
     }
 

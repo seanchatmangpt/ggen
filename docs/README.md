@@ -138,10 +138,18 @@ The ggen marketplace provides a curated ecosystem of reusable code generation pa
 - **Learning Paths**: Structured learning journeys for different experience levels
 
 ### 🔍 **Search & Discovery**
+- **📚 Documentation Index**: [`DOCUMENTATION_INDEX.md`](DOCUMENTATION_INDEX.md) - Complete organized index of all documentation
+- **🔍 Advanced Search Interface**: [`search.html`](search.html) - AI-powered search across all documentation
 - **Topic Search**: Find documentation by category, difficulty, and estimated time
 - **Keyword Search**: Full-text search across all documentation
 - **Auto-Suggestions**: Smart search suggestions as you type
 - **Cross-References**: Links between related documents
+
+### 🌐 **Live Documentation Site**
+- **📖 GitHub Pages**: [seanchatmangpt.github.io/ggen/](https://seanchatmangpt.github.io/ggen/) - Complete documentation site
+- **🔍 Integrated Search**: Built-in search with advanced filtering
+- **📱 Mobile Responsive**: Optimized for all devices
+- **⚡ Fast Loading**: Optimized performance and caching
 
 ## Support
 

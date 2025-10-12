@@ -259,8 +259,14 @@ impl FeedbackAgent {
             });
         }
 
-        let start_time = telemetry_data.first().unwrap().timestamp;
-        let end_time = telemetry_data.last().unwrap().timestamp;
+        let start_time = telemetry_data
+            .first()
+            .ok_or_else(|| GgenAiError::analysis_error("No telemetry data available"))?
+            .timestamp;
+        let end_time = telemetry_data
+            .last()
+            .ok_or_else(|| GgenAiError::analysis_error("No telemetry data available"))?
+            .timestamp;
 
         // Analyze patterns using AI
         let patterns = self.detect_patterns(&telemetry_data).await?;

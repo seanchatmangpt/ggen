@@ -17,6 +17,9 @@ git-repository-url = "https://github.com/seanchatmangpt/ggen"
 git-repository-icon = "fa-github"
 edit-url-template = "https://github.com/seanchatmangpt/ggen/edit/main/docs/src/{path}"
 
+# Additional assets for custom search interface
+additional-assets = ["search.html", "ggen-search.js", "searchindex.json"]
+
 [output.html.search]
 enable = true
 limit-results = 30
