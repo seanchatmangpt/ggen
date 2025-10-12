@@ -74,7 +74,7 @@ impl TemplatePromptBuilder {
             for req in &self.requirements {
                 prompt.push_str(&format!("- {}\n", req));
             }
-            prompt.push_str("\n");
+            prompt.push('\n');
         }
 
         // Context section
@@ -90,7 +90,7 @@ impl TemplatePromptBuilder {
             prompt.push_str(&format!("Output format: {}\n", format));
         }
 
-        prompt.push_str("\n");
+        prompt.push('\n');
 
         // Examples section
         if !self.examples.is_empty() {
@@ -98,7 +98,7 @@ impl TemplatePromptBuilder {
             for (i, example) in self.examples.iter().enumerate() {
                 prompt.push_str(&format!("{}. {}\n", i + 1, example));
             }
-            prompt.push_str("\n");
+            prompt.push('\n');
         }
 
         // Template format instructions

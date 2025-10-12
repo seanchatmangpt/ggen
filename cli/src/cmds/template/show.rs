@@ -107,8 +107,8 @@ fn parse_yaml_frontmatter(frontmatter: &str, name: &str, path: &str) -> Result<T
     // Simple YAML parsing for our specific format
     for line in frontmatter.lines() {
         let line = line.trim();
-        if line.starts_with("to:") {
-            metadata.output_path = Some(line[3..].trim().to_string());
+        if let Some(stripped) = line.strip_prefix("to:") {
+            metadata.output_path = Some(stripped.trim().to_string());
         } else if line.starts_with("vars:") {
             // Variables are on subsequent lines
             continue;
@@ -121,10 +121,10 @@ fn parse_yaml_frontmatter(frontmatter: &str, name: &str, path: &str) -> Result<T
         } else if line.starts_with("determinism:") {
             // Determinism config is on subsequent lines
             continue;
-        } else if line.starts_with("- ") {
+        } else if let Some(stripped) = line.strip_prefix("- ") {
             // This is a list item - could be variable, RDF source, etc.
             // For now, treat as variable
-            let var = line[2..].trim();
+            let var = stripped.trim();
             if !var.is_empty() {
                 metadata.variables.push(var.to_string());
             }
@@ -134,13 +134,10 @@ fn parse_yaml_frontmatter(frontmatter: &str, name: &str, path: &str) -> Result<T
                 let key = key.trim();
                 let value = value.trim();
 
-                match key {
-                    "seed" => {
-                        if let Ok(seed) = value.parse::<u64>() {
-                            metadata.determinism_seed = Some(seed);
-                        }
+                if key == "seed" {
+                    if let Ok(seed) = value.parse::<u64>() {
+                        metadata.determinism_seed = Some(seed);
                     }
-                    _ => {}
                 }
             }
         }

@@ -65,8 +65,8 @@ impl LlmConfig {
         }
 
         if let Some(max_tokens) = self.max_tokens {
-            if max_tokens < llm::MIN_TOKEN_LIMIT || max_tokens > llm::MAX_TOKEN_LIMIT {
-                return Err(GgenAiError::configuration(&format!(
+            if !(llm::MIN_TOKEN_LIMIT..=llm::MAX_TOKEN_LIMIT).contains(&max_tokens) {
+                return Err(GgenAiError::configuration(format!(
                     "Max tokens must be between {} and {}",
                     llm::MIN_TOKEN_LIMIT,
                     llm::MAX_TOKEN_LIMIT
@@ -75,8 +75,8 @@ impl LlmConfig {
         }
 
         if let Some(temperature) = self.temperature {
-            if temperature < llm::MIN_TEMPERATURE || temperature > llm::MAX_TEMPERATURE {
-                return Err(GgenAiError::configuration(&format!(
+            if !(llm::MIN_TEMPERATURE..=llm::MAX_TEMPERATURE).contains(&temperature) {
+                return Err(GgenAiError::configuration(format!(
                     "Temperature must be between {} and {}",
                     llm::MIN_TEMPERATURE,
                     llm::MAX_TEMPERATURE
@@ -85,8 +85,8 @@ impl LlmConfig {
         }
 
         if let Some(top_p) = self.top_p {
-            if top_p < llm::MIN_TOP_P || top_p > llm::MAX_TOP_P {
-                return Err(GgenAiError::configuration(&format!(
+            if !(llm::MIN_TOP_P..=llm::MAX_TOP_P).contains(&top_p) {
+                return Err(GgenAiError::configuration(format!(
                     "Top-p must be between {} and {}",
                     llm::MIN_TOP_P,
                     llm::MAX_TOP_P
@@ -176,7 +176,7 @@ impl GenAiClient {
     fn create_chat_options(&self) -> ChatOptions {
         ChatOptions::default()
             .with_temperature(self.config.temperature.unwrap_or(0.7) as f64)
-            .with_max_tokens(self.config.max_tokens.unwrap_or(4096) as u32)
+            .with_max_tokens(self.config.max_tokens.unwrap_or(4096))
             .with_top_p(self.config.top_p.unwrap_or(0.9) as f64)
     }
 }
@@ -192,7 +192,7 @@ impl LlmClient for GenAiClient {
             .client
             .exec_chat(&self.config.model, chat_req, Some(&chat_options))
             .await
-            .map_err(|e| GgenAiError::llm_provider("GenAI", &format!("Request failed: {}", e)))?;
+            .map_err(|e| GgenAiError::llm_provider("GenAI", format!("Request failed: {}", e)))?;
 
         Ok(LlmResponse {
             content: response.first_text().unwrap_or_default().to_string(),
@@ -217,7 +217,7 @@ impl LlmClient for GenAiClient {
             .exec_chat_stream(&self.config.model, chat_req, Some(&chat_options))
             .await
             .map_err(|e| {
-                GgenAiError::llm_provider("GenAI", &format!("Stream request failed: {}", e))
+                GgenAiError::llm_provider("GenAI", format!("Stream request failed: {}", e))
             })?;
 
         let model = self.config.model.clone();

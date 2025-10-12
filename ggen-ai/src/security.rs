@@ -72,7 +72,7 @@ impl SecretString {
     }
 
     /// Convert from a plain string
-    pub fn from_str(s: &str) -> Self {
+    pub fn from_string(s: &str) -> Self {
         Self(s.to_string())
     }
 }

@@ -103,6 +103,7 @@ pub async fn run_with_deps(args: &UpdateArgs, updater: &dyn GpackUpdater) -> Res
 
 /// Default implementation of GpackUpdater
 pub struct DefaultGpackUpdater {
+    #[allow(dead_code)]
     registry_client: RegistryClient,
     lockfile_path: PathBuf,
 }

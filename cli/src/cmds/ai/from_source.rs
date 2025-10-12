@@ -169,7 +169,7 @@ pub async fn run(args: &FromSourceArgs) -> Result<()> {
     println!("✅ Template generated successfully!");
 
     // Determine output path
-    let output_path = args.output.as_ref().map(|s| s.as_str()).unwrap_or_else(|| {
+    let output_path = args.output.as_deref().unwrap_or_else(|| {
         let source_name = std::path::Path::new(&args.source_file)
             .file_stem()
             .and_then(|s| s.to_str())

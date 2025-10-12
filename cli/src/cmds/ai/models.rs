@@ -42,7 +42,7 @@ pub async fn run(args: &ModelsArgs) -> Result<()> {
     };
 
     for adapter in adapters {
-        println!("{}", format!("--- Models for {:?}", adapter));
+        println!("--- Models for {:?}", adapter);
         match client.all_model_names(adapter).await {
             Ok(models) => {
                 for model in models {

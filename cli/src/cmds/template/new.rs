@@ -237,7 +237,31 @@ fn generate_template_content(name: &str, template_type: &str) -> Result<String> 
                  }}\n\
              }}\n"
         )),
-        "generic" | _ => Ok(format!(
+        "generic" => Ok(format!(
+            "---\n\
+             to: output/{{{{ name }}}}.txt\n\
+             vars:\n\
+               name: \"{name}\"\n\
+               author: \"{{{{ author }}}}\"\n\
+             rdf:\n\
+               sources: []\n\
+             sparql:\n\
+               queries: {{}}\n\
+             determinism:\n\
+               seed: \"{timestamp}\"\n\
+             ---\n\
+             \n\
+             Generated file: {name}\n\
+             Author: {{{{ author }}}}\n\
+             Generated at: {timestamp}\n\
+             \n\
+             This is a generic template. Customize the content below:\n\
+             \n\
+             Hello, {{{{ name }}}}!\n\
+             \n\
+             Your template content goes here.\n"
+        )),
+        _ => Ok(format!(
             "---\n\
              to: output/{{{{ name }}}}.txt\n\
              vars:\n\

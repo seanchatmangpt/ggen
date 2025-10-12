@@ -257,7 +257,7 @@ impl ReadinessTracker {
         }
 
         // Calculate scores for each category
-        for (_, report) in &mut by_category {
+        for report in by_category.values_mut() {
             let total = report.total_requirements as f64;
             if total > 0.0 {
                 let completed_ratio = report.completed as f64 / total;
@@ -893,22 +893,21 @@ impl ReadinessTracker {
     }
 
     /// Check if directory contains files matching pattern
+    #[allow(clippy::only_used_in_recursion)]
     fn directory_contains_pattern(&self, dir: &std::path::Path, pattern: &str) -> bool {
         if let Ok(entries) = std::fs::read_dir(dir) {
-            for entry in entries {
-                if let Ok(entry) = entry {
-                    let path = entry.path();
-                    if path.is_file() {
-                        if let Ok(content) = std::fs::read_to_string(&path) {
-                            if content.contains(pattern) {
-                                return true;
-                            }
-                        }
-                    } else if path.is_dir() {
-                        // Recursively check subdirectories
-                        if self.directory_contains_pattern(&path, pattern) {
+            for entry in entries.flatten() {
+                let path = entry.path();
+                if path.is_file() {
+                    if let Ok(content) = std::fs::read_to_string(&path) {
+                        if content.contains(pattern) {
                             return true;
                         }
+                    }
+                } else if path.is_dir() {
+                    // Recursively check subdirectories
+                    if self.directory_contains_pattern(&path, pattern) {
+                        return true;
                     }
                 }
             }
@@ -1021,10 +1020,8 @@ impl PlaceholderRegistry {
 
         for (id, placeholder) in &self.placeholders {
             summary.push_str(&format!(
-                "  {}: {} ({})\n",
-                id,
-                placeholder.description,
-                format!("{:?}", placeholder.category)
+                "  {}: {} ({:?})\n",
+                id, placeholder.description, placeholder.category
             ));
         }
 
@@ -1036,6 +1033,12 @@ impl PlaceholderRegistry {
 #[derive(Debug, Clone)]
 pub struct PlaceholderProcessor {
     registry: PlaceholderRegistry,
+}
+
+impl Default for PlaceholderProcessor {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl PlaceholderProcessor {

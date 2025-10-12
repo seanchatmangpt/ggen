@@ -86,7 +86,7 @@ impl SparqlPromptBuilder {
             for (prefix, uri) in &self.prefixes {
                 prompt.push_str(&format!("PREFIX {}: <{}>\n", prefix, uri));
             }
-            prompt.push_str("\n");
+            prompt.push('\n');
         }
 
         // Constraints section
@@ -95,7 +95,7 @@ impl SparqlPromptBuilder {
             for constraint in &self.constraints {
                 prompt.push_str(&format!("- {}\n", constraint));
             }
-            prompt.push_str("\n");
+            prompt.push('\n');
         }
 
         // Examples section
@@ -104,7 +104,7 @@ impl SparqlPromptBuilder {
             for (i, example) in self.examples.iter().enumerate() {
                 prompt.push_str(&format!("{}. {}\n", i + 1, example));
             }
-            prompt.push_str("\n");
+            prompt.push('\n');
         }
 
         // Output format instructions

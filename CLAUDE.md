@@ -1,259 +1,82 @@
 # Ggen Development Environment - Production CLI Tool
 
-## 🚨 CRITICAL: GGEN MARKETPLACE & LIFECYCLE WORKFLOW
+## 🚨 CORE WORKFLOW: Marketplace → Lifecycle → Deploy
 
-**ABSOLUTE RULES**:
-1. **ALWAYS use ggen marketplace commands for package management**
-2. **ALWAYS use ggen lifecycle commands for project workflows**
-3. **NEVER use direct cargo commands - use ggen market and lifecycle**
-4. **ALWAYS organize examples in examples/ subdirectory**
+**80/20 Rule Applied**: Focus on the 20% of features that provide 80% of development value.
 
-### ⚡ GOLDEN RULE: "1 COMMAND = ALL GGEN OPERATIONS"
-
-**MANDATORY PATTERNS:**
-- **ggen market search/add/list/update** for package management
-- **ggen lifecycle run/list/show/pipeline** for project workflows
-- **ggen template generate** for code generation
-- **ggen ai generate** for AI-powered development
-- **ggen graph query** for SPARQL operations
-
-### 🎯 CRITICAL: Ggen Marketplace for Package Management
-
-**Ggen marketplace is the PRIMARY way to manage packages:**
+### ⚡ Essential Commands (High Value)
 ```bash
-# ✅ CORRECT: Use ggen marketplace for all package operations
-ggen market search "rust cli" --category templates
-ggen market add "rig-mcp-integration"
-ggen market list --installed
-ggen market update "all"
-ggen market info "rig-mcp"
-```
+# 1. Search for proven patterns
+ggen market search "rust web service"
 
-**Available marketplace commands:**
-- `ggen market search <query>` - Search marketplace packages
-- `ggen market add <package>` - Install package from marketplace
-- `ggen market remove <package>` - Remove installed package
-- `ggen market list` - List all available/installed packages
-- `ggen market update` - Update packages to latest versions
-- `ggen market info <package>` - Show detailed package information
-- `ggen market recommend` - Get personalized recommendations
-- `ggen market offline` - Browse cached marketplace data
-- `ggen market sync` - Synchronize with remote marketplace
-- `ggen market publish` - Publish new package to marketplace
+# 2. Install required packages
+ggen market add "rust-axum-service"
+ggen market add "postgresql-database"
 
-### 🎯 CRITICAL: Ggen Lifecycle for Project Management
-
-**Ggen lifecycle is the PRIMARY way to manage project workflows:**
-```bash
-# ✅ CORRECT: Use ggen lifecycle for all project operations
-ggen lifecycle list  # Show all available phases
-ggen lifecycle run init  # Initialize project
-ggen lifecycle run setup  # Install dependencies
-ggen lifecycle run generate  # Generate code from templates
-ggen lifecycle run build  # Build project
-ggen lifecycle run test  # Run tests
-ggen lifecycle run deploy  # Deploy to target environment
-```
-
-**Available lifecycle commands:**
-- `ggen lifecycle list` - List all available phases
-- `ggen lifecycle show <phase>` - Show details of specific phase
-- `ggen lifecycle run <phase>` - Run single lifecycle phase
-- `ggen lifecycle pipeline <phases>` - Run multiple phases in sequence
-
-### 📁 File Organization Rules
-
-**NEVER save to root folder. Use these directories:**
-- `/src` - Source code files
-- `/tests` - Test files
-- `/docs` - Documentation and markdown files
-- `/config` - Configuration files
-- `/scripts` - Utility scripts
-- `/examples` - Example code
-
-## Project Overview
-
-This project uses ggen - a language-agnostic, deterministic code projection CLI that turns ontologies + RDF-like metadata into reproducible code projections. It features a comprehensive marketplace and lifecycle system.
-
-## Ggen Commands
-
-### Core Commands
-- `ggen --help` - Show all available commands
-- `ggen version` - Show ggen version
-- `ggen --list` - List all available subcommands
-
-### Template Commands
-- `ggen template list` - List available templates
-- `ggen template generate <template>` - Generate code from template
-- `ggen template validate <template>` - Validate template syntax
-
-### AI Commands
-- `ggen ai generate "<prompt>"` - Generate code using AI
-- `ggen ai analyze <file>` - Analyze existing code
-- `ggen ai optimize <file>` - Optimize code performance
-
-### Graph/SPARQL Commands
-- `ggen graph query "<sparql>"` - Execute SPARQL query
-- `ggen graph validate <file>` - Validate RDF data
-- `ggen graph info` - Show graph statistics
-
-### Lifecycle Commands
-- `ggen lifecycle list` - List all available phases
-- `ggen lifecycle show <phase>` - Show phase details
-- `ggen lifecycle run <phase>` - Run single phase
-- `ggen lifecycle pipeline <phases>` - Run multiple phases
-
-### Marketplace Commands
-- `ggen market search "<query>"` - Search marketplace packages
-- `ggen market add <package>` - Install package
-- `ggen market list` - List installed packages
-- `ggen market info <package>` - Show package details
-
-## Ggen Workflow
-
-1. **Initialize** (`ggen lifecycle run init`) - Set up project structure
-2. **Setup** (`ggen lifecycle run setup`) - Install dependencies via marketplace
-3. **Generate** (`ggen lifecycle run generate`) - Generate code from templates
-4. **Build** (`ggen lifecycle run build`) - Build the project
-5. **Test** (`ggen lifecycle run test`) - Run comprehensive tests
-6. **Deploy** (`ggen lifecycle run deploy`) - Deploy to target environment
-
-## Code Style & Best Practices
-
-- **Modular Design**: Files under 500 lines
-- **Environment Safety**: Never hardcode secrets
-- **Test-First**: Write tests before implementation
-- **Clean Architecture**: Separate concerns
-- **Documentation**: Keep updated
-
-### 🚨 Production Code Quality Rules
-
-**NEVER use `.expect()` or `.unwrap()` in production code:**
-- ❌ `.expect("error message")` - Panics on error (crashes the program)
-- ❌ `.unwrap()` - Panics without explanation
-- ✅ Use `?` operator with proper Result types
-- ✅ Use `.map_err(|e| anyhow::Error::from(e))?` for error conversion
-- ✅ Use `.unwrap_or_default()` or `.unwrap_or_else()` for safe defaults
-
-**Exception:** `.expect()` is acceptable in:
-- Test code (`#[cfg(test)]` or `tests/` directory)
-- Example code (`examples/` directory)
-- One-time initialization that should fail fast (rare cases)
-
-**Why:** Production code must handle errors gracefully, not crash. Users running in containers, VMs, or with unexpected system states will experience crashes instead of helpful error messages.
-
-**Example fixes:**
-```rust
-// ❌ BAD - Crashes in production
-let time = SystemTime::now()
-    .duration_since(UNIX_EPOCH)
-    .expect("System clock error")
-    .as_millis();
-
-// ✅ GOOD - Returns error that can be handled
-let time = SystemTime::now()
-    .duration_since(UNIX_EPOCH)
-    .map(|d| d.as_millis())
-    .map_err(|_| anyhow::anyhow!("System clock error"))?;
-```
-
-## 🚀 Ggen Marketplace Packages
-
-### Available Package Categories
-- `ai` - AI and LLM integration packages
-- `templates` - Code generation templates
-- `cli` - Command-line interface tools
-- `web` - Web framework integrations
-- `database` - Database and ORM packages
-- `testing` - Testing and validation tools
-- `security` - Security and authentication packages
-
-### Featured Packages
-
-#### Rig MCP Integration (`rig-mcp-integration`)
-- **Description**: Production-ready Rig LLM framework + MCP protocol integration
-- **Version**: 0.1.0
-- **Category**: ai
-- **Features**:
-  - Multi-provider LLM support (OpenAI, Anthropic, Cohere, Deepseek, Gemini, Ollama, 20+)
-  - Dynamic MCP tool loading with vector-based selection
-  - Multi-transport MCP support (stdio, SSE, HTTP)
-  - Production-ready patterns from official MCP Rust SDK
-  - Embedding-based intelligent tool selection
-
-#### CLI Templates (`noun-verb-cli`)
-- **Description**: Complete CLI application templates with noun-verb architecture
-- **Version**: 1.0.0
-- **Category**: templates
-- **Features**:
-  - Full CRUD operations for entities
-  - Clap-based command structure
-  - Comprehensive error handling
-  - Integration testing
-  - Documentation generation
-
-#### Web API Templates (`api-endpoint`)
-- **Description**: REST API endpoint templates with OpenAPI documentation
-- **Version**: 1.0.0
-- **Category**: templates
-- **Features**:
-  - Axum-based HTTP handlers
-  - Request/response validation
-  - Error handling and status codes
-  - OpenAPI specification generation
-  - Rate limiting and security
-
-### Package Installation
-
-```bash
-# Install specific package
-ggen market add "rig-mcp-integration"
-
-# Install template package
-ggen market add "noun-verb-cli"
-
-# List available packages
-ggen market search "rust"
-
-# Get package information
-ggen market info "rig-mcp-integration"
-
-# Update all packages
-ggen market update
-```
-
-## 🎯 Ggen Tool Workflow
-
-### Ggen Handles ALL DEVELOPMENT:
-- **Marketplace**: Package discovery, installation, and management
-- **Lifecycle**: Project initialization, dependency management, code generation
-- **Templates**: Code generation from structured templates
-- **AI Integration**: Intelligent code generation and analysis
-- **Graph Operations**: SPARQL queries and RDF data processing
-- **Testing**: Comprehensive test execution and validation
-- **Deployment**: Multi-environment deployment management
-
-### Core Development Workflow:
-1. **Initialize Project** (`ggen lifecycle run init`)
-2. **Install Dependencies** (`ggen market add <packages>`)
-3. **Generate Code** (`ggen template generate <template>`)
-4. **Run Tests** (`ggen lifecycle run test`)
-5. **Deploy** (`ggen lifecycle run deploy`)
-
-### Example Development Session:
-```bash
-# Initialize a new Rust project
+# 3. Initialize project structure
 ggen lifecycle run init
 
+# 4. Generate using marketplace templates
+ggen template generate rust-axum-service:user-service.tmpl
+
+# 5. Test and deploy safely
+ggen lifecycle run test
+ggen lifecycle validate --env production
+ggen lifecycle run deploy --env production
+```
+
+### 🎯 Production Readiness (Critical)
+```bash
+# Check if ready for production
+ggen lifecycle readiness
+
+# Validate deployment requirements
+ggen lifecycle validate --env production
+
+# Update requirement status
+ggen lifecycle readiness-update auth-basic complete
+```
+
+## 📋 Core Commands Reference
+
+| Command | Purpose | Example |
+|---------|---------|---------|
+| `ggen market search <query>` | Find packages | `ggen market search "rust web"` |
+| `ggen market add <package>` | Install package | `ggen market add "rust-axum"` |
+| `ggen lifecycle run init` | Initialize project | `ggen lifecycle run init` |
+| `ggen template generate <template>` | Generate code | `ggen template generate service.tmpl` |
+| `ggen lifecycle readiness` | Check production status | `ggen lifecycle readiness` |
+| `ggen lifecycle validate` | Validate deployment | `ggen lifecycle validate --env prod` |
+| `ggen lifecycle run deploy` | Deploy to environment | `ggen lifecycle run deploy --env prod` |
+
+## 🚨 Production Code Rules
+
+**NEVER use `.expect()` or `.unwrap()` in production:**
+```rust
+// ❌ BAD - Crashes in production
+let result = some_operation().expect("This will crash");
+
+// ✅ GOOD - Handle errors gracefully
+let result = some_operation().map_err(|e| anyhow::anyhow!("Context: {}", e))?;
+```
+
+## 📦 Marketplace Workflow
+
+```bash
+# Search for packages (discover what exists)
+ggen market search "rust web service"
+ggen market categories
+
 # Install required packages
-ggen market add "rig-mcp-integration"
-ggen market add "noun-verb-cli"
+ggen market add "rust-axum-service"
+ggen market add "postgresql-database"
+ggen market add "docker-compose"
 
-# Generate API endpoints
-ggen template generate templates/api-endpoint.tmpl
+# Generate using installed templates
+ggen template generate rust-axum-service:user-service.tmpl
+```
 
-# Generate database schema
-ggen template generate templates/database-schema.tmpl
+**📚 See:** `docs/marketplace.md` for complete package reference
 
 # Run comprehensive tests
 ggen lifecycle run test
@@ -284,514 +107,89 @@ ggen market list
 ggen lifecycle list
 ```
 
-## 🎯 Marketplace-First Development Workflow
-
-### 1. **Search the Marketplace** - Find reusable packages
-```bash
-# Search for existing patterns and templates
-ggen market search "rust web service"
-ggen market search "microservices"
-ggen market search "docker compose"
-ggen market search "ai integration"
-
-# Browse categories
-ggen market categories
-
-# Get package details
-ggen market info "rig-mcp-integration"
-```
-
-### 2. **Install Required Packages** - Add dependencies via marketplace
-```bash
-# Install core packages for your project type
-ggen market add "rig-mcp-integration"      # AI/LLM integration
-ggen market add "rust-web-service"         # Web framework templates
-ggen market add "microservices-base"       # Microservices patterns
-ggen market add "database-postgresql"      # Database integration
-ggen market add "docker-compose"           # Containerization
-```
-
-### 3. **Initialize Project** - Set up structure using lifecycle
-```bash
-# Initialize project with marketplace packages
-ggen lifecycle run init
-
-# The init phase will automatically:
-# - Set up project structure
-# - Install marketplace dependencies
-# - Configure build system
-# - Create initial templates
-```
-
-### 4. **Generate Code** - Use templates and AI
-```bash
-# Generate from marketplace templates
-ggen template generate rust-web-service:axum-service.tmpl
-
-# Generate with AI assistance
-ggen ai generate "Create user authentication service with JWT"
-
-# Generate database schema
-ggen template generate database-postgresql:schema.tmpl
-```
-
-### 5. **Test & Deploy** - Use lifecycle management
-```bash
-# Run comprehensive tests
-ggen lifecycle run test
-
-# Build optimized version
-ggen lifecycle run build
-
-# Deploy to environment
-ggen lifecycle run deploy --env production
-```
-
-## 📦 Complete Example: Microservices Project
-
-### Step-by-Step Marketplace Workflow
-
-```bash
-# 1. Search for relevant packages
-ggen market search "microservices"
-ggen market search "rust web"
-ggen market search "docker"
-
-# 2. Install required packages
-ggen market add "microservices-architecture"
-ggen market add "rust-axum-service"
-ggen market add "postgresql-database"
-ggen market add "docker-compose"
-
-# 3. Initialize project structure
-cd my-microservices-project
-ggen lifecycle run init
-
-# 4. Generate services using marketplace templates
-ggen template generate microservices-architecture:api-gateway.tmpl
-ggen template generate rust-axum-service:user-service.tmpl
-ggen template generate rust-axum-service:product-service.tmpl
-
-# 5. Generate infrastructure
-ggen template generate docker-compose:development.tmpl
-ggen template generate postgresql-database:schema.tmpl
-
-# 6. Build and test
-ggen lifecycle run build
-ggen lifecycle run test
-
-# 7. Deploy
-ggen lifecycle run deploy --env development
-```
-
-### Available Marketplace Packages
-
-```bash
-# AI & LLM Integration
-ggen market add "rig-mcp-integration"      # Multi-provider LLM support
-
-# Web Frameworks
-ggen market add "rust-axum-service"        # Axum web service templates
-ggen market add "rust-actix-service"       # Actix web service templates
-ggen market add "rust-warp-service"        # Warp web service templates
-
-# Database Integration
-ggen market add "postgresql-database"      # PostgreSQL schemas & migrations
-ggen market add "redis-cache"              # Redis caching layer
-ggen market add "mongodb-database"         # MongoDB integration
+## 🎯 Development Workflow (80/20 Rule)
 
-# Infrastructure
-ggen market add "docker-compose"           # Multi-service containers
-ggen market add "kubernetes-deployment"    # K8s manifests
-ggen market add "nginx-config"             # Load balancer configuration
+**Focus on high-value activities:**
 
-# Testing & Quality
-ggen market add "comprehensive-tests"      # Unit, integration, e2e tests
-ggen market add "security-scanning"        # Vulnerability detection
-ggen market add "performance-monitoring"   # Metrics and observability
-```
+1. **Search Marketplace** → `ggen market search "your need"`
+2. **Install Packages** → `ggen market add "package-name"`
+3. **Initialize Project** → `ggen lifecycle run init`
+4. **Generate Code** → `ggen template generate template.tmpl`
+5. **Validate & Deploy** → `ggen lifecycle validate && ggen lifecycle run deploy`
 
-## 🔄 Correct vs Incorrect Workflow
+**📚 See:** `docs/development-workflow.md` for detailed workflows
 
-### ✅ CORRECT: Marketplace-First Approach
-```bash
-# 1. Search marketplace for existing solutions
-ggen market search "user authentication"
-
-# 2. Install proven packages
-ggen market add "jwt-authentication"
-ggen market add "user-management"
-
-# 3. Generate using marketplace templates
-ggen template generate jwt-authentication:service.tmpl
-
-# 4. Customize generated code
-# Edit generated/src/auth.rs with business logic
-
-# 5. Test using lifecycle
-ggen lifecycle run test
-
-# 6. Deploy using lifecycle
-ggen lifecycle run deploy
-```
-
-### ❌ INCORRECT: Manual Approach (Don't Do This)
-```bash
-# 1. Create everything from scratch
-cargo init my-project
+## 📚 Examples & References
 
-# 2. Manually add dependencies
-cargo add axum tokio serde
-
-# 3. Write all code manually
-# 500+ lines of boilerplate code
-
-# 4. Manual testing
-cargo test
+**📖 See:** `examples/microservices-architecture/` - Complete microservices example
+**📖 See:** `examples/ai-code-generation/` - AI + marketplace workflow
+**📖 See:** `docs/marketplace.md` - Complete package reference
 
-# 5. Manual deployment
-# Custom deployment scripts
-```
+## 📋 Workflow Summary
 
-### Marketplace Operations
-```bash
-# Search for packages
-ggen market search "rust cli"
-ggen market search "web api" --category templates
-
-# Install packages
-ggen market add "rig-mcp-integration"
-ggen market add "api-endpoint"
-
-# List installed packages
-ggen market list --installed
-
-# Update packages
-ggen market update
-```
-
-### Template Generation
-```bash
-# Generate code from templates
-ggen template generate templates/rust-service.tmpl
-ggen template generate templates/api-endpoint.tmpl
-ggen template generate templates/database-schema.tmpl
-
-# Generate with AI assistance
-ggen ai generate "Create a user authentication service"
-ggen ai analyze generated/src/services/user.rs
-```
-
-### Graph Operations
-```bash
-# Execute SPARQL queries
-ggen graph query "SELECT ?entity ?label WHERE { ?entity a ex:Entity ; rdfs:label ?label }"
-
-# Validate RDF data
-ggen graph validate data/domain.ttl
-
-# Show graph statistics
-ggen graph info
-```
-
-## 🚀 Ggen Development Workflow
-
-### The Correct Pattern:
-
-1. **Initialize Project** - Use ggen lifecycle to set up project structure
-2. **Install Dependencies** - Use ggen marketplace to add required packages
-3. **Generate Code** - Use ggen templates and AI for code generation
-4. **Test & Validate** - Use ggen lifecycle for comprehensive testing
-5. **Deploy** - Use ggen lifecycle for multi-environment deployment
-
-### Example Comprehensive Project Development:
-
-```bash
-# Single workflow for complete project creation
-cd examples/comprehensive-rust-showcase
-
-# Initialize project structure
-ggen lifecycle run init
-
-# Install AI and template packages
-ggen market add "rig-mcp-integration"
-ggen market add "noun-verb-cli"
-ggen market add "api-endpoint"
-
-# Generate all components
-ggen template generate templates/rust-service.tmpl
-ggen template generate templates/api-endpoint.tmpl
-ggen template generate templates/database-schema.tmpl
-ggen template generate templates/documentation.tmpl
-ggen template generate templates/tests.tmpl
-ggen template generate templates/deployment.tmpl
-
-# Build and test everything
-ggen lifecycle run build
-ggen lifecycle run test
-
-# Deploy to development
-ggen lifecycle run deploy --env development
-
-# Generate comprehensive documentation
-ggen ai generate "Create comprehensive README for this project"
-```
-
-### Complete Development Session:
-
-```bash
-# Full development workflow in one session
-[Comprehensive Project Development]:
-
-  # Initialize project
-  ggen lifecycle run init
-
-  # Install all required packages
-  ggen market add "rig-mcp-integration"
-  ggen market add "api-endpoint"
-  ggen market add "database-schema"
-
-  # Generate core components
-  ggen template generate templates/rust-service.tmpl
-  ggen template generate templates/api-endpoint.tmpl
-  ggen template generate templates/database-schema.tmpl
-
-  # Add tests and deployment
-  ggen template generate templates/tests.tmpl
-  ggen template generate templates/deployment.tmpl
-
-  # Build, test, and validate
-  ggen lifecycle run build
-  ggen lifecycle run test
-  ggen lifecycle run security
-
-  # Deploy to staging
-  ggen lifecycle run deploy --env staging
-```
-
-## Performance & Quality
-
-### Ggen Performance Features
-- **Deterministic Outputs** - Same inputs always produce identical results
-- **Parallel Execution** - Lifecycle phases run concurrently where possible
-- **Caching** - Intelligent caching of expensive operations
-- **Memory Safety** - Zero-cost abstractions with Rust type safety
-- **Error Handling** - Comprehensive error handling with actionable messages
-
-### Quality Assurance
-- **Template Validation** - All templates validated before generation
-- **RDF Graph Validation** - Semantic data validation with SHACL
-- **SPARQL Query Optimization** - Query performance analysis and optimization
-- **Security Scanning** - Automated vulnerability detection
-- **Code Quality** - Clippy linting and formatting enforcement
-
-## Advanced Features
-
-### Multi-Environment Support
-- **Development** - Fast iteration with debug features
-- **Staging** - Pre-production testing and validation
-- **Production** - Optimized for performance and security
-
-### AI Integration
-- **Multi-Provider Support** - OpenAI, Anthropic, Ollama, and more
-- **Context-Aware Generation** - Uses project structure and RDF data
-- **Natural Language Processing** - Convert natural language to SPARQL
-- **Code Analysis** - Intelligent code review and optimization
-
-### Graph-Driven Development
-- **RDF Data Sources** - Structured domain modeling
-- **SPARQL Queries** - Semantic data extraction and transformation
-- **SHACL Validation** - Constraint validation for generated code
-- **Provenance Tracking** - Complete audit trail of generation decisions
-
-## Integration Tips
-
-1. **Start with Lifecycle** - Always use `ggen lifecycle run init` to start projects
-2. **Use Marketplace** - Install packages with `ggen market add` instead of manual dependency management
-3. **Leverage Templates** - Generate code with `ggen template generate` for consistency
-4. **AI Assistance** - Use `ggen ai generate` for complex requirements
-5. **Graph Validation** - Use `ggen graph validate` to ensure data integrity
-6. **Comprehensive Testing** - Use `ggen lifecycle run test` for full validation
-7. **Multi-Environment Deployment** - Use `ggen lifecycle run deploy --env <env>`
-
-## 📚 Updated Documentation for Better Guidance
-
-The documentation has been updated to emphasize the **marketplace-first development workflow**:
-
-### **Before (Incorrect)** ❌
-```bash
-# Manual approach - lots of boilerplate, inconsistent patterns
-cargo init my-project
-cargo add axum tokio serde
-# Write 500+ lines of boilerplate...
-cargo test
-# Manual deployment scripts...
-```
-
-### **After (Correct)** ✅
-```bash
-# Marketplace-first approach - proven patterns, consistent architecture
-ggen market search "rust web service"
-ggen market add "rust-axum-service"
-ggen lifecycle run init
-ggen template generate rust-axum-service:user-service.tmpl
-ggen lifecycle run test
-ggen lifecycle run deploy --env production
-```
-
-## Support
-
-### Documentation
-- **CLI Reference**: `docs/cli.md` - Complete command reference
-- **Marketplace Guide**: `docs/marketplace.md` - Package management guide (updated)
-- **Lifecycle Guide**: `docs/lifecycle.md` - Project workflow guide (updated)
-- **Template Guide**: `docs/templates.md` - Code generation guide
-- **Best Practices**: `CLAUDE.md` - Development guidelines (this file)
-
-### Examples (Updated with Marketplace-First Approach)
-- **Microservices Architecture**: `examples/microservices-architecture/` - Complete marketplace workflow
-- **AI Code Generation**: `examples/ai-code-generation/` - AI + marketplace combination
-- **CLI Templates**: `examples/noun-verb-cli/` - CLI application templates
-- **Web Templates**: `examples/api-endpoint/` - API endpoint templates
-
-### Community
-- **GitHub Issues**: https://github.com/seanchatmangpt/ggen/issues
-- **Discussions**: https://github.com/seanchatmangpt/ggen/discussions
-- **Documentation**: https://seanchatmangpt.github.io/ggen/
+**✅ DO:** `market search` → `market add` → `lifecycle init` → `template generate` → `lifecycle deploy`
+**❌ DON'T:** `cargo init` → manual coding → custom deployment scripts
+
+**📚 See:** `docs/complete-workflow.md` for detailed examples
+
+## 📋 Essential Commands Summary
+
+| Command | Purpose | Example |
+|---------|---------|---------|
+| `ggen market search <query>` | Find packages | `ggen market search "rust web"` |
+| `ggen market add <package>` | Install package | `ggen market add "rust-axum"` |
+| `ggen lifecycle run init` | Initialize project | `ggen lifecycle run init` |
+| `ggen template generate <template>` | Generate code | `ggen template generate service.tmpl` |
+| `ggen lifecycle readiness` | Check production status | `ggen lifecycle readiness` |
+| `ggen lifecycle validate` | Validate deployment | `ggen lifecycle validate --env prod` |
+| `ggen lifecycle run deploy` | Deploy to environment | `ggen lifecycle run deploy --env prod` |
+
+## 📚 Documentation References
+
+**📖 Core Docs:**
+- `README.md` - Project overview and getting started
+- `docs/cli.md` - Complete command reference
+- `docs/marketplace.md` - Package management guide
+- `docs/lifecycle.md` - Project workflow guide
+
+**📖 Examples:**
+- `examples/microservices-architecture/` - Production microservices
+- `examples/ai-code-generation/` - AI-powered development
+- `examples/advanced-rust-project/` - Advanced patterns
+
+**📖 Development:**
+- `docs/development-workflow.md` - Complete workflows
+- `docs/production-readiness.md` - Production deployment guide
+
+## 📚 Documentation References
+
+**📖 Core Docs:**
+- `README.md` - Project overview and getting started
+- `docs/cli.md` - Complete command reference
+- `docs/marketplace.md` - Package management guide
+- `docs/lifecycle.md` - Project workflow guide
+
+**📖 Examples:**
+- `examples/microservices-architecture/` - Production microservices
+- `examples/ai-code-generation/` - AI-powered development
+- `examples/advanced-rust-project/` - Advanced patterns
+
+**📖 Development:**
+- `docs/development-workflow.md` - Complete workflows
+- `docs/production-readiness.md` - Production deployment guide
+
+## 🎯 80/20 Rule Applied
+
+**Focus on:**
+- **Marketplace discovery** (search before building)
+- **Production readiness** (validate before deploying)
+- **Essential commands** (workflow over features)
+
+**Minimize:**
+- Detailed configuration options (for advanced users)
+- Internal implementation details (for contributors)
+- Advanced edge cases (for power users)
 
 ---
 
-## 🎯 **KEY TAKEAWAY: Always Use Marketplace-First Development**
-
-### **The Ggen Philosophy**
-1. **Marketplace First** - Search and reuse proven patterns before building from scratch
-2. **Lifecycle Management** - Use `ggen lifecycle` for all project operations, never direct cargo commands
-3. **Template Generation** - Generate consistent code using marketplace templates
-4. **AI Enhancement** - Use AI to enhance marketplace patterns, not replace them
-5. **Quality Assurance** - Validate everything with comprehensive testing and deployment
-
-### **Why Marketplace-First Matters**
-- **80% Faster Development** - Reuse proven patterns instead of reinventing
-- **Higher Quality** - Production-ready templates with proper error handling
-- **Consistency** - Standardized patterns across all projects
-- **Maintainability** - Update marketplace packages instead of rewriting everything
-- **Team Productivity** - Everyone uses the same proven patterns
-
-### **The Wrong Way** ❌
-```bash
-# Manual, inconsistent, error-prone
-cargo init my-project
-cargo add axum serde
-# Write hundreds of lines of boilerplate...
-# Manual testing and deployment...
-```
-
-### **The Right Way** ✅
-```bash
-# Marketplace-first, proven, consistent
-ggen market search "rust web service"
-ggen market add "rust-axum-service"
-ggen lifecycle run init
-ggen template generate rust-axum-service:user-service.tmpl
-ggen lifecycle run test
-ggen lifecycle run deploy --env production
-```
-
-**Remember: Ggen provides the complete development toolchain - marketplace, lifecycle, templates, AI, and deployment!**
-
-# Ggen Development Guidelines
-
-## Core Principles
-
-1. **Use Ggen Toolchain** - Always use ggen marketplace, lifecycle, templates, and AI commands
-2. **Deterministic Development** - Same inputs should always produce identical outputs
-3. **Comprehensive Testing** - Every component must have tests that run from lifecycle
-4. **Production Ready** - All generated code must be production-ready with proper error handling
-5. **Security First** - Implement security hardening and vulnerability scanning
-6. **Documentation** - Generate comprehensive documentation for all components
-
-## Workflow Guidelines
-
-1. **Initialize with Lifecycle** - Start every project with `ggen lifecycle run init`
-2. **Package Management** - Use `ggen market add` for all dependencies
-3. **Template Generation** - Use `ggen template generate` for consistent code structure
-4. **AI Enhancement** - Use `ggen ai generate` for complex requirements
-5. **Validation** - Use `ggen graph validate` and `ggen lifecycle run test`
-6. **Deployment** - Use `ggen lifecycle run deploy` for all environments
-
-## Code Quality Standards
-
-1. **Error Handling** - Never use `.expect()` or `.unwrap()` in production code
-2. **Type Safety** - Leverage Rust's type system for compile-time guarantees
-3. **Performance** - Implement efficient algorithms and data structures
-4. **Security** - Follow security best practices and vulnerability scanning
-5. **Testing** - Maintain high test coverage with meaningful assertions
-6. **Documentation** - Keep code comments and generated docs up to date
-
-## Example Project Structure
-
-All example projects should demonstrate the complete ggen workflow:
-
-```bash
-examples/comprehensive-rust-showcase/
-├── ggen.toml              # Project configuration
-├── make.toml              # Lifecycle configuration
-├── data/                  # RDF/SPARQL data sources
-│   ├── domain.ttl        # Domain model
-│   ├── api-spec.ttl      # API specification
-│   ├── database.ttl      # Database schema
-│   └── queries.ttl       # SPARQL queries
-├── templates/             # Code generation templates
-│   ├── rust-service.tmpl # Complete service template
-│   ├── api-endpoint.tmpl # API endpoint template
-│   ├── database-schema.tmpl # Database schema template
-│   ├── tests.tmpl        # Comprehensive test template
-│   └── deployment.tmpl   # Deployment configuration template
-├── generated/             # Generated code (created by lifecycle)
-└── README.md              # Comprehensive project documentation
-```
-
-## Command Usage
-
-Always use the correct ggen commands:
-
-```bash
-# ✅ CORRECT - Use ggen marketplace
-ggen market search "rust cli"
-ggen market add "rig-mcp-integration"
-
-# ✅ CORRECT - Use ggen lifecycle
-ggen lifecycle run init
-ggen lifecycle run test
-ggen lifecycle run deploy --env production
-
-# ✅ CORRECT - Use ggen templates
-ggen template generate templates/rust-service.tmpl
-
-# ❌ WRONG - Never use direct cargo commands
-# cargo add rig-mcp-integration
-# cargo test
-# cargo build
-```
-
-## Testing Requirements
-
-Every example project must include:
-
-1. **Unit Tests** - Test individual functions and methods
-2. **Integration Tests** - Test component interactions
-3. **End-to-End Tests** - Test complete workflows
-4. **Performance Tests** - Validate performance requirements
-5. **Security Tests** - Verify security hardening
-6. **Lifecycle Tests** - Ensure all phases execute successfully
-
-## Documentation Standards
-
-All examples must include:
-
-1. **Comprehensive README** - Complete project overview and usage
-2. **API Documentation** - Generated OpenAPI specifications
-3. **Architecture Documentation** - System design and data flow
-4. **Deployment Guide** - Multi-environment deployment instructions
-5. **Troubleshooting Guide** - Common issues and solutions
-6. **Performance Metrics** - Benchmarks and optimization notes
+**Ggen provides the complete development toolchain - marketplace, lifecycle, templates, AI, and deployment!**

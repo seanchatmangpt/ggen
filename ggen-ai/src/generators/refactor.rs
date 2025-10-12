@@ -179,7 +179,7 @@ impl RefactorAssistant {
         prompt.push_str("## Code to Refactor\n");
         prompt.push_str("```");
         prompt.push_str(&context.language);
-        prompt.push_str("\n");
+        prompt.push('\n');
         prompt.push_str(code);
         prompt.push_str("\n```\n\n");
 
@@ -192,7 +192,7 @@ impl RefactorAssistant {
             for pattern in &context.patterns {
                 prompt.push_str(&format!("- {}\n", pattern));
             }
-            prompt.push_str("\n");
+            prompt.push('\n');
         }
 
         if !context.focus_areas.is_empty() {
@@ -200,7 +200,7 @@ impl RefactorAssistant {
             for area in &context.focus_areas {
                 prompt.push_str(&format!("- {}\n", area));
             }
-            prompt.push_str("\n");
+            prompt.push('\n');
         }
 
         if !context.constraints.is_empty() {
@@ -208,7 +208,7 @@ impl RefactorAssistant {
             for constraint in &context.constraints {
                 prompt.push_str(&format!("- {}\n", constraint));
             }
-            prompt.push_str("\n");
+            prompt.push('\n');
         }
 
         prompt.push_str("## Refactoring Guidelines\n");
@@ -271,7 +271,7 @@ impl RefactorAssistant {
             ));
             prompt.push_str(&format!("   Reasoning: {}\n", suggestion.reasoning));
             prompt.push_str(&format!("   Suggested: {}\n", suggestion.suggested_code));
-            prompt.push_str("\n");
+            prompt.push('\n');
         }
 
         prompt.push_str("## Requirements\n");
@@ -292,12 +292,12 @@ impl RefactorAssistant {
                 .find("```")
                 .ok_or_else(|| GgenAiError::validation("Could not find opening ``` marker"))?;
             let end = response.content.rfind("```").ok_or_else(|| {
-                return missing_closing_marker_error::<String>(
+                missing_closing_marker_error::<String>(
                     "```",
                     "",
                     ErrorContext::RefactorGeneration,
                 )
-                .unwrap_err();
+                .unwrap_err()
             })?;
             response.content[start + 3..end].trim().to_string()
         } else {

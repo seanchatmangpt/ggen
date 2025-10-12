@@ -68,13 +68,13 @@ impl NaturalSearchGenerator {
 
         // Parse JSON
         let parsed: Value = serde_json::from_str(&json_str).map_err(|e| {
-            return parse_failure_error::<Value>(
+            parse_failure_error::<Value>(
                 "LLM response as JSON",
                 &e.to_string(),
                 &json_str,
                 ErrorContext::Validation,
             )
-            .unwrap_err();
+            .unwrap_err()
         })?;
 
         // Extract fields with fallbacks

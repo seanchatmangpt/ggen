@@ -6,6 +6,7 @@ use tempfile::TempDir;
 // use ggen::mock_registry::MockGitHubRegistry; // COMMENTED OUT: Mock registry not available
 
 // Helper function to simulate search
+#[allow(dead_code)]
 fn simulate_search(_mock_registry: &(), query: &str) -> Result<Vec<String>> {
     // Simulate search results
     let results = vec![
@@ -17,6 +18,7 @@ fn simulate_search(_mock_registry: &(), query: &str) -> Result<Vec<String>> {
 }
 
 // Helper function to copy directory recursively
+#[allow(dead_code)]
 fn copy_dir_all(src: &std::path::Path, dst: &std::path::Path) -> Result<()> {
     fs::create_dir_all(dst)?;
     for entry in fs::read_dir(src)? {

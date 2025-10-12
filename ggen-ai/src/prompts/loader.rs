@@ -62,21 +62,21 @@ impl PromptTemplateLoader {
             .join(format!("{}.tmpl", name));
 
         if !template_path.exists() {
-            return Err(GgenAiError::configuration(&format!(
+            return Err(GgenAiError::configuration(format!(
                 "Prompt template not found: {}/{}",
                 category, name
             )));
         }
 
         let content = std::fs::read_to_string(&template_path).map_err(|e| {
-            GgenAiError::configuration(&format!(
+            GgenAiError::configuration(format!(
                 "Failed to read prompt template {}/{}: {}",
                 category, name, e
             ))
         })?;
 
         Template::parse(&content).map_err(|e| {
-            GgenAiError::configuration(&format!(
+            GgenAiError::configuration(format!(
                 "Failed to parse prompt template {}/{}: {}",
                 category, name, e
             ))
@@ -122,7 +122,7 @@ impl PromptTemplateLoader {
         // Render template
         template
             .render(&mut self.tera, &context)
-            .map_err(|e| GgenAiError::configuration(&format!("Failed to render prompt: {}", e)))
+            .map_err(|e| GgenAiError::configuration(format!("Failed to render prompt: {}", e)))
     }
 
     /// Convenience method for natural language search prompts

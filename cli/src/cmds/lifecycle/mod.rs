@@ -342,7 +342,7 @@ fn check_readiness(
         print_category_report(&report, &ggen_core::lifecycle::ReadinessCategory::Critical);
     } else if detailed {
         println!("\n📋 Detailed Breakdown:");
-        for (category, _category_report) in &report.by_category {
+        for category in report.by_category.keys() {
             print_category_report(&report, category);
         }
 
@@ -370,9 +370,9 @@ fn check_readiness(
                 ggen_core::lifecycle::ReadinessCategory::NiceToHave => "ℹ️",
             };
             println!(
-                "  {} {}: {:.1}% ({}/{} complete)",
+                "  {} {:?}: {:.1}% ({}/{} complete)",
                 status_emoji,
-                format!("{:?}", category),
+                category,
                 category_report.score,
                 category_report.completed,
                 category_report.total_requirements
@@ -407,9 +407,9 @@ fn print_category_report(
         };
 
         println!(
-            "\n{} {} Requirements ({:.1}% complete):",
+            "\n{} {:?} Requirements ({:.1}% complete):",
             status_emoji,
-            format!("{:?}", category),
+            category,
             category_report.score
         );
 
@@ -527,13 +527,66 @@ fn show_placeholders(_root: &Path, category_filter: Option<&str>) -> ggen_utils:
 /// Validate production readiness for deployment
 fn validate_for_deployment(root: &Path, env: &str, strict: bool) -> ggen_utils::error::Result<()> {
     println!("🚀 Production Readiness Validation for {} environment", env);
+    println!();
 
-    // TODO: Implement production validation
-    println!("✅ Production validation passed (placeholder)");
+    // Create validator with appropriate settings
+    let validator = if strict {
+        ReadinessValidator::new().strict_mode(true)
+    } else {
+        ReadinessValidator::new().strict_mode(false)
+    };
 
-    // For now, always pass validation
-    println!("\n🎉 DEPLOYMENT READY! 🚀");
-    Ok(())
+    // Run validation
+    let result = validator
+        .validate_for_deployment(root)
+        .map_err(|e| anyhow::anyhow!("Validation failed: {}", e))?;
+
+    // Display results
+    println!("📊 Overall Score: {:.1}%", result.score);
+    println!();
+
+    if result.issues.is_empty() {
+        println!("✅ No issues found!");
+    } else {
+        println!("🔍 Issues Found:");
+        for issue in &result.issues {
+            let severity_icon = match issue.severity {
+                ggen_core::lifecycle::ValidationSeverity::Critical => "🚨",
+                ggen_core::lifecycle::ValidationSeverity::Warning => "⚠️",
+                ggen_core::lifecycle::ValidationSeverity::Info => "ℹ️",
+            };
+            println!("\n{} {:?} - {:?}", severity_icon, issue.severity, issue.category);
+            println!("  Problem: {}", issue.description);
+            println!("  Fix: {}", issue.fix);
+        }
+    }
+
+    if !result.recommendations.is_empty() {
+        println!("\n💡 Recommendations:");
+        for rec in &result.recommendations {
+            println!("  • {}", rec);
+        }
+    }
+
+    println!();
+
+    // Final deployment decision
+    if result.passed {
+        println!("🎉 DEPLOYMENT READY! 🚀");
+        println!("✅ All {} requirements met for production deployment", env);
+        Ok(())
+    } else {
+        println!("❌ DEPLOYMENT BLOCKED");
+        println!("🚫 Critical requirements not met - cannot deploy to {}", env);
+        println!();
+        println!("💡 Run 'ggen lifecycle readiness --detailed' to see full report");
+        println!("💡 Run 'ggen lifecycle readiness-update <id> <status>' to update requirements");
+
+        Err(ggen_utils::error::Error::new(&format!(
+            "Production validation failed: {} critical issues found",
+            result.issues.iter().filter(|i| matches!(i.severity, ggen_core::lifecycle::ValidationSeverity::Critical)).count()
+        )))
+    }
 }
 
 /// Build environment variables

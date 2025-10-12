@@ -190,6 +190,7 @@ impl GpackInstaller for RegistryGpackInstaller {
 }
 
 /// Find workspace root by searching for Cargo.toml with [workspace]
+#[allow(dead_code)]
 fn find_workspace_root() -> Result<PathBuf> {
     let current_dir = std::env::current_dir().map_err(|e| {
         ggen_utils::error::Error::new_fmt(format_args!("Failed to get current directory: {}", e))
@@ -218,6 +219,7 @@ fn find_workspace_root() -> Result<PathBuf> {
 }
 
 /// Recursively copy directory contents
+#[allow(dead_code)]
 fn copy_dir_recursive(src: &PathBuf, dst: &PathBuf) -> Result<()> {
     std::fs::create_dir_all(dst).map_err(|e| {
         ggen_utils::error::Error::new_fmt(format_args!(
@@ -256,6 +258,7 @@ fn copy_dir_recursive(src: &PathBuf, dst: &PathBuf) -> Result<()> {
 }
 
 /// Calculate SHA256 checksum of package directory
+#[allow(dead_code)]
 fn calculate_package_checksum(path: &PathBuf) -> Result<String> {
     use sha2::{Digest, Sha256};
 
@@ -281,6 +284,7 @@ fn calculate_package_checksum(path: &PathBuf) -> Result<String> {
 }
 
 /// Collect all files in directory recursively
+#[allow(dead_code)]
 fn collect_files_recursive(dir: &PathBuf, files: &mut Vec<PathBuf>) -> Result<()> {
     for entry in std::fs::read_dir(dir).map_err(|e| {
         ggen_utils::error::Error::new_fmt(format_args!("Failed to read directory {:?}: {}", dir, e))

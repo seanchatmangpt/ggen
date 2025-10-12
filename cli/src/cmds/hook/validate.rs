@@ -161,6 +161,7 @@ pub async fn run(args: &ValidateArgs) -> Result<()> {
 }
 
 /// Validate hook name format
+#[allow(dead_code)]
 fn is_valid_hook_name(name: &str) -> bool {
     if name.is_empty() || name.len() > 50 {
         return false;

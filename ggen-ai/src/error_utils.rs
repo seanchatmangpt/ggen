@@ -69,7 +69,7 @@ pub enum ErrorContext {
 
 impl ErrorContext {
     /// Convert context to appropriate GgenAiError constructor
-    fn to_error(&self, message: String) -> GgenAiError {
+    fn to_error(self, message: String) -> GgenAiError {
         match self {
             ErrorContext::TemplateGeneration => GgenAiError::template_generation(message),
             ErrorContext::SparqlGeneration => GgenAiError::sparql_generation(message),
