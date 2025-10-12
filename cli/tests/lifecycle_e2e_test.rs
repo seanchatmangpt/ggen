@@ -247,10 +247,11 @@ fn test_lifecycle_run_creates_state_file() {
     let state: serde_json::Value = serde_json::from_str(&state_content).unwrap();
 
     assert_eq!(state["last_phase"], "init");
-    assert!(state["completed_phases"]
+    assert!(state["phase_history"]
         .as_array()
         .unwrap()
-        .contains(&serde_json::json!("init")));
+        .iter()
+        .any(|record| record["phase"] == "init"));
 }
 
 #[test]
@@ -320,10 +321,14 @@ fn test_lifecycle_pipeline_sequential_execution() {
     let state: serde_json::Value = serde_json::from_str(&state_content).unwrap();
 
     assert_eq!(state["last_phase"], "build");
-    let completed = state["completed_phases"].as_array().unwrap();
-    assert!(completed.contains(&serde_json::json!("init")));
-    assert!(completed.contains(&serde_json::json!("setup")));
-    assert!(completed.contains(&serde_json::json!("build")));
+    let phase_history = state["phase_history"].as_array().unwrap();
+    assert!(phase_history.iter().any(|record| record["phase"] == "init"));
+    assert!(phase_history
+        .iter()
+        .any(|record| record["phase"] == "setup"));
+    assert!(phase_history
+        .iter()
+        .any(|record| record["phase"] == "build"));
 }
 
 #[test]
@@ -485,7 +490,7 @@ fn test_lifecycle_pipeline_help() {
         .assert()
         .success()
         .stdout(predicate::str::contains("Run multiple phases in sequence"))
-        .stdout(predicate::str::contains("<PHASES>"))
+        .stdout(predicate::str::contains("[PHASES]..."))
         .stdout(predicate::str::contains("--root"))
         .stdout(predicate::str::contains("--env"));
 }

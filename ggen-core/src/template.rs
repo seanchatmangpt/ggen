@@ -216,6 +216,18 @@ impl Template {
             let template_dir = template_path.parent().unwrap_or(std::path::Path::new("."));
             let rdf_path = template_dir.join(&rendered_path);
 
+            // Security check: prevent path traversal attacks
+            let canonical_rdf = rdf_path.canonicalize().map_err(|e| {
+                anyhow::anyhow!("Failed to canonicalize RDF path '{}': {}", rdf_path.display(), e)
+            })?;
+            let canonical_template = template_dir.canonicalize().map_err(|e| {
+                anyhow::anyhow!("Failed to canonicalize template directory '{}': {}", template_dir.display(), e)
+            })?;
+
+            if !canonical_rdf.starts_with(&canonical_template) {
+                return Err(anyhow::anyhow!("Path traversal blocked: '{}' is outside template directory", rendered_path));
+            }
+
             if let Ok(ttl_content) = std::fs::read_to_string(&rdf_path) {
                 let final_ttl = if prolog.is_empty() {
                     ttl_content

@@ -309,7 +309,7 @@ impl RealWorldValidator {
     }
 
     fn score_format(&self, output: &str, command: &str) -> (f32, Vec<String>) {
-        let mut score = 10.0;
+        let mut score: f32 = 10.0;
         let mut issues = Vec::new();
 
         if command.contains("sparql") {
@@ -333,11 +333,11 @@ impl RealWorldValidator {
             }
         }
 
-        (score.max(0.0), issues)
+        (score.max(0.0f32), issues)
     }
 
     fn score_content_quality(&self, output: &str) -> (f32, Vec<String>) {
-        let mut score = 8.0; // Base score
+        let mut score: f32 = 8.0; // Base score
         let mut issues = Vec::new();
 
         // Check for placeholder text
@@ -358,11 +358,11 @@ impl RealWorldValidator {
             issues.push("Content seems minimal".to_string());
         }
 
-        (score.max(0.0), issues)
+        (score.max(0.0f32), issues)
     }
 
     fn score_usability(&self, output: &str) -> (f32, Vec<String>) {
-        let mut score = 9.0;
+        let mut score: f32 = 9.0;
         let mut issues = Vec::new();
 
         // Check for comments/documentation
@@ -377,11 +377,11 @@ impl RealWorldValidator {
             issues.push("Could benefit from examples".to_string());
         }
 
-        (score.max(0.0), issues)
+        (score.max(0.0f32), issues)
     }
 
     fn score_creativity(&self, output: &str) -> (f32, Vec<String>) {
-        let mut score = 7.0; // Base score
+        let mut score: f32 = 7.0; // Base score
         let mut issues = Vec::new();
 
         // Simple heuristics for creativity
@@ -394,11 +394,11 @@ impl RealWorldValidator {
             score += 2.0; // Bonus for rich vocabulary
         }
 
-        (score.min(10.0).max(0.0), issues)
+        (score.min(10.0f32).max(0.0f32), issues)
     }
 
     fn score_professional_quality(&self, output: &str) -> (f32, Vec<String>) {
-        let mut score = 8.0;
+        let mut score: f32 = 8.0;
         let mut issues = Vec::new();
 
         // Check formatting
@@ -416,7 +416,7 @@ impl RealWorldValidator {
             }
         }
 
-        (score.max(0.0), issues)
+        (score.max(0.0f32), issues)
     }
 }
 
@@ -426,7 +426,7 @@ mod tests {
 
     #[test]
     fn test_real_validator_creation() {
-        let validator = RealWorldValidator::new();
+        let _validator = RealWorldValidator::new();
         assert!(true); // Just ensure it creates successfully
     }
 }

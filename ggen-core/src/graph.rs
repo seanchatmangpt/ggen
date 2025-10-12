@@ -3,7 +3,7 @@ use anyhow::{bail, Result};
 use lru::LruCache;
 use oxigraph::io::RdfFormat;
 use oxigraph::model::{GraphName, NamedNode, NamedOrBlankNode, Quad, Term};
-use oxigraph::sparql::{QueryResults, SparqlEvaluator};
+use oxigraph::sparql::QueryResults;
 use oxigraph::store::Store;
 use serde_json::Value as JsonValue;
 use std::collections::BTreeMap;
@@ -216,7 +216,7 @@ impl Graph {
         Ok(cached)
     }
 
-    pub fn query(&self, sparql: &str) -> Result<QueryResults> {
+    pub fn query<'a>(&'a self, sparql: &str) -> Result<QueryResults<'a>> {
         // For backward compatibility, we need to reconstruct QueryResults
         // This is inefficient but maintains API compatibility
         let cached = self.query_cached(sparql)?;
@@ -231,9 +231,9 @@ impl Graph {
         }
     }
 
-    pub fn query_with_prolog(
-        &self, sparql: &str, prefixes: &BTreeMap<String, String>, base: Option<&str>,
-    ) -> Result<QueryResults> {
+    pub fn query_with_prolog<'a>(
+        &'a self, sparql: &str, prefixes: &BTreeMap<String, String>, base: Option<&str>,
+    ) -> Result<QueryResults<'a>> {
         let head = build_prolog(prefixes, base);
         let q = if head.is_empty() {
             sparql.into()
@@ -243,7 +243,7 @@ impl Graph {
         self.query(&q)
     }
 
-    pub fn query_prepared(&self, q: &str) -> Result<QueryResults> {
+    pub fn query_prepared<'a>(&'a self, q: &str) -> Result<QueryResults<'a>> {
         Ok(self.inner.query(q)?)
     }
 

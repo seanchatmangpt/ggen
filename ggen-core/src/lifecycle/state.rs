@@ -64,7 +64,10 @@ pub fn load_state<P: AsRef<Path>>(path: P) -> Result<LifecycleState> {
     Ok(state)
 }
 
-/// Save lifecycle state to .ggen/state.json
+/// Save lifecycle state to .ggen/state.json with atomic write
+///
+/// PRODUCTION FIX: Uses atomic write pattern (write temp, rename) to prevent corruption
+/// in parallel workspace execution
 pub fn save_state<P: AsRef<Path>>(path: P, state: &LifecycleState) -> Result<()> {
     let path_ref = path.as_ref();
 
@@ -80,7 +83,12 @@ pub fn save_state<P: AsRef<Path>>(path: P, state: &LifecycleState) -> Result<()>
         .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))
         .map_err(|e| LifecycleError::state_save(path_ref, e))?;
 
-    std::fs::write(path_ref, json).map_err(|e| LifecycleError::state_save(path_ref, e))?;
+    // PRODUCTION FIX: Atomic write pattern prevents corruption from parallel writes
+    // Write to temp file, then rename (rename is atomic on POSIX and Windows)
+    let temp_path = path_ref.with_extension("json.tmp");
+    std::fs::write(&temp_path, json).map_err(|e| LifecycleError::state_save(path_ref, e))?;
+
+    std::fs::rename(&temp_path, path_ref).map_err(|e| LifecycleError::state_save(path_ref, e))?;
 
     Ok(())
 }

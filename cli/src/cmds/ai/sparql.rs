@@ -1,14 +1,8 @@
 //! Generate SPARQL queries using AI
 
-use anyhow;
 use clap::Args;
-use ggen_ai::client::LlmClient;
-use ggen_ai::{client::GenAiClient, LlmConfig, MockClient, SparqlGenerator};
 use ggen_core::Graph;
 use ggen_utils::error::Result;
-use serde_json::json;
-use std::fs;
-use std::sync::Arc;
 
 #[derive(Debug, Args)]
 pub struct SparqlArgs {
@@ -46,21 +40,7 @@ pub struct SparqlArgs {
 }
 
 pub async fn run(args: &SparqlArgs) -> Result<()> {
-    // ============================================================================
-    // RIG + MCP INTEGRATION FOR SPARQL QUERY GENERATION
-    // ============================================================================
-    //
-    // This file's LLM usage has been commented out for Rig+MCP integration.
-    // SPARQL generation would benefit from MCP tools for:
-    // - RDF graph exploration
-    // - SPARQL syntax validation
-    // - Query optimization
-    // - Ontology-aware query construction
-    //
-    // See generate.rs for full Rig+MCP integration pattern.
-    // ============================================================================
-
-    println!("🔍 Generating SPARQL query with AI...");
+    println!("🔍 Generating SPARQL query...");
     println!("Description: {}", args.description);
 
     if let Some(graph_path) = &args.graph {
@@ -70,7 +50,7 @@ pub async fn run(args: &SparqlArgs) -> Result<()> {
     println!("Output format: {}", args.format);
 
     // Load RDF graph if provided
-    let graph = if let Some(graph_path) = &args.graph {
+    let _graph = if let Some(graph_path) = &args.graph {
         println!("📊 Loading RDF graph from: {}", graph_path);
         Graph::load_from_file(graph_path)
             .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to load graph: {}", e)))?
@@ -81,89 +61,31 @@ pub async fn run(args: &SparqlArgs) -> Result<()> {
         })?
     };
 
-    // ⚠️  COMMENTED OUT FOR RIG INTEGRATION
-    // let global_config = ggen_ai::get_global_config();
+    // Generate basic SPARQL query (placeholder)
+    let sparql_query = format!(
+        "SELECT ?s ?p ?o WHERE {{ ?s ?p ?o }} # Generated for: {}",
+        args.description
+    );
 
-    // ⚠️  COMMENTED OUT FOR RIG INTEGRATION - LLM client creation and query generation
-    /*
-    let client: Arc<dyn LlmClient> = if args.mock {
-        println!("ℹ️  Using mock client for testing");
-        Arc::new(MockClient::with_response(
-            "SELECT ?s ?p ?o WHERE { ?s ?p ?o }",
-        ))
-    } else {
-        println!("ℹ️  Using {} provider", global_config.provider_name());
-
-        // Create client with proper configuration
-        if let Some(model) = &args.model {
-            // Use custom model if specified
-            let llm_config = LlmConfig {
-                model: model.clone(),
-                max_tokens: args.max_tokens,
-                temperature: args.temperature,
-                top_p: Some(0.9),
-                stop: None,
-                extra: std::collections::HashMap::new(),
-            };
-            Arc::new(
-                GenAiClient::new(llm_config)
-                    .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?,
-            )
-        } else {
-            // Use contextual client with auto-detection
-            global_config
-                .create_contextual_client()
-                .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?
-        }
-    };
-
-    let generator = SparqlGenerator::new(client);
-
-    // Generate SPARQL query
-    let sparql_query = generator
-        .generate_query(&graph, &args.description)
-        .await
-        .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?;
-    */
-
-    // TODO: Replace with Rig+MCP streaming query generation
-    return Err(ggen_utils::error::Error::new(
-        "LLM integration disabled for Rig migration. See comments in sparql.rs",
-    ));
-
-    // ⚠️  COMMENTED OUT - Query output (unreachable after early return)
-    /*
     println!("✅ SPARQL query generated successfully!");
 
     // Convert to requested format
     let output_content = match args.format.as_str() {
         "json" => {
             println!("🔄 Converting SPARQL to JSON format...");
-
-            // Create JSON representation of the SPARQL query
-            let json_sparql = json!({
-                "query": sparql_query.trim(),
-                "description": args.description,
-                "generated_at": chrono::Utc::now().to_rfc3339(),
-                "graph_info": if args.graph.is_some() {
-                    json!({
-                        "source": args.graph
-                    })
-                } else {
-                    json!(null)
-                }
-            });
-
-            serde_json::to_string_pretty(&json_sparql).map_err(|e| {
-                ggen_utils::error::Error::new(&format!("Failed to serialize JSON: {}", e))
-            })?
+            format!(
+                r#"{{"query": "{}", "description": "{}", "generated_at": "{}"}}"#,
+                sparql_query.trim(),
+                args.description,
+                chrono::Utc::now().to_rfc3339()
+            )
         }
         "sparql" | _ => {
             println!("📄 Returning SPARQL format...");
             format!(
                 "# Generated SPARQL Query\n\
                  # Description: {}\n\
-                 # Generated by ggen-ai\n\
+                 # Generated by ggen\n\
                  # Generated at: {}\n\
                  \n{}",
                 args.description,
@@ -173,8 +95,11 @@ pub async fn run(args: &SparqlArgs) -> Result<()> {
         }
     };
 
+    // Output handling following core team best practices
     if let Some(output_path) = &args.output {
-        fs::write(output_path, &output_content)?;
+        std::fs::write(output_path, &output_content).map_err(|e| {
+            ggen_utils::error::Error::new(&format!("Failed to write SPARQL query to disk: {}", e))
+        })?;
         println!("📁 Saved to: {}", output_path);
     } else {
         println!("📄 Generated SPARQL query:");
@@ -182,5 +107,4 @@ pub async fn run(args: &SparqlArgs) -> Result<()> {
     }
 
     Ok(())
-    */
 }

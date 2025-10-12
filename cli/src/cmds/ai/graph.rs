@@ -1,13 +1,9 @@
 //! Generate RDF graphs using AI
 
-use anyhow;
 use clap::Args;
-use ggen_ai::client::LlmClient;
-use ggen_ai::{client::GenAiClient, LlmConfig, MockClient};
 use ggen_core::Graph;
 use ggen_utils::error::Result;
 use std::fs;
-use std::sync::Arc;
 
 #[derive(Debug, Args)]
 pub struct GraphArgs {
@@ -57,21 +53,7 @@ pub struct GraphArgs {
 }
 
 pub async fn run(args: &GraphArgs) -> Result<()> {
-    // ============================================================================
-    // RIG + MCP INTEGRATION FOR RDF GRAPH GENERATION
-    // ============================================================================
-    //
-    // This file's LLM usage has been commented out for Rig+MCP integration.
-    // RDF graph generation would benefit from MCP tools for:
-    // - Semantic web ontology tools
-    // - SPARQL query generation and validation
-    // - RDF schema validation
-    // - Knowledge graph construction tools
-    //
-    // See generate.rs for full Rig+MCP integration pattern.
-    // ============================================================================
-
-    println!("🧠 Generating RDF graph with AI...");
+    println!("🧠 Generating RDF graph...");
     println!("Description: {}", args.description);
 
     if let Some(domain) = &args.domain {
@@ -85,45 +67,6 @@ pub async fn run(args: &GraphArgs) -> Result<()> {
     println!("Output format: {}", args.format);
     println!("Include examples: {}", args.include_examples);
     println!("Verify graph: {}", args.verify);
-
-    // ⚠️  COMMENTED OUT FOR RIG INTEGRATION
-    // let global_config = ggen_ai::get_global_config();
-
-    // ⚠️  COMMENTED OUT FOR RIG INTEGRATION - LLM client creation
-    // Note: graph.rs currently uses placeholder generation, not active LLM calls yet
-    /*
-    let _client: Arc<dyn LlmClient> = if args.mock {
-        println!("ℹ️  Using mock client for testing");
-        Arc::new(MockClient::with_response("Generated RDF graph content"))
-    } else {
-        println!("ℹ️  Using {} provider", global_config.provider_name());
-
-        // Create client with proper configuration
-        if let Some(model) = &args.model {
-            // Use custom model if specified
-            let llm_config = LlmConfig {
-                model: model.clone(),
-                max_tokens: args.max_tokens,
-                temperature: args.temperature,
-                top_p: Some(0.9),
-                stop: None,
-                extra: std::collections::HashMap::new(),
-            };
-            Arc::new(
-                GenAiClient::new(llm_config)
-                    .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?,
-            )
-        } else {
-            // Use contextual client with auto-detection
-            global_config
-                .create_contextual_client()
-                .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?
-        }
-    };
-    */
-
-    // NOTE: Currently generates placeholder graph (NOT using LLM yet)
-    // When implementing Rig+MCP, this would be replaced with semantic tool-based generation
     // Generate basic RDF graph content (placeholder for AI generation)
     let graph_content = format!(
         r#"@prefix ex: <http://example.org/> .
