@@ -1,7 +1,7 @@
 [package]
 name = "cleanroom"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 authors = ["Cleanroom Contributors"]
 description = "Deterministic, hermetic execution environment for testing and validation"
 license = "MIT"
@@ -13,27 +13,27 @@ categories = ["development-tools", "testing"]
 # Core dependencies (always included)
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-serde_with = { version = "3.0", features = ["chrono"] }
+serde_with = { version = "3.15", features = ["chrono"] }
 thiserror = "2.0"
 anyhow = "1.0"
-tokio = { version = "1.0", features = ["full"] }
+tokio = { version = "1.47", features = ["full"] }
 async-trait = "0.1"
 base64 = "0.22"
 tracing = "0.1"
-uuid = { version = "1.0", features = ["v4", "serde"] }
-rand = "0.8"
-rand_chacha = "0.3"
-fastrand = "2.0"
-regex = "1.0"
-tempfile = "3.0"
+uuid = { version = "1.18", features = ["v4", "serde"] }
+rand = "0.9"
+rand_chacha = "0.9"
+fastrand = "2.3"
+regex = "1.12"
+tempfile = "3.23"
 chrono = { version = "0.4", features = ["serde"] }
 toml = "0.9"
-whoami = "1.0"
+whoami = "1.6"
 sha2 = "0.10"
 
 # Container dependencies (required)
-testcontainers = { version = "0.22", features = ["blocking"] }
-testcontainers-modules = { version = "0.10", features = ["postgres", "redis"] }
+testcontainers = { version = "0.25", features = ["blocking"] }
+testcontainers-modules = { version = "0.13", features = ["postgres", "redis"] }
 futures-util = "0.3"
 
 # Optional features
@@ -48,11 +48,11 @@ name = "cleanroom-bench"
 path = "src/bin/bench.rs"
 
 [dev-dependencies]
-criterion = "0.5"
-proptest = "1.0"
-insta = "1.0"
-cucumber = { version = "0.20", features = ["macros"] }
+criterion = "0.7"
+proptest = "1.8"
+insta = "1.43"
+cucumber = { version = "0.21", features = ["macros"] }
 assert_cmd = "2.0"
-predicates = "3.0"
-mockito = "1.0"
-shell-words = "1.0"
+predicates = "3.1"
+mockito = "1.7"
+shell-words = "1.1"

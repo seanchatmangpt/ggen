@@ -9,7 +9,7 @@
 use crate::error::{Result, CleanroomError};
 use serde::{Deserialize, Serialize};
 use serde::{Deserializer, Serializer};
-use serde::ser::{SerializeStruct, Serializer as SerSerializer};
+use serde::ser::SerializeStruct;
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::{Duration, Instant};

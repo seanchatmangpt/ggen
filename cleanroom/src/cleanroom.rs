@@ -6,6 +6,7 @@ use crate::backend::TestcontainerBackend;
 #[cfg(feature = "services")]
 use crate::services::ServiceManager;
 use crate::serializable_instant::SerializableInstant;
+use crate::runtime::orchestrator::{ConcurrencyOrchestrator, TaskId, TaskResult};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -29,6 +30,8 @@ pub struct CleanroomEnvironment {
     /// Service manager for database and cache services
     #[cfg(feature = "services")]
     services: ServiceManager,
+    /// Structured concurrency orchestrator
+    orchestrator: Arc<RwLock<ConcurrencyOrchestrator>>,
     /// Start time of the cleanroom environment
     start_time: Instant,
 }
@@ -150,6 +153,7 @@ impl CleanroomEnvironment {
             backend,
             #[cfg(feature = "services")]
             services,
+            orchestrator: Arc::new(RwLock::new(ConcurrencyOrchestrator::new())),
             start_time,
         })
     }
@@ -321,6 +325,68 @@ impl CleanroomEnvironment {
     pub async fn is_container_running(&self, container_id: &str) -> Result<bool> {
         let registry = self.container_registry.read().await;
         Ok(registry.values().any(|id| id == container_id))
+    }
+
+    /// Spawn a concurrent task
+    pub async fn spawn_task<F, T>(&self, name: String, executor: F) -> Result<TaskId>
+    where
+        T: Send + 'static,
+        F: FnOnce(crate::runtime::orchestrator::TaskContext) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<T>> + Send>> + Send + Sync + 'static,
+    {
+        let mut orchestrator = self.orchestrator.write().await;
+        orchestrator.spawn_task(name, Box::new(executor)).await
+    }
+
+    /// Spawn a concurrent task with timeout
+    pub async fn spawn_task_with_timeout<F, T>(&self, name: String, timeout: Duration, executor: F) -> Result<TaskId>
+    where
+        T: Send + 'static,
+        F: FnOnce(crate::runtime::orchestrator::TaskContext) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<T>> + Send>> + Send + Sync + 'static,
+    {
+        let mut orchestrator = self.orchestrator.write().await;
+        orchestrator.spawn_task_with_timeout(name, timeout, Box::new(executor)).await
+    }
+
+    /// Wait for a specific task to complete
+    pub async fn wait_for_task(&self, task_id: TaskId) -> Result<TaskResult<()>> {
+        let mut orchestrator = self.orchestrator.write().await;
+        orchestrator.wait_for_task(task_id).await
+    }
+
+    /// Wait for all tasks to complete
+    pub async fn wait_for_all_tasks(&self) -> Result<Vec<TaskResult<()>>> {
+        let mut orchestrator = self.orchestrator.write().await;
+        orchestrator.wait_for_all().await
+    }
+
+    /// Cancel a specific task
+    pub async fn cancel_task(&self, task_id: TaskId) -> Result<()> {
+        let orchestrator = self.orchestrator.read().await;
+        orchestrator.cancel_task(task_id).await
+    }
+
+    /// Cancel all tasks
+    pub async fn cancel_all_tasks(&self) -> Result<()> {
+        let orchestrator = self.orchestrator.read().await;
+        orchestrator.cancel_all().await
+    }
+
+    /// Get orchestrator statistics
+    pub async fn get_orchestrator_stats(&self) -> crate::runtime::orchestrator::OrchestratorStats {
+        let orchestrator = self.orchestrator.read().await;
+        orchestrator.get_stats().await
+    }
+
+    /// Check if orchestrator is idle
+    pub async fn is_orchestrator_idle(&self) -> bool {
+        let orchestrator = self.orchestrator.read().await;
+        orchestrator.is_idle().await
+    }
+
+    /// Get active task count
+    pub async fn get_active_task_count(&self) -> usize {
+        let orchestrator = self.orchestrator.read().await;
+        orchestrator.active_task_count().await
     }
 }
 

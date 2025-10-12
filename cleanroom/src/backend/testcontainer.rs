@@ -10,8 +10,8 @@ use std::time::{Duration, Instant};
 use testcontainers::{
     GenericImage,
     ImageExt,
-    runners::SyncRunner,
     core::ExecCommand,
+    runners::SyncRunner,
 };
 
 /// Testcontainers backend for containerized execution
@@ -126,7 +126,7 @@ impl TestcontainerBackend {
         // Set default command if specified and no command in cmd
         if cmd.bin.is_empty() && self.default_command.is_some() {
             if let Some(ref default_cmd) = self.default_command {
-                let cmd_args: Vec<&str> = default_cmd.iter().map(|s| s.as_str()).collect();
+                let _cmd_args: Vec<&str> = default_cmd.iter().map(|s| s.as_str()).collect();
                 // Note: testcontainers doesn't directly support setting default CMD
                 // This would require a different approach for container configuration
             }
