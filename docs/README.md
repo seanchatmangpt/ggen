@@ -64,19 +64,10 @@ Purpose: project one ontology into many artifacts. Deterministic. Language-agnos
 23. **[TESTING_AND_QUALITY_ASSURANCE.md](TESTING_AND_QUALITY_ASSURANCE.md)** - Comprehensive testing and quality assurance framework
 24. **[SECURITY_AND_OBSERVABILITY.md](SECURITY_AND_OBSERVABILITY.md)** - Security controls and observability practices
 25. **[CORE_TEAM_RECOMMENDATIONS.md](CORE_TEAM_RECOMMENDATIONS.md)** - Core team recommendations for next development priorities
-26. **[MCP_DOCUMENTATION_INDEX.md](MCP_DOCUMENTATION_INDEX.md)** - MCP documentation index and navigation
-27. **[MCP_INTEGRATION_COMPLETE.md](MCP_INTEGRATION_COMPLETE.md)** - MCP server integration
-28. **[autonomous-systems-vision.md](autonomous-systems-vision.md)** - Path to autonomous software
-29. **[ultrathink-swarm-implementation.md](ultrathink-swarm-implementation.md)** - Multi-agent autonomous systems
 
 ## Additional Resources
 
 ### Integration & Implementation
-30. **[GENAI_GGEN_INTEGRATION_PLAN.md](GENAI_GGEN_INTEGRATION_PLAN.md)** - AI integration roadmap
-31. **[GENAI_INTEGRATION_STATUS.md](GENAI_INTEGRATION_STATUS.md)** - Current AI integration status *(UPDATED)*
-32. **[GENAI_OLLAMA_INTEGRATION.md](GENAI_OLLAMA_INTEGRATION.md)** - Ollama provider integration
-33. **[GGEN_AI_USER_GUIDE.md](GGEN_AI_USER_GUIDE.md)** - Complete AI usage guide
-34. **[AI_IMPLEMENTATION_V1_PREP.md](AI_IMPLEMENTATION_V1_PREP.md)** - AI implementation preparation
 
 ### Testing & Validation
 35. **[E2E_TESTS.md](E2E_TESTS.md)** - End-to-end testing guide

@@ -13,6 +13,7 @@ pub mod github;
 pub mod gpack;
 pub mod graph;
 pub mod inject;
+pub mod lifecycle;
 pub mod lockfile;
 pub mod merge;
 pub mod pipeline;

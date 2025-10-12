@@ -162,7 +162,6 @@
     - [143. **Work Stealing**](#143-work-stealing)
     - [144. **Consensus-Based Decisions**](#144-consensus-based-decisions)
     - [145. **Emergent Behavior**](#145-emergent-behavior)
-    - [146. **Swarm Intelligence**](#146-swarm-intelligence)
     - [147. **Stigmergy**](#147-stigmergy)
     - [148. **Ant Colony Optimization**](#148-ant-colony-optimization)
     - [149. **Genetic Algorithms**](#149-genetic-algorithms)
@@ -767,11 +766,8 @@ Make generation decisions through multi-agent consensus.
 ### 145. **Emergent Behavior**
 Complex generation patterns emerge from simple template rules.
 
-### 146. **Swarm Intelligence**
-Coordinate multiple generation agents for complex tasks.
-
 ### 147. **Stigmergy**
-Agents communicate indirectly through shared artifacts.
+Components communicate indirectly through shared artifacts.
 
 ### 148. **Ant Colony Optimization**
 Find optimal generation paths through probabilistic exploration.
@@ -1063,8 +1059,6 @@ Guide AI through step-by-step reasoning.
 ### 235. **Self-Critique**
 AI evaluates and improves its own generated code.
 
-### 236. **Multi-Agent Collaboration**
-Multiple AI agents work together on generation tasks.
 
 ### 237. **Retrieval-Augmented Generation**
 Combine retrieval and generation for better results.

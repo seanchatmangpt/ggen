@@ -1,0 +1,83 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix nuxt: <http://ggen.io/nuxt#> .
+@prefix vue: <http://ggen.io/vue#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Core Nuxt Concepts
+nuxt:Component rdf:type rdfs:Class ;
+    rdfs:label "Nuxt Component" ;
+    rdfs:comment "A Vue 3 component in a Nuxt 4 application" .
+
+nuxt:Page rdf:type rdfs:Class ;
+    rdfs:label "Nuxt Page" ;
+    rdfs:comment "A routable page component in Nuxt 4" .
+
+nuxt:Layout rdf:type rdfs:Class ;
+    rdfs:label "Nuxt Layout" ;
+    rdfs:comment "A layout wrapper component" .
+
+nuxt:Composable rdf:type rdfs:Class ;
+    rdfs:label "Nuxt Composable" ;
+    rdfs:comment "A composable function providing reactive logic" .
+
+nuxt:Middleware rdf:type rdfs:Class ;
+    rdfs:label "Nuxt Middleware" ;
+    rdfs:comment "Route middleware for navigation guards" .
+
+nuxt:Plugin rdf:type rdfs:Class ;
+    rdfs:label "Nuxt Plugin" ;
+    rdfs:comment "A Nuxt plugin for app initialization" .
+
+nuxt:API rdf:type rdfs:Class ;
+    rdfs:label "API Endpoint" ;
+    rdfs:comment "A server API endpoint" .
+
+# Properties
+nuxt:name rdf:type rdf:Property ;
+    rdfs:domain nuxt:Component ;
+    rdfs:range xsd:string .
+
+nuxt:path rdf:type rdf:Property ;
+    rdfs:domain nuxt:Page ;
+    rdfs:range xsd:string .
+
+nuxt:template rdf:type rdf:Property ;
+    rdfs:domain nuxt:Component ;
+    rdfs:range xsd:string .
+
+nuxt:script rdf:type rdf:Property ;
+    rdfs:domain nuxt:Component ;
+    rdfs:range xsd:string .
+
+nuxt:style rdf:type rdf:Property ;
+    rdfs:domain nuxt:Component ;
+    rdfs:range xsd:string .
+
+nuxt:usesComposable rdf:type rdf:Property ;
+    rdfs:domain nuxt:Component ;
+    rdfs:range nuxt:Composable .
+
+nuxt:layout rdf:type rdf:Property ;
+    rdfs:domain nuxt:Page ;
+    rdfs:range nuxt:Layout .
+
+nuxt:middleware rdf:type rdf:Property ;
+    rdfs:domain nuxt:Page ;
+    rdfs:range nuxt:Middleware .
+
+nuxt:hasProps rdf:type rdf:Property ;
+    rdfs:domain nuxt:Component ;
+    rdfs:range xsd:string .
+
+nuxt:emits rdf:type rdf:Property ;
+    rdfs:domain nuxt:Component ;
+    rdfs:range xsd:string .
+
+nuxt:returnType rdf:type rdf:Property ;
+    rdfs:domain nuxt:Composable ;
+    rdfs:range xsd:string .
+
+nuxt:imports rdf:type rdf:Property ;
+    rdfs:domain nuxt:Composable ;
+    rdfs:range xsd:string .

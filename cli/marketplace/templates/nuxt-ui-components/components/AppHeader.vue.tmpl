@@ -1,0 +1,29 @@
+---
+app_name: "{{ app_name }}"
+---
+<template>
+  <UHeader>
+    <template #left>
+      <NuxtLink to="/" class="flex items-center gap-2 font-semibold">
+        <UIcon name="i-heroicons-cube" class="w-6 h-6" />
+        {{ app_name }}
+      </NuxtLink>
+    </template>
+
+    <template #right>
+      <UButton
+        to="/docs"
+        variant="ghost"
+        trailing-icon="i-heroicons-arrow-right"
+      >
+        Documentation
+      </UButton>
+
+      <UColorModeButton />
+    </template>
+  </UHeader>
+</template>
+
+<script setup lang="ts">
+// App header component with navigation and color mode toggle
+</script>

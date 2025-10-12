@@ -255,9 +255,7 @@ src/
 ├── lib.rs         # Main library exports
 ├── core/          # Core generation engine
 ├── cli/           # CLI command implementations
-├── utils/         # Utilities and helpers
-├── mcp/           # MCP server implementation
-└── ai/            # AI integration features
+└── utils/         # Utilities and helpers
 ```
 
 ### Adding New Template Types

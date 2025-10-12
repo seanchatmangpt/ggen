@@ -5,6 +5,7 @@ pub mod audit;
 pub mod ci;
 pub mod graph;
 pub mod hook;
+pub mod lifecycle;
 pub mod market;
 pub mod project;
 pub mod shell;
@@ -56,6 +57,8 @@ pub enum Commands {
         about = "Knowledge hooks for autonomic graph regeneration"
     )]
     Hook(hook::HookCmd),
+    #[command(name = "lifecycle", about = "Universal lifecycle management")]
+    Lifecycle(lifecycle::LifecycleArgs),
     #[command(name = "market", about = "Marketplace operations for gpacks")]
     Market(market::MarketCmd),
     #[command(name = "project", about = "Project scaffolding and generation")]
@@ -167,6 +170,7 @@ impl Commands {
             // Commands::Swarm(cmd) => swarm::run(cmd).await,  // Commented out - requires ggen-mcp
             Commands::Graph(cmd) => cmd.run().await,
             Commands::Hook(cmd) => cmd.run().await,
+            Commands::Lifecycle(args) => lifecycle::run(args.clone()).await,
             Commands::Market(cmd) => cmd.run().await,
             Commands::Project(cmd) => cmd.run().await,
             Commands::Shell(cmd) => cmd.run().await,
@@ -201,6 +205,7 @@ impl Commands {
             // Commands::Swarm(cmd) => swarm::run(cmd).await,  // Commented out - requires ggen-mcp
             Commands::Graph(cmd) => cmd.run().await,
             Commands::Hook(cmd) => cmd.run().await,
+            Commands::Lifecycle(args) => lifecycle::run(args.clone()).await,
             Commands::Market(cmd) => cmd.run().await,
             Commands::Project(cmd) => cmd.run().await,
             Commands::Shell(cmd) => cmd.run().await,

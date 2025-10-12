@@ -50,7 +50,6 @@
     - [Chain-of-Thought Prompting](#chain-of-thought-prompting)
     - [Consensus-Based Decisions](#consensus-based-decisions)
     - [Control Flow Analysis](#control-flow-analysis)
-    - [DAA (Decentralized Autonomous Agents)](#daa-decentralized-autonomous-agents)
     - [Data Flow Analysis](#data-flow-analysis)
     - [Differential Privacy](#differential-privacy)
     - [Federated Learning](#federated-learning)
@@ -68,7 +67,6 @@
     - [Reinforcement Learning](#reinforcement-learning)
     - [Self-Critique](#self-critique)
     - [Staging](#staging)
-    - [Swarm Intelligence](#swarm-intelligence)
     - [Transfer Learning](#transfer-learning)
   - [Infrastructure](#infrastructure)
     - [CI/CD Integration](#cicd-integration)
@@ -380,13 +378,11 @@ Templates that adjust behavior based on runtime conditions, performance metrics,
 An AI technique where the model is guided through step-by-step reasoning to improve code generation quality.
 
 ### Consensus-Based Decisions
-Multi-agent systems where agents vote or negotiate to make generation decisions collectively. See pattern 144.
+Systems where multiple generation strategies are evaluated to make optimal decisions. See pattern 144.
 
 ### Control Flow Analysis
 Analysis of code execution paths to optimize generated code. See pattern 212.
 
-### DAA (Decentralized Autonomous Agents)
-Self-organizing agents that coordinate code generation without central control. See patterns 141-150.
 
 ### Data Flow Analysis
 Tracking how data moves through code to improve generation accuracy. See pattern 213.
@@ -439,8 +435,6 @@ AI that evaluates and improves its own generated code. See pattern 235.
 ### Staging
 Multi-stage template evaluation for complex scenarios. See pattern 208.
 
-### Swarm Intelligence
-Coordinating multiple agents to solve complex generation tasks. See pattern 146.
 
 ### Transfer Learning
 Applying knowledge from one domain to improve generation in another. See pattern 133.
@@ -539,7 +533,6 @@ ggen project test --watch
 - **CI/CD**: Continuous Integration / Continuous Deployment
 - **CLI**: Command-Line Interface
 - **CRDT**: Conflict-Free Replicated Data Type
-- **DAA**: Decentralized Autonomous Agents
 - **DRY**: Don't Repeat Yourself
 - **GNN**: Graph Neural Network
 - **IDE**: Integrated Development Environment

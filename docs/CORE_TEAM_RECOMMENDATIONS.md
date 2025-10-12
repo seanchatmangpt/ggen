@@ -201,7 +201,7 @@ cargo deny check licenses
 
 ### 2.1 Add Property-Based Testing with proptest
 
-**Current State:** proptest already in agents/Cargo.toml but not fully utilized.
+**Current State:** proptest integration needed for comprehensive testing.
 
 **Recommendations:**
 
@@ -821,7 +821,7 @@ bstr = "1.9"
 
 # Efficient collections
 ahash = "0.8"  # Faster hasher
-dashmap = "5.5"  # Concurrent HashMap (already in ggen-mcp)
+dashmap = "5.5"  # Concurrent HashMap
 
 # Memory pooling
 bumpalo = "3.14"

@@ -1,0 +1,33 @@
+---
+app_name: "{{ app_name }}"
+---
+<template>
+  <UFooter>
+    <template #left>
+      <span class="text-sm text-gray-500 dark:text-gray-400">
+        © {{ currentYear }} {{ app_name }}. All rights reserved.
+      </span>
+    </template>
+
+    <template #right>
+      <UButton
+        to="https://github.com"
+        target="_blank"
+        variant="ghost"
+        icon="i-simple-icons-github"
+        aria-label="GitHub"
+      />
+      <UButton
+        to="https://twitter.com"
+        target="_blank"
+        variant="ghost"
+        icon="i-simple-icons-x"
+        aria-label="X (Twitter)"
+      />
+    </template>
+  </UFooter>
+</template>
+
+<script setup lang="ts">
+const currentYear = new Date().getFullYear()
+</script>

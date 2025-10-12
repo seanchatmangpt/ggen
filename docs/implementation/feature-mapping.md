@@ -7,7 +7,6 @@
   - [1. Current ggen Architecture Overview](#1-current-ggen-architecture-overview)
     - [Core Modules (ggen-core)](#core-modules-ggen-core)
     - [CLI Structure (cli/src/cmds)](#cli-structure-clisrccmds)
-    - [MCP Server (ggen-mcp)](#mcp-server-ggen-mcp)
   - [2. Rust-Genai Pattern Analysis](#2-rust-genai-pattern-analysis)
     - [Key Features to Integrate](#key-features-to-integrate)
   - [3. Integration Points Mapping](#3-integration-points-mapping)
@@ -15,12 +14,10 @@
     - [3.2 Enhanced Template Frontmatter](#32-enhanced-template-frontmatter)
     - [3.3 Enhanced Pipeline with LLM Support](#33-enhanced-pipeline-with-llm-support)
     - [3.4 New CLI Command: `ggen ai`](#34-new-cli-command-ggen-ai)
-    - [3.5 MCP Tool Integration](#35-mcp-tool-integration)
   - [4. Implementation Roadmap](#4-implementation-roadmap)
     - [Phase 1: Foundation (Week 1)](#phase-1-foundation-week-1)
     - [Phase 2: Template Enhancement (✅ COMPLETED)](#phase-2-template-enhancement--completed)
     - [Phase 3: CLI Integration (✅ COMPLETED)](#phase-3-cli-integration--completed)
-    - [Phase 4: MCP Server Integration (✅ COMPLETED)](#phase-4-mcp-server-integration--completed)
   - [5. Detailed Code Examples](#5-detailed-code-examples)
     - [5.1 LLM Adapter Trait](#51-llm-adapter-trait)
     - [5.2 OpenAI Adapter Implementation](#52-openai-adapter-implementation)
@@ -111,19 +108,6 @@ cli/src/cmds/
 └── shell/              # Shell completions
 ```
 
-### MCP Server (ggen-mcp)
-
-```
-ggen-mcp/src/
-├── server.rs           # MCP server implementation
-├── tools/
-│   ├── graph.rs        # Graph operation tools
-│   ├── template.rs     # Template tools
-│   ├── project.rs      # Project tools
-│   ├── market.rs       # Marketplace tools
-│   └── hook.rs         # Hook tools
-└── schema.rs           # MCP schema definitions
-```
 
 ---
 
@@ -227,7 +211,6 @@ The AI capabilities are accessed through CLI commands:
 - `ggen ai generate` - AI-powered template generation
 - `ggen ai validate` - Template validation with AI
 - `ggen project gen --ai` - AI-enhanced project generation
-- `ggen-ai-mcp` - MCP server for AI assistant integration
 
 **Example Template (AI features accessed via CLI):**
 ```yaml
@@ -403,55 +386,6 @@ ggen ai enhance templates/api.tmpl --add-tests --optimize
 
 ---
 
-### 3.5 MCP Tool Integration
-
-**File:** `/Users/sac/ggen/ggen-mcp/src/tools/ai.rs` (NEW)
-
-**MCP Tools to Add:**
-```rust
-use rmcp::*;
-use serde_json::Value;
-
-/// MCP tool: ai/generate
-/// Generate code using AI with ggen templates
-pub async fn ai_generate(params: Value) -> Result<Value> {
-    // Extract parameters
-    let template = params["template"].as_str().ok_or("Missing template")?;
-    let vars = params["vars"].as_object().ok_or("Missing vars")?;
-    let provider = params.get("provider").and_then(|v| v.as_str());
-
-    // Use ggen-core to generate with AI
-    todo!("Implement AI generation via MCP")
-}
-
-/// MCP tool: ai/chat
-/// Interactive chat session with AI about code/templates
-pub async fn ai_chat(params: Value) -> Result<Value> {
-    let message = params["message"].as_str().ok_or("Missing message")?;
-    let context = params.get("context");
-
-    todo!("Implement AI chat via MCP")
-}
-
-/// MCP tool: ai/complete
-/// Auto-complete template variables using AI
-pub async fn ai_complete(params: Value) -> Result<Value> {
-    let template = params["template"].as_str().ok_or("Missing template")?;
-    let partial_vars = params.get("vars");
-
-    todo!("Implement AI completion via MCP")
-}
-```
-
-**Update:** `/Users/sac/ggen/ggen-mcp/src/tools/mod.rs`
-```rust
-pub mod ai;       // NEW: AI/LLM tools
-pub mod graph;
-pub mod hook;
-pub mod market;
-pub mod project;
-pub mod template;
-```
 
 ---
 
@@ -536,8 +470,6 @@ ggen ai chat "Help me design a database schema"
 ggen ai generate -d "authentication service" --providers "ollama,anthropic"
 ggen project gen --ai --ai-provider ollama --validate
 
-# MCP server integration
-USE_OLLAMA=true OLLAMA_MODEL=qwen3-coder:30b cargo run --bin ggen-ai-mcp
 ```
 
 ---
@@ -586,39 +518,6 @@ USE_OLLAMA=true OLLAMA_MODEL=qwen3-coder:30b cargo run --bin ggen-ai-mcp
 
 ---
 
-### Phase 4: MCP Server Integration (✅ COMPLETED)
-
-**Goal:** Expose LLM features via MCP
-
-**Status:** ✅ **Complete** - AI tools fully integrated into MCP server
-
-1. **AI tools (✅ Implemented)**
-   - ✅ Created `ggen-mcp/src/tools/ai.rs` with comprehensive AI tool suite
-   - ✅ Implemented `ai/generate` tool for code generation
-   - ✅ Implemented `ai/chat` tool for interactive conversations
-   - ✅ Implemented `ai/complete` tool for template completion
-   - ✅ Implemented `ai/validate` tool for template validation
-
-2. **MCP server integration (✅ Complete)**
-   - ✅ Registered AI tools in MCP server
-   - ✅ Added comprehensive AI tool schemas
-   - ✅ Updated documentation with MCP AI integration guide
-
-**Files Implemented:**
-- ✅ `/Users/sac/ggen/ggen-mcp/src/tools/ai.rs` - Complete AI tool implementation
-- ✅ `/Users/sac/ggen/ggen-mcp/src/tools/mod.rs` - AI tools registered
-- ✅ `/Users/sac/ggen/ggen-mcp/src/server.rs` - MCP server with AI tools
-- ✅ `/Users/sac/ggen/ggen-mcp/src/schema.rs` - AI tool schemas
-
-**MCP AI Tools Available:**
-```json
-{
-  "ai/generate": "Generate code using AI with ggen templates",
-  "ai/chat": "Interactive chat session with AI about code/templates",
-  "ai/complete": "Auto-complete template variables using AI",
-  "ai/validate": "Validate templates using AI quality assessment"
-}
-```
 
 ---
 
@@ -1166,12 +1065,10 @@ pub fn sanitize_user_input(input: &str) -> String {
 3. **docs/API.md**
    - Document new LLM module API
    - Document enhanced Pipeline API
-   - Document MCP AI tools
 
 4. **examples/ai/** (NEW)
    - Create example templates
    - Create example CLI workflows
-   - Create MCP integration examples
 
 ---
 
@@ -1195,11 +1092,6 @@ pub fn sanitize_user_input(input: &str) -> String {
 - [x] User documentation complete
 - [x] Example templates provided
 
-### Phase 4 Success Criteria
-- [x] MCP AI tools functional
-- [x] MCP server can generate code with AI
-- [x] Performance acceptable (<2s for simple generation)
-- [ ] Security audit passed
 
 ---
 

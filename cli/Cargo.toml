@@ -48,6 +48,7 @@ features = ["cargo", "derive"]
 [dev-dependencies]
 assert_cmd = "2"
 assert_fs = "1"
+predicates = "3"                                  # Assertions for CLI testing
 mockall = "0.13"                                  # London TDD mocking framework
 fake = { version = "2.9", features = ["derive"] } # Fake data generation
 tempfile = "3.8"                                  # Temporary files/directories for testing
