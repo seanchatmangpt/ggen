@@ -2,79 +2,113 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
-- [Chapter 1: The Pattern Language](#chapter-1-the-pattern-language)
+- [Chapter 1: The 80/20 Revolution](#chapter-1-the-8020-revolution)
   - [Overview](#overview)
   - [What You'll Learn](#what-youll-learn)
   - [Chapter Structure](#chapter-structure)
   - [Key Concepts](#key-concepts)
-    - [**Pattern Language**](#pattern-language)
-    - [**Alexandrian Approach**](#alexandrian-approach)
-    - [**Code Generation Patterns**](#code-generation-patterns)
-    - [**Composability**](#composability)
-  - [The Pattern Language Advantage](#the-pattern-language-advantage)
-  - [Example: The Knowledge-First Pattern](#example-the-knowledge-first-pattern)
+    - [**80/20 Rule Applied**](#8020-rule-applied)
+    - [**Dark Matter Categories**](#dark-matter-categories)
+    - [**Marketplace-First Development**](#marketplace-first-development)
+    - [**Production Readiness Tracking**](#production-readiness-tracking)
+  - [The 80/20 Revolution](#the-8020-revolution)
+  - [Example: Traditional vs GGen Development](#example-traditional-vs-ggen-development)
   - [Next Steps](#next-steps)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-# Chapter 1: The Pattern Language
+# Chapter 1: The 80/20 Revolution
 
 ## Overview
 
-This chapter establishes the foundation of GGen's approach to code generation: the pattern language. We'll explore what pattern languages are, how they work, and why they're particularly valuable for code generation.
+This chapter introduces the **80/20 revolution** in software development and how GGen's marketplace-first approach eliminates 80% of development's "dark matter" while focusing 80% of your time on creating value.
 
 ## What You'll Learn
 
-- What pattern languages are and how they work
-- How Christopher Alexander's approach applies to software
-- Why patterns are valuable for code generation
+- The dark matter crisis in software development
+- How the 80/20 rule applies to code generation
+- The marketplace-first development workflow
+- Production readiness tracking and validation
 - How to read and use this book effectively
 
 ## Chapter Structure
 
-- [1.1 What is a Pattern Language?](./chapter-1-1.md) - Understanding the core concept
-- [1.2 The Alexandrian Approach](./chapter-1-2.md) - Christopher Alexander's methodology
-- [1.3 Why Patterns for Code Generation?](./chapter-1-3.md) - The unique value for code generation
-- [1.4 Reading This Book](./chapter-1-4.md) - How to get the most from this book
+- [1.1 Software's Dark Matter Crisis](./chapter-1-1.md) - Understanding the problem
+- [1.2 The Marketplace-First Solution](./chapter-1-2.md) - How GGen solves it
+- [1.3 Production Readiness Tracking](./chapter-1-3.md) - Ensuring deployment safety
+- [1.4 Getting Started (20% effort, 80% value)](./chapter-1-4.md) - Essential workflow
 
 ## Key Concepts
 
-### **Pattern Language**
-A collection of interrelated patterns that solve problems in a specific domain. Each pattern describes a problem and its solution in a way that can be applied many times over.
+### **80/20 Rule Applied**
+GGen inverts the traditional 80/20 equation:
+- **Traditional**: 80% dark matter (boilerplate, maintenance), 20% value creation
+- **GGen**: 20% dark matter (essential infrastructure), 80% value creation
 
-### **Alexandrian Approach**
-Christopher Alexander's methodology for creating living, coherent systems through the composition of simple, proven patterns.
+### **Dark Matter Categories**
+1. **Synchronization Work** (96% eliminable) - Multiple representations of same data
+2. **Boilerplate Ritual** (94% eliminable) - Repetitive code patterns
+3. **Migration Gymnastics** (99.2% eliminable) - Schema change coordination
+4. **Test Maintenance** (70% eliminable) - Test updates for every code change
 
-### **Code Generation Patterns**
-Specific patterns for the unique challenges of code generation, including meta-programming, consistency, and evolution.
+### **Marketplace-First Development**
+The new workflow eliminates dark matter at scale:
 
-### **Composability**
-The ability of patterns to combine and work together to solve larger, more complex problems.
+```bash
+# Search → Install → Generate → Deploy
+ggen market search "rust web service"
+ggen market add "rust-axum-service"
+ggen lifecycle run init
+ggen template generate rust-axum-service:user-service.tmpl
+ggen lifecycle validate --env production
+```
 
-## The Pattern Language Advantage
+### **Production Readiness Tracking**
+Automated validation ensures safe deployments:
+- **Critical requirements** (100% complete for production)
+- **Important features** (>80% complete for production)
+- **Placeholder system** for incomplete implementations
 
-Pattern languages provide several key benefits for code generation:
+## The 80/20 Revolution
 
-1. **Scalable Complexity**: Manage complexity without creating monolithic systems
-2. **Consistent Approaches**: Ensure uniform solutions across different contexts
-3. **Composability**: Combine patterns to solve larger problems
-4. **Learning Tools**: Teach principles, not just recipes
-5. **Evolution**: Patterns grow and adapt with understanding
+GGen's marketplace-first approach eliminates dark matter by:
 
-## Example: The Knowledge-First Pattern
+1. **Reusing Proven Patterns** - Don't reinvent authentication, error handling, etc.
+2. **Single Source of Truth** - Define once, project everywhere
+3. **Automated Validation** - Ensure production readiness before deployment
+4. **Focus on Value** - 80% of time on business logic, not infrastructure
 
-Consider **Pattern 001: KNOWLEDGE-FIRST PROJECTION**:
+## Example: Traditional vs GGen Development
 
-**Context**: You need to generate code from domain models, but templates could accept arbitrary data structures.
+**Traditional Development (80% dark matter):**
+```bash
+# 5 hours of dark matter for 1 hour of value
+1. Design database schema (30 min)
+2. Write TypeScript types (45 min)
+3. Create GraphQL resolvers (1 hour)
+4. Build React components (2 hours)
+5. Write API documentation (1 hour)
+# Total: 5 hours dark matter, 0 hours value creation
+```
 
-**Problem**: How do you ensure generated code is consistent, traceable, and semantically grounded?
-
-**Solution**: Establish the knowledge graph as the single source of truth. Before any template execution, load semantic data into an RDF graph, query it using SPARQL, and project results into template-friendly structures.
-
-**Consequences**: You gain semantic consistency and traceability, but you must invest in creating and maintaining knowledge graphs.
-
-This pattern doesn't just solve one problem—it enables a whole family of related patterns for multi-language generation, validation, and evolution.
+**GGen Development (20% dark matter):**
+```bash
+# 1 hour of dark matter for 4 hours of value
+1. Define semantic model (15 min)
+2. Generate database schema (5 min)
+3. Generate TypeScript types (5 min)
+4. Generate GraphQL resolvers (5 min)
+5. Generate React components (5 min)
+6. Generate API documentation (5 min)
+7. Customize business logic (4 hours)
+# Total: 40 min dark matter, 4 hours value creation
+```
 
 ## Next Steps
 
-Start with [1.1: What is a Pattern Language?](./chapter-1-1.md) to understand the core concept, then explore how this approach applies specifically to code generation.
+After understanding the 80/20 revolution, you'll learn how to:
+
+1. **Use marketplace patterns** in your projects
+2. **Apply production readiness** tracking
+3. **Create custom templates** for your domain
+4. **Deploy with confidence** using automated validation

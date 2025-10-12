@@ -32,7 +32,14 @@ fn execute_real_command(command: &str, args: &[String]) -> (String, u64) {
 
 /// Enhanced validation framework that runs real commands
 pub struct RealWorldValidator {
+    #[allow(dead_code)]
     framework: ValidationFramework,
+}
+
+impl Default for RealWorldValidator {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl RealWorldValidator {
@@ -232,10 +239,7 @@ impl RealWorldValidator {
         );
 
         // Calculate weighted total
-        let total = dimensions
-            .iter()
-            .map(|(_, d)| d.score * d.weight)
-            .sum::<f32>()
+        let total = dimensions.values().map(|d| d.score * d.weight).sum::<f32>()
             / dimensions.values().map(|d| d.weight).sum::<f32>();
 
         // Collect all feedback
@@ -326,11 +330,12 @@ impl RealWorldValidator {
                 score -= 4.0;
                 issues.push("Missing @prefix declarations".to_string());
             }
-        } else if command.contains("frontmatter") {
-            if !output.contains("title") && !output.contains("Title") {
-                score -= 3.0;
-                issues.push("Missing title field".to_string());
-            }
+        } else if command.contains("frontmatter")
+            && !output.contains("title")
+            && !output.contains("Title")
+        {
+            score -= 3.0;
+            issues.push("Missing title field".to_string());
         }
 
         (score.max(0.0f32), issues)
@@ -394,7 +399,7 @@ impl RealWorldValidator {
             score += 2.0; // Bonus for rich vocabulary
         }
 
-        (score.min(10.0f32).max(0.0f32), issues)
+        (score.clamp(0.0f32, 10.0f32), issues)
     }
 
     fn score_professional_quality(&self, output: &str) -> (f32, Vec<String>) {
@@ -427,6 +432,6 @@ mod tests {
     #[test]
     fn test_real_validator_creation() {
         let _validator = RealWorldValidator::new();
-        assert!(true); // Just ensure it creates successfully
+        // Just ensure it creates successfully
     }
 }

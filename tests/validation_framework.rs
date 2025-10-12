@@ -47,6 +47,7 @@ pub struct TestMetadata {
 
 /// User behavior simulation scenarios
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 pub struct UserScenario {
     pub name: String,
     pub description: String,
@@ -57,6 +58,7 @@ pub struct UserScenario {
 
 /// Expected behavior for validation
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 pub struct ExpectedBehavior {
     pub min_length: usize,
     pub max_length: usize,
@@ -67,6 +69,7 @@ pub struct ExpectedBehavior {
 
 /// Quality criterion for evaluation
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 pub struct QualityCriterion {
     pub name: String,
     pub description: String,
@@ -77,6 +80,12 @@ pub struct QualityCriterion {
 /// Validation framework
 pub struct ValidationFramework {
     scenarios: Vec<UserScenario>,
+}
+
+impl Default for ValidationFramework {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl ValidationFramework {
@@ -258,6 +267,7 @@ impl ValidationFramework {
     }
 
     /// Run all validation scenarios
+    #[allow(dead_code)]
     pub fn run_all_scenarios(&self) -> Vec<QualityScore> {
         self.scenarios
             .iter()
@@ -266,6 +276,7 @@ impl ValidationFramework {
     }
 
     /// Run a single validation scenario
+    #[allow(dead_code)]
     pub fn run_scenario(&self, scenario: &UserScenario) -> QualityScore {
         // Execute command and capture output
         let output = self.execute_command(scenario);
@@ -275,12 +286,14 @@ impl ValidationFramework {
     }
 
     /// Execute command and capture output
+    #[allow(dead_code)]
     fn execute_command(&self, scenario: &UserScenario) -> String {
         // This would actually run the command - placeholder for now
         format!("Output from {}", scenario.command)
     }
 
     /// Score output against expected behavior
+    #[allow(dead_code)]
     fn score_output(&self, output: &str, scenario: &UserScenario) -> QualityScore {
         let mut dimension_scores = HashMap::new();
         let mut total_weighted_score = 0.0;
@@ -331,6 +344,7 @@ impl ValidationFramework {
     }
 
     /// Generate improvement suggestions based on score
+    #[allow(dead_code)]
     fn generate_suggestions(&self, dimension: &str, score: f32, issues: &[String]) -> Vec<String> {
         let mut suggestions = Vec::new();
 
@@ -372,6 +386,7 @@ impl ValidationFramework {
     }
 
     /// Generate comprehensive report
+    #[allow(dead_code)]
     pub fn generate_report(&self, scores: &[QualityScore]) -> String {
         let mut report = String::new();
 
@@ -383,10 +398,10 @@ impl ValidationFramework {
 
         // Overall statistics
         let avg_score: f32 = scores.iter().map(|s| s.total).sum::<f32>() / scores.len() as f32;
-        report.push_str(&format!("## Overall Statistics\n\n"));
+        report.push_str("## Overall Statistics\n\n");
         report.push_str(&format!("- **Average Score**: {:.2}/10\n", avg_score));
         report.push_str(&format!("- **Tests Run**: {}\n", scores.len()));
-        report.push_str(&format!("- **Model**: qwen3-coder:30b\n\n"));
+        report.push_str("- **Model**: qwen3-coder:30b\n\n");
 
         // Individual test results
         report.push_str("## Individual Test Results\n\n");

@@ -181,9 +181,26 @@ impl GpackInstaller for RegistryGpackInstaller {
         // For now, just mark as installed without complex file operations
         // In a full implementation, this would copy files and update lockfile
 
+        // Add to lockfile
+        let mut lockfile = super::lockfile::Lockfile::load()?;
+        let final_version = version.unwrap_or_else(|| package.version.clone());
+        let installed_package = super::lockfile::InstalledPackage {
+            name: package.name.clone(),
+            full_name: package.full_name.clone(),
+            version: final_version.clone(),
+            checksum: "placeholder-checksum".to_string(), // Would calculate actual checksum
+            source: "registry".to_string(),
+            path: format!(".ggen/packages/{}", package.name),
+            installed_at: chrono::Utc::now().to_rfc3339(),
+            dependencies: package.dependencies.clone(),
+        };
+
+        lockfile.add_package(installed_package);
+        lockfile.save()?;
+
         Ok(InstallResult {
             gpack_id: package.name.clone(),
-            version: version.unwrap_or_else(|| package.version.clone()),
+            version: final_version,
             already_installed: false,
         })
     }

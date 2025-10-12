@@ -408,9 +408,7 @@ fn print_category_report(
 
         println!(
             "\n{} {:?} Requirements ({:.1}% complete):",
-            status_emoji,
-            category,
-            category_report.score
+            status_emoji, category, category_report.score
         );
 
         for req_id in &category_report.requirements {
@@ -555,7 +553,10 @@ fn validate_for_deployment(root: &Path, env: &str, strict: bool) -> ggen_utils::
                 ggen_core::lifecycle::ValidationSeverity::Warning => "⚠️",
                 ggen_core::lifecycle::ValidationSeverity::Info => "ℹ️",
             };
-            println!("\n{} {:?} - {:?}", severity_icon, issue.severity, issue.category);
+            println!(
+                "\n{} {:?} - {:?}",
+                severity_icon, issue.severity, issue.category
+            );
             println!("  Problem: {}", issue.description);
             println!("  Fix: {}", issue.fix);
         }
@@ -577,14 +578,24 @@ fn validate_for_deployment(root: &Path, env: &str, strict: bool) -> ggen_utils::
         Ok(())
     } else {
         println!("❌ DEPLOYMENT BLOCKED");
-        println!("🚫 Critical requirements not met - cannot deploy to {}", env);
+        println!(
+            "🚫 Critical requirements not met - cannot deploy to {}",
+            env
+        );
         println!();
         println!("💡 Run 'ggen lifecycle readiness --detailed' to see full report");
         println!("💡 Run 'ggen lifecycle readiness-update <id> <status>' to update requirements");
 
         Err(ggen_utils::error::Error::new(&format!(
             "Production validation failed: {} critical issues found",
-            result.issues.iter().filter(|i| matches!(i.severity, ggen_core::lifecycle::ValidationSeverity::Critical)).count()
+            result
+                .issues
+                .iter()
+                .filter(|i| matches!(
+                    i.severity,
+                    ggen_core::lifecycle::ValidationSeverity::Critical
+                ))
+                .count()
         )))
     }
 }

@@ -1,482 +1,73 @@
-# Ggen Marketplace Package Registry
-version = "1.0.0"
+# ggen Marketplace Registry
+# Production registry hosted on GitHub Pages
+# Registry URL: https://seanchatmangpt.github.io/ggen/marketplace/registry/packages.toml
 
+version = "1.0.0"
+registry_url = "https://github.com/seanchatmangpt/ggen"
+raw_base_url = "https://raw.githubusercontent.com/seanchatmangpt/ggen/master"
+pages_url = "https://seanchatmangpt.github.io/ggen"
+
+# Advanced Rust API Template (Production Example)
 [[package]]
-name = "rig-mcp"
-full_name = "rig-mcp-integration"
+name = "advanced-rust-api-8020"
+full_name = "ggen/advanced-rust-api-8020"
 version = "0.1.0"
-description = "Production-ready Rig LLM framework + MCP protocol integration"
-category = "ai"
-author = "ggen-team"
-repository = "https://github.com/seanchatmangpt/ggen"
-path = "marketplace/packages/rig-mcp"
-license = "MIT"
-dependencies = ["rig-core = 0.15.1", "rmcp = 0.8", "tokio = 1.0"]
-features = [
-    "Multi-provider LLM support (OpenAI, Anthropic, Cohere, Deepseek, Gemini, Ollama, 20+)",
-    "Dynamic MCP tool loading with vector-based selection",
-    "Multi-transport MCP support (stdio, SSE, HTTP)",
-    "Production-ready patterns from official MCP Rust SDK",
-    "Embedding-based intelligent tool selection",
-    "Async/streaming support",
-]
-tags = [
-    "llm",
-    "mcp",
-    "rig",
-    "agent",
-    "ai",
-    "openai",
-    "anthropic",
-    "cohere",
-    "tools",
-]
-keywords = ["llm", "agent-framework", "mcp-protocol", "rig", "ai-tools"]
-
-# Installation
-[package.install]
-type = "cargo"
-crate = "rig-mcp-integration"
-path = "marketplace/packages/rig-mcp"
-
-# Examples
-[package.examples]
-basic = """
-use rig_mcp_integration::prelude::*;
-
-#[tokio::main]
-async fn main() -> anyhow::Result<()> {
-    let config = Config::from_file("config.toml")?;
-    let mut client = RigMcpClient::new(config).await?;
-    let agent = client.agent("gpt-4").await?.build();
-    let response = agent.prompt("Hello!").await?;
-    println!("{}", response);
-    Ok(())
-}
-"""
-
-# Documentation
-[package.docs]
-quick_start = "See README.md for quick start guide"
-config = "Copy config.toml.example and customize for your needs"
-providers = "Supports 20+ LLM providers via Rig framework"
-
-[[package]]
-name = "api-endpoint"
-full_name = "api-endpoint-templates"
-version = "1.0.0"
-description = "REST API endpoint templates with OpenAPI documentation"
+description = "Production-ready REST API with complete lifecycle, AI generation, and 80/20 principles"
 category = "templates"
 author = "ggen-team"
 repository = "https://github.com/seanchatmangpt/ggen"
-path = "marketplace/packages/api-endpoint"
+# GitHub raw URL for direct download
+download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+path = "examples/advanced-rust-api-8020"
 license = "MIT"
 dependencies = []
 features = [
-    "Axum-based HTTP handlers",
-    "Request/response validation",
-    "Error handling and status codes",
-    "OpenAPI specification generation",
-    "Rate limiting and security",
+    "Complete lifecycle management with make.toml",
+    "AI-powered code generation from SPARQL specifications",
+    "Production readiness tracking (80/20 rule)",
+    "JWT authentication with bcrypt",
+    "Comprehensive error handling (no .expect() in production)",
+    "Structured logging with tracing",
+    "Health check endpoints",
+    "OpenAPI documentation ready",
+    "Docker containerization",
+    "Complete test suite with 80%+ coverage",
+    "Database migrations with SQLx",
+    "Environment-based configuration"
 ]
-tags = ["api", "rest", "axum", "openapi", "templates"]
-keywords = ["api", "rest-api", "axum", "openapi", "web"]
+tags = ["rust", "api", "rest", "production", "lifecycle", "ai-generation", "8020", "axum", "jwt"]
+keywords = ["rust", "axum", "rest-api", "production", "template", "ai", "sparql", "lifecycle"]
 
-# Installation
-[package.install]
-type = "template"
-template_path = "marketplace/packages/api-endpoint"
-
-# Examples
-[package.examples]
-basic = """
-# Generate API endpoint
-ggen template generate api-endpoint-templates --vars '{"name":"user","path":"/api/v1/users"}'
-"""
-
-# Documentation
-[package.docs]
-quick_start = "Use ggen template generate to create API endpoints"
-openapi = "Automatically generates OpenAPI 3.0 specifications"
-
+# Rust CLI Template
 [[package]]
-name = "database-schema"
-full_name = "database-schema-templates"
-version = "1.0.0"
-description = "Database schema and migration templates from RDF"
+name = "rust-cli-template"
+full_name = "ggen/rust-cli-template"
+version = "0.1.0"
+description = "Production-ready CLI application template with clap, error handling, and testing"
 category = "templates"
 author = "ggen-team"
 repository = "https://github.com/seanchatmangpt/ggen"
-path = "marketplace/packages/database-schema"
+download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+path = "marketplace/packages/rust-cli-template"
 license = "MIT"
 dependencies = []
-features = [
-    "SQL migration scripts from RDF",
-    "Schema validation and optimization",
-    "Index and constraint management",
-    "Performance monitoring",
-    "Backup and recovery",
-]
-tags = ["database", "schema", "sql", "migrations", "templates"]
-keywords = ["database", "schema", "sql", "postgresql", "migrations"]
+features = ["Clap argument parsing", "Comprehensive error handling", "Unit testing", "Integration testing", "CI/CD ready"]
+tags = ["rust", "cli", "template", "production"]
+keywords = ["rust", "cli", "template", "command-line"]
 
-# Installation
-[package.install]
-type = "template"
-template_path = "marketplace/packages/database-schema"
-
-# Examples
-[package.examples]
-basic = """
-# Generate database schema
-ggen template generate database-schema-templates --vars '{"name":"user","tables":["users","products"]}'
-"""
-
-# Documentation
-[package.docs]
-quick_start = "Generate database schemas from RDF domain models"
-rdf = "Uses SPARQL queries to extract schema information"
-
+# GraphQL API Template
 [[package]]
-name = "noun-verb-cli"
-full_name = "noun-verb-cli-generator"
-version = "1.0.0"
-description = "Complete CLI application templates with noun-verb architecture"
+name = "graphql-api-rust"
+full_name = "ggen/graphql-api-rust"
+version = "0.1.0"
+description = "GraphQL API server with async-graphql, authentication, and subscriptions"
 category = "templates"
 author = "ggen-team"
 repository = "https://github.com/seanchatmangpt/ggen"
-path = "marketplace/packages/noun-verb-cli"
+download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+path = "marketplace/packages/graphql-api-rust"
 license = "MIT"
 dependencies = []
-features = [
-    "Full CRUD operations for entities",
-    "Clap-based command structure",
-    "Comprehensive error handling",
-    "Integration testing",
-    "Documentation generation",
-]
-tags = ["cli", "noun-verb", "clap", "templates"]
-keywords = ["cli", "command-line", "clap", "noun-verb", "crud"]
-
-# Installation
-[package.install]
-type = "template"
-template_path = "marketplace/packages/noun-verb-cli"
-
-# Examples
-[package.examples]
-basic = """
-# Generate CLI application
-ggen template generate noun-verb-cli-generator --vars '{"project_name":"my-cli","nouns":"user,product,order"}'
-"""
-
-# Documentation
-[package.docs]
-quick_start = "Generate CLI applications with CRUD operations"
-architecture = "Uses noun-verb architecture pattern"
-
-[[package]]
-name = "hello-world"
-full_name = "hello-world-utils"
-version = "0.1.0"
-description = "Simple utility package demonstrating ggen marketplace functionality"
-category = "utilities"
-author = "ggen-team"
-repository = "https://github.com/seanchatmangpt/ggen"
-path = "marketplace/packages/hello-world"
-license = "MIT"
-dependencies = [
-    "anyhow = 1.0",
-    "serde = 1.0",
-    "serde_json = 1.0",
-    "tokio = 1.0",
-]
-features = [
-    "Basic greeting utilities",
-    "Configuration management",
-    "JSON serialization",
-    "Validation functions",
-    "Example applications",
-]
-tags = ["utilities", "demo", "examples", "hello-world"]
-keywords = ["hello-world", "utilities", "demo", "examples"]
-
-# Installation
-[package.install]
-type = "cargo"
-crate = "hello-world-utils"
-path = "marketplace/packages/hello-world"
-
-# Examples
-[package.examples]
-basic = """
-use hello_world_utils::{HelloWorld, HelloConfig};
-
-fn main() -> anyhow::Result<()> {
-    let hello = HelloWorld::default();
-    println!("{}", hello.greet());
-    Ok(())
-}
-"""
-
-# Documentation
-[package.docs]
-quick_start = "cargo run --bin hello-world"
-demo = "Run examples to see all features"
-validation = "Use validate_config() to check configuration"
-
-[[package]]
-name = "advanced-rust-project"
-full_name = "advanced-rust-project-showcase"
-version = "1.0.0"
-description = "Advanced Rust project demonstrating all ggen features: lifecycle, AI, SPARQL, templates, and security"
-category = "showcase"
-author = "ggen-team"
-repository = "https://github.com/seanchatmangpt/ggen"
-path = "marketplace/packages/advanced-rust-project"
-license = "MIT"
-dependencies = []
-features = [
-    "Complete lifecycle management with phases and hooks",
-    "AI-powered code generation with multi-provider support",
-    "SPARQL queries and RDF integration",
-    "Advanced template features and filters",
-    "File injection and modification",
-    "Security hardening and validation",
-    "Comprehensive testing and validation",
-    "Multi-environment deployment",
-    "Performance profiling and monitoring",
-    "Backup and recovery systems",
-]
-tags = ["rust", "showcase", "lifecycle", "ai", "sparql", "templates", "security"]
-keywords = ["ggen", "rust", "microservice", "ai-generation", "sparql", "lifecycle"]
-
-[package.install]
-type = "template"
-template_path = "marketplace/packages/advanced-rust-project"
-
-[package.examples]
-basic = """
-# Install the package
-ggen market add advanced-rust-project
-
-# Initialize project
-cd advanced-rust-project
-ggen lifecycle run init
-
-# Generate code
-ggen template generate templates/rust-service.tmpl
-ggen template generate templates/api-endpoint.tmpl
-
-# Run complete lifecycle
-ggen lifecycle pipeline setup generate build test
-"""
-
-[package.docs]
-quick_start = "Complete ggen showcase with all advanced features"
-features = "Lifecycle, AI, SPARQL, templates, security, testing, deployment"
-use_cases = "Enterprise microservices, AI-powered development, semantic code generation"
-
-[[package]]
-name = "comprehensive-rust-showcase"
-full_name = "comprehensive-rust-showcase-complete"
-version = "1.0.0"
-description = "Comprehensive showcase of ALL ggen features: lifecycle, AI, SPARQL, templates, security, performance, monitoring"
-category = "showcase"
-author = "ggen-team"
-repository = "https://github.com/seanchatmangpt/ggen"
-path = "marketplace/packages/comprehensive-rust-showcase"
-license = "MIT"
-dependencies = []
-features = [
-    "Complete lifecycle management with all phases",
-    "Multi-provider AI support (OpenAI, Anthropic, Ollama)",
-    "Advanced SPARQL/RDF integration with reasoning",
-    "Comprehensive template library (6+ templates)",
-    "Production-ready security hardening",
-    "Performance optimization and profiling",
-    "Multi-environment deployment (dev/staging/prod)",
-    "Monitoring and observability integration",
-    "Backup and recovery systems",
-    "CI/CD pipeline configuration",
-    "Quality gates and validation",
-    "Comprehensive testing (90% coverage)",
-    "API documentation generation",
-    "Multi-format RDF support",
-]
-tags = ["rust", "showcase", "complete", "enterprise", "production", "ai", "sparql", "lifecycle"]
-keywords = ["ggen", "rust", "microservice", "enterprise", "production-ready", "comprehensive"]
-
-[package.install]
-type = "template"
-template_path = "marketplace/packages/comprehensive-rust-showcase"
-
-[package.examples]
-basic = """
-# Install the package
-ggen market add comprehensive-rust-showcase
-
-# Initialize project
-cd comprehensive-rust-showcase
-ggen lifecycle run init
-
-# Generate all components
-ggen lifecycle run generate
-
-# Run complete pipeline
-ggen lifecycle pipeline setup generate build test deploy
-"""
-
-[package.docs]
-quick_start = "The ultimate showcase of all ggen capabilities"
-features = "Complete lifecycle, multi-provider AI, advanced SPARQL, production security, monitoring"
-use_cases = "Enterprise applications, production deployments, comprehensive microservices"
-
-[[package]]
-name = "ai-code-generation"
-full_name = "ai-code-generation-complete"
-version = "1.0.0"
-description = "AI-powered code generation with multi-provider support and comprehensive validation"
-category = "ai"
-author = "ggen-team"
-repository = "https://github.com/seanchatmangpt/ggen"
-path = "marketplace/packages/ai-code-generation"
-license = "MIT"
-dependencies = []
-features = [
-    "Multi-provider AI support (Ollama, OpenAI, Anthropic)",
-    "Intelligent template generation from natural language",
-    "Code quality validation and improvement",
-    "Automatic test generation",
-    "Documentation generation",
-    "Code optimization suggestions",
-    "SPARQL integration for semantic generation",
-    "Production-ready code with error handling",
-    "Security validation",
-    "Performance optimization",
-]
-tags = ["ai", "code-generation", "ollama", "openai", "llm"]
-keywords = ["ai", "code-generation", "llm", "ollama", "qwen"]
-
-[package.install]
-type = "template"
-template_path = "marketplace/packages/ai-code-generation"
-
-[package.examples]
-basic = """
-# Install the package
-ggen market add ai-code-generation
-
-# Generate code from natural language
-ggen ai generate "Create a REST API for user management with CRUD operations"
-
-# Analyze existing code
-ggen ai analyze src/main.rs
-
-# Optimize code
-ggen ai optimize src/api/handlers.rs
-"""
-
-[package.docs]
-quick_start = "AI-powered code generation with validation"
-providers = "Supports Ollama, OpenAI, Anthropic, and more"
-features = "Template generation, code analysis, optimization, testing"
-
-[[package]]
-name = "ai-microservice"
-full_name = "ai-microservice-generator"
-version = "0.1.0"
-description = "AI-powered microservice with template generation, refactoring, and ontology support"
-category = "microservices"
-author = "ggen-team"
-repository = "https://github.com/seanchatmangpt/ggen"
-path = "marketplace/packages/ai-microservice"
-license = "MIT"
-dependencies = []
-features = [
-    "Multi-provider AI support (OpenAI, Anthropic, Ollama)",
-    "Microservice template generation",
-    "Automatic refactoring suggestions",
-    "Ontology-based code generation",
-    "Caching for improved performance",
-    "Streaming support for real-time responses",
-    "Configuration-driven development",
-    "Production-ready patterns",
-]
-tags = ["ai", "microservice", "template", "refactoring", "ontology"]
-keywords = ["ai", "microservice", "generation", "refactoring", "llm"]
-
-[package.install]
-type = "template"
-template_path = "marketplace/packages/ai-microservice"
-
-[package.examples]
-basic = """
-# Install the package
-ggen market add ai-microservice
-
-# Generate microservice
-ggen ai generate "Create product catalog microservice with REST API"
-
-# Refactor existing code
-ggen ai refactor src/services/product.rs
-"""
-
-[package.docs]
-quick_start = "AI-powered microservice generation and refactoring"
-caching = "Built-in LRU caching for improved performance"
-streaming = "Real-time streaming support for AI responses"
-
-[[package]]
-name = "microservices-architecture"
-full_name = "microservices-architecture-complete"
-version = "1.0.0"
-description = "Complete e-commerce microservices architecture with Rust, Docker, PostgreSQL, and Redis"
-category = "architecture"
-author = "ggen-team"
-repository = "https://github.com/seanchatmangpt/ggen"
-path = "marketplace/packages/microservices-architecture"
-license = "MIT"
-dependencies = []
-features = [
-    "Complete microservices architecture",
-    "Multiple services (API Gateway, User, Product, Order)",
-    "Database integration (PostgreSQL)",
-    "Caching layer (Redis)",
-    "Message queue (RabbitMQ)",
-    "Service discovery and load balancing",
-    "Docker Compose for development",
-    "Kubernetes deployment manifests",
-    "Monitoring and observability (Prometheus, Grafana)",
-    "Distributed tracing",
-    "CI/CD pipeline configuration",
-    "Comprehensive testing",
-]
-tags = ["microservices", "architecture", "docker", "kubernetes", "rust"]
-keywords = ["microservices", "architecture", "e-commerce", "docker", "kubernetes"]
-
-[package.install]
-type = "template"
-template_path = "marketplace/packages/microservices-architecture"
-
-[package.examples]
-basic = """
-# Install the package
-ggen market add microservices-architecture
-
-# Initialize project
-cd microservices-architecture
-ggen lifecycle run init
-
-# Generate all services
-ggen lifecycle run generate
-
-# Run with Docker Compose
-ggen lifecycle run docker-up
-"""
-
-[package.docs]
-quick_start = "Complete microservices architecture for e-commerce"
-architecture = "API Gateway + 4 microservices with database and cache"
-deployment = "Docker Compose for dev, Kubernetes for production"
-monitoring = "Prometheus metrics and Grafana dashboards"
+features = ["async-graphql integration", "JWT authentication", "Real-time subscriptions", "Database integration"]
+tags = ["rust", "graphql", "api", "async"]
+keywords = ["rust", "graphql", "api", "subscription"]

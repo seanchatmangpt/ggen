@@ -38,9 +38,9 @@
 
 # ggen AI Guide - AI-Powered Code Generation
 
-**Version**: v1.0.0 | **Status**: ✅ Production Ready
+**Version**: v1.2.0 | **Status**: ✅ Production Ready
 
-**ggen-ai v1.0.0** introduces intelligent code generation using advanced LLMs with multi-provider support (OpenAI, Anthropic, Ollama).
+**ggen-ai v1.2.0** introduces intelligent code generation using advanced LLMs with multi-provider support (OpenAI, Anthropic, Ollama).
 
 ## Overview
 
@@ -80,24 +80,34 @@ Generate templates from natural language descriptions:
 ggen ai generate <description> [OPTIONS]
 
 Options:
-  --language <LANG>       Target programming language
-  --framework <FRAMEWORK> Target framework
-  --output <FILE>         Output template file
-  --model <MODEL>         AI model to use (default: qwen3-coder:30b)
-  --temperature <FLOAT>   Sampling temperature (0.0-2.0)
-  --max-tokens <INT>      Maximum tokens to generate
+  -d, --description <DESC>    Description of what to generate (required)
+  -e, --examples <EXAMPLES>   Examples or requirements (can be used multiple times)
+  -o, --output <FILE>         Output template file
+  --model <MODEL>             AI model to use (default: qwen3-coder:30b)
+  --temperature <FLOAT>       Sampling temperature (0.0-2.0)
+  --max-tokens <INT>          Maximum tokens to generate
+  --validate                  Enable iterative validation and improvement
+  --max-iterations <INT>      Maximum iterations for validation (default: 3)
+  --mock                      Use mock client for testing
 ```
 
 **Examples:**
 ```bash
 # Basic template generation
-ggen ai generate "A simple CLI tool" --language rust --output cli.tmpl
+ggen ai generate "A simple CLI tool" -o cli.tmpl
 
-# Framework-specific generation
-ggen ai generate "REST API controller" --language rust --framework axum --output api.tmpl
+# Template with examples and validation
+ggen ai generate "REST API controller" \
+  -e "Should follow REST conventions" \
+  -e "Include CRUD operations" \
+  -o api.tmpl --validate
 
-# Python web application
-ggen ai generate "FastAPI application" --language python --framework fastapi --output app.tmpl
+# Python web application with custom model
+ggen ai generate "FastAPI application" \
+  -e "Use async/await patterns" \
+  -e "Include CORS middleware" \
+  --model gpt-4o \
+  -o app.tmpl
 ```
 
 ### SPARQL Query Generation
@@ -105,22 +115,31 @@ ggen ai generate "FastAPI application" --language python --framework fastapi --o
 Generate SPARQL queries from natural language intent:
 
 ```bash
-ggen ai sparql <intent> [OPTIONS]
+ggen ai sparql <description> [OPTIONS]
 
 Options:
-  --graph <FILE>          RDF graph file for context
-  --output <FILE>         Output SPARQL file
-  --prefixes <PREFIX=URI> RDF prefixes to use
+  -d, --description <DESC>    Description of the SPARQL query to generate (required)
+  -g, --graph <FILE>          RDF graph file for context (optional)
+  -o, --output <FILE>         Output file path (optional)
+  -f, --format <FORMAT>       Output format: sparql, json (default: sparql)
+  --model <MODEL>             AI model to use
+  --temperature <FLOAT>       Sampling temperature (0.0-2.0)
+  --max-tokens <INT>          Maximum tokens to generate
+  --mock                      Use mock client for testing
 ```
 
 **Examples:**
 ```bash
-# Generate queries with graph context
-ggen ai sparql "Find all people" --graph data.ttl --output query.sparql
+# Generate basic SPARQL query
+ggen ai sparql "Find all people" -o query.sparql
 
-# Complex queries with prefixes
-ggen ai sparql "Get user profiles with emails" --graph ontology.ttl \
-  --prefixes "foaf=http://xmlns.com/foaf/0.1/" --output profiles.sparql
+# Generate query with graph context
+ggen ai sparql "Get user profiles with emails" \
+  -g ontology.ttl -f json -o profiles.json
+
+# Generate SPARQL with custom model
+ggen ai sparql "Find all active projects" \
+  --model gpt-4o --temperature 0.3 -o projects.sparql
 ```
 
 ### RDF Graph Generation
@@ -131,20 +150,33 @@ Generate RDF ontologies from domain descriptions:
 ggen ai graph <description> [OPTIONS]
 
 Options:
-  --output <FILE>    Output RDF file
-  --format <FORMAT>  Output format (ttl, jsonld, n3)
+  -d, --description <DESC>    Description of the RDF graph to generate (required)
+  --domain <DOMAIN>           Domain or context for the graph (optional)
+  -b, --base-iri <IRI>        Base IRI for the ontology (optional)
+  -o, --output <FILE>         Output file path (required)
+  -f, --format <FORMAT>       Output format: turtle, rdf, jsonld, ntriples (default: turtle)
+  --include-examples          Include example data instances
+  --verify                    Verify the generated graph can be loaded
+  --model <MODEL>             AI model to use
+  --temperature <FLOAT>       Sampling temperature (0.0-2.0)
+  --max-tokens <INT>          Maximum tokens to generate
+  --mock                      Use mock client for testing
 ```
 
 **Examples:**
 ```bash
-# Generate domain ontologies
-ggen ai graph "Person management system with roles" --output person.ttl
+# Generate basic domain ontology
+ggen ai graph "Person management system with roles" \
+  -o person.ttl --include-examples --verify
 
-# E-commerce ontologies
-ggen ai graph "Product catalog with categories and reviews" --output catalog.ttl
+# E-commerce ontology with custom base IRI
+ggen ai graph "Product catalog with categories and reviews" \
+  -o catalog.ttl -b "http://ecommerce.example.org/" \
+  --include-examples --verify
 
-# Export as JSON-LD
-ggen ai graph "Organization structure" --output org.jsonld --format jsonld
+# Organization structure as JSON-LD
+ggen ai graph "Organization structure" \
+  -o org.jsonld -f jsonld --include-examples --verify
 ```
 
 ### Project Scaffolding
@@ -152,29 +184,37 @@ ggen ai graph "Organization structure" --output org.jsonld --format jsonld
 Generate complete project structures:
 
 ```bash
-ggen ai project <description> --name <NAME> --language <LANG> [OPTIONS]
+ggen ai project [OPTIONS]
 
 Options:
-  --framework <FRAMEWORK> Target framework
-  --output <DIR>          Output directory
-  --tests                 Include test files
-  --docs                  Include documentation
-  --ci                    Include CI/CD configuration
+  -d, --description <DESC>    Project description (required)
+  -n, --name <NAME>           Project name (required)
+  -l, --language <LANG>       Target programming language (default: rust)
+  -f, --framework <FRAMEWORK> Target framework (optional)
+  -o, --output <DIR>          Output directory (default: ./generated-project)
+  --tests                     Include comprehensive test suite
+  --docs                      Include documentation with examples
+  --ci                        Include CI/CD configuration
+  --publish                   Publish to marketplace after generation
+  --openai                    Use OpenAI provider
+  --anthropic                 Use Anthropic provider
+  --ollama                    Use Ollama provider
+  --mock                      Use mock client for testing
 ```
 
 **Examples:**
 ```bash
 # Rust web API project
-ggen ai project "User management API" --name user-api --language rust \
-  --framework axum --tests --docs --output user-api/
+ggen ai project -d "User management API" -n user-api -l rust \
+  -f axum --tests --docs --ci -o user-api/
 
 # Python CLI application
-ggen ai project "Data processing tool" --name data-tool --language python \
-  --output data-tool/
+ggen ai project -d "Data processing tool" -n data-tool -l python \
+  -o data-tool/
 
-# Full-stack web application
-ggen ai project "E-commerce platform" --name shop --language typescript \
-  --framework nextjs --tests --docs --ci --output shop/
+# Full-stack web application with OpenAI
+ggen ai project -d "E-commerce platform" -n shop -l typescript \
+  -f nextjs --tests --docs --ci --openai -o shop/
 ```
 
 ### Source File Analysis
