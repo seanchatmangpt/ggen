@@ -42,28 +42,7 @@ pub mod llm {
     pub const MIN_TOP_P: f32 = 0.0;
 }
 
-/// Autonomous System Defaults
-///
-/// Configuration for autonomous graph evolution and regeneration
-pub mod autonomous {
-    /// Default confidence threshold for accepting inferred triples (0.7 = 70% confidence)
-    pub const DEFAULT_CONFIDENCE_THRESHOLD: f32 = 0.7;
-
-    /// Default minimum changes to trigger regeneration
-    pub const DEFAULT_REGENERATION_THRESHOLD: usize = 5;
-
-    /// Target cycle time for orchestration in milliseconds (30 seconds)
-    pub const TARGET_CYCLE_TIME_MS: u64 = 30_000;
-
-    /// Health check interval in seconds
-    pub const HEALTH_CHECK_INTERVAL_SECS: u64 = 60;
-
-    /// Default estimated time per template regeneration (milliseconds)
-    pub const ESTIMATED_REGEN_TIME_PER_TEMPLATE_MS: u64 = 1000;
-
-    /// Minimum success rate threshold (0.9 = 90%)
-    pub const MIN_SUCCESS_RATE: f64 = 0.9;
-}
+// Autonomous module removed - functionality integrated into core lifecycle system
 
 /// Governance System Limits
 ///
@@ -210,24 +189,6 @@ pub mod env_vars {
     pub const OLLAMA_MODEL: &str = "OLLAMA_MODEL";
 }
 
-/// MCP Server Configuration
-///
-/// Settings for Model Context Protocol server
-pub mod mcp {
-    /// Server name
-    pub const SERVER_NAME: &str = "ggen-ai-mcp";
-
-    /// Server website
-    pub const SERVER_WEBSITE: &str = "https://github.com/seanchatmangpt/ggen";
-
-    /// Server description
-    pub const SERVER_DESCRIPTION: &str =
-        "AI-powered code generation and refactoring tools for ggen";
-
-    /// Default number of tools
-    pub const EXPECTED_TOOL_COUNT: usize = 9;
-}
-
 /// Target Languages
 ///
 /// Supported programming languages for code generation
@@ -263,13 +224,6 @@ mod tests {
         assert_eq!(llm::DEFAULT_TEMPERATURE, 0.7);
         assert_eq!(llm::DEFAULT_TOP_P, 0.9);
         assert_eq!(llm::DEFAULT_TIMEOUT_SECS, 30);
-    }
-
-    #[test]
-    fn test_autonomous_constants() {
-        assert_eq!(autonomous::DEFAULT_CONFIDENCE_THRESHOLD, 0.7);
-        assert_eq!(autonomous::DEFAULT_REGENERATION_THRESHOLD, 5);
-        assert_eq!(autonomous::TARGET_CYCLE_TIME_MS, 30_000);
     }
 
     #[test]

@@ -433,7 +433,7 @@ impl ValidationFramework {
 // Validator functions
 
 fn validate_structure(output: &str) -> (f32, Vec<String>) {
-    let mut score = 10.0;
+    let mut score: f32 = 10.0;
     let mut issues = Vec::new();
 
     if output.len() < 50 {
@@ -446,11 +446,11 @@ fn validate_structure(output: &str) -> (f32, Vec<String>) {
         issues.push("No line breaks - poor formatting".to_string());
     }
 
-    (score.max(0.0), issues)
+    (score.max(0.0f32), issues)
 }
 
 fn validate_completeness(output: &str) -> (f32, Vec<String>) {
-    let mut score = 10.0;
+    let mut score: f32 = 10.0;
     let mut issues = Vec::new();
 
     if output.is_empty() {
@@ -462,7 +462,7 @@ fn validate_completeness(output: &str) -> (f32, Vec<String>) {
 }
 
 fn validate_usability(output: &str) -> (f32, Vec<String>) {
-    let mut score = 10.0;
+    let mut score: f32 = 10.0;
     let mut issues = Vec::new();
 
     if output.contains("TODO") || output.contains("FIXME") {
@@ -470,17 +470,17 @@ fn validate_usability(output: &str) -> (f32, Vec<String>) {
         issues.push("Contains TODO/FIXME markers".to_string());
     }
 
-    (score.max(0.0), issues)
+    (score.max(0.0f32), issues)
 }
 
-fn validate_clarity(output: &str) -> (f32, Vec<String>) {
-    let score = 8.0; // Base score
+fn validate_clarity(_output: &str) -> (f32, Vec<String>) {
+    let score: f32 = 8.0; // Base score
     let issues = Vec::new();
     (score, issues)
 }
 
 fn validate_sparql_syntax(output: &str) -> (f32, Vec<String>) {
-    let mut score = 10.0;
+    let mut score: f32 = 10.0;
     let mut issues = Vec::new();
 
     let required_keywords = ["SELECT", "WHERE"];
@@ -491,17 +491,17 @@ fn validate_sparql_syntax(output: &str) -> (f32, Vec<String>) {
         }
     }
 
-    (score.max(0.0), issues)
+    (score.max(0.0f32), issues)
 }
 
-fn validate_query_efficiency(output: &str) -> (f32, Vec<String>) {
-    let score = 8.0;
+fn validate_query_efficiency(_output: &str) -> (f32, Vec<String>) {
+    let score: f32 = 8.0;
     let issues = Vec::new();
     (score, issues)
 }
 
 fn validate_readability(output: &str) -> (f32, Vec<String>) {
-    let mut score = 10.0;
+    let mut score: f32 = 10.0;
     let mut issues = Vec::new();
 
     if output.lines().count() < 3 {
@@ -509,11 +509,11 @@ fn validate_readability(output: &str) -> (f32, Vec<String>) {
         issues.push("Query is not well formatted".to_string());
     }
 
-    (score.max(0.0), issues)
+    (score.max(0.0f32), issues)
 }
 
 fn validate_seo(output: &str) -> (f32, Vec<String>) {
-    let mut score = 10.0;
+    let mut score: f32 = 10.0;
     let mut issues = Vec::new();
 
     let seo_fields = ["title", "description", "keywords"];
@@ -524,17 +524,17 @@ fn validate_seo(output: &str) -> (f32, Vec<String>) {
         }
     }
 
-    (score.max(0.0), issues)
+    (score.max(0.0f32), issues)
 }
 
-fn validate_frontmatter_completeness(output: &str) -> (f32, Vec<String>) {
-    let score = 8.0;
+fn validate_frontmatter_completeness(_output: &str) -> (f32, Vec<String>) {
+    let score: f32 = 8.0;
     let issues = Vec::new();
     (score, issues)
 }
 
 fn validate_yaml(output: &str) -> (f32, Vec<String>) {
-    let mut score = 10.0;
+    let mut score: f32 = 10.0;
     let mut issues = Vec::new();
 
     if !output.contains(':') {
@@ -542,11 +542,11 @@ fn validate_yaml(output: &str) -> (f32, Vec<String>) {
         issues.push("Not valid YAML format".to_string());
     }
 
-    (score.max(0.0), issues)
+    (score.max(0.0f32), issues)
 }
 
 fn validate_ontology(output: &str) -> (f32, Vec<String>) {
-    let mut score = 10.0;
+    let mut score: f32 = 10.0;
     let mut issues = Vec::new();
 
     if !output.contains("owl:Class") && !output.contains("rdfs:Class") {
@@ -554,17 +554,17 @@ fn validate_ontology(output: &str) -> (f32, Vec<String>) {
         issues.push("Missing class definitions".to_string());
     }
 
-    (score.max(0.0), issues)
+    (score.max(0.0f32), issues)
 }
 
-fn validate_examples(output: &str) -> (f32, Vec<String>) {
-    let score = 7.0;
+fn validate_examples(_output: &str) -> (f32, Vec<String>) {
+    let score: f32 = 7.0;
     let issues = Vec::new();
     (score, issues)
 }
 
 fn validate_turtle(output: &str) -> (f32, Vec<String>) {
-    let mut score = 10.0;
+    let mut score: f32 = 10.0;
     let mut issues = Vec::new();
 
     if !output.contains("@prefix") {
@@ -572,7 +572,7 @@ fn validate_turtle(output: &str) -> (f32, Vec<String>) {
         issues.push("Missing @prefix declarations".to_string());
     }
 
-    (score.max(0.0), issues)
+    (score.max(0.0f32), issues)
 }
 
 #[cfg(test)]

@@ -11,7 +11,6 @@ pub mod generate;
 pub mod graph;
 pub mod models;
 pub mod project;
-pub mod server;
 pub mod sparql;
 pub mod validate;
 
@@ -31,8 +30,6 @@ pub enum AiCommand {
     Graph(graph::GraphArgs),
     /// Run the AI template demo
     Demo,
-    /// Start the MCP server
-    Server(server::ServerArgs),
     /// Generate frontmatter using AI
     Frontmatter(frontmatter::FrontmatterArgs),
     /// List available AI models
@@ -51,7 +48,6 @@ pub async fn run(args: &AiArgs) -> Result<()> {
         AiCommand::Sparql(args) => sparql::run(args).await,
         AiCommand::Graph(args) => graph::run(args).await,
         AiCommand::Demo => demo::run().await,
-        AiCommand::Server(args) => server::run(args).await,
         AiCommand::Frontmatter(args) => frontmatter::run(args).await,
         AiCommand::Models(args) => models::run(args).await,
         AiCommand::Validate(args) => validate::run(args).await,

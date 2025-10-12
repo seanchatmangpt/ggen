@@ -18,15 +18,12 @@ members = [
   "utils",
   "cli",
   "ggen-core",
-  # "ggen-mcp",  # Commented out - not needed for core functionality
   "ggen-ai",
   "examples/frontmatter-cli",
   "examples/natural-market-search",
   "examples/ai-template-project",
 ]
-exclude = [
-  "examples/rust-cli-lifecycle"
-]
+exclude = ["examples/rust-cli-lifecycle"]
 resolver = "2" # Use new resolver for better dependency resolution
 
 # Workspace-wide dependencies for version consistency

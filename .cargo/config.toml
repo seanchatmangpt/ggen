@@ -1,8 +1,19 @@
+# Cargo configuration for ggen project
+# Shared build cache configuration
+
 [build]
+# Use sccache for shared compilation cache
+rustc-wrapper = "sccache"
+
+# Build optimization
 jobs = 16
 pipelining = true
-incremental = true
 
 [term]
-verbose = false
-quiet = false
+# Always show colors
+color = "always"
+
+# sccache configuration
+[env]
+SCCACHE_DIR = "$HOME/.cache/sccache"
+SCCACHE_CACHE_SIZE = "10G"

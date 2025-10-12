@@ -172,14 +172,23 @@ pub async fn run(args: &GenerateArgs) -> Result<()> {
     println!("✅ Template generated successfully!");
 
     if let Some(output_path) = &args.output {
-        fs::write(
-            output_path,
-            format!("{:?}\n---\n{}", template.front, template.body),
-        )?;
-        println!("Saved to: {}", output_path);
+        // Serialize frontmatter as YAML following core team best practices
+        let frontmatter_yaml = serde_yaml::to_string(&template.front).map_err(|e| {
+            ggen_utils::error::Error::new(&format!("Failed to serialize frontmatter: {}", e))
+        })?;
+        
+        let template_content = format!("{}\n---\n{}", frontmatter_yaml.trim(), template.body);
+        
+        fs::write(output_path, template_content).map_err(|e| {
+            ggen_utils::error::Error::new(&format!("Failed to write template to disk: {}", e))
+        })?;
+        println!("📁 Saved to: {}", output_path);
     } else {
-        println!("Generated template:");
-        println!("{:?}", template.front);
+        println!("📄 Generated template:");
+        let frontmatter_yaml = serde_yaml::to_string(&template.front).map_err(|e| {
+            ggen_utils::error::Error::new(&format!("Failed to serialize frontmatter: {}", e))
+        })?;
+        println!("{}", frontmatter_yaml.trim());
         println!("---");
         println!("{}", template.body);
     }

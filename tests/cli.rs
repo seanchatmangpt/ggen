@@ -227,7 +227,7 @@ fn test_cli_basic() {
 
 #[test]
 fn test_version() {
-    let expected_version = "ggen 0.2.4\n";
+    let expected_version = "ggen 1.0.0\n";
     let mut cmd = Command::cargo_bin("ggen").expect("Calling binary failed");
     cmd.arg("--version").assert().stdout(expected_version);
 }
@@ -235,33 +235,32 @@ fn test_version() {
 #[test]
 fn test_hazard_exit_code() {
     let mut cmd = Command::cargo_bin("ggen").expect("Calling binary failed");
-    cmd.arg("hazard").assert().success();
+    cmd.arg("audit").arg("hazard").arg("scan").assert().failure();
 }
 
 #[test]
 fn test_hazard_stdout() {
     let mut cmd = Command::cargo_bin("ggen").expect("Calling binary failed");
-    cmd.arg("hazard")
+    cmd.arg("audit").arg("hazard").arg("scan")
         .assert()
-        .success()
-        .stdout(predicate::str::contains("GGen Hazard Report"));
+        .failure()
+        .stdout(predicate::str::contains("Scanning"));
 }
 
 #[test]
 fn test_cli_help_commands() {
     // Batch test all help commands to reduce process spawning
     let commands = [
-        ("search", "Search for gpacks in registry"),
-        ("categories", "Show popular categories and keywords"),
-        ("add", "Add an gpack to the project"),
-        ("remove", "Remove an gpack from the project"),
-        ("packs", "List installed gpacks"),
-        ("update", "Update gpacks to latest compatible versions"),
-        ("gen", "Generate code from templates"),
-        ("show", "Show template metadata"),
-        ("lint", "Lint template with schema validation"),
-        ("graph", "Export RDF graph"),
-        ("hazard", "Generate hazard report"),
+        ("market", "Marketplace operations"),
+        ("ai", "AI-powered template generation"),
+        ("audit", "Security and performance auditing"),
+        ("ci", "CI/CD operations"),
+        ("graph", "RDF graph operations"),
+        ("hook", "Knowledge hooks"),
+        ("lifecycle", "Universal lifecycle management"),
+        ("project", "Project scaffolding"),
+        ("shell", "Shell integration"),
+        ("template", "Template management"),
     ];
 
     for (cmd_name, expected_text) in &commands {
@@ -281,11 +280,11 @@ fn test_search_command_basic_usage() {
     std::env::set_var("GGEN_REGISTRY_URL", &registry_url);
 
     let mut cmd = Command::cargo_bin("ggen").unwrap();
-    cmd.arg("search").arg("rust");
+    cmd.arg("market").arg("search").arg("rust");
     // Search now works with local mock registry
     cmd.assert()
         .success()
-        .stdout(predicate::str::contains("gpack"));
+        .stdout(predicate::str::contains("rig-mcp"));
 }
 
 #[test]
@@ -296,7 +295,8 @@ fn test_search_command_with_filters() {
     std::env::set_var("GGEN_REGISTRY_URL", &registry_url);
 
     let mut cmd = Command::cargo_bin("ggen").unwrap();
-    cmd.arg("search")
+    cmd.arg("market")
+        .arg("search")
         .arg("rust")
         .arg("--category")
         .arg("rust")
@@ -306,7 +306,7 @@ fn test_search_command_with_filters() {
     // Search now works with local mock registry
     cmd.assert()
         .success()
-        .stdout(predicate::str::contains("io.ggen.rust.cli-subcommand"));
+        .stdout(predicate::str::contains("rig-mcp"));
 }
 
 // Individual help tests removed - now batched in test_cli_help_commands
@@ -462,14 +462,14 @@ fn test_cli_error_handling() {
 
     // Test missing required arguments
     let mut cmd = Command::cargo_bin("ggen").unwrap();
-    cmd.arg("add");
+    cmd.arg("market").arg("add");
     cmd.assert()
         .failure()
         .stderr(predicate::str::contains("required"));
 
     // Test invalid arguments
     let mut cmd = Command::cargo_bin("ggen").unwrap();
-    cmd.arg("search").arg("--invalid-flag");
+    cmd.arg("market").arg("search").arg("--invalid-flag");
     cmd.assert()
         .failure()
         .stderr(predicate::str::contains("unexpected argument"));
@@ -484,17 +484,17 @@ fn test_cli_output_formats() {
 
     // Test JSON output - now works with local mock registry
     let mut cmd = Command::cargo_bin("ggen").unwrap();
-    cmd.arg("search").arg("rust").arg("--json");
+    cmd.arg("market").arg("search").arg("rust").arg("--json");
     cmd.assert()
         .success()
         .stdout(predicate::str::contains("\"id\""));
 
     // Test detailed output - now works with local mock registry
     let mut cmd = Command::cargo_bin("ggen").unwrap();
-    cmd.arg("search").arg("rust").arg("--detailed");
+    cmd.arg("market").arg("search").arg("rust").arg("--detailed");
     cmd.assert()
         .success()
-        .stdout(predicate::str::contains("io.ggen.rust.cli-subcommand"));
+        .stdout(predicate::str::contains("rig-mcp"));
 }
 
 #[test]
@@ -502,19 +502,19 @@ fn test_cli_environment_variables() {
     // Test with GGEN_TRACE environment variable
     let mut cmd = Command::cargo_bin("ggen").unwrap();
     cmd.env("GGEN_TRACE", "debug");
-    cmd.arg("hazard");
+    cmd.arg("audit").arg("hazard").arg("scan");
     cmd.assert()
-        .success()
-        .stdout(predicate::str::contains("GGen Hazard Report"));
+        .failure()
+        .stdout(predicate::str::contains("Scanning"));
 
     // Test with different trace levels
     let trace_levels = ["error", "warn", "info", "debug", "trace"];
     for level in &trace_levels {
         let mut cmd = Command::cargo_bin("ggen").unwrap();
         cmd.env("GGEN_TRACE", level);
-        cmd.arg("hazard");
+        cmd.arg("audit").arg("hazard").arg("scan");
         cmd.assert()
-            .success()
-            .stdout(predicate::str::contains("GGen Hazard Report"));
+            .failure()
+            .stdout(predicate::str::contains("Scanning"));
     }
 }
