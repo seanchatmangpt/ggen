@@ -13,10 +13,10 @@ use cleanroom::{
     determinism::DeterministicManager,
     error::Result,
     policy::Policy,
-    scenario::{scenario, RunResult},
+    scenario::{RunResult, scenario},
 };
-use std::time::Instant;
 use std::path::PathBuf;
+use std::time::Instant;
 
 /// GGen CLI test configuration
 #[derive(Debug, Clone)]
@@ -53,7 +53,7 @@ impl Default for GGenTestConfig {
 
         Self {
             backend: "testcontainers".to_string(), // Use testcontainers backend for ggen testing
-            timeout_ms: 60_000, // 60 seconds for ggen operations
+            timeout_ms: 60_000,                    // 60 seconds for ggen operations
             deterministic: false,
             seed: None,
             workdir: std::env::current_dir().unwrap_or_else(|_| PathBuf::from("/tmp")),
@@ -125,7 +125,9 @@ struct GGenTestResult {
 
 impl GGenTestResult {
     /// Create from cleanroom RunResult
-    fn from_cleanroom_result(cleanroom_result: RunResult, backend: &str, duration_ms: u128, command: &str) -> Self {
+    fn from_cleanroom_result(
+        cleanroom_result: RunResult, backend: &str, duration_ms: u128, command: &str,
+    ) -> Self {
         Self {
             backend: backend.to_string(),
             status: cleanroom_result.exit_code,
@@ -133,8 +135,8 @@ impl GGenTestResult {
             stderr: cleanroom_result.stderr,
             duration_ms,
             hermetic: backend != "local", // Assume container backends are hermetic
-            deterministic_mounts: true,    // Assume mounts are deterministic
-            normalized_clock: false,       // Clock normalization not implemented yet
+            deterministic_mounts: true,   // Assume mounts are deterministic
+            normalized_clock: false,      // Clock normalization not implemented yet
             command: command.to_string(),
         }
     }
@@ -175,7 +177,10 @@ impl GGenTestResult {
     /// Assert execution was hermetic
     pub fn assert_hermetic(&self) -> &Self {
         if !self.hermetic {
-            panic!("expected hermetic execution, but network access was allowed for command {}", self.command);
+            panic!(
+                "expected hermetic execution, but network access was allowed for command {}",
+                self.command
+            );
         }
         self
     }
@@ -212,15 +217,19 @@ fn run_ggen_command(args: &[&str], config: &GGenTestConfig) -> Result<GGenTestRe
     cmd_args.extend(args.iter().map(|s| *s));
 
     // Create scenario
-    let scenario = scenario("ggen_cli_test")
-        .step("ggen_command".to_string(), cmd_args);
+    let scenario = scenario("ggen_cli_test").step("ggen_command".to_string(), cmd_args);
 
     // Run scenario with testcontainers backend
     let result = scenario.run_with_backend(backend)?;
     let duration_ms = start.elapsed().as_millis();
 
     let command = format!("ggen {}", args.join(" "));
-    Ok(GGenTestResult::from_cleanroom_result(result, &backend_name, duration_ms, &command))
+    Ok(GGenTestResult::from_cleanroom_result(
+        result,
+        &backend_name,
+        duration_ms,
+        &command,
+    ))
 }
 
 /// GGen test scenario builder
@@ -320,7 +329,10 @@ fn test_project_commands(config: &GGenTestConfig) -> Result<()> {
     // Test project init (dry run)
     let result = run_ggen_command(&["project", "init", "test-project", "--dry-run"], config)?;
     // Note: This might fail if ggen requires specific setup, so we just check it doesn't panic
-    println!("✓ project init --dry-run completed on backend: {} (exit: {})", result.backend, result.status);
+    println!(
+        "✓ project init --dry-run completed on backend: {} (exit: {})",
+        result.backend, result.status
+    );
 
     Ok(())
 }
@@ -341,7 +353,10 @@ fn test_template_commands(config: &GGenTestConfig) -> Result<()> {
     // Test template list
     let result = run_ggen_command(&["template", "list"], config)?;
     // This might return empty list, which is fine
-    println!("✓ template list completed on backend: {} (exit: {})", result.backend, result.status);
+    println!(
+        "✓ template list completed on backend: {} (exit: {})",
+        result.backend, result.status
+    );
 
     Ok(())
 }
@@ -456,7 +471,7 @@ fn demo_ggen_determinism() -> Result<()> {
     // Create two separate managers with the same seed
     let mut manager1 = DeterministicManager::with_seed(42);
     let mut manager2 = DeterministicManager::with_seed(42);
-    
+
     // Generate deterministic output from both managers
     let output1 = manager1.generate_output(5)?;
     let output2 = manager2.generate_output(5)?;
@@ -479,15 +494,27 @@ fn demo_ggen_policy() -> Result<()> {
 
     // Create secure policy
     let policy = Policy::locked();
-    println!("Policy is secure by default: {}", policy.is_secure_by_default());
-    println!("Network disabled by default: {}", policy.network_disabled_by_default());
+    println!(
+        "Policy is secure by default: {}",
+        policy.is_secure_by_default()
+    );
+    println!(
+        "Network disabled by default: {}",
+        policy.network_disabled_by_default()
+    );
     println!("Capabilities dropped: {}", policy.capabilities_dropped());
     println!("Runs as non-root: {}", policy.runs_as_non_root());
 
     // Create permissive policy
     let permissive_policy = Policy::permissive();
-    println!("Permissive policy allows network: {}", permissive_policy.allows_network());
-    println!("Permissive policy allows writes: {}", permissive_policy.allows_writes());
+    println!(
+        "Permissive policy allows network: {}",
+        permissive_policy.allows_network()
+    );
+    println!(
+        "Permissive policy allows writes: {}",
+        permissive_policy.allows_writes()
+    );
 
     Ok(())
 }

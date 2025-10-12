@@ -87,6 +87,16 @@ pub struct ServiceManager {
     shutdown_order: Vec<usize>,
 }
 
+impl std::fmt::Debug for ServiceManager {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ServiceManager")
+            .field("services_count", &self.services.len())
+            .field("startup_order", &self.startup_order)
+            .field("shutdown_order", &self.shutdown_order)
+            .finish()
+    }
+}
+
 impl ServiceManager {
     /// Create a new service manager
     pub fn new() -> Self {
@@ -129,7 +139,8 @@ impl ServiceManager {
 
     /// Get a service by name
     pub fn get_service_by_name(&self, name: &str) -> Option<&dyn Service> {
-        self.services.iter()
+        self.services
+            .iter()
             .find(|s| s.name() == name)
             .map(|s| s.as_ref())
     }
@@ -178,7 +189,7 @@ impl ServiceManager {
         Err(crate::error::CleanroomError::service_error(format!(
             "Services did not become healthy within {} seconds",
             timeout.as_secs()
-        )).into())
+        )))
     }
 
     /// Wait for all services to be ready
@@ -189,12 +200,12 @@ impl ServiceManager {
         while start.elapsed() < timeout {
             let mut all_ready = true;
             for service in &self.services {
-                if !service.wait_for_ready(check_interval).is_ok() {
+                if service.wait_for_ready(check_interval).is_err() {
                     all_ready = false;
                     break;
                 }
             }
-            
+
             if all_ready {
                 return Ok(());
             }
@@ -204,7 +215,7 @@ impl ServiceManager {
         Err(crate::error::CleanroomError::service_error(format!(
             "Services did not become ready within {} seconds",
             timeout.as_secs()
-        )).into())
+        )))
     }
 
     /// Get logs from all services
@@ -216,7 +227,10 @@ impl ServiceManager {
                     logs.insert(service.name().to_string(), service_logs);
                 }
                 Err(e) => {
-                    logs.insert(service.name().to_string(), vec![format!("Error getting logs: {}", e)]);
+                    logs.insert(
+                        service.name().to_string(),
+                        vec![format!("Error getting logs: {}", e)],
+                    );
                 }
             }
         }
@@ -267,35 +281,47 @@ impl ServiceBuilder {
     pub fn build(self) -> Result<Box<dyn Service>> {
         match self.service_type.as_str() {
             "postgres" => {
-                let port = self.config.get("port")
+                let _port = self
+                    .config
+                    .get("port")
                     .and_then(|s| s.parse().ok())
                     .unwrap_or(5432);
-                let database = self.config.get("database")
+                let database = self
+                    .config
+                    .get("database")
                     .cloned()
                     .unwrap_or_else(|| "testdb".to_string());
-                let username = self.config.get("username")
+                let username = self
+                    .config
+                    .get("username")
                     .cloned()
                     .unwrap_or_else(|| "testuser".to_string());
-                let password = self.config.get("password")
+                let password = self
+                    .config
+                    .get("password")
                     .cloned()
                     .unwrap_or_else(|| "testpass".to_string());
 
                 Ok(Box::new(crate::services::postgres::Postgres::with_config(
-                    port, database, username, password
+                    database, username, password,
                 )?))
             }
             "redis" => {
-                let port = self.config.get("port")
+                let _port = self
+                    .config
+                    .get("port")
                     .and_then(|s| s.parse().ok())
                     .unwrap_or(6379);
                 let password = self.config.get("password").cloned();
 
-                Ok(Box::new(crate::services::redis::Redis::with_config(port, password)?))
+                Ok(Box::new(crate::services::redis::Redis::with_config(
+                    _port, password,
+                )?))
             }
             _ => Err(crate::error::CleanroomError::configuration_error(format!(
                 "Unknown service type: {}",
                 self.service_type
-            )).into())
+            ))),
         }
     }
 }
@@ -332,11 +358,14 @@ impl ServiceRegistry {
 
     /// Create a service by type name
     pub fn create_service(&self, service_type: &str) -> Result<Box<dyn Service>> {
-        self.service_types.get(service_type)
-            .ok_or_else(|| crate::error::CleanroomError::configuration_error(format!(
-                "Unknown service type: {}",
-                service_type
-            )).into())
+        self.service_types
+            .get(service_type)
+            .ok_or_else(|| {
+                crate::error::CleanroomError::configuration_error(format!(
+                    "Unknown service type: {}",
+                    service_type
+                ))
+            })
             .and_then(|factory| factory())
     }
 
@@ -372,7 +401,7 @@ mod tests {
         let conn_info = ConnectionInfo::new("host=localhost port=5432")
             .with_param("username", "testuser")
             .with_param("password", "testpass");
-        
+
         assert!(conn_info.params().contains("username=testuser"));
         assert!(conn_info.params().contains("password=testpass"));
     }
@@ -382,7 +411,7 @@ mod tests {
         let conn_info = ConnectionInfo::new("host=localhost port=5432")
             .with_param("username", "testuser")
             .with_param("password", "testpass");
-        
+
         let conn_str = conn_info.connection_string();
         assert!(conn_str.contains("host=localhost"));
         assert!(conn_str.contains("username=testuser"));
@@ -395,7 +424,7 @@ mod tests {
             .with_param("username", "testuser")
             .with_param("password", "testpass")
             .with_param("database", "testdb");
-        
+
         // Test that connection string contains expected components
         let conn_str = conn_info.connection_string();
         assert!(conn_str.contains("host=localhost"));
@@ -406,9 +435,9 @@ mod tests {
 
     #[test]
     fn test_redis_url() {
-        let conn_info = ConnectionInfo::new("host=localhost port=6379")
-            .with_param("password", "testpass");
-        
+        let conn_info =
+            ConnectionInfo::new("host=localhost port=6379").with_param("password", "testpass");
+
         // Test that connection string contains expected components
         let conn_str = conn_info.connection_string();
         assert!(conn_str.contains("host=localhost"));
@@ -418,7 +447,7 @@ mod tests {
     #[test]
     fn test_redis_url_no_password() {
         let conn_info = ConnectionInfo::new("host=localhost port=6379");
-        
+
         // Test that connection string contains expected components
         let conn_str = conn_info.connection_string();
         assert!(conn_str.contains("host=localhost"));
@@ -435,7 +464,7 @@ mod tests {
         let builder = ServiceBuilder::new("postgres")
             .with_config("port", "5433")
             .with_config("database", "mydb");
-        
+
         assert_eq!(builder.service_type, "postgres");
         assert_eq!(builder.config.get("port"), Some(&"5433".to_string()));
         assert_eq!(builder.config.get("database"), Some(&"mydb".to_string()));
@@ -447,7 +476,7 @@ mod tests {
         assert!(registry.is_registered("postgres"));
         assert!(registry.is_registered("redis"));
         assert!(!registry.is_registered("unknown"));
-        
+
         let types = registry.available_types();
         assert!(types.contains(&"postgres".to_string()));
         assert!(types.contains(&"redis".to_string()));

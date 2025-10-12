@@ -3,9 +3,9 @@
 //! This example demonstrates basic ggen CLI testing with minimal cleanroom dependencies
 //! to avoid compilation issues with the full framework.
 
+use std::path::PathBuf;
 use std::process::Command;
 use std::time::Instant;
-use std::path::PathBuf;
 
 /// Simple test result
 #[derive(Debug)]
@@ -18,7 +18,9 @@ struct TestResult {
 }
 
 impl TestResult {
-    fn new(exit_code: i32, stdout: String, stderr: String, duration_ms: u128, command: String) -> Self {
+    fn new(
+        exit_code: i32, stdout: String, stderr: String, duration_ms: u128, command: String,
+    ) -> Self {
         Self {
             exit_code,
             stdout,
@@ -68,14 +70,14 @@ fn find_ggen_binary() -> PathBuf {
         if debug_binary.exists() {
             return debug_binary;
         }
-        
+
         // Look for ggen in target/release/ggen
         let release_binary = current_dir.join("target").join("release").join("ggen");
         if release_binary.exists() {
             return release_binary;
         }
     }
-    
+
     // Fallback to PATH
     PathBuf::from("ggen")
 }
@@ -84,17 +86,17 @@ fn find_ggen_binary() -> PathBuf {
 fn run_ggen_command(args: &[&str]) -> TestResult {
     let start = Instant::now();
     let ggen_binary = find_ggen_binary();
-    
+
     let mut cmd = Command::new(&ggen_binary);
     cmd.args(args);
-    
+
     let output = cmd.output().expect("Failed to execute ggen command");
     let duration_ms = start.elapsed().as_millis();
-    
+
     let stdout = String::from_utf8_lossy(&output.stdout).to_string();
     let stderr = String::from_utf8_lossy(&output.stderr).to_string();
     let command = format!("{} {}", ggen_binary.display(), args.join(" "));
-    
+
     TestResult::new(
         output.status.code().unwrap_or(-1),
         stdout,
@@ -144,7 +146,10 @@ fn test_project_commands() {
     // Test project init (dry run)
     let result = run_ggen_command(&["project", "init", "test-project", "--dry-run"]);
     // Note: This might fail if ggen requires specific setup, so we just check it doesn't panic
-    println!("✓ project init --dry-run completed (exit: {}, {} ms)", result.exit_code, result.duration_ms);
+    println!(
+        "✓ project init --dry-run completed (exit: {}, {} ms)",
+        result.exit_code, result.duration_ms
+    );
 }
 
 /// Test ggen template commands
@@ -163,7 +168,10 @@ fn test_template_commands() {
     // Test template list
     let result = run_ggen_command(&["template", "list"]);
     // This might return empty list, which is fine
-    println!("✓ template list completed (exit: {}, {} ms)", result.exit_code, result.duration_ms);
+    println!(
+        "✓ template list completed (exit: {}, {} ms)",
+        result.exit_code, result.duration_ms
+    );
 }
 
 /// Test ggen graph commands
@@ -225,17 +233,20 @@ fn test_ggen_workflow() {
     for (label, args) in commands {
         println!("→ [{}] ggen {}", label, args.join(" "));
         let result = run_ggen_command(&args);
-        println!("✓ Workflow step '{}' completed: {} ms", label, result.duration_ms);
+        println!(
+            "✓ Workflow step '{}' completed: {} ms",
+            label, result.duration_ms
+        );
     }
 }
 
 /// Test ggen binary detection
 fn test_binary_detection() {
     println!("\n=== GGen Binary Detection ===");
-    
+
     let ggen_binary = find_ggen_binary();
     println!("Found ggen binary: {}", ggen_binary.display());
-    
+
     if ggen_binary.exists() {
         println!("✓ GGen binary exists and is accessible");
     } else {

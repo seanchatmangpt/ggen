@@ -13,7 +13,7 @@ use cleanroom::{
     determinism::DeterministicManager,
     error::Result,
     policy::Policy,
-    scenario::{scenario, RunResult},
+    scenario::{RunResult, scenario},
 };
 use std::time::Instant;
 
@@ -97,7 +97,9 @@ struct PocRunResult {
 
 impl PocRunResult {
     /// Create from cleanroom RunResult
-    fn from_cleanroom_result(cleanroom_result: RunResult, backend: &str, duration_ms: u128) -> Self {
+    fn from_cleanroom_result(
+        cleanroom_result: RunResult, backend: &str, duration_ms: u128,
+    ) -> Self {
         Self {
             backend: backend.to_string(),
             status: cleanroom_result.exit_code,
@@ -105,8 +107,8 @@ impl PocRunResult {
             stderr: cleanroom_result.stderr,
             duration_ms,
             hermetic: backend != "local", // Assume container backends are hermetic
-            deterministic_mounts: true,    // Assume mounts are deterministic
-            normalized_clock: false,       // Clock normalization not implemented yet
+            deterministic_mounts: true,   // Assume mounts are deterministic
+            normalized_clock: false,      // Clock normalization not implemented yet
         }
     }
 
@@ -171,14 +173,17 @@ fn run_cleanroom(args: &[&str], config: &PocConfig) -> Result<PocRunResult> {
     let backend_name = backend.resolved_backend();
 
     // Create scenario
-    let scenario = scenario("poc_test")
-        .step("test".to_string(), args);
+    let scenario = scenario("poc_test").step("test".to_string(), args);
 
     // Run scenario
     let result = scenario.run()?;
     let duration_ms = start.elapsed().as_millis();
 
-    Ok(PocRunResult::from_cleanroom_result(result, &backend_name, duration_ms))
+    Ok(PocRunResult::from_cleanroom_result(
+        result,
+        &backend_name,
+        duration_ms,
+    ))
 }
 
 /// PoC scenario builder
@@ -243,7 +248,7 @@ fn demo_determinism() -> Result<()> {
     // Create two separate managers with the same seed
     let mut manager1 = DeterministicManager::with_seed(42);
     let mut manager2 = DeterministicManager::with_seed(42);
-    
+
     // Generate deterministic output from both managers
     let output1 = manager1.generate_output(5)?;
     let output2 = manager2.generate_output(5)?;
@@ -274,15 +279,27 @@ fn demo_policy() -> Result<()> {
 
     // Create secure policy
     let policy = Policy::locked();
-    println!("Policy is secure by default: {}", policy.is_secure_by_default());
-    println!("Network disabled by default: {}", policy.network_disabled_by_default());
+    println!(
+        "Policy is secure by default: {}",
+        policy.is_secure_by_default()
+    );
+    println!(
+        "Network disabled by default: {}",
+        policy.network_disabled_by_default()
+    );
     println!("Capabilities dropped: {}", policy.capabilities_dropped());
     println!("Runs as non-root: {}", policy.runs_as_non_root());
 
     // Create permissive policy
     let permissive_policy = Policy::permissive();
-    println!("Permissive policy allows network: {}", permissive_policy.allows_network());
-    println!("Permissive policy allows writes: {}", permissive_policy.allows_writes());
+    println!(
+        "Permissive policy allows network: {}",
+        permissive_policy.allows_network()
+    );
+    println!(
+        "Permissive policy allows writes: {}",
+        permissive_policy.allows_writes()
+    );
 
     Ok(())
 }
@@ -298,19 +315,22 @@ fn main() -> Result<()> {
 
     // 1) Basic command execution
     println!("\n=== Basic Command Execution ===");
-    
+
     let config = PocConfig::new().backend("auto");
     let result = run_cleanroom(&["echo", "hello world"], &config)?;
     result
         .assert_success()
         .assert_stdout_contains("hello world");
 
-    println!("✓ Command executed successfully on backend: {}", result.backend);
+    println!(
+        "✓ Command executed successfully on backend: {}",
+        result.backend
+    );
     println!("  Duration: {} ms", result.duration_ms);
 
     // 2) Scenario execution
     println!("\n=== Scenario Execution ===");
-    
+
     let scenario = PocScenario::new("echo-smoke")
         .step("echo1", vec!["echo", "hello"])
         .step("echo2", vec!["echo", "world"])
@@ -329,7 +349,7 @@ fn main() -> Result<()> {
 
     // 3) Backend comparison
     println!("\n=== Backend Comparison ===");
-    
+
     for backend in ["local", "docker", "podman"] {
         let config = PocConfig::new().backend(backend);
         match run_cleanroom(&["echo", "test"], &config) {

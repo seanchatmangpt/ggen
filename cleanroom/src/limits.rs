@@ -7,7 +7,7 @@
 //! - Network limits
 //! - Process limits
 
-use crate::error::{Result, CleanroomError};
+use crate::error::{CleanroomError, Result};
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
 
@@ -120,13 +120,12 @@ pub struct TimeLimits {
     pub enable_monitoring: bool,
 }
 
-
 impl Default for CpuLimits {
     fn default() -> Self {
         Self {
             max_usage_percent: 80.0,
             max_cores: 4,
-            quota_us: 800000, // 80% of 1 second
+            quota_us: 800000,   // 80% of 1 second
             period_us: 1000000, // 1 second
             enable_throttling: true,
         }
@@ -136,10 +135,10 @@ impl Default for CpuLimits {
 impl Default for MemoryLimits {
     fn default() -> Self {
         Self {
-            max_usage_bytes: 1024 * 1024 * 1024, // 1GB
-            soft_limit_bytes: 512 * 1024 * 1024, // 512MB
+            max_usage_bytes: 1024 * 1024 * 1024,  // 1GB
+            soft_limit_bytes: 512 * 1024 * 1024,  // 512MB
             hard_limit_bytes: 1024 * 1024 * 1024, // 1GB
-            swap_limit_bytes: 0, // No swap
+            swap_limit_bytes: 0,                  // No swap
             enable_monitoring: true,
             pressure_threshold_percent: 80.0,
         }
@@ -149,8 +148,8 @@ impl Default for MemoryLimits {
 impl Default for DiskLimits {
     fn default() -> Self {
         Self {
-            max_usage_bytes: 10 * 1024 * 1024 * 1024, // 10GB
-            read_limit_bytes_per_sec: 100 * 1024 * 1024, // 100MB/s
+            max_usage_bytes: 10 * 1024 * 1024 * 1024,     // 10GB
+            read_limit_bytes_per_sec: 100 * 1024 * 1024,  // 100MB/s
             write_limit_bytes_per_sec: 100 * 1024 * 1024, // 100MB/s
             iops_limit: 1000,
             enable_monitoring: true,
@@ -187,8 +186,8 @@ impl Default for TimeLimits {
     fn default() -> Self {
         Self {
             max_execution_time: Duration::from_secs(300), // 5 minutes
-            max_idle_time: Duration::from_secs(60), // 1 minute
-            max_wait_time: Duration::from_secs(30), // 30 seconds
+            max_idle_time: Duration::from_secs(60),       // 1 minute
+            max_wait_time: Duration::from_secs(30),       // 30 seconds
             enable_monitoring: true,
         }
     }
@@ -199,7 +198,7 @@ impl ResourceLimits {
     pub fn new() -> Self {
         Self::default()
     }
-    
+
     /// Create resource limits with custom CPU limits
     pub fn with_cpu_limits(max_usage_percent: f64, max_cores: u32) -> Self {
         let mut limits = Self::default();
@@ -207,7 +206,7 @@ impl ResourceLimits {
         limits.cpu.max_cores = max_cores;
         limits
     }
-    
+
     /// Create resource limits with custom memory limits
     pub fn with_memory_limits(max_usage_bytes: u64) -> Self {
         let mut limits = Self::default();
@@ -215,76 +214,86 @@ impl ResourceLimits {
         limits.memory.hard_limit_bytes = max_usage_bytes;
         limits
     }
-    
+
     /// Create resource limits with custom disk limits
     pub fn with_disk_limits(max_usage_bytes: u64) -> Self {
         let mut limits = Self::default();
         limits.disk.max_usage_bytes = max_usage_bytes;
         limits
     }
-    
+
     /// Create resource limits with custom network limits
     pub fn with_network_limits(max_bandwidth_bytes_per_sec: u64) -> Self {
         let mut limits = Self::default();
         limits.network.max_bandwidth_bytes_per_sec = max_bandwidth_bytes_per_sec;
         limits
     }
-    
+
     /// Create resource limits with custom time limits
     pub fn with_time_limits(max_execution_time: Duration) -> Self {
         let mut limits = Self::default();
         limits.time.max_execution_time = max_execution_time;
         limits
     }
-    
+
     /// Validate resource limits
     pub fn validate(&self) -> Result<()> {
         // Validate CPU limits
         if self.cpu.max_usage_percent <= 0.0 || self.cpu.max_usage_percent > 100.0 {
-            return Err(CleanroomError::validation_error("Invalid CPU usage percentage"));
+            return Err(CleanroomError::validation_error(
+                "Invalid CPU usage percentage",
+            ));
         }
-        
+
         if self.cpu.max_cores == 0 {
             return Err(CleanroomError::validation_error("Invalid CPU core count"));
         }
-        
+
         // Validate memory limits
         if self.memory.max_usage_bytes == 0 {
-            return Err(CleanroomError::validation_error("Invalid memory usage limit"));
+            return Err(CleanroomError::validation_error(
+                "Invalid memory usage limit",
+            ));
         }
-        
+
         if self.memory.soft_limit_bytes > self.memory.hard_limit_bytes {
-            return Err(CleanroomError::validation_error("Soft limit cannot exceed hard limit"));
+            return Err(CleanroomError::validation_error(
+                "Soft limit cannot exceed hard limit",
+            ));
         }
-        
+
         // Validate disk limits
         if self.disk.max_usage_bytes == 0 {
             return Err(CleanroomError::validation_error("Invalid disk usage limit"));
         }
-        
+
         // Validate network limits
         if self.network.max_bandwidth_bytes_per_sec == 0 {
-            return Err(CleanroomError::validation_error("Invalid network bandwidth limit"));
+            return Err(CleanroomError::validation_error(
+                "Invalid network bandwidth limit",
+            ));
         }
-        
+
         if self.network.max_connections == 0 {
             return Err(CleanroomError::validation_error("Invalid connection limit"));
         }
-        
+
         // Validate process limits
         if self.process.max_processes == 0 {
             return Err(CleanroomError::validation_error("Invalid process limit"));
         }
-        
+
         if self.process.max_threads == 0 {
             return Err(CleanroomError::validation_error("Invalid thread limit"));
         }
-        
+
         // Validate time limits
         if self.time.max_execution_time.as_secs() == 0 {
-            return Err(CleanroomError::validation_error("Invalid execution time limit"));
+            return Err(CleanroomError::validation_error(
+                "Invalid execution time limit",
+            ));
         }
-        
+
         Ok(())
     }
 
@@ -299,7 +308,7 @@ impl ResourceLimits {
             Ok(())
         }
     }
-    
+
     /// Check if memory usage is within limits
     pub fn check_memory_usage(&self, usage_bytes: u64) -> Result<()> {
         if usage_bytes > self.memory.max_usage_bytes {
@@ -311,7 +320,7 @@ impl ResourceLimits {
             Ok(())
         }
     }
-    
+
     /// Check if disk usage is within limits
     pub fn check_disk_usage(&self, usage_bytes: u64) -> Result<()> {
         if usage_bytes > self.disk.max_usage_bytes {
@@ -323,7 +332,7 @@ impl ResourceLimits {
             Ok(())
         }
     }
-    
+
     /// Check if network usage is within limits
     pub fn check_network_usage(&self, bandwidth_bytes_per_sec: u64) -> Result<()> {
         if bandwidth_bytes_per_sec > self.network.max_bandwidth_bytes_per_sec {
@@ -335,7 +344,7 @@ impl ResourceLimits {
             Ok(())
         }
     }
-    
+
     /// Check if process count is within limits
     pub fn check_process_count(&self, process_count: u32) -> Result<()> {
         if process_count > self.process.max_processes {
@@ -347,7 +356,7 @@ impl ResourceLimits {
             Ok(())
         }
     }
-    
+
     /// Check if execution time is within limits
     pub fn check_execution_time(&self, execution_time: Duration) -> Result<()> {
         if execution_time > self.time.max_execution_time {
@@ -359,7 +368,7 @@ impl ResourceLimits {
             Ok(())
         }
     }
-    
+
     /// Get resource limits summary
     pub fn summary(&self) -> String {
         format!(
@@ -380,51 +389,135 @@ impl ResourceLimits {
             self.time.max_execution_time
         )
     }
-    
+
     /// Get environment variables for resource limits
     pub fn to_env(&self) -> std::collections::HashMap<String, String> {
         let mut env = std::collections::HashMap::new();
-        
+
         // CPU limits
-        env.insert("CLEANROOM_CPU_MAX_USAGE_PERCENT".to_string(), self.cpu.max_usage_percent.to_string());
-        env.insert("CLEANROOM_CPU_MAX_CORES".to_string(), self.cpu.max_cores.to_string());
-        env.insert("CLEANROOM_CPU_QUOTA_US".to_string(), self.cpu.quota_us.to_string());
-        env.insert("CLEANROOM_CPU_PERIOD_US".to_string(), self.cpu.period_us.to_string());
-        env.insert("CLEANROOM_CPU_ENABLE_THROTTLING".to_string(), self.cpu.enable_throttling.to_string());
-        
+        env.insert(
+            "CLEANROOM_CPU_MAX_USAGE_PERCENT".to_string(),
+            self.cpu.max_usage_percent.to_string(),
+        );
+        env.insert(
+            "CLEANROOM_CPU_MAX_CORES".to_string(),
+            self.cpu.max_cores.to_string(),
+        );
+        env.insert(
+            "CLEANROOM_CPU_QUOTA_US".to_string(),
+            self.cpu.quota_us.to_string(),
+        );
+        env.insert(
+            "CLEANROOM_CPU_PERIOD_US".to_string(),
+            self.cpu.period_us.to_string(),
+        );
+        env.insert(
+            "CLEANROOM_CPU_ENABLE_THROTTLING".to_string(),
+            self.cpu.enable_throttling.to_string(),
+        );
+
         // Memory limits
-        env.insert("CLEANROOM_MEMORY_MAX_USAGE_BYTES".to_string(), self.memory.max_usage_bytes.to_string());
-        env.insert("CLEANROOM_MEMORY_SOFT_LIMIT_BYTES".to_string(), self.memory.soft_limit_bytes.to_string());
-        env.insert("CLEANROOM_MEMORY_HARD_LIMIT_BYTES".to_string(), self.memory.hard_limit_bytes.to_string());
-        env.insert("CLEANROOM_MEMORY_SWAP_LIMIT_BYTES".to_string(), self.memory.swap_limit_bytes.to_string());
-        env.insert("CLEANROOM_MEMORY_ENABLE_MONITORING".to_string(), self.memory.enable_monitoring.to_string());
-        
+        env.insert(
+            "CLEANROOM_MEMORY_MAX_USAGE_BYTES".to_string(),
+            self.memory.max_usage_bytes.to_string(),
+        );
+        env.insert(
+            "CLEANROOM_MEMORY_SOFT_LIMIT_BYTES".to_string(),
+            self.memory.soft_limit_bytes.to_string(),
+        );
+        env.insert(
+            "CLEANROOM_MEMORY_HARD_LIMIT_BYTES".to_string(),
+            self.memory.hard_limit_bytes.to_string(),
+        );
+        env.insert(
+            "CLEANROOM_MEMORY_SWAP_LIMIT_BYTES".to_string(),
+            self.memory.swap_limit_bytes.to_string(),
+        );
+        env.insert(
+            "CLEANROOM_MEMORY_ENABLE_MONITORING".to_string(),
+            self.memory.enable_monitoring.to_string(),
+        );
+
         // Disk limits
-        env.insert("CLEANROOM_DISK_MAX_USAGE_BYTES".to_string(), self.disk.max_usage_bytes.to_string());
-        env.insert("CLEANROOM_DISK_READ_LIMIT_BYTES_PER_SEC".to_string(), self.disk.read_limit_bytes_per_sec.to_string());
-        env.insert("CLEANROOM_DISK_WRITE_LIMIT_BYTES_PER_SEC".to_string(), self.disk.write_limit_bytes_per_sec.to_string());
-        env.insert("CLEANROOM_DISK_IOPS_LIMIT".to_string(), self.disk.iops_limit.to_string());
-        env.insert("CLEANROOM_DISK_ENABLE_MONITORING".to_string(), self.disk.enable_monitoring.to_string());
-        
+        env.insert(
+            "CLEANROOM_DISK_MAX_USAGE_BYTES".to_string(),
+            self.disk.max_usage_bytes.to_string(),
+        );
+        env.insert(
+            "CLEANROOM_DISK_READ_LIMIT_BYTES_PER_SEC".to_string(),
+            self.disk.read_limit_bytes_per_sec.to_string(),
+        );
+        env.insert(
+            "CLEANROOM_DISK_WRITE_LIMIT_BYTES_PER_SEC".to_string(),
+            self.disk.write_limit_bytes_per_sec.to_string(),
+        );
+        env.insert(
+            "CLEANROOM_DISK_IOPS_LIMIT".to_string(),
+            self.disk.iops_limit.to_string(),
+        );
+        env.insert(
+            "CLEANROOM_DISK_ENABLE_MONITORING".to_string(),
+            self.disk.enable_monitoring.to_string(),
+        );
+
         // Network limits
-        env.insert("CLEANROOM_NETWORK_MAX_BANDWIDTH_BYTES_PER_SEC".to_string(), self.network.max_bandwidth_bytes_per_sec.to_string());
-        env.insert("CLEANROOM_NETWORK_MAX_CONNECTIONS".to_string(), self.network.max_connections.to_string());
-        env.insert("CLEANROOM_NETWORK_MAX_PORTS".to_string(), self.network.max_ports.to_string());
-        env.insert("CLEANROOM_NETWORK_ENABLE_MONITORING".to_string(), self.network.enable_monitoring.to_string());
-        
+        env.insert(
+            "CLEANROOM_NETWORK_MAX_BANDWIDTH_BYTES_PER_SEC".to_string(),
+            self.network.max_bandwidth_bytes_per_sec.to_string(),
+        );
+        env.insert(
+            "CLEANROOM_NETWORK_MAX_CONNECTIONS".to_string(),
+            self.network.max_connections.to_string(),
+        );
+        env.insert(
+            "CLEANROOM_NETWORK_MAX_PORTS".to_string(),
+            self.network.max_ports.to_string(),
+        );
+        env.insert(
+            "CLEANROOM_NETWORK_ENABLE_MONITORING".to_string(),
+            self.network.enable_monitoring.to_string(),
+        );
+
         // Process limits
-        env.insert("CLEANROOM_PROCESS_MAX_PROCESSES".to_string(), self.process.max_processes.to_string());
-        env.insert("CLEANROOM_PROCESS_MAX_THREADS".to_string(), self.process.max_threads.to_string());
-        env.insert("CLEANROOM_PROCESS_MAX_FILE_DESCRIPTORS".to_string(), self.process.max_file_descriptors.to_string());
-        env.insert("CLEANROOM_PROCESS_MAX_OPEN_FILES".to_string(), self.process.max_open_files.to_string());
-        env.insert("CLEANROOM_PROCESS_ENABLE_MONITORING".to_string(), self.process.enable_monitoring.to_string());
-        
+        env.insert(
+            "CLEANROOM_PROCESS_MAX_PROCESSES".to_string(),
+            self.process.max_processes.to_string(),
+        );
+        env.insert(
+            "CLEANROOM_PROCESS_MAX_THREADS".to_string(),
+            self.process.max_threads.to_string(),
+        );
+        env.insert(
+            "CLEANROOM_PROCESS_MAX_FILE_DESCRIPTORS".to_string(),
+            self.process.max_file_descriptors.to_string(),
+        );
+        env.insert(
+            "CLEANROOM_PROCESS_MAX_OPEN_FILES".to_string(),
+            self.process.max_open_files.to_string(),
+        );
+        env.insert(
+            "CLEANROOM_PROCESS_ENABLE_MONITORING".to_string(),
+            self.process.enable_monitoring.to_string(),
+        );
+
         // Time limits
-        env.insert("CLEANROOM_TIME_MAX_EXECUTION_TIME_SECS".to_string(), self.time.max_execution_time.as_secs().to_string());
-        env.insert("CLEANROOM_TIME_MAX_IDLE_TIME_SECS".to_string(), self.time.max_idle_time.as_secs().to_string());
-        env.insert("CLEANROOM_TIME_MAX_WAIT_TIME_SECS".to_string(), self.time.max_wait_time.as_secs().to_string());
-        env.insert("CLEANROOM_TIME_ENABLE_MONITORING".to_string(), self.time.enable_monitoring.to_string());
-        
+        env.insert(
+            "CLEANROOM_TIME_MAX_EXECUTION_TIME_SECS".to_string(),
+            self.time.max_execution_time.as_secs().to_string(),
+        );
+        env.insert(
+            "CLEANROOM_TIME_MAX_IDLE_TIME_SECS".to_string(),
+            self.time.max_idle_time.as_secs().to_string(),
+        );
+        env.insert(
+            "CLEANROOM_TIME_MAX_WAIT_TIME_SECS".to_string(),
+            self.time.max_wait_time.as_secs().to_string(),
+        );
+        env.insert(
+            "CLEANROOM_TIME_ENABLE_MONITORING".to_string(),
+            self.time.enable_monitoring.to_string(),
+        );
+
         env
     }
 }
@@ -438,45 +531,45 @@ mod tests {
         let limits = ResourceLimits::new();
         assert!(limits.validate().is_ok());
     }
-    
+
     #[test]
     fn test_resource_limits_with_cpu() {
         let limits = ResourceLimits::with_cpu_limits(50.0, 2);
         assert_eq!(limits.cpu.max_usage_percent, 50.0);
         assert_eq!(limits.cpu.max_cores, 2);
     }
-    
+
     #[test]
     fn test_resource_limits_with_memory() {
         let limits = ResourceLimits::with_memory_limits(512 * 1024 * 1024);
         assert_eq!(limits.memory.max_usage_bytes, 512 * 1024 * 1024);
         assert_eq!(limits.memory.hard_limit_bytes, 512 * 1024 * 1024);
     }
-    
+
     #[test]
     fn test_resource_limits_with_disk() {
         let limits = ResourceLimits::with_disk_limits(5 * 1024 * 1024 * 1024);
         assert_eq!(limits.disk.max_usage_bytes, 5 * 1024 * 1024 * 1024);
     }
-    
+
     #[test]
     fn test_resource_limits_with_network() {
         let limits = ResourceLimits::with_network_limits(50 * 1024 * 1024);
         assert_eq!(limits.network.max_bandwidth_bytes_per_sec, 50 * 1024 * 1024);
     }
-    
+
     #[test]
     fn test_resource_limits_with_time() {
         let limits = ResourceLimits::with_time_limits(Duration::from_secs(120));
         assert_eq!(limits.time.max_execution_time, Duration::from_secs(120));
     }
-    
+
     #[test]
     fn test_resource_limits_validation() {
         let limits = ResourceLimits::new();
         assert!(limits.validate().is_ok());
     }
-    
+
     #[test]
     fn test_cpu_usage_check() {
         let limits = ResourceLimits::new();
@@ -490,21 +583,21 @@ mod tests {
         assert!(limits.check_memory_usage(512 * 1024 * 1024).is_ok());
         assert!(limits.check_memory_usage(2 * 1024 * 1024 * 1024).is_err());
     }
-    
+
     #[test]
     fn test_disk_usage_check() {
         let limits = ResourceLimits::new();
         assert!(limits.check_disk_usage(5 * 1024 * 1024 * 1024).is_ok());
         assert!(limits.check_disk_usage(20 * 1024 * 1024 * 1024).is_err());
     }
-    
+
     #[test]
     fn test_network_usage_check() {
         let limits = ResourceLimits::new();
         assert!(limits.check_network_usage(50 * 1024 * 1024).is_ok());
         assert!(limits.check_network_usage(200 * 1024 * 1024).is_err());
     }
-    
+
     #[test]
     fn test_process_count_check() {
         let limits = ResourceLimits::new();
@@ -516,9 +609,13 @@ mod tests {
     fn test_execution_time_check() {
         let limits = ResourceLimits::new();
         assert!(limits.check_execution_time(Duration::from_secs(60)).is_ok());
-        assert!(limits.check_execution_time(Duration::from_secs(600)).is_err());
+        assert!(
+            limits
+                .check_execution_time(Duration::from_secs(600))
+                .is_err()
+        );
     }
-    
+
     #[test]
     fn test_resource_limits_summary() {
         let limits = ResourceLimits::new();
@@ -536,7 +633,7 @@ mod tests {
     fn test_resource_limits_env() {
         let limits = ResourceLimits::new();
         let env = limits.to_env();
-        
+
         assert!(env.contains_key("CLEANROOM_CPU_MAX_USAGE_PERCENT"));
         assert!(env.contains_key("CLEANROOM_MEMORY_MAX_USAGE_BYTES"));
         assert!(env.contains_key("CLEANROOM_DISK_MAX_USAGE_BYTES"));

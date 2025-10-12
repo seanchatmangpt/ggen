@@ -3,19 +3,17 @@
 //! This benchmark measures the performance of scenario creation,
 //! execution, and various scenario operations.
 
-use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId};
-use cleanroom::scenario::{Scenario, RunResult, StepResult, Step, StepSource};
-use cleanroom::backend::{Cmd, Backend};
-use cleanroom::policy::Policy;
+use cleanroom::backend::{Backend, Cmd};
 use cleanroom::error::Result;
-use std::time::Duration;
+use cleanroom::policy::Policy;
+use cleanroom::scenario::{RunResult, Scenario, Step, StepResult, StepSource};
+use criterion::{BenchmarkId, Criterion, black_box, criterion_group, criterion_main};
 use std::collections::HashMap;
+use std::time::Duration;
 
 fn bench_scenario_creation(c: &mut Criterion) {
     c.bench_function("scenario_creation", |b| {
-        b.iter(|| {
-            black_box(Scenario::new("test_scenario".to_string()))
-        })
+        b.iter(|| black_box(Scenario::new("test_scenario".to_string())))
     });
 }
 
@@ -42,7 +40,7 @@ fn bench_scenario_add_step(c: &mut Criterion) {
 
 fn bench_scenario_add_multiple_steps(c: &mut Criterion) {
     let mut group = c.benchmark_group("scenario_multiple_steps");
-    
+
     for size in [1, 5, 10, 20, 50].iter() {
         group.bench_with_input(BenchmarkId::new("add_steps", size), size, |b, &size| {
             b.iter(|| {
@@ -65,7 +63,7 @@ fn bench_scenario_add_multiple_steps(c: &mut Criterion) {
             })
         });
     }
-    
+
     group.finish();
 }
 
@@ -85,7 +83,7 @@ fn bench_scenario_execution_simulation(c: &mut Criterion) {
                 source: StepSource::Manual,
             };
             scenario.add_step(step);
-            
+
             // Simulate execution
             let result = RunResult {
                 success: true,
@@ -96,7 +94,7 @@ fn bench_scenario_execution_simulation(c: &mut Criterion) {
                 artifacts: Vec::new(),
                 metrics: HashMap::new(),
             };
-            
+
             black_box(result)
         })
     });
@@ -149,11 +147,9 @@ fn bench_scenario_serialization(c: &mut Criterion) {
         source: StepSource::Manual,
     };
     scenario.add_step(step);
-    
+
     c.bench_function("scenario_serialization", |b| {
-        b.iter(|| {
-            black_box(serde_json::to_string(&scenario).unwrap())
-        })
+        b.iter(|| black_box(serde_json::to_string(&scenario).unwrap()))
     });
 }
 
@@ -172,11 +168,9 @@ fn bench_scenario_deserialization(c: &mut Criterion) {
     };
     scenario.add_step(step);
     let serialized = serde_json::to_string(&scenario).unwrap();
-    
+
     c.bench_function("scenario_deserialization", |b| {
-        b.iter(|| {
-            black_box(serde_json::from_str::<Scenario>(&serialized).unwrap())
-        })
+        b.iter(|| black_box(serde_json::from_str::<Scenario>(&serialized).unwrap()))
     });
 }
 
@@ -194,18 +188,14 @@ fn bench_scenario_clone(c: &mut Criterion) {
         source: StepSource::Manual,
     };
     scenario.add_step(step);
-    
-    c.bench_function("scenario_clone", |b| {
-        b.iter(|| {
-            black_box(scenario.clone())
-        })
-    });
+
+    c.bench_function("scenario_clone", |b| b.iter(|| black_box(scenario.clone())));
 }
 
 fn bench_scenario_hash(c: &mut Criterion) {
     use std::collections::hash_map::DefaultHasher;
     use std::hash::{Hash, Hasher};
-    
+
     let mut scenario = Scenario::new("test_scenario".to_string());
     let step = Step {
         name: "test_step".to_string(),
@@ -219,7 +209,7 @@ fn bench_scenario_hash(c: &mut Criterion) {
         source: StepSource::Manual,
     };
     scenario.add_step(step);
-    
+
     c.bench_function("scenario_hash", |b| {
         b.iter(|| {
             let mut hasher = DefaultHasher::new();
@@ -243,7 +233,7 @@ fn bench_scenario_equality(c: &mut Criterion) {
         source: StepSource::Manual,
     };
     scenario1.add_step(step1);
-    
+
     let mut scenario2 = Scenario::new("test_scenario".to_string());
     let step2 = Step {
         name: "test_step".to_string(),
@@ -257,11 +247,9 @@ fn bench_scenario_equality(c: &mut Criterion) {
         source: StepSource::Manual,
     };
     scenario2.add_step(step2);
-    
+
     c.bench_function("scenario_equality", |b| {
-        b.iter(|| {
-            black_box(scenario1 == scenario2)
-        })
+        b.iter(|| black_box(scenario1 == scenario2))
     });
 }
 
@@ -299,11 +287,9 @@ fn bench_scenario_cmd_creation(c: &mut Criterion) {
 
 fn bench_scenario_step_source_enum(c: &mut Criterion) {
     let source = StepSource::Manual;
-    
+
     c.bench_function("scenario_step_source_enum", |b| {
-        b.iter(|| {
-            black_box(matches!(source, StepSource::Manual))
-        })
+        b.iter(|| black_box(matches!(source, StepSource::Manual)))
     });
 }
 
@@ -372,7 +358,7 @@ fn bench_scenario_step_iteration(c: &mut Criterion) {
         };
         scenario.add_step(step);
     }
-    
+
     c.bench_function("scenario_step_iteration", |b| {
         b.iter(|| {
             let mut count = 0;
@@ -401,11 +387,9 @@ fn bench_scenario_step_search(c: &mut Criterion) {
         };
         scenario.add_step(step);
     }
-    
+
     c.bench_function("scenario_step_search", |b| {
-        b.iter(|| {
-            black_box(scenario.find_step("step_25"))
-        })
+        b.iter(|| black_box(scenario.find_step("step_25")))
     });
 }
 
@@ -425,11 +409,9 @@ fn bench_scenario_step_count(c: &mut Criterion) {
         };
         scenario.add_step(step);
     }
-    
+
     c.bench_function("scenario_step_count", |b| {
-        b.iter(|| {
-            black_box(scenario.step_count())
-        })
+        b.iter(|| black_box(scenario.step_count()))
     });
 }
 
@@ -449,7 +431,7 @@ fn bench_scenario_clear(c: &mut Criterion) {
         };
         scenario.add_step(step);
     }
-    
+
     c.bench_function("scenario_clear", |b| {
         b.iter(|| {
             scenario.clear();

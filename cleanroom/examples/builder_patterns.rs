@@ -4,8 +4,8 @@
 //! validation to create different types of cleanroom environments.
 
 use cleanroom::builder::CleanroomBuilder;
-use cleanroom::policy::SecurityPolicy;
 use cleanroom::limits::ResourceLimits;
+use cleanroom::policy::SecurityPolicy;
 use std::time::Duration;
 
 #[tokio::main]
@@ -15,10 +15,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Example 1: Minimal configuration
     println!("\n1. Minimal Configuration");
-    let env = CleanroomBuilder::new()
-        .build_minimal()
-        .await?;
-    println!("✓ Built minimal environment with session ID: {}", env.session_id());
+    let env = CleanroomBuilder::new().build_minimal().await?;
+    println!(
+        "✓ Built minimal environment with session ID: {}",
+        env.session_id()
+    );
 
     // Example 2: Secure environment
     println!("\n2. Secure Environment");
@@ -81,13 +82,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Example 7: Configuration inspection
     println!("\n7. Configuration Inspection");
-    let builder = CleanroomBuilder::secure()
-        .with_coverage_tracking(true);
-    
+    let builder = CleanroomBuilder::secure().with_coverage_tracking(true);
+
     let config = builder.config();
-    println!("Security level: {:?}", config.security_policy.security_level);
+    println!(
+        "Security level: {:?}",
+        config.security_policy.security_level
+    );
     println!("Coverage tracking: {}", config.enable_coverage_tracking);
-    println!("Singleton containers: {}", config.enable_singleton_containers);
+    println!(
+        "Singleton containers: {}",
+        config.enable_singleton_containers
+    );
 
     let env = builder.build().await?;
     println!("✓ Built environment after inspection");
@@ -106,8 +112,11 @@ mod tests {
             .build_minimal()
             .await
             .expect("Should build minimal environment");
-        
-        assert_eq!(env.config().test_execution_timeout, Duration::from_secs(300));
+
+        assert_eq!(
+            env.config().test_execution_timeout,
+            Duration::from_secs(300)
+        );
     }
 
     #[tokio::test]
@@ -116,8 +125,11 @@ mod tests {
             .build()
             .await
             .expect("Should build secure environment");
-        
-        assert_eq!(env.config().security_policy.security_level, cleanroom::policy::SecurityLevel::Locked);
+
+        assert_eq!(
+            env.config().security_policy.security_level,
+            cleanroom::policy::SecurityLevel::Locked
+        );
     }
 
     #[tokio::test]
@@ -126,7 +138,7 @@ mod tests {
             .build()
             .await
             .expect("Should build performance environment");
-        
+
         assert_eq!(env.config().test_execution_timeout, Duration::from_secs(60));
         assert!(env.config().enable_singleton_containers);
     }
@@ -138,7 +150,7 @@ mod tests {
             .build()
             .await
             .expect("Should build deterministic environment");
-        
+
         assert!(env.config().enable_deterministic_execution);
         assert_eq!(env.config().deterministic_seed, Some(seed));
     }
@@ -149,7 +161,7 @@ mod tests {
             .build()
             .await
             .expect("Should build development environment");
-        
+
         assert!(!env.config().enable_singleton_containers);
         assert!(env.config().enable_coverage_tracking);
         assert!(env.config().enable_tracing);
@@ -159,7 +171,7 @@ mod tests {
     async fn test_custom_configuration() {
         let timeout = Duration::from_secs(90);
         let seed = 456;
-        
+
         let env = CleanroomBuilder::new()
             .with_timeout(timeout)
             .with_deterministic_execution(Some(seed))
@@ -167,7 +179,7 @@ mod tests {
             .build()
             .await
             .expect("Should build custom environment");
-        
+
         assert_eq!(env.config().test_execution_timeout, timeout);
         assert_eq!(env.config().deterministic_seed, Some(seed));
         assert!(env.config().enable_coverage_tracking);

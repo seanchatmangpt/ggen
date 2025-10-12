@@ -6,9 +6,9 @@
 //! - User-friendly error messages
 //! - Debug information for troubleshooting
 
-use std::fmt;
-use std::error::Error as StdError;
 use serde::{Deserialize, Serialize};
+use std::error::Error as StdError;
+use std::fmt;
 
 /// Result type alias for cleanroom operations
 pub type Result<T> = std::result::Result<T, CleanroomError>;
@@ -61,6 +61,8 @@ pub enum ErrorKind {
     SerializationError,
     /// Validation error
     ValidationError,
+    /// Service error
+    ServiceError,
     /// Internal error
     InternalError,
 }
@@ -76,94 +78,104 @@ impl CleanroomError {
             timestamp: chrono::Utc::now(),
         }
     }
-    
+
     /// Create a new cleanroom error with context
     pub fn with_context(mut self, context: impl Into<String>) -> Self {
         self.context = Some(context.into());
         self
     }
-    
+
     /// Create a new cleanroom error with source
     pub fn with_source(mut self, source: impl Into<String>) -> Self {
         self.source = Some(source.into());
         self
     }
-    
+
     /// Create a container error
     pub fn container_error(message: impl Into<String>) -> Self {
         Self::new(ErrorKind::ContainerError, message)
     }
-    
+
     /// Create a network error
     pub fn network_error(message: impl Into<String>) -> Self {
         Self::new(ErrorKind::NetworkError, message)
     }
-    
+
     /// Create a resource limit exceeded error
     pub fn resource_limit_exceeded(message: impl Into<String>) -> Self {
         Self::new(ErrorKind::ResourceLimitExceeded, message)
     }
-    
+
     /// Create a timeout error
     pub fn timeout_error(message: impl Into<String>) -> Self {
         Self::new(ErrorKind::Timeout, message)
     }
-    
+
     /// Create a configuration error
     pub fn configuration_error(message: impl Into<String>) -> Self {
         Self::new(ErrorKind::ConfigurationError, message)
     }
-    
+
     /// Create a policy violation error
     pub fn policy_violation_error(message: impl Into<String>) -> Self {
         Self::new(ErrorKind::PolicyViolation, message)
     }
-    
+
     /// Create a deterministic execution error
     pub fn deterministic_error(message: impl Into<String>) -> Self {
         Self::new(ErrorKind::DeterministicError, message)
     }
-    
+
     /// Create a coverage tracking error
     pub fn coverage_error(message: impl Into<String>) -> Self {
         Self::new(ErrorKind::CoverageError, message)
     }
-    
+
     /// Create a snapshot error
     pub fn snapshot_error(message: impl Into<String>) -> Self {
         Self::new(ErrorKind::SnapshotError, message)
     }
-    
+
     /// Create a tracing error
     pub fn tracing_error(message: impl Into<String>) -> Self {
         Self::new(ErrorKind::TracingError, message)
     }
-    
+
     /// Create a redaction error
     pub fn redaction_error(message: impl Into<String>) -> Self {
         Self::new(ErrorKind::RedactionError, message)
     }
-    
+
     /// Create a report generation error
     pub fn report_error(message: impl Into<String>) -> Self {
         Self::new(ErrorKind::ReportError, message)
     }
-    
+
+    /// Create a connection failed error
+    pub fn connection_failed(message: impl Into<String>) -> Self {
+        Self::new(ErrorKind::NetworkError, message)
+    }
+
+    /// Create a service error
+    pub fn service_error(message: impl Into<String>) -> Self {
+        Self::new(ErrorKind::ServiceError, message)
+    }
+
     /// Create an IO error
     pub fn io_error(message: impl Into<String>) -> Self {
         Self::new(ErrorKind::IoError, message)
     }
-    
+
     /// Create a serialization error
     pub fn serialization_error(message: impl Into<String>) -> Self {
         Self::new(ErrorKind::SerializationError, message)
     }
-    
+
     /// Create a validation error
     pub fn validation_error(message: impl Into<String>) -> Self {
         Self::new(ErrorKind::ValidationError, message)
     }
-    
+
     /// Create an internal error
     pub fn internal_error(message: impl Into<String>) -> Self {
         Self::new(ErrorKind::InternalError, message)

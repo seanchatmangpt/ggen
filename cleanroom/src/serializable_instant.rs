@@ -49,7 +49,7 @@ impl Serialize for SerializableInstant {
         let unix_duration = system_now.duration_since(UNIX_EPOCH).unwrap_or_default();
         let instant_duration = self.0.elapsed();
         let total_nanos = unix_duration.as_nanos() - instant_duration.as_nanos();
-        
+
         serializer.serialize_u128(total_nanos)
     }
 }
@@ -60,19 +60,19 @@ impl<'de> Deserialize<'de> for SerializableInstant {
         D: Deserializer<'de>,
     {
         let nanos = u128::deserialize(deserializer)?;
-        
+
         // Convert back from nanoseconds since Unix epoch
         let system_now = SystemTime::now();
         let unix_duration = system_now.duration_since(UNIX_EPOCH).unwrap_or_default();
         let current_nanos = unix_duration.as_nanos();
-        
+
         if nanos > current_nanos {
             return Err(serde::de::Error::custom("Invalid timestamp: future time"));
         }
-        
+
         let elapsed_nanos = current_nanos - nanos;
         let elapsed = Duration::from_nanos(elapsed_nanos as u64);
-        
+
         Ok(Self::from_duration_since_epoch(elapsed))
     }
 }
@@ -91,7 +91,7 @@ impl From<SerializableInstant> for Instant {
 
 impl std::ops::Add<Duration> for SerializableInstant {
     type Output = SerializableInstant;
-    
+
     fn add(self, rhs: Duration) -> Self::Output {
         SerializableInstant(self.0 + rhs)
     }
@@ -99,7 +99,7 @@ impl std::ops::Add<Duration> for SerializableInstant {
 
 impl std::ops::Sub<Duration> for SerializableInstant {
     type Output = SerializableInstant;
-    
+
     fn sub(self, rhs: Duration) -> Self::Output {
         SerializableInstant(self.0 - rhs)
     }

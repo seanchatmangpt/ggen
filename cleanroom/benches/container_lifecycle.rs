@@ -3,57 +3,49 @@
 //! This benchmark measures the performance of container registration,
 //! unregistration, and lifecycle management operations.
 
-use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId};
 use cleanroom::cleanroom::CleanroomEnvironment;
 use cleanroom::config::CleanroomConfig;
-use cleanroom::ids::{ContainerId, container_id};
 use cleanroom::guards::{ContainerGuard, container_guard};
+use cleanroom::ids::{ContainerId, container_id};
+use criterion::{BenchmarkId, Criterion, black_box, criterion_group, criterion_main};
 use std::sync::Arc;
 use std::time::Duration;
 
 fn bench_container_id_creation(c: &mut Criterion) {
     c.bench_function("container_id_creation", |b| {
-        b.iter(|| {
-            black_box(ContainerId::new())
-        })
+        b.iter(|| black_box(ContainerId::new()))
     });
 }
 
 fn bench_container_id_convenience(c: &mut Criterion) {
     c.bench_function("container_id_convenience", |b| {
-        b.iter(|| {
-            black_box(container_id())
-        })
+        b.iter(|| black_box(container_id()))
     });
 }
 
 fn bench_container_id_serialization(c: &mut Criterion) {
     let id = ContainerId::new();
-    
+
     c.bench_function("container_id_serialization", |b| {
-        b.iter(|| {
-            black_box(serde_json::to_string(&id).unwrap())
-        })
+        b.iter(|| black_box(serde_json::to_string(&id).unwrap()))
     });
 }
 
 fn bench_container_id_deserialization(c: &mut Criterion) {
     let id = ContainerId::new();
     let serialized = serde_json::to_string(&id).unwrap();
-    
+
     c.bench_function("container_id_deserialization", |b| {
-        b.iter(|| {
-            black_box(serde_json::from_str::<ContainerId>(&serialized).unwrap())
-        })
+        b.iter(|| black_box(serde_json::from_str::<ContainerId>(&serialized).unwrap()))
     });
 }
 
 fn bench_container_id_hash(c: &mut Criterion) {
     use std::collections::hash_map::DefaultHasher;
     use std::hash::{Hash, Hasher};
-    
+
     let id = ContainerId::new();
-    
+
     c.bench_function("container_id_hash", |b| {
         b.iter(|| {
             let mut hasher = DefaultHasher::new();
@@ -66,45 +58,35 @@ fn bench_container_id_hash(c: &mut Criterion) {
 fn bench_container_id_equality(c: &mut Criterion) {
     let id1 = ContainerId::new();
     let id2 = ContainerId::new();
-    
+
     c.bench_function("container_id_equality", |b| {
-        b.iter(|| {
-            black_box(id1 == id2)
-        })
+        b.iter(|| black_box(id1 == id2))
     });
 }
 
 fn bench_container_id_display(c: &mut Criterion) {
     let id = ContainerId::new();
-    
+
     c.bench_function("container_id_display", |b| {
-        b.iter(|| {
-            black_box(format!("{}", id))
-        })
+        b.iter(|| black_box(format!("{}", id)))
     });
 }
 
 fn bench_container_id_conversion(c: &mut Criterion) {
     let id = ContainerId::new();
-    
-    c.bench_function("container_id_to_u64", |b| {
-        b.iter(|| {
-            black_box(id.value())
-        })
-    });
+
+    c.bench_function("container_id_to_u64", |b| b.iter(|| black_box(id.value())));
 }
 
 fn bench_container_id_from_value(c: &mut Criterion) {
     c.bench_function("container_id_from_value", |b| {
-        b.iter(|| {
-            black_box(ContainerId::from_value(42))
-        })
+        b.iter(|| black_box(ContainerId::from_value(42)))
     });
 }
 
 fn bench_container_id_registry_operations(c: &mut Criterion) {
     let mut group = c.benchmark_group("container_id_registry");
-    
+
     group.bench_function("register", |b| {
         b.iter(|| {
             let mut registry = cleanroom::ids::IdRegistry::new();
@@ -112,7 +94,7 @@ fn bench_container_id_registry_operations(c: &mut Criterion) {
             black_box(registry.register_container(id))
         })
     });
-    
+
     group.bench_function("unregister", |b| {
         b.iter(|| {
             let mut registry = cleanroom::ids::IdRegistry::new();
@@ -121,7 +103,7 @@ fn bench_container_id_registry_operations(c: &mut Criterion) {
             black_box(registry.unregister_container(&id))
         })
     });
-    
+
     group.bench_function("is_registered", |b| {
         b.iter(|| {
             let mut registry = cleanroom::ids::IdRegistry::new();
@@ -130,7 +112,7 @@ fn bench_container_id_registry_operations(c: &mut Criterion) {
             black_box(registry.is_container_registered(&id))
         })
     });
-    
+
     group.finish();
 }
 
@@ -138,7 +120,7 @@ fn bench_container_guard_creation(c: &mut Criterion) {
     let config = CleanroomConfig::default();
     let environment = CleanroomEnvironment::new(config).unwrap();
     let environment_arc = Arc::new(environment);
-    
+
     c.bench_function("container_guard_creation", |b| {
         b.iter(|| {
             let id = ContainerId::new();
@@ -151,7 +133,7 @@ fn bench_container_guard_convenience(c: &mut Criterion) {
     let config = CleanroomConfig::default();
     let environment = CleanroomEnvironment::new(config).unwrap();
     let environment_arc = Arc::new(environment);
-    
+
     c.bench_function("container_guard_convenience", |b| {
         b.iter(|| {
             let id = ContainerId::new();
@@ -164,14 +146,15 @@ fn bench_container_guard_cleanup_action(c: &mut Criterion) {
     let config = CleanroomConfig::default();
     let environment = CleanroomEnvironment::new(config).unwrap();
     let environment_arc = Arc::new(environment);
-    
+
     c.bench_function("container_guard_cleanup_action", |b| {
         b.iter(|| {
             let id = ContainerId::new();
-            black_box(ContainerGuard::new(environment_arc.clone(), id)
-                .add_cleanup_action(|| {
+            black_box(
+                ContainerGuard::new(environment_arc.clone(), id).add_cleanup_action(|| {
                     // Simulate cleanup action
-                }))
+                }),
+            )
         })
     });
 }
@@ -180,14 +163,13 @@ fn bench_container_guard_drop(c: &mut Criterion) {
     let config = CleanroomConfig::default();
     let environment = CleanroomEnvironment::new(config).unwrap();
     let environment_arc = Arc::new(environment);
-    
+
     c.bench_function("container_guard_drop", |b| {
         b.iter(|| {
             let id = ContainerId::new();
-            let guard = ContainerGuard::new(environment_arc.clone(), id)
-                .add_cleanup_action(|| {
-                    // Simulate cleanup action
-                });
+            let guard = ContainerGuard::new(environment_arc.clone(), id).add_cleanup_action(|| {
+                // Simulate cleanup action
+            });
             drop(guard);
         })
     });
@@ -197,13 +179,13 @@ fn bench_container_health_guard(c: &mut Criterion) {
     let config = CleanroomConfig::default();
     let environment = CleanroomEnvironment::new(config).unwrap();
     let environment_arc = Arc::new(environment);
-    
+
     c.bench_function("container_health_guard", |b| {
         b.iter(|| {
             let id = ContainerId::new();
             black_box(cleanroom::guards::container::ContainerHealthGuard::new(
-                environment_arc.clone(), 
-                id
+                environment_arc.clone(),
+                id,
             ))
         })
     });
@@ -213,7 +195,7 @@ fn bench_container_resource_guard(c: &mut Criterion) {
     let config = CleanroomConfig::default();
     let environment = CleanroomEnvironment::new(config).unwrap();
     let environment_arc = Arc::new(environment);
-    
+
     c.bench_function("container_resource_guard", |b| {
         b.iter(|| {
             let id = ContainerId::new();
@@ -232,7 +214,7 @@ fn bench_container_lifecycle_guard(c: &mut Criterion) {
     let config = CleanroomConfig::default();
     let environment = CleanroomEnvironment::new(config).unwrap();
     let environment_arc = Arc::new(environment);
-    
+
     c.bench_function("container_lifecycle_guard", |b| {
         b.iter(|| {
             let id = ContainerId::new();
@@ -309,10 +291,13 @@ fn bench_container_resource_usage(c: &mut Criterion) {
 
 fn bench_container_health_status(c: &mut Criterion) {
     let status = cleanroom::guards::container::ContainerHealth::Healthy;
-    
+
     c.bench_function("container_health_status", |b| {
         b.iter(|| {
-            black_box(matches!(status, cleanroom::guards::container::ContainerHealth::Healthy))
+            black_box(matches!(
+                status,
+                cleanroom::guards::container::ContainerHealth::Healthy
+            ))
         })
     });
 }
@@ -321,7 +306,7 @@ fn bench_container_registry_statistics(c: &mut Criterion) {
     let config = CleanroomConfig::default();
     let environment = CleanroomEnvironment::new(config).unwrap();
     let environment_arc = Arc::new(environment);
-    
+
     c.bench_function("container_registry_statistics", |b| {
         b.iter(|| {
             let registry = cleanroom::ids::container::ContainerIdRegistry::new();
@@ -332,7 +317,7 @@ fn bench_container_registry_statistics(c: &mut Criterion) {
 
 fn bench_container_convenience_functions(c: &mut Criterion) {
     let mut group = c.benchmark_group("container_convenience");
-    
+
     group.bench_function("container_health_guard", |b| {
         b.iter(|| {
             let config = CleanroomConfig::default();
@@ -340,12 +325,12 @@ fn bench_container_convenience_functions(c: &mut Criterion) {
             let environment_arc = Arc::new(environment);
             let id = ContainerId::new();
             black_box(cleanroom::guards::container::container_health_guard(
-                environment_arc, 
-                id
+                environment_arc,
+                id,
             ))
         })
     });
-    
+
     group.bench_function("container_resource_guard", |b| {
         b.iter(|| {
             let config = CleanroomConfig::default();
@@ -361,7 +346,7 @@ fn bench_container_convenience_functions(c: &mut Criterion) {
             ))
         })
     });
-    
+
     group.bench_function("container_lifecycle_guard", |b| {
         b.iter(|| {
             let config = CleanroomConfig::default();
@@ -375,7 +360,7 @@ fn bench_container_convenience_functions(c: &mut Criterion) {
             ))
         })
     });
-    
+
     group.finish();
 }
 
