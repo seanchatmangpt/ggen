@@ -406,15 +406,19 @@ mod tests {
 
     #[test]
     fn test_config_from_env() {
-        std::env::set_var("CLEANROOM_ENABLE_DETERMINISTIC_EXECUTION", "false");
-        std::env::set_var("CLEANROOM_DETERMINISTIC_SEED", "12345");
+        unsafe {
+            std::env::set_var("CLEANROOM_ENABLE_DETERMINISTIC_EXECUTION", "false");
+            std::env::set_var("CLEANROOM_DETERMINISTIC_SEED", "12345");
+        }
 
         let config = CleanroomConfig::from_env().unwrap();
         assert_eq!(config.enable_deterministic_execution, false);
         assert_eq!(config.deterministic_seed, Some(12345));
 
-        std::env::remove_var("CLEANROOM_ENABLE_DETERMINISTIC_EXECUTION");
-        std::env::remove_var("CLEANROOM_DETERMINISTIC_SEED");
+        unsafe {
+            std::env::remove_var("CLEANROOM_ENABLE_DETERMINISTIC_EXECUTION");
+            std::env::remove_var("CLEANROOM_DETERMINISTIC_SEED");
+        }
     }
 
     #[test]

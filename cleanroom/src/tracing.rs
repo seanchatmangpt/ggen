@@ -11,7 +11,7 @@ use serde::{Deserialize, Serialize};
 use serde::{Deserializer, Serializer};
 use std::collections::HashMap;
 use std::sync::Arc;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use crate::serializable_instant::SerializableInstant;
 use uuid::Uuid;
 use tokio::sync::RwLock;

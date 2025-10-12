@@ -1,157 +1,144 @@
-//! Core cleanroom environment implementation
+//! Fixed cleanroom environment for testing framework
+//!
+//! This module provides the main cleanroom environment following core team best practices:
+//! - Environment lifecycle management
+//! - Container orchestration
+//! - Service integration
+//! - Policy enforcement
+//! - Resource monitoring
+//! - Test execution
 
-use crate::error::Result;
-use crate::config::CleanroomConfig;
-use crate::backend::TestcontainerBackend;
-#[cfg(feature = "services")]
-use crate::services::ServiceManager;
+use crate::error::{Result, CleanroomError};
+use crate::config_fixed::CleanroomConfig;
+use crate::policy_fixed::Policy;
+use crate::limits_fixed::ResourceLimits;
+use crate::determinism_fixed::DeterministicManager;
+use crate::coverage_fixed::CoverageCollector;
+use crate::snapshots_fixed::SnapshotManager;
+use crate::tracing_fixed::TracingManager;
+use crate::report_fixed::{TestReport, ComprehensiveReport};
+use crate::containers_fixed::{ContainerWrapper, PostgresContainer, RedisContainer, GenericContainer, ContainerStatus, ContainerMetrics};
 use crate::serializable_instant::SerializableInstant;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
-use std::time::{Duration, Instant};
+use std::time::Instant;
 use tokio::sync::RwLock;
 use uuid::Uuid;
 
-/// Core cleanroom environment following best practices
+/// Cleanroom environment for testing
 #[derive(Debug)]
 pub struct CleanroomEnvironment {
-    /// Unique test session identifier
-    pub session_id: Uuid,
-    /// Test configuration
+    /// Session ID
+    session_id: Uuid,
+    /// Configuration
     config: CleanroomConfig,
-    /// Test execution metrics
+    /// Policy
+    policy: Policy,
+    /// Resource limits
+    resource_limits: ResourceLimits,
+    /// Deterministic manager
+    deterministic_manager: Arc<RwLock<DeterministicManager>>,
+    /// Coverage collector
+    coverage_collector: Arc<RwLock<CoverageCollector>>,
+    /// Snapshot manager
+    snapshot_manager: Arc<RwLock<SnapshotManager>>,
+    /// Tracing manager
+    tracing_manager: Arc<RwLock<TracingManager>>,
+    /// Test report
+    test_report: Arc<RwLock<TestReport>>,
+    /// Containers
+    containers: Arc<RwLock<HashMap<String, Box<dyn ContainerWrapper + Send + Sync>>>>,
+    /// Metrics
     metrics: Arc<RwLock<CleanroomMetrics>>,
-    /// Container registry for singleton pattern
-    container_registry: Arc<RwLock<HashMap<String, String>>>,
-    /// Backend for container execution
-    backend: TestcontainerBackend,
-    /// Service manager for database and cache services
-    #[cfg(feature = "services")]
-    services: ServiceManager,
-    /// Start time of the cleanroom environment
-    start_time: Instant,
+    /// Start time
+    start_time: SerializableInstant,
+    /// Backend
+    backend: String,
+    /// Initialization status
+    initialized: bool,
+    /// Health status
+    healthy: bool,
 }
 
-/// Cleanroom execution metrics
+/// Cleanroom metrics
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CleanroomMetrics {
     /// Session ID
     pub session_id: Uuid,
-    /// Start time
-    pub start_time: SerializableInstant,
-    /// End time
-    pub end_time: Option<SerializableInstant>,
-    /// Total duration in milliseconds
-    pub total_duration_ms: u64,
-    /// Number of tests executed
-    pub tests_executed: u32,
-    /// Number of tests passed
-    pub tests_passed: u32,
-    /// Number of tests failed
-    pub tests_failed: u32,
-    /// Number of containers created
-    pub containers_created: u32,
-    /// Number of containers destroyed
-    pub containers_destroyed: u32,
-    /// Peak memory usage in bytes
-    pub peak_memory_usage_bytes: u64,
-    /// Peak CPU usage percentage
-    pub peak_cpu_usage_percent: f64,
+    /// Total containers
+    pub total_containers: usize,
+    /// Running containers
+    pub running_containers: usize,
+    /// Failed containers
+    pub failed_containers: usize,
     /// Total tests executed
-    pub total_tests: u32,
-    /// Average execution time in milliseconds (serializable)
-    pub average_execution_time_ms: u64,
-    /// Resource usage metrics
+    pub total_tests_executed: usize,
+    /// Passed tests
+    pub passed_tests: usize,
+    /// Failed tests
+    pub failed_tests: usize,
+    /// Resource usage
     pub resource_usage: ResourceUsage,
-    /// Error count
-    pub error_count: u32,
-    /// Warning count
-    pub warning_count: u32,
-    /// Coverage percentage
-    pub coverage_percentage: f64,
     /// Performance metrics
     pub performance_metrics: HashMap<String, f64>,
+    /// Last updated
+    pub last_updated: SerializableInstant,
 }
 
-/// Resource usage metrics
+/// Resource usage
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ResourceUsage {
     /// CPU usage percentage
     pub cpu_usage_percent: f64,
     /// Memory usage in bytes
     pub memory_usage_bytes: u64,
+    /// Memory limit in bytes
+    pub memory_limit_bytes: u64,
     /// Disk usage in bytes
     pub disk_usage_bytes: u64,
-    /// Network bytes sent
-    pub network_bytes_sent: u64,
-    /// Network bytes received
-    pub network_bytes_received: u64,
-    /// Peak CPU usage percentage
-    pub peak_cpu_usage_percent: f64,
-    /// Peak memory usage bytes
-    pub peak_memory_usage_bytes: u64,
-    /// Peak disk usage bytes
-    pub peak_disk_usage_bytes: u64,
-    /// Network bytes transferred
-    pub network_bytes_transferred: u64,
-    /// Container count
-    pub container_count: u32,
+    /// Network usage in bytes
+    pub network_usage_bytes: u64,
+}
+
+/// Cleanroom guard for RAII cleanup
+pub struct CleanroomGuard {
+    /// Environment reference
+    environment: Arc<CleanroomEnvironment>,
 }
 
 impl CleanroomEnvironment {
     /// Create a new cleanroom environment
-    pub async fn new(config: CleanroomConfig) -> Result<Self> {
-        config.validate()?;
-
+    pub fn new(config: CleanroomConfig) -> Self {
         let session_id = Uuid::new_v4();
-        let start_time = Instant::now();
-        let backend = TestcontainerBackend::new("alpine:latest")?;
-        #[cfg(feature = "services")]
-        let services = ServiceManager::new();
+        let policy = Policy::new();
+        let resource_limits = ResourceLimits::new();
+        let deterministic_manager = Arc::new(RwLock::new(DeterministicManager::new()));
+        let coverage_collector = Arc::new(RwLock::new(CoverageCollector::new()));
+        let snapshot_manager = Arc::new(RwLock::new(SnapshotManager::new()));
+        let tracing_manager = Arc::new(RwLock::new(TracingManager::new()));
+        let test_report = Arc::new(RwLock::new(TestReport::new(session_id)));
+        let containers = Arc::new(RwLock::new(HashMap::new()));
+        let metrics = Arc::new(RwLock::new(CleanroomMetrics::new(session_id)));
+        let start_time = SerializableInstant::from(Instant::now());
 
-        let metrics = CleanroomMetrics {
-            session_id,
-            start_time: SerializableInstant::from(start_time),
-            end_time: None,
-            total_duration_ms: 0,
-            tests_executed: 0,
-            tests_passed: 0,
-            tests_failed: 0,
-            containers_created: 0,
-            containers_destroyed: 0,
-            peak_memory_usage_bytes: 0,
-            peak_cpu_usage_percent: 0.0,
-            total_tests: 0,
-            average_execution_time_ms: 0,
-            resource_usage: ResourceUsage {
-                cpu_usage_percent: 0.0,
-                memory_usage_bytes: 0,
-                disk_usage_bytes: 0,
-                network_bytes_sent: 0,
-                network_bytes_received: 0,
-                peak_cpu_usage_percent: 0.0,
-                peak_memory_usage_bytes: 0,
-                peak_disk_usage_bytes: 0,
-                network_bytes_transferred: 0,
-                container_count: 0,
-            },
-            error_count: 0,
-            warning_count: 0,
-            coverage_percentage: 0.0,
-            performance_metrics: HashMap::new(),
-        };
-
-        Ok(Self {
+        Self {
             session_id,
             config,
-            metrics: Arc::new(RwLock::new(metrics)),
-            container_registry: Arc::new(RwLock::new(HashMap::new())),
-            backend,
-            #[cfg(feature = "services")]
-            services,
+            policy,
+            resource_limits,
+            deterministic_manager,
+            coverage_collector,
+            snapshot_manager,
+            tracing_manager,
+            test_report,
+            containers,
+            metrics,
             start_time,
-        })
+            backend: "testcontainers".to_string(),
+            initialized: false,
+            healthy: false,
+        }
     }
 
     /// Get session ID
@@ -165,181 +152,415 @@ impl CleanroomEnvironment {
     }
 
     /// Get start time
-    pub fn start_time(&self) -> Instant {
+    pub fn start_time(&self) -> SerializableInstant {
         self.start_time
     }
 
     /// Get backend
-    pub fn backend(&self) -> &TestcontainerBackend {
+    pub fn backend(&self) -> &str {
         &self.backend
     }
 
-    /// Get services
-    #[cfg(feature = "services")]
-    pub fn services(&self) -> &ServiceManager {
-        &self.services
+    /// Check if initialized
+    pub fn is_initialized(&self) -> bool {
+        self.initialized
     }
 
-    /// Execute a test function
-    pub async fn execute_test<F, T>(&self, _test_name: &str, test_fn: F) -> Result<T>
-    where
-        F: FnOnce() -> Result<T>,
-    {
-        let start_time = Instant::now();
+    /// Check if healthy
+    pub fn is_healthy(&self) -> bool {
+        self.healthy
+    }
+
+    /// Get health status
+    pub async fn get_health_status(&self) -> String {
+        if self.healthy {
+            "Healthy".to_string()
+        } else {
+            "Unhealthy".to_string()
+        }
+    }
+
+    /// Start container
+    pub async fn start_container(&self, name: String, image: String) -> Result<()> {
+        let mut containers = self.containers.write().await;
+        
+        // Check resource limits
+        if containers.len() >= self.config.max_concurrent_containers as usize {
+            return Err(CleanroomError::resource_limit_exceeded(
+                "Maximum container limit reached"
+            ));
+        }
+
+        // Create generic container
+        let container = GenericContainer::new(
+            Uuid::new_v4().to_string(),
+            name.clone(),
+            image,
+            HashMap::new(),
+            HashMap::new(),
+            vec![],
+            None,
+        );
+
+        containers.insert(name, Box::new(container));
         
         // Update metrics
         {
             let mut metrics = self.metrics.write().await;
-            metrics.tests_executed += 1;
+            metrics.total_containers += 1;
+            metrics.running_containers += 1;
+            metrics.last_updated = SerializableInstant::from(Instant::now());
         }
 
-        let result = test_fn();
+        Ok(())
+    }
 
-        // Update metrics based on result
+    /// Check if container is running
+    pub async fn is_container_running(&self, name: &str) -> bool {
+        let containers = self.containers.read().await;
+        if let Some(container) = containers.get(name) {
+            matches!(container.get_status(), ContainerStatus::Running)
+        } else {
+            false
+        }
+    }
+
+    /// Stop container
+    pub async fn stop_container(&self, name: &str) -> Result<()> {
+        let mut containers = self.containers.write().await;
+        
+        if containers.remove(name).is_some() {
+            // Update metrics
+            {
+                let mut metrics = self.metrics.write().await;
+                metrics.running_containers = metrics.running_containers.saturating_sub(1);
+                metrics.last_updated = SerializableInstant::from(Instant::now());
+            }
+            Ok(())
+        } else {
+            Err(CleanroomError::container_error("Container not found"))
+        }
+    }
+
+    /// Get container info
+    pub async fn get_container_info(&self, name: &str) -> Result<String> {
+        let containers = self.containers.read().await;
+        if let Some(container) = containers.get(name) {
+            Ok(format!(
+                "Container: {}, ID: {}, Status: {:?}",
+                container.get_name(),
+                container.get_id(),
+                container.get_status()
+            ))
+        } else {
+            Err(CleanroomError::container_error("Container not found"))
+        }
+    }
+
+    /// Execute test
+    pub async fn execute_test(&self, test_name: String, test_func: impl Fn() -> Result<()>) -> Result<()> {
+        // Start coverage collection if enabled
+        if self.config.enable_coverage_tracking {
+            let mut coverage_collector = self.coverage_collector.write().await;
+            let _ = coverage_collector.start_collection().await;
+        }
+
+        // Start tracing if enabled
+        if self.config.enable_tracing {
+            let mut tracing_manager = self.tracing_manager.write().await;
+            let _ = tracing_manager.start_trace(test_name.clone(), None).await;
+        }
+
+        // Execute test
+        let start_time = Instant::now();
+        let result = test_func();
+        let duration = start_time.elapsed();
+
+        // Record test execution
+        {
+            let mut test_report = self.test_report.write().await;
+            let status = if result.is_ok() {
+                crate::report_fixed::TestStatus::Passed
+            } else {
+                crate::report_fixed::TestStatus::Failed
+            };
+            let _ = test_report.record_test_execution(test_name.clone(), status, duration);
+        }
+
+        // Update metrics
         {
             let mut metrics = self.metrics.write().await;
-            let duration = start_time.elapsed();
-            metrics.total_duration_ms += duration.as_millis() as u64;
-            
-            match &result {
-                Ok(_) => metrics.tests_passed += 1,
-                Err(_) => metrics.tests_failed += 1,
+            metrics.total_tests_executed += 1;
+            if result.is_ok() {
+                metrics.passed_tests += 1;
+            } else {
+                metrics.failed_tests += 1;
             }
+            metrics.last_updated = SerializableInstant::from(Instant::now());
         }
 
         result
     }
 
-    /// Get current metrics
-    pub async fn get_metrics(&self) -> CleanroomMetrics {
-        self.metrics.read().await.clone()
+    /// Execute deterministic test
+    pub async fn execute_deterministic_test(&self, test_name: String, test_func: impl Fn() -> Result<()>) -> Result<()> {
+        if !self.config.enable_deterministic_execution {
+            return Err(CleanroomError::deterministic_error("Deterministic execution is disabled"));
+        }
+
+        // Set deterministic seed
+        {
+            let deterministic_manager = self.deterministic_manager.read().await;
+            if let Some(seed) = self.config.deterministic_seed {
+                deterministic_manager.set_seed(seed);
+            }
+        }
+
+        self.execute_test(test_name, test_func).await
+    }
+
+    /// Create Postgres service
+    pub async fn create_postgres_service(&self, name: String, database_name: String) -> Result<()> {
+        let container = PostgresContainer::new(
+            Uuid::new_v4().to_string(),
+            name.clone(),
+            database_name,
+            "postgres".to_string(),
+            "password".to_string(),
+            5432,
+            "localhost".to_string(),
+        );
+
+        let mut containers = self.containers.write().await;
+        containers.insert(name, Box::new(container));
+
+        // Update metrics
+        {
+            let mut metrics = self.metrics.write().await;
+            metrics.total_containers += 1;
+            metrics.running_containers += 1;
+            metrics.last_updated = SerializableInstant::from(Instant::now());
+        }
+
+        Ok(())
+    }
+
+    /// Create Redis service
+    pub async fn create_redis_service(&self, name: String) -> Result<()> {
+        let container = RedisContainer::new(
+            Uuid::new_v4().to_string(),
+            name.clone(),
+            6379,
+            "localhost".to_string(),
+            None,
+        );
+
+        let mut containers = self.containers.write().await;
+        containers.insert(name, Box::new(container));
+
+        // Update metrics
+        {
+            let mut metrics = self.metrics.write().await;
+            metrics.total_containers += 1;
+            metrics.running_containers += 1;
+            metrics.last_updated = SerializableInstant::from(Instant::now());
+        }
+
+        Ok(())
+    }
+
+    /// Set policy
+    pub fn set_policy(&mut self, policy: Policy) -> Result<()> {
+        policy.validate()?;
+        self.policy = policy;
+        Ok(())
+    }
+
+    /// Get resource usage
+    pub async fn get_resource_usage(&self) -> ResourceUsage {
+        let containers = self.containers.read().await;
+        let mut total_cpu = 0.0;
+        let mut total_memory = 0;
+        let mut total_disk = 0;
+        let mut total_network = 0;
+
+        for container in containers.values() {
+            let metrics = container.get_metrics();
+            total_cpu += metrics.cpu_usage_percent;
+            total_memory += metrics.memory_usage_bytes;
+            total_disk += metrics.disk_usage_bytes;
+            total_network += metrics.network_rx_bytes + metrics.network_tx_bytes;
+        }
+
+        ResourceUsage {
+            cpu_usage_percent: total_cpu,
+            memory_usage_bytes: total_memory,
+            memory_limit_bytes: self.resource_limits.max_memory_mb as u64 * 1024 * 1024,
+            disk_usage_bytes: total_disk,
+            network_usage_bytes: total_network,
+        }
+    }
+
+    /// Set deterministic manager
+    pub async fn set_deterministic_manager(&self, manager: DeterministicManager) {
+        let mut deterministic_manager = self.deterministic_manager.write().await;
+        *deterministic_manager = manager;
+    }
+
+    /// Get coverage report
+    pub async fn get_coverage_report(&self) -> Result<String> {
+        let coverage_collector = self.coverage_collector.read().await;
+        let report = coverage_collector.get_report().await?;
+        Ok(format!("Coverage Report: {:.2}% overall coverage", report.summary.overall_coverage))
+    }
+
+    /// Create snapshot
+    pub async fn create_snapshot(&self, name: String, content: String) -> Result<()> {
+        let snapshot_manager = self.snapshot_manager.read().await;
+        snapshot_manager.capture_snapshot(
+            name,
+            content,
+            "text".to_string(),
+            crate::snapshots_fixed::SnapshotType::Text,
+        ).await
+    }
+
+    /// Get trace logs
+    pub async fn get_trace_logs(&self) -> Result<String> {
+        let tracing_manager = self.tracing_manager.read().await;
+        let summary = tracing_manager.get_trace_summary().await;
+        Ok(format!("Trace Summary: {} total traces, {} events", summary.total_traces, summary.total_events))
+    }
+
+    /// Generate comprehensive report
+    pub async fn generate_comprehensive_report(&self) -> Result<ComprehensiveReport> {
+        let test_report = self.test_report.read().await;
+        let mut comprehensive_report = ComprehensiveReport::new(self.session_id);
+        comprehensive_report.add_test_report(test_report.clone());
+        comprehensive_report.calculate_overall_summary();
+        Ok(comprehensive_report)
+    }
+
+    /// Initialize environment
+    pub async fn initialize(&mut self) -> Result<()> {
+        // Validate configuration
+        self.config.validate()?;
+        
+        // Validate policy
+        self.policy.validate()?;
+        
+        // Validate resource limits
+        self.resource_limits.validate()?;
+
+        self.initialized = true;
+        self.healthy = true;
+        
+        Ok(())
+    }
+
+    /// Cleanup environment
+    pub async fn cleanup(&mut self) -> Result<()> {
+        // Stop all containers
+        {
+            let mut containers = self.containers.write().await;
+            containers.clear();
+        }
+
+        // Stop coverage collection
+        if self.config.enable_coverage_tracking {
+            let mut coverage_collector = self.coverage_collector.write().await;
+            let _ = coverage_collector.stop_collection().await;
+        }
+
+        // Stop tracing
+        if self.config.enable_tracing {
+            let mut tracing_manager = self.tracing_manager.write().await;
+            let _ = tracing_manager.clear_traces().await;
+        }
+
+        // Clear snapshots
+        if self.config.enable_snapshot_testing {
+            let mut snapshot_manager = self.snapshot_manager.write().await;
+            let _ = snapshot_manager.clear_snapshots().await;
+        }
+
+        self.initialized = false;
+        self.healthy = false;
+        
+        Ok(())
+    }
+}
+
+impl CleanroomMetrics {
+    /// Create new cleanroom metrics
+    pub fn new(session_id: Uuid) -> Self {
+        Self {
+            session_id,
+            total_containers: 0,
+            running_containers: 0,
+            failed_containers: 0,
+            total_tests_executed: 0,
+            passed_tests: 0,
+            failed_tests: 0,
+            resource_usage: ResourceUsage::new(),
+            performance_metrics: HashMap::new(),
+            last_updated: SerializableInstant::from(Instant::now()),
+        }
     }
 
     /// Update metrics
-    pub async fn update_metrics<F>(&self, updater: F) -> Result<()>
-    where
-        F: FnOnce(&mut CleanroomMetrics),
-    {
-        let mut metrics = self.metrics.write().await;
-        updater(&mut metrics);
-        Ok(())
+    pub fn update(&mut self) {
+        self.last_updated = SerializableInstant::from(Instant::now());
     }
 
-    /// Register a container
-    pub async fn register_container(&self, name: String, container_id: String) -> Result<()> {
-        let mut registry = self.container_registry.write().await;
-        registry.insert(name, container_id);
-        
-        // Update metrics
-        let mut metrics = self.metrics.write().await;
-        metrics.containers_created += 1;
-        
-        Ok(())
-    }
-
-    /// Unregister a container
-    pub async fn unregister_container(&self, name: &str) -> Result<()> {
-        let mut registry = self.container_registry.write().await;
-        registry.remove(name);
-        
-        // Update metrics
-        let mut metrics = self.metrics.write().await;
-        metrics.containers_destroyed += 1;
-        
-        Ok(())
-    }
-
-    /// Get container registry
-    pub async fn get_container_registry(&self) -> HashMap<String, String> {
-        self.container_registry.read().await.clone()
-    }
-
-    /// Check if container is registered
-    pub async fn is_container_registered(&self, name: &str) -> bool {
-        self.container_registry.read().await.contains_key(name)
-    }
-
-    /// Get container count
-    pub async fn get_container_count(&self) -> usize {
-        self.container_registry.read().await.len()
-    }
-
-    /// Cleanup all resources
-    pub async fn cleanup(&self) -> Result<()> {
-        // Stop all services
-        #[cfg(feature = "services")]
-        self.services.stop_all().await?;
-        
-        // Clear container registry
-        {
-            let mut registry = self.container_registry.write().await;
-            registry.clear();
-        }
-        
-        // Update end time
-        {
-            let mut metrics = self.metrics.write().await;
-            metrics.end_time = Some(SerializableInstant::from(Instant::now()));
-        }
-        
-        Ok(())
-    }
-
-    /// Check if environment is healthy
-    pub async fn is_healthy(&self) -> bool {
-        // Check if services are running
-        #[cfg(feature = "services")]
-        if !self.services.is_healthy().await {
-            return false;
-        }
-        
-        // Check if backend is running
-        if !self.backend.is_running() {
-            return false;
-        }
-        
-        true
-    }
-
-    /// Get health status
-    pub async fn get_health_status(&self) -> HealthStatus {
-        if self.is_healthy().await {
-            HealthStatus::Healthy
+    /// Get success rate
+    pub fn get_success_rate(&self) -> f64 {
+        if self.total_tests_executed > 0 {
+            (self.passed_tests as f64 / self.total_tests_executed as f64) * 100.0
         } else {
-            HealthStatus::Unhealthy
+            0.0
         }
     }
 
-    /// Start a container
-    pub async fn start_container(&self, container_name: &str) -> Result<String> {
-        let container_id = format!("container_{}_{}", container_name, Uuid::new_v4());
-        self.register_container(container_name.to_string(), container_id.clone()).await?;
-        Ok(container_id)
-    }
-
-    /// Check if container is running
-    pub async fn is_container_running(&self, container_id: &str) -> Result<bool> {
-        let registry = self.container_registry.read().await;
-        Ok(registry.values().any(|id| id == container_id))
+    /// Get container health rate
+    pub fn get_container_health_rate(&self) -> f64 {
+        if self.total_containers > 0 {
+            ((self.total_containers - self.failed_containers) as f64 / self.total_containers as f64) * 100.0
+        } else {
+            100.0
+        }
     }
 }
 
-/// Health status enumeration
-#[derive(Debug, Clone, PartialEq)]
-pub enum HealthStatus {
-    /// Environment is healthy
-    Healthy,
-    /// Environment is unhealthy
-    Unhealthy,
-}
+impl ResourceUsage {
+    /// Create new resource usage
+    pub fn new() -> Self {
+        Self {
+            cpu_usage_percent: 0.0,
+            memory_usage_bytes: 0,
+            memory_limit_bytes: 0,
+            disk_usage_bytes: 0,
+            network_usage_bytes: 0,
+        }
+    }
 
-/// RAII guard for automatic cleanup
-pub struct CleanroomGuard {
-    environment: Arc<CleanroomEnvironment>,
+    /// Get memory usage percentage
+    pub fn get_memory_usage_percentage(&self) -> f64 {
+        if self.memory_limit_bytes > 0 {
+            (self.memory_usage_bytes as f64 / self.memory_limit_bytes as f64) * 100.0
+        } else {
+            0.0
+        }
+    }
+
+    /// Check if memory usage is high
+    pub fn is_memory_usage_high(&self, threshold: f64) -> bool {
+        self.get_memory_usage_percentage() > threshold
+    }
 }
 
 impl CleanroomGuard {
-    /// Create a new guard
+    /// Create new cleanroom guard
     pub fn new(environment: Arc<CleanroomEnvironment>) -> Self {
         Self { environment }
     }
@@ -347,513 +568,373 @@ impl CleanroomGuard {
 
 impl Drop for CleanroomGuard {
     fn drop(&mut self) {
-        // Note: We can't use async in Drop, so we'll just mark for cleanup
-        // The actual cleanup should be done explicitly
-    }
-}
-
-/// Container wrapper trait
-pub trait ContainerWrapper: Send + Sync {
-    /// Get container status
-    fn status(&self) -> ContainerStatus;
-    
-    /// Get container metrics
-    fn metrics(&self) -> ContainerMetrics;
-    
-    /// Wait for container to be ready
-    async fn wait_for_ready(&self) -> Result<()>;
-    
-    /// Get connection information
-    fn get_connection_info(&self) -> HashMap<String, String>;
-}
-
-/// Container status enumeration
-#[derive(Debug, Clone, PartialEq)]
-pub enum ContainerStatus {
-    /// Container is starting
-    Starting,
-    /// Container is ready
-    Ready,
-    /// Container is running
-    Running,
-    /// Container is stopped
-    Stopped,
-    /// Container failed
-    Failed,
-}
-
-/// Container metrics
-#[derive(Debug, Clone, Default)]
-pub struct ContainerMetrics {
-    /// CPU usage percentage
-    pub cpu_usage_percent: f64,
-    /// Memory usage bytes
-    pub memory_usage_bytes: u64,
-    /// Network bytes sent
-    pub network_bytes_sent: u64,
-    /// Network bytes received
-    pub network_bytes_received: u64,
-    /// Disk usage bytes
-    pub disk_usage_bytes: u64,
-}
-
-impl Default for CleanroomMetrics {
-    fn default() -> Self {
-        let session_id = Uuid::new_v4();
-        let start_time = Instant::now();
-        
-        Self {
-            session_id,
-            start_time: SerializableInstant::from(start_time),
-            end_time: None,
-            total_duration_ms: 0,
-            tests_executed: 0,
-            tests_passed: 0,
-            tests_failed: 0,
-            containers_created: 0,
-            containers_destroyed: 0,
-            peak_memory_usage_bytes: 0,
-            peak_cpu_usage_percent: 0.0,
-            total_tests: 0,
-            average_execution_time_ms: 0,
-            resource_usage: ResourceUsage {
-                cpu_usage_percent: 0.0,
-                memory_usage_bytes: 0,
-                disk_usage_bytes: 0,
-                network_bytes_sent: 0,
-                network_bytes_received: 0,
-                peak_cpu_usage_percent: 0.0,
-                peak_memory_usage_bytes: 0,
-                peak_disk_usage_bytes: 0,
-                network_bytes_transferred: 0,
-                container_count: 0,
-            },
-            error_count: 0,
-            warning_count: 0,
-            coverage_percentage: 0.0,
-            performance_metrics: HashMap::new(),
-        }
+        // Note: In a real implementation, this would need to be async
+        // For now, we'll just mark the environment as needing cleanup
+        // In practice, you'd want to use a different approach for async cleanup
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::error::CleanroomError;
-    use std::time::Duration;
 
-    #[tokio::test]
-    async fn test_cleanroom_creation() {
-        let config = CleanroomConfig::default();
-        let cleanroom = CleanroomEnvironment::new(config);
-        assert!(cleanroom.is_ok());
-    }
-
-    #[tokio::test]
-    async fn test_cleanroom_session_id() {
-        let config = CleanroomConfig::default();
-        let cleanroom = CleanroomEnvironment::new(config).unwrap();
-        assert!(!cleanroom.session_id().is_nil());
-    }
-
-    #[tokio::test]
-    async fn test_cleanroom_config() {
-        let config = CleanroomConfig::default();
-        let cleanroom = CleanroomEnvironment::new(config).unwrap();
-        assert_eq!(cleanroom.config().test_execution_timeout, Duration::from_secs(300));
-    }
-
-    #[tokio::test]
-    async fn test_cleanroom_start_time() {
-        let config = CleanroomConfig::default();
-        let cleanroom = CleanroomEnvironment::new(config).unwrap();
-        assert!(cleanroom.start_time().elapsed().as_millis() < 1000);
-    }
-
-    #[tokio::test]
-    async fn test_cleanroom_execute_test() {
-        let config = CleanroomConfig::default();
-        let cleanroom = CleanroomEnvironment::new(config).unwrap();
+    #[test]
+    fn test_cleanroom_environment_creation() {
+        let config = CleanroomConfig::new();
+        let environment = CleanroomEnvironment::new(config);
         
-        let result = cleanroom.execute_test("test", async {
-            Ok::<i32, CleanroomError>(42)
-        }).await;
+        assert!(!environment.session_id().is_nil());
+        assert_eq!(environment.backend(), "testcontainers");
+        assert!(!environment.is_initialized());
+        assert!(!environment.is_healthy());
+    }
+
+    #[test]
+    fn test_cleanroom_environment_getters() {
+        let config = CleanroomConfig::new();
+        let environment = CleanroomEnvironment::new(config);
         
+        assert!(!environment.session_id().is_nil());
+        assert_eq!(environment.backend(), "testcontainers");
+        assert!(!environment.is_initialized());
+        assert!(!environment.is_healthy());
+        assert_eq!(environment.config().max_concurrent_containers, 10);
+    }
+
+    #[tokio::test]
+    async fn test_cleanroom_environment_initialize() {
+        let config = CleanroomConfig::new();
+        let mut environment = CleanroomEnvironment::new(config);
+        
+        assert!(environment.initialize().await.is_ok());
+        assert!(environment.is_initialized());
+        assert!(environment.is_healthy());
+    }
+
+    #[tokio::test]
+    async fn test_cleanroom_environment_start_container() {
+        let config = CleanroomConfig::new();
+        let environment = CleanroomEnvironment::new(config);
+        
+        let result = environment.start_container("test-container".to_string(), "nginx:latest".to_string()).await;
         assert!(result.is_ok());
-        assert_eq!(result.unwrap(), 42);
-    }
-
-    #[tokio::test]
-    async fn test_cleanroom_execute_test_failure() {
-        let config = CleanroomConfig::default();
-        let cleanroom = CleanroomEnvironment::new(config).unwrap();
         
-        let result = cleanroom.execute_test("test", async {
-            Err::<i32, CleanroomError>(CleanroomError::internal_error("test error"))
-        }).await;
-        
-        assert!(result.is_err());
-    }
-
-    #[tokio::test]
-    async fn test_cleanroom_metrics() {
-        let config = CleanroomConfig::default();
-        let cleanroom = CleanroomEnvironment::new(config).unwrap();
-        
-        let metrics = cleanroom.get_metrics().await;
-        assert_eq!(metrics.session_id, cleanroom.session_id());
-        assert_eq!(metrics.tests_executed, 0);
-    }
-
-    #[tokio::test]
-    async fn test_cleanroom_update_metrics() {
-        let config = CleanroomConfig::default();
-        let cleanroom = CleanroomEnvironment::new(config).unwrap();
-        
-        cleanroom.update_metrics(|metrics| {
-            metrics.tests_executed = 5;
-        }).await.unwrap();
-        
-        let metrics = cleanroom.get_metrics().await;
-        assert_eq!(metrics.tests_executed, 5);
-    }
-
-    #[tokio::test]
-    async fn test_cleanroom_container_registry() {
-        let config = CleanroomConfig::default();
-        let cleanroom = CleanroomEnvironment::new(config).unwrap();
-        
-        cleanroom.register_container("test".to_string(), "container_id".to_string()).await.unwrap();
-        assert!(cleanroom.is_container_registered("test").await);
-        assert_eq!(cleanroom.get_container_count().await, 1);
-        
-        cleanroom.unregister_container("test").await.unwrap();
-        assert!(!cleanroom.is_container_registered("test").await);
-        assert_eq!(cleanroom.get_container_count().await, 0);
-    }
-
-    #[tokio::test]
-    async fn test_cleanroom_cleanup() {
-        let config = CleanroomConfig::default();
-        let cleanroom = CleanroomEnvironment::new(config).unwrap();
-        
-        cleanroom.register_container("test".to_string(), "container_id".to_string()).await.unwrap();
-        assert_eq!(cleanroom.get_container_count().await, 1);
-        
-        cleanroom.cleanup().await.unwrap();
-        assert_eq!(cleanroom.get_container_count().await, 0);
-    }
-
-    #[tokio::test]
-    async fn test_cleanroom_health_status() {
-        let config = CleanroomConfig::default();
-        let cleanroom = CleanroomEnvironment::new(config).unwrap();
-        
-        let status = cleanroom.get_health_status().await;
-        assert_eq!(status, HealthStatus::Healthy);
-    }
-
-    #[tokio::test]
-    async fn test_cleanroom_backend_access() {
-        let config = CleanroomConfig::default();
-        let cleanroom = CleanroomEnvironment::new(config).unwrap();
-        
-        let backend = cleanroom.backend();
-        assert_eq!(backend.name(), "testcontainers");
-        assert!(backend.is_available());
-    }
-
-    #[tokio::test]
-    async fn test_cleanroom_start_container() {
-        let config = CleanroomConfig::default();
-        let cleanroom = CleanroomEnvironment::new(config).unwrap();
-        
-        let container_id = cleanroom.start_container("test_container").await.unwrap();
-        assert!(!container_id.is_empty());
-        assert!(container_id.contains("test_container"));
-        
-        let is_running = cleanroom.is_container_running(&container_id).await.unwrap();
+        let is_running = environment.is_container_running("test-container").await;
         assert!(is_running);
     }
 
     #[tokio::test]
-    async fn test_cleanroom_container_lifecycle() {
-        let config = CleanroomConfig::default();
-        let cleanroom = CleanroomEnvironment::new(config).unwrap();
+    async fn test_cleanroom_environment_stop_container() {
+        let config = CleanroomConfig::new();
+        let environment = CleanroomEnvironment::new(config);
         
         // Start container
-        let container_id = cleanroom.start_container("lifecycle_test").await.unwrap();
+        environment.start_container("test-container".to_string(), "nginx:latest".to_string()).await.unwrap();
         
-        // Verify it's registered
-        assert!(cleanroom.is_container_registered("lifecycle_test").await);
-        assert_eq!(cleanroom.get_container_count().await, 1);
+        // Stop container
+        let result = environment.stop_container("test-container").await;
+        assert!(result.is_ok());
         
-        // Unregister container
-        cleanroom.unregister_container("lifecycle_test").await.unwrap();
-        
-        // Verify it's unregistered
-        assert!(!cleanroom.is_container_registered("lifecycle_test").await);
-        assert_eq!(cleanroom.get_container_count().await, 0);
+        let is_running = environment.is_container_running("test-container").await;
+        assert!(!is_running);
     }
 
     #[tokio::test]
-    async fn test_cleanroom_metrics_tracking() {
-        let config = CleanroomConfig::default();
-        let cleanroom = CleanroomEnvironment::new(config).unwrap();
+    async fn test_cleanroom_environment_get_container_info() {
+        let config = CleanroomConfig::new();
+        let environment = CleanroomEnvironment::new(config);
         
-        // Execute a test
-        let result = cleanroom.execute_test("metrics_test", async {
-            Ok::<String, CleanroomError>("test_result".to_string())
-        }).await.unwrap();
+        // Start container
+        environment.start_container("test-container".to_string(), "nginx:latest".to_string()).await.unwrap();
         
-        assert_eq!(result, "test_result");
+        // Get container info
+        let info = environment.get_container_info("test-container").await.unwrap();
+        assert!(info.contains("test-container"));
+        assert!(info.contains("Container:"));
         
-        // Check metrics were updated
-        let metrics = cleanroom.get_metrics().await;
-        assert_eq!(metrics.tests_executed, 1);
-        assert_eq!(metrics.tests_passed, 1);
-        assert_eq!(metrics.tests_failed, 0);
-        assert!(metrics.total_duration_ms > 0);
+        // Get non-existent container info
+        let result = environment.get_container_info("nonexistent").await;
+        assert!(result.is_err());
     }
 
     #[tokio::test]
-    async fn test_cleanroom_metrics_update() {
-        let config = CleanroomConfig::default();
-        let cleanroom = CleanroomEnvironment::new(config).unwrap();
+    async fn test_cleanroom_environment_execute_test() {
+        let config = CleanroomConfig::new();
+        let environment = CleanroomEnvironment::new(config);
         
-        // Update metrics directly
-        cleanroom.update_metrics(|metrics| {
-            metrics.tests_executed = 5;
-            metrics.tests_passed = 4;
-            metrics.tests_failed = 1;
-        }).await.unwrap();
-        
-        // Verify updates
-        let metrics = cleanroom.get_metrics().await;
-        assert_eq!(metrics.tests_executed, 5);
-        assert_eq!(metrics.tests_passed, 4);
-        assert_eq!(metrics.tests_failed, 1);
-    }
-
-    #[tokio::test]
-    async fn test_cleanroom_failed_test() {
-        let config = CleanroomConfig::default();
-        let cleanroom = CleanroomEnvironment::new(config).unwrap();
-        
-        // Execute a failing test
-        let result = cleanroom.execute_test("failing_test", async {
-            Err::<String, CleanroomError>(CleanroomError::internal_error("test failure"))
+        let result = environment.execute_test("test_example".to_string(), || {
+            Ok(())
         }).await;
         
-        assert!(result.is_err());
-        
-        // Check metrics were updated
-        let metrics = cleanroom.get_metrics().await;
-        assert_eq!(metrics.tests_executed, 1);
-        assert_eq!(metrics.tests_passed, 0);
-        assert_eq!(metrics.tests_failed, 1);
+        assert!(result.is_ok());
     }
 
     #[tokio::test]
-    async fn test_cleanroom_container_registry() {
-        let config = CleanroomConfig::default();
-        let cleanroom = CleanroomEnvironment::new(config).unwrap();
+    async fn test_cleanroom_environment_execute_deterministic_test() {
+        let config = CleanroomConfig::new();
+        let environment = CleanroomEnvironment::new(config);
         
-        // Register multiple containers
-        cleanroom.register_container("container1".to_string(), "id1".to_string()).await.unwrap();
-        cleanroom.register_container("container2".to_string(), "id2".to_string()).await.unwrap();
+        let result = environment.execute_deterministic_test("test_example".to_string(), || {
+            Ok(())
+        }).await;
         
-        // Check registry
-        let registry = cleanroom.get_container_registry().await;
-        assert_eq!(registry.len(), 2);
-        assert_eq!(registry.get("container1"), Some(&"id1".to_string()));
-        assert_eq!(registry.get("container2"), Some(&"id2".to_string()));
-        
-        // Check metrics
-        let metrics = cleanroom.get_metrics().await;
-        assert_eq!(metrics.containers_created, 2);
+        assert!(result.is_ok());
     }
 
     #[tokio::test]
-    async fn test_cleanroom_cleanup() {
-        let config = CleanroomConfig::default();
-        let cleanroom = CleanroomEnvironment::new(config).unwrap();
+    async fn test_cleanroom_environment_create_postgres_service() {
+        let config = CleanroomConfig::new();
+        let environment = CleanroomEnvironment::new(config);
         
-        // Add some data
-        cleanroom.register_container("test".to_string(), "id".to_string()).await.unwrap();
-        cleanroom.execute_test("test", async {
-            Ok::<String, CleanroomError>("result".to_string())
-        }).await.unwrap();
+        let result = environment.create_postgres_service(
+            "postgres-service".to_string(),
+            "testdb".to_string()
+        ).await;
         
-        // Verify data exists
-        assert_eq!(cleanroom.get_container_count().await, 1);
-        let metrics = cleanroom.get_metrics().await;
-        assert_eq!(metrics.tests_executed, 1);
+        assert!(result.is_ok());
+        
+        let is_running = environment.is_container_running("postgres-service").await;
+        assert!(is_running);
+    }
+
+    #[tokio::test]
+    async fn test_cleanroom_environment_create_redis_service() {
+        let config = CleanroomConfig::new();
+        let environment = CleanroomEnvironment::new(config);
+        
+        let result = environment.create_redis_service("redis-service".to_string()).await;
+        assert!(result.is_ok());
+        
+        let is_running = environment.is_container_running("redis-service").await;
+        assert!(is_running);
+    }
+
+    #[test]
+    fn test_cleanroom_environment_set_policy() {
+        let config = CleanroomConfig::new();
+        let mut environment = CleanroomEnvironment::new(config);
+        
+        let policy = Policy::new();
+        let result = environment.set_policy(policy);
+        assert!(result.is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_cleanroom_environment_get_resource_usage() {
+        let config = CleanroomConfig::new();
+        let environment = CleanroomEnvironment::new(config);
+        
+        let usage = environment.get_resource_usage().await;
+        assert_eq!(usage.cpu_usage_percent, 0.0);
+        assert_eq!(usage.memory_usage_bytes, 0);
+        assert_eq!(usage.disk_usage_bytes, 0);
+        assert_eq!(usage.network_usage_bytes, 0);
+    }
+
+    #[tokio::test]
+    async fn test_cleanroom_environment_set_deterministic_manager() {
+        let config = CleanroomConfig::new();
+        let environment = CleanroomEnvironment::new(config);
+        
+        let manager = DeterministicManager::new();
+        environment.set_deterministic_manager(manager).await;
+        
+        // Test passes if no panic occurs
+        assert!(true);
+    }
+
+    #[tokio::test]
+    async fn test_cleanroom_environment_get_coverage_report() {
+        let config = CleanroomConfig::new();
+        let environment = CleanroomEnvironment::new(config);
+        
+        let report = environment.get_coverage_report().await.unwrap();
+        assert!(report.contains("Coverage Report"));
+    }
+
+    #[tokio::test]
+    async fn test_cleanroom_environment_create_snapshot() {
+        let config = CleanroomConfig::new();
+        let environment = CleanroomEnvironment::new(config);
+        
+        let result = environment.create_snapshot(
+            "test-snapshot".to_string(),
+            "test content".to_string()
+        ).await;
+        
+        assert!(result.is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_cleanroom_environment_get_trace_logs() {
+        let config = CleanroomConfig::new();
+        let environment = CleanroomEnvironment::new(config);
+        
+        let logs = environment.get_trace_logs().await.unwrap();
+        assert!(logs.contains("Trace Summary"));
+    }
+
+    #[tokio::test]
+    async fn test_cleanroom_environment_generate_comprehensive_report() {
+        let config = CleanroomConfig::new();
+        let environment = CleanroomEnvironment::new(config);
+        
+        let report = environment.generate_comprehensive_report().await.unwrap();
+        assert_eq!(report.session_id, environment.session_id());
+    }
+
+    #[tokio::test]
+    async fn test_cleanroom_environment_cleanup() {
+        let config = CleanroomConfig::new();
+        let mut environment = CleanroomEnvironment::new(config);
+        
+        // Initialize
+        environment.initialize().await.unwrap();
+        assert!(environment.is_initialized());
         
         // Cleanup
-        cleanroom.cleanup().await.unwrap();
-        
-        // Verify cleanup
-        assert_eq!(cleanroom.get_container_count().await, 0);
-        let metrics_after = cleanroom.get_metrics().await;
-        assert!(metrics_after.end_time.is_some());
+        let result = environment.cleanup().await;
+        assert!(result.is_ok());
+        assert!(!environment.is_initialized());
+        assert!(!environment.is_healthy());
     }
 
     #[tokio::test]
-    async fn test_cleanroom_guard() {
-        let config = CleanroomConfig::default();
-        let cleanroom = CleanroomEnvironment::new(config).unwrap();
-        let cleanroom_arc = std::sync::Arc::new(cleanroom);
+    async fn test_cleanroom_environment_get_health_status() {
+        let config = CleanroomConfig::new();
+        let environment = CleanroomEnvironment::new(config);
         
-        let guard = CleanroomGuard::new(cleanroom_arc.clone());
-        
-        // Guard should be created successfully
-        assert_eq!(guard.environment.session_id(), cleanroom_arc.session_id());
-        
-        // Guard should be dropped automatically
-        drop(guard);
+        let status = environment.get_health_status().await;
+        assert_eq!(status, "Unhealthy");
     }
 
-    #[tokio::test]
-    async fn test_container_status_enum() {
-        // Test all ContainerStatus variants
-        let statuses = vec![
-            ContainerStatus::Starting,
-            ContainerStatus::Ready,
-            ContainerStatus::Running,
-            ContainerStatus::Stopped,
-            ContainerStatus::Failed,
-        ];
+    #[test]
+    fn test_cleanroom_metrics_creation() {
+        let session_id = Uuid::new_v4();
+        let metrics = CleanroomMetrics::new(session_id);
         
-        for status in statuses {
-            assert!(matches!(status, ContainerStatus::Starting | ContainerStatus::Ready | 
-                ContainerStatus::Running | ContainerStatus::Stopped | ContainerStatus::Failed));
-        }
+        assert_eq!(metrics.session_id, session_id);
+        assert_eq!(metrics.total_containers, 0);
+        assert_eq!(metrics.running_containers, 0);
+        assert_eq!(metrics.failed_containers, 0);
+        assert_eq!(metrics.total_tests_executed, 0);
+        assert_eq!(metrics.passed_tests, 0);
+        assert_eq!(metrics.failed_tests, 0);
     }
 
-    #[tokio::test]
-    async fn test_container_metrics_default() {
-        let metrics = ContainerMetrics::default();
+    #[test]
+    fn test_cleanroom_metrics_get_success_rate() {
+        let session_id = Uuid::new_v4();
+        let mut metrics = CleanroomMetrics::new(session_id);
         
-        assert_eq!(metrics.cpu_usage_percent, 0.0);
-        assert_eq!(metrics.memory_usage_bytes, 0);
-        assert_eq!(metrics.network_bytes_sent, 0);
-        assert_eq!(metrics.network_bytes_received, 0);
-        assert_eq!(metrics.disk_usage_bytes, 0);
+        metrics.total_tests_executed = 10;
+        metrics.passed_tests = 8;
+        
+        assert_eq!(metrics.get_success_rate(), 80.0);
+        
+        metrics.total_tests_executed = 0;
+        assert_eq!(metrics.get_success_rate(), 0.0);
     }
 
-    #[tokio::test]
-    async fn test_cleanroom_metrics_default() {
-        let metrics = CleanroomMetrics::default();
+    #[test]
+    fn test_cleanroom_metrics_get_container_health_rate() {
+        let session_id = Uuid::new_v4();
+        let mut metrics = CleanroomMetrics::new(session_id);
         
-        assert!(!metrics.session_id.is_nil());
-        assert_eq!(metrics.tests_executed, 0);
-        assert_eq!(metrics.tests_passed, 0);
-        assert_eq!(metrics.tests_failed, 0);
-        assert_eq!(metrics.containers_created, 0);
-        assert_eq!(metrics.containers_destroyed, 0);
-        assert_eq!(metrics.peak_memory_usage_bytes, 0);
-        assert_eq!(metrics.peak_cpu_usage_percent, 0.0);
-        assert_eq!(metrics.total_tests, 0);
-        assert_eq!(metrics.average_execution_time_ms, 0);
-        assert_eq!(metrics.error_count, 0);
-        assert_eq!(metrics.warning_count, 0);
-        assert_eq!(metrics.coverage_percentage, 0.0);
-        assert!(metrics.performance_metrics.is_empty());
+        metrics.total_containers = 10;
+        metrics.failed_containers = 2;
+        
+        assert_eq!(metrics.get_container_health_rate(), 80.0);
+        
+        metrics.total_containers = 0;
+        assert_eq!(metrics.get_container_health_rate(), 100.0);
     }
 
-    #[tokio::test]
-    async fn test_resource_usage_struct() {
-        let resource_usage = ResourceUsage {
-            cpu_usage_percent: 50.0,
-            memory_usage_bytes: 1024,
-            disk_usage_bytes: 2048,
-            network_bytes_sent: 100,
-            network_bytes_received: 200,
-            peak_cpu_usage_percent: 75.0,
-            peak_memory_usage_bytes: 2048,
-            peak_disk_usage_bytes: 4096,
-            network_bytes_transferred: 300,
-            container_count: 5,
+    #[test]
+    fn test_resource_usage_creation() {
+        let usage = ResourceUsage::new();
+        
+        assert_eq!(usage.cpu_usage_percent, 0.0);
+        assert_eq!(usage.memory_usage_bytes, 0);
+        assert_eq!(usage.memory_limit_bytes, 0);
+        assert_eq!(usage.disk_usage_bytes, 0);
+        assert_eq!(usage.network_usage_bytes, 0);
+    }
+
+    #[test]
+    fn test_resource_usage_get_memory_usage_percentage() {
+        let mut usage = ResourceUsage::new();
+        usage.memory_usage_bytes = 256 * 1024 * 1024; // 256MB
+        usage.memory_limit_bytes = 512 * 1024 * 1024; // 512MB
+        
+        assert_eq!(usage.get_memory_usage_percentage(), 50.0);
+        
+        usage.memory_limit_bytes = 0;
+        assert_eq!(usage.get_memory_usage_percentage(), 0.0);
+    }
+
+    #[test]
+    fn test_resource_usage_is_memory_usage_high() {
+        let mut usage = ResourceUsage::new();
+        usage.memory_usage_bytes = 400 * 1024 * 1024; // 400MB
+        usage.memory_limit_bytes = 512 * 1024 * 1024; // 512MB
+        
+        assert!(usage.is_memory_usage_high(75.0));
+        assert!(!usage.is_memory_usage_high(85.0));
+    }
+
+    #[test]
+    fn test_cleanroom_guard_creation() {
+        let config = CleanroomConfig::new();
+        let environment = Arc::new(CleanroomEnvironment::new(config));
+        let _guard = CleanroomGuard::new(environment);
+        
+        // Test passes if no panic occurs
+        assert!(true);
+    }
+
+    #[test]
+    fn test_cleanroom_metrics_serialization() {
+        let session_id = Uuid::new_v4();
+        let mut metrics = CleanroomMetrics::new(session_id);
+        metrics.total_containers = 5;
+        metrics.running_containers = 3;
+        metrics.failed_containers = 1;
+        metrics.total_tests_executed = 10;
+        metrics.passed_tests = 8;
+        metrics.failed_tests = 2;
+        metrics.performance_metrics.insert("cpu_usage".to_string(), 75.5);
+
+        let json = serde_json::to_string(&metrics).unwrap();
+        let deserialized: CleanroomMetrics = serde_json::from_str(&json).unwrap();
+        
+        assert_eq!(metrics.session_id, deserialized.session_id);
+        assert_eq!(metrics.total_containers, deserialized.total_containers);
+        assert_eq!(metrics.running_containers, deserialized.running_containers);
+        assert_eq!(metrics.failed_containers, deserialized.failed_containers);
+        assert_eq!(metrics.total_tests_executed, deserialized.total_tests_executed);
+        assert_eq!(metrics.passed_tests, deserialized.passed_tests);
+        assert_eq!(metrics.failed_tests, deserialized.failed_tests);
+        assert_eq!(metrics.performance_metrics, deserialized.performance_metrics);
+    }
+
+    #[test]
+    fn test_resource_usage_serialization() {
+        let usage = ResourceUsage {
+            cpu_usage_percent: 75.5,
+            memory_usage_bytes: 256 * 1024 * 1024,
+            memory_limit_bytes: 512 * 1024 * 1024,
+            disk_usage_bytes: 1024 * 1024 * 1024,
+            network_usage_bytes: 128 * 1024 * 1024,
         };
-        
-        assert_eq!(resource_usage.cpu_usage_percent, 50.0);
-        assert_eq!(resource_usage.memory_usage_bytes, 1024);
-        assert_eq!(resource_usage.disk_usage_bytes, 2048);
-        assert_eq!(resource_usage.network_bytes_sent, 100);
-        assert_eq!(resource_usage.network_bytes_received, 200);
-        assert_eq!(resource_usage.peak_cpu_usage_percent, 75.0);
-        assert_eq!(resource_usage.peak_memory_usage_bytes, 2048);
-        assert_eq!(resource_usage.peak_disk_usage_bytes, 4096);
-        assert_eq!(resource_usage.network_bytes_transferred, 300);
-        assert_eq!(resource_usage.container_count, 5);
-    }
 
-    #[tokio::test]
-    async fn test_health_status_enum() {
-        let healthy = HealthStatus::Healthy;
-        let unhealthy = HealthStatus::Unhealthy;
+        let json = serde_json::to_string(&usage).unwrap();
+        let deserialized: ResourceUsage = serde_json::from_str(&json).unwrap();
         
-        assert_eq!(healthy, HealthStatus::Healthy);
-        assert_eq!(unhealthy, HealthStatus::Unhealthy);
-        assert_ne!(healthy, unhealthy);
-    }
-
-    #[tokio::test]
-    async fn test_cleanroom_serialization() {
-        let config = CleanroomConfig::default();
-        let cleanroom = CleanroomEnvironment::new(config).unwrap();
-        
-        // Test metrics serialization
-        let metrics = cleanroom.get_metrics().await;
-        let serialized = serde_json::to_string(&metrics);
-        assert!(serialized.is_ok());
-        
-        let deserialized: Result<CleanroomMetrics, _> = serde_json::from_str(&serialized.unwrap());
-        assert!(deserialized.is_ok());
-    }
-
-    #[tokio::test]
-    async fn test_cleanroom_concurrent_operations() {
-        let config = CleanroomConfig::default();
-        let cleanroom = CleanroomEnvironment::new(config).unwrap();
-        
-        // Test concurrent container operations
-        let handles: Vec<_> = (0..5).map(|i| {
-            let cleanroom_clone = std::sync::Arc::new(cleanroom.clone());
-            tokio::spawn(async move {
-                cleanroom_clone.register_container(
-                    format!("concurrent_{}", i),
-                    format!("id_{}", i)
-                ).await
-            })
-        }).collect();
-        
-        // Wait for all operations to complete
-        for handle in handles {
-            assert!(handle.await.unwrap().is_ok());
-        }
-        
-        // Verify all containers were registered
-        assert_eq!(cleanroom.get_container_count().await, 5);
-    }
-
-    #[tokio::test]
-    async fn test_cleanroom_error_handling() {
-        let config = CleanroomConfig::default();
-        let cleanroom = CleanroomEnvironment::new(config).unwrap();
-        
-        // Test error handling in execute_test
-        let result = cleanroom.execute_test("error_test", async {
-            Err::<String, CleanroomError>(CleanroomError::validation_error("test error"))
-        }).await;
-        
-        assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().contains("test error"));
-        
-        // Verify metrics still updated
-        let metrics = cleanroom.get_metrics().await;
-        assert_eq!(metrics.tests_executed, 1);
-        assert_eq!(metrics.tests_failed, 1);
+        assert_eq!(usage.cpu_usage_percent, deserialized.cpu_usage_percent);
+        assert_eq!(usage.memory_usage_bytes, deserialized.memory_usage_bytes);
+        assert_eq!(usage.memory_limit_bytes, deserialized.memory_limit_bytes);
+        assert_eq!(usage.disk_usage_bytes, deserialized.disk_usage_bytes);
+        assert_eq!(usage.network_usage_bytes, deserialized.network_usage_bytes);
     }
 }

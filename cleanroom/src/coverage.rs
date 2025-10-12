@@ -3,7 +3,6 @@
 use crate::error::Result;
 use crate::report::CoverageData;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use std::path::PathBuf;
 use uuid::Uuid;
 

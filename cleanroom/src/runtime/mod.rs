@@ -1,13 +1,15 @@
 //! Runtime execution environment
 //!
 //! Provides runtime execution capabilities including command execution,
-//! timeout handling, and resource management.
+//! timeout handling, resource management, and structured concurrency.
 
 use crate::error::Result;
 use crate::policy::Policy;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::time::Duration;
+
+pub mod orchestrator;
 
 /// Runtime configuration
 #[derive(Debug, Clone)]
@@ -240,24 +242,22 @@ impl Runtime {
 
     /// Apply network constraints
     fn apply_network_constraints(&mut self) -> Result<()> {
-        match &self.config.policy.security {
-            crate::policy::NetProfile::Offline => {
-                // Block network access
-                self.context.env.insert("CLEANROOM_NET".to_string(), "offline".to_string());
-            }
-            crate::policy::NetProfile::Limited { allowed_ports } => {
-                // Allow only specific ports
-                self.context.env.insert("CLEANROOM_NET".to_string(), "limited".to_string());
-                let ports_str = allowed_ports.iter()
-                    .map(|p| p.to_string())
-                    .collect::<Vec<_>>()
-                    .join(",");
-                self.context.env.insert("CLEANROOM_ALLOWED_PORTS".to_string(), ports_str);
-            }
-            crate::policy::NetProfile::Open => {
-                // Allow all network access
-                self.context.env.insert("CLEANROOM_NET".to_string(), "open".to_string());
-            }
+        let security = &self.config.policy.security;
+
+        if security.enable_network_isolation {
+            // Block network access
+            self.context.env.insert("CLEANROOM_NET".to_string(), "offline".to_string());
+        } else if !security.allowed_ports.is_empty() {
+            // Allow only specific ports
+            self.context.env.insert("CLEANROOM_NET".to_string(), "limited".to_string());
+            let ports_str = security.allowed_ports.iter()
+                .map(|p| p.to_string())
+                .collect::<Vec<_>>()
+                .join(",");
+            self.context.env.insert("CLEANROOM_ALLOWED_PORTS".to_string(), ports_str);
+        } else {
+            // Allow all network access
+            self.context.env.insert("CLEANROOM_NET".to_string(), "open".to_string());
         }
 
         Ok(())
@@ -265,15 +265,12 @@ impl Runtime {
 
     /// Apply filesystem constraints
     fn apply_filesystem_constraints(&mut self) -> Result<()> {
-        match &self.config.policy.execution {
-            crate::policy::FsProfile::ReadOnly { workdir } => {
-                self.context.env.insert("CLEANROOM_FS".to_string(), "readonly".to_string());
-                self.context.env.insert("CLEANROOM_WORKDIR".to_string(), workdir.clone());
-            }
-            crate::policy::FsProfile::Writable { workdir } => {
-                self.context.env.insert("CLEANROOM_FS".to_string(), "writable".to_string());
-                self.context.env.insert("CLEANROOM_WORKDIR".to_string(), workdir.clone());
-            }
+        let execution = &self.config.policy.execution;
+
+        if execution.enable_test_isolation {
+            self.context.env.insert("CLEANROOM_FS".to_string(), "isolated".to_string());
+        } else {
+            self.context.env.insert("CLEANROOM_FS".to_string(), "normal".to_string());
         }
 
         Ok(())

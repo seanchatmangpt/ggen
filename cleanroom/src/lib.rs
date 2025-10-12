@@ -53,6 +53,7 @@ pub mod tracing;
 pub mod report;
 pub mod artifacts;
 pub mod attest;
+pub mod runtime;
 
 // Advanced modules (optional features)
 #[cfg(feature = "services")]

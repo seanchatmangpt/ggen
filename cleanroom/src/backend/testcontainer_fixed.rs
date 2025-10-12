@@ -10,8 +10,8 @@ use std::time::{Duration, Instant};
 use testcontainers::{
     GenericImage,
     ImageExt,
-    runners::SyncRunner,
     core::ExecCommand,
+    runners::SyncRunner,
 };
 
 /// Testcontainers backend for containerized execution
