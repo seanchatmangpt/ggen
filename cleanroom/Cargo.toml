@@ -21,7 +21,7 @@ async-trait = "0.1"
 base64 = "0.22"
 tracing = "0.1"
 uuid = { version = "1.0", features = ["v4", "serde"] }
-rand = "0.8"
+rand = "0.9"
 rand_chacha = "0.3"
 fastrand = "2.0"
 regex = "1.0"
@@ -32,8 +32,8 @@ whoami = "1.0"
 sha2 = "0.10"
 
 # Container dependencies (required)
-testcontainers = { version = "0.22", features = ["blocking"] }
-testcontainers-modules = { version = "0.10", features = ["postgres", "redis"] }
+testcontainers = { version = "0.25", features = ["blocking"] }
+testcontainers-modules = { version = "0.13", features = ["postgres", "redis"] }
 futures-util = "0.3"
 
 # Optional features
@@ -48,10 +48,10 @@ name = "cleanroom-bench"
 path = "src/bin/bench.rs"
 
 [dev-dependencies]
-criterion = "0.5"
+criterion = "0.7"
 proptest = "1.0"
 insta = "1.0"
-cucumber = { version = "0.20", features = ["macros"] }
+cucumber = { version = "0.21", features = ["macros"] }
 assert_cmd = "2.0"
 predicates = "3.0"
 mockito = "1.0"
