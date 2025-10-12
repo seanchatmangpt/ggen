@@ -1,0 +1,281 @@
+---
+to: "data/queries.sparql"
+vars:
+  project_name: "Microservices Architecture"
+  description: "SPARQL queries for domain analysis and service discovery"
+rdf_inline:
+  - "@prefix ex: <https://example.com/microservices/> . @prefix schema: <http://schema.org/> ."
+sparql:
+  service_dependencies: "SELECT ?service ?dependsOn WHERE { ?service ex:dependsOn ?dependsOn }"
+  entity_management: "SELECT ?service ?manages WHERE { ?service ex:manages ?manages }"
+  service_handlers: "SELECT ?service ?handles WHERE { ?service ex:handles ?handles }"
+---
+# {{ project_name }} - SPARQL Queries
+# {{ description }}
+#
+# This file contains SPARQL queries for analyzing the domain model,
+# service dependencies, and generating insights about the microservices architecture.
+
+# Query 1: Service Dependencies Analysis
+# Find all service dependencies and create a dependency graph
+PREFIX ex: <https://example.com/microservices/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?service ?serviceName ?dependsOn ?dependsOnName WHERE {
+    ?service a ex:Service ;
+             rdfs:label ?serviceName ;
+             ex:dependsOn ?dependsOn .
+    ?dependsOn rdfs:label ?dependsOnName .
+}
+ORDER BY ?service ?dependsOn
+
+# Query 2: Entity Management Mapping
+# Map which services manage which entities
+PREFIX ex: <https://example.com/microservices/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?service ?serviceName ?manages ?managesName WHERE {
+    ?service a ex:Service ;
+             rdfs:label ?serviceName ;
+             ex:manages ?manages .
+    ?manages rdfs:label ?managesName .
+}
+ORDER BY ?service ?manages
+
+# Query 3: Service Capabilities
+# List all capabilities handled by each service
+PREFIX ex: <https://example.com/microservices/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?service ?serviceName ?handles WHERE {
+    ?service a ex:Service ;
+             rdfs:label ?serviceName ;
+             ex:handles ?handles .
+}
+ORDER BY ?service ?handles
+
+# Query 4: Framework Distribution
+# Analyze which frameworks are used across services
+PREFIX ex: <https://example.com/microservices/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?framework (COUNT(?service) as ?serviceCount) WHERE {
+    ?service a ex:Service ;
+             ex:framework ?framework .
+}
+GROUP BY ?framework
+ORDER BY DESC(?serviceCount)
+
+# Query 5: Port Allocation
+# Check port allocation and identify conflicts
+PREFIX ex: <https://example.com/microservices/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?service ?serviceName ?port WHERE {
+    ?service a ex:Service ;
+             rdfs:label ?serviceName ;
+             ex:port ?port .
+}
+ORDER BY ?port
+
+# Query 6: Entity Relationships
+# Analyze relationships between domain entities
+PREFIX ex: <https://example.com/microservices/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX schema: <http://schema.org/>
+
+SELECT ?entity ?entityName ?property ?propertyName ?range ?rangeName WHERE {
+    ?entity a schema:Person, schema:Product, schema:Order, schema:Payment, schema:Category ;
+            rdfs:label ?entityName ;
+            schema:hasProperty ?property .
+    ?property rdfs:label ?propertyName ;
+              rdfs:range ?range .
+    ?range rdfs:label ?rangeName .
+}
+ORDER BY ?entity ?property
+
+# Query 7: Service Communication Patterns
+# Identify communication patterns between services
+PREFIX ex: <https://example.com/microservices/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?sourceService ?sourceName ?targetService ?targetName ?relationship WHERE {
+    {
+        ?sourceService a ex:Service ;
+                      rdfs:label ?sourceName ;
+                      ex:dependsOn ?targetService .
+        ?targetService rdfs:label ?targetName .
+        BIND("depends_on" as ?relationship)
+    }
+    UNION
+    {
+        ?sourceService a ex:Service ;
+                      rdfs:label ?sourceName ;
+                      ex:manages ?entity .
+        ?targetService a ex:Service ;
+                      rdfs:label ?targetName ;
+                      ex:manages ?entity .
+        FILTER(?sourceService != ?targetService)
+        BIND("shares_entity" as ?relationship)
+    }
+}
+ORDER BY ?sourceService ?targetService
+
+# Query 8: Data Flow Analysis
+# Analyze data flow through the system
+PREFIX ex: <https://example.com/microservices/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?entity ?entityName ?service ?serviceName ?operation WHERE {
+    ?service a ex:Service ;
+             rdfs:label ?serviceName ;
+             ex:manages ?entity ;
+             ex:handles ?operation .
+    ?entity rdfs:label ?entityName .
+}
+ORDER BY ?entity ?service ?operation
+
+# Query 9: Service Health Monitoring
+# Generate service health check queries
+PREFIX ex: <https://example.com/microservices/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?service ?serviceName ?port ?framework ?healthEndpoint WHERE {
+    ?service a ex:Service ;
+             rdfs:label ?serviceName ;
+             ex:port ?port ;
+             ex:framework ?framework .
+    BIND(CONCAT("http://localhost:", STR(?port), "/health") as ?healthEndpoint)
+}
+ORDER BY ?port
+
+# Query 10: API Documentation Generation
+# Generate API documentation structure
+PREFIX ex: <https://example.com/microservices/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?service ?serviceName ?framework ?port ?baseUrl ?endpoints WHERE {
+    ?service a ex:Service ;
+             rdfs:label ?serviceName ;
+             ex:framework ?framework ;
+             ex:port ?port .
+    BIND(CONCAT("http://localhost:", STR(?port), "/api/v1") as ?baseUrl)
+    BIND(CONCAT("GET /health, GET /", LCASE(?serviceName), "s, POST /", LCASE(?serviceName), "s") as ?endpoints)
+}
+ORDER BY ?port
+
+# Query 11: Database Schema Generation
+# Generate database schema for entities
+PREFIX ex: <https://example.com/microservices/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX schema: <http://schema.org/>
+
+SELECT ?entity ?entityName ?property ?propertyName ?propertyType WHERE {
+    ?entity a schema:Person, schema:Product, schema:Order, schema:Payment, schema:Category ;
+            rdfs:label ?entityName ;
+            schema:hasProperty ?property .
+    ?property rdfs:label ?propertyName .
+    BIND(
+        IF(CONTAINS(STR(?property), "Id"), "UUID",
+        IF(CONTAINS(STR(?property), "email"), "VARCHAR(255)",
+        IF(CONTAINS(STR(?property), "name"), "VARCHAR(100)",
+        IF(CONTAINS(STR(?property), "description"), "TEXT",
+        IF(CONTAINS(STR(?property), "price") || CONTAINS(STR(?property), "amount"), "DECIMAL(10,2)",
+        IF(CONTAINS(STR(?property), "quantity") || CONTAINS(STR(?property), "inventory"), "INTEGER",
+        IF(CONTAINS(STR(?property), "created") || CONTAINS(STR(?property), "updated"), "TIMESTAMP",
+        IF(CONTAINS(STR(?property), "active"), "BOOLEAN",
+        "VARCHAR(255)"))))))))
+    as ?propertyType)
+}
+ORDER BY ?entity ?property
+
+# Query 12: Service Configuration Generation
+# Generate configuration files for services
+PREFIX ex: <https://example.com/microservices/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?service ?serviceName ?framework ?port ?config WHERE {
+    ?service a ex:Service ;
+             rdfs:label ?serviceName ;
+             ex:framework ?framework ;
+             ex:port ?port .
+    BIND(
+        CONCAT(
+            "[", ?serviceName, "]\n",
+            "framework = \"", ?framework, "\"\n",
+            "port = ", STR(?port), "\n",
+            "database_url = \"postgresql://localhost:5432/", LCASE(?serviceName), "\"\n",
+            "redis_url = \"redis://localhost:6379\"\n",
+            "log_level = \"info\"\n"
+        )
+    as ?config)
+}
+ORDER BY ?port
+
+# Query 13: Dependency Injection Configuration
+# Generate dependency injection configuration
+PREFIX ex: <https://example.com/microservices/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?service ?serviceName ?dependsOn ?dependsOnName ?injectionConfig WHERE {
+    ?service a ex:Service ;
+             rdfs:label ?serviceName ;
+             ex:dependsOn ?dependsOn .
+    ?dependsOn rdfs:label ?dependsOnName .
+    BIND(
+        CONCAT(
+            "inject ", ?dependsOnName, " into ", ?serviceName, "\n",
+            "bind ", ?dependsOnName, " to ", ?dependsOnName, "Impl\n"
+        )
+    as ?injectionConfig)
+}
+ORDER BY ?service ?dependsOn
+
+# Query 14: Service Mesh Configuration
+# Generate service mesh configuration
+PREFIX ex: <https://example.com/microservices/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?service ?serviceName ?port ?meshConfig WHERE {
+    ?service a ex:Service ;
+             rdfs:label ?serviceName ;
+             ex:port ?port .
+    BIND(
+        CONCAT(
+            "apiVersion: v1\n",
+            "kind: Service\n",
+            "metadata:\n",
+            "  name: ", LCASE(?serviceName), "\n",
+            "spec:\n",
+            "  selector:\n",
+            "    app: ", LCASE(?serviceName), "\n",
+            "  ports:\n",
+            "  - port: ", STR(?port), "\n",
+            "    targetPort: ", STR(?port), "\n"
+        )
+    as ?meshConfig)
+}
+ORDER BY ?port
+
+# Query 15: Monitoring and Observability
+# Generate monitoring configuration
+PREFIX ex: <https://example.com/microservices/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?service ?serviceName ?port ?monitoringConfig WHERE {
+    ?service a ex:Service ;
+             rdfs:label ?serviceName ;
+             ex:port ?port .
+    BIND(
+        CONCAT(
+            "prometheus:\n",
+            "  scrape_configs:\n",
+            "  - job_name: '", LCASE(?serviceName), "'\n",
+            "    static_configs:\n",
+            "    - targets: ['localhost:", STR(?port), "']\n",
+            "    metrics_path: '/metrics'\n",
+            "    scrape_interval: 15s\n"
+        )
+    as ?monitoringConfig)
+}
+ORDER BY ?port

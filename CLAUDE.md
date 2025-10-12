@@ -1,39 +1,65 @@
-# Claude Code Configuration - SPARC Development Environment
+# Ggen Development Environment - Production CLI Tool
 
-## 🚨 CRITICAL: CONCURRENT EXECUTION & FILE MANAGEMENT
+## 🚨 CRITICAL: GGEN MARKETPLACE & LIFECYCLE WORKFLOW
 
 **ABSOLUTE RULES**:
-1. ALL operations MUST be concurrent/parallel in a single message
-2. **NEVER save working files, text/mds and tests to the root folder**
-3. ALWAYS organize files in appropriate subdirectories
-4. **USE CLAUDE CODE'S TASK TOOL** for spawning agents concurrently, not just MCP
+1. **ALWAYS use ggen marketplace commands for package management**
+2. **ALWAYS use ggen lifecycle commands for project workflows**
+3. **NEVER use direct cargo commands - use ggen market and lifecycle**
+4. **ALWAYS organize examples in examples/ subdirectory**
 
-### ⚡ GOLDEN RULE: "1 MESSAGE = ALL RELATED OPERATIONS"
+### ⚡ GOLDEN RULE: "1 COMMAND = ALL GGEN OPERATIONS"
 
 **MANDATORY PATTERNS:**
-- **TodoWrite**: ALWAYS batch ALL todos in ONE call (5-10+ todos minimum)
-- **Task tool (Claude Code)**: ALWAYS spawn ALL agents in ONE message with full instructions
-- **File operations**: ALWAYS batch ALL reads/writes/edits in ONE message
-- **Bash commands**: ALWAYS batch ALL terminal operations in ONE message
-- **Memory operations**: ALWAYS batch ALL memory store/retrieve in ONE message
+- **ggen market search/add/list/update** for package management
+- **ggen lifecycle run/list/show/pipeline** for project workflows
+- **ggen template generate** for code generation
+- **ggen ai generate** for AI-powered development
+- **ggen graph query** for SPARQL operations
 
-### 🎯 CRITICAL: Claude Code Task Tool for Agent Execution
+### 🎯 CRITICAL: Ggen Marketplace for Package Management
 
-**Claude Code's Task tool is the PRIMARY way to spawn agents:**
-```javascript
-// ✅ CORRECT: Use Claude Code's Task tool for parallel agent execution
-[Single Message]:
-  Task("Research agent", "Analyze requirements and patterns...", "researcher")
-  Task("Coder agent", "Implement core features...", "coder")
-  Task("Tester agent", "Create comprehensive tests...", "tester")
-  Task("Reviewer agent", "Review code quality...", "reviewer")
-  Task("Architect agent", "Design system architecture...", "system-architect")
+**Ggen marketplace is the PRIMARY way to manage packages:**
+```bash
+# ✅ CORRECT: Use ggen marketplace for all package operations
+ggen market search "rust cli" --category templates
+ggen market add "rig-mcp-integration"
+ggen market list --installed
+ggen market update "all"
+ggen market info "rig-mcp"
 ```
 
-**MCP tools are ONLY for coordination setup:**
-- `mcp__claude-flow__swarm_init` - Initialize coordination topology
-- `mcp__claude-flow__agent_spawn` - Define agent types for coordination
-- `mcp__claude-flow__task_orchestrate` - Orchestrate high-level workflows
+**Available marketplace commands:**
+- `ggen market search <query>` - Search marketplace packages
+- `ggen market add <package>` - Install package from marketplace
+- `ggen market remove <package>` - Remove installed package
+- `ggen market list` - List all available/installed packages
+- `ggen market update` - Update packages to latest versions
+- `ggen market info <package>` - Show detailed package information
+- `ggen market recommend` - Get personalized recommendations
+- `ggen market offline` - Browse cached marketplace data
+- `ggen market sync` - Synchronize with remote marketplace
+- `ggen market publish` - Publish new package to marketplace
+
+### 🎯 CRITICAL: Ggen Lifecycle for Project Management
+
+**Ggen lifecycle is the PRIMARY way to manage project workflows:**
+```bash
+# ✅ CORRECT: Use ggen lifecycle for all project operations
+ggen lifecycle list  # Show all available phases
+ggen lifecycle run init  # Initialize project
+ggen lifecycle run setup  # Install dependencies
+ggen lifecycle run generate  # Generate code from templates
+ggen lifecycle run build  # Build project
+ggen lifecycle run test  # Run tests
+ggen lifecycle run deploy  # Deploy to target environment
+```
+
+**Available lifecycle commands:**
+- `ggen lifecycle list` - List all available phases
+- `ggen lifecycle show <phase>` - Show details of specific phase
+- `ggen lifecycle run <phase>` - Run single lifecycle phase
+- `ggen lifecycle pipeline <phases>` - Run multiple phases in sequence
 
 ### 📁 File Organization Rules
 
@@ -47,34 +73,50 @@
 
 ## Project Overview
 
-This project uses SPARC (Specification, Pseudocode, Architecture, Refinement, Completion) methodology with Claude-Flow orchestration for systematic Test-Driven Development.
+This project uses ggen - a language-agnostic, deterministic code projection CLI that turns ontologies + RDF-like metadata into reproducible code projections. It features a comprehensive marketplace and lifecycle system.
 
-## SPARC Commands
+## Ggen Commands
 
 ### Core Commands
-- `npx claude-flow sparc modes` - List available modes
-- `npx claude-flow sparc run <mode> "<task>"` - Execute specific mode
-- `npx claude-flow sparc tdd "<feature>"` - Run complete TDD workflow
-- `npx claude-flow sparc info <mode>` - Get mode details
+- `ggen --help` - Show all available commands
+- `ggen version` - Show ggen version
+- `ggen --list` - List all available subcommands
 
-### Batchtools Commands
-- `npx claude-flow sparc batch <modes> "<task>"` - Parallel execution
-- `npx claude-flow sparc pipeline "<task>"` - Full pipeline processing
-- `npx claude-flow sparc concurrent <mode> "<tasks-file>"` - Multi-task processing
+### Template Commands
+- `ggen template list` - List available templates
+- `ggen template generate <template>` - Generate code from template
+- `ggen template validate <template>` - Validate template syntax
 
-### Build Commands
-- `npm run build` - Build project
-- `npm run test` - Run tests
-- `npm run lint` - Linting
-- `npm run typecheck` - Type checking
+### AI Commands
+- `ggen ai generate "<prompt>"` - Generate code using AI
+- `ggen ai analyze <file>` - Analyze existing code
+- `ggen ai optimize <file>` - Optimize code performance
 
-## SPARC Workflow Phases
+### Graph/SPARQL Commands
+- `ggen graph query "<sparql>"` - Execute SPARQL query
+- `ggen graph validate <file>` - Validate RDF data
+- `ggen graph info` - Show graph statistics
 
-1. **Specification** - Requirements analysis (`sparc run spec-pseudocode`)
-2. **Pseudocode** - Algorithm design (`sparc run spec-pseudocode`)
-3. **Architecture** - System design (`sparc run architect`)
-4. **Refinement** - TDD implementation (`sparc tdd`)
-5. **Completion** - Integration (`sparc run integration`)
+### Lifecycle Commands
+- `ggen lifecycle list` - List all available phases
+- `ggen lifecycle show <phase>` - Show phase details
+- `ggen lifecycle run <phase>` - Run single phase
+- `ggen lifecycle pipeline <phases>` - Run multiple phases
+
+### Marketplace Commands
+- `ggen market search "<query>"` - Search marketplace packages
+- `ggen market add <package>` - Install package
+- `ggen market list` - List installed packages
+- `ggen market info <package>` - Show package details
+
+## Ggen Workflow
+
+1. **Initialize** (`ggen lifecycle run init`) - Set up project structure
+2. **Setup** (`ggen lifecycle run setup`) - Install dependencies via marketplace
+3. **Generate** (`ggen lifecycle run generate`) - Generate code from templates
+4. **Build** (`ggen lifecycle run build`) - Build the project
+5. **Test** (`ggen lifecycle run test`) - Run comprehensive tests
+6. **Deploy** (`ggen lifecycle run deploy`) - Deploy to target environment
 
 ## Code Style & Best Practices
 
@@ -86,11 +128,11 @@ This project uses SPARC (Specification, Pseudocode, Architecture, Refinement, Co
 
 ### 🚨 Production Code Quality Rules
 
-**NEVER use `.expect()` or `.unwrap()` in production code (src/):**
+**NEVER use `.expect()` or `.unwrap()` in production code:**
 - ❌ `.expect("error message")` - Panics on error (crashes the program)
 - ❌ `.unwrap()` - Panics without explanation
 - ✅ Use `?` operator with proper Result types
-- ✅ Use `.map_err(|e| CustomError::from(e))?` for error conversion
+- ✅ Use `.map_err(|e| anyhow::Error::from(e))?` for error conversion
 - ✅ Use `.unwrap_or_default()` or `.unwrap_or_else()` for safe defaults
 
 **Exception:** `.expect()` is acceptable in:
@@ -112,272 +154,436 @@ let time = SystemTime::now()
 let time = SystemTime::now()
     .duration_since(UNIX_EPOCH)
     .map(|d| d.as_millis())
-    .map_err(|_| LifecycleError::Other("System clock error".into()))?;
+    .map_err(|_| anyhow::anyhow!("System clock error"))?;
 ```
 
-## 🚀 Available Agents (54 Total)
+## 🚀 Ggen Marketplace Packages
 
-### Core Development
-`coder`, `reviewer`, `tester`, `planner`, `researcher`
+### Available Package Categories
+- `ai` - AI and LLM integration packages
+- `templates` - Code generation templates
+- `cli` - Command-line interface tools
+- `web` - Web framework integrations
+- `database` - Database and ORM packages
+- `testing` - Testing and validation tools
+- `security` - Security and authentication packages
 
-### Swarm Coordination
-`hierarchical-coordinator`, `mesh-coordinator`, `adaptive-coordinator`, `collective-intelligence-coordinator`, `swarm-memory-manager`
+### Featured Packages
 
-### Consensus & Distributed
-`byzantine-coordinator`, `raft-manager`, `gossip-coordinator`, `consensus-builder`, `crdt-synchronizer`, `quorum-manager`, `security-manager`
+#### Rig MCP Integration (`rig-mcp-integration`)
+- **Description**: Production-ready Rig LLM framework + MCP protocol integration
+- **Version**: 0.1.0
+- **Category**: ai
+- **Features**:
+  - Multi-provider LLM support (OpenAI, Anthropic, Cohere, Deepseek, Gemini, Ollama, 20+)
+  - Dynamic MCP tool loading with vector-based selection
+  - Multi-transport MCP support (stdio, SSE, HTTP)
+  - Production-ready patterns from official MCP Rust SDK
+  - Embedding-based intelligent tool selection
 
-### Performance & Optimization
-`perf-analyzer`, `performance-benchmarker`, `task-orchestrator`, `memory-coordinator`, `smart-agent`
+#### CLI Templates (`noun-verb-cli`)
+- **Description**: Complete CLI application templates with noun-verb architecture
+- **Version**: 1.0.0
+- **Category**: templates
+- **Features**:
+  - Full CRUD operations for entities
+  - Clap-based command structure
+  - Comprehensive error handling
+  - Integration testing
+  - Documentation generation
 
-### GitHub & Repository
-`github-modes`, `pr-manager`, `code-review-swarm`, `issue-tracker`, `release-manager`, `workflow-automation`, `project-board-sync`, `repo-architect`, `multi-repo-swarm`
+#### Web API Templates (`api-endpoint`)
+- **Description**: REST API endpoint templates with OpenAPI documentation
+- **Version**: 1.0.0
+- **Category**: templates
+- **Features**:
+  - Axum-based HTTP handlers
+  - Request/response validation
+  - Error handling and status codes
+  - OpenAPI specification generation
+  - Rate limiting and security
 
-### SPARC Methodology
-`sparc-coord`, `sparc-coder`, `specification`, `pseudocode`, `architecture`, `refinement`
+### Package Installation
 
-### Specialized Development
-`backend-dev`, `mobile-dev`, `ml-developer`, `cicd-engineer`, `api-docs`, `system-architect`, `code-analyzer`, `base-template-generator`
+```bash
+# Install specific package
+ggen market add "rig-mcp-integration"
 
-### Testing & Validation
-`tdd-london-swarm`, `production-validator`
+# Install template package
+ggen market add "noun-verb-cli"
 
-### Migration & Planning
-`migration-planner`, `swarm-init`
+# List available packages
+ggen market search "rust"
 
-## 🎯 Claude Code vs MCP Tools
+# Get package information
+ggen market info "rig-mcp-integration"
 
-### Claude Code Handles ALL EXECUTION:
-- **Task tool**: Spawn and run agents concurrently for actual work
-- File operations (Read, Write, Edit, MultiEdit, Glob, Grep)
-- Code generation and programming
-- Bash commands and system operations
-- Implementation work
-- Project navigation and analysis
-- TodoWrite and task management
-- Git operations
-- Package management
-- Testing and debugging
+# Update all packages
+ggen market update
+```
 
-### MCP Tools ONLY COORDINATE:
-- Swarm initialization (topology setup)
-- Agent type definitions (coordination patterns)
-- Task orchestration (high-level planning)
-- Memory management
-- Neural features
-- Performance tracking
-- GitHub integration
+## 🎯 Ggen Tool Workflow
 
-**KEY**: MCP coordinates the strategy, Claude Code's Task tool executes with real agents.
+### Ggen Handles ALL DEVELOPMENT:
+- **Marketplace**: Package discovery, installation, and management
+- **Lifecycle**: Project initialization, dependency management, code generation
+- **Templates**: Code generation from structured templates
+- **AI Integration**: Intelligent code generation and analysis
+- **Graph Operations**: SPARQL queries and RDF data processing
+- **Testing**: Comprehensive test execution and validation
+- **Deployment**: Multi-environment deployment management
+
+### Core Development Workflow:
+1. **Initialize Project** (`ggen lifecycle run init`)
+2. **Install Dependencies** (`ggen market add <packages>`)
+3. **Generate Code** (`ggen template generate <template>`)
+4. **Run Tests** (`ggen lifecycle run test`)
+5. **Deploy** (`ggen lifecycle run deploy`)
+
+### Example Development Session:
+```bash
+# Initialize a new Rust project
+ggen lifecycle run init
+
+# Install required packages
+ggen market add "rig-mcp-integration"
+ggen market add "noun-verb-cli"
+
+# Generate API endpoints
+ggen template generate templates/api-endpoint.tmpl
+
+# Generate database schema
+ggen template generate templates/database-schema.tmpl
+
+# Run comprehensive tests
+ggen lifecycle run test
+
+# Deploy to staging
+ggen lifecycle run deploy --env staging
+```
+
+**KEY**: Ggen provides the complete development toolchain - marketplace, lifecycle, templates, AI, and deployment.
 
 ## 🚀 Quick Setup
 
+### Install Ggen CLI
 ```bash
-# Add MCP servers (Claude Flow required, others optional)
-claude mcp add claude-flow npx claude-flow@alpha mcp start
-claude mcp add ruv-swarm npx ruv-swarm mcp start  # Optional: Enhanced coordination
-claude mcp add flow-nexus npx flow-nexus@latest mcp start  # Optional: Cloud features
+# Install ggen CLI (requires Rust)
+cargo install ggen
+
+# Or build from source
+cargo build --release
+cargo install --path .
 ```
 
-## MCP Tool Categories
+### Initialize Project
+```bash
+# Initialize a new ggen project
+ggen lifecycle run init
 
-### Coordination
-`swarm_init`, `agent_spawn`, `task_orchestrate`
+# Install core packages
+ggen market add "rig-mcp-integration"
+ggen market add "noun-verb-cli"
 
-### Monitoring
-`swarm_status`, `agent_list`, `agent_metrics`, `task_status`, `task_results`
+# Verify installation
+ggen --version
+ggen market list
+ggen lifecycle list
+```
 
-### Memory & Neural
-`memory_usage`, `neural_status`, `neural_train`, `neural_patterns`
+### Example Project Creation
+```bash
+# Create a comprehensive Rust showcase project
+cd examples/comprehensive-rust-showcase
 
-### GitHub Integration
-`github_swarm`, `repo_analyze`, `pr_enhance`, `issue_triage`, `code_review`
+# Run the complete lifecycle
+ggen lifecycle run init
+ggen lifecycle run setup
+ggen lifecycle run generate
+ggen lifecycle run build
+ggen lifecycle run test
+ggen lifecycle run deploy --env development
 
-### System
-`benchmark_run`, `features_detect`, `swarm_monitor`
+# Or run all phases in pipeline
+ggen lifecycle pipeline "init setup generate build test deploy"
+```
 
-### Flow-Nexus MCP Tools (Optional Advanced Features)
-Flow-Nexus extends MCP capabilities with 70+ cloud-based orchestration tools:
+### Marketplace Operations
+```bash
+# Search for packages
+ggen market search "rust cli"
+ggen market search "web api" --category templates
 
-**Key MCP Tool Categories:**
-- **Swarm & Agents**: `swarm_init`, `swarm_scale`, `agent_spawn`, `task_orchestrate`
-- **Sandboxes**: `sandbox_create`, `sandbox_execute`, `sandbox_upload` (cloud execution)
-- **Templates**: `template_list`, `template_deploy` (pre-built project templates)
-- **Neural AI**: `neural_train`, `neural_patterns`, `seraphina_chat` (AI assistant)
-- **GitHub**: `github_repo_analyze`, `github_pr_manage` (repository management)
-- **Real-time**: `execution_stream_subscribe`, `realtime_subscribe` (live monitoring)
-- **Storage**: `storage_upload`, `storage_list` (cloud file management)
+# Install packages
+ggen market add "rig-mcp-integration"
+ggen market add "api-endpoint"
 
-**Authentication Required:**
-- Register: `mcp__flow-nexus__user_register` or `npx flow-nexus@latest register`
-- Login: `mcp__flow-nexus__user_login` or `npx flow-nexus@latest login`
-- Access 70+ specialized MCP tools for advanced orchestration
+# List installed packages
+ggen market list --installed
 
-## 🚀 Agent Execution Flow with Claude Code
+# Update packages
+ggen market update
+```
+
+### Template Generation
+```bash
+# Generate code from templates
+ggen template generate templates/rust-service.tmpl
+ggen template generate templates/api-endpoint.tmpl
+ggen template generate templates/database-schema.tmpl
+
+# Generate with AI assistance
+ggen ai generate "Create a user authentication service"
+ggen ai analyze generated/src/services/user.rs
+```
+
+### Graph Operations
+```bash
+# Execute SPARQL queries
+ggen graph query "SELECT ?entity ?label WHERE { ?entity a ex:Entity ; rdfs:label ?label }"
+
+# Validate RDF data
+ggen graph validate data/domain.ttl
+
+# Show graph statistics
+ggen graph info
+```
+
+## 🚀 Ggen Development Workflow
 
 ### The Correct Pattern:
 
-1. **Optional**: Use MCP tools to set up coordination topology
-2. **REQUIRED**: Use Claude Code's Task tool to spawn agents that do actual work
-3. **REQUIRED**: Each agent runs hooks for coordination
-4. **REQUIRED**: Batch all operations in single messages
+1. **Initialize Project** - Use ggen lifecycle to set up project structure
+2. **Install Dependencies** - Use ggen marketplace to add required packages
+3. **Generate Code** - Use ggen templates and AI for code generation
+4. **Test & Validate** - Use ggen lifecycle for comprehensive testing
+5. **Deploy** - Use ggen lifecycle for multi-environment deployment
 
-### Example Full-Stack Development:
+### Example Comprehensive Project Development:
 
-```javascript
-// Single message with all agent spawning via Claude Code's Task tool
-[Parallel Agent Execution]:
-  Task("Backend Developer", "Build REST API with Express. Use hooks for coordination.", "backend-dev")
-  Task("Frontend Developer", "Create React UI. Coordinate with backend via memory.", "coder")
-  Task("Database Architect", "Design PostgreSQL schema. Store schema in memory.", "code-analyzer")
-  Task("Test Engineer", "Write Jest tests. Check memory for API contracts.", "tester")
-  Task("DevOps Engineer", "Setup Docker and CI/CD. Document in memory.", "cicd-engineer")
-  Task("Security Auditor", "Review authentication. Report findings via hooks.", "reviewer")
-  
-  // All todos batched together
-  TodoWrite { todos: [...8-10 todos...] }
-  
-  // All file operations together
-  Write "backend/server.js"
-  Write "frontend/App.jsx"
-  Write "database/schema.sql"
-```
-
-## 📋 Agent Coordination Protocol
-
-### Every Agent Spawned via Task Tool MUST:
-
-**1️⃣ BEFORE Work:**
 ```bash
-npx claude-flow@alpha hooks pre-task --description "[task]"
-npx claude-flow@alpha hooks session-restore --session-id "swarm-[id]"
+# Single workflow for complete project creation
+cd examples/comprehensive-rust-showcase
+
+# Initialize project structure
+ggen lifecycle run init
+
+# Install AI and template packages
+ggen market add "rig-mcp-integration"
+ggen market add "noun-verb-cli"
+ggen market add "api-endpoint"
+
+# Generate all components
+ggen template generate templates/rust-service.tmpl
+ggen template generate templates/api-endpoint.tmpl
+ggen template generate templates/database-schema.tmpl
+ggen template generate templates/documentation.tmpl
+ggen template generate templates/tests.tmpl
+ggen template generate templates/deployment.tmpl
+
+# Build and test everything
+ggen lifecycle run build
+ggen lifecycle run test
+
+# Deploy to development
+ggen lifecycle run deploy --env development
+
+# Generate comprehensive documentation
+ggen ai generate "Create comprehensive README for this project"
 ```
 
-**2️⃣ DURING Work:**
+### Complete Development Session:
+
 ```bash
-npx claude-flow@alpha hooks post-edit --file "[file]" --memory-key "swarm/[agent]/[step]"
-npx claude-flow@alpha hooks notify --message "[what was done]"
+# Full development workflow in one session
+[Comprehensive Project Development]:
+
+  # Initialize project
+  ggen lifecycle run init
+
+  # Install all required packages
+  ggen market add "rig-mcp-integration"
+  ggen market add "api-endpoint"
+  ggen market add "database-schema"
+
+  # Generate core components
+  ggen template generate templates/rust-service.tmpl
+  ggen template generate templates/api-endpoint.tmpl
+  ggen template generate templates/database-schema.tmpl
+
+  # Add tests and deployment
+  ggen template generate templates/tests.tmpl
+  ggen template generate templates/deployment.tmpl
+
+  # Build, test, and validate
+  ggen lifecycle run build
+  ggen lifecycle run test
+  ggen lifecycle run security
+
+  # Deploy to staging
+  ggen lifecycle run deploy --env staging
 ```
 
-**3️⃣ AFTER Work:**
-```bash
-npx claude-flow@alpha hooks post-task --task-id "[task]"
-npx claude-flow@alpha hooks session-end --export-metrics true
-```
+## Performance & Quality
 
-## 🎯 Concurrent Execution Examples
+### Ggen Performance Features
+- **Deterministic Outputs** - Same inputs always produce identical results
+- **Parallel Execution** - Lifecycle phases run concurrently where possible
+- **Caching** - Intelligent caching of expensive operations
+- **Memory Safety** - Zero-cost abstractions with Rust type safety
+- **Error Handling** - Comprehensive error handling with actionable messages
 
-### ✅ CORRECT WORKFLOW: MCP Coordinates, Claude Code Executes
+### Quality Assurance
+- **Template Validation** - All templates validated before generation
+- **RDF Graph Validation** - Semantic data validation with SHACL
+- **SPARQL Query Optimization** - Query performance analysis and optimization
+- **Security Scanning** - Automated vulnerability detection
+- **Code Quality** - Clippy linting and formatting enforcement
 
-```javascript
-// Step 1: MCP tools set up coordination (optional, for complex tasks)
-[Single Message - Coordination Setup]:
-  mcp__claude-flow__swarm_init { topology: "mesh", maxAgents: 6 }
-  mcp__claude-flow__agent_spawn { type: "researcher" }
-  mcp__claude-flow__agent_spawn { type: "coder" }
-  mcp__claude-flow__agent_spawn { type: "tester" }
+## Advanced Features
 
-// Step 2: Claude Code Task tool spawns ACTUAL agents that do the work
-[Single Message - Parallel Agent Execution]:
-  // Claude Code's Task tool spawns real agents concurrently
-  Task("Research agent", "Analyze API requirements and best practices. Check memory for prior decisions.", "researcher")
-  Task("Coder agent", "Implement REST endpoints with authentication. Coordinate via hooks.", "coder")
-  Task("Database agent", "Design and implement database schema. Store decisions in memory.", "code-analyzer")
-  Task("Tester agent", "Create comprehensive test suite with 90% coverage.", "tester")
-  Task("Reviewer agent", "Review code quality and security. Document findings.", "reviewer")
-  
-  // Batch ALL todos in ONE call
-  TodoWrite { todos: [
-    {id: "1", content: "Research API patterns", status: "in_progress", priority: "high"},
-    {id: "2", content: "Design database schema", status: "in_progress", priority: "high"},
-    {id: "3", content: "Implement authentication", status: "pending", priority: "high"},
-    {id: "4", content: "Build REST endpoints", status: "pending", priority: "high"},
-    {id: "5", content: "Write unit tests", status: "pending", priority: "medium"},
-    {id: "6", content: "Integration tests", status: "pending", priority: "medium"},
-    {id: "7", content: "API documentation", status: "pending", priority: "low"},
-    {id: "8", content: "Performance optimization", status: "pending", priority: "low"}
-  ]}
-  
-  // Parallel file operations
-  Bash "mkdir -p app/{src,tests,docs,config}"
-  Write "app/package.json"
-  Write "app/src/server.js"
-  Write "app/tests/server.test.js"
-  Write "app/docs/API.md"
-```
+### Multi-Environment Support
+- **Development** - Fast iteration with debug features
+- **Staging** - Pre-production testing and validation
+- **Production** - Optimized for performance and security
 
-### ❌ WRONG (Multiple Messages):
-```javascript
-Message 1: mcp__claude-flow__swarm_init
-Message 2: Task("agent 1")
-Message 3: TodoWrite { todos: [single todo] }
-Message 4: Write "file.js"
-// This breaks parallel coordination!
-```
+### AI Integration
+- **Multi-Provider Support** - OpenAI, Anthropic, Ollama, and more
+- **Context-Aware Generation** - Uses project structure and RDF data
+- **Natural Language Processing** - Convert natural language to SPARQL
+- **Code Analysis** - Intelligent code review and optimization
 
-## Performance Benefits
-
-- **84.8% SWE-Bench solve rate**
-- **32.3% token reduction**
-- **2.8-4.4x speed improvement**
-- **27+ neural models**
-
-## Hooks Integration
-
-### Pre-Operation
-- Auto-assign agents by file type
-- Validate commands for safety
-- Prepare resources automatically
-- Optimize topology by complexity
-- Cache searches
-
-### Post-Operation
-- Auto-format code
-- Train neural patterns
-- Update memory
-- Analyze performance
-- Track token usage
-
-### Session Management
-- Generate summaries
-- Persist state
-- Track metrics
-- Restore context
-- Export workflows
-
-## Advanced Features (v2.0.0)
-
-- 🚀 Automatic Topology Selection
-- ⚡ Parallel Execution (2.8-4.4x speed)
-- 🧠 Neural Training
-- 📊 Bottleneck Analysis
-- 🤖 Smart Auto-Spawning
-- 🛡️ Self-Healing Workflows
-- 💾 Cross-Session Memory
-- 🔗 GitHub Integration
+### Graph-Driven Development
+- **RDF Data Sources** - Structured domain modeling
+- **SPARQL Queries** - Semantic data extraction and transformation
+- **SHACL Validation** - Constraint validation for generated code
+- **Provenance Tracking** - Complete audit trail of generation decisions
 
 ## Integration Tips
 
-1. Start with basic swarm init
-2. Scale agents gradually
-3. Use memory for context
-4. Monitor progress regularly
-5. Train patterns from success
-6. Enable hooks automation
-7. Use GitHub tools first
+1. **Start with Lifecycle** - Always use `ggen lifecycle run init` to start projects
+2. **Use Marketplace** - Install packages with `ggen market add` instead of manual dependency management
+3. **Leverage Templates** - Generate code with `ggen template generate` for consistency
+4. **AI Assistance** - Use `ggen ai generate` for complex requirements
+5. **Graph Validation** - Use `ggen graph validate` to ensure data integrity
+6. **Comprehensive Testing** - Use `ggen lifecycle run test` for full validation
+7. **Multi-Environment Deployment** - Use `ggen lifecycle run deploy --env <env>`
 
 ## Support
 
-- Documentation: https://github.com/ruvnet/claude-flow
-- Issues: https://github.com/ruvnet/claude-flow/issues
-- Flow-Nexus Platform: https://flow-nexus.ruv.io (registration required for cloud features)
+### Documentation
+- **CLI Reference**: `docs/cli.md` - Complete command reference
+- **Marketplace Guide**: `docs/marketplace.md` - Package management guide
+- **Lifecycle Guide**: `docs/lifecycle.md` - Project workflow guide
+- **Template Guide**: `docs/templates.md` - Code generation guide
+
+### Examples
+- **Comprehensive Showcase**: `examples/comprehensive-rust-showcase/` - Complete project example
+- **CLI Templates**: `examples/noun-verb-cli/` - CLI application templates
+- **Web Templates**: `examples/api-endpoint/` - API endpoint templates
+
+### Community
+- **GitHub Issues**: https://github.com/seanchatmangpt/ggen/issues
+- **Discussions**: https://github.com/seanchatmangpt/ggen/discussions
+- **Documentation**: https://seanchatmangpt.github.io/ggen/
 
 ---
 
-Remember: **Claude Flow coordinates, Claude Code creates!**
+**Remember: Ggen provides the complete development toolchain - marketplace, lifecycle, templates, AI, and deployment!**
 
-# important-instruction-reminders
-Do what has been asked; nothing more, nothing less.
-NEVER create files unless they're absolutely necessary for achieving your goal.
-ALWAYS prefer editing an existing file to creating a new one.
-NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
-Never save working files, text/mds and tests to the root folder.
+# Ggen Development Guidelines
+
+## Core Principles
+
+1. **Use Ggen Toolchain** - Always use ggen marketplace, lifecycle, templates, and AI commands
+2. **Deterministic Development** - Same inputs should always produce identical outputs
+3. **Comprehensive Testing** - Every component must have tests that run from lifecycle
+4. **Production Ready** - All generated code must be production-ready with proper error handling
+5. **Security First** - Implement security hardening and vulnerability scanning
+6. **Documentation** - Generate comprehensive documentation for all components
+
+## Workflow Guidelines
+
+1. **Initialize with Lifecycle** - Start every project with `ggen lifecycle run init`
+2. **Package Management** - Use `ggen market add` for all dependencies
+3. **Template Generation** - Use `ggen template generate` for consistent code structure
+4. **AI Enhancement** - Use `ggen ai generate` for complex requirements
+5. **Validation** - Use `ggen graph validate` and `ggen lifecycle run test`
+6. **Deployment** - Use `ggen lifecycle run deploy` for all environments
+
+## Code Quality Standards
+
+1. **Error Handling** - Never use `.expect()` or `.unwrap()` in production code
+2. **Type Safety** - Leverage Rust's type system for compile-time guarantees
+3. **Performance** - Implement efficient algorithms and data structures
+4. **Security** - Follow security best practices and vulnerability scanning
+5. **Testing** - Maintain high test coverage with meaningful assertions
+6. **Documentation** - Keep code comments and generated docs up to date
+
+## Example Project Structure
+
+All example projects should demonstrate the complete ggen workflow:
+
+```bash
+examples/comprehensive-rust-showcase/
+├── ggen.toml              # Project configuration
+├── make.toml              # Lifecycle configuration
+├── data/                  # RDF/SPARQL data sources
+│   ├── domain.ttl        # Domain model
+│   ├── api-spec.ttl      # API specification
+│   ├── database.ttl      # Database schema
+│   └── queries.ttl       # SPARQL queries
+├── templates/             # Code generation templates
+│   ├── rust-service.tmpl # Complete service template
+│   ├── api-endpoint.tmpl # API endpoint template
+│   ├── database-schema.tmpl # Database schema template
+│   ├── tests.tmpl        # Comprehensive test template
+│   └── deployment.tmpl   # Deployment configuration template
+├── generated/             # Generated code (created by lifecycle)
+└── README.md              # Comprehensive project documentation
+```
+
+## Command Usage
+
+Always use the correct ggen commands:
+
+```bash
+# ✅ CORRECT - Use ggen marketplace
+ggen market search "rust cli"
+ggen market add "rig-mcp-integration"
+
+# ✅ CORRECT - Use ggen lifecycle
+ggen lifecycle run init
+ggen lifecycle run test
+ggen lifecycle run deploy --env production
+
+# ✅ CORRECT - Use ggen templates
+ggen template generate templates/rust-service.tmpl
+
+# ❌ WRONG - Never use direct cargo commands
+# cargo add rig-mcp-integration
+# cargo test
+# cargo build
+```
+
+## Testing Requirements
+
+Every example project must include:
+
+1. **Unit Tests** - Test individual functions and methods
+2. **Integration Tests** - Test component interactions
+3. **End-to-End Tests** - Test complete workflows
+4. **Performance Tests** - Validate performance requirements
+5. **Security Tests** - Verify security hardening
+6. **Lifecycle Tests** - Ensure all phases execute successfully
+
+## Documentation Standards
+
+All examples must include:
+
+1. **Comprehensive README** - Complete project overview and usage
+2. **API Documentation** - Generated OpenAPI specifications
+3. **Architecture Documentation** - System design and data flow
+4. **Deployment Guide** - Multi-environment deployment instructions
+5. **Troubleshooting Guide** - Common issues and solutions
+6. **Performance Metrics** - Benchmarks and optimization notes

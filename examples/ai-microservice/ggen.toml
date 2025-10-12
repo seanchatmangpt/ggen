@@ -1,0 +1,51 @@
+# AI Microservice Configuration
+# Demonstrates all ggen-ai configuration options
+
+[project]
+name = "ai-microservice"
+version = "0.1.0"
+description = "AI-powered microservice with template generation, refactoring, and ontology support"
+author = "ggen examples"
+
+[ai]
+provider = "openai"
+model = "gpt-4"
+temperature = 0.7
+max_tokens = 2000
+timeout_seconds = 30
+retry_attempts = 3
+stream_enabled = true
+
+[ai.cache]
+enabled = true
+ttl_seconds = 3600
+max_entries = 1000
+strategy = "lru"
+
+[ai.providers.openai]
+api_key_env = "OPENAI_API_KEY"
+organization_env = "OPENAI_ORG_ID"
+model = "gpt-4"
+
+[ai.providers.anthropic]
+api_key_env = "ANTHROPIC_API_KEY"
+model = "claude-3-5-sonnet-20241022"
+
+[ai.providers.ollama]
+base_url = "http://localhost:11434"
+model = "qwen2.5-coder:7b"
+
+[templates]
+source_dir = "templates"
+output_dir = "generated"
+backup_enabled = true
+idempotent = true
+
+[logging]
+level = "debug"
+format = "json"
+output = "stdout"
+
+[performance]
+enable_profiling = true
+memory_limit_mb = 512

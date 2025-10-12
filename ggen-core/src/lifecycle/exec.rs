@@ -76,6 +76,12 @@ fn run_phase_internal(ctx: &Context, phase_name: &str) -> Result<()> {
         .get(phase_name)
         .ok_or_else(|| LifecycleError::phase_not_found(phase_name))?;
 
+    // Run before hooks first
+    run_before_hooks(ctx, phase_name)?;
+
+    // Print phase start message for CLI output (after hooks)
+    println!("Running phase: {}", phase_name);
+
     // Get commands for this phase using new Phase::commands() method
     let cmds = phase.commands();
     if cmds.is_empty() {
@@ -83,16 +89,13 @@ fn run_phase_internal(ctx: &Context, phase_name: &str) -> Result<()> {
         return Ok(());
     }
 
-    // Run before hooks
-    run_before_hooks(ctx, phase_name)?;
-
     // Generate cache key
     let key = cache_key(phase_name, &cmds, &ctx.env, &[]);
 
     // Execute phase commands
     let started = current_time_ms()?;
     let timer = Instant::now();
-
+    
     tracing::info!(phase = %phase_name, "Starting phase execution");
     for cmd in &cmds {
         tracing::debug!(phase = %phase_name, command = %cmd, "Executing command");

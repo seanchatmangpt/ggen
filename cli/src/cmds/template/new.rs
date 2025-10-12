@@ -137,16 +137,176 @@ fn validate_output_path(path: &str) -> Result<()> {
     Ok(())
 }
 
+/// Generate template content based on template type
+fn generate_template_content(name: &str, template_type: &str) -> Result<String> {
+    let timestamp = chrono::Utc::now().to_rfc3339();
+    
+    match template_type {
+        "rust" => Ok(format!(
+            "---\n\
+             to: src/{{{{ name }}}}.rs\n\
+             vars:\n\
+               name: \"{name}\"\n\
+               author: \"{{{{ author }}}}\"\n\
+             rdf:\n\
+               sources: []\n\
+             sparql:\n\
+               queries: {{}}\n\
+             determinism:\n\
+               seed: \"{timestamp}\"\n\
+             ---\n\
+             \n\
+             // Generated Rust module: {name}\n\
+             // Author: {{{{ author }}}}\n\
+             // Generated at: {timestamp}\n\
+             \n\
+             pub struct {{{{ name | pascal_case }}}} {{\n\
+                 pub id: String,\n\
+                 pub name: String,\n\
+             }}\n\
+             \n\
+             impl {{{{ name | pascal_case }}}} {{\n\
+                 pub fn new(name: String) -> Self {{\n\
+                     Self {{\n\
+                         id: uuid::Uuid::new_v4().to_string(),\n\
+                         name,\n\
+                     }}\n\
+                 }}\n\
+             }}\n"
+        )),
+        "python" => Ok(format!(
+            "---\n\
+             to: src/{{{{ name }}}}.py\n\
+             vars:\n\
+               name: \"{name}\"\n\
+               author: \"{{{{ author }}}}\"\n\
+             rdf:\n\
+               sources: []\n\
+             sparql:\n\
+               queries: {{}}\n\
+             determinism:\n\
+               seed: \"{timestamp}\"\n\
+             ---\n\
+             \n\
+             # Generated Python module: {name}\n\
+             # Author: {{{{ author }}}}\n\
+             # Generated at: {timestamp}\n\
+             \n\
+             from dataclasses import dataclass\n\
+             from typing import Optional\n\
+             \n\
+             @dataclass\n\
+             class {{{{ name | pascal_case }}}}:\n\
+                 id: str\n\
+                 name: str\n\
+             \n\
+                 def __init__(self, name: str):\n\
+                     self.id = str(uuid.uuid4())\n\
+                     self.name = name\n"
+        )),
+        "typescript" => Ok(format!(
+            "---\n\
+             to: src/{{{{ name }}}}.ts\n\
+             vars:\n\
+               name: \"{name}\"\n\
+               author: \"{{{{ author }}}}\"\n\
+             rdf:\n\
+               sources: []\n\
+             sparql:\n\
+               queries: {{}}\n\
+             determinism:\n\
+               seed: \"{timestamp}\"\n\
+             ---\n\
+             \n\
+             // Generated TypeScript module: {name}\n\
+             // Author: {{{{ author }}}}\n\
+             // Generated at: {timestamp}\n\
+             \n\
+             export interface {{{{ name | pascal_case }}}} {{\n\
+                 id: string;\n\
+                 name: string;\n\
+             }}\n\
+             \n\
+             export class {{{{ name | pascal_case }}}}Class implements {{{{ name | pascal_case }}}} {{\n\
+                 id: string;\n\
+                 name: string;\n\
+             \n\
+                 constructor(name: string) {{\n\
+                     this.id = crypto.randomUUID();\n\
+                     this.name = name;\n\
+                 }}\n\
+             }}\n"
+        )),
+        "generic" | _ => Ok(format!(
+            "---\n\
+             to: output/{{{{ name }}}}.txt\n\
+             vars:\n\
+               name: \"{name}\"\n\
+               author: \"{{{{ author }}}}\"\n\
+             rdf:\n\
+               sources: []\n\
+             sparql:\n\
+               queries: {{}}\n\
+             determinism:\n\
+               seed: \"{timestamp}\"\n\
+             ---\n\
+             \n\
+             Generated file: {name}\n\
+             Author: {{{{ author }}}}\n\
+             Generated at: {timestamp}\n\
+             \n\
+             This is a generic template. Customize the content below:\n\
+             \n\
+             Hello, {{{{ name }}}}!\n\
+             \n\
+             Your template content goes here.\n"
+        )),
+    }
+}
+
 pub async fn run(args: &NewArgs) -> Result<()> {
     // Validate input
     validate_template_input(args)?;
 
-    println!("🚧 Placeholder: template new");
-    println!("  Name: {}", args.name.trim());
-    if let Some(template_type) = &args.template_type {
-        println!("  Type: {}", template_type.trim());
+    println!("🔧 Creating new template...");
+    
+    // Determine template type
+    let template_type = args.template_type.as_deref().unwrap_or("generic");
+    
+    // Create templates directory if it doesn't exist
+    let templates_dir = std::path::Path::new("templates");
+    if !templates_dir.exists() {
+        std::fs::create_dir_all(templates_dir)
+            .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to create templates directory: {}", e)))?;
     }
-    println!("  Interactive: {}", args.interactive);
+    
+    // Generate template file path
+    let template_filename = format!("{}.tmpl", args.name.trim());
+    let template_path = templates_dir.join(&template_filename);
+    
+    // Check if template already exists
+    if template_path.exists() {
+        return Err(ggen_utils::error::Error::new(&format!(
+            "Template '{}' already exists at {}",
+            args.name,
+            template_path.display()
+        )));
+    }
+    
+    // Generate template content based on type
+    let template_content = generate_template_content(&args.name, template_type)?;
+    
+    // Write template file
+    std::fs::write(&template_path, template_content)
+        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to write template file: {}", e)))?;
+    
+    println!("✅ Created template '{}' at {}", args.name, template_path.display());
+    println!("📝 Template type: {}", template_type);
+    
+    if args.interactive {
+        println!("💡 Tip: Edit the template file to customize variables and content");
+    }
+    
     Ok(())
 }
 

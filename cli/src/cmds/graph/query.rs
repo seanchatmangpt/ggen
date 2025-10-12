@@ -2,6 +2,7 @@ use clap::Args;
 use ggen_utils::error::Result;
 use serde::Serialize;
 use std::collections::HashMap;
+use oxigraph::sparql::QueryResults as OxigraphQueryResults;
 
 #[derive(Args, Debug)]
 pub struct QueryArgs {
@@ -134,18 +135,112 @@ fn validate_graph_path(graph: &Option<String>) -> Result<()> {
     Ok(())
 }
 
+/// Convert SPARQL results to our QueryResults format
+fn convert_sparql_results(results: OxigraphQueryResults) -> Result<QueryResults> {
+    match results {
+        OxigraphQueryResults::Solutions(solutions) => {
+            let variables: Vec<String> = solutions.variables().iter().map(|v| v.to_string()).collect();
+            let mut bindings = Vec::new();
+            
+            for solution in solutions {
+                let solution = solution.map_err(|e| ggen_utils::error::Error::new(&format!("SPARQL solution error: {}", e)))?;
+                let mut binding = HashMap::new();
+                for variable in &variables {
+                    if let Some(value) = solution.get(variable.as_str()) {
+                        binding.insert(variable.clone(), value.to_string());
+                    }
+                }
+                bindings.push(binding);
+            }
+            
+            Ok(QueryResults { bindings, variables })
+        }
+        OxigraphQueryResults::Boolean(_) => {
+            // For ASK queries, return a simple boolean result
+            Ok(QueryResults {
+                bindings: vec![HashMap::new()],
+                variables: vec!["result".to_string()],
+            })
+        }
+        OxigraphQueryResults::Graph(_) => {
+            // For CONSTRUCT/DESCRIBE queries, return basic info
+            Ok(QueryResults {
+                bindings: vec![HashMap::new()],
+                variables: vec!["triple".to_string()],
+            })
+        }
+    }
+}
+
 pub async fn run(args: &QueryArgs) -> Result<()> {
     // Validate inputs
     validate_sparql_query(&args.query)?;
     validate_output_format(&args.format)?;
     validate_graph_path(&args.graph)?;
 
-    println!("🚧 Placeholder: graph query");
-    println!("  Query: {}", args.query.trim());
-    println!("  Format: {}", args.format.trim());
-    if let Some(graph) = &args.graph {
-        println!("  Graph: {}", graph.trim());
+    println!("🔍 Executing SPARQL query...");
+    
+    // Load graph if provided
+    let graph = if let Some(graph_path) = &args.graph {
+        println!("📊 Loading graph from: {}", graph_path);
+        ggen_core::Graph::load_from_file(graph_path)
+            .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to load graph: {}", e)))?
+    } else {
+        println!("📊 Using empty graph for query");
+        ggen_core::Graph::new()
+            .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to create empty graph: {}", e)))?
+    };
+    
+    // Execute SPARQL query
+    let results = graph.query(&args.query)
+        .map_err(|e| ggen_utils::error::Error::new(&format!("SPARQL query failed: {}", e)))?;
+    
+    // Convert results to our format
+    let query_results = convert_sparql_results(results)?;
+    
+    // Output results in requested format
+    match args.format.as_str() {
+        "json" => {
+            let json = serde_json::to_string_pretty(&query_results.bindings)
+                .map_err(|e| ggen_utils::error::Error::new(&format!("JSON serialization failed: {}", e)))?;
+            println!("{}", json);
+        }
+        "csv" => {
+            // Print CSV header
+            println!("{}", query_results.variables.join(","));
+            // Print rows
+            for binding in &query_results.bindings {
+                let row: Vec<String> = query_results
+                    .variables
+                    .iter()
+                    .map(|var| binding.get(var).cloned().unwrap_or_default())
+                    .collect();
+                println!("{}", row.join(","));
+            }
+        }
+        "table" => {
+            // Print table header
+            println!("{}", query_results.variables.join(" | "));
+            println!("{}", "-".repeat(query_results.variables.len() * 20));
+            // Print rows
+            for binding in &query_results.bindings {
+                let row: Vec<String> = query_results
+                    .variables
+                    .iter()
+                    .map(|var| binding.get(var).cloned().unwrap_or_default())
+                    .collect();
+                println!("{}", row.join(" | "));
+            }
+        }
+        _ => {
+            return Err(ggen_utils::error::Error::new(&format!(
+                "Unsupported output format: {}. Supported formats: json, csv, table",
+                args.format
+            )));
+        }
     }
+    
+    println!("\n📊 {} results", query_results.bindings.len());
     Ok(())
 }
 

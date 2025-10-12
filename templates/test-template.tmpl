@@ -1,0 +1,30 @@
+---
+to: src/{{ name }}.rs
+vars:
+name: "test-template"
+author: "{{ author }}"
+rdf:
+sources: []
+sparql:
+queries: {}
+determinism:
+seed: "2025-10-12T04:53:40.562641+00:00"
+---
+
+// Generated Rust module: test-template
+// Author: {{ author }}
+// Generated at: 2025-10-12T04:53:40.562641+00:00
+
+pub struct {{ name | pascal_case }} {
+pub id: String,
+pub name: String,
+}
+
+impl {{ name | pascal_case }} {
+pub fn new(name: String) -> Self {
+Self {
+id: uuid::Uuid::new_v4().to_string(),
+name,
+}
+}
+}

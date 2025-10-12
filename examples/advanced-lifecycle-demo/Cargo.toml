@@ -1,0 +1,36 @@
+[workspace]
+members = [
+    "apps/cli",
+    "apps/server",
+    "apps/worker",
+]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+authors = ["GGEN Team"]
+license = "MIT"
+
+[workspace.dependencies]
+# Core dependencies
+tokio = { version = "1.35", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+anyhow = "1.0"
+thiserror = "1.0"
+
+# CLI dependencies
+clap = { version = "4.4", features = ["derive"] }
+colored = "2.1"
+
+# Async runtime
+async-trait = "0.1"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# GGEN dependencies - these would normally come from crates.io
+# For this example, we'll use path dependencies
+ggen-core = { path = "../../ggen-core" }

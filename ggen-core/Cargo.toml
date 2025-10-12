@@ -64,12 +64,14 @@ petgraph = "0.8.3"
 [features]
 default = []
 live-llm-tests = [] # Opt-in for OpenAI/Anthropic integration tests
+proptest = []       # Property-based testing with proptest
 
 [dev-dependencies]
 tempfile = "3"
 serde_json = "1"
 mockall = "0.13"
 criterion = { version = "0.5", features = ["html_reports"] }
+proptest = { workspace = true }
 
 [[bench]]
 name = "lifecycle_benchmarks"

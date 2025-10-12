@@ -1,0 +1,52 @@
+[package]
+name = "ai-microservice"
+version = "0.1.0"
+edition = "2021"
+authors = ["ggen examples"]
+description = "Comprehensive AI-powered microservice showcasing all ggen-ai features"
+license = "MIT"
+
+[[bin]]
+name = "ai-microservice"
+path = "src/main.rs"
+
+[dependencies]
+# Core ggen dependencies
+ggen-core = { path = "../../ggen-core" }
+ggen-ai = { path = "../../ggen-ai" }
+
+# Async runtime
+tokio = { version = "1.0", features = ["full"] }
+
+# Web framework
+axum = "0.7"
+tower = "0.5"
+tower-http = { version = "0.5", features = ["cors", "trace"] }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Error handling
+anyhow = "1.0"
+thiserror = "2.0"
+
+# Tracing
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+
+# Templates
+tera = "1.0"
+
+# AI integration
+genai = "0.4"
+
+# Additional utilities
+uuid = { version = "1.0", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+futures = "0.3"
+
+[dev-dependencies]
+assert_cmd = "2.0"
+tempfile = "3.0"
+mockito = "1.2"
