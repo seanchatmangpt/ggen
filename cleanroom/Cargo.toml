@@ -1,0 +1,52 @@
+[package]
+name = "cleanroom"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.70.0"
+authors = ["ggen-team"]
+license = "MIT"
+description = "Hermetic, deterministic testing for CLIs and services"
+repository = "https://github.com/seanchatmangpt/ggen"
+keywords = ["testing", "hermetic", "deterministic", "cli", "docker"]
+categories = ["development-tools::testing"]
+
+[dependencies]
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"], optional = true }
+serde_json = "1.0"
+regex = "1.0"
+rand = "0.8"
+base64 = "0.21"
+camino = "1.1"
+toml = "0.8"
+tracing = { version = "0.1", optional = true }
+
+[dev-dependencies]
+anyhow = "1.0"
+mockall = "0.12"
+rstest = "0.18"
+proptest = "1.4"
+insta = "1.34"
+
+[features]
+default = ["docker", "services", "serde"]
+docker = []
+podman = []
+local = []
+coverage = []
+services = []
+serde = ["dep:serde"]
+tracing = ["dep:tracing"]
+
+[[example]]
+name = "help"
+path = "examples/help.rs"
+
+[[example]]
+name = "service"
+path = "examples/service.rs"
+
+[package.metadata.cleanroom]
+enabled = true
+timeout_ms = 30000
+net = "offline"
