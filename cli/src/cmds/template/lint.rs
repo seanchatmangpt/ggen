@@ -147,7 +147,9 @@ fn lint_template(template_ref: &str, options: &LintOptions) -> Result<LintReport
 
     // Determine template path
     let template_path = if template_ref.starts_with("gpack:") {
-        return Err(ggen_utils::error::Error::new("gpack templates not yet supported"));
+        return Err(ggen_utils::error::Error::new(
+            "gpack templates not yet supported",
+        ));
     } else if template_ref.contains('/') {
         template_ref.to_string()
     } else {
@@ -165,9 +167,8 @@ fn lint_template(template_ref: &str, options: &LintOptions) -> Result<LintReport
     }
 
     // Read template content
-    let content = fs::read_to_string(path).map_err(|e| {
-        ggen_utils::error::Error::new(&format!("Failed to read template: {}", e))
-    })?;
+    let content = fs::read_to_string(path)
+        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to read template: {}", e)))?;
 
     // Check for YAML frontmatter
     if !content.starts_with("---\n") {
@@ -204,14 +205,14 @@ fn validate_frontmatter(frontmatter: &str, report: &mut LintReport) {
     // Check for required fields
     let has_to = frontmatter.contains("to:");
     let has_vars = frontmatter.contains("vars:");
-    
+
     if !has_to {
         report.warnings.push(LintWarning {
             line: None,
             message: "Frontmatter should include 'to:' field for output path".to_string(),
         });
     }
-    
+
     if !has_vars {
         report.warnings.push(LintWarning {
             line: None,
@@ -223,7 +224,7 @@ fn validate_frontmatter(frontmatter: &str, report: &mut LintReport) {
 /// Validate template variables
 fn validate_template_variables(content: &str, report: &mut LintReport) {
     let lines: Vec<&str> = content.lines().collect();
-    
+
     for (line_num, line) in lines.iter().enumerate() {
         // Check for unclosed template variables
         if line.contains("{{") && !line.contains("}}") {
@@ -232,14 +233,14 @@ fn validate_template_variables(content: &str, report: &mut LintReport) {
                 message: "Unclosed template variable".to_string(),
             });
         }
-        
+
         if line.contains("}}") && !line.contains("{{") {
             report.errors.push(LintError {
                 line: Some(line_num + 1),
                 message: "Closing template variable without opening".to_string(),
             });
         }
-        
+
         // Check for empty template variables
         if line.contains("{{ }}") || line.contains("{{}}") {
             report.warnings.push(LintWarning {
@@ -253,9 +254,12 @@ fn validate_template_variables(content: &str, report: &mut LintReport) {
 /// Validate SPARQL queries
 fn validate_sparql_queries(content: &str, report: &mut LintReport) {
     let lines: Vec<&str> = content.lines().collect();
-    
+
     for (line_num, line) in lines.iter().enumerate() {
-        if line.trim().starts_with("sparql:") || line.contains("SELECT") || line.contains("CONSTRUCT") {
+        if line.trim().starts_with("sparql:")
+            || line.contains("SELECT")
+            || line.contains("CONSTRUCT")
+        {
             // Basic SPARQL validation
             if line.contains("SELECT") && !line.contains("WHERE") {
                 report.warnings.push(LintWarning {

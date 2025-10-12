@@ -153,27 +153,31 @@ pub async fn run(args: &ValidateArgs) -> Result<()> {
 fn validate_graph(shapes: String, graph: Option<String>) -> Result<ValidationReport> {
     // Check if shapes file exists
     if !Path::new(&shapes).exists() {
-        return Err(ggen_utils::error::Error::new(&format!("Shapes file not found: {}", shapes)));
+        return Err(ggen_utils::error::Error::new(&format!(
+            "Shapes file not found: {}",
+            shapes
+        )));
     }
 
     // Load graph if provided
     let graph_data = if let Some(graph_path) = graph {
         if !Path::new(&graph_path).exists() {
-            return Err(ggen_utils::error::Error::new(&format!("Graph file not found: {}", graph_path)));
+            return Err(ggen_utils::error::Error::new(&format!(
+                "Graph file not found: {}",
+                graph_path
+            )));
         }
-        ggen_core::Graph::load_from_file(&graph_path).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to load graph: {}", e))
-        })?
+        ggen_core::Graph::load_from_file(&graph_path)
+            .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to load graph: {}", e)))?
     } else {
         // Use empty graph for demonstration
-        ggen_core::Graph::new().map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to create graph: {}", e))
-        })?
+        ggen_core::Graph::new()
+            .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to create graph: {}", e)))?
     };
 
     // Basic validation - in production this would use proper SHACL validation
     let mut violations = Vec::new();
-    
+
     // Simulate some validation checks
     if graph_data.len() == 0 {
         violations.push(Violation {

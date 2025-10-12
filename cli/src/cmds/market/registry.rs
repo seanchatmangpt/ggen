@@ -37,7 +37,7 @@ pub struct Package {
 impl Registry {
     /// Load registry from default location
     pub async fn load() -> Result<Self> {
-        let registry_path = Self::default_path()?;
+        let registry_path = Self::default_path_sync()?;
         Self::load_from_path(&registry_path).await
     }
 

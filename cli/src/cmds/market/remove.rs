@@ -1,7 +1,7 @@
 use clap::Args;
 use ggen_utils::error::Result;
-use std::path::PathBuf;
 use std::collections::HashMap;
+use std::path::PathBuf;
 
 #[derive(Args, Debug)]
 pub struct RemoveArgs {
@@ -80,74 +80,85 @@ impl DefaultGpackUninstaller {
     pub fn new() -> Result<Self> {
         let lockfile_path = PathBuf::from(".ggen/gpack.lock");
         let gpack_dir = PathBuf::from(".ggen/gpacks");
-        
+
         Ok(Self {
             lockfile_path,
             gpack_dir,
         })
     }
-    
+
     /// Load installed gpacks from lockfile
     fn load_installed_gpacks(&self) -> Result<HashMap<String, serde_json::Value>> {
         if !self.lockfile_path.exists() {
             return Ok(HashMap::new());
         }
-        
-        let content = std::fs::read_to_string(&self.lockfile_path)
-            .map_err(|e| ggen_utils::error::Error::new_fmt(format_args!("Failed to read lockfile: {}", e)))?;
-        
-        let lockfile: serde_json::Value = serde_json::from_str(&content)
-            .map_err(|e| ggen_utils::error::Error::new_fmt(format_args!("Failed to parse lockfile: {}", e)))?;
-        
+
+        let content = std::fs::read_to_string(&self.lockfile_path).map_err(|e| {
+            ggen_utils::error::Error::new_fmt(format_args!("Failed to read lockfile: {}", e))
+        })?;
+
+        let lockfile: serde_json::Value = serde_json::from_str(&content).map_err(|e| {
+            ggen_utils::error::Error::new_fmt(format_args!("Failed to parse lockfile: {}", e))
+        })?;
+
         let mut gpacks = HashMap::new();
         if let Some(installed) = lockfile.get("installed").and_then(|v| v.as_object()) {
             for (id, version_info) in installed {
                 gpacks.insert(id.clone(), version_info.clone());
             }
         }
-        
+
         Ok(gpacks)
     }
-    
+
     /// Remove gpack from lockfile
     fn remove_from_lockfile(&self, gpack_id: &str) -> Result<()> {
         if !self.lockfile_path.exists() {
             return Ok(());
         }
-        
-        let content = std::fs::read_to_string(&self.lockfile_path)
-            .map_err(|e| ggen_utils::error::Error::new_fmt(format_args!("Failed to read lockfile: {}", e)))?;
-        
-        let mut lockfile: serde_json::Value = serde_json::from_str(&content)
-            .map_err(|e| ggen_utils::error::Error::new_fmt(format_args!("Failed to parse lockfile: {}", e)))?;
-        
+
+        let content = std::fs::read_to_string(&self.lockfile_path).map_err(|e| {
+            ggen_utils::error::Error::new_fmt(format_args!("Failed to read lockfile: {}", e))
+        })?;
+
+        let mut lockfile: serde_json::Value = serde_json::from_str(&content).map_err(|e| {
+            ggen_utils::error::Error::new_fmt(format_args!("Failed to parse lockfile: {}", e))
+        })?;
+
         // Remove from installed gpacks
-        if let Some(installed) = lockfile.get_mut("installed").and_then(|v| v.as_object_mut()) {
+        if let Some(installed) = lockfile
+            .get_mut("installed")
+            .and_then(|v| v.as_object_mut())
+        {
             installed.remove(gpack_id);
         }
-        
+
         // Write updated lockfile
-        let content = serde_json::to_string_pretty(&lockfile)
-            .map_err(|e| ggen_utils::error::Error::new_fmt(format_args!("Failed to serialize lockfile: {}", e)))?;
-        
-        std::fs::write(&self.lockfile_path, content)
-            .map_err(|e| ggen_utils::error::Error::new_fmt(format_args!("Failed to write lockfile: {}", e)))?;
-        
+        let content = serde_json::to_string_pretty(&lockfile).map_err(|e| {
+            ggen_utils::error::Error::new_fmt(format_args!("Failed to serialize lockfile: {}", e))
+        })?;
+
+        std::fs::write(&self.lockfile_path, content).map_err(|e| {
+            ggen_utils::error::Error::new_fmt(format_args!("Failed to write lockfile: {}", e))
+        })?;
+
         Ok(())
     }
-    
+
     /// Remove gpack files from filesystem
     fn remove_gpack_files(&self, gpack_id: &str) -> Result<()> {
         let gpack_path = self.gpack_dir.join(gpack_id);
-        
+
         if gpack_path.exists() {
-            std::fs::remove_dir_all(&gpack_path)
-                .map_err(|e| ggen_utils::error::Error::new_fmt(format_args!(
-                    "Failed to remove gpack directory '{}': {}", 
-                    gpack_path.display(), e
-                )))?;
+            std::fs::remove_dir_all(&gpack_path).map_err(|e| {
+                ggen_utils::error::Error::new_fmt(format_args!(
+                    "Failed to remove gpack directory '{}': {}",
+                    gpack_path.display(),
+                    e
+                ))
+            })?;
         }
-        
+
         Ok(())
     }
 }
@@ -156,18 +167,18 @@ impl GpackUninstaller for DefaultGpackUninstaller {
     fn uninstall(&self, gpack_id: &str) -> Result<bool> {
         // Load installed gpacks
         let installed_gpacks = self.load_installed_gpacks()?;
-        
+
         // Check if gpack is installed
         if !installed_gpacks.contains_key(gpack_id) {
             return Ok(false);
         }
-        
+
         // Remove from lockfile
         self.remove_from_lockfile(gpack_id)?;
-        
+
         // Remove files
         self.remove_gpack_files(gpack_id)?;
-        
+
         Ok(true)
     }
 }

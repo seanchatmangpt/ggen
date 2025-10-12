@@ -31,8 +31,8 @@ pub mod simple_tracing;
 
 // Re-export production readiness types from lifecycle module
 pub use lifecycle::{
-    ReadinessTracker, ReadinessReport, ReadinessStatus, ReadinessCategory, ReadinessRequirement,
-    Placeholder, PlaceholderRegistry, PlaceholderProcessor
+    Placeholder, PlaceholderProcessor, PlaceholderRegistry, ReadinessCategory, ReadinessReport,
+    ReadinessRequirement, ReadinessStatus, ReadinessTracker,
 };
 
 // Re-export commonly used types for convenience

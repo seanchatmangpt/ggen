@@ -26,7 +26,10 @@
 //! - Advanced security (<50%)
 //! - Monitoring dashboards (<50%)
 
-use super::{production::{ReadinessTracker, ReadinessReport, ReadinessCategory, ReadinessStatus}, error::{LifecycleError, Result}};
+use super::{
+    error::{LifecycleError, Result},
+    production::{ReadinessCategory, ReadinessReport, ReadinessStatus, ReadinessTracker},
+};
 use std::collections::HashMap;
 
 /// Validation result for production readiness
@@ -78,9 +81,9 @@ impl ReadinessValidator {
     /// Create a new validator with default thresholds
     pub fn new() -> Self {
         let mut thresholds = HashMap::new();
-        thresholds.insert(ReadinessCategory::Critical, 100.0);    // Must be 100%
-        thresholds.insert(ReadinessCategory::Important, 80.0);   // Must be >80%
-        thresholds.insert(ReadinessCategory::NiceToHave, 0.0);   // No minimum
+        thresholds.insert(ReadinessCategory::Critical, 100.0); // Must be 100%
+        thresholds.insert(ReadinessCategory::Important, 80.0); // Must be >80%
+        thresholds.insert(ReadinessCategory::NiceToHave, 0.0); // No minimum
 
         Self {
             thresholds,
@@ -154,7 +157,8 @@ impl ReadinessValidator {
                     "{} critical requirements are blocking production deployment",
                     report.blocking_requirements.len()
                 ),
-                fix: "Complete all critical requirements before deploying to production".to_string(),
+                fix: "Complete all critical requirements before deploying to production"
+                    .to_string(),
             });
             passed = false;
         }
@@ -168,20 +172,24 @@ impl ReadinessValidator {
     }
 
     /// Validate project before deployment
-    pub fn validate_for_deployment<P: AsRef<std::path::Path>>(&self, project_root: P) -> Result<ValidationResult> {
+    pub fn validate_for_deployment<P: AsRef<std::path::Path>>(
+        &self, project_root: P,
+    ) -> Result<ValidationResult> {
         let mut tracker = ReadinessTracker::new(project_root);
         tracker.load().map_err(|e| LifecycleError::ConfigLoad {
-            path: "readiness.toml".to_string().into(),
+            path: std::path::PathBuf::from("readiness.toml"),
             source: Box::new(e),
         })?;
 
         // Analyze project for existing implementations
-        tracker.analyze_project().map_err(|e| LifecycleError::CommandFailed {
-            phase: "production-validation".to_string(),
-            command: "analyze_project".to_string(),
-            exit_code: 1,
-            stderr: e.to_string(),
-        })?;
+        tracker
+            .analyze_project()
+            .map_err(|e| LifecycleError::CommandFailed {
+                phase: "production-validation".to_string(),
+                command: "analyze_project".to_string(),
+                exit_code: 1,
+                stderr: e.to_string(),
+            })?;
 
         let report = tracker.generate_report();
         Ok(self.validate(&report))
@@ -207,14 +215,17 @@ impl ReadinessValidator {
         let mut recommendations = Vec::new();
 
         if report.overall_score < 60.0 {
-            recommendations.push("❌ BLOCKED: Overall score too low for any deployment".to_string());
+            recommendations
+                .push("❌ BLOCKED: Overall score too low for any deployment".to_string());
             recommendations.push("Focus on critical requirements first".to_string());
         } else if report.overall_score < 75.0 {
             recommendations.push("⚠️ CAUTION: Deploy to staging only, not production".to_string());
-            recommendations.push("Complete critical requirements before production deployment".to_string());
+            recommendations
+                .push("Complete critical requirements before production deployment".to_string());
         } else if report.overall_score < 90.0 {
             recommendations.push("✅ READY: Deploy to production with monitoring".to_string());
-            recommendations.push("Consider addressing remaining important requirements".to_string());
+            recommendations
+                .push("Consider addressing remaining important requirements".to_string());
         } else {
             recommendations.push("🚀 EXCELLENT: Ready for production deployment".to_string());
         }
@@ -240,16 +251,28 @@ mod tests {
         tracker.load().unwrap();
 
         // Update critical requirements to be complete
-        tracker.update_requirement("auth-basic", ReadinessStatus::Complete).unwrap();
-        tracker.update_requirement("error-handling", ReadinessStatus::Complete).unwrap();
-        tracker.update_requirement("health-checks", ReadinessStatus::Complete).unwrap();
+        tracker
+            .update_requirement("auth-basic", ReadinessStatus::Complete)
+            .unwrap();
+        tracker
+            .update_requirement("error-handling", ReadinessStatus::Complete)
+            .unwrap();
+        tracker
+            .update_requirement("health-checks", ReadinessStatus::Complete)
+            .unwrap();
 
         let report = tracker.generate_report();
         let validator = ReadinessValidator::new();
         let result = validator.validate(&report);
 
         // Critical should pass (100% complete)
-        assert!(result.passed || result.issues.iter().all(|i| i.category != ReadinessCategory::Critical));
+        assert!(
+            result.passed
+                || result
+                    .issues
+                    .iter()
+                    .all(|i| i.category != ReadinessCategory::Critical)
+        );
     }
 
     #[test]
@@ -262,14 +285,18 @@ mod tests {
         let recommendations = validator.deployment_gate_recommendations(&report);
 
         assert!(!recommendations.is_empty());
-        assert!(recommendations[0].contains("BLOCKED") || recommendations[0].contains("CAUTION") ||
-                recommendations[0].contains("READY") || recommendations[0].contains("EXCELLENT"));
+        assert!(
+            recommendations[0].contains("BLOCKED")
+                || recommendations[0].contains("CAUTION")
+                || recommendations[0].contains("READY")
+                || recommendations[0].contains("EXCELLENT")
+        );
     }
 
     #[test]
     fn test_custom_thresholds() {
         let mut thresholds = HashMap::new();
-        thresholds.insert(ReadinessCategory::Critical, 90.0);    // Lower threshold for testing
+        thresholds.insert(ReadinessCategory::Critical, 90.0); // Lower threshold for testing
         thresholds.insert(ReadinessCategory::Important, 70.0);
 
         let validator = ReadinessValidator::with_thresholds(thresholds);

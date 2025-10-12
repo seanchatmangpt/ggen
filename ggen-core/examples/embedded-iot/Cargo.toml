@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 authors = ["GGEN Project"]
 description = "IoT sensor firmware for ARM Cortex-M with no-std support"
+build = "build.rs"
 
 [dependencies]
 # Core embedded dependencies
@@ -32,31 +33,6 @@ defmt-rtt = "0.4"
 default = []
 semihosting = ["cortex-m-semihosting"]
 debug = ["semihosting"]
-
-[profile.dev]
-# Optimize even debug builds for embedded
-opt-level = "s"      # Optimize for size
-lto = false
-debug = true
-codegen-units = 16
-
-[profile.release]
-# Maximum size optimization
-opt-level = "z"      # Aggressive size optimization
-lto = "fat"          # Full LTO
-codegen-units = 1    # Better optimization
-debug = false
-strip = true         # Strip symbols
-panic = "abort"      # No unwinding
-overflow-checks = false
-
-# Size-optimized profile
-[profile.size]
-inherits = "release"
-opt-level = "z"
-lto = "fat"
-codegen-units = 1
-strip = true
 
 [[bin]]
 name = "sensor-firmware"

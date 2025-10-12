@@ -21,8 +21,8 @@
 
 use clap::Args;
 use ggen_utils::error::Result;
-use std::path::{Component, Path};
 use std::fs;
+use std::path::{Component, Path};
 
 #[derive(Args, Debug)]
 pub struct ExportArgs {
@@ -131,9 +131,8 @@ pub async fn run(args: &ExportArgs) -> Result<()> {
 /// Export graph to specified format
 fn export_graph(output: String, format: String, pretty: bool) -> Result<ExportStats> {
     // Create a basic graph for demonstration
-    let graph = ggen_core::Graph::new().map_err(|e| {
-        ggen_utils::error::Error::new(&format!("Failed to create graph: {}", e))
-    })?;
+    let graph = ggen_core::Graph::new()
+        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to create graph: {}", e)))?;
 
     // Generate sample RDF content based on format
     let content = match format.to_lowercase().as_str() {
@@ -151,9 +150,9 @@ fn export_graph(output: String, format: String, pretty: bool) -> Result<ExportSt
     })?;
 
     // Get file size
-    let file_size = fs::metadata(&output).map_err(|e| {
-        ggen_utils::error::Error::new(&format!("Failed to get file metadata: {}", e))
-    })?.len() as usize;
+    let file_size = fs::metadata(&output)
+        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to get file metadata: {}", e)))?
+        .len() as usize;
 
     Ok(ExportStats {
         triples_exported: graph.len(),
@@ -175,7 +174,8 @@ ex:Person1 a ex:Person ;
 ex:Person2 a ex:Person ;
     rdfs:label "Another Person" ;
     ex:hasAge 25 .
-"#.to_string()
+"#
+        .to_string()
     } else {
         r#"@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> . @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> . @prefix ex: <http://example.org/> . ex:Person1 a ex:Person ; rdfs:label "Sample Person" ; ex:hasAge 30 . ex:Person2 a ex:Person ; rdfs:label "Another Person" ; ex:hasAge 25 ."#.to_string()
     }
@@ -210,7 +210,8 @@ fn generate_rdfxml_content(pretty: bool) -> String {
     <ex:hasAge rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">25</ex:hasAge>
   </rdf:Description>
 </rdf:RDF>
-"#.to_string()
+"#
+        .to_string()
     } else {
         r#"<?xml version="1.0" encoding="UTF-8"?><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:ex="http://example.org/"><rdf:Description rdf:about="http://example.org/Person1"><rdf:type rdf:resource="http://example.org/Person"/><rdfs:label>Sample Person</rdfs:label><ex:hasAge rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">30</ex:hasAge></rdf:Description><rdf:Description rdf:about="http://example.org/Person2"><rdf:type rdf:resource="http://example.org/Person"/><rdfs:label>Another Person</rdfs:label><ex:hasAge rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">25</ex:hasAge></rdf:Description></rdf:RDF>"#.to_string()
     }
@@ -240,7 +241,8 @@ fn generate_jsonld_content(pretty: bool) -> String {
     }
   ]
 }
-"#.to_string()
+"#
+        .to_string()
     } else {
         r#"{"@context":{"rdf":"http://www.w3.org/1999/02/22-rdf-syntax-ns#","rdfs":"http://www.w3.org/2000/01/rdf-schema#","ex":"http://example.org/"},"@graph":[{"@id":"ex:Person1","@type":"ex:Person","rdfs:label":"Sample Person","ex:hasAge":30},{"@id":"ex:Person2","@type":"ex:Person","rdfs:label":"Another Person","ex:hasAge":25}]}"#.to_string()
     }
@@ -260,7 +262,8 @@ ex:Person1 a ex:Person ;
 ex:Person2 a ex:Person ;
     rdfs:label "Another Person" ;
     ex:hasAge 25 .
-"#.to_string()
+"#
+        .to_string()
     } else {
         r#"@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> . @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> . @prefix ex: <http://example.org/> . ex:Person1 a ex:Person ; rdfs:label "Sample Person" ; ex:hasAge 30 . ex:Person2 a ex:Person ; rdfs:label "Another Person" ; ex:hasAge 25 ."#.to_string()
     }

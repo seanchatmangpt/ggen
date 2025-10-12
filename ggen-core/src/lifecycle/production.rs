@@ -36,10 +36,10 @@
 //! - Advanced security features
 //! - Complex monitoring dashboards
 
-use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, HashMap};
-use std::path::Path;
 use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
+use std::path::Path;
 use thiserror::Error;
 
 /// Production readiness status for a component
@@ -64,6 +64,16 @@ pub enum ReadinessCategory {
     Important,
     /// Nice-to-have features (50% effort, 5% value)
     NiceToHave,
+}
+
+impl std::fmt::Display for ReadinessCategory {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ReadinessCategory::Critical => write!(f, "Critical"),
+            ReadinessCategory::Important => write!(f, "Important"),
+            ReadinessCategory::NiceToHave => write!(f, "Nice-to-Have"),
+        }
+    }
 }
 
 /// Production readiness requirement
@@ -218,15 +228,17 @@ impl ReadinessTracker {
         // Group requirements by category
         for req in &self.requirements {
             let category = req.category.clone();
-            let entry = by_category.entry(category).or_insert_with(|| CategoryReport {
-                category: req.category.clone(),
-                total_requirements: 0,
-                completed: 0,
-                placeholders: 0,
-                missing: 0,
-                score: 0.0,
-                requirements: Vec::new(),
-            });
+            let entry = by_category
+                .entry(category)
+                .or_insert_with(|| CategoryReport {
+                    category: req.category.clone(),
+                    total_requirements: 0,
+                    completed: 0,
+                    placeholders: 0,
+                    missing: 0,
+                    score: 0.0,
+                    requirements: Vec::new(),
+                });
 
             entry.total_requirements += 1;
             entry.requirements.push(req.id.clone());
@@ -257,19 +269,30 @@ impl ReadinessTracker {
         }
 
         // Calculate overall score (weighted by category importance)
-        let critical_score = by_category.get(&ReadinessCategory::Critical)
-            .map(|r| r.score).unwrap_or(0.0) * 0.8; // 80% weight
-        let important_score = by_category.get(&ReadinessCategory::Important)
-            .map(|r| r.score).unwrap_or(0.0) * 0.15; // 15% weight
-        let nice_score = by_category.get(&ReadinessCategory::NiceToHave)
-            .map(|r| r.score).unwrap_or(0.0) * 0.05; // 5% weight
+        let critical_score = by_category
+            .get(&ReadinessCategory::Critical)
+            .map(|r| r.score)
+            .unwrap_or(0.0)
+            * 0.8; // 80% weight
+        let important_score = by_category
+            .get(&ReadinessCategory::Important)
+            .map(|r| r.score)
+            .unwrap_or(0.0)
+            * 0.15; // 15% weight
+        let nice_score = by_category
+            .get(&ReadinessCategory::NiceToHave)
+            .map(|r| r.score)
+            .unwrap_or(0.0)
+            * 0.05; // 5% weight
 
         let overall_score = critical_score + important_score + nice_score;
 
         // Generate next steps based on critical missing items
         for req in &self.requirements {
-            if req.category == ReadinessCategory::Critical &&
-               (req.status == ReadinessStatus::Missing || req.status == ReadinessStatus::NeedsReview) {
+            if req.category == ReadinessCategory::Critical
+                && (req.status == ReadinessStatus::Missing
+                    || req.status == ReadinessStatus::NeedsReview)
+            {
                 next_steps.push(format!("Implement {}: {}", req.name, req.description));
             }
         }
@@ -286,9 +309,13 @@ impl ReadinessTracker {
     }
 
     /// Update the status of a requirement
-    pub fn update_requirement(&mut self, requirement_id: &str, status: ReadinessStatus) -> Result<()> {
+    pub fn update_requirement(
+        &mut self, requirement_id: &str, status: ReadinessStatus,
+    ) -> Result<()> {
         // Find the requirement first
-        let req_index = self.requirements.iter()
+        let req_index = self
+            .requirements
+            .iter()
             .position(|r| r.id == requirement_id)
             .ok_or_else(|| ProductionError::RequirementNotFound(requirement_id.to_string()))?;
 
@@ -313,14 +340,16 @@ impl ReadinessTracker {
 
     /// Get requirements by status
     pub fn get_by_status(&self, status: &ReadinessStatus) -> Vec<&ReadinessRequirement> {
-        self.requirements.iter()
+        self.requirements
+            .iter()
             .filter(|r| &r.status == status)
             .collect()
     }
 
     /// Get requirements by category
     pub fn get_by_category(&self, category: &ReadinessCategory) -> Vec<&ReadinessRequirement> {
-        self.requirements.iter()
+        self.requirements
+            .iter()
             .filter(|r| r.category == *category)
             .collect()
     }
@@ -351,8 +380,10 @@ impl ReadinessTracker {
     }
 
     /// Check for cycles in dependency graph
-    fn has_cycle(&self, req_id: &str, visited: &mut std::collections::HashSet<String>,
-                 path: &mut Vec<String>) -> bool {
+    fn has_cycle(
+        &self, req_id: &str, visited: &mut std::collections::HashSet<String>,
+        path: &mut Vec<String>,
+    ) -> bool {
         if path.contains(&req_id.to_string()) {
             return true; // Cycle detected
         }
@@ -399,10 +430,15 @@ impl ReadinessTracker {
             ReadinessRequirement {
                 id: "error-handling".to_string(),
                 name: "Comprehensive Error Handling".to_string(),
-                description: "Proper error handling with thiserror, no unwrap/expect in production code".to_string(),
+                description:
+                    "Proper error handling with thiserror, no unwrap/expect in production code"
+                        .to_string(),
                 category: ReadinessCategory::Critical,
                 status: ReadinessStatus::Missing,
-                components: vec!["src/error.rs".to_string(), "templates/error-handling.tmpl".to_string()],
+                components: vec![
+                    "src/error.rs".to_string(),
+                    "templates/error-handling.tmpl".to_string(),
+                ],
                 dependencies: vec![],
                 effort_hours: Some(12),
                 priority: 10,
@@ -412,10 +448,14 @@ impl ReadinessTracker {
             ReadinessRequirement {
                 id: "logging-tracing".to_string(),
                 name: "Structured Logging & Tracing".to_string(),
-                description: "Comprehensive logging with tracing crate and structured output".to_string(),
+                description: "Comprehensive logging with tracing crate and structured output"
+                    .to_string(),
                 category: ReadinessCategory::Critical,
                 status: ReadinessStatus::Missing,
-                components: vec!["src/logging.rs".to_string(), "config/tracing.toml".to_string()],
+                components: vec![
+                    "src/logging.rs".to_string(),
+                    "config/tracing.toml".to_string(),
+                ],
                 dependencies: vec![],
                 effort_hours: Some(6),
                 priority: 9,
@@ -425,10 +465,14 @@ impl ReadinessTracker {
             ReadinessRequirement {
                 id: "health-checks".to_string(),
                 name: "Health Check Endpoints".to_string(),
-                description: "HTTP health check endpoints for load balancer and monitoring".to_string(),
+                description: "HTTP health check endpoints for load balancer and monitoring"
+                    .to_string(),
                 category: ReadinessCategory::Critical,
                 status: ReadinessStatus::Missing,
-                components: vec!["src/health.rs".to_string(), "templates/health.tmpl".to_string()],
+                components: vec![
+                    "src/health.rs".to_string(),
+                    "templates/health.tmpl".to_string(),
+                ],
                 dependencies: vec![],
                 effort_hours: Some(4),
                 priority: 8,
@@ -438,10 +482,15 @@ impl ReadinessTracker {
             ReadinessRequirement {
                 id: "input-validation".to_string(),
                 name: "Input Validation & Sanitization".to_string(),
-                description: "Comprehensive input validation and sanitization to prevent injection attacks".to_string(),
+                description:
+                    "Comprehensive input validation and sanitization to prevent injection attacks"
+                        .to_string(),
                 category: ReadinessCategory::Critical,
                 status: ReadinessStatus::Missing,
-                components: vec!["src/validation.rs".to_string(), "templates/validation.tmpl".to_string()],
+                components: vec![
+                    "src/validation.rs".to_string(),
+                    "templates/validation.tmpl".to_string(),
+                ],
                 dependencies: vec!["auth-basic".to_string()],
                 effort_hours: Some(10),
                 priority: 9,
@@ -451,7 +500,8 @@ impl ReadinessTracker {
             ReadinessRequirement {
                 id: "database-migrations".to_string(),
                 name: "Database Schema Migrations".to_string(),
-                description: "Automated database schema migrations with rollback capability".to_string(),
+                description: "Automated database schema migrations with rollback capability"
+                    .to_string(),
                 category: ReadinessCategory::Critical,
                 status: ReadinessStatus::Missing,
                 components: vec!["migrations/".to_string(), "src/database.rs".to_string()],
@@ -461,7 +511,6 @@ impl ReadinessTracker {
                 last_assessed: Utc::now(),
                 notes: Some("Essential for zero-downtime deployments".to_string()),
             },
-
             // Important (30% effort, 15% value)
             ReadinessRequirement {
                 id: "api-documentation".to_string(),
@@ -508,7 +557,10 @@ impl ReadinessTracker {
                 description: "Basic performance metrics collection and alerting".to_string(),
                 category: ReadinessCategory::Important,
                 status: ReadinessStatus::Missing,
-                components: vec!["src/metrics.rs".to_string(), "config/metrics.toml".to_string()],
+                components: vec![
+                    "src/metrics.rs".to_string(),
+                    "config/metrics.toml".to_string(),
+                ],
                 dependencies: vec!["logging-tracing".to_string()],
                 effort_hours: Some(8),
                 priority: 6,
@@ -518,7 +570,8 @@ impl ReadinessTracker {
             ReadinessRequirement {
                 id: "docker-containerization".to_string(),
                 name: "Docker Containerization".to_string(),
-                description: "Production-ready Docker containers with multi-stage builds".to_string(),
+                description: "Production-ready Docker containers with multi-stage builds"
+                    .to_string(),
                 category: ReadinessCategory::Important,
                 status: ReadinessStatus::Missing,
                 components: vec!["Dockerfile".to_string(), "docker-compose.yml".to_string()],
@@ -541,7 +594,6 @@ impl ReadinessTracker {
                 last_assessed: Utc::now(),
                 notes: Some("Essential for multi-environment deployments".to_string()),
             },
-
             // Nice-to-have (50% effort, 5% value)
             ReadinessRequirement {
                 id: "rate-limiting".to_string(),
@@ -585,10 +637,15 @@ impl ReadinessTracker {
             ReadinessRequirement {
                 id: "advanced-security".to_string(),
                 name: "Advanced Security Features".to_string(),
-                description: "Advanced security features like CSRF protection, CORS, security headers".to_string(),
+                description:
+                    "Advanced security features like CSRF protection, CORS, security headers"
+                        .to_string(),
                 category: ReadinessCategory::NiceToHave,
                 status: ReadinessStatus::Missing,
-                components: vec!["src/security.rs".to_string(), "config/security.toml".to_string()],
+                components: vec![
+                    "src/security.rs".to_string(),
+                    "config/security.toml".to_string(),
+                ],
                 dependencies: vec!["input-validation".to_string()],
                 effort_hours: Some(14),
                 priority: 4,
@@ -639,12 +696,8 @@ pub struct Placeholder {
 impl Placeholder {
     /// Create a new placeholder marker
     pub fn new(
-        id: String,
-        description: String,
-        category: ReadinessCategory,
-        affects: Vec<String>,
-        guidance: String,
-        priority: u8,
+        id: String, description: String, category: ReadinessCategory, affects: Vec<String>,
+        guidance: String, priority: u8,
     ) -> Self {
         Self {
             id,
@@ -873,9 +926,18 @@ mod tests {
         let requirements = ReadinessTracker::default_requirements();
 
         // Should have requirements in all categories
-        let critical = requirements.iter().filter(|r| r.category == ReadinessCategory::Critical).count();
-        let important = requirements.iter().filter(|r| r.category == ReadinessCategory::Important).count();
-        let nice = requirements.iter().filter(|r| r.category == ReadinessCategory::NiceToHave).count();
+        let critical = requirements
+            .iter()
+            .filter(|r| r.category == ReadinessCategory::Critical)
+            .count();
+        let important = requirements
+            .iter()
+            .filter(|r| r.category == ReadinessCategory::Important)
+            .count();
+        let nice = requirements
+            .iter()
+            .filter(|r| r.category == ReadinessCategory::NiceToHave)
+            .count();
 
         assert!(critical > 0, "Should have critical requirements");
         assert!(important > 0, "Should have important requirements");
@@ -884,7 +946,10 @@ mod tests {
         // Critical should be highest priority
         for req in &requirements {
             if req.category == ReadinessCategory::Critical {
-                assert!(req.priority >= 8, "Critical requirements should have high priority");
+                assert!(
+                    req.priority >= 8,
+                    "Critical requirements should have high priority"
+                );
             }
         }
     }
@@ -906,11 +971,17 @@ mod tests {
         tracker.load().unwrap();
 
         // Valid transitions
-        assert!(tracker.update_requirement("auth-basic", ReadinessStatus::Placeholder).is_ok());
-        assert!(tracker.update_requirement("auth-basic", ReadinessStatus::Complete).is_ok());
+        assert!(tracker
+            .update_requirement("auth-basic", ReadinessStatus::Placeholder)
+            .is_ok());
+        assert!(tracker
+            .update_requirement("auth-basic", ReadinessStatus::Complete)
+            .is_ok());
 
         // Invalid transition (Complete -> Missing not allowed)
-        assert!(tracker.update_requirement("auth-basic", ReadinessStatus::Missing).is_err());
+        assert!(tracker
+            .update_requirement("auth-basic", ReadinessStatus::Missing)
+            .is_err());
     }
 }
 
@@ -924,37 +995,39 @@ impl PlaceholderRegistry {
     pub fn new() -> Self {
         Self::default()
     }
-    
+
     pub fn register(&mut self, id: String, placeholder: Placeholder) {
         self.placeholders.insert(id, placeholder);
     }
-    
+
     pub fn get(&self, id: &str) -> Option<&Placeholder> {
         self.placeholders.get(id)
     }
-    
+
     pub fn list(&self) -> Vec<&Placeholder> {
         self.placeholders.values().collect()
     }
-    
+
     pub fn get_by_category(&self, category: &ReadinessCategory) -> Vec<&Placeholder> {
-        self.placeholders.values()
+        self.placeholders
+            .values()
             .filter(|p| &p.category == category)
             .collect()
     }
-    
+
     pub fn generate_summary(&self) -> String {
         let mut summary = String::new();
         summary.push_str("Placeholder Summary:\n");
-        
+
         for (id, placeholder) in &self.placeholders {
-            summary.push_str(&format!("  {}: {} ({})\n", 
-                id, 
-                placeholder.description, 
+            summary.push_str(&format!(
+                "  {}: {} ({})\n",
+                id,
+                placeholder.description,
                 format!("{:?}", placeholder.category)
             ));
         }
-        
+
         summary
     }
 }
@@ -971,20 +1044,22 @@ impl PlaceholderProcessor {
             registry: PlaceholderRegistry::new(),
         }
     }
-    
+
     pub fn process(&self, placeholder_id: &str) -> Result<()> {
-        if let Some(placeholder) = self.registry.get(placeholder_id) {
+        if let Some(_placeholder) = self.registry.get(placeholder_id) {
             tracing::info!("Processing placeholder: {}", placeholder_id);
             Ok(())
         } else {
-            Err(ProductionError::RequirementNotFound(placeholder_id.to_string()))
+            Err(ProductionError::RequirementNotFound(
+                placeholder_id.to_string(),
+            ))
         }
     }
-    
+
     pub fn registry(&self) -> &PlaceholderRegistry {
         &self.registry
     }
-    
+
     pub fn registry_mut(&mut self) -> &mut PlaceholderRegistry {
         &mut self.registry
     }

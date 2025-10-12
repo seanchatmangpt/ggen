@@ -1,8 +1,8 @@
 use clap::Args;
-use ggen_utils::error::Result;
 use ggen_core::registry::RegistryClient;
-use std::path::PathBuf;
+use ggen_utils::error::Result;
 use std::collections::HashMap;
+use std::path::PathBuf;
 
 #[derive(Args, Debug)]
 pub struct UpdateArgs {
@@ -109,29 +109,35 @@ pub struct DefaultGpackUpdater {
 
 impl DefaultGpackUpdater {
     pub fn new() -> Result<Self> {
-        let registry_client = RegistryClient::new()
-            .map_err(|e| ggen_utils::error::Error::new_fmt(format_args!("Failed to create registry client: {}", e)))?;
-        
+        let registry_client = RegistryClient::new().map_err(|e| {
+            ggen_utils::error::Error::new_fmt(format_args!(
+                "Failed to create registry client: {}",
+                e
+            ))
+        })?;
+
         let lockfile_path = PathBuf::from(".ggen/gpack.lock");
-        
+
         Ok(Self {
             registry_client,
             lockfile_path,
         })
     }
-    
+
     /// Load installed gpacks from lockfile
     fn load_installed_gpacks(&self) -> Result<HashMap<String, String>> {
         if !self.lockfile_path.exists() {
             return Ok(HashMap::new());
         }
-        
-        let content = std::fs::read_to_string(&self.lockfile_path)
-            .map_err(|e| ggen_utils::error::Error::new_fmt(format_args!("Failed to read lockfile: {}", e)))?;
-        
-        let lockfile: serde_json::Value = serde_json::from_str(&content)
-            .map_err(|e| ggen_utils::error::Error::new_fmt(format_args!("Failed to parse lockfile: {}", e)))?;
-        
+
+        let content = std::fs::read_to_string(&self.lockfile_path).map_err(|e| {
+            ggen_utils::error::Error::new_fmt(format_args!("Failed to read lockfile: {}", e))
+        })?;
+
+        let lockfile: serde_json::Value = serde_json::from_str(&content).map_err(|e| {
+            ggen_utils::error::Error::new_fmt(format_args!("Failed to parse lockfile: {}", e))
+        })?;
+
         let mut gpacks = HashMap::new();
         if let Some(installed) = lockfile.get("installed").and_then(|v| v.as_object()) {
             for (id, version_info) in installed {
@@ -140,37 +146,46 @@ impl DefaultGpackUpdater {
                 }
             }
         }
-        
+
         Ok(gpacks)
     }
-    
+
     /// Update lockfile with new versions
     fn update_lockfile(&self, updates: &[UpdateResult]) -> Result<()> {
         if updates.is_empty() {
             return Ok(());
         }
-        
+
         // Ensure .ggen directory exists
         if let Some(parent) = self.lockfile_path.parent() {
-            std::fs::create_dir_all(parent)
-                .map_err(|e| ggen_utils::error::Error::new_fmt(format_args!("Failed to create .ggen directory: {}", e)))?;
+            std::fs::create_dir_all(parent).map_err(|e| {
+                ggen_utils::error::Error::new_fmt(format_args!(
+                    "Failed to create .ggen directory: {}",
+                    e
+                ))
+            })?;
         }
-        
+
         // Load existing lockfile or create new one
         let mut lockfile: serde_json::Value = if self.lockfile_path.exists() {
-            let content = std::fs::read_to_string(&self.lockfile_path)
-                .map_err(|e| ggen_utils::error::Error::new_fmt(format_args!("Failed to read lockfile: {}", e)))?;
-            serde_json::from_str(&content)
-                .map_err(|e| ggen_utils::error::Error::new_fmt(format_args!("Failed to parse lockfile: {}", e)))?
+            let content = std::fs::read_to_string(&self.lockfile_path).map_err(|e| {
+                ggen_utils::error::Error::new_fmt(format_args!("Failed to read lockfile: {}", e))
+            })?;
+            serde_json::from_str(&content).map_err(|e| {
+                ggen_utils::error::Error::new_fmt(format_args!("Failed to parse lockfile: {}", e))
+            })?
         } else {
             serde_json::json!({
                 "version": "1.0",
                 "installed": {}
             })
         };
-        
+
         // Update versions
-        if let Some(installed) = lockfile.get_mut("installed").and_then(|v| v.as_object_mut()) {
+        if let Some(installed) = lockfile
+            .get_mut("installed")
+            .and_then(|v| v.as_object_mut())
+        {
             for update in updates {
                 if update.updated {
                     if let Some(gpack_info) = installed.get_mut(&update.gpack_id) {
@@ -181,14 +196,16 @@ impl DefaultGpackUpdater {
                 }
             }
         }
-        
+
         // Write updated lockfile
-        let content = serde_json::to_string_pretty(&lockfile)
-            .map_err(|e| ggen_utils::error::Error::new_fmt(format_args!("Failed to serialize lockfile: {}", e)))?;
-        
-        std::fs::write(&self.lockfile_path, content)
-            .map_err(|e| ggen_utils::error::Error::new_fmt(format_args!("Failed to write lockfile: {}", e)))?;
-        
+        let content = serde_json::to_string_pretty(&lockfile).map_err(|e| {
+            ggen_utils::error::Error::new_fmt(format_args!("Failed to serialize lockfile: {}", e))
+        })?;
+
+        std::fs::write(&self.lockfile_path, content).map_err(|e| {
+            ggen_utils::error::Error::new_fmt(format_args!("Failed to write lockfile: {}", e))
+        })?;
+
         Ok(())
     }
 }
@@ -197,22 +214,23 @@ impl GpackUpdater for DefaultGpackUpdater {
     fn update(&self, gpack_id: Option<String>) -> Result<Vec<UpdateResult>> {
         // Load installed gpacks
         let installed_gpacks = self.load_installed_gpacks()?;
-        
+
         // Determine which gpacks to check
         let gpacks_to_check = if let Some(id) = gpack_id {
             if installed_gpacks.contains_key(&id) {
                 vec![id]
             } else {
                 return Err(ggen_utils::error::Error::new_fmt(format_args!(
-                    "Gpack '{}' is not installed", id
+                    "Gpack '{}' is not installed",
+                    id
                 )));
             }
         } else {
             installed_gpacks.keys().cloned().collect()
         };
-        
+
         let mut results = Vec::new();
-        
+
         // Check each gpack for updates
         for gpack_id in gpacks_to_check {
             if let Some(current_version) = installed_gpacks.get(&gpack_id) {
@@ -248,10 +266,10 @@ impl GpackUpdater for DefaultGpackUpdater {
                 }
             }
         }
-        
+
         // Update lockfile with any changes
         self.update_lockfile(&results)?;
-        
+
         Ok(results)
     }
 }
@@ -261,10 +279,10 @@ impl DefaultGpackUpdater {
     fn check_for_updates(&self, _gpack_id: &str, current_version: &str) -> Result<Option<String>> {
         // This is a simplified synchronous implementation
         // In production, you'd want to use async/await properly
-        
+
         // For now, simulate checking for updates
         // In a real implementation, you'd use the registry client to check for newer versions
-        
+
         // Simulate: if current version is 1.0.0, suggest 1.1.0
         if current_version == "1.0.0" {
             Ok(Some("1.1.0".to_string()))

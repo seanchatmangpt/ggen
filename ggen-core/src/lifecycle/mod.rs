@@ -51,6 +51,8 @@ pub use model::{Hooks, Make, Phase, Project, Workspace};
 pub use state::{load_state, save_state, LifecycleState};
 
 // Production readiness exports
-pub use production::{ReadinessTracker, ReadinessReport, ReadinessStatus, ReadinessCategory, ReadinessRequirement};
-pub use production::{Placeholder, PlaceholderRegistry, PlaceholderProcessor};
-pub use validation::{ReadinessValidator, ValidationResult, ValidationIssue, ValidationSeverity};
+pub use production::{Placeholder, PlaceholderProcessor, PlaceholderRegistry};
+pub use production::{
+    ReadinessCategory, ReadinessReport, ReadinessRequirement, ReadinessStatus, ReadinessTracker,
+};
+pub use validation::{ReadinessValidator, ValidationIssue, ValidationResult, ValidationSeverity};

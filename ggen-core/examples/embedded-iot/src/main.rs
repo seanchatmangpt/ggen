@@ -114,3 +114,10 @@ unsafe fn DefaultHandler(_irqn: i16) {
         asm::nop();
     }
 }
+
+/// SysTick exception handler (optional but often required by linker)
+#[cortex_m_rt::exception]
+fn SysTick() {
+    // System tick - called at regular intervals
+    // Could be used for scheduling or timing
+}
