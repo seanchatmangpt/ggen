@@ -80,7 +80,7 @@
 # GGen CLI Refactoring Plan
 ## Aligning with The GGen Cookbook 2nd Edition Pattern Language
 
-**Author**: CLIArchitect Agent
+**Author**: CLIArchitect
 **Date**: 2025-10-09
 **Version**: 1.0
 **Status**: Draft for Review
