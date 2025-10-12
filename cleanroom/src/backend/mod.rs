@@ -1,16 +1,15 @@
 //! Backend abstraction for running commands in different execution environments
 
 use crate::error::Result;
+use std::collections::HashMap;
 use std::fmt::Debug;
+use std::path::PathBuf;
 use std::process::Output;
 
 // Module structure for backends
-pub mod docker;
-pub mod local;
-pub mod podman;
-pub use docker::DockerBackend;
-pub use local::LocalBackend;
-pub use podman::PodmanBackend;
+pub mod testcontainer;
+
+pub use testcontainer::TestcontainerBackend;
 
 /// Command to execute with all configuration
 #[derive(Debug, Clone)]
@@ -80,6 +79,14 @@ pub struct RunResult {
     pub stderr: String,
     /// Execution duration in milliseconds
     pub duration_ms: u64,
+    /// Whether execution was hermetic (no network access)
+    pub hermetic: bool,
+    /// Whether mounts were deterministic
+    pub deterministic_mounts: bool,
+    /// Whether clock was normalized
+    pub normalized_clock: bool,
+    /// Backend used for execution
+    pub backend: String,
 }
 
 impl RunResult {
@@ -90,18 +97,52 @@ impl RunResult {
             stdout: String::from_utf8_lossy(&output.stdout).to_string(),
             stderr: String::from_utf8_lossy(&output.stderr).to_string(),
             duration_ms,
+            hermetic: false, // Will be set by backend
+            deterministic_mounts: false, // Will be set by backend
+            normalized_clock: false, // Will be set by backend
+            backend: "unknown".to_string(), // Will be set by backend
         }
+    }
+
+    /// Create with backend-specific execution metadata
+    pub fn with_backend_metadata(
+        mut self,
+        backend_name: &str,
+        hermetic: bool,
+        deterministic_mounts: bool,
+        normalized_clock: bool,
+    ) -> Self {
+        self.backend = backend_name.to_string();
+        self.hermetic = hermetic;
+        self.deterministic_mounts = deterministic_mounts;
+        self.normalized_clock = normalized_clock;
+        self
     }
 
     /// Check if command succeeded
     pub fn success(&self) -> bool {
         self.exit_code == 0
     }
+
+    /// Check if execution was hermetic
+    pub fn is_hermetic(&self) -> bool {
+        self.hermetic
+    }
+
+    /// Check if mounts were deterministic
+    pub fn has_deterministic_mounts(&self) -> bool {
+        self.deterministic_mounts
+    }
+
+    /// Check if clock was normalized
+    pub fn has_normalized_clock(&self) -> bool {
+        self.normalized_clock
+    }
 }
 
-/// Backend trait for executing commands
+/// Backend trait for executing commands in isolated environments
 pub trait Backend: Send + Sync {
-    /// Run a command and return result (synchronous version)
+    /// Run a command and return result
     fn run_cmd(&self, cmd: Cmd) -> Result<RunResult>;
 
     /// Get backend name for diagnostics
@@ -111,22 +152,56 @@ pub trait Backend: Send + Sync {
     fn is_available(&self) -> bool {
         true
     }
+
+    /// Check if this backend supports hermetic execution
+    fn supports_hermetic(&self) -> bool {
+        false
+    }
+
+    /// Check if this backend supports deterministic execution
+    fn supports_deterministic(&self) -> bool {
+        false
+    }
 }
 
 /// Async backend trait for container orchestration
 #[async_trait::async_trait]
 pub trait AsyncBackend: Send + Sync {
     /// Prepare execution environment
-    async fn prepare(&self, cfg: &crate::runtime::runner::Config) -> Result<Prepared>;
+    async fn prepare(&self, cfg: &Config) -> Result<Prepared>;
 
     /// Run command in prepared environment
-    async fn run(&self, p: &Prepared, args: &[&str]) -> Result<crate::runtime::runner::RunOutput>;
+    async fn run(&self, p: &Prepared, args: &[&str]) -> Result<RunOutput>;
 
     /// Teardown prepared environment
     async fn teardown(&self, p: Prepared) -> Result<()>;
 
     /// Get backend name
     fn name(&self) -> &str;
+}
+
+/// Configuration for async backends
+#[derive(Debug, Clone)]
+pub struct Config {
+    /// Working directory
+    pub workdir: Option<String>,
+    /// Environment variables
+    pub env: std::collections::HashMap<String, String>,
+    /// Policy constraints
+    pub policy: crate::policy::Policy,
+}
+
+/// Output from async backend execution
+#[derive(Debug, Clone)]
+pub struct RunOutput {
+    /// Exit code
+    pub exit_code: i32,
+    /// Standard output
+    pub stdout: String,
+    /// Standard error
+    pub stderr: String,
+    /// Execution duration in milliseconds
+    pub duration_ms: u64,
 }
 
 /// Prepared execution environment (RAII guard)
@@ -140,38 +215,45 @@ pub struct Prepared {
     pub policy: crate::policy::Policy,
 }
 
-/// Auto-detect and select the best available backend
+/// Auto-backend wrapper for testcontainers
 pub struct AutoBackend {
-    /// The underlying backend implementation
-    pub inner: Box<dyn Backend>,
+    /// The underlying testcontainers backend
+    inner: TestcontainerBackend,
 }
 
 impl AutoBackend {
-    /// Create a new AutoBackend with a specific backend
-    pub fn new(backend: Box<dyn Backend>) -> Self {
+    /// Create a new AutoBackend with testcontainers
+    pub fn new(backend: TestcontainerBackend) -> Self {
         Self { inner: backend }
     }
 
-    /// Detect the best available backend
+    /// Create testcontainers backend with default image
     pub fn detect() -> Result<Self> {
-        // Try Podman first (daemonless, rootless by default)
-        if PodmanBackend::new("rust:1-slim").is_available() {
-            return Ok(Self {
-                inner: Box::new(PodmanBackend::new("rust:1-slim")),
-            });
-        }
+        let backend = TestcontainerBackend::new("rust:1-slim")?;
+        Ok(Self { inner: backend })
+    }
 
-        // Try Docker second (most isolated)
-        if DockerBackend::new("rust:1-slim").is_available() {
-            return Ok(Self {
-                inner: Box::new(DockerBackend::new("rust:1-slim")),
-            });
+    /// Create backend from name (only supports testcontainers now)
+    pub fn from_name(name: &str) -> Result<Self> {
+        match name {
+            "testcontainers" | "auto" => Self::detect(),
+            _ => Err(crate::error::BackendError::Runtime(
+                format!("Unknown backend: {}. Only 'testcontainers' and 'auto' are supported", name)
+            ).into()),
         }
+    }
 
-        // Fall back to local backend
-        Ok(Self {
-            inner: Box::new(LocalBackend::new()),
-        })
+    /// Get the resolved backend name
+    pub fn resolved_backend(&self) -> String {
+        self.inner.name().to_string()
+    }
+
+    /// Check if testcontainers backend is available
+    pub fn is_backend_available(name: &str) -> bool {
+        match name {
+            "testcontainers" | "auto" => TestcontainerBackend::is_available(),
+            _ => false,
+        }
     }
 }
 
@@ -182,5 +264,17 @@ impl Backend for AutoBackend {
 
     fn name(&self) -> &str {
         self.inner.name()
+    }
+
+    fn is_available(&self) -> bool {
+        self.inner.is_available()
+    }
+
+    fn supports_hermetic(&self) -> bool {
+        self.inner.supports_hermetic()
+    }
+
+    fn supports_deterministic(&self) -> bool {
+        self.inner.supports_deterministic()
     }
 }
