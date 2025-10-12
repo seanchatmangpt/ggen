@@ -19,6 +19,7 @@ pub mod merge;
 pub mod pipeline;
 pub mod poc;
 pub mod pqc;
+pub mod preprocessor;
 pub mod register;
 pub mod registry;
 pub mod resolver;

@@ -3,7 +3,7 @@
 //! Provides CLI interface for universal lifecycle management through make.toml
 
 use clap::Parser;
-use ggen_core::lifecycle::{load_make, load_state, Context, run_phase, run_pipeline};
+use ggen_core::lifecycle::{load_make, load_state, run_phase, run_pipeline, Context};
 use std::path::{Path, PathBuf};
 
 #[derive(Parser, Debug, Clone)]
@@ -121,7 +121,9 @@ fn show_phase(root: &Path, phase_name: &str) -> ggen_utils::error::Result<()> {
     let make_path = root.join("make.toml");
     let make = load_make(&make_path).map_err(|e| anyhow::anyhow!(e))?;
 
-    let phase = make.lifecycle.get(phase_name)
+    let phase = make
+        .lifecycle
+        .get(phase_name)
         .ok_or_else(|| anyhow::anyhow!("Phase '{}' not found in make.toml", phase_name))?;
 
     println!("📦 Phase: {}", phase_name);
@@ -205,7 +207,9 @@ fn show_phase(root: &Path, phase_name: &str) -> ggen_utils::error::Result<()> {
 }
 
 /// Run a single phase
-fn run_single_phase(root: &Path, phase_name: &str, env: Option<String>) -> ggen_utils::error::Result<()> {
+fn run_single_phase(
+    root: &Path, phase_name: &str, env: Option<String>,
+) -> ggen_utils::error::Result<()> {
     let make_path = root.join("make.toml");
     let make = std::sync::Arc::new(load_make(&make_path).map_err(|e| anyhow::anyhow!(e))?);
 
@@ -220,7 +224,9 @@ fn run_single_phase(root: &Path, phase_name: &str, env: Option<String>) -> ggen_
 }
 
 /// Run a pipeline of phases
-fn run_phase_pipeline(root: &Path, phases: &[String], env: Option<String>) -> ggen_utils::error::Result<()> {
+fn run_phase_pipeline(
+    root: &Path, phases: &[String], env: Option<String>,
+) -> ggen_utils::error::Result<()> {
     let make_path = root.join("make.toml");
     let make = std::sync::Arc::new(load_make(&make_path).map_err(|e| anyhow::anyhow!(e))?);
 

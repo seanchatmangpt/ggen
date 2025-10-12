@@ -43,18 +43,13 @@ impl Registry {
 
     /// Load registry from specific path
     pub async fn load_from_path(path: &Path) -> Result<Self> {
-        let content = tokio::fs::read_to_string(path)
-            .await
-            .map_err(|e| ggen_utils::error::Error::new_fmt(format_args!(
-                "Failed to read registry file: {}",
-                e
-            )))?;
+        let content = tokio::fs::read_to_string(path).await.map_err(|e| {
+            ggen_utils::error::Error::new_fmt(format_args!("Failed to read registry file: {}", e))
+        })?;
 
-        let registry: Registry = toml::from_str(&content)
-            .map_err(|e| ggen_utils::error::Error::new_fmt(format_args!(
-                "Failed to parse registry TOML: {}",
-                e
-            )))?;
+        let registry: Registry = toml::from_str(&content).map_err(|e| {
+            ggen_utils::error::Error::new_fmt(format_args!("Failed to parse registry TOML: {}", e))
+        })?;
 
         Ok(registry)
     }
@@ -62,11 +57,12 @@ impl Registry {
     /// Get default registry path (workspace root + marketplace/registry/packages.toml)
     pub fn default_path() -> Result<PathBuf> {
         // Try to find workspace root by looking for Cargo.toml with [workspace]
-        let current_dir = std::env::current_dir()
-            .map_err(|e| ggen_utils::error::Error::new_fmt(format_args!(
+        let current_dir = std::env::current_dir().map_err(|e| {
+            ggen_utils::error::Error::new_fmt(format_args!(
                 "Failed to get current directory: {}",
                 e
-            )))?;
+            ))
+        })?;
 
         // Search upwards for workspace root
         let mut search_dir = current_dir.as_path();
@@ -99,7 +95,8 @@ impl Registry {
     pub fn search(&self, query: &str, limit: usize) -> Vec<&Package> {
         let query_lower = query.to_lowercase();
 
-        let mut matches: Vec<(&Package, f32)> = self.packages
+        let mut matches: Vec<(&Package, f32)> = self
+            .packages
             .iter()
             .filter_map(|pkg| {
                 let mut score = 0.0f32;
@@ -149,7 +146,8 @@ impl Registry {
         matches.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
 
         // Return top N matches
-        matches.into_iter()
+        matches
+            .into_iter()
             .take(limit)
             .map(|(pkg, _)| pkg)
             .collect()
@@ -157,7 +155,9 @@ impl Registry {
 
     /// Get package by exact name
     pub fn get_package(&self, name: &str) -> Option<&Package> {
-        self.packages.iter().find(|pkg| pkg.name == name || pkg.full_name == name)
+        self.packages
+            .iter()
+            .find(|pkg| pkg.name == name || pkg.full_name == name)
     }
 
     /// Get all packages in a category
@@ -177,23 +177,21 @@ mod tests {
     fn test_search_exact_match() {
         let registry = Registry {
             version: "1.0.0".to_string(),
-            packages: vec![
-                Package {
-                    name: "genai-templates".to_string(),
-                    full_name: "genai-template-system".to_string(),
-                    version: "0.1.0".to_string(),
-                    description: "GenAI template generation system".to_string(),
-                    category: "ai".to_string(),
-                    author: "ggen-team".to_string(),
-                    repository: "https://github.com/test".to_string(),
-                    path: "marketplace/packages/genai-templates".to_string(),
-                    license: "MIT".to_string(),
-                    dependencies: vec![],
-                    features: vec![],
-                    tags: vec!["llm".to_string(), "genai".to_string()],
-                    keywords: vec!["llm".to_string()],
-                },
-            ],
+            packages: vec![Package {
+                name: "genai-templates".to_string(),
+                full_name: "genai-template-system".to_string(),
+                version: "0.1.0".to_string(),
+                description: "GenAI template generation system".to_string(),
+                category: "ai".to_string(),
+                author: "ggen-team".to_string(),
+                repository: "https://github.com/test".to_string(),
+                path: "marketplace/packages/genai-templates".to_string(),
+                license: "MIT".to_string(),
+                dependencies: vec![],
+                features: vec![],
+                tags: vec!["llm".to_string(), "genai".to_string()],
+                keywords: vec!["llm".to_string()],
+            }],
         };
 
         let results = registry.search("genai-templates", 10);
@@ -205,23 +203,21 @@ mod tests {
     fn test_search_partial_match() {
         let registry = Registry {
             version: "1.0.0".to_string(),
-            packages: vec![
-                Package {
-                    name: "genai-templates".to_string(),
-                    full_name: "genai-template-system".to_string(),
-                    version: "0.1.0".to_string(),
-                    description: "GenAI template generation system".to_string(),
-                    category: "ai".to_string(),
-                    author: "ggen-team".to_string(),
-                    repository: "https://github.com/test".to_string(),
-                    path: "marketplace/packages/genai-templates".to_string(),
-                    license: "MIT".to_string(),
-                    dependencies: vec![],
-                    features: vec![],
-                    tags: vec!["llm".to_string(), "genai".to_string()],
-                    keywords: vec!["llm".to_string()],
-                },
-            ],
+            packages: vec![Package {
+                name: "genai-templates".to_string(),
+                full_name: "genai-template-system".to_string(),
+                version: "0.1.0".to_string(),
+                description: "GenAI template generation system".to_string(),
+                category: "ai".to_string(),
+                author: "ggen-team".to_string(),
+                repository: "https://github.com/test".to_string(),
+                path: "marketplace/packages/genai-templates".to_string(),
+                license: "MIT".to_string(),
+                dependencies: vec![],
+                features: vec![],
+                tags: vec!["llm".to_string(), "genai".to_string()],
+                keywords: vec!["llm".to_string()],
+            }],
         };
 
         let results = registry.search("genai", 10);
@@ -233,23 +229,21 @@ mod tests {
     fn test_get_package() {
         let registry = Registry {
             version: "1.0.0".to_string(),
-            packages: vec![
-                Package {
-                    name: "genai-templates".to_string(),
-                    full_name: "genai-template-system".to_string(),
-                    version: "0.1.0".to_string(),
-                    description: "Test package".to_string(),
-                    category: "ai".to_string(),
-                    author: "test".to_string(),
-                    repository: "https://github.com/test".to_string(),
-                    path: "test".to_string(),
-                    license: "MIT".to_string(),
-                    dependencies: vec![],
-                    features: vec![],
-                    tags: vec![],
-                    keywords: vec![],
-                },
-            ],
+            packages: vec![Package {
+                name: "genai-templates".to_string(),
+                full_name: "genai-template-system".to_string(),
+                version: "0.1.0".to_string(),
+                description: "Test package".to_string(),
+                category: "ai".to_string(),
+                author: "test".to_string(),
+                repository: "https://github.com/test".to_string(),
+                path: "test".to_string(),
+                license: "MIT".to_string(),
+                dependencies: vec![],
+                features: vec![],
+                tags: vec![],
+                keywords: vec![],
+            }],
         };
 
         let pkg = registry.get_package("genai-templates");

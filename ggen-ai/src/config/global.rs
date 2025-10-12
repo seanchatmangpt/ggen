@@ -150,7 +150,6 @@ impl GlobalLlmConfig {
         LlmProvider::Ollama
     }
 
-
     /// Create a new global configuration
     pub fn new() -> Self {
         Self::default()

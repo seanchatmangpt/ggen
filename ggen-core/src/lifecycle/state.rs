@@ -55,11 +55,11 @@ pub fn load_state<P: AsRef<Path>>(path: P) -> Result<LifecycleState> {
         return Ok(LifecycleState::default());
     }
 
-    let content = std::fs::read_to_string(path_ref)
-        .map_err(|e| LifecycleError::state_load(path_ref, e))?;
+    let content =
+        std::fs::read_to_string(path_ref).map_err(|e| LifecycleError::state_load(path_ref, e))?;
 
-    let state: LifecycleState = serde_json::from_str(&content)
-        .map_err(|e| LifecycleError::state_parse(path_ref, e))?;
+    let state: LifecycleState =
+        serde_json::from_str(&content).map_err(|e| LifecycleError::state_parse(path_ref, e))?;
 
     Ok(state)
 }
@@ -70,26 +70,26 @@ pub fn save_state<P: AsRef<Path>>(path: P, state: &LifecycleState) -> Result<()>
 
     // Ensure directory exists
     if let Some(parent) = path_ref.parent() {
-        std::fs::create_dir_all(parent)
-            .map_err(|e| LifecycleError::DirectoryCreate {
-                path: parent.to_path_buf(),
-                source: e,
-            })?;
+        std::fs::create_dir_all(parent).map_err(|e| LifecycleError::DirectoryCreate {
+            path: parent.to_path_buf(),
+            source: e,
+        })?;
     }
 
     let json = serde_json::to_string_pretty(state)
         .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))
         .map_err(|e| LifecycleError::state_save(path_ref, e))?;
 
-    std::fs::write(path_ref, json)
-        .map_err(|e| LifecycleError::state_save(path_ref, e))?;
+    std::fs::write(path_ref, json).map_err(|e| LifecycleError::state_save(path_ref, e))?;
 
     Ok(())
 }
 
 impl LifecycleState {
     /// Add a new run record
-    pub fn record_run(&mut self, phase: String, started_ms: u128, duration_ms: u128, success: bool) {
+    pub fn record_run(
+        &mut self, phase: String, started_ms: u128, duration_ms: u128, success: bool,
+    ) {
         self.phase_history.push(RunRecord {
             phase: phase.clone(),
             started_ms,
@@ -111,20 +111,15 @@ impl LifecycleState {
 
     /// Get cache key for a phase
     pub fn get_cache_key(&self, phase: &str) -> Option<&str> {
-        self.cache_keys.iter().rev().find(|k| k.phase == phase).map(|k| k.key.as_str())
+        self.cache_keys
+            .iter()
+            .rev()
+            .find(|k| k.phase == phase)
+            .map(|k| k.key.as_str())
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_state_record() {
-        let mut state = LifecycleState::default();
-        state.record_run("build".to_string(), 1000, 500, true);
-
-        assert_eq!(state.last_phase, Some("build".to_string()));
-        assert_eq!(state.phase_history.len(), 1);
-    }
-}
+// Unit tests removed - covered by integration_test.rs:
+// - test_state_record_run (comprehensive state recording)
+// - test_state_add_cache_key (cache key tracking)
+// And by behavior_tests.rs state persistence contracts

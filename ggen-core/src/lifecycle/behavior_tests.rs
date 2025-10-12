@@ -19,7 +19,8 @@ mod behavior_tests {
 
     /// Mock-friendly trait for command execution
     pub trait CommandExecutor {
-        fn execute(&self, cmd: &str, cwd: &std::path::Path, env: &[(String, String)]) -> Result<()>;
+        fn execute(&self, cmd: &str, cwd: &std::path::Path, env: &[(String, String)])
+            -> Result<()>;
     }
 
     /// Mock-friendly trait for state persistence
@@ -241,9 +242,7 @@ mod behavior_tests {
             .returning(|_, _, _| Err(anyhow::anyhow!("Command failed")));
 
         // State should NOT be saved on failure
-        mock_state
-            .expect_save()
-            .times(0);
+        mock_state.expect_save().times(0);
 
         // WHEN: Command fails
         let result = mock_cmd.execute("failing_command", &PathBuf::from("/tmp"), &[]);
@@ -272,7 +271,11 @@ mod behavior_tests {
         // Second call with different command generates key2
         mock_cache
             .expect_generate_key()
-            .with(eq("build"), eq(vec!["cargo build --release".to_string()]), always())
+            .with(
+                eq("build"),
+                eq(vec!["cargo build --release".to_string()]),
+                always(),
+            )
             .times(1)
             .returning(|_, _, _| "key2".to_string());
 
@@ -378,7 +381,10 @@ mod behavior_tests {
 
         // THEN: Error is propagated
         assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().contains("Command execution failed"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("Command execution failed"));
     }
 
     #[test]
@@ -452,16 +458,13 @@ mod behavior_tests {
         // GIVEN: An executor that provides context in errors
         let mut mock_cmd = MockCommandExecutor::new();
 
-        mock_cmd
-            .expect_execute()
-            .times(1)
-            .returning(|cmd, cwd, _| {
-                Err(anyhow::anyhow!(
-                    "Command '{}' failed in directory '{}'",
-                    cmd,
-                    cwd.display()
-                ))
-            });
+        mock_cmd.expect_execute().times(1).returning(|cmd, cwd, _| {
+            Err(anyhow::anyhow!(
+                "Command '{}' failed in directory '{}'",
+                cmd,
+                cwd.display()
+            ))
+        });
 
         // WHEN: Command fails
         let result = mock_cmd.execute("test_cmd", &PathBuf::from("/project"), &[]);
@@ -652,15 +655,10 @@ mod behavior_tests {
         let mut mock_cmd = MockCommandExecutor::new();
 
         // Cache is valid
-        mock_cache
-            .expect_is_valid()
-            .times(1)
-            .returning(|_, _| true);
+        mock_cache.expect_is_valid().times(1).returning(|_, _| true);
 
         // Command should NOT be executed
-        mock_cmd
-            .expect_execute()
-            .times(0);
+        mock_cmd.expect_execute().times(0);
 
         // WHEN: We check cache before execution
         let cache_valid = mock_cache.is_valid("build", "key123");
@@ -675,20 +673,14 @@ mod behavior_tests {
         let mut mock_state = MockStatePersister::new();
 
         // First phase saves state
-        mock_state
-            .expect_save()
-            .times(1)
-            .returning(|_, _| Ok(()));
+        mock_state.expect_save().times(1).returning(|_, _| Ok(()));
 
         // Second phase loads that state
-        mock_state
-            .expect_load()
-            .times(1)
-            .returning(|_| {
-                let mut state = state::LifecycleState::default();
-                state.record_run("build".to_string(), 1000, 500, true);
-                state
-            });
+        mock_state.expect_load().times(1).returning(|_| {
+            let mut state = state::LifecycleState::default();
+            state.record_run("build".to_string(), 1000, 500, true);
+            state
+        });
 
         // WHEN: Phases execute in sequence
         let mut state = state::LifecycleState::default();

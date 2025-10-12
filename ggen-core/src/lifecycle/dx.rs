@@ -121,7 +121,10 @@ impl ExecutionMetrics {
         let total = self.total_elapsed();
 
         if mode.use_colors {
-            report.push_str(&format!("\n{}\n", "═══ Execution Summary ═══".bright_cyan().bold()));
+            report.push_str(&format!(
+                "\n{}\n",
+                "═══ Execution Summary ═══".bright_cyan().bold()
+            ));
 
             // Total time
             report.push_str(&format!(
@@ -132,7 +135,11 @@ impl ExecutionMetrics {
 
             // Phase breakdown
             if !self.phase_times.is_empty() {
-                report.push_str(&format!("\n  {} {}\n", "📊 Phase timing:".bright_white(), ""));
+                report.push_str(&format!(
+                    "\n  {} {}\n",
+                    "📊 Phase timing:".bright_white(),
+                    ""
+                ));
                 for (phase, duration_ms) in &self.phase_times {
                     let percent = (*duration_ms as f64 / total.as_millis() as f64) * 100.0;
                     report.push_str(&format!(
@@ -171,7 +178,10 @@ impl ExecutionMetrics {
                 ));
             }
 
-            report.push_str(&format!("\n{}\n", "═════════════════════════".bright_cyan()));
+            report.push_str(&format!(
+                "\n{}\n",
+                "═════════════════════════".bright_cyan()
+            ));
         } else {
             // Plain text for CI/CD
             report.push_str("\n=== Execution Summary ===\n");
@@ -245,7 +255,11 @@ impl Output {
     /// Print phase start
     pub fn phase_start(&self, phase: &str) {
         if self.mode.use_colors {
-            println!("\n{} {}", "▶".bright_cyan().bold(), phase.bright_cyan().bold());
+            println!(
+                "\n{} {}",
+                "▶".bright_cyan().bold(),
+                phase.bright_cyan().bold()
+            );
         } else {
             println!("\n[PHASE] {}", phase);
         }
@@ -290,7 +304,12 @@ impl Output {
     pub fn hook(&self, hook_type: &str, phase: &str) {
         if self.mode.verbose {
             if self.mode.use_colors {
-                println!("  {} {} {}", "↪".bright_yellow(), hook_type.yellow(), phase.dimmed());
+                println!(
+                    "  {} {} {}",
+                    "↪".bright_yellow(),
+                    hook_type.yellow(),
+                    phase.dimmed()
+                );
             } else {
                 println!("  [HOOK] {} {}", hook_type, phase);
             }
@@ -301,7 +320,12 @@ impl Output {
     pub fn cache_hit(&self, phase: &str) {
         if self.mode.verbose {
             if self.mode.use_colors {
-                println!("  {} {} {}", "⚡".bright_yellow(), "Cache hit for".dimmed(), phase.yellow());
+                println!(
+                    "  {} {} {}",
+                    "⚡".bright_yellow(),
+                    "Cache hit for".dimmed(),
+                    phase.yellow()
+                );
             } else {
                 println!("  [CACHE] Hit for {}", phase);
             }
@@ -311,7 +335,11 @@ impl Output {
     /// Print workspace
     pub fn workspace(&self, name: &str) {
         if self.mode.use_colors {
-            println!("\n{} {}", "📦".bright_magenta(), name.bright_magenta().bold());
+            println!(
+                "\n{} {}",
+                "📦".bright_magenta(),
+                name.bright_magenta().bold()
+            );
         } else {
             println!("\n[WORKSPACE] {}", name);
         }
@@ -334,7 +362,10 @@ impl StateVisualizer {
         let mut output = String::new();
 
         if self.use_colors {
-            output.push_str(&format!("\n{}\n", "━━━ Lifecycle State ━━━".bright_cyan().bold()));
+            output.push_str(&format!(
+                "\n{}\n",
+                "━━━ Lifecycle State ━━━".bright_cyan().bold()
+            ));
 
             // Last phase
             if let Some(last) = &state.last_phase {
@@ -344,12 +375,20 @@ impl StateVisualizer {
                     last.bright_yellow()
                 ));
             } else {
-                output.push_str(&format!("  {} {}\n", "Last phase:".bright_white(), "None".dimmed()));
+                output.push_str(&format!(
+                    "  {} {}\n",
+                    "Last phase:".bright_white(),
+                    "None".dimmed()
+                ));
             }
 
             // Phase history
             if !state.phase_history.is_empty() {
-                output.push_str(&format!("\n  {} {}\n", "Recent executions:".bright_white(), ""));
+                output.push_str(&format!(
+                    "\n  {} {}\n",
+                    "Recent executions:".bright_white(),
+                    ""
+                ));
                 let recent = state.phase_history.iter().rev().take(10);
                 for record in recent {
                     let status = if record.success {
@@ -393,7 +432,10 @@ impl StateVisualizer {
             if let Some(last) = &state.last_phase {
                 output.push_str(&format!("Last phase: {}\n", last));
             }
-            output.push_str(&format!("Total executions: {}\n", state.phase_history.len()));
+            output.push_str(&format!(
+                "Total executions: {}\n",
+                state.phase_history.len()
+            ));
             output.push_str(&format!("Cache keys: {}\n", state.cache_keys.len()));
             output.push_str("=======================\n");
         }
@@ -423,7 +465,7 @@ fn format_timestamp(timestamp_ms: u128) -> String {
 
     let now_ms = SystemTime::now()
         .duration_since(UNIX_EPOCH)
-        .unwrap()
+        .expect("System time is before UNIX epoch - invalid system clock")
         .as_millis();
 
     let diff_ms = now_ms.saturating_sub(timestamp_ms);

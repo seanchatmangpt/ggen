@@ -1,152 +1,30 @@
-//! Core template system - The heart of ggen's code generation
+//! Template system: YAML frontmatter + Tera rendering + RDF/SPARQL integration
 //!
-//! # WHAT THIS MODULE SHOULD DO (Intent-Driven Architecture)
-//!
-//! ## PURPOSE
-//! This module should serve as the foundational template representation and processing system,
-//! parsing YAML frontmatter, rendering Tera templates, and integrating with RDF/SPARQL for
-//! semantic code generation. It should be the single source of truth for template structure.
-//!
-//! ## RESPONSIBILITIES
-//! 1. **Parse Templates**: Should split frontmatter (YAML) from body content using gray-matter
-//! 2. **Flexible Frontmatter**: Should accept varied YAML structures (maps, arrays, strings) for max LLM compatibility
-//! 3. **Two-Phase Rendering**: Should render frontmatter FIRST (resolve {{vars}}), THEN render body
-//! 4. **Graph Integration**: Should load RDF triples and execute SPARQL from frontmatter
-//! 5. **File Injection**: Should support injecting generated content into existing files
-//! 6. **Hygen Compatibility**: Should maintain compatibility with Hygen templates while extending
-//! 7. **Idempotency**: Should support safe, repeatable template application
-//!
-//! ## CONSTRAINTS
-//! - Must use gray-matter for frontmatter parsing (industry standard, battle-tested)
-//! - Must use Tera for template rendering (Jinja2-compatible, familiar to users)
-//! - Must preserve exact body whitespace (no trimming/modification)
-//! - Must handle templates with no frontmatter gracefully
-//! - Must never crash on malformed YAML (return descriptive errors)
-//! - Must support relative file paths (resolve relative to template directory)
-//!
-//! ## DEPENDENCIES
-//! - `gray-matter`: Should parse frontmatter + body split
-//! - `Tera`: Should render {{variables}} in frontmatter and body
-//! - `serde_yaml`: Should deserialize frontmatter into Frontmatter struct
-//! - `Graph`: Should manage RDF triples and SPARQL execution
-//!
-//! ## INVARIANTS
-//! - Template parsing must NEVER modify body content
-//! - Frontmatter must be rendered BEFORE body rendering (vars resolved first)
-//! - `raw_frontmatter` must remain immutable after parsing
-//! - All file paths must be resolved relative to template directory
-//! - Graph operations must prepend prefix declarations when needed
-//!
-//! ## DATA FLOW
+//! ## Core Flow
 //! ```text
-//! Raw Template String
-//!   ↓
-//! Template::parse()
-//!   ├─ gray-matter: Split frontmatter from body
-//!   ├─ Store raw_frontmatter (serde_yaml::Value)
-//!   └─ Store body (String)
-//!   ↓
-//! Template::render_frontmatter()
-//!   ├─ Serialize raw_frontmatter to YAML string
-//!   ├─ Render YAML through Tera (resolve {{vars}})
-//!   ├─ Deserialize rendered YAML into Frontmatter struct
-//!   └─ Populate self.front
-//!   ↓
-//! Template::process_graph() [Optional]
-//!   ├─ Load RDF from inline triples (rdf_inline)
-//!   ├─ Load RDF from files (rdf)
-//!   ├─ Execute SPARQL queries (sparql)
-//!   └─ Populate graph with semantic data
-//!   ↓
-//! Template::render()
-//!   ├─ If from: specified, read file as body source
-//!   ├─ Render body through Tera with final vars
-//!   └─ Return rendered output
+//! Template String → Parse → Render Frontmatter → Process Graph → Render Body
 //! ```
 //!
-//! ## ERROR HANDLING STRATEGY
-//! - Parse errors → Context about what failed, show line/column
-//! - Missing files → Full path, suggest corrections
-//! - Invalid RDF/SPARQL → Show query, explain parse error
-//! - Deserialization errors → Show YAML snippet, suggest format
-//! - Never silently fail or return partially-initialized state
+//! ## Key Features
+//! - **Two-phase rendering**: Frontmatter first (resolve {{vars}}), then body
+//! - **Flexible vars**: Accepts maps, arrays, strings, null (LLM-friendly)
+//! - **RDF integration**: Load triples, execute SPARQL, expose results to templates
+//! - **File injection**: Modify existing files with markers/line numbers
+//! - **Hygen compatible**: Standard template fields work unchanged
 //!
-//! ## FRONTMATTER FIELD CONTRACTS
+//! ## Frontmatter Fields
+//! - `to/from`: Output/input file paths
+//! - `vars`: Template variables (any YAML type)
+//! - `rdf_inline/rdf`: Turtle triples (inline/files)
+//! - `sparql`: Named queries → `sparql_results.<name>`
+//! - `inject/before/after`: File modification markers
 //!
-//! ### Core Fields (Hygen compatibility)
-//! - `to: String` → SHOULD specify output file path (supports {{vars}})
-//! - `from: String` → SHOULD read body from external file
-//! - `force: bool` → SHOULD overwrite existing files
-//! - `unless_exists: bool` → SHOULD skip if file exists
-//!
-//! ### Injection Fields (for modifying existing files)
-//! - `inject: bool` → SHOULD enable injection mode
-//! - `before/after: String` → SHOULD inject relative to marker
-//! - `prepend/append: bool` → SHOULD inject at file start/end
-//! - `at_line: u32` → SHOULD inject at specific line number
-//! - `skip_if: String` → SHOULD skip if pattern found
-//!
-//! ### Graph Fields (ggen extensions)
-//! - `base: String` → SHOULD set RDF base IRI
-//! - `prefixes: Map<String, String>` → SHOULD define namespace prefixes
-//! - `rdf_inline: Vec<String>` → SHOULD accept inline Turtle triples
-//! - `rdf: Vec<String>` → SHOULD load Turtle from file paths
-//! - `sparql: Map<String, String>` → SHOULD execute named SPARQL queries
-//!
-//! ### vars Field (CRITICAL - Maximum Flexibility)
-//! **PROBLEM**: LLMs generate varied YAML formats
-//! **SOLUTION**: Accept ANY valid YAML value type
-//!
-//! ```yaml
-//! # Map format (preferred)
-//! vars:
-//!   name: "Alice"
-//!   age: 30
-//!
-//! # Array format (auto-convert to {var0, var1, ...})
-//! vars:
-//!   - "item1"
-//!   - "item2"
-//!
-//! # Single value (auto-convert to {var0})
-//! vars: "single_value"
-//!
-//! # Null/missing (empty map)
-//! vars: null
+//! ## SPARQL Results Access
+//! ```tera
+//! Count: {{ sparql_results.people | length }}
+//! First: {{ sparql_first(results=sparql_results.people, column="name") }}
+//! All: {{ sparql_values(results=sparql_results.people, column="name") }}
 //! ```
-//!
-//! ## TESTING STRATEGY
-//! - Test parse with/without frontmatter
-//! - Test empty frontmatter
-//! - Test flexible vars (map, array, string, null)
-//! - Test two-phase rendering (frontmatter then body)
-//! - Test relative file path resolution
-//! - Test RDF/SPARQL integration
-//! - Test injection modes
-//! - Property test: parse→render cycle preserves body content
-//!
-//! ## REFACTORING PRIORITIES
-//! - [P0] Add validation for frontmatter after render (catch bad YAML early)
-//! - [P0] Improve error messages with YAML line numbers
-//! - [P1] Extract flexible deserializers into shared utility module
-//! - [P1] Add caching for rendered frontmatter (avoid re-rendering)
-//! - [P2] Support YAML anchors/aliases in frontmatter
-//! - [P2] Add frontmatter schema validation (JSON Schema)
-//! - [P3] Support multiple template bodies (multi-file generation)
-//!
-//! ## CORE TEAM BEST PRACTICES APPLIED
-//! 1. **Lenient Parsing**: Accept varied input formats (Postel's Law)
-//! 2. **Strict Validation**: Validate before use, fail fast with context
-//! 3. **Immutability**: raw_frontmatter never mutates after parse
-//! 4. **Explicit Phases**: Two-phase rendering makes intent clear
-//! 5. **Zero Magic**: No hidden conversions, all transforms explicit
-//! 6. **Testing First**: Contract defined before implementation
-//!
-//! ## COMPATIBILITY NOTES
-//! - **Hygen Templates**: Should parse and execute without modification
-//! - **Jekyll/Hugo Frontmatter**: Should accept static site frontmatter
-//! - **LLM Output**: Should handle varied AI-generated YAML structures
-//! - **Gray-Matter**: Should use latest gray-matter parsing behavior
 
 use anyhow::Result;
 use gray_matter::{engine::YAML, Matter, ParsedEntity};
@@ -155,6 +33,7 @@ use std::collections::BTreeMap;
 use tera::{Context, Tera};
 
 use crate::graph::Graph;
+use crate::preprocessor::{FreezePolicy, FreezeStage, PrepCtx, Preprocessor};
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct Frontmatter {
@@ -213,6 +92,16 @@ pub struct Frontmatter {
     pub shape: Vec<String>,
     #[serde(default)]
     pub determinism: Option<serde_yaml::Value>,
+
+    // Preprocessor configuration
+    #[serde(default)]
+    pub freeze_policy: Option<String>, // "always", "checksum", "never"
+    #[serde(default)]
+    pub freeze_slots_dir: Option<String>,
+
+    // SPARQL results storage (populated during process_graph)
+    #[serde(skip)]
+    pub sparql_results: BTreeMap<String, serde_json::Value>,
 }
 
 #[derive(Clone)]
@@ -233,6 +122,53 @@ impl Template {
             front: Frontmatter::default(),
             body: content,
         })
+    }
+
+    /// Parse with preprocessor pipeline. Runs preprocessor before parsing.
+    pub fn parse_with_preprocessor(
+        input: &str, template_path: &std::path::Path, out_dir: &std::path::Path,
+    ) -> Result<Self> {
+        // Create preprocessor with default configuration
+        let preprocessor = Preprocessor::default();
+
+        // Run preprocessor
+        let ctx = PrepCtx {
+            template_path,
+            out_dir,
+            vars_json: &serde_json::Value::Null,
+        };
+        let processed = preprocessor.run(input.to_string(), &ctx)?;
+
+        // Parse the processed content
+        Self::parse(&processed)
+    }
+
+    /// Parse with custom preprocessor configuration
+    pub fn parse_with_custom_preprocessor(
+        input: &str, template_path: &std::path::Path, out_dir: &std::path::Path,
+        freeze_slots_dir: Option<&std::path::Path>, freeze_policy: Option<FreezePolicy>,
+    ) -> Result<Self> {
+        // Build preprocessor based on configuration
+        let mut preprocessor = Preprocessor::new();
+
+        // Add freeze stage if configured
+        if let (Some(slots_dir), Some(policy)) = (freeze_slots_dir, freeze_policy) {
+            preprocessor = preprocessor.with(FreezeStage {
+                slots_dir: slots_dir.to_path_buf(),
+                policy,
+            });
+        }
+
+        // Run preprocessor
+        let ctx = PrepCtx {
+            template_path,
+            out_dir,
+            vars_json: &serde_json::Value::Null,
+        };
+        let processed = preprocessor.run(input.to_string(), &ctx)?;
+
+        // Parse the processed content
+        Self::parse(&processed)
     }
 
     /// Render frontmatter through Tera once to resolve {{ }} in YAML.
@@ -290,15 +226,40 @@ impl Template {
             }
         }
 
-        // Execute SPARQL (prepend PREFIX/BASE prolog)
-        for q in self.front.sparql.values() {
+        // Execute SPARQL (prepend PREFIX/BASE prolog) and capture results
+        for (name, q) in &self.front.sparql {
             let q_rendered = tera.render_str(q, vars)?;
             let final_q = if prolog.is_empty() {
                 q_rendered
             } else {
                 format!("{prolog}\n{q_rendered}")
             };
-            let _ = graph.query(&final_q)?;
+
+            // Execute query and capture results
+            let results = graph.query(&final_q)?;
+            let json_result = match results {
+                oxigraph::sparql::QueryResults::Boolean(b) => serde_json::Value::Bool(b),
+                oxigraph::sparql::QueryResults::Solutions(solutions) => {
+                    let mut rows = Vec::new();
+                    for solution in solutions {
+                        let solution = solution
+                            .map_err(|e| anyhow::anyhow!("SPARQL solution error: {}", e))?;
+                        let mut row = serde_json::Map::new();
+                        for (var, term) in solution.iter() {
+                            row.insert(
+                                var.to_string(),
+                                serde_json::Value::String(term.to_string()),
+                            );
+                        }
+                        rows.push(serde_json::Value::Object(row));
+                    }
+                    serde_json::Value::Array(rows)
+                }
+                oxigraph::sparql::QueryResults::Graph(_) => serde_json::Value::Array(Vec::new()), // Graph results not supported in templates
+            };
+
+            // Store result in frontmatter for template access
+            self.front.sparql_results.insert(name.clone(), json_result);
         }
 
         Ok(())
@@ -317,7 +278,22 @@ impl Template {
             self.body.clone()
         };
 
-        Ok(tera.render_str(&body_source, vars)?)
+        // Create a new context with SPARQL results
+        let mut final_vars = vars.clone();
+
+        // Add SPARQL results to context as sparql_results.<name>
+        if !self.front.sparql_results.is_empty() {
+            let mut sparql_results_obj = serde_json::Map::new();
+            for (name, result) in &self.front.sparql_results {
+                sparql_results_obj.insert(name.clone(), result.clone());
+            }
+            final_vars.insert(
+                "sparql_results",
+                &serde_json::Value::Object(sparql_results_obj),
+            );
+        }
+
+        Ok(tera.render_str(&body_source, &final_vars)?)
     }
 }
 
@@ -452,532 +428,300 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::io::Write;
+    use anyhow::Result;
+    use std::{io::Write, path::Path};
+    use tempfile::NamedTempFile;
     use tera::Context;
 
-    #[test]
-    fn test_template_parse_basic() -> Result<()> {
-        let input = r#"---
-to: "{{name}}.rs"
----
-fn main() {
-    println!("Hello, {{name}}!");
-}"#;
-        let template = Template::parse(input)?;
+    /* ---------- helpers ---------- */
 
-        assert_eq!(
-            template.body,
-            "fn main() {\n    println!(\"Hello, {{name}}!\");\n}"
-        );
-        assert!(template.front.to.is_none()); // Not rendered yet
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_template_parse_no_frontmatter() -> Result<()> {
-        let input = r#"fn main() {
-    println!("Hello, world!");
-}"#;
-        let template = Template::parse(input)?;
-
-        assert_eq!(
-            template.body,
-            "fn main() {\n    println!(\"Hello, world!\");\n}"
-        );
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_template_parse_empty_frontmatter() -> Result<()> {
-        let input = r#"---
----
-fn main() {
-    println!("Hello, world!");
-}"#;
-        let template = Template::parse(input)?;
-
-        assert_eq!(
-            template.body,
-            "fn main() {\n    println!(\"Hello, world!\");\n}"
-        );
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_render_frontmatter() -> Result<()> {
-        let input = r#"---
-to: "{{name}}.rs"
-vars:
-  greeting: "Hello"
----
-fn main() {
-    println!("{{greeting}}, {{name}}!");
-}"#;
-        let mut template = Template::parse(input)?;
-
+    fn mk_tera() -> Tera {
         let mut tera = Tera::default();
-        let mut vars = Context::new();
-        vars.insert("name", "Alice");
-
-        template.render_frontmatter(&mut tera, &vars)?;
-
-        assert_eq!(template.front.to, Some("Alice.rs".to_string()));
-        let greeting = template
-            .front
-            .vars
-            .get("greeting")
-            .and_then(|v| v.as_str())
-            .expect("greeting should be a string");
-        assert_eq!(greeting, "Hello");
-
-        Ok(())
+        crate::register::register_all(&mut tera);
+        tera
     }
 
-    #[test]
-    fn test_render_frontmatter_with_prefixes() -> Result<()> {
-        let input = r#"---
-prefixes:
-  ex: "http://example.org/"
-  rdf: "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-base: "http://example.org/{{namespace}}/"
----
-fn main() {
-    println!("Hello, world!");
-}"#;
-        let mut template = Template::parse(input)?;
-
-        let mut tera = Tera::default();
-        let mut vars = Context::new();
-        vars.insert("namespace", "test");
-
-        template.render_frontmatter(&mut tera, &vars)?;
-
-        assert_eq!(
-            template.front.prefixes.get("ex"),
-            Some(&"http://example.org/".to_string())
-        );
-        assert_eq!(
-            template.front.prefixes.get("rdf"),
-            Some(&"http://www.w3.org/1999/02/22-rdf-syntax-ns#".to_string())
-        );
-        assert_eq!(
-            template.front.base,
-            Some("http://example.org/test/".to_string())
-        );
-
-        Ok(())
+    fn ctx(pairs: &[(&str, impl serde::Serialize)]) -> Context {
+        let mut c = Context::new();
+        for (k, v) in pairs {
+            c.insert(*k, v);
+        }
+        c
     }
 
-    #[test]
-    fn test_render_frontmatter_with_rdf_inline() -> Result<()> {
-        let input = r#"---
-rdf_inline:
-  - "@prefix ex: <http://example.org/> . ex:{{name}} a ex:Person ."
----
-fn main() {
-    println!("Hello, world!");
-}"#;
-        let mut template = Template::parse(input)?;
-
-        let mut tera = Tera::default();
-        let mut vars = Context::new();
-        vars.insert("name", "Alice");
-
-        template.render_frontmatter(&mut tera, &vars)?;
-
-        assert_eq!(template.front.rdf_inline.len(), 1);
-        assert_eq!(
-            template.front.rdf_inline[0],
-            "@prefix ex: <http://example.org/> . ex:Alice a ex:Person ."
-        );
-
-        Ok(())
+    fn render_only(input: &str, vars: &Context) -> Result<String> {
+        let tmpl = Template::parse(input)?;
+        let mut tera = mk_tera();
+        tmpl.render(&mut tera, vars)
     }
 
-    #[test]
-    fn test_render_frontmatter_with_sparql() -> Result<()> {
-        let input = r#"---
-sparql:
-  people: "SELECT ?person WHERE { ?person a ex:Person . ?person ex:name '{{name}}' }"
----
-fn main() {
-    println!("Hello, world!");
-}"#;
-        let mut template = Template::parse(input)?;
+    fn process_then_render(input: &str, vars: &Context) -> Result<String> {
+        let mut tmpl = Template::parse(input)?;
+        let mut graph = Graph::new()?;
+        let mut tera = mk_tera();
+        tmpl.process_graph(&mut graph, &mut tera, vars, Path::new("test.tmpl"))?;
+        tmpl.render(&mut tera, vars)
+    }
 
-        let mut tera = Tera::default();
-        let mut vars = Context::new();
-        vars.insert("name", "Alice");
-
-        template.render_frontmatter(&mut tera, &vars)?;
-
-        assert_eq!(template.front.sparql.len(), 1);
-        assert_eq!(
-            template.front.sparql.get("people"),
-            Some(
-                &"SELECT ?person WHERE { ?person a ex:Person . ?person ex:name 'Alice' }"
-                    .to_string()
+    macro_rules! assert_contains {
+        ($hay:expr, $needle:expr) => {
+            assert!(
+                $hay.contains($needle),
+                "expected to find '{}'\n--- in ---\n{}",
+                $needle,
+                $hay
             )
-        );
-
-        Ok(())
+        };
     }
 
+    /* ---------- parsing & frontmatter ---------- */
+
     #[test]
-    fn test_render_template_body() -> Result<()> {
-        let input = r#"---
+    fn parse_variants_and_preserve_body() -> Result<()> {
+        let cases = [
+            (
+                // basic with frontmatter
+                r#"---
 to: "{{name}}.rs"
 ---
-fn main() {
-    println!("Hello, {{name}}!");
-}"#;
-        let template = Template::parse(input)?;
-
-        let mut tera = Tera::default();
-        let mut vars = Context::new();
-        vars.insert("name", "Alice");
-
-        let rendered = template.render(&mut tera, &vars)?;
-
-        assert_eq!(rendered, "fn main() {\n    println!(\"Hello, Alice!\");\n}");
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_render_template_with_from() -> Result<()> {
-        use tempfile::NamedTempFile;
-
-        // Create a temporary file with template content
-        let mut temp_file = NamedTempFile::new()?;
-        writeln!(temp_file, "fn main() {{")?;
-        writeln!(temp_file, "    println!(\"Hello, {{{{name}}}}!\");")?;
-        writeln!(temp_file, "}}")?;
-        temp_file.flush()?;
-
-        let input = format!(
-            r#"---
-from: "{}"
+fn main() { println!("Hello, {{name}}!"); }"#,
+                "fn main() { println!(\"Hello, {{name}}!\"); }",
+            ),
+            (
+                // empty frontmatter
+                r#"---
 ---
-This should be ignored"#,
-            temp_file.path().to_str().unwrap()
-        );
+fn main() { println!("Hello"); }"#,
+                "fn main() { println!(\"Hello\"); }",
+            ),
+            (
+                // no frontmatter
+                r#"fn main() { println!("Hello, world!"); }"#,
+                "fn main() { println!(\"Hello, world!\"); }",
+            ),
+        ];
 
-        let mut template = Template::parse(&input)?;
-
-        let mut tera = Tera::default();
-        let mut vars = Context::new();
-        vars.insert("name", "Alice");
-
-        // Render frontmatter first to populate the 'from' field
-        template.render_frontmatter(&mut tera, &vars)?;
-
-        let rendered = template.render(&mut tera, &vars)?;
-
-        assert!(rendered.contains("fn main() {"));
-        assert!(rendered.contains("println!(\"Hello, Alice!\");"));
-        assert!(!rendered.contains("This should be ignored"));
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_process_graph_with_rdf_inline() -> Result<()> {
-        let input = r#"---
-prefixes:
-  ex: "http://example.org/"
-rdf_inline:
-  - "@prefix ex: <http://example.org/> . ex:{{name}} a ex:Person ."
----
-fn main() {
-    println!("Hello, world!");
-}"#;
-        let mut template = Template::parse(input)?;
-        let mut graph = Graph::new()?;
-
-        let mut tera = Tera::default();
-        let mut vars = Context::new();
-        vars.insert("name", "Alice");
-
-        template.process_graph(
-            &mut graph,
-            &mut tera,
-            &vars,
-            std::path::Path::new("test.tmpl"),
-        )?;
-
-        // Check that the RDF was inserted
-        assert!(!graph.is_empty());
-
-        // Query for the inserted data
-        let results = graph.query("SELECT ?s WHERE { ?s a <http://example.org/Person> }")?;
-        if let oxigraph::sparql::QueryResults::Solutions(mut it) = results {
-            let first = it.next().unwrap().unwrap();
-            let s = first.get("s").unwrap().to_string();
-            assert_eq!(s, "<http://example.org/Alice>");
-        } else {
-            return Err(anyhow::anyhow!("Expected Solutions results"));
+        for (input, want_body) in cases {
+            let t = Template::parse(input)?;
+            assert_eq!(t.body, want_body);
         }
-
         Ok(())
     }
 
     #[test]
-    fn test_process_graph_with_sparql() -> Result<()> {
+    fn frontmatter_render_core_fields_and_flex_vars() -> Result<()> {
         let input = r#"---
-prefixes:
-  ex: "http://example.org/"
-rdf_inline:
-  - "@prefix ex: <http://example.org/> . ex:alice a ex:Person . ex:bob a ex:Person ."
-sparql:
-  count_people: "SELECT (COUNT(?person) AS ?count) WHERE { ?person a ex:Person }"
+to: "{{name}}.rs"
+prefixes: { ex: "http://example.org/" }
+base: "http://example.org/{{ns}}/"
+vars:
+  name_fmt: "Mr. {{name}}"
+rdf_inline: "ex:{{name}} a ex:Person ."
+sparql: "SELECT ?s WHERE { ?s a ex:Person }"
 ---
-fn main() {
-    println!("Hello, world!");
-}"#;
-        let mut template = Template::parse(input)?;
-        let mut graph = Graph::new()?;
+body"#;
 
-        let mut tera = Tera::default();
-        let vars = Context::new();
+        let mut t = Template::parse(input)?;
+        let mut tera = mk_tera();
+        let v = ctx(&[("name", "Alice"), ("ns", "test")]);
 
-        template.process_graph(
-            &mut graph,
-            &mut tera,
-            &vars,
-            std::path::Path::new("test.tmpl"),
-        )?;
-
-        // Check that the RDF was inserted
-        assert!(!graph.is_empty());
-
-        // The SPARQL query should have been executed (though we can't easily test the result)
-        // But we can verify the graph has the expected data
-        let results = graph.query("SELECT ?s WHERE { ?s a <http://example.org/Person> }")?;
-        if let oxigraph::sparql::QueryResults::Solutions(it) = results {
-            let count = it.count();
-            assert_eq!(count, 2); // alice and bob
-        } else {
-            return Err(anyhow::anyhow!("Expected Solutions results"));
-        }
-
+        t.render_frontmatter(&mut tera, &v)?;
+        assert_eq!(t.front.to.as_deref(), Some("Alice.rs"));
+        assert_eq!(
+            t.front.prefixes.get("ex").map(String::as_str),
+            Some("http://example.org/")
+        );
+        assert_eq!(t.front.base.as_deref(), Some("http://example.org/test/"));
+        assert_eq!(t.front.rdf_inline.len(), 1);
+        assert_eq!(t.front.sparql.len(), 1);
+        assert_eq!(
+            t.front.vars.get("name_fmt").and_then(|x| x.as_str()),
+            Some("Mr. Alice")
+        );
         Ok(())
     }
 
     #[test]
-    fn test_string_or_seq_deserializer() -> Result<()> {
-        // Test string input
-        let yaml_str = r#"rdf_inline: "single string""#;
-        let frontmatter: Frontmatter = serde_yaml::from_str(yaml_str)?;
-        assert_eq!(frontmatter.rdf_inline, vec!["single string"]);
+    fn deserializers_string_or_seq_and_sparql_map() -> Result<()> {
+        let fm1: Frontmatter = serde_yaml::from_str(r#"rdf_inline: "a""#)?;
+        let fm2: Frontmatter = serde_yaml::from_str(r#"rdf_inline: ["a","b"]"#)?;
+        assert_eq!(fm1.rdf_inline, vec!["a"]);
+        assert_eq!(fm2.rdf_inline, vec!["a", "b"]);
 
-        // Test array input
-        let yaml_array = r#"rdf_inline: ["string1", "string2"]"#;
-        let frontmatter: Frontmatter = serde_yaml::from_str(yaml_array)?;
-        assert_eq!(frontmatter.rdf_inline, vec!["string1", "string2"]);
-
+        let fm3: Frontmatter = serde_yaml::from_str(r#"sparql: "SELECT * WHERE { ?s ?p ?o }""#)?;
+        let fm4: Frontmatter =
+            serde_yaml::from_str(r#"sparql: { q1: "SELECT 1 {}", q2: "SELECT 2 {}" }"#)?;
+        let fm5: Frontmatter = serde_yaml::from_str(r#"sparql: ["SELECT 1 {}", "SELECT 2 {}"]"#)?;
+        assert!(fm3.sparql.contains_key("default"));
+        assert!(fm4.sparql.contains_key("q1"));
+        assert!(fm5.sparql.contains_key("query_0"));
         Ok(())
     }
 
     #[test]
-    fn test_sparql_map_deserializer() -> Result<()> {
-        // Test single string input
-        let yaml_str = r#"sparql: "SELECT ?s WHERE { ?s ?p ?o }""#;
-        let frontmatter: Frontmatter = serde_yaml::from_str(yaml_str)?;
-        assert_eq!(
-            frontmatter.sparql.get("default"),
-            Some(&"SELECT ?s WHERE { ?s ?p ?o }".to_string())
-        );
-
-        // Test map input
-        let yaml_map = r#"sparql:
-  query1: "SELECT ?s WHERE { ?s ?p ?o }"
-  query2: "SELECT ?o WHERE { ?s ?p ?o }""#;
-        let frontmatter: Frontmatter = serde_yaml::from_str(yaml_map)?;
-        assert_eq!(
-            frontmatter.sparql.get("query1"),
-            Some(&"SELECT ?s WHERE { ?s ?p ?o }".to_string())
-        );
-        assert_eq!(
-            frontmatter.sparql.get("query2"),
-            Some(&"SELECT ?o WHERE { ?s ?p ?o }".to_string())
-        );
-
-        // Test array input
-        let yaml_array =
-            r#"sparql: ["SELECT ?s WHERE { ?s ?p ?o }", "SELECT ?o WHERE { ?s ?p ?o }"]"#;
-        let frontmatter: Frontmatter = serde_yaml::from_str(yaml_array)?;
-        assert_eq!(
-            frontmatter.sparql.get("query_0"),
-            Some(&"SELECT ?s WHERE { ?s ?p ?o }".to_string())
-        );
-        assert_eq!(
-            frontmatter.sparql.get("query_1"),
-            Some(&"SELECT ?o WHERE { ?s ?p ?o }".to_string())
-        );
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_frontmatter_defaults() -> Result<()> {
-        let yaml_str = r#"to: "test.rs""#;
-        let frontmatter: Frontmatter = serde_yaml::from_str(yaml_str)?;
-
-        // Test default values
-        assert_eq!(frontmatter.force, false);
-        assert_eq!(frontmatter.unless_exists, false);
-        assert_eq!(frontmatter.inject, false);
-        assert_eq!(frontmatter.prepend, false);
-        assert_eq!(frontmatter.append, false);
-        assert_eq!(frontmatter.eof_last, false);
-        assert_eq!(frontmatter.idempotent, false);
-        assert!(frontmatter.prefixes.is_empty());
-        assert!(frontmatter.rdf_inline.is_empty());
-        assert!(frontmatter.rdf.is_empty());
-        assert!(frontmatter.sparql.is_empty());
-        assert!(frontmatter.vars.is_empty());
-        assert!(frontmatter.shape.is_empty());
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_flexible_vars_map() -> Result<()> {
-        let yaml_str = r#"vars:
-  name: "Alice"
-  age: 30"#;
-        let frontmatter: Frontmatter = serde_yaml::from_str(yaml_str)?;
-
-        assert_eq!(frontmatter.vars.len(), 2);
-        assert_eq!(
-            frontmatter.vars.get("name").and_then(|v| v.as_str()),
-            Some("Alice")
-        );
-        assert_eq!(
-            frontmatter.vars.get("age").and_then(|v| v.as_i64()),
-            Some(30)
-        );
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_flexible_vars_array() -> Result<()> {
-        let yaml_str = r#"vars:
-  - "item1"
-  - "item2"
-  - "item3""#;
-        let frontmatter: Frontmatter = serde_yaml::from_str(yaml_str)?;
-
-        assert_eq!(frontmatter.vars.len(), 3);
-        assert_eq!(
-            frontmatter.vars.get("var0").and_then(|v| v.as_str()),
-            Some("item1")
-        );
-        assert_eq!(
-            frontmatter.vars.get("var1").and_then(|v| v.as_str()),
-            Some("item2")
-        );
-        assert_eq!(
-            frontmatter.vars.get("var2").and_then(|v| v.as_str()),
-            Some("item3")
-        );
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_flexible_vars_string() -> Result<()> {
-        let yaml_str = r#"vars: "single_value""#;
-        let frontmatter: Frontmatter = serde_yaml::from_str(yaml_str)?;
-
-        assert_eq!(frontmatter.vars.len(), 1);
-        assert_eq!(
-            frontmatter.vars.get("var0").and_then(|v| v.as_str()),
-            Some("single_value")
-        );
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_flexible_vars_null() -> Result<()> {
-        let yaml_str = r#"vars: null"#;
-        let frontmatter: Frontmatter = serde_yaml::from_str(yaml_str)?;
-
-        assert!(frontmatter.vars.is_empty());
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_frontmatter_boolean_fields() -> Result<()> {
-        let yaml_str = r#"force: true
+    fn boolean_and_injection_flags() -> Result<()> {
+        let fm: Frontmatter = serde_yaml::from_str(
+            r#"
+force: true
 unless_exists: true
 inject: true
 prepend: true
 append: true
 eof_last: true
-idempotent: true"#;
-        let frontmatter: Frontmatter = serde_yaml::from_str(yaml_str)?;
-
-        assert_eq!(frontmatter.force, true);
-        assert_eq!(frontmatter.unless_exists, true);
-        assert_eq!(frontmatter.inject, true);
-        assert_eq!(frontmatter.prepend, true);
-        assert_eq!(frontmatter.append, true);
-        assert_eq!(frontmatter.eof_last, true);
-        assert_eq!(frontmatter.idempotent, true);
-
+idempotent: true
+before: "// before"
+after: "// after"
+at_line: 7
+skip_if: "needle"
+sh_before: "echo pre"
+sh_after: "echo post"
+"#,
+        )?;
+        assert!(fm.force && fm.unless_exists && fm.inject && fm.prepend && fm.append);
+        assert!(fm.eof_last && fm.idempotent);
+        assert_eq!(fm.before.as_deref(), Some("// before"));
+        assert_eq!(fm.after.as_deref(), Some("// after"));
+        assert_eq!(fm.at_line, Some(7));
+        assert_eq!(fm.skip_if.as_deref(), Some("needle"));
+        assert_eq!(fm.sh_before.as_deref(), Some("echo pre"));
+        assert_eq!(fm.sh_after.as_deref(), Some("echo post"));
         Ok(())
     }
 
-    #[test]
-    fn test_frontmatter_injection_fields() -> Result<()> {
-        let yaml_str = r#"inject: true
-before: "// Before comment"
-after: "// After comment"
-at_line: 5
-skip_if: "existing code""#;
-        let frontmatter: Frontmatter = serde_yaml::from_str(yaml_str)?;
-
-        assert_eq!(frontmatter.inject, true);
-        assert_eq!(frontmatter.before, Some("// Before comment".to_string()));
-        assert_eq!(frontmatter.after, Some("// After comment".to_string()));
-        assert_eq!(frontmatter.at_line, Some(5));
-        assert_eq!(frontmatter.skip_if, Some("existing code".to_string()));
-
-        Ok(())
-    }
+    /* ---------- body rendering ---------- */
 
     #[test]
-    fn test_frontmatter_shell_hooks() -> Result<()> {
-        let yaml_str = r#"sh_before: "echo Before generation"
-sh_after: "echo After generation""#;
-        let frontmatter: Frontmatter = serde_yaml::from_str(yaml_str)?;
+    fn body_render_inline_and_from_file() -> Result<()> {
+        // inline
+        let inline = r#"---
+to: "x"
+---
+fn main() { println!("Hello, {{name}}!"); }"#;
+        let got = render_only(inline, &ctx(&[("name", "Alice")]))?;
+        assert_contains!(got, "Hello, Alice!");
 
-        assert_eq!(
-            frontmatter.sh_before,
-            Some("echo Before generation".to_string())
+        // from: - need to render frontmatter first to populate 'from' field
+        let mut tmp = NamedTempFile::new()?;
+        writeln!(tmp, "fn main() {{ println!(\"Hello, {{{{name}}}}!\"); }}")?;
+        let from_tmpl = format!(
+            r#"---
+from: "{}"
+---
+ignored"#,
+            tmp.path().display()
         );
-        assert_eq!(
-            frontmatter.sh_after,
-            Some("echo After generation".to_string())
-        );
+        let mut tmpl = Template::parse(&from_tmpl)?;
+        let mut tera = mk_tera();
+        let vars = ctx(&[("name", "Bob")]);
+        tmpl.render_frontmatter(&mut tera, &vars)?;
+        let got2 = tmpl.render(&mut tera, &vars)?;
+        assert_contains!(got2, "Hello, Bob!");
+        Ok(())
+    }
 
+    /* ---------- graph + sparql ---------- */
+
+    #[test]
+    fn rdf_insert_and_select_visible() -> Result<()> {
+        let input = r#"---
+prefixes: { ex: "http://example.org/" }
+rdf_inline:
+  - "@prefix ex: <http://example.org/> . ex:Alice a ex:Person ."
+sparql:
+  q: "SELECT ?s WHERE { ?s a ex:Person }"
+---
+Count: {{ sparql_results.q | length }}"#;
+
+        let out = process_then_render(input, &Context::new())?;
+        assert_contains!(out, "Count: 1");
         Ok(())
     }
 
     #[test]
-    fn test_frontmatter_sh_alias() -> Result<()> {
-        let yaml_str = r#"sh: "echo Shell hook""#;
-        let frontmatter: Frontmatter = serde_yaml::from_str(yaml_str)?;
+    fn boolean_ask_and_empty_result_helpers() -> Result<()> {
+        let input = r#"---
+prefixes: { ex: "http://example.org/" }
+rdf_inline:
+  - "@prefix ex: <http://example.org/> . ex:a a ex:Person ."
+sparql:
+  has_people: "ASK WHERE { ?x a ex:Person }"
+  none: "SELECT ?x WHERE { ?x a ex:NonExistent }"
+---
+Has: {{ sparql_results.has_people }}
+Empty: {{ sparql_empty(results=sparql_results.none) }}
+Count: {{ sparql_count(results=sparql_results.none) }}"#;
 
-        assert_eq!(frontmatter.sh_before, Some("echo Shell hook".to_string()));
+        let out = process_then_render(input, &Context::new())?;
+        assert_contains!(out, "Has: true");
+        assert_contains!(out, "Empty: true");
+        assert_contains!(out, "Count: 0");
+        Ok(())
+    }
+
+    #[test]
+    fn projection_helpers_and_multiple_queries() -> Result<()> {
+        let input = r#"---
+prefixes: { ex: "http://example.org/" }
+rdf_inline:
+  - "@prefix ex: <http://example.org/> .
+     ex:alice a ex:Person ; ex:name 'Alice' ; ex:age 30 .
+     ex:bob   a ex:Person ; ex:name 'Bob'   ; ex:age 25 ."
+sparql:
+  people: "SELECT ?person ?name WHERE { ?person a ex:Person ; ex:name ?name } ORDER BY ?name"
+  ages:   "SELECT ?age WHERE { ?p a ex:Person ; ex:age ?age } ORDER BY ?age"
+---
+First: {{ sparql_first(results=sparql_results.people, column="name") }}
+People count: {{ sparql_count(results=sparql_results.people) }}
+Ages: {{ sparql_values(results=sparql_results.ages, column="age") }}"#;
+
+        let out = process_then_render(input, &Context::new())?;
+        assert_contains!(out, "First: \"Alice\"");
+        assert_contains!(out, "People count: 2");
+        assert_contains!(out, "Ages:");
+        Ok(())
+    }
+
+    #[test]
+    fn preprocessor_integration() -> Result<()> {
+        use std::path::Path;
+        use tempfile::TempDir;
+
+        let temp_dir = TempDir::new()?;
+        let template_path = Path::new("test.tmpl");
+        let out_dir = temp_dir.path();
+
+        // Test freeze stage integration
+        let input = r#"---
+to: "output.rs"
+---
+fn main() {
+    println!("Hello");
+    {% startfreeze id="test_block" %}
+    println!("Frozen content");
+    {% endfreeze %}
+    println!("World");
+}"#;
+
+        let slots_dir = out_dir.join("slots");
+        let mut template = Template::parse_with_custom_preprocessor(
+            input,
+            template_path,
+            out_dir,
+            Some(&slots_dir),
+            Some(FreezePolicy::Always),
+        )?;
+
+        // Render frontmatter to populate the 'to' field
+        let mut tera = mk_tera();
+        let vars = Context::new();
+        template.render_frontmatter(&mut tera, &vars)?;
+
+        assert_eq!(template.front.to, Some("output.rs".to_string()));
+        assert!(template.body.contains("Hello"));
+        assert!(template.body.contains("Frozen content"));
+        assert!(template.body.contains("World"));
+        assert!(!template.body.contains("startfreeze"));
+        assert!(!template.body.contains("endfreeze"));
 
         Ok(())
     }

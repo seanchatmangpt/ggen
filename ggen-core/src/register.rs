@@ -60,6 +60,9 @@ pub fn register_all(tera: &mut Tera) {
             None => String::new(),
         }
     });
+
+    // ---------- SPARQL projection helpers ----------
+    register_sparql_helpers(tera);
 }
 
 /// Auto-bless context variables for Hygen compatibility.
@@ -80,6 +83,203 @@ pub fn bless_context(context: &mut Context) {
     // In Hygen, locals is an alias to the context itself
     // We'll add it as a function that returns the context
     context.insert("locals", &HashMap::<String, Value>::new());
+}
+
+// ---------- SPARQL projection helpers ----------
+fn register_sparql_helpers(tera: &mut Tera) {
+    // Helper to get a specific column from SPARQL results
+    tera.register_function("sparql_column", SparqlColumnFn);
+
+    // Helper to get a specific row from SPARQL results
+    tera.register_function("sparql_row", SparqlRowFn);
+
+    // Helper to get the first value from a specific column
+    tera.register_function("sparql_first", SparqlFirstFn);
+
+    // Helper to get all values from a specific column
+    tera.register_function("sparql_values", SparqlValuesFn);
+
+    // Helper to check if SPARQL results are empty
+    tera.register_function("sparql_empty", SparqlEmptyFn);
+
+    // Helper to get the count of SPARQL results
+    tera.register_function("sparql_count", SparqlCountFn);
+}
+
+#[derive(Clone)]
+struct SparqlColumnFn;
+
+impl tera::Function for SparqlColumnFn {
+    fn call(&self, args: &HashMap<String, Value>) -> TeraResult<Value> {
+        let results = args
+            .get("results")
+            .ok_or_else(|| tera::Error::msg("sparql_column: results parameter required"))?;
+        let column = args
+            .get("column")
+            .and_then(|v| v.as_str())
+            .ok_or_else(|| tera::Error::msg("sparql_column: column parameter required"))?;
+
+        if let Some(array) = results.as_array() {
+            let mut column_values = Vec::new();
+            for row in array {
+                if let Some(obj) = row.as_object() {
+                    // Try exact column name first
+                    if let Some(value) = obj.get(column) {
+                        column_values.push(value.clone());
+                    } else {
+                        // Try with ? prefix (SPARQL variable names)
+                        let sparql_column = format!("?{}", column);
+                        if let Some(value) = obj.get(&sparql_column) {
+                            column_values.push(value.clone());
+                        }
+                    }
+                }
+            }
+            Ok(Value::Array(column_values))
+        } else {
+            Ok(Value::Array(Vec::new()))
+        }
+    }
+}
+
+#[derive(Clone)]
+struct SparqlRowFn;
+
+impl tera::Function for SparqlRowFn {
+    fn call(&self, args: &HashMap<String, Value>) -> TeraResult<Value> {
+        let results = args
+            .get("results")
+            .ok_or_else(|| tera::Error::msg("sparql_row: results parameter required"))?;
+        let index = args
+            .get("index")
+            .and_then(|v| v.as_number())
+            .and_then(|n| n.as_u64())
+            .ok_or_else(|| tera::Error::msg("sparql_row: index parameter required"))?;
+
+        if let Some(array) = results.as_array() {
+            if let Some(row) = array.get(index as usize) {
+                Ok(row.clone())
+            } else {
+                Ok(Value::Null)
+            }
+        } else {
+            Ok(Value::Null)
+        }
+    }
+}
+
+#[derive(Clone)]
+struct SparqlFirstFn;
+
+impl tera::Function for SparqlFirstFn {
+    fn call(&self, args: &HashMap<String, Value>) -> TeraResult<Value> {
+        let results = args
+            .get("results")
+            .ok_or_else(|| tera::Error::msg("sparql_first: results parameter required"))?;
+        let column = args
+            .get("column")
+            .and_then(|v| v.as_str())
+            .ok_or_else(|| tera::Error::msg("sparql_first: column parameter required"))?;
+
+        if let Some(array) = results.as_array() {
+            if let Some(first_row) = array.first() {
+                if let Some(obj) = first_row.as_object() {
+                    // Try exact column name first
+                    if let Some(value) = obj.get(column) {
+                        return Ok(value.clone());
+                    }
+                    // Try with ? prefix (SPARQL variable names)
+                    let sparql_column = format!("?{}", column);
+                    if let Some(value) = obj.get(&sparql_column) {
+                        return Ok(value.clone());
+                    }
+                }
+            }
+        }
+        Ok(Value::Null)
+    }
+}
+
+#[derive(Clone)]
+struct SparqlValuesFn;
+
+impl tera::Function for SparqlValuesFn {
+    fn call(&self, args: &HashMap<String, Value>) -> TeraResult<Value> {
+        let results = args
+            .get("results")
+            .ok_or_else(|| tera::Error::msg("sparql_values: results parameter required"))?;
+        let column = args
+            .get("column")
+            .and_then(|v| v.as_str())
+            .ok_or_else(|| tera::Error::msg("sparql_values: column parameter required"))?;
+
+        if let Some(array) = results.as_array() {
+            let mut values = Vec::new();
+            for row in array {
+                if let Some(obj) = row.as_object() {
+                    // Try exact column name first
+                    if let Some(value) = obj.get(column) {
+                        if let Some(str_val) = value.as_str() {
+                            values.push(Value::String(str_val.to_string()));
+                        } else {
+                            values.push(value.clone());
+                        }
+                    } else {
+                        // Try with ? prefix (SPARQL variable names)
+                        let sparql_column = format!("?{}", column);
+                        if let Some(value) = obj.get(&sparql_column) {
+                            if let Some(str_val) = value.as_str() {
+                                values.push(Value::String(str_val.to_string()));
+                            } else {
+                                values.push(value.clone());
+                            }
+                        }
+                    }
+                }
+            }
+            Ok(Value::Array(values))
+        } else {
+            Ok(Value::Array(Vec::new()))
+        }
+    }
+}
+
+#[derive(Clone)]
+struct SparqlEmptyFn;
+
+impl tera::Function for SparqlEmptyFn {
+    fn call(&self, args: &HashMap<String, Value>) -> TeraResult<Value> {
+        let results = args
+            .get("results")
+            .ok_or_else(|| tera::Error::msg("sparql_empty: results parameter required"))?;
+
+        let is_empty = match results {
+            Value::Array(arr) => arr.is_empty(),
+            Value::Bool(_) => false, // Boolean results are never "empty"
+            _ => true,
+        };
+
+        Ok(Value::Bool(is_empty))
+    }
+}
+
+#[derive(Clone)]
+struct SparqlCountFn;
+
+impl tera::Function for SparqlCountFn {
+    fn call(&self, args: &HashMap<String, Value>) -> TeraResult<Value> {
+        let results = args
+            .get("results")
+            .ok_or_else(|| tera::Error::msg("sparql_count: results parameter required"))?;
+
+        let count = match results {
+            Value::Array(arr) => arr.len(),
+            Value::Bool(_) => 1, // Boolean results count as 1
+            _ => 0,
+        };
+
+        Ok(Value::Number(tera::Number::from(count)))
+    }
 }
 
 // ---------- internals ----------
@@ -444,5 +644,180 @@ mod tests {
 
         // Should not bless Name for non-string values
         assert!(ctx.get("Name").is_none());
+    }
+
+    #[test]
+    fn test_sparql_column_function() {
+        let mut tera = create_test_tera();
+        let mut ctx = Context::new();
+
+        // Create mock SPARQL results
+        let results = serde_json::json!([
+            {"name": "Alice", "age": "30"},
+            {"name": "Bob", "age": "25"},
+            {"name": "Charlie", "age": "35"}
+        ]);
+        ctx.insert("results", &results);
+
+        // Test extracting name column
+        let result = tera
+            .render_str(
+                "{{ sparql_column(results=results, column=\"name\") }}",
+                &ctx,
+            )
+            .unwrap();
+        // Tera returns a string representation of the array
+        assert_eq!(result, "[Alice, Bob, Charlie]");
+    }
+
+    #[test]
+    fn test_sparql_row_function() {
+        let mut tera = create_test_tera();
+        let mut ctx = Context::new();
+
+        let results = serde_json::json!([
+            {"name": "Alice", "age": "30"},
+            {"name": "Bob", "age": "25"}
+        ]);
+        ctx.insert("results", &results);
+
+        // Test getting first row
+        let result = tera
+            .render_str("{{ sparql_row(results=results, index=0) }}", &ctx)
+            .unwrap();
+        assert_eq!(result, "[object]");
+
+        // Test getting second row
+        let result = tera
+            .render_str("{{ sparql_row(results=results, index=1) }}", &ctx)
+            .unwrap();
+        assert_eq!(result, "[object]");
+
+        // Test out of bounds
+        let result = tera
+            .render_str("{{ sparql_row(results=results, index=5) }}", &ctx)
+            .unwrap();
+        assert_eq!(result, "");
+    }
+
+    #[test]
+    fn test_sparql_first_function() {
+        let mut tera = create_test_tera();
+        let mut ctx = Context::new();
+
+        let results = serde_json::json!([
+            {"name": "Alice", "age": "30"},
+            {"name": "Bob", "age": "25"}
+        ]);
+        ctx.insert("results", &results);
+
+        // Test getting first name
+        let result = tera
+            .render_str("{{ sparql_first(results=results, column=\"name\") }}", &ctx)
+            .unwrap();
+        assert_eq!(result, "Alice");
+
+        // Test getting first age
+        let result = tera
+            .render_str("{{ sparql_first(results=results, column=\"age\") }}", &ctx)
+            .unwrap();
+        assert_eq!(result, "30");
+
+        // Test non-existent column
+        let result = tera
+            .render_str(
+                "{{ sparql_first(results=results, column=\"nonexistent\") }}",
+                &ctx,
+            )
+            .unwrap();
+        assert_eq!(result, "");
+    }
+
+    #[test]
+    fn test_sparql_values_function() {
+        let mut tera = create_test_tera();
+        let mut ctx = Context::new();
+
+        let results = serde_json::json!([
+            {"name": "Alice", "age": "30"},
+            {"name": "Bob", "age": "25"},
+            {"name": "Charlie", "age": "35"}
+        ]);
+        ctx.insert("results", &results);
+
+        // Test extracting all names
+        let result = tera
+            .render_str(
+                "{{ sparql_values(results=results, column=\"name\") }}",
+                &ctx,
+            )
+            .unwrap();
+        assert_eq!(result, "[Alice, Bob, Charlie]");
+    }
+
+    #[test]
+    fn test_sparql_empty_function() {
+        let mut tera = create_test_tera();
+        let mut ctx = Context::new();
+
+        // Test empty results
+        let empty_results = serde_json::json!([]);
+        ctx.insert("empty_results", &empty_results);
+        let result = tera
+            .render_str("{{ sparql_empty(results=empty_results) }}", &ctx)
+            .unwrap();
+        assert_eq!(result, "true");
+
+        // Test non-empty results
+        let non_empty_results = serde_json::json!([
+            {"name": "Alice", "age": "30"}
+        ]);
+        ctx.insert("non_empty_results", &non_empty_results);
+        let result = tera
+            .render_str("{{ sparql_empty(results=non_empty_results) }}", &ctx)
+            .unwrap();
+        assert_eq!(result, "false");
+
+        // Test boolean results
+        let bool_results = serde_json::json!(true);
+        ctx.insert("bool_results", &bool_results);
+        let result = tera
+            .render_str("{{ sparql_empty(results=bool_results) }}", &ctx)
+            .unwrap();
+        assert_eq!(result, "false");
+    }
+
+    #[test]
+    fn test_sparql_count_function() {
+        let mut tera = create_test_tera();
+        let mut ctx = Context::new();
+
+        // Test counting results
+        let results = serde_json::json!([
+            {"name": "Alice", "age": "30"},
+            {"name": "Bob", "age": "25"},
+            {"name": "Charlie", "age": "35"}
+        ]);
+        ctx.insert("results", &results);
+        let result = tera
+            .render_str("{{ sparql_count(results=results) }}", &ctx)
+            .unwrap();
+        assert_eq!(result, "3");
+
+        // Test empty results
+        let empty_results = serde_json::json!([]);
+        ctx.insert("empty_results", &empty_results);
+        let result = tera
+            .render_str("{{ sparql_count(results=empty_results) }}", &ctx)
+            .unwrap();
+        assert_eq!(result, "0");
+
+        // Test boolean results
+        let bool_results = serde_json::json!(true);
+        ctx.insert("bool_results", &bool_results);
+        let result = tera
+            .render_str("{{ sparql_count(results=bool_results) }}", &ctx)
+            .unwrap();
+        assert_eq!(result, "1");
     }
 }

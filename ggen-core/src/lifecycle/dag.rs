@@ -1,12 +1,13 @@
 //! DAG construction and topological sorting for phase dependencies
 
-use petgraph::graphmap::DiGraphMap;
+use super::error::{LifecycleError, Result};
 use petgraph::algo::toposort;
+use petgraph::graphmap::DiGraphMap;
 
 /// Perform topological sort on phases with dependencies
 ///
 /// Returns phases in execution order
-pub fn topo(phases: &[&str], deps: &[(&str, &str)]) -> Result<Vec<String>, String> {
+pub fn topo(phases: &[&str], deps: &[(&str, &str)]) -> Result<Vec<String>> {
     let mut graph = DiGraphMap::<&str, ()>::new();
 
     // Add all phases as nodes
@@ -22,17 +23,13 @@ pub fn topo(phases: &[&str], deps: &[(&str, &str)]) -> Result<Vec<String>, Strin
     // Perform topological sort
     toposort(&graph, None)
         .map(|sorted| sorted.into_iter().map(|s| s.to_string()).collect())
-        .map_err(|_| "Cycle detected in phase dependencies".to_string())
+        .map_err(|_| LifecycleError::dependency_cycle(format!("{:?}", phases)))
 }
 
 /// Build dependency graph from hooks
 ///
 /// before_build = ["test", "lint"] means test->build, lint->build
-pub fn deps_from_hooks(
-    phase: &str,
-    before: &[String],
-    after: &[String],
-) -> Vec<(String, String)> {
+pub fn deps_from_hooks(phase: &str, before: &[String], after: &[String]) -> Vec<(String, String)> {
     let mut deps = Vec::new();
 
     // before hooks must run before phase
@@ -57,7 +54,7 @@ mod tests {
         let phases = &["init", "setup", "build"];
         let deps = &[("init", "setup"), ("setup", "build")];
 
-        let order = topo(phases, deps).unwrap();
+        let order = topo(phases, deps).expect("topo should succeed");
 
         assert_eq!(order, vec!["init", "setup", "build"]);
     }
@@ -67,10 +64,23 @@ mod tests {
         let phases = &["test", "lint", "build"];
         let deps = &[("test", "build"), ("lint", "build")];
 
-        let order = topo(phases, deps).unwrap();
+        let order = topo(phases, deps).expect("topo should succeed");
 
         // test and lint can be in any order, but both before build
         assert_eq!(order.last(), Some(&"build".to_string()));
+    }
+
+    #[test]
+    fn test_topo_cycle_detection() {
+        let phases = &["a", "b", "c"];
+        let deps = &[("a", "b"), ("b", "c"), ("c", "a")]; // cycle: a->b->c->a
+
+        let result = topo(phases, deps);
+        assert!(result.is_err());
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("Circular dependency"));
     }
 
     #[test]

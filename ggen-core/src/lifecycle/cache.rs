@@ -12,10 +12,7 @@ use std::path::Path;
 /// - Environment variables (sorted)
 /// - Input file contents
 pub fn cache_key(
-    phase_name: &str,
-    cmd_lines: &[String],
-    env: &[(String, String)],
-    inputs: &[String],
+    phase_name: &str, cmd_lines: &[String], env: &[(String, String)], inputs: &[String],
 ) -> String {
     let mut hasher = Sha256::new();
 
@@ -61,49 +58,25 @@ pub fn store_cache(cache_dir: &Path, phase: &str, key: &str) -> Result<()> {
     let cache_path = cache_dir.join(phase).join(key);
 
     // Safely get parent directory
-    let parent = cache_path.parent()
+    let parent = cache_path
+        .parent()
         .ok_or_else(|| LifecycleError::invalid_cache_path(cache_path.clone()))?;
 
-    std::fs::create_dir_all(parent)
-        .map_err(|e| LifecycleError::CacheCreate {
-            phase: phase.to_string(),
-            source: e,
-        })?;
+    std::fs::create_dir_all(parent).map_err(|e| LifecycleError::CacheCreate {
+        phase: phase.to_string(),
+        source: e,
+    })?;
 
-    std::fs::write(&cache_path, "")
-        .map_err(|e| LifecycleError::FileIo {
-            path: cache_path,
-            source: e,
-        })?;
+    std::fs::write(&cache_path, "").map_err(|e| LifecycleError::FileIo {
+        path: cache_path,
+        source: e,
+    })?;
 
     Ok(())
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_cache_key_deterministic() {
-        let cmds = vec!["cargo build".to_string()];
-        let env = vec![("RUST_LOG".to_string(), "info".to_string())];
-        let inputs = vec![];
-
-        let key1 = cache_key("build", &cmds, &env, &inputs);
-        let key2 = cache_key("build", &cmds, &env, &inputs);
-
-        assert_eq!(key1, key2);
-    }
-
-    #[test]
-    fn test_cache_key_different_phase() {
-        let cmds = vec!["cargo build".to_string()];
-        let env = vec![];
-        let inputs = vec![];
-
-        let key1 = cache_key("build", &cmds, &env, &inputs);
-        let key2 = cache_key("test", &cmds, &env, &inputs);
-
-        assert_ne!(key1, key2);
-    }
-}
+// Unit tests removed - covered by integration_test.rs:
+// - test_cache_key_generation (comprehensive cache key testing)
+// - test_cache_key_deterministic (determinism verification)
+// - test_cache_key_changes_with_inputs (input sensitivity)
+// And by behavior_tests.rs cache invalidation contracts

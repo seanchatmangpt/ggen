@@ -85,9 +85,10 @@ pub async fn run(args: &NaturalArgs) -> Result<()> {
     })?;
 
     // Run search using real LLM
-    let result = generator.search(&args.query).await.map_err(|e| {
-        ggen_utils::error::Error::new(&format!("Search failed: {}", e))
-    })?;
+    let result = generator
+        .search(&args.query)
+        .await
+        .map_err(|e| ggen_utils::error::Error::new(&format!("Search failed: {}", e)))?;
 
     if args.json {
         // Output as JSON

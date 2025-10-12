@@ -133,10 +133,8 @@ pub struct PhaseExecutor {
 
 impl PhaseExecutor {
     pub fn new(
-        cmd_executor: Box<dyn CommandExecutor>,
-        state_repo: Box<dyn StateRepository>,
-        hook_registry: Box<dyn HookRegistry>,
-        observer: Box<dyn LifecycleObserver>,
+        cmd_executor: Box<dyn CommandExecutor>, state_repo: Box<dyn StateRepository>,
+        hook_registry: Box<dyn HookRegistry>, observer: Box<dyn LifecycleObserver>,
     ) -> Self {
         Self {
             cmd_executor,
@@ -318,8 +316,14 @@ mod london_school_tests {
         let mut mock_observer = MockLifecycleObserver::new();
 
         // EXPECT: Normal flow until command
-        mock_observer.expect_on_phase_start().times(1).return_const(());
-        mock_hooks.expect_execute_before().times(1).returning(|_| Ok(()));
+        mock_observer
+            .expect_on_phase_start()
+            .times(1)
+            .return_const(());
+        mock_hooks
+            .expect_execute_before()
+            .times(1)
+            .returning(|_| Ok(()));
 
         // EXPECT: Command fails
         mock_cmd
@@ -364,7 +368,9 @@ mod london_school_tests {
         mock_observer.expect_on_phase_complete().return_const(());
         mock_hooks.expect_execute_before().returning(|_| Ok(()));
         mock_hooks.expect_execute_after().returning(|_| Ok(()));
-        mock_cmd.expect_execute().returning(|_| Ok(CommandOutput::success()));
+        mock_cmd
+            .expect_execute()
+            .returning(|_| Ok(CommandOutput::success()));
 
         // EXPECT: State loaded
         mock_state
@@ -376,9 +382,9 @@ mod london_school_tests {
         mock_state
             .expect_save()
             .withf(|state| {
-                state.last_phase == Some("test".into()) &&
-                state.phase_history.len() == 1 &&
-                state.phase_history[0].phase == "test"
+                state.last_phase == Some("test".into())
+                    && state.phase_history.len() == 1
+                    && state.phase_history[0].phase == "test"
             })
             .times(1)
             .returning(|_| Ok(()));
@@ -426,9 +432,9 @@ mod london_school_tests {
         mock_cmd
             .expect_execute()
             .withf(|spec| {
-                spec.command.starts_with("cargo") &&
-                spec.working_dir == PathBuf::from(".") &&
-                spec.env.is_empty()
+                spec.command.starts_with("cargo")
+                    && spec.working_dir == PathBuf::from(".")
+                    && spec.env.is_empty()
             })
             .times(1)
             .returning(|_| Ok(CommandOutput::success()));
@@ -506,8 +512,7 @@ mod test_helpers {
             let mut mock = MockStateRepository::new();
             mock.expect_load()
                 .returning(|| Ok(LifecycleState::default()));
-            mock.expect_save()
-                .returning(|_| Ok(()));
+            mock.expect_save().returning(|_| Ok(()));
             self.state_repo = Some(Box::new(mock));
             self
         }

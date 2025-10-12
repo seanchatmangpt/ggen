@@ -53,10 +53,7 @@ pub enum LifecycleError {
 
     /// Hook recursion detected (circular dependency)
     #[error("Hook recursion detected: phase '{phase}' called recursively through chain: {}", chain.join(" -> "))]
-    HookRecursion {
-        phase: String,
-        chain: Vec<String>,
-    },
+    HookRecursion { phase: String, chain: Vec<String> },
 
     /// Hook execution failed
     #[error("Hook failed for phase '{phase}': {hook_phase}")]
@@ -163,6 +160,10 @@ pub enum LifecycleError {
     #[error("I/O error: {0}")]
     Io(#[from] std::io::Error),
 
+    /// Dependency cycle detected
+    #[error("Circular dependency detected in phase dependencies: {phases}")]
+    DependencyCycle { phases: String },
+
     /// Generic error for compatibility
     #[error("{0}")]
     Other(String),
@@ -170,7 +171,9 @@ pub enum LifecycleError {
 
 impl LifecycleError {
     /// Create a config load error
-    pub fn config_load(path: impl Into<PathBuf>, source: impl std::error::Error + Send + Sync + 'static) -> Self {
+    pub fn config_load(
+        path: impl Into<PathBuf>, source: impl std::error::Error + Send + Sync + 'static,
+    ) -> Self {
         Self::ConfigLoad {
             path: path.into(),
             source: Box::new(source),
@@ -194,9 +197,7 @@ impl LifecycleError {
 
     /// Create a command failed error
     pub fn command_failed(
-        phase: impl Into<String>,
-        command: impl Into<String>,
-        exit_code: i32,
+        phase: impl Into<String>, command: impl Into<String>, exit_code: i32,
         stderr: impl Into<String>,
     ) -> Self {
         Self::CommandFailed {
@@ -208,7 +209,9 @@ impl LifecycleError {
     }
 
     /// Create a command spawn error
-    pub fn command_spawn(phase: impl Into<String>, command: impl Into<String>, source: std::io::Error) -> Self {
+    pub fn command_spawn(
+        phase: impl Into<String>, command: impl Into<String>, source: std::io::Error,
+    ) -> Self {
         Self::CommandSpawn {
             phase: phase.into(),
             command: command.into(),
@@ -309,6 +312,13 @@ impl LifecycleError {
             source: Box::new(source),
         }
     }
+
+    /// Create a dependency cycle error
+    pub fn dependency_cycle(phases: impl Into<String>) -> Self {
+        Self::DependencyCycle {
+            phases: phases.into(),
+        }
+    }
 }
 
 /// Result type alias for lifecycle operations
@@ -343,7 +353,12 @@ mod tests {
 
     #[test]
     fn test_hook_recursion_with_chain() {
-        let chain = vec!["init".to_string(), "setup".to_string(), "build".to_string(), "init".to_string()];
+        let chain = vec![
+            "init".to_string(),
+            "setup".to_string(),
+            "build".to_string(),
+            "init".to_string(),
+        ];
         let err = LifecycleError::hook_recursion_with_chain("init", chain);
         let msg = err.to_string();
         assert!(msg.contains("init -> setup -> build -> init"));

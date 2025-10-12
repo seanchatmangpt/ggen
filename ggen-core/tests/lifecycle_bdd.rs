@@ -8,7 +8,9 @@ use std::path::Path;
 
 // Mock trait for command execution
 trait CommandExecutor {
-    fn execute(&self, cmd: &str, cwd: &Path, env: &[(String, String)]) -> Result<CommandOutput, String>;
+    fn execute(
+        &self, cmd: &str, cwd: &Path, env: &[(String, String)],
+    ) -> Result<CommandOutput, String>;
 }
 
 // Mock trait for state repository
@@ -52,12 +54,17 @@ impl MockCommandExecutor {
 }
 
 impl CommandExecutor for MockCommandExecutor {
-    fn execute(&self, cmd: &str, _cwd: &Path, _env: &[(String, String)]) -> Result<CommandOutput, String> {
+    fn execute(
+        &self, cmd: &str, _cwd: &Path, _env: &[(String, String)],
+    ) -> Result<CommandOutput, String> {
         self.executed.borrow_mut().push(cmd.to_string());
-        self.responses
-            .get(cmd)
-            .cloned()
-            .unwrap_or_else(|| Ok(CommandOutput { stdout: String::new(), stderr: String::new(), success: true }))
+        self.responses.get(cmd).cloned().unwrap_or_else(|| {
+            Ok(CommandOutput {
+                stdout: String::new(),
+                stderr: String::new(),
+                success: true,
+            })
+        })
     }
 }
 
@@ -121,7 +128,9 @@ impl LifecycleObserver for MockObserver {
     }
 
     fn on_error(&self, phase: &str, error: &str) {
-        self.events.borrow_mut().push(format!("error:{}:{}", phase, error));
+        self.events
+            .borrow_mut()
+            .push(format!("error:{}:{}", phase, error));
     }
 }
 
@@ -160,11 +169,14 @@ mod phase_execution {
     fn should_execute_single_command_phase() {
         // GIVEN a phase with a single command
         let mut executor = MockCommandExecutor::new();
-        executor.expect("npm run build", Ok(CommandOutput {
-            stdout: "Build successful".to_string(),
-            stderr: String::new(),
-            success: true,
-        }));
+        executor.expect(
+            "npm run build",
+            Ok(CommandOutput {
+                stdout: "Build successful".to_string(),
+                stderr: String::new(),
+                success: true,
+            }),
+        );
 
         let state_repo = MockStateRepository::new(LifecycleState::new());
         let observer = MockObserver::new();
@@ -180,11 +192,20 @@ mod phase_execution {
 
         // THEN the command should be executed
         assert!(result.is_ok(), "Phase execution should succeed");
-        assert!(executor.verify_executed("npm run build"), "Command should be executed");
+        assert!(
+            executor.verify_executed("npm run build"),
+            "Command should be executed"
+        );
 
         // AND the observer should be notified
-        assert!(observer.received_event("start:build"), "Observer should receive start event");
-        assert!(observer.received_event("complete:build"), "Observer should receive complete event");
+        assert!(
+            observer.received_event("start:build"),
+            "Observer should receive start event"
+        );
+        assert!(
+            observer.received_event("complete:build"),
+            "Observer should receive complete event"
+        );
 
         // AND the state should be saved
         assert_eq!(state_repo.times_saved(), 1, "State should be saved once");
@@ -207,7 +228,11 @@ mod phase_execution {
 
         // THEN all commands should execute in order
         assert!(result.is_ok());
-        assert_eq!(executor.execution_count(), 3, "All 3 commands should execute");
+        assert_eq!(
+            executor.execution_count(),
+            3,
+            "All 3 commands should execute"
+        );
     }
 
     #[test]
@@ -227,7 +252,11 @@ mod phase_execution {
 
         // THEN execution should stop after the failure
         assert!(result.is_err(), "Phase should fail");
-        assert_eq!(executor.execution_count(), 2, "Should stop after failed command");
+        assert_eq!(
+            executor.execution_count(),
+            2,
+            "Should stop after failed command"
+        );
 
         // AND the observer should be notified of the error
         assert!(observer.received_event("error:failing:Command failed"));
@@ -245,11 +274,8 @@ mod phase_execution {
 
     // Simplified execution function for testing
     fn execute_phase(
-        phase_name: &str,
-        commands: &[&str],
-        executor: &impl CommandExecutor,
-        state_repo: &impl StateRepository,
-        observer: &impl LifecycleObserver,
+        phase_name: &str, commands: &[&str], executor: &impl CommandExecutor,
+        state_repo: &impl StateRepository, observer: &impl LifecycleObserver,
     ) -> Result<(), String> {
         observer.on_phase_start(phase_name);
 
@@ -354,17 +380,15 @@ mod hook_execution {
 
         // THEN recursion should be detected
         assert!(result.is_err(), "Should detect recursion");
-        assert!(result.unwrap_err().contains("recursion"), "Error should mention recursion");
+        assert!(
+            result.unwrap_err().contains("recursion"),
+            "Error should mention recursion"
+        );
     }
 
     fn execute_phase_with_hooks<F>(
-        phase_name: &str,
-        before_hooks: &[&str],
-        after_hooks: &[&str],
-        commands: &[&str],
-        executor: &impl CommandExecutor,
-        state_repo: &impl StateRepository,
-        track: &F,
+        phase_name: &str, before_hooks: &[&str], after_hooks: &[&str], commands: &[&str],
+        executor: &impl CommandExecutor, state_repo: &impl StateRepository, track: &F,
     ) -> Result<(), String>
     where
         F: Fn(&str),
@@ -396,8 +420,7 @@ mod hook_execution {
     }
 
     fn check_recursion(
-        phase_name: &str,
-        guard: &std::cell::RefCell<std::collections::HashSet<String>>,
+        phase_name: &str, guard: &std::cell::RefCell<std::collections::HashSet<String>>,
     ) -> Result<(), String> {
         // Check for recursion
         if guard.borrow().contains(phase_name) {
@@ -436,15 +459,14 @@ mod state_management {
         let state_repo = MockStateRepository::new(LifecycleState::new());
 
         // WHEN the phase executes
-        execute_phase_batch(
-            "build",
-            &["cmd1", "cmd2", "cmd3"],
-            &executor,
-            &state_repo,
-        ).unwrap();
+        execute_phase_batch("build", &["cmd1", "cmd2", "cmd3"], &executor, &state_repo).unwrap();
 
         // THEN state should be saved only once (not after each command)
-        assert_eq!(state_repo.times_saved(), 1, "Should save state once per phase");
+        assert_eq!(
+            state_repo.times_saved(),
+            1,
+            "Should save state once per phase"
+        );
     }
 
     #[test]
@@ -454,20 +476,28 @@ mod state_management {
 
         // WHEN cache keys are stored
         let mut state = state_repo.load().unwrap();
-        state.cache_keys.insert("build".to_string(), "hash123".to_string());
-        state.cache_keys.insert("test".to_string(), "hash456".to_string());
+        state
+            .cache_keys
+            .insert("build".to_string(), "hash123".to_string());
+        state
+            .cache_keys
+            .insert("test".to_string(), "hash456".to_string());
         state_repo.save(&state).unwrap();
 
         // THEN cache keys should be retrievable
         let final_state = state_repo.load().unwrap();
-        assert_eq!(final_state.cache_keys.get("build"), Some(&"hash123".to_string()));
-        assert_eq!(final_state.cache_keys.get("test"), Some(&"hash456".to_string()));
+        assert_eq!(
+            final_state.cache_keys.get("build"),
+            Some(&"hash123".to_string())
+        );
+        assert_eq!(
+            final_state.cache_keys.get("test"),
+            Some(&"hash456".to_string())
+        );
     }
 
     fn execute_phase_batch(
-        phase_name: &str,
-        commands: &[&str],
-        executor: &impl CommandExecutor,
+        phase_name: &str, commands: &[&str], executor: &impl CommandExecutor,
         state_repo: &impl StateRepository,
     ) -> Result<(), String> {
         // Execute all commands
@@ -561,12 +591,10 @@ mod pipeline_execution {
 
         // WHEN the pipeline is executed
         let phases = vec!["init", "build", "test"];
-        execute_pipeline(
-            &phases,
-            &executor,
-            &state_repo,
-            &|phase| execution_order.borrow_mut().push(phase.to_string()),
-        ).unwrap();
+        execute_pipeline(&phases, &executor, &state_repo, &|phase| {
+            execution_order.borrow_mut().push(phase.to_string())
+        })
+        .unwrap();
 
         // THEN phases should execute in order
         assert_eq!(execution_order.borrow()[0], "init");
@@ -586,12 +614,7 @@ mod pipeline_execution {
 
         // WHEN the pipeline is executed
         let phases = vec!["init", "build", "test"];
-        let result = execute_pipeline(
-            &phases,
-            &executor,
-            &state_repo,
-            &|_| {},
-        );
+        let result = execute_pipeline(&phases, &executor, &state_repo, &|_| {});
 
         // THEN pipeline should stop after failure
         assert!(result.is_err());
@@ -602,9 +625,7 @@ mod pipeline_execution {
     }
 
     fn execute_pipeline<F>(
-        phases: &[&str],
-        executor: &impl CommandExecutor,
-        state_repo: &impl StateRepository,
+        phases: &[&str], executor: &impl CommandExecutor, state_repo: &impl StateRepository,
         track: &F,
     ) -> Result<(), String>
     where

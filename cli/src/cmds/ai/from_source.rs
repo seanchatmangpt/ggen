@@ -170,23 +170,23 @@ pub async fn run(args: &FromSourceArgs) -> Result<()> {
 
     // Determine output path
     let output_path = args.output.as_ref().map(|s| s.as_str()).unwrap_or_else(|| {
-            let source_name = std::path::Path::new(&args.source_file)
-                .file_stem()
-                .and_then(|s| s.to_str())
-                .unwrap_or("generated");
-            format!("{}.tmpl", source_name).leak()
-        });
+        let source_name = std::path::Path::new(&args.source_file)
+            .file_stem()
+            .and_then(|s| s.to_str())
+            .unwrap_or("generated");
+        format!("{}.tmpl", source_name).leak()
+    });
 
-        // Write the template
-        fs::write(
-            output_path,
-            format!("{:?}\n---\n{}", template.front, template.body),
-        )?;
-        println!("📁 Saved template to: {}", output_path);
+    // Write the template
+    fs::write(
+        output_path,
+        format!("{:?}\n---\n{}", template.front, template.body),
+    )?;
+    println!("📁 Saved template to: {}", output_path);
 
-        // Generate analysis report
-        let analysis_report = format!(
-            r#"# Source Analysis Report
+    // Generate analysis report
+    let analysis_report = format!(
+        r#"# Source Analysis Report
     Source file: {}
     Language: {}
     Framework: {}
@@ -215,29 +215,29 @@ pub async fn run(args: &FromSourceArgs) -> Result<()> {
     - Customize for your specific needs
     - Add additional variables as needed
     "#,
-            args.source_file,
-            args.language,
-            args.framework.as_deref().unwrap_or("None"),
-            chrono::Utc::now().to_rfc3339(),
-            source_content.len(),
-            args.language,
-            output_path,
-            args.extract_variables,
-            args.include_rdf,
-            output_path,
-            output_path
-        );
+        args.source_file,
+        args.language,
+        args.framework.as_deref().unwrap_or("None"),
+        chrono::Utc::now().to_rfc3339(),
+        source_content.len(),
+        args.language,
+        output_path,
+        args.extract_variables,
+        args.include_rdf,
+        output_path,
+        output_path
+    );
 
-        let report_path = format!("{}_analysis.md", output_path.replace(".tmpl", ""));
-        fs::write(&report_path, analysis_report)?;
-        println!("📋 Generated analysis report: {}", report_path);
+    let report_path = format!("{}_analysis.md", output_path.replace(".tmpl", ""));
+    fs::write(&report_path, analysis_report)?;
+    println!("📋 Generated analysis report: {}", report_path);
 
-        println!("✅ Source analysis completed successfully!");
-        println!("📋 Summary:");
-        println!("   • Source file: {}", args.source_file);
-        println!("   • Language: {}", args.language);
-        println!("   • Template: {}", output_path);
-        println!("   • Analysis report: {}", report_path);
+    println!("✅ Source analysis completed successfully!");
+    println!("📋 Summary:");
+    println!("   • Source file: {}", args.source_file);
+    println!("   • Language: {}", args.language);
+    println!("   • Template: {}", output_path);
+    println!("   • Analysis report: {}", report_path);
 
-        Ok(())
+    Ok(())
 }
