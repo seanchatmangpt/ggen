@@ -70,6 +70,7 @@ impl TeraFunction for SparqlFn {
             eprintln!("[ggen.sparql] {}", final_q.replace('\n', " "))
         }
 
+        #[allow(deprecated)]
         let res = self
             .store
             .query(&final_q)

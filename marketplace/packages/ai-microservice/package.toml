@@ -1,0 +1,62 @@
+# AI Microservice Package
+# AI-powered microservice with template generation and refactoring
+
+[package]
+name = "ai-microservice"
+full_name = "ai-microservice-generator"
+version = "0.1.0"
+description = "AI-powered microservice with template generation, refactoring, and ontology support"
+category = "microservices"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+path = "marketplace/packages/ai-microservice"
+license = "MIT"
+dependencies = []
+features = [
+    "Multi-provider AI support (OpenAI, Anthropic, Ollama)",
+    "Microservice template generation",
+    "Automatic refactoring suggestions",
+    "Ontology-based code generation",
+    "Caching for improved performance",
+    "Streaming support for real-time responses",
+    "Configuration-driven development",
+    "Production-ready patterns"
+]
+tags = ["ai", "microservice", "template", "refactoring", "ontology"]
+keywords = ["ai", "microservice", "generation", "refactoring", "llm"]
+
+# Installation
+[install]
+type = "template"
+template_path = "marketplace/packages/ai-microservice"
+source_path = "examples/ai-microservice"
+
+# Template files to copy
+[files]
+"ggen.toml" = "ggen.toml"
+"README.md" = "README.md"
+
+# Variables for template substitution
+[variables]
+project_name = { type = "string", required = true, description = "Microservice name" }
+ai_provider = { type = "string", default = "openai", description = "AI provider" }
+ai_model = { type = "string", default = "gpt-4", description = "AI model" }
+
+# Examples
+[examples]
+basic = """
+# Install the package
+ggen market add ai-microservice
+
+# Generate microservice
+ggen ai generate "Create product catalog microservice with REST API"
+
+# Refactor existing code
+ggen ai refactor src/services/product.rs
+"""
+
+# Documentation
+[docs]
+quick_start = "AI-powered microservice generation and refactoring"
+caching = "Built-in LRU caching for improved performance"
+streaming = "Real-time streaming support for AI responses"

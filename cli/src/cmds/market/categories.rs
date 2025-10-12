@@ -76,17 +76,40 @@ pub async fn run(_args: &CategoriesArgs) -> Result<()> {
     println!("📂 Fetching marketplace categories...");
     println!();
 
-    // Placeholder: In production, this would fetch from marketplace API
-    // For now, show common categories
-    println!("Popular categories:");
-    println!("  🦀 rust (42 gpacks)");
-    println!("  🐍 python (38 gpacks)");
-    println!("  🌐 web (56 gpacks)");
-    println!("  📊 data (31 gpacks)");
-    println!("  🔒 auth (24 gpacks)");
-    println!("  🛠️  cli (45 gpacks)");
-    println!("  🎨 ui (33 gpacks)");
-    println!("  🔌 api (51 gpacks)");
+    // Load registry and show actual categories
+    let registry = match super::registry::Registry::load_sync() {
+        Ok(r) => r,
+        Err(e) => {
+            eprintln!("⚠️  Warning: Could not load marketplace registry: {}", e);
+            println!("Popular categories:");
+            println!("  • ai");
+            println!("  • templates");
+            println!("  • utilities");
+            println!("  • cli");
+            println!("  • web");
+            return Ok(());
+        }
+    };
+
+    // Collect unique categories from registry
+    let mut categories: std::collections::HashMap<String, usize> = std::collections::HashMap::new();
+    for package in &registry.packages {
+        *categories.entry(package.category.clone()).or_insert(0) += 1;
+    }
+
+    // Sort categories by count
+    let mut category_list: Vec<_> = categories.iter().collect();
+    category_list.sort_by(|a, b| b.1.cmp(a.1));
+
+    println!("Available categories:");
+    for (category, count) in &category_list {
+        println!("  • {} ({} packages)", category, count);
+    }
+
+    if category_list.is_empty() {
+        println!("No categories found in registry.");
+    }
+
     println!();
     println!("💡 Use 'ggen market search <query> --category <category>' to filter by category");
 

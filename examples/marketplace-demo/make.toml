@@ -1,0 +1,73 @@
+# Marketplace Demo Lifecycle Configuration
+# Demonstrates marketplace package installation and usage
+
+[project]
+name = "marketplace-demo"
+version = "0.1.0"
+description = "Demo project showing ggen marketplace functionality"
+author = "ggen-examples"
+
+# Initialize project structure
+[lifecycle.init]
+description = "Initialize demo project"
+commands = ["mkdir -p generated/src", "echo 'Demo project initialized'"]
+cache = true
+
+# Install marketplace packages
+[lifecycle.setup]
+description = "Install marketplace packages"
+commands = [
+  "echo 'Installing hello-world-utils from marketplace...'",
+  "ggen market add hello-world-utils",
+  "echo '✅ hello-world-utils installed'",
+]
+depends_on = ["init"]
+cache = true
+
+# Generate demo application
+[lifecycle.generate]
+description = "Generate demo application using marketplace packages"
+commands = [
+  "echo 'Generating demo application...'",
+  "echo 'Copying marketplace package locally...'",
+  "cp -r ../../../marketplace/packages/hello-world generated/hello-world-utils",
+  "",
+  "echo 'Creating demo Cargo.toml...'",
+  "echo '[package]\nname = \"marketplace-demo\"\nversion = \"0.1.0\"\nedition = \"2021\"\n\n[dependencies]\nhello-world-utils = { path = \"hello-world-utils\" }\nanyhow = \"1.0\"\ntokio = { version = \"1.0\", features = [\"full\"] }' > generated/Cargo.toml",
+  "",
+  "echo 'Creating demo source code...'",
+  "echo 'use hello_world_utils::{HelloWorld, HelloConfig};\n\nfn main() -> anyhow::Result<()> {\n    println!(\"🚀 Marketplace Demo Application\");\n    println!(\"===============================\");\n    println!();\n\n    // Use the installed marketplace package\n    let hello = HelloWorld::default();\n    println!(\"Default greeting: {}\", hello.greet());\n\n    let config = HelloConfig {\n        greeting: \"Welcome\".to_string(),\n        name: \"Marketplace\".to_string(),\n        repeat_count: 3,\n    };\n\n    let custom_hello = HelloWorld::new(config);\n    println!();\n    println!(\"Custom greetings:\");\n    for greeting in custom_hello.greet_many() {\n        println!(\"  {}\", greeting);\n    }\n\n    println!();\n    println!(\"✅ Marketplace demo completed successfully!\");\n    Ok(())\n}' > generated/src/main.rs",
+  "",
+  "echo '✅ Demo application generated'",
+]
+depends_on = ["setup"]
+cache = true
+
+# Build the demo application
+[lifecycle.build]
+description = "Build the demo application"
+commands = ["cd generated && cargo build", "echo '✅ Demo application built'"]
+depends_on = ["generate"]
+cache = true
+
+# Run the demo application
+[lifecycle.run]
+description = "Run the demo application"
+commands = ["cd generated && cargo run", "echo '✅ Demo application executed'"]
+depends_on = ["build"]
+cache = false
+
+# Test the marketplace functionality
+[lifecycle.test]
+description = "Test marketplace functionality"
+commands = [
+  "echo 'Testing marketplace installation...'",
+  "ggen market list --installed | grep -q hello-world-utils && echo '✅ hello-world-utils is installed' || echo '❌ hello-world-utils not found'",
+  "",
+  "echo 'Testing package functionality...'",
+  "cd generated && cargo test",
+  "",
+  "echo '✅ Marketplace tests completed'",
+]
+depends_on = ["build"]
+cache = true

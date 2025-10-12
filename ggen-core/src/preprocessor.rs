@@ -80,6 +80,12 @@ pub struct Preprocessor {
     stages: Vec<Box<dyn Stage>>,
 }
 
+impl Default for Preprocessor {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Preprocessor {
     /// Create a new preprocessor with no stages
     pub fn new() -> Self {
@@ -102,8 +108,8 @@ impl Preprocessor {
         Ok(input)
     }
 
-    /// Create a default preprocessor with common stages
-    pub fn default() -> Self {
+    /// Create a preprocessor with common stages
+    pub fn with_default_stages() -> Self {
         Self::new().with(IncludeStage {
             template_dirs: vec![PathBuf::from("templates")],
         })

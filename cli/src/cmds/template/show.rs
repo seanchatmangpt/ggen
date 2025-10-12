@@ -69,7 +69,7 @@ fn parse_template_metadata(content: &str, path: &str) -> Result<TemplateMetadata
         .and_then(|n| n.to_str())
         .unwrap_or("unknown")
         .to_string();
-    
+
     // Look for YAML frontmatter
     if content.starts_with("---\n") {
         if let Some(end_pos) = content.find("\n---\n") {
@@ -77,7 +77,7 @@ fn parse_template_metadata(content: &str, path: &str) -> Result<TemplateMetadata
             return parse_yaml_frontmatter(frontmatter, &name, path);
         }
     }
-    
+
     // Fallback: basic metadata extraction
     Ok(TemplateMetadata {
         name,
@@ -103,7 +103,7 @@ fn parse_yaml_frontmatter(frontmatter: &str, name: &str, path: &str) -> Result<T
         sparql_queries: HashMap::new(),
         determinism_seed: None,
     };
-    
+
     // Simple YAML parsing for our specific format
     for line in frontmatter.lines() {
         let line = line.trim();
@@ -133,7 +133,7 @@ fn parse_yaml_frontmatter(frontmatter: &str, name: &str, path: &str) -> Result<T
             if let Some((key, value)) = line.split_once(':') {
                 let key = key.trim();
                 let value = value.trim();
-                
+
                 match key {
                     "seed" => {
                         if let Ok(seed) = value.parse::<u64>() {
@@ -145,14 +145,14 @@ fn parse_yaml_frontmatter(frontmatter: &str, name: &str, path: &str) -> Result<T
             }
         }
     }
-    
+
     Ok(metadata)
 }
 
 /// Extract variables from template content using simple pattern matching
 fn extract_variables_from_content(content: &str) -> Vec<String> {
     let mut variables = Vec::new();
-    
+
     // Look for {{ variable }} patterns
     let re = regex::Regex::new(r"\{\{\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*\}\}").unwrap();
     for cap in re.captures_iter(content) {
@@ -163,7 +163,7 @@ fn extract_variables_from_content(content: &str) -> Vec<String> {
             }
         }
     }
-    
+
     variables
 }
 
@@ -172,16 +172,18 @@ pub async fn run(args: &ShowArgs) -> Result<()> {
     validate_template_ref(&args.template_ref)?;
 
     println!("📄 Template Information:");
-    
+
     // Determine template path
     let template_path = if args.template_ref.starts_with("gpack:") {
-        return Err(ggen_utils::error::Error::new("gpack templates not yet supported"));
+        return Err(ggen_utils::error::Error::new(
+            "gpack templates not yet supported",
+        ));
     } else if args.template_ref.contains('/') {
         args.template_ref.clone()
     } else {
         format!("templates/{}", args.template_ref)
     };
-    
+
     // Check if template exists
     let path = std::path::Path::new(&template_path);
     if !path.exists() {
@@ -190,51 +192,51 @@ pub async fn run(args: &ShowArgs) -> Result<()> {
             template_path
         )));
     }
-    
+
     // Read template content
     let content = std::fs::read_to_string(&template_path)
         .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to read template: {}", e)))?;
-    
+
     // Parse template metadata
     let metadata = parse_template_metadata(&content, &template_path)?;
-    
+
     // Display metadata
     println!("  Name: {}", metadata.name);
     println!("  Path: {}", metadata.path);
-    
+
     if let Some(desc) = metadata.description {
         println!("  Description: {}", desc);
     }
-    
+
     if let Some(output) = metadata.output_path {
         println!("  Output: {}", output);
     }
-    
+
     if !metadata.variables.is_empty() {
         println!("  Variables:");
         for var in metadata.variables {
             println!("    - {}", var);
         }
     }
-    
+
     if !metadata.rdf_sources.is_empty() {
         println!("  RDF Sources:");
         for source in metadata.rdf_sources {
             println!("    - {}", source);
         }
     }
-    
+
     if !metadata.sparql_queries.is_empty() {
         println!("  SPARQL Queries:");
         for (name, _) in metadata.sparql_queries {
             println!("    - {}", name);
         }
     }
-    
+
     if let Some(seed) = metadata.determinism_seed {
         println!("  Determinism Seed: {}", seed);
     }
-    
+
     Ok(())
 }
 

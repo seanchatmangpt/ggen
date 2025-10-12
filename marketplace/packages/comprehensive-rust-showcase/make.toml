@@ -1,0 +1,380 @@
+# Comprehensive Rust Showcase Lifecycle Configuration
+# Demonstrates ALL lifecycle features: phases, hooks, environments, parallel execution, state management
+
+[project]
+name = "comprehensive-rust-showcase"
+version = "1.0.0"
+description = "Comprehensive Rust project showcasing all ggen features"
+author = "ggen-examples"
+
+# Complete lifecycle phases with comprehensive workflow
+[lifecycle.init]
+description = "Initialize project structure and dependencies"
+commands = [
+    "echo '🚀 Initializing comprehensive Rust showcase project...'",
+    "mkdir -p generated/{src/{services,api,database,models,utils},tests,deployment,docs}",
+    "mkdir -p data/{domain,api,database,queries,validation}",
+    "mkdir -p scripts/{build,deploy,test,monitor}",
+    "mkdir -p .ggen/{logs,cache,profiles,state}",
+    "cargo init --name comprehensive-rust-showcase generated/",
+    "echo '✅ Project structure initialized'"
+]
+watch = ["**/*.toml", "**/*.ttl"]
+cache = true
+parallel = false
+
+[lifecycle.setup]
+description = "Setup development environment and install dependencies"
+commands = [
+    "echo '📦 Setting up dependencies...'",
+    "cd generated && cargo add serde serde_json tokio axum tower",
+    "cd generated && cargo add sqlx --features postgres,runtime-tokio-rustls",
+    "cd generated && cargo add --dev tokio-test proptest",
+    "cd generated && cargo add --features derive thiserror anyhow",
+    "cd generated && cargo add tracing tracing-subscriber",
+    "cd generated && cargo add clap --features derive",
+    "cd generated && cargo add uuid --features v4",
+    "cd generated && cargo add chrono --features serde",
+    "echo '✅ Dependencies installed successfully'"
+]
+depends_on = ["init"]
+cache = true
+parallel = false
+
+[lifecycle.validate]
+description = "Validate RDF data and SPARQL queries"
+commands = [
+    "echo '🔍 Validating RDF data and SPARQL queries...'",
+    "ggen graph validate data/domain.ttl",
+    "ggen graph validate data/api-spec.ttl",
+    "ggen graph validate data/database.ttl",
+    "ggen graph query 'ASK WHERE { ?s ?p ?o }' --file data/queries.ttl",
+    "echo '✅ RDF validation completed'"
+]
+depends_on = ["setup"]
+cache = true
+parallel = true
+
+[lifecycle.generate]
+description = "Generate code using AI and templates with SPARQL integration"
+commands = [
+    "echo '🤖 Generating code with AI and templates...'",
+    "ggen template generate templates/rust-service.tmpl --vars '{\"name\":\"user-service\"}'",
+    "ggen template generate templates/api-endpoint.tmpl --vars '{\"name\":\"user-api\"}'",
+    "ggen template generate templates/database-schema.tmpl --vars '{\"name\":\"user-schema\"}'",
+    "ggen template generate templates/documentation.tmpl --vars '{\"name\":\"user-docs\"}'",
+    "ggen template generate templates/tests.tmpl --vars '{\"name\":\"user-tests\"}'",
+    "ggen template generate templates/deployment.tmpl --vars '{\"name\":\"user-deployment\"}'",
+    "echo '✅ Code generation completed'"
+]
+depends_on = ["validate"]
+watch = ["templates/**/*.tmpl", "data/**/*.ttl"]
+cache = true
+parallel = true
+
+[lifecycle.build]
+description = "Build the Rust project with optimization"
+commands = [
+    "echo '🔨 Building Rust project...'",
+    "cd generated && cargo build --release",
+    "cd generated && cargo check --all-targets",
+    "cd generated && cargo clippy -- -D warnings",
+    "cd generated && cargo fmt --check",
+    "echo '✅ Build completed successfully'"
+]
+depends_on = ["generate"]
+cache = true
+parallel = false
+
+[lifecycle.test]
+description = "Run comprehensive tests with coverage"
+commands = [
+    "echo '🧪 Running comprehensive tests...'",
+    "cd generated && cargo test --release",
+    "cd generated && cargo test --doc",
+    "cd generated && cargo test --test '*'",
+    "cd generated && cargo clippy --all-targets -- -D warnings",
+    "cd generated && cargo fmt --check",
+    "echo '✅ All tests passed'"
+]
+depends_on = ["build"]
+cache = true
+parallel = true
+
+[lifecycle.benchmark]
+description = "Run performance benchmarks"
+commands = [
+    "echo '⚡ Running performance benchmarks...'",
+    "cd generated && cargo bench --features bench",
+    "echo '✅ Benchmarks completed'"
+]
+depends_on = ["test"]
+cache = true
+parallel = false
+
+[lifecycle.security]
+description = "Run security scans and audits"
+commands = [
+    "echo '🔒 Running security scans...'",
+    "cd generated && cargo audit",
+    "cd generated && cargo deny check",
+    "ggen security scan generated/",
+    "echo '✅ Security scan completed'"
+]
+depends_on = ["test"]
+cache = true
+parallel = true
+
+[lifecycle.deploy]
+description = "Deploy to target environment"
+commands = [
+    "echo '🚀 Deploying to target environment...'",
+    "scripts/deploy/deploy.sh",
+    "echo '✅ Deployment completed'"
+]
+depends_on = ["security"]
+cache = false
+parallel = false
+
+# Environment-specific configurations
+[lifecycle.deploy.env.development]
+description = "Deploy to development environment"
+commands = [
+    "echo '🔧 Deploying to development...'",
+    "scripts/deploy/deploy-dev.sh",
+    "echo '✅ Deployed to development'"
+]
+
+[lifecycle.deploy.env.staging]
+description = "Deploy to staging environment"
+commands = [
+    "echo '🎭 Deploying to staging...'",
+    "scripts/deploy/deploy-staging.sh",
+    "echo '✅ Deployed to staging'"
+]
+
+[lifecycle.deploy.env.production]
+description = "Deploy to production environment"
+commands = [
+    "echo '🏭 Deploying to production...'",
+    "scripts/deploy/deploy-prod.sh",
+    "echo '✅ Deployed to production'"
+]
+
+# Comprehensive hooks system
+[hooks.before_init]
+commands = [
+    "echo '🎯 Starting project initialization...'",
+    "date",
+    "echo 'System info:'",
+    "uname -a",
+    "rustc --version",
+    "cargo --version"
+]
+
+[hooks.after_init]
+commands = [
+    "echo '✅ Project initialization completed'",
+    "ls -la generated/",
+    "tree generated/ -I target"
+]
+
+[hooks.before_setup]
+commands = [
+    "echo '📦 Starting dependency setup...'",
+    "cd generated && cargo --version"
+]
+
+[hooks.after_setup]
+commands = [
+    "echo '✅ Dependencies setup completed'",
+    "cd generated && cargo tree --depth 1"
+]
+
+[hooks.before_validate]
+commands = [
+    "echo '🔍 Starting RDF validation...'",
+    "ggen graph info"
+]
+
+[hooks.after_validate]
+commands = [
+    "echo '✅ RDF validation completed'",
+    "find data/ -name '*.ttl' | wc -l"
+]
+
+[hooks.before_generate]
+commands = [
+    "echo '🤖 Starting code generation...'",
+    "ggen ai models",
+    "ggen graph query 'SELECT (COUNT(*) as ?count) WHERE { ?s ?p ?o }'"
+]
+
+[hooks.after_generate]
+commands = [
+    "echo '✅ Code generation completed'",
+    "find generated/ -name '*.rs' | wc -l",
+    "find generated/ -name '*.md' | wc -l"
+]
+
+[hooks.before_build]
+commands = [
+    "echo '🔨 Starting build process...'",
+    "cd generated && cargo clean",
+    "cd generated && cargo check --version"
+]
+
+[hooks.after_build]
+commands = [
+    "echo '✅ Build completed'",
+    "cd generated && ls -la target/release/",
+    "cd generated && du -sh target/release/"
+]
+
+[hooks.before_test]
+commands = [
+    "echo '🧪 Starting tests...'",
+    "cd generated && cargo test --list"
+]
+
+[hooks.after_test]
+commands = [
+    "echo '✅ Tests completed'",
+    "cd generated && cargo test -- --nocapture"
+]
+
+[hooks.before_security]
+commands = [
+    "echo '🔒 Starting security scan...'",
+    "cd generated && cargo audit --version"
+]
+
+[hooks.after_security]
+commands = [
+    "echo '✅ Security scan completed'",
+    "cd generated && cargo audit --summary"
+]
+
+[hooks.before_deploy]
+commands = [
+    "echo '🚀 Starting deployment...'",
+    "scripts/deploy/pre-deploy-check.sh"
+]
+
+[hooks.after_deploy]
+commands = [
+    "echo '✅ Deployment completed'",
+    "scripts/deploy/post-deploy-check.sh"
+]
+
+# Parallel execution configuration
+[execution]
+max_parallel_phases = 6
+timeout_seconds = 1800
+retry_attempts = 3
+retry_delay_seconds = 10
+circuit_breaker_enabled = true
+rate_limiting_enabled = true
+
+# State management with persistence
+[state]
+persist_execution_state = true
+state_file = ".ggen/state.json"
+backup_state = true
+state_encryption = true
+state_compression = true
+
+# Caching configuration with advanced features
+[cache]
+enable_caching = true
+cache_directory = ".ggen/cache"
+cache_ttl_seconds = 7200
+invalidate_on_change = true
+cache_compression = true
+cache_encryption = false
+max_cache_size_mb = 1000
+
+# Monitoring and observability
+[monitoring]
+enable_metrics = true
+metrics_file = ".ggen/metrics.json"
+log_level = "info"
+trace_execution = true
+performance_tracking = true
+memory_monitoring = true
+cpu_monitoring = true
+
+# Security configuration
+[security]
+validate_commands = true
+block_dangerous_commands = true
+require_confirmation = false
+audit_log = ".ggen/audit.log"
+encrypt_sensitive_data = true
+validate_inputs = true
+sanitize_outputs = true
+
+# Performance optimization
+[performance]
+enable_profiling = true
+profile_output = ".ggen/profiles/"
+memory_limit_mb = 2048
+cpu_limit_percent = 95
+enable_metrics = true
+metrics_interval_seconds = 30
+optimization_level = "aggressive"
+
+# Quality gates
+[quality_gates]
+clippy_enabled = true
+rustfmt_enabled = true
+security_scan_enabled = true
+dependency_audit_enabled = true
+license_check_enabled = true
+coverage_threshold = 90
+performance_threshold_ms = 100
+complexity_threshold = 10
+
+# Backup and recovery
+[backup]
+enabled = true
+strategy = "incremental"
+retention_days = 90
+compression = true
+encryption = true
+schedule = "0 2 * * *"
+backup_directory = ".ggen/backups"
+
+# Integration with external tools
+[integrations]
+# Docker integration
+docker.enabled = true
+docker.build_args = ["--no-cache", "--pull"]
+docker.tag_strategy = "git"
+docker.registry = "ghcr.io"
+
+# Kubernetes integration
+kubernetes.enabled = true
+kubernetes.namespace = "default"
+kubernetes.replicas = 3
+kubernetes.resources = { cpu = "500m", memory = "1Gi" }
+
+# Database integration
+database.enabled = true
+database.migration_strategy = "versioned"
+database.backup_enabled = true
+database.connection_pool_size = 10
+
+# API documentation
+api_docs.enabled = true
+api_docs.format = "openapi"
+api_docs.version = "3.0.0"
+api_docs.publish_to = "swagger-ui"
+
+# CI/CD pipeline
+ci_cd.enabled = true
+ci_cd.provider = "github-actions"
+ci_cd.trigger_on_push = true
+ci_cd.trigger_on_pr = true
+ci_cd.parallel_jobs = 6
+ci_cd.timeout_minutes = 60

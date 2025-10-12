@@ -86,7 +86,8 @@ ex:Product a ex:Class ;
         std::fs::write(&rdf_path, rdf_content)?;
 
         // Create template that uses RDF data with absolute path (simplified)
-        let rdf_path_str = rdf_path.to_str()
+        let rdf_path_str = rdf_path
+            .to_str()
             .ok_or_else(|| anyhow::anyhow!("Invalid UTF-8 in RDF path"))?;
         let template_content = format!(
             r#"---

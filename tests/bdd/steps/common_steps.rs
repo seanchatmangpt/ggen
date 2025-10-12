@@ -39,8 +39,8 @@ fn ggen_is_installed(_world: &mut GgenWorld) {
 
     let version_output = String::from_utf8_lossy(&output.stdout);
     assert!(
-        version_output.contains("ggen 0.1.0"),
-        "Expected version 'ggen 0.1.0', got: {}",
+        version_output.contains("ggen 1.0.0"),
+        "Expected version 'ggen 1.0.0', got: {}",
         version_output
     );
 }

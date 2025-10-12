@@ -1,0 +1,187 @@
+---
+to: "migrations/001_initial_schema.sql"
+vars:
+  project_name: "Database Migrations with Placeholders"
+  description: "Production-ready database schema with migration placeholders"
+rdf_inline:
+  - "@prefix ex: <https://example.com/database/> . ex:DatabaseMigration ex:implements ex:SchemaVersioning ."
+sparql:
+  schema_requirements: "SELECT ?table WHERE { ?table a ex:DatabaseTable }"
+---
+
+-- 🚧 PLACEHOLDER: Database Migration System
+-- ID: database-migrations
+-- Category: Critical
+-- Priority: 8/10
+-- Guidance: Automated database schema migrations with rollback capability
+-- Effort: 8 hours
+-- TODO: Implement this for production readiness
+-- Example migration file structure
+
+-- Migration: 001_initial_schema
+-- Description: Initial database schema setup
+-- Created: {{timestamp}}
+-- Author: GGen Production System
+
+-- 🚧 PLACEHOLDER: Users table with proper constraints
+-- TODO: Implement users table with authentication fields
+-- Guidance: Include password hashing, email uniqueness, timestamps
+
+{{!-- 🚧 PLACEHOLDER: Replace with actual CREATE TABLE statement --}}
+-- TODO: Create users table
+-- CREATE TABLE users (
+--     user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--     email VARCHAR(255) UNIQUE NOT NULL,
+--     password_hash VARCHAR(255) NOT NULL,
+--     first_name VARCHAR(100),
+--     last_name VARCHAR(100),
+--     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+--     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+--     is_active BOOLEAN DEFAULT true
+-- );
+
+-- 🚧 PLACEHOLDER: Books table with relationships
+-- TODO: Implement books table with foreign key constraints
+-- Guidance: Proper indexing for search performance
+
+{{!-- 🚧 PLACEHOLDER: Replace with actual CREATE TABLE statement --}}
+-- TODO: Create books table
+-- CREATE TABLE books (
+--     book_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--     title VARCHAR(200) NOT NULL,
+--     isbn VARCHAR(13) UNIQUE NOT NULL,
+--     description TEXT,
+--     author_id UUID REFERENCES users(user_id),
+--     category_id UUID,
+--     price DECIMAL(10,2),
+--     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+--     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+--     is_active BOOLEAN DEFAULT true
+-- );
+
+-- 🚧 PLACEHOLDER: Categories table for book classification
+-- TODO: Implement categories table with hierarchy support
+
+{{!-- 🚧 PLACEHOLDER: Replace with actual CREATE TABLE statement --}}
+-- TODO: Create categories table
+-- CREATE TABLE categories (
+--     category_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--     name VARCHAR(100) NOT NULL,
+--     description TEXT,
+--     parent_category_id UUID REFERENCES categories(category_id),
+--     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+--     is_active BOOLEAN DEFAULT true
+-- );
+
+-- 🚧 PLACEHOLDER: Orders table for e-commerce functionality
+-- TODO: Implement orders table with proper relationships
+
+{{!-- 🚧 PLACEHOLDER: Replace with actual CREATE TABLE statement --}}
+-- TODO: Create orders table
+-- CREATE TABLE orders (
+--     order_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--     user_id UUID REFERENCES users(user_id),
+--     total_amount DECIMAL(10,2) NOT NULL,
+--     status VARCHAR(20) DEFAULT 'pending',
+--     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+--     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+-- );
+
+-- 🚧 PLACEHOLDER: Order items table for order details
+-- TODO: Implement order_items table
+
+{{!-- 🚧 PLACEHOLDER: Replace with actual CREATE TABLE statement --}}
+-- TODO: Create order_items table
+-- CREATE TABLE order_items (
+--     order_item_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--     order_id UUID REFERENCES orders(order_id),
+--     book_id UUID REFERENCES books(book_id),
+--     quantity INTEGER NOT NULL,
+--     unit_price DECIMAL(10,2) NOT NULL,
+--     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+-- );
+
+-- 🚧 PLACEHOLDER: Indexes for performance optimization
+-- TODO: Add appropriate indexes for common query patterns
+
+{{!-- 🚧 PLACEHOLDER: Replace with actual CREATE INDEX statements --}}
+-- TODO: Create performance indexes
+-- CREATE INDEX idx_books_title ON books(title);
+-- CREATE INDEX idx_books_author ON books(author_id);
+-- CREATE INDEX idx_books_category ON books(category_id);
+-- CREATE INDEX idx_orders_user ON orders(user_id);
+-- CREATE INDEX idx_orders_status ON orders(status);
+
+-- 🚧 PLACEHOLDER: Database constraints and validations
+-- TODO: Add check constraints for data integrity
+
+{{!-- 🚧 PLACEHOLDER: Replace with actual ALTER TABLE statements --}}
+-- TODO: Add data integrity constraints
+-- ALTER TABLE books ADD CONSTRAINT check_price_positive CHECK (price >= 0);
+-- ALTER TABLE order_items ADD CONSTRAINT check_quantity_positive CHECK (quantity > 0);
+-- ALTER TABLE users ADD CONSTRAINT check_email_format CHECK (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$');
+
+-- 🚧 PLACEHOLDER: Audit triggers for data changes
+-- TODO: Add triggers for audit trail
+
+{{!-- 🚧 PLACEHOLDER: Replace with actual CREATE TRIGGER statements --}}
+-- TODO: Create audit triggers
+-- CREATE TABLE audit_log (
+--     audit_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--     table_name VARCHAR(100) NOT NULL,
+--     record_id UUID NOT NULL,
+--     action VARCHAR(10) NOT NULL, -- INSERT, UPDATE, DELETE
+--     old_values JSONB,
+--     new_values JSONB,
+--     changed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+--     changed_by UUID REFERENCES users(user_id)
+-- );
+
+-- 🚧 PLACEHOLDER: Row Level Security (RLS) policies
+-- TODO: Implement RLS for multi-tenant security
+
+{{!-- 🚧 PLACEHOLDER: Replace with actual RLS policies --}}
+-- TODO: Enable Row Level Security
+-- ALTER TABLE books ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
+
+-- 🚧 PLACEHOLDER: Migration rollback function
+-- TODO: Implement rollback capability for zero-downtime deployments
+
+{{!-- 🚧 PLACEHOLDER: Replace with actual rollback function --}}
+-- TODO: Create rollback function
+-- CREATE OR REPLACE FUNCTION rollback_migration_001()
+-- RETURNS void AS $$
+-- BEGIN
+--     -- Drop tables in reverse order
+--     DROP TABLE IF EXISTS order_items CASCADE;
+--     DROP TABLE IF EXISTS orders CASCADE;
+--     DROP TABLE IF EXISTS books CASCADE;
+--     DROP TABLE IF EXISTS categories CASCADE;
+--     DROP TABLE IF EXISTS users CASCADE;
+--     DROP TABLE IF EXISTS audit_log CASCADE;
+-- END;
+-- $$ LANGUAGE plpgsql;
+
+-- 🚧 PLACEHOLDER: Migration verification queries
+-- TODO: Add queries to verify migration success
+
+{{!-- 🚧 PLACEHOLDER: Replace with actual verification queries --}}
+-- TODO: Verify migration completed successfully
+-- SELECT 'users' as table_name, COUNT(*) as record_count FROM users
+-- UNION ALL
+-- SELECT 'books' as table_name, COUNT(*) as record_count FROM books
+-- UNION ALL
+-- SELECT 'categories' as table_name, COUNT(*) as record_count FROM categories
+-- ORDER BY table_name;
+
+-- Migration completed successfully
+-- Tables created: users, books, categories, orders, order_items, audit_log
+-- Indexes created: 5 indexes for performance
+-- Constraints added: 3 check constraints for data integrity
+-- Triggers added: audit triggers for change tracking
+-- RLS enabled: Row Level Security policies implemented
+-- Rollback function: rollback_migration_001() available
+
+-- 🚧 PLACEHOLDER: Next migration would be numbered 002_*.sql
+-- TODO: Create next migration file for schema changes

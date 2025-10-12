@@ -129,7 +129,7 @@ impl Template {
         input: &str, template_path: &std::path::Path, out_dir: &std::path::Path,
     ) -> Result<Self> {
         // Create preprocessor with default configuration
-        let preprocessor = Preprocessor::default();
+        let preprocessor = Preprocessor::with_default_stages();
 
         // Run preprocessor
         let ctx = PrepCtx {
@@ -218,14 +218,25 @@ impl Template {
 
             // Security check: prevent path traversal attacks
             let canonical_rdf = rdf_path.canonicalize().map_err(|e| {
-                anyhow::anyhow!("Failed to canonicalize RDF path '{}': {}", rdf_path.display(), e)
+                anyhow::anyhow!(
+                    "Failed to canonicalize RDF path '{}': {}",
+                    rdf_path.display(),
+                    e
+                )
             })?;
             let canonical_template = template_dir.canonicalize().map_err(|e| {
-                anyhow::anyhow!("Failed to canonicalize template directory '{}': {}", template_dir.display(), e)
+                anyhow::anyhow!(
+                    "Failed to canonicalize template directory '{}': {}",
+                    template_dir.display(),
+                    e
+                )
             })?;
 
             if !canonical_rdf.starts_with(&canonical_template) {
-                return Err(anyhow::anyhow!("Path traversal blocked: '{}' is outside template directory", rendered_path));
+                return Err(anyhow::anyhow!(
+                    "Path traversal blocked: '{}' is outside template directory",
+                    rendered_path
+                ));
             }
 
             if let Ok(ttl_content) = std::fs::read_to_string(&rdf_path) {
@@ -759,13 +770,13 @@ fn main() {
                 }
 
                 let template_str = format!("---\n{}\n---\n{}", frontmatter_yaml, body_content);
-                
+
                 // First parse
                 let template1 = Template::parse(&template_str).ok();
-                
+
                 // Second parse (should be identical)
                 let template2 = Template::parse(&template_str).ok();
-                
+
                 // Both should succeed or fail together
                 match (template1, template2) {
                     (Some(t1), Some(t2)) => {
@@ -796,9 +807,9 @@ fn main() {
 
                 let yaml_content = format!("vars:\n  {}: {}", var_name, var_value);
                 let template_str = format!("---\n{}\n---\nHello {{{{ vars.{} }}}}", yaml_content, var_name);
-                
+
                 let template = Template::parse(&template_str);
-                
+
                 match template {
                     Ok(t) => {
                         // Check that the variable was parsed correctly
@@ -823,15 +834,15 @@ fn main() {
                 }
 
                 let template_str = format!("---\nto: {}\n---\nContent", path);
-                
+
                 let mut template = Template::parse(&template_str);
-                
+
                 match template {
                     Ok(mut t) => {
                         // Render frontmatter to populate the fields
                         let mut tera = tera::Tera::new("dummy:*").unwrap();
                         let vars = tera::Context::new();
-                        
+
                         match t.render_frontmatter(&mut tera, &vars) {
                             Ok(_) => {
                                 // If rendering succeeded, check that the path was preserved

@@ -43,7 +43,7 @@ testing = "comprehensive"
 documentation = "comprehensive"
 
 [templates.web]
-framework = "auto-detect"  # axum, actix-web, warp
+framework = "auto-detect" # axum, actix-web, warp
 database = "postgresql"
 cache = "redis"
 monitoring = "prometheus"
@@ -65,13 +65,12 @@ validation = true
 documentation = "openapi"
 
 [rdf]
-base_uri = "https://example.com/ai-generation/"
 prefixes = { 
-    ex = "https://example.com/ai-generation/", 
-    schema = "http://schema.org/", 
-    rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+    ex = "https://example.com/ai-generation/", schema = "http://schema.org/", 
 }
 
+base_uri = "https://example.com/ai-generation/"
+rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 [sparql]
 timeout = 10
 max_results = 1000
@@ -111,5 +110,6 @@ lifecycle_management = true
 template_validation = true
 graph_analysis = true
 documentation_generation = true
+production_readiness = true
 code_validation = true
 test_generation = true

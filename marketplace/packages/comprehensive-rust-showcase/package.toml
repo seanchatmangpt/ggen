@@ -1,0 +1,85 @@
+# Comprehensive Rust Showcase Package
+# The ultimate ggen showcase demonstrating ALL features
+
+[package]
+name = "comprehensive-rust-showcase"
+full_name = "comprehensive-rust-showcase-complete"
+version = "1.0.0"
+description = "Comprehensive showcase of ALL ggen features: lifecycle, AI, SPARQL, templates, security, performance, monitoring"
+category = "showcase"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+path = "marketplace/packages/comprehensive-rust-showcase"
+license = "MIT"
+dependencies = []
+features = [
+    "Complete lifecycle management with all phases",
+    "Multi-provider AI support (OpenAI, Anthropic, Ollama)",
+    "Advanced SPARQL/RDF integration with reasoning",
+    "Comprehensive template library (6+ templates)",
+    "Production-ready security hardening",
+    "Performance optimization and profiling",
+    "Multi-environment deployment (dev/staging/prod)",
+    "Monitoring and observability integration",
+    "Backup and recovery systems",
+    "CI/CD pipeline configuration",
+    "Quality gates and validation",
+    "Comprehensive testing (90% coverage)",
+    "API documentation generation",
+    "Multi-format RDF support"
+]
+tags = ["rust", "showcase", "complete", "enterprise", "production", "ai", "sparql", "lifecycle"]
+keywords = ["ggen", "rust", "microservice", "enterprise", "production-ready", "comprehensive"]
+
+# Installation
+[install]
+type = "template"
+template_path = "marketplace/packages/comprehensive-rust-showcase"
+source_path = "examples/comprehensive-rust-showcase"
+
+# Template files to copy
+[files]
+"ggen.toml" = "ggen.toml"
+"README.md" = "README.md"
+
+# Variables for template substitution
+[variables]
+project_name = { type = "string", required = true, description = "Project name" }
+description = { type = "string", default = "Comprehensive Rust showcase with ggen", description = "Project description" }
+author = { type = "string", default = "ggen-user", description = "Author name" }
+license = { type = "string", default = "MIT", description = "License type" }
+
+# Examples
+[examples]
+basic = """
+# Install the package
+ggen market add comprehensive-rust-showcase
+
+# Initialize project
+cd comprehensive-rust-showcase
+ggen lifecycle run init
+
+# Generate all components
+ggen lifecycle run generate
+
+# Run complete pipeline
+ggen lifecycle pipeline setup generate build test deploy
+"""
+
+advanced = """
+# Multi-provider AI generation
+ggen ai generate "Create complete e-commerce platform with multiple microservices"
+
+# Advanced SPARQL queries
+ggen graph query "SELECT ?service ?endpoint WHERE { ?service ex:hasEndpoint ?endpoint }"
+
+# Production deployment with monitoring
+ggen lifecycle run deploy --env production --enable-monitoring
+"""
+
+# Documentation
+[docs]
+quick_start = "The ultimate showcase of all ggen capabilities"
+features = "Complete lifecycle, multi-provider AI, advanced SPARQL, production security, monitoring"
+use_cases = "Enterprise applications, production deployments, comprehensive microservices"
+architecture = "Multi-layered architecture with database, API, services, and infrastructure"

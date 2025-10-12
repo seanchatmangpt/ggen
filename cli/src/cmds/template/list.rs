@@ -1,5 +1,8 @@
 use clap::Args;
 use ggen_utils::error::Result;
+use std::fs;
+use std::path::Path;
+use glob::glob;
 
 #[derive(Args, Debug)]
 pub struct ListArgs {
@@ -88,13 +91,108 @@ pub async fn run(args: &ListArgs) -> Result<()> {
     // Validate input
     validate_pattern(&args.pattern)?;
 
-    println!("🚧 Placeholder: template list");
-    if let Some(pattern) = &args.pattern {
-        println!("  Pattern: {}", pattern.trim());
+    println!("📄 Listing templates...");
+
+    let filters = ListFilters {
+        pattern: args.pattern.clone(),
+        local_only: args.local,
+        gpack_only: args.gpack,
+    };
+
+    let templates = list_local_templates(&filters)?;
+
+    if templates.is_empty() {
+        println!("ℹ️  No templates found");
+        return Ok(());
     }
-    println!("  Local: {}", args.local);
-    println!("  Gpack: {}", args.gpack);
+
+    println!("📄 Available Templates:");
+    for template in templates {
+        match template.source {
+            TemplateSource::Local => {
+                println!("  📄 {} (local)", template.name);
+            }
+            TemplateSource::Gpack(ref gpack_id) => {
+                println!("  📦 {} ({})", template.name, gpack_id);
+            }
+        }
+        if let Some(desc) = template.description {
+            println!("     {}", desc);
+        }
+    }
+
     Ok(())
+}
+
+/// List local templates from the templates directory
+fn list_local_templates(filters: &ListFilters) -> Result<Vec<TemplateInfo>> {
+    let mut templates = Vec::new();
+    
+    // Check if templates directory exists
+    let templates_dir = Path::new("templates");
+    if !templates_dir.exists() {
+        return Ok(templates);
+    }
+    
+    // Build glob pattern
+    let pattern = if let Some(ref filter_pattern) = filters.pattern {
+        format!("templates/{}", filter_pattern)
+    } else {
+        "templates/*.tmpl".to_string()
+    };
+    
+    // Find template files
+    for entry in glob(&pattern).map_err(|e| {
+        ggen_utils::error::Error::new(&format!("Invalid glob pattern: {}", e))
+    })? {
+        let path = entry.map_err(|e| {
+            ggen_utils::error::Error::new(&format!("Error reading directory entry: {}", e))
+        })?;
+        
+        if path.is_file() && path.extension().and_then(|s| s.to_str()) == Some("tmpl") {
+            let name = path.file_name()
+                .and_then(|n| n.to_str())
+                .unwrap_or("unknown")
+                .to_string();
+            
+            // Extract description from template content
+            let description = extract_template_description(&path).ok();
+            
+            templates.push(TemplateInfo {
+                name,
+                path: path.to_string_lossy().to_string(),
+                source: TemplateSource::Local,
+                description: description.flatten(),
+            });
+        }
+    }
+    
+    Ok(templates)
+}
+
+/// Extract description from template frontmatter
+fn extract_template_description(path: &Path) -> Result<Option<String>> {
+    let content = fs::read_to_string(path).map_err(|e| {
+        ggen_utils::error::Error::new(&format!("Failed to read template: {}", e))
+    })?;
+    
+    // Look for YAML frontmatter
+    if content.starts_with("---\n") {
+        if let Some(end_pos) = content.find("\n---\n") {
+            let frontmatter = &content[4..end_pos];
+            
+            // Simple extraction of description field
+            for line in frontmatter.lines() {
+                if line.trim().starts_with("description:") {
+                    if let Some(desc) = line.splitn(2, ':').nth(1) {
+                        return Ok(Some(desc.trim().trim_matches('"').to_string()));
+                    }
+                }
+            }
+        }
+    }
+    
+    Ok(None)
 }
 
 pub async fn run_with_deps(args: &ListArgs, lister: &dyn TemplateLister) -> Result<()> {

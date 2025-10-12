@@ -176,9 +176,9 @@ pub async fn run(args: &GenerateArgs) -> Result<()> {
         let frontmatter_yaml = serde_yaml::to_string(&template.front).map_err(|e| {
             ggen_utils::error::Error::new(&format!("Failed to serialize frontmatter: {}", e))
         })?;
-        
+
         let template_content = format!("{}\n---\n{}", frontmatter_yaml.trim(), template.body);
-        
+
         fs::write(output_path, template_content).map_err(|e| {
             ggen_utils::error::Error::new(&format!("Failed to write template to disk: {}", e))
         })?;

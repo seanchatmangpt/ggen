@@ -1,0 +1,64 @@
+[package]
+name = "advanced-cli-tool"
+version = "0.1.0"
+edition = "2021"
+authors = ["GGEN Team"]
+description = "Production-ready CLI tool demonstrating advanced Rust patterns with ggen lifecycle"
+license = "MIT"
+readme = "README.md"
+
+[dependencies]
+# CLI framework
+clap = { version = "4.5", features = ["derive", "env", "cargo"] }
+
+# Async runtime
+tokio = { version = "1.37", features = ["full"] }
+futures = "0.3"
+
+# Error handling
+anyhow = "1.0"
+thiserror = "1.0"
+
+# Logging and tracing
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+tracing-appender = "0.2"
+
+# Configuration
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+toml = "0.8"
+
+# Progress and UI
+indicatif = "0.17"
+console = "0.15"
+dialoguer = "0.11"
+
+# File processing
+walkdir = "2.5"
+glob = "0.3"
+sha2 = "0.10"
+
+# Performance
+rayon = "1.10"
+dashmap = "5.5"
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports", "async_tokio"] }
+tempfile = "3.10"
+pretty_assertions = "1.4"
+rstest = "0.19"
+mockall = "0.12"
+
+[[bench]]
+name = "performance"
+harness = false
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
+
+[profile.bench]
+inherits = "release"

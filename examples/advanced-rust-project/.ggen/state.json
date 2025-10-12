@@ -1,0 +1,48 @@
+{
+  "last_phase": "build",
+  "phase_history": [
+    {
+      "phase": "init",
+      "started_ms": 1760245738539,
+      "duration_ms": 856,
+      "success": true
+    },
+    {
+      "phase": "setup",
+      "started_ms": 1760245763751,
+      "duration_ms": 2166,
+      "success": true
+    },
+    {
+      "phase": "generate",
+      "started_ms": 1760245914781,
+      "duration_ms": 628,
+      "success": true
+    },
+    {
+      "phase": "build",
+      "started_ms": 1760245921003,
+      "duration_ms": 21983,
+      "success": true
+    }
+  ],
+  "generated": [],
+  "cache_keys": [
+    {
+      "phase": "init",
+      "key": "3412b4d4e887a7d563038640e5c9c3f044510f70934bc403c4107f0bf4cedd54"
+    },
+    {
+      "phase": "setup",
+      "key": "43dea7911a8a654e75d2c1bedb9e503885442591ae35aed7ee2971bcb629925a"
+    },
+    {
+      "phase": "generate",
+      "key": "6464e0e3fb82e92a80449f5db103918dec6bc3ba493327b4c37316474a8abb04"
+    },
+    {
+      "phase": "build",
+      "key": "b4056c7ff27352f10609408c65ce514391beae7ab43ed04d34411dea495fe580"
+    }
+  ]
+}

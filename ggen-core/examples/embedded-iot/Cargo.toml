@@ -1,0 +1,63 @@
+[package]
+name = "embedded-iot-sensor"
+version = "0.1.0"
+edition = "2021"
+authors = ["GGEN Project"]
+description = "IoT sensor firmware for ARM Cortex-M with no-std support"
+
+[dependencies]
+# Core embedded dependencies
+cortex-m = "0.7"
+cortex-m-rt = "0.7"
+panic-halt = "0.2"
+
+# Embedded HAL traits
+embedded-hal = "1.0"
+
+# Optional features for specific functionality
+heapless = "0.8"      # Data structures without heap
+nb = "1.0"            # Non-blocking traits
+critical-section = "1.1"
+
+[dependencies.cortex-m-semihosting]
+version = "0.5"
+optional = true
+
+[dev-dependencies]
+# For host testing
+defmt = "0.3"
+defmt-rtt = "0.4"
+
+[features]
+default = []
+semihosting = ["cortex-m-semihosting"]
+debug = ["semihosting"]
+
+[profile.dev]
+# Optimize even debug builds for embedded
+opt-level = "s"      # Optimize for size
+lto = false
+debug = true
+codegen-units = 16
+
+[profile.release]
+# Maximum size optimization
+opt-level = "z"      # Aggressive size optimization
+lto = "fat"          # Full LTO
+codegen-units = 1    # Better optimization
+debug = false
+strip = true         # Strip symbols
+panic = "abort"      # No unwinding
+overflow-checks = false
+
+# Size-optimized profile
+[profile.size]
+inherits = "release"
+opt-level = "z"
+lto = "fat"
+codegen-units = 1
+strip = true
+
+[[bin]]
+name = "sensor-firmware"
+path = "src/main.rs"

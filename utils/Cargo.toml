@@ -1,6 +1,6 @@
 [package]
 name = "ggen-utils"
-version = "1.0.0"
+version = "1.2.0"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "Shared utilities for ggen"
 edition = "2021"
@@ -24,7 +24,19 @@ anyhow = "1.0"
 thiserror = "2.0.12"
 backtrace = "0.3.75"
 color-backtrace = "0.7.0"
-config = "0.15.11"
+# Disable ron feature in config to avoid base64 v0.21.7 duplicate
+# (config's ron 0.8 -> base64 0.21.7 conflicts with reqwest -> base64 0.22.1)
+config = { version = "0.15.11", default-features = false, features = [
+  "toml",
+  "json",
+  "yaml",
+  "ini",
+  "json5",
+  "convert-case",
+  "async",
+] }
+# Use newer ron directly if needed
+ron = "0.11"
 lazy_static = "1.5.0"
 slog = "2.8.1"
 # slog-syslog-jl = "0.13.1"  # Temporarily disabled due to vulnerability

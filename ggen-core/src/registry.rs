@@ -444,6 +444,234 @@ mod tests {
     use std::fs;
     use tempfile::TempDir;
 
+    #[cfg(feature = "proptest")]
+    mod proptest_tests {
+        use super::*;
+        use proptest::prelude::*;
+
+        /// Property test: Registry index parsing should be idempotent
+        proptest! {
+            #[test]
+            fn registry_index_parsing_idempotent(
+                pack_count in 0..10usize,
+                pack_id in r"[a-zA-Z0-9_\-\.]+",
+                pack_name in r"[a-zA-Z0-9_\s\-\.]+",
+                pack_version in r"[0-9]+\.[0-9]+\.[0-9]+",
+                pack_description in r"[a-zA-Z0-9_\s\-\.\/\?\!]+"
+            ) {
+                // Skip invalid combinations
+                if pack_id.is_empty() || pack_name.is_empty() || pack_description.is_empty() {
+                    return Ok(());
+                }
+                if pack_id.len() > 100 || pack_name.len() > 200 || pack_description.len() > 500 {
+                    return Ok(());
+                }
+
+                // Create a minimal registry index
+                let mut packs = HashMap::new();
+                for i in 0..pack_count {
+                    let id = format!("{}-{}", pack_id, i);
+                    let mut versions = HashMap::new();
+                    versions.insert(pack_version.clone(), VersionMetadata {
+                        version: pack_version.clone(),
+                        git_url: format!("https://github.com/test/{}.git", id),
+                        git_rev: "main".to_string(),
+                        manifest_url: None,
+                        sha256: "abcd1234".to_string(),
+                    });
+
+                    packs.insert(id.clone(), PackMetadata {
+                        id: id.clone(),
+                        name: format!("{} {}", pack_name, i),
+                        description: pack_description.clone(),
+                        tags: vec!["test".to_string()],
+                        keywords: vec!["test".to_string()],
+                        category: Some("test".to_string()),
+                        author: Some("test".to_string()),
+                        latest_version: pack_version.clone(),
+                        versions,
+                        downloads: Some(100),
+                        updated: Some(chrono::Utc::now()),
+                        license: Some("MIT".to_string()),
+                        homepage: None,
+                        repository: None,
+                        documentation: None,
+                    });
+                }
+
+                let index = RegistryIndex {
+                    updated: chrono::Utc::now(),
+                    packs,
+                };
+
+                // Serialize and deserialize
+                let json = serde_json::to_string(&index).unwrap();
+                let parsed_index: RegistryIndex = serde_json::from_str(&json).unwrap();
+
+                // Should be identical
+                assert_eq!(index.packs.len(), parsed_index.packs.len());
+                for (id, pack) in &index.packs {
+                    let parsed_pack = parsed_index.packs.get(id).unwrap();
+                    assert_eq!(pack.id, parsed_pack.id);
+                    assert_eq!(pack.name, parsed_pack.name);
+                    assert_eq!(pack.description, parsed_pack.description);
+                    assert_eq!(pack.latest_version, parsed_pack.latest_version);
+                }
+            }
+
+            #[test]
+            fn pack_metadata_validation(
+                pack_id in r"[a-zA-Z0-9_\-\.]+",
+                pack_name in r"[a-zA-Z0-9_\s\-\.]+",
+                pack_version in r"[0-9]+\.[0-9]+\.[0-9]+",
+                git_url in r"https://github\.com/[a-zA-Z0-9_\-]+/[a-zA-Z0-9_\-]+\.git",
+                sha256 in r"[a-f0-9]{64}"
+            ) {
+                // Skip invalid combinations
+                if pack_id.is_empty() || pack_name.is_empty() || pack_id.len() > 100 {
+                    return Ok(());
+                }
+
+                let mut versions = HashMap::new();
+                versions.insert(pack_version.clone(), VersionMetadata {
+                    version: pack_version.clone(),
+                    git_url: git_url.clone(),
+                    git_rev: "main".to_string(),
+                    manifest_url: None,
+                    sha256: sha256.clone(),
+                });
+
+                let pack = PackMetadata {
+                    id: pack_id.clone(),
+                    name: pack_name.clone(),
+                    description: "Test pack".to_string(),
+                    tags: vec!["test".to_string()],
+                    keywords: vec!["test".to_string()],
+                    category: Some("test".to_string()),
+                    author: Some("test".to_string()),
+                    latest_version: pack_version.clone(),
+                    versions,
+                    downloads: Some(100),
+                    updated: Some(chrono::Utc::now()),
+                    license: Some("MIT".to_string()),
+                    homepage: None,
+                    repository: None,
+                    documentation: None,
+                };
+
+                // Validate that all required fields are present
+                assert!(!pack.id.is_empty());
+                assert!(!pack.name.is_empty());
+                assert!(!pack.description.is_empty());
+                assert!(!pack.latest_version.is_empty());
+                assert!(pack.versions.contains_key(&pack.latest_version));
+                
+                let version = pack.versions.get(&pack.latest_version).unwrap();
+                assert_eq!(version.version, pack.latest_version);
+                assert!(!version.git_url.is_empty());
+                assert!(!version.sha256.is_empty());
+            }
+
+            #[test]
+            fn search_result_filtering(
+                query in r"[a-zA-Z0-9_\s\-\.]+",
+                pack_count in 0..20usize,
+                pack_name in r"[a-zA-Z0-9_\s\-\.]+",
+                pack_description in r"[a-zA-Z0-9_\s\-\.\/\?\!]+"
+            ) {
+                // Skip invalid combinations
+                if query.is_empty() || pack_name.is_empty() || pack_description.is_empty() {
+                    return Ok(());
+                }
+                if query.len() > 50 || pack_name.len() > 200 || pack_description.len() > 500 {
+                    return Ok(());
+                }
+
+                // Create search results
+                let mut results = Vec::new();
+                for i in 0..pack_count {
+                    let id = format!("test-pack-{}", i);
+                    let name = format!("{} {}", pack_name, i);
+                    let description = format!("{} {}", pack_description, i);
+
+                    results.push(SearchResult {
+                        id: id.clone(),
+                        name: name.clone(),
+                        description: description.clone(),
+                        tags: vec!["test".to_string()],
+                        keywords: vec!["test".to_string()],
+                        category: Some("test".to_string()),
+                        author: Some("test".to_string()),
+                        latest_version: "1.0.0".to_string(),
+                        downloads: Some(100),
+                        updated: Some(chrono::Utc::now()),
+                        license: Some("MIT".to_string()),
+                        homepage: None,
+                        repository: None,
+                        documentation: None,
+                    });
+                }
+
+                // Filter results based on query
+                let filtered: Vec<_> = results.into_iter()
+                    .filter(|result| {
+                        result.name.to_lowercase().contains(&query.to_lowercase()) ||
+                        result.description.to_lowercase().contains(&query.to_lowercase()) ||
+                        result.keywords.iter().any(|k| k.to_lowercase().contains(&query.to_lowercase()))
+                    })
+                    .collect();
+
+                // All filtered results should contain the query
+                for result in &filtered {
+                    let query_lower = query.to_lowercase();
+                    let name_lower = result.name.to_lowercase();
+                    let desc_lower = result.description.to_lowercase();
+                    let keyword_match = result.keywords.iter()
+                        .any(|k| k.to_lowercase().contains(&query_lower));
+
+                    assert!(
+                        name_lower.contains(&query_lower) ||
+                        desc_lower.contains(&query_lower) ||
+                        keyword_match,
+                        "Filtered result should match query: {} not found in name='{}', desc='{}', keywords={:?}",
+                        query, result.name, result.description, result.keywords
+                    );
+                }
+            }
+
+            #[test]
+            fn semver_version_comparison(
+                version1 in r"[0-9]+\.[0-9]+\.[0-9]+",
+                version2 in r"[0-9]+\.[0-9]+\.[0-9]+"
+            ) {
+                // Parse versions
+                let v1 = semver::Version::parse(&version1);
+                let v2 = semver::Version::parse(&version2);
+
+                match (v1, v2) {
+                    (Ok(v1), Ok(v2)) => {
+                        // Test comparison properties
+                        if v1 < v2 {
+                            assert!(v2 > v1);
+                        } else if v1 > v2 {
+                            assert!(v2 < v1);
+                        } else {
+                            assert_eq!(v1, v2);
+                        }
+
+                        // Test equality
+                        if v1 == v2 {
+                            assert_eq!(v1.to_string(), v2.to_string());
+                        }
+                    },
+                    _ => {
+                        // Invalid versions should fail parsing
+                    }
+                }
+            }
+        }
+    }
+
     #[tokio::test]
     #[ignore] // Disabled due to file:// URL not supported by reqwest
     async fn test_registry_client_search() -> Result<()> {
@@ -521,9 +749,7 @@ mod tests {
         let client = RegistryClient::with_base_url(base_url)?;
 
         // Test resolve
-        let resolved = client
-            .resolve("io.ggen.rust.cli-subcommand", None)
-            .await?;
+        let resolved = client.resolve("io.ggen.rust.cli-subcommand", None).await?;
         assert_eq!(resolved.id, "io.ggen.rust.cli-subcommand");
         assert_eq!(resolved.version, "0.2.1");
         assert_eq!(resolved.git_url, "https://github.com/example/gpack.git");

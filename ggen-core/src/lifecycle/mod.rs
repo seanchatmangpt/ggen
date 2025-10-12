@@ -26,6 +26,10 @@ pub mod loader;
 pub mod model;
 pub mod state;
 
+// Production readiness tracking (80/20 rule implementation)
+pub mod production;
+pub mod validation;
+
 // Future enhancements (available but not in public API):
 #[allow(dead_code)]
 mod dag; // DAG resolution - use direct hooks for now
@@ -45,3 +49,8 @@ pub use exec::{run_phase, run_pipeline, Context};
 pub use loader::load_make;
 pub use model::{Hooks, Make, Phase, Project, Workspace};
 pub use state::{load_state, save_state, LifecycleState};
+
+// Production readiness exports
+pub use production::{ReadinessTracker, ReadinessReport, ReadinessStatus, ReadinessCategory, ReadinessRequirement};
+pub use production::{Placeholder, PlaceholderRegistry, PlaceholderProcessor};
+pub use validation::{ReadinessValidator, ValidationResult, ValidationIssue, ValidationSeverity};

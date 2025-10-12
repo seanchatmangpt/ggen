@@ -80,15 +80,43 @@ pub struct InstalledGpack {
     pub source: String,
 }
 
-pub async fn run(_args: &ListArgs) -> Result<()> {
+pub async fn run(args: &ListArgs) -> Result<()> {
     println!("📦 Listing installed gpacks...");
 
-    // Placeholder: In production, this would read from .ggen/lock.json
-    // For now, return mock list
-    println!("ℹ️  No gpacks installed yet");
-    println!();
-    println!("💡 Use 'ggen market search <query>' to discover packages");
-    println!("💡 Use 'ggen market add <package>' to install packages");
+    // Load lockfile to get installed packages
+    let lockfile = super::lockfile::Lockfile::load()?;
+    let packages = lockfile.list_packages();
+
+    if packages.is_empty() {
+        println!("ℹ️  No gpacks installed yet");
+        println!();
+        println!("💡 Use 'ggen market search <query>' to discover packages");
+        println!("💡 Use 'ggen market add <package>' to install packages");
+        return Ok(());
+    }
+
+    println!("Found {} installed package{}\n",
+        packages.len(),
+        if packages.len() == 1 { "" } else { "s" }
+    );
+
+    // Display installed packages
+    for pkg in packages {
+        if args.detailed {
+            println!("📦 {} ({})", pkg.name, pkg.full_name);
+            println!("   Version: {}", pkg.version);
+            println!("   Source: {}", pkg.source);
+            println!("   Path: {}", pkg.path);
+            println!("   Checksum: {}", pkg.checksum);
+            println!("   Installed: {}", pkg.installed_at);
+            if !pkg.dependencies.is_empty() {
+                println!("   Dependencies: {}", pkg.dependencies.join(", "));
+            }
+            println!();
+        } else {
+            println!("  {} @ {} ({})", pkg.name, pkg.version, pkg.source);
+        }
+    }
 
     Ok(())
 }

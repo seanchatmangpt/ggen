@@ -1,0 +1,269 @@
+---
+to: "examples/production-readiness-demo/README.md"
+vars:
+  project_name: "Production Readiness Demo"
+  description: "Demonstrates production readiness tracking and placeholder system"
+rdf_inline:
+  - "@prefix ex: <https://example.com/production-readiness/> . ex:ProductionReadinessDemo ex:implements ex:PlaceholderSystem ."
+sparql:
+  readiness_requirements: "SELECT ?requirement WHERE { ?requirement a ex:ProductionRequirement }"
+---
+
+# 🚧 Production Readiness Demo - 80/20 Rule Implementation
+
+This example demonstrates the **production readiness tracking system** that follows the **80/20 rule** - focusing on the 20% of features that provide 80% of production value.
+
+## 🎯 Core Philosophy
+
+Production readiness is not about implementing 100% of features. It's about:
+
+- **🚨 Critical** (20% effort, 80% value) - Must implement for production
+- **⚠️ Important** (30% effort, 15% value) - Should implement for production
+- **ℹ️ Nice-to-have** (50% effort, 5% value) - Can defer for MVP
+
+## 🚀 Quick Start
+
+### 1. **Initialize Production Tracking**
+```bash
+# Initialize project with production readiness tracking
+ggen lifecycle run init
+
+# Check current production readiness status
+ggen lifecycle readiness
+
+# View all available placeholders
+ggen lifecycle placeholders
+
+# View critical placeholders only
+ggen lifecycle placeholders --category critical
+```
+
+### 2. **Update Readiness Status**
+```bash
+# Mark authentication as complete
+ggen lifecycle readiness-update auth-basic complete
+
+# Mark error handling as placeholder (partially implemented)
+ggen lifecycle readiness-update error-handling placeholder
+
+# Mark advanced caching as missing (not needed for MVP)
+ggen lifecycle readiness-update caching-layer missing
+```
+
+### 3. **Generate Code with Placeholders**
+```bash
+# Generate service with production-ready placeholders
+ggen template generate rust-service-with-placeholders.tmpl
+
+# Generate database schema with migration placeholders
+ggen template generate database-with-migrations.tmpl
+```
+
+## 📊 Production Readiness Categories
+
+### 🚨 Critical Requirements (Must Have)
+- **Authentication & Authorization** - User login/logout, JWT tokens
+- **Error Handling** - Comprehensive error types, no unwrap/expect in production
+- **Health Checks** - HTTP endpoints for load balancer monitoring
+- **Input Validation** - Sanitization and security validation
+- **Database Migrations** - Schema versioning and rollback capability
+
+### ⚠️ Important Requirements (Should Have)
+- **API Documentation** - OpenAPI/Swagger specifications
+- **Unit Testing** - Comprehensive test coverage (>80%)
+- **Integration Testing** - Component interaction validation
+- **Performance Monitoring** - Metrics collection and alerting
+- **Configuration Management** - Environment-based configuration
+
+### ℹ️ Nice-to-Have Requirements (Can Defer)
+- **Rate Limiting** - API abuse prevention
+- **Advanced Caching** - Redis-based caching strategies
+- **Circuit Breakers** - External service failure handling
+- **Advanced Security** - CSRF, CORS, security headers
+- **Monitoring Dashboards** - Grafana/Kibana visualizations
+
+## 🛠️ Using Placeholders in Generated Code
+
+### Code Placeholders
+```rust
+// 🚧 PLACEHOLDER: Implement user authentication system
+// ID: auth-implementation
+// Category: Critical
+// Priority: 10/10
+// Guidance: Implement JWT-based authentication with password hashing
+// Effort: 8 hours
+// TODO: Implement this for production readiness
+// Example:
+// use thiserror::Error;
+// #[derive(Error, Debug)]
+// pub enum AuthError { ... }
+
+fn authenticate_user(username: &str, password: &str) -> Result<String, AuthError> {
+    // TODO: Replace with real authentication logic
+    // 🚧 PLACEHOLDER: Implement actual authentication
+    Ok("jwt_token_here".to_string())
+}
+```
+
+### Template Placeholders
+```handlebars
+{{!-- 🚧 PLACEHOLDER: Database migration system --}}
+{{!-- Category: Critical --}}
+{{!-- Guidance: Implement automated database schema migrations --}}
+{{!-- TODO: Implement this for production readiness --}}
+
+-- Migration: {{migration_name}}
+-- Created: {{timestamp}}
+
+{{!-- 🚧 PLACEHOLDER: Replace with actual migration SQL --}}
+-- TODO: Add proper CREATE TABLE, ALTER TABLE statements
+```
+
+## 📈 Production Readiness Workflow
+
+### 1. **Assessment Phase**
+```bash
+# Check current readiness status
+ggen lifecycle readiness --detailed
+
+# View blocking requirements (critical items that must be fixed)
+ggen lifecycle readiness --critical-only
+```
+
+### 2. **Implementation Phase**
+```bash
+# Focus on critical placeholders first
+ggen lifecycle placeholders --category critical
+
+# Implement critical features
+# - Authentication ✓
+# - Error handling ✓
+# - Health checks ✓
+# - Input validation ✓
+# - Database migrations ✓
+```
+
+### 3. **Validation Phase**
+```bash
+# Re-check readiness after implementation
+ggen lifecycle readiness
+
+# Should show significant improvement in critical category
+# Overall score should be >75% for production readiness
+```
+
+### 4. **Deployment Phase**
+```bash
+# Only deploy when critical requirements are met
+ggen lifecycle run deploy --env production
+```
+
+## 🎯 80/20 Rule in Practice
+
+### **Focus on High-Impact Features**
+- ✅ **Critical**: Authentication (blocks all access)
+- ✅ **Critical**: Error handling (prevents crashes)
+- ✅ **Critical**: Health checks (required for orchestration)
+- ❌ **Nice-to-have**: Advanced caching (performance optimization)
+- ❌ **Nice-to-have**: Circuit breakers (resilience enhancement)
+
+### **Development Priority**
+1. **Week 1-2**: Implement all Critical requirements
+2. **Week 3-4**: Implement Important requirements
+3. **Week 5+**: Consider Nice-to-have features
+
+### **Production Readiness Thresholds**
+- **🚨 Critical**: Must be 100% complete
+- **⚠️ Important**: Should be >80% complete
+- **ℹ️ Nice-to-have**: Can be <50% complete for MVP
+
+## 📋 Example Implementation
+
+```bash
+# 1. Initialize project
+ggen lifecycle run init
+
+# 2. Check initial status (should be low)
+ggen lifecycle readiness
+# Output: Overall Score: 15.2%
+
+# 3. Implement critical features
+# - Add authentication
+# - Add error handling
+# - Add health checks
+
+# 4. Update status
+ggen lifecycle readiness-update auth-basic complete
+ggen lifecycle readiness-update error-handling complete
+ggen lifecycle readiness-update health-checks complete
+
+# 5. Re-check status (should be much higher)
+ggen lifecycle readiness
+# Output: Overall Score: 78.5%
+
+# 6. Deploy when >75% ready
+ggen lifecycle run deploy --env production
+```
+
+## 🔧 Integration with Development Workflow
+
+### **Template Generation with Placeholders**
+```bash
+# Generate service with production-ready placeholders
+ggen template generate rust-service-with-placeholders.tmpl
+
+# Generated code includes:
+# - Placeholder comments for incomplete features
+# - Guidance on implementation requirements
+# - Examples of correct implementation patterns
+```
+
+### **Lifecycle Integration**
+```toml
+# make.toml
+[lifecycle.readiness-check]
+description = "Check production readiness status"
+commands = ["ggen lifecycle readiness --detailed"]
+
+[lifecycle.production-deploy]
+description = "Deploy to production (requires >75% readiness)"
+commands = [
+    "ggen lifecycle readiness --critical-only",
+    "ggen lifecycle run deploy --env production"
+]
+```
+
+### **CI/CD Integration**
+```bash
+# GitHub Actions or similar
+- name: Check Production Readiness
+  run: ggen lifecycle readiness --critical-only
+
+- name: Deploy to Production
+  run: ggen lifecycle run production-deploy
+  if: success() # Only deploy if readiness check passes
+```
+
+## 📚 Best Practices
+
+### **Development Guidelines**
+1. **Always check readiness** before starting new features
+2. **Focus on critical path** - implement blocking requirements first
+3. **Use placeholders** to mark incomplete implementations clearly
+4. **Update status** as features are completed
+5. **Regular assessments** - check readiness weekly during development
+
+### **Code Quality Standards**
+- **No unwrap/expect** in production code (use proper error handling)
+- **Comprehensive logging** with structured output
+- **Input validation** for all user inputs
+- **Health check endpoints** for all services
+- **Database migrations** for schema changes
+
+### **Team Coordination**
+- **Shared readiness tracking** across team members
+- **Regular standups** to review blocking requirements
+- **Documentation** of implementation decisions
+- **Knowledge sharing** of placeholder resolutions
+
+This placeholder system ensures teams focus on what matters most for production success while maintaining visibility into what still needs to be done.

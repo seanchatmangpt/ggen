@@ -235,13 +235,19 @@ fn test_version() {
 #[test]
 fn test_hazard_exit_code() {
     let mut cmd = Command::cargo_bin("ggen").expect("Calling binary failed");
-    cmd.arg("audit").arg("hazard").arg("scan").assert().failure();
+    cmd.arg("audit")
+        .arg("hazard")
+        .arg("scan")
+        .assert()
+        .failure();
 }
 
 #[test]
 fn test_hazard_stdout() {
     let mut cmd = Command::cargo_bin("ggen").expect("Calling binary failed");
-    cmd.arg("audit").arg("hazard").arg("scan")
+    cmd.arg("audit")
+        .arg("hazard")
+        .arg("scan")
         .assert()
         .failure()
         .stdout(predicate::str::contains("Scanning"));
@@ -491,7 +497,10 @@ fn test_cli_output_formats() {
 
     // Test detailed output - now works with local mock registry
     let mut cmd = Command::cargo_bin("ggen").unwrap();
-    cmd.arg("market").arg("search").arg("rust").arg("--detailed");
+    cmd.arg("market")
+        .arg("search")
+        .arg("rust")
+        .arg("--detailed");
     cmd.assert()
         .success()
         .stdout(predicate::str::contains("rig-mcp"));

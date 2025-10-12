@@ -276,36 +276,181 @@ cargo build --release
 cargo install --path .
 ```
 
-### Initialize Project
+### Verify Installation
 ```bash
-# Initialize a new ggen project
-ggen lifecycle run init
-
-# Install core packages
-ggen market add "rig-mcp-integration"
-ggen market add "noun-verb-cli"
-
-# Verify installation
+# Verify ggen installation
 ggen --version
 ggen market list
 ggen lifecycle list
 ```
 
-### Example Project Creation
-```bash
-# Create a comprehensive Rust showcase project
-cd examples/comprehensive-rust-showcase
+## 🎯 Marketplace-First Development Workflow
 
-# Run the complete lifecycle
+### 1. **Search the Marketplace** - Find reusable packages
+```bash
+# Search for existing patterns and templates
+ggen market search "rust web service"
+ggen market search "microservices"
+ggen market search "docker compose"
+ggen market search "ai integration"
+
+# Browse categories
+ggen market categories
+
+# Get package details
+ggen market info "rig-mcp-integration"
+```
+
+### 2. **Install Required Packages** - Add dependencies via marketplace
+```bash
+# Install core packages for your project type
+ggen market add "rig-mcp-integration"      # AI/LLM integration
+ggen market add "rust-web-service"         # Web framework templates
+ggen market add "microservices-base"       # Microservices patterns
+ggen market add "database-postgresql"      # Database integration
+ggen market add "docker-compose"           # Containerization
+```
+
+### 3. **Initialize Project** - Set up structure using lifecycle
+```bash
+# Initialize project with marketplace packages
 ggen lifecycle run init
-ggen lifecycle run setup
-ggen lifecycle run generate
+
+# The init phase will automatically:
+# - Set up project structure
+# - Install marketplace dependencies
+# - Configure build system
+# - Create initial templates
+```
+
+### 4. **Generate Code** - Use templates and AI
+```bash
+# Generate from marketplace templates
+ggen template generate rust-web-service:axum-service.tmpl
+
+# Generate with AI assistance
+ggen ai generate "Create user authentication service with JWT"
+
+# Generate database schema
+ggen template generate database-postgresql:schema.tmpl
+```
+
+### 5. **Test & Deploy** - Use lifecycle management
+```bash
+# Run comprehensive tests
+ggen lifecycle run test
+
+# Build optimized version
+ggen lifecycle run build
+
+# Deploy to environment
+ggen lifecycle run deploy --env production
+```
+
+## 📦 Complete Example: Microservices Project
+
+### Step-by-Step Marketplace Workflow
+
+```bash
+# 1. Search for relevant packages
+ggen market search "microservices"
+ggen market search "rust web"
+ggen market search "docker"
+
+# 2. Install required packages
+ggen market add "microservices-architecture"
+ggen market add "rust-axum-service"
+ggen market add "postgresql-database"
+ggen market add "docker-compose"
+
+# 3. Initialize project structure
+cd my-microservices-project
+ggen lifecycle run init
+
+# 4. Generate services using marketplace templates
+ggen template generate microservices-architecture:api-gateway.tmpl
+ggen template generate rust-axum-service:user-service.tmpl
+ggen template generate rust-axum-service:product-service.tmpl
+
+# 5. Generate infrastructure
+ggen template generate docker-compose:development.tmpl
+ggen template generate postgresql-database:schema.tmpl
+
+# 6. Build and test
 ggen lifecycle run build
 ggen lifecycle run test
-ggen lifecycle run deploy --env development
 
-# Or run all phases in pipeline
-ggen lifecycle pipeline "init setup generate build test deploy"
+# 7. Deploy
+ggen lifecycle run deploy --env development
+```
+
+### Available Marketplace Packages
+
+```bash
+# AI & LLM Integration
+ggen market add "rig-mcp-integration"      # Multi-provider LLM support
+
+# Web Frameworks
+ggen market add "rust-axum-service"        # Axum web service templates
+ggen market add "rust-actix-service"       # Actix web service templates
+ggen market add "rust-warp-service"        # Warp web service templates
+
+# Database Integration
+ggen market add "postgresql-database"      # PostgreSQL schemas & migrations
+ggen market add "redis-cache"              # Redis caching layer
+ggen market add "mongodb-database"         # MongoDB integration
+
+# Infrastructure
+ggen market add "docker-compose"           # Multi-service containers
+ggen market add "kubernetes-deployment"    # K8s manifests
+ggen market add "nginx-config"             # Load balancer configuration
+
+# Testing & Quality
+ggen market add "comprehensive-tests"      # Unit, integration, e2e tests
+ggen market add "security-scanning"        # Vulnerability detection
+ggen market add "performance-monitoring"   # Metrics and observability
+```
+
+## 🔄 Correct vs Incorrect Workflow
+
+### ✅ CORRECT: Marketplace-First Approach
+```bash
+# 1. Search marketplace for existing solutions
+ggen market search "user authentication"
+
+# 2. Install proven packages
+ggen market add "jwt-authentication"
+ggen market add "user-management"
+
+# 3. Generate using marketplace templates
+ggen template generate jwt-authentication:service.tmpl
+
+# 4. Customize generated code
+# Edit generated/src/auth.rs with business logic
+
+# 5. Test using lifecycle
+ggen lifecycle run test
+
+# 6. Deploy using lifecycle
+ggen lifecycle run deploy
+```
+
+### ❌ INCORRECT: Manual Approach (Don't Do This)
+```bash
+# 1. Create everything from scratch
+cargo init my-project
+
+# 2. Manually add dependencies
+cargo add axum tokio serde
+
+# 3. Write all code manually
+# 500+ lines of boilerplate code
+
+# 4. Manual testing
+cargo test
+
+# 5. Manual deployment
+# Custom deployment scripts
 ```
 
 ### Marketplace Operations
@@ -469,16 +614,43 @@ ggen ai generate "Create comprehensive README for this project"
 6. **Comprehensive Testing** - Use `ggen lifecycle run test` for full validation
 7. **Multi-Environment Deployment** - Use `ggen lifecycle run deploy --env <env>`
 
+## 📚 Updated Documentation for Better Guidance
+
+The documentation has been updated to emphasize the **marketplace-first development workflow**:
+
+### **Before (Incorrect)** ❌
+```bash
+# Manual approach - lots of boilerplate, inconsistent patterns
+cargo init my-project
+cargo add axum tokio serde
+# Write 500+ lines of boilerplate...
+cargo test
+# Manual deployment scripts...
+```
+
+### **After (Correct)** ✅
+```bash
+# Marketplace-first approach - proven patterns, consistent architecture
+ggen market search "rust web service"
+ggen market add "rust-axum-service"
+ggen lifecycle run init
+ggen template generate rust-axum-service:user-service.tmpl
+ggen lifecycle run test
+ggen lifecycle run deploy --env production
+```
+
 ## Support
 
 ### Documentation
 - **CLI Reference**: `docs/cli.md` - Complete command reference
-- **Marketplace Guide**: `docs/marketplace.md` - Package management guide
-- **Lifecycle Guide**: `docs/lifecycle.md` - Project workflow guide
+- **Marketplace Guide**: `docs/marketplace.md` - Package management guide (updated)
+- **Lifecycle Guide**: `docs/lifecycle.md` - Project workflow guide (updated)
 - **Template Guide**: `docs/templates.md` - Code generation guide
+- **Best Practices**: `CLAUDE.md` - Development guidelines (this file)
 
-### Examples
-- **Comprehensive Showcase**: `examples/comprehensive-rust-showcase/` - Complete project example
+### Examples (Updated with Marketplace-First Approach)
+- **Microservices Architecture**: `examples/microservices-architecture/` - Complete marketplace workflow
+- **AI Code Generation**: `examples/ai-code-generation/` - AI + marketplace combination
 - **CLI Templates**: `examples/noun-verb-cli/` - CLI application templates
 - **Web Templates**: `examples/api-endpoint/` - API endpoint templates
 
@@ -488,6 +660,42 @@ ggen ai generate "Create comprehensive README for this project"
 - **Documentation**: https://seanchatmangpt.github.io/ggen/
 
 ---
+
+## 🎯 **KEY TAKEAWAY: Always Use Marketplace-First Development**
+
+### **The Ggen Philosophy**
+1. **Marketplace First** - Search and reuse proven patterns before building from scratch
+2. **Lifecycle Management** - Use `ggen lifecycle` for all project operations, never direct cargo commands
+3. **Template Generation** - Generate consistent code using marketplace templates
+4. **AI Enhancement** - Use AI to enhance marketplace patterns, not replace them
+5. **Quality Assurance** - Validate everything with comprehensive testing and deployment
+
+### **Why Marketplace-First Matters**
+- **80% Faster Development** - Reuse proven patterns instead of reinventing
+- **Higher Quality** - Production-ready templates with proper error handling
+- **Consistency** - Standardized patterns across all projects
+- **Maintainability** - Update marketplace packages instead of rewriting everything
+- **Team Productivity** - Everyone uses the same proven patterns
+
+### **The Wrong Way** ❌
+```bash
+# Manual, inconsistent, error-prone
+cargo init my-project
+cargo add axum serde
+# Write hundreds of lines of boilerplate...
+# Manual testing and deployment...
+```
+
+### **The Right Way** ✅
+```bash
+# Marketplace-first, proven, consistent
+ggen market search "rust web service"
+ggen market add "rust-axum-service"
+ggen lifecycle run init
+ggen template generate rust-axum-service:user-service.tmpl
+ggen lifecycle run test
+ggen lifecycle run deploy --env production
+```
 
 **Remember: Ggen provides the complete development toolchain - marketplace, lifecycle, templates, AI, and deployment!**
 

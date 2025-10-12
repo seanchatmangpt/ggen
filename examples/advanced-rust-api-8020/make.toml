@@ -1,0 +1,339 @@
+# make.toml - Complete Lifecycle for AI-Powered Rust REST API
+# Demonstrates 80/20 Production Principles with ggen
+
+[project]
+name = "advanced-rust-api"
+type = "rest-api"
+version = "0.1.0"
+description = "Production-ready REST API using ggen lifecycle + AI generation"
+
+# ============================================================================
+# LIFECYCLE PHASES (80/20 Rule - Focus on Critical 20%)
+# ============================================================================
+
+[lifecycle.init]
+description = "Initialize Rust API project structure"
+commands = [
+    "cargo init --lib --name advanced_rust_api .",
+    "mkdir -p src/{api,models,db,auth,middleware} tests/integration data templates",
+    "echo '# Advanced Rust API\n\nProduction-ready REST API generated with ggen lifecycle + AI\n' > README.md",
+]
+first_run_only = true
+
+[lifecycle.setup]
+description = "Install dependencies and configure environment"
+commands = [
+    "cargo add axum --features=macros",
+    "cargo add tokio --features=full",
+    "cargo add serde --features=derive",
+    "cargo add serde_json",
+    "cargo add sqlx --features=runtime-tokio-native-tls,postgres",
+    "cargo add thiserror",
+    "cargo add anyhow",
+    "cargo add tracing",
+    "cargo add tracing-subscriber",
+    "cargo add tower-http --features=cors,trace",
+    "cargo add jsonwebtoken",
+    "cargo add bcrypt",
+    "cargo add uuid --features=serde,v4",
+    "cargo add chrono --features=serde",
+    "cargo add dotenvy",
+    "cargo add --dev mockall",
+    "cargo add --dev assert_fs",
+]
+cache_key = "Cargo.toml|Cargo.lock"
+
+[lifecycle.generate]
+description = "AI-powered code generation from specifications"
+commands = [
+    "echo '🤖 Generating API endpoints from SPARQL specifications...'",
+    "cargo run --bin ai-generator -- --spec data/api-spec.ttl --output src/api",
+    "echo '🤖 Generating database models from RDF schema...'",
+    "cargo run --bin ai-generator -- --spec data/db-schema.ttl --output src/models",
+    "echo '🤖 Generating tests from specifications...'",
+    "cargo run --bin ai-generator -- --spec data/test-spec.ttl --output tests",
+]
+
+[lifecycle.validate]
+description = "Validate generated code and specifications"
+commands = [
+    "cargo check",
+    "cargo clippy -- -D warnings",
+    "echo '✓ Code validation passed'",
+]
+
+[lifecycle.build]
+description = "Build optimized release binary"
+commands = [
+    "cargo build --release",
+    "ls -lh target/release/advanced_rust_api",
+]
+outputs = ["target/release/advanced_rust_api"]
+cache = true
+
+[lifecycle.test]
+description = "Run comprehensive test suite"
+commands = [
+    "cargo test --lib",
+    "cargo test --test integration_tests",
+    "echo '✓ All tests passed'",
+]
+parallel = true
+
+[lifecycle.security]
+description = "Run security audit and checks"
+commands = [
+    "cargo audit || echo 'Warning: cargo-audit not installed'",
+    "cargo clippy -- -D warnings",
+    "echo '🔒 Security checks complete'",
+]
+
+[lifecycle.docs]
+description = "Generate API documentation"
+commands = [
+    "cargo doc --no-deps --document-private-items",
+    "echo '📚 Documentation: target/doc/advanced_rust_api/index.html'",
+]
+outputs = ["target/doc"]
+
+[lifecycle.deploy]
+description = "Deploy to production environment"
+commands = [
+    "echo '🚀 Building Docker image...'",
+    "docker build -t advanced-rust-api:latest .",
+    "echo '🚀 Deployment ready'",
+]
+requires_approval = true
+
+[lifecycle.readiness]
+description = "Check production readiness status"
+commands = [
+    "echo '📊 Checking production readiness...'",
+    "ggen lifecycle readiness --detailed",
+]
+
+# ============================================================================
+# HOOKS - Automation at Every Phase
+# ============================================================================
+
+[hooks]
+# Global hooks
+before_all = []
+after_all = []
+
+# Phase-specific hooks
+before_init = []
+after_init = ["setup"]  # Auto-run setup after init
+
+before_setup = []
+after_setup = []
+
+before_generate = []
+after_generate = ["validate"]  # Validate after generation
+
+before_build = ["test"]  # Ensure tests pass before building
+after_build = ["docs"]  # Generate docs after successful build
+
+before_test = []
+after_test = []
+
+before_deploy = ["readiness"]  # Check readiness before deploy
+after_deploy = []
+
+# Error handling
+on_error = "echo '❌ Phase failed - check logs above'"
+on_success = "echo '✅ Phase completed successfully'"
+
+# ============================================================================
+# ENVIRONMENT CONFIGURATION
+# ============================================================================
+
+[env]
+detect = "auto"
+
+[env.development]
+RUST_LOG = "debug"
+RUST_BACKTRACE = "1"
+DATABASE_URL = "postgres://localhost/dev_api"
+commands.build = "cargo build"
+commands.test = "cargo test -- --nocapture"
+
+[env.staging]
+RUST_LOG = "info"
+DATABASE_URL = "postgres://staging-db/api"
+commands.build = "cargo build --release"
+
+[env.production]
+RUST_LOG = "warn"
+DATABASE_URL = "${DATABASE_URL}"  # From environment
+commands.build = "cargo build --release --locked"
+commands.test = "cargo test --release"
+
+# ============================================================================
+# WORKSPACE SUPPORT (Optional - for microservices)
+# ============================================================================
+
+# [workspace.api]
+# path = "."
+# framework = "axum"
+# runtime = "rust:1.75"
+
+# [workspace.worker]
+# path = "worker"
+# framework = "tokio"
+# runtime = "rust:1.75"
+
+# ============================================================================
+# CUSTOM PHASES (Project-Specific)
+# ============================================================================
+
+[lifecycle."ai:generate-endpoint"]
+description = "Generate new API endpoint using AI"
+command = """
+echo 'Generating endpoint...'
+cargo run --bin ai-generator -- --type endpoint --name $NAME
+"""
+
+[lifecycle."ai:generate-model"]
+description = "Generate database model using AI"
+command = """
+echo 'Generating model...'
+cargo run --bin ai-generator -- --type model --name $NAME
+"""
+
+[lifecycle."check:coverage"]
+description = "Generate code coverage report"
+command = "cargo tarpaulin --out Html --output-dir coverage || echo 'Install: cargo install cargo-tarpaulin'"
+outputs = ["coverage/"]
+
+[lifecycle."db:migrate"]
+description = "Run database migrations"
+command = "sqlx migrate run"
+
+[lifecycle."db:seed"]
+description = "Seed database with test data"
+command = "cargo run --bin seeder"
+
+# ============================================================================
+# SCRIPTS (Convenience Shortcuts)
+# ============================================================================
+
+[scripts]
+# Quick workflows
+start = "cargo run"
+dev = "cargo watch -x run"
+check = "ggen lifecycle pipeline format lint test"
+release = "ggen lifecycle pipeline build test security readiness deploy"
+full-check = "ggen lifecycle pipeline format lint test security check:coverage"
+
+# AI-powered workflows
+ai-endpoint = "ggen lifecycle run ai:generate-endpoint"
+ai-model = "ggen lifecycle run ai:generate-model"
+
+# ============================================================================
+# DEPENDENCIES & REQUIREMENTS
+# ============================================================================
+
+[deps]
+rust = ">=1.75.0"
+cargo = ">=1.75.0"
+docker = ">=20.0.0"
+sqlx-cli = ">=0.7.0"
+
+# ============================================================================
+# STATE TRACKING
+# ============================================================================
+
+[state]
+file = ".ggen/state.json"
+track_generated_files = true
+skip_if_exists = ["target/", "Cargo.lock"]
+force_rerun_if_changed = ["Cargo.toml", "make.toml", "data/*.ttl"]
+
+# ============================================================================
+# CACHE CONFIGURATION
+# ============================================================================
+
+[cache]
+enabled = true
+directory = ".ggen/cache"
+# Cache keys are content-addressed SHA256 hashes
+# Automatically invalidated when inputs change
+
+# ============================================================================
+# PRODUCTION READINESS CONFIGURATION
+# ============================================================================
+
+[production]
+# Track production readiness requirements
+track_requirements = true
+config_file = ".ggen/production.toml"
+
+# Critical requirements (20% effort, 80% value)
+[[production.requirement]]
+id = "auth-jwt"
+name = "JWT Authentication"
+category = "critical"
+priority = 10
+
+[[production.requirement]]
+id = "error-handling"
+name = "Comprehensive Error Handling"
+category = "critical"
+priority = 10
+
+[[production.requirement]]
+id = "logging"
+name = "Structured Logging with Tracing"
+category = "critical"
+priority = 9
+
+[[production.requirement]]
+id = "health-checks"
+name = "Health Check Endpoints"
+category = "critical"
+priority = 8
+
+[[production.requirement]]
+id = "input-validation"
+name = "Input Validation & Sanitization"
+category = "critical"
+priority = 9
+
+# Important requirements (30% effort, 15% value)
+[[production.requirement]]
+id = "api-docs"
+name = "OpenAPI Documentation"
+category = "important"
+priority = 7
+
+[[production.requirement]]
+id = "unit-tests"
+name = "Unit Tests (>80% coverage)"
+category = "important"
+priority = 7
+
+[[production.requirement]]
+id = "integration-tests"
+name = "Integration Tests"
+category = "important"
+priority = 6
+
+[[production.requirement]]
+id = "docker"
+name = "Docker Containerization"
+category = "important"
+priority = 7
+
+# Nice-to-have (50% effort, 5% value)
+[[production.requirement]]
+id = "rate-limiting"
+name = "API Rate Limiting"
+category = "nice-to-have"
+priority = 4
+
+[[production.requirement]]
+id = "caching"
+name = "Redis Caching Layer"
+category = "nice-to-have"
+priority = 3

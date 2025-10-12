@@ -1,0 +1,329 @@
+# GitHub Actions CI/CD for ggen-core Examples Workspace
+# Demonstrates production-ready CI pipeline using ggen lifecycle automation
+
+name: Examples CI/CD
+
+on:
+  push:
+    branches: [ master, develop ]
+    paths:
+      - 'examples/**'
+      - '.github/workflows/examples-ci.yml'
+  pull_request:
+    branches: [ master ]
+    paths:
+      - 'examples/**'
+  workflow_dispatch:
+    inputs:
+      skip_benchmarks:
+        description: 'Skip benchmark execution'
+        required: false
+        default: 'false'
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+  RUSTFLAGS: -D warnings
+
+jobs:
+  # ========================================================================
+  # VALIDATE - Fast pre-flight checks
+  # ========================================================================
+  validate:
+    name: Validate Code Quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('examples/**/Cargo.lock') }}
+
+      - name: Cache cargo index
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/git
+          key: ${{ runner.os }}-cargo-git-${{ hashFiles('examples/**/Cargo.lock') }}
+
+      - name: Install cargo-make
+        run: cargo install --force cargo-make
+
+      - name: Run validation checks
+        working-directory: examples
+        run: cargo make validate-all
+
+  # ========================================================================
+  # BUILD - Multi-platform compilation
+  # ========================================================================
+  build:
+    name: Build (${{ matrix.os }})
+    needs: validate
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+          - os: macos-latest
+            target: x86_64-apple-darwin
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Install WASM target
+        run: rustup target add wasm32-unknown-unknown
+
+      - name: Cache build artifacts
+        uses: actions/cache@v4
+        with:
+          path: examples/target
+          key: ${{ runner.os }}-cargo-build-${{ hashFiles('examples/**/Cargo.lock') }}
+
+      - name: Install cargo-make
+        run: cargo install --force cargo-make
+
+      - name: Build all workspace members
+        working-directory: examples
+        run: cargo make build-all
+
+      - name: Build WASM
+        working-directory: examples
+        run: cargo make build-wasm
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: binaries-${{ matrix.os }}
+          path: examples/dist/
+          retention-days: 7
+
+  # ========================================================================
+  # TEST - Comprehensive testing
+  # ========================================================================
+  test:
+    name: Test Suite
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            examples/target
+          key: ${{ runner.os }}-cargo-test-${{ hashFiles('examples/**/Cargo.lock') }}
+
+      - name: Install cargo-make
+        run: cargo install --force cargo-make
+
+      - name: Run unit tests
+        working-directory: examples
+        run: cargo make test-unit
+
+      - name: Run integration tests
+        working-directory: examples
+        run: cargo make test-integration
+
+      - name: Run doc tests
+        working-directory: examples
+        run: cargo make test-doc
+
+      - name: Install cargo-tarpaulin
+        run: cargo install cargo-tarpaulin
+
+      - name: Generate coverage report
+        working-directory: examples
+        run: cargo make test-coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: examples/coverage/cobertura.xml
+          fail_ci_if_error: false
+
+  # ========================================================================
+  # BENCHMARK - Performance validation
+  # ========================================================================
+  benchmark:
+    name: Performance Benchmarks
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    if: github.event.inputs.skip_benchmarks != 'true'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            examples/target
+          key: ${{ runner.os }}-cargo-bench-${{ hashFiles('examples/**/Cargo.lock') }}
+
+      - name: Install cargo-make
+        run: cargo install --force cargo-make
+
+      - name: Run benchmarks
+        working-directory: examples
+        run: cargo make bench-all
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results
+          path: examples/target/criterion/
+          retention-days: 30
+
+  # ========================================================================
+  # SECURITY - Dependency audit
+  # ========================================================================
+  security:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Install cargo-audit
+        run: cargo install cargo-audit
+
+      - name: Run security audit
+        working-directory: examples
+        run: cargo make validate-security
+        continue-on-error: true
+
+  # ========================================================================
+  # PACKAGE - Distribution artifacts
+  # ========================================================================
+  package:
+    name: Package Artifacts
+    needs: [test, benchmark]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Install WASM target
+        run: rustup target add wasm32-unknown-unknown
+
+      - name: Install cargo-make
+        run: cargo install --force cargo-make
+
+      - name: Package all artifacts
+        working-directory: examples
+        run: cargo make package-all
+
+      - name: Generate checksums
+        working-directory: examples/dist
+        run: |
+          find . -type f -exec sha256sum {} \; > checksums.txt
+          cat checksums.txt
+
+      - name: Upload packaged artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: distribution-artifacts
+          path: examples/dist/
+          retention-days: 90
+
+  # ========================================================================
+  # DEPLOY - Production readiness check
+  # ========================================================================
+  deploy:
+    name: Deploy Validation
+    needs: package
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.ref == 'refs/heads/master'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: distribution-artifacts
+          path: examples/dist/
+
+      - name: Install cargo-make
+        run: cargo install --force cargo-make
+
+      - name: Verify deployment readiness
+        working-directory: examples
+        run: cargo make deploy-verify
+
+      - name: Generate deployment report
+        run: |
+          echo "# Deployment Report" > deployment-report.md
+          echo "" >> deployment-report.md
+          echo "## Artifacts" >> deployment-report.md
+          ls -lh examples/dist/ >> deployment-report.md
+          echo "" >> deployment-report.md
+          echo "## Checksums" >> deployment-report.md
+          cat examples/dist/checksums.txt >> deployment-report.md
+
+      - name: Upload deployment report
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-report
+          path: deployment-report.md
+
+  # ========================================================================
+  # SUMMARY - Workflow status
+  # ========================================================================
+  summary:
+    name: Workflow Summary
+    needs: [validate, build, test, benchmark, security, package, deploy]
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Generate summary
+        run: |
+          echo "# Examples CI/CD Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Job Status" >> $GITHUB_STEP_SUMMARY
+          echo "- Validate: ${{ needs.validate.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Build: ${{ needs.build.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Test: ${{ needs.test.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Benchmark: ${{ needs.benchmark.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Security: ${{ needs.security.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Package: ${{ needs.package.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Deploy: ${{ needs.deploy.result }}" >> $GITHUB_STEP_SUMMARY

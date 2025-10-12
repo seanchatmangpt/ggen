@@ -84,10 +84,10 @@ impl CacheManager {
     /// Download a pack from its git repository
     async fn download_pack(&self, resolved_pack: &ResolvedPack, pack_dir: &Path) -> Result<()> {
         // Create parent directory
-        let parent_dir = pack_dir.parent()
+        let parent_dir = pack_dir
+            .parent()
             .ok_or_else(|| anyhow::anyhow!("Invalid pack path: no parent directory"))?;
-        fs::create_dir_all(parent_dir)
-            .context("Failed to create pack directory")?;
+        fs::create_dir_all(parent_dir).context("Failed to create pack directory")?;
 
         // Clone the repository
         let mut fetch_options = FetchOptions::new();
