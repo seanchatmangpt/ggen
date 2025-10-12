@@ -61,6 +61,10 @@ console = "0.16"
 # Testing libraries
 proptest = "1.4"
 
+# Force base64 version to resolve duplicate dependency issue
+# config -> ron -> base64 0.21.7 conflicts with reqwest -> base64 0.22.1
+base64 = "0.22"
+
 # Allow multiple crate versions due to complex dependency tree
 [workspace.lints.clippy]
 multiple_crate_versions = "allow"

@@ -478,8 +478,20 @@ impl Plan {
     }
 
     /// Execute a shell hook command
+    /// 
+    /// SECURITY WARNING: This executes arbitrary shell commands from templates.
+    /// Only use with trusted templates. Consider disabling in production environments.
     fn execute_shell_hook(&self, command: &str, _timing: &str) -> Result<()> {
         use std::process::Command;
+
+        // Security validation: block dangerous commands
+        if self.is_dangerous_command(command) {
+            return Err(anyhow::anyhow!(
+                "SECURITY: Blocked potentially dangerous shell command: '{}'. \
+                Shell hooks are disabled for security. Use trusted templates only.",
+                command
+            ));
+        }
 
         // PipelineTracer::shell_hook_start(command, timing); // Temporarily disabled
 
@@ -506,6 +518,38 @@ impl Plan {
 
         // PipelineTracer::shell_hook_complete(command, timing, exit_code); // Temporarily disabled
         Ok(())
+    }
+
+    /// Check if a shell command is potentially dangerous
+    /// 
+    /// Blocks commands that could:
+    /// - Delete files (rm, del)
+    /// - Modify system files (sudo, su)
+    /// - Execute arbitrary code (eval, exec)
+    /// - Access sensitive data (cat /etc/passwd, etc.)
+    fn is_dangerous_command(&self, command: &str) -> bool {
+        let dangerous_patterns = [
+            "rm ", "rm -", "del ", "delete",
+            "sudo ", "su ", "su-",
+            "eval ", "exec ", "source ",
+            "cat /etc/", "cat /proc/", "cat /sys/",
+            "curl ", "wget ", "nc ", "netcat",
+            "dd ", "format", "mkfs",
+            "chmod ", "chown ", "passwd",
+            "kill ", "killall", "pkill",
+            "shutdown", "reboot", "halt",
+            "mount ", "umount", "fdisk",
+            "iptables", "firewall",
+            "crontab", "at ", "batch",
+            "ssh ", "scp ", "rsync",
+            "git clone", "git pull", "git push",
+            "npm install", "pip install", "cargo install",
+            "docker ", "kubectl ", "helm ",
+            "systemctl", "service ",
+        ];
+
+        let command_lower = command.to_lowercase();
+        dangerous_patterns.iter().any(|pattern| command_lower.contains(pattern))
     }
 
     /// Print unified diff of what would be written

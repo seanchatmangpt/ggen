@@ -84,6 +84,37 @@ This project uses SPARC (Specification, Pseudocode, Architecture, Refinement, Co
 - **Clean Architecture**: Separate concerns
 - **Documentation**: Keep updated
 
+### 🚨 Production Code Quality Rules
+
+**NEVER use `.expect()` or `.unwrap()` in production code (src/):**
+- ❌ `.expect("error message")` - Panics on error (crashes the program)
+- ❌ `.unwrap()` - Panics without explanation
+- ✅ Use `?` operator with proper Result types
+- ✅ Use `.map_err(|e| CustomError::from(e))?` for error conversion
+- ✅ Use `.unwrap_or_default()` or `.unwrap_or_else()` for safe defaults
+
+**Exception:** `.expect()` is acceptable in:
+- Test code (`#[cfg(test)]` or `tests/` directory)
+- Example code (`examples/` directory)
+- One-time initialization that should fail fast (rare cases)
+
+**Why:** Production code must handle errors gracefully, not crash. Users running in containers, VMs, or with unexpected system states will experience crashes instead of helpful error messages.
+
+**Example fixes:**
+```rust
+// ❌ BAD - Crashes in production
+let time = SystemTime::now()
+    .duration_since(UNIX_EPOCH)
+    .expect("System clock error")
+    .as_millis();
+
+// ✅ GOOD - Returns error that can be handled
+let time = SystemTime::now()
+    .duration_since(UNIX_EPOCH)
+    .map(|d| d.as_millis())
+    .map_err(|_| LifecycleError::Other("System clock error".into()))?;
+```
+
 ## 🚀 Available Agents (54 Total)
 
 ### Core Development

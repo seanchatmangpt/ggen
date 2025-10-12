@@ -84,7 +84,9 @@ impl CacheManager {
     /// Download a pack from its git repository
     async fn download_pack(&self, resolved_pack: &ResolvedPack, pack_dir: &Path) -> Result<()> {
         // Create parent directory
-        fs::create_dir_all(pack_dir.parent().unwrap())
+        let parent_dir = pack_dir.parent()
+            .ok_or_else(|| anyhow::anyhow!("Invalid pack path: no parent directory"))?;
+        fs::create_dir_all(parent_dir)
             .context("Failed to create pack directory")?;
 
         // Clone the repository
@@ -212,9 +214,10 @@ impl CacheManager {
         }
 
         // Remove pack directory if empty
-        let pack_parent = pack_dir.parent().unwrap();
-        if pack_parent.exists() && fs::read_dir(pack_parent)?.next().is_none() {
-            fs::remove_dir(pack_parent).context("Failed to remove empty pack directory")?;
+        if let Some(pack_parent) = pack_dir.parent() {
+            if pack_parent.exists() && fs::read_dir(pack_parent)?.next().is_none() {
+                fs::remove_dir(pack_parent).context("Failed to remove empty pack directory")?;
+            }
         }
 
         Ok(())
@@ -269,38 +272,41 @@ mod tests {
     use tempfile::TempDir;
 
     #[test]
-    fn test_cache_manager_creation() {
-        let temp_dir = TempDir::new().unwrap();
+    fn test_cache_manager_creation() -> Result<()> {
+        let temp_dir = TempDir::new().context("Failed to create temp dir")?;
         let cache_dir = temp_dir.path().to_path_buf();
 
-        let cache_manager = CacheManager::with_dir(cache_dir.clone()).unwrap();
+        let cache_manager = CacheManager::with_dir(cache_dir.clone())?;
         assert_eq!(cache_manager.cache_dir(), cache_dir);
+        Ok(())
     }
 
     #[test]
-    fn test_sha256_calculation() {
-        let temp_dir = TempDir::new().unwrap();
+    fn test_sha256_calculation() -> Result<()> {
+        let temp_dir = TempDir::new().context("Failed to create temp dir")?;
         let test_dir = temp_dir.path().join("test");
-        fs::create_dir_all(&test_dir).unwrap();
+        fs::create_dir_all(&test_dir).context("Failed to create test dir")?;
 
         // Create test files
-        fs::write(test_dir.join("file1.txt"), "content1").unwrap();
-        fs::write(test_dir.join("file2.txt"), "content2").unwrap();
+        fs::write(test_dir.join("file1.txt"), "content1").context("Failed to write file1")?;
+        fs::write(test_dir.join("file2.txt"), "content2").context("Failed to write file2")?;
 
-        let cache_manager = CacheManager::with_dir(temp_dir.path().to_path_buf()).unwrap();
-        let sha256 = cache_manager.calculate_sha256(&test_dir).unwrap();
+        let cache_manager = CacheManager::with_dir(temp_dir.path().to_path_buf())?;
+        let sha256 = cache_manager.calculate_sha256(&test_dir)?;
 
         // Should be a valid hex string
         assert_eq!(sha256.len(), 64);
         assert!(sha256.chars().all(|c| c.is_ascii_hexdigit()));
+        Ok(())
     }
 
     #[test]
-    fn test_list_cached_empty() {
-        let temp_dir = TempDir::new().unwrap();
-        let cache_manager = CacheManager::with_dir(temp_dir.path().to_path_buf()).unwrap();
+    fn test_list_cached_empty() -> Result<()> {
+        let temp_dir = TempDir::new().context("Failed to create temp dir")?;
+        let cache_manager = CacheManager::with_dir(temp_dir.path().to_path_buf())?;
 
-        let cached = cache_manager.list_cached().unwrap();
+        let cached = cache_manager.list_cached()?;
         assert!(cached.is_empty());
+        Ok(())
     }
 }
