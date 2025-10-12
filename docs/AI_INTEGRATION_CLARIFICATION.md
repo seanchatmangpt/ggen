@@ -12,7 +12,6 @@
   - [🚀 **Available AI Commands**](#-available-ai-commands)
     - [**Core AI Commands**](#core-ai-commands)
     - [**Enhanced Project Generation**](#enhanced-project-generation)
-    - [**MCP Server Integration**](#mcp-server-integration)
     - [**Provider-Specific Examples**](#provider-specific-examples)
   - [📋 **Template System Status**](#-template-system-status)
     - [**✅ Current Template Features (No AI Dependencies)**](#-current-template-features-no-ai-dependencies)
@@ -26,7 +25,6 @@
     - [**Template System (`ggen-core`)**](#template-system-ggen-core)
     - [**AI Integration (`ggen-ai`)**](#ai-integration-ggen-ai)
     - [**CLI Commands (`cli/src/cmds/ai/`)**](#cli-commands-clisrccmdsai)
-    - [**MCP Server (`ggen-mcp`)**](#mcp-server-ggen-mcp)
   - [📊 **Summary**](#-summary)
     - [**Key Achievements**](#key-achievements)
 
@@ -44,7 +42,6 @@ The AI enhancement features (`ai_enhance`, `ai_complete`, `ai_validate`) are **N
 - ✅ **Phase 3 (CLI Integration)**: Complete - All AI commands implemented and functional
 - ✅ **Multi-provider support**: OpenAI, Anthropic, Ollama, Cohere, Groq, Gemini
 - ✅ **Streaming responses**: Real-time AI interaction capabilities
-- ✅ **MCP server integration**: AI tools available via MCP protocol
 
 ## 🎯 **Why CLI Commands Are Better**
 
@@ -106,14 +103,6 @@ ggen project gen --ai --ai-provider ollama --ai-model qwen3-coder:30b --validate
 ggen project gen --ai --ai-providers "ollama,anthropic"
 ```
 
-### **MCP Server Integration**
-```bash
-# Start AI MCP server for assistant integration
-USE_OLLAMA=true OLLAMA_MODEL=qwen3-coder:30b cargo run --bin ggen-ai-mcp
-
-# Start with multiple providers
-USE_OLLAMA=true USE_ANTHROPIC=true cargo run --bin ggen-ai-mcp
-```
 
 ### **Provider-Specific Examples**
 ```bash
@@ -147,7 +136,6 @@ ggen ai generate -d "error handling strategy" --providers "ollama,anthropic"
 - **SPARQL query generation** from intent descriptions
 - **RDF graph generation** from domain descriptions
 - **Multi-provider LLM support**: Ollama (local), OpenAI (GPT-4), Anthropic (Claude), Cohere, Groq, Gemini
-- **MCP server integration** for AI assistant tools
 - **Streaming responses** for real-time interaction
 - **Provider comparison** and benchmarking capabilities
 
@@ -157,7 +145,6 @@ ggen ai generate -d "error handling strategy" --providers "ollama,anthropic"
 | **Template Engine** | ✅ Complete | `ggen-core/src/template.rs` | None (Pure Tera) |
 | **AI CLI Commands** | ✅ Complete | `cli/src/cmds/ai/` | `ggen-ai` crate |
 | **LLM Integration** | ✅ Complete | `ggen-ai/src/` | Multi-provider adapters |
-| **MCP Server** | ✅ Complete | `ggen-mcp/src/tools/ai.rs` | MCP protocol |
 | **Multi-Provider** | ✅ Complete | Provider abstraction | Configurable |
 | **Streaming** | ✅ Complete | Async streaming | Futures/tokio |
 | **Documentation** | ✅ Complete | `docs/` | Current and comprehensive |
@@ -204,10 +191,6 @@ ggen ai generate -d "error handling strategy" --providers "ollama,anthropic"
   - `chat` - Interactive AI conversations
   - `providers` - Provider and model management
 
-### **MCP Server (`ggen-mcp`)**
-- **File**: `ggen-mcp/src/tools/ai.rs` and MCP integration
-- **Status**: ✅ Complete, MCP tool integration
-- **Focus**: AI tools for code assistants and IDE integration
 
 ## 📊 **Summary**
 
@@ -219,7 +202,6 @@ ggen ai generate -d "error handling strategy" --providers "ollama,anthropic"
 | **Maintainability** | ❌ Mixed concerns | ✅ **Clean separation** |
 | **Flexibility** | ❌ Limited | ✅ **Full multi-provider control** |
 | **Performance** | ❌ N/A | ✅ **Streaming & caching** |
-| **Integration** | ❌ N/A | ✅ **MCP server support** |
 
 **Status (October 11, 2025)**: ✅ **Complete implementation** with all planned features delivered.
 
@@ -227,7 +209,6 @@ ggen ai generate -d "error handling strategy" --providers "ollama,anthropic"
 1. **✅ Multi-provider architecture** - Support for 6+ LLM providers
 2. **✅ CLI-first design** - Clean separation from template system
 3. **✅ Streaming responses** - Real-time AI interaction
-4. **✅ MCP integration** - AI tools for assistants
-5. **✅ Comprehensive testing** - All features validated
+4. **✅ Comprehensive testing** - All features validated
 
 **Conclusion**: The CLI-based approach has been successfully implemented with all planned features complete. Templates remain clean and deterministic, while AI features are available through a comprehensive, multi-provider command suite.

@@ -593,7 +593,6 @@ let converted = generator.convert_frontmatter(
 - [ ] **Advanced AI Models** - Integration with Gemini, Grok, and other emerging models
 - [ ] **Custom Model Training** - Fine-tune AI models on your codebase for personalized generation
 - [ ] **Code Analysis Integration** - AI-powered code review and refactoring suggestions
-- [ ] **Multi-Agent Collaboration** - Multiple AI agents working together on complex projects
 - [ ] **Template Marketplace Curation** - AI-powered template quality scoring and recommendations
 
 ### Future Considerations

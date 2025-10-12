@@ -1,0 +1,123 @@
+@startuml ggen-adoption-strategy
+
+!theme blueprint
+skinparam backgroundColor #FEFEFE
+
+title ggen Adoption Strategy\n"How make.toml Becomes the Universal Standard"
+
+' Timeline visualization
+scale 1.5
+
+concise "Phase 1\nFoundation" as P1
+concise "Phase 2\nEarly Adopters" as P2
+concise "Phase 3\nMainstream" as P3
+concise "Phase 4\nStandard" as P4
+
+@0
+P1 is "Building"
+P2 is "Waiting"
+P3 is "Waiting"
+P4 is "Waiting"
+
+@1
+P1 is "Core Features"
+note bottom
+  **Ship v1.2.0**
+  ✓ make.toml parser
+  ✓ Lifecycle system
+  ✓ Hooks execution
+  ✓ State management
+  ✓ Template engine
+
+  **Target: ggen users**
+end note
+
+@2
+P1 is "Complete"
+P2 is "Framework Support"
+note bottom
+  **Ship v1.3.0**
+  ✓ Nuxt 4 adapter
+  ✓ Next.js 15 adapter
+  ✓ Rust/Cargo adapter
+  ✓ Cross-language projects
+
+  **Target: Nuxt community**
+  - "Add Rust to your Nuxt project"
+  - Templates in marketplace
+end note
+
+@3
+P2 is "Growing"
+note bottom
+  **Community adoption**
+  - Blog posts & tutorials
+  - Conference talks
+  - Success stories
+  - Template marketplace grows
+
+  **Key metric:**
+  100+ projects using make.toml
+end note
+
+@4
+P2 is "Established"
+P3 is "IDE Integration"
+note bottom
+  **Ship v1.4.0**
+  ✓ VS Code extension
+  ✓ IntelliJ plugin
+  ✓ GitHub Actions integration
+  ✓ Vercel/Netlify support
+
+  **Target: Framework creators**
+  - Svelte team evaluates
+  - Astro considers adoption
+  - Build tool authors interested
+end note
+
+@5
+P3 is "Expanding"
+note bottom
+  **Ecosystem growth**
+  - 1000+ templates
+  - 50+ framework adapters
+  - CI/CD providers support make.toml
+  - Package registries list ggen projects
+
+  **Key metric:**
+  10K+ projects using make.toml
+end note
+
+@6
+P3 is "Mature"
+P4 is "Standard"
+note bottom
+  **The Tipping Point**
+
+  Major frameworks ship with make.toml:
+  ✓ Nuxt 5 includes it by default
+  ✓ Next.js considers adoption
+  ✓ Rust community endorses
+  ✓ Python/Poetry integration
+
+  **make.toml becomes expected**
+  Like package.json or Cargo.toml
+end note
+
+@7
+P4 is "Universal"
+note bottom
+  **The New Standard**
+
+  - Framework CLI tools generate make.toml
+  - GitHub detects and uses it
+  - AI tools understand it
+  - Teaching curriculum includes it
+  - Books reference it as "the standard"
+
+  **Goal achieved:**
+  make.toml is THE universal project descriptor
+end note
+
+@enduml

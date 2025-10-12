@@ -140,7 +140,7 @@ For programmatic access, GGen provides REST APIs and SDKs in multiple languages.
 
 ### REST API
 
-GGen's MCP server exposes a REST API for remote code generation:
+GGen provides a REST API for remote code generation:
 
 ```bash
 # Generate via HTTP API

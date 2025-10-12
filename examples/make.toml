@@ -1,0 +1,59 @@
+# Example make.toml - Universal project descriptor for ggen
+# This demonstrates the lifecycle system for a simple Node.js project
+
+[project]
+name = "example-app"
+type = "webapp"
+version = "1.0.0"
+description = "Example application demonstrating ggen lifecycle"
+
+# Lifecycle phases
+[lifecycle.init]
+description = "Initialize project structure"
+commands = [
+    "echo '📦 Initializing project...'",
+    "mkdir -p src tests docs",
+    "echo 'console.log(\"Hello, ggen!\");' > src/index.js",
+]
+
+[lifecycle.setup]
+description = "Install dependencies"
+command = "echo '📥 Dependencies would be installed here (npm install)'"
+
+[lifecycle.dev]
+description = "Start development server"
+command = "echo '🚀 Development server would start here (npm run dev)'"
+watch = true
+port = 3000
+
+[lifecycle.build]
+description = "Build for production"
+commands = [
+    "echo '🔨 Building project...'",
+    "echo 'Build complete!'",
+]
+outputs = ["dist/"]
+cache = true
+
+[lifecycle.test]
+description = "Run test suite"
+command = "echo '🧪 Running tests... (npm test)'"
+
+[lifecycle.lint]
+description = "Lint code"
+command = "echo '🔍 Linting code... (npm run lint)'"
+
+[lifecycle.clean]
+description = "Clean build artifacts"
+command = "echo '🧹 Cleaning build artifacts...'"
+
+# Hooks
+[hooks]
+before_all = []
+after_all = []
+
+before_build = ["test", "lint"]
+after_build = []
+
+before_test = []
+after_test = []

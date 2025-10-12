@@ -1,0 +1,28 @@
+---
+to: "pages/{{page_name}}.vue"
+vars:
+  page_name: "index"
+rdf:
+  - "graphs/marketplace-project.ttl"
+  - "graphs/nuxt-ontology.ttl"
+sparql:
+  - |
+    SELECT ?name ?path ?template ?script ?layout
+    WHERE {
+      ?page a nuxt:Page ;
+            nuxt:name "{{page_name}}" ;
+            nuxt:path ?path ;
+            nuxt:template ?template ;
+            nuxt:script ?script .
+      OPTIONAL { ?page nuxt:layout ?layout }
+    }
+determinism:
+  seed: "nuxt-page-{{page_name}}"
+---
+<script setup lang="ts">
+{{ sparql_results.script }}
+</script>
+
+<template>
+{{ sparql_results.template }}
+</template>

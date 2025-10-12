@@ -1,0 +1,78 @@
+{
+  "last_phase": "test",
+  "phase_history": [
+    {
+      "phase": "init",
+      "started_ms": 1760234326406,
+      "duration_ms": 675,
+      "success": true
+    },
+    {
+      "phase": "init",
+      "started_ms": 1760234354306,
+      "duration_ms": 674,
+      "success": true
+    },
+    {
+      "phase": "setup",
+      "started_ms": 1760234354982,
+      "duration_ms": 211,
+      "success": true
+    },
+    {
+      "phase": "test",
+      "started_ms": 1760234355193,
+      "duration_ms": 220,
+      "success": true
+    },
+    {
+      "phase": "lint",
+      "started_ms": 1760234355414,
+      "duration_ms": 217,
+      "success": true
+    },
+    {
+      "phase": "build",
+      "started_ms": 1760234355632,
+      "duration_ms": 441,
+      "success": true
+    },
+    {
+      "phase": "test",
+      "started_ms": 1760236374321,
+      "duration_ms": 269,
+      "success": true
+    }
+  ],
+  "generated": [],
+  "cache_keys": [
+    {
+      "phase": "init",
+      "key": "8585b9d35e2b965e6d52c9b6f2069588e8c6dd42486f903efd8ee16fbbdca402"
+    },
+    {
+      "phase": "init",
+      "key": "8585b9d35e2b965e6d52c9b6f2069588e8c6dd42486f903efd8ee16fbbdca402"
+    },
+    {
+      "phase": "setup",
+      "key": "afc556fb21985d3a2e692c3f6380e2fea1e1709685f1cfbbc56ae39f1261c71f"
+    },
+    {
+      "phase": "test",
+      "key": "9cb043dd91789d9031997f6b31f2497fb208e1b37764184067eb613724059e96"
+    },
+    {
+      "phase": "lint",
+      "key": "b57334916ecb9d552c8457e8b2e7e386a7a58d6fd90a565b734f143740fdc423"
+    },
+    {
+      "phase": "build",
+      "key": "9094e77cdd1269862f820b591a34f4cbebd74298f6f647df06521557ae381288"
+    },
+    {
+      "phase": "test",
+      "key": "9cb043dd91789d9031997f6b31f2497fb208e1b37764184067eb613724059e96"
+    }
+  ]
+}

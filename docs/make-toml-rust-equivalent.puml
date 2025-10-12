@@ -1,0 +1,162 @@
+@startuml make-toml-vs-package-json
+
+!theme cerulean
+skinparam backgroundColor #FEFEFE
+
+title make.toml: The Rust Equivalent of package.json\n"Universal Project Descriptor for ALL Languages"
+
+' Left side - Traditional approach
+package "Traditional Multi-Language Project" {
+  rectangle "Frontend (Node.js)" as frontend {
+    file "package.json" as pkgjson #LightBlue
+    note right of pkgjson
+      {
+        "scripts": {
+          "dev": "next dev",
+          "build": "next build"
+        },
+        "dependencies": {...}
+      }
+    end note
+
+    file "package-lock.json" as pkglock #LightGray
+  }
+
+  rectangle "Backend (Rust)" as backend {
+    file "Cargo.toml" as cargo #Orange
+    note right of cargo
+      [package]
+      name = "api"
+      version = "0.1.0"
+
+      [dependencies]
+      axum = "0.7"
+    end note
+
+    file "Cargo.lock" as cargolock #LightGray
+  }
+
+  rectangle "Infrastructure" as infra {
+    file "Dockerfile" as docker #Purple
+    file "docker-compose.yml" as compose #Purple
+    file "Makefile" as makefile #Green
+    note right of makefile
+      dev:
+        cd frontend && npm run dev
+        cd backend && cargo run
+
+      build:
+        cd frontend && npm run build
+        cd backend && cargo build
+    end note
+  }
+
+  note bottom of frontend
+    **Problem**: Different tools,
+    different commands, different
+    mental models per language
+  end note
+}
+
+' Right side - ggen approach
+package "ggen Unified Project" {
+  rectangle "Universal Configuration" as unified {
+    file "make.toml" as maketoml #Gold
+    note right of maketoml
+      **The Universal Standard**
+
+      [project]
+      name = "my-fullstack-app"
+
+      # Frontend workspace
+      [workspace.frontend]
+      path = "apps/web"
+      runtime = "node"
+      package_manager = "pnpm"
+      framework = "nuxt-4"
+
+      # Backend workspace
+      [workspace.backend]
+      path = "apps/api"
+      runtime = "rust"
+      package_manager = "cargo"
+      framework = "axum"
+
+      # Universal lifecycle
+      [lifecycle.dev]
+      command = "ggen parallel:dev"
+      workspaces = ["frontend", "backend"]
+
+      [lifecycle.build]
+      command = "ggen sequential:build"
+      order = ["backend", "frontend"]
+
+      # Hooks work across languages
+      [hooks]
+      before_build = ["ggen test", "ggen lint"]
+      after_deploy = ["ggen smoke-test"]
+    end note
+
+    file "ggen.toml" as ggentoml #LightGreen
+    note right of ggentoml
+      [project]
+      templates = "templates"
+
+      [rdf]
+      # Semantic metadata
+      base = "http://example.org/"
+
+      [vars]
+      # Shared variables
+      api_url = "{{env.API_URL}}"
+    end note
+
+    folder ".ggen/" as ggendir {
+      file "state.json" as state #Yellow
+      note right of state
+        {
+          "workspaces": {
+            "frontend": {
+              "runtime": "node:20",
+              "last_build": "2025-01-10",
+              "deps_hash": "abc123"
+            },
+            "backend": {
+              "runtime": "rust:1.75",
+              "last_build": "2025-01-10",
+              "deps_hash": "def456"
+            }
+          }
+        }
+      end note
+    }
+  }
+
+  note bottom of unified
+    **Solution**: One tool, one set
+    of commands, works with any
+    language/framework
+  end note
+}
+
+' Comparison arrows
+frontend -[#blue,dashed]-> maketoml : "Replaces"
+backend -[#blue,dashed]-> maketoml : "Replaces"
+infra -[#blue,dashed]-> maketoml : "Replaces"
+
+note as adoption
+  **Why make.toml becomes the standard:**
+
+  1. **Language-agnostic** - Works with Node, Rust, Python, Go, etc.
+  2. **Runtime management** - Specifies Node 20, Rust 1.75, etc.
+  3. **Lifecycle consistency** - Same commands everywhere
+  4. **State tracking** - Knows what's installed, built, deployed
+  5. **Monorepo-native** - Multi-language workspaces built-in
+  6. **Semantic** - RDF metadata makes projects AI-understandable
+
+  **The Vision:**
+  Just as npm made package.json the standard for JS,
+  ggen makes make.toml the standard for ALL software.
+end note
+
+@enduml

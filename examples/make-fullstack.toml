@@ -1,0 +1,83 @@
+# Example make.toml - Fullstack project with workspaces
+# Based on the design from docs/make-toml-complete-example.md
+
+[project]
+name = "fullstack-example"
+type = "monorepo"
+version = "1.0.0"
+description = "Nuxt 4 frontend with Rust backend example"
+
+# Workspaces
+[workspace.frontend]
+path = "apps/web"
+framework = "nuxt"
+runtime = "node:20"
+package_manager = "pnpm"
+
+[workspace.backend]
+path = "apps/api"
+framework = "axum"
+runtime = "rust:1.75"
+package_manager = "cargo"
+
+[workspace.shared]
+path = "packages/types"
+runtime = "node:20"
+package_manager = "pnpm"
+
+# Lifecycle phases
+[lifecycle.init]
+description = "Initialize all workspaces"
+commands = [
+    "echo '🏗️  Initializing workspaces...'",
+    "mkdir -p apps/web apps/api packages/types",
+    "echo 'Workspaces created'",
+]
+
+[lifecycle.setup]
+description = "Install dependencies for all workspaces"
+commands = [
+    "echo '📥 Setting up frontend...'",
+    "echo '📥 Setting up backend...'",
+    "echo '📥 Setting up shared types...'",
+]
+
+[lifecycle.dev]
+description = "Start development servers"
+command = "echo '🚀 Starting dev servers (frontend:3000, backend:4000)'"
+watch = true
+
+[lifecycle.build]
+description = "Build all workspaces"
+commands = [
+    "echo '🔨 Building shared types...'",
+    "echo '🔨 Building backend...'",
+    "echo '🔨 Building frontend...'",
+]
+
+[lifecycle.test]
+description = "Run tests across all workspaces"
+command = "echo '🧪 Running tests...'"
+
+[lifecycle."sync:types"]
+description = "Sync TypeScript types from Rust"
+commands = [
+    "echo '🔄 Syncing types from Rust to TypeScript...'",
+    "echo 'Types synced'",
+]
+
+[lifecycle."generate:api"]
+description = "Generate API endpoint with composable and types"
+commands = [
+    "echo '⚡ Generating Rust API route...'",
+    "echo '⚡ Generating Nuxt composable...'",
+    "echo '⚡ Generating TypeScript types...'",
+]
+
+# Hooks
+[hooks]
+before_build = ["test", "sync:types"]
+after_build = []
+
+before_deploy = ["build"]
+after_deploy = []

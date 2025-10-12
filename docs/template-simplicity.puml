@@ -1,0 +1,169 @@
+@startuml template-simplicity
+
+!theme materia
+skinparam backgroundColor #FEFEFE
+
+title Template Simplicity Principle\n"Templates stay simple, make.toml orchestrates"
+
+' Wrong way - Complex templates
+rectangle "❌ WRONG: Complex Templates (Before)" as wrong #MistyRose {
+  file "component.vue.tmpl" as complex
+  note right of complex
+    ---
+    to: "src/components/{{name}}.vue"
+
+    lifecycle:
+      phase: "generate:component"
+      before:
+        - "ggen validate:name '{{name}}'"
+        - "ggen check:duplicate src/components/{{name}}.vue"
+        - "ggen check:naming-convention {{name}}"
+      after:
+        - "ggen add:export src/components/index.ts {{name}}"
+        - "ggen test:generate tests/{{name}}.spec.ts"
+        - "ggen format src/components/{{name}}.vue"
+        - "ggen lint --fix {{output}}"
+        - "ggen docs:update components.md"
+      requires: ["init", "setup"]
+      triggers: ["build", "test"]
+      env: "development"
+      rollback: "ggen remove:component {{name}}"
+    ---
+    <template>
+      <div>{{ name }}</div>
+    </template>
+
+    **Problem:**
+    - Too much logic in template
+    - Hard to maintain
+    - Violates separation of concerns
+    - Doesn't scale
+  end note
+}
+
+' Right way - Simple templates + make.toml orchestration
+rectangle "✅ RIGHT: Simple Templates + make.toml (After)" as right #LightGreen {
+
+  file "component.vue.tmpl" as simple
+  note right of simple
+    ---
+    to: "src/components/{{name}}.vue"
+    sh_before: "ggen hooks:before generate:component {{name}}"
+    sh_after: "ggen hooks:after generate:component {{name}}"
+    ---
+    <template>
+      <div class="{{name | kebabCase}}">
+        {{ name }}
+      </div>
+    </template>
+
+    <script setup lang="ts">
+    // Component logic
+    </script>
+
+    **Benefits:**
+    ✓ Simple, readable
+    ✓ Focus on code generation
+    ✓ Hooks handled externally
+    ✓ Easy to maintain
+  end note
+
+  file "make.toml" as maketoml
+  note right of maketoml
+    # Orchestration lives here
+    [lifecycle."generate:component"]
+    description = "Generate Vue component"
+    command = "ggen gen component {{name}}"
+    template = "templates/component.vue.tmpl"
+
+    [hooks."generate:component"]
+    before = [
+      "ggen validate:name {{name}}",
+      "ggen check:duplicate src/components/{{name}}.vue",
+      "ggen check:naming-convention {{name}}"
+    ]
+    after = [
+      "ggen add:export src/components/index.ts {{name}}",
+      "ggen test:generate tests/{{name}}.spec.ts",
+      "ggen format src/components/{{name}}.vue",
+      "ggen lint --fix src/components/{{name}}.vue",
+      "ggen docs:update components.md"
+    ]
+
+    [hooks."generate:component".on]
+    error = "ggen remove:component {{name}}"
+    success = "echo '✓ Component {{name}} created'"
+
+    **Benefits:**
+    ✓ Centralized orchestration
+    ✓ Reusable across templates
+    ✓ Easy to modify hooks
+    ✓ Version controlled
+    ✓ Project-specific
+  end note
+
+  database "Hook Scripts" as hooks {
+    file "hooks/before.sh"
+    file "hooks/after.sh"
+    file "hooks/validate.sh"
+  }
+
+  note bottom of hooks
+    **Optional: External hook scripts**
+
+    Can break down complex hooks
+    into reusable shell scripts
+
+    # hooks/validate.sh
+    #!/bin/bash
+    name=$1
+    if [[ $name =~ ^[A-Z] ]]; then
+      echo "✓ Valid component name"
+    else
+      echo "❌ Name must start with capital"
+      exit 1
+    fi
+  end note
+}
+
+' Execution flow
+actor Developer
+
+Developer -> maketoml : ggen generate:component Button
+maketoml -> hooks : before hooks
+hooks -> simple : sh_before
+simple -> simple : Render template
+simple -> hooks : sh_after
+hooks --> Developer : ✓ Component created
+
+note as separation
+  **Separation of Concerns**
+
+  **Templates:** What to generate
+  **make.toml:** When and how to orchestrate
+  **Hooks:** Validation and side effects
+
+  This mirrors Unix philosophy:
+  - Do one thing well
+  - Compose through pipes
+  - Simple, reusable parts
+end note
+
+note as scalability
+  **Why This Scales**
+
+  1. **Template authors** focus on code generation
+  2. **Project maintainers** customize hooks in make.toml
+  3. **Teams** share hook scripts
+  4. **CI/CD** runs same hooks
+  5. **New frameworks** reuse hook patterns
+
+  **Example:**
+  Same validate:name hook works for:
+  - Vue components
+  - React components
+  - Rust modules
+  - Python classes
+end note
+
+@enduml

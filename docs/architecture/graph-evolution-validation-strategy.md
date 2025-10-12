@@ -30,7 +30,7 @@
 
 ## 1. Overview
 
-This strategy ensures that all autonomous graph changes are validated deterministically before commit, with complete rollback capability and zero tolerance for graph corruption.
+This strategy ensures that all graph changes are validated deterministically before commit, with complete rollback capability and zero tolerance for graph corruption.
 
 ## 2. Validation Architecture
 

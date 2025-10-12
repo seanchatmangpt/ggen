@@ -1,0 +1,86 @@
+@startuml ggen-lifecycle-architecture
+
+!define RECTANGLE class
+
+skinparam componentStyle rectangle
+skinparam backgroundColor #FEFEFE
+skinparam roundcorner 10
+
+title ggen Lifecycle System Architecture\n"The Universal Standard for All Software"
+
+' Core Components
+package "Project Root" {
+  [make.toml] as make #LightBlue
+  note right of make
+    **The Rust equivalent of package.json**
+    - Defines lifecycle phases
+    - Shell commands for any language
+    - Hooks system
+    - Environment configs
+    - Dependencies (cargo, npm, pip, etc.)
+  end note
+
+  [ggen.toml] as ggen #LightGreen
+  note right of ggen
+    **Project configuration**
+    - Framework metadata
+    - Template paths
+    - RDF semantic data
+    - Variable defaults
+  end note
+
+  folder ".ggen/" {
+    [state.json] as state #LightYellow
+    [cache/] as cache #LightYellow
+  }
+}
+
+package "Templates (Simple)" {
+  [component.vue.tmpl] as tmpl1 #LightCoral
+  [page.vue.tmpl] as tmpl2 #LightCoral
+  [api.rs.tmpl] as tmpl3 #LightCoral
+
+  note right of tmpl1
+    **Templates stay simple**
+    ---
+    to: "src/components/{{name}}.vue"
+    sh_before: "ggen validate {{name}}"
+    sh_after: "ggen format {{output}}"
+    ---
+    <template>...</template>
+  end note
+}
+
+package "ggen CLI" {
+  [Lifecycle Runner] as runner #Orange
+  [Hook Executor] as hooks #Orange
+  [State Manager] as statemgr #Orange
+  [Template Engine] as engine #Orange
+}
+
+package "Framework Adapters" {
+  [nuxt-4] as nuxt #Pink
+  [next-15] as next #Pink
+  [rust-cargo] as rust #Pink
+  [python-poetry] as python #Pink
+  [rails-7] as rails #Pink
+}
+
+' Relationships
+make --> runner : defines phases
+ggen --> runner : configuration
+runner --> hooks : execute before/after
+hooks --> tmpl1 : sh_before/sh_after
+runner --> engine : render templates
+engine --> statemgr : track generated
+statemgr --> state : persist
+runner --> nuxt : framework-specific
+runner --> next : framework-specific
+runner --> rust : framework-specific
+
+' User interaction
+actor Developer
+Developer --> runner : ggen run <phase>
+runner --> Developer : feedback
+
+@enduml

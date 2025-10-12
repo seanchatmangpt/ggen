@@ -74,8 +74,7 @@ ggen-ai/
 │   │   ├── sparql.rs       # SPARQL generation
 │   │   ├── ontology.rs     # Ontology generation
 │   │   └── refactor.rs     # Refactoring assistant
-│   ├── prompts/            # Prompt templates
-│   └── mcp/                # MCP server integration
+│   └── prompts/            # Prompt templates
 └── Cargo.toml
 ```
 

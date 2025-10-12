@@ -1,0 +1,54 @@
+# Nuxt 4 Base Project Template
+# TOML schema for ggen marketplace templates with initialization support
+
+[template]
+name = "nuxt-4-base"
+version = "0.1.0"
+description = "Base Nuxt 4 project with TypeScript and modern tooling"
+category = "frontend"
+author = "ggen-team"
+license = "MIT"
+keywords = ["nuxt", "vue", "typescript", "frontend"]
+tags = ["nuxt4", "vue3", "typescript", "ssr"]
+
+# Initialization commands run in order after template generation
+# Commands are executed in the project root directory
+[init_commands]
+order = ["install", "setup"]
+
+[init_commands.install]
+description = "Install dependencies"
+command = "pnpm install"
+required = true
+timeout = 300  # seconds
+
+[init_commands.setup]
+description = "Run Nuxt setup and prepare"
+command = "pnpm nuxt prepare"
+required = false
+timeout = 60
+
+# Package dependencies for package.json
+[dependencies]
+nuxt = "^4.0.0"
+vue = "^3.5.0"
+
+[dependencies.dev]
+"@nuxt/devtools" = "latest"
+typescript = "^5.7.0"
+
+# File mappings: template_file -> output_path
+# Variables can be used with {{ project_name }}, {{ description }}, etc.
+[files]
+"package.json.tmpl" = "package.json"
+"nuxt.config.ts.tmpl" = "nuxt.config.ts"
+"tsconfig.json.tmpl" = "tsconfig.json"
+"app.vue.tmpl" = "app.vue"
+"README.md.tmpl" = "README.md"
+".gitignore.tmpl" = ".gitignore"
+
+# Optional: Variables for template substitution
+[variables]
+project_name = { type = "string", required = true, description = "Project name" }
+description = { type = "string", default = "A Nuxt 4 application", description = "Project description" }
+author = { type = "string", default = "", description = "Author name" }
