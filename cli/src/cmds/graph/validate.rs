@@ -179,7 +179,7 @@ fn validate_graph(shapes: String, graph: Option<String>) -> Result<ValidationRep
     let mut violations = Vec::new();
 
     // Simulate some validation checks
-    if graph_data.len() == 0 {
+    if graph_data.is_empty() {
         violations.push(Violation {
             focus_node: "http://example.org/".to_string(),
             property: None,
@@ -189,7 +189,7 @@ fn validate_graph(shapes: String, graph: Option<String>) -> Result<ValidationRep
     }
 
     // Check for basic RDF structure
-    if graph_data.len() > 0 {
+    if !graph_data.is_empty() {
         // Simulate a validation that always passes for non-empty graphs
         violations.clear();
     }

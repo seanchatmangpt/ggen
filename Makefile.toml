@@ -583,13 +583,7 @@ command = "./scripts/gh-pages-setup-check.sh"
 [tasks.ci]
 description = "Run CI pipeline"
 workspace = false
-dependencies = [
-  "format",
-  "clippy-ci-flow",
-  "test",
-  "audit-all",
-  "docs-test",
-]
+dependencies = ["format", "clippy-ci-flow", "test", "audit-all", "docs-test"]
 
 [tasks.release]
 description = "Create a release"

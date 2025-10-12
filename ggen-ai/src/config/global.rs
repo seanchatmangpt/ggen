@@ -243,7 +243,7 @@ impl GlobalLlmConfig {
         let config = self
             .get_provider_config(provider)
             .ok_or_else(|| {
-                GgenAiError::configuration(&format!(
+                GgenAiError::configuration(format!(
                     "No configuration found for provider: {:?}",
                     provider
                 ))
@@ -311,38 +311,22 @@ impl GlobalLlmConfig {
 }
 
 /// Global configuration instance
-static mut GLOBAL_CONFIG: Option<GlobalLlmConfig> = None;
-static INIT: std::sync::Once = std::sync::Once::new();
+use std::sync::OnceLock;
+static GLOBAL_CONFIG: OnceLock<GlobalLlmConfig> = OnceLock::new();
 
 /// Initialize the global configuration
 pub fn init_global_config() -> &'static GlobalLlmConfig {
-    unsafe {
-        INIT.call_once(|| {
-            GLOBAL_CONFIG = Some(GlobalLlmConfig::from_env());
-        });
-        GLOBAL_CONFIG
-            .as_ref()
-            .expect("Global config should be initialized after call_once")
-    }
+    GLOBAL_CONFIG.get_or_init(GlobalLlmConfig::from_env)
 }
 
 /// Get the global configuration
 pub fn get_global_config() -> &'static GlobalLlmConfig {
-    unsafe {
-        if GLOBAL_CONFIG.is_none() {
-            init_global_config();
-        }
-        GLOBAL_CONFIG
-            .as_ref()
-            .expect("Global config should be initialized")
-    }
+    init_global_config()
 }
 
 /// Set the global configuration
 pub fn set_global_config(config: GlobalLlmConfig) {
-    unsafe {
-        GLOBAL_CONFIG = Some(config);
-    }
+    let _ = GLOBAL_CONFIG.set(config);
 }
 
 #[cfg(test)]

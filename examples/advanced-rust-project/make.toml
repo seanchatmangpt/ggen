@@ -14,7 +14,7 @@ commands = [
   "mkdir -p generated/{src,api,database,docs}",
   "mkdir -p data/{domain,api,database}",
   "mkdir -p scripts/{build,deploy,test}",
-  "cargo init --name advanced-rust-project generated/",
+  "if [ ! -f generated/Cargo.toml ]; then cargo init --name advanced-rust-project generated/; fi",
   "echo 'Project initialized successfully'",
 ]
 watch = true
@@ -23,9 +23,9 @@ cache = true
 [lifecycle.setup]
 description = "Setup development environment and install dependencies"
 commands = [
-  "cd generated && cargo add serde serde_json tokio axum",
-  "cd generated && cargo add --dev tokio-test",
-  "cd generated && cargo add thiserror anyhow",
+  "cd generated && cargo add --offline serde serde_json tokio axum",
+  "cd generated && cargo add --offline --dev tokio-test",
+  "cd generated && cargo add --offline thiserror anyhow",
   "echo 'Dependencies installed'",
 ]
 depends_on = ["init"]
@@ -48,8 +48,8 @@ cache = true
 [lifecycle.build]
 description = "Build the Rust project"
 commands = [
-  "cd generated && cargo build --release",
-  "cd generated && cargo check",
+  "cd generated && cargo build --offline --release",
+  "cd generated && cargo check --offline",
   "echo 'Build completed successfully'",
 ]
 depends_on = ["generate"]
@@ -58,10 +58,10 @@ cache = true
 [lifecycle.test]
 description = "Run comprehensive tests"
 commands = [
-  "cd generated && cargo test",
-  "cd generated && cargo test --release",
-  "cd generated && cargo clippy -- -D warnings",
-  "cd generated && cargo fmt --check",
+  "cd generated && cargo test --offline",
+  "cd generated && cargo test --offline --release",
+  "cd generated && cargo clippy --offline -- -D warnings",
+  "cd generated && cargo fmt --offline --check",
   "echo 'All tests passed'",
 ]
 depends_on = ["build"]

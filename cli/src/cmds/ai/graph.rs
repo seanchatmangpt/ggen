@@ -225,7 +225,7 @@ pub fn verify_graph_integrity() -> Result<usize> {{
 
     println!("✅ Graph generation completed successfully!");
     println!("📋 Summary:");
-    println!("   • Generated {} triples", "N/A (count not available)");
+    println!("   • Generated N/A (count not available) triples");
     println!("   • Written to: {}", output_path);
     println!("   • Reference created: {}", reference_path);
     if args.verify {

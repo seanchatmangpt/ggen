@@ -89,7 +89,7 @@ impl ConstraintValidator for BasicConstraintValidator {
             }
             ConstraintType::Pattern => {
                 if let Some(pattern) = constraint.parameters.get("pattern") {
-                    regex::Regex::new(pattern).map_or(false, |re| re.is_match(input))
+                    regex::Regex::new(pattern).is_ok_and(|re| re.is_match(input))
                 } else {
                     true
                 }

@@ -126,6 +126,12 @@ pub struct AgentRegistry {
     agents: HashMap<String, Box<dyn SimpleAgent>>,
 }
 
+impl Default for AgentRegistry {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl AgentRegistry {
     pub fn new() -> Self {
         Self {
@@ -137,8 +143,8 @@ impl AgentRegistry {
         self.agents.insert(agent.id().to_string(), agent);
     }
 
-    pub fn get(&self, id: &str) -> Option<&Box<dyn SimpleAgent>> {
-        self.agents.get(id)
+    pub fn get(&self, id: &str) -> Option<&dyn SimpleAgent> {
+        self.agents.get(id).map(|v| &**v)
     }
 
     pub fn list(&self) -> Vec<&str> {
@@ -147,10 +153,11 @@ impl AgentRegistry {
 
     pub fn get_by_specialization(
         &self, specialization: &AgentSpecialization,
-    ) -> Vec<&Box<dyn SimpleAgent>> {
+    ) -> Vec<&dyn SimpleAgent> {
         self.agents
             .values()
             .filter(|agent| agent.specialization() == *specialization)
+            .map(|agent| &**agent)
             .collect()
     }
 }
@@ -158,6 +165,12 @@ impl AgentRegistry {
 /// Message router for inter-agent communication
 pub struct MessageRouter {
     message_queue: Vec<CoordinationMessage>,
+}
+
+impl Default for MessageRouter {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl MessageRouter {
@@ -204,7 +217,14 @@ pub struct RoutingResult {
 /// Task coordinator for distributing work
 pub struct TaskCoordinator {
     tasks: Vec<CoordinationTask>,
+    #[allow(dead_code)]
     completed_tasks: Vec<String>,
+}
+
+impl Default for TaskCoordinator {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl TaskCoordinator {
@@ -255,7 +275,7 @@ impl TaskCoordinator {
 
     fn select_agent_for_task<'a>(
         &self, task: &CoordinationTask, agents: &'a AgentRegistry,
-    ) -> Option<&'a Box<dyn SimpleAgent>> {
+    ) -> Option<&'a dyn SimpleAgent> {
         agents
             .get_by_specialization(&task.required_specialization)
             .first()
@@ -296,6 +316,12 @@ pub struct AgentSystem {
     registry: AgentRegistry,
     message_router: MessageRouter,
     task_coordinator: TaskCoordinator,
+}
+
+impl Default for AgentSystem {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl AgentSystem {
@@ -340,6 +366,12 @@ impl AgentSystem {
 /// London BDD Agent (simplified implementation)
 pub struct LondonBddAgent {
     id: String,
+}
+
+impl Default for LondonBddAgent {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl LondonBddAgent {
@@ -394,6 +426,12 @@ impl SimpleAgent for LondonBddAgent {
 /// Byzantene Agent (simplified implementation)
 pub struct ByzanteneAgent {
     id: String,
+}
+
+impl Default for ByzanteneAgent {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl ByzanteneAgent {

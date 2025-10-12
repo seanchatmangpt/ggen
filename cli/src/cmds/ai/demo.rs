@@ -7,7 +7,7 @@ pub async fn run() -> Result<()> {
 
     // Run the demo example
     let demo_result = std::process::Command::new("cargo")
-        .args(&["run", "--example", "iterative_template_improvement"])
+        .args(["run", "--example", "iterative_template_improvement"])
         .current_dir("/Users/sac/ggen")
         .output();
 

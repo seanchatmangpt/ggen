@@ -227,12 +227,8 @@ fn test_github_help_commands() -> Result<()> {
 
     for subcommand in &subcommands {
         let mut cmd = Command::cargo_bin("ggen")?;
-        cmd.args(
-            ["ci"]
-                .iter()
-                .chain(subcommand.split(" ").map(|s| s.as_ref())),
-        )
-        .arg("--help");
+        cmd.args(["ci"].iter().copied().chain(subcommand.split(" ")))
+            .arg("--help");
 
         cmd.assert().success().stdout(predicate::str::contains(
             subcommand.split(' ').next().unwrap(),

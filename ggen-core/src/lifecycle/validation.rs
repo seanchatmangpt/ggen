@@ -28,7 +28,7 @@
 
 use super::{
     error::{LifecycleError, Result},
-    production::{ReadinessCategory, ReadinessReport, ReadinessStatus, ReadinessTracker},
+    production::{ReadinessCategory, ReadinessReport, ReadinessTracker},
 };
 use std::collections::HashMap;
 

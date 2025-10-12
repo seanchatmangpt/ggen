@@ -1,5 +1,5 @@
 {
-  "last_phase": "build",
+  "last_phase": "init",
   "phase_history": [
     {
       "phase": "init",
@@ -24,6 +24,24 @@
       "started_ms": 1760245921003,
       "duration_ms": 21983,
       "success": true
+    },
+    {
+      "phase": "init",
+      "started_ms": 1760250560978,
+      "duration_ms": 518,
+      "success": true
+    },
+    {
+      "phase": "init",
+      "started_ms": 1760250614091,
+      "duration_ms": 523,
+      "success": true
+    },
+    {
+      "phase": "init",
+      "started_ms": 1760250684587,
+      "duration_ms": 528,
+      "success": true
     }
   ],
   "generated": [],
@@ -43,6 +61,18 @@
     {
       "phase": "build",
       "key": "b4056c7ff27352f10609408c65ce514391beae7ab43ed04d34411dea495fe580"
+    },
+    {
+      "phase": "init",
+      "key": "e838df91a3b7178a6884db676f694b9e544f3a8c8407072f02532cb438597584"
+    },
+    {
+      "phase": "init",
+      "key": "e838df91a3b7178a6884db676f694b9e544f3a8c8407072f02532cb438597584"
+    },
+    {
+      "phase": "init",
+      "key": "e838df91a3b7178a6884db676f694b9e544f3a8c8407072f02532cb438597584"
     }
   ]
 }

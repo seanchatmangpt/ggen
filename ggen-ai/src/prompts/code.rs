@@ -87,7 +87,7 @@ impl CodePromptBuilder {
             prompt.push_str(&format!("Output format: {}\n", format));
         }
 
-        prompt.push_str("\n");
+        prompt.push('\n');
 
         // Requirements section
         if !self.requirements.is_empty() {
@@ -95,7 +95,7 @@ impl CodePromptBuilder {
             for req in &self.requirements {
                 prompt.push_str(&format!("- {}\n", req));
             }
-            prompt.push_str("\n");
+            prompt.push('\n');
         }
 
         // Examples section
@@ -104,7 +104,7 @@ impl CodePromptBuilder {
             for (i, example) in self.examples.iter().enumerate() {
                 prompt.push_str(&format!("{}. {}\n", i + 1, example));
             }
-            prompt.push_str("\n");
+            prompt.push('\n');
         }
 
         // Patterns section
@@ -113,7 +113,7 @@ impl CodePromptBuilder {
             for pattern in &self.patterns {
                 prompt.push_str(&format!("- {}\n", pattern));
             }
-            prompt.push_str("\n");
+            prompt.push('\n');
         }
 
         // Language-specific instructions

@@ -184,7 +184,7 @@ fn extract_template_description(path: &Path) -> Result<Option<String>> {
             // Simple extraction of description field
             for line in frontmatter.lines() {
                 if line.trim().starts_with("description:") {
-                    if let Some(desc) = line.splitn(2, ':').nth(1) {
+                    if let Some(desc) = line.split_once(':').map(|x| x.1) {
                         return Ok(Some(desc.trim().trim_matches('"').to_string()));
                     }
                 }

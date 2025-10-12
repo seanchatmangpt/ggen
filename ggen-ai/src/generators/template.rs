@@ -267,7 +267,7 @@ impl TemplateGenerator {
     pub async fn generate_rest_controller(
         &self, description: &str, language: &str, framework: &str,
     ) -> Result<Template> {
-        let examples = vec![
+        let examples = [
             format!("REST API controller for {}", description),
             format!("Using {} with {}", language, framework),
         ];
@@ -278,7 +278,7 @@ impl TemplateGenerator {
 
     /// Generate a data model template
     pub async fn generate_data_model(&self, description: &str, language: &str) -> Result<Template> {
-        let examples = vec![
+        let examples = [
             format!("Data model for {}", description),
             format!("Using {}", language),
         ];
@@ -324,7 +324,7 @@ impl TemplateGenerator {
         let ctx = tera::Context::new();
         template
             .render_frontmatter(&mut tera, &ctx)
-            .map_err(|e| GgenAiError::template_generation(&e.to_string()))?;
+            .map_err(|e| GgenAiError::template_generation(e.to_string()))?;
 
         Ok(template)
     }

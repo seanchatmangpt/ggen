@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 /// AI configuration
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct AiConfig {
     /// Default LLM configuration
     pub llm: LlmConfig,
@@ -25,15 +25,6 @@ pub struct GenerationConfig {
     pub top_p: f32,
     /// Enable streaming by default
     pub streaming: bool,
-}
-
-impl Default for AiConfig {
-    fn default() -> Self {
-        Self {
-            llm: LlmConfig::default(),
-            generation: GenerationConfig::default(),
-        }
-    }
 }
 
 impl Default for GenerationConfig {
