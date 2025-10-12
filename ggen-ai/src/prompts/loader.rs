@@ -50,7 +50,7 @@ impl PromptTemplateLoader {
         }
 
         Err(GgenAiError::configuration(
-            "Could not find prompt templates directory. Expected at ggen-ai/templates/prompts"
+            "Could not find prompt templates directory. Expected at ggen-ai/templates/prompts",
         ))
     }
 
@@ -85,10 +85,7 @@ impl PromptTemplateLoader {
 
     /// Render a prompt template with variables
     pub fn render_prompt(
-        &mut self,
-        category: &str,
-        name: &str,
-        vars: HashMap<String, Value>,
+        &mut self, category: &str, name: &str, vars: HashMap<String, Value>,
     ) -> Result<String> {
         let template = self.load_template(category, name)?;
 
@@ -137,12 +134,8 @@ impl PromptTemplateLoader {
 
     /// Convenience method for SPARQL query generation prompts
     pub fn render_sparql_query(
-        &mut self,
-        intent: &str,
-        schema: Option<&str>,
-        prefixes: Vec<(String, String)>,
-        examples: Vec<String>,
-        constraints: Vec<String>,
+        &mut self, intent: &str, schema: Option<&str>, prefixes: Vec<(String, String)>,
+        examples: Vec<String>, constraints: Vec<String>,
     ) -> Result<String> {
         let mut vars = HashMap::new();
         vars.insert("intent".to_string(), Value::String(intent.to_string()));
@@ -172,15 +165,14 @@ impl PromptTemplateLoader {
 
     /// Convenience method for template generation prompts
     pub fn render_template_generation(
-        &mut self,
-        description: &str,
-        examples: Vec<String>,
-        requirements: Vec<String>,
-        language: Option<&str>,
-        framework: Option<&str>,
+        &mut self, description: &str, examples: Vec<String>, requirements: Vec<String>,
+        language: Option<&str>, framework: Option<&str>,
     ) -> Result<String> {
         let mut vars = HashMap::new();
-        vars.insert("description".to_string(), Value::String(description.to_string()));
+        vars.insert(
+            "description".to_string(),
+            Value::String(description.to_string()),
+        );
         vars.insert(
             "examples".to_string(),
             Value::Array(examples.into_iter().map(Value::String).collect()),
@@ -202,10 +194,7 @@ impl PromptTemplateLoader {
 
     /// Convenience method for ontology generation prompts
     pub fn render_ontology_generation(
-        &mut self,
-        domain: &str,
-        requirements: Vec<String>,
-        examples: Vec<String>,
+        &mut self, domain: &str, requirements: Vec<String>, examples: Vec<String>,
         format: Option<&str>,
     ) -> Result<String> {
         let mut vars = HashMap::new();
@@ -228,16 +217,14 @@ impl PromptTemplateLoader {
 
     /// Convenience method for code generation prompts
     pub fn render_code_generation(
-        &mut self,
-        description: &str,
-        language: &str,
-        framework: Option<&str>,
-        requirements: Vec<String>,
-        examples: Vec<String>,
-        patterns: Vec<String>,
+        &mut self, description: &str, language: &str, framework: Option<&str>,
+        requirements: Vec<String>, examples: Vec<String>, patterns: Vec<String>,
     ) -> Result<String> {
         let mut vars = HashMap::new();
-        vars.insert("description".to_string(), Value::String(description.to_string()));
+        vars.insert(
+            "description".to_string(),
+            Value::String(description.to_string()),
+        );
         vars.insert("language".to_string(), Value::String(language.to_string()));
         vars.insert(
             "requirements".to_string(),
@@ -280,7 +267,9 @@ mod tests {
     #[test]
     fn test_render_natural_search() {
         if let Ok(mut loader) = PromptTemplateLoader::new() {
-            let prompt = loader.render_natural_search("I need authentication").unwrap();
+            let prompt = loader
+                .render_natural_search("I need authentication")
+                .unwrap();
             assert!(prompt.contains("authentication"));
             assert!(prompt.contains("User Query"));
         }

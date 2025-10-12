@@ -1,16 +1,16 @@
 // New noun-verb structure
 pub mod ai;
 pub mod audit;
-pub mod autonomous;
+// pub mod autonomous;  // Commented out - requires ggen-mcp (GraphEvolutionEngine, etc.)
 pub mod ci;
 pub mod graph;
 pub mod hook;
 pub mod market;
 pub mod project;
 pub mod shell;
-pub mod swarm;
+// pub mod swarm;  // Commented out - requires ggen-mcp
 pub mod template;
-pub mod ultrathink;
+// pub mod ultrathink;  // Commented out - requires ggen-mcp
 
 // Legacy flat commands (COMMENTED OUT - migrated to noun-verb structure)
 // pub mod add;
@@ -37,18 +37,18 @@ pub enum Commands {
     Ai(ai::AiArgs),
     #[command(name = "audit", about = "Security and performance auditing")]
     Audit(audit::AuditCmd),
-    #[command(
-        name = "autonomous",
-        about = "Autonomous graph evolution and regeneration"
-    )]
-    Autonomous(autonomous::AutonomousCmd),
+    // #[command(
+    //     name = "autonomous",
+    //     about = "Autonomous graph evolution and regeneration"
+    // )]
+    // Autonomous(autonomous::AutonomousCmd),  // Commented out - requires ggen-mcp (GraphEvolutionEngine, etc.)
     #[command(name = "ci", about = "CI/CD operations and GitHub integration")]
     Ci(ci::CiCmd),
-    #[command(
-        name = "ultrathink",
-        about = "Ultrathink swarm intelligence for autonomous development"
-    )]
-    Ultrathink(ultrathink::UltrathinkArgs),
+    // #[command(
+    //     name = "ultrathink",
+    //     about = "Ultrathink swarm intelligence for autonomous development"
+    // )]
+    // Ultrathink(ultrathink::UltrathinkArgs),  // Commented out - requires ggen-mcp
     #[command(name = "graph", about = "RDF graph operations")]
     Graph(graph::GraphCmd),
     #[command(
@@ -62,11 +62,11 @@ pub enum Commands {
     Project(project::ProjectCmd),
     #[command(name = "shell", about = "Shell integration and completion")]
     Shell(shell::ShellCmd),
-    #[command(
-        name = "swarm",
-        about = "Ultrathink swarm orchestration and WIP integration"
-    )]
-    Swarm(swarm::SwarmArgs),
+    // #[command(
+    //     name = "swarm",
+    //     about = "Ultrathink swarm orchestration and WIP integration"
+    // )]
+    // Swarm(swarm::SwarmArgs),  // Commented out - requires ggen-mcp
     #[command(name = "template", about = "Template management")]
     Template(template::TemplateCmd),
     // Legacy flat commands (COMMENTED OUT - migrated to noun-verb structure)
@@ -161,10 +161,10 @@ impl Commands {
             // New noun-verb structure
             Commands::Ai(args) => ai::run(args).await,
             Commands::Audit(cmd) => cmd.run().await,
-            Commands::Autonomous(cmd) => cmd.run().await,
+            // Commands::Autonomous(cmd) => cmd.run().await,  // Commented out - requires ggen-mcp
             Commands::Ci(cmd) => cmd.run().await,
-            Commands::Ultrathink(cmd) => ultrathink::run(cmd).await,
-            Commands::Swarm(cmd) => swarm::run(cmd).await,
+            // Commands::Ultrathink(cmd) => ultrathink::run(cmd).await,  // Commented out - requires ggen-mcp
+            // Commands::Swarm(cmd) => swarm::run(cmd).await,  // Commented out - requires ggen-mcp
             Commands::Graph(cmd) => cmd.run().await,
             Commands::Hook(cmd) => cmd.run().await,
             Commands::Market(cmd) => cmd.run().await,
@@ -195,10 +195,10 @@ impl Commands {
             // New noun-verb structure
             Commands::Ai(args) => ai::run(args).await,
             Commands::Audit(cmd) => cmd.run().await,
-            Commands::Autonomous(cmd) => cmd.run().await,
+            // Commands::Autonomous(cmd) => cmd.run().await,  // Commented out - requires ggen-mcp
             Commands::Ci(cmd) => cmd.run().await,
-            Commands::Ultrathink(cmd) => ultrathink::run(cmd).await,
-            Commands::Swarm(cmd) => swarm::run(cmd).await,
+            // Commands::Ultrathink(cmd) => ultrathink::run(cmd).await,  // Commented out - requires ggen-mcp
+            // Commands::Swarm(cmd) => swarm::run(cmd).await,  // Commented out - requires ggen-mcp
             Commands::Graph(cmd) => cmd.run().await,
             Commands::Hook(cmd) => cmd.run().await,
             Commands::Market(cmd) => cmd.run().await,

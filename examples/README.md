@@ -121,6 +121,37 @@ cd mcp-integration
 
 ---
 
+#### 6. **mcp-rig-integration/** (NEW!)
+Generate MCP + Rig AI agent projects with dynamic tool selection.
+
+**What You'll Learn**:
+- MCP Rust SDK integration with Rig framework
+- Multi-provider LLM support (DeepSeek, Cohere, OpenAI)
+- Dynamic tool discovery using RAG and embeddings
+- Streaming chat with real-time tool calls
+- Multi-transport MCP servers (stdio, SSE, streamable)
+
+**Quick Start**:
+```bash
+cd mcp-rig-integration
+./generate-project.sh my-agent    # Generate project
+cd my-agent
+# Configure API keys in config.toml
+cargo run                          # Run AI agent
+```
+
+**Time**: 60-90 minutes
+**Prerequisites**: Rust, ggen, MCP servers
+
+**Features**:
+- Vector-based dynamic tool selection
+- Concurrent multi-server startup
+- Beautiful CLI with colored streaming output
+- Template-driven customization
+- Production-ready architecture
+
+---
+
 ### Frontmatter CLI Examples
 
 ### Frontmatter CLI Examples
@@ -290,6 +321,7 @@ When adding new examples:
 | **source-code-analysis** | ⭐⭐ Intermediate | 30-45m | ggen (mock) | Pattern extraction |
 | **complete-project-generation** | ⭐⭐⭐ Advanced | 45-60m | ggen + Rust | Full project generation |
 | **mcp-integration** | ⭐⭐⭐ Advanced | 45-60m | ggen-mcp + AI | MCP protocol integration |
+| **mcp-rig-integration** | ⭐⭐⭐⭐ Expert | 60-90m | Rust + MCP + Rig | AI agents with dynamic tools |
 
 ## 🎯 Learning Paths
 
@@ -320,8 +352,9 @@ Each comprehensive example includes:
 ## Maintenance
 
 Last audit: 2025-10-11
-- Total examples: 6 standalone + 3 workspace + 5 comprehensive tutorials = 14 total
+- Total examples: 6 standalone + 3 workspace + 6 comprehensive tutorials = 15 total
 - Compilation status: 100% passing
-- New comprehensive examples: 5 (51 files, ~10,000 lines)
+- New comprehensive examples: 6 (58 files, ~12,000 lines)
+- Latest addition: MCP + Rig integration example (expert level)
 - All scripts executable and tested
 - Dependencies: All up-to-date

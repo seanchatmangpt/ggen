@@ -1,0 +1,74 @@
+---
+generator:
+  name: "{{ project_name }}_cargo"
+  version: "0.1.0"
+  description: "Cargo.toml with all dependencies"
+
+variables:
+  project_name: "mcp-rig-agent"
+
+output:
+  path: "Cargo.toml"
+---
+[package]
+name = "{{ project_name }}"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75"
+authors = ["Your Name <your.email@example.com>"]
+description = "MCP + Rig Integration - AI Agent with Dynamic Tools"
+license = "MIT"
+
+[dependencies]
+# Rig framework for AI agents
+rig-core = "0.3.0"
+
+# MCP protocol implementation
+rmcp = { version = "0.2.0", features = ["stdio", "sse"] }
+
+# Async runtime
+tokio = { version = "1.36", features = ["full"] }
+tokio-stream = "0.1"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+toml = "0.8"
+
+# Error handling
+anyhow = "1.0"
+thiserror = "1.0"
+
+# HTTP client (for SSE servers)
+reqwest = { version = "0.11", features = ["stream", "json"] }
+
+# Async trait support
+async-trait = "0.1"
+
+# Logging
+log = "0.4"
+env_logger = "0.11"
+
+# Terminal output
+colored = "2.1"
+
+# URL parsing
+url = "2.5"
+
+[dev-dependencies]
+mockall = "0.12"
+tempfile = "3.10"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
+
+[profile.dev]
+opt-level = 0
+debug = true
+
+[[bin]]
+name = "{{ project_name }}"
+path = "src/main.rs"

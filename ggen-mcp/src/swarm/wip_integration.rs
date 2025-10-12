@@ -7,18 +7,21 @@
 //! - Change tracking and validation
 //! - Autonomous development workflow support
 
+use chrono::{DateTime, Utc};
+use futures_util::{SinkExt, StreamExt};
+use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, VecDeque};
 use std::sync::{Arc, RwLock};
 use std::time::{Duration, Instant};
-use serde::{Deserialize, Serialize};
 use tokio::sync::{mpsc, RwLock as AsyncRwLock};
-use uuid::Uuid;
 use tokio_tungstenite::{connect_async, tungstenite::Message};
-use futures_util::{SinkExt, StreamExt};
-use chrono::{DateTime, Utc};
+use uuid::Uuid;
 
+use super::ultrathink::{
+    ConflictResolutionStrategy, Priority, WipConflict, WipEntry, WipEntryType, WipOperation,
+    WipStatus,
+};
 use crate::error::{McpError, Result};
-use super::ultrathink::{WipEntry, WipOperation, WipConflict, WipStatus, WipEntryType, Priority, ConflictResolutionStrategy};
 
 /// WIP Integration Manager
 pub struct WipIntegrationManager {
@@ -88,7 +91,9 @@ impl WipIntegrationManager {
         }
 
         // Broadcast operation event
-        let _ = self.event_tx.send(WipEvent::OperationSubmitted { operation_id });
+        let _ = self
+            .event_tx
+            .send(WipEvent::OperationSubmitted { operation_id });
 
         Ok(operation_id)
     }
@@ -143,7 +148,9 @@ impl WipIntegrationManager {
         }
 
         // Broadcast creation event
-        let _ = self.event_tx.send(WipEvent::EntryCreated { entry_id: entry.id });
+        let _ = self
+            .event_tx
+            .send(WipEvent::EntryCreated { entry_id: entry.id });
 
         Ok(())
     }
@@ -152,7 +159,10 @@ impl WipIntegrationManager {
     async fn update_wip_entry(&self, entry: &WipEntry) -> Result<()> {
         // Check if entry exists
         if !self.entry_cache.read().unwrap().contains_key(&entry.id) {
-            return Err(McpError::not_found(&format!("WIP entry {} not found", entry.id)));
+            return Err(McpError::not_found(&format!(
+                "WIP entry {} not found",
+                entry.id
+            )));
         }
 
         // Validate entry
@@ -170,7 +180,9 @@ impl WipIntegrationManager {
         }
 
         // Broadcast update event
-        let _ = self.event_tx.send(WipEvent::EntryUpdated { entry_id: entry.id });
+        let _ = self
+            .event_tx
+            .send(WipEvent::EntryUpdated { entry_id: entry.id });
 
         Ok(())
     }
@@ -192,7 +204,10 @@ impl WipIntegrationManager {
     /// Execute a merge operation
     async fn execute_merge(&self, merge: &super::ultrathink::WipMerge) -> Result<()> {
         // Implementation would handle merge operations
-        println!("Executing WIP merge: {:?} -> {:?}", merge.source, merge.target);
+        println!(
+            "Executing WIP merge: {:?} -> {:?}",
+            merge.source, merge.target
+        );
         Ok(())
     }
 
@@ -207,11 +222,15 @@ impl WipIntegrationManager {
     /// Validate a WIP entry
     fn validate_wip_entry(&self, entry: &WipEntry) -> Result<()> {
         if entry.description.is_empty() {
-            return Err(McpError::validation("WIP entry description cannot be empty"));
+            return Err(McpError::validation(
+                "WIP entry description cannot be empty",
+            ));
         }
 
         if entry.patterns.is_empty() {
-            return Err(McpError::validation("WIP entry must have at least one pattern"));
+            return Err(McpError::validation(
+                "WIP entry must have at least one pattern",
+            ));
         }
 
         // Additional validation rules would go here
@@ -239,7 +258,9 @@ impl WipIntegrationManager {
 
     /// List WIP entries by status
     pub fn list_wip_entries_by_status(&self, status: WipStatus) -> Vec<WipEntry> {
-        self.entry_cache.read().unwrap()
+        self.entry_cache
+            .read()
+            .unwrap()
             .values()
             .filter(|entry| entry.status == status)
             .cloned()
@@ -263,7 +284,11 @@ pub struct WipClient {
     /// Endpoint URL
     endpoint: String,
     /// WebSocket connection
-    connection: Option<tokio_tungstenite::WebSocketStream<tokio_tungstenite::MaybeTlsStream<tokio::net::TcpStream>>>,
+    connection: Option<
+        tokio_tungstenite::WebSocketStream<
+            tokio_tungstenite::MaybeTlsStream<tokio::net::TcpStream>,
+        >,
+    >,
     /// Connection status
     status: ConnectionStatus,
     /// Last heartbeat
@@ -273,9 +298,9 @@ pub struct WipClient {
 impl WipClient {
     /// Connect to a WIP endpoint
     pub async fn connect(endpoint: &str) -> Result<Self> {
-        let (ws_stream, _) = connect_async(endpoint)
-            .await
-            .map_err(|e| McpError::connection(&format!("Failed to connect to WIP endpoint: {}", e)))?;
+        let (ws_stream, _) = connect_async(endpoint).await.map_err(|e| {
+            McpError::connection(&format!("Failed to connect to WIP endpoint: {}", e))
+        })?;
 
         Ok(Self {
             endpoint: endpoint.to_string(),
@@ -289,7 +314,9 @@ impl WipClient {
     pub async fn send_message(&mut self, message: WipMessage) -> Result<()> {
         if let Some(ref mut connection) = self.connection {
             let json_message = serde_json::to_string(&message)?;
-            connection.send(Message::Text(json_message)).await
+            connection
+                .send(Message::Text(json_message))
+                .await
                 .map_err(|e| McpError::network(&format!("Failed to send WIP message: {}", e)))?;
         }
         Ok(())
@@ -305,7 +332,10 @@ impl WipClient {
                         Ok(Some(wip_message))
                     }
                     Ok(_) => Ok(None),
-                    Err(e) => Err(McpError::network(&format!("WIP message receive error: {}", e))),
+                    Err(e) => Err(McpError::network(&format!(
+                        "WIP message receive error: {}",
+                        e
+                    ))),
                 }
             } else {
                 Ok(None)
@@ -493,7 +523,10 @@ pub enum WipEvent {
     /// Synchronization completed
     SyncCompleted { endpoint: String },
     /// Connection status changed
-    ConnectionStatusChanged { endpoint: String, status: ConnectionStatus },
+    ConnectionStatusChanged {
+        endpoint: String,
+        status: ConnectionStatus,
+    },
 }
 
 /// WIP Metrics for monitoring
@@ -555,7 +588,10 @@ impl WipMetrics {
             // Update rolling average
             let total_entries = self.entries_processed;
             if total_entries > 0 {
-                self.avg_sync_time_ms = (self.avg_sync_time_ms * (total_entries - update.entries_processed) as f64 + sync_time) / total_entries as f64;
+                self.avg_sync_time_ms = (self.avg_sync_time_ms
+                    * (total_entries - update.entries_processed) as f64
+                    + sync_time)
+                    / total_entries as f64;
             } else {
                 self.avg_sync_time_ms = sync_time;
             }
@@ -566,4 +602,5 @@ impl WipMetrics {
 }
 
 /// Global WIP integration manager instance
-pub static WIP_INTEGRATION_MANAGER: std::sync::OnceLock<WipIntegrationManager> = std::sync::OnceLock::new();
+pub static WIP_INTEGRATION_MANAGER: std::sync::OnceLock<WipIntegrationManager> =
+    std::sync::OnceLock::new();

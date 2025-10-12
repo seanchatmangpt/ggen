@@ -1,5 +1,5 @@
 //! Task Scheduler Agent
-//! 
+//!
 //! Schedules and prioritizes tasks across the system
 
 use super::*;
@@ -42,38 +42,38 @@ impl Agent for TaskScheduler {
         tracing::info!("Initializing Task Scheduler");
         Ok(())
     }
-    
+
     async fn start(&mut self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         tracing::info!("Starting Task Scheduler");
         self.status = AgentStatus::Healthy;
         Ok(())
     }
-    
+
     async fn stop(&mut self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         tracing::info!("Stopping Task Scheduler");
         self.status = AgentStatus::Unhealthy;
         Ok(())
     }
-    
+
     async fn status(&self) -> AgentStatus {
         self.status.clone()
     }
-    
+
     fn config(&self) -> &AgentConfig {
         &self.config
     }
-    
-    async fn handle_message(&mut self, message: AgentMessage) -> Result<AgentMessage, Box<dyn std::error::Error + Send + Sync>> {
+
+    async fn handle_message(
+        &mut self, message: AgentMessage,
+    ) -> Result<AgentMessage, Box<dyn std::error::Error + Send + Sync>> {
         match message {
             AgentMessage::TaskAssignment { task_id, task } => {
                 self.handle_task_assignment(task_id, task).await
             }
-            AgentMessage::HealthCheck { from } => {
-                Ok(AgentMessage::HealthResponse {
-                    status: self.status.clone(),
-                    metrics: Some(self.get_metrics().await?),
-                })
-            }
+            AgentMessage::HealthCheck { from } => Ok(AgentMessage::HealthResponse {
+                status: self.status.clone(),
+                metrics: Some(self.get_metrics().await?),
+            }),
             _ => {
                 tracing::warn!("Task Scheduler received unhandled message type");
                 Ok(AgentMessage::ErrorNotification {
@@ -94,17 +94,19 @@ impl TaskScheduler {
             execution_history: Vec::new(),
         }
     }
-    
-    async fn handle_task_assignment(&mut self, task_id: Uuid, task: TaskDefinition) -> Result<AgentMessage, Box<dyn std::error::Error + Send + Sync>> {
+
+    async fn handle_task_assignment(
+        &mut self, task_id: Uuid, task: TaskDefinition,
+    ) -> Result<AgentMessage, Box<dyn std::error::Error + Send + Sync>> {
         tracing::info!("Handling task assignment: {}", task_id);
-        
+
         // TODO: Implement actual task scheduling logic
         Ok(AgentMessage::HealthResponse {
             status: self.status.clone(),
             metrics: Some(self.get_metrics().await?),
         })
     }
-    
+
     async fn get_metrics(&self) -> Result<Value, Box<dyn std::error::Error + Send + Sync>> {
         Ok(serde_json::json!({
             "task_queue": self.task_queue.len(),
@@ -113,4 +115,3 @@ impl TaskScheduler {
         }))
     }
 }
-

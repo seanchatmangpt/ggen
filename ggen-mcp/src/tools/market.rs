@@ -1,8 +1,10 @@
-///! Market tools - delegates to ggen CLI commands
-
-use serde_json::Value;
 use crate::cli_helper::call_ggen_cli;
-use crate::error::{Result, get_string_param, get_optional_string_param, get_optional_u64_param, get_bool_param, success_response};
+use crate::error::{
+    get_bool_param, get_optional_string_param, get_optional_u64_param, get_string_param,
+    success_response, Result,
+};
+///! Market tools - delegates to ggen CLI commands
+use serde_json::Value;
 
 /// List marketplace templates - delegates to `ggen market list`
 pub async fn list(params: Value) -> Result<Value> {

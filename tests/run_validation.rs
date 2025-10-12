@@ -15,10 +15,7 @@ fn execute_real_command(command: &str, args: &[String]) -> (String, u64) {
     let start = Instant::now();
 
     let mut cmd = Command::new("cargo");
-    cmd.arg("run")
-        .arg("--release")
-        .arg("--")
-        .arg(command);
+    cmd.arg("run").arg("--release").arg("--").arg(command);
 
     for arg in args {
         cmd.arg(arg);
@@ -52,37 +49,49 @@ impl RealWorldValidator {
                 "simple_template",
                 "ai generate",
                 vec![
-                    "--description", "Create a simple hello world web page with HTML and CSS",
-                    "--max-tokens", "500",
-                    "--output", "/tmp/test_simple_template.txt"
+                    "--description",
+                    "Create a simple hello world web page with HTML and CSS",
+                    "--max-tokens",
+                    "500",
+                    "--output",
+                    "/tmp/test_simple_template.txt",
                 ],
             ),
             (
                 "complex_sparql",
                 "ai sparql",
                 vec![
-                    "--description", "Find all users with age > 18 who have made purchases in the last 30 days",
-                    "--max-tokens", "300",
-                    "--output", "/tmp/test_sparql.txt"
+                    "--description",
+                    "Find all users with age > 18 who have made purchases in the last 30 days",
+                    "--max-tokens",
+                    "300",
+                    "--output",
+                    "/tmp/test_sparql.txt",
                 ],
             ),
             (
                 "blog_frontmatter",
                 "ai frontmatter",
                 vec![
-                    "--description", "Blog post about AI ethics with SEO optimization",
-                    "--max-tokens", "200",
-                    "--output", "/tmp/test_frontmatter.txt"
+                    "--description",
+                    "Blog post about AI ethics with SEO optimization",
+                    "--max-tokens",
+                    "200",
+                    "--output",
+                    "/tmp/test_frontmatter.txt",
                 ],
             ),
             (
                 "ontology_graph",
                 "ai graph",
                 vec![
-                    "--description", "E-commerce product catalog with categories and pricing",
+                    "--description",
+                    "E-commerce product catalog with categories and pricing",
                     "--include-examples",
-                    "--max-tokens", "400",
-                    "--output", "/tmp/test_ontology.ttl"
+                    "--max-tokens",
+                    "400",
+                    "--output",
+                    "/tmp/test_ontology.ttl",
                 ],
             ),
         ];
@@ -96,7 +105,8 @@ impl RealWorldValidator {
             let (output, duration) = execute_real_command(command, &args_vec);
 
             // Read the output file if it exists
-            let output_file = args_vec.iter()
+            let output_file = args_vec
+                .iter()
                 .position(|a| a == "--output")
                 .and_then(|i| args_vec.get(i + 1))
                 .and_then(|path| fs::read_to_string(path).ok())
@@ -121,97 +131,120 @@ impl RealWorldValidator {
 
         // Dimension 1: Length appropriateness (0-10)
         let length_score = self.score_length(output);
-        dimensions.insert("length".to_string(), DimensionScore {
-            score: length_score.0,
-            weight: 0.1,
-            description: "Output length is appropriate".to_string(),
-            issues: length_score.1.clone(),
-            suggestions: if length_score.0 < 7.0 {
-                vec!["Adjust max_tokens parameter to get better length".to_string()]
-            } else {
-                vec![]
+        dimensions.insert(
+            "length".to_string(),
+            DimensionScore {
+                score: length_score.0,
+                weight: 0.1,
+                description: "Output length is appropriate".to_string(),
+                issues: length_score.1.clone(),
+                suggestions: if length_score.0 < 7.0 {
+                    vec!["Adjust max_tokens parameter to get better length".to_string()]
+                } else {
+                    vec![]
+                },
             },
-        });
+        );
 
         // Dimension 2: Format correctness (0-10)
         let format_score = self.score_format(output, command);
-        dimensions.insert("format".to_string(), DimensionScore {
-            score: format_score.0,
-            weight: 0.2,
-            description: "Output format is correct".to_string(),
-            issues: format_score.1.clone(),
-            suggestions: if format_score.0 < 7.0 {
-                vec!["Improve prompt to specify exact format requirements".to_string()]
-            } else {
-                vec![]
+        dimensions.insert(
+            "format".to_string(),
+            DimensionScore {
+                score: format_score.0,
+                weight: 0.2,
+                description: "Output format is correct".to_string(),
+                issues: format_score.1.clone(),
+                suggestions: if format_score.0 < 7.0 {
+                    vec!["Improve prompt to specify exact format requirements".to_string()]
+                } else {
+                    vec![]
+                },
             },
-        });
+        );
 
         // Dimension 3: Content quality (0-10)
         let content_score = self.score_content_quality(output);
-        dimensions.insert("content_quality".to_string(), DimensionScore {
-            score: content_score.0,
-            weight: 0.25,
-            description: "Content is high quality and relevant".to_string(),
-            issues: content_score.1.clone(),
-            suggestions: if content_score.0 < 7.0 {
-                vec!["Add more specific requirements to the prompt".to_string()]
-            } else {
-                vec![]
+        dimensions.insert(
+            "content_quality".to_string(),
+            DimensionScore {
+                score: content_score.0,
+                weight: 0.25,
+                description: "Content is high quality and relevant".to_string(),
+                issues: content_score.1.clone(),
+                suggestions: if content_score.0 < 7.0 {
+                    vec!["Add more specific requirements to the prompt".to_string()]
+                } else {
+                    vec![]
+                },
             },
-        });
+        );
 
         // Dimension 4: Usability (0-10)
         let usability_score = self.score_usability(output);
-        dimensions.insert("usability".to_string(), DimensionScore {
-            score: usability_score.0,
-            weight: 0.2,
-            description: "Output is immediately usable".to_string(),
-            issues: usability_score.1.clone(),
-            suggestions: if usability_score.0 < 7.0 {
-                vec!["Request more complete examples in prompt".to_string()]
-            } else {
-                vec![]
+        dimensions.insert(
+            "usability".to_string(),
+            DimensionScore {
+                score: usability_score.0,
+                weight: 0.2,
+                description: "Output is immediately usable".to_string(),
+                issues: usability_score.1.clone(),
+                suggestions: if usability_score.0 < 7.0 {
+                    vec!["Request more complete examples in prompt".to_string()]
+                } else {
+                    vec![]
+                },
             },
-        });
+        );
 
         // Dimension 5: Creativity/Insight (0-10)
         let creativity_score = self.score_creativity(output);
-        dimensions.insert("creativity".to_string(), DimensionScore {
-            score: creativity_score.0,
-            weight: 0.15,
-            description: "Output shows creativity and insight".to_string(),
-            issues: creativity_score.1.clone(),
-            suggestions: if creativity_score.0 < 7.0 {
-                vec!["Increase temperature for more creative outputs".to_string()]
-            } else {
-                vec![]
+        dimensions.insert(
+            "creativity".to_string(),
+            DimensionScore {
+                score: creativity_score.0,
+                weight: 0.15,
+                description: "Output shows creativity and insight".to_string(),
+                issues: creativity_score.1.clone(),
+                suggestions: if creativity_score.0 < 7.0 {
+                    vec!["Increase temperature for more creative outputs".to_string()]
+                } else {
+                    vec![]
+                },
             },
-        });
+        );
 
         // Dimension 6: Professional quality (0-10)
         let professional_score = self.score_professional_quality(output);
-        dimensions.insert("professional".to_string(), DimensionScore {
-            score: professional_score.0,
-            weight: 0.1,
-            description: "Output meets professional standards".to_string(),
-            issues: professional_score.1.clone(),
-            suggestions: if professional_score.0 < 7.0 {
-                vec!["Add quality requirements to prompt".to_string()]
-            } else {
-                vec![]
+        dimensions.insert(
+            "professional".to_string(),
+            DimensionScore {
+                score: professional_score.0,
+                weight: 0.1,
+                description: "Output meets professional standards".to_string(),
+                issues: professional_score.1.clone(),
+                suggestions: if professional_score.0 < 7.0 {
+                    vec!["Add quality requirements to prompt".to_string()]
+                } else {
+                    vec![]
+                },
             },
-        });
+        );
 
         // Calculate weighted total
-        let total = dimensions.iter()
+        let total = dimensions
+            .iter()
             .map(|(_, d)| d.score * d.weight)
-            .sum::<f32>() / dimensions.values().map(|d| d.weight).sum::<f32>();
+            .sum::<f32>()
+            / dimensions.values().map(|d| d.weight).sum::<f32>();
 
         // Collect all feedback
         for (name, dim) in &dimensions {
             if dim.score < 7.0 {
-                feedback.push(format!("⚠️  {} scored {:.1}/10 - needs improvement", name, dim.score));
+                feedback.push(format!(
+                    "⚠️  {} scored {:.1}/10 - needs improvement",
+                    name, dim.score
+                ));
                 feedback.extend(dim.suggestions.clone());
             }
         }
@@ -220,11 +253,20 @@ impl RealWorldValidator {
         if total >= 9.0 {
             feedback.insert(0, "🌟 Excellent! Output quality is exceptional".to_string());
         } else if total >= 7.0 {
-            feedback.insert(0, "✅ Good! Output quality is solid with minor improvements possible".to_string());
+            feedback.insert(
+                0,
+                "✅ Good! Output quality is solid with minor improvements possible".to_string(),
+            );
         } else if total >= 5.0 {
-            feedback.insert(0, "⚠️  Fair - Output needs significant improvement".to_string());
+            feedback.insert(
+                0,
+                "⚠️  Fair - Output needs significant improvement".to_string(),
+            );
         } else {
-            feedback.insert(0, "❌ Poor - Output quality is below acceptable standards".to_string());
+            feedback.insert(
+                0,
+                "❌ Poor - Output quality is below acceptable standards".to_string(),
+            );
         }
 
         QualityScore {
@@ -343,8 +385,7 @@ impl RealWorldValidator {
         let mut issues = Vec::new();
 
         // Simple heuristics for creativity
-        let unique_words: std::collections::HashSet<_> =
-            output.split_whitespace().collect();
+        let unique_words: std::collections::HashSet<_> = output.split_whitespace().collect();
 
         if unique_words.len() < 10 {
             score -= 2.0;

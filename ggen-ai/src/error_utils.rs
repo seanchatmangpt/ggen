@@ -103,9 +103,7 @@ impl ErrorContext {
 /// assert!(result.is_err());
 /// ```
 pub fn missing_code_block_error<T>(
-    language: &str,
-    response: &str,
-    context: ErrorContext,
+    language: &str, response: &str, context: ErrorContext,
 ) -> Result<T> {
     let preview_len = response.len().min(200);
     let message = format!(
@@ -146,9 +144,7 @@ pub fn missing_code_block_error<T>(
 /// assert!(result.is_err());
 /// ```
 pub fn missing_closing_marker_error<T>(
-    marker: &str,
-    language: &str,
-    context: ErrorContext,
+    marker: &str, language: &str, context: ErrorContext,
 ) -> Result<T> {
     let message = format!(
         "Could not find closing {} marker after opening ```{} code block.\n\
@@ -186,9 +182,7 @@ pub fn missing_closing_marker_error<T>(
 /// assert!(result.is_err());
 /// ```
 pub fn unsupported_type_error<T>(
-    query_type: &str,
-    supported_types: &[&str],
-    context: ErrorContext,
+    query_type: &str, supported_types: &[&str], context: ErrorContext,
 ) -> Result<T> {
     let message = format!(
         "Unsupported query type: {}\n\
@@ -229,9 +223,7 @@ pub fn unsupported_type_error<T>(
 /// assert!(result.is_err());
 /// ```
 pub fn missing_field_error<T>(
-    field_name: &str,
-    data_type: &str,
-    context: ErrorContext,
+    field_name: &str, data_type: &str, context: ErrorContext,
 ) -> Result<T> {
     let message = format!(
         "Missing required field '{}' in {} data.\n\
@@ -270,9 +262,7 @@ pub fn missing_field_error<T>(
 /// assert!(result.is_err());
 /// ```
 pub fn invalid_format_error<T>(
-    expected_format: &str,
-    actual_content: &str,
-    context: ErrorContext,
+    expected_format: &str, actual_content: &str, context: ErrorContext,
 ) -> Result<T> {
     let preview_len = actual_content.len().min(200);
     let message = format!(
@@ -312,9 +302,7 @@ pub fn invalid_format_error<T>(
 /// assert!(result.is_err());
 /// ```
 pub fn no_valid_content_error<T>(
-    content_type: &str,
-    response: &str,
-    context: ErrorContext,
+    content_type: &str, response: &str, context: ErrorContext,
 ) -> Result<T> {
     let preview_len = response.len().min(200);
     let message = format!(
@@ -355,10 +343,7 @@ pub fn no_valid_content_error<T>(
 /// assert!(result.is_err());
 /// ```
 pub fn parse_failure_error<T>(
-    what_failed: &str,
-    parse_error: &str,
-    content_preview: &str,
-    context: ErrorContext,
+    what_failed: &str, parse_error: &str, content_preview: &str, context: ErrorContext,
 ) -> Result<T> {
     let preview_len = content_preview.len().min(200);
     let message = format!(
@@ -409,9 +394,7 @@ pub fn parse_failure_error<T>(
 /// - **Clear Errors**: Show what's wrong and suggest fixes
 /// - **Defensive**: Never trust LLM output without validation
 pub fn turtle_validation_error<T>(
-    validation_error: &str,
-    content: &str,
-    context: ErrorContext,
+    validation_error: &str, content: &str, context: ErrorContext,
 ) -> Result<T> {
     let preview_len = content.len().min(300);
     let message = format!(
@@ -446,11 +429,8 @@ mod tests {
     #[test]
     fn test_missing_code_block_error() {
         let response = "Here's some text without a code block";
-        let result: Result<String> = missing_code_block_error(
-            "yaml",
-            response,
-            ErrorContext::TemplateGeneration,
-        );
+        let result: Result<String> =
+            missing_code_block_error("yaml", response, ErrorContext::TemplateGeneration);
 
         assert!(result.is_err());
         let err = result.unwrap_err();
@@ -462,11 +442,8 @@ mod tests {
 
     #[test]
     fn test_missing_closing_marker_error() {
-        let result: Result<String> = missing_closing_marker_error(
-            "```",
-            "yaml",
-            ErrorContext::TemplateGeneration,
-        );
+        let result: Result<String> =
+            missing_closing_marker_error("```", "yaml", ErrorContext::TemplateGeneration);
 
         assert!(result.is_err());
         let err = result.unwrap_err();
@@ -493,11 +470,8 @@ mod tests {
 
     #[test]
     fn test_missing_field_error() {
-        let result: Result<String> = missing_field_error(
-            "type",
-            "JSON",
-            ErrorContext::SparqlGeneration,
-        );
+        let result: Result<String> =
+            missing_field_error("type", "JSON", ErrorContext::SparqlGeneration);
 
         assert!(result.is_err());
         let err = result.unwrap_err();
@@ -509,11 +483,8 @@ mod tests {
 
     #[test]
     fn test_invalid_format_error() {
-        let result: Result<String> = invalid_format_error(
-            "Turtle/RDF",
-            "plain text",
-            ErrorContext::OntologyGeneration,
-        );
+        let result: Result<String> =
+            invalid_format_error("Turtle/RDF", "plain text", ErrorContext::OntologyGeneration);
 
         assert!(result.is_err());
         let err = result.unwrap_err();

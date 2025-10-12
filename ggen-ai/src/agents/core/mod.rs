@@ -5,10 +5,10 @@
 //! - RegenerationAgent: Handles code regeneration workflows
 //! - FeedbackAgent: Processes feedback loops
 
+pub mod feedback;
 pub mod graph_evolution;
 pub mod regeneration;
-pub mod feedback;
 
+pub use feedback::FeedbackAgent;
 pub use graph_evolution::GraphEvolutionAgent;
 pub use regeneration::RegenerationAgent;
-pub use feedback::FeedbackAgent;

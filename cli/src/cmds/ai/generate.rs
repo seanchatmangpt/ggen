@@ -50,7 +50,6 @@ pub struct GenerateArgs {
 pub async fn run(args: &GenerateArgs) -> Result<()> {
     println!("🔧 Generating template with AI...");
 
-    // Use global config for proper provider detection
     let global_config = ggen_ai::get_global_config();
 
     let client: Arc<dyn LlmClient> = if args.mock {
@@ -93,7 +92,6 @@ pub async fn run(args: &GenerateArgs) -> Result<()> {
         // Create validator
         let validator = ggen_ai::TemplateValidator::new();
 
-        // Generate and validate iteratively with proper error handling
         let mut current_template = generator
             .generate_template(
                 &args.description,

@@ -44,9 +44,7 @@ pub struct NaturalArgs {
     pub model: Option<String>,
 }
 
-
 pub async fn run(args: &NaturalArgs) -> Result<()> {
-    // Get global LLM configuration
     let global_config = GlobalLlmConfig::new();
 
     let model_display = args.model.clone().unwrap_or_else(|| {
@@ -193,7 +191,10 @@ mod tests {
         let client = MockClient::with_response(mock_response);
         let mut generator = NaturalSearchGenerator::new(std::sync::Arc::new(client)).unwrap();
 
-        let result = generator.search("I need user authentication").await.unwrap();
+        let result = generator
+            .search("I need user authentication")
+            .await
+            .unwrap();
 
         assert_eq!(result.query, "I need user authentication");
         assert!(result.interpretation.contains("authentication"));

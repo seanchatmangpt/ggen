@@ -1,8 +1,8 @@
 //! Global LLM configuration management
 
+use crate::client::GenAiClient;
 use crate::client::{LlmClient, LlmConfig};
 use crate::error::{GgenAiError, Result};
-use crate::client::GenAiClient;
 use crate::MockClient;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -145,44 +145,11 @@ impl GlobalLlmConfig {
             };
         }
 
-        // 2. Prefer Ollama if available locally (default for ggen)
-        if Self::check_ollama_available() {
-            return LlmProvider::Ollama;
-        }
-
-        // 3. Check for API keys as fallback
-        if std::env::var("OPENAI_API_KEY").is_ok() {
-            return LlmProvider::OpenAI;
-        }
-        if std::env::var("ANTHROPIC_API_KEY").is_ok() {
-            return LlmProvider::Anthropic;
-        }
-
-        // 4. Fallback to Mock provider with warning
-        eprintln!("Warning: No LLM provider detected. Using Mock provider.");
-        eprintln!("Set OPENAI_API_KEY, ANTHROPIC_API_KEY, or install Ollama.");
-        eprintln!("To use Ollama, start it with: ollama serve");
-        LlmProvider::Mock
+        // 2. Default to Ollama (no requirements)
+        // Ollama is the default local provider - it will fail fast if not available when used
+        LlmProvider::Ollama
     }
 
-    /// Check if Ollama is running locally
-    fn check_ollama_available() -> bool {
-        // Try to connect to Ollama's health endpoint
-        std::process::Command::new("curl")
-            .args(&[
-                "-s",
-                "-o",
-                "/dev/null",
-                "-w",
-                "%{http_code}",
-                "http://localhost:11434/api/tags",
-            ])
-            .output()
-            .ok()
-            .and_then(|output| String::from_utf8(output.stdout).ok())
-            .map(|status| status == "200")
-            .unwrap_or(false)
-    }
 
     /// Create a new global configuration
     pub fn new() -> Self {
@@ -285,7 +252,25 @@ impl GlobalLlmConfig {
             .clone();
 
         match provider {
-            LlmProvider::OpenAI | LlmProvider::Anthropic | LlmProvider::Ollama => {
+            LlmProvider::Ollama => {
+                // Ollama is default - no API key required
+                // Will fail fast on first request if Ollama isn't running
+                let client = GenAiClient::new(config)?;
+                Ok(Arc::new(client))
+            }
+            LlmProvider::OpenAI => {
+                // Require OPENAI_API_KEY
+                if std::env::var("OPENAI_API_KEY").is_err() {
+                    return Err(GgenAiError::missing_env_var("OPENAI_API_KEY"));
+                }
+                let client = GenAiClient::new(config)?;
+                Ok(Arc::new(client))
+            }
+            LlmProvider::Anthropic => {
+                // Require ANTHROPIC_API_KEY
+                if std::env::var("ANTHROPIC_API_KEY").is_err() {
+                    return Err(GgenAiError::missing_env_var("ANTHROPIC_API_KEY"));
+                }
                 let client = GenAiClient::new(config)?;
                 Ok(Arc::new(client))
             }
@@ -368,6 +353,7 @@ mod tests {
     #[test]
     fn test_default_config() {
         let config = GlobalLlmConfig::default();
+        // Ollama is always the default (no requirements)
         assert_eq!(config.provider, LlmProvider::Ollama);
         assert!(config.providers.contains_key(&LlmProvider::OpenAI));
         assert!(config.providers.contains_key(&LlmProvider::Anthropic));

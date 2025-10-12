@@ -1,0 +1,270 @@
+---
+generator:
+  name: "{{ project_name }}_mcp_config"
+  version: "0.1.0"
+  description: "MCP server configuration structures"
+
+variables:
+  project_name: "mcp-rig-agent"
+
+output:
+  path: "src/config/mcp.rs"
+---
+//! MCP server configuration
+//!
+//! This module defines configuration structures for MCP servers including:
+//!
+//! - Stdio servers (child process with stdin/stdout)
+//! - SSE servers (HTTP with Server-Sent Events)
+//! - Streamable servers (custom transport)
+
+use anyhow::{Context, Result};
+use serde::{Deserialize, Serialize};
+
+/// MCP server configuration
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct McpServerConfig {
+    /// Unique server name
+    pub name: String,
+
+    /// Transport configuration
+    #[serde(flatten)]
+    pub transport: McpTransportConfig,
+
+    /// Optional environment variables
+    #[serde(default)]
+    pub env: std::collections::HashMap<String, String>,
+
+    /// Optional server-specific settings
+    #[serde(default)]
+    pub settings: serde_json::Value,
+}
+
+impl McpServerConfig {
+    /// Validate the server configuration
+    pub fn validate(&self) -> Result<()> {
+        if self.name.is_empty() {
+            anyhow::bail!("Server name cannot be empty");
+        }
+
+        self.transport.validate()
+            .context("Invalid transport configuration")?;
+
+        Ok(())
+    }
+}
+
+/// MCP transport configuration
+#[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(tag = "transport", rename_all = "lowercase")]
+pub enum McpTransportConfig {
+    /// Standard input/output transport (child process)
+    Stdio {
+        /// Command to execute
+        command: String,
+
+        /// Command arguments
+        #[serde(default)]
+        args: Vec<String>,
+    },
+
+    /// Server-Sent Events transport (HTTP)
+    Sse {
+        /// Server URL
+        url: String,
+    },
+
+    /// Custom streamable transport
+    Streamable {
+        /// Custom configuration
+        config: serde_json::Value,
+    },
+}
+
+impl McpTransportConfig {
+    /// Validate the transport configuration
+    pub fn validate(&self) -> Result<()> {
+        match self {
+            McpTransportConfig::Stdio { command, .. } => {
+                if command.is_empty() {
+                    anyhow::bail!("Stdio transport requires a non-empty command");
+                }
+            }
+            McpTransportConfig::Sse { url } => {
+                if url.is_empty() {
+                    anyhow::bail!("SSE transport requires a non-empty URL");
+                }
+                // Validate URL format
+                url.parse::<url::Url>()
+                    .context("Invalid URL format")?;
+            }
+            McpTransportConfig::Streamable { config } => {
+                if config.is_null() {
+                    anyhow::bail!("Streamable transport requires configuration");
+                }
+            }
+        }
+        Ok(())
+    }
+
+    /// Get a human-readable description of the transport
+    pub fn description(&self) -> String {
+        match self {
+            McpTransportConfig::Stdio { command, args } => {
+                format!("stdio: {} {}", command, args.join(" "))
+            }
+            McpTransportConfig::Sse { url } => {
+                format!("sse: {}", url)
+            }
+            McpTransportConfig::Streamable { .. } => {
+                "streamable (custom)".to_string()
+            }
+        }
+    }
+}
+
+/// Example server configurations
+pub mod examples {
+    use super::*;
+
+    /// Filesystem MCP server (stdio)
+    pub fn filesystem_server(root_path: &str) -> McpServerConfig {
+        McpServerConfig {
+            name: "filesystem".to_string(),
+            transport: McpTransportConfig::Stdio {
+                command: "npx".to_string(),
+                args: vec![
+                    "-y".to_string(),
+                    "@modelcontextprotocol/server-filesystem".to_string(),
+                    root_path.to_string(),
+                ],
+            },
+            env: Default::default(),
+            settings: serde_json::json!({}),
+        }
+    }
+
+    /// Weather MCP server (SSE)
+    pub fn weather_server(url: &str) -> McpServerConfig {
+        McpServerConfig {
+            name: "weather".to_string(),
+            transport: McpTransportConfig::Sse {
+                url: url.to_string(),
+            },
+            env: Default::default(),
+            settings: serde_json::json!({}),
+        }
+    }
+
+    /// Time MCP server (stdio)
+    pub fn time_server() -> McpServerConfig {
+        McpServerConfig {
+            name: "time".to_string(),
+            transport: McpTransportConfig::Stdio {
+                command: "npx".to_string(),
+                args: vec![
+                    "-y".to_string(),
+                    "@modelcontextprotocol/server-time".to_string(),
+                ],
+            },
+            env: Default::default(),
+            settings: serde_json::json!({}),
+        }
+    }
+
+    /// Database MCP server (stdio with env vars)
+    pub fn database_server(db_url: &str) -> McpServerConfig {
+        let mut env = std::collections::HashMap::new();
+        env.insert("DATABASE_URL".to_string(), db_url.to_string());
+
+        McpServerConfig {
+            name: "database".to_string(),
+            transport: McpTransportConfig::Stdio {
+                command: "npx".to_string(),
+                args: vec![
+                    "-y".to_string(),
+                    "@modelcontextprotocol/server-postgres".to_string(),
+                ],
+            },
+            env,
+            settings: serde_json::json!({}),
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_stdio_validation() {
+        let config = McpServerConfig {
+            name: "test".to_string(),
+            transport: McpTransportConfig::Stdio {
+                command: "echo".to_string(),
+                args: vec!["hello".to_string()],
+            },
+            env: Default::default(),
+            settings: serde_json::json!({}),
+        };
+
+        assert!(config.validate().is_ok());
+    }
+
+    #[test]
+    fn test_sse_validation() {
+        let config = McpServerConfig {
+            name: "test".to_string(),
+            transport: McpTransportConfig::Sse {
+                url: "http://localhost:3000".to_string(),
+            },
+            env: Default::default(),
+            settings: serde_json::json!({}),
+        };
+
+        assert!(config.validate().is_ok());
+    }
+
+    #[test]
+    fn test_invalid_sse_url() {
+        let config = McpServerConfig {
+            name: "test".to_string(),
+            transport: McpTransportConfig::Sse {
+                url: "not-a-valid-url".to_string(),
+            },
+            env: Default::default(),
+            settings: serde_json::json!({}),
+        };
+
+        assert!(config.validate().is_err());
+    }
+
+    #[test]
+    fn test_empty_server_name() {
+        let config = McpServerConfig {
+            name: "".to_string(),
+            transport: McpTransportConfig::Stdio {
+                command: "echo".to_string(),
+                args: vec![],
+            },
+            env: Default::default(),
+            settings: serde_json::json!({}),
+        };
+
+        assert!(config.validate().is_err());
+    }
+
+    #[test]
+    fn test_transport_description() {
+        let stdio = McpTransportConfig::Stdio {
+            command: "node".to_string(),
+            args: vec!["server.js".to_string()],
+        };
+        assert!(stdio.description().contains("stdio"));
+
+        let sse = McpTransportConfig::Sse {
+            url: "http://localhost:3000".to_string(),
+        };
+        assert!(sse.description().contains("sse"));
+    }
+}

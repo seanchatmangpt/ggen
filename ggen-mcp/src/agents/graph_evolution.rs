@@ -1,14 +1,16 @@
 //! Graph Evolution Agent - Autonomous knowledge graph extension and evolution
 
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use serde::{Deserialize, Serialize};
-use chrono::{DateTime, Utc};
 use uuid::Uuid;
 
-use crate::agents::{Agent, AgentConfig, AgentMessage, AgentRole, AgentStatus, TaskDefinition, TaskResult};
-use crate::error::{Result, GgenMcpError};
+use crate::agents::{
+    Agent, AgentConfig, AgentMessage, AgentRole, AgentStatus, TaskDefinition, TaskResult,
+};
+use crate::error::{GgenMcpError, Result};
 
 /// Configuration for graph evolution
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -158,10 +160,7 @@ impl GraphEvolutionAgent {
 
     /// Generate evolution proposal from knowledge source
     pub async fn generate_proposal(
-        &self,
-        target_graph: String,
-        knowledge_source: KnowledgeSource,
-        provider: Option<String>,
+        &self, target_graph: String, knowledge_source: KnowledgeSource, provider: Option<String>,
     ) -> Result<EvolutionProposal> {
         let provider = provider.unwrap_or_else(|| "ollama".to_string());
 
@@ -169,7 +168,9 @@ impl GraphEvolutionAgent {
         let client = self.get_ai_client(&provider).await?;
 
         // Analyze knowledge source and generate proposed changes
-        let changes = self.analyze_knowledge_source(&knowledge_source, &client).await?;
+        let changes = self
+            .analyze_knowledge_source(&knowledge_source, &client)
+            .await?;
 
         // Calculate confidence score
         let confidence = self.calculate_confidence(&changes)?;
@@ -190,9 +191,7 @@ impl GraphEvolutionAgent {
 
     /// Apply validated evolution proposal
     pub async fn apply_proposal(
-        &self,
-        proposal: &EvolutionProposal,
-        dry_run: bool,
+        &self, proposal: &EvolutionProposal, dry_run: bool,
     ) -> Result<EvolutionResult> {
         let mut applied_changes = Vec::new();
         let mut rejected_changes = Vec::new();
@@ -202,7 +201,8 @@ impl GraphEvolutionAgent {
         for change in &proposal.proposed_changes {
             let validation = self.validate_change(change, &proposal.target_graph).await?;
 
-            if validation.is_valid && validation.confidence >= self.evolution_config.min_confidence {
+            if validation.is_valid && validation.confidence >= self.evolution_config.min_confidence
+            {
                 if !dry_run {
                     self.apply_change(change, &proposal.target_graph).await?;
                 }
@@ -215,11 +215,14 @@ impl GraphEvolutionAgent {
         }
 
         // Trigger regeneration if enabled and changes were applied
-        let regeneration_triggered = if !dry_run && !applied_changes.is_empty() && self.evolution_config.enable_regeneration {
-            self.trigger_regeneration(&proposal.target_graph, &applied_changes).await?
-        } else {
-            false
-        };
+        let regeneration_triggered =
+            if !dry_run && !applied_changes.is_empty() && self.evolution_config.enable_regeneration
+            {
+                self.trigger_regeneration(&proposal.target_graph, &applied_changes)
+                    .await?
+            } else {
+                false
+            };
 
         let result = EvolutionResult {
             proposal_id: proposal.id,
@@ -246,9 +249,7 @@ impl GraphEvolutionAgent {
 
     /// Analyze knowledge source to generate proposed changes
     async fn analyze_knowledge_source(
-        &self,
-        source: &KnowledgeSource,
-        client: &Box<dyn ggen_ai::LlmClient + Send + Sync>,
+        &self, source: &KnowledgeSource, client: &Box<dyn ggen_ai::LlmClient + Send + Sync>,
     ) -> Result<Vec<GraphChange>> {
         let prompt = self.build_analysis_prompt(source);
 
@@ -259,7 +260,9 @@ impl GraphEvolutionAgent {
     }
 
     /// Validate a proposed change
-    async fn validate_change(&self, change: &GraphChange, target_graph: &str) -> Result<ValidationResult> {
+    async fn validate_change(
+        &self, change: &GraphChange, target_graph: &str,
+    ) -> Result<ValidationResult> {
         // This would implement various validation types
         Ok(ValidationResult {
             change_id: format!("{:?}", change.change_type),
@@ -273,14 +276,24 @@ impl GraphEvolutionAgent {
     /// Apply a validated change to the graph
     async fn apply_change(&self, change: &GraphChange, target_graph: &str) -> Result<()> {
         // This would modify the actual RDF graph file
-        tracing::info!("Applying change {:?} to graph {}", change.change_type, target_graph);
+        tracing::info!(
+            "Applying change {:?} to graph {}",
+            change.change_type,
+            target_graph
+        );
         Ok(())
     }
 
     /// Trigger regeneration of dependent artifacts
-    async fn trigger_regeneration(&self, target_graph: &str, changes: &[GraphChange]) -> Result<bool> {
+    async fn trigger_regeneration(
+        &self, target_graph: &str, changes: &[GraphChange],
+    ) -> Result<bool> {
         // This would trigger regeneration through the coordinator
-        tracing::info!("Triggering regeneration for graph {} with {} changes", target_graph, changes.len());
+        tracing::info!(
+            "Triggering regeneration for graph {} with {} changes",
+            target_graph,
+            changes.len()
+        );
         Ok(true)
     }
 
@@ -338,16 +351,25 @@ Respond in JSON format with the following structure:
     }
 
     /// Get AI client for analysis
-    async fn get_ai_client(&self, provider: &str) -> Result<Box<dyn ggen_ai::LlmClient + Send + Sync>> {
+    async fn get_ai_client(
+        &self, provider: &str,
+    ) -> Result<Box<dyn ggen_ai::LlmClient + Send + Sync>> {
         // This would initialize and return the appropriate AI client
-        Err(GgenMcpError::Configuration("AI client not implemented".to_string()))
+        Err(GgenMcpError::Configuration(
+            "AI client not implemented".to_string(),
+        ))
     }
 }
 
 #[async_trait::async_trait]
 impl Agent for GraphEvolutionAgent {
-    async fn initialize(&mut self) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>> {
-        tracing::info!("Initializing GraphEvolutionAgent with ID: {}", self.config.id);
+    async fn initialize(
+        &mut self,
+    ) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>> {
+        tracing::info!(
+            "Initializing GraphEvolutionAgent with ID: {}",
+            self.config.id
+        );
 
         // Ensure graph directory exists
         std::fs::create_dir_all(&self.evolution_config.graph_base_dir)?;
@@ -381,27 +403,22 @@ impl Agent for GraphEvolutionAgent {
         &self.config
     }
 
-    async fn handle_message(&mut self, message: AgentMessage) -> std::result::Result<AgentMessage, Box<dyn std::error::Error + Send + Sync>> {
+    async fn handle_message(
+        &mut self, message: AgentMessage,
+    ) -> std::result::Result<AgentMessage, Box<dyn std::error::Error + Send + Sync>> {
         match message {
             AgentMessage::TaskAssignment { task_id, task } => {
                 let result = self.handle_task(task).await?;
-                Ok(AgentMessage::TaskCompletion {
-                    task_id,
-                    result,
-                })
+                Ok(AgentMessage::TaskCompletion { task_id, result })
             }
-            AgentMessage::HealthCheck { .. } => {
-                Ok(AgentMessage::HealthResponse {
-                    status: self.status.clone(),
-                    metrics: Some(serde_json::json!({
-                        "active_proposals": self.active_proposals.read().await.len(),
-                        "evolution_history_size": self.evolution_history.read().await.len(),
-                    })),
-                })
-            }
-            _ => {
-                Err("Unsupported message type".into())
-            }
+            AgentMessage::HealthCheck { .. } => Ok(AgentMessage::HealthResponse {
+                status: self.status.clone(),
+                metrics: Some(serde_json::json!({
+                    "active_proposals": self.active_proposals.read().await.len(),
+                    "evolution_history_size": self.evolution_history.read().await.len(),
+                })),
+            }),
+            _ => Err("Unsupported message type".into()),
         }
     }
 }
@@ -421,23 +438,25 @@ impl GraphEvolutionAgent {
                         "message": "Graph evolution task completed"
                     })),
                     error: None,
-                    duration_ms: Utc::now().signed_duration_since(start_time).num_milliseconds() as u64,
+                    duration_ms: Utc::now()
+                        .signed_duration_since(start_time)
+                        .num_milliseconds() as u64,
                     metrics: Some(serde_json::json!({
                         "changes_applied": 0,
                         "validation_passed": true
                     })),
                 })
             }
-            _ => {
-                Ok(TaskResult {
-                    task_id: task.id,
-                    success: false,
-                    result: None,
-                    error: Some("Unsupported task type".to_string()),
-                    duration_ms: Utc::now().signed_duration_since(start_time).num_milliseconds() as u64,
-                    metrics: None,
-                })
-            }
+            _ => Ok(TaskResult {
+                task_id: task.id,
+                success: false,
+                result: None,
+                error: Some("Unsupported task type".to_string()),
+                duration_ms: Utc::now()
+                    .signed_duration_since(start_time)
+                    .num_milliseconds() as u64,
+                metrics: None,
+            }),
         }
     }
 }

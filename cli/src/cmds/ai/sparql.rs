@@ -46,6 +46,20 @@ pub struct SparqlArgs {
 }
 
 pub async fn run(args: &SparqlArgs) -> Result<()> {
+    // ============================================================================
+    // RIG + MCP INTEGRATION FOR SPARQL QUERY GENERATION
+    // ============================================================================
+    //
+    // This file's LLM usage has been commented out for Rig+MCP integration.
+    // SPARQL generation would benefit from MCP tools for:
+    // - RDF graph exploration
+    // - SPARQL syntax validation
+    // - Query optimization
+    // - Ontology-aware query construction
+    //
+    // See generate.rs for full Rig+MCP integration pattern.
+    // ============================================================================
+
     println!("🔍 Generating SPARQL query with AI...");
     println!("Description: {}", args.description);
 
@@ -67,9 +81,11 @@ pub async fn run(args: &SparqlArgs) -> Result<()> {
         })?
     };
 
-    // Use global config for proper provider detection
-    let global_config = ggen_ai::get_global_config();
+    // ⚠️  COMMENTED OUT FOR RIG INTEGRATION
+    // let global_config = ggen_ai::get_global_config();
 
+    // ⚠️  COMMENTED OUT FOR RIG INTEGRATION - LLM client creation and query generation
+    /*
     let client: Arc<dyn LlmClient> = if args.mock {
         println!("ℹ️  Using mock client for testing");
         Arc::new(MockClient::with_response(
@@ -108,7 +124,15 @@ pub async fn run(args: &SparqlArgs) -> Result<()> {
         .generate_query(&graph, &args.description)
         .await
         .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?;
+    */
 
+    // TODO: Replace with Rig+MCP streaming query generation
+    return Err(ggen_utils::error::Error::new(
+        "LLM integration disabled for Rig migration. See comments in sparql.rs",
+    ));
+
+    // ⚠️  COMMENTED OUT - Query output (unreachable after early return)
+    /*
     println!("✅ SPARQL query generated successfully!");
 
     // Convert to requested format
@@ -158,4 +182,5 @@ pub async fn run(args: &SparqlArgs) -> Result<()> {
     }
 
     Ok(())
+    */
 }

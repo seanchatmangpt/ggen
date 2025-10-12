@@ -1,8 +1,7 @@
-///! Template tools - delegates to ggen CLI commands
-
-use serde_json::Value;
 use crate::cli_helper::call_ggen_cli;
-use crate::error::{Result, get_string_param, get_optional_string_param, success_response};
+use crate::error::{get_optional_string_param, get_string_param, success_response, Result};
+///! Template tools - delegates to ggen CLI commands
+use serde_json::Value;
 
 /// Create new template - delegates to `ggen template new`
 pub async fn create(params: Value) -> Result<Value> {

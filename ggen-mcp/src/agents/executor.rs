@@ -1,17 +1,17 @@
 //! Template Executor Agent
-//! 
+//!
 //! Handles template generation and code execution with deterministic outcomes
 
 use super::*;
+use chrono::{DateTime, Utc};
+use ggen_core::{GenContext, Generator, Template};
+use serde_json::Value;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use tokio::time::{Duration, Instant};
-use serde_json::Value;
-use ggen_core::{Generator, GenContext, Template};
-use chrono::{DateTime, Utc};
 
 /// Template Executor Agent
-/// 
+///
 /// Handles template generation and code execution with deterministic outcomes
 /// Integrates with GGen core for actual template processing
 pub struct TemplateExecutor {
@@ -115,7 +115,7 @@ pub struct ExecutionPool {
 impl Agent for TemplateExecutor {
     async fn initialize(&mut self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         tracing::info!("Initializing Template Executor");
-        
+
         // Initialize execution pool
         self.execution_pool = ExecutionPool {
             max_concurrent: 4,
@@ -123,46 +123,48 @@ impl Agent for TemplateExecutor {
             queue_size: 0,
             timeout_ms: 30000, // 30 seconds
         };
-        
+
         // Initialize GGen generator
         self.generator = Some(self.create_generator().await?);
-        
-        tracing::info!("Template Executor initialized with {} max concurrent executions", 
-            self.execution_pool.max_concurrent);
+
+        tracing::info!(
+            "Template Executor initialized with {} max concurrent executions",
+            self.execution_pool.max_concurrent
+        );
         Ok(())
     }
-    
+
     async fn start(&mut self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         tracing::info!("Starting Template Executor");
         self.status = AgentStatus::Healthy;
         Ok(())
     }
-    
+
     async fn stop(&mut self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         tracing::info!("Stopping Template Executor");
         self.status = AgentStatus::Unhealthy;
         Ok(())
     }
-    
+
     async fn status(&self) -> AgentStatus {
         self.status.clone()
     }
-    
+
     fn config(&self) -> &AgentConfig {
         &self.config
     }
-    
-    async fn handle_message(&mut self, message: AgentMessage) -> Result<AgentMessage, Box<dyn std::error::Error + Send + Sync>> {
+
+    async fn handle_message(
+        &mut self, message: AgentMessage,
+    ) -> Result<AgentMessage, Box<dyn std::error::Error + Send + Sync>> {
         match message {
             AgentMessage::TaskAssignment { task_id, task } => {
                 self.handle_execution_task(task_id, task).await
             }
-            AgentMessage::HealthCheck { from } => {
-                Ok(AgentMessage::HealthResponse {
-                    status: self.status.clone(),
-                    metrics: Some(self.get_metrics().await?),
-                })
-            }
+            AgentMessage::HealthCheck { from } => Ok(AgentMessage::HealthResponse {
+                status: self.status.clone(),
+                metrics: Some(self.get_metrics().await?),
+            }),
             _ => {
                 tracing::warn!("Template Executor received unhandled message type");
                 Ok(AgentMessage::ErrorNotification {
@@ -190,9 +192,11 @@ impl TemplateExecutor {
             },
         }
     }
-    
+
     /// Create GGen generator instance
-    async fn create_generator(&self) -> Result<Generator, Box<dyn std::error::Error + Send + Sync>> {
+    async fn create_generator(
+        &self,
+    ) -> Result<Generator, Box<dyn std::error::Error + Send + Sync>> {
         // TODO: Initialize with actual GGen core configuration
         let template_path = PathBuf::from("templates");
         let output_root = PathBuf::from("output");
@@ -203,11 +207,13 @@ impl TemplateExecutor {
 
         Ok(generator)
     }
-    
+
     /// Handle execution task
-    async fn handle_execution_task(&mut self, task_id: Uuid, task: TaskDefinition) -> Result<AgentMessage, Box<dyn std::error::Error + Send + Sync>> {
+    async fn handle_execution_task(
+        &mut self, task_id: Uuid, task: TaskDefinition,
+    ) -> Result<AgentMessage, Box<dyn std::error::Error + Send + Sync>> {
         tracing::info!("Handling execution task: {}", task_id);
-        
+
         // Check execution pool capacity
         if self.execution_pool.current_executions >= self.execution_pool.max_concurrent {
             return Ok(AgentMessage::TaskCompletion {
@@ -222,15 +228,21 @@ impl TemplateExecutor {
                 },
             });
         }
-        
+
         let start_time = Utc::now();
         self.execution_pool.current_executions += 1;
-        
+
         // Create execution record
         let mut execution = ExecutionRecord {
             id: task_id,
-            template_path: task.parameters["template"].as_str().unwrap_or("unknown").to_string(),
-            output_path: task.parameters["output"].as_str().unwrap_or(".").to_string(),
+            template_path: task.parameters["template"]
+                .as_str()
+                .unwrap_or("unknown")
+                .to_string(),
+            output_path: task.parameters["output"]
+                .as_str()
+                .unwrap_or(".")
+                .to_string(),
             variables: self.extract_variables(&task.parameters),
             start_time: chrono::Utc::now(),
             end_time: None,
@@ -247,17 +259,19 @@ impl TemplateExecutor {
                 cache_misses: 0,
             },
         };
-        
+
         // Execute the template
         match self.execute_template(&mut execution).await {
             Ok(result) => {
                 execution.status = ExecutionStatus::Completed;
                 execution.end_time = Some(chrono::Utc::now());
-                execution.metrics.duration_ms = Utc::now().signed_duration_since(start_time).num_milliseconds() as u64;
-                
+                execution.metrics.duration_ms = Utc::now()
+                    .signed_duration_since(start_time)
+                    .num_milliseconds() as u64;
+
                 self.execution_history.push(execution.clone());
                 self.execution_pool.current_executions -= 1;
-                
+
                 Ok(AgentMessage::TaskCompletion {
                     task_id,
                     result: TaskResult {
@@ -274,11 +288,13 @@ impl TemplateExecutor {
                 execution.status = ExecutionStatus::Failed;
                 execution.end_time = Some(chrono::Utc::now());
                 execution.errors.push(e.to_string());
-                execution.metrics.duration_ms = Utc::now().signed_duration_since(start_time).num_milliseconds() as u64;
-                
+                execution.metrics.duration_ms = Utc::now()
+                    .signed_duration_since(start_time)
+                    .num_milliseconds() as u64;
+
                 self.execution_history.push(execution.clone());
                 self.execution_pool.current_executions -= 1;
-                
+
                 Ok(AgentMessage::TaskCompletion {
                     task_id,
                     result: TaskResult {
@@ -293,11 +309,13 @@ impl TemplateExecutor {
             }
         }
     }
-    
+
     /// Execute template generation
-    async fn execute_template(&mut self, execution: &mut ExecutionRecord) -> Result<Value, Box<dyn std::error::Error + Send + Sync>> {
+    async fn execute_template(
+        &mut self, execution: &mut ExecutionRecord,
+    ) -> Result<Value, Box<dyn std::error::Error + Send + Sync>> {
         tracing::info!("Executing template: {}", execution.template_path);
-        
+
         // Check template cache first
         let template_path = &execution.template_path;
         if let Some(cached_template) = self.template_cache.get(template_path) {
@@ -308,13 +326,13 @@ impl TemplateExecutor {
             // Load and cache template
             self.load_and_cache_template(template_path).await?;
         }
-        
+
         // Prepare execution context
         let template_path_buf = PathBuf::from(template_path);
         let output_path_buf = PathBuf::from(&execution.output_path);
-        
+
         let mut ctx = GenContext::new(template_path_buf, output_path_buf);
-        
+
         // Set variables
         let mut vars = std::collections::BTreeMap::new();
         for (key, value) in &execution.variables {
@@ -323,11 +341,11 @@ impl TemplateExecutor {
             }
         }
         ctx = ctx.with_vars(vars);
-        
+
         // Execute with timeout
         let execution_future = self.execute_with_generator(ctx);
         let timeout_duration = Duration::from_millis(self.execution_pool.timeout_ms);
-        
+
         match tokio::time::timeout(timeout_duration, execution_future).await {
             Ok(result) => {
                 let result = result?;
@@ -335,7 +353,7 @@ impl TemplateExecutor {
                 execution.files_generated = files;
                 execution.metrics.files_processed = result.files_generated.len();
                 execution.metrics.lines_generated = result.lines_generated;
-                
+
                 Ok(serde_json::json!({
                     "template": execution.template_path,
                     "output_path": execution.output_path,
@@ -351,9 +369,11 @@ impl TemplateExecutor {
             }
         }
     }
-    
+
     /// Execute with GGen generator
-    async fn execute_with_generator(&self, ctx: GenContext) -> Result<ExecutionResult, Box<dyn std::error::Error + Send + Sync>> {
+    async fn execute_with_generator(
+        &self, ctx: GenContext,
+    ) -> Result<ExecutionResult, Box<dyn std::error::Error + Send + Sync>> {
         // TODO: Use actual GGen generator
         // For now, simulate execution
         Ok(ExecutionResult {
@@ -365,11 +385,13 @@ impl TemplateExecutor {
             lines_generated: 150,
         })
     }
-    
+
     /// Load and cache template
-    async fn load_and_cache_template(&mut self, template_path: &str) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    async fn load_and_cache_template(
+        &mut self, template_path: &str,
+    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         tracing::info!("Loading template: {}", template_path);
-        
+
         // TODO: Load actual template from GGen core
         // For now, create a mock cached template
         let cached_template = CachedTemplate {
@@ -379,28 +401,27 @@ impl TemplateExecutor {
             metadata: TemplateMetadata {
                 name: template_path.to_string(),
                 description: "Mock template".to_string(),
-                variables: vec![
-                    TemplateVariable {
-                        name: "name".to_string(),
-                        variable_type: VariableType::String,
-                        required: true,
-                        default_value: None,
-                        description: "Project name".to_string(),
-                    },
-                ],
+                variables: vec![TemplateVariable {
+                    name: "name".to_string(),
+                    variable_type: VariableType::String,
+                    required: true,
+                    default_value: None,
+                    description: "Project name".to_string(),
+                }],
                 dependencies: Vec::new(),
                 output_patterns: vec!["*.rs".to_string(), "*.md".to_string()],
             },
         };
-        
-        self.template_cache.insert(template_path.to_string(), cached_template);
+
+        self.template_cache
+            .insert(template_path.to_string(), cached_template);
         Ok(())
     }
-    
+
     /// Extract variables from task parameters
     fn extract_variables(&self, parameters: &Value) -> HashMap<String, Value> {
         let mut variables = HashMap::new();
-        
+
         if let Some(vars) = parameters.get("vars") {
             if let Some(obj) = vars.as_object() {
                 for (key, value) in obj {
@@ -408,12 +429,14 @@ impl TemplateExecutor {
                 }
             }
         }
-        
+
         variables
     }
-    
+
     /// Get execution metrics
-    async fn get_execution_metrics(&self, execution: &ExecutionRecord) -> Result<Value, Box<dyn std::error::Error + Send + Sync>> {
+    async fn get_execution_metrics(
+        &self, execution: &ExecutionRecord,
+    ) -> Result<Value, Box<dyn std::error::Error + Send + Sync>> {
         Ok(serde_json::json!({
             "execution_id": execution.id,
             "template_path": execution.template_path,
@@ -427,33 +450,41 @@ impl TemplateExecutor {
             "errors": execution.errors.len()
         }))
     }
-    
+
     /// Get executor metrics
     async fn get_metrics(&self) -> Result<Value, Box<dyn std::error::Error + Send + Sync>> {
         let total_executions = self.execution_history.len();
-        let successful_executions = self.execution_history.iter()
+        let successful_executions = self
+            .execution_history
+            .iter()
             .filter(|e| e.status == ExecutionStatus::Completed)
             .count();
-        let failed_executions = self.execution_history.iter()
+        let failed_executions = self
+            .execution_history
+            .iter()
             .filter(|e| e.status == ExecutionStatus::Failed)
             .count();
-        
-        let total_files_generated: usize = self.execution_history.iter()
+
+        let total_files_generated: usize = self
+            .execution_history
+            .iter()
             .map(|e| e.files_generated.len())
             .sum();
-        
-        let total_lines_generated: usize = self.execution_history.iter()
+
+        let total_lines_generated: usize = self
+            .execution_history
+            .iter()
             .map(|e| e.metrics.lines_generated)
             .sum();
-        
+
         Ok(serde_json::json!({
             "total_executions": total_executions,
             "successful_executions": successful_executions,
             "failed_executions": failed_executions,
-            "success_rate": if total_executions > 0 { 
-                successful_executions as f64 / total_executions as f64 
-            } else { 
-                0.0 
+            "success_rate": if total_executions > 0 {
+                successful_executions as f64 / total_executions as f64
+            } else {
+                0.0
             },
             "total_files_generated": total_files_generated,
             "total_lines_generated": total_lines_generated,
@@ -476,4 +507,3 @@ struct ExecutionResult {
     files_generated: Vec<String>,
     lines_generated: usize,
 }
-

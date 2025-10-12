@@ -216,16 +216,32 @@ pub struct FrontmatterArgs {
 }
 
 pub async fn run(args: &FrontmatterArgs) -> Result<()> {
+    // ============================================================================
+    // RIG + MCP INTEGRATION FOR FRONTMATTER GENERATION
+    // ============================================================================
+    //
+    // This file's LLM usage has been commented out for Rig+MCP integration.
+    // Frontmatter generation would benefit from MCP tools for:
+    // - YAML/TOML validation
+    // - SEO optimization tools
+    // - Metadata extraction from content
+    // - Static site generator integration (Jekyll, Hugo)
+    //
+    // See generate.rs for full Rig+MCP integration pattern.
+    // ============================================================================
+
     println!("📋 Generating frontmatter with AI...");
     println!("Description: {}", args.description);
 
-    // Use global config for proper provider detection
-    let global_config = ggen_ai::get_global_config();
+    // ⚠️  COMMENTED OUT FOR RIG INTEGRATION
+    // let global_config = ggen_ai::get_global_config();
 
     use ggen_ai::client::{GenAiClient, LlmClient};
     use ggen_ai::{LlmConfig, MockClient};
     use std::sync::Arc;
 
+    // ⚠️  COMMENTED OUT FOR RIG INTEGRATION - LLM client creation
+    /*
     let client: Arc<dyn LlmClient> = if args.mock {
         println!("ℹ️  Using mock client for testing");
         Arc::new(MockClient::with_response("Generated frontmatter content"))
@@ -265,7 +281,15 @@ pub async fn run(args: &FrontmatterArgs) -> Result<()> {
         )
         .await
         .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?;
+    */
 
+    // TODO: Replace with Rig+MCP frontmatter generation
+    return Err(ggen_utils::error::Error::new(
+        "LLM integration disabled for Rig migration. See comments in frontmatter.rs",
+    ));
+
+    // ⚠️  COMMENTED OUT - Frontmatter output (unreachable after early return)
+    /*
     println!("✅ Frontmatter generated successfully!");
 
     if let Some(output_path) = &args.output {
@@ -290,4 +314,5 @@ pub async fn run(args: &FrontmatterArgs) -> Result<()> {
     }
 
     Ok(())
+    */
 }

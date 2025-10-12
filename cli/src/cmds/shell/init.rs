@@ -114,7 +114,10 @@ pub struct ShellInitArgs {
     pub shell: String,
 
     /// Configuration file path [default: auto-detect]
-    #[arg(long, help = "Path to shell configuration file (auto-detected if not provided)")]
+    #[arg(
+        long,
+        help = "Path to shell configuration file (auto-detected if not provided)"
+    )]
     pub config: Option<String>,
 
     /// Force initialization even if already configured

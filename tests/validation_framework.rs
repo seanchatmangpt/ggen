@@ -141,14 +141,19 @@ impl ValidationFramework {
                 command: "ai sparql".to_string(),
                 args: vec![
                     "--description".to_string(),
-                    "Find all users with age > 18 who have made purchases in the last 30 days".to_string(),
+                    "Find all users with age > 18 who have made purchases in the last 30 days"
+                        .to_string(),
                     "--max-tokens".to_string(),
                     "300".to_string(),
                 ],
                 expected_behavior: ExpectedBehavior {
                     min_length: 50,
                     max_length: 1000,
-                    required_patterns: vec!["SELECT".to_string(), "WHERE".to_string(), "FILTER".to_string()],
+                    required_patterns: vec![
+                        "SELECT".to_string(),
+                        "WHERE".to_string(),
+                        "FILTER".to_string(),
+                    ],
                     forbidden_patterns: vec!["syntax error".to_string()],
                     quality_criteria: vec![
                         QualityCriterion {
@@ -331,15 +336,29 @@ impl ValidationFramework {
 
         if score < 7.0 {
             match dimension {
-                "structure" => suggestions.push("Consider adding more semantic structure and proper nesting".to_string()),
-                "completeness" => suggestions.push("Ensure all requested elements are included in the output".to_string()),
-                "usability" => suggestions.push("Add more examples and usage documentation".to_string()),
-                "clarity" => suggestions.push("Improve code comments and variable naming".to_string()),
-                "correctness" => suggestions.push("Review syntax and semantic correctness".to_string()),
+                "structure" => suggestions
+                    .push("Consider adding more semantic structure and proper nesting".to_string()),
+                "completeness" => suggestions
+                    .push("Ensure all requested elements are included in the output".to_string()),
+                "usability" => {
+                    suggestions.push("Add more examples and usage documentation".to_string())
+                }
+                "clarity" => {
+                    suggestions.push("Improve code comments and variable naming".to_string())
+                }
+                "correctness" => {
+                    suggestions.push("Review syntax and semantic correctness".to_string())
+                }
                 "efficiency" => suggestions.push("Optimize for better performance".to_string()),
-                "readability" => suggestions.push("Improve formatting and organization".to_string()),
-                "seo_quality" => suggestions.push("Add meta tags, keywords, and descriptions".to_string()),
-                "ontology_quality" => suggestions.push("Add more relationships and properties".to_string()),
+                "readability" => {
+                    suggestions.push("Improve formatting and organization".to_string())
+                }
+                "seo_quality" => {
+                    suggestions.push("Add meta tags, keywords, and descriptions".to_string())
+                }
+                "ontology_quality" => {
+                    suggestions.push("Add more relationships and properties".to_string())
+                }
                 _ => suggestions.push(format!("Improve {} quality", dimension)),
             }
         }
@@ -357,7 +376,10 @@ impl ValidationFramework {
         let mut report = String::new();
 
         report.push_str("# LLM Output Validation Report\n\n");
-        report.push_str(&format!("Generated: {}\n\n", chrono::Utc::now().to_rfc3339()));
+        report.push_str(&format!(
+            "Generated: {}\n\n",
+            chrono::Utc::now().to_rfc3339()
+        ));
 
         // Overall statistics
         let avg_score: f32 = scores.iter().map(|s| s.total).sum::<f32>() / scores.len() as f32;
@@ -369,14 +391,22 @@ impl ValidationFramework {
         // Individual test results
         report.push_str("## Individual Test Results\n\n");
         for score in scores {
-            report.push_str(&format!("### {} (Score: {:.2}/10)\n\n", score.metadata.scenario, score.total));
+            report.push_str(&format!(
+                "### {} (Score: {:.2}/10)\n\n",
+                score.metadata.scenario, score.total
+            ));
             report.push_str(&format!("**Command**: `{}`\n\n", score.metadata.command));
 
             // Dimension scores
             report.push_str("#### Dimension Scores:\n\n");
             for (name, dim) in &score.dimensions {
-                report.push_str(&format!("- **{}** ({:.1}/10, weight {:.0}%): {}\n",
-                    name, dim.score, dim.weight * 100.0, dim.description));
+                report.push_str(&format!(
+                    "- **{}** ({:.1}/10, weight {:.0}%): {}\n",
+                    name,
+                    dim.score,
+                    dim.weight * 100.0,
+                    dim.description
+                ));
                 if !dim.issues.is_empty() {
                     report.push_str("  - Issues:\n");
                     for issue in &dim.issues {

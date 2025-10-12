@@ -221,7 +221,8 @@ pub mod mcp {
     pub const SERVER_WEBSITE: &str = "https://github.com/seanchatmangpt/ggen";
 
     /// Server description
-    pub const SERVER_DESCRIPTION: &str = "AI-powered code generation and refactoring tools for ggen";
+    pub const SERVER_DESCRIPTION: &str =
+        "AI-powered code generation and refactoring tools for ggen";
 
     /// Default number of tools
     pub const EXPECTED_TOOL_COUNT: usize = 9;

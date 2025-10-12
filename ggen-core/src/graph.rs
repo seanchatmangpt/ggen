@@ -2,8 +2,8 @@ use ahash::AHasher;
 use anyhow::{bail, Result};
 use lru::LruCache;
 use oxigraph::io::RdfFormat;
-use oxigraph::model::{GraphName, NamedNode, Quad, Subject, Term};
-use oxigraph::sparql::{Query, QueryOptions, QueryResults};
+use oxigraph::model::{GraphName, NamedNode, NamedOrBlankNode, Quad, Term};
+use oxigraph::sparql::{QueryResults, SparqlEvaluator};
 use oxigraph::store::Store;
 use serde_json::Value as JsonValue;
 use std::collections::BTreeMap;
@@ -51,7 +51,7 @@ impl CachedResult {
 pub struct Graph {
     inner: Store,
     epoch: Arc<AtomicU64>,
-    plan_cache: Arc<Mutex<LruCache<u64, Query>>>,
+    plan_cache: Arc<Mutex<LruCache<u64, String>>>,
     result_cache: Arc<Mutex<LruCache<(u64, u64), CachedResult>>>,
 }
 
@@ -189,7 +189,7 @@ impl Graph {
         }
 
         // Check plan cache or parse
-        let query = {
+        let query_str = {
             let mut cache = self
                 .plan_cache
                 .lock()
@@ -197,14 +197,14 @@ impl Graph {
             if let Some(q) = cache.get(&query_hash).cloned() {
                 q
             } else {
-                let q = Query::parse(sparql, None)?;
+                let q = sparql.to_string();
                 cache.put(query_hash, q.clone());
                 q
             }
         };
 
-        // Execute and materialize
-        let results = self.inner.query_opt(query, QueryOptions::default())?;
+        // Execute and materialize using SparqlEvaluator
+        let results = self.inner.query(&query_str)?;
         let cached = self.materialize_results(results)?;
 
         // Store in cache
@@ -243,13 +243,14 @@ impl Graph {
         self.query(&q)
     }
 
-    pub fn query_prepared(&self, q: &Query) -> Result<QueryResults> {
-        Ok(self.inner.query_opt(q.clone(), QueryOptions::default())?)
+    pub fn query_prepared(&self, q: &str) -> Result<QueryResults> {
+        Ok(self.inner.query(q)?)
     }
 
     /// Typed pattern filter (no extra allocs).
     pub fn quads_for_pattern(
-        &self, s: Option<&Subject>, p: Option<&NamedNode>, o: Option<&Term>, g: Option<&GraphName>,
+        &self, s: Option<&NamedOrBlankNode>, p: Option<&NamedNode>, o: Option<&Term>,
+        g: Option<&GraphName>,
     ) -> Result<Vec<Quad>> {
         Ok(self
             .inner
@@ -480,8 +481,8 @@ mod tests {
         "#;
         g.insert_turtle(ttl)?;
 
-        let query = Query::parse("SELECT ?s WHERE { ?s ?p ?o }", None)?;
-        let results = g.query_prepared(&query)?;
+        let query = "SELECT ?s WHERE { ?s ?p ?o }";
+        let results = g.query_prepared(query)?;
 
         if let QueryResults::Solutions(mut it) = results {
             let first = it.next().unwrap().unwrap();

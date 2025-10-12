@@ -295,3 +295,4 @@ The dark matter doesn't disappear—it just stops being your job.
 ---
 
 *This cookbook provides the complete roadmap for eliminating software's dark matter using GGen's knowledge-first, 80/20 approach. Start with the patterns, apply the recipes, and experience the revolution.*
+

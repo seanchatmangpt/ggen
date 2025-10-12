@@ -3,16 +3,18 @@
 //! This module provides functions to generate complete project structures
 //! for various languages and frameworks.
 
-use serde_json::{json, Value};
-use crate::error::{Result, get_string_param, get_optional_string_param};
 use super::client::get_ai_client;
+use crate::error::{get_optional_string_param, get_string_param, Result};
+use serde_json::{json, Value};
 
 /// Generate complete project structure from description
 pub async fn generate_project(params: Value) -> Result<Value> {
     let description = get_string_param(&params, "description")?;
     let name = get_string_param(&params, "name")?;
-    let provider = get_optional_string_param(&params, "provider").unwrap_or_else(|| "ollama".to_string());
-    let language = get_optional_string_param(&params, "language").unwrap_or_else(|| "rust".to_string());
+    let provider =
+        get_optional_string_param(&params, "provider").unwrap_or_else(|| "ollama".to_string());
+    let language =
+        get_optional_string_param(&params, "language").unwrap_or_else(|| "rust".to_string());
     let framework = get_optional_string_param(&params, "framework");
     let output_dir = get_optional_string_param(&params, "output_dir");
 
@@ -40,35 +42,33 @@ pub async fn generate_project(params: Value) -> Result<Value> {
                 project_files.insert("Cargo.toml".to_string(), cargo_toml);
                 project_files.insert("src/main.rs".to_string(), main_rs);
             }
-        },
+        }
         "python" => {
             let pyproject_toml = generate_pyproject_toml(&name, &["fastapi", "uvicorn"])?;
             let main_py = generate_fastapi_main(&name)?;
 
             project_files.insert("pyproject.toml".to_string(), pyproject_toml);
             project_files.insert("main.py".to_string(), main_py);
-        },
+        }
         _ => {
-            return Err(crate::error::GgenMcpError::Configuration(
-                format!("Unsupported language: {}", language)
-            ));
+            return Err(crate::error::GgenMcpError::Configuration(format!(
+                "Unsupported language: {}",
+                language
+            )));
         }
     }
 
     // Create output directory if specified
     if let Some(dir) = &output_dir {
-        std::fs::create_dir_all(dir)
-            .map_err(crate::error::GgenMcpError::Io)?;
+        std::fs::create_dir_all(dir).map_err(crate::error::GgenMcpError::Io)?;
 
         // Write all files
         for (file_path, content) in &project_files {
             let full_path = std::path::Path::new(dir).join(file_path);
             if let Some(parent) = full_path.parent() {
-                std::fs::create_dir_all(parent)
-                    .map_err(crate::error::GgenMcpError::Io)?;
+                std::fs::create_dir_all(parent).map_err(crate::error::GgenMcpError::Io)?;
             }
-            std::fs::write(&full_path, content)
-                .map_err(crate::error::GgenMcpError::Io)?;
+            std::fs::write(&full_path, content).map_err(crate::error::GgenMcpError::Io)?;
         }
     }
 
@@ -85,7 +85,8 @@ pub async fn generate_project(params: Value) -> Result<Value> {
 // Rust project helpers
 
 fn generate_cargo_toml(name: &str, dependencies: &[&str]) -> Result<String> {
-    Ok(format!(r#"[package]
+    Ok(format!(
+        r#"[package]
 name = "{}"
 version = "0.1.0"
 edition = "2021"
@@ -93,13 +94,18 @@ edition = "2021"
 [dependencies]
 {}
 "#,
-    name,
-    dependencies.iter().map(|dep| format!("{} = \"1.0\"", dep)).collect::<Vec<_>>().join("\n")
+        name,
+        dependencies
+            .iter()
+            .map(|dep| format!("{} = \"1.0\"", dep))
+            .collect::<Vec<_>>()
+            .join("\n")
     ))
 }
 
 fn generate_axum_main(name: &str) -> Result<String> {
-    Ok(format!(r#"use axum::{{
+    Ok(format!(
+        r#"use axum::{{
     extract::Path,
     http::StatusCode,
     response::IntoResponse,
@@ -129,11 +135,14 @@ async fn root_handler() -> impl IntoResponse {{
 async fn health_check() -> impl IntoResponse {{
     (StatusCode::OK, "OK")
 }}
-"#, name, name))
+"#,
+        name, name
+    ))
 }
 
 fn generate_axum_lib(name: &str) -> Result<String> {
-    Ok(format!(r#"//! {} library
+    Ok(format!(
+        r#"//! {} library
 
 pub mod models;
 pub mod handlers;
@@ -143,11 +152,13 @@ pub mod middleware;
 pub use models::*;
 pub use handlers::*;
 "#,
-    name))
+        name
+    ))
 }
 
 fn generate_basic_main(name: &str) -> Result<String> {
-    Ok(format!(r#"use tokio;
+    Ok(format!(
+        r#"use tokio;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {{
@@ -157,13 +168,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {{
 
     Ok(())
 }}
-"#, name, name))
+"#,
+        name, name
+    ))
 }
 
 // Python project helpers
 
 fn generate_pyproject_toml(name: &str, dependencies: &[&str]) -> Result<String> {
-    Ok(format!(r#"[project]
+    Ok(format!(
+        r#"[project]
 name = "{}"
 version = "0.1.0"
 description = "Generated Python project"
@@ -175,13 +189,18 @@ dependencies = [
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 "#,
-    name,
-    dependencies.iter().map(|dep| format!("    \"{}\"", dep)).collect::<Vec<_>>().join(",\n")
+        name,
+        dependencies
+            .iter()
+            .map(|dep| format!("    \"{}\"", dep))
+            .collect::<Vec<_>>()
+            .join(",\n")
     ))
 }
 
 fn generate_fastapi_main(name: &str) -> Result<String> {
-    Ok(format!(r#"from fastapi import FastAPI
+    Ok(format!(
+        r#"from fastapi import FastAPI
 
 app = FastAPI(title="{}")
 
@@ -196,5 +215,7 @@ async def health_check():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
-"#, name, name))
+"#,
+        name, name
+    ))
 }

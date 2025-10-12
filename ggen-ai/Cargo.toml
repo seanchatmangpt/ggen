@@ -3,7 +3,7 @@ name = "ggen-ai"
 version = "1.0.0"
 edition = "2021"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
-description = "AI-powered code generation capabilities for ggen - LLM integration for intelligent template generation and graph operations"
+description = "Thin wrapper around genai for ggen - LLM integration with environment support"
 license = "MIT"
 
 [dependencies]
@@ -12,18 +12,22 @@ ggen-core = { path = "../ggen-core", version = "1.0.0" }
 ggen-utils = { path = "../utils", version = "1.0.0" }
 
 # HTTP client and async runtime
-reqwest = { workspace = true, features = ["stream"] }
 tokio = { workspace = true }
 async-trait = { workspace = true }
+reqwest = { workspace = true }
 
 # Serialization
 serde = { workspace = true }
 serde_json = { workspace = true }
 
+# Time handling
+chrono = { workspace = true }
+
+# UUID generation
+uuid = { workspace = true }
+
 # Configuration and environment
 dotenvy = "0.15"
-toml = { workspace = true }
-clap = { workspace = true }
 
 # Error handling
 anyhow = { workspace = true }
@@ -36,64 +40,31 @@ futures = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
 
-# Time handling
-chrono = { workspace = true }
-
-# WebSocket client for WIP integration
-tokio-tungstenite = "0.21"
-
-# UUID generation
-uuid = { workspace = true }
-
-# Template engine (for prompt templating)
+# Template engine (for prompt templating in generators)
 tera = { workspace = true }
 
-# Regular expressions for security scanning
+# Regular expressions for validation
 regex = { workspace = true }
 
-# Multi-provider AI client - updated to latest
+# Multi-provider AI client
 genai = "0.4"
-
-# MCP server integration - update when rmcp updates paste dependency
-rmcp = { version = "0.8.0", features = ["server", "transport-io"] }
 
 # LLM Response Caching
 moka = { version = "0.12", features = ["future"] }
 
-# Async streaming utilities (genai handles streaming natively)
-futures-util = { workspace = true }
-
 # SPARQL support
-oxigraph = "0.4"
-
-# Temporary files
-tempfile = "3"
-
-# CPU count for parallel workers
-num_cpus = "1"
+oxigraph = "0.5"
 
 # Crypto for caching
 sha2 = "0.10"
 
 [features]
 default = []
-ollama-integration = [] # Already exists
-openai-integration = []
-anthropic-integration = []
-all-integrations = [
-  "ollama-integration",
-  "openai-integration",
-  "anthropic-integration",
-]
+all-integrations = []
 
 [dev-dependencies]
 tokio-test = "0.4"
-mockito = "1.2"
 tempfile = "3"
-
-[[bin]]
-name = "ggen-ai-mcp"
-path = "src/mcp/bin.rs"
 
 [lib]
 name = "ggen_ai"

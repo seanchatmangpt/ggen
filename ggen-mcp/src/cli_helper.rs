@@ -2,7 +2,6 @@
 ///!
 ///! This module provides utilities for calling the ggen CLI from MCP tools.
 ///! All MCP tools should delegate to the CLI instead of reimplementing logic.
-
 use crate::error::{GgenMcpError, Result};
 use serde_json::Value;
 use std::process::Command;
@@ -13,17 +12,14 @@ pub async fn call_ggen_cli(args: &[&str]) -> Result<Value> {
     debug!("Executing ggen CLI with args: {:?}", args);
     info!("CLI Command: ggen {}", args.join(" "));
 
-    let output = Command::new("ggen")
-        .args(args)
-        .output()
-        .map_err(|e| {
-            error!("Failed to execute ggen CLI: {}", e);
-            error!("This usually means 'ggen' is not in PATH or not installed");
-            GgenMcpError::ExecutionFailed(format!(
-                "Failed to execute ggen CLI: {}. Ensure 'ggen' is installed and in PATH",
-                e
-            ))
-        })?;
+    let output = Command::new("ggen").args(args).output().map_err(|e| {
+        error!("Failed to execute ggen CLI: {}", e);
+        error!("This usually means 'ggen' is not in PATH or not installed");
+        GgenMcpError::ExecutionFailed(format!(
+            "Failed to execute ggen CLI: {}. Ensure 'ggen' is installed and in PATH",
+            e
+        ))
+    })?;
 
     let exit_code = output.status.code();
     debug!("ggen CLI exit code: {:?}", exit_code);
@@ -64,8 +60,7 @@ pub async fn call_ggen_cli(args: &[&str]) -> Result<Value> {
 
 /// Execute a ggen CLI command with variable arguments
 pub async fn call_ggen_with_vars(
-    subcommands: &[&str],
-    vars: &serde_json::Map<String, Value>,
+    subcommands: &[&str], vars: &serde_json::Map<String, Value>,
 ) -> Result<Value> {
     debug!("Building CLI command with {} variables", vars.len());
 
@@ -118,7 +113,10 @@ mod tests {
         // but it should fail in the right way (CLI execution, not argument parsing)
         assert!(result.is_err());
         if let Err(GgenMcpError::ExecutionFailed(msg)) = result {
-            assert!(msg.contains("ggen CLI"), "Error should mention CLI execution");
+            assert!(
+                msg.contains("ggen CLI"),
+                "Error should mention CLI execution"
+            );
         }
     }
 }

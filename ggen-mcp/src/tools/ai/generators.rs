@@ -3,17 +3,18 @@
 //! This module contains the core AI generation functions that interface with
 //! LLM providers to generate various types of code artifacts.
 
-use serde_json::{json, Value};
-use crate::error::{Result, get_string_param, get_optional_string_param, get_optional_array_param};
-use ggen_ai::{LlmClient, TemplateGenerator, SparqlGenerator, OntologyGenerator};
-use ggen_core::Graph;
 use super::client::get_ai_client;
 use super::validation::validate_template;
+use crate::error::{get_optional_array_param, get_optional_string_param, get_string_param, Result};
+use ggen_ai::{LlmClient, OntologyGenerator, SparqlGenerator, TemplateGenerator};
+use ggen_core::Graph;
+use serde_json::{json, Value};
 
 /// Generate template from natural language description
 pub async fn generate_template(params: Value) -> Result<Value> {
     let description = get_string_param(&params, "description")?;
-    let provider = get_optional_string_param(&params, "provider").unwrap_or_else(|| "ollama".to_string());
+    let provider =
+        get_optional_string_param(&params, "provider").unwrap_or_else(|| "ollama".to_string());
     let output_file = get_optional_string_param(&params, "output_file");
     let validate = crate::error::get_bool_param(&params, "validate", false);
 
@@ -69,11 +70,16 @@ pub async fn generate_template(params: Value) -> Result<Value> {
 /// Generate SPARQL query from natural language intent
 pub async fn generate_sparql(params: Value) -> Result<Value> {
     let description = get_string_param(&params, "description")?;
-    let provider = get_optional_string_param(&params, "provider").unwrap_or_else(|| "ollama".to_string());
+    let provider =
+        get_optional_string_param(&params, "provider").unwrap_or_else(|| "ollama".to_string());
     let graph_file = get_string_param(&params, "graph_file")?;
     let output_file = get_optional_string_param(&params, "output_file");
 
-    tracing::info!("AI SPARQL generation: {} for graph: {}", description, graph_file);
+    tracing::info!(
+        "AI SPARQL generation: {} for graph: {}",
+        description,
+        graph_file
+    );
 
     // Load graph
     let graph = Graph::load_from_file(&graph_file)?;
@@ -86,8 +92,7 @@ pub async fn generate_sparql(params: Value) -> Result<Value> {
 
     // Save to file if specified
     if let Some(output_path) = output_file {
-        std::fs::write(&output_path, &query)
-            .map_err(crate::error::GgenMcpError::Io)?;
+        std::fs::write(&output_path, &query).map_err(crate::error::GgenMcpError::Io)?;
 
         Ok(crate::error::success_response(json!({
             "query": query,
@@ -107,7 +112,8 @@ pub async fn generate_sparql(params: Value) -> Result<Value> {
 /// Generate RDF ontology from domain description
 pub async fn generate_ontology(params: Value) -> Result<Value> {
     let description = get_string_param(&params, "description")?;
-    let provider = get_optional_string_param(&params, "provider").unwrap_or_else(|| "ollama".to_string());
+    let provider =
+        get_optional_string_param(&params, "provider").unwrap_or_else(|| "ollama".to_string());
     let output_file = get_optional_string_param(&params, "output_file");
     let requirements = get_optional_array_param(&params, "requirements");
 
@@ -117,17 +123,14 @@ pub async fn generate_ontology(params: Value) -> Result<Value> {
     let generator = OntologyGenerator::new(client);
 
     // Convert requirements to Vec<&str>
-    let req_refs: Vec<&str> = requirements.iter()
-        .filter_map(|v| v.as_str())
-        .collect();
+    let req_refs: Vec<&str> = requirements.iter().filter_map(|v| v.as_str()).collect();
 
     // Generate ontology
     let ontology = generator.generate_ontology(&description, req_refs).await?;
 
     // Save to file if specified
     if let Some(output_path) = output_file {
-        std::fs::write(&output_path, &ontology)
-            .map_err(crate::error::GgenMcpError::Io)?;
+        std::fs::write(&output_path, &ontology).map_err(crate::error::GgenMcpError::Io)?;
 
         Ok(crate::error::success_response(json!({
             "ontology": ontology,
@@ -146,9 +149,14 @@ pub async fn generate_ontology(params: Value) -> Result<Value> {
 pub async fn extend_graph(params: Value) -> Result<Value> {
     let graph_file = get_string_param(&params, "graph_file")?;
     let description = get_string_param(&params, "description")?;
-    let provider = get_optional_string_param(&params, "provider").unwrap_or_else(|| "ollama".to_string());
+    let provider =
+        get_optional_string_param(&params, "provider").unwrap_or_else(|| "ollama".to_string());
 
-    tracing::info!("AI graph extension: {} for graph: {}", description, graph_file);
+    tracing::info!(
+        "AI graph extension: {} for graph: {}",
+        description,
+        graph_file
+    );
 
     // Load existing graph
     let graph = Graph::load_from_file(&graph_file)?;
@@ -164,8 +172,7 @@ pub async fn extend_graph(params: Value) -> Result<Value> {
 
     // Load new content as temporary graph and merge
     let temp_file = std::env::temp_dir().join("temp_ontology.ttl");
-    std::fs::write(&temp_file, &new_content)
-        .map_err(crate::error::GgenMcpError::Io)?;
+    std::fs::write(&temp_file, &new_content).map_err(crate::error::GgenMcpError::Io)?;
     let new_graph = Graph::load_from_file(&temp_file)?;
 
     let new_triples = new_graph.len();
@@ -182,8 +189,10 @@ pub async fn extend_graph(params: Value) -> Result<Value> {
 /// Validate and improve existing code or templates
 pub async fn validate_and_improve(params: Value) -> Result<Value> {
     let content = get_string_param(&params, "content")?;
-    let content_type = get_optional_string_param(&params, "content_type").unwrap_or_else(|| "code".to_string());
-    let provider = get_optional_string_param(&params, "provider").unwrap_or_else(|| "ollama".to_string());
+    let content_type =
+        get_optional_string_param(&params, "content_type").unwrap_or_else(|| "code".to_string());
+    let provider =
+        get_optional_string_param(&params, "provider").unwrap_or_else(|| "ollama".to_string());
     let max_iterations = crate::error::get_u32_param(&params, "max_iterations", 3);
 
     tracing::info!("AI validation and improvement for {} content", content_type);

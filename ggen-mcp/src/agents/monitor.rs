@@ -1,16 +1,16 @@
 //! Graph Monitor Agent
-//! 
+//!
 //! Monitors RDF graph operations and maintains graph state consistency
 
 use super::*;
+use chrono::{DateTime, Utc};
+use ggen_core::Graph;
+use serde_json::Value;
 use std::collections::HashMap;
 use tokio::time::{Duration, Instant};
-use serde_json::Value;
-use ggen_core::Graph;
-use chrono::{DateTime, Utc};
 
 /// Graph Monitor Agent
-/// 
+///
 /// Monitors RDF graph operations and maintains graph state consistency
 /// Tracks graph changes, validates operations, and ensures data integrity
 pub struct GraphMonitor {
@@ -130,7 +130,7 @@ pub enum ViolationType {
 impl Agent for GraphMonitor {
     async fn initialize(&mut self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         tracing::info!("Initializing Graph Monitor");
-        
+
         // Initialize graph state
         self.graph_state = GraphState {
             current_graph: None,
@@ -140,7 +140,7 @@ impl Agent for GraphMonitor {
             namespace_count: 0,
             validation_status: ValidationStatus::Unknown,
         };
-        
+
         // Initialize metrics
         self.metrics = GraphMetrics {
             total_operations: 0,
@@ -158,7 +158,7 @@ impl Agent for GraphMonitor {
                 query_cache_misses: 0,
             },
         };
-        
+
         // Initialize consistency checker
         self.consistency_checker = ConsistencyChecker {
             last_check: None,
@@ -166,46 +166,46 @@ impl Agent for GraphMonitor {
             consistency_violations: Vec::new(),
             auto_repair: true,
         };
-        
+
         tracing::info!("Graph Monitor initialized");
         Ok(())
     }
-    
+
     async fn start(&mut self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         tracing::info!("Starting Graph Monitor");
         self.status = AgentStatus::Healthy;
-        
+
         // Start periodic consistency checks
         self.start_consistency_checks().await?;
-        
+
         Ok(())
     }
-    
+
     async fn stop(&mut self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         tracing::info!("Stopping Graph Monitor");
         self.status = AgentStatus::Unhealthy;
         Ok(())
     }
-    
+
     async fn status(&self) -> AgentStatus {
         self.status.clone()
     }
-    
+
     fn config(&self) -> &AgentConfig {
         &self.config
     }
-    
-    async fn handle_message(&mut self, message: AgentMessage) -> Result<AgentMessage, Box<dyn std::error::Error + Send + Sync>> {
+
+    async fn handle_message(
+        &mut self, message: AgentMessage,
+    ) -> Result<AgentMessage, Box<dyn std::error::Error + Send + Sync>> {
         match message {
             AgentMessage::TaskAssignment { task_id, task } => {
                 self.handle_graph_operation(task_id, task).await
             }
-            AgentMessage::HealthCheck { from } => {
-                Ok(AgentMessage::HealthResponse {
-                    status: self.status.clone(),
-                    metrics: Some(self.get_metrics().await?),
-                })
-            }
+            AgentMessage::HealthCheck { from } => Ok(AgentMessage::HealthResponse {
+                status: self.status.clone(),
+                metrics: Some(self.get_metrics().await?),
+            }),
             _ => {
                 tracing::warn!("Graph Monitor received unhandled message type");
                 Ok(AgentMessage::ErrorNotification {
@@ -255,14 +255,16 @@ impl GraphMonitor {
             },
         }
     }
-    
+
     /// Handle graph operation task
-    async fn handle_graph_operation(&mut self, task_id: Uuid, task: TaskDefinition) -> Result<AgentMessage, Box<dyn std::error::Error + Send + Sync>> {
+    async fn handle_graph_operation(
+        &mut self, task_id: Uuid, task: TaskDefinition,
+    ) -> Result<AgentMessage, Box<dyn std::error::Error + Send + Sync>> {
         tracing::info!("Handling graph operation task: {}", task_id);
-        
+
         let start_time = Utc::now();
         let operation_type = self.determine_operation_type(&task.task_type);
-        
+
         // Create operation record
         let mut operation = GraphOperation {
             id: task_id,
@@ -275,17 +277,22 @@ impl GraphMonitor {
             affected_namespaces: Vec::new(),
             error: None,
         };
-        
+
         // Execute the operation
-        match self.execute_graph_operation(&mut operation, &task.parameters).await {
+        match self
+            .execute_graph_operation(&mut operation, &task.parameters)
+            .await
+        {
             Ok(result) => {
                 operation.success = true;
                 operation.triple_count_after = self.graph_state.triple_count;
-                operation.duration_ms = Utc::now().signed_duration_since(start_time).num_milliseconds() as u64;
-                
+                operation.duration_ms = Utc::now()
+                    .signed_duration_since(start_time)
+                    .num_milliseconds() as u64;
+
                 self.operation_history.push(operation.clone());
                 self.update_metrics(&operation);
-                
+
                 Ok(AgentMessage::TaskCompletion {
                     task_id,
                     result: TaskResult {
@@ -301,11 +308,13 @@ impl GraphMonitor {
             Err(e) => {
                 operation.success = false;
                 operation.error = Some(e.to_string());
-                operation.duration_ms = Utc::now().signed_duration_since(start_time).num_milliseconds() as u64;
-                
+                operation.duration_ms = Utc::now()
+                    .signed_duration_since(start_time)
+                    .num_milliseconds() as u64;
+
                 self.operation_history.push(operation.clone());
                 self.update_metrics(&operation);
-                
+
                 Ok(AgentMessage::TaskCompletion {
                     task_id,
                     result: TaskResult {
@@ -320,16 +329,14 @@ impl GraphMonitor {
             }
         }
     }
-    
+
     /// Execute graph operation
-    async fn execute_graph_operation(&mut self, operation: &mut GraphOperation, parameters: &Value) -> Result<Value, Box<dyn std::error::Error + Send + Sync>> {
+    async fn execute_graph_operation(
+        &mut self, operation: &mut GraphOperation, parameters: &Value,
+    ) -> Result<Value, Box<dyn std::error::Error + Send + Sync>> {
         match operation.operation_type {
-            GraphOperationType::Load => {
-                self.execute_load_operation(operation, parameters).await
-            }
-            GraphOperationType::Query => {
-                self.execute_query_operation(operation, parameters).await
-            }
+            GraphOperationType::Load => self.execute_load_operation(operation, parameters).await,
+            GraphOperationType::Query => self.execute_query_operation(operation, parameters).await,
             GraphOperationType::Validate => {
                 self.execute_validate_operation(operation, parameters).await
             }
@@ -339,25 +346,27 @@ impl GraphMonitor {
             GraphOperationType::Snapshot => {
                 self.execute_snapshot_operation(operation, parameters).await
             }
-            _ => {
-                Err(format!("Unsupported operation type: {:?}", operation.operation_type).into())
-            }
+            _ => Err(format!("Unsupported operation type: {:?}", operation.operation_type).into()),
         }
     }
-    
+
     /// Execute load operation
-    async fn execute_load_operation(&mut self, operation: &mut GraphOperation, parameters: &Value) -> Result<Value, Box<dyn std::error::Error + Send + Sync>> {
+    async fn execute_load_operation(
+        &mut self, operation: &mut GraphOperation, parameters: &Value,
+    ) -> Result<Value, Box<dyn std::error::Error + Send + Sync>> {
         let file_path = parameters["file_path"].as_str().unwrap_or("unknown");
         tracing::info!("Loading graph from: {}", file_path);
-        
+
         // TODO: Use actual GGen core graph loading
         // For now, simulate loading
         self.graph_state.triple_count += 100; // Simulate loading 100 triples
         self.graph_state.last_modified = Some(chrono::Utc::now());
         self.graph_state.validation_status = ValidationStatus::Valid;
-        
-        operation.affected_namespaces.push("http://example.org/".to_string());
-        
+
+        operation
+            .affected_namespaces
+            .push("http://example.org/".to_string());
+
         Ok(serde_json::json!({
             "operation": "load",
             "file_path": file_path,
@@ -366,31 +375,39 @@ impl GraphMonitor {
             "status": "success"
         }))
     }
-    
+
     /// Execute query operation
-    async fn execute_query_operation(&mut self, operation: &mut GraphOperation, parameters: &Value) -> Result<Value, Box<dyn std::error::Error + Send + Sync>> {
-        let query = parameters["query"].as_str().unwrap_or("SELECT * WHERE { ?s ?p ?o }");
+    async fn execute_query_operation(
+        &mut self, operation: &mut GraphOperation, parameters: &Value,
+    ) -> Result<Value, Box<dyn std::error::Error + Send + Sync>> {
+        let query = parameters["query"]
+            .as_str()
+            .unwrap_or("SELECT * WHERE { ?s ?p ?o }");
         tracing::info!("Executing SPARQL query: {}", query);
-        
+
         // TODO: Use actual GGen core graph querying
         // For now, simulate query execution
         let query_start = Utc::now();
-        
+
         // Simulate query processing
         tokio::time::sleep(Duration::from_millis(50)).await;
-        
-        let query_duration = Utc::now().signed_duration_since(query_start).num_milliseconds() as u64;
-        
+
+        let query_duration = Utc::now()
+            .signed_duration_since(query_start)
+            .num_milliseconds() as u64;
+
         // Update query performance metrics
         self.metrics.query_performance.total_queries += 1;
-        self.metrics.query_performance.average_query_time_ms = 
-            (self.metrics.query_performance.average_query_time_ms * (self.metrics.query_performance.total_queries - 1) as f64 + query_duration as f64) 
-            / self.metrics.query_performance.total_queries as f64;
-        
+        self.metrics.query_performance.average_query_time_ms =
+            (self.metrics.query_performance.average_query_time_ms
+                * (self.metrics.query_performance.total_queries - 1) as f64
+                + query_duration as f64)
+                / self.metrics.query_performance.total_queries as f64;
+
         if query_duration > self.metrics.query_performance.slowest_query_ms {
             self.metrics.query_performance.slowest_query_ms = query_duration;
         }
-        
+
         Ok(serde_json::json!({
             "operation": "query",
             "query": query,
@@ -403,14 +420,16 @@ impl GraphMonitor {
             "status": "success"
         }))
     }
-    
+
     /// Execute validate operation
-    async fn execute_validate_operation(&mut self, operation: &mut GraphOperation, parameters: &Value) -> Result<Value, Box<dyn std::error::Error + Send + Sync>> {
+    async fn execute_validate_operation(
+        &mut self, operation: &mut GraphOperation, parameters: &Value,
+    ) -> Result<Value, Box<dyn std::error::Error + Send + Sync>> {
         tracing::info!("Validating graph consistency");
-        
+
         // Perform consistency check
         let violations = self.check_consistency().await?;
-        
+
         if violations.is_empty() {
             self.graph_state.validation_status = ValidationStatus::Valid;
             Ok(serde_json::json!({
@@ -429,14 +448,16 @@ impl GraphMonitor {
             }))
         }
     }
-    
+
     /// Execute export operation
-    async fn execute_export_operation(&mut self, operation: &mut GraphOperation, parameters: &Value) -> Result<Value, Box<dyn std::error::Error + Send + Sync>> {
+    async fn execute_export_operation(
+        &mut self, operation: &mut GraphOperation, parameters: &Value,
+    ) -> Result<Value, Box<dyn std::error::Error + Send + Sync>> {
         let output_path = parameters["output_path"].as_str().unwrap_or("export.ttl");
         let format = parameters["format"].as_str().unwrap_or("turtle");
-        
+
         tracing::info!("Exporting graph to: {} in format: {}", output_path, format);
-        
+
         // TODO: Use actual GGen core graph export
         // For now, simulate export
         Ok(serde_json::json!({
@@ -447,13 +468,15 @@ impl GraphMonitor {
             "status": "success"
         }))
     }
-    
+
     /// Execute snapshot operation
-    async fn execute_snapshot_operation(&mut self, operation: &mut GraphOperation, parameters: &Value) -> Result<Value, Box<dyn std::error::Error + Send + Sync>> {
+    async fn execute_snapshot_operation(
+        &mut self, operation: &mut GraphOperation, parameters: &Value,
+    ) -> Result<Value, Box<dyn std::error::Error + Send + Sync>> {
         let snapshot_name = parameters["name"].as_str().unwrap_or("default");
-        
+
         tracing::info!("Creating graph snapshot: {}", snapshot_name);
-        
+
         // TODO: Use actual GGen core snapshot functionality
         // For now, simulate snapshot creation
         Ok(serde_json::json!({
@@ -464,7 +487,7 @@ impl GraphMonitor {
             "status": "success"
         }))
     }
-    
+
     /// Determine operation type from task type
     fn determine_operation_type(&self, task_type: &TaskType) -> GraphOperationType {
         match task_type {
@@ -473,11 +496,13 @@ impl GraphMonitor {
             _ => GraphOperationType::Query, // Default
         }
     }
-    
+
     /// Check graph consistency
-    async fn check_consistency(&mut self) -> Result<Vec<ConsistencyViolation>, Box<dyn std::error::Error + Send + Sync>> {
+    async fn check_consistency(
+        &mut self,
+    ) -> Result<Vec<ConsistencyViolation>, Box<dyn std::error::Error + Send + Sync>> {
         let mut violations = Vec::new();
-        
+
         // TODO: Implement actual consistency checking
         // For now, simulate some violations
         if self.graph_state.triple_count > 1000 {
@@ -491,17 +516,21 @@ impl GraphMonitor {
                 repair_action: None,
             });
         }
-        
-        self.consistency_checker.consistency_violations.extend(violations.clone());
+
+        self.consistency_checker
+            .consistency_violations
+            .extend(violations.clone());
         self.consistency_checker.last_check = Some(chrono::Utc::now());
-        
+
         Ok(violations)
     }
-    
+
     /// Start periodic consistency checks
-    async fn start_consistency_checks(&mut self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    async fn start_consistency_checks(
+        &mut self,
+    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         let check_interval = Duration::from_millis(self.consistency_checker.check_interval_ms);
-        
+
         tokio::spawn(async move {
             let mut interval = tokio::time::interval(check_interval);
             loop {
@@ -510,35 +539,38 @@ impl GraphMonitor {
                 tracing::debug!("Performing periodic consistency check");
             }
         });
-        
+
         Ok(())
     }
-    
+
     /// Update metrics after operation
     fn update_metrics(&mut self, operation: &GraphOperation) {
         self.metrics.total_operations += 1;
-        
+
         if operation.success {
             self.metrics.successful_operations += 1;
         } else {
             self.metrics.failed_operations += 1;
         }
-        
+
         // Update average operation time
-        self.metrics.average_operation_time_ms = 
-            (self.metrics.average_operation_time_ms * (self.metrics.total_operations - 1) as f64 + operation.duration_ms as f64) 
+        self.metrics.average_operation_time_ms = (self.metrics.average_operation_time_ms
+            * (self.metrics.total_operations - 1) as f64
+            + operation.duration_ms as f64)
             / self.metrics.total_operations as f64;
-        
+
         // Update peak triple count
         if self.graph_state.triple_count > self.metrics.peak_triple_count {
             self.metrics.peak_triple_count = self.graph_state.triple_count;
         }
-        
+
         self.metrics.current_triple_count = self.graph_state.triple_count;
     }
-    
+
     /// Get operation metrics
-    async fn get_operation_metrics(&self, operation: &GraphOperation) -> Result<Value, Box<dyn std::error::Error + Send + Sync>> {
+    async fn get_operation_metrics(
+        &self, operation: &GraphOperation,
+    ) -> Result<Value, Box<dyn std::error::Error + Send + Sync>> {
         Ok(serde_json::json!({
             "operation_id": operation.id,
             "operation_type": operation.operation_type,
@@ -550,7 +582,7 @@ impl GraphMonitor {
             "error": operation.error
         }))
     }
-    
+
     /// Get monitor metrics
     async fn get_metrics(&self) -> Result<Value, Box<dyn std::error::Error + Send + Sync>> {
         Ok(serde_json::json!({
@@ -564,10 +596,10 @@ impl GraphMonitor {
                 "total": self.metrics.total_operations,
                 "successful": self.metrics.successful_operations,
                 "failed": self.metrics.failed_operations,
-                "success_rate": if self.metrics.total_operations > 0 { 
-                    self.metrics.successful_operations as f64 / self.metrics.total_operations as f64 
-                } else { 
-                    0.0 
+                "success_rate": if self.metrics.total_operations > 0 {
+                    self.metrics.successful_operations as f64 / self.metrics.total_operations as f64
+                } else {
+                    0.0
                 },
                 "average_time_ms": self.metrics.average_operation_time_ms
             },

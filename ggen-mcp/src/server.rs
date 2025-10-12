@@ -1,12 +1,11 @@
 use rmcp::{
-    ErrorData, ServerHandler,
-    service::{RequestContext, RoleServer},
     model::{
-        CallToolRequestParam, CallToolResult, Content,
-        InitializeRequestParam, InitializeResult, Implementation,
-        ListToolsResult, PaginatedRequestParam, ProtocolVersion,
-        ServerCapabilities, Tool, ToolsCapability
+        CallToolRequestParam, CallToolResult, Content, Implementation, InitializeRequestParam,
+        InitializeResult, ListToolsResult, PaginatedRequestParam, ProtocolVersion,
+        ServerCapabilities, Tool, ToolsCapability,
     },
+    service::{RequestContext, RoleServer},
+    ErrorData, ServerHandler,
 };
 use serde_json::{Map, Value};
 use std::{borrow::Cow, collections::HashMap, sync::Arc};
@@ -14,7 +13,7 @@ use std::{borrow::Cow, collections::HashMap, sync::Arc};
 use crate::error::{GgenMcpError, Result};
 use crate::schema::*;
 use crate::swarm;
-use crate::tools::{graph, hook, market, project, template, ai};
+use crate::tools::{ai, graph, hook, market, project, template};
 // Ultrathink swarm integration for autonomous operations
 
 #[derive(Debug, Clone)]
@@ -211,7 +210,8 @@ impl GgenMcpServer {
             "ai_generate_template".to_string(),
             ToolDef {
                 name: "ai_generate_template".to_string(),
-                description: "Generate a template from natural language description using AI".to_string(),
+                description: "Generate a template from natural language description using AI"
+                    .to_string(),
                 input_schema: ai_generate_template_schema(),
             },
         );
@@ -220,7 +220,8 @@ impl GgenMcpServer {
             "ai_generate_sparql".to_string(),
             ToolDef {
                 name: "ai_generate_sparql".to_string(),
-                description: "Generate SPARQL query from natural language intent using AI".to_string(),
+                description: "Generate SPARQL query from natural language intent using AI"
+                    .to_string(),
                 input_schema: ai_generate_sparql_schema(),
             },
         );
@@ -238,7 +239,8 @@ impl GgenMcpServer {
             "ai_generate_project".to_string(),
             ToolDef {
                 name: "ai_generate_project".to_string(),
-                description: "Generate complete project structure from description using AI".to_string(),
+                description: "Generate complete project structure from description using AI"
+                    .to_string(),
                 input_schema: ai_generate_project_schema(),
             },
         );
@@ -427,9 +429,7 @@ impl GgenMcpServer {
 
 impl ServerHandler for GgenMcpServer {
     async fn initialize(
-        &self,
-        _params: InitializeRequestParam,
-        _context: RequestContext<RoleServer>,
+        &self, _params: InitializeRequestParam, _context: RequestContext<RoleServer>,
     ) -> std::result::Result<InitializeResult, ErrorData> {
         Ok(InitializeResult {
             protocol_version: ProtocolVersion::default(),
@@ -449,9 +449,7 @@ impl ServerHandler for GgenMcpServer {
     }
 
     async fn list_tools(
-        &self,
-        _pagination: Option<PaginatedRequestParam>,
-        _context: RequestContext<RoleServer>,
+        &self, _pagination: Option<PaginatedRequestParam>, _context: RequestContext<RoleServer>,
     ) -> std::result::Result<ListToolsResult, ErrorData> {
         let tools = self
             .tools
@@ -482,9 +480,7 @@ impl ServerHandler for GgenMcpServer {
     }
 
     async fn call_tool(
-        &self,
-        params: CallToolRequestParam,
-        _context: RequestContext<RoleServer>,
+        &self, params: CallToolRequestParam, _context: RequestContext<RoleServer>,
     ) -> std::result::Result<CallToolResult, ErrorData> {
         let tool_name = params.name.clone();
         tracing::info!("MCP call_tool invoked: {}", tool_name);
@@ -509,26 +505,22 @@ impl ServerHandler for GgenMcpServer {
                 // Return structured error response following MCP protocol
                 return Err(ErrorData::invalid_params(
                     format!("Tool execution failed: {}", e),
-                    None
+                    None,
                 ));
             }
         };
 
         // Format response according to MCP protocol
-        let formatted_response = serde_json::to_string_pretty(&result)
-            .map_err(|e| {
-                tracing::error!(
-                    "Failed to serialize tool '{}' response: {}",
-                    tool_name,
-                    e
-                );
-                ErrorData::internal_error(
-                    format!("Response serialization failed: {}", e),
-                    None
-                )
-            })?;
+        let formatted_response = serde_json::to_string_pretty(&result).map_err(|e| {
+            tracing::error!("Failed to serialize tool '{}' response: {}", tool_name, e);
+            ErrorData::internal_error(format!("Response serialization failed: {}", e), None)
+        })?;
 
-        tracing::debug!("Tool '{}' response formatted: {} bytes", tool_name, formatted_response.len());
+        tracing::debug!(
+            "Tool '{}' response formatted: {} bytes",
+            tool_name,
+            formatted_response.len()
+        );
 
         Ok(CallToolResult {
             content: vec![Content::text(formatted_response)],
