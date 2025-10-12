@@ -24,6 +24,9 @@ members = [
   "examples/natural-market-search",
   "examples/ai-template-project",
 ]
+exclude = [
+  "examples/rust-cli-lifecycle"
+]
 resolver = "2" # Use new resolver for better dependency resolution
 
 # Workspace-wide dependencies for version consistency

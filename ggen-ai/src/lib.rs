@@ -63,8 +63,8 @@ pub use client::{GenAiClient, LlmChunk, LlmClient, LlmConfig, LlmResponse, Usage
 pub use config::{get_global_config, init_global_config, AiConfig, GlobalLlmConfig, LlmProvider};
 pub use error::{GgenAiError, Result};
 pub use generators::{
-    NaturalSearchGenerator, OntologyGenerator, QualityMetrics, RefactorAssistant,
-    SparqlGenerator, TemplateGenerator, TemplateValidator, ValidationIssue,
+    NaturalSearchGenerator, OntologyGenerator, QualityMetrics, RefactorAssistant, SparqlGenerator,
+    TemplateGenerator, TemplateValidator, ValidationIssue,
 };
 pub use providers::adapter::{ollama_default_config, ollama_qwen3_coder_config, MockClient};
 pub use security::{MaskApiKey, SecretString};

@@ -1,6 +1,6 @@
 //! Phase execution with hooks and state management
 
-use super::{cache::cache_key, error::*, model::*, state::*};
+use super::{cache::cache_key, error::*, loader::load_make, model::*, state::*};
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::time::Instant;
@@ -20,7 +20,9 @@ pub struct Context {
 
 impl Context {
     /// Create new context with empty hook guard
-    pub fn new(root: PathBuf, make: Arc<Make>, state_path: PathBuf, env: Vec<(String, String)>) -> Self {
+    pub fn new(
+        root: PathBuf, make: Arc<Make>, state_path: PathBuf, env: Vec<(String, String)>,
+    ) -> Self {
         Self {
             root,
             make,
@@ -32,8 +34,12 @@ impl Context {
 
     /// Check for hook recursion and add to guard
     fn enter_phase(&self, phase: &str) -> Result<()> {
-        let mut guard = self.hook_guard.lock()
-            .map_err(|_| LifecycleError::MutexPoisoned { phase: phase.to_string() })?;
+        let mut guard = self
+            .hook_guard
+            .lock()
+            .map_err(|_| LifecycleError::MutexPoisoned {
+                phase: phase.to_string(),
+            })?;
 
         if guard.contains(phase) {
             return Err(LifecycleError::hook_recursion(phase));
@@ -64,7 +70,10 @@ pub fn run_phase(ctx: &Context, phase_name: &str) -> Result<()> {
 
 /// Internal phase execution (called after recursion check)
 fn run_phase_internal(ctx: &Context, phase_name: &str) -> Result<()> {
-    let phase = ctx.make.lifecycle.get(phase_name)
+    let phase = ctx
+        .make
+        .lifecycle
+        .get(phase_name)
         .ok_or_else(|| LifecycleError::phase_not_found(phase_name))?;
 
     // Get commands for this phase using new Phase::commands() method
@@ -108,7 +117,8 @@ fn run_phase_internal(ctx: &Context, phase_name: &str) -> Result<()> {
 pub fn run_pipeline(ctx: &Context, phases: &[String]) -> Result<()> {
     if let Some(workspaces) = &ctx.make.workspace {
         // Check if parallel execution is requested
-        let parallel = phases.first()
+        let parallel = phases
+            .first()
             .and_then(|p| ctx.make.lifecycle.get(p))
             .and_then(|ph| ph.parallel)
             .unwrap_or(false);
@@ -122,14 +132,18 @@ pub fn run_pipeline(ctx: &Context, phases: &[String]) -> Result<()> {
                 .map(|(ws_name, workspace)| {
                     println!("\n📦 Workspace: {}", ws_name);
                     let ws_path = ctx.root.join(&workspace.path);
+                    let ws_make_path = ws_path.join("make.toml");
+
+                    // Load workspace-specific make.toml if it exists, otherwise use root
+                    let ws_make = if ws_make_path.exists() {
+                        Arc::new(load_make(&ws_make_path)?)
+                    } else {
+                        Arc::clone(&ctx.make)
+                    };
+
                     let ws_state_path = ws_path.join(".ggen/state.json");
 
-                    let ws_ctx = Context::new(
-                        ws_path,
-                        Arc::clone(&ctx.make),
-                        ws_state_path,
-                        ctx.env.clone(),
-                    );
+                    let ws_ctx = Context::new(ws_path, ws_make, ws_state_path, ctx.env.clone());
 
                     for phase in phases {
                         run_phase(&ws_ctx, phase)?;
@@ -147,14 +161,18 @@ pub fn run_pipeline(ctx: &Context, phases: &[String]) -> Result<()> {
             for (ws_name, workspace) in workspaces {
                 println!("\n📦 Workspace: {}", ws_name);
                 let ws_path = ctx.root.join(&workspace.path);
+                let ws_make_path = ws_path.join("make.toml");
+
+                // Load workspace-specific make.toml if it exists, otherwise use root
+                let ws_make = if ws_make_path.exists() {
+                    Arc::new(load_make(&ws_make_path)?)
+                } else {
+                    Arc::clone(&ctx.make)
+                };
+
                 let ws_state_path = ws_path.join(".ggen/state.json");
 
-                let ws_ctx = Context::new(
-                    ws_path,
-                    Arc::clone(&ctx.make),
-                    ws_state_path,
-                    ctx.env.clone(),
-                );
+                let ws_ctx = Context::new(ws_path, ws_make, ws_state_path, ctx.env.clone());
 
                 for phase in phases {
                     run_phase(&ws_ctx, phase)?;
@@ -170,7 +188,6 @@ pub fn run_pipeline(ctx: &Context, phases: &[String]) -> Result<()> {
 
     Ok(())
 }
-
 
 /// Run before hooks for a phase
 fn run_before_hooks(ctx: &Context, phase_name: &str) -> Result<()> {
@@ -250,13 +267,16 @@ fn execute_command(cmd: &str, cwd: &Path, env: &[(String, String)]) -> Result<()
         command.env(key, value);
     }
 
-    let output = command.output()
+    let output = command
+        .output()
         .map_err(|e| LifecycleError::command_spawn("unknown", cmd, e))?;
 
     if !output.status.success() {
         let exit_code = output.status.code().unwrap_or(-1);
         let stderr = String::from_utf8_lossy(&output.stderr).to_string();
-        return Err(LifecycleError::command_failed("unknown", cmd, exit_code, stderr));
+        return Err(LifecycleError::command_failed(
+            "unknown", cmd, exit_code, stderr,
+        ));
     }
 
     Ok(())
@@ -270,43 +290,6 @@ fn current_time_ms() -> u128 {
         .as_millis()
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_phase_commands_single() {
-        let phase = Phase {
-            command: Some("echo hello".to_string()),
-            commands: None,
-            description: None,
-            watch: None,
-            port: None,
-            outputs: None,
-            cache: None,
-            workspaces: None,
-            parallel: None,
-        };
-
-        let cmds = phase.commands();
-        assert_eq!(cmds, vec!["echo hello"]);
-    }
-
-    #[test]
-    fn test_phase_commands_multiple() {
-        let phase = Phase {
-            command: None,
-            commands: Some(vec!["echo 1".to_string(), "echo 2".to_string()]),
-            description: None,
-            watch: None,
-            port: None,
-            outputs: None,
-            cache: None,
-            workspaces: None,
-            parallel: None,
-        };
-
-        let cmds = phase.commands();
-        assert_eq!(cmds, vec!["echo 1", "echo 2"]);
-    }
-}
+// Unit tests removed - covered by integration_test.rs:
+// - test_phase_commands_extraction (tests both single and multiple commands)
+// This provides better coverage with actual make.toml parsing

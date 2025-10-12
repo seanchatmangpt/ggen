@@ -97,6 +97,62 @@ pub fn bad_run() {
 }
 ```
 
+## Lifecycle Commands
+
+Universal lifecycle management for cross-framework development workflows.
+
+### Lifecycle Management
+
+```bash
+# List all available lifecycle phases
+ggen lifecycle list
+
+# Show details of a specific phase
+ggen lifecycle show build
+
+# Run a single lifecycle phase
+ggen lifecycle run dev
+
+# Run with environment
+ggen lifecycle run build --env production
+
+# Run multiple phases (pipeline)
+ggen lifecycle pipeline test lint build
+
+# Show current lifecycle state
+ggen lifecycle state
+```
+
+### make.toml Configuration
+
+```toml
+[project]
+name = "my-app"
+version = "1.0.0"
+
+[lifecycle.dev]
+description = "Development server"
+command = "npm run dev"
+port = 3000
+watch = true
+
+[lifecycle.build]
+description = "Production build"
+command = "npm run build"
+cache = true
+
+[lifecycle.test]
+description = "Run tests"
+command = "npm test"
+hooks = ["before:test", "after:test"]
+
+[hooks.before_test]
+command = "npm run lint"
+
+[hooks.after_test]
+command = "npm run coverage"
+```
+
 ## Marketplace Commands
 
 ### Search and Discovery

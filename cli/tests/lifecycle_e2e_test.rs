@@ -83,8 +83,7 @@ before_build = ["lint"]
 after_build = ["test"]
 "#;
 
-    fs::write(temp_dir.path().join("make.toml"), make_toml)
-        .expect("Failed to write make.toml");
+    fs::write(temp_dir.path().join("make.toml"), make_toml).expect("Failed to write make.toml");
 
     temp_dir
 }
@@ -103,8 +102,7 @@ fn assert_state_exists(root: &std::path::Path) {
         state_path.display()
     );
 
-    let state_content = fs::read_to_string(&state_path)
-        .expect("Failed to read state.json");
+    let state_content = fs::read_to_string(&state_path).expect("Failed to read state.json");
     serde_json::from_str::<serde_json::Value>(&state_content)
         .expect("State file should be valid JSON");
 }
@@ -249,7 +247,10 @@ fn test_lifecycle_run_creates_state_file() {
     let state: serde_json::Value = serde_json::from_str(&state_content).unwrap();
 
     assert_eq!(state["last_phase"], "init");
-    assert!(state["completed_phases"].as_array().unwrap().contains(&serde_json::json!("init")));
+    assert!(state["completed_phases"]
+        .as_array()
+        .unwrap()
+        .contains(&serde_json::json!("init")));
 }
 
 #[test]
@@ -304,7 +305,9 @@ fn test_lifecycle_pipeline_sequential_execution() {
         .stdout(predicate::str::contains("Running phase: init"))
         .stdout(predicate::str::contains("Running phase: setup"))
         .stdout(predicate::str::contains("Running phase: build"))
-        .stdout(predicate::str::contains("Pipeline completed: init → setup → build"));
+        .stdout(predicate::str::contains(
+            "Pipeline completed: init → setup → build",
+        ));
 
     // Verify all phases executed
     assert!(temp_dir.path().join(".initialized").exists());
@@ -440,7 +443,9 @@ fn test_lifecycle_list_help() {
         .arg("--help")
         .assert()
         .success()
-        .stdout(predicate::str::contains("List all available lifecycle phases"))
+        .stdout(predicate::str::contains(
+            "List all available lifecycle phases",
+        ))
         .stdout(predicate::str::contains("--root"));
 }
 

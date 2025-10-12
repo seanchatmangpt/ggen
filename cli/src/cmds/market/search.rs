@@ -298,26 +298,30 @@ pub async fn run(args: &SearchArgs) -> Result<()> {
     }
 
     if args.json {
-        let json_results: Vec<_> = results.iter().map(|pkg| {
-            serde_json::json!({
-                "id": pkg.name,
-                "name": pkg.full_name,
-                "description": pkg.description,
-                "version": pkg.version,
-                "category": pkg.category,
-                "author": pkg.author,
-                "license": pkg.license,
-                "tags": pkg.tags,
-                "features": pkg.features,
-                "repository": pkg.repository,
+        let json_results: Vec<_> = results
+            .iter()
+            .map(|pkg| {
+                serde_json::json!({
+                    "id": pkg.name,
+                    "name": pkg.full_name,
+                    "description": pkg.description,
+                    "version": pkg.version,
+                    "category": pkg.category,
+                    "author": pkg.author,
+                    "license": pkg.license,
+                    "tags": pkg.tags,
+                    "features": pkg.features,
+                    "repository": pkg.repository,
+                })
             })
-        }).collect();
+            .collect();
         println!("{}", serde_json::to_string_pretty(&json_results)?);
         return Ok(());
     }
 
     // Format output to match cookbook style with enhanced metadata
-    println!("Found {} package{} matching \"{}\"",
+    println!(
+        "Found {} package{} matching \"{}\"",
         results.len(),
         if results.len() == 1 { "" } else { "s" },
         args.query
@@ -328,8 +332,10 @@ pub async fn run(args: &SearchArgs) -> Result<()> {
     for pkg in results {
         println!("📦 {} v{}", pkg.name, pkg.version);
         println!("   {}", pkg.description);
-        println!("   Author: {} | License: {} | Category: {}",
-            pkg.author, pkg.license, pkg.category);
+        println!(
+            "   Author: {} | License: {} | Category: {}",
+            pkg.author, pkg.license, pkg.category
+        );
         if !pkg.tags.is_empty() {
             println!("   Tags: {}", pkg.tags.join(", "));
         }

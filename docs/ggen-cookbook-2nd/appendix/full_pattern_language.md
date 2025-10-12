@@ -260,7 +260,7 @@
     - [233. **Few-Shot Learning**](#233-few-shot-learning)
     - [234. **Chain-of-Thought Prompting**](#234-chain-of-thought-prompting)
     - [235. **Self-Critique**](#235-self-critique)
-    - [236. **Multi-Agent Collaboration**](#236-multi-agent-collaboration)
+    - [236. **Collaborative Generation**](#236-collaborative-generation)
     - [237. **Retrieval-Augmented Generation**](#237-retrieval-augmented-generation)
     - [238. **Code Embeddings**](#238-code-embeddings)
     - [239. **Semantic Code Search**](#239-semantic-code-search)
@@ -761,7 +761,7 @@ Parallelize template execution across multiple machines.
 Balance load by redistributing work from busy to idle workers.
 
 ### 144. **Consensus-Based Decisions**
-Make generation decisions through multi-agent consensus.
+Make generation decisions through collaborative consensus.
 
 ### 145. **Emergent Behavior**
 Complex generation patterns emerge from simple template rules.

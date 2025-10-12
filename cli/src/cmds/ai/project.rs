@@ -83,7 +83,9 @@ pub async fn run(args: &ProjectArgs) -> Result<()> {
     use ggen_ai::MockClient;
     let client: Arc<dyn ggen_ai::client::LlmClient> = if args.mock {
         println!("ℹ️  Using mock client for testing");
-        Arc::new(MockClient::with_response("Generated project structure content"))
+        Arc::new(MockClient::with_response(
+            "Generated project structure content",
+        ))
     } else if args.openai {
         println!("ℹ️  Using OpenAI provider");
         let _config = global_config
@@ -162,53 +164,53 @@ pub async fn run(args: &ProjectArgs) -> Result<()> {
     // Write the main project template
     let main_template_path = format!("{}/project.tmpl", args.output);
     fs::write(
-            &main_template_path,
-            format!("{:?}\n---\n{}", template.front, template.body),
+        &main_template_path,
+        format!("{:?}\n---\n{}", template.front, template.body),
+    )?;
+    println!("📁 Saved project template to: {}", main_template_path);
+
+    // Generate additional project files
+    let project_files = vec![
+        (
+            "README.md",
+            "Generate a comprehensive README.md for the project",
+        ),
+        (
+            "Cargo.toml",
+            "Generate Cargo.toml configuration for Rust project",
+        ),
+        ("src/main.rs", "Generate main.rs entry point"),
+    ];
+
+    // ⚠️  COMMENTED OUT - Individual file generation loop
+    for (file_path, description) in &project_files {
+        let file_description = format!(
+            "{} for project '{}': {}",
+            description, args.name, args.description
+        );
+        let file_template = generator
+            .generate_template(
+                &file_description,
+                examples.iter().map(|s| s.as_str()).collect(),
+            )
+            .await
+            .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?;
+
+        let full_path = format!("{}/{}", args.output, file_path);
+        std::fs::create_dir_all(std::path::Path::new(&full_path).parent().unwrap()).map_err(
+            |e| ggen_utils::error::Error::new(&format!("Failed to create directory: {}", e)),
         )?;
-        println!("📁 Saved project template to: {}", main_template_path);
 
-        // Generate additional project files
-        let project_files = vec![
-            (
-                "README.md",
-                "Generate a comprehensive README.md for the project",
-            ),
-            (
-                "Cargo.toml",
-                "Generate Cargo.toml configuration for Rust project",
-            ),
-            ("src/main.rs", "Generate main.rs entry point"),
-        ];
+        fs::write(
+            &full_path,
+            format!("{:?}\n---\n{}", file_template.front, file_template.body),
+        )?;
+        println!("📁 Generated: {}", full_path);
+    }
 
-        // ⚠️  COMMENTED OUT - Individual file generation loop
-        for (file_path, description) in &project_files {
-            let file_description = format!(
-                "{} for project '{}': {}",
-                description, args.name, args.description
-            );
-            let file_template = generator
-                .generate_template(
-                    &file_description,
-                    examples.iter().map(|s| s.as_str()).collect(),
-                )
-                .await
-                .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?;
-
-            let full_path = format!("{}/{}", args.output, file_path);
-            std::fs::create_dir_all(std::path::Path::new(&full_path).parent().unwrap()).map_err(
-                |e| ggen_utils::error::Error::new(&format!("Failed to create directory: {}", e)),
-            )?;
-
-            fs::write(
-                &full_path,
-                format!("{:?}\n---\n{}", file_template.front, file_template.body),
-            )?;
-            println!("📁 Generated: {}", full_path);
-        }
-
-        // Generate project manifest
-        let manifest_content = format!(
-            r#"# Generated Project: {}
+    // Generate project manifest
+    let manifest_content = format!(
+        r#"# Generated Project: {}
     Description: {}
     Language: {}
     Framework: {}
@@ -240,28 +242,28 @@ pub async fn run(args: &ProjectArgs) -> Result<()> {
     - Run tests: cargo test
     - Build for production: cargo build --release
     "#,
-            args.name,
-            args.description,
-            args.language,
-            args.framework.as_deref().unwrap_or("None"),
-            chrono::Utc::now().to_rfc3339(),
-            args.tests,
-            args.docs,
-            args.ci,
-            args.publish,
-            args.output
-        );
+        args.name,
+        args.description,
+        args.language,
+        args.framework.as_deref().unwrap_or("None"),
+        chrono::Utc::now().to_rfc3339(),
+        args.tests,
+        args.docs,
+        args.ci,
+        args.publish,
+        args.output
+    );
 
-        let manifest_path = format!("{}/PROJECT_MANIFEST.md", args.output);
-        fs::write(&manifest_path, manifest_content)?;
-        println!("📋 Generated project manifest: {}", manifest_path);
+    let manifest_path = format!("{}/PROJECT_MANIFEST.md", args.output);
+    fs::write(&manifest_path, manifest_content)?;
+    println!("📋 Generated project manifest: {}", manifest_path);
 
-        println!("✅ Project generation completed successfully!");
-        println!("📋 Summary:");
-        println!("   • Project: {}", args.name);
-        println!("   • Language: {}", args.language);
-        println!("   • Output: {}", args.output);
-        println!("   • Files generated: {}", project_files.len() + 2); // +2 for template and manifest
+    println!("✅ Project generation completed successfully!");
+    println!("📋 Summary:");
+    println!("   • Project: {}", args.name);
+    println!("   • Language: {}", args.language);
+    println!("   • Output: {}", args.output);
+    println!("   • Files generated: {}", project_files.len() + 2); // +2 for template and manifest
 
-        Ok(())
+    Ok(())
 }

@@ -101,7 +101,7 @@ pub struct GraphDelta {
 pub struct DeltaMetadata {
     pub transaction_id: String,
     pub timestamp: DateTime<Utc>,
-    pub source_agent: String,
+    pub source_component: String,
     pub reasoning: String,
     pub confidence: f64,
 }
@@ -798,7 +798,7 @@ impl TransactionLog {
             metadata: DeltaMetadata {
                 transaction_id: format!("rollback_{}", transaction_id),
                 timestamp: Utc::now(),
-                source_agent: "rollback_manager".to_string(),
+                source_component: "rollback_manager".to_string(),
                 reasoning: format!("Rollback of transaction {}", transaction_id),
                 confidence: 1.0,
             },

@@ -104,12 +104,11 @@ pub struct Hooks {
     pub before_deploy: Option<Vec<String>>,
     #[serde(default)]
     pub after_deploy: Option<Vec<String>>,
-
-    // Error handling
-    #[serde(default)]
-    pub on_error: Option<String>,
-    #[serde(default)]
-    pub on_success: Option<String>,
+    // Future: Error handling hooks (80/20 - not implemented yet, fail fast for now)
+    // #[serde(default)]
+    // pub on_error: Option<String>,
+    // #[serde(default)]
+    // pub on_success: Option<String>,
 }
 
 impl Phase {
@@ -133,6 +132,8 @@ impl Make {
 
     /// Get commands for a phase
     pub fn phase_commands(&self, phase_name: &str) -> Vec<String> {
-        self.lifecycle.get(phase_name).map_or(vec![], |p| p.commands())
+        self.lifecycle
+            .get(phase_name)
+            .map_or(vec![], |p| p.commands())
     }
 }

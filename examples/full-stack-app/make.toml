@@ -1,0 +1,195 @@
+# ============================================================================
+# Full-Stack Application - Root make.toml
+# ============================================================================
+# Demonstrates all ggen CLI capabilities:
+# - Multi-workspace orchestration
+# - Lifecycle phases (init, setup, build, test, deploy)
+# - Hooks (before/after phase execution)
+# - Parallel execution
+# - Custom phases
+# - Environment variables
+# ============================================================================
+
+[project]
+name = "full-stack-app"
+type = "workspace"
+version = "1.0.0"
+description = "Comprehensive example demonstrating all ggen CLI features"
+
+# ============================================================================
+# WORKSPACE CONFIGURATION
+# ============================================================================
+# Defines independent sub-projects that can be built in parallel
+[workspace.backend]
+path = "backend"
+description = "Node.js REST API with Express"
+
+[workspace.frontend]
+path = "frontend"
+description = "React SPA with TypeScript"
+
+[workspace.shared]
+path = "shared"
+description = "Shared TypeScript types and utilities"
+
+# ============================================================================
+# LIFECYCLE PHASES - Root Level
+# ============================================================================
+# These run at the root and orchestrate workspace commands
+
+[lifecycle.init]
+description = "Initialize project and install dependencies"
+commands = [
+    "echo '🚀 Initializing full-stack application...'",
+    "node --version",
+    "npm --version"
+]
+
+[lifecycle.setup]
+description = "Setup development environment"
+commands = [
+    "echo '📦 Setting up development environment...'",
+    "mkdir -p .ggen/cache",
+    "mkdir -p .ggen/logs"
+]
+
+[lifecycle.build]
+description = "Build all workspaces"
+parallel = true  # Enable parallel workspace execution
+commands = [
+    "echo '🏗️  Building all workspaces in parallel...'",
+    "echo 'Workspaces: backend, frontend, shared'"
+]
+
+[lifecycle.test]
+description = "Run tests across all workspaces"
+parallel = true
+commands = [
+    "echo '🧪 Running tests across all workspaces...'",
+    "echo 'Test suite: unit, integration, e2e'"
+]
+
+[lifecycle.deploy]
+description = "Deploy application to production"
+commands = [
+    "echo '🚀 Deploying full-stack application...'",
+    "echo 'Environment: production'",
+    "echo 'Region: us-east-1'"
+]
+
+# ============================================================================
+# CUSTOM PHASES
+# ============================================================================
+# Additional phases for specific tasks
+
+[lifecycle.lint]
+description = "Run linting across all workspaces"
+parallel = true
+commands = [
+    "echo '🔍 Running linters...'",
+    "echo 'ESLint, Prettier, TypeScript checks'"
+]
+
+[lifecycle.format]
+description = "Format code with prettier"
+commands = [
+    "echo '✨ Formatting code...'",
+    "echo 'Running prettier on all workspaces'"
+]
+
+[lifecycle.clean]
+description = "Clean build artifacts"
+commands = [
+    "echo '🧹 Cleaning build artifacts...'",
+    "rm -rf backend/dist",
+    "rm -rf frontend/dist",
+    "rm -rf shared/dist",
+    "rm -rf .ggen/cache/*",
+    "echo 'Clean complete!'"
+]
+
+[lifecycle.docker-build]
+description = "Build Docker images"
+commands = [
+    "echo '🐳 Building Docker images...'",
+    "docker build -t full-stack-app-backend:latest backend",
+    "docker build -t full-stack-app-frontend:latest frontend"
+]
+
+[lifecycle.docker-up]
+description = "Start Docker containers"
+commands = [
+    "echo '🐳 Starting Docker containers...'",
+    "docker-compose up -d"
+]
+
+[lifecycle.docker-down]
+description = "Stop Docker containers"
+commands = [
+    "echo '🐳 Stopping Docker containers...'",
+    "docker-compose down"
+]
+
+[lifecycle.dev]
+description = "Start development servers"
+commands = [
+    "echo '💻 Starting development environment...'",
+    "echo 'Backend: http://localhost:3000'",
+    "echo 'Frontend: http://localhost:5173'"
+]
+
+[lifecycle.benchmark]
+description = "Run performance benchmarks"
+commands = [
+    "echo '⚡ Running performance benchmarks...'",
+    "node scripts/benchmark.js"
+]
+
+[lifecycle.migrate]
+description = "Run database migrations"
+commands = [
+    "echo '🗄️  Running database migrations...'",
+    "node backend/src/db/migrate.js"
+]
+
+[lifecycle.seed]
+description = "Seed database with test data"
+commands = [
+    "echo '🌱 Seeding database...'",
+    "node backend/src/db/seed.js"
+]
+
+# ============================================================================
+# HOOKS CONFIGURATION
+# ============================================================================
+# Hooks run before/after specific phases for orchestration
+
+[hooks]
+# Global hooks that run for every phase
+before_all = ["format"]
+after_all = []
+
+# Phase-specific hooks
+before_init = []
+after_init = ["setup"]
+
+before_setup = []
+after_setup = []
+
+before_build = ["lint"]
+after_build = ["test"]
+
+before_test = []
+after_test = []
+
+before_deploy = ["build"]
+after_deploy = []
+
+# ============================================================================
+# ENVIRONMENT VARIABLES
+# ============================================================================
+# Note: Set these via CLI or .env file
+# Examples:
+#   export NODE_ENV=production
+#   export API_URL=https://api.example.com
+#   export DATABASE_URL=postgresql://localhost/mydb

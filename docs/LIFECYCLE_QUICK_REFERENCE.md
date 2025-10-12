@@ -26,38 +26,37 @@ ggen state files
 
 ```bash
 # Run single phase
-ggen run <phase>
-ggen run dev
-ggen run build
-ggen run test
+ggen lifecycle run <phase>
+ggen lifecycle run dev
+ggen lifecycle run build
+ggen lifecycle run test
 
 # Run with environment
-ggen run build --env production
-ggen run deploy --env staging
+ggen lifecycle run build --env production
+ggen lifecycle run deploy --env staging
 
 # Run multiple phases (pipeline)
-ggen pipeline <phase1> <phase2> <phase3>
-ggen pipeline test lint build deploy
+ggen lifecycle pipeline <phase1> <phase2> <phase3>
+ggen lifecycle pipeline test lint build deploy
 
 # Pipeline with environment
-ggen pipeline build deploy --env production
+ggen lifecycle pipeline build deploy --env production
 ```
 
 ### State Management
 
 ```bash
-# View current state
-ggen state
-ggen state show
+# View current lifecycle state
+ggen lifecycle state
 
-# View generated files
-ggen state files
+# View phase history (if implemented)
+# ggen lifecycle history
 
-# View phase history
-ggen state history
+# View generated files (if implemented)
+# ggen lifecycle files
 
-# Reset state
-ggen state reset
+# Reset state (if implemented)
+# ggen lifecycle reset
 
 # Clean build artifacts
 ggen clean

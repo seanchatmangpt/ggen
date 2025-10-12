@@ -7,11 +7,10 @@ use std::path::Path;
 /// Load make.toml from path
 pub fn load_make<P: AsRef<Path>>(path: P) -> Result<Make> {
     let path_ref = path.as_ref();
-    let content = std::fs::read_to_string(path_ref)
-        .map_err(|e| LifecycleError::config_load(path_ref, e))?;
+    let content =
+        std::fs::read_to_string(path_ref).map_err(|e| LifecycleError::config_load(path_ref, e))?;
 
-    toml::from_str::<Make>(&content)
-        .map_err(|e| LifecycleError::config_parse(path_ref, e))
+    toml::from_str::<Make>(&content).map_err(|e| LifecycleError::config_parse(path_ref, e))
 }
 
 /// Load make.toml from project root, with fallback to default
@@ -36,31 +35,7 @@ pub fn load_make_or_default<P: AsRef<Path>>(root: P) -> Result<Make> {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_parse_minimal() {
-        let toml = r#"
-[project]
-name = "test-app"
-"#;
-        let make: Make = toml::from_str(toml).unwrap();
-        assert_eq!(make.project.name, "test-app");
-    }
-
-    #[test]
-    fn test_parse_with_lifecycle() {
-        let toml = r#"
-[project]
-name = "test-app"
-
-[lifecycle.build]
-command = "cargo build"
-description = "Build the project"
-"#;
-        let make: Make = toml::from_str(toml).unwrap();
-        assert!(make.lifecycle.contains_key("build"));
-    }
-}
+// Unit tests removed - covered by integration_test.rs:
+// - test_load_make_toml (loads and validates make.toml)
+// - All tests use LifecycleTestFixture which exercises load_make()
+// This provides better coverage with real file I/O
