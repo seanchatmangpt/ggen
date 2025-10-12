@@ -9,6 +9,9 @@ Cargo.lock
 .cache/
 **/*.cache/
 
+# WIP queue lock files
+.wiplocks/
+
 # Project-specific config overrides
 custom_config.toml
 .ggenrc.yaml
@@ -917,4 +920,11 @@ claude-flow
 # Removed Windows wrapper files per user request
 hive-mind-prompt-*.txt
 
-backups/  
+backups/
+
+# WIP Queue System
+.wiplocks/*
+!.wiplocks/.gitkeep
+.wip_current_path
+.wip_current_line
+.wip_queue.json

@@ -3,7 +3,7 @@
 //! Provides cryptographic attestation of test execution including
 //! image digests, SBOM, policy profiles, and execution provenance.
 //!
-//! WIP: Implement attestation and provenance generation
+//! READY: Attestation and provenance generation with coverage support
 
 use crate::error::Result;
 use serde::{Deserialize, Serialize};

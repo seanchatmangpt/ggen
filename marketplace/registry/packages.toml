@@ -7,6 +7,55 @@ registry_url = "https://github.com/seanchatmangpt/ggen"
 raw_base_url = "https://raw.githubusercontent.com/seanchatmangpt/ggen/master"
 pages_url = "https://seanchatmangpt.github.io/ggen"
 
+# Hello World Utilities Package
+[[package]]
+name = "hello-world-utils"
+full_name = "hello-world-utils"
+version = "0.1.0"
+description = "Simple utility package demonstrating ggen marketplace functionality"
+category = "utilities"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+path = "marketplace/packages/hello-world"
+license = "MIT"
+dependencies = [
+    "anyhow = 1.0",
+    "serde = 1.0",
+    "serde_json = 1.0",
+    "tokio = 1.0",
+]
+features = [
+    "Basic greeting utilities",
+    "Configuration management",
+    "JSON serialization",
+    "Validation functions",
+    "Example applications",
+]
+tags = ["utilities", "demo", "examples", "hello-world"]
+keywords = ["hello-world", "utilities", "demo", "examples"]
+
+[package.install]
+type = "cargo"
+crate = "hello-world-utils"
+path = "marketplace/packages/hello-world"
+
+[package.examples]
+basic = """
+use hello_world_utils::{HelloWorld, HelloConfig};
+
+fn main() -> anyhow::Result<()> {
+    let hello = HelloWorld::default();
+    println!("{}", hello.greet());
+    Ok(())
+}
+"""
+
+[package.docs]
+quick_start = "cargo run --bin hello-world"
+demo = "Run examples to see all features"
+validation = "Use validate_config() to check configuration"
+
 # Advanced Rust API Template (Production Example)
 [[package]]
 name = "advanced-rust-api-8020"
@@ -33,10 +82,29 @@ features = [
     "Docker containerization",
     "Complete test suite with 80%+ coverage",
     "Database migrations with SQLx",
-    "Environment-based configuration"
+    "Environment-based configuration",
 ]
-tags = ["rust", "api", "rest", "production", "lifecycle", "ai-generation", "8020", "axum", "jwt"]
-keywords = ["rust", "axum", "rest-api", "production", "template", "ai", "sparql", "lifecycle"]
+tags = [
+    "rust",
+    "api",
+    "rest",
+    "production",
+    "lifecycle",
+    "ai-generation",
+    "8020",
+    "axum",
+    "jwt",
+]
+keywords = [
+    "rust",
+    "axum",
+    "rest-api",
+    "production",
+    "template",
+    "ai",
+    "sparql",
+    "lifecycle",
+]
 
 # Rust CLI Template
 [[package]]
@@ -51,7 +119,13 @@ download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master
 path = "marketplace/packages/rust-cli-template"
 license = "MIT"
 dependencies = []
-features = ["Clap argument parsing", "Comprehensive error handling", "Unit testing", "Integration testing", "CI/CD ready"]
+features = [
+    "Clap argument parsing",
+    "Comprehensive error handling",
+    "Unit testing",
+    "Integration testing",
+    "CI/CD ready",
+]
 tags = ["rust", "cli", "template", "production"]
 keywords = ["rust", "cli", "template", "command-line"]
 
@@ -68,6 +142,11 @@ download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master
 path = "marketplace/packages/graphql-api-rust"
 license = "MIT"
 dependencies = []
-features = ["async-graphql integration", "JWT authentication", "Real-time subscriptions", "Database integration"]
+features = [
+    "async-graphql integration",
+    "JWT authentication",
+    "Real-time subscriptions",
+    "Database integration",
+]
 tags = ["rust", "graphql", "api", "async"]
 keywords = ["rust", "graphql", "api", "subscription"]

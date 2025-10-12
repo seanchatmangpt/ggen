@@ -1,0 +1,46 @@
+name: WIP Validation
+
+on:
+  pull_request:
+    branches: [ master, main ]
+  push:
+    branches: [ master, main ]
+
+jobs:
+  validate-wip:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y jq
+    
+    - name: Validate WIP markers and locks
+      run: |
+        # Get changed files from PR or last commit
+        if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }})
+        else
+          CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+        fi
+        
+        # Convert to array and run validation
+        ./scripts/validate-wip-markers.sh $CHANGED_FILES
+    
+    - name: Check WIP queue status
+      run: |
+        echo "📋 Current WIP queue status:"
+        cargo run -p wipqueue --quiet | jq -r '.[0:5] | .[] | "\(.path):\(.line) - \(.text)"'
+        
+        echo ""
+        echo "🔒 Active locks:"
+        if [[ -d .wiplocks ]]; then
+          find .wiplocks -mindepth 1 -maxdepth 1 -type d | wc -l | xargs echo "Count:"
+        else
+          echo "Count: 0"
+        fi

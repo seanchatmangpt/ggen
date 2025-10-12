@@ -700,6 +700,90 @@ args = [
   "--force",
 ]
 
+# WIP Queue Management
+[tasks.wip-next]
+description = "Get next WIP task and claim it with lock"
+workspace = false
+script_runner = "@shell"
+script = '''
+cargo run -p wipqueue --quiet | jq -r '.[0] | @base64' > .wip_next || true
+if [ ! -s .wip_next ]; then
+  echo '✓ No unlocked WIP tasks found'
+  rm -f .wip_next
+  exit 0
+fi
+data=$(cat .wip_next)
+path=$(echo $data | base64 -d | jq -r .path)
+line=$(echo $data | base64 -d | jq -r .line)
+kind=$(echo $data | base64 -d | jq -r .kind)
+text=$(echo $data | base64 -d | jq -r .text)
+echo "$path" > .wip_current_path
+echo "$line" > .wip_current_line
+./scripts/wip-lock claim "$path" "$line"
+git switch -c "wip/$(echo "$path" | tr '/' '__' | tr '.' '_')__L$line" 2>/dev/null || git switch "wip/$(echo "$path" | tr '/' '__' | tr '.' '_')__L$line"
+echo "✓ Claimed: $path:$line"
+echo "  Kind: $kind"
+echo "  Task: $text"
+'''
+
+[tasks.wip-done]
+description = "Release WIP lock and clean up"
+workspace = false
+script_runner = "@shell"
+script = '''
+if [ ! -f .wip_current_path ]; then
+  echo '❌ No task claimed (run: cargo make wip-next)'
+  exit 1
+fi
+path=$(cat .wip_current_path)
+./scripts/wip-lock release "$path"
+rm -f .wip_current_path .wip_current_line .wip_next .wip_queue.json
+echo "✓ Released: $path"
+echo "  Next: commit changes and open PR"
+'''
+
+[tasks.wip-status]
+description = "Show current WIP queue status"
+workspace = false
+script_runner = "@shell"
+script = '''
+echo "=== WIP Queue Status ==="
+cargo run -p wipqueue --quiet 2>/dev/null | jq -r '
+  .[] |
+  if (.lock_path | test(".wiplocks")) then
+    "🔒 LOCKED: \(.path):\(.line) - \(.kind): \(.text)"
+  else
+    "⚡ READY:  \(.path):\(.line) - \(.kind): \(.text)"
+  end
+' || echo "Failed to read queue"
+if [ -f .wip_current_path ]; then
+  echo ""
+  echo "=== Current Claim ==="
+  path=$(cat .wip_current_path)
+  line=$(cat .wip_current_line)
+  echo "Working on: $path:$line"
+fi
+'''
+
+[tasks.wip-list]
+description = "List all WIP tasks in JSON format"
+workspace = false
+command = "cargo"
+args = ["run", "-p", "wipqueue", "--quiet"]
+
+[tasks.wip-clean]
+description = "Clean up all WIP locks (use with caution)"
+workspace = false
+script_runner = "@shell"
+script = '''
+root=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
+rm -rf "$root/.wiplocks"/*
+mkdir -p "$root/.wiplocks"
+echo "# WIP lock directory - tracks claimed tasks" > "$root/.wiplocks/.gitkeep"
+rm -f .wip_current_path .wip_current_line .wip_next .wip_queue.json
+echo "✓ Cleaned all WIP locks and state"
+'''
+
 [tasks.completions-list]
 description = "List supported shell completion types"
 command = "cargo"

@@ -294,6 +294,89 @@ cargo make validate-templates   # Validate AI templates
 cargo make validate-rdf         # Validate RDF graphs
 cargo make completions          # Generate shell completions
 
+## WIP Queue Development
+
+ggen uses a deterministic DFS WIP queue system to ensure systematic implementation of all features while preventing agent conflicts.
+
+### WIP Queue Overview
+
+The WIP queue provides a deterministic ordering of unimplemented features, ensuring agents work on tasks in dependency order and preventing duplicate work.
+
+**Standard Markers:**
+- `// WIP: <short task>` - Unimplemented feature
+- `// TODO: <short task>` - Known improvement needed
+- `// UNIMPL: <short task>` - Explicitly unimplemented
+- `unimplemented!("WIP: <short task>")` - Compile-time stub
+- `todo!("WIP: <short task>")` - Runtime stub
+
+**Completion:** Replace with `// READY: <summary>` or remove the marker.
+
+### WIP Development Workflow
+
+1. **Claim next task:**
+   ```bash
+   # Get next WIP task (JSON)
+   cargo run -p wipqueue --quiet | jq '.[0]'
+
+   # Lock the task and create branch
+   ./scripts/wip-lock claim "<path>" "<line>"
+   git switch -c "wip/$(echo "<path>" | tr '/' '__')__L<line>"
+   ```
+
+2. **Implement to completion:**
+   ```bash
+   # Replace marker with working code + tests
+   # Ensure code compiles and passes tests
+   cargo fmt && cargo clippy -D warnings && cargo nextest run
+
+   # Flip marker to READY: or remove it
+   git add . && git commit -m "feat(<area>): complete WIP at <path>:<line>"
+   git push
+   ```
+
+3. **Release and continue:**
+   ```bash
+   ./scripts/wip-lock release "<path>"
+   # Repeat until queue empty
+   ```
+
+### WIP Queue Commands
+
+```bash
+# Get next WIP task (JSON format)
+cargo run -p wipqueue --quiet | jq '.[0]'
+
+# Lock a specific task
+./scripts/wip-lock claim "<path>" "<line>"
+
+# Release lock after completion
+./scripts/wip-lock release "<path>"
+
+# Development workflow (Makefile targets)
+cargo make wip.next    # Claim next task and create branch
+cargo make wip.done    # Release lock and clean up
+```
+
+### Module Implementation Order
+
+The queue ensures modules are implemented in dependency order:
+
+1. **Core hygiene** (lints, errors, config)
+2. **Backend abstraction** (Docker/Podman/Local)
+3. **Runtime orchestration** (Runner, determinism)
+4. **Scenario DSL** (fluent API, assertions)
+5. **Security policies** (capability profiles)
+6. **Coverage collection** (path remapping)
+7. **Service fixtures** (Postgres, Redis, etc.)
+8. **Forensics** (artifacts, attestation)
+
+### Guardrails
+
+- **CI Gates**: Branch must flip at least one `WIP:` to `READY:` and `.wiplocks/` must be empty
+- **Deterministic Order**: DFS traversal ensures consistent task ordering
+- **File Locks**: Prevents duplicate work on same task
+- **Agent Isolation**: Each task locked to prevent conflicts
+
 # GitHub/Pages
 cargo make docs-build           # Build documentation
 cargo make gh-pages-status      # Check Pages status

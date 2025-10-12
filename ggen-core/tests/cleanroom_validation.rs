@@ -18,7 +18,10 @@ mod cleanroom_tests {
             .duration_since(std::time::UNIX_EPOCH)
             .map(|d| d.as_millis());
 
-        assert!(result.is_ok(), "System time should return Result, not panic");
+        assert!(
+            result.is_ok(),
+            "System time should return Result, not panic"
+        );
     }
 
     /// Test path canonicalization and security validation
@@ -32,7 +35,10 @@ mod cleanroom_tests {
 
         // In production, this should be validated
         // The code should use canonicalize() and check starts_with()
-        if let (Ok(root), Ok(path)) = (project_root.canonicalize().or(Err(())), suspicious_path.canonicalize().or(Err(()))) {
+        if let (Ok(root), Ok(path)) = (
+            project_root.canonicalize().or(Err(())),
+            suspicious_path.canonicalize().or(Err(())),
+        ) {
             assert!(
                 !path.starts_with(&root) || path == root,
                 "Suspicious paths should fail security validation"
@@ -69,9 +75,7 @@ mod cleanroom_tests {
         // P0-5: Validate thread pool is bounded
         let max_threads = 8.min(num_cpus::get());
 
-        let pool_result = ThreadPoolBuilder::new()
-            .num_threads(max_threads)
-            .build();
+        let pool_result = ThreadPoolBuilder::new().num_threads(max_threads).build();
 
         assert!(pool_result.is_ok(), "Thread pool should be creatable");
 
@@ -93,16 +97,10 @@ mod cleanroom_tests {
 
         // P0-6: Validate structured logging is available
         // Initialize tracing (will fail if already initialized, that's ok)
-        let _ = tracing_subscriber::fmt()
-            .with_test_writer()
-            .try_init();
+        let _ = tracing_subscriber::fmt().with_test_writer().try_init();
 
         // This should not panic
-        info!(
-            phase = "test",
-            duration_ms = 100,
-            "Test structured logging"
-        );
+        info!(phase = "test", duration_ms = 100, "Test structured logging");
 
         // If we got here, logging works
         assert!(true);

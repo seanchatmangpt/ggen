@@ -15,5 +15,5 @@ pub use fs::FsController;
 pub use net::NetController;
 pub use proc::ProcController;
 pub use rng::RngController;
-pub use runner::{Config as RunnerConfig, Runner};
+pub use runner::{Config, Output, Runner, RunOutput};
 pub use time::TimeController;

@@ -11,26 +11,20 @@ version = "1.2.0"
 
 [phases.validate-safety]
 description = "Validate code safety (no panic points)"
-commands = [
-    "./scripts/check-no-panic-points.sh",
-]
+commands = ["./scripts/check-no-panic-points.sh"]
 error_handling = "stop"
 required = true
 timeout = 60
 
 [phases.lint]
 description = "Run clippy with strict warnings"
-commands = [
-    "cargo clippy --all-targets --all-features -- -D warnings",
-]
+commands = ["cargo clippy --all-targets --all-features -- -D warnings"]
 error_handling = "stop"
 required = true
 
 [phases.format-check]
 description = "Check code formatting"
-commands = [
-    "cargo fmt --all -- --check",
-]
+commands = ["cargo fmt --all -- --check"]
 error_handling = "stop"
 
 # ============================================================================
@@ -39,17 +33,13 @@ error_handling = "stop"
 
 [phases.build]
 description = "Build optimized release"
-commands = [
-    "cargo build --release --all-features",
-]
+commands = ["cargo build --release --all-features"]
 parallel = false
 timeout = 600
 
 [phases.build-debug]
 description = "Build debug version"
-commands = [
-    "cargo build --all-features",
-]
+commands = ["cargo build --all-features"]
 parallel = false
 
 # ============================================================================
@@ -58,19 +48,14 @@ parallel = false
 
 [phases.test]
 description = "Run comprehensive test suite"
-commands = [
-    "cargo test --all-features --no-fail-fast",
-    "cargo test --doc",
-]
+commands = ["cargo test --all-features --no-fail-fast", "cargo test --doc"]
 parallel = false
 timeout = 600
 coverage_threshold = 80
 
 [phases.test-release]
 description = "Run tests in release mode"
-commands = [
-    "cargo test --release --all-features",
-]
+commands = ["cargo test --release --all-features"]
 parallel = false
 
 # ============================================================================
@@ -79,17 +64,13 @@ parallel = false
 
 [phases.security-audit]
 description = "Run security audit"
-commands = [
-    "cargo audit",
-]
+commands = ["cargo audit"]
 error_handling = "warn"
 required = false
 
 [phases.dependency-check]
 description = "Check dependencies"
-commands = [
-    "cargo deny check advisories",
-]
+commands = ["cargo deny check advisories"]
 error_handling = "warn"
 
 # ============================================================================
@@ -98,16 +79,12 @@ error_handling = "warn"
 
 [phases.fix-panic-points]
 description = "Auto-fix panic points using ggen's own tools"
-commands = [
-    "cargo script scripts/fix-panic-points.rs --dry-run",
-]
+commands = ["cargo script scripts/fix-panic-points.rs --dry-run"]
 error_handling = "continue"
 
 [phases.generate-safe-patterns]
 description = "Generate safe error handling patterns"
-commands = [
-    "ggen template generate templates/safe-error-handling.tmpl",
-]
+commands = ["ggen template generate templates/safe-error-handling.tmpl"]
 error_handling = "continue"
 
 # ============================================================================
@@ -142,9 +119,7 @@ required = true
 
 [phases.docs]
 description = "Generate documentation"
-commands = [
-    "cargo doc --no-deps --all-features",
-]
+commands = ["cargo doc --no-deps --all-features"]
 
 # ============================================================================
 # Phase 8: Installation & Deployment
@@ -152,9 +127,7 @@ commands = [
 
 [phases.install]
 description = "Install ggen locally"
-commands = [
-    "cargo install --path cli --force",
-]
+commands = ["cargo install --path cli --force"]
 
 [phases.deploy]
 description = "Deploy to production"
@@ -233,26 +206,56 @@ cache_dir = "target/ggen-cache"
 # Complete Pipelines
 # ============================================================================
 
+# ============================================================================
+# WIP Management System
+# ============================================================================
+
+[phases.wip.next]
+description = "Get next WIP task and claim it"
+commands = [
+    "cargo run -p wipqueue --quiet | jq -r '.[0] | @base64' > .wip_next || true",
+    "if [ ! -s .wip_next ]; then echo 'no WIP found'; exit 0; fi",
+    "data=$(cat .wip_next)",
+    "path=$(echo $data | base64 -d | jq -r .path)",
+    "line=$(echo $data | base64 -d | jq -r .line)",
+    "./scripts/wip-lock claim \"$path\" \"$line\"",
+    "git switch -c \"wip/$(echo \"$path\" | tr '/' '__')__L$line\"",
+    "echo \"claimed $path:$line\"",
+]
+error_handling = "stop"
+required = false
+
+[phases.wip.done]
+description = "Release WIP lock"
+commands = [
+    "test -f .wip_next || { echo 'no task claimed'; exit 1; }",
+    "data=$(cat .wip_next)",
+    "path=$(echo $data | base64 -d | jq -r .path)",
+    "./scripts/wip-lock release \"$path\"",
+    "rm -f .wip_next",
+]
+error_handling = "stop"
+required = false
+
 [pipelines]
 # Full development pipeline
 dev = ["lint", "build-debug", "test"]
 
 # Full production pipeline (80/20 rule applied)
 production = [
-    "validate-safety",      # 40% of value - prevent crashes
-    "lint",                 # 20% of value - catch bugs early
-    "format-check",         # 5% of value - consistency
-    "build",                # 10% of value - compilable
-    "test",                 # 20% of value - correctness
-    "security-audit",       # 5% of value - vulnerabilities
+    "validate-safety", # 40% of value - prevent crashes
+    "lint",            # 20% of value - catch bugs early
+    "format-check",    # 5% of value - consistency
+    "build",           # 10% of value - compilable
+    "test",            # 20% of value - correctness
+    "security-audit",  # 5% of value - vulnerabilities
 ]
 
 # Quick validation (most important 20%)
 quick = ["validate-safety", "lint"]
 
 # Dogfooding pipeline - use ggen to improve ggen
-dogfood = [
-    "fix-panic-points",
-    "generate-safe-patterns",
-    "validate-safety",
-]
+dogfood = ["fix-panic-points", "generate-safe-patterns", "validate-safety"]
+
+# WIP management pipeline
+wip = ["wip.next"]

@@ -25,7 +25,8 @@ fn create_production_registry() -> Registry {
                 name: "rig-mcp".to_string(),
                 full_name: "rig-mcp-integration".to_string(),
                 version: "0.1.0".to_string(),
-                description: "Production-ready Rig LLM framework with MCP protocol integration".to_string(),
+                description: "Production-ready Rig LLM framework with MCP protocol integration"
+                    .to_string(),
                 category: "ai".to_string(),
                 author: "ggen-team".to_string(),
                 repository: "https://github.com/ggen/rig-mcp".to_string(),
@@ -33,11 +34,17 @@ fn create_production_registry() -> Registry {
                 license: "MIT".to_string(),
                 dependencies: vec!["tokio".to_string(), "serde".to_string()],
                 features: vec![
-                    "Multi-provider LLM support (OpenAI, Anthropic, Cohere, Gemini, Ollama)".to_string(),
+                    "Multi-provider LLM support (OpenAI, Anthropic, Cohere, Gemini, Ollama)"
+                        .to_string(),
                     "Dynamic MCP tool loading with vector-based selection".to_string(),
                     "Multi-transport MCP support (stdio, SSE, HTTP)".to_string(),
                 ],
-                tags: vec!["ai".to_string(), "llm".to_string(), "mcp".to_string(), "rig".to_string()],
+                tags: vec![
+                    "ai".to_string(),
+                    "llm".to_string(),
+                    "mcp".to_string(),
+                    "rig".to_string(),
+                ],
                 keywords: vec!["rig".to_string(), "mcp".to_string(), "llm".to_string()],
             },
             Package {
@@ -57,13 +64,18 @@ fn create_production_registry() -> Registry {
                     "OpenAPI specification generation".to_string(),
                 ],
                 tags: vec!["api".to_string(), "rest".to_string(), "web".to_string()],
-                keywords: vec!["api".to_string(), "endpoint".to_string(), "rest".to_string()],
+                keywords: vec![
+                    "api".to_string(),
+                    "endpoint".to_string(),
+                    "rest".to_string(),
+                ],
             },
             Package {
                 name: "rust-cli".to_string(),
                 full_name: "rust-cli-templates".to_string(),
                 version: "2.0.0".to_string(),
-                description: "Complete CLI application templates with noun-verb architecture".to_string(),
+                description: "Complete CLI application templates with noun-verb architecture"
+                    .to_string(),
                 category: "templates".to_string(),
                 author: "ggen-team".to_string(),
                 repository: "https://github.com/ggen/rust-cli".to_string(),
@@ -94,8 +106,7 @@ fn test_cleanroom_marketplace_production_readiness() {
     let lockfile_path = temp_dir.path().join(".ggen/lock.json");
 
     // Ensure .ggen directory exists
-    fs::create_dir_all(temp_dir.path().join(".ggen"))
-        .expect("Failed to create .ggen directory");
+    fs::create_dir_all(temp_dir.path().join(".ggen")).expect("Failed to create .ggen directory");
 
     println!("📁 Cleanroom Environment: {:?}", temp_dir.path());
     println!("📋 Registry: {:?}", registry_path);
@@ -106,28 +117,55 @@ fn test_cleanroom_marketplace_production_readiness() {
     println!("-------------------------------------------");
 
     let registry = create_production_registry();
-    assert_eq!(registry.packages.len(), 3, "Registry should contain 3 packages");
+    assert_eq!(
+        registry.packages.len(),
+        3,
+        "Registry should contain 3 packages"
+    );
 
     // Validate all packages have required production fields
     for package in &registry.packages {
         assert!(!package.name.is_empty(), "Package name must not be empty");
-        assert!(!package.version.is_empty(), "Package version must not be empty");
-        assert!(!package.description.is_empty(), "Package description must not be empty");
-        assert!(!package.category.is_empty(), "Package category must not be empty");
-        assert!(!package.author.is_empty(), "Package author must not be empty");
-        assert!(!package.repository.is_empty(), "Package repository must not be empty");
-        assert!(!package.license.is_empty(), "Package license must not be empty");
-        println!("  ✅ Package '{}' v{} validated", package.name, package.version);
+        assert!(
+            !package.version.is_empty(),
+            "Package version must not be empty"
+        );
+        assert!(
+            !package.description.is_empty(),
+            "Package description must not be empty"
+        );
+        assert!(
+            !package.category.is_empty(),
+            "Package category must not be empty"
+        );
+        assert!(
+            !package.author.is_empty(),
+            "Package author must not be empty"
+        );
+        assert!(
+            !package.repository.is_empty(),
+            "Package repository must not be empty"
+        );
+        assert!(
+            !package.license.is_empty(),
+            "Package license must not be empty"
+        );
+        println!(
+            "  ✅ Package '{}' v{} validated",
+            package.name, package.version
+        );
     }
 
     // Serialize to TOML and write to cleanroom filesystem
-    let registry_toml = toml::to_string(&registry)
-        .expect("Failed to serialize registry to TOML");
+    let registry_toml = toml::to_string(&registry).expect("Failed to serialize registry to TOML");
     fs::write(&registry_path, registry_toml)
         .expect("Failed to write registry to cleanroom filesystem");
 
     println!("  ✅ Registry persisted to cleanroom filesystem");
-    println!("  📊 Registry size: {} bytes\n", fs::metadata(&registry_path).unwrap().len());
+    println!(
+        "  📊 Registry size: {} bytes\n",
+        fs::metadata(&registry_path).unwrap().len()
+    );
 
     // === PHASE 2: Registry Loading and Search ===
     println!("🔵 PHASE 2: Registry Loading & Search Operations");
@@ -135,7 +173,11 @@ fn test_cleanroom_marketplace_production_readiness() {
 
     let loaded_registry = Registry::load_from_path_sync(&registry_path)
         .expect("Failed to load registry from cleanroom filesystem");
-    assert_eq!(loaded_registry.packages.len(), 3, "Loaded registry should contain 3 packages");
+    assert_eq!(
+        loaded_registry.packages.len(),
+        3,
+        "Loaded registry should contain 3 packages"
+    );
     println!("  ✅ Registry loaded successfully from cleanroom filesystem");
 
     // Test search functionality with various queries
@@ -156,7 +198,12 @@ fn test_cleanroom_marketplace_production_readiness() {
             description,
             query
         );
-        println!("  ✅ Search '{}': {} results ({})", query, results.len(), description);
+        println!(
+            "  ✅ Search '{}': {} results ({})",
+            query,
+            results.len(),
+            description
+        );
     }
     println!();
 
@@ -165,7 +212,10 @@ fn test_cleanroom_marketplace_production_readiness() {
     println!("-----------------------------------------------");
 
     let mut lockfile = Lockfile::new();
-    assert_eq!(lockfile.version, "1.0.0", "Lockfile version should be 1.0.0");
+    assert_eq!(
+        lockfile.version, "1.0.0",
+        "Lockfile version should be 1.0.0"
+    );
     assert!(lockfile.packages.is_empty(), "New lockfile should be empty");
     println!("  ✅ New lockfile created with version 1.0.0");
 
@@ -183,8 +233,15 @@ fn test_cleanroom_marketplace_production_readiness() {
     };
 
     lockfile.add_package(installed_package1.clone());
-    assert_eq!(lockfile.packages.len(), 1, "Lockfile should contain 1 package");
-    println!("  ✅ Package '{}' v{} added to lockfile", package1.name, package1.version);
+    assert_eq!(
+        lockfile.packages.len(),
+        1,
+        "Lockfile should contain 1 package"
+    );
+    println!(
+        "  ✅ Package '{}' v{} added to lockfile",
+        package1.name, package1.version
+    );
 
     // Install second package (api-endpoint)
     let package2 = loaded_registry.search("api-endpoint", 1)[0];
@@ -200,43 +257,75 @@ fn test_cleanroom_marketplace_production_readiness() {
     };
 
     lockfile.add_package(installed_package2.clone());
-    assert_eq!(lockfile.packages.len(), 2, "Lockfile should contain 2 packages");
-    println!("  ✅ Package '{}' v{} added to lockfile", package2.name, package2.version);
+    assert_eq!(
+        lockfile.packages.len(),
+        2,
+        "Lockfile should contain 2 packages"
+    );
+    println!(
+        "  ✅ Package '{}' v{} added to lockfile",
+        package2.name, package2.version
+    );
 
     // === PHASE 4: Lockfile Persistence ===
     println!("\n🔵 PHASE 4: Lockfile Persistence & Reload");
     println!("-----------------------------------------");
 
-    lockfile.save_to_path(&lockfile_path)
+    lockfile
+        .save_to_path(&lockfile_path)
         .expect("Failed to save lockfile to cleanroom filesystem");
     println!("  ✅ Lockfile persisted to cleanroom filesystem");
-    println!("  📊 Lockfile size: {} bytes", fs::metadata(&lockfile_path).unwrap().len());
+    println!(
+        "  📊 Lockfile size: {} bytes",
+        fs::metadata(&lockfile_path).unwrap().len()
+    );
 
     // Reload and verify
     let reloaded_lockfile = Lockfile::load_from_path(&lockfile_path)
         .expect("Failed to reload lockfile from cleanroom filesystem");
-    assert_eq!(reloaded_lockfile.packages.len(), 2, "Reloaded lockfile should contain 2 packages");
-    assert!(reloaded_lockfile.has_package("rig-mcp"), "Lockfile should contain rig-mcp");
-    assert!(reloaded_lockfile.has_package("api-endpoint"), "Lockfile should contain api-endpoint");
+    assert_eq!(
+        reloaded_lockfile.packages.len(),
+        2,
+        "Reloaded lockfile should contain 2 packages"
+    );
+    assert!(
+        reloaded_lockfile.has_package("rig-mcp"),
+        "Lockfile should contain rig-mcp"
+    );
+    assert!(
+        reloaded_lockfile.has_package("api-endpoint"),
+        "Lockfile should contain api-endpoint"
+    );
     println!("  ✅ Lockfile reloaded successfully with 2 packages\n");
 
     // === PHASE 5: Package Retrieval and Validation ===
     println!("🔵 PHASE 5: Package Retrieval & Validation");
     println!("------------------------------------------");
 
-    let retrieved1 = reloaded_lockfile.get_package("rig-mcp")
+    let retrieved1 = reloaded_lockfile
+        .get_package("rig-mcp")
         .expect("Failed to retrieve rig-mcp package");
-    assert_eq!(retrieved1.version, "0.1.0", "Retrieved package version should match");
-    assert!(retrieved1.checksum.starts_with("sha256:"), "Checksum should use sha256 format");
+    assert_eq!(
+        retrieved1.version, "0.1.0",
+        "Retrieved package version should match"
+    );
+    assert!(
+        retrieved1.checksum.starts_with("sha256:"),
+        "Checksum should use sha256 format"
+    );
     assert_eq!(retrieved1.source, "registry", "Source should be registry");
     println!("  ✅ Package 'rig-mcp' retrieved and validated");
     println!("     - Version: {}", retrieved1.version);
     println!("     - Checksum: {}", retrieved1.checksum);
     println!("     - Dependencies: {:?}", retrieved1.dependencies);
 
-    let retrieved2 = reloaded_lockfile.get_package("api-endpoint")
+    let retrieved2 = reloaded_lockfile
+        .get_package("api-endpoint")
         .expect("Failed to retrieve api-endpoint package");
-    assert_eq!(retrieved2.version, "1.0.0", "Retrieved package version should match");
+    assert_eq!(
+        retrieved2.version, "1.0.0",
+        "Retrieved package version should match"
+    );
     println!("  ✅ Package 'api-endpoint' retrieved and validated");
     println!("     - Version: {}", retrieved2.version);
     println!("     - Checksum: {}", retrieved2.checksum);
@@ -248,11 +337,19 @@ fn test_cleanroom_marketplace_production_readiness() {
 
     let mut final_lockfile = reloaded_lockfile;
     let removed = final_lockfile.remove_package("rig-mcp");
-    assert!(removed.is_some(), "Package removal should return removed package");
-    assert_eq!(final_lockfile.packages.len(), 1, "Lockfile should contain 1 package after removal");
+    assert!(
+        removed.is_some(),
+        "Package removal should return removed package"
+    );
+    assert_eq!(
+        final_lockfile.packages.len(),
+        1,
+        "Lockfile should contain 1 package after removal"
+    );
     println!("  ✅ Package 'rig-mcp' removed successfully");
 
-    final_lockfile.save_to_path(&lockfile_path)
+    final_lockfile
+        .save_to_path(&lockfile_path)
         .expect("Failed to save lockfile after removal");
     println!("  ✅ Lockfile updated and persisted\n");
 
@@ -260,11 +357,21 @@ fn test_cleanroom_marketplace_production_readiness() {
     println!("🔵 PHASE 7: Final State Verification");
     println!("------------------------------------");
 
-    let final_loaded = Lockfile::load_from_path(&lockfile_path)
-        .expect("Failed to load final lockfile state");
-    assert_eq!(final_loaded.packages.len(), 1, "Final lockfile should contain 1 package");
-    assert!(!final_loaded.has_package("rig-mcp"), "Lockfile should not contain removed package");
-    assert!(final_loaded.has_package("api-endpoint"), "Lockfile should still contain api-endpoint");
+    let final_loaded =
+        Lockfile::load_from_path(&lockfile_path).expect("Failed to load final lockfile state");
+    assert_eq!(
+        final_loaded.packages.len(),
+        1,
+        "Final lockfile should contain 1 package"
+    );
+    assert!(
+        !final_loaded.has_package("rig-mcp"),
+        "Lockfile should not contain removed package"
+    );
+    assert!(
+        final_loaded.has_package("api-endpoint"),
+        "Lockfile should still contain api-endpoint"
+    );
     println!("  ✅ Final lockfile state verified");
     println!("  📦 Remaining packages: {}", final_loaded.packages.len());
     println!("  ✅ Package consistency validated\n");
@@ -295,24 +402,36 @@ fn test_cleanroom_marketplace_production_readiness() {
 
     let scalability_path = temp_dir.path().join(".ggen/scalability-lock.json");
     let save_start = std::time::Instant::now();
-    scalability_lockfile.save_to_path(&scalability_path)
+    scalability_lockfile
+        .save_to_path(&scalability_path)
         .expect("Failed to save scalability lockfile");
     let save_duration = save_start.elapsed();
     println!("  ✅ Saved 100-package lockfile in {:?}", save_duration);
-    println!("  📊 Lockfile size: {} bytes", fs::metadata(&scalability_path).unwrap().len());
+    println!(
+        "  📊 Lockfile size: {} bytes",
+        fs::metadata(&scalability_path).unwrap().len()
+    );
 
     let load_start = std::time::Instant::now();
-    let loaded_scalability = Lockfile::load_from_path(&scalability_path)
-        .expect("Failed to load scalability lockfile");
+    let loaded_scalability =
+        Lockfile::load_from_path(&scalability_path).expect("Failed to load scalability lockfile");
     let load_duration = load_start.elapsed();
-    assert_eq!(loaded_scalability.packages.len(), 100, "Scalability lockfile should contain 100 packages");
+    assert_eq!(
+        loaded_scalability.packages.len(),
+        100,
+        "Scalability lockfile should contain 100 packages"
+    );
     println!("  ✅ Loaded 100-package lockfile in {:?}", load_duration);
 
     // Test retrieval performance
     let retrieval_start = std::time::Instant::now();
     for i in 0..100 {
         let pkg_name = format!("test-pkg-{}", i);
-        assert!(loaded_scalability.has_package(&pkg_name), "Package {} should exist", pkg_name);
+        assert!(
+            loaded_scalability.has_package(&pkg_name),
+            "Package {} should exist",
+            pkg_name
+        );
     }
     let retrieval_duration = retrieval_start.elapsed();
     println!("  ✅ Verified 100 packages in {:?}", retrieval_duration);
@@ -350,33 +469,47 @@ fn test_cleanroom_error_handling_production() {
     println!("🔵 Test 1: Non-existent Registry Handling");
     let non_existent = temp_dir.path().join("missing.toml");
     let result = Registry::load_from_path_sync(&non_existent);
-    assert!(result.is_err(), "Loading non-existent registry should fail gracefully");
+    assert!(
+        result.is_err(),
+        "Loading non-existent registry should fail gracefully"
+    );
     println!("  ✅ Non-existent registry returns error (no panic)\n");
 
     // Test 2: Loading non-existent lockfile (should create new)
     println!("🔵 Test 2: Non-existent Lockfile Handling");
     let lockfile_path = temp_dir.path().join("missing-lock.json");
     let result = Lockfile::load_from_path(&lockfile_path);
-    assert!(result.is_ok(), "Loading non-existent lockfile should return new lockfile");
-    assert_eq!(result.unwrap().packages.len(), 0, "New lockfile should be empty");
+    assert!(
+        result.is_ok(),
+        "Loading non-existent lockfile should return new lockfile"
+    );
+    assert_eq!(
+        result.unwrap().packages.len(),
+        0,
+        "New lockfile should be empty"
+    );
     println!("  ✅ Non-existent lockfile creates new empty lockfile\n");
 
     // Test 3: Invalid TOML format
     println!("🔵 Test 3: Invalid TOML Format Handling");
     let invalid_toml_path = temp_dir.path().join("invalid.toml");
-    fs::write(&invalid_toml_path, "not valid toml [[[[")
-        .expect("Failed to write invalid TOML");
+    fs::write(&invalid_toml_path, "not valid toml [[[[").expect("Failed to write invalid TOML");
     let result = Registry::load_from_path_sync(&invalid_toml_path);
-    assert!(result.is_err(), "Loading invalid TOML should fail gracefully");
+    assert!(
+        result.is_err(),
+        "Loading invalid TOML should fail gracefully"
+    );
     println!("  ✅ Invalid TOML returns error (no panic)\n");
 
     // Test 4: Invalid JSON format
     println!("🔵 Test 4: Invalid JSON Format Handling");
     let invalid_json_path = temp_dir.path().join("invalid-lock.json");
-    fs::write(&invalid_json_path, "{not valid json")
-        .expect("Failed to write invalid JSON");
+    fs::write(&invalid_json_path, "{not valid json").expect("Failed to write invalid JSON");
     let result = Lockfile::load_from_path(&invalid_json_path);
-    assert!(result.is_err(), "Loading invalid JSON should fail gracefully");
+    assert!(
+        result.is_err(),
+        "Loading invalid JSON should fail gracefully"
+    );
     println!("  ✅ Invalid JSON returns error (no panic)\n");
 
     println!("═══════════════════════════════════════════════════════════");
@@ -394,12 +527,12 @@ fn test_cleanroom_concurrent_operations_production() {
 
     let temp_dir = TempDir::new().expect("Failed to create temp directory");
     let lockfile_path = temp_dir.path().join(".ggen/lock.json");
-    fs::create_dir_all(temp_dir.path().join(".ggen"))
-        .expect("Failed to create .ggen directory");
+    fs::create_dir_all(temp_dir.path().join(".ggen")).expect("Failed to create .ggen directory");
 
     // Initialize lockfile
     let lockfile = Lockfile::new();
-    lockfile.save_to_path(&lockfile_path)
+    lockfile
+        .save_to_path(&lockfile_path)
         .expect("Failed to save initial lockfile");
     println!("  ✅ Initial lockfile created\n");
 
@@ -413,8 +546,7 @@ fn test_cleanroom_concurrent_operations_production() {
     ];
 
     for (name, version, checksum) in packages {
-        let mut lock = Lockfile::load_from_path(&lockfile_path)
-            .expect("Failed to load lockfile");
+        let mut lock = Lockfile::load_from_path(&lockfile_path).expect("Failed to load lockfile");
 
         let package = InstalledPackage {
             name: name.to_string(),
@@ -435,9 +567,13 @@ fn test_cleanroom_concurrent_operations_production() {
     }
 
     // Verify final state
-    let final_lock = Lockfile::load_from_path(&lockfile_path)
-        .expect("Failed to load final lockfile");
-    assert_eq!(final_lock.packages.len(), 3, "All 3 packages should be installed");
+    let final_lock =
+        Lockfile::load_from_path(&lockfile_path).expect("Failed to load final lockfile");
+    assert_eq!(
+        final_lock.packages.len(),
+        3,
+        "All 3 packages should be installed"
+    );
     assert!(final_lock.has_package("pkg1"), "pkg1 should be installed");
     assert!(final_lock.has_package("pkg2"), "pkg2 should be installed");
     assert!(final_lock.has_package("pkg3"), "pkg3 should be installed");

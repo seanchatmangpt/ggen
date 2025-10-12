@@ -1,7 +1,10 @@
 //! Local backend for running commands directly on the host system.
 
-use crate::backend::{Backend, Cmd, RunResult};
+use crate::backend::{AsyncBackend, Backend, Cmd, Prepared, RunResult};
 use crate::error::{BackendError, Result};
+use crate::runtime::runner::{Config as RunnerConfig, RunOutput};
+use std::collections::HashMap;
+use std::path::PathBuf;
 use std::process::Command;
 use std::time::Instant;
 
@@ -147,5 +150,64 @@ mod tests {
 
         let run_result = result.expect("local backend should execute successfully");
         assert_eq!(run_result.exit_code, 42);
+    }
+}
+
+// Async backend implementation for LocalBackend
+#[async_trait::async_trait]
+impl AsyncBackend for LocalBackend {
+    async fn prepare(&self, cfg: &RunnerConfig) -> Result<Prepared> {
+        let mut env = cfg.env.clone();
+
+        // Apply policy constraints to environment
+        let policy_env = cfg.policy.to_env();
+        for (key, value) in policy_env {
+            env.insert(key, value);
+        }
+
+        Ok(Prepared {
+            workdir: cfg.workdir.clone(),
+            env,
+            policy: cfg.policy.clone(),
+        })
+    }
+
+    async fn run(&self, p: &Prepared, args: &[&str]) -> Result<RunOutput> {
+        let start = std::time::Instant::now();
+
+        let mut cmd = Command::new(args[0]);
+        if args.len() > 1 {
+            cmd.args(&args[1..]);
+        }
+
+        if let Some(ref workdir) = p.workdir {
+            cmd.current_dir(workdir);
+        }
+
+        for (key, value) in &p.env {
+            cmd.env(key, value);
+        }
+
+        let output = cmd
+            .output()
+            .map_err(|e| BackendError::Runtime(format!("command failed: {}", e)))?;
+
+        let duration_ms = start.elapsed().as_millis() as u64;
+
+        Ok(RunOutput {
+            exit_code: output.status.code().unwrap_or(-1),
+            stdout: String::from_utf8_lossy(&output.stdout).to_string(),
+            stderr: String::from_utf8_lossy(&output.stderr).to_string(),
+            duration_ms,
+        })
+    }
+
+    async fn teardown(&self, _p: Prepared) -> Result<()> {
+        // Local backend doesn't need teardown
+        Ok(())
+    }
+
+    fn name(&self) -> &str {
+        "local"
     }
 }

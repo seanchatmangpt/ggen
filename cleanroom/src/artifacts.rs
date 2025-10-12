@@ -313,12 +313,16 @@ impl ArtifactCollector {
 
         // If we have coverage data, create the artifact
         if !coverage_data.is_empty() {
+            // Calculate basic coverage statistics from collected data
+            let (lines_covered, lines_total, percentage) =
+                self.calculate_basic_coverage_stats(&coverage_data);
+
             Ok(Some(CoverageArtifact {
                 format: "profraw".to_string(),
                 data: coverage_data.join("\n"),
-                lines_covered: 0, // TODO: Calculate actual coverage
-                lines_total: 0,   // TODO: Calculate actual coverage
-                percentage: 0.0,  // TODO: Calculate actual coverage
+                lines_covered,
+                lines_total,
+                percentage,
                 path_remap: path_remaps,
             }))
         } else {
@@ -359,6 +363,71 @@ impl ArtifactCollector {
         };
 
         Ok(Some(artifact))
+    }
+
+    /// Calculate coverage statistics from collected data
+    fn calculate_coverage_stats(
+        &self, coverage_data: &[String], path_remaps: &[PathRemap],
+    ) -> Result<(u64, u64, f64)> {
+        use crate::coverage::CoverageCollector;
+        use std::path::PathBuf;
+
+        let collector = CoverageCollector::new()?;
+        let mut total_lines_covered = 0u64;
+        let mut total_lines_total = 0u64;
+
+        // Process each coverage data entry
+        for (i, data) in coverage_data.iter().enumerate() {
+            // Decode base64 data to temporary file
+            let decoded_data = base64::engine::general_purpose::STANDARD
+                .decode(data)
+                .map_err(|e| {
+                    crate::error::CleanroomError::Backend(crate::error::BackendError::Runtime(
+                        format!("Failed to decode coverage data: {}", e),
+                    ))
+                })?;
+
+            let temp_file = self.work_dir.join(format!("temp_coverage_{}.profraw", i));
+            std::fs::write(&temp_file, decoded_data).map_err(crate::error::CleanroomError::Io)?;
+
+            // Create coverage data struct
+            let coverage_data_struct = crate::coverage::CoverageData {
+                path: temp_file,
+                format: crate::coverage::CoverageFormat::Profraw,
+            };
+
+            // Use the first path remap if available
+            if let Some(remap) = path_remaps.get(i) {
+                let path_remap_struct = crate::coverage::PathRemap {
+                    from: PathBuf::from(&remap.from),
+                    to: PathBuf::from(&remap.to),
+                };
+
+                // Merge coverage data
+                let merged = collector.merge_with_remap(coverage_data_struct, path_remap_struct)?;
+                total_lines_covered += merged.lines_covered;
+                total_lines_total += merged.lines_total;
+            } else {
+                // Fallback: simple merge without path remapping
+                let dummy_remap = crate::coverage::PathRemap {
+                    from: PathBuf::from("/workdir"),
+                    to: PathBuf::from("/workdir"),
+                };
+
+                let merged = collector.merge_with_remap(coverage_data_struct, dummy_remap)?;
+                total_lines_covered += merged.lines_covered;
+                total_lines_total += merged.lines_total;
+            }
+        }
+
+        // Calculate overall percentage
+        let percentage = if total_lines_total > 0 {
+            (total_lines_covered as f64 / total_lines_total as f64) * 100.0
+        } else {
+            0.0
+        };
+
+        Ok((total_lines_covered, total_lines_total, percentage))
     }
 
     /// Save bundle to file

@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+# WIP Lock Manager - Advisory file locks for agent coordination
+set -euo pipefail
+
+cmd="${1:-}"
+path="${2:-}"
+line="${3:-}"
+
+if [[ -z "$cmd" || -z "$path" ]]; then
+  echo "usage: wip-lock {claim|release|status} <path> [line]" >&2
+  echo "" >&2
+  echo "Commands:" >&2
+  echo "  claim <path> [line]   - Claim exclusive lock on file" >&2
+  echo "  release <path>        - Release lock on file" >&2
+  echo "  status <path>         - Check lock status" >&2
+  exit 2
+fi
+
+root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+mkdir -p "$root/.wiplocks"
+
+# Use shasum on macOS, sha1sum on Linux
+if command -v sha1sum &> /dev/null; then
+    SHA_CMD="sha1sum"
+elif command -v shasum &> /dev/null; then
+    SHA_CMD="shasum -a 1"
+else
+    echo "Error: Neither sha1sum nor shasum found" >&2
+    exit 1
+fi
+
+key=$(printf "%s" "$path" | $SHA_CMD | awk '{print $1}')
+lock="$root/.wiplocks/$key"
+
+case "$cmd" in
+  claim)
+    if mkdir "$lock" 2>/dev/null; then
+      echo "claimed: $path${line:+:$line}"
+      echo "$path${line:+:$line}" > "$lock/owner"
+      date -u +"%Y-%m-%dT%H:%M:%SZ" > "$lock/timestamp"
+      echo "$$" > "$lock/pid"
+    else
+      echo "already locked: $path" >&2
+      if [[ -f "$lock/owner" ]]; then
+        echo "  locked by: $(cat "$lock/owner")" >&2
+        echo "  since: $(cat "$lock/timestamp" 2>/dev/null || echo 'unknown')" >&2
+      fi
+      exit 3
+    fi
+    ;;
+
+  release)
+    if [[ -d "$lock" ]]; then
+      rm -rf "$lock"
+      echo "released: $path"
+    else
+      echo "not locked: $path" >&2
+      exit 4
+    fi
+    ;;
+
+  status)
+    if [[ -d "$lock" ]]; then
+      echo "locked: $path"
+      [[ -f "$lock/owner" ]] && echo "  by: $(cat "$lock/owner")"
+      [[ -f "$lock/timestamp" ]] && echo "  since: $(cat "$lock/timestamp")"
+      [[ -f "$lock/pid" ]] && echo "  pid: $(cat "$lock/pid")"
+    else
+      echo "unlocked: $path"
+    fi
+    ;;
+
+  *)
+    echo "unknown command: $cmd" >&2
+    exit 2
+    ;;
+esac

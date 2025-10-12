@@ -17,7 +17,8 @@ serde_json = "1.0"
 regex = "1.0"
 rand = "0.8"
 base64 = "0.21"
-camino = "1.1"
+async-trait = "0.1"
+camino = { version = "1.1", features = ["serde1"] }
 toml = "0.8"
 tracing = { version = "0.1", optional = true }
 

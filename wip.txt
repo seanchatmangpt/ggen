@@ -1,0 +1,231 @@
+Finish `./cleanroom` with a deterministic DFS WIP queue, hard blockers first, then modules in dependency order. No new scaffolds. Close existing `WIP|TODO|UNIMPL` markers only.
+
+## Execution order
+
+1. **Claim next task**
+
+```
+cargo run -p wipqueue --quiet | jq '.[0]'
+./scripts/wip-lock claim "<path>" "<line>"
+git switch -c "wip/$(echo "<path>" | tr '/' '__')__L<line>"
+```
+
+2. **Implement to completion**
+
+* Replace the exact marker with code + tests.
+* `cargo fmt && cargo clippy -D warnings && cargo nextest run`
+* Flip marker to `// READY:` or remove it.
+* Commit and push.
+* `./scripts/wip-lock release "<path>"`
+
+3. **Repeat** until `wipqueue` returns empty.
+
+---
+
+## Hard blockers to close first
+
+1. **Crate hygiene**
+
+* Root lints: `#![forbid(unsafe_code)] #![deny(warnings)] #![doc(html_root_url = "...")]`
+* MSRV in `Cargo.toml`, features: `docker`, `podman`, `local`, `coverage`, `services`, `serde`, `tracing`.
+
+2. **Error model**
+
+* `cleanroom::error`: single `CleanroomError` with `thiserror`. No panics in lib.
+
+3. **Backend auto-detect**
+
+* `Backend::detect()` → Docker, Podman, or Local. Env override respected.
+* Typed config-driven selection.
+
+4. **Runner contract**
+
+* `Runner::run(args, Config) -> Output` with RAII lifecycle and constrained env.
+
+These four unblock all downstream modules.
+
+---
+
+## Module closure plan (dependency-ordered)
+
+### 0) `src/lib.rs` (public surface freeze)
+
+* Re-export: `Config`, `Backend`, `Policy`, `Runner`, `Scenario`, `Assert`, `Result`, `services::*`.
+* Prelude mod. Feature gates. No unwrap.
+
+**DoD**
+
+* `cargo doc` builds.
+* Public API listed in `docs/FEATURES.md`.
+
+### 1) `src/config.rs`
+
+* Source-of-truth merge order: test opts → `[package.metadata.cleanroom]` → env → defaults.
+* Reads `Cargo.toml` via `camino` + `toml`.
+* Validates paths, timeouts, env.
+
+**Tests**
+
+* Unit: precedence matrix.
+* Property: env injection redacts secrets in display.
+
+### 2) `src/error.rs`
+
+* `CleanroomError` variants for: backend_detect, image_pull, spawn, io, timeout, policy, coverage, snapshot, compose/services.
+* `Result<T>=std::result::Result<T,CleanroomError>`.
+
+**Tests**
+
+* `Display` is single-line, truncated payloads.
+
+### 3) `src/backend/{mod,docker,podman,local}.rs`
+
+* Trait:
+
+  ```rust
+  #[async_trait::async_trait]
+  pub trait Backend {
+      async fn prepare(&self, cfg:&Config) -> Result<Prepared>;
+      async fn run(&self, p:&Prepared, args:&[&str]) -> Result<Output>;
+      async fn teardown(&self, p:Prepared) -> Result<()>;
+  }
+  ```
+* Docker/Podman via `testcontainers`. Local spawns with same contracts.
+* Security defaults: non-root, cap-drop all, RO rootfs, tmpfs workdir, limited net.
+* Image pinning by digest.
+
+**Tests**
+
+* Integration: same `Scenario` passes on all three backends when available.
+* Skips gracefully if engine absent.
+
+### 4) `src/runner.rs`
+
+* Orchestrates: workspace, mounts, env, IO, time limits, log stream, artifact capture.
+* Deterministic mounts and seeded RNG.
+* Redaction rules.
+
+**Tests**
+
+* Golden snapshot of structured `Output` JSON.
+* Duration budget respected.
+
+### 5) `src/scenario.rs`
+
+* DSL: `scenario(name).step(label, args).success().run()` and `.concurrent()`.
+* Deterministic aggregation.
+
+**Tests**
+
+* Order-stable aggregation.
+* Concurrent steps with independent timeouts.
+
+### 6) `src/assert.rs`
+
+* Fluent assertions: `success|failure|exit(n)`, `stdout/ stderr (&str|regex)`, `stdout_json(|v| ..)`, `duration_le(ms)`, `no_output_over(bytes)`.
+
+**Tests**
+
+* Regex unicode, truncation indicators, JSON path errors include context.
+
+### 7) `src/policy.rs`
+
+* Capability profile via typestate flags:
+
+  ```rust
+  pub struct Restricted; pub struct Permissive;
+  pub struct Policy<S> { /* … */ }
+  impl Policy<Restricted> { /* defaults */ }
+  impl Policy<Permissive> { /* opt-ins */ }
+  ```
+* Compile-time guard methods require `Permissive`.
+
+**Tests**
+
+* Cannot compile misuse in UI tests (`trybuild`).
+
+### 8) `src/coverage.rs`
+
+* Collect `.profraw` in container, remap paths, merge on host (llvm-tools).
+* `grcov` path supported via feature.
+
+**Tests**
+
+* E2E small binary emits non-empty report. Path remap verified.
+
+### 9) `src/snapshots.rs`
+
+* `insta` glue, redaction, stable ordering, newline normalization.
+
+**Tests**
+
+* Platform-stable snapshots.
+
+### 10) `src/services/{mod,postgres,redis,...}.rs`
+
+* Typed helpers around `testcontainers` with health checks and ready gates.
+* Declarative `services([postgres(), redis()])`.
+
+**Tests**
+
+* Health probe timeouts and teardown idempotence.
+
+### 11) `src/redact.rs`
+
+* Secret patterns and env keys; streaming redactor for stdout/stderr.
+
+**Tests**
+
+* No leakage under backpressure.
+
+---
+
+## Required docs and examples
+
+* `docs/USAGE.md`: local vs container backend, config precedence, security profiles.
+* `docs/FAQ.md`: determinism, Windows note, performance, opt-outs.
+* `examples/cli_smoke/`: two tests using `run(["--help"])` and a multi-step scenario.
+* `examples/services_pg/`: Postgres service with health gate and query.
+
+`cargo run --example …` must pass.
+
+---
+
+## CI gates (must pass)
+
+* `cargo fmt -- --check`
+* `cargo clippy -D warnings`
+* `cargo nextest run` (matrix: local-only, docker, podman)
+* `cargo doc -Z unstable-options --document-private-items`
+* `cargo deny check`
+* Feature matrix builds: `--no-default-features`, `--features docker`, `podman`, `services`, `coverage`.
+* Check that branch flipped at least one `WIP:` to `READY:` and `.wiplocks/` empty.
+
+---
+
+## Agent-specific acceptance template (per claimed WIP)
+
+* **File/Line**: `<path>:<line>`
+* **Area**: one of {config, backend, runner, scenario, assert, policy, coverage, services, redact, docs, examples}
+* **Behavior completed**: short description
+* **Tests added**: list
+* **Public API impact**: none or detail
+* **Determinism check**: yes
+* **Security profile**: unchanged or rationale
+
+Commit message:
+
+```
+feat(<area>): complete WIP at <path>:<line>
+```
+
+---
+
+## Quick references
+
+* Run next task: `cargo run -p wipqueue --quiet | jq '.[0]'`
+* Lock/branch: `./scripts/wip-lock claim "<path>" "<line>" && git switch -c "wip/<file>__L<line>"`
+* Build/test: `cargo fmt && cargo clippy -D warnings && cargo nextest run`
+* Release: `./scripts/wip-lock release "<path>"`
+
+This closes `./cleanroom` by consuming every WIP in deterministic order, enforcing compile, test, and docs at each step, and preventing agent collisions.

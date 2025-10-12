@@ -42,7 +42,6 @@ pub struct Config {
 /// Command runner with policy enforcement and RAII lifecycle
 pub struct Runner {
     config: Config,
-    _prepared: Option<Prepared>,
 }
 
 /// Prepared execution environment (RAII guard)
@@ -78,10 +77,7 @@ impl Prepared {
 impl Runner {
     /// Create a new runner with configuration
     pub fn new(config: Config) -> Self {
-        Self {
-            config,
-            _prepared: None,
-        }
+        Self { config }
     }
 
     /// Prepare execution environment (RAII setup)
@@ -89,8 +85,17 @@ impl Runner {
         Prepared::new(&self.config)
     }
 
+    /// Execute the command with RAII lifecycle and constrained environment
+    /// This is the main entry point for running commands with the runner contract
+    pub fn run_with_config(args: &[&str], config: Config) -> Result<RunOutput> {
+        let mut runner = Self::new(config);
+        let prepared = Prepared::new(&runner.config)?;
+
+        runner.run(&prepared)
+    }
+
     /// Execute the command with deterministic surfaces
-    pub fn run(&self, prepared: &Prepared) -> Result<RunOutput> {
+    pub fn run(&mut self, prepared: &Prepared) -> Result<RunOutput> {
         if self.config.args.is_empty() {
             return Err(BackendError::Runtime("empty command".to_string()).into());
         }
@@ -116,23 +121,18 @@ impl Runner {
 
         // Execute with timeout
         // WIP: Implement proper timeout mechanism
-        let output = cmd.output()
+        let output = cmd
+            .output()
             .map_err(|e| BackendError::Runtime(format!("command failed: {}", e)))?;
 
         let duration_ms = start.elapsed().as_millis() as u64;
 
-        Ok(RunOutput {
+        Ok(Output {
             exit_code: output.status.code().unwrap_or(-1),
             stdout: String::from_utf8_lossy(&output.stdout).to_string(),
             stderr: String::from_utf8_lossy(&output.stderr).to_string(),
             duration_ms,
         })
-    }
-
-    /// Execute and return status code only
-    pub fn run_status(&self, prepared: &Prepared) -> Result<i32> {
-        let output = self.run(prepared)?;
-        Ok(output.exit_code)
     }
 }
 
@@ -150,9 +150,7 @@ mod tests {
             policy: Policy::permissive(),
         };
 
-        let runner = Runner::new(config);
-        let prepared = runner.prepare().unwrap();
-        let output = runner.run(&prepared).unwrap();
+        let output = Runner::run(&["echo", "hello"], config).unwrap();
 
         assert_eq!(output.exit_code, 0);
         assert!(output.stdout.contains("hello"));
@@ -168,9 +166,7 @@ mod tests {
             policy: Policy::permissive(),
         };
 
-        let runner = Runner::new(config);
-        let prepared = runner.prepare().unwrap();
-        let status = runner.run_status(&prepared).unwrap();
-        assert_eq!(status, 0);
+        let output = Runner::run(&["true"], config).unwrap();
+        assert_eq!(output.exit_code, 0);
     }
 }
