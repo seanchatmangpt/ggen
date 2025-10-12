@@ -13,8 +13,6 @@
   - [Updated Files](#updated-files)
     - [✅ Root Workspace](#-root-workspace)
     - [✅ ggen-ai](#-ggen-ai)
-    - [✅ ggen-mcp](#-ggen-mcp)
-    - [✅ ggen-agents](#-ggen-agents)
     - [✅ ggen-core](#-ggen-core)
     - [✅ ggen-cli-lib](#-ggen-cli-lib)
     - [✅ ggen-utils](#-ggen-utils)
@@ -109,9 +107,9 @@ resolver = "2"  # Use new resolver for better dependency resolution
 
 ### 3. Removed Duplicate Profiles
 
-**Problem:** `ggen-mcp/Cargo.toml` had duplicate profile definitions
+**Problem:** Duplicate profile definitions in some crates
 ```toml
-# REMOVED from ggen-mcp/Cargo.toml:
+# REMOVED duplicate profiles:
 [profile.release]
 lto = true
 codegen-units = 1
@@ -194,17 +192,6 @@ codegen-units = 256          # Maximum parallelism
   - Kept unique dependencies as-is
   - Maintained feature flags
 
-### ✅ ggen-mcp
-- **File:** `/Users/sac/ggen/ggen-mcp/Cargo.toml`
-- **Changes:**
-  - Removed duplicate profile definitions
-  - Added versions to path dependencies
-  - No more build warnings
-
-### ✅ ggen-agents
-- **File:** `/Users/sac/ggen/agents/Cargo.toml`
-- **Changes:**
-  - Added versions to path dependencies
 
 ### ✅ ggen-core
 - **File:** `/Users/sac/ggen/ggen-core/Cargo.toml`
