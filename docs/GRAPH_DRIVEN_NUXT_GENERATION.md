@@ -104,7 +104,7 @@ ggen gen templates/page.tmpl \
 ## Directory Structure
 
 ```
-cli/marketplace/templates/nuxt-marketplace/
+marketplace/packages/nuxt-example/
 ├── graphs/
 │   ├── nuxt-ontology.ttl        # Nuxt vocabulary (Component, Page, etc.)
 │   └── marketplace-project.ttl  # Specific marketplace artifacts

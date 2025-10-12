@@ -86,6 +86,39 @@ ANTHROPIC_API_KEY=sk-ant-your-key ggen ai generate -d "Database model" -o model.
 - 🔍 **Natural Language Search** - Find templates conversationally
 - 📋 **Smart Frontmatter** - AI-generated metadata
 
+### Production Testing (Optional)
+
+For full production validation testing with real databases and services:
+
+```bash
+# Install Docker (required for Testcontainers)
+# macOS:
+brew install docker
+
+# Linux:
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+
+# Start Docker service
+# macOS:
+brew services start docker
+
+# Linux:
+sudo systemctl start docker
+
+# Run production validation tests
+cargo test --test production_validation
+
+# Run comprehensive production validation
+./scripts/production-validation.sh
+```
+
+**Testcontainers Features:**
+- **Database Integration**: PostgreSQL containers for data persistence testing
+- **Cache Integration**: Redis containers for distributed caching validation
+- **API Integration**: Mock API servers for external service testing
+- **Performance Testing**: Concurrent operations under realistic load
+
 ### Marketplace Access
 
 The marketplace is available immediately after installation. No additional configuration is required.

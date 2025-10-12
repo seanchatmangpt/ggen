@@ -197,9 +197,11 @@ pub async fn run(args: &ProjectArgs) -> Result<()> {
             .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?;
 
         let full_path = format!("{}/{}", args.output, file_path);
-        std::fs::create_dir_all(std::path::Path::new(&full_path).parent().unwrap()).map_err(
-            |e| ggen_utils::error::Error::new(&format!("Failed to create directory: {}", e)),
-        )?;
+        if let Some(parent) = std::path::Path::new(&full_path).parent() {
+            std::fs::create_dir_all(parent).map_err(|e| {
+                ggen_utils::error::Error::new(&format!("Failed to create directory: {}", e))
+            })?;
+        }
 
         fs::write(
             &full_path,

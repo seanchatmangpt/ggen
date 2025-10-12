@@ -1,6 +1,6 @@
 ---
-name: "Deterministic Engine Example"
-description: "Demonstrates Pattern 002: Deterministic Engine with reproducible generation"
+name: "Deterministic Engine Example (Marketplace-First)"
+description: "Demonstrates Pattern 002: Deterministic Engine with reproducible generation using marketplace-first workflow"
 variables:
   - name: service_name
     description: "Name of the service"
@@ -10,12 +10,27 @@ variables:
     description: "API version"
     type: string
     default: "v1.0.0"
+  - name: framework
+    description: "Web framework to use"
+    type: string
+    default: "axum"
+    options: ["axum", "actix-web", "warp"]
 determinism:
   seed: "fixed-seed-for-determinism"
   sort_results: true
   canonical_order: true
   no_timestamps: true
   no_random: true
+lifecycle:
+  generate:
+    description: "Generate deterministic service"
+    commands:
+      - "ggen template generate rust-{{framework}}-service:deterministic-service.tmpl"
+  validate:
+    description: "Validate deterministic generation"
+    commands:
+      - "ggen lifecycle readiness"
+      - "echo 'Deterministic generation validated'"
 query: |
   PREFIX : <http://example.org/>
   

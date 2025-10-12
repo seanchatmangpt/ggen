@@ -19,6 +19,7 @@ members = [
   "cli",
   "ggen-core",
   "ggen-ai",
+  "ggen-cleanroom",
   "examples/frontmatter-cli",
   "examples/natural-market-search",
   "examples/ai-template-project",

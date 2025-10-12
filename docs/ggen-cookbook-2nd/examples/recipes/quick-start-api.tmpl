@@ -1,6 +1,6 @@
 ---
-name: "Quick Start API Generator"
-description: "Generate a complete REST API with models, handlers, and tests"
+name: "Quick Start API Generator (Marketplace-First)"
+description: "Generate a complete REST API using marketplace patterns and production readiness tracking"
 variables:
   - name: api_name
     description: "Name of the API"
@@ -14,39 +14,59 @@ variables:
     description: "Database connection URL"
     type: string
     default: "postgres://localhost:5432/myapp"
-hooks:
-  pre:
-    - name: "validate-input"
-      command: "ggen validate input"
-  post:
-    - name: "format-code"
-      command: "rustfmt"
-    - name: "lint-code"
-      command: "clippy"
-    - name: "test-code"
-      command: "cargo test"
+  - name: framework
+    description: "Web framework to use"
+    type: string
+    default: "axum"
+    options: ["axum", "actix-web", "warp", "rocket"]
+lifecycle:
+  init:
+    description: "Initialize API project structure"
+    commands:
+      - "ggen lifecycle run init"
+      - "ggen market add rust-{{framework}}-service"
+      - "ggen market add postgresql-database"
+  generate:
+    description: "Generate API components"
+    commands:
+      - "ggen template generate rust-{{framework}}-service:api-service.tmpl"
+      - "ggen template generate postgresql-database:schema.tmpl"
+  validate:
+    description: "Validate production readiness"
+    commands:
+      - "ggen lifecycle readiness"
+      - "ggen lifecycle validate --env development"
+  test:
+    description: "Run comprehensive tests"
+    commands:
+      - "ggen lifecycle run test"
+  deploy:
+    description: "Deploy to environment"
+    commands:
+      - "ggen lifecycle run deploy --env development"
 query: |
   PREFIX : <http://example.org/>
   PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-  
-  SELECT ?className ?propName ?propType
+
+  SELECT ?className ?propName ?propType ?isRequired
   WHERE {
     ?class a rdfs:Class ;
            rdfs:label ?className .
     ?prop rdfs:domain ?class ;
           rdfs:label ?propName ;
           rdfs:range ?propType .
+    OPTIONAL { ?prop :required ?isRequired . }
   }
   ORDER BY ?className ?propName
 ---
 
-// Quick Start API Generator
-// This recipe generates a complete REST API with:
-// - Data models from semantic knowledge graph
-// - REST handlers with CRUD operations
-// - Database integration
-// - Comprehensive tests
-// - Documentation
+// 🚧 PLACEHOLDER: Quick Start API Generator (Marketplace-First)
+// This recipe demonstrates the marketplace-first approach:
+// 1. Search marketplace for proven patterns
+// 2. Install required packages
+// 3. Generate using marketplace templates
+// 4. Validate production readiness
+// 5. Deploy with confidence
 
 // ============================================================================
 // DATA MODELS

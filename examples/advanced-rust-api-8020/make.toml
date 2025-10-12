@@ -14,7 +14,8 @@ description = "Production-ready REST API using ggen lifecycle + AI generation"
 [lifecycle.init]
 description = "Initialize Rust API project structure"
 commands = [
-    "cargo init --lib --name advanced_rust_api .",
+    # 80/20 Fix: Skip cargo init if Cargo.toml already exists (marketplace packages)
+    "test -f Cargo.toml || cargo init --lib --name advanced_rust_api .",
     "mkdir -p src/{api,models,db,auth,middleware} tests/integration data templates",
     "echo '# Advanced Rust API\n\nProduction-ready REST API generated with ggen lifecycle + AI\n' > README.md",
 ]
@@ -46,12 +47,14 @@ cache_key = "Cargo.toml|Cargo.lock"
 [lifecycle.generate]
 description = "AI-powered code generation from specifications"
 commands = [
-    "echo '🤖 Generating API endpoints from SPARQL specifications...'",
-    "cargo run --bin ai-generator -- --spec data/api-spec.ttl --output src/api",
-    "echo '🤖 Generating database models from RDF schema...'",
-    "cargo run --bin ai-generator -- --spec data/db-schema.ttl --output src/models",
-    "echo '🤖 Generating tests from specifications...'",
-    "cargo run --bin ai-generator -- --spec data/test-spec.ttl --output tests",
+    "echo '🤖 AI generation requires ggen-core and ggen-ai dependencies'",
+    "echo '📝 For standalone marketplace version, implement endpoints manually'",
+    "echo '✅ Skipping AI generation in standalone mode'",
+    # AI generation disabled in standalone marketplace version
+    # Uncomment these when ggen-core and ggen-ai are available:
+    # "cargo run --bin ai-generator -- --spec data/api-spec.ttl --output src/api",
+    # "cargo run --bin ai-generator -- --spec data/db-schema.ttl --output src/models",
+    # "cargo run --bin ai-generator -- --spec data/test-spec.ttl --output tests",
 ]
 
 [lifecycle.validate]

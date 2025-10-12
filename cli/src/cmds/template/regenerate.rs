@@ -110,8 +110,20 @@ async fn regenerate_template(
     let output_path = args
         .output_dir
         .as_ref()
-        .map(|dir| dir.join(template_path.file_name().unwrap()))
-        .unwrap_or_else(|| PathBuf::from(template_path.file_stem().unwrap()).with_extension("rs"));
+        .map(|dir| {
+            let file_name = template_path
+                .file_name()
+                .ok_or_else(|| ggen_utils::error::Error::new("Template path has no file name"))?;
+            Ok::<PathBuf, ggen_utils::error::Error>(dir.join(file_name))
+        })
+        .transpose()?
+        .unwrap_or_else(|| {
+            let file_stem = template_path
+                .file_stem()
+                .and_then(|s| s.to_str())
+                .unwrap_or("output");
+            PathBuf::from(file_stem).with_extension("rs")
+        });
 
     if output_path.exists() {
         // File exists - need to merge

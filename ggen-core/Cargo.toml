@@ -65,6 +65,7 @@ petgraph = "0.8.3"
 default = []
 live-llm-tests = [] # Opt-in for OpenAI/Anthropic integration tests
 proptest = []       # Property-based testing with proptest
+docker = []         # Docker testcontainers support
 
 [dev-dependencies]
 tempfile = "3"
@@ -72,6 +73,9 @@ serde_json = "1"
 mockall = "0.13"
 criterion = { version = "0.5", features = ["html_reports"] }
 proptest = { workspace = true }
+tracing-subscriber = { version = "0.3", features = ["json", "env-filter"] }
+testcontainers = "0.22"
+uuid = { version = "1.0", features = ["v4"] }
 
 [[bench]]
 name = "lifecycle_benchmarks"
