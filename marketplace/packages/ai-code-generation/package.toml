@@ -1,0 +1,76 @@
+# AI Code Generation Package
+# AI-powered code generation with comprehensive validation
+
+[package]
+name = "ai-code-generation"
+full_name = "ai-code-generation-complete"
+version = "1.0.0"
+description = "AI-powered code generation with multi-provider support and comprehensive validation"
+category = "ai"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+path = "marketplace/packages/ai-code-generation"
+license = "MIT"
+dependencies = []
+features = [
+    "Multi-provider AI support (Ollama, OpenAI, Anthropic)",
+    "Intelligent template generation from natural language",
+    "Code quality validation and improvement",
+    "Automatic test generation",
+    "Documentation generation",
+    "Code optimization suggestions",
+    "SPARQL integration for semantic generation",
+    "Production-ready code with error handling",
+    "Security validation",
+    "Performance optimization"
+]
+tags = ["ai", "code-generation", "ollama", "openai", "llm"]
+keywords = ["ai", "code-generation", "llm", "ollama", "qwen"]
+
+# Installation
+[install]
+type = "template"
+template_path = "marketplace/packages/ai-code-generation"
+source_path = "examples/ai-code-generation"
+
+# Template files to copy
+[files]
+"ggen.toml" = "ggen.toml"
+"README.md" = "README.md"
+
+# Variables for template substitution
+[variables]
+project_name = { type = "string", required = true, description = "Project name" }
+ai_provider = { type = "string", default = "ollama", description = "AI provider (ollama, openai, anthropic)" }
+ai_model = { type = "string", default = "qwen2.5-coder", description = "AI model to use" }
+
+# Examples
+[examples]
+basic = """
+# Install the package
+ggen market add ai-code-generation
+
+# Generate code from natural language
+ggen ai generate "Create a REST API for user management with CRUD operations"
+
+# Analyze existing code
+ggen ai analyze src/main.rs
+
+# Optimize code
+ggen ai optimize src/api/handlers.rs
+"""
+
+advanced = """
+# Generate with semantic constraints
+ggen ai generate "Create microservice with JWT auth, PostgreSQL, and Redis cache" \\
+    --sparql "SELECT ?constraint WHERE { ?service ex:hasConstraint ?constraint }"
+
+# Generate with quality validation
+ggen ai generate "Create production-ready API gateway" --validate --quality-threshold 0.9
+"""
+
+# Documentation
+[docs]
+quick_start = "AI-powered code generation with validation"
+providers = "Supports Ollama, OpenAI, Anthropic, and more"
+features = "Template generation, code analysis, optimization, testing"

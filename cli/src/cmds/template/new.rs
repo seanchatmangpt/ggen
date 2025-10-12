@@ -140,7 +140,7 @@ fn validate_output_path(path: &str) -> Result<()> {
 /// Generate template content based on template type
 fn generate_template_content(name: &str, template_type: &str) -> Result<String> {
     let timestamp = chrono::Utc::now().to_rfc3339();
-    
+
     match template_type {
         "rust" => Ok(format!(
             "---\n\
@@ -269,21 +269,22 @@ pub async fn run(args: &NewArgs) -> Result<()> {
     validate_template_input(args)?;
 
     println!("🔧 Creating new template...");
-    
+
     // Determine template type
     let template_type = args.template_type.as_deref().unwrap_or("generic");
-    
+
     // Create templates directory if it doesn't exist
     let templates_dir = std::path::Path::new("templates");
     if !templates_dir.exists() {
-        std::fs::create_dir_all(templates_dir)
-            .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to create templates directory: {}", e)))?;
+        std::fs::create_dir_all(templates_dir).map_err(|e| {
+            ggen_utils::error::Error::new(&format!("Failed to create templates directory: {}", e))
+        })?;
     }
-    
+
     // Generate template file path
     let template_filename = format!("{}.tmpl", args.name.trim());
     let template_path = templates_dir.join(&template_filename);
-    
+
     // Check if template already exists
     if template_path.exists() {
         return Err(ggen_utils::error::Error::new(&format!(
@@ -292,21 +293,26 @@ pub async fn run(args: &NewArgs) -> Result<()> {
             template_path.display()
         )));
     }
-    
+
     // Generate template content based on type
     let template_content = generate_template_content(&args.name, template_type)?;
-    
+
     // Write template file
-    std::fs::write(&template_path, template_content)
-        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to write template file: {}", e)))?;
-    
-    println!("✅ Created template '{}' at {}", args.name, template_path.display());
+    std::fs::write(&template_path, template_content).map_err(|e| {
+        ggen_utils::error::Error::new(&format!("Failed to write template file: {}", e))
+    })?;
+
+    println!(
+        "✅ Created template '{}' at {}",
+        args.name,
+        template_path.display()
+    );
     println!("📝 Template type: {}", template_type);
-    
+
     if args.interactive {
         println!("💡 Tip: Edit the template file to customize variables and content");
     }
-    
+
     Ok(())
 }
 

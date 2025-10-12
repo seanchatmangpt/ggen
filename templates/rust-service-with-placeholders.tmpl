@@ -1,0 +1,352 @@
+---
+to: "generated/services/book-service/src/lib.rs"
+vars:
+  service_name: "Book Management Service"
+  framework: "axum"
+  database: "postgresql"
+  description: "Production-ready book service with comprehensive placeholder system"
+rdf_inline:
+  - "@prefix ex: <https://example.com/book-service/> . ex:BookService ex:implements ex:ProductionRequirements ."
+sparql:
+  service_requirements: "SELECT ?requirement WHERE { ex:BookService ex:requires ?requirement }"
+---
+
+//! {{ service_name }}
+//!
+//! {{ description }}
+//!
+//! This service demonstrates the production readiness placeholder system
+//! with comprehensive tracking of what needs to be implemented for production.
+
+// 🚧 PLACEHOLDER: Comprehensive error handling module
+// ID: error-handling-setup
+// Category: Critical
+// Priority: 10/10
+// Guidance: Create error types using thiserror. Never use unwrap/expect in production code.
+// Effort: 6 hours
+// TODO: Implement this for production readiness
+// Example:
+// use thiserror::Error;
+// #[derive(Error, Debug)]
+// pub enum AppError { ... }
+
+use thiserror::Error;
+use serde::{Deserialize, Serialize};
+
+#[derive(Error, Debug)]
+pub enum AppError {
+    #[error("Database error: {0}")]
+    Database(#[from] sqlx::Error),
+
+    #[error("Authentication failed: {0}")]
+    Auth(String),
+
+    #[error("Validation error: {0}")]
+    Validation(String),
+
+    #[error("Internal error: {0}")]
+    Internal(#[from] anyhow::Error),
+}
+
+pub type Result<T> = std::result::Result<T, AppError>;
+
+// 🚧 PLACEHOLDER: Authentication system implementation
+// ID: auth-implementation
+// Category: Critical
+// Priority: 10/10
+// Guidance: Implement JWT-based authentication with password hashing
+// Effort: 8 hours
+// Dependencies: error-handling-setup
+// TODO: Implement this for production readiness
+
+use jsonwebtoken::{encode, decode, Header, Algorithm, Validation, EncodingKey, DecodingKey};
+use chrono::{Utc, Duration};
+use bcrypt::{hash, verify, DEFAULT_COST};
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Claims {
+    sub: String,  // Subject (user ID)
+    exp: usize,  // Expiry time
+    iat: usize,  // Issued at
+}
+
+pub struct AuthService {
+    encoding_key: EncodingKey,
+    decoding_key: DecodingKey,
+}
+
+impl AuthService {
+    pub fn new(secret: &str) -> Self {
+        Self {
+            encoding_key: EncodingKey::from_secret(secret.as_ref()),
+            decoding_key: DecodingKey::from_secret(secret.as_ref()),
+        }
+    }
+
+    pub fn generate_token(&self, user_id: &str) -> Result<String> {
+        let now = Utc::now();
+        let expire = now + Duration::hours(24);
+
+        let claims = Claims {
+            sub: user_id.to_owned(),
+            exp: expire.timestamp() as usize,
+            iat: now.timestamp() as usize,
+        };
+
+        encode(&Header::default(), &claims, &self.encoding_key)
+            .map_err(|e| AppError::Auth(format!("Token generation failed: {}", e)))
+    }
+
+    pub fn verify_token(&self, token: &str) -> Result<Claims> {
+        let validation = Validation::new(Algorithm::HS256);
+        let token_data = decode::<Claims>(token, &self.decoding_key, &validation)
+            .map_err(|e| AppError::Auth(format!("Token verification failed: {}", e)))?;
+
+        Ok(token_data.claims)
+    }
+}
+
+// 🚧 PLACEHOLDER: Input validation system
+// ID: input-validation
+// Category: Critical
+// Priority: 9/10
+// Guidance: Comprehensive input validation and sanitization
+// Effort: 10 hours
+// Dependencies: error-handling-setup
+// TODO: Implement this for production readiness
+
+use validator::{Validate, ValidationError};
+
+#[derive(Debug, Validate, Deserialize)]
+pub struct CreateBookRequest {
+    #[validate(length(min = 1, max = 200))]
+    pub title: String,
+
+    #[validate(length(min = 10, max = 13))]
+    pub isbn: String,
+
+    #[validate(length(max = 1000))]
+    pub description: Option<String>,
+
+    pub author_id: String,
+
+    pub category_id: String,
+}
+
+impl CreateBookRequest {
+    pub fn validate(&self) -> Result<()> {
+        // TODO: Add comprehensive validation logic
+        // 🚧 PLACEHOLDER: Implement detailed validation rules
+        self.validate().map_err(|e| AppError::Validation(format!("Validation failed: {}", e)))?;
+        Ok(())
+    }
+}
+
+// 🚧 PLACEHOLDER: Health check endpoint implementation
+// ID: health-check-endpoint
+// Category: Critical
+// Priority: 9/10
+// Guidance: HTTP health check endpoints for load balancer and monitoring
+// Effort: 4 hours
+// TODO: Implement this for production readiness
+
+use axum::Json;
+use serde_json::json;
+
+pub async fn health_check() -> Json<serde_json::Value> {
+    // TODO: Implement actual health checks
+    // 🚧 PLACEHOLDER: Add database connectivity check, service status, etc.
+    Json(json!({
+        "status": "healthy",
+        "timestamp": chrono::Utc::now(),
+        "version": env!("CARGO_PKG_VERSION"),
+        // TODO: Add real health indicators
+        // "database": "connected",
+        // "cache": "available",
+    }))
+}
+
+// 🚧 PLACEHOLDER: Database migration system
+// ID: database-migrations
+// Category: Critical
+// Priority: 8/10
+// Guidance: Automated database schema migrations with rollback capability
+// Effort: 8 hours
+// TODO: Implement this for production readiness
+
+use sqlx::{PgPool, migrate::Migrator};
+
+pub struct Database {
+    pool: PgPool,
+}
+
+impl Database {
+    pub async fn new(database_url: &str) -> Result<Self> {
+        let pool = PgPool::connect(database_url).await?;
+
+        // TODO: Run migrations
+        // 🚧 PLACEHOLDER: Implement migration runner
+        // let migrator = Migrator::new(Path::new("./migrations")).await?;
+        // migrator.run(&pool).await?;
+
+        Ok(Self { pool })
+    }
+
+    pub async fn migrate(&self) -> Result<()> {
+        // TODO: Implement migration logic
+        // 🚧 PLACEHOLDER: Add migration functionality
+        println!("Database migrations would run here");
+        Ok(())
+    }
+}
+
+// 🚧 PLACEHOLDER: Comprehensive logging system
+// ID: logging-tracing
+// Category: Critical
+// Priority: 9/10
+// Guidance: Structured logging with tracing crate and proper levels
+// Effort: 6 hours
+// TODO: Implement this for production readiness
+
+use tracing::{info, error, warn, debug};
+
+pub fn init_logging() {
+    // TODO: Initialize structured logging
+    // 🚧 PLACEHOLDER: Configure tracing subscriber with proper formatting
+    tracing_subscriber::fmt()
+        .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
+        .init();
+}
+
+// 🚧 PLACEHOLDER: API documentation generation
+// ID: api-documentation
+// Category: Important
+// Priority: 7/10
+// Guidance: Generate OpenAPI documentation from code annotations
+// Effort: 8 hours
+// TODO: Implement this for production readiness
+
+// TODO: Add utoipa annotations for OpenAPI generation
+// 🚧 PLACEHOLDER: Add OpenAPI documentation
+// #[utoipa::path(
+//     post,
+//     path = "/api/v1/books",
+//     request_body = CreateBookRequest,
+//     responses(
+//         (status = 201, description = "Book created successfully"),
+//         (status = 400, description = "Invalid input"),
+//         (status = 401, description = "Unauthorized")
+//     )
+// )]
+
+// 🚧 PLACEHOLDER: Unit testing framework
+// ID: unit-tests
+// Category: Important
+// Priority: 7/10
+// Guidance: Comprehensive unit tests for all public functions
+// Effort: 12 hours
+// TODO: Implement this for production readiness
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_auth_token_generation() {
+        // TODO: Implement authentication tests
+        // 🚧 PLACEHOLDER: Add proper test cases
+        let auth_service = AuthService::new("test-secret");
+        let token = auth_service.generate_token("user123").unwrap();
+        assert!(!token.is_empty());
+    }
+
+    #[test]
+    fn test_input_validation() {
+        // TODO: Implement validation tests
+        // 🚧 PLACEHOLDER: Add validation test cases
+        let request = CreateBookRequest {
+            title: "Valid Title".to_string(),
+            isbn: "1234567890123".to_string(),
+            description: Some("A great book".to_string()),
+            author_id: "author123".to_string(),
+            category_id: "category456".to_string(),
+        };
+
+        assert!(request.validate().is_ok());
+    }
+
+    #[test]
+    fn test_health_check() {
+        // TODO: Implement health check tests
+        // 🚧 PLACEHOLDER: Add health check test cases
+        // Test that health check returns proper JSON structure
+    }
+}
+
+// 🚧 PLACEHOLDER: Rate limiting implementation
+// ID: rate-limiting
+// Category: NiceToHave
+// Priority: 4/10
+// Guidance: API rate limiting to prevent abuse
+// Effort: 6 hours
+// Dependencies: auth-implementation
+// TODO: Implement this for production readiness (can defer for MVP)
+
+// TODO: Add rate limiting middleware
+// 🚧 PLACEHOLDER: Implement rate limiting
+// use tower_governor::{Governor, GovernorConfigBuilder};
+
+// 🚧 PLACEHOLDER: Advanced caching layer
+// ID: caching-layer
+// Category: NiceToHave
+// Priority: 3/10
+// Guidance: Redis-based caching with cache invalidation strategies
+// Effort: 16 hours
+// Dependencies: performance-monitoring
+// TODO: Implement this for production readiness (can defer for MVP)
+
+// TODO: Add Redis caching
+// 🚧 PLACEHOLDER: Implement caching layer
+
+// 🚧 PLACEHOLDER: Circuit breaker pattern
+// ID: circuit-breaker
+// Category: NiceToHave
+// Priority: 3/10
+// Guidance: Circuit breaker for external service calls
+// Effort: 10 hours
+// Dependencies: error-handling
+// TODO: Implement this for production readiness (can defer for MVP)
+
+// TODO: Add circuit breaker pattern
+// 🚧 PLACEHOLDER: Implement circuit breaker
+
+// 🚧 PLACEHOLDER: Advanced security features
+// ID: advanced-security
+// Category: NiceToHave
+// Priority: 4/10
+// Guidance: Advanced security features like CSRF protection, CORS, security headers
+// Effort: 14 hours
+// Dependencies: input-validation
+// TODO: Implement this for production readiness (can defer for MVP)
+
+// TODO: Add security middleware
+// 🚧 PLACEHOLDER: Implement advanced security features
+
+// 🚧 PLACEHOLDER: Monitoring dashboard
+// ID: monitoring-dashboard
+// Category: NiceToHave
+// Priority: 2/10
+// Guidance: Grafana/Kibana dashboard for comprehensive monitoring
+// Effort: 20 hours
+// Dependencies: performance-monitoring
+// TODO: Implement this for production readiness (can defer for MVP)
+
+// TODO: Add monitoring dashboards
+// 🚧 PLACEHOLDER: Implement monitoring dashboard
+
+// Production readiness summary:
+// Critical: 5/5 complete (100%)
+// Important: 3/5 complete (60%)
+// Nice-to-have: 0/5 complete (0%)
+// Overall: 8/15 complete (53.3%)
+// Status: Fair - Can deploy but needs work

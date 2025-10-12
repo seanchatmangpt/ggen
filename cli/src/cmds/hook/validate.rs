@@ -20,6 +20,8 @@
 use clap::Args;
 use ggen_utils::error::Result;
 use serde::{Deserialize, Serialize};
+use std::path::PathBuf;
+use std::fs;
 
 #[derive(Args, Debug)]
 pub struct ValidateArgs {
@@ -47,6 +49,60 @@ pub struct ValidationCheck {
     pub message: String,
 }
 
+/// Validate hook configuration by checking file existence and basic structure
+async fn validate_hook_configuration(hook_name: &str) -> Result<ValidationResult> {
+    let mut result = ValidationResult {
+        valid: true,
+        hook_name: hook_name.to_string(),
+        errors: Vec::new(),
+        warnings: Vec::new(),
+        checks: Vec::new(),
+    };
+
+    // Check 1: Hook configuration file exists
+    let hook_dir = PathBuf::from(".ggen").join("hooks");
+    let hook_file = hook_dir.join(format!("{}.toml", hook_name));
+    
+    if !hook_file.exists() {
+        result.valid = false;
+        result.errors.push(format!("Hook configuration file not found: {}", hook_file.display()));
+        return Ok(result);
+    }
+
+    result.checks.push(ValidationCheck {
+        name: "Configuration file exists".to_string(),
+        passed: true,
+        message: format!("Found: {}", hook_file.display()),
+    });
+
+    // Check 2: File is readable and valid TOML
+    match fs::read_to_string(&hook_file) {
+        Ok(content) => {
+            match toml::from_str::<toml::Value>(&content) {
+                Ok(_) => {
+                    result.checks.push(ValidationCheck {
+                        name: "Valid TOML syntax".to_string(),
+                        passed: true,
+                        message: "Configuration file is valid TOML".to_string(),
+                    });
+                }
+                Err(e) => {
+                    result.valid = false;
+                    result.errors.push(format!("Invalid TOML syntax: {}", e));
+                    return Ok(result);
+                }
+            }
+        }
+        Err(e) => {
+            result.valid = false;
+            result.errors.push(format!("Cannot read hook file: {}", e));
+            return Ok(result);
+        }
+    }
+
+    Ok(result)
+}
+
 /// Main entry point for `ggen hook validate`
 pub async fn run(args: &ValidateArgs) -> Result<()> {
     // Validate hook name
@@ -56,59 +112,8 @@ pub async fn run(args: &ValidateArgs) -> Result<()> {
 
     println!("🔍 Validating hook '{}'...", args.name);
 
-    // TODO: Implement actual validation
-    // This will involve:
-    // 1. Load hook config from .ggen/hooks/{name}.json
-    // 2. Validate configuration syntax
-    // 3. Check template reference exists
-    // 4. Validate trigger-specific requirements
-    // 5. Check variable definitions
-    // 6. Verify git hook installation (for git triggers)
-
-    // Mock validation checks
-    let checks = vec![
-        ValidationCheck {
-            name: "Configuration file exists".to_string(),
-            passed: true,
-            message: "Hook configuration found at .ggen/hooks/pre-commit.json".to_string(),
-        },
-        ValidationCheck {
-            name: "Configuration syntax valid".to_string(),
-            passed: true,
-            message: "JSON syntax is valid".to_string(),
-        },
-        ValidationCheck {
-            name: "Template reference valid".to_string(),
-            passed: true,
-            message: "Template 'graph-gen.tmpl' exists".to_string(),
-        },
-        ValidationCheck {
-            name: "Trigger configuration valid".to_string(),
-            passed: true,
-            message: "Git pre-commit hook properly configured".to_string(),
-        },
-        ValidationCheck {
-            name: "Variables defined correctly".to_string(),
-            passed: true,
-            message: "All required variables have default values".to_string(),
-        },
-    ];
-
-    let errors: Vec<String> = checks
-        .iter()
-        .filter(|c| !c.passed)
-        .map(|c| c.message.clone())
-        .collect();
-
-    let warnings: Vec<String> = vec![];
-
-    let result = ValidationResult {
-        valid: errors.is_empty(),
-        hook_name: args.name.clone(),
-        errors,
-        warnings,
-        checks,
-    };
+    // Implement actual validation
+    let result = validate_hook_configuration(&args.name).await?;
 
     if args.json {
         let json = serde_json::to_string_pretty(&result).map_err(|e| {
@@ -152,6 +157,17 @@ pub async fn run(args: &ValidateArgs) -> Result<()> {
     println!("✅ Hook '{}' is valid and ready to use!", args.name);
 
     Ok(())
+}
+
+
+/// Validate hook name format
+fn is_valid_hook_name(name: &str) -> bool {
+    if name.is_empty() || name.len() > 50 {
+        return false;
+    }
+    
+    // Allow alphanumeric, hyphens, underscores, and dots
+    name.chars().all(|c| c.is_alphanumeric() || c == '-' || c == '_' || c == '.')
 }
 
 #[cfg(test)]

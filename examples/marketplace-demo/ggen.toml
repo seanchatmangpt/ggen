@@ -1,0 +1,23 @@
+# Marketplace Demo Project
+# Demonstrates using ggen marketplace to install and use packages
+
+[project]
+name = "marketplace-demo"
+version = "0.1.0"
+description = "Demo project showing ggen marketplace functionality"
+author = "ggen-examples"
+license = "MIT"
+
+# Lifecycle configuration file
+[lifecycle]
+makefile = "make.toml"
+
+# Marketplace configuration
+[marketplace]
+registry_url = "https://registry.ggen.dev"
+cache_dir = ".ggen/marketplace"
+
+# Template configuration
+[templates]
+source_dir = "templates"
+output_dir = "generated"

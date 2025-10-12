@@ -80,7 +80,7 @@ pub fn save_state<P: AsRef<Path>>(path: P, state: &LifecycleState) -> Result<()>
     }
 
     let json = serde_json::to_string_pretty(state)
-        .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))
+        .map_err(std::io::Error::other)
         .map_err(|e| LifecycleError::state_save(path_ref, e))?;
 
     // PRODUCTION FIX: Atomic write pattern prevents corruption from parallel writes

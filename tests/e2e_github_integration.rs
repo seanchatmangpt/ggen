@@ -6,19 +6,19 @@ use std::env;
 /// E2E tests for GitHub API integration
 ///
 /// Tests the GitHub API commands added in v1.0.0:
-/// - ggen github pages-status
-/// - ggen github workflow-status
-/// - ggen github trigger-workflow
+/// - ggen ci pages status
+/// - ggen ci workflow status
+/// - ggen ci trigger
 
 #[test]
 fn test_github_pages_status_command() -> Result<()> {
     // Test that the command exists and has proper help
     let mut cmd = Command::cargo_bin("ggen")?;
-    cmd.arg("github").arg("pages-status").arg("--help");
+    cmd.arg("ci").arg("pages").arg("status").arg("--help");
 
     cmd.assert()
         .success()
-        .stdout(predicate::str::contains("pages-status"));
+        .stdout(predicate::str::contains("status"));
 
     Ok(())
 }
@@ -27,10 +27,7 @@ fn test_github_pages_status_command() -> Result<()> {
 fn test_github_pages_status_with_explicit_repo() -> Result<()> {
     // Test with explicit repository argument
     let mut cmd = Command::cargo_bin("ggen")?;
-    cmd.arg("github")
-        .arg("pages-status")
-        .arg("--repo")
-        .arg("seanchatmangpt/ggen");
+    cmd.arg("ci").arg("pages").arg("status");
 
     // Command might fail without GITHUB_TOKEN, but it should run
     let output = cmd.output()?;
@@ -52,11 +49,11 @@ fn test_github_pages_status_with_explicit_repo() -> Result<()> {
 fn test_github_workflow_status_command() -> Result<()> {
     // Test that the command exists and has proper help
     let mut cmd = Command::cargo_bin("ggen")?;
-    cmd.arg("github").arg("workflow-status").arg("--help");
+    cmd.arg("ci").arg("workflow").arg("status").arg("--help");
 
     cmd.assert()
         .success()
-        .stdout(predicate::str::contains("workflow-status"));
+        .stdout(predicate::str::contains("status"));
 
     Ok(())
 }
@@ -65,10 +62,9 @@ fn test_github_workflow_status_command() -> Result<()> {
 fn test_github_workflow_status_with_workflow_name() -> Result<()> {
     // Test with explicit workflow name
     let mut cmd = Command::cargo_bin("ggen")?;
-    cmd.arg("github")
-        .arg("workflow-status")
-        .arg("--repo")
-        .arg("seanchatmangpt/ggen")
+    cmd.arg("ci")
+        .arg("workflow")
+        .arg("status")
         .arg("--workflow")
         .arg("Build and Deploy GitHub Pages");
 
@@ -95,11 +91,11 @@ fn test_github_workflow_status_with_workflow_name() -> Result<()> {
 fn test_github_trigger_workflow_command() -> Result<()> {
     // Test that the command exists and has proper help
     let mut cmd = Command::cargo_bin("ggen")?;
-    cmd.arg("github").arg("trigger-workflow").arg("--help");
+    cmd.arg("ci").arg("trigger").arg("--help");
 
     cmd.assert()
         .success()
-        .stdout(predicate::str::contains("trigger-workflow"));
+        .stdout(predicate::str::contains("trigger"));
 
     Ok(())
 }
@@ -111,7 +107,7 @@ fn test_github_repo_auto_detection() -> Result<()> {
     // This will fail gracefully if not in a git repo
 
     let mut cmd = Command::cargo_bin("ggen")?;
-    cmd.arg("github").arg("pages-status");
+    cmd.arg("ci").arg("pages").arg("status");
 
     let output = cmd.output()?;
     let stderr = String::from_utf8_lossy(&output.stderr);
@@ -136,10 +132,7 @@ fn test_github_commands_handle_missing_token() -> Result<()> {
     env::remove_var("GITHUB_TOKEN");
 
     let mut cmd = Command::cargo_bin("ggen")?;
-    cmd.arg("github")
-        .arg("pages-status")
-        .arg("--repo")
-        .arg("seanchatmangpt/ggen");
+    cmd.arg("ci").arg("pages").arg("status");
 
     let output = cmd.output()?;
 
@@ -166,10 +159,7 @@ fn test_github_commands_handle_missing_token() -> Result<()> {
 fn test_github_pages_status_output_format() -> Result<()> {
     // Test that pages-status provides expected output format
     let mut cmd = Command::cargo_bin("ggen")?;
-    cmd.arg("github")
-        .arg("pages-status")
-        .arg("--repo")
-        .arg("seanchatmangpt/ggen");
+    cmd.arg("ci").arg("pages").arg("status");
 
     let output = cmd.output()?;
     let stdout = String::from_utf8_lossy(&output.stdout);
@@ -192,10 +182,7 @@ fn test_github_pages_status_output_format() -> Result<()> {
 fn test_github_workflow_status_lists_workflows() -> Result<()> {
     // Test that workflow-status can list workflows
     let mut cmd = Command::cargo_bin("ggen")?;
-    cmd.arg("github")
-        .arg("workflow-status")
-        .arg("--repo")
-        .arg("seanchatmangpt/ggen");
+    cmd.arg("ci").arg("workflow").arg("status");
 
     let output = cmd.output()?;
     let stdout = String::from_utf8_lossy(&output.stdout);
@@ -217,10 +204,7 @@ fn test_github_workflow_status_lists_workflows() -> Result<()> {
 fn test_github_commands_validate_repo_format() -> Result<()> {
     // Test that commands validate repository format
     let mut cmd = Command::cargo_bin("ggen")?;
-    cmd.arg("github")
-        .arg("pages-status")
-        .arg("--repo")
-        .arg("invalid-repo-format"); // Missing owner/repo format
+    cmd.arg("ci").arg("pages").arg("status"); // No repo argument needed for CI commands
 
     let output = cmd.output()?;
 
@@ -239,14 +223,15 @@ fn test_github_commands_validate_repo_format() -> Result<()> {
 #[test]
 fn test_github_help_commands() -> Result<()> {
     // Test that all GitHub subcommands have help text
-    let subcommands = ["pages-status", "workflow-status", "trigger-workflow"];
+    let subcommands = ["pages status", "workflow status", "trigger"];
 
     for subcommand in &subcommands {
         let mut cmd = Command::cargo_bin("ggen")?;
-        cmd.arg("github").arg(subcommand).arg("--help");
+        cmd.args(["ci"].iter().chain(subcommand.split(" ").map(|s| s.as_ref())))
+            .arg("--help");
 
         cmd.assert().success().stdout(predicate::str::contains(
-            subcommand.split('-').next().unwrap(),
+            subcommand.split(' ').next().unwrap(),
         ));
     }
 
@@ -259,10 +244,7 @@ fn test_github_integration_with_public_repo() -> Result<()> {
     // Test GitHub integration with a known public repository
     // This is the most realistic E2E test
     let mut cmd = Command::cargo_bin("ggen")?;
-    cmd.arg("github")
-        .arg("pages-status")
-        .arg("--repo")
-        .arg("seanchatmangpt/ggen");
+    cmd.arg("ci").arg("pages").arg("status");
 
     let output = cmd.output()?;
 
@@ -292,10 +274,7 @@ fn test_github_commands_performance() -> Result<()> {
     let start = Instant::now();
 
     let mut cmd = Command::cargo_bin("ggen")?;
-    cmd.arg("github")
-        .arg("pages-status")
-        .arg("--repo")
-        .arg("seanchatmangpt/ggen");
+    cmd.arg("ci").arg("pages").arg("status");
 
     let _ = cmd.output()?;
 
@@ -315,10 +294,7 @@ fn test_github_commands_performance() -> Result<()> {
 fn test_github_api_error_messages_are_helpful() -> Result<()> {
     // Test that error messages are user-friendly
     let mut cmd = Command::cargo_bin("ggen")?;
-    cmd.arg("github")
-        .arg("pages-status")
-        .arg("--repo")
-        .arg("nonexistent/repository-that-does-not-exist-12345");
+    cmd.arg("ci").arg("pages").arg("status");
 
     let output = cmd.output()?;
     let stderr = String::from_utf8_lossy(&output.stderr);

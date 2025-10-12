@@ -1,8 +1,8 @@
 use clap::Args;
 use ggen_utils::error::Result;
+use oxigraph::sparql::QueryResults as OxigraphQueryResults;
 use serde::Serialize;
 use std::collections::HashMap;
-use oxigraph::sparql::QueryResults as OxigraphQueryResults;
 
 #[derive(Args, Debug)]
 pub struct QueryArgs {
@@ -139,11 +139,17 @@ fn validate_graph_path(graph: &Option<String>) -> Result<()> {
 fn convert_sparql_results(results: OxigraphQueryResults) -> Result<QueryResults> {
     match results {
         OxigraphQueryResults::Solutions(solutions) => {
-            let variables: Vec<String> = solutions.variables().iter().map(|v| v.to_string()).collect();
+            let variables: Vec<String> = solutions
+                .variables()
+                .iter()
+                .map(|v| v.to_string())
+                .collect();
             let mut bindings = Vec::new();
-            
+
             for solution in solutions {
-                let solution = solution.map_err(|e| ggen_utils::error::Error::new(&format!("SPARQL solution error: {}", e)))?;
+                let solution = solution.map_err(|e| {
+                    ggen_utils::error::Error::new(&format!("SPARQL solution error: {}", e))
+                })?;
                 let mut binding = HashMap::new();
                 for variable in &variables {
                     if let Some(value) = solution.get(variable.as_str()) {
@@ -152,8 +158,11 @@ fn convert_sparql_results(results: OxigraphQueryResults) -> Result<QueryResults>
                 }
                 bindings.push(binding);
             }
-            
-            Ok(QueryResults { bindings, variables })
+
+            Ok(QueryResults {
+                bindings,
+                variables,
+            })
         }
         OxigraphQueryResults::Boolean(_) => {
             // For ASK queries, return a simple boolean result
@@ -179,7 +188,7 @@ pub async fn run(args: &QueryArgs) -> Result<()> {
     validate_graph_path(&args.graph)?;
 
     println!("🔍 Executing SPARQL query...");
-    
+
     // Load graph if provided
     let graph = if let Some(graph_path) = &args.graph {
         println!("📊 Loading graph from: {}", graph_path);
@@ -187,22 +196,25 @@ pub async fn run(args: &QueryArgs) -> Result<()> {
             .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to load graph: {}", e)))?
     } else {
         println!("📊 Using empty graph for query");
-        ggen_core::Graph::new()
-            .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to create empty graph: {}", e)))?
+        ggen_core::Graph::new().map_err(|e| {
+            ggen_utils::error::Error::new(&format!("Failed to create empty graph: {}", e))
+        })?
     };
-    
+
     // Execute SPARQL query
-    let results = graph.query(&args.query)
+    let results = graph
+        .query(&args.query)
         .map_err(|e| ggen_utils::error::Error::new(&format!("SPARQL query failed: {}", e)))?;
-    
+
     // Convert results to our format
     let query_results = convert_sparql_results(results)?;
-    
+
     // Output results in requested format
     match args.format.as_str() {
         "json" => {
-            let json = serde_json::to_string_pretty(&query_results.bindings)
-                .map_err(|e| ggen_utils::error::Error::new(&format!("JSON serialization failed: {}", e)))?;
+            let json = serde_json::to_string_pretty(&query_results.bindings).map_err(|e| {
+                ggen_utils::error::Error::new(&format!("JSON serialization failed: {}", e))
+            })?;
             println!("{}", json);
         }
         "csv" => {
@@ -239,7 +251,7 @@ pub async fn run(args: &QueryArgs) -> Result<()> {
             )));
         }
     }
-    
+
     println!("\n📊 {} results", query_results.bindings.len());
     Ok(())
 }

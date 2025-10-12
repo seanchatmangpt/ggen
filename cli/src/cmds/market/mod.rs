@@ -7,6 +7,7 @@ pub mod cache;
 pub mod categories;
 pub mod info;
 pub mod list;
+pub mod lockfile;
 pub mod natural;
 pub mod offline;
 pub mod publish;

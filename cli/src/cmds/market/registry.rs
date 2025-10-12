@@ -41,6 +41,12 @@ impl Registry {
         Self::load_from_path(&registry_path).await
     }
 
+    /// Load registry synchronously (for 80/20 implementation)
+    pub fn load_sync() -> Result<Self> {
+        let registry_path = Self::default_path_sync()?;
+        Self::load_from_path_sync(&registry_path)
+    }
+
     /// Load registry from specific path
     pub async fn load_from_path(path: &Path) -> Result<Self> {
         let content = tokio::fs::read_to_string(path).await.map_err(|e| {
@@ -54,8 +60,21 @@ impl Registry {
         Ok(registry)
     }
 
-    /// Get default registry path (workspace root + marketplace/registry/packages.toml)
-    pub fn default_path() -> Result<PathBuf> {
+    /// Load registry from specific path synchronously
+    pub fn load_from_path_sync(path: &Path) -> Result<Self> {
+        let content = std::fs::read_to_string(path).map_err(|e| {
+            ggen_utils::error::Error::new_fmt(format_args!("Failed to read registry file: {}", e))
+        })?;
+
+        let registry: Registry = toml::from_str(&content).map_err(|e| {
+            ggen_utils::error::Error::new_fmt(format_args!("Failed to parse registry TOML: {}", e))
+        })?;
+
+        Ok(registry)
+    }
+
+    /// Get default registry path synchronously
+    pub fn default_path_sync() -> Result<PathBuf> {
         // Try to find workspace root by looking for Cargo.toml with [workspace]
         let current_dir = std::env::current_dir().map_err(|e| {
             ggen_utils::error::Error::new_fmt(format_args!(

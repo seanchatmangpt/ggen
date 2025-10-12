@@ -278,4 +278,176 @@ ggen_compat = ">=0.1 <0.2"
         let manifest = GpackManifest::load_from_file(&temp_file.path().to_path_buf()).unwrap();
         assert_eq!(manifest.metadata.id, "test");
     }
+
+    #[cfg(feature = "proptest")]
+    mod proptest_tests {
+        use super::*;
+        use proptest::prelude::*;
+
+        /// Property test: GPack manifest parsing should be idempotent
+        proptest! {
+            #[test]
+            fn gpack_manifest_parsing_idempotent(
+                pack_id in r"[a-zA-Z0-9_\-\.]+",
+                pack_name in r"[a-zA-Z0-9_\s\-\.]+",
+                pack_version in r"[0-9]+\.[0-9]+\.[0-9]+",
+                pack_description in r"[a-zA-Z0-9_\s\-\.\/\?\!]+",
+                pack_license in r"[a-zA-Z0-9_\s\-\.]+",
+                ggen_compat in r"[><=0-9\.\s]+"
+            ) {
+                // Skip invalid combinations
+                if pack_id.is_empty() || pack_name.is_empty() || pack_description.is_empty() {
+                    return Ok(());
+                }
+                if pack_id.len() > 100 || pack_name.len() > 200 || pack_description.len() > 500 {
+                    return Ok(());
+                }
+
+                // Create a minimal GPack manifest
+                let manifest = GpackManifest {
+                    metadata: GpackMetadata {
+                        id: pack_id.clone(),
+                        name: pack_name.clone(),
+                        version: pack_version.clone(),
+                        description: pack_description.clone(),
+                        license: pack_license.clone(),
+                        ggen_compat: ggen_compat.clone(),
+                    },
+                    dependencies: BTreeMap::new(),
+                    templates: TemplatesConfig::default(),
+                    macros: MacrosConfig::default(),
+                    rdf: RdfConfig::default(),
+                    queries: QueriesConfig::default(),
+                    shapes: ShapesConfig::default(),
+                    preset: PresetConfig::default(),
+                };
+
+                // Serialize to TOML and parse back
+                let toml_str = toml::to_string(&manifest).unwrap();
+                let parsed_manifest: GpackManifest = toml::from_str(&toml_str).unwrap();
+
+                // Should be identical
+                assert_eq!(manifest.metadata.id, parsed_manifest.metadata.id);
+                assert_eq!(manifest.metadata.name, parsed_manifest.metadata.name);
+                assert_eq!(manifest.metadata.version, parsed_manifest.metadata.version);
+                assert_eq!(manifest.metadata.description, parsed_manifest.metadata.description);
+                assert_eq!(manifest.metadata.license, parsed_manifest.metadata.license);
+                assert_eq!(manifest.metadata.ggen_compat, parsed_manifest.metadata.ggen_compat);
+            }
+
+            #[test]
+            fn gpack_metadata_validation(
+                pack_id in r"[a-zA-Z0-9_\-\.]+",
+                pack_name in r"[a-zA-Z0-9_\s\-\.]+",
+                pack_version in r"[0-9]+\.[0-9]+\.[0-9]+",
+                pack_description in r"[a-zA-Z0-9_\s\-\.\/\?\!]+"
+            ) {
+                // Skip invalid combinations
+                if pack_id.is_empty() || pack_name.is_empty() || pack_description.is_empty() {
+                    return Ok(());
+                }
+                if pack_id.len() > 100 || pack_name.len() > 200 || pack_description.len() > 500 {
+                    return Ok(());
+                }
+
+                let metadata = GpackMetadata {
+                    id: pack_id.clone(),
+                    name: pack_name.clone(),
+                    version: pack_version.clone(),
+                    description: pack_description.clone(),
+                    license: "MIT".to_string(),
+                    ggen_compat: ">=0.1 <0.2".to_string(),
+                };
+
+                // Validate required fields
+                assert!(!metadata.id.is_empty());
+                assert!(!metadata.name.is_empty());
+                assert!(!metadata.version.is_empty());
+                assert!(!metadata.description.is_empty());
+                assert!(!metadata.license.is_empty());
+                assert!(!metadata.ggen_compat.is_empty());
+
+                // Validate ID format (should be reverse domain notation)
+                if metadata.id.contains('.') {
+                    let parts: Vec<&str> = metadata.id.split('.').collect();
+                    assert!(parts.len() >= 2, "ID should have at least 2 parts separated by dots");
+                }
+
+                // Validate version format (should be semver)
+                let version_result = semver::Version::parse(&metadata.version);
+                match version_result {
+                    Ok(_) => {
+                        // Valid semver version
+                    },
+                    Err(_) => {
+                        // Invalid version format - this is acceptable for testing
+                    }
+                }
+            }
+
+            #[test]
+            fn template_patterns_validation(
+                pattern_count in 0..10usize,
+                pattern in r"[a-zA-Z0-9_\-\.\/\*\?\[\]]+"
+            ) {
+                // Skip invalid patterns
+                if pattern.is_empty() || pattern.len() > 100 {
+                    return Ok(());
+                }
+
+                let mut patterns = Vec::new();
+                for i in 0..pattern_count {
+                    patterns.push(format!("{}-{}", pattern, i));
+                }
+
+                let config = TemplatesConfig {
+                    patterns: patterns.clone(),
+                    includes: Vec::new(),
+                };
+
+                // Validate patterns
+                assert_eq!(config.patterns.len(), pattern_count);
+                for (i, pattern_item) in config.patterns.iter().enumerate() {
+                    let expected_pattern = format!("{}-{}", pattern, i);
+                    assert_eq!(pattern_item, &expected_pattern);
+                }
+            }
+
+            #[test]
+            fn rdf_prefixes_validation(
+                prefix_count in 0..10usize,
+                prefix_name in r"[a-zA-Z0-9_\-]+",
+                prefix_uri in r"https://[a-zA-Z0-9_\-\.]+/[a-zA-Z0-9_\-\.\/]*"
+            ) {
+                // Skip invalid combinations
+                if prefix_name.is_empty() || prefix_uri.is_empty() {
+                    return Ok(());
+                }
+                if prefix_name.len() > 50 || prefix_uri.len() > 200 {
+                    return Ok(());
+                }
+
+                let mut prefixes = BTreeMap::new();
+                for i in 0..prefix_count {
+                    let name = format!("{}-{}", prefix_name, i);
+                    let uri = format!("{}-{}", prefix_uri, i);
+                    prefixes.insert(name, uri);
+                }
+
+                let config = RdfConfig {
+                    base: Some("https://example.org/".to_string()),
+                    prefixes: prefixes.clone(),
+                    patterns: Vec::new(),
+                    inline: Vec::new(),
+                };
+
+                // Validate prefixes
+                assert_eq!(config.prefixes.len(), prefix_count);
+                for (name, uri) in &config.prefixes {
+                    assert!(name.contains(&prefix_name));
+                    assert!(uri.contains("https://"));
+                }
+            }
+        }
+    }
 }

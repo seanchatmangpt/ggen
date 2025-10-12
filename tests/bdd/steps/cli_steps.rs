@@ -100,7 +100,7 @@ fn should_see_help_text(world: &mut GgenWorld) {
 fn should_see_version_info(world: &mut GgenWorld) {
     let stdout = world.last_stdout();
     assert!(
-        stdout.contains("ggen 0.1.0"),
+        stdout.contains("ggen 1.0.0"),
         "Expected version info, but got: {}",
         stdout
     );

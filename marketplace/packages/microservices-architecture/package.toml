@@ -1,0 +1,83 @@
+# Microservices Architecture Package
+# Complete e-commerce microservices with Rust
+
+[package]
+name = "microservices-architecture"
+full_name = "microservices-architecture-complete"
+version = "1.0.0"
+description = "Complete e-commerce microservices architecture with Rust, Docker, PostgreSQL, and Redis"
+category = "architecture"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+path = "marketplace/packages/microservices-architecture"
+license = "MIT"
+dependencies = []
+features = [
+    "Complete microservices architecture",
+    "Multiple services (API Gateway, User, Product, Order)",
+    "Database integration (PostgreSQL)",
+    "Caching layer (Redis)",
+    "Message queue (RabbitMQ)",
+    "Service discovery and load balancing",
+    "Docker Compose for development",
+    "Kubernetes deployment manifests",
+    "Monitoring and observability (Prometheus, Grafana)",
+    "Distributed tracing",
+    "CI/CD pipeline configuration",
+    "Comprehensive testing"
+]
+tags = ["microservices", "architecture", "docker", "kubernetes", "rust"]
+keywords = ["microservices", "architecture", "e-commerce", "docker", "kubernetes"]
+
+# Installation
+[install]
+type = "template"
+template_path = "marketplace/packages/microservices-architecture"
+source_path = "examples/microservices-architecture"
+
+# Template files to copy
+[files]
+"ggen.toml" = "ggen.toml"
+"README.md" = "README.md"
+
+# Variables for template substitution
+[variables]
+project_name = { type = "string", required = true, description = "Project name" }
+domain = { type = "string", default = "example.com", description = "Domain name" }
+database = { type = "string", default = "postgresql", description = "Database type" }
+cache = { type = "string", default = "redis", description = "Cache provider" }
+
+# Examples
+[examples]
+basic = """
+# Install the package
+ggen market add microservices-architecture
+
+# Initialize project
+cd microservices-architecture
+ggen lifecycle run init
+
+# Generate all services
+ggen lifecycle run generate
+
+# Run with Docker Compose
+ggen lifecycle run docker-up
+"""
+
+production = """
+# Generate Kubernetes manifests
+ggen template generate templates/kubernetes/deployment.tmpl
+
+# Deploy to Kubernetes
+ggen lifecycle run deploy --env production
+
+# Monitor services
+ggen lifecycle run monitor
+"""
+
+# Documentation
+[docs]
+quick_start = "Complete microservices architecture for e-commerce"
+architecture = "API Gateway + 4 microservices with database and cache"
+deployment = "Docker Compose for dev, Kubernetes for production"
+monitoring = "Prometheus metrics and Grafana dashboards"

@@ -1,0 +1,38 @@
+{
+  "last_phase": "generate",
+  "phase_history": [
+    {
+      "phase": "init",
+      "started_ms": 1760245945451,
+      "duration_ms": 207,
+      "success": true
+    },
+    {
+      "phase": "setup",
+      "started_ms": 1760246010645,
+      "duration_ms": 315,
+      "success": true
+    },
+    {
+      "phase": "generate",
+      "started_ms": 1760246043741,
+      "duration_ms": 845,
+      "success": true
+    }
+  ],
+  "generated": [],
+  "cache_keys": [
+    {
+      "phase": "init",
+      "key": "6e17f8379219fe968d9b1a701c8f0d7fe1f5b1b5eb870cf25898b06f14ce770e"
+    },
+    {
+      "phase": "setup",
+      "key": "62cd10b64957d5f9b726208ceb7944ff14c7f3d33ae344b1fbe2b2a05d92c2ae"
+    },
+    {
+      "phase": "generate",
+      "key": "51a97e81eff553ab1c831e63f253d9b4c17cb8d8b85d4947e638784d4a7bc96e"
+    }
+  ]
+}

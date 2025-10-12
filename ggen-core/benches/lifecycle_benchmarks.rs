@@ -1,9 +1,11 @@
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
-use ggen_core::lifecycle::{cache_key, load_state, save_state, run_phase, run_pipeline, Context, Make, LifecycleState};
-use std::sync::Arc;
-use std::path::PathBuf;
-use tempfile::TempDir;
+use ggen_core::lifecycle::{
+    cache_key, load_state, run_phase, run_pipeline, save_state, Context, LifecycleState, Make,
+};
 use std::collections::BTreeMap;
+use std::path::PathBuf;
+use std::sync::Arc;
+use tempfile::TempDir;
 
 // ============================================================================
 // BENCHMARK 1: Sequential vs Parallel Execution
@@ -138,7 +140,12 @@ fn bench_cache_key_generation(c: &mut Criterion) {
 
     // Benchmark cache key generation with varying complexity
     for cmd_count in [1, 5, 10].iter() {
-        let cmds: Vec<String> = commands.iter().cycle().take(*cmd_count).map(|s| s.to_string()).collect();
+        let cmds: Vec<String> = commands
+            .iter()
+            .cycle()
+            .take(*cmd_count)
+            .map(|s| s.to_string())
+            .collect();
 
         group.bench_with_input(
             BenchmarkId::new("commands", cmd_count),
@@ -173,13 +180,19 @@ fn bench_cache_hit_vs_miss(c: &mut Criterion) {
 
     group.bench_function("cache_hit", |b| {
         b.iter(|| {
-            black_box(ggen_core::lifecycle::cache::is_cache_valid(&cache_dir, phase, key));
+            black_box(ggen_core::lifecycle::cache::is_cache_valid(
+                &cache_dir, phase, key,
+            ));
         });
     });
 
     group.bench_function("cache_miss", |b| {
         b.iter(|| {
-            black_box(ggen_core::lifecycle::cache::is_cache_valid(&cache_dir, phase, "nonexistent"));
+            black_box(ggen_core::lifecycle::cache::is_cache_valid(
+                &cache_dir,
+                phase,
+                "nonexistent",
+            ));
         });
     });
 
@@ -190,9 +203,7 @@ fn bench_cache_memory_usage(c: &mut Criterion) {
     let mut group = c.benchmark_group("cache_memory");
     group.throughput(Throughput::Elements(1000));
 
-    let commands: Vec<String> = (0..1000)
-        .map(|i| format!("echo 'command {}'", i))
-        .collect();
+    let commands: Vec<String> = (0..1000).map(|i| format!("echo 'command {}'", i)).collect();
 
     group.bench_function("1000_cache_keys", |b| {
         b.iter(|| {
@@ -249,9 +260,7 @@ fn create_make_with_hooks(hook_count: usize) -> Make {
     );
 
     // Create hooks
-    let before_hooks: Vec<String> = (0..hook_count)
-        .map(|i| format!("hook_{}", i))
-        .collect();
+    let before_hooks: Vec<String> = (0..hook_count).map(|i| format!("hook_{}", i)).collect();
 
     Make {
         project: ggen_core::lifecycle::Project {
@@ -386,10 +395,7 @@ fn bench_state_save(c: &mut Criterion) {
                 100 + (i % 50) as u128,
                 true,
             );
-            state.add_cache_key(
-                format!("phase_{}", i % 5),
-                format!("key_{:x}", i),
-            );
+            state.add_cache_key(format!("phase_{}", i % 5), format!("key_{:x}", i));
         }
 
         group.bench_with_input(
@@ -423,10 +429,7 @@ fn bench_state_load(c: &mut Criterion) {
                 100 + (i % 50) as u128,
                 true,
             );
-            state.add_cache_key(
-                format!("phase_{}", i % 5),
-                format!("key_{:x}", i),
-            );
+            state.add_cache_key(format!("phase_{}", i % 5), format!("key_{:x}", i));
         }
 
         save_state(&state_path, &state).unwrap();
@@ -462,10 +465,7 @@ fn bench_state_size(c: &mut Criterion) {
                 100 + (i % 50) as u128,
                 true,
             );
-            state.add_cache_key(
-                format!("phase_{}", i % 5),
-                format!("key_{:x}", i),
-            );
+            state.add_cache_key(format!("phase_{}", i % 5), format!("key_{:x}", i));
         }
 
         b.iter(|| {
@@ -482,10 +482,7 @@ fn bench_state_size(c: &mut Criterion) {
 // Benchmark Groups
 // ============================================================================
 
-criterion_group!(
-    sequential_parallel,
-    bench_sequential_vs_parallel
-);
+criterion_group!(sequential_parallel, bench_sequential_vs_parallel);
 
 criterion_group!(
     cache_benches,

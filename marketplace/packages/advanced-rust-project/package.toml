@@ -1,0 +1,87 @@
+# Advanced Rust Project Package
+# Complete ggen showcase with lifecycle, AI, SPARQL, and advanced features
+
+[package]
+name = "advanced-rust-project"
+full_name = "advanced-rust-project-showcase"
+version = "1.0.0"
+description = "Advanced Rust project demonstrating all ggen features: lifecycle, AI, SPARQL, templates, and security"
+category = "showcase"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+path = "marketplace/packages/advanced-rust-project"
+license = "MIT"
+dependencies = []
+features = [
+    "Complete lifecycle management with phases and hooks",
+    "AI-powered code generation with multi-provider support",
+    "SPARQL queries and RDF integration",
+    "Advanced template features and filters",
+    "File injection and modification",
+    "Security hardening and validation",
+    "Comprehensive testing and validation",
+    "Multi-environment deployment",
+    "Performance profiling and monitoring",
+    "Backup and recovery systems"
+]
+tags = ["rust", "showcase", "lifecycle", "ai", "sparql", "templates", "security"]
+keywords = ["ggen", "rust", "microservice", "ai-generation", "sparql", "lifecycle"]
+
+# Installation
+[install]
+type = "template"
+template_path = "marketplace/packages/advanced-rust-project"
+source_path = "examples/advanced-rust-project"
+
+# Template files to copy
+[files]
+"ggen.toml" = "ggen.toml"
+"make.toml" = "make.toml"
+"README.md" = "README.md"
+"USAGE.md" = "USAGE.md"
+"templates/" = "templates/"
+"data/" = "data/"
+"scripts/" = "scripts/"
+"tests/" = "tests/"
+"docs/" = "docs/"
+
+# Variables for template substitution
+[variables]
+project_name = { type = "string", required = true, description = "Project name" }
+description = { type = "string", default = "Advanced Rust project with ggen", description = "Project description" }
+author = { type = "string", default = "ggen-user", description = "Author name" }
+
+# Examples
+[examples]
+basic = """
+# Install the package
+ggen market add advanced-rust-project
+
+# Initialize project
+cd advanced-rust-project
+ggen lifecycle run init
+
+# Generate code
+ggen template generate templates/rust-service.tmpl
+ggen template generate templates/api-endpoint.tmpl
+
+# Run complete lifecycle
+ggen lifecycle pipeline setup generate build test
+"""
+
+advanced = """
+# Use AI-powered generation
+ggen ai generate "Create a user authentication service with JWT"
+
+# Run SPARQL queries
+ggen graph query "SELECT ?service WHERE { ?service a ex:Microservice }"
+
+# Deploy to production
+ggen lifecycle run deploy --env production
+"""
+
+# Documentation
+[docs]
+quick_start = "Complete ggen showcase with all advanced features"
+features = "Lifecycle, AI, SPARQL, templates, security, testing, deployment"
+use_cases = "Enterprise microservices, AI-powered development, semantic code generation"

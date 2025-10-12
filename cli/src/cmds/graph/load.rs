@@ -176,7 +176,7 @@ pub async fn run(args: &LoadArgs) -> Result<()> {
     validate_base_iri(&args.base)?;
 
     println!("📊 Loading RDF graph...");
-    
+
     // Check if file exists
     let file_path = std::path::Path::new(&args.file);
     if !file_path.exists() {
@@ -185,33 +185,40 @@ pub async fn run(args: &LoadArgs) -> Result<()> {
             args.file
         )));
     }
-    
+
     // Detect format if not provided
-    let format = args.format.as_deref().unwrap_or_else(|| {
-        detect_format_from_extension(&args.file)
-    });
-    
+    let format = args
+        .format
+        .as_deref()
+        .unwrap_or_else(|| detect_format_from_extension(&args.file));
+
     println!("📁 Loading file: {}", args.file);
     println!("🔍 Format: {}", format);
-    
+
     if let Some(base) = &args.base {
         println!("🌐 Base IRI: {}", base);
     }
-    
+
     // Load the RDF file using ggen-core
     let graph = ggen_core::Graph::load_from_file(&args.file)
         .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to load RDF file: {}", e)))?;
-    
+
     // Get graph statistics
     let triples_count = graph.len();
-    
+
     if args.merge {
-        println!("✅ Merged {} triples from {} ({})", triples_count, args.file, format);
+        println!(
+            "✅ Merged {} triples from {} ({})",
+            triples_count, args.file, format
+        );
         println!("📊 Total triples in graph: {}", triples_count);
     } else {
-        println!("✅ Loaded {} triples from {} ({})", triples_count, args.file, format);
+        println!(
+            "✅ Loaded {} triples from {} ({})",
+            triples_count, args.file, format
+        );
     }
-    
+
     Ok(())
 }
 

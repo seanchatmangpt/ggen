@@ -89,7 +89,12 @@ impl Generator {
                 .ctx
                 .template_path
                 .file_stem()
-                .ok_or_else(|| anyhow::anyhow!("Template path has no file stem: {}", self.ctx.template_path.display()))?
+                .ok_or_else(|| {
+                    anyhow::anyhow!(
+                        "Template path has no file stem: {}",
+                        self.ctx.template_path.display()
+                    )
+                })?
                 .to_string_lossy();
             self.ctx.output_root.join(format!("{}.out", template_name))
         };

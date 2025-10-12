@@ -17,7 +17,7 @@ commands = [
   "cargo init --name advanced-rust-project generated/",
   "echo 'Project initialized successfully'",
 ]
-watch = "**/*.toml"
+watch = true
 cache = true
 
 [lifecycle.setup]
@@ -25,7 +25,7 @@ description = "Setup development environment and install dependencies"
 commands = [
   "cd generated && cargo add serde serde_json tokio axum",
   "cd generated && cargo add --dev tokio-test",
-  "cd generated && cargo add --features derive thiserror anyhow",
+  "cd generated && cargo add thiserror anyhow",
   "echo 'Dependencies installed'",
 ]
 depends_on = ["init"]
@@ -34,14 +34,15 @@ cache = true
 [lifecycle.generate]
 description = "Generate code using AI and templates"
 commands = [
-  "ggen template generate templates/rust-service.tmpl",
-  "ggen template generate templates/api-endpoint.tmpl",
-  "ggen template generate templates/database-schema.tmpl",
-  "ggen template generate templates/documentation.tmpl",
+  "mkdir -p generated/src/services generated/src/api generated/src/database generated/docs",
+  "/Users/sac/ggen/target/release/ggen ai generate --description 'Complete Rust microservice with API endpoints' --output generated/src/services/user_service.rs --mock",
+  "/Users/sac/ggen/target/release/ggen ai generate --description 'REST API endpoint for user management' --output generated/src/api/users.rs --mock",
+  "/Users/sac/ggen/target/release/ggen ai generate --description 'Database schema and models for user system' --output generated/src/database/schema.rs --mock",
+  "/Users/sac/ggen/target/release/ggen ai generate --description 'API documentation for user service' --output generated/docs/api.md --mock",
   "echo 'Code generation completed'",
 ]
 depends_on = ["setup"]
-watch = ["templates/**/*.tmpl", "data/**/*.ttl"]
+watch = true
 cache = true
 
 [lifecycle.build]
@@ -85,48 +86,12 @@ commands = ["scripts/deploy/deploy-staging.sh", "echo 'Deployed to staging'"]
 description = "Deploy to production environment"
 commands = ["scripts/deploy/deploy-prod.sh", "echo 'Deployed to production'"]
 
-# Comprehensive hooks system
-[hooks.before_init]
-commands = ["echo 'Starting project initialization...'", "date"]
-
-[hooks.after_init]
-commands = ["echo 'Project initialization completed'", "ls -la generated/"]
-
-[hooks.before_generate]
-commands = ["echo 'Starting code generation...'", "ggen ai models"]
-
-[hooks.after_generate]
-commands = [
-  "echo 'Code generation completed'",
-  "find generated/ -name '*.rs' | wc -l",
-]
-
-[hooks.before_build]
-commands = ["echo 'Starting build process...'", "cd generated && cargo clean"]
-
-[hooks.after_build]
-commands = ["echo 'Build completed'", "cd generated && ls -la target/release/"]
-
-[hooks.before_test]
-commands = ["echo 'Starting tests...'", "cd generated && cargo test --list"]
-
-[hooks.after_test]
-commands = [
-  "echo 'Tests completed'",
-  "cd generated && cargo test -- --nocapture",
-]
-
-[hooks.before_deploy]
-commands = [
-  "echo 'Starting deployment...'",
-  "scripts/deploy/pre-deploy-check.sh",
-]
-
-[hooks.after_deploy]
-commands = [
-  "echo 'Deployment completed'",
-  "scripts/deploy/post-deploy-check.sh",
-]
+# Hooks system (simplified for now)
+[hooks]
+# before_init = ["setup"]
+# after_init = ["test"]
+# before_generate = ["setup"]
+# after_generate = ["test"]
 
 # Parallel execution configuration
 [execution]

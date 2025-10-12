@@ -95,7 +95,7 @@ fn run_phase_internal(ctx: &Context, phase_name: &str) -> Result<()> {
     // Execute phase commands
     let started = current_time_ms()?;
     let timer = Instant::now();
-    
+
     tracing::info!(phase = %phase_name, "Starting phase execution");
     for cmd in &cmds {
         tracing::debug!(phase = %phase_name, command = %cmd, "Executing command");
@@ -141,7 +141,9 @@ pub fn run_pipeline(ctx: &Context, phases: &[String]) -> Result<()> {
             let pool = ThreadPoolBuilder::new()
                 .num_threads(max_threads)
                 .build()
-                .map_err(|e| LifecycleError::Other(format!("Failed to create thread pool: {}", e)))?;
+                .map_err(|e| {
+                    LifecycleError::Other(format!("Failed to create thread pool: {}", e))
+                })?;
 
             let results: Vec<Result<()>> = pool.install(|| {
                 workspaces
@@ -149,11 +151,7 @@ pub fn run_pipeline(ctx: &Context, phases: &[String]) -> Result<()> {
                     .map(|(ws_name, workspace)| {
                         tracing::info!(workspace = %ws_name, "Processing workspace");
                         let ws_ctx = create_workspace_context(
-                            &ctx.root,
-                            ws_name,
-                            workspace,
-                            &ctx.make,
-                            &ctx.env,
+                            &ctx.root, ws_name, workspace, &ctx.make, &ctx.env,
                         )?;
 
                         for phase in phases {
@@ -172,13 +170,8 @@ pub fn run_pipeline(ctx: &Context, phases: &[String]) -> Result<()> {
             // Sequential execution
             for (ws_name, workspace) in workspaces {
                 tracing::info!(workspace = %ws_name, "Processing workspace");
-                let ws_ctx = create_workspace_context(
-                    &ctx.root,
-                    ws_name,
-                    workspace,
-                    &ctx.make,
-                    &ctx.env,
-                )?;
+                let ws_ctx =
+                    create_workspace_context(&ctx.root, ws_name, workspace, &ctx.make, &ctx.env)?;
 
                 for phase in phases {
                     run_phase(&ws_ctx, phase)?;
@@ -199,10 +192,7 @@ pub fn run_pipeline(ctx: &Context, phases: &[String]) -> Result<()> {
 ///
 /// SECURITY: Validates workspace paths to prevent directory traversal attacks
 fn create_workspace_context(
-    root: &Path,
-    ws_name: &str,
-    workspace: &super::model::Workspace,
-    root_make: &Arc<Make>,
+    root: &Path, ws_name: &str, workspace: &super::model::Workspace, root_make: &Arc<Make>,
     env: &[(String, String)],
 ) -> Result<Context> {
     let ws_path = root.join(&workspace.path);
@@ -223,8 +213,7 @@ fn create_workspace_context(
     if !canonical_ws.starts_with(&canonical_root) {
         return Err(LifecycleError::Other(format!(
             "Security violation: workspace '{}' path '{}' is outside project root",
-            ws_name,
-            workspace.path
+            ws_name, workspace.path
         )));
     }
 
@@ -239,7 +228,12 @@ fn create_workspace_context(
 
     let ws_state_path = canonical_ws.join(".ggen/state.json");
 
-    Ok(Context::new(canonical_ws, ws_make, ws_state_path, env.to_vec()))
+    Ok(Context::new(
+        canonical_ws,
+        ws_make,
+        ws_state_path,
+        env.to_vec(),
+    ))
 }
 
 /// Run before hooks for a phase

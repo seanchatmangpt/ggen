@@ -140,6 +140,8 @@ commands = [
 
 # Hooks for cross-cutting concerns
 [hooks]
+before_deploy = ["production-validate"]
+
 after_test = ["coverage-report"]
 
 after_deploy = ["post-deploy-verification"]
@@ -168,6 +170,57 @@ commands = [
   "kubectl get services -n microservices",
   "curl -f http://localhost/api/health || echo 'Health check failed'",
 ]
+
+[lifecycle.production-validate]
+description = "Validate production readiness requirements"
+commands = [
+  "ggen lifecycle readiness --critical-only",
+  "echo 'Validating critical requirements...'",
+  "ggen lifecycle placeholders --category critical",
+]
+watch = false
+port = 0
+cache = true
+
+# Production readiness phases
+[lifecycle.readiness-check]
+description = "Check production readiness status"
+commands = ["ggen lifecycle readiness --detailed"]
+
+[lifecycle.readiness-update]
+description = "Update production readiness for a requirement"
+commands = []
+watch = false
+port = 0
+cache = false
+
+[lifecycle.production-validate]
+description = "Validate production readiness requirements"
+commands = [
+  "ggen lifecycle readiness --critical-only",
+  "echo 'Validating critical requirements...'",
+  "ggen lifecycle placeholders --category critical",
+]
+watch = false
+port = 0
+cache = true
+
+[lifecycle.production-deploy]
+description = "Deploy to production (requires production readiness validation)"
+commands = [
+  "ggen lifecycle run production-validate",
+  "echo 'Deploying to production environment...'",
+  "kubectl apply -f k8s/production/",
+  "kubectl rollout status deployment/api-gateway -n production",
+  "kubectl rollout status deployment/user-service -n production",
+  "kubectl rollout status deployment/product-service -n production",
+  "kubectl rollout status deployment/auth-service -n production",
+  "kubectl rollout status deployment/order-service -n production",
+  "kubectl rollout status deployment/payment-service -n production",
+]
+watch = false
+port = 0
+cache = false
 
 # Workspace-specific configurations
 [workspace.services]

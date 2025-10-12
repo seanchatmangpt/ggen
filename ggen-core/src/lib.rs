@@ -29,6 +29,12 @@ pub mod tera_env;
 // pub mod tracing; // Temporarily disabled due to missing tracing_subscriber dependency
 pub mod simple_tracing;
 
+// Re-export production readiness types from lifecycle module
+pub use lifecycle::{
+    ReadinessTracker, ReadinessReport, ReadinessStatus, ReadinessCategory, ReadinessRequirement,
+    Placeholder, PlaceholderRegistry, PlaceholderProcessor
+};
+
 // Re-export commonly used types for convenience
 pub use cache::{CacheManager, CachedPack};
 pub use delta::{DeltaType, GraphDelta, ImpactAnalyzer, TemplateImpact};

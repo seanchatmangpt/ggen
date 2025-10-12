@@ -1,0 +1,115 @@
+# AI-Powered Code Generation Configuration
+# Demonstrates advanced AI capabilities with ggen
+
+[project]
+name = "ai-code-generation"
+version = "1.0.0"
+description = "AI-powered code generation with comprehensive validation"
+authors = ["ggen-example"]
+
+[ai]
+provider = "ollama"
+model = "qwen2.5-coder"
+temperature = 0.7
+max_tokens = 4000
+timeout = 30
+
+[ai.prompts]
+system = "You are an expert Rust developer specializing in web services, databases, and API design. Generate production-ready code with proper error handling, testing, and documentation. Follow core team best practices and ensure code is secure, performant, and maintainable."
+user_prefix = "Generate a Rust service with the following requirements:"
+
+[ai.validation]
+enabled = true
+quality_threshold = 0.8
+max_iterations = 3
+
+[ai.generation]
+auto_improve = true
+include_tests = true
+include_docs = true
+include_examples = true
+
+[templates]
+directory = "templates"
+output_directory = "generated"
+backup_enabled = true
+
+[templates.rust]
+style = "core-team"
+error_handling = "thiserror"
+logging = "tracing"
+async_runtime = "tokio"
+testing = "comprehensive"
+documentation = "comprehensive"
+
+[templates.web]
+framework = "auto-detect"  # axum, actix-web, warp
+database = "postgresql"
+cache = "redis"
+monitoring = "prometheus"
+documentation = "openapi"
+
+[templates.database]
+provider = "postgresql"
+migrations = true
+connection_pooling = true
+transactions = true
+backup = true
+
+[templates.api]
+versioning = "v1"
+authentication = "jwt"
+rate_limiting = true
+cors = true
+validation = true
+documentation = "openapi"
+
+[rdf]
+base_uri = "https://example.com/ai-generation/"
+prefixes = { 
+    ex = "https://example.com/ai-generation/", 
+    schema = "http://schema.org/", 
+    rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+}
+
+[sparql]
+timeout = 10
+max_results = 1000
+cache_enabled = true
+
+[lifecycle]
+enabled = true
+config_file = "make.toml"
+cache_directory = ".ggen/cache"
+state_file = ".ggen/state.json"
+
+[lifecycle.phases]
+default = ["init", "setup", "generate", "validate", "test"]
+development = ["init", "setup", "generate", "validate", "test", "dev"]
+production = ["generate", "validate", "test", "build", "deploy"]
+
+[security]
+path_traversal_protection = true
+shell_injection_protection = true
+template_sandboxing = true
+
+[performance]
+parallel_execution = true
+max_workers = 16
+cache_size = "1GB"
+
+[logging]
+level = "info"
+format = "json"
+file = "logs/ggen.log"
+rotation = "daily"
+
+[features]
+ai_generation = true
+sparql_queries = true
+lifecycle_management = true
+template_validation = true
+graph_analysis = true
+documentation_generation = true
+code_validation = true
+test_generation = true

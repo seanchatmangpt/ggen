@@ -3,7 +3,7 @@
 //! Provides CLI interface for universal lifecycle management through make.toml
 
 use clap::Parser;
-use ggen_core::lifecycle::{load_make, load_state, run_phase, run_pipeline, Context};
+use ggen_core::lifecycle::{load_make, load_state, run_phase, run_pipeline, Context, ReadinessTracker, ReadinessReport, ReadinessValidator, ValidationResult};
 use std::path::{Path, PathBuf};
 
 #[derive(Parser, Debug, Clone)]
@@ -63,6 +63,64 @@ pub enum LifecycleCmd {
         #[arg(long, short = 'e')]
         env: Option<String>,
     },
+
+    /// Check production readiness status
+    #[command(name = "readiness")]
+    Readiness {
+        /// Path to project root
+        #[arg(long, default_value = ".")]
+        root: PathBuf,
+
+        /// Show detailed breakdown by category
+        #[arg(long)]
+        detailed: bool,
+
+        /// Only show critical requirements
+        #[arg(long)]
+        critical_only: bool,
+    },
+
+    /// Update production readiness status
+    #[command(name = "readiness-update")]
+    ReadinessUpdate {
+        /// Requirement ID to update
+        requirement_id: String,
+
+        /// New status (complete, placeholder, missing, needs-review)
+        status: String,
+
+        /// Path to project root
+        #[arg(long, default_value = ".")]
+        root: PathBuf,
+    },
+
+    /// Show placeholders that need implementation
+    #[command(name = "placeholders")]
+    Placeholders {
+        /// Category filter (critical, important, nice-to-have)
+        #[arg(long)]
+        category: Option<String>,
+
+        /// Path to project root
+        #[arg(long, default_value = ".")]
+        root: PathBuf,
+    },
+
+    /// Validate production readiness for deployment
+    #[command(name = "validate")]
+    Validate {
+        /// Path to project root
+        #[arg(long, default_value = ".")]
+        root: PathBuf,
+
+        /// Environment to validate for (development, staging, production)
+        #[arg(long, short = 'e', default_value = "production")]
+        env: String,
+
+        /// Strict mode - fail if any requirements not met
+        #[arg(long)]
+        strict: bool,
+    },
 }
 
 pub async fn run(args: LifecycleArgs) -> ggen_utils::error::Result<()> {
@@ -73,6 +131,10 @@ pub async fn run(args: LifecycleArgs) -> ggen_utils::error::Result<()> {
         Show { phase, root } => show_phase(&root, &phase),
         Run { phase, root, env } => run_single_phase(&root, &phase, env),
         Pipeline { phases, root, env } => run_phase_pipeline(&root, &phases, env),
+        Readiness { root, detailed, critical_only } => check_readiness(&root, detailed, critical_only),
+        ReadinessUpdate { requirement_id, status, root } => update_readiness(&root, &requirement_id, &status),
+        Placeholders { category, root } => show_placeholders(&root, category.as_deref()),
+        Validate { root, env, strict } => validate_for_deployment(&root, &env, strict),
     }
 }
 
@@ -241,6 +303,250 @@ fn run_phase_pipeline(
     println!("✅ Pipeline completed: {}", phases.join(" → "));
 
     Ok(())
+}
+
+/// Check production readiness status
+fn check_readiness(root: &Path, detailed: bool, critical_only: bool) -> ggen_utils::error::Result<()> {
+    let mut tracker = ReadinessTracker::new(root);
+    tracker.load().map_err(|e| anyhow::anyhow!(e))?;
+
+    // Analyze project for existing implementations
+    tracker.analyze_project().map_err(|e| anyhow::anyhow!(e))?;
+
+    let report = tracker.generate_report();
+
+    println!("🚀 Production Readiness Report");
+    println!("📊 Overall Score: {:.1}%", report.overall_score);
+    println!("📅 Generated: {}", report.generated_at.format("%Y-%m-%d %H:%M:%S"));
+
+    if critical_only {
+        println!("\n🚨 Critical Requirements Only:");
+        print_category_report(&report, &ggen_core::lifecycle::ReadinessCategory::Critical);
+    } else if detailed {
+        println!("\n📋 Detailed Breakdown:");
+        for (category, _category_report) in &report.by_category {
+            print_category_report(&report, category);
+        }
+
+        if !report.blocking_requirements.is_empty() {
+            println!("\n🚫 BLOCKING REQUIREMENTS (must fix before production):");
+            for req_id in &report.blocking_requirements {
+                if let Some(req) = report.requirements.iter().find(|r| r.id == *req_id) {
+                    println!("  • {}: {} ({:?})", req.id, req.name, req.status);
+                }
+            }
+        }
+
+        if !report.next_steps.is_empty() {
+            println!("\n🎯 NEXT STEPS:");
+            for step in &report.next_steps {
+                println!("  • {}", step);
+            }
+        }
+    } else {
+        println!("\n📈 Category Summary:");
+        for (category, category_report) in &report.by_category {
+            let status_emoji = match category {
+                ggen_core::lifecycle::ReadinessCategory::Critical => "🚨",
+                ggen_core::lifecycle::ReadinessCategory::Important => "⚠️",
+                ggen_core::lifecycle::ReadinessCategory::NiceToHave => "ℹ️",
+            };
+            println!("  {} {}: {:.1}% ({}/{} complete)",
+                status_emoji,
+                format!("{:?}", category),
+                category_report.score,
+                category_report.completed,
+                category_report.total_requirements);
+        }
+    }
+
+    // Overall assessment
+    println!("\n🎯 Production Readiness Assessment:");
+    if report.overall_score >= 90.0 {
+        println!("  ✅ EXCELLENT - Ready for production!");
+    } else if report.overall_score >= 75.0 {
+        println!("  ⚠️ GOOD - Ready for production with minor improvements");
+    } else if report.overall_score >= 60.0 {
+        println!("  🚧 FAIR - Can deploy but needs work");
+    } else {
+        println!("  ❌ POOR - Not ready for production");
+    }
+
+    Ok(())
+}
+
+/// Print detailed report for a category
+fn print_category_report(report: &ReadinessReport, category: &ggen_core::lifecycle::ReadinessCategory) {
+    if let Some(category_report) = report.by_category.get(category) {
+        let status_emoji = match category {
+            ggen_core::lifecycle::ReadinessCategory::Critical => "🚨",
+            ggen_core::lifecycle::ReadinessCategory::Important => "⚠️",
+            ggen_core::lifecycle::ReadinessCategory::NiceToHave => "ℹ️",
+        };
+
+        println!("\n{} {} Requirements ({:.1}% complete):",
+            status_emoji,
+            format!("{:?}", category),
+            category_report.score);
+
+        for req_id in &category_report.requirements {
+            if let Some(req) = report.requirements.iter().find(|r| r.id == *req_id) {
+                let status_icon = match req.status {
+                    ggen_core::lifecycle::ReadinessStatus::Complete => "✅",
+                    ggen_core::lifecycle::ReadinessStatus::Placeholder => "🚧",
+                    ggen_core::lifecycle::ReadinessStatus::Missing => "❌",
+                    ggen_core::lifecycle::ReadinessStatus::NeedsReview => "🔍",
+                };
+                println!("  {} {} - {} ({:?})",
+                    status_icon,
+                    req.name,
+                    req.description,
+                    req.status);
+            }
+        }
+    }
+}
+
+/// Update production readiness status for a requirement
+fn update_readiness(root: &Path, requirement_id: &str, status_str: &str) -> ggen_utils::error::Result<()> {
+    let mut tracker = ReadinessTracker::new(root);
+    tracker.load().map_err(|e| anyhow::anyhow!(e))?;
+
+    // Parse status string
+    let status = match status_str.to_lowercase().as_str() {
+        "complete" | "done" | "finished" => ggen_core::lifecycle::ReadinessStatus::Complete,
+        "placeholder" | "todo" | "stub" => ggen_core::lifecycle::ReadinessStatus::Placeholder,
+        "missing" | "not-implemented" => ggen_core::lifecycle::ReadinessStatus::Missing,
+        "needs-review" | "review" => ggen_core::lifecycle::ReadinessStatus::NeedsReview,
+        _ => {
+            println!("❌ Invalid status: {}", status_str);
+            println!("Valid options: complete, placeholder, missing, needs-review");
+            return Ok(());
+        }
+    };
+
+    match tracker.update_requirement(requirement_id, status.clone()) {
+        Ok(_) => {
+            tracker.save().map_err(|e| anyhow::anyhow!(e))?;
+            println!("✅ Updated '{}' to {:?}", requirement_id, status);
+
+            // Show updated report
+            let report = tracker.generate_report();
+            println!("📊 New overall score: {:.1}%", report.overall_score);
+        }
+        Err(e) => {
+            println!("❌ Failed to update requirement: {}", e);
+        }
+    }
+
+    Ok(())
+}
+
+/// Show placeholders that need implementation
+fn show_placeholders(root: &Path, category_filter: Option<&str>) -> ggen_utils::error::Result<()> {
+    use ggen_core::lifecycle::{PlaceholderRegistry, ReadinessCategory};
+
+    let registry = PlaceholderRegistry::new();
+
+    let category = if let Some(cat_str) = category_filter {
+        match cat_str.to_lowercase().as_str() {
+            "critical" => Some(ReadinessCategory::Critical),
+            "important" => Some(ReadinessCategory::Important),
+            "nice-to-have" | "nice" => Some(ReadinessCategory::NiceToHave),
+            _ => {
+                println!("❌ Invalid category: {}", cat_str);
+                println!("Valid options: critical, important, nice-to-have");
+                return Ok(());
+            }
+        }
+    } else {
+        None
+    };
+
+    println!("🚧 Production Readiness Placeholders");
+
+    if let Some(cat) = category {
+        println!("📂 Category: {:?}", cat);
+        let placeholders = registry.get_by_category(&cat);
+        for placeholder in placeholders {
+            println!("\n📋 {}", placeholder.description);
+            println!("   ID: {}", placeholder.id);
+            println!("   Priority: {}/10", placeholder.priority);
+            println!("   Category: {:?}", placeholder.category);
+            println!("   Guidance: {}", placeholder.guidance);
+
+            if !placeholder.affects.is_empty() {
+                println!("   Affects: {}", placeholder.affects.join(", "));
+            }
+
+            // Note: example field not available in current Placeholder struct
+        }
+    } else {
+        // Show all categories
+        let summary = registry.generate_summary();
+        println!("{}", summary);
+    }
+
+    println!("\n💡 Use 'ggen lifecycle readiness' to check current status");
+    println!("💡 Use 'ggen lifecycle readiness-update <id> <status>' to update status");
+
+    Ok(())
+}
+
+/// Validate production readiness for deployment
+fn validate_for_deployment(root: &Path, env: &str, strict: bool) -> ggen_utils::error::Result<()> {
+    println!("🚀 Production Readiness Validation for {} environment", env);
+
+    let validator = if strict {
+        ReadinessValidator::new().strict_mode(true)
+    } else {
+        ReadinessValidator::new()
+    };
+
+    match validator.validate_for_deployment(root) {
+        Ok(result) => {
+            println!("📊 Overall Score: {:.1}%", result.score);
+
+            if result.passed {
+                println!("✅ VALIDATION PASSED - Ready for {} deployment", env);
+            } else {
+                println!("❌ VALIDATION FAILED - Not ready for {} deployment", env);
+            }
+
+            // Show issues
+            if !result.issues.is_empty() {
+                println!("\n🔍 Issues Found:");
+                for issue in &result.issues {
+                    let icon = match issue.severity {
+                        ggen_core::lifecycle::ValidationSeverity::Critical => "🚨",
+                        ggen_core::lifecycle::ValidationSeverity::Warning => "⚠️",
+                        ggen_core::lifecycle::ValidationSeverity::Info => "ℹ️",
+                    };
+                    println!("  {} {}: {}", icon, issue.category, issue.description);
+                    println!("     💡 {}", issue.fix);
+                }
+            }
+
+            // Show recommendations
+            if !result.recommendations.is_empty() {
+                println!("\n🎯 Recommendations:");
+                for rec in &result.recommendations {
+                    println!("  • {}", rec);
+                }
+            }
+
+            // Exit with error code if validation failed in strict mode
+            if !result.passed && strict {
+                std::process::exit(1);
+            }
+
+            Ok(())
+        }
+        Err(e) => {
+            println!("❌ Validation failed: {}", e);
+            std::process::exit(1);
+        }
+    }
 }
 
 /// Build environment variables
