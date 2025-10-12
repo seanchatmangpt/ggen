@@ -89,7 +89,7 @@ incremental = true           # Enable incremental
 1. **Missing Cargo.lock** - Forces full dependency resolution every time
 2. **Low codegen-units (4)** - Limited parallelism
 3. **No incremental setting** - Recompiled everything
-4. **Profile conflicts** - ggen-mcp had conflicting profile settings
+4. **Profile conflicts** - Some crates had conflicting profile settings
 
 ### Heavy Dependencies:
 - `oxigraph` (RDF database) - 87 dependencies
