@@ -27,7 +27,7 @@ chrono = { workspace = true }
 uuid = { workspace = true }
 
 # Database
-rusqlite = { version = "0.32", features = ["bundled"] }
+rusqlite = { version = "0.37", features = ["bundled"] }
 
 # Configuration and environment
 dotenvy = "0.15"
