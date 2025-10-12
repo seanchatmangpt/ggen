@@ -86,7 +86,7 @@ fn list_phases(root: &Path) -> ggen_utils::error::Result<()> {
         return Ok(());
     }
 
-    let make = load_make(&make_path)?;
+    let make = load_make(&make_path).map_err(|e| anyhow::anyhow!(e))?;
 
     println!("📋 Available lifecycle phases in {}:", root.display());
     println!();
@@ -106,7 +106,7 @@ fn list_phases(root: &Path) -> ggen_utils::error::Result<()> {
     // Show last executed phase
     let state_path = root.join(".ggen/state.json");
     if state_path.exists() {
-        let state = load_state(&state_path);
+        let state = load_state(&state_path).map_err(|e| anyhow::anyhow!(e))?;
         if let Some(last) = state.last_phase {
             println!();
             println!("🔄 Last executed: {}", last);
@@ -119,7 +119,7 @@ fn list_phases(root: &Path) -> ggen_utils::error::Result<()> {
 /// Show details of a specific phase
 fn show_phase(root: &Path, phase_name: &str) -> ggen_utils::error::Result<()> {
     let make_path = root.join("make.toml");
-    let make = load_make(&make_path)?;
+    let make = load_make(&make_path).map_err(|e| anyhow::anyhow!(e))?;
 
     let phase = make.lifecycle.get(phase_name)
         .ok_or_else(|| anyhow::anyhow!("Phase '{}' not found in make.toml", phase_name))?;
@@ -207,14 +207,14 @@ fn show_phase(root: &Path, phase_name: &str) -> ggen_utils::error::Result<()> {
 /// Run a single phase
 fn run_single_phase(root: &Path, phase_name: &str, env: Option<String>) -> ggen_utils::error::Result<()> {
     let make_path = root.join("make.toml");
-    let make = std::sync::Arc::new(load_make(&make_path)?);
+    let make = std::sync::Arc::new(load_make(&make_path).map_err(|e| anyhow::anyhow!(e))?);
 
     let env_vars = build_env(env);
     let state_path = root.join(".ggen/state.json");
 
     let ctx = Context::new(root.to_path_buf(), make, state_path, env_vars);
 
-    run_phase(&ctx, phase_name)?;
+    run_phase(&ctx, phase_name).map_err(|e| anyhow::anyhow!(e))?;
 
     Ok(())
 }
@@ -222,14 +222,14 @@ fn run_single_phase(root: &Path, phase_name: &str, env: Option<String>) -> ggen_
 /// Run a pipeline of phases
 fn run_phase_pipeline(root: &Path, phases: &[String], env: Option<String>) -> ggen_utils::error::Result<()> {
     let make_path = root.join("make.toml");
-    let make = std::sync::Arc::new(load_make(&make_path)?);
+    let make = std::sync::Arc::new(load_make(&make_path).map_err(|e| anyhow::anyhow!(e))?);
 
     let env_vars = build_env(env);
     let state_path = root.join(".ggen/state.json");
 
     let ctx = Context::new(root.to_path_buf(), make, state_path, env_vars);
 
-    run_pipeline(&ctx, phases)?;
+    run_pipeline(&ctx, phases).map_err(|e| anyhow::anyhow!(e))?;
 
     println!();
     println!("✅ Pipeline completed: {}", phases.join(" → "));

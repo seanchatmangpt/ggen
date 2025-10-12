@@ -17,7 +17,6 @@
     - [AI Template Validation](#ai-template-validation)
     - [AI Demo](#ai-demo)
     - [AI Frontmatter Generation](#ai-frontmatter-generation)
-    - [AI MCP Server](#ai-mcp-server)
   - [Generation Commands](#generation-commands)
     - [Template Generation](#template-generation)
     - [Template Discovery](#template-discovery)
@@ -192,17 +191,6 @@ ggen ai frontmatter <template-file> [--description DESC] [--model MODEL]
 # Examples:
 ggen ai frontmatter api_controller.tmpl --description "REST API controller for user management"
 ggen ai frontmatter data_processor.py.tmpl --model gpt-4o
-```
-
-### AI MCP Server
-
-```bash
-# Start MCP server for AI tool integration
-ggen ai server [--model MODEL] [--port PORT] [--host HOST]
-
-# Examples:
-ggen ai server --model qwen3-coder:30b
-ggen ai server --model gpt-4o --port 8080
 ```
 
 ## Generation Commands

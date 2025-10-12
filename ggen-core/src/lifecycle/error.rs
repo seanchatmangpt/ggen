@@ -314,13 +314,6 @@ impl LifecycleError {
 /// Result type alias for lifecycle operations
 pub type Result<T> = std::result::Result<T, LifecycleError>;
 
-/// Implement From for anyhow::Error for seamless integration
-impl From<LifecycleError> for anyhow::Error {
-    fn from(err: LifecycleError) -> Self {
-        anyhow::Error::msg(err.to_string())
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

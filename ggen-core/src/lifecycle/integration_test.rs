@@ -550,10 +550,10 @@ description = "Phase with no commands"
 
         fs::write(temp_dir.path().join("make.toml"), make_toml).unwrap();
 
-        let make = Box::leak(Box::new(load_make(temp_dir.path().join("make.toml")).unwrap()));
+        let make = Arc::new(load_make(temp_dir.path().join("make.toml")).unwrap());
         let state_path = temp_dir.path().join(".ggen/state.json");
 
-        let ctx = Context::new(temp_dir.path(), make, &state_path, vec![]);
+        let ctx = Context::new(temp_dir.path().to_path_buf(), make, state_path, vec![]);
 
         // Running phase with no commands should succeed but do nothing
         let result = run_phase(&ctx, "empty");
@@ -648,9 +648,9 @@ command = "date +%s%N > timestamp.txt"
         fs::write(temp_dir.path().join("make.toml"), root_make).unwrap();
 
         // Load and execute
-        let make = Box::leak(Box::new(load_make(temp_dir.path().join("make.toml")).unwrap()));
+        let make = Arc::new(load_make(temp_dir.path().join("make.toml")).unwrap());
         let state_path = temp_dir.path().join(".ggen/state.json");
-        let ctx = Context::new(temp_dir.path(), make, &state_path, vec![]);
+        let ctx = Context::new(temp_dir.path().to_path_buf(), make, state_path, vec![]);
 
         let start = Instant::now();
         exec::run_pipeline(&ctx, &vec!["timestamp".to_string()]).unwrap();
@@ -671,7 +671,7 @@ command = "date +%s%N > timestamp.txt"
             let ws_state_path = temp_dir.path().join(format!("workspace{}/.ggen/state.json", i));
             assert!(ws_state_path.exists(), "Workspace {} should have state file", i);
 
-            let ws_state = load_state(&ws_state_path);
+            let ws_state = load_state(&ws_state_path).expect("Failed to load workspace state");
             assert_eq!(ws_state.last_phase, Some("timestamp".to_string()));
         }
     }
@@ -722,9 +722,9 @@ command = "echo 'test' > output.txt"
         fs::write(temp_dir.path().join("make.toml"), root_make).unwrap();
 
         // Execute
-        let make = Box::leak(Box::new(load_make(temp_dir.path().join("make.toml")).unwrap()));
+        let make = Arc::new(load_make(temp_dir.path().join("make.toml")).unwrap());
         let state_path = temp_dir.path().join(".ggen/state.json");
-        let ctx = Context::new(temp_dir.path(), make, &state_path, vec![]);
+        let ctx = Context::new(temp_dir.path().to_path_buf(), make, state_path, vec![]);
 
         exec::run_pipeline(&ctx, &vec!["write".to_string()]).unwrap();
 
@@ -791,9 +791,9 @@ command = "echo 'test'"
         fs::write(temp_dir.path().join("make.toml"), root_make).unwrap();
 
         // Execute - should fail due to workspace2
-        let make = Box::leak(Box::new(load_make(temp_dir.path().join("make.toml")).unwrap()));
+        let make = Arc::new(load_make(temp_dir.path().join("make.toml")).unwrap());
         let state_path = temp_dir.path().join(".ggen/state.json");
-        let ctx = Context::new(temp_dir.path(), make, &state_path, vec![]);
+        let ctx = Context::new(temp_dir.path().to_path_buf(), make, state_path, vec![]);
 
         let result = exec::run_pipeline(&ctx, &vec!["process".to_string()]);
 
@@ -854,9 +854,9 @@ command = "sleep 0.1"
         fs::write(temp_dir.path().join("make.toml"), parallel_make).unwrap();
 
         // Measure parallel execution
-        let make_par = Box::leak(Box::new(load_make(temp_dir.path().join("make.toml")).unwrap()));
+        let make_par = Arc::new(load_make(temp_dir.path().join("make.toml")).unwrap());
         let state_path_par = temp_dir.path().join(".ggen/state.json");
-        let ctx_par = Context::new(temp_dir.path(), make_par, &state_path_par, vec![]);
+        let ctx_par = Context::new(temp_dir.path().to_path_buf(), Arc::clone(&make_par), state_path_par, vec![]);
 
         let start_par = Instant::now();
         exec::run_pipeline(&ctx_par, &vec!["work".to_string()]).unwrap();
@@ -899,9 +899,9 @@ command = "sleep 0.1"
         fs::write(temp_dir.path().join("make.toml"), sequential_make).unwrap();
 
         // Measure sequential execution
-        let make_seq = Box::leak(Box::new(load_make(temp_dir.path().join("make.toml")).unwrap()));
+        let make_seq = Arc::new(load_make(temp_dir.path().join("make.toml")).unwrap());
         let state_path_seq = temp_dir.path().join(".ggen/state_seq.json");
-        let ctx_seq = Context::new(temp_dir.path(), make_seq, &state_path_seq, vec![]);
+        let ctx_seq = Context::new(temp_dir.path().to_path_buf(), make_seq, state_path_seq, vec![]);
 
         let start_seq = Instant::now();
         exec::run_pipeline(&ctx_seq, &vec!["work".to_string()]).unwrap();
@@ -983,9 +983,9 @@ command = "echo 'test'"
         fs::write(temp_dir.path().join("make.toml"), root_make).unwrap();
 
         // Execute multiple phases
-        let make = Box::leak(Box::new(load_make(temp_dir.path().join("make.toml")).unwrap()));
+        let make = Arc::new(load_make(temp_dir.path().join("make.toml")).unwrap());
         let state_path = temp_dir.path().join(".ggen/state.json");
-        let ctx = Context::new(temp_dir.path(), make, &state_path, vec![]);
+        let ctx = Context::new(temp_dir.path().to_path_buf(), make, state_path, vec![]);
 
         exec::run_pipeline(&ctx, &vec!["init".to_string()]).unwrap();
         exec::run_pipeline(&ctx, &vec!["build".to_string()]).unwrap();
@@ -996,7 +996,7 @@ command = "echo 'test'"
             let ws_state_path = temp_dir.path().join(format!("workspace{}/.ggen/state.json", i));
             assert!(ws_state_path.exists(), "Workspace {} should have state file", i);
 
-            let ws_state = load_state(&ws_state_path);
+            let ws_state = load_state(&ws_state_path).expect("Failed to load workspace state");
 
             // Verify phase history
             assert_eq!(ws_state.phase_history.len(), 3, "Workspace {} should have 3 phase records", i);
@@ -1020,9 +1020,9 @@ command = "echo 'test'"
         }
 
         // Verify states are independent (different timestamps)
-        let state1 = load_state(&temp_dir.path().join("workspace1/.ggen/state.json"));
-        let state2 = load_state(&temp_dir.path().join("workspace2/.ggen/state.json"));
-        let state3 = load_state(&temp_dir.path().join("workspace3/.ggen/state.json"));
+        let state1 = load_state(&temp_dir.path().join("workspace1/.ggen/state.json")).unwrap();
+        let state2 = load_state(&temp_dir.path().join("workspace2/.ggen/state.json")).unwrap();
+        let state3 = load_state(&temp_dir.path().join("workspace3/.ggen/state.json")).unwrap();
 
         // States should have the same structure but potentially different timestamps
         // (in parallel execution, they may start at slightly different times)

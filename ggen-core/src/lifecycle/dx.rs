@@ -8,7 +8,6 @@
 
 use super::state::LifecycleState;
 use colored::*;
-use std::fmt;
 use std::time::{Duration, Instant};
 
 /// Execution mode configuration

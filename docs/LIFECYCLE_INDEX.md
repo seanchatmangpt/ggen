@@ -65,6 +65,20 @@ Start here if you're optimizing performance:
 
 ---
 
+#### [LIFECYCLE_80_20_CORE_PRACTICES.md](LIFECYCLE_80_20_CORE_PRACTICES.md)
+**The 80/20 Implementation Guide**
+
+- Critical bug fixes (panic prevention, hook recursion)
+- Code quality improvements (DRY principle, encapsulation)
+- Custom error type system with rich context
+- Thread safety patterns for parallel execution
+- Before/after code examples
+- Quick reference checklist
+
+**Read when:** Implementing core improvements, fixing critical bugs, following 80/20 principle
+
+---
+
 #### [LIFECYCLE_TEAM_WORKFLOW.md](LIFECYCLE_TEAM_WORKFLOW.md)
 **The Daily Usage Guide**
 
