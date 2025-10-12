@@ -25,7 +25,7 @@
 
 Purpose: project one ontology into many artifacts. Deterministic. Language-agnostic. **AI-powered**.
 
-## 🚀 Getting Started with AI (v1.0.0)
+## 🚀 Getting Started with AI (v1.2.0)
 
 **New to ggen? Start here for AI-powered development:**
 
@@ -129,6 +129,19 @@ The ggen marketplace provides a curated ecosystem of reusable code generation pa
 - **Gpacks**: Create and publish template collections
 - **Examples**: Share usage patterns and best practices
 - **Feedback**: Report issues and suggest improvements
+
+## Documentation & Search
+
+### 📚 **Complete Documentation Index**
+- **Browse All Docs**: [`DOCUMENTATION_INDEX.md`](DOCUMENTATION_INDEX.md) - Complete organized index
+- **Search Interface**: [`search.html`](search.html) - AI-powered documentation search
+- **Learning Paths**: Structured learning journeys for different experience levels
+
+### 🔍 **Search & Discovery**
+- **Topic Search**: Find documentation by category, difficulty, and estimated time
+- **Keyword Search**: Full-text search across all documentation
+- **Auto-Suggestions**: Smart search suggestions as you type
+- **Cross-References**: Links between related documents
 
 ## Support
 

@@ -31,7 +31,7 @@
 
 ## Homebrew
 ```bash
-brew tap ggen-dev/tap
+brew tap seanchatmangpt/tap
 brew install ggen
 ```
 
@@ -49,9 +49,9 @@ ggen --version
 
 ## Post-Installation Setup
 
-### 🚀 AI-Powered Features (v1.0.0)
+### 🚀 AI-Powered Features (v1.2.0)
 
-**ggen v1.0.0** includes powerful AI capabilities. To unlock them:
+**ggen v1.2.0** includes powerful AI capabilities. To unlock them:
 
 #### Option 1: Local AI (Recommended for Privacy)
 
@@ -199,7 +199,7 @@ After installation:
 ### Homebrew
 ```bash
 brew uninstall ggen
-brew untap ggen-dev/tap
+brew untap seanchatmangpt/tap
 ```
 
 ### Cargo

@@ -292,12 +292,8 @@ impl RefactorAssistant {
                 .find("```")
                 .ok_or_else(|| GgenAiError::validation("Could not find opening ``` marker"))?;
             let end = response.content.rfind("```").ok_or_else(|| {
-                missing_closing_marker_error::<String>(
-                    "```",
-                    "",
-                    ErrorContext::RefactorGeneration,
-                )
-                .unwrap_err()
+                missing_closing_marker_error::<String>("```", "", ErrorContext::RefactorGeneration)
+                    .unwrap_err()
             })?;
             response.content[start + 3..end].trim().to_string()
         } else {

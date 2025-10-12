@@ -2,7 +2,6 @@
 
 use clap::{Parser, Subcommand};
 use serde_json::{json, Value};
-use serde_yaml;
 use std::fs;
 
 #[derive(Parser)]

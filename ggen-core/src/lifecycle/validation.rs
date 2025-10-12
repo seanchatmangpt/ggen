@@ -243,7 +243,7 @@ impl Default for ReadinessValidator {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chrono::Utc;
+    use crate::lifecycle::ReadinessStatus;
 
     #[test]
     fn test_validation_thresholds() {

@@ -1,0 +1,21 @@
+{
+  "version": "1.0.0",
+  "updated_at": "2025-10-12T06:58:01.168735+00:00",
+  "packages": {
+    "hello-world": {
+      "name": "hello-world",
+      "full_name": "hello-world-utils",
+      "version": "0.1.0",
+      "checksum": "placeholder-checksum",
+      "source": "registry",
+      "path": ".ggen/packages/hello-world",
+      "installed_at": "2025-10-12T06:58:01.168582+00:00",
+      "dependencies": [
+        "anyhow = 1.0",
+        "serde = 1.0",
+        "serde_json = 1.0",
+        "tokio = 1.0"
+      ]
+    }
+  }
+}

@@ -48,6 +48,10 @@
 
 Dark matter in software: the 80% of work that's necessary but creates no new value for users.
 
+## 🔥 Updated for Production Release 8020
+
+This edition incorporates the **marketplace-first development workflow** and **production readiness tracking** system that implements the 80/20 rule in practice.
+
 GGen's solution: **Invert the 80/20 equation entirely**.
 
 ## The Problem: Software's Dark Matter Crisis
@@ -87,6 +91,34 @@ GGen's solution: **Invert the 80/20 equation entirely**.
 Traditional: 80% dark matter, 20% value
 GGen: 20% dark matter, 80% value
 ```
+
+## 🔥 Production Release 8020: Marketplace-First Revolution
+
+This edition introduces the **marketplace-first development workflow** that eliminates dark matter at scale:
+
+### 🎯 New 80/20 Workflow (20% effort, 80% value)
+```bash
+# 1. Search marketplace (discover proven solutions)
+ggen market search "rust web service"
+
+# 2. Install packages (reuse proven patterns)
+ggen market add "rust-axum-service"
+
+# 3. Initialize project (automated setup)
+ggen lifecycle run init
+
+# 4. Generate code (from marketplace templates)
+ggen template generate rust-axum-service:user-service.tmpl
+
+# 5. Validate deployment (production readiness)
+ggen lifecycle validate --env production
+```
+
+### 🚀 Production Readiness Tracking
+- **Automated validation** before deployment
+- **Critical requirements** (100% must be complete)
+- **Important features** (>80% complete for production)
+- **Placeholder system** for incomplete implementations
 
 ### Core Patterns
 

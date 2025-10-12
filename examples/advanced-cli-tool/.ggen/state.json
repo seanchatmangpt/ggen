@@ -1,0 +1,28 @@
+{
+  "last_phase": "test",
+  "phase_history": [
+    {
+      "phase": "test",
+      "started_ms": 1760252882071,
+      "duration_ms": 411,
+      "success": true
+    },
+    {
+      "phase": "test",
+      "started_ms": 1760252937103,
+      "duration_ms": 413,
+      "success": true
+    }
+  ],
+  "generated": [],
+  "cache_keys": [
+    {
+      "phase": "test",
+      "key": "439c2ccb695e9ce8fb5a040b7041ffa3bc01b084a533759fd2d0ea20b4b74e91"
+    },
+    {
+      "phase": "test",
+      "key": "439c2ccb695e9ce8fb5a040b7041ffa3bc01b084a533759fd2d0ea20b4b74e91"
+    }
+  ]
+}

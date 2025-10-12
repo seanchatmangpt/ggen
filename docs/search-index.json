@@ -1,0 +1,162 @@
+{
+  "version": "1.0.0",
+  "generated_at": "2025-12-01T00:00:00Z",
+  "documents": [
+    {
+      "id": "install",
+      "title": "Installation Guide",
+      "path": "install.md",
+      "category": "Getting Started",
+      "tags": ["installation", "setup", "getting-started", "quick-start"],
+      "description": "Complete installation and setup guide for ggen",
+      "content": "Installation and setup instructions for the ggen code generator.",
+      "keywords": ["install", "setup", "cargo", "rust", "dependencies", "environment"],
+      "difficulty": "beginner",
+      "estimated_time": "5 minutes"
+    },
+    {
+      "id": "ai-guide",
+      "title": "AI Integration Guide",
+      "path": "ai-guide.md",
+      "category": "AI Integration",
+      "tags": ["ai", "artificial-intelligence", "openai", "anthropic", "ollama", "llm"],
+      "description": "Complete guide to AI-powered development with ggen",
+      "content": "AI-powered code generation and template creation using large language models.",
+      "keywords": ["ai", "artificial intelligence", "openai", "anthropic", "ollama", "llm", "generation"],
+      "difficulty": "intermediate",
+      "estimated_time": "15 minutes"
+    },
+    {
+      "id": "lifecycle-readme",
+      "title": "Lifecycle Management",
+      "path": "LIFECYCLE_README.md",
+      "category": "Lifecycle",
+      "tags": ["lifecycle", "automation", "phases", "hooks", "deployment"],
+      "description": "Universal lifecycle management system overview",
+      "content": "Comprehensive lifecycle management for software projects across all frameworks.",
+      "keywords": ["lifecycle", "automation", "phases", "hooks", "deployment", "build", "test"],
+      "difficulty": "intermediate",
+      "estimated_time": "20 minutes"
+    },
+    {
+      "id": "templates",
+      "title": "Template Development",
+      "path": "templates.md",
+      "category": "Core Concepts",
+      "tags": ["templates", "tera", "frontmatter", "yaml", "code-generation"],
+      "description": "Guide to creating and using ggen templates",
+      "content": "Template development guide for deterministic code generation.",
+      "keywords": ["templates", "tera", "frontmatter", "yaml", "code generation", "deterministic"],
+      "difficulty": "intermediate",
+      "estimated_time": "30 minutes"
+    },
+    {
+      "id": "production-readiness",
+      "title": "Production Readiness",
+      "path": "production-readiness.md",
+      "category": "Production",
+      "tags": ["production", "deployment", "security", "performance", "scalability"],
+      "description": "Production deployment and readiness guide",
+      "content": "Production readiness assessment and deployment strategies.",
+      "keywords": ["production", "deployment", "security", "performance", "scalability", "monitoring"],
+      "difficulty": "advanced",
+      "estimated_time": "45 minutes"
+    },
+    {
+      "id": "security-observability",
+      "title": "Security and Observability",
+      "path": "SECURITY_AND_OBSERVABILITY.md",
+      "category": "Security",
+      "tags": ["security", "observability", "monitoring", "logging", "audit"],
+      "description": "Security controls and observability practices",
+      "content": "Comprehensive security and monitoring implementation guide.",
+      "keywords": ["security", "observability", "monitoring", "logging", "audit", "compliance"],
+      "difficulty": "advanced",
+      "estimated_time": "60 minutes"
+    },
+    {
+      "id": "testing-quality-assurance",
+      "title": "Testing and Quality Assurance",
+      "path": "TESTING_AND_QUALITY_ASSURANCE.md",
+      "category": "Testing",
+      "tags": ["testing", "quality", "bdd", "tdd", "unit-tests", "integration-tests"],
+      "description": "Comprehensive testing framework and quality assurance",
+      "content": "Testing strategies and quality assurance practices for ggen projects.",
+      "keywords": ["testing", "quality", "bdd", "tdd", "unit tests", "integration tests", "coverage"],
+      "difficulty": "intermediate",
+      "estimated_time": "45 minutes"
+    },
+    {
+      "id": "build-optimization",
+      "title": "Build Performance Optimization",
+      "path": "BUILD_OPTIMIZATION.md",
+      "category": "Performance",
+      "tags": ["performance", "optimization", "build", "compilation", "caching"],
+      "description": "Build performance optimization strategies",
+      "content": "Performance optimization techniques for build processes and runtime.",
+      "keywords": ["performance", "optimization", "build", "compilation", "caching", "parallelization"],
+      "difficulty": "advanced",
+      "estimated_time": "30 minutes"
+    }
+  ],
+  "categories": [
+    {
+      "id": "getting-started",
+      "name": "Getting Started",
+      "description": "New user onboarding and quick start guides",
+      "documents": ["install", "ai-guide", "quickstart", "readme"]
+    },
+    {
+      "id": "ai-integration",
+      "name": "AI Integration",
+      "description": "AI-powered development and integration guides",
+      "documents": ["ai-guide", "genai-integration-status", "genai-ollama-integration"]
+    },
+    {
+      "id": "lifecycle",
+      "name": "Lifecycle Management",
+      "description": "Universal lifecycle management and automation",
+      "documents": ["lifecycle-readme", "lifecycle-system-design", "lifecycle-best-practices"]
+    },
+    {
+      "id": "core-concepts",
+      "name": "Core Concepts",
+      "description": "Fundamental ggen concepts and patterns",
+      "documents": ["templates", "rdf-shacl-sparql", "projections", "determinism"]
+    },
+    {
+      "id": "production",
+      "name": "Production & Deployment",
+      "description": "Production deployment and operations",
+      "documents": ["production-readiness", "deployment", "production-validation-report"]
+    },
+    {
+      "id": "security",
+      "name": "Security & Observability",
+      "description": "Security practices and monitoring",
+      "documents": ["security-observability", "security-audit-lifecycle"]
+    },
+    {
+      "id": "testing",
+      "name": "Testing & Quality",
+      "description": "Testing frameworks and quality assurance",
+      "documents": ["testing-quality-assurance", "london-school-tdd-guide"]
+    },
+    {
+      "id": "performance",
+      "name": "Performance & Optimization",
+      "description": "Performance tuning and optimization",
+      "documents": ["build-optimization", "benchmark-quick-reference"]
+    }
+  ],
+  "search_terms": {
+    "installation": ["install", "setup", "cargo", "rust"],
+    "ai": ["artificial intelligence", "openai", "anthropic", "ollama", "llm"],
+    "templates": ["tera", "frontmatter", "yaml", "code generation"],
+    "lifecycle": ["automation", "phases", "hooks", "deployment"],
+    "rdf": ["semantic web", "sparql", "knowledge graph", "ontology"],
+    "security": ["authentication", "authorization", "audit", "monitoring"],
+    "testing": ["unit tests", "integration tests", "bdd", "tdd"],
+    "performance": ["optimization", "caching", "parallelization", "benchmarking"]
+  }
+}

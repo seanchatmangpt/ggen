@@ -321,7 +321,7 @@ impl ReadinessTracker {
 
         // Validate status transition before updating
         let current_status = self.requirements[req_index].status.clone();
-        self.validate_transition(&current_status, &status)?;
+        Self::validate_transition_static(&current_status, &status)?;
 
         // Update the requirement
         self.requirements[req_index].status = status;
@@ -355,7 +355,7 @@ impl ReadinessTracker {
     }
 
     /// Validate status transition
-    fn validate_transition(&self, from: &ReadinessStatus, to: &ReadinessStatus) -> Result<()> {
+    fn validate_transition_static(from: &ReadinessStatus, to: &ReadinessStatus) -> Result<()> {
         match (from, to) {
             (ReadinessStatus::Missing, ReadinessStatus::Placeholder) => Ok(()),
             (ReadinessStatus::Missing, ReadinessStatus::Complete) => Ok(()),

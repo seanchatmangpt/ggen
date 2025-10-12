@@ -37,7 +37,7 @@
 
 **ggen** is a deterministic, language-agnostic code generation framework that treats software artifacts as projections of RDF knowledge graphs. Generate reproducible, multi-language code from a single semantic ontology using template-based generation with SPARQL queries and AI-powered enhancements.
 
-## 🚀 **NEW: AI-Powered Generation v1.0.0**
+## 🚀 **NEW: AI-Powered Generation v1.2.0**
 
 - 🤖 **AI-Enhanced Templates** - Generate templates, SPARQL queries, and RDF graphs using advanced LLMs via rust-genai
 - 🧠 **Intelligent Project Scaffolding** - Create entire project structures with AI assistance
@@ -47,7 +47,7 @@
 - 🎪 **MCP Server** - Model Context Protocol server for AI tool integration
 - 🔧 **Multi-Provider Support** - OpenAI, Anthropic, Ollama with unified configuration
 
-### 📈 **Recent Improvements (v1.0.0)**
+### 📈 **Recent Improvements (v1.2.0)**
 - ⚡ **60x Faster Builds** - Incremental builds now 2-3 seconds (was 60-90 seconds)
 - 🧠 **Enhanced GenAI Integration** - Three working examples with qwen3-coder:30b
 - 🤖 **Complete AI Command Suite** - 10 AI-powered commands for template and project generation
@@ -140,10 +140,8 @@ to: "src/{{name}}.rs"
 vars:
   name: "example"
   author: "ggen"
-prefixes:
-  ex: "http://example.org/"
-rdf_inline:
-  - "@prefix ex: <http://example.org/> . ex:{{name}} a ex:Module ."
+rdf:
+  - "graphs/module.ttl"
 sparql:
   get_type: "SELECT ?type WHERE { ex:{{name}} a ?type }"
 determinism: 42
@@ -325,6 +323,8 @@ ggen update
 ## Documentation
 
 - 📚 **[Full Documentation](https://seanchatmangpt.github.io/ggen/)** - Complete guides and API reference
+- 🔍 **[Documentation Search](docs/search.html)** - AI-powered search across all documentation
+- 📖 **[Documentation Index](docs/DOCUMENTATION_INDEX.md)** - Complete organized index of all docs
 🤖 **[AI Guide](docs/ai-guide.md)** - Comprehensive AI-powered generation guide
 - 🚀 **[Deployment Guide](docs/DEPLOYMENT.md)** - GitHub Pages setup
 - 🔧 **[GitHub API Integration](docs/GITHUB_API_RUST_INTEGRATION.md)** - Rust-based GitHub integration
