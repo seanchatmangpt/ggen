@@ -268,7 +268,8 @@ impl UltrathinkCore {
 
     /// Initialize the 3 core agents that deliver 80% of value
     async fn initialize_core_agents(&self) -> Result<()> {
-        let mut agents = self.agents.write().unwrap();
+        let mut agents = self.agents.write()
+            .map_err(|_| crate::error::UltrathinkError::InternalError("Failed to acquire agents write lock".into()))?;
 
         // Agent 1: Neural Learner (handles pattern recognition)
         agents.push(CoreAgent::NeuralLearner(NeuralAgent {
@@ -333,18 +334,21 @@ impl UltrathinkCore {
 
             // Get next task
             let task = {
-                let mut queue = task_queue.write().unwrap();
+                let mut queue = task_queue.write()
+                    .map_err(|_| crate::error::UltrathinkError::InternalError("Failed to acquire task queue write lock".into()))?;
                 queue.pop_front()
             };
 
             if let Some(task) = task {
                 // Simple task assignment to first available agent
-                let agents = agents.read().unwrap();
+                let agents = agents.read()
+                    .map_err(|_| crate::error::UltrathinkError::InternalError("Failed to acquire agents read lock".into()))?;
                 if !agents.is_empty() {
                     println!("✅ Task {} assigned to core agent", task.id);
 
                     // Update metrics
-                    let _metrics = task_queue.read().unwrap();
+                    let _metrics = task_queue.read()
+                        .map_err(|_| crate::error::UltrathinkError::InternalError("Failed to acquire task queue read lock".into()))?;
                     // In a real implementation, this would update metrics
                 }
             }
@@ -356,7 +360,8 @@ impl UltrathinkCore {
         let task_id = task.id;
 
         {
-            let mut queue = self.task_queue.write().unwrap();
+            let mut queue = self.task_queue.write()
+                .map_err(|_| crate::error::UltrathinkError::InternalError("Failed to acquire task queue write lock".into()))?;
             queue.push_back(task);
         }
 
@@ -373,7 +378,8 @@ impl UltrathinkCore {
 
     /// Get core status and metrics
     pub async fn get_status(&self) -> Result<CoreMetrics> {
-        let metrics = self.metrics.read().unwrap();
+        let metrics = self.metrics.read()
+            .map_err(|_| crate::error::UltrathinkError::InternalError("Failed to acquire metrics read lock".into()))?;
         Ok(CoreMetrics {
             tasks_processed: metrics.tasks_processed,
             tasks_completed: metrics.tasks_completed,

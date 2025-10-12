@@ -446,9 +446,9 @@ mod tests {
 
     #[tokio::test]
     #[ignore] // Disabled due to file:// URL not supported by reqwest
-    async fn test_registry_client_search() {
+    async fn test_registry_client_search() -> Result<()> {
         // Create a temporary directory for mock registry
-        let temp_dir = TempDir::new().unwrap();
+        let temp_dir = TempDir::new().context("Failed to create temp dir")?;
         let index_path = temp_dir.path().join("index.json");
 
         // Create mock index
@@ -473,22 +473,24 @@ mod tests {
             }
         }"#;
 
-        fs::write(&index_path, mock_index).unwrap();
+        fs::write(&index_path, mock_index).context("Failed to write mock index")?;
 
         // Create registry client with file:// URL
-        let base_url = Url::from_file_path(temp_dir.path()).unwrap();
-        let client = RegistryClient::with_base_url(base_url).unwrap();
+        let base_url = Url::from_file_path(temp_dir.path())
+            .map_err(|_| anyhow::anyhow!("Failed to create file URL"))?;
+        let client = RegistryClient::with_base_url(base_url)?;
 
         // Test search
-        let results = client.search("rust").await.unwrap();
+        let results = client.search("rust").await?;
         assert_eq!(results.len(), 1);
         assert_eq!(results[0].id, "io.ggen.rust.cli-subcommand");
+        Ok(())
     }
 
     #[tokio::test]
     #[ignore] // Disabled due to file:// URL not supported by reqwest
-    async fn test_registry_client_resolve() {
-        let temp_dir = TempDir::new().unwrap();
+    async fn test_registry_client_resolve() -> Result<()> {
+        let temp_dir = TempDir::new().context("Failed to create temp dir")?;
         let index_path = temp_dir.path().join("index.json");
 
         let mock_index = r#"{
@@ -512,18 +514,19 @@ mod tests {
             }
         }"#;
 
-        fs::write(&index_path, mock_index).unwrap();
+        fs::write(&index_path, mock_index).context("Failed to write mock index")?;
 
-        let base_url = Url::from_file_path(temp_dir.path()).unwrap();
-        let client = RegistryClient::with_base_url(base_url).unwrap();
+        let base_url = Url::from_file_path(temp_dir.path())
+            .map_err(|_| anyhow::anyhow!("Failed to create file URL"))?;
+        let client = RegistryClient::with_base_url(base_url)?;
 
         // Test resolve
         let resolved = client
             .resolve("io.ggen.rust.cli-subcommand", None)
-            .await
-            .unwrap();
+            .await?;
         assert_eq!(resolved.id, "io.ggen.rust.cli-subcommand");
         assert_eq!(resolved.version, "0.2.1");
         assert_eq!(resolved.git_url, "https://github.com/example/gpack.git");
+        Ok(())
     }
 }

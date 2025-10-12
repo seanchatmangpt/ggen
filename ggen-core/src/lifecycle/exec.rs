@@ -79,7 +79,7 @@ fn run_phase_internal(ctx: &Context, phase_name: &str) -> Result<()> {
     // Get commands for this phase using new Phase::commands() method
     let cmds = phase.commands();
     if cmds.is_empty() {
-        println!("⚠️  Phase '{}' has no commands", phase_name);
+        tracing::warn!(phase = %phase_name, "Phase has no commands");
         return Ok(());
     }
 
@@ -93,14 +93,18 @@ fn run_phase_internal(ctx: &Context, phase_name: &str) -> Result<()> {
     let started = current_time_ms()?;
     let timer = Instant::now();
 
-    println!("▶️  Running phase: {}", phase_name);
+    tracing::info!(phase = %phase_name, "Starting phase execution");
     for cmd in &cmds {
-        println!("   $ {}", cmd);
+        tracing::debug!(phase = %phase_name, command = %cmd, "Executing command");
         execute_command(cmd, &ctx.root, &ctx.env)?;
     }
 
     let duration = timer.elapsed().as_millis();
-    println!("✅ Phase '{}' completed in {}ms", phase_name, duration);
+    tracing::info!(
+        phase = %phase_name,
+        duration_ms = duration,
+        "Phase completed successfully"
+    );
 
     // Update state
     let mut state = load_state(&ctx.state_path)?;
@@ -140,7 +144,7 @@ pub fn run_pipeline(ctx: &Context, phases: &[String]) -> Result<()> {
                 workspaces
                     .par_iter()
                     .map(|(ws_name, workspace)| {
-                        println!("\n📦 Workspace: {}", ws_name);
+                        tracing::info!(workspace = %ws_name, "Processing workspace");
                         let ws_ctx = create_workspace_context(
                             &ctx.root,
                             ws_name,
@@ -164,7 +168,7 @@ pub fn run_pipeline(ctx: &Context, phases: &[String]) -> Result<()> {
         } else {
             // Sequential execution
             for (ws_name, workspace) in workspaces {
-                println!("\n📦 Workspace: {}", ws_name);
+                tracing::info!(workspace = %ws_name, "Processing workspace");
                 let ws_ctx = create_workspace_context(
                     &ctx.root,
                     ws_name,

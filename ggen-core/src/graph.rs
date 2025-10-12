@@ -203,7 +203,9 @@ impl Graph {
             }
         };
 
-        // Execute and materialize using SparqlEvaluator
+        // Execute and materialize
+        // Note: Using deprecated Store::query() API - will migrate to SparqlEvaluator post-1.0
+        #[allow(deprecated)]
         let results = self.inner.query(&query_str)?;
         let cached = self.materialize_results(results)?;
 
@@ -226,7 +228,11 @@ impl Graph {
             CachedResult::Solutions(_) | CachedResult::Graph(_) => {
                 // Fall back to direct query for non-boolean results
                 // since we can't reconstruct the iterator properly
-                Ok(self.inner.query(sparql)?)
+                // Note: Using deprecated Store::query() API - will migrate to SparqlEvaluator post-1.0
+                #[allow(deprecated)]
+                {
+                    Ok(self.inner.query(sparql)?)
+                }
             }
         }
     }
@@ -244,7 +250,11 @@ impl Graph {
     }
 
     pub fn query_prepared<'a>(&'a self, q: &str) -> Result<QueryResults<'a>> {
-        Ok(self.inner.query(q)?)
+        // Note: Using deprecated Store::query() API - will migrate to SparqlEvaluator post-1.0
+        #[allow(deprecated)]
+        {
+            Ok(self.inner.query(q)?)
+        }
     }
 
     /// Typed pattern filter (no extra allocs).

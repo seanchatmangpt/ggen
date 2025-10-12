@@ -465,8 +465,8 @@ fn format_timestamp(timestamp_ms: u128) -> String {
 
     let now_ms = SystemTime::now()
         .duration_since(UNIX_EPOCH)
-        .expect("System time is before UNIX epoch - invalid system clock")
-        .as_millis();
+        .map(|d| d.as_millis())
+        .unwrap_or(0); // Fallback to epoch if clock is invalid
 
     let diff_ms = now_ms.saturating_sub(timestamp_ms);
 

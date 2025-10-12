@@ -2,8 +2,8 @@
 # Shared build cache configuration
 
 [build]
-# Use sccache for shared compilation cache
-rustc-wrapper = "sccache"
+# Use sccache for shared compilation cache (temporarily disabled due to read-only filesystem)
+# rustc-wrapper = "sccache"
 
 # Build optimization
 jobs = 16

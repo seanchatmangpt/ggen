@@ -429,6 +429,45 @@ args = ["test", "--test", "bdd", "--", "--nocapture"]
 description = "Security audit"
 command = "cargo"
 args = ["audit"]
+workspace = false
+
+[tasks.audit-outdated]
+description = "Check for outdated dependencies"
+command = "cargo"
+args = ["outdated"]
+workspace = false
+
+[tasks.audit-unused]
+description = "Check for unused dependencies (requires nightly)"
+command = "cargo"
+args = ["+nightly", "udeps"]
+workspace = false
+
+[tasks.audit-deny]
+description = "Comprehensive dependency audit with cargo-deny"
+command = "cargo"
+args = ["deny", "check"]
+workspace = false
+
+[tasks.audit-all]
+description = "Run all dependency audits"
+dependencies = ["audit", "audit-outdated", "audit-deny"]
+workspace = false
+
+[tasks.format]
+description = "Format code"
+command = "cargo"
+args = ["fmt", "--all"]
+
+[tasks.clippy-ci-flow]
+description = "Run clippy with CI-friendly settings"
+command = "cargo"
+args = ["clippy", "--all-targets", "--all-features", "--", "-D", "warnings"]
+
+[tasks.test-verbose]
+description = "Run tests with verbose output"
+command = "cargo"
+args = ["test", "--workspace", "--", "--nocapture"]
 
 # mdbook documentation tasks (workspace-level only)
 
@@ -511,7 +550,7 @@ command = "./scripts/gh-pages-setup-check.sh"
 [tasks.ci]
 description = "Run CI pipeline"
 workspace = false
-dependencies = ["format", "clippy-ci-flow", "test-verbose", "docs-test"]
+dependencies = ["format", "clippy-ci-flow", "test-verbose", "audit-all", "docs-test"]
 
 [tasks.release]
 description = "Create a release"
