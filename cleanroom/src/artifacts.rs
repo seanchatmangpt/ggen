@@ -151,7 +151,7 @@ impl ArtifactCollector {
     pub fn new() -> Result<Self> {
         let work_dir = std::env::temp_dir().join("cleanroom-artifacts");
         std::fs::create_dir_all(&work_dir).map_err(|e| {
-            crate::error::CleanroomError::Io(std::io::Error::new(
+                crate::error::CleanroomError::new(crate::error::ErrorKind::IoError, std::io::Error::new(
                 std::io::ErrorKind::Other,
                 format!("Failed to create artifacts directory: {}", e),
             ))
@@ -174,7 +174,11 @@ impl ArtifactCollector {
         let bundle_id = format!("bundle_{}", rand::random::<u32>());
         let timestamp = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
-            .unwrap()
+            .map_err(|e| {
+                crate::error::CleanroomError::new(crate::error::ErrorKind::ContainerError, crate::error::BackendError::Runtime(
+                    format!("Failed to get system time: {}", e)
+                ))
+            })?
             .as_secs();
 
         // Collect logs
@@ -182,7 +186,7 @@ impl ArtifactCollector {
         for log_file in &run_info.log_files {
             if log_file.exists() {
                 let content =
-                    std::fs::read_to_string(log_file).map_err(crate::error::CleanroomError::Io)?;
+                    std::fs::read_to_string(log_file).map_err(crate::error::CleanroomError::new(crate::error::ErrorKind::IoError, std::io::Error::new(std::io::ErrorKind::Other, "IO error")))?;
 
                 logs.push(LogEntry {
                     timestamp,
@@ -209,7 +213,7 @@ impl ArtifactCollector {
         for binary_file in &run_info.binary_files {
             if binary_file.exists() {
                 let content =
-                    std::fs::read(binary_file).map_err(crate::error::CleanroomError::Io)?;
+                    std::fs::read(binary_file).map_err(crate::error::CleanroomError::new(crate::error::ErrorKind::IoError, std::io::Error::new(std::io::ErrorKind::Other, "IO error")))?;
                 let hash = self.calculate_hash(&content);
                 let data = base64::engine::general_purpose::STANDARD.encode(&content);
 
@@ -231,7 +235,7 @@ impl ArtifactCollector {
         for config_file in &run_info.config_files {
             if config_file.exists() {
                 let content = std::fs::read_to_string(config_file)
-                    .map_err(crate::error::CleanroomError::Io)?;
+                    .map_err(crate::error::CleanroomError::new(crate::error::ErrorKind::IoError, std::io::Error::new(std::io::ErrorKind::Other, "IO error")))?;
 
                 configs.push(ConfigArtifact {
                     name: config_file
@@ -280,7 +284,7 @@ impl ArtifactCollector {
         for coverage_file in &run_info.coverage_files {
             if coverage_file.exists() {
                 let content =
-                    std::fs::read(coverage_file).map_err(crate::error::CleanroomError::Io)?;
+                    std::fs::read(coverage_file).map_err(crate::error::CleanroomError::new(crate::error::ErrorKind::IoError, std::io::Error::new(std::io::ErrorKind::Other, "IO error")))?;
                 let data = base64::engine::general_purpose::STANDARD.encode(&content);
                 coverage_data.push(data);
             }
@@ -291,7 +295,7 @@ impl ArtifactCollector {
             match coverage_collector.collect_from_container(container_id) {
                 Ok(coverage_data_from_container) => {
                     let content = std::fs::read(&coverage_data_from_container.path)
-                        .map_err(crate::error::CleanroomError::Io)?;
+                        .map_err(crate::error::CleanroomError::new(crate::error::ErrorKind::IoError, std::io::Error::new(std::io::ErrorKind::Other, "IO error")))?;
                     let data = base64::engine::general_purpose::STANDARD.encode(&content);
                     coverage_data.push(data);
 
@@ -350,7 +354,7 @@ impl ArtifactCollector {
         let artifact = AttestationArtifact {
             format: "json".to_string(),
             data: serde_json::to_string(&attestation).map_err(|e| {
-                crate::error::CleanroomError::Backend(crate::error::BackendError::Runtime(format!(
+                crate::error::CleanroomError::new(crate::error::ErrorKind::ContainerError, crate::error::BackendError::Runtime(format!(
                     "Failed to serialize attestation: {}",
                     e
                 )))
@@ -392,23 +396,23 @@ impl ArtifactCollector {
     /// Save bundle to file
     pub fn save_bundle(&self, bundle: &ForensicsBundle, path: PathBuf) -> Result<()> {
         let content = serde_json::to_string_pretty(bundle).map_err(|e| {
-            crate::error::CleanroomError::Backend(crate::error::BackendError::Runtime(format!(
+            crate::error::CleanroomError::new(crate::error::ErrorKind::ContainerError, crate::error::BackendError::Runtime(format!(
                 "Failed to serialize bundle: {}",
                 e
             )))
         })?;
 
-        std::fs::write(&path, content).map_err(crate::error::CleanroomError::Io)?;
+        std::fs::write(&path, content).map_err(crate::error::CleanroomError::new(crate::error::ErrorKind::IoError, std::io::Error::new(std::io::ErrorKind::Other, "IO error")))?;
 
         Ok(())
     }
 
     /// Load bundle from file
     pub fn load_bundle(&self, path: PathBuf) -> Result<ForensicsBundle> {
-        let content = std::fs::read_to_string(&path).map_err(crate::error::CleanroomError::Io)?;
+        let content = std::fs::read_to_string(&path).map_err(crate::error::CleanroomError::new(crate::error::ErrorKind::IoError, std::io::Error::new(std::io::ErrorKind::Other, "IO error")))?;
 
         let bundle: ForensicsBundle = serde_json::from_str(&content).map_err(|e| {
-            crate::error::CleanroomError::Backend(crate::error::BackendError::Runtime(format!(
+            crate::error::CleanroomError::new(crate::error::ErrorKind::ContainerError, crate::error::BackendError::Runtime(format!(
                 "Failed to deserialize bundle: {}",
                 e
             )))

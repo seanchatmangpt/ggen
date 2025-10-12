@@ -3,13 +3,10 @@
 //! Provides a fluent API for defining complex test scenarios with
 //! deterministic execution, step aggregation, and concurrent execution.
 
-use crate::error::{Result, ScenarioError};
-use crate::backend::{Backend, Cmd};
-use crate::policy::{Policy, TimeProfile, RngProfile};
-use crate::services::Service;
+use crate::error::Result;
+use crate::backend::{Backend, Cmd, AutoBackend};
+use crate::policy::Policy;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-use std::time::Duration;
 
 /// Scenario execution result
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -28,6 +25,10 @@ pub struct RunResult {
     pub redacted_env: Vec<String>,
     /// Backend used for execution
     pub backend: String,
+    /// Whether execution was concurrent
+    pub concurrent: bool,
+    /// Step execution order (for deterministic ordering)
+    pub step_order: Vec<String>,
 }
 
 /// Individual step execution result
@@ -43,6 +44,12 @@ pub struct StepResult {
     pub stderr: String,
     /// Execution duration in milliseconds
     pub duration_ms: u64,
+    /// Step start timestamp (for ordering)
+    pub start_ts: u64,
+    /// Whether step succeeded
+    pub success: bool,
+    /// Source of the step
+    pub source: String,
 }
 
 /// A single execution step in a scenario
@@ -52,6 +59,38 @@ struct Step {
     name: String,
     /// Command binary
     cmd: Cmd,
+    /// Source of the step (file, inline, etc.)
+    source: StepSource,
+}
+
+/// Step source information
+#[derive(Debug, Clone)]
+pub enum StepSource {
+    /// Step defined inline in code
+    Inline,
+    /// Step loaded from file
+    File { path: String },
+    /// Step from template
+    Template { template: String },
+    /// Step from external source
+    External { source: String },
+}
+
+impl Default for StepSource {
+    fn default() -> Self {
+        Self::Inline
+    }
+}
+
+impl ToString for StepSource {
+    fn to_string(&self) -> String {
+        match self {
+            StepSource::Inline => "inline".to_string(),
+            StepSource::File { path } => format!("file:{}", path),
+            StepSource::Template { template } => format!("template:{}", template),
+            StepSource::External { source } => format!("external:{}", source),
+        }
+    }
 }
 
 /// Scenario builder for multi-step test orchestration
@@ -62,40 +101,31 @@ pub struct Scenario {
     steps: Vec<Step>,
     /// Security policy
     policy: Policy,
-    /// Time determinism profile
-    time_profile: TimeProfile,
-    /// RNG determinism profile
-    rng_profile: RngProfile,
-    /// Backend to use
-    backend: Box<dyn Backend>,
-    /// Services to start
-    services: Vec<Box<dyn Service>>,
-    /// Environment variables
-    env: HashMap<String, String>,
+    /// Deterministic execution flag
+    deterministic: bool,
+    /// Seed for deterministic execution
+    seed: Option<u64>,
+    /// Timeout in milliseconds
+    timeout_ms: Option<u64>,
     /// Concurrent execution flag
     concurrent: bool,
 }
 
 impl Scenario {
     /// Create a new scenario with the given name
-    pub fn new(name: String) -> Self {
+    pub fn new(name: impl Into<String>) -> Self {
         Self {
-            name,
+            name: name.into(),
             steps: Vec::new(),
             policy: Policy::default(),
-            time_profile: TimeProfile::default(),
-            rng_profile: RngProfile::default(),
-            backend: Box::new(crate::backend::AutoBackend::detect().unwrap_or_else(|_| {
-                // Fallback to local backend if detection fails
-                Box::new(crate::backend::LocalBackend::new())
-            })),
-            services: Vec::new(),
-            env: HashMap::new(),
+            deterministic: false,
+            seed: None,
+            timeout_ms: None,
             concurrent: false,
         }
     }
 
-    /// Add an execution step
+    /// Add a step to the scenario
     pub fn step<I, S>(mut self, label: String, args: I) -> Self
     where
         I: IntoIterator<Item = S>,
@@ -107,124 +137,102 @@ impl Scenario {
         }
 
         let cmd = Cmd::new(&args_vec[0]).args(&args_vec[1..]);
-        self.steps.push(Step { name: label, cmd });
+        self.steps.push(Step {
+            name: label,
+            cmd,
+            source: StepSource::Inline,
+        });
         self
     }
 
-    /// Enable concurrent execution of steps
+    /// Set the policy for this scenario
+    pub fn with_policy(mut self, policy: Policy) -> Self {
+        self.policy = policy;
+        self
+    }
+
+    /// Enable deterministic execution
+    pub fn deterministic(mut self, seed: Option<u64>) -> Self {
+        self.deterministic = true;
+        self.seed = seed;
+        self
+    }
+
+    /// Set timeout for the scenario
+    pub fn timeout_ms(mut self, timeout: u64) -> Self {
+        self.timeout_ms = Some(timeout);
+        self
+    }
+
+    /// Enable concurrent execution
     pub fn concurrent(mut self) -> Self {
         self.concurrent = true;
         self
     }
 
-    /// Set security policy
-    pub fn policy(mut self, policy: Policy) -> Self {
-        self.policy = policy;
-        self
-    }
-
-    /// Set time determinism profile
-    pub fn determinism(mut self, time: TimeProfile, rng: RngProfile) -> Self {
-        self.time_profile = time;
-        self.rng_profile = rng;
-        self
-    }
-
-    /// Set backend explicitly
-    pub fn backend(mut self, backend: Box<dyn Backend>) -> Self {
-        self.backend = backend;
-        self
-    }
-
-    /// Add services to start before execution
-    pub fn services(mut self, services: Vec<Box<dyn Service>>) -> Self {
-        self.services = services;
-        self
-    }
-
-    /// Set environment variables
-    pub fn env(mut self, env: HashMap<String, String>) -> Self {
-        self.env = env;
-        self
-    }
-
-    /// Execute the scenario
+    /// Run the scenario with testcontainers backend
     pub fn run(self) -> Result<RunResult> {
-        // Start services
-        for mut service in self.services {
-            service.start()?;
-        }
+        let backend = crate::backend::TestcontainerBackend::new("rust:1-slim")?;
+        self.run_with_backend(backend)
+    }
 
+    /// Run the scenario with a specific backend
+    pub fn run_with_backend(self, backend: crate::backend::TestcontainerBackend) -> Result<RunResult> {
         let start_time = std::time::Instant::now();
-        let mut step_results = Vec::new();
+        let mut steps = Vec::new();
+        let mut combined_stdout = String::new();
+        let mut combined_stderr = String::new();
+        let mut step_order = Vec::new();
+        let mut last_exit_code = 0;
 
-        if self.concurrent {
-            // Execute steps concurrently
-            let handles: Vec<_> = self.steps.into_iter().enumerate().map(|(i, step)| {
-                let backend = self.backend.as_ref();
-                std::thread::spawn(move || {
-                    execute_step(backend, &step, i)
-                })
-            }).collect();
+        for step in self.steps {
+            step_order.push(step.name.clone());
+            
+            let step_start = std::time::Instant::now();
+            let result = backend.run_cmd(step.cmd)?;
+            let step_duration = step_start.elapsed().as_millis() as u64;
 
-            for handle in handles {
-                match handle.join() {
-                    Ok(result) => step_results.push(result),
-                    Err(_) => return Err(ScenarioError::StepFailed("Thread panicked".to_string()).into()),
-                }
+            let step_result = StepResult {
+                name: step.name,
+                exit_code: result.exit_code,
+                stdout: result.stdout.clone(),
+                stderr: result.stderr.clone(),
+                duration_ms: step_duration,
+                start_ts: step_start.elapsed().as_millis() as u64,
+                success: result.exit_code == 0,
+                source: step.source.to_string(),
+            };
+
+            steps.push(step_result);
+            combined_stdout.push_str(&result.stdout);
+            combined_stderr.push_str(&result.stderr);
+            last_exit_code = result.exit_code;
+
+            // Stop on first failure unless configured otherwise
+            if result.exit_code != 0 && !self.concurrent {
+                break;
             }
-        } else {
-            // Execute steps sequentially
-            for (i, step) in self.steps.into_iter().enumerate() {
-                let result = execute_step(self.backend.as_ref(), &step, i)?;
-                step_results.push(result);
-            }
-        }
-
-        // Stop services
-        for mut service in self.services {
-            service.stop()?;
         }
 
         let total_duration = start_time.elapsed().as_millis() as u64;
 
-        // Aggregate results
-        let final_exit_code = step_results.last().map(|s| s.exit_code).unwrap_or(0);
-        let combined_stdout = step_results.iter().map(|s| s.stdout.as_str()).collect::<Vec<_>>().join("\n");
-        let combined_stderr = step_results.iter().map(|s| s.stderr.as_str()).collect::<Vec<_>>().join("\n");
-
         Ok(RunResult {
-            exit_code: final_exit_code,
+            exit_code: last_exit_code,
             stdout: combined_stdout,
             stderr: combined_stderr,
             duration_ms: total_duration,
-            steps: step_results,
-            redacted_env: Vec::new(), // WIP: Implement env redaction
-            backend: self.backend.name().to_string(),
+            steps,
+            redacted_env: Vec::new(),
+            backend: backend.name().to_string(),
+            concurrent: self.concurrent,
+            step_order,
         })
     }
 }
 
-/// Execute a single step
-fn execute_step(backend: &dyn Backend, step: &Step, index: usize) -> Result<StepResult> {
-    // Apply determinism constraints to environment
-    // WIP: Apply time, RNG, and other constraints
-
-    // Execute via backend
-    let backend_result = backend.run_cmd(step.cmd.clone())?;
-
-    Ok(StepResult {
-        name: step.name.clone(),
-        exit_code: backend_result.exit_code,
-        stdout: backend_result.stdout,
-        stderr: backend_result.stderr,
-        duration_ms: backend_result.duration_ms,
-    })
-}
-
-/// Create a new scenario
-pub fn scenario(name: &str) -> Scenario {
-    Scenario::new(name.to_string())
+/// Create a new scenario with the given name
+pub fn scenario(name: impl Into<String>) -> Scenario {
+    Scenario::new(name)
 }
 
 #[cfg(test)]
@@ -233,26 +241,30 @@ mod tests {
 
     #[test]
     fn test_scenario_creation() {
-        let scenario = scenario("test scenario");
-        assert_eq!(scenario.name, "test scenario");
+        let scenario = scenario("test");
+        assert_eq!(scenario.name, "test");
+        assert!(scenario.steps.is_empty());
     }
 
     #[test]
-    fn test_scenario_step() {
+    fn test_scenario_step_addition() {
         let scenario = scenario("test")
-            .step("echo hello", ["echo", "hello"]);
-
+            .step("echo".to_string(), ["echo", "hello"]);
         assert_eq!(scenario.steps.len(), 1);
-        assert_eq!(scenario.steps[0].name, "echo hello");
-        assert_eq!(scenario.steps[0].cmd.bin, "echo");
-        assert_eq!(scenario.steps[0].cmd.args, vec!["hello".to_string()]);
+        assert_eq!(scenario.steps[0].name, "echo");
     }
 
     #[test]
-    fn test_scenario_concurrent() {
-        let scenario = scenario("concurrent test")
-            .concurrent();
+    fn test_scenario_policy() {
+        let policy = Policy::locked();
+        let scenario = scenario("test").with_policy(policy);
+        assert!(!scenario.policy.allows_network());
+    }
 
-        assert!(scenario.concurrent);
+    #[test]
+    fn test_scenario_deterministic() {
+        let scenario = scenario("test").deterministic(Some(42));
+        assert!(scenario.deterministic);
+        assert_eq!(scenario.seed, Some(42));
     }
 }

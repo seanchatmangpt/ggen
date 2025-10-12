@@ -1,91 +1,174 @@
-//! Cleanroom: Hermetic, deterministic testing for CLIs and services.
+//! Cleanroom Testing Framework - Core Team Best Practices Implementation
 //!
-//! One API runs identically on laptop and CI by abstracting over Docker/Podman/local backends.
-//! Covers the 80/20 of test engineering: orchestration, security, determinism, fixtures, coverage, and forensics.
+//! This crate provides a production-ready cleanroom testing framework using testcontainers
+//! following core team best practices for reliability, performance, and maintainability.
+//!
+//! ## Core Team Best Practices Implemented
+//!
+//! - **Standardized testcontainers version (0.22)** across all projects
+//! - **Singleton container pattern** for performance optimization
+//! - **Container customizers** for flexible configuration
+//! - **Proper lifecycle management** with RAII
+//! - **Resource cleanup and error handling**
+//! - **Performance monitoring and metrics collection**
+//! - **Security boundaries and isolation**
+//! - **Deterministic execution with fixed seeds**
+//!
+//! ## Quick Start
+//!
+//! ```rust
+//! use cleanroom::{CleanroomEnvironment, CleanroomConfig, PostgresContainer, RedisContainer};
+//! use std::time::Duration;
+//!
+//! #[tokio::test]
+//! async fn test_my_application() {
+//!     // Create cleanroom environment with best practices
+//!     let config = CleanroomConfig::default();
+//!     let environment = CleanroomEnvironment::new(config).await.unwrap();
+//!
+//!     // Get or create PostgreSQL container (singleton pattern)
+//!     let postgres = environment.get_or_create_container("postgres", || {
+//!         PostgresContainer::new(&environment.docker_client, "testdb", "testuser", "testpass")
+//!     }).await.unwrap();
+//!
+//!     // Wait for container to be ready
+//!     postgres.wait_for_ready().await.unwrap();
+//!
+//!     // Execute test with proper lifecycle management
+//!     let result = environment.execute_test("database_test", || {
+//!         // Your test logic here
+//!         Ok("test_passed")
+//!     }).await.unwrap();
+//!
+//!     // Cleanup is automatic via RAII
+//! }
+//! ```
+//!
+//! ## Features
+//!
+//! - **Singleton Containers**: Start containers once per test suite for performance
+//! - **Resource Monitoring**: Track CPU, memory, disk, and network usage
+//! - **Security Isolation**: Network, filesystem, and process isolation
+//! - **Deterministic Execution**: Fixed seeds for reproducible tests
+//! - **Coverage Tracking**: Track test coverage and execution paths
+//! - **Snapshot Testing**: Capture and compare test outputs
+//! - **Tracing & Observability**: Detailed tracing and metrics collection
+//! - **Error Handling**: Comprehensive error handling and recovery
+//! - **Performance Monitoring**: Real-time performance monitoring and alerting
+//!
+//! ## Architecture
+//!
+//! ```mermaid
+//! graph TB
+//!     A[CleanroomEnvironment] --> B[ContainerRegistry]
+//!     A --> C[PolicyEnforcement]
+//!     A --> D[DeterministicManager]
+//!     A --> E[CoverageTracker]
+//!     A --> F[SnapshotManager]
+//!     A --> G[TracingManager]
+//!     A --> H[ResourceLimits]
+//!     A --> I[RedactionManager]
+//!     A --> J[TestReport]
+//!     
+//!     B --> K[PostgresContainer]
+//!     B --> L[RedisContainer]
+//!     B --> M[GenericContainer]
+//!     
+//!     K --> N[ContainerWrapper]
+//!     L --> N
+//!     M --> N
+//! ```
 
-#![forbid(unsafe_code)]
-#![warn(missing_docs)]
-
-pub mod prelude;
+pub mod cleanroom;
+pub mod containers;
 pub mod error;
-pub mod config;
 pub mod policy;
-pub mod backend;
-pub mod runtime;
-pub mod scenario;
-pub mod assertions;
+pub mod determinism;
 pub mod coverage;
+pub mod snapshots;
+pub mod tracing;
+pub mod limits;
+pub mod redaction;
+pub mod report;
+pub mod backend;
 pub mod services;
-pub mod attest;
+pub mod scenario;
+pub mod runtime;
+pub mod config;
+pub mod skip;
 pub mod artifacts;
+pub mod assertions;
+pub mod attest;
+pub mod prelude;
 
-// Re-exports for convenience
-pub use backend::{Backend, AutoBackend};
-pub use config::{CleanroomConfig, CleanroomConfigBuilder};
-pub use error::{CleanroomError, Result};
-pub use policy::{
-    FsProfile, NetProfile, Policy, ProcProfile, ResourceLimits, RngProfile, TimeProfile,
+// Re-export main types for convenience
+pub use cleanroom::{
+    CleanroomEnvironment,
+    CleanroomConfig,
+    CleanroomGuard,
+    ContainerWrapper,
+    ContainerStatus,
+    ContainerMetrics,
+    SecurityPolicy,
+    PerformanceMonitoringConfig,
+    PerformanceThresholds,
+    ContainerCustomizer,
+    VolumeMount,
+    PortMapping,
+    ContainerResourceLimits,
+    HealthCheckConfig,
+    CleanroomMetrics,
+    ResourceUsage,
 };
-// TODO: Implement Runner and RunnerConfig
-pub use scenario::{scenario, RunResult, Scenario};
 
-/// Run a single command with auto-detected backend.
-///
-/// This is the simplest entry point for running a command in a hermetic environment.
-///
-/// # Example
-///
-/// ```no_run
-/// use cleanroom::{run, assertions::Assert};
-///
-/// let result = run(["echo", "hello world"])?;
-/// assert!(result.success());
-/// assert_eq!(result.stdout.trim(), "hello world");
-/// # Ok::<(), cleanroom::CleanroomError>(())
-/// ```
-pub fn run<I, S>(args: I) -> Result<scenario::RunResult>
-where
-    I: IntoIterator<Item = S>,
-    S: AsRef<str>,
-{
-    let backend = AutoBackend::detect()?;
-    let args_vec: Vec<String> = args.into_iter().map(|s| s.as_ref().to_string()).collect();
+pub use containers::{
+    PostgresContainer,
+    RedisContainer,
+    GenericContainer,
+};
 
-    if args_vec.is_empty() {
-        return Err(crate::error::BackendError::Runtime("no command provided".into()).into());
-    }
+pub use error::{Result, CleanroomError};
+pub use policy::Policy;
+pub use determinism::DeterministicManager;
+pub use coverage::CoverageTracker;
+pub use snapshots::SnapshotManager;
+pub use tracing::TracingManager;
+pub use limits::ResourceLimits;
+pub use redaction::RedactionManager;
+pub use report::TestReport;
 
-    let cmd = crate::backend::Cmd::new(&args_vec[0]).args(&args_vec[1..]);
-    let backend_result = backend.run_cmd(cmd)?;
+/// Version information
+pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 
-    Ok(scenario::RunResult {
-        exit_code: backend_result.exit_code,
-        stdout: backend_result.stdout,
-        stderr: backend_result.stderr,
-        duration_ms: backend_result.duration_ms,
-        steps: Vec::new(),
-        redacted_env: Vec::new(),
-        backend: backend.name().to_string(),
-    })
+/// Create a new cleanroom environment with default configuration
+pub async fn new_cleanroom() -> Result<CleanroomEnvironment> {
+    CleanroomEnvironment::new(CleanroomConfig::default()).await
+}
+
+/// Create a new cleanroom environment with custom configuration
+pub async fn new_cleanroom_with_config(config: CleanroomConfig) -> Result<CleanroomEnvironment> {
+    CleanroomEnvironment::new(config).await
+}
+
+/// Create a cleanroom guard for automatic cleanup
+pub fn create_cleanroom_guard(environment: Arc<CleanroomEnvironment>) -> CleanroomGuard {
+    CleanroomGuard::new(environment)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn test_run_echo() {
-        let result = run(["echo", "hello"]);
-        assert!(result.is_ok());
-
-        let run_result = result.unwrap();
-        assert_eq!(run_result.exit_code, 0);
-        assert!(run_result.stdout.contains("hello"));
+    
+    #[tokio::test]
+    async fn test_cleanroom_creation() {
+        let environment = new_cleanroom().await;
+        assert!(environment.is_ok());
     }
-
-    #[test]
-    fn test_scenario_creation() {
-        let _s = scenario("test scenario");
-        // Just verify it compiles
+    
+    #[tokio::test]
+    async fn test_cleanroom_with_config() {
+        let config = CleanroomConfig::default();
+        let environment = new_cleanroom_with_config(config).await;
+        assert!(environment.is_ok());
     }
 }

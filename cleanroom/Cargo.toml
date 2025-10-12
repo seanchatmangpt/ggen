@@ -1,0 +1,55 @@
+[package]
+name = "cleanroom"
+version = "0.1.0"
+edition = "2021"
+authors = ["Cleanroom Contributors"]
+description = "Deterministic, hermetic execution environment for testing and validation"
+license = "MIT"
+repository = "https://github.com/sac/ggen"
+keywords = ["testing", "hermetic", "deterministic", "containers", "validation"]
+categories = ["development-tools", "testing"]
+
+[workspace]
+
+[dependencies]
+# Core dependencies (always included)
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "2.0"
+anyhow = "1.0"
+tokio = { version = "1.0", features = ["full"] }
+async-trait = "0.1"
+base64 = "0.22"
+tracing = "0.1"
+uuid = { version = "1.0", features = ["v4"] }
+rand = "0.8"
+rand_chacha = "0.3"
+fastrand = "2.0"
+regex = "1.0"
+tempfile = "3.0"
+chrono = { version = "0.4", features = ["serde"] }
+toml = "0.9"
+whoami = "1.0"
+sha2 = "0.10"
+
+# Container dependencies (required)
+testcontainers = { version = "0.22", features = ["blocking"] }
+testcontainers-modules = "0.10"
+futures-util = "0.3"
+
+# Optional features
+[features]
+default = []
+coverage = []
+signing = []
+services = []
+
+[dev-dependencies]
+criterion = "0.5"
+proptest = "1.0"
+insta = "1.0"
+cucumber = { version = "0.20", features = ["macros"] }
+assert_cmd = "2.0"
+predicates = "3.0"
+mockito = "1.0"
+shell-words = "1.0"

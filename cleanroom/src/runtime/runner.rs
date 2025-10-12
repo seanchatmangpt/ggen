@@ -115,13 +115,29 @@ impl Runner {
         }
 
         // Execute with timeout
-        // WIP: Implement proper timeout mechanism
-        let output = cmd.output()
-            .map_err(|e| BackendError::Runtime(format!("command failed: {}", e)))?;
+        let output = if let Some(timeout_ms) = self.config.timeout_ms {
+            // Use tokio timeout for async execution
+            let rt = tokio::runtime::Runtime::new().map_err(|e| {
+                BackendError::Runtime(format!("Failed to create runtime: {}", e))
+            })?;
+            
+            rt.block_on(async {
+                let future = async {
+                    cmd.output().map_err(|e| BackendError::Runtime(format!("command failed: {}", e)))
+                };
+                
+                match tokio::time::timeout(Duration::from_millis(timeout_ms), future).await {
+                    Ok(result) => result,
+                    Err(_) => Err(BackendError::Runtime(format!("Command timed out after {}ms", timeout_ms))),
+                }
+            })?
+        } else {
+            cmd.output().map_err(|e| BackendError::Runtime(format!("command failed: {}", e)))?
+        };
 
         let duration_ms = start.elapsed().as_millis() as u64;
 
-        Ok(Output {
+        Ok(RunOutput {
             exit_code: output.status.code().unwrap_or(-1),
             stdout: String::from_utf8_lossy(&output.stdout).to_string(),
             stderr: String::from_utf8_lossy(&output.stderr).to_string(),

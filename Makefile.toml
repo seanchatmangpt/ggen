@@ -66,13 +66,15 @@ env = { "RUST_LOG" = "info" }
 
 [tasks.test-cleanroom]
 description = "Run cleanroom production tests with testcontainers"
+workspace = false
 command = "cargo"
 args = [
   "test",
   "--package",
   "ggen-cli-lib",
   "--test",
-  "integration",
+  "integration_tests",
+  "--",
   "testcontainers_cleanroom",
 ]
 env = { "RUST_LOG" = "info" }

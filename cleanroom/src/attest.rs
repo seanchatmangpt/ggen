@@ -120,7 +120,12 @@ impl AttestationGenerator {
     ) -> Result<Attestation> {
         let timestamp = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
-            .unwrap()
+            .map_err(|e| {
+                crate::error::CleanroomError::new(crate::error::ErrorKind::ContainerError,(crate::error::BackendError::Runtime(format!(
+                    "System time error: {}",
+                    e
+                )))
+            })?
             .as_secs();
 
         // Get host OS information
@@ -228,7 +233,7 @@ impl AttestationGenerator {
         // In a real implementation, this would use cryptographic signing
         // For now, we generate a simple hash-based signature
         let data = serde_json::to_string(attestation).map_err(|e| {
-            crate::error::CleanroomError::Backend(crate::error::BackendError::Runtime(format!(
+            crate::error::CleanroomError::new(crate::error::ErrorKind::ContainerError,(crate::error::BackendError::Runtime(format!(
                 "Failed to serialize attestation: {}",
                 e
             )))
