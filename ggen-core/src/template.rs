@@ -737,4 +737,130 @@ fn main() {
 
         Ok(())
     }
+
+    #[cfg(feature = "proptest")]
+    mod proptest_tests {
+        use super::*;
+        use proptest::prelude::*;
+
+        /// Property test: Template parsing should be idempotent for valid inputs
+        proptest! {
+            #[test]
+            fn template_parsing_idempotent(
+                frontmatter_yaml in r"[a-zA-Z0-9_:\s\-\.\/]*",
+                body_content in r"[a-zA-Z0-9_\s\-\.\/\{\}]*"
+            ) {
+                // Skip invalid combinations that would cause parsing errors
+                if frontmatter_yaml.contains("{{") || frontmatter_yaml.contains("}}") {
+                    return Ok(());
+                }
+                if body_content.len() > 1000 {
+                    return Ok(());
+                }
+
+                let template_str = format!("---\n{}\n---\n{}", frontmatter_yaml, body_content);
+                
+                // First parse
+                let template1 = Template::parse(&template_str).ok();
+                
+                // Second parse (should be identical)
+                let template2 = Template::parse(&template_str).ok();
+                
+                // Both should succeed or fail together
+                match (template1, template2) {
+                    (Some(t1), Some(t2)) => {
+                        // If both succeed, they should be identical
+                        assert_eq!(t1.front.to, t2.front.to);
+                        assert_eq!(t1.front.from, t2.front.from);
+                        assert_eq!(t1.body, t2.body);
+                    },
+                    (None, None) => {
+                        // Both failed - this is acceptable for invalid inputs
+                    },
+                    _ => {
+                        // One succeeded and one failed - this violates idempotency
+                        panic!("Template parsing is not idempotent");
+                    }
+                }
+            }
+
+            #[test]
+            fn frontmatter_vars_roundtrip(
+                var_name in r"[a-zA-Z_][a-zA-Z0-9_]*",
+                var_value in r"[a-zA-Z0-9_\s\-\.]*"
+            ) {
+                // Skip if value contains special characters that would break YAML
+                if var_value.contains(':') || var_value.contains('"') || var_value.contains('\'') {
+                    return Ok(());
+                }
+
+                let yaml_content = format!("vars:\n  {}: {}", var_name, var_value);
+                let template_str = format!("---\n{}\n---\nHello {{{{ vars.{} }}}}", yaml_content, var_name);
+                
+                let template = Template::parse(&template_str);
+                
+                match template {
+                    Ok(t) => {
+                        // Check that the variable was parsed correctly
+                        if let Some(value) = t.front.vars.get(&var_name) {
+                            // The value should be preserved (as string)
+                            assert!(value.as_str().is_some() || value.is_string());
+                        }
+                    },
+                    Err(_) => {
+                        // Parsing failed - this is acceptable for invalid inputs
+                    }
+                }
+            }
+
+            #[test]
+            fn template_paths_are_valid(
+                path in r"[a-zA-Z0-9_\-\.\/]*"
+            ) {
+                // Skip paths that are clearly invalid or empty
+                if path.contains("..") || path.len() > 200 || path.is_empty() {
+                    return Ok(());
+                }
+
+                let template_str = format!("---\nto: {}\n---\nContent", path);
+                
+                let mut template = Template::parse(&template_str);
+                
+                match template {
+                    Ok(mut t) => {
+                        // Render frontmatter to populate the fields
+                        let mut tera = tera::Tera::new("dummy:*").unwrap();
+                        let vars = tera::Context::new();
+                        
+                        match t.render_frontmatter(&mut tera, &vars) {
+                            Ok(_) => {
+                                // If rendering succeeded, check that the path was preserved
+                                // Note: YAML may normalize numeric-looking strings (e.g., "0." -> "0.0")
+                                if let Some(parsed_path) = &t.front.to {
+                                    // For numeric-looking paths, allow normalization
+                                    if path.parse::<f64>().is_ok() && parsed_path.parse::<f64>().is_ok() {
+                                        // Both are numeric, check if they're equivalent
+                                        let original_num: f64 = path.parse().unwrap();
+                                        let parsed_num: f64 = parsed_path.parse().unwrap();
+                                        assert_eq!(original_num, parsed_num);
+                                    } else {
+                                        // Non-numeric paths should be preserved exactly
+                                        assert_eq!(parsed_path, &path);
+                                    }
+                                } else {
+                                    panic!("Expected path to be preserved, but got None");
+                                }
+                            },
+                            Err(_) => {
+                                // Rendering failed - this is acceptable for invalid paths
+                            }
+                        }
+                    },
+                    Err(_) => {
+                        // Parsing failed - this is acceptable for invalid paths
+                    }
+                }
+            }
+        }
+    }
 }

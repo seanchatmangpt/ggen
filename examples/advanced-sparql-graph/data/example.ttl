@@ -1,0 +1,80 @@
+@prefix ex: <http://example.org/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# People
+ex:alice a foaf:Person ;
+    foaf:name "Alice Johnson" ;
+    foaf:age 32 ;
+    foaf:email "alice@example.org" ;
+    foaf:knows ex:bob, ex:charlie ;
+    ex:worksAt ex:techcorp ;
+    ex:skill ex:rust, ex:python, ex:sparql .
+
+ex:bob a foaf:Person ;
+    foaf:name "Bob Smith" ;
+    foaf:age 28 ;
+    foaf:email "bob@example.org" ;
+    foaf:knows ex:alice, ex:david ;
+    ex:worksAt ex:techcorp ;
+    ex:skill ex:javascript, ex:typescript .
+
+ex:charlie a foaf:Person ;
+    foaf:name "Charlie Davis" ;
+    foaf:age 35 ;
+    foaf:email "charlie@example.org" ;
+    foaf:knows ex:alice ;
+    ex:worksAt ex:startupxyz ;
+    ex:skill ex:rust, ex:go .
+
+ex:david a foaf:Person ;
+    foaf:name "David Lee" ;
+    foaf:age 29 ;
+    foaf:email "david@example.org" ;
+    foaf:knows ex:bob ;
+    ex:worksAt ex:startupxyz ;
+    ex:skill ex:python, ex:rust, ex:java .
+
+# Organizations
+ex:techcorp a ex:Organization ;
+    foaf:name "TechCorp Industries" ;
+    ex:founded "2010"^^xsd:gYear ;
+    ex:employee ex:alice, ex:bob ;
+    ex:industry "Technology" .
+
+ex:startupxyz a ex:Organization ;
+    foaf:name "StartupXYZ" ;
+    ex:founded "2020"^^xsd:gYear ;
+    ex:employee ex:charlie, ex:david ;
+    ex:industry "Technology" .
+
+# Skills
+ex:rust a ex:Skill ;
+    rdfs:label "Rust Programming" ;
+    ex:category "Systems Programming" .
+
+ex:python a ex:Skill ;
+    rdfs:label "Python Programming" ;
+    ex:category "General Purpose" .
+
+ex:sparql a ex:Skill ;
+    rdfs:label "SPARQL Query Language" ;
+    ex:category "Semantic Web" .
+
+ex:javascript a ex:Skill ;
+    rdfs:label "JavaScript" ;
+    ex:category "Web Development" .
+
+ex:typescript a ex:Skill ;
+    rdfs:label "TypeScript" ;
+    ex:category "Web Development" .
+
+ex:go a ex:Skill ;
+    rdfs:label "Go Programming" ;
+    ex:category "Systems Programming" .
+
+ex:java a ex:Skill ;
+    rdfs:label "Java Programming" ;
+    ex:category "Enterprise" .

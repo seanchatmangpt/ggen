@@ -1,0 +1,344 @@
+# Comprehensive Rust Showcase Configuration
+# Demonstrates ALL ggen features: lifecycle, AI, SPARQL, security, performance
+
+[project]
+name = "comprehensive-rust-showcase"
+version = "1.0.0"
+description = "Comprehensive Rust project showcasing all ggen features"
+author = "ggen-examples"
+license = "MIT"
+repository = "https://github.com/example/comprehensive-rust-showcase"
+keywords = ["rust", "microservice", "ai", "sparql", "lifecycle"]
+
+# Template configuration with advanced features
+[templates]
+source_dir = "templates"
+output_dir = "generated"
+backup_enabled = true
+idempotent = true
+dry_run = false
+validate_before_generate = true
+auto_format = true
+lint_generated_code = true
+
+# Advanced AI configuration with multiple providers
+[ai]
+# Primary provider
+provider = "openai"
+model = "gpt-4"
+temperature = 0.7
+max_tokens = 4000
+timeout_seconds = 60
+retry_attempts = 3
+retry_delay_seconds = 2
+
+# Fallback providers
+[ai.fallback]
+providers = ["anthropic", "ollama"]
+anthropic.model = "claude-3-sonnet"
+ollama.model = "llama2"
+
+# AI-specific features
+[ai.features]
+code_analysis = true
+optimization_suggestions = true
+error_explanation = true
+documentation_generation = true
+test_generation = true
+refactoring_suggestions = true
+
+# RDF/SPARQL configuration with advanced features
+[rdf]
+base_iri = "http://example.org/comprehensive-rust-showcase/"
+default_format = "turtle"
+cache_queries = true
+query_timeout_seconds = 30
+enable_reasoning = true
+validate_rdf = true
+
+# Supported RDF formats
+[rdf.formats]
+turtle = true
+json_ld = true
+rdf_xml = true
+n_triples = true
+n_quads = true
+
+# Graph configuration with performance optimization
+[graph]
+enable_caching = true
+cache_size = 5000
+cache_ttl_seconds = 7200
+enable_tracing = true
+parallel_query_execution = true
+query_optimization = true
+
+# Pipeline configuration with advanced features
+[pipeline]
+parallel_execution = true
+max_parallel_templates = 8
+timeout_seconds = 600
+retry_attempts = 5
+retry_delay_seconds = 3
+circuit_breaker_enabled = true
+rate_limiting_enabled = true
+
+# Security configuration with comprehensive protection
+[security]
+validate_paths = true
+block_shell_injection = true
+require_confirmation = false
+audit_operations = true
+backup_before_write = true
+encrypt_sensitive_data = true
+validate_inputs = true
+sanitize_outputs = true
+
+# Security policies
+[security.policies]
+max_file_size_mb = 100
+allowed_file_extensions = [".rs", ".toml", ".md", ".ttl", ".json"]
+blocked_patterns = ["rm -rf", "sudo", "chmod 777"]
+require_https = true
+
+# Logging configuration with structured output
+[logging]
+level = "info"
+format = "json"
+output = "file"
+file_path = ".ggen/logs/ggen.log"
+max_file_size = "50MB"
+max_files = 10
+rotation_strategy = "daily"
+compress_old_logs = true
+
+# Performance configuration with profiling
+[performance]
+enable_profiling = true
+profile_output = ".ggen/profiles/"
+memory_limit_mb = 1024
+cpu_limit_percent = 90
+enable_metrics = true
+metrics_interval_seconds = 30
+
+# Environment-specific overrides
+[env.development]
+ai.model = "gpt-3.5-turbo"
+ai.temperature = 0.9
+logging.level = "debug"
+security.require_confirmation = false
+performance.enable_profiling = true
+cache.enabled = false
+
+[env.staging]
+ai.model = "gpt-4"
+ai.temperature = 0.5
+logging.level = "info"
+security.require_confirmation = true
+performance.enable_profiling = true
+cache.enabled = true
+
+[env.production]
+ai.model = "gpt-4"
+ai.temperature = 0.3
+logging.level = "warn"
+security.require_confirmation = true
+security.audit_operations = true
+performance.enable_profiling = false
+cache.enabled = true
+cache.persistent = true
+
+# Template-specific configurations
+[templates.rust-service]
+description = "Complete Rust microservice with Axum framework"
+variables = { 
+    language = "rust", 
+    framework = "axum",
+    database = "postgresql",
+    orm = "sqlx"
+}
+output_pattern = "generated/src/services/{name}.rs"
+backup_enabled = true
+validate_output = true
+lint_output = true
+
+[templates.api-endpoint]
+description = "REST API endpoint with OpenAPI documentation"
+variables = { 
+    method = "GET", 
+    path = "/api/v1",
+    version = "1.0.0"
+}
+output_pattern = "generated/src/api/{name}.rs"
+backup_enabled = true
+validate_output = true
+
+[templates.database-schema]
+description = "Database schema and migrations from RDF"
+variables = { 
+    database = "postgresql", 
+    orm = "sqlx",
+    migration_strategy = "versioned"
+}
+output_pattern = "generated/src/database/{name}.rs"
+backup_enabled = true
+
+[templates.documentation]
+description = "Auto-generated documentation with examples"
+variables = { 
+    format = "markdown", 
+    style = "github",
+    include_examples = true
+}
+output_pattern = "generated/docs/{name}.md"
+backup_enabled = true
+
+[templates.tests]
+description = "Comprehensive test suite generation"
+variables = { 
+    framework = "tokio-test",
+    coverage_threshold = 90,
+    include_integration_tests = true
+}
+output_pattern = "generated/tests/{name}_test.rs"
+backup_enabled = true
+
+[templates.deployment]
+description = "Deployment configurations and scripts"
+variables = { 
+    platform = "docker",
+    orchestration = "kubernetes",
+    monitoring = "prometheus"
+}
+output_pattern = "generated/deployment/{name}.yaml"
+backup_enabled = true
+
+# RDF data sources with validation
+[data_sources]
+domain_model = "data/domain.ttl"
+api_specification = "data/api-spec.ttl"
+database_schema = "data/database.ttl"
+queries = "data/queries.ttl"
+validation_rules = "data/validation.ttl"
+
+# SPARQL query definitions with caching
+[queries]
+find_endpoints = "SELECT ?endpoint WHERE { ?endpoint a ex:APIEndpoint }"
+find_entities = "SELECT ?entity WHERE { ?entity a ex:Entity }"
+find_relationships = "SELECT ?rel WHERE { ?rel a ex:Relationship }"
+find_services = "SELECT ?service WHERE { ?service a ex:Microservice }"
+find_database_tables = "SELECT ?table WHERE { ?table a ex:DatabaseTable }"
+find_api_operations = "SELECT ?op WHERE { ?op a ex:APIOperation }"
+
+# Build configuration with optimization
+[build]
+target = "release"
+features = ["default", "json", "yaml", "tracing"]
+profile = "release"
+parallel_jobs = 8
+incremental = true
+lto = true
+codegen_units = 1
+
+# Test configuration with comprehensive coverage
+[test]
+framework = "cargo"
+parallel = true
+timeout_seconds = 600
+coverage_enabled = true
+coverage_threshold = 90
+include_integration_tests = true
+include_benchmarks = true
+include_doc_tests = true
+
+# Deployment configuration with multiple strategies
+[deployment]
+strategy = "rolling"
+health_check_path = "/health"
+rollback_enabled = true
+max_instances = 5
+min_instances = 2
+auto_scaling = true
+load_balancer = "nginx"
+
+# Monitoring configuration with comprehensive observability
+[monitoring]
+metrics_enabled = true
+tracing_enabled = true
+health_checks_enabled = true
+alerting_enabled = true
+dashboard_enabled = true
+log_aggregation = true
+
+# Backup configuration with encryption
+[backup]
+enabled = true
+strategy = "incremental"
+retention_days = 90
+compression = true
+encryption = true
+encryption_key = "env:GGEN_BACKUP_KEY"
+schedule = "0 2 * * *"  # Daily at 2 AM
+
+# Cache configuration with persistence
+[cache]
+enabled = true
+strategy = "lru"
+max_size_mb = 500
+ttl_seconds = 7200
+persistent = true
+compression = true
+encryption = false
+
+# CI/CD pipeline configuration
+[ci_cd]
+enabled = true
+provider = "github-actions"
+trigger_on_push = true
+trigger_on_pr = true
+parallel_jobs = 4
+timeout_minutes = 30
+artifacts_retention_days = 30
+
+# Quality gates
+[quality_gates]
+clippy_enabled = true
+rustfmt_enabled = true
+security_scan_enabled = true
+dependency_audit_enabled = true
+license_check_enabled = true
+coverage_threshold = 90
+performance_threshold_ms = 100
+
+# Documentation generation
+[docs]
+enabled = true
+format = "mdbook"
+include_examples = true
+include_api_docs = true
+include_diagrams = true
+auto_update = true
+publish_to = "gh-pages"
+
+# Integration with external tools
+[integrations]
+# Docker integration
+docker.enabled = true
+docker.build_args = ["--no-cache"]
+docker.tag_strategy = "git"
+
+# Kubernetes integration
+kubernetes.enabled = true
+kubernetes.namespace = "default"
+kubernetes.replicas = 3
+
+# Database integration
+database.enabled = true
+database.migration_strategy = "versioned"
+database.backup_enabled = true
+
+# API documentation
+api_docs.enabled = true
+api_docs.format = "openapi"
+api_docs.version = "3.0.0"
+api_docs.publish_to = "swagger-ui"

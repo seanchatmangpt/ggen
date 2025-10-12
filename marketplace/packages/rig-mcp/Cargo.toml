@@ -1,0 +1,31 @@
+[package]
+name = "rig-mcp-integration"
+version = "0.1.0"
+edition = "2021"
+description = "Production-ready Rig LLM framework + MCP protocol integration"
+authors = ["ggen-team"]
+license = "MIT"
+repository = "https://github.com/seanchatmangpt/ggen"
+
+[dependencies]
+rig-core = "0.15.1"
+rmcp = "0.8"
+tokio = { version = "1.0", features = ["full"] }
+anyhow = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+async-trait = "0.1"
+thiserror = "1.0"
+
+[features]
+default = ["openai", "anthropic", "cohere"]
+openai = ["rig-core/openai"]
+anthropic = ["rig-core/anthropic"]
+cohere = ["rig-core/cohere"]
+ollama = ["rig-core/ollama"]
+deepseek = ["rig-core/deepseek"]
+gemini = ["rig-core/gemini"]
+
+[[bin]]
+name = "rig-mcp-example"
+path = "src/bin/example.rs"

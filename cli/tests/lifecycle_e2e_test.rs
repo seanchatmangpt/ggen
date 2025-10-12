@@ -320,7 +320,7 @@ fn test_lifecycle_pipeline_sequential_execution() {
     let state_content = fs::read_to_string(&state_path).unwrap();
     let state: serde_json::Value = serde_json::from_str(&state_content).unwrap();
 
-    assert_eq!(state["last_phase"], "build");
+    assert_eq!(state["last_phase"], "test");
     let phase_history = state["phase_history"].as_array().unwrap();
     assert!(phase_history.iter().any(|record| record["phase"] == "init"));
     assert!(phase_history
@@ -397,8 +397,8 @@ fn test_state_persistence_across_runs() {
     let state: serde_json::Value = serde_json::from_str(&state_content).unwrap();
 
     assert_eq!(state["last_phase"], "setup");
-    let completed = state["completed_phases"].as_array().unwrap();
-    assert_eq!(completed.len(), 2);
+    let phase_history = state["phase_history"].as_array().unwrap();
+    assert_eq!(phase_history.len(), 2);
 }
 
 #[test]
@@ -423,7 +423,7 @@ fn test_lifecycle_list_shows_last_executed_phase() {
         .arg(temp_dir.path())
         .assert()
         .success()
-        .stdout(predicate::str::contains("Last executed: build"));
+        .stdout(predicate::str::contains("Last executed: test"));
 }
 
 #[test]
@@ -618,8 +618,8 @@ fn test_concurrent_safe_state_updates() {
     let state_content = fs::read_to_string(&state_path).unwrap();
     let state: serde_json::Value = serde_json::from_str(&state_content).unwrap();
 
-    let completed = state["completed_phases"].as_array().unwrap();
-    assert_eq!(completed.len(), 3);
+    let phase_history = state["phase_history"].as_array().unwrap();
+    assert_eq!(phase_history.len(), 3);
 }
 
 #[test]

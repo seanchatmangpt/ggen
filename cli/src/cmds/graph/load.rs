@@ -156,21 +156,62 @@ fn validate_base_iri(base: &Option<String>) -> Result<()> {
     Ok(())
 }
 
+/// Detect RDF format from file extension
+fn detect_format_from_extension(filename: &str) -> &'static str {
+    let path = std::path::Path::new(filename);
+    match path.extension().and_then(|ext| ext.to_str()) {
+        Some("ttl") | Some("turtle") => "turtle",
+        Some("nt") | Some("ntriples") => "ntriples",
+        Some("rdf") | Some("xml") => "rdfxml",
+        Some("jsonld") | Some("json") => "jsonld",
+        Some("n3") => "n3",
+        _ => "turtle", // Default to turtle
+    }
+}
+
 pub async fn run(args: &LoadArgs) -> Result<()> {
     // Validate inputs
     validate_file_path(&args.file)?;
     validate_format(&args.format)?;
     validate_base_iri(&args.base)?;
 
-    println!("🚧 Placeholder: graph load");
-    println!("  File: {}", args.file.trim());
-    if let Some(format) = &args.format {
-        println!("  Format: {}", format.trim());
+    println!("📊 Loading RDF graph...");
+    
+    // Check if file exists
+    let file_path = std::path::Path::new(&args.file);
+    if !file_path.exists() {
+        return Err(ggen_utils::error::Error::new(&format!(
+            "File not found: {}",
+            args.file
+        )));
     }
+    
+    // Detect format if not provided
+    let format = args.format.as_deref().unwrap_or_else(|| {
+        detect_format_from_extension(&args.file)
+    });
+    
+    println!("📁 Loading file: {}", args.file);
+    println!("🔍 Format: {}", format);
+    
     if let Some(base) = &args.base {
-        println!("  Base: {}", base.trim());
+        println!("🌐 Base IRI: {}", base);
     }
-    println!("  Merge: {}", args.merge);
+    
+    // Load the RDF file using ggen-core
+    let graph = ggen_core::Graph::load_from_file(&args.file)
+        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to load RDF file: {}", e)))?;
+    
+    // Get graph statistics
+    let triples_count = graph.len();
+    
+    if args.merge {
+        println!("✅ Merged {} triples from {} ({})", triples_count, args.file, format);
+        println!("📊 Total triples in graph: {}", triples_count);
+    } else {
+        println!("✅ Loaded {} triples from {} ({})", triples_count, args.file, format);
+    }
+    
     Ok(())
 }
 

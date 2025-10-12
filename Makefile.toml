@@ -469,6 +469,38 @@ description = "Run tests with verbose output"
 command = "cargo"
 args = ["test", "--workspace", "--", "--nocapture"]
 
+[tasks.test-proptest]
+description = "Run property-based tests with proptest"
+command = "cargo"
+args = ["test", "--workspace", "--features", "proptest", "--", "--nocapture"]
+
+[tasks.test-proptest-single]
+description = "Run property-based tests for a single package"
+command = "cargo"
+args = [
+  "test",
+  "--package",
+  "${PACKAGE}",
+  "--features",
+  "proptest",
+  "--",
+  "--nocapture",
+]
+
+[tasks.test-proptest-parallel]
+description = "Run property-based tests in parallel"
+command = "cargo"
+args = [
+  "test",
+  "--workspace",
+  "--features",
+  "proptest",
+  "--",
+  "--test-threads",
+  "4",
+  "--nocapture",
+]
+
 # mdbook documentation tasks (workspace-level only)
 
 [tasks.docs-build]
@@ -550,7 +582,13 @@ command = "./scripts/gh-pages-setup-check.sh"
 [tasks.ci]
 description = "Run CI pipeline"
 workspace = false
-dependencies = ["format", "clippy-ci-flow", "test-verbose", "audit-all", "docs-test"]
+dependencies = [
+  "format",
+  "clippy-ci-flow",
+  "test-verbose",
+  "audit-all",
+  "docs-test",
+]
 
 [tasks.release]
 description = "Create a release"

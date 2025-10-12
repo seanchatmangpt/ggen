@@ -65,6 +65,8 @@ proptest = "1.4"
 # config -> ron -> base64 0.21.7 conflicts with reqwest -> base64 0.22.1
 base64 = "0.22"
 
+# Patch removed - was causing conflicts with same source
+
 # Allow multiple crate versions due to complex dependency tree
 [workspace.lints.clippy]
 multiple_crate_versions = "allow"
@@ -119,6 +121,7 @@ shell-words = "1.1"
 toml = "0.8"
 reqwest = { version = "0.12", features = ["blocking", "json"] }
 genai = "0.4"
+proptest.workspace = true
 
 [profile.dev]
 opt-level = 0
