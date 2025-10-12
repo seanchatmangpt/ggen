@@ -121,7 +121,7 @@ impl Runner {
 
         let duration_ms = start.elapsed().as_millis() as u64;
 
-        Ok(RunOutput {
+        Ok(Output {
             exit_code: output.status.code().unwrap_or(-1),
             stdout: String::from_utf8_lossy(&output.stdout).to_string(),
             stderr: String::from_utf8_lossy(&output.stderr).to_string(),
