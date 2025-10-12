@@ -12,7 +12,7 @@ use serde::{Deserialize, Serialize};
 use std::time::Duration;
 
 /// Resource limits configuration
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct ResourceLimits {
     /// CPU limits
     pub cpu: CpuLimits,
@@ -120,18 +120,6 @@ pub struct TimeLimits {
     pub enable_monitoring: bool,
 }
 
-impl Default for ResourceLimits {
-    fn default() -> Self {
-        Self {
-            cpu: CpuLimits::default(),
-            memory: MemoryLimits::default(),
-            disk: DiskLimits::default(),
-            network: NetworkLimits::default(),
-            process: ProcessLimits::default(),
-            time: TimeLimits::default(),
-        }
-    }
-}
 
 impl Default for CpuLimits {
     fn default() -> Self {
@@ -299,7 +287,7 @@ impl ResourceLimits {
         
         Ok(())
     }
-    
+
     /// Check if CPU usage is within limits
     pub fn check_cpu_usage(&self, usage_percent: f64) -> Result<()> {
         if usage_percent > self.cpu.max_usage_percent {
@@ -444,7 +432,7 @@ impl ResourceLimits {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[test]
     fn test_resource_limits_creation() {
         let limits = ResourceLimits::new();
@@ -495,7 +483,7 @@ mod tests {
         assert!(limits.check_cpu_usage(50.0).is_ok());
         assert!(limits.check_cpu_usage(90.0).is_err());
     }
-    
+
     #[test]
     fn test_memory_usage_check() {
         let limits = ResourceLimits::new();
@@ -523,7 +511,7 @@ mod tests {
         assert!(limits.check_process_count(50).is_ok());
         assert!(limits.check_process_count(200).is_err());
     }
-    
+
     #[test]
     fn test_execution_time_check() {
         let limits = ResourceLimits::new();
@@ -543,7 +531,7 @@ mod tests {
         assert!(summary.contains("Process"));
         assert!(summary.contains("Time"));
     }
-    
+
     #[test]
     fn test_resource_limits_env() {
         let limits = ResourceLimits::new();

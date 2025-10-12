@@ -79,12 +79,52 @@ args = [
 ]
 env = { "RUST_LOG" = "info" }
 
+[tasks.test-cleanroom-crate]
+description = "Run tests for the cleanroom crate"
+workspace = false
+command = "cargo"
+args = ["test", "--package", "cleanroom"]
+env = { "RUST_LOG" = "info" }
+
+[tasks.lint-cleanroom]
+description = "Run clippy on cleanroom crate"
+workspace = false
+command = "cargo"
+args = ["clippy", "--package", "cleanroom", "--", "-D", "warnings"]
+
+[tasks.cleanroom-validate]
+description = "Validate cleanroom implementation and integration"
+workspace = false
+dependencies = ["test-cleanroom-crate", "test-cleanroom", "lint-cleanroom"]
+
+[tasks.cleanroom-slo-check]
+description = "Check cleanroom performance SLOs"
+workspace = false
+command = "cargo"
+args = [
+  "test",
+  "--package",
+  "cleanroom",
+  "--release",
+  "--",
+  "--nocapture",
+  "slo",
+]
+env = { "RUST_LOG" = "info" }
+
+[tasks.cleanroom-profile]
+description = "Profile cleanroom performance"
+workspace = false
+command = "cargo"
+args = ["flamegraph", "--package", "cleanroom", "--bin", "cleanroom-bench"]
+
 [tasks.production-readiness]
 description = "Comprehensive production readiness validation with testcontainers"
 workspace = false
 dependencies = [
   "test-testcontainers",
   "test-cleanroom",
+  "cleanroom-validate",
   "test-unit",
   "test-integration",
   "lint",

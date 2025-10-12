@@ -105,7 +105,7 @@ impl CleanroomError {
     }
     
     /// Create a timeout error
-    pub fn timeout(message: impl Into<String>) -> Self {
+    pub fn timeout_error(message: impl Into<String>) -> Self {
         Self::new(ErrorKind::Timeout, message)
     }
     
@@ -115,16 +115,16 @@ impl CleanroomError {
     }
     
     /// Create a policy violation error
-    pub fn policy_violation(message: impl Into<String>) -> Self {
+    pub fn policy_violation_error(message: impl Into<String>) -> Self {
         Self::new(ErrorKind::PolicyViolation, message)
     }
     
-    /// Create a deterministic error
+    /// Create a deterministic execution error
     pub fn deterministic_error(message: impl Into<String>) -> Self {
         Self::new(ErrorKind::DeterministicError, message)
     }
     
-    /// Create a coverage error
+    /// Create a coverage tracking error
     pub fn coverage_error(message: impl Into<String>) -> Self {
         Self::new(ErrorKind::CoverageError, message)
     }
@@ -144,7 +144,7 @@ impl CleanroomError {
         Self::new(ErrorKind::RedactionError, message)
     }
     
-    /// Create a report error
+    /// Create a report generation error
     pub fn report_error(message: impl Into<String>) -> Self {
         Self::new(ErrorKind::ReportError, message)
     }
@@ -172,116 +172,221 @@ impl CleanroomError {
 
 impl fmt::Display for CleanroomError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "[{}] {}: {}", self.kind, self.message, self.timestamp)?;
-        
-        if let Some(ref context) = self.context {
+        write!(f, "{:?}: {}", self.kind, self.message)?;
+        if let Some(context) = &self.context {
             write!(f, " (Context: {})", context)?;
         }
-        
-        if let Some(ref source) = self.source {
+        if let Some(source) = &self.source {
             write!(f, " (Source: {})", source)?;
         }
-        
         Ok(())
-    }
-}
-
-impl fmt::Display for ErrorKind {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            ErrorKind::ContainerError => write!(f, "ContainerError"),
-            ErrorKind::NetworkError => write!(f, "NetworkError"),
-            ErrorKind::ResourceLimitExceeded => write!(f, "ResourceLimitExceeded"),
-            ErrorKind::Timeout => write!(f, "Timeout"),
-            ErrorKind::ConfigurationError => write!(f, "ConfigurationError"),
-            ErrorKind::PolicyViolation => write!(f, "PolicyViolation"),
-            ErrorKind::DeterministicError => write!(f, "DeterministicError"),
-            ErrorKind::CoverageError => write!(f, "CoverageError"),
-            ErrorKind::SnapshotError => write!(f, "SnapshotError"),
-            ErrorKind::TracingError => write!(f, "TracingError"),
-            ErrorKind::RedactionError => write!(f, "RedactionError"),
-            ErrorKind::ReportError => write!(f, "ReportError"),
-            ErrorKind::IoError => write!(f, "IoError"),
-            ErrorKind::SerializationError => write!(f, "SerializationError"),
-            ErrorKind::ValidationError => write!(f, "ValidationError"),
-            ErrorKind::InternalError => write!(f, "InternalError"),
-        }
     }
 }
 
 impl StdError for CleanroomError {
     fn source(&self) -> Option<&(dyn StdError + 'static)> {
+        // We store source as String, so we can't return it as a trait object directly
         None
     }
 }
 
-// Implement From traits for common error types
+// Implement From for common error types to convert them to CleanroomError
 impl From<std::io::Error> for CleanroomError {
     fn from(err: std::io::Error) -> Self {
-        Self::io_error(err.to_string())
+        CleanroomError::io_error(err.to_string())
     }
 }
 
 impl From<serde_json::Error> for CleanroomError {
     fn from(err: serde_json::Error) -> Self {
-        Self::serialization_error(err.to_string())
+        CleanroomError::serialization_error(err.to_string())
     }
 }
 
-impl From<toml::de::Error> for CleanroomError {
-    fn from(err: toml::de::Error) -> Self {
-        Self::serialization_error(err.to_string())
+impl From<testcontainers::TestcontainersError> for CleanroomError {
+    fn from(err: testcontainers::TestcontainersError) -> Self {
+        CleanroomError::container_error(err.to_string())
     }
 }
 
-impl From<toml::ser::Error> for CleanroomError {
-    fn from(err: toml::ser::Error) -> Self {
-        Self::serialization_error(err.to_string())
+impl From<BackendError> for CleanroomError {
+    fn from(err: BackendError) -> Self {
+        match err {
+            BackendError::Runtime(msg) => CleanroomError::internal_error(msg),
+            BackendError::CommandExecution(msg) => CleanroomError::internal_error(msg),
+            BackendError::ContainerStartup(msg) => CleanroomError::container_error(msg),
+            BackendError::ContainerCommunication(msg) => CleanroomError::container_error(msg),
+            BackendError::ImagePull(msg) => CleanroomError::container_error(msg),
+            BackendError::ImageBuild(msg) => CleanroomError::container_error(msg),
+            BackendError::UnsupportedFeature(msg) => CleanroomError::internal_error(msg),
+        }
     }
 }
 
-impl From<uuid::Error> for CleanroomError {
-    fn from(err: uuid::Error) -> Self {
-        Self::validation_error(err.to_string())
+// Define BackendError, PolicyError, etc. as separate enums if needed,
+// or directly use ErrorKind for more granular error reporting.
+// For now, we'll keep them as separate enums for clarity and potential future expansion.
+
+/// Backend-specific errors
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum BackendError {
+    /// Runtime execution error
+    Runtime(String),
+    /// Command execution error
+    CommandExecution(String),
+    /// Container startup error
+    ContainerStartup(String),
+    /// Container communication error
+    ContainerCommunication(String),
+    /// Image pull error
+    ImagePull(String),
+    /// Image build error
+    ImageBuild(String),
+    /// Unsupported feature
+    UnsupportedFeature(String),
+}
+
+impl fmt::Display for BackendError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", self)
     }
 }
 
-impl From<chrono::ParseError> for CleanroomError {
-    fn from(err: chrono::ParseError) -> Self {
-        Self::validation_error(err.to_string())
+impl StdError for BackendError {}
+
+/// Policy-specific errors
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum PolicyError {
+    /// Invalid policy configuration
+    InvalidPolicy(String),
+    /// Policy violation detected
+    PolicyViolation(String),
+    /// Unsupported policy feature
+    UnsupportedFeature(String),
+}
+
+impl fmt::Display for PolicyError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", self)
     }
 }
+
+impl StdError for PolicyError {}
+
+/// Scenario-specific errors
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum ScenarioError {
+    /// Invalid scenario definition
+    InvalidScenario(String),
+    /// Step execution failed
+    StepExecutionFailed(String),
+    /// Scenario timeout
+    ScenarioTimeout(String),
+    /// Concurrent execution error
+    ConcurrentExecution(String),
+}
+
+impl fmt::Display for ScenarioError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+
+impl StdError for ScenarioError {}
+
+/// Service-specific errors
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum ServiceError {
+    /// Service connection failed
+    ConnectionFailed(String),
+    /// Service startup failed
+    StartupFailed(String),
+    /// Service health check failed
+    HealthCheckFailed(String),
+    /// Service configuration error
+    Configuration(String),
+    /// Unsupported service operation
+    UnsupportedOperation(String),
+}
+
+impl fmt::Display for ServiceError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+
+impl StdError for ServiceError {}
+
+/// Configuration errors
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum ConfigError {
+    /// Invalid configuration file
+    InvalidFile(String),
+    /// Missing configuration value
+    MissingValue(String),
+    /// Invalid configuration value
+    InvalidValue(String),
+    /// Invalid pattern in configuration
+    InvalidPattern(String, String),
+}
+
+impl fmt::Display for ConfigError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+
+impl StdError for ConfigError {}
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[test]
     fn test_error_creation() {
-        let error = CleanroomError::container_error("Test error");
-        assert_eq!(error.kind, ErrorKind::ContainerError);
-        assert_eq!(error.message, "Test error");
+        let error = CleanroomError::new(ErrorKind::ConfigurationError, "test message");
+        assert_eq!(error.message, "test message");
     }
-    
+
     #[test]
-    fn test_error_with_context() {
-        let error = CleanroomError::container_error("Test error")
-            .with_context("Additional context");
-        assert_eq!(error.context, Some("Additional context".to_string()));
+    fn test_error_with_source() {
+        let error = CleanroomError::new(ErrorKind::ContainerError, "test message")
+            .with_source("test source");
+        assert_eq!(error.message, "test message");
+        assert_eq!(error.source, Some("test source".to_string()));
     }
-    
+
     #[test]
     fn test_error_display() {
-        let error = CleanroomError::container_error("Test error");
+        let error = CleanroomError::new(ErrorKind::Timeout, "test message");
         let display = format!("{}", error);
-        assert!(display.contains("ContainerError"));
-        assert!(display.contains("Test error"));
+        assert!(display.contains("Timeout"));
+        assert!(display.contains("test message"));
     }
-    
+
     #[test]
     fn test_error_from_io() {
-        let io_error = std::io::Error::new(std::io::ErrorKind::NotFound, "File not found");
-        let cleanroom_error: CleanroomError = io_error.into();
-        assert_eq!(cleanroom_error.kind, ErrorKind::IoError);
+        let io_error = std::io::Error::new(std::io::ErrorKind::NotFound, "test");
+        let error: CleanroomError = io_error.into();
+        assert!(matches!(error.kind, ErrorKind::IoError));
+    }
+
+    #[test]
+    fn test_error_from_json() {
+        let json_error = serde_json::from_str::<serde_json::Value>("invalid json");
+        let error: CleanroomError = json_error.unwrap_err().into();
+        assert!(matches!(error.kind, ErrorKind::SerializationError));
+    }
+
+    #[test]
+    fn test_helper_functions() {
+        let container_error = CleanroomError::container_error("container failed");
+        assert!(matches!(container_error.kind, ErrorKind::ContainerError));
+
+        let network_error = CleanroomError::network_error("network failed");
+        assert!(matches!(network_error.kind, ErrorKind::NetworkError));
+
+        let timeout_error = CleanroomError::timeout_error("timeout occurred");
+        assert!(matches!(timeout_error.kind, ErrorKind::Timeout));
     }
 }

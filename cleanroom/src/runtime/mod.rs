@@ -19,7 +19,7 @@ pub struct Config {
     /// Environment variables
     pub env: HashMap<String, String>,
     /// Execution timeout
-    pub timeout: Duration,
+    pub execution_timeout: Duration,
     /// Policy to enforce
     pub policy: Policy,
 }
@@ -31,7 +31,7 @@ impl Config {
             args,
             workdir: None,
             env: HashMap::new(),
-            timeout: Duration::from_secs(300), // 5 minutes default
+            execution_timeout: Duration::from_secs(300), // 5 minutes default
             policy: Policy::default(),
         }
     }
@@ -50,7 +50,7 @@ impl Config {
 
     /// Set timeout
     pub fn with_timeout(mut self, timeout: Duration) -> Self {
-        self.timeout = timeout;
+        self.execution_timeout = timeout;
         self
     }
 
@@ -63,24 +63,24 @@ impl Config {
     /// Validate configuration
     pub fn validate(&self) -> Result<()> {
         if self.args.is_empty() {
-            return Err(crate::error::CleanroomError::validation("Empty command arguments"));
+            return Err(crate::error::CleanroomError::new(crate::error::ErrorKind::ValidationError, "Empty command arguments"));
         }
 
         if let Some(ref workdir) = self.workdir {
             if !workdir.exists() {
-                return Err(crate::error::CleanroomError::validation(format!(
+                return Err(crate::error::CleanroomError::validation_error(format!(
                     "Working directory does not exist: {}",
                     workdir.display()
                 )));
             }
         }
 
-        if self.timeout.as_secs() == 0 {
-            return Err(crate::error::CleanroomError::validation("Timeout must be greater than 0"));
+        if self.execution_timeout.as_secs() == 0 {
+            return Err(crate::error::CleanroomError::new(crate::error::ErrorKind::ValidationError, "Timeout must be greater than 0"));
         }
 
         self.policy.validate().map_err(|e| {
-            crate::error::CleanroomError::validation(format!("Policy validation failed: {}", e))
+            crate::error::CleanroomError::validation_error(format!("Policy validation failed: {}", e))
         })?;
 
         Ok(())
@@ -212,44 +212,27 @@ impl Runtime {
 
     /// Validate resource limits
     fn validate_resource_limits(&self) -> Result<()> {
-        let limits = &self.config.policy.limits;
+        let limits = &self.config.policy.resources;
 
         // Check memory limit
-        if let Some(memory_limit) = limits.memory_bytes {
-            // In a real implementation, you would check current memory usage
-            // For now, we just validate the limit is reasonable
-            if memory_limit < 1024 * 1024 { // 1MB minimum
-                return Err(crate::error::CleanroomError::resource_limit(
-                    "Memory limit too low (minimum 1MB)"
-                ));
-            }
+        if limits.max_memory_usage_bytes < 1024 * 1024 { // 1MB minimum
+            return Err(crate::error::CleanroomError::resource_limit_exceeded(
+                "Memory limit too low (minimum 1MB)"
+            ));
         }
 
-        // Check CPU limit
-        if let Some(cpu_limit) = limits.cpu_time_secs {
-            if cpu_limit < 1 {
-                return Err(crate::error::CleanroomError::resource_limit(
-                    "CPU limit too low (minimum 1 second)"
-                ));
-            }
+        // Check execution time limit
+        if limits.max_test_execution_time < Duration::from_secs(1) {
+            return Err(crate::error::CleanroomError::resource_limit_exceeded(
+                "Test execution time limit too low (minimum 1 second)"
+            ));
         }
 
-        // Check file size limit
-        if let Some(file_size_limit) = limits.file_size_bytes {
-            if file_size_limit < 1024 { // 1KB minimum
-                return Err(crate::error::CleanroomError::resource_limit(
-                    "File size limit too low (minimum 1KB)"
-                ));
-            }
-        }
-
-        // Check process count limit
-        if let Some(process_limit) = limits.process_count {
-            if process_limit < 1 {
-                return Err(crate::error::CleanroomError::resource_limit(
-                    "Process count limit too low (minimum 1)"
-                ));
-            }
+        // Check container count limit
+        if limits.max_container_count == 0 {
+            return Err(crate::error::CleanroomError::resource_limit_exceeded(
+                "Container count limit must be at least 1"
+            ));
         }
 
         Ok(())
@@ -257,7 +240,7 @@ impl Runtime {
 
     /// Apply network constraints
     fn apply_network_constraints(&mut self) -> Result<()> {
-        match &self.config.policy.net {
+        match &self.config.policy.security {
             crate::policy::NetProfile::Offline => {
                 // Block network access
                 self.context.env.insert("CLEANROOM_NET".to_string(), "offline".to_string());
@@ -282,7 +265,7 @@ impl Runtime {
 
     /// Apply filesystem constraints
     fn apply_filesystem_constraints(&mut self) -> Result<()> {
-        match &self.config.policy.fs {
+        match &self.config.policy.execution {
             crate::policy::FsProfile::ReadOnly { workdir } => {
                 self.context.env.insert("CLEANROOM_FS".to_string(), "readonly".to_string());
                 self.context.env.insert("CLEANROOM_WORKDIR".to_string(), workdir.clone());
@@ -320,9 +303,7 @@ impl Runtime {
         // Execute with timeout
         let start_time = std::time::Instant::now();
         let output = cmd.output().map_err(|e| {
-            crate::error::CleanroomError::Backend(crate::error::BackendError::CommandExecution(
-                format!("Command execution failed: {}", e)
-            ))
+            crate::error::CleanroomError::container_error(format!("Command execution failed: {}", e))
         })?;
 
         let duration_ms = start_time.elapsed().as_millis() as u64;
@@ -387,7 +368,7 @@ impl RuntimeBuilder {
 
     /// Set timeout
     pub fn timeout(mut self, timeout: Duration) -> Self {
-        self.config.timeout = timeout;
+        self.config.execution_timeout = timeout;
         self
     }
 
@@ -411,7 +392,7 @@ mod tests {
     fn test_config_creation() {
         let config = Config::new(vec!["echo".to_string(), "hello".to_string()]);
         assert_eq!(config.args, vec!["echo", "hello"]);
-        assert_eq!(config.timeout, Duration::from_secs(300));
+        assert_eq!(config.execution_timeout, Duration::from_secs(300));
     }
 
     #[test]
@@ -432,7 +413,7 @@ mod tests {
     fn test_config_with_timeout() {
         let config = Config::new(vec!["echo".to_string()])
             .with_timeout(Duration::from_secs(60));
-        assert_eq!(config.timeout, Duration::from_secs(60));
+        assert_eq!(config.execution_timeout, Duration::from_secs(60));
     }
 
     #[test]
@@ -475,7 +456,7 @@ mod tests {
             .unwrap();
 
         assert_eq!(runtime.config().args, vec!["echo", "hello"]);
-        assert_eq!(runtime.config().timeout, Duration::from_secs(60));
+        assert_eq!(runtime.config().execution_timeout, Duration::from_secs(60));
         assert_eq!(runtime.config().env.get("TEST_VAR"), Some(&"test_value".to_string()));
     }
 

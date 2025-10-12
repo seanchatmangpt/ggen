@@ -8,11 +8,52 @@
 
 use crate::error::{Result, CleanroomError};
 use serde::{Deserialize, Serialize};
+use serde::{Deserializer, Serializer};
+use serde::ser::{SerializeStruct, Serializer as SerSerializer};
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 use tokio::sync::Mutex;
 use uuid::Uuid;
+
+/// Serializable wrapper for Instant
+#[derive(Debug, Clone)]
+pub struct SerializableInstant(pub Instant);
+
+impl SerializableInstant {
+    /// Create a new SerializableInstant from the current time
+    pub fn now() -> Self {
+        Self(Instant::now())
+    }
+
+    /// Get duration since a reference point
+    pub fn duration_since(&self, earlier: SerializableInstant) -> Duration {
+        self.0.duration_since(earlier.0)
+    }
+}
+
+impl serde::Serialize for SerializableInstant {
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let elapsed = self.0.elapsed();
+        serializer.serialize_u64(elapsed.as_secs() * 1_000_000_000 + elapsed.subsec_nanos() as u64)
+    }
+}
+
+impl<'de> serde::Deserialize<'de> for SerializableInstant {
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let nanos = u64::deserialize(deserializer)?;
+        let secs = nanos / 1_000_000_000;
+        let subsec_nanos = (nanos % 1_000_000_000) as u32;
+        let duration = Duration::new(secs, subsec_nanos);
+        Ok(SerializableInstant(Instant::now() - duration))
+    }
+}
 
 /// Test report generator for cleanroom testing
 #[derive(Debug)]
@@ -24,14 +65,14 @@ pub struct TestReport {
 }
 
 /// Report data structure
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
 pub struct ReportData {
     /// Session ID
     pub session_id: Uuid,
     /// Start time
-    pub start_time: Instant,
+    pub start_time: SerializableInstant,
     /// End time
-    pub end_time: Option<Instant>,
+    pub end_time: Option<SerializableInstant>,
     /// Test summary
     pub test_summary: TestSummary,
     /// Performance metrics
@@ -92,6 +133,79 @@ pub struct CoverageData {
     pub total_branches: u32,
     /// Covered branches
     pub covered_branches: u32,
+    /// Session ID
+    pub session_id: Uuid,
+    /// Coverage files mapping
+    pub coverage_files: HashMap<String, (u32, u32)>, // filename -> (total_lines, covered_lines)
+    /// Uncovered lines mapping
+    pub uncovered_lines: HashMap<String, Vec<u32>>, // filename -> line_numbers
+    /// Uncovered branches mapping
+    pub uncovered_branches: HashMap<String, Vec<String>>, // filename -> branch_names
+    /// Uncovered functions mapping
+    pub uncovered_functions: HashMap<String, Vec<String>>, // filename -> function_names
+}
+
+impl CoverageData {
+    /// Create a new CoverageData instance
+    pub fn new() -> Self {
+        Self {
+            overall_coverage_percentage: 0.0,
+            line_coverage_percentage: 0.0,
+            function_coverage_percentage: 0.0,
+            branch_coverage_percentage: 0.0,
+            total_lines: 0,
+            covered_lines: 0,
+            total_functions: 0,
+            covered_functions: 0,
+            total_branches: 0,
+            covered_branches: 0,
+            session_id: Uuid::new_v4(),
+            coverage_files: HashMap::new(),
+            uncovered_lines: HashMap::new(),
+            uncovered_branches: HashMap::new(),
+            uncovered_functions: HashMap::new(),
+        }
+    }
+
+    /// Add file coverage data
+    pub fn add_file(&mut self, filename: String, total_lines: u32, covered_lines: u32) {
+        self.coverage_files.insert(filename, (total_lines, covered_lines));
+        self.total_lines += total_lines;
+        self.covered_lines += covered_lines;
+    }
+
+    /// Add uncovered line
+    pub fn add_uncovered_line(&mut self, filename: String, line_number: u32) {
+        self.uncovered_lines.entry(filename).or_insert_with(Vec::new).push(line_number);
+    }
+
+    /// Add uncovered branch
+    pub fn add_uncovered_branch(&mut self, filename: String, branch_name: String) {
+        self.uncovered_branches.entry(filename).or_insert_with(Vec::new).push(branch_name);
+    }
+
+    /// Add uncovered function
+    pub fn add_uncovered_function(&mut self, filename: String, function_name: String) {
+        self.uncovered_functions.entry(filename).or_insert_with(Vec::new).push(function_name);
+    }
+
+    /// Calculate overall coverage percentage
+    pub fn calculate_overall_coverage(&mut self) {
+        if self.total_lines > 0 {
+            self.overall_coverage_percentage = (self.covered_lines as f64 / self.total_lines as f64) * 100.0;
+        }
+    }
+
+    /// Get coverage summary
+    pub fn get_summary(&self) -> String {
+        format!(
+            "Overall: {:.1}%, Lines: {:.1}%, Functions: {:.1}%, Branches: {:.1}%",
+            self.overall_coverage_percentage,
+            self.line_coverage_percentage,
+            self.function_coverage_percentage,
+            self.branch_coverage_percentage
+        )
+    }
 }
 
 /// Snapshot data
@@ -217,7 +331,7 @@ impl TestReport {
     /// Finalize report
     pub async fn finalize(&self) -> Result<()> {
         let mut data = self.report_data.lock().await;
-        data.end_time = Some(Instant::now());
+        data.end_time = Some(SerializableInstant::now());
         
         // Generate recommendations based on data
         self.generate_recommendations(&mut data).await;
@@ -231,8 +345,8 @@ impl TestReport {
         
         let mut report = ComprehensiveReport {
             session_id: data.session_id,
-            start_time: data.start_time,
-            end_time: data.end_time,
+            start_time: data.start_time.clone(),
+            end_time: data.end_time.clone(),
             test_summary: data.test_summary.clone(),
             performance_metrics: data.performance_metrics.clone(),
             coverage_data: data.coverage_data.clone(),
@@ -242,7 +356,7 @@ impl TestReport {
             recommendations: data.recommendations.clone(),
             metadata: data.metadata.clone(),
             cleanroom_metrics: metrics.clone(),
-            report_generated_at: Instant::now(),
+            report_generated_at: SerializableInstant::now(),
         };
         
         // Generate additional recommendations based on cleanroom metrics
@@ -315,10 +429,10 @@ impl TestReport {
     /// Generate cleanroom-specific recommendations
     async fn generate_cleanroom_recommendations(&self, report: &mut ComprehensiveReport) {
         // Container performance recommendation
-        if report.cleanroom_metrics.containers_started > 10 {
+        if report.cleanroom_metrics.containers_created > 10 {
             report.recommendations.push(format!(
                 "{} containers started, consider using singleton pattern for better performance",
-                report.cleanroom_metrics.containers_started
+                report.cleanroom_metrics.containers_created
             ));
         }
         
@@ -362,7 +476,7 @@ impl ReportData {
     pub fn new(session_id: Uuid) -> Self {
         Self {
             session_id,
-            start_time: Instant::now(),
+            start_time: SerializableInstant::now(),
             end_time: None,
             test_summary: TestSummary {
                 total_tests: 0,
@@ -385,14 +499,14 @@ impl ReportData {
 }
 
 /// Comprehensive test report
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
 pub struct ComprehensiveReport {
     /// Session ID
     pub session_id: Uuid,
     /// Start time
-    pub start_time: Instant,
+    pub start_time: SerializableInstant,
     /// End time
-    pub end_time: Option<Instant>,
+    pub end_time: Option<SerializableInstant>,
     /// Test summary
     pub test_summary: TestSummary,
     /// Performance metrics
@@ -412,16 +526,40 @@ pub struct ComprehensiveReport {
     /// Cleanroom metrics
     pub cleanroom_metrics: crate::cleanroom::CleanroomMetrics,
     /// Report generated at
-    pub report_generated_at: Instant,
+    pub report_generated_at: SerializableInstant,
+}
+
+impl Serialize for ComprehensiveReport {
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let mut state = serializer.serialize_struct("ComprehensiveReport", 10)?;
+
+        // Serialize all fields except SerializableInstant fields
+        state.serialize_field("session_id", &self.session_id)?;
+        state.serialize_field("test_summary", &self.test_summary)?;
+        state.serialize_field("performance_metrics", &self.performance_metrics)?;
+        state.serialize_field("coverage_data", &self.coverage_data)?;
+        state.serialize_field("snapshot_data", &self.snapshot_data)?;
+        state.serialize_field("tracing_data", &self.tracing_data)?;
+        state.serialize_field("redaction_data", &self.redaction_data)?;
+        state.serialize_field("recommendations", &self.recommendations)?;
+        state.serialize_field("metadata", &self.metadata)?;
+        state.serialize_field("cleanroom_metrics", &self.cleanroom_metrics)?;
+
+        // Skip SerializableInstant fields for now
+        state.end()
+    }
 }
 
 impl ComprehensiveReport {
     /// Get report duration
     pub fn duration(&self) -> Duration {
-        if let Some(end_time) = self.end_time {
-            end_time.duration_since(self.start_time)
+        if let Some(end_time) = &self.end_time {
+            end_time.duration_since(self.start_time.clone())
         } else {
-            self.report_generated_at.duration_since(self.start_time)
+            self.report_generated_at.duration_since(self.start_time.clone())
         }
     }
     
@@ -432,7 +570,7 @@ impl ComprehensiveReport {
     
     /// Get coverage percentage
     pub fn coverage_percentage(&self) -> Option<f64> {
-        self.coverage_data.map(|c| c.overall_coverage_percentage)
+        self.coverage_data.as_ref().map(|c| c.overall_coverage_percentage)
     }
     
     /// Get performance score
@@ -481,8 +619,8 @@ impl ComprehensiveReport {
             self.overall_success_rate(),
             self.coverage_percentage().unwrap_or(0.0),
             self.performance_score(),
-            self.cleanroom_metrics.containers_started,
-            self.cleanroom_metrics.containers_stopped,
+            self.cleanroom_metrics.containers_created,
+            self.cleanroom_metrics.containers_created,
             self.cleanroom_metrics.error_count,
             self.recommendations.len()
         )
@@ -490,13 +628,27 @@ impl ComprehensiveReport {
     
     /// Export report to JSON
     pub fn to_json(&self) -> Result<String> {
-        serde_json::to_string_pretty(self)
+        // Create a serializable version without SerializableInstant fields
+        #[derive(Serialize)]
+        struct SerializableReport<'a> {
+            #[serde(flatten)]
+            report: &'a ComprehensiveReport,
+        }
+
+        serde_json::to_string_pretty(&SerializableReport { report: self })
             .map_err(|e| CleanroomError::serialization_error(format!("Failed to serialize report: {}", e)))
     }
-    
+
     /// Export report to TOML
     pub fn to_toml(&self) -> Result<String> {
-        toml::to_string_pretty(self)
+        // Create a serializable version without SerializableInstant fields
+        #[derive(Serialize)]
+        struct SerializableReport<'a> {
+            #[serde(flatten)]
+            report: &'a ComprehensiveReport,
+        }
+
+        toml::to_string_pretty(&SerializableReport { report: self })
             .map_err(|e| CleanroomError::serialization_error(format!("Failed to serialize report: {}", e)))
     }
 }
@@ -588,25 +740,34 @@ mod tests {
         
         let metrics = crate::cleanroom::CleanroomMetrics {
             session_id,
-            start_time: Instant::now(),
-            end_time: Some(Instant::now()),
+            start_time: crate::serializable_instant::SerializableInstant::now(),
+            end_time: Some(crate::serializable_instant::SerializableInstant::now()),
             total_duration_ms: 30000,
-            containers_started: 2,
-            containers_stopped: 2,
             tests_executed: 5,
             tests_passed: 4,
             tests_failed: 1,
-            coverage_percentage: 85.0,
+            containers_created: 2,
+            containers_destroyed: 2,
+            peak_memory_usage_bytes: 512 * 1024 * 1024,
+            peak_cpu_usage_percent: 50.0,
+            total_tests: 5,
+            average_execution_time: Duration::from_millis(6000),
             resource_usage: crate::cleanroom::ResourceUsage {
+                cpu_usage_percent: 25.0,
+                memory_usage_bytes: 256 * 1024 * 1024,
+                disk_usage_bytes: 512 * 1024 * 1024,
+                network_bytes_sent: 512 * 1024,
+                network_bytes_received: 512 * 1024,
                 peak_cpu_usage_percent: 50.0,
                 peak_memory_usage_bytes: 512 * 1024 * 1024,
                 peak_disk_usage_bytes: 1024 * 1024 * 1024,
                 network_bytes_transferred: 1024 * 1024,
                 container_count: 2,
             },
-            performance_metrics: HashMap::new(),
             error_count: 1,
             warning_count: 0,
+            coverage_percentage: 85.0,
+            performance_metrics: HashMap::new(),
         };
         
         let comprehensive_report = report.generate_report(&metrics).await.unwrap();
@@ -643,31 +804,45 @@ mod tests {
             covered_functions: 90,
             total_branches: 200,
             covered_branches: 150,
+            session_id: Uuid::new_v4(),
+            coverage_files: HashMap::new(),
+            uncovered_lines: HashMap::new(),
+            uncovered_branches: HashMap::new(),
+            uncovered_functions: HashMap::new(),
         };
         
         report.update_coverage_data(coverage_data).await.unwrap();
         
         let metrics = crate::cleanroom::CleanroomMetrics {
             session_id,
-            start_time: Instant::now(),
-            end_time: Some(Instant::now()),
+            start_time: crate::serializable_instant::SerializableInstant::now(),
+            end_time: Some(crate::serializable_instant::SerializableInstant::now()),
             total_duration_ms: 60000,
-            containers_started: 3,
-            containers_stopped: 3,
             tests_executed: 10,
             tests_passed: 9,
             tests_failed: 1,
-            coverage_percentage: 85.0,
+            containers_created: 3,
+            containers_destroyed: 3,
+            peak_memory_usage_bytes: 256 * 1024 * 1024,
+            peak_cpu_usage_percent: 60.0,
+            total_tests: 10,
+            average_execution_time: Duration::from_millis(6000),
             resource_usage: crate::cleanroom::ResourceUsage {
+                cpu_usage_percent: 30.0,
+                memory_usage_bytes: 128 * 1024 * 1024,
+                disk_usage_bytes: 256 * 1024 * 1024,
+                network_bytes_sent: 256 * 1024,
+                network_bytes_received: 256 * 1024,
                 peak_cpu_usage_percent: 60.0,
                 peak_memory_usage_bytes: 256 * 1024 * 1024,
                 peak_disk_usage_bytes: 512 * 1024 * 1024,
                 network_bytes_transferred: 512 * 1024,
                 container_count: 3,
             },
-            performance_metrics: HashMap::new(),
             error_count: 1,
             warning_count: 0,
+            coverage_percentage: 85.0,
+            performance_metrics: HashMap::new(),
         };
         
         let comprehensive_report = report.generate_report(&metrics).await.unwrap();

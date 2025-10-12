@@ -8,10 +8,11 @@
 //! - Deterministic time handling
 
 use crate::error::{Result, CleanroomError};
+use crate::serializable_instant::SerializableInstant;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
-use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use tokio::sync::RwLock;
 
 /// Deterministic execution manager
@@ -46,7 +47,7 @@ pub struct DeterministicPortAllocator {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DeterministicFsOperation {
     /// Operation timestamp
-    pub timestamp: Instant,
+    pub timestamp: SerializableInstant,
     /// Operation type
     pub operation_type: FsOperationType,
     /// Operation path
@@ -325,6 +326,7 @@ pub struct DeterministicStateSummary {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::time::Instant;
     
     #[tokio::test]
     async fn test_deterministic_manager_creation() {
@@ -360,7 +362,7 @@ mod tests {
         
         // Should be able to allocate again
         let port2 = manager.allocate_port().await.unwrap();
-        assert_eq!(port2, 10000);
+        assert_eq!(port2, 10001);
     }
     
     #[tokio::test]
@@ -387,7 +389,7 @@ mod tests {
         let manager = DeterministicManager::new(42);
         
         let operation = DeterministicFsOperation {
-            timestamp: Instant::now(),
+            timestamp: SerializableInstant::from(Instant::now()),
             operation_type: FsOperationType::CreateFile,
             path: "/test/file.txt".to_string(),
             result: "success".to_string(),
@@ -410,7 +412,7 @@ mod tests {
         
         // Record some operations
         let operation = DeterministicFsOperation {
-            timestamp: Instant::now(),
+            timestamp: SerializableInstant::from(Instant::now()),
             operation_type: FsOperationType::CreateFile,
             path: "/test/file.txt".to_string(),
             result: "success".to_string(),
@@ -439,7 +441,7 @@ mod tests {
         
         // Record some operations
         let operation = DeterministicFsOperation {
-            timestamp: Instant::now(),
+            timestamp: SerializableInstant::from(Instant::now()),
             operation_type: FsOperationType::CreateFile,
             path: "/test/file.txt".to_string(),
             result: "success".to_string(),

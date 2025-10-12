@@ -1,10 +1,11 @@
-//! Backend abstraction for running commands in different execution environments
+//! Backend implementations for cleanroom testing
+//!
+//! This module provides backend implementations following core team best practices.
 
 use crate::error::Result;
+use crate::policy::Policy;
 use std::collections::HashMap;
-use std::fmt::Debug;
 use std::path::PathBuf;
-use std::process::Output;
 
 // Module structure for backends
 pub mod testcontainer;
@@ -16,14 +17,64 @@ pub use testcontainer::TestcontainerBackend;
 pub struct Cmd {
     /// Binary or executable path
     pub bin: String,
-    /// Command arguments
+    /// Arguments to pass to the command
     pub args: Vec<String>,
-    /// Environment variables
-    pub env: Vec<(String, String)>,
     /// Working directory
-    pub workdir: Option<String>,
-    /// Timeout in milliseconds
-    pub timeout_ms: Option<u64>,
+    pub workdir: Option<PathBuf>,
+    /// Environment variables
+    pub env: HashMap<String, String>,
+    /// Policy constraints
+    pub policy: Policy,
+}
+
+/// Result of a command execution
+#[derive(Debug, Clone)]
+pub struct RunResult {
+    /// Exit code of the command
+    pub exit_code: i32,
+    /// Standard output
+    pub stdout: String,
+    /// Standard error
+    pub stderr: String,
+    /// Duration of execution in milliseconds
+    pub duration_ms: u64,
+    /// Individual step results
+    pub steps: Vec<crate::scenario::StepResult>,
+    /// Environment variables that were redacted in forensics
+    pub redacted_env: Vec<String>,
+    /// Backend used for execution
+    pub backend: String,
+    /// Whether execution was concurrent
+    pub concurrent: bool,
+    /// Step execution order (for deterministic ordering)
+    pub step_order: Vec<String>,
+}
+
+impl RunResult {
+    /// Create a new run result
+    pub fn new(exit_code: i32, stdout: String, stderr: String, duration_ms: u64) -> Self {
+        Self {
+            exit_code,
+            stdout,
+            stderr,
+            duration_ms,
+            steps: Vec::new(),
+            redacted_env: Vec::new(),
+            backend: "unknown".to_string(),
+            concurrent: false,
+            step_order: Vec::new(),
+        }
+    }
+
+    /// Check if the command succeeded
+    pub fn success(&self) -> bool {
+        self.exit_code == 0
+    }
+
+    /// Check if the command failed
+    pub fn failed(&self) -> bool {
+        self.exit_code != 0
+    }
 }
 
 impl Cmd {
@@ -32,190 +83,61 @@ impl Cmd {
         Self {
             bin: bin.into(),
             args: Vec::new(),
-            env: Vec::new(),
             workdir: None,
-            timeout_ms: None,
+            env: HashMap::new(),
+            policy: Policy::default(),
         }
     }
 
-    /// Add arguments
-    pub fn args<I, S>(mut self, args: I) -> Self
-    where
-        I: IntoIterator<Item = S>,
-        S: AsRef<str>,
-    {
-        self.args
-            .extend(args.into_iter().map(|s| s.as_ref().to_string()));
+    /// Add an argument
+    pub fn arg(mut self, arg: impl Into<String>) -> Self {
+        self.args.push(arg.into());
         self
     }
 
-    /// Add environment variable
-    pub fn env(mut self, key: impl Into<String>, value: impl Into<String>) -> Self {
-        self.env.push((key.into(), value.into()));
+    /// Add multiple arguments
+    pub fn args(mut self, args: &[&str]) -> Self {
+        for arg in args {
+            self.args.push(arg.to_string());
+        }
         self
     }
 
     /// Set working directory
-    pub fn workdir(mut self, dir: impl Into<String>) -> Self {
-        self.workdir = Some(dir.into());
+    pub fn workdir(mut self, workdir: PathBuf) -> Self {
+        self.workdir = Some(workdir);
         self
     }
 
-    /// Set timeout
-    pub fn timeout_ms(mut self, ms: u64) -> Self {
-        self.timeout_ms = Some(ms);
+    /// Set environment variable
+    pub fn env(mut self, key: impl Into<String>, value: impl Into<String>) -> Self {
+        self.env.insert(key.into(), value.into());
+        self
+    }
+
+    /// Set policy
+    pub fn policy(mut self, policy: Policy) -> Self {
+        self.policy = policy;
         self
     }
 }
 
-/// Result of a command execution
-#[derive(Debug, Clone)]
-pub struct RunResult {
-    /// Exit code
-    pub exit_code: i32,
-    /// Standard output
-    pub stdout: String,
-    /// Standard error
-    pub stderr: String,
-    /// Execution duration in milliseconds
-    pub duration_ms: u64,
-    /// Whether execution was hermetic (no network access)
-    pub hermetic: bool,
-    /// Whether mounts were deterministic
-    pub deterministic_mounts: bool,
-    /// Whether clock was normalized
-    pub normalized_clock: bool,
-    /// Backend used for execution
-    pub backend: String,
-}
-
-impl RunResult {
-    /// Create from process Output
-    pub fn from_output(output: Output, duration_ms: u64) -> Self {
-        Self {
-            exit_code: output.status.code().unwrap_or(-1),
-            stdout: String::from_utf8_lossy(&output.stdout).to_string(),
-            stderr: String::from_utf8_lossy(&output.stderr).to_string(),
-            duration_ms,
-            hermetic: false, // Will be set by backend
-            deterministic_mounts: false, // Will be set by backend
-            normalized_clock: false, // Will be set by backend
-            backend: "unknown".to_string(), // Will be set by backend
-        }
-    }
-
-    /// Create with backend-specific execution metadata
-    pub fn with_backend_metadata(
-        mut self,
-        backend_name: &str,
-        hermetic: bool,
-        deterministic_mounts: bool,
-        normalized_clock: bool,
-    ) -> Self {
-        self.backend = backend_name.to_string();
-        self.hermetic = hermetic;
-        self.deterministic_mounts = deterministic_mounts;
-        self.normalized_clock = normalized_clock;
-        self
-    }
-
-    /// Check if command succeeded
-    pub fn success(&self) -> bool {
-        self.exit_code == 0
-    }
-
-    /// Check if execution was hermetic
-    pub fn is_hermetic(&self) -> bool {
-        self.hermetic
-    }
-
-    /// Check if mounts were deterministic
-    pub fn has_deterministic_mounts(&self) -> bool {
-        self.deterministic_mounts
-    }
-
-    /// Check if clock was normalized
-    pub fn has_normalized_clock(&self) -> bool {
-        self.normalized_clock
-    }
-}
-
-/// Backend trait for executing commands in isolated environments
-pub trait Backend: Send + Sync {
-    /// Run a command and return result
+/// Trait for backend execution environments
+pub trait Backend: Send + Sync + std::fmt::Debug {
+    /// Run a command in the backend
     fn run_cmd(&self, cmd: Cmd) -> Result<RunResult>;
-
-    /// Get backend name for diagnostics
+    /// Get the name of the backend
     fn name(&self) -> &str;
-
-    /// Check if this backend is available for use
-    fn is_available(&self) -> bool {
-        true
-    }
-
-    /// Check if this backend supports hermetic execution
-    fn supports_hermetic(&self) -> bool {
-        false
-    }
-
-    /// Check if this backend supports deterministic execution
-    fn supports_deterministic(&self) -> bool {
-        false
-    }
-}
-
-/// Async backend trait for container orchestration
-#[async_trait::async_trait]
-pub trait AsyncBackend: Send + Sync {
-    /// Prepare execution environment
-    async fn prepare(&self, cfg: &Config) -> Result<Prepared>;
-
-    /// Run command in prepared environment
-    async fn run(&self, p: &Prepared, args: &[&str]) -> Result<RunOutput>;
-
-    /// Teardown prepared environment
-    async fn teardown(&self, p: Prepared) -> Result<()>;
-
-    /// Get backend name
-    fn name(&self) -> &str;
-}
-
-/// Configuration for async backends
-#[derive(Debug, Clone)]
-pub struct Config {
-    /// Working directory
-    pub workdir: Option<String>,
-    /// Environment variables
-    pub env: std::collections::HashMap<String, String>,
-    /// Policy constraints
-    pub policy: crate::policy::Policy,
-}
-
-/// Output from async backend execution
-#[derive(Debug, Clone)]
-pub struct RunOutput {
-    /// Exit code
-    pub exit_code: i32,
-    /// Standard output
-    pub stdout: String,
-    /// Standard error
-    pub stderr: String,
-    /// Execution duration in milliseconds
-    pub duration_ms: u64,
-}
-
-/// Prepared execution environment (RAII guard)
-#[derive(Debug)]
-pub struct Prepared {
-    /// Working directory
-    pub workdir: Option<PathBuf>,
-    /// Environment variables
-    pub env: HashMap<String, String>,
-    /// Policy constraints
-    pub policy: crate::policy::Policy,
+    /// Check if the backend is available
+    fn is_available(&self) -> bool;
+    /// Check if the backend supports hermetic execution
+    fn supports_hermetic(&self) -> bool;
+    /// Check if the backend supports deterministic execution
+    fn supports_deterministic(&self) -> bool;
 }
 
 /// Auto-backend wrapper for testcontainers
+#[derive(Debug)]
 pub struct AutoBackend {
     /// The underlying testcontainers backend
     inner: TestcontainerBackend,
@@ -229,7 +151,7 @@ impl AutoBackend {
 
     /// Create testcontainers backend with default image
     pub fn detect() -> Result<Self> {
-        let backend = TestcontainerBackend::new("rust:1-slim")?;
+        let backend = TestcontainerBackend::new("alpine:latest")?;
         Ok(Self { inner: backend })
     }
 
@@ -237,9 +159,10 @@ impl AutoBackend {
     pub fn from_name(name: &str) -> Result<Self> {
         match name {
             "testcontainers" | "auto" => Self::detect(),
-            _ => Err(crate::error::BackendError::Runtime(
+            _ => Err(crate::error::CleanroomError::new(
+                crate::error::ErrorKind::ConfigurationError,
                 format!("Unknown backend: {}. Only 'testcontainers' and 'auto' are supported", name)
-            ).into()),
+            )),
         }
     }
 
@@ -276,5 +199,73 @@ impl Backend for AutoBackend {
 
     fn supports_deterministic(&self) -> bool {
         self.inner.supports_deterministic()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_run_result_creation() {
+        let result = RunResult::new(
+            0,
+            "output".to_string(),
+            "error".to_string(),
+            1000,
+        );
+        
+        assert!(result.success());
+        assert!(!result.failed());
+        assert_eq!(result.exit_code, 0);
+        assert_eq!(result.stdout, "output");
+        assert_eq!(result.stderr, "error");
+        assert_eq!(result.duration_ms, 1000);
+    }
+
+    #[test]
+    fn test_run_result_failure() {
+        let result = RunResult::new(
+            1,
+            "output".to_string(),
+            "error".to_string(),
+            500,
+        );
+        
+        assert!(!result.success());
+        assert!(result.failed());
+        assert_eq!(result.exit_code, 1);
+    }
+
+    #[test]
+    fn test_cmd_creation() {
+        let cmd = Cmd::new("echo");
+        assert_eq!(cmd.bin, "echo");
+        assert!(cmd.args.is_empty());
+        assert!(cmd.workdir.is_none());
+        assert!(cmd.env.is_empty());
+    }
+
+    #[test]
+    fn test_cmd_with_args() {
+        let cmd = Cmd::new("echo")
+            .arg("hello")
+            .arg("world");
+        
+        assert_eq!(cmd.args.len(), 2);
+        assert_eq!(cmd.args[0], "hello");
+        assert_eq!(cmd.args[1], "world");
+    }
+
+    #[test]
+    fn test_cmd_with_workdir() {
+        let cmd = Cmd::new("ls").workdir(PathBuf::from("/tmp"));
+        assert_eq!(cmd.workdir, Some(PathBuf::from("/tmp")));
+    }
+
+    #[test]
+    fn test_cmd_with_env() {
+        let cmd = Cmd::new("env").env("TEST", "value");
+        assert_eq!(cmd.env.get("TEST"), Some(&"value".to_string()));
     }
 }
