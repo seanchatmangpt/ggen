@@ -79,17 +79,11 @@ impl Lockfile {
         }
 
         let content = std::fs::read_to_string(path).map_err(|e| {
-            ggen_utils::error::Error::new_fmt(format_args!(
-                "Failed to read lockfile: {}",
-                e
-            ))
+            ggen_utils::error::Error::new_fmt(format_args!("Failed to read lockfile: {}", e))
         })?;
 
         let lockfile: Lockfile = serde_json::from_str(&content).map_err(|e| {
-            ggen_utils::error::Error::new_fmt(format_args!(
-                "Failed to parse lockfile JSON: {}",
-                e
-            ))
+            ggen_utils::error::Error::new_fmt(format_args!("Failed to parse lockfile JSON: {}", e))
         })?;
 
         Ok(lockfile)
@@ -114,17 +108,11 @@ impl Lockfile {
         }
 
         let content = serde_json::to_string_pretty(self).map_err(|e| {
-            ggen_utils::error::Error::new_fmt(format_args!(
-                "Failed to serialize lockfile: {}",
-                e
-            ))
+            ggen_utils::error::Error::new_fmt(format_args!("Failed to serialize lockfile: {}", e))
         })?;
 
         std::fs::write(path, content).map_err(|e| {
-            ggen_utils::error::Error::new_fmt(format_args!(
-                "Failed to write lockfile: {}",
-                e
-            ))
+            ggen_utils::error::Error::new_fmt(format_args!("Failed to write lockfile: {}", e))
         })?;
 
         Ok(())

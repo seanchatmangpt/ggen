@@ -84,21 +84,29 @@ pub async fn run(args: &PublishArgs) -> Result<()> {
     }
 
     // For 80/20 implementation, show publishing workflow
-    println!("📦 Publishing gpack '{}'...", args.package_path.display());
+    println!("📦 Publishing package from: {}", args.package_path);
     println!();
 
     // Validate package structure
-    if !args.package_path.exists() {
+    let package_path = std::path::Path::new(&args.package_path);
+    if !package_path.exists() {
         return Err(ggen_utils::error::Error::new_fmt(format_args!(
-            "Package path '{}' does not exist", args.package_path.display()
+            "Package path '{}' does not exist",
+            args.package_path
         )));
     }
 
+    let package_name = package_path
+        .file_name()
+        .unwrap()
+        .to_string_lossy()
+        .to_string();
+
     // Check for required files
-    let cargo_toml = args.package_path.join("Cargo.toml");
+    let cargo_toml = package_path.join("Cargo.toml");
     if !cargo_toml.exists() {
         return Err(ggen_utils::error::Error::new(
-            "Package must contain Cargo.toml file"
+            "Package must contain Cargo.toml file",
         ));
     }
 
@@ -120,11 +128,17 @@ pub async fn run(args: &PublishArgs) -> Result<()> {
     std::thread::sleep(std::time::Duration::from_secs(2));
 
     println!("✅ Package published successfully!");
-    println!("🌐 Registry URL: https://registry.ggen.dev/packages/{}", args.package_path.file_name().unwrap().to_string_lossy());
+    println!(
+        "🌐 Registry URL: https://registry.ggen.dev/packages/{}",
+        package_name
+    );
     println!();
     println!("📖 Next steps:");
-    println!("  • Share your package: ggen market info {}", args.gpack_path.file_name().unwrap().to_string_lossy());
-    println!("  • Update package: ggen market publish {} --tag latest", args.gpack_path.display());
+    println!("  • Share your package: ggen market info {}", package_name);
+    println!(
+        "  • Update package: ggen market publish {} --tag latest",
+        args.package_path
+    );
     println!("  • Add examples: Edit package README.md");
 
     Ok(())

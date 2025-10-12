@@ -466,6 +466,7 @@ args = ["clippy", "--all-targets", "--all-features", "--", "-D", "warnings"]
 
 [tasks.test-verbose]
 description = "Run tests with verbose output"
+workspace = false
 command = "cargo"
 args = ["test", "--workspace", "--", "--nocapture"]
 
@@ -585,7 +586,7 @@ workspace = false
 dependencies = [
   "format",
   "clippy-ci-flow",
-  "test-verbose",
+  "test",
   "audit-all",
   "docs-test",
 ]

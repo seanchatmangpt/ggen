@@ -95,7 +95,8 @@ pub async fn run(args: &ListArgs) -> Result<()> {
         return Ok(());
     }
 
-    println!("Found {} installed package{}\n",
+    println!(
+        "Found {} installed package{}\n",
         packages.len(),
         if packages.len() == 1 { "" } else { "s" }
     );

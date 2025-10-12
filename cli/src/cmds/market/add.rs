@@ -159,7 +159,7 @@ impl GpackInstaller for RegistryGpackInstaller {
         // Load registry synchronously to find package
         let registry = match super::registry::Registry::load_sync() {
             Ok(r) => r,
-            Err(e) => {
+            Err(_e) => {
                 // Fallback to mock installation for demo purposes
                 println!("🚧 Using simplified installation for demo");
                 return Ok(InstallResult {
@@ -171,10 +171,12 @@ impl GpackInstaller for RegistryGpackInstaller {
         };
 
         // Find package in registry
-        let package = registry.get_package(&gpack_id)
-            .ok_or_else(|| ggen_utils::error::Error::new_fmt(format_args!(
-                "Package '{}' not found in registry", gpack_id
-            )))?;
+        let package = registry.get_package(&gpack_id).ok_or_else(|| {
+            ggen_utils::error::Error::new_fmt(format_args!(
+                "Package '{}' not found in registry",
+                gpack_id
+            ))
+        })?;
 
         // For now, just mark as installed without complex file operations
         // In a full implementation, this would copy files and update lockfile
@@ -218,7 +220,10 @@ fn find_workspace_root() -> Result<PathBuf> {
 /// Recursively copy directory contents
 fn copy_dir_recursive(src: &PathBuf, dst: &PathBuf) -> Result<()> {
     std::fs::create_dir_all(dst).map_err(|e| {
-        ggen_utils::error::Error::new_fmt(format_args!("Failed to create directory {:?}: {}", dst, e))
+        ggen_utils::error::Error::new_fmt(format_args!(
+            "Failed to create directory {:?}: {}",
+            dst, e
+        ))
     })?;
 
     for entry in std::fs::read_dir(src).map_err(|e| {
@@ -239,7 +244,10 @@ fn copy_dir_recursive(src: &PathBuf, dst: &PathBuf) -> Result<()> {
             copy_dir_recursive(&src_path, &dst_path)?;
         } else {
             std::fs::copy(&src_path, &dst_path).map_err(|e| {
-                ggen_utils::error::Error::new_fmt(format_args!("Failed to copy file {:?}: {}", src_path, e))
+                ggen_utils::error::Error::new_fmt(format_args!(
+                    "Failed to copy file {:?}: {}",
+                    src_path, e
+                ))
             })?;
         }
     }
@@ -261,7 +269,10 @@ fn calculate_package_checksum(path: &PathBuf) -> Result<String> {
     // Hash each file's contents
     for file_path in files {
         let contents = std::fs::read(&file_path).map_err(|e| {
-            ggen_utils::error::Error::new_fmt(format_args!("Failed to read file {:?}: {}", file_path, e))
+            ggen_utils::error::Error::new_fmt(format_args!(
+                "Failed to read file {:?}: {}",
+                file_path, e
+            ))
         })?;
         hasher.update(&contents);
     }

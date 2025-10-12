@@ -24,12 +24,5 @@ serde-wasm-bindgen = "0.6"
 [dev-dependencies]
 wasm-bindgen-test = "0.3"
 
-[profile.release]
-opt-level = "z"     # Optimize for size
-lto = true          # Enable Link Time Optimization
-codegen-units = 1   # Reduce number of codegen units to increase optimizations
-panic = "abort"     # Abort on panic reduces binary size
-strip = true        # Strip symbols from binary
-
 [package.metadata.wasm-pack.profile.release]
 wasm-opt = ["-Oz", "--enable-mutable-globals"]

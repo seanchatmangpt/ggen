@@ -1,6 +1,6 @@
 use clap::Args;
 use ggen_utils::error::Result;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use std::path::Path;
 
 #[derive(Args, Debug)]
@@ -104,16 +104,17 @@ fn analyze_graph(graph_path: Option<String>) -> Result<GraphStats> {
     let graph = if let Some(path) = graph_path {
         // Load graph from file
         if !Path::new(&path).exists() {
-            return Err(ggen_utils::error::Error::new(&format!("Graph file not found: {}", path)));
+            return Err(ggen_utils::error::Error::new(&format!(
+                "Graph file not found: {}",
+                path
+            )));
         }
-        ggen_core::Graph::load_from_file(&path).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to load graph: {}", e))
-        })?
+        ggen_core::Graph::load_from_file(&path)
+            .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to load graph: {}", e)))?
     } else {
         // Use empty graph for now (in production, this would use the current graph)
-        ggen_core::Graph::new().map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to create graph: {}", e))
-        })?
+        ggen_core::Graph::new()
+            .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to create graph: {}", e)))?
     };
 
     let mut stats = GraphStats {
@@ -131,17 +132,21 @@ fn analyze_graph(graph_path: Option<String>) -> Result<GraphStats> {
         stats.unique_subjects = stats.total_triples / 3;
         stats.unique_predicates = stats.total_triples / 10;
         stats.unique_objects = stats.total_triples / 2;
-        
+
         // Add some common namespaces
         stats.namespaces = vec![
             "http://www.w3.org/1999/02/22-rdf-syntax-ns#".to_string(),
             "http://www.w3.org/2000/01/rdf-schema#".to_string(),
             "http://www.w3.org/2001/XMLSchema#".to_string(),
         ];
-        
+
         // Add some sample predicate counts
-        stats.predicate_counts.insert("rdf:type".to_string(), stats.total_triples / 4);
-        stats.predicate_counts.insert("rdfs:label".to_string(), stats.total_triples / 8);
+        stats
+            .predicate_counts
+            .insert("rdf:type".to_string(), stats.total_triples / 4);
+        stats
+            .predicate_counts
+            .insert("rdfs:label".to_string(), stats.total_triples / 8);
     }
 
     Ok(stats)

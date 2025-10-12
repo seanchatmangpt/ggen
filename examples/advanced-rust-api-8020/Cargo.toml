@@ -6,6 +6,8 @@ authors = ["ggen team"]
 description = "Production-ready REST API using ggen lifecycle + AI generation"
 license = "MIT"
 
+[workspace]
+
 [lib]
 name = "advanced_rust_api"
 path = "src/lib.rs"

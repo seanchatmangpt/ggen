@@ -20,8 +20,8 @@
 use clap::Args;
 use ggen_utils::error::Result;
 use serde::{Deserialize, Serialize};
-use std::path::PathBuf;
 use std::fs;
+use std::path::PathBuf;
 
 #[derive(Args, Debug)]
 pub struct ValidateArgs {
@@ -62,10 +62,13 @@ async fn validate_hook_configuration(hook_name: &str) -> Result<ValidationResult
     // Check 1: Hook configuration file exists
     let hook_dir = PathBuf::from(".ggen").join("hooks");
     let hook_file = hook_dir.join(format!("{}.toml", hook_name));
-    
+
     if !hook_file.exists() {
         result.valid = false;
-        result.errors.push(format!("Hook configuration file not found: {}", hook_file.display()));
+        result.errors.push(format!(
+            "Hook configuration file not found: {}",
+            hook_file.display()
+        ));
         return Ok(result);
     }
 
@@ -77,22 +80,20 @@ async fn validate_hook_configuration(hook_name: &str) -> Result<ValidationResult
 
     // Check 2: File is readable and valid TOML
     match fs::read_to_string(&hook_file) {
-        Ok(content) => {
-            match toml::from_str::<toml::Value>(&content) {
-                Ok(_) => {
-                    result.checks.push(ValidationCheck {
-                        name: "Valid TOML syntax".to_string(),
-                        passed: true,
-                        message: "Configuration file is valid TOML".to_string(),
-                    });
-                }
-                Err(e) => {
-                    result.valid = false;
-                    result.errors.push(format!("Invalid TOML syntax: {}", e));
-                    return Ok(result);
-                }
+        Ok(content) => match toml::from_str::<toml::Value>(&content) {
+            Ok(_) => {
+                result.checks.push(ValidationCheck {
+                    name: "Valid TOML syntax".to_string(),
+                    passed: true,
+                    message: "Configuration file is valid TOML".to_string(),
+                });
             }
-        }
+            Err(e) => {
+                result.valid = false;
+                result.errors.push(format!("Invalid TOML syntax: {}", e));
+                return Ok(result);
+            }
+        },
         Err(e) => {
             result.valid = false;
             result.errors.push(format!("Cannot read hook file: {}", e));
@@ -159,15 +160,15 @@ pub async fn run(args: &ValidateArgs) -> Result<()> {
     Ok(())
 }
 
-
 /// Validate hook name format
 fn is_valid_hook_name(name: &str) -> bool {
     if name.is_empty() || name.len() > 50 {
         return false;
     }
-    
+
     // Allow alphanumeric, hyphens, underscores, and dots
-    name.chars().all(|c| c.is_alphanumeric() || c == '-' || c == '_' || c == '.')
+    name.chars()
+        .all(|c| c.is_alphanumeric() || c == '-' || c == '_' || c == '.')
 }
 
 #[cfg(test)]

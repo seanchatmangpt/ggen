@@ -1,8 +1,8 @@
 use clap::Args;
 use ggen_utils::error::Result;
+use glob::glob;
 use std::fs;
 use std::path::Path;
-use glob::glob;
 
 #[derive(Args, Debug)]
 pub struct ListArgs {
@@ -127,37 +127,38 @@ pub async fn run(args: &ListArgs) -> Result<()> {
 /// List local templates from the templates directory
 fn list_local_templates(filters: &ListFilters) -> Result<Vec<TemplateInfo>> {
     let mut templates = Vec::new();
-    
+
     // Check if templates directory exists
     let templates_dir = Path::new("templates");
     if !templates_dir.exists() {
         return Ok(templates);
     }
-    
+
     // Build glob pattern
     let pattern = if let Some(ref filter_pattern) = filters.pattern {
         format!("templates/{}", filter_pattern)
     } else {
         "templates/*.tmpl".to_string()
     };
-    
+
     // Find template files
-    for entry in glob(&pattern).map_err(|e| {
-        ggen_utils::error::Error::new(&format!("Invalid glob pattern: {}", e))
-    })? {
+    for entry in glob(&pattern)
+        .map_err(|e| ggen_utils::error::Error::new(&format!("Invalid glob pattern: {}", e)))?
+    {
         let path = entry.map_err(|e| {
             ggen_utils::error::Error::new(&format!("Error reading directory entry: {}", e))
         })?;
-        
+
         if path.is_file() && path.extension().and_then(|s| s.to_str()) == Some("tmpl") {
-            let name = path.file_name()
+            let name = path
+                .file_name()
                 .and_then(|n| n.to_str())
                 .unwrap_or("unknown")
                 .to_string();
-            
+
             // Extract description from template content
             let description = extract_template_description(&path).ok();
-            
+
             templates.push(TemplateInfo {
                 name,
                 path: path.to_string_lossy().to_string(),
@@ -166,21 +167,20 @@ fn list_local_templates(filters: &ListFilters) -> Result<Vec<TemplateInfo>> {
             });
         }
     }
-    
+
     Ok(templates)
 }
 
 /// Extract description from template frontmatter
 fn extract_template_description(path: &Path) -> Result<Option<String>> {
-    let content = fs::read_to_string(path).map_err(|e| {
-        ggen_utils::error::Error::new(&format!("Failed to read template: {}", e))
-    })?;
-    
+    let content = fs::read_to_string(path)
+        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to read template: {}", e)))?;
+
     // Look for YAML frontmatter
     if content.starts_with("---\n") {
         if let Some(end_pos) = content.find("\n---\n") {
             let frontmatter = &content[4..end_pos];
-            
+
             // Simple extraction of description field
             for line in frontmatter.lines() {
                 if line.trim().starts_with("description:") {
@@ -191,7 +191,7 @@ fn extract_template_description(path: &Path) -> Result<Option<String>> {
             }
         }
     }
-    
+
     Ok(None)
 }
 

@@ -565,7 +565,7 @@ mod tests {
                 assert!(!pack.description.is_empty());
                 assert!(!pack.latest_version.is_empty());
                 assert!(pack.versions.contains_key(&pack.latest_version));
-                
+
                 let version = pack.versions.get(&pack.latest_version).unwrap();
                 assert_eq!(version.version, pack.latest_version);
                 assert!(!version.git_url.is_empty());
