@@ -1,0 +1,2 @@
+# This file ensures the .wiplocks directory is tracked by git
+# Lock files are ephemeral and should not be committed
