@@ -12,7 +12,7 @@ use std::collections::HashMap;
 use std::time::Duration;
 
 /// Policy configuration for cleanroom testing
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Policy {
     /// Security policy
     pub security: SecurityPolicy,
@@ -109,7 +109,7 @@ pub struct CompliancePolicy {
 }
 
 /// Security level enumeration
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub enum SecurityLevel {
     /// Low security level
     Low,
@@ -119,6 +119,23 @@ pub enum SecurityLevel {
     High,
     /// Maximum security level
     Maximum,
+    /// Standard security level
+    Standard,
+    /// Locked security level
+    Locked,
+}
+
+/// Audit level enumeration
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum AuditLevel {
+    /// Debug audit level
+    Debug,
+    /// Info audit level
+    Info,
+    /// Warning audit level
+    Warn,
+    /// Error audit level
+    Error,
 }
 
 /// Compliance standard enumeration
@@ -179,14 +196,38 @@ pub enum PolicyValidationSeverity {
     Critical,
 }
 
-impl Default for Policy {
-    fn default() -> Self {
-        Self {
-            security: SecurityPolicy::default(),
-            resources: ResourcePolicy::default(),
-            execution: ExecutionPolicy::default(),
-            compliance: CompliancePolicy::default(),
+
+impl SecurityPolicy {
+    /// Create a new security policy with default settings
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Create a security policy with a specific security level
+    pub fn with_security_level(security_level: SecurityLevel) -> Self {
+        let mut policy = Self {
+            security_level,
+            ..Default::default()
+        };
+        
+        // Adjust isolation settings based on security level
+        match security_level {
+            SecurityLevel::Low => {
+                policy.enable_network_isolation = false;
+                policy.enable_filesystem_isolation = false;
+                policy.enable_process_isolation = false;
+                policy.enable_data_redaction = false;
+                policy.enable_audit_logging = false;
+            },
+            SecurityLevel::Medium | SecurityLevel::Standard => {
+                // Keep default settings
+            },
+            SecurityLevel::High | SecurityLevel::Maximum | SecurityLevel::Locked => {
+                // Keep all isolation enabled (default)
+            },
         }
+        
+        policy
     }
 }
 
@@ -205,8 +246,15 @@ impl Default for SecurityPolicy {
                 r"key\s*=\s*[^\s]+".to_string(),
             ],
             enable_audit_logging: true,
-            security_level: SecurityLevel::Medium,
+            security_level: SecurityLevel::Standard,
         }
+    }
+}
+
+impl ResourcePolicy {
+    /// Create a new resource policy with default settings
+    pub fn new() -> Self {
+        Self::default()
     }
 }
 
@@ -225,6 +273,13 @@ impl Default for ResourcePolicy {
     }
 }
 
+impl ExecutionPolicy {
+    /// Create a new execution policy with default settings
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
+
 impl Default for ExecutionPolicy {
     fn default() -> Self {
         Self {
@@ -238,6 +293,13 @@ impl Default for ExecutionPolicy {
             max_retry_attempts: 3,
             retry_delay: Duration::from_secs(1),
         }
+    }
+}
+
+impl CompliancePolicy {
+    /// Create a new compliance policy with default settings
+    pub fn new() -> Self {
+        Self::default()
     }
 }
 
@@ -262,9 +324,10 @@ impl Policy {
     
     /// Create a policy with custom security level
     pub fn with_security_level(security_level: SecurityLevel) -> Self {
-        let mut policy = Self::default();
-        policy.security.security_level = security_level;
-        policy
+        Self {
+            security: SecurityPolicy::with_security_level(security_level),
+            ..Default::default()
+        }
     }
     
     /// Create a policy with custom resource limits
@@ -280,40 +343,77 @@ impl Policy {
         policy
     }
     
+    /// Create a locked-down policy with maximum security
+    pub fn locked() -> Self {
+        Self::with_security_level(SecurityLevel::Locked)
+    }
+
+    /// Create a high security policy
+    pub fn high_security() -> Self {
+        Self::with_security_level(SecurityLevel::High)
+    }
+
+    /// Create a standard security policy
+    pub fn standard() -> Self {
+        Self::with_security_level(SecurityLevel::Standard)
+    }
+
+    /// Create a low security policy
+    pub fn low_security() -> Self {
+        Self::with_security_level(SecurityLevel::Low)
+    }
+
+    /// Disable network access
+    pub fn with_network_disabled(mut self) -> Self {
+        self.security.enable_network_isolation = true;
+        self
+    }
+
+    /// Set network isolation
+    pub fn with_network_isolation(mut self, enable: bool) -> Self {
+        self.security.enable_network_isolation = enable;
+        self
+    }
+    
+    /// Check if network access is allowed
+    pub fn allows_network(&self) -> bool {
+        !self.security.enable_network_isolation
+    }
+    
     /// Validate policy configuration
     pub fn validate(&self) -> Result<()> {
         // Validate security policy
         if self.security.allowed_ports.is_empty() {
-            return Err(CleanroomError::policy_violation("No allowed ports configured"));
+            return Err(CleanroomError::policy_violation_error("No allowed ports configured"));
         }
         
         // Validate resource policy
         if self.resources.max_cpu_usage_percent <= 0.0 || self.resources.max_cpu_usage_percent > 100.0 {
-            return Err(CleanroomError::policy_violation("Invalid CPU usage percentage"));
+            return Err(CleanroomError::policy_violation_error("Invalid CPU usage percentage"));
         }
         
         if self.resources.max_memory_usage_bytes == 0 {
-            return Err(CleanroomError::policy_violation("Invalid memory usage limit"));
+            return Err(CleanroomError::policy_violation_error("Invalid memory usage limit"));
         }
         
         if self.resources.max_disk_usage_bytes == 0 {
-            return Err(CleanroomError::policy_violation("Invalid disk usage limit"));
+            return Err(CleanroomError::policy_violation_error("Invalid disk usage limit"));
         }
         
         // Validate execution policy
         if self.execution.max_parallel_tasks == 0 {
-            return Err(CleanroomError::policy_violation("Invalid parallel task count"));
+            return Err(CleanroomError::policy_violation_error("Invalid parallel task count"));
         }
         
         if self.execution.max_retry_attempts == 0 {
-            return Err(CleanroomError::policy_violation("Invalid retry attempt count"));
+            return Err(CleanroomError::policy_violation_error("Invalid retry attempt count"));
         }
         
         Ok(())
     }
     
     /// Check if operation is allowed by policy
-    pub fn is_operation_allowed(&self, operation: &str, context: &HashMap<String, String>) -> Result<bool> {
+    pub fn is_operation_allowed(&self, _operation: &str, context: &HashMap<String, String>) -> Result<bool> {
         // Check security policy
         if self.security.enable_network_isolation {
             if let Some(port) = context.get("port") {
@@ -483,4 +583,238 @@ mod tests {
         assert!(summary.contains("Security Level"));
         assert!(summary.contains("Network Isolation"));
     }
+
+    #[test]
+    fn test_policy_default() {
+        let policy = Policy::default();
+        
+        assert_eq!(policy.security.security_level, SecurityLevel::Standard);
+        assert!(policy.security.enable_network_isolation);
+        assert!(policy.security.enable_filesystem_isolation);
+        assert!(policy.security.enable_process_isolation);
+        assert!(policy.security.enable_data_redaction);
+        assert!(policy.security.enable_audit_logging);
+    }
+
+    #[test]
+    fn test_policy_new() {
+        let policy = Policy::new();
+        
+        assert_eq!(policy.security.security_level, SecurityLevel::Standard);
+        assert!(policy.security.enable_network_isolation);
+        assert!(policy.security.enable_filesystem_isolation);
+        assert!(policy.security.enable_process_isolation);
+        assert!(policy.security.enable_data_redaction);
+        assert!(policy.security.enable_audit_logging);
+    }
+
+    #[test]
+    fn test_policy_serialization() {
+        let policy = Policy::new();
+        
+        let json = serde_json::to_string(&policy).unwrap();
+        let deserialized: Policy = serde_json::from_str(&json).unwrap();
+        
+        assert_eq!(policy.security.security_level, deserialized.security.security_level);
+        assert_eq!(policy.security.enable_network_isolation, deserialized.security.enable_network_isolation);
+        assert_eq!(policy.security.enable_filesystem_isolation, deserialized.security.enable_filesystem_isolation);
+    }
+
+    #[test]
+    fn test_security_policy() {
+        let security = SecurityPolicy::new();
+        
+        assert_eq!(security.security_level, SecurityLevel::Standard);
+        assert!(security.enable_network_isolation);
+        assert!(security.enable_filesystem_isolation);
+        assert!(security.enable_process_isolation);
+        assert!(security.enable_data_redaction);
+        assert!(security.enable_audit_logging);
+        assert!(security.allowed_ports.contains(&5432)); // PostgreSQL
+        assert!(security.allowed_ports.contains(&6379)); // Redis
+    }
+
+    #[test]
+    fn test_security_policy_with_level() {
+        let security = SecurityPolicy::with_security_level(SecurityLevel::High);
+        
+        assert_eq!(security.security_level, SecurityLevel::High);
+        assert!(security.enable_network_isolation);
+        assert!(security.enable_filesystem_isolation);
+        assert!(security.enable_process_isolation);
+        assert!(security.enable_data_redaction);
+        assert!(security.enable_audit_logging);
+    }
+
+    #[test]
+    fn test_security_level_serialization() {
+        let levels = vec![
+            SecurityLevel::Low,
+            SecurityLevel::Standard,
+            SecurityLevel::High,
+            SecurityLevel::Locked,
+        ];
+
+        for level in levels {
+            let json = serde_json::to_string(&level).unwrap();
+            let deserialized: SecurityLevel = serde_json::from_str(&json).unwrap();
+            assert_eq!(level, deserialized);
+        }
+    }
+
+    #[test]
+    fn test_resource_policy() {
+        let resources = ResourcePolicy::new();
+        
+        assert_eq!(resources.max_cpu_usage_percent, 80.0);
+        assert_eq!(resources.max_memory_usage_bytes, 1024 * 1024 * 1024); // 1GB
+        assert_eq!(resources.max_disk_usage_bytes, 10 * 1024 * 1024 * 1024); // 10GB
+        assert_eq!(resources.max_network_bandwidth_bytes_per_sec, 100 * 1024 * 1024); // 100MB/s
+        assert_eq!(resources.max_container_count, 10);
+        assert_eq!(resources.max_test_execution_time, Duration::from_secs(300));
+    }
+
+    #[test]
+    fn test_execution_policy() {
+        let execution = ExecutionPolicy::new();
+        
+        assert!(execution.enable_deterministic_execution);
+        assert!(execution.enable_parallel_execution);
+        assert!(execution.enable_test_isolation);
+        assert!(execution.enable_retry_on_failure);
+        assert_eq!(execution.max_parallel_tasks, 4);
+        assert_eq!(execution.max_retry_attempts, 3);
+        assert_eq!(execution.test_timeout, Duration::from_secs(60));
+    }
+
+    #[test]
+    fn test_compliance_policy() {
+        let compliance = CompliancePolicy::new();
+        
+        assert!(compliance.enable_compliance_reporting);
+        assert!(compliance.enable_audit_trails);
+        assert!(compliance.enable_policy_validation);
+        assert_eq!(compliance.audit_retention_period, Duration::from_secs(30 * 24 * 60 * 60)); // 30 days
+    }
+
+    #[test]
+    fn test_audit_level_serialization() {
+        let levels = vec![
+            AuditLevel::Debug,
+            AuditLevel::Info,
+            AuditLevel::Warn,
+            AuditLevel::Error,
+        ];
+
+        for level in levels {
+            let json = serde_json::to_string(&level).unwrap();
+            let deserialized: AuditLevel = serde_json::from_str(&json).unwrap();
+            assert_eq!(level, deserialized);
+        }
+    }
+
+    #[test]
+    fn test_policy_locked() {
+        let policy = Policy::locked();
+        
+        assert_eq!(policy.security.security_level, SecurityLevel::Locked);
+        assert!(policy.security.enable_network_isolation);
+        assert!(policy.security.enable_filesystem_isolation);
+        assert!(policy.security.enable_process_isolation);
+        assert!(policy.security.enable_data_redaction);
+        assert!(policy.security.enable_audit_logging);
+    }
+
+    #[test]
+    fn test_policy_high_security() {
+        let policy = Policy::high_security();
+        
+        assert_eq!(policy.security.security_level, SecurityLevel::High);
+        assert!(policy.security.enable_network_isolation);
+        assert!(policy.security.enable_filesystem_isolation);
+        assert!(policy.security.enable_process_isolation);
+        assert!(policy.security.enable_data_redaction);
+        assert!(policy.security.enable_audit_logging);
+    }
+
+    #[test]
+    fn test_policy_standard() {
+        let policy = Policy::standard();
+        
+        assert_eq!(policy.security.security_level, SecurityLevel::Standard);
+        assert!(policy.security.enable_network_isolation);
+        assert!(policy.security.enable_filesystem_isolation);
+        assert!(policy.security.enable_process_isolation);
+        assert!(policy.security.enable_data_redaction);
+        assert!(policy.security.enable_audit_logging);
+    }
+
+    #[test]
+    fn test_policy_low_security() {
+        let policy = Policy::low_security();
+        
+        assert_eq!(policy.security.security_level, SecurityLevel::Low);
+        assert!(!policy.security.enable_network_isolation);
+        assert!(!policy.security.enable_filesystem_isolation);
+        assert!(!policy.security.enable_process_isolation);
+        assert!(!policy.security.enable_data_redaction);
+        assert!(!policy.security.enable_audit_logging);
+    }
+
+    #[test]
+    fn test_policy_operation_allowed_with_valid_context() {
+        let policy = Policy::new();
+        let mut context = HashMap::new();
+        context.insert("port".to_string(), "5432".to_string());
+        context.insert("cpu_usage".to_string(), "50.0".to_string());
+        context.insert("memory_usage".to_string(), "256000000".to_string());
+        
+        assert!(policy.is_operation_allowed("test_operation", &context).unwrap());
+    }
+
+    #[test]
+    fn test_policy_operation_denied_with_invalid_port() {
+        let policy = Policy::new();
+        let mut context = HashMap::new();
+        context.insert("port".to_string(), "9999".to_string()); // Not in allowed ports
+        context.insert("cpu_usage".to_string(), "50.0".to_string());
+        context.insert("memory_usage".to_string(), "256000000".to_string());
+        
+        assert!(!policy.is_operation_allowed("test_operation", &context).unwrap());
+    }
+
+    #[test]
+    fn test_policy_operation_denied_with_high_cpu() {
+        let policy = Policy::new();
+        let mut context = HashMap::new();
+        context.insert("port".to_string(), "5432".to_string());
+        context.insert("cpu_usage".to_string(), "90.0".to_string()); // Exceeds limit
+        context.insert("memory_usage".to_string(), "256000000".to_string());
+        
+        assert!(!policy.is_operation_allowed("test_operation", &context).unwrap());
+    }
+
+    #[test]
+    fn test_policy_operation_denied_with_high_memory() {
+        let policy = Policy::new();
+        let mut context = HashMap::new();
+        context.insert("port".to_string(), "5432".to_string());
+        context.insert("cpu_usage".to_string(), "50.0".to_string());
+        context.insert("memory_usage".to_string(), "2000000000".to_string()); // Exceeds limit
+        
+        assert!(!policy.is_operation_allowed("test_operation", &context).unwrap());
+    }
+
+
+    #[test]
+    fn test_policy_env_variables_values() {
+        let policy = Policy::new();
+        let env = policy.to_env();
+        
+        assert_eq!(env.get("CLEANROOM_SECURITY_LEVEL"), Some(&"Standard".to_string()));
+        assert_eq!(env.get("CLEANROOM_NETWORK_ISOLATION"), Some(&"true".to_string()));
+        assert_eq!(env.get("CLEANROOM_MAX_CPU_PERCENT"), Some(&"80".to_string()));
+        assert_eq!(env.get("CLEANROOM_MAX_MEMORY_BYTES"), Some(&"1073741824".to_string()));
+    }
+
 }

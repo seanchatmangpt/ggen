@@ -4,7 +4,7 @@
 //! deterministic execution, step aggregation, and concurrent execution.
 
 use crate::error::Result;
-use crate::backend::{Backend, Cmd, AutoBackend};
+use crate::backend::{Backend, Cmd};
 use crate::policy::Policy;
 use serde::{Deserialize, Serialize};
 
@@ -69,11 +69,21 @@ pub enum StepSource {
     /// Step defined inline in code
     Inline,
     /// Step loaded from file
-    File { path: String },
+    /// File-based step
+    File { 
+        /// Path to the file
+        path: String 
+    },
     /// Step from template
-    Template { template: String },
+    Template { 
+        /// Template content
+        template: String 
+    },
     /// Step from external source
-    External { source: String },
+    External { 
+        /// External source identifier
+        source: String 
+    },
 }
 
 impl Default for StepSource {
@@ -82,13 +92,13 @@ impl Default for StepSource {
     }
 }
 
-impl ToString for StepSource {
-    fn to_string(&self) -> String {
+impl std::fmt::Display for StepSource {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            StepSource::Inline => "inline".to_string(),
-            StepSource::File { path } => format!("file:{}", path),
-            StepSource::Template { template } => format!("template:{}", template),
-            StepSource::External { source } => format!("external:{}", source),
+            StepSource::Inline => write!(f, "inline"),
+            StepSource::File { path } => write!(f, "file:{}", path),
+            StepSource::Template { template } => write!(f, "template:{}", template),
+            StepSource::External { source } => write!(f, "external:{}", source),
         }
     }
 }
@@ -96,6 +106,7 @@ impl ToString for StepSource {
 /// Scenario builder for multi-step test orchestration
 pub struct Scenario {
     /// Scenario name
+    #[allow(dead_code)]
     name: String,
     /// Execution steps
     steps: Vec<Step>,
@@ -136,7 +147,7 @@ impl Scenario {
             return self;
         }
 
-        let cmd = Cmd::new(&args_vec[0]).args(&args_vec[1..]);
+        let cmd = Cmd::new(&args_vec[0]).args(&args_vec[1..].iter().map(|s| s.as_str()).collect::<Vec<_>>());
         self.steps.push(Step {
             name: label,
             cmd,

@@ -142,7 +142,7 @@ impl SkipManager {
     /// Skip a test with reason
     pub fn skip_test(&self, reason: SkipReason) -> Result<()> {
         if self.config.fail_on_skipped {
-            Err(CleanroomError::Validation(format!("Test skipped: {}", reason)))
+            Err(CleanroomError::validation_error(format!("Test skipped: {}", reason))
         } else {
             // In a real implementation, this would mark the test as skipped
             // For now, we'll just return Ok

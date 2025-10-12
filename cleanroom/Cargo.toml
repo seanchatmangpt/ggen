@@ -9,19 +9,18 @@ repository = "https://github.com/sac/ggen"
 keywords = ["testing", "hermetic", "deterministic", "containers", "validation"]
 categories = ["development-tools", "testing"]
 
-[workspace]
-
 [dependencies]
 # Core dependencies (always included)
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+serde_with = { version = "3.0", features = ["chrono"] }
 thiserror = "2.0"
 anyhow = "1.0"
 tokio = { version = "1.0", features = ["full"] }
 async-trait = "0.1"
 base64 = "0.22"
 tracing = "0.1"
-uuid = { version = "1.0", features = ["v4"] }
+uuid = { version = "1.0", features = ["v4", "serde"] }
 rand = "0.8"
 rand_chacha = "0.3"
 fastrand = "2.0"
@@ -34,7 +33,7 @@ sha2 = "0.10"
 
 # Container dependencies (required)
 testcontainers = { version = "0.22", features = ["blocking"] }
-testcontainers-modules = "0.10"
+testcontainers-modules = { version = "0.10", features = ["postgres", "redis"] }
 futures-util = "0.3"
 
 # Optional features
@@ -43,6 +42,10 @@ default = []
 coverage = []
 signing = []
 services = []
+
+[[bin]]
+name = "cleanroom-bench"
+path = "src/bin/bench.rs"
 
 [dev-dependencies]
 criterion = "0.5"

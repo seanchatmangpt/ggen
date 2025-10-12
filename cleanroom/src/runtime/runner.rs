@@ -123,16 +123,16 @@ impl Runner {
             
             rt.block_on(async {
                 let future = async {
-                    cmd.output().map_err(|e| BackendError::Runtime(format!("command failed: {}", e)))
+                    cmd.output().map_err(|e| BackendError::Runtime(format!("command failed: {}", e))
                 };
                 
                 match tokio::time::timeout(Duration::from_millis(timeout_ms), future).await {
                     Ok(result) => result,
-                    Err(_) => Err(BackendError::Runtime(format!("Command timed out after {}ms", timeout_ms))),
+                    Err(_) => Err(BackendError::Runtime(format!("Command timed out after {}ms", timeout_ms)),
                 }
             })?
         } else {
-            cmd.output().map_err(|e| BackendError::Runtime(format!("command failed: {}", e)))?
+            cmd.output().map_err(|e| BackendError::Runtime(format!("command failed: {}", e))?
         };
 
         let duration_ms = start.elapsed().as_millis() as u64;

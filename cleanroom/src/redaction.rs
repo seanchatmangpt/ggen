@@ -7,11 +7,12 @@
 //! - Redaction reporting
 
 use crate::error::{Result, CleanroomError};
+use crate::serializable_instant::SerializableInstant;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
-use std::time::Instant;
+use std::time::{Duration, Instant};
 use tokio::sync::RwLock;
 use uuid::Uuid;
 
@@ -54,9 +55,9 @@ pub struct RedactionData {
     /// Session ID
     pub session_id: Uuid,
     /// Start time
-    pub start_time: Instant,
+    pub start_time: SerializableInstant,
     /// End time
-    pub end_time: Option<Instant>,
+    pub end_time: Option<SerializableInstant>,
     /// Redaction operations
     pub redaction_operations: Vec<RedactionOperation>,
     /// Redaction statistics
@@ -77,7 +78,7 @@ pub struct RedactionOperation {
     /// Matches found
     pub matches_found: u32,
     /// Operation timestamp
-    pub timestamp: Instant,
+    pub timestamp: SerializableInstant,
     /// Operation duration
     pub duration_ms: u64,
 }
@@ -190,7 +191,7 @@ impl RedactionManager {
             return Ok(content.to_string());
         }
         
-        let start_time = Instant::now();
+        let start_time = SerializableInstant::now();
         let mut redacted_content = content.to_string();
         let mut total_matches = 0;
         let mut rules_applied = HashMap::new();
@@ -234,7 +235,7 @@ impl RedactionManager {
             return Ok(content.to_string());
         }
         
-        let start_time = Instant::now();
+        let start_time = SerializableInstant::now();
         let mut redacted_content = content.to_string();
         let mut matches_found = 0;
         
@@ -415,7 +416,7 @@ impl RedactionData {
     pub fn new(session_id: Uuid) -> Self {
         Self {
             session_id,
-            start_time: Instant::now(),
+            start_time: SerializableInstant::now(),
             end_time: None,
             redaction_operations: Vec::new(),
             statistics: RedactionStatistics {
@@ -435,9 +436,9 @@ pub struct RedactionReport {
     /// Session ID
     pub session_id: Uuid,
     /// Start time
-    pub start_time: Instant,
+    pub start_time: SerializableInstant,
     /// End time
-    pub end_time: Option<Instant>,
+    pub end_time: Option<SerializableInstant>,
     /// Statistics
     pub statistics: RedactionStatistics,
     /// Rules
@@ -451,7 +452,7 @@ pub struct RedactionReport {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[tokio::test]
     async fn test_redaction_manager_creation() {
         let patterns = vec![

@@ -3,14 +3,13 @@
 //! Provides a containerized PostgreSQL instance using testcontainers-rs
 //! with health checks, connection info, and automatic teardown.
 
-use crate::error::{Result, ServiceError};
+use crate::error::{Result, CleanroomError};
 use crate::services::{Service, ConnectionInfo};
 use std::collections::HashMap;
 use std::time::Duration;
 use testcontainers::{
     Container,
     images::postgres::Postgres as PostgresImage,
-    runners::SyncRunner,
 };
 
 /// PostgreSQL service fixture using testcontainers
@@ -28,7 +27,7 @@ pub struct Postgres {
     password: String,
 }
 
-impl<'d> Postgres<'d> {
+impl Postgres {
     /// Create a new PostgreSQL fixture
     pub fn new() -> Result<Self> {
         let image = PostgresImage::default()
@@ -38,12 +37,10 @@ impl<'d> Postgres<'d> {
 
         let container = image.start();
 
-        let connection_info = ConnectionInfo {
-            params: format!(
-                "host=localhost port={} dbname=testdb user=testuser password=testpass",
-                container.get_host_port_ipv4(5432)
-            ),
-        };
+        let connection_info = ConnectionInfo::new(format!(
+            "host=localhost port={} dbname=testdb user=testuser password=testpass",
+            container.get_host_port_ipv4(5432)
+        ));
 
         Ok(Self {
             container,
@@ -71,12 +68,10 @@ impl<'d> Postgres<'d> {
 
         let container = image.start();
 
-        let connection_info = ConnectionInfo {
-            params: format!(
-                "host=localhost port={} dbname={} user={} password={}",
-                container.get_host_port_ipv4(5432), database, username, password
-            ),
-        };
+        let connection_info = ConnectionInfo::new(format!(
+            "host=localhost port={} dbname={} user={} password={}",
+            container.get_host_port_ipv4(5432), database, username, password
+        ));
 
         Ok(Self {
             container,
@@ -113,13 +108,13 @@ impl<'d> Postgres<'d> {
         
         let result = self.container
             .exec(cmd)
-            .map_err(|e| ServiceError::ConnectionFailed(format!("Failed to execute SQL: {}", e)))?;
+            .map_err(|e| CleanroomError::connection_failed(format!("Failed to execute SQL: {}", e)))?;
 
         if result.exit_code != Some(0) {
-            return Err(ServiceError::ConnectionFailed(format!(
+            return Err(CleanroomError::connection_failed(format!(
                 "SQL execution failed: {}",
                 String::from_utf8_lossy(&result.stderr)
-            )).into());
+            )));
         }
 
         Ok(String::from_utf8_lossy(&result.stdout).to_string())
@@ -146,13 +141,13 @@ impl<'d> Postgres<'d> {
         
         // Parse the returned ID
         result.trim().parse::<i32>().map_err(|e| {
-            ServiceError::ConnectionFailed(format!("Failed to parse inserted ID: {}", e))
+            CleanroomError::connection_failed(format!("Failed to parse inserted ID: {}", e))
         }).map_err(|e| e.into())
     }
 
     /// Get database size
     pub fn get_database_size(&self) -> Result<String> {
-        let sql = "SELECT pg_size_pretty(pg_database_size(current_database()));";
+        let sql = "SELECT pg_size_pretty(pg_database_size(current_database());";
         self.execute_sql(sql)
     }
 
@@ -162,12 +157,12 @@ impl<'d> Postgres<'d> {
         let result = self.execute_sql(sql)?;
         
         result.trim().parse::<i32>().map_err(|e| {
-            ServiceError::ConnectionFailed(format!("Failed to parse connection count: {}", e))
+            CleanroomError::connection_failed(format!("Failed to parse connection count: {}", e))
         }).map_err(|e| e.into())
     }
 }
 
-impl<'d> Service for Postgres<'d> {
+impl Service for Postgres {
     fn name(&self) -> &str {
         "postgres"
     }
