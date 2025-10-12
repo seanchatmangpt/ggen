@@ -151,7 +151,10 @@ impl ArtifactCollector {
     pub fn new() -> Result<Self> {
         let work_dir = std::env::temp_dir().join("cleanroom-artifacts");
         std::fs::create_dir_all(&work_dir).map_err(|e| {
-                crate::error::CleanroomError::new(crate::error::ErrorKind::IoError, format!("Failed to create artifacts directory: {}", e))
+            crate::error::CleanroomError::new(
+                crate::error::ErrorKind::IoError,
+                format!("Failed to create artifacts directory: {}", e),
+            )
         })?;
 
         Ok(Self {
@@ -172,9 +175,10 @@ impl ArtifactCollector {
         let timestamp = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
             .map_err(|e| {
-                crate::error::CleanroomError::new(crate::error::ErrorKind::InternalError, format!(
-                    "Failed to get system time: {}", e
-                ))
+                crate::error::CleanroomError::new(
+                    crate::error::ErrorKind::InternalError,
+                    format!("Failed to get system time: {}", e),
+                )
             })?
             .as_secs();
 
@@ -182,8 +186,12 @@ impl ArtifactCollector {
         let mut logs = Vec::new();
         for log_file in &run_info.log_files {
             if log_file.exists() {
-                let content =
-                    std::fs::read_to_string(log_file).map_err(|e| crate::error::CleanroomError::new(crate::error::ErrorKind::IoError, format!("IO error: {}", e)))?;
+                let content = std::fs::read_to_string(log_file).map_err(|e| {
+                    crate::error::CleanroomError::new(
+                        crate::error::ErrorKind::IoError,
+                        format!("IO error: {}", e),
+                    )
+                })?;
 
                 logs.push(LogEntry {
                     timestamp,
@@ -209,8 +217,12 @@ impl ArtifactCollector {
         let mut binaries = Vec::new();
         for binary_file in &run_info.binary_files {
             if binary_file.exists() {
-                let content =
-                    std::fs::read(binary_file).map_err(|e| crate::error::CleanroomError::new(crate::error::ErrorKind::IoError, format!("IO error: {}", e)))?;
+                let content = std::fs::read(binary_file).map_err(|e| {
+                    crate::error::CleanroomError::new(
+                        crate::error::ErrorKind::IoError,
+                        format!("IO error: {}", e),
+                    )
+                })?;
                 let hash = self.calculate_hash(&content);
                 let data = base64::engine::general_purpose::STANDARD.encode(&content);
 
@@ -231,8 +243,12 @@ impl ArtifactCollector {
         let mut configs = Vec::new();
         for config_file in &run_info.config_files {
             if config_file.exists() {
-                let content = std::fs::read_to_string(config_file)
-                    .map_err(|e| crate::error::CleanroomError::new(crate::error::ErrorKind::IoError, format!("IO error: {}", e)))?;
+                let content = std::fs::read_to_string(config_file).map_err(|e| {
+                    crate::error::CleanroomError::new(
+                        crate::error::ErrorKind::IoError,
+                        format!("IO error: {}", e),
+                    )
+                })?;
 
                 configs.push(ConfigArtifact {
                     name: config_file
@@ -280,8 +296,12 @@ impl ArtifactCollector {
         // Collect coverage from local files
         for coverage_file in &run_info.coverage_files {
             if coverage_file.exists() {
-                let content =
-                    std::fs::read(coverage_file).map_err(|e| crate::error::CleanroomError::new(crate::error::ErrorKind::IoError, format!("IO error: {}", e)))?;
+                let content = std::fs::read(coverage_file).map_err(|e| {
+                    crate::error::CleanroomError::new(
+                        crate::error::ErrorKind::IoError,
+                        format!("IO error: {}", e),
+                    )
+                })?;
                 let data = base64::engine::general_purpose::STANDARD.encode(&content);
                 coverage_data.push(data);
             }
@@ -291,8 +311,13 @@ impl ArtifactCollector {
         if let Some(ref container_id) = run_info.container_id {
             match coverage_collector.collect_from_container(container_id) {
                 Ok(coverage_data_from_container) => {
-                    let content = std::fs::read(&coverage_data_from_container.path)
-                        .map_err(|e| crate::error::CleanroomError::new(crate::error::ErrorKind::IoError, format!("IO error: {}", e)))?;
+                    let content =
+                        std::fs::read(&coverage_data_from_container.path).map_err(|e| {
+                            crate::error::CleanroomError::new(
+                                crate::error::ErrorKind::IoError,
+                                format!("IO error: {}", e),
+                            )
+                        })?;
                     let data = base64::engine::general_purpose::STANDARD.encode(&content);
                     coverage_data.push(data);
 
@@ -314,7 +339,8 @@ impl ArtifactCollector {
 
         // If we have coverage data, create the artifact
         if !coverage_data.is_empty() {
-            let (lines_covered, lines_total, percentage) = self.calculate_coverage_stats(&coverage_data);
+            let (lines_covered, lines_total, percentage) =
+                self.calculate_coverage_stats(&coverage_data);
             Ok(Some(CoverageArtifact {
                 format: "profraw".to_string(),
                 data: coverage_data.join("\n"),
@@ -351,10 +377,10 @@ impl ArtifactCollector {
         let artifact = AttestationArtifact {
             format: "json".to_string(),
             data: serde_json::to_string(&attestation).map_err(|e| {
-                crate::error::CleanroomError::new(crate::error::ErrorKind::InternalError, format!(
-                    "Failed to serialize attestation: {}",
-                    e
-                ))
+                crate::error::CleanroomError::new(
+                    crate::error::ErrorKind::InternalError,
+                    format!("Failed to serialize attestation: {}", e),
+                )
             })?,
             signature: attestation.signature,
             timestamp: attestation.timestamp,
@@ -369,50 +395,60 @@ impl ArtifactCollector {
         // In a real implementation, this would parse the profraw data
         let mut total_lines_covered = 0u64;
         let mut total_lines_total = 0u64;
-        
+
         for data in coverage_data {
             // Estimate based on data size (very rough approximation)
             let data_size = data.len() as u64;
             let estimated_lines = data_size / 100; // Rough estimate: 100 bytes per line
-            
+
             total_lines_total += estimated_lines;
             // Assume 70% coverage for demonstration
             total_lines_covered += (estimated_lines as f64 * 0.7) as u64;
         }
-        
+
         // Calculate percentage
         let percentage = if total_lines_total > 0 {
             (total_lines_covered as f64 / total_lines_total as f64) * 100.0
         } else {
             0.0
         };
-        
+
         (total_lines_covered, total_lines_total, percentage)
     }
 
     /// Save bundle to file
     pub fn save_bundle(&self, bundle: &ForensicsBundle, path: PathBuf) -> Result<()> {
         let content = serde_json::to_string_pretty(bundle).map_err(|e| {
-            crate::error::CleanroomError::new(crate::error::ErrorKind::InternalError, format!(
-                "Failed to serialize bundle: {}",
-                e
-            ))
+            crate::error::CleanroomError::new(
+                crate::error::ErrorKind::InternalError,
+                format!("Failed to serialize bundle: {}", e),
+            )
         })?;
 
-        std::fs::write(&path, content).map_err(|e| crate::error::CleanroomError::new(crate::error::ErrorKind::IoError, format!("IO error: {}", e)))?;
+        std::fs::write(&path, content).map_err(|e| {
+            crate::error::CleanroomError::new(
+                crate::error::ErrorKind::IoError,
+                format!("IO error: {}", e),
+            )
+        })?;
 
         Ok(())
     }
 
     /// Load bundle from file
     pub fn load_bundle(&self, path: PathBuf) -> Result<ForensicsBundle> {
-        let content = std::fs::read_to_string(&path).map_err(|e| crate::error::CleanroomError::new(crate::error::ErrorKind::IoError, format!("IO error: {}", e)))?;
+        let content = std::fs::read_to_string(&path).map_err(|e| {
+            crate::error::CleanroomError::new(
+                crate::error::ErrorKind::IoError,
+                format!("IO error: {}", e),
+            )
+        })?;
 
         let bundle: ForensicsBundle = serde_json::from_str(&content).map_err(|e| {
-            crate::error::CleanroomError::new(crate::error::ErrorKind::InternalError, format!(
-                "Failed to deserialize bundle: {}",
-                e
-            ))
+            crate::error::CleanroomError::new(
+                crate::error::ErrorKind::InternalError,
+                format!("Failed to deserialize bundle: {}", e),
+            )
         })?;
 
         Ok(bundle)

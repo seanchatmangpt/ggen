@@ -3,8 +3,8 @@
 //! This example shows how to use the ConcurrencyOrchestrator to manage
 //! concurrent tasks with proper cancellation, timeout handling, and resource cleanup.
 
-use cleanroom::runtime::orchestrator::{ConcurrencyOrchestrator, TaskContext, TaskResult};
 use cleanroom::error::Result;
+use cleanroom::runtime::orchestrator::{ConcurrencyOrchestrator, TaskContext, TaskResult};
 use std::time::Duration;
 use tokio::time::sleep;
 
@@ -29,16 +29,18 @@ async fn main() -> Result<()> {
                 Box::new(move |mut context| {
                     Box::pin(async move {
                         println!("  🔄 Task {} started", i);
-                        
+
                         // Simulate work
                         sleep(Duration::from_millis(100 * (i + 1))).await;
-                        
+
                         // Check for cancellation
                         if context.is_cancelled().await {
                             println!("  ❌ Task {} was cancelled", i);
-                            return Err(cleanroom::error::CleanroomError::internal_error("Task cancelled".to_string()));
+                            return Err(cleanroom::error::CleanroomError::internal_error(
+                                "Task cancelled".to_string(),
+                            ));
                         }
-                        
+
                         println!("  ✅ Task {} completed", i);
                         Ok::<(), cleanroom::error::CleanroomError>(())
                     })
@@ -49,12 +51,15 @@ async fn main() -> Result<()> {
         .await?;
 
     println!("  📊 Spawned {} tasks", task_ids.len());
-    println!("  ⏳ Active tasks: {}", orchestrator.active_task_count().await);
+    println!(
+        "  ⏳ Active tasks: {}",
+        orchestrator.active_task_count().await
+    );
 
     // Wait for all tasks to complete
     let results = orchestrator.wait_for_all().await?;
     println!("  📈 Completed {} tasks", results.len());
-    
+
     let successful = results.iter().filter(|r| r.is_success()).count();
     println!("  ✅ Successful: {}", successful);
 
@@ -62,19 +67,21 @@ async fn main() -> Result<()> {
     println!("\n⏰ Example 2: Task with Timeout");
     println!("-------------------------------");
 
-    let timeout_task = orchestrator.spawn_task_with_timeout(
-        "timeout_task".to_string(),
-        Duration::from_millis(200),
-        Box::new(|_context| {
-            Box::pin(async move {
-                println!("  🔄 Timeout task started");
-                // This will take longer than the timeout
-                sleep(Duration::from_millis(500)).await;
-                println!("  ✅ Timeout task completed (should not reach here)");
-                Ok::<(), cleanroom::error::CleanroomError>(())
-            })
-        }),
-    ).await?;
+    let timeout_task = orchestrator
+        .spawn_task_with_timeout(
+            "timeout_task".to_string(),
+            Duration::from_millis(200),
+            Box::new(|_context| {
+                Box::pin(async move {
+                    println!("  🔄 Timeout task started");
+                    // This will take longer than the timeout
+                    sleep(Duration::from_millis(500)).await;
+                    println!("  ✅ Timeout task completed (should not reach here)");
+                    Ok::<(), cleanroom::error::CleanroomError>(())
+                })
+            }),
+        )
+        .await?;
 
     let result = orchestrator.wait_for_task(timeout_task).await?;
     match result {
@@ -86,20 +93,22 @@ async fn main() -> Result<()> {
     println!("\n🛑 Example 3: Task Cancellation");
     println!("--------------------------------");
 
-    let cancellable_task = orchestrator.spawn_task(
-        "cancellable_task".to_string(),
-        Box::new(|mut context| {
-            Box::pin(async move {
-                println!("  🔄 Cancellable task started");
-                
-                // Wait for cancellation signal
-                context.wait_for_cancellation().await;
-                
-                println!("  🛑 Cancellable task received cancellation signal");
-                Ok::<(), cleanroom::error::CleanroomError>(())
-            })
-        }),
-    ).await?;
+    let cancellable_task = orchestrator
+        .spawn_task(
+            "cancellable_task".to_string(),
+            Box::new(|mut context| {
+                Box::pin(async move {
+                    println!("  🔄 Cancellable task started");
+
+                    // Wait for cancellation signal
+                    context.wait_for_cancellation().await;
+
+                    println!("  🛑 Cancellable task received cancellation signal");
+                    Ok::<(), cleanroom::error::CleanroomError>(())
+                })
+            }),
+        )
+        .await?;
 
     // Cancel the task after a short delay
     sleep(Duration::from_millis(100)).await;
@@ -115,50 +124,69 @@ async fn main() -> Result<()> {
     println!("\n🤝 Example 4: Shared State Coordination");
     println!("----------------------------------------");
 
-    let coordinator_task = orchestrator.spawn_task(
-        "coordinator".to_string(),
-        Box::new(|context| {
-            Box::pin(async move {
-                println!("  🔄 Coordinator task started");
-                
-                // Set shared state
-                context.set_shared_state("phase".to_string(), serde_json::Value::String("setup".to_string())).await;
-                context.set_shared_state("count".to_string(), serde_json::Value::Number(serde_json::Number::from(0))).await;
-                
-                sleep(Duration::from_millis(50)).await;
-                
-                // Update shared state
-                context.set_shared_state("phase".to_string(), serde_json::Value::String("running".to_string())).await;
-                
-                println!("  ✅ Coordinator task completed");
-                Ok::<(), cleanroom::error::CleanroomError>(())
-            })
-        }),
-    ).await?;
+    let coordinator_task = orchestrator
+        .spawn_task(
+            "coordinator".to_string(),
+            Box::new(|context| {
+                Box::pin(async move {
+                    println!("  🔄 Coordinator task started");
 
-    let worker_task = orchestrator.spawn_task(
-        "worker".to_string(),
-        Box::new(|context| {
-            Box::pin(async move {
-                println!("  🔄 Worker task started");
-                
-                // Wait a bit for coordinator to set up
-                sleep(Duration::from_millis(25)).await;
-                
-                // Read shared state
-                if let Some(phase) = context.get_shared_state("phase").await {
-                    println!("  📊 Current phase: {}", phase);
-                }
-                
-                if let Some(count) = context.get_shared_state("count").await {
-                    println!("  📊 Current count: {}", count);
-                }
-                
-                println!("  ✅ Worker task completed");
-                Ok::<(), cleanroom::error::CleanroomError>(())
-            })
-        }),
-    ).await?;
+                    // Set shared state
+                    context
+                        .set_shared_state(
+                            "phase".to_string(),
+                            serde_json::Value::String("setup".to_string()),
+                        )
+                        .await;
+                    context
+                        .set_shared_state(
+                            "count".to_string(),
+                            serde_json::Value::Number(serde_json::Number::from(0)),
+                        )
+                        .await;
+
+                    sleep(Duration::from_millis(50)).await;
+
+                    // Update shared state
+                    context
+                        .set_shared_state(
+                            "phase".to_string(),
+                            serde_json::Value::String("running".to_string()),
+                        )
+                        .await;
+
+                    println!("  ✅ Coordinator task completed");
+                    Ok::<(), cleanroom::error::CleanroomError>(())
+                })
+            }),
+        )
+        .await?;
+
+    let worker_task = orchestrator
+        .spawn_task(
+            "worker".to_string(),
+            Box::new(|context| {
+                Box::pin(async move {
+                    println!("  🔄 Worker task started");
+
+                    // Wait a bit for coordinator to set up
+                    sleep(Duration::from_millis(25)).await;
+
+                    // Read shared state
+                    if let Some(phase) = context.get_shared_state("phase").await {
+                        println!("  📊 Current phase: {}", phase);
+                    }
+
+                    if let Some(count) = context.get_shared_state("count").await {
+                        println!("  📊 Current count: {}", count);
+                    }
+
+                    println!("  ✅ Worker task completed");
+                    Ok::<(), cleanroom::error::CleanroomError>(())
+                })
+            }),
+        )
+        .await?;
 
     // Wait for both tasks
     let _ = orchestrator.wait_for_task(coordinator_task).await?;
@@ -168,17 +196,21 @@ async fn main() -> Result<()> {
     println!("\n🔧 Example 5: Error Handling and Recovery");
     println!("------------------------------------------");
 
-    let error_task = orchestrator.spawn_task(
-        "error_task".to_string(),
-        Box::new(|_context| {
-            Box::pin(async move {
-                println!("  🔄 Error task started");
-                sleep(Duration::from_millis(50)).await;
-                println!("  ❌ Error task failed");
-                Err(cleanroom::error::CleanroomError::internal_error("Simulated error".to_string()))
-            })
-        }),
-    ).await?;
+    let error_task = orchestrator
+        .spawn_task(
+            "error_task".to_string(),
+            Box::new(|_context| {
+                Box::pin(async move {
+                    println!("  🔄 Error task started");
+                    sleep(Duration::from_millis(50)).await;
+                    println!("  ❌ Error task failed");
+                    Err(cleanroom::error::CleanroomError::internal_error(
+                        "Simulated error".to_string(),
+                    ))
+                })
+            }),
+        )
+        .await?;
 
     let result = orchestrator.wait_for_task(error_task).await?;
     match result {
@@ -193,29 +225,33 @@ async fn main() -> Result<()> {
     println!("-------------------------------------------");
 
     // Spawn tasks with different priorities
-    let low_priority_task = orchestrator.spawn_task(
-        "low_priority".to_string(),
-        Box::new(|_context| {
-            Box::pin(async move {
-                println!("  🔄 Low priority task started");
-                sleep(Duration::from_millis(100)).await;
-                println!("  ✅ Low priority task completed");
-                Ok::<(), cleanroom::error::CleanroomError>(())
-            })
-        }),
-    ).await?;
+    let low_priority_task = orchestrator
+        .spawn_task(
+            "low_priority".to_string(),
+            Box::new(|_context| {
+                Box::pin(async move {
+                    println!("  🔄 Low priority task started");
+                    sleep(Duration::from_millis(100)).await;
+                    println!("  ✅ Low priority task completed");
+                    Ok::<(), cleanroom::error::CleanroomError>(())
+                })
+            }),
+        )
+        .await?;
 
-    let high_priority_task = orchestrator.spawn_task(
-        "high_priority".to_string(),
-        Box::new(|_context| {
-            Box::pin(async move {
-                println!("  🔄 High priority task started");
-                sleep(Duration::from_millis(50)).await;
-                println!("  ✅ High priority task completed");
-                Ok::<(), cleanroom::error::CleanroomError>(())
-            })
-        }),
-    ).await?;
+    let high_priority_task = orchestrator
+        .spawn_task(
+            "high_priority".to_string(),
+            Box::new(|_context| {
+                Box::pin(async move {
+                    println!("  🔄 High priority task started");
+                    sleep(Duration::from_millis(50)).await;
+                    println!("  ✅ High priority task completed");
+                    Ok::<(), cleanroom::error::CleanroomError>(())
+                })
+            }),
+        )
+        .await?;
 
     // Wait for both tasks
     let _ = orchestrator.wait_for_task(high_priority_task).await?;
@@ -224,7 +260,7 @@ async fn main() -> Result<()> {
     // Final statistics
     println!("\n📊 Final Statistics");
     println!("===================");
-    
+
     let stats = orchestrator.get_stats().await;
     println!("  📈 Total tasks: {}", stats.total_tasks);
     println!("  ✅ Completed: {}", stats.tasks_completed);
@@ -245,15 +281,16 @@ mod tests {
     #[tokio::test]
     async fn test_orchestrator_basic_functionality() {
         let mut orchestrator = ConcurrencyOrchestrator::new();
-        
-        let task_id = orchestrator.spawn_task(
-            "test_task".to_string(),
-            Box::new(|_context| {
-                Box::pin(async move {
-                    Ok::<(), cleanroom::error::CleanroomError>(())
-                })
-            }),
-        ).await.unwrap();
+
+        let task_id = orchestrator
+            .spawn_task(
+                "test_task".to_string(),
+                Box::new(|_context| {
+                    Box::pin(async move { Ok::<(), cleanroom::error::CleanroomError>(()) })
+                }),
+            )
+            .await
+            .unwrap();
 
         let result = orchestrator.wait_for_task(task_id).await.unwrap();
         assert!(result.is_success());
@@ -262,17 +299,20 @@ mod tests {
     #[tokio::test]
     async fn test_orchestrator_timeout() {
         let mut orchestrator = ConcurrencyOrchestrator::new();
-        
-        let task_id = orchestrator.spawn_task_with_timeout(
-            "timeout_test".to_string(),
-            Duration::from_millis(50),
-            Box::new(|_context| {
-                Box::pin(async move {
-                    sleep(Duration::from_millis(100)).await;
-                    Ok::<(), cleanroom::error::CleanroomError>(())
-                })
-            }),
-        ).await.unwrap();
+
+        let task_id = orchestrator
+            .spawn_task_with_timeout(
+                "timeout_test".to_string(),
+                Duration::from_millis(50),
+                Box::new(|_context| {
+                    Box::pin(async move {
+                        sleep(Duration::from_millis(100)).await;
+                        Ok::<(), cleanroom::error::CleanroomError>(())
+                    })
+                }),
+            )
+            .await
+            .unwrap();
 
         let result = orchestrator.wait_for_task(task_id).await.unwrap();
         assert!(result.is_timed_out());
@@ -281,16 +321,19 @@ mod tests {
     #[tokio::test]
     async fn test_orchestrator_cancellation() {
         let mut orchestrator = ConcurrencyOrchestrator::new();
-        
-        let task_id = orchestrator.spawn_task(
-            "cancellable_test".to_string(),
-            Box::new(|mut context| {
-                Box::pin(async move {
-                    context.wait_for_cancellation().await;
-                    Ok::<(), cleanroom::error::CleanroomError>(())
-                })
-            }),
-        ).await.unwrap();
+
+        let task_id = orchestrator
+            .spawn_task(
+                "cancellable_test".to_string(),
+                Box::new(|mut context| {
+                    Box::pin(async move {
+                        context.wait_for_cancellation().await;
+                        Ok::<(), cleanroom::error::CleanroomError>(())
+                    })
+                }),
+            )
+            .await
+            .unwrap();
 
         orchestrator.cancel_task(task_id).await.unwrap();
         let result = orchestrator.wait_for_task(task_id).await.unwrap();

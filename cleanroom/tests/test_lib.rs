@@ -6,21 +6,20 @@
 //! - Property tests
 //! - BDD tests
 
-pub mod integration_tests;
-pub mod unit_tests;
-pub mod property_tests;
 pub mod bdd_tests;
+pub mod integration_tests;
+pub mod property_tests;
+pub mod unit_tests;
 
 /// Test utilities and helpers
 pub mod test_utils {
-    use std::time::Duration;
-    use tokio::time::timeout;
     use cleanroom::{
-        CleanroomEnvironment, CleanroomConfig, CleanroomError,
-        PostgresContainer, RedisContainer, GenericContainer,
-        Policy, SecurityLevel, ResourceLimits,
+        CleanroomConfig, CleanroomEnvironment, CleanroomError, GenericContainer, Policy,
+        PostgresContainer, RedisContainer, ResourceLimits, SecurityLevel,
     };
     use std::sync::Arc;
+    use std::time::Duration;
+    use tokio::time::timeout;
 
     /// Create a test cleanroom environment with default configuration
     pub async fn create_test_environment() -> Result<Arc<CleanroomEnvironment>, CleanroomError> {
@@ -47,8 +46,7 @@ pub mod test_utils {
 
     /// Create a test Redis container
     pub fn create_test_redis_container() -> RedisContainer {
-        RedisContainer::new("redis:7")
-            .with_port(6379)
+        RedisContainer::new("redis:7").with_port(6379)
     }
 
     /// Create a test generic container
@@ -60,8 +58,7 @@ pub mod test_utils {
 
     /// Create a test policy
     pub fn create_test_policy() -> Policy {
-        Policy::with_security_level(SecurityLevel::Standard)
-            .with_network_isolation(false)
+        Policy::with_security_level(SecurityLevel::Standard).with_network_isolation(false)
     }
 
     /// Create test resource limits
@@ -74,8 +71,7 @@ pub mod test_utils {
 
     /// Wait for a condition to be true with timeout
     pub async fn wait_for_condition<F, Fut>(
-        condition: F,
-        timeout_duration: Duration,
+        condition: F, timeout_duration: Duration,
     ) -> Result<bool, CleanroomError>
     where
         F: Fn() -> Fut,
@@ -93,8 +89,7 @@ pub mod test_utils {
 
     /// Execute a test with timeout
     pub async fn execute_test_with_timeout<F, Fut, T>(
-        test: F,
-        timeout_duration: Duration,
+        test: F, timeout_duration: Duration,
     ) -> Result<T, CleanroomError>
     where
         F: Fn() -> Fut,
@@ -131,7 +126,13 @@ pub mod test_utils {
 
     /// Assert that two values are approximately equal (for floating point comparisons)
     pub fn assert_approx_eq(a: f64, b: f64, epsilon: f64) {
-        assert!((a - b).abs() < epsilon, "{} is not approximately equal to {} (epsilon: {})", a, b, epsilon);
+        assert!(
+            (a - b).abs() < epsilon,
+            "{} is not approximately equal to {} (epsilon: {})",
+            a,
+            b,
+            epsilon
+        );
     }
 
     /// Assert that a duration is within expected range
@@ -166,7 +167,9 @@ pub mod test_utils {
     }
 
     /// Assert that a result is ok and contains expected value
-    pub fn assert_result_ok<T: PartialEq + std::fmt::Debug>(result: &Result<T, CleanroomError>, expected: &T) {
+    pub fn assert_result_ok<T: PartialEq + std::fmt::Debug>(
+        result: &Result<T, CleanroomError>, expected: &T,
+    ) {
         match result {
             Ok(value) => assert_eq!(value, expected),
             Err(error) => panic!("Expected Ok({:?}), got Err({:?})", expected, error),
@@ -183,8 +186,7 @@ pub mod test_utils {
 
     /// Assert that a result is an error with specific kind
     pub fn assert_result_err_kind<T: std::fmt::Debug>(
-        result: &Result<T, CleanroomError>,
-        expected_kind: cleanroom::ErrorKind,
+        result: &Result<T, CleanroomError>, expected_kind: cleanroom::ErrorKind,
     ) {
         match result {
             Ok(value) => panic!("Expected Err({:?}), got Ok({:?})", expected_kind, value),
@@ -194,11 +196,13 @@ pub mod test_utils {
 
     /// Assert that a result is an error with specific message
     pub fn assert_result_err_message<T: std::fmt::Debug>(
-        result: &Result<T, CleanroomError>,
-        expected_message: &str,
+        result: &Result<T, CleanroomError>, expected_message: &str,
     ) {
         match result {
-            Ok(value) => panic!("Expected Err with message '{}', got Ok({:?})", expected_message, value),
+            Ok(value) => panic!(
+                "Expected Err with message '{}', got Ok({:?})",
+                expected_message, value
+            ),
             Err(error) => assert!(error.message().contains(expected_message)),
         }
     }

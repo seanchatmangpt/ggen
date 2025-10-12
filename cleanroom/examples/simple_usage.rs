@@ -2,7 +2,7 @@
 //!
 //! This example demonstrates basic usage of the cleanroom testing framework.
 
-use cleanroom::{CleanroomEnvironment, CleanroomConfig, CleanroomGuard};
+use cleanroom::{CleanroomConfig, CleanroomEnvironment, CleanroomGuard};
 use std::sync::Arc;
 
 #[tokio::main]
@@ -15,10 +15,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let _guard = CleanroomGuard::new(Arc::new(environment.clone()));
 
     // Execute a simple test
-    let result = environment.execute_test("simple_test", || {
-        println!("Running simple test...");
-        Ok("test passed")
-    }).await?;
+    let result = environment
+        .execute_test("simple_test", || {
+            println!("Running simple test...");
+            Ok("test passed")
+        })
+        .await?;
 
     println!("Test result: {}", result);
 

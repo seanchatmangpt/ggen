@@ -3,8 +3,8 @@
 //! Provides a fluent API for defining complex test scenarios with
 //! deterministic execution, step aggregation, and concurrent execution.
 
-use crate::error::Result;
 use crate::backend::{Backend, Cmd};
+use crate::error::Result;
 use crate::policy::Policy;
 use serde::{Deserialize, Serialize};
 
@@ -70,19 +70,19 @@ pub enum StepSource {
     Inline,
     /// Step loaded from file
     /// File-based step
-    File { 
+    File {
         /// Path to the file
-        path: String 
+        path: String,
     },
     /// Step from template
-    Template { 
+    Template {
         /// Template content
-        template: String 
+        template: String,
     },
     /// Step from external source
-    External { 
+    External {
         /// External source identifier
-        source: String 
+        source: String,
     },
 }
 
@@ -147,7 +147,8 @@ impl Scenario {
             return self;
         }
 
-        let cmd = Cmd::new(&args_vec[0]).args(&args_vec[1..].iter().map(|s| s.as_str()).collect::<Vec<_>>());
+        let cmd = Cmd::new(&args_vec[0])
+            .args(&args_vec[1..].iter().map(|s| s.as_str()).collect::<Vec<_>>());
         self.steps.push(Step {
             name: label,
             cmd,
@@ -188,7 +189,9 @@ impl Scenario {
     }
 
     /// Run the scenario with a specific backend
-    pub fn run_with_backend(self, backend: crate::backend::TestcontainerBackend) -> Result<RunResult> {
+    pub fn run_with_backend(
+        self, backend: crate::backend::TestcontainerBackend,
+    ) -> Result<RunResult> {
         let start_time = std::time::Instant::now();
         let mut steps = Vec::new();
         let mut combined_stdout = String::new();
@@ -198,7 +201,7 @@ impl Scenario {
 
         for step in self.steps {
             step_order.push(step.name.clone());
-            
+
             let step_start = std::time::Instant::now();
             let result = backend.run_cmd(step.cmd)?;
             let step_duration = step_start.elapsed().as_millis() as u64;
@@ -259,8 +262,7 @@ mod tests {
 
     #[test]
     fn test_scenario_step_addition() {
-        let scenario = scenario("test")
-            .step("echo".to_string(), ["echo", "hello"]);
+        let scenario = scenario("test").step("echo".to_string(), ["echo", "hello"]);
         assert_eq!(scenario.steps.len(), 1);
         assert_eq!(scenario.steps[0].name, "echo");
     }

@@ -3,14 +3,12 @@
 //! These tests verify deterministic behavior and property-based testing
 //! using proptest for comprehensive coverage.
 
-use proptest::prelude::*;
 use cleanroom::{
-    CleanroomConfig, Policy, SecurityLevel, NetworkPolicy,
-    ResourceLimits, DeterministicManager, CoverageTracker,
-    SnapshotManager, TracingManager, TestReport,
-    PostgresContainer, RedisContainer, GenericContainer,
-    CleanroomError, ErrorKind,
+    CleanroomConfig, CleanroomError, CoverageTracker, DeterministicManager, ErrorKind,
+    GenericContainer, NetworkPolicy, Policy, PostgresContainer, RedisContainer, ResourceLimits,
+    SecurityLevel, SnapshotManager, TestReport, TracingManager,
 };
+use proptest::prelude::*;
 use std::time::Duration;
 use uuid::Uuid;
 
@@ -38,14 +36,14 @@ proptest! {
             enable_tracing: enable_tracing,
             ..CleanroomConfig::default()
         };
-        
+
         // Config should always validate with reasonable values
         prop_assert!(config.validate().is_ok());
-        
+
         // Timeouts should be positive
         prop_assert!(config.container_startup_timeout > Duration::from_secs(0));
         prop_assert!(config.test_execution_timeout > Duration::from_secs(0));
-        
+
         // Max containers should be positive
         prop_assert!(config.max_concurrent_containers > 0);
     }
@@ -74,16 +72,16 @@ proptest! {
             },
             ..Policy::default()
         };
-        
+
         // Policy should always be valid
         prop_assert!(policy.validate().is_ok());
-        
+
         // Security level should match
         prop_assert_eq!(policy.security_level, security_level);
-        
+
         // Network isolation should be consistent
         prop_assert_eq!(policy.network.enable_network_isolation, enable_network_isolation);
-        
+
         // Summary should contain security level
         let summary = policy.summary();
         prop_assert!(summary.contains("Security Level"));
@@ -106,16 +104,16 @@ proptest! {
             max_network_mb: max_network_mb as usize,
             ..ResourceLimits::default()
         };
-        
+
         // Limits should always validate with positive values
         prop_assert!(limits.validate().is_ok());
-        
+
         // All values should be positive
         prop_assert!(limits.max_memory_mb > 0);
         prop_assert!(limits.max_cpu_percent > 0.0);
         prop_assert!(limits.max_disk_mb > 0);
         prop_assert!(limits.max_network_mb > 0);
-        
+
         // CPU percentage should not exceed 100%
         prop_assert!(limits.max_cpu_percent <= 100.0);
     }
@@ -131,16 +129,16 @@ proptest! {
     ) {
         let manager = DeterministicManager::new();
         manager.set_seed(seed);
-        
+
         // Same seed should produce same results
         let value1 = manager.generate_deterministic_value(&key1);
         let value2 = manager.generate_deterministic_value(&key1);
         prop_assert_eq!(value1, value2);
-        
+
         // Different keys should produce different values
         let value3 = manager.generate_deterministic_value(&key2);
         prop_assert_ne!(value1, value3);
-        
+
         // Seed should be preserved
         prop_assert_eq!(manager.get_current_seed(), seed);
     }
@@ -154,31 +152,31 @@ proptest! {
         line_numbers in prop::collection::vec(1..1000usize, 1..20),
     ) {
         let tracker = CoverageTracker::new();
-        
+
         for (i, test_name) in test_names.iter().enumerate() {
             tracker.start_test(test_name);
-            
+
             // Record some line executions
             for line_num in &line_numbers[..std::cmp::min(line_numbers.len(), 5)] {
                 tracker.record_line_execution(test_name, *line_num);
             }
-            
+
             // End test (alternate between success and failure)
             let success = i % 2 == 0;
             tracker.end_test(test_name, success);
         }
-        
+
         let report = tracker.get_report();
-        
+
         // Total tests should match input
         prop_assert_eq!(report.total_tests, test_names.len());
-        
+
         // Passed tests should be half (rounded up)
         prop_assert_eq!(report.passed_tests, (test_names.len() + 1) / 2);
-        
+
         // Failed tests should be half (rounded down)
         prop_assert_eq!(report.failed_tests, test_names.len() / 2);
-        
+
         // Coverage should be calculated correctly
         prop_assert!(report.coverage_percentage >= 0.0);
         prop_assert!(report.coverage_percentage <= 100.0);
@@ -194,7 +192,7 @@ proptest! {
         data_values in prop::collection::vec("[a-zA-Z0-9_]{1,20}", 1..5),
     ) {
         let manager = SnapshotManager::new();
-        
+
         for snapshot_name in &snapshot_names {
             // Create test data
             let mut test_data = serde_json::Map::new();
@@ -202,20 +200,20 @@ proptest! {
                 test_data.insert(key.clone(), serde_json::Value::String(value.clone()));
             }
             let test_data = serde_json::Value::Object(test_data);
-            
+
             // Create snapshot
             let snapshot_id = manager.create_snapshot(snapshot_name, &test_data);
             prop_assert!(!snapshot_id.is_nil());
-            
+
             // Verify snapshot
             let is_valid = manager.verify_snapshot(snapshot_name, &test_data);
             prop_assert!(is_valid);
-            
+
             // Retrieve snapshot
             let retrieved_snapshot = manager.get_snapshot(snapshot_name);
             prop_assert!(retrieved_snapshot.is_some());
         }
-        
+
         // All snapshots should be retrievable
         for snapshot_name in &snapshot_names {
             let snapshot = manager.get_snapshot(snapshot_name);
@@ -233,25 +231,25 @@ proptest! {
         event_data in prop::collection::vec("[a-zA-Z0-9_]{1,50}", 1..5),
     ) {
         let manager = TracingManager::new();
-        
+
         for trace_name in &trace_names {
             // Start trace
             let trace_id = manager.start_trace(trace_name);
             prop_assert!(!trace_id.is_nil());
-            
+
             // Log events
             for (event_name, event_data) in event_names.iter().zip(event_data.iter()) {
                 manager.log_trace_event(&trace_id, event_name, event_data);
             }
-            
+
             // End trace
             manager.end_trace(&trace_id);
         }
-        
+
         // All traces should be retrievable
         let traces = manager.get_traces();
         prop_assert_eq!(traces.len(), trace_names.len());
-        
+
         // Traces should be filterable by name
         for trace_name in &trace_names {
             let filtered_traces = manager.get_traces_by_name(trace_name);
@@ -268,30 +266,30 @@ proptest! {
         execution_times in prop::collection::vec(1..1000u64, 1..20),
     ) {
         let report = TestReport::new();
-        
+
         for (i, test_name) in test_names.iter().enumerate() {
             let success = i % 2 == 0;
             let execution_time = Duration::from_millis(execution_times[i % execution_times.len()]);
-            
+
             report.record_test_execution(test_name, success, execution_time);
         }
-        
+
         // Total tests should match input
         prop_assert_eq!(report.test_summary.total_tests, test_names.len());
-        
+
         // Passed tests should be half (rounded up)
         prop_assert_eq!(report.test_summary.passed_tests, (test_names.len() + 1) / 2);
-        
+
         // Failed tests should be half (rounded down)
         prop_assert_eq!(report.test_summary.failed_tests, test_names.len() / 2);
-        
+
         // Average execution time should be calculated
         prop_assert!(report.test_summary.average_execution_time > Duration::from_millis(0));
-        
+
         // Report should be serializable
         let json_report = report.to_json();
         prop_assert!(json_report.is_ok());
-        
+
         let toml_report = report.to_toml();
         prop_assert!(toml_report.is_ok());
     }
@@ -310,25 +308,25 @@ proptest! {
         let postgres_container = PostgresContainer::new(&image)
             .with_port(port)
             .with_env(&env_key, &env_value);
-        
+
         prop_assert_eq!(postgres_container.image(), image);
         prop_assert_eq!(postgres_container.port(), Some(port));
         prop_assert_eq!(postgres_container.container_type(), "postgres");
-        
+
         // Test RedisContainer
         let redis_container = RedisContainer::new(&image)
             .with_port(port)
             .with_env(&env_key, &env_value);
-        
+
         prop_assert_eq!(redis_container.image(), image);
         prop_assert_eq!(redis_container.port(), Some(port));
         prop_assert_eq!(redis_container.container_type(), "redis");
-        
+
         // Test GenericContainer
         let generic_container = GenericContainer::new(&image)
             .with_port(port)
             .with_env(&env_key, &env_value);
-        
+
         prop_assert_eq!(generic_container.image(), image);
         prop_assert_eq!(generic_container.port(), Some(port));
         prop_assert_eq!(generic_container.container_type(), "generic");
@@ -354,15 +352,15 @@ proptest! {
         ]),
     ) {
         let error = CleanroomError::new(error_kind.clone(), &error_message);
-        
+
         // Error should preserve kind and message
         prop_assert_eq!(error.kind(), error_kind);
         prop_assert_eq!(error.message(), error_message);
-        
+
         // Error should be displayable
         let error_string = format!("{}", error);
         prop_assert!(error_string.contains(&error_message));
-        
+
         // Error should be convertible to string
         let error_string = error.to_string();
         prop_assert!(error_string.contains(&error_message));
@@ -376,19 +374,19 @@ proptest! {
         count in 1..100usize,
     ) {
         let mut uuids = Vec::new();
-        
+
         for _ in 0..count {
             let uuid = Uuid::new_v4();
             uuids.push(uuid);
         }
-        
+
         // All UUIDs should be unique
         for i in 0..uuids.len() {
             for j in (i + 1)..uuids.len() {
                 prop_assert_ne!(uuids[i], uuids[j]);
             }
         }
-        
+
         // All UUIDs should be valid
         for uuid in &uuids {
             prop_assert!(!uuid.is_nil());
@@ -405,16 +403,16 @@ proptest! {
     ) {
         let duration1 = Duration::from_millis(duration1_ms);
         let duration2 = Duration::from_millis(duration2_ms);
-        
+
         // Duration addition should be associative
         let sum1 = duration1 + duration2;
         let sum2 = duration2 + duration1;
         prop_assert_eq!(sum1, sum2);
-        
+
         // Duration should be positive
         prop_assert!(duration1 > Duration::from_millis(0));
         prop_assert!(duration2 > Duration::from_millis(0));
-        
+
         // Duration should be comparable
         if duration1_ms > duration2_ms {
             prop_assert!(duration1 > duration2);
@@ -435,13 +433,13 @@ proptest! {
         // Serialize to JSON
         let json = serde_json::to_string(&config);
         prop_assert!(json.is_ok());
-        
+
         // Deserialize from JSON
         let deserialized_config: Result<CleanroomConfig, _> = serde_json::from_str(&json.unwrap());
         prop_assert!(deserialized_config.is_ok());
-        
+
         let deserialized_config = deserialized_config.unwrap();
-        
+
         // Round-trip should preserve values
         prop_assert_eq!(deserialized_config.enable_singleton_containers, config.enable_singleton_containers);
         prop_assert_eq!(deserialized_config.container_startup_timeout, config.container_startup_timeout);
@@ -463,13 +461,13 @@ proptest! {
         // Serialize to TOML
         let toml = toml::to_string(&config);
         prop_assert!(toml.is_ok());
-        
+
         // Deserialize from TOML
         let deserialized_config: Result<CleanroomConfig, _> = toml::from_str(&toml.unwrap());
         prop_assert!(deserialized_config.is_ok());
-        
+
         let deserialized_config = deserialized_config.unwrap();
-        
+
         // Round-trip should preserve values
         prop_assert_eq!(deserialized_config.enable_singleton_containers, config.enable_singleton_containers);
         prop_assert_eq!(deserialized_config.container_startup_timeout, config.container_startup_timeout);

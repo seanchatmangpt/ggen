@@ -6,10 +6,10 @@
 //! - Coverage analysis
 //! - Recommendations
 
-use crate::error::{Result, CleanroomError};
+use crate::error::{CleanroomError, Result};
+use serde::ser::SerializeStruct;
 use serde::{Deserialize, Serialize};
 use serde::{Deserializer, Serializer};
-use serde::ser::SerializeStruct;
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
@@ -169,30 +169,41 @@ impl CoverageData {
 
     /// Add file coverage data
     pub fn add_file(&mut self, filename: String, total_lines: u32, covered_lines: u32) {
-        self.coverage_files.insert(filename, (total_lines, covered_lines));
+        self.coverage_files
+            .insert(filename, (total_lines, covered_lines));
         self.total_lines += total_lines;
         self.covered_lines += covered_lines;
     }
 
     /// Add uncovered line
     pub fn add_uncovered_line(&mut self, filename: String, line_number: u32) {
-        self.uncovered_lines.entry(filename).or_insert_with(Vec::new).push(line_number);
+        self.uncovered_lines
+            .entry(filename)
+            .or_insert_with(Vec::new)
+            .push(line_number);
     }
 
     /// Add uncovered branch
     pub fn add_uncovered_branch(&mut self, filename: String, branch_name: String) {
-        self.uncovered_branches.entry(filename).or_insert_with(Vec::new).push(branch_name);
+        self.uncovered_branches
+            .entry(filename)
+            .or_insert_with(Vec::new)
+            .push(branch_name);
     }
 
     /// Add uncovered function
     pub fn add_uncovered_function(&mut self, filename: String, function_name: String) {
-        self.uncovered_functions.entry(filename).or_insert_with(Vec::new).push(function_name);
+        self.uncovered_functions
+            .entry(filename)
+            .or_insert_with(Vec::new)
+            .push(function_name);
     }
 
     /// Calculate overall coverage percentage
     pub fn calculate_overall_coverage(&mut self) {
         if self.total_lines > 0 {
-            self.overall_coverage_percentage = (self.covered_lines as f64 / self.total_lines as f64) * 100.0;
+            self.overall_coverage_percentage =
+                (self.covered_lines as f64 / self.total_lines as f64) * 100.0;
         }
     }
 
@@ -271,78 +282,80 @@ impl TestReport {
             report_data: Arc::new(Mutex::new(ReportData::new(session_id))),
         }
     }
-    
+
     /// Update test summary
     pub async fn update_test_summary(&self, summary: TestSummary) -> Result<()> {
         let mut data = self.report_data.lock().await;
         data.test_summary = summary;
         Ok(())
     }
-    
+
     /// Add performance metric
     pub async fn add_performance_metric(&self, name: String, value: f64) -> Result<()> {
         let mut data = self.report_data.lock().await;
         data.performance_metrics.insert(name, value);
         Ok(())
     }
-    
+
     /// Update coverage data
     pub async fn update_coverage_data(&self, coverage_data: CoverageData) -> Result<()> {
         let mut data = self.report_data.lock().await;
         data.coverage_data = Some(coverage_data);
         Ok(())
     }
-    
+
     /// Update snapshot data
     pub async fn update_snapshot_data(&self, snapshot_data: SnapshotData) -> Result<()> {
         let mut data = self.report_data.lock().await;
         data.snapshot_data = Some(snapshot_data);
         Ok(())
     }
-    
+
     /// Update tracing data
     pub async fn update_tracing_data(&self, tracing_data: TracingData) -> Result<()> {
         let mut data = self.report_data.lock().await;
         data.tracing_data = Some(tracing_data);
         Ok(())
     }
-    
+
     /// Update redaction data
     pub async fn update_redaction_data(&self, redaction_data: RedactionData) -> Result<()> {
         let mut data = self.report_data.lock().await;
         data.redaction_data = Some(redaction_data);
         Ok(())
     }
-    
+
     /// Add recommendation
     pub async fn add_recommendation(&self, recommendation: String) -> Result<()> {
         let mut data = self.report_data.lock().await;
         data.recommendations.push(recommendation);
         Ok(())
     }
-    
+
     /// Add metadata
     pub async fn add_metadata(&self, key: String, value: String) -> Result<()> {
         let mut data = self.report_data.lock().await;
         data.metadata.insert(key, value);
         Ok(())
     }
-    
+
     /// Finalize report
     pub async fn finalize(&self) -> Result<()> {
         let mut data = self.report_data.lock().await;
         data.end_time = Some(SerializableInstant::now());
-        
+
         // Generate recommendations based on data
         self.generate_recommendations(&mut data).await;
-        
+
         Ok(())
     }
-    
+
     /// Generate comprehensive report
-    pub async fn generate_report(&self, metrics: &crate::cleanroom::CleanroomMetrics) -> Result<ComprehensiveReport> {
+    pub async fn generate_report(
+        &self, metrics: &crate::cleanroom::CleanroomMetrics,
+    ) -> Result<ComprehensiveReport> {
         let data = self.report_data.lock().await;
-        
+
         let mut report = ComprehensiveReport {
             session_id: data.session_id,
             start_time: data.start_time.clone(),
@@ -358,13 +371,13 @@ impl TestReport {
             cleanroom_metrics: metrics.clone(),
             report_generated_at: SerializableInstant::now(),
         };
-        
+
         // Generate additional recommendations based on cleanroom metrics
         self.generate_cleanroom_recommendations(&mut report).await;
-        
+
         Ok(report)
     }
-    
+
     /// Generate recommendations
     async fn generate_recommendations(&self, data: &mut ReportData) {
         // Test success rate recommendation
@@ -374,7 +387,7 @@ impl TestReport {
                 data.test_summary.success_rate
             ));
         }
-        
+
         // Performance recommendation
         if let Some(avg_duration) = data.performance_metrics.get("average_test_duration_ms") {
             if *avg_duration > 1000.0 {
@@ -384,7 +397,7 @@ impl TestReport {
                 ));
             }
         }
-        
+
         // Coverage recommendation
         if let Some(ref coverage) = data.coverage_data {
             if coverage.overall_coverage_percentage < 80.0 {
@@ -394,7 +407,7 @@ impl TestReport {
                 ));
             }
         }
-        
+
         // Snapshot recommendation
         if let Some(ref snapshots) = data.snapshot_data {
             if snapshots.invalid_snapshots > 0 {
@@ -404,7 +417,7 @@ impl TestReport {
                 ));
             }
         }
-        
+
         // Tracing recommendation
         if let Some(ref tracing) = data.tracing_data {
             if tracing.failed_spans > 0 {
@@ -414,7 +427,7 @@ impl TestReport {
                 ));
             }
         }
-        
+
         // Redaction recommendation
         if let Some(ref redaction) = data.redaction_data {
             if redaction.total_matches > 100 {
@@ -425,7 +438,7 @@ impl TestReport {
             }
         }
     }
-    
+
     /// Generate cleanroom-specific recommendations
     async fn generate_cleanroom_recommendations(&self, report: &mut ComprehensiveReport) {
         // Container performance recommendation
@@ -435,22 +448,38 @@ impl TestReport {
                 report.cleanroom_metrics.containers_created
             ));
         }
-        
+
         // Resource usage recommendation
-        if report.cleanroom_metrics.resource_usage.peak_cpu_usage_percent > 80.0 {
+        if report
+            .cleanroom_metrics
+            .resource_usage
+            .peak_cpu_usage_percent
+            > 80.0
+        {
             report.recommendations.push(format!(
                 "Peak CPU usage was {:.1}%, consider optimizing resource-intensive operations",
-                report.cleanroom_metrics.resource_usage.peak_cpu_usage_percent
+                report
+                    .cleanroom_metrics
+                    .resource_usage
+                    .peak_cpu_usage_percent
             ));
         }
-        
-        if report.cleanroom_metrics.resource_usage.peak_memory_usage_bytes > 1024 * 1024 * 1024 {
+
+        if report
+            .cleanroom_metrics
+            .resource_usage
+            .peak_memory_usage_bytes
+            > 1024 * 1024 * 1024
+        {
             report.recommendations.push(format!(
                 "Peak memory usage was {} bytes, consider optimizing memory usage",
-                report.cleanroom_metrics.resource_usage.peak_memory_usage_bytes
+                report
+                    .cleanroom_metrics
+                    .resource_usage
+                    .peak_memory_usage_bytes
             ));
         }
-        
+
         // Error count recommendation
         if report.cleanroom_metrics.error_count > 0 {
             report.recommendations.push(format!(
@@ -458,10 +487,15 @@ impl TestReport {
                 report.cleanroom_metrics.error_count
             ));
         }
-        
+
         // Performance metrics recommendation
-        if let Some(duration) = report.cleanroom_metrics.performance_metrics.get("total_duration_ms") {
-            if *duration > 300000.0 { // 5 minutes
+        if let Some(duration) = report
+            .cleanroom_metrics
+            .performance_metrics
+            .get("total_duration_ms")
+        {
+            if *duration > 300000.0 {
+                // 5 minutes
                 report.recommendations.push(format!(
                     "Total test duration was {:.1}ms, consider optimizing test execution time",
                     duration
@@ -559,44 +593,47 @@ impl ComprehensiveReport {
         if let Some(end_time) = &self.end_time {
             end_time.duration_since(self.start_time.clone())
         } else {
-            self.report_generated_at.duration_since(self.start_time.clone())
+            self.report_generated_at
+                .duration_since(self.start_time.clone())
         }
     }
-    
+
     /// Get overall success rate
     pub fn overall_success_rate(&self) -> f64 {
         self.test_summary.success_rate
     }
-    
+
     /// Get coverage percentage
     pub fn coverage_percentage(&self) -> Option<f64> {
-        self.coverage_data.as_ref().map(|c| c.overall_coverage_percentage)
+        self.coverage_data
+            .as_ref()
+            .map(|c| c.overall_coverage_percentage)
     }
-    
+
     /// Get performance score
     pub fn performance_score(&self) -> f64 {
         let mut score = 100.0;
-        
+
         // Deduct points for slow tests
         if let Some(avg_duration) = self.performance_metrics.get("average_test_duration_ms") {
             if *avg_duration > 1000.0 {
                 score -= (*avg_duration - 1000.0) / 100.0;
             }
         }
-        
+
         // Deduct points for high resource usage
         if self.cleanroom_metrics.resource_usage.peak_cpu_usage_percent > 80.0 {
             score -= (self.cleanroom_metrics.resource_usage.peak_cpu_usage_percent - 80.0) / 2.0;
         }
-        
+
         // Deduct points for errors
         if self.cleanroom_metrics.error_count > 0 {
             score -= self.cleanroom_metrics.error_count as f64 * 5.0;
         }
-        
+
         score.max(0.0)
     }
-    
+
     /// Get report summary
     pub fn summary(&self) -> String {
         format!(
@@ -625,7 +662,7 @@ impl ComprehensiveReport {
             self.recommendations.len()
         )
     }
-    
+
     /// Export report to JSON
     pub fn to_json(&self) -> Result<String> {
         // Create a serializable version without SerializableInstant fields
@@ -635,8 +672,9 @@ impl ComprehensiveReport {
             report: &'a ComprehensiveReport,
         }
 
-        serde_json::to_string_pretty(&SerializableReport { report: self })
-            .map_err(|e| CleanroomError::serialization_error(format!("Failed to serialize report: {}", e)))
+        serde_json::to_string_pretty(&SerializableReport { report: self }).map_err(|e| {
+            CleanroomError::serialization_error(format!("Failed to serialize report: {}", e))
+        })
     }
 
     /// Export report to TOML
@@ -648,8 +686,9 @@ impl ComprehensiveReport {
             report: &'a ComprehensiveReport,
         }
 
-        toml::to_string_pretty(&SerializableReport { report: self })
-            .map_err(|e| CleanroomError::serialization_error(format!("Failed to serialize report: {}", e)))
+        toml::to_string_pretty(&SerializableReport { report: self }).map_err(|e| {
+            CleanroomError::serialization_error(format!("Failed to serialize report: {}", e))
+        })
     }
 }
 
@@ -663,12 +702,12 @@ mod tests {
         let report = TestReport::new(session_id);
         assert_eq!(report.session_id, session_id);
     }
-    
+
     #[tokio::test]
     async fn test_update_test_summary() {
         let session_id = Uuid::new_v4();
         let report = TestReport::new(session_id);
-        
+
         let summary = TestSummary {
             total_tests: 10,
             passed_tests: 8,
@@ -678,54 +717,63 @@ mod tests {
             success_rate: 80.0,
             average_test_duration: Duration::from_secs(6),
         };
-        
+
         report.update_test_summary(summary).await.unwrap();
-        
+
         let data = report.report_data.lock().await;
         assert_eq!(data.test_summary.total_tests, 10);
         assert_eq!(data.test_summary.passed_tests, 8);
         assert_eq!(data.test_summary.success_rate, 80.0);
     }
-    
+
     #[tokio::test]
     async fn test_add_performance_metric() {
         let session_id = Uuid::new_v4();
         let report = TestReport::new(session_id);
-        
-        report.add_performance_metric("test_duration_ms".to_string(), 1000.0).await.unwrap();
-        
+
+        report
+            .add_performance_metric("test_duration_ms".to_string(), 1000.0)
+            .await
+            .unwrap();
+
         let data = report.report_data.lock().await;
-        assert_eq!(data.performance_metrics.get("test_duration_ms"), Some(&1000.0));
+        assert_eq!(
+            data.performance_metrics.get("test_duration_ms"),
+            Some(&1000.0)
+        );
     }
-    
+
     #[tokio::test]
     async fn test_add_recommendation() {
         let session_id = Uuid::new_v4();
         let report = TestReport::new(session_id);
-        
-        report.add_recommendation("Test recommendation".to_string()).await.unwrap();
-        
+
+        report
+            .add_recommendation("Test recommendation".to_string())
+            .await
+            .unwrap();
+
         let data = report.report_data.lock().await;
         assert_eq!(data.recommendations.len(), 1);
         assert_eq!(data.recommendations[0], "Test recommendation");
     }
-    
+
     #[tokio::test]
     async fn test_finalize_report() {
         let session_id = Uuid::new_v4();
         let report = TestReport::new(session_id);
-        
+
         report.finalize().await.unwrap();
-        
+
         let data = report.report_data.lock().await;
         assert!(data.end_time.is_some());
     }
-    
+
     #[tokio::test]
     async fn test_generate_comprehensive_report() {
         let session_id = Uuid::new_v4();
         let report = TestReport::new(session_id);
-        
+
         let summary = TestSummary {
             total_tests: 5,
             passed_tests: 4,
@@ -735,9 +783,9 @@ mod tests {
             success_rate: 80.0,
             average_test_duration: Duration::from_secs(6),
         };
-        
+
         report.update_test_summary(summary).await.unwrap();
-        
+
         let metrics = crate::cleanroom::CleanroomMetrics {
             session_id,
             start_time: crate::serializable_instant::SerializableInstant::now(),
@@ -769,18 +817,18 @@ mod tests {
             coverage_percentage: 85.0,
             performance_metrics: HashMap::new(),
         };
-        
+
         let comprehensive_report = report.generate_report(&metrics).await.unwrap();
         assert_eq!(comprehensive_report.session_id, session_id);
         assert_eq!(comprehensive_report.test_summary.total_tests, 5);
         assert_eq!(comprehensive_report.overall_success_rate(), 80.0);
     }
-    
+
     #[tokio::test]
     async fn test_comprehensive_report_methods() {
         let session_id = Uuid::new_v4();
         let report = TestReport::new(session_id);
-        
+
         let summary = TestSummary {
             total_tests: 10,
             passed_tests: 9,
@@ -790,9 +838,9 @@ mod tests {
             success_rate: 90.0,
             average_test_duration: Duration::from_secs(6),
         };
-        
+
         report.update_test_summary(summary).await.unwrap();
-        
+
         let coverage_data = CoverageData {
             overall_coverage_percentage: 85.0,
             line_coverage_percentage: 80.0,
@@ -810,9 +858,9 @@ mod tests {
             uncovered_branches: HashMap::new(),
             uncovered_functions: HashMap::new(),
         };
-        
+
         report.update_coverage_data(coverage_data).await.unwrap();
-        
+
         let metrics = crate::cleanroom::CleanroomMetrics {
             session_id,
             start_time: crate::serializable_instant::SerializableInstant::now(),
@@ -844,13 +892,13 @@ mod tests {
             coverage_percentage: 85.0,
             performance_metrics: HashMap::new(),
         };
-        
+
         let comprehensive_report = report.generate_report(&metrics).await.unwrap();
-        
+
         assert_eq!(comprehensive_report.overall_success_rate(), 90.0);
         assert_eq!(comprehensive_report.coverage_percentage(), Some(85.0));
         assert!(comprehensive_report.performance_score() > 0.0);
-        
+
         let summary_text = comprehensive_report.summary();
         assert!(summary_text.contains("Test Report Summary"));
         assert!(summary_text.contains("90.0%"));

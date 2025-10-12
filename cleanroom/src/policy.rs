@@ -6,7 +6,7 @@
 //! - Execution policies and rules
 //! - Compliance and audit trails
 
-use crate::error::{Result, CleanroomError};
+use crate::error::{CleanroomError, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::time::Duration;
@@ -196,7 +196,6 @@ pub enum PolicyValidationSeverity {
     Critical,
 }
 
-
 impl SecurityPolicy {
     /// Create a new security policy with default settings
     pub fn new() -> Self {
@@ -209,7 +208,7 @@ impl SecurityPolicy {
             security_level,
             ..Default::default()
         };
-        
+
         // Adjust isolation settings based on security level
         match security_level {
             SecurityLevel::Low => {
@@ -218,15 +217,15 @@ impl SecurityPolicy {
                 policy.enable_process_isolation = false;
                 policy.enable_data_redaction = false;
                 policy.enable_audit_logging = false;
-            },
+            }
             SecurityLevel::Medium | SecurityLevel::Standard => {
                 // Keep default settings
-            },
+            }
             SecurityLevel::High | SecurityLevel::Maximum | SecurityLevel::Locked => {
                 // Keep all isolation enabled (default)
-            },
+            }
         }
-        
+
         policy
     }
 }
@@ -321,7 +320,7 @@ impl Policy {
     pub fn new() -> Self {
         Self::default()
     }
-    
+
     /// Create a policy with custom security level
     pub fn with_security_level(security_level: SecurityLevel) -> Self {
         Self {
@@ -329,12 +328,10 @@ impl Policy {
             ..Default::default()
         }
     }
-    
+
     /// Create a policy with custom resource limits
     pub fn with_resource_limits(
-        max_cpu_percent: f64,
-        max_memory_bytes: u64,
-        max_disk_bytes: u64,
+        max_cpu_percent: f64, max_memory_bytes: u64, max_disk_bytes: u64,
     ) -> Self {
         let mut policy = Self::default();
         policy.resources.max_cpu_usage_percent = max_cpu_percent;
@@ -342,7 +339,7 @@ impl Policy {
         policy.resources.max_disk_usage_bytes = max_disk_bytes;
         policy
     }
-    
+
     /// Create a locked-down policy with maximum security
     pub fn locked() -> Self {
         Self::with_security_level(SecurityLevel::Locked)
@@ -374,46 +371,62 @@ impl Policy {
         self.security.enable_network_isolation = enable;
         self
     }
-    
+
     /// Check if network access is allowed
     pub fn allows_network(&self) -> bool {
         !self.security.enable_network_isolation
     }
-    
+
     /// Validate policy configuration
     pub fn validate(&self) -> Result<()> {
         // Validate security policy
         if self.security.allowed_ports.is_empty() {
-            return Err(CleanroomError::policy_violation_error("No allowed ports configured"));
+            return Err(CleanroomError::policy_violation_error(
+                "No allowed ports configured",
+            ));
         }
-        
+
         // Validate resource policy
-        if self.resources.max_cpu_usage_percent <= 0.0 || self.resources.max_cpu_usage_percent > 100.0 {
-            return Err(CleanroomError::policy_violation_error("Invalid CPU usage percentage"));
+        if self.resources.max_cpu_usage_percent <= 0.0
+            || self.resources.max_cpu_usage_percent > 100.0
+        {
+            return Err(CleanroomError::policy_violation_error(
+                "Invalid CPU usage percentage",
+            ));
         }
-        
+
         if self.resources.max_memory_usage_bytes == 0 {
-            return Err(CleanroomError::policy_violation_error("Invalid memory usage limit"));
+            return Err(CleanroomError::policy_violation_error(
+                "Invalid memory usage limit",
+            ));
         }
-        
+
         if self.resources.max_disk_usage_bytes == 0 {
-            return Err(CleanroomError::policy_violation_error("Invalid disk usage limit"));
+            return Err(CleanroomError::policy_violation_error(
+                "Invalid disk usage limit",
+            ));
         }
-        
+
         // Validate execution policy
         if self.execution.max_parallel_tasks == 0 {
-            return Err(CleanroomError::policy_violation_error("Invalid parallel task count"));
+            return Err(CleanroomError::policy_violation_error(
+                "Invalid parallel task count",
+            ));
         }
-        
+
         if self.execution.max_retry_attempts == 0 {
-            return Err(CleanroomError::policy_violation_error("Invalid retry attempt count"));
+            return Err(CleanroomError::policy_violation_error(
+                "Invalid retry attempt count",
+            ));
         }
-        
+
         Ok(())
     }
-    
+
     /// Check if operation is allowed by policy
-    pub fn is_operation_allowed(&self, _operation: &str, context: &HashMap<String, String>) -> Result<bool> {
+    pub fn is_operation_allowed(
+        &self, _operation: &str, context: &HashMap<String, String>,
+    ) -> Result<bool> {
         // Check security policy
         if self.security.enable_network_isolation {
             if let Some(port) = context.get("port") {
@@ -424,7 +437,7 @@ impl Policy {
                 }
             }
         }
-        
+
         // Check resource policy
         if let Some(cpu_usage) = context.get("cpu_usage") {
             if let Ok(cpu_percent) = cpu_usage.parse::<f64>() {
@@ -433,7 +446,7 @@ impl Policy {
                 }
             }
         }
-        
+
         if let Some(memory_usage) = context.get("memory_usage") {
             if let Ok(memory_bytes) = memory_usage.parse::<u64>() {
                 if memory_bytes > self.resources.max_memory_usage_bytes {
@@ -441,7 +454,7 @@ impl Policy {
                 }
             }
         }
-        
+
         // Check execution policy
         if let Some(parallel_tasks) = context.get("parallel_tasks") {
             if let Ok(task_count) = parallel_tasks.parse::<u32>() {
@@ -450,36 +463,80 @@ impl Policy {
                 }
             }
         }
-        
+
         Ok(true)
     }
-    
+
     /// Get environment variables for policy enforcement
     pub fn to_env(&self) -> HashMap<String, String> {
         let mut env = HashMap::new();
-        
+
         // Security policy environment variables
-        env.insert("CLEANROOM_SECURITY_LEVEL".to_string(), format!("{:?}", self.security.security_level));
-        env.insert("CLEANROOM_NETWORK_ISOLATION".to_string(), self.security.enable_network_isolation.to_string());
-        env.insert("CLEANROOM_FILESYSTEM_ISOLATION".to_string(), self.security.enable_filesystem_isolation.to_string());
-        env.insert("CLEANROOM_PROCESS_ISOLATION".to_string(), self.security.enable_process_isolation.to_string());
-        env.insert("CLEANROOM_ALLOWED_PORTS".to_string(), self.security.allowed_ports.iter().map(|p| p.to_string()).collect::<Vec<_>>().join(","));
-        
+        env.insert(
+            "CLEANROOM_SECURITY_LEVEL".to_string(),
+            format!("{:?}", self.security.security_level),
+        );
+        env.insert(
+            "CLEANROOM_NETWORK_ISOLATION".to_string(),
+            self.security.enable_network_isolation.to_string(),
+        );
+        env.insert(
+            "CLEANROOM_FILESYSTEM_ISOLATION".to_string(),
+            self.security.enable_filesystem_isolation.to_string(),
+        );
+        env.insert(
+            "CLEANROOM_PROCESS_ISOLATION".to_string(),
+            self.security.enable_process_isolation.to_string(),
+        );
+        env.insert(
+            "CLEANROOM_ALLOWED_PORTS".to_string(),
+            self.security
+                .allowed_ports
+                .iter()
+                .map(|p| p.to_string())
+                .collect::<Vec<_>>()
+                .join(","),
+        );
+
         // Resource policy environment variables
-        env.insert("CLEANROOM_MAX_CPU_PERCENT".to_string(), self.resources.max_cpu_usage_percent.to_string());
-        env.insert("CLEANROOM_MAX_MEMORY_BYTES".to_string(), self.resources.max_memory_usage_bytes.to_string());
-        env.insert("CLEANROOM_MAX_DISK_BYTES".to_string(), self.resources.max_disk_usage_bytes.to_string());
-        env.insert("CLEANROOM_MAX_CONTAINER_COUNT".to_string(), self.resources.max_container_count.to_string());
-        
+        env.insert(
+            "CLEANROOM_MAX_CPU_PERCENT".to_string(),
+            self.resources.max_cpu_usage_percent.to_string(),
+        );
+        env.insert(
+            "CLEANROOM_MAX_MEMORY_BYTES".to_string(),
+            self.resources.max_memory_usage_bytes.to_string(),
+        );
+        env.insert(
+            "CLEANROOM_MAX_DISK_BYTES".to_string(),
+            self.resources.max_disk_usage_bytes.to_string(),
+        );
+        env.insert(
+            "CLEANROOM_MAX_CONTAINER_COUNT".to_string(),
+            self.resources.max_container_count.to_string(),
+        );
+
         // Execution policy environment variables
-        env.insert("CLEANROOM_DETERMINISTIC_EXECUTION".to_string(), self.execution.enable_deterministic_execution.to_string());
-        env.insert("CLEANROOM_PARALLEL_EXECUTION".to_string(), self.execution.enable_parallel_execution.to_string());
-        env.insert("CLEANROOM_MAX_PARALLEL_TASKS".to_string(), self.execution.max_parallel_tasks.to_string());
-        env.insert("CLEANROOM_TEST_ISOLATION".to_string(), self.execution.enable_test_isolation.to_string());
-        
+        env.insert(
+            "CLEANROOM_DETERMINISTIC_EXECUTION".to_string(),
+            self.execution.enable_deterministic_execution.to_string(),
+        );
+        env.insert(
+            "CLEANROOM_PARALLEL_EXECUTION".to_string(),
+            self.execution.enable_parallel_execution.to_string(),
+        );
+        env.insert(
+            "CLEANROOM_MAX_PARALLEL_TASKS".to_string(),
+            self.execution.max_parallel_tasks.to_string(),
+        );
+        env.insert(
+            "CLEANROOM_TEST_ISOLATION".to_string(),
+            self.execution.enable_test_isolation.to_string(),
+        );
+
         env
     }
-    
+
     /// Get policy summary
     pub fn summary(&self) -> String {
         format!(
@@ -515,33 +572,36 @@ impl Policy {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[test]
     fn test_policy_creation() {
         let policy = Policy::new();
         assert!(policy.validate().is_ok());
     }
-    
+
     #[test]
     fn test_policy_with_security_level() {
         let policy = Policy::with_security_level(SecurityLevel::High);
         assert_eq!(policy.security.security_level, SecurityLevel::High);
     }
-    
+
     #[test]
     fn test_policy_with_resource_limits() {
         let policy = Policy::with_resource_limits(50.0, 512 * 1024 * 1024, 5 * 1024 * 1024 * 1024);
         assert_eq!(policy.resources.max_cpu_usage_percent, 50.0);
         assert_eq!(policy.resources.max_memory_usage_bytes, 512 * 1024 * 1024);
-        assert_eq!(policy.resources.max_disk_usage_bytes, 5 * 1024 * 1024 * 1024);
+        assert_eq!(
+            policy.resources.max_disk_usage_bytes,
+            5 * 1024 * 1024 * 1024
+        );
     }
-    
+
     #[test]
     fn test_policy_validation() {
         let policy = Policy::new();
         assert!(policy.validate().is_ok());
     }
-    
+
     #[test]
     fn test_policy_operation_allowed() {
         let policy = Policy::new();
@@ -549,36 +609,44 @@ mod tests {
         context.insert("port".to_string(), "5432".to_string());
         context.insert("cpu_usage".to_string(), "50.0".to_string());
         context.insert("memory_usage".to_string(), "256000000".to_string());
-        
-        assert!(policy.is_operation_allowed("test_operation", &context).unwrap());
+
+        assert!(
+            policy
+                .is_operation_allowed("test_operation", &context)
+                .unwrap()
+        );
     }
-    
+
     #[test]
     fn test_policy_operation_denied() {
         let policy = Policy::new();
         let mut context = HashMap::new();
         context.insert("port".to_string(), "9999".to_string()); // Not in allowed ports
         context.insert("cpu_usage".to_string(), "90.0".to_string()); // Exceeds limit
-        
-        assert!(!policy.is_operation_allowed("test_operation", &context).unwrap());
+
+        assert!(
+            !policy
+                .is_operation_allowed("test_operation", &context)
+                .unwrap()
+        );
     }
-    
+
     #[test]
     fn test_policy_env_variables() {
         let policy = Policy::new();
         let env = policy.to_env();
-        
+
         assert!(env.contains_key("CLEANROOM_SECURITY_LEVEL"));
         assert!(env.contains_key("CLEANROOM_NETWORK_ISOLATION"));
         assert!(env.contains_key("CLEANROOM_MAX_CPU_PERCENT"));
         assert!(env.contains_key("CLEANROOM_MAX_MEMORY_BYTES"));
     }
-    
+
     #[test]
     fn test_policy_summary() {
         let policy = Policy::new();
         let summary = policy.summary();
-        
+
         assert!(summary.contains("Policy Summary"));
         assert!(summary.contains("Security Level"));
         assert!(summary.contains("Network Isolation"));
@@ -587,7 +655,7 @@ mod tests {
     #[test]
     fn test_policy_default() {
         let policy = Policy::default();
-        
+
         assert_eq!(policy.security.security_level, SecurityLevel::Standard);
         assert!(policy.security.enable_network_isolation);
         assert!(policy.security.enable_filesystem_isolation);
@@ -599,7 +667,7 @@ mod tests {
     #[test]
     fn test_policy_new() {
         let policy = Policy::new();
-        
+
         assert_eq!(policy.security.security_level, SecurityLevel::Standard);
         assert!(policy.security.enable_network_isolation);
         assert!(policy.security.enable_filesystem_isolation);
@@ -611,19 +679,28 @@ mod tests {
     #[test]
     fn test_policy_serialization() {
         let policy = Policy::new();
-        
+
         let json = serde_json::to_string(&policy).unwrap();
         let deserialized: Policy = serde_json::from_str(&json).unwrap();
-        
-        assert_eq!(policy.security.security_level, deserialized.security.security_level);
-        assert_eq!(policy.security.enable_network_isolation, deserialized.security.enable_network_isolation);
-        assert_eq!(policy.security.enable_filesystem_isolation, deserialized.security.enable_filesystem_isolation);
+
+        assert_eq!(
+            policy.security.security_level,
+            deserialized.security.security_level
+        );
+        assert_eq!(
+            policy.security.enable_network_isolation,
+            deserialized.security.enable_network_isolation
+        );
+        assert_eq!(
+            policy.security.enable_filesystem_isolation,
+            deserialized.security.enable_filesystem_isolation
+        );
     }
 
     #[test]
     fn test_security_policy() {
         let security = SecurityPolicy::new();
-        
+
         assert_eq!(security.security_level, SecurityLevel::Standard);
         assert!(security.enable_network_isolation);
         assert!(security.enable_filesystem_isolation);
@@ -637,7 +714,7 @@ mod tests {
     #[test]
     fn test_security_policy_with_level() {
         let security = SecurityPolicy::with_security_level(SecurityLevel::High);
-        
+
         assert_eq!(security.security_level, SecurityLevel::High);
         assert!(security.enable_network_isolation);
         assert!(security.enable_filesystem_isolation);
@@ -665,11 +742,14 @@ mod tests {
     #[test]
     fn test_resource_policy() {
         let resources = ResourcePolicy::new();
-        
+
         assert_eq!(resources.max_cpu_usage_percent, 80.0);
         assert_eq!(resources.max_memory_usage_bytes, 1024 * 1024 * 1024); // 1GB
         assert_eq!(resources.max_disk_usage_bytes, 10 * 1024 * 1024 * 1024); // 10GB
-        assert_eq!(resources.max_network_bandwidth_bytes_per_sec, 100 * 1024 * 1024); // 100MB/s
+        assert_eq!(
+            resources.max_network_bandwidth_bytes_per_sec,
+            100 * 1024 * 1024
+        ); // 100MB/s
         assert_eq!(resources.max_container_count, 10);
         assert_eq!(resources.max_test_execution_time, Duration::from_secs(300));
     }
@@ -677,7 +757,7 @@ mod tests {
     #[test]
     fn test_execution_policy() {
         let execution = ExecutionPolicy::new();
-        
+
         assert!(execution.enable_deterministic_execution);
         assert!(execution.enable_parallel_execution);
         assert!(execution.enable_test_isolation);
@@ -690,11 +770,14 @@ mod tests {
     #[test]
     fn test_compliance_policy() {
         let compliance = CompliancePolicy::new();
-        
+
         assert!(compliance.enable_compliance_reporting);
         assert!(compliance.enable_audit_trails);
         assert!(compliance.enable_policy_validation);
-        assert_eq!(compliance.audit_retention_period, Duration::from_secs(30 * 24 * 60 * 60)); // 30 days
+        assert_eq!(
+            compliance.audit_retention_period,
+            Duration::from_secs(30 * 24 * 60 * 60)
+        ); // 30 days
     }
 
     #[test]
@@ -716,7 +799,7 @@ mod tests {
     #[test]
     fn test_policy_locked() {
         let policy = Policy::locked();
-        
+
         assert_eq!(policy.security.security_level, SecurityLevel::Locked);
         assert!(policy.security.enable_network_isolation);
         assert!(policy.security.enable_filesystem_isolation);
@@ -728,7 +811,7 @@ mod tests {
     #[test]
     fn test_policy_high_security() {
         let policy = Policy::high_security();
-        
+
         assert_eq!(policy.security.security_level, SecurityLevel::High);
         assert!(policy.security.enable_network_isolation);
         assert!(policy.security.enable_filesystem_isolation);
@@ -740,7 +823,7 @@ mod tests {
     #[test]
     fn test_policy_standard() {
         let policy = Policy::standard();
-        
+
         assert_eq!(policy.security.security_level, SecurityLevel::Standard);
         assert!(policy.security.enable_network_isolation);
         assert!(policy.security.enable_filesystem_isolation);
@@ -752,7 +835,7 @@ mod tests {
     #[test]
     fn test_policy_low_security() {
         let policy = Policy::low_security();
-        
+
         assert_eq!(policy.security.security_level, SecurityLevel::Low);
         assert!(!policy.security.enable_network_isolation);
         assert!(!policy.security.enable_filesystem_isolation);
@@ -768,8 +851,12 @@ mod tests {
         context.insert("port".to_string(), "5432".to_string());
         context.insert("cpu_usage".to_string(), "50.0".to_string());
         context.insert("memory_usage".to_string(), "256000000".to_string());
-        
-        assert!(policy.is_operation_allowed("test_operation", &context).unwrap());
+
+        assert!(
+            policy
+                .is_operation_allowed("test_operation", &context)
+                .unwrap()
+        );
     }
 
     #[test]
@@ -779,8 +866,12 @@ mod tests {
         context.insert("port".to_string(), "9999".to_string()); // Not in allowed ports
         context.insert("cpu_usage".to_string(), "50.0".to_string());
         context.insert("memory_usage".to_string(), "256000000".to_string());
-        
-        assert!(!policy.is_operation_allowed("test_operation", &context).unwrap());
+
+        assert!(
+            !policy
+                .is_operation_allowed("test_operation", &context)
+                .unwrap()
+        );
     }
 
     #[test]
@@ -790,8 +881,12 @@ mod tests {
         context.insert("port".to_string(), "5432".to_string());
         context.insert("cpu_usage".to_string(), "90.0".to_string()); // Exceeds limit
         context.insert("memory_usage".to_string(), "256000000".to_string());
-        
-        assert!(!policy.is_operation_allowed("test_operation", &context).unwrap());
+
+        assert!(
+            !policy
+                .is_operation_allowed("test_operation", &context)
+                .unwrap()
+        );
     }
 
     #[test]
@@ -801,20 +896,34 @@ mod tests {
         context.insert("port".to_string(), "5432".to_string());
         context.insert("cpu_usage".to_string(), "50.0".to_string());
         context.insert("memory_usage".to_string(), "2000000000".to_string()); // Exceeds limit
-        
-        assert!(!policy.is_operation_allowed("test_operation", &context).unwrap());
-    }
 
+        assert!(
+            !policy
+                .is_operation_allowed("test_operation", &context)
+                .unwrap()
+        );
+    }
 
     #[test]
     fn test_policy_env_variables_values() {
         let policy = Policy::new();
         let env = policy.to_env();
-        
-        assert_eq!(env.get("CLEANROOM_SECURITY_LEVEL"), Some(&"Standard".to_string()));
-        assert_eq!(env.get("CLEANROOM_NETWORK_ISOLATION"), Some(&"true".to_string()));
-        assert_eq!(env.get("CLEANROOM_MAX_CPU_PERCENT"), Some(&"80".to_string()));
-        assert_eq!(env.get("CLEANROOM_MAX_MEMORY_BYTES"), Some(&"1073741824".to_string()));
-    }
 
+        assert_eq!(
+            env.get("CLEANROOM_SECURITY_LEVEL"),
+            Some(&"Standard".to_string())
+        );
+        assert_eq!(
+            env.get("CLEANROOM_NETWORK_ISOLATION"),
+            Some(&"true".to_string())
+        );
+        assert_eq!(
+            env.get("CLEANROOM_MAX_CPU_PERCENT"),
+            Some(&"80".to_string())
+        );
+        assert_eq!(
+            env.get("CLEANROOM_MAX_MEMORY_BYTES"),
+            Some(&"1073741824".to_string())
+        );
+    }
 }

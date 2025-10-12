@@ -65,7 +65,10 @@ impl Config {
     /// Validate configuration
     pub fn validate(&self) -> Result<()> {
         if self.args.is_empty() {
-            return Err(crate::error::CleanroomError::new(crate::error::ErrorKind::ValidationError, "Empty command arguments"));
+            return Err(crate::error::CleanroomError::new(
+                crate::error::ErrorKind::ValidationError,
+                "Empty command arguments",
+            ));
         }
 
         if let Some(ref workdir) = self.workdir {
@@ -78,11 +81,17 @@ impl Config {
         }
 
         if self.execution_timeout.as_secs() == 0 {
-            return Err(crate::error::CleanroomError::new(crate::error::ErrorKind::ValidationError, "Timeout must be greater than 0"));
+            return Err(crate::error::CleanroomError::new(
+                crate::error::ErrorKind::ValidationError,
+                "Timeout must be greater than 0",
+            ));
         }
 
         self.policy.validate().map_err(|e| {
-            crate::error::CleanroomError::validation_error(format!("Policy validation failed: {}", e))
+            crate::error::CleanroomError::validation_error(format!(
+                "Policy validation failed: {}",
+                e
+            ))
         })?;
 
         Ok(())
@@ -217,23 +226,24 @@ impl Runtime {
         let limits = &self.config.policy.resources;
 
         // Check memory limit
-        if limits.max_memory_usage_bytes < 1024 * 1024 { // 1MB minimum
+        if limits.max_memory_usage_bytes < 1024 * 1024 {
+            // 1MB minimum
             return Err(crate::error::CleanroomError::resource_limit_exceeded(
-                "Memory limit too low (minimum 1MB)"
+                "Memory limit too low (minimum 1MB)",
             ));
         }
 
         // Check execution time limit
         if limits.max_test_execution_time < Duration::from_secs(1) {
             return Err(crate::error::CleanroomError::resource_limit_exceeded(
-                "Test execution time limit too low (minimum 1 second)"
+                "Test execution time limit too low (minimum 1 second)",
             ));
         }
 
         // Check container count limit
         if limits.max_container_count == 0 {
             return Err(crate::error::CleanroomError::resource_limit_exceeded(
-                "Container count limit must be at least 1"
+                "Container count limit must be at least 1",
             ));
         }
 
@@ -246,18 +256,28 @@ impl Runtime {
 
         if security.enable_network_isolation {
             // Block network access
-            self.context.env.insert("CLEANROOM_NET".to_string(), "offline".to_string());
+            self.context
+                .env
+                .insert("CLEANROOM_NET".to_string(), "offline".to_string());
         } else if !security.allowed_ports.is_empty() {
             // Allow only specific ports
-            self.context.env.insert("CLEANROOM_NET".to_string(), "limited".to_string());
-            let ports_str = security.allowed_ports.iter()
+            self.context
+                .env
+                .insert("CLEANROOM_NET".to_string(), "limited".to_string());
+            let ports_str = security
+                .allowed_ports
+                .iter()
                 .map(|p| p.to_string())
                 .collect::<Vec<_>>()
                 .join(",");
-            self.context.env.insert("CLEANROOM_ALLOWED_PORTS".to_string(), ports_str);
+            self.context
+                .env
+                .insert("CLEANROOM_ALLOWED_PORTS".to_string(), ports_str);
         } else {
             // Allow all network access
-            self.context.env.insert("CLEANROOM_NET".to_string(), "open".to_string());
+            self.context
+                .env
+                .insert("CLEANROOM_NET".to_string(), "open".to_string());
         }
 
         Ok(())
@@ -268,9 +288,13 @@ impl Runtime {
         let execution = &self.config.policy.execution;
 
         if execution.enable_test_isolation {
-            self.context.env.insert("CLEANROOM_FS".to_string(), "isolated".to_string());
+            self.context
+                .env
+                .insert("CLEANROOM_FS".to_string(), "isolated".to_string());
         } else {
-            self.context.env.insert("CLEANROOM_FS".to_string(), "normal".to_string());
+            self.context
+                .env
+                .insert("CLEANROOM_FS".to_string(), "normal".to_string());
         }
 
         Ok(())
@@ -300,7 +324,10 @@ impl Runtime {
         // Execute with timeout
         let start_time = std::time::Instant::now();
         let output = cmd.output().map_err(|e| {
-            crate::error::CleanroomError::container_error(format!("Command execution failed: {}", e))
+            crate::error::CleanroomError::container_error(format!(
+                "Command execution failed: {}",
+                e
+            ))
         })?;
 
         let duration_ms = start_time.elapsed().as_millis() as u64;
@@ -394,22 +421,19 @@ mod tests {
 
     #[test]
     fn test_config_with_workdir() {
-        let config = Config::new(vec!["echo".to_string()])
-            .with_workdir(std::env::temp_dir());
+        let config = Config::new(vec!["echo".to_string()]).with_workdir(std::env::temp_dir());
         assert!(config.workdir.is_some());
     }
 
     #[test]
     fn test_config_with_env() {
-        let config = Config::new(vec!["echo".to_string()])
-            .with_env("TEST_VAR", "test_value");
+        let config = Config::new(vec!["echo".to_string()]).with_env("TEST_VAR", "test_value");
         assert_eq!(config.env.get("TEST_VAR"), Some(&"test_value".to_string()));
     }
 
     #[test]
     fn test_config_with_timeout() {
-        let config = Config::new(vec!["echo".to_string()])
-            .with_timeout(Duration::from_secs(60));
+        let config = Config::new(vec!["echo".to_string()]).with_timeout(Duration::from_secs(60));
         assert_eq!(config.execution_timeout, Duration::from_secs(60));
     }
 
@@ -421,8 +445,7 @@ mod tests {
 
     #[test]
     fn test_config_validation_zero_timeout() {
-        let config = Config::new(vec!["echo".to_string()])
-            .with_timeout(Duration::from_secs(0));
+        let config = Config::new(vec!["echo".to_string()]).with_timeout(Duration::from_secs(0));
         assert!(config.validate().is_err());
     }
 
@@ -454,7 +477,10 @@ mod tests {
 
         assert_eq!(runtime.config().args, vec!["echo", "hello"]);
         assert_eq!(runtime.config().execution_timeout, Duration::from_secs(60));
-        assert_eq!(runtime.config().env.get("TEST_VAR"), Some(&"test_value".to_string()));
+        assert_eq!(
+            runtime.config().env.get("TEST_VAR"),
+            Some(&"test_value".to_string())
+        );
     }
 
     #[test]

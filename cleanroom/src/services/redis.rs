@@ -4,7 +4,7 @@
 //! with health checks, connection info, and automatic teardown.
 
 use crate::error::Result;
-use crate::services::{Service, ConnectionInfo};
+use crate::services::{ConnectionInfo, Service};
 
 /// Redis service fixture using testcontainers
 #[derive(Debug)]
@@ -27,9 +27,9 @@ impl Redis {
     }
 
     /// Create with custom configuration
-    pub fn with_config(port: u16, password: Option<String>) -> Result<Self> {
+    pub fn with_config(_port: u16, password: Option<String>) -> Result<Self> {
         let mut conn_info = ConnectionInfo::new("host=localhost port=6379");
-        
+
         if let Some(ref pass) = password {
             conn_info = conn_info.with_param("password", pass);
         }
@@ -56,19 +56,38 @@ impl Service for Redis {
         "redis"
     }
 
-    fn start(&self) -> Result<()> {
+    fn health_check(&self) -> Result<bool> {
+        // In a real implementation, this would check Redis health
+        Ok(true)
+    }
+
+    fn connection_info(&self) -> Result<ConnectionInfo> {
+        Ok(self.connection_info.clone())
+    }
+
+    fn start(&mut self) -> Result<()> {
         // In a real implementation, this would start the Redis container
         Ok(())
     }
 
-    fn stop(&self) -> Result<()> {
+    fn stop(&mut self) -> Result<()> {
         // In a real implementation, this would stop the Redis container
         Ok(())
     }
 
-    fn is_running(&self) -> bool {
+    fn wait_for_ready(&self, _timeout: std::time::Duration) -> Result<()> {
+        // In a real implementation, this would wait for Redis to be ready
+        Ok(())
+    }
+
+    fn logs(&self) -> Result<Vec<String>> {
+        // In a real implementation, this would return Redis logs
+        Ok(vec!["Redis service logs".to_string()])
+    }
+
+    fn is_running(&self) -> Result<bool> {
         // In a real implementation, this would check if the container is running
-        true
+        Ok(true)
     }
 }
 
@@ -84,29 +103,29 @@ mod tests {
 
     #[test]
     fn test_redis_with_config() {
-        let redis = Redis::with_config(Some("testpass".to_string()));
+        let redis = Redis::with_config(6379, Some("testpass".to_string()));
         assert!(redis.is_ok());
-        
+
         let redis = redis.unwrap();
         assert_eq!(redis.password(), Some("testpass"));
     }
 
     #[test]
     fn test_redis_with_config_no_password() {
-        let redis = Redis::with_config(None);
+        let redis = Redis::with_config(6379, None);
         assert!(redis.is_ok());
-        
+
         let redis = redis.unwrap();
         assert_eq!(redis.password(), None);
     }
 
     #[test]
     fn test_redis_service_trait() {
-        let redis = Redis::new().unwrap();
+        let mut redis = Redis::new().unwrap();
         assert_eq!(redis.name(), "redis");
         assert!(redis.start().is_ok());
         assert!(redis.stop().is_ok());
-        assert!(redis.is_running());
+        assert!(redis.is_running().unwrap());
     }
 
     #[test]

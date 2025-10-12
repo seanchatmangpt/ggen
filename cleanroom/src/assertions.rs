@@ -3,54 +3,72 @@
 //! Provides a convenient way to validate command outputs, exit codes,
 //! and execution properties in a fluent, chainable manner.
 
-use crate::scenario::RunResult;
 use crate::backend::RunResult as BackendRunResult;
+use crate::scenario::RunResult;
 
 /// Trait for making assertions on execution results
 pub trait Assert {
     /// Assert that the command succeeded (exit code 0)
     fn assert_success(&self) -> &Self;
-    
+
     /// Assert that the command failed (non-zero exit code)
     fn assert_failure(&self) -> &Self;
-    
+
     /// Assert that stdout contains the given text
     fn assert_stdout_contains(&self, text: &str) -> &Self;
-    
+
     /// Assert that stderr contains the given text
     fn assert_stderr_contains(&self, text: &str) -> &Self;
-    
+
     /// Assert that execution was hermetic
     fn assert_hermetic(&self) -> &Self;
-    
+
     /// Assert that mounts were deterministic
     fn assert_deterministic_mounts(&self) -> &Self;
-    
+
     /// Assert that clock was normalized
     fn assert_normalized_clock(&self) -> &Self;
 }
 
 impl Assert for RunResult {
     fn assert_success(&self) -> &Self {
-        assert_eq!(self.exit_code, 0, "Expected success (exit code 0), got {}", self.exit_code);
+        assert_eq!(
+            self.exit_code, 0,
+            "Expected success (exit code 0), got {}",
+            self.exit_code
+        );
         self
     }
-    
+
     fn assert_failure(&self) -> &Self {
-        assert_ne!(self.exit_code, 0, "Expected failure (non-zero exit code), got {}", self.exit_code);
+        assert_ne!(
+            self.exit_code, 0,
+            "Expected failure (non-zero exit code), got {}",
+            self.exit_code
+        );
         self
     }
-    
+
     fn assert_stdout_contains(&self, text: &str) -> &Self {
-        assert!(self.stdout.contains(text), "Expected stdout to contain '{}', got: {}", text, self.stdout);
+        assert!(
+            self.stdout.contains(text),
+            "Expected stdout to contain '{}', got: {}",
+            text,
+            self.stdout
+        );
         self
     }
-    
+
     fn assert_stderr_contains(&self, text: &str) -> &Self {
-        assert!(self.stderr.contains(text), "Expected stderr to contain '{}', got: {}", text, self.stderr);
+        assert!(
+            self.stderr.contains(text),
+            "Expected stderr to contain '{}', got: {}",
+            text,
+            self.stderr
+        );
         self
     }
-    
+
     fn assert_hermetic(&self) -> &Self {
         // For scenario results, we check if any step was hermetic
         let hermetic = self.steps.iter().any(|_step| {
@@ -60,7 +78,7 @@ impl Assert for RunResult {
         assert!(hermetic, "Expected hermetic execution");
         self
     }
-    
+
     fn assert_deterministic_mounts(&self) -> &Self {
         // For scenario results, we check if any step had deterministic mounts
         let deterministic = self.steps.iter().any(|_step| {
@@ -70,7 +88,7 @@ impl Assert for RunResult {
         assert!(deterministic, "Expected deterministic mounts");
         self
     }
-    
+
     fn assert_normalized_clock(&self) -> &Self {
         // For scenario results, we check if any step had normalized clock
         let normalized = self.steps.iter().any(|_step| {
@@ -84,35 +102,53 @@ impl Assert for RunResult {
 
 impl Assert for BackendRunResult {
     fn assert_success(&self) -> &Self {
-        assert_eq!(self.exit_code, 0, "Expected success (exit code 0), got {}", self.exit_code);
+        assert_eq!(
+            self.exit_code, 0,
+            "Expected success (exit code 0), got {}",
+            self.exit_code
+        );
         self
     }
-    
+
     fn assert_failure(&self) -> &Self {
-        assert_ne!(self.exit_code, 0, "Expected failure (non-zero exit code), got {}", self.exit_code);
+        assert_ne!(
+            self.exit_code, 0,
+            "Expected failure (non-zero exit code), got {}",
+            self.exit_code
+        );
         self
     }
-    
+
     fn assert_stdout_contains(&self, text: &str) -> &Self {
-        assert!(self.stdout.contains(text), "Expected stdout to contain '{}', got: {}", text, self.stdout);
+        assert!(
+            self.stdout.contains(text),
+            "Expected stdout to contain '{}', got: {}",
+            text,
+            self.stdout
+        );
         self
     }
-    
+
     fn assert_stderr_contains(&self, text: &str) -> &Self {
-        assert!(self.stderr.contains(text), "Expected stderr to contain '{}', got: {}", text, self.stderr);
+        assert!(
+            self.stderr.contains(text),
+            "Expected stderr to contain '{}', got: {}",
+            text,
+            self.stderr
+        );
         self
     }
-    
+
     fn assert_hermetic(&self) -> &Self {
         // Note: hermetic field removed from RunResult, always assume hermetic for containers
         self
     }
-    
+
     fn assert_deterministic_mounts(&self) -> &Self {
         // Note: deterministic_mounts field removed from RunResult, always assume deterministic for containers
         self
     }
-    
+
     fn assert_normalized_clock(&self) -> &Self {
         // Note: normalized_clock field removed from RunResult, clock normalization not implemented
         self
@@ -137,7 +173,7 @@ mod tests {
             concurrent: false,
             step_order: Vec::new(),
         };
-        
+
         result.assert_success();
     }
 
@@ -155,7 +191,7 @@ mod tests {
             concurrent: false,
             step_order: Vec::new(),
         };
-        
+
         result.assert_success();
     }
 
@@ -172,7 +208,7 @@ mod tests {
             concurrent: false,
             step_order: Vec::new(),
         };
-        
+
         result.assert_stdout_contains("hello");
     }
 
@@ -190,7 +226,7 @@ mod tests {
             concurrent: false,
             step_order: Vec::new(),
         };
-        
+
         result.assert_stdout_contains("goodbye");
     }
 }

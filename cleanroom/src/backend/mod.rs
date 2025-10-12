@@ -161,7 +161,10 @@ impl AutoBackend {
             "testcontainers" | "auto" => Self::detect(),
             _ => Err(crate::error::CleanroomError::new(
                 crate::error::ErrorKind::ConfigurationError,
-                format!("Unknown backend: {}. Only 'testcontainers' and 'auto' are supported", name)
+                format!(
+                    "Unknown backend: {}. Only 'testcontainers' and 'auto' are supported",
+                    name
+                ),
             )),
         }
     }
@@ -208,13 +211,8 @@ mod tests {
 
     #[test]
     fn test_run_result_creation() {
-        let result = RunResult::new(
-            0,
-            "output".to_string(),
-            "error".to_string(),
-            1000,
-        );
-        
+        let result = RunResult::new(0, "output".to_string(), "error".to_string(), 1000);
+
         assert!(result.success());
         assert!(!result.failed());
         assert_eq!(result.exit_code, 0);
@@ -225,13 +223,8 @@ mod tests {
 
     #[test]
     fn test_run_result_failure() {
-        let result = RunResult::new(
-            1,
-            "output".to_string(),
-            "error".to_string(),
-            500,
-        );
-        
+        let result = RunResult::new(1, "output".to_string(), "error".to_string(), 500);
+
         assert!(!result.success());
         assert!(result.failed());
         assert_eq!(result.exit_code, 1);
@@ -248,10 +241,8 @@ mod tests {
 
     #[test]
     fn test_cmd_with_args() {
-        let cmd = Cmd::new("echo")
-            .arg("hello")
-            .arg("world");
-        
+        let cmd = Cmd::new("echo").arg("hello").arg("world");
+
         assert_eq!(cmd.args.len(), 2);
         assert_eq!(cmd.args[0], "hello");
         assert_eq!(cmd.args[1], "world");

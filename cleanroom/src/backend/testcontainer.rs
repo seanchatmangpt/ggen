@@ -7,12 +7,7 @@ use crate::backend::{Backend, Cmd, RunResult};
 use crate::error::{BackendError, Result};
 use crate::policy::Policy;
 use std::time::{Duration, Instant};
-use testcontainers::{
-    GenericImage,
-    ImageExt,
-    core::ExecCommand,
-    runners::SyncRunner,
-};
+use testcontainers::{GenericImage, ImageExt, core::ExecCommand, runners::SyncRunner};
 
 /// Testcontainers backend for containerized execution
 #[derive(Debug)]
@@ -67,7 +62,6 @@ impl TestcontainerBackend {
         true
     }
 
-
     /// Add environment variable to container
     pub fn with_env(mut self, key: &str, val: &str) -> Self {
         self.env_vars.insert(key.to_string(), val.to_string());
@@ -82,7 +76,8 @@ impl TestcontainerBackend {
 
     /// Add volume mount
     pub fn with_volume(mut self, host_path: &str, container_path: &str) -> Self {
-        self.volume_mounts.push((host_path.to_string(), container_path.to_string()));
+        self.volume_mounts
+            .push((host_path.to_string(), container_path.to_string()));
         self
     }
 
@@ -100,7 +95,9 @@ impl TestcontainerBackend {
         let image = GenericImage::new(self.image_name.clone(), self.image_tag.clone());
 
         // Build container request with all configurations
-        let mut container_request: testcontainers::core::ContainerRequest<testcontainers::GenericImage> = image.into();
+        let mut container_request: testcontainers::core::ContainerRequest<
+            testcontainers::GenericImage,
+        > = image.into();
 
         // Add environment variables from backend storage
         for (key, value) in &self.env_vars {
@@ -134,11 +131,13 @@ impl TestcontainerBackend {
 
         // Set working directory if specified
         if let Some(workdir) = &cmd.workdir {
-            container_request = container_request.with_working_dir(workdir.to_string_lossy().to_string());
+            container_request =
+                container_request.with_working_dir(workdir.to_string_lossy().to_string());
         }
 
         // Start container using SyncRunner
-        let container = container_request.start()
+        let container = container_request
+            .start()
             .map_err(|e| BackendError::Runtime(format!("Failed to start container: {}", e)))?;
 
         // Execute command - testcontainers expects Vec<&str> for exec
@@ -157,12 +156,16 @@ impl TestcontainerBackend {
         use std::io::Read;
         let mut stdout = String::new();
         let mut stderr = String::new();
-        
-        exec_result.stdout().read_to_string(&mut stdout)
+
+        exec_result
+            .stdout()
+            .read_to_string(&mut stdout)
             .map_err(|e| BackendError::Runtime(format!("Failed to read stdout: {}", e)))?;
-        exec_result.stderr().read_to_string(&mut stderr)
+        exec_result
+            .stderr()
+            .read_to_string(&mut stderr)
             .map_err(|e| BackendError::Runtime(format!("Failed to read stderr: {}", e)))?;
-        
+
         let exit_code = exec_result.exit_code().unwrap_or(Some(-1)).unwrap_or(-1) as i32;
 
         Ok(RunResult {
@@ -183,15 +186,18 @@ impl Backend for TestcontainerBackend {
     fn run_cmd(&self, cmd: Cmd) -> Result<RunResult> {
         // Use synchronous execution with timeout
         let start_time = Instant::now();
-        
+
         // Execute command with timeout
         let result = self.execute_in_container(&cmd)?;
-        
+
         // Check if execution exceeded timeout
         if start_time.elapsed() > self.timeout {
-            return Err(crate::Error::timeout_error(format!("Command timed out after {} seconds", self.timeout.as_secs())));
+            return Err(crate::Error::timeout_error(format!(
+                "Command timed out after {} seconds",
+                self.timeout.as_secs()
+            )));
         }
-        
+
         Ok(result)
     }
 
@@ -210,7 +216,6 @@ impl Backend for TestcontainerBackend {
     fn supports_deterministic(&self) -> bool {
         true
     }
-
 }
 
 #[cfg(test)]

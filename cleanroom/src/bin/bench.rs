@@ -1,6 +1,6 @@
 //! Cleanroom performance benchmark
 
-use cleanroom::{run, CleanroomConfig};
+use cleanroom::{CleanroomConfig, run};
 use std::time::{Duration, Instant};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -19,19 +19,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Benchmark 2: Multiple command execution
     println!("\n📊 Benchmark 2: Multiple Command Execution");
     let start = Instant::now();
-    
-    let commands = vec![
-        ["echo", "test1"],
-        ["echo", "test2"],
-        ["echo", "test3"],
-    ];
-    
+
+    let commands = vec![["echo", "test1"], ["echo", "test2"], ["echo", "test3"]];
+
     for cmd in commands {
         let result = run(cmd)?;
-        println!("  Command '{}' completed with exit code {}", 
-                 result.stdout.trim(), result.exit_code);
+        println!(
+            "  Command '{}' completed with exit code {}",
+            result.stdout.trim(),
+            result.exit_code
+        );
     }
-    
+
     let multiple_time = start.elapsed();
     println!("✅ Multiple commands executed in {:?}", multiple_time);
 

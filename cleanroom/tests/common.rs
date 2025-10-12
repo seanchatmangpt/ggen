@@ -1,13 +1,12 @@
 //! Common test utilities and shared test code for cleanroom framework
 
-use std::time::Duration;
-use std::sync::Arc;
-use tokio::time::timeout;
 use cleanroom::{
-    CleanroomEnvironment, CleanroomConfig, CleanroomError,
-    PostgresContainer, RedisContainer, GenericContainer,
-    Policy, SecurityLevel, ResourceLimits,
+    CleanroomConfig, CleanroomEnvironment, CleanroomError, GenericContainer, Policy,
+    PostgresContainer, RedisContainer, ResourceLimits, SecurityLevel,
 };
+use std::sync::Arc;
+use std::time::Duration;
+use tokio::time::timeout;
 
 /// Common test timeout duration
 pub const TEST_TIMEOUT: Duration = Duration::from_secs(30);
@@ -85,8 +84,7 @@ pub fn create_test_postgres_container() -> PostgresContainer {
 
 /// Create a test Redis container
 pub fn create_test_redis_container() -> RedisContainer {
-    RedisContainer::new("redis:7")
-        .with_port(6379)
+    RedisContainer::new("redis:7").with_port(6379)
 }
 
 /// Create a test generic container
@@ -98,8 +96,7 @@ pub fn create_test_generic_container() -> GenericContainer {
 
 /// Create a test policy
 pub fn create_test_policy() -> Policy {
-    Policy::with_security_level(SecurityLevel::Standard)
-        .with_network_isolation(false)
+    Policy::with_security_level(SecurityLevel::Standard).with_network_isolation(false)
 }
 
 /// Create test resource limits
@@ -112,8 +109,7 @@ pub fn create_test_resource_limits() -> ResourceLimits {
 
 /// Wait for a condition to be true with timeout
 pub async fn wait_for_condition<F, Fut>(
-    condition: F,
-    timeout_duration: Duration,
+    condition: F, timeout_duration: Duration,
 ) -> Result<bool, CleanroomError>
 where
     F: Fn() -> Fut,
@@ -131,8 +127,7 @@ where
 
 /// Execute a test with timeout
 pub async fn execute_test_with_timeout<F, Fut, T>(
-    test: F,
-    timeout_duration: Duration,
+    test: F, timeout_duration: Duration,
 ) -> Result<T, CleanroomError>
 where
     F: Fn() -> Fut,
@@ -215,8 +210,7 @@ pub mod assertions {
 
     /// Assert that a result is ok and contains expected value
     pub fn assert_result_ok<T: PartialEq + std::fmt::Debug>(
-        result: &Result<T, CleanroomError>,
-        expected: &T,
+        result: &Result<T, CleanroomError>, expected: &T,
     ) {
         match result {
             Ok(value) => assert_eq!(value, expected),
@@ -234,8 +228,7 @@ pub mod assertions {
 
     /// Assert that a result is an error with specific kind
     pub fn assert_result_err_kind<T: std::fmt::Debug>(
-        result: &Result<T, CleanroomError>,
-        expected_kind: cleanroom::ErrorKind,
+        result: &Result<T, CleanroomError>, expected_kind: cleanroom::ErrorKind,
     ) {
         match result {
             Ok(value) => panic!("Expected Err({:?}), got Ok({:?})", expected_kind, value),
@@ -245,8 +238,7 @@ pub mod assertions {
 
     /// Assert that a result is an error with specific message
     pub fn assert_result_err_message<T: std::fmt::Debug>(
-        result: &Result<T, CleanroomError>,
-        expected_message: &str,
+        result: &Result<T, CleanroomError>, expected_message: &str,
     ) {
         match result {
             Ok(value) => {
@@ -471,8 +463,8 @@ pub mod generators {
             any::<bool>(),
             any::<bool>(),
         )
-            .prop_map(|(security_level, network_isolation, port_scanning, fs_isolation)| {
-                Policy {
+            .prop_map(
+                |(security_level, network_isolation, port_scanning, fs_isolation)| Policy {
                     security_level,
                     network: cleanroom::NetworkPolicy {
                         enable_network_isolation: network_isolation,
@@ -480,22 +472,21 @@ pub mod generators {
                         enable_file_system_isolation: fs_isolation,
                     },
                     ..Policy::default()
-                }
-            })
+                },
+            )
     }
 
     /// Generate random resource limits
     pub fn resource_limits() -> impl Strategy<Value = ResourceLimits> {
-        (1..4096u32, 1.0..100.0f64, 1..8192u32, 1..1024u32)
-            .prop_map(|(memory_mb, cpu_percent, disk_mb, network_mb)| {
-                ResourceLimits {
-                    max_memory_mb: memory_mb as usize,
-                    max_cpu_percent: cpu_percent,
-                    max_disk_mb: disk_mb as usize,
-                    max_network_mb: network_mb as usize,
-                    ..ResourceLimits::default()
-                }
-            })
+        (1..4096u32, 1.0..100.0f64, 1..8192u32, 1..1024u32).prop_map(
+            |(memory_mb, cpu_percent, disk_mb, network_mb)| ResourceLimits {
+                max_memory_mb: memory_mb as usize,
+                max_cpu_percent: cpu_percent,
+                max_disk_mb: disk_mb as usize,
+                max_network_mb: network_mb as usize,
+                ..ResourceLimits::default()
+            },
+        )
     }
 
     /// Generate random container images

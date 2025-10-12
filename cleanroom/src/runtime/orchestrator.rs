@@ -9,7 +9,7 @@ use std::future::Future;
 use std::pin::Pin;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
-use tokio::sync::{broadcast, RwLock};
+use tokio::sync::{RwLock, broadcast};
 use tokio::task::JoinSet;
 use uuid::Uuid;
 
@@ -156,7 +156,10 @@ impl TaskMetadata {
     pub fn is_finished(&self) -> bool {
         matches!(
             self.status,
-            TaskStatus::Completed | TaskStatus::Failed | TaskStatus::Cancelled | TaskStatus::TimedOut
+            TaskStatus::Completed
+                | TaskStatus::Failed
+                | TaskStatus::Cancelled
+                | TaskStatus::TimedOut
         )
     }
 }
@@ -255,7 +258,9 @@ impl<T> TaskResult<T> {
 
 /// Task executor function type
 pub type TaskExecutor<T> = Box<
-    dyn FnOnce(TaskContext) -> Pin<Box<dyn Future<Output = Result<T>> + Send + 'static>> + Send + Sync,
+    dyn FnOnce(TaskContext) -> Pin<Box<dyn Future<Output = Result<T>> + Send + 'static>>
+        + Send
+        + Sync,
 >;
 
 /// Structured concurrency orchestrator
@@ -324,14 +329,13 @@ impl ConcurrencyOrchestrator {
     }
 
     /// Spawn a new task
-    pub async fn spawn_task<T, F>(
-        &mut self,
-        name: String,
-        executor: F,
-    ) -> Result<TaskId>
+    pub async fn spawn_task<T, F>(&mut self, name: String, executor: F) -> Result<TaskId>
     where
         T: Send + 'static,
-        F: FnOnce(TaskContext) -> Pin<Box<dyn Future<Output = Result<T>> + Send + 'static>> + Send + Sync + 'static,
+        F: FnOnce(TaskContext) -> Pin<Box<dyn Future<Output = Result<T>> + Send + 'static>>
+            + Send
+            + Sync
+            + 'static,
     {
         let metadata = TaskMetadata::new(name);
         let task_id = metadata.id;
@@ -369,7 +373,9 @@ impl ConcurrencyOrchestrator {
         self.join_set.spawn(async move {
             match task_handle.await {
                 Ok(result) => result,
-                Err(e) => TaskResult::Failure(crate::error::CleanroomError::internal_error(format!("Task join error: {}", e))),
+                Err(e) => TaskResult::Failure(crate::error::CleanroomError::internal_error(
+                    format!("Task join error: {}", e),
+                )),
             }
         });
 
@@ -378,14 +384,14 @@ impl ConcurrencyOrchestrator {
 
     /// Spawn a task with timeout
     pub async fn spawn_task_with_timeout<T, F>(
-        &mut self,
-        name: String,
-        timeout: Duration,
-        executor: F,
+        &mut self, name: String, timeout: Duration, executor: F,
     ) -> Result<TaskId>
     where
         T: Send + 'static,
-        F: FnOnce(TaskContext) -> Pin<Box<dyn Future<Output = Result<T>> + Send + 'static>> + Send + Sync + 'static,
+        F: FnOnce(TaskContext) -> Pin<Box<dyn Future<Output = Result<T>> + Send + 'static>>
+            + Send
+            + Sync
+            + 'static,
     {
         let metadata = TaskMetadata::new(name).with_timeout(timeout);
         let task_id = metadata.id;
@@ -426,7 +432,9 @@ impl ConcurrencyOrchestrator {
         self.join_set.spawn(async move {
             match task_handle.await {
                 Ok(result) => result,
-                Err(e) => TaskResult::Failure(crate::error::CleanroomError::internal_error(format!("Task join error: {}", e))),
+                Err(e) => TaskResult::Failure(crate::error::CleanroomError::internal_error(
+                    format!("Task join error: {}", e),
+                )),
             }
         });
 
@@ -436,7 +444,7 @@ impl ConcurrencyOrchestrator {
     /// Wait for a specific task to complete
     pub async fn wait_for_task(&mut self, task_id: TaskId) -> Result<TaskResult<()>> {
         // Wait for task completion in join set
-        while let Some(result) = self.join_set.join_next().await {
+        if let Some(result) = self.join_set.join_next().await {
             match result {
                 Ok(task_result) => {
                     // Update task metadata
@@ -611,22 +619,26 @@ mod tests {
     #[tokio::test]
     async fn test_task_spawning() {
         let mut orchestrator = ConcurrencyOrchestrator::new();
-        
-        let task_id = orchestrator.spawn_task(
-            "test_task".to_string(),
-            Box::new(|_context| {
-                Box::pin(async move {
-                    tokio::time::sleep(Duration::from_millis(10)).await;
-                    Ok::<(), crate::error::CleanroomError>(())
-                }) as Pin<Box<dyn Future<Output = Result<()>> + Send + 'static>>
-            }),
-        ).await.unwrap();
+
+        let task_id = orchestrator
+            .spawn_task(
+                "test_task".to_string(),
+                Box::new(|_context| {
+                    Box::pin(async move {
+                        tokio::time::sleep(Duration::from_millis(10)).await;
+                        Ok::<(), crate::error::CleanroomError>(())
+                    })
+                        as Pin<Box<dyn Future<Output = Result<()>> + Send + 'static>>
+                }),
+            )
+            .await
+            .unwrap();
 
         assert_eq!(orchestrator.active_task_count().await, 1);
-        
+
         let result = orchestrator.wait_for_task(task_id).await.unwrap();
         assert!(result.is_success());
-        
+
         assert_eq!(orchestrator.active_task_count().await, 0);
         assert!(orchestrator.is_idle().await);
     }
@@ -634,17 +646,21 @@ mod tests {
     #[tokio::test]
     async fn test_task_with_timeout() {
         let mut orchestrator = ConcurrencyOrchestrator::new();
-        
-        let task_id = orchestrator.spawn_task_with_timeout(
-            "timeout_task".to_string(),
-            Duration::from_millis(50),
-            Box::new(|_context| {
-                Box::pin(async move {
-                    tokio::time::sleep(Duration::from_millis(100)).await;
-                    Ok::<(), crate::error::CleanroomError>(())
-                }) as Pin<Box<dyn Future<Output = Result<()>> + Send + 'static>>
-            }),
-        ).await.unwrap();
+
+        let task_id = orchestrator
+            .spawn_task_with_timeout(
+                "timeout_task".to_string(),
+                Duration::from_millis(50),
+                Box::new(|_context| {
+                    Box::pin(async move {
+                        tokio::time::sleep(Duration::from_millis(100)).await;
+                        Ok::<(), crate::error::CleanroomError>(())
+                    })
+                        as Pin<Box<dyn Future<Output = Result<()>> + Send + 'static>>
+                }),
+            )
+            .await
+            .unwrap();
 
         let result = orchestrator.wait_for_task(task_id).await.unwrap();
         assert!(result.is_timed_out());
@@ -653,53 +669,61 @@ mod tests {
     #[tokio::test]
     async fn test_multiple_tasks() {
         let mut orchestrator = ConcurrencyOrchestrator::new();
-        
+
         let mut task_ids = Vec::new();
         for i in 0..5 {
-            let task_id = orchestrator.spawn_task(
-                format!("task_{}", i),
-                Box::new(|_context| {
-                    Box::pin(async move {
-                        tokio::time::sleep(Duration::from_millis(10)).await;
-                        Ok::<(), crate::error::CleanroomError>(())
-                    }) as Pin<Box<dyn Future<Output = Result<()>> + Send + 'static>>
-                }),
-            ).await.unwrap();
+            let task_id = orchestrator
+                .spawn_task(
+                    format!("task_{}", i),
+                    Box::new(|_context| {
+                        Box::pin(async move {
+                            tokio::time::sleep(Duration::from_millis(10)).await;
+                            Ok::<(), crate::error::CleanroomError>(())
+                        })
+                            as Pin<Box<dyn Future<Output = Result<()>> + Send + 'static>>
+                    }),
+                )
+                .await
+                .unwrap();
             task_ids.push(task_id);
         }
 
         assert_eq!(orchestrator.active_task_count().await, 5);
-        
+
         let results = orchestrator.wait_for_all().await.unwrap();
         assert_eq!(results.len(), 5);
-        
+
         for result in results {
             assert!(result.is_success());
         }
-        
+
         assert!(orchestrator.is_idle().await);
     }
 
     #[tokio::test]
     async fn test_task_cancellation() {
         let mut orchestrator = ConcurrencyOrchestrator::new();
-        
-        let task_id = orchestrator.spawn_task(
-            "cancellable_task".to_string(),
-            Box::new(|mut context: TaskContext| {
-                Box::pin(async move {
-                    // Wait for cancellation
-                    context.wait_for_cancellation().await;
-                    Ok::<(), crate::error::CleanroomError>(())
-                }) as Pin<Box<dyn Future<Output = Result<()>> + Send + 'static>>
-            }),
-        ).await.unwrap();
+
+        let task_id = orchestrator
+            .spawn_task(
+                "cancellable_task".to_string(),
+                Box::new(|mut context: TaskContext| {
+                    Box::pin(async move {
+                        // Wait for cancellation
+                        context.wait_for_cancellation().await;
+                        Ok::<(), crate::error::CleanroomError>(())
+                    })
+                        as Pin<Box<dyn Future<Output = Result<()>> + Send + 'static>>
+                }),
+            )
+            .await
+            .unwrap();
 
         assert_eq!(orchestrator.active_task_count().await, 1);
-        
+
         // Cancel the task
         orchestrator.cancel_task(task_id).await.unwrap();
-        
+
         let result = orchestrator.wait_for_task(task_id).await.unwrap();
         assert!(result.is_cancelled());
     }
@@ -707,22 +731,26 @@ mod tests {
     #[tokio::test]
     async fn test_orchestrator_stats() {
         let mut orchestrator = ConcurrencyOrchestrator::new();
-        
+
         // Spawn some tasks
         for i in 0..3 {
-            orchestrator.spawn_task(
-                format!("stats_task_{}", i),
-                Box::new(|_context| {
-                    Box::pin(async move {
-                        tokio::time::sleep(Duration::from_millis(10)).await;
-                        Ok::<(), crate::error::CleanroomError>(())
-                    }) as Pin<Box<dyn Future<Output = Result<()>> + Send + 'static>>
-                }),
-            ).await.unwrap();
+            orchestrator
+                .spawn_task(
+                    format!("stats_task_{}", i),
+                    Box::new(|_context| {
+                        Box::pin(async move {
+                            tokio::time::sleep(Duration::from_millis(10)).await;
+                            Ok::<(), crate::error::CleanroomError>(())
+                        })
+                            as Pin<Box<dyn Future<Output = Result<()>> + Send + 'static>>
+                    }),
+                )
+                .await
+                .unwrap();
         }
-        
+
         orchestrator.wait_for_all().await.unwrap();
-        
+
         let stats = orchestrator.get_stats().await;
         assert_eq!(stats.total_tasks, 3);
         assert_eq!(stats.tasks_completed, 3);
