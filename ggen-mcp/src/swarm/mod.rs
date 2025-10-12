@@ -10,16 +10,16 @@
 pub mod ultrathink;
 pub mod wip_integration;
 
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, VecDeque};
 use std::sync::{Arc, RwLock};
 use std::time::Duration;
-use serde::{Deserialize, Serialize};
-use tokio::sync::{mpsc, broadcast};
+use tokio::sync::{broadcast, mpsc};
 use uuid::Uuid;
-use chrono::{DateTime, Utc};
 
+use crate::agents::{AgentCapability, AgentConfig, AgentInfo, AgentRole, AgentStatus, AgentType};
 use crate::error::{McpError, Result};
-use crate::agents::{AgentInfo, AgentCapability, AgentConfig, AgentRole, AgentStatus, AgentType};
 
 /// Swarm configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -340,7 +340,9 @@ impl SwarmCoordinator {
     /// Update swarm topology
     pub fn update_topology(&self, new_topology: SwarmTopology) -> Result<()> {
         // Implementation would update swarm topology
-        let _ = self.event_tx.send(SwarmEvent::TopologyChanged { new_topology });
+        let _ = self
+            .event_tx
+            .send(SwarmEvent::TopologyChanged { new_topology });
         Ok(())
     }
 
@@ -349,12 +351,16 @@ impl SwarmCoordinator {
         let metrics = self.get_metrics();
 
         // Check if performance thresholds are met
-        if metrics.tasks_completed as f64 / (metrics.tasks_executed.max(1) as f64) < self.config.thresholds.success_rate_target {
+        if metrics.tasks_completed as f64 / (metrics.tasks_executed.max(1) as f64)
+            < self.config.thresholds.success_rate_target
+        {
             // Optimize for better success rate
             self.optimize_success_rate()?;
         }
 
-        if metrics.avg_execution_time_ms > self.config.thresholds.max_execution_time_seconds * 1000.0 {
+        if metrics.avg_execution_time_ms
+            > self.config.thresholds.max_execution_time_seconds * 1000.0
+        {
             // Optimize for faster execution
             self.optimize_execution_time()?;
         }
@@ -388,7 +394,7 @@ impl SwarmCoordinator {
 
 /// Initialize the ultrathink swarm and WIP integration
 pub async fn initialize_ultrathink_swarm() -> Result<()> {
-    use crate::swarm::ultrathink::{UltrathinkSwarm, UltrathinkConfig};
+    use crate::swarm::ultrathink::{UltrathinkConfig, UltrathinkSwarm};
     use crate::swarm::wip_integration::{WipIntegrationManager, WIP_INTEGRATION_MANAGER};
 
     // Initialize WIP integration manager

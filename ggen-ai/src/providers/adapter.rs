@@ -1,6 +1,6 @@
 //! LLM provider adapter implementations
 
-use crate::client::{GenAiClient, LlmChunk, LlmClient, LlmConfig, LlmResponse, UsageStats};
+use crate::client::{LlmChunk, LlmClient, LlmConfig, LlmResponse, UsageStats};
 use crate::error::Result;
 use async_trait::async_trait;
 use std::collections::HashMap;

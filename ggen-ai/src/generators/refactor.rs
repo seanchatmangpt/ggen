@@ -291,17 +291,14 @@ impl RefactorAssistant {
                 .content
                 .find("```")
                 .ok_or_else(|| GgenAiError::validation("Could not find opening ``` marker"))?;
-            let end = response
-                .content
-                .rfind("```")
-                .ok_or_else(|| {
-                    return missing_closing_marker_error::<String>(
-                        "```",
-                        "",
-                        ErrorContext::RefactorGeneration,
-                    )
-                    .unwrap_err();
-                })?;
+            let end = response.content.rfind("```").ok_or_else(|| {
+                return missing_closing_marker_error::<String>(
+                    "```",
+                    "",
+                    ErrorContext::RefactorGeneration,
+                )
+                .unwrap_err();
+            })?;
             response.content[start + 3..end].trim().to_string()
         } else {
             response.content.trim().to_string()
@@ -515,8 +512,10 @@ impl RefactoringContext {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::test_helpers::{create_refactor_test_assistant, create_refactor_assistant_with_response};
     use crate::providers::MockClient;
+    use crate::test_helpers::{
+        create_refactor_assistant_with_response, create_refactor_test_assistant,
+    };
 
     #[tokio::test]
     async fn test_refactor_assistant_creation() {

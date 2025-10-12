@@ -38,14 +38,12 @@
 //! - Standardized mock responses for consistent test behavior
 
 use crate::{
-    client::{LlmClient, LlmConfig},
-    config::OllamaConfig,
+    client::{GenAiClient, LlmClient, LlmConfig},
     generators::{
         NaturalSearchGenerator, OntologyGenerator, RefactorAssistant, SparqlGenerator,
         TemplateGenerator,
     },
     providers::MockClient,
-    OllamaClient,
 };
 use std::sync::Arc;
 use std::time::Duration;
@@ -392,16 +390,19 @@ mod tests {
     #[tokio::test]
     async fn test_template_generator_factory() {
         let generator = create_template_test_generator();
-        let result = generator.generate_template("test description", vec![]).await;
+        let result = generator
+            .generate_template("test description", vec![])
+            .await;
         assert!(result.is_ok(), "Factory-created generator should work");
     }
 
     #[tokio::test]
     async fn test_refactor_assistant_factory() {
         let assistant = create_refactor_test_assistant();
-        let context =
-            crate::generators::refactor::RefactoringContext::new("rust".to_string());
-        let result = assistant.suggest_refactoring("fn test() {}", &context).await;
+        let context = crate::generators::refactor::RefactoringContext::new("rust".to_string());
+        let result = assistant
+            .suggest_refactoring("fn test() {}", &context)
+            .await;
         assert!(result.is_ok(), "Factory-created assistant should work");
     }
 

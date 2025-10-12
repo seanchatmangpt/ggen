@@ -186,6 +186,8 @@ impl Default for AiConfigArgs {
     }
 }
 
+// NOTE: These tests don't use LLM directly, but test configuration for disabled LLM features
+// Keep enabled for now as they test data structures, not actual LLM calls
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -81,7 +81,7 @@ impl Default for AgentRegistry {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::agents::{AgentConfig, AgentRole, AgentStatus, AgentMessage};
+    use crate::agents::{AgentConfig, AgentMessage, AgentRole, AgentStatus};
     use async_trait::async_trait;
     use uuid::Uuid;
 
@@ -93,15 +93,21 @@ mod tests {
 
     #[async_trait]
     impl Agent for TestAgent {
-        async fn initialize(&mut self) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>> {
+        async fn initialize(
+            &mut self,
+        ) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>> {
             Ok(())
         }
 
-        async fn start(&mut self) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>> {
+        async fn start(
+            &mut self,
+        ) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>> {
             Ok(())
         }
 
-        async fn stop(&mut self) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>> {
+        async fn stop(
+            &mut self,
+        ) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>> {
             Ok(())
         }
 
@@ -113,7 +119,9 @@ mod tests {
             &self.config
         }
 
-        async fn handle_message(&mut self, message: AgentMessage) -> std::result::Result<AgentMessage, Box<dyn std::error::Error + Send + Sync>> {
+        async fn handle_message(
+            &mut self, message: AgentMessage,
+        ) -> std::result::Result<AgentMessage, Box<dyn std::error::Error + Send + Sync>> {
             Ok(message)
         }
     }

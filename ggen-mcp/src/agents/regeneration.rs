@@ -1,16 +1,18 @@
 //! Regeneration Agent - Continuous regeneration of dependent artifacts
 
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
-use tokio::sync::{RwLock, Notify};
-use serde::{Deserialize, Serialize};
-use chrono::{DateTime, Utc};
+use tokio::sync::{Notify, RwLock};
 use uuid::Uuid;
 
-use crate::agents::{Agent, AgentConfig, AgentMessage, AgentRole, AgentStatus, TaskDefinition, TaskResult};
-use crate::error::{Result, GgenMcpError};
+use crate::agents::{
+    Agent, AgentConfig, AgentMessage, AgentRole, AgentStatus, TaskDefinition, TaskResult,
+};
+use crate::error::{GgenMcpError, Result};
 
 /// Configuration for regeneration agent
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -232,7 +234,10 @@ impl RegenerationAgent {
                 let entry = entry?;
                 let path = entry.path();
 
-                if path.extension().map_or(false, |ext| ext == "ttl" || ext == "rdf" || ext == "owl") {
+                if path
+                    .extension()
+                    .map_or(false, |ext| ext == "ttl" || ext == "rdf" || ext == "owl")
+                {
                     let metadata = entry.metadata()?;
                     let modified = metadata.modified()?;
 
@@ -297,7 +302,10 @@ impl RegenerationAgent {
         let mut affected = Vec::new();
 
         for (artifact_path, dependency) in registry.iter() {
-            if dependency.depends_on.contains(&graph_path.to_string_lossy().to_string()) {
+            if dependency
+                .depends_on
+                .contains(&graph_path.to_string_lossy().to_string())
+            {
                 affected.push(artifact_path.clone());
             }
         }
@@ -306,12 +314,17 @@ impl RegenerationAgent {
     }
 
     /// Find artifacts that depend on a specific template
-    async fn find_artifacts_depending_on_template(&self, template_path: &Path) -> Result<Vec<PathBuf>> {
+    async fn find_artifacts_depending_on_template(
+        &self, template_path: &Path,
+    ) -> Result<Vec<PathBuf>> {
         let registry = self.artifact_registry.read().await;
         let mut affected = Vec::new();
 
         for (artifact_path, dependency) in registry.iter() {
-            if dependency.depends_on.contains(&template_path.to_string_lossy().to_string()) {
+            if dependency
+                .depends_on
+                .contains(&template_path.to_string_lossy().to_string())
+            {
                 affected.push(artifact_path.clone());
             }
         }
@@ -347,8 +360,11 @@ impl RegenerationAgent {
         let trigger = queue.remove(0);
         let start_time = Utc::now();
 
-        tracing::info!("Processing regeneration trigger: {:?} for {} artifacts",
-                     trigger.trigger_type, trigger.target_artifacts.len());
+        tracing::info!(
+            "Processing regeneration trigger: {:?} for {} artifacts",
+            trigger.trigger_type,
+            trigger.target_artifacts.len()
+        );
 
         let mut regenerated = Vec::new();
         let mut failed = Vec::new();
@@ -368,7 +384,9 @@ impl RegenerationAgent {
             }
         }
 
-        let duration_ms = Utc::now().signed_duration_since(start_time).num_milliseconds() as u64;
+        let duration_ms = Utc::now()
+            .signed_duration_since(start_time)
+            .num_milliseconds() as u64;
 
         let metrics = RegenerationMetrics {
             total_artifacts: trigger.target_artifacts.len(),
@@ -377,7 +395,11 @@ impl RegenerationAgent {
             skipped_count: skipped.len(),
             cache_hits,
             dependency_violations,
-            average_regeneration_time_ms: if regenerated.is_empty() { 0.0 } else { duration_ms as f64 / regenerated.len() as f64 },
+            average_regeneration_time_ms: if regenerated.is_empty() {
+                0.0
+            } else {
+                duration_ms as f64 / regenerated.len() as f64
+            },
         };
 
         let result = RegenerationResult {
@@ -400,9 +422,7 @@ impl RegenerationAgent {
 
     /// Regenerate a single artifact
     async fn regenerate_artifact(
-        &self,
-        artifact_path: &Path,
-        trigger: &RegenerationTrigger,
+        &self, artifact_path: &Path, trigger: &RegenerationTrigger,
     ) -> Result<PathBuf> {
         // Check cache first if enabled
         if self.regeneration_config.enable_artifact_caching {
@@ -415,9 +435,10 @@ impl RegenerationAgent {
         // Check dependencies
         if self.regeneration_config.enable_dependency_tracking {
             if !self.validate_dependencies(artifact_path).await? {
-                return Err(GgenMcpError::ExecutionFailed(
-                    format!("Dependency validation failed for: {}", artifact_path.display())
-                ));
+                return Err(GgenMcpError::ExecutionFailed(format!(
+                    "Dependency validation failed for: {}",
+                    artifact_path.display()
+                )));
             }
         }
 
@@ -446,9 +467,7 @@ impl RegenerationAgent {
 
     /// Perform actual artifact regeneration
     async fn perform_regeneration(
-        &self,
-        artifact_path: &Path,
-        _trigger: &RegenerationTrigger,
+        &self, artifact_path: &Path, _trigger: &RegenerationTrigger,
     ) -> Result<()> {
         // This would call the appropriate generation logic based on artifact type
         tracing::info!("Regenerating artifact: {}", artifact_path.display());
@@ -469,9 +488,7 @@ impl RegenerationAgent {
 
     /// Trigger manual regeneration
     pub async fn trigger_manual_regeneration(
-        &self,
-        artifacts: Vec<PathBuf>,
-        reason: String,
+        &self, artifacts: Vec<PathBuf>, reason: String,
     ) -> Result<Uuid> {
         let trigger = RegenerationTrigger {
             id: Uuid::new_v4(),
@@ -485,7 +502,10 @@ impl RegenerationAgent {
         let mut queue = self.regeneration_queue.write().await;
         queue.push(trigger.clone());
 
-        tracing::info!("Manual regeneration triggered for {} artifacts", trigger.target_artifacts.len());
+        tracing::info!(
+            "Manual regeneration triggered for {} artifacts",
+            trigger.target_artifacts.len()
+        );
 
         Ok(trigger.id)
     }
@@ -519,7 +539,9 @@ struct TemplateChange {
 
 #[async_trait::async_trait]
 impl Agent for RegenerationAgent {
-    async fn initialize(&mut self) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    async fn initialize(
+        &mut self,
+    ) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>> {
         tracing::info!("Initializing RegenerationAgent with ID: {}", self.config.id);
 
         // Ensure artifacts directory exists
@@ -563,14 +585,13 @@ impl Agent for RegenerationAgent {
         &self.config
     }
 
-    async fn handle_message(&mut self, message: AgentMessage) -> std::result::Result<AgentMessage, Box<dyn std::error::Error + Send + Sync>> {
+    async fn handle_message(
+        &mut self, message: AgentMessage,
+    ) -> std::result::Result<AgentMessage, Box<dyn std::error::Error + Send + Sync>> {
         match message {
             AgentMessage::TaskAssignment { task_id, task } => {
                 let result = self.handle_task(task).await?;
-                Ok(AgentMessage::TaskCompletion {
-                    task_id,
-                    result,
-                })
+                Ok(AgentMessage::TaskCompletion { task_id, result })
             }
             AgentMessage::HealthCheck { .. } => {
                 let (queue_size, next_trigger) = self.get_queue_status().await;
@@ -584,9 +605,7 @@ impl Agent for RegenerationAgent {
                     })),
                 })
             }
-            _ => {
-                Err("Unsupported message type".into())
-            }
+            _ => Err("Unsupported message type".into()),
         }
     }
 }
@@ -624,23 +643,25 @@ impl RegenerationAgent {
                         "message": "Regeneration task completed"
                     })),
                     error: None,
-                    duration_ms: Utc::now().signed_duration_since(start_time).num_milliseconds() as u64,
+                    duration_ms: Utc::now()
+                        .signed_duration_since(start_time)
+                        .num_milliseconds() as u64,
                     metrics: Some(serde_json::json!({
                         "artifacts_regenerated": 0,
                         "cache_hits": 0
                     })),
                 })
             }
-            _ => {
-                Ok(TaskResult {
-                    task_id: task.id,
-                    success: false,
-                    result: None,
-                    error: Some("Unsupported task type".to_string()),
-                    duration_ms: Utc::now().signed_duration_since(start_time).num_milliseconds() as u64,
-                    metrics: None,
-                })
-            }
+            _ => Ok(TaskResult {
+                task_id: task.id,
+                success: false,
+                result: None,
+                error: Some("Unsupported task type".to_string()),
+                duration_ms: Utc::now()
+                    .signed_duration_since(start_time)
+                    .num_milliseconds() as u64,
+                metrics: None,
+            }),
         }
     }
 }

@@ -66,25 +66,31 @@ impl LlmConfig {
 
         if let Some(max_tokens) = self.max_tokens {
             if max_tokens < llm::MIN_TOKEN_LIMIT || max_tokens > llm::MAX_TOKEN_LIMIT {
-                return Err(GgenAiError::configuration(
-                    &format!("Max tokens must be between {} and {}", llm::MIN_TOKEN_LIMIT, llm::MAX_TOKEN_LIMIT),
-                ));
+                return Err(GgenAiError::configuration(&format!(
+                    "Max tokens must be between {} and {}",
+                    llm::MIN_TOKEN_LIMIT,
+                    llm::MAX_TOKEN_LIMIT
+                )));
             }
         }
 
         if let Some(temperature) = self.temperature {
             if temperature < llm::MIN_TEMPERATURE || temperature > llm::MAX_TEMPERATURE {
-                return Err(GgenAiError::configuration(
-                    &format!("Temperature must be between {} and {}", llm::MIN_TEMPERATURE, llm::MAX_TEMPERATURE),
-                ));
+                return Err(GgenAiError::configuration(&format!(
+                    "Temperature must be between {} and {}",
+                    llm::MIN_TEMPERATURE,
+                    llm::MAX_TEMPERATURE
+                )));
             }
         }
 
         if let Some(top_p) = self.top_p {
             if top_p < llm::MIN_TOP_P || top_p > llm::MAX_TOP_P {
-                return Err(GgenAiError::configuration(
-                    &format!("Top-p must be between {} and {}", llm::MIN_TOP_P, llm::MAX_TOP_P),
-                ));
+                return Err(GgenAiError::configuration(&format!(
+                    "Top-p must be between {} and {}",
+                    llm::MIN_TOP_P,
+                    llm::MAX_TOP_P
+                )));
             }
         }
 

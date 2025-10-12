@@ -296,24 +296,25 @@ impl TemplateGenerator {
     /// Parse generated template content
     fn parse_template(&self, content: &str) -> Result<Template> {
         // Extract template content from markdown code blocks if present
-        let template_content = if let Some(yaml_content) = crate::parsing_utils::extract_code_block(content, "yaml") {
-            // Check if this is already a complete template with frontmatter
-            if yaml_content.starts_with("---") {
-                yaml_content
+        let template_content =
+            if let Some(yaml_content) = crate::parsing_utils::extract_code_block(content, "yaml") {
+                // Check if this is already a complete template with frontmatter
+                if yaml_content.starts_with("---") {
+                    yaml_content
+                } else {
+                    // Wrap in frontmatter if not present
+                    format!("---\n{}\n---\nTemplate content", yaml_content)
+                }
+            } else if content.contains("---") && content.matches("---").count() >= 2 {
+                // Handle direct template format without code blocks
+                content.to_string()
             } else {
-                // Wrap in frontmatter if not present
-                format!("---\n{}\n---\nTemplate content", yaml_content)
-            }
-        } else if content.contains("---") && content.matches("---").count() >= 2 {
-            // Handle direct template format without code blocks
-            content.to_string()
-        } else {
-            // Fallback: wrap content in basic template structure
-            format!(
-                "---\nto: \"generated.tmpl\"\nvars:\n  name: \"example\"\n---\n{}",
-                content
-            )
-        };
+                // Fallback: wrap content in basic template structure
+                format!(
+                    "---\nto: \"generated.tmpl\"\nvars:\n  name: \"example\"\n---\n{}",
+                    content
+                )
+            };
 
         // Parse using ggen-core
         let mut template = Template::parse(&template_content)?;
@@ -332,7 +333,9 @@ impl TemplateGenerator {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::test_helpers::{create_template_test_generator, create_template_generator_with_response};
+    use crate::test_helpers::{
+        create_template_generator_with_response, create_template_test_generator,
+    };
 
     #[tokio::test]
     async fn test_template_generation() {
@@ -348,7 +351,8 @@ mod tests {
 
     #[tokio::test]
     async fn test_template_generation_with_markdown() {
-        let response = "```yaml\n---\nto: \"test.tmpl\"\nvars:\n  name: \"test\"\n---\nHello {{ name }}!\n```";
+        let response =
+            "```yaml\n---\nto: \"test.tmpl\"\nvars:\n  name: \"test\"\n---\nHello {{ name }}!\n```";
         let generator = create_template_generator_with_response(response);
 
         let template = generator

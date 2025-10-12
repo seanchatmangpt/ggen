@@ -1,0 +1,162 @@
+# Example MCP Server Configurations
+# Copy these to your config.toml and customize as needed
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Filesystem Operations
+# ═══════════════════════════════════════════════════════════════════════════
+
+[[mcp_servers]]
+name = "filesystem"
+transport = "stdio"
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-filesystem", "/tmp"]
+
+[mcp_servers.settings]
+allowed_operations = ["read", "write", "list", "delete"]
+max_file_size = 10485760  # 10MB
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Time and Date Operations
+# ═══════════════════════════════════════════════════════════════════════════
+
+[[mcp_servers]]
+name = "time"
+transport = "stdio"
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-time"]
+
+# ═══════════════════════════════════════════════════════════════════════════
+# GitHub Integration
+# ═══════════════════════════════════════════════════════════════════════════
+
+[[mcp_servers]]
+name = "github"
+transport = "stdio"
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-github"]
+
+[mcp_servers.env]
+GITHUB_TOKEN = "${GITHUB_TOKEN}"
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Google Maps Integration
+# ═══════════════════════════════════════════════════════════════════════════
+
+[[mcp_servers]]
+name = "google-maps"
+transport = "stdio"
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-google-maps"]
+
+[mcp_servers.env]
+GOOGLE_MAPS_API_KEY = "${GOOGLE_MAPS_API_KEY}"
+
+# ═══════════════════════════════════════════════════════════════════════════
+# PostgreSQL Database
+# ═══════════════════════════════════════════════════════════════════════════
+
+[[mcp_servers]]
+name = "postgres"
+transport = "stdio"
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-postgres"]
+
+[mcp_servers.env]
+DATABASE_URL = "postgresql://user:password@localhost:5432/mydb"
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Slack Integration
+# ═══════════════════════════════════════════════════════════════════════════
+
+[[mcp_servers]]
+name = "slack"
+transport = "stdio"
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-slack"]
+
+[mcp_servers.env]
+SLACK_BOT_TOKEN = "${SLACK_BOT_TOKEN}"
+SLACK_TEAM_ID = "${SLACK_TEAM_ID}"
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Web Search (Brave)
+# ═══════════════════════════════════════════════════════════════════════════
+
+[[mcp_servers]]
+name = "brave-search"
+transport = "stdio"
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-brave-search"]
+
+[mcp_servers.env]
+BRAVE_API_KEY = "${BRAVE_API_KEY}"
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Memory/Context Storage
+# ═══════════════════════════════════════════════════════════════════════════
+
+[[mcp_servers]]
+name = "memory"
+transport = "stdio"
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-memory"]
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Weather API (Example SSE Server)
+# ═══════════════════════════════════════════════════════════════════════════
+
+# [[mcp_servers]]
+# name = "weather"
+# transport = "sse"
+# url = "http://localhost:3000/sse"
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Custom Python MCP Server (Example)
+# ═══════════════════════════════════════════════════════════════════════════
+
+# [[mcp_servers]]
+# name = "custom-python"
+# transport = "stdio"
+# command = "python"
+# args = ["-m", "my_mcp_server"]
+#
+# [mcp_servers.env]
+# CUSTOM_API_KEY = "${CUSTOM_API_KEY}"
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Custom Rust MCP Server (Example)
+# ═══════════════════════════════════════════════════════════════════════════
+
+# [[mcp_servers]]
+# name = "custom-rust"
+# transport = "stdio"
+# command = "./target/release/my-mcp-server"
+# args = ["--config", "server-config.toml"]
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Custom Node.js MCP Server (Example)
+# ═══════════════════════════════════════════════════════════════════════════
+
+# [[mcp_servers]]
+# name = "custom-node"
+# transport = "stdio"
+# command = "node"
+# args = ["./my-mcp-server/index.js"]
+#
+# [mcp_servers.env]
+# NODE_ENV = "production"
+# PORT = "3000"
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Notes:
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# - Stdio transport: Runs as child process with stdin/stdout communication
+# - SSE transport: HTTP-based with Server-Sent Events
+# - Streamable transport: Custom transport (requires specific implementation)
+#
+# - Environment variables can be set in [mcp_servers.env] section
+# - Use ${VAR_NAME} to reference environment variables
+# - Servers are started in parallel during initialization
+#
+# For more MCP servers, see: https://github.com/modelcontextprotocol/servers

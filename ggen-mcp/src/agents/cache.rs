@@ -1,11 +1,11 @@
 //! Cache Manager Agent
-//! 
+//!
 //! Manages template and result caching with intelligent invalidation
 
 use super::*;
+use serde_json::Value;
 use std::collections::HashMap;
 use tokio::time::{Duration, Instant};
-use serde_json::Value;
 
 /// Cache Manager Agent
 pub struct CacheManager {
@@ -55,35 +55,35 @@ impl Agent for CacheManager {
         tracing::info!("Initializing Cache Manager");
         Ok(())
     }
-    
+
     async fn start(&mut self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         tracing::info!("Starting Cache Manager");
         self.status = AgentStatus::Healthy;
         Ok(())
     }
-    
+
     async fn stop(&mut self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         tracing::info!("Stopping Cache Manager");
         self.status = AgentStatus::Unhealthy;
         Ok(())
     }
-    
+
     async fn status(&self) -> AgentStatus {
         self.status.clone()
     }
-    
+
     fn config(&self) -> &AgentConfig {
         &self.config
     }
-    
-    async fn handle_message(&mut self, message: AgentMessage) -> Result<AgentMessage, Box<dyn std::error::Error + Send + Sync>> {
+
+    async fn handle_message(
+        &mut self, message: AgentMessage,
+    ) -> Result<AgentMessage, Box<dyn std::error::Error + Send + Sync>> {
         match message {
-            AgentMessage::HealthCheck { from } => {
-                Ok(AgentMessage::HealthResponse {
-                    status: self.status.clone(),
-                    metrics: Some(self.get_metrics().await?),
-                })
-            }
+            AgentMessage::HealthCheck { from } => Ok(AgentMessage::HealthResponse {
+                status: self.status.clone(),
+                metrics: Some(self.get_metrics().await?),
+            }),
             _ => {
                 tracing::warn!("Cache Manager received unhandled message type");
                 Ok(AgentMessage::ErrorNotification {
@@ -112,7 +112,7 @@ impl CacheManager {
             },
         }
     }
-    
+
     async fn get_metrics(&self) -> Result<Value, Box<dyn std::error::Error + Send + Sync>> {
         Ok(serde_json::json!({
             "template_cache": {
@@ -131,4 +131,3 @@ impl CacheManager {
         }))
     }
 }
-

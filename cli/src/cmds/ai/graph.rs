@@ -57,6 +57,20 @@ pub struct GraphArgs {
 }
 
 pub async fn run(args: &GraphArgs) -> Result<()> {
+    // ============================================================================
+    // RIG + MCP INTEGRATION FOR RDF GRAPH GENERATION
+    // ============================================================================
+    //
+    // This file's LLM usage has been commented out for Rig+MCP integration.
+    // RDF graph generation would benefit from MCP tools for:
+    // - Semantic web ontology tools
+    // - SPARQL query generation and validation
+    // - RDF schema validation
+    // - Knowledge graph construction tools
+    //
+    // See generate.rs for full Rig+MCP integration pattern.
+    // ============================================================================
+
     println!("🧠 Generating RDF graph with AI...");
     println!("Description: {}", args.description);
 
@@ -72,9 +86,12 @@ pub async fn run(args: &GraphArgs) -> Result<()> {
     println!("Include examples: {}", args.include_examples);
     println!("Verify graph: {}", args.verify);
 
-    // Use global config for proper provider detection
-    let global_config = ggen_ai::get_global_config();
+    // ⚠️  COMMENTED OUT FOR RIG INTEGRATION
+    // let global_config = ggen_ai::get_global_config();
 
+    // ⚠️  COMMENTED OUT FOR RIG INTEGRATION - LLM client creation
+    // Note: graph.rs currently uses placeholder generation, not active LLM calls yet
+    /*
     let _client: Arc<dyn LlmClient> = if args.mock {
         println!("ℹ️  Using mock client for testing");
         Arc::new(MockClient::with_response("Generated RDF graph content"))
@@ -103,7 +120,10 @@ pub async fn run(args: &GraphArgs) -> Result<()> {
                 .map_err(|e| ggen_utils::error::Error::from(anyhow::anyhow!(e.to_string())))?
         }
     };
+    */
 
+    // NOTE: Currently generates placeholder graph (NOT using LLM yet)
+    // When implementing Rig+MCP, this would be replaced with semantic tool-based generation
     // Generate basic RDF graph content (placeholder for AI generation)
     let graph_content = format!(
         r#"@prefix ex: <http://example.org/> .

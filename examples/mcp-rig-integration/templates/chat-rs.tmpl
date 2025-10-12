@@ -1,0 +1,221 @@
+---
+generator:
+  name: "{{ project_name }}_chat"
+  version: "0.1.0"
+  description: "Interactive CLI chatbot with streaming and tool support"
+
+variables:
+  project_name: "mcp-rig-agent"
+
+output:
+  path: "src/chat.rs"
+---
+//! Interactive CLI chatbot implementation
+//!
+//! This module provides a user-friendly command-line interface for chatting with
+//! the AI agent. Features include:
+//!
+//! - Streaming responses with real-time output
+//! - Colored output for better readability
+//! - Tool call visualization
+//! - Chat history management
+//! - Error handling and recovery
+
+use anyhow::{Context, Result};
+use colored::Colorize;
+use rig::completion::{Chat, Completion, CompletionModel};
+use std::io::{self, Write};
+use tokio_stream::StreamExt;
+
+/// Interactive chatbot for CLI interaction
+pub struct ChatBot<M: CompletionModel> {
+    agent: M,
+    session: rig::completion::ChatSession,
+}
+
+impl<M: CompletionModel> ChatBot<M> {
+    /// Create a new chatbot instance
+    pub fn new(agent: M) -> Self {
+        Self {
+            agent,
+            session: rig::completion::ChatSession::new(),
+        }
+    }
+
+    /// Run the interactive chat loop
+    pub async fn run(mut self) -> Result<()> {
+        println!("{}", "╔════════════════════════════════════════════════════════════════════╗".cyan());
+        println!("{}", "║       Welcome to {{ project_name }} - MCP + Rig Integration       ║".cyan());
+        println!("{}", "╚════════════════════════════════════════════════════════════════════╝".cyan());
+        println!();
+        println!("{}", "Type your message and press Enter. Type 'exit' to quit.".dimmed());
+        println!("{}", "Type 'clear' to clear chat history.".dimmed());
+        println!("{}", "Type 'tools' to see available tools.".dimmed());
+        println!();
+
+        loop {
+            // Display prompt
+            print!("{} ", "You:".green().bold());
+            io::stdout().flush()?;
+
+            // Read user input
+            let mut input = String::new();
+            io::stdin()
+                .read_line(&mut input)
+                .context("Failed to read user input")?;
+
+            let input = input.trim();
+
+            // Handle commands
+            match input.to_lowercase().as_str() {
+                "exit" | "quit" => {
+                    println!("{}", "\n👋 Goodbye!".cyan());
+                    break;
+                }
+                "clear" => {
+                    self.session = rig::completion::ChatSession::new();
+                    println!("{}", "✨ Chat history cleared".yellow());
+                    continue;
+                }
+                "tools" => {
+                    self.show_tools().await?;
+                    continue;
+                }
+                "" => continue,
+                _ => {}
+            }
+
+            // Process the message
+            if let Err(e) = self.process_message(input).await {
+                println!("{} {}", "Error:".red().bold(), e);
+            }
+
+            println!(); // Add spacing between messages
+        }
+
+        Ok(())
+    }
+
+    /// Process a user message and display the response
+    async fn process_message(&mut self, prompt: &str) -> Result<()> {
+        print!("{} ", "Assistant:".blue().bold());
+        io::stdout().flush()?;
+
+        // Create chat completion stream
+        let mut stream = self.agent
+            .chat(prompt, &mut self.session)
+            .await
+            .context("Failed to create chat stream")?;
+
+        let mut response_text = String::new();
+        let mut tool_calls = Vec::new();
+
+        // Process streaming response
+        while let Some(chunk) = stream.next().await {
+            match chunk {
+                Ok(completion) => {
+                    // Display content as it arrives
+                    if !completion.content.is_empty() {
+                        print!("{}", completion.content);
+                        io::stdout().flush()?;
+                        response_text.push_str(&completion.content);
+                    }
+
+                    // Track tool calls
+                    if let Some(tool_call) = completion.tool_call {
+                        tool_calls.push(tool_call);
+                    }
+                }
+                Err(e) => {
+                    println!("\n{} {}", "Stream error:".red().bold(), e);
+                }
+            }
+        }
+
+        println!(); // New line after response
+
+        // Display tool usage if any
+        if !tool_calls.is_empty() {
+            self.display_tool_calls(&tool_calls);
+        }
+
+        Ok(())
+    }
+
+    /// Display tool calls in a formatted way
+    fn display_tool_calls(&self, tool_calls: &[rig::completion::ToolCall]) {
+        println!();
+        println!("{}", "🔧 Tools Used:".yellow().bold());
+
+        for (i, call) in tool_calls.iter().enumerate() {
+            println!("  {}. {} {}",
+                i + 1,
+                "Tool:".dimmed(),
+                call.name.cyan()
+            );
+
+            if let Ok(args) = serde_json::to_string_pretty(&call.arguments) {
+                println!("     {} {}", "Args:".dimmed(), args.dimmed());
+            }
+
+            if let Some(result) = &call.result {
+                println!("     {} {}", "Result:".dimmed(),
+                    truncate_string(result, 100).dimmed()
+                );
+            }
+        }
+        println!();
+    }
+
+    /// Show available tools from all MCP servers
+    async fn show_tools(&self) -> Result<()> {
+        println!();
+        println!("{}", "📦 Available Tools:".yellow().bold());
+        println!("{}", "─────────────────────────────────────────────────".dimmed());
+
+        // Note: This requires the agent to expose tool information
+        // In a real implementation, you'd query the MCP manager
+        println!("{}", "  (Tools are dynamically loaded from MCP servers)".dimmed());
+        println!("{}", "  Use the chat to discover available tools!".dimmed());
+        println!();
+
+        Ok(())
+    }
+}
+
+/// Truncate a string to a maximum length with ellipsis
+fn truncate_string(s: &str, max_len: usize) -> String {
+    if s.len() <= max_len {
+        s.to_string()
+    } else {
+        format!("{}...", &s[..max_len])
+    }
+}
+
+/// Format JSON for display
+fn format_json(value: &serde_json::Value) -> String {
+    serde_json::to_string_pretty(value)
+        .unwrap_or_else(|_| value.to_string())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_truncate_string() {
+        assert_eq!(truncate_string("short", 10), "short");
+        assert_eq!(truncate_string("this is a long string", 10), "this is a ...");
+    }
+
+    #[test]
+    fn test_format_json() {
+        let json = serde_json::json!({
+            "key": "value",
+            "number": 42
+        });
+        let formatted = format_json(&json);
+        assert!(formatted.contains("key"));
+        assert!(formatted.contains("value"));
+    }
+}

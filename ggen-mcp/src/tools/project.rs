@@ -1,8 +1,9 @@
-///! Project tools - delegates to ggen CLI commands
-
-use serde_json::Value;
 use crate::cli_helper::{call_ggen_cli, call_ggen_with_vars};
-use crate::error::{Result, get_string_param, get_optional_object_param, get_bool_param, success_response};
+use crate::error::{
+    get_bool_param, get_optional_object_param, get_string_param, success_response, Result,
+};
+///! Project tools - delegates to ggen CLI commands
+use serde_json::Value;
 
 /// Generate project from template - delegates to `ggen project gen`
 pub async fn gen(params: Value) -> Result<Value> {

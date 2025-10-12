@@ -1,6 +1,6 @@
-use serde_json::{json, Value};
-use crate::error::{Result, get_string_param, get_optional_string_param, success_response};
+use crate::error::{get_optional_string_param, get_string_param, success_response, Result};
 use chrono::{DateTime, Utc};
+use serde_json::{json, Value};
 
 /// Register lifecycle hook
 pub async fn register(params: Value) -> Result<Value> {

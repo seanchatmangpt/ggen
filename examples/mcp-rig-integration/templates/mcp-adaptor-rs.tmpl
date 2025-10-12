@@ -1,0 +1,289 @@
+---
+generator:
+  name: "{{ project_name }}_mcp_adaptor"
+  version: "0.1.0"
+  description: "Adaptor bridging MCP protocol with Rig ToolDyn interface"
+
+variables:
+  project_name: "mcp-rig-agent"
+
+output:
+  path: "src/mcp_adaptor.rs"
+---
+//! MCP to Rig Tool Adaptor
+//!
+//! This module bridges the Model Context Protocol (MCP) with Rig's dynamic tool interface.
+//! It enables Rig agents to seamlessly use tools from MCP servers.
+//!
+//! # Architecture
+//!
+//! ```text
+//! Rig Agent → ToolDyn trait → McpToolAdaptor → MCP Manager → MCP Servers
+//! ```
+//!
+//! The adaptor:
+//! 1. Discovers tools from MCP servers
+//! 2. Converts MCP tool schemas to Rig format
+//! 3. Routes tool calls to appropriate MCP servers
+//! 4. Handles errors and serialization
+
+use anyhow::{Context, Result};
+use rig::completion::ToolDyn;
+use serde_json::Value as JsonValue;
+use std::sync::Arc;
+use tokio::sync::RwLock;
+
+use crate::McpManager;
+
+/// Adaptor that bridges MCP tools with Rig's ToolDyn interface
+pub struct McpToolAdaptor {
+    /// Shared MCP manager instance
+    manager: Arc<RwLock<McpManager>>,
+
+    /// Cached tool definitions
+    tools_cache: Arc<RwLock<Vec<rmcp::Tool>>>,
+}
+
+impl McpToolAdaptor {
+    /// Create a new MCP tool adaptor
+    pub fn new(manager: Arc<RwLock<McpManager>>) -> Self {
+        Self {
+            manager,
+            tools_cache: Arc::new(RwLock::new(Vec::new())),
+        }
+    }
+
+    /// Refresh the tool cache from all MCP servers
+    async fn refresh_tools(&self) -> Result<()> {
+        let manager = self.manager.read().await;
+        let tools = manager.list_tools()
+            .await
+            .context("Failed to list MCP tools")?;
+
+        let mut cache = self.tools_cache.write().await;
+        *cache = tools;
+
+        Ok(())
+    }
+
+    /// Convert MCP tool to Rig tool definition
+    fn convert_tool(&self, mcp_tool: &rmcp::Tool) -> rig::completion::ToolDefinition {
+        rig::completion::ToolDefinition {
+            name: mcp_tool.name.clone(),
+            description: mcp_tool.description.clone().unwrap_or_default(),
+            parameters: self.convert_schema(&mcp_tool.input_schema),
+        }
+    }
+
+    /// Convert MCP JSON schema to Rig parameter schema
+    fn convert_schema(&self, schema: &JsonValue) -> JsonValue {
+        // MCP and Rig both use JSON Schema, so we can pass through
+        // with minimal transformation
+        schema.clone()
+    }
+
+    /// Execute a tool call through MCP
+    async fn execute_tool(&self, name: &str, args: JsonValue) -> Result<String> {
+        let manager = self.manager.read().await;
+
+        let result = manager.call_tool(name, args)
+            .await
+            .with_context(|| format!("Failed to execute MCP tool: {}", name))?;
+
+        // Convert result to string for Rig
+        self.format_tool_result(&result)
+    }
+
+    /// Format tool result for display
+    fn format_tool_result(&self, result: &JsonValue) -> Result<String> {
+        match result {
+            JsonValue::String(s) => Ok(s.clone()),
+            JsonValue::Number(n) => Ok(n.to_string()),
+            JsonValue::Bool(b) => Ok(b.to_string()),
+            JsonValue::Null => Ok("null".to_string()),
+            JsonValue::Array(_) | JsonValue::Object(_) => {
+                serde_json::to_string_pretty(result)
+                    .context("Failed to serialize tool result")
+            }
+        }
+    }
+}
+
+#[async_trait::async_trait]
+impl ToolDyn for McpToolAdaptor {
+    /// Get the name of this tool adaptor
+    fn name(&self) -> String {
+        "mcp_tools".to_string()
+    }
+
+    /// Get the description of this tool adaptor
+    fn description(&self) -> String {
+        "Dynamic tools from Model Context Protocol servers".to_string()
+    }
+
+    /// List all available tools
+    async fn list_tools(&self) -> Result<Vec<rig::completion::ToolDefinition>> {
+        // Refresh cache to get latest tools
+        self.refresh_tools()
+            .await
+            .context("Failed to refresh MCP tools")?;
+
+        let cache = self.tools_cache.read().await;
+        Ok(cache.iter().map(|t| self.convert_tool(t)).collect())
+    }
+
+    /// Check if a specific tool exists
+    async fn has_tool(&self, name: &str) -> bool {
+        let cache = self.tools_cache.read().await;
+        cache.iter().any(|t| t.name == name)
+    }
+
+    /// Execute a tool by name with arguments
+    async fn call_tool(&self, name: &str, args: JsonValue) -> Result<String> {
+        log::info!("Calling MCP tool: {} with args: {}", name, args);
+
+        let result = self.execute_tool(name, args)
+            .await
+            .with_context(|| format!("Tool execution failed: {}", name))?;
+
+        log::info!("Tool {} completed successfully", name);
+
+        Ok(result)
+    }
+
+    /// Get the JSON schema for a specific tool
+    async fn get_tool_schema(&self, name: &str) -> Result<JsonValue> {
+        let cache = self.tools_cache.read().await;
+
+        cache
+            .iter()
+            .find(|t| t.name == name)
+            .map(|t| t.input_schema.clone())
+            .ok_or_else(|| anyhow::anyhow!("Tool not found: {}", name))
+    }
+}
+
+/// Helper function to validate tool arguments against schema
+fn validate_args(schema: &JsonValue, args: &JsonValue) -> Result<()> {
+    // Basic validation - in production, use a proper JSON schema validator
+    if let Some(obj) = schema.as_object() {
+        if let Some(required) = obj.get("required").and_then(|r| r.as_array()) {
+            let args_obj = args.as_object()
+                .context("Arguments must be an object")?;
+
+            for req in required {
+                let req_str = req.as_str()
+                    .context("Required field must be a string")?;
+
+                if !args_obj.contains_key(req_str) {
+                    anyhow::bail!("Missing required argument: {}", req_str);
+                }
+            }
+        }
+    }
+
+    Ok(())
+}
+
+/// Helper function to extract tool metadata
+fn extract_tool_metadata(tool: &rmcp::Tool) -> ToolMetadata {
+    ToolMetadata {
+        name: tool.name.clone(),
+        description: tool.description.clone(),
+        required_params: extract_required_params(&tool.input_schema),
+        optional_params: extract_optional_params(&tool.input_schema),
+    }
+}
+
+/// Tool metadata structure
+#[derive(Debug, Clone)]
+struct ToolMetadata {
+    name: String,
+    description: Option<String>,
+    required_params: Vec<String>,
+    optional_params: Vec<String>,
+}
+
+/// Extract required parameters from JSON schema
+fn extract_required_params(schema: &JsonValue) -> Vec<String> {
+    schema
+        .get("required")
+        .and_then(|r| r.as_array())
+        .map(|arr| {
+            arr.iter()
+                .filter_map(|v| v.as_str().map(String::from))
+                .collect()
+        })
+        .unwrap_or_default()
+}
+
+/// Extract optional parameters from JSON schema
+fn extract_optional_params(schema: &JsonValue) -> Vec<String> {
+    let all_params: Vec<String> = schema
+        .get("properties")
+        .and_then(|p| p.as_object())
+        .map(|obj| obj.keys().cloned().collect())
+        .unwrap_or_default();
+
+    let required = extract_required_params(schema);
+
+    all_params
+        .into_iter()
+        .filter(|p| !required.contains(p))
+        .collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_extract_required_params() {
+        let schema = serde_json::json!({
+            "type": "object",
+            "properties": {
+                "arg1": {"type": "string"},
+                "arg2": {"type": "number"}
+            },
+            "required": ["arg1"]
+        });
+
+        let required = extract_required_params(&schema);
+        assert_eq!(required, vec!["arg1"]);
+    }
+
+    #[test]
+    fn test_extract_optional_params() {
+        let schema = serde_json::json!({
+            "type": "object",
+            "properties": {
+                "arg1": {"type": "string"},
+                "arg2": {"type": "number"},
+                "arg3": {"type": "boolean"}
+            },
+            "required": ["arg1"]
+        });
+
+        let optional = extract_optional_params(&schema);
+        assert!(optional.contains(&"arg2".to_string()));
+        assert!(optional.contains(&"arg3".to_string()));
+        assert!(!optional.contains(&"arg1".to_string()));
+    }
+
+    #[test]
+    fn test_validate_args() {
+        let schema = serde_json::json!({
+            "type": "object",
+            "properties": {
+                "name": {"type": "string"}
+            },
+            "required": ["name"]
+        });
+
+        let valid_args = serde_json::json!({"name": "test"});
+        assert!(validate_args(&schema, &valid_args).is_ok());
+
+        let invalid_args = serde_json::json!({});
+        assert!(validate_args(&schema, &invalid_args).is_err());
+    }
+}

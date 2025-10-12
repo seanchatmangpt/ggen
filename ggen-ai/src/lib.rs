@@ -1,102 +1,75 @@
 //! # ggen-ai
 //!
-//! AI-powered code generation capabilities for ggen.
+//! Thin wrapper around genai for ggen with environment support and caching.
 //!
-//! This crate provides LLM integration for intelligent template generation,
-//! SPARQL query construction, ontology generation, and code refactoring.
+//! This crate provides a simplified LLM integration layer for ggen, focusing on:
+//! - Environment-based configuration
+//! - Response caching
+//! - Template generation
+//! - SPARQL query generation
+//! - Ontology generation
+//! - Code refactoring assistance
 //!
 //! ## Features
 //!
 //! - **Multi-provider LLM support**: OpenAI, Anthropic, Ollama, Gemini, DeepSeek, xAI/Grok, Groq, Cohere (via genai)
-//! - **Intelligent template generation**: Natural language to ggen templates
+//! - **Environment-based configuration**: Automatic API key detection and model selection
+//! - **Response caching**: Reduce API costs and latency with intelligent caching
+//! - **Template generation**: Natural language to ggen templates
 //! - **SPARQL query generation**: Intent-based query construction
 //! - **Ontology generation**: Domain descriptions to RDF/OWL
 //! - **Code refactoring**: AI-assisted code improvement suggestions
-//! - **MCP server integration**: Expose AI capabilities via Model Context Protocol
 //!
 //! ## Quick Start
 //!
 //! ```rust
-//! use ggen_ai::{LlmClient, TemplateGenerator, MockClient};
+//! use ggen_ai::{GenAiClient, LlmClient, LlmConfig};
 //!
 //! #[tokio::main]
 //! async fn main() -> Result<(), Box<dyn std::error::Error>> {
-//!     // Initialize mock client for demonstration
-//!     let client = MockClient::with_response("Generated template content");
-//!     
-//!     // Generate template from description
-//!     let generator = TemplateGenerator::new(Box::new(client));
-//!     let _template = generator.generate_template(
-//!         "Generate a REST API controller for user management",
-//!         vec!["Include CRUD operations", "Use TypeScript"]
-//!     ).await?;
-//!     
-//!     println!("Template generated successfully!");
+//!     // Initialize client with default configuration
+//!     let config = LlmConfig::default();
+//!     let client = GenAiClient::new(config)?;
+//!
+//!     // Generate response
+//!     let response = client.complete("Explain Rust ownership").await?;
+//!     println!("{}", response.content);
+//!
 //!     Ok(())
 //! }
 //! ```
 
-pub mod agents;
-pub mod autonomous;
+pub mod cache;
 pub mod client;
 pub mod config;
 pub mod constants;
+pub mod error;
+pub mod error_utils;
 pub mod generators;
 pub mod parsing_utils;
 pub mod prompts;
-pub mod ultrathink;
-// Swarm module is implemented as a directory
-// pub mod swarm;
-pub mod cache;
-pub mod cli;
-pub mod error;
-pub mod error_utils;
-pub mod governance;
-pub mod mcp;
 pub mod providers;
 pub mod security;
 pub mod streaming;
 pub mod types;
-// pub mod wip_integration; // TODO: Implement WIP integration
 
-// Test helpers are always available (not gated by features)
-// They provide mock client factories that work without external dependencies
+// Test helpers for mock clients
 #[cfg(test)]
 pub mod test_helpers;
 
 // Re-export main types for convenience
-pub use agents::{Agent, AgentHealth, AgentInput, AgentOutput, AgentRegistry, HealthStatus};
 pub use cache::{CacheConfig, CacheStats, LlmCache};
-pub use cli::{
-    add_llm_args, create_client_from_args, create_client_with_config, extract_llm_config,
-    CliConfigBuilder,
-};
 pub use client::{GenAiClient, LlmChunk, LlmClient, LlmConfig, LlmResponse, UsageStats};
 pub use config::{get_global_config, init_global_config, AiConfig, GlobalLlmConfig, LlmProvider};
 pub use error::{GgenAiError, Result};
 pub use generators::{
-    OntologyGenerator, QualityMetrics, RefactorAssistant, SparqlGenerator, TemplateGenerator,
-    TemplateValidator, ValidationIssue,
+    NaturalSearchGenerator, OntologyGenerator, QualityMetrics, RefactorAssistant,
+    SparqlGenerator, TemplateGenerator, TemplateValidator, ValidationIssue,
 };
-pub use providers::adapter::{MockClient, ollama_default_config, ollama_qwen3_coder_config};
+pub use providers::adapter::{ollama_default_config, ollama_qwen3_coder_config, MockClient};
 pub use security::{MaskApiKey, SecretString};
 pub use streaming::StreamConfig;
-
-// Note: Use LlmClient::complete_stream() for streaming - it uses genai's native streaming
-// which supports all major providers (OpenAI, Anthropic, Gemini, Ollama, etc.)
-// NOTE: Ultrathink swarm types are implemented in ggen-mcp, not ggen-ai
-// pub use ultrathink::{UltrathinkSwarm, UltrathinkConfig, UltrathinkTask, SwarmAgent, WipEntry, initialize_ultrathink_swarm};
-pub use autonomous::{
-    DeltaDetector, EvolutionConfig, EvolutionResult, GraphEvolutionEngine, NaturalLanguageParser,
-    SelfValidator,
-};
-// pub use swarm::{SwarmAgent, SwarmCoordinator, SwarmConfig};
-pub use governance::{
-    ApprovalWorkflow, AuditTrail, Dashboard, Decision, DecisionOutcome, GovernanceConfig,
-    GovernanceCoordinator, Policy, PolicyEngine, SafetyController,
-};
 pub use types::{DecisionId, PolicyId, RequestId, RuleId};
-// pub use wip_integration::{WipConnector, WipConfig, WipEvent, WipEventType, WipResponse, load_wip_config};
 
 /// Version information
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");

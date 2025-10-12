@@ -1,0 +1,294 @@
+---
+generator:
+  name: "{{ project_name }}"
+  version: "0.1.0"
+  description: "MCP + Rig Integration - AI Agent with Dynamic Tools"
+
+variables:
+  project_name: "mcp-rig-agent"
+  deepseek_support: true
+  cohere_support: false
+  openai_support: false
+  log_dir: "logs"
+
+output:
+  path: "src/main.rs"
+---
+//! {{ project_name }} - MCP + Rig Integration
+//!
+//! This application demonstrates how to integrate Model Context Protocol (MCP) servers
+//! with the Rig AI agent framework to create intelligent agents with dynamic tool capabilities.
+//!
+//! # Architecture
+//!
+//! 1. Load configuration from config.toml
+//! 2. Initialize MCP manager with configured servers
+//! 3. Create embeddings model for context understanding
+//! 4. Build Rig agent with MCP tools
+//! 5. Start interactive chat interface
+//!
+//! # MCP Integration
+//!
+//! MCP servers provide dynamic tools that the AI agent can use to interact with
+//! external systems (filesystem, APIs, databases, etc.). The `mcp_adaptor` module
+//! bridges MCP's protocol with Rig's ToolDyn interface.
+
+use anyhow::{Context, Result};
+use rig::completion::Chat;
+use rig::embeddings::EmbeddingsBuilder;
+use rig::providers::deepseek;
+{% if openai_support %}use rig::providers::openai;{% endif %}
+{% if cohere_support %}use rig::providers::cohere;{% endif %}
+use std::sync::Arc;
+use tokio::sync::RwLock;
+
+mod chat;
+mod config;
+mod mcp_adaptor;
+
+use chat::ChatBot;
+use config::Config;
+use mcp_adaptor::McpToolAdaptor;
+
+#[tokio::main]
+async fn main() -> Result<()> {
+    // Initialize logging
+    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info"))
+        .init();
+
+    println!("🚀 Starting {{ project_name }}...\n");
+
+    // Load configuration from config.toml
+    let config = Config::load("config.toml")
+        .context("Failed to load configuration. Ensure config.toml exists.")?;
+
+    // Initialize MCP Manager
+    println!("🔧 Initializing MCP servers...");
+    let mcp_manager = Arc::new(RwLock::new(
+        config.create_mcp_manager()
+            .context("Failed to create MCP manager")?
+    ));
+
+    // Start all configured MCP servers
+    {
+        let mut manager = mcp_manager.write().await;
+        manager.initialize()
+            .await
+            .context("Failed to initialize MCP servers")?;
+        println!("✅ MCP servers initialized successfully\n");
+    }
+
+    // Create embeddings model for context understanding
+    println!("🧠 Creating embeddings model...");
+    let embeddings = EmbeddingsBuilder::new(
+        deepseek::Client::from_env(config.providers.deepseek.model.clone())
+            .embeddings_model(config.providers.deepseek.embeddings_model.clone())
+    ).build();
+
+    // Create MCP tool adaptor
+    let mcp_adaptor = McpToolAdaptor::new(Arc::clone(&mcp_manager));
+
+    // Build Rig agent with MCP tools
+    println!("🤖 Building AI agent...");
+    let agent = deepseek::Client::from_env(config.providers.deepseek.model.clone())
+        .agent(config.providers.deepseek.chat_model.clone())
+        .context("Failed to create agent")
+        .preamble(
+            "You are a helpful AI assistant with access to various tools through MCP servers. \
+             Use the available tools to help users with their requests. When using tools, \
+             explain what you're doing and why. Be thorough and accurate in your responses."
+        )
+        .dynamic_tool(mcp_adaptor)
+        .build();
+
+    println!("✅ Agent ready!\n");
+
+    // Start interactive chat
+    let chatbot = ChatBot::new(agent);
+    chatbot.run().await?;
+
+    // Cleanup: shutdown MCP servers
+    println!("\n🛑 Shutting down MCP servers...");
+    {
+        let mut manager = mcp_manager.write().await;
+        manager.shutdown().await?;
+    }
+    println!("✅ Shutdown complete");
+
+    Ok(())
+}
+
+/// MCP Manager for handling multiple MCP servers
+pub struct McpManager {
+    servers: Vec<McpServer>,
+}
+
+impl McpManager {
+    /// Create a new MCP manager
+    pub fn new() -> Self {
+        Self {
+            servers: Vec::new(),
+        }
+    }
+
+    /// Add an MCP server configuration
+    pub fn add_server(&mut self, server: McpServer) {
+        self.servers.push(server);
+    }
+
+    /// Initialize all configured MCP servers
+    pub async fn initialize(&mut self) -> Result<()> {
+        for server in &mut self.servers {
+            server.start()
+                .await
+                .with_context(|| format!("Failed to start MCP server: {}", server.name))?;
+            println!("  ✓ Started {} ({})", server.name, server.transport_type());
+        }
+        Ok(())
+    }
+
+    /// Get all available tools from all servers
+    pub async fn list_tools(&self) -> Result<Vec<rmcp::Tool>> {
+        let mut all_tools = Vec::new();
+
+        for server in &self.servers {
+            let tools = server.list_tools()
+                .await
+                .with_context(|| format!("Failed to list tools from {}", server.name))?;
+            all_tools.extend(tools);
+        }
+
+        Ok(all_tools)
+    }
+
+    /// Call a tool on the appropriate server
+    pub async fn call_tool(&self, name: &str, args: serde_json::Value) -> Result<serde_json::Value> {
+        // Find the server that has this tool
+        for server in &self.servers {
+            if server.has_tool(name).await? {
+                return server.call_tool(name, args)
+                    .await
+                    .with_context(|| format!("Failed to call tool {} on server {}", name, server.name));
+            }
+        }
+
+        anyhow::bail!("Tool not found: {}", name)
+    }
+
+    /// Shutdown all MCP servers
+    pub async fn shutdown(&mut self) -> Result<()> {
+        for server in &mut self.servers {
+            server.stop()
+                .await
+                .with_context(|| format!("Failed to stop server: {}", server.name))?;
+        }
+        Ok(())
+    }
+}
+
+/// Individual MCP server instance
+pub struct McpServer {
+    name: String,
+    transport: McpTransport,
+    client: Option<rmcp::Client>,
+}
+
+impl McpServer {
+    /// Create a new MCP server from configuration
+    pub fn new(name: String, transport: McpTransport) -> Self {
+        Self {
+            name,
+            transport,
+            client: None,
+        }
+    }
+
+    /// Start the MCP server and establish connection
+    pub async fn start(&mut self) -> Result<()> {
+        let client = match &self.transport {
+            McpTransport::Stdio { command, args } => {
+                rmcp::Client::new_stdio(command, args)
+                    .await
+                    .context("Failed to create stdio MCP client")?
+            }
+            McpTransport::Sse { url } => {
+                rmcp::Client::new_sse(url)
+                    .await
+                    .context("Failed to create SSE MCP client")?
+            }
+            McpTransport::Streamable { config } => {
+                rmcp::Client::new_streamable(config)
+                    .await
+                    .context("Failed to create streamable MCP client")?
+            }
+        };
+
+        self.client = Some(client);
+        Ok(())
+    }
+
+    /// Stop the MCP server
+    pub async fn stop(&mut self) -> Result<()> {
+        if let Some(client) = &mut self.client {
+            client.shutdown().await?;
+        }
+        self.client = None;
+        Ok(())
+    }
+
+    /// List all tools available from this server
+    pub async fn list_tools(&self) -> Result<Vec<rmcp::Tool>> {
+        let client = self.client.as_ref()
+            .context("Server not initialized")?;
+
+        let tools = client.list_tools()
+            .await
+            .context("Failed to list tools")?;
+
+        Ok(tools.tools)
+    }
+
+    /// Check if this server has a specific tool
+    pub async fn has_tool(&self, name: &str) -> Result<bool> {
+        let tools = self.list_tools().await?;
+        Ok(tools.iter().any(|t| t.name == name))
+    }
+
+    /// Call a tool on this server
+    pub async fn call_tool(&self, name: &str, args: serde_json::Value) -> Result<serde_json::Value> {
+        let client = self.client.as_ref()
+            .context("Server not initialized")?;
+
+        let result = client.call_tool(name, args)
+            .await
+            .context("Tool call failed")?;
+
+        Ok(result.content)
+    }
+
+    /// Get transport type as string
+    fn transport_type(&self) -> &str {
+        match self.transport {
+            McpTransport::Stdio { .. } => "stdio",
+            McpTransport::Sse { .. } => "sse",
+            McpTransport::Streamable { .. } => "streamable",
+        }
+    }
+}
+
+/// MCP transport types
+pub enum McpTransport {
+    /// Standard input/output transport (child process)
+    Stdio {
+        command: String,
+        args: Vec<String>,
+    },
+    /// Server-Sent Events transport (HTTP)
+    Sse {
+        url: String,
+    },
+    /// Custom streamable transport
+    Streamable {
+        config: serde_json::Value,
+    },
+}

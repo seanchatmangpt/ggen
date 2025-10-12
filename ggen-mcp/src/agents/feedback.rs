@@ -1,15 +1,17 @@
 //! Feedback Agent - Runtime telemetry analysis and system self-improvement
 
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, VecDeque};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
-use tokio::sync::{RwLock, Notify};
-use serde::{Deserialize, Serialize};
-use chrono::{DateTime, Utc};
+use tokio::sync::{Notify, RwLock};
 use uuid::Uuid;
 
-use crate::agents::{Agent, AgentConfig, AgentMessage, AgentRole, AgentStatus, TaskDefinition, TaskResult};
-use crate::error::{Result, GgenMcpError};
+use crate::agents::{
+    Agent, AgentConfig, AgentMessage, AgentRole, AgentStatus, TaskDefinition, TaskResult,
+};
+use crate::error::{GgenMcpError, Result};
 
 /// Configuration for feedback agent
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -263,7 +265,9 @@ impl FeedbackAgent {
         let patterns = self.detect_patterns(&telemetry_data).await?;
 
         // Generate improvement suggestions
-        let suggestions = self.generate_improvement_suggestions(&patterns, &telemetry_data).await?;
+        let suggestions = self
+            .generate_improvement_suggestions(&patterns, &telemetry_data)
+            .await?;
 
         // Calculate overall confidence
         let confidence = self.calculate_analysis_confidence(&patterns, &suggestions)?;
@@ -309,14 +313,17 @@ impl FeedbackAgent {
     }
 
     /// Detect performance degradation patterns
-    async fn detect_performance_issues(&self, telemetry: &[TelemetryData]) -> Result<Vec<PatternDetection>> {
+    async fn detect_performance_issues(
+        &self, telemetry: &[TelemetryData],
+    ) -> Result<Vec<PatternDetection>> {
         let mut patterns = Vec::new();
 
         // Analyze performance metrics over time
         for data in telemetry {
             if let Some(response_time) = data.metrics.get("response_time_ms") {
                 if let Some(rt) = response_time.as_f64() {
-                    if rt > 5000.0 { // 5 second threshold
+                    if rt > 5000.0 {
+                        // 5 second threshold
                         patterns.push(PatternDetection {
                             pattern_type: PatternType::PerformanceDegradation,
                             description: format!("High response time detected: {:.2}ms", rt),
@@ -334,13 +341,21 @@ impl FeedbackAgent {
     }
 
     /// Detect error recurrence patterns
-    async fn detect_error_patterns(&self, telemetry: &[TelemetryData]) -> Result<Vec<PatternDetection>> {
+    async fn detect_error_patterns(
+        &self, telemetry: &[TelemetryData],
+    ) -> Result<Vec<PatternDetection>> {
         let mut error_counts = HashMap::new();
 
         // Count errors by component and type
         for data in telemetry {
             if data.event_type == TelemetryEventType::Error {
-                let key = format!("{}:{}", data.component, data.metrics.get("error_type").unwrap_or(&serde_json::Value::Null));
+                let key = format!(
+                    "{}:{}",
+                    data.component,
+                    data.metrics
+                        .get("error_type")
+                        .unwrap_or(&serde_json::Value::Null)
+                );
                 *error_counts.entry(key).or_insert(0) += 1;
             }
         }
@@ -348,13 +363,17 @@ impl FeedbackAgent {
         let mut patterns = Vec::new();
 
         for (key, count) in error_counts {
-            if count >= 5 { // Threshold for pattern detection
+            if count >= 5 {
+                // Threshold for pattern detection
                 let parts: Vec<&str> = key.split(':').collect();
                 let component = parts[0].to_string();
 
                 patterns.push(PatternDetection {
                     pattern_type: PatternType::ErrorRecurrence,
-                    description: format!("Recurring errors in component: {} ({} occurrences)", component, count),
+                    description: format!(
+                        "Recurring errors in component: {} ({} occurrences)",
+                        component, count
+                    ),
                     frequency: count,
                     impact: count as f64 * 0.1, // Normalize impact
                     confidence: 0.8,
@@ -367,14 +386,17 @@ impl FeedbackAgent {
     }
 
     /// Detect resource usage patterns
-    async fn detect_resource_patterns(&self, telemetry: &[TelemetryData]) -> Result<Vec<PatternDetection>> {
+    async fn detect_resource_patterns(
+        &self, telemetry: &[TelemetryData],
+    ) -> Result<Vec<PatternDetection>> {
         let mut patterns = Vec::new();
 
         // Analyze memory usage patterns
         for data in telemetry {
             if let Some(memory_mb) = data.metrics.get("memory_usage_mb") {
                 if let Some(mem) = memory_mb.as_f64() {
-                    if mem > 1000.0 { // 1GB threshold
+                    if mem > 1000.0 {
+                        // 1GB threshold
                         patterns.push(PatternDetection {
                             pattern_type: PatternType::ResourceUsage,
                             description: format!("High memory usage: {:.2}MB", mem),
@@ -393,9 +415,7 @@ impl FeedbackAgent {
 
     /// Generate improvement suggestions based on detected patterns
     async fn generate_improvement_suggestions(
-        &self,
-        patterns: &[PatternDetection],
-        telemetry: &[TelemetryData],
+        &self, patterns: &[PatternDetection], telemetry: &[TelemetryData],
     ) -> Result<Vec<ImprovementSuggestion>> {
         let mut suggestions = Vec::new();
 
@@ -405,19 +425,30 @@ impl FeedbackAgent {
                     suggestions.push(ImprovementSuggestion {
                         id: Uuid::new_v4(),
                         suggestion_type: SuggestionType::PerformanceTuning,
-                        description: format!("Optimize {} for better performance", pattern.affected_components[0]),
+                        description: format!(
+                            "Optimize {} for better performance",
+                            pattern.affected_components[0]
+                        ),
                         target_component: pattern.affected_components[0].clone(),
-                        expected_benefit: "Reduced response times and improved throughput".to_string(),
+                        expected_benefit: "Reduced response times and improved throughput"
+                            .to_string(),
                         implementation_effort: EffortLevel::Medium,
                         confidence: pattern.confidence,
-                        priority: if pattern.impact > 0.8 { ImprovementPriority::High } else { ImprovementPriority::Medium },
+                        priority: if pattern.impact > 0.8 {
+                            ImprovementPriority::High
+                        } else {
+                            ImprovementPriority::Medium
+                        },
                     });
                 }
                 PatternType::ErrorRecurrence => {
                     suggestions.push(ImprovementSuggestion {
                         id: Uuid::new_v4(),
                         suggestion_type: SuggestionType::ErrorHandling,
-                        description: format!("Improve error handling in {}", pattern.affected_components[0]),
+                        description: format!(
+                            "Improve error handling in {}",
+                            pattern.affected_components[0]
+                        ),
                         target_component: pattern.affected_components[0].clone(),
                         expected_benefit: "Reduced error rates and better reliability".to_string(),
                         implementation_effort: EffortLevel::Low,
@@ -429,9 +460,13 @@ impl FeedbackAgent {
                     suggestions.push(ImprovementSuggestion {
                         id: Uuid::new_v4(),
                         suggestion_type: SuggestionType::ResourceAllocation,
-                        description: format!("Optimize resource allocation for {}", pattern.affected_components[0]),
+                        description: format!(
+                            "Optimize resource allocation for {}",
+                            pattern.affected_components[0]
+                        ),
                         target_component: pattern.affected_components[0].clone(),
-                        expected_benefit: "Better resource utilization and reduced costs".to_string(),
+                        expected_benefit: "Better resource utilization and reduced costs"
+                            .to_string(),
                         implementation_effort: EffortLevel::Medium,
                         confidence: pattern.confidence,
                         priority: ImprovementPriority::Medium,
@@ -446,9 +481,7 @@ impl FeedbackAgent {
 
     /// Generate recommended actions based on analysis
     fn generate_recommended_actions(
-        &self,
-        patterns: &[PatternDetection],
-        suggestions: &[ImprovementSuggestion],
+        &self, patterns: &[PatternDetection], suggestions: &[ImprovementSuggestion],
     ) -> Result<Vec<RecommendedAction>> {
         let mut actions = Vec::new();
 
@@ -461,28 +494,52 @@ impl FeedbackAgent {
                     target: pattern.affected_components[0].clone(),
                     parameters: {
                         let mut map = HashMap::new();
-                        map.insert("pattern_type".to_string(), serde_json::to_value(&pattern.pattern_type).unwrap_or_default());
-                        map.insert("impact".to_string(), serde_json::Value::from(pattern.impact));
-                        map.insert("confidence".to_string(), serde_json::Value::from(pattern.confidence));
+                        map.insert(
+                            "pattern_type".to_string(),
+                            serde_json::to_value(&pattern.pattern_type).unwrap_or_default(),
+                        );
+                        map.insert(
+                            "impact".to_string(),
+                            serde_json::Value::from(pattern.impact),
+                        );
+                        map.insert(
+                            "confidence".to_string(),
+                            serde_json::Value::from(pattern.confidence),
+                        );
                         map
                     },
-                    urgency: if pattern.impact > 0.9 { ActionUrgency::Immediate } else { ActionUrgency::High },
+                    urgency: if pattern.impact > 0.9 {
+                        ActionUrgency::Immediate
+                    } else {
+                        ActionUrgency::High
+                    },
                 });
             }
         }
 
         // Add improvement actions for high-priority suggestions
         for suggestion in suggestions {
-            if suggestion.priority == ImprovementPriority::High || suggestion.priority == ImprovementPriority::Critical {
+            if suggestion.priority == ImprovementPriority::High
+                || suggestion.priority == ImprovementPriority::Critical
+            {
                 actions.push(RecommendedAction {
                     action_type: ActionType::ApplyEvolution,
                     description: format!("Apply improvement: {}", suggestion.description),
                     target: suggestion.target_component.clone(),
                     parameters: {
                         let mut map = HashMap::new();
-                        map.insert("suggestion_id".to_string(), serde_json::Value::from(suggestion.id.to_string()));
-                        map.insert("suggestion_type".to_string(), serde_json::to_value(&suggestion.suggestion_type).unwrap_or_default());
-                        map.insert("confidence".to_string(), serde_json::Value::from(suggestion.confidence));
+                        map.insert(
+                            "suggestion_id".to_string(),
+                            serde_json::Value::from(suggestion.id.to_string()),
+                        );
+                        map.insert(
+                            "suggestion_type".to_string(),
+                            serde_json::to_value(&suggestion.suggestion_type).unwrap_or_default(),
+                        );
+                        map.insert(
+                            "confidence".to_string(),
+                            serde_json::Value::from(suggestion.confidence),
+                        );
                         map
                     },
                     urgency: ActionUrgency::Normal,
@@ -494,7 +551,9 @@ impl FeedbackAgent {
     }
 
     /// Calculate overall confidence for analysis
-    fn calculate_analysis_confidence(&self, patterns: &[PatternDetection], suggestions: &[ImprovementSuggestion]) -> Result<f64> {
+    fn calculate_analysis_confidence(
+        &self, patterns: &[PatternDetection], suggestions: &[ImprovementSuggestion],
+    ) -> Result<f64> {
         let mut total_confidence = 0.0;
         let total_items = patterns.len() + suggestions.len();
 
@@ -529,9 +588,14 @@ impl FeedbackAgent {
                             // Find and apply the suggestion
                             let suggestions = self.improvement_suggestions.read().await;
                             if let Some(suggestion) = suggestions.iter().find(|s| s.id == id) {
-                                if suggestion.confidence >= self.feedback_config.min_improvement_confidence {
+                                if suggestion.confidence
+                                    >= self.feedback_config.min_improvement_confidence
+                                {
                                     // Apply the improvement (this would trigger graph evolution or regeneration)
-                                    tracing::info!("Auto-applying improvement: {}", suggestion.description);
+                                    tracing::info!(
+                                        "Auto-applying improvement: {}",
+                                        suggestion.description
+                                    );
                                     applied_ids.push(suggestion.id);
                                 }
                             }
@@ -557,7 +621,8 @@ impl FeedbackAgent {
     /// Start telemetry collection loop
     pub async fn start_telemetry_collection(&self) -> Result<()> {
         let shutdown_notify = self.shutdown_notify.clone();
-        let collection_interval = Duration::from_secs(self.feedback_config.collection_interval_secs);
+        let collection_interval =
+            Duration::from_secs(self.feedback_config.collection_interval_secs);
 
         tokio::spawn(async move {
             loop {
@@ -588,10 +653,22 @@ impl FeedbackAgent {
             event_type: TelemetryEventType::Performance,
             metrics: {
                 let mut map = HashMap::new();
-                map.insert("cpu_usage_percent".to_string(), serde_json::Value::from(45.2));
-                map.insert("memory_usage_mb".to_string(), serde_json::Value::from(512.8));
-                map.insert("response_time_ms".to_string(), serde_json::Value::from(120.5));
-                map.insert("active_connections".to_string(), serde_json::Value::from(23));
+                map.insert(
+                    "cpu_usage_percent".to_string(),
+                    serde_json::Value::from(45.2),
+                );
+                map.insert(
+                    "memory_usage_mb".to_string(),
+                    serde_json::Value::from(512.8),
+                );
+                map.insert(
+                    "response_time_ms".to_string(),
+                    serde_json::Value::from(120.5),
+                );
+                map.insert(
+                    "active_connections".to_string(),
+                    serde_json::Value::from(23),
+                );
                 map
             },
             context: HashMap::new(),
@@ -605,7 +682,9 @@ impl FeedbackAgent {
 
 #[async_trait::async_trait]
 impl Agent for FeedbackAgent {
-    async fn initialize(&mut self) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    async fn initialize(
+        &mut self,
+    ) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>> {
         tracing::info!("Initializing FeedbackAgent with ID: {}", self.config.id);
 
         // Start telemetry collection
@@ -646,28 +725,23 @@ impl Agent for FeedbackAgent {
         &self.config
     }
 
-    async fn handle_message(&mut self, message: AgentMessage) -> std::result::Result<AgentMessage, Box<dyn std::error::Error + Send + Sync>> {
+    async fn handle_message(
+        &mut self, message: AgentMessage,
+    ) -> std::result::Result<AgentMessage, Box<dyn std::error::Error + Send + Sync>> {
         match message {
             AgentMessage::TaskAssignment { task_id, task } => {
                 let result = self.handle_task(task).await?;
-                Ok(AgentMessage::TaskCompletion {
-                    task_id,
-                    result,
-                })
+                Ok(AgentMessage::TaskCompletion { task_id, result })
             }
-            AgentMessage::HealthCheck { .. } => {
-                Ok(AgentMessage::HealthResponse {
-                    status: self.status.clone(),
-                    metrics: Some(serde_json::json!({
-                        "telemetry_records": self.get_telemetry_count().await,
-                        "analysis_history_size": self.analysis_history.read().await.len(),
-                        "suggestion_count": self.improvement_suggestions.read().await.len(),
-                    })),
-                })
-            }
-            _ => {
-                Err("Unsupported message type".into())
-            }
+            AgentMessage::HealthCheck { .. } => Ok(AgentMessage::HealthResponse {
+                status: self.status.clone(),
+                metrics: Some(serde_json::json!({
+                    "telemetry_records": self.get_telemetry_count().await,
+                    "analysis_history_size": self.analysis_history.read().await.len(),
+                    "suggestion_count": self.improvement_suggestions.read().await.len(),
+                })),
+            }),
+            _ => Err("Unsupported message type".into()),
         }
     }
 }
@@ -697,7 +771,10 @@ impl FeedbackAgent {
         let analysis = self.analyze_telemetry().await?;
 
         if analysis.confidence_score > 0.5 {
-            tracing::info!("Analysis completed with confidence: {:.2}", analysis.confidence_score);
+            tracing::info!(
+                "Analysis completed with confidence: {:.2}",
+                analysis.confidence_score
+            );
 
             // Apply improvements if confidence is high enough
             if analysis.confidence_score >= self.feedback_config.min_improvement_confidence {
@@ -725,23 +802,25 @@ impl FeedbackAgent {
                         "message": "Feedback analysis task completed"
                     })),
                     error: None,
-                    duration_ms: Utc::now().signed_duration_since(start_time).num_milliseconds() as u64,
+                    duration_ms: Utc::now()
+                        .signed_duration_since(start_time)
+                        .num_milliseconds() as u64,
                     metrics: Some(serde_json::json!({
                         "patterns_detected": 0,
                         "improvements_suggested": 0
                     })),
                 })
             }
-            _ => {
-                Ok(TaskResult {
-                    task_id: task.id,
-                    success: false,
-                    result: None,
-                    error: Some("Unsupported task type".to_string()),
-                    duration_ms: Utc::now().signed_duration_since(start_time).num_milliseconds() as u64,
-                    metrics: None,
-                })
-            }
+            _ => Ok(TaskResult {
+                task_id: task.id,
+                success: false,
+                result: None,
+                error: Some("Unsupported task type".to_string()),
+                duration_ms: Utc::now()
+                    .signed_duration_since(start_time)
+                    .num_milliseconds() as u64,
+                metrics: None,
+            }),
         }
     }
 }

@@ -11,6 +11,7 @@ pub mod natural;
 pub mod offline;
 pub mod publish;
 pub mod recommend;
+pub mod registry;
 pub mod remove;
 pub mod search;
 pub mod sync;

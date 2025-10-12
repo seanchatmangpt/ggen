@@ -250,7 +250,8 @@ impl RegenerationEngine {
             event: event.clone(),
             affected_templates: affected.clone(),
             dependencies: Vec::new(),
-            estimated_time_ms: (affected.len() as u64) * autonomous::ESTIMATED_REGEN_TIME_PER_TEMPLATE_MS,
+            estimated_time_ms: (affected.len() as u64)
+                * autonomous::ESTIMATED_REGEN_TIME_PER_TEMPLATE_MS,
         };
 
         // Trigger regeneration

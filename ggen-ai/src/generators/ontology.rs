@@ -250,7 +250,8 @@ ex:Person a rdfs:Class ;
     rdfs:comment "A human being" .
 ```"#;
 
-        let generator = crate::test_helpers::create_ontology_generator_with_response(valid_response);
+        let generator =
+            crate::test_helpers::create_ontology_generator_with_response(valid_response);
 
         let result = generator
             .generate_ontology("Person", vec!["Include Person class"])
@@ -267,7 +268,8 @@ ex:Person a rdfs:Class ;
         // Invalid Turtle: missing prefix declaration
         let invalid_response = "```turtle\nex:Person a ex:Class .\n```";
 
-        let generator = crate::test_helpers::create_ontology_generator_with_response(invalid_response);
+        let generator =
+            crate::test_helpers::create_ontology_generator_with_response(invalid_response);
 
         let result = generator
             .generate_ontology("Person", vec!["Include Person class"])
@@ -287,11 +289,10 @@ ex:Person a rdfs:Class ;
     async fn test_ontology_generation_rejects_empty_content() {
         let empty_response = "```turtle\n\n```";
 
-        let generator = crate::test_helpers::create_ontology_generator_with_response(empty_response);
+        let generator =
+            crate::test_helpers::create_ontology_generator_with_response(empty_response);
 
-        let result = generator
-            .generate_ontology("Empty", vec!["Test"])
-            .await;
+        let result = generator.generate_ontology("Empty", vec!["Test"]).await;
 
         assert!(result.is_err(), "Empty Turtle should be rejected");
         let err = result.unwrap_err();
@@ -306,13 +307,13 @@ ex:Person a rdfs:Class ;
     #[tokio::test]
     async fn test_ontology_generation_rejects_malformed_triples() {
         // Malformed: triple missing object
-        let malformed_response = "```turtle\n@prefix ex: <http://example.org/> .\nex:Thing ex:property\n```";
+        let malformed_response =
+            "```turtle\n@prefix ex: <http://example.org/> .\nex:Thing ex:property\n```";
 
-        let generator = crate::test_helpers::create_ontology_generator_with_response(malformed_response);
+        let generator =
+            crate::test_helpers::create_ontology_generator_with_response(malformed_response);
 
-        let result = generator
-            .generate_ontology("Test", vec!["Test"])
-            .await;
+        let result = generator.generate_ontology("Test", vec!["Test"]).await;
 
         assert!(result.is_err(), "Malformed Turtle should be rejected");
     }
@@ -322,11 +323,10 @@ ex:Person a rdfs:Class ;
         // Invalid: undefined prefix
         let invalid_response = "```turtle\nex:Thing a ex:Class .\n```";
 
-        let generator = crate::test_helpers::create_ontology_generator_with_response(invalid_response);
+        let generator =
+            crate::test_helpers::create_ontology_generator_with_response(invalid_response);
 
-        let result = generator
-            .generate_ontology("Test", vec![])
-            .await;
+        let result = generator.generate_ontology("Test", vec![]).await;
 
         assert!(result.is_err());
         let err = result.unwrap_err();

@@ -92,10 +92,7 @@ impl NaturalSearchGenerator {
         // Extract keywords and build search params
         let mut search_params = HashMap::new();
         if let Some(keywords) = parsed.get("keywords").and_then(|v| v.as_array()) {
-            search_params.insert(
-                "keywords".to_string(),
-                Value::Array(keywords.clone()),
-            );
+            search_params.insert("keywords".to_string(), Value::Array(keywords.clone()));
         }
         if let Some(category) = parsed.get("category").and_then(|v| v.as_str()) {
             search_params.insert("category".to_string(), Value::String(category.to_string()));
@@ -118,7 +115,9 @@ impl NaturalSearchGenerator {
                 category: Some("template".to_string()),
                 tags: vec!["template".to_string(), "starter".to_string()],
                 relevance_score: 0.6,
-                ai_reasoning: Some("General-purpose template that might match your needs".to_string()),
+                ai_reasoning: Some(
+                    "General-purpose template that might match your needs".to_string(),
+                ),
             }]
         };
 
@@ -131,11 +130,13 @@ impl NaturalSearchGenerator {
                     .filter_map(|v| v.as_str().map(|s| s.to_string()))
                     .collect()
             })
-            .unwrap_or_else(|| vec![
-                "Try: 'authentication system'".to_string(),
-                "Try: 'web API framework'".to_string(),
-                "Try: 'CLI application'".to_string(),
-            ]);
+            .unwrap_or_else(|| {
+                vec![
+                    "Try: 'authentication system'".to_string(),
+                    "Try: 'web API framework'".to_string(),
+                    "Try: 'CLI application'".to_string(),
+                ]
+            });
 
         Ok(NaturalSearchResult {
             query: query.to_string(),
@@ -179,7 +180,10 @@ impl NaturalSearchGenerator {
             id: package.get("id")?.as_str()?.to_string(),
             name: package.get("name")?.as_str()?.to_string(),
             description: package.get("description")?.as_str()?.to_string(),
-            category: package.get("category").and_then(|v| v.as_str()).map(|s| s.to_string()),
+            category: package
+                .get("category")
+                .and_then(|v| v.as_str())
+                .map(|s| s.to_string()),
             tags: package
                 .get("tags")
                 .and_then(|v| v.as_array())
@@ -231,8 +235,7 @@ mod tests {
 }
 ```"#;
 
-        let mut generator =
-            create_natural_search_generator_with_response(mock_response).unwrap();
+        let mut generator = create_natural_search_generator_with_response(mock_response).unwrap();
 
         let result = generator
             .search("I need user authentication")
@@ -316,8 +319,7 @@ mod tests {
             "interpretation": "Basic search"
         }"#;
 
-        let mut generator =
-            create_natural_search_generator_with_response(mock_response).unwrap();
+        let mut generator = create_natural_search_generator_with_response(mock_response).unwrap();
 
         // Should handle minimal response with fallback values
         let result = generator.search("test query").await.unwrap();
@@ -332,8 +334,7 @@ mod tests {
     async fn test_search_with_invalid_json() {
         let mock_response = "Not valid JSON at all!";
 
-        let mut generator =
-            create_natural_search_generator_with_response(mock_response).unwrap();
+        let mut generator = create_natural_search_generator_with_response(mock_response).unwrap();
 
         // Should return error for completely invalid response
         let result = generator.search("test query").await;

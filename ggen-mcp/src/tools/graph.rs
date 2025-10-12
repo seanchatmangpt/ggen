@@ -1,8 +1,7 @@
-///! Graph tools - delegates to ggen CLI commands
-
-use serde_json::Value;
 use crate::cli_helper::call_ggen_cli;
-use crate::error::{Result, get_string_param, get_optional_string_param, success_response};
+use crate::error::{get_optional_string_param, get_string_param, success_response, Result};
+///! Graph tools - delegates to ggen CLI commands
+use serde_json::Value;
 
 /// Execute SPARQL query - delegates to `ggen graph query`
 pub async fn query(params: Value) -> Result<Value> {

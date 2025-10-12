@@ -1,5 +1,5 @@
 //! Service Discovery Agent
-//! 
+//!
 //! Discovers and registers services in the distributed system
 
 use super::*;
@@ -41,35 +41,35 @@ impl Agent for ServiceDiscovery {
         tracing::info!("Initializing Service Discovery");
         Ok(())
     }
-    
+
     async fn start(&mut self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         tracing::info!("Starting Service Discovery");
         self.status = AgentStatus::Healthy;
         Ok(())
     }
-    
+
     async fn stop(&mut self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         tracing::info!("Stopping Service Discovery");
         self.status = AgentStatus::Unhealthy;
         Ok(())
     }
-    
+
     async fn status(&self) -> AgentStatus {
         self.status.clone()
     }
-    
+
     fn config(&self) -> &AgentConfig {
         &self.config
     }
-    
-    async fn handle_message(&mut self, message: AgentMessage) -> Result<AgentMessage, Box<dyn std::error::Error + Send + Sync>> {
+
+    async fn handle_message(
+        &mut self, message: AgentMessage,
+    ) -> Result<AgentMessage, Box<dyn std::error::Error + Send + Sync>> {
         match message {
-            AgentMessage::HealthCheck { from } => {
-                Ok(AgentMessage::HealthResponse {
-                    status: self.status.clone(),
-                    metrics: Some(self.get_metrics().await?),
-                })
-            }
+            AgentMessage::HealthCheck { from } => Ok(AgentMessage::HealthResponse {
+                status: self.status.clone(),
+                metrics: Some(self.get_metrics().await?),
+            }),
             _ => {
                 tracing::warn!("Service Discovery received unhandled message type");
                 Ok(AgentMessage::ErrorNotification {
@@ -89,7 +89,7 @@ impl ServiceDiscovery {
             registered_services: Vec::new(),
         }
     }
-    
+
     async fn get_metrics(&self) -> Result<Value, Box<dyn std::error::Error + Send + Sync>> {
         Ok(serde_json::json!({
             "registered_services": self.registered_services.len(),
@@ -97,4 +97,3 @@ impl ServiceDiscovery {
         }))
     }
 }
-

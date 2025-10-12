@@ -1,0 +1,23 @@
+# Generated projects
+test-*/
+my-*/
+*-agent/
+*-mcp-*/
+
+# Temporary files
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Build artifacts
+target/
+Cargo.lock
+
+# Logs
+logs/
+*.log
+
+# Environment files
+.env
+config.toml.local

@@ -1,0 +1,62 @@
+[package]
+name = "ggen-usage-wrapping"
+version = "1.0.0"
+edition = "2021"
+authors = ["ggen contributors"]
+description = "Comprehensive examples demonstrating how to use and wrap ggen as a library"
+
+[workspace]
+members = [
+    "wrappers/rest-api",
+    "wrappers/custom-cli",
+    "wrappers/plugin-system",
+]
+
+[dependencies]
+# Core ggen dependencies
+ggen-core = { path = "../../ggen-core", version = "1.0.0" }
+ggen-ai = { path = "../../ggen-ai", version = "1.0.0" }
+
+# Async runtime
+tokio = { version = "1.0", features = ["full"] }
+async-trait = "0.1"
+
+# Error handling
+anyhow = "1.0"
+thiserror = "2.0"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_yaml = "0.9"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Configuration
+clap = { version = "4.0", features = ["derive"] }
+
+[[example]]
+name = "basic-usage"
+path = "examples/basic-usage.rs"
+
+[[example]]
+name = "with-ai"
+path = "examples/with-ai.rs"
+
+[[example]]
+name = "custom-pipeline"
+path = "examples/custom-pipeline.rs"
+
+[[example]]
+name = "batch-processor"
+path = "examples/batch-processor.rs"
+
+[[example]]
+name = "graph-operations"
+path = "examples/graph-operations.rs"
+
+[[example]]
+name = "template-validation"
+path = "examples/template-validation.rs"

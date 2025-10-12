@@ -3,8 +3,8 @@
 //! This module provides validation functions for templates, checking for
 //! syntax errors, security issues, and structural problems.
 
-use serde_json::Value;
 use crate::error::Result;
+use serde_json::Value;
 
 /// Validate template structure and content
 pub fn validate_template(template: &str) -> Result<Vec<String>> {
@@ -69,7 +69,10 @@ pub fn validate_template(template: &str) -> Result<Vec<String>> {
     }
 
     // Check for non-printable characters
-    if template.chars().any(|c| c.is_control() && c != '\n' && c != '\r' && c != '\t') {
+    if template
+        .chars()
+        .any(|c| c.is_control() && c != '\n' && c != '\r' && c != '\t')
+    {
         errors.push("Template contains unexpected control characters".to_string());
     }
 

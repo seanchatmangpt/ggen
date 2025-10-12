@@ -246,7 +246,9 @@ pub fn validate_turtle_syntax(content: &str) -> Result<(), String> {
     // Reject empty content immediately
     let trimmed = content.trim();
     if trimmed.is_empty() {
-        return Err("Empty content - Turtle must contain at least one prefix or triple".to_string());
+        return Err(
+            "Empty content - Turtle must contain at least one prefix or triple".to_string(),
+        );
     }
 
     // Create temporary in-memory store for validation
@@ -358,9 +360,13 @@ mod tests {
 
     #[test]
     fn test_extract_code_block_with_language() {
-        let text = "Here's some Turtle:\n```turtle\n@prefix ex: <http://example.org/> .\n```\nDone!";
+        let text =
+            "Here's some Turtle:\n```turtle\n@prefix ex: <http://example.org/> .\n```\nDone!";
         let result = extract_code_block(text, "turtle");
-        assert_eq!(result, Some("@prefix ex: <http://example.org/> .".to_string()));
+        assert_eq!(
+            result,
+            Some("@prefix ex: <http://example.org/> .".to_string())
+        );
     }
 
     #[test]
@@ -484,7 +490,8 @@ mod tests {
     #[test]
     fn test_extract_turtle_content_multiple_blocks() {
         // Should return first valid RDF block
-        let response = "```python\nprint('hi')\n```\n```turtle\n@prefix ex: <http://example.org/> .\n```";
+        let response =
+            "```python\nprint('hi')\n```\n```turtle\n@prefix ex: <http://example.org/> .\n```";
         let result = extract_turtle_content(response);
         assert!(result.is_some());
         assert!(result.unwrap().contains("@prefix"));
@@ -496,7 +503,11 @@ mod tests {
     fn test_validate_turtle_syntax_valid_with_prefix() {
         let valid = "@prefix ex: <http://example.org/> .\nex:Thing a ex:Class .";
         let result = validate_turtle_syntax(valid);
-        assert!(result.is_ok(), "Valid Turtle should pass validation: {:?}", result);
+        assert!(
+            result.is_ok(),
+            "Valid Turtle should pass validation: {:?}",
+            result
+        );
     }
 
     #[test]
@@ -514,7 +525,11 @@ ex:name a rdf:Property ;
     rdfs:range rdfs:Literal ."#;
 
         let result = validate_turtle_syntax(valid);
-        assert!(result.is_ok(), "Valid complex Turtle should pass: {:?}", result);
+        assert!(
+            result.is_ok(),
+            "Valid complex Turtle should pass: {:?}",
+            result
+        );
     }
 
     #[test]

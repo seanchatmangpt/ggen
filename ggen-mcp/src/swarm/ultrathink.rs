@@ -7,17 +7,17 @@
 //! - Quantum-inspired optimization algorithms
 //! - Cross-domain knowledge transfer and learning
 
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, VecDeque};
 use std::sync::{Arc, RwLock};
 use std::time::Duration;
-use serde::{Deserialize, Serialize};
-use tokio::sync::{mpsc, broadcast};
+use tokio::sync::{broadcast, mpsc};
 use uuid::Uuid;
-use chrono::{DateTime, Utc};
 
+use crate::agents::{AgentCapability, AgentInfo, AgentStatus, AgentType};
 use crate::error::{McpError, Result};
-use crate::agents::{AgentInfo, AgentCapability, AgentType, AgentStatus};
-use crate::swarm::{SwarmConfig, SwarmMetrics, SwarmEvent, CoordinationStrategy};
+use crate::swarm::{CoordinationStrategy, SwarmConfig, SwarmEvent, SwarmMetrics};
 
 /// Ultrathink Swarm Configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -761,8 +761,14 @@ impl UltrathinkSwarm {
             },
             neural_weights: vec![0.0; self.config.neural_layers.iter().sum()],
             quantum_state: QuantumState {
-                superposition: vec![1.0 / (self.config.neural_layers.len() as f64).sqrt(); self.config.neural_layers.len()],
-                entanglement: vec![vec![0.0; self.config.neural_layers.len()]; self.config.neural_layers.len()],
+                superposition: vec![
+                    1.0 / (self.config.neural_layers.len() as f64).sqrt();
+                    self.config.neural_layers.len()
+                ],
+                entanglement: vec![
+                    vec![0.0; self.config.neural_layers.len()];
+                    self.config.neural_layers.len()
+                ],
                 coherence: 1.0,
                 last_update: Utc::now(),
             },
@@ -799,7 +805,13 @@ impl UltrathinkSwarm {
             neural_weights: vec![0.0; self.config.neural_layers.iter().sum()],
             quantum_state: QuantumState {
                 superposition: vec![1.0; self.config.neural_layers.len()],
-                entanglement: vec![vec![self.config.quantum_params.entanglement_factor; self.config.neural_layers.len()]; self.config.neural_layers.len()],
+                entanglement: vec![
+                    vec![
+                        self.config.quantum_params.entanglement_factor;
+                        self.config.neural_layers.len()
+                    ];
+                    self.config.neural_layers.len()
+                ],
                 coherence: self.config.quantum_params.superposition_threshold,
                 last_update: Utc::now(),
             },
@@ -893,7 +905,9 @@ impl UltrathinkSwarm {
     }
 
     /// Find the best agent for a task using neural optimization
-    fn find_best_agent(agents: &HashMap<Uuid, UltrathinkAgent>, task: &UltrathinkTask) -> Option<Uuid> {
+    fn find_best_agent(
+        agents: &HashMap<Uuid, UltrathinkAgent>, task: &UltrathinkTask,
+    ) -> Option<Uuid> {
         // Simplified agent selection - in practice this would use neural networks
         agents.keys().next().copied()
     }
@@ -940,7 +954,9 @@ impl UltrathinkSwarm {
     }
 
     /// Apply quantum optimization to task scheduling
-    pub async fn optimize_task_schedule(&self, tasks: Vec<UltrathinkTask>) -> Result<Vec<UltrathinkTask>> {
+    pub async fn optimize_task_schedule(
+        &self, tasks: Vec<UltrathinkTask>,
+    ) -> Result<Vec<UltrathinkTask>> {
         self.quantum_optimizer.optimize_schedule(tasks).await
     }
 }
@@ -1044,7 +1060,9 @@ impl QuantumOptimizer {
     }
 
     /// Optimize task schedule using quantum algorithms
-    pub async fn optimize_schedule(&self, _tasks: Vec<UltrathinkTask>) -> Result<Vec<UltrathinkTask>> {
+    pub async fn optimize_schedule(
+        &self, _tasks: Vec<UltrathinkTask>,
+    ) -> Result<Vec<UltrathinkTask>> {
         // Implementation would use quantum optimization
         Ok(Vec::new())
     }

@@ -274,59 +274,107 @@ pub async fn run(args: &SearchArgs) -> Result<()> {
 
     println!("🔍 Searching marketplace for '{}'...", args.query);
 
-    // Placeholder: In production, this would call the marketplace API
-    // For now, return mock search results
+    // Load registry and search
+    let registry = match super::registry::Registry::load().await {
+        Ok(r) => r,
+        Err(e) => {
+            eprintln!("⚠️  Warning: Could not load marketplace registry: {}", e);
+            eprintln!("Using mock data for demonstration.");
+            return run_with_mock_data(args);
+        }
+    };
+
+    let results = registry.search(&args.query, args.limit);
+
+    if results.is_empty() {
+        println!("No packages found matching \"{}\"", args.query);
+        if args.suggestions {
+            println!("\n💡 Try these related searches:");
+            println!("   • Use different keywords");
+            println!("   • Check spelling");
+            println!("   • Try broader search terms");
+        }
+        return Ok(());
+    }
+
     if args.json {
-        let mock_results = vec![
+        let json_results: Vec<_> = results.iter().map(|pkg| {
             serde_json::json!({
-                "id": "@ggen/auth-user",
-                "name": "User Authentication",
-                "description": "User authentication with email/password and JWT",
-                "version": "1.2.0",
-                "stars": 1200,
-                "downloads": 45000,
-                "health_score": 0.95,
-                "author": "@ggen-official",
-                "license": "MIT"
-            }),
-        ];
-        println!("{}", serde_json::to_string_pretty(&mock_results)?);
+                "id": pkg.name,
+                "name": pkg.full_name,
+                "description": pkg.description,
+                "version": pkg.version,
+                "category": pkg.category,
+                "author": pkg.author,
+                "license": pkg.license,
+                "tags": pkg.tags,
+                "features": pkg.features,
+                "repository": pkg.repository,
+            })
+        }).collect();
+        println!("{}", serde_json::to_string_pretty(&json_results)?);
         return Ok(());
     }
 
     // Format output to match cookbook style with enhanced metadata
+    println!("Found {} package{} matching \"{}\"",
+        results.len(),
+        if results.len() == 1 { "" } else { "s" },
+        args.query
+    );
+    println!();
+
+    // Show rich formatted results
+    for pkg in results {
+        println!("📦 {} v{}", pkg.name, pkg.version);
+        println!("   {}", pkg.description);
+        println!("   Author: {} | License: {} | Category: {}",
+            pkg.author, pkg.license, pkg.category);
+        if !pkg.tags.is_empty() {
+            println!("   Tags: {}", pkg.tags.join(", "));
+        }
+        if !pkg.features.is_empty() && args.detailed {
+            println!("   Features:");
+            for feature in &pkg.features {
+                println!("     • {}", feature);
+            }
+        }
+        println!();
+    }
+
+    if args.fuzzy {
+        println!("🔍 Fuzzy search enabled - showing results for similar terms");
+    }
+
+    Ok(())
+}
+
+/// Fallback function with mock data when registry is unavailable
+fn run_with_mock_data(args: &SearchArgs) -> Result<()> {
+    if args.json {
+        let mock_results = vec![serde_json::json!({
+            "id": "@ggen/auth-user",
+            "name": "User Authentication",
+            "description": "User authentication with email/password and JWT",
+            "version": "1.2.0",
+            "stars": 1200,
+            "downloads": 45000,
+            "health_score": 0.95,
+            "author": "@ggen-official",
+            "license": "MIT"
+        })];
+        println!("{}", serde_json::to_string_pretty(&mock_results)?);
+        return Ok(());
+    }
+
     println!("Found {} packages matching \"{}\"", args.limit, args.query);
-        println!();
+    println!();
 
-        // Show rich formatted results with health scores and enhanced metadata
-        println!("📦 @ggen/auth-user (⭐ 1.2k, ⬇ 45k, 🏥 95%)");
-        println!("   User authentication with email/password and JWT");
-        println!("   Author: @ggen-official | License: MIT");
-        println!("   Tags: auth, user, jwt | Updated: 2 days ago");
-        println!();
-
-        println!("📦 @ggen/oauth2-pattern (⭐ 890, ⬇ 23k, 🏥 87%)");
-        println!("   OAuth2 authentication flow (Google, GitHub, etc.)");
-        println!("   Author: @auth-team | License: Apache-2.0");
-        println!("   Tags: auth, oauth2, social | Updated: 1 week ago");
-        println!();
-
-        println!("📦 @ggen/rbac-permissions (⭐ 650, ⬇ 18k, 🏥 78%)");
-        println!("   Role-based access control with permissions");
-        println!("   Author: @security-experts | License: MIT");
-        println!("   Tags: auth, rbac, permissions | Updated: 3 weeks ago");
-        println!();
-
-        if args.fuzzy {
-            println!("🔍 Fuzzy search enabled - showing results for similar terms");
-        }
-
-        if args.suggestions && args.query.len() > 2 {
-            println!("💡 Try these related searches:");
-            println!("   • authentication patterns");
-            println!("   • user management");
-            println!("   • oauth2 integration");
-        }
+    println!("📦 @ggen/auth-user (⭐ 1.2k, ⬇ 45k, 🏥 95%)");
+    println!("   User authentication with email/password and JWT");
+    println!("   Author: @ggen-official | License: MIT");
+    println!("   Tags: auth, user, jwt | Updated: 2 days ago");
+    println!();
 
     Ok(())
 }

@@ -244,7 +244,8 @@ impl RegenerationOrchestrator {
         self.collect_results(&mut execution, results);
 
         // Finalize execution
-        self.finalize_execution(&mut execution, start_time, &execution_id).await;
+        self.finalize_execution(&mut execution, start_time, &execution_id)
+            .await;
 
         // Check performance targets
         self.check_performance_targets(&execution).await;
@@ -281,10 +282,7 @@ impl RegenerationOrchestrator {
 
     /// Finalize execution: update stats, record telemetry, log summary
     async fn finalize_execution(
-        &self,
-        execution: &mut ParallelExecution,
-        start_time: Instant,
-        execution_id: &str,
+        &self, execution: &mut ParallelExecution, start_time: Instant, execution_id: &str,
     ) {
         let duration = start_time.elapsed();
         execution.completed_at = Some(chrono::Utc::now());

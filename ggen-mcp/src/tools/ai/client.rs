@@ -3,14 +3,15 @@
 //! This module handles initialization of AI clients for different providers
 //! (OpenAI, Anthropic, Ollama) and provides access to them.
 
+use crate::error::Result;
+use ggen_ai::{LlmClient, LlmConfig, MockClient};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::OnceCell;
-use ggen_ai::{LlmConfig, LlmClient, MockClient};
-use crate::error::Result;
 
 /// Global AI clients for autonomous operation
-static AI_CLIENTS: OnceCell<HashMap<String, Box<dyn LlmClient + Send + Sync>>> = OnceCell::const_new();
+static AI_CLIENTS: OnceCell<HashMap<String, Box<dyn LlmClient + Send + Sync>>> =
+    OnceCell::const_new();
 
 /// Initialize AI clients for autonomous operation
 async fn init_ai_clients() -> Result<HashMap<String, Box<dyn LlmClient + Send + Sync>>> {
@@ -29,7 +30,10 @@ async fn init_ai_clients() -> Result<HashMap<String, Box<dyn LlmClient + Send + 
         let client = ggen_ai::GenAiClient::new(config).map_err(|e| {
             crate::error::GgenMcpError::Configuration(format!("OpenAI client init failed: {}", e))
         })?;
-        clients.insert("openai".to_string(), Box::new(client) as Box<dyn LlmClient + Send + Sync>);
+        clients.insert(
+            "openai".to_string(),
+            Box::new(client) as Box<dyn LlmClient + Send + Sync>,
+        );
     }
 
     // Initialize Anthropic client if API key is available
@@ -43,9 +47,15 @@ async fn init_ai_clients() -> Result<HashMap<String, Box<dyn LlmClient + Send + 
             extra: HashMap::new(),
         };
         let client = ggen_ai::GenAiClient::new(config).map_err(|e| {
-            crate::error::GgenMcpError::Configuration(format!("Anthropic client init failed: {}", e))
+            crate::error::GgenMcpError::Configuration(format!(
+                "Anthropic client init failed: {}",
+                e
+            ))
         })?;
-        clients.insert("anthropic".to_string(), Box::new(client) as Box<dyn LlmClient + Send + Sync>);
+        clients.insert(
+            "anthropic".to_string(),
+            Box::new(client) as Box<dyn LlmClient + Send + Sync>,
+        );
     }
 
     // Initialize Ollama client if available
@@ -61,13 +71,19 @@ async fn init_ai_clients() -> Result<HashMap<String, Box<dyn LlmClient + Send + 
         let client = ggen_ai::GenAiClient::new(config).map_err(|e| {
             crate::error::GgenMcpError::Configuration(format!("Ollama client init failed: {}", e))
         })?;
-        clients.insert("ollama".to_string(), Box::new(client) as Box<dyn LlmClient + Send + Sync>);
+        clients.insert(
+            "ollama".to_string(),
+            Box::new(client) as Box<dyn LlmClient + Send + Sync>,
+        );
     }
 
     // Always provide a fallback mock client for testing
     if clients.is_empty() {
         let mock_client = MockClient::with_response("Mock AI response");
-        clients.insert("mock".to_string(), Box::new(mock_client) as Box<dyn LlmClient + Send + Sync>);
+        clients.insert(
+            "mock".to_string(),
+            Box::new(mock_client) as Box<dyn LlmClient + Send + Sync>,
+        );
     }
 
     Ok(clients)
@@ -92,10 +108,13 @@ pub async fn get_ai_client(provider: &str) -> Result<Arc<dyn LlmClient>> {
                     extra: HashMap::new(),
                 };
                 let client = ggen_ai::GenAiClient::new(config).map_err(|e| {
-                    crate::error::GgenMcpError::Configuration(format!("OpenAI client recreation failed: {}", e))
+                    crate::error::GgenMcpError::Configuration(format!(
+                        "OpenAI client recreation failed: {}",
+                        e
+                    ))
                 })?;
                 Ok(Arc::new(client))
-            },
+            }
             "anthropic" => {
                 let config = LlmConfig {
                     model: "claude-3-5-sonnet-20241022".to_string(),
@@ -106,10 +125,13 @@ pub async fn get_ai_client(provider: &str) -> Result<Arc<dyn LlmClient>> {
                     extra: HashMap::new(),
                 };
                 let client = ggen_ai::GenAiClient::new(config).map_err(|e| {
-                    crate::error::GgenMcpError::Configuration(format!("Anthropic client recreation failed: {}", e))
+                    crate::error::GgenMcpError::Configuration(format!(
+                        "Anthropic client recreation failed: {}",
+                        e
+                    ))
                 })?;
                 Ok(Arc::new(client))
-            },
+            }
             "ollama" => {
                 let config = LlmConfig {
                     model: "qwen2.5-coder:32b".to_string(),
@@ -120,18 +142,24 @@ pub async fn get_ai_client(provider: &str) -> Result<Arc<dyn LlmClient>> {
                     extra: HashMap::new(),
                 };
                 let client = ggen_ai::GenAiClient::new(config).map_err(|e| {
-                    crate::error::GgenMcpError::Configuration(format!("Ollama client recreation failed: {}", e))
+                    crate::error::GgenMcpError::Configuration(format!(
+                        "Ollama client recreation failed: {}",
+                        e
+                    ))
                 })?;
                 Ok(Arc::new(client))
-            },
-            _ => Err(crate::error::GgenMcpError::Configuration(
-                format!("AI provider '{}' not supported", provider)
-            ))
+            }
+            _ => Err(crate::error::GgenMcpError::Configuration(format!(
+                "AI provider '{}' not supported",
+                provider
+            ))),
         }
     } else {
-        Err(crate::error::GgenMcpError::Configuration(
-            format!("AI provider '{}' not available. Available: {:?}", provider, clients.keys().collect::<Vec<_>>())
-        ))
+        Err(crate::error::GgenMcpError::Configuration(format!(
+            "AI provider '{}' not available. Available: {:?}",
+            provider,
+            clients.keys().collect::<Vec<_>>()
+        )))
     }
 }
 

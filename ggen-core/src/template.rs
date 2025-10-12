@@ -391,7 +391,8 @@ where
             // Already a map - convert keys to strings
             let mut result = BTreeMap::new();
             for (k, v) in map {
-                let key = k.as_str()
+                let key = k
+                    .as_str()
                     .ok_or_else(|| Error::custom("Map keys must be strings"))?
                     .to_string();
                 result.insert(key, v);
@@ -524,7 +525,10 @@ fn main() {
         template.render_frontmatter(&mut tera, &vars)?;
 
         assert_eq!(template.front.to, Some("Alice.rs".to_string()));
-        let greeting = template.front.vars.get("greeting")
+        let greeting = template
+            .front
+            .vars
+            .get("greeting")
             .and_then(|v| v.as_str())
             .expect("greeting should be a string");
         assert_eq!(greeting, "Hello");
@@ -849,8 +853,14 @@ fn main() {
         let frontmatter: Frontmatter = serde_yaml::from_str(yaml_str)?;
 
         assert_eq!(frontmatter.vars.len(), 2);
-        assert_eq!(frontmatter.vars.get("name").and_then(|v| v.as_str()), Some("Alice"));
-        assert_eq!(frontmatter.vars.get("age").and_then(|v| v.as_i64()), Some(30));
+        assert_eq!(
+            frontmatter.vars.get("name").and_then(|v| v.as_str()),
+            Some("Alice")
+        );
+        assert_eq!(
+            frontmatter.vars.get("age").and_then(|v| v.as_i64()),
+            Some(30)
+        );
 
         Ok(())
     }
@@ -864,9 +874,18 @@ fn main() {
         let frontmatter: Frontmatter = serde_yaml::from_str(yaml_str)?;
 
         assert_eq!(frontmatter.vars.len(), 3);
-        assert_eq!(frontmatter.vars.get("var0").and_then(|v| v.as_str()), Some("item1"));
-        assert_eq!(frontmatter.vars.get("var1").and_then(|v| v.as_str()), Some("item2"));
-        assert_eq!(frontmatter.vars.get("var2").and_then(|v| v.as_str()), Some("item3"));
+        assert_eq!(
+            frontmatter.vars.get("var0").and_then(|v| v.as_str()),
+            Some("item1")
+        );
+        assert_eq!(
+            frontmatter.vars.get("var1").and_then(|v| v.as_str()),
+            Some("item2")
+        );
+        assert_eq!(
+            frontmatter.vars.get("var2").and_then(|v| v.as_str()),
+            Some("item3")
+        );
 
         Ok(())
     }
@@ -877,7 +896,10 @@ fn main() {
         let frontmatter: Frontmatter = serde_yaml::from_str(yaml_str)?;
 
         assert_eq!(frontmatter.vars.len(), 1);
-        assert_eq!(frontmatter.vars.get("var0").and_then(|v| v.as_str()), Some("single_value"));
+        assert_eq!(
+            frontmatter.vars.get("var0").and_then(|v| v.as_str()),
+            Some("single_value")
+        );
 
         Ok(())
     }

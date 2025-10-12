@@ -1,27 +1,27 @@
 //! 12-Agent Architecture for GGen MCP Server
-//! 
+//!
 //! Implements London-BDD patterns with Byzantine fault tolerance
 //! Following core team best practices for distributed systems
 
-pub mod coordinator;
-pub mod validator;
-pub mod executor;
-pub mod monitor;
 pub mod cache;
-pub mod security;
-pub mod metrics;
-pub mod health;
-pub mod recovery;
 pub mod consensus;
+pub mod coordinator;
 pub mod discovery;
-pub mod scheduler;
-pub mod graph_evolution;
-pub mod regeneration;
+pub mod executor;
 pub mod feedback;
+pub mod graph_evolution;
+pub mod health;
+pub mod metrics;
+pub mod monitor;
+pub mod recovery;
+pub mod regeneration;
+pub mod scheduler;
+pub mod security;
+pub mod validator;
 
+use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 /// Agent ID type for unique identification
@@ -91,7 +91,9 @@ pub struct AgentInfo {
 }
 
 impl AgentInfo {
-    pub fn new(id: AgentId, agent_type: AgentType, status: AgentStatus, capabilities: Vec<AgentCapability>) -> Self {
+    pub fn new(
+        id: AgentId, agent_type: AgentType, status: AgentStatus, capabilities: Vec<AgentCapability>,
+    ) -> Self {
         Self {
             id,
             agent_type,
@@ -146,21 +148,23 @@ pub enum AgentRole {
 pub trait Agent: Send + Sync {
     /// Initialize the agent
     async fn initialize(&mut self) -> Result<(), Box<dyn std::error::Error + Send + Sync>>;
-    
+
     /// Start the agent
     async fn start(&mut self) -> Result<(), Box<dyn std::error::Error + Send + Sync>>;
-    
+
     /// Stop the agent
     async fn stop(&mut self) -> Result<(), Box<dyn std::error::Error + Send + Sync>>;
-    
+
     /// Get agent status
     async fn status(&self) -> AgentStatus;
-    
+
     /// Get agent configuration
     fn config(&self) -> &AgentConfig;
-    
+
     /// Handle incoming message
-    async fn handle_message(&mut self, message: AgentMessage) -> Result<AgentMessage, Box<dyn std::error::Error + Send + Sync>>;
+    async fn handle_message(
+        &mut self, message: AgentMessage,
+    ) -> Result<AgentMessage, Box<dyn std::error::Error + Send + Sync>>;
 }
 
 /// Message types for inter-agent communication
@@ -169,7 +173,10 @@ pub enum AgentMessage {
     /// Health check request
     HealthCheck { from: AgentId },
     /// Health check response
-    HealthResponse { status: AgentStatus, metrics: Option<serde_json::Value> },
+    HealthResponse {
+        status: AgentStatus,
+        metrics: Option<serde_json::Value>,
+    },
     /// Task assignment
     TaskAssignment { task_id: Uuid, task: TaskDefinition },
     /// Task completion
@@ -177,11 +184,20 @@ pub enum AgentMessage {
     /// Consensus request
     ConsensusRequest { proposal: ConsensusProposal },
     /// Consensus response
-    ConsensusResponse { accepted: bool, reason: Option<String> },
+    ConsensusResponse {
+        accepted: bool,
+        reason: Option<String>,
+    },
     /// Error notification
-    ErrorNotification { error: String, severity: ErrorSeverity },
+    ErrorNotification {
+        error: String,
+        severity: ErrorSeverity,
+    },
     /// Recovery request
-    RecoveryRequest { failed_agent: AgentId, context: serde_json::Value },
+    RecoveryRequest {
+        failed_agent: AgentId,
+        context: serde_json::Value,
+    },
 }
 
 /// Task definition for distributed execution
@@ -274,19 +290,21 @@ impl AgentRegistry {
             coordinator: None,
         }
     }
-    
+
     /// Register an agent
-    pub async fn register_agent(&mut self, agent: Arc<RwLock<dyn Agent>>) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn register_agent(
+        &mut self, agent: Arc<RwLock<dyn Agent>>,
+    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         let mut agents = self.agents.write().await;
         agents.push(agent);
         Ok(())
     }
-    
+
     /// Get all agents
     pub async fn get_agents(&self) -> Vec<Arc<RwLock<dyn Agent>>> {
         self.agents.read().await.clone()
     }
-    
+
     /// Find agent by role
     pub async fn find_agent_by_role(&self, role: AgentRole) -> Option<Arc<RwLock<dyn Agent>>> {
         let agents = self.agents.read().await;
@@ -297,23 +315,28 @@ impl AgentRegistry {
         }
         None
     }
-    
+
     /// Broadcast message to all agents
-    pub async fn broadcast(&self, message: AgentMessage) -> Result<Vec<AgentMessage>, Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn broadcast(
+        &self, message: AgentMessage,
+    ) -> Result<Vec<AgentMessage>, Box<dyn std::error::Error + Send + Sync>> {
         let agents = self.agents.read().await;
         let mut responses = Vec::new();
-        
+
         for agent in agents.iter() {
             let mut agent_guard = agent.write().await;
             match agent_guard.handle_message(message.clone()).await {
                 Ok(response) => responses.push(response),
                 Err(e) => {
-                    tracing::error!("Agent {} failed to handle message: {}", 
-                        agent_guard.config().name, e);
+                    tracing::error!(
+                        "Agent {} failed to handle message: {}",
+                        agent_guard.config().name,
+                        e
+                    );
                 }
             }
         }
-        
+
         Ok(responses)
     }
 }
@@ -384,26 +407,26 @@ impl ByzantineConfig {
     pub fn min_nodes_for_consensus(&self) -> usize {
         (2 * self.faulty_nodes + 1).max(3)
     }
-    
+
     /// Check if consensus is possible with current configuration
     pub fn is_consensus_possible(&self) -> bool {
         self.total_nodes >= self.min_nodes_for_consensus()
     }
 }
 
+pub use cache::CacheManager;
+pub use consensus::ConsensusManager;
 /// Re-export all agent modules
 pub use coordinator::LondonBddCoordinator;
-pub use validator::ByzantineValidator;
-pub use executor::TemplateExecutor;
-pub use monitor::GraphMonitor;
-pub use cache::CacheManager;
-pub use security::SecurityAgent;
-pub use metrics::MetricsCollector;
-pub use health::HealthMonitor;
-pub use recovery::RecoveryAgent;
-pub use consensus::ConsensusManager;
 pub use discovery::ServiceDiscovery;
-pub use scheduler::TaskScheduler;
-pub use graph_evolution::GraphEvolutionAgent;
-pub use regeneration::RegenerationAgent;
+pub use executor::TemplateExecutor;
 pub use feedback::FeedbackAgent;
+pub use graph_evolution::GraphEvolutionAgent;
+pub use health::HealthMonitor;
+pub use metrics::MetricsCollector;
+pub use monitor::GraphMonitor;
+pub use recovery::RecoveryAgent;
+pub use regeneration::RegenerationAgent;
+pub use scheduler::TaskScheduler;
+pub use security::SecurityAgent;
+pub use validator::ByzantineValidator;

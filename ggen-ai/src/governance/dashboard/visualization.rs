@@ -111,11 +111,7 @@ impl DataVisualizer {
         for i in window_size - 1..data.len() {
             // Use saturating_sub to prevent overflow
             let start_idx = i.saturating_sub(window_size - 1);
-            let avg = data[start_idx..=i]
-                .iter()
-                .map(|p| p.value)
-                .sum::<f64>()
-                / window_size as f64;
+            let avg = data[start_idx..=i].iter().map(|p| p.value).sum::<f64>() / window_size as f64;
 
             result.push(TimeSeriesPoint {
                 timestamp: data[i].timestamp,

@@ -1,15 +1,15 @@
 //! London-BDD Coordinator Agent
-//! 
+//!
 //! Orchestrates Behavior-Driven Development test execution with deterministic outcomes
 
 use super::*;
+use chrono::{DateTime, Utc};
+use serde_json::Value;
 use std::collections::HashMap;
 use tokio::time::{Duration, Instant};
-use serde_json::Value;
-use chrono::{DateTime, Utc};
 
 /// London-BDD Coordinator Agent
-/// 
+///
 /// Implements the London-BDD pattern for deterministic test execution
 /// Coordinates test scenarios, manages test data, and ensures reproducible results
 pub struct LondonBddCoordinator {
@@ -50,48 +50,51 @@ pub enum TestStatus {
 impl Agent for LondonBddCoordinator {
     async fn initialize(&mut self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         tracing::info!("Initializing London-BDD Coordinator");
-        
+
         // Initialize deterministic seed for reproducible tests
         self.deterministic_seed = Some(chrono::Utc::now().timestamp() as u64);
-        
+
         // Load test scenarios from configuration
         self.load_test_scenarios().await?;
-        
-        tracing::info!("London-BDD Coordinator initialized with seed: {:?}", self.deterministic_seed);
+
+        tracing::info!(
+            "London-BDD Coordinator initialized with seed: {:?}",
+            self.deterministic_seed
+        );
         Ok(())
     }
-    
+
     async fn start(&mut self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         tracing::info!("Starting London-BDD Coordinator");
         self.status = AgentStatus::Healthy;
         Ok(())
     }
-    
+
     async fn stop(&mut self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         tracing::info!("Stopping London-BDD Coordinator");
         self.status = AgentStatus::Unhealthy;
         Ok(())
     }
-    
+
     async fn status(&self) -> AgentStatus {
         self.status.clone()
     }
-    
+
     fn config(&self) -> &AgentConfig {
         &self.config
     }
-    
-    async fn handle_message(&mut self, message: AgentMessage) -> Result<AgentMessage, Box<dyn std::error::Error + Send + Sync>> {
+
+    async fn handle_message(
+        &mut self, message: AgentMessage,
+    ) -> Result<AgentMessage, Box<dyn std::error::Error + Send + Sync>> {
         match message {
             AgentMessage::TaskAssignment { task_id, task } => {
                 self.handle_test_execution(task_id, task).await
             }
-            AgentMessage::HealthCheck { from } => {
-                Ok(AgentMessage::HealthResponse {
-                    status: self.status.clone(),
-                    metrics: Some(self.get_metrics().await?),
-                })
-            }
+            AgentMessage::HealthCheck { from } => Ok(AgentMessage::HealthResponse {
+                status: self.status.clone(),
+                metrics: Some(self.get_metrics().await?),
+            }),
             _ => {
                 tracing::warn!("London-BDD Coordinator received unhandled message type");
                 Ok(AgentMessage::ErrorNotification {
@@ -113,9 +116,11 @@ impl LondonBddCoordinator {
             deterministic_seed: None,
         }
     }
-    
+
     /// Load test scenarios from configuration
-    async fn load_test_scenarios(&mut self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    async fn load_test_scenarios(
+        &mut self,
+    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         // TODO: Load from configuration file or database
         // For now, create a sample scenario
         let sample_scenario = BddContext {
@@ -141,28 +146,32 @@ impl LondonBddCoordinator {
                 },
             ],
             variables: HashMap::new(),
-            assertions: vec![
-                BddAssertion {
-                    assertion_type: BddAssertionType::IsValid,
-                    condition: "generated_code".to_string(),
-                    expected_value: Value::Bool(true),
-                    tolerance: None,
-                },
-            ],
+            assertions: vec![BddAssertion {
+                assertion_type: BddAssertionType::IsValid,
+                condition: "generated_code".to_string(),
+                expected_value: Value::Bool(true),
+                tolerance: None,
+            }],
         };
-        
-        self.test_scenarios.insert("template_generation".to_string(), sample_scenario);
+
+        self.test_scenarios
+            .insert("template_generation".to_string(), sample_scenario);
         Ok(())
     }
-    
+
     /// Handle test execution task
-    async fn handle_test_execution(&mut self, task_id: Uuid, task: TaskDefinition) -> Result<AgentMessage, Box<dyn std::error::Error + Send + Sync>> {
+    async fn handle_test_execution(
+        &mut self, task_id: Uuid, task: TaskDefinition,
+    ) -> Result<AgentMessage, Box<dyn std::error::Error + Send + Sync>> {
         tracing::info!("Executing test task: {}", task_id);
-        
+
         let start_time = chrono::Utc::now();
         let mut execution = TestExecution {
             id: task_id,
-            scenario_id: task.parameters["scenario"].as_str().unwrap_or("unknown").to_string(),
+            scenario_id: task.parameters["scenario"]
+                .as_str()
+                .unwrap_or("unknown")
+                .to_string(),
             start_time,
             end_time: None,
             status: TestStatus::Running,
@@ -172,14 +181,17 @@ impl LondonBddCoordinator {
             variables: HashMap::new(),
             seed: self.deterministic_seed,
         };
-        
+
         // Execute the test scenario
-        match self.execute_scenario(&mut execution, &task.parameters).await {
+        match self
+            .execute_scenario(&mut execution, &task.parameters)
+            .await
+        {
             Ok(result) => {
                 execution.status = TestStatus::Passed;
                 execution.end_time = Some(chrono::Utc::now());
                 self.execution_history.push(execution.clone());
-                
+
                 Ok(AgentMessage::TaskCompletion {
                     task_id,
                     result: TaskResult {
@@ -196,7 +208,7 @@ impl LondonBddCoordinator {
                 execution.status = TestStatus::Failed;
                 execution.end_time = Some(chrono::Utc::now());
                 self.execution_history.push(execution.clone());
-                
+
                 Ok(AgentMessage::TaskCompletion {
                     task_id,
                     result: TaskResult {
@@ -211,32 +223,38 @@ impl LondonBddCoordinator {
             }
         }
     }
-    
+
     /// Execute a BDD scenario
-    async fn execute_scenario(&mut self, execution: &mut TestExecution, parameters: &Value) -> Result<serde_json::Value, Box<dyn std::error::Error + Send + Sync>> {
+    async fn execute_scenario(
+        &mut self, execution: &mut TestExecution, parameters: &Value,
+    ) -> Result<serde_json::Value, Box<dyn std::error::Error + Send + Sync>> {
         let scenario_id = parameters["scenario"].as_str().unwrap_or("unknown");
-        
-        let scenario = self.test_scenarios.get(scenario_id)
+
+        let scenario = self
+            .test_scenarios
+            .get(scenario_id)
             .ok_or_else(|| format!("Scenario not found: {}", scenario_id))?;
-        
+
         // Set deterministic seed for reproducible execution
         if let Some(seed) = self.deterministic_seed {
             // TODO: Set random seed for deterministic execution
             tracing::info!("Using deterministic seed: {}", seed);
         }
-        
+
         // Execute each step in the scenario
         for step in &scenario.steps {
             execution.steps_executed.push(step.description.clone());
-            
+
             match self.execute_step(step, &mut execution.variables).await {
                 Ok(step_result) => {
                     tracing::info!("Step executed successfully: {}", step.description);
-                    
+
                     // Validate step result if expected value is provided
                     if let Some(expected) = &step.expected {
                         if !self.validate_step_result(&step_result, expected)? {
-                            return Err(format!("Step validation failed: {}", step.description).into());
+                            return Err(
+                                format!("Step validation failed: {}", step.description).into()
+                            );
                         }
                     }
                 }
@@ -246,10 +264,13 @@ impl LondonBddCoordinator {
                 }
             }
         }
-        
+
         // Execute assertions
         for assertion in &scenario.assertions {
-            match self.execute_assertion(assertion, &execution.variables).await {
+            match self
+                .execute_assertion(assertion, &execution.variables)
+                .await
+            {
                 Ok(true) => {
                     execution.assertions_passed += 1;
                     tracing::info!("Assertion passed: {}", assertion.condition);
@@ -266,7 +287,7 @@ impl LondonBddCoordinator {
                 }
             }
         }
-        
+
         Ok(serde_json::json!({
             "scenario": scenario_id,
             "steps_executed": execution.steps_executed.len(),
@@ -276,9 +297,11 @@ impl LondonBddCoordinator {
             "seed": self.deterministic_seed
         }))
     }
-    
+
     /// Execute a single BDD step
-    async fn execute_step(&self, step: &BddStep, variables: &mut HashMap<String, Value>) -> Result<Value, Box<dyn std::error::Error + Send + Sync>> {
+    async fn execute_step(
+        &self, step: &BddStep, variables: &mut HashMap<String, Value>,
+    ) -> Result<Value, Box<dyn std::error::Error + Send + Sync>> {
         match step.action.as_str() {
             "load_template" => {
                 // Simulate template loading
@@ -288,7 +311,10 @@ impl LondonBddCoordinator {
             "generate_code" => {
                 // Simulate code generation
                 variables.insert("code_generated".to_string(), Value::Bool(true));
-                variables.insert("generated_code".to_string(), Value::String("fn main() { println!(\"Hello, world!\"); }".to_string()));
+                variables.insert(
+                    "generated_code".to_string(),
+                    Value::String("fn main() { println!(\"Hello, world!\"); }".to_string()),
+                );
                 Ok(Value::Bool(true))
             }
             "validate_code" => {
@@ -296,14 +322,14 @@ impl LondonBddCoordinator {
                 variables.insert("code_valid".to_string(), Value::Bool(true));
                 Ok(Value::Bool(true))
             }
-            _ => {
-                Err(format!("Unknown step action: {}", step.action).into())
-            }
+            _ => Err(format!("Unknown step action: {}", step.action).into()),
         }
     }
-    
+
     /// Validate step result against expected value
-    fn validate_step_result(&self, result: &Value, expected: &str) -> Result<bool, Box<dyn std::error::Error + Send + Sync>> {
+    fn validate_step_result(
+        &self, result: &Value, expected: &str,
+    ) -> Result<bool, Box<dyn std::error::Error + Send + Sync>> {
         // Simple validation logic
         match expected {
             "template_loaded" => Ok(result.as_bool().unwrap_or(false)),
@@ -312,43 +338,44 @@ impl LondonBddCoordinator {
             _ => Ok(true), // Default to pass for unknown expectations
         }
     }
-    
+
     /// Execute a BDD assertion
-    async fn execute_assertion(&self, assertion: &BddAssertion, variables: &HashMap<String, Value>) -> Result<bool, Box<dyn std::error::Error + Send + Sync>> {
-        let value = variables.get(&assertion.condition)
+    async fn execute_assertion(
+        &self, assertion: &BddAssertion, variables: &HashMap<String, Value>,
+    ) -> Result<bool, Box<dyn std::error::Error + Send + Sync>> {
+        let value = variables
+            .get(&assertion.condition)
             .ok_or_else(|| format!("Variable not found: {}", assertion.condition))?;
-        
+
         match assertion.assertion_type {
-            BddAssertionType::IsValid => {
-                Ok(value.as_bool().unwrap_or(false))
-            }
-            BddAssertionType::Equals => {
-                Ok(value == &assertion.expected_value)
-            }
+            BddAssertionType::IsValid => Ok(value.as_bool().unwrap_or(false)),
+            BddAssertionType::Equals => Ok(value == &assertion.expected_value),
             BddAssertionType::Contains => {
-                if let (Some(actual_str), Some(expected_str)) = (value.as_str(), assertion.expected_value.as_str()) {
+                if let (Some(actual_str), Some(expected_str)) =
+                    (value.as_str(), assertion.expected_value.as_str())
+                {
                     Ok(actual_str.contains(expected_str))
                 } else {
                     Ok(false)
                 }
             }
-            BddAssertionType::IsNotEmpty => {
-                match value {
-                    Value::String(s) => Ok(!s.is_empty()),
-                    Value::Array(a) => Ok(!a.is_empty()),
-                    Value::Object(o) => Ok(!o.is_empty()),
-                    _ => Ok(true),
-                }
-            }
+            BddAssertionType::IsNotEmpty => match value {
+                Value::String(s) => Ok(!s.is_empty()),
+                Value::Array(a) => Ok(!a.is_empty()),
+                Value::Object(o) => Ok(!o.is_empty()),
+                _ => Ok(true),
+            },
             _ => {
                 // Default to true for unimplemented assertion types
                 Ok(true)
             }
         }
     }
-    
+
     /// Get execution metrics
-    async fn get_execution_metrics(&self, execution: &TestExecution) -> Result<Value, Box<dyn std::error::Error + Send + Sync>> {
+    async fn get_execution_metrics(
+        &self, execution: &TestExecution,
+    ) -> Result<Value, Box<dyn std::error::Error + Send + Sync>> {
         Ok(serde_json::json!({
             "execution_id": execution.id,
             "scenario_id": execution.scenario_id,
@@ -362,25 +389,29 @@ impl LondonBddCoordinator {
             "seed": execution.seed
         }))
     }
-    
+
     /// Get coordinator metrics
     async fn get_metrics(&self) -> Result<Value, Box<dyn std::error::Error + Send + Sync>> {
         let total_executions = self.execution_history.len();
-        let successful_executions = self.execution_history.iter()
+        let successful_executions = self
+            .execution_history
+            .iter()
             .filter(|e| e.status == TestStatus::Passed)
             .count();
-        let failed_executions = self.execution_history.iter()
+        let failed_executions = self
+            .execution_history
+            .iter()
             .filter(|e| e.status == TestStatus::Failed)
             .count();
-        
+
         Ok(serde_json::json!({
             "total_executions": total_executions,
             "successful_executions": successful_executions,
             "failed_executions": failed_executions,
-            "success_rate": if total_executions > 0 { 
-                successful_executions as f64 / total_executions as f64 
-            } else { 
-                0.0 
+            "success_rate": if total_executions > 0 {
+                successful_executions as f64 / total_executions as f64
+            } else {
+                0.0
             },
             "deterministic_seed": self.deterministic_seed,
             "test_scenarios": self.test_scenarios.len(),
@@ -388,4 +419,3 @@ impl LondonBddCoordinator {
         }))
     }
 }
-

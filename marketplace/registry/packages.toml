@@ -1,0 +1,56 @@
+# Ggen Marketplace Package Registry
+version = "1.0.0"
+
+[[package]]
+name = "rig-mcp"
+full_name = "rig-mcp-integration"
+version = "0.1.0"
+description = "Production-ready Rig LLM framework + MCP protocol integration"
+category = "ai"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+path = "marketplace/packages/rig-mcp"
+license = "MIT"
+dependencies = [
+    "rig-core = 0.15.1",
+    "rmcp = 0.8",
+    "tokio = 1.0"
+]
+features = [
+    "Multi-provider LLM support (OpenAI, Anthropic, Cohere, Deepseek, Gemini, Ollama, 20+)",
+    "Dynamic MCP tool loading with vector-based selection",
+    "Multi-transport MCP support (stdio, SSE, HTTP)",
+    "Production-ready patterns from official MCP Rust SDK",
+    "Embedding-based intelligent tool selection",
+    "Async/streaming support"
+]
+tags = ["llm", "mcp", "rig", "agent", "ai", "openai", "anthropic", "cohere", "tools"]
+keywords = ["llm", "agent-framework", "mcp-protocol", "rig", "ai-tools"]
+
+# Installation
+[package.install]
+type = "cargo"
+crate = "rig-mcp-integration"
+path = "marketplace/packages/rig-mcp"
+
+# Examples
+[package.examples]
+basic = """
+use rig_mcp_integration::prelude::*;
+
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
+    let config = Config::from_file("config.toml")?;
+    let mut client = RigMcpClient::new(config).await?;
+    let agent = client.agent("gpt-4").await?.build();
+    let response = agent.prompt("Hello!").await?;
+    println!("{}", response);
+    Ok(())
+}
+"""
+
+# Documentation
+[package.docs]
+quick_start = "See README.md for quick start guide"
+config = "Copy config.toml.example and customize for your needs"
+providers = "Supports 20+ LLM providers via Rig framework"

@@ -16,7 +16,6 @@ pub mod validation;
 // Re-export main functions for backward compatibility
 pub use client::list_providers;
 pub use generators::{
-    generate_template, generate_sparql, generate_ontology,
-    extend_graph, validate_and_improve
+    extend_graph, generate_ontology, generate_sparql, generate_template, validate_and_improve,
 };
 pub use project_gen::generate_project;

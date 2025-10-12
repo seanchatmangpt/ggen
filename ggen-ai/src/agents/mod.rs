@@ -33,7 +33,9 @@ pub use registry::AgentRegistry;
 #[async_trait]
 pub trait Agent: Send + Sync + std::fmt::Debug {
     /// Initialize agent (lifecycle method)
-    async fn initialize(&mut self) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>>;
+    async fn initialize(
+        &mut self,
+    ) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>>;
 
     /// Start agent execution (lifecycle method)
     async fn start(&mut self) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>>;
@@ -48,7 +50,9 @@ pub trait Agent: Send + Sync + std::fmt::Debug {
     fn config(&self) -> &AgentConfig;
 
     /// Handle incoming messages
-    async fn handle_message(&mut self, message: AgentMessage) -> std::result::Result<AgentMessage, Box<dyn std::error::Error + Send + Sync>>;
+    async fn handle_message(
+        &mut self, message: AgentMessage,
+    ) -> std::result::Result<AgentMessage, Box<dyn std::error::Error + Send + Sync>>;
 }
 
 /// Agent configuration
@@ -225,15 +229,21 @@ mod tests {
 
     #[async_trait]
     impl Agent for MockAgent {
-        async fn initialize(&mut self) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>> {
+        async fn initialize(
+            &mut self,
+        ) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>> {
             Ok(())
         }
 
-        async fn start(&mut self) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>> {
+        async fn start(
+            &mut self,
+        ) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>> {
             Ok(())
         }
 
-        async fn stop(&mut self) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>> {
+        async fn stop(
+            &mut self,
+        ) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>> {
             Ok(())
         }
 
@@ -245,14 +255,14 @@ mod tests {
             &self.config
         }
 
-        async fn handle_message(&mut self, message: AgentMessage) -> std::result::Result<AgentMessage, Box<dyn std::error::Error + Send + Sync>> {
+        async fn handle_message(
+            &mut self, message: AgentMessage,
+        ) -> std::result::Result<AgentMessage, Box<dyn std::error::Error + Send + Sync>> {
             match message {
-                AgentMessage::HealthCheck { requester } => {
-                    Ok(AgentMessage::HealthResponse {
-                        status: self.status.clone(),
-                        metrics: None,
-                    })
-                }
+                AgentMessage::HealthCheck { requester } => Ok(AgentMessage::HealthResponse {
+                    status: self.status.clone(),
+                    metrics: None,
+                }),
                 _ => Ok(message),
             }
         }
