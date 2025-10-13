@@ -29,7 +29,7 @@ pub struct CleanroomError {
 }
 
 /// Error kinds for different failure scenarios
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum ErrorKind {
     /// Container-related errors
     ContainerError,

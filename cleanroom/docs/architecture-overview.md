@@ -10,66 +10,56 @@ The Cleanroom Testing Framework is designed as a comprehensive, production-ready
 graph TB
     subgraph "CleanroomEnvironment"
         CE[CleanroomEnvironment]
-        CM[CleanroomMetrics]
+        CC[CleanroomConfig]
         CR[ContainerRegistry]
         SM[ServiceManager]
-        TC[TestcontainerBackend]
+        BE[Backend]
     end
-    
-    subgraph "Configuration Layer"
-        CC[CleanroomConfig]
-        SP[SecurityPolicy]
-        RL[ResourceLimits]
-        PM[PerformanceMonitoring]
+
+    subgraph "Core Services"
+        CON[Containers]
+        POL[Policy]
+        LIM[Limits]
+        ERR[Error]
+        REP[Report]
     end
-    
+
     subgraph "Execution Layer"
-        RT[RuntimeManager]
-        SC[Scenario]
-        AE[AssertionEngine]
-        AT[AttestationEngine]
+        RUN[Runtime]
+        SCE[Scenario]
+        ASS[Assertions]
+        ATT[Attest]
     end
-    
-    subgraph "Container Layer"
-        PC[PostgresContainer]
-        RC[RedisContainer]
-        GC[GenericContainer]
-        CW[ContainerWrapper]
+
+    subgraph "Monitoring & Observability"
+        COV[Coverage]
+        SNP[Snapshots]
+        TRA[Tracing]
+        DET[Determinism]
+        ART[Artifacts]
     end
-    
-    subgraph "Support Services"
-        CT[CoverageTracker]
-        ST[SnapshotManager]
-        TR[TracingManager]
-        DM[DeterminismEngine]
-        AM[ArtifactManager]
-    end
-    
-    CE --> CM
+
+    CE --> CC
     CE --> CR
     CE --> SM
-    CE --> TC
-    
-    CC --> SP
-    CC --> RL
-    CC --> PM
-    
-    RT --> SC
-    SC --> AE
-    SC --> AT
-    
-    CR --> PC
-    CR --> RC
-    CR --> GC
-    PC --> CW
-    RC --> CW
-    GC --> CW
-    
-    CE --> CT
-    CE --> ST
-    CE --> TR
-    CE --> DM
-    CE --> AM
+    CE --> BE
+
+    CON --> CE
+    POL --> CE
+    LIM --> CE
+    ERR --> CE
+    REP --> CE
+
+    RUN --> CE
+    SCE --> CE
+    ASS --> CE
+    ATT --> CE
+
+    COV --> CE
+    SNP --> CE
+    TRA --> CE
+    DET --> CE
+    ART --> CE
 ```
 
 ## Component Responsibilities
@@ -78,35 +68,30 @@ graph TB
 - **Purpose**: Central orchestrator for the testing environment
 - **Responsibilities**:
   - Session management with unique UUIDs
-  - Container lifecycle management
-  - Metrics collection and reporting
-  - Resource monitoring and limits enforcement
-  - Test execution coordination
+  - Container lifecycle management and registry
+  - Service management and coordination
+  - Backend abstraction and integration
+  - Test execution coordination and policy enforcement
 
-### Configuration Layer
-- **CleanroomConfig**: Main configuration structure with validation
-- **SecurityPolicy**: Network, filesystem, and process isolation policies
-- **ResourceLimits**: CPU, memory, disk, and network constraints
-- **PerformanceMonitoring**: Real-time performance tracking and alerting
+### Core Services
+- **Containers**: PostgreSQL, Redis, and generic container implementations
+- **Policy**: Security policies, resource limits, and compliance rules
+- **Limits**: Resource monitoring and enforcement
+- **Error**: Comprehensive error handling and recovery
+- **Report**: Test reporting and result aggregation
 
 ### Execution Layer
-- **RuntimeManager**: Command execution with timeout and policy enforcement
+- **Runtime**: Command execution with timeout and policy enforcement
 - **Scenario**: Multi-step test orchestration with deterministic execution
-- **AssertionEngine**: Test result validation and verification
-- **AttestationEngine**: Security and compliance verification
+- **Assertions**: Test result validation and verification
+- **Attest**: Security and compliance verification
 
-### Container Layer
-- **PostgresContainer**: PostgreSQL database container with connection management
-- **RedisContainer**: Redis cache container with key-value operations
-- **GenericContainer**: Generic container for custom applications
-- **ContainerWrapper**: Common interface for all container types
-
-### Support Services
-- **CoverageTracker**: Test coverage measurement and reporting
-- **SnapshotManager**: Snapshot testing and validation
-- **TracingManager**: Distributed tracing and observability
-- **DeterminismEngine**: Deterministic execution with fixed seeds
-- **ArtifactManager**: Test artifact collection and management
+### Monitoring & Observability
+- **Coverage**: Test coverage measurement and reporting
+- **Snapshots**: Snapshot testing and validation
+- **Tracing**: Distributed tracing and observability
+- **Determinism**: Deterministic execution with fixed seeds
+- **Artifacts**: Test artifact collection and management
 
 ## Data Flow
 
@@ -259,7 +244,7 @@ graph TB
 ## Integration Points
 
 ### Testcontainers Integration
-- Uses testcontainers-rs version 0.22
+- Uses testcontainers-rs version 0.25
 - Supports PostgreSQL, Redis, and generic containers
 - Implements singleton pattern for performance
 - Provides health checks and readiness probes

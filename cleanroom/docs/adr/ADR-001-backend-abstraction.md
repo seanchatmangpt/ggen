@@ -67,7 +67,7 @@ pub trait Backend {
 ### Implementation Strategy
 
 - Start with `TestcontainerBackend` as the primary implementation
-- Use testcontainers-rs 0.22 for Docker/Podman support
+- Use testcontainers-rs 0.25 for Docker/Podman support
 - Implement `LocalBackend` for non-containerized execution
 - Future backends implement the same trait
 

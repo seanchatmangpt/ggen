@@ -44,7 +44,7 @@ signing = []
 services = []
 
 [[bin]]
-name = "cleanroom-bench"
+name = "bench"
 path = "src/bin/bench.rs"
 
 [dev-dependencies]
