@@ -251,17 +251,22 @@ pub mod attest;
 pub mod backend;
 pub mod cleanroom;
 pub mod config;
+pub mod container_base;
 pub mod containers;
 pub mod coverage;
 pub mod determinism;
 pub mod error;
+pub mod error_helpers;
 pub mod limits;
+pub mod macros;
+pub mod metrics_builder;
 pub mod policy;
 pub mod report;
 pub mod runtime;
 pub mod scenario;
 pub mod serializable_instant;
 pub mod snapshots;
+pub mod test_utils;
 pub mod tracing;
 
 // Advanced modules (optional features)
@@ -277,15 +282,19 @@ pub use cleanroom::{
     CleanroomEnvironment, CleanroomGuard, ContainerMetrics, ContainerStatus, ContainerWrapper,
 };
 pub use config::CleanroomConfig;
+pub use container_base::{BaseContainer, ContainerBase};
 pub use containers::{GenericContainer, PostgresContainer, RedisContainer};
 pub use coverage::CoverageCollector as CoverageTracker;
 pub use determinism::DeterministicManager;
 pub use error::{CleanroomError as Error, Result};
+pub use error_helpers::{container_error, network_error, timeout_error, config_error, policy_error, resource_error, internal_error};
 pub use limits::ResourceLimits;
+pub use metrics_builder::ContainerMetricsBuilder;
 pub use policy::{Policy, SecurityLevel};
 pub use report::TestReport;
 pub use scenario::{RunResult, Scenario, scenario};
 pub use snapshots::SnapshotManager;
+pub use test_utils::{TestEnvironmentBuilder, TestContainerHelper};
 pub use tracing::TracingManager;
 
 /// Create a new cleanroom environment with default configuration.

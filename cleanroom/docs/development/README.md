@@ -27,7 +27,7 @@ This directory contains documentation for developers working on the Cleanroom Te
 ### 1. Prerequisites
 
 Ensure you have the following installed:
-- **Rust 1.70+** ([rustup.rs](https://rustup.rs/))
+- **Rust 1.85+** ([rustup.rs](https://rustup.rs/))
 - **Docker** ([docker.com](https://www.docker.com/))
 - **Git** for version control
 - **VS Code** or **IntelliJ IDEA** with Rust plugin

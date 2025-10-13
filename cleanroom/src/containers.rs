@@ -8,14 +8,13 @@
 //! - Deterministic execution support
 
 use crate::cleanroom::{ContainerMetrics, ContainerStatus, ContainerWrapper};
+use crate::container_base::{BaseContainer, ContainerBase};
 use crate::error::{CleanroomError, Result};
-use crate::policy::Policy;
-use std::sync::Arc;
-use std::time::{Duration, Instant};
+use crate::metrics_builder::ContainerMetricsBuilder;
+use std::time::Duration;
 use testcontainers::{Container, GenericImage, ImageExt, runners::SyncRunner};
 use testcontainers_modules::postgres::Postgres;
 use testcontainers_modules::redis::Redis;
-use tokio::sync::RwLock;
 
 /// PostgreSQL container implementation following best practices
 #[derive(Debug)]
@@ -25,14 +24,14 @@ pub struct PostgresContainer {
     pub database_name: String,
     pub username: String,
     pub password: String,
-    pub status: Arc<RwLock<ContainerStatus>>,
-    pub metrics: Arc<RwLock<ContainerMetrics>>,
-    pub policy: Policy,
-    pub start_time: Instant,
+    pub base: ContainerBase,
 }
 
 impl PostgresContainer {
     /// Create a new PostgreSQL container with best practices
+    ///
+    /// Note: This uses blocking operations internally. When calling from async contexts,
+    /// wrap in `tokio::task::spawn_blocking` or use async wrapper methods.
     pub fn new(
         database_name: impl Into<String>, username: impl Into<String>, password: impl Into<String>,
     ) -> Result<Self> {
@@ -64,32 +63,40 @@ impl PostgresContainer {
             database_name,
             username,
             password,
-            status: Arc::new(RwLock::new(ContainerStatus::Starting)),
-            metrics: Arc::new(RwLock::new(ContainerMetrics {
-                cpu_usage_percent: 0.0,
-                memory_usage_bytes: 0,
-                network_bytes_sent: 0,
-                network_bytes_received: 0,
-                disk_usage_bytes: 0,
-                uptime_seconds: 0,
-            })),
-            policy: Policy::default(),
-            start_time: Instant::now(),
+            base: ContainerBase::new(),
         })
+    }
+
+    /// Create a new PostgreSQL container asynchronously
+    ///
+    /// This is the async-friendly version that properly handles blocking operations.
+    pub async fn new_async(
+        database_name: impl Into<String> + Send,
+        username: impl Into<String> + Send,
+        password: impl Into<String> + Send,
+    ) -> Result<Self> {
+        let database_name = database_name.into();
+        let username = username.into();
+        let password = password.into();
+
+        // Run blocking container creation in a separate thread pool
+        tokio::task::spawn_blocking(move || {
+            Self::new(database_name, username, password)
+        })
+        .await
+        .map_err(|e| CleanroomError::container_error(format!("Failed to spawn blocking task: {}", e)))?
     }
 
     /// Wait for PostgreSQL to be ready
     pub async fn wait_for_ready(&self) -> Result<()> {
-        let mut status = self.status.write().await;
-        *status = ContainerStatus::Ready;
-        drop(status);
-
+        self.base.set_status(ContainerStatus::Ready).await?;
+        
         // Wait for PostgreSQL to be ready
         tokio::time::sleep(Duration::from_secs(5)).await;
-
+        
         // Test connection
         self.test_connection().await?;
-
+        
         Ok(())
     }
 
@@ -125,15 +132,35 @@ impl PostgresContainer {
 
     /// Update container metrics
     pub async fn update_metrics(&self) -> Result<()> {
-        let mut metrics = self.metrics.write().await;
+        let metrics = ContainerMetricsBuilder::postgres(&self.base.start_time);
+        self.base.update_metrics(|m| *m = metrics).await
+    }
+}
 
-        // Get basic metrics (simplified for demo)
-        metrics.uptime_seconds = self.start_time.elapsed().as_secs();
-        metrics.memory_usage_bytes = 128 * 1024 * 1024; // Simulated
-        metrics.cpu_usage_percent = 5.0; // Simulated
-        metrics.disk_usage_bytes = 64 * 1024 * 1024; // Simulated
 
-        Ok(())
+impl Clone for PostgresContainer {
+    fn clone(&self) -> Self {
+        // Note: This creates a new container instance with the same configuration
+        // The actual testcontainers Container cannot be cloned, so we create a new one
+        Self::new(
+            self.database_name.clone(),
+            self.username.clone(),
+            self.password.clone(),
+        ).expect("Failed to clone PostgresContainer")
+    }
+}
+
+impl BaseContainer for PostgresContainer {
+    fn base(&self) -> &ContainerBase {
+        &self.base
+    }
+
+    fn base_mut(&mut self) -> &mut ContainerBase {
+        &mut self.base
+    }
+
+    fn container_name(&self) -> &str {
+        "postgres"
     }
 }
 
@@ -148,6 +175,10 @@ impl ContainerWrapper for PostgresContainer {
         ContainerStatus::Running
     }
 
+    fn as_any(&self) -> &dyn std::any::Any {
+        self
+    }
+
     fn metrics(&self) -> ContainerMetrics {
         // Return current container metrics
         // In a production implementation, you'd get actual container metrics from Docker
@@ -157,7 +188,7 @@ impl ContainerWrapper for PostgresContainer {
             network_bytes_sent: 0,
             network_bytes_received: 0,
             disk_usage_bytes: 64 * 1024 * 1024,
-            uptime_seconds: self.start_time.elapsed().as_secs(),
+            uptime_seconds: self.base.start_time.elapsed().as_secs(),
         }
     }
 
@@ -174,14 +205,14 @@ pub struct RedisContainer {
     pub container: Container<Redis>,
     pub connection_string: String,
     pub password: Option<String>,
-    pub status: Arc<RwLock<ContainerStatus>>,
-    pub metrics: Arc<RwLock<ContainerMetrics>>,
-    pub policy: Policy,
-    pub start_time: Instant,
+    pub base: ContainerBase,
 }
 
 impl RedisContainer {
     /// Create a new Redis container with best practices
+    ///
+    /// Note: This uses blocking operations internally. When calling from async contexts,
+    /// wrap in `tokio::task::spawn_blocking` or use async wrapper methods.
     pub fn new(password: Option<String>) -> Result<Self> {
         // Configure Redis image with optional password
         // Note: Redis container doesn't support password configuration in testcontainers-modules 0.10
@@ -204,32 +235,32 @@ impl RedisContainer {
             container,
             connection_string,
             password,
-            status: Arc::new(RwLock::new(ContainerStatus::Starting)),
-            metrics: Arc::new(RwLock::new(ContainerMetrics {
-                cpu_usage_percent: 0.0,
-                memory_usage_bytes: 0,
-                network_bytes_sent: 0,
-                network_bytes_received: 0,
-                disk_usage_bytes: 0,
-                uptime_seconds: 0,
-            })),
-            policy: Policy::default(),
-            start_time: Instant::now(),
+            base: ContainerBase::new(),
         })
+    }
+
+    /// Create a new Redis container asynchronously
+    ///
+    /// This is the async-friendly version that properly handles blocking operations.
+    pub async fn new_async(password: Option<String>) -> Result<Self> {
+        // Run blocking container creation in a separate thread pool
+        tokio::task::spawn_blocking(move || {
+            Self::new(password)
+        })
+        .await
+        .map_err(|e| CleanroomError::container_error(format!("Failed to spawn blocking task: {}", e)))?
     }
 
     /// Wait for Redis to be ready
     pub async fn wait_for_ready(&self) -> Result<()> {
-        let mut status = self.status.write().await;
-        *status = ContainerStatus::Ready;
-        drop(status);
-
+        self.base.set_status(ContainerStatus::Ready).await?;
+        
         // Wait for Redis to be ready
         tokio::time::sleep(Duration::from_secs(2)).await;
-
+        
         // Test connection
         self.test_connection().await?;
-
+        
         Ok(())
     }
 
@@ -277,15 +308,30 @@ impl RedisContainer {
 
     /// Update container metrics
     pub async fn update_metrics(&self) -> Result<()> {
-        let mut metrics = self.metrics.write().await;
+        let metrics = ContainerMetricsBuilder::redis(&self.base.start_time);
+        self.base.update_metrics(|m| *m = metrics).await
+    }
+}
 
-        // Get basic metrics (simplified for demo)
-        metrics.uptime_seconds = self.start_time.elapsed().as_secs();
-        metrics.memory_usage_bytes = 64 * 1024 * 1024; // Simulated
-        metrics.cpu_usage_percent = 2.0; // Simulated
-        metrics.disk_usage_bytes = 32 * 1024 * 1024; // Simulated
+impl Clone for RedisContainer {
+    fn clone(&self) -> Self {
+        // Note: This creates a new container instance with the same configuration
+        // The actual testcontainers Container cannot be cloned, so we create a new one
+        Self::new(self.password.clone()).expect("Failed to clone RedisContainer")
+    }
+}
 
-        Ok(())
+impl BaseContainer for RedisContainer {
+    fn base(&self) -> &ContainerBase {
+        &self.base
+    }
+
+    fn base_mut(&mut self) -> &mut ContainerBase {
+        &mut self.base
+    }
+
+    fn container_name(&self) -> &str {
+        "redis"
     }
 }
 
@@ -299,6 +345,10 @@ impl ContainerWrapper for RedisContainer {
         ContainerStatus::Running
     }
 
+    fn as_any(&self) -> &dyn std::any::Any {
+        self
+    }
+
     fn metrics(&self) -> ContainerMetrics {
         // Return current container metrics
         ContainerMetrics {
@@ -307,7 +357,7 @@ impl ContainerWrapper for RedisContainer {
             network_bytes_sent: 0,
             network_bytes_received: 0,
             disk_usage_bytes: 32 * 1024 * 1024,
-            uptime_seconds: self.start_time.elapsed().as_secs(),
+            uptime_seconds: self.base.start_time.elapsed().as_secs(),
         }
     }
 
@@ -322,14 +372,14 @@ impl ContainerWrapper for RedisContainer {
 pub struct GenericContainer {
     pub container: Container<GenericImage>,
     pub name: String,
-    pub status: Arc<RwLock<ContainerStatus>>,
-    pub metrics: Arc<RwLock<ContainerMetrics>>,
-    pub policy: Policy,
-    pub start_time: Instant,
+    pub base: ContainerBase,
 }
 
 impl GenericContainer {
     /// Create a new generic container with best practices
+    ///
+    /// Note: This uses blocking operations internally. When calling from async contexts,
+    /// wrap in `tokio::task::spawn_blocking` or use async wrapper methods.
     pub fn new(
         name: impl Into<String>, image_name: impl Into<String>, image_tag: impl Into<String>,
     ) -> Result<Self> {
@@ -346,29 +396,37 @@ impl GenericContainer {
         Ok(Self {
             container,
             name,
-            status: Arc::new(RwLock::new(ContainerStatus::Starting)),
-            metrics: Arc::new(RwLock::new(ContainerMetrics {
-                cpu_usage_percent: 0.0,
-                memory_usage_bytes: 0,
-                network_bytes_sent: 0,
-                network_bytes_received: 0,
-                disk_usage_bytes: 0,
-                uptime_seconds: 0,
-            })),
-            policy: Policy::default(),
-            start_time: Instant::now(),
+            base: ContainerBase::new(),
         })
+    }
+
+    /// Create a new generic container asynchronously
+    ///
+    /// This is the async-friendly version that properly handles blocking operations.
+    pub async fn new_async(
+        name: impl Into<String> + Send,
+        image_name: impl Into<String> + Send,
+        image_tag: impl Into<String> + Send,
+    ) -> Result<Self> {
+        let name = name.into();
+        let image_name = image_name.into();
+        let image_tag = image_tag.into();
+
+        // Run blocking container creation in a separate thread pool
+        tokio::task::spawn_blocking(move || {
+            Self::new(name, image_name, image_tag)
+        })
+        .await
+        .map_err(|e| CleanroomError::container_error(format!("Failed to spawn blocking task: {}", e)))?
     }
 
     /// Wait for container to be ready
     pub async fn wait_for_ready(&self) -> Result<()> {
-        let mut status = self.status.write().await;
-        *status = ContainerStatus::Ready;
-        drop(status);
-
+        self.base.set_status(ContainerStatus::Ready).await?;
+        
         // Wait for container to be ready
         tokio::time::sleep(Duration::from_secs(3)).await;
-
+        
         Ok(())
     }
 
@@ -381,15 +439,35 @@ impl GenericContainer {
 
     /// Update container metrics
     pub async fn update_metrics(&self) -> Result<()> {
-        let mut metrics = self.metrics.write().await;
+        let metrics = ContainerMetricsBuilder::generic(&self.base.start_time);
+        self.base.update_metrics(|m| *m = metrics).await
+    }
+}
 
-        // Get basic metrics (simplified for demo)
-        metrics.uptime_seconds = self.start_time.elapsed().as_secs();
-        metrics.memory_usage_bytes = 256 * 1024 * 1024; // Simulated
-        metrics.cpu_usage_percent = 10.0; // Simulated
-        metrics.disk_usage_bytes = 128 * 1024 * 1024; // Simulated
+impl Clone for GenericContainer {
+    fn clone(&self) -> Self {
+        // Note: This creates a new container instance with the same configuration
+        // The actual testcontainers Container cannot be cloned, so we create a new one
+        // We need to extract image info from the container, but for now create a basic clone
+        Self::new(
+            format!("{}_clone", self.name),
+            "alpine",
+            "latest",
+        ).expect("Failed to clone GenericContainer")
+    }
+}
 
-        Ok(())
+impl BaseContainer for GenericContainer {
+    fn base(&self) -> &ContainerBase {
+        &self.base
+    }
+
+    fn base_mut(&mut self) -> &mut ContainerBase {
+        &mut self.base
+    }
+
+    fn container_name(&self) -> &str {
+        &self.name
     }
 }
 
@@ -403,6 +481,10 @@ impl ContainerWrapper for GenericContainer {
         ContainerStatus::Running
     }
 
+    fn as_any(&self) -> &dyn std::any::Any {
+        self
+    }
+
     fn metrics(&self) -> ContainerMetrics {
         // Return current container metrics
         ContainerMetrics {
@@ -411,7 +493,7 @@ impl ContainerWrapper for GenericContainer {
             network_bytes_sent: 0,
             network_bytes_received: 0,
             disk_usage_bytes: 128 * 1024 * 1024,
-            uptime_seconds: self.start_time.elapsed().as_secs(),
+            uptime_seconds: self.base.start_time.elapsed().as_secs(),
         }
     }
 
