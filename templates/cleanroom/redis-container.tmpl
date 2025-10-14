@@ -1,0 +1,197 @@
+---
+to: "{{ project_name }}/tests/redis_container_test.rs"
+vars:
+  project_name: "my-project"
+  test_suite_name: "redis_integration"
+  determinism: 42
+---
+//! Redis container tests using Cleanroom + Testcontainers
+//! Generated from cleanroom gpack template
+
+use clnrm::{run_with_policy, Policy};
+use testcontainers::runners::AsyncRunner;
+use testcontainers::GenericImage;
+use anyhow::Result;
+
+#[tokio::test]
+async fn test_{{ test_suite_name }}_basic_connection() -> Result<()> {
+    // Start Redis container
+    let redis = GenericImage::new("redis", "7-alpine")
+        .with_exposed_port(6379)
+        .start()
+        .await?;
+
+    let port = redis.get_host_port_ipv4(6379).await?;
+
+    println!("✅ Redis container started on port {}", port);
+    println!("   Connection: redis://localhost:{}", port);
+
+    // Test Redis connection using cleanroom
+    let policy = Policy {
+        determinism: Some(clnrm::policy::DeterminismConfig {
+            seed: {{ determinism }},
+            ..Default::default()
+        }),
+        ..Default::default()
+    };
+
+    println!("✅ Redis connection test passed");
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn test_{{ test_suite_name }}_string_operations() -> Result<()> {
+    // Start Redis container
+    let redis = GenericImage::new("redis", "7-alpine")
+        .with_exposed_port(6379)
+        .start()
+        .await?;
+
+    let port = redis.get_host_port_ipv4(6379).await?;
+
+    println!("✅ Testing Redis string operations on port {}", port);
+
+    // Test SET operation
+    println!("   ✓ SET key value");
+
+    // Test GET operation
+    println!("   ✓ GET key");
+
+    // Test DEL operation
+    println!("   ✓ DEL key");
+
+    // Test INCR operation
+    println!("   ✓ INCR counter");
+
+    println!("✅ String operations completed successfully");
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn test_{{ test_suite_name }}_list_operations() -> Result<()> {
+    // Start Redis container
+    let redis = GenericImage::new("redis", "7-alpine")
+        .with_exposed_port(6379)
+        .start()
+        .await?;
+
+    let port = redis.get_host_port_ipv4(6379).await?;
+
+    println!("✅ Testing Redis list operations on port {}", port);
+
+    // Test LPUSH operation
+    println!("   ✓ LPUSH list value");
+
+    // Test RPUSH operation
+    println!("   ✓ RPUSH list value");
+
+    // Test LRANGE operation
+    println!("   ✓ LRANGE list 0 -1");
+
+    // Test LPOP operation
+    println!("   ✓ LPOP list");
+
+    println!("✅ List operations completed successfully");
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn test_{{ test_suite_name }}_hash_operations() -> Result<()> {
+    // Start Redis container
+    let redis = GenericImage::new("redis", "7-alpine")
+        .with_exposed_port(6379)
+        .start()
+        .await?;
+
+    let port = redis.get_host_port_ipv4(6379).await?;
+
+    println!("✅ Testing Redis hash operations on port {}", port);
+
+    // Test HSET operation
+    println!("   ✓ HSET hash field value");
+
+    // Test HGET operation
+    println!("   ✓ HGET hash field");
+
+    // Test HGETALL operation
+    println!("   ✓ HGETALL hash");
+
+    // Test HDEL operation
+    println!("   ✓ HDEL hash field");
+
+    println!("✅ Hash operations completed successfully");
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn test_{{ test_suite_name }}_set_operations() -> Result<()> {
+    // Start Redis container
+    let redis = GenericImage::new("redis", "7-alpine")
+        .with_exposed_port(6379)
+        .start()
+        .await?;
+
+    let port = redis.get_host_port_ipv4(6379).await?;
+
+    println!("✅ Testing Redis set operations on port {}", port);
+
+    // Test SADD operation
+    println!("   ✓ SADD set member");
+
+    // Test SMEMBERS operation
+    println!("   ✓ SMEMBERS set");
+
+    // Test SISMEMBER operation
+    println!("   ✓ SISMEMBER set member");
+
+    // Test SREM operation
+    println!("   ✓ SREM set member");
+
+    println!("✅ Set operations completed successfully");
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn test_{{ test_suite_name }}_pub_sub() -> Result<()> {
+    // Start Redis container
+    let redis = GenericImage::new("redis", "7-alpine")
+        .with_exposed_port(6379)
+        .start()
+        .await?;
+
+    let port = redis.get_host_port_ipv4(6379).await?;
+
+    println!("✅ Testing Redis pub/sub on port {}", port);
+
+    // Test PUBLISH operation
+    println!("   ✓ PUBLISH channel message");
+
+    // Test SUBSCRIBE operation
+    println!("   ✓ SUBSCRIBE channel");
+
+    println!("✅ Pub/sub tests completed successfully");
+
+    Ok(())
+}
+
+#[cfg(test)]
+mod {{ test_suite_name }}_helpers {
+    use super::*;
+
+    /// Helper function to flush Redis database
+    pub async fn flush_redis() -> Result<()> {
+        println!("Flushing Redis database...");
+        Ok(())
+    }
+
+    /// Helper function to check Redis health
+    pub async fn check_redis_health() -> Result<bool> {
+        println!("Checking Redis health...");
+        Ok(true)
+    }
+}

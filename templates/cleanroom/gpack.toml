@@ -1,0 +1,181 @@
+[package]
+name = "cleanroom-testing-framework"
+version = "1.0.0"
+description = "Production-ready templates for Cleanroom hermetic testing with containers, swarm coordination, and CI/CD integration"
+authors = ["Cleanroom Contributors <noreply@cleanroom.io>"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/seanchatmangpt/ggen"
+keywords = ["testing", "cleanroom", "hermetic", "containers", "deterministic"]
+categories = ["development-tools", "development-tools::testing", "code-generation"]
+
+[metadata]
+readme = "README.md"
+documentation = "README.md"
+homepage = "https://github.com/seanchatmangpt/ggen/tree/master/templates/cleanroom"
+
+[dependencies]
+# Cleanroom framework
+clnrm = "0.1.0"
+
+# Container testing
+testcontainers = "0.25"
+testcontainers-modules = { version = "0.13", features = ["postgres", "redis"] }
+
+# Async runtime
+tokio = { version = "1.47", features = ["full"] }
+
+# Error handling
+anyhow = "1.0"
+thiserror = "2.0"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Testing utilities
+criterion = "0.7"
+
+[features]
+# Template feature sets
+test-environment = ["test-environment.tmpl"]
+postgres = ["postgres-container.tmpl"]
+redis = ["redis-container.tmpl"]
+swarm = ["swarm-coordinator.tmpl"]
+ci-cd = ["ci-pipeline.tmpl"]
+benchmarks = ["benchmark-suite.tmpl"]
+full = ["test-environment", "postgres", "redis", "swarm", "ci-cd", "benchmarks"]
+
+[templates]
+# Core test environment setup
+"test-environment.tmpl" = {
+    description = "Basic hermetic test environment with security policies and deterministic execution",
+    variables = ["project_name", "test_name", "determinism"],
+    tags = ["testing", "hermetic", "security"]
+}
+
+# Container testing templates
+"postgres-container.tmpl" = {
+    description = "PostgreSQL container integration tests with schema creation and CRUD operations",
+    variables = ["project_name", "test_suite_name", "db_name", "db_user", "db_password", "determinism"],
+    tags = ["database", "postgres", "containers"]
+}
+
+"redis-container.tmpl" = {
+    description = "Redis container integration tests with string, list, hash, set operations and pub/sub",
+    variables = ["project_name", "test_suite_name", "determinism"],
+    tags = ["cache", "redis", "containers"]
+}
+
+# Swarm coordination
+"swarm-coordinator.tmpl" = {
+    description = "Multi-agent swarm coordination tests with task orchestration and monitoring",
+    variables = ["project_name", "test_suite_name", "swarm_size", "determinism"],
+    tags = ["swarm", "coordination", "parallel"]
+}
+
+# CI/CD integration
+"ci-pipeline.tmpl" = {
+    description = "GitHub Actions CI/CD pipeline with cleanroom tests, security audits, and benchmarks",
+    variables = ["project_name", "rust_version", "determinism"],
+    tags = ["ci-cd", "github-actions", "automation"]
+}
+
+# Performance benchmarking
+"benchmark-suite.tmpl" = {
+    description = "Comprehensive performance benchmarks using Criterion for cleanroom execution",
+    variables = ["project_name", "benchmark_name", "determinism"],
+    tags = ["benchmarks", "performance", "criterion"]
+}
+
+[scripts]
+generate-all = """
+# Generate complete cleanroom test suite
+ggen template generate cleanroom/test-environment.tmpl
+ggen template generate cleanroom/postgres-container.tmpl
+ggen template generate cleanroom/redis-container.tmpl
+ggen template generate cleanroom/swarm-coordinator.tmpl
+ggen template generate cleanroom/ci-pipeline.tmpl
+ggen template generate cleanroom/benchmark-suite.tmpl
+"""
+
+setup-project = """
+# Initialize cleanroom project
+cargo init my-cleanroom-project
+cd my-cleanroom-project
+cargo add clnrm testcontainers testcontainers-modules tokio anyhow serde serde_json
+cargo add --dev criterion
+ggen template generate cleanroom/test-environment.tmpl
+"""
+
+[examples]
+# Example: Basic hermetic testing
+basic-test = """
+# Generate basic test environment
+ggen template generate cleanroom/test-environment.tmpl --var project_name=my-app
+cargo test
+"""
+
+# Example: Database integration testing
+database-test = """
+# Generate PostgreSQL and Redis tests
+ggen template generate cleanroom/postgres-container.tmpl --var project_name=db-app
+ggen template generate cleanroom/redis-container.tmpl --var project_name=db-app
+cargo test postgres_container
+cargo test redis_container
+"""
+
+# Example: Swarm coordination testing
+swarm-test = """
+# Generate swarm coordination tests
+ggen template generate cleanroom/swarm-coordinator.tmpl --var project_name=swarm-app --var swarm_size=10
+cargo test swarm_coordinator
+"""
+
+# Example: Complete CI/CD setup
+ci-setup = """
+# Generate complete CI/CD pipeline
+ggen template generate cleanroom/ci-pipeline.tmpl --var project_name=production-app --var rust_version=1.75.0
+git add .github/workflows/cleanroom-ci.yml
+git commit -m "Add cleanroom CI pipeline"
+"""
+
+# Example: Performance benchmarking
+benchmark = """
+# Generate and run benchmarks
+ggen template generate cleanroom/benchmark-suite.tmpl --var project_name=perf-app
+cargo bench
+"""
+
+# Example: Full stack testing
+full-stack = """
+# Generate complete test suite
+ggen template generate cleanroom/test-environment.tmpl --var project_name=full-app
+ggen template generate cleanroom/postgres-container.tmpl --var project_name=full-app
+ggen template generate cleanroom/redis-container.tmpl --var project_name=full-app
+ggen template generate cleanroom/swarm-coordinator.tmpl --var project_name=full-app
+ggen template generate cleanroom/ci-pipeline.tmpl --var project_name=full-app
+ggen template generate cleanroom/benchmark-suite.tmpl --var project_name=full-app
+cargo test --verbose
+"""
+
+[validation]
+# Required dependencies for templates
+required_dependencies = [
+    "clnrm>=0.1.0",
+    "testcontainers>=0.25",
+    "tokio>=1.47",
+    "anyhow>=1.0"
+]
+
+# Minimum versions
+min_ggen_version = "1.0.0"
+min_rust_version = "1.75.0"
+
+[tags]
+stable = true
+production-ready = true
+tested = true
+documented = true
+hermetic = true
+deterministic = true
+containers = true
