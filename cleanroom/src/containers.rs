@@ -19,11 +19,17 @@ use testcontainers_modules::redis::Redis;
 /// PostgreSQL container implementation following best practices
 #[derive(Debug)]
 pub struct PostgresContainer {
+    /// The underlying testcontainers PostgreSQL container instance
     pub container: Container<Postgres>,
+    /// Connection string for accessing the PostgreSQL database
     pub connection_string: String,
+    /// The name of the database
     pub database_name: String,
+    /// The database username
     pub username: String,
+    /// The database password
     pub password: String,
+    /// Base container functionality for metrics and lifecycle management
     pub base: ContainerBase,
 }
 
@@ -209,9 +215,13 @@ impl ContainerWrapper for PostgresContainer {
 /// Redis container implementation following best practices
 #[derive(Debug)]
 pub struct RedisContainer {
+    /// The underlying testcontainers Redis container instance
     pub container: Container<Redis>,
+    /// Connection string for accessing the Redis instance
     pub connection_string: String,
+    /// Optional password for Redis authentication
     pub password: Option<String>,
+    /// Base container functionality for metrics and lifecycle management
     pub base: ContainerBase,
 }
 
@@ -386,8 +396,11 @@ impl ContainerWrapper for RedisContainer {
 /// Generic container implementation following best practices
 #[derive(Debug)]
 pub struct GenericContainer {
+    /// The underlying testcontainers container instance
     pub container: Container<GenericImage>,
+    /// The container name for identification
     pub name: String,
+    /// Base container functionality for metrics and lifecycle management
     pub base: ContainerBase,
 }
 
