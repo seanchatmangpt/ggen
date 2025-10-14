@@ -245,7 +245,7 @@
 
 use crate::backend::TestcontainerBackend;
 use crate::config::CleanroomConfig;
-use crate::error::{CleanroomError, ErrorKind, Result};
+use crate::error::{CleanroomError, Result};
 use crate::runtime::orchestrator::{ConcurrencyOrchestrator, TaskId, TaskResult};
 use crate::serializable_instant::SerializableInstant;
 #[cfg(feature = "services")]
@@ -491,38 +491,6 @@ impl CleanroomEnvironment {
     /// Helper method to safely read container registry
     async fn read_container_registry(&self) -> HashMap<String, String> {
         Self::with_read(&self.container_registry, |registry| registry.clone()).await
-    }
-
-    /// Helper method to safely update active containers
-    async fn update_active_containers<F>(&self, updater: F) -> Result<()>
-    where
-        F: FnOnce(&mut HashMap<String, Box<dyn ContainerWrapper>>),
-    {
-        Self::with_write(&self.active_containers, updater).await;
-        Ok(())
-    }
-
-    /// Helper method to safely read active containers
-    async fn read_active_containers(&self) -> HashMap<String, Box<dyn ContainerWrapper>> {
-        // We can't clone Box<dyn ContainerWrapper>, so we return an empty HashMap
-        // In practice, you'd need to implement proper cloning or return references
-        HashMap::new()
-    }
-
-    /// Helper method to safely update orchestrator
-    async fn update_orchestrator<F>(&self, updater: F) -> Result<()>
-    where
-        F: FnOnce(&mut ConcurrencyOrchestrator),
-    {
-        Self::with_write(&self.orchestrator, updater).await;
-        Ok(())
-    }
-
-    /// Helper method to safely read orchestrator
-    async fn read_orchestrator(&self) -> ConcurrencyOrchestrator {
-        // We can't clone ConcurrencyOrchestrator, so we return a new instance
-        // In practice, you'd need to implement proper cloning or return references
-        ConcurrencyOrchestrator::new()
     }
 
     /// Create a new cleanroom environment
@@ -957,6 +925,7 @@ pub enum HealthStatus {
 
 /// RAII guard for automatic cleanup
 pub struct CleanroomGuard {
+    #[allow(dead_code)]
     environment: Arc<CleanroomEnvironment>,
 }
 

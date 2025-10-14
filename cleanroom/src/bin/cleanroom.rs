@@ -41,7 +41,7 @@ use uuid::Uuid;
 
 use clnrm::{
     CleanroomConfig, CleanroomEnvironment, Policy, RunResult,
-    run, run_with_policy, Assert,
+    run_with_policy,
 };
 
 /// Cleanroom CLI - Deterministic testing with swarm coordination

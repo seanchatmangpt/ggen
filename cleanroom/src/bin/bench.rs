@@ -290,131 +290,43 @@ fn validate_slo(results: &BenchmarkResults) {
     println!("  ✅ SLO 4 met: No errors during benchmark execution");
 }
 
-/// Additional benchmarks for advanced features
-#[cfg(feature = "advanced_benchmarks")]
-mod advanced_benchmarks {
-    use super::*;
-    use clnrm::{Policy, SecurityLevel};
-
-    /// Benchmark security policy enforcement
-    pub fn benchmark_security_policy() -> Result<(), Box<dyn std::error::Error>> {
-        println!("\n🔒 Benchmark: Security Policy Enforcement");
-
-        // Create restrictive security policy
-        let policy = Policy {
-            security: SecurityPolicy {
-                enable_network_isolation: true,
-                enable_filesystem_isolation: true,
-                blocked_commands: vec!["rm".to_string(), "format".to_string()],
-                allowed_ports: vec![80, 443],
-                enable_data_redaction: true,
-                ..Default::default()
-            },
-            ..Default::default()
-        };
-
-        let start = Instant::now();
-        let result = run_with_policy(["echo", "safe command"], &policy)?;
-        let security_time = start.elapsed();
-
-        println!("  ✅ Security policy enforced in {:?}", security_time);
-        result.assert_success();
-
-        Ok(())
-    }
-
-    /// Benchmark resource limits enforcement
-    pub fn benchmark_resource_limits() -> Result<(), Box<dyn std::error::Error>> {
-        println!("\n📊 Benchmark: Resource Limits Enforcement");
-
-        let policy = Policy {
-            resources: ResourceLimits {
-                max_memory_mb: 100,
-                max_cpu_percent: 50.0,
-                max_disk_mb: 1000,
-                max_network_mbps: 10,
-                ..Default::default()
-            },
-            ..Default::default()
-        };
-
-        let start = Instant::now();
-        let result = run_with_policy(["echo", "resource limited command"], &policy)?;
-        let resource_time = start.elapsed();
-
-        println!("  ✅ Resource limits enforced in {:?}", resource_time);
-        result.assert_success();
-
-        Ok(())
-    }
-
-    /// Benchmark concurrent execution
-    pub fn benchmark_concurrent_execution() -> Result<(), Box<dyn std::error::Error>> {
-        println!("\n⚡ Benchmark: Concurrent Execution");
-
-        let config = CleanroomConfig::default();
-        let environment = CleanroomEnvironment::new(config)?;
-        let environment_arc = Arc::new(environment);
-
-        let start = Instant::now();
-
-        // Spawn multiple concurrent tasks
-        let mut handles = Vec::new();
-        for i in 0..5 {
-            let env_clone = environment_arc.clone();
-            let handle = tokio::spawn(async move {
-                let result = env_clone.execute_test(&format!("concurrent_test_{}", i), || {
-                    Ok::<String, cleanroom::Error>(format!("test_{}", i))
-                }).await;
-                result
-            });
-            handles.push(handle);
-        }
-
-        // Wait for all tasks to complete
-        for handle in handles {
-            let result = tokio::runtime::Handle::current().block_on(handle)??;
-            println!("  ✅ Concurrent task completed: {}", result);
-        }
-
-        let concurrent_time = start.elapsed();
-        println!("  ✅ Concurrent execution completed in {:?}", concurrent_time);
-
-        Ok(())
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    #[test]
-    fn test_benchmark_structure() {
+    #[tokio::test]
+    async fn test_benchmark_structure() {
         // Test that benchmark functions exist and can be called
-        let results = run_comprehensive_benchmark().unwrap_or_else(|e| {
-            println!("Benchmark failed (expected in test environment): {}", e);
-            BenchmarkResults {
-                simple_execution: Duration::from_millis(1),
-                multiple_execution: Duration::from_millis(1),
-                config_loading: Duration::from_millis(1),
-                singleton_first_creation: Duration::from_millis(1),
-                singleton_reuse: Duration::from_millis(1),
-                total_time: Duration::from_millis(5),
-                improvement_factor: 1.0,
+        let results = match run_comprehensive_benchmark().await {
+            Ok(r) => r,
+            Err(e) => {
+                println!("Benchmark failed (expected in test environment): {}", e);
+                BenchmarkResults {
+                    simple_execution: Duration::from_millis(1),
+                    multiple_execution: Duration::from_millis(1),
+                    config_loading: Duration::from_millis(1),
+                    singleton_first_creation: Duration::from_millis(1),
+                    singleton_reuse: Duration::from_millis(1),
+                    total_time: Duration::from_millis(5),
+                    improvement_factor: 1.0,
+                }
             }
-        });
+        };
 
         assert!(results.total_time.as_secs() > 0);
         assert!(results.improvement_factor >= 0.0);
     }
 
-    #[test]
-    fn test_singleton_container_benchmark() {
+    #[tokio::test]
+    async fn test_singleton_container_benchmark() {
         // Test singleton container benchmarking logic
-        let (first, reuse) = benchmark_singleton_containers().unwrap_or_else(|e| {
-            println!("Singleton benchmark failed (expected in test environment): {}", e);
-            (Duration::from_millis(1000), Duration::from_millis(1))
-        });
+        let (first, reuse) = match benchmark_singleton_containers().await {
+            Ok(r) => r,
+            Err(e) => {
+                println!("Singleton benchmark failed (expected in test environment): {}", e);
+                (Duration::from_millis(1000), Duration::from_millis(1))
+            }
+        };
 
         assert!(first.as_millis() > 0);
         assert!(reuse.as_millis() > 0);
