@@ -7,7 +7,7 @@ description = "Deterministic, hermetic execution environment for testing and val
 license = "MIT"
 repository = "https://github.com/sac/ggen"
 keywords = ["testing", "hermetic", "deterministic", "containers", "validation"]
-categories = ["development-tools", "testing"]
+categories = ["development-tools", "development-tools::testing"]
 
 [dependencies]
 # Core dependencies (always included)
