@@ -1,0 +1,202 @@
+---
+to: "{{project_name}}/src/main.rs"
+vars:
+  project_name: "example-web"
+  determinism: 42
+  port: 3000
+---
+//! Ultra-fast minimal web service template
+//! Generation time target: <10s
+//! Uses std::net only - no external dependencies
+
+use std::io::{Read, Write};
+use std::net::{TcpListener, TcpStream};
+use std::thread;
+
+fn main() -> std::io::Result<()> {
+    let addr = "127.0.0.1:{{port}}";
+    let listener = TcpListener::bind(addr)?;
+
+    println!("Server listening on http://{}", addr);
+    println!("Available endpoints:");
+    println!("  GET  /         - Health check");
+    println!("  GET  /health   - Health status");
+    println!("  GET  /version  - Version info");
+
+    for stream in listener.incoming() {
+        match stream {
+            Ok(stream) => {
+                thread::spawn(|| handle_client(stream));
+            }
+            Err(e) => eprintln!("Connection error: {}", e),
+        }
+    }
+
+    Ok(())
+}
+
+fn handle_client(mut stream: TcpStream) {
+    let mut buffer = [0u8; 1024];
+
+    if let Ok(size) = stream.read(&mut buffer) {
+        let request = String::from_utf8_lossy(&buffer[..size]);
+        let response = route_request(&request);
+
+        let _ = stream.write_all(response.as_bytes());
+        let _ = stream.flush();
+    }
+}
+
+fn route_request(request: &str) -> String {
+    let lines: Vec<&str> = request.lines().collect();
+    if lines.is_empty() {
+        return http_response(400, "Bad Request");
+    }
+
+    let parts: Vec<&str> = lines[0].split_whitespace().collect();
+    if parts.len() < 2 {
+        return http_response(400, "Bad Request");
+    }
+
+    let method = parts[0];
+    let path = parts[1];
+
+    match (method, path) {
+        ("GET", "/") => http_response(200, r#"{"status":"ok","service":"{{project_name}}"}"#),
+        ("GET", "/health") => http_response(200, r#"{"status":"healthy","uptime":0}"#),
+        ("GET", "/version") => http_response(200, r#"{"version":"0.1.0","service":"{{project_name}}"}"#),
+        _ => http_response(404, r#"{"error":"Not Found"}"#),
+    }
+}
+
+fn http_response(status: u16, body: &str) -> String {
+    let status_text = match status {
+        200 => "OK",
+        400 => "Bad Request",
+        404 => "Not Found",
+        500 => "Internal Server Error",
+        _ => "Unknown",
+    };
+
+    format!(
+        "HTTP/1.1 {} {}\r\nContent-Type: application/json\r\nContent-Length: {}\r\n\r\n{}",
+        status,
+        status_text,
+        body.len(),
+        body
+    )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_route_root() {
+        let request = "GET / HTTP/1.1\r\nHost: localhost\r\n\r\n";
+        let response = route_request(request);
+        assert!(response.contains("200 OK"));
+        assert!(response.contains("{{project_name}}"));
+    }
+
+    #[test]
+    fn test_route_health() {
+        let request = "GET /health HTTP/1.1\r\nHost: localhost\r\n\r\n";
+        let response = route_request(request);
+        assert!(response.contains("200 OK"));
+        assert!(response.contains("healthy"));
+    }
+
+    #[test]
+    fn test_route_version() {
+        let request = "GET /version HTTP/1.1\r\nHost: localhost\r\n\r\n";
+        let response = route_request(request);
+        assert!(response.contains("200 OK"));
+        assert!(response.contains("0.1.0"));
+    }
+
+    #[test]
+    fn test_route_not_found() {
+        let request = "GET /unknown HTTP/1.1\r\nHost: localhost\r\n\r\n";
+        let response = route_request(request);
+        assert!(response.contains("404 Not Found"));
+    }
+
+    #[test]
+    fn test_http_response_200() {
+        let response = http_response(200, "test");
+        assert!(response.contains("200 OK"));
+        assert!(response.contains("Content-Type: application/json"));
+        assert!(response.contains("test"));
+    }
+
+    #[test]
+    fn test_http_response_404() {
+        let response = http_response(404, "not found");
+        assert!(response.contains("404 Not Found"));
+    }
+}
+---
+to: "{{project_name}}/Cargo.toml"
+---
+[package]
+name = "{{project_name}}"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+
+[dev-dependencies]
+
+[[bin]]
+name = "{{project_name}}"
+path = "src/main.rs"
+---
+to: "{{project_name}}/README.md"
+---
+# {{project_name}}
+
+Ultra-fast minimal web service generated from template.
+
+## Features
+
+- Zero external dependencies (uses std::net only)
+- JSON API endpoints
+- Health check endpoint
+- Fast startup (<1s)
+
+## Usage
+
+```bash
+# Run the service
+cargo run
+
+# Test endpoints
+curl http://localhost:{{port}}/
+curl http://localhost:{{port}}/health
+curl http://localhost:{{port}}/version
+```
+
+## Endpoints
+
+- `GET /` - Service status
+- `GET /health` - Health check
+- `GET /version` - Version information
+
+## Testing
+
+```bash
+cargo test
+```
+
+## Building
+
+```bash
+cargo build --release
+```
+
+## Performance
+
+- Startup time: <1s
+- Memory usage: ~2MB
+- Concurrency: Multi-threaded

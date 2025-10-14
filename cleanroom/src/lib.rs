@@ -257,6 +257,7 @@ pub mod coverage;
 pub mod determinism;
 pub mod error;
 pub mod error_helpers;
+pub mod lifecycle;
 pub mod limits;
 pub mod macros;
 pub mod metrics_builder;
@@ -287,14 +288,17 @@ pub use containers::{GenericContainer, PostgresContainer, RedisContainer};
 pub use coverage::CoverageCollector as CoverageTracker;
 pub use determinism::DeterministicManager;
 pub use error::{CleanroomError as Error, Result};
-pub use error_helpers::{container_error, network_error, timeout_error, config_error, policy_error, resource_error, internal_error};
+pub use error_helpers::{
+    config_error, container_error, internal_error, network_error, policy_error, resource_error,
+    timeout_error,
+};
 pub use limits::ResourceLimits;
 pub use metrics_builder::ContainerMetricsBuilder;
 pub use policy::{Policy, SecurityLevel};
 pub use report::TestReport;
-pub use scenario::{RunResult, Scenario, scenario};
+pub use scenario::{scenario, RunResult, Scenario};
 pub use snapshots::SnapshotManager;
-pub use test_utils::{TestEnvironmentBuilder, TestContainerHelper};
+pub use test_utils::{TestContainerHelper, TestEnvironmentBuilder};
 pub use tracing::TracingManager;
 
 /// Create a new cleanroom environment with default configuration.

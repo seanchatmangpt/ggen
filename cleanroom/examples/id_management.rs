@@ -4,12 +4,12 @@
 //! sessions, tasks, tests, and scenarios with proper type safety.
 
 use cleanroom::ids::container::{
-    ContainerIdGenerator, ContainerIdRegistry, ContainerResourceUsage, ContainerStatus,
     container_id_generator, container_id_registry, deterministic_container_id_generator,
+    ContainerIdGenerator, ContainerIdRegistry, ContainerResourceUsage, ContainerStatus,
 };
 use cleanroom::ids::{
-    ContainerId, IdRegistry, ScenarioId, SessionId, TaskId, TestId, container_id, scenario_id,
-    session_id, task_id, test_id,
+    container_id, scenario_id, session_id, task_id, test_id, ContainerId, IdRegistry, ScenarioId,
+    SessionId, TaskId, TestId,
 };
 use uuid::Uuid;
 

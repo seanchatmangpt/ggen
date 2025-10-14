@@ -83,8 +83,14 @@ fn demonstrate_security_policies() -> Result<(), Box<dyn std::error::Error>> {
     assert!(result.stdout.contains("Safe command execution"));
 
     println!("✅ Security policy enforced successfully");
-    println!("   Network isolation: {}", policy.security.enable_network_isolation);
-    println!("   Filesystem isolation: {}", policy.security.enable_filesystem_isolation);
+    println!(
+        "   Network isolation: {}",
+        policy.security.enable_network_isolation
+    );
+    println!(
+        "   Filesystem isolation: {}",
+        policy.security.enable_filesystem_isolation
+    );
     println!("   Security level: {:?}", policy.security.security_level);
 
     Ok(())
@@ -167,7 +173,10 @@ fn demonstrate_assertions() -> Result<(), Box<dyn std::error::Error>> {
     println!("✅ All assertions passed using standard Rust patterns");
     println!("   Success: {}", result.exit_code == 0);
     println!("   Exit code: {}", result.exit_code);
-    println!("   Stdout contains expected text: {}", result.stdout.contains("test output"));
+    println!(
+        "   Stdout contains expected text: {}",
+        result.stdout.contains("test output")
+    );
 
     Ok(())
 }

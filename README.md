@@ -37,6 +37,45 @@
 
 **ggen** is a deterministic, language-agnostic code generation framework that treats software artifacts as projections of RDF knowledge graphs. Generate reproducible, multi-language code from a single semantic ontology using template-based generation with SPARQL queries and AI-powered enhancements.
 
+## ⚡ Quick Start (2 Minutes)
+
+Get from zero to working code in under 2 minutes with a single command:
+
+```bash
+# One command that installs Rust (if needed), ggen, and generates a demo project:
+curl -fsSL https://raw.githubusercontent.com/seanchatmangpt/ggen/master/scripts/quickstart.sh | bash
+
+# Or if ggen is already installed:
+ggen quickstart demo
+```
+
+**What you'll get:**
+- ✅ Prerequisites checked and installed automatically
+- ✅ Complete Rust CLI project generated
+- ✅ Tests passing and ready to run
+- ✅ Clear next steps guidance
+
+**Expected output:**
+```
+✅ Rust toolchain ready
+✅ Ggen v1.0.0 installed
+✅ Generated demo project 'hello-ggen'
+✅ All tests passed!
+
+🎉 SUCCESS! Your first ggen project is ready!
+
+Try it: cd hello-ggen && cargo run --help
+```
+
+**Don't have Rust installed?** No problem - the quickstart script will install it for you (with your permission).
+
+**Next steps after quickstart:**
+1. **Generate a real project:** `ggen ai project "REST API with auth" --name my-api`
+2. **Explore the marketplace:** `ggen search "rust web"`
+3. **Take the interactive tutorial:** `ggen tutorial start` (coming soon)
+
+---
+
 ## 🚀 **NEW: v1.0 Production Ready + Cleanroom Testing**
 
 ### **Production-Ready v1.0** (88/100 Readiness Score)
@@ -374,11 +413,18 @@ ggen update
 
 ## Contributing
 
-1. Follow the guidelines in [CLAUDE.md](CLAUDE.md)
-2. Always use `cargo make` commands
-3. Ensure `cargo make ci` passes before submitting
-4. Add tests for new features
-5. Update documentation
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
+
+**Quick start for contributors:**
+1. Fork the repo and clone it locally
+2. Run `cargo make quick` to verify setup
+3. Make your changes
+4. Run `cargo make ci` to ensure everything passes
+5. Submit a pull request
+
+**Looking for a good first issue?** Check out [issues tagged with "good first issue"](https://github.com/seanchatmangpt/ggen/labels/good%20first%20issue).
+
+For development guidelines, see [CLAUDE.md](CLAUDE.md).
 
 ## License
 

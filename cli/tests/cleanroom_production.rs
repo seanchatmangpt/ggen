@@ -386,7 +386,10 @@ fn cleanroom_template_list() {
         .arg("list")
         .assert()
         .success()
-        .stdout(predicate::str::contains("Available templates") | predicate::str::contains("No templates"));
+        .stdout(
+            predicate::str::contains("Available templates")
+                | predicate::str::contains("No templates"),
+        );
 }
 
 #[test]
@@ -494,7 +497,10 @@ fn cleanroom_error_invalid_command() {
         .arg("invalid-command")
         .assert()
         .failure()
-        .stderr(predicate::str::contains("unrecognized subcommand") | predicate::str::contains("invalid"));
+        .stderr(
+            predicate::str::contains("unrecognized subcommand")
+                | predicate::str::contains("invalid"),
+        );
 }
 
 #[test]
@@ -550,7 +556,8 @@ fn cleanroom_concurrent_marketplace_searches() {
                     .arg("search")
                     .arg(format!("query{}", i))
                     .assert()
-                    .code(predicate::function(|code: &i32| *code == 0 || *code == 1)); // May succeed or fail gracefully
+                    .code(predicate::function(|code: &i32| *code == 0 || *code == 1));
+                // May succeed or fail gracefully
             })
         })
         .collect();

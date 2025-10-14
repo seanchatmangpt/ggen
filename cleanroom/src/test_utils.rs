@@ -77,10 +77,7 @@ pub struct TestContainerHelper;
 
 impl TestContainerHelper {
     /// Wait for container to be ready with timeout
-    pub async fn wait_for_ready<C>(
-        container: &C,
-        timeout: Duration,
-    ) -> Result<()>
+    pub async fn wait_for_ready<C>(container: &C, timeout: Duration) -> Result<()>
     where
         C: crate::container_base::BaseContainer,
     {
@@ -117,17 +114,19 @@ impl TestContainerHelper {
 
     /// Get container metrics with timeout
     pub async fn get_metrics<C>(
-        container: &C,
-        timeout: Duration,
+        container: &C, timeout: Duration,
     ) -> Result<crate::cleanroom::ContainerMetrics>
     where
         C: crate::container_base::BaseContainer,
     {
-        tokio::time::timeout(timeout, container.get_metrics()).await
-            .map_err(|_| crate::error_helpers::timeout_error(
-                "Failed to get container metrics",
-                Some("Timeout waiting for metrics"),
-            ))
+        tokio::time::timeout(timeout, container.get_metrics())
+            .await
+            .map_err(|_| {
+                crate::error_helpers::timeout_error(
+                    "Failed to get container metrics",
+                    Some("Timeout waiting for metrics"),
+                )
+            })
     }
 }
 
@@ -176,17 +175,16 @@ pub mod assertions {
     }
 
     /// Assert container memory usage is within expected range
-    pub fn assert_memory_range(
-        metrics: &ContainerMetrics,
-        min_mb: u64,
-        max_mb: u64,
-    ) -> Result<()> {
+    pub fn assert_memory_range(metrics: &ContainerMetrics, min_mb: u64, max_mb: u64) -> Result<()> {
         let memory_mb = metrics.memory_usage_bytes / (1024 * 1024);
-        
+
         if memory_mb < min_mb || memory_mb > max_mb {
             return Err(crate::error_helpers::container_error(
                 "Memory usage out of range",
-                Some(&format!("Expected {}MB to {}MB, got {}MB", min_mb, max_mb, memory_mb)),
+                Some(&format!(
+                    "Expected {}MB to {}MB, got {}MB",
+                    min_mb, max_mb, memory_mb
+                )),
             ));
         }
         Ok(())
@@ -244,14 +242,16 @@ pub mod cleanup {
 
     /// Cleanup test environment with timeout
     pub async fn cleanup_environment(
-        env: &mut CleanroomEnvironment,
-        timeout: Duration,
+        env: &mut CleanroomEnvironment, timeout: Duration,
     ) -> Result<()> {
-        tokio::time::timeout(timeout, env.cleanup()).await
-            .map_err(|_| crate::error_helpers::timeout_error(
-                "Environment cleanup timeout",
-                Some("Timeout waiting for environment cleanup"),
-            ))?
+        tokio::time::timeout(timeout, env.cleanup())
+            .await
+            .map_err(|_| {
+                crate::error_helpers::timeout_error(
+                    "Environment cleanup timeout",
+                    Some("Timeout waiting for environment cleanup"),
+                )
+            })?
     }
 
     /// Cleanup test environment with default timeout
@@ -280,8 +280,8 @@ mod tests {
 
     #[test]
     fn test_generators() {
-        use std::time::Instant;
         use crate::cleanroom::ContainerStatus;
+        use std::time::Instant;
 
         let start_time = Instant::now();
         let metrics = generators::test_metrics("postgres", &start_time);
@@ -299,8 +299,8 @@ mod tests {
 
     #[test]
     fn test_assertions() {
-        use std::time::Instant;
         use crate::metrics_builder::ContainerMetricsBuilder;
+        use std::time::Instant;
 
         let start_time = Instant::now();
         let metrics = ContainerMetricsBuilder::postgres(&start_time);

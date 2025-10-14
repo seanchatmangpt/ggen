@@ -18,7 +18,7 @@
 //! - Isolated temporary directories per test
 
 use anyhow::Result;
-use clnrm::{CleanroomEnvironment, CleanroomConfig, Assert};
+use clnrm::{Assert, CleanroomConfig, CleanroomEnvironment};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output};
 use std::time::Duration;
@@ -55,11 +55,14 @@ impl CleanroomCliTestEnvironment {
 
     /// Execute a ggen command in the cleanroom environment with timeout protection
     pub async fn run_ggen_command(&self, args: &[&str]) -> Result<Output> {
-        self.run_ggen_command_with_timeout(args, Duration::from_secs(30)).await
+        self.run_ggen_command_with_timeout(args, Duration::from_secs(30))
+            .await
     }
 
     /// Execute a ggen command with custom timeout
-    pub async fn run_ggen_command_with_timeout(&self, args: &[&str], timeout: Duration) -> Result<Output> {
+    pub async fn run_ggen_command_with_timeout(
+        &self, args: &[&str], timeout: Duration,
+    ) -> Result<Output> {
         let mut cmd = Command::new(&self.ggen_binary);
         cmd.args(args);
         cmd.current_dir(self.temp_dir.path());
@@ -69,14 +72,12 @@ impl CleanroomCliTestEnvironment {
         cmd.env("GGEN_CACHE_DIR", self.temp_dir.path().join(".cache"));
 
         // Execute command with timeout protection
-        let output = tokio::time::timeout(
-            timeout,
-            tokio::task::spawn_blocking(move || cmd.output())
-        )
-        .await
-        .map_err(|_| anyhow::anyhow!("Command timed out after {:?}", timeout))?
-        .map_err(|e| anyhow::anyhow!("Failed to spawn command task: {}", e))?
-        .map_err(|e| anyhow::anyhow!("Failed to execute ggen command: {}", e))?;
+        let output =
+            tokio::time::timeout(timeout, tokio::task::spawn_blocking(move || cmd.output()))
+                .await
+                .map_err(|_| anyhow::anyhow!("Command timed out after {:?}", timeout))?
+                .map_err(|e| anyhow::anyhow!("Failed to spawn command task: {}", e))?
+                .map_err(|e| anyhow::anyhow!("Failed to execute ggen command: {}", e))?;
 
         Ok(output)
     }
@@ -150,7 +151,9 @@ pub async fn assert_ggen_marketplace_works(env: &CleanroomCliTestEnvironment) ->
     // Verify search results contain expected content
     let stdout = String::from_utf8_lossy(&output.stdout);
     if !stdout.contains("Search") && !stdout.contains("marketplace") {
-        return Err(anyhow::anyhow!("Marketplace search does not contain expected results"));
+        return Err(anyhow::anyhow!(
+            "Marketplace search does not contain expected results"
+        ));
     }
 
     Ok(())
@@ -193,7 +196,10 @@ async fn test_ggen_market_search() -> Result<()> {
 
     // Verify search results
     let stdout = String::from_utf8_lossy(&output.stdout);
-    if !stdout.contains("Search") && !stdout.contains("marketplace") && !stdout.contains("No packages found") {
+    if !stdout.contains("Search")
+        && !stdout.contains("marketplace")
+        && !stdout.contains("No packages found")
+    {
         return Err(anyhow::anyhow!("Expected search results in output"));
     }
 
@@ -216,11 +222,17 @@ async fn test_ggen_market_list() -> Result<()> {
 async fn test_ggen_market_search_with_filters() -> Result<()> {
     let env = CleanroomCliTestEnvironment::new().await?;
 
-    let output = env.run_ggen_command(&[
-        "market", "search", "rust",
-        "--category", "rust",
-        "--limit", "5"
-    ]).await?;
+    let output = env
+        .run_ggen_command(&[
+            "market",
+            "search",
+            "rust",
+            "--category",
+            "rust",
+            "--limit",
+            "5",
+        ])
+        .await?;
     assert_ggen_success(&output)?;
 
     env.cleanup().await?;
@@ -231,10 +243,9 @@ async fn test_ggen_market_search_with_filters() -> Result<()> {
 async fn test_ggen_market_search_json_output() -> Result<()> {
     let env = CleanroomCliTestEnvironment::new().await?;
 
-    let output = env.run_ggen_command(&[
-        "market", "search", "rust",
-        "--json"
-    ]).await?;
+    let output = env
+        .run_ggen_command(&["market", "search", "rust", "--json"])
+        .await?;
     assert_ggen_success(&output)?;
 
     // Verify JSON output format
@@ -274,7 +285,11 @@ async fn test_ggen_lifecycle_list() -> Result<()> {
 
     // Verify lifecycle stages are listed
     let stdout = String::from_utf8_lossy(&output.stdout);
-    if !stdout.contains("init") && !stdout.contains("test") && !stdout.contains("deploy") && !stdout.contains("Available lifecycle stages") {
+    if !stdout.contains("init")
+        && !stdout.contains("test")
+        && !stdout.contains("deploy")
+        && !stdout.contains("Available lifecycle stages")
+    {
         return Err(anyhow::anyhow!("Expected lifecycle stages in output"));
     }
 
@@ -303,8 +318,11 @@ async fn test_ggen_invalid_command() -> Result<()> {
 
     // Verify error message
     let stderr = String::from_utf8_lossy(&output.stderr);
-    if !stderr.contains("unrecognized") && !stderr.contains("error") && !stderr.contains("invalid") {
-        return Err(anyhow::anyhow!("Expected error message for invalid command"));
+    if !stderr.contains("unrecognized") && !stderr.contains("error") && !stderr.contains("invalid")
+    {
+        return Err(anyhow::anyhow!(
+            "Expected error message for invalid command"
+        ));
     }
 
     env.cleanup().await?;
@@ -315,15 +333,16 @@ async fn test_ggen_invalid_command() -> Result<()> {
 async fn test_ggen_market_search_no_results() -> Result<()> {
     let env = CleanroomCliTestEnvironment::new().await?;
 
-    let output = env.run_ggen_command(&[
-        "market", "search", "nonexistent-package-xyz-12345"
-    ]).await?;
+    let output = env
+        .run_ggen_command(&["market", "search", "nonexistent-package-xyz-12345"])
+        .await?;
 
     // Command should succeed but return no results
     assert_ggen_success(&output)?;
 
     let stdout = String::from_utf8_lossy(&output.stdout);
-    if !stdout.contains("No packages found") && !stdout.contains("0 results") && !stdout.is_empty() {
+    if !stdout.contains("No packages found") && !stdout.contains("0 results") && !stdout.is_empty()
+    {
         return Err(anyhow::anyhow!("Expected no results message"));
     }
 
@@ -447,8 +466,8 @@ async fn test_ggen_error_handling_missing_args() -> Result<()> {
 
     // Test commands that require arguments
     let failing_commands = vec![
-        vec!["market", "add"],  // Missing package name
-        vec!["market", "search"],  // Missing search query
+        vec!["market", "add"],    // Missing package name
+        vec!["market", "search"], // Missing search query
     ];
 
     for cmd in failing_commands {
@@ -456,8 +475,11 @@ async fn test_ggen_error_handling_missing_args() -> Result<()> {
         assert_ggen_failure(&output)?;
 
         let stderr = String::from_utf8_lossy(&output.stderr);
-        if !stderr.contains("required") && !stderr.contains("error") && !stderr.contains("missing") {
-            return Err(anyhow::anyhow!("Expected error message for missing arguments"));
+        if !stderr.contains("required") && !stderr.contains("error") && !stderr.contains("missing")
+        {
+            return Err(anyhow::anyhow!(
+                "Expected error message for missing arguments"
+            ));
         }
     }
 
@@ -500,7 +522,10 @@ async fn test_ggen_with_memory_coordination() -> Result<()> {
     let test_results = vec![
         ("version", env.run_ggen_command(&["--version"]).await?),
         ("help", env.run_ggen_command(&["--help"]).await?),
-        ("market_list", env.run_ggen_command(&["market", "list"]).await?),
+        (
+            "market_list",
+            env.run_ggen_command(&["market", "list"]).await?,
+        ),
     ];
 
     // Verify all tests passed
@@ -572,7 +597,9 @@ mod performance_tests {
         let env = CleanroomCliTestEnvironment::new().await?;
 
         // Test that timeout protection works (using very short timeout on fast command)
-        let result = env.run_ggen_command_with_timeout(&["--version"], Duration::from_millis(100)).await;
+        let result = env
+            .run_ggen_command_with_timeout(&["--version"], Duration::from_millis(100))
+            .await;
 
         // This might timeout or succeed depending on system speed
         // Either way, it should not hang indefinitely
@@ -585,7 +612,10 @@ mod performance_tests {
                 // If it times out, error should mention timeout
                 let error_msg = e.to_string();
                 if !error_msg.contains("timeout") && !error_msg.contains("timed out") {
-                    return Err(anyhow::anyhow!("Expected timeout error, got: {}", error_msg));
+                    return Err(anyhow::anyhow!(
+                        "Expected timeout error, got: {}",
+                        error_msg
+                    ));
                 }
             }
         }

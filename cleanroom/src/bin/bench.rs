@@ -12,8 +12,8 @@
 //! - Performance monitoring and metrics collection
 
 use clnrm::{
-    run, CleanroomEnvironment, CleanroomConfig, CleanroomGuard,
-    PostgresContainer, RedisContainer, GenericContainer, ContainerWrapper,
+    run, CleanroomConfig, CleanroomEnvironment, CleanroomGuard, ContainerWrapper, GenericContainer,
+    PostgresContainer, RedisContainer,
 };
 use std::sync::Arc;
 use std::time::{Duration, Instant};
@@ -70,20 +70,22 @@ async fn run_comprehensive_benchmark() -> Result<BenchmarkResults, Box<dyn std::
     println!("\n📊 Benchmark 2: Multiple Command Execution");
     let start = Instant::now();
 
-    let commands = vec![
-        ["echo", "test1"],
-        ["echo", "test2"],
-        ["echo", "test3"],
-    ];
+    let commands = vec![["echo", "test1"], ["echo", "test2"], ["echo", "test3"]];
 
     for cmd in commands {
         let result = run(cmd)?;
-        println!("  ✅ Command '{}' completed with exit code {}",
-                 result.stdout.trim(), result.exit_code);
+        println!(
+            "  ✅ Command '{}' completed with exit code {}",
+            result.stdout.trim(),
+            result.exit_code
+        );
     }
 
     let multiple_execution = start.elapsed();
-    println!("  ✅ Multiple commands executed in {:?}", multiple_execution);
+    println!(
+        "  ✅ Multiple commands executed in {:?}",
+        multiple_execution
+    );
 
     // Benchmark 3: Configuration loading
     println!("\n📊 Benchmark 3: Configuration Loading");
@@ -96,14 +98,18 @@ async fn run_comprehensive_benchmark() -> Result<BenchmarkResults, Box<dyn std::
     println!("\n🚀 Benchmark 4: Singleton Container Pattern (Core Feature)");
     let (singleton_first_creation, singleton_reuse) = benchmark_singleton_containers().await?;
 
-    let total_time = simple_execution + multiple_execution + config_loading +
-                     singleton_first_creation + singleton_reuse;
+    let total_time = simple_execution
+        + multiple_execution
+        + config_loading
+        + singleton_first_creation
+        + singleton_reuse;
 
     // Calculate performance improvement
     // Without singleton: Each container creation takes ~30-60s
     // With singleton: First creation ~30-60s, subsequent ~2-5ms
     let improvement_factor = if singleton_reuse.as_nanos() > 0 {
-        (singleton_first_creation.as_secs_f64() * 1_000_000_000.0) / singleton_reuse.as_nanos() as f64
+        (singleton_first_creation.as_secs_f64() * 1_000_000_000.0)
+            / singleton_reuse.as_nanos() as f64
     } else {
         1000.0 // Fallback if measurement too fast
     };
@@ -120,7 +126,8 @@ async fn run_comprehensive_benchmark() -> Result<BenchmarkResults, Box<dyn std::
 }
 
 /// Benchmark the singleton container pattern - the core feature
-async fn benchmark_singleton_containers() -> Result<(Duration, Duration), Box<dyn std::error::Error>> {
+async fn benchmark_singleton_containers() -> Result<(Duration, Duration), Box<dyn std::error::Error>>
+{
     println!("  Testing singleton container pattern for 10-50x performance improvement...");
 
     // Create cleanroom environment with singleton containers enabled
@@ -135,79 +142,114 @@ async fn benchmark_singleton_containers() -> Result<(Duration, Duration), Box<dy
     // Benchmark 1: First container creation (expensive)
     println!("  🔧 Creating first PostgreSQL container...");
     let start = Instant::now();
-      let postgres1 = environment_arc.get_or_create_container("postgres", || {
-        PostgresContainer::new("testdb", "testuser", "testpass")
-    }).await?;
+    let postgres1 = environment_arc
+        .get_or_create_container("postgres", || {
+            PostgresContainer::new("testdb", "testuser", "testpass")
+        })
+        .await?;
     let singleton_first_creation = start.elapsed();
-    println!("  ✅ First container created in {:?}", singleton_first_creation);
+    println!(
+        "  ✅ First container created in {:?}",
+        singleton_first_creation
+    );
 
     // Benchmark 2: Container reuse (should be very fast)
     println!("  ⚡ Reusing PostgreSQL container...");
     let start = Instant::now();
-      let postgres2 = environment_arc.get_or_create_container("postgres", || {
-        PostgresContainer::new("testdb", "testuser", "testpass")
-    }).await?;
+    let postgres2 = environment_arc
+        .get_or_create_container("postgres", || {
+            PostgresContainer::new("testdb", "testuser", "testpass")
+        })
+        .await?;
     let singleton_reuse = start.elapsed();
     println!("  ✅ Container reused in {:?}", singleton_reuse);
 
     // Verify they are the same container (singleton pattern working)
-    assert_eq!(postgres1.name(), postgres2.name(),
-               "Singleton pattern failed - containers should be identical");
+    assert_eq!(
+        postgres1.name(),
+        postgres2.name(),
+        "Singleton pattern failed - containers should be identical"
+    );
 
     // Test Redis container singleton pattern
     println!("  🔧 Creating first Redis container...");
     let start = Instant::now();
-      let redis1 = environment_arc.get_or_create_container("redis", || {
-        RedisContainer::new(Some("testpass".to_string()))
-    }).await?;
+    let redis1 = environment_arc
+        .get_or_create_container("redis", || {
+            RedisContainer::new(Some("testpass".to_string()))
+        })
+        .await?;
     let redis_first_creation = start.elapsed();
-    println!("  ✅ First Redis container created in {:?}", redis_first_creation);
+    println!(
+        "  ✅ First Redis container created in {:?}",
+        redis_first_creation
+    );
 
     println!("  ⚡ Reusing Redis container...");
     let start = Instant::now();
-      let redis2 = environment_arc.get_or_create_container("redis", || {
-        RedisContainer::new(Some("testpass".to_string()))
-    }).await?;
+    let redis2 = environment_arc
+        .get_or_create_container("redis", || {
+            RedisContainer::new(Some("testpass".to_string()))
+        })
+        .await?;
     let redis_reuse = start.elapsed();
     println!("  ✅ Redis container reused in {:?}", redis_reuse);
 
     // Verify Redis singleton pattern
-    assert_eq!(redis1.name(), redis2.name(),
-               "Redis singleton pattern failed");
+    assert_eq!(
+        redis1.name(),
+        redis2.name(),
+        "Redis singleton pattern failed"
+    );
 
     // Test multiple container types
     println!("  🔧 Testing multiple container types...");
     let start = Instant::now();
 
     // Create containers of different types
-      let _postgres = environment_arc.get_or_create_container("postgres_multi", || {
-        PostgresContainer::new("multitest", "multiuser", "multipass")
-    }).await?;
+    let _postgres = environment_arc
+        .get_or_create_container("postgres_multi", || {
+            PostgresContainer::new("multitest", "multiuser", "multipass")
+        })
+        .await?;
 
-    let _redis = environment_arc.get_or_create_container("redis_multi", || {
-        RedisContainer::new(Some("multipass".to_string()))
-    }).await?;
+    let _redis = environment_arc
+        .get_or_create_container("redis_multi", || {
+            RedisContainer::new(Some("multipass".to_string()))
+        })
+        .await?;
 
-    let _generic = environment_arc.get_or_create_container("generic_multi", || {
-        GenericContainer::new("alpine_test", "alpine", "latest")
-    }).await?;
+    let _generic = environment_arc
+        .get_or_create_container("generic_multi", || {
+            GenericContainer::new("alpine_test", "alpine", "latest")
+        })
+        .await?;
 
     let multi_creation = start.elapsed();
-    println!("  ✅ Multiple container types created in {:?}", multi_creation);
+    println!(
+        "  ✅ Multiple container types created in {:?}",
+        multi_creation
+    );
 
     // Test reuse of all container types
     let start = Instant::now();
-      let _postgres_reuse = environment_arc.get_or_create_container("postgres_multi", || {
-        PostgresContainer::new("multitest", "multiuser", "multipass")
-    }).await?;
+    let _postgres_reuse = environment_arc
+        .get_or_create_container("postgres_multi", || {
+            PostgresContainer::new("multitest", "multiuser", "multipass")
+        })
+        .await?;
 
-    let _redis_reuse = environment_arc.get_or_create_container("redis_multi", || {
-        RedisContainer::new(Some("multipass".to_string()))
-    }).await?;
+    let _redis_reuse = environment_arc
+        .get_or_create_container("redis_multi", || {
+            RedisContainer::new(Some("multipass".to_string()))
+        })
+        .await?;
 
-    let _generic_reuse = environment_arc.get_or_create_container("generic_multi", || {
-        GenericContainer::new("alpine_test", "alpine", "latest")
-    }).await?;
+    let _generic_reuse = environment_arc
+        .get_or_create_container("generic_multi", || {
+            GenericContainer::new("alpine_test", "alpine", "latest")
+        })
+        .await?;
 
     let multi_reuse = start.elapsed();
     println!("  ✅ Multiple container types reused in {:?}", multi_reuse);
@@ -227,19 +269,31 @@ async fn benchmark_singleton_containers() -> Result<(Duration, Duration), Box<dy
 fn print_results(results: &BenchmarkResults) {
     println!("\n📈 Performance Summary:");
     println!("  Simple command execution: {:?}", results.simple_execution);
-    println!("  Multiple command execution: {:?}", results.multiple_execution);
+    println!(
+        "  Multiple command execution: {:?}",
+        results.multiple_execution
+    );
     println!("  Configuration loading: {:?}", results.config_loading);
-    println!("  Singleton container first creation: {:?}", results.singleton_first_creation);
+    println!(
+        "  Singleton container first creation: {:?}",
+        results.singleton_first_creation
+    );
     println!("  Singleton container reuse: {:?}", results.singleton_reuse);
     println!();
 
     println!("🏆 Total benchmark time: {:?}", results.total_time);
-    println!("🚀 Performance improvement factor: {:.0}x", results.improvement_factor);
+    println!(
+        "🚀 Performance improvement factor: {:.0}x",
+        results.improvement_factor
+    );
 
     // Performance analysis
     println!("\n📊 Performance Analysis:");
     println!("  Expected improvement: 10-50x faster");
-    println!("  Actual improvement: {:.0}x faster", results.improvement_factor);
+    println!(
+        "  Actual improvement: {:.0}x faster",
+        results.improvement_factor
+    );
 
     if results.improvement_factor >= 10.0 {
         println!("  ✅ Performance target achieved!");
@@ -252,7 +306,9 @@ fn print_results(results: &BenchmarkResults) {
     // Cost savings analysis
     let traditional_time = results.singleton_first_creation * 100; // 100 tests without singleton
     let singleton_time = results.singleton_first_creation + (results.singleton_reuse * 99); // 1 creation + 99 reuses
-    let cost_savings_percent = ((traditional_time - singleton_time).as_secs_f64() / traditional_time.as_secs_f64()) * 100.0;
+    let cost_savings_percent = ((traditional_time - singleton_time).as_secs_f64()
+        / traditional_time.as_secs_f64())
+        * 100.0;
 
     println!("\n💰 Cost Savings Analysis (100 tests):");
     println!("  Traditional approach: {:?}", traditional_time);
@@ -267,23 +323,41 @@ fn validate_slo(results: &BenchmarkResults) {
 
     // SLO 1: Total benchmark time should be under 10 seconds
     if results.total_time < SLO_MAX_TIME {
-        println!("  ✅ SLO 1 met: Total time < 10s ({:?})", results.total_time);
+        println!(
+            "  ✅ SLO 1 met: Total time < 10s ({:?})",
+            results.total_time
+        );
     } else {
-        println!("  ❌ SLO 1 failed: Total time >= 10s ({:?})", results.total_time);
+        println!(
+            "  ❌ SLO 1 failed: Total time >= 10s ({:?})",
+            results.total_time
+        );
     }
 
     // SLO 2: Singleton container reuse should be very fast (< 100ms)
     if results.singleton_reuse < Duration::from_millis(100) {
-        println!("  ✅ SLO 2 met: Container reuse < 100ms ({:?})", results.singleton_reuse);
+        println!(
+            "  ✅ SLO 2 met: Container reuse < 100ms ({:?})",
+            results.singleton_reuse
+        );
     } else {
-        println!("  ❌ SLO 2 failed: Container reuse >= 100ms ({:?})", results.singleton_reuse);
+        println!(
+            "  ❌ SLO 2 failed: Container reuse >= 100ms ({:?})",
+            results.singleton_reuse
+        );
     }
 
     // SLO 3: Performance improvement should be at least 10x
     if results.improvement_factor >= 10.0 {
-        println!("  ✅ SLO 3 met: Performance improvement >= 10x ({:.0}x)", results.improvement_factor);
+        println!(
+            "  ✅ SLO 3 met: Performance improvement >= 10x ({:.0}x)",
+            results.improvement_factor
+        );
     } else {
-        println!("  ❌ SLO 3 failed: Performance improvement < 10x ({:.0}x)", results.improvement_factor);
+        println!(
+            "  ❌ SLO 3 failed: Performance improvement < 10x ({:.0}x)",
+            results.improvement_factor
+        );
     }
 
     // SLO 4: No errors during benchmark execution
@@ -363,9 +437,11 @@ mod advanced_benchmarks {
         for i in 0..5 {
             let env_clone = environment_arc.clone();
             let handle = tokio::spawn(async move {
-                let result = env_clone.execute_test(&format!("concurrent_test_{}", i), || {
-                    Ok::<String, cleanroom::Error>(format!("test_{}", i))
-                }).await;
+                let result = env_clone
+                    .execute_test(&format!("concurrent_test_{}", i), || {
+                        Ok::<String, cleanroom::Error>(format!("test_{}", i))
+                    })
+                    .await;
                 result
             });
             handles.push(handle);
@@ -378,7 +454,10 @@ mod advanced_benchmarks {
         }
 
         let concurrent_time = start.elapsed();
-        println!("  ✅ Concurrent execution completed in {:?}", concurrent_time);
+        println!(
+            "  ✅ Concurrent execution completed in {:?}",
+            concurrent_time
+        );
 
         Ok(())
     }
@@ -412,7 +491,10 @@ mod tests {
     fn test_singleton_container_benchmark() {
         // Test singleton container benchmarking logic
         let (first, reuse) = benchmark_singleton_containers().unwrap_or_else(|e| {
-            println!("Singleton benchmark failed (expected in test environment): {}", e);
+            println!(
+                "Singleton benchmark failed (expected in test environment): {}",
+                e
+            );
             (Duration::from_millis(1000), Duration::from_millis(1))
         });
 
@@ -435,7 +517,13 @@ mod tests {
             improvement_factor: 6000.0, // 30s / 5ms = 6000x improvement
         };
 
-        assert!(results.improvement_factor >= 10.0, "Performance improvement should be at least 10x");
-        assert!(results.total_time < SLO_MAX_TIME, "Total time should meet SLO");
+        assert!(
+            results.improvement_factor >= 10.0,
+            "Performance improvement should be at least 10x"
+        );
+        assert!(
+            results.total_time < SLO_MAX_TIME,
+            "Total time should meet SLO"
+        );
     }
 }

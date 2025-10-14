@@ -34,14 +34,13 @@
 //! ```
 
 use anyhow::{Context, Result};
-use clap::{Parser, Subcommand, Args, ValueEnum};
+use clap::{Args, Parser, Subcommand, ValueEnum};
 use serde_json::json;
 use std::path::PathBuf;
 use uuid::Uuid;
 
 use clnrm::{
-    CleanroomConfig, CleanroomEnvironment, Policy, RunResult,
-    run, run_with_policy, Assert,
+    run, run_with_policy, Assert, CleanroomConfig, CleanroomEnvironment, Policy, RunResult,
 };
 
 /// Cleanroom CLI - Deterministic testing with swarm coordination
@@ -353,10 +352,10 @@ async fn execute_run(args: RunArgs, output: OutputFormat) -> Result<()> {
 
     let result = if let Some(policy_path) = args.policy {
         // Load policy from file
-        let policy_content = std::fs::read_to_string(&policy_path)
-            .context("Failed to read policy file")?;
-        let policy: Policy = toml::from_str(&policy_content)
-            .context("Failed to parse policy file")?;
+        let policy_content =
+            std::fs::read_to_string(&policy_path).context("Failed to read policy file")?;
+        let policy: Policy =
+            toml::from_str(&policy_content).context("Failed to parse policy file")?;
 
         run_with_policy(&args.command, &policy)?
     } else {
@@ -393,10 +392,9 @@ async fn execute_env(cmd: EnvCommand, output: OutputFormat) -> Result<()> {
     match cmd.action {
         EnvAction::Create(args) => {
             let config = if let Some(config_path) = args.config {
-                let config_content = std::fs::read_to_string(&config_path)
-                    .context("Failed to read config file")?;
-                toml::from_str(&config_content)
-                    .context("Failed to parse config file")?
+                let config_content =
+                    std::fs::read_to_string(&config_path).context("Failed to read config file")?;
+                toml::from_str(&config_content).context("Failed to parse config file")?
             } else {
                 CleanroomConfig::default()
             };
@@ -505,7 +503,8 @@ async fn execute_swarm(cmd: SwarmCommand, output: OutputFormat) -> Result<()> {
             let agent_id = format!("agent-{}", Uuid::new_v4());
             let swarm_id = args.swarm_id.unwrap_or_else(|| "default".to_string());
 
-            let capabilities: Vec<String> = args.capabilities
+            let capabilities: Vec<String> = args
+                .capabilities
                 .map(|c| c.split(',').map(|s| s.trim().to_string()).collect())
                 .unwrap_or_default();
 
@@ -608,7 +607,8 @@ async fn execute_swarm(cmd: SwarmCommand, output: OutputFormat) -> Result<()> {
             ];
 
             let filtered_agents: Vec<_> = if args.filter != "all" {
-                agents.into_iter()
+                agents
+                    .into_iter()
                     .filter(|a| a["status"] == args.filter)
                     .collect()
             } else {
@@ -804,13 +804,8 @@ mod tests {
 
     #[test]
     fn test_run_command_parsing() {
-        let cli = Cli::try_parse_from(&[
-            "cleanroom",
-            "run",
-            "--network-isolation",
-            "echo",
-            "hello",
-        ]);
+        let cli =
+            Cli::try_parse_from(&["cleanroom", "run", "--network-isolation", "echo", "hello"]);
         assert!(cli.is_ok());
     }
 }

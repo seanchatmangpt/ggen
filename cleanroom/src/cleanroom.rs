@@ -245,7 +245,7 @@
 
 use crate::backend::TestcontainerBackend;
 use crate::config::CleanroomConfig;
-use crate::error::{CleanroomError, ErrorKind, Result};
+use crate::error::{CleanroomError, Result};
 use crate::runtime::orchestrator::{ConcurrencyOrchestrator, TaskId, TaskResult};
 use crate::serializable_instant::SerializableInstant;
 #[cfg(feature = "services")]
@@ -613,7 +613,7 @@ impl CleanroomEnvironment {
         F: FnOnce() -> Result<T>,
     {
         let start_time = Instant::now();
-        
+
         // Update metrics
         {
             let mut metrics = self.metrics.write().await;
@@ -627,7 +627,7 @@ impl CleanroomEnvironment {
             let mut metrics = self.metrics.write().await;
             let duration = start_time.elapsed();
             metrics.total_duration_ms += duration.as_millis() as u64;
-            
+
             match &result {
                 Ok(_) => metrics.tests_passed += 1,
                 Err(_) => metrics.tests_failed += 1,
@@ -654,13 +654,15 @@ impl CleanroomEnvironment {
     pub async fn register_container(&self, name: String, container_id: String) -> Result<()> {
         self.update_container_registry(|registry| {
             registry.insert(name, container_id);
-        }).await?;
+        })
+        .await?;
 
         // Update metrics
         self.update_metrics_internal(|metrics| {
             metrics.containers_created += 1;
-        }).await?;
-        
+        })
+        .await?;
+
         Ok(())
     }
 
@@ -668,11 +670,11 @@ impl CleanroomEnvironment {
     pub async fn unregister_container(&self, name: &str) -> Result<()> {
         let mut registry = self.container_registry.write().await;
         registry.remove(name);
-        
+
         // Update metrics
         let mut metrics = self.metrics.write().await;
         metrics.containers_destroyed += 1;
-        
+
         Ok(())
     }
 
@@ -683,7 +685,10 @@ impl CleanroomEnvironment {
 
     /// Check if container is registered
     pub async fn is_container_registered(&self, name: &str) -> bool {
-        Self::with_read(&self.container_registry, |registry| registry.contains_key(name)).await
+        Self::with_read(&self.container_registry, |registry| {
+            registry.contains_key(name)
+        })
+        .await
     }
 
     /// Get container count
@@ -696,19 +701,19 @@ impl CleanroomEnvironment {
         // Stop all services
         #[cfg(feature = "services")]
         self.services.stop_all()?;
-        
+
         // Clear container registry
         {
             let mut registry = self.container_registry.write().await;
             registry.clear();
         }
-        
+
         // Update end time
         {
             let mut metrics = self.metrics.write().await;
             metrics.end_time = Some(SerializableInstant::from(Instant::now()));
         }
-        
+
         Ok(())
     }
 
@@ -719,12 +724,12 @@ impl CleanroomEnvironment {
         if !self.services.all_healthy().unwrap_or(false) {
             return false;
         }
-        
+
         // Check if backend is running
         if !self.backend.is_running() {
             return false;
         }
-        
+
         true
     }
 
@@ -891,7 +896,11 @@ impl CleanroomEnvironment {
                 // Try to downcast to the requested type
                 if let Some(_container_ref) = existing_container.as_any().downcast_ref::<T>() {
                     // Verify container is still healthy
-                    if self.is_container_healthy(existing_container.as_ref()).await.unwrap_or(false) {
+                    if self
+                        .is_container_healthy(existing_container.as_ref())
+                        .await
+                        .unwrap_or(false)
+                    {
                         // We can't clone the container, so we need to create a new one
                         // This is a limitation of the current design
                         drop(active_containers);
@@ -899,7 +908,8 @@ impl CleanroomEnvironment {
                         self.container_registry.write().await.remove(name);
                         self.update_metrics(|metrics| {
                             metrics.containers_destroyed += 1;
-                        }).await?;
+                        })
+                        .await?;
                     } else {
                         // Remove unhealthy container
                         drop(active_containers);
@@ -907,7 +917,8 @@ impl CleanroomEnvironment {
                         self.container_registry.write().await.remove(name);
                         self.update_metrics(|metrics| {
                             metrics.containers_destroyed += 1;
-                        }).await?;
+                        })
+                        .await?;
                     }
                 }
             }
@@ -918,7 +929,8 @@ impl CleanroomEnvironment {
 
         // Register the container
         let container_id = container.name().to_string();
-        self.register_container(name.to_string(), container_id.clone()).await?;
+        self.register_container(name.to_string(), container_id.clone())
+            .await?;
 
         // Store container reference for reuse
         {
@@ -930,10 +942,9 @@ impl CleanroomEnvironment {
         // We can't return the original container since we moved it into the Box
         // This is a limitation of the current design
         Err(CleanroomError::internal_error(
-            "Container created but cannot be returned due to ownership constraints"
-        ).with_context(
-            "Consider redesigning container management to avoid ownership issues"
-        ))
+            "Container created but cannot be returned due to ownership constraints",
+        )
+        .with_context("Consider redesigning container management to avoid ownership issues"))
     }
 
     /// Check if container is healthy
@@ -1032,13 +1043,13 @@ impl Drop for CleanroomGuard {
 pub trait ContainerWrapper: Send + Sync + std::fmt::Debug {
     /// Get container status
     fn status(&self) -> ContainerStatus;
-    
+
     /// Get container metrics
     fn metrics(&self) -> ContainerMetrics;
-    
+
     /// Get container name
     fn name(&self) -> &str;
-    
+
     /// Cleanup container resources
     fn cleanup(&self) -> Result<()>;
 
@@ -1082,7 +1093,7 @@ impl Default for CleanroomMetrics {
     fn default() -> Self {
         let session_id = Uuid::new_v4();
         let start_time = Instant::now();
-        
+
         Self {
             session_id,
             start_time: SerializableInstant::from(start_time),
@@ -1158,11 +1169,11 @@ mod tests {
     async fn test_cleanroom_execute_test() {
         let config = CleanroomConfig::default();
         let cleanroom = CleanroomEnvironment::new(config).await.unwrap();
-        
+
         let result = cleanroom
             .execute_test("test", || Ok::<i32, CleanroomError>(42))
             .await;
-        
+
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), 42);
     }
@@ -1171,13 +1182,13 @@ mod tests {
     async fn test_cleanroom_execute_test_failure() {
         let config = CleanroomConfig::default();
         let cleanroom = CleanroomEnvironment::new(config).await.unwrap();
-        
+
         let result = cleanroom
             .execute_test("test", || {
-            Err::<i32, CleanroomError>(CleanroomError::internal_error("test error"))
+                Err::<i32, CleanroomError>(CleanroomError::internal_error("test error"))
             })
             .await;
-        
+
         assert!(result.is_err());
     }
 
@@ -1185,7 +1196,7 @@ mod tests {
     async fn test_cleanroom_metrics() {
         let config = CleanroomConfig::default();
         let cleanroom = CleanroomEnvironment::new(config).await.unwrap();
-        
+
         let metrics = cleanroom.get_metrics().await;
         assert_eq!(metrics.session_id, cleanroom.session_id());
         assert_eq!(metrics.tests_executed, 0);
@@ -1195,14 +1206,14 @@ mod tests {
     async fn test_cleanroom_update_metrics() {
         let config = CleanroomConfig::default();
         let cleanroom = CleanroomEnvironment::new(config).await.unwrap();
-        
+
         cleanroom
             .update_metrics(|metrics| {
-            metrics.tests_executed = 5;
+                metrics.tests_executed = 5;
             })
             .await
             .unwrap();
-        
+
         let metrics = cleanroom.get_metrics().await;
         assert_eq!(metrics.tests_executed, 5);
     }
@@ -1211,14 +1222,14 @@ mod tests {
     async fn test_cleanroom_container_registry() {
         let config = CleanroomConfig::default();
         let cleanroom = CleanroomEnvironment::new(config).await.unwrap();
-        
+
         cleanroom
             .register_container("test".to_string(), "container_id".to_string())
             .await
             .unwrap();
         assert!(cleanroom.is_container_registered("test").await);
         assert_eq!(cleanroom.get_container_count().await, 1);
-        
+
         cleanroom.unregister_container("test").await.unwrap();
         assert!(!cleanroom.is_container_registered("test").await);
         assert_eq!(cleanroom.get_container_count().await, 0);
@@ -1228,13 +1239,13 @@ mod tests {
     async fn test_cleanroom_cleanup() {
         let config = CleanroomConfig::default();
         let mut cleanroom = CleanroomEnvironment::new(config).await.unwrap();
-        
+
         cleanroom
             .register_container("test".to_string(), "container_id".to_string())
             .await
             .unwrap();
         assert_eq!(cleanroom.get_container_count().await, 1);
-        
+
         cleanroom.cleanup().await.unwrap();
         assert_eq!(cleanroom.get_container_count().await, 0);
     }

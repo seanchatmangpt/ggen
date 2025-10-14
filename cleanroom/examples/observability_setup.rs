@@ -5,13 +5,13 @@
 
 use cleanroom::builder::CleanroomBuilder;
 use cleanroom::observability::metrics::{
-    AnomalyDetection, MetricsAggregator, MetricsAnalyzer, TrendAnalysis, metrics_aggregator,
-    metrics_analyzer,
+    metrics_aggregator, metrics_analyzer, AnomalyDetection, MetricsAggregator, MetricsAnalyzer,
+    TrendAnalysis,
 };
 use cleanroom::observability::{
-    ContainerMetrics, Metrics, ObservabilityLayer, PerformanceMetrics, ResourceUsageMetrics,
-    SpanStatus, TestMetrics, TracingLevel, console_metrics_exporter, console_span_collector,
-    observability_layer,
+    console_metrics_exporter, console_span_collector, observability_layer, ContainerMetrics,
+    Metrics, ObservabilityLayer, PerformanceMetrics, ResourceUsageMetrics, SpanStatus, TestMetrics,
+    TracingLevel,
 };
 use std::collections::HashMap;
 use std::time::{Duration, Instant};

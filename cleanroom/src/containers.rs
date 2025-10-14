@@ -12,7 +12,7 @@ use crate::container_base::{BaseContainer, ContainerBase};
 use crate::error::{CleanroomError, Result};
 use crate::metrics_builder::ContainerMetricsBuilder;
 use std::time::Duration;
-use testcontainers::{Container, GenericImage, ImageExt, runners::SyncRunner};
+use testcontainers::{runners::SyncRunner, Container, GenericImage, ImageExt};
 use testcontainers_modules::postgres::Postgres;
 use testcontainers_modules::redis::Redis;
 
@@ -71,8 +71,7 @@ impl PostgresContainer {
     ///
     /// This is the async-friendly version that properly handles blocking operations.
     pub async fn new_async(
-        database_name: impl Into<String> + Send,
-        username: impl Into<String> + Send,
+        database_name: impl Into<String> + Send, username: impl Into<String> + Send,
         password: impl Into<String> + Send,
     ) -> Result<Self> {
         let database_name = database_name.into();
@@ -80,23 +79,23 @@ impl PostgresContainer {
         let password = password.into();
 
         // Run blocking container creation in a separate thread pool
-        tokio::task::spawn_blocking(move || {
-            Self::new(database_name, username, password)
-        })
-        .await
-        .map_err(|e| CleanroomError::container_error(format!("Failed to spawn blocking task: {}", e)))?
+        tokio::task::spawn_blocking(move || Self::new(database_name, username, password))
+            .await
+            .map_err(|e| {
+                CleanroomError::container_error(format!("Failed to spawn blocking task: {}", e))
+            })?
     }
 
     /// Wait for PostgreSQL to be ready
     pub async fn wait_for_ready(&self) -> Result<()> {
         self.base.set_status(ContainerStatus::Ready).await?;
-        
+
         // Wait for PostgreSQL to be ready
         tokio::time::sleep(Duration::from_secs(5)).await;
-        
+
         // Test connection
         self.test_connection().await?;
-        
+
         Ok(())
     }
 
@@ -136,7 +135,6 @@ impl PostgresContainer {
         self.base.update_metrics(|m| *m = metrics).await
     }
 }
-
 
 impl Clone for PostgresContainer {
     fn clone(&self) -> Self {
@@ -253,23 +251,23 @@ impl RedisContainer {
     /// This is the async-friendly version that properly handles blocking operations.
     pub async fn new_async(password: Option<String>) -> Result<Self> {
         // Run blocking container creation in a separate thread pool
-        tokio::task::spawn_blocking(move || {
-            Self::new(password)
-        })
-        .await
-        .map_err(|e| CleanroomError::container_error(format!("Failed to spawn blocking task: {}", e)))?
+        tokio::task::spawn_blocking(move || Self::new(password))
+            .await
+            .map_err(|e| {
+                CleanroomError::container_error(format!("Failed to spawn blocking task: {}", e))
+            })?
     }
 
     /// Wait for Redis to be ready
     pub async fn wait_for_ready(&self) -> Result<()> {
         self.base.set_status(ContainerStatus::Ready).await?;
-        
+
         // Wait for Redis to be ready
         tokio::time::sleep(Duration::from_secs(2)).await;
-        
+
         // Test connection
         self.test_connection().await?;
-        
+
         Ok(())
     }
 
@@ -422,8 +420,7 @@ impl GenericContainer {
     ///
     /// This is the async-friendly version that properly handles blocking operations.
     pub async fn new_async(
-        name: impl Into<String> + Send,
-        image_name: impl Into<String> + Send,
+        name: impl Into<String> + Send, image_name: impl Into<String> + Send,
         image_tag: impl Into<String> + Send,
     ) -> Result<Self> {
         let name = name.into();
@@ -431,20 +428,20 @@ impl GenericContainer {
         let image_tag = image_tag.into();
 
         // Run blocking container creation in a separate thread pool
-        tokio::task::spawn_blocking(move || {
-            Self::new(name, image_name, image_tag)
-        })
-        .await
-        .map_err(|e| CleanroomError::container_error(format!("Failed to spawn blocking task: {}", e)))?
+        tokio::task::spawn_blocking(move || Self::new(name, image_name, image_tag))
+            .await
+            .map_err(|e| {
+                CleanroomError::container_error(format!("Failed to spawn blocking task: {}", e))
+            })?
     }
 
     /// Wait for container to be ready
     pub async fn wait_for_ready(&self) -> Result<()> {
         self.base.set_status(ContainerStatus::Ready).await?;
-        
+
         // Wait for container to be ready
         tokio::time::sleep(Duration::from_secs(3)).await;
-        
+
         Ok(())
     }
 
@@ -467,11 +464,7 @@ impl Clone for GenericContainer {
         // Note: This creates a new container instance with the same configuration
         // The actual testcontainers Container cannot be cloned, so we create a new one
         // We need to extract image info from the container, but for now create a basic clone
-        match Self::new(
-            format!("{}_clone", self.name),
-            "alpine",
-            "latest",
-        ) {
+        match Self::new(format!("{}_clone", self.name), "alpine", "latest") {
             Ok(container) => container,
             Err(e) => {
                 eprintln!("FATAL: Failed to clone GenericContainer: {}", e);

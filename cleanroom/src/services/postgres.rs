@@ -5,7 +5,7 @@
 
 use crate::error::{CleanroomError, Result};
 use crate::services::{ConnectionInfo, Service};
-use testcontainers::{Container, runners::SyncRunner};
+use testcontainers::{runners::SyncRunner, Container};
 use testcontainers_modules::postgres::Postgres as PostgresImage;
 
 /// PostgreSQL service fixture using testcontainers
@@ -126,7 +126,7 @@ impl Postgres {
         // Validate input to prevent SQL injection
         if name.contains('\'') || name.contains(';') || name.contains("--") {
             return Err(CleanroomError::validation_error(
-                "Invalid characters in name parameter"
+                "Invalid characters in name parameter",
             ));
         }
 
@@ -140,12 +140,9 @@ impl Postgres {
         let result = self.execute_sql(&sql)?;
 
         // Parse the returned ID
-        result
-            .trim()
-            .parse::<i32>()
-            .map_err(|e| {
-                CleanroomError::connection_failed(format!("Failed to parse inserted ID: {}", e))
-            })
+        result.trim().parse::<i32>().map_err(|e| {
+            CleanroomError::connection_failed(format!("Failed to parse inserted ID: {}", e))
+        })
     }
 
     /// Get database size

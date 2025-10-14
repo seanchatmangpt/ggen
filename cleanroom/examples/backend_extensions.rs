@@ -4,17 +4,19 @@
 //! including capability discovery, validation, and performance analysis.
 
 use cleanroom::backend::capabilities::{
-    BackendCapability, BackendCapabilityRegistry, CapabilityCategory, CapabilityDiscoveryProvider,
+    capability_discovery_service, capability_registry, BackendCapability,
+    BackendCapabilityRegistry, CapabilityCategory, CapabilityDiscoveryProvider,
     CapabilityDiscoveryService, CapabilityFeature, CapabilityRequirement, FeatureType,
-    RequirementType, StandardCapabilities, capability_discovery_service, capability_registry,
+    RequirementType, StandardCapabilities,
 };
 use cleanroom::backend::extensions::{
-    BackendCapabilities, BackendCapability, BackendCapabilityChecker, BackendConfiguration,
-    BackendExt, BackendHealthStatus, BackendMetadata, BackendPerformanceAnalyzer,
-    BackendPerformanceMetrics, BackendStatistics, EnhancedBackend, ExecutionMode, ExecutionOptions,
-    PerformanceAnalysis, PerformanceRecommendation, PerformanceTrend, PerformanceTuning,
-    RecommendationCategory, RecommendationPriority, ResourceEfficiency, ResourceLimits,
-    ResourceLimitsSupport, ResourceUsage, analyze_backend_performance, check_backend_capabilities,
+    analyze_backend_performance, check_backend_capabilities, BackendCapabilities,
+    BackendCapability, BackendCapabilityChecker, BackendConfiguration, BackendExt,
+    BackendHealthStatus, BackendMetadata, BackendPerformanceAnalyzer, BackendPerformanceMetrics,
+    BackendStatistics, EnhancedBackend, ExecutionMode, ExecutionOptions, PerformanceAnalysis,
+    PerformanceRecommendation, PerformanceTrend, PerformanceTuning, RecommendationCategory,
+    RecommendationPriority, ResourceEfficiency, ResourceLimits, ResourceLimitsSupport,
+    ResourceUsage,
 };
 use cleanroom::backend::{Backend, Cmd, RunResult};
 use cleanroom::error::Result;

@@ -4,9 +4,8 @@
 //! including container lifecycle, service integration, and error handling.
 
 use cleanroom::{
-    CleanroomConfig, CleanroomEnvironment, Error as CleanroomError,
-    Policy, ResourceLimits, SecurityLevel, run, run_with_policy,
-    new_cleanroom, Assert,
+    new_cleanroom, run, run_with_policy, Assert, CleanroomConfig, CleanroomEnvironment,
+    Error as CleanroomError, Policy, ResourceLimits, SecurityLevel,
 };
 use std::time::Duration;
 
@@ -75,11 +74,15 @@ async fn test_execute_test() -> Result<(), Box<dyn std::error::Error>> {
 
     // Test deterministic test execution
     let result1 = environment
-        .execute_test("test1", || Ok::<String, CleanroomError>("result".to_string()))
+        .execute_test("test1", || {
+            Ok::<String, CleanroomError>("result".to_string())
+        })
         .await?;
 
     let result2 = environment
-        .execute_test("test1", || Ok::<String, CleanroomError>("result".to_string()))
+        .execute_test("test1", || {
+            Ok::<String, CleanroomError>("result".to_string())
+        })
         .await?;
 
     assert_eq!(result1, result2);
@@ -94,9 +97,21 @@ async fn test_comprehensive_reporting() -> Result<(), Box<dyn std::error::Error>
     let environment = CleanroomEnvironment::new(config).await?;
 
     // Execute multiple tests
-    environment.execute_test("test1", || Ok::<String, CleanroomError>("result1".to_string())).await?;
-    environment.execute_test("test2", || Ok::<String, CleanroomError>("result2".to_string())).await?;
-    environment.execute_test("test3", || Ok::<String, CleanroomError>("result3".to_string())).await?;
+    environment
+        .execute_test("test1", || {
+            Ok::<String, CleanroomError>("result1".to_string())
+        })
+        .await?;
+    environment
+        .execute_test("test2", || {
+            Ok::<String, CleanroomError>("result2".to_string())
+        })
+        .await?;
+    environment
+        .execute_test("test3", || {
+            Ok::<String, CleanroomError>("result3".to_string())
+        })
+        .await?;
 
     // Generate comprehensive report
     let metrics = environment.get_metrics().await;
@@ -134,9 +149,11 @@ async fn test_concurrent_execution() -> Result<(), Box<dyn std::error::Error>> {
 
     // Execute multiple tests sequentially
     for i in 0..5 {
-        let result = environment.execute_test(&format!("concurrent_test_{}", i), || {
-            Ok::<String, CleanroomError>(format!("result_{}", i))
-        }).await?;
+        let result = environment
+            .execute_test(&format!("concurrent_test_{}", i), || {
+                Ok::<String, CleanroomError>(format!("result_{}", i))
+            })
+            .await?;
         assert_eq!(result, format!("result_{}", i));
     }
 
@@ -214,7 +231,11 @@ async fn test_performance_metrics() -> Result<(), Box<dyn std::error::Error>> {
 #[tokio::test]
 async fn test_docker_integration_basic() -> Result<(), Box<dyn std::error::Error>> {
     // Skip if Docker is not available
-    if !std::process::Command::new("docker").arg("--version").output().is_ok() {
+    if !std::process::Command::new("docker")
+        .arg("--version")
+        .output()
+        .is_ok()
+    {
         println!("Skipping Docker integration test: Docker not available");
         return Ok(());
     }
@@ -237,9 +258,11 @@ async fn test_new_cleanroom_convenience() -> Result<(), Box<dyn std::error::Erro
     assert!(environment.get_container_count().await >= 0);
 
     // Test a simple command through the environment
-    let result = environment.execute_test("convenience_test", || {
-        Ok::<String, CleanroomError>("convenience works".to_string())
-    }).await?;
+    let result = environment
+        .execute_test("convenience_test", || {
+            Ok::<String, CleanroomError>("convenience works".to_string())
+        })
+        .await?;
 
     assert_eq!(result, "convenience works");
 
@@ -250,7 +273,11 @@ async fn test_new_cleanroom_convenience() -> Result<(), Box<dyn std::error::Erro
 #[tokio::test]
 async fn test_docker_integration_error_handling() -> Result<(), Box<dyn std::error::Error>> {
     // Skip if Docker is not available
-    if !std::process::Command::new("docker").arg("--version").output().is_ok() {
+    if !std::process::Command::new("docker")
+        .arg("--version")
+        .output()
+        .is_ok()
+    {
         println!("Skipping error handling test: Docker not available");
         return Ok(());
     }
@@ -268,7 +295,11 @@ async fn test_docker_integration_error_handling() -> Result<(), Box<dyn std::err
 #[tokio::test]
 async fn test_container_isolation_and_cleanup() -> Result<(), Box<dyn std::error::Error>> {
     // Skip if Docker is not available
-    if !std::process::Command::new("docker").arg("--version").output().is_ok() {
+    if !std::process::Command::new("docker")
+        .arg("--version")
+        .output()
+        .is_ok()
+    {
         println!("Skipping isolation test: Docker not available");
         return Ok(());
     }
@@ -289,7 +320,11 @@ async fn test_container_isolation_and_cleanup() -> Result<(), Box<dyn std::error
 #[tokio::test]
 async fn test_performance_characteristics() -> Result<(), Box<dyn std::error::Error>> {
     // Skip if Docker is not available
-    if !std::process::Command::new("docker").arg("--version").output().is_ok() {
+    if !std::process::Command::new("docker")
+        .arg("--version")
+        .output()
+        .is_ok()
+    {
         println!("Skipping performance test: Docker not available");
         return Ok(());
     }

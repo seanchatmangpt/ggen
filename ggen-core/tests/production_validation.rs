@@ -7,8 +7,8 @@
 //! - State management and caching
 //! - Security boundary enforcement
 
+use ggen_ai::ultrathink::cleanroom::{CleanroomConfig, CleanroomEnvironment};
 use testcontainers::{clients, images::generic::GenericImage, Container};
-use ggen_ai::ultrathink::cleanroom::{CleanroomEnvironment, CleanroomConfig};
 
 #[cfg(test)]
 mod production_validation {
@@ -27,10 +27,9 @@ mod production_validation {
 
     /// Create a Rust container for testing
     fn create_rust_container() -> GenericImage {
-        GenericImage::new("rust", "1.75")
-            .with_wait_for(testcontainers::core::WaitFor::message_on_stdout(
-                "Rust toolchain",
-            ))
+        GenericImage::new("rust", "1.75").with_wait_for(
+            testcontainers::core::WaitFor::message_on_stdout("Rust toolchain"),
+        )
     }
 
     #[test]
@@ -60,23 +59,37 @@ mod production_validation {
             enable_redis: true,
             enable_wip_server: true,
             test_duration_secs: 120, // 2 minutes for comprehensive testing
-            task_load: 100, // High load for production validation
-            enable_chaos: true, // Enable chaos testing for resilience
+            task_load: 100,          // High load for production validation
+            enable_chaos: true,      // Enable chaos testing for resilience
         };
 
-        let cleanroom_env = CleanroomEnvironment::new(config.clone()).await
+        let cleanroom_env = CleanroomEnvironment::new(config.clone())
+            .await
             .expect("Failed to create cleanroom environment");
 
-        let test_result = cleanroom_env.run_cleanroom_tests(config).await
+        let test_result = cleanroom_env
+            .run_cleanroom_tests(config)
+            .await
             .expect("Cleanroom tests failed");
 
         // Validate test results
         match test_result.status {
             ggen_ai::ultrathink::cleanroom::TestStatus::Completed => {
                 assert!(test_result.tasks_processed > 0, "No tasks were processed");
-                assert!(test_result.tasks_failed == 0, "Some tasks failed: {}", test_result.errors.len());
-                assert!(test_result.errors.is_empty(), "Test errors occurred: {:?}", test_result.errors);
-                assert!(test_result.duration_ms.unwrap_or(0) > 0, "Test completed but no duration recorded");
+                assert!(
+                    test_result.tasks_failed == 0,
+                    "Some tasks failed: {}",
+                    test_result.errors.len()
+                );
+                assert!(
+                    test_result.errors.is_empty(),
+                    "Test errors occurred: {:?}",
+                    test_result.errors
+                );
+                assert!(
+                    test_result.duration_ms.unwrap_or(0) > 0,
+                    "Test completed but no duration recorded"
+                );
             }
             ggen_ai::ultrathink::cleanroom::TestStatus::Failed(reason) => {
                 panic!("Cleanroom tests failed: {}", reason);
@@ -88,21 +101,32 @@ mod production_validation {
 
         // Validate performance metrics
         if let Some(perf_metrics) = &test_result.performance_metrics.get("success_rate") {
-            assert!(*perf_metrics > 0.8, "Success rate too low: {}", perf_metrics);
+            assert!(
+                *perf_metrics > 0.8,
+                "Success rate too low: {}",
+                perf_metrics
+            );
         }
 
         if let Some(perf_metrics) = &test_result.performance_metrics.get("tasks_per_second") {
-            assert!(*perf_metrics > 0.5, "Performance too low: {} tasks/sec", perf_metrics);
+            assert!(
+                *perf_metrics > 0.5,
+                "Performance too low: {} tasks/sec",
+                perf_metrics
+            );
         }
 
         // Cleanup
-        cleanroom_env.cleanup().await.expect("Failed to cleanup cleanroom environment");
+        cleanroom_env
+            .cleanup()
+            .await
+            .expect("Failed to cleanup cleanroom environment");
 
         println!("✅ Ultrathink cleanroom production validation completed successfully");
-        println!("📊 Test Results: {} tasks processed, {} completed, {} failed",
-                 test_result.tasks_processed,
-                 test_result.tasks_completed,
-                 test_result.tasks_failed);
+        println!(
+            "📊 Test Results: {} tasks processed, {} completed, {} failed",
+            test_result.tasks_processed, test_result.tasks_completed, test_result.tasks_failed
+        );
     }
 
     #[tokio::test]
@@ -118,7 +142,8 @@ mod production_validation {
             enable_chaos: false,
         };
 
-        let cleanroom_env = CleanroomEnvironment::new(config.clone()).await
+        let cleanroom_env = CleanroomEnvironment::new(config.clone())
+            .await
             .expect("Failed to create cleanroom environment");
 
         // Submit WIP-related tasks for testing
@@ -129,17 +154,27 @@ mod production_validation {
                 ggen_ai::ultrathink::core::TaskPriority::Medium,
             );
 
-            cleanroom_env.ultrathink_core.submit_task(task).await
+            cleanroom_env
+                .ultrathink_core
+                .submit_task(task)
+                .await
                 .expect("Failed to submit WIP task");
         }
 
-        let test_result = cleanroom_env.run_cleanroom_tests(config).await
+        let test_result = cleanroom_env
+            .run_cleanroom_tests(config)
+            .await
             .expect("WIP integration tests failed");
 
         // Validate WIP operations
-        assert!(test_result.wip_operations > 0, "No WIP operations were performed");
-        assert!(test_result.tasks_processed >= test_result.tasks_completed,
-                "More tasks completed than processed");
+        assert!(
+            test_result.wip_operations > 0,
+            "No WIP operations were performed"
+        );
+        assert!(
+            test_result.tasks_processed >= test_result.tasks_completed,
+            "More tasks completed than processed"
+        );
 
         cleanroom_env.cleanup().await.expect("Failed to cleanup");
     }
@@ -185,8 +220,10 @@ mod production_validation {
         println!("✅ Cleanroom configuration test completed");
         println!("   PostgreSQL: localhost:{}", postgres_port);
         println!("   Redis: localhost:{}", redis_port);
-        println!("   WIP Server: localhost:{} (WS), localhost:{} (API)",
-                 wip_ws_port, wip_api_port);
+        println!(
+            "   WIP Server: localhost:{} (WS), localhost:{} (API)",
+            wip_ws_port, wip_api_port
+        );
     }
 
     #[test]
@@ -194,13 +231,13 @@ mod production_validation {
     fn test_cleanroom_resource_constraints() {
         // Test ggen under resource constraints in cleanroom environment
         let docker = clients::Cli::default();
-        
+
         // Create container with limited resources
         let container = docker.run(
             create_rust_container()
                 .with_env_var("CARGO_BUILD_JOBS", "1") // Limit parallelism
                 .with_memory_limit(512 * 1024 * 1024) // 512MB limit
-                .with_cpu_limit(0.5) // 0.5 CPU cores
+                .with_cpu_limit(0.5), // 0.5 CPU cores
         );
 
         // Test that ggen respects resource constraints
@@ -212,13 +249,10 @@ mod production_validation {
     fn test_cleanroom_network_isolation() {
         // Test ggen in network-isolated cleanroom environment
         let docker = clients::Cli::default();
-        
+
         // Create isolated network
         let network_name = format!("ggen-cleanroom-{}", uuid::Uuid::new_v4());
-        let container = docker.run(
-            create_rust_container()
-                .with_network(&network_name)
-        );
+        let container = docker.run(create_rust_container().with_network(&network_name));
 
         // Test that ggen respects network isolation
         // Validates: Network boundaries, security isolation
@@ -336,16 +370,10 @@ mod production_validation {
         use tracing_subscriber;
 
         // Initialize tracing
-        let _ = tracing_subscriber::fmt()
-            .with_test_writer()
-            .try_init();
+        let _ = tracing_subscriber::fmt().with_test_writer().try_init();
 
         // Log structured data
-        info!(
-            phase = "test",
-            duration_ms = 100,
-            "Test phase completed"
-        );
+        info!(phase = "test", duration_ms = 100, "Test phase completed");
 
         // No panics or errors in logging
         assert!(true);
@@ -375,8 +403,7 @@ mod production_validation {
 
         // Create container with limited CPU/memory
         let container = docker.run(
-            create_rust_container()
-                .with_env_var("CARGO_BUILD_JOBS", "2"), // Limit parallelism
+            create_rust_container().with_env_var("CARGO_BUILD_JOBS", "2"), // Limit parallelism
         );
 
         // Would test:
@@ -398,8 +425,7 @@ mod production_validation {
         let state_file = temp_dir.join(".ggen/state.json");
 
         // Simulate state write
-        fs::create_dir_all(state_file.parent().unwrap())
-            .expect("Failed to create .ggen dir");
+        fs::create_dir_all(state_file.parent().unwrap()).expect("Failed to create .ggen dir");
         fs::write(&state_file, r#"{"phase":"build","timestamp":1234567890}"#)
             .expect("Failed to write state");
 

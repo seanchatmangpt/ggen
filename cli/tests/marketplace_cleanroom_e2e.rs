@@ -57,8 +57,7 @@ fn test_marketplace_package_download_and_extract() {
     println!("📦 Simulating marketplace package extraction...");
 
     let target_dir = project_dir.join("advanced-rust-api-8020");
-    copy_dir_all(&example_src, &target_dir)
-        .expect("Failed to copy example project");
+    copy_dir_all(&example_src, &target_dir).expect("Failed to copy example project");
 
     println!("✅ Package extracted to: {:?}", target_dir);
 
@@ -74,11 +73,7 @@ fn test_marketplace_package_download_and_extract() {
 
     for file in critical_files {
         let file_path = target_dir.join(file);
-        assert!(
-            file_path.exists(),
-            "❌ Critical file missing: {}",
-            file
-        );
+        assert!(file_path.exists(), "❌ Critical file missing: {}", file);
         println!("  ✅ {}", file);
     }
 
@@ -102,8 +97,7 @@ fn test_marketplace_project_lifecycle_init() {
         .join("examples/advanced-rust-api-8020");
 
     let target_dir = project_dir.join("advanced-rust-api-8020");
-    copy_dir_all(&example_src, &target_dir)
-        .expect("Failed to copy example project");
+    copy_dir_all(&example_src, &target_dir).expect("Failed to copy example project");
 
     println!("📁 Project directory: {:?}", target_dir);
 
@@ -162,8 +156,7 @@ fn test_marketplace_project_lifecycle_validate() {
         .join("examples/advanced-rust-api-8020");
 
     let target_dir = project_dir.join("advanced-rust-api-8020");
-    copy_dir_all(&example_src, &target_dir)
-        .expect("Failed to copy example project");
+    copy_dir_all(&example_src, &target_dir).expect("Failed to copy example project");
 
     println!("📁 Project directory: {:?}", target_dir);
     println!("🔄 Running: ggen lifecycle run validate");
@@ -202,8 +195,7 @@ fn test_marketplace_project_production_readiness() {
         .join("examples/advanced-rust-api-8020");
 
     let target_dir = project_dir.join("advanced-rust-api-8020");
-    copy_dir_all(&example_src, &target_dir)
-        .expect("Failed to copy example project");
+    copy_dir_all(&example_src, &target_dir).expect("Failed to copy example project");
 
     println!("📁 Project directory: {:?}", target_dir);
     println!("🔄 Running: ggen lifecycle readiness");
@@ -257,8 +249,7 @@ fn test_marketplace_project_make_toml_valid() {
     println!("✅ make.toml exists");
 
     // Parse make.toml to verify it's valid TOML
-    let toml_content = fs::read_to_string(&example_src)
-        .expect("Failed to read make.toml");
+    let toml_content = fs::read_to_string(&example_src).expect("Failed to read make.toml");
 
     let parsed: Result<toml::Value, _> = toml::from_str(&toml_content);
 
@@ -285,9 +276,16 @@ fn test_marketplace_project_make_toml_valid() {
 
     // Verify lifecycle phases exist
     let lifecycle_phases = vec![
-        "init", "setup", "generate", "validate",
-        "build", "test", "security", "docs",
-        "readiness", "deploy"
+        "init",
+        "setup",
+        "generate",
+        "validate",
+        "build",
+        "test",
+        "security",
+        "docs",
+        "readiness",
+        "deploy",
     ];
 
     for phase in lifecycle_phases {
@@ -318,8 +316,7 @@ fn test_marketplace_project_cargo_toml_valid() {
     println!("✅ Cargo.toml exists");
 
     // Parse Cargo.toml
-    let toml_content = fs::read_to_string(&example_src)
-        .expect("Failed to read Cargo.toml");
+    let toml_content = fs::read_to_string(&example_src).expect("Failed to read Cargo.toml");
 
     let parsed: Result<toml::Value, _> = toml::from_str(&toml_content);
 
@@ -333,10 +330,16 @@ fn test_marketplace_project_cargo_toml_valid() {
     let config = parsed.unwrap();
 
     // Verify critical sections
-    assert!(config.get("package").is_some(), "Should have [package] section");
+    assert!(
+        config.get("package").is_some(),
+        "Should have [package] section"
+    );
     println!("  ✅ [package] section present");
 
-    assert!(config.get("dependencies").is_some(), "Should have [dependencies] section");
+    assert!(
+        config.get("dependencies").is_some(),
+        "Should have [dependencies] section"
+    );
     println!("  ✅ [dependencies] section present");
 
     // Verify it has workspace marker (to avoid Cargo workspace errors)
@@ -365,8 +368,7 @@ fn test_marketplace_project_sparql_specs_valid() {
     println!("✅ SPARQL specification file exists");
 
     // Read spec content
-    let spec_content = fs::read_to_string(&example_src)
-        .expect("Failed to read api-spec.ttl");
+    let spec_content = fs::read_to_string(&example_src).expect("Failed to read api-spec.ttl");
 
     // Basic validation - should contain RDF/TTL syntax
     assert!(
@@ -395,23 +397,17 @@ fn test_marketplace_project_templates_valid() {
         .unwrap()
         .join("examples/advanced-rust-api-8020/templates");
 
-    assert!(
-        example_src.exists(),
-        "templates/ directory should exist"
-    );
+    assert!(example_src.exists(), "templates/ directory should exist");
     println!("✅ templates/ directory exists");
 
     // Check for endpoint template
     let endpoint_template = example_src.join("endpoint.tmpl");
-    assert!(
-        endpoint_template.exists(),
-        "endpoint.tmpl should exist"
-    );
+    assert!(endpoint_template.exists(), "endpoint.tmpl should exist");
     println!("✅ endpoint.tmpl exists");
 
     // Read template content
-    let template_content = fs::read_to_string(&endpoint_template)
-        .expect("Failed to read endpoint.tmpl");
+    let template_content =
+        fs::read_to_string(&endpoint_template).expect("Failed to read endpoint.tmpl");
 
     // Should contain Rust code patterns
     assert!(
@@ -421,8 +417,8 @@ fn test_marketplace_project_templates_valid() {
     println!("✅ Template contains Rust code patterns");
 
     // Should NOT use .expect() or .unwrap() (production code rule)
-    let has_bad_patterns = template_content.contains(".expect(")
-        || template_content.contains(".unwrap()");
+    let has_bad_patterns =
+        template_content.contains(".expect(") || template_content.contains(".unwrap()");
 
     if has_bad_patterns {
         println!("⚠️  WARNING: Template contains .expect() or .unwrap() (should use ? operator)");
@@ -444,10 +440,7 @@ fn test_marketplace_project_error_handling_standards() {
         .unwrap()
         .join("examples/advanced-rust-api-8020/src");
 
-    assert!(
-        example_src.exists(),
-        "src/ directory should exist"
-    );
+    assert!(example_src.exists(), "src/ directory should exist");
 
     // Check error.rs exists
     let error_file = example_src.join("error.rs");
@@ -458,8 +451,7 @@ fn test_marketplace_project_error_handling_standards() {
     println!("✅ src/error.rs exists");
 
     // Read error handling code
-    let error_content = fs::read_to_string(&error_file)
-        .expect("Failed to read error.rs");
+    let error_content = fs::read_to_string(&error_file).expect("Failed to read error.rs");
 
     // Should use thiserror or anyhow for production error handling
     assert!(
@@ -469,8 +461,7 @@ fn test_marketplace_project_error_handling_standards() {
     println!("✅ Uses proper error handling crate");
 
     // Should NOT use panic! or unwrap in production error handling
-    let has_panics = error_content.contains("panic!")
-        || error_content.contains(".unwrap()");
+    let has_panics = error_content.contains("panic!") || error_content.contains(".unwrap()");
 
     assert!(
         !has_panics,
@@ -515,8 +506,7 @@ fn test_marketplace_complete_workflow_simulation() {
         .join("examples/advanced-rust-api-8020");
 
     let target_dir = project_dir.join("advanced-rust-api-8020");
-    copy_dir_all(&example_src, &target_dir)
-        .expect("Failed to copy example project");
+    copy_dir_all(&example_src, &target_dir).expect("Failed to copy example project");
 
     println!("  ✅ Package extracted to: {:?}", target_dir);
 
@@ -534,11 +524,7 @@ fn test_marketplace_complete_workflow_simulation() {
 
     for (file, description) in critical_files {
         let file_path = target_dir.join(file);
-        assert!(
-            file_path.exists(),
-            "Missing: {}",
-            file
-        );
+        assert!(file_path.exists(), "Missing: {}", file);
         println!("  ✅ {} - {}", file, description);
     }
 
@@ -546,7 +532,8 @@ fn test_marketplace_complete_workflow_simulation() {
     println!("\n🔄 STEP 5: Initialize lifecycle");
 
     let mut init_cmd = Command::cargo_bin("ggen").expect("Failed to get ggen binary");
-    init_cmd.arg("lifecycle")
+    init_cmd
+        .arg("lifecycle")
         .arg("run")
         .arg("init")
         .current_dir(&target_dir);
@@ -564,11 +551,14 @@ fn test_marketplace_complete_workflow_simulation() {
     println!("\n📊 STEP 6: Check production readiness");
 
     let mut readiness_cmd = Command::cargo_bin("ggen").expect("Failed to get ggen binary");
-    readiness_cmd.arg("lifecycle")
+    readiness_cmd
+        .arg("lifecycle")
         .arg("readiness")
         .current_dir(&target_dir);
 
-    let readiness_output = readiness_cmd.output().expect("Failed to execute lifecycle readiness");
+    let readiness_output = readiness_cmd
+        .output()
+        .expect("Failed to execute lifecycle readiness");
 
     let stdout = String::from_utf8_lossy(&readiness_output.stdout);
     if stdout.contains("Production") || stdout.contains("readiness") {

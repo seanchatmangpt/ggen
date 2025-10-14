@@ -1,0 +1,115 @@
+---
+to: "{{project_name}}/src/main.rs"
+vars:
+  project_name: "example-cli"
+  determinism: 42
+---
+//! Ultra-fast minimal CLI template
+//! Generation time target: <5s
+
+use std::env;
+use std::io::{self, Write};
+
+/// Main CLI entry point
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let args: Vec<String> = env::args().collect();
+
+    if args.len() < 2 {
+        print_usage(&args[0]);
+        return Ok(());
+    }
+
+    match args[1].as_str() {
+        "run" => run_command(&args[2..])?,
+        "version" => print_version(),
+        "help" => print_usage(&args[0]),
+        cmd => {
+            eprintln!("Unknown command: {}", cmd);
+            print_usage(&args[0]);
+            std::process::exit(1);
+        }
+    }
+
+    Ok(())
+}
+
+fn run_command(args: &[String]) -> Result<(), Box<dyn std::error::Error>> {
+    println!("Running with args: {:?}", args);
+    Ok(())
+}
+
+fn print_version() {
+    println!("{{project_name}} v0.1.0");
+}
+
+fn print_usage(program: &str) {
+    println!("Usage: {} <command> [args]", program);
+    println!("\nCommands:");
+    println!("  run [args]    Run the main command");
+    println!("  version       Show version information");
+    println!("  help          Show this help message");
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_version_output() {
+        print_version();
+    }
+
+    #[test]
+    fn test_run_command_empty() {
+        let result = run_command(&[]);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_run_command_with_args() {
+        let args = vec!["test".to_string(), "arg".to_string()];
+        let result = run_command(&args);
+        assert!(result.is_ok());
+    }
+}
+---
+to: "{{project_name}}/Cargo.toml"
+---
+[package]
+name = "{{project_name}}"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+
+[dev-dependencies]
+
+[[bin]]
+name = "{{project_name}}"
+path = "src/main.rs"
+---
+to: "{{project_name}}/README.md"
+---
+# {{project_name}}
+
+Ultra-fast minimal CLI application generated from template.
+
+## Usage
+
+```bash
+cargo run -- help
+cargo run -- version
+cargo run -- run arg1 arg2
+```
+
+## Testing
+
+```bash
+cargo test
+```
+
+## Building
+
+```bash
+cargo build --release
+```

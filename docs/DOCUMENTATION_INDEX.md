@@ -10,6 +10,7 @@ This index provides organized access to all ggen documentation, examples, and re
 | Topic | Document | Time | Purpose |
 |-------|----------|------|---------|
 | **Installation** | [`install.md`](install.md) | 5 min | Get ggen running |
+| **Ultra-Fast Workflow** | [`ultra-fast-workflow.md`](ultra-fast-workflow.md) | 10 min | **<60s concept to deploy** |
 | **AI Quick Start** | [`ai-guide.md`](ai-guide.md) | 15 min | AI-powered development |
 | **Traditional Workflow** | [`quickstart.md`](quickstart.md) | 10 min | Template-based generation |
 | **Complete Overview** | [`README.md`](README.md) | 20 min | Full ecosystem overview |
@@ -70,6 +71,10 @@ This index provides organized access to all ggen documentation, examples, and re
 - 🚀 [`production-readiness.md`](production-readiness.md) - Production readiness guide
 - 📊 [`production-validation-report.md`](production-validation-report.md) - Validation results
 - 🔒 [`DEPLOYMENT.md`](DEPLOYMENT.md) - Deployment guide
+- ⚡ [`ultra-fast-workflow.md`](ultra-fast-workflow.md) - **NEW: <60s concept to deploy**
+- 🔗 [`ggen-cleanroom-synergy.md`](ggen-cleanroom-synergy.md) - **NEW: ggen + cleanroom integration**
+- 📋 [`ultra-fast-implementation-guide.md`](ultra-fast-implementation-guide.md) - **NEW: Implementation guide**
+- 🎯 [`ultra-fast-quick-reference.md`](ultra-fast-quick-reference.md) - **NEW: Quick reference card**
 
 ### 🛠️ **Development & Architecture**
 

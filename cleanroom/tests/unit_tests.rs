@@ -2,14 +2,14 @@
 //!
 //! These tests verify individual module functionality in isolation.
 
-use cleanroom::{
-    CleanroomConfig, CleanroomEnvironment, DeterministicManager,
-    Policy, ResourceLimits, SecurityLevel, SnapshotManager, TestReport, TracingManager,
-    CoverageTracker, Error as CleanroomError,
-};
 use cleanroom::cleanroom::CleanroomMetrics;
 use cleanroom::coverage::CoverageCollector;
 use cleanroom::report;
+use cleanroom::{
+    CleanroomConfig, CleanroomEnvironment, CoverageTracker, DeterministicManager,
+    Error as CleanroomError, Policy, ResourceLimits, SecurityLevel, SnapshotManager, TestReport,
+    TracingManager,
+};
 use std::time::Duration;
 use uuid::Uuid;
 
@@ -27,7 +27,9 @@ async fn test_cleanroom_config() -> anyhow::Result<()> {
     assert!(config.enable_tracing);
 
     // Test configuration validation
-    config.validate().map_err(|e| anyhow::anyhow!("Validation failed: {}", e))?;
+    config
+        .validate()
+        .map_err(|e| anyhow::anyhow!("Validation failed: {}", e))?;
 
     // Test configuration that should be valid
     // Note: max_concurrent_containers = 0 might actually be valid in the implementation
@@ -80,7 +82,9 @@ fn test_resource_limits() -> anyhow::Result<()> {
     assert_eq!(custom_limits.memory.max_usage_bytes, 512 * 1024 * 1024);
 
     // Test limit validation
-    custom_limits.validate().map_err(|e| anyhow::anyhow!("Validation failed: {}", e))?;
+    custom_limits
+        .validate()
+        .map_err(|e| anyhow::anyhow!("Validation failed: {}", e))?;
 
     // Test invalid limits
     let mut invalid_limits = ResourceLimits::new();
@@ -104,8 +108,14 @@ async fn test_deterministic_manager() -> anyhow::Result<()> {
     assert!(value1 > 0); // Just check it's not zero
 
     // Test port allocation
-    let port1 = manager.allocate_port().await.map_err(|e| anyhow::anyhow!("Port allocation failed: {}", e))?;
-    let port2 = manager.allocate_port().await.map_err(|e| anyhow::anyhow!("Port allocation failed: {}", e))?;
+    let port1 = manager
+        .allocate_port()
+        .await
+        .map_err(|e| anyhow::anyhow!("Port allocation failed: {}", e))?;
+    let port2 = manager
+        .allocate_port()
+        .await
+        .map_err(|e| anyhow::anyhow!("Port allocation failed: {}", e))?;
     assert_eq!(port1, 10000);
     assert_eq!(port2, 10001);
 
@@ -119,10 +129,14 @@ fn test_coverage_collector() -> anyhow::Result<()> {
     let mut collector = CoverageCollector::new(session_id);
 
     // Start collection
-    collector.start_collection().map_err(|e| anyhow::anyhow!("Start collection failed: {}", e))?;
+    collector
+        .start_collection()
+        .map_err(|e| anyhow::anyhow!("Start collection failed: {}", e))?;
 
     // Stop collection and get data
-    let coverage_data = collector.stop_collection().map_err(|e| anyhow::anyhow!("Stop collection failed: {}", e))?;
+    let coverage_data = collector
+        .stop_collection()
+        .map_err(|e| anyhow::anyhow!("Stop collection failed: {}", e))?;
     assert!(coverage_data.overall_coverage_percentage >= 0.0);
 
     Ok(())
@@ -140,20 +154,27 @@ async fn test_snapshot_manager() -> anyhow::Result<()> {
         "number": 42
     });
 
-    manager.capture_snapshot(
-        "test_snapshot".to_string(),
-        test_data.to_string(),
-        cleanroom::snapshots::SnapshotType::Json,
-        std::collections::HashMap::new(),
-    ).await.map_err(|e| anyhow::anyhow!("Capture snapshot failed: {}", e))?;
+    manager
+        .capture_snapshot(
+            "test_snapshot".to_string(),
+            test_data.to_string(),
+            cleanroom::snapshots::SnapshotType::Json,
+            std::collections::HashMap::new(),
+        )
+        .await
+        .map_err(|e| anyhow::anyhow!("Capture snapshot failed: {}", e))?;
 
     // Test snapshot verification
-    let is_valid = manager.validate_snapshot("test_snapshot", &test_data.to_string()).await
+    let is_valid = manager
+        .validate_snapshot("test_snapshot", &test_data.to_string())
+        .await
         .map_err(|e| anyhow::anyhow!("Validate snapshot failed: {}", e))?;
     assert!(is_valid);
 
     // Test snapshot retrieval
-    let retrieved_snapshot = manager.get_snapshot("test_snapshot").await
+    let retrieved_snapshot = manager
+        .get_snapshot("test_snapshot")
+        .await
         .map_err(|e| anyhow::anyhow!("Get snapshot failed: {}", e))?;
     assert!(retrieved_snapshot.is_some());
 
@@ -167,25 +188,34 @@ async fn test_tracing_manager() -> anyhow::Result<()> {
     let manager = TracingManager::new(session_id);
 
     // Test span creation
-    let _span_id = manager.start_span("test_span".to_string(), None).await
+    let _span_id = manager
+        .start_span("test_span".to_string(), None)
+        .await
         .map_err(|e| anyhow::anyhow!("Start span failed: {}", e))?;
     assert!(!_span_id.is_nil());
 
     // Test trace logging
-    manager.log(
-        cleanroom::tracing::LogLevel::Info,
-        "test log".to_string(),
-        None,
-        std::collections::HashMap::new(),
-        std::collections::HashMap::new(),
-    ).await.map_err(|e| anyhow::anyhow!("Log failed: {}", e))?;
+    manager
+        .log(
+            cleanroom::tracing::LogLevel::Info,
+            "test log".to_string(),
+            None,
+            std::collections::HashMap::new(),
+            std::collections::HashMap::new(),
+        )
+        .await
+        .map_err(|e| anyhow::anyhow!("Log failed: {}", e))?;
 
     // Test span completion
-    manager.end_span("test_span", cleanroom::tracing::SpanStatus::Completed).await
+    manager
+        .end_span("test_span", cleanroom::tracing::SpanStatus::Completed)
+        .await
         .map_err(|e| anyhow::anyhow!("End span failed: {}", e))?;
 
     // Test span retrieval by name
-    let span = manager.get_span("test_span").await
+    let span = manager
+        .get_span("test_span")
+        .await
         .map_err(|e| anyhow::anyhow!("Get span failed: {}", e))?;
     assert!(span.is_some());
 
@@ -211,11 +241,16 @@ async fn test_test_report() -> anyhow::Result<()> {
     };
 
     // Update report with summary
-    report.update_test_summary(summary).await.map_err(|e| anyhow::anyhow!("Failed to update summary: {}", e))?;
+    report
+        .update_test_summary(summary)
+        .await
+        .map_err(|e| anyhow::anyhow!("Failed to update summary: {}", e))?;
 
     // Create metrics to generate comprehensive report
     let metrics = CleanroomMetrics::default();
-    let comprehensive_report = report.generate_report(&metrics).await
+    let comprehensive_report = report
+        .generate_report(&metrics)
+        .await
         .map_err(|e| anyhow::anyhow!("Failed to generate report: {}", e))?;
 
     // Access test summary from comprehensive report
@@ -224,7 +259,8 @@ async fn test_test_report() -> anyhow::Result<()> {
     assert_eq!(comprehensive_report.test_summary.failed_tests, 1);
 
     // Export comprehensive report to JSON
-    let json_report = comprehensive_report.to_json()
+    let json_report = comprehensive_report
+        .to_json()
         .map_err(|e| anyhow::anyhow!("Failed to export JSON: {}", e))?;
     assert!(!json_report.is_empty());
 
@@ -235,7 +271,8 @@ async fn test_test_report() -> anyhow::Result<()> {
 #[tokio::test]
 async fn test_cleanroom_environment_creation() -> anyhow::Result<()> {
     let config = CleanroomConfig::default();
-    let environment = CleanroomEnvironment::new(config).await
+    let environment = CleanroomEnvironment::new(config)
+        .await
         .map_err(|e| anyhow::anyhow!("Failed to create environment: {}", e))?;
 
     assert!(!environment.session_id().is_nil());
@@ -247,13 +284,15 @@ async fn test_cleanroom_environment_creation() -> anyhow::Result<()> {
 #[tokio::test]
 async fn test_cleanroom_environment_metrics() -> anyhow::Result<()> {
     let config = CleanroomConfig::default();
-    let environment = CleanroomEnvironment::new(config).await
+    let environment = CleanroomEnvironment::new(config)
+        .await
         .map_err(|e| anyhow::anyhow!("Failed to create environment: {}", e))?;
 
     // Execute a test
-    let result = environment.execute_test("test1", || {
-        Ok::<i32, CleanroomError>(42)
-    }).await.map_err(|e| anyhow::anyhow!("Execute test failed: {}", e))?;
+    let result = environment
+        .execute_test("test1", || Ok::<i32, CleanroomError>(42))
+        .await
+        .map_err(|e| anyhow::anyhow!("Execute test failed: {}", e))?;
 
     assert_eq!(result, 42);
 
@@ -279,7 +318,10 @@ fn test_policy_serialization() -> anyhow::Result<()> {
     // Test JSON deserialization
     let deserialized_policy: Policy = serde_json::from_str(&json)
         .map_err(|e| anyhow::anyhow!("JSON deserialization failed: {}", e))?;
-    assert_eq!(deserialized_policy.security.security_level, policy.security.security_level);
+    assert_eq!(
+        deserialized_policy.security.security_level,
+        policy.security.security_level
+    );
     assert_eq!(
         deserialized_policy.security.enable_network_isolation,
         policy.security.enable_network_isolation
@@ -302,7 +344,10 @@ fn test_resource_limits_serialization() -> anyhow::Result<()> {
     // Test JSON deserialization
     let deserialized_limits: ResourceLimits = serde_json::from_str(&json)
         .map_err(|e| anyhow::anyhow!("JSON deserialization failed: {}", e))?;
-    assert_eq!(deserialized_limits.memory.max_usage_bytes, limits.memory.max_usage_bytes);
+    assert_eq!(
+        deserialized_limits.memory.max_usage_bytes,
+        limits.memory.max_usage_bytes
+    );
 
     Ok(())
 }
@@ -321,7 +366,9 @@ fn test_deterministic_manager_state() {
 fn test_coverage_collector_serialization() -> anyhow::Result<()> {
     let session_id = Uuid::new_v4();
     let mut collector = CoverageCollector::new(session_id);
-    collector.start_collection().map_err(|e| anyhow::anyhow!("Start collection failed: {}", e))?;
+    collector
+        .start_collection()
+        .map_err(|e| anyhow::anyhow!("Start collection failed: {}", e))?;
 
     // Test JSON serialization
     let json = serde_json::to_string(&collector)
@@ -343,12 +390,15 @@ async fn test_snapshot_manager_operations() -> anyhow::Result<()> {
     let manager = SnapshotManager::new(session_id);
     let test_data = serde_json::json!({"key": "value"});
 
-    manager.capture_snapshot(
-        "test_snapshot".to_string(),
-        test_data.to_string(),
-        cleanroom::snapshots::SnapshotType::Json,
-        std::collections::HashMap::new(),
-    ).await.map_err(|e| anyhow::anyhow!("Capture snapshot failed: {}", e))?;
+    manager
+        .capture_snapshot(
+            "test_snapshot".to_string(),
+            test_data.to_string(),
+            cleanroom::snapshots::SnapshotType::Json,
+            std::collections::HashMap::new(),
+        )
+        .await
+        .map_err(|e| anyhow::anyhow!("Capture snapshot failed: {}", e))?;
 
     // Test JSON serialization of snapshot data
     let data = manager.get_snapshot_data().await;
@@ -364,9 +414,13 @@ async fn test_snapshot_manager_operations() -> anyhow::Result<()> {
 async fn test_tracing_manager_operations() -> anyhow::Result<()> {
     let session_id = Uuid::new_v4();
     let manager = TracingManager::new(session_id);
-    let _trace_id = manager.start_span("test_span".to_string(), None).await
+    let _trace_id = manager
+        .start_span("test_span".to_string(), None)
+        .await
         .map_err(|e| anyhow::anyhow!("Start span failed: {}", e))?;
-    manager.end_span("test_span", cleanroom::tracing::SpanStatus::Completed).await
+    manager
+        .end_span("test_span", cleanroom::tracing::SpanStatus::Completed)
+        .await
         .map_err(|e| anyhow::anyhow!("End span failed: {}", e))?;
 
     // Test JSON serialization
@@ -396,15 +450,20 @@ async fn test_test_report_serialization() -> anyhow::Result<()> {
         average_test_duration: Duration::from_millis(150),
     };
 
-    report.update_test_summary(summary).await
+    report
+        .update_test_summary(summary)
+        .await
         .map_err(|e| anyhow::anyhow!("Failed to update summary: {}", e))?;
 
     // Generate comprehensive report
     let metrics = CleanroomMetrics::default();
-    let comprehensive_report = report.generate_report(&metrics).await
+    let comprehensive_report = report
+        .generate_report(&metrics)
+        .await
         .map_err(|e| anyhow::anyhow!("Failed to generate report: {}", e))?;
 
-    let json = comprehensive_report.to_json()
+    let json = comprehensive_report
+        .to_json()
         .map_err(|e| anyhow::anyhow!("Failed to export JSON: {}", e))?;
     assert!(!json.is_empty());
     println!("JSON Report: {}", json);
@@ -418,7 +477,10 @@ async fn test_test_report_serialization() -> anyhow::Result<()> {
         }
         Err(e) => {
             // TOML serialization may fail due to u128 in timestamps
-            println!("TOML serialization skipped (expected with SerializableInstant): {}", e);
+            println!(
+                "TOML serialization skipped (expected with SerializableInstant): {}",
+                e
+            );
         }
     }
 
@@ -430,13 +492,17 @@ async fn test_test_report_serialization() -> anyhow::Result<()> {
 async fn test_cleanroom_environment() -> anyhow::Result<()> {
     // Test basic cleanroom environment operations
     let config = CleanroomConfig::default();
-    let environment = CleanroomEnvironment::new(config).await
+    let environment = CleanroomEnvironment::new(config)
+        .await
         .map_err(|e| anyhow::anyhow!("Failed to create environment: {}", e))?;
 
     // Access config through public API
     let environment_config = environment.config();
     assert!(!environment.session_id().is_nil());
-    assert_eq!(environment_config.test_execution_timeout, std::time::Duration::from_secs(300));
+    assert_eq!(
+        environment_config.test_execution_timeout,
+        std::time::Duration::from_secs(300)
+    );
 
     Ok(())
 }

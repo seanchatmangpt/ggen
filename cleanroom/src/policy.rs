@@ -610,11 +610,9 @@ mod tests {
         context.insert("cpu_usage".to_string(), "50.0".to_string());
         context.insert("memory_usage".to_string(), "256000000".to_string());
 
-        assert!(
-            policy
-                .is_operation_allowed("test_operation", &context)
-                .unwrap()
-        );
+        assert!(policy
+            .is_operation_allowed("test_operation", &context)
+            .unwrap());
     }
 
     #[test]
@@ -624,11 +622,9 @@ mod tests {
         context.insert("port".to_string(), "9999".to_string()); // Not in allowed ports
         context.insert("cpu_usage".to_string(), "90.0".to_string()); // Exceeds limit
 
-        assert!(
-            !policy
-                .is_operation_allowed("test_operation", &context)
-                .unwrap()
-        );
+        assert!(!policy
+            .is_operation_allowed("test_operation", &context)
+            .unwrap());
     }
 
     #[test]
@@ -852,11 +848,9 @@ mod tests {
         context.insert("cpu_usage".to_string(), "50.0".to_string());
         context.insert("memory_usage".to_string(), "256000000".to_string());
 
-        assert!(
-            policy
-                .is_operation_allowed("test_operation", &context)
-                .unwrap()
-        );
+        assert!(policy
+            .is_operation_allowed("test_operation", &context)
+            .unwrap());
     }
 
     #[test]
@@ -867,11 +861,9 @@ mod tests {
         context.insert("cpu_usage".to_string(), "50.0".to_string());
         context.insert("memory_usage".to_string(), "256000000".to_string());
 
-        assert!(
-            !policy
-                .is_operation_allowed("test_operation", &context)
-                .unwrap()
-        );
+        assert!(!policy
+            .is_operation_allowed("test_operation", &context)
+            .unwrap());
     }
 
     #[test]
@@ -882,11 +874,9 @@ mod tests {
         context.insert("cpu_usage".to_string(), "90.0".to_string()); // Exceeds limit
         context.insert("memory_usage".to_string(), "256000000".to_string());
 
-        assert!(
-            !policy
-                .is_operation_allowed("test_operation", &context)
-                .unwrap()
-        );
+        assert!(!policy
+            .is_operation_allowed("test_operation", &context)
+            .unwrap());
     }
 
     #[test]
@@ -897,11 +887,9 @@ mod tests {
         context.insert("cpu_usage".to_string(), "50.0".to_string());
         context.insert("memory_usage".to_string(), "2000000000".to_string()); // Exceeds limit
 
-        assert!(
-            !policy
-                .is_operation_allowed("test_operation", &context)
-                .unwrap()
-        );
+        assert!(!policy
+            .is_operation_allowed("test_operation", &context)
+            .unwrap());
     }
 
     #[test]
