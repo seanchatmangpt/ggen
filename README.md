@@ -48,7 +48,6 @@
 - 🤖 **AI-Enhanced Templates** - Generate templates, SPARQL queries, and RDF graphs using advanced LLMs
 - 🧠 **Intelligent Project Scaffolding** - Create entire project structures with AI assistance
 - 🔍 **Natural Language Search** - Find templates and packages using conversational queries
-- 🎪 **MCP Server** - Model Context Protocol server for AI tool integration
 
 ### 📈 **Recent Improvements (v1.0)**
 - ⚡ **60x Faster Builds** - Incremental builds now 2-3 seconds (was 60-90 seconds)
@@ -77,7 +76,6 @@
 - 🧠 **Intelligent Project Scaffolding** - Create entire multi-language projects with AI assistance
 - 🔍 **Natural Language Search** - Find templates and packages using conversational queries
 - 📋 **Smart Frontmatter** - Generate and convert YAML/JSON metadata using AI
-- 🎪 **MCP Server** - Model Context Protocol server for AI tool integration
 
 ### **Core Capabilities**
 - 🌐 **Language-Agnostic** - Generate code in any language from the same ontology
@@ -129,9 +127,6 @@ ggen ai search -d "I need a user authentication system"
 
 # 📦 Smart frontmatter generation
 ggen ai frontmatter -d "API controller" --json --yaml
-
-# 🎪 Start MCP server for AI tools
-ggen ai server --openai-key $OPENAI_API_KEY
 
 # 📦 Search marketplace for templates
 ggen search "rust cli"
@@ -194,7 +189,6 @@ ggen/
 │   ├── client.rs     # Unified LLM client (rust-genai)
 │   ├── generators/   # AI template, SPARQL, graph generators
 │   ├── config/       # AI provider configuration (OpenAI, Anthropic, Ollama)
-│   ├── mcp/         # Model Context Protocol server
 │   └── security/     # Post-quantum cryptography
 ├── cleanroom/     # Production testing framework
 │   ├── cleanroom.rs  # Hermetic test environments
@@ -225,16 +219,12 @@ ggen ai graph -d "E-commerce product ontology" -o products.ttl --provider ollama
 
 # Generate complete project structures
 ggen ai project -d "Web service with authentication" -n my-api --rust
-
-# Start MCP server for AI tool integration
-ggen ai server --provider openai --model gpt-4o
 ```
 
 **Supported AI Providers:**
 - **OpenAI** - GPT-4o, GPT-4o-mini (via rust-genai)
 - **Anthropic** - Claude 3.5 Sonnet, Claude 3.5 Haiku (via rust-genai)
 - **Ollama** - Qwen3-coder:30b, Llama 3, and more (local models)
-- **MCP Server** - Model Context Protocol for AI assistant integration
 
 ### Deterministic Generation
 Generate byte-identical output with fixed seeds:
