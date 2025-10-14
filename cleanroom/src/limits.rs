@@ -609,11 +609,9 @@ mod tests {
     fn test_execution_time_check() {
         let limits = ResourceLimits::new();
         assert!(limits.check_execution_time(Duration::from_secs(60)).is_ok());
-        assert!(
-            limits
-                .check_execution_time(Duration::from_secs(600))
-                .is_err()
-        );
+        assert!(limits
+            .check_execution_time(Duration::from_secs(600))
+            .is_err());
     }
 
     #[test]

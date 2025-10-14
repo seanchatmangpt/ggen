@@ -13,7 +13,7 @@ use cleanroom::{
     determinism::DeterministicManager,
     error::Result,
     policy::Policy,
-    scenario::{RunResult, scenario},
+    scenario::{scenario, RunResult},
 };
 use std::time::Instant;
 

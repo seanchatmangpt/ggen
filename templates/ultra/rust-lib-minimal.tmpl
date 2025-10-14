@@ -1,0 +1,157 @@
+---
+to: "{{project_name}}/src/lib.rs"
+vars:
+  project_name: "example-lib"
+  determinism: 42
+---
+//! Ultra-fast minimal library template
+//! Generation time target: <5s
+
+use std::fmt;
+
+/// Main library error type
+#[derive(Debug)]
+pub enum Error {
+    /// Invalid input error
+    InvalidInput(String),
+    /// Processing error
+    ProcessingError(String),
+}
+
+impl fmt::Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Error::InvalidInput(msg) => write!(f, "Invalid input: {}", msg),
+            Error::ProcessingError(msg) => write!(f, "Processing error: {}", msg),
+        }
+    }
+}
+
+impl std::error::Error for Error {}
+
+pub type Result<T> = std::result::Result<T, Error>;
+
+/// Process input data
+pub fn process(input: &str) -> Result<String> {
+    if input.is_empty() {
+        return Err(Error::InvalidInput("Input cannot be empty".to_string()));
+    }
+
+    Ok(format!("Processed: {}", input))
+}
+
+/// Transform data with a simple operation
+pub fn transform(data: &[u8]) -> Result<Vec<u8>> {
+    if data.is_empty() {
+        return Err(Error::InvalidInput("Data cannot be empty".to_string()));
+    }
+
+    // Simple transformation: add 1 to each byte
+    Ok(data.iter().map(|&b| b.wrapping_add(1)).collect())
+}
+
+/// Validate input string
+pub fn validate(input: &str) -> Result<()> {
+    if input.len() < 3 {
+        return Err(Error::InvalidInput("Input too short".to_string()));
+    }
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_process_valid_input() {
+        let result = process("test");
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), "Processed: test");
+    }
+
+    #[test]
+    fn test_process_empty_input() {
+        let result = process("");
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_transform_valid_data() {
+        let data = vec![1, 2, 3];
+        let result = transform(&data);
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), vec![2, 3, 4]);
+    }
+
+    #[test]
+    fn test_transform_empty_data() {
+        let result = transform(&[]);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_validate_valid_input() {
+        let result = validate("test");
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_validate_short_input() {
+        let result = validate("ab");
+        assert!(result.is_err());
+    }
+}
+---
+to: "{{project_name}}/Cargo.toml"
+---
+[package]
+name = "{{project_name}}"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+
+[dev-dependencies]
+
+[lib]
+name = "{{project_name}}"
+path = "src/lib.rs"
+---
+to: "{{project_name}}/README.md"
+---
+# {{project_name}}
+
+Ultra-fast minimal library generated from template.
+
+## Usage
+
+Add to your `Cargo.toml`:
+
+```toml
+[dependencies]
+{{project_name}} = "0.1.0"
+```
+
+Example:
+
+```rust
+use {{project_name}}::{process, transform, validate};
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let result = process("hello")?;
+    println!("{}", result);
+    Ok(())
+}
+```
+
+## Testing
+
+```bash
+cargo test
+```
+
+## Building
+
+```bash
+cargo build --release
+```

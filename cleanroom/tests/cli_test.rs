@@ -45,14 +45,14 @@ fn create_cleanroom() -> Result<Cleanroom> {
 
 /// Helper to execute CLI and check results
 fn execute_cli(
-    cleanroom: &Cleanroom,
-    cli_path: &PathBuf,
-    args: &[&str],
+    cleanroom: &Cleanroom, cli_path: &PathBuf, args: &[&str],
 ) -> Result<ExecutionResult> {
     let mut command = vec![cli_path.to_str().context("Invalid CLI path")?];
     command.extend(args);
 
-    cleanroom.execute_command(&command).context("Failed to execute CLI")
+    cleanroom
+        .execute_command(&command)
+        .context("Failed to execute CLI")
 }
 
 #[test]
@@ -69,7 +69,10 @@ fn test_cli_echo_command() -> Result<()> {
         "hello world",
         "Echo should output the message"
     );
-    assert!(result.stderr.is_empty(), "Echo should have no stderr output");
+    assert!(
+        result.stderr.is_empty(),
+        "Echo should have no stderr output"
+    );
 
     Ok(())
 }
@@ -205,9 +208,15 @@ fn test_cli_help_command() -> Result<()> {
 
     assert_eq!(result.exit_code, 0, "Help command should succeed");
     assert!(result.stdout.contains("Commands:"), "Should list commands");
-    assert!(result.stdout.contains("echo"), "Should mention echo command");
+    assert!(
+        result.stdout.contains("echo"),
+        "Should mention echo command"
+    );
     assert!(result.stdout.contains("add"), "Should mention add command");
-    assert!(result.stdout.contains("version"), "Should mention version command");
+    assert!(
+        result.stdout.contains("version"),
+        "Should mention version command"
+    );
     assert!(result.stderr.is_empty());
 
     Ok(())
@@ -292,7 +301,8 @@ fn test_cli_parallel_execution() -> Result<()> {
             let cli_path_clone = cli_path.clone();
             std::thread::spawn(move || -> Result<()> {
                 let cleanroom = create_cleanroom()?;
-                let result = execute_cli(&cleanroom, &cli_path_clone, &["add", &i.to_string(), "1"])?;
+                let result =
+                    execute_cli(&cleanroom, &cli_path_clone, &["add", &i.to_string(), "1"])?;
                 assert_eq!(result.exit_code, 0);
                 Ok(())
             })
@@ -301,7 +311,9 @@ fn test_cli_parallel_execution() -> Result<()> {
 
     // Wait for all threads and check results
     for handle in handles {
-        handle.join().map_err(|_| anyhow::anyhow!("Thread panicked"))??;
+        handle
+            .join()
+            .map_err(|_| anyhow::anyhow!("Thread panicked"))??;
     }
 
     Ok(())
@@ -364,7 +376,10 @@ fn test_cli_cleanup() -> Result<()> {
 
     // Ensure resources are freed
     let metrics = cleanroom.get_metrics().context("Failed to get metrics")?;
-    assert_eq!(metrics.active_processes, 0, "All processes should be cleaned up");
+    assert_eq!(
+        metrics.active_processes, 0,
+        "All processes should be cleaned up"
+    );
 
     Ok(())
 }

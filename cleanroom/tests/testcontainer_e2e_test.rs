@@ -4,9 +4,8 @@
 //! with testcontainers, ensuring all components integrate correctly.
 
 use cleanroom::{
-    run, CleanroomEnvironment, CleanroomConfig, CleanroomGuard,
-    PostgresContainer, RedisContainer, GenericContainer, ContainerWrapper,
-    Policy,
+    run, CleanroomConfig, CleanroomEnvironment, CleanroomGuard, ContainerWrapper, GenericContainer,
+    Policy, PostgresContainer, RedisContainer,
 };
 use std::sync::Arc;
 use std::time::Duration;
@@ -17,7 +16,7 @@ use tokio::time::timeout;
 async fn test_basic_command_execution() {
     let result = run(["echo", "hello world"]);
     assert!(result.is_ok());
-    
+
     let result = result.unwrap();
     assert_eq!(result.exit_code, 0);
     assert!(result.stdout.contains("hello world"));
@@ -34,7 +33,7 @@ async fn test_docker_integration_basic() {
 
     let result = run(["docker", "--version"]);
     assert!(result.is_ok());
-    
+
     let result = result.unwrap();
     assert_eq!(result.exit_code, 0);
     assert!(result.stdout.contains("Docker version"));
@@ -46,7 +45,7 @@ async fn test_cleanroom_environment_creation() {
     let config = CleanroomConfig::default();
     let environment = CleanroomEnvironment::new(config).await;
     assert!(environment.is_ok());
-    
+
     let environment = environment.unwrap();
     let container_count = environment.get_container_count().await;
     assert_eq!(container_count, 0);
@@ -71,21 +70,30 @@ async fn test_container_creation_and_management() {
     assert!(postgres_result.is_ok());
     let postgres_container = postgres_result.unwrap();
     assert_eq!(postgres_container.name(), "postgres");
-    environment_arc.register_container("postgres".to_string(), "postgres_1".to_string()).await.unwrap();
+    environment_arc
+        .register_container("postgres".to_string(), "postgres_1".to_string())
+        .await
+        .unwrap();
 
     // Test Redis container creation
     let redis_result = RedisContainer::new_async(Some("testpass".to_string())).await;
     assert!(redis_result.is_ok());
     let redis_container = redis_result.unwrap();
     assert_eq!(redis_container.name(), "redis");
-    environment_arc.register_container("redis".to_string(), "redis_1".to_string()).await.unwrap();
+    environment_arc
+        .register_container("redis".to_string(), "redis_1".to_string())
+        .await
+        .unwrap();
 
     // Test Generic container creation
     let generic_result = GenericContainer::new_async("test_container", "alpine", "latest").await;
     assert!(generic_result.is_ok());
     let generic_container = generic_result.unwrap();
     assert_eq!(generic_container.name(), "test_container");
-    environment_arc.register_container("generic".to_string(), "generic_1".to_string()).await.unwrap();
+    environment_arc
+        .register_container("generic".to_string(), "generic_1".to_string())
+        .await
+        .unwrap();
 
     // Verify container count increased
     let container_count = environment_arc.get_container_count().await;
@@ -105,14 +113,19 @@ async fn test_container_singleton_pattern() {
         enable_singleton_containers: true,
         ..Default::default()
     };
-    
+
     let environment = CleanroomEnvironment::new(config).await.unwrap();
     let environment_arc = Arc::new(environment);
     let _guard = CleanroomGuard::new(environment_arc.clone());
 
     // Create first container
-    let container1 = PostgresContainer::new_async("testdb", "testuser", "testpass").await.unwrap();
-    environment_arc.register_container("postgres".to_string(), "postgres_1".to_string()).await.unwrap();
+    let container1 = PostgresContainer::new_async("testdb", "testuser", "testpass")
+        .await
+        .unwrap();
+    environment_arc
+        .register_container("postgres".to_string(), "postgres_1".to_string())
+        .await
+        .unwrap();
 
     // Verify singleton pattern: container already registered
     assert!(environment_arc.is_container_registered("postgres").await);
@@ -136,7 +149,9 @@ async fn test_container_metrics_and_status() {
     let environment_arc = Arc::new(environment);
     let _guard = CleanroomGuard::new(environment_arc.clone());
 
-    let container = PostgresContainer::new_async("testdb", "testuser", "testpass").await.unwrap();
+    let container = PostgresContainer::new_async("testdb", "testuser", "testpass")
+        .await
+        .unwrap();
 
     // Test container status
     let status = container.status();
@@ -159,7 +174,7 @@ async fn test_policy_enforcement() {
     // Test with default policy
     let result = run_with_policy(["echo", "test"], Policy::default());
     assert!(result.is_ok());
-    
+
     let result = result.unwrap();
     assert_eq!(result.exit_code, 0);
 }
@@ -170,7 +185,7 @@ async fn test_error_handling() {
     // Test command that should fail
     let result = run(["false"]);
     assert!(result.is_ok());
-    
+
     let result = result.unwrap();
     assert_ne!(result.exit_code, 0);
 }
@@ -179,11 +194,8 @@ async fn test_error_handling() {
 #[tokio::test]
 async fn test_timeout_handling() {
     // Test command that takes too long
-    let result = timeout(
-        Duration::from_secs(1),
-        async { run(["sleep", "10"]) }
-    ).await;
-    
+    let result = timeout(Duration::from_secs(1), async { run(["sleep", "10"]) }).await;
+
     assert!(result.is_err()); // Should timeout
 }
 
@@ -214,9 +226,18 @@ async fn test_concurrent_container_operations() {
     assert!(result3.is_ok());
 
     // Register containers
-    environment_arc.register_container("postgres1".to_string(), "postgres_1".to_string()).await.unwrap();
-    environment_arc.register_container("postgres2".to_string(), "postgres_2".to_string()).await.unwrap();
-    environment_arc.register_container("redis1".to_string(), "redis_1".to_string()).await.unwrap();
+    environment_arc
+        .register_container("postgres1".to_string(), "postgres_1".to_string())
+        .await
+        .unwrap();
+    environment_arc
+        .register_container("postgres2".to_string(), "postgres_2".to_string())
+        .await
+        .unwrap();
+    environment_arc
+        .register_container("redis1".to_string(), "redis_1".to_string())
+        .await
+        .unwrap();
 
     // Verify container count
     let container_count = environment_arc.get_container_count().await;
@@ -235,10 +256,15 @@ async fn test_resource_cleanup() {
     let config = CleanroomConfig::default();
     let environment = CleanroomEnvironment::new(config).await.unwrap();
     let environment_arc = Arc::new(environment);
-    
+
     // Create container
-    let _container = PostgresContainer::new_async("testdb", "testuser", "testpass").await.unwrap();
-    environment_arc.register_container("postgres".to_string(), "postgres_1".to_string()).await.unwrap();
+    let _container = PostgresContainer::new_async("testdb", "testuser", "testpass")
+        .await
+        .unwrap();
+    environment_arc
+        .register_container("postgres".to_string(), "postgres_1".to_string())
+        .await
+        .unwrap();
 
     // Verify container exists
     let container_count_before = environment_arc.get_container_count().await;

@@ -7,7 +7,7 @@
 //!
 //! Run these tests WITHOUT Docker running to verify proper error handling.
 
-use cleanroom::containers::{PostgresContainer, RedisContainer, GenericContainer};
+use cleanroom::containers::{GenericContainer, PostgresContainer, RedisContainer};
 use cleanroom::error::Result;
 
 /// Test that postgres methods fail properly without Docker
@@ -166,7 +166,9 @@ async fn negative_test_generic_container_false_positives() {
             println!("   Now testing for false positives in method implementations...");
 
             // Step 2: Test command execution (should fail without real container)
-            let cmd_result = container.execute_command(vec!["echo".into(), "test".into()]).await;
+            let cmd_result = container
+                .execute_command(vec!["echo".into(), "test".into()])
+                .await;
             match cmd_result {
                 Ok(result) => {
                     if result.contains("Mock") {
@@ -200,7 +202,7 @@ async fn negative_test_container_status_accuracy() {
     // This test verifies that status() doesn't always return Running
     // Run this WITHOUT Docker and status should return Error or Stopped
 
-    use cleanroom::cleanroom::{ContainerWrapper, ContainerStatus};
+    use cleanroom::cleanroom::{ContainerStatus, ContainerWrapper};
 
     let postgres_result = PostgresContainer::new("testdb", "testuser", "testpass");
 

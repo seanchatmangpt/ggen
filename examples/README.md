@@ -12,6 +12,8 @@ This directory contains working examples demonstrating ggen's capabilities.
 2. **[ai-template-creation/](ai-template-creation/)** - AI-powered template creation (30-45 min)
 3. **[complete-project-generation/](complete-project-generation/)** - Generate full projects (45-60 min)
 
+**Want ultra-fast deployment?** Check out the **[cleanroom/examples/](../cleanroom/examples/)** directory for <60 second concept-to-deploy workflows.
+
 ## 📚 Available Examples
 
 ### 🎓 Comprehensive Tutorial Examples (NEW!)
@@ -149,6 +151,41 @@ cargo run                          # Run AI agent
 - Beautiful CLI with colored streaming output
 - Template-driven customization
 - Production-ready architecture
+
+---
+
+#### 7. **Ultra-Fast Deployment** (NEW!) ⚡
+Deploy production services in <60 seconds using ggen + cleanroom synergy.
+
+**What You'll Learn**:
+- <60s concept-to-deployment workflow
+- ggen marketplace → cleanroom testing → lifecycle deployment
+- Hermetic test environments with testcontainers
+- Production-grade error handling patterns
+- Deployment validation and verification
+
+**Quick Start**:
+```bash
+cd ../cleanroom/examples
+./full_demo.sh                    # Complete ultra-fast demo
+./quick_demo.sh                   # Quick 30s demo
+cat quick_reference.sh            # Command reference
+```
+
+**Time**: 5-10 minutes for demo, 30-60 minutes for deep dive
+**Prerequisites**: ggen, cleanroom (built from ../cleanroom)
+
+**Features**:
+- ⚡ <60s total deployment time
+- 🧪 100% tested with cleanroom
+- 🔒 Production-safe (zero `.expect()` calls)
+- 🎯 Deterministic and reproducible
+- 📦 Includes templates, tests, Docker, CI/CD
+
+**Documentation**:
+- [User Guide](../docs/ULTRA_FAST_DEPLOY.md) - Getting started, examples, workflows
+- [Technical Reference](../docs/ULTRA_FAST_REFERENCE.md) - Architecture, API, performance
+- [Cleanroom Examples](../cleanroom/examples/README.md) - Hermetic testing
 
 ---
 
@@ -322,6 +359,7 @@ When adding new examples:
 | **complete-project-generation** | ⭐⭐⭐ Advanced | 45-60m | ggen + Rust | Full project generation |
 | **mcp-integration** | ⭐⭐⭐ Advanced | 45-60m | ggen-mcp + AI | MCP protocol integration |
 | **mcp-rig-integration** | ⭐⭐⭐⭐ Expert | 60-90m | Rust + MCP + Rig | AI agents with dynamic tools |
+| **ultra-fast-deployment** ⚡ | ⭐⭐⭐ Advanced | 5-60m | ggen + cleanroom | <60s production deployment |
 
 ## 🎯 Learning Paths
 
@@ -340,6 +378,17 @@ When adding new examples:
 2. mcp-integration (MCP protocol)
 3. complete-project-generation (real workflows)
 
+### Path 4: DevOps Engineer ⚡ (NEW!)
+1. basic-template-generation (fundamentals)
+2. complete-project-generation (full projects)
+3. **ultra-fast-deployment** (<60s production deploys)
+
+**Path 4 is ideal for:**
+- Teams needing rapid deployment cycles
+- Developers wanting production-ready templates
+- Organizations requiring hermetic testing
+- Projects needing <60s concept-to-deploy workflows
+
 ## 📖 Documentation
 
 Each comprehensive example includes:
@@ -351,10 +400,15 @@ Each comprehensive example includes:
 
 ## Maintenance
 
-Last audit: 2025-10-11
-- Total examples: 6 standalone + 3 workspace + 6 comprehensive tutorials = 15 total
+Last audit: 2025-01-13
+- Total examples: 6 standalone + 3 workspace + 7 comprehensive tutorials = 16 total
 - Compilation status: 100% passing
-- New comprehensive examples: 6 (58 files, ~12,000 lines)
-- Latest addition: MCP + Rig integration example (expert level)
+- New comprehensive examples: 7 (60+ files, ~15,000 lines)
+- Latest additions:
+  - MCP + Rig integration example (expert level)
+  - Ultra-fast deployment workflow (<60s concept-to-deploy)
 - All scripts executable and tested
 - Dependencies: All up-to-date
+- New documentation:
+  - [ULTRA_FAST_DEPLOY.md](../docs/ULTRA_FAST_DEPLOY.md) - User guide
+  - [ULTRA_FAST_REFERENCE.md](../docs/ULTRA_FAST_REFERENCE.md) - Technical reference

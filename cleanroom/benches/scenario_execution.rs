@@ -7,7 +7,7 @@ use cleanroom::backend::{Backend, Cmd};
 use cleanroom::error::Result;
 use cleanroom::policy::Policy;
 use cleanroom::scenario::{RunResult, Scenario, Step, StepResult, StepSource};
-use criterion::{BenchmarkId, Criterion, black_box, criterion_group, criterion_main};
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
 use std::collections::HashMap;
 use std::time::Duration;
 

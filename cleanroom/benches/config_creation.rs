@@ -7,7 +7,7 @@ use cleanroom::builder::CleanroomBuilder;
 use cleanroom::config::CleanroomConfig;
 use cleanroom::limits::ResourceLimits;
 use cleanroom::policy::SecurityPolicy;
-use criterion::{BenchmarkId, Criterion, black_box, criterion_group, criterion_main};
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
 use std::time::Duration;
 
 fn bench_config_creation_default(c: &mut Criterion) {

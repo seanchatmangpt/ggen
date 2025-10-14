@@ -180,6 +180,16 @@ impl CleanroomError {
     pub fn internal_error(message: impl Into<String>) -> Self {
         Self::new(ErrorKind::InternalError, message)
     }
+
+    /// Create a configuration error (alias for configuration_error)
+    pub fn config_error(message: impl Into<String>) -> Self {
+        Self::configuration_error(message)
+    }
+
+    /// Create an execution error (alias for internal_error)
+    pub fn execution_error(message: impl Into<String>) -> Self {
+        Self::internal_error(message)
+    }
 }
 
 impl fmt::Display for CleanroomError {

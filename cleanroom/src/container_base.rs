@@ -94,15 +94,15 @@ impl ContainerBase {
     /// Wait for container to be ready
     pub async fn wait_for_ready(&self, timeout: std::time::Duration) -> Result<()> {
         let start = Instant::now();
-        
+
         while start.elapsed() < timeout {
             if self.is_ready().await {
                 return Ok(());
             }
-            
+
             tokio::time::sleep(std::time::Duration::from_millis(100)).await;
         }
-        
+
         Err(crate::error_helpers::timeout_error(
             "Container failed to become ready",
             Some("Timeout waiting for container readiness"),
@@ -113,7 +113,8 @@ impl ContainerBase {
     pub async fn update_uptime(&self) -> Result<()> {
         self.update_metrics(|metrics| {
             metrics.uptime_seconds = self.uptime_seconds();
-        }).await
+        })
+        .await
     }
 }
 
@@ -223,10 +224,10 @@ mod tests {
     #[tokio::test]
     async fn test_container_base() {
         let base = ContainerBase::new();
-        
+
         assert_eq!(base.get_status().await, ContainerStatus::Starting);
         assert_eq!(base.uptime_seconds(), 0);
-        
+
         base.set_status(ContainerStatus::Running).await.unwrap();
         assert_eq!(base.get_status().await, ContainerStatus::Running);
         assert!(base.is_running().await);
@@ -235,12 +236,14 @@ mod tests {
     #[tokio::test]
     async fn test_metrics_update() {
         let base = ContainerBase::new();
-        
+
         base.update_metrics(|metrics| {
             metrics.cpu_usage_percent = 5.0;
             metrics.memory_usage_bytes = 128 * 1024 * 1024;
-        }).await.unwrap();
-        
+        })
+        .await
+        .unwrap();
+
         let metrics = base.get_metrics().await;
         assert_eq!(metrics.cpu_usage_percent, 5.0);
         assert_eq!(metrics.memory_usage_bytes, 128 * 1024 * 1024);
@@ -249,10 +252,10 @@ mod tests {
     #[tokio::test]
     async fn test_uptime_update() {
         let base = ContainerBase::new();
-        
+
         // Wait a bit to ensure uptime > 0
         tokio::time::sleep(Duration::from_millis(10)).await;
-        
+
         base.update_uptime().await.unwrap();
         let metrics = base.get_metrics().await;
         assert!(metrics.uptime_seconds > 0);

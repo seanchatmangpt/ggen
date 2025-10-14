@@ -7,7 +7,7 @@ use crate::backend::{Backend, Cmd, RunResult};
 use crate::error::{BackendError, Result};
 use crate::policy::Policy;
 use std::time::{Duration, Instant};
-use testcontainers::{GenericImage, ImageExt, core::ExecCommand, runners::SyncRunner};
+use testcontainers::{core::ExecCommand, runners::SyncRunner, GenericImage, ImageExt};
 
 /// Testcontainers backend for containerized execution
 #[derive(Debug)]

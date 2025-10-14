@@ -30,6 +30,9 @@ pub mod state;
 pub mod production;
 pub mod validation;
 
+// Performance optimization for <60s deployment target
+pub mod optimization;
+
 // Future enhancements (available but not in public API):
 #[allow(dead_code)]
 mod dag; // DAG resolution - use direct hooks for now
@@ -56,3 +59,9 @@ pub use production::{
     ReadinessCategory, ReadinessReport, ReadinessRequirement, ReadinessStatus, ReadinessTracker,
 };
 pub use validation::{ReadinessValidator, ValidationIssue, ValidationResult, ValidationSeverity};
+
+// Performance optimization exports
+pub use optimization::{
+    run_fast_validation, run_optimized_pipeline, ContainerPool, DependencyCache,
+    ParallelOrchestrator, PerformanceTargets, PipelineProfiler, StageMetrics,
+};

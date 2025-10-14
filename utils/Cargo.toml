@@ -52,6 +52,8 @@ serde_json = "1.0"
 toml = "0.9"
 tera = "1.20"
 oxigraph = "0.5"
+colored = "3.0"
+dirs = "6.0"
 
 [dev-dependencies]
 tempfile = "3"

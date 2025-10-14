@@ -6,15 +6,15 @@
 use cleanroom::builder::CleanroomBuilder;
 use cleanroom::error::Result;
 use cleanroom::guards::container::{
-    ContainerHealthGuard, ContainerLifecycleGuard, ContainerResourceGuard, container_health_guard,
-    container_lifecycle_guard, container_resource_guard,
+    container_health_guard, container_lifecycle_guard, container_resource_guard,
+    ContainerHealthGuard, ContainerLifecycleGuard, ContainerResourceGuard,
 };
 use cleanroom::guards::{
-    ContainerGuard, ResourceGuard, ScopeGuard, SessionGuard, TestGuard, container_guard,
-    resource_guard, scope, session_guard, test_guard,
+    container_guard, resource_guard, scope, session_guard, test_guard, ContainerGuard,
+    ResourceGuard, ScopeGuard, SessionGuard, TestGuard,
 };
-use std::sync::Arc;
 use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::Arc;
 use std::time::Duration;
 
 #[tokio::main]

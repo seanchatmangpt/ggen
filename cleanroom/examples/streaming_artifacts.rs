@@ -5,16 +5,16 @@
 
 use cleanroom::builder::CleanroomBuilder;
 use cleanroom::streaming::buffer::{
-    BufferPool, CircularBuffer, MemoryMappedBuffer, RingBuffer, buffer_pool, circular_buffer,
-    memory_mapped_buffer, ring_buffer,
+    buffer_pool, circular_buffer, memory_mapped_buffer, ring_buffer, BufferPool, CircularBuffer,
+    MemoryMappedBuffer, RingBuffer,
 };
 use cleanroom::streaming::collector::{
-    AggregatingCollector, BatchingCollector, FilteringCollector, TransformingCollector,
     aggregating_collector, batching_collector, filtering_collector, transforming_collector,
+    AggregatingCollector, BatchingCollector, FilteringCollector, TransformingCollector,
 };
 use cleanroom::streaming::{
-    ArtifactData, ArtifactMetadata, ArtifactStream, ArtifactType, StreamingCollector,
-    artifact_stream, streaming_collector,
+    artifact_stream, streaming_collector, ArtifactData, ArtifactMetadata, ArtifactStream,
+    ArtifactType, StreamingCollector,
 };
 use std::borrow::Cow;
 use std::time::Instant;

@@ -5,9 +5,9 @@
 
 use cleanroom::cleanroom::CleanroomEnvironment;
 use cleanroom::config::CleanroomConfig;
-use cleanroom::guards::{ContainerGuard, container_guard};
-use cleanroom::ids::{ContainerId, container_id};
-use criterion::{BenchmarkId, Criterion, black_box, criterion_group, criterion_main};
+use cleanroom::guards::{container_guard, ContainerGuard};
+use cleanroom::ids::{container_id, ContainerId};
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
 use std::sync::Arc;
 use std::time::Duration;
 
