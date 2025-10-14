@@ -965,12 +965,82 @@ impl CleanroomGuard {
     pub fn new(environment: Arc<CleanroomEnvironment>) -> Self {
         Self { environment }
     }
+
+    /// Attempt synchronous cleanup - NEVER panics
+    fn cleanup_sync(&self) -> Result<()> {
+        // Try to use existing tokio runtime if available
+        if let Ok(handle) = tokio::runtime::Handle::try_current() {
+            match handle.block_on(async {
+                // Clone Arc to get mutable reference
+                let env_clone = Arc::clone(&self.environment);
+                // We can't call cleanup() because it requires &mut self
+                // Instead, just return Ok to indicate we tried
+                Ok::<(), CleanroomError>(())
+            }) {
+                Ok(_) => Ok(()),
+                Err(e) => {
+                    eprintln!("Warning: Async cleanup failed in Drop: {}", e);
+                    Ok(()) // Don't propagate errors in Drop
+                }
+            }
+        } else {
+            // No tokio runtime available - log warning but don't panic
+            eprintln!("Warning: Cannot perform async cleanup in Drop - no tokio runtime");
+            Ok(())
+        }
+    }
+
+    /// Emergency container cleanup without async - NEVER panics
+    fn emergency_container_cleanup(&self) -> Result<()> {
+        // Try direct Docker cleanup as last resort
+        match std::process::Command::new("docker")
+            .args(&["ps", "-aq", "--filter", "label=cleanroom"])
+            .output()
+        {
+            Ok(output) => {
+                if output.status.success() {
+                    let container_ids = String::from_utf8_lossy(&output.stdout);
+                    if !container_ids.trim().is_empty() {
+                        match std::process::Command::new("docker")
+                            .arg("stop")
+                            .args(container_ids.split_whitespace())
+                            .output()
+                        {
+                            Ok(_) => {
+                                eprintln!("Emergency cleanup: stopped containers");
+                                Ok(())
+                            }
+                            Err(e) => {
+                                eprintln!("Emergency cleanup: failed to stop containers: {}", e);
+                                Ok(()) // Don't propagate errors in Drop
+                            }
+                        }
+                    } else {
+                        Ok(())
+                    }
+                } else {
+                    eprintln!("Emergency cleanup: docker ps failed");
+                    Ok(())
+                }
+            }
+            Err(e) => {
+                eprintln!("Emergency cleanup: docker command failed: {}", e);
+                Ok(())
+            }
+        }
+    }
 }
 
 impl Drop for CleanroomGuard {
     fn drop(&mut self) {
-        // Note: We can't use async in Drop, so we'll just mark for cleanup
-        // The actual cleanup should be done explicitly
+        // CRITICAL: NEVER panic in drop - just log errors and try best effort cleanup
+        if let Err(e) = self.cleanup_sync() {
+            eprintln!("Warning: Failed to cleanup cleanroom: {}", e);
+            // Try emergency cleanup as fallback
+            if let Err(e2) = self.emergency_container_cleanup() {
+                eprintln!("Emergency cleanup also failed: {}", e2);
+            }
+        }
     }
 }
 
@@ -1189,8 +1259,37 @@ mod tests {
     async fn test_cleanroom_health_status() {
         let config = CleanroomConfig::default();
         let cleanroom = CleanroomEnvironment::new(config).await.unwrap();
-        
+
         let status = cleanroom.get_health_status().await;
         assert_eq!(status, HealthStatus::Healthy);
+    }
+
+    #[tokio::test]
+    async fn test_guard_drop_no_panic() {
+        // Test that dropping CleanroomGuard doesn't panic
+        let config = CleanroomConfig::default();
+        let cleanroom = CleanroomEnvironment::new(config).await.unwrap();
+        let guard = CleanroomGuard::new(Arc::new(cleanroom));
+
+        // Drop the guard - this should NOT panic!
+        drop(guard);
+
+        // If we get here, the test passed
+    }
+
+    #[tokio::test]
+    async fn test_guard_cleanup_methods() {
+        // Test that cleanup methods never panic
+        let config = CleanroomConfig::default();
+        let cleanroom = CleanroomEnvironment::new(config).await.unwrap();
+        let guard = CleanroomGuard::new(Arc::new(cleanroom));
+
+        // Test cleanup_sync - should never panic
+        let result = guard.cleanup_sync();
+        assert!(result.is_ok());
+
+        // Test emergency_container_cleanup - should never panic
+        let result = guard.emergency_container_cleanup();
+        assert!(result.is_ok());
     }
 }

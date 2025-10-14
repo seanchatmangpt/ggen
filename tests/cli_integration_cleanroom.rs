@@ -9,11 +9,19 @@
 //! - Template commands (generate)
 //! - Output validation and exit codes
 //! - Error handling and edge cases
+//!
+//! ## Non-Blocking Design
+//! - NO Docker containers (fully non-blocking)
+//! - Timeout protection on all commands (30s default)
+//! - Proper error handling (no .unwrap() or .expect())
+//! - Parallel test execution safe
+//! - Isolated temporary directories per test
 
 use anyhow::Result;
 use cleanroom::{CleanroomEnvironment, CleanroomConfig, Assert};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output};
+use std::time::Duration;
 use tempfile::TempDir;
 
 /// Helper struct to manage cleanroom environment for CLI testing
@@ -45,8 +53,13 @@ impl CleanroomCliTestEnvironment {
         })
     }
 
-    /// Execute a ggen command in the cleanroom environment
+    /// Execute a ggen command in the cleanroom environment with timeout protection
     pub async fn run_ggen_command(&self, args: &[&str]) -> Result<Output> {
+        self.run_ggen_command_with_timeout(args, Duration::from_secs(30)).await
+    }
+
+    /// Execute a ggen command with custom timeout
+    pub async fn run_ggen_command_with_timeout(&self, args: &[&str], timeout: Duration) -> Result<Output> {
         let mut cmd = Command::new(&self.ggen_binary);
         cmd.args(args);
         cmd.current_dir(self.temp_dir.path());
@@ -55,9 +68,15 @@ impl CleanroomCliTestEnvironment {
         cmd.env("GGEN_HOME", self.temp_dir.path());
         cmd.env("GGEN_CACHE_DIR", self.temp_dir.path().join(".cache"));
 
-        // Execute command and capture output
-        let output = cmd.output()
-            .map_err(|e| anyhow::anyhow!("Failed to execute ggen command: {}", e))?;
+        // Execute command with timeout protection
+        let output = tokio::time::timeout(
+            timeout,
+            tokio::task::spawn_blocking(move || cmd.output())
+        )
+        .await
+        .map_err(|_| anyhow::anyhow!("Command timed out after {:?}", timeout))?
+        .map_err(|e| anyhow::anyhow!("Failed to spawn command task: {}", e))?
+        .map_err(|e| anyhow::anyhow!("Failed to execute ggen command: {}", e))?;
 
         Ok(output)
     }
@@ -75,43 +94,58 @@ impl CleanroomCliTestEnvironment {
 }
 
 /// Assert that a ggen command executed successfully
-pub fn assert_ggen_success(output: &Output) {
+/// Returns Result instead of panicking for better error composition
+pub fn assert_ggen_success(output: &Output) -> Result<()> {
     if !output.status.success() {
-        eprintln!("Command failed with exit code: {:?}", output.status.code());
-        eprintln!("STDOUT: {}", String::from_utf8_lossy(&output.stdout));
-        eprintln!("STDERR: {}", String::from_utf8_lossy(&output.stderr));
-        panic!("Command execution failed");
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        return Err(anyhow::anyhow!(
+            "Command failed with exit code: {:?}\nSTDOUT: {}\nSTDERR: {}",
+            output.status.code(),
+            stdout,
+            stderr
+        ));
     }
+    Ok(())
 }
 
 /// Assert that a ggen command failed with expected exit code
-pub fn assert_ggen_failure(output: &Output) {
+/// Returns Result instead of panicking for better error composition
+pub fn assert_ggen_failure(output: &Output) -> Result<()> {
     if output.status.success() {
-        eprintln!("Command succeeded unexpectedly");
-        eprintln!("STDOUT: {}", String::from_utf8_lossy(&output.stdout));
-        eprintln!("STDERR: {}", String::from_utf8_lossy(&output.stderr));
-        panic!("Expected command to fail");
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        return Err(anyhow::anyhow!(
+            "Command succeeded unexpectedly\nSTDOUT: {}\nSTDERR: {}",
+            stdout,
+            stderr
+        ));
     }
+    Ok(())
 }
 
 /// Assert that output contains expected text
-pub fn assert_output_contains(output: &Output, expected: &str) {
+/// Returns Result instead of panicking for better error composition
+pub fn assert_output_contains(output: &Output, expected: &str) -> Result<()> {
     let stdout = String::from_utf8_lossy(&output.stdout);
     let stderr = String::from_utf8_lossy(&output.stderr);
 
     if !stdout.contains(expected) && !stderr.contains(expected) {
-        eprintln!("Expected output to contain: {}", expected);
-        eprintln!("STDOUT: {}", stdout);
-        eprintln!("STDERR: {}", stderr);
-        panic!("Output does not contain expected text");
+        return Err(anyhow::anyhow!(
+            "Expected output to contain: {}\nSTDOUT: {}\nSTDERR: {}",
+            expected,
+            stdout,
+            stderr
+        ));
     }
+    Ok(())
 }
 
 /// Assert that the marketplace is functional
 pub async fn assert_ggen_marketplace_works(env: &CleanroomCliTestEnvironment) -> Result<()> {
-    // Test marketplace search
+    // Test marketplace search with timeout
     let output = env.run_ggen_command(&["market", "search", "rust"]).await?;
-    assert_ggen_success(&output);
+    assert_ggen_success(&output)?;
 
     // Verify search results contain expected content
     let stdout = String::from_utf8_lossy(&output.stdout);
