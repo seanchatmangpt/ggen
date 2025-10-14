@@ -69,3 +69,10 @@ assert_cmd = "2.0"
 predicates = "3.1"
 mockito = "1.7"
 shell-words = "1.1"
+
+[lints.clippy]
+# Production code lints - deny unsafe patterns
+expect_used = "deny"
+unwrap_used = "deny"
+panic = "warn"
+indexing_slicing = "warn"

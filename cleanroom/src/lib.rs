@@ -618,7 +618,7 @@ mod tests {
         }
         assert!(result.is_ok());
 
-        let run_result = result.unwrap();
+        let run_result = result.expect("Result should be Ok after is_ok check");
         assert_eq!(run_result.exit_code, 0);
         assert!(run_result.stdout.contains("hello"));
     }

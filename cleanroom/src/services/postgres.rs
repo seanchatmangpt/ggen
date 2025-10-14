@@ -119,10 +119,23 @@ impl Postgres {
     }
 
     /// Insert test data
+    ///
+    /// Note: In a production implementation, this would use parameterized queries
+    /// with sqlx or similar. This is a simplified version for demonstration.
     pub fn insert_test_data(&self, name: &str) -> Result<i32> {
+        // Validate input to prevent SQL injection
+        if name.contains('\'') || name.contains(';') || name.contains("--") {
+            return Err(CleanroomError::validation_error(
+                "Invalid characters in name parameter"
+            ));
+        }
+
+        // Escape single quotes as double quotes (PostgreSQL standard)
+        let escaped_name = name.replace("'", "''");
+
         let sql = format!(
             "INSERT INTO test_table (name) VALUES ('{}') RETURNING id;",
-            name
+            escaped_name
         );
         let result = self.execute_sql(&sql)?;
 
@@ -133,7 +146,6 @@ impl Postgres {
             .map_err(|e| {
                 CleanroomError::connection_failed(format!("Failed to parse inserted ID: {}", e))
             })
-            .map_err(|e| e)
     }
 
     /// Get database size
