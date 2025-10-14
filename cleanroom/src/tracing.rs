@@ -374,8 +374,9 @@ impl TracingManager {
 
         let mut data = self.tracing_data.write().await;
         if let Some(span) = data.spans.get_mut(name) {
-            span.end_time = Some(SerializableInstant::now());
-            span.duration = Some(span.end_time.unwrap().duration_since(span.start_time));
+            let end_time = SerializableInstant::now();
+            span.end_time = Some(end_time);
+            span.duration = Some(end_time.duration_since(span.start_time));
             span.status = status;
         }
 
