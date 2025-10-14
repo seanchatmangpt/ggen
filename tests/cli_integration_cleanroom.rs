@@ -18,7 +18,7 @@
 //! - Isolated temporary directories per test
 
 use anyhow::Result;
-use cleanroom::{CleanroomEnvironment, CleanroomConfig, Assert};
+use clnrm::{CleanroomEnvironment, CleanroomConfig, Assert};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output};
 use std::time::Duration;
