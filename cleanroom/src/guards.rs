@@ -92,11 +92,23 @@ impl Drop for ContainerGuard {
         }
 
         // Attempt to unregister container (best effort)
+        // Try to use the current runtime if available
         let environment = self.environment.clone();
         let container_id = self.container_id.clone();
-        tokio::spawn(async move {
-            let _ = environment.unregister_container(&container_id).await;
-        });
+
+        if let Ok(handle) = tokio::runtime::Handle::try_current() {
+            // We're in a runtime context - spawn the cleanup task
+            // This will be waited on by the runtime's shutdown
+            handle.spawn(async move {
+                if let Err(e) = environment.unregister_container(&container_id).await {
+                    eprintln!("Warning: Failed to unregister container {} during drop: {}", container_id, e);
+                }
+            });
+        } else {
+            // No runtime available - log warning
+            eprintln!("Warning: Cannot unregister container {} - no async runtime available during drop", container_id);
+            eprintln!("         Call .cleanup().await manually before dropping to ensure proper cleanup.");
+        }
     }
 }
 
@@ -129,18 +141,33 @@ impl<T> ResourceGuard<T> {
     }
 
     /// Get a reference to the resource
+    ///
+    /// # Panics
+    /// Panics if the resource has been taken. This should never happen in normal usage.
     pub fn resource(&self) -> &T {
-        self.resource.as_ref().expect("Resource should be present")
+        self.resource.as_ref().unwrap_or_else(|| {
+            panic!("FATAL: Resource has been taken from guard. This indicates a logic error in the code.");
+        })
     }
 
     /// Get a mutable reference to the resource
+    ///
+    /// # Panics
+    /// Panics if the resource has been taken. This should never happen in normal usage.
     pub fn resource_mut(&mut self) -> &mut T {
-        self.resource.as_mut().expect("Resource should be present")
+        self.resource.as_mut().unwrap_or_else(|| {
+            panic!("FATAL: Resource has been taken from guard. This indicates a logic error in the code.");
+        })
     }
 
     /// Take ownership of the resource
+    ///
+    /// # Panics
+    /// Panics if the resource has already been taken.
     pub fn take_resource(mut self) -> T {
-        self.resource.take().expect("Resource should be present")
+        self.resource.take().unwrap_or_else(|| {
+            panic!("FATAL: Resource has already been taken from guard. This indicates a logic error in the code.");
+        })
     }
 
     /// Get the creation time
@@ -154,6 +181,9 @@ impl<T> ResourceGuard<T> {
     }
 
     /// Manually trigger cleanup and return the resource
+    ///
+    /// # Panics
+    /// Panics if the resource has already been taken.
     pub fn cleanup(mut self) -> T {
         // Execute cleanup actions
         for action in self.cleanup_actions {
@@ -161,7 +191,9 @@ impl<T> ResourceGuard<T> {
         }
 
         // Return the resource
-        self.resource.take().expect("Resource should be present")
+        self.resource.take().unwrap_or_else(|| {
+            panic!("FATAL: Resource has already been taken from guard. This indicates a logic error in the code.");
+        })
     }
 }
 
@@ -294,10 +326,22 @@ impl Drop for SessionGuard {
         }
 
         // Attempt to cleanup environment (best effort)
+        // Try to use the current runtime if available
         let environment = self.environment.clone();
-        tokio::spawn(async move {
-            let _ = environment.cleanup().await;
-        });
+
+        if let Ok(handle) = tokio::runtime::Handle::try_current() {
+            // We're in a runtime context - spawn the cleanup task
+            // This will be waited on by the runtime's shutdown
+            handle.spawn(async move {
+                if let Err(e) = environment.cleanup().await {
+                    eprintln!("Warning: Failed to cleanup environment during drop: {}", e);
+                }
+            });
+        } else {
+            // No runtime available - log warning
+            eprintln!("Warning: Cannot cleanup environment - no async runtime available during drop");
+            eprintln!("         Call .cleanup().await manually before dropping to ensure proper cleanup.");
+        }
     }
 }
 
