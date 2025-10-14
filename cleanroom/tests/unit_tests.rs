@@ -2,14 +2,14 @@
 //!
 //! These tests verify individual module functionality in isolation.
 
-use cleanroom::{
+use clnrm::{
     CleanroomConfig, CleanroomEnvironment, DeterministicManager,
     Policy, ResourceLimits, SecurityLevel, SnapshotManager, TestReport, TracingManager,
     CoverageTracker, Error as CleanroomError,
 };
-use cleanroom::cleanroom::CleanroomMetrics;
-use cleanroom::coverage::CoverageCollector;
-use cleanroom::report;
+use clnrm::cleanroom::CleanroomMetrics;
+use clnrm::coverage::CoverageCollector;
+use clnrm::report;
 use std::time::Duration;
 use uuid::Uuid;
 

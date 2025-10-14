@@ -3,7 +3,7 @@
 //! These tests use the cucumber framework to test cleanroom behavior
 //! from a user perspective with Given-When-Then scenarios.
 
-use cleanroom::{
+use clnrm::{
     CleanroomConfig, CleanroomEnvironment, CleanroomError, CleanroomGuard, CoverageTracker,
     DeterministicManager, GenericContainer, Policy, PostgresContainer, RedisContainer,
     ResourceLimits, SecurityLevel, SnapshotManager, TestReport, TracingManager,

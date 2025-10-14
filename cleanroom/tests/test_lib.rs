@@ -11,7 +11,7 @@
 
 /// Test utilities and helpers
 pub mod test_utils {
-    use cleanroom::{
+    use clnrm::{
         CleanroomConfig, CleanroomEnvironment, Error as CleanroomError,
         ResourceLimits, SecurityLevel,
     };

@@ -2,7 +2,7 @@
 //!
 //! This example demonstrates basic usage of the cleanroom testing framework.
 
-use cleanroom::{CleanroomConfig, CleanroomEnvironment, CleanroomGuard};
+use clnrm::{CleanroomConfig, CleanroomEnvironment, CleanroomGuard};
 use std::sync::Arc;
 
 #[tokio::main]

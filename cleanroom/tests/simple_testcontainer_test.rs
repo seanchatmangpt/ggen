@@ -3,7 +3,7 @@
 //! This test verifies that the Cleanroom Testing Framework works end-to-end
 //! with testcontainers in the simplest possible way.
 
-use cleanroom::{
+use clnrm::{
     CleanroomEnvironment, CleanroomConfig, CleanroomGuard,
     PostgresContainer, RedisContainer, GenericContainer, ContainerWrapper,
 };

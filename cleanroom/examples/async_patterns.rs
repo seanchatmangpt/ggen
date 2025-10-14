@@ -3,9 +3,9 @@
 //! This example shows how to use the AsyncExecutor with various async patterns,
 //! including timeout handling, cancellation, and concurrent execution.
 
-use cleanroom::builder::CleanroomBuilder;
-use cleanroom::executor::timeout::{CircuitBreaker, RetryConfig, TimeoutExecutor, TimeoutStrategy};
-use cleanroom::executor::{AsyncExecutor, ExecutionContext};
+use clnrm::builder::CleanroomBuilder;
+use clnrm::executor::timeout::{CircuitBreaker, RetryConfig, TimeoutExecutor, TimeoutStrategy};
+use clnrm::executor::{AsyncExecutor, ExecutionContext};
 use std::time::Duration;
 
 #[tokio::main]

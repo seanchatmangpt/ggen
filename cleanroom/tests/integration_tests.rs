@@ -3,7 +3,7 @@
 //! These tests verify the complete cleanroom environment functionality
 //! including container lifecycle, service integration, and error handling.
 
-use cleanroom::{
+use clnrm::{
     CleanroomConfig, CleanroomEnvironment, Error as CleanroomError,
     Policy, ResourceLimits, SecurityLevel, run, run_with_policy,
     new_cleanroom, Assert,

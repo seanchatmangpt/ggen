@@ -3,16 +3,16 @@
 //! This example shows how to use the streaming APIs for efficient artifact
 //! processing with zero-copy techniques and various collector patterns.
 
-use cleanroom::builder::CleanroomBuilder;
-use cleanroom::streaming::buffer::{
+use clnrm::builder::CleanroomBuilder;
+use clnrm::streaming::buffer::{
     BufferPool, CircularBuffer, MemoryMappedBuffer, RingBuffer, buffer_pool, circular_buffer,
     memory_mapped_buffer, ring_buffer,
 };
-use cleanroom::streaming::collector::{
+use clnrm::streaming::collector::{
     AggregatingCollector, BatchingCollector, FilteringCollector, TransformingCollector,
     aggregating_collector, batching_collector, filtering_collector, transforming_collector,
 };
-use cleanroom::streaming::{
+use clnrm::streaming::{
     ArtifactData, ArtifactMetadata, ArtifactStream, ArtifactType, StreamingCollector,
     artifact_stream, streaming_collector,
 };

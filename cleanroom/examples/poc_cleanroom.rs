@@ -8,7 +8,7 @@
 //! cargo run --example poc_cleanroom
 //! ```
 
-use cleanroom::{
+use clnrm::{
     backend::AutoBackend,
     determinism::DeterministicManager,
     error::Result,

@@ -3,7 +3,7 @@
 //! These tests verify deterministic behavior and property-based testing
 //! using proptest for comprehensive coverage.
 
-use cleanroom::{
+use clnrm::{
     CleanroomConfig, CleanroomError, CoverageTracker, DeterministicManager, ErrorKind,
     GenericContainer, NetworkPolicy, Policy, PostgresContainer, RedisContainer, ResourceLimits,
     SecurityLevel, SnapshotManager, TestReport, TracingManager,

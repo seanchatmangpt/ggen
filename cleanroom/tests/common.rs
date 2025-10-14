@@ -1,6 +1,6 @@
 //! Common test utilities and shared test code for cleanroom framework
 
-use cleanroom::{
+use clnrm::{
     CleanroomConfig, CleanroomEnvironment, CleanroomError, GenericContainer, Policy,
     PostgresContainer, RedisContainer, ResourceLimits, SecurityLevel,
 };

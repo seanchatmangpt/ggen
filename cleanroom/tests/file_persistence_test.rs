@@ -3,7 +3,7 @@
 //! This test demonstrates that the Cleanroom Testing Framework properly
 //! isolates file system operations and ensures cleanup.
 
-use cleanroom::{
+use clnrm::{
     run, CleanroomEnvironment, CleanroomConfig, CleanroomGuard,
     GenericContainer, ContainerWrapper,
 };

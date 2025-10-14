@@ -8,7 +8,7 @@
 //! - Performance monitoring
 //! - Real-world testing scenarios
 
-use cleanroom::{run, run_with_policy, Policy, SecurityLevel};
+use clnrm::{run, run_with_policy, Policy, SecurityLevel};
 use std::iter;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {

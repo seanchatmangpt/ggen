@@ -4,7 +4,7 @@
 //! using process isolation without requiring container infrastructure.
 
 use anyhow::{Context, Result};
-use cleanroom::{Cleanroom, ExecutionResult, RuntimeConfig};
+use clnrm::{Cleanroom, ExecutionResult, RuntimeConfig};
 use std::path::PathBuf;
 
 /// Helper to build the test CLI binary

@@ -7,8 +7,8 @@
 //!
 //! Run these tests WITHOUT Docker running to verify proper error handling.
 
-use cleanroom::containers::{PostgresContainer, RedisContainer, GenericContainer};
-use cleanroom::error::Result;
+use clnrm::containers::{PostgresContainer, RedisContainer, GenericContainer};
+use clnrm::error::Result;
 
 /// Test that postgres methods fail properly without Docker
 ///
@@ -200,7 +200,7 @@ async fn negative_test_container_status_accuracy() {
     // This test verifies that status() doesn't always return Running
     // Run this WITHOUT Docker and status should return Error or Stopped
 
-    use cleanroom::cleanroom::{ContainerWrapper, ContainerStatus};
+    use clnrm::cleanroom::{ContainerWrapper, ContainerStatus};
 
     let postgres_result = PostgresContainer::new("testdb", "testuser", "testpass");
 
@@ -230,7 +230,7 @@ async fn negative_test_container_status_accuracy() {
 async fn negative_test_metrics_accuracy() {
     println!("\n🔍 NEGATIVE TEST: Testing metrics accuracy...");
 
-    use cleanroom::cleanroom::ContainerWrapper;
+    use clnrm::cleanroom::ContainerWrapper;
 
     let postgres_result = PostgresContainer::new("testdb", "testuser", "testpass");
 

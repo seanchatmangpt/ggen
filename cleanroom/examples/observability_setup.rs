@@ -3,12 +3,12 @@
 //! This example shows how to set up comprehensive observability for the
 //! cleanroom environment using tracing, metrics, and span collection.
 
-use cleanroom::builder::CleanroomBuilder;
-use cleanroom::observability::metrics::{
+use clnrm::builder::CleanroomBuilder;
+use clnrm::observability::metrics::{
     AnomalyDetection, MetricsAggregator, MetricsAnalyzer, TrendAnalysis, metrics_aggregator,
     metrics_analyzer,
 };
-use cleanroom::observability::{
+use clnrm::observability::{
     ContainerMetrics, Metrics, ObservabilityLayer, PerformanceMetrics, ResourceUsageMetrics,
     SpanStatus, TestMetrics, TracingLevel, console_metrics_exporter, console_span_collector,
     observability_layer,

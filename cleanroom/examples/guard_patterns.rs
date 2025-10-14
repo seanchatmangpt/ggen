@@ -3,13 +3,13 @@
 //! This example shows how to use various RAII guards for resource management,
 //! including container guards, resource guards, and scope guards.
 
-use cleanroom::builder::CleanroomBuilder;
-use cleanroom::error::Result;
-use cleanroom::guards::container::{
+use clnrm::builder::CleanroomBuilder;
+use clnrm::error::Result;
+use clnrm::guards::container::{
     ContainerHealthGuard, ContainerLifecycleGuard, ContainerResourceGuard, container_health_guard,
     container_lifecycle_guard, container_resource_guard,
 };
-use cleanroom::guards::{
+use clnrm::guards::{
     ContainerGuard, ResourceGuard, ScopeGuard, SessionGuard, TestGuard, container_guard,
     resource_guard, scope, session_guard, test_guard,
 };

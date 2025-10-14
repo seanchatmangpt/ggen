@@ -3,7 +3,7 @@
 //! This test demonstrates file operations without using the synchronous `run` function
 //! that causes runtime conflicts in async tests.
 
-use cleanroom::{
+use clnrm::{
     CleanroomEnvironment, CleanroomConfig, CleanroomGuard,
     GenericContainer, ContainerWrapper,
 };

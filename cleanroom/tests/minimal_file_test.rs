@@ -3,7 +3,7 @@
 //! This test demonstrates file operations without using container operations
 //! that cause runtime conflicts in async tests.
 
-use cleanroom::{
+use clnrm::{
     CleanroomEnvironment, CleanroomConfig, CleanroomGuard,
 };
 use std::sync::Arc;

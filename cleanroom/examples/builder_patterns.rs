@@ -3,9 +3,9 @@
 //! This example shows how to use the CleanroomBuilder with compile-time
 //! validation to create different types of cleanroom environments.
 
-use cleanroom::builder::CleanroomBuilder;
-use cleanroom::limits::ResourceLimits;
-use cleanroom::policy::SecurityPolicy;
+use clnrm::builder::CleanroomBuilder;
+use clnrm::limits::ResourceLimits;
+use clnrm::policy::SecurityPolicy;
 use std::time::Duration;
 
 #[tokio::main]

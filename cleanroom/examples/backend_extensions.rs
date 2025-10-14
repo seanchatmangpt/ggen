@@ -3,12 +3,12 @@
 //! This example shows how to use backend extensions for enhanced capabilities,
 //! including capability discovery, validation, and performance analysis.
 
-use cleanroom::backend::capabilities::{
+use clnrm::backend::capabilities::{
     BackendCapability, BackendCapabilityRegistry, CapabilityCategory, CapabilityDiscoveryProvider,
     CapabilityDiscoveryService, CapabilityFeature, CapabilityRequirement, FeatureType,
     RequirementType, StandardCapabilities, capability_discovery_service, capability_registry,
 };
-use cleanroom::backend::extensions::{
+use clnrm::backend::extensions::{
     BackendCapabilities, BackendCapability, BackendCapabilityChecker, BackendConfiguration,
     BackendExt, BackendHealthStatus, BackendMetadata, BackendPerformanceAnalyzer,
     BackendPerformanceMetrics, BackendStatistics, EnhancedBackend, ExecutionMode, ExecutionOptions,
@@ -16,8 +16,8 @@ use cleanroom::backend::extensions::{
     RecommendationCategory, RecommendationPriority, ResourceEfficiency, ResourceLimits,
     ResourceLimitsSupport, ResourceUsage, analyze_backend_performance, check_backend_capabilities,
 };
-use cleanroom::backend::{Backend, Cmd, RunResult};
-use cleanroom::error::Result;
+use clnrm::backend::{Backend, Cmd, RunResult};
+use clnrm::error::Result;
 use std::collections::HashMap;
 use std::time::Duration;
 

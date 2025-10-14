@@ -3,8 +3,8 @@
 //! This example shows how to use the ConcurrencyOrchestrator to manage
 //! concurrent tasks with proper cancellation, timeout handling, and resource cleanup.
 
-use cleanroom::error::Result;
-use cleanroom::runtime::orchestrator::{ConcurrencyOrchestrator, TaskContext, TaskResult};
+use clnrm::error::Result;
+use clnrm::runtime::orchestrator::{ConcurrencyOrchestrator, TaskContext, TaskResult};
 use std::time::Duration;
 use tokio::time::sleep;
 
