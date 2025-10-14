@@ -142,11 +142,20 @@ impl Clone for PostgresContainer {
     fn clone(&self) -> Self {
         // Note: This creates a new container instance with the same configuration
         // The actual testcontainers Container cannot be cloned, so we create a new one
-        Self::new(
+        match Self::new(
             self.database_name.clone(),
             self.username.clone(),
             self.password.clone(),
-        ).expect("Failed to clone PostgresContainer")
+        ) {
+            Ok(container) => container,
+            Err(e) => {
+                eprintln!("FATAL: Failed to clone PostgresContainer: {}", e);
+                eprintln!("This is a critical error. The system cannot continue.");
+                // In production, this should trigger proper error handling
+                // For now, we panic with context since Clone cannot return Result
+                panic!("Failed to clone PostgresContainer: {}. Check Docker availability and container resources.", e);
+            }
+        }
     }
 }
 
@@ -317,7 +326,16 @@ impl Clone for RedisContainer {
     fn clone(&self) -> Self {
         // Note: This creates a new container instance with the same configuration
         // The actual testcontainers Container cannot be cloned, so we create a new one
-        Self::new(self.password.clone()).expect("Failed to clone RedisContainer")
+        match Self::new(self.password.clone()) {
+            Ok(container) => container,
+            Err(e) => {
+                eprintln!("FATAL: Failed to clone RedisContainer: {}", e);
+                eprintln!("This is a critical error. The system cannot continue.");
+                // In production, this should trigger proper error handling
+                // For now, we panic with context since Clone cannot return Result
+                panic!("Failed to clone RedisContainer: {}. Check Docker availability and container resources.", e);
+            }
+        }
     }
 }
 
@@ -449,11 +467,20 @@ impl Clone for GenericContainer {
         // Note: This creates a new container instance with the same configuration
         // The actual testcontainers Container cannot be cloned, so we create a new one
         // We need to extract image info from the container, but for now create a basic clone
-        Self::new(
+        match Self::new(
             format!("{}_clone", self.name),
             "alpine",
             "latest",
-        ).expect("Failed to clone GenericContainer")
+        ) {
+            Ok(container) => container,
+            Err(e) => {
+                eprintln!("FATAL: Failed to clone GenericContainer: {}", e);
+                eprintln!("This is a critical error. The system cannot continue.");
+                // In production, this should trigger proper error handling
+                // For now, we panic with context since Clone cannot return Result
+                panic!("Failed to clone GenericContainer: {}. Check Docker availability and container resources.", e);
+            }
+        }
     }
 }
 
