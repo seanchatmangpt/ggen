@@ -467,36 +467,42 @@ mod advanced_benchmarks {
 mod tests {
     use super::*;
 
-    #[test]
-    fn test_benchmark_structure() {
+    #[tokio::test]
+    async fn test_benchmark_structure() {
         // Test that benchmark functions exist and can be called
-        let results = run_comprehensive_benchmark().unwrap_or_else(|e| {
-            println!("Benchmark failed (expected in test environment): {}", e);
-            BenchmarkResults {
-                simple_execution: Duration::from_millis(1),
-                multiple_execution: Duration::from_millis(1),
-                config_loading: Duration::from_millis(1),
-                singleton_first_creation: Duration::from_millis(1),
-                singleton_reuse: Duration::from_millis(1),
-                total_time: Duration::from_millis(5),
-                improvement_factor: 1.0,
+        let results = match run_comprehensive_benchmark().await {
+            Ok(r) => r,
+            Err(e) => {
+                println!("Benchmark failed (expected in test environment): {}", e);
+                BenchmarkResults {
+                    simple_execution: Duration::from_millis(1),
+                    multiple_execution: Duration::from_millis(1),
+                    config_loading: Duration::from_millis(1),
+                    singleton_first_creation: Duration::from_millis(1),
+                    singleton_reuse: Duration::from_millis(1),
+                    total_time: Duration::from_millis(5),
+                    improvement_factor: 1.0,
+                }
             }
-        });
+        };
 
         assert!(results.total_time.as_secs() > 0);
         assert!(results.improvement_factor >= 0.0);
     }
 
-    #[test]
-    fn test_singleton_container_benchmark() {
+    #[tokio::test]
+    async fn test_singleton_container_benchmark() {
         // Test singleton container benchmarking logic
-        let (first, reuse) = benchmark_singleton_containers().unwrap_or_else(|e| {
-            println!(
-                "Singleton benchmark failed (expected in test environment): {}",
-                e
-            );
-            (Duration::from_millis(1000), Duration::from_millis(1))
-        });
+        let (first, reuse) = match benchmark_singleton_containers().await {
+            Ok(r) => r,
+            Err(e) => {
+                println!(
+                    "Singleton benchmark failed (expected in test environment): {}",
+                    e
+                );
+                (Duration::from_millis(1000), Duration::from_millis(1))
+            }
+        };
 
         assert!(first.as_millis() > 0);
         assert!(reuse.as_millis() > 0);
