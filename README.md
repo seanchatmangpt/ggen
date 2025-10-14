@@ -39,15 +39,23 @@
 
 ## 🚀 **NEW: v1.0 Production Ready + Cleanroom Testing**
 
-### **Production-Ready v1.0** (88/100 Readiness Score)
+### **Production-Ready v1.0**
+
+**Production Readiness:**
+- **ggen CLI**: 88/100 (production validated for v1.0 release)
+- **Cleanroom Framework**: 85/100 (production-ready with active development)
+
+**Key Features:**
 - ✅ **Production Validated** - Comprehensive validation with GO decision for v1.0 release
-- 🧪 **Cleanroom Testing Framework** - Hermetic, deterministic testing with testcontainers
-- 🎯 **Zero `.expect()` Calls** - Production-grade error handling throughout
+- 🧪 **Cleanroom Testing Framework** - Hermetic, deterministic testing with testcontainers (v0.25)
+- 🎯 **Comprehensive Error Handling** - Result-based error propagation with minimal panic paths
 - 🔒 **Enhanced Security** - Post-quantum cryptography with ML-DSA (Dilithium3)
-- 📊 **23 Integration Tests** - Comprehensive CLI testing with cleanroom isolation
+- 📊 **23+ Integration Tests** - Comprehensive CLI testing with cleanroom isolation
 - 🤖 **AI-Enhanced Templates** - Generate templates, SPARQL queries, and RDF graphs using advanced LLMs
 - 🧠 **Intelligent Project Scaffolding** - Create entire project structures with AI assistance
 - 🔍 **Natural Language Search** - Find templates and packages using conversational queries
+
+**Note on Test Coverage:** Integration tests validate core functionality. Coverage metrics are under development as test execution requires extended timeouts for container operations.
 
 ### 📈 **Recent Improvements (v1.0)**
 - ⚡ **60x Faster Builds** - Incremental builds now 2-3 seconds (was 60-90 seconds)
@@ -64,11 +72,11 @@
 ## Features
 
 ### **Production & Testing**
-- ✅ **Production Ready** - 88/100 readiness score, validated for v1.0 release
-- 🧪 **Cleanroom Testing** - Hermetic, deterministic testing framework with testcontainers
+- ✅ **Production Ready** - ggen CLI: 88/100, Cleanroom: 85/100 (validated for v1.0)
+- 🧪 **Cleanroom Testing** - Hermetic, deterministic testing framework with testcontainers v0.25
 - 📊 **Comprehensive Test Suite** - 23+ integration tests, 20+ test files across all modules
 - 🎯 **Deterministic Execution** - Byte-identical output with fixed seeds, reproducible tests
-- 🔒 **Production-Grade Error Handling** - Zero `.expect()` calls, comprehensive error types
+- 🔒 **Production-Grade Error Handling** - Result-based error propagation, comprehensive error types
 - 📈 **Performance Monitoring** - Real-time metrics, resource limits, SLO validation
 
 ### **AI-Powered Generation**
@@ -122,17 +130,17 @@ ggen ai graph -d "Person ontology" -o person.ttl
 # 🏗️ AI-powered project scaffolding
 ggen ai project -d "Web service in Rust" -n myproject --rust
 
-# 🔍 Natural language AI search
-ggen ai search -d "I need a user authentication system"
+# 🔍 Natural language marketplace search
+ggen market natural "I need a user authentication system"
 
 # 📦 Smart frontmatter generation
 ggen ai frontmatter -d "API controller" --json --yaml
 
 # 📦 Search marketplace for templates
-ggen search "rust cli"
+ggen market search "rust cli"
 
 # Add a template pack
-ggen add io.ggen.rust.cli-subcommand
+ggen market add io.ggen.rust.cli-subcommand
 
 # List available templates
 ggen list
@@ -320,19 +328,19 @@ Gpacks are versioned, reusable template packages:
 
 ```bash
 # Search for gpacks
-ggen search "rust"
+ggen market search "rust"
 
 # View categories
-ggen categories
+ggen market categories
 
-# Add an gpack
-ggen add io.ggen.rust.cli-subcommand
+# Add a gpack
+ggen market add io.ggen.rust.cli-subcommand
 
 # List installed gpacks
-ggen packs
+ggen market list
 
 # Update gpacks
-ggen update
+ggen market update
 ```
 
 ## Documentation
@@ -365,12 +373,32 @@ ggen update
 - 100% reproducible outputs (✅ verified)
 
 ### **Testing & Validation**
-- Test execution: ≤ 60s for full suite
-- Integration tests: ≤ 30s per test
+- Test execution: ≤ 120s for full suite (container tests require extended timeouts)
+- Integration tests: ≤ 60s per test (container startup included)
 - Cleanroom startup: ≤ 10s for containers
 - Resource limits: CPU <80%, Memory <1GB
 - Deterministic execution: 100% reproducible
-- Test coverage: >85% on critical paths (✅ achieved: 90%+)
+- Test coverage: In development (integration tests validate critical paths)
+
+## 🔒 Security
+
+**⚠️ IMPORTANT**: ggen executes templates with full system access. See [SECURITY.md](SECURITY.md) for complete security guidelines.
+
+### Key Security Considerations
+
+1. **Template Execution Risk**: Only use templates from trusted sources. Templates can execute arbitrary code.
+2. **AI-Generated Code**: Always review AI-generated templates before production use.
+3. **Command Injection**: Sanitize all user inputs in templates to prevent injection attacks.
+4. **SPARQL Injection**: Use parameterized queries to prevent SPARQL injection.
+5. **Container Security**: Ensure Docker daemon is properly secured when using cleanroom tests.
+
+**Report security vulnerabilities**: security@ggen.dev (or via [GitHub Security Advisories](https://github.com/seanchatmangpt/ggen/security/advisories))
+
+📚 **See [SECURITY.md](SECURITY.md) for**:
+- Complete security best practices
+- Vulnerability reporting process
+- Security checklist for production
+- Known security considerations
 
 ## Contributing
 
@@ -379,6 +407,7 @@ ggen update
 3. Ensure `cargo make ci` passes before submitting
 4. Add tests for new features
 5. Update documentation
+6. Review [SECURITY.md](SECURITY.md) for security requirements
 
 ## License
 
