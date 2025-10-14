@@ -124,7 +124,7 @@ reqwest = { version = "0.12", features = ["blocking", "json"] }
 genai = "0.4"
 proptest.workspace = true
 # Cleanroom integration for CLI testing
-cleanroom = { path = "cleanroom", version = "0.1.0" }
+clnrm = { path = "cleanroom", version = "0.1.0" }
 
 [profile.dev]
 opt-level = 0
