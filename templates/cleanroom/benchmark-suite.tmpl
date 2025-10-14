@@ -1,0 +1,181 @@
+---
+to: "{{ project_name }}/benches/cleanroom_benchmarks.rs"
+vars:
+  project_name: "my-project"
+  benchmark_name: "cleanroom_performance"
+  determinism: 42
+---
+//! Performance benchmarks for Cleanroom execution
+//! Generated from cleanroom gpack template
+
+use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId};
+use clnrm::{run, run_with_policy, Policy};
+
+fn bench_basic_execution(c: &mut Criterion) {
+    c.bench_function("basic_echo_command", |b| {
+        b.iter(|| {
+            let result = run(["echo", "benchmark test"]).unwrap();
+            black_box(result);
+        });
+    });
+}
+
+fn bench_hermetic_execution(c: &mut Criterion) {
+    let policy = Policy::default();
+
+    c.bench_function("hermetic_execution", |b| {
+        b.iter(|| {
+            let result = run_with_policy(["echo", "hermetic test"], &policy).unwrap();
+            black_box(result);
+        });
+    });
+}
+
+fn bench_deterministic_execution(c: &mut Criterion) {
+    let policy = Policy {
+        determinism: Some(clnrm::policy::DeterminismConfig {
+            seed: {{ determinism }},
+            ..Default::default()
+        }),
+        ..Default::default()
+    };
+
+    c.bench_function("deterministic_execution", |b| {
+        b.iter(|| {
+            let result = run_with_policy(["echo", "deterministic test"], &policy).unwrap();
+            black_box(result);
+        });
+    });
+}
+
+fn bench_security_policy_overhead(c: &mut Criterion) {
+    let locked_policy = Policy::locked();
+    let sandbox_policy = Policy::sandbox();
+
+    let mut group = c.benchmark_group("security_policies");
+
+    group.bench_function("no_policy", |b| {
+        b.iter(|| {
+            let result = run(["echo", "no policy"]).unwrap();
+            black_box(result);
+        });
+    });
+
+    group.bench_function("locked_policy", |b| {
+        b.iter(|| {
+            let result = run_with_policy(["echo", "locked"], &locked_policy).unwrap();
+            black_box(result);
+        });
+    });
+
+    group.bench_function("sandbox_policy", |b| {
+        b.iter(|| {
+            let result = run_with_policy(["echo", "sandbox"], &sandbox_policy).unwrap();
+            black_box(result);
+        });
+    });
+
+    group.finish();
+}
+
+fn bench_command_complexity(c: &mut Criterion) {
+    let mut group = c.benchmark_group("command_complexity");
+
+    let commands = vec![
+        ("simple", vec!["echo", "hello"]),
+        ("medium", vec!["sh", "-c", "echo hello && echo world"]),
+        ("complex", vec!["sh", "-c", "for i in 1 2 3; do echo $i; done"]),
+    ];
+
+    for (name, cmd) in commands {
+        group.bench_with_input(BenchmarkId::from_parameter(name), &cmd, |b, cmd| {
+            b.iter(|| {
+                let result = run(cmd.as_slice()).unwrap();
+                black_box(result);
+            });
+        });
+    }
+
+    group.finish();
+}
+
+fn bench_parallel_execution(c: &mut Criterion) {
+    c.bench_function("parallel_10_commands", |b| {
+        b.iter(|| {
+            let handles: Vec<_> = (0..10)
+                .map(|i| {
+                    std::thread::spawn(move || {
+                        let result = run(["echo", &format!("parallel {}", i)]).unwrap();
+                        black_box(result);
+                    })
+                })
+                .collect();
+
+            for handle in handles {
+                handle.join().unwrap();
+            }
+        });
+    });
+}
+
+fn bench_memory_usage(c: &mut Criterion) {
+    let policy = Policy {
+        resources: clnrm::policy::ResourcePolicy {
+            max_memory_usage_bytes: 50 * 1024 * 1024, // 50MB
+            ..Default::default()
+        },
+        ..Default::default()
+    };
+
+    c.bench_function("memory_limited_execution", |b| {
+        b.iter(|| {
+            let result = run_with_policy(["echo", "memory test"], &policy).unwrap();
+            black_box(result);
+        });
+    });
+}
+
+fn bench_startup_overhead(c: &mut Criterion) {
+    let mut group = c.benchmark_group("startup_overhead");
+
+    group.bench_function("container_creation", |b| {
+        b.iter(|| {
+            let result = run(["echo", "startup"]).unwrap();
+            black_box(result);
+        });
+    });
+
+    group.bench_function("policy_validation", |b| {
+        let policy = Policy::default();
+        b.iter(|| {
+            let result = run_with_policy(["echo", "startup"], &policy).unwrap();
+            black_box(result);
+        });
+    });
+
+    group.finish();
+}
+
+fn bench_error_handling(c: &mut Criterion) {
+    c.bench_function("failed_command_handling", |b| {
+        b.iter(|| {
+            let result = run(["sh", "-c", "exit 1"]).unwrap();
+            black_box(result);
+        });
+    });
+}
+
+criterion_group!(
+    benches,
+    bench_basic_execution,
+    bench_hermetic_execution,
+    bench_deterministic_execution,
+    bench_security_policy_overhead,
+    bench_command_complexity,
+    bench_parallel_execution,
+    bench_memory_usage,
+    bench_startup_overhead,
+    bench_error_handling
+);
+
+criterion_main!(benches);

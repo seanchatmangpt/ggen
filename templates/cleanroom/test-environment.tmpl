@@ -1,0 +1,117 @@
+---
+to: "{{ project_name }}/tests/test_environment.rs"
+vars:
+  project_name: "my-project"
+  test_name: "integration_test"
+  determinism: 42
+---
+//! Test environment setup using Cleanroom
+//! Generated from cleanroom gpack template
+
+use clnrm::{run, run_with_policy, Policy, SecurityLevel};
+use anyhow::Result;
+
+#[test]
+fn test_{{ test_name }}_hermetic_execution() -> Result<()> {
+    // Basic hermetic execution test
+    let result = run(["echo", "Hello from {{ project_name }}!"])?;
+
+    assert_eq!(result.exit_code, 0);
+    assert!(result.stdout.contains("Hello from {{ project_name }}"));
+    assert!(result.stderr.is_empty());
+
+    println!("✅ Test executed successfully");
+    println!("   Backend: {}", result.backend);
+    println!("   Duration: {}ms", result.duration_ms);
+
+    Ok(())
+}
+
+#[test]
+fn test_{{ test_name }}_with_security_policy() -> Result<()> {
+    // Test with restrictive security policy
+    let policy = Policy {
+        security: clnrm::policy::SecurityPolicy {
+            security_level: SecurityLevel::Locked,
+            enable_network_isolation: true,
+            enable_filesystem_isolation: true,
+            allowed_ports: vec![80, 443],
+            blocked_addresses: vec![],
+            enable_data_redaction: true,
+            redaction_patterns: vec![],
+            enable_audit_logging: true,
+            enable_process_isolation: true,
+        },
+        determinism: Some(clnrm::policy::DeterminismConfig {
+            seed: {{ determinism }},
+            ..Default::default()
+        }),
+        ..Default::default()
+    };
+
+    let result = run_with_policy(["echo", "Secure execution"], &policy)?;
+
+    assert_eq!(result.exit_code, 0);
+    assert!(result.stdout.contains("Secure execution"));
+
+    println!("✅ Security policy enforced successfully");
+
+    Ok(())
+}
+
+#[test]
+fn test_{{ test_name }}_error_handling() -> Result<()> {
+    // Test proper error handling
+    let result = run(["sh", "-c", "exit 1"])?;
+
+    assert_eq!(result.exit_code, 1);
+    assert_ne!(result.exit_code, 0);
+
+    println!("✅ Error handling verified");
+
+    Ok(())
+}
+
+#[cfg(test)]
+mod {{ test_name }}_suite {
+    use super::*;
+
+    #[test]
+    fn deterministic_execution() -> Result<()> {
+        // Test deterministic execution with fixed seed
+        let policy = Policy {
+            determinism: Some(clnrm::policy::DeterminismConfig {
+                seed: {{ determinism }},
+                ..Default::default()
+            }),
+            ..Default::default()
+        };
+
+        let result1 = run_with_policy(["echo", "deterministic"], &policy)?;
+        let result2 = run_with_policy(["echo", "deterministic"], &policy)?;
+
+        assert_eq!(result1.exit_code, result2.exit_code);
+        assert_eq!(result1.stdout, result2.stdout);
+
+        Ok(())
+    }
+
+    #[test]
+    fn resource_limits() -> Result<()> {
+        // Test resource limit enforcement
+        let policy = Policy {
+            resources: clnrm::policy::ResourcePolicy {
+                max_memory_usage_bytes: 100 * 1024 * 1024, // 100MB
+                max_cpu_usage_percent: 50.0,
+                max_execution_time_ms: 5000,
+                ..Default::default()
+            },
+            ..Default::default()
+        };
+
+        let result = run_with_policy(["echo", "resource test"], &policy)?;
+        assert_eq!(result.exit_code, 0);
+
+        Ok(())
+    }
+}
