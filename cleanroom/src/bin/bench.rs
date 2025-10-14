@@ -11,7 +11,7 @@
 //! - Security policy enforcement
 //! - Performance monitoring and metrics collection
 
-use cleanroom::{
+use clnrm::{
     run, CleanroomEnvironment, CleanroomConfig, CleanroomGuard,
     PostgresContainer, RedisContainer, GenericContainer, ContainerWrapper,
 };
@@ -294,7 +294,7 @@ fn validate_slo(results: &BenchmarkResults) {
 #[cfg(feature = "advanced_benchmarks")]
 mod advanced_benchmarks {
     use super::*;
-    use cleanroom::{Policy, SecurityLevel};
+    use clnrm::{Policy, SecurityLevel};
 
     /// Benchmark security policy enforcement
     pub fn benchmark_security_policy() -> Result<(), Box<dyn std::error::Error>> {
