@@ -250,7 +250,7 @@ mod tests {
         let mut tracker = ReadinessTracker::new("/tmp/test");
         tracker.load().unwrap();
 
-        // Update critical requirements to be complete
+        // Update ALL critical requirements to be complete (there are 6 critical requirements)
         tracker
             .update_requirement("auth-basic", ReadinessStatus::Complete)
             .unwrap();
@@ -258,21 +258,36 @@ mod tests {
             .update_requirement("error-handling", ReadinessStatus::Complete)
             .unwrap();
         tracker
+            .update_requirement("logging-tracing", ReadinessStatus::Complete)
+            .unwrap();
+        tracker
             .update_requirement("health-checks", ReadinessStatus::Complete)
+            .unwrap();
+        tracker
+            .update_requirement("input-validation", ReadinessStatus::Complete)
+            .unwrap();
+        tracker
+            .update_requirement("database-migrations", ReadinessStatus::Complete)
             .unwrap();
 
         let report = tracker.generate_report();
         let validator = ReadinessValidator::new();
         let result = validator.validate(&report);
 
-        // Critical should pass (100% complete)
-        assert!(
-            result.passed
-                || result
-                    .issues
-                    .iter()
-                    .all(|i| i.category != ReadinessCategory::Critical)
-        );
+        // Critical should pass (100% complete) OR there should be no critical issues
+        // If validation fails, it's because non-critical requirements are incomplete
+        if !result.passed {
+            let critical_issues: Vec<_> = result
+                .issues
+                .iter()
+                .filter(|i| i.category == ReadinessCategory::Critical)
+                .collect();
+            assert!(
+                critical_issues.is_empty(),
+                "Should have no critical issues, but found: {:?}",
+                critical_issues
+            );
+        }
     }
 
     #[test]

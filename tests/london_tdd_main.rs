@@ -22,12 +22,18 @@ mod quickstart_test;
 #[path = "london_tdd/cli_commands/enhanced_errors_test.rs"]
 mod enhanced_errors_test;
 
+#[path = "london_tdd/cli_commands/new_command_test.rs"]
+mod new_command_test;
+
 // Marketplace tests
 #[path = "london_tdd/marketplace/search_test.rs"]
 mod search_test;
 
 #[path = "london_tdd/marketplace/install_test.rs"]
 mod install_test;
+
+#[path = "london_tdd/marketplace/registry_test.rs"]
+mod registry_test;
 
 // AI generation tests
 #[path = "london_tdd/ai_generation/template_gen_test.rs"]
@@ -53,12 +59,12 @@ fn test_suite_statistics() {
     println!("\n📊 London TDD Test Suite Statistics:");
     println!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     println!("✅ CLI Commands: 4 modules");
-    println!("✅ Marketplace: 2 modules");
+    println!("✅ Marketplace: 3 modules (search, install, registry)");
     println!("✅ AI Generation: 2 modules");
     println!("✅ Template Engine: 2 modules");
     println!("✅ OpenTelemetry: 1 module");
     println!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-    println!("📝 Total: 11 test modules covering README.md capabilities");
+    println!("📝 Total: 12 test modules covering README.md capabilities");
     println!("⚡ Performance: All tests <100ms each");
     println!("🎭 Mocking: All external dependencies mocked");
     println!("🔁 Reproducibility: 100% deterministic");

@@ -123,11 +123,11 @@ pub enum VersionRequirement {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RegistryMetadata {
     pub name: String,
-    pub url: String,
-    pub description: Option<String>,
-    pub auth_required: bool,
-    pub rate_limit: Option<RateLimit>,
-    pub capabilities: Vec<RegistryCapability>,
+    pub description: String,
+    pub version: String,
+    pub package_count: usize,
+    pub api_version: String,
+    pub features: Vec<String>,
 }
 
 /// Registry capabilities and features

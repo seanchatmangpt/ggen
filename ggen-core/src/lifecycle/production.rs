@@ -961,13 +961,14 @@ mod tests {
 
     #[test]
     fn test_readiness_report_generation() {
-        let tracker = ReadinessTracker::new("/tmp/test");
+        let mut tracker = ReadinessTracker::new("/tmp/test");
+        tracker.load().unwrap(); // Load default requirements
         let report = tracker.generate_report();
 
         assert_eq!(report.project_name, "Current Project");
         assert!(report.overall_score >= 0.0 && report.overall_score <= 100.0);
-        assert!(!report.by_category.is_empty());
-        assert!(!report.requirements.is_empty());
+        assert!(!report.by_category.is_empty(), "by_category should not be empty after loading defaults");
+        assert!(!report.requirements.is_empty(), "requirements should not be empty after loading defaults");
     }
 
     #[test]

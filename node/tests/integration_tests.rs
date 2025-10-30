@@ -1,19 +1,46 @@
 //! Integration tests for ggen node bindings
 //!
-//! These tests validate end-to-end functionality by actually running CLI commands.
-//! All tests use proper error handling and production-ready patterns.
+//! JTBD VALIDATION: These tests validate end-to-end functionality by actually running CLI commands
+//! and verifying the ACTUAL behavior matches expectations.
+//!
+//! Each test validates:
+//! 1. Command executes without crashing
+//! 2. Exit code matches expected behavior (0 for success, non-zero for errors)
+//! 3. Output contains expected content (not just "something")
+//! 4. Error messages are meaningful when failures occur
+//! 5. No false positives (exit 0 with errors in stderr)
 
 #[cfg(test)]
 mod integration {
     use ggen_cli_lib::run_for_node;
 
-    /// Helper to run a command and validate success
+    /// Helper to run a command and validate success with content validation
     async fn run_and_expect_success(args: Vec<&str>) -> Result<String, String> {
         let args_owned: Vec<String> = args.iter().map(|s| s.to_string()).collect();
 
         match run_for_node(args_owned).await {
             Ok(result) => {
                 if result.code == 0 {
+                    // JTBD: Validate success means actual output, not just exit code 0
+                    if result.stdout.is_empty() && result.stderr.is_empty() {
+                        return Err(format!(
+                            "Command succeeded (exit 0) but produced no output - possible false success"
+                        ));
+                    }
+
+                    // JTBD: Detect false success (exit 0 but errors in stderr)
+                    if !result.stderr.is_empty() {
+                        let is_progress = result.stderr.contains("Searching") ||
+                                         result.stderr.contains("Loading") ||
+                                         result.stderr.contains("Building");
+                        if !is_progress {
+                            return Err(format!(
+                                "Command succeeded (exit 0) but has unexpected stderr: {}",
+                                result.stderr
+                            ));
+                        }
+                    }
+
                     Ok(result.stdout)
                 } else {
                     Err(format!(
@@ -102,10 +129,23 @@ mod integration {
 
         match result {
             Ok(output) => {
-                // List command should always succeed, even if empty
+                // JTBD: List should return package data or explicit "no packages" message
                 assert!(
-                    output.len() >= 0,
-                    "List command should return valid output"
+                    !output.is_empty(),
+                    "Market list should return data (packages or 'no packages' message)"
+                );
+
+                // Should be structured output (list format)
+                let has_structure = output.contains('\n') ||
+                                   output.contains("•") ||
+                                   output.contains("-") ||
+                                   output.contains("package") ||
+                                   output.contains("No");
+
+                assert!(
+                    has_structure,
+                    "Market list should have structured output, got: {}",
+                    output
                 );
             }
             Err(e) => panic!("Market list failed: {}", e),
@@ -118,8 +158,20 @@ mod integration {
 
         match result {
             Ok(output) => {
-                // Categories should list available types
+                // JTBD: Categories should list known category types
                 assert!(!output.is_empty(), "Should have at least one category");
+
+                // Should contain category-like words
+                let has_categories = output.to_lowercase().contains("category") ||
+                                    output.to_lowercase().contains("rust") ||
+                                    output.to_lowercase().contains("template") ||
+                                    output.to_lowercase().contains("service");
+
+                assert!(
+                    has_categories,
+                    "Categories should list actual category names, got: {}",
+                    output
+                );
             }
             Err(e) => panic!("Market categories failed: {}", e),
         }
@@ -127,16 +179,29 @@ mod integration {
 
     #[tokio::test]
     async fn test_marketplace_search_empty_query() {
-        // Empty query should either return all results or error gracefully
+        // JTBD: Empty query should error with meaningful message
         let result = run_for_node(vec!["market".to_string(), "search".to_string(), "".to_string()]).await;
 
         match result {
             Ok(res) => {
-                // Should handle empty query gracefully (either way is acceptable)
-                assert!(res.code == 0 || res.code != 0);
+                // Should either error OR return all packages (but must pick one behavior)
+                if res.code != 0 {
+                    // Expected: error for empty query
+                    assert!(
+                        !res.stderr.is_empty() || !res.stdout.is_empty(),
+                        "Empty query error should have message"
+                    );
+                } else {
+                    // If it succeeds, should return package results
+                    assert!(
+                        !res.stdout.is_empty(),
+                        "Empty query success should return all packages"
+                    );
+                }
             }
-            Err(_) => {
-                // Error is also acceptable for empty query
+            Err(e) => {
+                // Parse error is acceptable
+                assert!(!format!("{}", e).is_empty());
             }
         }
     }
@@ -152,11 +217,36 @@ mod integration {
 
         match result {
             Ok(res) => {
-                // Search should complete (results may be empty)
-                assert!(res.code == 0 || res.code == 1);
+                // JTBD: Search should succeed (found packages) or fail (no packages found)
+                // Exit code 0 = found packages, 1 = no results (both are valid)
+                assert!(
+                    res.code == 0 || res.code == 1,
+                    "Search should complete with success (0) or no results (1), got: {}",
+                    res.code
+                );
+
+                // Should always have output explaining what happened
+                assert!(
+                    !res.stdout.is_empty() || !res.stderr.is_empty(),
+                    "Search should explain results (found packages or 'no results')"
+                );
+
+                // If successful, should show package-like results
+                if res.code == 0 {
+                    let has_results = res.stdout.contains("package") ||
+                                     res.stdout.contains("rust") ||
+                                     res.stdout.contains("found") ||
+                                     res.stdout.contains("•");
+
+                    assert!(
+                        has_results,
+                        "Successful search should show package results, got: {}",
+                        res.stdout
+                    );
+                }
             }
             Err(_) => {
-                // Network errors are acceptable in tests
+                // Network errors are acceptable in tests, but shouldn't be silent
             }
         }
     }

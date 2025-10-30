@@ -85,6 +85,7 @@ nightly = ["ggen-utils/nightly"]
 termlog = ["ggen-utils/termlog"]
 journald = ["ggen-utils/journald"]
 syslog = ["ggen-utils/syslog"]
+london_tdd = []
 
 [dependencies]
 ggen-utils = { path = "utils", version = "1.2.0" }

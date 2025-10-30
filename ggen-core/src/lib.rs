@@ -9,6 +9,7 @@ pub mod delta;
 #[cfg(test)]
 pub mod e2e_tests;
 pub mod generator;
+pub mod project_generator;
 pub mod github;
 pub mod gpack;
 pub mod graph;

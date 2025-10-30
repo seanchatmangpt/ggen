@@ -11,7 +11,7 @@ crate-type = ["cdylib"]
 name = "ggen_node"
 
 [dependencies]
-napi = { version = "2", features = ["napi6"] }
+napi = { version = "2", features = ["napi6", "tokio_rt"] }
 napi-derive = "2"
 tokio = { version = "1.47", features = ["rt-multi-thread"] }
 ggen-cli-lib = { path = "../cli", version = "1.2.0" }

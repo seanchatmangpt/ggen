@@ -7,6 +7,7 @@ pub mod diff;
 pub mod freeze;
 pub mod gen;
 pub mod inject;
+pub mod new;
 pub mod plan;
 pub mod test;
 pub mod validate;
@@ -20,6 +21,15 @@ pub struct ProjectCmd {
 
 #[derive(Subcommand, Debug)]
 pub enum Verb {
+    /// Create a new project from scratch (bootstrap)
+    ///
+    /// Examples:
+    ///   ggen project new my-app --type rust-web --framework axum
+    ///   ggen project new my-cli --type rust-cli
+    ///   ggen project new my-site --type nextjs
+    ///   ggen project new my-lib --type rust-lib --output libs/
+    New(new::NewArgs),
+
     /// Generate artifacts from a template directly
     ///
     /// Examples:
@@ -94,6 +104,7 @@ pub enum Verb {
 impl ProjectCmd {
     pub async fn run(&self) -> Result<()> {
         match &self.verb {
+            Verb::New(args) => new::run(args).await,
             Verb::Gen(args) => gen::run(args).await,
             Verb::Plan(args) => plan::run(args).await,
             Verb::Apply(args) => apply::run(args).await,
