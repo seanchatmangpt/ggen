@@ -1,0 +1,6 @@
+# Examples configuration
+# This file is used to enable feature flags for examples
+
+[[example]]
+name = "graphql_server"
+required-features = ["graphql-server"]

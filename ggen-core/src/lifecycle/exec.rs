@@ -58,13 +58,29 @@ impl Context {
 }
 
 /// Run a single lifecycle phase with hooks
+#[tracing::instrument(name = "ggen.lifecycle.phase", skip(ctx), fields(phase = phase_name, duration_ms, status))]
 pub fn run_phase(ctx: &Context, phase_name: &str) -> Result<()> {
+    tracing::info!(phase = phase_name, "lifecycle phase starting");
+
     // Check for hook recursion FIRST
     ctx.enter_phase(phase_name)?;
 
     // Ensure we exit phase even on error
     let result = run_phase_internal(ctx, phase_name);
     ctx.exit_phase(phase_name);
+
+    // Record status in span
+    match &result {
+        Ok(_) => {
+            tracing::Span::current().record("status", "success");
+            tracing::info!(phase = phase_name, "lifecycle phase completed");
+        }
+        Err(e) => {
+            tracing::Span::current().record("status", "error");
+            tracing::error!(phase = phase_name, error = %e, "lifecycle phase failed");
+        }
+    }
+
     result
 }
 
@@ -103,6 +119,10 @@ fn run_phase_internal(ctx: &Context, phase_name: &str) -> Result<()> {
     }
 
     let duration = timer.elapsed().as_millis();
+
+    // Record duration in parent span
+    tracing::Span::current().record("duration_ms", duration);
+
     tracing::info!(
         phase = %phase_name,
         duration_ms = duration,
@@ -122,7 +142,9 @@ fn run_phase_internal(ctx: &Context, phase_name: &str) -> Result<()> {
 }
 
 /// Run a pipeline of phases sequentially
+#[tracing::instrument(name = "ggen.lifecycle.pipeline", skip(ctx), fields(phases = ?phases, phase_count = phases.len()))]
 pub fn run_pipeline(ctx: &Context, phases: &[String]) -> Result<()> {
+    tracing::info!(phases = ?phases, "starting lifecycle pipeline");
     if let Some(workspaces) = &ctx.make.workspace {
         // Check if parallel execution is requested
         let parallel = phases

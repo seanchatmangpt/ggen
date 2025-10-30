@@ -1,0 +1,340 @@
+@startuml ggen-marketplace-error-handling
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title Error Handling Architecture - ggen-marketplace Comprehensive Error Management
+
+actor User as "User"
+participant "Ggen CLI" as CLI
+participant "MarketplaceClient" as Client
+participant "ErrorHandler" as Handler
+participant "ErrorRecovery" as Recovery
+participant "RetryManager" as Retry
+participant "CircuitBreaker" as Circuit
+participant "FallbackManager" as Fallback
+participant "AuditLogger" as Audit
+participant "MetricsCollector" as Metrics
+participant "NotificationSystem" as Notify
+
+== Error Classification ==
+
+note over Handler: Error Type Hierarchy
+
+Handler -> Handler: classify_error(error)
+
+alt Network Errors
+    Handler -> Handler: NetworkError {
+        connection_timeout,
+        dns_resolution_failed,
+        peer_unreachable,
+        network_partition
+    }
+else Storage Errors
+    Handler -> Handler: StorageError {
+        disk_full,
+        permission_denied,
+        file_corrupted,
+        storage_unavailable
+    }
+else Security Errors
+    Handler -> Handler: SecurityError {
+        invalid_signature,
+        untrusted_publisher,
+        checksum_mismatch,
+        key_revoked
+    }
+else Validation Errors
+    Handler -> Handler: ValidationError {
+        invalid_package_format,
+        missing_dependencies,
+        version_conflict,
+        metadata_invalid
+    }
+else System Errors
+    Handler -> Handler: SystemError {
+        out_of_memory,
+        cpu_limit_exceeded,
+        resource_exhausted,
+        system_unavailable
+    }
+end
+
+== Error Handling Flow ==
+
+User -> CLI: ggen market install package
+CLI -> Client: install_package(package_id)
+
+Client -> Client: execute_operation()
+Client -> Handler: handle_operation_error(error)
+
+note over Handler: 1. Classify error
+Handler -> Handler: classify_error(error)
+Handler --> Handler: ErrorType
+
+note over Handler: 2. Determine recovery strategy
+Handler -> Recovery: determine_recovery_strategy(error_type)
+Recovery --> Handler: RecoveryStrategy
+
+note over Handler: 3. Execute recovery
+Handler -> Recovery: execute_recovery(strategy)
+Recovery --> Handler: RecoveryResult
+
+note over Handler: 4. Log error and recovery
+Handler -> Audit: log_error_with_context(error, recovery_result)
+Audit --> Handler: Logged
+
+note over Handler: 5. Update metrics
+Handler -> Metrics: record_error_metric(error_type, recovery_time)
+Metrics --> Handler: Recorded
+
+Handler --> Client: ErrorHandled
+Client --> CLI: OperationResult
+CLI --> User: User-friendly message
+
+== Retry Logic ==
+
+User -> CLI: ggen market search "framework"
+CLI -> Client: search_packages(query)
+
+Client -> Client: execute_search()
+Client -> Handler: handle_search_error(error)
+
+note over Handler: 1. Check if error is retryable
+Handler -> Retry: is_retryable_error(error)
+Retry --> Handler: Retryable { true }
+
+note over Handler: 2. Apply exponential backoff
+Handler -> Retry: calculate_backoff_delay(attempt_count)
+Retry -> Retry: exponential_backoff(
+    base_delay: 100ms,
+    max_delay: 5s,
+    jitter: true
+)
+Retry --> Handler: BackoffDelay
+
+note over Handler: 3. Execute retry
+loop Retry attempts (max 3)
+    Handler -> Client: retry_operation()
+    Client -> Client: execute_search()
+    alt Success
+        Client --> Handler: Success
+        break
+    else Retryable Error
+        Handler -> Retry: wait_for_backoff(delay)
+        Retry --> Handler: Waited
+    else Non-retryable Error
+        Handler -> Handler: abort_retry()
+        break
+    end
+end
+
+== Circuit Breaker Pattern ==
+
+User -> CLI: ggen market install package
+CLI -> Client: install_package(package_id)
+
+Client -> Circuit: check_circuit_state("package_download")
+Circuit --> Client: CircuitState { Closed }
+
+Client -> Client: download_package(package_id)
+
+alt Download Success
+    Client -> Circuit: record_success("package_download")
+    Circuit -> Circuit: reset_failure_count()
+    Circuit --> Client: SuccessRecorded
+else Download Failure
+    Client -> Circuit: record_failure("package_download")
+    Circuit -> Circuit: increment_failure_count()
+    
+    alt Failure threshold exceeded
+        Circuit -> Circuit: open_circuit("package_download")
+        Circuit -> Circuit: start_timeout_timer(60s)
+        Circuit --> Client: CircuitOpened
+    end
+end
+
+alt Circuit Open
+    Client -> Circuit: check_circuit_state("package_download")
+    Circuit --> Client: CircuitState { Open }
+    Client -> Fallback: execute_fallback_strategy()
+    Fallback --> Client: FallbackResult
+end
+
+== Fallback Strategies ==
+
+note over Fallback: Fallback Strategy Hierarchy
+
+User -> CLI: ggen market search "web framework"
+CLI -> Client: search_packages(query)
+
+Client -> Client: execute_search()
+Client -> Handler: handle_search_error(error)
+
+Handler -> Fallback: execute_fallback_strategy(error)
+
+alt Primary Search Failed
+    Fallback -> Fallback: try_local_cache_only()
+    Fallback -> Client: search_local_cache(query)
+    Client --> Fallback: CachedResults
+    
+    alt Cache Hit
+        Fallback --> Handler: FallbackSuccess
+    else Cache Miss
+        Fallback -> Fallback: try_offline_mode()
+        Fallback -> Client: search_offline_packages()
+        Client --> Fallback: OfflineResults
+        Fallback --> Handler: FallbackSuccess
+    end
+end
+
+alt P2P Network Unavailable
+    Fallback -> Fallback: enable_offline_mode()
+    Fallback -> Client: operate_offline_only()
+    Client --> Fallback: OfflineModeEnabled
+    Fallback --> Handler: FallbackSuccess
+end
+
+alt Storage Unavailable
+    Fallback -> Fallback: use_temporary_storage()
+    Fallback -> Client: use_temp_directory()
+    Client --> Fallback: TempStorageEnabled
+    Fallback --> Handler: FallbackSuccess
+end
+
+== Error Recovery ==
+
+note over Recovery: Recovery Strategies
+
+Recovery -> Recovery: implement_recovery_strategies()
+
+Recovery -> Recovery: network_recovery()
+Recovery -> Recovery: storage_recovery()
+Recovery -> Recovery: security_recovery()
+Recovery -> Recovery: validation_recovery()
+Recovery -> Recovery: system_recovery()
+
+note over Recovery: Network Recovery
+Recovery -> Recovery: retry_with_different_peer()
+Recovery -> Recovery: fallback_to_cached_data()
+Recovery -> Recovery: enable_offline_mode()
+Recovery -> Recovery: queue_for_later_sync()
+
+note over Recovery: Storage Recovery
+Recovery -> Recovery: cleanup_corrupted_files()
+Recovery -> Recovery: recreate_index()
+Recovery -> Recovery: use_backup_storage()
+Recovery -> Recovery: request_redownload()
+
+note over Recovery: Security Recovery
+Recovery -> Recovery: refresh_trust_store()
+Recovery -> Recovery: update_revocation_lists()
+Recovery -> Recovery: revalidate_signatures()
+Recovery -> Recovery: quarantine_suspicious_packages()
+
+== Error Monitoring ==
+
+note over Metrics: Error monitoring and alerting
+
+Metrics -> Metrics: collect_error_metrics()
+
+Metrics -> Metrics: track_error_rates()
+Metrics -> Metrics: monitor_recovery_times()
+Metrics -> Metrics: measure_circuit_breaker_activity()
+Metrics -> Metrics: assess_fallback_usage()
+
+alt Error Rate Threshold Exceeded
+    Metrics -> Metrics: trigger_error_alert(
+        error_type: "network_timeout",
+        rate: 15%,
+        threshold: 10%
+    )
+    Metrics -> Notify: send_alert(alert)
+    Notify -> Notify: notify_administrators()
+    Notify -> Notify: create_incident_ticket()
+end
+
+== User-Friendly Error Messages ==
+
+User -> CLI: ggen market install invalid-package
+CLI -> Client: install_package("invalid-package")
+
+Client -> Client: execute_installation()
+Client -> Handler: handle_installation_error(error)
+
+note over Handler: 1. Technical error occurred
+Handler -> Handler: technical_error = "PackageNotFound: invalid-package"
+
+note over Handler: 2. Generate user-friendly message
+Handler -> Handler: user_message = generate_user_message(technical_error)
+Handler -> Handler: "Package 'invalid-package' not found. Try 'ggen market search invalid' to find similar packages."
+
+note over Handler: 3. Provide actionable suggestions
+Handler -> Handler: suggestions = generate_suggestions(error)
+Handler -> Handler: [
+    "Use 'ggen market search <term>' to find packages",
+    "Check package name spelling",
+    "Try 'ggen market list' to see available packages"
+]
+
+Handler --> Client: UserFriendlyError
+Client --> CLI: ErrorWithSuggestions
+CLI --> User: Helpful error message with suggestions
+
+== Error Context Preservation ==
+
+note over Audit: Error context and debugging
+
+Audit -> Audit: preserve_error_context()
+
+Audit -> Audit: capture_stack_trace()
+Audit -> Audit: record_operation_context()
+Audit -> Audit: log_system_state()
+Audit -> Audit: store_debug_information()
+
+Audit -> Audit: create_error_report(
+    error: technical_error,
+    context: operation_context,
+    stack_trace: stack_trace,
+    system_state: system_state,
+    user_actions: user_actions,
+    timestamp: timestamp
+)
+
+== Graceful Degradation ==
+
+note over Client: Graceful degradation strategies
+
+Client -> Client: implement_graceful_degradation()
+
+Client -> Client: reduce_functionality()
+Client -> Client: use_cached_data()
+Client -> Client: enable_offline_mode()
+Client -> Client: provide_partial_results()
+
+alt Search Engine Unavailable
+    Client -> Client: degrade_to_basic_search()
+    Client -> Client: search_by_name_only()
+    Client -> Client: disable_fuzzy_matching()
+    Client -> Client: reduce_result_limit()
+end
+
+alt P2P Network Partitioned
+    Client -> Client: operate_locally_only()
+    Client -> Client: queue_operations()
+    Client -> Client: sync_when_available()
+end
+
+note over User, Notify
+  **Error Handling Principles:**
+  • Fail fast with clear error messages
+  • Implement comprehensive retry logic
+  • Use circuit breakers for resilience
+  • Provide graceful degradation
+  • Preserve error context for debugging
+  • Monitor and alert on error patterns
+  • Recover automatically where possible
+  • Guide users with actionable suggestions
+end note
+
+@enduml
+
+

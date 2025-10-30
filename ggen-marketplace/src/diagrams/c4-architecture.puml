@@ -1,0 +1,156 @@
+@startuml ggen-marketplace-p2p-c4
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+title Container Diagram for ggen-marketplace - Fully Decentralized P2P Package Registry
+
+Person(publisher, "Package Publisher", "Publishes templates, plugins, and packages")
+Person(consumer, "Package Consumer", "Searches and installs packages")
+
+System_Boundary(node_1, "Ggen Node 1") {
+    Container(ggen_cli_1, "Ggen CLI", "Rust Binary", "CLI tool with embedded marketplace")
+    
+    System_Boundary(marketplace_1, "ggen-marketplace Library") {
+        Component(client_1, "MarketplaceClient", "Rust", "High-level API")
+        
+        System_Boundary(core_1, "Core Components") {
+            Component(registry_1, "LocalRegistry", "SQLite", "Local package metadata")
+            Component(storage_1, "FilePackageStore", "Filesystem", "Local package storage")
+            Component(search_1, "TantivySearchEngine", "Tantivy", "Embedded full-text search")
+            Component(crypto_1, "Ed25519CryptoVerifier", "ed25519-dalek", "Signature verification")
+            Component(cache_1, "MokaCache", "In-memory", "Smart caching layer")
+        }
+        
+        Component(p2p_1, "P2P Network", "libp2p", "Peer discovery & gossip")
+        Component(ipfs_1, "IPFS Node", "Embedded", "Content-addressed storage")
+        Component(wasm_1, "WASM Runtime", "wasmtime", "Plugin execution sandbox")
+        Component(ml_1, "ML Recommender", "ndarray", "Local recommendations")
+    }
+}
+
+System_Boundary(node_2, "Ggen Node 2") {
+    Container(ggen_cli_2, "Ggen CLI", "Rust Binary", "CLI tool with embedded marketplace")
+    
+    System_Boundary(marketplace_2, "ggen-marketplace Library") {
+        Component(client_2, "MarketplaceClient", "Rust", "High-level API")
+        
+        System_Boundary(core_2, "Core Components") {
+            Component(registry_2, "LocalRegistry", "SQLite", "Local package metadata")
+            Component(storage_2, "FilePackageStore", "Filesystem", "Local package storage")
+            Component(search_2, "TantivySearchEngine", "Tantivy", "Embedded full-text search")
+            Component(crypto_2, "Ed25519CryptoVerifier", "ed25519-dalek", "Signature verification")
+            Component(cache_2, "MokaCache", "In-memory", "Smart caching layer")
+        }
+        
+        Component(p2p_2, "P2P Network", "libp2p", "Peer discovery & gossip")
+        Component(ipfs_2, "IPFS Node", "Embedded", "Content-addressed storage")
+        Component(wasm_2, "WASM Runtime", "wasmtime", "Plugin execution sandbox")
+        Component(ml_2, "ML Recommender", "ndarray", "Local recommendations")
+    }
+}
+
+System_Boundary(node_3, "Cleanroom Node") {
+    Container(clnrm_cli, "Cleanroom CLI", "Rust Binary", "Testing tool with marketplace")
+    
+    System_Boundary(marketplace_3, "ggen-marketplace Library") {
+        Component(client_3, "MarketplaceClient", "Rust", "High-level API")
+        
+        System_Boundary(core_3, "Core Components") {
+            Component(registry_3, "LocalRegistry", "SQLite", "Local validator registry")
+            Component(storage_3, "FilePackageStore", "Filesystem", "Local validator storage")
+            Component(search_3, "TantivySearchEngine", "Tantivy", "Embedded search")
+            Component(crypto_3, "Ed25519CryptoVerifier", "ed25519-dalek", "Verification")
+            Component(cache_3, "MokaCache", "In-memory", "Caching")
+        }
+        
+        Component(p2p_3, "P2P Network", "libp2p", "Peer discovery")
+        Component(ipfs_3, "IPFS Node", "Embedded", "Content storage")
+    }
+}
+
+System_Boundary(p2p_mesh, "P2P Network Mesh") {
+    Component(kad_dht, "Kademlia DHT", "libp2p-kad", "Distributed hash table for peer discovery")
+    Component(gossipsub, "GossipSub", "libp2p-gossipsub", "Package announcement propagation")
+    Component(bitswap, "Bitswap", "IPFS Protocol", "Content exchange protocol")
+}
+
+' User interactions
+Rel(publisher, ggen_cli_1, "Publishes packages", "CLI")
+Rel(consumer, ggen_cli_2, "Searches & installs", "CLI")
+
+' P2P connections between nodes
+Rel(p2p_1, kad_dht, "Discovers peers", "libp2p")
+Rel(p2p_2, kad_dht, "Discovers peers", "libp2p")
+Rel(p2p_3, kad_dht, "Discovers peers", "libp2p")
+
+Rel(p2p_1, gossipsub, "Announces packages", "PubSub")
+Rel(p2p_2, gossipsub, "Subscribes to updates", "PubSub")
+Rel(p2p_3, gossipsub, "Subscribes to updates", "PubSub")
+
+' IPFS content exchange
+Rel(ipfs_1, bitswap, "Provides content", "IPFS Bitswap")
+Rel(ipfs_2, bitswap, "Requests content", "IPFS Bitswap")
+Rel(ipfs_3, bitswap, "Requests content", "IPFS Bitswap")
+
+' Direct P2P connections (mesh topology)
+Rel_Back(p2p_1, p2p_2, "Peer connection", "TCP/QUIC")
+Rel(p2p_2, p2p_3, "Peer connection", "TCP/QUIC")
+Rel_Back(p2p_1, p2p_3, "Peer connection", "TCP/QUIC")
+
+' Internal architecture Node 1
+Rel(ggen_cli_1, client_1, "Uses", "Rust API")
+Rel(client_1, registry_1, "Queries metadata", "async")
+Rel(client_1, storage_1, "Stores/retrieves packages", "async")
+Rel(client_1, search_1, "Full-text search", "async")
+Rel(client_1, crypto_1, "Verifies signatures", "async")
+Rel(client_1, cache_1, "Caches results", "async")
+Rel(client_1, p2p_1, "Discovers & syncs", "async")
+Rel(storage_1, ipfs_1, "Content-addresses", "CID")
+Rel(client_1, wasm_1, "Executes plugins", "WASM")
+Rel(search_1, ml_1, "Gets recommendations", "async")
+
+' Internal architecture Node 2
+Rel(ggen_cli_2, client_2, "Uses", "Rust API")
+Rel(client_2, registry_2, "Queries metadata", "async")
+Rel(client_2, storage_2, "Stores/retrieves packages", "async")
+Rel(client_2, search_2, "Full-text search", "async")
+Rel(client_2, crypto_2, "Verifies signatures", "async")
+Rel(client_2, cache_2, "Caches results", "async")
+Rel(client_2, p2p_2, "Discovers & syncs", "async")
+Rel(storage_2, ipfs_2, "Content-addresses", "CID")
+Rel(client_2, wasm_2, "Executes plugins", "WASM")
+
+' Internal architecture Node 3
+Rel(clnrm_cli, client_3, "Uses", "Rust API")
+Rel(client_3, registry_3, "Queries metadata", "async")
+Rel(client_3, storage_3, "Retrieves validators", "async")
+Rel(client_3, search_3, "Search validators", "async")
+Rel(client_3, crypto_3, "Verifies validators", "async")
+Rel(client_3, p2p_3, "Discovers peers", "async")
+Rel(storage_3, ipfs_3, "Content-addresses", "CID")
+
+note right of p2p_mesh
+  **Fully Decentralized Architecture**
+  • No central servers required
+  • No Docker/containers needed
+  • No PostgreSQL/Redis needed
+  • Each node is autonomous
+  • Content-addressed via IPFS
+  • Peer discovery via Kademlia DHT
+  • Package updates via GossipSub
+  • Deterministic reproducibility
+end note
+
+note right of node_1
+  **Local-First Design**
+  • SQLite for metadata
+  • Filesystem for packages
+  • Tantivy for search
+  • Moka for caching
+  • All embedded in binary
+  • Zero external dependencies
+end note
+
+SHOW_LEGEND()
+
+@enduml

@@ -148,15 +148,18 @@ pub async fn run(args: LifecycleArgs) -> ggen_utils::error::Result<()> {
 }
 
 /// List all available phases from make.toml
+#[tracing::instrument(name = "ggen.lifecycle.list", skip(root), fields(root = %root.display()))]
 fn list_phases(root: &Path) -> ggen_utils::error::Result<()> {
     let make_path = root.join("make.toml");
 
     if !make_path.exists() {
+        tracing::warn!("make.toml not found");
         println!("❌ No make.toml found in {}", root.display());
         println!("   Initialize a project with 'ggen lifecycle init'");
         return Ok(());
     }
 
+    tracing::info!("Loading make.toml");
     let make = load_make(&make_path).map_err(|e| anyhow::anyhow!(e))?;
 
     println!("📋 Available lifecycle phases in {}:", root.display());
@@ -278,9 +281,16 @@ fn show_phase(root: &Path, phase_name: &str) -> ggen_utils::error::Result<()> {
 }
 
 /// Run a single phase
+#[tracing::instrument(name = "ggen.lifecycle.run_phase", skip(root), fields(
+    root = %root.display(),
+    phase = %phase_name,
+    env = ?env
+))]
 fn run_single_phase(
     root: &Path, phase_name: &str, env: Option<String>,
 ) -> ggen_utils::error::Result<()> {
+    tracing::info!(phase = %phase_name, "Starting lifecycle phase");
+
     let make_path = root.join("make.toml");
     let make = std::sync::Arc::new(load_make(&make_path).map_err(|e| anyhow::anyhow!(e))?);
 
@@ -289,7 +299,11 @@ fn run_single_phase(
 
     let ctx = Context::new(root.to_path_buf(), make, state_path, env_vars);
 
+    let _exec_span = tracing::info_span!("execute_phase", phase = %phase_name).entered();
     run_phase(&ctx, phase_name).map_err(|e| anyhow::anyhow!(e))?;
+    drop(_exec_span);
+
+    tracing::info!(phase = %phase_name, "Phase completed successfully");
 
     Ok(())
 }
@@ -315,20 +329,39 @@ fn run_phase_pipeline(
 }
 
 /// Check production readiness status
+#[tracing::instrument(name = "ggen.lifecycle.readiness", skip(root), fields(
+    root = %root.display(),
+    detailed = detailed,
+    critical_only = critical_only
+))]
 fn check_readiness(
     root: &Path, detailed: bool, critical_only: bool,
 ) -> ggen_utils::error::Result<()> {
+    tracing::info!("Checking production readiness");
+
+    let _load_span = tracing::info_span!("load_tracker").entered();
     let mut tracker = ReadinessTracker::new(root);
     tracker
         .load()
         .map_err(|e: ggen_core::lifecycle::production::ProductionError| anyhow::anyhow!(e))?;
+    drop(_load_span);
 
     // Analyze project for existing implementations
+    let _analyze_span = tracing::info_span!("analyze_project").entered();
     tracker
         .analyze_project()
         .map_err(|e: ggen_core::lifecycle::production::ProductionError| anyhow::anyhow!(e))?;
+    drop(_analyze_span);
 
+    let _report_span = tracing::info_span!("generate_report").entered();
     let report = tracker.generate_report();
+    tracing::info!(
+        overall_score = report.overall_score,
+        total_requirements = report.requirements.len(),
+        blocking = report.blocking_requirements.len(),
+        "Readiness report generated"
+    );
+    drop(_report_span);
 
     println!("🚀 Production Readiness Report");
     println!("📊 Overall Score: {:.1}%", report.overall_score);
@@ -523,21 +556,37 @@ fn show_placeholders(_root: &Path, category_filter: Option<&str>) -> ggen_utils:
 }
 
 /// Validate production readiness for deployment
+#[tracing::instrument(name = "ggen.lifecycle.validate", skip(root), fields(
+    root = %root.display(),
+    env = %env,
+    strict = strict
+))]
 fn validate_for_deployment(root: &Path, env: &str, strict: bool) -> ggen_utils::error::Result<()> {
     println!("🚀 Production Readiness Validation for {} environment", env);
     println!();
+    tracing::info!(environment = %env, strict_mode = strict, "Starting production validation");
 
     // Create validator with appropriate settings
+    let _validator_span = tracing::info_span!("create_validator", strict = strict).entered();
     let validator = if strict {
         ReadinessValidator::new().strict_mode(true)
     } else {
         ReadinessValidator::new().strict_mode(false)
     };
+    drop(_validator_span);
 
     // Run validation
+    let _validate_span = tracing::info_span!("run_validation").entered();
     let result = validator
         .validate_for_deployment(root)
         .map_err(|e| anyhow::anyhow!("Validation failed: {}", e))?;
+    tracing::info!(
+        score = result.score,
+        passed = result.passed,
+        issues_count = result.issues.len(),
+        "Validation completed"
+    );
+    drop(_validate_span);
 
     // Display results
     println!("📊 Overall Score: {:.1}%", result.score);

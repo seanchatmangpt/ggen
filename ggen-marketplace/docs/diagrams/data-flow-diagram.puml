@@ -1,0 +1,204 @@
+@startuml ggen-marketplace-data-flow
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title Data Flow Diagram - ggen-marketplace Package Lifecycle
+
+actor Developer as "Developer"
+participant "Ggen CLI" as CLI
+participant "MarketplaceClient" as Client
+participant "LocalRegistry" as Registry
+participant "FilePackageStore" as Storage
+participant "TantivySearchEngine" as Search
+participant "Ed25519CryptoVerifier" as Crypto
+participant "P2P Network" as P2P
+participant "IPFS Node" as IPFS
+participant "MokaCache" as Cache
+participant "WASM Runtime" as WASM
+participant "ML Recommender" as ML
+
+== Package Creation & Validation ==
+
+Developer -> CLI: ggen market create ./my-package
+CLI -> Client: create_package_metadata(package_path)
+
+note over Client: 1. Parse package manifest
+Client -> Client: parse_cargo_toml(package_path)
+Client -> Client: extract_metadata(name, version, deps)
+
+note over Client: 2. Generate cryptographic keys
+Client -> Crypto: generate_keypair()
+Crypto --> Client: KeyPair { public_key, private_key }
+
+note over Client: 3. Create package archive
+Client -> Storage: create_tarball(package_path)
+Storage --> Client: package_bytes
+
+note over Client: 4. Compute content hash
+Client -> Crypto: checksum(package_bytes, SHA256)
+Crypto --> Client: ContentHash
+
+note over Client: 5. Sign package metadata
+Client -> Crypto: sign(metadata, private_key)
+Crypto --> Client: Signature
+
+== Package Publication ==
+
+Developer -> CLI: ggen market publish ./my-package
+CLI -> Client: publish_package(package_path, signature)
+
+note over Client: 1. Verify signature
+Client -> Crypto: verify_signature(metadata, signature)
+Crypto --> Client: VerificationResult { valid: true }
+
+note over Client: 2. Store package content
+Client -> Storage: store_package(package_bytes)
+Storage -> IPFS: content_address(package_bytes)
+IPFS --> Storage: CID (Content ID)
+Storage --> Client: ContentHash
+
+note over Client: 3. Register metadata
+Client -> Registry: register_package(metadata, content_hash)
+Registry --> Client: PackageId
+
+note over Client: 4. Index for search
+Client -> Search: index_package(metadata)
+Search --> Client: Indexed
+
+note over Client: 5. Cache metadata
+Client -> Cache: cache_metadata(package_id, metadata)
+Cache --> Client: Cached
+
+note over Client: 6. Announce to P2P network
+Client -> P2P: announce_package(package_id, metadata)
+P2P --> Client: Announced
+
+== Package Discovery ==
+
+Developer -> CLI: ggen market search "web framework"
+CLI -> Client: search_packages(query)
+
+note over Client: 1. Check cache first
+Client -> Cache: get_cached_results(query)
+Cache --> Client: CacheResult { hit: false }
+
+note over Client: 2. Search local index
+Client -> Search: search(query)
+Search --> Client: SearchResults
+
+note over Client: 3. Enhance with ML recommendations
+Client -> ML: get_recommendations(query, results)
+ML --> Client: EnhancedResults
+
+note over Client: 4. Cache results
+Client -> Cache: cache_search_results(query, results)
+Cache --> Client: Cached
+
+Client --> CLI: SearchResults
+CLI --> Developer: Package list with scores
+
+== Package Installation ==
+
+Developer -> CLI: ggen market install web-framework
+CLI -> Client: install_package(package_name, version)
+
+note over Client: 1. Resolve package ID
+Client -> Registry: resolve_version(package_name, version_req)
+Registry --> Client: PackageId
+
+note over Client: 2. Get package metadata
+Client -> Cache: get_cached_metadata(package_id)
+Cache --> Client: CacheResult { hit: true, metadata }
+
+note over Client: 3. Download package content
+Client -> Storage: get_package(package_id)
+Storage -> IPFS: retrieve_content(CID)
+IPFS --> Storage: package_bytes
+Storage --> Client: package_bytes
+
+note over Client: 4. Verify integrity
+Client -> Crypto: verify_checksum(package_bytes, expected_hash)
+Crypto --> Client: ChecksumResult { valid: true }
+
+Client -> Crypto: verify_signature(metadata, signature)
+Crypto --> Client: SignatureResult { valid: true }
+
+note over Client: 5. Extract and install
+Client -> Client: extract_package(package_bytes, install_path)
+Client --> CLI: InstallSuccess(install_path)
+CLI --> Developer: Package installed
+
+== P2P Synchronization ==
+
+note over P2P: Background sync process
+
+P2P -> P2P: discover_peers()
+P2P -> P2P: receive_package_announcements()
+
+P2P -> Client: sync_package_metadata(package_id)
+Client -> Registry: check_package_exists(package_id)
+Registry --> Client: PackageExists { false }
+
+Client -> P2P: request_package_metadata(package_id)
+P2P --> Client: PackageMetadata
+
+Client -> Registry: register_package(metadata, content_hash)
+Registry --> Client: PackageId
+
+Client -> Search: index_package(metadata)
+Search --> Client: Indexed
+
+note over P2P: Package now available locally
+
+== Plugin Execution ==
+
+Developer -> CLI: ggen market validate ./my-package
+CLI -> Client: validate_package(package_path)
+
+note over Client: 1. Load validation plugin
+Client -> WASM: load_plugin("validator.wasm")
+WASM --> Client: PluginInstance
+
+note over Client: 2. Execute validation
+Client -> WASM: execute_plugin(plugin, package_data)
+WASM --> Client: ValidationResult
+
+Client --> CLI: ValidationResult
+CLI --> Developer: Validation report
+
+== Error Handling & Recovery ==
+
+alt Network Error
+    P2P --> Client: NetworkError
+    note over Client: Continue in offline mode
+    Client -> Registry: get_local_packages()
+    Registry --> Client: LocalPackages
+    Client --> CLI: OfflineResults
+end
+
+alt Cache Miss
+    Cache --> Client: CacheMiss
+    Client -> Registry: get_package_metadata(package_id)
+    Registry --> Client: PackageMetadata
+    Client -> Cache: cache_metadata(package_id, metadata)
+end
+
+alt Invalid Signature
+    Crypto --> Client: InvalidSignature
+    Client --> CLI: SecurityError
+    CLI --> Developer: Package verification failed
+end
+
+note over Developer, ML
+  **Data Flow Characteristics:**
+  • Local-first with P2P sync
+  • Content-addressed storage (IPFS)
+  • Cryptographic verification at every step
+  • Smart caching for performance
+  • Offline-capable with eventual consistency
+  • WASM plugin sandboxing
+  • ML-enhanced recommendations
+end note
+
+@enduml
+
+

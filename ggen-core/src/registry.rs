@@ -116,14 +116,17 @@ impl RegistryClient {
         Ok(Self { base_url, client })
     }
 
-    /// Fetch the registry index
+    /// Fetch the registry index with retry logic
+    #[tracing::instrument(name = "ggen.registry.fetch_index", skip(self), fields(url, attempt))]
     pub async fn fetch_index(&self) -> Result<RegistryIndex> {
         let url = self
             .base_url
             .join("index.json")
             .context("Failed to construct index URL")?;
 
-        // Handle file:// URLs for local testing
+        tracing::Span::current().record("url", &tracing::field::display(&url));
+
+        // Handle file:// URLs for local testing (no retry needed)
         if url.scheme() == "file" {
             let path = url
                 .to_file_path()
@@ -140,31 +143,78 @@ impl RegistryClient {
             return Ok(index);
         }
 
-        let response = self
-            .client
-            .get(url.clone())
-            .send()
-            .await
-            .context(format!("Failed to fetch registry index from {}", url))?;
+        // HTTP/HTTPS with retry logic (3 attempts with exponential backoff)
+        const MAX_RETRIES: u32 = 3;
+        let mut last_error = None;
 
-        if !response.status().is_success() {
-            anyhow::bail!(
-                "Registry returned status: {} for URL: {}",
-                response.status(),
-                url
-            );
+        for attempt in 1..=MAX_RETRIES {
+            tracing::Span::current().record("attempt", attempt);
+            tracing::info!(attempt, max_retries = MAX_RETRIES, "Fetching registry index");
+
+            match self
+                .client
+                .get(url.clone())
+                .send()
+                .await
+            {
+                Ok(response) => {
+                    if !response.status().is_success() {
+                        let status = response.status();
+                        tracing::warn!(status = %status, attempt, "Registry returned error status");
+
+                        // Don't retry on client errors (4xx), only server errors (5xx) and network issues
+                        if status.is_client_error() {
+                            anyhow::bail!(
+                                "Registry returned client error status: {} for URL: {}",
+                                status,
+                                url
+                            );
+                        }
+
+                        last_error = Some(anyhow::anyhow!(
+                            "Registry returned status: {} for URL: {}",
+                            status,
+                            url
+                        ));
+                    } else {
+                        match response.json::<RegistryIndex>().await {
+                            Ok(index) => {
+                                tracing::info!(attempt, "Registry index fetched successfully");
+                                return Ok(index);
+                            }
+                            Err(e) => {
+                                tracing::warn!(error = %e, attempt, "Failed to parse registry index");
+                                last_error = Some(anyhow::Error::from(e).context("Failed to parse registry index"));
+                            }
+                        }
+                    }
+                }
+                Err(e) => {
+                    tracing::warn!(error = %e, attempt, "Network error fetching registry");
+                    last_error = Some(anyhow::Error::from(e).context(format!(
+                        "Failed to fetch registry index from {}",
+                        url
+                    )));
+                }
+            }
+
+            // Exponential backoff before retry (except on last attempt)
+            if attempt < MAX_RETRIES {
+                let backoff_ms = 100 * 2u64.pow(attempt - 1); // 100ms, 200ms, 400ms
+                tracing::info!(backoff_ms, "Waiting before retry");
+                tokio::time::sleep(std::time::Duration::from_millis(backoff_ms)).await;
+            }
         }
 
-        let index: RegistryIndex = response
-            .json()
-            .await
-            .context("Failed to parse registry index")?;
-
-        Ok(index)
+        // All retries exhausted
+        Err(last_error.unwrap_or_else(|| anyhow::anyhow!("Failed to fetch registry after {} attempts", MAX_RETRIES)))
     }
 
     /// Search for gpacks matching the query
+    #[tracing::instrument(name = "ggen.market.search", skip(self), fields(query, result_count))]
     pub async fn search(&self, query: &str) -> Result<Vec<SearchResult>> {
+        tracing::info!(query = query, "searching marketplace");
+
         let index = self.fetch_index().await?;
         let query_lower = query.to_lowercase();
 
@@ -199,11 +249,21 @@ impl RegistryClient {
             }
         });
 
+        tracing::Span::current().record("result_count", results.len());
+        tracing::info!(count = results.len(), "search completed");
+
         Ok(results)
     }
 
     /// Advanced search with filtering options
+    #[tracing::instrument(name = "ggen.market.advanced_search", skip(self, params), fields(query = params.query, category, result_count))]
     pub async fn advanced_search(&self, params: &SearchParams<'_>) -> Result<Vec<SearchResult>> {
+        tracing::info!(query = params.query, "advanced search");
+
+        if let Some(category) = params.category {
+            tracing::Span::current().record("category", category);
+        }
+
         let index = self.fetch_index().await?;
         let query_lower = params.query.to_lowercase();
 
@@ -237,6 +297,9 @@ impl RegistryClient {
         // Sort by relevance and apply limit
         results.sort_by(|a, b| self.compare_relevance(a, b, &query_lower));
         results.truncate(params.limit);
+
+        tracing::Span::current().record("result_count", results.len());
+        tracing::info!(count = results.len(), "advanced search completed");
 
         Ok(results)
     }
@@ -345,7 +408,10 @@ impl RegistryClient {
     }
 
     /// Resolve a pack ID to a specific version
+    #[tracing::instrument(name = "ggen.market.resolve", skip(self), fields(pack_id, version, resolved_version))]
     pub async fn resolve(&self, pack_id: &str, version: Option<&str>) -> Result<ResolvedPack> {
+        tracing::info!(pack_id = pack_id, requested_version = ?version, "resolving package");
+
         let index = self.fetch_index().await?;
 
         let pack = index
@@ -364,6 +430,9 @@ impl RegistryClient {
                 target_version, pack_id
             )
         })?;
+
+        tracing::Span::current().record("resolved_version", &tracing::field::display(&target_version));
+        tracing::info!(pack_id = pack_id, version = %target_version, "package resolved");
 
         Ok(ResolvedPack {
             id: pack_id.to_string(),

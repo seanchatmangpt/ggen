@@ -1,6 +1,6 @@
 python 3.12.6
 jq 1.7
-nodejs 20.18.0
+nodejs 24.10.0
 github-cli 2.54.0
 rust 1.86.0
 terraform 1.8.5

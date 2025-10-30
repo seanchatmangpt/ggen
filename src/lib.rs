@@ -19,6 +19,7 @@ pub mod agents {
     pub mod simple;
 }
 pub mod core;
+pub mod p2p;
 pub mod utils;
 
 // Re-export commonly used types

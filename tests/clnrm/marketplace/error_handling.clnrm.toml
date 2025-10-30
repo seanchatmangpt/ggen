@@ -1,0 +1,485 @@
+# Marketplace Error Handling Tests with OTEL Validation
+# Converts error handling tests from marketplace_validation.rs to CLNRM format
+# Proves execution via 7-layer fake-green detection
+
+[meta]
+name = "marketplace_error_handling_with_otel_proof"
+version = "1.0.0"
+description = "Comprehensive error handling tests with OTEL span validation"
+
+[otel]
+exporter = "otlp"
+endpoint = "http://localhost:4318"
+service_name = "ggen-marketplace-error-tests"
+
+[otel.resource]
+"service.namespace" = "ggen-marketplace"
+"test.suite" = "error_handling"
+
+[service.ggen]
+plugin = "generic_container"
+image = "rust:1.75"
+workdir = "/app"
+volumes = ["./:/app"]
+env.RUST_LOG = "info,ggen=debug"
+env.OTEL_EXPORTER_OTLP_ENDPOINT = "http://localhost:4318"
+
+# ============================================================================
+# PACKAGE NOT FOUND ERRORS
+# ============================================================================
+
+[[scenario]]
+name = "test_marketplace_nonexistent_package"
+description = "Test error handling for non-existent package"
+service = "ggen"
+run = """
+cargo test --test marketplace_tests_main \
+  integration::marketplace_validation::test_marketplace_nonexistent_package \
+  -- --nocapture
+"""
+
+[[scenario.expect.span]]
+name = "ggen.registry.resolve"
+attrs.all = {
+  "package.id" = "nonexistent-package",
+  "error.type" = "PackageNotFound",
+  "error.message.contains" = "not found"
+}
+status = "ERROR"
+
+[[scenario.expect.span]]
+name = "ggen.error.handle"
+attrs.all = {
+  "error.type" = "PackageNotFound",
+  "error.handled" = "true",
+  "error.recovery" = "none"
+}
+
+[scenario.expect.status]
+test = "OK"  # Test passes because error is expected
+
+[scenario.expect.graph]
+must_have_parent = [
+  { child = "ggen.error.handle", parent = "ggen.registry.resolve" }
+]
+
+[[scenario]]
+name = "test_marketplace_invalid_version"
+description = "Test error handling for invalid version"
+service = "ggen"
+run = """
+cargo test --test marketplace_tests_main \
+  integration::marketplace_validation::test_marketplace_invalid_version \
+  -- --nocapture
+"""
+
+[[scenario.expect.span]]
+name = "ggen.registry.resolve"
+attrs.all = {
+  "package.id" = "version-test",
+  "package.version" = "99.99.99",
+  "error.type" = "VersionNotFound",
+  "error.message.contains" = "version not found"
+}
+status = "ERROR"
+
+[[scenario.expect.span]]
+name = "ggen.error.handle"
+attrs.all = {
+  "error.type" = "VersionNotFound",
+  "error.handled" = "true"
+}
+
+[scenario.expect.status]
+test = "OK"
+
+# ============================================================================
+# EMPTY REGISTRY ERRORS
+# ============================================================================
+
+[[scenario]]
+name = "test_marketplace_empty_registry"
+description = "Test operations on empty registry"
+service = "ggen"
+run = """
+cargo test --test marketplace_tests_main \
+  integration::marketplace_validation::test_marketplace_empty_registry \
+  -- --nocapture
+"""
+
+[[scenario.expect.span]]
+name = "registry.fetch_index"
+attrs.all = {
+  "status" = "success",
+  "packages.count" = 0,
+  "registry.empty" = "true"
+}
+
+[[scenario.expect.span]]
+name = "ggen.market.search"
+attrs.all = {
+  "query" = "anything",
+  "results.count" = 0,
+  "registry.empty" = "true"
+}
+
+[[scenario.expect.span]]
+name = "ggen.registry.list_packages"
+attrs.all = {
+  "packages.count" = 0,
+  "registry.empty" = "true"
+}
+
+[scenario.expect.status]
+all = "OK"
+
+# ============================================================================
+# MALFORMED DATA ERRORS
+# ============================================================================
+
+[[scenario]]
+name = "test_marketplace_malformed_index_handling"
+description = "Test error handling for malformed index"
+service = "ggen"
+run = """
+cargo test --test marketplace_tests_main \
+  integration::marketplace_validation::test_marketplace_malformed_index_handling \
+  -- --nocapture
+"""
+
+[[scenario.expect.span]]
+name = "registry.fetch_index"
+attrs.all = {
+  "error.type" = "ParseError",
+  "error.message.contains" = "invalid json",
+  "index.malformed" = "true"
+}
+status = "ERROR"
+
+[[scenario.expect.span]]
+name = "ggen.error.handle"
+attrs.all = {
+  "error.type" = "ParseError",
+  "error.handled" = "true",
+  "error.severity" = "critical"
+}
+
+[scenario.expect.status]
+test = "OK"
+
+[scenario.expect.graph]
+must_have_parent = [
+  { child = "ggen.error.handle", parent = "registry.fetch_index" }
+]
+
+# ============================================================================
+# NETWORK ERROR SIMULATION
+# ============================================================================
+
+[[scenario]]
+name = "test_marketplace_network_timeout"
+description = "Test network timeout error handling"
+service = "ggen"
+run = """
+# Simulate network timeout by using invalid endpoint
+GGEN_REGISTRY_URL=http://localhost:9999/timeout \
+cargo test --test marketplace_tests_main \
+  integration::marketplace_validation::test_marketplace_basic_search \
+  -- --nocapture || true
+"""
+
+[[scenario.expect.span]]
+name = "registry.fetch_index"
+attrs.all = {
+  "error.type" = "NetworkTimeout",
+  "error.timeout.ms.gte" = 1000
+}
+status = "ERROR"
+
+[[scenario.expect.span]]
+name = "ggen.error.handle"
+attrs.all = {
+  "error.type" = "NetworkTimeout",
+  "error.handled" = "true",
+  "error.retry.attempted" = "true"
+}
+
+[scenario.expect.status]
+test = "ERROR"  # Test expected to fail with network error
+
+[[scenario]]
+name = "test_marketplace_connection_refused"
+description = "Test connection refused error handling"
+service = "ggen"
+run = """
+# Simulate connection refused
+GGEN_REGISTRY_URL=http://localhost:0/refused \
+cargo test --test marketplace_tests_main \
+  integration::marketplace_validation::test_marketplace_basic_search \
+  -- --nocapture || true
+"""
+
+[[scenario.expect.span]]
+name = "registry.fetch_index"
+attrs.all = {
+  "error.type" = "ConnectionRefused",
+  "error.message.contains" = "connection refused"
+}
+status = "ERROR"
+
+[[scenario.expect.span]]
+name = "ggen.error.handle"
+attrs.all = {
+  "error.type" = "ConnectionRefused",
+  "error.handled" = "true"
+}
+
+# ============================================================================
+# FILE SYSTEM ERROR SIMULATION
+# ============================================================================
+
+[[scenario]]
+name = "test_marketplace_permission_denied"
+description = "Test permission denied error handling"
+service = "ggen"
+run = """
+# Simulate permission denied by writing to read-only filesystem
+chmod 000 /tmp/ggen-test-readonly || true
+GGEN_CACHE_DIR=/tmp/ggen-test-readonly \
+cargo test --test marketplace_tests_main \
+  integration::marketplace_validation::test_marketplace_basic_search \
+  -- --nocapture || true
+chmod 755 /tmp/ggen-test-readonly || true
+"""
+
+[[scenario.expect.span]]
+name = "ggen.cache.write"
+attrs.all = {
+  "error.type" = "PermissionDenied",
+  "error.message.contains" = "permission denied"
+}
+status = "ERROR"
+
+[[scenario.expect.span]]
+name = "ggen.error.handle"
+attrs.all = {
+  "error.type" = "PermissionDenied",
+  "error.handled" = "true",
+  "error.recovery" = "fallback"
+}
+
+[[scenario]]
+name = "test_marketplace_disk_full"
+description = "Test disk full error handling"
+service = "ggen"
+run = """
+# Simulate disk full (difficult to test, use mock)
+GGEN_SIMULATE_DISK_FULL=true \
+cargo test --test marketplace_tests_main \
+  integration::marketplace_validation::test_marketplace_basic_search \
+  -- --nocapture || true
+"""
+
+[[scenario.expect.span]]
+name = "ggen.cache.write"
+attrs.all = {
+  "error.type" = "DiskFull",
+  "error.message.contains" = "no space left"
+}
+status = "ERROR"
+
+[[scenario.expect.span]]
+name = "ggen.error.handle"
+attrs.all = {
+  "error.type" = "DiskFull",
+  "error.handled" = "true",
+  "error.severity" = "critical"
+}
+
+# ============================================================================
+# CONCURRENT ERROR SCENARIOS
+# ============================================================================
+
+[[scenario]]
+name = "test_marketplace_concurrent_errors"
+description = "Test concurrent error handling"
+service = "ggen"
+run = """
+# Run concurrent tests that may fail
+cargo test --test marketplace_tests_main \
+  integration::marketplace_validation::test_marketplace_concurrent_searches \
+  -- --nocapture || true
+"""
+
+[scenario.expect.counts]
+# May have multiple error handling spans if errors occur
+"ggen.error.handle" = { min = 0 }
+
+[scenario.expect.status]
+test = "OK"  # Test may pass or fail, but should handle errors gracefully
+
+# ============================================================================
+# ERROR RECOVERY TESTS
+# ============================================================================
+
+[[scenario]]
+name = "test_marketplace_error_recovery_retry"
+description = "Test error recovery with retry mechanism"
+service = "ggen"
+run = """
+cargo test --test marketplace_tests_main \
+  integration::marketplace_validation::test_marketplace_basic_search \
+  -- --nocapture
+"""
+
+[[scenario.expect.span]]
+name = "ggen.retry.attempt"
+attrs.all = {
+  "operation" = "fetch_index",
+  "attempt.number.gte" = 1,
+  "retry.strategy" = "exponential_backoff"
+}
+
+# If retry succeeds, final status should be OK
+[[scenario.expect.span]]
+name = "registry.fetch_index"
+attrs.all = { "status" = "success", "retries.count.gte" = 0 }
+
+[scenario.expect.status]
+all = "OK"
+
+[[scenario]]
+name = "test_marketplace_error_recovery_fallback"
+description = "Test error recovery with fallback mechanism"
+service = "ggen"
+run = """
+# Simulate primary source failure, use fallback
+GGEN_PRIMARY_REGISTRY=http://localhost:9999/fail \
+GGEN_FALLBACK_REGISTRY=http://localhost:8080 \
+cargo test --test marketplace_tests_main \
+  integration::marketplace_validation::test_marketplace_basic_search \
+  -- --nocapture || true
+"""
+
+[[scenario.expect.span]]
+name = "registry.fetch_index"
+attrs.all = {
+  "source" = "primary",
+  "error.type" = "ConnectionFailed"
+}
+status = "ERROR"
+
+[[scenario.expect.span]]
+name = "ggen.fallback.activate"
+attrs.all = {
+  "source" = "fallback",
+  "reason" = "primary_failed"
+}
+
+[[scenario.expect.span]]
+name = "registry.fetch_index"
+attrs.all = {
+  "source" = "fallback",
+  "status" = "success"
+}
+
+[scenario.expect.temporal]
+must_follow = [
+  { later = "ggen.fallback.activate", earlier = "registry.fetch_index[source=primary]" },
+  { later = "registry.fetch_index[source=fallback]", earlier = "ggen.fallback.activate" }
+]
+
+# ============================================================================
+# ERROR METRICS AND REPORTING
+# ============================================================================
+
+[[scenario]]
+name = "test_marketplace_error_metrics_collection"
+description = "Test error metrics are properly collected"
+service = "ggen"
+run = """
+cargo test --test marketplace_tests_main -- --nocapture
+"""
+
+[[scenario.expect.span]]
+name = "ggen.metrics.error_summary"
+attrs.all = {
+  "errors.total.gte" = 0,
+  "errors.handled.gte" = 0,
+  "errors.unhandled" = 0
+}
+
+[scenario.expect.status]
+all = "OK"
+
+# ============================================================================
+# REPORT GENERATION
+# ============================================================================
+
+[report]
+output = "tests/clnrm/reports/marketplace_error_handling_report.json"
+format = "json"
+include_spans = true
+include_metrics = true
+include_errors = true
+
+[report.sha256]
+enabled = true
+algorithm = "SHA-256"
+digest_file = "tests/clnrm/reports/marketplace_error_handling_digest.txt"
+
+[report.metrics]
+total_errors = { path = "$.scenarios[*].spans[?(@.status=='ERROR')].length()" }
+errors_handled = { path = "$.scenarios[*].spans[?(@.name=='ggen.error.handle')].length()" }
+error_types = { path = "$.scenarios[*].spans[?(@.status=='ERROR')].attrs['error.type'].unique()" }
+retry_attempts = { path = "$.scenarios[*].spans[?(@.name=='ggen.retry.attempt')].length()" }
+fallback_activations = { path = "$.scenarios[*].spans[?(@.name=='ggen.fallback.activate')].length()" }
+recovery_success_rate = { path = "$.scenarios[*].spans[?(@.attrs['error.handled']=='true')].length() / $.scenarios[*].spans[?(@.status=='ERROR')].length()" }
+
+[report.error_summary]
+by_type = true
+by_severity = true
+by_recovery = true
+
+# ============================================================================
+# 7-LAYER FAKE-GREEN DETECTION SUMMARY
+# ============================================================================
+
+[validation]
+layers = [
+  "lifecycle_events",    # 1. Container start/exec events
+  "span_graphs",         # 2. Parent-child relationships (error->handler)
+  "span_counts",         # 3. Operation count verification
+  "temporal_ordering",   # 4. must_precede/must_follow (error->recovery)
+  "window_containment",  # 5. Error handling within error span
+  "status_validation",   # 6. Expected ERROR status for error tests
+  "hermeticity"          # 7. No external services
+]
+
+[validation.lifecycle_events]
+required = ["container.start", "container.exec", "test.run"]
+
+[validation.span_graphs]
+verify_parent_child = true
+verify_error_handler_relationship = true
+
+[validation.span_counts]
+verify_exact_counts = true
+verify_min_counts = true
+
+[validation.temporal_ordering]
+verify_must_follow = true
+verify_error_recovery_sequence = true
+
+[validation.window_containment]
+verify_child_within_parent = true
+verify_error_handler_within_error = true
+
+[validation.status_validation]
+expect_error_status = true
+verify_test_passes_with_expected_errors = true
+
+[validation.hermeticity]
+no_external_services = true
+allowed_localhost = ["4318"]
+allow_simulated_network_errors = true

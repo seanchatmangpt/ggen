@@ -130,6 +130,10 @@ docs/print.html
 docs/404.html
 docs/.nojekyll
 
+# ggen-marketplace mdbook build artifacts
+ggen-marketplace/book/
+ggen-marketplace/src/**/*.md~
+
 # OS generated files
 Icon?
 

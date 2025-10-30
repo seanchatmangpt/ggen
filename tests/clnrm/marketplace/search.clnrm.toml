@@ -1,0 +1,285 @@
+# Marketplace Search Tests with OTEL Validation
+# Converts marketplace_validation.rs search tests to CLNRM format
+# Proves execution via 7-layer fake-green detection
+
+[meta]
+name = "marketplace_search_with_otel_proof"
+version = "1.0.0"
+description = "Comprehensive marketplace search tests with OTEL span validation"
+
+[otel]
+exporter = "otlp"
+endpoint = "http://localhost:4318"
+service_name = "ggen-marketplace-search-tests"
+
+[otel.resource]
+"service.namespace" = "ggen-marketplace"
+"test.suite" = "search"
+
+[service.ggen]
+plugin = "generic_container"
+image = "rust:1.75"
+workdir = "/app"
+volumes = ["./:/app"]
+env.RUST_LOG = "info,ggen=debug"
+env.OTEL_EXPORTER_OTLP_ENDPOINT = "http://localhost:4318"
+
+# ============================================================================
+# BASIC SEARCH TESTS
+# ============================================================================
+
+[[scenario]]
+name = "test_marketplace_basic_search"
+description = "Test basic marketplace search for 'rust' packages"
+service = "ggen"
+run = """
+cargo test --test marketplace_tests_main \
+  integration::marketplace_validation::test_marketplace_basic_search \
+  -- --nocapture
+"""
+
+[[scenario.expect.span]]
+name = "ggen.market.search"
+attrs.all = { "query" = "rust", "results.count.gte" = 2 }
+
+[[scenario.expect.span]]
+name = "registry.fetch_index"
+attrs.all = { "status" = "success" }
+
+[scenario.expect.status]
+all = "OK"
+
+[scenario.expect.graph]
+# Verify parent-child relationships
+must_have_parent = [
+  { child = "ggen.market.search", parent = "test_marketplace_basic_search" }
+]
+
+[scenario.expect.temporal]
+# Search must happen after index fetch
+must_follow = [
+  { later = "ggen.market.search", earlier = "registry.fetch_index" }
+]
+
+[scenario.expect.window]
+# All search operations must be within test span
+child_spans_within_parent = true
+parent_span = "test_marketplace_basic_search"
+
+[scenario.expect.hermeticity]
+no_external_services = true
+allowed_localhost = ["4318"]
+
+[[scenario]]
+name = "test_marketplace_search_by_tag"
+description = "Search packages by specific tags (web, cli)"
+service = "ggen"
+run = """
+cargo test --test marketplace_tests_main \
+  integration::marketplace_validation::test_marketplace_search_by_tag \
+  -- --nocapture
+"""
+
+[[scenario.expect.span]]
+name = "ggen.market.search"
+attrs.all = { "query" = "web", "results.count" = 2 }
+
+[[scenario.expect.span]]
+name = "ggen.market.search"
+attrs.all = { "query" = "cli", "results.count" = 1 }
+
+[scenario.expect.status]
+all = "OK"
+
+[scenario.expect.counts]
+# Should have at least 2 search operations
+"ggen.market.search" = { min = 2 }
+
+[[scenario]]
+name = "test_marketplace_search_case_insensitive"
+description = "Verify case-insensitive search functionality"
+service = "ggen"
+run = """
+cargo test --test marketplace_tests_main \
+  integration::marketplace_validation::test_marketplace_search_case_insensitive \
+  -- --nocapture
+"""
+
+[[scenario.expect.span]]
+name = "ggen.market.search"
+attrs.all = { "query.contains" = "postgresql", "results.count" = 1 }
+
+[scenario.expect.status]
+all = "OK"
+
+[scenario.expect.counts]
+# Should have 3 searches (lower, upper, mixed case)
+"ggen.market.search" = { exact = 3 }
+
+[[scenario]]
+name = "test_marketplace_search_empty_results"
+description = "Test search with no matching results"
+service = "ggen"
+run = """
+cargo test --test marketplace_tests_main \
+  integration::marketplace_validation::test_marketplace_search_empty_results \
+  -- --nocapture
+"""
+
+[[scenario.expect.span]]
+name = "ggen.market.search"
+attrs.all = { "query" = "javascript", "results.count" = 0 }
+
+[scenario.expect.status]
+all = "OK"
+
+[[scenario]]
+name = "test_marketplace_search_with_special_characters"
+description = "Test search with hyphens and underscores"
+service = "ggen"
+run = """
+cargo test --test marketplace_tests_main \
+  integration::marketplace_validation::test_marketplace_search_with_special_characters \
+  -- --nocapture
+"""
+
+[[scenario.expect.span]]
+name = "ggen.market.search"
+attrs.all = { "query" = "my-awesome", "results.count" = 1 }
+
+[[scenario.expect.span]]
+name = "ggen.market.search"
+attrs.all = { "query" = "another_package", "results.count" = 1 }
+
+[scenario.expect.status]
+all = "OK"
+
+[scenario.expect.counts]
+"ggen.market.search" = { exact = 2 }
+
+# ============================================================================
+# PERFORMANCE TESTS
+# ============================================================================
+
+[[scenario]]
+name = "test_marketplace_large_registry_search"
+description = "Test search performance with 100 packages"
+service = "ggen"
+run = """
+cargo test --test marketplace_tests_main \
+  integration::marketplace_validation::test_marketplace_large_registry_search \
+  -- --nocapture
+"""
+
+[[scenario.expect.span]]
+name = "ggen.market.search"
+attrs.all = { "query" = "test", "results.count" = 100 }
+# Search must complete within 1 second
+duration_ms.max = 1000
+
+[scenario.expect.status]
+all = "OK"
+
+[[scenario]]
+name = "test_marketplace_rapid_successive_searches"
+description = "Test 50 rapid successive searches"
+service = "ggen"
+run = """
+cargo test --test marketplace_tests_main \
+  integration::marketplace_validation::test_marketplace_rapid_successive_searches \
+  -- --nocapture
+"""
+
+[scenario.expect.counts]
+# Should have exactly 50 search operations
+"ggen.market.search" = { exact = 50 }
+
+[scenario.expect.status]
+all = "OK"
+
+# Total test suite duration should be under 5 seconds
+[scenario.expect.temporal]
+total_duration_ms.max = 5000
+
+[[scenario]]
+name = "test_marketplace_concurrent_searches"
+description = "Test 10 concurrent search operations"
+service = "ggen"
+run = """
+cargo test --test marketplace_tests_main \
+  integration::marketplace_validation::test_marketplace_concurrent_searches \
+  -- --nocapture
+"""
+
+[scenario.expect.counts]
+# Should have 10 concurrent searches
+"ggen.market.search" = { exact = 10 }
+
+[scenario.expect.status]
+all = "OK"
+
+[scenario.expect.graph]
+# All searches should be siblings (concurrent, not sequential)
+siblings = [
+  { spans = ["ggen.market.search"], min_count = 10 }
+]
+
+# ============================================================================
+# REPORT GENERATION
+# ============================================================================
+
+[report]
+output = "tests/clnrm/reports/marketplace_search_report.json"
+format = "json"
+include_spans = true
+include_metrics = true
+
+[report.sha256]
+enabled = true
+algorithm = "SHA-256"
+digest_file = "tests/clnrm/reports/marketplace_search_digest.txt"
+
+[report.metrics]
+total_searches = { path = "$.scenarios[*].spans[?(@.name=='ggen.market.search')].length()" }
+avg_search_duration_ms = { path = "$.scenarios[*].spans[?(@.name=='ggen.market.search')].duration_ms.avg()" }
+success_rate = { path = "$.scenarios[*].status[?(@=='OK')].length() / $.scenarios.length()" }
+
+# ============================================================================
+# 7-LAYER FAKE-GREEN DETECTION SUMMARY
+# ============================================================================
+
+[validation]
+layers = [
+  "lifecycle_events",    # 1. Container start/exec events
+  "span_graphs",         # 2. Parent-child relationships
+  "span_counts",         # 3. Operation count verification
+  "temporal_ordering",   # 4. must_precede/must_follow
+  "window_containment",  # 5. Child spans within parent duration
+  "status_validation",   # 6. All spans = "OK"
+  "hermeticity"          # 7. No external services
+]
+
+[validation.lifecycle_events]
+required = ["container.start", "container.exec", "test.run"]
+
+[validation.span_graphs]
+verify_parent_child = true
+verify_siblings = true
+
+[validation.span_counts]
+verify_exact_counts = true
+verify_min_counts = true
+
+[validation.temporal_ordering]
+verify_must_follow = true
+verify_must_precede = false
+
+[validation.window_containment]
+verify_child_within_parent = true
+
+[validation.status_validation]
+all_must_be_ok = true
+
+[validation.hermeticity]
+no_external_services = true
+allowed_localhost = ["4318"]

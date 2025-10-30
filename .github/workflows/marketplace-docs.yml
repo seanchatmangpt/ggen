@@ -1,0 +1,57 @@
+name: Deploy Marketplace Documentation
+
+on:
+  push:
+    branches: [master, main]
+    paths:
+      - "ggen-marketplace/**"
+      - ".github/workflows/marketplace-docs.yml"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install mdbook
+        run: |
+          curl -L https://github.com/rust-lang/mdBook/releases/download/v0.4.40/mdbook-v0.4.40-x86_64-unknown-linux-gnu.tar.gz | tar xz
+          sudo mv mdbook /usr/local/bin/
+          mdbook --version
+
+      - name: Build mdbook
+        run: |
+          cd ggen-marketplace
+          mdbook build
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ggen-marketplace/book/html
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+        with:
+          destination_dir: marketplace-docs
+
+      - name: Deployment Summary
+        run: |
+          echo "🎉 Marketplace documentation deployed successfully!"
+          echo ""
+          echo "📍 Documentation URL: https://seanchatmangpt.github.io/ggen/marketplace-docs/"
+          echo "📚 Main docs URL: https://seanchatmangpt.github.io/ggen/"
+          echo ""
+          echo "✅ Deployment complete!"
+
+
