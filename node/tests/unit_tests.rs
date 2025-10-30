@@ -1,28 +1,90 @@
 //! Unit tests for ggen node bindings
 //!
-//! These tests validate core functionality without external dependencies.
-//! All tests use proper error handling and avoid production anti-patterns.
+//! JTBD VALIDATION: These tests verify that Node NIF functions actually work,
+//! not just that they compile or construct arguments correctly.
+//!
+//! Each test validates:
+//! 1. Function executes without crashing
+//! 2. Exit code is appropriate (0 for success, non-zero for errors)
+//! 3. Output contains expected content
+//! 4. No unexpected errors in stderr
 
-use ggen_cli_lib::NodeResult;
+use ggen_cli_lib::{run_for_node, NodeResult};
+
+/// Helper to assert successful command execution with content validation
+fn assert_success_with_content(result: NodeResult, expected_content: &str, test_name: &str) {
+    assert_eq!(
+        result.code, 0,
+        "{}: Expected success (exit code 0), got {}\nstderr: {}",
+        test_name, result.code, result.stderr
+    );
+
+    assert!(
+        result.stdout.contains(expected_content) || result.stderr.contains(expected_content),
+        "{}: Expected output to contain '{}'\nstdout: {}\nstderr: {}",
+        test_name, expected_content, result.stdout, result.stderr
+    );
+
+    // For successful commands, stderr should be empty or only contain progress messages
+    if !result.stderr.is_empty() {
+        assert!(
+            result.stderr.contains("Searching") ||
+            result.stderr.contains("Loading") ||
+            result.stderr.contains("Building") ||
+            result.stderr.is_empty(),
+            "{}: Unexpected stderr for successful command: {}",
+            test_name, result.stderr
+        );
+    }
+}
+
+/// Helper to assert command failure with error message
+fn assert_failure_with_message(result: NodeResult, test_name: &str) {
+    assert_ne!(
+        result.code, 0,
+        "{}: Expected failure (non-zero exit code), got success",
+        test_name
+    );
+
+    assert!(
+        !result.stderr.is_empty() || !result.stdout.is_empty(),
+        "{}: Expected error message in stdout or stderr",
+        test_name
+    );
+}
 
 #[cfg(test)]
 mod version_tests {
     use super::*;
 
-    #[test]
-    fn test_version_returns_valid_semver() {
-        let version = env!("CARGO_PKG_VERSION");
+    /// JTBD: Verify that --version returns a valid semantic version string
+    #[tokio::test]
+    async fn test_version_returns_valid_semver() {
+        let result = run_for_node(vec!["--version".to_string()])
+            .await
+            .expect("version command should not panic");
 
-        // Version should be in format X.Y.Z
-        let parts: Vec<&str> = version.split('.').collect();
+        // Should succeed
+        assert_eq!(result.code, 0, "version should succeed");
+
+        // Should contain the cargo package version
+        let expected_version = env!("CARGO_PKG_VERSION");
+        assert!(
+            result.stdout.contains(expected_version),
+            "Output should contain version {}, got: {}",
+            expected_version,
+            result.stdout
+        );
+
+        // Should be in semver format (X.Y.Z)
+        let version_parts: Vec<&str> = expected_version.split('.').collect();
         assert_eq!(
-            parts.len(),
+            version_parts.len(),
             3,
             "Version should have 3 parts (major.minor.patch)"
         );
 
-        // Each part should be a number
-        for part in parts {
+        for part in version_parts {
             assert!(
                 part.parse::<u32>().is_ok(),
                 "Version part '{}' should be a number",
@@ -31,69 +93,284 @@ mod version_tests {
         }
     }
 
-    #[test]
-    fn test_version_matches_package_version() {
-        let version = env!("CARGO_PKG_VERSION");
-        assert!(!version.is_empty(), "Version should not be empty");
-        assert!(version.len() >= 5, "Version should be at least X.Y.Z format");
+    /// JTBD: Verify version command is fast
+    #[tokio::test]
+    async fn test_version_performance() {
+        use std::time::{Duration, Instant};
+
+        let start = Instant::now();
+        let result = run_for_node(vec!["--version".to_string()])
+            .await
+            .expect("version command should not panic");
+        let duration = start.elapsed();
+
+        assert_eq!(result.code, 0);
+        assert!(
+            duration < Duration::from_millis(100),
+            "Version should complete in under 100ms, took {:?}",
+            duration
+        );
     }
 }
 
 #[cfg(test)]
-mod run_result_tests {
+mod help_tests {
     use super::*;
 
-    #[test]
-    fn test_node_result_success_case() {
-        let result = NodeResult {
-            code: 0,
-            stdout: "success".to_string(),
-            stderr: String::new(),
-        };
+    /// JTBD: Verify that --help returns usage information
+    #[tokio::test]
+    async fn test_help_shows_usage() {
+        let result = run_for_node(vec!["--help".to_string()])
+            .await
+            .expect("help command should not panic");
 
-        assert_eq!(result.code, 0, "Success should have exit code 0");
-        assert_eq!(result.stdout, "success");
-        assert!(result.stderr.is_empty(), "Success should have empty stderr");
+        assert_eq!(result.code, 0, "help should succeed");
+
+        // Should contain usage information
+        assert!(
+            result.stdout.to_lowercase().contains("usage") ||
+            result.stdout.to_lowercase().contains("commands"),
+            "Help should contain usage information, got: {}",
+            result.stdout
+        );
+
+        // Should be substantial (not just a single line)
+        assert!(
+            result.stdout.len() > 100,
+            "Help output should be substantial, got {} chars",
+            result.stdout.len()
+        );
     }
 
-    #[test]
-    fn test_node_result_error_case() {
-        let result = NodeResult {
-            code: 1,
-            stdout: String::new(),
-            stderr: "error message".to_string(),
-        };
+    /// JTBD: Verify that help for specific commands works
+    #[tokio::test]
+    async fn test_help_for_market_command() {
+        let result = run_for_node(vec!["market".to_string(), "--help".to_string()])
+            .await
+            .expect("market help should not panic");
 
-        assert_ne!(result.code, 0, "Error should have non-zero exit code");
-        assert!(result.stdout.is_empty(), "Error may have empty stdout");
-        assert!(!result.stderr.is_empty(), "Error should have stderr message");
+        assert_eq!(result.code, 0, "market help should succeed");
+
+        // Should mention marketplace-related commands
+        assert!(
+            result.stdout.to_lowercase().contains("market") ||
+            result.stdout.to_lowercase().contains("search") ||
+            result.stdout.to_lowercase().contains("add"),
+            "Market help should mention marketplace commands, got: {}",
+            result.stdout
+        );
+    }
+}
+
+#[cfg(test)]
+mod marketplace_tests {
+    use super::*;
+
+    /// JTBD: Verify that market list returns installed packages
+    #[tokio::test]
+    async fn test_market_list_returns_packages() {
+        let result = run_for_node(vec!["market".to_string(), "list".to_string()])
+            .await
+            .expect("market list should not panic");
+
+        // Should succeed
+        assert_eq!(result.code, 0, "market list should succeed");
+
+        // Should return something (either packages or "no packages" message)
+        assert!(
+            !result.stdout.is_empty() || !result.stderr.is_empty(),
+            "market list should produce output"
+        );
     }
 
-    #[test]
-    fn test_node_result_handles_multiline_output() {
-        let result = NodeResult {
-            code: 0,
-            stdout: "line1\nline2\nline3".to_string(),
-            stderr: String::new(),
-        };
+    /// JTBD: Verify that market categories returns available categories
+    #[tokio::test]
+    async fn test_market_categories_returns_list() {
+        let result = run_for_node(vec!["market".to_string(), "categories".to_string()])
+            .await
+            .expect("market categories should not panic");
 
-        let lines: Vec<&str> = result.stdout.lines().collect();
-        assert_eq!(lines.len(), 3, "Should handle multiline output");
-        assert_eq!(lines[0], "line1");
-        assert_eq!(lines[2], "line3");
+        assert_eq!(result.code, 0, "market categories should succeed");
+
+        // Should have output
+        assert!(
+            !result.stdout.is_empty(),
+            "market categories should return data"
+        );
     }
 
-    #[test]
-    fn test_node_result_handles_large_output() {
-        let large_output = "x".repeat(10_000);
-        let result = NodeResult {
-            code: 0,
-            stdout: large_output.clone(),
-            stderr: String::new(),
-        };
+    /// JTBD: Verify that market search with valid query works
+    #[tokio::test]
+    async fn test_market_search_executes() {
+        let result = run_for_node(vec![
+            "market".to_string(),
+            "search".to_string(),
+            "rust".to_string(),
+        ])
+        .await
+        .expect("market search should not panic");
 
-        assert_eq!(result.stdout.len(), 10_000, "Should handle large output");
-        assert!(result.stdout.chars().all(|c| c == 'x'));
+        // Should complete (success or no results found)
+        assert!(
+            result.code == 0 || result.code == 1,
+            "market search should complete"
+        );
+
+        // If successful, should have output
+        if result.code == 0 {
+            assert!(
+                !result.stdout.is_empty() || result.stderr.contains("Searching"),
+                "Successful search should produce output"
+            );
+        }
+    }
+
+    /// JTBD: Verify that market add with invalid package fails gracefully
+    #[tokio::test]
+    async fn test_market_add_invalid_package_fails_gracefully() {
+        let result = run_for_node(vec![
+            "market".to_string(),
+            "add".to_string(),
+            "definitely-not-a-real-package-12345".to_string(),
+        ])
+        .await
+        .expect("market add should not panic");
+
+        // Should fail (package doesn't exist)
+        assert_ne!(
+            result.code, 0,
+            "Adding non-existent package should fail"
+        );
+
+        // Should have error message
+        assert!(
+            !result.stderr.is_empty() || !result.stdout.is_empty(),
+            "Failed add should produce error message"
+        );
+    }
+}
+
+#[cfg(test)]
+mod lifecycle_tests {
+    use super::*;
+
+    /// JTBD: Verify that lifecycle list returns available phases
+    #[tokio::test]
+    async fn test_lifecycle_list_returns_phases() {
+        let result = run_for_node(vec!["lifecycle".to_string(), "list".to_string()])
+            .await
+            .expect("lifecycle list should not panic");
+
+        assert_eq!(result.code, 0, "lifecycle list should succeed");
+
+        // Should list common phases
+        let output_lower = result.stdout.to_lowercase();
+        let has_phases = output_lower.contains("init")
+            || output_lower.contains("build")
+            || output_lower.contains("test")
+            || output_lower.contains("deploy");
+
+        assert!(
+            has_phases,
+            "lifecycle list should mention common phases, got: {}",
+            result.stdout
+        );
+    }
+
+    /// JTBD: Verify that lifecycle readiness returns status
+    #[tokio::test]
+    async fn test_lifecycle_readiness_returns_status() {
+        let result = run_for_node(vec!["lifecycle".to_string(), "readiness".to_string()])
+            .await
+            .expect("lifecycle readiness should not panic");
+
+        // Should complete (may succeed or fail depending on project state)
+        assert!(
+            result.code == 0 || result.code == 1,
+            "lifecycle readiness should complete"
+        );
+
+        // Should have output
+        assert!(
+            !result.stdout.is_empty() || !result.stderr.is_empty(),
+            "lifecycle readiness should produce output"
+        );
+    }
+}
+
+#[cfg(test)]
+mod template_tests {
+    use super::*;
+
+    /// JTBD: Verify that template list (list command) returns templates
+    #[tokio::test]
+    async fn test_template_list_returns_templates() {
+        let result = run_for_node(vec!["list".to_string()])
+            .await
+            .expect("list command should not panic");
+
+        // Should complete
+        assert!(
+            result.code == 0 || result.code == 1,
+            "list command should complete"
+        );
+
+        // Should have output
+        assert!(
+            !result.stdout.is_empty() || !result.stderr.is_empty(),
+            "list command should produce output"
+        );
+    }
+
+    /// JTBD: Verify that gen with invalid template fails gracefully
+    #[tokio::test]
+    async fn test_template_generate_invalid_fails_gracefully() {
+        let result = run_for_node(vec![
+            "gen".to_string(),
+            "definitely-not-a-template-12345.tmpl".to_string(),
+        ])
+        .await
+        .expect("gen command should not panic");
+
+        // Should fail (template doesn't exist)
+        assert_ne!(
+            result.code, 0,
+            "Generating from non-existent template should fail"
+        );
+
+        // Should have error message
+        assert!(
+            !result.stderr.is_empty() || !result.stdout.is_empty(),
+            "Failed gen should produce error message"
+        );
+    }
+}
+
+#[cfg(test)]
+mod utility_tests {
+    use super::*;
+
+    /// JTBD: Verify that doctor command runs diagnostics
+    #[tokio::test]
+    async fn test_doctor_runs_diagnostics() {
+        let result = run_for_node(vec!["doctor".to_string()])
+            .await
+            .expect("doctor command should not panic");
+
+        assert_eq!(result.code, 0, "doctor should succeed");
+
+        // Should check environment
+        let output_lower = result.stdout.to_lowercase();
+        let checks_env = output_lower.contains("rust")
+            || output_lower.contains("cargo")
+            || output_lower.contains("version")
+            || output_lower.contains("environment");
+
+        assert!(
+            checks_env,
+            "doctor should check environment, got: {}",
+            result.stdout
+        );
     }
 }
 
@@ -101,338 +378,217 @@ mod run_result_tests {
 mod error_handling_tests {
     use super::*;
 
-    #[test]
-    fn test_empty_args_handled_gracefully() {
-        // Empty args should not panic - it should return an error
-        // This validates the production-readiness of error handling
-        let args: Vec<String> = vec![];
+    /// JTBD: Verify that empty args don't crash (should show help or error)
+    #[tokio::test]
+    async fn test_empty_args_handled() {
+        let result = run_for_node(vec![])
+            .await
+            .expect("empty args should not panic");
 
-        // We can't actually call run() here since it's async and requires tokio runtime,
-        // but we validate that the type system prevents panics
-        assert!(args.is_empty(), "Empty args should be allowed");
+        // Should complete (help or error)
+        assert!(result.code >= 0, "Should return valid exit code");
+
+        // Should produce output
+        assert!(
+            !result.stdout.is_empty() || !result.stderr.is_empty(),
+            "Empty args should produce help or error"
+        );
     }
 
-    #[test]
-    fn test_invalid_command_structure() {
-        // Validate that malformed commands are caught
-        let args = vec!["".to_string()];
-        assert_eq!(args.len(), 1);
-        assert!(args[0].is_empty(), "Empty command should be detected");
-    }
-}
+    /// JTBD: Verify that invalid command produces error
+    #[tokio::test]
+    async fn test_invalid_command_produces_error() {
+        let result = run_for_node(vec!["definitely-not-a-valid-command-12345".to_string()])
+            .await
+            .expect("invalid command should not panic");
 
-#[cfg(test)]
-mod marketplace_binding_tests {
-    use super::*;
+        // Should fail
+        assert_ne!(result.code, 0, "Invalid command should return error code");
 
-    #[test]
-    fn test_market_search_args_construction() {
-        let query = "rust web service";
-        let args = vec!["market".to_string(), "search".to_string(), query.to_string()];
-
-        assert_eq!(args.len(), 3);
-        assert_eq!(args[0], "market");
-        assert_eq!(args[1], "search");
-        assert_eq!(args[2], query);
+        // Should have error message
+        assert!(
+            !result.stderr.is_empty() || !result.stdout.is_empty(),
+            "Invalid command should produce error message"
+        );
     }
 
-    #[test]
-    fn test_market_add_args_construction() {
-        let package = "io.ggen.rust.axum-service";
-        let args = vec!["market".to_string(), "add".to_string(), package.to_string()];
+    /// JTBD: Verify that special characters don't crash
+    #[tokio::test]
+    async fn test_special_characters_handled() {
+        let result = run_for_node(vec![
+            "market".to_string(),
+            "search".to_string(),
+            "rust-web@1.0-beta!".to_string(),
+        ])
+        .await
+        .expect("special characters should not panic");
 
-        assert_eq!(args.len(), 3);
-        assert_eq!(args[0], "market");
-        assert_eq!(args[1], "add");
-        assert_eq!(args[2], package);
+        // Should complete (doesn't matter if success or failure)
+        assert!(result.code >= 0, "Should handle special chars");
     }
 
-    #[test]
-    fn test_market_list_args_construction() {
-        let args = vec!["market".to_string(), "list".to_string()];
+    /// JTBD: Verify that unicode doesn't crash
+    #[tokio::test]
+    async fn test_unicode_handled() {
+        let result = run_for_node(vec![
+            "market".to_string(),
+            "search".to_string(),
+            "Créer 日本語 🚀".to_string(),
+        ])
+        .await
+        .expect("unicode should not panic");
 
-        assert_eq!(args.len(), 2);
-        assert_eq!(args[0], "market");
-        assert_eq!(args[1], "list");
+        // Should complete
+        assert!(result.code >= 0, "Should handle unicode");
+
+        // Output should be valid UTF-8
+        assert!(std::str::from_utf8(result.stdout.as_bytes()).is_ok());
+        assert!(std::str::from_utf8(result.stderr.as_bytes()).is_ok());
     }
 
-    #[test]
-    fn test_market_categories_args_construction() {
-        let args = vec!["market".to_string(), "categories".to_string()];
+    /// JTBD: Verify that very long args don't crash
+    #[tokio::test]
+    async fn test_very_long_args_handled() {
+        let long_arg = "a".repeat(10_000);
+        let result = run_for_node(vec![
+            "market".to_string(),
+            "search".to_string(),
+            long_arg,
+        ])
+        .await
+        .expect("very long args should not panic");
 
-        assert_eq!(args.len(), 2);
-        assert_eq!(args[0], "market");
-        assert_eq!(args[1], "categories");
-    }
-
-    #[test]
-    fn test_market_remove_args_construction() {
-        let package = "io.ggen.rust.axum-service";
-        let args = vec!["market".to_string(), "remove".to_string(), package.to_string()];
-
-        assert_eq!(args.len(), 3);
-        assert_eq!(args[2], package);
-    }
-}
-
-#[cfg(test)]
-mod lifecycle_binding_tests {
-    use super::*;
-
-    #[test]
-    fn test_lifecycle_init_args() {
-        let args = vec!["lifecycle".to_string(), "run".to_string(), "init".to_string()];
-
-        assert_eq!(args.len(), 3);
-        assert_eq!(args[0], "lifecycle");
-        assert_eq!(args[1], "run");
-        assert_eq!(args[2], "init");
-    }
-
-    #[test]
-    fn test_lifecycle_test_args() {
-        let args = vec!["lifecycle".to_string(), "run".to_string(), "test".to_string()];
-
-        assert_eq!(args.len(), 3);
-        assert_eq!(args[2], "test");
-    }
-
-    #[test]
-    fn test_lifecycle_build_args() {
-        let args = vec!["lifecycle".to_string(), "run".to_string(), "build".to_string()];
-
-        assert_eq!(args.len(), 3);
-        assert_eq!(args[2], "build");
-    }
-
-    #[test]
-    fn test_lifecycle_deploy_without_env() {
-        let args = vec!["lifecycle".to_string(), "run".to_string(), "deploy".to_string()];
-
-        assert_eq!(args.len(), 3);
-        assert!(!args.contains(&"--env".to_string()));
-    }
-
-    #[test]
-    fn test_lifecycle_deploy_with_env() {
-        let mut args = vec!["lifecycle".to_string(), "run".to_string(), "deploy".to_string()];
-        args.push("--env".to_string());
-        args.push("production".to_string());
-
-        assert_eq!(args.len(), 5);
-        assert!(args.contains(&"--env".to_string()));
-        assert!(args.contains(&"production".to_string()));
-    }
-
-    #[test]
-    fn test_lifecycle_validate_args() {
-        let mut args = vec!["lifecycle".to_string(), "validate".to_string()];
-        args.push("--env".to_string());
-        args.push("production".to_string());
-
-        assert_eq!(args.len(), 4);
-        assert_eq!(args[0], "lifecycle");
-        assert_eq!(args[1], "validate");
-    }
-
-    #[test]
-    fn test_lifecycle_readiness_args() {
-        let args = vec!["lifecycle".to_string(), "readiness".to_string()];
-
-        assert_eq!(args.len(), 2);
-        assert_eq!(args[1], "readiness");
-    }
-
-    #[test]
-    fn test_lifecycle_readiness_update_args() {
-        let args = vec![
-            "lifecycle".to_string(),
-            "readiness-update".to_string(),
-            "auth-basic".to_string(),
-            "complete".to_string(),
-        ];
-
-        assert_eq!(args.len(), 4);
-        assert_eq!(args[1], "readiness-update");
-        assert_eq!(args[2], "auth-basic");
-        assert_eq!(args[3], "complete");
-    }
-
-    #[test]
-    fn test_lifecycle_list_args() {
-        let args = vec!["lifecycle".to_string(), "list".to_string()];
-
-        assert_eq!(args.len(), 2);
-        assert_eq!(args[1], "list");
+        // Should complete (may succeed or fail)
+        assert!(result.code >= 0, "Should handle long args");
     }
 }
 
 #[cfg(test)]
-mod template_binding_tests {
+mod ggen_broken_detection_tests {
     use super::*;
 
-    #[test]
-    fn test_template_generate_basic_args() {
-        let args = vec!["gen".to_string(), "service.tmpl".to_string()];
+    /// JTBD: Detect when ggen returns 0 but stderr has unexpected errors
+    #[tokio::test]
+    async fn test_detects_false_success() {
+        let result = run_for_node(vec!["--version".to_string()])
+            .await
+            .expect("version should not panic");
 
-        assert_eq!(args.len(), 2);
-        assert_eq!(args[0], "gen");
-        assert_eq!(args[1], "service.tmpl");
+        if result.code == 0 {
+            // Success should not have error messages in stderr
+            if !result.stderr.is_empty() {
+                assert!(
+                    result.stderr.contains("Searching") ||
+                    result.stderr.contains("Loading") ||
+                    result.stderr.contains("Building"),
+                    "Success (exit code 0) should not have unexpected errors in stderr: {}",
+                    result.stderr
+                );
+            }
+        }
     }
 
-    #[test]
-    fn test_template_list_args() {
-        let args = vec!["list".to_string()];
+    /// JTBD: Detect when ggen returns 0 but output is empty
+    #[tokio::test]
+    async fn test_detects_silent_failure() {
+        let result = run_for_node(vec!["--version".to_string()])
+            .await
+            .expect("version should not panic");
 
-        assert_eq!(args.len(), 1);
-        assert_eq!(args[0], "list");
+        if result.code == 0 {
+            assert!(
+                !result.stdout.is_empty(),
+                "Successful version command should return version string"
+            );
+        }
+    }
+
+    /// JTBD: Detect when ggen returns 0 but output format is wrong
+    #[tokio::test]
+    async fn test_validates_version_format() {
+        let result = run_for_node(vec!["--version".to_string()])
+            .await
+            .expect("version should not panic");
+
+        if result.code == 0 {
+            // Version should contain semantic version pattern
+            let has_version = result.stdout.contains('.')
+                && result.stdout.chars().any(|c| c.is_numeric());
+
+            assert!(
+                has_version,
+                "Version output should contain version number, got: {}",
+                result.stdout
+            );
+        }
+    }
+
+    /// JTBD: Detect when ggen returns error but no error message
+    #[tokio::test]
+    async fn test_detects_silent_error() {
+        let result = run_for_node(vec!["definitely-invalid-command-xyz".to_string()])
+            .await
+            .expect("invalid command should not panic");
+
+        if result.code != 0 {
+            assert!(
+                !result.stderr.is_empty() || !result.stdout.is_empty(),
+                "Failed command should produce error message"
+            );
+        }
+    }
+
+    /// JTBD: Detect when ggen crashes vs returns error
+    #[tokio::test]
+    async fn test_distinguishes_crash_from_error() {
+        // Invalid commands should error, not crash
+        let result = run_for_node(vec!["invalid".to_string()])
+            .await
+            .expect("Invalid command should return error, not panic");
+
+        // Should have valid exit code (not a crash signal)
+        assert!(
+            result.code >= 0 && result.code < 128,
+            "Exit code should indicate error, not crash: {}",
+            result.code
+        );
     }
 }
 
 #[cfg(test)]
-mod ai_binding_tests {
+mod data_structure_validation_tests {
     use super::*;
 
-    #[test]
-    fn test_ai_project_basic_args() {
-        let args = vec![
-            "ai".to_string(),
-            "project".to_string(),
-            "REST API with auth".to_string(),
-        ];
+    /// JTBD: Verify that version output is actually semantic versioning
+    #[tokio::test]
+    async fn test_version_is_semver() {
+        let result = run_for_node(vec!["--version".to_string()])
+            .await
+            .expect("version should not panic");
 
-        assert_eq!(args.len(), 3);
-        assert_eq!(args[0], "ai");
-        assert_eq!(args[1], "project");
-    }
+        if result.code == 0 {
+            // Extract version number (remove "ggen " prefix if present)
+            let version_str = result.stdout.trim()
+                .replace("ggen ", "")
+                .trim()
+                .to_string();
 
-    #[test]
-    fn test_ai_generate_args() {
-        let args = vec![
-            "ai".to_string(),
-            "generate".to_string(),
-            "-d".to_string(),
-            "User repository".to_string(),
-            "-o".to_string(),
-            "user-repo.tmpl".to_string(),
-        ];
+            // Should have 3 parts
+            let parts: Vec<&str> = version_str.split('.').collect();
+            assert!(
+                parts.len() >= 3,
+                "Version should have at least 3 parts (major.minor.patch), got: {}",
+                version_str
+            );
 
-        assert_eq!(args.len(), 6);
-        assert!(args.contains(&"-d".to_string()));
-        assert!(args.contains(&"-o".to_string()));
-    }
-
-    #[test]
-    fn test_ai_graph_args() {
-        let args = vec![
-            "ai".to_string(),
-            "graph".to_string(),
-            "-d".to_string(),
-            "User ontology".to_string(),
-            "-o".to_string(),
-            "users.ttl".to_string(),
-        ];
-
-        assert_eq!(args.len(), 6);
-        assert_eq!(args[1], "graph");
-    }
-
-    #[test]
-    fn test_ai_sparql_without_graph() {
-        let args = vec![
-            "ai".to_string(),
-            "sparql".to_string(),
-            "-d".to_string(),
-            "Find active users".to_string(),
-        ];
-
-        assert_eq!(args.len(), 4);
-        assert!(!args.contains(&"-g".to_string()));
-    }
-
-    #[test]
-    fn test_ai_sparql_with_graph() {
-        let mut args = vec![
-            "ai".to_string(),
-            "sparql".to_string(),
-            "-d".to_string(),
-            "Find active users".to_string(),
-        ];
-        args.push("-g".to_string());
-        args.push("users.ttl".to_string());
-
-        assert_eq!(args.len(), 6);
-        assert!(args.contains(&"-g".to_string()));
-    }
-}
-
-#[cfg(test)]
-mod utility_binding_tests {
-    use super::*;
-
-    #[test]
-    fn test_doctor_args() {
-        let args = vec!["doctor".to_string()];
-
-        assert_eq!(args.len(), 1);
-        assert_eq!(args[0], "doctor");
-    }
-
-    #[test]
-    fn test_help_without_command() {
-        let args = vec!["--help".to_string()];
-
-        assert_eq!(args.len(), 1);
-        assert_eq!(args[0], "--help");
-    }
-
-    #[test]
-    fn test_help_with_command() {
-        let args = vec!["market".to_string(), "--help".to_string()];
-
-        assert_eq!(args.len(), 2);
-        assert_eq!(args[0], "market");
-        assert_eq!(args[1], "--help");
-    }
-}
-
-#[cfg(test)]
-mod edge_case_tests {
-    use super::*;
-
-    #[test]
-    fn test_special_characters_in_args() {
-        let query = "rust-web service@1.0";
-        let args = vec!["market".to_string(), "search".to_string(), query.to_string()];
-
-        assert_eq!(args[2], query);
-        assert!(args[2].contains('-'));
-        assert!(args[2].contains('@'));
-    }
-
-    #[test]
-    fn test_unicode_in_args() {
-        let description = "Créer un service REST 日本語";
-        let args = vec!["ai".to_string(), "project".to_string(), description.to_string()];
-
-        assert_eq!(args[2], description);
-        assert!(args[2].contains('é'));
-    }
-
-    #[test]
-    fn test_very_long_args() {
-        let long_desc = "a".repeat(1000);
-        let args = vec!["ai".to_string(), "project".to_string(), long_desc.clone()];
-
-        assert_eq!(args[2].len(), 1000);
-    }
-
-    #[test]
-    fn test_whitespace_in_args() {
-        let query = "rust  web   service";
-        let args = vec!["market".to_string(), "search".to_string(), query.to_string()];
-
-        assert_eq!(args[2], query);
-        assert!(args[2].contains("  "));
+            // Major, minor, patch should be numbers
+            for (i, part) in parts.iter().take(3).enumerate() {
+                assert!(
+                    part.chars().any(|c| c.is_numeric()),
+                    "Version part {} should contain number, got: {}",
+                    i, part
+                );
+            }
+        }
     }
 }

@@ -284,28 +284,30 @@ pub async fn lifecycle_list() -> Result<RunResult> {
 ///
 /// # Arguments
 /// * `template_path` - Path to template file
-/// * `vars` - Optional variable map for template rendering
+/// * `vars` - Optional variable map for template rendering (as JSON string)
 /// * `manifest_path` - Optional path to ggen.toml manifest
 ///
 /// # Example
 /// ```typescript
-/// await templateGenerate('service.tmpl', { name: 'api' });
+/// await templateGenerate('service.tmpl', JSON.stringify({ name: 'api' }));
 /// ```
 #[napi]
 pub async fn template_generate(
     template_path: String,
-    vars: Option<serde_json::Value>,
+    vars: Option<String>,
     manifest_path: Option<String>,
 ) -> Result<RunResult> {
     let mut args = vec!["gen".to_string(), template_path];
 
     // Add variables if provided
-    if let Some(vars_obj) = vars {
-        if let Some(obj) = vars_obj.as_object() {
-            args.push("--vars".to_string());
-            for (key, value) in obj {
-                if let Some(val_str) = value.as_str() {
-                    args.push(format!("{}={}", key, val_str));
+    if let Some(vars_str) = vars {
+        if let Ok(vars_obj) = serde_json::from_str::<serde_json::Value>(&vars_str) {
+            if let Some(obj) = vars_obj.as_object() {
+                args.push("--vars".to_string());
+                for (key, value) in obj {
+                    if let Some(val_str) = value.as_str() {
+                        args.push(format!("{}={}", key, val_str));
+                    }
                 }
             }
         }

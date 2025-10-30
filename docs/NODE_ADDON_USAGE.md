@@ -1,34 +1,60 @@
-## ggen Node.js Addon (N-API)
+# Ggen Node.js Addon Usage Guide
 
-Prerequisites:
+## Overview
 
-- Node.js >= 18
-- One of: npm (with npx), pnpm (via corepack pnpm), or yarn
+The `@ggen/node` package provides production-grade Node.js N-API bindings for the ggen CLI. It enables JavaScript/TypeScript applications to use ggen functionality programmatically without spawning external processes.
 
-Install from source (in this repo):
-
-```bash
-cargo make node-build-release
-```
-
-Use in Node:
-
-```ts
-import { version, run } from '@ggen/node'
-
-console.log('ggen version', version())
-const res = await run(['--help'])
-console.log(res.code, res.stdout)
-```
-
-Prebuilds (CI):
+## Installation
 
 ```bash
-cargo make node-prebuild
-
-Notes:
-
-- The build tasks try `npx @napi-rs/cli@2.18.0`, falling back to `corepack pnpm dlx` or `yarn dlx` automatically.
-- Tests use Vitest with deterministic reporters by default.
+npm install @ggen/node
+# or
+yarn add @ggen/node
+# or
+pnpm add @ggen/node
 ```
 
+## Core API: `run()` Function
+
+The `run()` function is the low-level API that executes any ggen CLI command and returns structured results.
+
+### Signature
+
+```typescript
+async function run(args: string[]): Promise<RunResult>
+
+interface RunResult {
+  code: number;      // Exit code (0 = success, non-zero = error)
+  stdout: string;    // Captured standard output
+  stderr: string;    // Captured standard error
+}
+```
+
+### Examples
+
+#### Get Version
+
+```typescript
+import { run } from '@ggen/node';
+
+const result = await run(['--version']);
+console.log(result.stdout); // "ggen 1.2.0"
+console.log(result.code);   // 0 or 1
+```
+
+#### Search Marketplace
+
+```typescript
+import { run } from '@ggen/node';
+
+const result = await run(['market', 'search', 'rust web']);
+if (result.code === 0) {
+  console.log('Search results:', result.stdout);
+} else {
+  console.error('Search failed:', result.stderr);
+}
+```
+
+## License
+
+MIT - See LICENSE file for details
