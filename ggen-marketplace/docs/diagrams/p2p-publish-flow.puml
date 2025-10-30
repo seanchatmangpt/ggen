@@ -1,0 +1,120 @@
+@startuml ggen-marketplace-p2p-publish
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title P2P Package Publication Flow - ggen-marketplace
+
+actor Publisher as "Package Publisher"
+participant "Ggen CLI" as CLI
+participant "MarketplaceClient" as Client
+participant "LocalRegistry" as Registry
+participant "FilePackageStore" as Storage
+participant "Ed25519CryptoVerifier" as Crypto
+participant "TantivySearchEngine" as Search
+participant "P2P Network" as P2P
+participant "IPFS Node" as IPFS
+participant "GossipSub" as Gossip
+participant "Kademlia DHT" as DHT
+participant "Peer Node" as Peer
+
+== Package Publication ==
+
+Publisher -> CLI: ggen market publish ./my-package
+CLI -> Client: publish_package(package_path)
+
+note over Client: 1. Validate and prepare package
+
+Client -> Crypto: verify_signature(package, signature)
+Crypto --> Client: Signature valid
+
+Client -> Storage: store_package(package_bytes)
+Storage -> IPFS: content_address(package_bytes)
+IPFS --> Storage: CID (Content ID)
+Storage --> Client: ContentHash
+
+note over Client: 2. Register package metadata
+
+Client -> Registry: register_package(metadata, content_hash)
+Registry --> Client: PackageId
+
+note over Client: 3. Index for search
+
+Client -> Search: index_package(metadata)
+Search --> Client: Indexed
+
+note over Client: 4. Announce to P2P network
+
+Client -> P2P: announce_package(package_id, metadata)
+P2P -> Gossip: publish_announcement(package_info)
+Gossip -> DHT: store_package_info(package_id, node_id)
+
+note over Gossip: Package announcement propagates
+note over DHT: Package info stored in DHT
+
+== Peer Discovery and Sync ==
+
+Peer -> DHT: discover_packages("web-framework")
+DHT --> Peer: List of nodes with packages
+
+Peer -> Gossip: subscribe_to_updates()
+Gossip --> Peer: New package announcements
+
+note over Peer: Peer receives announcement
+Peer -> Peer: download_package_metadata(package_id)
+
+== Package Download Flow ==
+
+Peer -> DHT: find_package_content(package_id)
+DHT --> Peer: List of nodes with content
+
+Peer -> IPFS: request_content(CID)
+IPFS -> IPFS: bitswap_protocol(CID)
+IPFS --> Peer: Package bytes
+
+Peer -> Crypto: verify_checksum(package_bytes, expected_hash)
+Crypto --> Peer: Checksum valid
+
+Peer -> Crypto: verify_signature(metadata, signature)
+Crypto --> Peer: Signature valid
+
+Peer -> Registry: register_package(metadata, content_hash)
+Registry --> Peer: Package registered locally
+
+Peer -> Search: index_package(metadata)
+Search --> Peer: Package indexed
+
+note over Peer: Package now available locally
+
+== Error Handling ==
+
+alt Invalid Signature
+    Crypto --> Client: Signature invalid
+    Client --> CLI: PublishError(InvalidSignature)
+    CLI --> Publisher: Publication failed
+end
+
+alt Storage Error
+    Storage --> Client: StorageError
+    Client --> CLI: PublishError(StorageFailed)
+    CLI --> Publisher: Publication failed
+end
+
+alt Network Error
+    P2P --> Client: NetworkError
+    note over Client: Package published locally,\nwill sync when network available
+    Client --> CLI: PublishSuccess(local_only)
+    CLI --> Publisher: Published (offline mode)
+end
+
+note over Publisher, Peer
+  **Key Benefits:**
+  • Fully decentralized - no central servers
+  • Content-addressed storage (IPFS)
+  • Cryptographic verification
+  • Offline-first (works without network)
+  • Eventual consistency across peers
+  • Deterministic package distribution
+end note
+
+@enduml
+
+

@@ -1,0 +1,266 @@
+@startuml ggen-marketplace-plugins
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title Plugin System Architecture - ggen-marketplace WASM Runtime
+
+actor Developer as "Developer"
+participant "Ggen CLI" as CLI
+participant "MarketplaceClient" as Client
+participant "PluginManager" as PluginMgr
+participant "WASM Runtime" as WASM
+participant "Plugin Registry" as Registry
+participant "Security Sandbox" as Sandbox
+participant "Plugin Store" as Store
+participant "Validation Engine" as Validator
+participant "Code Generator" as Generator
+participant "Quality Analyzer" as Analyzer
+
+== Plugin Development ==
+
+Developer -> CLI: ggen market plugin create validator
+CLI -> Client: create_plugin_template(plugin_type)
+
+note over Client: 1. Generate plugin template
+Client -> Generator: generate_plugin_template("validator")
+Generator -> Generator: create_rust_template()
+Generator -> Generator: add_wasm_bindings()
+Generator --> Client: PluginTemplate
+
+note over Client: 2. Setup development environment
+Client -> Client: setup_wasm_build_environment()
+Client -> Client: configure_cargo_toml()
+Client --> CLI: PluginTemplate
+CLI --> Developer: Plugin template created
+
+== Plugin Compilation ==
+
+Developer -> CLI: ggen market plugin build ./my-validator
+CLI -> Client: build_plugin(plugin_path)
+
+note over Client: 1. Compile to WASM
+Client -> Generator: compile_to_wasm(plugin_path)
+Generator -> Generator: cargo_build_wasm()
+Generator -> Generator: optimize_wasm_binary()
+Generator --> Client: WASMBinary
+
+note over Client: 2. Validate WASM bytecode
+Client -> Validator: validate_wasm_bytecode(wasm_binary)
+Validator -> Validator: check_wasm_spec_compliance()
+Validator -> Validator: verify_security_constraints()
+Validator --> Client: ValidationResult { valid: true }
+
+note over Client: 3. Generate plugin metadata
+Client -> Client: generate_plugin_metadata(wasm_binary)
+Client --> Client: PluginMetadata
+
+Client --> CLI: PluginBuilt
+CLI --> Developer: Plugin compiled successfully
+
+== Plugin Installation ==
+
+Developer -> CLI: ggen market plugin install validator.wasm
+CLI -> Client: install_plugin(wasm_path)
+
+note over Client: 1. Load and validate plugin
+Client -> PluginMgr: load_plugin(wasm_path)
+PluginMgr -> WASM: load_wasm_module(wasm_bytes)
+WASM -> Sandbox: create_sandbox()
+Sandbox --> WASM: SandboxInstance
+WASM --> PluginMgr: PluginInstance
+
+note over Client: 2. Extract plugin metadata
+Client -> PluginMgr: extract_plugin_metadata(plugin_instance)
+PluginMgr -> PluginMgr: call_plugin_metadata()
+PluginMgr --> Client: PluginMetadata
+
+note over Client: 3. Register plugin
+Client -> Registry: register_plugin(metadata, wasm_binary)
+Registry --> Client: PluginRegistered
+
+Client --> CLI: PluginInstalled
+CLI --> Developer: Plugin installed successfully
+
+== Plugin Execution ==
+
+Developer -> CLI: ggen market validate ./my-package
+CLI -> Client: validate_package(package_path, validator_plugin)
+
+note over Client: 1. Load plugin from registry
+Client -> Registry: get_plugin("validator")
+Registry --> Client: PluginInstance
+
+note over Client: 2. Create secure execution environment
+Client -> Sandbox: create_execution_sandbox()
+Sandbox -> Sandbox: configure_security_policies(
+    allow_filesystem: false,
+    allow_network: false,
+    allow_system_calls: false,
+    memory_limit: 64MB,
+    cpu_limit: 1000ms,
+    stack_limit: 1MB
+)
+Sandbox --> Client: SecureSandbox
+
+note over Client: 3. Prepare plugin input
+Client -> Client: prepare_plugin_input(package_data)
+Client --> Client: PluginInput
+
+note over Client: 4. Execute plugin in sandbox
+Client -> WASM: execute_plugin(plugin_instance, input, sandbox)
+WASM -> Sandbox: run_plugin_execution()
+Sandbox -> Sandbox: monitor_resource_usage()
+Sandbox -> Sandbox: enforce_security_policies()
+Sandbox --> WASM: ExecutionResult
+WASM --> Client: PluginResult
+
+note over Client: 5. Process plugin output
+Client -> Client: process_plugin_output(plugin_result)
+Client --> Client: ValidationReport
+
+Client --> CLI: ValidationReport
+CLI --> Developer: Validation completed
+
+== Plugin Store Integration ==
+
+Developer -> CLI: ggen market plugin search "security"
+CLI -> Client: search_plugins(query)
+
+note over Client: 1. Search plugin store
+Client -> Store: search_plugins(query)
+Store -> Store: search_by_category("security")
+Store -> Store: search_by_tags(["validation", "security"])
+Store --> Client: PluginList
+
+note over Client: 2. Filter by compatibility
+Client -> Client: filter_by_compatibility(plugin_list)
+Client --> Client: CompatiblePlugins
+
+Client --> CLI: PluginList
+CLI --> Developer: Available security plugins
+
+== Plugin Publishing ==
+
+Developer -> CLI: ggen market plugin publish ./my-validator
+CLI -> Client: publish_plugin(plugin_path)
+
+note over Client: 1. Validate plugin
+Client -> Validator: validate_plugin(plugin_path)
+Validator -> Validator: check_wasm_compliance()
+Validator -> Validator: verify_security_model()
+Validator -> Validator: test_plugin_functionality()
+Validator --> Client: ValidationResult { valid: true }
+
+note over Client: 2. Sign plugin
+Client -> Client: sign_plugin(plugin_binary)
+Client --> Client: SignedPlugin
+
+note over Client: 3. Publish to store
+Client -> Store: publish_plugin(signed_plugin, metadata)
+Store --> Client: PluginPublished
+
+Client --> CLI: PluginPublished
+CLI --> Developer: Plugin published to store
+
+== Plugin Types ==
+
+note over Generator: Supported Plugin Types
+
+Generator -> Generator: create_validator_plugin()
+Generator -> Generator: create_generator_plugin()
+Generator -> Generator: create_analyzer_plugin()
+Generator -> Generator: create_transformer_plugin()
+
+note over Generator: Validator Plugins
+Generator -> Generator: validate_package_structure()
+Generator -> Generator: check_security_vulnerabilities()
+Generator -> Generator: verify_code_quality()
+Generator -> Generator: enforce_style_guides()
+
+note over Generator: Generator Plugins
+Generator -> Generator: generate_code_templates()
+Generator -> Generator: create_project_scaffolding()
+Generator -> Generator: generate_documentation()
+Generator -> Generator: create_test_cases()
+
+note over Generator: Analyzer Plugins
+Generator -> Generator: analyze_code_complexity()
+Generator -> Generator: detect_dependencies()
+Generator -> Generator: measure_performance()
+Generator -> Generator: assess_maintainability()
+
+== Security Model ==
+
+note over Sandbox: WASM Security Sandbox
+
+Sandbox -> Sandbox: implement_resource_limits()
+Sandbox -> Sandbox: enforce_memory_bounds()
+Sandbox -> Sandbox: restrict_system_calls()
+Sandbox -> Sandbox: monitor_execution_time()
+
+Sandbox -> Sandbox: implement_capability_system()
+Sandbox -> Sandbox: grant_minimal_permissions()
+Sandbox -> Sandbox: audit_plugin_behavior()
+Sandbox -> Sandbox: log_security_events()
+
+alt Security Violation Detected
+    Sandbox -> Sandbox: detect_security_violation(
+        violation: "unauthorized_system_call",
+        plugin: "malicious_validator"
+    )
+    Sandbox -> Client: SecurityViolation
+    Client -> Client: terminate_plugin_execution()
+    Client -> Registry: blacklist_plugin(plugin_id)
+    Client --> CLI: SecurityError
+    CLI --> Developer: Plugin execution blocked
+end
+
+== Plugin Lifecycle ==
+
+note over PluginMgr: Plugin lifecycle management
+
+PluginMgr -> PluginMgr: load_plugin()
+PluginMgr -> PluginMgr: initialize_plugin()
+PluginMgr -> PluginMgr: execute_plugin()
+PluginMgr -> PluginMgr: cleanup_plugin()
+
+PluginMgr -> PluginMgr: handle_plugin_errors()
+PluginMgr -> PluginMgr: manage_plugin_resources()
+PluginMgr -> PluginMgr: monitor_plugin_performance()
+
+== Error Handling ==
+
+alt Plugin Compilation Error
+    Generator --> Client: CompilationError
+    Client --> CLI: BuildError("WASM compilation failed")
+    CLI --> Developer: Plugin build failed
+end
+
+alt Plugin Validation Error
+    Validator --> Client: ValidationError
+    Client --> CLI: ValidationError("Plugin does not meet security requirements")
+    CLI --> Developer: Plugin validation failed
+end
+
+alt Plugin Execution Error
+    WASM --> Client: ExecutionError
+    Client -> Sandbox: cleanup_failed_execution()
+    Sandbox --> Client: CleanupComplete
+    Client --> CLI: ExecutionError("Plugin execution failed")
+    CLI --> Developer: Plugin execution failed
+end
+
+note over Developer, Analyzer
+  **Plugin System Benefits:**
+  • Extensible through WASM plugins
+  • Secure sandboxed execution
+  • Language-agnostic (Rust, C, C++, etc.)
+  • High performance (near-native speed)
+  • Portable across platforms
+  • Comprehensive security model
+  • Plugin store for discovery
+  • Developer-friendly tooling
+end note
+
+@enduml
+
+

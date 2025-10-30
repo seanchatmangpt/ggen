@@ -12,6 +12,7 @@ pub mod generator;
 pub mod github;
 pub mod gpack;
 pub mod graph;
+pub mod telemetry;
 pub mod inject;
 pub mod lifecycle;
 pub mod lockfile;

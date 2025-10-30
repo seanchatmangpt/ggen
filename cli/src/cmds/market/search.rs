@@ -256,13 +256,20 @@ fn generate_search_suggestions(query: &str) -> Vec<SearchSuggestion> {
     suggestions
 }
 
+/// Run marketplace search with OpenTelemetry instrumentation
+#[tracing::instrument(name = "ggen.market.search", skip(args), fields(query = %args.query, limit = args.limit))]
 pub async fn run(args: &SearchArgs) -> Result<()> {
     // Validate input
+    let _validate_span = tracing::info_span!("validate_input").entered();
     validate_search_input(args)?;
+    drop(_validate_span);
 
     // Show search suggestions if requested
     if args.suggestions && !args.json {
+        let _suggestions_span = tracing::info_span!("generate_suggestions").entered();
         let suggestions = generate_search_suggestions(&args.query);
+        drop(_suggestions_span);
+
         if !suggestions.is_empty() {
             println!("💡 Search suggestions:");
             for suggestion in suggestions {
@@ -273,18 +280,29 @@ pub async fn run(args: &SearchArgs) -> Result<()> {
     }
 
     println!("🔍 Searching marketplace for '{}'...", args.query);
+    tracing::info!(query = %args.query, "Starting marketplace search");
 
     // Load registry and search
+    let _registry_span = tracing::info_span!("load_registry").entered();
     let registry = match super::registry::Registry::load().await {
-        Ok(r) => r,
+        Ok(r) => {
+            tracing::info!("Registry loaded successfully");
+            r
+        }
         Err(e) => {
+            tracing::warn!(error = %e, "Failed to load registry, using mock data");
             eprintln!("⚠️  Warning: Could not load marketplace registry: {}", e);
             eprintln!("Using mock data for demonstration.");
+            drop(_registry_span);
             return run_with_mock_data(args);
         }
     };
+    drop(_registry_span);
 
+    let _search_span = tracing::info_span!("execute_search", limit = args.limit).entered();
     let results = registry.search(&args.query, args.limit);
+    tracing::info!(results_count = results.len(), "Search completed");
+    drop(_search_span);
 
     if results.is_empty() {
         println!("No packages found matching \"{}\"", args.query);

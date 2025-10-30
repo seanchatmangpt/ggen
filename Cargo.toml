@@ -18,8 +18,8 @@ members = [
   "utils",
   "cli",
   "ggen-core",
-  "cleanroom",
   "ggen-ai",
+  "ggen-marketplace",
   "examples/frontmatter-cli",
   "examples/natural-market-search",
   "examples/ai-template-project",
@@ -54,6 +54,12 @@ toml = "0.9"
 serde_yaml = "0.9"
 regex = "1.12"
 rayon = "1.11"
+
+# OpenTelemetry dependencies
+opentelemetry = "0.21"
+opentelemetry-otlp = "0.14"
+opentelemetry_sdk = { version = "0.21", features = ["rt-tokio"] }
+tracing-opentelemetry = "0.22"
 
 # CLI Enhancement libraries
 indicatif = "0.18"
@@ -124,7 +130,7 @@ reqwest = { version = "0.12", features = ["blocking", "json"] }
 genai = "0.4"
 proptest.workspace = true
 # Cleanroom integration for CLI testing
-clnrm = { path = "cleanroom", version = "0.1.0" }
+clnrm = "0.1.0"
 
 [profile.dev]
 opt-level = 0

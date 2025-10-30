@@ -51,6 +51,12 @@ semver = "1.0"
 walkdir = "2.5"
 diff = "0.1"
 tracing = "0.1"
+tracing-subscriber = { workspace = true }
+# OpenTelemetry instrumentation
+opentelemetry = { workspace = true }
+opentelemetry-otlp = { workspace = true }
+opentelemetry_sdk = { workspace = true }
+tracing-opentelemetry = { workspace = true }
 # Post-Quantum Cryptography (PQC) - NIST-approved algorithms
 pqcrypto-mldsa = "0.1"  # ML-DSA (maintained replacement for Dilithium)
 pqcrypto-traits = "0.3"
@@ -80,3 +86,15 @@ uuid = { version = "1.18", features = ["v4"] }
 [[bench]]
 name = "lifecycle_benchmarks"
 harness = false
+
+[[bench]]
+name = "marketplace_benchmarks"
+harness = false
+
+[[bench]]
+name = "clnrm_benchmarks"
+harness = false
+
+[[test]]
+name = "marketplace_tests_main"
+path = "tests/marketplace_tests_main.rs"

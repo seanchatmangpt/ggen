@@ -50,11 +50,19 @@ pub struct SyncResult {
     pub sync_duration: std::time::Duration,
 }
 
+/// Run marketplace sync with OpenTelemetry instrumentation
+#[tracing::instrument(name = "ggen.market.sync", skip(args), fields(
+    category = ?args.category,
+    force = args.force,
+    dry_run = args.dry_run
+))]
 pub async fn run(args: &SyncArgs) -> Result<()> {
     println!("🔄 Synchronizing marketplace data...");
+    tracing::info!("Starting marketplace sync");
 
     if args.dry_run {
         println!("🔍 Dry run mode - showing what would be synced...");
+        tracing::info!("Dry run mode enabled");
         simulate_sync_preview(args);
         return Ok(());
     }
@@ -62,6 +70,10 @@ pub async fn run(args: &SyncArgs) -> Result<()> {
     if args.verbose {
         println!("📡 Connecting to marketplace...");
     }
+
+    let _connect_span = tracing::info_span!("connect_marketplace").entered();
+    tracing::info!("Connecting to marketplace registry");
+    drop(_connect_span);
 
     // Simulate sync process
     if args.verbose {
@@ -72,12 +84,21 @@ pub async fn run(args: &SyncArgs) -> Result<()> {
         println!("  • Resolving conflicts...");
     }
 
+    let _sync_span = tracing::info_span!("sync_packages").entered();
     let sync_result = SyncResult {
         packages_synced: 45,
         categories_synced: 8,
         conflicts_resolved: 2,
         sync_duration: std::time::Duration::from_secs(12),
     };
+    tracing::info!(
+        packages = sync_result.packages_synced,
+        categories = sync_result.categories_synced,
+        conflicts = sync_result.conflicts_resolved,
+        duration_ms = sync_result.sync_duration.as_millis() as u64,
+        "Sync completed successfully"
+    );
+    drop(_sync_span);
 
     println!("✅ Synchronization completed!");
     println!("📦 Packages synced: {}", sync_result.packages_synced);

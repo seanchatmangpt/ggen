@@ -1,0 +1,521 @@
+# Lifecycle Rollback Tests with OTEL Validation
+# Tests: rollback scenarios, recovery, state restoration, error handling
+
+[meta]
+name = "lifecycle_rollback_tests"
+description = "Test lifecycle rollback and recovery with OTEL validation"
+version = "1.0.0"
+
+[otel]
+exporter = "otlp"
+endpoint = "http://localhost:4318"
+service_name = "ggen-lifecycle-rollback"
+enable_tracing = true
+enable_metrics = true
+
+[service.ggen]
+plugin = "generic_container"
+image = "rust:latest"
+volumes = ["/tmp/ggen-test:/workspace"]
+working_dir = "/workspace"
+
+# Test 1: Basic rollback after failed deployment
+[[scenario]]
+name = "rollback_after_failed_deployment"
+service = "ggen"
+run = """
+mkdir -p /workspace/rollback-basic && cd /workspace/rollback-basic && \
+cat > make.toml << 'EOF'
+[project]
+name = "rollback-test"
+
+[lifecycle.deploy]
+command = "exit 1"
+
+[lifecycle.rollback]
+commands = [
+    "echo 'Restoring previous version'",
+    "echo 'Clearing failed deployment artifacts'",
+    "echo 'Verifying rollback successful'"
+]
+EOF
+(ggen lifecycle run deploy || echo "Deploy failed") && \
+ggen lifecycle run rollback
+"""
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.deploy"
+expect_error = true
+attributes = { "deployment.result" = "failed" }
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.rollback"
+must_follow = ["ggen.lifecycle.deploy"]
+attributes = { "rollback.trigger" = "deployment_failure" }
+
+[[scenario.expect.span]]
+name = "ggen.rollback.restore"
+parent = "ggen.lifecycle.rollback"
+attributes = { "restore.type" = "previous_version" }
+
+[scenario.expect.temporal]
+strict_ordering = [
+  "ggen.lifecycle.deploy",
+  "ggen.lifecycle.rollback",
+  "ggen.rollback.restore"
+]
+
+# Test 2: Automatic rollback on validation failure
+[[scenario]]
+name = "automatic_rollback_on_validation_failure"
+service = "ggen"
+run = """
+mkdir -p /workspace/auto-rollback && cd /workspace/auto-rollback && \
+cat > make.toml << 'EOF'
+[project]
+name = "auto-rollback-test"
+
+[lifecycle.deploy]
+commands = [
+    "echo 'Deploying new version'",
+    "echo 'Running post-deploy validation'",
+    "exit 1"
+]
+
+[lifecycle.auto-rollback]
+commands = [
+    "echo 'Validation failed - initiating automatic rollback'",
+    "echo 'Rolling back to last known good state'",
+    "echo 'Automatic rollback complete'"
+]
+
+[hooks]
+on_failure_deploy = ["auto-rollback"]
+EOF
+ggen lifecycle run deploy || ggen lifecycle run auto-rollback
+"""
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.deploy"
+expect_error = true
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.auto-rollback"
+must_follow = ["ggen.lifecycle.deploy"]
+attributes = { "rollback.type" = "automatic", "trigger" = "validation_failed" }
+
+[[scenario.expect.span]]
+name = "ggen.rollback.trigger"
+parent = "ggen.lifecycle.auto-rollback"
+attributes = { "trigger.automatic" = "true" }
+
+# Test 3: State recovery after interruption
+[[scenario]]
+name = "state_recovery_after_interruption"
+service = "ggen"
+run = """
+mkdir -p /workspace/state-recovery && cd /workspace/state-recovery && \
+cat > make.toml << 'EOF'
+[project]
+name = "recovery-test"
+
+[lifecycle.build]
+command = "echo 'Building'"
+
+[lifecycle.test]
+command = "echo 'Testing'"
+EOF
+ggen lifecycle run build && \
+test -f .ggen/state.json && \
+ggen lifecycle run test && \
+grep -q '"last_phase":"test"' .ggen/state.json
+"""
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.build"
+attributes = { "phase.completed" = "true" }
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.state.save"
+parent = "ggen.lifecycle.build"
+attributes = { "state.persisted" = "true" }
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.state.load"
+must_follow = ["ggen.lifecycle.state.save"]
+must_precede = ["ggen.lifecycle.test"]
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.test"
+must_follow = ["ggen.lifecycle.state.load"]
+
+[scenario.expect.attestation]
+state_file_exists = true
+state_integrity = true
+
+# Test 4: Rollback with database restore
+[[scenario]]
+name = "rollback_with_database_restore"
+service = "ggen"
+run = """
+mkdir -p /workspace/db-rollback && cd /workspace/db-rollback && \
+cat > make.toml << 'EOF'
+[project]
+name = "database-rollback"
+
+[lifecycle.backup-database]
+command = "echo 'Creating database backup before deployment'"
+
+[lifecycle.deploy]
+commands = [
+    "echo 'Running database migrations'",
+    "exit 1"
+]
+
+[lifecycle.restore-database]
+commands = [
+    "echo 'Restoring database from backup'",
+    "echo 'Reverting migrations'",
+    "echo 'Database restored'"
+]
+
+[hooks]
+before_deploy = ["backup-database"]
+on_failure_deploy = ["restore-database"]
+EOF
+ggen lifecycle run deploy || ggen lifecycle run restore-database
+"""
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.backup-database"
+must_precede = ["ggen.lifecycle.deploy"]
+attributes = { "backup.type" = "pre_deployment" }
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.deploy"
+expect_error = true
+must_follow = ["ggen.lifecycle.backup-database"]
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.restore-database"
+must_follow = ["ggen.lifecycle.deploy"]
+attributes = { "restore.type" = "database", "restore.from_backup" = "true" }
+
+[scenario.expect.temporal]
+strict_ordering = [
+  "ggen.lifecycle.backup-database",
+  "ggen.lifecycle.deploy",
+  "ggen.lifecycle.restore-database"
+]
+
+# Test 5: Partial rollback with component isolation
+[[scenario]]
+name = "partial_rollback_component_isolation"
+service = "ggen"
+run = """
+mkdir -p /workspace/partial-rollback && cd /workspace/partial-rollback && \
+cat > make.toml << 'EOF'
+[project]
+name = "partial-rollback"
+
+[lifecycle.deploy-frontend]
+command = "echo 'Deploying frontend - succeeded'"
+
+[lifecycle.deploy-backend]
+command = "exit 1"
+
+[lifecycle.rollback-backend]
+commands = [
+    "echo 'Rolling back backend only'",
+    "echo 'Frontend remains on new version'",
+    "echo 'Partial rollback complete'"
+]
+EOF
+ggen lifecycle run deploy-frontend && \
+(ggen lifecycle run deploy-backend || ggen lifecycle run rollback-backend)
+"""
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.deploy-frontend"
+expect_error = false
+attributes = { "component" = "frontend", "status" = "success" }
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.deploy-backend"
+expect_error = true
+attributes = { "component" = "backend", "status" = "failed" }
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.rollback-backend"
+must_follow = ["ggen.lifecycle.deploy-backend"]
+attributes = { "rollback.scope" = "partial", "component" = "backend" }
+
+[scenario.expect.graph]
+must_not_include = [
+  ["ggen.lifecycle.rollback-backend", "ggen.lifecycle.deploy-frontend"]
+]
+isolated = true
+
+# Test 6: Rollback with traffic shifting
+[[scenario]]
+name = "rollback_with_traffic_shifting"
+service = "ggen"
+run = """
+mkdir -p /workspace/traffic-rollback && cd /workspace/traffic-rollback && \
+cat > make.toml << 'EOF'
+[project]
+name = "traffic-rollback"
+
+[lifecycle.deploy-new-version]
+command = "echo 'Deploying new version'"
+
+[lifecycle.shift-traffic]
+commands = [
+    "echo 'Routing 10% traffic to new version'",
+    "echo 'Monitoring error rates'",
+    "exit 1"
+]
+
+[lifecycle.rollback-traffic]
+commands = [
+    "echo 'Error rate exceeded threshold'",
+    "echo 'Routing 100% traffic back to old version'",
+    "echo 'Terminating new version'",
+    "echo 'Rollback complete'"
+]
+EOF
+ggen lifecycle run deploy-new-version && \
+(ggen lifecycle run shift-traffic || ggen lifecycle run rollback-traffic)
+"""
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.deploy-new-version"
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.shift-traffic"
+expect_error = true
+attributes = { "traffic.percentage" = "10" }
+
+[[scenario.expect.span]]
+name = "ggen.traffic.monitor"
+parent = "ggen.lifecycle.shift-traffic"
+attributes = { "error_rate.threshold_exceeded" = "true" }
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.rollback-traffic"
+must_follow = ["ggen.lifecycle.shift-traffic"]
+attributes = { "traffic.rollback" = "full", "traffic.target" = "old_version" }
+
+# Test 7: Rollback verification
+[[scenario]]
+name = "rollback_verification"
+service = "ggen"
+run = """
+mkdir -p /workspace/rollback-verify && cd /workspace/rollback-verify && \
+cat > make.toml << 'EOF'
+[project]
+name = "rollback-verification"
+
+[lifecycle.deploy]
+command = "exit 1"
+
+[lifecycle.rollback]
+commands = [
+    "echo 'Rolling back deployment'",
+    "echo 'Restoring previous version'"
+]
+
+[lifecycle.verify-rollback]
+commands = [
+    "echo 'Running health checks'",
+    "echo 'Verifying service availability'",
+    "echo 'Checking data integrity'",
+    "echo 'Rollback verified successful'"
+]
+
+[hooks]
+after_rollback = ["verify-rollback"]
+EOF
+(ggen lifecycle run deploy || echo "Deploy failed") && \
+ggen lifecycle run rollback
+"""
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.deploy"
+expect_error = true
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.rollback"
+must_follow = ["ggen.lifecycle.deploy"]
+must_precede = ["ggen.lifecycle.verify-rollback"]
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.verify-rollback"
+must_follow = ["ggen.lifecycle.rollback"]
+attributes = { "verification.type" = "post_rollback" }
+
+[[scenario.expect.span]]
+name = "ggen.rollback.healthcheck"
+parent = "ggen.lifecycle.verify-rollback"
+attributes = { "health.status" = "healthy" }
+
+# Test 8: Cache invalidation on failure
+[[scenario]]
+name = "cache_invalidation_on_failure"
+service = "ggen"
+run = """
+mkdir -p /workspace/cache-invalidate && cd /workspace/cache-invalidate && \
+cat > make.toml << 'EOF'
+[project]
+name = "cache-invalidation-failure"
+
+[lifecycle.build]
+command = "echo 'Building'"
+cache = true
+
+[lifecycle.test]
+command = "exit 1"
+cache = true
+EOF
+ggen lifecycle run build && \
+(ggen lifecycle run test || echo "Test failed - cache invalidated")
+"""
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.build"
+expect_error = false
+
+[[scenario.expect.span]]
+name = "ggen.cache.key.generate"
+parent = "ggen.lifecycle.build"
+count = 1
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.test"
+expect_error = true
+
+[[scenario.expect.span]]
+name = "ggen.cache.invalidate"
+must_follow = ["ggen.lifecycle.test"]
+attributes = { "reason" = "phase_failed", "phase" = "test" }
+
+# Test 9: Snapshot-based rollback
+[[scenario]]
+name = "snapshot_based_rollback"
+service = "ggen"
+run = """
+mkdir -p /workspace/snapshot-rollback && cd /workspace/snapshot-rollback && \
+cat > make.toml << 'EOF'
+[project]
+name = "snapshot-rollback"
+
+[lifecycle.create-snapshot]
+commands = [
+    "echo 'Creating system snapshot'",
+    "echo 'Snapshot ID: snap-12345'"
+]
+
+[lifecycle.deploy]
+commands = [
+    "echo 'Deploying new version'",
+    "exit 1"
+]
+
+[lifecycle.restore-from-snapshot]
+commands = [
+    "echo 'Restoring from snapshot: snap-12345'",
+    "echo 'System restored to previous state'",
+    "echo 'Snapshot restoration complete'"
+]
+
+[hooks]
+before_deploy = ["create-snapshot"]
+on_failure_deploy = ["restore-from-snapshot"]
+EOF
+ggen lifecycle run deploy || ggen lifecycle run restore-from-snapshot
+"""
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.create-snapshot"
+must_precede = ["ggen.lifecycle.deploy"]
+attributes = { "snapshot.type" = "pre_deployment" }
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.deploy"
+expect_error = true
+must_follow = ["ggen.lifecycle.create-snapshot"]
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.restore-from-snapshot"
+must_follow = ["ggen.lifecycle.deploy"]
+attributes = { "restore.type" = "snapshot", "snapshot.id" = "snap-12345" }
+
+# Test 10: Rollback with notification
+[[scenario]]
+name = "rollback_with_notification"
+service = "ggen"
+run = """
+mkdir -p /workspace/rollback-notify && cd /workspace/rollback-notify && \
+cat > make.toml << 'EOF'
+[project]
+name = "rollback-notification"
+
+[lifecycle.deploy]
+command = "exit 1"
+
+[lifecycle.rollback]
+commands = [
+    "echo 'Rolling back deployment'",
+    "echo 'Sending notification to team'"
+]
+
+[lifecycle.notify-rollback]
+commands = [
+    "echo 'Notifying: Deployment failed, rollback initiated'",
+    "echo 'Notifying: Rollback completed successfully'",
+    "echo 'Creating incident report'"
+]
+
+[hooks]
+after_rollback = ["notify-rollback"]
+EOF
+(ggen lifecycle run deploy || echo "Deploy failed") && \
+ggen lifecycle run rollback
+"""
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.deploy"
+expect_error = true
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.rollback"
+must_follow = ["ggen.lifecycle.deploy"]
+
+[[scenario.expect.span]]
+name = "ggen.lifecycle.notify-rollback"
+must_follow = ["ggen.lifecycle.rollback"]
+attributes = { "notification.type" = "rollback_complete" }
+
+[[scenario.expect.span]]
+name = "ggen.notification.send"
+parent = "ggen.lifecycle.notify-rollback"
+count_min = 2
+
+# Summary expectations
+[expect.report]
+format = "json"
+output_path = "/tmp/lifecycle-rollback-report.json"
+include_metrics = true
+include_traces = true
+
+[expect.performance]
+max_duration_ms = 10000
+max_memory_mb = 512
+
+[expect.determinism]
+require_same_traces_on_retry = true
+retry_count = 2
+
+[expect.attestation]
+rollback_mechanisms_tested = true
+state_recovery_validated = true

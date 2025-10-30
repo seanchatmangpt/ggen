@@ -6,6 +6,34 @@ This directory contains working examples demonstrating ggen's capabilities.
 
 ## 🚀 Quick Start
 
+**Brand new to ggen?** Start here to get oriented:
+
+### 🏥 Step 1: Check Your Environment
+```bash
+# First time? Check if your environment is ready
+ggen doctor
+
+# ✅ Rust toolchain (rustc 1.90.0)
+# ✅ Cargo (cargo 1.90.0)
+# ✅ Git (git 2.39.0)
+# ✅ Environment variables configured
+# ✅ Templates directory exists
+```
+
+### 📚 Step 2: Get Personalized Help
+```bash
+# Get help adapted to your experience level
+ggen help-me
+
+# 📚 Your level: newcomer
+# 🚀 Welcome to ggen!
+# Here are the essential commands to get started:
+#   ggen doctor - Check if your environment is ready
+#   ggen template list - See available templates
+#   ggen help-me --tips - Get personalized tips
+```
+
+### 🎯 Step 3: Try Your First Example
 **New to ggen?** Start with these comprehensive tutorials:
 
 1. **[basic-template-generation/](basic-template-generation/)** - Learn template fundamentals (15-30 min)
@@ -13,6 +41,74 @@ This directory contains working examples demonstrating ggen's capabilities.
 3. **[complete-project-generation/](complete-project-generation/)** - Generate full projects (45-60 min)
 
 **Want ultra-fast deployment?** Check out the **[cleanroom/examples/](../cleanroom/examples/)** directory for <60 second concept-to-deploy workflows.
+
+## 🎯 User-Friendly Features (NEW!)
+
+### 🏥 Environment Health Check
+Before diving into examples, ensure your environment is ready:
+
+```bash
+ggen doctor
+```
+
+**What it checks**:
+- ✅ Rust toolchain and Cargo
+- ✅ Git installation
+- ✅ Environment variables
+- ✅ Templates directory
+- ✅ Configuration files
+
+**If something is missing**, ggen doctor provides platform-specific fix instructions!
+
+### 📚 Progressive Help System
+Get help that adapts to your experience level:
+
+```bash
+# General help (adapts based on your usage)
+ggen help-me
+
+# Get personalized tips
+ggen help-me --tips
+
+# Command-specific help
+ggen help-me template
+```
+
+**Your help evolves as you use ggen more:**
+- **Newcomer** (0-5 commands): Essential commands and quickstart
+- **Intermediate** (6-20 commands): Common workflows and best practices
+- **Advanced** (21-50 commands): Advanced features and optimization
+- **Expert** (50+ commands): Power user tips and customization
+
+### 🔧 Enhanced Error Messages
+When something goes wrong, ggen now provides actionable help:
+
+```bash
+$ ggen template generate rust-servce
+❌ Error: Template 'rust-servce' not found
+
+📝 Context: The specified template does not exist in the registry
+
+💡 Did you mean:
+   • rust-service
+   • rust-server
+   • rust-svc
+
+🔧 How to fix:
+   1. Run 'ggen template list' to see available templates
+   2. Use 'ggen template search rust' to find Rust templates
+
+📚 Documentation: https://seanchatmangpt.github.io/ggen/templates
+```
+
+**Error messages now include:**
+- Context explaining what went wrong
+- "Did you mean?" suggestions for typos
+- Step-by-step fix instructions
+- Platform-specific commands (macOS/Linux/Windows)
+- Links to relevant documentation
+
+---
 
 ## 📚 Available Examples
 
@@ -29,9 +125,16 @@ Complete tutorial for learning ggen template fundamentals.
 
 **Quick Start**:
 ```bash
+# First, check your environment
+ggen doctor
+
+# Then run the tutorial
 cd basic-template-generation
 ./run-example.sh        # Interactive tutorial
 ./run-example.sh show   # View all templates
+
+# Get help if you need it
+ggen help-me template
 ```
 
 **Time**: 15-30 minutes
@@ -327,19 +430,59 @@ cargo run --example
 
 ## Troubleshooting
 
+### 🏥 First Step: Run Doctor
+**Always start troubleshooting with:**
+```bash
+ggen doctor
+```
+
+This checks your environment and provides platform-specific fix instructions for any issues.
+
+### 📚 Get Contextual Help
+```bash
+# Get tips based on your usage patterns
+ggen help-me --tips
+
+# Get help for a specific command
+ggen help-me <command>
+```
+
+### Enhanced Error Messages
+Ggen now provides detailed error messages with:
+- Context explaining what went wrong
+- "Did you mean?" suggestions for typos
+- Step-by-step fix instructions
+- Platform-specific commands
+
+**Example of a helpful error:**
+```bash
+$ ggen template generate non-existent
+❌ Error: Template 'non-existent' not found
+
+💡 Did you mean:
+   • rust-cli-template
+   • basic-template
+
+🔧 How to fix:
+   1. Run 'ggen template list' to see available templates
+   2. Use 'ggen template search <query>' to find templates
+```
+
 ### Ollama Examples
 
 If genai examples fail:
-1. Check Ollama is running: `curl http://localhost:11434/api/tags`
-2. Verify model is installed: `ollama list`
-3. Pull model if needed: `ollama pull qwen3-coder:30b`
+1. **Run `ggen doctor`** to check prerequisites
+2. Check Ollama is running: `curl http://localhost:11434/api/tags`
+3. Verify model is installed: `ollama list`
+4. Pull model if needed: `ollama pull qwen3-coder:30b`
 
 ### Frontmatter Examples
 
 If frontmatter examples fail:
-1. Check template file exists
-2. Verify YAML syntax is valid
-3. Ensure RDF/SPARQL syntax is correct
+1. **Run `ggen doctor`** to verify environment
+2. Check template file exists
+3. Verify YAML syntax is valid
+4. Ensure RDF/SPARQL syntax is correct
 
 ## Contributing
 
