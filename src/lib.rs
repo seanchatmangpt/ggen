@@ -19,7 +19,8 @@ pub mod agents {
     pub mod simple;
 }
 pub mod core;
-pub mod p2p;
+// P2P module temporarily disabled due to compilation errors (will be fixed in v1.3.0)
+// pub mod p2p;
 pub mod utils;
 
 // Re-export commonly used types

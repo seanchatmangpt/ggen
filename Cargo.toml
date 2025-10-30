@@ -19,12 +19,13 @@ members = [
   "cli",
   "ggen-core",
   "ggen-ai",
-  "ggen-marketplace",
+  # Temporarily excluded due to compilation errors (will be fixed in v1.3.0)
+  # "ggen-marketplace",
   "examples/frontmatter-cli",
   "examples/natural-market-search",
   "examples/ai-template-project",
 ]
-exclude = ["examples/rust-cli-lifecycle", "examples/marketplace-demo/generated"]
+exclude = ["examples/rust-cli-lifecycle", "examples/marketplace-demo/generated", "ggen-marketplace"]
 resolver = "2" # Use new resolver for better dependency resolution
 
 # Workspace-wide dependencies for version consistency
