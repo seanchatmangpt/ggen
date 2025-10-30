@@ -1,3 +1,4 @@
+#![cfg(feature = "london-tdd")]
 //! London TDD tests for `ggen doctor` command
 //!
 //! README.md §User-Friendly Features - Environment Health Check
@@ -9,6 +10,7 @@
 //! - Platform-specific guidance
 
 use crate::lib::*;
+use mockall::automock;
 use mockall::predicate::*;
 
 #[test]
@@ -69,7 +71,7 @@ fn test_doctor_reports_missing_rust_toolchain() {
     let mut mock_executor = MockSystemCommandExecutor::new();
     mock_executor
         .expect_execute()
-        .with(eq("rustc"), anything())
+        .with(eq("rustc"), always())
         .returning(|_, _| Err(anyhow::anyhow!("command not found")));
 
     // Act

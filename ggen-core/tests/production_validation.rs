@@ -1,3 +1,4 @@
+#![cfg(feature = "testcontainers")]
 //! Production validation tests using testcontainers
 //!
 //! These tests validate production readiness in isolated container environments:

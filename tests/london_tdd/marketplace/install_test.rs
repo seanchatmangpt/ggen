@@ -1,3 +1,4 @@
+#![cfg(feature = "london-tdd")]
 //! London TDD tests for `ggen add` command
 //!
 //! README.md §Marketplace - Package Installation

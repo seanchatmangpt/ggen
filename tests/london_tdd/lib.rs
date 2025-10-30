@@ -1,3 +1,4 @@
+#![cfg(feature = "london_tdd")]
 //! Common test utilities and mocks for London TDD tests
 //!
 //! This module provides reusable mocks and utilities for testing

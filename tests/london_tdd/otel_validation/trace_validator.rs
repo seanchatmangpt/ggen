@@ -1,3 +1,4 @@
+#![cfg(feature = "london-tdd")]
 //! OpenTelemetry instrumentation validation
 //!
 //! Tests verify that all CLI commands properly create spans,

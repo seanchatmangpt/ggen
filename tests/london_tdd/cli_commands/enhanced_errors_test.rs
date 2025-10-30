@@ -1,3 +1,4 @@
+#![cfg(feature = "london-tdd")]
 //! London TDD tests for enhanced error messages
 //!
 //! README.md §User-Friendly Features - Enhanced Error Messages

@@ -384,7 +384,7 @@ async fn test_ggen_cleanroom_integration() -> Result<()> {
                 .args(&["check"])
                 .current_dir(&project_dir)
                 .output()
-                .map_err(|e| clnrm::Error::execution_error(format!("Cargo check failed: {}", e)))
+                .map_err(|e| clnrm::Error::io_error(format!("Cargo check failed: {}", e)))
         })
         .await?;
 

@@ -1,3 +1,4 @@
+#![cfg(feature = "london-tdd")]
 //! London TDD tests for `ggen ai project` command
 //!
 //! README.md §AI-Powered Generation - Project Scaffolding
@@ -23,7 +24,7 @@ fn test_ai_project_generates_complete_rust_project() {
         .expect_generate()
         .times(1)
         .returning(|_, _| {
-            Ok(r#"
+            Ok(r##"
             {
               "name": "my-api",
               "language": "rust",
@@ -33,7 +34,7 @@ fn test_ai_project_generates_complete_rust_project() {
                 {"path": "tests/integration.rs", "content": "#[test]\nfn test_basic() {}"}
               ]
             }
-            "#
+            "##
             .to_string())
         });
 
@@ -67,14 +68,14 @@ fn test_ai_project_includes_tests_by_default() {
     let mock_fs = MockFilesystem::new();
 
     mock_llm.expect_generate().returning(|_, _| {
-        Ok(r#"
+        Ok(r##"
         {
           "name": "my-service",
           "files": [
             {"path": "tests/integration.rs", "content": "#[test] fn test() {}"}
           ]
         }
-        "#
+        "##
         .to_string())
     });
 

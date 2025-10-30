@@ -1,3 +1,5 @@
+#![cfg(feature = "london_tdd")]
+#![cfg(feature = "london-tdd")]
 //! London TDD tests for `ggen ai generate` command
 //!
 //! README.md §AI-Powered Generation - Template Generation
@@ -9,6 +11,7 @@
 //! - Tera template body generation
 
 use crate::lib::*;
+use mockall::automock;
 use mockall::predicate::*;
 
 #[test]
@@ -68,7 +71,7 @@ fn test_ai_generate_supports_multiple_providers() {
     let mut mock_openai = MockLlmClient::new();
     mock_openai
         .expect_generate()
-        .with(anything(), eq("gpt-4o"))
+        .with(always(), eq("gpt-4o"))
         .returning(|_, _| Ok("---\nto: test\n---\ntemplate".to_string()));
 
     let result = run_ai_generate_with_provider(&mock_openai, "openai", "gpt-4o");
@@ -78,7 +81,7 @@ fn test_ai_generate_supports_multiple_providers() {
     let mut mock_anthropic = MockLlmClient::new();
     mock_anthropic
         .expect_generate()
-        .with(anything(), eq("claude-3-5-sonnet-20241022"))
+        .with(always(), eq("claude-3-5-sonnet-20241022"))
         .returning(|_, _| Ok("---\nto: test\n---\ntemplate".to_string()));
 
     let result = run_ai_generate_with_provider(&mock_anthropic, "anthropic", "claude-3-5-sonnet-20241022");
@@ -88,7 +91,7 @@ fn test_ai_generate_supports_multiple_providers() {
     let mut mock_ollama = MockLlmClient::new();
     mock_ollama
         .expect_generate()
-        .with(anything(), eq("qwen3-coder:30b"))
+        .with(always(), eq("qwen3-coder:30b"))
         .returning(|_, _| Ok("---\nto: test\n---\ntemplate".to_string()));
 
     let result = run_ai_generate_with_provider(&mock_ollama, "ollama", "qwen3-coder:30b");

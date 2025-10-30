@@ -3,14 +3,12 @@
 //! This module validates that benchmark scenarios execute correctly
 //! and establishes baseline performance metrics for CI/CD.
 
-use ggen_core::cleanroom::policy::Locked;
-use ggen_core::cleanroom::surfaces::DeterministicSurfaces;
-use ggen_core::cleanroom::CleanroomCore;
 use ggen_core::lifecycle::{Context, Make, Phase, Project};
 use ggen_core::registry::{PackMetadata, RegistryIndex, VersionMetadata};
 use std::collections::{BTreeMap, HashMap};
 use std::sync::Arc;
 use std::time::Instant;
+use tempfile::TempDir;
 
 /// Performance baseline thresholds
 mod thresholds {
@@ -159,13 +157,7 @@ fn test_index_serialization_performance() {
 
 #[test]
 fn test_lifecycle_phase_execution_performance() {
-    let env = CleanroomCore::<Locked>::builder()
-        .time_frozen(42)
-        .rng_seeded(42)
-        .fs_ephemeral()
-        .net_offline()
-        .build()
-        .expect("Failed to create cleanroom");
+    let tmp = TempDir::new().expect("create temp dir");
 
     let mut lifecycle = BTreeMap::new();
     lifecycle.insert(
@@ -195,12 +187,8 @@ fn test_lifecycle_phase_execution_performance() {
         hooks: None,
     };
 
-    let ctx = Context::new(
-        env.root().to_path_buf(),
-        Arc::new(make),
-        env.root().join(".ggen/state.json"),
-        vec![],
-    );
+    let root = tmp.path().to_path_buf();
+    let ctx = Context::new(root.clone(), Arc::new(make), root.join(".ggen/state.json"), vec![]);
 
     let start = Instant::now();
     ggen_core::lifecycle::run_phase(&ctx, "test").expect("Failed to run phase");
@@ -221,12 +209,6 @@ fn test_deterministic_performance() {
     let mut durations = Vec::new();
 
     for run in 0..2 {
-        let env = CleanroomCore::<Locked>::builder()
-            .time_frozen(42)
-            .rng_seeded(42)
-            .build()
-            .expect("Failed to create cleanroom");
-
         let start = Instant::now();
         let index = create_test_registry(100);
         let _serialized = serde_json::to_string(&index).expect("Failed to serialize");

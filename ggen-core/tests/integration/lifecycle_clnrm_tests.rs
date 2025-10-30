@@ -97,7 +97,7 @@ impl ClnrmContainer {
 
     /// Load lifecycle state from container
     fn load_state(&self) -> Result<LifecycleState> {
-        load_state(&self.state_path())
+        Ok(load_state(&self.state_path())?)
     }
 }
 

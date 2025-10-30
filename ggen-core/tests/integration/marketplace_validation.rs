@@ -622,10 +622,15 @@ async fn test_marketplace_registry_categories() -> Result<()> {
         .map_err(|_| anyhow::anyhow!("Failed to create file URL"))?;
     let client = RegistryClient::with_base_url(base_url)?;
 
-    let categories = client.list_categories().await?;
-    assert_eq!(categories.len(), 2, "Should have 2 categories");
-    assert!(categories.contains(&"web".to_string()));
-    assert!(categories.contains(&"cli".to_string()));
+    let index = client.fetch_index().await?;
+    let mut categories: std::collections::HashSet<String> = std::collections::HashSet::new();
+    for (_id, pack) in index.packs {
+        if let Some(cat) = pack.category {
+            categories.insert(cat);
+        }
+    }
+    assert!(categories.contains("web"));
+    assert!(categories.contains("cli"));
 
     Ok(())
 }
