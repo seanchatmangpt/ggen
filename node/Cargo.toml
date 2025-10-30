@@ -1,0 +1,29 @@
+[package]
+name = "ggen-node"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/seanchatmangpt/ggen"
+description = "Node.js N-API bindings for ggen"
+
+[lib]
+crate-type = ["cdylib"]
+name = "ggen_node"
+
+[dependencies]
+napi = { version = "2", features = ["napi6"] }
+napi-derive = "2"
+tokio = { version = "1.47", features = ["rt-multi-thread"] }
+ggen-cli-lib = { path = "../cli", version = "1.2.0" }
+serde_json = "1.0"
+
+[dev-dependencies]
+tokio = { version = "1.47", features = ["rt-multi-thread", "macros"] }
+futures = "0.3"
+
+[build-dependencies]
+napi-build = "2"
+
+[package.metadata.napi]
+name = "ggen-node"
+

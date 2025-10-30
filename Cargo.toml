@@ -24,6 +24,7 @@ members = [
   "examples/frontmatter-cli",
   "examples/natural-market-search",
   "examples/ai-template-project",
+  "node",
 ]
 exclude = ["examples/rust-cli-lifecycle", "examples/marketplace-demo/generated", "ggen-marketplace"]
 resolver = "2" # Use new resolver for better dependency resolution
@@ -132,6 +133,14 @@ genai = "0.4"
 proptest.workspace = true
 # Cleanroom integration for CLI testing
 clnrm = "0.1.0"
+mockall = "0.13"
+fake = "2.9"
+opentelemetry.workspace = true
+opentelemetry-otlp.workspace = true
+opentelemetry_sdk.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+tracing-opentelemetry.workspace = true
 
 [profile.dev]
 opt-level = 0

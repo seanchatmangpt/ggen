@@ -255,7 +255,9 @@ fn cleanroom_marketplace_categories() {
         .arg("categories")
         .assert()
         .success()
-        .stdout(predicate::str::contains("Categories") | predicate::str::contains("templates"));
+        .stdout(
+            predicate::str::contains("Categories").or(predicate::str::contains("templates")),
+        );
 }
 
 // ============================================================================
@@ -388,7 +390,7 @@ fn cleanroom_template_list() {
         .success()
         .stdout(
             predicate::str::contains("Available templates")
-                | predicate::str::contains("No templates"),
+                .or(predicate::str::contains("No templates")),
         );
 }
 
@@ -499,7 +501,7 @@ fn cleanroom_error_invalid_command() {
         .failure()
         .stderr(
             predicate::str::contains("unrecognized subcommand")
-                | predicate::str::contains("invalid"),
+                .or(predicate::str::contains("invalid")),
         );
 }
 
@@ -513,7 +515,9 @@ fn cleanroom_error_missing_argument() {
         // Missing query argument
         .assert()
         .failure()
-        .stderr(predicate::str::contains("required") | predicate::str::contains("missing"));
+        .stderr(
+            predicate::str::contains("required").or(predicate::str::contains("missing")),
+        );
 }
 
 #[test]
@@ -655,7 +659,9 @@ fn cleanroom_regression_no_panic_on_malformed_makefile() {
         .arg("list")
         .assert()
         .failure()
-        .stderr(predicate::str::contains("parse") | predicate::str::contains("TOML"));
+        .stderr(
+            predicate::str::contains("parse").or(predicate::str::contains("TOML")),
+        );
 }
 
 #[test]
@@ -686,7 +692,9 @@ fn cleanroom_security_no_path_traversal() {
         .arg("../../../etc/passwd")
         .assert()
         .failure()
-        .stderr(predicate::str::contains("Invalid") | predicate::str::contains("format"));
+        .stderr(
+            predicate::str::contains("Invalid").or(predicate::str::contains("format")),
+        );
 }
 
 #[test]

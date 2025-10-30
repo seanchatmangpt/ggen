@@ -1,0 +1,68 @@
+{
+  "name": "@ggen/node",
+  "version": "1.2.0",
+  "description": "Production-grade Node.js N-API bindings for ggen CLI - marketplace, lifecycle, templates, and AI code generation",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "author": "Sean Chatman <sean@chatmangpt.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/seanchatmangpt/ggen.git",
+    "directory": "node"
+  },
+  "homepage": "https://github.com/seanchatmangpt/ggen",
+  "keywords": [
+    "ggen",
+    "code-generation",
+    "cli",
+    "napi",
+    "rust",
+    "marketplace",
+    "lifecycle",
+    "templates",
+    "ai",
+    "rdf",
+    "sparql",
+    "node-addon"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "index.node",
+    "build.rs",
+    "Cargo.toml",
+    "src/"
+  ],
+  "scripts": {
+    "build": "npx @napi-rs/cli@2.18.0 build --release",
+    "build:debug": "npx @napi-rs/cli@2.18.0 build",
+    "prebuild": "npx @napi-rs/cli@2.18.0 prebuild -t x86_64-unknown-linux-gnu -t aarch64-apple-darwin -t x86_64-apple-darwin -t x86_64-pc-windows-msvc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "@napi-rs/cli": "2.18.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.0"
+  },
+  "napi": {
+    "name": "ggen-node",
+    "triples": {
+      "defaults": true,
+      "additional": [
+        "x86_64-unknown-linux-gnu",
+        "aarch64-apple-darwin",
+        "x86_64-apple-darwin",
+        "x86_64-pc-windows-msvc"
+      ]
+    }
+  },
+  "packageManager": "pnpm@9.11.0"
+}

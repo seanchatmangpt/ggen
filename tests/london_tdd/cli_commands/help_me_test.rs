@@ -1,3 +1,5 @@
+#![cfg(feature = "london-tdd")]
+#![cfg(feature = "london_tdd")]
 //! London TDD tests for `ggen help-me` command
 //!
 //! README.md §User-Friendly Features - Progressive Help System

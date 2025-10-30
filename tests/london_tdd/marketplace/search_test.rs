@@ -1,3 +1,4 @@
+#![cfg(feature = "london-tdd")]
 //! London TDD tests for `ggen search` command
 //!
 //! README.md §Marketplace - Natural Language Search

@@ -746,3 +746,55 @@ args = [
 description = "List supported shell completion types"
 command = "cargo"
 args = ["run", "--bin", "ggen", "--", "shell", "completion", "list"]
+
+# =============================================================================
+# Node.js N-API addon tasks
+# =============================================================================
+
+[tasks.node-build]
+description = "Build Node N-API addon in debug"
+workspace = false
+script_runner = "@shell"
+script = '''
+cd node && (
+  command -v npx >/dev/null 2>&1 && npx --yes @napi-rs/cli@2.18.0 build || \
+  (command -v corepack >/dev/null 2>&1 && corepack pnpm dlx @napi-rs/cli@2.18.0 build) || \
+  (command -v yarn >/dev/null 2>&1 && yarn dlx @napi-rs/cli@2.18.0 build)
+)
+'''
+
+[tasks.node-build-release]
+description = "Build Node N-API addon in release"
+workspace = false
+script_runner = "@shell"
+script = '''
+cd node && (
+  command -v npx >/dev/null 2>&1 && npx --yes @napi-rs/cli@2.18.0 build --release || \
+  (command -v corepack >/dev/null 2>&1 && corepack pnpm dlx @napi-rs/cli@2.18.0 build --release) || \
+  (command -v yarn >/dev/null 2>&1 && yarn dlx @napi-rs/cli@2.18.0 build --release)
+)
+'''
+
+[tasks.node-test]
+description = "Run Node addon tests deterministically"
+workspace = false
+script_runner = "@shell"
+script = '''
+cd node && (
+  command -v npx >/dev/null 2>&1 && npx --yes vitest run --reporter=dot || \
+  (command -v corepack >/dev/null 2>&1 && corepack pnpm dlx vitest run --reporter=dot) || \
+  (command -v yarn >/dev/null 2>&1 && yarn dlx vitest run --reporter=dot)
+)
+'''
+
+[tasks.node-prebuild]
+description = "Create prebuilt binaries for common targets"
+workspace = false
+script_runner = "@shell"
+script = '''
+cd node && (
+  command -v npx >/dev/null 2>&1 && npx --yes @napi-rs/cli@2.18.0 prebuild -t x86_64-unknown-linux-gnu -t aarch64-apple-darwin -t x86_64-apple-darwin -t x86_64-pc-windows-msvc || \
+  (command -v corepack >/dev/null 2>&1 && corepack pnpm dlx @napi-rs/cli@2.18.0 prebuild -t x86_64-unknown-linux-gnu -t aarch64-apple-darwin -t x86_64-apple-darwin -t x86_64-pc-windows-msvc) || \
+  (command -v yarn >/dev/null 2>&1 && yarn dlx @napi-rs/cli@2.18.0 prebuild -t x86_64-unknown-linux-gnu -t aarch64-apple-darwin -t x86_64-apple-darwin -t x86_64-pc-windows-msvc)
+)
+'''

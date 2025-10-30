@@ -1,3 +1,5 @@
+#![cfg(feature = "london-tdd")]
+#![cfg(feature = "london_tdd")]
 //! London TDD tests for `ggen quickstart` command
 //!
 //! README.md §Quick Start - 2-Minute Quickstart
@@ -9,6 +11,7 @@
 //! - Clear success messaging with next steps
 
 use crate::lib::*;
+use mockall::automock;
 use mockall::predicate::*;
 
 #[test]

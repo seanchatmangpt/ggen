@@ -1,3 +1,5 @@
+#![cfg(feature = "london-tdd")]
+#![cfg(feature = "london_tdd")]
 //! London TDD tests for RDF/SPARQL integration
 //!
 //! README.md §RDF + SPARQL Integration
@@ -9,6 +11,7 @@
 //! - RDF inline definitions
 
 use crate::lib::*;
+use mockall::automock;
 use mockall::predicate::*;
 
 #[test]

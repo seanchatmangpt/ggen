@@ -1,3 +1,5 @@
+#![cfg(feature = "london-tdd")]
+#![cfg(feature = "london_tdd")]
 //! London TDD tests for template rendering
 //!
 //! README.md §Template Example - Tera Template Rendering
@@ -9,6 +11,7 @@
 //! - Filters and functions
 
 use crate::lib::*;
+use mockall::automock;
 use mockall::predicate::*;
 use std::collections::HashMap;
 
@@ -34,7 +37,7 @@ pub struct {{name | capitalize}} {
     let mut mock_renderer = MockTemplateRenderer::new();
     mock_renderer
         .expect_render()
-        .with(anything(), anything())
+        .with(always(), always())
         .times(1)
         .returning(|_, _| {
             Ok(r#"//! example module

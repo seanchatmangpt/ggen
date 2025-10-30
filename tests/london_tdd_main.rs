@@ -1,3 +1,4 @@
+#![cfg(feature = "london_tdd")]
 //! London TDD Test Suite Main Runner
 //!
 //! This test runner executes all London School TDD tests for ggen
