@@ -213,7 +213,12 @@ impl Template {
             let rendered_path = tera.render_str(rdf_file, vars)?;
 
             // Resolve relative to template's directory
-            let template_dir = template_path.parent().unwrap_or(std::path::Path::new("."));
+            let template_dir = template_path.parent().ok_or_else(|| {
+                anyhow::anyhow!(
+                    "Template path has no parent directory: {}",
+                    template_path.display()
+                )
+            })?;
             let rdf_path = template_dir.join(&rendered_path);
 
             // Security check: prevent path traversal attacks

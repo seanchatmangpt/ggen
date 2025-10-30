@@ -212,7 +212,13 @@ impl ReadinessTracker {
         };
 
         // Ensure .ggen directory exists
-        std::fs::create_dir_all(self.config_path.parent().unwrap())?;
+        let parent_dir = self.config_path.parent().ok_or_else(|| {
+            ProductionError::ConfigLoad(std::io::Error::new(
+                std::io::ErrorKind::InvalidInput,
+                format!("Config path has no parent directory: {}", self.config_path.display())
+            ))
+        })?;
+        std::fs::create_dir_all(parent_dir)?;
 
         let content = toml::to_string_pretty(&config)?;
         std::fs::write(&self.config_path, content)?;
