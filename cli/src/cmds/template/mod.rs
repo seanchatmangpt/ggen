@@ -1,6 +1,7 @@
 use clap::Subcommand;
 use ggen_utils::error::Result;
 
+pub mod generate_tree;
 pub mod lint;
 pub mod list;
 pub mod new;
@@ -25,6 +26,8 @@ pub enum Verb {
     Lint(lint::LintArgs),
     /// Regenerate code using delta-driven projection
     Regenerate(regenerate::RegenerateArgs),
+    /// Generate file tree from template
+    GenerateTree(generate_tree::GenerateTreeArgs),
 }
 
 impl TemplateCmd {
@@ -37,6 +40,7 @@ impl TemplateCmd {
             Verb::Regenerate(args) => regenerate::run(args)
                 .await
                 .map_err(|e| ggen_utils::error::Error::new(&e.to_string())),
+            Verb::GenerateTree(args) => generate_tree::run(args).await,
         }
     }
 }

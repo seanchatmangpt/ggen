@@ -5,10 +5,12 @@ use std::fmt;
 pub mod package;
 pub mod query;
 pub mod signature;
+pub mod template_package;
 
 pub use package::{ContentId, Package, PackageId, PackageMetadata};
 pub use query::{Query, SearchQuery, SearchResults};
 pub use signature::{PublicKey, Signature};
+pub use template_package::{TemplatePackage, TemplateInfo, TemplateType, TemplateVariable, TemplateExample};
 
 /// Package version following semantic versioning
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]

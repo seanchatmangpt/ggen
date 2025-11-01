@@ -9,10 +9,10 @@
 //! 3. Output contains expected content
 //! 4. No unexpected errors in stderr
 
-use ggen_cli_lib::{run_for_node, NodeResult};
+use ggen_cli_lib::{run_for_node, RunResult};
 
 /// Helper to assert successful command execution with content validation
-fn assert_success_with_content(result: NodeResult, expected_content: &str, test_name: &str) {
+fn assert_success_with_content(result: RunResult, expected_content: &str, test_name: &str) {
     assert_eq!(
         result.code, 0,
         "{}: Expected success (exit code 0), got {}\nstderr: {}",
@@ -39,7 +39,7 @@ fn assert_success_with_content(result: NodeResult, expected_content: &str, test_
 }
 
 /// Helper to assert command failure with error message
-fn assert_failure_with_message(result: NodeResult, test_name: &str) {
+fn assert_failure_with_message(result: RunResult, test_name: &str) {
     assert_ne!(
         result.code, 0,
         "{}: Expected failure (non-zero exit code), got success",

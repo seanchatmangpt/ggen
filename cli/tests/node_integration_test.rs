@@ -1,7 +1,7 @@
 // Node integration tests for run_for_node function
 // Following London TDD approach with comprehensive test coverage
 
-use ggen_cli_lib::{run_for_node, RunResult};
+use ggen_cli_lib::run_for_node;
 
 #[tokio::test]
 async fn test_run_for_node_version() {

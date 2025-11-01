@@ -1,6 +1,4 @@
-use assert_cmd::prelude::*;
-use dirs;
-use std::process::Command;
+// Unused imports removed - test file contains only commented legacy tests
 
 // COMMENTED OUT: Legacy "gen" command test (use "ggen project gen" instead)
 // #[test]

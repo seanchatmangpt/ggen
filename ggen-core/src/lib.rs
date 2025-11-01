@@ -22,11 +22,15 @@ pub mod pipeline;
 pub mod poc;
 pub mod pqc;
 pub mod preprocessor;
+pub mod rdf;
 pub mod register;
 pub mod registry;
 pub mod resolver;
 pub mod snapshot;
+pub mod streaming_generator;
 pub mod template;
+pub mod template_cache;
+pub mod templates;
 pub mod tera_env;
 // pub mod tracing; // Temporarily disabled due to missing tracing_subscriber dependency
 pub mod simple_tracing;
@@ -51,9 +55,19 @@ pub use merge::{
 };
 pub use pipeline::{Pipeline, PipelineBuilder};
 pub use pqc::{calculate_sha256, calculate_sha256_file, PqcSigner, PqcVerifier};
+pub use rdf::{
+    GgenOntology, TemplateMetadata, TemplateMetadataStore, TemplateRelationship, TemplateVariable,
+    ValidationReport, ValidationResult, Validator, GGEN_NAMESPACE,
+};
 pub use registry::{RegistryClient, RegistryIndex, ResolvedPack, SearchResult};
 pub use resolver::{TemplateResolver, TemplateSearchResult, TemplateSource};
 pub use snapshot::{
     FileSnapshot, GraphSnapshot, Region, RegionType, Snapshot, SnapshotManager, TemplateSnapshot,
 };
 pub use template::Template;
+
+// Re-export template-to-file-tree generation types
+pub use templates::{
+    FileTreeGenerator, FileTreeNode, FileTreeTemplate, NodeType, TemplateContext,
+    TemplateFormat, TemplateParser, GenerationResult, generate_file_tree,
+};

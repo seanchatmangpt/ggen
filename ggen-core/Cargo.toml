@@ -95,6 +95,10 @@ harness = false
 name = "clnrm_benchmarks"
 harness = false
 
+[[bench]]
+name = "template_benchmarks"
+harness = false
+
 [[test]]
 name = "marketplace_tests_main"
 path = "tests/marketplace_tests_main.rs"
