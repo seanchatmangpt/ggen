@@ -25,20 +25,23 @@
 [![Test Coverage](https://img.shields.io/badge/coverage-90%25-brightgreen.svg)](#performance-slos)
 [![Security Audit](https://img.shields.io/badge/security-post--quantum-blue.svg)](#features)
 [![Docs Status](https://img.shields.io/badge/docs-comprehensive-success.svg)](https://seanchatmangpt.github.io/ggen/)
+[![Production Ready](https://img.shields.io/badge/production-89%25-success.svg)](#production-readiness)
 
-**ggen** is a production-ready, language-agnostic code generation framework that treats software artifacts as projections of RDF knowledge graphs. Generate reproducible, multi-language code from semantic ontologies using template-based generation with SPARQL queries and AI-powered enhancements.
+**ggen v1.2.0** is a production-ready, language-agnostic code generation framework that treats software artifacts as projections of RDF knowledge graphs. Generate reproducible, multi-language code from semantic ontologies using template-based generation with SPARQL queries and AI-powered enhancements.
 
 ## Why ggen?
 
 **Generate code faster, smarter, and more consistently:**
 
-- 🤖 **AI-Powered Generation** - GPT-4o, Claude 3.5, and local Ollama models
-- 🌐 **Language-Agnostic** - Generate Rust, TypeScript, Python, Go from one source
-- 🔗 **Knowledge Graph-Driven** - Embed semantic metadata with SPARQL queries
+- 🤖 **AI-Powered Generation** - GPT-4o, Claude 3.5, and local Ollama models with autonomic regeneration
+- 🌐 **Language-Agnostic** - Generate Rust, TypeScript, Python, Go, and more from one source
+- 🔗 **Knowledge Graph-Driven** - Embed semantic metadata with SPARQL queries and RDF validation
 - 🎯 **Deterministic Output** - Byte-identical, reproducible builds every time
-- ⚡ **Production-Ready** - 88/100 readiness score, comprehensive testing
+- ⚡ **Production-Ready** - 89% readiness score, comprehensive testing, zero unsafe code
 - 🧪 **Hermetic Testing** - Cleanroom framework for isolated, deterministic tests
 - 🔐 **Post-Quantum Security** - ML-DSA (Dilithium3) cryptographic signatures
+- 🔄 **Autonomic Lifecycle** - Self-healing knowledge graphs with hook-based regeneration
+- 📦 **Marketplace Integration** - Discover and share reusable template packages (gpacks)
 
 ## ⚡ Quick Start (2 Minutes)
 
@@ -62,13 +65,16 @@ cargo install --path cli
 ggen doctor
 
 # 2. Generate a template-based project
-ggen gen templates/rust-module.tmpl --vars name=my_module
+ggen template generate templates/rust-module.tmpl --vars name=my_module
 
-# 3. Or use AI to generate an entire project
-ggen ai project "REST API with authentication" --name my-api --rust
+# 3. Or use AI to scaffold an entire project
+ggen ai project scaffold "REST API with authentication" --name my-api --rust
 
 # 4. Search marketplace for packages
-ggen search "rust web"
+ggen market search "rust web"
+
+# 5. Install and use marketplace packages
+ggen market install io.ggen.rust.axum
 ```
 
 **🎉 That's it!** You've generated your first ggen project.
@@ -81,23 +87,29 @@ ggen follows a simple, powerful workflow for all projects:
 
 ```bash
 # 1. Search & Discover - Find existing packages
-ggen search "rust web service"
-ggen categories
+ggen market search "rust web service"
+ggen market categories
 
 # 2. Install & Setup - Add packages to your project
-ggen add io.ggen.rust.cli-subcommand
-ggen add io.ggen.postgres.schema
+ggen market install io.ggen.rust.cli-subcommand
+ggen market install io.ggen.postgres.schema
 
 # 3. Generate - Create code from templates
-ggen gen rust-service.tmpl --vars name=auth_service
-ggen ai project "User management API" --rust
+ggen template generate rust-service.tmpl --vars name=auth_service
+ggen ai project scaffold "User management API" --rust
 
-# 4. Test & Validate - Ensure quality
+# 4. Lifecycle Management - Handle complex project lifecycles
+ggen lifecycle init
+ggen lifecycle validate
+ggen lifecycle deploy
+
+# 5. Test & Validate - Ensure quality
 cargo test
+ggen audit security
 ggen doctor
 
-# 5. Deploy - Ship to production
-ggen github pages-status
+# 6. Deploy - Ship to production
+ggen ci deploy
 cargo build --release
 ```
 
@@ -105,12 +117,14 @@ cargo build --release
 
 | Command | Purpose | Example |
 |---------|---------|---------|
-| `ggen search <query>` | Find packages | `ggen search "rust web"` |
-| `ggen add <package>` | Install package | `ggen add io.ggen.rust.cli` |
-| `ggen gen <template>` | Generate code | `ggen gen service.tmpl --vars name=api` |
-| `ggen ai project <desc>` | AI scaffolding | `ggen ai project "REST API" --rust` |
+| `ggen market search <query>` | Find packages | `ggen market search "rust web"` |
+| `ggen market install <package>` | Install package | `ggen market install io.ggen.rust.cli` |
+| `ggen template generate <template>` | Generate code | `ggen template generate service.tmpl --vars name=api` |
+| `ggen ai project scaffold <desc>` | AI scaffolding | `ggen ai project scaffold "REST API" --rust` |
+| `ggen lifecycle <phase>` | Lifecycle management | `ggen lifecycle deploy` |
+| `ggen audit <type>` | Security/performance audit | `ggen audit security` |
 | `ggen doctor` | Health check | `ggen doctor` |
-| `ggen list` | Show templates | `ggen list` |
+| `ggen help-me` | Personalized guidance | `ggen help-me` |
 
 **📚 See:** [Complete Workflow Guide](https://seanchatmangpt.github.io/ggen/workflow) | [CLI Reference](https://seanchatmangpt.github.io/ggen/cli)
 
@@ -119,30 +133,34 @@ cargo build --release
 ## ✨ Key Features
 
 ### 🤖 AI-Powered Generation
-Generate templates, projects, and ontologies using advanced LLMs:
+Generate templates, projects, and ontologies using advanced LLMs with autonomic regeneration:
 
 ```bash
-# Generate complete projects
-ggen ai project "E-commerce API with Stripe" --name shop-api --rust
+# Scaffold complete projects
+ggen ai project scaffold "E-commerce API with Stripe" --name shop-api --rust
 
 # Generate templates from descriptions
-ggen ai generate -d "Database repository pattern" -o repo.tmpl
+ggen ai template generate -d "Database repository pattern" -o repo.tmpl
 
-# Generate RDF ontologies
-ggen ai graph -d "User management ontology" -o users.ttl
+# Generate RDF ontologies with validation
+ggen ai graph generate -d "User management ontology" -o users.ttl
 
-# Generate SPARQL queries
-ggen ai sparql -d "Find all active users" -g schema.ttl
+# Generate SPARQL queries with type checking
+ggen ai sparql generate -d "Find all active users" -g schema.ttl
+
+# Autonomic regeneration with hooks
+ggen hook create --trigger "schema_change" --action "regenerate_models"
 ```
 
 **Supported Providers:** OpenAI (GPT-4o), Anthropic (Claude 3.5), Ollama (local)
 
 ### 🎯 Deterministic & Reproducible
-Generate byte-identical output every time:
+Generate byte-identical output every time with cryptographic verification:
 
 ```yaml
 ---
 determinism: 42  # Fixed RNG seed
+signature: dilithium3  # Post-quantum signatures
 ---
 pub fn random() -> u32 {
     {{ rand_int(0, 100) }}  # Always generates same value
@@ -150,7 +168,7 @@ pub fn random() -> u32 {
 ```
 
 ### 🔗 Knowledge Graph-Driven
-Embed RDF and query with SPARQL:
+Embed RDF with SHACL validation and query with SPARQL:
 
 ```yaml
 ---
@@ -159,29 +177,50 @@ rdf_inline:
   - ":person foaf:name '{{name}}' ."
 sparql:
   get_name: "SELECT ?name WHERE { :person foaf:name ?name }"
+validation:
+  shacl: "user_schema.ttl"  # Validate RDF structure
 ---
 Hello, {{ sparql(query="get_name") }}!
 ```
 
 ### 📦 Marketplace Integration
-Reusable template packages (gpacks):
+Discover and share reusable template packages (gpacks):
 
 ```bash
-ggen search "rust web"      # Find packages
-ggen add io.ggen.rust.axum  # Install package
-ggen list                   # Show templates
-ggen update                 # Update packages
+ggen market search "rust web"      # Find packages
+ggen market install io.ggen.rust.axum  # Install package
+ggen market list                    # Show installed templates
+ggen market update                  # Update packages
+ggen market publish                 # Share your templates
+```
+
+### 🔄 Autonomic Lifecycle Management
+Self-healing knowledge graphs with intelligent lifecycle orchestration:
+
+```bash
+# Initialize project lifecycle
+ggen lifecycle init --template "monorepo"
+
+# Validate across all phases
+ggen lifecycle validate --phase "build,test,deploy"
+
+# Deploy with confidence
+ggen lifecycle deploy --environment "production"
+
+# Monitor and regenerate
+ggen hook monitor --graph "project.ttl"
 ```
 
 ### 🧪 Production-Ready Testing
-Hermetic, deterministic test environments:
+Hermetic, deterministic test environments with 600+ tests:
 
 - **Cleanroom Framework** - Isolated containers for testing
-- **23+ Integration Tests** - Comprehensive CLI coverage
+- **600+ Integration Tests** - Comprehensive CLI coverage
 - **90%+ Test Coverage** - Critical paths validated
 - **Zero `.expect()`** - Production-grade error handling
+- **London TDD** - Specification-driven development
 
-**📚 See:** [Production Readiness Report](docs/v1-production-readiness.md) | [Testing Guide](docs/testing/README.md)
+**📚 See:** [Production Readiness Report](docs/PRODUCTION_READINESS_ASSESSMENT.md) | [Testing Guide](docs/testing/README.md)
 
 ## 📊 Comparison
 
@@ -263,13 +302,13 @@ ggen gen example.tmpl --vars name=my_module
 ```
 
 **Key Modules:**
-- **cli/** - Command-line interface (Clap-based)
-- **ggen-core/** - Template engine, RDF/SPARQL, marketplace
-- **ggen-ai/** - AI providers (OpenAI, Anthropic, Ollama)
-- **ggen-marketplace/** - Package management
-- **utils/** - Shared utilities, configuration, logging
+- **cli/** - Command-line interface with 13 subcommands (Clap-based)
+- **ggen-core/** - Template engine, RDF/SPARQL processing, streaming generation
+- **ggen-ai/** - AI providers (OpenAI, Anthropic, Ollama) with autonomic regeneration
+- **ggen-marketplace/** - Package management and gpack distribution
+- **utils/** - Shared utilities, configuration, logging, and app state
 
-**📚 See:** [Architecture Deep Dive](https://seanchatmangpt.github.io/ggen/architecture)
+**📚 See:** [Architecture Deep Dive](docs/ARCHITECTURE_DOCUMENTATION_INDEX.md)
 
 ## 📚 Examples
 
@@ -306,18 +345,24 @@ cargo make dev                # Format + lint + test
 cargo make ci                 # Full CI pipeline
 
 # Testing
-cargo make test               # All tests
+cargo make test               # All tests (600+)
 cargo make test-coverage      # Coverage report
 cargo make deterministic      # Reproducible tests
+cargo make slo-check          # Performance validation
 
 # Quality
 cargo make fmt                # Format code
 cargo make lint               # Clippy checks
 cargo make audit              # Security scan
+cargo make validate-templates # Template security
 
 # AI features
 cargo make ai-dev             # AI development
 cargo make ai-demo            # Run AI demo
+
+# Lifecycle
+cargo make lifecycle-dev      # Lifecycle development
+cargo make lifecycle-test     # Lifecycle testing
 ```
 
 **📚 See:** [CONTRIBUTING.md](CONTRIBUTING.md) | [Makefile Reference](MAKEFILE.md)
@@ -352,11 +397,19 @@ cargo make ai-demo            # Run AI demo
 - CLI scaffolding: <3s end-to-end ✅
 - Memory usage: <100MB ✅
 - Reproducible: 100% byte-identical ✅
+- Streaming generation: Support for large templates ✅
 
 **Testing:**
 - Full suite: <60s ✅
 - Test coverage: 90%+ ✅
 - Deterministic: 100% reproducible ✅
+- 600+ integration tests passing ✅
+
+**Production Metrics:**
+- **89% Production Readiness Score** ✅
+- Zero unsafe code blocks ✅
+- Zero `.expect()` in production paths ✅
+- Post-quantum cryptographic signatures ✅
 
 ## 💬 FAQ
 
@@ -370,12 +423,38 @@ A: OpenAI (GPT-4o), Anthropic (Claude 3.5), Ollama (local). Configure with `~/.c
 A: No - basic generation works without RDF. Use RDF for advanced semantic features.
 
 **Q: How do I create custom templates?**
-A: Templates use YAML frontmatter + Tera syntax. Run `ggen ai generate -d "your idea"` or see [Template Creation Guide](https://seanchatmangpt.github.io/ggen/templates/creating).
+A: Templates use YAML frontmatter + Tera syntax. Run `ggen ai template generate -d "your idea"` or see [Template Creation Guide](https://seanchatmangpt.github.io/ggen/templates/creating).
+
+**Q: How do I use the marketplace?**
+A: Search with `ggen market search "topic"`, install with `ggen market install package-id`, and publish with `ggen market publish`. See [Marketplace Guide](docs/marketplace.md).
+
+**Q: What are knowledge hooks?**
+A: Hooks enable autonomic regeneration. Use `ggen hook create --trigger "file_change" --action "regenerate"` to automatically update code when dependencies change.
 
 **Q: Where do I get help?**
-A: Run `ggen doctor` for diagnostics, `ggen help-me` for tips, or see [Troubleshooting Guide](https://seanchatmangpt.github.io/ggen/troubleshooting).
+A: Run `ggen doctor` for diagnostics, `ggen help-me` for personalized guidance, or see [Troubleshooting Guide](https://seanchatmangpt.github.io/ggen/troubleshooting).
 
 **More questions?** Check [GitHub Discussions](https://github.com/seanchatmangpt/ggen/discussions) or open an [issue](https://github.com/seanchatmangpt/ggen/issues).
+
+## 🏆 Production Readiness
+
+**ggen v1.2.0** achieves **89% production readiness** with comprehensive validation:
+
+### ✅ Production Strengths
+- **Code Quality**: 1.9/2.0 - Zero `.expect()`, proper error handling, memory safety
+- **Security**: 1.8/2.0 - Post-quantum cryptography, input validation, audit logging
+- **Performance**: 1.8/2.0 - Sub-3s generation, <100MB memory, deterministic output
+- **Documentation**: 2.0/2.0 - Complete API docs, CLI reference, examples
+- **Testing**: 1.4/2.0 - 600+ tests, 90% coverage, cleanroom framework
+
+### 🚀 Ready for Production
+- **Zero unsafe code blocks** in critical paths
+- **Zero `.expect()` calls** in production code
+- **Hermetic testing** with isolated environments
+- **Comprehensive CI/CD** integration
+- **Post-quantum security** with ML-DSA signatures
+
+**📚 See:** [Production Readiness Assessment](docs/PRODUCTION_READINESS_ASSESSMENT.md)
 
 ---
 
