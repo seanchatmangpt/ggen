@@ -29,6 +29,17 @@
 
 **ggen v1.2.0** is a production-ready, language-agnostic code generation framework that treats software artifacts as projections of RDF knowledge graphs. Generate reproducible, multi-language code from semantic ontologies using template-based generation with SPARQL queries and AI-powered enhancements.
 
+## 🚀 What's New in v1.2.0
+
+**Major Features:**
+- 🆕 **Bootstrap Command** - Create projects from scratch with `ggen project new`
+- 🆕 **File Tree Generation** - Generate entire project structures with `ggen template generate-tree`
+- 🔧 **Enhanced RDF Integration** - Validation, schema support, streaming generation
+- 🔗 **Node.js Bindings** - NIF bindings (napi-rs v3) for JavaScript integration
+- 📦 **Marketplace Registry** - 17 tests, 100% pass rate
+- 🧪 **Stress Tests & Benchmarks** - Comprehensive testing infrastructure
+- 📚 **London TDD Strategy** - Specification-driven development approach
+
 ## Why ggen?
 
 **Generate code faster, smarter, and more consistently:**
@@ -38,7 +49,7 @@
 - 🔗 **Knowledge Graph-Driven** - Embed semantic metadata with SPARQL queries and RDF validation
 - 🎯 **Deterministic Output** - Byte-identical, reproducible builds every time
 - ⚡ **Production-Ready** - 89% readiness score, comprehensive testing, zero unsafe code
-- 🧪 **Hermetic Testing** - Cleanroom framework for isolated, deterministic tests
+- 🧪 **Hermetic Testing** - Comprehensive test suite with 600+ tests, stress tests, and benchmarks
 - 🔐 **Post-Quantum Security** - ML-DSA (Dilithium3) cryptographic signatures
 - 🔄 **Autonomic Lifecycle** - Self-healing knowledge graphs with hook-based regeneration
 - 📦 **Marketplace Integration** - Discover and share reusable template packages (gpacks)
@@ -61,19 +72,23 @@ cargo install --path cli
 ### Your First Generation
 
 ```bash
-# 1. Check your environment
+# Create new project from scratch (NEW in v1.2.0)
+ggen project new my-app --type rust-web --framework axum
+cd my-app && cargo run
+
+# Or check your environment first
 ggen doctor
 
-# 2. Generate a template-based project
+# Generate a template-based project
 ggen template generate templates/rust-module.tmpl --vars name=my_module
 
-# 3. Or use AI to scaffold an entire project
+# Or use AI to scaffold an entire project
 ggen ai project scaffold "REST API with authentication" --name my-api --rust
 
-# 4. Search marketplace for packages
+# Search marketplace for packages
 ggen market search "rust web"
 
-# 5. Install and use marketplace packages
+# Install and use marketplace packages
 ggen market install io.ggen.rust.axum
 ```
 
@@ -86,6 +101,9 @@ ggen market install io.ggen.rust.axum
 ggen follows a simple, powerful workflow for all projects:
 
 ```bash
+# 0. Bootstrap - Create new project from scratch (NEW in v1.2.0)
+ggen project new my-app --type rust-web --framework axum
+
 # 1. Search & Discover - Find existing packages
 ggen market search "rust web service"
 ggen market categories
@@ -96,6 +114,7 @@ ggen market install io.ggen.postgres.schema
 
 # 3. Generate - Create code from templates
 ggen template generate rust-service.tmpl --vars name=auth_service
+ggen template generate-tree project-structure.yaml --var name=my_service
 ggen ai project scaffold "User management API" --rust
 
 # 4. Lifecycle Management - Handle complex project lifecycles
@@ -117,6 +136,8 @@ cargo build --release
 
 | Command | Purpose | Example |
 |---------|---------|---------|
+| `ggen project new <name>` | Create new project | `ggen project new my-app --type rust-web` |
+| `ggen template generate-tree <spec>` | Generate file tree | `ggen template generate-tree spec.yaml` |
 | `ggen market search <query>` | Find packages | `ggen market search "rust web"` |
 | `ggen market install <package>` | Install package | `ggen market install io.ggen.rust.cli` |
 | `ggen template generate <template>` | Generate code | `ggen template generate service.tmpl --vars name=api` |
@@ -141,6 +162,9 @@ ggen ai project scaffold "E-commerce API with Stripe" --name shop-api --rust
 
 # Generate templates from descriptions
 ggen ai template generate -d "Database repository pattern" -o repo.tmpl
+
+# Generate file tree templates (NEW in v1.2.0)
+ggen ai template generate-tree -d "Microservice structure" -o service.yaml
 
 # Generate RDF ontologies with validation
 ggen ai graph generate -d "User management ontology" -o users.ttl
@@ -168,7 +192,7 @@ pub fn random() -> u32 {
 ```
 
 ### 🔗 Knowledge Graph-Driven
-Embed RDF with SHACL validation and query with SPARQL:
+Embed RDF with validation, schema support, and streaming generation:
 
 ```yaml
 ---
@@ -179,9 +203,17 @@ sparql:
   get_name: "SELECT ?name WHERE { :person foaf:name ?name }"
 validation:
   shacl: "user_schema.ttl"  # Validate RDF structure
+schema: "schema.ttl"  # Load RDF schema (NEW in v1.2.0)
+streaming: true  # Enable streaming generation for large graphs (NEW)
 ---
 Hello, {{ sparql(query="get_name") }}!
 ```
+
+**Enhanced Features (v1.2.0):**
+- **RDF Schema Support** - Load and validate against schemas
+- **Streaming Generation** - Handle large RDF graphs efficiently
+- **Template Metadata** - Embed semantic metadata in templates
+- **RDF Validation** - Comprehensive validation with SHACL
 
 ### 📦 Marketplace Integration
 Discover and share reusable template packages (gpacks):
@@ -193,6 +225,51 @@ ggen market list                    # Show installed templates
 ggen market update                  # Update packages
 ggen market publish                 # Share your templates
 ```
+
+### 🚀 Bootstrap Command (NEW in v1.2.0)
+Create complete projects from scratch with a single command:
+
+```bash
+# Create Rust web project with Axum framework
+ggen project new my-api --type rust-web --framework axum
+
+# Create Rust CLI tool
+ggen project new my-cli --type rust-cli
+
+# Create Next.js application
+ggen project new my-site --type nextjs
+
+# Create Rust library
+ggen project new my-lib --type rust-lib --output libs/
+```
+
+**Features:**
+- Project scaffolding from templates
+- Type-based generation (rust-web, rust-cli, rust-lib, nextjs, nuxt)
+- Framework selection (axum, warp, etc.)
+- Custom output directories
+- Automatic dependency installation
+
+### 📁 File Tree Generation (NEW in v1.2.0)
+Generate entire project structures from YAML template specifications:
+
+```bash
+# Generate complete project structure
+ggen template generate-tree project.yaml --var name=my_service
+
+# Interactive mode - prompt for missing variables
+ggen template generate-tree spec.yaml --interactive
+
+# Dry run - preview what would be generated
+ggen template generate-tree structure.yaml --dry-run
+```
+
+**Capabilities:**
+- Generate multiple files and directories from one template
+- Template file tree specifications (YAML format)
+- Variable interpolation across the tree
+- Interactive variable collection
+- Dry-run mode for safe preview
 
 ### 🔄 Autonomic Lifecycle Management
 Self-healing knowledge graphs with intelligent lifecycle orchestration:
@@ -214,11 +291,11 @@ ggen hook monitor --graph "project.ttl"
 ### 🧪 Production-Ready Testing
 Hermetic, deterministic test environments with 600+ tests:
 
-- **Cleanroom Framework** - Isolated containers for testing
 - **600+ Integration Tests** - Comprehensive CLI coverage
+- **Stress Tests & Benchmarks** - Extensive testing infrastructure for marketplace, concurrent operations, and permutations
 - **90%+ Test Coverage** - Critical paths validated
 - **Zero `.expect()`** - Production-grade error handling
-- **London TDD** - Specification-driven development
+- **London TDD** - Specification-driven development approach
 
 **📚 See:** [Production Readiness Report](docs/PRODUCTION_READINESS_ASSESSMENT.md) | [Testing Guide](docs/testing/README.md)
 
@@ -303,9 +380,10 @@ ggen gen example.tmpl --vars name=my_module
 
 **Key Modules:**
 - **cli/** - Command-line interface with 13 subcommands (Clap-based)
-- **ggen-core/** - Template engine, RDF/SPARQL processing, streaming generation
+- **ggen-core/** - Template engine, RDF/SPARQL processing, streaming generation, file tree generation
 - **ggen-ai/** - AI providers (OpenAI, Anthropic, Ollama) with autonomic regeneration
 - **ggen-marketplace/** - Package management and gpack distribution
+- **node/** - Node.js NIF bindings (napi-rs v3) for JavaScript/TypeScript integration (NEW in v1.2.0)
 - **utils/** - Shared utilities, configuration, logging, and app state
 
 **📚 See:** [Architecture Deep Dive](docs/ARCHITECTURE_DOCUMENTATION_INDEX.md)
@@ -318,10 +396,15 @@ ggen gen example.tmpl --vars name=my_module
 - **[AI Code Generation](examples/ai-code-generation/)** - Showcase of all AI features
 - **[Advanced Rust Project](examples/advanced-rust-project/)** - Production Rust service with RDF
 - **[Full Stack App](examples/full-stack-app/)** - Complete web application
+- **[FastAPI from RDF](examples/fastapi-from-rdf/)** - Python API generation from RDF (NEW in v1.2.0)
 
 **Quick Demos:**
 
 ```bash
+# Create new project (NEW in v1.2.0)
+ggen project new my-app --type rust-web --framework axum
+cd my-app && cargo run
+
 # Browse all examples
 ls examples/
 
@@ -376,9 +459,16 @@ cargo make lifecycle-test     # Lifecycle testing
 - 🏗️ **[Template Creation](https://seanchatmangpt.github.io/ggen/templates/creating)** - Build custom templates
 - 🔗 **[RDF & SPARQL](https://seanchatmangpt.github.io/ggen/rdf)** - Knowledge graph integration
 
+**v1.2.0 Release:**
+- 🚀 **[Deployment Guide v1.2.0](docs/DEPLOYMENT_GUIDE_V1.2.0.md)** - Complete deployment guide
+- 📋 **[v1.2.0 Completion Report](docs/GGEN_V1.2.0_COMPLETE.md)** - Comprehensive release summary
+- 📁 **[Template File Tree Spec](docs/specs/TEMPLATE_FILE_TREE_SPEC.md)** - File tree generation specification
+- 🧪 **[Stress Test Implementation](docs/STRESS_TEST_IMPLEMENTATION_SUMMARY.md)** - Stress testing infrastructure
+- 📊 **[Benchmark Quick Start](docs/BENCHMARK_QUICK_START.md)** - Performance benchmarking guide
+
 **Production:**
-- ✅ **[Production Readiness](docs/v1-production-readiness.md)** - Validation report (88/100)
-- 🧪 **[Testing Guide](docs/testing/README.md)** - Cleanroom testing framework
+- ✅ **[Production Readiness](docs/PRODUCTION_READINESS_ASSESSMENT.md)** - Validation report (89/100)
+- 🧪 **[Testing Guide](docs/testing/README.md)** - Comprehensive testing framework with stress tests
 - 🚀 **[Deployment](docs/DEPLOYMENT.md)** - GitHub Pages setup
 
 **Development:**
@@ -404,6 +494,7 @@ cargo make lifecycle-test     # Lifecycle testing
 - Test coverage: 90%+ ✅
 - Deterministic: 100% reproducible ✅
 - 600+ integration tests passing ✅
+- Stress tests and benchmarks: Comprehensive suite for marketplace, concurrent operations, and permutations ✅
 
 **Production Metrics:**
 - **89% Production Readiness Score** ✅
@@ -445,7 +536,7 @@ A: Run `ggen doctor` for diagnostics, `ggen help-me` for personalized guidance, 
 - **Security**: 1.8/2.0 - Post-quantum cryptography, input validation, audit logging
 - **Performance**: 1.8/2.0 - Sub-3s generation, <100MB memory, deterministic output
 - **Documentation**: 2.0/2.0 - Complete API docs, CLI reference, examples
-- **Testing**: 1.4/2.0 - 600+ tests, 90% coverage, cleanroom framework
+- **Testing**: 1.4/2.0 - 600+ tests, 90% coverage, stress tests and benchmarks
 
 ### 🚀 Ready for Production
 - **Zero unsafe code blocks** in critical paths
