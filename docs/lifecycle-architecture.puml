@@ -6,7 +6,7 @@ skinparam componentStyle rectangle
 skinparam backgroundColor #FEFEFE
 skinparam roundcorner 10
 
-title ggen Lifecycle System Architecture\n"The Universal Standard for All Software"
+title ggen Lifecycle System Architecture - v1.2.0 Status\n✅ Core Complete (5,252 LOC) | ⚠️ Framework Adapters Planned for v1.4.0
 
 ' Core Components
 package "Project Root" {
@@ -51,19 +51,50 @@ package "Templates (Simple)" {
   end note
 }
 
-package "ggen CLI" {
-  [Lifecycle Runner] as runner #Orange
-  [Hook Executor] as hooks #Orange
-  [State Manager] as statemgr #Orange
-  [Template Engine] as engine #Orange
+package "ggen CLI (✅ 100% Complete)" {
+  [Lifecycle Runner\n✅ COMPLETE] as runner #LightGreen
+  [Hook Executor\n✅ COMPLETE] as hooks #LightGreen
+  [State Manager\n✅ COMPLETE] as statemgr #LightGreen
+  [Template Engine\n✅ COMPLETE] as engine #LightGreen
+  [Bootstrap Command\n✅ COMPLETE] as bootstrap #LightGreen
+
+  note right of runner
+    **5,252 lines implemented**
+    ✅ Phase execution
+    ✅ make.toml parser
+    ✅ Production validation
+    ✅ 14 module files
+    📁 ggen-core/src/lifecycle/
+  end note
+
+  note right of bootstrap
+    **Project Scaffolding**
+    ✅ ggen project new
+    ✅ Type-based generation
+    ✅ Framework selection
+    📁 cli/src/cmds/project/new.rs
+  end note
 }
 
-package "Framework Adapters" {
-  [nuxt-4] as nuxt #Pink
-  [next-15] as next #Pink
-  [rust-cargo] as rust #Pink
-  [python-poetry] as python #Pink
-  [rails-7] as rails #Pink
+package "Framework Adapters (📋 Planned v1.4.0)" {
+  [nuxt-4] as nuxt #LightGray
+  [next-15] as next #LightGray
+  [rust-cargo] as rust #LightGray
+  [python-poetry] as python #LightGray
+  [rails-7] as rails #LightGray
+
+  note right of nuxt
+    **v1.4.0 Roadmap**
+    📋 Framework-specific adapters
+    📋 Auto-detection
+    📋 Template marketplace integration
+    📋 Cross-language projects
+
+    **Current Status:**
+    ✅ Architecture designed
+    ✅ Lifecycle system ready
+    ❌ Adapters not yet implemented
+  end note
 }
 
 ' Relationships

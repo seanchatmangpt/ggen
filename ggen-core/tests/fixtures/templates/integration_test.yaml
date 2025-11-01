@@ -1,0 +1,32 @@
+---
+to: "services/{{service_name}}/tests/integration_test.rs"
+vars:
+  service_name: "user_service"
+  port: "8080"
+---
+use {{service_name}}::*;
+
+#[tokio::test]
+async fn test_health_check() -> anyhow::Result<()> {
+    let client = reqwest::Client::new();
+    let response = client
+        .get("http://localhost:{{port}}/health")
+        .send()
+        .await?;
+
+    assert_eq!(response.status(), 200);
+    assert_eq!(response.text().await?, "OK");
+    Ok(())
+}
+
+#[tokio::test]
+async fn test_list_users() -> anyhow::Result<()> {
+    let client = reqwest::Client::new();
+    let response = client
+        .get("http://localhost:{{port}}/api/v1/users")
+        .send()
+        .await?;
+
+    assert_eq!(response.status(), 200);
+    Ok(())
+}

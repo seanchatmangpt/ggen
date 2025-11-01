@@ -33,6 +33,10 @@ pub mod validation;
 // Performance optimization for <60s deployment target
 pub mod optimization;
 
+// Template generation phase integration
+// TEMPORARILY DISABLED: needs ggen_template crate which doesn't exist yet
+// pub mod template_phase;
+
 // Future enhancements (available but not in public API):
 #[allow(dead_code)]
 mod dag; // DAG resolution - use direct hooks for now
@@ -65,3 +69,9 @@ pub use optimization::{
     run_fast_validation, run_optimized_pipeline, ContainerPool, DependencyCache,
     ParallelOrchestrator, PerformanceTargets, PipelineProfiler, StageMetrics,
 };
+
+// Template phase exports
+// TEMPORARILY DISABLED: needs ggen_template crate which doesn't exist yet
+// pub use template_phase::{
+//     execute_template_phase, register_template_phase, TemplatePhaseConfig,
+// };

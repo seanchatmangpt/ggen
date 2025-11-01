@@ -10,6 +10,9 @@ pub mod storage;
 pub mod crypto;
 pub mod search;
 
+// Template integration
+pub mod template_search;
+
 // GraphQL API (optional feature)
 #[cfg(feature = "graphql")]
 pub mod graphql;
@@ -23,6 +26,7 @@ pub use backend::P2PRegistry;
 pub use storage::{FilesystemStore, MemoryStore};
 pub use crypto::{Ed25519Verifier, DefaultVerifier};
 pub use search::TantivySearchEngine;
+pub use template_search::{TemplateSearchEngine, TemplateSearchFilters, TemplateSearchQueryBuilder};
 
 // Prelude for common imports
 pub mod prelude {
