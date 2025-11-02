@@ -246,6 +246,7 @@ fn load_rdf(rdf_paths: &[String], rdf_inline: &[String], base: &Path) -> Result<
     Ok(store)
 }
 
+#[allow(dead_code)]
 fn merged_ctx(
     defaults: &BTreeMap<String, String>, cli: &BTreeMap<String, String>,
 ) -> BTreeMap<String, String> {

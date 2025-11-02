@@ -124,7 +124,7 @@ impl RegistryClient {
             .join("index.json")
             .context("Failed to construct index URL")?;
 
-        tracing::Span::current().record("url", &tracing::field::display(&url));
+        tracing::Span::current().record("url", tracing::field::display(&url));
 
         // Handle file:// URLs for local testing (no retry needed)
         if url.scheme() == "file" {
@@ -431,7 +431,7 @@ impl RegistryClient {
             )
         })?;
 
-        tracing::Span::current().record("resolved_version", &tracing::field::display(&target_version));
+        tracing::Span::current().record("resolved_version", tracing::field::display(&target_version));
         tracing::info!(pack_id = pack_id, version = %target_version, "package resolved");
 
         Ok(ResolvedPack {

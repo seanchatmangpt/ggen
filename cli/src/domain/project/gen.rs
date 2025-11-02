@@ -80,7 +80,7 @@ fn validate_input(template_ref: &str, vars: &[String]) -> Result<()> {
 }
 
 /// Main generation function (Chicago TDD: REAL implementation)
-pub fn generate_project(args: &crate::commands::project::gen::GenArgs) -> Result<GenerationResult> {
+pub fn generate_project(args: &crate::cmds::project::GenArgs) -> Result<GenerationResult> {
     // Step 1: Validate input
     validate_input(&args.template_ref, &args.vars)?;
 

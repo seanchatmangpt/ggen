@@ -1,0 +1,61 @@
+use clap::{Parser, Subcommand};
+use anyhow::Result;
+
+mod command;
+mod cmds;
+
+use command::Command;
+
+/// {{ project.description }}
+#[derive(Parser)]
+#[command(name = "{{ project.name }}")]
+#[command(version = "{{ project.version }}")]
+#[command(about = "{{ project.description }}", long_about = None)]
+struct Cli {
+    #[command(subcommand)]
+    command: Commands,
+}
+
+#[derive(Subcommand)]
+enum Commands {
+    {% for noun in project.nouns -%}
+    /// {{ noun.description }}
+    {{ noun.name | capitalize }} {
+        #[command(subcommand)]
+        action: {{ noun.name | capitalize }}Actions,
+    },
+    {% endfor %}
+}
+
+{% for noun in project.nouns -%}
+#[derive(Subcommand)]
+enum {{ noun.name | capitalize }}Actions {
+    {% for verb in noun.verbs -%}
+    /// {{ verb.description }}
+    {% if verb.alias -%}
+    #[command(alias = "{{ verb.alias }}")]
+    {% endif -%}
+    {{ verb.name | capitalize }}(cmds::{{ noun.name }}::{{ verb.name }}::{{ verb.name | capitalize }}Args),
+    {% endfor %}
+}
+
+{% endfor %}
+
+fn main() -> Result<()> {
+    let cli = Cli::parse();
+
+    match cli.command {
+        {% for noun in project.nouns -%}
+        Commands::{{ noun.name | capitalize }} { action } => match action {
+            {% for verb in noun.verbs -%}
+            {{ noun.name | capitalize }}Actions::{{ verb.name | capitalize }}(args) => {
+                let cmd = cmds::{{ noun.name }}::{{ verb.name }}::{{ verb.name | capitalize }}::new(args);
+                cmd.execute()?;
+            }
+            {% endfor %}
+        },
+        {% endfor %}
+    }
+
+    Ok(())
+}

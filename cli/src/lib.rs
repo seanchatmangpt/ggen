@@ -1,7 +1,7 @@
 use std::io::{Read, Write};
 
 // Command modules - clap-noun-verb auto-discovery
-pub mod commands;        // Auto-discovered command implementations
+pub mod cmds;            // clap-noun-verb entry points
 pub mod domain;          // Business logic layer
 pub mod runtime;         // Async/sync bridge utilities
 pub mod runtime_helper;  // Sync CLI wrapper utilities for async operations
@@ -12,10 +12,8 @@ pub use clap_noun_verb::{run, CommandRouter, Result as ClapNounVerbResult};
 
 /// Main entry point using clap-noun-verb auto-discovery
 pub async fn cli_match() -> ggen_utils::error::Result<()> {
-    // Auto-discover and run commands from commands/ directory
-    run()
-        .map_err(|e| anyhow::anyhow!("CLI execution failed: {}", e))?;
-    Ok(())
+    // Run CLI using cmds router
+    cmds::run_cli()
 }
 
 /// Structured result for programmatic CLI execution (used by Node addon)
@@ -50,8 +48,8 @@ pub async fn run_for_node(args: Vec<String>) -> ggen_utils::error::Result<RunRes
 
         let code = match (gag::BufferRedirect::stdout(), gag::BufferRedirect::stderr()) {
             (Ok(mut so), Ok(mut se)) => {
-                // Execute using clap-noun-verb auto-discovery
-                let code_val = match run() {
+                // Execute using cmds router
+                let code_val = match cmds::run_cli() {
                     Ok(()) => 0,
                     Err(err) => {
                         let _ = writeln!(std::io::stderr(), "{}", err);
@@ -69,7 +67,7 @@ pub async fn run_for_node(args: Vec<String>) -> ggen_utils::error::Result<RunRes
             }
             _ => {
                 // Fallback: execute without capture
-                match run() {
+                match cmds::run_cli() {
                     Ok(()) => 0,
                     Err(err) => {
                         eprintln!("{}", err);

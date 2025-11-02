@@ -7,6 +7,7 @@ pub mod ai;
 pub mod audit;
 pub mod graph;
 pub mod marketplace;
-pub mod project;
+// Temporarily disabled until cmds/project is implemented
+// pub mod project;
 pub mod template;
 pub mod utils;
