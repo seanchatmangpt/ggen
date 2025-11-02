@@ -1,195 +1,352 @@
-# Ggen Development Environment - Production CLI Tool
+# Claude Code Configuration - SPARC Development Environment
 
-## 🚨 CORE WORKFLOW: Marketplace → Lifecycle → Deploy
+## 🚨 CRITICAL: CONCURRENT EXECUTION & FILE MANAGEMENT
 
-**80/20 Rule Applied**: Focus on the 20% of features that provide 80% of development value.
+**ABSOLUTE RULES**:
+1. ALL operations MUST be concurrent/parallel in a single message
+2. **NEVER save working files, text/mds and tests to the root folder**
+3. ALWAYS organize files in appropriate subdirectories
+4. **USE CLAUDE CODE'S TASK TOOL** for spawning agents concurrently, not just MCP
 
-### ⚡ Essential Commands (High Value)
-```bash
-# 1. Search for proven patterns
-ggen market search "rust web service"
+### ⚡ GOLDEN RULE: "1 MESSAGE = ALL RELATED OPERATIONS"
 
-# 2. Install required packages
-ggen market add "rust-axum-service"
-ggen market add "postgresql-database"
+**MANDATORY PATTERNS:**
+- **TodoWrite**: ALWAYS batch ALL todos in ONE call (5-10+ todos minimum)
+- **Task tool (Claude Code)**: ALWAYS spawn ALL agents in ONE message with full instructions
+- **File operations**: ALWAYS batch ALL reads/writes/edits in ONE message
+- **Bash commands**: ALWAYS batch ALL terminal operations in ONE message
+- **Memory operations**: ALWAYS batch ALL memory store/retrieve in ONE message
 
-# 3. Initialize project structure
-ggen lifecycle run init
+### 🎯 CRITICAL: Claude Code Task Tool for Agent Execution
 
-# 4. Generate using marketplace templates
-ggen template generate rust-axum-service:user-service.tmpl
-
-# 5. Test and deploy safely
-ggen lifecycle run test
-ggen lifecycle validate --env production
-ggen lifecycle run deploy --env production
+**Claude Code's Task tool is the PRIMARY way to spawn agents:**
+```javascript
+// ✅ CORRECT: Use Claude Code's Task tool for parallel agent execution
+[Single Message]:
+  Task("Research agent", "Analyze requirements and patterns...", "researcher")
+  Task("Coder agent", "Implement core features...", "coder")
+  Task("Tester agent", "Create comprehensive tests...", "tester")
+  Task("Reviewer agent", "Review code quality...", "reviewer")
+  Task("Architect agent", "Design system architecture...", "system-architect")
 ```
 
-### 🎯 Production Readiness (Critical)
-```bash
-# Check if ready for production
-ggen lifecycle readiness
+**MCP tools are ONLY for coordination setup:**
+- `mcp__claude-flow__swarm_init` - Initialize coordination topology
+- `mcp__claude-flow__agent_spawn` - Define agent types for coordination
+- `mcp__claude-flow__task_orchestrate` - Orchestrate high-level workflows
 
-# Validate deployment requirements
-ggen lifecycle validate --env production
+### 📁 File Organization Rules
 
-# Update requirement status
-ggen lifecycle readiness-update auth-basic complete
-```
+**NEVER save to root folder. Use these directories:**
+- `/src` - Source code files
+- `/tests` - Test files
+- `/docs` - Documentation and markdown files
+- `/config` - Configuration files
+- `/scripts` - Utility scripts
+- `/examples` - Example code
 
-## 📋 Core Commands Reference
+## Project Overview
 
-| Command | Purpose | Example |
-|---------|---------|---------|
-| `ggen market search <query>` | Find packages | `ggen market search "rust web"` |
-| `ggen market add <package>` | Install package | `ggen market add "rust-axum"` |
-| `ggen lifecycle run init` | Initialize project | `ggen lifecycle run init` |
-| `ggen template generate <template>` | Generate code | `ggen template generate service.tmpl` |
-| `ggen lifecycle readiness` | Check production status | `ggen lifecycle readiness` |
-| `ggen lifecycle validate` | Validate deployment | `ggen lifecycle validate --env prod` |
-| `ggen lifecycle run deploy` | Deploy to environment | `ggen lifecycle run deploy --env prod` |
+This project uses SPARC (Specification, Pseudocode, Architecture, Refinement, Completion) methodology with Claude-Flow orchestration for systematic Test-Driven Development.
 
-## 🚨 Production Code Rules
+## SPARC Commands
 
-**NEVER use `.expect()` or `.unwrap()` in production:**
-```rust
-// ❌ BAD - Crashes in production
-let result = some_operation().expect("This will crash");
+### Core Commands
+- `npx claude-flow sparc modes` - List available modes
+- `npx claude-flow sparc run <mode> "<task>"` - Execute specific mode
+- `npx claude-flow sparc tdd "<feature>"` - Run complete TDD workflow
+- `npx claude-flow sparc info <mode>` - Get mode details
 
-// ✅ GOOD - Handle errors gracefully
-let result = some_operation().map_err(|e| anyhow::anyhow!("Context: {}", e))?;
-```
+### Batchtools Commands
+- `npx claude-flow sparc batch <modes> "<task>"` - Parallel execution
+- `npx claude-flow sparc pipeline "<task>"` - Full pipeline processing
+- `npx claude-flow sparc concurrent <mode> "<tasks-file>"` - Multi-task processing
 
-## 📦 Marketplace Workflow
+### Build Commands
+- `npm run build` - Build project
+- `npm run test` - Run tests
+- `npm run lint` - Linting
+- `npm run typecheck` - Type checking
 
-```bash
-# Search for packages (discover what exists)
-ggen market search "rust web service"
-ggen market categories
+## SPARC Workflow Phases
 
-# Install required packages
-ggen market add "rust-axum-service"
-ggen market add "postgresql-database"
-ggen market add "docker-compose"
+1. **Specification** - Requirements analysis (`sparc run spec-pseudocode`)
+2. **Pseudocode** - Algorithm design (`sparc run spec-pseudocode`)
+3. **Architecture** - System design (`sparc run architect`)
+4. **Refinement** - TDD implementation (`sparc tdd`)
+5. **Completion** - Integration (`sparc run integration`)
 
-# Generate using installed templates
-ggen template generate rust-axum-service:user-service.tmpl
-```
+## Code Style & Best Practices
 
-**📚 See:** `docs/marketplace.md` for complete package reference
+- **Modular Design**: Files under 500 lines
+- **Environment Safety**: Never hardcode secrets
+- **Test-First**: Write tests before implementation
+- **Clean Architecture**: Separate concerns
+- **Documentation**: Keep updated
 
-# Run comprehensive tests
-ggen lifecycle run test
+## 🚀 Available Agents (54 Total)
 
-# Deploy to staging
-ggen lifecycle run deploy --env staging
-```
+### Core Development
+`coder`, `reviewer`, `tester`, `planner`, `researcher`
 
-**KEY**: Ggen provides the complete development toolchain - marketplace, lifecycle, templates, AI, and deployment.
+### Swarm Coordination
+`hierarchical-coordinator`, `mesh-coordinator`, `adaptive-coordinator`, `collective-intelligence-coordinator`, `swarm-memory-manager`
+
+### Consensus & Distributed
+`byzantine-coordinator`, `raft-manager`, `gossip-coordinator`, `consensus-builder`, `crdt-synchronizer`, `quorum-manager`, `security-manager`
+
+### Performance & Optimization
+`perf-analyzer`, `performance-benchmarker`, `task-orchestrator`, `memory-coordinator`, `smart-agent`
+
+### GitHub & Repository
+`github-modes`, `pr-manager`, `code-review-swarm`, `issue-tracker`, `release-manager`, `workflow-automation`, `project-board-sync`, `repo-architect`, `multi-repo-swarm`
+
+### SPARC Methodology
+`sparc-coord`, `sparc-coder`, `specification`, `pseudocode`, `architecture`, `refinement`
+
+### Specialized Development
+`backend-dev`, `mobile-dev`, `ml-developer`, `cicd-engineer`, `api-docs`, `system-architect`, `code-analyzer`, `base-template-generator`
+
+### Testing & Validation
+`tdd-london-swarm`, `production-validator`
+
+### Migration & Planning
+`migration-planner`, `swarm-init`
+
+## 🎯 Claude Code vs MCP Tools
+
+### Claude Code Handles ALL EXECUTION:
+- **Task tool**: Spawn and run agents concurrently for actual work
+- File operations (Read, Write, Edit, MultiEdit, Glob, Grep)
+- Code generation and programming
+- Bash commands and system operations
+- Implementation work
+- Project navigation and analysis
+- TodoWrite and task management
+- Git operations
+- Package management
+- Testing and debugging
+
+### MCP Tools ONLY COORDINATE:
+- Swarm initialization (topology setup)
+- Agent type definitions (coordination patterns)
+- Task orchestration (high-level planning)
+- Memory management
+- Neural features
+- Performance tracking
+- GitHub integration
+
+**KEY**: MCP coordinates the strategy, Claude Code's Task tool executes with real agents.
 
 ## 🚀 Quick Setup
 
-### Install Ggen CLI
 ```bash
-# Install ggen CLI (requires Rust)
-cargo install ggen
-
-# Or build from source
-cargo build --release
-cargo install --path .
+# Add MCP servers (Claude Flow required, others optional)
+claude mcp add claude-flow npx claude-flow@alpha mcp start
+claude mcp add ruv-swarm npx ruv-swarm mcp start  # Optional: Enhanced coordination
+claude mcp add flow-nexus npx flow-nexus@latest mcp start  # Optional: Cloud features
 ```
 
-### Verify Installation
-```bash
-# Verify ggen installation
-ggen --version
-ggen market list
-ggen lifecycle list
+## MCP Tool Categories
+
+### Coordination
+`swarm_init`, `agent_spawn`, `task_orchestrate`
+
+### Monitoring
+`swarm_status`, `agent_list`, `agent_metrics`, `task_status`, `task_results`
+
+### Memory & Neural
+`memory_usage`, `neural_status`, `neural_train`, `neural_patterns`
+
+### GitHub Integration
+`github_swarm`, `repo_analyze`, `pr_enhance`, `issue_triage`, `code_review`
+
+### System
+`benchmark_run`, `features_detect`, `swarm_monitor`
+
+### Flow-Nexus MCP Tools (Optional Advanced Features)
+Flow-Nexus extends MCP capabilities with 70+ cloud-based orchestration tools:
+
+**Key MCP Tool Categories:**
+- **Swarm & Agents**: `swarm_init`, `swarm_scale`, `agent_spawn`, `task_orchestrate`
+- **Sandboxes**: `sandbox_create`, `sandbox_execute`, `sandbox_upload` (cloud execution)
+- **Templates**: `template_list`, `template_deploy` (pre-built project templates)
+- **Neural AI**: `neural_train`, `neural_patterns`, `seraphina_chat` (AI assistant)
+- **GitHub**: `github_repo_analyze`, `github_pr_manage` (repository management)
+- **Real-time**: `execution_stream_subscribe`, `realtime_subscribe` (live monitoring)
+- **Storage**: `storage_upload`, `storage_list` (cloud file management)
+
+**Authentication Required:**
+- Register: `mcp__flow-nexus__user_register` or `npx flow-nexus@latest register`
+- Login: `mcp__flow-nexus__user_login` or `npx flow-nexus@latest login`
+- Access 70+ specialized MCP tools for advanced orchestration
+
+## 🚀 Agent Execution Flow with Claude Code
+
+### The Correct Pattern:
+
+1. **Optional**: Use MCP tools to set up coordination topology
+2. **REQUIRED**: Use Claude Code's Task tool to spawn agents that do actual work
+3. **REQUIRED**: Each agent runs hooks for coordination
+4. **REQUIRED**: Batch all operations in single messages
+
+### Example Full-Stack Development:
+
+```javascript
+// Single message with all agent spawning via Claude Code's Task tool
+[Parallel Agent Execution]:
+  Task("Backend Developer", "Build REST API with Express. Use hooks for coordination.", "backend-dev")
+  Task("Frontend Developer", "Create React UI. Coordinate with backend via memory.", "coder")
+  Task("Database Architect", "Design PostgreSQL schema. Store schema in memory.", "code-analyzer")
+  Task("Test Engineer", "Write Jest tests. Check memory for API contracts.", "tester")
+  Task("DevOps Engineer", "Setup Docker and CI/CD. Document in memory.", "cicd-engineer")
+  Task("Security Auditor", "Review authentication. Report findings via hooks.", "reviewer")
+  
+  // All todos batched together
+  TodoWrite { todos: [...8-10 todos...] }
+  
+  // All file operations together
+  Write "backend/server.js"
+  Write "frontend/App.jsx"
+  Write "database/schema.sql"
 ```
 
-## 🎯 Development Workflow (80/20 Rule)
+## 📋 Agent Coordination Protocol
 
-**Focus on high-value activities:**
+### Every Agent Spawned via Task Tool MUST:
 
-1. **Search Marketplace** → `ggen market search "your need"`
-2. **Install Packages** → `ggen market add "package-name"`
-3. **Initialize Project** → `ggen lifecycle run init`
-4. **Generate Code** → `ggen template generate template.tmpl`
-5. **Validate & Deploy** → `ggen lifecycle validate && ggen lifecycle run deploy`
+**1️⃣ BEFORE Work:**
+```bash
+npx claude-flow@alpha hooks pre-task --description "[task]"
+npx claude-flow@alpha hooks session-restore --session-id "swarm-[id]"
+```
 
-**📚 See:** `docs/development-workflow.md` for detailed workflows
+**2️⃣ DURING Work:**
+```bash
+npx claude-flow@alpha hooks post-edit --file "[file]" --memory-key "swarm/[agent]/[step]"
+npx claude-flow@alpha hooks notify --message "[what was done]"
+```
 
-## 📚 Examples & References
+**3️⃣ AFTER Work:**
+```bash
+npx claude-flow@alpha hooks post-task --task-id "[task]"
+npx claude-flow@alpha hooks session-end --export-metrics true
+```
 
-**📖 See:** `examples/microservices-architecture/` - Complete microservices example
-**📖 See:** `examples/ai-code-generation/` - AI + marketplace workflow
-**📖 See:** `docs/marketplace.md` - Complete package reference
+## 🎯 Concurrent Execution Examples
 
-## 📋 Workflow Summary
+### ✅ CORRECT WORKFLOW: MCP Coordinates, Claude Code Executes
 
-**✅ DO:** `market search` → `market add` → `lifecycle init` → `template generate` → `lifecycle deploy`
-**❌ DON'T:** `cargo init` → manual coding → custom deployment scripts
+```javascript
+// Step 1: MCP tools set up coordination (optional, for complex tasks)
+[Single Message - Coordination Setup]:
+  mcp__claude-flow__swarm_init { topology: "mesh", maxAgents: 6 }
+  mcp__claude-flow__agent_spawn { type: "researcher" }
+  mcp__claude-flow__agent_spawn { type: "coder" }
+  mcp__claude-flow__agent_spawn { type: "tester" }
 
-**📚 See:** `docs/complete-workflow.md` for detailed examples
+// Step 2: Claude Code Task tool spawns ACTUAL agents that do the work
+[Single Message - Parallel Agent Execution]:
+  // Claude Code's Task tool spawns real agents concurrently
+  Task("Research agent", "Analyze API requirements and best practices. Check memory for prior decisions.", "researcher")
+  Task("Coder agent", "Implement REST endpoints with authentication. Coordinate via hooks.", "coder")
+  Task("Database agent", "Design and implement database schema. Store decisions in memory.", "code-analyzer")
+  Task("Tester agent", "Create comprehensive test suite with 90% coverage.", "tester")
+  Task("Reviewer agent", "Review code quality and security. Document findings.", "reviewer")
+  
+  // Batch ALL todos in ONE call
+  TodoWrite { todos: [
+    {id: "1", content: "Research API patterns", status: "in_progress", priority: "high"},
+    {id: "2", content: "Design database schema", status: "in_progress", priority: "high"},
+    {id: "3", content: "Implement authentication", status: "pending", priority: "high"},
+    {id: "4", content: "Build REST endpoints", status: "pending", priority: "high"},
+    {id: "5", content: "Write unit tests", status: "pending", priority: "medium"},
+    {id: "6", content: "Integration tests", status: "pending", priority: "medium"},
+    {id: "7", content: "API documentation", status: "pending", priority: "low"},
+    {id: "8", content: "Performance optimization", status: "pending", priority: "low"}
+  ]}
+  
+  // Parallel file operations
+  Bash "mkdir -p app/{src,tests,docs,config}"
+  Write "app/package.json"
+  Write "app/src/server.js"
+  Write "app/tests/server.test.js"
+  Write "app/docs/API.md"
+```
 
-## 📋 Essential Commands Summary
+### ❌ WRONG (Multiple Messages):
+```javascript
+Message 1: mcp__claude-flow__swarm_init
+Message 2: Task("agent 1")
+Message 3: TodoWrite { todos: [single todo] }
+Message 4: Write "file.js"
+// This breaks parallel coordination!
+```
 
-| Command | Purpose | Example |
-|---------|---------|---------|
-| `ggen market search <query>` | Find packages | `ggen market search "rust web"` |
-| `ggen market add <package>` | Install package | `ggen market add "rust-axum"` |
-| `ggen lifecycle run init` | Initialize project | `ggen lifecycle run init` |
-| `ggen template generate <template>` | Generate code | `ggen template generate service.tmpl` |
-| `ggen lifecycle readiness` | Check production status | `ggen lifecycle readiness` |
-| `ggen lifecycle validate` | Validate deployment | `ggen lifecycle validate --env prod` |
-| `ggen lifecycle run deploy` | Deploy to environment | `ggen lifecycle run deploy --env prod` |
+## Performance Benefits
 
-## 📚 Documentation References
+- **84.8% SWE-Bench solve rate**
+- **32.3% token reduction**
+- **2.8-4.4x speed improvement**
+- **27+ neural models**
 
-**📖 Core Docs:**
-- `README.md` - Project overview and getting started
-- `docs/cli.md` - Complete command reference
-- `docs/marketplace.md` - Package management guide
-- `docs/lifecycle.md` - Project workflow guide
+## Hooks Integration
 
-**📖 Examples:**
-- `examples/microservices-architecture/` - Production microservices
-- `examples/ai-code-generation/` - AI-powered development
-- `examples/advanced-rust-project/` - Advanced patterns
+### Pre-Operation
+- Auto-assign agents by file type
+- Validate commands for safety
+- Prepare resources automatically
+- Optimize topology by complexity
+- Cache searches
 
-**📖 Development:**
-- `docs/development-workflow.md` - Complete workflows
-- `docs/production-readiness.md` - Production deployment guide
+### Post-Operation
+- Auto-format code
+- Train neural patterns
+- Update memory
+- Analyze performance
+- Track token usage
 
-## 📚 Documentation References
+### Session Management
+- Generate summaries
+- Persist state
+- Track metrics
+- Restore context
+- Export workflows
 
-**📖 Core Docs:**
-- `README.md` - Project overview and getting started
-- `docs/cli.md` - Complete command reference
-- `docs/marketplace.md` - Package management guide
-- `docs/lifecycle.md` - Project workflow guide
+## Advanced Features (v2.0.0)
 
-**📖 Examples:**
-- `examples/microservices-architecture/` - Production microservices
-- `examples/ai-code-generation/` - AI-powered development
-- `examples/advanced-rust-project/` - Advanced patterns
+- 🚀 Automatic Topology Selection
+- ⚡ Parallel Execution (2.8-4.4x speed)
+- 🧠 Neural Training
+- 📊 Bottleneck Analysis
+- 🤖 Smart Auto-Spawning
+- 🛡️ Self-Healing Workflows
+- 💾 Cross-Session Memory
+- 🔗 GitHub Integration
 
-**📖 Development:**
-- `docs/development-workflow.md` - Complete workflows
-- `docs/production-readiness.md` - Production deployment guide
+## Integration Tips
 
-## 🎯 80/20 Rule Applied
+1. Start with basic swarm init
+2. Scale agents gradually
+3. Use memory for context
+4. Monitor progress regularly
+5. Train patterns from success
+6. Enable hooks automation
+7. Use GitHub tools first
 
-**Focus on:**
-- **Marketplace discovery** (search before building)
-- **Production readiness** (validate before deploying)
-- **Essential commands** (workflow over features)
+## Support
 
-**Minimize:**
-- Detailed configuration options (for advanced users)
-- Internal implementation details (for contributors)
-- Advanced edge cases (for power users)
+- Documentation: https://github.com/ruvnet/claude-flow
+- Issues: https://github.com/ruvnet/claude-flow/issues
+- Flow-Nexus Platform: https://flow-nexus.ruv.io (registration required for cloud features)
 
 ---
 
-**Ggen provides the complete development toolchain - marketplace, lifecycle, templates, AI, and deployment!**
+Remember: **Claude Flow coordinates, Claude Code creates!**
+
+# important-instruction-reminders
+Do what has been asked; nothing more, nothing less.
+NEVER create files unless they're absolutely necessary for achieving your goal.
+ALWAYS prefer editing an existing file to creating a new one.
+NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
+Never save working files, text/mds and tests to the root folder.
