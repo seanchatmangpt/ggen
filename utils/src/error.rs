@@ -133,6 +133,18 @@ impl From<toml::de::Error> for Error {
     }
 }
 
+impl From<String> for Error {
+    fn from(err: String) -> Self {
+        Self::new(&err)
+    }
+}
+
+impl From<&str> for Error {
+    fn from(err: &str) -> Self {
+        Self::new(err)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

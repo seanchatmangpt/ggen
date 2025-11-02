@@ -9,8 +9,8 @@
 //! ```
 
 use clap::Args;
+use clap_noun_verb_macros::verb;
 use ggen_utils::error::Result;
-use std::collections::HashMap;
 use std::path::PathBuf;
 
 /// Arguments for the template generate command
@@ -42,31 +42,29 @@ pub struct GenerateArgs {
 /// 4. Handles errors and formats output
 pub fn run(args: &GenerateArgs) -> Result<()> {
     // Parse variables from key=value format
-    let mut variables = HashMap::new();
-    for var in &args.vars {
-        let parts: Vec<&str> = var.splitn(2, '=').collect();
-        if parts.len() != 2 {
-            return Err(ggen_utils::error::Error::new(&format!(
-                "Invalid variable format: '{}'. Expected 'key=value'",
-                var
-            )));
-        }
-        variables.insert(parts[0].to_string(), parts[1].to_string());
-    }
+    let variables = crate::domain::template::parse_variables(&args.vars)?;
 
-    // Use the runtime bridge to execute async domain logic
+    // Build options
+    let options = crate::domain::template::GenerateFileOptions::new(
+        args.template.clone(),
+        args.output.clone(),
+    )
+    .with_vars(variables);
+
+    let options = if args.force {
+        options.force()
+    } else {
+        options
+    };
+
+    // Use the runtime bridge to execute domain logic
     crate::runtime::execute(async {
-        let result = crate::domain::template::generate_file_tree(
-            &args.template,
-            &args.output,
-            &variables,
-            args.force,
-        )?;
+        let result = crate::domain::template::generate_file(&options)?;
 
-        println!("✅ Generated {} files", result.files_generated);
-        for file in result.files {
-            println!("  📄 {}", file.display());
-        }
+        println!("✅ File generated successfully");
+        println!("   Output: {}", result.output_path.display());
+        println!("   Size: {} bytes", result.bytes_written);
+        println!("   Variables: {}", result.variables_used);
 
         Ok(())
     })

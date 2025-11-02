@@ -5,14 +5,15 @@ pub mod commands;        // Auto-discovered command implementations
 pub mod domain;          // Business logic layer
 pub mod runtime;         // Async/sync bridge utilities
 pub mod runtime_helper;  // Sync CLI wrapper utilities for async operations
+pub mod prelude;         // Common imports for commands
 
 // Re-export clap-noun-verb for auto-discovery
-pub use clap_noun_verb::{run, CommandRunner, Result as ClapNounVerbResult};
+pub use clap_noun_verb::{run, CommandRouter, Result as ClapNounVerbResult};
 
 /// Main entry point using clap-noun-verb auto-discovery
 pub async fn cli_match() -> ggen_utils::error::Result<()> {
     // Auto-discover and run commands from commands/ directory
-    run().await
+    run()
         .map_err(|e| anyhow::anyhow!("CLI execution failed: {}", e))?;
     Ok(())
 }
@@ -50,20 +51,13 @@ pub async fn run_for_node(args: Vec<String>) -> ggen_utils::error::Result<RunRes
         let code = match (gag::BufferRedirect::stdout(), gag::BufferRedirect::stderr()) {
             (Ok(mut so), Ok(mut se)) => {
                 // Execute using clap-noun-verb auto-discovery
-                let runtime = tokio::runtime::Runtime::new().unwrap();
-                let code_val = runtime.block_on(async {
-                    // Set up args for clap-noun-verb
-                    // Note: clap-noun-verb reads from env::args, so we need to handle argv separately
-                    // For now, use the run() function directly which handles args internally
-
-                    match run().await {
-                        Ok(()) => 0,
-                        Err(err) => {
-                            let _ = writeln!(std::io::stderr(), "{}", err);
-                            1
-                        }
+                let code_val = match run() {
+                    Ok(()) => 0,
+                    Err(err) => {
+                        let _ = writeln!(std::io::stderr(), "{}", err);
+                        1
                     }
-                });
+                };
 
                 let _ = so.read_to_end(&mut captured_stdout);
                 let _ = se.read_to_end(&mut captured_stderr);
@@ -75,16 +69,13 @@ pub async fn run_for_node(args: Vec<String>) -> ggen_utils::error::Result<RunRes
             }
             _ => {
                 // Fallback: execute without capture
-                let runtime = tokio::runtime::Runtime::new().unwrap();
-                runtime.block_on(async {
-                    match run().await {
-                        Ok(()) => 0,
-                        Err(err) => {
-                            eprintln!("{}", err);
-                            1
-                        }
+                match run() {
+                    Ok(()) => 0,
+                    Err(err) => {
+                        eprintln!("{}", err);
+                        1
                     }
-                })
+                }
             }
         };
 

@@ -1,0 +1,32 @@
+# {{ project_name }}
+
+{{ project_description }}
+
+**Version**: {{ project_version }}
+**Author**: {{ project_author }}
+**Language**: {{ project_language }}
+
+## Generated Structures
+
+{% for struct in structs %}
+### {{ struct.name }}
+{% for field in struct.fields %}
+- `{{ field.name }}`: {{ field.type_name }}
+{% endfor %}
+{% endfor %}
+
+## Building
+
+```bash
+cargo build --release
+```
+
+## Running
+
+```bash
+cargo run
+```
+
+---
+
+Generated with ggen v2.0.0

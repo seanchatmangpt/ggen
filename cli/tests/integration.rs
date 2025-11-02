@@ -69,8 +69,9 @@ nodes:
 #[test]
 fn test_marketplace_search_integration() {
     // Test: CLI → Market Domain → Core Registry
+    // v2.0: "marketplace" command replaces "market"
     let mut cmd = Command::cargo_bin("ggen").unwrap();
-    let output = cmd.args(["market", "search", "rust", "--limit", "5"]).output().unwrap();
+    let output = cmd.args(["marketplace", "search", "rust", "--limit", "5"]).output().unwrap();
 
     // Should complete successfully (with or without results)
     assert!(output.status.success() || output.status.code() == Some(0));
@@ -230,9 +231,10 @@ nodes:
 
 #[test]
 fn test_json_output_marketplace_search() {
+    // v2.0: "marketplace" command replaces "market"
     let mut cmd = Command::cargo_bin("ggen").unwrap();
     let output = cmd
-        .args(["market", "search", "rust", "--json", "--limit", "1"])
+        .args(["marketplace", "search", "rust", "--json", "--limit", "1"])
         .output()
         .unwrap();
 
@@ -355,10 +357,11 @@ nodes:
 fn test_workflow_marketplace_to_project() {
     // Workflow: Search → Install → Generate
     // This is a conceptual test as actual marketplace requires network
+    // v2.0: "marketplace" command replaces "market"
 
     // Step 1: Search marketplace
     let mut cmd = Command::cargo_bin("ggen").unwrap();
-    cmd.args(["market", "search", "cli-template", "--limit", "1"])
+    cmd.args(["marketplace", "search", "cli-template", "--limit", "1"])
         .assert()
         .success();
 
@@ -537,7 +540,8 @@ fn test_progressive_help() {
 
 #[test]
 fn test_subcommand_help() {
-    for subcommand in &["template", "market", "project", "lifecycle", "graph"] {
+    // v2.0: "marketplace" command replaces "market"
+    for subcommand in &["template", "marketplace", "project", "lifecycle", "graph"] {
         Command::cargo_bin("ggen")
             .unwrap()
             .args([*subcommand, "--help"])
@@ -718,10 +722,10 @@ nodes:
 
 #[test]
 fn test_v2_marketplace_search_with_rdf() {
-    // v2.0: Marketplace uses RDF for metadata
+    // v2.0: Marketplace uses RDF for metadata, command renamed to "marketplace"
     let output = Command::cargo_bin("ggen")
         .unwrap()
-        .args(["market", "search", "rust", "--limit", "3"])
+        .args(["marketplace", "search", "rust", "--limit", "3"])
         .output()
         .unwrap();
 
