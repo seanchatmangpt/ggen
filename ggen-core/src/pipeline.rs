@@ -84,20 +84,7 @@ impl Pipeline {
         crate::register::bless_context(&mut ctx);
         // SimpleTracer::context_blessed(ctx.len()); // Temporarily disabled
 
-        // Register template-defined vars into the context (after frontmatter render)
-        for (k, v) in &template.front.vars {
-            ctx.insert(k, v);
-        }
-        if SimpleTracer::is_enabled() {
-            SimpleTracer::trace(
-                crate::simple_tracing::TraceLevel::Debug,
-                &format!(
-                    "Registered {} template-defined variables",
-                    template.front.vars.len()
-                ),
-                Some("context"),
-            );
-        }
+        // ❌ REMOVED: template.front.vars - Variables now come from CLI/API only
 
         // Determine output path from frontmatter or default
         let out_path = if let Some(to_path) = &template.front.to {
@@ -108,15 +95,16 @@ impl Pipeline {
             PathBuf::from("out.txt")
         };
 
+        // ❌ REMOVED: template.front.rdf - RDF files now loaded via CLI/API
         // Load RDF and execute SPARQL declared in frontmatter
         SimpleTracer::rdf_loading(
-            &template.front.rdf,
+            &Vec::new(), // No RDF files in frontmatter
             template.front.rdf_inline.len(),
             self.graph.len(),
         );
         template.process_graph(&mut self.graph, &mut self.tera, &ctx, template_path)?;
         SimpleTracer::rdf_loading(
-            &template.front.rdf,
+            &Vec::new(), // No RDF files in frontmatter
             template.front.rdf_inline.len(),
             self.graph.len(),
         );

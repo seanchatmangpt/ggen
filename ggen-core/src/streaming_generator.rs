@@ -97,9 +97,9 @@ impl StreamingGenerator {
         // Render frontmatter
         template.render_frontmatter(&mut self.pipeline.tera, vars)?;
 
-        // Process RDF graph if needed
+        // Process RDF graph if needed (inline RDF and SPARQL only)
+        // ❌ REMOVED: template.front.rdf check - RDF files now via CLI/API
         if !template.front.rdf_inline.is_empty()
-            || !template.front.rdf.is_empty()
             || !template.front.sparql.is_empty()
         {
             template.process_graph(

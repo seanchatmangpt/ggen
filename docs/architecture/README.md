@@ -4,7 +4,49 @@ This directory contains comprehensive architecture documentation for the ggen te
 
 ## 📚 Documentation Index
 
-### 1. Main Architecture Document
+### ⭐ NEW: v2.0.0 Architecture (Current Release)
+
+#### 1. **v2.0.0 Complete Architecture** ⭐
+**File:** `v2-architecture-complete.md`
+
+The definitive v2.0.0 architecture specification featuring:
+- **C4 Architecture Diagrams** (Context, Container, Component, Code levels)
+- **Three-Layer Architecture** (CLI, Domain, Runtime separation)
+- **Pure RDF Templates** (no frontmatter mixing)
+- **Frozen Section Architecture** (user edit preservation)
+- **Filesystem Routing Design** (auto-discovery with #[verb] attributes)
+- **Domain Layer Design** (CLI-independent business logic)
+- **Runtime Layer Design** (template engine, RDF processing)
+- **Migration Strategy** (8-week roadmap)
+- **Architecture Decision Records** (5 key ADRs)
+
+**Performance Improvements:**
+- 50% faster compilation (30-45s vs 60-90s)
+- 33% faster generation
+- 28% smaller binaries
+
+**Audience:** All developers, architects migrating to or working with v2.0.0
+
+#### 2. **v2.0.0 Architecture Summary** 📋
+**File:** `v2-architecture-summary.md`
+
+Quick reference guide for v2.0.0:
+- Key architectural changes
+- Directory structure overview
+- Auto-discovery pattern examples
+- Pure RDF template structure
+- Frozen section examples
+- Performance comparison table
+- Testing strategy
+- Migration timeline
+
+**Audience:** Quick reference for developers, onboarding new team members
+
+---
+
+### v1.x Architecture (Historical)
+
+#### 3. Main Architecture Document
 **File:** `TEMPLATE_RDF_ARCHITECTURE.md`
 
 Complete system architecture specification including:

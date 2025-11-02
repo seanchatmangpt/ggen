@@ -82,10 +82,10 @@ impl SimpleTracer {
         Self::trace(
             TraceLevel::Debug,
             &format!(
-                "Frontmatter processed: to={:?}, inject={}, vars={}",
+                "Frontmatter processed: to={:?}, inject={}",
                 frontmatter.to,
-                frontmatter.inject,
-                frontmatter.vars.len()
+                frontmatter.inject
+                // ❌ REMOVED: vars count - no longer in frontmatter
             ),
             Some("frontmatter"),
         );

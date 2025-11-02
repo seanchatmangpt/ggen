@@ -96,8 +96,8 @@ impl PipelineTracer {
         debug!(
             to = ?frontmatter.to,
             inject = frontmatter.inject,
-            vars_count = frontmatter.vars.len(),
-            rdf_files_count = frontmatter.rdf.len(),
+            // ❌ REMOVED: vars_count - no longer in frontmatter
+            // ❌ REMOVED: rdf_files_count - RDF files now via CLI/API
             rdf_inline_count = frontmatter.rdf_inline.len(),
             sparql_queries_count = frontmatter.sparql.len(),
             "Frontmatter processed"

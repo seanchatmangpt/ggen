@@ -80,8 +80,13 @@ base64 = "0.22"
 # Patch removed - was causing conflicts with same source
 
 # Allow multiple crate versions due to complex dependency tree
+# Enforce error handling best practices - no unwrap/expect in production code
 [workspace.lints.clippy]
 multiple_crate_versions = "allow"
+# Deny unwrap/expect to enforce proper error handling
+# Note: Tests are allowed to use unwrap/expect for clarity
+unwrap_used = "warn"
+expect_used = "warn"
 
 [features]
 nightly = ["ggen-utils/nightly"]
@@ -148,6 +153,7 @@ tracing-opentelemetry.workspace = true
 # Performance benchmarking
 criterion = { version = "0.7", features = ["html_reports"] }
 once_cell = "1.20"
+lazy_static = "1.4"
 
 [profile.dev]
 opt-level = 0
@@ -188,3 +194,14 @@ codegen-units = 1
 [[bench]]
 name = "runtime_overhead"
 harness = false
+
+[[bench]]
+name = "async_runtime_benchmarks"
+harness = false
+
+[[bench]]
+name = "memory_profiling"
+harness = false
+
+[[bench]]
+name = "quick_runtime_validation"

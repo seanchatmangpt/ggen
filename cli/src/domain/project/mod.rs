@@ -2,5 +2,11 @@
 //!
 //! This module contains all project-related domain logic.
 
-// Placeholder for domain layer modules
-// Will be implemented during migration
+pub mod apply;
+pub mod gen;
+pub mod new;
+pub mod plan;
+
+// Re-export for convenience
+pub mod build;
+pub mod init;

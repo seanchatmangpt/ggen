@@ -120,7 +120,9 @@ impl TemplateConfig {
     /// Save configuration to file
     pub fn save(&self, path: &PathBuf) -> anyhow::Result<()> {
         let content = toml::to_string_pretty(self)?;
-        std::fs::create_dir_all(path.parent().unwrap())?;
+        if let Some(parent) = path.parent() {
+            std::fs::create_dir_all(parent)?;
+        }
         std::fs::write(path, content)?;
         Ok(())
     }

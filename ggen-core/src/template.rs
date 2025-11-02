@@ -1,23 +1,25 @@
 //! Template system: YAML frontmatter + Tera rendering + RDF/SPARQL integration
 //!
-//! ## Core Flow
+//! ## Core Flow (v2.0)
 //! ```text
-//! Template String → Parse → Render Frontmatter → Process Graph → Render Body
+//! Template String → Parse → Render Frontmatter → Load RDF (CLI/API) → Process Graph → Render Body
 //! ```
 //!
 //! ## Key Features
 //! - **Two-phase rendering**: Frontmatter first (resolve {{vars}}), then body
-//! - **Flexible vars**: Accepts maps, arrays, strings, null (LLM-friendly)
-//! - **RDF integration**: Load triples, execute SPARQL, expose results to templates
+//! - **RDF from CLI/API**: RDF files loaded via render_with_rdf(), NOT frontmatter
+//! - **Inline RDF supported**: `rdf_inline:` for template-embedded triples
+//! - **SPARQL integration**: Execute queries, expose results to templates
 //! - **File injection**: Modify existing files with markers/line numbers
 //! - **Hygen compatible**: Standard template fields work unchanged
 //!
-//! ## Frontmatter Fields
+//! ## Frontmatter Fields (v2.0)
 //! - `to/from`: Output/input file paths
-//! - `vars`: Template variables (any YAML type)
-//! - `rdf_inline/rdf`: Turtle triples (inline/files)
+//! - `rdf_inline`: Inline Turtle triples (kept for convenience)
 //! - `sparql`: Named queries → `sparql_results.<name>`
 //! - `inject/before/after`: File modification markers
+//! - ❌ REMOVED: `vars:` - Variables now come from CLI/API only
+//! - ❌ REMOVED: `rdf:` - RDF files now loaded via CLI/API only
 //!
 //! ## SPARQL Results Access
 //! ```tera
@@ -71,15 +73,11 @@ pub struct Frontmatter {
     pub prefixes: BTreeMap<String, String>,
     #[serde(default, deserialize_with = "string_or_seq")]
     pub rdf_inline: Vec<String>,
-    #[serde(default, deserialize_with = "string_or_seq")]
-    pub rdf: Vec<String>, // treat as inline TTL in prototype
+    // ❌ REMOVED: rdf: Vec<String> - RDF files now loaded via CLI/API only
     #[serde(default, deserialize_with = "sparql_map")]
     pub sparql: BTreeMap<String, String>,
 
-    // Optional template variables defined in frontmatter
-    // Accepts maps, arrays, or single values for maximum flexibility
-    #[serde(default, deserialize_with = "deserialize_flexible_vars")]
-    pub vars: BTreeMap<String, serde_yaml::Value>,
+    // ❌ REMOVED: vars: BTreeMap - Variables now come from CLI/API, not frontmatter
 
     // Safety and idempotency
     #[serde(default)]
@@ -182,13 +180,12 @@ impl Template {
     /// Load RDF and run SPARQL using the rendered frontmatter.
     pub fn process_graph(
         &mut self, graph: &mut Graph, tera: &mut Tera, vars: &Context,
-        template_path: &std::path::Path,
+        _template_path: &std::path::Path,
     ) -> Result<()> {
         // Ensure frontmatter is rendered before graph ops
         if self.front.to.is_none()
             && self.front.from.is_none()
             && self.front.rdf_inline.is_empty()
-            && self.front.rdf.is_empty()
             && self.front.sparql.is_empty()
         {
             self.render_frontmatter(tera, vars)?;
@@ -208,51 +205,8 @@ impl Template {
             graph.insert_turtle(&final_ttl)?;
         }
 
-        // Load RDF files - resolve relative to template directory
-        for rdf_file in &self.front.rdf {
-            let rendered_path = tera.render_str(rdf_file, vars)?;
-
-            // Resolve relative to template's directory
-            let template_dir = template_path.parent().ok_or_else(|| {
-                anyhow::anyhow!(
-                    "Template path has no parent directory: {}",
-                    template_path.display()
-                )
-            })?;
-            let rdf_path = template_dir.join(&rendered_path);
-
-            // Security check: prevent path traversal attacks
-            let canonical_rdf = rdf_path.canonicalize().map_err(|e| {
-                anyhow::anyhow!(
-                    "Failed to canonicalize RDF path '{}': {}",
-                    rdf_path.display(),
-                    e
-                )
-            })?;
-            let canonical_template = template_dir.canonicalize().map_err(|e| {
-                anyhow::anyhow!(
-                    "Failed to canonicalize template directory '{}': {}",
-                    template_dir.display(),
-                    e
-                )
-            })?;
-
-            if !canonical_rdf.starts_with(&canonical_template) {
-                return Err(anyhow::anyhow!(
-                    "Path traversal blocked: '{}' is outside template directory",
-                    rendered_path
-                ));
-            }
-
-            if let Ok(ttl_content) = std::fs::read_to_string(&rdf_path) {
-                let final_ttl = if prolog.is_empty() {
-                    ttl_content
-                } else {
-                    format!("{prolog}\n{ttl_content}")
-                };
-                graph.insert_turtle(&final_ttl)?;
-            }
-        }
+        // ❌ REMOVED: RDF file loading from frontmatter
+        // RDF files are now loaded via CLI/API using render_with_rdf() method
 
         // Execute SPARQL (prepend PREFIX/BASE prolog) and capture results
         for (name, q) in &self.front.sparql {
@@ -291,6 +245,42 @@ impl Template {
         }
 
         Ok(())
+    }
+
+    /// Render template with RDF data from external sources (CLI/API).
+    /// This is the v2.0 method for loading RDF - frontmatter no longer supports rdf: field.
+    pub fn render_with_rdf(
+        &mut self,
+        rdf_files: Vec<std::path::PathBuf>,
+        graph: &mut Graph,
+        tera: &mut Tera,
+        vars: &Context,
+        template_path: &std::path::Path,
+    ) -> Result<String> {
+        // Render frontmatter first
+        self.render_frontmatter(tera, vars)?;
+
+        // Build prolog from frontmatter prefixes
+        let prolog = crate::graph::build_prolog(&self.front.prefixes, self.front.base.as_deref());
+
+        // Load RDF files from CLI/API (not frontmatter)
+        for rdf_path in rdf_files {
+            let ttl_content = std::fs::read_to_string(&rdf_path).map_err(|e| {
+                anyhow::anyhow!("Failed to read RDF file '{}': {}", rdf_path.display(), e)
+            })?;
+            let final_ttl = if prolog.is_empty() {
+                ttl_content
+            } else {
+                format!("{prolog}\n{ttl_content}")
+            };
+            graph.insert_turtle(&final_ttl)?;
+        }
+
+        // Process graph with inline RDF and SPARQL
+        self.process_graph(graph, tera, vars, template_path)?;
+
+        // Render body
+        self.render(tera, vars)
     }
 
     /// Render template body with Tera.
@@ -373,56 +363,7 @@ where
     de.deserialize_any(StrOrSeq)
 }
 
-/// Accept vars as map, array, string, or any YAML value
-/// This provides maximum flexibility for LLM-generated templates
-///
-/// Examples:
-/// - `vars: {key: "value"}` → kept as-is
-/// - `vars: ["item1", "item2"]` → converted to {var0: "item1", var1: "item2"}
-/// - `vars: "single"` → converted to {var0: "single"}
-fn deserialize_flexible_vars<'de, D>(
-    deserializer: D,
-) -> Result<BTreeMap<String, serde_yaml::Value>, D::Error>
-where
-    D: serde::Deserializer<'de>,
-{
-    use serde::de::Error;
-
-    let value = serde_yaml::Value::deserialize(deserializer)?;
-
-    match value {
-        serde_yaml::Value::Mapping(map) => {
-            // Already a map - convert keys to strings
-            let mut result = BTreeMap::new();
-            for (k, v) in map {
-                let key = k
-                    .as_str()
-                    .ok_or_else(|| Error::custom("Map keys must be strings"))?
-                    .to_string();
-                result.insert(key, v);
-            }
-            Ok(result)
-        }
-        serde_yaml::Value::Sequence(seq) => {
-            // Array - convert to indexed map
-            let mut result = BTreeMap::new();
-            for (i, v) in seq.into_iter().enumerate() {
-                result.insert(format!("var{}", i), v);
-            }
-            Ok(result)
-        }
-        serde_yaml::Value::Null => {
-            // Null or missing - return empty map
-            Ok(BTreeMap::new())
-        }
-        other => {
-            // Single value - wrap in map
-            let mut result = BTreeMap::new();
-            result.insert("var0".to_string(), other);
-            Ok(result)
-        }
-    }
-}
+// ❌ REMOVED: deserialize_flexible_vars - vars field no longer in frontmatter
 
 // Accept either "sparql: '<query>'" or "sparql: { name: '<query>' }"
 fn sparql_map<'de, D>(de: D) -> Result<BTreeMap<String, String>, D::Error>
@@ -537,13 +478,11 @@ fn main() { println!("Hello"); }"#,
     }
 
     #[test]
-    fn frontmatter_render_core_fields_and_flex_vars() -> Result<()> {
+    fn frontmatter_render_core_fields() -> Result<()> {
         let input = r#"---
 to: "{{name}}.rs"
 prefixes: { ex: "http://example.org/" }
 base: "http://example.org/{{ns}}/"
-vars:
-  name_fmt: "Mr. {{name}}"
 rdf_inline: "ex:{{name}} a ex:Person ."
 sparql: "SELECT ?s WHERE { ?s a ex:Person }"
 ---
@@ -562,10 +501,7 @@ body"#;
         assert_eq!(t.front.base.as_deref(), Some("http://example.org/test/"));
         assert_eq!(t.front.rdf_inline.len(), 1);
         assert_eq!(t.front.sparql.len(), 1);
-        assert_eq!(
-            t.front.vars.get("name_fmt").and_then(|x| x.as_str()),
-            Some("Mr. Alice")
-        );
+        // ❌ REMOVED: vars test - no longer in frontmatter
         Ok(())
     }
 
@@ -800,34 +736,7 @@ fn main() {
                 }
             }
 
-            #[test]
-            fn frontmatter_vars_roundtrip(
-                var_name in r"[a-zA-Z_][a-zA-Z0-9_]*",
-                var_value in r"[a-zA-Z0-9_\s\-\.]*"
-            ) {
-                // Skip if value contains special characters that would break YAML
-                if var_value.contains(':') || var_value.contains('"') || var_value.contains('\'') {
-                    return Ok(());
-                }
-
-                let yaml_content = format!("vars:\n  {}: {}", var_name, var_value);
-                let template_str = format!("---\n{}\n---\nHello {{{{ vars.{} }}}}", yaml_content, var_name);
-
-                let template = Template::parse(&template_str);
-
-                match template {
-                    Ok(t) => {
-                        // Check that the variable was parsed correctly
-                        if let Some(value) = t.front.vars.get(&var_name) {
-                            // The value should be preserved (as string)
-                            assert!(value.as_str().is_some() || value.is_string());
-                        }
-                    },
-                    Err(_) => {
-                        // Parsing failed - this is acceptable for invalid inputs
-                    }
-                }
-            }
+            // ❌ REMOVED: frontmatter_vars_roundtrip test - vars no longer in frontmatter
 
             #[test]
             fn template_paths_are_valid(

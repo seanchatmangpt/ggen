@@ -77,6 +77,74 @@ pub async fn search_packages(
     Ok(vec![])
 }
 
+/// Search for packages and display results
+///
+/// This function bridges the CLI to the domain layer.
+pub async fn search_and_display(
+    query: &str,
+    category: Option<&str>,
+    keyword: Option<&str>,
+    author: Option<&str>,
+    fuzzy: bool,
+    detailed: bool,
+    json: bool,
+    limit: usize,
+) -> Result<()> {
+    // Build search filters
+    let mut filters = SearchFilters::new()
+        .with_limit(limit)
+        .with_fuzzy(fuzzy);
+
+    if let Some(cat) = category {
+        filters = filters.with_category(cat);
+    }
+    if let Some(kw) = keyword {
+        filters.keyword = Some(kw.to_string());
+    }
+    if let Some(auth) = author {
+        filters.author = Some(auth.to_string());
+    }
+
+    // Search packages
+    let results = search_packages(query, &filters).await?;
+
+    // Display results
+    if json {
+        let json_output = serde_json::to_string_pretty(&results)?;
+        println!("{}", json_output);
+    } else if results.is_empty() {
+        println!("No packages found matching '{}'", query);
+        println!("\nTry:");
+        println!("  - Using broader search terms");
+        println!("  - Removing filters");
+        println!("  - Using --fuzzy for typo tolerance");
+    } else {
+        println!("Found {} package(s) matching '{}':\n", results.len(), query);
+
+        for result in results {
+            println!("📦 {} v{}", result.name, result.version);
+            println!("   {}", result.description);
+
+            if detailed {
+                if let Some(author) = result.author {
+                    println!("   Author: {}", author);
+                }
+                if let Some(category) = result.category {
+                    println!("   Category: {}", category);
+                }
+                if !result.tags.is_empty() {
+                    println!("   Tags: {}", result.tags.join(", "));
+                }
+                println!("   ⭐ {} stars  📥 {} downloads", result.stars, result.downloads);
+            }
+
+            println!();
+        }
+    }
+
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

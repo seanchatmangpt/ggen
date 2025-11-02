@@ -7,6 +7,7 @@ use tera::Context;
 
 use crate::pipeline::Pipeline;
 use crate::template::Template;
+use crate::templates::frozen::FrozenMerger;
 
 /// Context for template generation with paths, variables, and configuration
 pub struct GenContext {
@@ -104,7 +105,21 @@ impl Generator {
             if let Some(parent) = output_path.parent() {
                 fs::create_dir_all(parent)?;
             }
-            fs::write(&output_path, rendered)?;
+
+            // Check if file exists and has frozen sections
+            let final_content = if output_path.exists() {
+                let existing_content = fs::read_to_string(&output_path)?;
+                if FrozenMerger::has_frozen_sections(&existing_content) {
+                    // Merge frozen sections from existing file
+                    FrozenMerger::merge_with_frozen(&existing_content, &rendered)?
+                } else {
+                    rendered
+                }
+            } else {
+                rendered
+            };
+
+            fs::write(&output_path, final_content)?;
         }
 
         Ok(output_path)
