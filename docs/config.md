@@ -32,7 +32,14 @@
 
 # Configuration
 
+> **📘 See the [Complete Configuration Guide](./CONFIGURATION_GUIDE.md) for comprehensive documentation.**
+
 ggen supports configuration through project files and environment variables, following core team best practices with typed configuration management.
+
+**Quick Links:**
+- **[Complete Configuration Guide](./CONFIGURATION_GUIDE.md)** - Comprehensive configuration reference
+- **[Configuration Quick Reference](./config_quick_reference.md)** - Environment variables cheat sheet
+- **[Lifecycle Configuration](./make-toml-complete-example.md)** - Complete `make.toml` example
 
 ## Core Team Configuration Pattern
 

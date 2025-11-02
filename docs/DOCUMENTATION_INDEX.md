@@ -37,6 +37,7 @@ This index provides organized access to all ggen documentation, examples, and re
 
 #### **Quick Reference**
 - ⚡ [`config_quick_reference.md`](config_quick_reference.md) - Configuration options
+- 📘 [`CONFIGURATION_GUIDE.md`](CONFIGURATION_GUIDE.md) - **NEW: Complete configuration guide**
 - 🔧 [`BENCHMARK_QUICK_REFERENCE.md`](BENCHMARK_QUICK_REFERENCE.md) - Performance benchmarks
 - 📝 [`make-toml-complete-example.md`](make-toml-complete-example.md) - Lifecycle examples
 
@@ -154,7 +155,8 @@ This index provides organized access to all ggen documentation, examples, and re
 
 ### **API & CLI Reference**
 - 🖥️ [`cli.md`](cli.md) - Complete CLI reference
-- ⚙️ [`config.md`](config.md) - Configuration options
+- 📘 [`CONFIGURATION_GUIDE.md`](CONFIGURATION_GUIDE.md) - **Complete configuration guide** (recommended)
+- ⚙️ [`config.md`](config.md) - Configuration options (legacy)
 - 🔧 [`config_quick_reference.md`](config_quick_reference.md) - Quick config reference
 
 ### **Troubleshooting & Support**

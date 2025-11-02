@@ -52,6 +52,9 @@ genai = "0.4"
 linkme = "0.3"
 notify = "6.1"
 notify-debouncer-full = "0.3"
+tar = "0.4"
+flate2 = "1.0"
+md5 = "0.8"
 
 [features]
 default = []
