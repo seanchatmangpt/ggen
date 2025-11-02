@@ -104,10 +104,10 @@ impl PqcVerifier {
 
     /// Verify a signature
     pub fn verify(&self, message: &[u8], signature: &[u8]) -> Result<bool> {
-        match mldsa65::open(
-            &SignedMessage::from_bytes(signature).unwrap(),
-            &self.public_key,
-        ) {
+        let signed_message = SignedMessage::from_bytes(signature)
+            .map_err(|_| anyhow::anyhow!("Invalid signature format"))?;
+
+        match mldsa65::open(&signed_message, &self.public_key) {
             Ok(verified_msg) => Ok(verified_msg == message),
             Err(_) => Ok(false),
         }

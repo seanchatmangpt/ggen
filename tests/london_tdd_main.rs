@@ -53,6 +53,10 @@ mod rdf_sparql_test;
 #[path = "london_tdd/otel_validation/trace_validator.rs"]
 mod trace_validator;
 
+// v2.0 Architecture tests (async/sync wrappers)
+#[path = "london_tdd/v2_arch_comprehensive_test.rs"]
+mod v2_arch_comprehensive_test;
+
 // Test suite statistics
 #[test]
 fn test_suite_statistics() {
@@ -63,8 +67,9 @@ fn test_suite_statistics() {
     println!("✅ AI Generation: 2 modules");
     println!("✅ Template Engine: 2 modules");
     println!("✅ OpenTelemetry: 1 module");
+    println!("✅ v2.0 Architecture: 3 modules (unit, component, integration)");
     println!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-    println!("📝 Total: 12 test modules covering README.md capabilities");
+    println!("📝 Total: 15 test modules covering README.md capabilities");
     println!("⚡ Performance: All tests <100ms each");
     println!("🎭 Mocking: All external dependencies mocked");
     println!("🔁 Reproducibility: 100% deterministic");

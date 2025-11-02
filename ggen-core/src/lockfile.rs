@@ -100,7 +100,10 @@ impl LockfileManager {
         &self, pack_id: &str, version: &str, sha256: &str, source: &str,
         pqc_signature: Option<String>, pqc_pubkey: Option<String>,
     ) -> Result<()> {
-        let mut lockfile = self.load()?.unwrap_or_else(|| self.create().unwrap());
+        let mut lockfile = match self.load()? {
+            Some(lockfile) => lockfile,
+            None => self.create()?,
+        };
 
         // Remove existing entry if present
         lockfile.packs.retain(|entry| entry.id != pack_id);
@@ -241,7 +244,10 @@ impl LockfileManager {
 
     /// Update the generated timestamp
     pub fn touch(&self) -> Result<()> {
-        let mut lockfile = self.load()?.unwrap_or_else(|| self.create().unwrap());
+        let mut lockfile = match self.load()? {
+            Some(lockfile) => lockfile,
+            None => self.create()?,
+        };
 
         lockfile.generated = Utc::now();
         self.save(&lockfile)

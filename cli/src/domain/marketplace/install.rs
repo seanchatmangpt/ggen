@@ -74,6 +74,82 @@ pub async fn install_package(options: &InstallOptions) -> Result<InstallResult> 
     Err(ggen_utils::error::Error::new("Install not yet implemented (Phase 2)"))
 }
 
+/// Install package and report progress
+///
+/// This function bridges the CLI to the domain layer.
+pub async fn install_and_report(
+    package: &str,
+    target: Option<&str>,
+    force: bool,
+    with_dependencies: bool,
+    dry_run: bool,
+) -> Result<()> {
+    // Parse package specification (name@version)
+    let (package_name, version) = match package.rsplit_once('@') {
+        Some((name, ver)) => (name.to_string(), Some(ver.to_string())),
+        None => (package.to_string(), None),
+    };
+
+    // Build install options
+    let mut options = InstallOptions::new(package_name);
+
+    if let Some(ver) = version {
+        options = options.with_version(ver);
+    }
+
+    if let Some(target_path) = target {
+        options = options.with_target(PathBuf::from(target_path));
+    }
+
+    if force {
+        options = options.force();
+    }
+
+    if !with_dependencies {
+        options = options.no_dependencies();
+    }
+
+    if dry_run {
+        options = options.dry_run();
+    }
+
+    // Display dry run information
+    if dry_run {
+        println!("🔍 Dry run: Would install package");
+        println!("   Package: {}", options.package_name);
+        if let Some(ref ver) = options.version {
+            println!("   Version: {}", ver);
+        }
+        if let Some(ref path) = options.target_path {
+            println!("   Target: {}", path.display());
+        }
+        println!("   Dependencies: {}", if with_dependencies { "yes" } else { "no" });
+        return Ok(());
+    }
+
+    // Install package
+    println!("📦 Installing {}...", package);
+
+    match install_package(&options).await {
+        Ok(result) => {
+            println!("✅ Successfully installed {} v{}", result.package_name, result.version);
+            println!("   Location: {}", result.install_path.display());
+
+            if !result.dependencies_installed.is_empty() {
+                println!("   Dependencies: {}", result.dependencies_installed.join(", "));
+            }
+
+            Ok(())
+        }
+        Err(e) => {
+            // For Phase 1, show placeholder message
+            println!("ℹ️  Package installation not yet implemented (Phase 2)");
+            println!("   Package: {}", package);
+            Err(e)
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

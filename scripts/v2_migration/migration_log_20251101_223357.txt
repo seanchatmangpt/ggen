@@ -1,0 +1,22 @@
+=========================================
+ggen v2.0.0 Command Migration Automation
+=========================================
+Start time: Sat Nov  1 22:33:57 PDT 2025
+Total commands to migrate: 67
+
+=========================================
+Phase 1: HIGH Priority (30 commands)
+=========================================
+[HIGH] Migrating: template show
+  ⏭️  SKIPPED: Already exists
+
+[HIGH] Migrating: template lint
+  ⏭️  SKIPPED: Already exists
+
+[HIGH] Migrating: template regenerate
+  ⏭️  SKIPPED: Already exists
+
+[HIGH] Migrating: template generate-tree
+  ⚠️  WARNING: No domain logic found at cli/src/domain/template/generate-tree.rs
+  Creating placeholder domain logic...
+  [DRY RUN] Would generate: cli/src/commands/template/generate-tree.rs

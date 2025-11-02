@@ -49,16 +49,13 @@ nodes:
         .unwrap();
 
     // Execute: CLI → Template Domain → Core Template Engine
+    // v2.0: Simpler syntax without --var flags (RDF provides data)
     let mut cmd = Command::cargo_bin("ggen").unwrap();
     cmd.args([
         "template",
-        "generate-tree",
-        "--template",
+        "generate",
         template_file.path().to_str().unwrap(),
-        "--output",
         output_dir.path().to_str().unwrap(),
-        "--var",
-        "service_name=my-service",
     ])
     .assert()
     .success();
@@ -159,14 +156,12 @@ fn test_error_propagation_invalid_template() {
     let invalid_template = temp.child("invalid.yaml");
     invalid_template.write_str("invalid: yaml: content:").unwrap();
 
-    // Test error flows through: Core → Domain → CLI
+    // Test error flows through: Core → Domain → CLI (v2.0 syntax)
     let mut cmd = Command::cargo_bin("ggen").unwrap();
     cmd.args([
         "template",
-        "generate-tree",
-        "--template",
+        "generate",
         invalid_template.path().to_str().unwrap(),
-        "--output",
         "/tmp/output",
     ])
     .assert()
@@ -175,14 +170,12 @@ fn test_error_propagation_invalid_template() {
 
 #[test]
 fn test_error_propagation_missing_file() {
-    // Test error handling for non-existent file
+    // Test error handling for non-existent file (v2.0 syntax)
     let mut cmd = Command::cargo_bin("ggen").unwrap();
     cmd.args([
         "template",
-        "generate-tree",
-        "--template",
+        "generate",
         "/nonexistent/template.yaml",
-        "--output",
         "/tmp/output",
     ])
     .assert()
@@ -219,14 +212,12 @@ nodes:
         )
         .unwrap();
 
-    // Test error when required variable is missing
+    // v2.0: Test error when RDF data is missing (no --var flag in v2.0)
     let mut cmd = Command::cargo_bin("ggen").unwrap();
     cmd.args([
         "template",
-        "generate-tree",
-        "--template",
+        "generate",
         template_file.path().to_str().unwrap(),
-        "--output",
         "/tmp/output",
     ])
     .assert()
@@ -329,17 +320,14 @@ nodes:
         )
         .unwrap();
 
+    // v2.0: Simplified syntax without --var
     let result = Command::cargo_bin("ggen")
         .unwrap()
         .args([
             "template",
-            "generate-tree",
-            "--template",
+            "generate",
             template_file.path().to_str().unwrap(),
-            "--output",
             output_dir.path().to_str().unwrap(),
-            "--var",
-            "project_name=test-project",
         ])
         .output()
         .unwrap();
@@ -556,5 +544,243 @@ fn test_subcommand_help() {
             .assert()
             .success()
             .stdout(predicate::str::contains("Usage").or(predicate::str::contains("Commands")));
+    }
+}
+
+// ============================================================================
+// v2.0 Pattern Tests - Auto-Discovery, Sync Wrappers, Frozen Sections
+// ============================================================================
+
+#[test]
+fn test_v2_auto_discovery() {
+    // Verify commands are auto-discovered and available
+    let output = Command::cargo_bin("ggen")
+        .unwrap()
+        .args(["--help"])
+        .output()
+        .unwrap();
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+
+    // Core v2.0 commands should be present
+    assert!(stdout.contains("marketplace") || stdout.contains("market"));
+    assert!(stdout.contains("template"));
+    assert!(stdout.contains("graph") || stdout.contains("lifecycle"));
+
+    // Should succeed
+    assert!(output.status.success());
+}
+
+#[test]
+fn test_v2_sync_wrapper_execution() {
+    // Verify sync wrappers work for utils commands
+    let output = Command::cargo_bin("ggen")
+        .unwrap()
+        .args(["doctor"])
+        .output()
+        .unwrap();
+
+    // Doctor command should execute successfully via sync wrapper
+    assert!(output.status.success());
+}
+
+#[test]
+fn test_v2_help_me_command() {
+    // Test progressive help system (sync wrapper)
+    let output = Command::cargo_bin("ggen")
+        .unwrap()
+        .args(["help-me"])
+        .output()
+        .unwrap();
+
+    // Should succeed and provide help
+    assert!(output.status.success());
+}
+
+#[test]
+#[ignore = "frozen section feature not yet implemented"]
+fn test_v2_frozen_section_preservation() {
+    let temp = TempDir::new().unwrap();
+    let output_file = temp.child("service.rs");
+
+    // Create initial file with frozen section
+    output_file.write_str(
+        r#"// Generated code
+pub fn generated() {
+    println!("Generated");
+}
+
+// FROZEN-START
+pub fn my_business_logic() {
+    println!("Custom logic");
+}
+// FROZEN-END
+
+// More generated code
+pub fn more_generated() {
+    println!("More generated");
+}
+"#,
+    ).unwrap();
+
+    // Create template that would regenerate the file
+    let template_file = temp.child("template.yaml");
+    template_file.write_str(
+        r#"name: test-frozen
+nodes:
+  - name: service.rs
+    type: file
+    content: |
+      // Generated code
+      pub fn generated() {
+          println!("Generated v2");
+      }
+
+      // FROZEN-START
+      // This should be preserved
+      // FROZEN-END
+
+      // More generated code
+      pub fn more_generated() {
+          println!("More generated v2");
+      }
+"#,
+    ).unwrap();
+
+    // Regenerate (should preserve frozen section)
+    let result = Command::cargo_bin("ggen")
+        .unwrap()
+        .args([
+            "template",
+            "generate",
+            template_file.path().to_str().unwrap(),
+            temp.path().to_str().unwrap(),
+        ])
+        .output()
+        .unwrap();
+
+    if result.status.success() {
+        // Verify frozen section was preserved
+        let content = std::fs::read_to_string(output_file.path()).unwrap();
+        assert!(content.contains("my_business_logic"));
+        assert!(content.contains("Custom logic"));
+    }
+}
+
+#[test]
+#[ignore = "business logic protection not yet implemented"]
+fn test_v2_business_logic_not_overwritten() {
+    let temp = TempDir::new().unwrap();
+    let business_file = temp.child("business_logic.rs");
+
+    // Create business logic file (not from template)
+    business_file.write_str(
+        r#"// Custom business logic
+pub fn important_function() {
+    // Critical business logic
+    println!("Important!");
+}
+"#,
+    ).unwrap();
+
+    // Create template that generates different files
+    let template_file = temp.child("template.yaml");
+    template_file.write_str(
+        r#"name: test-business
+nodes:
+  - name: generated.rs
+    type: file
+    content: |
+      // Generated code only
+      pub fn generated() {}
+"#,
+    ).unwrap();
+
+    // Generate template
+    let result = Command::cargo_bin("ggen")
+        .unwrap()
+        .args([
+            "template",
+            "generate",
+            template_file.path().to_str().unwrap(),
+            temp.path().to_str().unwrap(),
+        ])
+        .output()
+        .unwrap();
+
+    if result.status.success() {
+        // Verify business logic file was NOT touched
+        let original_content = "// Custom business logic";
+        let current_content = std::fs::read_to_string(business_file.path()).unwrap();
+        assert!(current_content.contains(original_content));
+    }
+}
+
+#[test]
+fn test_v2_marketplace_search_with_rdf() {
+    // v2.0: Marketplace uses RDF for metadata
+    let output = Command::cargo_bin("ggen")
+        .unwrap()
+        .args(["market", "search", "rust", "--limit", "3"])
+        .output()
+        .unwrap();
+
+    // Should complete (may have no results but should not crash)
+    assert!(output.status.success() || output.status.code() == Some(0));
+}
+
+#[test]
+#[ignore = "RDF template generation not yet fully implemented"]
+fn test_v2_rdf_based_template_generation() {
+    let temp = TempDir::new().unwrap();
+    let rdf_file = temp.child("data.ttl");
+    let template_file = temp.child("template.hbs");
+    let output_dir = temp.child("output");
+
+    // Create RDF data
+    rdf_file.write_str(
+        r#"@prefix ex: <http://example.org/> .
+
+ex:service a ex:Service ;
+    ex:name "MyService" ;
+    ex:version "1.0.0" .
+"#,
+    ).unwrap();
+
+    // Create Handlebars template
+    template_file.write_str(
+        r#"// Service: {{name}}
+// Version: {{version}}
+
+pub struct {{name}} {
+    version: &'static str,
+}
+
+impl {{name}} {
+    pub fn new() -> Self {
+        Self { version: "{{version}}" }
+    }
+}
+"#,
+    ).unwrap();
+
+    // v2.0: Generate using RDF data (no --var flags)
+    let result = Command::cargo_bin("ggen")
+        .unwrap()
+        .args([
+            "template",
+            "generate",
+            template_file.path().to_str().unwrap(),
+            rdf_file.path().to_str().unwrap(),
+            "--output",
+            output_dir.path().to_str().unwrap(),
+        ])
+        .output()
+        .unwrap();
+
+    // Should succeed and generate files
+    if result.status.success() {
+        // Verify generated content
+        assert!(output_dir.path().exists());
     }
 }

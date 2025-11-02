@@ -4,6 +4,8 @@
 //! Domain modules are testable, reusable, and independent of CLI presentation.
 
 pub mod ai;
+pub mod audit;
+pub mod graph;
 pub mod marketplace;
 pub mod project;
 pub mod template;

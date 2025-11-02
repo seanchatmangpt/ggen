@@ -35,12 +35,10 @@ use ggen_utils::error::{Error, Result};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HygenFrontmatter {
     pub to: String,
+    // ❌ REMOVED: vars - Variables now come from CLI/API only
+    // ❌ REMOVED: rdf - RDF files now loaded via CLI/API only
     #[serde(default)]
-    pub vars: BTreeMap<String, String>,
-    #[serde(default)]
-    pub rdf: Vec<String>, // file paths relative to template dir
-    #[serde(default)]
-    pub rdf_inline: Vec<String>, // inline Turtle strings
+    pub rdf_inline: Vec<String>, // inline Turtle strings (kept for convenience)
     #[serde(default)]
     pub prefixes: BTreeMap<String, String>, // e.g., { ex: "http://example/" }
     #[serde(default)]
@@ -144,16 +142,18 @@ pub fn poc_hygen(
         .render("__fm__", &tera_context(cli_vars))
         .map_err(|e| Error::new(&format!("tera header: {e}")))?;
 
-    // Deserialize → merge defaults + CLI
+    // Deserialize → use CLI vars only
     let fm: HygenFrontmatter = serde_yaml::from_str(&rendered_yaml)
         .map_err(|e| Error::new(&format!("frontmatter YAML: {e}")))?;
     if fm.to.trim().is_empty() {
         return Err(Error::new("frontmatter `to` required"));
     }
-    let vars = merged_ctx(&fm.vars, cli_vars);
+    // ❌ REMOVED: fm.vars - Variables now come from CLI only
+    let vars = cli_vars.clone();
 
-    // Load RDF graph: files + inline
-    let store = load_rdf(&fm.rdf, &fm.rdf_inline, tpl_root)?;
+    // ❌ REMOVED: Load RDF from fm.rdf - RDF files now loaded via CLI/API
+    // Load RDF graph: inline only
+    let store = load_rdf(&Vec::new(), &fm.rdf_inline, tpl_root)?;
 
     // Register SPARQL + local() functions
     let prolog = build_prolog(&fm.prefixes, fm.base.as_deref());
