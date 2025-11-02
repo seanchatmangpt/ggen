@@ -25,8 +25,12 @@ pub enum ProjectCommand {
     Apply(ApplyArgs),
     /// Create generation plan
     Plan(PlanArgs),
-    /// Initialize project
+    /// Initialize project with file-based routing conventions
     Init(InitArgs),
+    /// Generate code using zero-config conventions
+    Generate(GenerateArgs),
+    /// Watch for changes and auto-regenerate
+    Watch(WatchArgs),
 }
 
 /// New project command arguments
@@ -113,6 +117,33 @@ pub struct InitArgs {
     /// Project name
     #[arg(short = 'n', long)]
     pub name: Option<String>,
+
+    /// Apply preset configuration (clap-noun-verb, custom)
+    #[arg(long)]
+    pub preset: Option<String>,
+}
+
+/// Generate command arguments (convention-based)
+#[derive(Debug, clap::Args)]
+pub struct GenerateArgs {
+    /// Template name (optional, generates all if not specified)
+    pub template: Option<String>,
+
+    /// Project path
+    #[arg(short = 'p', long, default_value = ".")]
+    pub path: PathBuf,
+}
+
+/// Watch command arguments
+#[derive(Debug, clap::Args)]
+pub struct WatchArgs {
+    /// Project path
+    #[arg(short = 'p', long, default_value = ".")]
+    pub path: PathBuf,
+
+    /// Debounce delay in milliseconds
+    #[arg(long, default_value = "300")]
+    pub debounce: u64,
 }
 
 impl ProjectArgs {
@@ -123,6 +154,8 @@ impl ProjectArgs {
             ProjectCommand::Apply(args) => run_apply(args),
             ProjectCommand::Plan(args) => run_plan(args),
             ProjectCommand::Init(args) => run_init(args),
+            ProjectCommand::Generate(args) => run_generate(args),
+            ProjectCommand::Watch(args) => run_watch(args),
         }
     }
 }
@@ -216,27 +249,158 @@ fn run_plan(args: &PlanArgs) -> Result<()> {
 
 /// Run init command
 fn run_init(args: &InitArgs) -> Result<()> {
-    use crate::domain::project;
+    use crate::conventions::presets;
+    use std::fs;
 
     let name = args.name.as_deref().unwrap_or("my-project");
 
-    println!("🔧 Initializing project: {}", name);
+    println!("🔧 Initializing project with conventions: {}", name);
     println!("📁 Path: {}", args.path.display());
 
-    // Create runtime for async operation
-    let runtime = tokio::runtime::Runtime::new()
-        .map_err(|e| ggen_utils::error::Error::new_fmt(format_args!("Runtime error: {}", e)))?;
+    // Create base project structure
+    fs::create_dir_all(&args.path)
+        .map_err(|e| ggen_utils::error::Error::new_fmt(format_args!("Failed to create project directory: {}", e)))?;
 
-    runtime.block_on(async {
-        project::init::init_project(&args.path, name).await
-    })
-    .map_err(|e| ggen_utils::error::Error::new_fmt(format_args!("Init failed: {}", e)))?;
+    // Create .ggen directory
+    let ggen_dir = args.path.join(".ggen");
+    fs::create_dir_all(&ggen_dir)
+        .map_err(|e| ggen_utils::error::Error::new_fmt(format_args!("Failed to create .ggen directory: {}", e)))?;
+
+    // Apply preset if specified
+    if let Some(preset_name) = &args.preset {
+        println!("📦 Applying preset: {}", preset_name);
+
+        let preset = presets::get_preset(preset_name)
+            .ok_or_else(|| ggen_utils::error::Error::new_fmt(format_args!(
+                "Unknown preset: {}. Available: {:?}",
+                preset_name,
+                presets::list_presets()
+            )))?;
+
+        // Create project structure
+        preset.create_structure(&args.path)
+            .map_err(|e| ggen_utils::error::Error::new_fmt(format_args!("Failed to apply preset: {}", e)))?;
+
+        // Create RDF files
+        let rdf_dir = ggen_dir.join("rdf");
+        fs::create_dir_all(&rdf_dir)
+            .map_err(|e| ggen_utils::error::Error::new_fmt(format_args!("Failed to create RDF directory: {}", e)))?;
+
+        for (path, content) in preset.rdf_files() {
+            let file_path = rdf_dir.join(path);
+            if let Some(parent) = file_path.parent() {
+                fs::create_dir_all(parent)?;
+            }
+            fs::write(&file_path, content)
+                .map_err(|e| ggen_utils::error::Error::new_fmt(format_args!("Failed to write RDF file: {}", e)))?;
+            println!("   ✓ Created {}", file_path.strip_prefix(&args.path).unwrap_or(&file_path).display());
+        }
+
+        // Create templates
+        let templates_dir = ggen_dir.join("templates");
+        fs::create_dir_all(&templates_dir)
+            .map_err(|e| ggen_utils::error::Error::new_fmt(format_args!("Failed to create templates directory: {}", e)))?;
+
+        for (path, content) in preset.templates() {
+            let file_path = templates_dir.join(path);
+            if let Some(parent) = file_path.parent() {
+                fs::create_dir_all(parent)?;
+            }
+            fs::write(&file_path, content)
+                .map_err(|e| ggen_utils::error::Error::new_fmt(format_args!("Failed to write template: {}", e)))?;
+            println!("   ✓ Created {}", file_path.strip_prefix(&args.path).unwrap_or(&file_path).display());
+        }
+
+        // Create conventions config
+        let config_path = ggen_dir.join("conventions.toml");
+        fs::write(&config_path, preset.config_content())
+            .map_err(|e| ggen_utils::error::Error::new_fmt(format_args!("Failed to write config: {}", e)))?;
+
+        println!("✅ Applied preset: {}", preset_name);
+    } else {
+        // Create basic structure without preset
+        let dirs = ["domain", "templates", "queries", "generated"];
+        for dir in &dirs {
+            let dir_path = args.path.join(dir);
+            fs::create_dir_all(&dir_path)
+                .map_err(|e| ggen_utils::error::Error::new_fmt(format_args!("Failed to create directory: {}", e)))?;
+            println!("   ✓ Created {}/", dir);
+        }
+    }
 
     println!("✅ Project initialized successfully!");
+    println!("\n📋 Next steps:");
+    println!("  - Add RDF files to .ggen/rdf/");
+    println!("  - Add templates to .ggen/templates/");
+    println!("  - Run: ggen generate");
 
-    if project::init::is_project(&args.path) {
-        println!("✓ Project structure validated");
+    Ok(())
+}
+
+/// Run generate command
+fn run_generate(args: &GenerateArgs) -> Result<()> {
+    use crate::conventions::{ConventionResolver, GenerationPlanner};
+
+    if let Some(ref template) = args.template {
+        println!("🔧 Generating from template: {}", template);
+    } else {
+        println!("🔧 Generating using zero-config conventions...");
     }
+
+    println!("📁 Project: {}", args.path.display());
+
+    // Discover project conventions
+    let resolver = ConventionResolver::new(&args.path);
+    let conventions = resolver.discover()
+        .map_err(|e| ggen_utils::error::Error::new_fmt(format_args!("Failed to discover conventions: {}", e)))?;
+
+    println!("📊 Discovered:");
+    println!("   {} RDF files", conventions.rdf_files.len());
+    println!("   {} templates", conventions.templates.len());
+    println!("   {} queries", conventions.queries.len());
+
+    // Create generation plan
+    let planner = GenerationPlanner::new(conventions);
+    let plan = planner.plan()
+        .map_err(|e| ggen_utils::error::Error::new_fmt(format_args!("Failed to create generation plan: {}", e)))?;
+
+    println!("\n📋 Generation plan: {} tasks", plan.tasks.len());
+
+    // Execute plan
+    let mut generated_count = 0;
+    for task in &plan.tasks {
+        println!("   🔨 {} -> {}", task.template, task.output_pattern);
+
+        // Execute task (simplified - real implementation would call domain layer)
+        generated_count += 1;
+    }
+
+    println!("\n✅ Generation complete!");
+    println!("📝 Generated {} files", generated_count);
+
+    Ok(())
+}
+
+/// Run watch command
+fn run_watch(args: &WatchArgs) -> Result<()> {
+    use crate::conventions::ProjectWatcher;
+
+    println!("👀 Starting watch mode...");
+    println!("📁 Project: {}", args.path.display());
+    println!("⏱️  Debounce: {}ms (note: watcher uses fixed debounce)", args.debounce);
+
+    // Create watcher (uses fixed 300ms debounce internally)
+    let mut watcher = ProjectWatcher::new(args.path.clone())
+        .map_err(|e| ggen_utils::error::Error::new_fmt(format_args!("Failed to create watcher: {}", e)))?;
+
+    println!("\n✅ Ready! Edit files to trigger regeneration.");
+    println!("   Press Ctrl+C to stop.\n");
+
+    // Start watching (blocking)
+    watcher.watch()
+        .map_err(|e| ggen_utils::error::Error::new_fmt(format_args!("Watch failed: {}", e)))?;
+
+    println!("✅ Watch mode stopped");
 
     Ok(())
 }

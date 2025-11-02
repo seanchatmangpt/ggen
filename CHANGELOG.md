@@ -5,6 +5,30 @@ All notable changes to ggen will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2025-11-02
+
+### Added
+- **File-Based Conventions System**: Zero-config project setup with automatic structure detection
+  - Convention resolver discovers RDF files, templates, and queries from standard directories
+  - Generation planner analyzes template metadata and creates execution plans
+  - Project watcher with file system monitoring and debounced regeneration
+  - Convention presets: `clap-noun-verb` and `custom`
+- **Project Init Command**: `ggen project init --preset <preset>` for instant project scaffolding
+- **Watch Mode Foundation**: Infrastructure for `ggen project watch` with automatic regeneration
+- **Template Metadata Parsing**: Support for `{# output: ... #}`, `{# when: ... #}`, `{# query: ... #}` directives
+- **Dependency Graph Analysis**: Topological sorting and circular dependency detection
+
+### Fixed
+- ProjectConventions struct now includes directory paths (rdf_dir, templates_dir) for file watching
+- Resolved compilation errors in conventions module
+- Fixed test imports after v2.0 refactoring (commands → cmds)
+- Corrected ConventionResolver API to use public discovery methods
+
+### Changed
+- Conventions module structure improved for clarity and extensibility
+- Watch mode uses debounced file system events (300ms default)
+- Generation planning supports template-level triggers and dependencies
+
 ## [2.0.0] - 2025-11-02
 
 ### Major Architectural Changes

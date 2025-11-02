@@ -96,7 +96,9 @@ pub fn execute_sparql(options: QueryOptions) -> Result<QueryResult> {
                 let mut binding = HashMap::new();
 
                 for variable in &variables {
-                    if let Some(value) = solution.get(variable.as_str()) {
+                    // Oxigraph solution.get() expects variable name without ? prefix
+                    let var_name = variable.strip_prefix('?').unwrap_or(variable);
+                    if let Some(value) = solution.get(var_name) {
                         binding.insert(variable.clone(), value.to_string());
                     }
                 }
@@ -154,8 +156,10 @@ mod tests {
         graph.insert_turtle(turtle)?;
 
         // Create temp file with RDF data
-        let mut temp_file = NamedTempFile::new()?;
-        temp_file.write_all(turtle.as_bytes())?;
+        let temp_file = tempfile::Builder::new()
+            .suffix(".ttl")
+            .tempfile()?;
+        std::fs::write(temp_file.path(), turtle.as_bytes())?;
         let temp_path = temp_file.path().to_string_lossy().to_string();
 
         // Execute REAL SPARQL query
@@ -176,14 +180,14 @@ mod tests {
 
         let result = execute_sparql(options)?;
 
-        // Verify REAL query results
-        assert_eq!(result.variables, vec!["name", "age"]);
+        // Verify REAL query results (SPARQL variables include ? prefix)
+        assert_eq!(result.variables, vec!["?name", "?age"]);
         assert_eq!(result.result_count, 2);
         assert_eq!(result.bindings.len(), 2);
 
-        // Verify actual data
-        assert!(result.bindings[0].get("name").unwrap().contains("Alice"));
-        assert!(result.bindings[1].get("name").unwrap().contains("Bob"));
+        // Verify actual data (bindings also use ? prefix)
+        assert!(result.bindings[0].get("?name").unwrap().contains("Alice"));
+        assert!(result.bindings[1].get("?name").unwrap().contains("Bob"));
 
         Ok(())
     }
@@ -200,8 +204,10 @@ mod tests {
 
         graph.insert_turtle(turtle)?;
 
-        let mut temp_file = NamedTempFile::new()?;
-        temp_file.write_all(turtle.as_bytes())?;
+        let temp_file = tempfile::Builder::new()
+            .suffix(".ttl")
+            .tempfile()?;
+        std::fs::write(temp_file.path(), turtle.as_bytes())?;
         let temp_path = temp_file.path().to_string_lossy().to_string();
 
         // Execute REAL ASK query
@@ -253,8 +259,10 @@ mod tests {
 
         graph.insert_turtle(turtle)?;
 
-        let mut temp_file = NamedTempFile::new()?;
-        temp_file.write_all(turtle.as_bytes())?;
+        let temp_file = tempfile::Builder::new()
+            .suffix(".ttl")
+            .tempfile()?;
+        std::fs::write(temp_file.path(), turtle.as_bytes())?;
         let temp_path = temp_file.path().to_string_lossy().to_string();
 
         // Execute REAL SPARQL query with FILTER

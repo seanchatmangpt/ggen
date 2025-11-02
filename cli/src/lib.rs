@@ -2,6 +2,7 @@ use std::io::{Read, Write};
 
 // Command modules - clap-noun-verb auto-discovery
 pub mod cmds;            // clap-noun-verb entry points
+pub mod conventions;     // File-based routing conventions
 pub mod domain;          // Business logic layer
 pub mod runtime;         // Async/sync bridge utilities
 pub mod runtime_helper;  // Sync CLI wrapper utilities for async operations

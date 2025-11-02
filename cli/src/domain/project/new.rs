@@ -74,7 +74,7 @@ mod tests {
 
     #[test]
     fn test_next_steps_rust() {
-        let args = crate::commands::project::new::NewArgs {
+        let args = crate::cmds::project::NewArgs {
             name: "test-project".to_string(),
             project_type: "rust-cli".to_string(),
             framework: None,

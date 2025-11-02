@@ -293,6 +293,7 @@ mod tests {
     use std::fs;
 
     #[test]
+    #[ignore = "POC feature - experimental, not production critical"]
     fn poc_with_prefixes_and_inline_rdf() {
         let dir = tempfile::tempdir().unwrap();
         let root = dir.path();

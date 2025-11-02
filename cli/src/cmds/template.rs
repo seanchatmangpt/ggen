@@ -428,25 +428,23 @@ use std::collections::BTreeMap;
 fn run_generate_rdf(args: &GenerateRdfArgs) -> Result<()> {
     use crate::domain::template::generate_rdf;
 
-    crate::runtime::execute(async move {
-        let options = generate_rdf::GenerateFromRdfOptions::new(
-            args.ttl_file.clone(),
-            args.output.clone(),
-            args.templates.clone(),
-        );
+    let options = generate_rdf::GenerateFromRdfOptions::new(
+        args.ttl_file.clone(),
+        args.output.clone(),
+        args.templates.clone(),
+    );
 
-        let result = generate_rdf::generate_cli_from_rdf(&options)?;
+    let result = generate_rdf::generate_cli_from_rdf(&options)?;
 
-        println!("✅ Generated CLI project from RDF");
-        println!("   📁 Output directory: {}", result.output_dir.display());
-        println!("   📄 Files generated: {}", result.files_generated);
-        println!("   📦 Project name: {}", result.project_name);
-        println!();
-        println!("Next steps:");
-        println!("   cd {}", result.output_dir.display());
-        println!("   cargo build");
-        println!("   cargo run -- --help");
+    println!("✅ Generated CLI project from RDF");
+    println!("   📁 Output directory: {}", result.output_dir.display());
+    println!("   📄 Files generated: {}", result.files_generated);
+    println!("   📦 Project name: {}", result.project_name);
+    println!();
+    println!("Next steps:");
+    println!("   cd {}", result.output_dir.display());
+    println!("   cargo build");
+    println!("   cargo run -- --help");
 
-        Ok(())
-    })
+    Ok(())
 }
