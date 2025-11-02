@@ -35,7 +35,7 @@ fn validate_path(path: &Path) -> Result<()> {
 }
 
 /// Apply generation plan (Chicago TDD: REAL implementation)
-pub fn apply_plan(args: &crate::commands::project::apply::ApplyArgs) -> Result<ApplicationResult> {
+pub fn apply_plan(args: &crate::cmds::project::ApplyArgs) -> Result<ApplicationResult> {
     // Validate plan file exists and path is safe
     let plan_path = Path::new(&args.plan_file);
     validate_path(plan_path)?;

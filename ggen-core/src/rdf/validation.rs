@@ -93,11 +93,13 @@ impl ValidationReport {
 
 /// SHACL-based validator for template metadata
 pub struct Validator {
+    #[allow(dead_code)]
     shapes: HashMap<String, Shape>,
 }
 
 /// SHACL shape definition
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 struct Shape {
     target_class: String,
     properties: Vec<PropertyConstraint>,
@@ -105,6 +107,7 @@ struct Shape {
 
 /// Property constraint in SHACL shape
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 struct PropertyConstraint {
     path: String,
     min_count: Option<usize>,
@@ -115,8 +118,9 @@ struct PropertyConstraint {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+#[allow(dead_code)]
 enum NodeKind {
-    IRI,
+    Iri,
     Literal,
     BlankNode,
 }

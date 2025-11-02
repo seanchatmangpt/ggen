@@ -53,7 +53,7 @@ fn parse_variables(vars: &[String]) -> Result<HashMap<String, String>> {
 }
 
 /// Create generation plan (Chicago TDD: REAL implementation)
-pub fn create_plan(args: &crate::commands::project::plan::PlanArgs) -> Result<PlanResult> {
+pub fn create_plan(args: &crate::cmds::project::PlanArgs) -> Result<PlanResult> {
     // Validate template reference
     if args.template_ref.is_empty() {
         return Err(ggen_utils::error::Error::new(

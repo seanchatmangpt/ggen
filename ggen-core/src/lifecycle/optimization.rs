@@ -8,7 +8,6 @@
 
 use super::{Context, Result};
 use std::collections::HashMap;
-use std::sync::Arc;
 use std::time::{Duration, Instant};
 use tokio::task::JoinSet;
 
@@ -224,6 +223,7 @@ impl PipelineProfiler {
 
 /// Parallel stage orchestrator for independent tasks
 pub struct ParallelOrchestrator {
+    #[allow(dead_code)]
     max_parallelism: usize,
 }
 
@@ -235,10 +235,7 @@ impl ParallelOrchestrator {
     /// Run multiple independent stages in parallel
     pub async fn run_parallel<R>(
         &self,
-        stages: Vec<(
-            &str,
-            Box<dyn std::future::Future<Output = Result<R>> + Send + Unpin>,
-        )>,
+        stages: Vec<(&str, Box<dyn std::future::Future<Output = Result<R>> + Send + Unpin>)>,
     ) -> Result<Vec<R>>
     where
         R: Send + 'static,
@@ -403,7 +400,7 @@ impl DependencyCache {
 
         let fetch_result = tokio::process::Command::new("cargo")
             .arg("fetch")
-            .current_dir(&self.cache_dir.parent().unwrap_or(&self.cache_dir))
+            .current_dir(self.cache_dir.parent().unwrap_or(&self.cache_dir))
             .output()
             .await
             .map_err(|e| super::LifecycleError::Other(format!("cargo fetch failed: {}", e)))?;

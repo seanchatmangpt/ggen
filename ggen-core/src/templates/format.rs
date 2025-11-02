@@ -128,6 +128,7 @@ impl TemplateFormat {
     }
 
     fn validate_nodes(&self, nodes: &[FileTreeNode]) -> Result<()> {
+        #![allow(clippy::only_used_in_recursion)]
         for node in nodes {
             if node.name.is_empty() {
                 anyhow::bail!("Node name cannot be empty");

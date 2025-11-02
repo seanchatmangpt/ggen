@@ -13,7 +13,7 @@ pub struct CreationResult {
 }
 
 /// Create a new project (Chicago TDD: REAL implementation)
-pub fn create_project(args: &crate::commands::project::new::NewArgs) -> Result<CreationResult> {
+pub fn create_project(args: &crate::cmds::project::NewArgs) -> Result<CreationResult> {
     // Validate project name
     ggen_core::project_generator::common::validate_project_name(&args.name)?;
 

@@ -9,7 +9,6 @@ use tera::Context;
 use walkdir::WalkDir;
 
 use crate::pipeline::Pipeline;
-use crate::template::Template;
 use crate::template_cache::TemplateCache;
 
 /// Streaming generator that processes templates one at a time
