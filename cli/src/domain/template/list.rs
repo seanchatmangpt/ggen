@@ -1,9 +1,10 @@
 //! Template listing domain logic
 
+use clap::Args;
 use ggen_utils::error::Result;
 use glob::glob;
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 #[derive(Debug, Clone)]
 pub struct ListFilters {
@@ -163,5 +164,66 @@ Content"#,
         let templates = list_templates(&templates_dir, &filters).unwrap();
         assert_eq!(templates.len(), 1);
         assert_eq!(templates[0].name, "rust.tmpl");
+    }
+}
+
+/// CLI Arguments for list command
+#[derive(Debug, Clone, Args)]
+pub struct ListArgs {
+    /// Template directory to list from
+    #[arg(short = 'd', long, default_value = "templates")]
+    pub directory: PathBuf,
+
+    /// Filter pattern (glob)
+    #[arg(short = 'p', long)]
+    pub pattern: Option<String>,
+
+    /// Only show local templates
+    #[arg(long)]
+    pub local_only: bool,
+
+    /// Only show gpack templates
+    #[arg(long)]
+    pub gpack_only: bool,
+}
+
+/// CLI run function - bridges sync CLI to async domain logic
+pub fn run(args: &ListArgs) -> ggen_utils::error::Result<()> {
+    crate::runtime::execute(async move {
+        let filters = ListFilters {
+            pattern: args.pattern.clone(),
+            local_only: args.local_only,
+            gpack_only: args.gpack_only,
+        };
+
+        let templates = list_templates(&args.directory, &filters)?;
+
+        if templates.is_empty() {
+            println!("No templates found in {}", args.directory.display());
+            return Ok(());
+        }
+
+        println!("📋 Available templates ({} found):", templates.len());
+        println!();
+
+        for template in templates {
+            println!("  {} - {}", template.name, template.source_display());
+            if let Some(desc) = &template.description {
+                println!("    {}", desc);
+            }
+            println!("    Path: {}", template.path);
+            println!();
+        }
+
+        Ok(())
+    })
+}
+
+impl TemplateInfo {
+    fn source_display(&self) -> &str {
+        match &self.source {
+            TemplateSource::Local => "local",
+            TemplateSource::Gpack(name) => name,
+        }
     }
 }

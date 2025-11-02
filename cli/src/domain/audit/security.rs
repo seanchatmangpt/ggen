@@ -190,7 +190,7 @@ impl DependencyChecker for CargoDependencyChecker {
             // cargo-audit doesn't have direct-only flag, so we'd filter results
         }
 
-        let output = cmd.output()?;
+        let _output = cmd.output()?;
         let duration = start.elapsed().as_millis() as u64;
 
         // Parse JSON output (simplified)

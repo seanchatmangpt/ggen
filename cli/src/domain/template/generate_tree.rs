@@ -1,9 +1,10 @@
 //! File tree generation domain logic
 
+use clap::Args;
 use ggen_core::{FileTreeTemplate, TemplateContext, TemplateParser, GenerationResult};
 use ggen_utils::error::Result;
 use std::collections::HashMap;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 /// Generate file tree from template
 pub fn generate_file_tree(
@@ -129,4 +130,44 @@ nodes:
         assert_eq!(btree_map.get("name").unwrap(), "test");
         assert_eq!(btree_map.get("author").unwrap(), "Alice");
     }
+}
+
+/// CLI Arguments for generate-tree command
+#[derive(Debug, Clone, Args)]
+pub struct GenerateTreeArgs {
+    /// Template file path
+    #[arg(short = 't', long)]
+    pub template: PathBuf,
+
+    /// Output directory
+    #[arg(short = 'o', long)]
+    pub output: PathBuf,
+
+    /// Variables (key=value format)
+    #[arg(short = 'v', long)]
+    pub var: Vec<String>,
+
+    /// Force overwrite existing files
+    #[arg(short = 'f', long)]
+    pub force: bool,
+}
+
+/// CLI run function - bridges sync CLI to async domain logic
+pub fn run(args: &GenerateTreeArgs) -> ggen_utils::error::Result<()> {
+    crate::runtime::execute(async move {
+        // Parse variables
+        let variables: HashMap<String, String> = args
+            .var
+            .iter()
+            .filter_map(|v| v.split_once('='))
+            .map(|(k, v)| (k.to_string(), v.to_string()))
+            .collect();
+
+        let _result = generate_file_tree(&args.template, &args.output, &variables, args.force)?;
+
+        println!("✅ Generated file tree");
+        println!("📁 Output directory: {}", args.output.display());
+
+        Ok(())
+    })
 }

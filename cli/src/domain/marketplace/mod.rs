@@ -9,11 +9,11 @@ pub mod search;
 pub mod update;
 
 // Re-export commonly used types and functions
-pub use search::{SearchFilters, SearchResult, search_packages, search_and_display};
-pub use install::{InstallOptions, InstallResult, install_package, install_and_report};
-pub use list::list_and_display;
-pub use update::update_and_report;
-pub use publish::publish_and_report;
+pub use search::{SearchArgs, SearchFilters, SearchResult, search_packages, search_and_display};
+pub use install::{InstallArgs, InstallOptions, InstallResult, install_package, install_and_report};
+pub use list::{ListArgs, list_and_display};
+pub use update::{UpdateArgs, update_and_report};
+pub use publish::{PublishArgs, publish_and_report};
 
 // Placeholder types for phase 1 (to be implemented in phase 2)
 use serde::{Deserialize, Serialize};

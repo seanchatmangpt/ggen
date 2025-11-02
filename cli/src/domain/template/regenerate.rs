@@ -1,9 +1,10 @@
 //! Template regeneration domain logic
 
+use clap::Args;
 use ggen_core::{MergeStrategy, RegionAwareMerger};
 use ggen_utils::error::Result;
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 /// Parse merge strategy from string
 pub fn parse_merge_strategy(strategy: &str) -> Result<MergeStrategy> {
@@ -133,4 +134,43 @@ mod tests {
         assert_eq!(hash1, hash3);
         assert!(hash1.starts_with("sha256:"));
     }
+}
+
+/// CLI Arguments for regenerate command
+#[derive(Debug, Clone, Args)]
+pub struct RegenerateArgs {
+    /// Template file path
+    #[arg(short = 't', long)]
+    pub template: PathBuf,
+
+    /// Output file path
+    #[arg(short = 'o', long)]
+    pub output: PathBuf,
+
+    /// Merge strategy (generated-wins, manual-wins, interactive, fail-on-conflict)
+    #[arg(short = 's', long, default_value = "manual-wins")]
+    pub strategy: String,
+
+    /// Variables (key=value format)
+    #[arg(short = 'v', long)]
+    pub var: Vec<String>,
+}
+
+/// CLI run function - bridges sync CLI to async domain logic
+pub fn run(args: &RegenerateArgs) -> ggen_utils::error::Result<()> {
+    crate::runtime::execute(async move {
+        // Parse merge strategy
+        let strategy = parse_merge_strategy(&args.strategy)?;
+
+        // TODO: Generate content from template with variables
+        let generated_content = "// Generated content placeholder\n";
+
+        // Regenerate with merge
+        regenerate_with_merge(&args.template, &args.output, generated_content, &strategy)?;
+
+        println!("✅ Regenerated template with {} strategy", args.strategy);
+        println!("📄 Output: {}", args.output.display());
+
+        Ok(())
+    })
 }

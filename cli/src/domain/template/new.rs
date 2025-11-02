@@ -1,6 +1,8 @@
 //! Template creation domain logic
 
+use clap::Args;
 use ggen_utils::error::Result;
+use std::path::PathBuf;
 
 /// Generate template content based on template type
 pub fn generate_template_content(name: &str, template_type: &str) -> Result<String> {
@@ -68,4 +70,43 @@ mod tests {
         assert!(content.contains("to: output/{{ name }}.txt"));
         assert!(content.contains("generic template"));
     }
+}
+
+/// CLI Arguments for new command
+#[derive(Debug, Clone, Args)]
+pub struct NewArgs {
+    /// Template name
+    pub name: String,
+
+    /// Template type (rust, python, typescript, generic)
+    #[arg(short = 't', long, default_value = "generic")]
+    pub template_type: String,
+
+    /// Output directory
+    #[arg(short = 'o', long, default_value = "templates")]
+    pub output_dir: PathBuf,
+}
+
+/// CLI run function - bridges sync CLI to async domain logic
+pub fn run(args: &NewArgs) -> ggen_utils::error::Result<()> {
+    crate::runtime::execute(async move {
+        let content = generate_template_content(&args.name, &args.template_type)?;
+
+        let filename = format!("{}.tmpl", args.name);
+        let output_path = args.output_dir.join(&filename);
+
+        // Create output directory if it doesn't exist
+        std::fs::create_dir_all(&args.output_dir).map_err(|e| {
+            ggen_utils::error::Error::new(&format!("Failed to create output directory: {}", e))
+        })?;
+
+        std::fs::write(&output_path, content).map_err(|e| {
+            ggen_utils::error::Error::new(&format!("Failed to write template: {}", e))
+        })?;
+
+        println!("✅ Created new {} template: {}", args.template_type, output_path.display());
+        println!("📝 Template name: {}", args.name);
+
+        Ok(())
+    })
 }

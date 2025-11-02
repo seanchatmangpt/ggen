@@ -2,8 +2,21 @@
 //!
 //! Real implementation of installed packages listing functionality.
 
+use clap::Args;
 use ggen_utils::error::Result;
 use serde_json;
+
+/// List command arguments
+#[derive(Debug, Args)]
+pub struct ListArgs {
+    /// Show detailed information
+    #[arg(short = 'd', long)]
+    pub detailed: bool,
+
+    /// Output as JSON
+    #[arg(short = 'j', long)]
+    pub json: bool,
+}
 
 /// List installed packages and display information
 ///
@@ -92,6 +105,11 @@ pub async fn list_and_display(detailed: bool, json: bool) -> Result<()> {
     }
 
     Ok(())
+}
+
+/// Run list command (sync wrapper for CLI)
+pub fn run(args: &ListArgs) -> Result<()> {
+    crate::runtime::block_on(async { list_and_display(args.detailed, args.json).await })
 }
 
 /// Lockfile structure

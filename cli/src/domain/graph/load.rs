@@ -3,8 +3,9 @@
 //! Chicago TDD: Uses REAL RDF file loading and graph state verification
 
 use anyhow::{Context, Result};
+use clap::Args;
 use ggen_core::Graph;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 /// Supported RDF formats
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -66,6 +67,26 @@ pub struct LoadStats {
     pub format: RdfFormat,
     /// File path that was loaded
     pub file_path: String,
+}
+
+/// CLI Arguments for load command
+#[derive(Debug, Clone, Args)]
+pub struct LoadArgs {
+    /// RDF file to load
+    #[arg(short = 'f', long)]
+    pub file: PathBuf,
+
+    /// RDF format (auto-detected if not specified)
+    #[arg(short = 'F', long)]
+    pub format: Option<String>,
+
+    /// Base IRI for relative URIs
+    #[arg(short = 'b', long)]
+    pub base_iri: Option<String>,
+
+    /// Merge with existing graph
+    #[arg(short = 'm', long)]
+    pub merge: bool,
 }
 
 /// Load RDF data from file into graph
@@ -237,4 +258,36 @@ mod tests {
 
         Ok(())
     }
+}
+
+/// CLI run function - bridges sync CLI to async domain logic
+pub fn run(args: &LoadArgs) -> ggen_utils::error::Result<()> {
+    crate::runtime::execute(async move {
+        // Convert format string to RdfFormat enum
+        let format = args.format.as_ref().map(|f| match f.as_str() {
+            "turtle" | "ttl" => RdfFormat::Turtle,
+            "ntriples" | "nt" => RdfFormat::NTriples,
+            "rdfxml" | "rdf" => RdfFormat::RdfXml,
+            "jsonld" | "json" => RdfFormat::JsonLd,
+            "n3" => RdfFormat::N3,
+            _ => RdfFormat::Turtle,
+        });
+
+        let options = LoadOptions {
+            file_path: args.file.to_string_lossy().to_string(),
+            format,
+            base_iri: args.base_iri.clone(),
+            merge: args.merge,
+        };
+
+        let stats = load_rdf(options).map_err(|e| {
+            ggen_utils::error::Error::new(&format!("Failed to load RDF: {}", e))
+        })?;
+
+        println!("✅ Loaded {} triples from {}", stats.triples_loaded, stats.file_path);
+        println!("📊 Total triples in graph: {}", stats.total_triples);
+        println!("📄 Format: {}", stats.format.as_str());
+
+        Ok(())
+    })
 }

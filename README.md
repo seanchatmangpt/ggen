@@ -51,26 +51,36 @@
 
 ## 🚀 What's New in v2.0.0
 
-**⚠️ Deprecation Notice**: The old `cli/src/commands/` module structure is deprecated and will be removed in v2.1.0 (February 2026). Use the new three-layer architecture (`cmds/`, `domain/`, runtime). See [Deprecation Plan](.claude/refactor-v2/deprecation-plan.md).
+**⚠️ Breaking Changes**: v2.0.0 introduces a complete architectural rewrite with breaking changes from v1.x. See [Migration Guide](docs/MIGRATION_V1_TO_V2.md) for upgrade instructions.
 
 **Major Architectural Improvements:**
-- 🏗️ **Three-Layer Architecture** - Clean separation: CLI, Domain, Runtime layers
+- 🏗️ **Three-Layer Architecture** - Clean separation: CLI (`cmds/`), Domain (`domain/`), Runtime layers
 - ⚡ **50% Faster Compilation** - Global runtime pattern reduces build time from 60-90s to 30-45s
-- 🧪 **Enhanced Testing** - 80/20 strategy focusing on critical functionality
-- 📦 **Marketplace → marketplace** - Clearer command naming (`ggen marketplace`)
+- 🧪 **Enhanced Testing** - 80/20 strategy focusing on critical 20% of functionality
+- 📦 **Full Command Coverage** - All 8 noun commands with 29 verb subcommands
 - 🚀 **Performance Boost** - 33% faster generation, 28% smaller binaries
 - 🔧 **Improved Maintainability** - Single responsibility per layer, easier to extend
+- 🎯 **clap-noun-verb v3** - Convention-based CLI routing for cleaner code
 
-**v1.2.0 Features (Still Included):**
+**Complete Command Set (v2.0.0):**
+- ✅ **Template** (7 commands) - Generate, generate-tree, lint, list, new, regenerate, show
+- ✅ **AI** (3 commands) - Generate, chat, analyze
+- ✅ **Graph** (4 commands) - Load, query, export, visualize
+- ✅ **Marketplace** (5 commands) - Search, install, list, publish, update
+- ✅ **Project** (4 commands) - New, plan, gen, apply
+- ✅ **Hook** (4 commands) - Create, list, remove, monitor
+- ✅ **Utils** (2 commands) - Doctor, env
+- ✅ **CI** (1 command) - Workflow
+
+**v1.2.0 Features (Retained):**
 - 🆕 **Bootstrap Command** - Create projects from scratch with `ggen project new`
 - 🆕 **File Tree Generation** - Generate entire project structures with `ggen template generate-tree`
 - 🔧 **Enhanced RDF Integration** - Validation, schema support, streaming generation
 - 🔗 **Node.js Bindings** - NIF bindings (napi-rs v3) for JavaScript integration
 - 📦 **Marketplace Registry** - 17 tests, 100% pass rate
 - 🧪 **Stress Tests & Benchmarks** - Comprehensive testing infrastructure
-- 📚 **London TDD Strategy** - Specification-driven development approach
 
-**📚 Migration**: See [v1 to v2 Migration Guide](docs/MIGRATION_V1_TO_V2.md)
+**📚 Migration**: See [v1 to v2 Migration Guide](docs/MIGRATION_V1_TO_V2.md) | [Completion Report](docs/v2-migration/COMPLETION_REPORT.md)
 
 ## Why ggen?
 
@@ -165,22 +175,49 @@ ggen ci deploy
 cargo make build-release
 ```
 
-**Key Commands:**
+**Key Commands (v2.0.0):**
 
-| Command                              | Purpose                    | Example                                         |
-| ------------------------------------ | -------------------------- | ----------------------------------------------- |
-| `ggen project new <name>`            | Create new project         | `ggen project new my-app --type rust-web`       |
-| `ggen template generate-tree <spec>` | Generate file tree         | `ggen template generate-tree spec.yaml`         |
-| `ggen marketplace search <query>`    | Find packages              | `ggen marketplace search "rust web"`            |
-| `ggen marketplace install <package>` | Install package            | `ggen marketplace install io.ggen.rust.cli`     |
-| `ggen project gen <template>`        | Generate code              | `ggen project gen service.tmpl --vars name=api` |
-| `ggen ai project scaffold <desc>`    | AI scaffolding             | `ggen ai project scaffold "REST API" --rust`    |
-| `ggen lifecycle <phase>`             | Lifecycle management       | `ggen lifecycle deploy`                         |
-| `ggen audit <type>`                  | Security/performance audit | `ggen audit security`                           |
-| `ggen doctor`                        | Health check               | `ggen doctor`                                   |
-| `ggen help-me`                       | Personalized guidance      | `ggen help-me`                                  |
+| Command | Purpose | Example |
+|---------|---------|---------|
+| **Template Commands** |
+| `ggen template generate` | Generate from template | `ggen template generate -t service.tmpl -r data.ttl` |
+| `ggen template generate-tree` | Generate file tree | `ggen template generate-tree -t spec.yaml -o ./output` |
+| `ggen template lint` | Validate template | `ggen template lint service.tmpl` |
+| `ggen template list` | List templates | `ggen template list -d ./templates` |
+| `ggen template new` | Create new template | `ggen template new my-template` |
+| `ggen template show` | Show template details | `ggen template show service.tmpl` |
+| **AI Commands** |
+| `ggen ai generate` | AI code generation | `ggen ai generate "REST API with auth"` |
+| `ggen ai chat` | Interactive AI chat | `ggen ai chat --interactive` |
+| `ggen ai analyze` | Analyze code with AI | `ggen ai analyze --file src/main.rs` |
+| **Graph Commands** |
+| `ggen graph load` | Load RDF graph | `ggen graph load project.ttl` |
+| `ggen graph query` | Query with SPARQL | `ggen graph query "SELECT * WHERE {?s ?p ?o}"` |
+| `ggen graph export` | Export graph | `ggen graph export --format turtle` |
+| `ggen graph visualize` | Visualize graph | `ggen graph visualize project.ttl` |
+| **Marketplace Commands** |
+| `ggen marketplace search` | Find packages | `ggen marketplace search "rust web"` |
+| `ggen marketplace install` | Install package | `ggen marketplace install io.ggen.rust.cli` |
+| `ggen marketplace list` | List installed | `ggen marketplace list` |
+| `ggen marketplace publish` | Publish package | `ggen marketplace publish` |
+| `ggen marketplace update` | Update packages | `ggen marketplace update` |
+| **Project Commands** |
+| `ggen project new` | Create new project | `ggen project new my-app --type rust-web` |
+| `ggen project plan` | Generate project plan | `ggen project plan` |
+| `ggen project gen` | Generate from plan | `ggen project gen` |
+| `ggen project apply` | Apply changes | `ggen project apply` |
+| **Hook Commands** |
+| `ggen hook create` | Create hook | `ggen hook create --trigger "file_change"` |
+| `ggen hook list` | List hooks | `ggen hook list` |
+| `ggen hook remove` | Remove hook | `ggen hook remove my-hook` |
+| `ggen hook monitor` | Monitor hooks | `ggen hook monitor` |
+| **Utility Commands** |
+| `ggen utils doctor` | Health check | `ggen utils doctor` |
+| `ggen utils env` | Manage environment | `ggen utils env --check` |
+| **CI Commands** |
+| `ggen ci workflow` | Generate CI workflow | `ggen ci workflow --provider github` |
 
-**📚 See:** [Complete Workflow Guide](https://seanchatmangpt.github.io/ggen/workflow) | [CLI Reference](https://seanchatmangpt.github.io/ggen/cli)
+**📚 See:** [Complete Workflow Guide](https://seanchatmangpt.github.io/ggen/workflow) | [CLI Reference](https://seanchatmangpt.github.io/ggen/cli) | [Migration Guide](docs/MIGRATION_V1_TO_V2.md)
 
 ---
 

@@ -2,7 +2,23 @@
 //!
 //! Real implementation of package update functionality.
 
+use clap::Args;
 use ggen_utils::error::Result;
+
+/// Update command arguments
+#[derive(Debug, Args)]
+pub struct UpdateArgs {
+    /// Package name to update
+    pub package: Option<String>,
+
+    /// Update all installed packages
+    #[arg(short = 'a', long)]
+    pub all: bool,
+
+    /// Dry run (simulate update)
+    #[arg(long)]
+    pub dry_run: bool,
+}
 
 /// Update packages and report progress
 ///
@@ -123,6 +139,13 @@ pub async fn update_and_report(package: Option<&str>, all: bool, dry_run: bool) 
     println!("Summary: {} updated, {} skipped", updated_count, skipped_count);
 
     Ok(())
+}
+
+/// Run update command (sync wrapper for CLI)
+pub fn run(args: &UpdateArgs) -> Result<()> {
+    crate::runtime::block_on(async {
+        update_and_report(args.package.as_deref(), args.all, args.dry_run).await
+    })
 }
 
 /// Check for package updates
