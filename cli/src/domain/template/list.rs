@@ -80,13 +80,16 @@ fn extract_template_description(path: &Path) -> Result<Option<String>> {
     // Look for YAML frontmatter
     if content.starts_with("---\n") {
         if let Some(end_pos) = content.find("\n---\n") {
-            let frontmatter = &content[4..end_pos];
+            // Handle empty frontmatter (---\n---\n case)
+            if end_pos >= 4 {
+                let frontmatter = &content[4..end_pos];
 
-            // Simple extraction of description field
-            for line in frontmatter.lines() {
-                if line.trim().starts_with("description:") {
-                    if let Some(desc) = line.split_once(':').map(|x| x.1) {
-                        return Ok(Some(desc.trim().trim_matches('"').to_string()));
+                // Simple extraction of description field
+                for line in frontmatter.lines() {
+                    if line.trim().starts_with("description:") {
+                        if let Some(desc) = line.split_once(':').map(|x| x.1) {
+                            return Ok(Some(desc.trim().trim_matches('"').to_string()));
+                        }
                     }
                 }
             }

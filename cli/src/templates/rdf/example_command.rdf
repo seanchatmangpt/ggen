@@ -1,0 +1,20 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ggen: <https://ggen.dev/schema#> .
+
+# Example command definition
+ggen:ExampleCommand a ggen:Command ;
+    rdfs:label "example" ;
+    rdfs:comment "An example command" ;
+    ggen:hasArgument [
+        ggen:name "name" ;
+        ggen:type "String" ;
+        ggen:required true ;
+        rdfs:comment "Name parameter"
+    ] ;
+    ggen:hasFlag [
+        ggen:name "verbose" ;
+        ggen:shortFlag "v" ;
+        ggen:type "bool" ;
+        rdfs:comment "Enable verbose output"
+    ] .

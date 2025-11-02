@@ -149,7 +149,7 @@ mod tests {
         let temp_dir = tempdir().unwrap();
         let output_path = temp_dir.path().join("plan.json");
 
-        let args = crate::commands::project::plan::PlanArgs {
+        let args = crate::cmds::project::PlanArgs {
             template_ref: "test.tmpl".to_string(),
             vars: vec!["key=value".to_string()],
             output: Some(output_path.to_string_lossy().to_string()),

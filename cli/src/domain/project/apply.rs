@@ -133,7 +133,7 @@ mod tests {
 
     #[test]
     fn test_apply_plan_file_not_found() {
-        let args = crate::commands::project::apply::ApplyArgs {
+        let args = crate::cmds::project::ApplyArgs {
             plan_file: "nonexistent.json".to_string(),
             auto_confirm: true,
             dry_run: false,
@@ -163,7 +163,7 @@ mod tests {
         let plan_content = serde_json::to_string_pretty(&plan).unwrap();
         fs::write(&plan_path, plan_content).unwrap();
 
-        let args = crate::commands::project::apply::ApplyArgs {
+        let args = crate::cmds::project::ApplyArgs {
             plan_file: plan_path.to_string_lossy().to_string(),
             auto_confirm: true,
             dry_run: true,

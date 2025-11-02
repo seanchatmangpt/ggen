@@ -144,8 +144,10 @@ mod tests {
                 foaf:name "Bob" .
         "#;
 
-        let mut temp_file = NamedTempFile::new()?;
-        temp_file.write_all(turtle.as_bytes())?;
+        let temp_file = tempfile::Builder::new()
+            .suffix(".ttl")
+            .tempfile()?;
+        std::fs::write(temp_file.path(), turtle.as_bytes())?;
         let temp_path = temp_file.path().to_string_lossy().to_string();
 
         // Load REAL RDF file
@@ -188,8 +190,10 @@ mod tests {
             ex:triple3 ex:predicate3 "value3" .
         "#;
 
-        let mut temp_file = NamedTempFile::new()?;
-        temp_file.write_all(turtle.as_bytes())?;
+        let temp_file = tempfile::Builder::new()
+            .suffix(".ttl")
+            .tempfile()?;
+        std::fs::write(temp_file.path(), turtle.as_bytes())?;
         let temp_path = temp_file.path().to_string_lossy().to_string();
 
         let options = LoadOptions {
@@ -240,8 +244,11 @@ mod tests {
                 foaf:age "28"^^xsd:integer .
         "#;
 
-        let mut temp_file = NamedTempFile::new()?;
-        temp_file.write_all(turtle.as_bytes())?;
+        // Create temp file with .ttl extension so format can be auto-detected
+        let temp_file = tempfile::Builder::new()
+            .suffix(".ttl")
+            .tempfile()?;
+        std::fs::write(temp_file.path(), turtle.as_bytes())?;
         let temp_path = temp_file.path().to_string_lossy().to_string();
 
         let options = LoadOptions {

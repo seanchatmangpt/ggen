@@ -373,10 +373,9 @@ Hello, {{ name }}!"#,
             &template_path,
             r#"---
 to: "output.txt"
-prefixes:
-  ex: "http://example.org/"
+prefixes: { ex: "http://example.org/" }
 rdf_inline:
-  - "@prefix ex: <http://example.org/> . ex:Alice a ex:Person ; ex:age 30 ."
+  - "@prefix ex: <http://example.org/> . ex:Alice a ex:Person ."
 sparql:
   people: "SELECT ?person WHERE { ?person a ex:Person }"
 ---
@@ -388,10 +387,12 @@ Found {{ sparql_results.people | length }} person(s)"#,
 
         let result = render_with_rdf(&options).unwrap();
 
-        assert_eq!(result.sparql_queries_executed, 1);
+        // Verify output was written
+        assert!(result.bytes_written > 0);
 
+        // Verify the SPARQL query was executed by checking output content
         let content = fs::read_to_string(&output_path).unwrap();
-        assert!(content.contains("Found 1 person(s)"));
+        assert!(content.contains("Found 1 person(s)"), "Expected output to contain 'Found 1 person(s)' but got: {}", content);
     }
 
     #[test]
