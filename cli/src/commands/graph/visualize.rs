@@ -4,6 +4,7 @@
 //! domain logic following the v2.0 architecture pattern.
 
 use clap::Args;
+use clap_noun_verb_macros::verb;
 use ggen_utils::error::Result;
 use std::path::PathBuf;
 
@@ -38,36 +39,38 @@ pub struct VisualizeArgs {
 pub fn run(args: &VisualizeArgs) -> Result<()> {
     crate::runtime::execute(async {
         // Load graph
-        println!("📊 Loading graph from {}...", args.graph_file.display());
+        println!("📊 Visualizing graph from {}...", args.graph_file.display());
 
-        let export_format = match args.format.as_str() {
-            "dot" => crate::domain::graph::ExportFormat::Dot,
-            "svg" => crate::domain::graph::ExportFormat::Svg,
-            "png" => crate::domain::graph::ExportFormat::Png,
-            "json" => crate::domain::graph::ExportFormat::Json,
-            _ => {
-                return Err(ggen_utils::error::Error::new(&format!(
-                    "Unsupported format: {}",
-                    args.format
-                )))
-            }
-        };
+        // Parse format
+        let format = crate::domain::graph::VisualizeFormat::from_str(&args.format)?;
 
-        let export_options = crate::domain::graph::ExportOptions {
-            format: export_format,
-            output_path: args.output.clone(),
-            include_labels: args.labels,
-            max_depth: args.depth,
-            subject_filter: args.subject.clone(),
-        };
+        // Build options
+        let mut options = crate::domain::graph::VisualizeOptions::new()
+            .with_format(format);
 
-        // Export graph visualization
-        let stats = crate::domain::graph::export_graph(&args.graph_file, &export_options).await?;
+        if let Some(ref output) = args.output {
+            options = options.with_output(output.clone());
+        }
+
+        if args.labels {
+            options = options.with_labels();
+        }
+
+        if let Some(depth) = args.depth {
+            options = options.with_max_depth(depth);
+        }
+
+        if let Some(ref subject) = args.subject {
+            options = options.with_subject_filter(subject);
+        }
+
+        // Visualize graph
+        let stats = crate::domain::graph::visualize_graph(&args.graph_file, &options).await?;
 
         println!("✅ Graph visualization complete");
-        println!("   Nodes: {}", stats.nodes_exported);
-        println!("   Edges: {}", stats.edges_exported);
-        if let Some(output) = args.output {
+        println!("   Nodes: {}", stats.nodes_rendered);
+        println!("   Edges: {}", stats.edges_rendered);
+        if let Some(output) = stats.output_path {
             println!("   Output: {}", output.display());
         }
 

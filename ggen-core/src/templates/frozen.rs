@@ -138,18 +138,28 @@ impl FrozenMerger {
                 // Get preserved content or keep new content
                 if let Some(preserved_content) = old_sections.get(&id) {
                     // Reconstruct frozen section with preserved content
-                    if caps.get(1).is_some() {
-                        let escaped_id = id.replace("{", "{{").replace("}", "}}");
-                        format!(
-                            "{{% frozen id=\"{}\" %}}}{}{{% endfrozen %}}",
-                            escaped_id,
-                            preserved_content
-                        )
+                    if let Some(id_match) = caps.get(1) {
+                        // With ID
+                        let mut result = String::from("{%");
+                        result.push_str(" frozen id=\"");
+                        result.push_str(id_match.as_str());
+                        result.push_str("\" %");
+                        result.push('}');
+                        result.push_str(preserved_content);
+                        result.push_str("{%");
+                        result.push_str(" endfrozen %");
+                        result.push('}');
+                        result
                     } else {
-                        format!(
-                            "{{% frozen %}}{}{{% endfrozen %}}",
-                            preserved_content
-                        )
+                        // Without ID
+                        let mut result = String::from("{%");
+                        result.push_str(" frozen %");
+                        result.push('}');
+                        result.push_str(preserved_content);
+                        result.push_str("{%");
+                        result.push_str(" endfrozen %");
+                        result.push('}');
+                        result
                     }
                 } else {
                     // Keep new content if no preserved version exists

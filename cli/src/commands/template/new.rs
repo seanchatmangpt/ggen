@@ -25,84 +25,76 @@ pub struct NewCommand {
 }
 
 impl NewCommand {
-    pub async fn execute(&self) -> Result<()> {
-        // Validate input
-        validate_template_input(&self.name, &self.template_type)?;
+    pub fn execute(&self) -> Result<()> {
+        crate::runtime::execute(async {
+            // Validate input
+            validate_template_input(&self.name, &self.template_type)?;
 
-        println!("🔧 Creating new template...");
+            println!("🔧 Creating new template...");
 
-        // Create service
-        let service = TemplateService::new(self.templates_dir.clone());
+            // Create service
+            let service = TemplateService::new(self.templates_dir.clone());
 
-        // Determine template type
-        let template_type = self.template_type.as_deref().unwrap_or("generic");
+            // Determine template type
+            let template_type = self.template_type.as_deref().unwrap_or("generic");
 
-        // Generate template content
-        let template_content = generate_template_content(&self.name, template_type)?;
+            // Generate template content
+            let template_content = generate_template_content(&self.name, template_type)
+                .map_err(|e| e.to_string())?;
 
-        // Write template
-        let template_path = service.write_template(&self.name, &template_content)?;
+            // Write template
+            let template_path = service.write_template(&self.name, &template_content)
+                .map_err(|e| e.to_string())?;
 
-        println!(
-            "✅ Created template '{}' at {}",
-            self.name,
-            template_path.display()
-        );
-        println!("📝 Template type: {}", template_type);
+            println!(
+                "✅ Created template '{}' at {}",
+                self.name,
+                template_path.display()
+            );
+            println!("📝 Template type: {}", template_type);
 
-        if self.interactive {
-            println!("💡 Tip: Edit the template file to customize variables and content");
-        }
+            if self.interactive {
+                println!("💡 Tip: Edit the template file to customize variables and content");
+            }
 
-        Ok(())
+            Ok(())
+        })
     }
 }
 
 /// Validate and sanitize template input
-fn validate_template_input(name: &str, template_type: &Option<String>) -> Result<()> {
+fn validate_template_input(name: &str, template_type: &Option<String>) -> std::result::Result<(), String> {
     // Validate template name
     if name.trim().is_empty() {
-        return Err(ggen_utils::error::Error::new(
-            "Template name cannot be empty",
-        ));
+        return Err("Template name cannot be empty".to_string());
     }
 
     if name.len() > 100 {
-        return Err(ggen_utils::error::Error::new(
-            "Template name too long (max 100 characters)",
-        ));
+        return Err("Template name too long (max 100 characters)".to_string());
     }
 
     if !name
         .chars()
         .all(|c| c.is_alphanumeric() || c == '-' || c == '_')
     {
-        return Err(ggen_utils::error::Error::new(
-            "Invalid template name format: only alphanumeric characters, dashes, and underscores allowed",
-        ));
+        return Err("Invalid template name format: only alphanumeric characters, dashes, and underscores allowed".to_string());
     }
 
     // Validate template type if provided
     if let Some(template_type) = template_type {
         if template_type.trim().is_empty() {
-            return Err(ggen_utils::error::Error::new(
-                "Template type cannot be empty",
-            ));
+            return Err("Template type cannot be empty".to_string());
         }
 
         if template_type.len() > 50 {
-            return Err(ggen_utils::error::Error::new(
-                "Template type too long (max 50 characters)",
-            ));
+            return Err("Template type too long (max 50 characters)".to_string());
         }
 
         if !template_type
             .chars()
             .all(|c| c.is_alphanumeric() || c == '-' || c == '_')
         {
-            return Err(ggen_utils::error::Error::new(
-                "Invalid template type format: only alphanumeric characters, dashes, and underscores allowed",
-            ));
+            return Err("Invalid template type format: only alphanumeric characters, dashes, and underscores allowed".to_string());
         }
     }
 

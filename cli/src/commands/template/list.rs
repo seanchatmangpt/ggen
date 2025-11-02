@@ -26,61 +26,60 @@ pub struct ListCommand {
 }
 
 impl ListCommand {
-    pub async fn execute(&self) -> Result<()> {
-        // Validate pattern input
-        validate_pattern(&self.pattern)?;
+    pub fn execute(&self) -> Result<()> {
+        crate::runtime::execute(async {
+            // Validate pattern input
+            validate_pattern(&self.pattern)?;
 
-        println!("📄 Listing templates...");
+            println!("📄 Listing templates...");
 
-        let filters = ListFilters {
-            pattern: self.pattern.clone(),
-            local_only: self.local,
-            gpack_only: self.gpack,
-        };
+            let filters = ListFilters {
+                pattern: self.pattern.clone(),
+                local_only: self.local,
+                gpack_only: self.gpack,
+            };
 
-        let templates = list_templates(&self.templates_dir, &filters)?;
+            let templates = list_templates(&self.templates_dir, &filters)
+                .map_err(|e| e.to_string())?;
 
-        if templates.is_empty() {
-            println!("ℹ️  No templates found");
-            return Ok(());
-        }
+            if templates.is_empty() {
+                println!("ℹ️  No templates found");
+                return Ok(());
+            }
 
-        println!("📄 Available Templates:");
-        for template in templates {
-            match template.source {
-                TemplateSource::Local => {
-                    println!("  📄 {} (local)", template.name);
+            println!("📄 Available Templates:");
+            for template in templates {
+                match template.source {
+                    TemplateSource::Local => {
+                        println!("  📄 {} (local)", template.name);
+                    }
+                    TemplateSource::Gpack(ref gpack_id) => {
+                        println!("  📦 {} ({})", template.name, gpack_id);
+                    }
                 }
-                TemplateSource::Gpack(ref gpack_id) => {
-                    println!("  📦 {} ({})", template.name, gpack_id);
+                if let Some(desc) = template.description {
+                    println!("     {}", desc);
                 }
             }
-            if let Some(desc) = template.description {
-                println!("     {}", desc);
-            }
-        }
 
-        Ok(())
+            Ok(())
+        })
     }
 }
 
 /// Validate and sanitize pattern input
-fn validate_pattern(pattern: &Option<String>) -> Result<()> {
+fn validate_pattern(pattern: &Option<String>) -> std::result::Result<(), String> {
     if let Some(pattern) = pattern {
         if pattern.trim().is_empty() {
-            return Err(ggen_utils::error::Error::new("Pattern cannot be empty"));
+            return Err("Pattern cannot be empty".to_string());
         }
 
         if pattern.len() > 200 {
-            return Err(ggen_utils::error::Error::new(
-                "Pattern too long (max 200 characters)",
-            ));
+            return Err("Pattern too long (max 200 characters)".to_string());
         }
 
         if pattern.contains("..") {
-            return Err(ggen_utils::error::Error::new(
-                "Path traversal detected: pattern cannot contain '..'",
-            ));
+            return Err("Path traversal detected: pattern cannot contain '..'".to_string());
         }
 
         if !pattern.chars().all(|c| {
@@ -93,9 +92,7 @@ fn validate_pattern(pattern: &Option<String>) -> Result<()> {
                 || c == '-'
                 || c == '_'
         }) {
-            return Err(ggen_utils::error::Error::new(
-                "Invalid pattern format: only alphanumeric characters, dots, wildcards, brackets, dashes, and underscores allowed",
-            ));
+            return Err("Invalid pattern format: only alphanumeric characters, dots, wildcards, brackets, dashes, and underscores allowed".to_string());
         }
     }
 

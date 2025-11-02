@@ -34,8 +34,9 @@ fn create_test_cache(temp_dir: &TempDir) -> std::path::PathBuf {
 #[test]
 fn test_marketplace_search_basic() {
     // Chicago TDD: Real CLI execution, verify stdout contains expected results
+    // v2.0: "marketplace" command replaces "market"
     ggen()
-        .arg("market")
+        .arg("marketplace")
         .arg("search")
         .arg("rust")
         .assert()
@@ -46,8 +47,9 @@ fn test_marketplace_search_basic() {
 #[test]
 fn test_marketplace_search_with_category() {
     // Chicago TDD: Real CLI with filters, verify state of output
+    // v2.0: "marketplace" command replaces "market"
     ggen()
-        .arg("market")
+        .arg("marketplace")
         .arg("search")
         .arg("api")
         .arg("--category")
@@ -60,8 +62,9 @@ fn test_marketplace_search_with_category() {
 #[test]
 fn test_marketplace_search_json_output() {
     // Chicago TDD: Verify JSON output format (state verification)
+    // v2.0: "marketplace" command replaces "market"
     let output = ggen()
-        .arg("market")
+        .arg("marketplace")
         .arg("search")
         .arg("test")
         .arg("--json")
@@ -79,7 +82,7 @@ fn test_marketplace_list_empty() {
     let temp_dir = TempDir::new().unwrap();
 
     ggen()
-        .arg("market")
+        .arg("marketplace")
         .arg("list")
         .current_dir(&temp_dir)
         .assert()
@@ -95,7 +98,7 @@ fn test_marketplace_list_json() {
     let temp_dir = TempDir::new().unwrap();
 
     let output = ggen()
-        .arg("market")
+        .arg("marketplace")
         .arg("list")
         .arg("--json")
         .current_dir(&temp_dir)
@@ -112,7 +115,7 @@ fn test_marketplace_info_missing_package() {
     // Chicago TDD: Verify error handling state
     // Note: Mock registry may return fake data, so just verify command completes
     let output = ggen()
-        .arg("market")
+        .arg("marketplace")
         .arg("info")
         .arg("nonexistent-package-12345")
         .output()
@@ -128,7 +131,7 @@ fn test_marketplace_remove_not_installed() {
     let temp_dir = TempDir::new().unwrap();
 
     ggen()
-        .arg("market")
+        .arg("marketplace")
         .arg("remove")
         .arg("nonexistent-package")
         .current_dir(&temp_dir)
@@ -143,7 +146,7 @@ fn test_marketplace_remove_not_installed() {
 fn test_marketplace_categories_list() {
     // Chicago TDD: Verify categories command exists
     let output = ggen()
-        .arg("market")
+        .arg("marketplace")
         .arg("categories")
         .arg("list")
         .output()
@@ -159,7 +162,7 @@ fn test_marketplace_cache_clean() {
     let temp_dir = TempDir::new().unwrap();
 
     let output = ggen()
-        .arg("market")
+        .arg("marketplace")
         .arg("cache")
         .arg("clean")
         .current_dir(&temp_dir)
@@ -176,7 +179,7 @@ fn test_marketplace_cache_status() {
     let temp_dir = TempDir::new().unwrap();
 
     ggen()
-        .arg("market")
+        .arg("marketplace")
         .arg("cache")
         .arg("status")
         .current_dir(&temp_dir)
@@ -193,7 +196,7 @@ fn test_marketplace_lockfile_generate() {
     let temp_dir = TempDir::new().unwrap();
 
     let output = ggen()
-        .arg("market")
+        .arg("marketplace")
         .arg("lockfile")
         .arg("generate")
         .current_dir(&temp_dir)
@@ -208,7 +211,7 @@ fn test_marketplace_lockfile_generate() {
 fn test_marketplace_registry_info() {
     // Chicago TDD: Verify registry command exists
     let output = ggen()
-        .arg("market")
+        .arg("marketplace")
         .arg("registry")
         .arg("info")
         .output()
@@ -224,7 +227,7 @@ fn test_marketplace_offline_sync() {
     let temp_dir = TempDir::new().unwrap();
 
     let output = ggen()
-        .arg("market")
+        .arg("marketplace")
         .arg("offline")
         .arg("sync")
         .current_dir(&temp_dir)
@@ -239,7 +242,7 @@ fn test_marketplace_offline_sync() {
 fn test_marketplace_help_output() {
     // Chicago TDD: Verify CLI help state is comprehensive
     ggen()
-        .arg("market")
+        .arg("marketplace")
         .arg("--help")
         .assert()
         .success()
@@ -254,7 +257,7 @@ fn test_marketplace_help_output() {
 fn test_marketplace_search_help() {
     // Chicago TDD: Verify verb-specific help
     ggen()
-        .arg("market")
+        .arg("marketplace")
         .arg("search")
         .arg("--help")
         .assert()
@@ -267,7 +270,7 @@ fn test_marketplace_search_help() {
 fn test_marketplace_invalid_verb() {
     // Chicago TDD: Verify error handling for invalid commands
     ggen()
-        .arg("market")
+        .arg("marketplace")
         .arg("invalid-verb")
         .assert()
         .failure()
@@ -280,7 +283,7 @@ fn test_marketplace_invalid_verb() {
 fn test_marketplace_recommend_basic() {
     // Chicago TDD: Verify recommendation engine works
     ggen()
-        .arg("market")
+        .arg("marketplace")
         .arg("recommend")
         .assert()
         .success()
@@ -293,7 +296,7 @@ fn test_marketplace_recommend_basic() {
 fn test_marketplace_recommend_with_category() {
     // Chicago TDD: Verify filtered recommendations
     ggen()
-        .arg("market")
+        .arg("marketplace")
         .arg("recommend")
         .arg("--category")
         .arg("web")
@@ -309,7 +312,7 @@ fn test_marketplace_update_all() {
     let temp_dir = TempDir::new().unwrap();
 
     ggen()
-        .arg("market")
+        .arg("marketplace")
         .arg("update")
         .current_dir(&temp_dir)
         .assert()
@@ -322,7 +325,7 @@ fn test_marketplace_sync_basic() {
     let temp_dir = TempDir::new().unwrap();
 
     ggen()
-        .arg("market")
+        .arg("marketplace")
         .arg("sync")
         .current_dir(&temp_dir)
         .assert()

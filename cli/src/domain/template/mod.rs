@@ -9,18 +9,20 @@ use std::collections::BTreeMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 
+pub mod generate;
+pub mod generate_tree;
+pub mod lint;
 pub mod list;
 pub mod new;
-pub mod generate_tree;
 pub mod regenerate;
-pub mod lint;
 pub mod show;
 
+pub use generate::*;
+pub use generate_tree::*;
+pub use lint::*;
 pub use list::*;
 pub use new::*;
-pub use generate_tree::*;
 pub use regenerate::*;
-pub use lint::*;
 pub use show::*;
 
 /// Template service for coordinating template operations

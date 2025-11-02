@@ -16,6 +16,7 @@
 pub mod ai;
 pub mod ci;
 pub mod graph;
+pub mod hook;
 pub mod marketplace;
 pub mod project;
 pub mod template;

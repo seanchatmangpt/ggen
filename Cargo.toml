@@ -1,6 +1,6 @@
 [package]
 name = "ggen"
-version = "1.2.0"
+version = "2.0.0"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 edition = "2021"
 repository = "https://github.com/seanchatmangpt/ggen"
@@ -17,6 +17,7 @@ ggen is a deterministic, language-agnostic code generation framework that treats
 members = [
   "utils",
   "cli",
+  "domain",
   "ggen-core",
   "ggen-ai",
   # Temporarily excluded due to compilation errors (will be fixed in v1.3.0)
@@ -96,10 +97,10 @@ syslog = ["ggen-utils/syslog"]
 london_tdd = []
 
 [dependencies]
-ggen-utils = { path = "utils", version = "1.2.0" }
-ggen-cli-lib = { path = "cli", version = "1.2.0" }
-ggen-core = { path = "ggen-core", version = "1.2.0" }
-ggen-ai = { path = "ggen-ai", version = "1.2.0" }
+ggen-utils = { path = "utils", version = "2.0.0" }
+ggen-cli-lib = { path = "cli", version = "2.0.0" }
+ggen-core = { path = "ggen-core", version = "2.0.0" }
+ggen-ai = { path = "ggen-ai", version = "2.0.0" }
 human-panic = "2.0.3"
 better-panic = "0.3.0"
 log = "0.4.28"
@@ -205,3 +206,4 @@ harness = false
 
 [[bench]]
 name = "quick_runtime_validation"
+harness = false

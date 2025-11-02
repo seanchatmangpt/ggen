@@ -37,15 +37,15 @@ pub enum TemplateCommand {
 }
 
 impl TemplateArgs {
-    pub async fn execute(&self) -> Result<()> {
+    pub fn execute(&self) -> Result<()> {
         match &self.command {
             TemplateCommand::Generate(args) => generate::run(args),
-            TemplateCommand::List(cmd) => cmd.execute().await,
-            TemplateCommand::New(cmd) => cmd.execute().await,
-            TemplateCommand::GenerateTree(cmd) => cmd.execute().await,
-            TemplateCommand::Regenerate(cmd) => cmd.execute().await,
-            TemplateCommand::Lint(cmd) => cmd.execute().await,
-            TemplateCommand::Show(cmd) => cmd.execute().await,
+            TemplateCommand::List(cmd) => cmd.execute(),
+            TemplateCommand::New(cmd) => cmd.execute(),
+            TemplateCommand::GenerateTree(cmd) => cmd.execute(),
+            TemplateCommand::Regenerate(cmd) => cmd.execute(),
+            TemplateCommand::Lint(cmd) => cmd.execute(),
+            TemplateCommand::Show(cmd) => cmd.execute(),
         }
     }
 }

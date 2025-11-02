@@ -35,45 +35,47 @@ pub struct GenerateTreeCommand {
 }
 
 impl GenerateTreeCommand {
-    pub async fn execute(&self) -> Result<()> {
-        println!("📦 Generating file tree from template: {}", self.template);
+    pub fn execute(&self) -> Result<()> {
+        crate::runtime::execute(async {
+            println!("📦 Generating file tree from template: {}", self.template);
 
-        let template_path = std::path::Path::new(&self.template);
-        if !template_path.exists() {
-            return Err(ggen_utils::error::Error::new(&format!(
-                "Template not found: {}",
-                self.template
-            )));
-        }
+            let template_path = std::path::Path::new(&self.template);
+            if !template_path.exists() {
+                return Err(ggen_utils::error::Error::new(&format!(
+                    "Template not found: {}",
+                    self.template
+                )));
+            }
 
-        // Collect variables
-        let variables: HashMap<String, String> = self.var.iter().cloned().collect();
+            // Collect variables
+            let variables: HashMap<String, String> = self.var.iter().cloned().collect();
 
-        if self.dry_run {
-            println!("\n🔍 Dry run - would generate file tree from: {}", self.template);
-            println!("Variables: {:?}", variables);
-            println!("Output directory: {}", self.output.display());
-            return Ok(());
-        }
+            if self.dry_run {
+                println!("\n🔍 Dry run - would generate file tree from: {}", self.template);
+                println!("Variables: {:?}", variables);
+                println!("Output directory: {}", self.output.display());
+                return Ok(());
+            }
 
-        // Generate file tree
-        let result = generate_file_tree(template_path, &self.output, &variables, self.force)?;
+            // Generate file tree
+            let result = generate_file_tree(template_path, &self.output, &variables, self.force)?;
 
-        println!(
-            "\n✅ Successfully generated {} files and {} directories",
-            result.files().len(),
-            result.directories().len()
-        );
-        println!("📂 Output directory: {}", self.output.display());
+            println!(
+                "\n✅ Successfully generated {} files and {} directories",
+                result.files().len(),
+                result.directories().len()
+            );
+            println!("📂 Output directory: {}", self.output.display());
 
-        Ok(())
+            Ok(())
+        })
     }
 }
 
-fn parse_key_val(s: &str) -> Result<(String, String)> {
+fn parse_key_val(s: &str) -> std::result::Result<(String, String), String> {
     let pos = s
         .find('=')
-        .ok_or_else(|| ggen_utils::error::Error::new("Invalid KEY=VALUE format: no '=' found"))?;
+        .ok_or_else(|| "Invalid KEY=VALUE format: no '=' found".to_string())?;
     Ok((s[..pos].to_string(), s[pos + 1..].to_string()))
 }
 

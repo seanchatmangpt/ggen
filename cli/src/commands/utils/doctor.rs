@@ -23,6 +23,7 @@
 //! - Easy to maintain and extend
 
 use clap::Args;
+use clap_noun_verb_macros::verb;
 use ggen_utils::error::Result;
 
 /// Arguments for the doctor command

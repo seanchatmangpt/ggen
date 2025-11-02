@@ -1,0 +1,7 @@
+# Migration logs (generated during execution)
+migration_log_*.txt
+validation_log_*.txt
+
+# Temporary files
+*.tmp
+*.log

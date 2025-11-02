@@ -12,82 +12,77 @@ pub struct ShowCommand {
 }
 
 impl ShowCommand {
-    pub async fn execute(&self) -> Result<()> {
-        // Validate input
-        validate_template_ref(&self.template_ref)?;
+    pub fn execute(&self) -> Result<()> {
+        crate::runtime::execute(async {
+            // Validate input
+            validate_template_ref(&self.template_ref)?;
 
-        println!("📄 Template Information:");
+            println!("📄 Template Information:");
 
-        let metadata = show_template_metadata(&self.template_ref)?;
+            let metadata = show_template_metadata(&self.template_ref)
+                .map_err(|e| e.to_string())?;
 
-        // Display metadata
-        println!("  Name: {}", metadata.name);
-        println!("  Path: {}", metadata.path);
+            // Display metadata
+            println!("  Name: {}", metadata.name);
+            println!("  Path: {}", metadata.path);
 
-        if let Some(desc) = metadata.description {
-            println!("  Description: {}", desc);
-        }
-
-        if let Some(output) = metadata.output_path {
-            println!("  Output: {}", output);
-        }
-
-        if !metadata.variables.is_empty() {
-            println!("  Variables:");
-            for var in metadata.variables {
-                println!("    - {}", var);
+            if let Some(desc) = metadata.description {
+                println!("  Description: {}", desc);
             }
-        }
 
-        if !metadata.rdf_sources.is_empty() {
-            println!("  RDF Sources:");
-            for source in metadata.rdf_sources {
-                println!("    - {}", source);
+            if let Some(output) = metadata.output_path {
+                println!("  Output: {}", output);
             }
-        }
 
-        if !metadata.sparql_queries.is_empty() {
-            println!("  SPARQL Queries:");
-            for (name, _) in metadata.sparql_queries {
-                println!("    - {}", name);
+            if !metadata.variables.is_empty() {
+                println!("  Variables:");
+                for var in metadata.variables {
+                    println!("    - {}", var);
+                }
             }
-        }
 
-        if let Some(seed) = metadata.determinism_seed {
-            println!("  Determinism Seed: {}", seed);
-        }
+            if !metadata.rdf_sources.is_empty() {
+                println!("  RDF Sources:");
+                for source in metadata.rdf_sources {
+                    println!("    - {}", source);
+                }
+            }
 
-        Ok(())
+            if !metadata.sparql_queries.is_empty() {
+                println!("  SPARQL Queries:");
+                for (name, _) in metadata.sparql_queries {
+                    println!("    - {}", name);
+                }
+            }
+
+            if let Some(seed) = metadata.determinism_seed {
+                println!("  Determinism Seed: {}", seed);
+            }
+
+            Ok(())
+        })
     }
 }
 
 /// Validate and sanitize template reference input
-fn validate_template_ref(template_ref: &str) -> Result<()> {
+fn validate_template_ref(template_ref: &str) -> std::result::Result<(), String> {
     if template_ref.trim().is_empty() {
-        return Err(ggen_utils::error::Error::new(
-            "Template reference cannot be empty",
-        ));
+        return Err("Template reference cannot be empty".to_string());
     }
 
     if template_ref.len() > 500 {
-        return Err(ggen_utils::error::Error::new(
-            "Template reference too long (max 500 characters)",
-        ));
+        return Err("Template reference too long (max 500 characters)".to_string());
     }
 
     if template_ref.contains("..") {
-        return Err(ggen_utils::error::Error::new(
-            "Path traversal detected: template reference cannot contain '..'",
-        ));
+        return Err("Path traversal detected: template reference cannot contain '..'".to_string());
     }
 
     if !template_ref
         .chars()
         .all(|c| c.is_alphanumeric() || c == '.' || c == '/' || c == ':' || c == '-' || c == '_')
     {
-        return Err(ggen_utils::error::Error::new(
-            "Invalid template reference format: only alphanumeric characters, dots, slashes, colons, dashes, and underscores allowed",
-        ));
+        return Err("Invalid template reference format: only alphanumeric characters, dots, slashes, colons, dashes, and underscores allowed".to_string());
     }
 
     Ok(())

@@ -4,6 +4,7 @@
 //! domain logic following the v2.0 architecture pattern.
 
 use clap::Args;
+use clap_noun_verb_macros::verb;
 use ggen_utils::error::Result;
 use std::path::PathBuf;
 
@@ -33,21 +34,36 @@ pub struct GenerateArgs {
 /// Execute the AI generate command (sync wrapper)
 pub fn run(args: &GenerateArgs) -> Result<()> {
     crate::runtime::execute(async {
-        let code = if let Some(ref file) = args.file {
-            std::fs::read_to_string(file).map_err(|e| {
+        // Build options
+        let mut options = crate::domain::ai::GenerateOptions::new(&args.prompt);
+
+        if let Some(ref file) = args.file {
+            let code = std::fs::read_to_string(file).map_err(|e| {
                 ggen_utils::error::Error::new(&format!("Failed to read file: {}", e))
-            })?
-        } else {
-            args.prompt.clone()
-        };
-
-        let result = crate::domain::ai::analyze_code(&code).await?;
-
-        match args.format.as_str() {
-            "json" => println!("{}", serde_json::json!({ "analysis": result })),
-            "markdown" => println!("# AI Analysis\n\n{}", result),
-            _ => println!("{}", result),
+            })?;
+            options = options.with_code(code);
         }
+
+        if let Some(ref model) = args.model {
+            options = options.with_model(model);
+        }
+
+        if args.suggestions {
+            options = options.with_suggestions();
+        }
+
+        options = options.with_format(match args.format.as_str() {
+            "json" => crate::domain::ai::OutputFormat::Json,
+            "markdown" => crate::domain::ai::OutputFormat::Markdown,
+            _ => crate::domain::ai::OutputFormat::Text,
+        });
+
+        // Generate
+        let result = crate::domain::ai::generate_code(&options).await?;
+
+        // Format and display
+        let formatted = crate::domain::ai::format_result(&result, options.output_format);
+        println!("{}", formatted);
 
         Ok(())
     })

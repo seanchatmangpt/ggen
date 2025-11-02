@@ -15,8 +15,10 @@
 pub mod export;
 pub mod load;
 pub mod query;
+pub mod visualize;
 
 // Re-export commonly used types
 pub use export::{export_graph, ExportFormat, ExportOptions, ExportStats};
 pub use load::{load_rdf, LoadOptions, LoadStats, RdfFormat};
 pub use query::{execute_sparql, QueryOptions, QueryResult};
+pub use visualize::{visualize_graph, VisualizeFormat, VisualizeOptions, VisualizeStats};
