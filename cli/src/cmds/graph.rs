@@ -1,28 +1,44 @@
 //! Graph commands - clap-noun-verb auto-discovery
-use clap::Subcommand;
+//!
+//! This module defines the command-line interface for graph operations,
+//! delegating to domain layer functions.
+
+use clap::{Args, Subcommand};
 use ggen_utils::error::Result;
 
 use crate::domain::graph;
 
+/// Graph command arguments
+#[derive(Debug, Args)]
+pub struct GraphArgs {
+    #[command(subcommand)]
+    pub command: GraphCommand,
+}
+
+/// Graph subcommands
 #[derive(Debug, Subcommand)]
-pub enum GraphCmd {
-    /// Load RDF graph
+pub enum GraphCommand {
+    /// Load RDF data into graph
     Load(graph::load::LoadArgs),
-    /// Query RDF graph
+
+    /// Query graph with SPARQL
     Query(graph::query::QueryArgs),
-    /// Export RDF graph
+
+    /// Export graph to file
     Export(graph::export::ExportArgs),
-    /// Visualize RDF graph
+
+    /// Visualize graph
     Visualize(graph::visualize::VisualizeArgs),
 }
 
-impl GraphCmd {
+impl GraphArgs {
+    /// Execute the graph command
     pub fn execute(&self) -> Result<()> {
-        match self {
-            Self::Load(args) => graph::load::run(args),
-            Self::Query(args) => graph::query::run(args),
-            Self::Export(args) => graph::export::run(args),
-            Self::Visualize(args) => graph::visualize::run(args),
+        match &self.command {
+            GraphCommand::Load(args) => graph::load::run(args),
+            GraphCommand::Query(args) => graph::query::run(args),
+            GraphCommand::Export(args) => graph::export::run(args),
+            GraphCommand::Visualize(args) => graph::visualize::run(args),
         }
     }
 }

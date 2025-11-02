@@ -2,8 +2,29 @@
 //!
 //! Real implementation of package publishing functionality.
 
+use clap::Args;
 use ggen_utils::error::Result;
-use std::path::Path;
+use std::path::{Path, PathBuf};
+
+/// Publish command arguments
+#[derive(Debug, Args)]
+pub struct PublishArgs {
+    /// Package directory path
+    #[arg(default_value = ".")]
+    pub path: PathBuf,
+
+    /// Version tag
+    #[arg(short = 't', long)]
+    pub tag: Option<String>,
+
+    /// Dry run (simulate publish)
+    #[arg(long)]
+    pub dry_run: bool,
+
+    /// Force publish even if version exists
+    #[arg(short = 'f', long)]
+    pub force: bool,
+}
 
 /// Publish package and report progress
 ///
@@ -90,6 +111,13 @@ pub async fn publish_and_report(
     Ok(())
 }
 
+/// Run publish command (sync wrapper for CLI)
+pub fn run(args: &PublishArgs) -> Result<()> {
+    crate::runtime::block_on(async {
+        publish_and_report(&args.path, args.tag.as_deref(), args.dry_run, args.force).await
+    })
+}
+
 /// Validate package manifest
 fn validate_package(manifest: &PackageManifest) -> Result<()> {
     if manifest.name.is_empty() {
@@ -142,7 +170,7 @@ async fn package_version_exists(
 }
 
 /// Create tarball of package
-async fn create_tarball(path: &Path, package_name: &str, version: &str) -> Result<String> {
+async fn create_tarball(_path: &Path, package_name: &str, version: &str) -> Result<String> {
     // For now, just return a placeholder tarball path
     // In production, this would create an actual tarball
     let tarball_name = format!("{}-{}.tar.gz", package_name.replace('/', "-"), version);

@@ -107,77 +107,131 @@ let output = template.render_with_rdf(&rdf_files)?;
 
 ---
 
-## 🔧 Template Commands (v2.0.0)
+## 🔧 Complete Command Reference (v2.0.0)
 
-### Available Commands
+### All 8 Noun Commands (29 Verbs Total)
 
-#### `ggen template generate-tree`
-Generate file tree from YAML specification.
-
-```bash
-ggen template generate-tree \
-  --template rust-service.yaml \
-  --output ./my-project \
-  --var project_name=my-app \
-  --var version=1.0.0
-```
-
-**Features**:
-- YAML-based tree specification
-- Variable substitution
-- Dry-run mode
-- Force overwrite
-
-#### `ggen template lint`
-Validate template for issues.
+#### Template Commands (7 verbs)
 
 ```bash
-ggen template lint my-template.tmpl --sparql --schema
-```
+# Generate from template with RDF context
+ggen template generate -t service.tmpl -r project.ttl -o output/
 
-**Checks**:
-- SPARQL query syntax
-- RDF schema validation
-- Template syntax
-- Variable consistency
+# Generate entire file tree
+ggen template generate-tree -t structure.yaml -o ./my-project
 
-#### `ggen template show`
-Display template metadata.
+# Validate template syntax and queries
+ggen template lint my-template.tmpl
 
-```bash
+# Discover available templates
+ggen template list --pattern "rust*" --local
+
+# Create new template from wizard
+ggen template new my-template --template-type rust
+
+# Regenerate from existing template
+ggen template regenerate service.tmpl
+
+# Display template metadata
 ggen template show my-template.tmpl
 ```
 
-**Shows**:
-- Template name and description
-- Variables list
-- RDF sources
-- SPARQL queries
-- Determinism seed (if any)
-
-#### `ggen template new`
-Create new template from wizard.
+#### AI Commands (3 verbs)
 
 ```bash
-ggen template new my-template --template-type rust
+# AI-powered code generation
+ggen ai generate "Create a REST API with authentication"
+
+# Interactive AI chat session
+ggen ai chat --interactive --model claude-3-5
+
+# Analyze code with AI insights
+ggen ai analyze --file src/main.rs --format json
 ```
 
-**Features**:
-- Multiple template types (rust, python, typescript, etc.)
-- Interactive wizard mode
-- Configurable templates directory
-
-#### `ggen template list`
-Discover available templates.
+#### Graph Commands (4 verbs)
 
 ```bash
-ggen template list --pattern "rust*" --local
+# Load RDF graph from file
+ggen graph load project.ttl
+
+# Execute SPARQL queries
+ggen graph query "SELECT * WHERE {?s ?p ?o}" -g project.ttl
+
+# Export graph to various formats
+ggen graph export --format turtle -o output.ttl
+
+# Generate graph visualizations
+ggen graph visualize project.ttl -o graph.svg
 ```
 
-**Filters**:
-- Glob pattern matching
-- Local vs gpack templates
-- Custom templates directory
+#### Marketplace Commands (5 verbs)
+
+```bash
+# Search for packages
+ggen marketplace search "rust web framework"
+
+# Install packages
+ggen marketplace install io.ggen.rust.axum
+
+# List installed packages
+ggen marketplace list --verbose
+
+# Publish new packages
+ggen marketplace publish --manifest gpack.yaml
+
+# Update installed packages
+ggen marketplace update --all
+```
+
+#### Project Commands (4 verbs)
+
+```bash
+# Create new project from scratch
+ggen project new my-app --type rust-web --framework axum
+
+# Generate project plan
+ggen project plan --interactive
+
+# Generate code from plan
+ggen project gen --plan project-plan.yaml
+
+# Apply code changes
+ggen project apply --diff --preview
+```
+
+#### Hook Commands (4 verbs)
+
+```bash
+# Create lifecycle hooks
+ggen hook create --trigger file_change --action regenerate
+
+# List registered hooks
+ggen hook list --verbose
+
+# Remove hooks
+ggen hook remove my-hook
+
+# Monitor hook execution
+ggen hook monitor --real-time
+```
+
+#### Utility Commands (2 verbs)
+
+```bash
+# System diagnostics and health check
+ggen utils doctor --full
+
+# Environment variable management
+ggen utils env --check --fix
+```
+
+#### CI Commands (1 verb)
+
+```bash
+# Generate CI/CD workflows
+ggen ci workflow --provider github --output .github/workflows/
+```
 
 ---
 

@@ -8,7 +8,13 @@
 //! cmds (router) → commands (sync wrappers) → runtime → domain (async logic)
 //! ```
 
+pub mod ai;
+pub mod graph;
+pub mod hook;
+pub mod marketplace;
+pub mod project;
 pub mod template;
+pub mod utils;
 
 use clap::Parser;
 use ggen_utils::error::Result;
@@ -25,15 +31,28 @@ pub struct Cli {
 /// All available noun commands
 #[derive(clap::Subcommand, Debug)]
 pub enum Commands {
-    /// Template operations
+    /// Template operations (generate, lint, list, etc.)
     Template(crate::cmds::template::TemplateArgs),
 
-    // Additional nouns will be added here as they're implemented:
-    // Graph(crate::cmds::graph::GraphArgs),
-    // Ai(crate::cmds::ai::AiArgs),
-    // Marketplace(crate::cmds::marketplace::MarketplaceArgs),
-    // Project(crate::cmds::project::ProjectArgs),
-    // Utils(crate::cmds::utils::UtilsArgs),
+    /// AI-powered code generation and analysis
+    Ai(crate::cmds::ai::AiArgs),
+
+    /// Graph operations (load, query, export, visualize)
+    Graph(crate::cmds::graph::GraphArgs),
+
+    /// Marketplace operations (search, install, list, publish, update)
+    Marketplace(crate::cmds::marketplace::MarketplaceArgs),
+
+    /// Project operations (new, gen, apply, plan, init)
+    Project(crate::cmds::project::ProjectArgs),
+
+    /// Hook management (create, list, remove, monitor)
+    #[command(subcommand)]
+    Hook(crate::cmds::hook::HookCmd),
+
+    /// Utility operations (doctor, env)
+    #[command(subcommand)]
+    Utils(crate::cmds::utils::UtilsCmd),
 }
 
 impl Cli {
@@ -41,7 +60,12 @@ impl Cli {
     pub fn execute(&self) -> Result<()> {
         match &self.command {
             Commands::Template(args) => args.execute(),
-            // Add other command handlers here
+            Commands::Ai(args) => args.execute(),
+            Commands::Graph(args) => args.execute(),
+            Commands::Marketplace(args) => args.execute(),
+            Commands::Project(args) => args.execute(),
+            Commands::Hook(cmd) => cmd.execute(),
+            Commands::Utils(cmd) => cmd.execute(),
         }
     }
 }

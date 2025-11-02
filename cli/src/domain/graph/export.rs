@@ -3,8 +3,10 @@
 //! Chicago TDD: Uses REAL graph export and file writing
 
 use anyhow::{Context, Result};
+use clap::Args;
 use ggen_core::Graph;
 use std::fs;
+use std::path::PathBuf;
 
 /// Export format for RDF graphs
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -74,6 +76,26 @@ pub struct ExportStats {
     pub file_size_bytes: usize,
     /// Output file path
     pub output_path: String,
+}
+
+/// CLI Arguments for export command
+#[derive(Debug, Clone, Args)]
+pub struct ExportArgs {
+    /// Input RDF file to load
+    #[arg(short = 'i', long)]
+    pub input: PathBuf,
+
+    /// Output file path
+    #[arg(short = 'o', long)]
+    pub output: PathBuf,
+
+    /// Export format (turtle, ntriples, rdfxml, jsonld, n3)
+    #[arg(short = 'f', long, default_value = "turtle")]
+    pub format: String,
+
+    /// Pretty print output
+    #[arg(short = 'p', long)]
+    pub pretty: bool,
 }
 
 /// Export graph to file in specified format
@@ -295,4 +317,35 @@ mod tests {
 
         Ok(())
     }
+}
+
+/// CLI run function - bridges sync CLI to async domain logic
+pub fn run(args: &ExportArgs) -> ggen_utils::error::Result<()> {
+    crate::runtime::execute(async move {
+        // Load graph from input file
+        let graph = Graph::load_from_file(args.input.to_str().ok_or_else(|| {
+            ggen_utils::error::Error::new("Invalid input path")
+        })?)
+        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to load graph: {}", e)))?;
+
+        // Parse format
+        let format = ExportFormat::from_str(&args.format)
+            .map_err(|e| ggen_utils::error::Error::new(&format!("Invalid format: {}", e)))?;
+
+        let options = ExportOptions {
+            output_path: args.output.to_string_lossy().to_string(),
+            format,
+            pretty: args.pretty,
+            graph: Some(graph),
+        };
+
+        let content = export_graph(options).map_err(|e| {
+            ggen_utils::error::Error::new(&format!("Export failed: {}", e))
+        })?;
+
+        println!("✅ Exported graph to {}", args.output.display());
+        println!("📦 Content size: {} bytes", content.len());
+
+        Ok(())
+    })
 }

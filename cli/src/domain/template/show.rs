@@ -1,5 +1,6 @@
 //! Template show domain logic
 
+use clap::Args;
 use ggen_utils::error::Result;
 use std::collections::HashMap;
 use std::fs;
@@ -196,4 +197,56 @@ Hello {{ name }}!"#;
         assert_eq!(metadata.variables.len(), 1);
         assert!(metadata.variables.contains(&"name".to_string()));
     }
+}
+
+/// CLI Arguments for show command
+#[derive(Debug, Clone, Args)]
+pub struct ShowArgs {
+    /// Template name or path
+    pub template: String,
+}
+
+/// CLI run function - bridges sync CLI to async domain logic
+pub fn run(args: &ShowArgs) -> ggen_utils::error::Result<()> {
+    crate::runtime::execute(async move {
+        let metadata = show_template_metadata(&args.template)?;
+
+        println!("📋 Template: {}", metadata.name);
+        println!("📍 Path: {}", metadata.path);
+
+        if let Some(desc) = &metadata.description {
+            println!("📝 Description: {}", desc);
+        }
+
+        if let Some(output) = &metadata.output_path {
+            println!("📂 Output path: {}", output);
+        }
+
+        if !metadata.variables.is_empty() {
+            println!("\n🔧 Variables ({}):", metadata.variables.len());
+            for var in &metadata.variables {
+                println!("  • {}", var);
+            }
+        }
+
+        if !metadata.rdf_sources.is_empty() {
+            println!("\n🔗 RDF Sources ({}):", metadata.rdf_sources.len());
+            for source in &metadata.rdf_sources {
+                println!("  • {}", source);
+            }
+        }
+
+        if !metadata.sparql_queries.is_empty() {
+            println!("\n🔍 SPARQL Queries ({}):", metadata.sparql_queries.len());
+            for (name, query) in &metadata.sparql_queries {
+                println!("  • {}: {}", name, query);
+            }
+        }
+
+        if let Some(seed) = metadata.determinism_seed {
+            println!("\n🎲 Determinism seed: {}", seed);
+        }
+
+        Ok(())
+    })
 }

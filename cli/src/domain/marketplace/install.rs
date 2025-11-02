@@ -3,9 +3,33 @@
 //! This module contains the core business logic for installing packages,
 //! separated from CLI concerns for better testability and reusability.
 
+use clap::Args;
 use ggen_utils::error::Result;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
+
+/// Install command arguments
+#[derive(Debug, Args)]
+pub struct InstallArgs {
+    /// Package name (format: name@version)
+    pub package: String,
+
+    /// Target directory
+    #[arg(short = 't', long)]
+    pub target: Option<String>,
+
+    /// Force overwrite
+    #[arg(short = 'f', long)]
+    pub force: bool,
+
+    /// Skip dependencies
+    #[arg(long)]
+    pub no_dependencies: bool,
+
+    /// Dry run (simulate installation)
+    #[arg(long)]
+    pub dry_run: bool,
+}
 
 /// Package installation options
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -148,6 +172,20 @@ pub async fn install_and_report(
             Err(e)
         }
     }
+}
+
+/// Run install command (sync wrapper for CLI)
+pub fn run(args: &InstallArgs) -> Result<()> {
+    crate::runtime::block_on(async {
+        install_and_report(
+            &args.package,
+            args.target.as_deref(),
+            args.force,
+            !args.no_dependencies,
+            args.dry_run,
+        )
+        .await
+    })
 }
 
 #[cfg(test)]

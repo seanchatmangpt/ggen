@@ -1,8 +1,9 @@
 //! Template linting domain logic
 
+use clap::Args;
 use ggen_utils::error::Result;
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 #[derive(Debug, Clone)]
 pub struct LintOptions {
@@ -241,4 +242,59 @@ mod tests {
 
         assert_eq!(report.warnings.len(), 2); // missing 'to:' and 'vars:'
     }
+}
+
+/// CLI Arguments for lint command
+#[derive(Debug, Clone, Args)]
+pub struct LintArgs {
+    /// Template file or reference
+    pub template: String,
+
+    /// Check SPARQL queries
+    #[arg(long)]
+    pub check_sparql: bool,
+
+    /// Check schema validity
+    #[arg(long)]
+    pub check_schema: bool,
+}
+
+/// CLI run function - bridges sync CLI to async domain logic
+pub fn run(args: &LintArgs) -> ggen_utils::error::Result<()> {
+    crate::runtime::execute(async move {
+        let options = LintOptions {
+            check_sparql: args.check_sparql,
+            check_schema: args.check_schema,
+        };
+
+        let report = lint_template(&args.template, &options)?;
+
+        if report.has_errors() {
+            println!("❌ Lint errors found:");
+            for error in &report.errors {
+                if let Some(line) = error.line {
+                    println!("  Line {}: {}", line, error.message);
+                } else {
+                    println!("  {}", error.message);
+                }
+            }
+        }
+
+        if report.has_warnings() {
+            println!("⚠️  Lint warnings:");
+            for warning in &report.warnings {
+                if let Some(line) = warning.line {
+                    println!("  Line {}: {}", line, warning.message);
+                } else {
+                    println!("  {}", warning.message);
+                }
+            }
+        }
+
+        if !report.has_errors() && !report.has_warnings() {
+            println!("✅ Template passed all linting checks");
+        }
+
+        Ok(())
+    })
 }

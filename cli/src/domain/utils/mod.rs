@@ -6,4 +6,4 @@ pub mod doctor;
 pub mod env;
 
 pub use doctor::{SystemCheck, SystemChecker};
-pub use env::{EnvironmentManager, GgenEnvironment};
+pub use env::{EnvironmentManager, GgenEnvironment, EnvArgs};

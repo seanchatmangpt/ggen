@@ -49,6 +49,7 @@ pub mod generators;
 pub mod parsing_utils;
 pub mod prompts;
 pub mod providers;
+pub mod rdf;
 pub mod security;
 pub mod streaming;
 pub mod types;
@@ -67,6 +68,10 @@ pub use generators::{
     TemplateGenerator, TemplateValidator, ValidationIssue,
 };
 pub use providers::adapter::{ollama_default_config, ollama_qwen3_coder_config, MockClient};
+pub use rdf::{
+    Argument, ArgumentType, CliGenerator, CliProject, Dependency, Noun, QueryExecutor, RdfParser,
+    TemplateRenderer, Validation, Verb,
+};
 pub use security::{MaskApiKey, SecretString};
 pub use streaming::StreamConfig;
 pub use types::{DecisionId, PolicyId, RequestId, RuleId};

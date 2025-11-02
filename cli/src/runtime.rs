@@ -35,3 +35,29 @@ where
 
     runtime.block_on(future)
 }
+
+/// Block on an async function with a generic return type
+///
+/// Similar to `execute` but supports any return type, not just Result<()>.
+/// Used for domain functions that return values.
+///
+/// # Examples
+///
+/// ```no_run
+/// use ggen_utils::error::Result;
+///
+/// fn get_data() -> Result<String> {
+///     crate::runtime::block_on(async {
+///         Ok("data".to_string())
+///     })
+/// }
+/// ```
+pub fn block_on<F, T>(future: F) -> T
+where
+    F: Future<Output = T>,
+{
+    let runtime = tokio::runtime::Runtime::new()
+        .expect("Failed to create Tokio runtime");
+
+    runtime.block_on(future)
+}

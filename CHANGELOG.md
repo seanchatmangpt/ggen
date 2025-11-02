@@ -5,38 +5,101 @@ All notable changes to ggen will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.0.0] - 2025-11-01
+## [2.0.0] - 2025-11-02
 
 ### Major Architectural Changes
 
 #### Three-Layer Architecture
-- **CLI Layer** (`cli/`): Command handling and user interaction
-- **Domain Layer** (`ggen-*/`): Core business logic and algorithms
-- **Runtime Layer** (`utils/src/runtime.rs`): Global shared state
+- **CLI Layer** (`cli/src/cmds/`): Command routing with clap-noun-verb v3
+- **Domain Layer** (`cli/src/domain/`): Pure business logic (async, framework-agnostic)
+- **Runtime Layer** (`cli/src/runtime.rs`): Sync/async bridge utilities
 
 **Benefits:**
 - 50% faster compilation (30-45s vs 60-90s)
 - 50% faster incremental builds (5-8s vs 10-15s)
 - Enhanced testability and maintainability
 - Clear separation of concerns
+- Convention-based routing (directory = noun, file = verb)
 
 #### Global Runtime Pattern
 - Replaced per-command `AppContext` with singleton `GlobalRuntime`
-- Eliminated duplicate initialization code across 13 commands
+- Eliminated duplicate initialization code across all commands
 - Configuration loaded once and shared globally
 - Improved testing with mockable runtime
 
+#### clap-noun-verb v3 Integration
+- **Auto-discovery**: Commands discovered from directory structure
+- **Zero boilerplate**: No manual command registration needed
+- **Type-safe**: Compile-time validation of command structure
+- **Self-documenting**: Help text generated from file structure
+
+### Complete Command Migration
+
+#### All 8 Noun Commands Migrated (29 Total Verbs)
+
+**Template** (7 commands):
+- `generate` - Generate from template with RDF context
+- `generate-tree` - Generate entire file trees
+- `lint` - Validate template syntax and queries
+- `list` - Discover available templates
+- `new` - Create new template from wizard
+- `regenerate` - Regenerate from existing template
+- `show` - Display template metadata
+
+**AI** (3 commands):
+- `generate` - AI-powered code generation
+- `chat` - Interactive AI chat session
+- `analyze` - Analyze code with AI insights
+
+**Graph** (4 commands):
+- `load` - Load RDF graph from file
+- `query` - Execute SPARQL queries
+- `export` - Export graph to various formats
+- `visualize` - Generate graph visualizations
+
+**Marketplace** (5 commands):
+- `search` - Search for packages
+- `install` - Install packages
+- `list` - List installed packages
+- `publish` - Publish new packages
+- `update` - Update installed packages
+
+**Project** (4 commands):
+- `new` - Create new project from scratch
+- `plan` - Generate project plan
+- `gen` - Generate code from plan
+- `apply` - Apply code changes
+
+**Hook** (4 commands):
+- `create` - Create lifecycle hooks
+- `list` - List registered hooks
+- `remove` - Remove hooks
+- `monitor` - Monitor hook execution
+
+**Utils** (2 commands):
+- `doctor` - System diagnostics and health check
+- `env` - Environment variable management
+
+**CI** (1 command):
+- `workflow` - Generate CI/CD workflows
+
 ### Breaking Changes
+
+#### Command Structure
+- All commands now use noun-verb pattern (e.g., `ggen template generate`)
+- Old flat command structure no longer supported
+- Migration: Update scripts to use new command format
 
 #### Command Renaming
 - `ggen market` → `ggen marketplace` (full word for clarity)
-- Migration: Run `ggen doctor --migrate-config`
-- See [Migration Guide](docs/MIGRATION_V1_TO_V2.md) for details
+- All commands now require explicit noun-verb format
+- Migration: Run `ggen utils doctor --migrate-config`
 
 #### API Changes (Library Users)
 - `MarketClient` → `MarketplaceClient`
 - Builder pattern for client creation
-- Updated import paths
+- Updated import paths to reflect new structure
+- Domain layer moved to `cli/src/domain/`
 
 ### Performance Improvements
 

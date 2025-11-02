@@ -31,7 +31,7 @@ pub async fn run_for_node(args: Vec<String>) -> ggen_utils::error::Result<RunRes
     use std::sync::Mutex;
 
     // Prefix with a binary name to satisfy clap-noun-verb semantics
-    let argv: Vec<String> = std::iter::once("ggen".to_string()).chain(args.into_iter()).collect();
+    let _argv: Vec<String> = std::iter::once("ggen".to_string()).chain(args.into_iter()).collect();
 
     // Create thread-safe buffers for capturing output
     let stdout_buffer = Arc::new(Mutex::new(Vec::new()));

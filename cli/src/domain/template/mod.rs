@@ -2,6 +2,12 @@
 //!
 //! This module provides the core business logic for template management,
 //! using the ggen-core TemplateEngine for REAL template processing.
+//!
+//! ## v2 Architecture Features
+//! - RDF/SPARQL integration via `render_with_rdf` module
+//! - Backward compatible with v1 template API
+//! - TTL file → Template generation support
+//! - Preprocessor integration for advanced template processing
 
 use ggen_core::{Generator, GenContext, Pipeline};
 use ggen_utils::error::Result;
@@ -10,19 +16,23 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 pub mod generate;
+pub mod generate_rdf;
 pub mod generate_tree;
 pub mod lint;
 pub mod list;
 pub mod new;
 pub mod regenerate;
+pub mod render_with_rdf;
 pub mod show;
 
 pub use generate::*;
+pub use generate_rdf::*;
 pub use generate_tree::*;
 pub use lint::*;
 pub use list::*;
 pub use new::*;
 pub use regenerate::*;
+pub use render_with_rdf::*;
 pub use show::*;
 
 /// Template service for coordinating template operations

@@ -6,6 +6,7 @@
 //! - JSON export for web-based visualization
 //! - Interactive graph exploration
 
+use clap::Args;
 use ggen_utils::error::Result;
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
@@ -114,6 +115,34 @@ pub struct VisualizeStats {
     pub edges_rendered: usize,
     pub output_path: Option<PathBuf>,
     pub format: String,
+}
+
+/// CLI Arguments for visualize command
+#[derive(Debug, Clone, Args)]
+pub struct VisualizeArgs {
+    /// Input RDF file to visualize
+    #[arg(short = 'i', long)]
+    pub input: PathBuf,
+
+    /// Output file path
+    #[arg(short = 'o', long)]
+    pub output: Option<PathBuf>,
+
+    /// Visualization format (dot, svg, png, json)
+    #[arg(short = 'f', long, default_value = "dot")]
+    pub format: String,
+
+    /// Include RDF labels in visualization
+    #[arg(short = 'l', long)]
+    pub labels: bool,
+
+    /// Maximum depth for graph traversal
+    #[arg(short = 'd', long)]
+    pub max_depth: Option<usize>,
+
+    /// Filter to specific subject IRI
+    #[arg(short = 's', long)]
+    pub subject: Option<String>,
 }
 
 /// Visualize an RDF graph
@@ -322,4 +351,38 @@ mod tests {
         assert_eq!(VisualizeFormat::Png.extension(), "png");
         assert_eq!(VisualizeFormat::Json.extension(), "json");
     }
+}
+
+/// CLI run function - bridges sync CLI to async domain logic
+pub fn run(args: &VisualizeArgs) -> ggen_utils::error::Result<()> {
+    crate::runtime::execute(async move {
+        // Parse format
+        let format = VisualizeFormat::from_str(&args.format)?;
+
+        // Determine output path
+        let output_path = args.output.clone().or_else(|| {
+            let mut path = args.input.clone();
+            path.set_extension(format.extension());
+            Some(path)
+        });
+
+        let options = VisualizeOptions {
+            format: Some(format),
+            output_path,
+            include_labels: args.labels,
+            max_depth: args.max_depth,
+            subject_filter: args.subject.clone(),
+            layout_engine: LayoutEngine::Dot,
+        };
+
+        let stats = visualize_graph(&args.input, &options).await?;
+
+        println!("✅ Visualized {} nodes and {} edges", stats.nodes_rendered, stats.edges_rendered);
+        if let Some(path) = &stats.output_path {
+            println!("📊 Output saved to: {}", path.display());
+        }
+        println!("📄 Format: {}", stats.format);
+
+        Ok(())
+    })
 }

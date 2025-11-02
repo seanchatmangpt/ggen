@@ -1,10 +1,14 @@
 [package]
 name = "ggen-ai"
-version = "2.0.0"
+version = "2.2.0"
 edition = "2021"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "Thin wrapper around genai for ggen - LLM integration with environment support"
 license = "MIT"
+repository = "https://github.com/seanchatmangpt/ggen"
+homepage = "https://github.com/seanchatmangpt/ggen"
+keywords = ["cli", "code-generation", "rdf", "templates", "llm"]
+categories = ["development-tools", "command-line-utilities"]
 
 [dependencies]
 # Core ggen dependencies

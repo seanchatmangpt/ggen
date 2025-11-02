@@ -3,9 +3,11 @@
 //! Chicago TDD: Uses REAL in-memory RDF stores and ACTUAL SPARQL queries
 
 use anyhow::{Context, Result};
+use clap::Args;
 use ggen_core::Graph;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::path::PathBuf;
 
 /// Options for SPARQL query execution
 #[derive(Debug, Clone)]
@@ -27,6 +29,22 @@ pub struct QueryResult {
     pub variables: Vec<String>,
     /// Number of results returned
     pub result_count: usize,
+}
+
+/// CLI Arguments for query command
+#[derive(Debug, Clone, Args)]
+pub struct QueryArgs {
+    /// SPARQL query string
+    #[arg(short = 'q', long)]
+    pub query: String,
+
+    /// RDF graph file to query
+    #[arg(short = 'g', long)]
+    pub graph_file: Option<PathBuf>,
+
+    /// Output format (json, csv, table)
+    #[arg(short = 'f', long, default_value = "table")]
+    pub format: String,
 }
 
 impl QueryResult {
@@ -263,4 +281,55 @@ mod tests {
 
         Ok(())
     }
+}
+
+/// CLI run function - bridges sync CLI to async domain logic
+pub fn run(args: &QueryArgs) -> ggen_utils::error::Result<()> {
+    crate::runtime::execute(async move {
+        let options = QueryOptions {
+            query: args.query.clone(),
+            graph_file: args.graph_file.as_ref().map(|p| p.to_string_lossy().to_string()),
+            output_format: args.format.clone(),
+        };
+
+        let result = execute_sparql(options).map_err(|e| {
+            ggen_utils::error::Error::new(&format!("SPARQL query failed: {}", e))
+        })?;
+
+        // Display results based on format
+        match args.format.as_str() {
+            "json" => {
+                let json = serde_json::to_string_pretty(&result)
+                    .map_err(|e| ggen_utils::error::Error::new(&format!("JSON serialization failed: {}", e)))?;
+                println!("{}", json);
+            }
+            "csv" => {
+                // Print CSV header
+                println!("{}", result.variables.join(","));
+                // Print each row
+                for binding in &result.bindings {
+                    let row: Vec<String> = result.variables.iter()
+                        .map(|v| binding.get(v).cloned().unwrap_or_default())
+                        .collect();
+                    println!("{}", row.join(","));
+                }
+            }
+            _ => {
+                // Table format (default)
+                println!("✅ Query returned {} results", result.result_count);
+                println!("\n{}", "─".repeat(80));
+                println!("{}", result.variables.join(" | "));
+                println!("{}", "─".repeat(80));
+                for binding in &result.bindings {
+                    let row: Vec<String> = result.variables.iter()
+                        .map(|v| binding.get(v).cloned().unwrap_or_else(|| "-".to_string()))
+                        .collect();
+                    println!("{}", row.join(" | "));
+                }
+                println!("{}", "─".repeat(80));
+            }
+        }
+
+        Ok(())
+    })
 }

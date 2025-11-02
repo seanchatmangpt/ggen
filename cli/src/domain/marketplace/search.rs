@@ -3,8 +3,44 @@
 //! This module contains the core business logic for searching packages,
 //! separated from CLI concerns for better testability and reusability.
 
+use clap::Args;
 use ggen_utils::error::Result;
 use serde::{Deserialize, Serialize};
+
+/// Search command arguments
+#[derive(Debug, Args)]
+pub struct SearchArgs {
+    /// Search query
+    pub query: String,
+
+    /// Filter by category
+    #[arg(short = 'c', long)]
+    pub category: Option<String>,
+
+    /// Filter by keyword
+    #[arg(short = 'k', long)]
+    pub keyword: Option<String>,
+
+    /// Filter by author
+    #[arg(short = 'a', long)]
+    pub author: Option<String>,
+
+    /// Enable fuzzy search
+    #[arg(long)]
+    pub fuzzy: bool,
+
+    /// Show detailed information
+    #[arg(short = 'd', long)]
+    pub detailed: bool,
+
+    /// Output as JSON
+    #[arg(short = 'j', long)]
+    pub json: bool,
+
+    /// Limit number of results
+    #[arg(short = 'l', long, default_value = "10")]
+    pub limit: usize,
+}
 
 /// Search filters for package discovery
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -143,6 +179,23 @@ pub async fn search_and_display(
     }
 
     Ok(())
+}
+
+/// Run search command (sync wrapper for CLI)
+pub fn run(args: &SearchArgs) -> Result<()> {
+    crate::runtime::block_on(async {
+        search_and_display(
+            &args.query,
+            args.category.as_deref(),
+            args.keyword.as_deref(),
+            args.author.as_deref(),
+            args.fuzzy,
+            args.detailed,
+            args.json,
+            args.limit,
+        )
+        .await
+    })
 }
 
 #[cfg(test)]
