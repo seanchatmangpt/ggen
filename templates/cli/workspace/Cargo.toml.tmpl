@@ -1,0 +1,42 @@
+---
+to: "{{ project_name }}/Cargo.toml"
+vars:
+  project_name: "my-app"
+  cli_crate: "my-cli"
+  core_crate: "my-core"
+  version: "0.1.0"
+  edition: "2021"
+  resolver: "2"
+---
+[workspace]
+members = ["crates/{{ cli_crate }}", "crates/{{ core_crate }}"]
+resolver = "{{ resolver }}"
+
+[workspace.package]
+version = "{{ version }}"
+edition = "{{ edition }}"
+authors = {{ authors }}
+license = "{{ license }}"
+
+[workspace.dependencies]
+# CLI dependencies
+clap = { version = "4.5", features = ["derive", "env", "wrap_help"] }
+clap-noun-verb = "3.3.0"
+clap-noun-verb-macros = "3.3.0"
+tokio = { version = "1.47", features = ["full"] }
+anyhow = "1.0"
+thiserror = "2.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Domain dependencies (shared)
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "0.8", features = ["v4", "serde"] }
+
+[workspace.dev-dependencies]
+assert_cmd = "2.0"
+assert_fs = "1.0"
+predicates = "3.0"
+tempfile = "3.0"
+proptest = "1.8"
+

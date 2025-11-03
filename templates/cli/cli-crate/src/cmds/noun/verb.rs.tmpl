@@ -1,0 +1,72 @@
+---
+to: "{{ project_name }}/crates/{{ cli_crate }}/src/cmds/{{ noun }}/{{ verb }}.rs"
+vars:
+  noun: "user"
+  verb: "create"
+  domain_function: "my_core::user::create_user"
+  core_crate: "my-core"
+---
+//! {{ verb }} {{ noun }} command
+//!
+//! This CLI wrapper delegates to the domain function: {{ domain_function }}
+
+use clap::Args;
+use anyhow::Result;
+use crate::runtime::execute;
+use {{ core_crate | replace("-", "_") }}::{{ noun }}::{{ verb }}::{Input, execute as domain_execute};
+
+/// Arguments for {{ verb }} {{ noun }} command
+#[derive(Args, Debug)]
+pub struct {{ verb | capitalize }}Args {
+    // TODO: Add arguments from ontology
+    // Arguments will be generated based on RDF ontology definition
+    /// Name of the {{ noun }}
+    #[arg(long)]
+    pub name: String,
+    
+    /// Description
+    #[arg(long)]
+    pub description: Option<String>,
+}
+
+/// Execute {{ verb }} {{ noun }} command
+///
+/// This function:
+/// 1. Parses CLI arguments (clap-noun-verb v3.3.0 with auto-inference)
+/// 2. Converts to domain input type
+/// 3. Calls domain function: {{ domain_function }}
+/// 4. Formats output for CLI (JSON output supported via v3.0.0)
+#[verb("{{ verb }}", "{{ noun }}")]
+pub fn run(args: &{{ verb | capitalize }}Args) -> Result<()> {
+    // Convert CLI args to domain input
+    let input = Input {
+        name: args.name.clone(),
+        // TODO: Map additional arguments from ontology
+    };
+    
+    // Execute domain function via runtime bridge
+    let result = execute(async move {
+        domain_execute(input).await
+    })?;
+    
+    // Format output for CLI
+    println!("✅ {{ noun | capitalize }} created: {}", result.id);
+    
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_{{ verb }}_args_parsing() {
+        // Test that args struct can be created
+        let args = {{ verb | capitalize }}Args {
+            name: "test-{{ noun }}".to_string(),
+            description: Some("Test description".to_string()),
+        };
+        assert_eq!(args.name, "test-{{ noun }}");
+    }
+}
+

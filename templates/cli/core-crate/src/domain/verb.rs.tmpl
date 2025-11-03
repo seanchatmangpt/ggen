@@ -1,0 +1,55 @@
+---
+to: "{{ project_name }}/crates/{{ core_crate }}/src/{{ domain_module }}/{{ verb }}.rs"
+vars:
+  domain_module: "user"
+  verb: "create"
+---
+//! {{ verb }} operation for {{ domain_module }}
+//!
+//! This module provides the {{ verb }} functionality for {{ domain_module }}.
+//! It is pure business logic with no CLI dependencies.
+
+use anyhow::Result;
+use serde::{Deserialize, Serialize};
+
+/// Input for {{ verb }} operation
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Input {
+    // TODO: Add input fields based on ontology arguments
+    pub name: String,
+}
+
+/// Output from {{ verb }} operation
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Output {
+    // TODO: Add output fields based on domain requirements
+    pub id: String,
+}
+
+/// Execute {{ verb }} operation
+///
+/// This is a pure business logic function that can be called from
+/// any interface (CLI, web API, GUI, etc.).
+pub fn execute(input: Input) -> Result<Output> {
+    // TODO: Implement business logic
+    // This is a placeholder - implement actual domain logic here
+    Ok(Output {
+        id: format!("{}-{}", input.name, uuid::Uuid::new_v4()),
+    })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_{{ verb }}_basic() {
+        let input = Input {
+            name: "test-{{ domain_module }}".to_string(),
+        };
+
+        let result = execute(input);
+        assert!(result.is_ok());
+    }
+}
+

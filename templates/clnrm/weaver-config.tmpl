@@ -1,0 +1,117 @@
+---
+# ============================================================================
+# Weaver Configuration Generator for clnrm v2.0
+# ============================================================================
+# Generates Weaver configuration from RDF CLI definitions
+# Usage: ggen template generate -t templates/clnrm/weaver-config.tmpl -r docs/clnrm-cli-v2.ttl -o weaver.toml
+# ============================================================================
+
+sparql:
+  # Project metadata
+  project_info: |
+    PREFIX cli: <http://ggen.dev/schema/cli#>
+    
+    SELECT ?name ?version
+    WHERE {
+      ?project a cli:CliProject ;
+               cli:hasName ?name ;
+               cli:hasVersion ?version .
+    }
+  
+  # Extract span names from nouns and verbs
+  span_names: |
+    PREFIX cli: <http://ggen.dev/schema/cli#>
+    PREFIX cnv: <http://ggen.dev/schema/clap-noun-verb#>
+    
+    SELECT ?nounName ?verbName ?spanName
+    WHERE {
+      ?project cli:hasNoun ?noun .
+      ?noun cnv:nounName ?nounName ;
+            cnv:hasVerb ?verb .
+      ?verb cnv:verbName ?verbName .
+      BIND(CONCAT("{{ sparql_first(results=sparql_results.project_info, column='name') }}.", ?nounName, ".", ?verbName) AS ?spanName)
+    }
+    ORDER BY ?nounName ?verbName
+  
+  # Service name from project
+  service_name: |
+    PREFIX cli: <http://ggen.dev/schema/cli#>
+    
+    SELECT ?name
+    WHERE {
+      ?project a cli:CliProject ;
+               cli:hasName ?name .
+    }
+
+---
+
+{# FILE: weaver.toml #}
+# ============================================================================
+# Weaver Configuration for {{ sparql_first(results=sparql_results.project_info, column='name') }} v{{ sparql_first(results=sparql_results.project_info, column='version') }}
+# ============================================================================
+# Generated from RDF CLI definition using ggen
+# ============================================================================
+
+[weaver]
+# Weaver registry path
+# Default: "./registry" (relative to project root)
+# Override with: CLNRM_REGISTRY_PATH environment variable
+registry_path = "./registry"
+
+# OTLP gRPC port (0 = auto-discover available port)
+# Default: 0 (auto-discover)
+# Range: 0 or 1024-65535
+otlp_port = 0
+
+# Admin HTTP port for control interface (0 = auto-discover)
+# Default: 0 (auto-discover)
+# Range: 0 or 1024-65535
+admin_port = 0
+
+# Output directory for validation reports
+output_dir = "./validation_output"
+
+# Enable streaming output (real-time feedback)
+stream = false
+
+# Fail fast on first violation
+fail_fast = false
+
+# Validation mode: "strict", "lenient", "80_20", "minimal"
+validation_mode = "strict"
+
+# Service identification
+[weaver.service]
+name = "{{ sparql_first(results=sparql_results.service_name, column='name') }}"
+version = "{{ sparql_first(results=sparql_results.project_info, column='version') }}"
+namespace = "{{ sparql_first(results=sparql_results.project_info, column='name') }}"
+
+# Expected span names extracted from CLI structure
+# These will be validated by Weaver during live-check
+[weaver.expected_spans]
+{% for span in sparql_results.span_names %}
+"{{ span.spanName }}" = { 
+    description = "{{ span.nounName }} {{ span.verbName }} command",
+    noun = "{{ span.nounName }}",
+    verb = "{{ span.verbName }}"
+}
+{% endfor %}
+
+# Semantic conventions required
+# These conventions must be present in the Weaver registry
+[weaver.required_conventions]
+resource = [
+    "service.name",
+    "service.version",
+    "service.namespace"
+]
+
+span = [
+    "clnrm.test.name",
+    "clnrm.test.result",
+    "clnrm.test.duration_ms",
+    "clnrm.container.id",
+    "clnrm.command",
+    "clnrm.exit_code"
+]
+

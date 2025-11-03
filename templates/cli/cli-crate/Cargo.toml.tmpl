@@ -1,0 +1,41 @@
+---
+to: "{{ project_name }}/crates/{{ cli_crate }}/Cargo.toml"
+vars:
+  project_name: "my-app"
+  cli_crate: "my-cli"
+  core_crate: "my-core"
+  version: "0.1.0"
+  description: "CLI presentation layer for {{ project_name }}"
+---
+[package]
+name = "{{ cli_crate }}"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "{{ description }}"
+
+[dependencies]
+# CLI dependencies (clap-noun-verb v3.3.0)
+clap.workspace = true
+clap-noun-verb.workspace = true
+clap-noun-verb-macros.workspace = true
+tokio.workspace = true
+anyhow.workspace = true
+thiserror.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+
+# Domain crate dependency
+{{ core_crate | replace("-", "_") }} = { path = "../{{ core_crate }}", version.workspace = true }
+
+[dev-dependencies]
+assert_cmd.workspace = true
+assert_fs.workspace = true
+predicates.workspace = true
+tempfile.workspace = true
+
+[[bin]]
+name = "{{ cli_crate }}"
+path = "src/main.rs"
+

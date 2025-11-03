@@ -5,7 +5,7 @@
 //! conversational queries with AI interpretation.
 
 use clap::{Parser, Subcommand};
-use serde_json::{json, Value};
+use serde_json::Value;
 use std::collections::HashMap;
 
 #[derive(Parser)]

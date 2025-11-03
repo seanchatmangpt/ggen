@@ -1,0 +1,62 @@
+[package]
+name = "ggen-utils"
+version = "2.4.0"
+authors = ["Sean Chatman <sean@chatmangpt.com>"]
+description = "Shared utilities for ggen"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/seanchatmangpt/ggen"
+readme = "README.md"
+keywords = ["cli", "code-generation", "rdf", "templates"]
+categories = ["development-tools", "command-line-utilities"]
+
+[lints.clippy]
+multiple_crate_versions = "allow"
+
+[features]
+nightly = []
+termlog = []
+syslog = []
+journald = []
+
+[dependencies]
+anyhow = "1.0"
+thiserror = "2.0.17"
+backtrace = "0.3.76"
+color-backtrace = "0.7.1"
+# Disable ron feature in config to avoid base64 v0.21.7 duplicate
+# (config's ron 0.8 -> base64 0.21.7 conflicts with reqwest -> base64 0.22.1)
+config = { version = "0.15.18", default-features = false, features = [
+  "toml",
+  "json",
+  "yaml",
+  "ini",
+  "json5",
+  "convert-case",
+  "async",
+] }
+# Use newer ron directly if needed
+ron = "0.11"
+lazy_static = "1.5.0"
+slog = "2.8.2"
+# slog-syslog-jl = "0.13.1"  # Temporarily disabled due to vulnerability
+slog-term = "2.9.2"
+slog-scope = "4.4.0"
+slog-async = "2.8.0"
+slog-stdlog = "4.1.1"
+clap = "4.5.48"
+log = "0.4.28"
+serde = { version = "1.0.228", features = ["derive"] }
+serde_yaml = "0.9"
+serde_json = "1.0"
+toml = "0.9"
+tera = "1.20"
+oxigraph = "0.5"
+colored = "3.0"
+dirs = "6.0"
+
+[dev-dependencies]
+tempfile = "3"
+
+[target.'cfg(target_os = "linux")'.dependencies]
+slog-journald = "2.2.0"

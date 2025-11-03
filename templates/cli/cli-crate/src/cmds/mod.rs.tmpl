@@ -1,0 +1,36 @@
+---
+to: "{{ project_name }}/crates/{{ cli_crate }}/src/cmds/mod.rs"
+vars:
+  project_name: "my-app"
+  cli_crate: "my-cli"
+  core_crate: "my-core"
+  nouns: ["user", "project"]
+---
+//! CLI commands module
+//!
+//! This module contains all CLI command definitions using clap-noun-verb v3.3.0.
+//! Commands delegate to domain functions in {{ core_crate }}.
+
+{% for noun in nouns %}pub mod {{ noun }};
+{% endfor %}
+
+use clap::Subcommand;
+use anyhow::Result;
+
+/// Main command enum
+#[derive(Subcommand, Debug)]
+pub enum Command {
+{% for noun in nouns %}    /// {{ noun | capitalize }} operations
+    {{ noun | capitalize }}({{ noun }}::{{ noun | capitalize }}Args),
+{% endfor %}
+}
+
+impl Command {
+    /// Execute the command
+    pub async fn run(&self) -> Result<()> {
+        match self {
+{% for noun in nouns %}            Command::{{ noun | capitalize }}(args) => {{ noun }}::run(args).await,
+{% endfor %}        }
+    }
+}
+
