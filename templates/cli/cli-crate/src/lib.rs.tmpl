@@ -1,0 +1,15 @@
+---
+to: "{{ project_name }}/crates/{{ cli_crate }}/src/lib.rs"
+vars:
+  project_name: "my-app"
+---
+//! {{ cli_crate }} - CLI presentation layer
+//!
+//! This crate provides the CLI interface using clap-noun-verb v3.3.0.
+//! All business logic is delegated to the {{ core_crate }} crate.
+
+pub mod cmds;
+pub mod runtime;
+
+pub use cmds::Command;
+

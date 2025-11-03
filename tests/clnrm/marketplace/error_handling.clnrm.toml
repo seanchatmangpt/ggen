@@ -20,7 +20,7 @@ service_name = "ggen-marketplace-error-tests"
 plugin = "generic_container"
 image = "rust:1.75"
 workdir = "/app"
-volumes = ["./:/app"]
+volumes = [{ host_path = "./", container_path = "/app" }]
 env.RUST_LOG = "info,ggen=debug"
 env.OTEL_EXPORTER_OTLP_ENDPOINT = "http://localhost:4318"
 
@@ -40,11 +40,9 @@ cargo test --test marketplace_tests_main \
 
 [[scenario.expect.span]]
 name = "ggen.registry.resolve"
-attrs.all = {
-  "package.id" = "nonexistent-package",
-  "error.type" = "PackageNotFound",
-  "error.message.contains" = "not found"
-}
+attrs.all."package.id" = "nonexistent-package"
+attrs.all."error.type" = "PackageNotFound"
+attrs.all."error.message.contains" = "not found"
 status = "ERROR"
 
 [[scenario.expect.span]]

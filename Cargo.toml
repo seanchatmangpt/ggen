@@ -1,6 +1,6 @@
 [package]
 name = "ggen"
-version = "2.2.0"
+version = "2.4.0"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 edition = "2021"
 repository = "https://github.com/seanchatmangpt/ggen"
@@ -15,19 +15,18 @@ ggen is a deterministic, language-agnostic code generation framework that treats
 
 [workspace]
 members = [
-  "utils",
+  "crates/ggen-utils",
   "cli",
-  "domain",
-  "ggen-core",
-  "ggen-ai",
-  # Temporarily excluded due to compilation errors (will be fixed in v1.3.0)
-  # "ggen-marketplace",
+  "crates/ggen-domain",
+  "crates/ggen-core",
+  "crates/ggen-ai",
+  "crates/ggen-marketplace",
   "examples/frontmatter-cli",
   "examples/natural-market-search",
   "examples/ai-template-project",
-  "node",
+  "crates/ggen-node",
 ]
-exclude = ["examples/rust-cli-lifecycle", "examples/marketplace-demo/generated", "ggen-marketplace"]
+exclude = ["examples/rust-cli-lifecycle", "examples/marketplace-demo/generated"]
 resolver = "2" # Use new resolver for better dependency resolution
 
 # Workspace-wide dependencies for version consistency
@@ -97,10 +96,10 @@ syslog = ["ggen-utils/syslog"]
 london_tdd = []
 
 [dependencies]
-ggen-utils = { path = "utils", version = "2.2.0" }
-ggen-cli-lib = { path = "cli", version = "2.2.0" }
-ggen-core = { path = "ggen-core", version = "2.2.0" }
-ggen-ai = { path = "ggen-ai", version = "2.2.0" }
+ggen-utils = { path = "crates/ggen-utils", version = "2.4.0" }
+ggen-cli-lib = { path = "cli", version = "2.4.0" }
+ggen-core = { path = "crates/ggen-core", version = "2.4.0" }
+ggen-ai = { path = "crates/ggen-ai", version = "2.4.0" }
 human-panic = "2.0.3"
 better-panic = "0.3.0"
 log = "0.4.28"
@@ -148,6 +147,8 @@ fake = "2.9"
 opentelemetry.workspace = true
 opentelemetry-otlp.workspace = true
 opentelemetry_sdk.workspace = true
+futures.workspace = true
+ggen-marketplace = { path = "crates/ggen-marketplace", version = "2.4.0" }
 tracing.workspace = true
 tracing-subscriber.workspace = true
 tracing-opentelemetry.workspace = true
@@ -155,6 +156,7 @@ tracing-opentelemetry.workspace = true
 criterion = { version = "0.7", features = ["html_reports"] }
 once_cell = "1.20"
 lazy_static = "1.4"
+fastrand = "2.3"
 
 [profile.dev]
 opt-level = 0
@@ -211,3 +213,17 @@ harness = false
 [[bench]]
 name = "conventions_performance"
 harness = false
+
+[[bench]]
+name = "marketplace_performance"
+harness = false
+
+[[bench]]
+name = "p2p_benchmarks"
+harness = false
+path = "benches/marketplace/p2p_benchmarks.rs"
+
+[[bench]]
+name = "marketplace_p2p"
+harness = false
+path = "benches/marketplace_p2p.rs"

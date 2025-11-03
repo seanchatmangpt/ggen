@@ -1,0 +1,80 @@
+[package]
+name = "ggen-cli-lib"
+version = "2.4.0"
+authors = ["Sean Chatman <sean@chatmangpt.com>"]
+description = "CLI interface for ggen"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/seanchatmangpt/ggen"
+readme = "README.md"
+keywords = ["cli", "code-generation", "rdf", "templates"]
+categories = ["development-tools", "command-line-utilities"]
+
+[lints.clippy]
+multiple_crate_versions = "allow"
+
+[dependencies]
+# Workspace dependencies
+anyhow.workspace = true
+tokio.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+serde_yaml.workspace = true
+chrono.workspace = true
+toml.workspace = true
+tera.workspace = true
+regex.workspace = true
+rayon.workspace = true
+tracing.workspace = true
+clap.workspace = true
+clap-noun-verb.workspace = true
+once_cell.workspace = true
+
+# Local dependencies
+ggen-utils = { path = "../crates/ggen-utils", version = "2.4.0" }
+ggen-core = { path = "../crates/ggen-core", version = "2.4.0" }
+ggen-ai = { path = "../crates/ggen-ai", version = "2.4.0" }
+ggen-marketplace = { path = "../crates/ggen-marketplace", version = "2.4.0" }
+ggen-domain = { path = "../crates/ggen-domain", version = "3.0.0" }
+
+# Crate-specific dependencies
+gag = "0.1"
+clap_complete = "4.5.58"
+clap-noun-verb-macros = "3.0.0"
+sha2 = "0.10"
+dotenvy = "0.15"
+glob = "0.3"
+semver = "1.0"
+dirs = "6.0"
+oxigraph = "0.5"
+walkdir = "2.5"
+colored = "3.0"
+genai = "0.4"
+linkme = "0.3"
+notify = "6.1"
+notify-debouncer-full = "0.3"
+tar = "0.4"
+flate2 = "1.0"
+md5 = "0.8"
+
+[features]
+default = []
+live-llm-tests = [] # Opt-in for live LLM integration tests
+p2p = [] # Opt-in for P2P marketplace features
+
+[dev-dependencies]
+assert_cmd = "2"
+assert_fs = "1"
+predicates = "3"                                  # Assertions for CLI testing
+mockall = "0.13"                                  # London TDD mocking framework
+fake = { version = "4.4", features = ["derive"] } # Fake data generation
+tempfile = "3.23"                                  # Temporary files/directories for testing
+serde_yaml = "0.9"                                # YAML parsing for frontmatter tests
+serde_json = "1.0"                                # JSON parsing for AI response tests
+criterion = { version = "0.5", features = ["async_tokio", "html_reports"] } # Benchmarking framework
+tokio-test = "0.4"                                # Tokio testing utilities
+notify = "6.1"                                     # File system watcher for watch mode tests
+
+[[bench]]
+name = "marketplace_benchmark"
+harness = false

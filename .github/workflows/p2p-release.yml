@@ -1,0 +1,272 @@
+name: P2P Marketplace Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 2.4.0)'
+        required: true
+        type: string
+      dry_run:
+        description: 'Dry run (do not publish)'
+        required: false
+        type: boolean
+        default: false
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  # Pre-flight checks
+  preflight:
+    name: Pre-flight Checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Validate version
+        run: |
+          VERSION="${{ github.event.inputs.version || github.ref_name }}"
+          VERSION="${VERSION#v}" # Remove 'v' prefix
+          echo "Release version: $VERSION"
+
+          # Check Cargo.toml versions match
+          WORKSPACE_VERSION=$(grep '^version = ' Cargo.toml | head -1 | cut -d '"' -f2)
+          MARKETPLACE_VERSION=$(grep '^version = ' ggen-marketplace/Cargo.toml | head -1 | cut -d '"' -f2)
+
+          if [ "$WORKSPACE_VERSION" != "$VERSION" ]; then
+            echo "::error::Workspace version ($WORKSPACE_VERSION) does not match release version ($VERSION)"
+            exit 1
+          fi
+
+          if [ "$MARKETPLACE_VERSION" != "$VERSION" ]; then
+            echo "::error::Marketplace version ($MARKETPLACE_VERSION) does not match release version ($VERSION)"
+            exit 1
+          fi
+
+          echo "✅ Version validation passed"
+
+      - name: Check CHANGELOG
+        run: |
+          VERSION="${{ github.event.inputs.version || github.ref_name }}"
+          VERSION="${VERSION#v}"
+
+          if ! grep -q "## \[$VERSION\]" CHANGELOG.md; then
+            echo "::warning::CHANGELOG.md does not contain entry for version $VERSION"
+          else
+            echo "✅ CHANGELOG.md contains version $VERSION"
+          fi
+
+      - name: Verify all tests pass
+        run: |
+          echo "::group::Run All Tests"
+          cargo test --workspace --all-features
+          echo "::endgroup::"
+
+      - name: Verify clippy passes
+        run: |
+          echo "::group::Clippy Check"
+          cargo clippy --workspace --all-features -- -D warnings
+          echo "::endgroup::"
+
+      - name: Security audit
+        run: |
+          cargo install cargo-audit --locked
+          echo "::group::Security Audit"
+          cargo audit
+          echo "::endgroup::"
+
+  # Build release artifacts
+  build-release:
+    name: Build Release (${{ matrix.target }})
+    needs: preflight
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+          - os: macos-latest
+            target: x86_64-apple-darwin
+          - os: macos-latest
+            target: aarch64-apple-darwin
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-release-${{ matrix.target }}-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Build release
+        run: |
+          echo "::group::Build Release for ${{ matrix.target }}"
+          cargo build --release --workspace --all-features --target ${{ matrix.target }}
+          echo "::endgroup::"
+
+      - name: Package artifacts
+        run: |
+          VERSION="${{ github.event.inputs.version || github.ref_name }}"
+          VERSION="${VERSION#v}"
+          ARCHIVE="ggen-${VERSION}-${{ matrix.target }}.tar.gz"
+
+          mkdir -p release
+          tar czf "release/$ARCHIVE" \
+            -C "target/${{ matrix.target }}/release" \
+            ggen \
+            --transform "s|^|ggen-${VERSION}/|"
+
+          cd release
+          shasum -a 256 "$ARCHIVE" > "${ARCHIVE}.sha256"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.target }}
+          path: release/*
+
+  # Publish to crates.io
+  publish-crates:
+    name: Publish to crates.io
+    needs: build-release
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: ${{ !inputs.dry_run }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-publish-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Publish ggen-marketplace
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: |
+          echo "::group::Publishing ggen-marketplace"
+          cd ggen-marketplace
+          cargo publish --all-features
+          echo "::endgroup::"
+
+      - name: Wait for crates.io propagation
+        run: |
+          echo "Waiting 60 seconds for crates.io to propagate..."
+          sleep 60
+
+      - name: Publish workspace crates
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: |
+          echo "::group::Publishing workspace crates"
+          # Publish in dependency order
+          cd utils && cargo publish && cd ..
+          sleep 30
+          cd ggen-core && cargo publish && cd ..
+          sleep 30
+          cd ggen-ai && cargo publish && cd ..
+          sleep 30
+          cd cli && cargo publish && cd ..
+          sleep 30
+          cargo publish # Root crate
+          echo "::endgroup::"
+
+  # Create GitHub Release
+  github-release:
+    name: Create GitHub Release
+    needs: [build-release, publish-crates]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: ${{ !inputs.dry_run }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-artifacts
+
+      - name: Extract changelog
+        run: |
+          VERSION="${{ github.event.inputs.version || github.ref_name }}"
+          VERSION="${VERSION#v}"
+
+          # Extract changelog section for this version
+          awk "/## \[$VERSION\]/,/## \[/" CHANGELOG.md | sed '1d;$d' > release-notes.md
+
+          if [ ! -s release-notes.md ]; then
+            echo "Release $VERSION" > release-notes.md
+            echo "" >> release-notes.md
+            echo "See CHANGELOG.md for details." >> release-notes.md
+          fi
+
+      - name: Create release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.event.inputs.version || github.ref_name }}
+          name: Release ${{ github.event.inputs.version || github.ref_name }}
+          body_path: release-notes.md
+          files: release-artifacts/**/*
+          draft: false
+          prerelease: false
+
+  # Deployment summary
+  release-summary:
+    name: Release Summary
+    needs: [preflight, build-release, publish-crates, github-release]
+    runs-on: ubuntu-latest
+    if: always() && !inputs.dry_run
+
+    steps:
+      - name: Generate summary
+        run: |
+          echo "## 🚀 P2P Marketplace Release Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Version: ${{ github.event.inputs.version || github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Results" >> $GITHUB_STEP_SUMMARY
+          echo "- Pre-flight: ${{ needs.preflight.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Build: ${{ needs.build-release.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Publish: ${{ needs.publish-crates.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- GitHub Release: ${{ needs.github-release.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ needs.publish-crates.result }}" == "success" ]; then
+            echo "✅ Successfully published to crates.io" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Failed to publish to crates.io" >> $GITHUB_STEP_SUMMARY
+          fi

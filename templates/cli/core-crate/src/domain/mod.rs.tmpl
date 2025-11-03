@@ -1,0 +1,14 @@
+---
+to: "{{ project_name }}/crates/{{ core_crate }}/src/{{ domain_module }}/mod.rs"
+vars:
+  domain_module: "user"
+---
+//! {{ domain_module }} domain module
+//!
+//! This module contains domain logic for {{ domain_module }} operations.
+//! All functions are pure business logic with no CLI dependencies.
+
+pub mod {{ verb }};
+
+pub use {{ verb }}::*;
+

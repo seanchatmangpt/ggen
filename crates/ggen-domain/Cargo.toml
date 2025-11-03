@@ -1,0 +1,55 @@
+[package]
+name = "ggen-domain"
+version = "3.0.0"
+authors = ["Sean Chatman <sean@chatmangpt.com>"]
+description = "Domain logic layer for ggen - pure business logic without CLI dependencies"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/seanchatmangpt/ggen"
+homepage = "https://github.com/seanchatmangpt/ggen"
+keywords = ["code-generation", "rdf", "templates", "domain"]
+categories = ["development-tools"]
+
+[lints.clippy]
+multiple_crate_versions = "allow"
+
+[dependencies]
+# Workspace dependencies
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+serde_yaml = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+
+# Local infrastructure dependencies (stay at 2.4.0 for now)
+ggen-core = { path = "../ggen-core", version = "2.4.0" }
+ggen-ai = { path = "../ggen-ai", version = "2.4.0" }
+ggen-marketplace = { path = "../ggen-marketplace", version = "2.4.0" }
+ggen-utils = { path = "../ggen-utils", version = "2.4.0" }
+
+# Crate-specific dependencies
+tera = { workspace = true }
+oxigraph = { workspace = true }
+regex = { workspace = true }
+chrono = { workspace = true }
+uuid = { workspace = true }
+rayon = { workspace = true }
+walkdir = "2.5"
+glob = "0.3"
+sha2 = "0.10"
+tempfile = { workspace = true }
+tar = "0.4"
+flate2 = "1.0"
+dirs = "5.0"
+
+# CRITICAL: NO clap or clap-noun-verb dependencies
+# Domain must be CLI-agnostic
+
+[dev-dependencies]
+assert_cmd = "2"
+assert_fs = "1"
+predicates = "3"
+tempfile = { workspace = true }
+tokio-test = "0.4"
+

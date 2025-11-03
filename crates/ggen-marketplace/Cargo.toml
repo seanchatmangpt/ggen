@@ -1,0 +1,120 @@
+[package]
+name = "ggen-marketplace"
+version = "2.4.0"
+edition = "2021"
+authors = ["Ggen Contributors"]
+description = "Core trait system for distributed package marketplace"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/yourusername/ggen"
+
+[dependencies]
+# Async runtime and traits
+tokio = { version = "1.35", features = ["full"] }
+async-trait = "0.1"
+
+# HTTP client
+reqwest = { version = "0.12", features = ["json"], default-features = false }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Date and time
+chrono = { version = "0.4", features = ["serde"] }
+
+# Cryptography
+sha2 = "0.10"
+hex = "0.4"
+base64 = "0.22"
+ed25519-dalek = { version = "2.1", features = ["rand_core"], optional = true }
+rand = { version = "0.8", optional = true }
+
+# Error handling
+thiserror = "1.0"
+anyhow = "1.0"
+
+# Machine Learning / Recommendations
+ndarray = "0.16"
+
+# Content-Addressed Storage
+cid = "0.11"
+multihash = "0.19"
+
+# P2P Networking
+libp2p = { version = "0.54", features = ["tcp", "noise", "yamux", "gossipsub", "kad", "identify", "tokio", "macros"], optional = true }
+bs58 = { version = "0.5", optional = true }
+
+# Unix file locking
+[target.'cfg(unix)'.dependencies]
+nix = { version = "0.29", features = ["fs"], optional = true }
+
+# WebAssembly Plugins
+wasmtime = { version = "28.0", features = ["cranelift"] }
+
+# Smart Caching
+moka = { version = "0.12", features = ["future"] }
+
+# File system walking
+walkdir = "2.5"
+
+# Async utilities
+futures = "0.3"
+
+# Search engine
+tantivy = "0.22"
+
+# OpenTelemetry instrumentation (latest versions matching clnrm)
+tracing = "0.1"
+opentelemetry = { version = "0.31.0", default-features = false, features = [
+  "trace",
+  "metrics",
+  "logs",
+  "futures",
+] }
+opentelemetry_sdk = { version = "0.31.0", default-features = false, features = [
+  "trace",
+  "metrics",
+  "logs",
+  "rt-tokio",
+] }
+opentelemetry-otlp = { version = "0.31.0", default-features = false, features = [
+  "trace",
+  "metrics",
+  "logs",
+  "http-proto",
+  "grpc-tonic",
+  "reqwest-client",
+] }
+opentelemetry-semantic-conventions = "0.15.0"
+tracing-opentelemetry = "0.32.0"
+tracing-subscriber = { version = "0.3.20", features = [
+  "fmt",
+  "env-filter",
+  "registry",
+] }
+
+# GraphQL API
+async-graphql = { version = "7.0", optional = true }
+async-graphql-axum = { version = "7.0", optional = true }
+
+# HTTP server (for examples)
+axum = { version = "0.7", optional = true }
+tower = { version = "0.4", optional = true }
+tower-http = { version = "0.5", features = ["cors"], optional = true }
+
+[dev-dependencies]
+tokio-test = "0.4"
+tempfile = "3.23"
+mockall = "0.13"
+
+[lib]
+name = "ggen_marketplace"
+path = "src/lib.rs"
+
+[features]
+default = ["crypto"]
+p2p = ["libp2p", "bs58", "nix"]
+graphql = ["async-graphql", "async-graphql-axum"]
+graphql-server = ["graphql", "axum", "tower", "tower-http"]
+crypto = ["ed25519-dalek", "rand"]
+all = ["p2p", "graphql-server", "crypto"]

@@ -1,0 +1,33 @@
+---
+to: "{{ project_name }}/crates/{{ core_crate }}/Cargo.toml"
+vars:
+  project_name: "my-app"
+  core_crate: "my-core"
+  version: "0.1.0"
+  description: "Domain logic layer for {{ project_name }}"
+---
+[package]
+name = "{{ core_crate }}"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "{{ description }}"
+
+# NO CLI dependencies - pure business logic
+[dependencies]
+anyhow.workspace = true
+thiserror.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+chrono.workspace = true
+uuid.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
+proptest.workspace = true
+
+[lib]
+name = "{{ core_crate | replace("-", "_") }}"
+path = "src/lib.rs"
+

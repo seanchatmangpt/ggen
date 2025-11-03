@@ -1,0 +1,23 @@
+---
+to: "{{ project_name }}/crates/{{ cli_crate }}/src/runtime.rs"
+vars:
+  project_name: "my-app"
+---
+//! Runtime utilities for async/sync bridge
+//!
+//! This module provides utilities for bridging between synchronous CLI
+//! layer and asynchronous domain layer.
+
+use anyhow::Result;
+
+/// Execute an async function in the tokio runtime
+///
+/// This is a thin wrapper around tokio::runtime::Runtime::new()?.block_on()
+/// that provides consistent error handling across the CLI layer.
+pub fn execute<F, T>(f: F) -> Result<T>
+where
+    F: std::future::Future<Output = Result<T>>,
+{
+    tokio::runtime::Runtime::new()?.block_on(f)
+}
+

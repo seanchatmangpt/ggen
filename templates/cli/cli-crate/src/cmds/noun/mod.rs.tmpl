@@ -1,0 +1,39 @@
+---
+to: "{{ project_name }}/crates/{{ cli_crate }}/src/cmds/{{ noun }}/mod.rs"
+vars:
+  noun: "user"
+  verbs: ["create", "list", "get", "update", "delete"]
+---
+//! {{ noun }} commands
+//!
+//! This module contains CLI commands for {{ noun }} operations.
+//! All business logic is delegated to {{ core_crate }}.
+
+{% for verb in verbs %}pub mod {{ verb }};
+{% endfor %}
+
+use clap::{Args, Subcommand};
+use anyhow::Result;
+
+/// {{ noun | capitalize }} command arguments
+#[derive(Args, Debug)]
+pub struct {{ noun | capitalize }}Args {
+    #[command(subcommand)]
+    pub verb: {{ noun | capitalize }}Verb,
+}
+
+/// {{ noun | capitalize }} verb subcommands
+#[derive(Subcommand, Debug)]
+pub enum {{ noun | capitalize }}Verb {
+{% for verb in verbs %}    /// {{ verb | capitalize }} a {{ noun }}
+    {{ verb | capitalize }}({{ verb }}::{{ verb | capitalize }}Args),
+{% endfor %}
+}
+
+/// Execute {{ noun }} command
+pub async fn run(args: &{{ noun | capitalize }}Args) -> Result<()> {
+    match &args.verb {
+{% for verb in verbs %}        {{ noun | capitalize }}Verb::{{ verb | capitalize }}(verb_args) => {{ verb }}::run(verb_args).await,
+{% endfor %}    }
+}
+

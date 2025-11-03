@@ -20,7 +20,7 @@ service_name = "ggen-marketplace-p2p-tests"
 plugin = "generic_container"
 image = "rust:1.75"
 workdir = "/app"
-volumes = ["./:/app"]
+volumes = [{ host_path = "./", container_path = "/app" }]
 env.RUST_LOG = "info,ggen=debug"
 env.OTEL_EXPORTER_OTLP_ENDPOINT = "http://localhost:4318"
 

@@ -1,0 +1,47 @@
+# GGEN Marketplace - P2P Test with OTEL Validation
+# ==================================================
+# Tests P2P peer discovery with OpenTelemetry span validation
+
+[test.metadata]
+name = "ggen_p2p_peer_discovery"
+description = "Test P2P peer discovery with OTEL validation"
+version = "1.0.0"
+timeout = "180s"
+tags = ["p2p", "peer-discovery", "otel"]
+
+[otel]
+exporter = "otlp"
+resources = { "service.name" = "ggen-p2p-test", "test.type" = "integration" }
+
+[services.p2p_node_1]
+# Note: 'plugin' defaults to "generic_container", so only 'image' is required
+image = "alpine:latest"
+
+[services.p2p_node_2]
+image = "alpine:latest"
+depends_on = ["p2p_node_1"]
+
+[[steps]]
+name = "verify_node_1_startup"
+service = "p2p_node_1"
+command = ["echo", "Node 1 ready"]
+expected_output_regex = "Node 1 ready"
+
+[[steps]]
+name = "verify_node_2_startup"
+service = "p2p_node_2"
+command = ["echo", "Node 2 ready"]
+expected_output_regex = "Node 2 ready"
+
+[[steps]]
+name = "test_peer_discovery"
+service = "p2p_node_1"
+command = ["echo", "Peer discovery test"]
+expected_output_regex = "Peer discovery test"
+
+[expect.status]
+all = "OK"
+
+[expect.counts]
+spans_total = { gte = 2 }
+

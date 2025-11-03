@@ -1,0 +1,43 @@
+---
+to: "{{ project_name }}/crates/{{ cli_crate }}/src/main.rs"
+vars:
+  project_name: "my-app"
+  cli_crate: "my-cli"
+  description: "CLI for {{ project_name }}"
+---
+//! {{ description }}
+//!
+//! This is the CLI presentation layer. It uses clap-noun-verb v3.3.0
+//! to parse commands and delegates to the domain layer in {{ core_crate }}.
+
+use clap::Parser;
+use clap_noun_verb::run;
+use std::process;
+
+mod cmds;
+mod runtime;
+
+/// Main CLI structure
+#[derive(Parser, Debug)]
+#[command(
+    name = "{{ cli_crate }}",
+    about = "{{ description }}",
+    version,
+    propagate_version = true,
+    arg_required_else_help = true
+)]
+struct Cli {
+    #[command(subcommand)]
+    command: cmds::Command,
+}
+
+#[tokio::main]
+async fn main() {
+    let cli = Cli::parse();
+
+    if let Err(e) = cli.command.run().await {
+        eprintln!("Error: {}", e);
+        process::exit(1);
+    }
+}
+

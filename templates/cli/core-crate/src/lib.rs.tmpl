@@ -1,0 +1,15 @@
+---
+to: "{{ project_name }}/crates/{{ core_crate }}/src/lib.rs"
+vars:
+  project_name: "my-app"
+  core_crate: "my-core"
+---
+//! {{ core_crate }} - Domain logic layer
+//!
+//! This crate contains pure business logic with no CLI dependencies.
+//! It can be reused across different interfaces (CLI, web API, GUI, etc.).
+
+pub mod {{ domain_module }};
+
+pub use {{ domain_module }}::*;
+
