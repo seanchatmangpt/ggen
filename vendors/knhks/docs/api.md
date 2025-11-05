@@ -8,10 +8,22 @@
 Operation types for queries:
 ```c
 typedef enum {
-  KNHKS_OP_ASK_SP = 1,      // ASK existence check
-  KNHKS_OP_COUNT_SP_GE = 2, // COUNT >= k
-  KNHKS_OP_ASK_SPO = 3,     // Triple matching
-  KNHKS_OP_SELECT_SP = 4    // SELECT query
+  KNHKS_OP_ASK_SP = 1,          // ASK existence check
+  KNHKS_OP_COUNT_SP_GE = 2,     // COUNT >= k
+  KNHKS_OP_ASK_SPO = 3,         // Triple matching
+  KNHKS_OP_SELECT_SP = 4,       // SELECT query (exceeds 8 ticks)
+  KNHKS_OP_COUNT_SP_LE = 5,     // COUNT <= k
+  KNHKS_OP_COUNT_SP_EQ = 6,     // COUNT == k
+  KNHKS_OP_ASK_OP = 7,          // ASK(O,P) - reverse lookup
+  KNHKS_OP_UNIQUE_SP = 8,       // UNIQUE(S,P) - exactly one value
+  KNHKS_OP_COUNT_OP = 9,        // COUNT(O,P) >= k
+  KNHKS_OP_COUNT_OP_LE = 10,    // COUNT(O,P) <= k
+  KNHKS_OP_COUNT_OP_EQ = 11,    // COUNT(O,P) == k
+  KNHKS_OP_COMPARE_O_EQ = 12,   // O == value (exact match)
+  KNHKS_OP_COMPARE_O_GT = 13,   // O > value (greater than)
+  KNHKS_OP_COMPARE_O_LT = 14,   // O < value (less than)
+  KNHKS_OP_COMPARE_O_GE = 15,   // O >= value (greater or equal)
+  KNHKS_OP_COMPARE_O_LE = 16    // O <= value (less or equal)
 } knhks_op_t;
 ```
 
@@ -78,7 +90,22 @@ static inline int knhks_eval_bool(const knhks_context_t *ctx, const knhks_hook_i
 ```
 - Returns: 1 if true, 0 if false
 - Inline function for zero-overhead hot path
-- Supports ASK_SP, COUNT_SP_GE, ASK_SPO operations
+- Supports all boolean operations:
+  - `KNHKS_OP_ASK_SP`: Subject-predicate existence check
+  - `KNHKS_OP_ASK_SPO`: Triple matching
+  - `KNHKS_OP_COUNT_SP_GE`: Count >= k
+  - `KNHKS_OP_COUNT_SP_LE`: Count <= k
+  - `KNHKS_OP_COUNT_SP_EQ`: Count == k
+  - `KNHKS_OP_ASK_OP`: Reverse lookup (object-predicate)
+  - `KNHKS_OP_UNIQUE_SP`: Uniqueness check (count == 1)
+  - `KNHKS_OP_COUNT_OP`: Object count >= k
+  - `KNHKS_OP_COUNT_OP_LE`: Object count <= k
+  - `KNHKS_OP_COUNT_OP_EQ`: Object count == k
+  - `KNHKS_OP_COMPARE_O_EQ`: Object == value
+  - `KNHKS_OP_COMPARE_O_GT`: Object > value
+  - `KNHKS_OP_COMPARE_O_LT`: Object < value
+  - `KNHKS_OP_COMPARE_O_GE`: Object >= value
+  - `KNHKS_OP_COMPARE_O_LE`: Object <= value
 
 #### knhks_eval_select
 Evaluate SELECT query:
@@ -86,7 +113,9 @@ Evaluate SELECT query:
 size_t knhks_eval_select(const knhks_context_t *ctx, const knhks_hook_ir_t *ir);
 ```
 - Returns: Number of results written to `ir->select_out`
-- Currently exceeds 8-tick budget
+- **Performance**: ~19 ticks (exceeds 8-tick budget)
+- **Status**: Implemented but not optimized for hot path
+- **Note**: Memory writes cause overhead; use ASK operations when possible
 
 ### Benchmarking
 

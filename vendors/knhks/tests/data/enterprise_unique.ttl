@@ -1,14 +1,18 @@
 @prefix ex: <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 
-# Test data for uniqueness (UNIQUE S,P) validation
-# Each user should have exactly one primary email
+# Enterprise Uniqueness Validation Use Case
+# Single-value constraint validation (SHACL uniqueness)
+# Test Case 9: Uniqueness Validation (COUNT == 1)
+# Limited to 8 triples for hot path (single predicate run)
+# Validates that each user has exactly one primary email address
 
-ex:user1 ex:primaryEmail "user1@example.com" .
-ex:user2 ex:primaryEmail "user2@example.com" .
-ex:user3 ex:primaryEmail "user3@example.com" .
-ex:user4 ex:primaryEmail "user4@example.com" .
-ex:user5 ex:primaryEmail "user5@example.com" .
-ex:user6 ex:primaryEmail "user6@example.com" .
-ex:user7 ex:primaryEmail "user7@example.com" .
-ex:user8 ex:primaryEmail "user8@example.com" .
+ex:alice ex:primaryEmail "alice@example.com" .
+ex:bob ex:primaryEmail "bob@example.com" .
+ex:charlie ex:primaryEmail "charlie@example.com" .
+ex:dave ex:primaryEmail "dave@example.com" .
+ex:eve ex:primaryEmail "eve@example.com" .
+ex:frank ex:primaryEmail "frank@example.com" .
+ex:grace ex:primaryEmail "grace@example.com" .
+ex:henry ex:primaryEmail "henry@example.com" .
 

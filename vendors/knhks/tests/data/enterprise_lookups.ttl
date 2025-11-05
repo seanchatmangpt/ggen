@@ -2,15 +2,16 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 
 # Enterprise Simple Lookups Use Case
-# Single predicate property retrievals (5% of runtime)
-# Test Case 5: Simple Lookups
+# Single predicate property value retrieval
+# Test Case 5: Simple Lookups (5% of runtime)
 # Limited to 8 triples for hot path (single predicate run)
+# Fast property value lookups for configuration and metadata
 
-ex:entity1 ex:property "value1" .
-ex:entity1 ex:property "value2" .
-ex:entity2 ex:property "value3" .
-ex:entity3 ex:property "value4" .
-ex:entity4 ex:property "value5" .
-ex:entity5 ex:property "value6" .
-ex:entity6 ex:property "value7" .
-ex:entity7 ex:property "value8" .
+ex:config1 ex:property "production" .
+ex:config1 ex:property "region-us-east" .
+ex:config2 ex:property "staging" .
+ex:config3 ex:property "region-eu-west" .
+ex:config4 ex:property "development" .
+ex:config5 ex:property "region-ap-south" .
+ex:config6 ex:property "testing" .
+ex:config7 ex:property "region-us-west" .

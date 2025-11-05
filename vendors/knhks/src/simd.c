@@ -210,7 +210,8 @@ int knhks_eq64_spo_exists_run(const uint64_t *S_base, const uint64_t *O_base,
 #endif
 }
 
-// Branchless SELECT: gather matching O values (optimized for small NROWS)
+// Branchless SELECT: gather matching O values (optimized for variable NROWS)
+// For NROWS=8, use knhks_select_gather_8 instead (fully unrolled inline version)
 size_t knhks_select_gather(const uint64_t *S_base, const uint64_t *O_base,
                            uint64_t off, uint64_t len, uint64_t s_key,
                            uint64_t *out, size_t out_capacity)
@@ -219,7 +220,7 @@ size_t knhks_select_gather(const uint64_t *S_base, const uint64_t *O_base,
 #if defined(__aarch64__) || defined(__x86_64__)
   const uint64_t *s_p = S_base + off;
   const uint64_t *o_p = O_base + off;
-  // For small NROWS (≤8), process sequentially with branchless conditional writes
+  // For variable NROWS, process sequentially with branchless conditional writes
   // Use mask-based writes to avoid branches
   for (uint64_t i = 0; i < len && out_idx < out_capacity; ++i)
   {

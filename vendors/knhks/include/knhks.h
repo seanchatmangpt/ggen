@@ -25,7 +25,12 @@ typedef enum {
   KNHKS_OP_UNIQUE_SP = 8,    // UNIQUE(S,P) - exactly one value
   KNHKS_OP_COUNT_OP = 9,      // COUNT(O,P) >= k - count object occurrences
   KNHKS_OP_COUNT_OP_LE = 10,  // COUNT(O,P) <= k
-  KNHKS_OP_COUNT_OP_EQ = 11   // COUNT(O,P) == k
+  KNHKS_OP_COUNT_OP_EQ = 11,  // COUNT(O,P) == k
+  KNHKS_OP_COMPARE_O_EQ = 12, // O == value (exact match)
+  KNHKS_OP_COMPARE_O_GT = 13, // O > value (greater than)
+  KNHKS_OP_COMPARE_O_LT = 14, // O < value (less than)
+  KNHKS_OP_COMPARE_O_GE = 15, // O >= value (greater or equal)
+  KNHKS_OP_COMPARE_O_LE = 16  // O <= value (less or equal)
 } knhks_op_t;
 
 // Predicate run metadata
@@ -69,63 +74,75 @@ static inline int knhks_eval_bool(const knhks_context_t *ctx, const knhks_hook_i
 
 #if NROWS == 8
   // Use specialized unrolled versions for NROWS=8
-  // Switch statement for better branch prediction
-  switch (ir->op)
+  // Direct if-else chain (optimized by compiler) - most common operations first
+  // This avoids switch overhead while maintaining good branch prediction
+  if (ir->op == KNHKS_OP_ASK_SP)
+    return knhks_eq64_exists_8(ctx->S, ctx->run.off, ir->s);
+
+  if (ir->op == KNHKS_OP_ASK_SPO)
+    return knhks_eq64_spo_exists_8(ctx->S, ctx->O, ctx->run.off, ir->s, ir->o);
+
+  if (ir->op == KNHKS_OP_COUNT_SP_GE)
   {
-    case KNHKS_OP_ASK_SP:
-      return knhks_eq64_exists_8(ctx->S, ctx->run.off, ir->s);
-
-    case KNHKS_OP_ASK_SPO:
-      return knhks_eq64_spo_exists_8(ctx->S, ctx->O, ctx->run.off, ir->s, ir->o);
-
-    case KNHKS_OP_COUNT_SP_GE:
-    {
-      uint64_t cnt = knhks_eq64_count_8(ctx->S, ctx->run.off, ir->s);
-      return cnt >= ir->k;
-    }
-
-    case KNHKS_OP_COUNT_SP_LE:
-    {
-      uint64_t cnt = knhks_eq64_count_8(ctx->S, ctx->run.off, ir->s);
-      return cnt <= ir->k;
-    }
-
-    case KNHKS_OP_COUNT_SP_EQ:
-    {
-      uint64_t cnt = knhks_eq64_count_8(ctx->S, ctx->run.off, ir->s);
-      return cnt == ir->k;
-    }
-
-    case KNHKS_OP_ASK_OP:
-      return knhks_eq64_exists_o_8(ctx->O, ctx->run.off, ir->o);
-
-    case KNHKS_OP_UNIQUE_SP:
-    {
-      uint64_t cnt = knhks_eq64_count_8(ctx->S, ctx->run.off, ir->s);
-      return cnt == 1;
-    }
-
-    case KNHKS_OP_COUNT_OP:
-    {
-      uint64_t cnt = knhks_eq64_count_8(ctx->O, ctx->run.off, ir->o);
-      return cnt >= ir->k;
-    }
-
-    case KNHKS_OP_COUNT_OP_LE:
-    {
-      uint64_t cnt = knhks_eq64_count_8(ctx->O, ctx->run.off, ir->o);
-      return cnt <= ir->k;
-    }
-
-    case KNHKS_OP_COUNT_OP_EQ:
-    {
-      uint64_t cnt = knhks_eq64_count_8(ctx->O, ctx->run.off, ir->o);
-      return cnt == ir->k;
-    }
-
-    default:
-      return 0;
+    uint64_t cnt = knhks_eq64_count_8(ctx->S, ctx->run.off, ir->s);
+    return cnt >= ir->k;
   }
+
+  if (ir->op == KNHKS_OP_COUNT_SP_LE)
+  {
+    uint64_t cnt = knhks_eq64_count_8(ctx->S, ctx->run.off, ir->s);
+    return cnt <= ir->k;
+  }
+
+  if (ir->op == KNHKS_OP_COUNT_SP_EQ)
+  {
+    uint64_t cnt = knhks_eq64_count_8(ctx->S, ctx->run.off, ir->s);
+    return cnt == ir->k;
+  }
+
+  if (ir->op == KNHKS_OP_ASK_OP)
+    return knhks_eq64_exists_o_8(ctx->O, ctx->run.off, ir->o);
+
+  if (ir->op == KNHKS_OP_UNIQUE_SP)
+  {
+    uint64_t cnt = knhks_eq64_count_8(ctx->S, ctx->run.off, ir->s);
+    return cnt == 1;
+  }
+
+  if (ir->op == KNHKS_OP_COUNT_OP)
+  {
+    uint64_t cnt = knhks_eq64_count_8(ctx->O, ctx->run.off, ir->o);
+    return cnt >= ir->k;
+  }
+
+  if (ir->op == KNHKS_OP_COUNT_OP_LE)
+  {
+    uint64_t cnt = knhks_eq64_count_8(ctx->O, ctx->run.off, ir->o);
+    return cnt <= ir->k;
+  }
+
+  if (ir->op == KNHKS_OP_COUNT_OP_EQ)
+  {
+    uint64_t cnt = knhks_eq64_count_8(ctx->O, ctx->run.off, ir->o);
+    return cnt == ir->k;
+  }
+
+  if (ir->op == KNHKS_OP_COMPARE_O_EQ)
+    return knhks_compare_o_8(ctx->O, ctx->run.off, ir->o, 0);
+
+  if (ir->op == KNHKS_OP_COMPARE_O_GT)
+    return knhks_compare_o_8(ctx->O, ctx->run.off, ir->o, 1);
+
+  if (ir->op == KNHKS_OP_COMPARE_O_LT)
+    return knhks_compare_o_8(ctx->O, ctx->run.off, ir->o, 2);
+
+  if (ir->op == KNHKS_OP_COMPARE_O_GE)
+    return knhks_compare_o_8(ctx->O, ctx->run.off, ir->o, 3);
+
+  if (ir->op == KNHKS_OP_COMPARE_O_LE)
+    return knhks_compare_o_8(ctx->O, ctx->run.off, ir->o, 4);
+
+  return 0;
 #else
   // General versions for other NROWS
   if (ir->op == KNHKS_OP_ASK_SP)
@@ -179,6 +196,43 @@ static inline int knhks_eval_bool(const knhks_context_t *ctx, const knhks_hook_i
   {
     uint64_t cnt = knhks_eq64_count_run(ctx->O, ctx->run.off, ctx->run.len, ir->o);
     return cnt == ir->k;  // Count object occurrences == k
+  }
+
+  // Comparison operations (general versions)
+  if (ir->op == KNHKS_OP_COMPARE_O_EQ)
+  {
+    // For general NROWS, use simple loop
+    for (uint64_t i = 0; i < ctx->run.len; i++)
+      if (ctx->O[ctx->run.off + i] == ir->o) return 1;
+    return 0;
+  }
+  
+  if (ir->op == KNHKS_OP_COMPARE_O_GT)
+  {
+    for (uint64_t i = 0; i < ctx->run.len; i++)
+      if (ctx->O[ctx->run.off + i] > ir->o) return 1;
+    return 0;
+  }
+  
+  if (ir->op == KNHKS_OP_COMPARE_O_LT)
+  {
+    for (uint64_t i = 0; i < ctx->run.len; i++)
+      if (ctx->O[ctx->run.off + i] < ir->o) return 1;
+    return 0;
+  }
+  
+  if (ir->op == KNHKS_OP_COMPARE_O_GE)
+  {
+    for (uint64_t i = 0; i < ctx->run.len; i++)
+      if (ctx->O[ctx->run.off + i] >= ir->o) return 1;
+    return 0;
+  }
+  
+  if (ir->op == KNHKS_OP_COMPARE_O_LE)
+  {
+    for (uint64_t i = 0; i < ctx->run.len; i++)
+      if (ctx->O[ctx->run.off + i] <= ir->o) return 1;
+    return 0;
   }
 #endif
 
