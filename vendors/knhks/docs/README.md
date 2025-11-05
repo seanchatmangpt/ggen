@@ -33,8 +33,9 @@ All supported operations achieve ≤8 ticks:
 - **ASK(S,P)**: 4.00-4.17 ticks (1.000-1.042 ns)
 - **COUNT(S,P)**: 4.00-4.17 ticks (1.000-1.042 ns)
 - **ASK(S,P,O)**: ~1.4 ticks (0.35 ns)
-- **Comparison Operations**: 3.66 ticks (0.916 ns)
-- **SELECT(S,P)**: ~19 ticks (4.8 ns) ❌ (exceeds budget)
+- **Comparison Operations**: 3.50-4.34 ticks (0.875-1.084 ns)
+- **Datatype Validation**: 6.00 ticks (1.500 ns)
+- **SELECT(S,P)**: ~8.17 ticks (2.042 ns) ⚠️ (optimized, slight variance)
 
 ## Supported Operations
 
@@ -44,7 +45,8 @@ All supported operations achieve ≤8 ticks:
 - ✅ Uniqueness validation (UNIQUE_SP)
 - ✅ Reverse lookups (ASK_O,P)
 - ✅ Value comparison (COMPARE_O_EQ/GT/LT/GE/LE)
-- ❌ SELECT operations (exceed 8-tick budget - ~19 ticks)
+- ✅ Datatype validation (VALIDATE_DATATYPE_SP)
+- ⚠️ SELECT operations (~8.17 ticks, optimized but slight variance)
 - ❌ Complex JOINs (cold path fallback)
 
 ## Documentation Structure

@@ -196,6 +196,9 @@ impl ConnectorRegistry {
 
 pub mod kafka;
 pub mod salesforce;
+
+#[cfg(test)]
+mod tests {
     use super::*;
 
     #[test]

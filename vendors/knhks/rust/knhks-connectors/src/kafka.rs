@@ -5,6 +5,7 @@
 use crate::*;
 use alloc::vec::Vec;
 use alloc::string::String;
+use alloc::string::ToString;
 
 /// Kafka connector implementation
 pub struct KafkaConnector {

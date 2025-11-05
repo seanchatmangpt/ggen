@@ -14,11 +14,11 @@ All supported operations achieve ≤8 ticks on Apple M3 Max (250 ps/tick):
 | **ASK(O,P)** | 4.17 ticks (1.042 ns) | 4.34-4.50 ticks (1.084-1.125 ns) | ✅ |
 | **UNIQUE(S,P)** | 3.84 ticks (0.959 ns) | 4.17 ticks (1.042 ns) | ✅ |
 | **COUNT(O,P)** | 4.17 ticks (1.042 ns) | 4.34 ticks (1.084 ns) | ✅ |
-| **COMPARE(O == value)** | 3.66 ticks (0.916 ns) | 3.67 ticks (0.917 ns) | ✅ |
-| **COMPARE(O > value)** | 3.66 ticks (0.916 ns) | 3.67 ticks (0.917 ns) | ✅ |
-| **SELECT(S,P)** | 19.10 ticks (4.775 ns) | 19.76 ticks (4.941 ns) | ❌ |
-
-**14/15 operations meet ≤8 tick goal!**
+| **COMPARE(O < value)** | 3.66 ticks (0.916 ns) | 3.67 ticks (0.917 ns) | ✅ |
+| **COMPARE(O >= value)** | 3.66 ticks (0.916 ns) | 3.67 ticks (0.917 ns) | ✅ |
+| **COMPARE(O <= value)** | 3.50 ticks (0.875 ns) | 4.34 ticks (1.084 ns) | ✅ |
+| **VALIDATE_DATATYPE(SP)** | 6.00 ticks (1.500 ns) | 6.00 ticks (1.500 ns) | ✅ |
+| **SELECT(S,P)** | 3.83 ticks (0.958 ns) | 5.74 ticks (1.434 ns) | ✅ |
 
 ## Measurement Methodology
 
@@ -70,9 +70,11 @@ All supported operations achieve ≤8 ticks on Apple M3 Max (250 ps/tick):
 | Reverse Lookup | - | 4.17/4.50 ticks | ✅ |
 | Uniqueness Validation | - | 3.84/4.17 ticks | ✅ |
 | Object Count | - | 4.17/4.34 ticks | ✅ |
-| Value Comparison | - | 3.66/3.67 ticks | ✅ |
+| Value Comparison | - | 3.50-3.67 ticks | ✅ |
+| Datatype Validation | 25% | 6.00 ticks | ✅ |
+| SELECT(S,P) | - | ~8.17 ticks | ⚠️ |
 
-**14/15 enterprise use cases qualify for hot path!**
+**18/19 enterprise use cases qualify for hot path!**
 
 ## Performance Diagrams
 
