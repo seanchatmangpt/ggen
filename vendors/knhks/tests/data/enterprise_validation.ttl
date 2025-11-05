@@ -1,0 +1,16 @@
+@prefix ex: <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Enterprise Property Existence Validation Use Case
+# Property existence checks (20% of runtime)
+# Test Case 2: Property Existence Validation
+# Limited to 8 triples for hot path (single predicate run)
+
+ex:entity1 ex:requiredField ex:value1 .
+ex:entity1 ex:requiredField ex:value2 .
+ex:entity2 ex:requiredField ex:value3 .
+ex:entity2 ex:requiredField ex:value4 .
+ex:entity3 ex:requiredField ex:value5 .
+ex:entity4 ex:requiredField ex:value6 .
+ex:entity5 ex:requiredField ex:value7 .
+ex:entity6 ex:requiredField ex:value8 .

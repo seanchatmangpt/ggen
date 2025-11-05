@@ -1,0 +1,16 @@
+@prefix ex: <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Enterprise Authorization Use Case
+# User permissions (≤8 permissions per user for hot path optimization)
+# Test Case 1: Authorization Checks (30% of runtime)
+# Limited to 8 triples for hot path (single predicate run)
+
+ex:user1 ex:hasPermission ex:read .
+ex:user1 ex:hasPermission ex:write .
+ex:user1 ex:hasPermission ex:delete .
+ex:user1 ex:hasPermission ex:admin .
+ex:user2 ex:hasPermission ex:read .
+ex:user2 ex:hasPermission ex:write .
+ex:user3 ex:hasPermission ex:delete .
+ex:user3 ex:hasPermission ex:execute .
