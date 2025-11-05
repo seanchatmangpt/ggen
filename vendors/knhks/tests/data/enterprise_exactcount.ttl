@@ -1,0 +1,14 @@
+@prefix ex: <http://example.org/> .
+
+# Test data for exact count (COUNT == k) validation
+# Users should have exactly 2 roles
+
+ex:user1 ex:role ex:admin .
+ex:user1 ex:role ex:editor .
+ex:user2 ex:role ex:viewer .
+ex:user2 ex:role ex:contributor .
+ex:user3 ex:role ex:admin .
+ex:user3 ex:role ex:viewer .
+ex:user4 ex:role ex:editor .
+ex:user4 ex:role ex:contributor .
+

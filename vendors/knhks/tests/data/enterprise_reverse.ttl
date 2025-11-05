@@ -1,0 +1,14 @@
+@prefix ex: <http://example.org/> .
+
+# Test data for reverse lookup (ASK O,P)
+# Check if email addresses belong to any user
+
+ex:user1 ex:email "user1@example.com" .
+ex:user2 ex:email "user2@example.com" .
+ex:user3 ex:email "user3@example.com" .
+ex:user4 ex:email "user4@example.com" .
+ex:user5 ex:email "user5@example.com" .
+ex:user6 ex:email "user6@example.com" .
+ex:user7 ex:email "user7@example.com" .
+ex:user8 ex:email "user8@example.com" .
+

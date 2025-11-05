@@ -1,0 +1,14 @@
+@prefix ex: <http://example.org/> .
+
+# Test data for object count exact (COUNT O,P == k)
+# Exact count validation for object occurrences
+
+ex:user1 ex:role ex:admin .
+ex:user2 ex:role ex:admin .
+ex:user3 ex:role ex:viewer .
+ex:user4 ex:role ex:viewer .
+ex:user5 ex:role ex:editor .
+ex:user6 ex:role ex:editor .
+ex:user7 ex:role ex:contributor .
+ex:user8 ex:role ex:contributor .
+
