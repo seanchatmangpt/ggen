@@ -1,0 +1,14 @@
+@prefix ex: <http://example.org/> .
+
+# Test data for maxCount (COUNT <= k) validation
+# User should have at most 2 email addresses
+
+ex:user1 ex:email "user1@example.com" .
+ex:user1 ex:email "user1.backup@example.com" .
+ex:user2 ex:email "user2@example.com" .
+ex:user3 ex:email "user3@example.com" .
+ex:user3 ex:email "user3.alternate@example.com" .
+ex:user3 ex:email "user3.third@example.com" .
+ex:user4 ex:email "user4@example.com" .
+ex:user5 ex:email "user5@example.com" .
+
