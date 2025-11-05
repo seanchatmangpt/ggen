@@ -113,22 +113,22 @@ KNKHS integrates seamlessly with existing RDF infrastructure:
 ```bash
 # Apple Silicon (M3)
 clang -O3 -march=armv8.5-a+fp16 -std=c11 \
-  knhks_8tick_poc.c -o knhks_8tick_poc \
+  knhk_8tick_poc.c -o knhk_8tick_poc \
   $(pkg-config --cflags --libs raptor2)
 
 # x86_64
 clang -O3 -mavx2 -std=c11 \
-  knhks_8tick_poc.c -o knhks_8tick_poc \
+  knhk_8tick_poc.c -o knhk_8tick_poc \
   $(pkg-config --cflags --libs raptor2)
 ```
 
 **Usage:**
 ```bash
 # Load from RDF file
-./knhks_8tick_poc data.ttl
+./knhk_8tick_poc data.ttl
 
 # Synthetic data (for benchmarking)
-./knhks_8tick_poc
+./knhk_8tick_poc
 ```
 
 ### Proven Results

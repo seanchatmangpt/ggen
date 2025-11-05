@@ -1,8 +1,8 @@
-# KNHKS Deployment Guide
+# KNHK Deployment Guide
 
 ## Overview
 
-This guide covers production deployment of KNHKS.
+This guide covers production deployment of KNHK.
 
 ## Docker Deployment
 

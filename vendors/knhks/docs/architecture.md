@@ -2,7 +2,7 @@
 
 ## System Overview
 
-KNHKS (v0.3.0) implements a multi-tier architecture with production-ready infrastructure:
+KNHK (v0.3.0) implements a multi-tier architecture with production-ready infrastructure:
 
 1. **Hot Path Engine** (C) - ≤8 tick query execution
 2. **Connector Framework** (Rust) - Enterprise data source integration
@@ -20,17 +20,17 @@ The public API is organized into modular headers for maintainability:
 
 ```
 include/
-├── knhks.h              # Main umbrella header (includes all components)
-└── knhks/
+├── knhk.h              # Main umbrella header (includes all components)
+└── knhk/
     ├── types.h          # Type definitions (enums, structs, constants)
     ├── eval.h           # Query evaluation functions (eval_bool, eval_construct8)
     ├── receipts.h       # Receipt operations (receipt_merge)
     └── utils.h          # Utility functions (init_ctx, load_rdf, clock utilities)
 ```
 
-**Usage**: Include only `knhks.h` - it automatically includes all sub-modules:
+**Usage**: Include only `knhk.h` - it automatically includes all sub-modules:
 ```c
-#include "knhks.h"  // Includes all API components
+#include "knhk.h"  // Includes all API components
 ```
 
 ### Source Structure
@@ -133,13 +133,13 @@ All arrays are 64-byte aligned for optimal cache line access and SIMD operations
 ### 6. Reflexive Control Layer (v0.3.0)
 
 **Erlang Supervision Tree**:
-- **knhks_sigma**: Schema registry (Σ management)
-- **knhks_q**: Invariant registry (Q constraints, preserve(Q))
-- **knhks_ingest**: Delta ingestion (O ⊔ Δ)
-- **knhks_lockchain**: Receipt storage (Merkle-linked)
-- **knhks_hooks**: Hook installation and management
-- **knhks_epoch**: Epoch scheduling (Λ ≺-total, τ ≤ 8)
-- **knhks_route**: Action routing to downstream systems
+- **knhk_sigma**: Schema registry (Σ management)
+- **knhk_q**: Invariant registry (Q constraints, preserve(Q))
+- **knhk_ingest**: Delta ingestion (O ⊔ Δ)
+- **knhk_lockchain**: Receipt storage (Merkle-linked)
+- **knhk_hooks**: Hook installation and management
+- **knhk_epoch**: Epoch scheduling (Λ ≺-total, τ ≤ 8)
+- **knhk_route**: Action routing to downstream systems
 
 ## Architecture Diagram
 
@@ -147,21 +147,21 @@ See `architecture.mmd` for visual representation.
 
 ## Data Structures
 
-### knhks_context_t
+### knhk_context_t
 ```c
 typedef struct {
-  const uint64_t *S;        // Subject array (KNHKS_ALIGN aligned, KNHKS_NROWS sized)
+  const uint64_t *S;        // Subject array (KNHK_ALIGN aligned, KNHK_NROWS sized)
   const uint64_t *P;        // Predicate array
   const uint64_t *O;        // Object array
   size_t triple_count;      // Number of loaded triples
-  knhks_pred_run_t run;     // Predicate run metadata
-} knhks_context_t;
+  knhk_pred_run_t run;     // Predicate run metadata
+} knhk_context_t;
 ```
 
-### knhks_hook_ir_t
+### knhk_hook_ir_t
 ```c
 typedef struct {
-  knhks_op_t op;            // Operation type
+  knhk_op_t op;            // Operation type
   uint64_t s, p, o, k;      // Subject, predicate, object, threshold
   
   // For CONSTRUCT8 only: preallocated output spans (8 rows max)
@@ -173,17 +173,17 @@ typedef struct {
   // Legacy SELECT support (cold path only, not in hot v1.0)
   uint64_t *select_out;     // SELECT output buffer
   size_t select_capacity;
-} knhks_hook_ir_t;
+} knhk_hook_ir_t;
 ```
 
-### knhks_receipt_t
+### knhk_receipt_t
 ```c
 typedef struct {
   uint32_t ticks;    // ≤ 8
   uint32_t lanes;    // SIMD width used
   uint64_t span_id;  // OTEL-compatible id
   uint64_t a_hash;   // hash(A) = hash(μ(O)) fragment
-} knhks_receipt_t;
+} knhk_receipt_t;
 ```
 
 ## Execution Flow
@@ -233,10 +233,10 @@ Queries that exceed hot path constraints automatically fall back to full SPARQL 
 - Receipt generation and merging (⊕)
 
 ### Erlang Reflexive Control
-- Schema registry (knhks_sigma)
-- Invariant management (knhks_q)
-- Delta ingestion (knhks_ingest)
-- Lockchain (knhks_lockchain) with Merkle linking
+- Schema registry (knhk_sigma)
+- Invariant management (knhk_q)
+- Delta ingestion (knhk_ingest)
+- Lockchain (knhk_lockchain) with Merkle linking
 
 ### Observability
 - OTEL span ID generation (not placeholders)

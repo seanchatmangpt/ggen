@@ -11,9 +11,9 @@
 **Solution**: Separated critical path timing from receipt generation overhead.
 
 **Files Modified**:
-- `include/knhks/eval.h`:
-  - `knhks_eval_bool`: Measure operation end BEFORE receipt generation
-  - `knhks_eval_construct8`: Measure operation end BEFORE receipt generation
+- `include/knhk/eval.h`:
+  - `knhk_eval_bool`: Measure operation end BEFORE receipt generation
+  - `knhk_eval_construct8`: Measure operation end BEFORE receipt generation
   - Added comments: `// 80/20 CRITICAL PATH: Measure operation only`
 
 **Result**: Critical path operations now correctly measured as ≤8 ticks (excluding receipt overhead).
@@ -24,10 +24,10 @@
 **Solution**: Updated all test assertions to enforce strict 8-tick critical path budget.
 
 **Files Modified**:
-- `tests/chicago_v1_test.c`: Updated tick assertions to `≤KNHKS_TICK_BUDGET`
-- `tests/chicago_construct8.c`: Updated tick assertions to `≤KNHKS_TICK_BUDGET`
-- `tests/chicago_batch.c`: Updated tick assertions to `≤KNHKS_TICK_BUDGET`
-- `tests/chicago_guards.c`: Updated tick assertions to `≤KNHKS_TICK_BUDGET`
+- `tests/chicago_v1_test.c`: Updated tick assertions to `≤KNHK_TICK_BUDGET`
+- `tests/chicago_construct8.c`: Updated tick assertions to `≤KNHK_TICK_BUDGET`
+- `tests/chicago_batch.c`: Updated tick assertions to `≤KNHK_TICK_BUDGET`
+- `tests/chicago_guards.c`: Updated tick assertions to `≤KNHK_TICK_BUDGET`
 
 **Result**: Tests now validate the critical path constraint correctly.
 
@@ -69,7 +69,7 @@
 
 ## Files Modified
 
-1. `include/knhks/eval.h` - Critical path timing separation
+1. `include/knhk/eval.h` - Critical path timing separation
 2. `tests/chicago_v1_test.c` - Updated assertions
 3. `tests/chicago_construct8.c` - Updated assertions
 4. `tests/chicago_batch.c` - Updated assertions

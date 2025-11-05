@@ -8,46 +8,46 @@
 
 ```bash
 make lib
-cd rust/knhks-cli && cargo build --release
+cd rust/knhk-cli && cargo build --release
 ```
 
 ### 2. Initialize
 
 ```bash
-knhks boot init schema.ttl invariants.sparql
+knhk boot init schema.ttl invariants.sparql
 ```
 
 ### 3. Register Connector
 
 ```bash
-knhks connect register kafka-prod urn:knhks:schema:default kafka://localhost:9092/triples
+knhk connect register kafka-prod urn:knhk:schema:default kafka://localhost:9092/triples
 ```
 
 ### 4. Run Pipeline
 
 ```bash
-knhks pipeline run --connectors kafka-prod
+knhk pipeline run --connectors kafka-prod
 ```
 
 ## Common Commands
 
 ```bash
 # List connectors
-knhks connect list
+knhk connect list
 
 # Define cover
-knhks cover define "SELECT ?s ?p ?o WHERE { ?s ?p ?o }" "max_run_len 8"
+knhk cover define "SELECT ?s ?p ?o WHERE { ?s ?p ?o }" "max_run_len 8"
 
 # Declare reflex
-knhks reflex declare check-count ASK_SP 0xC0FFEE 0 8
+knhk reflex declare check-count ASK_SP 0xC0FFEE 0 8
 
 # Run epoch
-knhks epoch create epoch1 8 "check-count"
-knhks epoch run epoch1
+knhk epoch create epoch1 8 "check-count"
+knhk epoch run epoch1
 
 # Check status
-knhks pipeline status
-knhks metrics get
+knhk pipeline status
+knhk metrics get
 ```
 
 ## Next Steps

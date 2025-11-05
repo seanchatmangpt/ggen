@@ -1,13 +1,13 @@
 // simd/compare.h
 // Comparison operations: COMPARE_O_EQ/GT/LT/GE/LE
 
-#ifndef KNHKS_SIMD_COMPARE_H
-#define KNHKS_SIMD_COMPARE_H
+#ifndef KNHK_SIMD_COMPARE_H
+#define KNHK_SIMD_COMPARE_H
 
 #include "common.h"
 
 #if NROWS == 8
-static inline int knhks_compare_o_8(const uint64_t *O_base, uint64_t off, uint64_t threshold, int op_type)
+static inline int knhk_compare_o_8(const uint64_t *O_base, uint64_t off, uint64_t threshold, int op_type)
 {
   const uint64_t *o_p = O_base + off;
   uint64_t result = 0;
@@ -131,4 +131,4 @@ static inline int knhks_compare_o_8(const uint64_t *O_base, uint64_t off, uint64
 
 #endif // NROWS == 8
 
-#endif // KNHKS_SIMD_COMPARE_H
+#endif // KNHK_SIMD_COMPARE_H

@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "knhks.h"
+#include "knhk.h"
 
 #if defined(__GNUC__)
 #define ALN __attribute__((aligned(64)))
@@ -19,7 +19,7 @@
 static uint64_t ALN S[NROWS];
 static uint64_t ALN P[NROWS];
 static uint64_t ALN O[NROWS];
-static knhks_context_t ctx;
+static knhk_context_t ctx;
 
 // Helper to reset test data
 static void reset_test_data(void)
@@ -27,7 +27,7 @@ static void reset_test_data(void)
   memset(S, 0, sizeof(S));
   memset(P, 0, sizeof(P));
   memset(O, 0, sizeof(O));
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
 }
 
 // Test pin_run guard (H: len > 8 blocked)
@@ -37,7 +37,7 @@ static int test_pin_run_guard(void)
   reset_test_data();
   
   // Valid: len = 8
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 8});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 8});
   assert(ctx.run.len == 8);
   
   // Note: Guard enforcement happens at runtime during eval, not at pin time
@@ -52,9 +52,9 @@ static int test_v1_constants(void)
 {
   printf("TEST: v1.0 Constants\n");
   
-  assert(KNHKS_TICK_BUDGET == 8);
-  assert(KNHKS_NROWS == 8);
-  assert(KNHKS_ALIGN == 64);
+  assert(KNHK_TICK_BUDGET == 8);
+  assert(KNHK_NROWS == 8);
+  assert(KNHK_ALIGN == 64);
   assert(NROWS == 8);
   
   printf("  ✓ All constants correct\n");
@@ -73,10 +73,10 @@ static int test_timing_validation(void)
   P[0] = 0xC0FFEE;
   O[0] = 0xB0B;
   
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -90,8 +90,8 @@ static int test_timing_validation(void)
   // Run multiple times to get timing distribution
   uint32_t ticks[100];
   for (int i = 0; i < 100; i++) {
-    knhks_receipt_t rcpt = {0};
-    knhks_eval_bool(&ctx, &ir, &rcpt);
+    knhk_receipt_t rcpt = {0};
+    knhk_eval_bool(&ctx, &ir, &rcpt);
     ticks[i] = rcpt.ticks;
   }
   
@@ -109,9 +109,9 @@ static int test_timing_validation(void)
   }
   
   uint32_t p95 = sorted[95];
-  assert(p95 <= KNHKS_TICK_BUDGET);
+  assert(p95 <= KNHK_TICK_BUDGET);
   
-  printf("  ✓ p95 ticks = %u (budget = %u)\n", p95, KNHKS_TICK_BUDGET);
+  printf("  ✓ p95 ticks = %u (budget = %u)\n", p95, KNHK_TICK_BUDGET);
   
   return 1;
 }

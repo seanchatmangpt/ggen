@@ -18,11 +18,11 @@ All compilation errors identified in the validation report have been fixed.
 
 ### 2. Missing Function Declaration ✅
 
-**Issue:** `knhks_generate_span_id()` was being called but not declared in headers
+**Issue:** `knhk_generate_span_id()` was being called but not declared in headers
 
 **Files Fixed:**
-- `include/knhks/utils.h` - Added function declaration and `#include "clock.h"`
-- `include/knhks/eval.h` - Added function declaration and updated calls to use the function
+- `include/knhk/utils.h` - Added function declaration and `#include "clock.h"`
+- `include/knhk/eval.h` - Added function declaration and updated calls to use the function
 
 **Status:** ✅ Function properly declared and available
 

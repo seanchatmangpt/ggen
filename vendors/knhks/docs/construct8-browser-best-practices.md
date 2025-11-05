@@ -81,7 +81,7 @@ Analysis of SPARQL CONSTRUCT queries in browser/web client contexts, current bes
 
 **Architecture Pattern:**
 ```
-Browser Client                    Server (KNHKS Hot Path)
+Browser Client                    Server (KNHK Hot Path)
 ─────────────────────────────────────────────────────────
 1. Prepare Query              →   1. Receive Query (Rust warm path)
 2. Send Query (HTTP)          →   2. Validate & Route (Rust warm path)
@@ -109,7 +109,7 @@ const construct8Query = {
 };
 
 // Send to server
-const response = await fetch('/api/knhks/construct8', {
+const response = await fetch('/api/knhk/construct8', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify(construct8Query)
@@ -119,8 +119,8 @@ const response = await fetch('/api/knhks/construct8', {
 **Step 2: Server Executes CONSTRUCT8 (Hot Path)**
 ```c
 // Server: C hot path (≤8 ticks)
-knhks_hook_ir_t ir = {
-  .op = KNHKS_OP_CONSTRUCT8,
+knhk_hook_ir_t ir = {
+  .op = KNHK_OP_CONSTRUCT8,
   .p = hash_iri("http://example.org/hasAccess"),
   .o = hash_iri("http://example.org/Allowed"),
   .out_S = out_S,  // Preallocated
@@ -128,8 +128,8 @@ knhks_hook_ir_t ir = {
   .out_O = out_O
 };
 
-knhks_receipt_t rcpt = {0};
-int written = knhks_eval_construct8(&ctx, &ir, &rcpt);
+knhk_receipt_t rcpt = {0};
+int written = knhk_eval_construct8(&ctx, &ir, &rcpt);
 // Executes in ≤8 ticks (2ns) on server
 ```
 
@@ -161,7 +161,7 @@ async function construct8WithCache(query) {
     return cache.get(key);  // Instant return (0 ticks, but not measurable)
   }
   
-  const result = await fetch('/api/knhks/construct8', {
+  const result = await fetch('/api/knhk/construct8', {
     method: 'POST',
     body: JSON.stringify(query)
   });
@@ -176,7 +176,7 @@ async function construct8WithCache(query) {
 ```javascript
 // Batch multiple CONSTRUCT8 queries
 async function batchConstruct8(queries) {
-  const response = await fetch('/api/knhks/batch', {
+  const response = await fetch('/api/knhk/batch', {
     method: 'POST',
     body: JSON.stringify({ queries })
   });
@@ -195,7 +195,7 @@ async function prefetchAuthorization(userId) {
   };
   
   // Prefetch in background
-  fetch('/api/knhks/construct8', {
+  fetch('/api/knhk/construct8', {
     method: 'POST',
     body: JSON.stringify(query),
     priority: 'low'  // Browser hint
@@ -225,7 +225,7 @@ async function prefetchAuthorization(userId) {
 ```javascript
 async function construct8Safe(query) {
   try {
-    const response = await fetch('/api/knhks/construct8', {
+    const response = await fetch('/api/knhk/construct8', {
       method: 'POST',
       body: JSON.stringify(query),
       signal: AbortSignal.timeout(5000)  // 5s timeout
@@ -393,7 +393,7 @@ async function getRiskLevel(assetId) {
 ```javascript
 // Service Worker: Cache CONSTRUCT8 results
 self.addEventListener('fetch', event => {
-  if (event.request.url.includes('/api/knhks/construct8')) {
+  if (event.request.url.includes('/api/knhk/construct8')) {
     event.respondWith(
       caches.match(event.request).then(response => {
         if (response) {
@@ -584,7 +584,7 @@ class Construct8Client {
 }
 
 // Usage
-const client = new Construct8Client('https://api.example.org/knhks');
+const client = new Construct8Client('https://api.example.org/knhk');
 
 // Authorization reflex
 const permissions = await client.construct8({

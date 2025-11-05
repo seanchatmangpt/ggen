@@ -1,4 +1,4 @@
-# KNHKS v0.5.0 Product Requirements Document (PRD)
+# KNHK v0.5.0 Product Requirements Document (PRD)
 
 **Version**: 0.5.0  
 **Status**: Planning  
@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-KNHKS v0.5.0 focuses on **production hardening, performance optimization, and advanced features** to address known limitations from v0.4.0 and expand the system's capabilities for enterprise deployment. This release prioritizes moving CONSTRUCT8 to warm path, completing configuration management, and enhancing observability.
+KNHK v0.5.0 focuses on **production hardening, performance optimization, and advanced features** to address known limitations from v0.4.0 and expand the system's capabilities for enterprise deployment. This release prioritizes moving CONSTRUCT8 to warm path, completing configuration management, and enhancing observability.
 
 ## Background
 
@@ -73,7 +73,7 @@ Move CONSTRUCT8 operations from hot path (8-tick budget) to warm path (≤500ms 
 - [ ] Documentation updated with warm path vs hot path distinction
 
 **Technical Approach**:
-- Create `knhks_warm_path` module for warm path operations
+- Create `knhk_warm_path` module for warm path operations
 - Implement CONSTRUCT8 in warm path with ≤500ms budget
 - Update CLI and API to route CONSTRUCT8 to warm path
 - Add warm path metrics and observability
@@ -96,7 +96,7 @@ Move CONSTRUCT8 operations from hot path (8-tick budget) to warm path (≤500ms 
 Implement comprehensive configuration management system using TOML format with support for all CLI commands, connectors, epochs, hooks, and routes.
 
 **Acceptance Criteria**:
-- [ ] `~/.knhks/config.toml` (or `%APPDATA%/knhks/config.toml` on Windows) support
+- [ ] `~/.knhk/config.toml` (or `%APPDATA%/knhk/config.toml` on Windows) support
 - [ ] Environment variable override support
 - [ ] Configuration validation and error reporting
 - [ ] CLI commands respect configuration file
@@ -105,21 +105,21 @@ Implement comprehensive configuration management system using TOML format with s
 
 **Configuration Structure**:
 ```toml
-[knhks]
+[knhk]
 version = "0.5.0"
 context = "default"
 
 [connectors]
-[knhks.connectors.kafka-prod]
+[knhk.connectors.kafka-prod]
 type = "kafka"
 bootstrap_servers = ["localhost:9092"]
 topic = "triples"
-schema = "urn:knhks:schema:enterprise"
+schema = "urn:knhk:schema:enterprise"
 max_run_len = 8
 max_batch_size = 1000
 
 [epochs]
-[knhks.epochs.default]
+[knhk.epochs.default]
 tau = 8
 ordering = "deterministic"
 
@@ -127,14 +127,14 @@ ordering = "deterministic"
 max_count = 100
 
 [routes]
-[knhks.routes.webhook-1]
+[knhk.routes.webhook-1]
 kind = "webhook"
 target = "https://api.example.com/webhook"
 encode = "json-ld"
 ```
 
 **Technical Approach**:
-- Create `knhks-config` crate with TOML parsing
+- Create `knhk-config` crate with TOML parsing
 - Implement configuration loading hierarchy (env > file > defaults)
 - Add configuration validation
 - Update CLI commands to use configuration
@@ -152,20 +152,20 @@ encode = "json-ld"
 **Dependencies**: 2.1
 
 **Description**:
-Support environment variable overrides for all configuration options with `KNHKS_` prefix.
+Support environment variable overrides for all configuration options with `KNHK_` prefix.
 
 **Acceptance Criteria**:
-- [ ] `KNHKS_CONTEXT` - Set default context
-- [ ] `KNHKS_CONNECTOR_*` - Connector configuration
-- [ ] `KNHKS_EPOCH_*` - Epoch configuration
+- [ ] `KNHK_CONTEXT` - Set default context
+- [ ] `KNHK_CONNECTOR_*` - Connector configuration
+- [ ] `KNHK_EPOCH_*` - Epoch configuration
 - [ ] Environment variables override config file
 - [ ] Documentation for all environment variables
 
 **Examples**:
 ```bash
-export KNHKS_CONTEXT=production
-export KNHKS_CONNECTOR_KAFKA_BOOTSTRAP_SERVERS=localhost:9092
-export KNHKS_EPOCH_DEFAULT_TAU=8
+export KNHK_CONTEXT=production
+export KNHK_CONNECTOR_KAFKA_BOOTSTRAP_SERVERS=localhost:9092
+export KNHK_EPOCH_DEFAULT_TAU=8
 ```
 
 ---
@@ -273,10 +273,10 @@ Enhance OTEL integration with more metrics, traces, and logs.
 - [ ] Metrics dashboard configuration
 
 **Metrics to Add**:
-- `knhks.warm_path.operations.count` - Warm path operation count
-- `knhks.warm_path.operations.latency` - Warm path latency histogram
-- `knhks.config.loads` - Configuration load count
-- `knhks.config.errors` - Configuration error count
+- `knhk.warm_path.operations.count` - Warm path operation count
+- `knhk.warm_path.operations.latency` - Warm path latency histogram
+- `knhk.config.loads` - Configuration load count
+- `knhk.config.errors` - Configuration error count
 
 ---
 
@@ -354,7 +354,7 @@ Implement JSON-LD parser with expansion, context resolution, and frame support.
 Environment Variables (highest priority)
          │
          ▼
-Config File (~/.knhks/config.toml)
+Config File (~/.knhk/config.toml)
          │
          ▼
 Default Configuration (lowest priority)
@@ -372,10 +372,10 @@ Runtime Configuration
 - `json-ld` crate (optional) - JSON-LD parsing
 
 ### Internal Dependencies
-- `knhks-hot` - Hot path operations
-- `knhks-etl` - ETL pipeline
-- `knhks-cli` - CLI tool
-- `knhks-otel` - Observability
+- `knhk-hot` - Hot path operations
+- `knhk-etl` - ETL pipeline
+- `knhk-cli` - CLI tool
+- `knhk-otel` - Observability
 
 ## Risks & Mitigations
 

@@ -12,7 +12,7 @@ extern int chicago_test_v1_validation(void);
 int main(void)
 {
   printf("========================================\n");
-  printf("KNHKS v1.0 Chicago TDD Test Suite\n");
+  printf("KNHK v1.0 Chicago TDD Test Suite\n");
   printf("========================================\n\n");
   
   int passed = 0;

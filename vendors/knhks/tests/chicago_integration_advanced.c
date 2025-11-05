@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "knhks.h"
+#include "knhk.h"
 
 #if defined(__GNUC__)
 #define ALN __attribute__((aligned(64)))
@@ -23,9 +23,9 @@ static int test_integration_pipeline_complete(void)
   uint64_t ALN S[NROWS];
   uint64_t ALN P[NROWS];
   uint64_t ALN O[NROWS];
-  knhks_context_t ctx;
+  knhk_context_t ctx;
   
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
   
   // Setup batch of 4 operations
   for (int i = 0; i < 4; i++) {
@@ -34,13 +34,13 @@ static int test_integration_pipeline_complete(void)
     O[i] = 0xB0B + i;
   }
   
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 4});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 4});
   
   // Execute batch
-  knhks_hook_ir_t irs[KNHKS_NROWS];
+  knhk_hook_ir_t irs[KNHK_NROWS];
   for (int i = 0; i < 4; i++) {
-    irs[i] = (knhks_hook_ir_t){
-      .op = KNHKS_OP_ASK_SP,
+    irs[i] = (knhk_hook_ir_t){
+      .op = KNHK_OP_ASK_SP,
       .s = 0xA11CE + i,
       .p = 0xC0FFEE,
       .o = 0,
@@ -52,15 +52,15 @@ static int test_integration_pipeline_complete(void)
     };
   }
   
-  knhks_receipt_t rcpts[KNHKS_NROWS] = {0};
-  int executed = knhks_eval_batch8(&ctx, irs, 4, rcpts);
+  knhk_receipt_t rcpts[KNHK_NROWS] = {0};
+  int executed = knhk_eval_batch8(&ctx, irs, 4, rcpts);
   
   assert(executed == 4);
   
   // Merge all receipts (for lockchain)
-  knhks_receipt_t merged = rcpts[0];
+  knhk_receipt_t merged = rcpts[0];
   for (int i = 1; i < 4; i++) {
-    merged = knhks_receipt_merge(merged, rcpts[i]);
+    merged = knhk_receipt_merge(merged, rcpts[i]);
   }
   
   // Verify merged receipt
@@ -100,9 +100,9 @@ static int test_integration_guard_enforcement(void)
   uint64_t ALN S[NROWS];
   uint64_t ALN P[NROWS];
   uint64_t ALN O[NROWS];
-  knhks_context_t ctx;
+  knhk_context_t ctx;
   
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
   
   // Setup data with run.len = 8 (maximum allowed)
   for (int i = 0; i < 8; i++) {
@@ -112,14 +112,14 @@ static int test_integration_guard_enforcement(void)
   }
   
   // Valid: len = 8
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 8});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 8});
   assert(ctx.run.len == 8);
   
   // Execute batch of 8 (maximum)
-  knhks_hook_ir_t irs[KNHKS_NROWS];
+  knhk_hook_ir_t irs[KNHK_NROWS];
   for (int i = 0; i < 8; i++) {
-    irs[i] = (knhks_hook_ir_t){
-      .op = KNHKS_OP_ASK_SP,
+    irs[i] = (knhk_hook_ir_t){
+      .op = KNHK_OP_ASK_SP,
       .s = 0xA11CE + i,
       .p = 0xC0FFEE,
       .o = 0,
@@ -131,8 +131,8 @@ static int test_integration_guard_enforcement(void)
     };
   }
   
-  knhks_receipt_t rcpts[KNHKS_NROWS] = {0};
-  int executed = knhks_eval_batch8(&ctx, irs, 8, rcpts);
+  knhk_receipt_t rcpts[KNHK_NROWS] = {0};
+  int executed = knhk_eval_batch8(&ctx, irs, 8, rcpts);
   
   assert(executed == 8);
   
@@ -155,18 +155,18 @@ static int test_integration_receipt_provenance(void)
   uint64_t ALN S[NROWS];
   uint64_t ALN P[NROWS];
   uint64_t ALN O[NROWS];
-  knhks_context_t ctx;
+  knhk_context_t ctx;
   
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
   
   S[0] = 0xA11CE;
   P[0] = 0xC0FFEE;
   O[0] = 0xB0B;
   
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -178,11 +178,11 @@ static int test_integration_receipt_provenance(void)
   };
   
   // Execute same operation twice - should produce same hash
-  knhks_receipt_t rcpt1 = {0};
-  knhks_eval_bool(&ctx, &ir, &rcpt1);
+  knhk_receipt_t rcpt1 = {0};
+  knhk_eval_bool(&ctx, &ir, &rcpt1);
   
-  knhks_receipt_t rcpt2 = {0};
-  knhks_eval_bool(&ctx, &ir, &rcpt2);
+  knhk_receipt_t rcpt2 = {0};
+  knhk_eval_bool(&ctx, &ir, &rcpt2);
   
   // Provenance: hash(A) = hash(μ(O))
   // Same input → same action → same hash

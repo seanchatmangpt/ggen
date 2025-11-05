@@ -1,20 +1,20 @@
-# KNHKS CLI Guide
+# KNHK CLI Guide
 
 **Version**: 0.4.0  
 **Principle**: 80/20 - Essential commands that provide 80% of value
 
 ## Overview
 
-The KNHKS CLI provides a noun-verb interface based on the CONVO.txt API specification. All commands follow the pattern:
+The KNHK CLI provides a noun-verb interface based on the CONVO.txt API specification. All commands follow the pattern:
 
 ```bash
-knhks <noun> <verb> [arguments]
+knhk <noun> <verb> [arguments]
 ```
 
 ## Installation
 
 ```bash
-cd rust/knhks-cli
+cd rust/knhk-cli
 cargo build --release
 cargo install --path .
 ```
@@ -25,76 +25,76 @@ cargo install --path .
 
 **Initialize Σ and Q**
 ```bash
-knhks boot init <sigma.ttl> <q.sparql>
+knhk boot init <sigma.ttl> <q.sparql>
 ```
 
 Example:
 ```bash
-knhks boot init schema.ttl invariants.sparql
+knhk boot init schema.ttl invariants.sparql
 ```
 
 ### Connect - Connector Management
 
 **Register Connector**
 ```bash
-knhks connect register <name> <schema> <source>
+knhk connect register <name> <schema> <source>
 ```
 
 **List Connectors**
 ```bash
-knhks connect list
+knhk connect list
 ```
 
 Example:
 ```bash
-knhks connect register kafka-prod urn:knhks:schema:default kafka://localhost:9092/triples
-knhks connect list
+knhk connect register kafka-prod urn:knhk:schema:default kafka://localhost:9092/triples
+knhk connect list
 ```
 
 ### Cover - Cover Definition
 
 **Define Cover**
 ```bash
-knhks cover define <select> <shard>
+knhk cover define <select> <shard>
 ```
 
 **List Covers**
 ```bash
-knhks cover list
+knhk cover list
 ```
 
 Example:
 ```bash
-knhks cover define "SELECT ?s ?p ?o WHERE { ?s ?p ?o }" "max_run_len 8"
+knhk cover define "SELECT ?s ?p ?o WHERE { ?s ?p ?o }" "max_run_len 8"
 ```
 
 ### Admit - Delta Admission
 
 **Admit Delta**
 ```bash
-knhks admit delta <delta_file>
+knhk admit delta <delta_file>
 ```
 
 Example:
 ```bash
-knhks admit delta delta.json
+knhk admit delta delta.json
 ```
 
 ### Reflex - Reflex Declaration
 
 **Declare Reflex**
 ```bash
-knhks reflex declare <name> <op> <pred> <off> <len>
+knhk reflex declare <name> <op> <pred> <off> <len>
 ```
 
 **List Reflexes**
 ```bash
-knhks reflex list
+knhk reflex list
 ```
 
 Example:
 ```bash
-knhks reflex declare check-count ASK_SP 0xC0FFEE 0 8
+knhk reflex declare check-count ASK_SP 0xC0FFEE 0 8
 ```
 
 Valid operations (H_hot set):
@@ -108,35 +108,35 @@ Valid operations (H_hot set):
 
 **Create Epoch**
 ```bash
-knhks epoch create <id> <tau> <lambda>
+knhk epoch create <id> <tau> <lambda>
 ```
 
 **Run Epoch**
 ```bash
-knhks epoch run <id>
+knhk epoch run <id>
 ```
 
 **List Epochs**
 ```bash
-knhks epoch list
+knhk epoch list
 ```
 
 Example:
 ```bash
-knhks epoch create epoch1 8 "reflex1,reflex2"
-knhks epoch run epoch1
+knhk epoch create epoch1 8 "reflex1,reflex2"
+knhk epoch run epoch1
 ```
 
 ### Route - Action Routing
 
 **Install Route**
 ```bash
-knhks route install <name> <kind> <target>
+knhk route install <name> <kind> <target>
 ```
 
 **List Routes**
 ```bash
-knhks route list
+knhk route list
 ```
 
 Route kinds:
@@ -147,57 +147,57 @@ Route kinds:
 
 Example:
 ```bash
-knhks route install webhook1 webhook https://api.example.com/webhook
-knhks route install kafka1 kafka kafka://localhost:9092/actions
+knhk route install webhook1 webhook https://api.example.com/webhook
+knhk route install kafka1 kafka kafka://localhost:9092/actions
 ```
 
 ### Receipt - Receipt Operations
 
 **Get Receipt**
 ```bash
-knhks receipt get <id>
+knhk receipt get <id>
 ```
 
 **Merge Receipts**
 ```bash
-knhks receipt merge <id1,id2,id3>
+knhk receipt merge <id1,id2,id3>
 ```
 
 **List Receipts**
 ```bash
-knhks receipt list
+knhk receipt list
 ```
 
 ### Pipeline - ETL Pipeline
 
 **Run Pipeline**
 ```bash
-knhks pipeline run [--connectors <ids>] [--schema <iri>]
+knhk pipeline run [--connectors <ids>] [--schema <iri>]
 ```
 
 **Pipeline Status**
 ```bash
-knhks pipeline status
+knhk pipeline status
 ```
 
 Example:
 ```bash
-knhks pipeline run --connectors kafka-prod
-knhks pipeline status
+knhk pipeline run --connectors kafka-prod
+knhk pipeline status
 ```
 
 ### Metrics - OTEL Metrics
 
 **Get Metrics**
 ```bash
-knhks metrics get
+knhk metrics get
 ```
 
 ### Coverage - Dark Matter Coverage
 
 **Get Coverage**
 ```bash
-knhks coverage get
+knhk coverage get
 ```
 
 ## Error Handling
@@ -211,8 +211,8 @@ Errors are displayed to stderr with descriptive messages.
 ## Configuration
 
 Configuration is stored in:
-- Unix: `~/.knhks/`
-- Windows: `%APPDATA%/knhks/`
+- Unix: `~/.knhk/`
+- Windows: `%APPDATA%/knhk/`
 
 Files:
 - `sigma.ttl` - Schema registry
@@ -236,26 +236,26 @@ All commands enforce guard constraints:
 
 ```bash
 # Initialize system
-knhks boot init schema.ttl invariants.sparql
+knhk boot init schema.ttl invariants.sparql
 
 # Register connector
-knhks connect register kafka-prod urn:knhks:schema:default kafka://localhost:9092/triples
+knhk connect register kafka-prod urn:knhk:schema:default kafka://localhost:9092/triples
 
 # Define cover
-knhks cover define "SELECT ?s ?p ?o WHERE { ?s ?p ?o }" "max_run_len 8"
+knhk cover define "SELECT ?s ?p ?o WHERE { ?s ?p ?o }" "max_run_len 8"
 
 # Declare reflex
-knhks reflex declare check-count ASK_SP 0xC0FFEE 0 8
+knhk reflex declare check-count ASK_SP 0xC0FFEE 0 8
 
 # Create epoch
-knhks epoch create epoch1 8 "check-count"
+knhk epoch create epoch1 8 "check-count"
 
 # Run pipeline
-knhks pipeline run --connectors kafka-prod
+knhk pipeline run --connectors kafka-prod
 
 # Check status
-knhks pipeline status
-knhks metrics get
+knhk pipeline status
+knhk metrics get
 ```
 
 ## See Also

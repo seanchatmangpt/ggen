@@ -11,9 +11,9 @@ static int test_reverse_lookup(void)
 {
   printf("[TEST] Test 8: Reverse Lookup (ASK O,P)\n");
 
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
 
-  if (!knhks_load_rdf(&ctx, "tests/data/enterprise_reverse.ttl"))
+  if (!knhk_load_rdf(&ctx, "tests/data/enterprise_reverse.ttl"))
   {
     fprintf(stderr, "  FAIL: Failed to load reverse lookup data\n");
     return 0;
@@ -25,9 +25,9 @@ static int test_reverse_lookup(void)
   uint64_t test_object = ctx.O[0];
   uint64_t test_predicate = ctx.run.pred;
 
-  knhks_hook_ir_t ask_op_ir = {.op = KNHKS_OP_ASK_OP, .s = 0, .p = test_predicate, .k = 0, .o = test_object, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
+  knhk_hook_ir_t ask_op_ir = {.op = KNHK_OP_ASK_OP, .s = 0, .p = test_predicate, .k = 0, .o = test_object, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
 
-  int result = knhks_eval_bool(&ctx, &ask_op_ir, NULL);
+  int result = knhk_eval_bool(&ctx, &ask_op_ir, NULL);
   assert(result == 1);
 
   perf_stats_t stats = measure_p50_p95(&ask_op_ir, 200000);
@@ -54,9 +54,9 @@ static int test_object_count(void)
 {
   printf("[TEST] Test 10: Object Count (COUNT O,P)\n");
 
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
 
-  if (!knhks_load_rdf(&ctx, "tests/data/enterprise_objectcount.ttl"))
+  if (!knhk_load_rdf(&ctx, "tests/data/enterprise_objectcount.ttl"))
   {
     fprintf(stderr, "  FAIL: Failed to load object count data\n");
     return 0;
@@ -68,9 +68,9 @@ static int test_object_count(void)
   uint64_t test_object = ctx.O[0];
   uint64_t test_predicate = ctx.run.pred;
 
-  knhks_hook_ir_t count_ir = {.op = KNHKS_OP_COUNT_OP, .s = 0, .p = test_predicate, .k = 1, .o = test_object, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
+  knhk_hook_ir_t count_ir = {.op = KNHK_OP_COUNT_OP, .s = 0, .p = test_predicate, .k = 1, .o = test_object, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
 
-  int result = knhks_eval_bool(&ctx, &count_ir, NULL);
+  int result = knhk_eval_bool(&ctx, &count_ir, NULL);
   assert(result == 1);
 
   perf_stats_t stats = measure_p50_p95(&count_ir, 200000);
@@ -97,9 +97,9 @@ static int test_object_count_maxcount(void)
 {
   printf("[TEST] Test 11: Object Count MaxCount (COUNT O,P <= k)\n");
 
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
 
-  if (!knhks_load_rdf(&ctx, "tests/data/enterprise_objectcount.ttl"))
+  if (!knhk_load_rdf(&ctx, "tests/data/enterprise_objectcount.ttl"))
   {
     fprintf(stderr, "  FAIL: Failed to load object count data\n");
     return 0;
@@ -111,9 +111,9 @@ static int test_object_count_maxcount(void)
   uint64_t test_object = ctx.O[0];
   uint64_t test_predicate = ctx.run.pred;
 
-  knhks_hook_ir_t count_ir = {.op = KNHKS_OP_COUNT_OP_LE, .s = 0, .p = test_predicate, .k = 5, .o = test_object, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
+  knhk_hook_ir_t count_ir = {.op = KNHK_OP_COUNT_OP_LE, .s = 0, .p = test_predicate, .k = 5, .o = test_object, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
 
-  int result = knhks_eval_bool(&ctx, &count_ir, NULL);
+  int result = knhk_eval_bool(&ctx, &count_ir, NULL);
   assert(result == 1);
 
   perf_stats_t stats = measure_p50_p95(&count_ir, 200000);
@@ -140,9 +140,9 @@ static int test_object_count_exact(void)
 {
   printf("[TEST] Test 12: Object Count Exact (COUNT O,P == k)\n");
 
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
 
-  if (!knhks_load_rdf(&ctx, "tests/data/enterprise_objectcount.ttl"))
+  if (!knhk_load_rdf(&ctx, "tests/data/enterprise_objectcount.ttl"))
   {
     fprintf(stderr, "  FAIL: Failed to load object count data\n");
     return 0;
@@ -154,9 +154,9 @@ static int test_object_count_exact(void)
   uint64_t test_object = ctx.O[0];
   uint64_t test_predicate = ctx.run.pred;
 
-  knhks_hook_ir_t count_ir = {.op = KNHKS_OP_COUNT_OP_EQ, .s = 0, .p = test_predicate, .k = 3, .o = test_object, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
+  knhk_hook_ir_t count_ir = {.op = KNHK_OP_COUNT_OP_EQ, .s = 0, .p = test_predicate, .k = 3, .o = test_object, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
 
-  int result = knhks_eval_bool(&ctx, &count_ir, NULL);
+  int result = knhk_eval_bool(&ctx, &count_ir, NULL);
   assert(result == 1);
 
   perf_stats_t stats = measure_p50_p95(&count_ir, 200000);

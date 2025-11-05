@@ -4,7 +4,7 @@ This directory contains integration tests using Testcontainers for real containe
 
 ## Structure
 
-- **Rust Tests** (`../rust/knhks-integration-tests/`): Rust integration tests using the `testcontainers` crate
+- **Rust Tests** (`../rust/knhk-integration-tests/`): Rust integration tests using the `testcontainers` crate
 - **Docker Compose** (`docker-compose.yml`): Orchestrates test containers
 - **C Integration Tests**: C tests that verify connectivity to containerized services
 
@@ -18,7 +18,7 @@ This directory contains integration tests using Testcontainers for real containe
 ### Rust Integration Tests (with testcontainers crate)
 
 ```bash
-cd rust/knhks-integration-tests
+cd rust/knhk-integration-tests
 cargo test
 ```
 

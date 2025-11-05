@@ -1,14 +1,14 @@
-Yes. Single-file, no deps. Hot path is branchless and SIMD-first. Build with `clang -O3 -mcpu=apple-m3 -std=c11 knhks_8tick_poc.c -o knhks_8tick_poc` on M3; or `-mavx2` on x86_64.
+Yes. Single-file, no deps. Hot path is branchless and SIMD-first. Build with `clang -O3 -mcpu=apple-m3 -std=c11 knhk_8tick_poc.c -o knhk_8tick_poc` on M3; or `-mavx2` on x86_64.
 
 ```c
-// knhks_8tick_poc.c
+// knhk_8tick_poc.c
 // Proof-of-concept: 8-tick (≈2 ns) knowledge-hook ASK(S,P) on warm L1.
 // Data layout: SoA {S[],P[],O[]} with a per-predicate run. Branchless SIMD.
 // Tick = 250 ps on M3 Max. Goal: show cycles/op ~ O(8) for hot ASK_SP.
 
-// Build (M3):   clang -O3 -mcpu=apple-m3 -std=c11 knhks_8tick_poc.c -o knhks_8tick_poc
-// Build (x86):  clang -O3 -mavx2 -std=c11 knhks_8tick_poc.c -o knhks_8tick_poc
-// Run:          ./knhks_8tick_poc
+// Build (M3):   clang -O3 -mcpu=apple-m3 -std=c11 knhk_8tick_poc.c -o knhk_8tick_poc
+// Build (x86):  clang -O3 -mavx2 -std=c11 knhk_8tick_poc.c -o knhk_8tick_poc
+// Run:          ./knhk_8tick_poc
 
 #include <stdint.h>
 #include <stddef.h>

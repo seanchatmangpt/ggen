@@ -1,4 +1,4 @@
-# KNHKS v1.0 Requirements Document
+# KNHK v1.0 Requirements Document
 
 ## 1. Core Foundation (KGC Axioms)
 
@@ -13,65 +13,65 @@
 - **Shard**: μ(O ⊔ Δ) = μ(O) ⊔ μ(Δ) - Shard composition law
 - **Provenance**: hash(A) = hash(μ(O)) - Cryptographic receipts
 - **Guard**: μ ⊣ H - Guards block forbidden operations
-- **Epoch**: μ ⊂ τ, τ ≤ 8 - Hard time bound
+- **Epoch**: μ ⊂ τ, τ ≤ 2ns - Hard time bound
 - **Sparsity**: μ → S (80/20) - Dark Matter optimization
 - **Minimality**: argmin drift(A) - Minimize state drift
 - **Invariants**: preserve(Q) - Maintain invariants
 
 ### 1.2 Chatman Constant
 
-- **Definition**: χ ≡ p95(hook eval) ≤ 2 ns = 8 ticks
+- **Definition**: χ ≡ p95(hook eval) ≤ 2 ns
 - **Enforcement**: AOT (Ahead-Of-Time) ingest guard validates IR
-- **Violation**: Any hook exceeding 8 ticks routes to cold path
+- **Violation**: Any hook exceeding 2ns routes to cold path
+- **Measurement**: External timing by Rust framework (C hot path contains zero timing code)
 
 ## 2. Hot Path API (C)
 
 ### 2.1 Constants
 
-- `KNHKS_TICK_BUDGET = 8`
-- `KNHKS_NROWS = 8` (compile-time fixed)
-- `KNHKS_ALIGN = 64` bytes
+- `KNHK_TIME_BUDGET_NS = 2.0` (Chatman Constant: 2ns)
+- `KNHK_NROWS = 8` (compile-time fixed)
+- `KNHK_ALIGN = 64` bytes
 
 ### 2.2 Operations (H_hot)
 
-Must execute in ≤8 ticks p95:
+Must execute in ≤2ns p95:
 
-- `KNHKS_OP_ASK_SP` - Subject-predicate existence
-- `KNHKS_OP_COUNT_SP_GE` - Count >= k
-- `KNHKS_OP_COUNT_SP_LE` - Count <= k
-- `KNHKS_OP_COUNT_SP_EQ` - Count == k
-- `KNHKS_OP_ASK_SPO` - Triple matching
-- `KNHKS_OP_ASK_OP` - Reverse lookup (object-predicate)
-- `KNHKS_OP_UNIQUE_SP` - Exactly one value
-- `KNHKS_OP_COUNT_OP` - Object count >= k
-- `KNHKS_OP_COUNT_OP_LE` - Object count <= k
-- `KNHKS_OP_COUNT_OP_EQ` - Object count == k
-- `KNHKS_OP_COMPARE_O_EQ` - Object == value
-- `KNHKS_OP_COMPARE_O_GT` - Object > value
-- `KNHKS_OP_COMPARE_O_LT` - Object < value
-- `KNHKS_OP_COMPARE_O_GE` - Object >= value
-- `KNHKS_OP_COMPARE_O_LE` - Object <= value
-- `KNHKS_OP_CONSTRUCT8` - Fixed-template emit (≤8 triples)
+- `KNHK_OP_ASK_SP` - Subject-predicate existence
+- `KNHK_OP_COUNT_SP_GE` - Count >= k
+- `KNHK_OP_COUNT_SP_LE` - Count <= k
+- `KNHK_OP_COUNT_SP_EQ` - Count == k
+- `KNHK_OP_ASK_SPO` - Triple matching
+- `KNHK_OP_ASK_OP` - Reverse lookup (object-predicate)
+- `KNHK_OP_UNIQUE_SP` - Exactly one value
+- `KNHK_OP_COUNT_OP` - Object count >= k
+- `KNHK_OP_COUNT_OP_LE` - Object count <= k
+- `KNHK_OP_COUNT_OP_EQ` - Object count == k
+- `KNHK_OP_COMPARE_O_EQ` - Object == value
+- `KNHK_OP_COMPARE_O_GT` - Object > value
+- `KNHK_OP_COMPARE_O_LT` - Object < value
+- `KNHK_OP_COMPARE_O_GE` - Object >= value
+- `KNHK_OP_COMPARE_O_LE` - Object <= value
+- `KNHK_OP_CONSTRUCT8` - Fixed-template emit (≤8 triples)
 
 **Excluded from hot path**: SELECT, JOIN, OPTIONAL, GROUP
 
 ### 2.3 Data Structures
 
-- `knhks_context_t` - SoA arrays (S[], P[], O[]), 64-byte aligned
-- `knhks_pred_run_t` - {pred, off, len} where len ≤ 8
-- `knhks_hook_ir_t` - Branchless IR representation
-- `knhks_receipt_t` - Timing + provenance receipt
+- `knhk_context_t` - SoA arrays (S[], P[], O[]), 64-byte aligned
+- `knhk_pred_run_t` - {pred, off, len} where len ≤ 8
+- `knhk_hook_ir_t` - Branchless IR representation
+- `knhk_receipt_t` - Provenance receipt (no timing, measured externally)
 
 ### 2.4 Functions
 
-- `knhks_init_ctx()` - Initialize context
-- `knhks_pin_run()` - Set active predicate run (H guards len > 8)
-- `knhks_eval_bool()` - Boolean evaluation (≤8 ticks)
-- `knhks_eval_construct8()` - Fixed-template emit (≤8 ticks)
-- `knhks_eval_batch8()` - Batch up to 8 hooks in Λ order
-- `knhks_receipt_merge()` - Merge receipts via ⊕ (associative)
-- `knhks_rd_ticks()` - Architecture-specific tick counter
-- `knhks_ticks_hz()` - Ticks per second
+- `knhk_init_ctx()` - Initialize context
+- `knhk_pin_run()` - Set active predicate run (H guards len > 8)
+- `knhk_eval_bool()` - Boolean evaluation (≤2ns)
+- `knhk_eval_construct8()` - Fixed-template emit (≤2ns)
+- `knhk_eval_batch8()` - Batch up to 8 hooks in Λ order
+- `knhk_receipt_merge()` - Merge receipts via ⊕ (associative)
+- `knhk_generate_span_id()` - Generate OTEL-compatible span ID (no timing dependency)
 
 ### 2.5 Constraints
 
@@ -89,13 +89,13 @@ Must execute in ≤8 ticks p95:
 - `Ctx` - FFI-safe context wrapper
 - `Op` - Operation enum matching C API
 - `Ir` - Hook IR structure
-- `Receipt` - Timing + provenance receipt
+- `Receipt` - Provenance receipt (no timing, measured externally)
 
 ### 3.2 Engine Wrapper
 
 - `Engine::new()` - Validates Σ constraints (64B alignment, NROWS=8)
 - `Engine::pin_run()` - Enforces H guard (len ≤ 8)
-- `Engine::eval_bool()` - Safe wrapper for knhks_eval_bool
+- `Engine::eval_bool()` - Safe wrapper for knhk_eval_bool
 - `Engine::eval_construct8()` - Safe wrapper for CONSTRUCT8
 - `Engine::eval_batch8()` - Batch execution with Λ ordering
 
@@ -103,6 +103,7 @@ Must execute in ≤8 ticks p95:
 
 - Memory management (SoA allocation)
 - Type enforcement (Σ validation)
+- External timing measurement (cycle counters)
 - Cache warming
 - Receipt aggregation (Π ⊕ merge)
 - OTEL span creation
@@ -117,7 +118,7 @@ Must execute in ≤8 ticks p95:
 - `cover/1` - Define cover over O (select S ⊂ O, shard runs len ≤ 8)
 - `admit/1` - Submit Δ into O (typed, guarded)
 - `reflex/1` - Declare hot reflex hook
-- `epoch/1` - Plan deterministic epoch (τ ≤ 8, Λ ≺-total)
+- `epoch/1` - Plan deterministic epoch (τ ≤ 2ns, Λ ≺-total)
 - `run/1` - Execute μ over O for epoch, return {A, Receipt}
 - `route/1` - Install action route (A ports)
 - `receipt/1` - Fetch receipt by ID
@@ -138,15 +139,15 @@ Each connector declares:
 
 OTP supervision with:
 
-- `knhks_sigma` - Schema registry
-- `knhks_q` - Invariant registry
-- `knhks_ingest` - Delta ingestion
-- `knhks_unrdf` - SPARQL/SHACL engine (cold path)
-- `knhks_lockchain` - Provenance storage
-- `knhks_bus` - Event bus
-- `knhks_repl` - Replication
-- `knhks_otel` - Observability
-- `knhks_darkmatter` - 80/20 coverage tracking
+- `knhk_sigma` - Schema registry
+- `knhk_q` - Invariant registry
+- `knhk_ingest` - Delta ingestion
+- `knhk_unrdf` - SPARQL/SHACL engine (cold path)
+- `knhk_lockchain` - Provenance storage
+- `knhk_bus` - Event bus
+- `knhk_repl` - Replication
+- `knhk_otel` - Observability
+- `knhk_darkmatter` - 80/20 coverage tracking
 
 ## 5. Dark Matter 80/20 Connectors
 
@@ -185,7 +186,7 @@ At minimum, framework + reference implementations for:
 1. **Ingest**: RDF/Turtle, JSON-LD, streaming triples
 2. **Transform**: Typed by Σ, constrained by Q
 3. **Load**: SoA-aligned arrays in L1 cache
-4. **Reflex**: μ executes in ≤8 ticks per Δ
+4. **Reflex**: μ executes in ≤2ns per Δ (measured externally)
 5. **Emit**: Actions (A) + Receipts → Lockchain + Downstream APIs
 
 ### 6.2 Input Ports (O Ports)
@@ -207,10 +208,11 @@ At minimum, framework + reference implementations for:
 
 ### 7.1 Receipt Structure
 
-- `ticks` - Execution time (≤8)
 - `lanes` - SIMD lanes used
-- `span_id` - OTEL-compatible trace ID
+- `span_id` - OTEL-compatible trace ID (no timing dependency)
 - `a_hash` - Fragment toward hash(A) = hash(μ(O))
+
+**Note**: Timing is measured externally by Rust framework, not stored in receipt.
 
 ### 7.2 Receipt Properties
 
@@ -239,24 +241,24 @@ System logic defined as RDF triples, not hardcoded:
 
 ### 8.2 O_sys Classes
 
-- `knhks:Reflex` - ≤8-tick execution unit
-- `knhks:Hook` - Entry point for reflex
-- `knhks:Run` - Contiguous predicate window
-- `knhks:Epoch` - Time slice (τ)
-- `knhks:Guard` - Constraint that blocks execution
-- `knhks:Receipt` - Provenance record
-- `knhks:Span` - OTEL trace context
-- `knhks:Policy` - Rule as triples
+- `knhk:Reflex` - ≤8-tick execution unit
+- `knhk:Hook` - Entry point for reflex
+- `knhk:Run` - Contiguous predicate window
+- `knhk:Epoch` - Time slice (τ)
+- `knhk:Guard` - Constraint that blocks execution
+- `knhk:Receipt` - Provenance record
+- `knhk:Span` - OTEL trace context
+- `knhk:Policy` - Rule as triples
 
 ### 8.3 O_sys Properties
 
-- `knhks:hasEpoch` - Time window constraint
-- `knhks:hasGuard` - Guard controlling execution
-- `knhks:emits` - Output artifact
-- `knhks:operatesOn` - Input data run
-- `knhks:preserves` - Invariant Q
-- `knhks:execTime` - Measured latency
-- `knhks:hashMatch` - Receipt verification
+- `knhk:hasEpoch` - Time window constraint
+- `knhk:hasGuard` - Guard controlling execution
+- `knhk:emits` - Output artifact
+- `knhk:operatesOn` - Input data run
+- `knhk:preserves` - Invariant Q
+- `knhk:execTime` - Measured latency
+- `knhk:hashMatch` - Receipt verification
 
 ## 9. Observability
 
@@ -271,7 +273,7 @@ System logic defined as RDF triples, not hardcoded:
 
 - Hook execution latency (p50, p95)
 - Cache hit rate
-- Drift violations (>8 ticks)
+- Drift violations (>2ns)
 - Coverage metrics (80/20 analysis)
 - Receipt generation rate
 - Connector throughput
@@ -280,9 +282,10 @@ System logic defined as RDF triples, not hardcoded:
 
 ### 10.1 Latency Bounds
 
-- **Hot path**: p95 ≤ 2 ns (8 ticks) per hook
+- **Hot path**: p95 ≤ 2 ns per hook (measured externally by Rust)
 - **Warm path**: Coordination overhead minimal
 - **Cold path**: Full SPARQL/SHACL (no bound)
+- **Note**: C hot path contains zero timing code
 
 ### 10.2 Coverage Target
 
@@ -367,5 +370,5 @@ System logic defined as RDF triples, not hardcoded:
 
 ---
 
-**End State**: A = μ(O), μ∘μ = μ, preserve(Q), hash(A) = hash(μ(O)), τ ≤ 8 ticks.
+**End State**: A = μ(O), μ∘μ = μ, preserve(Q), hash(A) = hash(μ(O)), τ ≤ 2ns (measured externally).
 

@@ -1,13 +1,13 @@
 // simd/count.h
 // Count operations: COUNT_SP
 
-#ifndef KNHKS_SIMD_COUNT_H
-#define KNHKS_SIMD_COUNT_H
+#ifndef KNHK_SIMD_COUNT_H
+#define KNHK_SIMD_COUNT_H
 
 #include "common.h"
 
 #if NROWS == 8
-static inline uint64_t knhks_eq64_count_8(const uint64_t *base, uint64_t off, uint64_t key)
+static inline uint64_t knhk_eq64_count_8(const uint64_t *base, uint64_t off, uint64_t key)
 {
 #if defined(__aarch64__)
   const uint64_t *p = base + off;
@@ -68,4 +68,4 @@ static inline uint64_t knhks_eq64_count_8(const uint64_t *base, uint64_t off, ui
 
 #endif // NROWS == 8
 
-#endif // KNHKS_SIMD_COUNT_H
+#endif // KNHK_SIMD_COUNT_H

@@ -40,7 +40,7 @@ Analysis of what knowledge can be **hardcoded/precomputed** at Rust warm/cold pa
   - Provenance: typically `len = 8` (full batch)
 
 **Rust can generate:**
-- Specialized functions for each `len` value: `knhks_construct8_emit_8_len1()` through `knhks_construct8_emit_8_len8()`
+- Specialized functions for each `len` value: `knhk_construct8_emit_8_len1()` through `knhk_construct8_emit_8_len8()`
 - Each function has `len_mask_bits` as compile-time constant: `0x01`, `0x03`, `0x07`, `0x0F`, `0x1F`, `0x3F`, `0x7F`, `0xFF`
 
 **Savings:** ~0.25 ticks per call
@@ -97,7 +97,7 @@ CONSTRUCT { ?u ex:hasAccess ?r } WHERE { ?u ex:role ?x . ?x ex:grants ?r }
 
 **Rust AOT Preparation:**
 1. Precompute role→permission mappings at warm path
-2. Generate specialized function: `knhks_construct8_emit_8_auth()`
+2. Generate specialized function: `knhk_construct8_emit_8_auth()`
 3. Precompute broadcast vectors for common permission sets
 4. Store authorization template in IR structure
 
@@ -123,7 +123,7 @@ CONSTRUCT { ?s rdf:type :Compliant } WHERE { ?s ex:passesPolicy true }
 
 **Rust AOT Preparation:**
 1. Precompute compliance state from policy evaluation
-2. Generate specialized function: `knhks_construct8_emit_8_compliant()`
+2. Generate specialized function: `knhk_construct8_emit_8_compliant()`
 3. Use all-nonzero pattern specialization (skip mask generation)
 4. Precompute broadcast vectors
 
@@ -149,7 +149,7 @@ CONSTRUCT { ?asset ex:riskLevel ?level } WHERE { ?asset ex:riskScore ?score . FI
 
 **Rust AOT Preparation:**
 1. Precompute risk levels from scores at warm path
-2. Generate specialized function: `knhks_construct8_emit_8_risk()`
+2. Generate specialized function: `knhk_construct8_emit_8_risk()`
 3. Precompute risk level constants
 4. Store risk classification in IR
 
@@ -175,7 +175,7 @@ CONSTRUCT { ?action ex:hasReceipt ?receipt } WHERE { ?action ex:executed true }
 
 **Rust AOT Preparation:**
 1. Precompute receipt IDs from span IDs
-2. Generate specialized function: `knhks_construct8_emit_8_provenance()`
+2. Generate specialized function: `knhk_construct8_emit_8_provenance()`
 3. Precompute receipt template structure
 4. Store provenance template in IR
 
@@ -201,7 +201,7 @@ CONSTRUCT { ?resource rdf:type ?type } WHERE { ?resource ex:hasSchema ?schema . 
 
 **Rust AOT Preparation:**
 1. Precompute schema→type mappings at warm path
-2. Generate specialized function: `knhks_construct8_emit_8_type()`
+2. Generate specialized function: `knhk_construct8_emit_8_type()`
 3. Precompute type constants
 4. Store type template in IR
 
@@ -227,7 +227,7 @@ CONSTRUCT { ?user ex:entitled ?resource } WHERE { ?user ex:role ?role . ?role ex
 
 **Rust AOT Preparation:**
 1. Precompute role→resource mappings at warm path
-2. Generate specialized function: `knhks_construct8_emit_8_entitlement()`
+2. Generate specialized function: `knhk_construct8_emit_8_entitlement()`
 3. Precompute entitlement sets
 4. Store entitlement template in IR
 
@@ -253,7 +253,7 @@ CONSTRUCT { ?process ex:status ?status } WHERE { ?process ex:state ?state . ?sta
 
 **Rust AOT Preparation:**
 1. Precompute state→status mappings at warm path
-2. Generate specialized function: `knhks_construct8_emit_8_status()`
+2. Generate specialized function: `knhk_construct8_emit_8_status()`
 3. Precompute status constants
 4. Store status template in IR
 
@@ -279,7 +279,7 @@ CONSTRUCT { ?delta ex:added ?triple } WHERE { ?delta ex:adds ?triple }
 
 **Rust AOT Preparation:**
 1. Precompute delta assertions at warm path
-2. Generate specialized function: `knhks_construct8_emit_8_delta()`
+2. Generate specialized function: `knhk_construct8_emit_8_delta()`
 3. Precompute delta structure
 4. Store delta template in IR
 
@@ -335,17 +335,17 @@ CONSTRUCT { ?delta ex:added ?triple } WHERE { ?delta ex:adds ?triple }
 
 1. **Authorization Reflex** (30% of runtime)
    - Hardcode: `ex:hasAccess` predicate, common permission sets
-   - Generate: `knhks_construct8_emit_8_auth()` specialized function
+   - Generate: `knhk_construct8_emit_8_auth()` specialized function
    - Expected savings: ~2 ticks (constant optimization + pattern detection)
 
 2. **Compliance Classification** (20% of runtime)
    - Hardcode: `rdf:type :Compliant` template, all-nonzero pattern
-   - Generate: `knhks_construct8_emit_8_compliant()` specialized function
+   - Generate: `knhk_construct8_emit_8_compliant()` specialized function
    - Expected savings: ~4 ticks (skip mask generation)
 
 3. **Risk Flag Generation** (15% of runtime)
    - Hardcode: `ex:riskLevel` predicate, risk level constants
-   - Generate: `knhks_construct8_emit_8_risk()` specialized function
+   - Generate: `knhk_construct8_emit_8_risk()` specialized function
    - Expected savings: ~1 tick (constant optimization)
 
 **Total Coverage:** 65% of runtime use cases
@@ -369,7 +369,7 @@ CONSTRUCT { ?delta ex:added ?triple } WHERE { ?delta ex:adds ?triple }
 ### Phase 1: Template Registry (Build-Time)
 
 ```rust
-// rust/knhks-aot/src/templates.rs
+// rust/knhk-aot/src/templates.rs
 pub struct ConstructTemplate {
     pub name: &'static str,
     pub p_const: u64,        // Hardcoded predicate
@@ -400,7 +400,7 @@ pub const TEMPLATES: &[ConstructTemplate] = &[
 ### Phase 2: Code Generation (Build-Time)
 
 ```rust
-// rust/knhks-aot/build.rs
+// rust/knhk-aot/build.rs
 fn generate_specialized_functions() {
     for template in TEMPLATES {
         for len in template.len_range {
@@ -414,17 +414,17 @@ fn generate_specialized_functions() {
 ### Phase 3: Runtime Selection (Warm Path)
 
 ```rust
-// rust/knhks-aot/src/dispatch.rs
+// rust/knhk-aot/src/dispatch.rs
 pub fn select_optimal_function(
     template: &ConstructTemplate,
     len: u8,
     zero_hint: u8
 ) -> Construct8Fn {
     match (template.name, len, zero_hint) {
-        ("authorization", 4, 0x00) => knhks_construct8_emit_8_auth_len4_all_nonzero,
-        ("compliance", 8, 0x00) => knhks_construct8_emit_8_compliant_len8_all_nonzero,
+        ("authorization", 4, 0x00) => knhk_construct8_emit_8_auth_len4_all_nonzero,
+        ("compliance", 8, 0x00) => knhk_construct8_emit_8_compliant_len8_all_nonzero,
         // ... more cases
-        _ => knhks_construct8_emit_8_generic, // Fallback
+        _ => knhk_construct8_emit_8_generic, // Fallback
     }
 }
 ```

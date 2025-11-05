@@ -2,7 +2,7 @@
 
 ## Summary
 
-Successfully integrated **Raptor RDF Syntax Library** into the `knhks_8tick_poc.c` POC. The POC can now:
+Successfully integrated **Raptor RDF Syntax Library** into the `knhk_8tick_poc.c` POC. The POC can now:
 
 1. ✅ Parse RDF/Turtle files using Raptor
 2. ✅ Convert RDF triples to SoA (Structure of Arrays) format
@@ -20,14 +20,14 @@ brew install raptor
 ```bash
 clang -O3 -march=armv8.5-a+fp16 -std=c11 \
   -I/opt/homebrew/Cellar/raptor/2.0.16/include \
-  knhks_8tick_poc.c -o knhks_8tick_poc \
+  knhk_8tick_poc.c -o knhk_8tick_poc \
   -L/opt/homebrew/Cellar/raptor/2.0.16/lib -lraptor2
 ```
 
 Or using pkg-config (once configured):
 ```bash
 clang -O3 -march=armv8.5-a+fp16 -std=c11 \
-  knhks_8tick_poc.c -o knhks_8tick_poc \
+  knhk_8tick_poc.c -o knhk_8tick_poc \
   $(pkg-config --cflags --libs raptor2)
 ```
 
@@ -35,12 +35,12 @@ clang -O3 -march=armv8.5-a+fp16 -std=c11 \
 
 ### Synthetic Data (original behavior)
 ```bash
-./knhks_8tick_poc
+./knhk_8tick_poc
 ```
 
 ### Load from RDF File
 ```bash
-./knhks_8tick_poc file.ttl
+./knhk_8tick_poc file.ttl
 ```
 
 ## Features

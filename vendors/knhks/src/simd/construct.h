@@ -1,15 +1,15 @@
 // simd/construct.h
 // CONSTRUCT operations: CONSTRUCT8
 
-#ifndef KNHKS_SIMD_CONSTRUCT_H
-#define KNHKS_SIMD_CONSTRUCT_H
+#ifndef KNHK_SIMD_CONSTRUCT_H
+#define KNHK_SIMD_CONSTRUCT_H
 
 #include "common.h"
 
 #if NROWS == 8
-// Maximum performance optimization: all operations branchless, ≤8 ticks
+// Maximum performance optimization: all operations branchless, ≤2ns
 __attribute__((hot, always_inline))
-static inline size_t knhks_construct8_emit_8(const uint64_t *S_base, uint64_t off, uint64_t len,
+static inline size_t knhk_construct8_emit_8(const uint64_t *S_base, uint64_t off, uint64_t len,
                                                uint64_t p_const, uint64_t o_const,
                                                uint64_t *restrict out_S, uint64_t *restrict out_P, uint64_t *restrict out_O,
                                                uint64_t *restrict out_mask)
@@ -183,4 +183,4 @@ static inline size_t knhks_construct8_emit_8(const uint64_t *S_base, uint64_t of
 }
 #endif // NROWS == 8
 
-#endif // KNHKS_SIMD_CONSTRUCT_H
+#endif // KNHK_SIMD_CONSTRUCT_H

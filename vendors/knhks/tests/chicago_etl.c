@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "knhks.h"
+#include "knhk.h"
 
 #if defined(__GNUC__)
 #define ALN __attribute__((aligned(64)))
@@ -24,7 +24,7 @@ static int test_etl_pipeline_complete(void)
   uint64_t ALN S[NROWS];
   uint64_t ALN P[NROWS];
   uint64_t ALN O[NROWS];
-  knhks_context_t ctx;
+  knhk_context_t ctx;
   
   // Stage 1: Ingest (simulated - in real implementation, connectors provide data)
   S[0] = 0xA11CE;
@@ -35,12 +35,12 @@ static int test_etl_pipeline_complete(void)
   // Verified by predicate matching in hot path
   
   // Stage 3: Load (SoA alignment)
-  knhks_init_ctx(&ctx, S, P, O);
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_init_ctx(&ctx, S, P, O);
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
   // Stage 4: Reflex (μ execution)
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -51,11 +51,11 @@ static int test_etl_pipeline_complete(void)
     .out_mask = 0
   };
   
-  knhks_receipt_t rcpt = {0};
-  (void)knhks_eval_bool(&ctx, &ir, &rcpt);
+  knhk_receipt_t rcpt = {0};
+  (void)knhk_eval_bool(&ctx, &ir, &rcpt);
   
   // Stage 5: Emit (receipt available for lockchain)
-  assert(rcpt.ticks <= KNHKS_TICK_BUDGET);
+  assert(rcpt.ticks <= KNHK_TICK_BUDGET);
   assert(rcpt.a_hash != 0);
   
   printf("  ✓ Complete pipeline: Ingest → Transform → Load → Reflex → Emit\n");
@@ -70,20 +70,20 @@ static int test_etl_pipeline_invariants(void)
   uint64_t ALN S[NROWS];
   uint64_t ALN P[NROWS];
   uint64_t ALN O[NROWS];
-  knhks_context_t ctx;
+  knhk_context_t ctx;
   
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
   
   // Setup data
   S[0] = 0xA11CE;
   P[0] = 0xC0FFEE;
   O[0] = 0xB0B;
   
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
   // Execute reflex
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -94,12 +94,12 @@ static int test_etl_pipeline_invariants(void)
     .out_mask = 0
   };
   
-  knhks_receipt_t rcpt1 = {0};
-  int action1 = knhks_eval_bool(&ctx, &ir, &rcpt1);
+  knhk_receipt_t rcpt1 = {0};
+  int action1 = knhk_eval_bool(&ctx, &ir, &rcpt1);
   
   // Idempotence: μ∘μ = μ
-  knhks_receipt_t rcpt2 = {0};
-  int action2 = knhks_eval_bool(&ctx, &ir, &rcpt2);
+  knhk_receipt_t rcpt2 = {0};
+  int action2 = knhk_eval_bool(&ctx, &ir, &rcpt2);
   
   assert(action1 == action2);
   assert(rcpt1.a_hash == rcpt2.a_hash);
@@ -116,9 +116,9 @@ static int test_etl_pipeline_timing(void)
   uint64_t ALN S[NROWS];
   uint64_t ALN P[NROWS];
   uint64_t ALN O[NROWS];
-  knhks_context_t ctx;
+  knhk_context_t ctx;
   
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
   
   // Setup data
   for (int i = 0; i < 8; i++) {
@@ -127,13 +127,13 @@ static int test_etl_pipeline_timing(void)
     O[i] = 0xB0B + i;
   }
   
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 8});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 8});
   
   // Execute batch (simulating full pipeline)
-  knhks_hook_ir_t irs[KNHKS_NROWS];
+  knhk_hook_ir_t irs[KNHK_NROWS];
   for (int i = 0; i < 8; i++) {
-    irs[i] = (knhks_hook_ir_t){
-      .op = KNHKS_OP_ASK_SP,
+    irs[i] = (knhk_hook_ir_t){
+      .op = KNHK_OP_ASK_SP,
       .s = 0xA11CE + i,
       .p = 0xC0FFEE,
       .o = 0,
@@ -145,8 +145,8 @@ static int test_etl_pipeline_timing(void)
     };
   }
   
-  knhks_receipt_t rcpts[KNHKS_NROWS] = {0};
-  int executed = knhks_eval_batch8(&ctx, irs, 8, rcpts);
+  knhk_receipt_t rcpts[KNHK_NROWS] = {0};
+  int executed = knhk_eval_batch8(&ctx, irs, 8, rcpts);
   
   assert(executed == 8);
   
@@ -158,9 +158,9 @@ static int test_etl_pipeline_timing(void)
     }
   }
   
-  assert(max_ticks <= KNHKS_TICK_BUDGET);
+  assert(max_ticks <= KNHK_TICK_BUDGET);
   
-  printf("  ✓ Pipeline timing: max_ticks=%u ≤ %u\n", max_ticks, KNHKS_TICK_BUDGET);
+  printf("  ✓ Pipeline timing: max_ticks=%u ≤ %u\n", max_ticks, KNHK_TICK_BUDGET);
   return 1;
 }
 
@@ -172,15 +172,15 @@ static int test_etl_pipeline_error_handling(void)
   uint64_t ALN S[NROWS];
   uint64_t ALN P[NROWS];
   uint64_t ALN O[NROWS];
-  knhks_context_t ctx;
+  knhk_context_t ctx;
   
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
   
   // Test with wrong predicate (should return 0, not crash)
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 0});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 0});
   
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xDEADBEEF,  // Wrong predicate (valid hex)
     .o = 0,
@@ -191,12 +191,12 @@ static int test_etl_pipeline_error_handling(void)
     .out_mask = 0
   };
   
-  knhks_receipt_t rcpt = {0};
-  int result = knhks_eval_bool(&ctx, &ir, &rcpt);
+  knhk_receipt_t rcpt = {0};
+  int result = knhk_eval_bool(&ctx, &ir, &rcpt);
   
   // Should handle gracefully (return 0, still generate receipt)
   assert(result == 0);
-  assert(rcpt.ticks <= KNHKS_TICK_BUDGET);
+  assert(rcpt.ticks <= KNHK_TICK_BUDGET);
   
   printf("  ✓ Error handling works (wrong predicate)\n");
   return 1;
@@ -210,18 +210,18 @@ static int test_etl_pipeline_receipt_generation(void)
   uint64_t ALN S[NROWS];
   uint64_t ALN P[NROWS];
   uint64_t ALN O[NROWS];
-  knhks_context_t ctx;
+  knhk_context_t ctx;
   
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
   
   S[0] = 0xA11CE;
   P[0] = 0xC0FFEE;
   O[0] = 0xB0B;
   
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -232,12 +232,12 @@ static int test_etl_pipeline_receipt_generation(void)
     .out_mask = 0
   };
   
-  knhks_receipt_t rcpt = {0};
-  knhks_eval_bool(&ctx, &ir, &rcpt);
+  knhk_receipt_t rcpt = {0};
+  knhk_eval_bool(&ctx, &ir, &rcpt);
   
   // Verify receipt properties
   assert(rcpt.ticks > 0);
-  assert(rcpt.ticks <= KNHKS_TICK_BUDGET);
+  assert(rcpt.ticks <= KNHK_TICK_BUDGET);
   assert(rcpt.lanes > 0);
   assert(rcpt.a_hash != 0);
   

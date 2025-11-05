@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "knhks.h"
+#include "knhk.h"
 #include "chicago_test_helpers.h"
 
 #if defined(__GNUC__)
@@ -64,17 +64,17 @@ static int test_http_emit_success(void)
   uint64_t ALN S[NROWS];
   uint64_t ALN P[NROWS];
   uint64_t ALN O[NROWS];
-  knhks_context_t ctx;
+  knhk_context_t ctx;
   
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
   S[0] = 0xA11CE;
   P[0] = 0xC0FFEE;
   O[0] = 0xB0B;
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
   // Execute hook
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -86,11 +86,11 @@ static int test_http_emit_success(void)
   };
   
   // Warmup execution to ensure cache is warm
-  knhks_receipt_t rcpt_warmup = {0};
-  knhks_eval_bool(&ctx, &ir, &rcpt_warmup);
+  knhk_receipt_t rcpt_warmup = {0};
+  knhk_eval_bool(&ctx, &ir, &rcpt_warmup);
   
-  knhks_receipt_t rcpt = {0};
-  int action = knhks_eval_bool(&ctx, &ir, &rcpt);
+  knhk_receipt_t rcpt = {0};
+  int action = knhk_eval_bool(&ctx, &ir, &rcpt);
   
   // Simulate HTTP emit (in real implementation, call Rust emit stage)
   const char *endpoint = "http://localhost:8080/actions";
@@ -99,7 +99,7 @@ static int test_http_emit_success(void)
   assert(action == 1);
   // Verify receipt was generated (allow retry if needed)
   if (rcpt.ticks == 0 && rcpt_warmup.ticks == 0) {
-    knhks_eval_bool(&ctx, &ir, &rcpt);
+    knhk_eval_bool(&ctx, &ir, &rcpt);
   }
   // Allow for timing variance - ticks should be reasonable
   assert(rcpt.ticks <= 500 || rcpt_warmup.ticks <= 500);
@@ -147,16 +147,16 @@ static int test_http_emit_timeout(void)
   uint64_t ALN S[NROWS];
   uint64_t ALN P[NROWS];
   uint64_t ALN O[NROWS];
-  knhks_context_t ctx;
+  knhk_context_t ctx;
   
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
   S[0] = 0xA11CE;
   P[0] = 0xC0FFEE;
   O[0] = 0xB0B;
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -168,15 +168,15 @@ static int test_http_emit_timeout(void)
   };
   
   // Warmup execution
-  knhks_receipt_t rcpt_warmup = {0};
-  knhks_eval_bool(&ctx, &ir, &rcpt_warmup);
+  knhk_receipt_t rcpt_warmup = {0};
+  knhk_eval_bool(&ctx, &ir, &rcpt_warmup);
   
-  knhks_receipt_t rcpt = {0};
-  int action = knhks_eval_bool(&ctx, &ir, &rcpt);
+  knhk_receipt_t rcpt = {0};
+  int action = knhk_eval_bool(&ctx, &ir, &rcpt);
   
   // Verify receipt was generated
   if (rcpt.ticks == 0 && rcpt_warmup.ticks == 0) {
-    knhks_eval_bool(&ctx, &ir, &rcpt);
+    knhk_eval_bool(&ctx, &ir, &rcpt);
   }
   // Receipt should still be generated even if HTTP times out
   assert(action == 1);
@@ -196,16 +196,16 @@ static int test_grpc_emit_success(void)
   uint64_t ALN S[NROWS];
   uint64_t ALN P[NROWS];
   uint64_t ALN O[NROWS];
-  knhks_context_t ctx;
+  knhk_context_t ctx;
   
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
   S[0] = 0xA11CE;
   P[0] = 0xC0FFEE;
   O[0] = 0xB0B;
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -216,8 +216,8 @@ static int test_grpc_emit_success(void)
     .out_mask = 0
   };
   
-  knhks_receipt_t rcpt = {0};
-  int action = knhks_eval_bool(&ctx, &ir, &rcpt);
+  knhk_receipt_t rcpt = {0};
+  int action = knhk_eval_bool(&ctx, &ir, &rcpt);
   
   // gRPC emit simulation (protobuf serialization)
   // In real implementation: tonic client sends action + receipt
@@ -239,16 +239,16 @@ static int test_grpc_emit_error(void)
   uint64_t ALN S[NROWS];
   uint64_t ALN P[NROWS];
   uint64_t ALN O[NROWS];
-  knhks_context_t ctx;
+  knhk_context_t ctx;
   
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
   S[0] = 0xA11CE;
   P[0] = 0xC0FFEE;
   O[0] = 0xB0B;
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -259,8 +259,8 @@ static int test_grpc_emit_error(void)
     .out_mask = 0
   };
   
-  knhks_receipt_t rcpt = {0};
-  int action = knhks_eval_bool(&ctx, &ir, &rcpt);
+  knhk_receipt_t rcpt = {0};
+  int action = knhk_eval_bool(&ctx, &ir, &rcpt);
   
   // Receipt should still be generated even if gRPC fails
   assert(action == 1);
@@ -280,16 +280,16 @@ static int test_kafka_producer_emit(void)
   uint64_t ALN S[NROWS];
   uint64_t ALN P[NROWS];
   uint64_t ALN O[NROWS];
-  knhks_context_t ctx;
+  knhk_context_t ctx;
   
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
   S[0] = 0xA11CE;
   P[0] = 0xC0FFEE;
   O[0] = 0xB0B;
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -300,8 +300,8 @@ static int test_kafka_producer_emit(void)
     .out_mask = 0
   };
   
-  knhks_receipt_t rcpt = {0};
-  int action = knhks_eval_bool(&ctx, &ir, &rcpt);
+  knhk_receipt_t rcpt = {0};
+  int action = knhk_eval_bool(&ctx, &ir, &rcpt);
   
   // Kafka producer simulation (action serialization → topic)
   // In real implementation: rdkafka producer sends to topic
@@ -320,16 +320,16 @@ static int test_otel_span_export(void)
   uint64_t ALN S[NROWS];
   uint64_t ALN P[NROWS];
   uint64_t ALN O[NROWS];
-  knhks_context_t ctx;
+  knhk_context_t ctx;
   
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
   S[0] = 0xA11CE;
   P[0] = 0xC0FFEE;
   O[0] = 0xB0B;
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -340,8 +340,8 @@ static int test_otel_span_export(void)
     .out_mask = 0
   };
   
-  knhks_receipt_t rcpt = {0};
-  int action = knhks_eval_bool(&ctx, &ir, &rcpt);
+  knhk_receipt_t rcpt = {0};
+  int action = knhk_eval_bool(&ctx, &ir, &rcpt);
   
   // Verify span ID is generated (OTEL-compatible)
   assert(action == 1);
@@ -362,16 +362,16 @@ static int test_otel_metric_export(void)
   uint64_t ALN S[NROWS];
   uint64_t ALN P[NROWS];
   uint64_t ALN O[NROWS];
-  knhks_context_t ctx;
+  knhk_context_t ctx;
   
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
   S[0] = 0xA11CE;
   P[0] = 0xC0FFEE;
   O[0] = 0xB0B;
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -387,14 +387,14 @@ static int test_otel_metric_export(void)
   int exec_count = 100;
   
   for (int i = 0; i < exec_count; i++) {
-    knhks_receipt_t rcpt = {0};
-    knhks_eval_bool(&ctx, &ir, &rcpt);
+    knhk_receipt_t rcpt = {0};
+    knhk_eval_bool(&ctx, &ir, &rcpt);
     tick_sum += rcpt.ticks;
   }
   
   // Metrics should be collected (in real implementation: exported to OTEL)
   double avg_ticks = (double)tick_sum / exec_count;
-  assert(avg_ticks <= KNHKS_TICK_BUDGET);
+  assert(avg_ticks <= KNHK_TICK_BUDGET);
   
   printf("  ✓ OTEL metrics collected (avg ticks: %.2f)\n", avg_ticks);
   return 1;
@@ -409,16 +409,16 @@ static int test_network_error_handling(void)
   uint64_t ALN S[NROWS];
   uint64_t ALN P[NROWS];
   uint64_t ALN O[NROWS];
-  knhks_context_t ctx;
+  knhk_context_t ctx;
   
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
   S[0] = 0xA11CE;
   P[0] = 0xC0FFEE;
   O[0] = 0xB0B;
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -429,8 +429,8 @@ static int test_network_error_handling(void)
     .out_mask = 0
   };
   
-  knhks_receipt_t rcpt = {0};
-  int action = knhks_eval_bool(&ctx, &ir, &rcpt);
+  knhk_receipt_t rcpt = {0};
+  int action = knhk_eval_bool(&ctx, &ir, &rcpt);
   
   // Receipt should be generated even if network fails
   assert(action == 1);

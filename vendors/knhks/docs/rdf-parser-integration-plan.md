@@ -2,13 +2,13 @@
 
 ## Overview
 
-Integration of `rio_turtle` Rust library for production-ready RDF/Turtle parsing in KNHKS, replacing the simplified parser currently in `rust/knhks-etl/src/lib.rs`.
+Integration of `rio_turtle` Rust library for production-ready RDF/Turtle parsing in KNHK, replacing the simplified parser currently in `rust/knhk-etl/src/lib.rs`.
 
 ## Current State
 
 ### Existing Implementation
 - **C Code**: Uses Raptor (C library) in `src/rdf.c` for file-based parsing
-- **Rust Code**: Simplified Turtle parser in `rust/knhks-etl/src/lib.rs` (`parse_rdf_turtle`)
+- **Rust Code**: Simplified Turtle parser in `rust/knhk-etl/src/lib.rs` (`parse_rdf_turtle`)
   - Basic line-by-line parsing
   - Limited Turtle syntax support
   - No prefix resolution
@@ -44,13 +44,13 @@ Integration of `rio_turtle` Rust library for production-ready RDF/Turtle parsing
 ### Phase 1: Add Dependencies
 
 **Files to Update:**
-- `rust/knhks-etl/Cargo.toml` - Add `rio_turtle` dependency
-- `rust/knhks-aot/Cargo.toml` - Add `rio_turtle` and `rio_api` dependencies (as mentioned in CONVO.txt)
+- `rust/knhk-etl/Cargo.toml` - Add `rio_turtle` dependency
+- `rust/knhk-aot/Cargo.toml` - Add `rio_turtle` and `rio_api` dependencies (as mentioned in CONVO.txt)
 
 ### Phase 2: Replace Simplified Parser
 
 **Files to Update:**
-- `rust/knhks-etl/src/lib.rs` - Replace `parse_rdf_turtle()` implementation
+- `rust/knhk-etl/src/lib.rs` - Replace `parse_rdf_turtle()` implementation
 
 **Key Changes:**
 1. Use `rio_turtle::TurtleParser` for parsing
@@ -93,14 +93,14 @@ Integration of `rio_turtle` Rust library for production-ready RDF/Turtle parsing
 ### Dependencies
 
 ```toml
-# rust/knhks-etl/Cargo.toml
+# rust/knhk-etl/Cargo.toml
 [dependencies]
 rio_turtle = "0.8"
 rio_api = "0.8"  # For Triple types and error handling
 ```
 
 ```toml
-# rust/knhks-aot/Cargo.toml
+# rust/knhk-aot/Cargo.toml
 [dependencies]
 rio_turtle = "0.8"
 rio_api = "0.8"
@@ -109,7 +109,7 @@ rio_api = "0.8"
 ### API Design
 
 ```rust
-// rust/knhks-etl/src/lib.rs
+// rust/knhk-etl/src/lib.rs
 
 use rio_api::parser::TriplesParser;
 use rio_turtle::TurtleParser;
@@ -315,5 +315,5 @@ mod tests {
 - `rio_turtle` docs: https://docs.rs/rio_turtle/
 - `rio_api` docs: https://docs.rs/rio_api/
 - CONVO.txt references (lines 25518-25563)
-- Current simplified parser: `rust/knhks-etl/src/lib.rs` (lines 74-132)
+- Current simplified parser: `rust/knhk-etl/src/lib.rs` (lines 74-132)
 

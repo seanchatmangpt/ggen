@@ -1,14 +1,14 @@
 // core.h
 // Core evaluation logic (internal header)
 
-#ifndef KNHKS_CORE_H
-#define KNHKS_CORE_H
+#ifndef KNHK_CORE_H
+#define KNHK_CORE_H
 
-#include "knhks.h"
+#include "knhk.h"
 
 // Internal evaluation functions
-int knhks_core_eval_bool(const knhks_context_t *ctx, const knhks_hook_ir_t *ir);
-size_t knhks_core_eval_select(const knhks_context_t *ctx, const knhks_hook_ir_t *ir);
+int knhk_core_eval_bool(const knhk_context_t *ctx, const knhk_hook_ir_t *ir);
+size_t knhk_core_eval_select(const knhk_context_t *ctx, const knhk_hook_ir_t *ir);
 
-#endif // KNHKS_CORE_H
+#endif // KNHK_CORE_H
 

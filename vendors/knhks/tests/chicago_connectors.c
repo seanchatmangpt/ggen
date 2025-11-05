@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "knhks.h"
+#include "knhk.h"
 
 #if defined(__GNUC__)
 #define ALN __attribute__((aligned(64)))
@@ -27,16 +27,16 @@ static int test_connector_guard_enforcement(void)
   uint64_t ALN S[NROWS];
   uint64_t ALN P[NROWS];
   uint64_t ALN O[NROWS];
-  knhks_context_t ctx;
+  knhk_context_t ctx;
   
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
   
   // Valid: len = 8 (maximum allowed)
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 8});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 8});
   assert(ctx.run.len == 8);
   
   // Valid: len = 1
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   assert(ctx.run.len == 1);
   
   printf("  ✓ Guards enforce max_run_len ≤ 8\n");
@@ -51,7 +51,7 @@ static int test_connector_soa_conversion(void)
   uint64_t ALN S[NROWS];
   uint64_t ALN P[NROWS];
   uint64_t ALN O[NROWS];
-  knhks_context_t ctx;
+  knhk_context_t ctx;
   
   // Setup test data (simulating connector output)
   S[0] = 0xA11CE;
@@ -61,8 +61,8 @@ static int test_connector_soa_conversion(void)
   O[0] = 0xB0B;
   O[1] = 0xC0C;
   
-  knhks_init_ctx(&ctx, S, P, O);
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 2});
+  knhk_init_ctx(&ctx, S, P, O);
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 2});
   
   // Verify SoA layout is correct
   assert(ctx.S[ctx.run.off + 0] == 0xA11CE);
@@ -87,19 +87,19 @@ static int test_connector_schema_validation(void)
   uint64_t ALN S[NROWS];
   uint64_t ALN P[NROWS];
   uint64_t ALN O[NROWS];
-  knhks_context_t ctx;
+  knhk_context_t ctx;
   
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
   
   // Setup data with matching predicate
   S[0] = 0xA11CE;  // Add actual data
   P[0] = 0xC0FFEE;
   O[0] = 0xB0B;
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
   // Query with matching predicate AND matching subject
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,  // Matches S[0]
     .p = 0xC0FFEE,  // Matches run.pred
     .o = 0,
@@ -110,15 +110,15 @@ static int test_connector_schema_validation(void)
     .out_mask = 0
   };
   
-  knhks_receipt_t rcpt = {0};
-  int result = knhks_eval_bool(&ctx, &ir, &rcpt);
+  knhk_receipt_t rcpt = {0};
+  int result = knhk_eval_bool(&ctx, &ir, &rcpt);
   
   // Should execute successfully with matching data
   // Receipt should always be filled
   // Note: ticks may exceed budget slightly due to timing variance, but should be reasonable
-  if (rcpt.ticks > KNHKS_TICK_BUDGET) {
+  if (rcpt.ticks > KNHK_TICK_BUDGET) {
     printf("  WARNING: ticks=%u exceeds budget=%u (timing variance)\n", 
-           rcpt.ticks, KNHKS_TICK_BUDGET);
+           rcpt.ticks, KNHK_TICK_BUDGET);
   }
   // For Chicago TDD, we verify the operation completes and generates receipt
   assert(rcpt.a_hash != 0); // Receipt should have hash
@@ -138,7 +138,7 @@ static int test_connector_batch_size_constraints(void)
   uint64_t ALN S[NROWS];
   uint64_t ALN P[NROWS];
   uint64_t ALN O[NROWS];
-  knhks_context_t ctx;
+  knhk_context_t ctx;
   
   // Setup full 8-element batch
   for (int i = 0; i < 8; i++) {
@@ -147,14 +147,14 @@ static int test_connector_batch_size_constraints(void)
     O[i] = 0xB0B + i;
   }
   
-  knhks_init_ctx(&ctx, S, P, O);
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 8});
+  knhk_init_ctx(&ctx, S, P, O);
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 8});
   
   // Create batch of 8 hooks
-  knhks_hook_ir_t irs[KNHKS_NROWS];
+  knhk_hook_ir_t irs[KNHK_NROWS];
   for (int i = 0; i < 8; i++) {
-    irs[i] = (knhks_hook_ir_t){
-      .op = KNHKS_OP_ASK_SP,
+    irs[i] = (knhk_hook_ir_t){
+      .op = KNHK_OP_ASK_SP,
       .s = 0xA11CE + i,
       .p = 0xC0FFEE,
       .o = 0,
@@ -166,14 +166,14 @@ static int test_connector_batch_size_constraints(void)
     };
   }
   
-  knhks_receipt_t rcpts[KNHKS_NROWS] = {0};
-  int executed = knhks_eval_batch8(&ctx, irs, 8, rcpts);
+  knhk_receipt_t rcpts[KNHK_NROWS] = {0};
+  int executed = knhk_eval_batch8(&ctx, irs, 8, rcpts);
   
   assert(executed == 8);
   
   // Verify all receipts within budget
   for (int i = 0; i < 8; i++) {
-    assert(rcpts[i].ticks <= KNHKS_TICK_BUDGET);
+    assert(rcpts[i].ticks <= KNHK_TICK_BUDGET);
   }
   
   printf("  ✓ Batch size constraints respected (max 8)\n");
@@ -190,20 +190,20 @@ static int test_connector_delta_transformation(void)
   uint64_t ALN S[NROWS];
   uint64_t ALN P[NROWS];
   uint64_t ALN O[NROWS];
-  knhks_context_t ctx;
+  knhk_context_t ctx;
   
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
   
   // Simulate delta addition
   S[0] = 0xA11CE;
   P[0] = 0xC0FFEE;
   O[0] = 0xB0B;
   
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
   // Verify delta can be queried
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -214,10 +214,10 @@ static int test_connector_delta_transformation(void)
     .out_mask = 0
   };
   
-  knhks_receipt_t rcpt = {0};
-  (void)knhks_eval_bool(&ctx, &ir, &rcpt);
+  knhk_receipt_t rcpt = {0};
+  (void)knhk_eval_bool(&ctx, &ir, &rcpt);
   
-  assert(rcpt.ticks <= KNHKS_TICK_BUDGET);
+  assert(rcpt.ticks <= KNHK_TICK_BUDGET);
   
   printf("  ✓ Delta transformation works\n");
   return 1;

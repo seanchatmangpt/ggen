@@ -1,13 +1,13 @@
 // simd/existence.h
 // Existence checking operations: ASK_SP, ASK_OP, ASK_SPO
 
-#ifndef KNHKS_SIMD_EXISTENCE_H
-#define KNHKS_SIMD_EXISTENCE_H
+#ifndef KNHK_SIMD_EXISTENCE_H
+#define KNHK_SIMD_EXISTENCE_H
 
 #include "common.h"
 
 #if NROWS == 8
-static inline int knhks_eq64_exists_8(const uint64_t *base, uint64_t off, uint64_t key)
+static inline int knhk_eq64_exists_8(const uint64_t *base, uint64_t off, uint64_t key)
 {
 #if defined(__aarch64__)
   const uint64_t *p = base + off;
@@ -63,14 +63,14 @@ static inline int knhks_eq64_exists_8(const uint64_t *base, uint64_t off, uint64
 }
 
 // Ultra-fast ASK(O,P) for exactly 8 elements - fully unrolled (reverse lookup)
-static inline int knhks_eq64_exists_o_8(const uint64_t *base, uint64_t off, uint64_t key)
+static inline int knhk_eq64_exists_o_8(const uint64_t *base, uint64_t off, uint64_t key)
 {
-  // Same as knhks_eq64_exists_8 but semantically for O array
-  return knhks_eq64_exists_8(base, off, key);
+  // Same as knhk_eq64_exists_8 but semantically for O array
+  return knhk_eq64_exists_8(base, off, key);
 }
 
 // Ultra-fast ASK(S,P,O) for exactly 8 elements - fully unrolled
-static inline int knhks_eq64_spo_exists_8(const uint64_t *S_base, const uint64_t *O_base,
+static inline int knhk_eq64_spo_exists_8(const uint64_t *S_base, const uint64_t *O_base,
                              uint64_t off, uint64_t s_key, uint64_t o_key)
 {
 #if defined(__aarch64__)
@@ -153,4 +153,4 @@ static inline int knhks_eq64_spo_exists_8(const uint64_t *S_base, const uint64_t
 
 #endif // NROWS == 8
 
-#endif // KNHKS_SIMD_EXISTENCE_H
+#endif // KNHK_SIMD_EXISTENCE_H

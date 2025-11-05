@@ -1,4 +1,4 @@
-# KNHKS v0.4.0 Implementation Plan
+# KNHK v0.4.0 Implementation Plan
 
 **Status**: Planning  
 **Target**: Production Integration & Testing  
@@ -19,54 +19,54 @@ v0.4.0 focuses on **integration, testing, and production readiness** by completi
 ## Phase 1: CLI Tool Completion ✅ (HIGH PRIORITY)
 
 ### 1.1 Hook Commands
-- **File**: `rust/knhks-cli/src/main.rs`
+- **File**: `rust/knhk-cli/src/main.rs`
 - **Tasks**:
-  - `hook list` - List all registered hooks using `knhks-hot` FFI
+  - `hook list` - List all registered hooks using `knhk-hot` FFI
   - `hook create` - Create new hook with validation
   - `hook eval` - Evaluate hook and display receipt
   - `hook show` - Display hook details (IR, metadata, receipts)
-- **Dependencies**: `knhks-hot`, `knhks-etl` (for hook registration)
+- **Dependencies**: `knhk-hot`, `knhk-etl` (for hook registration)
 - **Testing**: Unit tests for each command, integration tests with real hooks
 
 ### 1.2 Connector Commands
-- **File**: `rust/knhks-cli/src/main.rs`
+- **File**: `rust/knhk-cli/src/main.rs`
 - **Tasks**:
   - `connector list` - List all registered connectors with status
   - `connector create` - Create connector with schema validation
   - `connector fetch` - Fetch delta from connector (with circuit breaker)
   - `connector status` - Show connector health, metrics, circuit breaker state
-- **Dependencies**: `knhks-connectors`
+- **Dependencies**: `knhk-connectors`
 - **Testing**: Tests with Kafka/Salesforce connectors
 
 ### 1.3 Receipt Commands
-- **File**: `rust/knhks-cli/src/main.rs`
+- **File**: `rust/knhk-cli/src/main.rs`
 - **Tasks**:
   - `receipt list` - List receipts from lockchain (with pagination)
   - `receipt show` - Display receipt details (ticks, span_id, a_hash)
   - `receipt verify` - Verify receipt integrity (Merkle tree verification)
   - `receipt merge` - Merge multiple receipts (⊕ operation)
-- **Dependencies**: `knhks-lockchain`, `knhks-etl`
+- **Dependencies**: `knhk-lockchain`, `knhk-etl`
 - **Testing**: Tests with real receipts, Merkle verification
 
 ### 1.4 Pipeline Commands
-- **File**: `rust/knhks-cli/src/main.rs`
+- **File**: `rust/knhk-cli/src/main.rs`
 - **Tasks**:
   - `pipeline run` - Execute full ETL pipeline (Ingest → Emit)
   - `pipeline status` - Show pipeline execution status and metrics
-- **Dependencies**: `knhks-etl`, `knhks-connectors`, `knhks-lockchain`
+- **Dependencies**: `knhk-etl`, `knhk-connectors`, `knhk-lockchain`
 - **Testing**: E2E tests with real connectors
 
 ### 1.5 Epoch Commands
-- **File**: `rust/knhks-cli/src/main.rs`
+- **File**: `rust/knhk-cli/src/main.rs`
 - **Tasks**:
   - `epoch create` - Create new epoch with Λ ordering
   - `epoch run` - Execute epoch (all hooks in deterministic order)
   - `epoch list` - List epochs with execution status
-- **Dependencies**: Erlang `knhks_epoch` module (via FFI or IPC)
+- **Dependencies**: Erlang `knhk_epoch` module (via FFI or IPC)
 - **Testing**: Integration tests with Erlang layer
 
 ### 1.6 Context Commands
-- **File**: `rust/knhks-cli/src/main.rs`
+- **File**: `rust/knhk-cli/src/main.rs`
 - **Tasks**:
   - `context list` - List all contexts
   - `context current` - Show current context
@@ -78,7 +78,7 @@ v0.4.0 focuses on **integration, testing, and production readiness** by completi
 ### 1.7 CLI Features
 - **Error Handling**: Proper error messages, exit codes
 - **Output Formatting**: JSON, YAML, table formats
-- **Configuration**: `~/.knhks/config.toml` for default settings
+- **Configuration**: `~/.knhk/config.toml` for default settings
 - **Logging**: Structured logging with OTEL integration
 - **Progress Indicators**: For long-running operations
 - **Color Support**: Terminal colors for better UX (optional)
@@ -100,7 +100,7 @@ v0.4.0 focuses on **integration, testing, and production readiness** by completi
 - **Assertions**: Receipt integrity, tick budget compliance, provenance hash
 
 ### 2.2 Connector → ETL Integration
-- **File**: `rust/knhks-etl/src/integration.rs` (enhance existing)
+- **File**: `rust/knhk-etl/src/integration.rs` (enhance existing)
 - **Tasks**:
   - Wire connectors to ingest stage
   - Handle connector errors gracefully
@@ -112,9 +112,9 @@ v0.4.0 focuses on **integration, testing, and production readiness** by completi
 - **Tasks**:
   - FFI bindings for Erlang → Rust calls
   - Or: IPC/NIF for Erlang ↔ Rust communication
-  - Schema registry integration (`knhks_sigma`)
-  - Invariant registry integration (`knhks_q`)
-  - Lockchain integration (`knhks_lockchain`)
+  - Schema registry integration (`knhk_sigma`)
+  - Invariant registry integration (`knhk_q`)
+  - Lockchain integration (`knhk_lockchain`)
 - **Testing**: Tests for Erlang supervision tree ↔ Rust components
 
 ### 2.4 Receipt → Lockchain Integration
@@ -128,7 +128,7 @@ v0.4.0 focuses on **integration, testing, and production readiness** by completi
 ## Phase 3: Real Network Integrations ✅ (MEDIUM PRIORITY)
 
 ### 3.1 HTTP Client for Emit Stage
-- **File**: `rust/knhks-etl/src/lib.rs` (EmitStage)
+- **File**: `rust/knhk-etl/src/lib.rs` (EmitStage)
 - **Tasks**:
   - Implement `send_action_to_endpoint()` with reqwest
   - Retry logic with exponential backoff
@@ -138,7 +138,7 @@ v0.4.0 focuses on **integration, testing, and production readiness** by completi
 - **Testing**: Tests with mock HTTP server
 
 ### 3.2 gRPC Client for Emit Stage
-- **File**: `rust/knhks-etl/src/lib.rs` (EmitStage)
+- **File**: `rust/knhk-etl/src/lib.rs` (EmitStage)
 - **Tasks**:
   - Implement gRPC client using `tonic`
   - Action serialization (protobuf)
@@ -147,7 +147,7 @@ v0.4.0 focuses on **integration, testing, and production readiness** by completi
 - **Testing**: Tests with mock gRPC server
 
 ### 3.3 Kafka Producer for Emit Stage
-- **File**: `rust/knhks-etl/src/lib.rs` (EmitStage)
+- **File**: `rust/knhk-etl/src/lib.rs` (EmitStage)
 - **Tasks**:
   - Implement Kafka producer using rdkafka
   - Action serialization (JSON-LD or protobuf)
@@ -157,7 +157,7 @@ v0.4.0 focuses on **integration, testing, and production readiness** by completi
 - **Testing**: Tests with embedded Kafka or test container
 
 ### 3.4 OTEL Exporter Integration
-- **File**: `rust/knhks-etl/src/lib.rs` (ReflexStage)
+- **File**: `rust/knhk-etl/src/lib.rs` (ReflexStage)
 - **Tasks**:
   - Export spans to OTEL collector (OTLP/gRPC or HTTP)
   - Export metrics to OTEL collector
@@ -169,7 +169,7 @@ v0.4.0 focuses on **integration, testing, and production readiness** by completi
 ## Phase 4: Production Configuration ✅ (MEDIUM PRIORITY)
 
 ### 4.1 Configuration Management
-- **File**: `rust/knhks-config/src/lib.rs` (new crate)
+- **File**: `rust/knhk-config/src/lib.rs` (new crate)
 - **Tasks**:
   - Configuration file parsing (TOML, YAML, JSON)
   - Environment variable support
@@ -192,7 +192,7 @@ v0.4.0 focuses on **integration, testing, and production readiness** by completi
   ```
 
 ### 4.2 Logging Infrastructure
-- **File**: `rust/knhks-logging/src/lib.rs` (new crate)
+- **File**: `rust/knhk-logging/src/lib.rs` (new crate)
 - **Tasks**:
   - Structured logging (JSON format)
   - Log levels (trace, debug, info, warn, error)
@@ -202,7 +202,7 @@ v0.4.0 focuses on **integration, testing, and production readiness** by completi
 - **Dependencies**: `tracing`, `tracing-opentelemetry`
 
 ### 4.3 Metrics Collection
-- **File**: `rust/knhks-metrics/src/lib.rs` (new crate)
+- **File**: `rust/knhk-metrics/src/lib.rs` (new crate)
 - **Tasks**:
   - Counter metrics (hook executions, connector fetches)
   - Histogram metrics (latency, tick distribution)
@@ -211,7 +211,7 @@ v0.4.0 focuses on **integration, testing, and production readiness** by completi
 - **Dependencies**: `opentelemetry`, `opentelemetry-metrics`
 
 ### 4.4 Health Checks
-- **File**: `rust/knhks-health/src/lib.rs` (new crate)
+- **File**: `rust/knhk-health/src/lib.rs` (new crate)
 - **Tasks**:
   - Health check endpoint (HTTP)
   - Component health checks (connectors, lockchain, etc.)
@@ -222,7 +222,7 @@ v0.4.0 focuses on **integration, testing, and production readiness** by completi
 ## Phase 5: Enhanced RDF Parsing ✅ (LOW PRIORITY)
 
 ### 5.1 Complete RDF/Turtle Parser
-- **File**: `rust/knhks-etl/src/lib.rs` (IngestStage)
+- **File**: `rust/knhk-etl/src/lib.rs` (IngestStage)
 - **Tasks**:
   - Full Turtle syntax support (not just basic)
   - Prefix resolution
@@ -233,7 +233,7 @@ v0.4.0 focuses on **integration, testing, and production readiness** by completi
 - **Testing**: Tests with complex Turtle files
 
 ### 5.2 Complete JSON-LD Parser
-- **File**: `rust/knhks-etl/src/lib.rs` (IngestStage)
+- **File**: `rust/knhk-etl/src/lib.rs` (IngestStage)
 - **Tasks**:
   - Full JSON-LD expansion
   - Context resolution
@@ -243,7 +243,7 @@ v0.4.0 focuses on **integration, testing, and production readiness** by completi
 - **Testing**: Tests with various JSON-LD documents
 
 ### 5.3 RDF Format Detection
-- **File**: `rust/knhks-etl/src/lib.rs` (IngestStage)
+- **File**: `rust/knhk-etl/src/lib.rs` (IngestStage)
 - **Tasks**:
   - Auto-detect format (Turtle, JSON-LD, N-Triples)
   - Content-Type header parsing
@@ -284,7 +284,7 @@ v0.4.0 focuses on **integration, testing, and production readiness** by completi
 - **Framework**: Test containers or embedded services
 
 ### 6.4 Property-Based Tests
-- **File**: `rust/knhks-etl/tests/property.rs` (new)
+- **File**: `rust/knhk-etl/tests/property.rs` (new)
 - **Tasks**:
   - Receipt merging properties (associative, commutative)
   - IRI hashing properties (deterministic, collision-resistant)
@@ -366,10 +366,10 @@ v0.4.0 is complete when:
 ## Dependencies
 
 ### New Crates Needed:
-- `knhks-config` - Configuration management
-- `knhks-logging` - Structured logging
-- `knhks-metrics` - Metrics collection
-- `knhks-health` - Health checks
+- `knhk-config` - Configuration management
+- `knhk-logging` - Structured logging
+- `knhk-metrics` - Metrics collection
+- `knhk-health` - Health checks
 
 ### External Dependencies:
 - `reqwest` - HTTP client (already added)

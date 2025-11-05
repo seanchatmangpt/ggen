@@ -210,7 +210,7 @@ if (cached_S_hash == current_S_hash) {
 // Opportunity: If caller provides hint about zero positions
 
 // Add hint parameter:
-size_t knhks_construct8_emit_8(..., uint8_t zero_hint);
+size_t knhk_construct8_emit_8(..., uint8_t zero_hint);
 
 // If zero_hint is provided:
 if (zero_hint == 0xFF) {

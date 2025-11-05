@@ -87,10 +87,10 @@ ctx.run          → Current predicate run metadata
 
 ## Query Execution Flow
 
-1. **Load RDF**: `knhks_load_rdf()` → Populates SoA arrays
-2. **Initialize Context**: `knhks_init_context()` → Sets up context
-3. **Create Query IR**: Construct `knhks_hook_ir_t` structure
-4. **Evaluate**: `knhks_eval_bool()` → Returns result
+1. **Load RDF**: `knhk_load_rdf()` → Populates SoA arrays
+2. **Initialize Context**: `knhk_init_context()` → Sets up context
+3. **Create Query IR**: Construct `knhk_hook_ir_t` structure
+4. **Evaluate**: `knhk_eval_bool()` → Returns result
 5. **Result**: Boolean (0 or 1) or count value
 
 ## Performance Optimizations

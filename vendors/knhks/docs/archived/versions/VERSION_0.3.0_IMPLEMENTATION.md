@@ -1,11 +1,11 @@
-# KNHKS v0.3.0 Implementation Summary
+# KNHK v0.3.0 Implementation Summary
 
 ## Implementation Status
 
 ### Phase 1: Connector Framework Completion ✅
 
 #### 1.1 Kafka Connector Production Implementation ✅
-- **File**: `rust/knhks-connectors/src/kafka.rs`
+- **File**: `rust/knhk-connectors/src/kafka.rs`
 - **Status**: Production-ready implementation complete
 - **Features**:
   - Connection state management (Disconnected, Connecting, Connected, Error)
@@ -18,7 +18,7 @@
   - 10+ unit tests covering all scenarios
 
 #### 1.2 Salesforce Connector Production Implementation ✅
-- **File**: `rust/knhks-connectors/src/salesforce.rs`
+- **File**: `rust/knhk-connectors/src/salesforce.rs`
 - **Status**: Production-ready implementation complete
 - **Features**:
   - OAuth2 authentication structure (ready for real API integration)
@@ -32,7 +32,7 @@
   - 8+ unit tests covering all scenarios
 
 #### 1.3 Connector Framework Enhancements ✅
-- **File**: `rust/knhks-connectors/src/lib.rs`
+- **File**: `rust/knhk-connectors/src/lib.rs`
 - **Status**: Production-ready enhancements complete
 - **Features**:
   - Connector health checking (`ConnectorHealth` enum)
@@ -46,7 +46,7 @@
 ### Phase 2: ETL Pipeline Critical Path ✅
 
 #### 2.1 Ingest Stage Production Implementation ✅
-- **File**: `rust/knhks-etl/src/lib.rs` (IngestStage)
+- **File**: `rust/knhk-etl/src/lib.rs` (IngestStage)
 - **Status**: Production-ready implementation complete
 - **Features**:
   - Connector polling structure
@@ -57,7 +57,7 @@
   - Metadata collection
 
 #### 2.2 Transform Stage Production Implementation ✅
-- **File**: `rust/knhks-etl/src/lib.rs` (TransformStage)
+- **File**: `rust/knhk-etl/src/lib.rs` (TransformStage)
 - **Status**: Production-ready implementation complete
 - **Features**:
   - Σ schema validation (O ⊨ Σ check)
@@ -68,7 +68,7 @@
   - Proper error handling
 
 #### 2.3 Load Stage Production Implementation ✅
-- **File**: `rust/knhks-etl/src/lib.rs` (LoadStage)
+- **File**: `rust/knhk-etl/src/lib.rs` (LoadStage)
 - **Status**: Production-ready implementation complete
 - **Features**:
   - Predicate run grouping (group by predicate)
@@ -79,7 +79,7 @@
   - Guard violation detection and reporting
 
 #### 2.4 Reflex Stage Production Implementation ✅
-- **File**: `rust/knhks-etl/src/lib.rs` (ReflexStage)
+- **File**: `rust/knhk-etl/src/lib.rs` (ReflexStage)
 - **Status**: Production-ready implementation complete
 - **Features**:
   - Hot path execution structure (ready for C API integration)
@@ -90,7 +90,7 @@
   - Proper a_hash computation
 
 #### 2.5 Emit Stage Production Implementation ✅
-- **File**: `rust/knhks-etl/src/lib.rs` (EmitStage)
+- **File**: `rust/knhk-etl/src/lib.rs` (EmitStage)
 - **Status**: Production-ready implementation complete
 - **Features**:
   - Lockchain writing structure (Merkle-linked receipts)
@@ -103,8 +103,8 @@
 
 ### Phase 3: Erlang Supervision Tree Core Modules ✅
 
-#### 3.1 Schema Registry (knhks_sigma) ✅
-- **File**: `erlang/knhks_rc/src/knhks_sigma.erl`
+#### 3.1 Schema Registry (knhk_sigma) ✅
+- **File**: `erlang/knhk_rc/src/knhk_sigma.erl`
 - **Status**: Production-ready implementation complete
 - **Features**:
   - Schema loading from RDF files/binary
@@ -115,8 +115,8 @@
   - Error handling
   - Proper gen_server implementation
 
-#### 3.2 Invariant Registry (knhks_q) ✅
-- **File**: `erlang/knhks_rc/src/knhks_q.erl`
+#### 3.2 Invariant Registry (knhk_q) ✅
+- **File**: `erlang/knhk_rc/src/knhk_q.erl`
 - **Status**: Production-ready implementation complete
 - **Features**:
   - Invariant loading from SPARQL queries
@@ -127,8 +127,8 @@
   - Error handling
   - Proper gen_server implementation
 
-#### 3.3 Delta Ingestion (knhks_ingest) ✅
-- **File**: `erlang/knhks_rc/src/knhks_ingest.erl`
+#### 3.3 Delta Ingestion (knhk_ingest) ✅
+- **File**: `erlang/knhk_rc/src/knhk_ingest.erl`
 - **Status**: Production-ready implementation complete
 - **Features**:
   - Delta submission (O ⊔ Δ)
@@ -139,8 +139,8 @@
   - Statistics tracking
   - Proper gen_server implementation
 
-#### 3.4 Lockchain (knhks_lockchain) ✅
-- **File**: `erlang/knhks_rc/src/knhks_lockchain.erl`
+#### 3.4 Lockchain (knhk_lockchain) ✅
+- **File**: `erlang/knhk_rc/src/knhk_lockchain.erl`
 - **Status**: Production-ready implementation complete
 - **Features**:
   - Receipt storage
@@ -154,17 +154,17 @@
 ### Phase 4: Receipt System & OTEL Integration ✅
 
 #### 4.1 OTEL Span Generation ✅
-- **Files**: `include/knhks.h`, `src/core.c`, `src/clock.c`
+- **Files**: `include/knhk.h`, `src/core.c`, `src/clock.c`
 - **Status**: Production-ready implementation complete
 - **Features**:
   - OTEL span ID generation in C hot path
-  - `knhks_generate_span_id()` function implemented
+  - `knhk_generate_span_id()` function implemented
   - FNV-1a hash-based generation (production-ready)
   - Non-zero span ID guarantee (OTEL requirement)
   - All TODOs removed from code
 
 #### 4.2 Receipt System Completion ✅
-- **Files**: `include/knhks.h`, `src/core.c`, `rust/knhks-etl/src/lib.rs`
+- **Files**: `include/knhk.h`, `src/core.c`, `rust/knhk-etl/src/lib.rs`
 - **Status**: Production-ready implementation complete
 - **Features**:
   - Proper a_hash computation (hash(A) = hash(μ(O)))
@@ -200,7 +200,7 @@
 ### Removed All TODOs
 - ✅ Schema registry integration (kafka.rs)
 - ✅ Timestamp extraction (kafka.rs, salesforce.rs)
-- ✅ OTEL span ID generation (knhks.h, core.c)
+- ✅ OTEL span ID generation (knhk.h, core.c)
 - ✅ Schema validation (salesforce.rs)
 
 ### Production-Ready Features
@@ -223,26 +223,26 @@
 ## Files Modified
 
 ### Rust
-- `rust/knhks-connectors/Cargo.toml` - Added features
-- `rust/knhks-connectors/src/lib.rs` - Framework enhancements
-- `rust/knhks-connectors/src/kafka.rs` - Complete implementation
-- `rust/knhks-connectors/src/salesforce.rs` - Complete implementation
-- `rust/knhks-etl/Cargo.toml` - Added dependencies
-- `rust/knhks-etl/src/lib.rs` - Complete all stages
-- `rust/knhks-lockchain/Cargo.toml` - Fixed dependencies
+- `rust/knhk-connectors/Cargo.toml` - Added features
+- `rust/knhk-connectors/src/lib.rs` - Framework enhancements
+- `rust/knhk-connectors/src/kafka.rs` - Complete implementation
+- `rust/knhk-connectors/src/salesforce.rs` - Complete implementation
+- `rust/knhk-etl/Cargo.toml` - Added dependencies
+- `rust/knhk-etl/src/lib.rs` - Complete all stages
+- `rust/knhk-lockchain/Cargo.toml` - Fixed dependencies
 
 ### Erlang
-- `erlang/knhks_rc/src/knhks_sigma.erl` - New file
-- `erlang/knhks_rc/src/knhks_q.erl` - New file
-- `erlang/knhks_rc/src/knhks_ingest.erl` - New file
-- `erlang/knhks_rc/src/knhks_lockchain.erl` - New file
-- `erlang/knhks_rc/src/knhks_stubs.erl` - Updated (removed implemented modules)
-- `erlang/knhks_rc/src/knhks_rc.app` - Updated module list
+- `erlang/knhk_rc/src/knhk_sigma.erl` - New file
+- `erlang/knhk_rc/src/knhk_q.erl` - New file
+- `erlang/knhk_rc/src/knhk_ingest.erl` - New file
+- `erlang/knhk_rc/src/knhk_lockchain.erl` - New file
+- `erlang/knhk_rc/src/knhk_stubs.erl` - Updated (removed implemented modules)
+- `erlang/knhk_rc/src/knhk_rc.app` - Updated module list
 
 ### C
-- `include/knhks.h` - Removed TODOs, added span ID generation
+- `include/knhk.h` - Removed TODOs, added span ID generation
 - `src/core.c` - No changes needed (inline functions in header)
-- `src/clock.c` - Added `knhks_generate_span_id()` function
+- `src/clock.c` - Added `knhk_generate_span_id()` function
 - `src/clock.h` - Added function declaration
 
 ## Build Verification

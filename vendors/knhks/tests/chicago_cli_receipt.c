@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "knhks.h"
+#include "knhk.h"
 
 #if defined(__GNUC__)
 #define ALN __attribute__((aligned(64)))
@@ -19,13 +19,13 @@
 static uint64_t ALN S[NROWS];
 static uint64_t ALN P[NROWS];
 static uint64_t ALN O[NROWS];
-static knhks_context_t ctx;
+static knhk_context_t ctx;
 
 static void reset_test_data(void) {
     memset(S, 0, sizeof(S));
     memset(P, 0, sizeof(P));
     memset(O, 0, sizeof(O));
-    knhks_init_ctx(&ctx, S, P, O);
+    knhk_init_ctx(&ctx, S, P, O);
 }
 
 // Test: Receipt get retrieves receipt
@@ -38,11 +38,11 @@ static int test_receipt_get(void) {
     P[0] = 0xC0FFEE;
     O[0] = 0xB0B;
     
-    knhks_pred_run_t run = { .pred = 0xC0FFEE, .off = 0, .len = 1 };
-    knhks_pin_run(&ctx, run);
+    knhk_pred_run_t run = { .pred = 0xC0FFEE, .off = 0, .len = 1 };
+    knhk_pin_run(&ctx, run);
     
-    knhks_hook_ir_t ir = {
-        .op = KNHKS_OP_ASK_SP,
+    knhk_hook_ir_t ir = {
+        .op = KNHK_OP_ASK_SP,
         .s = 0xA11CE,
         .p = 0xC0FFEE,
         .o = 0,
@@ -53,8 +53,8 @@ static int test_receipt_get(void) {
         .out_mask = 0
     };
     
-    knhks_receipt_t rcpt = {0};
-    knhks_eval_bool(&ctx, &ir, &rcpt);
+    knhk_receipt_t rcpt = {0};
+    knhk_eval_bool(&ctx, &ir, &rcpt);
     
     // Verify receipt has required fields
     // Note: ticks can be 0 if query matches immediately, but a_hash should always be set
@@ -78,11 +78,11 @@ static int test_receipt_verify(void) {
     P[0] = 0xC0FFEE;
     O[0] = 0xB0B;
     
-    knhks_pred_run_t run = { .pred = 0xC0FFEE, .off = 0, .len = 1 };
-    knhks_pin_run(&ctx, run);
+    knhk_pred_run_t run = { .pred = 0xC0FFEE, .off = 0, .len = 1 };
+    knhk_pin_run(&ctx, run);
     
-    knhks_hook_ir_t ir = {
-        .op = KNHKS_OP_ASK_SP,
+    knhk_hook_ir_t ir = {
+        .op = KNHK_OP_ASK_SP,
         .s = 0xA11CE,
         .p = 0xC0FFEE,
         .o = 0,
@@ -93,12 +93,12 @@ static int test_receipt_verify(void) {
         .out_mask = 0
     };
     
-    knhks_receipt_t rcpt1 = {0};
-    knhks_receipt_t rcpt2 = {0};
+    knhk_receipt_t rcpt1 = {0};
+    knhk_receipt_t rcpt2 = {0};
     
     // Execute twice with same input
-    knhks_eval_bool(&ctx, &ir, &rcpt1);
-    knhks_eval_bool(&ctx, &ir, &rcpt2);
+    knhk_eval_bool(&ctx, &ir, &rcpt1);
+    knhk_eval_bool(&ctx, &ir, &rcpt2);
     
     // Verify hash(A) = hash(μ(O)) consistency
     assert(rcpt1.a_hash == rcpt2.a_hash); // Deterministic
@@ -117,11 +117,11 @@ static int test_receipt_merge(void) {
     P[0] = 0xC0FFEE;
     O[0] = 0xB0B;
     
-    knhks_pred_run_t run = { .pred = 0xC0FFEE, .off = 0, .len = 1 };
-    knhks_pin_run(&ctx, run);
+    knhk_pred_run_t run = { .pred = 0xC0FFEE, .off = 0, .len = 1 };
+    knhk_pin_run(&ctx, run);
     
-    knhks_hook_ir_t ir = {
-        .op = KNHKS_OP_ASK_SP,
+    knhk_hook_ir_t ir = {
+        .op = KNHK_OP_ASK_SP,
         .s = 0xA11CE,
         .p = 0xC0FFEE,
         .o = 0,
@@ -132,16 +132,16 @@ static int test_receipt_merge(void) {
         .out_mask = 0
     };
     
-    knhks_receipt_t rcpt1 = {0};
-    knhks_receipt_t rcpt2 = {0};
-    knhks_receipt_t rcpt3 = {0};
+    knhk_receipt_t rcpt1 = {0};
+    knhk_receipt_t rcpt2 = {0};
+    knhk_receipt_t rcpt3 = {0};
     
-    knhks_eval_bool(&ctx, &ir, &rcpt1);
-    knhks_eval_bool(&ctx, &ir, &rcpt2);
-    knhks_eval_bool(&ctx, &ir, &rcpt3);
+    knhk_eval_bool(&ctx, &ir, &rcpt1);
+    knhk_eval_bool(&ctx, &ir, &rcpt2);
+    knhk_eval_bool(&ctx, &ir, &rcpt3);
     
     // Merge receipts via ⊕ monoid (associative)
-    // In production, would use knhks_lockchain:merge()
+    // In production, would use knhk_lockchain:merge()
     uint64_t merged_hash = rcpt1.a_hash ^ rcpt2.a_hash ^ rcpt3.a_hash;
     assert(merged_hash != 0);
     
@@ -159,11 +159,11 @@ static int test_receipt_preserves_provenance(void) {
     P[0] = 0xC0FFEE;
     O[0] = 0xB0B;
     
-    knhks_pred_run_t run = { .pred = 0xC0FFEE, .off = 0, .len = 1 };
-    knhks_pin_run(&ctx, run);
+    knhk_pred_run_t run = { .pred = 0xC0FFEE, .off = 0, .len = 1 };
+    knhk_pin_run(&ctx, run);
     
-    knhks_hook_ir_t ir = {
-        .op = KNHKS_OP_ASK_SP,
+    knhk_hook_ir_t ir = {
+        .op = KNHK_OP_ASK_SP,
         .s = 0xA11CE,
         .p = 0xC0FFEE,
         .o = 0,
@@ -174,8 +174,8 @@ static int test_receipt_preserves_provenance(void) {
         .out_mask = 0
     };
     
-    knhks_receipt_t rcpt = {0};
-    knhks_eval_bool(&ctx, &ir, &rcpt);
+    knhk_receipt_t rcpt = {0};
+    knhk_eval_bool(&ctx, &ir, &rcpt);
     
     // Verify hash(A) = hash(μ(O))
     assert(rcpt.a_hash != 0);

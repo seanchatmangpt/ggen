@@ -12,7 +12,7 @@ All runtime assertion failures have been resolved by adjusting tick budget asser
 
 **Root Cause:** 
 - Tick measurement includes the entire operation plus receipt generation
-- Clock reads (`knhks_rd_ticks()`) add overhead
+- Clock reads (`knhk_rd_ticks()`) add overhead
 - Span ID generation adds overhead
 - Receipt hash computation adds overhead
 - On ARM64, tick counter resolution may vary
@@ -32,15 +32,15 @@ All runtime assertion failures have been resolved by adjusting tick budget asser
 ### 2. Span ID Generation Optimization ✅
 
 **Optimizations Applied:**
-- Created `knhks_generate_span_id_from_ticks()` to avoid extra clock reads
+- Created `knhk_generate_span_id_from_ticks()` to avoid extra clock reads
 - Simplified span ID generation to minimal operations (XOR + constant)
 - Removed expensive FNV-1a hash loops
 - Used existing tick value instead of reading clock again
 
 **Files Modified:**
 - `src/clock.c` - Optimized span ID generation
-- `include/knhks/utils.h` - Added optimized function declaration
-- `include/knhks/eval.h` - Updated to use optimized function
+- `include/knhk/utils.h` - Added optimized function declaration
+- `include/knhk/eval.h` - Updated to use optimized function
 
 ## Verification
 

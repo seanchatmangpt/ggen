@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "knhks.h"
+#include "knhk.h"
 
 #if defined(__GNUC__)
 #define ALN __attribute__((aligned(64)))
@@ -19,13 +19,13 @@
 static uint64_t ALN S[NROWS];
 static uint64_t ALN P[NROWS];
 static uint64_t ALN O[NROWS];
-static knhks_context_t ctx;
+static knhk_context_t ctx;
 
 static void reset_test_data(void) {
     memset(S, 0, sizeof(S));
     memset(P, 0, sizeof(P));
     memset(O, 0, sizeof(O));
-    knhks_init_ctx(&ctx, S, P, O);
+    knhk_init_ctx(&ctx, S, P, O);
 }
 
 // Test: Cover defines select specification
@@ -69,8 +69,8 @@ static int test_cover_enforces_glue(void) {
     // glue(Cover(O)) = Γ(O) - local views glue to global
     // Verify runs can be merged
     
-    knhks_pred_run_t run1 = { .pred = 0xC0FFEE, .off = 0, .len = 4 };
-    knhks_pred_run_t run2 = { .pred = 0xDEADBEEF, .off = 4, .len = 4 };
+    knhk_pred_run_t run1 = { .pred = 0xC0FFEE, .off = 0, .len = 4 };
+    knhk_pred_run_t run2 = { .pred = 0xDEADBEEF, .off = 4, .len = 4 };
     
     assert(run1.len <= 8);
     assert(run2.len <= 8);

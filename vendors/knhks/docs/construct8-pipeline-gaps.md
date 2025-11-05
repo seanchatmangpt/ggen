@@ -4,9 +4,9 @@
 
 ### 1. Template Predicate Must Match Run Predicate
 
-**Current Behavior**: `knhks_eval_construct8` requires `ir->p == ctx->run.pred`
+**Current Behavior**: `knhk_eval_construct8` requires `ir->p == ctx->run.pred`
 
-**Location**: `include/knhks/eval.h:268`
+**Location**: `include/knhk/eval.h:268`
 
 ```c
 if (ir->p != ctx->run.pred)
@@ -26,7 +26,7 @@ if (ir->p != ctx->run.pred)
 **Location**: `src/simd/construct.h:13`
 
 ```c
-static inline size_t knhks_construct8_emit_8(..., uint64_t o_const, ...)
+static inline size_t knhk_construct8_emit_8(..., uint64_t o_const, ...)
 ```
 
 **Impact**: CONSTRUCT8 cannot emit variable objects (e.g., `?o` from input). Only constant objects are supported.
@@ -86,7 +86,7 @@ static inline size_t knhks_construct8_emit_8(..., uint64_t o_const, ...)
 ### ✅ Rust Test Predicate Mismatch
 - **Issue**: Rust tests were using different predicates for run and template
 - **Fix**: Updated Rust tests to use same predicate for both
-- **Location**: `rust/knhks-integration-tests/tests/construct8_pipeline.rs`
+- **Location**: `rust/knhk-integration-tests/tests/construct8_pipeline.rs`
 
 ## Test Execution Status
 

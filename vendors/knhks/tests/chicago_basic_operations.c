@@ -12,10 +12,10 @@ static int test_authorization_checks(void)
   printf("[TEST] Test 1: Authorization Checks\n");
 
   // Initialize context
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
 
   // Load authorization data
-  if (!knhks_load_rdf(&ctx, "tests/data/enterprise_authorization.ttl"))
+  if (!knhk_load_rdf(&ctx, "tests/data/enterprise_authorization.ttl"))
   {
     fprintf(stderr, "  FAIL: Failed to load authorization data\n");
     return 0;
@@ -30,10 +30,10 @@ static int test_authorization_checks(void)
   uint64_t test_predicate = ctx.run.pred;
 
   // Create ASK query: Does user have permission?
-  knhks_hook_ir_t ask_ir = {.op = KNHKS_OP_ASK_SP, .s = test_user, .p = test_predicate, .k = 0, .o = 0, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
+  knhk_hook_ir_t ask_ir = {.op = KNHK_OP_ASK_SP, .s = test_user, .p = test_predicate, .k = 0, .o = 0, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
 
   // Test correctness: User should have permission
-  int result = knhks_eval_bool(&ctx, &ask_ir, NULL);
+  int result = knhk_eval_bool(&ctx, &ask_ir, NULL);
   assert(result == 1);
 
   // Measure performance
@@ -62,9 +62,9 @@ static int test_property_existence(void)
 {
   printf("[TEST] Test 2: Property Existence Validation\n");
 
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
 
-  if (!knhks_load_rdf(&ctx, "tests/data/enterprise_property.ttl"))
+  if (!knhk_load_rdf(&ctx, "tests/data/enterprise_property.ttl"))
   {
     fprintf(stderr, "  FAIL: Failed to load property data\n");
     return 0;
@@ -76,9 +76,9 @@ static int test_property_existence(void)
   uint64_t test_subject = ctx.S[0];
   uint64_t test_predicate = ctx.run.pred;
 
-  knhks_hook_ir_t ask_ir = {.op = KNHKS_OP_ASK_SP, .s = test_subject, .p = test_predicate, .k = 0, .o = 0, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
+  knhk_hook_ir_t ask_ir = {.op = KNHK_OP_ASK_SP, .s = test_subject, .p = test_predicate, .k = 0, .o = 0, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
 
-  int result = knhks_eval_bool(&ctx, &ask_ir, NULL);
+  int result = knhk_eval_bool(&ctx, &ask_ir, NULL);
   assert(result == 1);
 
   const int iterations = 400000;
@@ -106,9 +106,9 @@ static int test_simple_lookups(void)
 {
   printf("[TEST] Test 5: Simple Lookups\n");
 
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
 
-  if (!knhks_load_rdf(&ctx, "tests/data/enterprise_lookup.ttl"))
+  if (!knhk_load_rdf(&ctx, "tests/data/enterprise_lookup.ttl"))
   {
     fprintf(stderr, "  FAIL: Failed to load lookup data\n");
     return 0;
@@ -120,9 +120,9 @@ static int test_simple_lookups(void)
   uint64_t test_subject = ctx.S[0];
   uint64_t test_predicate = ctx.run.pred;
 
-  knhks_hook_ir_t ask_ir = {.op = KNHKS_OP_ASK_SP, .s = test_subject, .p = test_predicate, .k = 0, .o = 0, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
+  knhk_hook_ir_t ask_ir = {.op = KNHK_OP_ASK_SP, .s = test_subject, .p = test_predicate, .k = 0, .o = 0, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
 
-  int result = knhks_eval_bool(&ctx, &ask_ir, NULL);
+  int result = knhk_eval_bool(&ctx, &ask_ir, NULL);
   assert(result == 1);
 
   const int iterations = 400000;

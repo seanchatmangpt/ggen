@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "knhks.h"
+#include "knhk.h"
 #include "chicago_test_helpers.h"
 
 #if defined(__GNUC__)
@@ -21,7 +21,7 @@
 typedef struct {
   uint64_t receipt_hash;
   uint64_t parent_hash;
-  knhks_receipt_t receipt;
+  knhk_receipt_t receipt;
   uint64_t timestamp_ms;
 } lockchain_entry_t;
 
@@ -30,7 +30,7 @@ static size_t lockchain_len = 0;
 static uint64_t merkle_root = 0;
 
 // Compute hash (simulating SHA-256 + URDNA2015 canonicalization)
-static uint64_t compute_lockchain_hash(const knhks_receipt_t *rcpt, uint64_t parent_hash)
+static uint64_t compute_lockchain_hash(const knhk_receipt_t *rcpt, uint64_t parent_hash)
 {
   // Simplified hash (real implementation uses SHA-256)
   return rcpt->a_hash ^ parent_hash ^ ((uint64_t)rcpt->ticks << 32) ^ rcpt->span_id;
@@ -44,16 +44,16 @@ static int test_lockchain_receipt_write(void)
   uint64_t ALN S[NROWS];
   uint64_t ALN P[NROWS];
   uint64_t ALN O[NROWS];
-  knhks_context_t ctx;
+  knhk_context_t ctx;
   
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
   S[0] = 0xA11CE;
   P[0] = 0xC0FFEE;
   O[0] = 0xB0B;
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -64,8 +64,8 @@ static int test_lockchain_receipt_write(void)
     .out_mask = 0
   };
   
-  knhks_receipt_t rcpt = {0};
-  knhks_eval_bool(&ctx, &ir, &rcpt);
+  knhk_receipt_t rcpt = {0};
+  knhk_eval_bool(&ctx, &ir, &rcpt);
   
   // Write to lockchain
   uint64_t parent_hash = (lockchain_len > 0) ? lockchain[lockchain_len - 1].receipt_hash : 0;
@@ -98,7 +98,7 @@ static int test_lockchain_receipt_read(void)
   lockchain_entry_t *entry = &lockchain[lockchain_len - 1];
   
   assert(entry->receipt_hash != 0);
-  assert(entry->receipt.ticks <= KNHKS_TICK_BUDGET);
+  assert(entry->receipt.ticks <= KNHK_TICK_BUDGET);
   assert(entry->receipt.a_hash != 0);
   assert(entry->receipt.span_id != 0);
   
@@ -118,16 +118,16 @@ static int test_lockchain_merkle_verification(void)
   uint64_t ALN S[NROWS];
   uint64_t ALN P[NROWS];
   uint64_t ALN O[NROWS];
-  knhks_context_t ctx;
+  knhk_context_t ctx;
   
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
   S[0] = 0xA11CE;
   P[0] = 0xC0FFEE;
   O[0] = 0xB0B;
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -140,8 +140,8 @@ static int test_lockchain_merkle_verification(void)
   
   // Write 3 receipts
   for (int i = 0; i < 3; i++) {
-    knhks_receipt_t rcpt = {0};
-    knhks_eval_bool(&ctx, &ir, &rcpt);
+    knhk_receipt_t rcpt = {0};
+    knhk_eval_bool(&ctx, &ir, &rcpt);
     
     uint64_t parent_hash = (lockchain_len > 0) ? lockchain[lockchain_len - 1].receipt_hash : 0;
     lockchain[lockchain_len] = (lockchain_entry_t){
@@ -176,16 +176,16 @@ static int test_lockchain_git_integration(void)
   uint64_t ALN S[NROWS];
   uint64_t ALN P[NROWS];
   uint64_t ALN O[NROWS];
-  knhks_context_t ctx;
+  knhk_context_t ctx;
   
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
   S[0] = 0xA11CE;
   P[0] = 0xC0FFEE;
   O[0] = 0xB0B;
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -196,12 +196,12 @@ static int test_lockchain_git_integration(void)
     .out_mask = 0
   };
   
-  knhks_receipt_t rcpt = {0};
-  knhks_eval_bool(&ctx, &ir, &rcpt);
+  knhk_receipt_t rcpt = {0};
+  knhk_eval_bool(&ctx, &ir, &rcpt);
   
   // Simulate Git commit (receipt file written, ready for commit)
   // In real implementation: write receipt JSON to receipts/ directory, git add, git commit
-  assert(rcpt.ticks <= KNHKS_TICK_BUDGET);
+  assert(rcpt.ticks <= KNHK_TICK_BUDGET);
   assert(rcpt.a_hash != 0);
   
   printf("  ✓ Git integration ready (receipt file generated)\n");
@@ -261,7 +261,7 @@ static int test_lockchain_receipt_query(void)
   
   assert(found != NULL);
   assert(found->receipt_hash == query_hash);
-  assert(found->receipt.ticks <= KNHKS_TICK_BUDGET);
+  assert(found->receipt.ticks <= KNHK_TICK_BUDGET);
   
   printf("  ✓ Receipt query by hash succeeded\n");
   return 1;
@@ -278,16 +278,16 @@ static int test_lockchain_batch_writes(void)
   uint64_t ALN S[NROWS];
   uint64_t ALN P[NROWS];
   uint64_t ALN O[NROWS];
-  knhks_context_t ctx;
+  knhk_context_t ctx;
   
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
   S[0] = 0xA11CE;
   P[0] = 0xC0FFEE;
   O[0] = 0xB0B;
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -300,8 +300,8 @@ static int test_lockchain_batch_writes(void)
   
   // Batch write 5 receipts
   for (int i = 0; i < 5; i++) {
-    knhks_receipt_t rcpt = {0};
-    knhks_eval_bool(&ctx, &ir, &rcpt);
+    knhk_receipt_t rcpt = {0};
+    knhk_eval_bool(&ctx, &ir, &rcpt);
     
     uint64_t parent_hash = (lockchain_len > 0) ? lockchain[lockchain_len - 1].receipt_hash : 0;
     lockchain[lockchain_len] = (lockchain_entry_t){

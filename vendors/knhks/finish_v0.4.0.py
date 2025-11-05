@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-KNHKS v0.4.0 Completion Script
+KNHK v0.4.0 Completion Script
 Fixes all issues found during verification
 """
 
@@ -48,7 +48,7 @@ def check_and_fix_construct8_tests():
     # The real fix would be to optimize CONSTRUCT8 further or move it to warm path
     
     # Check if assertions exist
-    if 'assert(rcpt.ticks <= KNHKS_TICK_BUDGET)' in content:
+    if 'assert(rcpt.ticks <= KNHK_TICK_BUDGET)' in content:
         print("✅ CONSTRUCT8 tests have tick budget assertions")
         print("   Note: CONSTRUCT8 may exceed 8 ticks due to emit complexity")
         print("   Recommendation: Optimize CONSTRUCT8 or move to warm path")
@@ -77,7 +77,7 @@ def run_c_tests():
             ['make', target],
             capture_output=True,
             text=True,
-            cwd='/Users/sac/ggen/vendors/knhks'
+            cwd='/Users/sac/ggen/vendors/knhk'
         )
         
         success = result.returncode == 0
@@ -117,10 +117,10 @@ def create_test_summary(results):
         return False
 
 def main():
-    print("KNHKS v0.4.0 Completion Script")
+    print("KNHK v0.4.0 Completion Script")
     print("="*60)
     
-    os.chdir('/Users/sac/ggen/vendors/knhks')
+    os.chdir('/Users/sac/ggen/vendors/knhk')
     
     # 1. Fix performance test makefile
     print("\n1. Fixing performance test makefile...")
@@ -143,7 +143,7 @@ def main():
         ['python3', 'verify_dod.py'],
         capture_output=True,
         text=True,
-        cwd='/Users/sac/ggen/vendors/knhks'
+        cwd='/Users/sac/ggen/vendors/knhk'
     )
     
     print(dod_result.stdout)

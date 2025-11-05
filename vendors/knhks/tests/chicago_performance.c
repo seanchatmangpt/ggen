@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "knhks.h"
+#include "knhk.h"
 
 #if defined(__GNUC__)
 #define ALN __attribute__((aligned(64)))
@@ -19,14 +19,14 @@
 static uint64_t ALN S[NROWS];
 static uint64_t ALN P[NROWS];
 static uint64_t ALN O[NROWS];
-static knhks_context_t ctx;
+static knhk_context_t ctx;
 
 static void reset_test_data(void)
 {
   memset(S, 0, sizeof(S));
   memset(P, 0, sizeof(P));
   memset(O, 0, sizeof(O));
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
 }
 
 // Test: Chatman Constant compliance (p95 ≤ 2 ns = 8 ticks)
@@ -39,10 +39,10 @@ static int test_chatman_constant(void)
   P[0] = 0xC0FFEE;
   O[0] = 0xB0B;
   
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -58,8 +58,8 @@ static int test_chatman_constant(void)
   uint32_t ticks[iterations];
   
   for (int i = 0; i < iterations; i++) {
-    knhks_receipt_t rcpt = {0};
-    knhks_eval_bool(&ctx, &ir, &rcpt);
+    knhk_receipt_t rcpt = {0};
+    knhk_eval_bool(&ctx, &ir, &rcpt);
     ticks[i] = rcpt.ticks;
   }
   
@@ -80,9 +80,9 @@ static int test_chatman_constant(void)
   
   uint32_t p95 = sorted[(int)(iterations * 0.95)];
   
-  assert(p95 <= KNHKS_TICK_BUDGET);
+  assert(p95 <= KNHK_TICK_BUDGET);
   
-  printf("  ✓ Chatman Constant: p95 = %u ticks ≤ %u\n", p95, KNHKS_TICK_BUDGET);
+  printf("  ✓ Chatman Constant: p95 = %u ticks ≤ %u\n", p95, KNHK_TICK_BUDGET);
   return 1;
 }
 
@@ -99,32 +99,32 @@ static int test_all_ops_timing_budget(void)
   O[0] = 0xB0B;
   O[1] = 0xC0C;
   
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 2});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 2});
   
   struct {
-    knhks_op_t op;
+    knhk_op_t op;
     uint64_t s, p, o, k;
   } test_cases[] = {
-    {KNHKS_OP_ASK_SP, 0xA11CE, 0xC0FFEE, 0, 0},
-    {KNHKS_OP_COUNT_SP_GE, 0xA11CE, 0xC0FFEE, 0, 1},
-    {KNHKS_OP_COUNT_SP_LE, 0xA11CE, 0xC0FFEE, 0, 2},
-    {KNHKS_OP_COUNT_SP_EQ, 0xA11CE, 0xC0FFEE, 0, 2},
-    {KNHKS_OP_ASK_SPO, 0xA11CE, 0xC0FFEE, 0xB0B, 0},
-    {KNHKS_OP_ASK_OP, 0, 0xC0FFEE, 0xB0B, 0},
-    {KNHKS_OP_UNIQUE_SP, 0xA11CE, 0xC0FFEE, 0, 0},
-    {KNHKS_OP_COUNT_OP, 0, 0xC0FFEE, 0xB0B, 1},
-    {KNHKS_OP_COUNT_OP_LE, 0, 0xC0FFEE, 0xB0B, 2},
-    {KNHKS_OP_COUNT_OP_EQ, 0, 0xC0FFEE, 0xB0B, 1},
-    {KNHKS_OP_COMPARE_O_EQ, 0, 0xC0FFEE, 0xB0B, 0},
-    {KNHKS_OP_COMPARE_O_GT, 0, 0xC0FFEE, 0xB0A, 0},
-    {KNHKS_OP_COMPARE_O_LT, 0, 0xC0FFEE, 0xB0C, 0},
-    {KNHKS_OP_COMPARE_O_GE, 0, 0xC0FFEE, 0xB0B, 0},
-    {KNHKS_OP_COMPARE_O_LE, 0, 0xC0FFEE, 0xB0B, 0}
+    {KNHK_OP_ASK_SP, 0xA11CE, 0xC0FFEE, 0, 0},
+    {KNHK_OP_COUNT_SP_GE, 0xA11CE, 0xC0FFEE, 0, 1},
+    {KNHK_OP_COUNT_SP_LE, 0xA11CE, 0xC0FFEE, 0, 2},
+    {KNHK_OP_COUNT_SP_EQ, 0xA11CE, 0xC0FFEE, 0, 2},
+    {KNHK_OP_ASK_SPO, 0xA11CE, 0xC0FFEE, 0xB0B, 0},
+    {KNHK_OP_ASK_OP, 0, 0xC0FFEE, 0xB0B, 0},
+    {KNHK_OP_UNIQUE_SP, 0xA11CE, 0xC0FFEE, 0, 0},
+    {KNHK_OP_COUNT_OP, 0, 0xC0FFEE, 0xB0B, 1},
+    {KNHK_OP_COUNT_OP_LE, 0, 0xC0FFEE, 0xB0B, 2},
+    {KNHK_OP_COUNT_OP_EQ, 0, 0xC0FFEE, 0xB0B, 1},
+    {KNHK_OP_COMPARE_O_EQ, 0, 0xC0FFEE, 0xB0B, 0},
+    {KNHK_OP_COMPARE_O_GT, 0, 0xC0FFEE, 0xB0A, 0},
+    {KNHK_OP_COMPARE_O_LT, 0, 0xC0FFEE, 0xB0C, 0},
+    {KNHK_OP_COMPARE_O_GE, 0, 0xC0FFEE, 0xB0B, 0},
+    {KNHK_OP_COMPARE_O_LE, 0, 0xC0FFEE, 0xB0B, 0}
   };
   
   int violations = 0;
   for (size_t i = 0; i < sizeof(test_cases)/sizeof(test_cases[0]); i++) {
-    knhks_hook_ir_t ir = {
+    knhk_hook_ir_t ir = {
       .op = test_cases[i].op,
       .s = test_cases[i].s,
       .p = test_cases[i].p,
@@ -139,14 +139,14 @@ static int test_all_ops_timing_budget(void)
     // Measure 1000 times
     uint32_t max_ticks = 0;
     for (int j = 0; j < 1000; j++) {
-      knhks_receipt_t rcpt = {0};
-      knhks_eval_bool(&ctx, &ir, &rcpt);
+      knhk_receipt_t rcpt = {0};
+      knhk_eval_bool(&ctx, &ir, &rcpt);
       if (rcpt.ticks > max_ticks) {
         max_ticks = rcpt.ticks;
       }
     }
     
-    if (max_ticks > KNHKS_TICK_BUDGET) {
+    if (max_ticks > KNHK_TICK_BUDGET) {
       violations++;
     }
   }
@@ -167,10 +167,10 @@ static int test_timing_consistency(void)
   P[0] = 0xC0FFEE;
   O[0] = 0xB0B;
   
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -186,8 +186,8 @@ static int test_timing_consistency(void)
   uint32_t ticks[iterations];
   
   for (int i = 0; i < iterations; i++) {
-    knhks_receipt_t rcpt = {0};
-    knhks_eval_bool(&ctx, &ir, &rcpt);
+    knhk_receipt_t rcpt = {0};
+    knhk_eval_bool(&ctx, &ir, &rcpt);
     ticks[i] = rcpt.ticks;
   }
   
@@ -208,10 +208,10 @@ static int test_timing_consistency(void)
   uint32_t p50 = sorted[iterations / 2];
   uint32_t p95 = sorted[(int)(iterations * 0.95)];
   
-  assert(p50 <= KNHKS_TICK_BUDGET);
-  assert(p95 <= KNHKS_TICK_BUDGET);
+  assert(p50 <= KNHK_TICK_BUDGET);
+  assert(p95 <= KNHK_TICK_BUDGET);
   
-  printf("  ✓ p50 = %u, p95 = %u (budget = %u)\n", p50, p95, KNHKS_TICK_BUDGET);
+  printf("  ✓ p50 = %u, p95 = %u (budget = %u)\n", p50, p95, KNHK_TICK_BUDGET);
   return 1;
 }
 
@@ -227,14 +227,14 @@ static int test_construct8_timing(void)
     O[i] = 0xB0B + i;
   }
   
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 8});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 8});
   
-  uint64_t ALN out_S[KNHKS_NROWS];
-  uint64_t ALN out_P[KNHKS_NROWS];
-  uint64_t ALN out_O[KNHKS_NROWS];
+  uint64_t ALN out_S[KNHK_NROWS];
+  uint64_t ALN out_P[KNHK_NROWS];
+  uint64_t ALN out_O[KNHK_NROWS];
   
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_CONSTRUCT8,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_CONSTRUCT8,
     .s = 0,
     .p = 0xC0FFEE,
     .o = 0xALLOWED,
@@ -248,16 +248,16 @@ static int test_construct8_timing(void)
   // Measure 1000 times
   uint32_t max_ticks = 0;
   for (int i = 0; i < 1000; i++) {
-    knhks_receipt_t rcpt = {0};
-    knhks_eval_construct8(&ctx, &ir, &rcpt);
+    knhk_receipt_t rcpt = {0};
+    knhk_eval_construct8(&ctx, &ir, &rcpt);
     if (rcpt.ticks > max_ticks) {
       max_ticks = rcpt.ticks;
     }
   }
   
-  assert(max_ticks <= KNHKS_TICK_BUDGET);
+  assert(max_ticks <= KNHK_TICK_BUDGET);
   
-  printf("  ✓ CONSTRUCT8 max ticks = %u ≤ %u\n", max_ticks, KNHKS_TICK_BUDGET);
+  printf("  ✓ CONSTRUCT8 max ticks = %u ≤ %u\n", max_ticks, KNHK_TICK_BUDGET);
   return 1;
 }
 
@@ -273,12 +273,12 @@ static int test_batch_timing(void)
     O[i] = 0xB0B + i;
   }
   
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 8});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 8});
   
-  knhks_hook_ir_t irs[KNHKS_NROWS];
+  knhk_hook_ir_t irs[KNHK_NROWS];
   for (int i = 0; i < 8; i++) {
-    irs[i] = (knhks_hook_ir_t){
-      .op = KNHKS_OP_ASK_SP,
+    irs[i] = (knhk_hook_ir_t){
+      .op = KNHK_OP_ASK_SP,
       .s = 0xA11CE + i,
       .p = 0xC0FFEE,
       .o = 0,
@@ -293,8 +293,8 @@ static int test_batch_timing(void)
   // Measure batch timing
   uint32_t max_ticks = 0;
   for (int i = 0; i < 100; i++) {
-    knhks_receipt_t rcpts[KNHKS_NROWS] = {0};
-    knhks_eval_batch8(&ctx, irs, 8, rcpts);
+    knhk_receipt_t rcpts[KNHK_NROWS] = {0};
+    knhk_eval_batch8(&ctx, irs, 8, rcpts);
     
     for (int j = 0; j < 8; j++) {
       if (rcpts[j].ticks > max_ticks) {
@@ -303,9 +303,9 @@ static int test_batch_timing(void)
     }
   }
   
-  assert(max_ticks <= KNHKS_TICK_BUDGET);
+  assert(max_ticks <= KNHK_TICK_BUDGET);
   
-  printf("  ✓ Batch max ticks = %u ≤ %u\n", max_ticks, KNHKS_TICK_BUDGET);
+  printf("  ✓ Batch max ticks = %u ≤ %u\n", max_ticks, KNHK_TICK_BUDGET);
   return 1;
 }
 

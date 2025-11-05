@@ -1,4 +1,4 @@
-KNHKS v0.4.0 Definition of Done Verification
+KNHK v0.4.0 Definition of Done Verification
 ============================================================
 
 ✅ Passed: 20

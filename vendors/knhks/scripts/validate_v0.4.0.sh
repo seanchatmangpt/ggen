@@ -1,5 +1,5 @@
 #!/bin/bash
-# KNHKS v0.4.0 Validation Script
+# KNHK v0.4.0 Validation Script
 # Validates all criteria for v0.4.0 release readiness
 
 set -euo pipefail
@@ -41,7 +41,7 @@ warn() {
 cd "$(dirname "$0")/.." || exit 1
 
 echo "=========================================="
-echo "KNHKS v0.4.0 Release Validation"
+echo "KNHK v0.4.0 Release Validation"
 echo "=========================================="
 echo ""
 
@@ -52,10 +52,10 @@ echo "---------------------------"
 # C library compilation
 echo -n "Building C library... "
 if make lib > /dev/null 2>&1; then
-    if [ -f "libknhks.a" ]; then
+    if [ -f "libknhk.a" ]; then
         pass "C library builds successfully"
     else
-        fail "C library build succeeded but libknhks.a not found"
+        fail "C library build succeeded but libknhk.a not found"
     fi
 else
     fail "C library compilation failed"
@@ -64,9 +64,9 @@ fi
 # Rust workspace compilation
 echo -n "Building Rust workspace... "
 # Try to build without workspace to avoid workspace issues
-if (cd rust/knhks-cli && CARGO_TARGET_DIR=../../target cargo build --release > /dev/null 2>&1); then
+if (cd rust/knhk-cli && CARGO_TARGET_DIR=../../target cargo build --release > /dev/null 2>&1); then
     pass "Rust CLI builds successfully"
-elif cargo build --manifest-path rust/knhks-cli/Cargo.toml --release > /dev/null 2>&1; then
+elif cargo build --manifest-path rust/knhk-cli/Cargo.toml --release > /dev/null 2>&1; then
     pass "Rust CLI builds successfully"
 elif cargo build --workspace --release > /dev/null 2>&1; then
     pass "Rust workspace builds successfully"
@@ -77,24 +77,24 @@ fi
 # CLI binary compilation
 echo -n "Building CLI binary... "
 # Try multiple build approaches
-if (cd rust/knhks-cli && CARGO_TARGET_DIR=../../target cargo build --release > /dev/null 2>&1); then
-    CLI_BIN="target/release/knhks"
+if (cd rust/knhk-cli && CARGO_TARGET_DIR=../../target cargo build --release > /dev/null 2>&1); then
+    CLI_BIN="target/release/knhk"
     if [ -f "$CLI_BIN" ] || [ -f "${CLI_BIN}.exe" ]; then
         pass "CLI binary builds successfully"
     else
         warn "CLI binary build succeeded but executable not found (check target/release/)"
     fi
-elif cargo build --manifest-path rust/knhks-cli/Cargo.toml --release > /dev/null 2>&1; then
-    CLI_BIN="rust/knhks-cli/target/release/knhks"
+elif cargo build --manifest-path rust/knhk-cli/Cargo.toml --release > /dev/null 2>&1; then
+    CLI_BIN="rust/knhk-cli/target/release/knhk"
     if [ -f "$CLI_BIN" ] || [ -f "${CLI_BIN}.exe" ]; then
         pass "CLI binary builds successfully"
-    elif [ -f "target/release/knhks" ] || [ -f "target/release/knhks.exe" ]; then
+    elif [ -f "target/release/knhk" ] || [ -f "target/release/knhk.exe" ]; then
         pass "CLI binary builds successfully"
     else
         warn "CLI binary build succeeded but executable not found"
     fi
-elif cargo build --release --bin knhks > /dev/null 2>&1; then
-    if [ -f "target/release/knhks" ] || [ -f "target/release/knhks.exe" ]; then
+elif cargo build --release --bin knhk > /dev/null 2>&1; then
+    if [ -f "target/release/knhk" ] || [ -f "target/release/knhk.exe" ]; then
         pass "CLI binary builds successfully"
     else
         warn "CLI binary build succeeded but executable not found"
@@ -123,9 +123,9 @@ fi
 
 # Rust test suites
 echo -n "Running Rust test suites... "
-if (cd rust/knhks-cli && CARGO_TARGET_DIR=../../target cargo test --no-fail-fast > /dev/null 2>&1); then
+if (cd rust/knhk-cli && CARGO_TARGET_DIR=../../target cargo test --no-fail-fast > /dev/null 2>&1); then
     pass "Rust test suites pass"
-elif cargo test --manifest-path rust/knhks-cli/Cargo.toml --no-fail-fast > /dev/null 2>&1; then
+elif cargo test --manifest-path rust/knhk-cli/Cargo.toml --no-fail-fast > /dev/null 2>&1; then
     pass "Rust test suites pass"
 elif cargo test --workspace --no-fail-fast > /dev/null 2>&1; then
     pass "Rust test suites pass"
@@ -141,14 +141,14 @@ echo "---------------------------"
 
 # Find CLI binary location
 CLI_BIN=""
-if [ -f "rust/knhks-cli/target/release/knhks" ]; then
-    CLI_BIN="rust/knhks-cli/target/release/knhks"
-elif [ -f "rust/knhks-cli/target/release/knhks.exe" ]; then
-    CLI_BIN="rust/knhks-cli/target/release/knhks.exe"
-elif [ -f "target/release/knhks" ]; then
-    CLI_BIN="target/release/knhks"
-elif [ -f "target/release/knhks.exe" ]; then
-    CLI_BIN="target/release/knhks.exe"
+if [ -f "rust/knhk-cli/target/release/knhk" ]; then
+    CLI_BIN="rust/knhk-cli/target/release/knhk"
+elif [ -f "rust/knhk-cli/target/release/knhk.exe" ]; then
+    CLI_BIN="rust/knhk-cli/target/release/knhk.exe"
+elif [ -f "target/release/knhk" ]; then
+    CLI_BIN="target/release/knhk"
+elif [ -f "target/release/knhk.exe" ]; then
+    CLI_BIN="target/release/knhk.exe"
 fi
 
 if [ -n "$CLI_BIN" ] && [ -f "$CLI_BIN" ]; then
@@ -169,7 +169,7 @@ if [ -n "$CLI_BIN" ] && [ -f "$CLI_BIN" ]; then
         fi
     done
 else
-    warn "CLI binary not found (workspace issue - run: cd rust/knhks-cli && cargo build --release)"
+    warn "CLI binary not found (workspace issue - run: cd rust/knhk-cli && cargo build --release)"
 fi
 
 echo ""
@@ -232,21 +232,21 @@ echo "Phase 6: Integration Checks"
 echo "---------------------------"
 
 # Network integration code exists
-if grep -q "reqwest" rust/knhks-etl/Cargo.toml 2>/dev/null; then
+if grep -q "reqwest" rust/knhk-etl/Cargo.toml 2>/dev/null; then
     pass "HTTP client dependency present"
 else
     warn "HTTP client dependency not found"
 fi
 
 # OTEL integration code exists
-if [ -f "rust/knhks-otel/src/lib.rs" ]; then
+if [ -f "rust/knhk-otel/src/lib.rs" ]; then
     pass "OTEL integration code exists"
 else
     fail "OTEL integration code missing"
 fi
 
 # Lockchain integration code exists
-if [ -f "rust/knhks-lockchain/src/lib.rs" ]; then
+if [ -f "rust/knhk-lockchain/src/lib.rs" ]; then
     pass "Lockchain integration code exists"
 else
     fail "Lockchain integration code missing"

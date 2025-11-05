@@ -58,7 +58,7 @@ You said:
 
 * OTEL spans are the truth source; mocks are excluded.
 
-* knhks enforces the Chatman Constant at ingest.
+* knhk enforces the Chatman Constant at ingest.
 
 * URIs map to 64-bit IDs; SoA layout: S[], P[], O[].
 
@@ -184,7 +184,7 @@ Conformance checklist (measurable)
 
 [Shard/VK] For any cover and pushout: μ preserves ⊔ and pushouts.
 
-[Timing] p95 ≤ 2 ns per hook under knhks; Δ-slices in L1; zero heap allocs in loop.
+[Timing] p95 ≤ 2 ns per hook under knhk; Δ-slices in L1; zero heap allocs in loop.
 
 [Guards] H blocks forbidden; ASK/COUNT guards at Δ enforce Q.
 
@@ -225,7 +225,7 @@ kgc:store kgc:ids "u64" ; kgc:layout "SoA:S[],P[],O[]" ; kgc:run "{pred,off,len}
 kgc:hotOps kgc:allow "ASK,COUNT≥K,ASK3,SELECT→O≤N" ; kgc:deny "JOIN,OPTIONAL,GROUP,genSHACL" ; kgc:escape kgc:unrdf .
 
 kgc:pipeline kgc:seq "plan→query→render→mount→hash→receipt" .
-kgc:otel kgc:truth true ; kgc:mocks false ; kgc:lockchain true ; kgc:knhks true .
+kgc:otel kgc:truth true ; kgc:mocks false ; kgc:lockchain true ; kgc:knhk true .
 
 kgc:change kgc:dueTo "{ΔO,Δμ_in_O}" ; kgc:reconcile "μ(O)⇒A_atomic" .
 kgc:Splus kgc:req "μ,observability,receipts,τ-bounded" ; kgc:evidence "timing,spans,hashes,zero-mock E2E" .
@@ -419,9 +419,9 @@ See performance.mmd for visual performance comparisons.
 
 ## Benchmarking
 
-Use knhks_bench_eval() for accurate measurements:
+Use knhk_bench_eval() for accurate measurements:
 c
-double ns_per_op = knhks_bench_eval(&ctx, &ir, 200000);
+double ns_per_op = knhk_bench_eval(&ctx, &ir, 200000);
 
 
 The benchmark automatically:
@@ -642,7 +642,7 @@ STORE to preallocated span
 Four SIMD instructions: load–mask–blend–store. ≈ 6 ticks.
 
 4. Implementation sketch
-Precompile template into hot IR (knhks_ir_construct8).
+Precompile template into hot IR (knhk_ir_construct8).
 
 Require dst[] aligned 64 B, size = NROWS = 8.
 
@@ -1005,56 +1005,56 @@ System logic becomes part of O; μ applies uniformly.
 Result: the engine is governed by its own knowledge—deterministic, inspectable, and self-reconciling.
 
 You said:
-Right what I’m saying is an ontology for the KNHKS system itself
+Right what I’m saying is an ontology for the KNHK system itself
 ChatGPT said:
 Designing an ontology for KNKHS itself means treating every internal mechanism—timing, reflexes, guards, and receipts—as first-class entities in the graph. The system becomes self-descriptive and self-verifiable.
 
 1. Ontology Core Classes
 Class	Meaning
-knhks:Reflex	A single ≤8-tick execution unit.
-knhks:Hook	Entry point for a reflex (ASK, COUNT, COMPARE, CONSTRUCT8).
-knhks:Run	Contiguous predicate window {pred,off,len}.
-knhks:Epoch	Time slice in which μ executes (τ).
-knhks:Guard	Constraint that may block execution (μ ⊣ H).
-knhks:Receipt	Provenance record of A = μ(O).
-knhks:Span	OTEL trace context for observability.
-knhks:Policy	Rule defined as triples controlling behavior.
-knhks:PredicateSet	Collection of runs grouped by P.
-knhks:Invariant	Condition Q preserved across μ.
+knhk:Reflex	A single ≤8-tick execution unit.
+knhk:Hook	Entry point for a reflex (ASK, COUNT, COMPARE, CONSTRUCT8).
+knhk:Run	Contiguous predicate window {pred,off,len}.
+knhk:Epoch	Time slice in which μ executes (τ).
+knhk:Guard	Constraint that may block execution (μ ⊣ H).
+knhk:Receipt	Provenance record of A = μ(O).
+knhk:Span	OTEL trace context for observability.
+knhk:Policy	Rule defined as triples controlling behavior.
+knhk:PredicateSet	Collection of runs grouped by P.
+knhk:Invariant	Condition Q preserved across μ.
 2. Key Properties
 Property	Domain → Range	Description
-knhks:hasEpoch	Reflex → Epoch	Time window constraint (≤8 ticks).
-knhks:hasGuard	Reflex → Guard	Guard controlling execution.
-knhks:emits	Reflex → Receipt	Output artifact of μ.
-knhks:operatesOn	Reflex → PredicateSet	Input data run.
-knhks:preserves	Reflex → Invariant	Ensures Q holds.
-knhks:inSpan	Reflex → Span	Observability link.
-knhks:execTime	Reflex → Literal(ns)	Measured latency.
-knhks:hashMatch	Receipt → Literal	Confirms hash(A)=hash(μ(O)).
+knhk:hasEpoch	Reflex → Epoch	Time window constraint (≤8 ticks).
+knhk:hasGuard	Reflex → Guard	Guard controlling execution.
+knhk:emits	Reflex → Receipt	Output artifact of μ.
+knhk:operatesOn	Reflex → PredicateSet	Input data run.
+knhk:preserves	Reflex → Invariant	Ensures Q holds.
+knhk:inSpan	Reflex → Span	Observability link.
+knhk:execTime	Reflex → Literal(ns)	Measured latency.
+knhk:hashMatch	Receipt → Literal	Confirms hash(A)=hash(μ(O)).
 3. Ontological Self-Description
 Example (Turtle):
 
-@prefix knhks: <urn:knhks:> .
+@prefix knhk: <urn:knhk:> .
 
-knhks:ask_role_access a knhks:Reflex ;
-    knhks:hasEpoch knhks:epoch_2025_11_04_001 ;
-    knhks:operatesOn knhks:run_role ;
-    knhks:hasGuard knhks:guard_policy ;
-    knhks:preserves knhks:invariant_auth ;
-    knhks:execTime "1.04"^^xsd:ns ;
-    knhks:emits knhks:receipt_abc123 .
+knhk:ask_role_access a knhk:Reflex ;
+    knhk:hasEpoch knhk:epoch_2025_11_04_001 ;
+    knhk:operatesOn knhk:run_role ;
+    knhk:hasGuard knhk:guard_policy ;
+    knhk:preserves knhk:invariant_auth ;
+    knhk:execTime "1.04"^^xsd:ns ;
+    knhk:emits knhk:receipt_abc123 .
 
-knhks:epoch_2025_11_04_001 a knhks:Epoch ;
-    knhks:tickBudget "8"^^xsd:int ;
-    knhks:duration "2"^^xsd:ns .
+knhk:epoch_2025_11_04_001 a knhk:Epoch ;
+    knhk:tickBudget "8"^^xsd:int ;
+    knhk:duration "2"^^xsd:ns .
 4. Ontological Reflexivity
 μ uses this ontology as O_sys.
 
 The same ASK/COUNT logic applies internally:
 
-ASK { ?reflex knhks:execTime ?t . FILTER(?t > 2) } detects drift.
+ASK { ?reflex knhk:execTime ?t . FILTER(?t > 2) } detects drift.
 
-COUNT { ?guard knhks:tripped true } summarizes constraint activity.
+COUNT { ?guard knhk:tripped true } summarizes constraint activity.
 
 Updates occur by data mutation (ΔO_sys), not code change.
 
@@ -1127,30 +1127,30 @@ You said:
 
 ### Types
 
-#### knhks_op_t
+#### knhk_op_t
 Operation types for queries:
 c
 typedef enum {
-  KNHKS_OP_ASK_SP = 1,          // ASK existence check
-  KNHKS_OP_COUNT_SP_GE = 2,     // COUNT >= k
-  KNHKS_OP_ASK_SPO = 3,         // Triple matching
-  KNHKS_OP_SELECT_SP = 4,       // SELECT query (exceeds 8 ticks)
-  KNHKS_OP_COUNT_SP_LE = 5,     // COUNT <= k
-  KNHKS_OP_COUNT_SP_EQ = 6,     // COUNT == k
-  KNHKS_OP_ASK_OP = 7,          // ASK(O,P) - reverse lookup
-  KNHKS_OP_UNIQUE_SP = 8,       // UNIQUE(S,P) - exactly one value
-  KNHKS_OP_COUNT_OP = 9,        // COUNT(O,P) >= k
-  KNHKS_OP_COUNT_OP_LE = 10,    // COUNT(O,P) <= k
-  KNHKS_OP_COUNT_OP_EQ = 11,    // COUNT(O,P) == k
-  KNHKS_OP_COMPARE_O_EQ = 12,   // O == value (exact match)
-  KNHKS_OP_COMPARE_O_GT = 13,   // O > value (greater than)
-  KNHKS_OP_COMPARE_O_LT = 14,   // O < value (less than)
-  KNHKS_OP_COMPARE_O_GE = 15,   // O >= value (greater or equal)
-  KNHKS_OP_COMPARE_O_LE = 16    // O <= value (less or equal)
-} knhks_op_t;
+  KNHK_OP_ASK_SP = 1,          // ASK existence check
+  KNHK_OP_COUNT_SP_GE = 2,     // COUNT >= k
+  KNHK_OP_ASK_SPO = 3,         // Triple matching
+  KNHK_OP_SELECT_SP = 4,       // SELECT query (exceeds 8 ticks)
+  KNHK_OP_COUNT_SP_LE = 5,     // COUNT <= k
+  KNHK_OP_COUNT_SP_EQ = 6,     // COUNT == k
+  KNHK_OP_ASK_OP = 7,          // ASK(O,P) - reverse lookup
+  KNHK_OP_UNIQUE_SP = 8,       // UNIQUE(S,P) - exactly one value
+  KNHK_OP_COUNT_OP = 9,        // COUNT(O,P) >= k
+  KNHK_OP_COUNT_OP_LE = 10,    // COUNT(O,P) <= k
+  KNHK_OP_COUNT_OP_EQ = 11,    // COUNT(O,P) == k
+  KNHK_OP_COMPARE_O_EQ = 12,   // O == value (exact match)
+  KNHK_OP_COMPARE_O_GT = 13,   // O > value (greater than)
+  KNHK_OP_COMPARE_O_LT = 14,   // O < value (less than)
+  KNHK_OP_COMPARE_O_GE = 15,   // O >= value (greater or equal)
+  KNHK_OP_COMPARE_O_LE = 16    // O <= value (less or equal)
+} knhk_op_t;
 
 
-#### knhks_context_t
+#### knhk_context_t
 Context holding SoA arrays and metadata:
 c
 typedef struct {
@@ -1158,47 +1158,47 @@ typedef struct {
   uint64_t *P;           // Predicate array
   uint64_t *O;           // Object array
   size_t triple_count;   // Number of loaded triples
-  knhks_pred_run_t run;  // Predicate run metadata
-} knhks_context_t;
+  knhk_pred_run_t run;  // Predicate run metadata
+} knhk_context_t;
 
 
-#### knhks_hook_ir_t
+#### knhk_hook_ir_t
 Query representation (Hook IR):
 c
 typedef struct {
-  knhks_op_t op;         // Operation type
+  knhk_op_t op;         // Operation type
   uint64_t s, p, o, k;   // Subject, predicate, object, threshold
   uint64_t *select_out;  // SELECT output buffer (NULL for ASK/COUNT)
   size_t select_capacity; // SELECT buffer capacity
-} knhks_hook_ir_t;
+} knhk_hook_ir_t;
 
 
-#### knhks_pred_run_t
+#### knhk_pred_run_t
 Predicate run metadata:
 c
 typedef struct {
   uint64_t pred;  // Predicate ID
   uint64_t off;   // Offset in arrays
   uint64_t len;   // Length (must be ≤8 for hot path)
-} knhks_pred_run_t;
+} knhk_pred_run_t;
 
 
 ## Functions
 
 ### Context Management
 
-#### knhks_init_context
+#### knhk_init_context
 Initialize context with arrays:
 c
-void knhks_init_context(knhks_context_t *ctx, uint64_t *S, uint64_t *P, uint64_t *O);
+void knhk_init_context(knhk_context_t *ctx, uint64_t *S, uint64_t *P, uint64_t *O);
 
 - ctx: Context to initialize
 - S, P, O: Arrays (must be 64-byte aligned, size NROWS)
 
-#### knhks_load_rdf
+#### knhk_load_rdf
 Load RDF file into context:
 c
-int knhks_load_rdf(knhks_context_t *ctx, const char *filename);
+int knhk_load_rdf(knhk_context_t *ctx, const char *filename);
 
 - Returns: 1 on success, 0 on failure
 - Automatically sets predicate run metadata
@@ -1206,34 +1206,34 @@ int knhks_load_rdf(knhks_context_t *ctx, const char *filename);
 
 ### Query Evaluation
 
-#### knhks_eval_bool
+#### knhk_eval_bool
 Evaluate boolean query (inline, hot path):
 c
-static inline int knhks_eval_bool(const knhks_context_t *ctx, const knhks_hook_ir_t *ir);
+static inline int knhk_eval_bool(const knhk_context_t *ctx, const knhk_hook_ir_t *ir);
 
 - Returns: 1 if true, 0 if false
 - Inline function for zero-overhead hot path
 - Supports all boolean operations:
-  - KNHKS_OP_ASK_SP: Subject-predicate existence check
-  - KNHKS_OP_ASK_SPO: Triple matching
-  - KNHKS_OP_COUNT_SP_GE: Count >= k
-  - KNHKS_OP_COUNT_SP_LE: Count <= k
-  - KNHKS_OP_COUNT_SP_EQ: Count == k
-  - KNHKS_OP_ASK_OP: Reverse lookup (object-predicate)
-  - KNHKS_OP_UNIQUE_SP: Uniqueness check (count == 1)
-  - KNHKS_OP_COUNT_OP: Object count >= k
-  - KNHKS_OP_COUNT_OP_LE: Object count <= k
-  - KNHKS_OP_COUNT_OP_EQ: Object count == k
-  - KNHKS_OP_COMPARE_O_EQ: Object == value
-  - KNHKS_OP_COMPARE_O_GT: Object > value
-  - KNHKS_OP_COMPARE_O_LT: Object < value
-  - KNHKS_OP_COMPARE_O_GE: Object >= value
-  - KNHKS_OP_COMPARE_O_LE: Object <= value
+  - KNHK_OP_ASK_SP: Subject-predicate existence check
+  - KNHK_OP_ASK_SPO: Triple matching
+  - KNHK_OP_COUNT_SP_GE: Count >= k
+  - KNHK_OP_COUNT_SP_LE: Count <= k
+  - KNHK_OP_COUNT_SP_EQ: Count == k
+  - KNHK_OP_ASK_OP: Reverse lookup (object-predicate)
+  - KNHK_OP_UNIQUE_SP: Uniqueness check (count == 1)
+  - KNHK_OP_COUNT_OP: Object count >= k
+  - KNHK_OP_COUNT_OP_LE: Object count <= k
+  - KNHK_OP_COUNT_OP_EQ: Object count == k
+  - KNHK_OP_COMPARE_O_EQ: Object == value
+  - KNHK_OP_COMPARE_O_GT: Object > value
+  - KNHK_OP_COMPARE_O_LT: Object < value
+  - KNHK_OP_COMPARE_O_GE: Object >= value
+  - KNHK_OP_COMPARE_O_LE: Object <= value
 
-#### knhks_eval_select
+#### knhk_eval_select
 Evaluate SELECT query:
 c
-size_t knhks_eval_select(const knhks_context_t *ctx, const knhks_hook_ir_t *ir);
+size_t knhk_eval_select(const knhk_context_t *ctx, const knhk_hook_ir_t *ir);
 
 - Returns: Number of results written to ir->select_out
 - **Performance**: ~19 ticks (exceeds 8-tick budget)
@@ -1242,28 +1242,28 @@ size_t knhks_eval_select(const knhks_context_t *ctx, const knhks_hook_ir_t *ir);
 
 ### Benchmarking
 
-#### knhks_bench_eval
+#### knhk_bench_eval
 Benchmark query execution:
 c
-double knhks_bench_eval(const knhks_context_t *ctx, const knhks_hook_ir_t *ir, int iters);
+double knhk_bench_eval(const knhk_context_t *ctx, const knhk_hook_ir_t *ir, int iters);
 
 - Returns: Nanoseconds per operation
 - Warms cache before measurement
 
 ### Clock Utilities
 
-#### knhks_rd_ticks
+#### knhk_rd_ticks
 Read CPU ticks:
 c
-uint64_t knhks_rd_ticks(void);
+uint64_t knhk_rd_ticks(void);
 
 - ARM64: Uses cntvct_el0
 - x86_64: Uses rdtsc
 
-#### knhks_ticks_hz
+#### knhk_ticks_hz
 Get ticks per second:
 c
-double knhks_ticks_hz(void);
+double knhk_ticks_hz(void);
 
 - ARM64: Reads cntfrq_el0
 - x86_64: Uses CPU_GHZ env var or defaults to 4.0 GHz
@@ -1272,19 +1272,19 @@ double knhks_ticks_hz(void);
 
 ### Basic ASK Query
 c
-#include "knhks.h"
+#include "knhk.h"
 
 // Allocate aligned arrays
 uint64_t ALN S[NROWS], P[NROWS], O[NROWS];
-knhks_context_t ctx;
-knhks_init_context(&ctx, S, P, O);
+knhk_context_t ctx;
+knhk_init_context(&ctx, S, P, O);
 
 // Load RDF data
-knhks_load_rdf(&ctx, "data.ttl");
+knhk_load_rdf(&ctx, "data.ttl");
 
 // Create ASK query
-knhks_hook_ir_t ir = {
-  .op = KNHKS_OP_ASK_SP,
+knhk_hook_ir_t ir = {
+  .op = KNHK_OP_ASK_SP,
   .s = ctx.S[0],
   .p = ctx.run.pred,
   .k = 0,
@@ -1294,13 +1294,13 @@ knhks_hook_ir_t ir = {
 };
 
 // Execute
-int result = knhks_eval_bool(&ctx, &ir);
+int result = knhk_eval_bool(&ctx, &ir);
 
 
 ### COUNT Query
 c
-knhks_hook_ir_t count_ir = {
-  .op = KNHKS_OP_COUNT_SP_GE,
+knhk_hook_ir_t count_ir = {
+  .op = KNHK_OP_COUNT_SP_GE,
   .s = subject_id,
   .p = predicate_id,
   .k = 1,  // Check if count >= 1
@@ -1309,13 +1309,13 @@ knhks_hook_ir_t count_ir = {
   .select_capacity = 0
 };
 
-int has_at_least_one = knhks_eval_bool(&ctx, &count_ir);
+int has_at_least_one = knhk_eval_bool(&ctx, &count_ir);
 
 
 ### Triple Matching
 c
-knhks_hook_ir_t spo_ir = {
-  .op = KNHKS_OP_ASK_SPO,
+knhk_hook_ir_t spo_ir = {
+  .op = KNHK_OP_ASK_SPO,
   .s = subject_id,
   .p = predicate_id,
   .o = object_id,
@@ -1324,7 +1324,7 @@ knhks_hook_ir_t spo_ir = {
   .select_capacity = 0
 };
 
-int triple_exists = knhks_eval_bool(&ctx, &spo_ir);
+int triple_exists = knhk_eval_bool(&ctx, &spo_ir);
 
 
 ## Compilation Constants
@@ -1348,65 +1348,65 @@ Thought for 19s
 Hot-only v1. No SELECT. Add CONSTRUCT8. Receipts first-class. Rust warm, Erlang cold are out-of-scope here.
 
 v1 surface
-// knhks_v1.h — hot path only (≤8 ticks)
+// knhk_v1.h — hot path only (≤8 ticks)
 
-#ifndef KNHKS_V1_H
-#define KNHKS_V1_H
+#ifndef KNHK_V1_H
+#define KNHK_V1_H
 #include <stdint.h>
 #include <stddef.h>
 
-#define KNHKS_TICK_BUDGET 8
-#define KNHKS_NROWS       8        // compile-time fixed
-#define KNHKS_ALIGN       64       // bytes
+#define KNHK_TICK_BUDGET 8
+#define KNHK_NROWS       8        // compile-time fixed
+#define KNHK_ALIGN       64       // bytes
 
 // -------- Types
 
 typedef enum {
-  KNHKS_OP_ASK_SP = 1,
-  KNHKS_OP_COUNT_SP_GE = 2,
-  KNHKS_OP_ASK_SPO = 3,
-  // KNHKS_OP_SELECT_SP removed from v1 hot API
-  KNHKS_OP_COUNT_SP_LE = 5,
-  KNHKS_OP_COUNT_SP_EQ = 6,
-  KNHKS_OP_ASK_OP = 7,
-  KNHKS_OP_UNIQUE_SP = 8,
-  KNHKS_OP_COUNT_OP = 9,
-  KNHKS_OP_COUNT_OP_LE = 10,
-  KNHKS_OP_COUNT_OP_EQ = 11,
-  KNHKS_OP_COMPARE_O_EQ = 12,
-  KNHKS_OP_COMPARE_O_GT = 13,
-  KNHKS_OP_COMPARE_O_LT = 14,
-  KNHKS_OP_COMPARE_O_GE = 15,
-  KNHKS_OP_COMPARE_O_LE = 16,
+  KNHK_OP_ASK_SP = 1,
+  KNHK_OP_COUNT_SP_GE = 2,
+  KNHK_OP_ASK_SPO = 3,
+  // KNHK_OP_SELECT_SP removed from v1 hot API
+  KNHK_OP_COUNT_SP_LE = 5,
+  KNHK_OP_COUNT_SP_EQ = 6,
+  KNHK_OP_ASK_OP = 7,
+  KNHK_OP_UNIQUE_SP = 8,
+  KNHK_OP_COUNT_OP = 9,
+  KNHK_OP_COUNT_OP_LE = 10,
+  KNHK_OP_COUNT_OP_EQ = 11,
+  KNHK_OP_COMPARE_O_EQ = 12,
+  KNHK_OP_COMPARE_O_GT = 13,
+  KNHK_OP_COMPARE_O_LT = 14,
+  KNHK_OP_COMPARE_O_GE = 15,
+  KNHK_OP_COMPARE_O_LE = 16,
 
   // v1 addition: hot emit
-  KNHKS_OP_CONSTRUCT8 = 32        // fixed-template emit, len ≤ 8
-} knhks_op_t;
+  KNHK_OP_CONSTRUCT8 = 32        // fixed-template emit, len ≤ 8
+} knhk_op_t;
 
 typedef struct {
   uint64_t pred;  // P id
   uint64_t off;   // SoA offset
   uint64_t len;   // ≤ 8
-} knhks_pred_run_t;
+} knhk_pred_run_t;
 
 typedef struct {
-  // SoA, KNHKS_ALIGN aligned, KNHKS_NROWS sized windows
+  // SoA, KNHK_ALIGN aligned, KNHK_NROWS sized windows
   const uint64_t *S;
   const uint64_t *P;
   const uint64_t *O;
-  knhks_pred_run_t run;
-} knhks_context_t;
+  knhk_pred_run_t run;
+} knhk_context_t;
 
 // Hot IR (branchless). All fields consumed in constant cycles.
 typedef struct {
-  knhks_op_t op;
+  knhk_op_t op;
   uint64_t s, p, o, k;     // ids / thresholds
   // For CONSTRUCT8 only: preallocated output spans (8 rows max)
   uint64_t *out_S;         // may be NULL for non-CONSTRUCT8
   uint64_t *out_P;
   uint64_t *out_O;
   uint64_t  out_mask;      // per-lane bitmask result (returned)
-} knhks_hook_ir_t;
+} knhk_hook_ir_t;
 
 // Timing + provenance receipt (hot)
 typedef struct {
@@ -1414,49 +1414,49 @@ typedef struct {
   uint32_t lanes;          // SIMD width used
   uint64_t span_id;        // OTEL-compatible id
   uint64_t a_hash;         // hash(A) = hash(μ(O)) fragment
-} knhks_receipt_t;
+} knhk_receipt_t;
 
 // -------- Init / pin
 
-// Precondition: arrays are KNHKS_ALIGN aligned; window size = KNHKS_NROWS.
-void knhks_init_ctx(knhks_context_t *ctx,
+// Precondition: arrays are KNHK_ALIGN aligned; window size = KNHK_NROWS.
+void knhk_init_ctx(knhk_context_t *ctx,
                     const uint64_t *S, const uint64_t *P, const uint64_t *O);
 
 // Set the active predicate run (len ≤ 8).
-static inline void knhks_pin_run(knhks_context_t *ctx, knhks_pred_run_t run);
+static inline void knhk_pin_run(knhk_context_t *ctx, knhk_pred_run_t run);
 
 // -------- Hot eval (constant time)
 
-static inline int knhks_eval_bool(const knhks_context_t *ctx,
-                                  knhks_hook_ir_t *ir,
-                                  knhks_receipt_t *rcpt);
+static inline int knhk_eval_bool(const knhk_context_t *ctx,
+                                  knhk_hook_ir_t *ir,
+                                  knhk_receipt_t *rcpt);
 
 // Emit up to 8 triples using a fixed template; returns number of lanes written.
 // Template is implied by (ir->s,p,o) constants and masked lane selection.
-static inline int knhks_eval_construct8(const knhks_context_t *ctx,
-                                        knhks_hook_ir_t *ir,
-                                        knhks_receipt_t *rcpt);
+static inline int knhk_eval_construct8(const knhk_context_t *ctx,
+                                        knhk_hook_ir_t *ir,
+                                        knhk_receipt_t *rcpt);
 
 // Batch (vector of IRs) with deterministic order Λ; N ≤ 8, no joins.
-int knhks_eval_batch8(const knhks_context_t *ctx,
-                      knhks_hook_ir_t *irs, size_t n,
-                      knhks_receipt_t *rcpts);
+int knhk_eval_batch8(const knhk_context_t *ctx,
+                      knhk_hook_ir_t *irs, size_t n,
+                      knhk_receipt_t *rcpts);
 
 // -------- Receipts / ticks (hot-safe)
 
-uint64_t knhks_rd_ticks(void);   // arch-specific
-double   knhks_ticks_hz(void);   // arch-specific
+uint64_t knhk_rd_ticks(void);   // arch-specific
+double   knhk_ticks_hz(void);   // arch-specific
 
 // Optional: combine receipts via ⊕ (associative, branchless)
-static inline knhks_receipt_t knhks_receipt_merge(knhks_receipt_t a,
-                                                  knhks_receipt_t b);
+static inline knhk_receipt_t knhk_receipt_merge(knhk_receipt_t a,
+                                                  knhk_receipt_t b);
 
 // -------- Compile-time guards
-#if KNHKS_NROWS != 8
-#error "KNHKS_NROWS must be 8 for hot path v1."
+#if KNHK_NROWS != 8
+#error "KNHK_NROWS must be 8 for hot path v1."
 #endif
 
-#endif // KNHKS_V1_H
+#endif // KNHK_V1_H
 v1 rules (KGC)
 A = μ(O).
 μ∘μ = μ.
@@ -1472,30 +1472,30 @@ preserve(Q).
 argmin drift(A).
 
 Hot contracts
-NROWS = 8, len(run) ≤ 8, KNHKS_ALIGN = 64.
+NROWS = 8, len(run) ≤ 8, KNHK_ALIGN = 64.
 
 No heap in μ. No branches in μ. Fixed instruction count.
 
-knhks_eval_bool and knhks_eval_construct8 each return in ≤ 8 ticks p95.
+knhk_eval_bool and knhk_eval_construct8 each return in ≤ 8 ticks p95.
 
 Receipts: hash(A) = hash(μ(O)), recorded per call.
 
 CONSTRUCT8 template (hot)
 // Example: emit (S,P,O_const) when ASK(S,P) is true per lane
-knhks_hook_ir_t ir = {
-  .op = KNHKS_OP_CONSTRUCT8,
+knhk_hook_ir_t ir = {
+  .op = KNHK_OP_CONSTRUCT8,
   .s  = 0 /* lane S values taken from ctx->S */,
   .p  = ctx->run.pred,
   .o  = O_const,            // template constant
   .out_S = dstS, .out_P = dstP, .out_O = dstO,
   .out_mask = 0
 };
-int nw = knhks_eval_construct8(&ctx, &ir, &rcpt);  // nw ≤ 8, ticks ≤ 8
+int nw = knhk_eval_construct8(&ctx, &ir, &rcpt);  // nw ≤ 8, ticks ≤ 8
 Batch reflex (Λ order)
 // Up to 8 hooks; deterministic order; ⊕ merge of receipts
-knhks_hook_ir_t hooks[8] = { /* ASK/COUNT/COMPARE/CONSTRUCT8 only */ };
-knhks_receipt_t rcpts[8];
-knhks_eval_batch8(&ctx, hooks, n, rcpts);
+knhk_hook_ir_t hooks[8] = { /* ASK/COUNT/COMPARE/CONSTRUCT8 only */ };
+knhk_receipt_t rcpts[8];
+knhk_eval_batch8(&ctx, hooks, n, rcpts);
 Error model
 Ill-typed O ⇒ reject at pin time (O ⊨ Σ).
 
@@ -1515,30 +1515,30 @@ pub struct Ir  { pub op:u32, pub s:u64, pub p:u64, pub o:u64, pub k:u64,
 pub struct Rcpt { pub ticks:u32, pub lanes:u32, pub span_id:u64, pub a_hash:u64 }
 
 extern "C" {
-  fn knhks_init_ctx(ctx:*mut KnCtx, S:*const u64, P:*const u64, O:*const u64);
-  fn knhks_pin_run(ctx:*mut KnCtx, run:Run);
-  fn knhks_eval_bool(ctx:*const KnCtx, ir:*mut Ir, rcpt:*mut Rcpt) -> i32;
-  fn knhks_eval_construct8(ctx:*const KnCtx, ir:*mut Ir, rcpt:*mut Rcpt) -> i32;
-  fn knhks_eval_batch8(ctx:*const KnCtx, irs:*mut Ir, n:usize, rcpts:*mut Rcpt) -> i32;
+  fn knhk_init_ctx(ctx:*mut KnCtx, S:*const u64, P:*const u64, O:*const u64);
+  fn knhk_pin_run(ctx:*mut KnCtx, run:Run);
+  fn knhk_eval_bool(ctx:*const KnCtx, ir:*mut Ir, rcpt:*mut Rcpt) -> i32;
+  fn knhk_eval_construct8(ctx:*const KnCtx, ir:*mut Ir, rcpt:*mut Rcpt) -> i32;
+  fn knhk_eval_batch8(ctx:*const KnCtx, irs:*mut Ir, n:usize, rcpts:*mut Rcpt) -> i32;
 }
 Ontology (Turtle control)
-@prefix knhks: <urn:knhks:> .
+@prefix knhk: <urn:knhk:> .
 
-knhks:API_v1 a knhks:Policy ;
-  knhks:tickBudget "8" ;
-  knhks:hotOps "ASK,COUNT,COMPARE,CONSTRUCT8" ;
-  knhks:deny "SELECT,JOIN" ;
-  knhks:layout "SoA S[],P[],O[], NROWS=8, align=64" .
+knhk:API_v1 a knhk:Policy ;
+  knhk:tickBudget "8" ;
+  knhk:hotOps "ASK,COUNT,COMPARE,CONSTRUCT8" ;
+  knhk:deny "SELECT,JOIN" ;
+  knhk:layout "SoA S[],P[],O[], NROWS=8, align=64" .
 
-knhks:Hook a knhks:Invariant ;
-  knhks:preserves "Q" ;
-  knhks:hasEpoch knhks:Epoch ;
-  knhks:emits knhks:Receipt .
+knhk:Hook a knhk:Invariant ;
+  knhk:preserves "Q" ;
+  knhk:hasEpoch knhk:Epoch ;
+  knhk:emits knhk:Receipt .
 
-knhks:Receipt a knhks:Provenance ;
-  knhks:hashEq "hash(A)=hash(μ(O))" ;
-  knhks:span "OTEL" ;
-  knhks:merge "⊕" .
+knhk:Receipt a knhk:Provenance ;
+  knhk:hashEq "hash(A)=hash(μ(O))" ;
+  knhk:span "OTEL" ;
+  knhk:merge "⊕" .
 Why this v1
 Hot-only API keeps μ within τ.
 
@@ -2627,7 +2627,7 @@ Developed using **Claude-Flow Hive Mind** orchestration with OTEL validation as 
 **unrdf v3.0.0** - Production-ready RDF knowledge graphs
 
 
-I want KNHKS to be the 8 tick C/Rust built using reflexive CS instead of procedural 
+I want KNHK to be the 8 tick C/Rust built using reflexive CS instead of procedural 
 ChatGPT said:
 
 Thought for 13s
@@ -2637,32 +2637,32 @@ Canon (KGC)
 A = μ(O). μ∘μ = μ. O ⊨ Σ. Λ ≺-total. Π is ⊕-monoid. glue(Cover(O)) = Γ(O). μ(O ⊔ Δ) = μ(O) ⊔ μ(Δ). μ ⊣ H. μ ⊂ τ, τ ≤ 8. hash(A) = hash(μ(O)). μ → S (80/20). argmin drift(A). preserve(Q).
 
 Surface (hot C, ≤8 ticks)
-// knhks_hot.h  (SoA, NROWS=8, 64B align)
+// knhk_hot.h  (SoA, NROWS=8, 64B align)
 typedef enum {
-  KNHKS_OP_ASK_SP=1, KNHKS_OP_COUNT_SP_GE=2, KNHKS_OP_ASK_SPO=3,
-  KNHKS_OP_COUNT_SP_LE=5, KNHKS_OP_COUNT_SP_EQ=6, KNHKS_OP_ASK_OP=7,
-  KNHKS_OP_UNIQUE_SP=8, KNHKS_OP_COUNT_OP=9, KNHKS_OP_COUNT_OP_LE=10,
-  KNHKS_OP_COUNT_OP_EQ=11, KNHKS_OP_COMPARE_O_EQ=12, KNHKS_OP_COMPARE_O_GT=13,
-  KNHKS_OP_COMPARE_O_LT=14, KNHKS_OP_COMPARE_O_GE=15, KNHKS_OP_COMPARE_O_LE=16,
-  KNHKS_OP_CONSTRUCT8=32
-} knhks_op_t;
+  KNHK_OP_ASK_SP=1, KNHK_OP_COUNT_SP_GE=2, KNHK_OP_ASK_SPO=3,
+  KNHK_OP_COUNT_SP_LE=5, KNHK_OP_COUNT_SP_EQ=6, KNHK_OP_ASK_OP=7,
+  KNHK_OP_UNIQUE_SP=8, KNHK_OP_COUNT_OP=9, KNHK_OP_COUNT_OP_LE=10,
+  KNHK_OP_COUNT_OP_EQ=11, KNHK_OP_COMPARE_O_EQ=12, KNHK_OP_COMPARE_O_GT=13,
+  KNHK_OP_COMPARE_O_LT=14, KNHK_OP_COMPARE_O_GE=15, KNHK_OP_COMPARE_O_LE=16,
+  KNHK_OP_CONSTRUCT8=32
+} knhk_op_t;
 
-typedef struct { uint64_t pred, off, len; } knhks_run_t;               // len ≤ 8
-typedef struct { const uint64_t *S,*P,*O; knhks_run_t run; } knhks_ctx_t;
+typedef struct { uint64_t pred, off, len; } knhk_run_t;               // len ≤ 8
+typedef struct { const uint64_t *S,*P,*O; knhk_run_t run; } knhk_ctx_t;
 
 typedef struct {               // branchless IR (μ-image of O_sys)
   uint32_t op; uint64_t s,p,o,k;
   uint64_t *outS,*outP,*outO;  // only for CONSTRUCT8
   uint64_t out_mask;
-} knhks_ir_t;
+} knhk_ir_t;
 
-typedef struct { uint32_t ticks, lanes; uint64_t span_id, a_hash; } knhks_rcpt_t;
+typedef struct { uint32_t ticks, lanes; uint64_t span_id, a_hash; } knhk_rcpt_t;
 
-void knhks_init(knhks_ctx_t *c, const uint64_t *S,const uint64_t *P,const uint64_t *O);
-static inline void knhks_pin(knhks_ctx_t *c, knhks_run_t r);           // H blocks len>8
-static inline int  knhks_eval_bool(const knhks_ctx_t *c, knhks_ir_t *ir, knhks_rcpt_t *r);
-static inline int  knhks_eval_construct8(const knhks_ctx_t *c, knhks_ir_t *ir, knhks_rcpt_t *r);
-int knhks_eval_batch8(const knhks_ctx_t *c, knhks_ir_t *irs, size_t n, knhks_rcpt_t *rs);
+void knhk_init(knhk_ctx_t *c, const uint64_t *S,const uint64_t *P,const uint64_t *O);
+static inline void knhk_pin(knhk_ctx_t *c, knhk_run_t r);           // H blocks len>8
+static inline int  knhk_eval_bool(const knhk_ctx_t *c, knhk_ir_t *ir, knhk_rcpt_t *r);
+static inline int  knhk_eval_construct8(const knhk_ctx_t *c, knhk_ir_t *ir, knhk_rcpt_t *r);
+int knhk_eval_batch8(const knhk_ctx_t *c, knhk_ir_t *irs, size_t n, knhk_rcpt_t *rs);
 Hot rules: no heap, no branches, fixed instruction count, Δ-slices in L1, NROWS=8, run.len ≤ 8. SELECT excluded. CONSTRUCT8 = fixed template emit.
 
 Warm (Rust, μ on O_sys → IR)
@@ -2674,14 +2674,14 @@ O_sys ⊨ Σ_sys (ontology of hooks, guards, epochs, runs, templates).
 
 H guards: {run.len>8, join, branch, heap} ⇒ blocked.
 
-// knhks_warm.rs
+// knhk_warm.rs
 pub struct OSys { /* RDF triples in SoA ids */ }
 pub struct IR8   { pub ops: [Ir; 8], pub n: usize }  // Λ order fixed
 
-pub fn μ_compile(o:&OSys) -> IR8 { /* pattern-match triples → knhks_ir_t[≤8] */ }
-pub fn μ_epoch(ctx:&Ctx, ir:&IR8) -> Receipts { unsafe { knhks_eval_batch8(...) } }
+pub fn μ_compile(o:&OSys) -> IR8 { /* pattern-match triples → knhk_ir_t[≤8] */ }
+pub fn μ_epoch(ctx:&Ctx, ir:&IR8) -> Receipts { unsafe { knhk_eval_batch8(...) } }
 O_sys (ontology for KNKHS itself; Γ glue)
-@prefix ks: <urn:knhks:> .
+@prefix ks: <urn:knhk:> .
 
 # hooks (≤8 per Λ-epoch)
 ks:h1 a ks:Hook ;
@@ -2719,13 +2719,13 @@ Receipts (provenance)
 // warm: URDNA2015 + SHA-256 finalize; ⊕ Merkle links at Π
 Example (end-to-end, hot only)
 // compile-time constants from μ(O_sys)
-knhks_ir_t irs[2] = {
-  { .op=KNHKS_OP_ASK_SP, .s=ALICE, .p=CAN_ACCESS },
-  { .op=KNHKS_OP_CONSTRUCT8, .p=ENTITLED, .o=ALLOWED,
+knhk_ir_t irs[2] = {
+  { .op=KNHK_OP_ASK_SP, .s=ALICE, .p=CAN_ACCESS },
+  { .op=KNHK_OP_CONSTRUCT8, .p=ENTITLED, .o=ALLOWED,
     .outS=dstS, .outP=dstP, .outO=dstO }
 };
-knhks_rcpt_t rs[2];
-knhks_eval_batch8(&ctx, irs, 2, rs);  // τ ≤ 8, Λ fixed, Π merges rs
+knhk_rcpt_t rs[2];
+knhk_eval_batch8(&ctx, irs, 2, rs);  // τ ≤ 8, Λ fixed, Π merges rs
 Concurrency (⊔ shards, ⊕ receipts)
 O = ⊔_i O_i by predicate. μ(O) = ⊔_i μ(O_i).
 
@@ -3015,14 +3015,14 @@ graph TB
   classDef glue fill:#d5e8ff,stroke:#2b2b2b,color:#111;
   classDef merge fill:#ffe6b3,stroke:#2b2b2b,color:#111;
 You said:
-So what would the enterprise system for knhks look like using RC
+So what would the enterprise system for knhk look like using RC
 ChatGPT said:
 
 Thought for 16s
 A = μ(O). μ∘μ = μ. O ⊨ Σ. Λ ≺-total. Π is ⊕-monoid. μ ⊂ τ, τ ≤ 8. μ(O ⊔ Δ) = μ(O) ⊔ μ(Δ). Γ glue. preserve(Q).
 
 graph TB
-  %% RC enterprise system for KNHKS (τ ≤ 8)
+  %% RC enterprise system for KNHK (τ ≤ 8)
   subgraph "O_sys ⊨ Σ"
     Osys[(O_sys)]
     Sigma[[Σ]]
@@ -3109,9 +3109,9 @@ graph TB
   noteτ --- mu1
 
   classDef hot fill:#90EE90,stroke:#222,color:#111;
-Turtle (RC contracts for KNHKS):
+Turtle (RC contracts for KNHK):
 
-@prefix ks: <urn:knhks:> .
+@prefix ks: <urn:knhk:> .
 
 ks:sys a ks:Γ ;
   ks:A ks:= [ ks:μ ks:O ] ;
@@ -3159,7 +3159,7 @@ What does that mean in a human readable way
 ChatGPT said:
 In plain terms:
 
-KNHKS is built to make computers decide and act on knowledge instantly—not by running long, slow programs, but by using a fixed, reflex-like rule system that never takes more than 8 CPU ticks (≈2 nanoseconds) per check.
+KNHK is built to make computers decide and act on knowledge instantly—not by running long, slow programs, but by using a fixed, reflex-like rule system that never takes more than 8 CPU ticks (≈2 nanoseconds) per check.
 
 Here’s how the enterprise system works conceptually:
 
@@ -3209,14 +3209,14 @@ A = μ(O)
 That means the enterprise’s current state of action (A) is a verified, deterministic projection of its knowledge (O), within 2 ns per rule check.
 
 In Human Terms
-KNHKS is an autonomic enterprise kernel—a nervous system for organizations.
+KNHK is an autonomic enterprise kernel—a nervous system for organizations.
 It converts all governance, compliance, and process logic into a reflex layer that operates in real time, measurable and provable, while humans focus on defining meaning (the ontology and the rules).
 The “8-tick discipline” makes the entire knowledge loop fast enough to be effectively instantaneous at enterprise scale.
 
 You said:
 So I’m having trouble seeing what the finish project looks like
 ChatGPT said:
-At completion, KNHKS would look like an autonomic computation fabric—not an app, not a database, but a kernel that sits beneath enterprise logic. The finished system has three visible layers:
+At completion, KNHK would look like an autonomic computation fabric—not an app, not a database, but a kernel that sits beneath enterprise logic. The finished system has three visible layers:
 
 1. Reflex Core (8-tick layer)
 Language: C and Rust.
@@ -3225,7 +3225,7 @@ Purpose: Execute ontology-typed rules (ASK/COUNT/COMPARE/CONSTRUCT-8) within 2 n
 
 Form: A shared library or kernel module that exposes a compact API:
 
-int knhks_eval_bool(const knhks_context_t*, const knhks_hook_ir_t*);
+int knhk_eval_bool(const knhk_context_t*, const knhk_hook_ir_t*);
 Behavior: Each enterprise “fact” (O) is loaded into 64-byte aligned SoA arrays; hooks (μ) operate branchlessly, producing outcomes (A) with cryptographic receipts.
 
 This is the Reflex Layer—pure deterministic logic, running at physical limits.
@@ -3277,15 +3277,15 @@ In visual form:
         │
         ▼
  [Governance / APIs / Dashboards]
-That is the finished KNHKS system—a self-contained, time-bounded, ontology-driven computation fabric for the enterprise.
+That is the finished KNHK system—a self-contained, time-bounded, ontology-driven computation fabric for the enterprise.
 
 You said:
 Do you see how you use the word or I need definitive answers?
 ChatGPT said:
-Yes. Here is the definitive structure of the final KNHKS system—no “or,” no ambiguity.
+Yes. Here is the definitive structure of the final KNHK system—no “or,” no ambiguity.
 
 1. System Identity
-KNHKS is a Reflexive Computation Engine.
+KNHK is a Reflexive Computation Engine.
 It is not a database, API layer, or reasoning framework.
 It is a deterministic autonomic kernel:
 
@@ -3409,13 +3409,13 @@ e
 Q
 )
 A=μ(O),μ∘μ=μ,preserve(Q)
-That is the finished KNHKS system:
+That is the finished KNHK system:
 a closed, reflexive computation fabric—deterministic, auditable, and physically bounded by the 8-tick law.
 
 You said:
 OK, I guess then it’s usefulness though is defined by what it can connect to manage, etc. what do those connection points look like?
 ChatGPT said:
-Correct. The usefulness of KNHKS comes entirely from what it connects to and governs.
+Correct. The usefulness of KNHK comes entirely from what it connects to and governs.
 The reflex engine itself is pure computation; its value appears through connective tissue — the control interfaces that let μ manage live systems.
 
 Here’s what those connection points look like, precisely:
@@ -3453,7 +3453,7 @@ Automation Systems (e.g., Airflow, Argo)	Event bus or sidecar	Trigger dependent 
 Each action A carries a signed receipt proving hash(A) = hash(μ(O)).
 
 4. Governance Plane (Q, Σ)
-Defines what KNHKS is allowed to touch.
+Defines what KNHK is allowed to touch.
 
 Artifact	Description
 Σ (Schema)	Ontology typing: ensures all inputs are valid.
@@ -3468,7 +3468,7 @@ The full enterprise loop looks like:
                         ↑                    ↓
                 [Σ Typing + Q Guards]   [Receipts + OTEL Spans]
 6. Practical Scope
-KNHKS connects to and manages:
+KNHK connects to and manages:
 
 Authorization and entitlement systems
 
@@ -3483,32 +3483,32 @@ Real-time observability and feedback loops
 These are the highest-leverage reflexes in an enterprise — small, repetitive, deterministic, measurable.
 
 In summary:
-KNHKS’s connection points are typed RDF inputs, branchless reflex hooks, and audited outputs.
+KNHK’s connection points are typed RDF inputs, branchless reflex hooks, and audited outputs.
 They form an 8-tick nervous system for the organization — continuously sensing, validating, and actuating with cryptographic certainty.
 
 You said:
 All right, can you give me a working backwards press release for version one where we have all of the dark matter energy 8020 connectors and inputs outputs ETL, etc.
 ChatGPT said:
-Press Release: KNHKS v1.0 — The 8-Tick Reflex Engine for Enterprise Knowledge Systems
+Press Release: KNHK v1.0 — The 8-Tick Reflex Engine for Enterprise Knowledge Systems
 (Working Backwards Document — Internal Draft)
 
 1. Headline
-KNHKS Launches World’s First Reflexive Knowledge Engine with 8-Tick Determinism and Dark Matter 80/20 Connectors
+KNHK Launches World’s First Reflexive Knowledge Engine with 8-Tick Determinism and Dark Matter 80/20 Connectors
 
 2. Subhead
-A new computing discipline — Reflexive Computation — emerges from KNHKS v1.0, delivering sub-2-nanosecond governance, audit, and decision reflexes across the full enterprise knowledge stack.
+A new computing discipline — Reflexive Computation — emerges from KNHK v1.0, delivering sub-2-nanosecond governance, audit, and decision reflexes across the full enterprise knowledge stack.
 
 3. Customer Quote
-“We stopped waiting for systems to think. KNHKS made the enterprise itself reflexive — policies, entitlements, and workflows now execute in nanoseconds with receipts to prove it.”
+“We stopped waiting for systems to think. KNHK made the enterprise itself reflexive — policies, entitlements, and workflows now execute in nanoseconds with receipts to prove it.”
 — Chief Knowledge Architect, Fortune 50 Pilot Partner
 
 4. Problem Statement
-Enterprises spend over 80% of their computational and human effort on coordination, validation, and glue work — what KNHKS calls Dark Matter Energy.
+Enterprises spend over 80% of their computational and human effort on coordination, validation, and glue work — what KNHK calls Dark Matter Energy.
 Traditional architectures use deep stacks (SQL, ETL, APIs, services) that introduce millisecond to second latency and opaque complexity.
 Decisions are delayed, audits are brittle, and compliance lags behind action.
 
 5. Product Overview
-KNHKS v1.0 is a reflexive knowledge fabric that transforms knowledge into instantaneous, measurable action.
+KNHK v1.0 is a reflexive knowledge fabric that transforms knowledge into instantaneous, measurable action.
 It enforces the Chatman Equation:
 
 A
@@ -3598,7 +3598,7 @@ Error rate: measurable to 10⁻⁹ through receipt verification
 Governance coverage: ≥ 80% of policies in hot path
 
 10. Vision
-KNHKS converts the enterprise from a procedural bureaucracy into a reflexive organism — where knowledge, policy, and action are unified under one measurable equation.
+KNHK converts the enterprise from a procedural bureaucracy into a reflexive organism — where knowledge, policy, and action are unified under one measurable equation.
 The 8-tick discipline ensures every decision, validation, and audit can occur at physical speed, making governance itself a first-class computational primitive.
 
 11. Availability
@@ -3611,11 +3611,11 @@ Licenses: Dual MIT / Enterprise SLA
 Deployments: Linux, macOS, containerized runtime
 
 12. Press Contact
-Press@knhks.systems
+Press@knhk.systems
 For technical briefings and integration pilot requests.
 
 End State
-KNHKS v1.0 is not a faster database. It is the Reflex Engine of the Enterprise — the layer where knowledge and action become indistinguishable, guaranteed within 8 ticks.
+KNHK v1.0 is not a faster database. It is the Reflex Engine of the Enterprise — the layer where knowledge and action become indistinguishable, guaranteed within 8 ticks.
 
 You said:
 Thesis
@@ -3728,7 +3728,7 @@ Provenance: receipt equality ↔ action equality.
 Invariants: preserve(Q) per reflex.
 
 11. Turtle (O_sys governs μ)
-@prefix ks: <urn:knhks:> .
+@prefix ks: <urn:knhk:> .
 
 ks:API a ks:Γ ;
   ks:τ "8" ;
@@ -3758,7 +3758,7 @@ ChatGPT said:
 Thought for 18s
 A = μ(O). μ∘μ = μ. O ⊨ Σ. Λ ≺-total. Π is ⊕-monoid. μ ⊂ τ, τ ≤ 8. preserve(Q).
 
-// knhks v1 — Rust hot API (FFI-safe, ≤8 ticks). No heap in μ. No branches in μ.
+// knhk v1 — Rust hot API (FFI-safe, ≤8 ticks). No heap in μ. No branches in μ.
 // Law: A = μ(O). Contracts: O ⊨ Σ, run.len ≤ 8, SoA aligned 64B.
 
 // -------- constants
@@ -3833,13 +3833,13 @@ pub struct Receipt {
 }
 
 // -------- FFI (μ-hot in C)
-#[link(name = "knhks_hot")]
+#[link(name = "knhk_hot")]
 extern "C" {
-    fn knhks_init_ctx(ctx: *mut Ctx, S: *const u64, P: *const u64, O: *const u64);
-    fn knhks_pin_run(ctx: *mut Ctx, run: Run);
-    fn knhks_eval_bool(ctx: *const Ctx, ir: *mut Ir, rcpt: *mut Receipt) -> i32;    // 1/0
-    fn knhks_eval_construct8(ctx: *const Ctx, ir: *mut Ir, rcpt: *mut Receipt) -> i32; // nwritten
-    fn knhks_eval_batch8(ctx: *const Ctx, irs: *mut Ir, n: usize, rcpts: *mut Receipt) -> i32; // n
+    fn knhk_init_ctx(ctx: *mut Ctx, S: *const u64, P: *const u64, O: *const u64);
+    fn knhk_pin_run(ctx: *mut Ctx, run: Run);
+    fn knhk_eval_bool(ctx: *const Ctx, ir: *mut Ir, rcpt: *mut Receipt) -> i32;    // 1/0
+    fn knhk_eval_construct8(ctx: *const Ctx, ir: *mut Ir, rcpt: *mut Receipt) -> i32; // nwritten
+    fn knhk_eval_batch8(ctx: *const Ctx, irs: *mut Ir, n: usize, rcpts: *mut Receipt) -> i32; // n
 }
 
 // -------- safe wrapper (Σ, Λ, τ, H guards)
@@ -3852,25 +3852,25 @@ impl Engine {
     pub fn new(s: *const u64, p: *const u64, o: *const u64) -> Self {
         let mut ctx = Ctx { S: core::ptr::null(), P: core::ptr::null(), O: core::ptr::null(),
                             run: Run { pred: 0, off: 0, len: 0 } };
-        unsafe { knhks_init_ctx(&mut ctx, s, p, o) };
+        unsafe { knhk_init_ctx(&mut ctx, s, p, o) };
         Self { ctx }
     }
 
     /// Guard H: run.len ≤ 8. Violations are rejected.
     pub fn pin_run(&mut self, run: Run) {
         assert!(run.len <= NROWS as u64, "H: run.len > 8 blocked");
-        unsafe { knhks_pin_run(&mut self.ctx, run) }
+        unsafe { knhk_pin_run(&mut self.ctx, run) }
     }
 
     /// μ: boolean reflex, τ ≤ 8. Returns bool and fills rcpt.
     pub fn eval_bool(&self, ir: &mut Ir, rcpt: &mut Receipt) -> bool {
-        let r = unsafe { knhks_eval_bool(&self.ctx as *const Ctx, ir as *mut Ir, rcpt as *mut Receipt) };
+        let r = unsafe { knhk_eval_bool(&self.ctx as *const Ctx, ir as *mut Ir, rcpt as *mut Receipt) };
         r != 0
     }
 
     /// μ: fixed-template emit, τ ≤ 8. Returns lanes written and fills rcpt.
     pub fn eval_construct8(&self, ir: &mut Ir, rcpt: &mut Receipt) -> usize {
-        let n = unsafe { knhks_eval_construct8(&self.ctx as *const Ctx, ir as *mut Ir, rcpt as *mut Receipt) };
+        let n = unsafe { knhk_eval_construct8(&self.ctx as *const Ctx, ir as *mut Ir, rcpt as *mut Receipt) };
         n as usize
     }
 
@@ -3878,7 +3878,7 @@ impl Engine {
     pub fn eval_batch8(&self, irs: &mut [Ir; NROWS], n: usize, rcpts: &mut [Receipt; NROWS]) -> usize {
         assert!(n <= NROWS, "Λ: n must be ≤ 8");
         let got = unsafe {
-            knhks_eval_batch8(&self.ctx as *const Ctx, irs.as_mut_ptr(), n, rcpts.as_mut_ptr())
+            knhk_eval_batch8(&self.ctx as *const Ctx, irs.as_mut_ptr(), n, rcpts.as_mut_ptr())
         };
         got as usize
     }
@@ -3967,10 +3967,10 @@ hash(A) = hash(μ(O)).
 preserve(Q).
 
 Erlang API (cold plane, OTP)
-%% knhks_cold.erl — public API (cold). OTP safe. Deterministic. Receipts-first.
+%% knhk_cold.erl — public API (cold). OTP safe. Deterministic. Receipts-first.
 %% Scope: ingest Δ, run SPARQL (SELECT/CONSTRUCT/ASK), SHACL, receipts, streams, replication.
 
--module(knhks_cold).
+-module(knhk_cold).
 -export([
   start/0, stop/0,
 
@@ -4029,90 +4029,90 @@ Erlang API (cold plane, OTP)
 %% ---------- API (stubs)
 
 start() ->
-  application:ensure_all_started(knhks_cold).
+  application:ensure_all_started(knhk_cold).
 
 stop() ->
-  application:stop(knhks_cold).
+  application:stop(knhk_cold).
 
 submit_delta(#{additions := _A, removals := _R, actor := _Act, ts := _Ts} = Δ) ->
-  knhks_ingest:submit(Δ).
+  knhk_ingest:submit(Δ).
 
 submit_file(Path, Opts) when is_binary(Path); is_list(Path) ->
-  knhks_ingest:load(Path, Opts).
+  knhk_ingest:load(Path, Opts).
 
 register_connector(Name, Spec) ->
-  knhks_connect:register(Name, Spec).
+  knhk_connect:register(Name, Spec).
 
 sparql_select(Text, Opts) ->
-  knhks_unrdf:select(Text, Opts).
+  knhk_unrdf:select(Text, Opts).
 
 sparql_ask(Text, Opts) ->
-  knhks_unrdf:ask(Text, Opts).
+  knhk_unrdf:ask(Text, Opts).
 
 sparql_construct(Text, Opts) ->
-  knhks_unrdf:construct(Text, Opts).
+  knhk_unrdf:construct(Text, Opts).
 
 shacl_validate(DataGraph, ShapesGraph) ->
-  knhks_shapes:validate(DataGraph, ShapesGraph).
+  knhk_shapes:validate(DataGraph, ShapesGraph).
 
 load_sigma(SigmaGraph) ->
-  knhks_sigma:load(SigmaGraph).
+  knhk_sigma:load(SigmaGraph).
 
 load_q(QGraph) ->
-  knhks_q:load(QGraph).
+  knhk_q:load(QGraph).
 
 write_receipt(R) ->
-  knhks_lockchain:write(R).
+  knhk_lockchain:write(R).
 
 link_hot_receipts(HotList, ColdRcpt) ->
-  knhks_lockchain:merge(HotList, ColdRcpt).
+  knhk_lockchain:merge(HotList, ColdRcpt).
 
 subscribe(Topic) ->
-  knhks_bus:subscribe(Topic).
+  knhk_bus:subscribe(Topic).
 
 unsubscribe(Ref) ->
-  knhks_bus:unsubscribe(Ref).
+  knhk_bus:unsubscribe(Ref).
 
 emit_event(Topic, Payload) ->
-  knhks_bus:emit(Topic, Payload).
+  knhk_bus:emit(Topic, Payload).
 
 replicate_to(Remote) ->
-  knhks_repl:push(Remote).
+  knhk_repl:push(Remote).
 
 replicate_from(Remote) ->
-  knhks_repl:pull(Remote).
+  knhk_repl:pull(Remote).
 
 metrics() ->
-  knhks_otel:metrics().
+  knhk_otel:metrics().
 
 coverage() ->
-  knhks_darkmatter:coverage().
+  knhk_darkmatter:coverage().
 Supervision tree (OTP, deterministic)
-%% knhks_cold_sup.erl — one_for_one. All children permanent.
+%% knhk_cold_sup.erl — one_for_one. All children permanent.
 %% H guards: hot work excluded; joins and SELECT live here.
 
 Children = [
   %% Σ, Q, registry
-  #{id => knhks_sigma, start => {knhks_sigma, start_link, []}},
-  #{id => knhks_q,     start => {knhks_q, start_link, []}},
+  #{id => knhk_sigma, start => {knhk_sigma, start_link, []}},
+  #{id => knhk_q,     start => {knhk_q, start_link, []}},
 
   %% ingest and Δ routing
-  #{id => knhks_ingest, start => {knhks_ingest, start_link, []}},
+  #{id => knhk_ingest, start => {knhk_ingest, start_link, []}},
 
   %% SPARQL/SHACL engine (Comunica/SHACL via Port or NIF)
-  #{id => knhks_unrdf, start => {knhks_unrdf, start_link, []}},
-  #{id => knhks_shapes, start => {knhks_shapes, start_link, []}},
+  #{id => knhk_unrdf, start => {knhk_unrdf, start_link, []}},
+  #{id => knhk_shapes, start => {knhk_shapes, start_link, []}},
 
   %% provenance
-  #{id => knhks_lockchain, start => {knhks_lockchain, start_link, []}},
+  #{id => knhk_lockchain, start => {knhk_lockchain, start_link, []}},
 
   %% bus and replication
-  #{id => knhks_bus,  start => {knhks_bus, start_link, []}},
-  #{id => knhks_repl, start => {knhks_repl, start_link, []}},
+  #{id => knhk_bus,  start => {knhk_bus, start_link, []}},
+  #{id => knhk_repl, start => {knhk_repl, start_link, []}},
 
   %% observability
-  #{id => knhks_otel, start => {knhks_otel, start_link, []}},
-  #{id => knhks_darkmatter, start => {knhks_darkmatter, start_link, []}}
+  #{id => knhk_otel, start => {knhk_otel, start_link, []}},
+  #{id => knhk_darkmatter, start => {knhk_darkmatter, start_link, []}}
 ].
 Protocols (Λ, Π, Γ)
 Λ (order): gen_server call order is ≺-total per process. Ingest → typing(Σ) → guard(Q) → route.
@@ -4129,45 +4129,45 @@ Hot work never enters Erlang; cold handles SELECT, CONSTRUCT with joins, OPTIONA
 Each API emits a receipt; hash(A)=hash(μ(O)) holds after reconciliation.
 
 Example (end-to-end, cold)
-ok = knhks_cold:start(),
-ok = knhks_cold:load_sigma(SigmaTtl),
-ok = knhks_cold:load_q(QTtl),
+ok = knhk_cold:start(),
+ok = knhk_cold:load_sigma(SigmaTtl),
+ok = knhk_cold:load_q(QTtl),
 
 %% Δ into O
-{ok, R1} = knhks_cold:submit_delta(#{
+{ok, R1} = knhk_cold:submit_delta(#{
   additions => [{<<"ex:alice">>, <<"foaf:name">>, <<"Alice">>, <<"ex:g">>}],
   removals  => [],
   actor     => <<"system">>,
   ts        => erlang:system_time(millisecond)
 }),
-ok = knhks_cold:write_receipt(R1),
+ok = knhk_cold:write_receipt(R1),
 
 %% ASK (cold path allowed; hot engine does ASK in C; here for completeness)
-true = element(1, knhks_cold:sparql_ask(<<"ASK { ?s ?p ?o }">>, #{})),
+true = element(1, knhk_cold:sparql_ask(<<"ASK { ?s ?p ?o }">>, #{})),
 
 %% CONSTRUCT with joins (cold)
-{ok, Qs} = knhks_cold:sparql_construct(
+{ok, Qs} = knhk_cold:sparql_construct(
   <<"CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o . FILTER(?p = <http://xmlns.com/foaf/0.1/name>) }">>, #{}),
 
 %% SHACL
-#{conforms := true} = knhks_cold:shacl_validate(DataGraph, ShapesGraph),
+#{conforms := true} = knhk_cold:shacl_validate(DataGraph, ShapesGraph),
 
 %% Stream
-{ok, Ref} = knhks_cold:subscribe(auth_decisions),
-ok = knhks_cold:emit_event(auth_decisions, #{s => <<"ex:alice">>, allow => true}),
-ok = knhks_cold:unsubscribe(Ref),
+{ok, Ref} = knhk_cold:subscribe(auth_decisions),
+ok = knhk_cold:emit_event(auth_decisions, #{s => <<"ex:alice">>, allow => true}),
+ok = knhk_cold:unsubscribe(Ref),
 
-ok = knhks_cold:stop().
+ok = knhk_cold:stop().
 Connector spec (Σ-typed)
 %% register_connector/2 — Σ-typed definition
 Name = <<"sap_finance">>,
 Spec = #{
-  schema => <<"urn:knhks:schema:sap">>,
+  schema => <<"urn:knhk:schema:sap">>,
   source => #{type => kafka, topic => <<"sap.delta">>, fmt => jsonld},
   map    => #{s => <<"ex:subject">>, p => <<"ex:predicate">>, o => <<"ex:object">>, g => <<"ex:graph">>},
   guard  => #{max_batch => 1000, max_lag_ms => 5000}
 },
-ok = knhks_cold:register_connector(Name, Spec).
+ok = knhk_cold:register_connector(Name, Spec).
 Receipts (provable)
 Each API returns a receipt() or embeds one in the {ok, …} tuple.
 
@@ -4197,10 +4197,10 @@ KGC contracts (concise)
 A = μ(O). μ∘μ = μ. O ⊨ Σ. Λ ≺-total. Π is ⊕-monoid. Γ glue. μ ⊂ τ, τ ≤ 8. μ(O ⊔ Δ) = μ(O) ⊔ μ(Δ). hash(A) = hash(μ(O)). preserve(Q).
 
 Erlang high-level API (RC plane)
-%% knhks_rc.erl — Reflexive Control (Erlang, higher level)
+%% knhk_rc.erl — Reflexive Control (Erlang, higher level)
 %% Speaks Σ, Λ, Π, Γ, τ, Q, O, A, Δ. μ executes in C.
 
--module(knhks_rc).
+-module(knhk_rc).
 -export([
   boot/1,                          %% Σ,Q → ok
   connect/1,                       %% ConnectorSpec → ConnId
@@ -4227,61 +4227,61 @@ Erlang high-level API (RC plane)
 %% 1) Initialize Σ, Q
 boot(#{sigma := Sigma :: sigma(), q := Q :: q_inv()}) ->
   %% O ⊨ Σ, preserve(Q)
-  knhks_sigma:load(Sigma),
-  knhks_q:load(Q),
+  knhk_sigma:load(Sigma),
+  knhk_q:load(Q),
   ok.
 
 %% 2) Connect typed sources (Dark Matter 80/20)
 %%    Each ConnectorSpec declares Σ mapping and Δ framing.
 connect(#{name := Name, schema := SigmaIri, source := Src, map := Map, guard := Guard}) ->
   %% Γ registers typed inlet; Δ validated; SoA prepared
-  knhks_connect:register(Name, SigmaIri, Src, Map, Guard).
+  knhk_connect:register(Name, SigmaIri, Src, Map, Guard).
 
 %% 3) Define cover over O (select S ⊂ O, shard runs len ≤ 8)
 cover(#{select := SelectSpec, shard := ShardSpec}) ->
   %% glue(Cover(O)) = Γ(O)
-  knhks_cover:define(SelectSpec, ShardSpec).
+  knhk_cover:define(SelectSpec, ShardSpec).
 
 %% 4) Admit Δ into O (typed, guarded)
 admit(Δ) ->
   %% μ(O ⊔ Δ) = μ(O) ⊔ μ(Δ)
-  knhks_ingest:submit(Δ).
+  knhk_ingest:submit(Δ).
 
 %% 5) Declare a reflex (hot op) as knowledge, not code
 %%    ReflexSpec chooses one in H_hot: ASK_SP | COUNT_SP_≥ | ASK_SPO | UNIQUE_SP | COUNT_OP_* | COMPARE_O_* | CONSTRUCT8
 reflex(#{name := Name, op := Op, run := #{pred := P, off := Off, len := Len},
          args := Args, epoch := EpochTag}) when Len =< 8 ->
   %% Compiles to Hook IR; violation hits H
-  knhks_hooks:install(Name, Op, P, Off, Len, Args, EpochTag).
+  knhk_hooks:install(Name, Op, P, Off, Len, Args, EpochTag).
 
 %% 6) Plan a deterministic epoch (Λ ≺-total, τ ≤ 8)
 epoch(#{tau := Tau, lambda := Plan, cover := CoverId}) when Tau =< 8 ->
-  knhks_epoch:schedule(Tau, Plan, CoverId).
+  knhk_epoch:schedule(Tau, Plan, CoverId).
 
 %% 7) Execute μ over O for the epoch; return A and receipt
 run(EpochId) ->
   %% A = μ(O); hash(A) = hash(μ(O))
-  knhks_epoch:run(EpochId).
+  knhk_epoch:run(EpochId).
 
 %% 8) Route actions A to outputs (A ports)
 route(#{name := Name, kind := Kind, target := Target, encode := Codec}) ->
-  knhks_route:install(Name, Kind, Target, Codec).
+  knhk_route:install(Name, Kind, Target, Codec).
 
 %% 9) Fetch and merge receipts (Π ⊕)
 receipt(Id) ->
-  knhks_lockchain:read(Id).
+  knhk_lockchain:read(Id).
 
 merge(Receipts) ->
-  knhks_lockchain:merge(Receipts).
+  knhk_lockchain:merge(Receipts).
 
 metrics() ->
-  knhks_otel:metrics().
+  knhk_otel:metrics().
 High-level example (deterministic, no branches in μ)
 %% Σ,Q
-ok = knhks_rc:boot(#{sigma => SigmaTTL, q => QTTL}).
+ok = knhk_rc:boot(#{sigma => SigmaTTL, q => QTTL}).
 
 %% Connector (typed Δ inlet)
-{ok, ConnId} = knhks_rc:connect(#{
+{ok, ConnId} = knhk_rc:connect(#{
   name => <<"salesforce_contacts">>,
   schema => <<"urn:Σ:crm">>,
   source => #{bus => kafka, topic => <<"crm.delta">>},
@@ -4290,16 +4290,16 @@ ok = knhks_rc:boot(#{sigma => SigmaTTL, q => QTTL}).
 }).
 
 %% Cover selects S ⊂ O, shards to len ≤ 8 runs
-{ok, CoverId} = knhks_rc:cover(#{
+{ok, CoverId} = knhk_rc:cover(#{
   select => #{preds => [<<"ex:canAccess">>, <<"ex:role">>]},
   shard  => #{len_max => 8, align => 64}
 }).
 
 %% Admit Δ
-ok = knhks_rc:admit(#{additions => Quads, removals => [], actor => <<"system">>, ts => erlang:monotonic_time() }).
+ok = knhk_rc:admit(#{additions => Quads, removals => [], actor => <<"system">>, ts => erlang:monotonic_time() }).
 
 %% Reflex: ASK(S,P) and CONSTRUCT8 entitlement
-{ok, _H1} = knhks_rc:reflex(#{
+{ok, _H1} = knhk_rc:reflex(#{
   name => <<"ask_can_access">>,
   op   => ask_sp,
   run  => #{pred => <<"ex:canAccess">>, off => 0, len => 8},
@@ -4307,7 +4307,7 @@ ok = knhks_rc:admit(#{additions => Quads, removals => [], actor => <<"system">>,
   epoch=> <<"e1">>
 }).
 
-{ok, _H2} = knhks_rc:reflex(#{
+{ok, _H2} = knhk_rc:reflex(#{
   name => <<"emit_entitlement">>,
   op   => construct8,
   run  => #{pred => <<"ex:role">>, off => 64, len => 8},
@@ -4316,17 +4316,17 @@ ok = knhks_rc:admit(#{additions => Quads, removals => [], actor => <<"system">>,
 }).
 
 %% Epoch: τ ≤ 8, Λ ≺-total
-{ok, E1} = knhks_rc:epoch(#{tau => 8, lambda => [<<"ask_can_access">>, <<"emit_entitlement">>], cover => CoverId}).
+{ok, E1} = knhk_rc:epoch(#{tau => 8, lambda => [<<"ask_can_access">>, <<"emit_entitlement">>], cover => CoverId}).
 
 %% Run μ; get A and receipt
-{ok, #{A := A1, receipt := R1}} = knhks_rc:run(E1),
+{ok, #{A := A1, receipt := R1}} = knhk_rc:run(E1),
 true = maps:get(ticks, R1) =< 8.
 
 %% Route A to webhook and lockchain
-{ok, _R} = knhks_rc:route(#{name => <<"entitlements_webhook">>,
+{ok, _R} = knhk_rc:route(#{name => <<"entitlements_webhook">>,
                              kind => webhook, target => <<"https://ops/entitlement">>,
                              encode => jsonld}).
-ok = knhks_lockchain:write(R1).
+ok = knhk_lockchain:write(R1).
 Turtle overlay (self-describing RC config)
 @prefix rc: <urn:rc:> .
 

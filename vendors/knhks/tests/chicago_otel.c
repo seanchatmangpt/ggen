@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "knhks.h"
+#include "knhk.h"
 
 #if defined(__GNUC__)
 #define ALN __attribute__((aligned(64)))
@@ -49,15 +49,15 @@ static int test_otel_span_creation(void)
   uint64_t ALN S[NROWS];
   uint64_t ALN P[NROWS];
   uint64_t ALN O[NROWS];
-  knhks_context_t ctx;
+  knhk_context_t ctx;
   
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
   
   S[0] = 0xA11CE;
   P[0] = 0xC0FFEE;
   O[0] = 0xB0B;
   
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
   // Create span
   uint64_t trace_id = 0x123456789ABCDEF0;
@@ -67,18 +67,18 @@ static int test_otel_span_creation(void)
     .trace_id = trace_id,
     .span_id = span_id,
     .parent_span_id = 0,
-    .name = "knhks.hook.eval",
+    .name = "knhk.hook.eval",
     .start_time_ms = 0,
     .end_time_ms = 0,
     .ticks = 0,
     .status = 0
   };
-  strncpy(spans[spans_len].name, "knhks.hook.eval", sizeof(spans[spans_len].name) - 1);
+  strncpy(spans[spans_len].name, "knhk.hook.eval", sizeof(spans[spans_len].name) - 1);
   spans_len++;
   
   // Execute operation
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -89,18 +89,18 @@ static int test_otel_span_creation(void)
     .out_mask = 0
   };
   
-  knhks_receipt_t rcpt = {0};
-  knhks_eval_bool(&ctx, &ir, &rcpt);
+  knhk_receipt_t rcpt = {0};
+  knhk_eval_bool(&ctx, &ir, &rcpt);
   
   // Update span with receipt data
   spans[spans_len - 1].ticks = rcpt.ticks;
   spans[spans_len - 1].end_time_ms = 1000; // Simulated
-  spans[spans_len - 1].status = (rcpt.ticks <= KNHKS_TICK_BUDGET) ? 0 : 1;
+  spans[spans_len - 1].status = (rcpt.ticks <= KNHK_TICK_BUDGET) ? 0 : 1;
   
   assert(spans_len == 1);
   // Receipt should have ticks (may be 0 if early exit, but should be <= budget)
-  assert(rcpt.ticks <= KNHKS_TICK_BUDGET);
-  assert(spans[0].ticks <= KNHKS_TICK_BUDGET);
+  assert(rcpt.ticks <= KNHK_TICK_BUDGET);
+  assert(spans[0].ticks <= KNHK_TICK_BUDGET);
   
   printf("  ✓ Span created: trace_id=0x%llx, ticks=%u\n", 
          (unsigned long long)trace_id, spans[0].ticks);
@@ -115,18 +115,18 @@ static int test_otel_metric_recording(void)
   uint64_t ALN S[NROWS];
   uint64_t ALN P[NROWS];
   uint64_t ALN O[NROWS];
-  knhks_context_t ctx;
+  knhk_context_t ctx;
   
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
   
   S[0] = 0xA11CE;
   P[0] = 0xC0FFEE;
   O[0] = 0xB0B;
   
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -137,28 +137,28 @@ static int test_otel_metric_recording(void)
     .out_mask = 0
   };
   
-  knhks_receipt_t rcpt = {0};
-  knhks_eval_bool(&ctx, &ir, &rcpt);
+  knhk_receipt_t rcpt = {0};
+  knhk_eval_bool(&ctx, &ir, &rcpt);
   
   // Record metrics
   metrics[metrics_len] = (otel_metric_t){
-    .name = "knhks.hook.latency.ticks",
+    .name = "knhk.hook.latency.ticks",
     .value = rcpt.ticks,
     .ticks = rcpt.ticks
   };
-  strncpy(metrics[metrics_len].name, "knhks.hook.latency.ticks", sizeof(metrics[metrics_len].name) - 1);
+  strncpy(metrics[metrics_len].name, "knhk.hook.latency.ticks", sizeof(metrics[metrics_len].name) - 1);
   metrics_len++;
   
   metrics[metrics_len] = (otel_metric_t){
-    .name = "knhks.receipt.generated",
+    .name = "knhk.receipt.generated",
     .value = 1,
     .ticks = 0
   };
-  strncpy(metrics[metrics_len].name, "knhks.receipt.generated", sizeof(metrics[metrics_len].name) - 1);
+  strncpy(metrics[metrics_len].name, "knhk.receipt.generated", sizeof(metrics[metrics_len].name) - 1);
   metrics_len++;
   
   assert(metrics_len == 2);
-  assert(metrics[0].value <= KNHKS_TICK_BUDGET);
+  assert(metrics[0].value <= KNHK_TICK_BUDGET);
   
   printf("  ✓ Metrics recorded: %zu metrics\n", metrics_len);
   return 1;
@@ -218,15 +218,15 @@ static int test_otel_receipt_linkage(void)
   uint64_t ALN S[NROWS];
   uint64_t ALN P[NROWS];
   uint64_t ALN O[NROWS];
-  knhks_context_t ctx;
+  knhk_context_t ctx;
   
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
   
   S[0] = 0xA11CE;
   P[0] = 0xC0FFEE;
   O[0] = 0xB0B;
   
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
   // Create span
   uint64_t span_id = 0xFEDCBA9876543210;
@@ -244,8 +244,8 @@ static int test_otel_receipt_linkage(void)
   spans_len++;
   
   // Execute and get receipt
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -256,13 +256,13 @@ static int test_otel_receipt_linkage(void)
     .out_mask = 0
   };
   
-  knhks_receipt_t rcpt = {0};
-  knhks_eval_bool(&ctx, &ir, &rcpt);
+  knhk_receipt_t rcpt = {0};
+  knhk_eval_bool(&ctx, &ir, &rcpt);
   
   // Link receipt to span (in real implementation, rcpt.span_id would be set)
   // For now, verify receipt can be linked
   assert(rcpt.a_hash != 0);
-  assert(rcpt.ticks <= KNHKS_TICK_BUDGET);
+  assert(rcpt.ticks <= KNHK_TICK_BUDGET);
   
   printf("  ✓ Receipt linked to span: span_id=0x%llx, hash=0x%llx\n", 
          (unsigned long long)span_id, (unsigned long long)rcpt.a_hash);
@@ -276,20 +276,20 @@ static int test_otel_guard_violation_metrics(void)
   
   // Record guard violation metric
   metrics[metrics_len] = (otel_metric_t){
-    .name = "knhks.guard.violation",
+    .name = "knhk.guard.violation",
     .value = 1,
     .ticks = 0
   };
-  strncpy(metrics[metrics_len].name, "knhks.guard.violation", sizeof(metrics[metrics_len].name) - 1);
+  strncpy(metrics[metrics_len].name, "knhk.guard.violation", sizeof(metrics[metrics_len].name) - 1);
   metrics_len++;
   
   // Record guard type
   metrics[metrics_len] = (otel_metric_t){
-    .name = "knhks.guard.violation.run_len",
+    .name = "knhk.guard.violation.run_len",
     .value = 1,
     .ticks = 0
   };
-  strncpy(metrics[metrics_len].name, "knhks.guard.violation.run_len", sizeof(metrics[metrics_len].name) - 1);
+  strncpy(metrics[metrics_len].name, "knhk.guard.violation.run_len", sizeof(metrics[metrics_len].name) - 1);
   metrics_len++;
   
   assert(metrics_len >= 2);

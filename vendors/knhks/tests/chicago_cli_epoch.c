@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "knhks.h"
+#include "knhk.h"
 #include "aot/aot_guard.h"
 
 #if defined(__GNUC__)
@@ -20,13 +20,13 @@
 static uint64_t ALN S[NROWS];
 static uint64_t ALN P[NROWS];
 static uint64_t ALN O[NROWS];
-static knhks_context_t ctx;
+static knhk_context_t ctx;
 
 static void reset_test_data(void) {
     memset(S, 0, sizeof(S));
     memset(P, 0, sizeof(P));
     memset(O, 0, sizeof(O));
-    knhks_init_ctx(&ctx, S, P, O);
+    knhk_init_ctx(&ctx, S, P, O);
 }
 
 // Test: Epoch validates tau ≤ 8
@@ -83,11 +83,11 @@ static int test_epoch_executes_mu(void) {
     P[0] = 0xC0FFEE;
     O[0] = 0xB0B;
     
-    knhks_pred_run_t run = { .pred = 0xC0FFEE, .off = 0, .len = 1 };
-    knhks_pin_run(&ctx, run);
+    knhk_pred_run_t run = { .pred = 0xC0FFEE, .off = 0, .len = 1 };
+    knhk_pin_run(&ctx, run);
     
-    knhks_hook_ir_t ir = {
-        .op = KNHKS_OP_ASK_SP,
+    knhk_hook_ir_t ir = {
+        .op = KNHK_OP_ASK_SP,
         .s = 0xA11CE,
         .p = 0xC0FFEE,
         .o = 0,
@@ -98,8 +98,8 @@ static int test_epoch_executes_mu(void) {
         .out_mask = 0
     };
     
-    knhks_receipt_t rcpt = {0};
-    bool result = knhks_eval_bool(&ctx, &ir, &rcpt);
+    knhk_receipt_t rcpt = {0};
+    bool result = knhk_eval_bool(&ctx, &ir, &rcpt);
     assert(result == true);
     assert(rcpt.a_hash != 0); // hash(A) = hash(μ(O))
     
@@ -119,11 +119,11 @@ static int test_epoch_returns_receipt(void) {
     P[0] = 0xC0FFEE;
     O[0] = 0xB0B;
     
-    knhks_pred_run_t run = { .pred = 0xC0FFEE, .off = 0, .len = 1 };
-    knhks_pin_run(&ctx, run);
+    knhk_pred_run_t run = { .pred = 0xC0FFEE, .off = 0, .len = 1 };
+    knhk_pin_run(&ctx, run);
     
-    knhks_hook_ir_t ir = {
-        .op = KNHKS_OP_ASK_SP,
+    knhk_hook_ir_t ir = {
+        .op = KNHK_OP_ASK_SP,
         .s = 0xA11CE,
         .p = 0xC0FFEE,
         .o = 0,
@@ -134,8 +134,8 @@ static int test_epoch_returns_receipt(void) {
         .out_mask = 0
     };
     
-    knhks_receipt_t rcpt = {0};
-    knhks_eval_bool(&ctx, &ir, &rcpt);
+    knhk_receipt_t rcpt = {0};
+    knhk_eval_bool(&ctx, &ir, &rcpt);
     
     // Verify receipt has all required fields
     assert(rcpt.a_hash != 0); // Provenance hash should always be set

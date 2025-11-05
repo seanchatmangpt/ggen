@@ -1,4 +1,4 @@
-Perform code review checklist for KNHKS.
+Perform code review checklist for KNHK.
 
 Review checklist:
 - [ ] No `unwrap()` or `expect()` in production code

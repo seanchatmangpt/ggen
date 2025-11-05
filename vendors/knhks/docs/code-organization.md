@@ -7,10 +7,10 @@ KNKHS follows a modular architecture with clear separation of concerns. Large fi
 ## Directory Structure
 
 ```
-knhks/
+knhk/
 ├── include/              # Public API headers
-│   ├── knhks.h          # Main umbrella header
-│   └── knhks/           # Modular API components
+│   ├── knhk.h          # Main umbrella header
+│   └── knhk/           # Modular API components
 │       ├── types.h      # Type definitions
 │       ├── eval.h       # Query evaluation
 │       ├── receipts.h   # Receipt operations
@@ -20,7 +20,7 @@ knhks/
 │   ├── simd/            # SIMD operation modules
 │   ├── core.c           # Core operations
 │   ├── rdf.c            # RDF parsing
-│   └── clock.c          # Timing utilities
+│   └── clock.c          # Span ID generation (no timing dependencies)
 ├── tests/               # Test suites
 │   ├── chicago_enterprise_use_cases.c    # Enterprise test runner
 │   ├── chicago_basic_operations.c        # Basic operations
@@ -41,43 +41,43 @@ knhks/
 
 ## Header Organization
 
-### Main API (`include/knhks.h`)
+### Main API (`include/knhk.h`)
 
 The main API header is a lightweight umbrella (16 lines) that includes all components:
 
 ```c
-#include "knhks/types.h"      // Constants, enums, structs
-#include "knhks/utils.h"      // Context initialization, RDF loading, clock utilities
-#include "knhks/receipts.h"   // Receipt operations
-#include "knhks/eval.h"       // Query evaluation functions
+#include "knhk/types.h"      // Constants, enums, structs
+#include "knhk/utils.h"      // Context initialization, RDF loading, clock utilities
+#include "knhk/receipts.h"   // Receipt operations
+#include "knhk/eval.h"       // Query evaluation functions
 ```
 
-### Type Definitions (`include/knhks/types.h`)
+### Type Definitions (`include/knhk/types.h`)
 
 Contains all type definitions:
-- Constants (`KNHKS_TICK_BUDGET`, `KNHKS_NROWS`, `KNHKS_ALIGN`)
-- Operation enum (`knhks_op_t`)
-- Struct definitions (`knhks_context_t`, `knhks_hook_ir_t`, `knhks_receipt_t`, `knhks_pred_run_t`)
+- Constants (`KNHK_TICK_BUDGET`, `KNHK_NROWS`, `KNHK_ALIGN`)
+- Operation enum (`knhk_op_t`)
+- Struct definitions (`knhk_context_t`, `knhk_hook_ir_t`, `knhk_receipt_t`, `knhk_pred_run_t`)
 
-### Evaluation Functions (`include/knhks/eval.h`)
+### Evaluation Functions (`include/knhk/eval.h`)
 
 Contains query evaluation functions:
-- `knhks_eval_bool()` - Boolean query evaluation
-- `knhks_eval_construct8()` - CONSTRUCT8 operations
+- `knhk_eval_bool()` - Boolean query evaluation
+- `knhk_eval_construct8()` - CONSTRUCT8 operations
 - All inline for hot path performance
 
-### Receipt Operations (`include/knhks/receipts.h`)
+### Receipt Operations (`include/knhk/receipts.h`)
 
 Contains receipt utilities:
-- `knhks_receipt_merge()` - Combine receipts via ⊕
+- `knhk_receipt_merge()` - Combine receipts via ⊕
 
-### Utilities (`include/knhks/utils.h`)
+### Utilities (`include/knhk/utils.h`)
 
 Contains utility functions:
-- `knhks_init_ctx()` - Context initialization
-- `knhks_pin_run()` - Set predicate run
-- `knhks_load_rdf()` - RDF file loading
-- Clock utilities (`knhks_rd_ticks()`, `knhks_ticks_hz()`, `knhks_generate_span_id()`)
+- `knhk_init_ctx()` - Context initialization
+- `knhk_pin_run()` - Set predicate run
+- `knhk_load_rdf()` - RDF file loading
+- Clock utilities (`knhk_generate_span_id()`)
 
 ## SIMD Organization
 
@@ -177,11 +177,11 @@ $(TEST_INTEGRATION_V2): tests/chicago_integration_v2.c tests/chicago_integration
 - **Umbrella Headers**: Keep minimal (<50 lines)
 
 Current status:
-- ✅ `include/knhks.h`: 16 lines (umbrella)
-- ✅ `include/knhks/types.h`: 90 lines
-- ✅ `include/knhks/eval.h`: 305 lines (inline implementations)
-- ✅ `include/knhks/receipts.h`: 21 lines
-- ✅ `include/knhks/utils.h`: 40 lines
+- ✅ `include/knhk.h`: 16 lines (umbrella)
+- ✅ `include/knhk/types.h`: 90 lines
+- ✅ `include/knhk/eval.h`: 305 lines (inline implementations)
+- ✅ `include/knhk/receipts.h`: 21 lines
+- ✅ `include/knhk/utils.h`: 40 lines
 - ✅ `src/simd.h`: 24 lines (umbrella)
 - ✅ `tests/chicago_enterprise_use_cases.c`: 49 lines (runner)
 - ✅ `tests/chicago_v1_test.c`: 44 lines (runner)
@@ -191,9 +191,9 @@ Current status:
 
 ### Adding a New Operation
 
-1. Add operation enum to `include/knhks/types.h`
+1. Add operation enum to `include/knhk/types.h`
 2. Add SIMD implementation to appropriate `src/simd/*.h` file
-3. Add dispatch case to `include/knhks/eval.h` (`knhks_eval_bool`)
+3. Add dispatch case to `include/knhk/eval.h` (`knhk_eval_bool`)
 4. Add test to appropriate `tests/chicago_*.c` file
 5. Update Makefile if new test file is created
 
@@ -207,7 +207,7 @@ Current status:
 
 ## Code Style
 
-- **Naming**: `knhks_` prefix for all public functions
+- **Naming**: `knhk_` prefix for all public functions
 - **Inline**: Use `static inline` for hot path functions
 - **Headers**: Include guards, minimal includes
 - **Tests**: Chicago TDD style - real collaborators, state-based tests

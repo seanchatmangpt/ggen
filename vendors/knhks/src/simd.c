@@ -16,7 +16,7 @@
 #endif
 
 // Branchless SIMD: count equal S == s_key over the run
-uint64_t knhks_eq64_count_run(const uint64_t *base, uint64_t off, uint64_t len, uint64_t key)
+uint64_t knhk_eq64_count_run(const uint64_t *base, uint64_t off, uint64_t len, uint64_t key)
 {
 #if defined(__aarch64__)
   const uint64_t *p = base + off;
@@ -69,7 +69,7 @@ uint64_t knhks_eq64_count_run(const uint64_t *base, uint64_t off, uint64_t len, 
 }
 
 // Branchless SIMD: check if any S == s_key exists (no early termination)
-int knhks_eq64_exists_run(const uint64_t *base, uint64_t off, uint64_t len, uint64_t key)
+int knhk_eq64_exists_run(const uint64_t *base, uint64_t off, uint64_t len, uint64_t key)
 {
 #if defined(__aarch64__)
   const uint64_t *p = base + off;
@@ -126,7 +126,7 @@ int knhks_eq64_exists_run(const uint64_t *base, uint64_t off, uint64_t len, uint
 // No need to define them here - they're header-only inline functions
 
 // Branchless S-P-O triple matching: check if S==s_key AND O==o_key exists
-int knhks_eq64_spo_exists_run(const uint64_t *S_base, const uint64_t *O_base,
+int knhk_eq64_spo_exists_run(const uint64_t *S_base, const uint64_t *O_base,
                               uint64_t off, uint64_t len, uint64_t s_key, uint64_t o_key)
 {
 #if defined(__aarch64__)
@@ -211,8 +211,8 @@ int knhks_eq64_spo_exists_run(const uint64_t *S_base, const uint64_t *O_base,
 }
 
 // Branchless SELECT: gather matching O values (optimized for variable NROWS)
-// For NROWS=8, use knhks_select_gather_8 instead (fully unrolled inline version)
-size_t knhks_select_gather(const uint64_t *S_base, const uint64_t *O_base,
+// For NROWS=8, use knhk_select_gather_8 instead (fully unrolled inline version)
+size_t knhk_select_gather(const uint64_t *S_base, const uint64_t *O_base,
                            uint64_t off, uint64_t len, uint64_t s_key,
                            uint64_t *out, size_t out_capacity)
 {

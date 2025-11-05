@@ -1,10 +1,10 @@
 # Weaver Live-Check Integration
 
-This document describes the integration of [OpenTelemetry Weaver](https://github.com/open-telemetry/weaver) live-check functionality into the KNHKS OTEL crate.
+This document describes the integration of [OpenTelemetry Weaver](https://github.com/open-telemetry/weaver) live-check functionality into the KNHK OTEL crate.
 
 ## Overview
 
-Weaver live-check validates telemetry data against semantic conventions, ensuring compliance with OpenTelemetry standards and custom schemas. This integration allows KNHKS to:
+Weaver live-check validates telemetry data against semantic conventions, ensuring compliance with OpenTelemetry standards and custom schemas. This integration allows KNHK to:
 
 1. **Validate telemetry in real-time** - Check spans and metrics against semantic conventions
 2. **CI/CD integration** - Fail builds if telemetry violates conventions
@@ -14,7 +14,7 @@ Weaver live-check validates telemetry data against semantic conventions, ensurin
 
 ```
 ┌─────────────┐         ┌──────────────┐         ┌──────────────┐
-│   KNHKS     │ OTLP    │    Weaver    │         │   Registry   │
+│   KNHK     │ OTLP    │    Weaver    │         │   Registry   │
 │   Tracer    │────────>│  live-check  │<────────│  (Semantic   │
 │             │         │   (gRPC)     │         │ Conventions) │
 └─────────────┘         └──────────────┘         └──────────────┘
@@ -32,7 +32,7 @@ Weaver live-check validates telemetry data against semantic conventions, ensurin
 ### Basic Example
 
 ```rust
-use knhks_otel::{Tracer, SpanStatus, WeaverLiveCheck, MetricsHelper};
+use knhk_otel::{Tracer, SpanStatus, WeaverLiveCheck, MetricsHelper};
 
 // 1. Start Weaver live-check server
 let weaver = WeaverLiveCheck::new()
@@ -48,7 +48,7 @@ let mut tracer = Tracer::with_otlp_exporter(
 );
 
 // 3. Generate and export telemetry
-let span_ctx = tracer.start_span("knhks.operation.execute".to_string(), None);
+let span_ctx = tracer.start_span("knhk.operation.execute".to_string(), None);
 tracer.end_span(span_ctx, SpanStatus::Ok);
 tracer.export()?;
 
@@ -132,7 +132,7 @@ Weaver produces JSON reports with the following structure:
         "message": "Attribute `operation` is required but missing",
         "advice_context": {"attribute_name": "operation"},
         "signal_type": "span",
-        "signal_name": "knhks.operation.execute"
+        "signal_name": "knhk.operation.execute"
       }
     ],
     "highest_advice_level": "violation"
@@ -198,7 +198,7 @@ cargo run
 
 ## Best Practices
 
-1. **Use custom registries** - Define your own semantic conventions for KNHKS-specific telemetry
+1. **Use custom registries** - Define your own semantic conventions for KNHK-specific telemetry
 2. **Fail fast in CI** - Set exit code check to fail builds on violations
 3. **Use JSON reports** - Parse reports programmatically for custom validation logic
 4. **Monitor coverage** - Track `registry_coverage` metric to ensure comprehensive instrumentation

@@ -1,19 +1,19 @@
 graph TB
     subgraph TestLayer["Chicago TDD Test Layer"]
         Test[chicago_construct8.c<br/>Test Framework]
-        Timing[Timing Measurement<br/>knhks_rd_ticks before/after<br/>Validate ≤ 2ns/8 ticks]
+        Timing[Timing Measurement<br/>knhk_rd_ticks before/after<br/>Validate ≤ 2ns/8 ticks]
         Test --> Timing
     end
     
     subgraph APILayer["Public API Layer"]
-        Eval[knhks_eval_construct8<br/>include/knhks/eval.h<br/>Validation & Receipt Filling]
-        Context[knhks_context_t<br/>S, P, O arrays<br/>run metadata]
-        IR[knhks_hook_ir_t<br/>op, p_const, o_const<br/>out_S, out_P, out_O pointers]
-        Receipt[knhks_receipt_t<br/>lanes, span_id, a_hash<br/>No ticks in hot path]
+        Eval[knhk_eval_construct8<br/>include/knhk/eval.h<br/>Validation & Receipt Filling]
+        Context[knhk_context_t<br/>S, P, O arrays<br/>run metadata]
+        IR[knhk_hook_ir_t<br/>op, p_const, o_const<br/>out_S, out_P, out_O pointers]
+        Receipt[knhk_receipt_t<br/>lanes, span_id, a_hash<br/>No ticks in hot path]
     end
     
     subgraph SIMDLayer["SIMD Implementation Layer"]
-        Construct8[knhks_construct8_emit_8<br/>src/simd/construct.h<br/>Hot Path: Pure CONSTRUCT Logic]
+        Construct8[knhk_construct8_emit_8<br/>src/simd/construct.h<br/>Hot Path: Pure CONSTRUCT Logic]
         Common[common.h<br/>Architecture Detection<br/>SIMD Includes]
         
         subgraph ARM64["ARM64 Implementation"]

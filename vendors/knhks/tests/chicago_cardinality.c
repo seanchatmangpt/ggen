@@ -11,9 +11,9 @@ static int test_cardinality_constraints(void)
 {
   printf("[TEST] Test 3: Cardinality Constraints\n");
 
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
 
-  if (!knhks_load_rdf(&ctx, "tests/data/enterprise_cardinality.ttl"))
+  if (!knhk_load_rdf(&ctx, "tests/data/enterprise_cardinality.ttl"))
   {
     fprintf(stderr, "  FAIL: Failed to load cardinality data\n");
     return 0;
@@ -25,9 +25,9 @@ static int test_cardinality_constraints(void)
   uint64_t test_user = ctx.S[0];
   uint64_t test_predicate = ctx.run.pred;
 
-  knhks_hook_ir_t count_ir = {.op = KNHKS_OP_COUNT_SP_GE, .s = test_user, .p = test_predicate, .k = 1, .o = 0, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
+  knhk_hook_ir_t count_ir = {.op = KNHK_OP_COUNT_SP_GE, .s = test_user, .p = test_predicate, .k = 1, .o = 0, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
 
-  int result = knhks_eval_bool(&ctx, &count_ir, NULL);
+  int result = knhk_eval_bool(&ctx, &count_ir, NULL);
   assert(result == 1);
 
   perf_stats_t stats = measure_p50_p95(&count_ir, 200000);
@@ -54,9 +54,9 @@ static int test_maxcount_validation(void)
 {
   printf("[TEST] Test 6: MaxCount Validation (COUNT <= k)\n");
 
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
 
-  if (!knhks_load_rdf(&ctx, "tests/data/enterprise_maxcount.ttl"))
+  if (!knhk_load_rdf(&ctx, "tests/data/enterprise_maxcount.ttl"))
   {
     fprintf(stderr, "  FAIL: Failed to load maxcount data\n");
     return 0;
@@ -68,9 +68,9 @@ static int test_maxcount_validation(void)
   uint64_t test_subject = ctx.S[0];
   uint64_t test_predicate = ctx.run.pred;
 
-  knhks_hook_ir_t count_ir = {.op = KNHKS_OP_COUNT_SP_LE, .s = test_subject, .p = test_predicate, .k = 3, .o = 0, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
+  knhk_hook_ir_t count_ir = {.op = KNHK_OP_COUNT_SP_LE, .s = test_subject, .p = test_predicate, .k = 3, .o = 0, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
 
-  int result = knhks_eval_bool(&ctx, &count_ir, NULL);
+  int result = knhk_eval_bool(&ctx, &count_ir, NULL);
   assert(result == 1);
 
   perf_stats_t stats = measure_p50_p95(&count_ir, 200000);
@@ -97,9 +97,9 @@ static int test_exactcount_validation(void)
 {
   printf("[TEST] Test 7: Exact Count Validation (COUNT == k)\n");
 
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
 
-  if (!knhks_load_rdf(&ctx, "tests/data/enterprise_exactcount.ttl"))
+  if (!knhk_load_rdf(&ctx, "tests/data/enterprise_exactcount.ttl"))
   {
     fprintf(stderr, "  FAIL: Failed to load exactcount data\n");
     return 0;
@@ -111,9 +111,9 @@ static int test_exactcount_validation(void)
   uint64_t test_subject = ctx.S[0];
   uint64_t test_predicate = ctx.run.pred;
 
-  knhks_hook_ir_t count_ir = {.op = KNHKS_OP_COUNT_SP_EQ, .s = test_subject, .p = test_predicate, .k = 2, .o = 0, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
+  knhk_hook_ir_t count_ir = {.op = KNHK_OP_COUNT_SP_EQ, .s = test_subject, .p = test_predicate, .k = 2, .o = 0, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
 
-  int result = knhks_eval_bool(&ctx, &count_ir, NULL);
+  int result = knhk_eval_bool(&ctx, &count_ir, NULL);
   assert(result == 1);
 
   perf_stats_t stats = measure_p50_p95(&count_ir, 200000);
@@ -140,9 +140,9 @@ static int test_uniqueness_validation(void)
 {
   printf("[TEST] Test 9: Uniqueness Validation (COUNT == 1)\n");
 
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
 
-  if (!knhks_load_rdf(&ctx, "tests/data/enterprise_uniqueness.ttl"))
+  if (!knhk_load_rdf(&ctx, "tests/data/enterprise_uniqueness.ttl"))
   {
     fprintf(stderr, "  FAIL: Failed to load uniqueness data\n");
     return 0;
@@ -154,9 +154,9 @@ static int test_uniqueness_validation(void)
   uint64_t test_subject = ctx.S[0];
   uint64_t test_predicate = ctx.run.pred;
 
-  knhks_hook_ir_t unique_ir = {.op = KNHKS_OP_UNIQUE_SP, .s = test_subject, .p = test_predicate, .k = 0, .o = 0, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
+  knhk_hook_ir_t unique_ir = {.op = KNHK_OP_UNIQUE_SP, .s = test_subject, .p = test_predicate, .k = 0, .o = 0, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
 
-  int result = knhks_eval_bool(&ctx, &unique_ir, NULL);
+  int result = knhk_eval_bool(&ctx, &unique_ir, NULL);
   assert(result == 1);
 
   perf_stats_t stats = measure_p50_p95(&unique_ir, 200000);

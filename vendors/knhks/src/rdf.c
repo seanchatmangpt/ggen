@@ -8,7 +8,7 @@
 #include <string.h>
 
 // Simple hash function to convert URIs/literals to uint64_t IDs
-uint64_t knhks_hash_term(const unsigned char *term, size_t len)
+uint64_t knhk_hash_term(const unsigned char *term, size_t len)
 {
   uint64_t hash = 1469598103934665603ULL; // FNV-1a offset
   for (size_t i = 0; i < len; i++)
@@ -46,7 +46,7 @@ static uint64_t term_to_id(raptor_term *term)
     return 0;
   }
 
-  return knhks_hash_term(str, len);
+  return knhk_hash_term(str, len);
 }
 
 // Callback data structure
@@ -83,7 +83,7 @@ static void statement_handler(void *user_data, raptor_statement *statement)
 }
 
 // Load RDF file into SoA arrays
-int knhks_rdf_load(const char *filename, uint64_t *S, uint64_t *P, uint64_t *O, size_t capacity, size_t *count)
+int knhk_rdf_load(const char *filename, uint64_t *S, uint64_t *P, uint64_t *O, size_t capacity, size_t *count)
 {
   raptor_world *world = raptor_new_world();
   if (!world)

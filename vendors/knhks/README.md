@@ -1,12 +1,12 @@
-# KNHKS - Knowledge Hook System
+# KNHK - Knowledge Hook System
 
 **Version**: 0.4.0  
 **Status**: Production Ready  
-**Architecture**: 8-Tick Hot Path Knowledge Graph Query System
+**Architecture**: ≤2ns Hot Path Knowledge Graph Query System
 
 ## Overview
 
-KNHKS (Knowledge Hook System) is a high-performance knowledge graph query system designed for enterprise-scale RDF data processing. The system achieves **≤8 tick performance** (Chatman Constant) on critical path operations through SIMD-optimized C hot path, safe Rust warm path, and Erlang cold path architecture.
+KNHK (Knowledge Hook System) is a high-performance knowledge graph query system designed for enterprise-scale RDF data processing. The system achieves **≤2ns performance** (Chatman Constant) on critical path operations through SIMD-optimized C hot path with pure CONSTRUCT logic (zero timing overhead), safe Rust warm path for timing and orchestration, and Erlang cold path architecture.
 
 ## Quick Start
 
@@ -17,7 +17,7 @@ KNHKS (Knowledge Hook System) is a high-performance knowledge graph query system
 make lib
 
 # Build CLI
-cd rust/knhks-cli
+cd rust/knhk-cli
 cargo build --release
 
 # Run tests
@@ -28,48 +28,51 @@ make test
 
 ```bash
 # Initialize system
-knhks boot init schema.ttl invariants.sparql
+knhk boot init schema.ttl invariants.sparql
 
 # Register connector
-knhks connect register kafka-prod urn:knhks:schema:default kafka://localhost:9092/triples
+knhk connect register kafka-prod urn:knhk:schema:default kafka://localhost:9092/triples
 
 # Define cover
-knhks cover define "SELECT ?s ?p ?o WHERE { ?s ?p ?o }" "max_run_len 8"
+knhk cover define "SELECT ?s ?p ?o WHERE { ?s ?p ?o }" "max_run_len 8"
 
 # Admit delta
-knhks admit delta delta.json
+knhk admit delta delta.json
 
 # Declare reflex
-knhks reflex declare check-count ASK_SP 0xC0FFEE 0 8
+knhk reflex declare check-count ASK_SP 0xC0FFEE 0 8
 
 # Create epoch
-knhks epoch create epoch1 8 "reflex1,reflex2"
+knhk epoch create epoch1 8 "reflex1,reflex2"
 
 # Run pipeline
-knhks pipeline run --connectors kafka-prod
+knhk pipeline run --connectors kafka-prod
 ```
 
 ## Architecture
 
 ### Three-Tier Architecture
 
-1. **Hot Path (C)** - ≤8 tick operations using SIMD
+1. **Hot Path (C)** - ≤2ns operations using SIMD (pure CONSTRUCT logic, no timing)
    - Structure-of-Arrays (SoA) layout
    - 64-byte alignment for SIMD
    - Branchless operations
+   - Zero timing overhead
    - 19 query operations (ASK, COUNT, COMPARE, SELECT, CONSTRUCT8)
+   - **Timing measured externally by Rust**
 
-2. **Warm Path (Rust)** - Safe abstractions over hot path
+2. **Warm Path (Rust)** - Safe abstractions over hot path + timing
    - ETL Pipeline (Ingest → Transform → Load → Reflex → Emit)
    - Connector framework (Kafka, Salesforce)
    - Lockchain integration (Merkle-linked receipts)
    - OTEL observability
+   - **External timing measurement** (cycle counters)
 
 3. **Cold Path (Erlang)** - Complex queries and validation
    - SPARQL query execution
    - SHACL validation
-   - Schema registry (knhks_sigma)
-   - Invariant registry (knhks_q)
+   - Schema registry (knhk_sigma)
+   - Invariant registry (knhk_q)
 
 ### Key Components
 
@@ -83,18 +86,20 @@ knhks pipeline run --connectors kafka-prod
 
 ### Core Features (80% Value)
 
-✅ **Hot Path Operations** - 19 operations achieving ≤8 ticks  
+✅ **Hot Path Operations** - 19 operations achieving ≤2ns  
 ✅ **ETL Pipeline** - Complete pipeline with guard enforcement  
 ✅ **Connector Framework** - Kafka, Salesforce with circuit breakers  
 ✅ **Lockchain** - Merkle-linked receipts with URDNA2015 + SHA-256  
 ✅ **CLI Tool** - Production-ready command-line interface  
 ✅ **OTEL Integration** - Observability and metrics  
-✅ **Guard Constraints** - max_run_len ≤ 8, τ ≤ 8 enforced  
+✅ **Guard Constraints** - max_run_len ≤ 8, τ ≤ 2ns enforced  
+✅ **Zero Timing Overhead** - C hot path contains pure CONSTRUCT logic only
 
 ### Performance
 
-- **Hot Path**: ≤8 ticks (Chatman Constant: 2ns = 8 ticks)
-- **Critical Path**: Separated from receipt generation overhead
+- **Hot Path**: ≤2ns (Chatman Constant) - pure CONSTRUCT logic only
+- **Zero Timing Overhead**: C code contains no timing measurements
+- **External Timing**: Rust framework measures performance externally
 - **SoA Layout**: 64-byte alignment for SIMD operations
 - **Branchless**: Constant-time execution on hot path
 
@@ -102,7 +107,7 @@ knhks pipeline run --connectors kafka-prod
 
 ### 📚 Full Documentation Book
 
-**Online**: [Read the full documentation book](https://seanchatmangpt.github.io/ggen/knhks/)  
+**Online**: [Read the full documentation book](https://seanchatmangpt.github.io/ggen/knhk/)  
 **Local**: Build and serve locally with mdbook:
 
 ```bash
@@ -115,14 +120,14 @@ make docs-serve
 
 ### Essential Documentation (80% Value)
 
-- **[CLI Guide](rust/knhks-cli/README.md)** - CLI usage and commands
+- **[CLI Guide](rust/knhk-cli/README.md)** - CLI usage and commands
 - **[Architecture](docs/architecture.md)** - System architecture overview
 - **[API Reference](docs/api.md)** - API documentation
 - **[Release Notes](RELEASE_NOTES_v0.4.0.md)** - v0.4.0 release details
 
 ### Additional Documentation
 
-- **[Implementation Guide](rust/knhks-cli/IMPLEMENTATION.md)** - CLI implementation details
+- **[Implementation Guide](rust/knhk-cli/IMPLEMENTATION.md)** - CLI implementation details
 - **[Definition of Done](VERSION_0.4.0_DEFINITION_OF_DONE.md)** - Release criteria
 - **[Integration Guide](docs/integration.md)** - Integration examples
 - **[Deployment Guide](docs/deployment.md)** - Deployment instructions
@@ -173,15 +178,15 @@ make test-gaps-v1
 ## Project Structure
 
 ```
-vendors/knhks/
+vendors/knhk/
 ├── src/              # C hot path implementation
 ├── include/          # C headers
 ├── rust/             # Rust warm path crates
-│   ├── knhks-cli/    # CLI tool
-│   ├── knhks-etl/    # ETL pipeline
-│   ├── knhks-connectors/  # Connector framework
-│   ├── knhks-lockchain/   # Provenance lockchain
-│   └── knhks-otel/   # OTEL integration
+│   ├── knhk-cli/    # CLI tool
+│   ├── knhk-etl/    # ETL pipeline
+│   ├── knhk-connectors/  # Connector framework
+│   ├── knhk-lockchain/   # Provenance lockchain
+│   └── knhk-otel/   # OTEL integration
 ├── erlang/           # Erlang cold path
 ├── tests/            # Test suite
 ├── docs/             # Documentation
