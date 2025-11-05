@@ -12,6 +12,71 @@ KNHKS (v0.3.0) implements a multi-tier architecture with production-ready infras
 
 Queries route to either hot path (≤8 ticks) or cold path (full SPARQL engine) based on complexity and data characteristics.
 
+## Modular Code Organization
+
+### Header Structure
+
+The public API is organized into modular headers for maintainability:
+
+```
+include/
+├── knhks.h              # Main umbrella header (includes all components)
+└── knhks/
+    ├── types.h          # Type definitions (enums, structs, constants)
+    ├── eval.h           # Query evaluation functions (eval_bool, eval_construct8)
+    ├── receipts.h       # Receipt operations (receipt_merge)
+    └── utils.h          # Utility functions (init_ctx, load_rdf, clock utilities)
+```
+
+**Usage**: Include only `knhks.h` - it automatically includes all sub-modules:
+```c
+#include "knhks.h"  // Includes all API components
+```
+
+### Source Structure
+
+SIMD operations are organized into focused modules:
+
+```
+src/
+├── simd.h               # SIMD umbrella header (includes all SIMD modules)
+├── simd/
+│   ├── common.h         # Common infrastructure (includes, declarations)
+│   ├── existence.h      # ASK operations (exists_8, exists_o_8, spo_exists_8)
+│   ├── count.h          # COUNT operations (count_8)
+│   ├── compare.h        # Comparison operations (compare_o_8)
+│   ├── select.h         # SELECT operations (select_gather_8)
+│   ├── validate.h       # Datatype validation (validate_datatype_sp_8)
+│   └── construct.h      # CONSTRUCT8 operations (construct8_emit_8)
+├── simd.c               # Variable-length SIMD implementations
+├── core.c               # Core operations (batch execution)
+├── rdf.c                # RDF parsing (Turtle format)
+└── clock.c              # Timing utilities and span ID generation
+```
+
+### Test Structure
+
+Tests are organized into focused suites:
+
+```
+tests/
+├── chicago_enterprise_use_cases.c    # Main enterprise test runner
+├── chicago_basic_operations.c        # Basic operations (tests 1,2,5)
+├── chicago_cardinality.c             # Cardinality tests (tests 3,6,7,9)
+├── chicago_object_operations.c       # Object operations (tests 8,10,11,12)
+├── chicago_advanced.c                # Advanced operations (tests 4,13-19)
+├── chicago_test_helpers.c           # Shared test infrastructure
+├── chicago_test_helpers.h            # Test helper declarations
+├── chicago_v1_test.c                 # v1.0 test runner
+├── chicago_v1_receipts.c             # Receipt tests
+├── chicago_v1_operations.c            # Operation tests (CONSTRUCT8, batch)
+├── chicago_v1_validation.c           # Validation tests (guards, constants)
+├── chicago_integration_v2.c          # Integration test runner
+├── chicago_integration_core.c        # Core integration tests
+├── chicago_integration_systems.c     # System integration (lockchain, OTEL)
+└── chicago_integration_advanced.c    # Advanced integration tests
+```
+
 ## Core Components
 
 ### 1. Data Layer (SoA Layout)
@@ -50,6 +115,8 @@ All arrays are 64-byte aligned for optimal cache line access and SIMD operations
 - Triple matching (S-P-O)
 - Branchless SIMD execution
 - Fully unrolled for NROWS=8
+- CONSTRUCT8 operations
+- Batch execution (≤8 hooks)
 
 **Cold Path**:
 - Complex queries (JOINs, OPTIONAL, UNION)
@@ -83,22 +150,40 @@ See `architecture.mmd` for visual representation.
 ### knhks_context_t
 ```c
 typedef struct {
-  uint64_t *S;           // Subject array
-  uint64_t *P;           // Predicate array
-  uint64_t *O;           // Object array
-  size_t triple_count;   // Number of triples
-  knhks_pred_run_t run;  // Predicate run metadata
+  const uint64_t *S;        // Subject array (KNHKS_ALIGN aligned, KNHKS_NROWS sized)
+  const uint64_t *P;        // Predicate array
+  const uint64_t *O;        // Object array
+  size_t triple_count;      // Number of loaded triples
+  knhks_pred_run_t run;     // Predicate run metadata
 } knhks_context_t;
 ```
 
 ### knhks_hook_ir_t
 ```c
 typedef struct {
-  knhks_op_t op;         // Operation type
-  uint64_t s, p, o, k;   // Subject, predicate, object, threshold
-  uint64_t *select_out;  // SELECT output buffer
+  knhks_op_t op;            // Operation type
+  uint64_t s, p, o, k;      // Subject, predicate, object, threshold
+  
+  // For CONSTRUCT8 only: preallocated output spans (8 rows max)
+  uint64_t *out_S;          // may be NULL for non-CONSTRUCT8
+  uint64_t *out_P;
+  uint64_t *out_O;
+  uint64_t out_mask;        // per-lane bitmask result (returned by μ)
+  
+  // Legacy SELECT support (cold path only, not in hot v1.0)
+  uint64_t *select_out;     // SELECT output buffer
   size_t select_capacity;
 } knhks_hook_ir_t;
+```
+
+### knhks_receipt_t
+```c
+typedef struct {
+  uint32_t ticks;    // ≤ 8
+  uint32_t lanes;    // SIMD width used
+  uint64_t span_id;  // OTEL-compatible id
+  uint64_t a_hash;   // hash(A) = hash(μ(O)) fragment
+} knhks_receipt_t;
 ```
 
 ## Execution Flow
@@ -158,4 +243,12 @@ Queries that exceed hot path constraints automatically fall back to full SPARQL 
 - Metrics collection
 - Tracing support
 - Receipt provenance tracking
+
+## Modular Design Benefits
+
+- **Maintainability**: Clear separation of concerns
+- **Testability**: Focused test suites for each component
+- **Performance**: Hot path isolated in inline headers
+- **Extensibility**: Easy to add new operations or test suites
+- **Code Size**: Reduced compilation unit sizes improve build times
 
