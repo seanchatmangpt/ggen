@@ -1,0 +1,16 @@
+@prefix ex: <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Enterprise Simple Lookups Use Case
+# Single predicate property retrievals (5% of runtime)
+# Test Case 5: Simple Lookups
+# Limited to 8 triples for hot path (single predicate run)
+
+ex:entity1 ex:property "value1" .
+ex:entity1 ex:property "value2" .
+ex:entity2 ex:property "value3" .
+ex:entity3 ex:property "value4" .
+ex:entity4 ex:property "value5" .
+ex:entity5 ex:property "value6" .
+ex:entity6 ex:property "value7" .
+ex:entity7 ex:property "value8" .

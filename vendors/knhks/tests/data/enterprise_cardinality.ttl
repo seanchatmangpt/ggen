@@ -1,0 +1,16 @@
+@prefix ex: <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# Enterprise Cardinality Constraints Use Case
+# Email uniqueness constraints (15% of runtime)
+# Test Case 3: Cardinality Constraints
+# Limited to 8 triples for hot path (single predicate run)
+
+ex:user1 ex:email "alice@example.com" .
+ex:user2 ex:email "bob@example.com" .
+ex:user3 ex:email "charlie@example.com" .
+ex:user4 ex:email "dave@example.com" .
+ex:user4 ex:email "dave.alt@example.com" .
+ex:user5 ex:email "eve@example.com" .
+ex:user6 ex:email "frank@example.com" .
+ex:user6 ex:email "frank.work@example.com" .
