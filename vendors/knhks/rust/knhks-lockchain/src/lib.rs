@@ -32,6 +32,7 @@ pub struct LockchainEntry {
 }
 
 /// Lockchain implementation
+#[derive(Clone)]
 pub struct Lockchain {
     entries: Vec<LockchainEntry>,
     merkle_root: Option<ReceiptHash>,
@@ -100,14 +101,24 @@ impl Lockchain {
         let mut file = fs::File::create(&receipt_file).map_err(|_| LockchainError::ChainBroken)?;
         
         // Write receipt as JSON
-        let receipt_json = format!(
-            r#"{{"id":"{}","hash":"{}","parent_hash":{},"timestamp_ms":{},"metadata":{}}}"#,
-            entry.receipt_id,
-            hex::encode(&hash),
-            entry.parent_hash.map(|h| format!("\"{}\"", hex::encode(&h))).unwrap_or("null".to_string()),
-            entry.timestamp_ms,
-            serde_json::to_string(&entry.metadata).unwrap_or("{}".to_string())
-        );
+        let receipt_json = match serde_json::to_string(&entry.metadata) {
+            Ok(meta_json) => format!(
+                r#"{{"id":"{}","hash":"{}","parent_hash":{},"timestamp_ms":{},"metadata":{}}}"#,
+                entry.receipt_id,
+                hex::encode(&hash),
+                entry.parent_hash.map(|h| format!("\"{}\"", hex::encode(&h))).unwrap_or("null".to_string()),
+                entry.timestamp_ms,
+                meta_json
+            ),
+            Err(_) => format!(
+                r#"{{"id":"{}","hash":"{}","parent_hash":{},"timestamp_ms":{},"metadata":{}}}"#,
+                entry.receipt_id,
+                hex::encode(&hash),
+                entry.parent_hash.map(|h| format!("\"{}\"", hex::encode(&h))).unwrap_or("null".to_string()),
+                entry.timestamp_ms,
+                "{}"
+            ),
+        };
         file.write_all(receipt_json.as_bytes()).map_err(|_| LockchainError::ChainBroken)?;
         
         // Note: Actual Git commit would require git2 crate

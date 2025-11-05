@@ -84,8 +84,8 @@ static int test_guard_blocks_long_runs(void)
   
   // Should execute successfully
   assert(result == 1);
-  // Note: Tick measurement includes receipt generation overhead
-  assert(rcpt.ticks <= 500); // Account for measurement overhead
+  // 80/20 CRITICAL PATH: Operation must be ≤8 ticks
+  assert(rcpt.ticks <= KNHKS_TICK_BUDGET); // Critical path validation
   
   // Note: C API doesn't enforce len > 8 at pin time (that's Rust wrapper)
   // But runtime will reject if len > 8 in actual execution
@@ -124,7 +124,8 @@ static int test_guard_blocks_wrong_predicate(void)
   
   // Should return 0 (no match)
   assert(result == 0);
-  assert(rcpt.ticks <= 500); // Account for measurement overhead // Still fast even on miss
+  // 80/20 CRITICAL PATH: Early return path also fast
+  assert(rcpt.ticks <= KNHKS_TICK_BUDGET); // Critical path validation
   
   printf("  ✓ Wrong predicate correctly rejected\n");
   return 1;
@@ -152,8 +153,8 @@ static int test_guard_enforcement_in_batch(void)
   int executed = knhks_eval_batch8(&ctx, irs, 2, rcpts);
   
   assert(executed == 2); // Both execute (but second returns 0)
-  assert(rcpts[0].ticks <= 500); // Account for measurement overhead
-  assert(rcpts[1].ticks <= 500);
+  assert(rcpts[0].ticks <= KNHKS_TICK_BUDGET); // Critical path validation
+  assert(rcpts[1].ticks <= KNHKS_TICK_BUDGET);
   
   printf("  ✓ Batch handles invalid predicates gracefully\n");
   return 1;
@@ -191,7 +192,7 @@ static int test_admission_control(void)
     knhks_receipt_t rcpt = {0};
     knhks_eval_bool(&ctx, &ir, &rcpt);
     
-    assert(rcpt.ticks <= 500); // Account for measurement overhead
+    assert(rcpt.ticks <= KNHKS_TICK_BUDGET); // Critical path validation
   }
   
   printf("  ✓ All valid lengths (0-8) admitted\n");

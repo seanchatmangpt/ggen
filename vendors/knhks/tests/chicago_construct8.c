@@ -65,8 +65,8 @@ static int test_construct8_basic_emit(void)
   
   assert(written > 0);
   assert(written <= 2);
-  // Note: Tick measurement includes receipt generation overhead
-  assert(rcpt.ticks <= 500); // Account for measurement overhead
+  // 80/20 CRITICAL PATH: Operation itself must be ≤8 ticks
+  assert(rcpt.ticks <= KNHKS_TICK_BUDGET); // Critical path validation
   assert(out_P[0] == 0xC0FFEE);
   assert(out_O[0] == 0xA110E);
   assert(ir.out_mask != 0);
@@ -116,7 +116,8 @@ static int test_construct8_timing(void)
     }
   }
   
-  assert(max_ticks <= 500); // Account for measurement overhead
+  printf("  Max ticks observed: %u (budget = %u)\n", max_ticks, KNHKS_TICK_BUDGET);
+  assert(max_ticks <= KNHKS_TICK_BUDGET); // Critical path validation
   
   printf("  ✓ Max ticks = %u (budget = %u)\n", max_ticks, KNHKS_TICK_BUDGET);
   return 1;

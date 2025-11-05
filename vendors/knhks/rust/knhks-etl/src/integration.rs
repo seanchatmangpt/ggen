@@ -46,11 +46,53 @@ impl IntegratedPipeline {
         
         let result = pipeline.execute()?;
         
+        // Record OTEL metrics using proper API
+        #[cfg(all(feature = "std", feature = "knhks-otel"))]
+        let metrics_recorded = {
+            use knhks_otel::{Tracer, Metric, MetricValue, MetricsHelper};
+            use std::time::{SystemTime, UNIX_EPOCH};
+            
+            let mut tracer = Tracer::new();
+            
+            // Record pipeline execution metrics using MetricsHelper
+            MetricsHelper::record_connector_throughput(&mut tracer, "pipeline", result.actions_sent);
+            
+            // Record receipt generation
+            if result.receipts_written > 0 {
+                MetricsHelper::record_receipt(&mut tracer, &format!("pipeline_batch_{}", result.receipts_written));
+            }
+            
+            // Record lockchain writes
+            let timestamp_ms = SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .map(|d| d.as_millis() as u64)
+                .unwrap_or(0);
+            
+            for hash in &result.lockchain_hashes {
+                let metric = Metric {
+                    name: "knhks.lockchain.entry".to_string(),
+                    value: MetricValue::Counter(1),
+                    timestamp_ms,
+                    attributes: {
+                        let mut attrs = alloc::collections::BTreeMap::new();
+                        attrs.insert("hash".to_string(), hash.clone());
+                        attrs
+                    },
+                };
+                tracer.record_metric(metric);
+            }
+            
+            tracer.metrics().len()
+        };
+        
+        #[cfg(not(all(feature = "std", feature = "knhks-otel")))]
+        let metrics_recorded = 0;
+        
         Ok(IntegratedResult {
             receipts_written: result.receipts_written,
             actions_sent: result.actions_sent,
             lockchain_hashes: result.lockchain_hashes,
-            metrics_recorded: 0, // TODO: integrate OTEL metrics when available
+            metrics_recorded,
         })
     }
 }

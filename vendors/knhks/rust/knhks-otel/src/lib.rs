@@ -83,6 +83,135 @@ pub struct OtlpExporter {
     endpoint: String,
 }
 
+/// Weaver live-check integration for telemetry validation
+#[cfg(feature = "std")]
+pub struct WeaverLiveCheck {
+    registry_path: Option<String>,
+    otlp_grpc_address: String,
+    otlp_grpc_port: u16,
+    admin_port: u16,
+    inactivity_timeout: u64,
+    format: String,
+    output: Option<String>,
+}
+
+#[cfg(feature = "std")]
+impl WeaverLiveCheck {
+    /// Create a new Weaver live-check instance
+    pub fn new() -> Self {
+        Self {
+            registry_path: None,
+            otlp_grpc_address: "127.0.0.1".to_string(),
+            otlp_grpc_port: 4317,
+            admin_port: 8080,
+            inactivity_timeout: 60,
+            format: "json".to_string(),
+            output: None,
+        }
+    }
+
+    /// Set the semantic convention registry path
+    pub fn with_registry(mut self, registry_path: String) -> Self {
+        self.registry_path = Some(registry_path);
+        self
+    }
+
+    /// Set the OTLP gRPC address
+    pub fn with_otlp_address(mut self, address: String) -> Self {
+        self.otlp_grpc_address = address;
+        self
+    }
+
+    /// Set the OTLP gRPC port
+    pub fn with_otlp_port(mut self, port: u16) -> Self {
+        self.otlp_grpc_port = port;
+        self
+    }
+
+    /// Set the admin HTTP port
+    pub fn with_admin_port(mut self, port: u16) -> Self {
+        self.admin_port = port;
+        self
+    }
+
+    /// Set the inactivity timeout in seconds
+    pub fn with_inactivity_timeout(mut self, timeout: u64) -> Self {
+        self.inactivity_timeout = timeout;
+        self
+    }
+
+    /// Set the output format (json, ansi)
+    pub fn with_format(mut self, format: String) -> Self {
+        self.format = format;
+        self
+    }
+
+    /// Set the output directory (for JSON reports)
+    pub fn with_output(mut self, output: String) -> Self {
+        self.output = Some(output);
+        self
+    }
+
+    /// Run live-check and return the process handle
+    /// The caller should send telemetry to the configured OTLP endpoint
+    pub fn start(&self) -> Result<std::process::Child, String> {
+        use std::process::Command;
+        
+        let mut cmd = Command::new("weaver");
+        
+        cmd.args(&["registry", "live-check"]);
+        
+        if let Some(ref registry) = self.registry_path {
+            cmd.args(&["--registry", registry]);
+        }
+        
+        cmd.args(&["--otlp-grpc-address", &self.otlp_grpc_address]);
+        cmd.args(&["--otlp-grpc-port", &self.otlp_grpc_port.to_string()]);
+        cmd.args(&["--admin-port", &self.admin_port.to_string()]);
+        cmd.args(&["--inactivity-timeout", &self.inactivity_timeout.to_string()]);
+        cmd.args(&["--format", &self.format]);
+        
+        if let Some(ref output) = self.output {
+            cmd.args(&["--output", output]);
+        }
+        
+        cmd.spawn()
+            .map_err(|e| format!("Failed to start Weaver live-check: {}", e))
+    }
+
+    /// Stop the live-check process via HTTP admin endpoint
+    pub fn stop(&self) -> Result<(), String> {
+        use reqwest::blocking::Client;
+        use std::time::Duration;
+        
+        let client = Client::builder()
+            .timeout(Duration::from_secs(5))
+            .build()
+            .map_err(|e| format!("Failed to create HTTP client: {}", e))?;
+        
+        let url = format!("http://{}:{}/stop", self.otlp_grpc_address, self.admin_port);
+        
+        match client.post(&url).send() {
+            Ok(_) => Ok(()),
+            Err(e) => Err(format!("Failed to stop Weaver live-check: {}", e)),
+        }
+    }
+
+    /// Get the OTLP gRPC endpoint for sending telemetry
+    /// Note: Weaver live-check listens on gRPC, but exporters typically use HTTP
+    /// This returns the address:port format for configuration
+    pub fn otlp_endpoint(&self) -> String {
+        format!("{}:{}", self.otlp_grpc_address, self.otlp_grpc_port)
+    }
+}
+
+#[cfg(feature = "std")]
+impl Default for WeaverLiveCheck {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[cfg(feature = "std")]
 impl OtlpExporter {
     pub fn new(endpoint: String) -> Self {
@@ -90,100 +219,205 @@ impl OtlpExporter {
     }
     
     pub fn export_spans(&self, spans: &[Span]) -> Result<(), String> {
-        // Serialize spans to OTLP format and send via HTTP/gRPC
-        // For v1.0, implement basic HTTP export
-        #[cfg(feature = "std")]
-        {
-            use std::io::Write;
-            
-            // Build OTLP JSON payload (simplified - in production use opentelemetry-http)
-            let mut payload = String::from(r#"{"resourceSpans":[{"resource":{},"instrumentationLibrarySpans":[{"instrumentationLibrary":{},"spans":["#);
-            
-            for (i, span) in spans.iter().enumerate() {
-                if i > 0 {
-                    payload.push(',');
-                }
-                payload.push_str(&format!(
-                    r#"{{"traceId":"{:032x}","spanId":"{:016x}","name":"{}","startTimeUnixNano":{},"endTimeUnixNano":{},"status":{{"code":{}}}"#,
-                    span.context.trace_id.0,
-                    span.context.span_id.0,
-                    span.name,
-                    span.start_time_ms * 1_000_000,
-                    span.end_time_ms.unwrap_or(span.start_time_ms) * 1_000_000,
-                    match span.status {
-                        SpanStatus::Ok => 1,
-                        SpanStatus::Error => 2,
-                        SpanStatus::Unset => 0,
-                    }
-                ));
-                
-                // Add attributes
-                if !span.attributes.is_empty() {
-                    payload.push_str(r#","attributes":["#);
-                    let mut attr_iter = span.attributes.iter();
-                    if let Some((k, v)) = attr_iter.next() {
-                        payload.push_str(&format!(r#"{{"key":"{}","value":{{"stringValue":"{}"}}}}"#, k, v));
-                    }
-                    for (k, v) in attr_iter {
-                        payload.push_str(&format!(r#,{{"key":"{}","value":{{"stringValue":"{}"}}}}"#, k, v));
-                    }
-                    payload.push(']');
-                }
-                
-                payload.push_str("}");
-            }
-            
-            payload.push_str(r#"]}]}]}"#);
-            
-            // Send HTTP POST request (simplified - in production use reqwest or opentelemetry-http)
-            // For v1.0, log the payload (actual HTTP send would be implemented here)
-            eprintln!("OTLP Export to {}: {} spans", self.endpoint, spans.len());
-            
-            Ok(())
+        if spans.is_empty() {
+            return Ok(());
         }
-        #[cfg(not(feature = "std"))]
+
+        #[cfg(all(feature = "std", feature = "reqwest"))]
         {
+            use reqwest::blocking::Client;
+            use std::time::Duration;
+            
+            // Build OTLP JSON payload
+            let payload = self.build_otlp_spans_payload(spans);
+            
+            // Create HTTP client
+            let client = Client::builder()
+                .timeout(Duration::from_secs(30))
+                .build()
+                .map_err(|e| format!("Failed to create HTTP client: {}", e))?;
+            
+            // Send spans to OTLP endpoint (traces endpoint)
+            let traces_endpoint = format!("{}/v1/traces", self.endpoint.trim_end_matches('/'));
+            
+            match client
+                .post(&traces_endpoint)
+                .json(&payload)
+                .header("Content-Type", "application/json")
+                .send()
+            {
+                Ok(response) => {
+                    if response.status().is_success() {
+                        Ok(())
+                    } else {
+                        Err(format!("OTLP export failed: HTTP {}", response.status()))
+                    }
+                }
+                Err(e) => Err(format!("OTLP export failed: {}", e)),
+            }
+        }
+        
+        #[cfg(not(all(feature = "std", feature = "reqwest")))]
+        {
+            // Fallback: log spans (for no_std or when reqwest not available)
+            eprintln!("OTLP Export to {}: {} spans (HTTP client not available)", self.endpoint, spans.len());
             Ok(())
         }
     }
     
-    pub fn export_metrics(&self, metrics: &[Metric]) -> Result<(), String> {
-        // Serialize metrics to OTLP format and send via HTTP/gRPC
-        #[cfg(feature = "std")]
-        {
-            // Build OTLP JSON payload (simplified)
-            let mut payload = String::from(r#"{"resourceMetrics":[{"resource":{},"instrumentationLibraryMetrics":[{"instrumentationLibrary":{},"metrics":["#);
-            
-            for (i, metric) in metrics.iter().enumerate() {
-                if i > 0 {
-                    payload.push(',');
+    #[cfg(all(feature = "std", feature = "serde_json"))]
+    fn build_otlp_spans_payload(&self, spans: &[Span]) -> serde_json::Value {
+        use serde_json::json;
+        
+        let spans_json: Vec<_> = spans.iter().map(|span| {
+            let mut span_json = json!({
+                "traceId": format!("{:032x}", span.context.trace_id.0),
+                "spanId": format!("{:016x}", span.context.span_id.0),
+                "name": span.name,
+                "startTimeUnixNano": span.start_time_ms * 1_000_000,
+                "endTimeUnixNano": span.end_time_ms.unwrap_or(span.start_time_ms) * 1_000_000,
+                "status": {
+                    "code": match span.status {
+                        SpanStatus::Ok => 1,
+                        SpanStatus::Error => 2,
+                        SpanStatus::Unset => 0,
+                    }
                 }
-                
-                let value_str = match &metric.value {
-                    MetricValue::Counter(c) => format!(r#"{{"asInt":"{}"}}"#, c),
-                    MetricValue::Gauge(g) => format!(r#"{{"asDouble":{}}}"#, g),
-                    MetricValue::Histogram(_) => r#"{"asInt":"0"}"#.to_string(),
-                };
-                
-                payload.push_str(&format!(
-                    r#"{{"name":"{}","timestamp":{},"value":{}}}"#,
-                    metric.name,
-                    metric.timestamp_ms * 1_000_000,
-                    value_str
-                ));
+            });
+            
+            // Add parent span ID if present
+            if let Some(parent_id) = span.context.parent_span_id {
+                span_json["parentSpanId"] = json!(format!("{:016x}", parent_id.0));
             }
             
-            payload.push_str(r#"]}]}]}"#);
+            // Add attributes
+            if !span.attributes.is_empty() {
+                span_json["attributes"] = json!(span.attributes.iter().map(|(k, v)| {
+                    json!({
+                        "key": k,
+                        "value": {"stringValue": v}
+                    })
+                }).collect::<Vec<_>>());
+            }
             
-            // Send HTTP POST request (simplified)
-            eprintln!("OTLP Export to {}: {} metrics", self.endpoint, metrics.len());
-            
-            Ok(())
+            span_json
+        }).collect();
+        
+        json!({
+            "resourceSpans": [{
+                "resource": {},
+                "instrumentationLibrarySpans": [{
+                    "instrumentationLibrary": {},
+                    "spans": spans_json
+                }]
+            }]
+        })
+    }
+    
+    #[cfg(not(all(feature = "std", feature = "serde_json")))]
+    fn build_otlp_spans_payload(&self, _spans: &[Span]) -> String {
+        // Fallback: return empty JSON
+        "{}".to_string()
+    }
+    
+    pub fn export_metrics(&self, metrics: &[Metric]) -> Result<(), String> {
+        if metrics.is_empty() {
+            return Ok(());
         }
-        #[cfg(not(feature = "std"))]
+
+        #[cfg(all(feature = "std", feature = "reqwest"))]
         {
+            use reqwest::blocking::Client;
+            use std::time::Duration;
+            
+            // Build OTLP JSON payload
+            let payload = self.build_otlp_metrics_payload(metrics);
+            
+            // Create HTTP client
+            let client = Client::builder()
+                .timeout(Duration::from_secs(30))
+                .build()
+                .map_err(|e| format!("Failed to create HTTP client: {}", e))?;
+            
+            // Send metrics to OTLP endpoint (metrics endpoint)
+            let metrics_endpoint = format!("{}/v1/metrics", self.endpoint.trim_end_matches('/'));
+            
+            match client
+                .post(&metrics_endpoint)
+                .json(&payload)
+                .header("Content-Type", "application/json")
+                .send()
+            {
+                Ok(response) => {
+                    if response.status().is_success() {
+                        Ok(())
+                    } else {
+                        Err(format!("OTLP export failed: HTTP {}", response.status()))
+                    }
+                }
+                Err(e) => Err(format!("OTLP export failed: {}", e)),
+            }
+        }
+        
+        #[cfg(not(all(feature = "std", feature = "reqwest")))]
+        {
+            // Fallback: log metrics (for no_std or when reqwest not available)
+            eprintln!("OTLP Export to {}: {} metrics (HTTP client not available)", self.endpoint, metrics.len());
             Ok(())
         }
+    }
+    
+    #[cfg(all(feature = "std", feature = "serde_json"))]
+    fn build_otlp_metrics_payload(&self, metrics: &[Metric]) -> serde_json::Value {
+        use serde_json::json;
+        
+        let metrics_json: Vec<_> = metrics.iter().map(|metric| {
+            let value_json = match &metric.value {
+                MetricValue::Counter(c) => json!({
+                    "asInt": format!("{}", c)
+                }),
+                MetricValue::Gauge(g) => json!({
+                    "asDouble": *g
+                }),
+                MetricValue::Histogram(h) => json!({
+                    "asInt": format!("{}", h.len())
+                }),
+            };
+            
+            let mut metric_json = json!({
+                "name": metric.name,
+                "timestamp": metric.timestamp_ms * 1_000_000,
+                "value": value_json
+            });
+            
+            // Add attributes
+            if !metric.attributes.is_empty() {
+                metric_json["attributes"] = json!(metric.attributes.iter().map(|(k, v)| {
+                    json!({
+                        "key": k,
+                        "value": {"stringValue": v}
+                    })
+                }).collect::<Vec<_>>());
+            }
+            
+            metric_json
+        }).collect();
+        
+        json!({
+            "resourceMetrics": [{
+                "resource": {},
+                "instrumentationLibraryMetrics": [{
+                    "instrumentationLibrary": {},
+                    "metrics": metrics_json
+                }]
+            }]
+        })
+    }
+    
+    #[cfg(not(all(feature = "std", feature = "serde_json")))]
+    fn build_otlp_metrics_payload(&self, _metrics: &[Metric]) -> String {
+        // Fallback: return empty JSON
+        "{}".to_string()
     }
 }
 
@@ -299,6 +533,16 @@ impl Tracer {
     /// Get metrics for specific name
     pub fn get_metrics(&self, name: &str) -> Vec<&Metric> {
         self.metrics.iter().filter(|m| m.name == name).collect()
+    }
+
+    /// Export telemetry to Weaver live-check endpoint for validation
+    #[cfg(feature = "std")]
+    pub fn export_to_weaver(&mut self, weaver_endpoint: &str) -> Result<(), String> {
+        // Create a temporary exporter pointing to Weaver's OTLP endpoint
+        let weaver_exporter = OtlpExporter::new(weaver_endpoint.to_string());
+        weaver_exporter.export_spans(&self.spans)?;
+        weaver_exporter.export_metrics(&self.metrics)?;
+        Ok(())
     }
 }
 
@@ -420,8 +664,8 @@ fn generate_trace_id() -> u128 {
     }
 }
 
-/// Generate 64-bit span ID
-fn generate_span_id() -> u64 {
+/// Generate 64-bit span ID (public API)
+pub fn generate_span_id() -> u64 {
     #[cfg(feature = "std")]
     {
         use rand::RngCore;
@@ -430,11 +674,13 @@ fn generate_span_id() -> u64 {
     }
     #[cfg(not(feature = "std"))]
     {
-        // For no_std, use simple hash-based generation
+        // For no_std, use hash-based generation with timestamp
         use core::hash::{Hash, Hasher};
         use hashbrown::hash_map::DefaultHasher;
         let mut hasher = DefaultHasher::new();
         "span".hash(&mut hasher);
+        let timestamp = get_timestamp_ms();
+        timestamp.hash(&mut hasher);
         hasher.finish()
     }
 }

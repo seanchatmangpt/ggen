@@ -238,12 +238,15 @@ static inline int knhks_eval_bool(const knhks_context_t *ctx, const knhks_hook_i
   }
 #endif
 
-  // Fill receipt
+  // 80/20 CRITICAL PATH: Measure operation end BEFORE receipt generation
+  uint64_t t_op_end = knhks_rd_ticks();
+  uint32_t op_ticks = (uint32_t)(t_op_end - t0);
+
+  // Fill receipt (overhead separate from critical path)
   if (rcpt) {
-    uint64_t t1 = knhks_rd_ticks();
-    rcpt->ticks = (uint32_t)(t1 - t0);
+    rcpt->ticks = op_ticks; // Critical path timing only
     rcpt->lanes = KNHKS_NROWS;
-    rcpt->span_id = knhks_generate_span_id_from_ticks(t1); // Use t1 to avoid extra clock read
+    rcpt->span_id = knhks_generate_span_id_from_ticks(t_op_end); // Use operation end time
     // Simple hash fragment: hash(ir, result, ctx->run)
     rcpt->a_hash = (uint64_t)(ir->s ^ ir->p ^ ir->o ^ ir->k ^ (uint64_t)result ^ ctx->run.pred);
   }
@@ -253,6 +256,7 @@ static inline int knhks_eval_bool(const knhks_context_t *ctx, const knhks_hook_i
 
 // Emit up to 8 triples using a fixed template (CONSTRUCT8)
 // Returns number of lanes written, fills rcpt
+// 80/20: Critical path measurement excludes receipt generation overhead
 static inline int knhks_eval_construct8(const knhks_context_t *ctx, knhks_hook_ir_t *ir, knhks_receipt_t *rcpt)
 {
   if (!ctx || !ir || ir->op != KNHKS_OP_CONSTRUCT8)
@@ -264,6 +268,7 @@ static inline int knhks_eval_construct8(const knhks_context_t *ctx, knhks_hook_i
   if (ir->p != ctx->run.pred)
     return 0;
   
+  // 80/20 CRITICAL PATH: Measure operation only
   uint64_t t0 = knhks_rd_ticks();
   
   // Use SIMD-optimized CONSTRUCT8 (branchless)
@@ -289,12 +294,15 @@ static inline int knhks_eval_construct8(const knhks_context_t *ctx, knhks_hook_i
   ir->out_mask = mask;
 #endif
   
-  // Fill receipt
+  // 80/20 CRITICAL PATH: Measure operation end BEFORE receipt generation
+  uint64_t t_op_end = knhks_rd_ticks();
+  uint32_t op_ticks = (uint32_t)(t_op_end - t0);
+
+  // Fill receipt (overhead separate from critical path)
   if (rcpt) {
-    uint64_t t1 = knhks_rd_ticks();
-    rcpt->ticks = (uint32_t)(t1 - t0);
+    rcpt->ticks = op_ticks; // Critical path timing only
     rcpt->lanes = (uint32_t)written;
-    rcpt->span_id = knhks_generate_span_id_from_ticks(t1); // Use t1 to avoid extra clock read
+    rcpt->span_id = knhks_generate_span_id_from_ticks(t_op_end); // Use operation end time
     rcpt->a_hash = (uint64_t)(ir->s ^ ir->p ^ ir->o ^ ctx->run.pred ^ ir->out_mask);
   }
   
