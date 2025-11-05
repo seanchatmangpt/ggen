@@ -88,6 +88,7 @@ docs/
 ├── api.md                 # API reference
 ├── performance.md        # Performance metrics
 ├── performance.mmd        # Performance charts
+├── code-organization.md   # Code structure and organization
 ├── data-flow.md           # Data flow documentation
 ├── data-flow.mmd          # Data flow diagrams
 ├── simd-optimization.md   # SIMD details
