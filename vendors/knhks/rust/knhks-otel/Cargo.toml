@@ -8,4 +8,13 @@ crate-type = ["cdylib", "staticlib"]
 path = "src/lib.rs"
 
 [dependencies]
+opentelemetry = { version = "0.22", optional = true, default-features = false }
+opentelemetry_sdk = { version = "0.22", optional = true, default-features = false }
+opentelemetry-http = { version = "0.12", optional = true, default-features = false }
+rand = { version = "0.8", optional = true, default-features = false }
+hashbrown = { version = "0.15", default-features = false }
+
+[features]
+default = []
+std = ["rand", "opentelemetry", "opentelemetry_sdk", "opentelemetry-http", "hashbrown/std"]
 

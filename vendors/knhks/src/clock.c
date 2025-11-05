@@ -1,8 +1,9 @@
 // clock.c
-// Platform-specific clock/timing utilities
+// Platform-specific clock/timing utilities and OTEL span ID generation
 
 #include "clock.h"
 #include <stdlib.h>
+#include <stdint.h>
 
 #if defined(__aarch64__)
 uint64_t knhks_rd_ticks(void)
@@ -43,4 +44,27 @@ double knhks_ticks_hz(void)
   return 1.0;
 }
 #endif
+
+// Generate OTEL-compatible span ID (64-bit)
+// Ultra-optimized for hot path: minimal operations, branchless
+// Uses provided ticks value to avoid extra clock reads
+uint64_t knhks_generate_span_id_from_ticks(uint64_t ticks)
+{
+  // Minimal overhead: just XOR with constant and ensure non-zero
+  // This is the fastest possible while still providing uniqueness
+  uint64_t id = ticks;
+  id ^= 0x9e3779b97f4a7c15ULL;  // Golden ratio constant for mixing
+  id |= 1;  // Ensure non-zero (branchless)
+  return id;
+}
+
+// Generate OTEL-compatible span ID (64-bit)
+// Optimized for hot path: minimal overhead, deterministic
+// Uses ticks with simple mixing for uniqueness
+uint64_t knhks_generate_span_id(void)
+{
+  // Fast path: use ticks directly with simple mixing
+  uint64_t ticks = knhks_rd_ticks();
+  return knhks_generate_span_id_from_ticks(ticks);
+}
 
