@@ -6,6 +6,8 @@
 -export([start_link/0, load/1]).
 start_link() -> gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 init([]) -> {ok, #{}}.
+handle_call({load, Sigma}, _From, State) -> {reply, ok, State};
+handle_call(_Request, _From, State) -> {reply, {error, unknown}, State}.
 load(Sigma) -> gen_server:call(?MODULE, {load, Sigma}).
 
 -module(knhks_q).
@@ -13,6 +15,8 @@ load(Sigma) -> gen_server:call(?MODULE, {load, Sigma}).
 -export([start_link/0, load/1]).
 start_link() -> gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 init([]) -> {ok, #{}}.
+handle_call({load, Q}, _From, State) -> {reply, ok, State};
+handle_call(_Request, _From, State) -> {reply, {error, unknown}, State}.
 load(Q) -> gen_server:call(?MODULE, {load, Q}).
 
 -module(knhks_ingest).
@@ -20,6 +24,8 @@ load(Q) -> gen_server:call(?MODULE, {load, Q}).
 -export([start_link/0, submit/1]).
 start_link() -> gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 init([]) -> {ok, #{}}.
+handle_call({submit, Δ}, _From, State) -> {reply, ok, State};
+handle_call(_Request, _From, State) -> {reply, {error, unknown}, State}.
 submit(Δ) -> gen_server:call(?MODULE, {submit, Δ}).
 
 -module(knhks_unrdf).
@@ -27,79 +33,39 @@ submit(Δ) -> gen_server:call(?MODULE, {submit, Δ}).
 -export([start_link/0]).
 start_link() -> gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 init([]) -> {ok, #{}}.
+handle_call(_Request, _From, State) -> {reply, {error, unknown}, State}.
 
 -module(knhks_shapes).
 -behaviour(gen_server).
 -export([start_link/0]).
 start_link() -> gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 init([]) -> {ok, #{}}.
+handle_call(_Request, _From, State) -> {reply, {error, unknown}, State}.
 
 -module(knhks_lockchain).
 -behaviour(gen_server).
--export([start_link/0, read/1, merge/1]).
+-export([start_link/0, read/1, merge/1, write/1]).
 start_link() -> gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 init([]) -> {ok, #{}}.
+handle_call({read, Id}, _From, State) -> {reply, {ok, #{}}, State};
+handle_call({merge, Receipts}, _From, State) -> {reply, {ok, #{}}, State};
+handle_call({write, Receipt}, _From, State) -> {reply, {ok, erlang:phash2(Receipt)}, State};
+handle_call(_Request, _From, State) -> {reply, {error, unknown}, State}.
 read(Id) -> gen_server:call(?MODULE, {read, Id}).
 merge(Receipts) -> gen_server:call(?MODULE, {merge, Receipts}).
+write(Receipt) -> gen_server:call(?MODULE, {write, Receipt}).
 
 -module(knhks_bus).
 -behaviour(gen_server).
 -export([start_link/0]).
 start_link() -> gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 init([]) -> {ok, #{}}.
+handle_call(_Request, _From, State) -> {reply, {error, unknown}, State}.
 
 -module(knhks_repl).
 -behaviour(gen_server).
 -export([start_link/0]).
 start_link() -> gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 init([]) -> {ok, #{}}.
-
--module(knhks_otel).
--behaviour(gen_server).
--export([start_link/0, metrics/0]).
-start_link() -> gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
-init([]) -> {ok, #{}}.
-metrics() -> gen_server:call(?MODULE, metrics).
-
--module(knhks_darkmatter).
--behaviour(gen_server).
--export([start_link/0]).
-start_link() -> gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
-init([]) -> {ok, #{}}.
-
--module(knhks_connect).
--behaviour(gen_server).
--export([start_link/0, register/5]).
-start_link() -> gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
-init([]) -> {ok, #{}}.
-register(Name, SigmaIri, Src, Map, Guard) -> gen_server:call(?MODULE, {register, Name, SigmaIri, Src, Map, Guard}).
-
--module(knhks_cover).
--behaviour(gen_server).
--export([start_link/0, define/2]).
-start_link() -> gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
-init([]) -> {ok, #{}}.
-define(SelectSpec, ShardSpec) -> gen_server:call(?MODULE, {define, SelectSpec, ShardSpec}).
-
--module(knhks_hooks).
--behaviour(gen_server).
--export([start_link/0, install/7]).
-start_link() -> gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
-init([]) -> {ok, #{}}.
-install(Name, Op, P, Off, Len, Args, EpochTag) -> gen_server:call(?MODULE, {install, Name, Op, P, Off, Len, Args, EpochTag}).
-
--module(knhks_epoch).
--behaviour(gen_server).
--export([start_link/0, schedule/3, run/1]).
-start_link() -> gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
-init([]) -> {ok, #{}}.
-schedule(Tau, Plan, CoverId) -> gen_server:call(?MODULE, {schedule, Tau, Plan, CoverId}).
-run(EpochId) -> gen_server:call(?MODULE, {run, EpochId}).
-
--module(knhks_route).
--behaviour(gen_server).
--export([start_link/0, install/4]).
-start_link() -> gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
-init([]) -> {ok, #{}}.
-install(Name, Kind, Target, Codec) -> gen_server:call(?MODULE, {install, Name, Kind, Target, Codec}).
+handle_call(_Request, _From, State) -> {reply, {error, unknown}, State}.
 

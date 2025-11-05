@@ -1,0 +1,15 @@
+[package]
+name = "knhks-etl"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "staticlib"]
+
+[dependencies]
+# Core no_std compatible crates
+alloc = { version = "1.0", package = "alloc" }
+
+[dev-dependencies]
+# Test dependencies
+

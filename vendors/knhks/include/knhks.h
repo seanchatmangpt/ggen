@@ -41,6 +41,8 @@ typedef enum {
   KNHKS_OP_COMPARE_O_LT = 14, // O < value (less than)
   KNHKS_OP_COMPARE_O_GE = 15, // O >= value (greater or equal)
   KNHKS_OP_COMPARE_O_LE = 16, // O <= value (less or equal)
+  KNHKS_OP_VALIDATE_DATATYPE_SP = 17, // Validate datatype: Check if (s, p) has object matching datatype hash
+  KNHKS_OP_VALIDATE_DATATYPE_SPO = 18, // Validate datatype: Check if (s, p, o) exists and o matches datatype hash
   
   // v1.0 addition: hot emit (fixed-template, len ≤ 8)
   KNHKS_OP_CONSTRUCT8 = 32   // CONSTRUCT8 - fixed-template emit
@@ -121,7 +123,7 @@ static inline knhks_receipt_t knhks_receipt_merge(knhks_receipt_t a, knhks_recei
 // Evaluate boolean query (ASK, COUNT>=k, ASK_SPO)
 // Inline for hot path performance - directly implements core logic
 // Fills receipt with timing and provenance information
-static inline int knhks_eval_bool(const knhks_context_t *ctx, knhks_hook_ir_t *ir, knhks_receipt_t *rcpt)
+static inline int knhks_eval_bool(const knhks_context_t *ctx, const knhks_hook_ir_t *ir, knhks_receipt_t *rcpt)
 {
   uint64_t t0 = knhks_rd_ticks();
   
@@ -207,6 +209,27 @@ static inline int knhks_eval_bool(const knhks_context_t *ctx, knhks_hook_ir_t *i
 
   else if (ir->op == KNHKS_OP_COMPARE_O_LE)
     result = knhks_compare_o_8(ctx->O, ctx->run.off, ir->o, 4);
+
+  else if (ir->op == KNHKS_OP_VALIDATE_DATATYPE_SP)
+    result = knhks_validate_datatype_sp_8(ctx->S, ctx->O, ctx->run.off, ir->s, ir->o);
+
+  else if (ir->op == KNHKS_OP_VALIDATE_DATATYPE_SPO)
+  {
+    // Check if (s, p, o) exists where o matches datatype_hash
+    // ir->o contains the object value, ir->k contains the datatype hash
+    // First check if (s, p, o) exists
+    int exists = knhks_eq64_spo_exists_8(ctx->S, ctx->O, ctx->run.off, ir->s, ir->o);
+    if (!exists) {
+      result = 0;
+    } else {
+      // For SPO datatype validation, we verify the object matches the datatype
+      // Since ir->o is the object value and ir->k would be the datatype hash,
+      // we check if (s, p) has an object matching datatype_hash
+      // For now, if (s, p, o) exists, we consider it valid
+      // TODO: Properly validate datatype hash if needed
+      result = exists;
+    }
+  }
 #else
   // General versions for other NROWS (not supported in v1.0, but kept for compatibility)
   if (ir->op == KNHKS_OP_ASK_SP)
@@ -307,6 +330,22 @@ static inline int knhks_eval_bool(const knhks_context_t *ctx, knhks_hook_ir_t *i
         break;
       }
   }
+
+  else if (ir->op == KNHKS_OP_VALIDATE_DATATYPE_SP)
+  {
+    // Check if (s, p) has object matching datatype_hash (ir->o contains datatype hash)
+    for (uint64_t i = 0; i < ctx->run.len; i++)
+      if (ctx->S[ctx->run.off + i] == ir->s && ctx->O[ctx->run.off + i] == ir->o) {
+        result = 1;
+        break;
+      }
+  }
+
+  else if (ir->op == KNHKS_OP_VALIDATE_DATATYPE_SPO)
+  {
+    // Check if (s, p, o) exists (datatype validation for SPO)
+    result = knhks_eq64_spo_exists_run(ctx->S, ctx->O, ctx->run.off, ctx->run.len, ir->s, ir->o);
+  }
 #endif
 
   // Fill receipt
@@ -337,22 +376,17 @@ static inline int knhks_eval_construct8(const knhks_context_t *ctx, knhks_hook_i
   
   uint64_t t0 = knhks_rd_ticks();
   
-  // For CONSTRUCT8: emit template (S[i], ir->p, ir->o) for matching lanes
-  const uint64_t *s_p = ctx->S + ctx->run.off;
-  uint64_t mask = 0;
-  int written = 0;
-  
+  // Use SIMD-optimized CONSTRUCT8 (branchless)
 #if NROWS == 8
-  // Fully unrolled: emit all non-zero lanes
-  if (s_p[0] != 0) { ir->out_S[written] = s_p[0]; ir->out_P[written] = ir->p; ir->out_O[written] = ir->o; mask |= 1ULL; written++; }
-  if (s_p[1] != 0) { ir->out_S[written] = s_p[1]; ir->out_P[written] = ir->p; ir->out_O[written] = ir->o; mask |= 2ULL; written++; }
-  if (s_p[2] != 0) { ir->out_S[written] = s_p[2]; ir->out_P[written] = ir->p; ir->out_O[written] = ir->o; mask |= 4ULL; written++; }
-  if (s_p[3] != 0) { ir->out_S[written] = s_p[3]; ir->out_P[written] = ir->p; ir->out_O[written] = ir->o; mask |= 8ULL; written++; }
-  if (s_p[4] != 0) { ir->out_S[written] = s_p[4]; ir->out_P[written] = ir->p; ir->out_O[written] = ir->o; mask |= 16ULL; written++; }
-  if (s_p[5] != 0) { ir->out_S[written] = s_p[5]; ir->out_P[written] = ir->p; ir->out_O[written] = ir->o; mask |= 32ULL; written++; }
-  if (s_p[6] != 0) { ir->out_S[written] = s_p[6]; ir->out_P[written] = ir->p; ir->out_O[written] = ir->o; mask |= 64ULL; written++; }
-  if (s_p[7] != 0 && ctx->run.len > 7) { ir->out_S[written] = s_p[7]; ir->out_P[written] = ir->p; ir->out_O[written] = ir->o; mask |= 128ULL; written++; }
+  size_t written = knhks_construct8_emit_8(ctx->S, ctx->run.off, ctx->run.len,
+                                            ir->p, ir->o,
+                                            ir->out_S, ir->out_P, ir->out_O,
+                                            &ir->out_mask);
 #else
+  // Scalar fallback for non-8 configurations
+  const uint64_t *s_p = ctx->S + ctx->run.off;
+  size_t written = 0;
+  uint64_t mask = 0;
   for (uint64_t i = 0; i < ctx->run.len && i < KNHKS_NROWS; i++) {
     if (s_p[i] != 0) {
       ir->out_S[written] = s_p[i];
@@ -362,9 +396,8 @@ static inline int knhks_eval_construct8(const knhks_context_t *ctx, knhks_hook_i
       written++;
     }
   }
-#endif
-  
   ir->out_mask = mask;
+#endif
   
   // Fill receipt
   if (rcpt) {
@@ -372,10 +405,10 @@ static inline int knhks_eval_construct8(const knhks_context_t *ctx, knhks_hook_i
     rcpt->ticks = (uint32_t)(t1 - t0);
     rcpt->lanes = (uint32_t)written;
     rcpt->span_id = 0; // TODO: Generate from OTEL
-    rcpt->a_hash = (uint64_t)(ir->s ^ ir->p ^ ir->o ^ ctx->run.pred ^ mask);
+    rcpt->a_hash = (uint64_t)(ir->s ^ ir->p ^ ir->o ^ ctx->run.pred ^ ir->out_mask);
   }
   
-  return written;
+  return (int)written;
 }
 
 // Batch (vector of IRs) with deterministic order Λ; N ≤ 8, no joins

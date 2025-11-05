@@ -79,9 +79,9 @@ int main(int argc, char **argv)
   knhks_hook_ir_t ask_spo = {.op = KNHKS_OP_ASK_SPO, .s = test_subj, .p = test_pred, .o = test_obj, .k = 0, .select_out = NULL, .select_capacity = 0};
 
   // sanity
-  int a = knhks_eval_bool(&ctx, &ask);
-  int c = knhks_eval_bool(&ctx, &ge);
-  (void)knhks_eval_bool(&ctx, &ask_spo); // Test SPO but don't use result
+  int a = knhks_eval_bool(&ctx, &ask, NULL);
+  int c = knhks_eval_bool(&ctx, &ge, NULL);
+  (void)knhks_eval_bool(&ctx, &ask_spo, NULL); // Test SPO but don't use result
 
   if (!(a == 1 && c == 1))
   {
@@ -97,10 +97,10 @@ int main(int argc, char **argv)
   // Benchmark SPO query
   volatile int sink_spo = 0;
   for (int i = 0; i < 1024; i++)
-    sink_spo ^= knhks_eval_bool(&ctx, &ask_spo);
+    sink_spo ^= knhks_eval_bool(&ctx, &ask_spo, NULL);
   uint64_t t0_spo = knhks_rd_ticks();
   for (int i = 0; i < N; i++)
-    sink_spo ^= knhks_eval_bool(&ctx, &ask_spo);
+    sink_spo ^= knhks_eval_bool(&ctx, &ask_spo, NULL);
   uint64_t t1_spo = knhks_rd_ticks();
   (void)sink_spo;
   double hz = knhks_ticks_hz();

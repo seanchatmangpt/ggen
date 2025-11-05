@@ -12,7 +12,8 @@
   route/1,                         %% ActionSpec → RouteId         (A ports)
   receipt/1,                       %% Id → Receipt
   merge/1,                         %% [Receipt] → Receipt          (Π ⊕)
-  metrics/0                        %% OTEL-friendly map
+  metrics/0,                       %% OTEL-friendly map
+  coverage/0                       %% Dark Matter 80/20 coverage
 ]).
 
 %% -------- Type sketches (KGC-aligned)
@@ -75,4 +76,7 @@ merge(Receipts) ->
 
 metrics() ->
   knhks_otel:metrics().
+
+coverage() ->
+  knhks_darkmatter:coverage().
 

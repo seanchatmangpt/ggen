@@ -19,7 +19,8 @@ int knhks_load_rdf(knhks_context_t *ctx, const char *filename)
 
   size_t capacity = NROWS;
   size_t count = 0;
-  int result = knhks_rdf_load(filename, ctx->S, ctx->P, ctx->O, capacity, &count);
+  // Cast away const for RDF loading (arrays are written to during load)
+  int result = knhks_rdf_load(filename, (uint64_t *)ctx->S, (uint64_t *)ctx->P, (uint64_t *)ctx->O, capacity, &count);
   if (result)
   {
     ctx->triple_count = count;
@@ -48,10 +49,10 @@ double knhks_bench_eval(const knhks_context_t *ctx, const knhks_hook_ir_t *ir, i
   // warm L1
   volatile int sink = 0;
   for (int i = 0; i < 1024; i++)
-    sink ^= knhks_eval_bool(ctx, ir);
+    sink ^= knhks_eval_bool(ctx, ir, NULL);
   uint64_t t0 = knhks_rd_ticks();
   for (int i = 0; i < iters; i++)
-    sink ^= knhks_eval_bool(ctx, ir);
+    sink ^= knhks_eval_bool(ctx, ir, NULL);
   uint64_t t1 = knhks_rd_ticks();
   (void)sink;
   double hz = knhks_ticks_hz();
