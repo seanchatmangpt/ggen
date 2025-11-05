@@ -270,6 +270,48 @@ fn get_coverage() {
     }
 }
 
+/// Context noun - context management
+#[noun]
+fn context() {
+    // Context commands registered via verbs
+}
+
+/// List contexts
+#[verb]
+fn list_contexts() {
+    if let Err(e) = commands::context::list() {
+        eprintln!("Error: {}", e);
+        std::process::exit(1);
+    }
+}
+
+/// Show current context
+#[verb]
+fn current_context() {
+    if let Err(e) = commands::context::current() {
+        eprintln!("Error: {}", e);
+        std::process::exit(1);
+    }
+}
+
+/// Create context
+#[verb]
+fn create_context(id: String, name: String, schema: String) {
+    if let Err(e) = commands::context::create(id, name, schema) {
+        eprintln!("Error: {}", e);
+        std::process::exit(1);
+    }
+}
+
+/// Use context
+#[verb]
+fn use_context(id: String) {
+    if let Err(e) = commands::context::use_context(id) {
+        eprintln!("Error: {}", e);
+        std::process::exit(1);
+    }
+}
+
 /// Hook noun - knowledge hook operations
 #[noun]
 fn hook() {
@@ -326,5 +368,6 @@ fn main() {
         .noun(metrics)
         .noun(coverage)
         .noun(hook)
+        .noun(context)
         .run();
 }

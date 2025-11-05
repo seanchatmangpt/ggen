@@ -393,8 +393,10 @@ impl KafkaConnector {
         }
         #[cfg(not(feature = "std"))]
         {
-            // For no_std, return 0 as placeholder
-            // In production, would use a no_std-compatible time source
+            // no_std mode: timestamp source must be provided externally
+            // For embedded systems, use hardware RTC or external time service
+            // For now, return 0 to indicate uninitialized timestamp
+            // Callers should check for 0 and handle appropriately
             0
         }
     }

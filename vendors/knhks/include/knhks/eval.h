@@ -255,8 +255,8 @@ static inline int knhks_eval_bool(const knhks_context_t *ctx, const knhks_hook_i
 }
 
 // Emit up to 8 triples using a fixed template (CONSTRUCT8)
-// Returns number of lanes written, fills rcpt
-// 80/20: Critical path measurement excludes receipt generation overhead
+// Returns number of lanes written, fills rcpt with user knowledge only
+// Hot path: Pure CONSTRUCT logic only, no timing/framework overhead
 static inline int knhks_eval_construct8(const knhks_context_t *ctx, knhks_hook_ir_t *ir, knhks_receipt_t *rcpt)
 {
   if (!ctx || !ir || ir->op != KNHKS_OP_CONSTRUCT8)
@@ -268,10 +268,7 @@ static inline int knhks_eval_construct8(const knhks_context_t *ctx, knhks_hook_i
   if (ir->p != ctx->run.pred)
     return 0;
   
-  // 80/20 CRITICAL PATH: Measure operation only
-  uint64_t t0 = knhks_rd_ticks();
-  
-  // Use SIMD-optimized CONSTRUCT8 (branchless)
+  // Hot path: Pure CONSTRUCT logic only (branchless SIMD)
 #if NROWS == 8
   size_t written = knhks_construct8_emit_8(ctx->S, ctx->run.off, ctx->run.len,
                                             ir->p, ir->o,
@@ -279,10 +276,11 @@ static inline int knhks_eval_construct8(const knhks_context_t *ctx, knhks_hook_i
                                             &ir->out_mask);
 #else
   // Scalar fallback for non-8 configurations
+  // ctx->run.len is guaranteed ≤ 8 at Chicago TDD level
   const uint64_t *s_p = ctx->S + ctx->run.off;
   size_t written = 0;
   uint64_t mask = 0;
-  for (uint64_t i = 0; i < ctx->run.len && i < KNHKS_NROWS; i++) {
+  for (uint64_t i = 0; i < ctx->run.len; i++) {
     if (s_p[i] != 0) {
       ir->out_S[written] = s_p[i];
       ir->out_P[written] = ir->p;
@@ -294,19 +292,15 @@ static inline int knhks_eval_construct8(const knhks_context_t *ctx, knhks_hook_i
   ir->out_mask = mask;
 #endif
   
-  // 80/20 CRITICAL PATH: Measure operation end BEFORE receipt generation
-  uint64_t t_op_end = knhks_rd_ticks();
-  uint32_t op_ticks = (uint32_t)(t_op_end - t0);
-
-  // Fill receipt (overhead separate from critical path)
+  // Fill receipt with user knowledge only (provenance, not timing)
   if (rcpt) {
-    rcpt->ticks = op_ticks; // Critical path timing only
-    rcpt->lanes = (uint32_t)written;
-    rcpt->span_id = knhks_generate_span_id_from_ticks(t_op_end); // Use operation end time
-    rcpt->a_hash = (uint64_t)(ir->s ^ ir->p ^ ir->o ^ ctx->run.pred ^ ir->out_mask);
+    rcpt->lanes = (uint32_t)written;  // User knowledge: how many triples constructed
+    rcpt->span_id = knhks_generate_span_id();  // User knowledge: provenance trace ID
+    rcpt->a_hash = (uint64_t)(ir->s ^ ir->p ^ ir->o ^ ctx->run.pred ^ ir->out_mask);  // User knowledge: provenance hash
+    // Note: rcpt->ticks should be set by caller if timing is needed (testing/framework)
   }
   
-  return (int)written;
+  return (int)written;  // User knowledge: number of triples constructed
 }
 
 #endif // KNHKS_EVAL_H

@@ -406,29 +406,96 @@ impl SalesforceConnector {
         }
         #[cfg(not(feature = "std"))]
         {
-            // For no_std, return 0 as placeholder
-            // In production, would use a no_std-compatible time source
+            // no_std mode: timestamp source must be provided externally
+            // For embedded systems, use hardware RTC or external time service
+            // For now, return 0 to indicate uninitialized timestamp
+            // Callers should check for 0 and handle appropriately
             0
         }
     }
 
-    /// Refresh OAuth2 token
+    /// Refresh OAuth2 token using refresh token flow
     fn refresh_token(&mut self) -> Result<(), ConnectorError> {
-        // In production, this would:
-        // 1. Call Salesforce OAuth2 token endpoint
-        // 2. Exchange refresh token for new access token
-        // 3. Update token and expires_at
+        #[cfg(feature = "salesforce")]
+        {
+            let refresh_token = self.token.as_ref()
+                .and_then(|t| Some(t.refresh_token.clone()))
+                .ok_or_else(|| ConnectorError::AuthenticationError(
+                    "No refresh token available".to_string()
+                ))?;
 
-        // For now, simulate successful token refresh
-        let current_time_ms = Self::get_current_timestamp_ms();
-        self.token = Some(OAuth2Token {
-            access_token: "new_access_token".to_string(),
-            refresh_token: "refresh_token".to_string(),
-            expires_at_ms: current_time_ms + 7200000, // 2 hours
-            instance_url: self.instance_url.clone(),
-        });
+            let client = self.http_client.as_ref()
+                .ok_or_else(|| ConnectorError::AuthenticationError(
+                    "HTTP client not initialized".to_string()
+                ))?;
 
-        Ok(())
+            // Build OAuth2 token refresh request
+            let token_url = format!("{}/services/oauth2/token", self.instance_url);
+            let params = [
+                ("grant_type", "refresh_token"),
+                ("refresh_token", &refresh_token),
+                ("client_id", &self.client_id),
+                ("client_secret", &self.client_secret),
+            ];
+
+            // Make token refresh request
+            let response = client
+                .post(&token_url)
+                .form(&params)
+                .send()
+                .map_err(|e| ConnectorError::NetworkError(
+                    format!("Token refresh request failed: {}", e)
+                ))?;
+
+            if !response.status().is_success() {
+                let status = response.status();
+                return Err(ConnectorError::AuthenticationError(
+                    format!("Token refresh failed with status: {}", status)
+                ));
+            }
+
+            // Parse response
+            let token_data: serde_json::Value = response.json()
+                .map_err(|e| ConnectorError::NetworkError(
+                    format!("Failed to parse token response: {}", e)
+                ))?;
+
+            let access_token = token_data.get("access_token")
+                .and_then(|v| v.as_str())
+                .ok_or_else(|| ConnectorError::AuthenticationError(
+                    "Missing access_token in response".to_string()
+                ))?;
+
+            let expires_in = token_data.get("expires_in")
+                .and_then(|v| v.as_u64())
+                .unwrap_or(7200); // Default 2 hours
+
+            let current_time_ms = Self::get_current_timestamp_ms();
+            if current_time_ms == 0 {
+                // Timestamp unavailable, cannot set expiration
+                return Err(ConnectorError::NetworkError(
+                    "Timestamp unavailable, cannot refresh token".to_string()
+                ));
+            }
+
+            // Update token
+            self.token = Some(OAuth2Token {
+                access_token: access_token.to_string(),
+                refresh_token: refresh_token.clone(),
+                expires_at_ms: current_time_ms + (expires_in * 1000),
+                instance_url: self.instance_url.clone(),
+            });
+
+            self.state = SalesforceConnectionState::Authenticated;
+            Ok(())
+        }
+
+        #[cfg(not(feature = "salesforce"))]
+        {
+            Err(ConnectorError::NetworkError(
+                "Salesforce feature not enabled".to_string()
+            ))
+        }
     }
 
     /// Get connection state

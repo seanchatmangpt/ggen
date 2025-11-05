@@ -1,0 +1,86 @@
+flowchart LR
+    subgraph Input["Input Data (SoA Layout)"]
+        S[S Array<br/>8x uint64_t<br/>64-byte aligned]
+        P[P Array<br/>Predicate IDs]
+        O[O Array<br/>Object IDs]
+        IR[IR Parameters<br/>p_const, o_const<br/>len, off]
+    end
+    
+    subgraph ARM_SIMD["ARM64 SIMD Path"]
+        LoadS[Load Subjects<br/>s0 = vld1q_u64[S+0]<br/>s1 = vld1q_u64[S+2]<br/>s2 = vld1q_u64[S+4]<br/>s3 = vld1q_u64[S+6]]
+        
+        Mask[Generate Masks<br/>m0 = veorq_u64 vceqq_u64 s0,zero<br/>m1, m2, m3 similarly]
+        
+        Broadcast[Broadcast Constants<br/>p_vec = vdupq_n_u64 p_const<br/>o_vec = vdupq_n_u64 o_const]
+        
+        Blend[Blend Operations<br/>out_s0 = vbslq_u64 m0, s0, zero<br/>out_p0 = vbslq_u64 m0, p_vec, zero<br/>out_o0 = vbslq_u64 m0, o_vec, zero<br/>...repeat for m1, m2, m3]
+        
+        Store[Store Results<br/>vst1q_u64 out_S+0, out_s0<br/>vst1q_u64 out_P+0, out_p0<br/>vst1q_u64 out_O+0, out_o0<br/>...12 stores total]
+    end
+    
+    subgraph x86_SIMD["x86_64 SIMD Path"]
+        LoadS_x86[Load Subjects<br/>s0 = _mm256_loadu_si256[S+0]<br/>s1 = _mm256_loadu_si256[S+4]]
+        
+        Mask_x86[Generate Masks<br/>m0 = _mm256_andnot_si256<br/>_mm256_cmpeq_epi64 s0,zero<br/>m1 similarly]
+        
+        Broadcast_x86[Broadcast Constants<br/>p_vec = _mm256_set1_epi64x p_const<br/>o_vec = _mm256_set1_epi64x o_const]
+        
+        Blend_x86[Blend Operations<br/>out_s0 = _mm256_blendv_epi8 zero, s0, m0<br/>out_p0 = _mm256_blendv_epi8 zero, p_vec, m0<br/>out_o0 = _mm256_blendv_epi8 zero, o_vec, m0<br/>...repeat for m1]
+        
+        Store_x86[Store Results<br/>_mm256_store_si256 out_S+0, out_s0<br/>_mm256_store_si256 out_P+0, out_p0<br/>_mm256_store_si256 out_O+0, out_o0<br/>...6 stores total]
+    end
+    
+    subgraph MaskExtract["Mask Extraction"]
+        ExtractARM[ARM: Extract MSBs<br/>mask = lane0>>63 <<0 |<br/>lane1>>63 <<1 | ...<br/>8 lane extractions]
+        
+        Extractx86[x86: movemask<br/>mask0 = _mm256_movemask_pd m0<br/>mask1 = _mm256_movemask_pd m1<br/>mask = mask0 | mask1<<4]
+        
+        ApplyMask[Apply Length Mask<br/>mask &= len_mask_bits<br/>len_mask_bits = 1<<len - 1 & 0xFF]
+    end
+    
+    subgraph Output["Output Data"]
+        OutS[out_S Array<br/>8x uint64_t<br/>Constructed Subjects]
+        OutP[out_P Array<br/>8x uint64_t<br/>All = p_const]
+        OutO[out_O Array<br/>8x uint64_t<br/>All = o_const]
+        OutMask[out_mask<br/>uint64_t bitmap<br/>Per-lane bitmask]
+        Count[Return Value<br/>size_t count<br/>Popcount of mask]
+    end
+    
+    S --> LoadS
+    S --> LoadS_x86
+    IR --> Broadcast
+    IR --> Broadcast_x86
+    
+    LoadS --> Mask
+    Mask --> Broadcast
+    Broadcast --> Blend
+    Blend --> Store
+    
+    LoadS_x86 --> Mask_x86
+    Mask_x86 --> Broadcast_x86
+    Broadcast_x86 --> Blend_x86
+    Blend_x86 --> Store_x86
+    
+    Mask --> ExtractARM
+    Mask_x86 --> Extractx86
+    ExtractARM --> ApplyMask
+    Extractx86 --> ApplyMask
+    
+    Store --> OutS
+    Store --> OutP
+    Store --> OutO
+    Store_x86 --> OutS
+    Store_x86 --> OutP
+    Store_x86 --> OutO
+    
+    ApplyMask --> OutMask
+    OutMask --> Count
+    
+    style LoadS fill:#87CEEB
+    style LoadS_x86 fill:#FFB6C1
+    style Blend fill:#90EE90
+    style Blend_x86 fill:#90EE90
+    style Store fill:#FFD700
+    style Store_x86 fill:#FFD700
+    style Count fill:#DDA0DD
+
