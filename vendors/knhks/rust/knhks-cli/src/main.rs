@@ -198,6 +198,24 @@ fn list_receipts() {
     }
 }
 
+/// Verify receipt integrity
+#[verb]
+fn verify_receipt(id: String) {
+    if let Err(e) = commands::receipt::verify(id) {
+        eprintln!("Error: {}", e);
+        std::process::exit(1);
+    }
+}
+
+/// Show receipt details
+#[verb]
+fn show_receipt(id: String) {
+    if let Err(e) = commands::receipt::show(id) {
+        eprintln!("Error: {}", e);
+        std::process::exit(1);
+    }
+}
+
 /// Pipeline noun - ETL pipeline operations
 #[noun]
 fn pipeline() {
