@@ -8,17 +8,8 @@
 #include <stdio.h>
 #include <string.h>
 
-// Initialize context with arrays
-void knhks_init_context(knhks_context_t *ctx, uint64_t *S, uint64_t *P, uint64_t *O)
-{
-  ctx->S = S;
-  ctx->P = P;
-  ctx->O = O;
-  ctx->triple_count = 0;
-  ctx->run.pred = 0;
-  ctx->run.off = 0;
-  ctx->run.len = 0;
-}
+// Initialize context with arrays (legacy - now in core.c)
+// This is kept for backward compatibility, redirects to core.c
 
 // Load RDF file into context arrays
 int knhks_load_rdf(knhks_context_t *ctx, const char *filename)
