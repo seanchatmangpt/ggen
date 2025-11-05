@@ -54,10 +54,10 @@ static int test_batch_lambda_ordering(void)
   int executed = knhks_eval_batch8(&ctx, irs, 3, rcpts);
   
   assert(executed == 3);
-  // Note: Tick measurement includes receipt generation overhead
-  assert(rcpts[0].ticks <= 500); // Account for measurement overhead
-  assert(rcpts[1].ticks <= 500);
-  assert(rcpts[2].ticks <= 500);
+  // 80/20 CRITICAL PATH: Operations must be ≤8 ticks
+  assert(rcpts[0].ticks <= KNHKS_TICK_BUDGET); // Critical path validation
+  assert(rcpts[1].ticks <= KNHKS_TICK_BUDGET);
+  assert(rcpts[2].ticks <= KNHKS_TICK_BUDGET);
   
   printf("  ✓ Batch executed %d hooks in Λ order\n", executed);
   return 1;
@@ -132,7 +132,7 @@ static int test_batch_timing(void)
   
   // Verify all receipts within budget
   for (int i = 0; i < 8; i++) {
-    assert(rcpts[i].ticks <= 500); // Account for measurement overhead
+    assert(rcpts[i].ticks <= KNHKS_TICK_BUDGET); // Critical path validation
   }
   
   printf("  ✓ All %d hooks executed within budget\n", executed);
@@ -201,8 +201,8 @@ static int test_batch_with_construct8(void)
   int executed = knhks_eval_batch8(&ctx, irs, 2, rcpts);
   
   assert(executed == 2);
-  assert(rcpts[0].ticks <= 500); // Account for measurement overhead
-  assert(rcpts[1].ticks <= 500);
+  assert(rcpts[0].ticks <= KNHKS_TICK_BUDGET); // Critical path validation
+  assert(rcpts[1].ticks <= KNHKS_TICK_BUDGET);
   assert(irs[1].out_mask != 0); // CONSTRUCT8 should have emitted
   
   printf("  ✓ Mixed batch executed successfully\n");
