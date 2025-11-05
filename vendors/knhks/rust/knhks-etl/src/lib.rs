@@ -11,6 +11,13 @@ use alloc::string::String;
 use alloc::string::ToString;
 use alloc::format;
 
+#[cfg(feature = "std")]
+use std::io::BufRead;
+
+use rio_api::parser::TriplesParser;
+use rio_api::model::{Term, NamedNode, BlankNode, Literal, Triple};
+use rio_turtle::TurtleParser;
+
 /// Pipeline stage identifier
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PipelineStage {
@@ -69,65 +76,109 @@ impl IngestStage {
         })
     }
 
-    /// Parse RDF/Turtle content into raw triples
+    /// Parse RDF/Turtle content into raw triples using rio_turtle
     /// 
-    /// Production implementation with proper RDF parsing
+    /// Full Turtle syntax support including:
+    /// - Prefix resolution
+    /// - Blank nodes
+    /// - Base URI resolution
+    /// - Literals (simple, typed, language-tagged)
     pub fn parse_rdf_turtle(&self, content: &str) -> Result<Vec<RawTriple>, PipelineError> {
         let mut triples = Vec::new();
+        let mut parser = TurtleParser::new(content.as_bytes(), None)
+            .map_err(|e| PipelineError::IngestError(format!("Failed to create Turtle parser: {}", e)))?;
         
-        // Simple Turtle parser for basic triples
-        // In production, use proper RDF library or FFI to C parser
-        let lines: Vec<&str> = content.lines().collect();
-        
-        for line in lines {
-            let line = line.trim();
-            
-            // Skip comments and empty lines
-            if line.is_empty() || line.starts_with('#') {
-                continue;
-            }
-
-            // Parse basic triple pattern: <subject> <predicate> <object> .
-            if let Some(triple) = Self::parse_triple_line(line) {
-                triples.push(triple);
-            }
-        }
+        parser.parse_all(&mut |triple| {
+            let raw = Self::convert_triple(triple)
+                .map_err(|e| PipelineError::IngestError(format!("Failed to convert triple: {}", e)))?;
+            triples.push(raw);
+            Ok(())
+        })
+        .map_err(|e| {
+            PipelineError::IngestError(format!(
+                "RDF parse error at line {}: {}",
+                e.location().line(),
+                e.message()
+            ))
+        })?;
 
         Ok(triples)
     }
 
-    /// Parse a single triple line (simplified Turtle parser)
-    fn parse_triple_line(line: &str) -> Option<RawTriple> {
-        // Remove trailing period
-        let line = line.trim_end_matches('.');
+    /// Parse RDF/Turtle from a BufRead stream (memory-efficient for large files)
+    #[cfg(feature = "std")]
+    pub fn parse_rdf_turtle_stream<R: BufRead>(
+        reader: R,
+        base_uri: Option<&str>
+    ) -> Result<Vec<RawTriple>, PipelineError> {
+        let mut triples = Vec::new();
+        let base = base_uri.and_then(|u| {
+            NamedNode::new(u).ok()
+        });
         
-        // Split by whitespace (simplified - doesn't handle all Turtle syntax)
-        let parts: Vec<&str> = line.split_whitespace().collect();
+        let mut parser = TurtleParser::new(reader, base.as_ref())
+            .map_err(|e| PipelineError::IngestError(format!("Failed to create Turtle parser: {}", e)))?;
         
-        if parts.len() >= 3 {
-            let subject = parts[0].to_string();
-            let predicate = parts[1].to_string();
-            let object = parts[2..].join(" "); // Handle objects with spaces
-            
-            Some(RawTriple {
-                subject: Self::clean_iri(&subject),
-                predicate: Self::clean_iri(&predicate),
-                object: Self::clean_iri(&object),
-                graph: None,
-            })
-        } else {
-            None
+        parser.parse_all(&mut |triple| {
+            let raw = Self::convert_triple(triple)
+                .map_err(|e| PipelineError::IngestError(format!("Failed to convert triple: {}", e)))?;
+            triples.push(raw);
+            Ok(())
+        })
+        .map_err(|e| {
+            PipelineError::IngestError(format!(
+                "RDF parse error at line {}: {}",
+                e.location().line(),
+                e.message()
+            ))
+        })?;
+
+        Ok(triples)
+    }
+
+    /// Convert rio_api::Triple to RawTriple
+    fn convert_triple(triple: &Triple) -> Result<RawTriple, String> {
+        Ok(RawTriple {
+            subject: Self::term_to_string(triple.subject)?,
+            predicate: Self::term_to_string(triple.predicate)?,
+            object: Self::term_to_string(triple.object)?,
+            graph: None, // N-Quads support can be added later if needed
+        })
+    }
+
+    /// Convert rio_api::Term to String representation
+    /// 
+    /// Handles:
+    /// - NamedNode: Returns IRI string
+    /// - BlankNode: Returns `_:id` format
+    /// - Literal: Returns quoted string with type/language tags
+    fn term_to_string(term: &Term) -> Result<String, String> {
+        match term {
+            Term::NamedNode(named) => Ok(named.iri.to_string()),
+            Term::BlankNode(blank) => Ok(format!("_:{}", blank.id)),
+            Term::Literal(literal) => {
+                match literal {
+                    Literal::Simple { value } => Ok(format!("\"{}\"", Self::escape_string(value))),
+                    Literal::LanguageTaggedString { value, language } => {
+                        Ok(format!("\"{}\"@{}", Self::escape_string(value), language))
+                    }
+                    Literal::Typed { value, datatype } => {
+                        Ok(format!("\"{}\"^^{}", Self::escape_string(value), datatype.iri))
+                    }
+                }
+            }
         }
     }
 
-    /// Clean IRI (remove angle brackets, quotes)
-    fn clean_iri(iri: &str) -> String {
-        iri.trim()
-            .trim_start_matches('<')
-            .trim_end_matches('>')
-            .trim_start_matches('"')
-            .trim_end_matches('"')
-            .to_string()
+    /// Escape string literals for Turtle format
+    fn escape_string(s: &str) -> String {
+        // Basic escaping: escape quotes and backslashes
+        // Full Turtle escaping would need more, but this covers common cases
+        s.replace('\\', "\\\\")
+            .replace('"', "\\\"")
+            .replace('\n', "\\n")
+            .replace('\r', "\\r")
+            .replace('\t', "\\t")
     }
 }
 
@@ -1178,6 +1229,7 @@ pub enum PipelineError {
     ReflexError(String),
     EmitError(String),
     GuardViolation(String),
+    ParseError(String), // RDF parsing errors from rio_turtle
 }
 
 /// Complete ETL pipeline
@@ -1274,6 +1326,120 @@ mod tests {
         assert_eq!(triples[0].subject, "http://example.org/subject");
         assert_eq!(triples[0].predicate, "http://example.org/predicate");
         assert_eq!(triples[0].object, "http://example.org/object");
+    }
+
+    #[test]
+    fn test_ingest_stage_prefix_resolution() {
+        let ingest = IngestStage::new(vec!["test".to_string()], "rdf/turtle".to_string());
+        
+        let content = r#"
+            @prefix ex: <http://example.org/> .
+            ex:subject ex:predicate ex:object .
+        "#;
+        let result = ingest.parse_rdf_turtle(content);
+        
+        assert!(result.is_ok());
+        let triples = result.unwrap();
+        assert_eq!(triples.len(), 1);
+        assert_eq!(triples[0].subject, "http://example.org/subject");
+        assert_eq!(triples[0].predicate, "http://example.org/predicate");
+        assert_eq!(triples[0].object, "http://example.org/object");
+    }
+
+    #[test]
+    fn test_ingest_stage_blank_nodes() {
+        let ingest = IngestStage::new(vec!["test".to_string()], "rdf/turtle".to_string());
+        
+        let content = r#"
+            _:alice <http://example.org/name> "Alice" .
+            _:bob <http://example.org/name> "Bob" .
+        "#;
+        let result = ingest.parse_rdf_turtle(content);
+        
+        assert!(result.is_ok());
+        let triples = result.unwrap();
+        assert_eq!(triples.len(), 2);
+        assert!(triples[0].subject.starts_with("_:"));
+        assert!(triples[1].subject.starts_with("_:"));
+        assert_eq!(triples[0].object, "\"Alice\"");
+        assert_eq!(triples[1].object, "\"Bob\"");
+    }
+
+    #[test]
+    fn test_ingest_stage_literals() {
+        let ingest = IngestStage::new(vec!["test".to_string()], "rdf/turtle".to_string());
+        
+        let content = r#"
+            <http://example.org/subject> <http://example.org/name> "Alice" .
+            <http://example.org/subject> <http://example.org/age> "30"^^<http://www.w3.org/2001/XMLSchema#integer> .
+            <http://example.org/subject> <http://example.org/label> "Hello"@en .
+        "#;
+        let result = ingest.parse_rdf_turtle(content);
+        
+        assert!(result.is_ok());
+        let triples = result.unwrap();
+        assert_eq!(triples.len(), 3);
+        assert_eq!(triples[0].object, "\"Alice\"");
+        assert!(triples[1].object.contains("integer"));
+        assert!(triples[2].object.contains("@en"));
+    }
+
+    #[test]
+    fn test_ingest_stage_base_uri() {
+        let ingest = IngestStage::new(vec!["test".to_string()], "rdf/turtle".to_string());
+        
+        let content = r#"
+            @base <http://example.org/> .
+            <subject> <predicate> <object> .
+        "#;
+        let result = ingest.parse_rdf_turtle(content);
+        
+        assert!(result.is_ok());
+        let triples = result.unwrap();
+        assert_eq!(triples.len(), 1);
+        assert_eq!(triples[0].subject, "http://example.org/subject");
+        assert_eq!(triples[0].predicate, "http://example.org/predicate");
+        assert_eq!(triples[0].object, "http://example.org/object");
+    }
+
+    #[test]
+    fn test_ingest_stage_multiple_triples() {
+        let ingest = IngestStage::new(vec!["test".to_string()], "rdf/turtle".to_string());
+        
+        let content = r#"
+            <http://example.org/alice> <http://example.org/name> "Alice" .
+            <http://example.org/alice> <http://example.org/age> "30" .
+            <http://example.org/bob> <http://example.org/name> "Bob" .
+        "#;
+        let result = ingest.parse_rdf_turtle(content);
+        
+        assert!(result.is_ok());
+        let triples = result.unwrap();
+        assert_eq!(triples.len(), 3);
+    }
+
+    #[test]
+    fn test_ingest_stage_empty_input() {
+        let ingest = IngestStage::new(vec!["test".to_string()], "rdf/turtle".to_string());
+        
+        let result = ingest.parse_rdf_turtle("");
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap().len(), 0);
+    }
+
+    #[test]
+    fn test_ingest_stage_invalid_syntax() {
+        let ingest = IngestStage::new(vec!["test".to_string()], "rdf/turtle".to_string());
+        
+        let content = "<http://example.org/subject> <http://example.org/predicate>";
+        let result = ingest.parse_rdf_turtle(content);
+        
+        assert!(result.is_err());
+        if let Err(PipelineError::IngestError(msg)) = result {
+            assert!(msg.contains("parse error"));
+        } else {
+            panic!("Expected IngestError");
+        }
     }
 
     #[test]

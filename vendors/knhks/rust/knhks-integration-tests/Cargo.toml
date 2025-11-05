@@ -15,11 +15,11 @@ tokio = { version = "1", features = ["full"] }
 
 # KNHKS components
 knhks-connectors = { path = "../knhks-connectors", features = ["std"] }
-knhks-etl = { path = "../knhks-etl" }
+knhks-etl = { path = "../knhks-etl", features = ["std"] }
+knhks-hot = { path = "../knhks-hot", version = "1.0.0" }
 knhks-otel = { path = "../knhks-otel" }
 
 # Utilities
 anyhow = "1.0"
 
 [dev-dependencies]
-
