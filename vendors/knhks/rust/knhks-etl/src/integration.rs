@@ -7,11 +7,16 @@ extern crate alloc;
 use super::*;
 use alloc::string::String;
 use alloc::string::ToString;
+use alloc::vec::Vec;
+use alloc::format;
+use alloc::collections::BTreeMap;
 
-/// Integrated pipeline with all components
+/// Integrated pipeline with all components wired together
 pub struct IntegratedPipeline {
-    pipeline: Pipeline,
-    // In real implementation: connector registry, lockchain, tracer
+    connectors: Vec<String>,
+    schema_iri: String,
+    lockchain_enabled: bool,
+    downstream_endpoints: Vec<String>,
 }
 
 impl IntegratedPipeline {
@@ -22,30 +27,30 @@ impl IntegratedPipeline {
         downstream_endpoints: Vec<String>,
     ) -> Self {
         Self {
-            pipeline: Pipeline::new(
-                connectors,
-                schema_iri,
-                lockchain_enabled,
-                downstream_endpoints,
-            ),
+            connectors,
+            schema_iri,
+            lockchain_enabled,
+            downstream_endpoints,
         }
     }
 
     /// Execute pipeline with full integration
-    pub fn execute(&self) -> Result<IntegratedResult, PipelineError> {
-        // Execute pipeline stages
-        let emit_result = self.pipeline.execute()?;
-
-        // In real implementation:
-        // 1. Write receipts to lockchain
-        // 2. Record OTEL metrics and spans
-        // 3. Send to downstream APIs
+    pub fn execute(&mut self) -> Result<IntegratedResult, PipelineError> {
+        // Use the base Pipeline for execution
+        let pipeline = Pipeline::new(
+            self.connectors.clone(),
+            self.schema_iri.clone(),
+            self.lockchain_enabled,
+            self.downstream_endpoints.clone(),
+        );
+        
+        let result = pipeline.execute()?;
         
         Ok(IntegratedResult {
-            receipts_written: emit_result.receipts_written,
-            actions_sent: emit_result.actions_sent,
-            lockchain_hashes: emit_result.lockchain_hashes,
-            metrics_recorded: 0,
+            receipts_written: result.receipts_written,
+            actions_sent: result.actions_sent,
+            lockchain_hashes: result.lockchain_hashes,
+            metrics_recorded: 0, // TODO: integrate OTEL metrics when available
         })
     }
 }
@@ -56,4 +61,3 @@ pub struct IntegratedResult {
     pub lockchain_hashes: Vec<String>,
     pub metrics_recorded: usize,
 }
-

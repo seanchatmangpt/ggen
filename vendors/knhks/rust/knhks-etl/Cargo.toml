@@ -7,8 +7,12 @@ edition = "2021"
 crate-type = ["cdylib", "staticlib"]
 
 [dependencies]
-# Core no_std compatible crates
-alloc = { version = "1.0", package = "alloc" }
+knhks-connectors = { path = "../knhks-connectors", version = "0.1.0", features = ["std"] }
+knhks-hot = { path = "../knhks-hot", version = "1.0.0" }
+knhks-lockchain = { path = "../knhks-lockchain", version = "0.1.0" }
+knhks-otel = { path = "../knhks-otel", version = "0.1.0" }
+hashbrown = { version = "0.15", default-features = false }
+hex = { version = "0.4", default-features = false }
 
 [dev-dependencies]
 # Test dependencies
