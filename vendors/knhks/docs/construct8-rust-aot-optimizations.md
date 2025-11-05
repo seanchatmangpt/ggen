@@ -10,7 +10,7 @@ All optimizations that Rust can prepare on the warm/cold path to eliminate runti
 
 **Rust AOT Action:**
 - Generate specialized C functions for each `len` value: `{1, 2, 3, 4, 5, 6, 7, 8}`
-- Functions: `knhks_construct8_emit_8_len1()`, `knhks_construct8_emit_8_len8()`, etc.
+- Functions: `knhk_construct8_emit_8_len1()`, `knhk_construct8_emit_8_len8()`, etc.
 - Each function has `len_mask_bits` as compile-time constant (0 ticks)
 - For `len == 8`: Skip `len_mask` application entirely (compiler optimizes to no-op)
 
@@ -18,12 +18,12 @@ All optimizations that Rust can prepare on the warm/cold path to eliminate runti
 
 **Implementation:**
 ```rust
-// rust/knhks-aot/src/codegen.rs
+// rust/knhk-aot/src/codegen.rs
 pub fn generate_len_specialized_functions() -> Vec<String> {
     (1..=8).map(|len| {
         let len_mask = (1u64 << len) - 1;
         format!(
-            "static inline size_t knhks_construct8_emit_8_len{}(...) {{
+            "static inline size_t knhk_construct8_emit_8_len{}(...) {{
                 // len_mask_bits = {}ULL (compile-time constant)
                 const uint64_t len_mask_bits = {}ULL;
                 // ... rest of function with len_mask_bits precomputed
@@ -39,7 +39,7 @@ pub fn generate_len_specialized_functions() -> Vec<String> {
 
 **Rust AOT Action:**
 - Analyze common `p_const`/`o_const` values at compile time
-- Generate specialized functions: `knhks_construct8_emit_8_p_X_o_Y()`
+- Generate specialized functions: `knhk_construct8_emit_8_p_X_o_Y()`
 - Compiler can optimize broadcasts to immediate constants
 - For common constants (0, 1, small values), compiler may eliminate broadcasts
 
@@ -53,7 +53,7 @@ pub fn generate_constant_specialized_functions(
 ) -> Vec<String> {
     common_pairs.iter().map(|(p, o)| {
         format!(
-            "static inline size_t knhks_construct8_emit_8_p_{}_o_{}(...) {{
+            "static inline size_t knhk_construct8_emit_8_p_{}_o_{}(...) {{
                 // p_vec = vdupq_n_u64({}) - compiler optimizes to constant
                 const uint64x2_t p_vec = vdupq_n_u64({});
                 const uint64x2_t o_vec = vdupq_n_u64({});
@@ -89,13 +89,13 @@ pub enum PatternType {
 pub fn generate_pattern_specialized_functions() -> Vec<String> {
     vec![
         // All non-zero: skip mask generation
-        "static inline size_t knhks_construct8_emit_8_all_nonzero(...) {
+        "static inline size_t knhk_construct8_emit_8_all_nonzero(...) {
             // m0 = m1 = m2 = m3 = all_ones (compile-time constant)
             const uint64x2_t m0 = all_ones;
             // ... skip mask computation
         }".to_string(),
         // All zero: early return
-        "static inline size_t knhks_construct8_emit_8_all_zero(...) {
+        "static inline size_t knhk_construct8_emit_8_all_zero(...) {
             *out_mask = 0;
             return 0;
         }".to_string(),
@@ -117,7 +117,7 @@ pub fn generate_pattern_specialized_functions() -> Vec<String> {
 
 **Implementation:**
 ```rust
-// rust/knhks-hot/src/ffi.rs
+// rust/knhk-hot/src/ffi.rs
 #[repr(C)]
 pub struct Ir {
     // ... existing fields
@@ -207,7 +207,7 @@ pub fn get_broadcast_hint(constant: u64) -> Option<[u64; 2]> {
 
 **Implementation:**
 ```rust
-// rust/knhks-aot/src/dispatch.rs
+// rust/knhk-aot/src/dispatch.rs
 pub type Construct8Fn = unsafe extern "C" fn(
     *const u64, u64, u64, u64, u64,
     *mut u64, *mut u64, *mut u64,
@@ -221,10 +221,10 @@ pub fn select_optimal_function(
     zero_hint: u8
 ) -> Construct8Fn {
     match (len, zero_hint) {
-        (8, 0xFF) => knhks_construct8_emit_8_all_zero,  // All zero
-        (8, 0x00) => knhks_construct8_emit_8_all_nonzero,  // All non-zero
-        (8, _) => knhks_construct8_emit_8_len8,  // len=8 specialization
-        (len, _) => knhks_construct8_emit_8_lenN,  // Other len values
+        (8, 0xFF) => knhk_construct8_emit_8_all_zero,  // All zero
+        (8, 0x00) => knhk_construct8_emit_8_all_nonzero,  // All non-zero
+        (8, _) => knhk_construct8_emit_8_len8,  // len=8 specialization
+        (len, _) => knhk_construct8_emit_8_lenN,  // Other len values
     }
 }
 
@@ -250,7 +250,7 @@ pub struct Ir {
 
 **Implementation:**
 ```rust
-// rust/knhks-hot/src/ffi.rs
+// rust/knhk-hot/src/ffi.rs
 #[repr(align(64))]
 pub struct AlignedArray<T>(pub T);
 
@@ -399,7 +399,7 @@ impl MaskCache {
 
 **Implementation:**
 ```rust
-// rust/knhks-aot/build.rs
+// rust/knhk-aot/build.rs
 use std::fs::File;
 use std::io::Write;
 
@@ -473,17 +473,17 @@ fn main() {
 ## 10. Files to Create/Modify
 
 **Rust Warm/Cold Path:**
-- `rust/knhks-aot/src/codegen.rs` - Code generation for specialized functions
-- `rust/knhks-aot/src/pattern_analyzer.rs` - Pattern detection and analysis
-- `rust/knhks-aot/src/dispatch.rs` - Function pointer dispatch logic
-- `rust/knhks-aot/src/hints.rs` - Precomputed hint generation
-- `rust/knhks-hot/src/ffi.rs` - Add AOT hint fields to IR structure
+- `rust/knhk-aot/src/codegen.rs` - Code generation for specialized functions
+- `rust/knhk-aot/src/pattern_analyzer.rs` - Pattern detection and analysis
+- `rust/knhk-aot/src/dispatch.rs` - Function pointer dispatch logic
+- `rust/knhk-aot/src/hints.rs` - Precomputed hint generation
+- `rust/knhk-hot/src/ffi.rs` - Add AOT hint fields to IR structure
 
 **C Hot Path:**
 - `src/simd/construct.h` - Add specialized function variants
-- `include/knhks/types.h` - Add AOT hint fields to IR structure
-- `include/knhks/eval.h` - Add function pointer dispatch
+- `include/knhk/types.h` - Add AOT hint fields to IR structure
+- `include/knhk/eval.h` - Add function pointer dispatch
 
 **Build System:**
-- `rust/knhks-aot/build.rs` - Build-time code generation
+- `rust/knhk-aot/build.rs` - Build-time code generation
 

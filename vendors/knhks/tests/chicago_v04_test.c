@@ -1,5 +1,5 @@
 // tests/chicago_v04_test.c
-// Main test runner for KNHKS v0.4.0 Chicago TDD test suite
+// Main test runner for KNHK v0.4.0 Chicago TDD test suite
 // Orchestrates all v0.4.0 tests
 
 #include <stdio.h>
@@ -16,7 +16,7 @@ extern int chicago_test_performance_v04(void);
 int main(void)
 {
   printf("========================================\n");
-  printf("KNHKS v0.4.0 Chicago TDD Test Suite\n");
+  printf("KNHK v0.4.0 Chicago TDD Test Suite\n");
   printf("========================================\n\n");
   
   int passed = 0;

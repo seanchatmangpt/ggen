@@ -1,11 +1,11 @@
-# KNHKS v0.2.0 - Current State Documentation
+# KNHK v0.2.0 - Current State Documentation
 
 **Release Date:** Current  
 **Status:** Development / Pre-Release
 
 ## Overview
 
-KNHKS v0.2.0 represents a mature implementation of the 8-tick knowledge graph query system with core hot path operations, RDF integration, connector framework, and Erlang reflexive control layer. This version provides the foundation for ultra-low-latency RDF query execution with sub-2 nanosecond performance guarantees.
+KNHK v0.2.0 represents a mature implementation of the 8-tick knowledge graph query system with core hot path operations, RDF integration, connector framework, and Erlang reflexive control layer. This version provides the foundation for ultra-low-latency RDF query execution with sub-2 nanosecond performance guarantees.
 
 ## Core Architecture
 
@@ -17,18 +17,18 @@ KNHKS v0.2.0 represents a mature implementation of the 8-tick knowledge graph qu
 
 ### Key Components
 
-1. **Core Library (`libknhks.a`)**
+1. **Core Library (`libknhk.a`)**
    - Static library providing hot path execution
    - SIMD-optimized operations (fully unrolled for NROWS=8)
    - RDF/Turtle parsing and loading
    - Clock utilities for performance measurement
 
 2. **Rust Integration**
-   - `knhks-hot` (v1.0.0): FFI-safe Rust wrapper for hot path
-   - `knhks-connectors` (v0.1.0): Dark Matter 80/20 connector framework
-   - `knhks-etl` (v0.1.0): ETL pipeline support
+   - `knhk-hot` (v1.0.0): FFI-safe Rust wrapper for hot path
+   - `knhk-connectors` (v0.1.0): Dark Matter 80/20 connector framework
+   - `knhk-etl` (v0.1.0): ETL pipeline support
 
-3. **Erlang Layer (`knhks_rc`)**
+3. **Erlang Layer (`knhk_rc`)**
    - Version: 1.0.0
    - Reflexive Control (RC) system
    - Hook management, epoch scheduling, routing
@@ -70,15 +70,15 @@ KNHKS v0.2.0 represents a mature implementation of the 8-tick knowledge graph qu
 ### Data Structures
 
 #### Core Types
-- `knhks_context_t` - SoA arrays and metadata
-- `knhks_hook_ir_t` - Query representation (Hook IR)
-- `knhks_pred_run_t` - Predicate run metadata
-- `knhks_receipt_t` - Timing and provenance receipt
+- `knhk_context_t` - SoA arrays and metadata
+- `knhk_hook_ir_t` - Query representation (Hook IR)
+- `knhk_pred_run_t` - Predicate run metadata
+- `knhk_receipt_t` - Timing and provenance receipt
 
 #### Constants
-- `KNHKS_TICK_BUDGET` = 8
-- `KNHKS_NROWS` = 8 (compile-time fixed)
-- `KNHKS_ALIGN` = 64 bytes
+- `KNHK_TICK_BUDGET` = 8
+- `KNHK_NROWS` = 8 (compile-time fixed)
+- `KNHK_ALIGN` = 64 bytes
 
 ### RDF Integration
 
@@ -120,14 +120,14 @@ KNHKS v0.2.0 represents a mature implementation of the 8-tick knowledge graph qu
 - `coverage/0` - Dark Matter 80/20 coverage
 
 #### Erlang Modules
-- `knhks_rc` - Main API
-- `knhks_connect` - Connector management
-- `knhks_cover` - Coverage definitions
-- `knhks_epoch` - Epoch scheduling
-- `knhks_hooks` - Hook installation
-- `knhks_route` - Action routing
-- `knhks_otel` - OpenTelemetry integration
-- `knhks_darkmatter` - 80/20 coverage tracking
+- `knhk_rc` - Main API
+- `knhk_connect` - Connector management
+- `knhk_cover` - Coverage definitions
+- `knhk_epoch` - Epoch scheduling
+- `knhk_hooks` - Hook installation
+- `knhk_route` - Action routing
+- `knhk_otel` - OpenTelemetry integration
+- `knhk_darkmatter` - 80/20 coverage tracking
 
 ### Testing Infrastructure
 
@@ -147,8 +147,8 @@ KNHKS v0.2.0 represents a mature implementation of the 8-tick knowledge graph qu
 
 ### Benchmarking Tools
 
-- ✅ `knhks_bench` - Performance benchmarking tool
-- ✅ `knhks_bench_eval()` - C API for benchmarking
+- ✅ `knhk_bench` - Performance benchmarking tool
+- ✅ `knhk_bench_eval()` - C API for benchmarking
 - ✅ Zero-overhead measurement methodology
 - ✅ Pure SIMD cost measurement (routing excluded)
 
@@ -207,8 +207,8 @@ KNHKS v0.2.0 represents a mature implementation of the 8-tick knowledge graph qu
 - **Dependencies:** raptor2 (RDF parsing)
 
 ### Library Output
-- `libknhks.a` - Static library
-- Object files: `knhks.o`, `simd.o`, `rdf.o`, `core.o`, `clock.o`
+- `libknhk.a` - Static library
+- Object files: `knhk.o`, `simd.o`, `rdf.o`, `core.o`, `clock.o`
 
 ## Documentation
 
@@ -254,10 +254,10 @@ KNHKS v0.2.0 represents a mature implementation of the 8-tick knowledge graph qu
 
 ### Current Version References
 - **C API:** Referenced as v1.0 in headers
-- **Rust `knhks-hot`:** v1.0.0
-- **Rust `knhks-connectors`:** v0.1.0
-- **Rust `knhks-etl`:** v0.1.0
-- **Erlang `knhks_rc`:** v1.0.0
+- **Rust `knhk-hot`:** v1.0.0
+- **Rust `knhk-connectors`:** v0.1.0
+- **Rust `knhk-etl`:** v0.1.0
+- **Erlang `knhk_rc`:** v1.0.0
 
 ### Version Strategy
 - **v0.2.0** represents current development state
@@ -268,26 +268,26 @@ KNHKS v0.2.0 represents a mature implementation of the 8-tick knowledge graph qu
 ## File Structure
 
 ```
-knhks/
+knhk/
 ├── include/              # Public headers
-│   └── knhks.h          # Main API (v1.0 reference)
+│   └── knhk.h          # Main API (v1.0 reference)
 ├── src/                 # Core implementation
-│   ├── knhks.c         # Main library
+│   ├── knhk.c         # Main library
 │   ├── core.c          # Core evaluation
 │   ├── simd.c          # SIMD operations
 │   ├── rdf.c           # RDF parsing
 │   └── clock.c         # Clock utilities
 ├── rust/                # Rust integration
-│   ├── knhks-hot/      # Hot path wrapper (v1.0.0)
-│   ├── knhks-connectors/# Connector framework (v0.1.0)
-│   └── knhks-etl/      # ETL support (v0.1.0)
+│   ├── knhk-hot/      # Hot path wrapper (v1.0.0)
+│   ├── knhk-connectors/# Connector framework (v0.1.0)
+│   └── knhk-etl/      # ETL support (v0.1.0)
 ├── erlang/              # Erlang layer
-│   └── knhks_rc/       # Reflexive Control (v1.0.0)
+│   └── knhk_rc/       # Reflexive Control (v1.0.0)
 ├── tests/               # Test suites
 │   ├── chicago_*.c     # Test files
 │   └── data/           # Test data (.ttl)
 ├── tools/               # Tools
-│   └── knhks_bench.c   # Benchmark tool
+│   └── knhk_bench.c   # Benchmark tool
 └── docs/                # Documentation
     ├── README.md
     ├── api.md
@@ -314,7 +314,7 @@ knhks/
 
 ## Summary
 
-KNHKS v0.2.0 is a production-ready implementation of the 8-tick knowledge graph query system with:
+KNHK v0.2.0 is a production-ready implementation of the 8-tick knowledge graph query system with:
 
 - ✅ **19 query operations** all achieving ≤8 ticks
 - ✅ **18/19 enterprise use cases** covered

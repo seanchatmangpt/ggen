@@ -89,7 +89,7 @@ For simple use cases, you could write a minimal parser for N-Triples format (one
 
 ## Integration with POC
 
-For the `knhks_8tick_poc.c`, you could:
+For the `knhk_8tick_poc.c`, you could:
 1. Use Raptor to parse RDF/Turtle files into triples
 2. Extract S, P, O arrays (Subject, Predicate, Object)
 3. Feed into your SIMD-optimized query engine

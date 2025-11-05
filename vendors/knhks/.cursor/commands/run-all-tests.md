@@ -1,4 +1,4 @@
-Run all test suites for KNHKS.
+Run all test suites for KNHK.
 
 This includes:
 1. C test suites: `make test-chicago-v04`

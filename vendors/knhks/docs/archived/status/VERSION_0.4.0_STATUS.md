@@ -1,4 +1,4 @@
-# KNHKS v0.4.0 Definition of Done - Status Report
+# KNHK v0.4.0 Definition of Done - Status Report
 
 **Generated**: Current  
 **Status**: In Progress  
@@ -6,7 +6,7 @@
 
 ## Executive Summary
 
-KNHKS v0.4.0 is making strong progress toward production readiness. Critical path items (80% value) are largely complete, with CLI tool, network integrations, and testing infrastructure substantially implemented.
+KNHK v0.4.0 is making strong progress toward production readiness. Critical path items (80% value) are largely complete, with CLI tool, network integrations, and testing infrastructure substantially implemented.
 
 ## ✅ Completed Items (Critical Path - 80% Value)
 
@@ -47,7 +47,7 @@ KNHKS v0.4.0 is making strong progress toward production readiness. Critical pat
 - ✅ **HTTP Client**: `send_http_webhook()` implemented with reqwest
 - ✅ **Kafka Producer**: `send_kafka_action()` implemented with rdkafka
 - ✅ **gRPC Client**: `send_grpc_action()` implemented (HTTP gateway fallback)
-- ✅ **OTEL Exporter**: OTEL integration in `knhks-etl/src/integration.rs`
+- ✅ **OTEL Exporter**: OTEL integration in `knhk-etl/src/integration.rs`
 - ✅ **Feature Gating**: All integrations properly feature-gated
 - ✅ **Error Handling**: Proper error handling and retries
 
@@ -65,14 +65,14 @@ KNHKS v0.4.0 is making strong progress toward production readiness. Critical pat
 ### Phase 4: Production Configuration (40% Complete)
 
 - ✅ **Basic Config Logic**: Config directory logic exists (`get_config_dir()`)
-- ❌ **Configuration File**: `~/.knhks/config.toml` not implemented
+- ❌ **Configuration File**: `~/.knhk/config.toml` not implemented
 - ❌ **Config Parsing**: TOML parsing not implemented
-- ❌ **Config Crate**: `knhks-config` crate not created
+- ❌ **Config Crate**: `knhk-config` crate not created
 - ⚠️ **Status**: Basic config sufficient for v0.4.0 (can defer)
 
 ### Phase 7: Documentation (70% Complete)
 
-- ✅ **API Documentation**: C API (`include/knhks.h`) documented
+- ✅ **API Documentation**: C API (`include/knhk.h`) documented
 - ✅ **Architecture Docs**: `docs/architecture.md` exists
 - ✅ **Performance Docs**: `docs/performance.md` exists
 - ✅ **Integration Guide**: `README_INTEGRATION.md` exists
@@ -108,7 +108,7 @@ KNHKS v0.4.0 is making strong progress toward production readiness. Critical pat
 
 ### ✅ Build System
 
-- ✅ **C Library**: `libknhks.a` builds successfully (ARM64 NEON, x86_64 AVX2)
+- ✅ **C Library**: `libknhk.a` builds successfully (ARM64 NEON, x86_64 AVX2)
 - ✅ **Rust Crates**: All crates build successfully
 - ✅ **Erlang Modules**: All modules compile successfully
 
@@ -156,7 +156,7 @@ KNHKS v0.4.0 is making strong progress toward production readiness. Critical pat
 3. **Create Examples**: Add `examples/` directory with basic usage examples
 
 ### Priority 2 (Medium - Can Defer)
-1. **Configuration Management**: Implement `~/.knhks/config.toml` parsing
+1. **Configuration Management**: Implement `~/.knhk/config.toml` parsing
 2. **Property-Based Tests**: Add property tests for receipt merging, IRI hashing
 3. **Erlang ↔ Rust Integration**: Complete IPC/NIF integration
 
@@ -181,7 +181,7 @@ KNHKS v0.4.0 is making strong progress toward production readiness. Critical pat
 
 ## Summary
 
-KNHKS v0.4.0 is **substantially complete** with **85% of critical path items** done. The remaining work focuses on:
+KNHK v0.4.0 is **substantially complete** with **85% of critical path items** done. The remaining work focuses on:
 1. Performance test compliance (fixing >8 tick violations)
 2. Documentation completion (CLI guide, examples)
 3. Configuration management (basic implementation)

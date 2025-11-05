@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-KNHKS v0.4.0 Definition of Done Verification Script
+KNHK v0.4.0 Definition of Done Verification Script
 Verifies implementation status against DoD checklist
 """
 
@@ -16,7 +16,7 @@ class DoDVerifier:
         
     def check_cli_commands(self):
         """Verify CLI commands return Result"""
-        cli_dir = self.root / 'rust/knhks-cli/src/commands'
+        cli_dir = self.root / 'rust/knhk-cli/src/commands'
         if not cli_dir.exists():
             self.results['failed'].append('CLI commands directory missing')
             return
@@ -36,8 +36,8 @@ class DoDVerifier:
     def check_error_handling(self):
         """Check for unwrap() in production code"""
         prod_files = [
-            'rust/knhks-etl/src/lib.rs',
-            'rust/knhks-cli/src/main.rs',
+            'rust/knhk-etl/src/lib.rs',
+            'rust/knhk-cli/src/main.rs',
         ]
         
         unwrap_count = 0
@@ -62,7 +62,7 @@ class DoDVerifier:
             
     def check_guard_validation(self):
         """Check guard validation enforcement"""
-        etl_file = self.root / 'rust/knhks-etl/src/lib.rs'
+        etl_file = self.root / 'rust/knhk-etl/src/lib.rs'
         if etl_file.exists():
             with open(etl_file, 'r') as f:
                 content = f.read()
@@ -73,7 +73,7 @@ class DoDVerifier:
                     
     def check_network_integrations(self):
         """Check network integration implementations"""
-        etl_file = self.root / 'rust/knhks-etl/src/lib.rs'
+        etl_file = self.root / 'rust/knhk-etl/src/lib.rs'
         if etl_file.exists():
             with open(etl_file, 'r') as f:
                 content = f.read()
@@ -109,7 +109,7 @@ class DoDVerifier:
                 
     def run_all_checks(self):
         """Run all verification checks"""
-        print("KNHKS v0.4.0 Definition of Done Verification")
+        print("KNHK v0.4.0 Definition of Done Verification")
         print("=" * 60)
         
         self.check_cli_commands()

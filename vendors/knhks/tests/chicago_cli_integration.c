@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "knhks.h"
+#include "knhk.h"
 #include "chicago_test_helpers.h"
 
 #if defined(__GNUC__)
@@ -31,17 +31,17 @@ static int test_cli_hook_list(void)
   uint64_t ALN S[NROWS];
   uint64_t ALN P[NROWS];
   uint64_t ALN O[NROWS];
-  knhks_context_t ctx;
+  knhk_context_t ctx;
   
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
   S[0] = 0xA11CE;
   P[0] = 0xC0FFEE;
   O[0] = 0xB0B;
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
   // Simulate hook IR (what CLI would pass to hot path)
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -53,16 +53,16 @@ static int test_cli_hook_list(void)
   };
   
   // Warmup execution
-  knhks_receipt_t rcpt_warmup = {0};
-  knhks_eval_bool(&ctx, &ir, &rcpt_warmup);
+  knhk_receipt_t rcpt_warmup = {0};
+  knhk_eval_bool(&ctx, &ir, &rcpt_warmup);
   
   // Hook is valid if it can execute
-  knhks_receipt_t rcpt = {0};
-  int result = knhks_eval_bool(&ctx, &ir, &rcpt);
+  knhk_receipt_t rcpt = {0};
+  int result = knhk_eval_bool(&ctx, &ir, &rcpt);
   
   // Verify receipt was generated
   if (rcpt.ticks == 0 && rcpt_warmup.ticks == 0) {
-    knhks_eval_bool(&ctx, &ir, &rcpt);
+    knhk_eval_bool(&ctx, &ir, &rcpt);
   }
   assert(result == 1);
   assert(rcpt.ticks <= 500 || rcpt_warmup.ticks <= 500);
@@ -80,17 +80,17 @@ static int test_cli_hook_create(void)
   uint64_t ALN S[NROWS];
   uint64_t ALN P[NROWS];
   uint64_t ALN O[NROWS];
-  knhks_context_t ctx;
+  knhk_context_t ctx;
   
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
   S[0] = 0xA11CE;
   P[0] = 0xC0FFEE;
   O[0] = 0xB0B;
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
   // Create hook IR (simulating CLI command: hook create --op ASK_SP --pred 0xC0FFEE)
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -102,8 +102,8 @@ static int test_cli_hook_create(void)
   };
   
   // Validate hook can execute
-  knhks_receipt_t rcpt = {0};
-  int result = knhks_eval_bool(&ctx, &ir, &rcpt);
+  knhk_receipt_t rcpt = {0};
+  int result = knhk_eval_bool(&ctx, &ir, &rcpt);
   
   assert(result == 1);
   assert(rcpt.ticks <= 500 || rcpt_warmup.ticks <= 500);
@@ -121,16 +121,16 @@ static int test_cli_hook_eval(void)
   uint64_t ALN S[NROWS];
   uint64_t ALN P[NROWS];
   uint64_t ALN O[NROWS];
-  knhks_context_t ctx;
+  knhk_context_t ctx;
   
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
   S[0] = 0xA11CE;
   P[0] = 0xC0FFEE;
   O[0] = 0xB0B;
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -141,8 +141,8 @@ static int test_cli_hook_eval(void)
     .out_mask = 0
   };
   
-  knhks_receipt_t rcpt = {0};
-  int result = knhks_eval_bool(&ctx, &ir, &rcpt);
+  knhk_receipt_t rcpt = {0};
+  int result = knhk_eval_bool(&ctx, &ir, &rcpt);
   
   // CLI should display: result, ticks, span_id, a_hash
   assert(result == 1);
@@ -165,18 +165,18 @@ static int test_cli_connector_list(void)
   uint64_t ALN S[NROWS];
   uint64_t ALN P[NROWS];
   uint64_t ALN O[NROWS];
-  knhks_context_t ctx;
+  knhk_context_t ctx;
   
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
   S[0] = 0xA11CE;
   P[0] = 0xC0FFEE;
   O[0] = 0xB0B;
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
   // Simulate connector-provided data (Kafka/Salesforce)
   // Connector data should be valid for hot path
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -187,8 +187,8 @@ static int test_cli_connector_list(void)
     .out_mask = 0
   };
   
-  knhks_receipt_t rcpt = {0};
-  int result = knhks_eval_bool(&ctx, &ir, &rcpt);
+  knhk_receipt_t rcpt = {0};
+  int result = knhk_eval_bool(&ctx, &ir, &rcpt);
   
   assert(result == 1);
   assert(rcpt.ticks <= 500 || rcpt_warmup.ticks <= 500);
@@ -208,17 +208,17 @@ static int test_cli_connector_status(void)
   uint64_t ALN S[NROWS];
   uint64_t ALN P[NROWS];
   uint64_t ALN O[NROWS];
-  knhks_context_t ctx;
+  knhk_context_t ctx;
   
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
   S[0] = 0xA11CE;
   P[0] = 0xC0FFEE;
   O[0] = 0xB0B;
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
   // Healthy connector should provide valid data
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -229,8 +229,8 @@ static int test_cli_connector_status(void)
     .out_mask = 0
   };
   
-  knhks_receipt_t rcpt = {0};
-  int result = knhks_eval_bool(&ctx, &ir, &rcpt);
+  knhk_receipt_t rcpt = {0};
+  int result = knhk_eval_bool(&ctx, &ir, &rcpt);
   
   assert(result == 1);
   assert(rcpt.ticks <= 500 || rcpt_warmup.ticks <= 500);
@@ -248,16 +248,16 @@ static int test_cli_receipt_verify(void)
   uint64_t ALN S[NROWS];
   uint64_t ALN P[NROWS];
   uint64_t ALN O[NROWS];
-  knhks_context_t ctx;
+  knhk_context_t ctx;
   
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
   S[0] = 0xA11CE;
   P[0] = 0xC0FFEE;
   O[0] = 0xB0B;
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -268,11 +268,11 @@ static int test_cli_receipt_verify(void)
     .out_mask = 0
   };
   
-  knhks_receipt_t rcpt1 = {0};
-  knhks_receipt_t rcpt2 = {0};
+  knhk_receipt_t rcpt1 = {0};
+  knhk_receipt_t rcpt2 = {0};
   
-  knhks_eval_bool(&ctx, &ir, &rcpt1);
-  knhks_eval_bool(&ctx, &ir, &rcpt2);
+  knhk_eval_bool(&ctx, &ir, &rcpt1);
+  knhk_eval_bool(&ctx, &ir, &rcpt2);
   
   // Verify receipts are identical (deterministic)
   assert(rcpt1.ticks == rcpt2.ticks);
@@ -293,17 +293,17 @@ static int test_cli_pipeline_run(void)
   uint64_t ALN S[NROWS];
   uint64_t ALN P[NROWS];
   uint64_t ALN O[NROWS];
-  knhks_context_t ctx;
+  knhk_context_t ctx;
   
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
   S[0] = 0xA11CE;
   P[0] = 0xC0FFEE;
   O[0] = 0xB0B;
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
   // Execute pipeline (reflex stage)
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -314,8 +314,8 @@ static int test_cli_pipeline_run(void)
     .out_mask = 0
   };
   
-  knhks_receipt_t rcpt = {0};
-  int result = knhks_eval_bool(&ctx, &ir, &rcpt);
+  knhk_receipt_t rcpt = {0};
+  int result = knhk_eval_bool(&ctx, &ir, &rcpt);
   
   assert(result == 1);
   assert(rcpt.ticks <= 500 || rcpt_warmup.ticks <= 500);
@@ -334,17 +334,17 @@ static int test_cli_error_handling(void)
   uint64_t ALN S[NROWS];
   uint64_t ALN P[NROWS];
   uint64_t ALN O[NROWS];
-  knhks_context_t ctx;
+  knhk_context_t ctx;
   
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
   S[0] = 0xA11CE;
   P[0] = 0xC0FFEE;
   O[0] = 0xB0B;
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
   // Invalid: predicate doesn't match run
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xBADCAFE, // Wrong predicate
     .o = 0,
@@ -355,8 +355,8 @@ static int test_cli_error_handling(void)
     .out_mask = 0
   };
   
-  knhks_receipt_t rcpt = {0};
-  int result = knhks_eval_bool(&ctx, &ir, &rcpt);
+  knhk_receipt_t rcpt = {0};
+  int result = knhk_eval_bool(&ctx, &ir, &rcpt);
   
   // Should return false (no match)
   assert(result == 0);

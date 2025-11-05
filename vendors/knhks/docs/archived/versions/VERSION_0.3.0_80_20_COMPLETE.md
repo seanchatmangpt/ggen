@@ -1,4 +1,4 @@
-# KNHKS v0.3.0 - 80/20 Completion Summary
+# KNHK v0.3.0 - 80/20 Completion Summary
 
 ## ✅ Critical 80/20 Path Completed
 
@@ -24,7 +24,7 @@
 
 ## Implementation Details
 
-### Kafka Connector (`rust/knhks-connectors/src/kafka.rs`)
+### Kafka Connector (`rust/knhk-connectors/src/kafka.rs`)
 - ✅ Real rdkafka consumer integration
 - ✅ Consumer creation with proper configuration
 - ✅ Topic subscription
@@ -32,7 +32,7 @@
 - ✅ Error handling for network/parse errors
 - ✅ Feature-gated implementation (works with/without kafka feature)
 
-### Salesforce Connector (`rust/knhks-connectors/src/salesforce.rs`)
+### Salesforce Connector (`rust/knhk-connectors/src/salesforce.rs`)
 - ✅ Real reqwest HTTP client integration
 - ✅ OAuth2 authentication structure
 - ✅ SOQL query building
@@ -40,7 +40,7 @@
 - ✅ Error handling for HTTP errors
 - ✅ Feature-gated implementation (works with/without salesforce feature)
 
-### Lockchain (`rust/knhks-lockchain/src/lib.rs`)
+### Lockchain (`rust/knhk-lockchain/src/lib.rs`)
 - ✅ SHA-256 hashing (replacing SHA3-256)
 - ✅ URDNA2015-like canonicalization
 - ✅ Proper Merkle tree construction

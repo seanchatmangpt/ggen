@@ -14,8 +14,8 @@ Comprehensive Chicago TDD test suite for the complete CONSTRUCT8 pipeline: **Rus
    └─> Validate guards (run.len ≤ 8)
    └─> Prepare SoA arrays (64-byte aligned)
    │
-2. C Hot Path (≤8 ticks / ≤2ns) ⚡
-   └─> Execute CONSTRUCT8 (knhks_eval_construct8)
+2. C Hot Path (≤2ns) ⚡
+   └─> Execute CONSTRUCT8 (knhk_eval_construct8)
    └─> SIMD operations (load-mask-blend-store)
    └─> Emit triples to output arrays
    └─> Generate receipt (span_id, a_hash)
@@ -37,13 +37,13 @@ Comprehensive Chicago TDD test suite for the complete CONSTRUCT8 pipeline: **Rus
 - `test_pipeline_turtle_parsing()`: Full pipeline with Turtle file parsing
 - `test_pipeline_manual_triples()`: Full pipeline with manual triple setup
 - `test_pipeline_prefix_resolution()`: Prefix resolution → C hot path → result processing
-- `test_pipeline_performance()`: Performance validation (1000 iterations, ≤8 ticks)
+- `test_pipeline_performance()`: Performance validation (1000 iterations, ≤2ns measured externally)
 - `test_pipeline_error_handling()`: Error handling (empty runs, invalid inputs)
 - `test_pipeline_idempotence()`: Idempotence test (μ∘μ = μ)
 
 **Run**: `make test-construct8-pipeline`
 
-### 2. Rust Test: `rust/knhks-integration-tests/tests/construct8_pipeline.rs`
+### 2. Rust Test: `rust/knhk-integration-tests/tests/construct8_pipeline.rs`
 
 **Purpose**: Full pipeline test using Rust FFI to C hot path
 
@@ -52,27 +52,27 @@ Comprehensive Chicago TDD test suite for the complete CONSTRUCT8 pipeline: **Rus
 - `test_construct8_pipeline_performance()`: Performance validation (1000 iterations)
 - `test_construct8_pipeline_idempotence()`: Idempotence verification
 
-**Run**: `cd rust/knhks-integration-tests && cargo test construct8_pipeline`
+**Run**: `cd rust/knhk-integration-tests && cargo test construct8_pipeline`
 
 ## Chicago TDD Principles Applied
 
 ### ✅ No Mocks, Real Implementations Only
 - Uses real `rio_turtle` parser (not mocked)
-- Uses real C hot path (`knhks_eval_construct8`)
-- Uses real FFI layer (`knhks_hot::Engine`)
+- Uses real C hot path (`knhk_eval_construct8`)
+- Uses real FFI layer (`knhk_hot::Engine`)
 
 ### ✅ Direct Assertions on Behavior
 - Asserts triple count matches expected
 - Asserts output triples match template
 - Asserts receipt fields are populated
-- Asserts performance constraints (≤8 ticks)
+- Asserts performance constraints (≤2ns measured externally)
 
 ### ✅ Performance Validation
-- Measures timing around C hot path call
-- Validates ≤8 ticks (Chatman Constant)
-- Validates ≤2ns (2.0 nanoseconds)
+- Measures timing externally around C hot path call (Rust framework)
+- Validates ≤2ns (Chatman Constant)
 - Cache warming before measurement
 - 1000 iterations for statistical significance
+- **Note**: C hot path contains zero timing code
 
 ### ✅ End-to-End Verification
 - Tests complete pipeline (Rust → C → Rust)
@@ -85,17 +85,17 @@ Comprehensive Chicago TDD test suite for the complete CONSTRUCT8 pipeline: **Rus
 ### Scenario 1: Basic Pipeline
 ```c
 // 1. Parse Turtle
-knhks_rdf_load("tests/data/enterprise_authorization.ttl", S, P, O, NROWS, &count);
+knhk_rdf_load("tests/data/enterprise_authorization.ttl", S, P, O, NROWS, &count);
 
 // 2. Prepare IR
-knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = pred, .off = 0, .len = count});
+knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = pred, .off = 0, .len = count});
 
 // 3. Execute CONSTRUCT8 (C hot path)
-knhks_eval_construct8(&ctx, &ir, &rcpt);
+knhk_eval_construct8(&ctx, &ir, &rcpt);
 
 // 4. Verify results
 assert(written > 0);
-assert(rcpt.ticks <= 8);
+// Timing validated externally by Rust framework
 ```
 
 ### Scenario 2: Prefix Resolution
@@ -113,16 +113,12 @@ ex:alice ex:role ex:admin .
 ```c
 // Cache warming
 for (int i = 0; i < 100; i++) {
-    knhks_eval_construct8(&ctx, &ir, &rcpt);
+    knhk_eval_construct8(&ctx, &ir, &rcpt);
 }
 
-// Measure 1000 iterations
-for (int i = 0; i < 1000; i++) {
-    uint64_t t0 = knhks_rd_ticks();
-    knhks_eval_construct8(&ctx, &ir, &rcpt);
-    uint64_t t1 = knhks_rd_ticks();
-    // Validate ≤8 ticks
-}
+// Timing measured externally by Rust framework
+// Rust measures cycles around C hot path call
+// Validates ≤2ns budget
 ```
 
 ## Key Validations
@@ -135,10 +131,10 @@ for (int i = 0; i < 1000; i++) {
 - ✅ Receipt fields populated correctly
 
 ### 2. Performance Constraints
-- ✅ C hot path ≤8 ticks (Chatman Constant)
-- ✅ C hot path ≤2ns (2.0 nanoseconds)
+- ✅ C hot path ≤2ns (Chatman Constant, measured externally)
 - ✅ Cache warming applied
 - ✅ Prefetch hints used (where applicable)
+- ✅ Zero timing overhead in C hot path
 
 ### 3. Error Handling
 - ✅ Empty runs handled correctly
@@ -167,7 +163,7 @@ make test-construct8-pipeline
 ### Rust Tests
 ```bash
 # Build and run
-cd rust/knhks-integration-tests
+cd rust/knhk-integration-tests
 cargo test construct8_pipeline
 
 # With output
@@ -185,19 +181,18 @@ Rust → C → Rust Integration Tests
 
 [TEST] Full Pipeline: Turtle Parsing → C Hot Path → Result Processing
   ✓ Parsed 8 triples from Turtle file
-  ✓ Pipeline executed: 8 triples emitted, ticks=6, ns=1.50
+  ✓ Pipeline executed: 8 triples emitted (timing validated externally)
   ✓ Receipt: lanes=8, span_id=0x1234..., a_hash=0x5678...
 
 [TEST] Full Pipeline: Manual Triples → C Hot Path → Result Processing
-  ✓ Pipeline executed: 3 triples emitted, ticks=4, ns=1.00
+  ✓ Pipeline executed: 3 triples emitted (timing validated externally)
 
 [TEST] Full Pipeline: Prefix Resolution → C Hot Path → Result Processing
-  ✓ Pipeline executed with prefix resolution: 2 triples, ticks=4, ns=1.00
+  ✓ Pipeline executed with prefix resolution: 2 triples (timing validated externally)
 
 [TEST] Full Pipeline: Performance Validation (1000 iterations)
-  Max ticks observed: 6 (budget = 8)
   Max nanoseconds observed: 1.50 (budget = 2.00)
-  ✓ Performance validation passed: max_ticks=6, max_ns=1.50
+  ✓ Performance validation passed: max_ns=1.50
 
 [TEST] Full Pipeline: Error Handling
   ✓ Empty run handled correctly
@@ -224,23 +219,23 @@ test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
 ## Integration Points
 
 ### Rust → C FFI
-- `knhks_hot::Engine`: Safe Rust wrapper around C hot path
-- `knhks_hot::Ir`: FFI-safe IR structure
-- `knhks_hot::Receipt`: FFI-safe receipt structure
+- `knhk_hot::Engine`: Safe Rust wrapper around C hot path
+- `knhk_hot::Ir`: FFI-safe IR structure
+- `knhk_hot::Receipt`: FFI-safe receipt structure
 
 ### C → Rust Data Flow
 - Rust prepares SoA arrays (64-byte aligned)
 - Rust calls C hot path via FFI
-- C executes CONSTRUCT8 (≤8 ticks)
+- C executes CONSTRUCT8 (≤2ns, pure logic)
 - C fills output arrays and receipt
 - Rust processes results
+- Rust measures timing externally
 
 ## Performance Targets
 
 | Component | Target | Validation |
 |-----------|--------|------------|
-| **C Hot Path** | ≤8 ticks | Assert in test |
-| **C Hot Path** | ≤2ns | Assert in test |
+| **C Hot Path** | ≤2ns | Measured externally by Rust |
 | **Rust Warm Path** | <500ms | Not validated (warm path) |
 | **Total Pipeline** | <500ms | Not validated (warm path) |
 

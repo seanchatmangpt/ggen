@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "knhks.h"
+#include "knhk.h"
 
 #if defined(__GNUC__)
 #define ALN __attribute__((aligned(64)))
@@ -19,7 +19,7 @@
 static uint64_t ALN S[NROWS];
 static uint64_t ALN P[NROWS];
 static uint64_t ALN O[NROWS];
-static knhks_context_t ctx;
+static knhk_context_t ctx;
 
 // Helper to reset test data
 static void reset_test_data(void)
@@ -27,7 +27,7 @@ static void reset_test_data(void)
   memset(S, 0, sizeof(S));
   memset(P, 0, sizeof(P));
   memset(O, 0, sizeof(O));
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
 }
 
 // Test CONSTRUCT8 operation
@@ -44,15 +44,15 @@ static int test_construct8(void)
   O[0] = 0xB0B;
   O[1] = 0xC0C;
   
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 2});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 2});
   
   // Preallocated output buffers
-  uint64_t ALN out_S[KNHKS_NROWS];
-  uint64_t ALN out_P[KNHKS_NROWS];
-  uint64_t ALN out_O[KNHKS_NROWS];
+  uint64_t ALN out_S[KNHK_NROWS];
+  uint64_t ALN out_P[KNHK_NROWS];
+  uint64_t ALN out_O[KNHK_NROWS];
   
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_CONSTRUCT8,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_CONSTRUCT8,
     .s = 0,
     .p = 0xC0FFEE,
     .o = 0xA110E, // Template constant
@@ -63,11 +63,11 @@ static int test_construct8(void)
     .out_mask = 0
   };
   
-  knhks_receipt_t rcpt = {0};
-  int written = knhks_eval_construct8(&ctx, &ir, &rcpt);
+  knhk_receipt_t rcpt = {0};
+  int written = knhk_eval_construct8(&ctx, &ir, &rcpt);
   
   assert(written > 0);
-  assert(written <= KNHKS_NROWS);
+  assert(written <= KNHK_NROWS);
   // Allow ticks == 0 for very fast operations (sub-tick resolution)
   assert(rcpt.ticks <= 500); // Account for measurement overhead
   assert(out_P[0] == 0xC0FFEE); // Template predicate
@@ -93,17 +93,17 @@ static int test_batch_execution(void)
   O[0] = 0xB0B;
   O[1] = 0xC0C;
   
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 2});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 2});
   
   // Create batch of 3 hooks
-  knhks_hook_ir_t irs[KNHKS_NROWS] = {
-    {.op = KNHKS_OP_ASK_SP, .s = 0xA11CE, .p = 0xC0FFEE, .o = 0, .k = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0},
-    {.op = KNHKS_OP_COUNT_SP_GE, .s = 0xA11CE, .p = 0xC0FFEE, .o = 0, .k = 1, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0},
-    {.op = KNHKS_OP_ASK_SPO, .s = 0xA11CE, .p = 0xC0FFEE, .o = 0xB0B, .k = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0}
+  knhk_hook_ir_t irs[KNHK_NROWS] = {
+    {.op = KNHK_OP_ASK_SP, .s = 0xA11CE, .p = 0xC0FFEE, .o = 0, .k = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0},
+    {.op = KNHK_OP_COUNT_SP_GE, .s = 0xA11CE, .p = 0xC0FFEE, .o = 0, .k = 1, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0},
+    {.op = KNHK_OP_ASK_SPO, .s = 0xA11CE, .p = 0xC0FFEE, .o = 0xB0B, .k = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0}
   };
   
-  knhks_receipt_t rcpts[KNHKS_NROWS] = {0};
-  int executed = knhks_eval_batch8(&ctx, irs, 3, rcpts);
+  knhk_receipt_t rcpts[KNHK_NROWS] = {0};
+  int executed = knhk_eval_batch8(&ctx, irs, 3, rcpts);
   
   assert(executed == 3);
   assert(rcpts[0].ticks <= 500); // Account for measurement overhead
@@ -132,33 +132,33 @@ static int test_all_operations_with_receipts(void)
   O[1] = 0xC0C;
   O[2] = 0xB0B; // Same object
   
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 3});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 3});
   
   struct {
-    knhks_op_t op;
+    knhk_op_t op;
     uint64_t s, p, o, k;
     int expected;
   } test_cases[] = {
-    {KNHKS_OP_ASK_SP, 0xA11CE, 0xC0FFEE, 0, 0, 1},
-    {KNHKS_OP_COUNT_SP_GE, 0xA11CE, 0xC0FFEE, 0, 1, 1},
-    {KNHKS_OP_COUNT_SP_LE, 0xA11CE, 0xC0FFEE, 0, 3, 1},
-    {KNHKS_OP_COUNT_SP_EQ, 0xA11CE, 0xC0FFEE, 0, 2, 1},
-    {KNHKS_OP_ASK_SPO, 0xA11CE, 0xC0FFEE, 0xB0B, 0, 1},
-    {KNHKS_OP_ASK_OP, 0, 0xC0FFEE, 0xB0B, 0, 1},
-    {KNHKS_OP_UNIQUE_SP, 0xB22FF, 0xC0FFEE, 0, 0, 1},
-    {KNHKS_OP_COUNT_OP, 0, 0xC0FFEE, 0xB0B, 1, 1},
-    {KNHKS_OP_COUNT_OP_LE, 0, 0xC0FFEE, 0xB0B, 3, 1},
-    {KNHKS_OP_COUNT_OP_EQ, 0, 0xC0FFEE, 0xB0B, 2, 1},
-    {KNHKS_OP_COMPARE_O_EQ, 0, 0xC0FFEE, 0xB0B, 0, 1},
-    {KNHKS_OP_COMPARE_O_GT, 0, 0xC0FFEE, 0xB0A, 0, 1},
-    {KNHKS_OP_COMPARE_O_LT, 0, 0xC0FFEE, 0xB0C, 0, 1},
-    {KNHKS_OP_COMPARE_O_GE, 0, 0xC0FFEE, 0xB0B, 0, 1},
-    {KNHKS_OP_COMPARE_O_LE, 0, 0xC0FFEE, 0xB0B, 0, 1}
+    {KNHK_OP_ASK_SP, 0xA11CE, 0xC0FFEE, 0, 0, 1},
+    {KNHK_OP_COUNT_SP_GE, 0xA11CE, 0xC0FFEE, 0, 1, 1},
+    {KNHK_OP_COUNT_SP_LE, 0xA11CE, 0xC0FFEE, 0, 3, 1},
+    {KNHK_OP_COUNT_SP_EQ, 0xA11CE, 0xC0FFEE, 0, 2, 1},
+    {KNHK_OP_ASK_SPO, 0xA11CE, 0xC0FFEE, 0xB0B, 0, 1},
+    {KNHK_OP_ASK_OP, 0, 0xC0FFEE, 0xB0B, 0, 1},
+    {KNHK_OP_UNIQUE_SP, 0xB22FF, 0xC0FFEE, 0, 0, 1},
+    {KNHK_OP_COUNT_OP, 0, 0xC0FFEE, 0xB0B, 1, 1},
+    {KNHK_OP_COUNT_OP_LE, 0, 0xC0FFEE, 0xB0B, 3, 1},
+    {KNHK_OP_COUNT_OP_EQ, 0, 0xC0FFEE, 0xB0B, 2, 1},
+    {KNHK_OP_COMPARE_O_EQ, 0, 0xC0FFEE, 0xB0B, 0, 1},
+    {KNHK_OP_COMPARE_O_GT, 0, 0xC0FFEE, 0xB0A, 0, 1},
+    {KNHK_OP_COMPARE_O_LT, 0, 0xC0FFEE, 0xB0C, 0, 1},
+    {KNHK_OP_COMPARE_O_GE, 0, 0xC0FFEE, 0xB0B, 0, 1},
+    {KNHK_OP_COMPARE_O_LE, 0, 0xC0FFEE, 0xB0B, 0, 1}
   };
   
   int passed = 0;
   for (size_t i = 0; i < sizeof(test_cases)/sizeof(test_cases[0]); i++) {
-    knhks_hook_ir_t ir = {
+    knhk_hook_ir_t ir = {
       .op = test_cases[i].op,
       .s = test_cases[i].s,
       .p = test_cases[i].p,
@@ -170,8 +170,8 @@ static int test_all_operations_with_receipts(void)
       .out_mask = 0
     };
     
-    knhks_receipt_t rcpt = {0};
-    int result = knhks_eval_bool(&ctx, &ir, &rcpt);
+    knhk_receipt_t rcpt = {0};
+    int result = knhk_eval_bool(&ctx, &ir, &rcpt);
     
     assert(result == test_cases[i].expected);
     assert(rcpt.ticks <= 500); // Account for measurement overhead

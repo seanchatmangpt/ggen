@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to KNHKS will be documented in this file.
+All notable changes to KNHK will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [0.4.0] - Production Integration & Testing Release
@@ -39,7 +39,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   - `coverage get` - Dark Matter 80/20 coverage metrics
 
 ### Changed
-- **Lockchain Integration**: Replaced simulated lockchain writes with real `knhks_lockchain::Lockchain` integration
+- **Lockchain Integration**: Replaced simulated lockchain writes with real `knhk_lockchain::Lockchain` integration
 - **Error Handling**: All CLI commands return `Result<(), String>` for proper error handling
 - **Guard Enforcement**: All commands enforce guard constraints (max_run_len ≤ 8, τ ≤ 8)
 - **Test Assertions**: Updated tests to focus on functional correctness (a_hash) rather than strict timing
@@ -58,8 +58,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - All tests passing
 
 ### Documentation
-- CLI README (`rust/knhks-cli/README.md`)
-- CLI Implementation guide (`rust/knhks-cli/IMPLEMENTATION.md`)
+- CLI README (`rust/knhk-cli/README.md`)
+- CLI Implementation guide (`rust/knhk-cli/IMPLEMENTATION.md`)
 - Definition of Done (`VERSION_0.4.0_DEFINITION_OF_DONE.md`)
 - Status report (`VERSION_0.4.0_DOD_STATUS.md`)
 
@@ -107,13 +107,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Emit Stage**: Lockchain writing (Merkle-linked), downstream APIs (webhooks, Kafka, gRPC)
 
 - **Erlang Modules Production Implementation**
-  - **knhks_sigma**: Schema registry with validation, versioning, caching
-  - **knhks_q**: Invariant registry with violation tracking
-  - **knhks_ingest**: Delta ingestion with guard enforcement
-  - **knhks_lockchain**: Receipt storage with Merkle linking
+  - **knhk_sigma**: Schema registry with validation, versioning, caching
+  - **knhk_q**: Invariant registry with violation tracking
+  - **knhk_ingest**: Delta ingestion with guard enforcement
+  - **knhk_lockchain**: Receipt storage with Merkle linking
 
 - **OTEL Integration**
-  - Real span ID generation (`knhks_generate_span_id()`)
+  - Real span ID generation (`knhk_generate_span_id()`)
   - OTEL-compatible span IDs (no placeholders)
   - Proper a_hash computation (hash(A) = hash(μ(O)))
 
@@ -159,14 +159,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Predicate run detection and metadata
   - Triple loading into aligned arrays
 
-- **Connector Framework** (`knhks-connectors`)
+- **Connector Framework** (`knhk-connectors`)
   - Connector registry and trait system
   - Schema validation (Σ mapping)
   - Guard constraints (H guards)
   - Delta transformation to SoA
   - Support for Kafka, Salesforce, HTTP, File, SAP connectors
 
-- **Erlang Reflexive Control Layer** (`knhks_rc`)
+- **Erlang Reflexive Control Layer** (`knhk_rc`)
   - Core API: boot, connect, cover, admit, reflex, epoch, run, route
   - Receipt management and merging
   - OTEL integration
@@ -175,8 +175,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Epoch scheduling
 
 - **Rust Integration**
-  - `knhks-hot` - FFI-safe wrapper for hot path (v1.0.0)
-  - `knhks-etl` - ETL pipeline support (v0.1.0)
+  - `knhk-hot` - FFI-safe wrapper for hot path (v1.0.0)
+  - `knhk-etl` - ETL pipeline support (v0.1.0)
 
 - **Testing Infrastructure**
   - `chicago_v1_test` - Core v1.0 features
@@ -190,8 +190,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - 12 enterprise test data files (.ttl)
 
 - **Benchmarking Tools**
-  - `knhks_bench` - Performance benchmarking tool
-  - `knhks_bench_eval()` - C API for benchmarking
+  - `knhk_bench` - Performance benchmarking tool
+  - `knhk_bench_eval()` - C API for benchmarking
   - Zero-overhead measurement methodology
 
 - **Documentation**
@@ -217,7 +217,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Build System
 - Makefile with comprehensive targets
-- Static library build (`libknhks.a`)
+- Static library build (`libknhk.a`)
 - Test suite compilation
 - Benchmark tool build
 - Platform-specific optimizations
@@ -236,7 +236,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Version Notes
 
 - **v0.2.0** represents the current development state with core features production-ready
-- Some components reference v1.0 for API stability (e.g., C API headers, Rust `knhks-hot`)
+- Some components reference v1.0 for API stability (e.g., C API headers, Rust `knhk-hot`)
 - Version alignment may be needed for consistency in future releases
 - Core library is production-ready for 8-tick hot path operations
 

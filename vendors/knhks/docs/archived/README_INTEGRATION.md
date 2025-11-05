@@ -1,43 +1,43 @@
 // README_INTEGRATION.md
-// Integration Guide for KNHKS v1.0 Components
+// Integration Guide for KNHK v1.0 Components
 
 ## Component Overview
 
-KNHKS v1.0 consists of the following integrated components:
+KNHK v1.0 consists of the following integrated components:
 
 ### 1. Hot Path (C)
-- **Location**: `src/`, `include/knhks.h`
+- **Location**: `src/`, `include/knhk.h`
 - **Purpose**: 8-tick execution engine
 - **Status**: ✅ Complete
 
 ### 2. Warm Path (Rust FFI)
-- **Location**: `rust/knhks-hot/`
+- **Location**: `rust/knhk-hot/`
 - **Purpose**: Safe wrappers around C hot path
 - **Status**: ✅ Complete
 
 ### 3. Connector Framework
-- **Location**: `rust/knhks-connectors/`
+- **Location**: `rust/knhk-connectors/`
 - **Purpose**: Dark Matter 80/20 connector framework
 - **Status**: ✅ Complete
 - **Implementations**: Kafka, Salesforce
 
 ### 4. ETL Pipeline
-- **Location**: `rust/knhks-etl/`
+- **Location**: `rust/knhk-etl/`
 - **Purpose**: Ingest → Transform → Load → Reflex → Emit
 - **Status**: ✅ Complete
 
 ### 5. Lockchain
-- **Location**: `rust/knhks-lockchain/`
+- **Location**: `rust/knhk-lockchain/`
 - **Purpose**: Merkle-linked provenance storage
 - **Status**: ✅ Complete
 
 ### 6. OpenTelemetry
-- **Location**: `rust/knhks-otel/`
+- **Location**: `rust/knhk-otel/`
 - **Purpose**: Observability and metrics
 - **Status**: ✅ Complete
 
 ### 7. Erlang High-Level API
-- **Location**: `erlang/knhks_rc/`
+- **Location**: `erlang/knhk_rc/`
 - **Purpose**: Control plane and orchestration
 - **Status**: ✅ Structure complete (stubs)
 
@@ -45,8 +45,8 @@ KNHKS v1.0 consists of the following integrated components:
 
 ### Connector → ETL Pipeline
 ```rust
-use knhks_connectors::{ConnectorRegistry, KafkaConnector};
-use knhks_etl::Pipeline;
+use knhk_connectors::{ConnectorRegistry, KafkaConnector};
+use knhk_etl::Pipeline;
 
 let mut registry = ConnectorRegistry::new();
 let kafka = Box::new(KafkaConnector::new(...));
@@ -54,7 +54,7 @@ registry.register(kafka)?;
 
 let pipeline = Pipeline::new(
     registry.list(),
-    "urn:knhks:schema:enterprise".to_string(),
+    "urn:knhk:schema:enterprise".to_string(),
     true, // lockchain enabled
     vec!["https://webhook.example.com".to_string()],
 );
@@ -62,8 +62,8 @@ let pipeline = Pipeline::new(
 
 ### ETL Pipeline → Lockchain
 ```rust
-use knhks_etl::Pipeline;
-use knhks_lockchain::Lockchain;
+use knhk_etl::Pipeline;
+use knhk_lockchain::Lockchain;
 
 let mut lockchain = Lockchain::new();
 let result = pipeline.execute()?;
@@ -76,8 +76,8 @@ for receipt_hash in result.lockchain_hashes {
 
 ### ETL Pipeline → OpenTelemetry
 ```rust
-use knhks_etl::Pipeline;
-use knhks_otel::{Tracer, MetricsHelper};
+use knhk_etl::Pipeline;
+use knhk_otel::{Tracer, MetricsHelper};
 
 let mut tracer = Tracer::new();
 let span = tracer.start_span("pipeline_execution".to_string(), None);
@@ -104,10 +104,10 @@ All components have Chicago TDD test suites:
 make lib
 
 # Build Rust components
-cd rust/knhks-connectors && cargo build
-cd rust/knhks-etl && cargo build
-cd rust/knhks-lockchain && cargo build
-cd rust/knhks-otel && cargo build
+cd rust/knhk-connectors && cargo build
+cd rust/knhk-etl && cargo build
+cd rust/knhk-lockchain && cargo build
+cd rust/knhk-otel && cargo build
 
 # Run tests
 make test

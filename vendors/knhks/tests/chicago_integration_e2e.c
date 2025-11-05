@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "knhks.h"
+#include "knhk.h"
 #include "chicago_test_helpers.h"
 
 #if defined(__GNUC__)
@@ -22,7 +22,7 @@ static void reset_test_data(void)
   memset(S, 0, sizeof(S));
   memset(P, 0, sizeof(P));
   memset(O, 0, sizeof(O));
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
 }
 
 // Test: E2E Kafka Pipeline (Kafka → Transform → Load → Reflex → Emit)
@@ -43,12 +43,12 @@ static int test_e2e_kafka_pipeline(void)
   // Verified by predicate matching - data already in u64 format
   
   // Stage 3: Load (SoA arrays, predicate grouping)
-  knhks_init_ctx(&ctx, S, P, O);
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 2});
+  knhk_init_ctx(&ctx, S, P, O);
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 2});
   
   // Stage 4: Reflex (hot path execution)
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -60,12 +60,12 @@ static int test_e2e_kafka_pipeline(void)
   };
   
   // Warmup execution to ensure cache is warm
-  knhks_receipt_t rcpt_warmup = {0};
-  knhks_eval_bool(&ctx, &ir, &rcpt_warmup);
+  knhk_receipt_t rcpt_warmup = {0};
+  knhk_eval_bool(&ctx, &ir, &rcpt_warmup);
   
   // Actual execution
-  knhks_receipt_t rcpt = {0};
-  int action = knhks_eval_bool(&ctx, &ir, &rcpt);
+  knhk_receipt_t rcpt = {0};
+  int action = knhk_eval_bool(&ctx, &ir, &rcpt);
   
   // Stage 5: Emit (receipt available for lockchain)
   assert(action == 1); // Action: subject exists
@@ -91,12 +91,12 @@ static int test_e2e_salesforce_pipeline(void)
   O[0] = 0xE01;
   O[1] = 0xE02;
   
-  knhks_init_ctx(&ctx, S, P, O);
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 2});
+  knhk_init_ctx(&ctx, S, P, O);
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 2});
   
   // Execute hook
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_COUNT_SP_GE,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_COUNT_SP_GE,
     .s = 0xACC01,
     .p = 0xC0FFEE,
     .o = 0,
@@ -112,18 +112,18 @@ static int test_e2e_salesforce_pipeline(void)
   
   // Execute (with warmup)
   for (int i = 0; i < 3; i++) {
-    knhks_receipt_t rcpt_warmup = {0};
-    knhks_eval_bool(&ctx, &ir, &rcpt_warmup);
+    knhk_receipt_t rcpt_warmup = {0};
+    knhk_eval_bool(&ctx, &ir, &rcpt_warmup);
   }
   
-  knhks_receipt_t rcpt = {0};
-  int action = knhks_eval_bool(&ctx, &ir, &rcpt);
+  knhk_receipt_t rcpt = {0};
+  int action = knhk_eval_bool(&ctx, &ir, &rcpt);
   
   assert(action == 1); // Count >= 1
   // Receipt should be generated (allow for timing variance)
   if (rcpt.ticks == 0) {
     // If first call failed, try again (warmup)
-    knhks_eval_bool(&ctx, &ir, &rcpt);
+    knhk_eval_bool(&ctx, &ir, &rcpt);
   }
   // Verify receipt was generated (at least one field should be set)
   assert(rcpt.ticks <= 500);
@@ -155,12 +155,12 @@ static int test_e2e_multi_connector_pipeline(void)
   O[2] = 0xE01;
   O[3] = 0xE02;
   
-  knhks_init_ctx(&ctx, S, P, O);
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 4});
+  knhk_init_ctx(&ctx, S, P, O);
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 4});
   
   // Execute hook on unified data
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_COUNT_SP_GE,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_COUNT_SP_GE,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -176,17 +176,17 @@ static int test_e2e_multi_connector_pipeline(void)
   
   // Execute (warmup to ensure cache is warm)
   for (int i = 0; i < 5; i++) {
-    knhks_receipt_t rcpt_warmup = {0};
-    knhks_eval_bool(&ctx, &ir, &rcpt_warmup);
+    knhk_receipt_t rcpt_warmup = {0};
+    knhk_eval_bool(&ctx, &ir, &rcpt_warmup);
   }
   
-  knhks_receipt_t rcpt = {0};
-  int action = knhks_eval_bool(&ctx, &ir, &rcpt);
+  knhk_receipt_t rcpt = {0};
+  int action = knhk_eval_bool(&ctx, &ir, &rcpt);
   
   assert(action == 1); // Count >= 1 (subject 0xA11CE appears once)
   // Verify receipt was generated
   if (rcpt.ticks == 0) {
-    knhks_eval_bool(&ctx, &ir, &rcpt);
+    knhk_eval_bool(&ctx, &ir, &rcpt);
   }
   assert(rcpt.ticks <= 500);
   
@@ -204,12 +204,12 @@ static int test_e2e_receipt_to_lockchain(void)
   P[0] = 0xC0FFEE;
   O[0] = 0xB0B;
   
-  knhks_init_ctx(&ctx, S, P, O);
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_init_ctx(&ctx, S, P, O);
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
   // Generate receipt
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -221,14 +221,14 @@ static int test_e2e_receipt_to_lockchain(void)
   };
   
   // Warmup to ensure cache is warm
-  knhks_receipt_t rcpt_warmup = {0};
-  knhks_eval_bool(&ctx, &ir, &rcpt_warmup);
+  knhk_receipt_t rcpt_warmup = {0};
+  knhk_eval_bool(&ctx, &ir, &rcpt_warmup);
   
-  knhks_receipt_t rcpt1 = {0};
-  knhks_receipt_t rcpt2 = {0};
+  knhk_receipt_t rcpt1 = {0};
+  knhk_receipt_t rcpt2 = {0};
   
-  int action1 = knhks_eval_bool(&ctx, &ir, &rcpt1);
-  int action2 = knhks_eval_bool(&ctx, &ir, &rcpt2);
+  int action1 = knhk_eval_bool(&ctx, &ir, &rcpt1);
+  int action2 = knhk_eval_bool(&ctx, &ir, &rcpt2);
   
   // Verify receipts are identical (deterministic) - allow for timing variance in ticks
   assert(action1 == action2);
@@ -238,7 +238,7 @@ static int test_e2e_receipt_to_lockchain(void)
   
   // Verify receipt properties (ready for lockchain)
   // Use rcpt1 if populated, otherwise warmup receipt
-  knhks_receipt_t rcpt = rcpt1.ticks > 0 ? rcpt1 : rcpt_warmup;
+  knhk_receipt_t rcpt = rcpt1.ticks > 0 ? rcpt1 : rcpt_warmup;
   assert(rcpt.ticks <= 500);
   
   printf("  ✓ Receipt generation → lockchain storage verified\n");
@@ -259,12 +259,12 @@ static int test_e2e_error_recovery(void)
   P[0] = 0xC0FFEE;
   O[0] = 0xB0B;
   
-  knhks_init_ctx(&ctx, S, P, O);
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_init_ctx(&ctx, S, P, O);
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
   // Should succeed
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -276,16 +276,16 @@ static int test_e2e_error_recovery(void)
   };
   
   // Warmup call
-  knhks_receipt_t rcpt_warmup = {0};
-  knhks_eval_bool(&ctx, &ir, &rcpt_warmup);
+  knhk_receipt_t rcpt_warmup = {0};
+  knhk_eval_bool(&ctx, &ir, &rcpt_warmup);
   
-  knhks_receipt_t rcpt = {0};
-  int action = knhks_eval_bool(&ctx, &ir, &rcpt);
+  knhk_receipt_t rcpt = {0};
+  int action = knhk_eval_bool(&ctx, &ir, &rcpt);
   
   assert(action == 1);
   // Verify receipt was generated (allow retry if needed)
   if (rcpt.ticks == 0 && rcpt_warmup.ticks == 0) {
-    knhks_eval_bool(&ctx, &ir, &rcpt);
+    knhk_eval_bool(&ctx, &ir, &rcpt);
   }
   assert(rcpt.ticks > 0 || rcpt_warmup.ticks > 0 || rcpt.span_id != 0 || rcpt.a_hash != 0);
   
@@ -306,12 +306,12 @@ static int test_e2e_circuit_breaker(void)
   P[0] = 0xC0FFEE;
   O[0] = 0xB0B;
   
-  knhks_init_ctx(&ctx, S, P, O);
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_init_ctx(&ctx, S, P, O);
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
   // Data that passed circuit breaker should execute normally
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -323,11 +323,11 @@ static int test_e2e_circuit_breaker(void)
   };
   
   // Warmup call
-  knhks_receipt_t rcpt_warmup = {0};
-  knhks_eval_bool(&ctx, &ir, &rcpt_warmup);
+  knhk_receipt_t rcpt_warmup = {0};
+  knhk_eval_bool(&ctx, &ir, &rcpt_warmup);
   
-  knhks_receipt_t rcpt = {0};
-  int action = knhks_eval_bool(&ctx, &ir, &rcpt);
+  knhk_receipt_t rcpt = {0};
+  int action = knhk_eval_bool(&ctx, &ir, &rcpt);
   
   assert(action == 1);
   assert(rcpt.ticks <= 500 && rcpt_warmup.ticks <= 500); // Receipt generated

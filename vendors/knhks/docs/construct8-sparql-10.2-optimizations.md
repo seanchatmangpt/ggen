@@ -32,7 +32,7 @@ typedef struct {
 } construct_template_t;
 
 // AOT-generated specialized functions
-static inline size_t knhks_construct8_emit_8_s_const_p_const_o_var(
+static inline size_t knhk_construct8_emit_8_s_const_p_const_o_var(
   const uint64_t *S_base, uint64_t off, uint64_t len,
   uint64_t s_const, uint64_t p_const,
   const uint64_t *O_base,  // Object comes from WHERE clause
@@ -510,7 +510,7 @@ fn prepare_construct8_input(
 
 // Hot path: Execute CONSTRUCT8 (≤8 ticks)
 fn construct8_execute(input: &Construct8Input, output: &mut Construct8Output) {
-    knhks_construct8_emit_8(
+    knhk_construct8_emit_8(
         input.S.as_ptr(),
         input.off,
         input.len,
@@ -598,7 +598,7 @@ fn construct8_from_validated_solutions(
 ### Phase 1: Template Analysis (Rust AOT)
 
 ```rust
-// rust/knhks-aot/src/template_analyzer.rs
+// rust/knhk-aot/src/template_analyzer.rs
 pub struct ConstructTemplateAnalyzer;
 
 impl ConstructTemplateAnalyzer {
@@ -638,7 +638,7 @@ impl ConstructTemplateAnalyzer {
 ### Phase 2: Warm Path Preprocessing (Rust)
 
 ```rust
-// rust/knhks-hot/src/construct8_preprocessor.rs
+// rust/knhk-hot/src/construct8_preprocessor.rs
 pub fn preprocess_construct8(
     analysis: &TemplateAnalysis,
     ctx: &Context,

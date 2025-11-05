@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "knhks.h"
+#include "knhk.h"
 #include "chicago_test_helpers.h"
 
 #if defined(__GNUC__)
@@ -37,7 +37,7 @@ static config_t test_config = {0};
 static int load_config(const char *filename)
 {
   (void)filename; // Not used in mock
-  test_config.default_max_ticks = 8; // KNHKS_TICK_BUDGET
+  test_config.default_max_ticks = 8; // KNHK_TICK_BUDGET
   test_config.connector_count = 2;
   test_config.connectors[0] = (config_connector_t){
     .connector_name = "kafka",
@@ -77,11 +77,11 @@ static int test_config_env_vars(void)
   printf("[TEST] Config Environment Variables\n");
   
   // Simulate env var override (in real implementation, env vars override file)
-  // Set env var: KNHKS_MAX_TICKS=8
+  // Set env var: KNHK_MAX_TICKS=8
   uint32_t env_max_ticks = 8; // From env var
   
   // Config should use env var over file value
-  assert(env_max_ticks == KNHKS_TICK_BUDGET);
+  assert(env_max_ticks == KNHK_TICK_BUDGET);
   
   printf("  ✓ Environment variables override config file\n");
   return 1;
@@ -128,10 +128,10 @@ static int test_config_defaults(void)
   config_t empty_config = {0};
   
   // Defaults should be applied
-  uint32_t default_max_ticks = 8; // KNHKS_TICK_BUDGET
+  uint32_t default_max_ticks = 8; // KNHK_TICK_BUDGET
   uint64_t default_max_run_len = 8; // Guard constraint
   
-  assert(default_max_ticks == KNHKS_TICK_BUDGET);
+  assert(default_max_ticks == KNHK_TICK_BUDGET);
   assert(default_max_run_len == 8);
   
   printf("  ✓ Config defaults applied correctly\n");
@@ -165,7 +165,7 @@ static int test_config_epoch_settings(void)
   uint32_t epoch_max_ticks = 8; // From config
   const char *ordering = "deterministic"; // From config
   
-  assert(epoch_max_ticks == KNHKS_TICK_BUDGET);
+  assert(epoch_max_ticks == KNHK_TICK_BUDGET);
   assert(strcmp(ordering, "deterministic") == 0);
   
   printf("  ✓ Epoch settings parsed correctly\n");
@@ -188,16 +188,16 @@ static int test_config_hook_settings(void)
   uint64_t ALN S[NROWS];
   uint64_t ALN P[NROWS];
   uint64_t ALN O[NROWS];
-  knhks_context_t ctx;
+  knhk_context_t ctx;
   
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
   S[0] = 0xA11CE;
   P[0] = 0xC0FFEE;
   O[0] = 0xB0B;
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -208,11 +208,11 @@ static int test_config_hook_settings(void)
     .out_mask = 0
   };
   
-  knhks_receipt_t rcpt = {0};
-  int result = knhks_eval_bool(&ctx, &ir, &rcpt);
+  knhk_receipt_t rcpt = {0};
+  int result = knhk_eval_bool(&ctx, &ir, &rcpt);
   
   assert(result == 1);
-  assert(rcpt.ticks <= KNHKS_TICK_BUDGET);
+  assert(rcpt.ticks <= KNHK_TICK_BUDGET);
   
   printf("  ✓ Hook settings parsed and applied correctly\n");
   return 1;

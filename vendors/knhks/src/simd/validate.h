@@ -1,13 +1,13 @@
 // simd/validate.h
 // Validation operations: VALIDATE_DATATYPE_SP
 
-#ifndef KNHKS_SIMD_VALIDATE_H
-#define KNHKS_SIMD_VALIDATE_H
+#ifndef KNHK_SIMD_VALIDATE_H
+#define KNHK_SIMD_VALIDATE_H
 
 #include "common.h"
 
 #if NROWS == 8
-static inline int knhks_validate_datatype_sp_8(const uint64_t *S_base, const uint64_t *O_base,
+static inline int knhk_validate_datatype_sp_8(const uint64_t *S_base, const uint64_t *O_base,
                                                 uint64_t off, uint64_t s_key, uint64_t datatype_hash)
 {
   const uint64_t *s_p = S_base + off;
@@ -96,4 +96,4 @@ static inline int knhks_validate_datatype_sp_8(const uint64_t *S_base, const uin
 
 #endif // NROWS == 8
 
-#endif // KNHKS_SIMD_VALIDATE_H
+#endif // KNHK_SIMD_VALIDATE_H

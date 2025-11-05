@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "knhks.h"
+#include "knhk.h"
 
 #if defined(__GNUC__)
 #define ALN __attribute__((aligned(64)))
@@ -45,18 +45,18 @@ static int test_lockchain_append(void)
   uint64_t ALN S[NROWS];
   uint64_t ALN P[NROWS];
   uint64_t ALN O[NROWS];
-  knhks_context_t ctx;
+  knhk_context_t ctx;
   
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
   
   S[0] = 0xA11CE;
   P[0] = 0xC0FFEE;
   O[0] = 0xB0B;
   
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -67,8 +67,8 @@ static int test_lockchain_append(void)
     .out_mask = 0
   };
   
-  knhks_receipt_t rcpt = {0};
-  knhks_eval_bool(&ctx, &ir, &rcpt);
+  knhk_receipt_t rcpt = {0};
+  knhk_eval_bool(&ctx, &ir, &rcpt);
   
   // Append to lockchain
   uint64_t parent_hash = lockchain_len > 0 ? lockchain[lockchain_len - 1].receipt_hash : 0;
@@ -184,19 +184,19 @@ static int test_lockchain_receipt_merge(void)
   uint64_t ALN S[NROWS];
   uint64_t ALN P[NROWS];
   uint64_t ALN O[NROWS];
-  knhks_context_t ctx;
+  knhk_context_t ctx;
   
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
   
   S[0] = 0xA11CE;
   P[0] = 0xC0FFEE;
   O[0] = 0xB0B;
   
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
   // Generate two receipts
-  knhks_hook_ir_t ir1 = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir1 = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -207,16 +207,16 @@ static int test_lockchain_receipt_merge(void)
     .out_mask = 0
   };
   
-  knhks_hook_ir_t ir2 = ir1;
+  knhk_hook_ir_t ir2 = ir1;
   
-  knhks_receipt_t rcpt1 = {0};
-  knhks_receipt_t rcpt2 = {0};
+  knhk_receipt_t rcpt1 = {0};
+  knhk_receipt_t rcpt2 = {0};
   
-  knhks_eval_bool(&ctx, &ir1, &rcpt1);
-  knhks_eval_bool(&ctx, &ir2, &rcpt2);
+  knhk_eval_bool(&ctx, &ir1, &rcpt1);
+  knhk_eval_bool(&ctx, &ir2, &rcpt2);
   
   // Merge receipts
-  knhks_receipt_t merged = knhks_receipt_merge(rcpt1, rcpt2);
+  knhk_receipt_t merged = knhk_receipt_merge(rcpt1, rcpt2);
   
   assert(merged.ticks == (rcpt1.ticks > rcpt2.ticks ? rcpt1.ticks : rcpt2.ticks));
   assert(merged.lanes == rcpt1.lanes + rcpt2.lanes);

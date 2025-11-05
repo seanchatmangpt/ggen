@@ -1,13 +1,13 @@
 // simd/select.h
 // SELECT operations: SELECT_SP
 
-#ifndef KNHKS_SIMD_SELECT_H
-#define KNHKS_SIMD_SELECT_H
+#ifndef KNHK_SIMD_SELECT_H
+#define KNHK_SIMD_SELECT_H
 
 #include "common.h"
 
 #if NROWS == 8
-static inline size_t knhks_select_gather_8(const uint64_t *S_base, const uint64_t *O_base,
+static inline size_t knhk_select_gather_8(const uint64_t *S_base, const uint64_t *O_base,
                                            uint64_t off, uint64_t s_key,
                                            uint64_t *out, size_t out_capacity)
 {
@@ -192,4 +192,4 @@ static inline size_t knhks_select_gather_8(const uint64_t *S_base, const uint64_
 }
 #endif // NROWS == 8
 
-#endif // KNHKS_SIMD_SELECT_H
+#endif // KNHK_SIMD_SELECT_H

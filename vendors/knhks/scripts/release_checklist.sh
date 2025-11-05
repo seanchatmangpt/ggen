@@ -1,5 +1,5 @@
 #!/bin/bash
-# KNHKS v0.4.0 Release Checklist
+# KNHK v0.4.0 Release Checklist
 # Interactive script for release managers
 
 set -e
@@ -33,7 +33,7 @@ done
 # Functions
 print_header() {
     echo -e "${BLUE}========================================${NC}"
-    echo -e "${BLUE}KNHKS v0.4.0 Release Checklist${NC}"
+    echo -e "${BLUE}KNHK v0.4.0 Release Checklist${NC}"
     echo -e "${BLUE}========================================${NC}"
     echo ""
 }
@@ -149,7 +149,7 @@ generate_report() {
     local report_file="release_checklist_report_$(date +%Y%m%d_%H%M%S).txt"
     
     {
-        echo "KNHKS v0.4.0 Release Checklist Report"
+        echo "KNHK v0.4.0 Release Checklist Report"
         echo "Generated: $(date)"
         echo ""
         echo "========================================"

@@ -3,7 +3,7 @@ version: '3.8'
 services:
   kafka:
     image: confluentinc/cp-kafka:7.5.0
-    container_name: knhks-test-kafka
+    container_name: knhk-test-kafka
     ports:
       - "9092:9092"
     environment:
@@ -21,7 +21,7 @@ services:
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
-    container_name: knhks-test-zookeeper
+    container_name: knhk-test-zookeeper
     ports:
       - "2181:2181"
     environment:
@@ -30,22 +30,22 @@ services:
 
   postgres:
     image: postgres:15-alpine
-    container_name: knhks-test-postgres
+    container_name: knhk-test-postgres
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: knhks_test
-      POSTGRES_PASSWORD: knhks_test
-      POSTGRES_DB: knhks_test
+      POSTGRES_USER: knhk_test
+      POSTGRES_PASSWORD: knhk_test
+      POSTGRES_DB: knhk_test
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U knhks_test"]
+      test: ["CMD-SHELL", "pg_isready -U knhk_test"]
       interval: 5s
       timeout: 3s
       retries: 5
 
   otel-collector:
     image: otel/opentelemetry-collector:latest
-    container_name: knhks-test-otel-collector
+    container_name: knhk-test-otel-collector
     ports:
       - "4317:4317"  # OTLP gRPC
       - "4318:4318"  # OTLP HTTP
@@ -55,7 +55,7 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: knhks-test-redis
+    container_name: knhk-test-redis
     ports:
       - "6379:6379"
     healthcheck:
@@ -66,5 +66,5 @@ services:
 
 networks:
   default:
-    name: knhks-test-network
+    name: knhk-test-network
 

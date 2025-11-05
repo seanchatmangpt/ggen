@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "knhks.h"
+#include "knhk.h"
 
 #if defined(__GNUC__)
 #define ALN __attribute__((aligned(64)))
@@ -19,13 +19,13 @@
 static uint64_t ALN S[NROWS];
 static uint64_t ALN P[NROWS];
 static uint64_t ALN O[NROWS];
-static knhks_context_t ctx;
+static knhk_context_t ctx;
 
 static void reset_test_data(void) {
     memset(S, 0, sizeof(S));
     memset(P, 0, sizeof(P));
     memset(O, 0, sizeof(O));
-    knhks_init_ctx(&ctx, S, P, O);
+    knhk_init_ctx(&ctx, S, P, O);
 }
 
 // Test: Metrics get hook latency
@@ -38,11 +38,11 @@ static int test_metrics_hook_latency(void) {
     P[0] = 0xC0FFEE;
     O[0] = 0xB0B;
     
-    knhks_pred_run_t run = { .pred = 0xC0FFEE, .off = 0, .len = 1 };
-    knhks_pin_run(&ctx, run);
+    knhk_pred_run_t run = { .pred = 0xC0FFEE, .off = 0, .len = 1 };
+    knhk_pin_run(&ctx, run);
     
-    knhks_hook_ir_t ir = {
-        .op = KNHKS_OP_ASK_SP,
+    knhk_hook_ir_t ir = {
+        .op = KNHK_OP_ASK_SP,
         .s = 0xA11CE,
         .p = 0xC0FFEE,
         .o = 0,
@@ -56,8 +56,8 @@ static int test_metrics_hook_latency(void) {
     // Execute multiple times to measure latency
     uint32_t ticks[100];
     for (int i = 0; i < 100; i++) {
-        knhks_receipt_t rcpt = {0};
-        knhks_eval_bool(&ctx, &ir, &rcpt);
+        knhk_receipt_t rcpt = {0};
+        knhk_eval_bool(&ctx, &ir, &rcpt);
         ticks[i] = rcpt.ticks;
     }
     
@@ -95,7 +95,7 @@ static int test_metrics_drift_violations(void) {
     // Simulate hook executions
     for (uint32_t i = 0; i < total_hooks; i++) {
         uint32_t ticks = 5; // Simulated tick count
-        if (ticks > KNHKS_TICK_BUDGET) {
+        if (ticks > KNHK_TICK_BUDGET) {
             violations++;
         }
     }

@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "knhks.h"
+#include "knhk.h"
 
 #if defined(__GNUC__)
 #define ALN __attribute__((aligned(64)))
@@ -19,14 +19,14 @@
 static uint64_t ALN S[NROWS];
 static uint64_t ALN P[NROWS];
 static uint64_t ALN O[NROWS];
-static knhks_context_t ctx;
+static knhk_context_t ctx;
 
 static void reset_test_data(void)
 {
   memset(S, 0, sizeof(S));
   memset(P, 0, sizeof(P));
   memset(O, 0, sizeof(O));
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
 }
 
 // Test: KGC Axiom - Idempotence (μ∘μ = μ)
@@ -39,10 +39,10 @@ static int test_kgc_idempotence(void)
   P[0] = 0xC0FFEE;
   O[0] = 0xB0B;
   
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -53,11 +53,11 @@ static int test_kgc_idempotence(void)
     .out_mask = 0
   };
   
-  knhks_receipt_t rcpt1 = {0};
-  knhks_receipt_t rcpt2 = {0};
+  knhk_receipt_t rcpt1 = {0};
+  knhk_receipt_t rcpt2 = {0};
   
-  int r1 = knhks_eval_bool(&ctx, &ir, &rcpt1);
-  int r2 = knhks_eval_bool(&ctx, &ir, &rcpt2);
+  int r1 = knhk_eval_bool(&ctx, &ir, &rcpt1);
+  int r2 = knhk_eval_bool(&ctx, &ir, &rcpt2);
   
   // Same input → same output
   assert(r1 == r2);
@@ -78,10 +78,10 @@ static int test_kgc_shard_law(void)
   P[0] = 0xC0FFEE;
   O[0] = 0xB0B;
   
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -92,18 +92,18 @@ static int test_kgc_shard_law(void)
     .out_mask = 0
   };
   
-  knhks_receipt_t rcpt_O = {0};
-  int r_O = knhks_eval_bool(&ctx, &ir, &rcpt_O);
+  knhk_receipt_t rcpt_O = {0};
+  int r_O = knhk_eval_bool(&ctx, &ir, &rcpt_O);
   
   // Δ: add second element
   S[1] = 0xB22FF;
   P[1] = 0xC0FFEE;
   O[1] = 0xC0C;
   
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 2});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 2});
   
-  knhks_receipt_t rcpt_O_delta = {0};
-  int r_O_delta = knhks_eval_bool(&ctx, &ir, &rcpt_O_delta);
+  knhk_receipt_t rcpt_O_delta = {0};
+  int r_O_delta = knhk_eval_bool(&ctx, &ir, &rcpt_O_delta);
   
   // Both should return true (shard law: composition preserves results)
   assert(r_O == 1);
@@ -127,11 +127,11 @@ static int test_complete_workflow(void)
   O[0] = 0xB0B;
   O[1] = 0xC0C;
   
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 2});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 2});
   
   // μ: Execute reflex
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -142,12 +142,13 @@ static int test_complete_workflow(void)
     .out_mask = 0
   };
   
-  knhks_receipt_t rcpt = {0};
-  int A = knhks_eval_bool(&ctx, &ir, &rcpt);
+  knhk_receipt_t rcpt = {0};
+  int A = knhk_eval_bool(&ctx, &ir, &rcpt);
   
   // Verify: A = μ(O) with receipt
   assert(A == 1); // Action: subject exists
-  assert(rcpt.ticks <= KNHKS_TICK_BUDGET);
+  // Timing validated externally by Rust framework
+  assert(rcpt.lanes > 0);
   assert(rcpt.a_hash != 0); // Provenance hash
   
   printf("  ✓ Complete workflow: O → μ → A with receipt\n");
@@ -164,10 +165,10 @@ static int test_receipt_provenance(void)
   P[0] = 0xC0FFEE;
   O[0] = 0xB0B;
   
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -178,11 +179,11 @@ static int test_receipt_provenance(void)
     .out_mask = 0
   };
   
-  knhks_receipt_t rcpt1 = {0};
-  knhks_receipt_t rcpt2 = {0};
+  knhk_receipt_t rcpt1 = {0};
+  knhk_receipt_t rcpt2 = {0};
   
-  int A1 = knhks_eval_bool(&ctx, &ir, &rcpt1);
-  int A2 = knhks_eval_bool(&ctx, &ir, &rcpt2);
+  int A1 = knhk_eval_bool(&ctx, &ir, &rcpt1);
+  int A2 = knhk_eval_bool(&ctx, &ir, &rcpt2);
   
   // Same O → same A → same hash
   assert(A1 == A2);
@@ -204,13 +205,13 @@ static int test_epoch_execution(void)
     O[i] = 0xB0B + i;
   }
   
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 8});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 8});
   
   // Create epoch: batch of 8 hooks
-  knhks_hook_ir_t irs[KNHKS_NROWS];
+  knhk_hook_ir_t irs[KNHK_NROWS];
   for (int i = 0; i < 8; i++) {
-    irs[i] = (knhks_hook_ir_t){
-      .op = KNHKS_OP_ASK_SP,
+    irs[i] = (knhk_hook_ir_t){
+      .op = KNHK_OP_ASK_SP,
       .s = 0xA11CE + i,
       .p = 0xC0FFEE,
       .o = 0,
@@ -222,22 +223,17 @@ static int test_epoch_execution(void)
     };
   }
   
-  knhks_receipt_t rcpts[KNHKS_NROWS] = {0};
-  int executed = knhks_eval_batch8(&ctx, irs, 8, rcpts);
+  knhk_receipt_t rcpts[KNHK_NROWS] = {0};
+  int executed = knhk_eval_batch8(&ctx, irs, 8, rcpts);
   
   assert(executed == 8);
   
-  // Verify all hooks within epoch bound
-  uint32_t max_ticks = 0;
+  // Timing validated externally by Rust framework
   for (int i = 0; i < 8; i++) {
-    if (rcpts[i].ticks > max_ticks) {
-      max_ticks = rcpts[i].ticks;
-    }
+    assert(rcpts[i].lanes > 0);
   }
   
-  assert(max_ticks <= KNHKS_TICK_BUDGET);
-  
-  printf("  ✓ Epoch executed: max_ticks=%u ≤ %u\n", max_ticks, KNHKS_TICK_BUDGET);
+  printf("  ✓ Epoch executed: %d hooks (timing validated by Rust)\n", executed);
   return 1;
 }
 

@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include "knhks.h"
+#include "knhk.h"
 #include "chicago_test_helpers.h"
 
 #if defined(__GNUC__)
@@ -23,7 +23,7 @@ static void reset_test_data(void)
   memset(S, 0, sizeof(S));
   memset(P, 0, sizeof(P));
   memset(O, 0, sizeof(O));
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
 }
 
 // Test: CLI Latency
@@ -35,10 +35,10 @@ static int test_performance_cli_latency(void)
   S[0] = 0xA11CE;
   P[0] = 0xC0FFEE;
   O[0] = 0xB0B;
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -52,8 +52,8 @@ static int test_performance_cli_latency(void)
   // Measure CLI command latency (simulate CLI overhead)
   clock_t start = clock();
   for (int i = 0; i < 1000; i++) {
-    knhks_receipt_t rcpt = {0};
-    knhks_eval_bool(&ctx, &ir, &rcpt);
+    knhk_receipt_t rcpt = {0};
+    knhk_eval_bool(&ctx, &ir, &rcpt);
   }
   clock_t end = clock();
   
@@ -76,10 +76,10 @@ static int test_performance_network_emit(void)
   S[0] = 0xA11CE;
   P[0] = 0xC0FFEE;
   O[0] = 0xB0B;
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -93,8 +93,8 @@ static int test_performance_network_emit(void)
   // Simulate network emit latency (hot path + receipt generation)
   clock_t start = clock();
   for (int i = 0; i < 1000; i++) {
-    knhks_receipt_t rcpt = {0};
-    knhks_eval_bool(&ctx, &ir, &rcpt);
+    knhk_receipt_t rcpt = {0};
+    knhk_eval_bool(&ctx, &ir, &rcpt);
     // Network emit simulation (HTTP/gRPC/Kafka)
     // In real implementation: emit stage sends to network
   }
@@ -120,10 +120,10 @@ static int test_performance_etl_pipeline(void)
   S[0] = 0xA11CE;
   P[0] = 0xC0FFEE;
   O[0] = 0xB0B;
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -137,8 +137,8 @@ static int test_performance_etl_pipeline(void)
   // Measure ETL pipeline latency (Reflex stage = hot path)
   uint32_t max_ticks = 0;
   for (int i = 0; i < 10000; i++) {
-    knhks_receipt_t rcpt = {0};
-    knhks_eval_bool(&ctx, &ir, &rcpt);
+    knhk_receipt_t rcpt = {0};
+    knhk_eval_bool(&ctx, &ir, &rcpt);
     if (rcpt.ticks > max_ticks) {
       max_ticks = rcpt.ticks;
     }
@@ -147,7 +147,7 @@ static int test_performance_etl_pipeline(void)
   // Hot path should maintain ≤8 ticks
   assert(max_ticks <= 500); // Performance test relaxed for ETL overhead
   
-  printf("  ✓ ETL pipeline latency: max ticks = %u ≤ %u\n", max_ticks, KNHKS_TICK_BUDGET);
+  printf("  ✓ ETL pipeline latency: max ticks = %u ≤ %u\n", max_ticks, KNHK_TICK_BUDGET);
   return 1;
 }
 
@@ -160,10 +160,10 @@ static int test_performance_lockchain_writes(void)
   S[0] = 0xA11CE;
   P[0] = 0xC0FFEE;
   O[0] = 0xB0B;
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -177,8 +177,8 @@ static int test_performance_lockchain_writes(void)
   // Measure lockchain write latency (receipt generation + hash computation)
   clock_t start = clock();
   for (int i = 0; i < 1000; i++) {
-    knhks_receipt_t rcpt = {0};
-    knhks_eval_bool(&ctx, &ir, &rcpt);
+    knhk_receipt_t rcpt = {0};
+    knhk_eval_bool(&ctx, &ir, &rcpt);
     // Lockchain write simulation (hash computation, Merkle update)
     // In real implementation: write to lockchain
   }
@@ -226,10 +226,10 @@ static int test_performance_end_to_end(void)
   S[0] = 0xA11CE;
   P[0] = 0xC0FFEE;
   O[0] = 0xB0B;
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 1});
   
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -243,8 +243,8 @@ static int test_performance_end_to_end(void)
   // Measure end-to-end latency (connector → ETL → lockchain)
   uint32_t max_ticks = 0;
   for (int i = 0; i < 10000; i++) {
-    knhks_receipt_t rcpt = {0};
-    knhks_eval_bool(&ctx, &ir, &rcpt);
+    knhk_receipt_t rcpt = {0};
+    knhk_eval_bool(&ctx, &ir, &rcpt);
     if (rcpt.ticks > max_ticks) {
       max_ticks = rcpt.ticks;
     }
@@ -253,7 +253,7 @@ static int test_performance_end_to_end(void)
   // Hot path should maintain ≤8 ticks throughout
   assert(max_ticks <= 500); // Performance test relaxed for ETL overhead
   
-  printf("  ✓ End-to-end latency: max ticks = %u ≤ %u\n", max_ticks, KNHKS_TICK_BUDGET);
+  printf("  ✓ End-to-end latency: max ticks = %u ≤ %u\n", max_ticks, KNHK_TICK_BUDGET);
   return 1;
 }
 

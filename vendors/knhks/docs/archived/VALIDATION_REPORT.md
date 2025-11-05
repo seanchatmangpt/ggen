@@ -1,4 +1,4 @@
-# KNHKS File and Capability Validation Report
+# KNHK File and Capability Validation Report
 
 **Date:** 2024-11-04  
 **Version:** v0.2.0  
@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-Comprehensive validation of KNHKS project files, build system, code quality, API consistency, and capabilities has been completed. The project demonstrates strong structural integrity with a few test compilation issues that need attention.
+Comprehensive validation of KNHK project files, build system, code quality, API consistency, and capabilities has been completed. The project demonstrates strong structural integrity with a few test compilation issues that need attention.
 
 **Overall Status:** ✅ **VALIDATION PASSED** (with minor issues)
 
@@ -20,22 +20,22 @@ Comprehensive validation of KNHKS project files, build system, code quality, API
 
 All claimed files exist and are properly organized:
 
-- **C Sources:** ✅ All 5 core files present (`knhks.c`, `simd.c`, `rdf.c`, `core.c`, `clock.o`)
-- **Headers:** ✅ `include/knhks.h` present, SIMD headers modularized (`src/simd/*.h`)
+- **C Sources:** ✅ All 5 core files present (`knhk.c`, `simd.c`, `rdf.c`, `core.c`, `clock.o`)
+- **Headers:** ✅ `include/knhk.h` present, SIMD headers modularized (`src/simd/*.h`)
 - **Rust Crates:** ✅ All 6 crates present:
-  - `knhks-hot` (v1.0.0)
-  - `knhks-connectors` (v0.1.0)
-  - `knhks-etl` (v0.1.0)
-  - `knhks-lockchain`
-  - `knhks-otel`
-  - `knhks-integration-tests`
-- **Erlang Modules:** ✅ All 15 modules present (`knhks_rc.erl`, `knhks_ingest.erl`, `knhks_sigma.erl`, `knhks_q.erl`, etc.)
+  - `knhk-hot` (v1.0.0)
+  - `knhk-connectors` (v0.1.0)
+  - `knhk-etl` (v0.1.0)
+  - `knhk-lockchain`
+  - `knhk-otel`
+  - `knhk-integration-tests`
+- **Erlang Modules:** ✅ All 15 modules present (`knhk_rc.erl`, `knhk_ingest.erl`, `knhk_sigma.erl`, `knhk_q.erl`, etc.)
 - **Test Files:** ✅ 17 Chicago test suites present
 - **Test Data:** ✅ 12 enterprise `.ttl` files present
 - **Documentation:** ✅ Complete documentation structure in `docs/`
 
 ### Findings:
-- ✅ Library file `libknhks.a` exists and is valid
+- ✅ Library file `libknhk.a` exists and is valid
 - ✅ SIMD code properly modularized into `src/simd/` directory
 - ✅ Integration test infrastructure complete
 
@@ -49,12 +49,12 @@ All claimed files exist and are properly organized:
 - ✅ Clean build successful: `make clean` completed
 - ✅ Library compilation successful: `make lib` completed
 - ✅ All 5 object files created:
-  - `src/knhks.o` (2480 bytes)
+  - `src/knhk.o` (2480 bytes)
   - `src/simd.o` (1808 bytes)
   - `src/rdf.o` (3400 bytes)
   - `src/core.o` (3648 bytes)
   - `src/clock.o` (912 bytes)
-- ✅ Static library `libknhks.a` created (13152 bytes)
+- ✅ Static library `libknhk.a` created (13152 bytes)
 - ✅ Archive contains all expected object files verified with `ar t`
 
 **Compilation Details:**
@@ -71,11 +71,11 @@ All claimed files exist and are properly organized:
 
 **Manual Code Review:** ✅ PASSED
 - ✅ All Rust crates have valid structure
-- ✅ `knhks-hot`: FFI wrappers properly implemented
-- ✅ `knhks-connectors`: Kafka and Salesforce connectors implemented
-- ✅ `knhks-etl`: ETL pipeline structure complete
-- ✅ `knhks-lockchain`: Merkle tree implementation present
-- ✅ `knhks-otel`: Observability integration present
+- ✅ `knhk-hot`: FFI wrappers properly implemented
+- ✅ `knhk-connectors`: Kafka and Salesforce connectors implemented
+- ✅ `knhk-etl`: ETL pipeline structure complete
+- ✅ `knhk-lockchain`: Merkle tree implementation present
+- ✅ `knhk-otel`: Observability integration present
 
 **Compilation Check:** ⚠️ BLOCKED
 - ❌ `cargo check` blocked by parent workspace configuration
@@ -123,13 +123,13 @@ All claimed files exist and are properly organized:
 **Runtime Test Issues:**
 
 1. **`chicago_receipts`** - ⚠️ Runtime Assertion Failure
-   - **Issue:** Receipt ticks exceed `KNHKS_TICK_BUDGET` (8)
+   - **Issue:** Receipt ticks exceed `KNHK_TICK_BUDGET` (8)
    - **Location:** `chicago_receipts.c:86`
    - **Impact:** Some operations producing receipts with ticks > 8
    - **Recommendation:** Review timing measurement or relax assertion for non-hot-path operations
 
 2. **`chicago_integration`** - ⚠️ Runtime Assertion Failure
-   - **Issue:** `max_ticks <= KNHKS_TICK_BUDGET` assertion failed
+   - **Issue:** `max_ticks <= KNHK_TICK_BUDGET` assertion failed
    - **Location:** `chicago_integration.c:238`
    - **Impact:** Epoch execution exceeding tick budget
    - **Recommendation:** Review batch execution timing or adjust expectations
@@ -146,7 +146,7 @@ All claimed files exist and are properly organized:
 ### Status: PASSED
 
 **Header-Implementation Consistency:**
-- ✅ `include/knhks.h` matches implementations
+- ✅ `include/knhk.h` matches implementations
 - ✅ All declared functions implemented
 - ✅ Type definitions consistent across codebase
 
@@ -154,25 +154,25 @@ All claimed files exist and are properly organized:
 
 All 19 operations declared and implemented:
 
-1. ✅ `KNHKS_OP_ASK_SP` (1) - Implemented
-2. ✅ `KNHKS_OP_COUNT_SP_GE` (2) - Implemented
-3. ✅ `KNHKS_OP_ASK_SPO` (3) - Implemented
-4. ✅ `KNHKS_OP_SELECT_SP` (4) - Implemented (cold path)
-5. ✅ `KNHKS_OP_COUNT_SP_LE` (5) - Implemented
-6. ✅ `KNHKS_OP_COUNT_SP_EQ` (6) - Implemented
-7. ✅ `KNHKS_OP_ASK_OP` (7) - Implemented
-8. ✅ `KNHKS_OP_UNIQUE_SP` (8) - Implemented
-9. ✅ `KNHKS_OP_COUNT_OP` (9) - Implemented
-10. ✅ `KNHKS_OP_COUNT_OP_LE` (10) - Implemented
-11. ✅ `KNHKS_OP_COUNT_OP_EQ` (11) - Implemented
-12. ✅ `KNHKS_OP_COMPARE_O_EQ` (12) - Implemented
-13. ✅ `KNHKS_OP_COMPARE_O_GT` (13) - Implemented
-14. ✅ `KNHKS_OP_COMPARE_O_LT` (14) - Implemented
-15. ✅ `KNHKS_OP_COMPARE_O_GE` (15) - Implemented
-16. ✅ `KNHKS_OP_COMPARE_O_LE` (16) - Implemented
-17. ✅ `KNHKS_OP_VALIDATE_DATATYPE_SP` (17) - Implemented
-18. ✅ `KNHKS_OP_VALIDATE_DATATYPE_SPO` (18) - Implemented
-19. ✅ `KNHKS_OP_CONSTRUCT8` (32) - Implemented
+1. ✅ `KNHK_OP_ASK_SP` (1) - Implemented
+2. ✅ `KNHK_OP_COUNT_SP_GE` (2) - Implemented
+3. ✅ `KNHK_OP_ASK_SPO` (3) - Implemented
+4. ✅ `KNHK_OP_SELECT_SP` (4) - Implemented (cold path)
+5. ✅ `KNHK_OP_COUNT_SP_LE` (5) - Implemented
+6. ✅ `KNHK_OP_COUNT_SP_EQ` (6) - Implemented
+7. ✅ `KNHK_OP_ASK_OP` (7) - Implemented
+8. ✅ `KNHK_OP_UNIQUE_SP` (8) - Implemented
+9. ✅ `KNHK_OP_COUNT_OP` (9) - Implemented
+10. ✅ `KNHK_OP_COUNT_OP_LE` (10) - Implemented
+11. ✅ `KNHK_OP_COUNT_OP_EQ` (11) - Implemented
+12. ✅ `KNHK_OP_COMPARE_O_EQ` (12) - Implemented
+13. ✅ `KNHK_OP_COMPARE_O_GT` (13) - Implemented
+14. ✅ `KNHK_OP_COMPARE_O_LT` (14) - Implemented
+15. ✅ `KNHK_OP_COMPARE_O_GE` (15) - Implemented
+16. ✅ `KNHK_OP_COMPARE_O_LE` (16) - Implemented
+17. ✅ `KNHK_OP_VALIDATE_DATATYPE_SP` (17) - Implemented
+18. ✅ `KNHK_OP_VALIDATE_DATATYPE_SPO` (18) - Implemented
+19. ✅ `KNHK_OP_CONSTRUCT8` (32) - Implemented
 
 **SIMD Function Signatures:**
 - ✅ All SIMD functions properly declared in `simd.h`
@@ -180,8 +180,8 @@ All 19 operations declared and implemented:
 - ✅ General versions available for fallback
 
 **Receipt Structure:**
-- ✅ `knhks_receipt_t` consistent across codebase
-- ✅ Receipt merge function (`knhks_receipt_merge`) implemented
+- ✅ `knhk_receipt_t` consistent across codebase
+- ✅ Receipt merge function (`knhk_receipt_merge`) implemented
 
 ---
 
@@ -190,7 +190,7 @@ All 19 operations declared and implemented:
 ### Status: PASSED
 
 **SIMD Alignment:**
-- ✅ `KNHKS_ALIGN` defined as 64 bytes
+- ✅ `KNHK_ALIGN` defined as 64 bytes
 - ✅ Documentation requires 64-byte alignment
 - ⚠️ **Note:** Explicit alignment attributes not found in code (reliance on caller ensuring alignment)
 
@@ -200,7 +200,7 @@ All 19 operations declared and implemented:
 - ✅ Receipt generation branchless
 
 **NROWS Constraint:**
-- ✅ `KNHKS_NROWS` enforced at compile-time (#error if != 8)
+- ✅ `KNHK_NROWS` enforced at compile-time (#error if != 8)
 - ✅ Run length validation (`len ≤ 8`) documented
 - ✅ Guards check `max_run_len ≤ 8`
 
@@ -229,25 +229,25 @@ All 19 operations declared and implemented:
 
 All modules present with proper exports:
 
-1. ✅ `knhks_rc.erl` - Main API (17 exports)
-2. ✅ `knhks_ingest.erl` - Delta ingestion (gen_server)
-3. ✅ `knhks_sigma.erl` - Schema registry (gen_server)
-4. ✅ `knhks_q.erl` - Invariant registry (gen_server)
-5. ✅ `knhks_connect.erl` - Connector management
-6. ✅ `knhks_cover.erl` - Coverage definitions
-7. ✅ `knhks_epoch.erl` - Epoch scheduling
-8. ✅ `knhks_hooks.erl` - Hook installation
-9. ✅ `knhks_route.erl` - Action routing
-10. ✅ `knhks_otel.erl` - OpenTelemetry integration
-11. ✅ `knhks_darkmatter.erl` - 80/20 coverage tracking
-12. ✅ `knhks_rc_app.erl` - OTP application
-13. ✅ `knhks_rc_sup.erl` - Supervisor
-14. ✅ `knhks_lockchain.erl` - Lockchain integration
-15. ✅ `knhks_stubs.erl` - Stub implementations
+1. ✅ `knhk_rc.erl` - Main API (17 exports)
+2. ✅ `knhk_ingest.erl` - Delta ingestion (gen_server)
+3. ✅ `knhk_sigma.erl` - Schema registry (gen_server)
+4. ✅ `knhk_q.erl` - Invariant registry (gen_server)
+5. ✅ `knhk_connect.erl` - Connector management
+6. ✅ `knhk_cover.erl` - Coverage definitions
+7. ✅ `knhk_epoch.erl` - Epoch scheduling
+8. ✅ `knhk_hooks.erl` - Hook installation
+9. ✅ `knhk_route.erl` - Action routing
+10. ✅ `knhk_otel.erl` - OpenTelemetry integration
+11. ✅ `knhk_darkmatter.erl` - 80/20 coverage tracking
+12. ✅ `knhk_rc_app.erl` - OTP application
+13. ✅ `knhk_rc_sup.erl` - Supervisor
+14. ✅ `knhk_lockchain.erl` - Lockchain integration
+15. ✅ `knhk_stubs.erl` - Stub implementations
 
 **OTP Structure:**
 - ✅ Proper gen_server behaviours
-- ✅ Application structure (`knhks_rc.app`)
+- ✅ Application structure (`knhk_rc.app`)
 - ✅ Supervisor pattern implemented
 
 **Note:** Erlang compiler (`erlc`) not configured in environment, but syntax review indicates correctness.
@@ -295,10 +295,10 @@ All modules present with proper exports:
 - ✅ `CHANGELOG.md` references v0.2.0
 - ⚠️ **Note:** Version alignment issue noted:
   - Core library: v1.0 API reference
-  - Rust `knhks-hot`: v1.0.0
-  - Rust `knhks-connectors`: v0.1.0
-  - Rust `knhks-etl`: v0.1.0
-  - Erlang `knhks_rc`: v1.0.0
+  - Rust `knhk-hot`: v1.0.0
+  - Rust `knhk-connectors`: v0.1.0
+  - Rust `knhk-etl`: v0.1.0
+  - Erlang `knhk_rc`: v1.0.0
   - Project version: v0.2.0
 
 **Documentation Files:**
@@ -321,26 +321,26 @@ All modules present with proper exports:
 **Core Capabilities:**
 
 1. ✅ **19 Query Operations** - All declared and implemented
-2. ✅ **RDF Loading** - `knhks_load_rdf()` implemented using Raptor2
+2. ✅ **RDF Loading** - `knhk_load_rdf()` implemented using Raptor2
 3. ✅ **SIMD Optimization** - ARM64 NEON and x86_64 AVX2 support
 4. ✅ **Structure-of-Arrays (SoA)** - SoA layout implemented
 5. ✅ **Receipt System** - Timing and provenance tracking
 
 **Rust Integration:**
 
-1. ✅ **FFI Wrapper (`knhks-hot`)** - Safe Rust wrappers around C API
-2. ✅ **Connector Framework (`knhks-connectors`)** - Kafka, Salesforce connectors
-3. ✅ **ETL Pipeline (`knhks-etl`)** - Ingest → Transform → Load → Reflex → Emit
-4. ✅ **Lockchain (`knhks-lockchain`)** - Merkle-linked receipt storage
-5. ✅ **OpenTelemetry (`knhks-otel`)** - Observability integration
+1. ✅ **FFI Wrapper (`knhk-hot`)** - Safe Rust wrappers around C API
+2. ✅ **Connector Framework (`knhk-connectors`)** - Kafka, Salesforce connectors
+3. ✅ **ETL Pipeline (`knhk-etl`)** - Ingest → Transform → Load → Reflex → Emit
+4. ✅ **Lockchain (`knhk-lockchain`)** - Merkle-linked receipt storage
+5. ✅ **OpenTelemetry (`knhk-otel`)** - Observability integration
 
 **Erlang Layer:**
 
-1. ✅ **Reflexive Control (`knhks_rc`)** - High-level API
-2. ✅ **Schema Registry (`knhks_sigma`)** - Σ schema management
-3. ✅ **Invariant Registry (`knhks_q`)** - Q constraint checking
-4. ✅ **Delta Ingestion (`knhks_ingest`)** - Δ processing
-5. ✅ **Epoch Scheduling (`knhks_epoch`)** - Deterministic execution
+1. ✅ **Reflexive Control (`knhk_rc`)** - High-level API
+2. ✅ **Schema Registry (`knhk_sigma`)** - Σ schema management
+3. ✅ **Invariant Registry (`knhk_q`)** - Q constraint checking
+4. ✅ **Delta Ingestion (`knhk_ingest`)** - Δ processing
+5. ✅ **Epoch Scheduling (`knhk_epoch`)** - Deterministic execution
 
 **Test Infrastructure:**
 
@@ -398,7 +398,7 @@ All modules present with proper exports:
 
 ## Conclusion
 
-The KNHKS project demonstrates **strong structural integrity** with comprehensive implementation across C, Rust, and Erlang layers. The core library builds successfully, all 19 operations are implemented, and the architecture is sound.
+The KNHK project demonstrates **strong structural integrity** with comprehensive implementation across C, Rust, and Erlang layers. The core library builds successfully, all 19 operations are implemented, and the architecture is sound.
 
 **Validation Status:** ✅ **PASSED** (with minor issues)
 

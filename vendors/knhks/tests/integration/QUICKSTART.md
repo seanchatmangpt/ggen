@@ -11,7 +11,7 @@
 ### 1. Rust Integration Tests (with testcontainers crate)
 
 ```bash
-cd rust/knhks-integration-tests
+cd rust/knhk-integration-tests
 cargo test
 ```
 
@@ -77,7 +77,7 @@ docker-compose restart
 ### Rust compilation errors
 ```bash
 # Clean and rebuild
-cd rust/knhks-integration-tests
+cd rust/knhk-integration-tests
 cargo clean
 cargo build
 

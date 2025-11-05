@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "knhks.h"
+#include "knhk.h"
 
 #if defined(__GNUC__)
 #define ALN __attribute__((aligned(64)))
@@ -34,13 +34,13 @@ static int test_integration_end_to_end(void)
   // Verified by predicate matching
   
   // Stage 3: Load (SoA alignment, run.len ≤ 8)
-  knhks_context_t ctx;
-  knhks_init_ctx(&ctx, S, P, O);
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 3});
+  knhk_context_t ctx;
+  knhk_init_ctx(&ctx, S, P, O);
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 3});
   
   // Stage 4: Reflex (hot path execution)
-  knhks_hook_ir_t ir = {
-    .op = KNHKS_OP_ASK_SP,
+  knhk_hook_ir_t ir = {
+    .op = KNHK_OP_ASK_SP,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -51,8 +51,8 @@ static int test_integration_end_to_end(void)
     .out_mask = 0
   };
   
-  knhks_receipt_t rcpt = {0};
-  int result = knhks_eval_bool(&ctx, &ir, &rcpt);
+  knhk_receipt_t rcpt = {0};
+  int result = knhk_eval_bool(&ctx, &ir, &rcpt);
   
   // Verify hot path execution
   assert(result == 1); // Should find match
@@ -86,13 +86,13 @@ static int test_integration_multi_connector(void)
   S[2] = 0xB22FF; P[2] = 0xDEADBEEF; O[2] = 0xC0C;
   S[3] = 0xB22FF; P[3] = 0xDEADBEEF; O[3] = 0xC0D;
   
-  knhks_context_t ctx;
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_context_t ctx;
+  knhk_init_ctx(&ctx, S, P, O);
   
   // Process Kafka connector data
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 2});
-  knhks_hook_ir_t ir1 = {
-    .op = KNHKS_OP_COUNT_SP_GE,
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xC0FFEE, .off = 0, .len = 2});
+  knhk_hook_ir_t ir1 = {
+    .op = KNHK_OP_COUNT_SP_GE,
     .s = 0xA11CE,
     .p = 0xC0FFEE,
     .o = 0,
@@ -103,14 +103,14 @@ static int test_integration_multi_connector(void)
     .out_mask = 0
   };
   
-  knhks_receipt_t rcpt1 = {0};
-  int result1 = knhks_eval_bool(&ctx, &ir1, &rcpt1);
+  knhk_receipt_t rcpt1 = {0};
+  int result1 = knhk_eval_bool(&ctx, &ir1, &rcpt1);
   assert(result1 == 1);
   
   // Process Salesforce connector data
-  knhks_pin_run(&ctx, (knhks_pred_run_t){.pred = 0xDEADBEEF, .off = 2, .len = 2});
-  knhks_hook_ir_t ir2 = {
-    .op = KNHKS_OP_COUNT_SP_GE,
+  knhk_pin_run(&ctx, (knhk_pred_run_t){.pred = 0xDEADBEEF, .off = 2, .len = 2});
+  knhk_hook_ir_t ir2 = {
+    .op = KNHK_OP_COUNT_SP_GE,
     .s = 0xB22FF,
     .p = 0xDEADBEEF,
     .o = 0,
@@ -121,12 +121,12 @@ static int test_integration_multi_connector(void)
     .out_mask = 0
   };
   
-  knhks_receipt_t rcpt2 = {0};
-  int result2 = knhks_eval_bool(&ctx, &ir2, &rcpt2);
+  knhk_receipt_t rcpt2 = {0};
+  int result2 = knhk_eval_bool(&ctx, &ir2, &rcpt2);
   assert(result2 == 1);
   
   // Merge receipts from both connectors
-  knhks_receipt_t merged = knhks_receipt_merge(rcpt1, rcpt2);
+  knhk_receipt_t merged = knhk_receipt_merge(rcpt1, rcpt2);
   
   printf("  ✓ Multi-connector: Kafka + Salesforce → merged receipt\n");
   printf("    merged_ticks=%u, merged_hash=0x%llx\n", 

@@ -192,9 +192,9 @@ project-root/
 - **Invoke Rule**: Type `@rule-name` in chat
 - **Invoke Command**: Type `/command-name` in chat
 
-## Integration with KNHKS Project
+## Integration with KNHK Project
 
-### Recommended Rules for KNHKS
+### Recommended Rules for KNHK
 
 1. **`80-20-principle.mdc`** - Core team best practices
 2. **`no-placeholders.mdc`** - Production-ready code requirements
@@ -202,7 +202,7 @@ project-root/
 4. **`error-handling.mdc`** - Proper error handling patterns
 5. **`testing-standards.mdc`** - Chicago TDD methodology
 
-### Recommended Commands for KNHKS
+### Recommended Commands for KNHK
 
 1. **`validate-v0.4.0.md`** - Run release validation
 2. **`run-all-tests.md`** - Execute all test suites

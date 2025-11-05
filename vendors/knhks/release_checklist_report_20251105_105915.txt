@@ -1,4 +1,4 @@
-KNHKS v0.4.0 Release Checklist Report
+KNHK v0.4.0 Release Checklist Report
 Generated: Wed Nov  5 10:59:15 PST 2025
 
 ========================================

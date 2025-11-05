@@ -1,4 +1,4 @@
-# KNHKS Documentation Index
+# KNHK Documentation Index
 
 **80/20 Principle**: This index prioritizes the 20% of documentation that provides 80% of value.
 
@@ -23,7 +23,7 @@
 ## Detailed Documentation
 
 ### Implementation
-- **[CLI Implementation](../rust/knhks-cli/IMPLEMENTATION.md)** - CLI implementation details
+- **[CLI Implementation](../rust/knhk-cli/IMPLEMENTATION.md)** - CLI implementation details
 - **[Code Organization](code-organization.md)** - Code structure
 - **[Data Flow](data-flow.md)** - Data flow diagrams
 
@@ -46,20 +46,21 @@ Historical and version-specific documentation has been archived:
 
 ### CLI Commands
 ```bash
-knhks boot init <sigma> <q>
-knhks connect register <name> <schema> <source>
-knhks cover define <select> <shard>
-knhks reflex declare <name> <op> <pred> <off> <len>
-knhks epoch create <id> <tau> <lambda>
-knhks pipeline run [--connectors] [--schema]
+knhk boot init <sigma> <q>
+knhk connect register <name> <schema> <source>
+knhk cover define <select> <shard>
+knhk reflex declare <name> <op> <pred> <off> <len>
+knhk epoch create <id> <tau> <lambda>
+knhk pipeline run [--connectors] [--schema]
 ```
 
 ### Key Concepts
-- **Hot Path**: ≤8 tick operations (C, SIMD)
-- **Warm Path**: Safe abstractions (Rust)
+- **Hot Path**: ≤2ns operations (C, SIMD, pure CONSTRUCT logic)
+- **Warm Path**: Safe abstractions (Rust, handles timing)
 - **Cold Path**: Complex queries (Erlang)
 - **Lockchain**: Merkle-linked receipts
-- **Guard Constraints**: max_run_len ≤ 8, τ ≤ 8
+- **Guard Constraints**: max_run_len ≤ 8, τ ≤ 2ns
+- **Timing**: Measured externally by Rust framework only
 
 ## Documentation Structure
 

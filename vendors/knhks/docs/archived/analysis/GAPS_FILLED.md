@@ -9,10 +9,10 @@
 - ✅ Updated merge_receipts to use SHA-256
 
 ### 2. AOT Compilation Guard
-- ✅ Created Rust module (`rust/knhks-aot/src/lib.rs`)
+- ✅ Created Rust module (`rust/knhk-aot/src/lib.rs`)
 - ✅ Created C implementation (`src/aot/aot_guard.c`)
 - ✅ Added header file (`src/aot/aot_guard.h`)
-- ✅ Integrated into main header (`include/knhks.h`)
+- ✅ Integrated into main header (`include/knhk.h`)
 - ✅ Added to Makefile build
 
 ### 3. Git Lockchain Integration
@@ -35,7 +35,7 @@
 - ✅ Validates batch size and lag guards
 
 ### 6. Cold Path SPARQL Stub
-- ✅ Updated `knhks_unrdf` module with `query/1` API
+- ✅ Updated `knhk_unrdf` module with `query/1` API
 - ✅ Routes SPARQL queries to external HTTP endpoint
 - ✅ Returns routing instruction with endpoint and query
 

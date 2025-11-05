@@ -11,9 +11,9 @@ static int test_type_checking(void)
 {
   printf("[TEST] Test 4: Type Checking\n");
 
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
 
-  if (!knhks_load_rdf(&ctx, "tests/data/enterprise_types.ttl"))
+  if (!knhk_load_rdf(&ctx, "tests/data/enterprise_types.ttl"))
   {
     fprintf(stderr, "  FAIL: Failed to load types data\n");
     return 0;
@@ -25,9 +25,9 @@ static int test_type_checking(void)
   uint64_t test_resource = ctx.S[0];
   uint64_t test_predicate = ctx.run.pred;
 
-  knhks_hook_ir_t ask_ir = {.op = KNHKS_OP_ASK_SP, .s = test_resource, .p = test_predicate, .k = 0, .o = 0, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
+  knhk_hook_ir_t ask_ir = {.op = KNHK_OP_ASK_SP, .s = test_resource, .p = test_predicate, .k = 0, .o = 0, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
 
-  int result = knhks_eval_bool(&ctx, &ask_ir, NULL);
+  int result = knhk_eval_bool(&ctx, &ask_ir, NULL);
   assert(result == 1);
 
   perf_stats_t stats = measure_p50_p95(&ask_ir, 400000);
@@ -54,9 +54,9 @@ static int test_select_sp(void)
 {
   printf("[TEST] Test 13: SELECT_SP Operation\n");
 
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
 
-  if (!knhks_load_rdf(&ctx, "tests/data/enterprise_lookups.ttl"))
+  if (!knhk_load_rdf(&ctx, "tests/data/enterprise_lookups.ttl"))
   {
     fprintf(stderr, "  FAIL: Failed to load lookups data\n");
     return 0;
@@ -69,9 +69,9 @@ static int test_select_sp(void)
   uint64_t test_predicate = ctx.run.pred;
   static uint64_t ALN out_buffer[8];
 
-  knhks_hook_ir_t select_ir = {.op = KNHKS_OP_SELECT_SP, .s = test_entity, .p = test_predicate, .k = 0, .o = 0, .select_out = out_buffer, .select_capacity = 8, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
+  knhk_hook_ir_t select_ir = {.op = KNHK_OP_SELECT_SP, .s = test_entity, .p = test_predicate, .k = 0, .o = 0, .select_out = out_buffer, .select_capacity = 8, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
 
-  size_t count = knhks_eval_select(&ctx, &select_ir);
+  size_t count = knhk_eval_select(&ctx, &select_ir);
   assert(count > 0);
 
   perf_stats_t stats = measure_p50_p95_select(&select_ir, 400000);
@@ -98,9 +98,9 @@ static int test_compare_eq(void)
 {
   printf("[TEST] Test 14: Comparison Operations (O == value)\n");
 
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
 
-  if (!knhks_load_rdf(&ctx, "tests/data/enterprise_objectcount.ttl"))
+  if (!knhk_load_rdf(&ctx, "tests/data/enterprise_objectcount.ttl"))
   {
     fprintf(stderr, "  FAIL: Failed to load object count data\n");
     return 0;
@@ -112,9 +112,9 @@ static int test_compare_eq(void)
   uint64_t test_value = ctx.O[0];
   uint64_t test_predicate = ctx.run.pred;
 
-  knhks_hook_ir_t compare_ir = {.op = KNHKS_OP_COMPARE_O_EQ, .s = 0, .p = test_predicate, .k = 0, .o = test_value, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
+  knhk_hook_ir_t compare_ir = {.op = KNHK_OP_COMPARE_O_EQ, .s = 0, .p = test_predicate, .k = 0, .o = test_value, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
 
-  int result = knhks_eval_bool(&ctx, &compare_ir, NULL);
+  int result = knhk_eval_bool(&ctx, &compare_ir, NULL);
   assert(result == 1);
 
   perf_stats_t stats = measure_p50_p95(&compare_ir, 400000);
@@ -141,9 +141,9 @@ static int test_compare_gt(void)
 {
   printf("[TEST] Test 15: Comparison Operations (O > value)\n");
 
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
 
-  if (!knhks_load_rdf(&ctx, "tests/data/enterprise_objectcount.ttl"))
+  if (!knhk_load_rdf(&ctx, "tests/data/enterprise_objectcount.ttl"))
   {
     fprintf(stderr, "  FAIL: Failed to load object count data\n");
     return 0;
@@ -155,9 +155,9 @@ static int test_compare_gt(void)
   uint64_t test_value = ctx.O[0] - 1;
   uint64_t test_predicate = ctx.run.pred;
 
-  knhks_hook_ir_t compare_ir = {.op = KNHKS_OP_COMPARE_O_GT, .s = 0, .p = test_predicate, .k = 0, .o = test_value, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
+  knhk_hook_ir_t compare_ir = {.op = KNHK_OP_COMPARE_O_GT, .s = 0, .p = test_predicate, .k = 0, .o = test_value, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
 
-  int result = knhks_eval_bool(&ctx, &compare_ir, NULL);
+  int result = knhk_eval_bool(&ctx, &compare_ir, NULL);
 
   perf_stats_t stats = measure_p50_p95(&compare_ir, 400000);
 
@@ -183,9 +183,9 @@ static int test_compare_lt(void)
 {
   printf("[TEST] Test 16: Comparison Operations (O < value)\n");
 
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
 
-  if (!knhks_load_rdf(&ctx, "tests/data/enterprise_objectcount.ttl"))
+  if (!knhk_load_rdf(&ctx, "tests/data/enterprise_objectcount.ttl"))
   {
     fprintf(stderr, "  FAIL: Failed to load object count data\n");
     return 0;
@@ -197,9 +197,9 @@ static int test_compare_lt(void)
   uint64_t test_value = ctx.O[0] + 1;
   uint64_t test_predicate = ctx.run.pred;
 
-  knhks_hook_ir_t compare_ir = {.op = KNHKS_OP_COMPARE_O_LT, .s = 0, .p = test_predicate, .k = 0, .o = test_value, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
+  knhk_hook_ir_t compare_ir = {.op = KNHK_OP_COMPARE_O_LT, .s = 0, .p = test_predicate, .k = 0, .o = test_value, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
 
-  int result = knhks_eval_bool(&ctx, &compare_ir, NULL);
+  int result = knhk_eval_bool(&ctx, &compare_ir, NULL);
   assert(result == 1);
 
   perf_stats_t stats = measure_p50_p95(&compare_ir, 400000);
@@ -226,9 +226,9 @@ static int test_compare_ge(void)
 {
   printf("[TEST] Test 17: Comparison Operations (O >= value)\n");
 
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
 
-  if (!knhks_load_rdf(&ctx, "tests/data/enterprise_objectcount.ttl"))
+  if (!knhk_load_rdf(&ctx, "tests/data/enterprise_objectcount.ttl"))
   {
     fprintf(stderr, "  FAIL: Failed to load object count data\n");
     return 0;
@@ -240,9 +240,9 @@ static int test_compare_ge(void)
   uint64_t test_value = ctx.O[0];
   uint64_t test_predicate = ctx.run.pred;
 
-  knhks_hook_ir_t compare_ir = {.op = KNHKS_OP_COMPARE_O_GE, .s = 0, .p = test_predicate, .k = 0, .o = test_value, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
+  knhk_hook_ir_t compare_ir = {.op = KNHK_OP_COMPARE_O_GE, .s = 0, .p = test_predicate, .k = 0, .o = test_value, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
 
-  int result = knhks_eval_bool(&ctx, &compare_ir, NULL);
+  int result = knhk_eval_bool(&ctx, &compare_ir, NULL);
   assert(result == 1);
 
   perf_stats_t stats = measure_p50_p95(&compare_ir, 400000);
@@ -269,9 +269,9 @@ static int test_compare_le(void)
 {
   printf("[TEST] Test 18: Comparison Operations (O <= value)\n");
 
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
 
-  if (!knhks_load_rdf(&ctx, "tests/data/enterprise_objectcount.ttl"))
+  if (!knhk_load_rdf(&ctx, "tests/data/enterprise_objectcount.ttl"))
   {
     fprintf(stderr, "  FAIL: Failed to load object count data\n");
     return 0;
@@ -283,9 +283,9 @@ static int test_compare_le(void)
   uint64_t test_value = ctx.O[0] + 1;
   uint64_t test_predicate = ctx.run.pred;
 
-  knhks_hook_ir_t compare_ir = {.op = KNHKS_OP_COMPARE_O_LE, .s = 0, .p = test_predicate, .k = 0, .o = test_value, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
+  knhk_hook_ir_t compare_ir = {.op = KNHK_OP_COMPARE_O_LE, .s = 0, .p = test_predicate, .k = 0, .o = test_value, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
 
-  int result = knhks_eval_bool(&ctx, &compare_ir, NULL);
+  int result = knhk_eval_bool(&ctx, &compare_ir, NULL);
   assert(result == 1);
 
   perf_stats_t stats = measure_p50_p95(&compare_ir, 400000);
@@ -312,9 +312,9 @@ static int test_datatype_validation_sp(void)
 {
   printf("[TEST] Test 19: Datatype Validation (SP)\n");
 
-  knhks_init_ctx(&ctx, S, P, O);
+  knhk_init_ctx(&ctx, S, P, O);
 
-  if (!knhks_load_rdf(&ctx, "tests/data/enterprise_datatype.ttl"))
+  if (!knhk_load_rdf(&ctx, "tests/data/enterprise_datatype.ttl"))
   {
     fprintf(stderr, "  FAIL: Failed to load datatype validation data\n");
     return 0;
@@ -327,9 +327,9 @@ static int test_datatype_validation_sp(void)
   uint64_t test_object = ctx.O[0];
   uint64_t test_predicate = ctx.run.pred;
 
-  knhks_hook_ir_t validate_ir = {.op = KNHKS_OP_VALIDATE_DATATYPE_SP, .s = test_subject, .p = test_predicate, .k = 0, .o = test_object, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
+  knhk_hook_ir_t validate_ir = {.op = KNHK_OP_VALIDATE_DATATYPE_SP, .s = test_subject, .p = test_predicate, .k = 0, .o = test_object, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
 
-  int result = knhks_eval_bool(&ctx, &validate_ir, NULL);
+  int result = knhk_eval_bool(&ctx, &validate_ir, NULL);
   assert(result == 1);
 
   perf_stats_t stats = measure_p50_p95(&validate_ir, 400000);

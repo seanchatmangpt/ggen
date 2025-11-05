@@ -1,8 +1,8 @@
-# KNHKS Integration Guide
+# KNHK Integration Guide
 
 ## Overview
 
-This guide explains how to integrate KNHKS into your system.
+This guide explains how to integrate KNHK into your system.
 
 ## End-to-End Integration
 

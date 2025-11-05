@@ -1,18 +1,18 @@
 sequenceDiagram
     participant Caller as Test/Caller
-    participant Eval as knhks_eval_construct8
-    participant SIMD as knhks_construct8_emit_8
+    participant Eval as knhk_eval_construct8
+    participant SIMD as knhk_construct8_emit_8
     participant ARM as ARM64 SIMD
     participant x86 as x86_64 SIMD
     participant Memory as Memory (SoA Arrays)
     
-    Caller->>Eval: knhks_eval_construct8(ctx, ir, rcpt)
+    Caller->>Eval: knhk_eval_construct8(ctx, ir, rcpt)
     Eval->>Eval: Validate inputs (ctx, ir, op)
     Eval->>Eval: Check output buffers (out_S, out_P, out_O)
     Eval->>Eval: Validate predicate match
     
     alt Architecture == ARM64
-        Eval->>SIMD: knhks_construct8_emit_8(S, off, len, p, o, ...)
+        Eval->>SIMD: knhk_construct8_emit_8(S, off, len, p, o, ...)
         SIMD->>SIMD: Alignment hints (__builtin_assume_aligned)
         SIMD->>SIMD: Prefetch input data (L1 cache)
         
@@ -42,7 +42,7 @@ sequenceDiagram
         SIMD-->>Eval: Return count
         
     else Architecture == x86_64
-        Eval->>SIMD: knhks_construct8_emit_8(S, off, len, p, o, ...)
+        Eval->>SIMD: knhk_construct8_emit_8(S, off, len, p, o, ...)
         SIMD->>SIMD: Alignment hints (__builtin_assume_aligned)
         SIMD->>SIMD: Prefetch input data (L1 cache)
         

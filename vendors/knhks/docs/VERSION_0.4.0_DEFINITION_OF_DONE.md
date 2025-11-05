@@ -1,4 +1,4 @@
-# KNHKS v0.4.0 Definition of Done
+# KNHK v0.4.0 Definition of Done
 
 **Version**: 0.4.0  
 **Status**: Release Readiness Checklist  

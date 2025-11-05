@@ -2,7 +2,7 @@
 // Ahead-Of-Time (AOT) Compilation Guard
 // Validates IR before execution to enforce Chatman Constant (≤8 ticks)
 
-#include "knhks.h"
+#include "knhk.h"
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -15,30 +15,30 @@ typedef enum {
 
 /// Validate hook IR before execution
 /// Returns true if valid, false if invalid
-bool knhks_aot_validate_ir(knhks_op_t op, uint64_t run_len, uint64_t k) {
+bool knhk_aot_validate_ir(knhk_op_t op, uint64_t run_len, uint64_t k) {
     // Check run length ≤ 8 (Chatman Constant constraint)
-    if (run_len > KNHKS_NROWS) {
+    if (run_len > KNHK_NROWS) {
         return false;
     }
     
     // Validate operation is in hot path set
     switch (op) {
-        case KNHKS_OP_ASK_SP:
-        case KNHKS_OP_COUNT_SP_GE:
-        case KNHKS_OP_COUNT_SP_LE:
-        case KNHKS_OP_COUNT_SP_EQ:
-        case KNHKS_OP_ASK_SPO:
-        case KNHKS_OP_ASK_OP:
-        case KNHKS_OP_UNIQUE_SP:
-        case KNHKS_OP_COUNT_OP:
-        case KNHKS_OP_COUNT_OP_LE:
-        case KNHKS_OP_COUNT_OP_EQ:
-        case KNHKS_OP_COMPARE_O_EQ:
-        case KNHKS_OP_COMPARE_O_GT:
-        case KNHKS_OP_COMPARE_O_LT:
-        case KNHKS_OP_COMPARE_O_GE:
-        case KNHKS_OP_COMPARE_O_LE:
-        case KNHKS_OP_CONSTRUCT8:
+        case KNHK_OP_ASK_SP:
+        case KNHK_OP_COUNT_SP_GE:
+        case KNHK_OP_COUNT_SP_LE:
+        case KNHK_OP_COUNT_SP_EQ:
+        case KNHK_OP_ASK_SPO:
+        case KNHK_OP_ASK_OP:
+        case KNHK_OP_UNIQUE_SP:
+        case KNHK_OP_COUNT_OP:
+        case KNHK_OP_COUNT_OP_LE:
+        case KNHK_OP_COUNT_OP_EQ:
+        case KNHK_OP_COMPARE_O_EQ:
+        case KNHK_OP_COMPARE_O_GT:
+        case KNHK_OP_COMPARE_O_LT:
+        case KNHK_OP_COMPARE_O_GE:
+        case KNHK_OP_COMPARE_O_LE:
+        case KNHK_OP_CONSTRUCT8:
             break;
         default:
             return false; // Invalid operation
@@ -46,18 +46,18 @@ bool knhks_aot_validate_ir(knhks_op_t op, uint64_t run_len, uint64_t k) {
     
     // Check operation-specific constraints
     switch (op) {
-        case KNHKS_OP_UNIQUE_SP:
+        case KNHK_OP_UNIQUE_SP:
             // UNIQUE requires run_len ≤ 1
             if (run_len > 1) {
                 return false;
             }
             break;
-        case KNHKS_OP_COUNT_SP_GE:
-        case KNHKS_OP_COUNT_SP_LE:
-        case KNHKS_OP_COUNT_SP_EQ:
-        case KNHKS_OP_COUNT_OP:
-        case KNHKS_OP_COUNT_OP_LE:
-        case KNHKS_OP_COUNT_OP_EQ:
+        case KNHK_OP_COUNT_SP_GE:
+        case KNHK_OP_COUNT_SP_LE:
+        case KNHK_OP_COUNT_SP_EQ:
+        case KNHK_OP_COUNT_OP:
+        case KNHK_OP_COUNT_OP_LE:
+        case KNHK_OP_COUNT_OP_EQ:
             // COUNT operations: k must be ≤ run_len
             if (k > run_len) {
                 return false;
@@ -72,7 +72,7 @@ bool knhks_aot_validate_ir(knhks_op_t op, uint64_t run_len, uint64_t k) {
 }
 
 /// Validate predicate run before pinning
-bool knhks_aot_validate_run(knhks_pred_run_t run) {
-    return run.len <= KNHKS_NROWS;
+bool knhk_aot_validate_run(knhk_pred_run_t run) {
+    return run.len <= KNHK_NROWS;
 }
 

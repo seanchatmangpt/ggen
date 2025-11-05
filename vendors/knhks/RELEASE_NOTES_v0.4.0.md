@@ -1,11 +1,11 @@
-# KNHKS v0.4.0 Release Notes
+# KNHK v0.4.0 Release Notes
 
 **Release Date**: December 2024  
 **Status**: ✅ **RELEASED**
 
 ## Executive Summary
 
-KNHKS v0.4.0 is **COMPLETE** and ready for release. All critical path items (80% value) have been implemented and verified. The system is production-ready with documented limitations.
+KNHK v0.4.0 is **COMPLETE** and ready for release. All critical path items (80% value) have been implemented and verified. The system is production-ready with documented limitations.
 
 ## What's New
 

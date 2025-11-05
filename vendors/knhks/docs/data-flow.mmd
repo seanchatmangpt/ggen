@@ -7,7 +7,7 @@ sequenceDiagram
     participant Eval as Evaluator
     participant SIMD as SIMD Ops
     
-    User->>API: knhks_load_rdf(filename)
+    User->>API: knhk_load_rdf(filename)
     API->>RDF: Parse RDF file
     RDF-->>API: Stream of triples
     
@@ -20,7 +20,7 @@ sequenceDiagram
     API->>SoA: Detect predicate runs
     SoA-->>API: Run metadata
     
-    User->>API: knhks_eval_bool(ctx, ir)
+    User->>API: knhk_eval_bool(ctx, ir)
     API->>Eval: Check predicate match
     Eval->>SIMD: Execute SIMD operations
     SIMD->>SoA: Access S[], P[], O[] arrays

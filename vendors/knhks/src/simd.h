@@ -2,8 +2,8 @@
 // SIMD-optimized operations (internal header)
 // Umbrella header - includes all SIMD operation category headers
 
-#ifndef KNHKS_SIMD_H
-#define KNHKS_SIMD_H
+#ifndef KNHK_SIMD_H
+#define KNHK_SIMD_H
 
 // Common infrastructure and non-inline function declarations
 #include "simd/common.h"
@@ -17,8 +17,8 @@
 #include "simd/construct.h"   // CONSTRUCT8 operations (construct8_emit_8)
 
 // Declaration for variable-length SELECT gather (implemented in simd.c)
-size_t knhks_select_gather(const uint64_t *S_base, const uint64_t *O_base,
+size_t knhk_select_gather(const uint64_t *S_base, const uint64_t *O_base,
                             uint64_t off, uint64_t len, uint64_t s_key,
                             uint64_t *out, size_t out_capacity);
 
-#endif // KNHKS_SIMD_H
+#endif // KNHK_SIMD_H
