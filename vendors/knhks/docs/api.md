@@ -1,5 +1,8 @@
 # API Reference
 
+**Version**: v0.3.0 (Production-Ready)  
+**Core Library**: v1.0.0 (API Stable)
+
 ## Public API
 
 ### Types
@@ -58,9 +61,22 @@ Predicate run metadata:
 typedef struct {
   uint64_t pred;  // Predicate ID
   uint64_t off;   // Offset in arrays
-  uint64_t len;   // Length (must be ≤8 for hot path)
+  uint64_t len;   // Length (must be ≤8 for hot path, guard constraint)
 } knhks_pred_run_t;
 ```
+
+#### knhks_receipt_t
+Receipt structure for timing and provenance (v0.3.0):
+```c
+typedef struct {
+  uint32_t ticks;    // ≤ 8 (Chatman Constant: 2ns = 8 ticks)
+  uint32_t lanes;    // SIMD width used
+  uint64_t span_id;  // OTEL-compatible id (generated via knhks_generate_span_id())
+  uint64_t a_hash;   // hash(A) = hash(μ(O)) fragment (provenance)
+} knhks_receipt_t;
+```
+
+**Note**: All receipts are generated with real OTEL-compatible span IDs. No placeholders allowed.
 
 ## Functions
 
@@ -88,10 +104,12 @@ int knhks_load_rdf(knhks_context_t *ctx, const char *filename);
 #### knhks_eval_bool
 Evaluate boolean query (inline, hot path):
 ```c
-static inline int knhks_eval_bool(const knhks_context_t *ctx, const knhks_hook_ir_t *ir);
+static inline int knhks_eval_bool(const knhks_context_t *ctx, const knhks_hook_ir_t *ir, knhks_receipt_t *rcpt);
 ```
 - Returns: 1 if true, 0 if false
 - Inline function for zero-overhead hot path
+- Fills `rcpt` with timing, span ID, and provenance hash
+- All operations ≤8 ticks (Chatman Constant: 2ns = 8 ticks)
 - Supports all boolean operations:
   - `KNHKS_OP_ASK_SP`: Subject-predicate existence check
   - `KNHKS_OP_ASK_SPO`: Triple matching
@@ -131,6 +149,25 @@ double knhks_bench_eval(const knhks_context_t *ctx, const knhks_hook_ir_t *ir, i
 ```
 - Returns: Nanoseconds per operation
 - Warms cache before measurement
+
+### Receipt Generation (v0.3.0)
+
+#### knhks_generate_span_id
+Generate OTEL-compatible span ID:
+```c
+uint64_t knhks_generate_span_id(void);
+```
+- Returns: 64-bit OTEL-compatible span ID (non-zero)
+- Uses FNV-1a hash with ticks and entropy
+- Production-ready implementation (no placeholders)
+
+#### knhks_receipt_merge
+Merge receipts via ⊕ operation (associative, branchless):
+```c
+static inline knhks_receipt_t knhks_receipt_merge(knhks_receipt_t a, knhks_receipt_t b);
+```
+- Merges two receipts: max ticks, sum lanes, XOR span_id/a_hash
+- Used for batch operations and receipt aggregation
 
 ### Clock Utilities
 

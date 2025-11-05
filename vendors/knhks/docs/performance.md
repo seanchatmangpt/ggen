@@ -1,5 +1,8 @@
 # Performance
 
+**Version**: v0.3.0  
+**Performance Target**: ≤8 ticks (Chatman Constant: 2ns = 8 ticks)
+
 ## Current Performance Metrics
 
 All supported operations achieve ≤8 ticks on Apple M3 Max (250 ps/tick):
