@@ -34,6 +34,87 @@ size_t knhks_select_gather(const uint64_t *S_base, const uint64_t *O_base,
                             uint64_t off, uint64_t len, uint64_t s_key,
                             uint64_t *out, size_t out_capacity);
 
+// Ultra-fast SELECT_SP for exactly 8 elements - fully unrolled, branchless writes
+#if NROWS == 8
+static inline size_t knhks_select_gather_8(const uint64_t *S_base, const uint64_t *O_base,
+                                           uint64_t off, uint64_t s_key,
+                                           uint64_t *out, size_t out_capacity)
+{
+  const uint64_t *s_p = S_base + off;
+  const uint64_t *o_p = O_base + off;
+  size_t out_idx = 0;
+  
+  // Fully unrolled gather - branchless conditional writes
+  // Use mask-based writes to avoid branches
+#if defined(__aarch64__)
+  uint64x2_t Ks = vdupq_n_u64(s_key);
+  uint64_t matches[8];
+  
+  // Compare all 8 elements simultaneously
+  uint64x2_t s0 = vld1q_u64(s_p + 0);
+  uint64x2_t s1 = vld1q_u64(s_p + 2);
+  uint64x2_t s2 = vld1q_u64(s_p + 4);
+  uint64x2_t s3 = vld1q_u64(s_p + 6);
+  
+  uint64x2_t m0 = vceqq_u64(s0, Ks);
+  uint64x2_t m1 = vceqq_u64(s1, Ks);
+  uint64x2_t m2 = vceqq_u64(s2, Ks);
+  uint64x2_t m3 = vceqq_u64(s3, Ks);
+  
+  vst1q_u64(matches + 0, m0);
+  vst1q_u64(matches + 2, m1);
+  vst1q_u64(matches + 4, m2);
+  vst1q_u64(matches + 6, m3);
+  
+  // Branchless conditional writes using masks
+  for (int i = 0; i < 8 && out_idx < out_capacity; i++)
+  {
+    uint64_t mask = matches[i];
+    out[out_idx] = (mask ? o_p[i] : out[out_idx]);
+    out_idx += (mask != 0 ? 1 : 0);
+  }
+#elif defined(__x86_64__)
+  __m256i Ks = _mm256_set1_epi64x((long long)s_key);
+  
+  // Compare first 4 elements
+  __m256i s0 = _mm256_loadu_si256((const __m256i *)(s_p + 0));
+  __m256i m0 = _mm256_cmpeq_epi64(s0, Ks);
+  uint64_t matches0[4];
+  _mm256_storeu_si256((__m256i *)matches0, m0);
+  
+  // Compare remaining 4 elements
+  __m256i s1 = _mm256_loadu_si256((const __m256i *)(s_p + 4));
+  __m256i m1 = _mm256_cmpeq_epi64(s1, Ks);
+  uint64_t matches1[4];
+  _mm256_storeu_si256((__m256i *)matches1, m1);
+  
+  // Branchless conditional writes using masks
+  for (int i = 0; i < 4 && out_idx < out_capacity; i++)
+  {
+    uint64_t mask = matches0[i];
+    out[out_idx] = (mask ? o_p[i] : out[out_idx]);
+    out_idx += (mask != 0 ? 1 : 0);
+  }
+  for (int i = 0; i < 4 && out_idx < out_capacity; i++)
+  {
+    uint64_t mask = matches1[i];
+    out[out_idx] = (mask ? o_p[i + 4] : out[out_idx]);
+    out_idx += (mask != 0 ? 1 : 0);
+  }
+#else
+  // Fallback: branchless scalar with masks
+  for (int i = 0; i < 8 && out_idx < out_capacity; i++)
+  {
+    uint64_t mask = (s_p[i] == s_key) ? UINT64_MAX : 0;
+    out[out_idx] = (mask ? o_p[i] : out[out_idx]);
+    out_idx += (mask != 0 ? 1 : 0);
+  }
+#endif
+  
+  return out_idx;
+}
+#endif // NROWS == 8
+
 #if NROWS == 8
 // Optimized for NROWS=8: fully unrolled, zero branches
 // Inline implementations for header inclusion
@@ -241,6 +322,130 @@ static inline int knhks_eq64_spo_exists_8(const uint64_t *S_base, const uint64_t
   has_match |= ((s_p[7] == s_key) && (o_p[7] == o_key) ? UINT64_MAX : 0);
   return has_match != 0;
 #endif
+}
+
+// Ultra-fast comparison operations for exactly 8 elements - fully unrolled
+// Check if any O value matches comparison operator with threshold
+static inline int knhks_compare_o_8(const uint64_t *O_base, uint64_t off, uint64_t threshold, int op_type)
+{
+  const uint64_t *o_p = O_base + off;
+  uint64_t result = 0;
+  
+#if defined(__aarch64__)
+  uint64x2_t K = vdupq_n_u64(threshold);
+  uint64x2_t o0 = vld1q_u64(o_p + 0);
+  uint64x2_t o1 = vld1q_u64(o_p + 2);
+  uint64x2_t o2 = vld1q_u64(o_p + 4);
+  uint64x2_t o3 = vld1q_u64(o_p + 6);
+  
+  uint64x2_t m0, m1, m2, m3;
+  switch (op_type) {
+    case 0: // EQ
+      m0 = vceqq_u64(o0, K);
+      m1 = vceqq_u64(o1, K);
+      m2 = vceqq_u64(o2, K);
+      m3 = vceqq_u64(o3, K);
+      break;
+    case 1: // GT (unsigned comparison)
+      m0 = vcgtq_u64(o0, K);
+      m1 = vcgtq_u64(o1, K);
+      m2 = vcgtq_u64(o2, K);
+      m3 = vcgtq_u64(o3, K);
+      break;
+    case 2: // LT
+      m0 = vcltq_u64(o0, K);
+      m1 = vcltq_u64(o1, K);
+      m2 = vcltq_u64(o2, K);
+      m3 = vcltq_u64(o3, K);
+      break;
+    case 3: // GE
+      m0 = vcgeq_u64(o0, K);
+      m1 = vcgeq_u64(o1, K);
+      m2 = vcgeq_u64(o2, K);
+      m3 = vcgeq_u64(o3, K);
+      break;
+    case 4: // LE
+      m0 = vcleq_u64(o0, K);
+      m1 = vcleq_u64(o1, K);
+      m2 = vcleq_u64(o2, K);
+      m3 = vcleq_u64(o3, K);
+      break;
+    default:
+      return 0;
+  }
+  
+  uint64_t t[2];
+  vst1q_u64(t, m0);
+  result |= (t[0] | t[1]);
+  vst1q_u64(t, m1);
+  result |= (t[0] | t[1]);
+  vst1q_u64(t, m2);
+  result |= (t[0] | t[1]);
+  vst1q_u64(t, m3);
+  result |= (t[0] | t[1]);
+#elif defined(__x86_64__)
+  __m256i K = _mm256_set1_epi64x((long long)threshold);
+  __m256i o0 = _mm256_loadu_si256((const __m256i *)(o_p + 0));
+  __m256i o1 = _mm256_loadu_si256((const __m256i *)(o_p + 4));
+  
+  __m256i m0, m1;
+  switch (op_type) {
+    case 0: // EQ
+      m0 = _mm256_cmpeq_epi64(o0, K);
+      m1 = _mm256_cmpeq_epi64(o1, K);
+      break;
+    case 1: // GT (unsigned comparison)
+      m0 = _mm256_cmpgt_epi64(o0, _mm256_set1_epi64x((long long)threshold));
+      m1 = _mm256_cmpgt_epi64(o1, _mm256_set1_epi64x((long long)threshold));
+      break;
+    case 2: // LT
+      m0 = _mm256_cmpgt_epi64(_mm256_set1_epi64x((long long)threshold), o0);
+      m1 = _mm256_cmpgt_epi64(_mm256_set1_epi64x((long long)threshold), o1);
+      break;
+    case 3: // GE
+      m0 = _mm256_or_si256(_mm256_cmpeq_epi64(o0, K), _mm256_cmpgt_epi64(o0, _mm256_set1_epi64x((long long)threshold)));
+      m1 = _mm256_or_si256(_mm256_cmpeq_epi64(o1, K), _mm256_cmpgt_epi64(o1, _mm256_set1_epi64x((long long)threshold)));
+      break;
+    case 4: // LE
+      m0 = _mm256_or_si256(_mm256_cmpeq_epi64(o0, K), _mm256_cmpgt_epi64(_mm256_set1_epi64x((long long)threshold), o0));
+      m1 = _mm256_or_si256(_mm256_cmpeq_epi64(o1, K), _mm256_cmpgt_epi64(_mm256_set1_epi64x((long long)threshold), o1));
+      break;
+    default:
+      return 0;
+  }
+  
+  uint64_t t[4];
+  _mm256_storeu_si256((__m256i *)t, m0);
+  result |= (t[0] | t[1] | t[2] | t[3]);
+  _mm256_storeu_si256((__m256i *)t, m1);
+  result |= (t[0] | t[1] | t[2] | t[3]);
+#else
+  // Fallback: scalar comparison
+  switch (op_type) {
+    case 0: // EQ
+      result = (o_p[0] == threshold) | (o_p[1] == threshold) | (o_p[2] == threshold) | (o_p[3] == threshold) |
+               (o_p[4] == threshold) | (o_p[5] == threshold) | (o_p[6] == threshold) | (o_p[7] == threshold);
+      break;
+    case 1: // GT
+      result = (o_p[0] > threshold) | (o_p[1] > threshold) | (o_p[2] > threshold) | (o_p[3] > threshold) |
+               (o_p[4] > threshold) | (o_p[5] > threshold) | (o_p[6] > threshold) | (o_p[7] > threshold);
+      break;
+    case 2: // LT
+      result = (o_p[0] < threshold) | (o_p[1] < threshold) | (o_p[2] < threshold) | (o_p[3] < threshold) |
+               (o_p[4] < threshold) | (o_p[5] < threshold) | (o_p[6] < threshold) | (o_p[7] < threshold);
+      break;
+    case 3: // GE
+      result = (o_p[0] >= threshold) | (o_p[1] >= threshold) | (o_p[2] >= threshold) | (o_p[3] >= threshold) |
+               (o_p[4] >= threshold) | (o_p[5] >= threshold) | (o_p[6] >= threshold) | (o_p[7] >= threshold);
+      break;
+    case 4: // LE
+      result = (o_p[0] <= threshold) | (o_p[1] <= threshold) | (o_p[2] <= threshold) | (o_p[3] <= threshold) |
+               (o_p[4] <= threshold) | (o_p[5] <= threshold) | (o_p[6] <= threshold) | (o_p[7] <= threshold);
+      break;
+  }
+#endif
+  
+  return result != 0;
 }
 #endif // NROWS == 8
 

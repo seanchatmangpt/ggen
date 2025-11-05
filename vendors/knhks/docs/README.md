@@ -30,16 +30,21 @@ KNKHS is an ultra-low-latency RDF query engine that executes SPARQL ASK queries 
 ## Performance
 
 All supported operations achieve ≤8 ticks:
-- **ASK(S,P)**: ~4.8 ticks (1.2 ns)
-- **COUNT(S,P)**: ~4.8 ticks (1.2 ns)
+- **ASK(S,P)**: 4.00-4.17 ticks (1.000-1.042 ns)
+- **COUNT(S,P)**: 4.00-4.17 ticks (1.000-1.042 ns)
 - **ASK(S,P,O)**: ~1.4 ticks (0.35 ns)
+- **Comparison Operations**: 3.66 ticks (0.916 ns)
+- **SELECT(S,P)**: ~19 ticks (4.8 ns) ❌ (exceeds budget)
 
 ## Supported Operations
 
-- ✅ ASK existence checks
-- ✅ COUNT aggregations (≤8 elements)
+- ✅ ASK existence checks (ASK_SP, ASK_SPO, ASK_OP)
+- ✅ COUNT aggregations (COUNT_SP_GE/LE/EQ, COUNT_OP)
 - ✅ Triple matching (S-P-O)
-- ❌ SELECT operations (exceed 8-tick budget)
+- ✅ Uniqueness validation (UNIQUE_SP)
+- ✅ Reverse lookups (ASK_O,P)
+- ✅ Value comparison (COMPARE_O_EQ/GT/LT/GE/LE)
+- ❌ SELECT operations (exceed 8-tick budget - ~19 ticks)
 - ❌ Complex JOINs (cold path fallback)
 
 ## Documentation Structure

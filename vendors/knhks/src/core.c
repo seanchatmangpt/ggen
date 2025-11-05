@@ -56,6 +56,11 @@ size_t knhks_core_eval_select(const knhks_context_t *ctx, const knhks_hook_ir_t 
   if (!ir->select_out || ir->select_capacity == 0)
     return 0;
 
+#if NROWS == 8
+  // Use optimized unrolled version for NROWS=8
+  return knhks_select_gather_8(ctx->S, ctx->O, ctx->run.off, ir->s, ir->select_out, ir->select_capacity);
+#else
   return knhks_select_gather(ctx->S, ctx->O, ctx->run.off, ctx->run.len, ir->s, ir->select_out, ir->select_capacity);
+#endif
 }
 

@@ -1,14 +1,18 @@
 @prefix ex: <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 
-# Test data for object count exact (COUNT O,P == k)
-# Exact count validation for object occurrences
+# Enterprise Object Count Exact Use Case
+# Precise object occurrence counting for role distribution
+# Test Case 12: Object Count Exact (COUNT O,P == k)
+# Limited to 8 triples for hot path (single predicate run)
+# Validates exact role distribution (e.g., exactly 2 users per role)
 
-ex:user1 ex:role ex:admin .
-ex:user2 ex:role ex:admin .
-ex:user3 ex:role ex:viewer .
-ex:user4 ex:role ex:viewer .
-ex:user5 ex:role ex:editor .
-ex:user6 ex:role ex:editor .
-ex:user7 ex:role ex:contributor .
-ex:user8 ex:role ex:contributor .
+ex:alice ex:role ex:admin .
+ex:bob ex:role ex:admin .
+ex:charlie ex:role ex:viewer .
+ex:dave ex:role ex:viewer .
+ex:eve ex:role ex:editor .
+ex:frank ex:role ex:editor .
+ex:grace ex:role ex:contributor .
+ex:henry ex:role ex:contributor .
 
