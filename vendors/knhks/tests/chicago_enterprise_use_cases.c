@@ -479,8 +479,9 @@ static uint64_t get_count(uint64_t s, uint64_t p)
 {
   // Use COUNT_SP_GE with k=1, then check if it passes
   // For actual count, we'd need to iterate, but for this test we just need >= 1
-  knhks_hook_ir_t ir = {.op = KNHKS_OP_COUNT_SP_GE, .s = s, .p = p, .k = 1, .o = 0, .select_out = NULL, .select_capacity = 0};
-  return knhks_eval_bool(&ctx, &ir) ? 1 : 0;
+  knhks_hook_ir_t ir = {.op = KNHKS_OP_COUNT_SP_GE, .s = s, .p = p, .k = 1, .o = 0, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
+  knhks_receipt_t rcpt = {0};
+  return knhks_eval_bool(&ctx, &ir, &rcpt) ? 1 : 0;
 }
 
 // Test Case 1: Authorization Checks (30% runtime)
@@ -489,7 +490,7 @@ static int test_authorization_checks(void)
   printf("[TEST] Test 1: Authorization Checks\n");
 
   // Initialize context
-  knhks_init_context(&ctx, S, P, O);
+  knhks_init_ctx(&ctx, S, P, O);
 
   // Load authorization data
   if (!knhks_load_rdf(&ctx, "tests/data/enterprise_authorization.ttl"))
@@ -507,10 +508,15 @@ static int test_authorization_checks(void)
   uint64_t test_predicate = ctx.run.pred;
 
   // Create ASK query: Does user have permission?
-  knhks_hook_ir_t ask_ir = {.op = KNHKS_OP_ASK_SP, .s = test_user, .p = test_predicate, .k = 0, .o = 0, .select_out = NULL, .select_capacity = 0};
+  knhks_hook_ir_t ask_ir = {.op = KNHKS_OP_ASK_SP, .s = test_user, .p = test_predicate, .k = 0, .o = 0, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
+  knhks_receipt_t rcpt = {0};
 
   // Test correctness: User should have permission
-  int result = knhks_eval_bool(&ctx, &ask_ir);
+  int result = knhks_eval_bool(&ctx, &ask_ir, &rcpt);
+
+  // Verify receipt
+  assert(rcpt.ticks > 0);
+  assert(rcpt.ticks <= KNHKS_TICK_BUDGET);
   assert(result == 1); // User has at least one permission
 
   // Measure performance with more iterations to reduce variance
@@ -541,7 +547,7 @@ static int test_property_existence(void)
   printf("[TEST] Test 2: Property Existence Validation\n");
 
   // Initialize context
-  knhks_init_context(&ctx, S, P, O);
+  knhks_init_ctx(&ctx, S, P, O);
 
   if (!knhks_load_rdf(&ctx, "tests/data/enterprise_validation.ttl"))
   {
@@ -556,10 +562,14 @@ static int test_property_existence(void)
   uint64_t test_entity = ctx.S[0];
   uint64_t test_predicate = ctx.run.pred;
 
-  knhks_hook_ir_t ask_ir = {.op = KNHKS_OP_ASK_SP, .s = test_entity, .p = test_predicate, .k = 0, .o = 0, .select_out = NULL, .select_capacity = 0};
+  knhks_hook_ir_t ask_ir = {.op = KNHKS_OP_ASK_SP, .s = test_entity, .p = test_predicate, .k = 0, .o = 0, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
+  knhks_receipt_t rcpt = {0};
 
   // Correctness: Entity should have requiredField
-  int result = knhks_eval_bool(&ctx, &ask_ir);
+  int result = knhks_eval_bool(&ctx, &ask_ir, &rcpt);
+
+  // Verify receipt
+  assert(rcpt.ticks <= KNHKS_TICK_BUDGET);
   assert(result == 1);
 
   // Measure performance with more iterations to reduce variance
@@ -589,7 +599,7 @@ static int test_cardinality_constraints(void)
   printf("[TEST] Test 3: Cardinality Constraints\n");
 
   // Initialize context
-  knhks_init_context(&ctx, S, P, O);
+  knhks_init_ctx(&ctx, S, P, O);
 
   if (!knhks_load_rdf(&ctx, "tests/data/enterprise_cardinality.ttl"))
   {
@@ -604,10 +614,14 @@ static int test_cardinality_constraints(void)
   uint64_t test_user = ctx.S[0]; // First user (single email)
   uint64_t test_predicate = ctx.run.pred;
 
-  knhks_hook_ir_t count_ir = {.op = KNHKS_OP_COUNT_SP_GE, .s = test_user, .p = test_predicate, .k = 1, .o = 0, .select_out = NULL, .select_capacity = 0};
+  knhks_hook_ir_t count_ir = {.op = KNHKS_OP_COUNT_SP_GE, .s = test_user, .p = test_predicate, .k = 1, .o = 0, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
+  knhks_receipt_t rcpt = {0};
 
   // Correctness: Count >= 1 for user
-  int result = knhks_eval_bool(&ctx, &count_ir);
+  int result = knhks_eval_bool(&ctx, &count_ir, &rcpt);
+
+  // Verify receipt
+  assert(rcpt.ticks <= KNHKS_TICK_BUDGET);
   assert(result == 1); // User has at least one email
 
   // Measure performance
@@ -637,7 +651,7 @@ static int test_type_checking(void)
   printf("[TEST] Test 4: Type Checking\n");
 
   // Initialize context
-  knhks_init_context(&ctx, S, P, O);
+  knhks_init_ctx(&ctx, S, P, O);
 
   if (!knhks_load_rdf(&ctx, "tests/data/enterprise_types.ttl"))
   {
@@ -652,10 +666,13 @@ static int test_type_checking(void)
   uint64_t test_resource = ctx.S[0];
   uint64_t test_predicate = ctx.run.pred;
 
-  knhks_hook_ir_t ask_ir = {.op = KNHKS_OP_ASK_SP, .s = test_resource, .p = test_predicate, .k = 0, .o = 0, .select_out = NULL, .select_capacity = 0};
+  knhks_hook_ir_t ask_ir = {.op = KNHKS_OP_ASK_SP, .s = test_resource, .p = test_predicate, .k = 0, .o = 0, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
+  knhks_receipt_t rcpt = {0};
 
   // Correctness: Resource should have type assertion
-  int result = knhks_eval_bool(&ctx, &ask_ir);
+  int result = knhks_eval_bool(&ctx, &ask_ir, &rcpt);
+
+  assert(rcpt.ticks <= KNHKS_TICK_BUDGET);
   assert(result == 1);
 
   // Measure performance with more iterations to reduce variance
@@ -685,7 +702,7 @@ static int test_simple_lookups(void)
   printf("[TEST] Test 5: Simple Lookups\n");
 
   // Initialize context
-  knhks_init_context(&ctx, S, P, O);
+  knhks_init_ctx(&ctx, S, P, O);
 
   if (!knhks_load_rdf(&ctx, "tests/data/enterprise_lookups.ttl"))
   {
@@ -700,10 +717,13 @@ static int test_simple_lookups(void)
   uint64_t test_entity = ctx.S[0];
   uint64_t test_predicate = ctx.run.pred;
 
-  knhks_hook_ir_t ask_ir = {.op = KNHKS_OP_ASK_SP, .s = test_entity, .p = test_predicate, .k = 0, .o = 0, .select_out = NULL, .select_capacity = 0};
+  knhks_hook_ir_t ask_ir = {.op = KNHKS_OP_ASK_SP, .s = test_entity, .p = test_predicate, .k = 0, .o = 0, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
+  knhks_receipt_t rcpt = {0};
 
   // Correctness: Entity should have property
-  int result = knhks_eval_bool(&ctx, &ask_ir);
+  int result = knhks_eval_bool(&ctx, &ask_ir, &rcpt);
+
+  assert(rcpt.ticks <= KNHKS_TICK_BUDGET);
   assert(result == 1);
 
   // Measure performance with more iterations to reduce variance
@@ -733,7 +753,7 @@ static int test_maxcount_validation(void)
 {
   printf("[TEST] Test 6: MaxCount Validation (COUNT <= k)\n");
 
-  knhks_init_context(&ctx, S, P, O);
+  knhks_init_ctx(&ctx, S, P, O);
 
   if (!knhks_load_rdf(&ctx, "tests/data/enterprise_maxcount.ttl"))
   {
@@ -749,9 +769,12 @@ static int test_maxcount_validation(void)
   uint64_t test_predicate = ctx.run.pred;
 
   // Check if user has <= 2 emails
-  knhks_hook_ir_t count_ir = {.op = KNHKS_OP_COUNT_SP_LE, .s = test_user, .p = test_predicate, .k = 2, .o = 0, .select_out = NULL, .select_capacity = 0};
+  knhks_hook_ir_t count_ir = {.op = KNHKS_OP_COUNT_SP_LE, .s = test_user, .p = test_predicate, .k = 2, .o = 0, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
+  knhks_receipt_t rcpt = {0};
 
-  int result = knhks_eval_bool(&ctx, &count_ir);
+  int result = knhks_eval_bool(&ctx, &count_ir, &rcpt);
+
+  assert(rcpt.ticks <= KNHKS_TICK_BUDGET);
   assert(result == 1); // User has <= 2 emails
 
   // Measure performance with more iterations to reduce variance
@@ -780,7 +803,7 @@ static int test_exactcount_validation(void)
 {
   printf("[TEST] Test 7: Exact Count Validation (COUNT == k)\n");
 
-  knhks_init_context(&ctx, S, P, O);
+  knhks_init_ctx(&ctx, S, P, O);
 
   if (!knhks_load_rdf(&ctx, "tests/data/enterprise_exactcount.ttl"))
   {
@@ -796,9 +819,12 @@ static int test_exactcount_validation(void)
   uint64_t test_predicate = ctx.run.pred;
 
   // Check if user has exactly 2 roles
-  knhks_hook_ir_t count_ir = {.op = KNHKS_OP_COUNT_SP_EQ, .s = test_user, .p = test_predicate, .k = 2, .o = 0, .select_out = NULL, .select_capacity = 0};
+  knhks_hook_ir_t count_ir = {.op = KNHKS_OP_COUNT_SP_EQ, .s = test_user, .p = test_predicate, .k = 2, .o = 0, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
+  knhks_receipt_t rcpt = {0};
 
-  int result = knhks_eval_bool(&ctx, &count_ir);
+  int result = knhks_eval_bool(&ctx, &count_ir, &rcpt);
+
+  assert(rcpt.ticks <= KNHKS_TICK_BUDGET);
   assert(result == 1); // User has exactly 2 roles
 
   // Measure performance with more iterations to reduce variance
@@ -827,7 +853,7 @@ static int test_reverse_lookup(void)
 {
   printf("[TEST] Test 8: Reverse Lookup (ASK O,P)\n");
 
-  knhks_init_context(&ctx, S, P, O);
+  knhks_init_ctx(&ctx, S, P, O);
 
   if (!knhks_load_rdf(&ctx, "tests/data/enterprise_reverse.ttl"))
   {
@@ -843,9 +869,12 @@ static int test_reverse_lookup(void)
   uint64_t test_predicate = ctx.run.pred;
 
   // Check if email belongs to any user
-  knhks_hook_ir_t ask_ir = {.op = KNHKS_OP_ASK_OP, .s = 0, .p = test_predicate, .k = 0, .o = test_email, .select_out = NULL, .select_capacity = 0};
+  knhks_hook_ir_t ask_ir = {.op = KNHKS_OP_ASK_OP, .s = 0, .p = test_predicate, .k = 0, .o = test_email, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
+  knhks_receipt_t rcpt = {0};
 
-  int result = knhks_eval_bool(&ctx, &ask_ir);
+  int result = knhks_eval_bool(&ctx, &ask_ir, &rcpt);
+
+  assert(rcpt.ticks <= KNHKS_TICK_BUDGET);
   assert(result == 1); // Email exists
 
   const int iterations = 200000;
@@ -873,7 +902,7 @@ static int test_uniqueness_validation(void)
 {
   printf("[TEST] Test 9: Uniqueness Validation (COUNT == 1)\n");
 
-  knhks_init_context(&ctx, S, P, O);
+  knhks_init_ctx(&ctx, S, P, O);
 
   if (!knhks_load_rdf(&ctx, "tests/data/enterprise_unique.ttl"))
   {
@@ -889,9 +918,12 @@ static int test_uniqueness_validation(void)
   uint64_t test_predicate = ctx.run.pred;
 
   // Check if user has unique primary email (use COUNT == 1)
-  knhks_hook_ir_t unique_ir = {.op = KNHKS_OP_COUNT_SP_EQ, .s = test_user, .p = test_predicate, .k = 1, .o = 0, .select_out = NULL, .select_capacity = 0};
+  knhks_hook_ir_t unique_ir = {.op = KNHKS_OP_COUNT_SP_EQ, .s = test_user, .p = test_predicate, .k = 1, .o = 0, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
+  knhks_receipt_t rcpt = {0};
 
-  int result = knhks_eval_bool(&ctx, &unique_ir);
+  int result = knhks_eval_bool(&ctx, &unique_ir, &rcpt);
+
+  assert(rcpt.ticks <= KNHKS_TICK_BUDGET);
   assert(result == 1); // User has exactly one primary email
 
   const int iterations = 200000;
@@ -919,7 +951,7 @@ static int test_object_count(void)
 {
   printf("[TEST] Test 10: Object Count (COUNT O,P)\n");
 
-  knhks_init_context(&ctx, S, P, O);
+  knhks_init_ctx(&ctx, S, P, O);
 
   if (!knhks_load_rdf(&ctx, "tests/data/enterprise_objectcount.ttl"))
   {
@@ -935,9 +967,12 @@ static int test_object_count(void)
   uint64_t test_predicate = ctx.run.pred;
 
   // Check if email appears at least once
-  knhks_hook_ir_t count_ir = {.op = KNHKS_OP_COUNT_OP, .s = 0, .p = test_predicate, .k = 1, .o = test_email, .select_out = NULL, .select_capacity = 0};
+  knhks_hook_ir_t count_ir = {.op = KNHKS_OP_COUNT_OP, .s = 0, .p = test_predicate, .k = 1, .o = test_email, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
+  knhks_receipt_t rcpt = {0};
 
-  int result = knhks_eval_bool(&ctx, &count_ir);
+  int result = knhks_eval_bool(&ctx, &count_ir, &rcpt);
+
+  assert(rcpt.ticks <= KNHKS_TICK_BUDGET);
   assert(result == 1); // Email appears at least once
 
   // Measure performance with more iterations to reduce variance
@@ -966,7 +1001,7 @@ static int test_object_count_maxcount(void)
 {
   printf("[TEST] Test 11: Object Count MaxCount (COUNT O,P <= k)\n");
 
-  knhks_init_context(&ctx, S, P, O);
+  knhks_init_ctx(&ctx, S, P, O);
 
   if (!knhks_load_rdf(&ctx, "tests/data/enterprise_objectcount_max.ttl"))
   {
@@ -984,9 +1019,12 @@ static int test_object_count_maxcount(void)
   uint64_t test_predicate = ctx.run.pred;
 
   // Check if email domain appears at most 4 times (maxCount constraint)
-  knhks_hook_ir_t count_ir = {.op = KNHKS_OP_COUNT_OP_LE, .s = 0, .p = test_predicate, .k = 4, .o = test_domain, .select_out = NULL, .select_capacity = 0};
+  knhks_hook_ir_t count_ir = {.op = KNHKS_OP_COUNT_OP_LE, .s = 0, .p = test_predicate, .k = 4, .o = test_domain, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
+  knhks_receipt_t rcpt = {0};
 
-  int result = knhks_eval_bool(&ctx, &count_ir);
+  int result = knhks_eval_bool(&ctx, &count_ir, &rcpt);
+
+  assert(rcpt.ticks <= KNHKS_TICK_BUDGET);
   assert(result == 1); // Email domain appears at most 4 times
 
   // Measure performance with more iterations to reduce variance
@@ -1015,7 +1053,7 @@ static int test_object_count_exact(void)
 {
   printf("[TEST] Test 12: Object Count Exact (COUNT O,P == k)\n");
 
-  knhks_init_context(&ctx, S, P, O);
+  knhks_init_ctx(&ctx, S, P, O);
 
   if (!knhks_load_rdf(&ctx, "tests/data/enterprise_objectcount_exact.ttl"))
   {
@@ -1031,9 +1069,12 @@ static int test_object_count_exact(void)
   uint64_t test_predicate = ctx.run.pred;
 
   // Check if role appears exactly twice
-  knhks_hook_ir_t count_ir = {.op = KNHKS_OP_COUNT_OP_EQ, .s = 0, .p = test_predicate, .k = 2, .o = test_role, .select_out = NULL, .select_capacity = 0};
+  knhks_hook_ir_t count_ir = {.op = KNHKS_OP_COUNT_OP_EQ, .s = 0, .p = test_predicate, .k = 2, .o = test_role, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
+  knhks_receipt_t rcpt = {0};
 
-  int result = knhks_eval_bool(&ctx, &count_ir);
+  int result = knhks_eval_bool(&ctx, &count_ir, &rcpt);
+
+  assert(rcpt.ticks <= KNHKS_TICK_BUDGET);
   assert(result == 1); // Role appears exactly twice
 
   // Measure performance with more iterations to reduce variance
@@ -1062,7 +1103,7 @@ static int test_select_sp(void)
 {
   printf("[TEST] Test 13: SELECT_SP Operation\n");
 
-  knhks_init_context(&ctx, S, P, O);
+  knhks_init_ctx(&ctx, S, P, O);
 
   if (!knhks_load_rdf(&ctx, "tests/data/enterprise_lookups.ttl"))
   {
@@ -1108,7 +1149,7 @@ static int test_compare_eq(void)
 {
   printf("[TEST] Test 14: Comparison Operations (O == value)\n");
 
-  knhks_init_context(&ctx, S, P, O);
+  knhks_init_ctx(&ctx, S, P, O);
 
   if (!knhks_load_rdf(&ctx, "tests/data/enterprise_objectcount.ttl"))
   {
@@ -1122,9 +1163,12 @@ static int test_compare_eq(void)
   uint64_t test_value = ctx.O[0];
   uint64_t test_predicate = ctx.run.pred;
 
-  knhks_hook_ir_t compare_ir = {.op = KNHKS_OP_COMPARE_O_EQ, .s = 0, .p = test_predicate, .k = 0, .o = test_value, .select_out = NULL, .select_capacity = 0};
+  knhks_hook_ir_t compare_ir = {.op = KNHKS_OP_COMPARE_O_EQ, .s = 0, .p = test_predicate, .k = 0, .o = test_value, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
+  knhks_receipt_t rcpt = {0};
 
-  int result = knhks_eval_bool(&ctx, &compare_ir);
+  int result = knhks_eval_bool(&ctx, &compare_ir, &rcpt);
+
+  assert(rcpt.ticks <= KNHKS_TICK_BUDGET);
   assert(result == 1);
 
   perf_stats_t stats = measure_p50_p95(&compare_ir, 400000);
@@ -1151,7 +1195,7 @@ static int test_compare_gt(void)
 {
   printf("[TEST] Test 15: Comparison Operations (O > value)\n");
 
-  knhks_init_context(&ctx, S, P, O);
+  knhks_init_ctx(&ctx, S, P, O);
 
   if (!knhks_load_rdf(&ctx, "tests/data/enterprise_objectcount.ttl"))
   {
@@ -1166,9 +1210,12 @@ static int test_compare_gt(void)
   uint64_t test_value = ctx.O[0] - 1; // Smaller value
   uint64_t test_predicate = ctx.run.pred;
 
-  knhks_hook_ir_t compare_ir = {.op = KNHKS_OP_COMPARE_O_GT, .s = 0, .p = test_predicate, .k = 0, .o = test_value, .select_out = NULL, .select_capacity = 0};
+  knhks_hook_ir_t compare_ir = {.op = KNHKS_OP_COMPARE_O_GT, .s = 0, .p = test_predicate, .k = 0, .o = test_value, .select_out = NULL, .select_capacity = 0, .out_S = NULL, .out_P = NULL, .out_O = NULL, .out_mask = 0};
+  knhks_receipt_t rcpt = {0};
 
-  int result = knhks_eval_bool(&ctx, &compare_ir);
+  int result = knhks_eval_bool(&ctx, &compare_ir, &rcpt);
+
+  assert(rcpt.ticks <= KNHKS_TICK_BUDGET);
   // May or may not find matches depending on data
 
   perf_stats_t stats = measure_p50_p95(&compare_ir, 400000);
