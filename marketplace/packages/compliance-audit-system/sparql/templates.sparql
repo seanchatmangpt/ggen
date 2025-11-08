@@ -1,0 +1,388 @@
+# SPARQL Templates for Compliance & Audit System
+# 15+ essential queries for compliance operations
+
+PREFIX cas: <http://ggen.ai/ontology/compliance-audit-system#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# ==================== Query 1: Get Recent Audit Events ====================
+# Retrieves recent audit events with filtering
+
+SELECT ?event ?eventType ?actor ?action ?resource ?timestamp ?outcome
+WHERE {
+    ?event a cas:AuditEvent ;
+           cas:eventType ?eventType ;
+           cas:actor ?actor ;
+           cas:action ?action ;
+           cas:resource ?resource ;
+           cas:timestamp ?timestamp ;
+           cas:outcome ?outcome .
+
+    FILTER(?timestamp >= "{{START_TIME}}"^^xsd:dateTime &&
+           ?timestamp <= "{{END_TIME}}"^^xsd:dateTime)
+}
+ORDER BY DESC(?timestamp)
+LIMIT 1000
+
+# ==================== Query 2: Get Policy Violations ====================
+# Identifies policy violations and affected users
+
+SELECT ?event ?policy ?policyName ?actor ?timestamp ?severity
+WHERE {
+    ?event a cas:AuditEvent ;
+           cas:violatesPolicy ?policy ;
+           cas:actor ?actor ;
+           cas:timestamp ?timestamp .
+
+    ?policy cas:policyName ?policyName .
+
+    OPTIONAL {
+        ?violation a cas:PolicyViolation ;
+                   cas:triggeredBy ?event ;
+                   cas:severity ?severity .
+    }
+
+    FILTER(?timestamp >= NOW() - "P30D"^^xsd:duration)
+}
+ORDER BY DESC(?severity) DESC(?timestamp)
+
+# ==================== Query 3: Get Compliance Framework Status ====================
+# Comprehensive compliance status by framework
+
+SELECT ?framework ?frameworkName
+       (COUNT(DISTINCT ?requirement) AS ?totalRequirements)
+       (SUM(IF(?status = "compliant", 1, 0)) AS ?compliantCount)
+       (SUM(IF(?status = "non-compliant", 1, 0)) AS ?nonCompliantCount)
+WHERE {
+    ?framework a cas:ComplianceFramework ;
+               cas:frameworkName ?frameworkName .
+
+    ?policy cas:relatedToFramework ?framework ;
+            cas:requirementId ?requirement .
+
+    OPTIONAL {
+        ?test a cas:ControlTest ;
+              cas:testsRequirement ?requirement ;
+              cas:testStatus ?status .
+    }
+}
+GROUP BY ?framework ?frameworkName
+ORDER BY DESC(?nonCompliantCount)
+
+# ==================== Query 4: Get Pending Access Reviews ====================
+# Lists access reviews requiring attention
+
+SELECT ?review ?reviewId ?reviewType ?dueDate ?reviewer ?itemCount
+WHERE {
+    ?review a cas:AccessReview ;
+            cas:reviewId ?reviewId ;
+            cas:dueDate ?dueDate ;
+            cas:reviewedBy ?reviewer ;
+            cas:reviewStatus "pending" .
+
+    ?review a ?reviewType .
+    FILTER(?reviewType != cas:AccessReview)
+
+    {
+        SELECT ?review (COUNT(?item) AS ?itemCount)
+        WHERE {
+            ?review cas:reviewItem ?item .
+        }
+        GROUP BY ?review
+    }
+
+    FILTER(?dueDate >= NOW())
+}
+ORDER BY ?dueDate
+
+# ==================== Query 5: Get Data Breach Incidents ====================
+# Retrieves data breach incidents with impact analysis
+
+SELECT ?incident ?incidentId ?severity ?discoveredAt ?resolvedAt
+       ?affectedRecords ?dataType ?notificationRequired
+WHERE {
+    ?incident a cas:DataBreach ;
+              cas:incidentId ?incidentId ;
+              cas:severity ?severity ;
+              cas:discoveredAt ?discoveredAt .
+
+    OPTIONAL { ?incident cas:resolvedAt ?resolvedAt }
+    OPTIONAL { ?incident cas:affectedRecords ?affectedRecords }
+
+    ?incident cas:involvesDataType ?dataType .
+
+    BIND(IF(?affectedRecords > 500, true, false) AS ?notificationRequired)
+
+    FILTER(?discoveredAt >= "{{START_DATE}}"^^xsd:dateTime)
+}
+ORDER BY DESC(?severity) DESC(?discoveredAt)
+
+# ==================== Query 6: Get Audit Evidence Chain ====================
+# Retrieves evidence trail for specific audit event
+
+SELECT ?event ?evidence ?evidenceType ?collectedAt ?hashValue ?chain
+WHERE {
+    ?event a cas:AuditEvent ;
+           cas:hasEvidence ?evidence .
+
+    ?evidence cas:evidenceType ?evidenceType ;
+              cas:collectedAt ?collectedAt ;
+              cas:hashValue ?hashValue .
+
+    OPTIONAL {
+        ?evidence cas:partOfChain ?chain .
+    }
+
+    FILTER(?event = <http://ggen.ai/audit/{{EVENT_ID}}>)
+}
+ORDER BY ?collectedAt
+
+# ==================== Query 7: Get Risk Assessment Summary ====================
+# Comprehensive risk assessment across all frameworks
+
+SELECT ?assessment ?riskLevel
+       (COUNT(?finding) AS ?findingCount)
+       (AVG(?likelihood * ?impact) AS ?avgRiskScore)
+WHERE {
+    ?assessment a cas:RiskAssessment ;
+                cas:hasFinding ?finding .
+
+    ?finding a cas:RiskFinding ;
+             cas:riskLevel ?riskLevel ;
+             cas:likelihood ?likelihood ;
+             cas:impact ?impact .
+
+    FILTER(?assessment IN (
+        SELECT ?a WHERE {
+            ?a cas:assessmentDate ?date .
+            FILTER(?date >= NOW() - "P90D"^^xsd:duration)
+        }
+    ))
+}
+GROUP BY ?assessment ?riskLevel
+ORDER BY DESC(?avgRiskScore)
+
+# ==================== Query 8: Get Control Test Results ====================
+# Control testing effectiveness analysis
+
+SELECT ?control ?controlName ?framework
+       (COUNT(?test) AS ?totalTests)
+       (SUM(IF(?testResult = "pass", 1, 0)) AS ?passCount)
+       (SUM(IF(?testResult = "fail", 1, 0)) AS ?failCount)
+WHERE {
+    ?control a cas:ControlObjective ;
+             cas:controlName ?controlName ;
+             cas:relatedToFramework ?framework .
+
+    ?test a cas:ControlTest ;
+          cas:testsControl ?control ;
+          cas:testResult ?testResult ;
+          cas:testDate ?testDate .
+
+    ?framework cas:frameworkName ?frameworkName .
+
+    FILTER(?testDate >= "{{QUARTER_START}}"^^xsd:date &&
+           ?testDate <= "{{QUARTER_END}}"^^xsd:date)
+}
+GROUP BY ?control ?controlName ?framework
+HAVING (?failCount > 0)
+ORDER BY DESC(?failCount)
+
+# ==================== Query 9: Get Data Retention Compliance ====================
+# Monitors data retention policy compliance
+
+SELECT ?dataset ?dataType ?classification ?createdAt ?retentionPeriod
+       ?expirationDate ?status
+WHERE {
+    ?dataset a cas:Dataset ;
+             cas:dataType ?dataType ;
+             cas:createdAt ?createdAt .
+
+    ?dataset cas:classifiedAs ?classObj .
+    ?classObj a ?classification .
+
+    ?policy a cas:DataRetentionPolicy ;
+            cas:appliesTo ?classification ;
+            cas:retentionPeriod ?retentionPeriod .
+
+    BIND(?createdAt + ?retentionPeriod AS ?expirationDate)
+    BIND(IF(?expirationDate < NOW(), "expired", "active") AS ?status)
+}
+ORDER BY ?expirationDate
+
+# ==================== Query 10: Get Security Events by Severity ====================
+# Security event analysis and trending
+
+SELECT ?severity ?eventType (COUNT(?event) AS ?eventCount)
+       (AVG(?responseTime) AS ?avgResponseTime)
+WHERE {
+    ?event a cas:SecurityEvent ;
+           cas:eventType ?eventType ;
+           cas:severity ?severity ;
+           cas:timestamp ?timestamp .
+
+    OPTIONAL {
+        ?response cas:respondsTo ?event ;
+                  cas:responseTime ?responseTime .
+    }
+
+    FILTER(?timestamp >= NOW() - "P7D"^^xsd:duration)
+}
+GROUP BY ?severity ?eventType
+ORDER BY DESC(?eventCount)
+
+# ==================== Query 11: Get Privileged Access Usage ====================
+# Monitors privileged access activity
+
+SELECT ?user ?privilegedAccount ?action ?resource ?timestamp
+       (COUNT(?event) AS ?usageCount)
+WHERE {
+    ?event a cas:UserAction ;
+           cas:actor ?user ;
+           cas:usesAccount ?privilegedAccount ;
+           cas:action ?action ;
+           cas:resource ?resource ;
+           cas:timestamp ?timestamp .
+
+    ?privilegedAccount a cas:PrivilegedAccount .
+
+    FILTER(?timestamp >= NOW() - "P1D"^^xsd:duration)
+}
+GROUP BY ?user ?privilegedAccount ?action ?resource ?timestamp
+HAVING (?usageCount > 10)
+ORDER BY DESC(?usageCount)
+
+# ==================== Query 12: Get Compliance Report Data ====================
+# Generates comprehensive compliance report dataset
+
+SELECT ?framework ?frameworkName ?requirement ?controlName
+       ?testResult ?evidenceCount ?lastTestDate
+WHERE {
+    ?framework a cas:ComplianceFramework ;
+               cas:frameworkName ?frameworkName .
+
+    ?requirement cas:partOfFramework ?framework ;
+                 cas:requirementId ?reqId .
+
+    ?control cas:implementsRequirement ?requirement ;
+             cas:controlName ?controlName .
+
+    OPTIONAL {
+        ?test cas:testsControl ?control ;
+              cas:testResult ?testResult ;
+              cas:testDate ?lastTestDate .
+
+        {
+            SELECT ?control (MAX(?date) AS ?lastTestDate)
+            WHERE {
+                ?t cas:testsControl ?control ;
+                   cas:testDate ?date .
+            }
+            GROUP BY ?control
+        }
+    }
+
+    {
+        SELECT ?control (COUNT(?evidence) AS ?evidenceCount)
+        WHERE {
+            ?test cas:testsControl ?control ;
+                  cas:hasEvidence ?evidence .
+        }
+        GROUP BY ?control
+    }
+}
+ORDER BY ?frameworkName ?requirement
+
+# ==================== Query 13: Get Policy Effectiveness Metrics ====================
+# Analyzes policy enforcement effectiveness
+
+SELECT ?policy ?policyName (COUNT(?violation) AS ?violationCount)
+       (COUNT(DISTINCT ?actor) AS ?uniqueViolators)
+       (AVG(?severity) AS ?avgSeverity)
+WHERE {
+    ?policy a cas:Policy ;
+            cas:policyName ?policyName .
+
+    ?violation a cas:PolicyViolation ;
+               cas:violatesPolicy ?policy ;
+               cas:actor ?actor ;
+               cas:severity ?severityLevel .
+
+    BIND(CASE(?severityLevel)
+         WHEN "critical" THEN 4
+         WHEN "high" THEN 3
+         WHEN "medium" THEN 2
+         WHEN "low" THEN 1
+         ELSE 0
+         END AS ?severity)
+
+    ?violation cas:occurredAt ?timestamp .
+    FILTER(?timestamp >= NOW() - "P90D"^^xsd:duration)
+}
+GROUP BY ?policy ?policyName
+ORDER BY DESC(?violationCount)
+
+# ==================== Query 14: Get Incident Response Metrics ====================
+# Tracks incident response performance
+
+SELECT ?incidentType ?severity
+       (COUNT(?incident) AS ?incidentCount)
+       (AVG(?responseTime) AS ?avgResponseTime)
+       (AVG(?resolutionTime) AS ?avgResolutionTime)
+WHERE {
+    ?incident a cas:ComplianceIncident ;
+              cas:severity ?severity ;
+              cas:discoveredAt ?discoveredAt .
+
+    ?incident a ?incidentType .
+    FILTER(?incidentType != cas:ComplianceIncident)
+
+    ?response cas:respondsTo ?incident ;
+              cas:initiatedAt ?responseStart .
+
+    OPTIONAL {
+        ?incident cas:resolvedAt ?resolvedAt .
+        BIND((?resolvedAt - ?discoveredAt) AS ?resolutionTime)
+    }
+
+    BIND((?responseStart - ?discoveredAt) AS ?responseTime)
+
+    FILTER(?discoveredAt >= NOW() - "P30D"^^xsd:duration)
+}
+GROUP BY ?incidentType ?severity
+ORDER BY DESC(?incidentCount)
+
+# ==================== Query 15: Get Access Certification Status ====================
+# Monitors access certification campaign progress
+
+SELECT ?campaign ?campaignName ?totalUsers ?certifiedUsers
+       ?pendingUsers ?overdueCertifications
+WHERE {
+    ?campaign a cas:AccessRecertification ;
+              cas:campaignName ?campaignName ;
+              cas:startDate ?startDate ;
+              cas:dueDate ?dueDate .
+
+    {
+        SELECT ?campaign (COUNT(DISTINCT ?user) AS ?totalUsers)
+        WHERE {
+            ?campaign cas:includesUser ?user .
+        }
+        GROUP BY ?campaign
+    }
+
+    {
+        SELECT ?campaign (COUNT(DISTINCT ?user) AS ?certifiedUsers)
+        WHERE {
+            ?campaign cas:includesUser ?user .
+            ?decision cas:forUser ?user ;
+                      cas:inCampaign ?campaign ;
+                      cas:decision "approved" .
+        }
+        GROUP BY ?campaign
+    }
+
+    BIND(?totalUsers - ?certifiedUsers AS ?pendingUsers)
+    BIND(IF(NOW() > ?dueDate, ?pendingUsers, 0) AS ?overdueCertifications)
+}
+ORDER BY DESC(?overdueCertifications) ?dueDate
