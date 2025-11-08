@@ -14,7 +14,7 @@ categories = ["development-tools", "command-line-utilities"]
 multiple_crate_versions = "allow"
 
 [dependencies]
-ggen-utils = { path = "../ggen-utils", version = "2.4.0" }
+ggen-utils = { path = "../ggen-utils", version = "2.5.0" }
 anyhow = "1.0"
 tera = "1.20"
 oxigraph = "0.5"
