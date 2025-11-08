@@ -1,0 +1,74 @@
+# Rig MCP Integration Package
+# Production-ready Rig LLM framework + MCP protocol integration
+
+[package]
+name = "rig-mcp"
+full_name = "rig-mcp-integration"
+version = "1.0.0"
+description = "Production-ready Rig LLM framework + MCP protocol integration with multi-provider support"
+category = "ai"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+path = "marketplace/packages/rig-mcp"
+license = "MIT"
+dependencies = []
+features = [
+    "Multi-provider LLM support (OpenAI, Anthropic, Cohere, Deepseek, Gemini, Ollama, 20+)",
+    "Dynamic MCP tool loading with vector-based selection",
+    "Multi-transport MCP support (stdio, SSE, HTTP)",
+    "Production-ready patterns from official MCP Rust SDK",
+    "Embedding-based intelligent tool selection",
+    "Async/streaming support"
+]
+tags = ["ai", "llm", "mcp", "rig", "integration"]
+keywords = ["rig", "mcp", "llm", "ai", "openai", "anthropic"]
+
+# Installation
+[install]
+type = "template"
+template_path = "marketplace/packages/rig-mcp"
+source_path = "examples/rig-mcp"
+
+# Template files to copy
+[files]
+"Cargo.toml" = "Cargo.toml"
+"README.md" = "README.md"
+"src/" = "src/"
+
+# Variables for template substitution
+[variables]
+project_name = { type = "string", required = true, description = "Project name" }
+ai_provider = { type = "string", default = "openai", description = "AI provider (openai, anthropic, ollama)" }
+model = { type = "string", default = "gpt-4", description = "AI model to use" }
+
+# Examples
+[examples]
+basic = """
+# Install the package
+ggen market add rig-mcp-integration
+
+# Create new project with OpenAI
+ggen template generate rig-mcp-integration \\
+  --vars '{"project_name":"my-ai-app","ai_provider":"openai","model":"gpt-4"}'
+
+# Build and run
+cd my-ai-app
+cargo build --release
+cargo run
+"""
+
+advanced = """
+# Use with Ollama for local development
+ggen template generate rig-mcp-integration \\
+  --vars '{"project_name":"local-ai-app","ai_provider":"ollama","model":"llama-2"}'
+
+# Use with Anthropic Claude
+ggen template generate rig-mcp-integration \\
+  --vars '{"project_name":"claude-app","ai_provider":"anthropic","model":"claude-3-sonnet"}'
+"""
+
+# Documentation
+[docs]
+quick_start = "Production-ready Rig + MCP integration"
+providers = "OpenAI, Anthropic, Cohere, Ollama, Deepseek, Gemini, 20+ more"
+features = "Dynamic tool loading, vector selection, async/streaming"

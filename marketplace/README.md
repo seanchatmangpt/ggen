@@ -1,6 +1,28 @@
 # ggen Marketplace
 
-**Production-ready package registry hosted on GitHub Pages**
+**Production-ready package registry for code generation templates, utilities, and AI integrations**
+
+## 🚀 Quick Start
+
+```bash
+# Search for packages
+ggen market search "rust api"
+
+# Install a package
+ggen market install "advanced-rust-api-8020"
+
+# List installed packages
+ggen market list
+
+# Get package details
+ggen market info "advanced-rust-api-8020"
+```
+
+## 📖 Documentation
+
+- **[User Guide](USER_GUIDE.md)** - Browse, install, and use packages
+- **[Publishing Guide](PUBLISHING_GUIDE.md)** - Create and publish your packages
+- **[API Reference](API.md)** - Registry API and package format
 
 ## 🌐 Live Marketplace
 
@@ -8,178 +30,75 @@
 - **Repository**: `https://github.com/seanchatmangpt/ggen`
 - **Documentation**: `https://seanchatmangpt.github.io/ggen/`
 
-## 📦 Available Packages
+## 📦 What You Can Find
 
-Browse and install packages using:
+### Templates
+- **REST APIs**: Production-ready API servers (Axum, Actix, Rocket)
+- **CLI Applications**: Command-line tools with clap
+- **Microservices**: Complete service architectures
+- **GraphQL**: GraphQL servers with subscriptions
 
-```bash
-# Search packages
-ggen market search "rust api"
+### Utilities
+- **Code Generators**: AI-powered code generation
+- **Testing Tools**: Test automation and fixtures
+- **DevOps**: Deployment and CI/CD configurations
 
-# View package details
-ggen market info "advanced-rust-api-8020"
+### AI Integrations
+- **LLM Providers**: OpenAI, Anthropic, Ollama integrations
+- **Prompt Templates**: Reusable AI prompts
+- **RAG Systems**: Retrieval-augmented generation
 
-# Install package
-ggen market add "advanced-rust-api-8020"
+## 🎯 Key Features
 
-# List installed packages
-ggen market list
-```
+### For Users
+- **Fast Search**: Find packages by name, tags, or keywords
+- **Safe Installation**: Dry-run and verification options
+- **Dependency Management**: Automatic dependency resolution
+- **Version Control**: Install specific versions
 
-## 🚀 Publishing Packages
+### For Publishers
+- **Simple Publishing**: CLI-based package submission
+- **Automatic Deployment**: CI/CD via GitHub Pages
+- **Semantic Versioning**: Built-in version management
+- **Community Reach**: Discoverable by all ggen users
 
-### Prerequisites
-
-1. GitHub account
-2. Fork the ggen repository
-3. Package must follow ggen structure
-
-### Publishing Steps
-
-1. **Create your package** in `marketplace/packages/your-package-name/`
-2. **Add to registry** in `marketplace/registry/packages.toml`:
-
-```toml
-[[package]]
-name = "your-package-name"
-full_name = "yourusername/your-package-name"
-version = "0.1.0"
-description = "Your package description"
-category = "templates"  # or "utilities", "ai", etc.
-author = "your-github-username"
-repository = "https://github.com/seanchatmangpt/ggen"
-download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
-path = "marketplace/packages/your-package-name"
-license = "MIT"
-dependencies = []
-features = ["Feature 1", "Feature 2"]
-tags = ["tag1", "tag2"]
-keywords = ["keyword1", "keyword2"]
-```
-
-3. **Submit Pull Request** to main repository
-4. **CI/CD Deployment**: Once merged, package is automatically deployed to GitHub Pages
-
-### Using CLI to Publish
+## 📊 Popular Packages
 
 ```bash
-# From your package directory
-cd marketplace/packages/your-package-name
+# Production REST API with authentication
+ggen market install "advanced-rust-api-8020"
 
-# Publish to marketplace (creates PR automatically)
-ggen market publish --tag stable
+# Comprehensive Rust showcase
+ggen market install "comprehensive-rust-showcase"
 
-# Publish with dry-run to test
-ggen market publish --dry-run
+# AI-powered microservice
+ggen market install "ai-microservice"
 ```
 
 ## 🏗️ Package Structure
 
-```
-marketplace/packages/your-package-name/
-├── make.toml              # Lifecycle configuration
-├── README.md              # Package documentation
-├── src/                   # Source code
-├── templates/             # Code generation templates (optional)
-├── data/                  # SPARQL/RDF specifications (optional)
-└── tests/                 # Test files
-```
+Every package includes:
+- **README.md**: Documentation and examples
+- **make.toml**: Lifecycle management
+- **src/**: Source code
+- **templates/**: Code generation templates (optional)
+- **data/**: SPARQL/RDF specs (optional)
+- **tests/**: Test suite
 
-## 🎯 80/20 Production Deployment
+## 🔐 Security & Trust
 
-### Critical (Production)
-
-- ✅ **GitHub Pages Hosting**: Registry served via HTTPS
-- ✅ **Git-based Distribution**: Packages via GitHub releases/archives
-- ✅ **Automatic CI/CD**: Deploy on merge to master
-- ✅ **Versioning**: Semantic versioning support
-- ✅ **Search & Discovery**: Full-text search in registry
-
-### Important (Nice-to-have)
-
-- 🚧 **Package Verification**: GPG signatures (future)
-- 🚧 **Download Statistics**: Track package downloads
-- 🚧 **Dependency Resolution**: Automatic dep installation
-- 🚧 **Package Ratings**: Community ratings/reviews
-
-### Future
-
-- ⏳ **Private Registries**: Organization-specific registries
-- ⏳ **Package Mirrors**: CDN distribution
-- ⏳ **Build Artifacts**: Pre-compiled binaries
-
-## 📚 GitHub Pages Setup
-
-### Enable GitHub Pages
-
-1. Go to repository **Settings** → **Pages**
-2. Source: **Deploy from a branch**
-3. Branch: **master** (or **main**)
-4. Folder: **/ (root)**
-5. Click **Save**
-
-### Access Registry
-
-After deployment (2-3 minutes):
-- Registry: `https://seanchatmangpt.github.io/ggen/marketplace/registry/packages.toml`
-- Packages: `https://seanchatmangpt.github.io/ggen/marketplace/packages/`
-
-### CI/CD Workflow
-
-The marketplace automatically deploys when:
-1. PR is merged to master
-2. Registry file is updated
-3. New packages are added
-
-```yaml
-# .github/workflows/marketplace.yml
-name: Deploy Marketplace
-on:
-  push:
-    branches: [master]
-    paths:
-      - 'marketplace/**'
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./marketplace
-```
-
-## 🔐 Security
-
-### Package Verification
-
-1. All packages reviewed before merge
-2. Source code visible in GitHub repo
-3. SHA256 checksums for verification
-4. License compliance checked
-
-### Safe Installation
-
-```bash
-# Dry-run to preview changes
-ggen market add "package-name" --dry-run
-
-# Install from specific version
-ggen market add "package-name@1.0.0"
-
-# Install with verification
-ggen market add "package-name" --verify
-```
+- All packages reviewed before publication
+- Source code visible in GitHub repository
+- SHA256 checksums for verification
+- License compliance checking
+- No telemetry or tracking
 
 ## 🤝 Contributing
 
-See [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelines on:
-- Package quality standards
-- Code review process
-- Testing requirements
-- Documentation standards
+We welcome package contributions! See:
+- **[Publishing Guide](PUBLISHING_GUIDE.md)** for creating packages
+- **[CONTRIBUTING.md](../CONTRIBUTING.md)** for code standards
+- **[CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md)** for community guidelines
 
 ## 📞 Support
 
@@ -187,6 +106,12 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelines on:
 - **Discussions**: https://github.com/seanchatmangpt/ggen/discussions
 - **Documentation**: https://seanchatmangpt.github.io/ggen/
 
+## 🎓 Learning Resources
+
+1. **Start**: [User Guide](USER_GUIDE.md) - Learn to use the marketplace
+2. **Create**: [Publishing Guide](PUBLISHING_GUIDE.md) - Publish your first package
+3. **Master**: [API Reference](API.md) - Deep dive into package format
+
 ---
 
-**Production Readiness**: 80% (Critical features complete, ready for public use)
+**Ready to get started?** Run `ggen market search` to explore available packages!
