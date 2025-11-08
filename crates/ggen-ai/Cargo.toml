@@ -12,8 +12,8 @@ categories = ["development-tools", "command-line-utilities"]
 
 [dependencies]
 # Core ggen dependencies
-ggen-core = { path = "../ggen-core", version = "2.4.0" }
-ggen-utils = { path = "../ggen-utils", version = "2.4.0" }
+ggen-core = { path = "../ggen-core", version = "2.5.0" }
+ggen-utils = { path = "../ggen-utils", version = "2.5.0" }
 
 # HTTP client and async runtime
 tokio = { workspace = true }
