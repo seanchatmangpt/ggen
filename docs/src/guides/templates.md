@@ -1,217 +1,642 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
+# Templates: Ontology-Driven Code Generation
 
-- [Templates](#templates)
-  - [Marketplace Gpacks](#marketplace-gpacks)
-    - [Gpack Structure](#gpack-structure)
-    - [Gpack Manifest (`ggen.toml`)](#gpack-manifest-ggentoml)
-    - [Using Gpack Templates](#using-gpack-templates)
-  - [Local Templates](#local-templates)
-    - [Location](#location)
-    - [Structure](#structure)
-    - [Common Keys](#common-keys)
-    - [Using Local Templates](#using-local-templates)
-  - [Template Discovery Order](#template-discovery-order)
-  - [Template Reference Syntax](#template-reference-syntax)
-    - [Gpack Templates](#gpack-templates)
-    - [Local Templates](#local-templates-1)
-  - [Gpack Dependencies](#gpack-dependencies)
-  - [Versioning and Compatibility](#versioning-and-compatibility)
-    - [Gpack Versioning](#gpack-versioning)
-    - [Compatibility](#compatibility)
-  - [Template Development](#template-development)
-    - [For Gpack Authors](#for-gpack-authors)
-    - [For Local Template Authors](#for-local-template-authors)
+Templates are the bridge between your RDF ontology and generated code. They use **SPARQL queries** to extract semantic knowledge and **Tera templates** to render it.
 
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
-# Templates
-
-ggen supports two types of templates: **marketplace gpacks** and **local templates**. Marketplace gpacks are recommended for most use cases, while local templates provide full customization control.
-
-## Marketplace Gpacks
-
-Marketplace gpacks are curated, versioned template collections published to the ggen registry.
-
-### Gpack Structure
+## The Template Workflow
 
 ```
-<gpack-id>/
-├── ggen.toml          # Gpack manifest
-├── templates/          # Template files
-│   └── cli/
-│       └── subcommand/
-│           ├── rust.tmpl
-│           ├── graphs/         # Local RDF data
-│           │   ├── cli.ttl
-│           │   └── shapes/
-│           │       └── cli.shacl.ttl
-│           └── queries/        # Local SPARQL queries
-│               └── commands.rq
-├── macros/            # Reusable template fragments
-│   └── common.tera
-└── tests/             # Golden tests
-    └── test_hello.rs
+RDF Ontology (domain.ttl)
+         ↓
+SPARQL Queries (extract classes, properties)
+         ↓
+Template Variables (structured data)
+         ↓
+Tera Rendering (generate code)
+         ↓
+Output Files (models.rs, api.ts, etc.)
 ```
 
-### Gpack Manifest (`ggen.toml`)
+**Key insight:** Templates don't just substitute variables—they **query your knowledge graph**.
 
-```toml
-[gpack]
-id = "io.ggen.rust.cli-subcommand"
-name = "Rust CLI subcommand"
-version = "0.2.1"
-description = "Generate clap subcommands"
-license = "MIT"
-ggen_compat = ">=0.2 <0.4"
+## Template Anatomy
 
-[dependencies]
-"io.ggen.macros.std" = "^0.2"
+A ggen template has two parts:
 
-[templates]
-entrypoints = ["cli/subcommand/rust.tmpl"]
-includes   = ["macros/**/*.tera"]
+1. **Frontmatter (YAML):** Configuration, RDF/SPARQL, output path
+2. **Body (Tera template):** Code to render
 
-[rdf]
-base = "http://example.org/"
-prefixes.ex = "http://example.org/"
-files  = ["templates/**/graphs/*.ttl"]
-inline = ["@prefix ex: <http://example.org/> . ex:Foo a ex:Type ."]
+### Example: Rust Struct Generator
+
+**File:** `templates/rust/model.tmpl`
+
+```yaml
+---
+# Output path (Tera variables supported)
+to: src/models/{{ class_name | snake_case }}.rs
+
+# Default variables
+vars:
+  namespace: "http://example.org/"
+  generate_serde: true
+
+# RDF ontology sources
+rdf:
+  - "domain.ttl"                    # Local file
+  - "http://schema.org/Person"      # Remote ontology
+  inline: |                          # Inline RDF
+    @prefix ex: <http://example.org/> .
+    ex:TestClass a rdfs:Class .
+
+# SHACL validation (optional)
+shape:
+  - "shapes/model-constraints.shacl.ttl"
+
+# SPARQL: Extract single values (scalar variables)
+sparql:
+  vars:
+    - name: class_name
+      query: |
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        SELECT ?class_name WHERE {
+          ?class a rdfs:Class ;
+                 rdfs:label ?class_name .
+        } LIMIT 1
+
+    - name: class_comment
+      query: |
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        SELECT ?class_comment WHERE {
+          ?class a rdfs:Class ;
+                 rdfs:comment ?class_comment .
+        } LIMIT 1
+
+# SPARQL: Extract row sets (matrix variables for fan-out)
+sparql:
+  matrix:
+    - name: properties
+      query: |
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        SELECT ?prop_name ?prop_type ?is_required WHERE {
+          ?prop rdfs:domain ?class ;
+                rdfs:label ?prop_name ;
+                rdfs:range ?range .
+          BIND(STRAFTER(STR(?range), "#") AS ?prop_type)
+          OPTIONAL { ?prop ex:required ?is_required }
+        }
+        ORDER BY ?prop_name
+
+# Deterministic output
+determinism:
+  seed: "{{ class_name }}-v1"
+  sort: "prop_name"
+---
+use serde::{Deserialize, Serialize};
+use uuid::Uuid;
+
+{% if class_comment %}
+/// {{ class_comment }}
+{% endif %}
+#[derive(Debug, Clone{% if generate_serde %}, Serialize, Deserialize{% endif %})]
+pub struct {{ class_name | pascal_case }} {
+    pub id: Uuid,
+{% for prop in properties %}
+    {% if prop.is_required == "true" %}
+    pub {{ prop.prop_name | snake_case }}: {{ prop.prop_type | rust_type }},
+    {% else %}
+    pub {{ prop.prop_name | snake_case }}: Option<{{ prop.prop_type | rust_type }}>,
+    {% endif %}
+{% endfor %}
+}
+
+impl {{ class_name | pascal_case }} {
+    pub fn new({% for prop in properties %}{{ prop.prop_name | snake_case }}: {{ prop.prop_type | rust_type }}{% if not loop.last %}, {% endif %}{% endfor %}) -> Self {
+        Self {
+            id: Uuid::new_v4(),
+{% for prop in properties %}
+            {{ prop.prop_name | snake_case }},
+{% endfor %}
+        }
+    }
+}
 ```
 
-### Using Gpack Templates
+### How It Works
 
-```bash
-# Install gpack
-ggen add io.ggen.rust.cli-subcommand
+**1. Load RDF ontology:**
+```turtle
+@prefix ex: <http://example.org/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
-# Use template
-ggen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello
+ex:User a rdfs:Class ;
+    rdfs:label "User" ;
+    rdfs:comment "Application user" .
+
+ex:userName a rdf:Property ;
+    rdfs:domain ex:User ;
+    rdfs:range xsd:string ;
+    ex:required "true" .
 ```
 
-## Local Templates
+**2. SPARQL extracts data:**
+- `class_name` = "User"
+- `class_comment` = "Application user"
+- `properties` = `[{ prop_name: "name", prop_type: "string", is_required: "true" }]`
 
-Local templates are stored in your project's `templates/` directory.
-
-### Location
-```
-templates/<scope>/<action>/*.tmpl
-```
-
-### Structure
-- Frontmatter (YAML) header
-- Body (rendered)
-
-### Common Keys
-- `to:` output path
-- `vars:` defaults
-- `rdf:` includes/inline graphs
-- `shape:` SHACL shape files
-- `sparql.vars:` single-value bindings
-- `sparql.matrix:` fan-out rows
-- `determinism:` seed, sort key
-
-### Using Local Templates
-
-```bash
-# Generate from local template
-ggen gen cli subcommand --vars cmd=hello summary="Print greeting"
+**3. Tera renders template:**
+```rust
+/// Application user
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct User {
+    pub id: Uuid,
+    pub name: String,
+}
 ```
 
-## Template Discovery Order
+**Result:** Ontology changes automatically flow to code!
+
+## Frontmatter Reference
+
+### `to:` Output Path
+
+```yaml
+# Static path
+to: src/main.rs
+
+# Dynamic path (uses template variables)
+to: src/models/{{ class_name | snake_case }}.rs
+
+# Multiple files (SPARQL matrix fan-out)
+to: src/{{ endpoint_name }}.rs  # One file per row in matrix
+```
+
+### `vars:` Default Variables
+
+```yaml
+vars:
+  namespace: "http://example.org/"
+  author: "Generated by ggen"
+  version: "1.0.0"
+
+  # Can be overridden via CLI
+  # ggen gen rust model --vars namespace="http://custom.org/"
+```
+
+### `rdf:` Ontology Sources
+
+```yaml
+rdf:
+  # Local files (relative to template or project root)
+  - "domain.ttl"
+  - "graphs/ontology.ttl"
+
+  # Remote ontologies (HTTP/HTTPS)
+  - "http://schema.org/Person"
+  - "https://www.w3.org/ns/org#"
+
+  # Inline RDF (for testing or small snippets)
+  inline: |
+    @prefix ex: <http://example.org/> .
+    ex:User a rdfs:Class .
+```
+
+**Load order:** All sources merged into single RDF graph before SPARQL queries execute.
+
+### `shape:` SHACL Validation
+
+```yaml
+shape:
+  - "shapes/user-constraints.shacl.ttl"
+  - "shapes/api-spec.shacl.ttl"
+```
+
+**Purpose:** Validate ontology before generation (catches missing required properties, invalid types, etc.).
+
+**Example SHACL shape:**
+```turtle
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix ex: <http://example.org/> .
+
+ex:UserShape a sh:NodeShape ;
+    sh:targetClass ex:User ;
+    sh:property [
+        sh:path ex:userName ;
+        sh:minCount 1 ;        # Required property
+        sh:datatype xsd:string ;
+    ] .
+```
+
+### `sparql.vars:` Scalar Variables
+
+Extract **single values** from the ontology:
+
+```yaml
+sparql:
+  vars:
+    - name: class_name
+      query: |
+        SELECT ?class_name WHERE {
+          ?class a rdfs:Class ;
+                 rdfs:label ?class_name .
+        } LIMIT 1
+
+    - name: total_properties
+      query: |
+        SELECT (COUNT(?prop) AS ?total_properties) WHERE {
+          ?prop rdfs:domain ?class .
+        }
+```
+
+**Access in template:**
+```tera
+pub struct {{ class_name }} {
+    // {{ total_properties }} properties total
+}
+```
+
+### `sparql.matrix:` Row Sets (Fan-Out)
+
+Extract **multiple rows** to generate repeated structures:
+
+```yaml
+sparql:
+  matrix:
+    - name: properties
+      query: |
+        SELECT ?name ?type ?required WHERE {
+          ?prop rdfs:domain ?class ;
+                rdfs:label ?name ;
+                rdfs:range ?type .
+          OPTIONAL { ?prop ex:required ?required }
+        }
+```
+
+**Access in template:**
+```tera
+{% for prop in properties %}
+pub {{ prop.name }}: {{ prop.type }},
+{% endfor %}
+```
+
+**Fan-out behavior:**
+- If `to: src/{{ class_name }}.rs`, generates **one file per row**
+- If `to: src/models.rs`, all rows available in **one template**
+
+### `determinism:` Reproducible Output
+
+```yaml
+determinism:
+  seed: "user-model-v1"      # Seed for random operations
+  sort: "property_name"      # Sort matrix rows before rendering
+```
+
+**Why?** Ensures identical output for identical input (critical for version control).
+
+## Built-in Filters
+
+Tera filters transform variables during rendering:
+
+### String Filters
+```tera
+{{ class_name | snake_case }}       # User → user
+{{ class_name | pascal_case }}      # user → User
+{{ class_name | camel_case }}       # user_name → userName
+{{ class_name | kebab_case }}       # UserName → user-name
+{{ class_name | upper }}            # user → USER
+{{ class_name | lower }}            # USER → user
+{{ class_name | title }}            # user name → User Name
+```
+
+### Type Mapping Filters
+```tera
+{{ xsd_type | rust_type }}          # xsd:string → String
+{{ xsd_type | typescript_type }}    # xsd:integer → number
+{{ xsd_type | python_type }}        # xsd:decimal → float
+{{ xsd_type | graphql_type }}       # xsd:string → String!
+```
+
+**Custom filters:** Define in `~/.ggen/filters.toml` or project `.ggen/filters.toml`.
+
+## Template Discovery
 
 ggen searches for templates in this order:
 
-1. **Installed gpacks** (from `.ggen/gpacks/`)
-2. **Local templates** (from `templates/`)
+1. **Marketplace packages:** `.ggen/packages/<package-id>/templates/`
+2. **Project templates:** `templates/<scope>/<action>/`
+3. **Global templates:** `~/.ggen/templates/`
 
-If both exist, gpack templates take precedence.
+### Marketplace Templates
 
-## Template Reference Syntax
+```bash
+# Search marketplace
+ggen marketplace search "rust models"
 
-### Gpack Templates
+# Install package
+ggen marketplace install io.ggen.templates.rust-models
+
+# Use template
+ggen template generate-rdf \
+  --ontology domain.ttl \
+  --template io.ggen.templates.rust-models:model.tmpl
 ```
-<gpack-id>:<template-path>
-```
-
-Examples:
-- `io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl`
-- `io.ggen.python.api:api/endpoint/fastapi.tmpl`
 
 ### Local Templates
-```
-<scope> <action>
-```
-
-Examples:
-- `cli subcommand`
-- `api endpoint`
-
-## Gpack Dependencies
-
-Gpacks can depend on other gpacks for shared functionality:
-
-```toml
-[dependencies]
-"io.ggen.macros.std" = "^0.2"
-"io.ggen.common.rdf" = "~0.1.0"
-```
-
-Dependencies are automatically resolved when installing gpacks.
-
-## Versioning and Compatibility
-
-### Gpack Versioning
-- Follows semantic versioning (semver)
-- Specified in `ggen.toml` manifest
-- Locked in `ggen.lock` file
-
-### Compatibility
-- `ggen_compat` field specifies required ggen version
-- Dependency resolution follows semver rules
-- Updates respect compatibility constraints
-
-## Template Development
-
-### For Gpack Authors
 
 ```bash
-# Initialize new gpack
-ggen pack init
-
-# Add templates
-mkdir -p templates/cli/subcommand
-# Create template files...
-
-# Test gpack
-ggen pack test
-
-# Lint for publishing
-ggen pack lint
-
-# Publish to registry
-ggen pack publish
-```
-
-### For Local Template Authors
-
-```bash
-# Create template structure
-mkdir -p templates/cli/subcommand
-
-# Create template file
-cat > templates/cli/subcommand/rust.tmpl << 'EOF'
+# Create local template
+mkdir -p templates/rust/model/
+cat > templates/rust/model/struct.tmpl << 'EOF'
 ---
-to: src/cmds/{{ name }}.rs
-vars:
-  name: hello
+to: src/{{ class_name }}.rs
+rdf: ["domain.ttl"]
+sparql:
+  vars:
+    - name: class_name
+      query: "SELECT ?class_name WHERE { ?c rdfs:label ?class_name } LIMIT 1"
 ---
-pub fn {{ name }}() {
-    println!("Hello from {{ name }}!");
-}
+pub struct {{ class_name }} {}
 EOF
 
-# Test template
-ggen gen cli subcommand --vars name=world
+# Use local template
+ggen gen rust model --ontology domain.ttl
 ```
+
+## Common Template Patterns
+
+### Pattern 1: One Model Per Class
+
+Generate separate files for each class in ontology:
+
+```yaml
+---
+to: src/models/{{ class_name | snake_case }}.rs
+sparql:
+  matrix:
+    - name: classes
+      query: |
+        SELECT ?class_name WHERE {
+          ?class a rdfs:Class ;
+                 rdfs:label ?class_name .
+        }
+---
+# Template renders once per class_name
+```
+
+### Pattern 2: All Models in One File
+
+Generate single file with all classes:
+
+```yaml
+---
+to: src/models.rs
+sparql:
+  matrix:
+    - name: classes
+      query: |
+        SELECT ?class_name ?properties WHERE {
+          ?class a rdfs:Class ;
+                 rdfs:label ?class_name .
+          {
+            SELECT ?class (GROUP_CONCAT(?prop; separator=",") AS ?properties) WHERE {
+              ?prop rdfs:domain ?class .
+            }
+            GROUP BY ?class
+          }
+        }
+---
+{% for class in classes %}
+pub struct {{ class.class_name }} { /* ... */ }
+{% endfor %}
+```
+
+### Pattern 3: API Endpoint from Ontology
+
+```yaml
+---
+to: src/api/{{ endpoint_name | snake_case }}.rs
+rdf: ["api-spec.ttl"]
+sparql:
+  vars:
+    - name: endpoint_name
+      query: |
+        PREFIX hydra: <http://www.w3.org/ns/hydra/core#>
+        SELECT ?endpoint_name WHERE {
+          ?endpoint a hydra:Operation ;
+                    rdfs:label ?endpoint_name .
+        } LIMIT 1
+
+  matrix:
+    - name: operations
+      query: |
+        PREFIX hydra: <http://www.w3.org/ns/hydra/core#>
+        SELECT ?method ?path WHERE {
+          ?op a hydra:Operation ;
+              hydra:method ?method ;
+              hydra:template ?path .
+        }
+---
+use axum::{Router, routing::{{ operations | map(attribute="method") | lower | join(", ") }}};
+
+pub fn router() -> Router {
+    Router::new()
+{% for op in operations %}
+        .route("{{ op.path }}", {{ op.method | lower }}(handle_{{ op.method | lower }}))
+{% endfor %}
+}
+```
+
+### Pattern 4: GraphQL Schema from Ontology
+
+```yaml
+---
+to: schema.graphql
+rdf: ["domain.ttl"]
+sparql:
+  matrix:
+    - name: types
+      query: |
+        SELECT ?type_name ?description WHERE {
+          ?type a rdfs:Class ;
+                rdfs:label ?type_name ;
+                rdfs:comment ?description .
+        }
+
+    - name: fields
+      query: |
+        SELECT ?type_name ?field_name ?field_type WHERE {
+          ?field rdfs:domain ?type ;
+                 rdfs:label ?field_name ;
+                 rdfs:range ?range .
+          ?type rdfs:label ?type_name .
+          BIND(STRAFTER(STR(?range), "#") AS ?field_type)
+        }
+---
+{% for type in types %}
+"""
+{{ type.description }}
+"""
+type {{ type.type_name }} {
+{% for field in fields | filter(attribute="type_name", value=type.type_name) %}
+  {{ field.field_name }}: {{ field.field_type | graphql_type }}
+{% endfor %}
+}
+{% endfor %}
+```
+
+## Testing Templates
+
+### Dry Run
+
+Preview output without writing files:
+
+```bash
+ggen gen rust model --ontology domain.ttl --dry-run
+```
+
+### Debug SPARQL
+
+Inspect SPARQL query results:
+
+```bash
+ggen graph query domain.ttl --sparql "
+  SELECT ?class ?prop WHERE {
+    ?class a rdfs:Class .
+    ?prop rdfs:domain ?class .
+  }
+"
+```
+
+### Validate Template Syntax
+
+```bash
+ggen template validate templates/rust/model/struct.tmpl
+```
+
+## Advanced: Custom SPARQL Functions
+
+Define reusable SPARQL functions in `.ggen/sparql-functions.rq`:
+
+```sparql
+PREFIX ex: <http://example.org/>
+PREFIX fn: <http://ggen.io/functions/>
+
+# Custom function: Get all ancestors of a class
+SELECT ?ancestor WHERE {
+  ?class rdfs:subClassOf+ ?ancestor .
+}
+```
+
+Use in templates:
+
+```yaml
+sparql:
+  vars:
+    - name: ancestors
+      query: |
+        PREFIX fn: <http://ggen.io/functions/>
+        SELECT ?ancestor WHERE {
+          ?class fn:ancestors ?ancestor .
+        }
+```
+
+## Marketplace Template Development
+
+### Create Template Package
+
+```bash
+# Initialize package
+ggen marketplace init my-rust-templates
+
+# Package structure
+my-rust-templates/
+├── ggen.toml              # Package manifest
+├── templates/
+│   ├── model.tmpl
+│   ├── api.tmpl
+│   └── graphql.tmpl
+├── examples/
+│   └── domain.ttl
+└── README.md
+```
+
+### Package Manifest (`ggen.toml`)
+
+```toml
+[package]
+id = "io.example.rust-templates"
+name = "Rust Code Templates"
+version = "1.0.0"
+description = "Generate Rust models, APIs, and GraphQL from RDF"
+author = "Your Name <you@example.com>"
+license = "MIT"
+keywords = ["rust", "rdf", "code-generation"]
+
+[templates]
+model = "templates/model.tmpl"
+api = "templates/api.tmpl"
+graphql = "templates/graphql.tmpl"
+
+[dependencies]
+# Other packages this depends on
+"io.ggen.filters.rust" = "^1.0"
+```
+
+### Publish to Marketplace
+
+```bash
+# Validate package
+ggen marketplace validate
+
+# Test templates
+ggen marketplace test
+
+# Publish
+ggen marketplace publish
+```
+
+## Troubleshooting
+
+### "SPARQL query returned no results"
+
+**Cause:** Query doesn't match ontology structure.
+
+**Debug:**
+```bash
+# Inspect ontology
+ggen graph export domain.ttl --format turtle | less
+
+# Test query manually
+ggen graph query domain.ttl --sparql "SELECT ?s ?p ?o WHERE { ?s ?p ?o } LIMIT 10"
+```
+
+### "Template variable not found"
+
+**Cause:** SPARQL `vars` query returned no binding.
+
+**Fix:** Add `OPTIONAL` or provide default:
+```yaml
+sparql:
+  vars:
+    - name: class_comment
+      query: |
+        SELECT ?class_comment WHERE {
+          OPTIONAL { ?class rdfs:comment ?class_comment }
+        }
+      default: "No description"
+```
+
+### "Invalid RDF syntax"
+
+**Validate ontology:**
+```bash
+ggen graph validate domain.ttl --verbose
+```
+
+**Common errors:**
+- Missing prefix declaration: `@prefix ex: <http://example.org/> .`
+- Unclosed strings: `rdfs:label "User"` (missing closing quote)
+- Invalid URIs: Use angle brackets `<http://...>`
+
+---
+
+**Next:** Explore [Marketplace](marketplace.md) for pre-built templates, or dive into [SPARQL Guide](../advanced/sparql.md) for advanced queries.

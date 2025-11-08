@@ -1,159 +1,361 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
+# Quick Start: Your First Generation in 5 Minutes
 
-- [Quickstart](#quickstart)
-  - [Marketplace Workflow (Recommended)](#marketplace-workflow-recommended)
-    - [1. Search for Templates](#1-search-for-templates)
-    - [2. Install a Gpack](#2-install-a-gpack)
-    - [3. Generate Code](#3-generate-code)
-    - [4. Verify Installation](#4-verify-installation)
-  - [Local Templates (Advanced)](#local-templates-advanced)
-    - [1. Initialize Project Structure](#1-initialize-project-structure)
-    - [2. Create Template](#2-create-template)
-    - [3. Generate](#3-generate)
-  - [Marketplace vs Local Templates](#marketplace-vs-local-templates)
-  - [Troubleshooting](#troubleshooting)
-    - [First-time Setup Issues](#first-time-setup-issues)
-    - [Template Not Found](#template-not-found)
-    - [Generation Errors](#generation-errors)
+**Goal:** Generate a Rust REST API from an RDF ontology in 5 minutes.
 
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+**What you'll learn:** The core ggen workflow: ontology → SPARQL queries → code generation across any language.
 
-# Quickstart
+## The ggen Philosophy
 
-## Marketplace Workflow (Recommended)
+Traditional generators copy templates. ggen **projects semantic knowledge** into code:
 
-The fastest way to get started with ggen is using marketplace gpacks - pre-built, tested template collections.
+```
+RDF Ontology (single source of truth)
+         ↓
+   SPARQL Queries (extract domain logic)
+         ↓
+  Code Generation (Rust, TypeScript, Python...)
+```
 
-### 1. Search for Templates
+Change the ontology → code automatically updates. **One ontology, unlimited projections.**
+
+## Step 1: Create Your First Ontology (1 minute)
+
+Let's model a simple REST API: Users, Products, Orders.
+
+**Option A: AI-Powered (fastest)**
+```bash
+ggen ai generate-ontology \
+  --prompt "E-commerce API: User (name, email), Product (title, price), Order (user, products, total)" \
+  --output ecommerce.ttl
+```
+
+**Option B: Manual RDF (learn the fundamentals)**
+
+Create `ecommerce.ttl`:
+```turtle
+@prefix ex: <http://example.org/ecommerce/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Define domain classes
+ex:User a rdfs:Class ;
+    rdfs:label "User" ;
+    rdfs:comment "Customer account" .
+
+ex:Product a rdfs:Class ;
+    rdfs:label "Product" ;
+    rdfs:comment "Product listing" .
+
+ex:Order a rdfs:Class ;
+    rdfs:label "Order" ;
+    rdfs:comment "Customer order" .
+
+# Define properties
+ex:userName a rdf:Property ;
+    rdfs:domain ex:User ;
+    rdfs:range xsd:string ;
+    rdfs:label "name" .
+
+ex:userEmail a rdf:Property ;
+    rdfs:domain ex:User ;
+    rdfs:range xsd:string ;
+    rdfs:label "email" .
+
+ex:productTitle a rdf:Property ;
+    rdfs:domain ex:Product ;
+    rdfs:range xsd:string ;
+    rdfs:label "title" .
+
+ex:productPrice a rdf:Property ;
+    rdfs:domain ex:Product ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "price" .
+
+ex:orderUser a rdf:Property ;
+    rdfs:domain ex:Order ;
+    rdfs:range ex:User ;
+    rdfs:label "user" .
+
+ex:orderTotal a rdf:Property ;
+    rdfs:domain ex:Order ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "total" .
+```
+
+**Key insight:** This RDF ontology is your **single source of truth**. All code generates from here.
+
+## Step 2: Generate Rust Models (1 minute)
+
+Now project this ontology into Rust structs:
 
 ```bash
-# Search for CLI subcommand templates
-ggen search rust cli
-
-# Output:
-# ID                                    LATEST     KIND       TAGS
-# io.ggen.rust.cli-subcommand           0.2.1      template   rust, cli, clap
-# io.ggen.rust.api-endpoint             0.1.5      template   rust, api, axum
+ggen template generate-rdf \
+  --ontology ecommerce.ttl \
+  --template rust-models \
+  --output src/
 ```
 
-### 2. Install a Gpack
+**Generated `src/models.rs`:**
+```rust
+use serde::{Deserialize, Serialize};
+use uuid::Uuid;
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct User {
+    pub id: Uuid,
+    pub name: String,
+    pub email: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Product {
+    pub id: Uuid,
+    pub title: String,
+    pub price: f64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Order {
+    pub id: Uuid,
+    pub user_id: Uuid,
+    pub total: f64,
+}
+```
+
+**What happened?**
+1. ggen loaded `ecommerce.ttl` into an RDF graph
+2. SPARQL queries extracted class definitions and properties
+3. Templates rendered Rust structs with correct types (`xsd:string` → `String`, `xsd:decimal` → `f64`)
+
+## Step 3: Generate REST API Endpoints (1 minute)
+
+Same ontology, different projection—now generate API handlers:
 
 ```bash
-# Install the latest version
-ggen add io.ggen.rust.cli-subcommand
-
-# Or install specific version
-ggen add io.ggen.rust.cli-subcommand@0.2.0
+ggen template generate-rdf \
+  --ontology ecommerce.ttl \
+  --template rust-axum-api \
+  --output src/
 ```
 
-### 3. Generate Code
+**Generated `src/api/users.rs`:**
+```rust
+use axum::{Json, extract::Path};
+use uuid::Uuid;
+use crate::models::User;
+
+pub async fn get_user(Path(id): Path<Uuid>) -> Json<User> {
+    // TODO: Fetch from database
+    Json(User {
+        id,
+        name: "Example".to_string(),
+        email: "user@example.com".to_string(),
+    })
+}
+
+pub async fn list_users() -> Json<Vec<User>> {
+    // TODO: Fetch from database
+    Json(vec![])
+}
+
+pub async fn create_user(Json(user): Json<User>) -> Json<User> {
+    // TODO: Save to database
+    Json(user)
+}
+```
+
+**Same ontology → different template → REST API code!**
+
+## Step 4: Generate TypeScript Frontend (1 minute)
+
+Let's prove the point: **one ontology, unlimited languages**.
 
 ```bash
-# Use the installed gpack template
-ggen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello description="Print a greeting"
+ggen template generate-rdf \
+  --ontology ecommerce.ttl \
+  --template typescript-models \
+  --output frontend/src/types/
 ```
 
-### 4. Verify Installation
+**Generated `frontend/src/types/models.ts`:**
+```typescript
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
+export interface Product {
+  id: string;
+  title: string;
+  price: number;
+}
+
+export interface Order {
+  id: string;
+  userId: string;
+  total: number;
+}
+```
+
+**Key insight:** Rust, TypeScript, Python—all generated from the **same RDF ontology**. Update `ecommerce.ttl` once, regenerate all languages.
+
+## Step 5: Evolve Your Domain (1 minute)
+
+Business requirement: "Add product categories."
+
+**Edit `ecommerce.ttl`** (add 5 lines):
+```turtle
+ex:Category a rdfs:Class ;
+    rdfs:label "Category" ;
+    rdfs:comment "Product category" .
+
+ex:productCategory a rdf:Property ;
+    rdfs:domain ex:Product ;
+    rdfs:range ex:Category ;
+    rdfs:label "category" .
+```
+
+**Regenerate everything:**
+```bash
+# Rust models
+ggen template generate-rdf --ontology ecommerce.ttl --template rust-models --output src/
+
+# Rust API
+ggen template generate-rdf --ontology ecommerce.ttl --template rust-axum-api --output src/
+
+# TypeScript types
+ggen template generate-rdf --ontology ecommerce.ttl --template typescript-models --output frontend/src/types/
+```
+
+**Result:** All code now has `category` fields. Zero manual edits.
+
+## What Just Happened?
+
+You experienced the **ontology-driven workflow**:
+
+1. **Single source of truth:** RDF ontology defines your domain
+2. **SPARQL extraction:** Queries pull structured data from the graph
+3. **Multi-language projection:** Same ontology → Rust, TypeScript, Python, GraphQL...
+4. **Automatic sync:** Change ontology → regenerate → all code updates
+
+This isn't template expansion—it's **semantic code generation**.
+
+## Next Steps
+
+### Learn the Template System
+Understand how templates use SPARQL to extract ontology data: [Templates Guide](templates.md)
+
+### Browse the Marketplace
+Discover pre-built ontologies and templates: [Marketplace Guide](marketplace.md)
+
+### Advanced Workflows
+- **SHACL validation:** Ensure ontology consistency before generation
+- **SPARQL customization:** Write custom queries for domain-specific logic
+- **Multi-project sync:** Share one ontology across microservices
+
+### Full Example Projects
 
 ```bash
-# List installed gpacks
-ggen packs
+# Microservices architecture
+ggen project new my-microservices --type rust-microservices
+cd my-microservices && cat README.md
 
-# Show template details
-ggen show io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl
+# GraphQL API from ontology
+ggen template generate-rdf \
+  --ontology ecommerce.ttl \
+  --template rust-graphql-api \
+  --output graphql/
+
+# Python FastAPI + Pydantic models
+ggen template generate-rdf \
+  --ontology ecommerce.ttl \
+  --template python-pydantic \
+  --output models.py
 ```
 
-Result:
+## Common Patterns
 
-```
-src/cmds/hello.rs
-```
-
-## Local Templates (Advanced)
-
-For custom templates or when you need full control over the generation process:
-
-### 1. Initialize Project Structure
-
+### Pattern 1: Domain-First Development
 ```bash
-mkdir -p templates/cli/subcommand
+# 1. Model domain in RDF (NOT code)
+ggen ai generate-ontology --prompt "Healthcare FHIR Patient" --output domain.ttl
+
+# 2. Generate all code layers
+ggen template generate-rdf --ontology domain.ttl --template rust-models
+ggen template generate-rdf --ontology domain.ttl --template rust-api
+ggen template generate-rdf --ontology domain.ttl --template typescript-sdk
+
+# 3. Evolve domain (add Patient.allergies)
+# 4. Regenerate → code auto-updates
 ```
 
-### 2. Create Template
-
-Create `templates/cli/subcommand/rust.tmpl`:
-
-```yaml
----
-to: src/cmds/{{ slug }}.rs
-vars: { cmd: hello, summary: "Print a greeting", seed: cosmos }
-rdf:
-  - "graphs/cli.ttl"              # Local RDF file
-shape:
-  - "graphs/shapes/cli.shacl.ttl" # Local SHACL shapes
-sparql:
-  vars:
-    - name: slug
-      query: |
-        PREFIX cli: <urn:ggen:cli#>
-        SELECT ?slug WHERE { ?c a cli:Command ; cli:slug ?slug } LIMIT 1
-determinism: { seed: "{{ seed }}" }
----
-pub fn {{ slug }}(name:&str){ println!("hello {}", name); }
-```
-
-### 3. Generate
-
+### Pattern 2: Marketplace Bootstrap
 ```bash
-ggen gen cli subcommand --vars cmd=hello summary="Print a greeting"
+# Search for existing ontologies
+ggen marketplace search "e-commerce"
+
+# Install and extend
+ggen marketplace install io.ggen.ontologies.ecommerce
+ggen template generate-rdf \
+  --ontology .ggen/ontologies/io.ggen.ontologies.ecommerce/schema.ttl \
+  --template rust-models
 ```
 
-## Marketplace vs Local Templates
+### Pattern 3: Multi-Repo Sync
+```bash
+# Shared ontology repository
+cd ontologies/
+ggen ai generate-ontology --prompt "Shared domain model" --output shared.ttl
 
-| Feature | Marketplace Gpacks | Local Templates |
-|---------|-------------------|-----------------|
-| **Setup Time** | Instant | Requires creation |
-| **Quality** | Community tested | Custom quality |
-| **Updates** | Automatic | Manual |
-| **Dependencies** | Managed | Manual |
-| **Versioning** | Semantic | Ad-hoc |
-| **Best For** | Common patterns | Custom needs |
+# Backend (Rust)
+cd ../backend/
+ggen template generate-rdf --ontology ../ontologies/shared.ttl --template rust-models
+
+# Frontend (TypeScript)
+cd ../frontend/
+ggen template generate-rdf --ontology ../ontologies/shared.ttl --template typescript-models
+
+# Mobile (Kotlin)
+cd ../mobile/
+ggen template generate-rdf --ontology ../ontologies/shared.ttl --template kotlin-models
+```
+
+**Key advantage:** Update `shared.ttl` once → regenerate all repos → guaranteed type safety across stack.
 
 ## Troubleshooting
 
-### First-time Setup Issues
+### "Template not found"
 
 ```bash
-# If ggen command not found after installation
-which ggen
-# Should show path to ggen binary
+# List available templates
+ggen template list
 
-# If marketplace search fails
-ggen search --help
-# Check network connectivity and registry access
+# If template missing, install from marketplace
+ggen marketplace search "rust-models"
+ggen marketplace install io.ggen.templates.rust-models
 ```
 
-### Template Not Found
+### "SPARQL query failed"
 
 ```bash
-# Check if gpack is installed
-ggen packs
+# Validate ontology syntax
+ggen graph validate ecommerce.ttl
 
-# Reinstall if missing
-ggen add io.ggen.rust.cli-subcommand
-
-# Verify template path
-ggen show io.ggen.rust.cli-subcommand
+# Inspect loaded graph
+ggen graph query ecommerce.ttl --sparql "SELECT ?s ?p ?o WHERE { ?s ?p ?o } LIMIT 10"
 ```
 
-### Generation Errors
+### "Invalid RDF syntax"
 
 ```bash
-# Use dry run to preview
-ggen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=hello --dry
+# Use AI to fix
+ggen ai generate-ontology --prompt "Fix this RDF: $(cat broken.ttl)" --output fixed.ttl
 
-# Check variable requirements
-ggen show io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl
+# Or validate manually
+ggen graph validate broken.ttl --verbose
 ```
+
+---
+
+**Congratulations!** You've mastered the ontology-driven workflow. Now explore [Templates](templates.md) to customize SPARQL queries and create your own projections.
