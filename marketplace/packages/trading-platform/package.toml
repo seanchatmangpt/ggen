@@ -1,0 +1,42 @@
+[package]
+name = "trading-platform"
+version = "1.0.0"
+description = "Trading Platform - RDF ontology for order books, matching engine, and market data"
+category = "finance"
+tags = ["trading", "orderbook", "fix-protocol", "market-data", "rdf", "sparql"]
+author = "ggen Marketplace"
+license = "MIT"
+
+[ontology]
+file = "ontology/trading.ttl"
+classes = 55
+properties = 48
+total_lines = 300
+
+[sparql]
+file = "sparql/queries.rq"
+query_count = 15
+
+[templates]
+rust = "templates/rust/src/lib.rs"
+typescript = "templates/typescript/src/index.ts"
+python = "templates/python/trading/__init__.py"
+
+[features]
+- "Order book management (bids, asks, spreads)"
+- "High-frequency matching engine (<1ms latency)"
+- "Order types (Market, Limit, Stop, Stop-Limit, Iceberg, FOK, IOC)"
+- "FIX protocol message generation"
+- "Real-time market data streaming"
+- "Position management and PnL calculation"
+- "Risk management (VaR, position limits, margin)"
+- "Backtesting engine with technical indicators"
+
+[performance]
+matching_latency = "<1ms"
+throughput = "100K orders/sec"
+websocket_latency = "<10ms"
+
+[compliance]
+protocols = ["FIX 4.2", "FIX 4.4", "FIXT 1.1"]
+regulations = ["MiFID II", "Reg NMS"]

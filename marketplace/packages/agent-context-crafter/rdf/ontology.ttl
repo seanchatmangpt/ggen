@@ -1,0 +1,74 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix ctx: <http://ggen.io/ontology/context#> .
+
+# Ontology definition
+ctx:ContextOntology a owl:Ontology ;
+    rdfs:label "Context Crafter Ontology" ;
+    dc:description "RDF ontology for AI agent context and state management" ;
+    dc:creator "ggen-team" ;
+    owl:versionInfo "1.0.0" .
+
+# Core Classes
+ctx:Context a owl:Class ; rdfs:label "Context" ; rdfs:comment "Contextual state information" .
+ctx:ContextGraph a owl:Class ; rdfs:label "Context Graph" ; rdfs:comment "Semantic context graph" .
+ctx:State a owl:Class ; rdfs:label "State" ; rdfs:comment "Agent state representation" .
+ctx:Session a owl:Class ; rdfs:label "Session" ; rdfs:comment "Conversation or interaction session" .
+ctx:Snapshot a owl:Class ; rdfs:label "Snapshot" ; rdfs:comment "Context snapshot in time" .
+ctx:ContextNode a owl:Class ; rdfs:label "Context Node" ; rdfs:comment "Node in context graph" .
+ctx:ContextEdge a owl:Class ; rdfs:label "Context Edge" ; rdfs:comment "Relationship in context graph" .
+ctx:Summary a owl:Class ; rdfs:label "Summary" ; rdfs:comment "Context summarization" .
+ctx:Filter a owl:Class ; rdfs:label "Filter" ; rdfs:comment "Relevance filter" .
+ctx:Version a owl:Class ; rdfs:label "Version" ; rdfs:comment "Context version" .
+
+# Context Types
+ctx:ConversationContext a ctx:Context ; rdfs:label "Conversation" ; ctx:description "Dialogue context" .
+ctx:CodeContext a ctx:Context ; rdfs:label "Code" ; ctx:description "Code editing context" .
+ctx:FileContext a ctx:Context ; rdfs:label "File" ; ctx:description "File system context" .
+ctx:TaskContext a ctx:Context ; rdfs:label "Task" ; ctx:description "Task execution context" .
+ctx:DecisionContext a ctx:Context ; rdfs:label "Decision" ; ctx:description "Decision-making context" .
+ctx:ErrorContext a ctx:Context ; rdfs:label "Error" ; ctx:description "Error handling context" .
+
+# Properties
+ctx:hasContext a owl:ObjectProperty ; rdfs:domain owl:Thing ; rdfs:range ctx:Context .
+ctx:hasState a owl:ObjectProperty ; rdfs:domain ctx:Context ; rdfs:range ctx:State .
+ctx:hasSession a owl:ObjectProperty ; rdfs:domain ctx:Context ; rdfs:range ctx:Session .
+ctx:hasSnapshot a owl:ObjectProperty ; rdfs:domain ctx:Session ; rdfs:range ctx:Snapshot .
+ctx:hasNode a owl:ObjectProperty ; rdfs:domain ctx:ContextGraph ; rdfs:range ctx:ContextNode .
+ctx:hasEdge a owl:ObjectProperty ; rdfs:domain ctx:ContextGraph ; rdfs:range ctx:ContextEdge .
+ctx:connectsFrom a owl:ObjectProperty ; rdfs:domain ctx:ContextEdge ; rdfs:range ctx:ContextNode .
+ctx:connectsTo a owl:ObjectProperty ; rdfs:domain ctx:ContextEdge ; rdfs:range ctx:ContextNode .
+ctx:hasSummary a owl:ObjectProperty ; rdfs:domain ctx:Context ; rdfs:range ctx:Summary .
+ctx:hasVersion a owl:ObjectProperty ; rdfs:domain ctx:Context ; rdfs:range ctx:Version .
+
+# Data Properties
+ctx:contextId a owl:DatatypeProperty ; rdfs:domain ctx:Context ; rdfs:range xsd:string .
+ctx:sessionId a owl:DatatypeProperty ; rdfs:domain ctx:Session ; rdfs:range xsd:string .
+ctx:timestamp a owl:DatatypeProperty ; rdfs:domain ctx:Context ; rdfs:range xsd:dateTime .
+ctx:relevanceScore a owl:DatatypeProperty ; rdfs:domain ctx:Context ; rdfs:range xsd:float .
+ctx:compressed a owl:DatatypeProperty ; rdfs:domain ctx:Context ; rdfs:range xsd:boolean .
+ctx:persistent a owl:DatatypeProperty ; rdfs:domain ctx:Context ; rdfs:range xsd:boolean .
+ctx:shared a owl:DatatypeProperty ; rdfs:domain ctx:Context ; rdfs:range xsd:boolean .
+ctx:encrypted a owl:DatatypeProperty ; rdfs:domain ctx:Context ; rdfs:range xsd:boolean .
+ctx:versionNumber a owl:DatatypeProperty ; rdfs:domain ctx:Version ; rdfs:range xsd:integer .
+ctx:summaryText a owl:DatatypeProperty ; rdfs:domain ctx:Summary ; rdfs:range xsd:string .
+ctx:compressionRatio a owl:DatatypeProperty ; rdfs:domain ctx:Summary ; rdfs:range xsd:float .
+
+# Storage Backends
+ctx:RDFStore a owl:Class ; rdfs:label "RDF Store" ; ctx:description "Triple store backend" .
+ctx:VectorDB a owl:Class ; rdfs:label "Vector Database" ; ctx:description "Vector similarity backend" .
+ctx:SQLite a owl:Class ; rdfs:label "SQLite" ; ctx:description "SQLite backend" .
+ctx:Redis a owl:Class ; rdfs:label "Redis" ; ctx:description "Redis cache backend" .
+
+# Operations
+ctx:Persist a owl:Class ; rdfs:label "Persist" ; ctx:description "Save context to storage" .
+ctx:Load a owl:Class ; rdfs:label "Load" ; ctx:description "Load context from storage" .
+ctx:Compress a owl:Class ; rdfs:label "Compress" ; ctx:description "Compress context data" .
+ctx:Summarize a owl:Class ; rdfs:label "Summarize" ; ctx:description "Create context summary" .
+ctx:Filter a owl:Class ; rdfs:label "Filter" ; ctx:description "Filter by relevance" .
+ctx:Merge a owl:Class ; rdfs:label "Merge" ; ctx:description "Merge contexts" .
+ctx:Share a owl:Class ; rdfs:label "Share" ; ctx:description "Share context with agents" .
+ctx:Rollback a owl:Class ; rdfs:label "Rollback" ; ctx:description "Rollback to previous version" .

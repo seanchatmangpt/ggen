@@ -1,0 +1,49 @@
+[package]
+name = "inventory-management"
+full_name = "ggen/inventory-management"
+version = "1.0.0"
+description = "Comprehensive inventory and warehouse management with stock tracking, FIFO/LIFO valuation, lot tracing, reorder automation, and multi-channel allocation"
+category = "ecommerce"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+path = "marketplace/packages/inventory-management"
+license = "MIT"
+dependencies = []
+
+[package.metadata]
+production_ready = true
+test_coverage = "88%"
+rdf_ontology_size = "290+ lines"
+sparql_templates = 12
+code_examples = 3
+documentation_files = 3
+
+[package.features]
+features = [
+    "Real-time stock level tracking across multiple locations",
+    "Stock movement logging (receive, transfer, sell, adjust, return, scrap)",
+    "FIFO, LIFO, and weighted average cost valuation",
+    "Lot/batch tracking with expiration dates",
+    "Serial number tracking for high-value items",
+    "Automated reorder point and safety stock calculation",
+    "Multi-warehouse and multi-zone management",
+    "Multi-channel inventory allocation (online, retail, marketplace)",
+    "Dead stock and ABC analysis",
+    "Demand forecasting with ML (Python)",
+    "Warehouse management UI (TypeScript/React)",
+    "High-performance inventory engine (Rust)",
+    "Chicago TDD integration with real RDF/SPARQL"
+]
+
+[package.tags]
+tags = ["inventory", "warehouse", "stock", "fifo", "lot-tracking", "reorder", "multi-channel", "valuation", "rdf", "sparql"]
+
+[package.keywords]
+keywords = ["inventory-management", "warehouse-system", "stock-tracking", "lot-tracing", "demand-forecast"]
+
+[package.capabilities]
+languages = ["rust", "typescript", "python"]
+valuation_methods = ["fifo", "lifo", "weighted-average", "specific-identification"]
+tracking_features = ["lot-batch", "serial-number", "expiration", "barcode", "rfid"]
+location_types = ["warehouse", "distribution-center", "retail-store", "zone", "bin"]

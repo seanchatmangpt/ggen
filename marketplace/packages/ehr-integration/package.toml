@@ -1,0 +1,24 @@
+[package]
+name = "ehr-integration"
+version = "1.0.0"
+description = "EHR integration with Epic/Cerner connectors and SMART on FHIR support"
+category = "healthcare"
+tags = ["ehr", "epic", "cerner", "fhir", "smart-on-fhir", "patient-portal"]
+license = "MIT"
+author = "ggen Healthcare Team"
+
+[dependencies]
+healthcare-core = "1.0.0"
+
+[features]
+epic_connector = true
+cerner_connector = true
+smart_on_fhir = true
+patient_portal = true
+hl7_v2 = true
+ccda_support = true
+
+[compliance]
+hipaa = true
+gdpr = true
+fda = false

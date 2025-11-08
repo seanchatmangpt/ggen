@@ -1,0 +1,213 @@
+# Cryptocurrency Exchange SPARQL Templates
+
+PREFIX crypto: <http://ggen.dev/ontology/cryptocurrency-exchange#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# Query 1: Get all wallets for a user
+# PARAM: ?userId - User identifier
+SELECT ?wallet ?walletAddress ?walletType ?balance ?token
+WHERE {
+  ?user crypto:userId ?userId ;
+        crypto:ownsWallet ?wallet .
+  ?wallet crypto:walletAddress ?walletAddress ;
+          crypto:walletType ?walletType ;
+          crypto:balance ?balance .
+  OPTIONAL { ?wallet crypto:holdsToken ?token }
+}
+
+# Query 2: Get all open orders for a user
+# PARAM: ?userId - User identifier
+SELECT ?order ?orderId ?orderType ?side ?price ?quantity ?status ?createdAt
+WHERE {
+  ?user crypto:userId ?userId ;
+        crypto:placesOrder ?order .
+  ?order crypto:orderId ?orderId ;
+         crypto:orderType ?orderType ;
+         crypto:side ?side ;
+         crypto:price ?price ;
+         crypto:quantity ?quantity ;
+         crypto:status ?status ;
+         crypto:createdAt ?createdAt .
+  FILTER (?status IN ("open", "partially_filled"))
+}
+
+# Query 3: Get trade history for a trading pair
+# PARAM: ?pairName - Trading pair identifier
+# PARAM: ?startTime - Start timestamp
+# PARAM: ?endTime - End timestamp
+SELECT ?trade ?tradeId ?executionPrice ?executionQuantity ?feeAmount ?executedAt
+WHERE {
+  ?order crypto:tradesOn ?pair ;
+         crypto:executesAs ?trade .
+  ?pair crypto:pairName ?pairName .
+  ?trade crypto:tradeId ?tradeId ;
+         crypto:executionPrice ?executionPrice ;
+         crypto:executionQuantity ?executionQuantity ;
+         crypto:feeAmount ?feeAmount ;
+         crypto:executedAt ?executedAt .
+  FILTER (?executedAt >= ?startTime && ?executedAt <= ?endTime)
+}
+ORDER BY DESC(?executedAt)
+
+# Query 4: Get pending deposits for a user
+# PARAM: ?userId - User identifier
+SELECT ?deposit ?txHash ?amount ?token ?confirmations ?status
+WHERE {
+  ?user crypto:userId ?userId ;
+        crypto:depositsTo ?deposit .
+  ?deposit crypto:txHash ?txHash ;
+           crypto:amount ?amount ;
+           crypto:holdsToken ?token ;
+           crypto:confirmations ?confirmations ;
+           crypto:status ?status .
+  FILTER (?status = "pending")
+}
+
+# Query 5: Get liquidity pool information
+# PARAM: ?poolId - Pool identifier (optional)
+SELECT ?pool ?poolId ?totalLiquidity ?apy ?token1 ?token2
+WHERE {
+  ?pool crypto:poolId ?poolId ;
+        crypto:totalLiquidity ?totalLiquidity ;
+        crypto:apy ?apy ;
+        crypto:containsToken ?token1 ;
+        crypto:containsToken ?token2 .
+  FILTER (?token1 != ?token2)
+}
+ORDER BY DESC(?apy)
+
+# Query 6: Get user's staking positions
+# PARAM: ?userId - User identifier
+SELECT ?position ?stakingAmount ?rewardRate ?lockPeriod ?contract
+WHERE {
+  ?user crypto:userId ?userId ;
+        crypto:hasPosition ?position .
+  ?position crypto:stakingAmount ?stakingAmount ;
+            crypto:stakesIn ?contract .
+  ?contract crypto:rewardRate ?rewardRate ;
+            crypto:lockPeriod ?lockPeriod .
+}
+
+# Query 7: Check KYC/AML status
+# PARAM: ?userId - User identifier
+SELECT ?user ?verificationLevel ?riskScore ?kycStatus ?amlStatus
+WHERE {
+  ?user crypto:userId ?userId ;
+        crypto:passesKYC ?kyc ;
+        crypto:passesAML ?aml .
+  ?kyc crypto:verificationLevel ?verificationLevel ;
+       crypto:status ?kycStatus .
+  ?aml crypto:riskScore ?riskScore ;
+       crypto:status ?amlStatus .
+}
+
+# Query 8: Get withdrawal whitelist addresses
+# PARAM: ?userId - User identifier
+SELECT ?address ?tokenSymbol ?addedAt ?label
+WHERE {
+  ?user crypto:userId ?userId ;
+        crypto:whitelistsAddress ?whitelist .
+  ?whitelist crypto:address ?address ;
+             crypto:tokenSymbol ?tokenSymbol ;
+             crypto:addedAt ?addedAt .
+  OPTIONAL { ?whitelist crypto:label ?label }
+}
+
+# Query 9: Detect anomalous transactions
+# PARAM: ?userId - User identifier
+# PARAM: ?thresholdAmount - Anomaly threshold
+SELECT ?transaction ?amount ?transactionType ?detectedAt ?severity
+WHERE {
+  ?user crypto:userId ?userId ;
+        crypto:executesTransaction ?transaction .
+  ?transaction crypto:amount ?amount ;
+               crypto:transactionType ?transactionType ;
+               crypto:triggersAnomaly ?anomaly .
+  ?anomaly crypto:detectedAt ?detectedAt ;
+           crypto:severity ?severity .
+  FILTER (?amount > ?thresholdAmount)
+}
+ORDER BY DESC(?detectedAt)
+
+# Query 10: Get order book for trading pair
+# PARAM: ?pairName - Trading pair identifier
+# PARAM: ?side - "buy" or "sell"
+SELECT ?order ?price ?quantity ?userId
+WHERE {
+  ?order crypto:tradesOn ?pair ;
+         crypto:side ?side ;
+         crypto:price ?price ;
+         crypto:quantity ?quantity ;
+         crypto:status "open" .
+  ?pair crypto:pairName ?pairName .
+  ?user crypto:placesOrder ?order ;
+        crypto:userId ?userId .
+}
+ORDER BY (IF(?side = "buy", DESC(?price), ASC(?price)))
+
+# Query 11: Calculate user's portfolio value
+# PARAM: ?userId - User identifier
+SELECT ?userId (SUM(?value) AS ?totalValue)
+WHERE {
+  ?user crypto:userId ?userId ;
+        crypto:ownsWallet ?wallet .
+  ?wallet crypto:balance ?balance ;
+          crypto:holdsToken ?token .
+  ?token crypto:currentPrice ?price .
+  BIND(?balance * ?price AS ?value)
+}
+GROUP BY ?userId
+
+# Query 12: Get yield farming opportunities
+SELECT ?farm ?farmName ?apy ?tvl ?rewardToken ?stakingToken
+WHERE {
+  ?farm a crypto:YieldFarm ;
+        crypto:farmName ?farmName ;
+        crypto:apy ?apy ;
+        crypto:totalValueLocked ?tvl ;
+        crypto:rewardToken ?rewardToken ;
+        crypto:stakingToken ?stakingToken .
+  FILTER (?apy > 5.0)
+}
+ORDER BY DESC(?apy)
+
+# Query 13: Get 2FA status for user
+# PARAM: ?userId - User identifier
+SELECT ?user ?twoFAEnabled ?method ?lastVerified
+WHERE {
+  ?user crypto:userId ?userId ;
+        crypto:requiresAuth ?twoFA .
+  ?twoFA crypto:enabled ?twoFAEnabled ;
+         crypto:method ?method ;
+         crypto:lastVerified ?lastVerified .
+}
+
+# Query 14: Get token metadata
+# PARAM: ?tokenSymbol - Token symbol
+SELECT ?token ?tokenName ?blockchain ?contractAddress ?decimals ?totalSupply
+WHERE {
+  ?token crypto:tokenSymbol ?tokenSymbol ;
+         crypto:tokenName ?tokenName ;
+         crypto:blockchain ?blockchain ;
+         crypto:contractAddress ?contractAddress ;
+         crypto:decimals ?decimals ;
+         crypto:totalSupply ?totalSupply .
+}
+
+# Query 15: Get user's transaction history
+# PARAM: ?userId - User identifier
+# PARAM: ?limit - Result limit (default 100)
+SELECT ?transaction ?txHash ?transactionType ?amount ?timestamp ?status
+WHERE {
+  ?user crypto:userId ?userId ;
+        crypto:executesTransaction ?transaction .
+  ?transaction crypto:txHash ?txHash ;
+               crypto:transactionType ?transactionType ;
+               crypto:amount ?amount ;
+               crypto:timestamp ?timestamp ;
+               crypto:status ?status .
+}
+ORDER BY DESC(?timestamp)
+LIMIT ?limit

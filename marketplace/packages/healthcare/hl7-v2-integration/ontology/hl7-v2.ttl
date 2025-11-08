@@ -1,0 +1,545 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix hl7: <http://hl7.org/v2/> .
+@prefix hl7-ontology: <http://ggen.io/ontology/hl7-v2#> .
+
+# HL7 v2 Integration Ontology
+# Implements HL7 v2.x message types, segments, and data types
+# Supports ADT, ORM, ORU messages and HL7-to-FHIR transformation
+
+hl7-ontology:HL7v2Integration a owl:Ontology ;
+    rdfs:label "HL7 v2 Integration Ontology" ;
+    rdfs:comment "Complete HL7 v2.x messaging ontology" ;
+    owl:versionInfo "1.0.0" ;
+    hl7-ontology:conformsTo "HL7 v2.5, v2.7" .
+
+# ============================================================================
+# HL7 Message Structure
+# ============================================================================
+
+hl7-ontology:Message a owl:Class ;
+    rdfs:label "HL7 Message" ;
+    rdfs:comment "Base class for all HL7 v2 messages" .
+
+hl7-ontology:messageType a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:Message ;
+    rdfs:range xsd:string ;
+    rdfs:label "Message Type" ;
+    rdfs:comment "ADT, ORM, ORU, SIU, etc" .
+
+hl7-ontology:triggerEvent a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:Message ;
+    rdfs:range xsd:string ;
+    rdfs:label "Trigger Event" ;
+    rdfs:comment "A01, A04, O01, R01, etc" .
+
+hl7-ontology:version a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:Message ;
+    rdfs:range xsd:string ;
+    rdfs:label "Version" ;
+    rdfs:comment "2.3, 2.5, 2.7" .
+
+hl7-ontology:hasSegment a owl:ObjectProperty ;
+    rdfs:domain hl7-ontology:Message ;
+    rdfs:range hl7-ontology:Segment ;
+    rdfs:label "Has Segment" .
+
+# ============================================================================
+# Message Types
+# ============================================================================
+
+hl7-ontology:ADTMessage a owl:Class ;
+    rdfs:subClassOf hl7-ontology:Message ;
+    rdfs:label "ADT Message" ;
+    rdfs:comment "Admission, Discharge, Transfer message" .
+
+hl7-ontology:ORMMessage a owl:Class ;
+    rdfs:subClassOf hl7-ontology:Message ;
+    rdfs:label "ORM Message" ;
+    rdfs:comment "Order message (pharmacy, lab, radiology)" .
+
+hl7-ontology:ORUMessage a owl:Class ;
+    rdfs:subClassOf hl7-ontology:Message ;
+    rdfs:label "ORU Message" ;
+    rdfs:comment "Observation result message (lab results)" .
+
+hl7-ontology:SIUMessage a owl:Class ;
+    rdfs:subClassOf hl7-ontology:Message ;
+    rdfs:label "SIU Message" ;
+    rdfs:comment "Scheduling information unsolicited" .
+
+hl7-ontology:MDMMessage a owl:Class ;
+    rdfs:subClassOf hl7-ontology:Message ;
+    rdfs:label "MDM Message" ;
+    rdfs:comment "Medical document management" .
+
+# ============================================================================
+# Segment Base Class
+# ============================================================================
+
+hl7-ontology:Segment a owl:Class ;
+    rdfs:label "HL7 Segment" ;
+    rdfs:comment "Base class for all HL7 segments" .
+
+hl7-ontology:segmentId a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:Segment ;
+    rdfs:range xsd:string ;
+    rdfs:label "Segment ID" ;
+    rdfs:comment "MSH, PID, PV1, OBR, OBX, etc" .
+
+hl7-ontology:setId a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:Segment ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Set ID" .
+
+# ============================================================================
+# MSH - Message Header Segment
+# ============================================================================
+
+hl7-ontology:MSH a owl:Class ;
+    rdfs:subClassOf hl7-ontology:Segment ;
+    rdfs:label "Message Header" ;
+    rdfs:comment "MSH segment - every HL7 message header" .
+
+hl7-ontology:fieldSeparator a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:MSH ;
+    rdfs:range xsd:string ;
+    rdfs:label "Field Separator" ;
+    rdfs:comment "Usually |" .
+
+hl7-ontology:encodingCharacters a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:MSH ;
+    rdfs:range xsd:string ;
+    rdfs:label "Encoding Characters" ;
+    rdfs:comment "Usually ^~\\&" .
+
+hl7-ontology:sendingApplication a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:MSH ;
+    rdfs:range xsd:string ;
+    rdfs:label "Sending Application" .
+
+hl7-ontology:sendingFacility a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:MSH ;
+    rdfs:range xsd:string ;
+    rdfs:label "Sending Facility" .
+
+hl7-ontology:receivingApplication a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:MSH ;
+    rdfs:range xsd:string ;
+    rdfs:label "Receiving Application" .
+
+hl7-ontology:receivingFacility a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:MSH ;
+    rdfs:range xsd:string ;
+    rdfs:label "Receiving Facility" .
+
+hl7-ontology:dateTimeOfMessage a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:MSH ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Date/Time of Message" .
+
+hl7-ontology:messageControlId a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:MSH ;
+    rdfs:range xsd:string ;
+    rdfs:label "Message Control ID" ;
+    rdfs:comment "Unique message identifier" .
+
+hl7-ontology:processingId a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:MSH ;
+    rdfs:range xsd:string ;
+    rdfs:label "Processing ID" ;
+    rdfs:comment "P=Production, T=Test, D=Debug" .
+
+# ============================================================================
+# PID - Patient Identification Segment
+# ============================================================================
+
+hl7-ontology:PID a owl:Class ;
+    rdfs:subClassOf hl7-ontology:Segment ;
+    rdfs:label "Patient Identification" ;
+    rdfs:comment "PID segment - patient demographics" .
+
+hl7-ontology:patientId a owl:ObjectProperty ;
+    rdfs:domain hl7-ontology:PID ;
+    rdfs:range hl7-ontology:CX ;
+    rdfs:label "Patient ID" ;
+    rdfs:comment "Patient identifier list" .
+
+hl7-ontology:patientName a owl:ObjectProperty ;
+    rdfs:domain hl7-ontology:PID ;
+    rdfs:range hl7-ontology:XPN ;
+    rdfs:label "Patient Name" .
+
+hl7-ontology:dateOfBirth a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:PID ;
+    rdfs:range xsd:date ;
+    rdfs:label "Date of Birth" .
+
+hl7-ontology:administrativeSex a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:PID ;
+    rdfs:range xsd:string ;
+    rdfs:label "Administrative Sex" ;
+    rdfs:comment "M, F, O, U" .
+
+hl7-ontology:patientAddress a owl:ObjectProperty ;
+    rdfs:domain hl7-ontology:PID ;
+    rdfs:range hl7-ontology:XAD ;
+    rdfs:label "Patient Address" .
+
+hl7-ontology:phoneNumber a owl:ObjectProperty ;
+    rdfs:domain hl7-ontology:PID ;
+    rdfs:range hl7-ontology:XTN ;
+    rdfs:label "Phone Number" .
+
+hl7-ontology:maritalStatus a owl:ObjectProperty ;
+    rdfs:domain hl7-ontology:PID ;
+    rdfs:range hl7-ontology:CE ;
+    rdfs:label "Marital Status" .
+
+hl7-ontology:ssn a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:PID ;
+    rdfs:range xsd:string ;
+    rdfs:label "SSN" .
+
+# ============================================================================
+# PV1 - Patient Visit Segment
+# ============================================================================
+
+hl7-ontology:PV1 a owl:Class ;
+    rdfs:subClassOf hl7-ontology:Segment ;
+    rdfs:label "Patient Visit" ;
+    rdfs:comment "PV1 segment - visit/encounter information" .
+
+hl7-ontology:patientClass a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:PV1 ;
+    rdfs:range xsd:string ;
+    rdfs:label "Patient Class" ;
+    rdfs:comment "E=Emergency, I=Inpatient, O=Outpatient, etc" .
+
+hl7-ontology:assignedPatientLocation a owl:ObjectProperty ;
+    rdfs:domain hl7-ontology:PV1 ;
+    rdfs:range hl7-ontology:PL ;
+    rdfs:label "Assigned Patient Location" .
+
+hl7-ontology:attendingDoctor a owl:ObjectProperty ;
+    rdfs:domain hl7-ontology:PV1 ;
+    rdfs:range hl7-ontology:XCN ;
+    rdfs:label "Attending Doctor" .
+
+hl7-ontology:admitDateTime a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:PV1 ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Admit Date/Time" .
+
+hl7-ontology:dischargeDateTime a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:PV1 ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Discharge Date/Time" .
+
+# ============================================================================
+# OBR - Observation Request Segment
+# ============================================================================
+
+hl7-ontology:OBR a owl:Class ;
+    rdfs:subClassOf hl7-ontology:Segment ;
+    rdfs:label "Observation Request" ;
+    rdfs:comment "OBR segment - lab/radiology order" .
+
+hl7-ontology:placerOrderNumber a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:OBR ;
+    rdfs:range xsd:string ;
+    rdfs:label "Placer Order Number" .
+
+hl7-ontology:fillerOrderNumber a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:OBR ;
+    rdfs:range xsd:string ;
+    rdfs:label "Filler Order Number" .
+
+hl7-ontology:universalServiceId a owl:ObjectProperty ;
+    rdfs:domain hl7-ontology:OBR ;
+    rdfs:range hl7-ontology:CE ;
+    rdfs:label "Universal Service ID" ;
+    rdfs:comment "Test/procedure code" .
+
+hl7-ontology:observationDateTime a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:OBR ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Observation Date/Time" .
+
+hl7-ontology:orderingProvider a owl:ObjectProperty ;
+    rdfs:domain hl7-ontology:OBR ;
+    rdfs:range hl7-ontology:XCN ;
+    rdfs:label "Ordering Provider" .
+
+# ============================================================================
+# OBX - Observation/Result Segment
+# ============================================================================
+
+hl7-ontology:OBX a owl:Class ;
+    rdfs:subClassOf hl7-ontology:Segment ;
+    rdfs:label "Observation/Result" ;
+    rdfs:comment "OBX segment - observation result" .
+
+hl7-ontology:valueType a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:OBX ;
+    rdfs:range xsd:string ;
+    rdfs:label "Value Type" ;
+    rdfs:comment "NM, ST, CE, TX, etc" .
+
+hl7-ontology:observationIdentifier a owl:ObjectProperty ;
+    rdfs:domain hl7-ontology:OBX ;
+    rdfs:range hl7-ontology:CE ;
+    rdfs:label "Observation Identifier" .
+
+hl7-ontology:observationValue a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:OBX ;
+    rdfs:range xsd:string ;
+    rdfs:label "Observation Value" .
+
+hl7-ontology:units a owl:ObjectProperty ;
+    rdfs:domain hl7-ontology:OBX ;
+    rdfs:range hl7-ontology:CE ;
+    rdfs:label "Units" .
+
+hl7-ontology:referenceRange a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:OBX ;
+    rdfs:range xsd:string ;
+    rdfs:label "Reference Range" .
+
+hl7-ontology:abnormalFlags a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:OBX ;
+    rdfs:range xsd:string ;
+    rdfs:label "Abnormal Flags" ;
+    rdfs:comment "L, H, LL, HH, N, A" .
+
+hl7-ontology:observationResultStatus a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:OBX ;
+    rdfs:range xsd:string ;
+    rdfs:label "Observation Result Status" ;
+    rdfs:comment "F=Final, P=Preliminary, C=Corrected" .
+
+# ============================================================================
+# Data Types
+# ============================================================================
+
+hl7-ontology:CX a owl:Class ;
+    rdfs:label "CX - Extended Composite ID" ;
+    rdfs:comment "Patient/person identifier with assigning authority" .
+
+hl7-ontology:idNumber a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:CX ;
+    rdfs:range xsd:string ;
+    rdfs:label "ID Number" .
+
+hl7-ontology:assigningAuthority a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:CX ;
+    rdfs:range xsd:string ;
+    rdfs:label "Assigning Authority" .
+
+hl7-ontology:identifierTypeCode a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:CX ;
+    rdfs:range xsd:string ;
+    rdfs:label "Identifier Type Code" ;
+    rdfs:comment "MR, SS, PI, etc" .
+
+hl7-ontology:XPN a owl:Class ;
+    rdfs:label "XPN - Extended Person Name" ;
+    rdfs:comment "Person name with components" .
+
+hl7-ontology:familyName a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:XPN ;
+    rdfs:range xsd:string ;
+    rdfs:label "Family Name" .
+
+hl7-ontology:givenName a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:XPN ;
+    rdfs:range xsd:string ;
+    rdfs:label "Given Name" .
+
+hl7-ontology:middleName a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:XPN ;
+    rdfs:range xsd:string ;
+    rdfs:label "Middle Name" .
+
+hl7-ontology:suffix a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:XPN ;
+    rdfs:range xsd:string ;
+    rdfs:label "Suffix" .
+
+hl7-ontology:prefix a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:XPN ;
+    rdfs:range xsd:string ;
+    rdfs:label "Prefix" .
+
+hl7-ontology:nameTypeCode a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:XPN ;
+    rdfs:range xsd:string ;
+    rdfs:label "Name Type Code" ;
+    rdfs:comment "L=Legal, A=Alias, etc" .
+
+hl7-ontology:XAD a owl:Class ;
+    rdfs:label "XAD - Extended Address" ;
+    rdfs:comment "Address with components" .
+
+hl7-ontology:streetAddress a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:XAD ;
+    rdfs:range xsd:string ;
+    rdfs:label "Street Address" .
+
+hl7-ontology:city a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:XAD ;
+    rdfs:range xsd:string ;
+    rdfs:label "City" .
+
+hl7-ontology:state a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:XAD ;
+    rdfs:range xsd:string ;
+    rdfs:label "State" .
+
+hl7-ontology:zipCode a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:XAD ;
+    rdfs:range xsd:string ;
+    rdfs:label "Zip Code" .
+
+hl7-ontology:country a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:XAD ;
+    rdfs:range xsd:string ;
+    rdfs:label "Country" .
+
+hl7-ontology:addressType a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:XAD ;
+    rdfs:range xsd:string ;
+    rdfs:label "Address Type" ;
+    rdfs:comment "H=Home, O=Office, etc" .
+
+hl7-ontology:XTN a owl:Class ;
+    rdfs:label "XTN - Extended Telecommunication" ;
+    rdfs:comment "Phone/email/fax number" .
+
+hl7-ontology:phoneNumber a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:XTN ;
+    rdfs:range xsd:string ;
+    rdfs:label "Phone Number" .
+
+hl7-ontology:telecomUseCode a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:XTN ;
+    rdfs:range xsd:string ;
+    rdfs:label "Telecom Use Code" ;
+    rdfs:comment "PRN=Primary, WPN=Work, etc" .
+
+hl7-ontology:telecomEquipmentType a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:XTN ;
+    rdfs:range xsd:string ;
+    rdfs:label "Telecom Equipment Type" ;
+    rdfs:comment "PH=Phone, FX=Fax, etc" .
+
+hl7-ontology:CE a owl:Class ;
+    rdfs:label "CE - Coded Element" ;
+    rdfs:comment "Coded value with text" .
+
+hl7-ontology:identifier a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:CE ;
+    rdfs:range xsd:string ;
+    rdfs:label "Identifier" .
+
+hl7-ontology:text a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:CE ;
+    rdfs:range xsd:string ;
+    rdfs:label "Text" .
+
+hl7-ontology:codingSystem a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:CE ;
+    rdfs:range xsd:string ;
+    rdfs:label "Coding System" ;
+    rdfs:comment "LN=LOINC, SNM=SNOMED, etc" .
+
+hl7-ontology:TS a owl:Class ;
+    rdfs:label "TS - Timestamp" ;
+    rdfs:comment "Date/time in HL7 format" .
+
+hl7-ontology:timestamp a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:TS ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Timestamp" .
+
+hl7-ontology:XCN a owl:Class ;
+    rdfs:label "XCN - Extended Composite ID and Name" ;
+    rdfs:comment "Provider/clinician identification" .
+
+hl7-ontology:practitionerId a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:XCN ;
+    rdfs:range xsd:string ;
+    rdfs:label "Practitioner ID" .
+
+hl7-ontology:practitionerName a owl:ObjectProperty ;
+    rdfs:domain hl7-ontology:XCN ;
+    rdfs:range hl7-ontology:XPN ;
+    rdfs:label "Practitioner Name" .
+
+hl7-ontology:PL a owl:Class ;
+    rdfs:label "PL - Patient Location" ;
+    rdfs:comment "Facility/building/floor/room/bed" .
+
+hl7-ontology:pointOfCare a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:PL ;
+    rdfs:range xsd:string ;
+    rdfs:label "Point of Care" .
+
+hl7-ontology:room a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:PL ;
+    rdfs:range xsd:string ;
+    rdfs:label "Room" .
+
+hl7-ontology:bed a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:PL ;
+    rdfs:range xsd:string ;
+    rdfs:label "Bed" .
+
+hl7-ontology:facility a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:PL ;
+    rdfs:range xsd:string ;
+    rdfs:label "Facility" .
+
+# ============================================================================
+# Message Acknowledgment
+# ============================================================================
+
+hl7-ontology:MSA a owl:Class ;
+    rdfs:subClassOf hl7-ontology:Segment ;
+    rdfs:label "Message Acknowledgment" ;
+    rdfs:comment "MSA segment - acknowledgment" .
+
+hl7-ontology:acknowledgmentCode a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:MSA ;
+    rdfs:range xsd:string ;
+    rdfs:label "Acknowledgment Code" ;
+    rdfs:comment "AA=Accept, AE=Error, AR=Reject" .
+
+hl7-ontology:messageControlIdAck a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:MSA ;
+    rdfs:range xsd:string ;
+    rdfs:label "Message Control ID (Ack)" .
+
+hl7-ontology:textMessage a owl:DatatypeProperty ;
+    rdfs:domain hl7-ontology:MSA ;
+    rdfs:range xsd:string ;
+    rdfs:label "Text Message" .
+
+# ============================================================================
+# HL7 to FHIR Mapping
+# ============================================================================
+
+hl7-ontology:mapsToFHIR a owl:ObjectProperty ;
+    rdfs:label "Maps to FHIR" ;
+    rdfs:comment "Mapping from HL7 v2 to FHIR resource" .
+
+hl7-ontology:PIDtoPatient a owl:Class ;
+    rdfs:label "PID to FHIR Patient Mapping" .
+
+hl7-ontology:OBXtoObservation a owl:Class ;
+    rdfs:label "OBX to FHIR Observation Mapping" .
+
+hl7-ontology:PV1toEncounter a owl:Class ;
+    rdfs:label "PV1 to FHIR Encounter Mapping" .

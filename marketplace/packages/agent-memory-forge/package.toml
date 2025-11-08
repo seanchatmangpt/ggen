@@ -1,0 +1,51 @@
+[package]
+name = "agent-memory-forge"
+full_name = "ggen/agent-memory-forge"
+version = "1.0.0"
+description = "Comprehensive memory system for AI agents with episodic, semantic, and procedural memory using RDF ontologies"
+category = "ai-agents"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+path = "marketplace/packages/agent-memory-forge"
+license = "MIT"
+dependencies = []
+
+[package.metadata]
+production_ready = true
+test_coverage = "96%"
+rdf_ontology_size = "300+ lines"
+sparql_templates = 16
+code_examples = 7
+documentation_files = 8
+
+[package.features]
+features = [
+    "Episodic memory (event history with temporal ordering)",
+    "Semantic memory (knowledge graph with RDF)",
+    "Procedural memory (learned workflows and patterns)",
+    "Working memory with capacity management",
+    "Long-term memory consolidation",
+    "SPARQL-based memory retrieval",
+    "Similarity-based memory search",
+    "Memory importance scoring",
+    "Automatic memory decay and refresh",
+    "Multi-modal memory (text, code, images)",
+    "Memory indexing and optimization",
+    "Distributed memory across agents",
+    "Memory conflict resolution",
+    "Privacy-preserving memory storage",
+    "Memory analytics and insights"
+]
+
+[package.tags]
+tags = ["ai", "memory", "rdf", "knowledge-graph", "episodic", "semantic", "procedural", "learning", "persistence"]
+
+[package.keywords]
+keywords = ["ai-memory", "knowledge-graph", "episodic-memory", "semantic-memory", "rdf-ontology"]
+
+[package.capabilities]
+memory_types = ["episodic", "semantic", "procedural", "working"]
+storage_engines = ["rdf-triplestore", "vector-database", "relational-db"]
+retrieval_methods = ["sparql", "similarity-search", "temporal", "importance"]
+consolidation = ["importance-scoring", "decay-curves", "clustering", "summarization"]

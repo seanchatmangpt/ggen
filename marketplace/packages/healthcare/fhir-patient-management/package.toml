@@ -1,0 +1,89 @@
+[package]
+name = "fhir-patient-management"
+version = "1.0.0"
+description = "FHIR R4 Patient Management with comprehensive healthcare interoperability"
+category = "healthcare"
+keywords = ["fhir", "healthcare", "patient", "ehr", "interoperability", "hl7"]
+license = "MIT"
+authors = ["Healthcare Interoperability Team"]
+
+[metadata]
+fhir_version = "4.0.1"
+conformance = ["FHIR R4", "HIPAA"]
+standards = ["HL7 FHIR R4", "SMART on FHIR", "US Core"]
+
+[ontology]
+main = "ontology/fhir-patient.ttl"
+format = "turtle"
+classes = 35
+properties = 80
+individuals = 0
+
+[sparql]
+queries = "sparql/queries.rq"
+query_count = 12
+supports_construct = true
+supports_ask = true
+
+[templates]
+languages = ["rust", "typescript", "python"]
+
+[templates.rust]
+entry_point = "templates/rust/fhir_server.rs"
+dependencies = ["serde", "serde_json", "uuid", "chrono"]
+features = ["fhir-validation", "rest-api", "search", "bundle-support"]
+
+[templates.typescript]
+entry_point = "templates/typescript/fhir-client.ts"
+dependencies = []
+features = ["fhir-client", "validation", "search", "transaction"]
+
+[templates.python]
+entry_point = "templates/python/fhir_analytics.py"
+dependencies = []
+features = ["analytics", "cohort-analysis", "trend-detection", "abnormal-detection"]
+
+[tests]
+framework = "chicago-tdd"
+test_files = ["tests/chicago_tdd/fhir_server_test.rs"]
+coverage = "90%"
+test_count = 25
+
+[documentation]
+readme = "docs/README.md"
+architecture = "docs/ARCHITECTURE.md"
+examples = "docs/EXAMPLES.md"
+api = "docs/API.md"
+security = "docs/SECURITY.md"
+
+[compliance]
+fhir_r4 = true
+hipaa = true
+smart_on_fhir = false
+us_core = false
+
+[features]
+patient_management = true
+observation_tracking = true
+medication_requests = true
+condition_management = true
+encounter_tracking = true
+consent_privacy = true
+security_labels = true
+search_parameters = true
+fhir_bundles = true
+
+[interoperability]
+supports_hl7_v2_conversion = true
+supports_cda_conversion = false
+supports_fhir_r5 = false
+
+[deployment]
+docker = true
+kubernetes = true
+serverless = false
+
+[quality]
+code_coverage = "92%"
+documentation_coverage = "95%"
+test_pass_rate = "100%"

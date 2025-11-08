@@ -1,0 +1,181 @@
+# Document Management System - SPARQL Query Templates
+# Collection of 12 essential queries for document management operations
+
+PREFIX dms: <https://ggen.ai/ontology/document-management#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+# Query 1: Find all documents in a folder with metadata
+# Usage: Replace ?folderPath with target folder path
+SELECT ?doc ?title ?fileName ?mimeType ?size ?created ?author
+WHERE {
+    ?folder a dms:Folder ;
+            dms:folderPath ?folderPath .
+    ?doc a dms:Document ;
+         dms:parentFolder ?folder ;
+         dms:hasTitle ?title ;
+         dms:hasFileName ?fileName ;
+         dms:hasMimeType ?mimeType ;
+         dms:hasFileSize ?size ;
+         dms:createdAt ?created ;
+         dms:createdBy ?author .
+    FILTER(?folderPath = "/documents/projects")
+}
+ORDER BY DESC(?created)
+
+# Query 2: Get document version history
+# Usage: Replace ?docId with target document ID
+SELECT ?version ?versionNumber ?comment ?isCurrent ?modified ?modifiedBy
+WHERE {
+    ?doc a dms:Document ;
+         dms:hasTitle ?docId ;
+         dms:hasVersion ?version .
+    ?version dms:versionNumber ?versionNumber ;
+             dms:versionComment ?comment ;
+             dms:isCurrentVersion ?isCurrent ;
+             dms:modifiedAt ?modified ;
+             dms:modifiedBy ?modifiedBy .
+    FILTER(?docId = "Project_Proposal.docx")
+}
+ORDER BY DESC(?versionNumber)
+
+# Query 3: Find documents pending approval in workflow
+SELECT ?doc ?title ?workflow ?status ?assignedTo ?stepOrder
+WHERE {
+    ?doc a dms:Document ;
+         dms:hasTitle ?title ;
+         dms:hasWorkflow ?workflow .
+    ?workflow dms:workflowStatus ?status ;
+              dms:hasStep ?step .
+    ?step dms:assignedTo ?assignedTo ;
+          dms:stepOrder ?stepOrder .
+    FILTER(?status = "pending")
+}
+ORDER BY ?stepOrder
+
+# Query 4: Search documents by tags and categories
+# Usage: Replace tag/category values with search terms
+SELECT ?doc ?title ?fileName ?tag ?category
+WHERE {
+    ?doc a dms:Document ;
+         dms:hasTitle ?title ;
+         dms:hasFileName ?fileName ;
+         dms:hasTag ?tagObj ;
+         dms:hasCategory ?catObj .
+    ?tagObj dms:tagName ?tag .
+    ?catObj rdfs:label ?category .
+    FILTER(REGEX(?tag, "contract", "i") || REGEX(?category, "legal", "i"))
+}
+
+# Query 5: Find documents with OCR results and text content
+SELECT ?doc ?title ?extractedText ?ocrConfidence ?processedDate
+WHERE {
+    ?doc a dms:Document ;
+         dms:hasTitle ?title ;
+         dms:hasOCRResult ?ocr .
+    ?ocr dms:extractedText ?extractedText ;
+         dms:ocrConfidence ?ocrConfidence .
+    OPTIONAL { ?doc dms:modifiedAt ?processedDate }
+    FILTER(?ocrConfidence > 0.85)
+}
+ORDER BY DESC(?ocrConfidence)
+
+# Query 6: Check document permissions for user
+# Usage: Replace ?userName with target user
+SELECT ?doc ?title ?canRead ?canWrite ?canDelete ?canShare
+WHERE {
+    ?doc a dms:Document ;
+         dms:hasTitle ?title ;
+         dms:hasPermission ?perm .
+    ?perm dms:grantedTo ?user ;
+          dms:canRead ?canRead ;
+          dms:canWrite ?canWrite ;
+          dms:canDelete ?canDelete ;
+          dms:canShare ?canShare .
+    ?user foaf:name ?userName .
+    FILTER(?userName = "john.doe@example.com")
+}
+
+# Query 7: Find documents with retention policies expiring soon
+SELECT ?doc ?title ?retentionPolicy ?dispositionDate ?daysRemaining
+WHERE {
+    ?doc a dms:Document ;
+         dms:hasTitle ?title ;
+         dms:hasRetentionPolicy ?retentionPolicy ;
+         dms:dispositionDate ?dispositionDate .
+    BIND((?dispositionDate - NOW()) AS ?daysRemaining)
+    FILTER(?daysRemaining <= 30)
+}
+ORDER BY ?daysRemaining
+
+# Query 8: Get documents under legal hold
+SELECT ?doc ?title ?legalHold ?holdDate ?holdReason ?attorney
+WHERE {
+    ?doc a dms:Document ;
+         dms:hasTitle ?title ;
+         dms:hasLegalHold ?legalHold .
+    ?legalHold dms:holdDate ?holdDate ;
+               dms:holdReason ?holdReason ;
+               dms:responsibleAttorney ?attorney .
+}
+ORDER BY ?holdDate
+
+# Query 9: Find most recent documents by type
+# Usage: Adjust limit and document type filter
+SELECT ?doc ?title ?fileName ?docType ?created ?size
+WHERE {
+    ?doc a ?docType ;
+         dms:hasTitle ?title ;
+         dms:hasFileName ?fileName ;
+         dms:createdAt ?created ;
+         dms:hasFileSize ?size .
+    FILTER(?docType IN (dms:TextDocument, dms:SpreadsheetDocument))
+}
+ORDER BY DESC(?created)
+LIMIT 50
+
+# Query 10: Audit trail for document access and modifications
+SELECT ?doc ?title ?auditLog ?action ?user ?timestamp
+WHERE {
+    ?doc a dms:Document ;
+         dms:hasTitle ?title ;
+         dms:hasAuditLog ?auditLog .
+    ?auditLog dms:auditAction ?action ;
+              dms:performedBy ?user ;
+              dms:auditTimestamp ?timestamp .
+    FILTER(?timestamp >= "2025-01-01T00:00:00"^^xsd:dateTime)
+}
+ORDER BY DESC(?timestamp)
+
+# Query 11: Find documents with pending workflow approvals
+SELECT ?doc ?title ?workflow ?currentStep ?approver ?dueDate
+WHERE {
+    ?doc a dms:Document ;
+         dms:hasTitle ?title ;
+         dms:hasWorkflow ?workflow .
+    ?workflow dms:hasStep ?step ;
+              dms:workflowStatus "in-progress" .
+    ?step dms:stepOrder ?currentStep ;
+          dms:assignedTo ?approver ;
+          dms:dueDate ?dueDate .
+    FILTER NOT EXISTS {
+        ?step dms:hasApproval ?approval .
+        ?approval dms:approvedBy ?approver
+    }
+}
+ORDER BY ?dueDate
+
+# Query 12: Calculate storage usage by folder and document type
+SELECT ?folder ?folderPath ?docType (COUNT(?doc) AS ?docCount) (SUM(?size) AS ?totalSize)
+WHERE {
+    ?folder a dms:Folder ;
+            dms:folderPath ?folderPath .
+    ?doc a ?docType ;
+         dms:parentFolder ?folder ;
+         dms:hasFileSize ?size .
+    FILTER(?docType != dms:Document)
+}
+GROUP BY ?folder ?folderPath ?docType
+ORDER BY DESC(?totalSize)

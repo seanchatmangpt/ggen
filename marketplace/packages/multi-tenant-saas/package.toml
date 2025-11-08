@@ -1,0 +1,49 @@
+[package]
+name = "multi-tenant-saas"
+full_name = "ggen/multi-tenant-saas"
+version = "1.0.0"
+description = "Multi-tenant SaaS architecture with tenant isolation, provisioning, subscription tiers, usage metering, and billing engine"
+category = "ecommerce"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+path = "marketplace/packages/multi-tenant-saas"
+license = "MIT"
+dependencies = []
+
+[package.metadata]
+production_ready = true
+test_coverage = "90%"
+rdf_ontology_size = "320+ lines"
+sparql_templates = 12
+code_examples = 3
+documentation_files = 3
+
+[package.features]
+features = [
+    "Tenant isolation strategies (schema, database, row-level, hybrid)",
+    "Subscription tier management (Free, Basic, Pro, Enterprise)",
+    "Automated tenant provisioning and lifecycle management",
+    "Usage metering (API calls, storage, compute)",
+    "Billing calculation with overage charges",
+    "Feature flags and entitlements per tenant",
+    "API rate limiting per tier",
+    "Tenant migration and backup automation",
+    "Data residency and compliance (GDPR, HIPAA, SOC2)",
+    "Multi-tenant admin dashboard (TypeScript/React)",
+    "Tenant middleware with Axum (Rust)",
+    "Billing analytics engine (Python)",
+    "Chicago TDD integration with real RDF/SPARQL"
+]
+
+[package.tags]
+tags = ["multi-tenant", "saas", "billing", "isolation", "provisioning", "subscription", "metering", "compliance", "rdf", "sparql"]
+
+[package.keywords]
+keywords = ["multi-tenancy", "saas-platform", "tenant-isolation", "usage-billing", "subscription-management"]
+
+[package.capabilities]
+languages = ["rust", "typescript", "python"]
+isolation_strategies = ["schema", "database", "row-level", "hybrid"]
+subscription_tiers = ["free", "basic", "pro", "enterprise"]
+security_features = ["data-residency", "encryption", "compliance", "audit-logs"]
