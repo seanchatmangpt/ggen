@@ -1,6 +1,6 @@
 [package]
 name = "ggen"
-version = "2.4.0"
+version = "2.5.0"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 edition = "2021"
 repository = "https://github.com/seanchatmangpt/ggen"
@@ -16,7 +16,7 @@ ggen is a deterministic, language-agnostic code generation framework that treats
 [workspace]
 members = [
   "crates/ggen-utils",
-  "cli",
+  "crates/ggen-cli",
   "crates/ggen-domain",
   "crates/ggen-core",
   "crates/ggen-ai",
@@ -97,7 +97,7 @@ london_tdd = []
 
 [dependencies]
 ggen-utils = { path = "crates/ggen-utils", version = "2.4.0" }
-ggen-cli-lib = { path = "cli", version = "2.4.0" }
+ggen-cli-lib = { path = "crates/ggen-cli", version = "2.4.0" }
 ggen-core = { path = "crates/ggen-core", version = "2.4.0" }
 ggen-ai = { path = "crates/ggen-ai", version = "2.4.0" }
 human-panic = "2.0.3"
@@ -127,6 +127,8 @@ serde_json = "1.0"
 tempfile = "3.23"
 anyhow = "1.0"
 chrono = { version = "0.4", features = ["serde"] }
+ggen-domain = { path = "crates/ggen-domain" }
+oxigraph = "0.5.1"
 # BDD testing framework
 cucumber = { version = "0.21", features = ["macros"] }
 assert_fs = "1.1"

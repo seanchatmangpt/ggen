@@ -169,6 +169,8 @@ Content"#,
     }
 }
 
+use serde::{Deserialize, Serialize};
+
 /// CLI Arguments for list command
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct ListInput {

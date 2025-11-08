@@ -8,6 +8,14 @@ use std::collections::HashMap;
 use std::fs;
 use std::path::{Component, Path};
 
+/// Apply command input (pure domain type)
+#[derive(Debug, Clone, Default)]
+pub struct ApplyInput {
+    pub plan_file: String,
+    pub dry_run: bool,
+    pub auto_confirm: bool,
+}
+
 /// Application result
 #[derive(Debug, Clone)]
 pub struct ApplicationResult {
@@ -35,7 +43,7 @@ fn validate_path(path: &Path) -> Result<()> {
 }
 
 /// Apply generation plan (Chicago TDD: REAL implementation)
-pub fn apply_plan(args: &crate::cmds::project::ApplyArgs) -> Result<ApplicationResult> {
+pub fn apply_plan(args: &ApplyInput) -> Result<ApplicationResult> {
     // Validate plan file exists and path is safe
     let plan_path = Path::new(&args.plan_file);
     validate_path(plan_path)?;
@@ -133,7 +141,7 @@ mod tests {
 
     #[test]
     fn test_apply_plan_file_not_found() {
-        let args = crate::cmds::project::ApplyArgs {
+        let args = ApplyInput {
             plan_file: "nonexistent.json".to_string(),
             auto_confirm: true,
             dry_run: false,
@@ -163,7 +171,7 @@ mod tests {
         let plan_content = serde_json::to_string_pretty(&plan).unwrap();
         fs::write(&plan_path, plan_content).unwrap();
 
-        let args = crate::cmds::project::ApplyArgs {
+        let args = ApplyInput {
             plan_file: plan_path.to_string_lossy().to_string(),
             auto_confirm: true,
             dry_run: true,

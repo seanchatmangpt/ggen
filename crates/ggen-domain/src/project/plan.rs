@@ -8,6 +8,15 @@ use std::collections::HashMap;
 use std::fs;
 use std::path::{Component, Path};
 
+/// Plan command input (pure domain type)
+#[derive(Debug, Clone, Default)]
+pub struct PlanInput {
+    pub template_ref: String,
+    pub vars: Vec<String>,
+    pub output: Option<String>,
+    pub format: String,
+}
+
 /// Plan creation result
 #[derive(Debug, Clone)]
 pub struct PlanResult {
@@ -53,7 +62,7 @@ fn parse_variables(vars: &[String]) -> Result<HashMap<String, String>> {
 }
 
 /// Create generation plan (Chicago TDD: REAL implementation)
-pub fn create_plan(args: &crate::cmds::project::PlanArgs) -> Result<PlanResult> {
+pub fn create_plan(args: &PlanInput) -> Result<PlanResult> {
     // Validate template reference
     if args.template_ref.is_empty() {
         return Err(ggen_utils::error::Error::new(
@@ -149,7 +158,7 @@ mod tests {
         let temp_dir = tempdir().unwrap();
         let output_path = temp_dir.path().join("plan.json");
 
-        let args = crate::cmds::project::PlanArgs {
+        let args = PlanInput {
             template_ref: "test.tmpl".to_string(),
             vars: vec!["key=value".to_string()],
             output: Some(output_path.to_string_lossy().to_string()),

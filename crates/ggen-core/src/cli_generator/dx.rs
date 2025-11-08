@@ -121,11 +121,13 @@ pub struct TemplatePreview;
 impl TemplatePreview {
     /// Generate a preview of what will be generated
     pub fn preview_workspace_structure(project: &CliProject) -> String {
+        let default_cli = format!("{}-cli", project.name);
+        let default_domain = format!("{}-core", project.name);
         let cli_crate = project.cli_crate.as_ref()
-            .unwrap_or(&format!("{}-cli", project.name));
+            .unwrap_or(&default_cli);
         let domain_crate = project.domain_crate.as_ref()
-            .unwrap_or(&format!("{}-core", project.name));
-        
+            .unwrap_or(&default_domain);
+
         format!(
             "📁 Workspace Structure Preview:\n\n\
              {project_name}/\n\
@@ -245,8 +247,6 @@ impl AutoFix {
             noun = noun.name,
             suggested_path = suggested_path,
             core_crate = core_crate,
-            noun = noun.name,
-            verb = verb.name,
         )
     }
     

@@ -1,6 +1,6 @@
 [package]
 name = "ggen-cli-lib"
-version = "2.4.0"
+version = "2.5.0"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "CLI interface for ggen"
 edition = "2021"
@@ -12,6 +12,14 @@ categories = ["development-tools", "command-line-utilities"]
 
 [lints.clippy]
 multiple_crate_versions = "allow"
+
+[[bin]]
+name = "ggen"
+path = "src/main.rs"
+
+[lib]
+name = "ggen_cli_lib"
+path = "src/lib.rs"
 
 [dependencies]
 # Workspace dependencies
@@ -29,13 +37,15 @@ tracing.workspace = true
 clap.workspace = true
 clap-noun-verb.workspace = true
 once_cell.workspace = true
+uuid.workspace = true
+futures.workspace = true
 
 # Local dependencies
-ggen-utils = { path = "../crates/ggen-utils", version = "2.4.0" }
-ggen-core = { path = "../crates/ggen-core", version = "2.4.0" }
-ggen-ai = { path = "../crates/ggen-ai", version = "2.4.0" }
-ggen-marketplace = { path = "../crates/ggen-marketplace", version = "2.4.0" }
-ggen-domain = { path = "../crates/ggen-domain", version = "3.0.0" }
+ggen-utils = { path = "../ggen-utils", version = "2.4.0" }
+ggen-core = { path = "../ggen-core", version = "2.4.0" }
+ggen-ai = { path = "../ggen-ai", version = "2.4.0" }
+ggen-marketplace = { path = "../ggen-marketplace", version = "2.4.0" }
+ggen-domain = { path = "../ggen-domain", version = "3.0.0" }
 
 # Crate-specific dependencies
 gag = "0.1"
@@ -56,6 +66,7 @@ notify-debouncer-full = "0.3"
 tar = "0.4"
 flate2 = "1.0"
 md5 = "0.8"
+
 
 [features]
 default = []

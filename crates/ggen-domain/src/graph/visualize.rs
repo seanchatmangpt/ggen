@@ -118,7 +118,7 @@ pub struct VisualizeStats {
 }
 
 /// CLI Arguments for visualize command
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, serde::Deserialize)]
 pub struct VisualizeInput {
     /// Input RDF file to visualize
     pub input: PathBuf,
@@ -130,6 +130,7 @@ pub struct VisualizeInput {
     pub format: String,
 
     /// Include RDF labels in visualization
+    #[serde(default)]
     pub labels: bool,
 
     /// Maximum depth for graph traversal
@@ -456,34 +457,74 @@ mod tests {
     }
 }
 
-/// CLI run function - bridges sync CLI to async domain logic
-        // Parse format
-        let format = VisualizeFormat::from_str(&args.format)?;
+/// Visualize output for CLI
+#[derive(Debug, Clone, serde::Serialize)]
+pub struct VisualizeOutput {
+    pub nodes_rendered: usize,
+    pub edges_rendered: usize,
+    pub output_path: String,
+    pub format: String,
+}
 
-        // Determine output path
-        let output_path = args.output.clone().or_else(|| {
-            let mut path = args.input.clone();
-            path.set_extension(format.extension());
-            Some(path)
-        });
+/// Execute visualize operation - domain logic entry point
+///
+/// This is the main entry point for the visualize command from CLI
+pub async fn execute_visualize(input: VisualizeInput) -> Result<VisualizeOutput> {
+    // Parse format
+    let format = VisualizeFormat::from_str(&input.format)?;
 
-        let options = VisualizeOptions {
-            format: Some(format),
-            output_path,
-            include_labels: args.labels,
-            max_depth: args.max_depth,
-            subject_filter: args.subject.clone(),
-            layout_engine: LayoutEngine::Dot,
-        };
+    // Create visualize options
+    let mut options = VisualizeOptions::new()
+        .with_format(format)
+        .with_output(
+            input.output.clone().unwrap_or_else(|| {
+                let mut path = input.input.clone();
+                path.set_extension(format.extension());
+                path
+            })
+        );
 
-        let stats = visualize_graph(&args.input, &options).await?;
+    // Apply labels if requested
+    if input.labels {
+        options = options.with_labels();
+    }
 
-        println!("✅ Visualized {} nodes and {} edges", stats.nodes_rendered, stats.edges_rendered);
-        if let Some(path) = &stats.output_path {
-            println!("📊 Output saved to: {}", path.display());
-        }
-        println!("📄 Format: {}", stats.format);
+    // Apply optional settings
+    let options = if let Some(depth) = input.max_depth {
+        options.with_max_depth(depth)
+    } else {
+        options
+    };
 
-        Ok(())
+    let options = if let Some(ref subject) = input.subject {
+        options.with_subject_filter(subject.clone())
+    } else {
+        options
+    };
+
+    // Perform the actual visualization
+    let stats = visualize_graph(&input.input, &options).await?;
+
+    Ok(VisualizeOutput {
+        nodes_rendered: stats.nodes_rendered,
+        edges_rendered: stats.edges_rendered,
+        output_path: stats.output_path.as_ref()
+            .map(|p| p.to_string_lossy().to_string())
+            .unwrap_or_default(),
+        format: stats.format,
     })
+}
+
+/// CLI run function - bridges sync CLI to async domain logic
+pub async fn run(args: &VisualizeInput) -> Result<()> {
+    let output = execute_visualize(args.clone()).await?;
+
+    println!("✅ Visualized {} nodes and {} edges to {}",
+        output.nodes_rendered,
+        output.edges_rendered,
+        output.output_path
+    );
+    println!("   Format: {}", output.format);
+
+    Ok(())
 }

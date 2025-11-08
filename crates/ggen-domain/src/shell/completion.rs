@@ -122,42 +122,9 @@ pub trait ShellLister {
     fn is_installed(&self, shell: ShellType) -> bool;
 }
 
-/// Default implementation using clap_complete
-pub struct ClapCompletionGenerator {
-    app_name: String,
-}
-
-impl ClapCompletionGenerator {
-    pub fn new(app_name: impl Into<String>) -> Self {
-        Self {
-            app_name: app_name.into(),
-        }
-    }
-}
-
-impl CompletionGenerator for ClapCompletionGenerator {
-    fn generate(&self, shell: ShellType) -> Result<CompletionResult> {
-        use clap_complete::{generate, Shell};
-
-        let clap_shell = match shell {
-            ShellType::Bash => Shell::Bash,
-            ShellType::Zsh => Shell::Zsh,
-            ShellType::Fish => Shell::Fish,
-            ShellType::PowerShell => Shell::PowerShell,
-        };
-
-        // Get the CLI app (this requires the crate to provide build_cli)
-        let mut app = crate::build_cli();
-
-        let mut buf = Vec::new();
-        generate(clap_shell, &mut app, &self.app_name, &mut buf);
-
-        let script = String::from_utf8(buf)
-            .map_err(|e| ggen_utils::error::Error::new(&format!("Invalid UTF-8 in completion script: {}", e)))?;
-
-        Ok(CompletionResult { script, shell })
-    }
-}
+// NOTE: Completion generation is delegated to the CLI layer (ggen-agent-editor)
+// This domain layer only defines the contracts/traits.
+// The actual implementation using clap_complete lives in ggen-agent-editor.
 
 /// Default implementation for installing completions
 pub struct FileSystemCompletionInstaller;

@@ -1,7 +1,7 @@
 //! Template show domain logic
 
-
 use ggen_utils::error::Result;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
 
@@ -206,45 +206,79 @@ pub struct ShowInput {
     pub template: String,
 }
 
+/// Show template output
+#[derive(Debug, Clone, Serialize)]
+pub struct ShowOutput {
+    pub name: String,
+    pub path: String,
+    pub description: Option<String>,
+    pub variables: Vec<String>,
+    pub output_path: Option<String>,
+    pub rdf_sources: Vec<String>,
+    pub sparql_queries: HashMap<String, String>,
+    pub determinism_seed: Option<u64>,
+}
+
+impl From<TemplateMetadata> for ShowOutput {
+    fn from(metadata: TemplateMetadata) -> Self {
+        Self {
+            name: metadata.name,
+            path: metadata.path,
+            description: metadata.description,
+            variables: metadata.variables,
+            output_path: metadata.output_path,
+            rdf_sources: metadata.rdf_sources,
+            sparql_queries: metadata.sparql_queries,
+            determinism_seed: metadata.determinism_seed,
+        }
+    }
+}
+
+/// Execute show command - returns structured output
+pub fn execute_show(input: ShowInput) -> Result<ShowOutput> {
+    let metadata = show_template_metadata(&input.template)?;
+    Ok(ShowOutput::from(metadata))
+}
+
 /// CLI run function - bridges sync CLI to async domain logic
-        let metadata = show_template_metadata(&args.template)?;
+pub fn run(args: &ShowInput) -> Result<()> {
+    let output = execute_show(args.clone())?;
 
-        println!("📋 Template: {}", metadata.name);
-        println!("📍 Path: {}", metadata.path);
+    println!("📋 Template: {}", output.name);
+    println!("📍 Path: {}", output.path);
 
-        if let Some(desc) = &metadata.description {
-            println!("📝 Description: {}", desc);
+    if let Some(desc) = &output.description {
+        println!("📝 Description: {}", desc);
+    }
+
+    if let Some(output_path) = &output.output_path {
+        println!("📂 Output path: {}", output_path);
+    }
+
+    if !output.variables.is_empty() {
+        println!("\n🔧 Variables ({}):", output.variables.len());
+        for var in &output.variables {
+            println!("  • {}", var);
         }
+    }
 
-        if let Some(output) = &metadata.output_path {
-            println!("📂 Output path: {}", output);
+    if !output.rdf_sources.is_empty() {
+        println!("\n🔗 RDF Sources ({}):", output.rdf_sources.len());
+        for source in &output.rdf_sources {
+            println!("  • {}", source);
         }
+    }
 
-        if !metadata.variables.is_empty() {
-            println!("\n🔧 Variables ({}):", metadata.variables.len());
-            for var in &metadata.variables {
-                println!("  • {}", var);
-            }
+    if !output.sparql_queries.is_empty() {
+        println!("\n🔍 SPARQL Queries ({}):", output.sparql_queries.len());
+        for (name, query) in &output.sparql_queries {
+            println!("  • {}: {}", name, query);
         }
+    }
 
-        if !metadata.rdf_sources.is_empty() {
-            println!("\n🔗 RDF Sources ({}):", metadata.rdf_sources.len());
-            for source in &metadata.rdf_sources {
-                println!("  • {}", source);
-            }
-        }
+    if let Some(seed) = output.determinism_seed {
+        println!("\n🎲 Determinism seed: {}", seed);
+    }
 
-        if !metadata.sparql_queries.is_empty() {
-            println!("\n🔍 SPARQL Queries ({}):", metadata.sparql_queries.len());
-            for (name, query) in &metadata.sparql_queries {
-                println!("  • {}: {}", name, query);
-            }
-        }
-
-        if let Some(seed) = metadata.determinism_seed {
-            println!("\n🎲 Determinism seed: {}", seed);
-        }
-
-        Ok(())
-    })
+    Ok(())
 }

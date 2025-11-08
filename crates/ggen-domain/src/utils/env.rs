@@ -2,7 +2,7 @@
 //!
 //! Pure business logic for environment variable and directory management.
 
-use clap::Parser;
+// NOTE: clap::Parser removed - domain layer must be CLI-agnostic
 use ggen_utils::error::Result;
 use std::path::PathBuf;
 use std::collections::HashMap;
@@ -92,7 +92,10 @@ impl EnvironmentManager for DefaultEnvironmentManager {
     }
 }
 
-// CLI wrapper
+// CLI wrapper - MOVED TO ggen-cli crate
+// Domain layer must not depend on clap
+// See ggen-cli/src/cmds/utils_v3.rs for CLI Args definitions
+/*
 #[derive(Debug, Parser)]
 pub struct EnvInput {
     /// List all GGEN environment variables
@@ -113,7 +116,14 @@ pub struct EnvInput {
     /// Clear cache directory
     clear_cache: bool,
 }
+*/
 
+// ============================================================================
+// CLI Bridge Function (Old Pattern - Commented Out)
+// ============================================================================
+// This function is being replaced by the v3.4.0 #[verb] pattern in utils_v3.rs
+/*
+pub fn run_env_old(args: &EnvInput) -> Result<()> {
     let manager = DefaultEnvironmentManager;
 
     if args.list {
@@ -175,4 +185,45 @@ pub struct EnvInput {
     }
 
     Ok(())
+}
+*/
+
+// ============================================================================
+// Domain Functions for v3.4.0 Pattern
+// ============================================================================
+
+/// Execute environment listing (pure domain function)
+pub async fn execute_env_list() -> Result<HashMap<String, String>> {
+    let manager = DefaultEnvironmentManager;
+    Ok(manager.list_vars().into_iter().collect())
+}
+
+/// Execute environment show directories (pure domain function)
+pub async fn execute_env_show_dirs() -> Result<GgenEnvironment> {
+    let manager = DefaultEnvironmentManager;
+    manager.get_environment()
+}
+
+/// Execute environment ensure directories (pure domain function)
+pub async fn execute_env_ensure_dirs() -> Result<()> {
+    let manager = DefaultEnvironmentManager;
+    manager.ensure_directories()
+}
+
+/// Execute environment clear cache (pure domain function)
+pub async fn execute_env_clear_cache() -> Result<usize> {
+    let manager = DefaultEnvironmentManager;
+    manager.clear_cache()
+}
+
+/// Execute environment get variable (pure domain function)
+pub async fn execute_env_get(key: String) -> Result<Option<String>> {
+    let manager = DefaultEnvironmentManager;
+    Ok(manager.get_var(&key))
+}
+
+/// Execute environment set variable (pure domain function)
+pub async fn execute_env_set(key: String, value: String) -> Result<()> {
+    let manager = DefaultEnvironmentManager;
+    manager.set_var(&key, &value)
 }

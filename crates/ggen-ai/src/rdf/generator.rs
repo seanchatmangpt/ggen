@@ -71,7 +71,7 @@ impl CliGenerator {
         // Step 3: Validate project
         println!("  [3/7] Validating project...");
         if let Err(e) = validate_project(&project) {
-            let enhanced = ErrorEnhancer::enhance_error(&e.into(), &ErrorContext::WorkspaceStructure);
+            let enhanced = ErrorEnhancer::enhance_error(&e, &ErrorContext::WorkspaceStructure);
             eprintln!("{}", enhanced);
             return Err(e);
         }

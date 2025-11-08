@@ -6,7 +6,7 @@
 use ggen_utils::error::Result;
 
 /// Update command arguments
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default)]
 pub struct UpdateInput {
     /// Package name to update
     pub package: Option<String>,
@@ -139,9 +139,102 @@ pub async fn update_and_report(package: Option<&str>, all: bool, dry_run: bool) 
     Ok(())
 }
 
-/// Run update command (sync wrapper for CLI)
-        update_and_report(args.package.as_deref(), args.all, args.dry_run).await
+/// Execute update command using ggen-marketplace backend
+pub async fn execute_update(input: UpdateInput) -> Result<UpdateOutput> {
+    use ggen_marketplace::prelude::*;
+    use ggen_marketplace::backend::LocalRegistry;
+
+    let registry_path = dirs::home_dir()
+        .ok_or_else(|| ggen_utils::error::Error::new("home directory not found"))?
+        .join(".ggen")
+        .join("registry");
+
+    // Initialize registry
+    let registry = LocalRegistry::new(registry_path.clone()).await
+        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to initialize registry: {}", e)))?;
+
+    // Load installed packages
+    let packages_dir = dirs::home_dir()
+        .ok_or_else(|| ggen_utils::error::Error::new("home directory not found"))?
+        .join(".ggen")
+        .join("packages");
+
+    let lockfile_path = packages_dir.join("ggen.lock");
+    if !lockfile_path.exists() {
+        return Ok(UpdateOutput {
+            packages_updated: 0,
+        });
+    }
+
+    let content = tokio::fs::read_to_string(&lockfile_path).await?;
+    let lockfile: Lockfile = serde_json::from_str(&content)?;
+
+    if lockfile.packages.is_empty() {
+        return Ok(UpdateOutput {
+            packages_updated: 0,
+        });
+    }
+
+    // Determine packages to update
+    let packages_to_update: Vec<_> = if let Some(ref pkg_name) = input.package {
+        if !lockfile.packages.contains_key(pkg_name) {
+            return Err(ggen_utils::error::Error::new(&format!(
+                "Package {} is not installed",
+                pkg_name
+            )));
+        }
+        vec![pkg_name.clone()]
+    } else if input.all {
+        lockfile.packages.keys().cloned().collect()
+    } else {
+        return Err(ggen_utils::error::Error::new(
+            "Please specify a package name or use --all"
+        ));
+    };
+
+    if input.dry_run {
+        println!("🔍 Dry run: Would update {} package(s)", packages_to_update.len());
+        return Ok(UpdateOutput {
+            packages_updated: 0,
+        });
+    }
+
+    let mut updated_count = 0;
+
+    for pkg_name in &packages_to_update {
+        let package_id = PackageId::new("local", pkg_name);
+
+        // Get all versions
+        let versions = registry.list_versions(&package_id).await
+            .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to list versions: {}", e)))?;
+
+        if let Some(latest) = versions.first() {
+            let current_version = lockfile.packages.get(pkg_name).map(|i| &i.version);
+            let latest_version = latest.version.to_string();
+
+            if Some(&latest_version) != current_version {
+                println!("📦 Updating {} to version {}...", pkg_name, latest_version);
+
+                // Use install to update
+                use super::install::install_and_report;
+                let pkg_spec = format!("{}@{}", pkg_name, latest_version);
+
+                if install_and_report(&pkg_spec, None, true, false, false).await.is_ok() {
+                    updated_count += 1;
+                }
+            }
+        }
+    }
+
+    Ok(UpdateOutput {
+        packages_updated: updated_count,
     })
+}
+
+/// Update output
+#[derive(Debug, Clone, Default, serde::Serialize)]
+pub struct UpdateOutput {
+    pub packages_updated: usize,
 }
 
 /// Check for package updates

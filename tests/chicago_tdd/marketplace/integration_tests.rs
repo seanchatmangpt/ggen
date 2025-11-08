@@ -59,7 +59,7 @@ keywords = ["rust", "cli", "template"]
 #[cfg(test)]
 mod search_tests {
     use super::*;
-    use ggen_cli_lib::domain::marketplace::search::{search_packages, SearchFilters};
+    use ggen_domain::marketplace::search::{search_packages, SearchFilters};
 
     #[tokio::test]
     async fn test_search_finds_exact_match() -> Result<()> {

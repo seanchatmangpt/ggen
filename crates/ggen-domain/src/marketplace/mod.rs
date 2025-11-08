@@ -12,17 +12,17 @@ pub mod search;
 pub mod update;
 
 // Re-export commonly used types and functions
-pub use search::{SearchArgs, SearchFilters, SearchResult, search_packages, search_and_display};
-pub use install::{InstallArgs, InstallOptions, InstallResult, install_package, install_and_report};
-pub use list::{ListArgs, list_and_display};
-pub use update::{UpdateArgs, update_and_report};
-pub use publish::{PublishArgs, publish_and_report};
+pub use search::{SearchInput, SearchFilters, SearchResult, execute_search};
+pub use install::{InstallInput, InstallOptions, InstallResult, execute_install};
+pub use list::{ListInput, ListOutput, execute_list};
+pub use publish::{PublishInput, PublishOutput, execute_publish};
+pub use update::{UpdateInput, UpdateOutput, execute_update};
 pub use registry::{
     Registry, CacheManager, PackageMetadata, VersionMetadata, Dependency, RegistryIndex
 };
 pub use p2p::{
-    P2PArgs, P2PCommand, StartArgs, PublishArgs as P2PPublishArgs,
-    SearchArgs as P2PSearchArgs, PeerListArgs, PeerInfoArgs, BootstrapArgs,
+    P2PInput, P2PCommand, StartInput, PublishInput as P2PPublishInput,
+    SearchInput as P2PSearchInput, PeerListInput, PeerInfoInput, BootstrapInput,
     execute_p2p_command
 };
 

@@ -5,5 +5,9 @@
 pub mod doctor;
 pub mod env;
 
-pub use doctor::{SystemCheck, SystemChecker};
-pub use env::{EnvironmentManager, GgenEnvironment, EnvArgs};
+pub use doctor::{CheckStatus, CheckResult, DoctorInput, DoctorResult, EnvironmentInfo, execute_doctor};
+pub use env::{
+    EnvironmentManager, GgenEnvironment, DefaultEnvironmentManager,
+    execute_env_list, execute_env_get, execute_env_set,
+    execute_env_show_dirs, execute_env_ensure_dirs, execute_env_clear_cache,
+};

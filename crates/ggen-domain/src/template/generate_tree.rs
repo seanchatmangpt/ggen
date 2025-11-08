@@ -132,8 +132,10 @@ nodes:
     }
 }
 
+use serde::{Deserialize, Serialize};
+
 /// CLI Arguments for generate-tree command
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Deserialize)]
 pub struct GenerateTreeInput {
     /// Template file path
     pub template: PathBuf,
@@ -148,20 +150,52 @@ pub struct GenerateTreeInput {
     pub force: bool,
 }
 
-/// CLI run function - bridges sync CLI to async domain logic
-        // Parse variables
-        let variables: HashMap<String, String> = args
-            .var
-            .iter()
-            .filter_map(|v| v.split_once('='))
-            .map(|(k, v)| (k.to_string(), v.to_string()))
-            .collect();
+/// Generate tree output
+#[derive(Debug, Clone, Serialize)]
+pub struct GenerateTreeOutput {
+    pub files_generated: usize,
+    pub directories_created: usize,
+    pub output_path: String,
+}
 
-        let _result = generate_file_tree(&args.template, &args.output, &variables, args.force)?;
+/// Execute generate-tree command - full implementation
+pub async fn execute_generate_tree(input: GenerateTreeInput) -> Result<GenerateTreeOutput> {
+    // Parse variables from key=value format
+    let mut variables = HashMap::new();
+    for var_str in &input.var {
+        let parts: Vec<&str> = var_str.splitn(2, '=').collect();
+        if parts.len() != 2 {
+            return Err(ggen_utils::error::Error::new(&format!(
+                "Invalid variable format: '{}'. Expected 'key=value'",
+                var_str
+            )));
+        }
+        variables.insert(parts[0].to_string(), parts[1].to_string());
+    }
 
-        println!("✅ Generated file tree");
-        println!("📁 Output directory: {}", args.output.display());
+    // Generate file tree
+    let result = generate_file_tree(&input.template, &input.output, &variables, input.force)?;
 
-        Ok(())
+    // Return output with generation results
+    Ok(GenerateTreeOutput {
+        files_generated: result.files().len(),
+        directories_created: result.directories().len(),
+        output_path: input.output.display().to_string(),
     })
+}
+
+/// CLI run function - bridges sync CLI to async domain logic
+pub fn run(args: &GenerateTreeInput) -> Result<()> {
+    // Use tokio runtime for async execution
+    let runtime = tokio::runtime::Runtime::new()
+        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to create runtime: {}", e)))?;
+
+    let output = runtime.block_on(execute_generate_tree(args.clone()))?;
+
+    println!("✅ Generated file tree from: {}", args.template.display());
+    println!("📁 Output directory: {}", output.output_path);
+    println!("📄 Files created: {}", output.files_generated);
+    println!("📂 Directories created: {}", output.directories_created);
+
+    Ok(())
 }

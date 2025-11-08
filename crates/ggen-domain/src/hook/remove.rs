@@ -5,6 +5,8 @@
 use ggen_utils::error::Result;
 use serde::{Deserialize, Serialize};
 
+use super::{HookResult, HookStatus};
+
 /// Arguments for removing a hook
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct RemoveInput {

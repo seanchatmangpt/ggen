@@ -136,6 +136,8 @@ mod tests {
     }
 }
 
+use serde::{Deserialize, Serialize};
+
 /// CLI Arguments for regenerate command
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct RegenerateInput {

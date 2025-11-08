@@ -1,7 +1,7 @@
 //! Template creation domain logic
 
-
 use ggen_utils::error::Result;
+use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
 /// Generate template content based on template type
@@ -85,24 +85,47 @@ pub struct NewInput {
     pub output_dir: PathBuf,
 }
 
-/// CLI run function - bridges sync CLI to async domain logic
-        let content = generate_template_content(&args.name, &args.template_type)?;
+/// New template output
+#[derive(Debug, Clone, Serialize)]
+pub struct NewOutput {
+    pub template_path: String,
+    pub template_name: String,
+    pub template_type: String,
+}
 
-        let filename = format!("{}.tmpl", args.name);
-        let output_path = args.output_dir.join(&filename);
+/// Execute template creation - full implementation
+pub fn execute_new(input: NewInput) -> Result<NewOutput> {
+    // Generate template content
+    let content = generate_template_content(&input.name, &input.template_type)?;
 
-        // Create output directory if it doesn't exist
-        std::fs::create_dir_all(&args.output_dir).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to create output directory: {}", e))
-        })?;
+    // Create filename
+    let filename = format!("{}.tmpl", input.name);
+    let output_path = input.output_dir.join(&filename);
 
-        std::fs::write(&output_path, content).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to write template: {}", e))
-        })?;
+    // Create output directory if it doesn't exist
+    std::fs::create_dir_all(&input.output_dir).map_err(|e| {
+        ggen_utils::error::Error::new(&format!("Failed to create output directory: {}", e))
+    })?;
 
-        println!("✅ Created new {} template: {}", args.template_type, output_path.display());
-        println!("📝 Template name: {}", args.name);
+    // Write template file
+    std::fs::write(&output_path, content).map_err(|e| {
+        ggen_utils::error::Error::new(&format!("Failed to write template: {}", e))
+    })?;
 
-        Ok(())
+    // Return output
+    Ok(NewOutput {
+        template_path: output_path.display().to_string(),
+        template_name: input.name,
+        template_type: input.template_type,
     })
+}
+
+/// CLI run function - bridges sync CLI to async domain logic
+pub fn run(args: &NewInput) -> Result<()> {
+    let output = execute_new(args.clone())?;
+
+    println!("✅ Created new {} template: {}", output.template_type, output.template_path);
+    println!("📝 Template name: {}", output.template_name);
+
+    Ok(())
 }

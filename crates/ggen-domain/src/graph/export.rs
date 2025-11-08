@@ -79,7 +79,7 @@ pub struct ExportStats {
 }
 
 /// CLI Arguments for export command
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, serde::Deserialize)]
 pub struct ExportInput {
     /// Input RDF file to load
     pub input: PathBuf,
@@ -91,6 +91,7 @@ pub struct ExportInput {
     pub format: String,
 
     /// Pretty print output
+    #[serde(default)]
     pub pretty: bool,
 }
 
@@ -315,31 +316,65 @@ mod tests {
     }
 }
 
-/// CLI run function - bridges sync CLI to async domain logic
-        // Load graph from input file
-        let graph = Graph::load_from_file(args.input.to_str().ok_or_else(|| {
-            ggen_utils::error::Error::new("Invalid input path")
-        })?)
-        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to load graph: {}", e)))?;
+/// Export output for CLI
+#[derive(Debug, Clone, serde::Serialize)]
+pub struct ExportOutput {
+    pub output_path: String,
+    pub format: String,
+    pub triples_exported: usize,
+    pub file_size_bytes: usize,
+}
 
-        // Parse format
-        let format = ExportFormat::from_str(&args.format)
-            .map_err(|e| ggen_utils::error::Error::new(&format!("Invalid format: {}", e)))?;
+/// Execute export operation - domain logic entry point
+///
+/// This is the main entry point for the export command from CLI
+pub async fn execute_export(input: ExportInput) -> Result<ExportOutput> {
+    // Load the graph from input file
+    let graph = Graph::load_from_file(&input.input)
+        .context(format!("Failed to load graph from {}", input.input.display()))?;
 
-        let options = ExportOptions {
-            output_path: args.output.to_string_lossy().to_string(),
-            format,
-            pretty: args.pretty,
-            graph: Some(graph),
-        };
+    // Get triple count before export
+    let triples_exported = graph.len();
 
-        let content = export_graph(options).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Export failed: {}", e))
-        })?;
+    // Parse format
+    let format = ExportFormat::from_str(&input.format)?;
 
-        println!("✅ Exported graph to {}", args.output.display());
-        println!("📦 Content size: {} bytes", content.len());
+    // Create export options
+    let options = ExportOptions {
+        output_path: input.output.to_string_lossy().to_string(),
+        format,
+        pretty: input.pretty,
+        graph: Some(graph),
+    };
 
-        Ok(())
+    // Perform the actual export
+    let content = export_graph(options)?;
+
+    // Get file size
+    let file_size_bytes = content.len();
+
+    Ok(ExportOutput {
+        output_path: input.output.to_string_lossy().to_string(),
+        format: format.as_str().to_string(),
+        triples_exported,
+        file_size_bytes,
     })
+}
+
+/// CLI run function - bridges sync CLI to async domain logic
+pub fn run(args: &ExportInput) -> Result<()> {
+    // Use tokio runtime to execute async function
+    let rt = tokio::runtime::Runtime::new()
+        .context("Failed to create tokio runtime")?;
+
+    let output = rt.block_on(execute_export(args.clone()))?;
+
+    println!("✅ Exported {} triples to {} ({})",
+        output.triples_exported,
+        output.output_path,
+        output.format
+    );
+    println!("   File size: {} bytes", output.file_size_bytes);
+
+    Ok(())
 }

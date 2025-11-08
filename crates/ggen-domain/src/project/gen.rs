@@ -3,6 +3,8 @@
 //! Chicago TDD: Pure business logic with REAL generation
 
 use std::collections::HashMap;
+use std::path::PathBuf;
+use serde::{Deserialize, Serialize};
 use ggen_utils::error::Result;
 
 /// Generation result with statistics
@@ -97,7 +99,7 @@ pub struct GenInput {
 
 /// Execute project generation with input (pure domain function)
 pub async fn execute_gen(input: GenInput) -> Result<GenerationResult> {
-    use ggen_core::{TemplateResolver, Template};
+    use ggen_core::{TemplateResolver, CacheManager, LockfileManager};
     use ggen_core::{Generator, GenContext, Pipeline};
     use std::collections::BTreeMap;
 
@@ -108,28 +110,31 @@ pub async fn execute_gen(input: GenInput) -> Result<GenerationResult> {
     let vars = parse_vars(&input.vars)?;
 
     // Step 3: Resolve template using ggen-core
-    let resolver = TemplateResolver::new()?;
+    // Create managers with defaults
+    let cache_manager = CacheManager::new()
+        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to create cache manager: {}", e)))?;
+    let lockfile_manager = LockfileManager::new(&input.output_dir);
+
+    let resolver = TemplateResolver::new(cache_manager, lockfile_manager);
     let template_source = resolver.resolve(&input.template_ref)
         .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to resolve template: {}", e)))?;
 
-    let template_path = match template_source {
-        ggen_core::TemplateSource::File(path) => path,
-        ggen_core::TemplateSource::Registry(_) => {
-            return Err(ggen_utils::error::Error::new("Registry templates not yet implemented"));
-        }
-    };
+    let template_path = template_source.template_path;
 
     // Step 4: Generate using ggen-core Generator
     let pipeline = Pipeline::new()
         .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to create pipeline: {}", e)))?;
-    
+
+    // Convert HashMap to BTreeMap for Generator
+    let vars_btree: BTreeMap<String, String> = vars.into_iter().collect();
+
     let ctx = GenContext::new(template_path, input.output_dir.clone())
-        .with_vars(vars)
+        .with_vars(vars_btree)
         .dry(input.dry_run);
 
     let mut generator = Generator::new(pipeline, ctx);
     
-    let output_path = generator.generate()
+    let _output_path = generator.generate()
         .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to generate project: {}", e)))?;
 
     // Step 5: Collect operations from generated files

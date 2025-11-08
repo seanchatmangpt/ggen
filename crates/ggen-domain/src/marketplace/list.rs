@@ -7,7 +7,7 @@ use ggen_utils::error::Result;
 use serde_json;
 
 /// List command arguments
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default)]
 pub struct ListInput {
     /// Show detailed information
     pub detailed: bool,
@@ -105,7 +105,80 @@ pub async fn list_and_display(detailed: bool, json: bool) -> Result<()> {
     Ok(())
 }
 
-/// Run list command (sync wrapper for CLI)
+/// Execute list command using ggen-marketplace backend
+pub async fn execute_list(input: ListInput) -> Result<ListOutput> {
+    use ggen_marketplace::prelude::*;
+    use ggen_marketplace::backend::LocalRegistry;
+
+    let registry_path = dirs::home_dir()
+        .ok_or_else(|| ggen_utils::error::Error::new("home directory not found"))?
+        .join(".ggen")
+        .join("registry");
+
+    // Initialize registry
+    let registry = LocalRegistry::new(registry_path.clone()).await
+        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to initialize registry: {}", e)))?;
+
+    // Load installed packages
+    let packages_dir = dirs::home_dir()
+        .ok_or_else(|| ggen_utils::error::Error::new("home directory not found"))?
+        .join(".ggen")
+        .join("packages");
+
+    let lockfile_path = packages_dir.join("ggen.lock");
+    let lockfile: Lockfile = if lockfile_path.exists() {
+        let content = tokio::fs::read_to_string(&lockfile_path).await?;
+        serde_json::from_str(&content)?
+    } else {
+        Lockfile {
+            version: String::new(),
+            packages: std::collections::HashMap::new(),
+        }
+    };
+
+    // Get registry metadata (unused but shows we can interact with registry)
+    let _metadata = registry.metadata().await
+        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to get metadata: {}", e)))?;
+
+    let mut packages = vec![];
+
+    // Iterate through lockfile packages
+    for (name, info) in &lockfile.packages {
+        let package_id = PackageId::new("local", name);
+
+        if let Ok(pkg) = registry.get_package(&package_id).await {
+            packages.push(PackageListItem {
+                name: name.clone(),
+                version: info.version.clone(),
+                title: pkg.metadata.title.clone(),
+                description: pkg.metadata.description.clone(),
+                installed_at: info.installed_at.clone(),
+            });
+        }
+    }
+
+    Ok(ListOutput {
+        packages_listed: packages.len(),
+        packages,
+    })
+}
+
+/// List output
+#[derive(Debug, Clone, Default, serde::Serialize)]
+pub struct ListOutput {
+    pub packages_listed: usize,
+    #[serde(skip)]
+    pub packages: Vec<PackageListItem>,
+}
+
+/// Package list item
+#[derive(Debug, Clone, serde::Serialize)]
+pub struct PackageListItem {
+    pub name: String,
+    pub version: String,
+    pub title: String,
+    pub description: String,
+    pub installed_at: Option<String>,
 }
 
 /// Lockfile structure

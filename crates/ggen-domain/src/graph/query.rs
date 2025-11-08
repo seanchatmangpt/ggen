@@ -306,6 +306,6 @@ pub async fn execute_query(input: QueryInput) -> Result<QueryResult> {
     };
 
     execute_sparql(options).map_err(|e| {
-        ggen_utils::error::Error::new(&format!("SPARQL query failed: {}", e))
+        anyhow::anyhow!("SPARQL query failed: {}", e)
     })
 }
