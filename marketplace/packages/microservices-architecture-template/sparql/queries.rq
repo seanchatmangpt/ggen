@@ -1,0 +1,506 @@
+# ============================================================================
+# MICROSERVICES ARCHITECTURE SPARQL QUERIES
+# Template generation queries for distributed systems
+# ============================================================================
+
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX ggen: <http://ggen.tech/ontology#>
+PREFIX ms: <http://ggen.tech/microservices#>
+
+# ----------------------------------------------------------------------------
+# Query 1: Generate API Gateway Service (Rust/Axum)
+# ----------------------------------------------------------------------------
+
+CONSTRUCT {
+    ?gateway ggen:generatesFile ?filename ;
+             ggen:fileContent ?content .
+}
+WHERE {
+    ?gateway a ms:APIGateway ;
+             ggen:name ?name ;
+             ggen:language "Rust" ;
+             ggen:framework "Axum" ;
+             ggen:port ?port .
+
+    BIND(CONCAT(?name, "/src/main.rs") AS ?filename)
+    BIND(CONCAT(
+        "use axum::{\n",
+        "    extract::{Path, State},\n",
+        "    http::{StatusCode, Uri},\n",
+        "    response::IntoResponse,\n",
+        "    routing::{get, post},\n",
+        "    Json, Router,\n",
+        "};\n",
+        "use serde::{Deserialize, Serialize};\n",
+        "use std::sync::Arc;\n",
+        "use tokio::sync::RwLock;\n",
+        "use tower::ServiceBuilder;\n",
+        "use tower_http::{\n",
+        "    trace::TraceLayer,\n",
+        "    cors::CorsLayer,\n",
+        "};\n",
+        "use opentelemetry::{\n",
+        "    global,\n",
+        "    sdk::trace::TracerProvider,\n",
+        "    trace::Tracer,\n",
+        "};\n",
+        "use opentelemetry_jaeger::new_agent_pipeline;\n",
+        "\n",
+        "#[derive(Clone)]\n",
+        "struct AppState {\n",
+        "    circuit_breaker: Arc<RwLock<CircuitBreaker>>,\n",
+        "}\n",
+        "\n",
+        "#[derive(Debug, Clone)]\n",
+        "struct CircuitBreaker {\n",
+        "    state: CircuitState,\n",
+        "    failure_count: u32,\n",
+        "    last_failure_time: Option<std::time::Instant>,\n",
+        "}\n",
+        "\n",
+        "#[derive(Debug, Clone, PartialEq)]\n",
+        "enum CircuitState { Closed, Open, HalfOpen }\n",
+        "\n",
+        "impl CircuitBreaker {\n",
+        "    fn new() -> Self {\n",
+        "        Self {\n",
+        "            state: CircuitState::Closed,\n",
+        "            failure_count: 0,\n",
+        "            last_failure_time: None,\n",
+        "        }\n",
+        "    }\n",
+        "\n",
+        "    fn record_success(&mut self) {\n",
+        "        self.state = CircuitState::Closed;\n",
+        "        self.failure_count = 0;\n",
+        "    }\n",
+        "\n",
+        "    fn record_failure(&mut self) {\n",
+        "        self.failure_count += 1;\n",
+        "        self.last_failure_time = Some(std::time::Instant::now());\n",
+        "        if self.failure_count >= 5 {\n",
+        "            self.state = CircuitState::Open;\n",
+        "        }\n",
+        "    }\n",
+        "\n",
+        "    fn can_attempt(&mut self) -> bool {\n",
+        "        match self.state {\n",
+        "            CircuitState::Closed => true,\n",
+        "            CircuitState::Open => {\n",
+        "                if let Some(last_failure) = self.last_failure_time {\n",
+        "                    if last_failure.elapsed().as_secs() >= 60 {\n",
+        "                        self.state = CircuitState::HalfOpen;\n",
+        "                        true\n",
+        "                    } else { false }\n",
+        "                } else { false }\n",
+        "            }\n",
+        "            CircuitState::HalfOpen => true,\n",
+        "        }\n",
+        "    }\n",
+        "}\n",
+        "\n",
+        "#[tokio::main]\n",
+        "async fn main() {\n",
+        "    // Initialize OpenTelemetry\n",
+        "    let tracer = new_agent_pipeline()\n",
+        "        .with_service_name(\"", ?name, "\")\n",
+        "        .install_simple()\n",
+        "        .expect(\"Failed to install tracer\");\n",
+        "\n",
+        "    let state = AppState {\n",
+        "        circuit_breaker: Arc::new(RwLock::new(CircuitBreaker::new())),\n",
+        "    };\n",
+        "\n",
+        "    let app = Router::new()\n",
+        "        .route(\"/health/live\", get(health_live))\n",
+        "        .route(\"/health/ready\", get(health_ready))\n",
+        "        .route(\"/metrics\", get(metrics))\n",
+        "        .route(\"/users/*path\", get(proxy_to_user_service).post(proxy_to_user_service))\n",
+        "        .route(\"/products/*path\", get(proxy_to_product_service))\n",
+        "        .route(\"/orders/*path\", get(proxy_to_order_service).post(proxy_to_order_service))\n",
+        "        .layer(ServiceBuilder::new()\n",
+        "            .layer(TraceLayer::new_for_http())\n",
+        "            .layer(CorsLayer::permissive()))\n",
+        "        .with_state(state);\n",
+        "\n",
+        "    println!(\"API Gateway listening on ", ?port, "\");\n",
+        "    let listener = tokio::net::TcpListener::bind(\"0.0.0.0:", ?port, "\")\n",
+        "        .await.unwrap();\n",
+        "    axum::serve(listener, app).await.unwrap();\n",
+        "}\n",
+        "\n",
+        "async fn health_live() -> &'static str { \"alive\" }\n",
+        "async fn health_ready() -> &'static str { \"ready\" }\n",
+        "async fn metrics() -> &'static str { \"# HELP gateway_requests_total\\n\" }\n",
+        "\n",
+        "async fn proxy_to_user_service(State(state): State<AppState>) -> impl IntoResponse {\n",
+        "    proxy_request(state, \"http://user-service:8001\").await\n",
+        "}\n",
+        "\n",
+        "async fn proxy_to_product_service(State(state): State<AppState>) -> impl IntoResponse {\n",
+        "    proxy_request(state, \"http://product-service:8002\").await\n",
+        "}\n",
+        "\n",
+        "async fn proxy_to_order_service(State(state): State<AppState>) -> impl IntoResponse {\n",
+        "    proxy_request(state, \"http://order-service:8003\").await\n",
+        "}\n",
+        "\n",
+        "async fn proxy_request(state: AppState, target: &str) -> impl IntoResponse {\n",
+        "    let mut cb = state.circuit_breaker.write().await;\n",
+        "    if !cb.can_attempt() {\n",
+        "        return (StatusCode::SERVICE_UNAVAILABLE, \"Circuit breaker open\");\n",
+        "    }\n",
+        "    drop(cb);\n",
+        "\n",
+        "    match reqwest::get(target).await {\n",
+        "        Ok(_) => {\n",
+        "            state.circuit_breaker.write().await.record_success();\n",
+        "            (StatusCode::OK, \"proxied\")\n",
+        "        }\n",
+        "        Err(_) => {\n",
+        "            state.circuit_breaker.write().await.record_failure();\n",
+        "            (StatusCode::BAD_GATEWAY, \"service unavailable\")\n",
+        "        }\n",
+        "    }\n",
+        "}\n"
+    ) AS ?content)
+}
+
+# ----------------------------------------------------------------------------
+# Query 2: Generate User Service (TypeScript/Express)
+# ----------------------------------------------------------------------------
+
+CONSTRUCT {
+    ?service ggen:generatesFile ?filename ;
+             ggen:fileContent ?content .
+}
+WHERE {
+    ?service a ms:BusinessService ;
+             ggen:name "user-service" ;
+             ggen:language "TypeScript" ;
+             ggen:port ?port .
+
+    BIND("user-service/src/index.ts" AS ?filename)
+    BIND(CONCAT(
+        "import express, { Request, Response } from 'express';\n",
+        "import { trace, context } from '@opentelemetry/api';\n",
+        "import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node';\n",
+        "import { JaegerExporter } from '@opentelemetry/exporter-jaeger';\n",
+        "import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';\n",
+        "\n",
+        "const provider = new NodeTracerProvider();\n",
+        "const exporter = new JaegerExporter({ endpoint: 'http://jaeger:14268/api/traces' });\n",
+        "provider.addSpanProcessor(new SimpleSpanProcessor(exporter));\n",
+        "provider.register();\n",
+        "const tracer = trace.getTracer('user-service');\n",
+        "\n",
+        "const app = express();\n",
+        "app.use(express.json());\n",
+        "\n",
+        "interface User {\n",
+        "  id: string;\n",
+        "  email: string;\n",
+        "  name: string;\n",
+        "}\n",
+        "\n",
+        "const users: Map<string, User> = new Map();\n",
+        "\n",
+        "app.get('/health/live', (_req: Request, res: Response) => {\n",
+        "  res.send('alive');\n",
+        "});\n",
+        "\n",
+        "app.get('/health/ready', (_req: Request, res: Response) => {\n",
+        "  res.send('ready');\n",
+        "});\n",
+        "\n",
+        "app.get('/metrics', (_req: Request, res: Response) => {\n",
+        "  res.send('# HELP user_service_requests_total\\n');\n",
+        "});\n",
+        "\n",
+        "app.get('/users', (_req: Request, res: Response) => {\n",
+        "  const span = tracer.startSpan('get-users');\n",
+        "  span.setAttribute('user.count', users.size);\n",
+        "  res.json(Array.from(users.values()));\n",
+        "  span.end();\n",
+        "});\n",
+        "\n",
+        "app.get('/users/:id', (req: Request, res: Response) => {\n",
+        "  const span = tracer.startSpan('get-user');\n",
+        "  const user = users.get(req.params.id);\n",
+        "  if (!user) {\n",
+        "    span.setAttribute('error', true);\n",
+        "    span.end();\n",
+        "    return res.status(404).json({ error: 'User not found' });\n",
+        "  }\n",
+        "  span.end();\n",
+        "  res.json(user);\n",
+        "});\n",
+        "\n",
+        "app.post('/users', (req: Request, res: Response) => {\n",
+        "  const span = tracer.startSpan('create-user');\n",
+        "  const user: User = {\n",
+        "    id: Math.random().toString(36).substr(2, 9),\n",
+        "    email: req.body.email,\n",
+        "    name: req.body.name,\n",
+        "  };\n",
+        "  users.set(user.id, user);\n",
+        "  span.setAttribute('user.id', user.id);\n",
+        "  span.end();\n",
+        "  res.status(201).json(user);\n",
+        "});\n",
+        "\n",
+        "const PORT = ", ?port, ";\n",
+        "app.listen(PORT, () => {\n",
+        "  console.log(`User service listening on ${PORT}`);\n",
+        "});\n"
+    ) AS ?content)
+}
+
+# ----------------------------------------------------------------------------
+# Query 3: Generate Product Service (Python/FastAPI)
+# ----------------------------------------------------------------------------
+
+CONSTRUCT {
+    ?service ggen:generatesFile ?filename ;
+             ggen:fileContent ?content .
+}
+WHERE {
+    ?service a ms:BusinessService ;
+             ggen:name "product-service" ;
+             ggen:language "Python" ;
+             ggen:port ?port .
+
+    BIND("product-service/main.py" AS ?filename)
+    BIND(CONCAT(
+        "from fastapi import FastAPI, HTTPException\n",
+        "from pydantic import BaseModel\n",
+        "from typing import List, Optional\n",
+        "from opentelemetry import trace\n",
+        "from opentelemetry.sdk.trace import TracerProvider\n",
+        "from opentelemetry.sdk.trace.export import BatchSpanProcessor\n",
+        "from opentelemetry.exporter.jaeger.thrift import JaegerExporter\n",
+        "from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor\n",
+        "\n",
+        "provider = TracerProvider()\n",
+        "jaeger_exporter = JaegerExporter(\n",
+        "    agent_host_name='jaeger',\n",
+        "    agent_port=6831,\n",
+        ")\n",
+        "provider.add_span_processor(BatchSpanProcessor(jaeger_exporter))\n",
+        "trace.set_tracer_provider(provider)\n",
+        "tracer = trace.get_tracer(__name__)\n",
+        "\n",
+        "app = FastAPI(title='Product Service')\n",
+        "FastAPIInstrumentor.instrument_app(app)\n",
+        "\n",
+        "class Product(BaseModel):\n",
+        "    id: str\n",
+        "    name: str\n",
+        "    price: float\n",
+        "    stock: int\n",
+        "\n",
+        "products: dict[str, Product] = {}\n",
+        "\n",
+        "@app.get('/health/live')\n",
+        "async def health_live():\n",
+        "    return 'alive'\n",
+        "\n",
+        "@app.get('/health/ready')\n",
+        "async def health_ready():\n",
+        "    return 'ready'\n",
+        "\n",
+        "@app.get('/metrics')\n",
+        "async def metrics():\n",
+        "    return '# HELP product_service_requests_total'\n",
+        "\n",
+        "@app.get('/products', response_model=List[Product])\n",
+        "async def get_products():\n",
+        "    with tracer.start_as_current_span('get-products'):\n",
+        "        return list(products.values())\n",
+        "\n",
+        "@app.get('/products/{product_id}', response_model=Product)\n",
+        "async def get_product(product_id: str):\n",
+        "    with tracer.start_as_current_span('get-product') as span:\n",
+        "        span.set_attribute('product.id', product_id)\n",
+        "        if product_id not in products:\n",
+        "            raise HTTPException(status_code=404, detail='Product not found')\n",
+        "        return products[product_id]\n",
+        "\n",
+        "@app.post('/products', response_model=Product, status_code=201)\n",
+        "async def create_product(product: Product):\n",
+        "    with tracer.start_as_current_span('create-product') as span:\n",
+        "        span.set_attribute('product.id', product.id)\n",
+        "        products[product.id] = product\n",
+        "        return product\n",
+        "\n",
+        "if __name__ == '__main__':\n",
+        "    import uvicorn\n",
+        "    uvicorn.run(app, host='0.0.0.0', port=", ?port, ")\n"
+    ) AS ?content)
+}
+
+# ----------------------------------------------------------------------------
+# Query 4: Generate Docker Compose Configuration
+# ----------------------------------------------------------------------------
+
+CONSTRUCT {
+    ?config ggen:generatesFile "docker-compose.yml" ;
+            ggen:fileContent ?content .
+}
+WHERE {
+    BIND(ms:InfrastructureService AS ?config)
+    BIND(CONCAT(
+        "version: '3.8'\n\n",
+        "services:\n",
+        "  api-gateway:\n",
+        "    build: ./api-gateway\n",
+        "    ports:\n",
+        "      - '8000:8000'\n",
+        "    environment:\n",
+        "      - JAEGER_AGENT_HOST=jaeger\n",
+        "    depends_on:\n",
+        "      - user-service\n",
+        "      - product-service\n",
+        "      - order-service\n",
+        "      - jaeger\n",
+        "    healthcheck:\n",
+        "      test: ['CMD', 'curl', '-f', 'http://localhost:8000/health/live']\n",
+        "      interval: 30s\n",
+        "      timeout: 5s\n",
+        "      retries: 3\n\n",
+        "  user-service:\n",
+        "    build: ./user-service\n",
+        "    ports:\n",
+        "      - '8001:8001'\n",
+        "    environment:\n",
+        "      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/users\n",
+        "      - JAEGER_AGENT_HOST=jaeger\n",
+        "    depends_on:\n",
+        "      - postgres\n",
+        "      - jaeger\n",
+        "    healthcheck:\n",
+        "      test: ['CMD', 'curl', '-f', 'http://localhost:8001/health/live']\n",
+        "      interval: 30s\n",
+        "      timeout: 5s\n",
+        "      retries: 3\n\n",
+        "  product-service:\n",
+        "    build: ./product-service\n",
+        "    ports:\n",
+        "      - '8002:8002'\n",
+        "    environment:\n",
+        "      - MONGO_URL=mongodb://mongodb:27017/products\n",
+        "      - JAEGER_AGENT_HOST=jaeger\n",
+        "    depends_on:\n",
+        "      - mongodb\n",
+        "      - jaeger\n",
+        "    healthcheck:\n",
+        "      test: ['CMD', 'curl', '-f', 'http://localhost:8002/health/live']\n",
+        "      interval: 30s\n",
+        "      timeout: 5s\n",
+        "      retries: 3\n\n",
+        "  order-service:\n",
+        "    build: ./order-service\n",
+        "    ports:\n",
+        "      - '8003:8003'\n",
+        "    environment:\n",
+        "      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/orders\n",
+        "      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672\n",
+        "      - JAEGER_AGENT_HOST=jaeger\n",
+        "    depends_on:\n",
+        "      - postgres\n",
+        "      - rabbitmq\n",
+        "      - jaeger\n",
+        "    healthcheck:\n",
+        "      test: ['CMD', 'curl', '-f', 'http://localhost:8003/health/live']\n",
+        "      interval: 30s\n",
+        "      timeout: 5s\n",
+        "      retries: 3\n\n",
+        "  postgres:\n",
+        "    image: postgres:15-alpine\n",
+        "    environment:\n",
+        "      - POSTGRES_PASSWORD=postgres\n",
+        "    ports:\n",
+        "      - '5432:5432'\n",
+        "    volumes:\n",
+        "      - postgres-data:/var/lib/postgresql/data\n\n",
+        "  mongodb:\n",
+        "    image: mongo:7-alpine\n",
+        "    ports:\n",
+        "      - '27017:27017'\n",
+        "    volumes:\n",
+        "      - mongo-data:/data/db\n\n",
+        "  rabbitmq:\n",
+        "    image: rabbitmq:3.12-management-alpine\n",
+        "    ports:\n",
+        "      - '5672:5672'\n",
+        "      - '15672:15672'\n",
+        "    volumes:\n",
+        "      - rabbitmq-data:/var/lib/rabbitmq\n\n",
+        "  jaeger:\n",
+        "    image: jaegertracing/all-in-one:1.52\n",
+        "    ports:\n",
+        "      - '6831:6831/udp'\n",
+        "      - '14268:14268'\n",
+        "      - '16686:16686'\n",
+        "    environment:\n",
+        "      - COLLECTOR_OTLP_ENABLED=true\n\n",
+        "volumes:\n",
+        "  postgres-data:\n",
+        "  mongo-data:\n",
+        "  rabbitmq-data:\n"
+    ) AS ?content)
+}
+
+# ----------------------------------------------------------------------------
+# Query 5: Generate Kubernetes Deployment Manifest
+# ----------------------------------------------------------------------------
+
+CONSTRUCT {
+    ?deployment ggen:generatesFile ?filename ;
+                ggen:fileContent ?content .
+}
+WHERE {
+    ?deployment a ms:Deployment ;
+                ggen:name ?name ;
+                ggen:replicas ?replicas ;
+                ggen:resourceLimitCPU ?cpuLimit ;
+                ggen:resourceLimitMemory ?memLimit .
+
+    BIND(CONCAT("kubernetes/", ?name, "-deployment.yaml") AS ?filename)
+    BIND(CONCAT(
+        "apiVersion: apps/v1\n",
+        "kind: Deployment\n",
+        "metadata:\n",
+        "  name: ", ?name, "\n",
+        "spec:\n",
+        "  replicas: ", STR(?replicas), "\n",
+        "  selector:\n",
+        "    matchLabels:\n",
+        "      app: ", ?name, "\n",
+        "  template:\n",
+        "    metadata:\n",
+        "      labels:\n",
+        "        app: ", ?name, "\n",
+        "    spec:\n",
+        "      containers:\n",
+        "      - name: ", ?name, "\n",
+        "        image: ", ?name, ":latest\n",
+        "        resources:\n",
+        "          limits:\n",
+        "            cpu: ", ?cpuLimit, "\n",
+        "            memory: ", ?memLimit, "\n",
+        "        livenessProbe:\n",
+        "          httpGet:\n",
+        "            path: /health/live\n",
+        "            port: 8000\n",
+        "          initialDelaySeconds: 10\n",
+        "          periodSeconds: 10\n",
+        "        readinessProbe:\n",
+        "          httpGet:\n",
+        "            path: /health/ready\n",
+        "            port: 8000\n",
+        "          initialDelaySeconds: 5\n",
+        "          periodSeconds: 5\n"
+    ) AS ?content)
+}

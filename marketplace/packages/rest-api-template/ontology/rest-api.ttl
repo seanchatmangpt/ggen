@@ -1,0 +1,489 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rest: <http://ggen.ai/ontology/rest-api#> .
+@prefix http: <http://www.w3.org/2011/http#> .
+@prefix sec: <http://ggen.ai/ontology/security#> .
+
+# ============================================================================
+# REST API Ontology - Comprehensive REST Service Definition
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# Core API Classes
+# ----------------------------------------------------------------------------
+
+rest:RestAPI a owl:Class ;
+    rdfs:label "REST API" ;
+    rdfs:comment "A RESTful web service with endpoints, authentication, and middleware" .
+
+rest:Endpoint a owl:Class ;
+    rdfs:label "API Endpoint" ;
+    rdfs:comment "A single REST endpoint with path, method, and handlers" .
+
+rest:Route a owl:Class ;
+    rdfs:label "Route" ;
+    rdfs:comment "URL pattern for endpoint matching" .
+
+rest:Handler a owl:Class ;
+    rdfs:label "Handler" ;
+    rdfs:comment "Function that processes requests and generates responses" .
+
+rest:Middleware a owl:Class ;
+    rdfs:label "Middleware" ;
+    rdfs:comment "Interceptor for request/response processing" .
+
+# ----------------------------------------------------------------------------
+# HTTP Method Classes
+# ----------------------------------------------------------------------------
+
+rest:HTTPMethod a owl:Class ;
+    rdfs:label "HTTP Method" ;
+    rdfs:comment "Standard HTTP request methods" .
+
+rest:GET a rest:HTTPMethod ;
+    rdfs:label "GET" ;
+    rdfs:comment "Retrieve resource representation" ;
+    rest:isIdempotent true ;
+    rest:isSafe true .
+
+rest:POST a rest:HTTPMethod ;
+    rdfs:label "POST" ;
+    rdfs:comment "Create new resource" ;
+    rest:isIdempotent false ;
+    rest:isSafe false .
+
+rest:PUT a rest:HTTPMethod ;
+    rdfs:label "PUT" ;
+    rdfs:comment "Update or replace resource" ;
+    rest:isIdempotent true ;
+    rest:isSafe false .
+
+rest:PATCH a rest:HTTPMethod ;
+    rdfs:label "PATCH" ;
+    rdfs:comment "Partial update of resource" ;
+    rest:isIdempotent true ;
+    rest:isSafe false .
+
+rest:DELETE a rest:HTTPMethod ;
+    rdfs:label "DELETE" ;
+    rdfs:comment "Remove resource" ;
+    rest:isIdempotent true ;
+    rest:isSafe false .
+
+rest:HEAD a rest:HTTPMethod ;
+    rdfs:label "HEAD" ;
+    rdfs:comment "Retrieve headers only" ;
+    rest:isIdempotent true ;
+    rest:isSafe true .
+
+rest:OPTIONS a rest:HTTPMethod ;
+    rdfs:label "OPTIONS" ;
+    rdfs:comment "Describe communication options" ;
+    rest:isIdempotent true ;
+    rest:isSafe true .
+
+# ----------------------------------------------------------------------------
+# HTTP Status Code Classes
+# ----------------------------------------------------------------------------
+
+rest:StatusCode a owl:Class ;
+    rdfs:label "HTTP Status Code" ;
+    rdfs:comment "Standard HTTP response status codes" .
+
+# Success codes
+rest:Status200 a rest:StatusCode ;
+    rdfs:label "200 OK" ;
+    rest:statusCode 200 ;
+    rest:statusMessage "OK" ;
+    rest:statusCategory "success" .
+
+rest:Status201 a rest:StatusCode ;
+    rdfs:label "201 Created" ;
+    rest:statusCode 201 ;
+    rest:statusMessage "Created" ;
+    rest:statusCategory "success" .
+
+rest:Status204 a rest:StatusCode ;
+    rdfs:label "204 No Content" ;
+    rest:statusCode 204 ;
+    rest:statusMessage "No Content" ;
+    rest:statusCategory "success" .
+
+# Client error codes
+rest:Status400 a rest:StatusCode ;
+    rdfs:label "400 Bad Request" ;
+    rest:statusCode 400 ;
+    rest:statusMessage "Bad Request" ;
+    rest:statusCategory "client_error" .
+
+rest:Status401 a rest:StatusCode ;
+    rdfs:label "401 Unauthorized" ;
+    rest:statusCode 401 ;
+    rest:statusMessage "Unauthorized" ;
+    rest:statusCategory "client_error" .
+
+rest:Status403 a rest:StatusCode ;
+    rdfs:label "403 Forbidden" ;
+    rest:statusCode 403 ;
+    rest:statusMessage "Forbidden" ;
+    rest:statusCategory "client_error" .
+
+rest:Status404 a rest:StatusCode ;
+    rdfs:label "404 Not Found" ;
+    rest:statusCode 404 ;
+    rest:statusMessage "Not Found" ;
+    rest:statusCategory "client_error" .
+
+rest:Status422 a rest:StatusCode ;
+    rdfs:label "422 Unprocessable Entity" ;
+    rest:statusCode 422 ;
+    rest:statusMessage "Unprocessable Entity" ;
+    rest:statusCategory "client_error" .
+
+rest:Status429 a rest:StatusCode ;
+    rdfs:label "429 Too Many Requests" ;
+    rest:statusCode 429 ;
+    rest:statusMessage "Too Many Requests" ;
+    rest:statusCategory "client_error" .
+
+# Server error codes
+rest:Status500 a rest:StatusCode ;
+    rdfs:label "500 Internal Server Error" ;
+    rest:statusCode 500 ;
+    rest:statusMessage "Internal Server Error" ;
+    rest:statusCategory "server_error" .
+
+rest:Status503 a rest:StatusCode ;
+    rdfs:label "503 Service Unavailable" ;
+    rest:statusCode 503 ;
+    rest:statusMessage "Service Unavailable" ;
+    rest:statusCategory "server_error" .
+
+# ----------------------------------------------------------------------------
+# Content Type Classes
+# ----------------------------------------------------------------------------
+
+rest:ContentType a owl:Class ;
+    rdfs:label "Content Type" ;
+    rdfs:comment "MIME types for request/response bodies" .
+
+rest:ApplicationJSON a rest:ContentType ;
+    rdfs:label "application/json" ;
+    rest:mimeType "application/json" ;
+    rest:isDefault true .
+
+rest:ApplicationXML a rest:ContentType ;
+    rdfs:label "application/xml" ;
+    rest:mimeType "application/xml" .
+
+rest:TextPlain a rest:ContentType ;
+    rdfs:label "text/plain" ;
+    rest:mimeType "text/plain" .
+
+rest:MultipartFormData a rest:ContentType ;
+    rdfs:label "multipart/form-data" ;
+    rest:mimeType "multipart/form-data" .
+
+# ----------------------------------------------------------------------------
+# Request/Response Schema Classes
+# ----------------------------------------------------------------------------
+
+rest:Schema a owl:Class ;
+    rdfs:label "Schema" ;
+    rdfs:comment "JSON Schema or type definition for validation" .
+
+rest:RequestSchema a rest:Schema ;
+    rdfs:label "Request Schema" ;
+    rdfs:comment "Validates incoming request bodies" .
+
+rest:ResponseSchema a rest:Schema ;
+    rdfs:label "Response Schema" ;
+    rdfs:comment "Defines response body structure" .
+
+rest:ValidationRule a owl:Class ;
+    rdfs:label "Validation Rule" ;
+    rdfs:comment "Constraint for request validation" .
+
+rest:RequiredField a rest:ValidationRule ;
+    rdfs:label "Required Field" ;
+    rest:severity "error" .
+
+rest:TypeConstraint a rest:ValidationRule ;
+    rdfs:label "Type Constraint" ;
+    rest:severity "error" .
+
+rest:RangeConstraint a rest:ValidationRule ;
+    rdfs:label "Range Constraint" ;
+    rest:severity "warning" .
+
+rest:PatternConstraint a rest:ValidationRule ;
+    rdfs:label "Pattern Constraint" ;
+    rest:severity "error" .
+
+# ----------------------------------------------------------------------------
+# Authentication Classes
+# ----------------------------------------------------------------------------
+
+rest:AuthenticationScheme a owl:Class ;
+    rdfs:label "Authentication Scheme" ;
+    rdfs:comment "Method for verifying client identity" .
+
+rest:JWTAuth a rest:AuthenticationScheme ;
+    rdfs:label "JWT Authentication" ;
+    rest:authType "bearer" ;
+    rest:tokenLocation "header" ;
+    rest:headerName "Authorization" .
+
+rest:OAuth2 a rest:AuthenticationScheme ;
+    rdfs:label "OAuth 2.0" ;
+    rest:authType "oauth2" ;
+    rest:flows "authorization_code,client_credentials" .
+
+rest:APIKey a rest:AuthenticationScheme ;
+    rdfs:label "API Key" ;
+    rest:authType "apiKey" ;
+    rest:keyLocation "header,query" .
+
+rest:BasicAuth a rest:AuthenticationScheme ;
+    rdfs:label "Basic Authentication" ;
+    rest:authType "basic" ;
+    rest:encoding "base64" .
+
+# ----------------------------------------------------------------------------
+# Authorization Classes
+# ----------------------------------------------------------------------------
+
+rest:Permission a owl:Class ;
+    rdfs:label "Permission" ;
+    rdfs:comment "Access control permission" .
+
+rest:Role a owl:Class ;
+    rdfs:label "Role" ;
+    rdfs:comment "Named collection of permissions" .
+
+rest:AdminRole a rest:Role ;
+    rdfs:label "Administrator" ;
+    rest:permissions "read,write,delete,manage" .
+
+rest:UserRole a rest:Role ;
+    rdfs:label "User" ;
+    rest:permissions "read,write" .
+
+rest:GuestRole a rest:Role ;
+    rdfs:label "Guest" ;
+    rest:permissions "read" .
+
+# ----------------------------------------------------------------------------
+# Rate Limiting Classes
+# ----------------------------------------------------------------------------
+
+rest:RateLimiter a owl:Class ;
+    rdfs:label "Rate Limiter" ;
+    rdfs:comment "Controls request frequency" .
+
+rest:TokenBucket a rest:RateLimiter ;
+    rdfs:label "Token Bucket" ;
+    rest:algorithm "token_bucket" .
+
+rest:FixedWindow a rest:RateLimiter ;
+    rdfs:label "Fixed Window" ;
+    rest:algorithm "fixed_window" .
+
+rest:SlidingWindow a rest:RateLimiter ;
+    rdfs:label "Sliding Window" ;
+    rest:algorithm "sliding_window" .
+
+# ----------------------------------------------------------------------------
+# Caching Classes
+# ----------------------------------------------------------------------------
+
+rest:CacheStrategy a owl:Class ;
+    rdfs:label "Cache Strategy" ;
+    rdfs:comment "Response caching configuration" .
+
+rest:CacheControl a owl:Class ;
+    rdfs:label "Cache Control" ;
+    rdfs:comment "HTTP cache control directives" .
+
+rest:PrivateCache a rest:CacheControl ;
+    rest:directive "private" .
+
+rest:PublicCache a rest:CacheControl ;
+    rest:directive "public" .
+
+rest:NoCache a rest:CacheControl ;
+    rest:directive "no-cache" .
+
+# ----------------------------------------------------------------------------
+# CRUD Operation Classes
+# ----------------------------------------------------------------------------
+
+rest:CRUDOperation a owl:Class ;
+    rdfs:label "CRUD Operation" ;
+    rdfs:comment "Standard database operation pattern" .
+
+rest:CreateOperation a rest:CRUDOperation ;
+    rdfs:label "Create" ;
+    rest:httpMethod rest:POST ;
+    rest:successStatus rest:Status201 .
+
+rest:ReadOperation a rest:CRUDOperation ;
+    rdfs:label "Read" ;
+    rest:httpMethod rest:GET ;
+    rest:successStatus rest:Status200 .
+
+rest:UpdateOperation a rest:CRUDOperation ;
+    rdfs:label "Update" ;
+    rest:httpMethod rest:PUT ;
+    rest:successStatus rest:Status200 .
+
+rest:DeleteOperation a rest:CRUDOperation ;
+    rdfs:label "Delete" ;
+    rest:httpMethod rest:DELETE ;
+    rest:successStatus rest:Status204 .
+
+# ----------------------------------------------------------------------------
+# Error Handling Classes
+# ----------------------------------------------------------------------------
+
+rest:ErrorHandler a owl:Class ;
+    rdfs:label "Error Handler" ;
+    rdfs:comment "Centralized error processing" .
+
+rest:ValidationError a rest:ErrorHandler ;
+    rest:statusCode rest:Status422 ;
+    rest:errorType "validation" .
+
+rest:AuthenticationError a rest:ErrorHandler ;
+    rest:statusCode rest:Status401 ;
+    rest:errorType "authentication" .
+
+rest:AuthorizationError a rest:ErrorHandler ;
+    rest:statusCode rest:Status403 ;
+    rest:errorType "authorization" .
+
+rest:NotFoundError a rest:ErrorHandler ;
+    rest:statusCode rest:Status404 ;
+    rest:errorType "not_found" .
+
+rest:RateLimitError a rest:ErrorHandler ;
+    rest:statusCode rest:Status429 ;
+    rest:errorType "rate_limit" .
+
+rest:ServerError a rest:ErrorHandler ;
+    rest:statusCode rest:Status500 ;
+    rest:errorType "server" .
+
+# ----------------------------------------------------------------------------
+# Object Properties
+# ----------------------------------------------------------------------------
+
+rest:hasEndpoint a owl:ObjectProperty ;
+    rdfs:domain rest:RestAPI ;
+    rdfs:range rest:Endpoint .
+
+rest:hasRoute a owl:ObjectProperty ;
+    rdfs:domain rest:Endpoint ;
+    rdfs:range rest:Route .
+
+rest:hasMethod a owl:ObjectProperty ;
+    rdfs:domain rest:Endpoint ;
+    rdfs:range rest:HTTPMethod .
+
+rest:hasHandler a owl:ObjectProperty ;
+    rdfs:domain rest:Endpoint ;
+    rdfs:range rest:Handler .
+
+rest:hasMiddleware a owl:ObjectProperty ;
+    rdfs:domain rest:Endpoint ;
+    rdfs:range rest:Middleware .
+
+rest:hasRequestSchema a owl:ObjectProperty ;
+    rdfs:domain rest:Endpoint ;
+    rdfs:range rest:RequestSchema .
+
+rest:hasResponseSchema a owl:ObjectProperty ;
+    rdfs:domain rest:Endpoint ;
+    rdfs:range rest:ResponseSchema .
+
+rest:hasAuthentication a owl:ObjectProperty ;
+    rdfs:domain rest:Endpoint ;
+    rdfs:range rest:AuthenticationScheme .
+
+rest:hasAuthorization a owl:ObjectProperty ;
+    rdfs:domain rest:Endpoint ;
+    rdfs:range rest:Role .
+
+rest:hasRateLimiter a owl:ObjectProperty ;
+    rdfs:domain rest:Endpoint ;
+    rdfs:range rest:RateLimiter .
+
+rest:hasCacheStrategy a owl:ObjectProperty ;
+    rdfs:domain rest:Endpoint ;
+    rdfs:range rest:CacheStrategy .
+
+rest:hasErrorHandler a owl:ObjectProperty ;
+    rdfs:domain rest:Endpoint ;
+    rdfs:range rest:ErrorHandler .
+
+rest:hasValidation a owl:ObjectProperty ;
+    rdfs:domain rest:Schema ;
+    rdfs:range rest:ValidationRule .
+
+# ----------------------------------------------------------------------------
+# Data Properties
+# ----------------------------------------------------------------------------
+
+rest:path a owl:DatatypeProperty ;
+    rdfs:domain rest:Route ;
+    rdfs:range xsd:string .
+
+rest:pathParameter a owl:DatatypeProperty ;
+    rdfs:domain rest:Route ;
+    rdfs:range xsd:string .
+
+rest:queryParameter a owl:DatatypeProperty ;
+    rdfs:domain rest:Endpoint ;
+    rdfs:range xsd:string .
+
+rest:statusCode a owl:DatatypeProperty ;
+    rdfs:domain rest:StatusCode ;
+    rdfs:range xsd:integer .
+
+rest:statusMessage a owl:DatatypeProperty ;
+    rdfs:domain rest:StatusCode ;
+    rdfs:range xsd:string .
+
+rest:mimeType a owl:DatatypeProperty ;
+    rdfs:domain rest:ContentType ;
+    rdfs:range xsd:string .
+
+rest:isIdempotent a owl:DatatypeProperty ;
+    rdfs:domain rest:HTTPMethod ;
+    rdfs:range xsd:boolean .
+
+rest:isSafe a owl:DatatypeProperty ;
+    rdfs:domain rest:HTTPMethod ;
+    rdfs:range xsd:boolean .
+
+rest:maxRequestsPerMinute a owl:DatatypeProperty ;
+    rdfs:domain rest:RateLimiter ;
+    rdfs:range xsd:integer .
+
+rest:cacheMaxAge a owl:DatatypeProperty ;
+    rdfs:domain rest:CacheStrategy ;
+    rdfs:range xsd:integer .
+
+rest:requiresAuth a owl:DatatypeProperty ;
+    rdfs:domain rest:Endpoint ;
+    rdfs:range xsd:boolean .
+
+rest:handlerName a owl:DatatypeProperty ;
+    rdfs:domain rest:Handler ;
+    rdfs:range xsd:string .
+
+rest:middlewareOrder a owl:DatatypeProperty ;
+    rdfs:domain rest:Middleware ;
+    rdfs:range xsd:integer .

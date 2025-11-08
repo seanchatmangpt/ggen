@@ -294,3 +294,322 @@ features = [
 ]
 tags = ["llm", "mcp", "rig", "ai", "openai", "anthropic", "ollama", "integration"]
 keywords = ["llm", "mcp", "rig", "ai-framework", "multi-provider"]
+
+# Phase 1: Core Power Packages (80/20 Maximum RDF Usage)
+
+# REST API Template
+[[package]]
+name = "rest-api-template"
+full_name = "ggen/rest-api-template"
+version = "1.0.0"
+description = "Production-ready REST API template with RDF ontology, multi-language support (Rust/TypeScript/Python), and Chicago TDD tests"
+category = "core-power-packages"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+path = "marketplace/packages/rest-api-template"
+license = "MIT"
+dependencies = []
+features = [
+    "489-line RDF ontology with complete REST semantics",
+    "15 SPARQL templates for code generation",
+    "Multi-language support: Rust (Axum), TypeScript (Express), Python (FastAPI)",
+    "Complete CRUD operations with validation",
+    "Authentication (JWT, OAuth2, API keys, Basic auth)",
+    "Rate limiting (Token bucket, Fixed/Sliding window)",
+    "Caching strategies (Public, Private, No-cache)",
+    "Chicago TDD test suite (569 lines, 100% pass rate)",
+    "Performance benchmarks (5000+ req/sec Rust, 3000+ TS, 2000+ Python)",
+    "Security tests (SQL injection, XSS prevention)",
+    "OpenAPI documentation generation",
+    "Production-ready error handling"
+]
+tags = ["rest", "api", "rdf", "sparql", "axum", "express", "fastapi", "crud", "authentication", "8020"]
+keywords = ["rest-api", "ontology-driven", "multi-language", "production-ready", "chicago-tdd"]
+
+# GraphQL API Template
+[[package]]
+name = "graphql-api-template"
+full_name = "ggen/graphql-api-template"
+version = "1.0.0"
+description = "Production-ready GraphQL API with RDF schema, DataLoaders, subscriptions, and multi-language support"
+category = "core-power-packages"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+path = "marketplace/packages/graphql-api-template"
+license = "MIT"
+dependencies = []
+features = [
+    "367-line RDF ontology for GraphQL schemas",
+    "12 SPARQL templates for schema/resolver generation",
+    "Multi-language: Rust (async-graphql), TypeScript (Apollo), Python (Strawberry)",
+    "DataLoader integration (10-20x N+1 query prevention)",
+    "Real-time subscriptions with PubSub",
+    "Cursor-based pagination (Relay-compliant)",
+    "Role-based authorization at field/type level",
+    "Input validation with type constraints",
+    "Chicago TDD tests (612 lines, 15 tests, 100% pass)",
+    "Performance <100ms per query",
+    "PostgreSQL integration with testcontainers",
+    "Complete documentation with examples"
+]
+tags = ["graphql", "rdf", "sparql", "dataloader", "subscriptions", "apollo", "strawberry", "8020"]
+keywords = ["graphql-api", "ontology-driven", "dataloaders", "real-time", "chicago-tdd"]
+
+# CLI Application Template
+[[package]]
+name = "cli-application-template"
+full_name = "ggen/cli-application-template"
+version = "1.0.0"
+description = "Generate production-ready CLIs from RDF ontology with commands, args, config, and shell completions"
+category = "core-power-packages"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+path = "marketplace/packages/cli-application-template"
+license = "MIT"
+dependencies = []
+features = [
+    "359-line RDF ontology for CLI structure",
+    "12 SPARQL templates for command generation",
+    "Multi-language: Rust (Clap v4), TypeScript (Commander), Python (Click)",
+    "Commands and subcommands with type-safe args",
+    "Config files (TOML, YAML, JSON)",
+    "Environment variable bindings",
+    "Shell completions (bash, zsh, fish)",
+    "Interactive prompts with validation",
+    "Chicago TDD tests (925 lines, 28 integration tests)",
+    "Real CLI execution testing (no mocks)",
+    "Help generation from ontology",
+    "15+ real-world CLI examples"
+]
+tags = ["cli", "rdf", "sparql", "clap", "commander", "click", "config", "8020"]
+keywords = ["cli-tool", "ontology-driven", "command-line", "shell-completion", "chicago-tdd"]
+
+# Database Schema Generator
+[[package]]
+name = "database-schema-generator"
+full_name = "ggen/database-schema-generator"
+version = "1.0.0"
+description = "Multi-database schema generator from RDF ontology with migrations, indexes, and triggers"
+category = "core-power-packages"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+path = "marketplace/packages/database-schema-generator"
+license = "MIT"
+dependencies = []
+features = [
+    "485-line RDF ontology for database schemas",
+    "16 SPARQL templates for DDL generation",
+    "Multi-database: PostgreSQL, MySQL, SQLite",
+    "Complete XSD to SQL type mapping",
+    "Foreign keys with CASCADE actions",
+    "Indexes (B-tree, GIN, GiST, Hash, Full-text)",
+    "Triggers and stored procedures",
+    "Migration up/down with versioning",
+    "Chicago TDD tests (632 lines, 12 tests with testcontainers)",
+    "Real PostgreSQL integration testing",
+    "Performance optimization guide",
+    "Zero-downtime migration strategies"
+]
+tags = ["database", "rdf", "sparql", "postgresql", "mysql", "sqlite", "migrations", "8020"]
+keywords = ["database-schema", "ontology-driven", "ddl", "migrations", "chicago-tdd"]
+
+# Microservices Architecture Template
+[[package]]
+name = "microservices-architecture-template"
+full_name = "ggen/microservices-architecture-template"
+version = "1.0.0"
+description = "Production-grade microservices with RDF-driven architecture, distributed tracing, and resilience patterns"
+category = "core-power-packages"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+path = "marketplace/packages/microservices-architecture-template"
+license = "MIT"
+dependencies = []
+features = [
+    "441-line RDF ontology for microservices architecture",
+    "15 SPARQL templates for service generation",
+    "4 production services: API Gateway (Rust), User (TS), Product (Python), Order (Rust)",
+    "Circuit breakers and retry policies",
+    "Service discovery and health checks",
+    "Distributed tracing (OpenTelemetry + Jaeger)",
+    "Message queues (RabbitMQ)",
+    "Docker Compose + Kubernetes deployment",
+    "Chicago TDD tests (582 lines, 28 integration tests)",
+    "Real multi-service testing with testcontainers",
+    "Comprehensive monitoring and observability",
+    "Cloud-native deployment guides (AWS, GCP, Azure)"
+]
+tags = ["microservices", "rdf", "sparql", "docker", "kubernetes", "tracing", "resilience", "8020"]
+keywords = ["microservices-architecture", "ontology-driven", "distributed-systems", "cloud-native", "chicago-tdd"]
+
+# Phase 1: Core Power Packages - AI Agent Suite
+
+# Agent Editor
+[[package]]
+name = "agent-editor"
+full_name = "ggen/agent-editor"
+version = "1.0.0"
+description = "AI-powered code editor automation with multi-language support, semantic understanding, and production-grade refactoring"
+category = "ai-agents"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+path = "marketplace/packages/agent-editor"
+license = "MIT"
+dependencies = []
+features = [
+    "Multi-language code editing (Rust, TypeScript, Python, Go, Java)",
+    "Semantic code understanding via RDF ontologies",
+    "Intelligent refactoring suggestions",
+    "Automated code quality improvements",
+    "Test generation and validation",
+    "Documentation generation from code",
+    "SPARQL-based code pattern matching",
+    "Incremental edit capabilities",
+    "Undo/redo with semantic history",
+    "Code smell detection and fixes",
+    "Performance optimization suggestions",
+    "Security vulnerability detection",
+    "Chicago TDD integration",
+    "Real-time collaboration support",
+    "Plugin architecture for extensions"
+]
+tags = ["ai", "editor", "automation", "refactoring", "code-quality", "multi-language", "sparql", "rdf", "tdd", "production"]
+keywords = ["ai-editor", "code-automation", "refactoring", "semantic-editing", "rdf-ontology"]
+
+# Agent CLI Copilot
+[[package]]
+name = "agent-cli-copilot"
+full_name = "ggen/agent-cli-copilot"
+version = "1.0.0"
+description = "Intelligent CLI command assistant with natural language understanding, command suggestion, and execution validation"
+category = "ai-agents"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+path = "marketplace/packages/agent-cli-copilot"
+license = "MIT"
+dependencies = []
+features = [
+    "Natural language to CLI command translation",
+    "Command suggestion and auto-completion",
+    "Execution safety validation",
+    "Command history with semantic search",
+    "Multi-shell support (bash, zsh, fish, powershell)",
+    "SPARQL-based command pattern matching",
+    "Dangerous command detection and warnings",
+    "Command explanation and documentation",
+    "Alias and function generation",
+    "Workflow automation suggestions",
+    "Error diagnosis and fix suggestions",
+    "Performance optimization for pipelines",
+    "Integration with popular CLI tools",
+    "Context-aware command recommendations",
+    "Learning from user command patterns"
+]
+tags = ["ai", "cli", "copilot", "automation", "natural-language", "shell", "commands", "safety", "productivity"]
+keywords = ["cli-assistant", "command-copilot", "natural-language", "automation", "shell-helper"]
+
+# Agent Context Crafter
+[[package]]
+name = "agent-context-crafter"
+full_name = "ggen/agent-context-crafter"
+version = "1.0.0"
+description = "Advanced context and state management for AI agents with semantic understanding, persistence, and cross-session continuity"
+category = "ai-agents"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+path = "marketplace/packages/agent-context-crafter"
+license = "MIT"
+dependencies = ["agent-memory-forge"]
+features = [
+    "Semantic context graph construction",
+    "RDF-based context persistence",
+    "Cross-session state continuity",
+    "Context summarization and compression",
+    "Relevance scoring and filtering",
+    "SPARQL-based context queries",
+    "Multi-agent context sharing",
+    "Temporal context tracking",
+    "Context versioning and rollback",
+    "Privacy-aware context management",
+    "Context export/import (Turtle, JSON-LD)",
+    "Automatic context pruning",
+    "Context visualization tools",
+    "Integration with vector databases",
+    "Real-time context updates"
+]
+tags = ["ai", "context", "state-management", "rdf", "persistence", "semantic", "multi-agent", "continuity"]
+keywords = ["context-management", "state-persistence", "semantic-graph", "rdf-ontology", "ai-memory"]
+
+# Agent Memory Forge
+[[package]]
+name = "agent-memory-forge"
+full_name = "ggen/agent-memory-forge"
+version = "1.0.0"
+description = "Comprehensive memory system for AI agents with episodic, semantic, and procedural memory using RDF ontologies"
+category = "ai-agents"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+path = "marketplace/packages/agent-memory-forge"
+license = "MIT"
+dependencies = []
+features = [
+    "Episodic memory (event history with temporal ordering)",
+    "Semantic memory (knowledge graph with RDF)",
+    "Procedural memory (learned workflows and patterns)",
+    "Working memory with capacity management",
+    "Long-term memory consolidation",
+    "SPARQL-based memory retrieval",
+    "Similarity-based memory search",
+    "Memory importance scoring",
+    "Automatic memory decay and refresh",
+    "Multi-modal memory (text, code, images)",
+    "Memory indexing and optimization",
+    "Distributed memory across agents",
+    "Memory conflict resolution",
+    "Privacy-preserving memory storage",
+    "Memory analytics and insights"
+]
+tags = ["ai", "memory", "rdf", "knowledge-graph", "episodic", "semantic", "procedural", "learning", "persistence"]
+keywords = ["ai-memory", "knowledge-graph", "episodic-memory", "semantic-memory", "rdf-ontology"]
+
+# Agent Reasoning MCP
+[[package]]
+name = "agent-reasoning-mcp"
+full_name = "ggen/agent-reasoning-mcp"
+version = "1.0.0"
+description = "Advanced reasoning engine with MCP integration, semantic inference, and multi-hop logical reasoning using RDF/SPARQL"
+category = "ai-agents"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+path = "marketplace/packages/agent-reasoning-mcp"
+license = "MIT"
+dependencies = ["agent-memory-forge", "agent-context-crafter"]
+features = [
+    "SPARQL-based logical reasoning",
+    "RDF inference and entailment",
+    "Multi-hop reasoning chains",
+    "MCP protocol integration",
+    "Abductive, deductive, and inductive reasoning",
+    "Causal reasoning with ontologies",
+    "Probabilistic reasoning",
+    "Contradiction detection and resolution",
+    "Analogical reasoning",
+    "Plan generation and validation",
+    "Goal decomposition",
+    "Constraint satisfaction",
+    "Temporal reasoning",
+    "Spatial reasoning",
+    "Explanation generation"
+]
+tags = ["ai", "reasoning", "inference", "mcp", "sparql", "logic", "rdf", "knowledge-graph", "planning", "explanation"]
+keywords = ["ai-reasoning", "logical-inference", "mcp-integration", "sparql-reasoning", "rdf-entailment"]

@@ -1,0 +1,441 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ggen: <http://ggen.tech/ontology#> .
+@prefix ms: <http://ggen.tech/microservices#> .
+
+# ============================================================================
+# MICROSERVICES ARCHITECTURE ONTOLOGY
+# Defines patterns for distributed service-oriented systems
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# Core Microservice Classes
+# ----------------------------------------------------------------------------
+
+ms:Microservice a rdfs:Class ;
+    rdfs:label "Microservice" ;
+    rdfs:comment "Independent, deployable service with bounded context" ;
+    ggen:hasBoundedContext "true"^^xsd:boolean ;
+    ggen:isDeployable "true"^^xsd:boolean .
+
+ms:APIGateway a rdfs:Class ;
+    rdfs:subClassOf ms:Microservice ;
+    rdfs:label "API Gateway" ;
+    rdfs:comment "Entry point for client requests with routing and load balancing" ;
+    ggen:pattern "Gateway Pattern" ;
+    ggen:responsibility "Request routing, authentication, rate limiting" .
+
+ms:BusinessService a rdfs:Class ;
+    rdfs:subClassOf ms:Microservice ;
+    rdfs:label "Business Service" ;
+    rdfs:comment "Service implementing core business logic" ;
+    ggen:pattern "Domain-Driven Design" ;
+    ggen:responsibility "Business capability implementation" .
+
+# ----------------------------------------------------------------------------
+# Service Discovery
+# ----------------------------------------------------------------------------
+
+ms:ServiceDiscovery a rdfs:Class ;
+    rdfs:label "Service Discovery" ;
+    rdfs:comment "Dynamic service location and registration" ;
+    ggen:pattern "Service Registry Pattern" .
+
+ms:ConsulDiscovery a rdfs:Class ;
+    rdfs:subClassOf ms:ServiceDiscovery ;
+    rdfs:label "Consul Service Discovery" ;
+    ggen:implementation "HashiCorp Consul" ;
+    ggen:features "DNS, HTTP API, Health Checks" ;
+    ggen:port "8500"^^xsd:integer .
+
+ms:EtcdDiscovery a rdfs:Class ;
+    rdfs:subClassOf ms:ServiceDiscovery ;
+    rdfs:label "etcd Service Discovery" ;
+    ggen:implementation "CoreOS etcd" ;
+    ggen:features "Key-Value Store, Watch API" ;
+    ggen:port "2379"^^xsd:integer .
+
+ms:DNSDiscovery a rdfs:Class ;
+    rdfs:subClassOf ms:ServiceDiscovery ;
+    rdfs:label "DNS-based Discovery" ;
+    ggen:implementation "DNS SRV Records" ;
+    ggen:features "Standard DNS, No dependencies" .
+
+# ----------------------------------------------------------------------------
+# Communication Patterns
+# ----------------------------------------------------------------------------
+
+ms:CommunicationPattern a rdfs:Class ;
+    rdfs:label "Communication Pattern" ;
+    rdfs:comment "Inter-service communication mechanism" .
+
+ms:RESTCommunication a rdfs:Class ;
+    rdfs:subClassOf ms:CommunicationPattern ;
+    rdfs:label "REST API Communication" ;
+    ggen:protocol "HTTP/1.1" ;
+    ggen:contentType "application/json" ;
+    ggen:style "Request-Response" ;
+    ggen:synchronous "true"^^xsd:boolean .
+
+ms:gRPCCommunication a rdfs:Class ;
+    rdfs:subClassOf ms:CommunicationPattern ;
+    rdfs:label "gRPC Communication" ;
+    ggen:protocol "HTTP/2" ;
+    ggen:serialization "Protocol Buffers" ;
+    ggen:features "Streaming, Bidirectional, Type-safe" ;
+    ggen:synchronous "true"^^xsd:boolean .
+
+ms:MessageQueueCommunication a rdfs:Class ;
+    rdfs:subClassOf ms:CommunicationPattern ;
+    rdfs:label "Message Queue Communication" ;
+    ggen:pattern "Publish-Subscribe, Queue-based" ;
+    ggen:asynchronous "true"^^xsd:boolean ;
+    ggen:decoupled "true"^^xsd:boolean .
+
+ms:RabbitMQCommunication a rdfs:Class ;
+    rdfs:subClassOf ms:MessageQueueCommunication ;
+    rdfs:label "RabbitMQ Messaging" ;
+    ggen:broker "RabbitMQ" ;
+    ggen:protocol "AMQP 0.9.1" ;
+    ggen:port "5672"^^xsd:integer .
+
+ms:KafkaCommunication a rdfs:Class ;
+    rdfs:subClassOf ms:MessageQueueCommunication ;
+    rdfs:label "Apache Kafka Streaming" ;
+    ggen:broker "Apache Kafka" ;
+    ggen:pattern "Event Streaming" ;
+    ggen:port "9092"^^xsd:integer .
+
+# ----------------------------------------------------------------------------
+# Resilience Patterns
+# ----------------------------------------------------------------------------
+
+ms:ResiliencePattern a rdfs:Class ;
+    rdfs:label "Resilience Pattern" ;
+    rdfs:comment "Fault tolerance and failure handling" .
+
+ms:CircuitBreaker a rdfs:Class ;
+    rdfs:subClassOf ms:ResiliencePattern ;
+    rdfs:label "Circuit Breaker" ;
+    rdfs:comment "Prevents cascading failures by stopping requests to failing services" ;
+    ggen:states "Closed, Open, Half-Open" ;
+    ggen:failureThreshold "5"^^xsd:integer ;
+    ggen:timeout "60"^^xsd:integer ;
+    ggen:halfOpenRequests "3"^^xsd:integer .
+
+ms:RetryPolicy a rdfs:Class ;
+    rdfs:subClassOf ms:ResiliencePattern ;
+    rdfs:label "Retry Policy" ;
+    rdfs:comment "Automatic retry with exponential backoff" ;
+    ggen:maxRetries "3"^^xsd:integer ;
+    ggen:initialDelay "100"^^xsd:integer ;
+    ggen:maxDelay "5000"^^xsd:integer ;
+    ggen:backoffMultiplier "2.0"^^xsd:float .
+
+ms:BulkheadPattern a rdfs:Class ;
+    rdfs:subClassOf ms:ResiliencePattern ;
+    rdfs:label "Bulkhead Isolation" ;
+    rdfs:comment "Resource isolation to prevent complete system failure" ;
+    ggen:poolSize "10"^^xsd:integer ;
+    ggen:queueSize "20"^^xsd:integer .
+
+ms:TimeoutPolicy a rdfs:Class ;
+    rdfs:subClassOf ms:ResiliencePattern ;
+    rdfs:label "Timeout Policy" ;
+    ggen:requestTimeout "5000"^^xsd:integer ;
+    ggen:connectionTimeout "2000"^^xsd:integer .
+
+# ----------------------------------------------------------------------------
+# Load Balancing
+# ----------------------------------------------------------------------------
+
+ms:LoadBalancer a rdfs:Class ;
+    rdfs:label "Load Balancer" ;
+    rdfs:comment "Distributes traffic across service instances" .
+
+ms:RoundRobinBalancer a rdfs:Class ;
+    rdfs:subClassOf ms:LoadBalancer ;
+    rdfs:label "Round Robin Load Balancer" ;
+    ggen:algorithm "Round Robin" ;
+    ggen:stateless "true"^^xsd:boolean .
+
+ms:LeastConnectionsBalancer a rdfs:Class ;
+    rdfs:subClassOf ms:LoadBalancer ;
+    rdfs:label "Least Connections Balancer" ;
+    ggen:algorithm "Least Active Connections" ;
+    ggen:stateful "true"^^xsd:boolean .
+
+ms:WeightedBalancer a rdfs:Class ;
+    rdfs:subClassOf ms:LoadBalancer ;
+    rdfs:label "Weighted Load Balancer" ;
+    ggen:algorithm "Weighted Round Robin" ;
+    ggen:supportsWeights "true"^^xsd:boolean .
+
+# ----------------------------------------------------------------------------
+# Observability
+# ----------------------------------------------------------------------------
+
+ms:DistributedTracing a rdfs:Class ;
+    rdfs:label "Distributed Tracing" ;
+    rdfs:comment "Request tracking across service boundaries" .
+
+ms:OpenTelemetry a rdfs:Class ;
+    rdfs:subClassOf ms:DistributedTracing ;
+    rdfs:label "OpenTelemetry Tracing" ;
+    ggen:vendor "CNCF OpenTelemetry" ;
+    ggen:features "Traces, Metrics, Logs" ;
+    ggen:exporters "OTLP, Jaeger, Zipkin" ;
+    ggen:samplingRate "1.0"^^xsd:float .
+
+ms:JaegerTracing a rdfs:Class ;
+    rdfs:subClassOf ms:DistributedTracing ;
+    rdfs:label "Jaeger Tracing" ;
+    ggen:vendor "Uber Jaeger" ;
+    ggen:port "14268"^^xsd:integer ;
+    ggen:uiPort "16686"^^xsd:integer .
+
+ms:HealthCheck a rdfs:Class ;
+    rdfs:label "Health Check" ;
+    rdfs:comment "Service health and readiness probes" .
+
+ms:LivenessProbe a rdfs:Class ;
+    rdfs:subClassOf ms:HealthCheck ;
+    rdfs:label "Liveness Probe" ;
+    rdfs:comment "Checks if service is running" ;
+    ggen:endpoint "/health/live" ;
+    ggen:intervalSeconds "10"^^xsd:integer ;
+    ggen:timeoutSeconds "5"^^xsd:integer .
+
+ms:ReadinessProbe a rdfs:Class ;
+    rdfs:subClassOf ms:HealthCheck ;
+    rdfs:label "Readiness Probe" ;
+    rdfs:comment "Checks if service can accept traffic" ;
+    ggen:endpoint "/health/ready" ;
+    ggen:intervalSeconds "5"^^xsd:integer ;
+    ggen:timeoutSeconds "3"^^xsd:integer .
+
+ms:MetricsEndpoint a rdfs:Class ;
+    rdfs:label "Metrics Endpoint" ;
+    rdfs:comment "Prometheus-compatible metrics" ;
+    ggen:endpoint "/metrics" ;
+    ggen:format "prometheus" .
+
+# ----------------------------------------------------------------------------
+# Service Definitions
+# ----------------------------------------------------------------------------
+
+ms:APIGatewayService a ms:APIGateway ;
+    rdfs:label "API Gateway Service" ;
+    ggen:name "api-gateway" ;
+    ggen:language "Rust" ;
+    ggen:framework "Axum" ;
+    ggen:port "8000"^^xsd:integer ;
+    ggen:hasLoadBalancer ms:RoundRobinBalancer ;
+    ggen:hasCircuitBreaker "true"^^xsd:boolean ;
+    ggen:hasTracing ms:OpenTelemetry ;
+    ggen:hasHealthCheck ms:LivenessProbe, ms:ReadinessProbe ;
+    ggen:routes "/*" ;
+    ggen:features "Authentication, Rate Limiting, Request Routing" .
+
+ms:UserService a ms:BusinessService ;
+    rdfs:label "User Service" ;
+    ggen:name "user-service" ;
+    ggen:language "TypeScript" ;
+    ggen:framework "Express" ;
+    ggen:port "8001"^^xsd:integer ;
+    ggen:database "PostgreSQL" ;
+    ggen:hasCommunication ms:RESTCommunication ;
+    ggen:hasTracing ms:OpenTelemetry ;
+    ggen:hasHealthCheck ms:LivenessProbe, ms:ReadinessProbe ;
+    ggen:endpoints "/users, /users/:id, /users/login" ;
+    ggen:boundedContext "User Management, Authentication" .
+
+ms:ProductService a ms:BusinessService ;
+    rdfs:label "Product Service" ;
+    ggen:name "product-service" ;
+    ggen:language "Python" ;
+    ggen:framework "FastAPI" ;
+    ggen:port "8002"^^xsd:integer ;
+    ggen:database "MongoDB" ;
+    ggen:hasCommunication ms:RESTCommunication ;
+    ggen:hasTracing ms:OpenTelemetry ;
+    ggen:hasHealthCheck ms:LivenessProbe, ms:ReadinessProbe ;
+    ggen:endpoints "/products, /products/:id, /products/search" ;
+    ggen:boundedContext "Product Catalog, Inventory" .
+
+ms:OrderService a ms:BusinessService ;
+    rdfs:label "Order Service" ;
+    ggen:name "order-service" ;
+    ggen:language "Rust" ;
+    ggen:framework "Axum" ;
+    ggen:port "8003"^^xsd:integer ;
+    ggen:database "PostgreSQL" ;
+    ggen:hasCommunication ms:RESTCommunication ;
+    ggen:hasMessaging ms:RabbitMQCommunication ;
+    ggen:hasTracing ms:OpenTelemetry ;
+    ggen:hasHealthCheck ms:LivenessProbe, ms:ReadinessProbe ;
+    ggen:endpoints "/orders, /orders/:id, /orders/user/:userId" ;
+    ggen:boundedContext "Order Management, Payment Processing" .
+
+# ----------------------------------------------------------------------------
+# Service Dependencies
+# ----------------------------------------------------------------------------
+
+ms:ServiceDependency a rdfs:Class ;
+    rdfs:label "Service Dependency" ;
+    rdfs:comment "Defines inter-service communication relationships" .
+
+ms:GatewayToUser a ms:ServiceDependency ;
+    ggen:from ms:APIGatewayService ;
+    ggen:to ms:UserService ;
+    ggen:pattern ms:RESTCommunication ;
+    ggen:hasCircuitBreaker "true"^^xsd:boolean ;
+    ggen:hasRetry "true"^^xsd:boolean ;
+    ggen:timeout "5000"^^xsd:integer .
+
+ms:GatewayToProduct a ms:ServiceDependency ;
+    ggen:from ms:APIGatewayService ;
+    ggen:to ms:ProductService ;
+    ggen:pattern ms:RESTCommunication ;
+    ggen:hasCircuitBreaker "true"^^xsd:boolean ;
+    ggen:hasRetry "true"^^xsd:boolean ;
+    ggen:timeout "5000"^^xsd:integer .
+
+ms:GatewayToOrder a ms:ServiceDependency ;
+    ggen:from ms:APIGatewayService ;
+    ggen:to ms:OrderService ;
+    ggen:pattern ms:RESTCommunication ;
+    ggen:hasCircuitBreaker "true"^^xsd:boolean ;
+    ggen:hasRetry "true"^^xsd:boolean ;
+    ggen:timeout "5000"^^xsd:integer .
+
+ms:OrderToUser a ms:ServiceDependency ;
+    ggen:from ms:OrderService ;
+    ggen:to ms:UserService ;
+    ggen:pattern ms:RESTCommunication ;
+    ggen:purpose "User validation" ;
+    ggen:hasCircuitBreaker "true"^^xsd:boolean .
+
+ms:OrderToProduct a ms:ServiceDependency ;
+    ggen:from ms:OrderService ;
+    ggen:to ms:ProductService ;
+    ggen:pattern ms:RESTCommunication ;
+    ggen:purpose "Product availability check" ;
+    ggen:hasCircuitBreaker "true"^^xsd:boolean .
+
+# ----------------------------------------------------------------------------
+# Container Configuration
+# ----------------------------------------------------------------------------
+
+ms:ContainerConfig a rdfs:Class ;
+    rdfs:label "Container Configuration" ;
+    rdfs:comment "Docker container settings" .
+
+ms:GatewayContainer a ms:ContainerConfig ;
+    ggen:service ms:APIGatewayService ;
+    ggen:image "rust:1.75-alpine" ;
+    ggen:buildContext "./api-gateway" ;
+    ggen:exposedPort "8000"^^xsd:integer ;
+    ggen:healthCheckInterval "30s" ;
+    ggen:restartPolicy "always" .
+
+ms:UserContainer a ms:ContainerConfig ;
+    ggen:service ms:UserService ;
+    ggen:image "node:20-alpine" ;
+    ggen:buildContext "./user-service" ;
+    ggen:exposedPort "8001"^^xsd:integer ;
+    ggen:healthCheckInterval "30s" ;
+    ggen:restartPolicy "always" ;
+    ggen:dependsOn "postgres" .
+
+ms:ProductContainer a ms:ContainerConfig ;
+    ggen:service ms:ProductService ;
+    ggen:image "python:3.11-alpine" ;
+    ggen:buildContext "./product-service" ;
+    ggen:exposedPort "8002"^^xsd:integer ;
+    ggen:healthCheckInterval "30s" ;
+    ggen:restartPolicy "always" ;
+    ggen:dependsOn "mongodb" .
+
+ms:OrderContainer a ms:ContainerConfig ;
+    ggen:service ms:OrderService ;
+    ggen:image "rust:1.75-alpine" ;
+    ggen:buildContext "./order-service" ;
+    ggen:exposedPort "8003"^^xsd:integer ;
+    ggen:healthCheckInterval "30s" ;
+    ggen:restartPolicy "always" ;
+    ggen:dependsOn "postgres, rabbitmq" .
+
+# ----------------------------------------------------------------------------
+# Infrastructure Services
+# ----------------------------------------------------------------------------
+
+ms:InfrastructureService a rdfs:Class ;
+    rdfs:label "Infrastructure Service" ;
+    rdfs:comment "Supporting infrastructure components" .
+
+ms:PostgresDB a ms:InfrastructureService ;
+    rdfs:label "PostgreSQL Database" ;
+    ggen:image "postgres:15-alpine" ;
+    ggen:port "5432"^^xsd:integer ;
+    ggen:version "15" ;
+    ggen:persistence "true"^^xsd:boolean .
+
+ms:MongoDB a ms:InfrastructureService ;
+    rdfs:label "MongoDB Database" ;
+    ggen:image "mongo:7-alpine" ;
+    ggen:port "27017"^^xsd:integer ;
+    ggen:version "7" ;
+    ggen:persistence "true"^^xsd:boolean .
+
+ms:RabbitMQ a ms:InfrastructureService ;
+    rdfs:label "RabbitMQ Message Broker" ;
+    ggen:image "rabbitmq:3.12-management-alpine" ;
+    ggen:port "5672"^^xsd:integer ;
+    ggen:managementPort "15672"^^xsd:integer ;
+    ggen:version "3.12" .
+
+ms:Jaeger a ms:InfrastructureService ;
+    rdfs:label "Jaeger Tracing" ;
+    ggen:image "jaegertracing/all-in-one:1.52" ;
+    ggen:port "14268"^^xsd:integer ;
+    ggen:uiPort "16686"^^xsd:integer ;
+    ggen:otlpPort "4318"^^xsd:integer ;
+    ggen:version "1.52" .
+
+# ----------------------------------------------------------------------------
+# Kubernetes Configuration
+# ----------------------------------------------------------------------------
+
+ms:KubernetesConfig a rdfs:Class ;
+    rdfs:label "Kubernetes Configuration" ;
+    rdfs:comment "Kubernetes deployment settings" .
+
+ms:Deployment a rdfs:Class ;
+    rdfs:subClassOf ms:KubernetesConfig ;
+    rdfs:label "Kubernetes Deployment" ;
+    ggen:apiVersion "apps/v1" ;
+    ggen:kind "Deployment" .
+
+ms:Service a rdfs:Class ;
+    rdfs:subClassOf ms:KubernetesConfig ;
+    rdfs:label "Kubernetes Service" ;
+    ggen:apiVersion "v1" ;
+    ggen:kind "Service" .
+
+ms:GatewayDeployment a ms:Deployment ;
+    ggen:name "api-gateway" ;
+    ggen:replicas "3"^^xsd:integer ;
+    ggen:container ms:GatewayContainer ;
+    ggen:resourceLimitCPU "500m" ;
+    ggen:resourceLimitMemory "512Mi" ;
+    ggen:resourceRequestCPU "250m" ;
+    ggen:resourceRequestMemory "256Mi" .
+
+ms:GatewayK8sService a ms:Service ;
+    ggen:name "api-gateway" ;
+    ggen:type "LoadBalancer" ;
+    ggen:port "80"^^xsd:integer ;
+    ggen:targetPort "8000"^^xsd:integer ;
+    ggen:selector "api-gateway" .

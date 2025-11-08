@@ -1,0 +1,59 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix cli: <http://ggen.dev/ontology/cli#> .
+
+# Simple CLI Example: Task Manager
+<#TaskCLI> a cli:CLIApplication ;
+    cli:commandName "task" ;
+    cli:hasCommand <#AddCmd>, <#ListCmd>, <#DoneCmd> ;
+    cli:hasConfig <#Config> .
+
+<#Config> a cli:ConfigFile ;
+    cli:configFormat "json" ;
+    cli:configPath "~/.task/config.json" .
+
+<#AddCmd> a cli:Command ;
+    cli:commandName "add" ;
+    cli:commandAbout "Add a new task" ;
+    cli:hasArgument <#TaskName> ;
+    cli:hasOption <#PriorityOpt>, <#TagsOpt> .
+
+<#TaskName> a cli:Argument ;
+    cli:argumentName "name" ;
+    cli:argumentType cli:StringType ;
+    cli:argumentRequired true ;
+    cli:argumentHelp "Task description" .
+
+<#PriorityOpt> a cli:Option ;
+    cli:optionLong "priority" ;
+    cli:optionShort "p" ;
+    cli:optionType cli:EnumType ;
+    cli:optionEnumValues "low,medium,high" ;
+    cli:optionDefault "medium" .
+
+<#TagsOpt> a cli:Option ;
+    cli:optionLong "tag" ;
+    cli:optionShort "t" ;
+    cli:optionType cli:StringType ;
+    cli:optionMultiple true .
+
+<#ListCmd> a cli:Command ;
+    cli:commandName "list" ;
+    cli:commandAbout "List all tasks" ;
+    cli:hasOption <#FilterOpt> .
+
+<#FilterOpt> a cli:Option ;
+    cli:optionLong "filter" ;
+    cli:optionType cli:EnumType ;
+    cli:optionEnumValues "all,pending,done" ;
+    cli:optionDefault "all" .
+
+<#DoneCmd> a cli:Command ;
+    cli:commandName "done" ;
+    cli:commandAbout "Mark task as done" ;
+    cli:hasArgument <#TaskId> .
+
+<#TaskId> a cli:Argument ;
+    cli:argumentName "id" ;
+    cli:argumentType cli:IntegerType ;
+    cli:argumentRequired true ;
+    cli:argumentHelp "Task ID" .
