@@ -1,0 +1,35 @@
+{
+  "name": "@ggen/notification-messaging-hub",
+  "version": "1.0.0",
+  "description": "Enterprise-scale multi-channel notification and messaging system",
+  "keywords": [
+    "notification",
+    "messaging",
+    "multi-channel",
+    "email",
+    "sms",
+    "push",
+    "webhook",
+    "rate-limiting",
+    "message-queue",
+    "campaign",
+    "templates"
+  ],
+  "main": "src/typescript/index.ts",
+  "types": "src/typescript/index.ts",
+  "scripts": {
+    "test": "cargo test",
+    "test:python": "python -m pytest tests/",
+    "build:rust": "cargo build --release",
+    "lint": "eslint src/typescript/"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "license": "MIT",
+  "ggen": {
+    "ontology": "rdf/ontology.ttl",
+    "sparql": "sparql/templates.sparql",
+    "languages": ["rust", "typescript", "python"],
+    "tests": "tests/chicago_tdd.rs"
+  }
+}

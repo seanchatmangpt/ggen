@@ -1,0 +1,7 @@
+PREFIX agw: <https://ggen.ai/ontology/api-gateway#>
+SELECT ?service ?interval ?path ?failureThreshold WHERE {
+  ?service agw:hasHealthCheck ?hc .
+  ?hc agw:healthCheckInterval ?interval ;
+      agw:healthCheckPath ?path ;
+      agw:failureThresholdHealth ?failureThreshold .
+}

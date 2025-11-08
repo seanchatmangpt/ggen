@@ -1,0 +1,8 @@
+PREFIX iam: <https://ggen.ai/ontology/iam#>
+SELECT ?user ?role ?permission ?resource ?action WHERE {
+  ?user iam:hasRole ?role .
+  ?role iam:hasPermission ?permission .
+  ?permission iam:resource ?resource ;
+              iam:action ?action .
+}
+ORDER BY ?user ?role

@@ -1,0 +1,450 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix nmh: <http://ggen.ai/ontology/notification-messaging-hub#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+# Notification & Messaging Hub Ontology
+# Enterprise-scale multi-channel notification and messaging system
+# Version: 1.0.0
+
+nmh:NotificationMessagingHub a owl:Ontology ;
+    dcterms:title "Notification & Messaging Hub Ontology" ;
+    dcterms:description "Multi-channel notification and messaging system for Fortune 5 enterprises" ;
+    dcterms:creator "GGEN.ai" ;
+    dcterms:created "2025-11-08"^^xsd:date ;
+    owl:versionInfo "1.0.0" .
+
+# ==================== Core Message Classes ====================
+
+nmh:Message a owl:Class ;
+    rdfs:label "Message" ;
+    rdfs:comment "Base class for all messages in the system" .
+
+nmh:EmailMessage a owl:Class ;
+    rdfs:subClassOf nmh:Message ;
+    rdfs:label "Email Message" ;
+    rdfs:comment "Email notification message" .
+
+nmh:SMSMessage a owl:Class ;
+    rdfs:subClassOf nmh:Message ;
+    rdfs:label "SMS Message" ;
+    rdfs:comment "SMS text message notification" .
+
+nmh:PushNotification a owl:Class ;
+    rdfs:subClassOf nmh:Message ;
+    rdfs:label "Push Notification" ;
+    rdfs:comment "Mobile or web push notification" .
+
+nmh:WebhookMessage a owl:Class ;
+    rdfs:subClassOf nmh:Message ;
+    rdfs:label "Webhook Message" ;
+    rdfs:comment "Webhook HTTP callback message" .
+
+nmh:InAppNotification a owl:Class ;
+    rdfs:subClassOf nmh:Message ;
+    rdfs:label "In-App Notification" ;
+    rdfs:comment "In-application notification message" .
+
+nmh:SlackMessage a owl:Class ;
+    rdfs:subClassOf nmh:Message ;
+    rdfs:label "Slack Message" ;
+    rdfs:comment "Slack channel or direct message" .
+
+nmh:TeamsMessage a owl:Class ;
+    rdfs:subClassOf nmh:Message ;
+    rdfs:label "Teams Message" ;
+    rdfs:comment "Microsoft Teams message" .
+
+# ==================== Message Template Classes ====================
+
+nmh:MessageTemplate a owl:Class ;
+    rdfs:label "Message Template" ;
+    rdfs:comment "Template for message content with personalization" .
+
+nmh:TemplateVariable a owl:Class ;
+    rdfs:label "Template Variable" ;
+    rdfs:comment "Variable placeholder in message template" .
+
+nmh:TemplateVersion a owl:Class ;
+    rdfs:label "Template Version" ;
+    rdfs:comment "Versioned instance of a message template" .
+
+nmh:LocalizedTemplate a owl:Class ;
+    rdfs:label "Localized Template" ;
+    rdfs:comment "Template translated for specific locale" .
+
+# ==================== Channel Classes ====================
+
+nmh:Channel a owl:Class ;
+    rdfs:label "Channel" ;
+    rdfs:comment "Communication channel for message delivery" .
+
+nmh:EmailChannel a owl:Class ;
+    rdfs:subClassOf nmh:Channel ;
+    rdfs:label "Email Channel" ;
+    rdfs:comment "Email delivery channel" .
+
+nmh:SMSChannel a owl:Class ;
+    rdfs:subClassOf nmh:Channel ;
+    rdfs:label "SMS Channel" ;
+    rdfs:comment "SMS delivery channel" .
+
+nmh:PushChannel a owl:Class ;
+    rdfs:subClassOf nmh:Channel ;
+    rdfs:label "Push Channel" ;
+    rdfs:comment "Push notification channel" .
+
+nmh:WebhookChannel a owl:Class ;
+    rdfs:subClassOf nmh:Channel ;
+    rdfs:label "Webhook Channel" ;
+    rdfs:comment "Webhook delivery channel" .
+
+# ==================== Provider Classes ====================
+
+nmh:Provider a owl:Class ;
+    rdfs:label "Provider" ;
+    rdfs:comment "External service provider for message delivery" .
+
+nmh:SendGridProvider a owl:Class ;
+    rdfs:subClassOf nmh:Provider ;
+    rdfs:label "SendGrid Provider" ;
+    rdfs:comment "SendGrid email service provider" .
+
+nmh:TwilioProvider a owl:Class ;
+    rdfs:subClassOf nmh:Provider ;
+    rdfs:label "Twilio Provider" ;
+    rdfs:comment "Twilio SMS/voice provider" .
+
+nmh:FCMProvider a owl:Class ;
+    rdfs:subClassOf nmh:Provider ;
+    rdfs:label "FCM Provider" ;
+    rdfs:comment "Firebase Cloud Messaging provider" .
+
+nmh:APNSProvider a owl:Class ;
+    rdfs:subClassOf nmh:Provider ;
+    rdfs:label "APNS Provider" ;
+    rdfs:comment "Apple Push Notification Service provider" .
+
+nmh:SNSProvider a owl:Class ;
+    rdfs:subClassOf nmh:Provider ;
+    rdfs:label "SNS Provider" ;
+    rdfs:comment "AWS Simple Notification Service provider" .
+
+# ==================== Delivery Tracking Classes ====================
+
+nmh:DeliveryStatus a owl:Class ;
+    rdfs:label "Delivery Status" ;
+    rdfs:comment "Status of message delivery" .
+
+nmh:DeliveryAttempt a owl:Class ;
+    rdfs:label "Delivery Attempt" ;
+    rdfs:comment "Individual attempt to deliver a message" .
+
+nmh:DeliveryMetrics a owl:Class ;
+    rdfs:label "Delivery Metrics" ;
+    rdfs:comment "Metrics for message delivery performance" .
+
+nmh:DeliveryReceipt a owl:Class ;
+    rdfs:label "Delivery Receipt" ;
+    rdfs:comment "Confirmation receipt of message delivery" .
+
+# ==================== Queue Management Classes ====================
+
+nmh:MessageQueue a owl:Class ;
+    rdfs:label "Message Queue" ;
+    rdfs:comment "Queue for managing message delivery" .
+
+nmh:RabbitMQQueue a owl:Class ;
+    rdfs:subClassOf nmh:MessageQueue ;
+    rdfs:label "RabbitMQ Queue" ;
+    rdfs:comment "RabbitMQ-based message queue" .
+
+nmh:KafkaQueue a owl:Class ;
+    rdfs:subClassOf nmh:MessageQueue ;
+    rdfs:label "Kafka Queue" ;
+    rdfs:comment "Apache Kafka-based message queue" .
+
+nmh:SQSQueue a owl:Class ;
+    rdfs:subClassOf nmh:MessageQueue ;
+    rdfs:label "SQS Queue" ;
+    rdfs:comment "AWS SQS-based message queue" .
+
+nmh:PriorityQueue a owl:Class ;
+    rdfs:label "Priority Queue" ;
+    rdfs:comment "Queue with priority-based message delivery" .
+
+# ==================== Event Streaming Classes ====================
+
+nmh:EventStream a owl:Class ;
+    rdfs:label "Event Stream" ;
+    rdfs:comment "Stream of notification events" .
+
+nmh:StreamPartition a owl:Class ;
+    rdfs:label "Stream Partition" ;
+    rdfs:comment "Partition in an event stream" .
+
+nmh:StreamConsumer a owl:Class ;
+    rdfs:label "Stream Consumer" ;
+    rdfs:comment "Consumer of event stream messages" .
+
+nmh:StreamProducer a owl:Class ;
+    rdfs:label "Stream Producer" ;
+    rdfs:comment "Producer of event stream messages" .
+
+# ==================== Rate Limiting Classes ====================
+
+nmh:RateLimit a owl:Class ;
+    rdfs:label "Rate Limit" ;
+    rdfs:comment "Rate limiting configuration for channel" .
+
+nmh:RateLimitBucket a owl:Class ;
+    rdfs:label "Rate Limit Bucket" ;
+    rdfs:comment "Token bucket for rate limiting" .
+
+nmh:RateLimitQuota a owl:Class ;
+    rdfs:label "Rate Limit Quota" ;
+    rdfs:comment "Quota allocation for rate limiting" .
+
+# ==================== Recipient Classes ====================
+
+nmh:Recipient a owl:Class ;
+    rdfs:label "Recipient" ;
+    rdfs:comment "Recipient of a message" .
+
+nmh:RecipientGroup a owl:Class ;
+    rdfs:label "Recipient Group" ;
+    rdfs:comment "Group of message recipients" .
+
+nmh:RecipientPreferences a owl:Class ;
+    rdfs:label "Recipient Preferences" ;
+    rdfs:comment "User preferences for notifications" .
+
+# ==================== Campaign Classes ====================
+
+nmh:Campaign a owl:Class ;
+    rdfs:label "Campaign" ;
+    rdfs:comment "Notification campaign" .
+
+nmh:BroadcastCampaign a owl:Class ;
+    rdfs:subClassOf nmh:Campaign ;
+    rdfs:label "Broadcast Campaign" ;
+    rdfs:comment "Mass broadcast notification campaign" .
+
+nmh:TargetedCampaign a owl:Class ;
+    rdfs:subClassOf nmh:Campaign ;
+    rdfs:label "Targeted Campaign" ;
+    rdfs:comment "Targeted notification campaign" .
+
+nmh:TriggeredCampaign a owl:Class ;
+    rdfs:subClassOf nmh:Campaign ;
+    rdfs:label "Triggered Campaign" ;
+    rdfs:comment "Event-triggered notification campaign" .
+
+# ==================== Properties ====================
+
+# Message Properties
+nmh:messageId a owl:DatatypeProperty ;
+    rdfs:domain nmh:Message ;
+    rdfs:range xsd:string ;
+    rdfs:label "message ID" .
+
+nmh:subject a owl:DatatypeProperty ;
+    rdfs:domain nmh:Message ;
+    rdfs:range xsd:string ;
+    rdfs:label "subject" .
+
+nmh:body a owl:DatatypeProperty ;
+    rdfs:domain nmh:Message ;
+    rdfs:range xsd:string ;
+    rdfs:label "body" .
+
+nmh:htmlBody a owl:DatatypeProperty ;
+    rdfs:domain nmh:EmailMessage ;
+    rdfs:range xsd:string ;
+    rdfs:label "HTML body" .
+
+nmh:priority a owl:DatatypeProperty ;
+    rdfs:domain nmh:Message ;
+    rdfs:range xsd:string ;
+    rdfs:label "priority" .
+
+nmh:expiresAt a owl:DatatypeProperty ;
+    rdfs:domain nmh:Message ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "expires at" .
+
+nmh:createdAt a owl:DatatypeProperty ;
+    rdfs:domain nmh:Message ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "created at" .
+
+nmh:scheduledAt a owl:DatatypeProperty ;
+    rdfs:domain nmh:Message ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "scheduled at" .
+
+# Template Properties
+nmh:templateId a owl:DatatypeProperty ;
+    rdfs:domain nmh:MessageTemplate ;
+    rdfs:range xsd:string ;
+    rdfs:label "template ID" .
+
+nmh:templateContent a owl:DatatypeProperty ;
+    rdfs:domain nmh:MessageTemplate ;
+    rdfs:range xsd:string ;
+    rdfs:label "template content" .
+
+nmh:variableName a owl:DatatypeProperty ;
+    rdfs:domain nmh:TemplateVariable ;
+    rdfs:range xsd:string ;
+    rdfs:label "variable name" .
+
+nmh:defaultValue a owl:DatatypeProperty ;
+    rdfs:domain nmh:TemplateVariable ;
+    rdfs:range xsd:string ;
+    rdfs:label "default value" .
+
+# Channel Properties
+nmh:channelType a owl:DatatypeProperty ;
+    rdfs:domain nmh:Channel ;
+    rdfs:range xsd:string ;
+    rdfs:label "channel type" .
+
+nmh:isActive a owl:DatatypeProperty ;
+    rdfs:domain nmh:Channel ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "is active" .
+
+# Provider Properties
+nmh:providerName a owl:DatatypeProperty ;
+    rdfs:domain nmh:Provider ;
+    rdfs:range xsd:string ;
+    rdfs:label "provider name" .
+
+nmh:apiEndpoint a owl:DatatypeProperty ;
+    rdfs:domain nmh:Provider ;
+    rdfs:range xsd:anyURI ;
+    rdfs:label "API endpoint" .
+
+nmh:apiKey a owl:DatatypeProperty ;
+    rdfs:domain nmh:Provider ;
+    rdfs:range xsd:string ;
+    rdfs:label "API key" .
+
+# Delivery Properties
+nmh:deliveryStatus a owl:DatatypeProperty ;
+    rdfs:domain nmh:DeliveryStatus ;
+    rdfs:range xsd:string ;
+    rdfs:label "delivery status" .
+
+nmh:attemptCount a owl:DatatypeProperty ;
+    rdfs:domain nmh:DeliveryAttempt ;
+    rdfs:range xsd:integer ;
+    rdfs:label "attempt count" .
+
+nmh:deliveredAt a owl:DatatypeProperty ;
+    rdfs:domain nmh:DeliveryStatus ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "delivered at" .
+
+nmh:failureReason a owl:DatatypeProperty ;
+    rdfs:domain nmh:DeliveryAttempt ;
+    rdfs:range xsd:string ;
+    rdfs:label "failure reason" .
+
+# Rate Limiting Properties
+nmh:maxRequestsPerMinute a owl:DatatypeProperty ;
+    rdfs:domain nmh:RateLimit ;
+    rdfs:range xsd:integer ;
+    rdfs:label "max requests per minute" .
+
+nmh:burstSize a owl:DatatypeProperty ;
+    rdfs:domain nmh:RateLimitBucket ;
+    rdfs:range xsd:integer ;
+    rdfs:label "burst size" .
+
+nmh:refillRate a owl:DatatypeProperty ;
+    rdfs:domain nmh:RateLimitBucket ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "refill rate" .
+
+# Recipient Properties
+nmh:emailAddress a owl:DatatypeProperty ;
+    rdfs:domain nmh:Recipient ;
+    rdfs:range xsd:string ;
+    rdfs:label "email address" .
+
+nmh:phoneNumber a owl:DatatypeProperty ;
+    rdfs:domain nmh:Recipient ;
+    rdfs:range xsd:string ;
+    rdfs:label "phone number" .
+
+nmh:deviceToken a owl:DatatypeProperty ;
+    rdfs:domain nmh:Recipient ;
+    rdfs:range xsd:string ;
+    rdfs:label "device token" .
+
+nmh:optedIn a owl:DatatypeProperty ;
+    rdfs:domain nmh:RecipientPreferences ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "opted in" .
+
+# Campaign Properties
+nmh:campaignName a owl:DatatypeProperty ;
+    rdfs:domain nmh:Campaign ;
+    rdfs:range xsd:string ;
+    rdfs:label "campaign name" .
+
+nmh:startDate a owl:DatatypeProperty ;
+    rdfs:domain nmh:Campaign ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "start date" .
+
+nmh:endDate a owl:DatatypeProperty ;
+    rdfs:domain nmh:Campaign ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "end date" .
+
+# Object Properties
+nmh:usesTemplate a owl:ObjectProperty ;
+    rdfs:domain nmh:Message ;
+    rdfs:range nmh:MessageTemplate ;
+    rdfs:label "uses template" .
+
+nmh:hasRecipient a owl:ObjectProperty ;
+    rdfs:domain nmh:Message ;
+    rdfs:range nmh:Recipient ;
+    rdfs:label "has recipient" .
+
+nmh:deliveredVia a owl:ObjectProperty ;
+    rdfs:domain nmh:Message ;
+    rdfs:range nmh:Channel ;
+    rdfs:label "delivered via" .
+
+nmh:handledBy a owl:ObjectProperty ;
+    rdfs:domain nmh:Channel ;
+    rdfs:range nmh:Provider ;
+    rdfs:label "handled by" .
+
+nmh:hasDeliveryStatus a owl:ObjectProperty ;
+    rdfs:domain nmh:Message ;
+    rdfs:range nmh:DeliveryStatus ;
+    rdfs:label "has delivery status" .
+
+nmh:queuedIn a owl:ObjectProperty ;
+    rdfs:domain nmh:Message ;
+    rdfs:range nmh:MessageQueue ;
+    rdfs:label "queued in" .
+
+nmh:hasRateLimit a owl:ObjectProperty ;
+    rdfs:domain nmh:Channel ;
+    rdfs:range nmh:RateLimit ;
+    rdfs:label "has rate limit" .
+
+nmh:partOfCampaign a owl:ObjectProperty ;
+    rdfs:domain nmh:Message ;
+    rdfs:range nmh:Campaign ;
+    rdfs:label "part of campaign" .

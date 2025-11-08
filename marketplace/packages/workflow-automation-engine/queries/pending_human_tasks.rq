@@ -1,0 +1,10 @@
+PREFIX wf: <https://ggen.ai/ontology/workflow#>
+SELECT ?task ?assignee ?priority ?dueDate WHERE {
+  ?task a wf:HumanTask ;
+        wf:assignedTo ?assignee ;
+        wf:priority ?priority ;
+        wf:dueDate ?dueDate ;
+        wf:status "pending" .
+  FILTER(?dueDate < NOW() + "P7D"^^xsd:duration)
+}
+ORDER BY ?priority DESC(?dueDate)
