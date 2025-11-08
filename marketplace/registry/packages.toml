@@ -71,3 +71,226 @@ dependencies = []
 features = ["async-graphql integration", "JWT authentication", "Real-time subscriptions", "Database integration"]
 tags = ["rust", "graphql", "api", "async"]
 keywords = ["rust", "graphql", "api", "subscription"]
+
+# Advanced Rust Project
+[[package]]
+name = "advanced-rust-project"
+full_name = "ggen/advanced-rust-project"
+version = "1.0.0"
+description = "Advanced Rust project demonstrating all ggen features: lifecycle, AI, SPARQL, templates, and security"
+category = "templates"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+path = "marketplace/packages/advanced-rust-project"
+license = "MIT"
+dependencies = []
+features = [
+    "Complete lifecycle management with phases and hooks",
+    "AI-powered code generation with multi-provider support",
+    "SPARQL queries and RDF integration",
+    "Advanced template features and filters",
+    "File injection and modification",
+    "Security hardening and validation",
+    "Comprehensive testing and validation",
+    "Multi-environment deployment",
+    "Performance profiling and monitoring",
+    "Backup and recovery systems"
+]
+tags = ["rust", "showcase", "lifecycle", "ai", "sparql", "templates", "security", "production"]
+keywords = ["ggen", "rust", "microservice", "ai-generation", "sparql", "lifecycle"]
+
+# AI Code Generation
+[[package]]
+name = "ai-code-generation"
+full_name = "ggen/ai-code-generation"
+version = "1.0.0"
+description = "AI-powered code generation with multi-provider support and comprehensive validation"
+category = "templates"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+path = "marketplace/packages/ai-code-generation"
+license = "MIT"
+dependencies = []
+features = [
+    "Multi-provider AI support (Ollama, OpenAI, Anthropic)",
+    "Intelligent template generation from natural language",
+    "Code quality validation and improvement",
+    "Automatic test generation",
+    "Documentation generation",
+    "Code optimization suggestions",
+    "SPARQL integration for semantic generation",
+    "Production-ready code with error handling",
+    "Security validation",
+    "Performance optimization"
+]
+tags = ["ai", "code-generation", "ollama", "openai", "llm", "validation", "quality"]
+keywords = ["ai", "code-generation", "llm", "ollama", "qwen"]
+
+# AI Microservice
+[[package]]
+name = "ai-microservice"
+full_name = "ggen/ai-microservice"
+version = "0.1.0"
+description = "AI-powered microservice with template generation, refactoring, and ontology support"
+category = "templates"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+path = "marketplace/packages/ai-microservice"
+license = "MIT"
+dependencies = []
+features = [
+    "Multi-provider AI support (OpenAI, Anthropic, Ollama)",
+    "Microservice template generation",
+    "Automatic refactoring suggestions",
+    "Ontology-based code generation",
+    "LRU caching for improved performance",
+    "Streaming support for real-time responses",
+    "Configuration-driven development",
+    "Production-ready patterns"
+]
+tags = ["ai", "microservice", "template", "refactoring", "ontology", "streaming"]
+keywords = ["ai", "microservice", "generation", "refactoring", "llm"]
+
+# API Endpoint Templates
+[[package]]
+name = "api-endpoint"
+full_name = "ggen/api-endpoint"
+version = "1.0.0"
+description = "Complete REST API endpoint templates with OpenAPI documentation and production-ready patterns"
+category = "templates"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+path = "marketplace/packages/api-endpoint"
+license = "MIT"
+dependencies = []
+features = [
+    "Axum-based HTTP handlers with production patterns",
+    "Complete CRUD operations (POST, GET, PUT, DELETE)",
+    "Request/response validation with detailed errors",
+    "OpenAPI 3.0 specification generation",
+    "Rate limiting and security features",
+    "Error handling with proper status codes",
+    "Async/await throughout for performance",
+    "Database connection pooling",
+    "CORS configuration",
+    "Comprehensive test suite"
+]
+tags = ["rust", "api", "rest", "axum", "openapi", "crud", "validation", "production"]
+keywords = ["rust", "axum", "rest-api", "openapi", "template"]
+
+# Comprehensive Rust Showcase
+[[package]]
+name = "comprehensive-rust-showcase"
+full_name = "ggen/comprehensive-rust-showcase"
+version = "1.0.0"
+description = "Comprehensive showcase of ALL ggen features: lifecycle, AI, SPARQL, templates, security, performance, monitoring"
+category = "templates"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+path = "marketplace/packages/comprehensive-rust-showcase"
+license = "MIT"
+dependencies = []
+features = [
+    "Complete lifecycle management with all phases",
+    "Multi-provider AI support (OpenAI, Anthropic, Ollama)",
+    "Advanced SPARQL/RDF integration with reasoning",
+    "Comprehensive template library (6+ templates)",
+    "Production-ready security hardening",
+    "Performance optimization and profiling",
+    "Multi-environment deployment (dev/staging/prod)",
+    "Monitoring and observability integration",
+    "Backup and recovery systems",
+    "CI/CD pipeline configuration",
+    "Quality gates and validation",
+    "Comprehensive testing (90% coverage)",
+    "API documentation generation",
+    "Multi-format RDF support"
+]
+tags = ["rust", "showcase", "complete", "enterprise", "production", "ai", "sparql", "lifecycle", "monitoring"]
+keywords = ["ggen", "rust", "microservice", "enterprise", "production-ready", "comprehensive"]
+
+# Hello World
+[[package]]
+name = "hello-world"
+full_name = "ggen/hello-world"
+version = "0.1.0"
+description = "Simple utility package demonstrating basic ggen marketplace functionality and async patterns"
+category = "examples"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+path = "marketplace/packages/hello-world"
+license = "MIT"
+dependencies = []
+features = [
+    "Simple getting started example",
+    "Async/await patterns with Tokio",
+    "Error handling with anyhow",
+    "JSON serialization with serde",
+    "Binary executable template",
+    "Minimal dependencies"
+]
+tags = ["example", "hello-world", "getting-started", "tokio", "async"]
+keywords = ["example", "tutorial", "hello-world", "rust"]
+
+# Microservices Architecture
+[[package]]
+name = "microservices-architecture"
+full_name = "ggen/microservices-architecture"
+version = "1.0.0"
+description = "Complete e-commerce microservices architecture with Rust, Docker, PostgreSQL, Redis, and Kubernetes"
+category = "templates"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+path = "marketplace/packages/microservices-architecture"
+license = "MIT"
+dependencies = []
+features = [
+    "Complete microservices architecture with 4+ services",
+    "API Gateway with routing and load balancing",
+    "Database integration (PostgreSQL)",
+    "Caching layer (Redis)",
+    "Message queue (RabbitMQ)",
+    "Service discovery and health checks",
+    "Docker Compose for development",
+    "Kubernetes deployment manifests",
+    "Monitoring with Prometheus and Grafana",
+    "Distributed tracing",
+    "CI/CD pipeline configuration",
+    "Comprehensive testing"
+]
+tags = ["microservices", "architecture", "docker", "kubernetes", "rust", "postgresql", "redis", "production"]
+keywords = ["microservices", "architecture", "e-commerce", "docker", "kubernetes"]
+
+# Rig MCP Integration
+[[package]]
+name = "rig-mcp"
+full_name = "ggen/rig-mcp"
+version = "0.1.0"
+description = "Production-ready Rig LLM framework + MCP protocol integration with multi-provider support"
+category = "libraries"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+path = "marketplace/packages/rig-mcp"
+license = "MIT"
+dependencies = []
+features = [
+    "Multi-provider LLM support (OpenAI, Anthropic, Cohere, Ollama, 20+)",
+    "Dynamic MCP tool loading with vector-based selection",
+    "Multi-transport MCP support (stdio, SSE, HTTP)",
+    "Production-ready patterns from official MCP Rust SDK",
+    "Embedding-based intelligent tool selection",
+    "Async/streaming support for real-time responses",
+    "Connection pooling for LLM providers",
+    "Configuration-driven setup",
+    "Comprehensive error handling"
+]
+tags = ["llm", "mcp", "rig", "ai", "openai", "anthropic", "ollama", "integration"]
+keywords = ["llm", "mcp", "rig", "ai-framework", "multi-provider"]
