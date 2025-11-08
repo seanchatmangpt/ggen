@@ -1,0 +1,39 @@
+[package]
+name = "document-management-system"
+version = "1.0.0"
+description = "Enterprise Document Management System with versioning, workflow, OCR, and compliance tracking"
+authors = ["GGEN Marketplace"]
+license = "MIT"
+category = "Enterprise"
+tags = ["documents", "versioning", "workflow", "OCR", "compliance", "metadata", "enterprise"]
+
+[dependencies]
+rdf = ">=0.1.0"
+sparql = ">=1.0.0"
+
+[features]
+versioning = ["Document versioning and change tracking"]
+workflow = ["Approval workflows and routing"]
+ocr = ["Optical Character Recognition integration"]
+retention = ["Retention policies and compliance"]
+search = ["Full-text search capabilities"]
+
+[ontology]
+file = "ontology/document_management.ttl"
+namespace = "https://ggen.ai/ontology/document-management#"
+
+[queries]
+directory = "queries/"
+
+[examples]
+rust = "examples/rust/"
+typescript = "examples/typescript/"
+python = "examples/python/"
+
+[tests]
+directory = "tests/"
+framework = "chicago-tdd"
+
+[documentation]
+readme = "README.md"
+guides = ["docs/USER_GUIDE.md", "docs/INTEGRATION.md", "docs/COMPLIANCE.md"]

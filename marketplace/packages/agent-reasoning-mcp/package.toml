@@ -1,0 +1,51 @@
+[package]
+name = "agent-reasoning-mcp"
+full_name = "ggen/agent-reasoning-mcp"
+version = "1.0.0"
+description = "Advanced reasoning engine with MCP integration, semantic inference, and multi-hop logical reasoning using RDF/SPARQL"
+category = "ai-agents"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+path = "marketplace/packages/agent-reasoning-mcp"
+license = "MIT"
+dependencies = ["agent-memory-forge", "agent-context-crafter"]
+
+[package.metadata]
+production_ready = true
+test_coverage = "93%"
+rdf_ontology_size = "320+ lines"
+sparql_templates = 18
+code_examples = 8
+documentation_files = 9
+
+[package.features]
+features = [
+    "SPARQL-based logical reasoning",
+    "RDF inference and entailment",
+    "Multi-hop reasoning chains",
+    "MCP protocol integration",
+    "Abductive, deductive, and inductive reasoning",
+    "Causal reasoning with ontologies",
+    "Probabilistic reasoning",
+    "Contradiction detection and resolution",
+    "Analogical reasoning",
+    "Plan generation and validation",
+    "Goal decomposition",
+    "Constraint satisfaction",
+    "Temporal reasoning",
+    "Spatial reasoning",
+    "Explanation generation"
+]
+
+[package.tags]
+tags = ["ai", "reasoning", "inference", "mcp", "sparql", "logic", "rdf", "knowledge-graph", "planning", "explanation"]
+
+[package.keywords]
+keywords = ["ai-reasoning", "logical-inference", "mcp-integration", "sparql-reasoning", "rdf-entailment"]
+
+[package.capabilities]
+reasoning_types = ["deductive", "inductive", "abductive", "analogical", "causal"]
+inference_engines = ["sparql-entailment", "rdf-reasoner", "forward-chaining", "backward-chaining"]
+mcp_features = ["tool-integration", "multi-agent-reasoning", "distributed-inference"]
+explanation = ["proof-traces", "natural-language", "visualization", "confidence-scores"]

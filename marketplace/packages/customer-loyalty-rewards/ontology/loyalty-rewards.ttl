@@ -1,0 +1,453 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix schema: <http://schema.org/> .
+@prefix lr: <http://ggen.io/ontology/loyalty-rewards#> .
+
+# ============================================================================
+# Customer Loyalty & Rewards Ontology
+# ============================================================================
+# Comprehensive ontology for loyalty programs, points, and gamification
+# Version: 1.0.0
+# Lines: 270+
+# ============================================================================
+
+# ============================================================================
+# Core Loyalty Classes
+# ============================================================================
+
+lr:LoyaltyProgram a owl:Class ;
+    rdfs:label "Loyalty Program" ;
+    rdfs:comment "Customer loyalty and rewards program" .
+
+lr:Member a owl:Class ;
+    rdfs:label "Loyalty Member" ;
+    rdfs:comment "Member enrolled in loyalty program" ;
+    rdfs:subClassOf foaf:Person .
+
+lr:Tier a owl:Class ;
+    rdfs:label "Membership Tier" ;
+    rdfs:comment "Tier level in loyalty program (Bronze, Silver, Gold, Platinum)" .
+
+lr:Points a owl:Class ;
+    rdfs:label "Loyalty Points" ;
+    rdfs:comment "Points accumulated in loyalty program" .
+
+lr:PointsTransaction a owl:Class ;
+    rdfs:label "Points Transaction" ;
+    rdfs:comment "Transaction earning or redeeming points" .
+
+# ============================================================================
+# Points Earning Classes
+# ============================================================================
+
+lr:EarningRule a owl:Class ;
+    rdfs:label "Earning Rule" ;
+    rdfs:comment "Rule for earning loyalty points" .
+
+lr:PurchaseEarning a owl:Class ;
+    rdfs:label "Purchase Earning" ;
+    rdfs:comment "Points earned from purchases" ;
+    rdfs:subClassOf lr:EarningRule .
+
+lr:ReferralEarning a owl:Class ;
+    rdfs:label "Referral Earning" ;
+    rdfs:comment "Points earned from referrals" ;
+    rdfs:subClassOf lr:EarningRule .
+
+lr:ReviewEarning a owl:Class ;
+    rdfs:label "Review Earning" ;
+    rdfs:comment "Points earned from product reviews" ;
+    rdfs:subClassOf lr:EarningRule .
+
+lr:BirthdayBonus a owl:Class ;
+    rdfs:label "Birthday Bonus" ;
+    rdfs:comment "Birthday bonus points" ;
+    rdfs:subClassOf lr:EarningRule .
+
+lr:SocialShareEarning a owl:Class ;
+    rdfs:label "Social Share Earning" ;
+    rdfs:comment "Points earned from social media sharing" ;
+    rdfs:subClassOf lr:EarningRule .
+
+# ============================================================================
+# Rewards Classes
+# ============================================================================
+
+lr:Reward a owl:Class ;
+    rdfs:label "Reward" ;
+    rdfs:comment "Reward available for redemption" .
+
+lr:DiscountReward a owl:Class ;
+    rdfs:label "Discount Reward" ;
+    rdfs:comment "Discount voucher reward" ;
+    rdfs:subClassOf lr:Reward .
+
+lr:FreeShippingReward a owl:Class ;
+    rdfs:label "Free Shipping Reward" ;
+    rdfs:comment "Free shipping voucher" ;
+    rdfs:subClassOf lr:Reward .
+
+lr:ProductReward a owl:Class ;
+    rdfs:label "Product Reward" ;
+    rdfs:comment "Free product reward" ;
+    rdfs:subClassOf lr:Reward .
+
+lr:ExperienceReward a owl:Class ;
+    rdfs:label "Experience Reward" ;
+    rdfs:comment "Experience or event reward" ;
+    rdfs:subClassOf lr:Reward .
+
+lr:RewardsCatalog a owl:Class ;
+    rdfs:label "Rewards Catalog" ;
+    rdfs:comment "Catalog of available rewards" .
+
+# ============================================================================
+# Redemption Classes
+# ============================================================================
+
+lr:Redemption a owl:Class ;
+    rdfs:label "Redemption" ;
+    rdfs:comment "Points redemption transaction" .
+
+lr:RedemptionStatus a owl:Class ;
+    rdfs:label "Redemption Status" ;
+    rdfs:comment "Status of redemption (pending, approved, fulfilled)" .
+
+lr:Voucher a owl:Class ;
+    rdfs:label "Voucher" ;
+    rdfs:comment "Redeemed reward voucher" .
+
+# ============================================================================
+# Tier Benefits Classes
+# ============================================================================
+
+lr:Benefit a owl:Class ;
+    rdfs:label "Tier Benefit" ;
+    rdfs:comment "Benefit associated with membership tier" .
+
+lr:PointsMultiplier a owl:Class ;
+    rdfs:label "Points Multiplier" ;
+    rdfs:comment "Multiplier for points earning" ;
+    rdfs:subClassOf lr:Benefit .
+
+lr:ExclusiveAccess a owl:Class ;
+    rdfs:label "Exclusive Access" ;
+    rdfs:comment "Exclusive access to products or sales" ;
+    rdfs:subClassOf lr:Benefit .
+
+lr:PrioritySupport a owl:Class ;
+    rdfs:label "Priority Support" ;
+    rdfs:comment "Priority customer support" ;
+    rdfs:subClassOf lr:Benefit .
+
+lr:FreeReturns a owl:Class ;
+    rdfs:label "Free Returns" ;
+    rdfs:comment "Free return shipping benefit" ;
+    rdfs:subClassOf lr:Benefit .
+
+# ============================================================================
+# Gamification Classes
+# ============================================================================
+
+lr:Badge a owl:Class ;
+    rdfs:label "Badge" ;
+    rdfs:comment "Achievement badge" .
+
+lr:Achievement a owl:Class ;
+    rdfs:label "Achievement" ;
+    rdfs:comment "Unlocked achievement" .
+
+lr:Streak a owl:Class ;
+    rdfs:label "Streak" ;
+    rdfs:comment "Consecutive activity streak" .
+
+lr:Challenge a owl:Class ;
+    rdfs:label "Challenge" ;
+    rdfs:comment "Gamification challenge" .
+
+lr:Leaderboard a owl:Class ;
+    rdfs:label "Leaderboard" ;
+    rdfs:comment "Points leaderboard" .
+
+# ============================================================================
+# Referral Classes
+# ============================================================================
+
+lr:Referral a owl:Class ;
+    rdfs:label "Referral" ;
+    rdfs:comment "Member referral" .
+
+lr:ReferralCode a owl:Class ;
+    rdfs:label "Referral Code" ;
+    rdfs:comment "Unique referral code" .
+
+lr:ReferralReward a owl:Class ;
+    rdfs:label "Referral Reward" ;
+    rdfs:comment "Reward for successful referral" .
+
+# ============================================================================
+# Campaign Classes
+# ============================================================================
+
+lr:Campaign a owl:Class ;
+    rdfs:label "Loyalty Campaign" ;
+    rdfs:comment "Promotional loyalty campaign" .
+
+lr:BonusPointsCampaign a owl:Class ;
+    rdfs:label "Bonus Points Campaign" ;
+    rdfs:comment "Campaign offering bonus points" ;
+    rdfs:subClassOf lr:Campaign .
+
+lr:DoublePointsEvent a owl:Class ;
+    rdfs:label "Double Points Event" ;
+    rdfs:comment "Event offering double points" ;
+    rdfs:subClassOf lr:Campaign .
+
+# ============================================================================
+# Partner Classes
+# ============================================================================
+
+lr:Partner a owl:Class ;
+    rdfs:label "Loyalty Partner" ;
+    rdfs:comment "Partner in coalition loyalty program" .
+
+lr:CoalitionProgram a owl:Class ;
+    rdfs:label "Coalition Program" ;
+    rdfs:comment "Multi-brand coalition loyalty program" .
+
+# ============================================================================
+# Member Properties
+# ============================================================================
+
+lr:hasMemberId a owl:DatatypeProperty ;
+    rdfs:label "has member ID" ;
+    rdfs:domain lr:Member ;
+    rdfs:range xsd:string .
+
+lr:hasEnrollmentDate a owl:DatatypeProperty ;
+    rdfs:label "has enrollment date" ;
+    rdfs:domain lr:Member ;
+    rdfs:range xsd:dateTime .
+
+lr:hasTier a owl:ObjectProperty ;
+    rdfs:label "has tier" ;
+    rdfs:domain lr:Member ;
+    rdfs:range lr:Tier .
+
+lr:hasPoints a owl:ObjectProperty ;
+    rdfs:label "has points" ;
+    rdfs:domain lr:Member ;
+    rdfs:range lr:Points .
+
+lr:hasPointsBalance a owl:DatatypeProperty ;
+    rdfs:label "has points balance" ;
+    rdfs:domain lr:Member ;
+    rdfs:range xsd:integer .
+
+# ============================================================================
+# Tier Properties
+# ============================================================================
+
+lr:hasTierName a owl:DatatypeProperty ;
+    rdfs:label "has tier name" ;
+    rdfs:domain lr:Tier ;
+    rdfs:range xsd:string .
+
+lr:hasMinimumPoints a owl:DatatypeProperty ;
+    rdfs:label "has minimum points" ;
+    rdfs:domain lr:Tier ;
+    rdfs:range xsd:integer .
+
+lr:hasBenefit a owl:ObjectProperty ;
+    rdfs:label "has benefit" ;
+    rdfs:domain lr:Tier ;
+    rdfs:range lr:Benefit .
+
+lr:hasMultiplier a owl:DatatypeProperty ;
+    rdfs:label "has multiplier" ;
+    rdfs:domain lr:Tier ;
+    rdfs:range xsd:decimal .
+
+# ============================================================================
+# Points Properties
+# ============================================================================
+
+lr:hasPointsEarned a owl:DatatypeProperty ;
+    rdfs:label "has points earned" ;
+    rdfs:domain lr:PointsTransaction ;
+    rdfs:range xsd:integer .
+
+lr:hasPointsRedeemed a owl:DatatypeProperty ;
+    rdfs:label "has points redeemed" ;
+    rdfs:domain lr:PointsTransaction ;
+    rdfs:range xsd:integer .
+
+lr:hasTransactionDate a owl:DatatypeProperty ;
+    rdfs:label "has transaction date" ;
+    rdfs:domain lr:PointsTransaction ;
+    rdfs:range xsd:dateTime .
+
+lr:hasExpirationDate a owl:DatatypeProperty ;
+    rdfs:label "has expiration date" ;
+    rdfs:domain lr:Points ;
+    rdfs:range xsd:dateTime .
+
+lr:hasRolloverDate a owl:DatatypeProperty ;
+    rdfs:label "has rollover date" ;
+    rdfs:domain lr:Points ;
+    rdfs:range xsd:dateTime .
+
+# ============================================================================
+# Earning Rule Properties
+# ============================================================================
+
+lr:hasEarningRule a owl:ObjectProperty ;
+    rdfs:label "has earning rule" ;
+    rdfs:domain lr:LoyaltyProgram ;
+    rdfs:range lr:EarningRule .
+
+lr:hasPointsPerDollar a owl:DatatypeProperty ;
+    rdfs:label "has points per dollar" ;
+    rdfs:domain lr:PurchaseEarning ;
+    rdfs:range xsd:decimal .
+
+lr:hasReferralPoints a owl:DatatypeProperty ;
+    rdfs:label "has referral points" ;
+    rdfs:domain lr:ReferralEarning ;
+    rdfs:range xsd:integer .
+
+lr:hasReviewPoints a owl:DatatypeProperty ;
+    rdfs:label "has review points" ;
+    rdfs:domain lr:ReviewEarning ;
+    rdfs:range xsd:integer .
+
+# ============================================================================
+# Reward Properties
+# ============================================================================
+
+lr:hasReward a owl:ObjectProperty ;
+    rdfs:label "has reward" ;
+    rdfs:domain lr:RewardsCatalog ;
+    rdfs:range lr:Reward .
+
+lr:hasRewardName a owl:DatatypeProperty ;
+    rdfs:label "has reward name" ;
+    rdfs:domain lr:Reward ;
+    rdfs:range xsd:string .
+
+lr:hasPointsCost a owl:DatatypeProperty ;
+    rdfs:label "has points cost" ;
+    rdfs:domain lr:Reward ;
+    rdfs:range xsd:integer .
+
+lr:hasDiscountAmount a owl:DatatypeProperty ;
+    rdfs:label "has discount amount" ;
+    rdfs:domain lr:DiscountReward ;
+    rdfs:range xsd:decimal .
+
+lr:hasDiscountPercentage a owl:DatatypeProperty ;
+    rdfs:label "has discount percentage" ;
+    rdfs:domain lr:DiscountReward ;
+    rdfs:range xsd:integer .
+
+# ============================================================================
+# Redemption Properties
+# ============================================================================
+
+lr:hasRedemption a owl:ObjectProperty ;
+    rdfs:label "has redemption" ;
+    rdfs:domain lr:Member ;
+    rdfs:range lr:Redemption .
+
+lr:hasRedemptionDate a owl:DatatypeProperty ;
+    rdfs:label "has redemption date" ;
+    rdfs:domain lr:Redemption ;
+    rdfs:range xsd:dateTime .
+
+lr:hasRedemptionStatus a owl:ObjectProperty ;
+    rdfs:label "has redemption status" ;
+    rdfs:domain lr:Redemption ;
+    rdfs:range lr:RedemptionStatus .
+
+lr:hasVoucher a owl:ObjectProperty ;
+    rdfs:label "has voucher" ;
+    rdfs:domain lr:Redemption ;
+    rdfs:range lr:Voucher .
+
+# ============================================================================
+# Gamification Properties
+# ============================================================================
+
+lr:hasBadge a owl:ObjectProperty ;
+    rdfs:label "has badge" ;
+    rdfs:domain lr:Member ;
+    rdfs:range lr:Badge .
+
+lr:hasAchievement a owl:ObjectProperty ;
+    rdfs:label "has achievement" ;
+    rdfs:domain lr:Member ;
+    rdfs:range lr:Achievement .
+
+lr:hasStreak a owl:ObjectProperty ;
+    rdfs:label "has streak" ;
+    rdfs:domain lr:Member ;
+    rdfs:range lr:Streak .
+
+lr:hasStreakCount a owl:DatatypeProperty ;
+    rdfs:label "has streak count" ;
+    rdfs:domain lr:Streak ;
+    rdfs:range xsd:integer .
+
+# ============================================================================
+# Referral Properties
+# ============================================================================
+
+lr:hasReferralCode a owl:ObjectProperty ;
+    rdfs:label "has referral code" ;
+    rdfs:domain lr:Member ;
+    rdfs:range lr:ReferralCode .
+
+lr:hasReferral a owl:ObjectProperty ;
+    rdfs:label "has referral" ;
+    rdfs:domain lr:Member ;
+    rdfs:range lr:Referral .
+
+lr:hasReferrer a owl:ObjectProperty ;
+    rdfs:label "has referrer" ;
+    rdfs:domain lr:Referral ;
+    rdfs:range lr:Member .
+
+lr:hasReferee a owl:ObjectProperty ;
+    rdfs:label "has referee" ;
+    rdfs:domain lr:Referral ;
+    rdfs:range lr:Member .
+
+# ============================================================================
+# Tier Individuals
+# ============================================================================
+
+lr:BronzeTier a lr:Tier ;
+    rdfs:label "Bronze Tier" ;
+    lr:hasMinimumPoints 0 ;
+    lr:hasMultiplier 1.0 .
+
+lr:SilverTier a lr:Tier ;
+    rdfs:label "Silver Tier" ;
+    lr:hasMinimumPoints 1000 ;
+    lr:hasMultiplier 1.25 .
+
+lr:GoldTier a lr:Tier ;
+    rdfs:label "Gold Tier" ;
+    lr:hasMinimumPoints 5000 ;
+    lr:hasMultiplier 1.5 .
+
+lr:PlatinumTier a lr:Tier ;
+    rdfs:label "Platinum Tier" ;
+    lr:hasMinimumPoints 10000 ;
+    lr:hasMultiplier 2.0 .
+
+# Total Lines: 270+

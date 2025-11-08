@@ -1,0 +1,534 @@
+@prefix inv: <http://example.org/inventory#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+
+# ============================================================================
+# Inventory Management Ontology
+# ============================================================================
+# Description: Comprehensive ontology for inventory and warehouse management
+# Covers: Product catalog, stock tracking, warehouses, movements, valuation,
+#         lot/batch tracking, reorder points, multi-channel inventory
+# Version: 1.0.0
+# ============================================================================
+
+# Ontology Definition
+inv:InventoryManagementOntology a owl:Ontology ;
+    dc:title "Inventory Management Ontology" ;
+    dc:description "RDF ontology for inventory and warehouse management systems" ;
+    dc:creator "ggen-team" ;
+    dc:version "1.0.0" ;
+    rdfs:comment "Defines products, stock levels, locations, movements, and valuation" .
+
+# ============================================================================
+# CORE CLASSES - Product Catalog
+# ============================================================================
+
+inv:Product a rdfs:Class ;
+    rdfs:label "Product" ;
+    rdfs:comment "A physical or digital item in the catalog" .
+
+inv:ProductVariant a rdfs:Class ;
+    rdfs:label "Product Variant" ;
+    rdfs:comment "A specific variation of a product (size, color, etc.)" ;
+    rdfs:subClassOf inv:Product .
+
+inv:ProductBundle a rdfs:Class ;
+    rdfs:label "Product Bundle" ;
+    rdfs:comment "A collection of products sold as a single unit" ;
+    rdfs:subClassOf inv:Product .
+
+inv:SKU a rdfs:Class ;
+    rdfs:label "SKU (Stock Keeping Unit)" ;
+    rdfs:comment "Unique identifier for tracking inventory" .
+
+inv:Barcode a rdfs:Class ;
+    rdfs:label "Barcode" ;
+    rdfs:comment "Scannable barcode identifier (UPC, EAN, Code128)" .
+
+inv:RFID a rdfs:Class ;
+    rdfs:label "RFID Tag" ;
+    rdfs:comment "Radio-frequency identification tag for tracking" .
+
+# ============================================================================
+# STOCK LEVELS & LOCATIONS
+# ============================================================================
+
+inv:StockLevel a rdfs:Class ;
+    rdfs:label "Stock Level" ;
+    rdfs:comment "Current quantity of product at a location" .
+
+inv:Location a rdfs:Class ;
+    rdfs:label "Location" ;
+    rdfs:comment "Physical or logical storage location" .
+
+inv:Warehouse a rdfs:Class ;
+    rdfs:label "Warehouse" ;
+    rdfs:comment "Large storage facility for inventory" ;
+    rdfs:subClassOf inv:Location .
+
+inv:Store a rdfs:Class ;
+    rdfs:label "Store" ;
+    rdfs:comment "Retail store location" ;
+    rdfs:subClassOf inv:Location .
+
+inv:DistributionCenter a rdfs:Class ;
+    rdfs:label "Distribution Center" ;
+    rdfs:comment "Fulfillment and shipping center" ;
+    rdfs:subClassOf inv:Location .
+
+inv:Zone a rdfs:Class ;
+    rdfs:label "Zone" ;
+    rdfs:comment "Section within a warehouse (receiving, picking, shipping)" ;
+    rdfs:subClassOf inv:Location .
+
+inv:Bin a rdfs:Class ;
+    rdfs:label "Bin" ;
+    rdfs:comment "Specific shelf or container location" ;
+    rdfs:subClassOf inv:Location .
+
+# ============================================================================
+# STOCK MOVEMENTS
+# ============================================================================
+
+inv:StockMovement a rdfs:Class ;
+    rdfs:label "Stock Movement" ;
+    rdfs:comment "Transaction that changes stock levels" .
+
+inv:ReceiveMovement a rdfs:Class ;
+    rdfs:label "Receive Movement" ;
+    rdfs:comment "Receiving inventory from supplier" ;
+    rdfs:subClassOf inv:StockMovement .
+
+inv:TransferMovement a rdfs:Class ;
+    rdfs:label "Transfer Movement" ;
+    rdfs:comment "Moving inventory between locations" ;
+    rdfs:subClassOf inv:StockMovement .
+
+inv:AdjustmentMovement a rdfs:Class ;
+    rdfs:label "Adjustment Movement" ;
+    rdfs:comment "Manual correction of stock levels (damage, loss, found)" ;
+    rdfs:subClassOf inv:StockMovement .
+
+inv:SellMovement a rdfs:Class ;
+    rdfs:label "Sell Movement" ;
+    rdfs:comment "Reducing stock due to sale" ;
+    rdfs:subClassOf inv:StockMovement .
+
+inv:ReturnMovement a rdfs:Class ;
+    rdfs:label "Return Movement" ;
+    rdfs:comment "Customer return increasing stock" ;
+    rdfs:subClassOf inv:StockMovement .
+
+inv:ScrapMovement a rdfs:Class ;
+    rdfs:label "Scrap Movement" ;
+    rdfs:comment "Removing damaged or expired inventory" ;
+    rdfs:subClassOf inv:StockMovement .
+
+# ============================================================================
+# REORDER MANAGEMENT
+# ============================================================================
+
+inv:ReorderPoint a rdfs:Class ;
+    rdfs:label "Reorder Point" ;
+    rdfs:comment "Stock level that triggers replenishment order" .
+
+inv:SafetyStock a rdfs:Class ;
+    rdfs:label "Safety Stock" ;
+    rdfs:comment "Buffer inventory to prevent stockouts" .
+
+inv:ReorderQuantity a rdfs:Class ;
+    rdfs:label "Reorder Quantity" ;
+    rdfs:comment "Amount to order when reorder point is reached" .
+
+inv:LeadTime a rdfs:Class ;
+    rdfs:label "Lead Time" ;
+    rdfs:comment "Time between ordering and receiving inventory" .
+
+inv:PurchaseOrder a rdfs:Class ;
+    rdfs:label "Purchase Order" ;
+    rdfs:comment "Order to supplier for replenishment" .
+
+# ============================================================================
+# LOT/BATCH TRACKING
+# ============================================================================
+
+inv:Lot a rdfs:Class ;
+    rdfs:label "Lot" ;
+    rdfs:comment "Batch of products manufactured or received together" .
+
+inv:BatchNumber a rdfs:Class ;
+    rdfs:label "Batch Number" ;
+    rdfs:comment "Unique identifier for a production batch" .
+
+inv:ExpirationDate a rdfs:Class ;
+    rdfs:label "Expiration Date" ;
+    rdfs:comment "Date when product expires or becomes obsolete" .
+
+inv:SerialNumber a rdfs:Class ;
+    rdfs:label "Serial Number" ;
+    rdfs:comment "Unique identifier for individual item (electronics, high-value)" .
+
+# ============================================================================
+# INVENTORY VALUATION
+# ============================================================================
+
+inv:ValuationMethod a rdfs:Class ;
+    rdfs:label "Valuation Method" ;
+    rdfs:comment "Accounting method for inventory valuation" .
+
+inv:FIFO a rdfs:Class ;
+    rdfs:label "FIFO (First-In-First-Out)" ;
+    rdfs:comment "Oldest inventory is sold first" ;
+    rdfs:subClassOf inv:ValuationMethod .
+
+inv:LIFO a rdfs:Class ;
+    rdfs:label "LIFO (Last-In-First-Out)" ;
+    rdfs:comment "Newest inventory is sold first" ;
+    rdfs:subClassOf inv:ValuationMethod .
+
+inv:WeightedAverage a rdfs:Class ;
+    rdfs:label "Weighted Average Cost" ;
+    rdfs:comment "Average cost of all units in stock" ;
+    rdfs:subClassOf inv:ValuationMethod .
+
+inv:SpecificIdentification a rdfs:Class ;
+    rdfs:label "Specific Identification" ;
+    rdfs:comment "Track cost of individual items (serial numbers)" ;
+    rdfs:subClassOf inv:ValuationMethod .
+
+# ============================================================================
+# MULTI-CHANNEL INVENTORY
+# ============================================================================
+
+inv:Channel a rdfs:Class ;
+    rdfs:label "Sales Channel" ;
+    rdfs:comment "Distribution channel for selling products" .
+
+inv:OnlineChannel a rdfs:Class ;
+    rdfs:label "Online Channel" ;
+    rdfs:comment "E-commerce website or app" ;
+    rdfs:subClassOf inv:Channel .
+
+inv:RetailChannel a rdfs:Class ;
+    rdfs:label "Retail Channel" ;
+    rdfs:comment "Physical retail store" ;
+    rdfs:subClassOf inv:Channel .
+
+inv:MarketplaceChannel a rdfs:Class ;
+    rdfs:label "Marketplace Channel" ;
+    rdfs:comment "Third-party marketplace (Amazon, eBay)" ;
+    rdfs:subClassOf inv:Channel .
+
+inv:WholesaleChannel a rdfs:Class ;
+    rdfs:label "Wholesale Channel" ;
+    rdfs:comment "B2B wholesale sales" ;
+    rdfs:subClassOf inv:Channel .
+
+inv:ChannelAllocation a rdfs:Class ;
+    rdfs:label "Channel Allocation" ;
+    rdfs:comment "Reserved inventory for specific channel" .
+
+# ============================================================================
+# PROPERTIES - Product Attributes
+# ============================================================================
+
+inv:productId a rdf:Property ;
+    rdfs:label "product ID" ;
+    rdfs:comment "Unique identifier for product" ;
+    rdfs:domain inv:Product ;
+    rdfs:range xsd:string .
+
+inv:productName a rdf:Property ;
+    rdfs:label "product name" ;
+    rdfs:comment "Display name of product" ;
+    rdfs:domain inv:Product ;
+    rdfs:range xsd:string .
+
+inv:productDescription a rdf:Property ;
+    rdfs:label "product description" ;
+    rdfs:comment "Detailed description of product" ;
+    rdfs:domain inv:Product ;
+    rdfs:range xsd:string .
+
+inv:hasSKU a rdf:Property ;
+    rdfs:label "has SKU" ;
+    rdfs:comment "SKU associated with product" ;
+    rdfs:domain inv:Product ;
+    rdfs:range inv:SKU .
+
+inv:skuCode a rdf:Property ;
+    rdfs:label "SKU code" ;
+    rdfs:comment "Alphanumeric SKU identifier" ;
+    rdfs:domain inv:SKU ;
+    rdfs:range xsd:string .
+
+inv:hasBarcode a rdf:Property ;
+    rdfs:label "has barcode" ;
+    rdfs:comment "Barcode for product" ;
+    rdfs:domain inv:Product ;
+    rdfs:range inv:Barcode .
+
+inv:barcodeValue a rdf:Property ;
+    rdfs:label "barcode value" ;
+    rdfs:comment "Numeric or alphanumeric barcode" ;
+    rdfs:domain inv:Barcode ;
+    rdfs:range xsd:string .
+
+inv:hasRFID a rdf:Property ;
+    rdfs:label "has RFID" ;
+    rdfs:comment "RFID tag for product" ;
+    rdfs:domain inv:Product ;
+    rdfs:range inv:RFID .
+
+inv:unitCost a rdf:Property ;
+    rdfs:label "unit cost" ;
+    rdfs:comment "Cost per unit (COGS)" ;
+    rdfs:domain inv:Product ;
+    rdfs:range xsd:decimal .
+
+inv:unitPrice a rdf:Property ;
+    rdfs:label "unit price" ;
+    rdfs:comment "Selling price per unit" ;
+    rdfs:domain inv:Product ;
+    rdfs:range xsd:decimal .
+
+# ============================================================================
+# PROPERTIES - Stock Levels & Locations
+# ============================================================================
+
+inv:hasStockLevel a rdf:Property ;
+    rdfs:label "has stock level" ;
+    rdfs:comment "Stock level for product at location" ;
+    rdfs:domain inv:Product ;
+    rdfs:range inv:StockLevel .
+
+inv:quantityOnHand a rdf:Property ;
+    rdfs:label "quantity on hand" ;
+    rdfs:comment "Available quantity in stock" ;
+    rdfs:domain inv:StockLevel ;
+    rdfs:range xsd:integer .
+
+inv:quantityReserved a rdf:Property ;
+    rdfs:label "quantity reserved" ;
+    rdfs:comment "Quantity reserved for orders" ;
+    rdfs:domain inv:StockLevel ;
+    rdfs:range xsd:integer .
+
+inv:quantityAvailable a rdf:Property ;
+    rdfs:label "quantity available" ;
+    rdfs:comment "Quantity available for sale (on hand - reserved)" ;
+    rdfs:domain inv:StockLevel ;
+    rdfs:range xsd:integer .
+
+inv:atLocation a rdf:Property ;
+    rdfs:label "at location" ;
+    rdfs:comment "Physical location of stock" ;
+    rdfs:domain inv:StockLevel ;
+    rdfs:range inv:Location .
+
+inv:locationName a rdf:Property ;
+    rdfs:label "location name" ;
+    rdfs:comment "Name of warehouse/store/bin" ;
+    rdfs:domain inv:Location ;
+    rdfs:range xsd:string .
+
+inv:locationCode a rdf:Property ;
+    rdfs:label "location code" ;
+    rdfs:comment "Unique code for location" ;
+    rdfs:domain inv:Location ;
+    rdfs:range xsd:string .
+
+inv:containsLocation a rdf:Property ;
+    rdfs:label "contains location" ;
+    rdfs:comment "Parent location contains child (warehouse > zone > bin)" ;
+    rdfs:domain inv:Location ;
+    rdfs:range inv:Location .
+
+# ============================================================================
+# PROPERTIES - Stock Movements
+# ============================================================================
+
+inv:hasMovement a rdf:Property ;
+    rdfs:label "has movement" ;
+    rdfs:comment "Stock movement transaction" ;
+    rdfs:domain inv:Product ;
+    rdfs:range inv:StockMovement .
+
+inv:movementQuantity a rdf:Property ;
+    rdfs:label "movement quantity" ;
+    rdfs:comment "Quantity moved (positive=increase, negative=decrease)" ;
+    rdfs:domain inv:StockMovement ;
+    rdfs:range xsd:integer .
+
+inv:fromLocation a rdf:Property ;
+    rdfs:label "from location" ;
+    rdfs:comment "Source location for transfer" ;
+    rdfs:domain inv:StockMovement ;
+    rdfs:range inv:Location .
+
+inv:toLocation a rdf:Property ;
+    rdfs:label "to location" ;
+    rdfs:comment "Destination location for transfer" ;
+    rdfs:domain inv:StockMovement ;
+    rdfs:range inv:Location .
+
+inv:movementDate a rdf:Property ;
+    rdfs:label "movement date" ;
+    rdfs:comment "When movement occurred" ;
+    rdfs:domain inv:StockMovement ;
+    rdfs:range xsd:dateTime .
+
+inv:movementReason a rdf:Property ;
+    rdfs:label "movement reason" ;
+    rdfs:comment "Reason for movement (sale, damage, etc.)" ;
+    rdfs:domain inv:StockMovement ;
+    rdfs:range xsd:string .
+
+# ============================================================================
+# PROPERTIES - Reorder Management
+# ============================================================================
+
+inv:hasReorderPoint a rdf:Property ;
+    rdfs:label "has reorder point" ;
+    rdfs:comment "Reorder point for product" ;
+    rdfs:domain inv:Product ;
+    rdfs:range inv:ReorderPoint .
+
+inv:reorderLevel a rdf:Property ;
+    rdfs:label "reorder level" ;
+    rdfs:comment "Stock level triggering reorder" ;
+    rdfs:domain inv:ReorderPoint ;
+    rdfs:range xsd:integer .
+
+inv:hasSafetyStock a rdf:Property ;
+    rdfs:label "has safety stock" ;
+    rdfs:comment "Safety stock buffer" ;
+    rdfs:domain inv:Product ;
+    rdfs:range inv:SafetyStock .
+
+inv:safetyStockQuantity a rdf:Property ;
+    rdfs:label "safety stock quantity" ;
+    rdfs:comment "Minimum buffer quantity" ;
+    rdfs:domain inv:SafetyStock ;
+    rdfs:range xsd:integer .
+
+inv:hasReorderQuantity a rdf:Property ;
+    rdfs:label "has reorder quantity" ;
+    rdfs:comment "Economic order quantity" ;
+    rdfs:domain inv:Product ;
+    rdfs:range inv:ReorderQuantity .
+
+inv:reorderAmount a rdf:Property ;
+    rdfs:label "reorder amount" ;
+    rdfs:comment "Quantity to order" ;
+    rdfs:domain inv:ReorderQuantity ;
+    rdfs:range xsd:integer .
+
+inv:hasLeadTime a rdf:Property ;
+    rdfs:label "has lead time" ;
+    rdfs:comment "Supplier lead time" ;
+    rdfs:domain inv:Product ;
+    rdfs:range inv:LeadTime .
+
+inv:leadTimeDays a rdf:Property ;
+    rdfs:label "lead time days" ;
+    rdfs:comment "Number of days for delivery" ;
+    rdfs:domain inv:LeadTime ;
+    rdfs:range xsd:integer .
+
+# ============================================================================
+# PROPERTIES - Lot/Batch Tracking
+# ============================================================================
+
+inv:hasLot a rdf:Property ;
+    rdfs:label "has lot" ;
+    rdfs:comment "Lot/batch for product" ;
+    rdfs:domain inv:Product ;
+    rdfs:range inv:Lot .
+
+inv:lotNumber a rdf:Property ;
+    rdfs:label "lot number" ;
+    rdfs:comment "Unique lot identifier" ;
+    rdfs:domain inv:Lot ;
+    rdfs:range xsd:string .
+
+inv:manufacturedDate a rdf:Property ;
+    rdfs:label "manufactured date" ;
+    rdfs:comment "When lot was produced" ;
+    rdfs:domain inv:Lot ;
+    rdfs:range xsd:date .
+
+inv:hasExpirationDate a rdf:Property ;
+    rdfs:label "has expiration date" ;
+    rdfs:comment "Expiration for lot" ;
+    rdfs:domain inv:Lot ;
+    rdfs:range inv:ExpirationDate .
+
+inv:expiresOn a rdf:Property ;
+    rdfs:label "expires on" ;
+    rdfs:comment "Date of expiration" ;
+    rdfs:domain inv:ExpirationDate ;
+    rdfs:range xsd:date .
+
+inv:hasSerialNumber a rdf:Property ;
+    rdfs:label "has serial number" ;
+    rdfs:comment "Serial number for individual unit" ;
+    rdfs:domain inv:Product ;
+    rdfs:range inv:SerialNumber .
+
+inv:serialValue a rdf:Property ;
+    rdfs:label "serial value" ;
+    rdfs:comment "Unique serial number" ;
+    rdfs:domain inv:SerialNumber ;
+    rdfs:range xsd:string .
+
+# ============================================================================
+# PROPERTIES - Inventory Valuation
+# ============================================================================
+
+inv:hasValuationMethod a rdf:Property ;
+    rdfs:label "has valuation method" ;
+    rdfs:comment "Accounting method for inventory" ;
+    rdfs:domain inv:Product ;
+    rdfs:range inv:ValuationMethod .
+
+inv:currentValue a rdf:Property ;
+    rdfs:label "current value" ;
+    rdfs:comment "Current inventory value" ;
+    rdfs:domain inv:StockLevel ;
+    rdfs:range xsd:decimal .
+
+inv:averageCost a rdf:Property ;
+    rdfs:label "average cost" ;
+    rdfs:comment "Weighted average cost per unit" ;
+    rdfs:domain inv:Product ;
+    rdfs:range xsd:decimal .
+
+# ============================================================================
+# PROPERTIES - Multi-Channel
+# ============================================================================
+
+inv:hasChannelAllocation a rdf:Property ;
+    rdfs:label "has channel allocation" ;
+    rdfs:comment "Inventory allocated to channel" ;
+    rdfs:domain inv:Product ;
+    rdfs:range inv:ChannelAllocation .
+
+inv:forChannel a rdf:Property ;
+    rdfs:label "for channel" ;
+    rdfs:comment "Sales channel for allocation" ;
+    rdfs:domain inv:ChannelAllocation ;
+    rdfs:range inv:Channel .
+
+inv:allocatedQuantity a rdf:Property ;
+    rdfs:label "allocated quantity" ;
+    rdfs:comment "Quantity reserved for channel" ;
+    rdfs:domain inv:ChannelAllocation ;
+    rdfs:range xsd:integer .
+
+# ============================================================================
+# End of Inventory Management Ontology
+# ============================================================================

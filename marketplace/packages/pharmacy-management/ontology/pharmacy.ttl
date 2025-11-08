@@ -1,0 +1,327 @@
+@prefix pharm: <http://example.org/pharmacy#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix schema: <http://schema.org/> .
+
+# Ontology Definition
+pharm:PharmacyOntology a owl:Ontology ;
+    rdfs:label "Pharmacy Management Ontology" ;
+    rdfs:comment "Comprehensive ontology for pharmacy operations including dispensing, interactions, and claims" ;
+    owl:versionInfo "1.0.0" .
+
+# Pharmacy Classes
+pharm:Pharmacy a owl:Class ;
+    rdfs:label "Pharmacy" ;
+    rdfs:comment "Pharmacy location" .
+
+pharm:RetailPharmacy a owl:Class ;
+    rdfs:subClassOf pharm:Pharmacy ;
+    rdfs:label "Retail Pharmacy" .
+
+pharm:HospitalPharmacy a owl:Class ;
+    rdfs:subClassOf pharm:Pharmacy ;
+    rdfs:label "Hospital Pharmacy" .
+
+pharm:MailOrderPharmacy a owl:Class ;
+    rdfs:subClassOf pharm:Pharmacy ;
+    rdfs:label "Mail Order Pharmacy" .
+
+# Medication Classes
+pharm:Medication a owl:Class ;
+    rdfs:label "Medication" ;
+    rdfs:comment "Pharmaceutical medication" .
+
+pharm:BrandName a owl:Class ;
+    rdfs:subClassOf pharm:Medication ;
+    rdfs:label "Brand Name Drug" .
+
+pharm:Generic a owl:Class ;
+    rdfs:subClassOf pharm:Medication ;
+    rdfs:label "Generic Drug" .
+
+pharm:ControlledSubstance a owl:Class ;
+    rdfs:subClassOf pharm:Medication ;
+    rdfs:label "Controlled Substance" .
+
+# Prescription
+pharm:Prescription a owl:Class ;
+    rdfs:label "Prescription" ;
+    rdfs:comment "Medication prescription" .
+
+pharm:Refill a owl:Class ;
+    rdfs:label "Refill" ;
+    rdfs:comment "Prescription refill" .
+
+pharm:Substitution a owl:Class ;
+    rdfs:label "Substitution" ;
+    rdfs:comment "Generic substitution" .
+
+# Dispensing
+pharm:Dispensing a owl:Class ;
+    rdfs:label "Dispensing" ;
+    rdfs:comment "Medication dispensing event" .
+
+pharm:Label a owl:Class ;
+    rdfs:label "Prescription Label" ;
+    rdfs:comment "Medication label" .
+
+pharm:Container a owl:Class ;
+    rdfs:label "Container" ;
+    rdfs:comment "Medication container" .
+
+# Drug Interactions
+pharm:DrugInteraction a owl:Class ;
+    rdfs:label "Drug Interaction" ;
+    rdfs:comment "Drug-drug interaction" .
+
+pharm:DrugFoodInteraction a owl:Class ;
+    rdfs:label "Drug-Food Interaction" ;
+    rdfs:comment "Drug-food interaction" .
+
+pharm:Contraindication a owl:Class ;
+    rdfs:label "Contraindication" ;
+    rdfs:comment "Medication contraindication" .
+
+pharm:Allergy a owl:Class ;
+    rdfs:label "Drug Allergy" ;
+    rdfs:comment "Patient drug allergy" .
+
+# Insurance
+pharm:InsuranceClaim a owl:Class ;
+    rdfs:label "Insurance Claim" ;
+    rdfs:comment "Insurance claim for prescription" .
+
+pharm:InsurancePlan a owl:Class ;
+    rdfs:label "Insurance Plan" ;
+    rdfs:comment "Patient insurance plan" .
+
+pharm:Copay a owl:Class ;
+    rdfs:label "Copay" ;
+    rdfs:comment "Patient copayment" .
+
+pharm:PriorAuthorization a owl:Class ;
+    rdfs:label "Prior Authorization" ;
+    rdfs:comment "Insurance prior authorization" .
+
+# Inventory
+pharm:Inventory a owl:Class ;
+    rdfs:label "Inventory" ;
+    rdfs:comment "Medication inventory" .
+
+pharm:StockLevel a owl:Class ;
+    rdfs:label "Stock Level" ;
+    rdfs:comment "Current stock level" .
+
+pharm:Order a owl:Class ;
+    rdfs:label "Order" ;
+    rdfs:comment "Inventory order" .
+
+pharm:Supplier a owl:Class ;
+    rdfs:label "Supplier" ;
+    rdfs:comment "Medication supplier" .
+
+# Personnel
+pharm:Pharmacist a owl:Class ;
+    rdfs:label "Pharmacist" ;
+    rdfs:comment "Licensed pharmacist" .
+
+pharm:PharmacyTechnician a owl:Class ;
+    rdfs:label "Pharmacy Technician" ;
+    rdfs:comment "Pharmacy technician" .
+
+# Patient
+pharm:Patient a owl:Class ;
+    rdfs:label "Patient" ;
+    rdfs:comment "Pharmacy patient" .
+
+pharm:PatientProfile a owl:Class ;
+    rdfs:label "Patient Profile" ;
+    rdfs:comment "Patient medication profile" .
+
+# Properties - Medication
+pharm:hasMedication a owl:ObjectProperty ;
+    rdfs:domain pharm:Prescription ;
+    rdfs:range pharm:Medication ;
+    rdfs:label "has medication" .
+
+pharm:hasNDC a owl:DatatypeProperty ;
+    rdfs:domain pharm:Medication ;
+    rdfs:range xsd:string ;
+    rdfs:label "has NDC" ;
+    rdfs:comment "National Drug Code" .
+
+pharm:hasActiveIngredient a owl:DatatypeProperty ;
+    rdfs:domain pharm:Medication ;
+    rdfs:range xsd:string ;
+    rdfs:label "has active ingredient" .
+
+pharm:hasStrength a owl:DatatypeProperty ;
+    rdfs:domain pharm:Medication ;
+    rdfs:range xsd:string ;
+    rdfs:label "has strength" .
+
+pharm:hasDosageForm a owl:DatatypeProperty ;
+    rdfs:domain pharm:Medication ;
+    rdfs:range xsd:string ;
+    rdfs:label "has dosage form" ;
+    rdfs:comment "tablet, capsule, liquid, etc." .
+
+# Prescription Properties
+pharm:hasPrescription a owl:ObjectProperty ;
+    rdfs:domain pharm:Patient ;
+    rdfs:range pharm:Prescription ;
+    rdfs:label "has prescription" .
+
+pharm:prescribedBy a owl:DatatypeProperty ;
+    rdfs:domain pharm:Prescription ;
+    rdfs:range xsd:string ;
+    rdfs:label "prescribed by" .
+
+pharm:hasQuantity a owl:DatatypeProperty ;
+    rdfs:domain pharm:Prescription ;
+    rdfs:range xsd:integer ;
+    rdfs:label "has quantity" .
+
+pharm:hasRefills a owl:DatatypeProperty ;
+    rdfs:domain pharm:Prescription ;
+    rdfs:range xsd:integer ;
+    rdfs:label "has refills" .
+
+pharm:hasSig a owl:DatatypeProperty ;
+    rdfs:domain pharm:Prescription ;
+    rdfs:range xsd:string ;
+    rdfs:label "has sig" ;
+    rdfs:comment "Directions for use" .
+
+pharm:writtenDate a owl:DatatypeProperty ;
+    rdfs:domain pharm:Prescription ;
+    rdfs:range xsd:date ;
+    rdfs:label "written date" .
+
+pharm:expirationDate a owl:DatatypeProperty ;
+    rdfs:domain pharm:Prescription ;
+    rdfs:range xsd:date ;
+    rdfs:label "expiration date" .
+
+# Dispensing Properties
+pharm:hasDispensing a owl:ObjectProperty ;
+    rdfs:domain pharm:Prescription ;
+    rdfs:range pharm:Dispensing ;
+    rdfs:label "has dispensing" .
+
+pharm:dispensedBy a owl:ObjectProperty ;
+    rdfs:domain pharm:Dispensing ;
+    rdfs:range pharm:Pharmacist ;
+    rdfs:label "dispensed by" .
+
+pharm:dispensedDate a owl:DatatypeProperty ;
+    rdfs:domain pharm:Dispensing ;
+    rdfs:range xsd:date ;
+    rdfs:label "dispensed date" .
+
+pharm:quantityDispensed a owl:DatatypeProperty ;
+    rdfs:domain pharm:Dispensing ;
+    rdfs:range xsd:integer ;
+    rdfs:label "quantity dispensed" .
+
+# Drug Interaction Properties
+pharm:hasDrugInteraction a owl:ObjectProperty ;
+    rdfs:domain pharm:Medication ;
+    rdfs:range pharm:DrugInteraction ;
+    rdfs:label "has drug interaction" .
+
+pharm:interactsWith a owl:ObjectProperty ;
+    rdfs:domain pharm:DrugInteraction ;
+    rdfs:range pharm:Medication ;
+    rdfs:label "interacts with" .
+
+pharm:hasSeverity a owl:DatatypeProperty ;
+    rdfs:domain pharm:DrugInteraction ;
+    rdfs:range xsd:string ;
+    rdfs:label "has severity" ;
+    rdfs:comment "major, moderate, minor" .
+
+pharm:hasContraindication a owl:ObjectProperty ;
+    rdfs:domain pharm:Medication ;
+    rdfs:range pharm:Contraindication ;
+    rdfs:label "has contraindication" .
+
+pharm:hasAllergy a owl:ObjectProperty ;
+    rdfs:domain pharm:Patient ;
+    rdfs:range pharm:Allergy ;
+    rdfs:label "has allergy" .
+
+# Insurance Properties
+pharm:hasInsuranceClaim a owl:ObjectProperty ;
+    rdfs:domain pharm:Dispensing ;
+    rdfs:range pharm:InsuranceClaim ;
+    rdfs:label "has insurance claim" .
+
+pharm:hasInsurancePlan a owl:ObjectProperty ;
+    rdfs:domain pharm:Patient ;
+    rdfs:range pharm:InsurancePlan ;
+    rdfs:label "has insurance plan" .
+
+pharm:hasCopay a owl:ObjectProperty ;
+    rdfs:domain pharm:InsuranceClaim ;
+    rdfs:range pharm:Copay ;
+    rdfs:label "has copay" .
+
+pharm:copayAmount a owl:DatatypeProperty ;
+    rdfs:domain pharm:Copay ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "copay amount" .
+
+pharm:requiresPriorAuth a owl:DatatypeProperty ;
+    rdfs:domain pharm:Prescription ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "requires prior authorization" .
+
+pharm:claimStatus a owl:DatatypeProperty ;
+    rdfs:domain pharm:InsuranceClaim ;
+    rdfs:range xsd:string ;
+    rdfs:label "claim status" ;
+    rdfs:comment "approved, denied, pending" .
+
+# Inventory Properties
+pharm:hasInventory a owl:ObjectProperty ;
+    rdfs:domain pharm:Pharmacy ;
+    rdfs:range pharm:Inventory ;
+    rdfs:label "has inventory" .
+
+pharm:hasStockLevel a owl:ObjectProperty ;
+    rdfs:domain pharm:Medication ;
+    rdfs:range pharm:StockLevel ;
+    rdfs:label "has stock level" .
+
+pharm:currentQuantity a owl:DatatypeProperty ;
+    rdfs:domain pharm:StockLevel ;
+    rdfs:range xsd:integer ;
+    rdfs:label "current quantity" .
+
+pharm:reorderLevel a owl:DatatypeProperty ;
+    rdfs:domain pharm:StockLevel ;
+    rdfs:range xsd:integer ;
+    rdfs:label "reorder level" .
+
+# Example Instances
+pharm:pharmacy_001 a pharm:RetailPharmacy ;
+    schema:name "Main Street Pharmacy" ;
+    schema:address "123 Main St" ;
+    pharm:hasInventory pharm:inventory_001 .
+
+pharm:prescription_001 a pharm:Prescription ;
+    pharm:hasMedication pharm:medication_amoxicillin ;
+    pharm:prescribedBy "Dr. Smith" ;
+    pharm:hasQuantity 30 ;
+    pharm:hasRefills 2 ;
+    pharm:hasSig "Take one tablet twice daily" ;
+    pharm:writtenDate "2025-01-15"^^xsd:date .
+
+pharm:medication_amoxicillin a pharm:Generic ;
+    schema:name "Amoxicillin" ;
+    pharm:hasNDC "00093-4157-01" ;
+    pharm:hasStrength "500mg" ;
+    pharm:hasDosageForm "capsule" .

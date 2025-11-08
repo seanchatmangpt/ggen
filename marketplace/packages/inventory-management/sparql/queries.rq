@@ -1,0 +1,304 @@
+# ============================================================================
+# Inventory Management SPARQL Queries
+# ============================================================================
+# Collection of SPARQL queries for inventory and warehouse operations
+# Version: 1.0.0
+# ============================================================================
+
+PREFIX inv: <http://example.org/inventory#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# ============================================================================
+# Query 1: Extract Stock Levels by Location
+# ============================================================================
+# Returns: Current inventory quantities across all locations
+
+SELECT ?productId ?productName ?locationName
+       ?quantityOnHand ?quantityReserved ?quantityAvailable
+WHERE {
+    ?product inv:productId ?productId ;
+             inv:productName ?productName ;
+             inv:hasStockLevel ?stock .
+
+    ?stock inv:atLocation ?location ;
+           inv:quantityOnHand ?quantityOnHand ;
+           inv:quantityReserved ?quantityReserved ;
+           inv:quantityAvailable ?quantityAvailable .
+
+    ?location inv:locationName ?locationName .
+}
+ORDER BY ?productName ?locationName
+
+# ============================================================================
+# Query 2: Calculate Reorder Quantities (Below Reorder Point)
+# ============================================================================
+# Returns: Products needing replenishment with recommended order quantities
+
+SELECT ?productId ?productName ?currentStock ?reorderLevel
+       ?reorderAmount ?leadTimeDays
+WHERE {
+    ?product inv:productId ?productId ;
+             inv:productName ?productName ;
+             inv:hasStockLevel ?stock ;
+             inv:hasReorderPoint ?reorder ;
+             inv:hasReorderQuantity ?qty ;
+             inv:hasLeadTime ?lead .
+
+    ?stock inv:quantityAvailable ?currentStock .
+    ?reorder inv:reorderLevel ?reorderLevel .
+    ?qty inv:reorderAmount ?reorderAmount .
+    ?lead inv:leadTimeDays ?leadTimeDays .
+
+    FILTER(?currentStock <= ?reorderLevel)
+}
+ORDER BY ?currentStock
+
+# ============================================================================
+# Query 3: Generate Stock Movement Report (Last 30 Days)
+# ============================================================================
+# Returns: All stock movements with quantities and reasons
+
+SELECT ?productId ?movementType ?quantity ?fromLoc ?toLoc
+       ?movementDate ?reason
+WHERE {
+    ?product inv:productId ?productId ;
+             inv:hasMovement ?movement .
+
+    ?movement a ?movementType ;
+              inv:movementQuantity ?quantity ;
+              inv:movementDate ?movementDate ;
+              inv:movementReason ?reason .
+
+    OPTIONAL { ?movement inv:fromLocation ?from . ?from inv:locationName ?fromLoc }
+    OPTIONAL { ?movement inv:toLocation ?to . ?to inv:locationName ?toLoc }
+
+    FILTER(?movementDate >= NOW() - (30 * 24 * 60 * 60))
+}
+ORDER BY DESC(?movementDate)
+
+# ============================================================================
+# Query 4: Calculate Inventory Valuation (FIFO Method)
+# ============================================================================
+# Returns: Total inventory value using FIFO accounting
+
+SELECT ?productId ?productName ?totalQuantity
+       (?totalQuantity * ?unitCost AS ?totalValue) ?valuationMethod
+WHERE {
+    ?product inv:productId ?productId ;
+             inv:productName ?productName ;
+             inv:unitCost ?unitCost ;
+             inv:hasValuationMethod inv:FIFO ;
+             inv:hasStockLevel ?stock .
+
+    ?stock inv:quantityOnHand ?totalQuantity .
+
+    BIND("FIFO" AS ?valuationMethod)
+}
+ORDER BY DESC(?totalValue)
+
+# ============================================================================
+# Query 5: Extract Lot Traceability (Batch Tracking)
+# ============================================================================
+# Returns: Lot/batch information for product recall or expiration management
+
+SELECT ?productId ?productName ?lotNumber ?manufacturedDate
+       ?expiresOn ?daysUntilExpiry
+WHERE {
+    ?product inv:productId ?productId ;
+             inv:productName ?productName ;
+             inv:hasLot ?lot .
+
+    ?lot inv:lotNumber ?lotNumber ;
+         inv:manufacturedDate ?manufacturedDate ;
+         inv:hasExpirationDate ?expiry .
+
+    ?expiry inv:expiresOn ?expiresOn .
+
+    BIND((xsd:date(?expiresOn) - xsd:date(NOW())) AS ?daysUntilExpiry)
+}
+ORDER BY ?daysUntilExpiry
+
+# ============================================================================
+# Query 6: Identify Expiring or Expired Inventory
+# ============================================================================
+# Returns: Products expiring within 30 days or already expired
+
+SELECT ?productId ?productName ?lotNumber ?expiresOn ?status
+WHERE {
+    ?product inv:productId ?productId ;
+             inv:productName ?productName ;
+             inv:hasLot ?lot .
+
+    ?lot inv:lotNumber ?lotNumber ;
+         inv:hasExpirationDate ?expiry .
+
+    ?expiry inv:expiresOn ?expiresOn .
+
+    BIND(
+        IF(xsd:date(?expiresOn) < xsd:date(NOW()), "EXPIRED",
+        IF(xsd:date(?expiresOn) < xsd:date(NOW() + (30 * 24 * 60 * 60)), "EXPIRING_SOON",
+        "GOOD"))
+        AS ?status
+    )
+
+    FILTER(?status != "GOOD")
+}
+ORDER BY ?expiresOn
+
+# ============================================================================
+# Query 7: Calculate Weighted Average Cost per Product
+# ============================================================================
+# Returns: Inventory valuation using weighted average cost method
+
+SELECT ?productId ?productName ?totalQuantity ?averageCost
+       (?totalQuantity * ?averageCost AS ?totalValue)
+WHERE {
+    ?product inv:productId ?productId ;
+             inv:productName ?productName ;
+             inv:averageCost ?averageCost ;
+             inv:hasValuationMethod inv:WeightedAverage ;
+             inv:hasStockLevel ?stock .
+
+    ?stock inv:quantityOnHand ?totalQuantity .
+
+    FILTER(?totalQuantity > 0)
+}
+ORDER BY DESC(?totalValue)
+
+# ============================================================================
+# Query 8: Extract Multi-Channel Inventory Allocations
+# ============================================================================
+# Returns: Inventory allocated across sales channels
+
+SELECT ?productId ?productName ?channelName ?allocatedQuantity ?availableStock
+WHERE {
+    ?product inv:productId ?productId ;
+             inv:productName ?productName ;
+             inv:hasChannelAllocation ?allocation ;
+             inv:hasStockLevel ?stock .
+
+    ?allocation inv:forChannel ?channel ;
+                inv:allocatedQuantity ?allocatedQuantity .
+
+    ?channel rdfs:label ?channelName .
+    ?stock inv:quantityAvailable ?availableStock .
+}
+ORDER BY ?productName ?channelName
+
+# ============================================================================
+# Query 9: Identify Dead Stock (No Movement in 90 Days)
+# ============================================================================
+# Returns: Products with no sales or movements for extended period
+
+SELECT ?productId ?productName ?quantityOnHand ?unitCost
+       (?quantityOnHand * ?unitCost AS ?tiedUpCapital) ?lastMovementDate
+WHERE {
+    ?product inv:productId ?productId ;
+             inv:productName ?productName ;
+             inv:unitCost ?unitCost ;
+             inv:hasStockLevel ?stock .
+
+    ?stock inv:quantityOnHand ?quantityOnHand .
+
+    OPTIONAL {
+        ?product inv:hasMovement ?movement .
+        ?movement inv:movementDate ?movementDate .
+    }
+
+    BIND(MAX(?movementDate) AS ?lastMovementDate)
+
+    FILTER(
+        !BOUND(?lastMovementDate) ||
+        ?lastMovementDate < NOW() - (90 * 24 * 60 * 60)
+    )
+    FILTER(?quantityOnHand > 0)
+}
+GROUP BY ?productId ?productName ?quantityOnHand ?unitCost
+ORDER BY DESC(?tiedUpCapital)
+
+# ============================================================================
+# Query 10: Generate ABC Analysis (Pareto Principle)
+# ============================================================================
+# Returns: Products classified by revenue contribution (A=80%, B=15%, C=5%)
+
+SELECT ?productId ?productName ?totalRevenue ?revenuePercentile ?classification
+WHERE {
+    ?product inv:productId ?productId ;
+             inv:productName ?productName ;
+             inv:hasMovement ?movement .
+
+    ?movement a inv:SellMovement ;
+              inv:movementQuantity ?soldQty .
+
+    ?product inv:unitPrice ?price .
+
+    BIND(?soldQty * ?price AS ?revenue)
+}
+GROUP BY ?productId ?productName
+HAVING (SUM(?revenue) AS ?totalRevenue)
+ORDER BY DESC(?totalRevenue)
+# Note: Classification logic requires procedural calculation in application layer
+
+# ============================================================================
+# Query 11: Extract Warehouse Picking Locations (Zone and Bin)
+# ============================================================================
+# Returns: Hierarchical location data for warehouse management
+
+SELECT ?warehouseName ?zoneName ?binName ?productId ?quantity
+WHERE {
+    ?warehouse a inv:Warehouse ;
+               inv:locationName ?warehouseName ;
+               inv:containsLocation ?zone .
+
+    ?zone a inv:Zone ;
+          inv:locationName ?zoneName ;
+          inv:containsLocation ?bin .
+
+    ?bin a inv:Bin ;
+         inv:locationName ?binName .
+
+    ?product inv:hasStockLevel ?stock .
+    ?stock inv:atLocation ?bin ;
+           inv:quantityOnHand ?quantity .
+
+    ?product inv:productId ?productId .
+
+    FILTER(?quantity > 0)
+}
+ORDER BY ?warehouseName ?zoneName ?binName
+
+# ============================================================================
+# Query 12: Calculate Safety Stock Requirements
+# ============================================================================
+# Returns: Recommended safety stock levels based on demand variability
+
+SELECT ?productId ?productName ?currentSafetyStock
+       ?averageDemand ?leadTimeDays ?recommendedSafetyStock
+WHERE {
+    ?product inv:productId ?productId ;
+             inv:productName ?productName ;
+             inv:hasSafetyStock ?safety ;
+             inv:hasLeadTime ?lead .
+
+    ?safety inv:safetyStockQuantity ?currentSafetyStock .
+    ?lead inv:leadTimeDays ?leadTimeDays .
+
+    # Calculate average daily demand from recent sales
+    OPTIONAL {
+        ?product inv:hasMovement ?movement .
+        ?movement a inv:SellMovement ;
+                  inv:movementQuantity ?soldQty ;
+                  inv:movementDate ?saleDate .
+        FILTER(?saleDate >= NOW() - (30 * 24 * 60 * 60))
+    }
+
+    BIND(AVG(?soldQty) AS ?averageDemand)
+    BIND(?averageDemand * ?leadTimeDays * 1.5 AS ?recommendedSafetyStock)
+}
+GROUP BY ?productId ?productName ?currentSafetyStock ?leadTimeDays
+
+# ============================================================================
+# End of Inventory Management SPARQL Queries
+# ============================================================================

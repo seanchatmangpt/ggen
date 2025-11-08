@@ -1,0 +1,39 @@
+[package]
+name = "project-management"
+version = "1.0.0"
+description = "Comprehensive Project Management with Gantt charts, sprints, resource allocation, and budget tracking"
+authors = ["GGEN Marketplace"]
+license = "MIT"
+category = "Enterprise"
+tags = ["projects", "tasks", "gantt", "sprints", "agile", "resources", "budget", "enterprise"]
+
+[dependencies]
+rdf = ">=0.1.0"
+sparql = ">=1.0.0"
+
+[features]
+gantt = ["Gantt chart and dependency tracking"]
+agile = ["Kanban boards and sprint management"]
+resources = ["Resource allocation and time tracking"]
+budget = ["Budget tracking and invoicing"]
+milestones = ["Milestone and deliverable tracking"]
+
+[ontology]
+file = "ontology/project_management.ttl"
+namespace = "https://ggen.ai/ontology/project-management#"
+
+[queries]
+directory = "queries/"
+
+[examples]
+rust = "examples/rust/"
+typescript = "examples/typescript/"
+python = "examples/python/"
+
+[tests]
+directory = "tests/"
+framework = "chicago-tdd"
+
+[documentation]
+readme = "README.md"
+guides = ["docs/USER_GUIDE.md", "docs/INTEGRATION.md", "docs/AGILE_WORKFLOWS.md"]

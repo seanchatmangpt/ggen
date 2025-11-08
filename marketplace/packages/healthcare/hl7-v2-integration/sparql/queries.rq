@@ -1,0 +1,362 @@
+# HL7 v2 Integration SPARQL Queries
+# Queries for parsing, generating, and transforming HL7 v2 messages
+
+PREFIX hl7: <http://hl7.org/v2/>
+PREFIX hl7-ontology: <http://ggen.io/ontology/hl7-v2#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# ============================================================================
+# Query 1: Parse ADT^A01 Message (Admit Patient)
+# ============================================================================
+# TEMPLATE: parse-adt-admit
+# DESCRIPTION: Extract patient demographics from ADT admission message
+
+SELECT ?messageId ?patientId ?familyName ?givenName ?dob ?sex ?visitNumber ?admitTime
+WHERE {
+  ?message a hl7-ontology:ADTMessage ;
+           hl7-ontology:messageType "ADT" ;
+           hl7-ontology:triggerEvent "A01" ;
+           hl7-ontology:hasSegment ?msh , ?pid , ?pv1 .
+
+  # MSH segment
+  ?msh a hl7-ontology:MSH ;
+       hl7-ontology:messageControlId ?messageId .
+
+  # PID segment - patient identification
+  ?pid a hl7-ontology:PID ;
+       hl7-ontology:patientId ?patientIdObj ;
+       hl7-ontology:patientName ?name ;
+       hl7-ontology:dateOfBirth ?dob ;
+       hl7-ontology:administrativeSex ?sex .
+
+  ?patientIdObj hl7-ontology:idNumber ?patientId .
+  ?name hl7-ontology:familyName ?familyName ;
+        hl7-ontology:givenName ?givenName .
+
+  # PV1 segment - visit information
+  ?pv1 a hl7-ontology:PV1 ;
+       hl7-ontology:admitDateTime ?admitTime .
+
+  OPTIONAL {
+    ?pv1 hl7-ontology:visitNumber ?visitNumber .
+  }
+}
+
+# ============================================================================
+# Query 2: Generate HL7 ADT Message from RDF
+# ============================================================================
+# TEMPLATE: generate-adt-message
+# DESCRIPTION: Construct HL7 ADT message structure
+
+CONSTRUCT {
+  ?message a hl7-ontology:ADTMessage ;
+           hl7-ontology:messageType "ADT" ;
+           hl7-ontology:triggerEvent "{{TRIGGER_EVENT}}" ;
+           hl7-ontology:hasSegment ?msh , ?pid , ?pv1 .
+
+  ?msh a hl7-ontology:MSH ;
+       hl7-ontology:sendingApplication "{{SENDING_APP}}" ;
+       hl7-ontology:sendingFacility "{{SENDING_FACILITY}}" ;
+       hl7-ontology:receivingApplication "{{RECEIVING_APP}}" ;
+       hl7-ontology:receivingFacility "{{RECEIVING_FACILITY}}" ;
+       hl7-ontology:dateTimeOfMessage ?timestamp ;
+       hl7-ontology:messageControlId ?controlId .
+
+  ?pid a hl7-ontology:PID ;
+       hl7-ontology:patientId ?patientId ;
+       hl7-ontology:patientName ?name ;
+       hl7-ontology:dateOfBirth ?dob ;
+       hl7-ontology:administrativeSex ?sex ;
+       hl7-ontology:patientAddress ?address .
+
+  ?pv1 a hl7-ontology:PV1 ;
+       hl7-ontology:patientClass "{{PATIENT_CLASS}}" ;
+       hl7-ontology:admitDateTime ?admitTime .
+}
+WHERE {
+  # Bind input parameters
+  BIND(NOW() AS ?timestamp)
+  BIND(UUID() AS ?controlId)
+
+  # Fetch patient data from source
+  ?patient a hl7-ontology:Patient ;
+           hl7-ontology:patientIdentifier ?patientId ;
+           hl7-ontology:name ?name ;
+           hl7-ontology:birthDate ?dob ;
+           hl7-ontology:sex ?sex .
+
+  FILTER(?patientId = "{{PATIENT_ID}}")
+
+  OPTIONAL { ?patient hl7-ontology:address ?address . }
+  OPTIONAL { ?patient hl7-ontology:admissionTime ?admitTime . }
+}
+
+# ============================================================================
+# Query 3: Extract Patient from ADT Message
+# ============================================================================
+# TEMPLATE: extract-patient-adt
+# DESCRIPTION: Extract complete patient information from ADT
+
+SELECT ?mrn ?lastName ?firstName ?middleName ?dob ?sex ?ssn ?street ?city ?state ?zip ?phone
+WHERE {
+  ?message a hl7-ontology:ADTMessage ;
+           hl7-ontology:hasSegment ?pid .
+
+  ?pid a hl7-ontology:PID ;
+       hl7-ontology:patientId ?patientIdObj ;
+       hl7-ontology:patientName ?name ;
+       hl7-ontology:dateOfBirth ?dob ;
+       hl7-ontology:administrativeSex ?sex .
+
+  ?patientIdObj hl7-ontology:idNumber ?mrn ;
+                hl7-ontology:identifierTypeCode "MR" .
+
+  ?name hl7-ontology:familyName ?lastName ;
+        hl7-ontology:givenName ?firstName .
+
+  OPTIONAL { ?name hl7-ontology:middleName ?middleName . }
+
+  OPTIONAL {
+    ?pid hl7-ontology:ssn ?ssn .
+  }
+
+  OPTIONAL {
+    ?pid hl7-ontology:patientAddress ?address .
+    ?address hl7-ontology:streetAddress ?street ;
+             hl7-ontology:city ?city ;
+             hl7-ontology:state ?state ;
+             hl7-ontology:zipCode ?zip .
+  }
+
+  OPTIONAL {
+    ?pid hl7-ontology:phoneNumber ?phoneObj .
+    ?phoneObj hl7-ontology:phoneNumber ?phone .
+  }
+}
+
+# ============================================================================
+# Query 4: Convert HL7 v2 to FHIR Patient
+# ============================================================================
+# TEMPLATE: hl7-to-fhir-patient
+# DESCRIPTION: Transform HL7 PID segment to FHIR Patient resource
+
+SELECT ?fhirPatient
+WHERE {
+  ?message hl7-ontology:hasSegment ?pid .
+
+  ?pid a hl7-ontology:PID ;
+       hl7-ontology:patientId ?patientId ;
+       hl7-ontology:patientName ?name ;
+       hl7-ontology:dateOfBirth ?dob ;
+       hl7-ontology:administrativeSex ?sex .
+
+  ?patientId hl7-ontology:idNumber ?mrn .
+  ?name hl7-ontology:familyName ?family ;
+        hl7-ontology:givenName ?given .
+
+  BIND(CONCAT('{',
+    '"resourceType": "Patient",',
+    '"identifier": [{"value": "', ?mrn, '"}],',
+    '"name": [{"family": "', ?family, '", "given": ["', ?given, '"]}],',
+    '"gender": "', LCASE(?sex), '",',
+    '"birthDate": "', STR(?dob), '"',
+    '}') AS ?fhirPatient)
+}
+
+# ============================================================================
+# Query 5: Parse ORU^R01 Lab Results Message
+# ============================================================================
+# TEMPLATE: parse-oru-lab-results
+# DESCRIPTION: Extract lab results from ORU message
+
+SELECT ?patientId ?orderNumber ?testCode ?testName ?resultValue ?units ?abnormalFlag ?status
+WHERE {
+  ?message a hl7-ontology:ORUMessage ;
+           hl7-ontology:triggerEvent "R01" ;
+           hl7-ontology:hasSegment ?pid , ?obr , ?obx .
+
+  # Patient
+  ?pid a hl7-ontology:PID ;
+       hl7-ontology:patientId ?patientIdObj .
+  ?patientIdObj hl7-ontology:idNumber ?patientId .
+
+  # Order
+  ?obr a hl7-ontology:OBR ;
+       hl7-ontology:fillerOrderNumber ?orderNumber ;
+       hl7-ontology:universalServiceId ?serviceId .
+
+  # Results
+  ?obx a hl7-ontology:OBX ;
+       hl7-ontology:observationIdentifier ?testCodeObj ;
+       hl7-ontology:observationValue ?resultValue ;
+       hl7-ontology:units ?unitsObj ;
+       hl7-ontology:observationResultStatus ?status .
+
+  ?testCodeObj hl7-ontology:identifier ?testCode ;
+               hl7-ontology:text ?testName .
+
+  OPTIONAL {
+    ?unitsObj hl7-ontology:identifier ?units .
+  }
+
+  OPTIONAL {
+    ?obx hl7-ontology:abnormalFlags ?abnormalFlag .
+  }
+}
+ORDER BY ?patientId ?orderNumber
+
+# ============================================================================
+# Query 6: Generate ORM^O01 Pharmacy Order
+# ============================================================================
+# TEMPLATE: generate-orm-pharmacy
+# DESCRIPTION: Create HL7 ORM pharmacy order message
+
+CONSTRUCT {
+  ?message a hl7-ontology:ORMMessage ;
+           hl7-ontology:messageType "ORM" ;
+           hl7-ontology:triggerEvent "O01" ;
+           hl7-ontology:hasSegment ?msh , ?pid , ?orc , ?obr .
+
+  ?msh a hl7-ontology:MSH ;
+       hl7-ontology:sendingApplication "{{SENDING_APP}}" ;
+       hl7-ontology:messageControlId ?controlId ;
+       hl7-ontology:dateTimeOfMessage ?timestamp .
+
+  ?pid a hl7-ontology:PID ;
+       hl7-ontology:patientId ?patientId ;
+       hl7-ontology:patientName ?name .
+
+  ?orc a hl7-ontology:ORC ;
+       hl7-ontology:orderControl "NW" ;
+       hl7-ontology:placerOrderNumber ?orderNumber .
+
+  ?obr a hl7-ontology:OBR ;
+       hl7-ontology:universalServiceId ?medicationCode ;
+       hl7-ontology:orderingProvider ?provider .
+}
+WHERE {
+  BIND(NOW() AS ?timestamp)
+  BIND(UUID() AS ?controlId)
+  BIND(CONCAT("ORD", STR(RAND())) AS ?orderNumber)
+
+  # Fetch medication order details
+  ?order a hl7-ontology:MedicationOrder ;
+         hl7-ontology:patient ?patient ;
+         hl7-ontology:medication ?medicationCode ;
+         hl7-ontology:prescriber ?provider .
+
+  ?patient hl7-ontology:identifier ?patientId ;
+           hl7-ontology:name ?name .
+}
+
+# ============================================================================
+# Query 7: Validate HL7 Message Structure
+# ============================================================================
+# TEMPLATE: validate-hl7-message
+# DESCRIPTION: Check required segments and fields
+
+SELECT ?messageType ?triggerEvent ?hasRequiredSegments ?missingSegments
+WHERE {
+  ?message a ?messageClass ;
+           hl7-ontology:messageType ?messageType ;
+           hl7-ontology:triggerEvent ?triggerEvent .
+
+  # Check for required MSH segment
+  OPTIONAL {
+    ?message hl7-ontology:hasSegment ?msh .
+    ?msh a hl7-ontology:MSH .
+  }
+
+  # Check for required segments based on message type
+  BIND(EXISTS { ?message hl7-ontology:hasSegment ?requiredSeg } AS ?hasRequiredSegments)
+
+  BIND(IF(!BOUND(?msh), "MSH", "") AS ?missingMSH)
+  BIND(CONCAT(?missingMSH) AS ?missingSegments)
+}
+
+# ============================================================================
+# Query 8: HL7 Message Routing
+# ============================================================================
+# TEMPLATE: route-hl7-message
+# DESCRIPTION: Determine message routing based on type and destination
+
+SELECT ?messageId ?sendingApp ?receivingApp ?messageType ?routeTo
+WHERE {
+  ?message a hl7-ontology:Message ;
+           hl7-ontology:hasSegment ?msh .
+
+  ?msh a hl7-ontology:MSH ;
+       hl7-ontology:messageControlId ?messageId ;
+       hl7-ontology:sendingApplication ?sendingApp ;
+       hl7-ontology:receivingApplication ?receivingApp ;
+       hl7-ontology:messageType ?messageType .
+
+  # Routing logic based on message type
+  BIND(IF(?messageType = "ADT", "ADT_PROCESSOR",
+       IF(?messageType = "ORM", "ORDER_PROCESSOR",
+       IF(?messageType = "ORU", "RESULTS_PROCESSOR",
+       "DEFAULT_PROCESSOR"))) AS ?routeTo)
+}
+
+# ============================================================================
+# Query 9: Generate HL7 ACK (Acknowledgment)
+# ============================================================================
+# TEMPLATE: generate-ack
+# DESCRIPTION: Create acknowledgment message for received HL7
+
+CONSTRUCT {
+  ?ackMessage a hl7-ontology:Message ;
+              hl7-ontology:messageType "ACK" ;
+              hl7-ontology:hasSegment ?ackMsh , ?msa .
+
+  ?ackMsh a hl7-ontology:MSH ;
+          hl7-ontology:sendingApplication ?origReceiving ;
+          hl7-ontology:receivingApplication ?origSending ;
+          hl7-ontology:messageControlId ?ackControlId ;
+          hl7-ontology:dateTimeOfMessage ?ackTime .
+
+  ?msa a hl7-ontology:MSA ;
+       hl7-ontology:acknowledgmentCode "{{ACK_CODE}}" ;
+       hl7-ontology:messageControlIdAck ?origControlId ;
+       hl7-ontology:textMessage "{{ACK_TEXT}}" .
+}
+WHERE {
+  ?origMessage hl7-ontology:hasSegment ?origMsh .
+
+  ?origMsh a hl7-ontology:MSH ;
+           hl7-ontology:messageControlId ?origControlId ;
+           hl7-ontology:sendingApplication ?origSending ;
+           hl7-ontology:receivingApplication ?origReceiving .
+
+  BIND(NOW() AS ?ackTime)
+  BIND(UUID() AS ?ackControlId)
+}
+
+# ============================================================================
+# Query 10: HL7 Message Statistics
+# ============================================================================
+# TEMPLATE: message-statistics
+# DESCRIPTION: Analyze HL7 message traffic
+
+SELECT ?messageType ?triggerEvent ?count ?avgProcessTime
+WHERE {
+  {
+    SELECT ?messageType ?triggerEvent (COUNT(*) AS ?count)
+    WHERE {
+      ?message hl7-ontology:messageType ?messageType ;
+               hl7-ontology:triggerEvent ?triggerEvent .
+    }
+    GROUP BY ?messageType ?triggerEvent
+  }
+
+  OPTIONAL {
+    SELECT ?messageType (AVG(?procTime) AS ?avgProcessTime)
+    WHERE {
+      ?message hl7-ontology:messageType ?messageType ;
+               hl7-ontology:processingTime ?procTime .
+    }
+    GROUP BY ?messageType
+  }
+}
+ORDER BY DESC(?count)

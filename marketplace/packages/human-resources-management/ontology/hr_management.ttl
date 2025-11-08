@@ -1,0 +1,515 @@
+@prefix hr: <https://ggen.ai/ontology/hr-management#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+# Ontology Definition
+hr: a owl:Ontology ;
+    dcterms:title "Human Resources Management Ontology" ;
+    dcterms:description "Ontology for HR management with recruitment, performance, payroll, and benefits" ;
+    dcterms:created "2025-01-08"^^xsd:date ;
+    owl:versionInfo "1.0.0" .
+
+# ============================================================================
+# CORE CLASSES
+# ============================================================================
+
+# Employee Classes
+hr:Employee a owl:Class ;
+    rdfs:subClassOf foaf:Person ;
+    rdfs:label "Employee" ;
+    rdfs:comment "Person employed by the organization" .
+
+hr:FullTimeEmployee a owl:Class ;
+    rdfs:subClassOf hr:Employee ;
+    rdfs:label "Full-Time Employee" ;
+    rdfs:comment "Full-time employed person" .
+
+hr:PartTimeEmployee a owl:Class ;
+    rdfs:subClassOf hr:Employee ;
+    rdfs:label "Part-Time Employee" ;
+    rdfs:comment "Part-time employed person" .
+
+hr:Contractor a owl:Class ;
+    rdfs:subClassOf hr:Employee ;
+    rdfs:label "Contractor" ;
+    rdfs:comment "Contract worker" .
+
+hr:Intern a owl:Class ;
+    rdfs:subClassOf hr:Employee ;
+    rdfs:label "Intern" ;
+    rdfs:comment "Internship employee" .
+
+# Organization Structure
+hr:Department a owl:Class ;
+    rdfs:label "Department" ;
+    rdfs:comment "Organizational department" .
+
+hr:Team a owl:Class ;
+    rdfs:label "Team" ;
+    rdfs:comment "Work team within organization" .
+
+hr:Position a owl:Class ;
+    rdfs:label "Position" ;
+    rdfs:comment "Job position or role" .
+
+hr:JobLevel a owl:Class ;
+    rdfs:label "Job Level" ;
+    rdfs:comment "Job level or grade" .
+
+hr:OrganizationChart a owl:Class ;
+    rdfs:label "Organization Chart" ;
+    rdfs:comment "Hierarchical organization structure" .
+
+# Recruitment
+hr:JobPosting a owl:Class ;
+    rdfs:label "Job Posting" ;
+    rdfs:comment "Published job opening" .
+
+hr:Applicant a owl:Class ;
+    rdfs:label "Applicant" ;
+    rdfs:comment "Job applicant" .
+
+hr:Application a owl:Class ;
+    rdfs:label "Application" ;
+    rdfs:comment "Job application" .
+
+hr:Interview a owl:Class ;
+    rdfs:label "Interview" ;
+    rdfs:comment "Job interview" .
+
+hr:Offer a owl:Class ;
+    rdfs:label "Offer" ;
+    rdfs:comment "Job offer" .
+
+hr:Onboarding a owl:Class ;
+    rdfs:label "Onboarding" ;
+    rdfs:comment "Employee onboarding process" .
+
+# Performance Management
+hr:PerformanceReview a owl:Class ;
+    rdfs:label "Performance Review" ;
+    rdfs:comment "Employee performance evaluation" .
+
+hr:Goal a owl:Class ;
+    rdfs:label "Goal" ;
+    rdfs:comment "Performance goal or objective" .
+
+hr:KeyPerformanceIndicator a owl:Class ;
+    rdfs:label "KPI" ;
+    rdfs:comment "Key performance indicator" .
+
+hr:Competency a owl:Class ;
+    rdfs:label "Competency" ;
+    rdfs:comment "Skill or competency" .
+
+hr:Feedback a owl:Class ;
+    rdfs:label "Feedback" ;
+    rdfs:comment "Performance feedback" .
+
+hr:DevelopmentPlan a owl:Class ;
+    rdfs:label "Development Plan" ;
+    rdfs:comment "Employee development plan" .
+
+# Time & Attendance
+hr:Attendance a owl:Class ;
+    rdfs:label "Attendance" ;
+    rdfs:comment "Attendance record" .
+
+hr:TimeSheet a owl:Class ;
+    rdfs:label "Time Sheet" ;
+    rdfs:comment "Time tracking sheet" .
+
+hr:Leave a owl:Class ;
+    rdfs:label "Leave" ;
+    rdfs:comment "Employee leave or absence" .
+
+hr:Vacation a owl:Class ;
+    rdfs:subClassOf hr:Leave ;
+    rdfs:label "Vacation" ;
+    rdfs:comment "Vacation leave" .
+
+hr:SickLeave a owl:Class ;
+    rdfs:subClassOf hr:Leave ;
+    rdfs:label "Sick Leave" ;
+    rdfs:comment "Medical leave" .
+
+hr:PersonalLeave a owl:Class ;
+    rdfs:subClassOf hr:Leave ;
+    rdfs:label "Personal Leave" ;
+    rdfs:comment "Personal time off" .
+
+hr:WorkSchedule a owl:Class ;
+    rdfs:label "Work Schedule" ;
+    rdfs:comment "Employee work schedule" .
+
+# Payroll
+hr:Payroll a owl:Class ;
+    rdfs:label "Payroll" ;
+    rdfs:comment "Payroll processing" .
+
+hr:Salary a owl:Class ;
+    rdfs:label "Salary" ;
+    rdfs:comment "Employee salary" .
+
+hr:Bonus a owl:Class ;
+    rdfs:label "Bonus" ;
+    rdfs:comment "Performance bonus" .
+
+hr:Deduction a owl:Class ;
+    rdfs:label "Deduction" ;
+    rdfs:comment "Payroll deduction" .
+
+hr:Payslip a owl:Class ;
+    rdfs:label "Payslip" ;
+    rdfs:comment "Salary payment slip" .
+
+hr:TaxWithholding a owl:Class ;
+    rdfs:label "Tax Withholding" ;
+    rdfs:comment "Tax deduction" .
+
+# Benefits
+hr:BenefitsPlan a owl:Class ;
+    rdfs:label "Benefits Plan" ;
+    rdfs:comment "Employee benefits plan" .
+
+hr:HealthInsurance a owl:Class ;
+    rdfs:subClassOf hr:BenefitsPlan ;
+    rdfs:label "Health Insurance" ;
+    rdfs:comment "Medical insurance coverage" .
+
+hr:RetirementPlan a owl:Class ;
+    rdfs:subClassOf hr:BenefitsPlan ;
+    rdfs:label "Retirement Plan" ;
+    rdfs:comment "Retirement savings plan" .
+
+hr:LifeInsurance a owl:Class ;
+    rdfs:subClassOf hr:BenefitsPlan ;
+    rdfs:label "Life Insurance" ;
+    rdfs:comment "Life insurance coverage" .
+
+hr:Enrollment a owl:Class ;
+    rdfs:label "Enrollment" ;
+    rdfs:comment "Benefits enrollment" .
+
+# Training & Development
+hr:Training a owl:Class ;
+    rdfs:label "Training" ;
+    rdfs:comment "Training program" .
+
+hr:Certification a owl:Class ;
+    rdfs:label "Certification" ;
+    rdfs:comment "Professional certification" .
+
+hr:Course a owl:Class ;
+    rdfs:label "Course" ;
+    rdfs:comment "Training course" .
+
+hr:SkillSet a owl:Class ;
+    rdfs:label "Skill Set" ;
+    rdfs:comment "Collection of skills" .
+
+# Compliance
+hr:ComplianceRecord a owl:Class ;
+    rdfs:label "Compliance Record" ;
+    rdfs:comment "HR compliance documentation" .
+
+hr:PolicyAcknowledgment a owl:Class ;
+    rdfs:label "Policy Acknowledgment" ;
+    rdfs:comment "Employee policy acceptance" .
+
+# ============================================================================
+# PROPERTIES
+# ============================================================================
+
+# Employee Properties
+hr:employeeId a owl:DatatypeProperty ;
+    rdfs:domain hr:Employee ;
+    rdfs:range xsd:string ;
+    rdfs:label "employee ID" .
+
+hr:hireDate a owl:DatatypeProperty ;
+    rdfs:domain hr:Employee ;
+    rdfs:range xsd:date ;
+    rdfs:label "hire date" .
+
+hr:terminationDate a owl:DatatypeProperty ;
+    rdfs:domain hr:Employee ;
+    rdfs:range xsd:date ;
+    rdfs:label "termination date" .
+
+hr:employmentStatus a owl:DatatypeProperty ;
+    rdfs:domain hr:Employee ;
+    rdfs:range xsd:string ;
+    rdfs:label "employment status" .
+
+hr:worksIn a owl:ObjectProperty ;
+    rdfs:domain hr:Employee ;
+    rdfs:range hr:Department ;
+    rdfs:label "works in" .
+
+hr:hasPosition a owl:ObjectProperty ;
+    rdfs:domain hr:Employee ;
+    rdfs:range hr:Position ;
+    rdfs:label "has position" .
+
+hr:reportsTo a owl:ObjectProperty ;
+    rdfs:domain hr:Employee ;
+    rdfs:range hr:Employee ;
+    rdfs:label "reports to" .
+
+hr:manages a owl:ObjectProperty ;
+    rdfs:domain hr:Employee ;
+    rdfs:range hr:Employee ;
+    rdfs:label "manages" .
+
+# Department Properties
+hr:departmentName a owl:DatatypeProperty ;
+    rdfs:domain hr:Department ;
+    rdfs:range xsd:string ;
+    rdfs:label "department name" .
+
+hr:departmentHead a owl:ObjectProperty ;
+    rdfs:domain hr:Department ;
+    rdfs:range hr:Employee ;
+    rdfs:label "department head" .
+
+hr:hasMember a owl:ObjectProperty ;
+    rdfs:domain hr:Department ;
+    rdfs:range hr:Employee ;
+    rdfs:label "has member" .
+
+# Position Properties
+hr:positionTitle a owl:DatatypeProperty ;
+    rdfs:domain hr:Position ;
+    rdfs:range xsd:string ;
+    rdfs:label "position title" .
+
+hr:positionDescription a owl:DatatypeProperty ;
+    rdfs:domain hr:Position ;
+    rdfs:range xsd:string ;
+    rdfs:label "position description" .
+
+hr:salaryRange a owl:DatatypeProperty ;
+    rdfs:domain hr:Position ;
+    rdfs:range xsd:string ;
+    rdfs:label "salary range" .
+
+hr:requiredSkills a owl:ObjectProperty ;
+    rdfs:domain hr:Position ;
+    rdfs:range hr:Competency ;
+    rdfs:label "required skills" .
+
+# Recruitment Properties
+hr:hasApplication a owl:ObjectProperty ;
+    rdfs:domain hr:JobPosting ;
+    rdfs:range hr:Application ;
+    rdfs:label "has application" .
+
+hr:applicationDate a owl:DatatypeProperty ;
+    rdfs:domain hr:Application ;
+    rdfs:range xsd:date ;
+    rdfs:label "application date" .
+
+hr:applicationStatus a owl:DatatypeProperty ;
+    rdfs:domain hr:Application ;
+    rdfs:range xsd:string ;
+    rdfs:label "application status" .
+
+hr:hasInterview a owl:ObjectProperty ;
+    rdfs:domain hr:Application ;
+    rdfs:range hr:Interview ;
+    rdfs:label "has interview" .
+
+hr:interviewDate a owl:DatatypeProperty ;
+    rdfs:domain hr:Interview ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "interview date" .
+
+hr:interviewer a owl:ObjectProperty ;
+    rdfs:domain hr:Interview ;
+    rdfs:range hr:Employee ;
+    rdfs:label "interviewer" .
+
+hr:interviewScore a owl:DatatypeProperty ;
+    rdfs:domain hr:Interview ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "interview score" .
+
+# Performance Properties
+hr:hasReview a owl:ObjectProperty ;
+    rdfs:domain hr:Employee ;
+    rdfs:range hr:PerformanceReview ;
+    rdfs:label "has review" .
+
+hr:reviewDate a owl:DatatypeProperty ;
+    rdfs:domain hr:PerformanceReview ;
+    rdfs:range xsd:date ;
+    rdfs:label "review date" .
+
+hr:reviewPeriod a owl:DatatypeProperty ;
+    rdfs:domain hr:PerformanceReview ;
+    rdfs:range xsd:string ;
+    rdfs:label "review period" .
+
+hr:overallRating a owl:DatatypeProperty ;
+    rdfs:domain hr:PerformanceReview ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "overall rating" .
+
+hr:reviewer a owl:ObjectProperty ;
+    rdfs:domain hr:PerformanceReview ;
+    rdfs:range hr:Employee ;
+    rdfs:label "reviewer" .
+
+hr:hasGoal a owl:ObjectProperty ;
+    rdfs:domain hr:Employee ;
+    rdfs:range hr:Goal ;
+    rdfs:label "has goal" .
+
+hr:goalDescription a owl:DatatypeProperty ;
+    rdfs:domain hr:Goal ;
+    rdfs:range xsd:string ;
+    rdfs:label "goal description" .
+
+hr:goalProgress a owl:DatatypeProperty ;
+    rdfs:domain hr:Goal ;
+    rdfs:range xsd:integer ;
+    rdfs:label "goal progress" .
+
+# Time & Attendance Properties
+hr:hasAttendance a owl:ObjectProperty ;
+    rdfs:domain hr:Employee ;
+    rdfs:range hr:Attendance ;
+    rdfs:label "has attendance" .
+
+hr:checkInTime a owl:DatatypeProperty ;
+    rdfs:domain hr:Attendance ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "check-in time" .
+
+hr:checkOutTime a owl:DatatypeProperty ;
+    rdfs:domain hr:Attendance ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "check-out time" .
+
+hr:hasLeave a owl:ObjectProperty ;
+    rdfs:domain hr:Employee ;
+    rdfs:range hr:Leave ;
+    rdfs:label "has leave" .
+
+hr:leaveStartDate a owl:DatatypeProperty ;
+    rdfs:domain hr:Leave ;
+    rdfs:range xsd:date ;
+    rdfs:label "leave start date" .
+
+hr:leaveEndDate a owl:DatatypeProperty ;
+    rdfs:domain hr:Leave ;
+    rdfs:range xsd:date ;
+    rdfs:label "leave end date" .
+
+hr:leaveStatus a owl:DatatypeProperty ;
+    rdfs:domain hr:Leave ;
+    rdfs:range xsd:string ;
+    rdfs:label "leave status" .
+
+hr:leaveDays a owl:DatatypeProperty ;
+    rdfs:domain hr:Leave ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "leave days" .
+
+# Payroll Properties
+hr:hasSalary a owl:ObjectProperty ;
+    rdfs:domain hr:Employee ;
+    rdfs:range hr:Salary ;
+    rdfs:label "has salary" .
+
+hr:baseSalary a owl:DatatypeProperty ;
+    rdfs:domain hr:Salary ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "base salary" .
+
+hr:currency a owl:DatatypeProperty ;
+    rdfs:domain hr:Salary ;
+    rdfs:range xsd:string ;
+    rdfs:label "currency" .
+
+hr:payFrequency a owl:DatatypeProperty ;
+    rdfs:domain hr:Salary ;
+    rdfs:range xsd:string ;
+    rdfs:label "pay frequency" .
+
+hr:hasPayslip a owl:ObjectProperty ;
+    rdfs:domain hr:Employee ;
+    rdfs:range hr:Payslip ;
+    rdfs:label "has payslip" .
+
+hr:grossPay a owl:DatatypeProperty ;
+    rdfs:domain hr:Payslip ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "gross pay" .
+
+hr:netPay a owl:DatatypeProperty ;
+    rdfs:domain hr:Payslip ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "net pay" .
+
+hr:paymentDate a owl:DatatypeProperty ;
+    rdfs:domain hr:Payslip ;
+    rdfs:range xsd:date ;
+    rdfs:label "payment date" .
+
+# Benefits Properties
+hr:hasEnrollment a owl:ObjectProperty ;
+    rdfs:domain hr:Employee ;
+    rdfs:range hr:Enrollment ;
+    rdfs:label "has enrollment" .
+
+hr:enrolledIn a owl:ObjectProperty ;
+    rdfs:domain hr:Enrollment ;
+    rdfs:range hr:BenefitsPlan ;
+    rdfs:label "enrolled in" .
+
+hr:enrollmentDate a owl:DatatypeProperty ;
+    rdfs:domain hr:Enrollment ;
+    rdfs:range xsd:date ;
+    rdfs:label "enrollment date" .
+
+hr:premiumAmount a owl:DatatypeProperty ;
+    rdfs:domain hr:BenefitsPlan ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "premium amount" .
+
+hr:coverageLevel a owl:DatatypeProperty ;
+    rdfs:domain hr:BenefitsPlan ;
+    rdfs:range xsd:string ;
+    rdfs:label "coverage level" .
+
+# Training Properties
+hr:hasTraining a owl:ObjectProperty ;
+    rdfs:domain hr:Employee ;
+    rdfs:range hr:Training ;
+    rdfs:label "has training" .
+
+hr:trainingDate a owl:DatatypeProperty ;
+    rdfs:domain hr:Training ;
+    rdfs:range xsd:date ;
+    rdfs:label "training date" .
+
+hr:hasCertification a owl:ObjectProperty ;
+    rdfs:domain hr:Employee ;
+    rdfs:range hr:Certification ;
+    rdfs:label "has certification" .
+
+hr:certificationDate a owl:DatatypeProperty ;
+    rdfs:domain hr:Certification ;
+    rdfs:range xsd:date ;
+    rdfs:label "certification date" .
+
+hr:expirationDate a owl:DatatypeProperty ;
+    rdfs:domain hr:Certification ;
+    rdfs:range xsd:date ;
+    rdfs:label "expiration date" .

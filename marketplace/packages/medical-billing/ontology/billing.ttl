@@ -1,0 +1,325 @@
+@prefix bill: <http://example.org/medical-billing#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix schema: <http://schema.org/> .
+
+# Ontology Definition
+bill:MedicalBillingOntology a owl:Ontology ;
+    rdfs:label "Medical Billing Ontology" ;
+    rdfs:comment "Comprehensive ontology for medical billing and revenue cycle management" ;
+    owl:versionInfo "1.0.0" .
+
+# Billing Classes
+bill:Claim a owl:Class ;
+    rdfs:label "Claim" ;
+    rdfs:comment "Medical insurance claim" .
+
+bill:ProfessionalClaim a owl:Class ;
+    rdfs:subClassOf bill:Claim ;
+    rdfs:label "Professional Claim" ;
+    rdfs:comment "CMS-1500 professional claim" .
+
+bill:InstitutionalClaim a owl:Class ;
+    rdfs:subClassOf bill:Claim ;
+    rdfs:label "Institutional Claim" ;
+    rdfs:comment "UB-04 institutional claim" .
+
+# Medical Coding
+bill:DiagnosisCode a owl:Class ;
+    rdfs:label "Diagnosis Code" ;
+    rdfs:comment "ICD-10-CM diagnosis code" .
+
+bill:ProcedureCode a owl:Class ;
+    rdfs:label "Procedure Code" ;
+    rdfs:comment "CPT/HCPCS procedure code" .
+
+bill:CPTCode a owl:Class ;
+    rdfs:subClassOf bill:ProcedureCode ;
+    rdfs:label "CPT Code" .
+
+bill:HCPCSCode a owl:Class ;
+    rdfs:subClassOf bill:ProcedureCode ;
+    rdfs:label "HCPCS Code" .
+
+bill:Modifier a owl:Class ;
+    rdfs:label "Modifier" ;
+    rdfs:comment "CPT/HCPCS modifier" .
+
+# Charge and Payment
+bill:Charge a owl:Class ;
+    rdfs:label "Charge" ;
+    rdfs:comment "Charge for service" .
+
+bill:Payment a owl:Class ;
+    rdfs:label "Payment" ;
+    rdfs:comment "Payment received" .
+
+bill:Adjustment a owl:Class ;
+    rdfs:label "Adjustment" ;
+    rdfs:comment "Billing adjustment" .
+
+bill:PatientBalance a owl:Class ;
+    rdfs:label "Patient Balance" ;
+    rdfs:comment "Outstanding patient balance" .
+
+# Insurance
+bill:InsurancePayer a owl:Class ;
+    rdfs:label "Insurance Payer" ;
+    rdfs:comment "Insurance company" .
+
+bill:PolicyNumber a owl:Class ;
+    rdfs:label "Policy Number" ;
+    rdfs:comment "Insurance policy number" .
+
+bill:Authorization a owl:Class ;
+    rdfs:label "Authorization" ;
+    rdfs:comment "Prior authorization" .
+
+bill:Eligibility a owl:Class ;
+    rdfs:label "Eligibility" ;
+    rdfs:comment "Insurance eligibility" .
+
+# Claim Processing
+bill:ClaimStatus a owl:Class ;
+    rdfs:label "Claim Status" ;
+    rdfs:comment "Status of claim processing" .
+
+bill:Denial a owl:Class ;
+    rdfs:label "Denial" ;
+    rdfs:comment "Claim denial" .
+
+bill:DenialReason a owl:Class ;
+    rdfs:label "Denial Reason" ;
+    rdfs:comment "Reason for claim denial" .
+
+bill:Appeal a owl:Class ;
+    rdfs:label "Appeal" ;
+    rdfs:comment "Claim appeal" .
+
+bill:Resubmission a owl:Class ;
+    rdfs:label "Resubmission" ;
+    rdfs:comment "Claim resubmission" .
+
+# Revenue Cycle
+bill:RevenueCycle a owl:Class ;
+    rdfs:label "Revenue Cycle" ;
+    rdfs:comment "Revenue cycle management" .
+
+bill:AccountReceivable a owl:Class ;
+    rdfs:label "Account Receivable" ;
+    rdfs:comment "Accounts receivable" .
+
+bill:AgingReport a owl:Class ;
+    rdfs:label "Aging Report" ;
+    rdfs:comment "AR aging report" .
+
+bill:CollectionAgency a owl:Class ;
+    rdfs:label "Collection Agency" ;
+    rdfs:comment "Third-party collections" .
+
+# Remittance
+bill:EOB a owl:Class ;
+    rdfs:label "Explanation of Benefits" ;
+    rdfs:comment "EOB from insurance" .
+
+bill:ERA a owl:Class ;
+    rdfs:label "Electronic Remittance Advice" ;
+    rdfs:comment "835 ERA transaction" .
+
+bill:RemittanceCode a owl:Class ;
+    rdfs:label "Remittance Code" ;
+    rdfs:comment "CARC/RARC code" .
+
+# Patient
+bill:Patient a owl:Class ;
+    rdfs:label "Patient" ;
+    rdfs:comment "Patient account" .
+
+bill:Guarantor a owl:Class ;
+    rdfs:label "Guarantor" ;
+    rdfs:comment "Financially responsible party" .
+
+# Properties - Claim
+bill:hasClaim a owl:ObjectProperty ;
+    rdfs:domain bill:Patient ;
+    rdfs:range bill:Claim ;
+    rdfs:label "has claim" .
+
+bill:hasClaimNumber a owl:DatatypeProperty ;
+    rdfs:domain bill:Claim ;
+    rdfs:range xsd:string ;
+    rdfs:label "has claim number" .
+
+bill:hasServiceDate a owl:DatatypeProperty ;
+    rdfs:domain bill:Claim ;
+    rdfs:range xsd:date ;
+    rdfs:label "has service date" .
+
+bill:hasSubmissionDate a owl:DatatypeProperty ;
+    rdfs:domain bill:Claim ;
+    rdfs:range xsd:date ;
+    rdfs:label "has submission date" .
+
+bill:hasPayer a owl:ObjectProperty ;
+    rdfs:domain bill:Claim ;
+    rdfs:range bill:InsurancePayer ;
+    rdfs:label "has payer" .
+
+# Coding Properties
+bill:hasDiagnosisCode a owl:ObjectProperty ;
+    rdfs:domain bill:Claim ;
+    rdfs:range bill:DiagnosisCode ;
+    rdfs:label "has diagnosis code" .
+
+bill:hasProcedureCode a owl:ObjectProperty ;
+    rdfs:domain bill:Claim ;
+    rdfs:range bill:ProcedureCode ;
+    rdfs:label "has procedure code" .
+
+bill:hasICD10Code a owl:DatatypeProperty ;
+    rdfs:domain bill:DiagnosisCode ;
+    rdfs:range xsd:string ;
+    rdfs:label "has ICD-10 code" .
+
+bill:hasCPTCode a owl:DatatypeProperty ;
+    rdfs:domain bill:CPTCode ;
+    rdfs:range xsd:string ;
+    rdfs:label "has CPT code" .
+
+bill:hasModifier a owl:ObjectProperty ;
+    rdfs:domain bill:ProcedureCode ;
+    rdfs:range bill:Modifier ;
+    rdfs:label "has modifier" .
+
+# Charge Properties
+bill:hasCharge a owl:ObjectProperty ;
+    rdfs:domain bill:Claim ;
+    rdfs:range bill:Charge ;
+    rdfs:label "has charge" .
+
+bill:chargeAmount a owl:DatatypeProperty ;
+    rdfs:domain bill:Charge ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "charge amount" .
+
+bill:units a owl:DatatypeProperty ;
+    rdfs:domain bill:Charge ;
+    rdfs:range xsd:integer ;
+    rdfs:label "units" .
+
+# Payment Properties
+bill:hasPayment a owl:ObjectProperty ;
+    rdfs:domain bill:Claim ;
+    rdfs:range bill:Payment ;
+    rdfs:label "has payment" .
+
+bill:paymentAmount a owl:DatatypeProperty ;
+    rdfs:domain bill:Payment ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "payment amount" .
+
+bill:paymentDate a owl:DatatypeProperty ;
+    rdfs:domain bill:Payment ;
+    rdfs:range xsd:date ;
+    rdfs:label "payment date" .
+
+bill:hasAdjustment a owl:ObjectProperty ;
+    rdfs:domain bill:Claim ;
+    rdfs:range bill:Adjustment ;
+    rdfs:label "has adjustment" .
+
+bill:adjustmentAmount a owl:DatatypeProperty ;
+    rdfs:domain bill:Adjustment ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "adjustment amount" .
+
+# Status Properties
+bill:hasClaimStatus a owl:ObjectProperty ;
+    rdfs:domain bill:Claim ;
+    rdfs:range bill:ClaimStatus ;
+    rdfs:label "has claim status" .
+
+bill:statusCode a owl:DatatypeProperty ;
+    rdfs:domain bill:ClaimStatus ;
+    rdfs:range xsd:string ;
+    rdfs:label "status code" ;
+    rdfs:comment "pending, paid, denied, etc." .
+
+# Denial Properties
+bill:hasDenial a owl:ObjectProperty ;
+    rdfs:domain bill:Claim ;
+    rdfs:range bill:Denial ;
+    rdfs:label "has denial" .
+
+bill:hasDenialReason a owl:ObjectProperty ;
+    rdfs:domain bill:Denial ;
+    rdfs:range bill:DenialReason ;
+    rdfs:label "has denial reason" .
+
+bill:hasAppeal a owl:ObjectProperty ;
+    rdfs:domain bill:Denial ;
+    rdfs:range bill:Appeal ;
+    rdfs:label "has appeal" .
+
+bill:appealDate a owl:DatatypeProperty ;
+    rdfs:domain bill:Appeal ;
+    rdfs:range xsd:date ;
+    rdfs:label "appeal date" .
+
+# Revenue Cycle Properties
+bill:hasAccountReceivable a owl:ObjectProperty ;
+    rdfs:domain bill:Patient ;
+    rdfs:range bill:AccountReceivable ;
+    rdfs:label "has account receivable" .
+
+bill:arAmount a owl:DatatypeProperty ;
+    rdfs:domain bill:AccountReceivable ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "AR amount" .
+
+bill:agingDays a owl:DatatypeProperty ;
+    rdfs:domain bill:AccountReceivable ;
+    rdfs:range xsd:integer ;
+    rdfs:label "aging days" .
+
+# Remittance Properties
+bill:hasEOB a owl:ObjectProperty ;
+    rdfs:domain bill:Claim ;
+    rdfs:range bill:EOB ;
+    rdfs:label "has EOB" .
+
+bill:hasERA a owl:ObjectProperty ;
+    rdfs:domain bill:Claim ;
+    rdfs:range bill:ERA ;
+    rdfs:label "has ERA" .
+
+bill:hasRemittanceCode a owl:ObjectProperty ;
+    rdfs:domain bill:EOB ;
+    rdfs:range bill:RemittanceCode ;
+    rdfs:label "has remittance code" .
+
+# Example Instances
+bill:claim_001 a bill:ProfessionalClaim ;
+    bill:hasClaimNumber "CLM-2025-001" ;
+    bill:hasServiceDate "2025-01-15"^^xsd:date ;
+    bill:hasPayer bill:payer_bcbs ;
+    bill:hasDiagnosisCode bill:dx_j06_9 ;
+    bill:hasProcedureCode bill:cpt_99213 .
+
+bill:dx_j06_9 a bill:DiagnosisCode ;
+    bill:hasICD10Code "J06.9" ;
+    schema:name "Acute upper respiratory infection, unspecified" .
+
+bill:cpt_99213 a bill:CPTCode ;
+    bill:hasCPTCode "99213" ;
+    schema:name "Office visit, established patient, moderate complexity" .
+
+bill:charge_001 a bill:Charge ;
+    bill:chargeAmount 125.00 ;
+    bill:units 1 .
+
+bill:payer_bcbs a bill:InsurancePayer ;
+    schema:name "Blue Cross Blue Shield" ;
+    schema:identifier "BCBS" .

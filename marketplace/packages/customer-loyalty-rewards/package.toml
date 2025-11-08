@@ -1,0 +1,85 @@
+[package]
+name = "customer-loyalty-rewards"
+version = "1.0.0"
+description = "Comprehensive loyalty program with points, tiers, and gamification"
+authors = ["ggen Marketplace"]
+license = "MIT"
+keywords = ["e-commerce", "loyalty", "rewards", "gamification", "rdf"]
+categories = ["e-commerce", "loyalty-programs", "customer-engagement"]
+
+[ontology]
+file = "ontology/loyalty-rewards.ttl"
+namespace = "http://ggen.io/ontology/loyalty-rewards#"
+prefix = "lr"
+lines = 270
+
+[sparql]
+file = "sparql/queries.rq"
+queries = 10
+
+[templates]
+languages = ["rust", "typescript", "python"]
+
+[templates.rust]
+files = ["templates/rust/points_engine.rs"]
+description = "High-performance points calculation engine"
+
+[templates.typescript]
+files = ["templates/typescript/loyalty-ui.ts"]
+description = "React UI for loyalty program"
+
+[templates.python]
+files = ["templates/python/loyalty_analytics.py"]
+description = "Loyalty analytics and segmentation"
+
+[tests]
+framework = "chicago-tdd"
+file = "tests/chicago_tdd/loyalty_tests.rs"
+lines = 550
+coverage = [
+    "points-calculation",
+    "tier-progression",
+    "redemption-workflow",
+    "expiration-handling",
+    "reward-catalog",
+    "gamification"
+]
+
+[documentation]
+readme = "docs/README.md"
+guides = [
+    "docs/GAMIFICATION.md",
+    "docs/ANALYTICS.md"
+]
+
+[dependencies]
+required = []
+optional = ["order-management-system"]
+
+[features]
+- "4-tier loyalty program (Bronze, Silver, Gold, Platinum)"
+- "Points earning from purchases, referrals, reviews"
+- "Tier multipliers (1.0x to 2.0x)"
+- "Rewards catalog with discounts and products"
+- "Points expiration and rollover"
+- "Gamification (badges, achievements, streaks)"
+- "Referral program"
+- "Member segmentation"
+- "Leaderboards"
+- "Coalition loyalty programs"
+
+[tiers]
+bronze = { min_points = 0, multiplier = 1.0 }
+silver = { min_points = 1000, multiplier = 1.25 }
+gold = { min_points = 5000, multiplier = 1.5 }
+platinum = { min_points = 10000, multiplier = 2.0 }
+
+[vertical]
+name = "e-commerce"
+position = 5
+complements = [
+    "multi-tenant-saas",
+    "inventory-management",
+    "recommendation-engine",
+    "order-management-system"
+]

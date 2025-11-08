@@ -1,0 +1,475 @@
+@prefix erp: <http://ggen.io/ontology/erp#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+# ============================================================================
+# Enterprise ERP Core Ontology
+# Comprehensive accounting and financial management system
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# Core Classes
+# ----------------------------------------------------------------------------
+
+erp:ChartOfAccounts a owl:Class ;
+    rdfs:label "Chart of Accounts" ;
+    rdfs:comment "Complete hierarchical structure of all general ledger accounts" .
+
+erp:Account a owl:Class ;
+    rdfs:label "General Ledger Account" ;
+    rdfs:comment "Individual account in the chart of accounts" .
+
+erp:AccountType a owl:Class ;
+    rdfs:label "Account Type" ;
+    rdfs:comment "Classification of account (Asset, Liability, Equity, Revenue, Expense)" .
+
+erp:JournalEntry a owl:Class ;
+    rdfs:label "Journal Entry" ;
+    rdfs:comment "Double-entry accounting transaction" .
+
+erp:JournalLine a owl:Class ;
+    rdfs:label "Journal Line" ;
+    rdfs:comment "Individual debit or credit line in a journal entry" .
+
+erp:AccountingPeriod a owl:Class ;
+    rdfs:label "Accounting Period" ;
+    rdfs:comment "Fiscal period for financial reporting" .
+
+# ----------------------------------------------------------------------------
+# Accounts Payable/Receivable
+# ----------------------------------------------------------------------------
+
+erp:Invoice a owl:Class ;
+    rdfs:label "Invoice" ;
+    rdfs:comment "Billing document for goods or services" .
+
+erp:InvoiceLine a owl:Class ;
+    rdfs:label "Invoice Line" ;
+    rdfs:comment "Individual line item on an invoice" .
+
+erp:Payment a owl:Class ;
+    rdfs:label "Payment" ;
+    rdfs:comment "Payment transaction for invoices or bills" .
+
+erp:PaymentTerm a owl:Class ;
+    rdfs:label "Payment Term" ;
+    rdfs:comment "Terms for payment (Net 30, Net 60, etc.)" .
+
+erp:Vendor a owl:Class ;
+    rdfs:label "Vendor" ;
+    rdfs:comment "Supplier or service provider" .
+
+erp:Customer a owl:Class ;
+    rdfs:label "Customer" ;
+    rdfs:comment "Entity purchasing goods or services" .
+
+# ----------------------------------------------------------------------------
+# Purchase and Sales Orders
+# ----------------------------------------------------------------------------
+
+erp:PurchaseOrder a owl:Class ;
+    rdfs:label "Purchase Order" ;
+    rdfs:comment "Document authorizing a purchase from a vendor" .
+
+erp:PurchaseOrderLine a owl:Class ;
+    rdfs:label "Purchase Order Line" ;
+    rdfs:comment "Individual line item on a purchase order" .
+
+erp:SalesOrder a owl:Class ;
+    rdfs:label "Sales Order" ;
+    rdfs:comment "Document confirming a sale to a customer" .
+
+erp:SalesOrderLine a owl:Class ;
+    rdfs:label "Sales Order Line" ;
+    rdfs:comment "Individual line item on a sales order" .
+
+erp:Fulfillment a owl:Class ;
+    rdfs:label "Fulfillment" ;
+    rdfs:comment "Process of completing and shipping a sales order" .
+
+# ----------------------------------------------------------------------------
+# Inventory and Costing
+# ----------------------------------------------------------------------------
+
+erp:InventoryItem a owl:Class ;
+    rdfs:label "Inventory Item" ;
+    rdfs:comment "Physical or virtual product in inventory" .
+
+erp:InventoryTransaction a owl:Class ;
+    rdfs:label "Inventory Transaction" ;
+    rdfs:comment "Movement or adjustment of inventory" .
+
+erp:CostingMethod a owl:Class ;
+    rdfs:label "Costing Method" ;
+    rdfs:comment "Method for valuing inventory (FIFO, LIFO, Average)" .
+
+erp:StockLocation a owl:Class ;
+    rdfs:label "Stock Location" ;
+    rdfs:comment "Physical location where inventory is stored" .
+
+# ----------------------------------------------------------------------------
+# Fixed Assets
+# ----------------------------------------------------------------------------
+
+erp:FixedAsset a owl:Class ;
+    rdfs:label "Fixed Asset" ;
+    rdfs:comment "Long-term tangible asset" .
+
+erp:DepreciationSchedule a owl:Class ;
+    rdfs:label "Depreciation Schedule" ;
+    rdfs:comment "Schedule for depreciating a fixed asset" .
+
+erp:DepreciationMethod a owl:Class ;
+    rdfs:label "Depreciation Method" ;
+    rdfs:comment "Method for calculating depreciation (Straight-line, Declining balance)" .
+
+erp:AssetDisposal a owl:Class ;
+    rdfs:label "Asset Disposal" ;
+    rdfs:comment "Sale or retirement of a fixed asset" .
+
+# ----------------------------------------------------------------------------
+# Multi-Currency
+# ----------------------------------------------------------------------------
+
+erp:Currency a owl:Class ;
+    rdfs:label "Currency" ;
+    rdfs:comment "Monetary unit (USD, EUR, GBP, etc.)" .
+
+erp:ExchangeRate a owl:Class ;
+    rdfs:label "Exchange Rate" ;
+    rdfs:comment "Conversion rate between currencies" .
+
+erp:CurrencyGainLoss a owl:Class ;
+    rdfs:label "Currency Gain/Loss" ;
+    rdfs:comment "Realized or unrealized currency gain or loss" .
+
+# ----------------------------------------------------------------------------
+# Financial Reporting
+# ----------------------------------------------------------------------------
+
+erp:FinancialStatement a owl:Class ;
+    rdfs:label "Financial Statement" ;
+    rdfs:comment "Formal report of financial position and performance" .
+
+erp:BalanceSheet a owl:Class ;
+    rdfs:subClassOf erp:FinancialStatement ;
+    rdfs:label "Balance Sheet" ;
+    rdfs:comment "Statement of Assets, Liabilities, and Equity" .
+
+erp:IncomeStatement a owl:Class ;
+    rdfs:subClassOf erp:FinancialStatement ;
+    rdfs:label "Income Statement" ;
+    rdfs:comment "Statement of Revenue and Expenses (P&L)" .
+
+erp:CashFlowStatement a owl:Class ;
+    rdfs:subClassOf erp:FinancialStatement ;
+    rdfs:label "Cash Flow Statement" ;
+    rdfs:comment "Statement of cash inflows and outflows" .
+
+erp:TrialBalance a owl:Class ;
+    rdfs:label "Trial Balance" ;
+    rdfs:comment "Summary of all general ledger account balances" .
+
+# ----------------------------------------------------------------------------
+# Audit and Compliance
+# ----------------------------------------------------------------------------
+
+erp:AuditTrail a owl:Class ;
+    rdfs:label "Audit Trail" ;
+    rdfs:comment "Complete record of all financial transactions and changes" .
+
+erp:AuditLog a owl:Class ;
+    rdfs:label "Audit Log" ;
+    rdfs:comment "Individual audit log entry" .
+
+erp:ComplianceRule a owl:Class ;
+    rdfs:label "Compliance Rule" ;
+    rdfs:comment "Regulatory or policy compliance requirement" .
+
+erp:ControlPoint a owl:Class ;
+    rdfs:label "Control Point" ;
+    rdfs:comment "Internal control checkpoint in financial process" .
+
+# ----------------------------------------------------------------------------
+# Properties - Account Structure
+# ----------------------------------------------------------------------------
+
+erp:accountNumber a owl:DatatypeProperty ;
+    rdfs:domain erp:Account ;
+    rdfs:range xsd:string ;
+    rdfs:label "Account Number" .
+
+erp:accountName a owl:DatatypeProperty ;
+    rdfs:domain erp:Account ;
+    rdfs:range xsd:string ;
+    rdfs:label "Account Name" .
+
+erp:accountType a owl:ObjectProperty ;
+    rdfs:domain erp:Account ;
+    rdfs:range erp:AccountType ;
+    rdfs:label "Account Type" .
+
+erp:parentAccount a owl:ObjectProperty ;
+    rdfs:domain erp:Account ;
+    rdfs:range erp:Account ;
+    rdfs:label "Parent Account" .
+
+erp:isActive a owl:DatatypeProperty ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Is Active" .
+
+erp:requiresDepartment a owl:DatatypeProperty ;
+    rdfs:domain erp:Account ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Requires Department" .
+
+# ----------------------------------------------------------------------------
+# Properties - Journal Entries
+# ----------------------------------------------------------------------------
+
+erp:journalEntryNumber a owl:DatatypeProperty ;
+    rdfs:domain erp:JournalEntry ;
+    rdfs:range xsd:string ;
+    rdfs:label "Journal Entry Number" .
+
+erp:journalEntryDate a owl:DatatypeProperty ;
+    rdfs:domain erp:JournalEntry ;
+    rdfs:range xsd:date ;
+    rdfs:label "Journal Entry Date" .
+
+erp:journalEntryDescription a owl:DatatypeProperty ;
+    rdfs:domain erp:JournalEntry ;
+    rdfs:range xsd:string ;
+    rdfs:label "Description" .
+
+erp:isReversing a owl:DatatypeProperty ;
+    rdfs:domain erp:JournalEntry ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Is Reversing Entry" .
+
+erp:reversedBy a owl:ObjectProperty ;
+    rdfs:domain erp:JournalEntry ;
+    rdfs:range erp:JournalEntry ;
+    rdfs:label "Reversed By" .
+
+erp:hasLine a owl:ObjectProperty ;
+    rdfs:domain erp:JournalEntry ;
+    rdfs:range erp:JournalLine ;
+    rdfs:label "Has Line" .
+
+erp:debitAmount a owl:DatatypeProperty ;
+    rdfs:domain erp:JournalLine ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Debit Amount" .
+
+erp:creditAmount a owl:DatatypeProperty ;
+    rdfs:domain erp:JournalLine ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Credit Amount" .
+
+erp:lineAccount a owl:ObjectProperty ;
+    rdfs:domain erp:JournalLine ;
+    rdfs:range erp:Account ;
+    rdfs:label "Line Account" .
+
+# ----------------------------------------------------------------------------
+# Properties - Invoices and Payments
+# ----------------------------------------------------------------------------
+
+erp:invoiceNumber a owl:DatatypeProperty ;
+    rdfs:domain erp:Invoice ;
+    rdfs:range xsd:string ;
+    rdfs:label "Invoice Number" .
+
+erp:invoiceDate a owl:DatatypeProperty ;
+    rdfs:domain erp:Invoice ;
+    rdfs:range xsd:date ;
+    rdfs:label "Invoice Date" .
+
+erp:dueDate a owl:DatatypeProperty ;
+    rdfs:range xsd:date ;
+    rdfs:label "Due Date" .
+
+erp:invoiceAmount a owl:DatatypeProperty ;
+    rdfs:domain erp:Invoice ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Invoice Amount" .
+
+erp:amountPaid a owl:DatatypeProperty ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Amount Paid" .
+
+erp:amountDue a owl:DatatypeProperty ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Amount Due" .
+
+erp:invoiceVendor a owl:ObjectProperty ;
+    rdfs:domain erp:Invoice ;
+    rdfs:range erp:Vendor ;
+    rdfs:label "Vendor" .
+
+erp:invoiceCustomer a owl:ObjectProperty ;
+    rdfs:domain erp:Invoice ;
+    rdfs:range erp:Customer ;
+    rdfs:label "Customer" .
+
+erp:paymentTerm a owl:ObjectProperty ;
+    rdfs:range erp:PaymentTerm ;
+    rdfs:label "Payment Term" .
+
+# ----------------------------------------------------------------------------
+# Properties - Fixed Assets
+# ----------------------------------------------------------------------------
+
+erp:assetTag a owl:DatatypeProperty ;
+    rdfs:domain erp:FixedAsset ;
+    rdfs:range xsd:string ;
+    rdfs:label "Asset Tag" .
+
+erp:acquisitionDate a owl:DatatypeProperty ;
+    rdfs:domain erp:FixedAsset ;
+    rdfs:range xsd:date ;
+    rdfs:label "Acquisition Date" .
+
+erp:acquisitionCost a owl:DatatypeProperty ;
+    rdfs:domain erp:FixedAsset ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Acquisition Cost" .
+
+erp:salvageValue a owl:DatatypeProperty ;
+    rdfs:domain erp:FixedAsset ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Salvage Value" .
+
+erp:usefulLife a owl:DatatypeProperty ;
+    rdfs:domain erp:FixedAsset ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Useful Life (months)" .
+
+erp:accumulatedDepreciation a owl:DatatypeProperty ;
+    rdfs:domain erp:FixedAsset ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Accumulated Depreciation" .
+
+erp:depreciationMethod a owl:ObjectProperty ;
+    rdfs:domain erp:FixedAsset ;
+    rdfs:range erp:DepreciationMethod ;
+    rdfs:label "Depreciation Method" .
+
+# ----------------------------------------------------------------------------
+# Properties - Multi-Currency
+# ----------------------------------------------------------------------------
+
+erp:currencyCode a owl:DatatypeProperty ;
+    rdfs:domain erp:Currency ;
+    rdfs:range xsd:string ;
+    rdfs:label "Currency Code" .
+
+erp:exchangeRateDate a owl:DatatypeProperty ;
+    rdfs:domain erp:ExchangeRate ;
+    rdfs:range xsd:date ;
+    rdfs:label "Exchange Rate Date" .
+
+erp:exchangeRateValue a owl:DatatypeProperty ;
+    rdfs:domain erp:ExchangeRate ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Exchange Rate Value" .
+
+erp:baseCurrency a owl:ObjectProperty ;
+    rdfs:domain erp:ExchangeRate ;
+    rdfs:range erp:Currency ;
+    rdfs:label "Base Currency" .
+
+erp:quoteCurrency a owl:ObjectProperty ;
+    rdfs:domain erp:ExchangeRate ;
+    rdfs:range erp:Currency ;
+    rdfs:label "Quote Currency" .
+
+# ----------------------------------------------------------------------------
+# Properties - Period and Close
+# ----------------------------------------------------------------------------
+
+erp:periodName a owl:DatatypeProperty ;
+    rdfs:domain erp:AccountingPeriod ;
+    rdfs:range xsd:string ;
+    rdfs:label "Period Name" .
+
+erp:startDate a owl:DatatypeProperty ;
+    rdfs:range xsd:date ;
+    rdfs:label "Start Date" .
+
+erp:endDate a owl:DatatypeProperty ;
+    rdfs:range xsd:date ;
+    rdfs:label "End Date" .
+
+erp:isClosed a owl:DatatypeProperty ;
+    rdfs:domain erp:AccountingPeriod ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Is Closed" .
+
+erp:closedBy a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:label "Closed By" .
+
+erp:closedDate a owl:DatatypeProperty ;
+    rdfs:range xsd:date ;
+    rdfs:label "Closed Date" .
+
+# ----------------------------------------------------------------------------
+# Account Type Individuals
+# ----------------------------------------------------------------------------
+
+erp:Asset a erp:AccountType ;
+    rdfs:label "Asset" ;
+    skos:prefLabel "Asset" .
+
+erp:Liability a erp:AccountType ;
+    rdfs:label "Liability" ;
+    skos:prefLabel "Liability" .
+
+erp:Equity a erp:AccountType ;
+    rdfs:label "Equity" ;
+    skos:prefLabel "Equity" .
+
+erp:Revenue a erp:AccountType ;
+    rdfs:label "Revenue" ;
+    skos:prefLabel "Revenue" .
+
+erp:Expense a erp:AccountType ;
+    rdfs:label "Expense" ;
+    skos:prefLabel "Expense" .
+
+# ----------------------------------------------------------------------------
+# Costing Method Individuals
+# ----------------------------------------------------------------------------
+
+erp:FIFO a erp:CostingMethod ;
+    rdfs:label "FIFO" ;
+    skos:prefLabel "First-In, First-Out" .
+
+erp:LIFO a erp:CostingMethod ;
+    rdfs:label "LIFO" ;
+    skos:prefLabel "Last-In, First-Out" .
+
+erp:WeightedAverage a erp:CostingMethod ;
+    rdfs:label "Weighted Average" ;
+    skos:prefLabel "Weighted Average Cost" .
+
+# ----------------------------------------------------------------------------
+# Depreciation Method Individuals
+# ----------------------------------------------------------------------------
+
+erp:StraightLine a erp:DepreciationMethod ;
+    rdfs:label "Straight-Line" ;
+    skos:prefLabel "Straight-Line Depreciation" .
+
+erp:DecliningBalance a erp:DepreciationMethod ;
+    rdfs:label "Declining Balance" ;
+    skos:prefLabel "Declining Balance Depreciation" .
+
+erp:UnitsOfProduction a erp:DepreciationMethod ;
+    rdfs:label "Units of Production" ;
+    skos:prefLabel "Units of Production Depreciation" .

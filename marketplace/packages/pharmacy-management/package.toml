@@ -1,0 +1,23 @@
+[package]
+name = "pharmacy-management"
+version = "1.0.0"
+description = "Pharmacy management with medication dispensing, drug interactions, and insurance claims"
+category = "healthcare"
+tags = ["pharmacy", "medication", "drug-interactions", "insurance-claims", "dispensing"]
+license = "MIT"
+author = "ggen Healthcare Team"
+
+[dependencies]
+healthcare-core = "1.0.0"
+
+[features]
+medication_dispensing = true
+drug_interaction_checking = true
+insurance_claims = true
+inventory_management = true
+prescription_processing = true
+
+[compliance]
+hipaa = true
+gdpr = true
+fda = true
