@@ -28,12 +28,15 @@ ggen template generate-rdf --ontology domain.ttl --template python-pydantic
 
 ### Install
 ```bash
-# macOS/Linux
-brew tap seanchatmangpt/tap && brew install ggen
+# macOS/Linux (Homebrew)
+brew install seanchatmangpt/ggen/ggen
 
-# Or from source
+# From crates.io
+cargo install ggen
+
+# From source
 git clone https://github.com/seanchatmangpt/ggen && cd ggen
-cargo install --path cli --force
+cargo install --path crates/ggen-cli --force
 ```
 
 ### Your First Generation
