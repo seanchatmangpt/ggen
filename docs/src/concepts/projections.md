@@ -2,209 +2,587 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
-- [Projections](#projections)
-  - [Marketplace Gpack Examples](#marketplace-gpack-examples)
-    - [CLI Subcommands](#cli-subcommands)
-    - [API Endpoints](#api-endpoints)
-    - [SQL DDL from Ontology](#sql-ddl-from-ontology)
-    - [Edge Function Stubs](#edge-function-stubs)
-    - [Documentation from Graph Annotations](#documentation-from-graph-annotations)
-  - [Local Template Examples](#local-template-examples)
-    - [Custom Projections](#custom-projections)
-  - [Discovering Projection Gpacks](#discovering-projection-gpacks)
-    - [By Category](#by-category)
-    - [By Language](#by-language)
-    - [By Framework](#by-framework)
-  - [Cross-Language Projections](#cross-language-projections)
-    - [Same RDF Ontology](#same-rdf-ontology)
-    - [Deterministic Output](#deterministic-output)
-  - [Projection Patterns](#projection-patterns)
+- [Semantic Projections](#semantic-projections)
+  - [The Core Concept](#the-core-concept)
+  - [One Ontology, Many Languages](#one-ontology-many-languages)
+  - [Type Mapping: Semantic to Language-Specific](#type-mapping-semantic-to-language-specific)
+    - [XSD Datatypes to Language Types](#xsd-datatypes-to-language-types)
+    - [Example: Product Price Across Languages](#example-product-price-across-languages)
+  - [Relationship Mapping: Predicates to Methods](#relationship-mapping-predicates-to-methods)
+    - [RDF Relationships](#rdf-relationships)
+    - [Projected to Code](#projected-to-code)
+  - [Complete Example: Product Catalog Projections](#complete-example-product-catalog-projections)
+    - [The Ontology (Language-Agnostic)](#the-ontology-language-agnostic)
+    - [Projection 1: Rust Struct](#projection-1-rust-struct)
+    - [Projection 2: TypeScript Interface](#projection-2-typescript-interface)
+    - [Projection 3: Python Dataclass](#projection-3-python-dataclass)
+    - [Projection 4: SQL Table Schema](#projection-4-sql-table-schema)
+    - [Projection 5: GraphQL Type](#projection-5-graphql-type)
+  - [Evolution: Update Once, Regenerate Everywhere](#evolution-update-once-regenerate-everywhere)
+    - [Step 1: Modify the Ontology](#step-1-modify-the-ontology)
+    - [Step 2: Regenerate All Projections](#step-2-regenerate-all-projections)
+    - [The Result](#the-result)
+  - [How Projections Work Internally](#how-projections-work-internally)
+  - [Projection Patterns and Best Practices](#projection-patterns-and-best-practices)
     - [Standard Pattern](#standard-pattern)
     - [Marketplace Pattern](#marketplace-pattern)
-    - [Local Pattern](#local-pattern)
-  - [Best Practices](#best-practices)
-    - [Gpack Selection](#gpack-selection)
-    - [Version Management](#version-management)
-    - [Custom Projections](#custom-projections-1)
+    - [Best Practices](#best-practices)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-# Projections
+# Semantic Projections
 
-Targets are just templates. ggen supports both marketplace gpacks and local templates for generating code projections.
+## The Core Concept
 
-## Marketplace Gpack Examples
+**Semantic projections** are the mechanism by which ggen transforms a single, language-agnostic RDF ontology into multiple language-specific code representations.
 
-### CLI Subcommands
-
-```bash
-# Install multi-language CLI gpacks
-ggen add io.ggen.rust.cli-subcommand
-ggen add io.ggen.python.cli-subcommand
-ggen add io.ggen.bash.cli-subcommand
-
-# Generate across languages
-ggen gen io.ggen.rust.cli-subcommand:cli/subcommand/rust.tmpl name=status
-ggen gen io.ggen.python.cli-subcommand:cli/subcommand/python.tmpl name=status
-ggen gen io.ggen.bash.cli-subcommand:cli/subcommand/bash.tmpl name=status
+```
+                   RDF Ontology (Semantic Model)
+                            ↓
+        ┌───────────────────┼───────────────────┐
+        ↓                   ↓                   ↓
+   Rust Structs      TypeScript Types      Python Classes
 ```
 
-### API Endpoints
+The key insight: **The domain model (ontology) is separate from its representation (projection).**
 
-```bash
-# Install API gpacks
-ggen add io.ggen.rust.api-endpoint
-ggen add io.ggen.python.api-endpoint
-ggen add io.ggen.typescript.api-endpoint
+This separation enables:
 
-# Generate REST endpoints
-ggen gen io.ggen.rust.api-endpoint:api/endpoint/rust.tmpl name=users
-ggen gen io.ggen.python.api-endpoint:api/endpoint/python.tmpl name=users
-ggen gen io.ggen.typescript.api-endpoint:api/endpoint/typescript.tmpl name=users
+- **Cross-language consistency**: Same business logic across codebases
+- **Automatic synchronization**: Change ontology → regenerate all projections
+- **Single source of truth**: One model, many representations
+- **Evolution without drift**: Update once, deploy everywhere
+
+## One Ontology, Many Languages
+
+Traditional approach:
+
+```
+Product.java     → Manually kept in sync with
+Product.ts       → Each requires separate updates
+Product.py       → Easy to drift out of sync
+product.sql      → Different conventions, same entity
 ```
 
-### SQL DDL from Ontology
+**ggen approach:**
 
-```bash
-# Install SQL generation gpacks
-ggen add io.ggen.sql.schema
-ggen add io.ggen.sql.migrations
+```turtle
+# product_catalog.ttl (ONE source of truth)
+pc:Product a rdfs:Class ;
+    rdfs:label "Product" .
 
-# Generate database schema
-ggen gen io.ggen.sql.schema:schema/postgres.tmpl name=users
-ggen gen io.ggen.sql.migrations:migration/postgres.tmpl name=add_users_table
+pc:name rdfs:domain pc:Product ; rdfs:range xsd:string .
+pc:price rdfs:domain pc:Product ; rdfs:range xsd:decimal .
 ```
 
-### Edge Function Stubs
-
 ```bash
-# Install edge function gpacks
-ggen add io.ggen.vercel.edge-function
-ggen add io.ggen.cloudflare.worker
-
-# Generate edge functions
-ggen gen io.ggen.vercel.edge-function:edge/function.ts.tmpl name=api
-ggen gen io.ggen.cloudflare.worker:worker/index.js.tmpl name=api
+# Generate all projections from one ontology
+ggen gen rust/models.tmpl --graph product_catalog.ttl
+ggen gen typescript/types.tmpl --graph product_catalog.ttl
+ggen gen python/models.tmpl --graph product_catalog.ttl
+ggen gen sql/schema.tmpl --graph product_catalog.ttl
 ```
 
-### Documentation from Graph Annotations
+**Result:** Four language-specific implementations, guaranteed to be in sync.
 
-```bash
-# Install documentation gpacks
-ggen add io.ggen.docs.api-reference
-ggen add io.ggen.docs.user-guide
+## Type Mapping: Semantic to Language-Specific
 
-# Generate documentation
-ggen gen io.ggen.docs.api-reference:docs/api.md.tmpl name=users
-ggen gen io.ggen.docs.user-guide:docs/guide.md.tmpl name=getting-started
+ggen maps RDF datatypes (XSD schema types) to appropriate language-specific types.
+
+### XSD Datatypes to Language Types
+
+| XSD Type       | Rust       | TypeScript | Python    | SQL          |
+|----------------|-----------|-----------|----------|-------------|
+| `xsd:string`   | `String`  | `string`  | `str`    | `VARCHAR`   |
+| `xsd:integer`  | `i64`     | `number`  | `int`    | `INTEGER`   |
+| `xsd:decimal`  | `f64`     | `number`  | `float`  | `DECIMAL`   |
+| `xsd:boolean`  | `bool`    | `boolean` | `bool`   | `BOOLEAN`   |
+| `xsd:date`     | `NaiveDate` | `Date`  | `date`   | `DATE`      |
+| `xsd:dateTime` | `DateTime` | `Date`  | `datetime` | `TIMESTAMP` |
+
+These mappings are **configurable** via Handlebars helpers in templates.
+
+### Example: Product Price Across Languages
+
+**Ontology:**
+
+```turtle
+pc:price a rdf:Property ;
+    rdfs:domain pc:Product ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "price" .
 ```
 
-## Local Template Examples
+**Projected to:**
 
-### Custom Projections
+| Language   | Field Declaration                |
+|-----------|--------------------------------|
+| Rust      | `pub price: f64`               |
+| TypeScript | `price: number`               |
+| Python    | `price: float`                 |
+| SQL       | `price DECIMAL(10, 2)`         |
+| GraphQL   | `price: Float!`                |
 
-```bash
-# Create custom template
-mkdir -p templates/custom/projection
-cat > templates/custom/projection/rust.tmpl << 'EOF'
----
-to: src/{{ name }}.rs
-vars:
-  name: example
----
-pub struct {{ name | pascal }} {
-    // Custom projection logic
+**The ontology never changes.** Only the projection templates differ.
+
+## Relationship Mapping: Predicates to Methods
+
+RDF relationships (object properties) project to different code patterns depending on the language.
+
+### RDF Relationships
+
+```turtle
+# Product belongs to a Category
+pc:category a rdf:Property ;
+    rdfs:domain pc:Product ;
+    rdfs:range pc:Category ;
+    rdfs:label "category" .
+
+# Product has a Supplier
+pc:supplier a rdf:Property ;
+    rdfs:domain pc:Product ;
+    rdfs:range pc:Supplier ;
+    rdfs:label "supplier" .
+```
+
+### Projected to Code
+
+**Rust:**
+
+```rust
+pub struct Product {
+    pub name: String,
+    pub price: f64,
+    pub category: Category,  // Foreign key relationship
+    pub supplier: Supplier,
 }
-EOF
 
-# Generate custom projection
-ggen gen custom projection --vars name=user
+impl Product {
+    /// Get the category for this product
+    pub fn get_category(&self) -> &Category {
+        &self.category
+    }
+
+    /// Get the supplier for this product
+    pub fn get_supplier(&self) -> &Supplier {
+        &self.supplier
+    }
+}
 ```
 
-## Discovering Projection Gpacks
+**TypeScript:**
 
-### By Category
+```typescript
+interface Product {
+  name: string;
+  price: number;
+  category: Category;
+  supplier: Supplier;
+}
+
+class ProductService {
+  async getCategory(product: Product): Promise<Category> {
+    return product.category;
+  }
+
+  async getSupplier(product: Product): Promise<Supplier> {
+    return product.supplier;
+  }
+}
+```
+
+**SQL:**
+
+```sql
+CREATE TABLE products (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  price DECIMAL(10, 2) NOT NULL,
+  category_id INTEGER REFERENCES categories(id),
+  supplier_id INTEGER REFERENCES suppliers(id)
+);
+```
+
+**Same relationship, different representations.** The ontology defines the semantics, templates define the syntax.
+
+## Complete Example: Product Catalog Projections
+
+Let's see a full example of one ontology generating code in five languages.
+
+### The Ontology (Language-Agnostic)
+
+```turtle
+@prefix pc: <http://example.org/product_catalog#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Classes
+pc:Product a rdfs:Class ;
+    rdfs:label "Product" ;
+    rdfs:comment "A product in the e-commerce catalog" .
+
+pc:Category a rdfs:Class ;
+    rdfs:label "Category" ;
+    rdfs:comment "A product category" .
+
+# Data properties (primitives)
+pc:name rdfs:domain pc:Product ; rdfs:range xsd:string .
+pc:price rdfs:domain pc:Product ; rdfs:range xsd:decimal .
+pc:sku rdfs:domain pc:Product ; rdfs:range xsd:string .
+
+# Object properties (relationships)
+pc:category rdfs:domain pc:Product ; rdfs:range pc:Category .
+```
+
+### Projection 1: Rust Struct
+
+**Template:** `rust/models.tmpl`
+
+```handlebars
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Product {
+{{#each properties}}
+    pub {{ name }}: {{ rust_type datatype }},
+{{/each}}
+}
+```
+
+**Generated:** `src/models/product.rs`
+
+```rust
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Product {
+    pub name: String,
+    pub price: f64,
+    pub sku: String,
+    pub category: Category,
+}
+```
+
+### Projection 2: TypeScript Interface
+
+**Template:** `typescript/types.tmpl`
+
+```handlebars
+export interface Product {
+{{#each properties}}
+  {{ name }}: {{ ts_type datatype }};
+{{/each}}
+}
+```
+
+**Generated:** `src/types/Product.ts`
+
+```typescript
+export interface Product {
+  name: string;
+  price: number;
+  sku: string;
+  category: Category;
+}
+```
+
+### Projection 3: Python Dataclass
+
+**Template:** `python/models.tmpl`
+
+```handlebars
+@dataclass
+class Product:
+{{#each properties}}
+    {{ name }}: {{ python_type datatype }}
+{{/each}}
+```
+
+**Generated:** `models/product.py`
+
+```python
+from dataclasses import dataclass
+
+@dataclass
+class Product:
+    name: str
+    price: float
+    sku: str
+    category: Category
+```
+
+### Projection 4: SQL Table Schema
+
+**Template:** `sql/schema.tmpl`
+
+```handlebars
+CREATE TABLE products (
+  id SERIAL PRIMARY KEY,
+{{#each properties}}
+  {{ name }} {{ sql_type datatype }}{{#if required}} NOT NULL{{/if}},
+{{/each}}
+);
+```
+
+**Generated:** `migrations/001_create_products.sql`
+
+```sql
+CREATE TABLE products (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  price DECIMAL(10, 2) NOT NULL,
+  sku VARCHAR(50) NOT NULL,
+  category_id INTEGER REFERENCES categories(id)
+);
+```
+
+### Projection 5: GraphQL Type
+
+**Template:** `graphql/schema.tmpl`
+
+```handlebars
+type Product {
+{{#each properties}}
+  {{ name }}: {{ graphql_type datatype }}!
+{{/each}}
+}
+```
+
+**Generated:** `schema/product.graphql`
+
+```graphql
+type Product {
+  name: String!
+  price: Float!
+  sku: String!
+  category: Category!
+}
+```
+
+**Five languages, one source of truth, complete consistency.**
+
+## Evolution: Update Once, Regenerate Everywhere
+
+The real power of semantic projections emerges when evolving your domain model.
+
+### Step 1: Modify the Ontology
+
+Add a `rating` field to Product:
+
+```turtle
+# Add to product_catalog.ttl
+pc:rating a rdf:Property ;
+    rdfs:domain pc:Product ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "rating" ;
+    rdfs:comment "Product rating from 0.0 to 5.0" .
+```
+
+### Step 2: Regenerate All Projections
 
 ```bash
-# Browse categories
-ggen categories
-
-# Search by projection type
-ggen search cli subcommand
-ggen search api endpoint
-ggen search sql schema
-ggen search docs reference
+# One command per projection
+ggen gen rust/models.tmpl --graph product_catalog.ttl
+ggen gen typescript/types.tmpl --graph product_catalog.ttl
+ggen gen python/models.tmpl --graph product_catalog.ttl
+ggen gen sql/schema.tmpl --graph product_catalog.ttl
+ggen gen graphql/schema.tmpl --graph product_catalog.ttl
 ```
 
-### By Language
+Or batch with a script:
 
 ```bash
-# Search by language
-ggen search rust
-ggen search python
-ggen search typescript
-ggen search go
+# regenerate-all.sh
+for template in templates/*.tmpl; do
+  ggen gen "$template" --graph product_catalog.ttl
+done
 ```
 
-### By Framework
+### The Result
 
-```bash
-# Search by framework
-ggen search clap
-ggen search fastapi
-ggen search express
-ggen search gin
+**All five languages now have the `rating` field:**
+
+```rust
+// Rust
+pub struct Product {
+    pub name: String,
+    pub price: f64,
+    pub sku: String,
+    pub rating: f64,  // ← NEW
+    pub category: Category,
+}
 ```
 
-## Cross-Language Projections
+```typescript
+// TypeScript
+export interface Product {
+  name: string;
+  price: number;
+  sku: string;
+  rating: number;  // ← NEW
+  category: Category;
+}
+```
 
-Marketplace gpacks enable consistent projections across multiple languages:
+```python
+# Python
+@dataclass
+class Product:
+    name: str
+    price: float
+    sku: str
+    rating: float  # ← NEW
+    category: Category
+```
 
-### Same RDF Ontology
-All language-specific gpacks use the same semantic model:
-- Consistent variable binding
-- Identical SPARQL queries
-- Unified frontmatter structure
+```sql
+-- SQL
+CREATE TABLE products (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  price DECIMAL(10, 2) NOT NULL,
+  sku VARCHAR(50) NOT NULL,
+  rating DECIMAL(2, 1),  -- NEW
+  category_id INTEGER REFERENCES categories(id)
+);
+```
 
-### Deterministic Output
-Version locking ensures reproducible results:
-- Same gpack versions → identical outputs
-- Cross-language consistency
-- Deterministic generation
+```graphql
+# GraphQL
+type Product {
+  name: String!
+  price: Float!
+  sku: String!
+  rating: Float!  # ← NEW
+  category: Category!
+}
+```
 
-## Projection Patterns
+**No manual editing. No copy-paste. No drift. Guaranteed synchronization.**
+
+## How Projections Work Internally
+
+Under the hood, ggen performs these steps for each projection:
+
+1. **Load ontology** into Oxigraph RDF store
+2. **Execute SPARQL query** defined in template frontmatter
+3. **Extract variables** from query results
+4. **Map types** using Handlebars helpers (e.g., `{{ rust_type }}`)
+5. **Render template** with mapped variables
+6. **Write output** to specified file path
+
+**Example template with SPARQL query:**
+
+```yaml
+---
+to: src/models/{{ class_name }}.rs
+vars:
+  class_name: Product
+sparql: |
+  PREFIX pc: <http://example.org/product_catalog#>
+  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+  SELECT ?property ?datatype ?label WHERE {
+    ?property rdfs:domain pc:Product .
+    ?property rdfs:range ?datatype .
+    ?property rdfs:label ?label .
+  }
+  ORDER BY ?label
+---
+pub struct {{ class_name }} {
+{{#each sparql_results}}
+    pub {{ ?label }}: {{ rust_type ?datatype }},
+{{/each}}
+}
+```
+
+**The SPARQL query extracts data from the ontology.** The template renders it as Rust code.
+
+## Projection Patterns and Best Practices
 
 ### Standard Pattern
-1. **Describe object in RDF** - Define semantic model
-2. **Bind vars via SPARQL** - Extract variables from graph
-3. **Render per target** - Generate language-specific code
+
+1. **Define ontology** in language-agnostic RDF
+2. **Create templates** for each target language
+3. **Use SPARQL** to extract exactly what each template needs
+4. **Map types** with Handlebars helpers
+5. **Regenerate** whenever ontology changes
 
 ### Marketplace Pattern
-1. **Search for gpacks** - Find language-specific templates
-2. **Install dependencies** - Get gpacks and dependencies
-3. **Generate consistently** - Use same RDF across languages
 
-### Local Pattern
-1. **Create templates** - Build custom projection logic
-2. **Define RDF model** - Specify semantic structure
-3. **Generate outputs** - Render to target formats
+For reusable projections, ggen supports the **marketplace gpack** pattern:
 
-## Best Practices
+```bash
+# Install projection templates from marketplace
+ggen add io.ggen.rust.models
+ggen add io.ggen.typescript.types
+ggen add io.ggen.sql.schema
 
-### Gpack Selection
-- Choose gpacks with active maintenance
-- Verify compatibility with your ggen version
-- Check dependency requirements
-- Review example outputs
+# Generate from marketplace templates
+ggen gen io.ggen.rust.models:models.tmpl --graph product_catalog.ttl
+ggen gen io.ggen.typescript.types:types.tmpl --graph product_catalog.ttl
+```
 
-### Version Management
-- Pin versions for production use
-- Test updates before applying
-- Use semantic versioning
-- Maintain lockfile consistency
+**Benefits:**
 
-### Custom Projections
-- Start with marketplace gpacks
-- Extend with local templates
-- Share via gpack publishing
-- Document projection patterns
+- Pre-built, tested templates
+- Consistent code style across projects
+- Community-maintained type mappings
+- Version-locked for determinism
+
+### Best Practices
+
+**1. Use semantic types in ontology:**
+
+```turtle
+# Good: Semantic precision
+pc:createdAt rdfs:range xsd:dateTime .
+pc:isActive rdfs:range xsd:boolean .
+
+# Avoid: Generic types lose information
+pc:createdAt rdfs:range xsd:string .  # ❌ Lost temporal semantics
+```
+
+**2. Leverage SPARQL for complex queries:**
+
+```sparql
+# Extract only required properties (not optional)
+SELECT ?property ?datatype WHERE {
+    ?property rdfs:domain ?class .
+    ?property rdfs:range ?datatype .
+    FILTER EXISTS { ?shape sh:property [ sh:path ?property ; sh:minCount 1 ] }
+}
+```
+
+**3. Create custom type mappings:**
+
+```handlebars
+{{! Custom helper for domain-specific types }}
+{{ custom_type datatype }}
+
+{{! Where custom_type might map: }}
+{{! xsd:string + pc:UUID → Uuid (Rust) or uuid.UUID (Python) }}
+```
+
+**4. Document projection conventions:**
+
+```markdown
+# Type Mapping Conventions
+
+| Ontology Type | Rust Type | Notes |
+|--------------|----------|-------|
+| xsd:decimal + pc:Price | Decimal | Use rust_decimal crate for precision |
+| xsd:string + pc:Email | String | Add validation in constructor |
+```
+
+**5. Automate regeneration in CI:**
+
+```yaml
+# .github/workflows/codegen.yml
+- name: Regenerate projections
+  run: |
+    ./scripts/regenerate-all.sh
+    git diff --exit-code || echo "::error::Projections out of sync"
+```
+
+This ensures ontology changes are caught before merging.
+
+---
+
+**Semantic projections are the bridge between abstract domain models and concrete implementations.** By separating semantics from syntax, ggen enables true cross-language consistency and effortless evolution.
