@@ -1,0 +1,52 @@
+[package]
+name = "graphql-api-template"
+version = "1.0.0"
+description = "Production-ready GraphQL API template with DataLoaders, subscriptions, and multi-language support"
+author = "ggen-marketplace"
+license = "MIT"
+category = "api"
+tags = ["graphql", "api", "dataloader", "subscriptions", "apollo", "strawberry"]
+
+[metadata]
+rdf_ontology = "ontology/graphql-schema.ttl"
+sparql_queries = "sparql/queries.rq"
+min_ggen_version = "0.4.0"
+
+[features]
+languages = ["rust", "typescript", "python"]
+patterns = [
+    "queries",
+    "mutations",
+    "subscriptions",
+    "dataloaders",
+    "pagination",
+    "authorization",
+    "validation"
+]
+
+[dependencies.rust]
+async-graphql = "7.0"
+sqlx = { version = "0.7", features = ["postgres", "runtime-tokio"] }
+tokio = { version = "1.35", features = ["full"] }
+
+[dependencies.typescript]
+"@apollo/server" = "^4.9.5"
+"graphql" = "^16.8.1"
+"dataloader" = "^2.2.2"
+"graphql-subscriptions" = "^2.0.0"
+"pg" = "^8.11.3"
+
+[dependencies.python]
+strawberry-graphql = "^0.217.0"
+asyncpg = "^0.29.0"
+
+[test_dependencies]
+testcontainers = "^3.7.1"
+pytest = "^7.4.3"
+pytest-asyncio = "^0.21.1"
+
+[validation]
+chicago_tdd = true
+test_suite = "tests/chicago_tdd/test_graphql_schema.py"
+min_pass_rate = 100
+performance_budget_ms = 100

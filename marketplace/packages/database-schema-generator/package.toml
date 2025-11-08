@@ -1,0 +1,38 @@
+[package]
+name = "database-schema-generator"
+version = "1.0.0"
+description = "Multi-database schema generator from RDF ontology using SPARQL"
+author = "ggen.io"
+license = "MIT"
+category = "database"
+tags = ["database", "schema", "rdf", "sparql", "postgresql", "mysql", "sqlite", "ddl", "migrations"]
+
+[ontology]
+file = "ontology/database-schema.ttl"
+namespace = "http://ggen.io/ontology/database#"
+
+[sparql]
+queries = "sparql/queries.rq"
+
+[templates]
+postgresql = "templates/postgresql/schema.sql.hbs"
+mysql = "templates/mysql/schema.sql.hbs"
+sqlite = "templates/sqlite/schema.sql.hbs"
+
+[outputs]
+postgresql = "generated/postgresql/"
+mysql = "generated/mysql/"
+sqlite = "generated/sqlite/"
+
+[dependencies]
+oxigraph = "0.3"
+handlebars = "4.0"
+sqlx = { version = "0.7", features = ["postgres", "mysql", "sqlite", "runtime-tokio-native-tls"] }
+testcontainers = "0.15"
+
+[config]
+default_database = "postgresql"
+enable_migrations = true
+enable_triggers = true
+enable_indexes = true
+enable_fulltext = true
