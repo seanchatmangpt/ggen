@@ -7,7 +7,7 @@ use ggen_utils::error::Result;
 use std::path::{Path, PathBuf};
 
 /// Publish command arguments
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default)]
 pub struct PublishInput {
     /// Package directory path
     pub path: PathBuf,
@@ -107,9 +107,128 @@ pub async fn publish_and_report(
     Ok(())
 }
 
-/// Run publish command (sync wrapper for CLI)
-        publish_and_report(&args.path, args.tag.as_deref(), args.dry_run, args.force).await
+/// Execute publish command using ggen-marketplace backend
+pub async fn execute_publish(input: PublishInput) -> Result<PublishOutput> {
+    use ggen_marketplace::prelude::*;
+    use ggen_marketplace::backend::LocalRegistry;
+    use sha2::{Sha256, Digest};
+
+    // Read package manifest
+    let manifest_path = input.path.join("package.json");
+    let manifest_content = tokio::fs::read_to_string(&manifest_path).await?;
+    let manifest: PackageManifest = serde_json::from_str(&manifest_content)?;
+
+    // Determine version
+    let version_str = input.tag.unwrap_or(manifest.version.clone());
+
+    if input.dry_run {
+        return Ok(PublishOutput {
+            package_name: manifest.name.clone(),
+            version: version_str,
+            dry_run: true,
+            registry_path: String::new(),
+        });
+    }
+
+    // Initialize local registry
+    let registry_path = dirs::home_dir()
+        .ok_or_else(|| ggen_utils::error::Error::new("home directory not found"))?
+        .join(".ggen")
+        .join("registry");
+
+    let registry = LocalRegistry::new(registry_path.clone()).await
+        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to initialize registry: {}", e)))?;
+
+    // Create tarball
+    let tarball_name = format!("{}-{}.tar.gz", manifest.name.replace('/', "-"), version_str);
+    let tarball_path = input.path.parent().unwrap_or(&input.path).join(&tarball_name);
+
+    create_tarball(&input.path, &manifest.name, &version_str).await?;
+
+    // Calculate checksum
+    let mut file = tokio::fs::File::open(&tarball_path).await?;
+    let mut hasher = Sha256::new();
+    let mut buffer = vec![0; 8192];
+
+    use tokio::io::AsyncReadExt;
+    loop {
+        let n = file.read(&mut buffer).await?;
+        if n == 0 {
+            break;
+        }
+        hasher.update(&buffer[..n]);
+    }
+    let checksum = format!("{:x}", hasher.finalize());
+
+    // Build package using ggen-marketplace models
+    let package_id = PackageId::new("local", &manifest.name);
+    let version_parts: Vec<u32> = version_str.split('.').filter_map(|s| s.parse().ok()).collect();
+    let version = Version::new(
+        version_parts.get(0).copied().unwrap_or(0),
+        version_parts.get(1).copied().unwrap_or(0),
+        version_parts.get(2).copied().unwrap_or(0),
+    );
+
+    let content_id = ContentId::new(&checksum, HashAlgorithm::Sha256);
+
+    let mut builder = Package::builder(package_id.clone(), version.clone())
+        .title(&manifest.title)
+        .description(&manifest.description)
+        .license("MIT")
+        .content_id(content_id);
+
+    // Add tags individually using .tag() method
+    for tag in &manifest.tags {
+        builder = builder.tag(tag);
+    }
+
+    let package = builder.build()
+        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to build package: {}", e)))?;
+
+    // Publish to registry
+    registry.publish(package).await
+        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to publish: {}", e)))?;
+
+    // Update index
+    update_registry_index(&registry_path, &manifest, &version_str, &tarball_path.display().to_string()).await?;
+
+    Ok(PublishOutput {
+        package_name: manifest.name,
+        version: version_str,
+        dry_run: false,
+        registry_path: registry_path.display().to_string(),
     })
+}
+
+/// Run publish command (legacy wrapper - creates runtime)
+pub fn run(args: &PublishInput) -> Result<()> {
+    let rt = tokio::runtime::Runtime::new()
+        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to create runtime: {}", e)))?;
+
+    let output = rt.block_on(execute_publish(args.clone()))?;
+
+    if !output.dry_run {
+        println!("✅ Successfully published {} version {}", output.package_name, output.version);
+        println!("   Registry: {}", output.registry_path);
+    }
+
+    Ok(())
+}
+
+/// Publish operation output
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct PublishOutput {
+    /// Name of the published package
+    pub package_name: String,
+
+    /// Version that was published
+    pub version: String,
+
+    /// Whether this was a dry run
+    pub dry_run: bool,
+
+    /// Path to the registry where package was published
+    pub registry_path: String,
 }
 
 /// Validate package manifest

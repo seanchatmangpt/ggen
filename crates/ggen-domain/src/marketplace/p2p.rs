@@ -2,37 +2,36 @@
 //!
 //! This module provides CLI commands for interacting with the P2P marketplace network.
 
-
 use ggen_utils::error::{Result, GgenError};
+use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
 /// P2P marketplace commands
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct P2PInput {
-    #[command(subcommand)]
     pub command: P2PCommand,
 }
 
 /// P2P subcommands
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum P2PCommand {
     /// Start P2P node and connect to network
-    Start(StartArgs),
+    Start(StartInput),
 
     /// Publish a package to the P2P network
-    Publish(PublishArgs),
+    Publish(PublishInput),
 
     /// Search for packages on the P2P network
-    Search(SearchArgs),
+    Search(SearchInput),
 
     /// List connected peers
-    PeerList(PeerListArgs),
+    PeerList(PeerListInput),
 
     /// Get peer reputation information
-    PeerInfo(PeerInfoArgs),
+    PeerInfo(PeerInfoInput),
 
     /// Bootstrap DHT with known peers
-    Bootstrap(BootstrapArgs),
+    Bootstrap(BootstrapInput),
 
     /// Get local node status and information
     Status,
@@ -122,6 +121,13 @@ pub struct BootstrapInput {
     pub timeout: u64,
 }
 
+// Type aliases for compatibility
+pub type PeerInfoArgs = PeerInfoInput;
+pub type BootstrapArgs = BootstrapInput;
+pub type StartArgs = StartInput;
+pub type SearchArgs = SearchInput;
+pub type PeerListArgs = PeerListInput;
+
 /// Result of starting P2P node
 #[derive(Debug)]
 pub struct StartResult {
@@ -185,7 +191,7 @@ pub async fn execute_p2p_command(command: P2PCommand) -> Result<()> {
 }
 
 /// Start P2P node
-async fn start_node(args: StartArgs) -> Result<()> {
+async fn start_node(args: StartInput) -> Result<()> {
     println!("🚀 Starting P2P node...");
 
     #[cfg(feature = "p2p")]
@@ -271,7 +277,7 @@ async fn start_node(args: StartArgs) -> Result<()> {
 }
 
 /// Publish package to P2P network
-async fn publish_package(args: PublishArgs) -> Result<()> {
+async fn publish_package(args: PublishInput) -> Result<()> {
     println!("📦 Publishing package to P2P network...");
 
     #[cfg(feature = "p2p")]
@@ -375,7 +381,7 @@ async fn publish_package(args: PublishArgs) -> Result<()> {
 }
 
 /// Search for packages on P2P network
-async fn search_packages(args: SearchArgs) -> Result<()> {
+async fn search_packages(args: SearchInput) -> Result<()> {
     println!("🔍 Searching P2P network for '{}'...", args.query);
 
     #[cfg(feature = "p2p")]
@@ -404,7 +410,7 @@ async fn search_packages(args: SearchArgs) -> Result<()> {
 }
 
 /// List connected peers
-async fn list_peers(args: PeerListArgs) -> Result<()> {
+async fn list_peers(args: PeerListInput) -> Result<()> {
     #[cfg(feature = "p2p")]
     {
         use crate::marketplace::p2p_state;

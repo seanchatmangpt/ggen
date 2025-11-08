@@ -69,7 +69,7 @@ pub struct LoadStats {
 }
 
 /// CLI Arguments for load command
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, serde::Deserialize)]
 pub struct LoadInput {
     /// RDF file to load
     pub file: PathBuf,
@@ -81,6 +81,7 @@ pub struct LoadInput {
     pub base_iri: Option<String>,
 
     /// Merge with existing graph
+    #[serde(default)]
     pub merge: bool,
 }
 
@@ -262,32 +263,68 @@ mod tests {
     }
 }
 
-/// CLI run function - bridges sync CLI to async domain logic
-        // Convert format string to RdfFormat enum
-        let format = args.format.as_ref().map(|f| match f.as_str() {
-            "turtle" | "ttl" => RdfFormat::Turtle,
-            "ntriples" | "nt" => RdfFormat::NTriples,
-            "rdfxml" | "rdf" => RdfFormat::RdfXml,
-            "jsonld" | "json" => RdfFormat::JsonLd,
-            "n3" => RdfFormat::N3,
-            _ => RdfFormat::Turtle,
-        });
+/// Load output for CLI
+#[derive(Debug, Clone, serde::Serialize)]
+pub struct LoadOutput {
+    pub triples_loaded: usize,
+    pub total_triples: usize,
+    pub format: String,
+    pub file_path: String,
+}
 
-        let options = LoadOptions {
-            file_path: args.file.to_string_lossy().to_string(),
-            format,
-            base_iri: args.base_iri.clone(),
-            merge: args.merge,
-        };
+/// Execute load operation - domain logic entry point
+///
+/// This is the main entry point for the load command from CLI
+pub async fn execute_load(input: LoadInput) -> Result<LoadOutput> {
+    // Parse format if provided
+    let format = if let Some(ref format_str) = input.format {
+        match format_str.to_lowercase().as_str() {
+            "turtle" | "ttl" => Some(RdfFormat::Turtle),
+            "ntriples" | "nt" => Some(RdfFormat::NTriples),
+            "rdfxml" | "rdf" | "xml" => Some(RdfFormat::RdfXml),
+            "jsonld" | "json" => Some(RdfFormat::JsonLd),
+            "n3" => Some(RdfFormat::N3),
+            _ => anyhow::bail!("Unsupported format: {}", format_str),
+        }
+    } else {
+        None
+    };
 
-        let stats = load_rdf(options).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to load RDF: {}", e))
-        })?;
+    // Create load options
+    let options = LoadOptions {
+        file_path: input.file.to_string_lossy().to_string(),
+        format,
+        base_iri: input.base_iri.clone(),
+        merge: input.merge,
+    };
 
-        println!("✅ Loaded {} triples from {}", stats.triples_loaded, stats.file_path);
-        println!("📊 Total triples in graph: {}", stats.total_triples);
-        println!("📄 Format: {}", stats.format.as_str());
+    // Perform the actual load
+    let stats = load_rdf(options)?;
 
-        Ok(())
+    Ok(LoadOutput {
+        triples_loaded: stats.triples_loaded,
+        total_triples: stats.total_triples,
+        format: stats.format.as_str().to_string(),
+        file_path: stats.file_path,
     })
+}
+
+/// CLI run function - bridges sync CLI to async domain logic
+pub fn run(args: &LoadInput) -> Result<()> {
+    // Use tokio runtime to execute async function
+    let rt = tokio::runtime::Runtime::new()
+        .context("Failed to create tokio runtime")?;
+
+    let output = rt.block_on(execute_load(args.clone()))?;
+
+    println!("✅ Loaded {} triples from {} ({})",
+        output.triples_loaded,
+        output.file_path,
+        output.format
+    );
+    if args.merge {
+        println!("   Total triples in graph: {}", output.total_triples);
+    }
+
+    Ok(())
 }

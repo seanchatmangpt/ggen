@@ -5,6 +5,16 @@
 use ggen_core::project_generator::{create_new_project, ProjectConfig, ProjectType};
 use ggen_utils::error::Result;
 
+/// New project command input (pure domain type)
+#[derive(Debug, Clone, Default)]
+pub struct NewInput {
+    pub name: String,
+    pub project_type: String,
+    pub framework: Option<String>,
+    pub output: Option<String>,
+    pub skip_install: bool,
+}
+
 /// Project creation result
 #[derive(Debug, Clone)]
 pub struct CreationResult {
@@ -13,19 +23,24 @@ pub struct CreationResult {
 }
 
 /// Create a new project (Chicago TDD: REAL implementation)
-pub fn create_project(args: &crate::cmds::project::NewArgs) -> Result<CreationResult> {
+pub fn create_project(args: &NewInput) -> Result<CreationResult> {
     // Validate project name
     ggen_core::project_generator::common::validate_project_name(&args.name)?;
 
     // Parse project type
     let project_type: ProjectType = args.project_type.parse()?;
 
+    // Convert output path from Option<String> to PathBuf
+    let output_path = args.output.as_deref()
+        .map(std::path::PathBuf::from)
+        .unwrap_or_else(|| std::path::PathBuf::from("."));
+
     // Create project config
     let config = ProjectConfig {
         name: args.name.clone(),
         project_type: project_type.clone(),
         framework: args.framework.clone(),
-        path: args.output.clone(),
+        path: output_path,
     };
 
     // Create project synchronously
@@ -50,8 +65,12 @@ pub fn create_project(args: &crate::cmds::project::NewArgs) -> Result<CreationRe
         }
     };
 
+    // Construct project path from output directory (or current dir if None)
+    let output_dir = args.output.as_deref().unwrap_or(".");
+    let project_path = std::path::Path::new(output_dir).join(&args.name);
+
     Ok(CreationResult {
-        project_path: args.output.join(&args.name).display().to_string(),
+        project_path: project_path.display().to_string(),
         next_steps,
     })
 }
@@ -74,11 +93,11 @@ mod tests {
 
     #[test]
     fn test_next_steps_rust() {
-        let args = crate::cmds::project::NewArgs {
+        let args = NewInput {
             name: "test-project".to_string(),
             project_type: "rust-cli".to_string(),
             framework: None,
-            output: PathBuf::from("/tmp"),
+            output: Some("/tmp".to_string()),
             skip_install: false,
         };
 

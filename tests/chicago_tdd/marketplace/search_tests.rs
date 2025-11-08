@@ -3,7 +3,7 @@
 //! These tests use REAL registry files and verify actual search behavior
 //! following the Classicist School of TDD.
 
-use ggen_cli_lib::domain::marketplace::search::{search_packages, SearchFilters};
+use ggen_domain::marketplace::search::{search_packages, SearchFilters};
 use ggen_utils::error::Result;
 use std::fs;
 use tempfile::TempDir;

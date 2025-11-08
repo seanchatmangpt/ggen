@@ -244,8 +244,10 @@ mod tests {
     }
 }
 
+use serde::{Deserialize, Serialize};
+
 /// CLI Arguments for lint command
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Deserialize)]
 pub struct LintInput {
     /// Template file or reference
     pub template: String,
@@ -257,40 +259,111 @@ pub struct LintInput {
     pub check_schema: bool,
 }
 
-/// CLI run function - bridges sync CLI to async domain logic
-        let options = LintOptions {
-            check_sparql: args.check_sparql,
-            check_schema: args.check_schema,
-        };
+/// Lint output
+#[derive(Debug, Clone, Serialize)]
+pub struct LintOutput {
+    pub errors_found: usize,
+    pub warnings_found: usize,
+    pub template_path: String,
+    pub report: LintReport,
+}
 
-        let report = lint_template(&args.template, &options)?;
+impl Serialize for LintReport {
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut state = serializer.serialize_struct("LintReport", 2)?;
+        state.serialize_field("errors", &self.errors)?;
+        state.serialize_field("warnings", &self.warnings)?;
+        state.end()
+    }
+}
 
-        if report.has_errors() {
-            println!("❌ Lint errors found:");
-            for error in &report.errors {
-                if let Some(line) = error.line {
-                    println!("  Line {}: {}", line, error.message);
-                } else {
-                    println!("  {}", error.message);
-                }
-            }
-        }
+impl Serialize for LintError {
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut state = serializer.serialize_struct("LintError", 2)?;
+        state.serialize_field("line", &self.line)?;
+        state.serialize_field("message", &self.message)?;
+        state.end()
+    }
+}
 
-        if report.has_warnings() {
-            println!("⚠️  Lint warnings:");
-            for warning in &report.warnings {
-                if let Some(line) = warning.line {
-                    println!("  Line {}: {}", line, warning.message);
-                } else {
-                    println!("  {}", warning.message);
-                }
-            }
-        }
+impl Serialize for LintWarning {
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut state = serializer.serialize_struct("LintWarning", 2)?;
+        state.serialize_field("line", &self.line)?;
+        state.serialize_field("message", &self.message)?;
+        state.end()
+    }
+}
 
-        if !report.has_errors() && !report.has_warnings() {
-            println!("✅ Template passed all linting checks");
-        }
+/// Execute lint command - full implementation
+pub async fn execute_lint(input: LintInput) -> Result<LintOutput> {
+    let options = LintOptions {
+        check_sparql: input.check_sparql,
+        check_schema: input.check_schema,
+    };
 
-        Ok(())
+    let report = lint_template(&input.template, &options)?;
+
+    Ok(LintOutput {
+        errors_found: report.errors.len(),
+        warnings_found: report.warnings.len(),
+        template_path: input.template.clone(),
+        report,
     })
+}
+
+/// CLI run function - bridges sync CLI to async domain logic
+pub fn run(args: &LintInput) -> Result<()> {
+    // Use tokio runtime for async execution
+    let runtime = tokio::runtime::Runtime::new()
+        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to create runtime: {}", e)))?;
+
+    let output = runtime.block_on(execute_lint(args.clone()))?;
+
+    println!("📋 Linting template: {}", output.template_path);
+
+    if output.errors_found > 0 {
+        println!("\n❌ Errors found: {}", output.errors_found);
+        for error in &output.report.errors {
+            if let Some(line) = error.line {
+                println!("  Line {}: {}", line, error.message);
+            } else {
+                println!("  {}", error.message);
+            }
+        }
+    }
+
+    if output.warnings_found > 0 {
+        println!("\n⚠️  Warnings found: {}", output.warnings_found);
+        for warning in &output.report.warnings {
+            if let Some(line) = warning.line {
+                println!("  Line {}: {}", line, warning.message);
+            } else {
+                println!("  {}", warning.message);
+            }
+        }
+    }
+
+    if output.errors_found == 0 && output.warnings_found == 0 {
+        println!("✅ No issues found. Template is valid!");
+    }
+
+    // Return error if errors were found
+    if output.errors_found > 0 {
+        return Err(ggen_utils::error::Error::new("Template validation failed"));
+    }
+
+    Ok(())
 }
