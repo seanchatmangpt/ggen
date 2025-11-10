@@ -1,6 +1,6 @@
 [package]
 name = "ggen-utils"
-version = "2.5.0"
+version = "2.5.1"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "Shared utilities for ggen"
 edition = "2021"
