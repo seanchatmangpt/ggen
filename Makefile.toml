@@ -20,12 +20,31 @@ args = ["check"]
 [tasks.build]
 description = "Build in debug mode"
 command = "cargo"
-args = ["build"]
+args = ["build", "-p", "ggen-cli-lib", "--bin", "ggen"]
 
 [tasks.build-release]
 description = "Build in release mode"
 command = "cargo"
-args = ["build", "--release"]
+args = ["build", "--release", "-p", "ggen-cli-lib", "--bin", "ggen"]
+run_task = { name = "verify-binary" }
+
+[tasks.verify-binary]
+description = "Verify ggen binary was built"
+workspace = false
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+if [ -f "target/release/ggen" ]; then
+    echo "✅ Binary found: target/release/ggen"
+    ls -lh target/release/ggen
+elif [ -f "target/debug/ggen" ]; then
+    echo "✅ Binary found: target/debug/ggen"
+    ls -lh target/debug/ggen
+else
+    echo "❌ Binary not found in expected locations"
+    exit 1
+fi
+'''
 
 [tasks.clean]
 description = "Clean build artifacts"
