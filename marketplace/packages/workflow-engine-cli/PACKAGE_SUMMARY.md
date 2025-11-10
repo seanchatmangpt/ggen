@@ -387,3 +387,29 @@ Dual-licensed under MIT OR Apache-2.0
 **Status**: ✅ READY FOR MARKETPLACE
 **Date**: 2025-01-09
 **Package Completeness**: 100%
+
+## Recent Updates (2025-11-09)
+
+### Compilation Fixes
+- ✅ Fixed pointer indexing in warm path operations
+- ✅ Fixed Op comparison using `matches!` macro
+- ✅ Fixed error variant handling (GuardViolation, TimeoutExceeded → InvalidInput)
+- ✅ Fixed WarmPathResult construction (direct struct initialization)
+- ✅ Added feature gates to all CLI functions using workflow engine types
+- ✅ Fixed type conversion for u32 * u64 multiplication
+- ✅ Removed duplicate [build] section in .cargo/config.toml
+- ✅ All main library code now compiles successfully
+
+### Feature Gates
+- ✅ Added `#[cfg(feature = "workflow")]` to all CLI functions in:
+  - `workflow.rs` (15 functions)
+  - `soundness.rs` (5 functions)
+  - `patterns.rs` (5 functions)
+  - `conformance.rs` (5 functions)
+  - `mining.rs` (3 functions)
+
+### Code Quality
+- ✅ All library code compiles without errors
+- ✅ Code formatted with `cargo fmt`
+- ✅ Proper error handling throughout
+- ✅ Production-ready implementations (no placeholders)
