@@ -57,7 +57,7 @@ jobs:
         run: cargo install cargo-make --locked --force
 
       - name: Run unit tests
-        run: cargo test --lib
+        run: cargo test --workspace --lib
 
       - name: Run integration tests
         run: cargo test --test cli --test marketplace --test e2e_github_integration --test e2e_lockfile_sha256 --test e2e_marketplace --test e2e_pqc_infrastructure --test e2e_production_marketplace
