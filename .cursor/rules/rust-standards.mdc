@@ -1,0 +1,115 @@
+---
+description: Rust-specific coding standards for ggen
+globs:
+  - "crates/**/*.rs"
+alwaysApply: false
+---
+
+# Rust Coding Standards for ggen
+
+## Build System Usage
+
+### CRITICAL: Use cargo make, Not Direct Cargo Commands
+
+**NEVER use these directly:**
+- ❌ `cargo check`
+- ❌ `cargo build`
+- ❌ `cargo test`
+- ❌ `cargo clippy`
+- ❌ `cargo fmt`
+
+**ALWAYS use these cargo make tasks instead:**
+- ✅ `cargo make check` - Check compilation without building
+- ✅ `cargo make build` - Build all Rust crates
+- ✅ `cargo make test` - Run all Rust tests
+- ✅ `cargo make lint` - Lint Rust code (clippy)
+- ✅ `cargo make fmt` - Format Rust code (NEVER use `cargo fmt` directly)
+- ✅ `cargo make ci` - Run full CI pipeline
+
+**Rationale:**
+- cargo make ensures consistent build configuration
+- cargo make handles workspace-level operations correctly
+- cargo make includes proper timeouts and error handling
+- cargo make provides consistent output formatting
+
+## Error Handling
+
+- **Never use `unwrap()` or `expect()` in production code paths** - ggen strict rule
+- Use `Result<T, E>` for all fallible operations
+- Libraries use typed errors via `ggen_utils::error::Result`
+- Clear, actionable error messages. No swallowing.
+- `anyhow` only in binaries (CLI), not in libraries
+
+## Async/Sync Patterns
+
+### ❌ NEVER make trait methods async - breaks dyn compatibility
+```rust
+// ❌ Bad: Async trait methods break dyn compatibility
+pub trait ServicePlugin: Send + Sync {
+    async fn start(&self) -> Result<ServiceHandle>; // BREAKS dyn ServicePlugin!
+}
+
+// ✅ Good: Keep trait methods sync, use async in implementations
+pub trait ServicePlugin: Send + Sync {
+    fn start(&self) -> Result<ServiceHandle>; // dyn compatible
+}
+
+// Implementation can still be async internally
+impl ServicePlugin for MyPlugin {
+    fn start(&self) -> Result<ServiceHandle> {
+        tokio::task::block_in_place(|| {
+            tokio::runtime::Handle::current().block_on(async {
+                // Async operations here
+                Ok(ServiceHandle::new())
+            })
+        })
+    }
+}
+```
+
+### ✅ Use async for I/O and long-running operations
+- Use `async` for file operations, network, containers, database queries
+- Use `sync` for pure computation and simple operations
+- Never block async contexts with `std::thread::sleep` - use `tokio::time::sleep` instead
+
+## Trait Design
+
+- Keep traits `dyn` compatible - never use async trait methods
+
+## Testing
+
+- Test all public APIs
+- Test error paths and edge cases
+- **Test behaviors, not implementation details** - Focus on what code does, not how
+- Tests must verify observable outputs/state changes, not just that functions return Ok/Err
+- Use deterministic snapshots via `insta` for regression testing
+- Use fixed seeds for reproducible tests
+- Single-threaded async tests `--test-threads=1` for determinism
+
+## Deterministic Outputs
+
+- Same inputs → identical outputs
+- Use snapshot testing with `insta` to guard regressions
+- Fixed seeds for all random operations in tests
+- Mock FS, network, time for deterministic tests
+
+## RDF and Template Generation
+
+- RDF/JSON-LD as semantic source of truth
+- SPARQL for var extraction
+- Validate graphs and templates before generation
+- Deterministic transformation given seed + inputs
+- Template frontmatter (YAML) must include: `to`, `vars`, `rdf`, `sparql`, `determinism`
+
+## Performance
+
+- Maintain ggen SLOs:
+  * First build ≤ 15s
+  * Incremental ≤ 2s
+  * RDF processing ≤ 5s for 1k+ triples
+  * Generation memory ≤ 100MB
+  * CLI scaffolding ≤ 3s end-to-end
+- Stream large graphs. Avoid whole-graph loads.
+- Cache repeated query and template steps.
+- Minimize deps. Enable LTO in release.
+- Profile hot paths. Optimize allocations.
