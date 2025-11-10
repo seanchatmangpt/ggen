@@ -77,6 +77,25 @@ description = "Integration tests only"
 command = "cargo"
 args = ["test", "--test"]
 
+[tasks.test-single-threaded]
+description = "Run tests in single-threaded mode for deterministic execution"
+workspace = false
+command = "cargo"
+args = ["test", "--workspace", "--", "--test-threads", "1"]
+env = { "RUST_TEST_THREADS" = "1" }
+
+[tasks.deterministic]
+description = "Run deterministic tests with fixed seeds and single-threaded execution"
+workspace = false
+command = "cargo"
+args = ["test", "--workspace", "--", "--test-threads", "1"]
+env = { "RUST_TEST_THREADS" = "1", "RNG_SEED" = "42" }
+
+[tasks.validate-outputs]
+description = "Validate deterministic outputs (runs deterministic tests)"
+workspace = false
+dependencies = ["deterministic"]
+
 [tasks.test-testcontainers]
 description = "Run testcontainers production readiness validation tests"
 command = "cargo"

@@ -1,0 +1,142 @@
+---
+description: RDF and template generation standards for ggen
+globs:
+  - "crates/ggen-core/**/*.rs"
+  - "crates/ggen-ai/**/*.rs"
+  - "templates/**/*.tmpl"
+alwaysApply: false
+---
+
+# RDF and Template Generation Standards
+
+## Core Principles
+
+- **RDF/JSON-LD as semantic source of truth** - All metadata comes from RDF graphs
+- **Templates are blueprints** - Templates define code structure
+- **Deterministic transformation** - Same inputs → identical outputs
+- **SPARQL for extraction** - Use SPARQL queries to extract template variables
+
+## RDF Standards
+
+### Graph Management
+
+- Load RDF graphs using `ggen-core` graph management
+- Validate graphs before processing
+- Support multiple RDF formats: Turtle, JSON-LD, RDF/XML
+- Use `cargo make validate-rdf` to validate RDF graphs
+
+### SPARQL Queries
+
+- Prefer compile-time checked SPARQL builders
+- Extract template variables via SPARQL queries
+- Cache repeated queries for performance
+- Validate queries before execution
+
+### Graph Processing
+
+- Process graphs deterministically
+- Maintain graph order consistency
+- Stream large graphs (avoid whole-graph loads)
+- RDF processing SLO: ≤ 5s for 1k+ triples
+
+## Template Standards
+
+### Template Files
+
+- Use `.tmpl` extension
+- Organized under `templates/` directory
+- YAML frontmatter required
+
+### Template Frontmatter
+
+Required YAML keys:
+- `to` - Output file path
+- `vars` - Template variables (extracted from RDF)
+- `rdf` - RDF graph source (optional)
+- `sparql` - SPARQL query for variable extraction (optional)
+- `determinism` - Determinism guarantees
+
+### Template Rendering
+
+- Use Tera templating engine
+- Variables extracted from RDF via SPARQL
+- Deterministic rendering (same inputs → same output)
+- No side effects in template rendering
+- Validate templates before generation
+
+### Multi-Language Support
+
+- Templates can target multiple languages
+- Language-specific template variants supported
+- Template frontmatter can specify target language
+
+## Generation Pipeline
+
+### Steps
+
+1. **Load RDF Graph** - Load and validate RDF graph
+2. **Extract Variables** - Use SPARQL to extract template variables
+3. **Render Template** - Render template with extracted variables
+4. **Validate Output** - Validate generated code
+5. **Write Output** - Write to target file
+
+### Validation
+
+- `cargo make validate-rdf` - Validate RDF graphs
+- `cargo make validate-templates` - Validate template security
+- Validate graphs and templates before generation
+
+## Security
+
+- Validate all inputs
+- Sanitize paths (deny traversal)
+- Sandbox template execution
+- No arbitrary code eval
+- Audit log security events
+
+## Performance
+
+- Stream large graphs
+- Cache repeated query and template steps
+- RDF processing ≤ 5s for 1k+ triples
+- Generation memory ≤ 100MB
+- CLI scaffolding ≤ 3s end-to-end
+
+## Examples
+
+### Template Frontmatter
+```yaml
+---
+to: src/main.rs
+vars:
+  - name: project_name
+    type: string
+    from: rdf
+sparql: |
+  SELECT ?name WHERE {
+    ?project ex:name ?name .
+  }
+determinism: true
+---
+// Template content here
+pub fn main() {
+    println!("Hello, {{ project_name }}!");
+}
+```
+
+### RDF Graph Loading
+```rust
+use ggen_core::graph::Graph;
+
+let graph = Graph::load("data.ttl")?;
+graph.validate()?;
+let vars = graph.query_sparql(&sparql_query)?;
+```
+
+### Template Rendering
+```rust
+use ggen_core::template::Template;
+
+let template = Template::load("templates/main.rs.tmpl")?;
+let output = template.render(&vars)?;
+```

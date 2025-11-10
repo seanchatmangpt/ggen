@@ -42,6 +42,12 @@ SPR: ggen — language-agnostic, deterministic code projection CLI
   * No `unwrap` or `expect` in libs. `anyhow` only in binaries.
   * Unsafe only at FFI with safety docs.
   * Prefer const generics and `const fn` when they reduce runtime cost and encode constraints.
+  * **Required Patterns (80/20 Production-Ready Standards)**:
+    * Real implementations - No placeholders or stubs
+    * Error handling - Result<T, E> for all fallible operations
+    * Feature gating - #[cfg(feature = "...")] for optional dependencies
+    * Test verification - All code must be testable and tested
+    * Behavior verification - Tests must verify what code does (observable outputs/state), not just that functions exist
 
 * Errors:
 
@@ -112,6 +118,11 @@ SPR: ggen — language-agnostic, deterministic code projection CLI
   * Single-threaded async tests `--test-threads=1`.
   * Fixed seeds. Mock FS, network, time.
   * Run `--release`, `--debug`, and feature variants.
+  * **Test behavior, not existence** - Tests must verify observable outputs/state changes, not just that functions return Ok/Err
+  * **Never trust claims** - Verify with tests. Test results are truth.
+  * All public APIs must be tested
+  * Test error paths and edge cases
+  * Test critical paths (aim for 80%+ coverage)
 
 * Determinism:
 
@@ -142,13 +153,21 @@ SPR: ggen — language-agnostic, deterministic code projection CLI
   * Completions for template vars and SPARQL builders.
   * Live preview of generated code. Source maps for debugging.
 
-* Must not:
+* Prohibited Patterns (80/20 Production-Ready Standards):
 
   * **NEVER USE DIRECT CARGO COMMANDS - ALWAYS USE `cargo make`**
   * **NEVER USE `cargo fmt`, `cargo clippy`, `cargo test` DIRECTLY**
   * **NEVER USE `cargo build` WITHOUT `cargo make`**
+  * No placeholders - No "In production, this would..." comments
+  * No TODOs - No TODO comments except clearly documented future enhancements (use FUTURE: prefix)
+  * No unimplemented!() - Complete implementations required, no stubs
+  * No unwrap()/expect() in production code - Use Result<T, E> error handling
+  * No stubs - No functions that always succeed without implementation
+  * No simulated behavior - Use real libraries when available
+  * No claims without verification - Never claim code works without test validation
+  * No defensive programming in execution paths - Validation happens at ingress only
+  * No meaningless tests - Tests must verify observable outputs/state changes, not just assert_ok!()
   * No new top-level files or renames without docs + CI.
-  * No TODOs or placeholders in libs.
   * No hardcoded outputs in prod paths.
   * No cfg mazes. Prefer explicit features.
   * No swallowing errors. No compromise on type safety.
@@ -165,6 +184,17 @@ SPR: ggen — language-agnostic, deterministic code projection CLI
   * Clear errors. Meets SLOs. Docs and examples updated.
   * Cross-platform validated. No placeholders.
   * Drop-in compatible. Outputs deterministic. RDF validated.
+  * **Code Review Checklist**:
+    * [ ] All functions have proper error handling (Result<T, E>)
+    * [ ] No unwrap() or panic!() in production paths
+    * [ ] Real implementations, not placeholders
+    * [ ] Feature-gated when dependencies are optional
+    * [ ] Tests cover critical paths and verify observable outputs
+    * [ ] Resources are properly cleaned up
+    * [ ] No secrets or credentials in code
+    * [ ] Code verified with tests (test results are truth)
+    * [ ] Tests verify observable outputs/state changes, not just function existence
+    * [ ] **Build system**: Used `cargo make` commands instead of direct cargo commands
 
 * Metaphors to prime:
 

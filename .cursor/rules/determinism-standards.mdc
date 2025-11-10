@@ -1,0 +1,105 @@
+---
+description: Deterministic output requirements for ggen
+globs:
+  - "crates/**/*.rs"
+  - "tests/**/*.rs"
+alwaysApply: false
+---
+
+# Determinism Standards for ggen
+
+## Core Principle
+
+**Same inputs → identical outputs**
+
+ggen is a deterministic code generation framework. All operations must produce identical outputs given the same inputs and seed.
+
+## Requirements
+
+### 1. Deterministic Code Generation
+
+- Template rendering must be deterministic
+- RDF graph processing must be deterministic
+- SPARQL query execution must be deterministic
+- File generation must produce identical bytes for same inputs
+
+### 2. Snapshot Testing
+
+- Use `insta` crate for snapshot testing
+- Snapshots guard regressions
+- All generated code should have snapshot tests
+- Snapshots must be deterministic (no timestamps, random IDs, etc.)
+
+### 3. Fixed Seeds
+
+- All random operations must use fixed seeds in tests
+- Use `cargo make test-single-threaded` for deterministic tests
+- Use `cargo make deterministic` for fixed seed validation
+- Never use system time or random number generators without seeds in generation code
+
+### 4. RDF Graph Validation
+
+- RDF graphs must be validated before generation
+- SPARQL queries must produce deterministic results
+- Graph processing order must be deterministic
+- Use `cargo make validate-rdf` to validate RDF graphs
+
+### 5. Template Rendering
+
+- Template variables must be deterministically extracted
+- Template rendering must produce identical outputs
+- No side effects in template rendering
+- Template frontmatter must include `determinism` key
+
+### 6. Test Determinism
+
+- Single-threaded async tests: `--test-threads=1`
+- Fixed seeds for all random operations
+- Mock FS, network, time for deterministic tests
+- Run tests in `--release`, `--debug`, and feature variants
+
+## Verification
+
+### Commands
+
+- `cargo make deterministic` - Run deterministic tests with fixed seeds
+- `cargo make test-single-threaded` - Run tests in single-threaded mode
+- `cargo make validate-rdf` - Validate RDF graphs for determinism
+
+### Checklist
+
+- [ ] All generated code produces identical outputs for same inputs
+- [ ] Snapshot tests pass consistently
+- [ ] No timestamps or random values in generated code
+- [ ] RDF processing is deterministic
+- [ ] Template rendering is deterministic
+- [ ] Tests use fixed seeds
+- [ ] Tests run deterministically (single-threaded)
+
+## Examples
+
+### ✅ Good: Deterministic Template Rendering
+```rust
+// Template variables extracted deterministically
+let vars = extract_template_vars(&template, &graph)?;
+let rendered = template.render(&vars)?;
+// Same template + same graph → same output
+```
+
+### ❌ Bad: Non-Deterministic Generation
+```rust
+// ❌ Bad: Uses current time
+let timestamp = chrono::Utc::now().to_rfc3339();
+
+// ✅ Good: Use fixed seed or deterministic value
+let timestamp = "2024-01-01T00:00:00Z"; // Or use seed-based generation
+```
+
+### ✅ Good: Snapshot Testing
+```rust
+#[test]
+fn test_template_generation() {
+    let output = generate_code(&template, &graph)?;
+    insta::assert_snapshot!(output);
+}
+```

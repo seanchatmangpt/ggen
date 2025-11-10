@@ -1,0 +1,98 @@
+---
+description: Build system and development workflow practices for ggen
+globs:
+  - "**/Makefile.toml"
+  - "**/Cargo.toml"
+alwaysApply: false
+---
+
+# Build System and Development Workflow Practices
+
+## CRITICAL: Use cargo make, Not Direct Cargo Commands
+
+**NEVER use these directly:**
+- ❌ `cargo check`
+- ❌ `cargo build`
+- ❌ `cargo test`
+- ❌ `cargo clippy`
+- ❌ `cargo fmt`
+
+**ALWAYS use these cargo make tasks instead:**
+- ✅ `cargo make check` - Check compilation without building
+- ✅ `cargo make build` - Build all Rust crates
+- ✅ `cargo make test` - Run all Rust tests
+- ✅ `cargo make lint` - Lint Rust code (clippy)
+- ✅ `cargo make fmt` - Format Rust code (NEVER use `cargo fmt` directly)
+- ✅ `cargo make ci` - Run full CI pipeline
+
+**Rationale:**
+- cargo make ensures consistent build configuration
+- cargo make handles workspace-level operations correctly
+- cargo make includes proper timeouts and error handling
+- cargo make provides consistent output formatting
+
+## SLOs (Service Level Objectives)
+
+### Build Performance
+- First build ≤ 15s
+- Incremental ≤ 2s
+
+### Runtime Performance
+- RDF processing ≤ 5s for 1k+ triples
+- Generation memory ≤ 100MB
+- CLI scaffolding ≤ 3s end-to-end
+
+### Quality
+- 100% reproducible outputs
+- Deterministic transformation given seed + inputs
+
+## Workspace Structure
+
+ggen uses a Cargo workspace with the following crates:
+- `crates/ggen-utils` - Shared utilities
+- `crates/ggen-cli` - CLI interface (binary: `ggen`)
+- `crates/ggen-domain` - Domain logic layer
+- `crates/ggen-core` - Core generation engine
+- `crates/ggen-ai` - AI/LLM integration
+- `crates/ggen-marketplace` - Package marketplace
+- `crates/ggen-node` - Node.js bindings
+
+## Common Tasks
+
+### Development
+- `cargo make check` - Quick compilation check
+- `cargo make build` - Build debug binary
+- `cargo make build-release` - Build release binary
+- `cargo make test` - Run all tests
+- `cargo make fmt` - Format code
+- `cargo make lint` - Run clippy
+
+### Testing
+- `cargo make test` - Run all tests
+- `cargo make test-unit` - Unit tests only
+- `cargo make test-integration` - Integration tests only
+- `cargo make test-single-threaded` - Deterministic single-threaded tests
+- `cargo make deterministic` - Fixed seed tests
+
+### Quality Assurance
+- `cargo make ci` - Full CI pipeline (fmt, lint, test, audit)
+- `cargo make audit` - Security audit
+- `cargo make slo-check` - Verify performance SLOs
+
+### Documentation
+- `cargo make docs-build` - Build documentation
+- `cargo make docs-serve` - Serve documentation locally
+
+## Git Hooks
+
+Install git hooks with:
+```bash
+./scripts/install-git-hooks.sh
+```
+
+Hooks enforce:
+- No `unwrap()`/`expect()` in production code
+- No `unimplemented!()` placeholders (main branch)
+- No TODO/FUTURE comments (main branch)
+- Code formatting (via `cargo make fmt`)
+- Clippy checks (via `cargo make lint`)
