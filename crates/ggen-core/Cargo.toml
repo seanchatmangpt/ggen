@@ -1,6 +1,6 @@
 [package]
 name = "ggen-core"
-version = "2.5.0"
+version = "2.5.1"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "Core graph-aware code generation engine"
 edition = "2021"
@@ -14,7 +14,7 @@ categories = ["development-tools", "command-line-utilities"]
 multiple_crate_versions = "allow"
 
 [dependencies]
-ggen-utils = { path = "../ggen-utils", version = "2.5.0" }
+ggen-utils = { path = "../ggen-utils", version = "2.5.1" }
 anyhow = "1.0"
 tera = "1.20"
 oxigraph = "0.5"

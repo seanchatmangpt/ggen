@@ -1,6 +1,6 @@
 [package]
 name = "ggen"
-version = "2.5.0"
+version = "2.5.1"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 edition = "2021"
 repository = "https://github.com/seanchatmangpt/ggen"
@@ -26,7 +26,11 @@ members = [
   "examples/ai-template-project",
   "crates/ggen-node",
 ]
-exclude = ["examples/rust-cli-lifecycle", "examples/marketplace-demo/generated"]
+exclude = [
+  "examples/rust-cli-lifecycle",
+  "examples/marketplace-demo/generated",
+  "marketplace/packages/workflow-engine-cli",
+]
 resolver = "2" # Use new resolver for better dependency resolution
 
 # Workspace-wide dependencies for version consistency
@@ -96,10 +100,10 @@ syslog = ["ggen-utils/syslog"]
 london_tdd = []
 
 [dependencies]
-ggen-utils = { path = "crates/ggen-utils", version = "2.5.0" }
-ggen-cli-lib = { path = "crates/ggen-cli", version = "2.5.0" }
-ggen-core = { path = "crates/ggen-core", version = "2.5.0" }
-ggen-ai = { path = "crates/ggen-ai", version = "2.5.0" }
+ggen-utils = { path = "crates/ggen-utils", version = "2.5.1" }
+ggen-cli-lib = { path = "crates/ggen-cli", version = "2.5.1" }
+ggen-core = { path = "crates/ggen-core", version = "2.5.1" }
+ggen-ai = { path = "crates/ggen-ai", version = "2.5.1" }
 human-panic = "2.0.3"
 better-panic = "0.3.0"
 log = "0.4.28"
@@ -144,13 +148,16 @@ genai = "0.4"
 proptest.workspace = true
 # Cleanroom integration for CLI testing
 clnrm = "0.1.0"
+testcontainers = "0.25"
+testcontainers-modules = "0.13"
+rand = "0.8"
 mockall = "0.13"
 fake = "2.9"
 opentelemetry.workspace = true
 opentelemetry-otlp.workspace = true
 opentelemetry_sdk.workspace = true
 futures.workspace = true
-ggen-marketplace = { path = "crates/ggen-marketplace", version = "2.5.0" }
+ggen-marketplace = { path = "crates/ggen-marketplace", version = "2.5.1" }
 tracing.workspace = true
 tracing-subscriber.workspace = true
 tracing-opentelemetry.workspace = true

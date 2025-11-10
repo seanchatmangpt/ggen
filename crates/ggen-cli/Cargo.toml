@@ -1,6 +1,6 @@
 [package]
 name = "ggen-cli-lib"
-version = "2.5.0"
+version = "2.5.1"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "CLI interface for ggen"
 edition = "2021"
@@ -41,10 +41,10 @@ uuid.workspace = true
 futures.workspace = true
 
 # Local dependencies
-ggen-utils = { path = "../ggen-utils", version = "2.5.0" }
-ggen-core = { path = "../ggen-core", version = "2.5.0" }
-ggen-ai = { path = "../ggen-ai", version = "2.5.0" }
-ggen-marketplace = { path = "../ggen-marketplace", version = "2.5.0" }
+ggen-utils = { path = "../ggen-utils", version = "2.5.1" }
+ggen-core = { path = "../ggen-core", version = "2.5.1" }
+ggen-ai = { path = "../ggen-ai", version = "2.5.1" }
+ggen-marketplace = { path = "../ggen-marketplace", version = "2.5.1" }
 ggen-domain = { path = "../ggen-domain", version = "3.0.0" }
 
 # Crate-specific dependencies
