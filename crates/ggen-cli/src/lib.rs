@@ -16,6 +16,13 @@ pub use clap_noun_verb::{run, CommandRouter, Result as ClapNounVerbResult};
 /// This function delegates to clap-noun-verb::run() which automatically discovers
 /// all #[verb] functions in the cmds module and its submodules.
 pub async fn cli_match() -> ggen_utils::error::Result<()> {
+    // Handle --version flag before delegating to clap-noun-verb
+    let args: Vec<String> = std::env::args().collect();
+    if args.iter().any(|arg| arg == "--version" || arg == "-V") {
+        println!("ggen {}", env!("CARGO_PKG_VERSION"));
+        return Ok(());
+    }
+    
     // Use clap-noun-verb auto-discovery
     clap_noun_verb::run()
         .map_err(|e| anyhow::anyhow!("CLI execution failed: {}", e))?;

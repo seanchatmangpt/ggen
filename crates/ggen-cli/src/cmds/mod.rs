@@ -21,6 +21,13 @@ use ggen_utils::error::Result;
 
 /// Setup and run the command router using clap-noun-verb v3.4.0 auto-discovery
 pub fn run_cli() -> Result<()> {
+    // Handle --version flag before delegating to clap-noun-verb
+    let args: Vec<String> = std::env::args().collect();
+    if args.iter().any(|arg| arg == "--version" || arg == "-V") {
+        println!("ggen {}", env!("CARGO_PKG_VERSION"));
+        return Ok(());
+    }
+    
     // Use clap-noun-verb's auto-discovery to find all #[verb] functions
     clap_noun_verb::run()
         .map_err(|e| anyhow::anyhow!("CLI execution failed: {}", e))?;

@@ -28,15 +28,28 @@ ggen template generate-rdf --ontology domain.ttl --template python-pydantic
 
 ### Install
 ```bash
-# macOS/Linux (Homebrew)
-brew install seanchatmangpt/ggen/ggen
+# macOS/Linux (Homebrew) - Recommended
+brew tap seanchatmangpt/tap
+brew install ggen
 
 # From crates.io
 cargo install ggen
 
 # From source
 git clone https://github.com/seanchatmangpt/ggen && cd ggen
-cargo install --path crates/ggen-cli --force
+cargo install --path crates/ggen-cli --bin ggen --force
+```
+
+### Verify Installation
+```bash
+ggen --version
+# Should output: ggen 2.5.0
+```
+
+**Note:** If using `asdf` for Rust version management, you may need to reshim after installation:
+```bash
+asdf reshim rust
+ggen --version  # Verify it works now
 ```
 
 ### Your First Generation
@@ -359,6 +372,112 @@ A: 2 minutes to first generation (AI-powered). 20 minutes to understand ontology
 A: **Yes!** That's Pattern #3. Install proven template, merge with your domain extensions, generate. Best of both worlds.
 
 **More questions?** → [GitHub Discussions](https://github.com/seanchatmangpt/ggen/discussions)
+
+---
+
+## 🔧 Troubleshooting
+
+### Command Not Found After Installation
+
+**If `ggen` command is not found:**
+
+```bash
+# Check if ggen is installed
+which ggen
+
+# If using asdf for Rust version management
+asdf reshim rust
+# Then verify:
+ggen --version
+
+# If using cargo install, check PATH
+echo $PATH | grep -E "(cargo|\.cargo)"
+# If missing, add to your shell profile:
+# For bash: echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> ~/.bashrc
+# For zsh:  echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> ~/.zshrc
+# Then reload: source ~/.bashrc  # or source ~/.zshrc
+
+# If using Homebrew, verify installation
+brew list ggen
+# Reinstall if needed:
+brew reinstall ggen
+```
+
+### Build Errors
+
+**If building from source fails:**
+
+```bash
+# Ensure Rust toolchain is up to date
+rustup update stable
+
+# Clean and rebuild
+cargo clean
+cargo build --release -p ggen-cli-lib --bin ggen
+
+# If missing system dependencies (macOS)
+brew install libgit2
+
+# Verify build configuration
+cargo make verify-binary
+```
+
+### Version Flag Not Working
+
+**If `ggen --version` shows an error:**
+
+```bash
+# Verify binary was built correctly
+ls -lh target/release/ggen  # or target/debug/ggen
+
+# Rebuild with explicit binary target
+cargo build --release -p ggen-cli-lib --bin ggen
+
+# Reinstall
+cargo install --path crates/ggen-cli --bin ggen --force
+```
+
+### Homebrew Installation Issues
+
+**If Homebrew installation fails:**
+
+```bash
+# Update Homebrew
+brew update
+
+# Tap the repository
+brew tap seanchatmangpt/tap
+
+# Install with verbose output
+brew install -v ggen
+
+# Check for issues
+brew doctor
+```
+
+### PATH Issues
+
+**If ggen is installed but not in PATH:**
+
+```bash
+# Find where ggen is installed
+find ~ -name ggen -type f 2>/dev/null | head -5
+
+# Common locations:
+# - ~/.cargo/bin/ggen (cargo install)
+# - ~/.asdf/installs/rust/*/bin/ggen (asdf)
+# - /opt/homebrew/bin/ggen (Homebrew on Apple Silicon)
+# - /usr/local/bin/ggen (Homebrew on Intel Mac)
+
+# Add to PATH temporarily
+export PATH="$HOME/.cargo/bin:$PATH"
+
+# Or permanently (add to ~/.bashrc or ~/.zshrc)
+echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+```
+
+**Still having issues?** Check the [full troubleshooting guide](docs/install.md#troubleshooting-installation) or [open an issue](https://github.com/seanchatmangpt/ggen/issues).
 
 ---
 
