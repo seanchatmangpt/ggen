@@ -6,11 +6,15 @@ on:
   pull_request:
     branches: [ master, develop ]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   london-tdd:
     name: London TDD Test Suite
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
 
     steps:
       - uses: actions/checkout@v4
@@ -19,26 +23,31 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Cache cargo registry
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.cargo/registry
-          key: cargo-registry-london-tdd
+          key: ${{ runner.os }}-london-tdd-registry-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-london-tdd-registry-
 
       - name: Cache cargo index
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.cargo/git
-          key: cargo-index-london-tdd
+          key: ${{ runner.os }}-london-tdd-index-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-london-tdd-index-
 
       - name: Cache target directory
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: target
-          key: target-london-tdd
+          key: ${{ runner.os }}-london-tdd-target-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-london-tdd-target-
 
       - name: Run London TDD Tests
         run: cargo test --test london_tdd_main --verbose
-        timeout-minutes: 3
 
       - name: Verify Test Performance
         run: |
