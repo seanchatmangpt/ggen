@@ -21,9 +21,15 @@ ignore_errors = false
 
 # Core development tasks - with timeout wrappers
 [tasks.check]
-description = "Check code without building"
+description = "Check code without building (quick feedback, 5s timeout)"
 command = "timeout"
 args = ["5s", "cargo", "check"]
+
+# Pre-push check with longer timeout for lock contention scenarios
+[tasks.check-pre-push]
+description = "Check code for pre-push hook (30s timeout for lock contention)"
+command = "timeout"
+args = ["30s", "cargo", "check"]
 
 [tasks.build]
 description = "Build in debug mode"
