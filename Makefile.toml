@@ -11,21 +11,38 @@ ACT_PLATFORM = "ubuntu-latest=catthehacker/ubuntu:act-latest"
 ACT_MEMORY = "2g"
 ACT_CPUS = "2"
 
-# Core development tasks
+# Verify timeout command exists before running any task
+[tasks.timeout-check]
+description = "Verify timeout command exists (required for all tasks)"
+workspace = false
+command = "command"
+args = ["-v", "timeout"]
+ignore_errors = false
+
+# Core development tasks - with timeout wrappers
 [tasks.check]
 description = "Check code without building"
-command = "cargo"
-args = ["check"]
+command = "timeout"
+args = ["5s", "cargo", "check"]
 
 [tasks.build]
 description = "Build in debug mode"
-command = "cargo"
-args = ["build", "-p", "ggen-cli-lib", "--bin", "ggen"]
+command = "timeout"
+args = ["10s", "cargo", "build", "-p", "ggen-cli-lib", "--bin", "ggen"]
 
 [tasks.build-release]
 description = "Build in release mode"
-command = "cargo"
-args = ["build", "--release", "-p", "ggen-cli-lib", "--bin", "ggen"]
+command = "timeout"
+args = [
+  "30s",
+  "cargo",
+  "build",
+  "--release",
+  "-p",
+  "ggen-cli-lib",
+  "--bin",
+  "ggen",
+]
 run_task = { name = "verify-binary" }
 
 [tasks.verify-binary]
@@ -48,47 +65,93 @@ fi
 
 [tasks.clean]
 description = "Clean build artifacts"
-command = "cargo"
-args = ["clean"]
+command = "timeout"
+args = ["5s", "cargo", "clean"]
 
 [tasks.fmt]
 description = "Format code"
-command = "cargo"
-args = ["fmt", "--all"]
+command = "timeout"
+args = ["5s", "cargo", "fmt", "--all"]
 
 [tasks.lint]
 description = "Run clippy with strict settings"
-command = "cargo"
-args = ["clippy", "--all-targets", "--all-features", "--", "-D", "warnings"]
+command = "timeout"
+args = [
+  "5s",
+  "cargo",
+  "clippy",
+  "--all-targets",
+  "--all-features",
+  "--",
+  "-D",
+  "warnings",
+]
+
+[tasks.pre-commit]
+description = "Run pre-commit validation checks (format, lint, test, hooks)"
+workspace = false
+dependencies = ["timeout-check", "fmt", "lint", "test"]
+script_runner = "@shell"
+script = '''
+# Run git hook validation if available
+if [ -f .git/hooks/pre-commit ]; then
+  echo "🔍 Running pre-commit hook validation..."
+  .git/hooks/pre-commit || {
+    echo "❌ Pre-commit hook validation failed"
+    echo "   Fix all issues before committing"
+    exit 1
+  }
+  echo "✅ Pre-commit hook validation passed"
+else
+  echo "⚠️  No pre-commit hook found, skipping hook validation"
+  echo "   Run: scripts/install-git-hooks.sh to install hooks"
+fi
+'''
 
 [tasks.test]
 description = "Run all tests"
-command = "cargo"
-args = ["test", "--workspace", "--no-default-features"]
+command = "timeout"
+args = ["30s", "cargo", "test", "--workspace", "--no-default-features"]
 workspace = false
 
 [tasks.test-unit]
 description = "Unit tests only"
-command = "cargo"
-args = ["test", "--lib"]
+command = "timeout"
+args = ["10s", "cargo", "test", "--lib"]
 
 [tasks.test-integration]
 description = "Integration tests only"
-command = "cargo"
-args = ["test", "--test"]
+command = "timeout"
+args = ["30s", "cargo", "test", "--test"]
+
+[tasks.test-timings]
+description = "Run tests and generate timing report to identify slow tests"
+workspace = false
+command = "timeout"
+args = [
+  "30s",
+  "cargo",
+  "test",
+  "--workspace",
+  "--",
+  "--test-threads",
+  "1",
+  "--nocapture",
+  "--report-time",
+]
 
 [tasks.test-single-threaded]
 description = "Run tests in single-threaded mode for deterministic execution"
 workspace = false
-command = "cargo"
-args = ["test", "--workspace", "--", "--test-threads", "1"]
+command = "timeout"
+args = ["30s", "cargo", "test", "--workspace", "--", "--test-threads", "1"]
 env = { "RUST_TEST_THREADS" = "1" }
 
 [tasks.deterministic]
 description = "Run deterministic tests with fixed seeds and single-threaded execution"
 workspace = false
-command = "cargo"
-args = ["test", "--workspace", "--", "--test-threads", "1"]
+command = "timeout"
+args = ["30s", "cargo", "test", "--workspace", "--", "--test-threads", "1"]
 env = { "RUST_TEST_THREADS" = "1", "RNG_SEED" = "42" }
 
 [tasks.validate-outputs]
@@ -696,11 +759,59 @@ description = "Comprehensive GitHub Pages setup validation"
 workspace = false
 command = "./scripts/gh-pages-setup-check.sh"
 
+# ============================================================================
+# Marketplace Validation Tasks
+# ============================================================================
+
+[tasks.marketplace-validate]
+description = "Validate all marketplace packages for production readiness"
+workspace = false
+command = "./marketplace/scripts/validate_all_packages.sh"
+
+[tasks.marketplace-validate-update]
+description = "Validate all packages and update production_ready flags"
+workspace = false
+command = "./marketplace/scripts/update_production_flags.sh"
+
+[tasks.marketplace-report]
+description = "Generate validation reports for all marketplace packages"
+workspace = false
+command = "./marketplace/scripts/generate_validation_report.sh"
+
+# ============================================================================
+# Compilation Validation Tasks (Root Cause Prevention)
+# ============================================================================
+
+[tasks.check-all-crates]
+description = "Check all crates compile (prevents type mismatch errors)"
+workspace = false
+command = "cargo"
+args = ["check", "--workspace", "--all-targets"]
+
+[tasks.compile-validation]
+description = "Validate all crates compile (root cause prevention)"
+workspace = false
+dependencies = ["check-all-crates"]
+command = "echo"
+args = ["✅ All crates compile successfully"]
+
+[tasks.type-safety-check]
+description = "Check for type safety issues (root cause prevention)"
+workspace = false
+command = "./scripts/check-type-safety.sh"
+
 # Add docs tasks to existing workflows (if they exist)
 [tasks.ci]
 description = "Run CI pipeline"
 workspace = false
-dependencies = ["format", "clippy-ci-flow", "test", "audit-all", "docs-test"]
+dependencies = [
+  "format",
+  "clippy-ci-flow",
+  "check-all-crates",
+  "test",
+  "audit-all",
+  "docs-test",
+]
 
 [tasks.release]
 description = "Create a release"
