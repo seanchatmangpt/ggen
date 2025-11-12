@@ -1,4 +1,4 @@
-//! Comprehensive integration tests for clap-noun-verb v3.2.0
+//! Comprehensive integration tests for clap-noun-verb v3.4.0
 //!
 //! **Test Coverage**:
 //! - Suite 1: CLI Auto-Discovery (help, verbs, errors)
@@ -26,7 +26,8 @@ fn ggen() -> Command {
 
 /// Helper to create a tree spec YAML for clap-noun-verb CLI
 fn create_cli_tree_spec(temp_dir: &TempDir, project_name: &str) -> PathBuf {
-    let tree_spec = format!(r#"
+    let tree_spec = format!(
+        r#"
 project_name: "{}"
 files:
   - path: "Cargo.toml"
@@ -38,7 +39,7 @@ files:
 
       [dependencies]
       clap = {{ version = "4.5", features = ["derive"] }}
-      clap-noun-verb = "3.2"
+      clap-noun-verb = "3.4.0"
       anyhow = "1.0"
   - path: "src/main.rs"
     content: |
@@ -82,7 +83,9 @@ files:
           println!("CLI executed successfully");
           Ok(())
       }}
-"#, project_name, project_name, project_name);
+"#,
+        project_name, project_name, project_name
+    );
 
     let tree_file = temp_dir.path().join("cli-tree.yaml");
     fs::write(&tree_file, tree_spec).expect("Failed to write tree spec");
@@ -143,22 +146,18 @@ fn test_template_lint_help_shows_arguments() {
         .stdout(
             predicate::str::contains("path")
                 .or(predicate::str::contains("PATH"))
-                .or(predicate::str::contains("Lint a template"))
+                .or(predicate::str::contains("Lint a template")),
         );
 }
 
 #[test]
 fn test_invalid_noun_returns_error() {
     // Verify: Invalid nouns produce helpful error messages
-    ggen()
-        .arg("invalid-noun")
-        .assert()
-        .failure()
-        .stderr(
-            predicate::str::contains("error")
-                .or(predicate::str::contains("invalid"))
-                .or(predicate::str::contains("unrecognized"))
-        );
+    ggen().arg("invalid-noun").assert().failure().stderr(
+        predicate::str::contains("error")
+            .or(predicate::str::contains("invalid"))
+            .or(predicate::str::contains("unrecognized")),
+    );
 }
 
 #[test]
@@ -172,7 +171,7 @@ fn test_invalid_verb_returns_error() {
         .stderr(
             predicate::str::contains("error")
                 .or(predicate::str::contains("invalid"))
-                .or(predicate::str::contains("unrecognized"))
+                .or(predicate::str::contains("unrecognized")),
         );
 }
 
@@ -200,10 +199,7 @@ fn test_template_generate_verb_auto_discovery() {
 #[test]
 fn test_cli_version_flag() {
     // Verify: Version flag works
-    ggen()
-        .arg("--version")
-        .assert()
-        .success();
+    ggen().arg("--version").assert().success();
 }
 
 // =============================================================================
@@ -318,15 +314,12 @@ edition = "2021"
 
 [dependencies]
 clap = { version = "4.5", features = ["derive"] }
-clap-noun-verb = "3.2"
+clap-noun-verb = "3.4.0"
 anyhow = "1.0"
 "#;
 
-    fs::write(
-        template_dir.join("Cargo.toml.tera"),
-        cargo_toml_template,
-    )
-    .expect("Failed to write Cargo.toml template");
+    fs::write(template_dir.join("Cargo.toml.tera"), cargo_toml_template)
+        .expect("Failed to write Cargo.toml template");
 
     // Create main.rs template
     let main_rs_template = r#"//! {{ project_name }} - CLI generated from RDF specification
@@ -448,8 +441,7 @@ user_description = { type = "string", default = "User management commands" }
 project_description = { type = "string", default = "Project management commands" }
 "#;
 
-    fs::write(template_dir.join("template.toml"), metadata)
-        .expect("Failed to write metadata");
+    fs::write(template_dir.join("template.toml"), metadata).expect("Failed to write metadata");
 
     template_dir
 }
@@ -463,7 +455,10 @@ fn test_load_rdf_cli_definition() {
     // Verify TTL file exists and has content
     assert!(ttl_path.exists(), "TTL file should be created");
     let content = fs::read_to_string(&ttl_path).unwrap();
-    assert!(content.contains("cli:Application"), "Should contain CLI spec");
+    assert!(
+        content.contains("cli:Application"),
+        "Should contain CLI spec"
+    );
     assert!(content.contains("cli:Noun"), "Should define nouns");
     assert!(content.contains("cli:Verb"), "Should define verbs");
 }
@@ -478,16 +473,31 @@ fn test_rdf_spec_structure_valid() {
 
     // Verify nouns
     assert!(content.contains("cli:UserNoun"), "Should have User noun");
-    assert!(content.contains("cli:ProjectNoun"), "Should have Project noun");
+    assert!(
+        content.contains("cli:ProjectNoun"),
+        "Should have Project noun"
+    );
 
     // Verify verbs
-    assert!(content.contains("cli:UserListVerb"), "Should have list verb");
-    assert!(content.contains("cli:UserCreateVerb"), "Should have create verb");
-    assert!(content.contains("cli:UserDeleteVerb"), "Should have delete verb");
+    assert!(
+        content.contains("cli:UserListVerb"),
+        "Should have list verb"
+    );
+    assert!(
+        content.contains("cli:UserCreateVerb"),
+        "Should have create verb"
+    );
+    assert!(
+        content.contains("cli:UserDeleteVerb"),
+        "Should have delete verb"
+    );
 
     // Verify arguments
     assert!(content.contains("cli:Argument"), "Should define arguments");
-    assert!(content.contains("cli:required"), "Should have required fields");
+    assert!(
+        content.contains("cli:required"),
+        "Should have required fields"
+    );
 }
 
 #[test]
@@ -617,15 +627,15 @@ fn test_generated_cargo_toml_has_clap_dependency() {
         .success();
 
     // Read and verify Cargo.toml
-    let cargo_toml = fs::read_to_string(output_dir.join("Cargo.toml"))
-        .expect("Failed to read Cargo.toml");
+    let cargo_toml =
+        fs::read_to_string(output_dir.join("Cargo.toml")).expect("Failed to read Cargo.toml");
 
     assert!(
         cargo_toml.contains("clap"),
         "Cargo.toml should include clap dependency"
     );
     assert!(
-        cargo_toml.contains("clap-noun-verb") || cargo_toml.contains("3.2"),
+        cargo_toml.contains("clap-noun-verb") || cargo_toml.contains("3.4.0"),
         "Cargo.toml should include clap-noun-verb dependency"
     );
 }
@@ -651,8 +661,8 @@ fn test_generated_cli_code_matches_rdf_spec() {
         .success();
 
     // Read generated main.rs
-    let main_rs = fs::read_to_string(output_dir.join("src/main.rs"))
-        .expect("Failed to read main.rs");
+    let main_rs =
+        fs::read_to_string(output_dir.join("src/main.rs")).expect("Failed to read main.rs");
 
     // Verify it contains expected commands from RDF spec
     assert!(main_rs.contains("User"), "Should have User commands");
@@ -708,10 +718,7 @@ fn test_e2e_ttl_to_working_cli_project() {
         main_rs_content.contains("fn main()"),
         "main.rs should have main function"
     );
-    assert!(
-        main_rs_content.contains("clap"),
-        "main.rs should use clap"
-    );
+    assert!(main_rs_content.contains("clap"), "main.rs should use clap");
 }
 
 #[test]
@@ -856,11 +863,7 @@ fn test_performance_cli_help_fast() {
     // Verify: CLI help commands are fast (<100ms)
     let start = std::time::Instant::now();
 
-    ggen()
-        .arg("template")
-        .arg("--help")
-        .assert()
-        .success();
+    ggen().arg("template").arg("--help").assert().success();
 
     let duration = start.elapsed();
 

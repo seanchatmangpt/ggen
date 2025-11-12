@@ -45,6 +45,7 @@ impl<'a> QueryExecutor<'a> {
             LIMIT 1
         "#;
 
+        #[allow(deprecated)]
         if let QueryResults::Solutions(mut solutions) = self.store.query(query)? {
             if let Some(solution) = solutions.next() {
                 let solution = solution?;
@@ -55,7 +56,7 @@ impl<'a> QueryExecutor<'a> {
                 // Default domain crate name if not specified
                 let domain_crate = get_optional_string(&solution, "domainCrate")
                     .or_else(|| Some(format!("{}-core", name)));
-                
+
                 return Ok(CliProject {
                     name,
                     version: get_string(&solution, "version")?,
@@ -63,7 +64,7 @@ impl<'a> QueryExecutor<'a> {
                     authors: vec![get_string(&solution, "authors")?],
                     edition: get_string(&solution, "edition")?,
                     license: get_string(&solution, "license")?,
-                    nouns: vec![],       // Filled later
+                    nouns: vec![],        // Filled later
                     dependencies: vec![], // Filled later
                     cli_crate,
                     domain_crate,
@@ -98,6 +99,7 @@ impl<'a> QueryExecutor<'a> {
 
         let mut nouns = Vec::new();
 
+        #[allow(deprecated)]
         if let QueryResults::Solutions(solutions) = self.store.query(query)? {
             for solution in solutions {
                 let solution = solution?;
@@ -140,6 +142,7 @@ impl<'a> QueryExecutor<'a> {
 
         let mut verbs = Vec::new();
 
+        #[allow(deprecated)]
         if let QueryResults::Solutions(solutions) = self.store.query(&query)? {
             for solution in solutions {
                 let solution = solution?;
@@ -194,6 +197,7 @@ impl<'a> QueryExecutor<'a> {
 
         let mut arguments = Vec::new();
 
+        #[allow(deprecated)]
         if let QueryResults::Solutions(solutions) = self.store.query(&query)? {
             for solution in solutions {
                 let solution = solution?;
@@ -240,6 +244,7 @@ impl<'a> QueryExecutor<'a> {
 
         let mut validations = Vec::new();
 
+        #[allow(deprecated)]
         if let QueryResults::Solutions(solutions) = self.store.query(&query)? {
             for solution in solutions {
                 let solution = solution?;
@@ -277,6 +282,7 @@ impl<'a> QueryExecutor<'a> {
 
         let mut deps = Vec::new();
 
+        #[allow(deprecated)]
         if let QueryResults::Solutions(solutions) = self.store.query(query)? {
             for solution in solutions {
                 let solution = solution?;

@@ -1,0 +1,134 @@
+@startuml chatman-equation-workflow
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam sequenceMessageAlign center
+
+title Chatman Equation Workflow - Knowledge Hook Execution
+
+actor "RDF Workflow" as workflow
+participant "Observation\nCollector (O)" as obs
+participant "Measurement\nFunction (µ)" as measure
+participant "Action\nGenerator (A)" as action
+participant "Knowledge Hook\nEngine" as hook
+participant "KNHK\nExecutor" as knhk
+participant "Lockchain\nModule" as lockchain
+participant "Guard\nEnforcer (µ ⊣ H)" as guard
+participant "Drift\nDetector" as drift
+
+== Observation Phase ==
+workflow -> obs: Trigger workflow execution
+obs -> obs: Collect typed RDF triples\n(provenance, context, state)
+obs -> measure: O(t) = {triple₁, triple₂, ..., tripleₙ}
+note right of obs
+  Observation types:
+  - Workflow state
+  - Resource usage
+  - Temporal metadata
+  - Provenance chain
+end note
+
+== Measurement & Action Generation ==
+measure -> measure: Apply measurement function:\nµ: O → ℝ
+measure -> measure: Compute metrics:\n- Execution time\n- Resource consumption\n- Pattern compliance
+measure -> action: µ(O) → A
+note right of measure
+  Measurement satisfies:
+  - µ ⊣ H (right adjoint to guard)
+  - Monotonic: µ(O₁) ≤ µ(O₂)
+  - Bounded: µ(O) ∈ [0, budget]
+end note
+
+action -> action: Generate action plan:\nA = {a₁, a₂, ..., aₖ}
+action -> hook: Action(O, µ(O))
+
+== Knowledge Hook Execution ==
+hook -> hook: Parse hook specification:\n(trigger, check, act, receipt)
+hook -> guard: Verify legality constraints
+guard -> guard: Check guards:\n1. Legal: action ∈ Legal(O)\n2. Budget: cost(A) ≤ budget\n3. Chronology: time(A) > time(O)\n4. Causality: deps(A) ⊆ completed(O)
+
+alt Guards Pass
+  guard -> hook: Guards satisfied ✓
+  hook -> knhk: Execute(trigger, check, act)
+
+  == KNHK Hot Path (≤2ns) ==
+  knhk -> knhk: C hot-path rule checks:\n- Budget bounds\n- Type safety\n- Literal guards
+
+  alt Hot-path satisfied
+    knhk -> lockchain: Generate receipt (fast)
+  else Warm-path needed
+    == KNHK Warm Path (≤500ms) ==
+    knhk -> knhk: Rust warm-path orchestration:\n- Pattern matching (43 Van der Aalst)\n- Resource allocation\n- State transitions
+
+    alt Warm-path satisfied
+      knhk -> lockchain: Generate receipt (standard)
+    else Cold-path needed
+      == KNHK Cold Path (≤500ms) ==
+      knhk -> knhk: SPARQL cold-path queries:\n- Complex workflow patterns\n- Historical provenance\n- Cross-entity reasoning
+      knhk -> lockchain: Generate receipt (complex)
+    end
+  end
+
+else Guards Fail
+  guard -> hook: Guard violation ✗\n(legal/budget/chronology/causality)
+  hook -> workflow: Reject action with proof
+end
+
+== Lockchain Receipt Generation ==
+lockchain -> lockchain: Create receipt R:\n- timestamp: ISO8601\n- action_hash: SHA3-256(A)\n- obs_hash: SHA3-256(O)\n- measure_value: µ(O)\n- guard_proof: π
+lockchain -> lockchain: Build Merkle tree:\nroot = H(H(obs) || H(action) || H(µ))
+lockchain -> lockchain: Chain receipt:\nR.prev_hash = SHA3-256(R₋₁)
+lockchain -> hook: Receipt(R)
+note right of lockchain
+  Lockchain properties:
+  - Immutable: SHA3-256 chain
+  - Verifiable: Merkle proofs
+  - Provenance: Full history
+  - Bounded: O(log n) verification
+end note
+
+== Drift Detection & Bounded Regeneration ==
+hook -> drift: Check execution drift:\nδ = |actual - expected| / expected
+drift -> drift: Measure deviation:\n- Execution time drift\n- Resource usage drift\n- Output quality drift
+
+alt Drift ≤ 0.5%
+  drift -> workflow: Execution within bounds ✓
+  workflow -> workflow: Continue workflow
+else Drift > 0.5%
+  drift -> drift: Bounded regeneration:\n1. Isolate drift source\n2. Regenerate affected actions\n3. Verify guards again
+  drift -> guard: Re-verify guards with new A'
+  guard -> knhk: Re-execute with bounded retry
+  knhk -> lockchain: Generate corrected receipt R'
+  lockchain -> workflow: Corrected execution path
+  note right of drift
+    Bounded regeneration:
+    - Max 3 retries
+    - Exponential backoff
+    - Drift learning for µ
+    - Guard strengthening
+  end note
+end
+
+== Receipt Delivery ==
+lockchain -> workflow: Receipt chain:\nR₁ → R₂ → ... → Rₙ
+workflow -> workflow: Verify receipt:\n- Check SHA3-256 chain\n- Validate Merkle proofs\n- Confirm guard satisfaction
+workflow -> workflow: Update workflow state with:\n- Completed actions\n- Provenance chain\n- Performance metrics
+
+note bottom of workflow
+  Chatman Equation:
+  O --µ--> A --H--> R
+
+  Where:
+  - O: Observation (typed RDF)
+  - µ: Measurement (O → ℝ)
+  - A: Action (generated plan)
+  - H: Hook (trigger → check → act → receipt)
+  - R: Receipt (lockchain provenance)
+
+  Key properties:
+  - µ ⊣ H (adjunction ensures guard correctness)
+  - Drift ≤ 0.5% (bounded regeneration)
+  - SLO: hot ≤2ns, warm/cold ≤500ms
+  - Provenance: SHA3-256 Merkle chain
+end note
+
+@enduml

@@ -560,8 +560,14 @@ Found: {{ sparql_count(results=sparql_results.things) }}"#;
     let mut template = Template::parse(template_str)?;
 
     // Verify no rdf field in frontmatter (v2.0 architecture)
-    assert!(template.front.rdf_inline.is_empty() ||
-            template.front.rdf_inline.iter().all(|s| !s.starts_with("rdf:")));
+    assert!(
+        template.front.rdf_inline.is_empty()
+            || template
+                .front
+                .rdf_inline
+                .iter()
+                .all(|s| !s.starts_with("rdf:"))
+    );
     println!("✓ No rdf: field in frontmatter (v2.0 style)");
 
     let mut graph = Graph::new()?;

@@ -180,13 +180,11 @@ fn test_template_search_filters() {
 
 #[test]
 fn test_template_package_metadata() {
-    use ggen_marketplace::models::{TemplatePackage, TemplateInfo, TemplateType};
+    use ggen_marketplace::models::{TemplateInfo, TemplatePackage, TemplateType};
     use std::path::PathBuf;
 
-    let mut package = TemplatePackage::new(
-        "rust-microservice".to_string(),
-        "microservice".to_string(),
-    );
+    let mut package =
+        TemplatePackage::new("rust-microservice".to_string(), "microservice".to_string());
 
     let template = TemplateInfo {
         name: "service.yaml".to_string(),

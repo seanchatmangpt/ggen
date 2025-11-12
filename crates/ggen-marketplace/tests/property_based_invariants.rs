@@ -22,9 +22,9 @@ async fn property_same_content_same_id() {
 
     let test_cases = vec![
         b"Hello, World!".as_slice(),
-        b"".as_slice(), // Empty content
-        b"x".as_slice(), // Single byte
-        &vec![0u8; 1024 * 1024], // 1MB of zeros
+        b"".as_slice(),                                 // Empty content
+        b"x".as_slice(),                                // Single byte
+        &vec![0u8; 1024 * 1024],                        // 1MB of zeros
         b"Rust is awesome \xF0\x9F\xA6\x80".as_slice(), // Unicode
     ];
 
@@ -77,7 +77,7 @@ async fn property_store_retrieve_roundtrip() {
 
     let test_cases = vec![
         b"Simple text".to_vec(),
-        vec![0u8; 100], // Binary zeros
+        vec![0u8; 100],   // Binary zeros
         vec![255u8; 100], // Binary 0xFF
         b"Unicode: \xF0\x9F\x8E\x89\xF0\x9F\x8E\x8A".to_vec(),
         (0..256).map(|i| i as u8).collect(), // All byte values
@@ -124,7 +124,9 @@ async fn property_versions_ordered_newest_first() {
 
     let temp_dir = tempfile::tempdir().expect("temp dir failed");
     let db_path = temp_dir.path().join("registry");
-    let registry = LocalRegistry::new(db_path).await.expect("registry creation failed");
+    let registry = LocalRegistry::new(db_path)
+        .await
+        .expect("registry creation failed");
 
     let pkg_id = PackageId::new("test", "versioned");
 
@@ -168,7 +170,10 @@ async fn property_versions_ordered_newest_first() {
     }
 
     // Assert: Latest version should be 2.0.0
-    let latest = registry.get_package(&pkg_id).await.expect("get latest failed");
+    let latest = registry
+        .get_package(&pkg_id)
+        .await
+        .expect("get latest failed");
     assert_eq!(
         latest.version,
         Version::new(2, 0, 0),
@@ -187,7 +192,9 @@ async fn property_search_returns_subset() {
 
     let temp_dir = tempfile::tempdir().expect("temp dir failed");
     let db_path = temp_dir.path().join("registry");
-    let registry = LocalRegistry::new(db_path).await.expect("registry creation failed");
+    let registry = LocalRegistry::new(db_path)
+        .await
+        .expect("registry creation failed");
 
     // Publish packages
     let packages = vec![
@@ -202,7 +209,10 @@ async fn property_search_returns_subset() {
             .title(name)
             .description(desc)
             .license("MIT")
-            .content_id(ContentId::new(format!("hash_{}", name), HashAlgorithm::Sha256))
+            .content_id(ContentId::new(
+                format!("hash_{}", name),
+                HashAlgorithm::Sha256,
+            ))
             .build()
             .expect("package build failed");
 
@@ -260,9 +270,9 @@ async fn property_metadata_size_matches_content() {
     let store = MemoryStore::new();
 
     let test_cases = vec![
-        vec![],              // Empty
-        vec![0u8],           // Single byte
-        vec![0u8; 1024],     // 1KB
+        vec![],                 // Empty
+        vec![0u8],              // Single byte
+        vec![0u8; 1024],        // 1KB
         vec![0u8; 1024 * 1024], // 1MB
     ];
 
@@ -330,7 +340,9 @@ async fn property_package_version_unique() {
 
     let temp_dir = tempfile::tempdir().expect("temp dir failed");
     let db_path = temp_dir.path().join("registry");
-    let registry = LocalRegistry::new(db_path).await.expect("registry creation failed");
+    let registry = LocalRegistry::new(db_path)
+        .await
+        .expect("registry creation failed");
 
     let pkg_id = PackageId::new("test", "unique");
     let version = Version::new(1, 0, 0);
@@ -347,7 +359,7 @@ async fn property_package_version_unique() {
     // Second package with same ID and version but different content
     let pkg2 = Package::builder(pkg_id.clone(), version)
         .title("Second Package") // Different!
-        .description("Second")    // Different!
+        .description("Second") // Different!
         .license("MIT")
         .content_id(ContentId::new("hash2", HashAlgorithm::Sha256)) // Different!
         .build()

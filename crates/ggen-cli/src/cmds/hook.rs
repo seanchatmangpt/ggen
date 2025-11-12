@@ -2,17 +2,15 @@
 //!
 //! This module implements hook commands using the v3.4.0 #[verb] pattern.
 
-use clap_noun_verb_macros::verb;
 use clap_noun_verb::Result;
+use clap_noun_verb_macros::verb;
 use serde::Serialize;
 use std::path::PathBuf;
 
 use crate::runtime_helper::execute_async_verb;
 use ggen_domain::hook::{
-    CreateInput, execute_create,
-    ListInput, execute_list, HookInfo as DomainHookInfo,
-    RemoveInput, execute_remove,
-    MonitorInput, execute_monitor,
+    execute_create, execute_list, execute_monitor, execute_remove, CreateInput,
+    HookInfo as DomainHookInfo, ListInput, MonitorInput, RemoveInput,
 };
 
 // ============================================================================
@@ -58,11 +56,7 @@ struct MonitorOutput {
 
 /// Create a new hook
 #[verb]
-fn create(
-    event: String,
-    script: PathBuf,
-    name: Option<String>,
-) -> Result<CreateOutput> {
+fn create(event: String, script: PathBuf, name: Option<String>) -> Result<CreateOutput> {
     let input = CreateInput {
         trigger: event,
         action: script.to_string_lossy().to_string(),
@@ -70,7 +64,8 @@ fn create(
     };
 
     execute_async_verb(async move {
-        let result = execute_create(input).await
+        let result = execute_create(input)
+            .await
             .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;
 
         Ok(CreateOutput {
@@ -82,25 +77,23 @@ fn create(
 
 /// List all hooks
 #[verb]
-fn list(
-    filter: Option<String>,
-    verbose: bool,
-) -> Result<ListOutput> {
-    let input = ListInput {
-        verbose,
-        filter,
-    };
+fn list(filter: Option<String>, verbose: bool) -> Result<ListOutput> {
+    let input = ListInput { verbose, filter };
 
     execute_async_verb(async move {
-        let result = execute_list(input).await
+        let result = execute_list(input)
+            .await
             .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;
 
-        let hooks = result.into_iter().map(|h| HookInfo {
-            id: h.id,
-            trigger: h.trigger,
-            action: h.action,
-            created_at: h.created_at,
-        }).collect::<Vec<_>>();
+        let hooks = result
+            .into_iter()
+            .map(|h| HookInfo {
+                id: h.id,
+                trigger: h.trigger,
+                action: h.action,
+                created_at: h.created_at,
+            })
+            .collect::<Vec<_>>();
 
         let total = hooks.len();
 
@@ -110,17 +103,15 @@ fn list(
 
 /// Remove a hook
 #[verb]
-fn remove(
-    id: String,
-    force: bool,
-) -> Result<RemoveOutput> {
+fn remove(id: String, force: bool) -> Result<RemoveOutput> {
     let input = RemoveInput {
         hook_id: id.clone(),
         force,
     };
 
     execute_async_verb(async move {
-        let result = execute_remove(input).await
+        let result = execute_remove(input)
+            .await
             .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;
 
         Ok(RemoveOutput {
@@ -132,11 +123,7 @@ fn remove(
 
 /// Monitor hook events
 #[verb]
-fn monitor(
-    graph: String,
-    interval: u64,
-    once: bool,
-) -> Result<MonitorOutput> {
+fn monitor(graph: String, interval: u64, once: bool) -> Result<MonitorOutput> {
     let input = MonitorInput {
         graph,
         interval,
@@ -144,15 +131,20 @@ fn monitor(
     };
 
     execute_async_verb(async move {
-        let result = execute_monitor(input).await
+        let result = execute_monitor(input)
+            .await
             .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;
 
-        let hooks = result.hooks.into_iter().map(|h| HookInfo {
-            id: h.id,
-            trigger: h.trigger,
-            action: h.action,
-            created_at: h.created_at,
-        }).collect();
+        let hooks = result
+            .hooks
+            .into_iter()
+            .map(|h| HookInfo {
+                id: h.id,
+                trigger: h.trigger,
+                action: h.action,
+                created_at: h.created_at,
+            })
+            .collect();
 
         Ok(MonitorOutput {
             active_hooks: result.active_hooks,

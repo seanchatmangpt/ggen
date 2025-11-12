@@ -13,9 +13,9 @@ use libp2p::{
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 use std::time::Instant;
-use tokio::sync::{RwLock, oneshot, mpsc};
+use tokio::sync::{mpsc, oneshot, RwLock};
 use tokio::time::{timeout, Duration};
-use tracing::{debug, info, warn, instrument, Span};
+use tracing::{debug, info, instrument, warn, Span};
 
 #[derive(NetworkBehaviour)]
 pub struct P2PBehaviour {
@@ -113,16 +113,17 @@ impl PeerReputation {
             .signed_duration_since(self.last_seen)
             .num_hours() as f64;
         let recency_score = (1.0 / (hours_since_seen + 1.0)).min(1.0);
-        let geo_bonus = if let (Some(my_loc), Some(peer_loc)) = (my_location, self.location.as_ref()) {
-            let distance_km = my_loc.distance_km(peer_loc);
-            if distance_km < 100.0 {
-                0.1 * (1.0 - distance_km / 100.0)
+        let geo_bonus =
+            if let (Some(my_loc), Some(peer_loc)) = (my_location, self.location.as_ref()) {
+                let distance_km = my_loc.distance_km(peer_loc);
+                if distance_km < 100.0 {
+                    0.1 * (1.0 - distance_km / 100.0)
+                } else {
+                    0.0
+                }
             } else {
                 0.0
-            }
-        } else {
-            0.0
-        };
+            };
         let base_score = 0.5 * success_rate
             + 0.25 * response_time_score
             + 0.15 * availability_score
@@ -134,8 +135,8 @@ impl PeerReputation {
         if self.avg_response_time_ms == 0 {
             self.avg_response_time_ms = response_time_ms;
         } else {
-            self.avg_response_time_ms = ((0.7 * self.avg_response_time_ms as f64)
-                + (0.3 * response_time_ms as f64)) as u64;
+            self.avg_response_time_ms =
+                ((0.7 * self.avg_response_time_ms as f64) + (0.3 * response_time_ms as f64)) as u64;
         }
     }
 
@@ -188,12 +189,16 @@ impl P2PRegistry {
             .heartbeat_interval(std::time::Duration::from_secs(10))
             .validation_mode(gossipsub::ValidationMode::Strict)
             .build()
-            .map_err(|e| MarketplaceError::network_error(format!("Gossipsub config error: {}", e)))?;
+            .map_err(|e| {
+                MarketplaceError::network_error(format!("Gossipsub config error: {}", e))
+            })?;
         let gossipsub = gossipsub::Behaviour::new(
             gossipsub::MessageAuthenticity::Signed(local_key.clone()),
             gossipsub_config,
         )
-        .map_err(|e| MarketplaceError::network_error(format!("Failed to create gossipsub: {}", e)))?;
+        .map_err(|e| {
+            MarketplaceError::network_error(format!("Failed to create gossipsub: {}", e))
+        })?;
         let identify = identify::Behaviour::new(identify::Config::new(
             "/ggen/1.0.0".to_string(),
             local_key.public(),
@@ -210,9 +215,13 @@ impl P2PRegistry {
                 libp2p::noise::Config::new,
                 libp2p::yamux::Config::default,
             )
-            .map_err(|e| MarketplaceError::network_error(format!("Failed to configure TCP: {}", e)))?
+            .map_err(|e| {
+                MarketplaceError::network_error(format!("Failed to configure TCP: {}", e))
+            })?
             .with_behaviour(|_| behaviour)
-            .map_err(|e| MarketplaceError::network_error(format!("Failed to create behavior: {}", e)))?
+            .map_err(|e| {
+                MarketplaceError::network_error(format!("Failed to create behavior: {}", e))
+            })?
             .build();
         let packages_topic = gossipsub::IdentTopic::new(&config.packages_topic);
         let (event_tx, event_rx) = mpsc::unbounded_channel();
@@ -280,63 +289,67 @@ impl P2PRegistry {
         packages_topic: &gossipsub::IdentTopic,
     ) {
         match event {
-            SwarmEvent::Behaviour(P2PBehaviourEvent::Kademlia(kad_event)) => {
-                match kad_event {
-                    kad::Event::OutboundQueryProgressed { id, result, .. } => {
-                        match result {
-                            kad::QueryResult::GetRecord(Ok(kad::GetRecordOk::FoundRecord(record))) => {
-                                if let Ok(package) = serde_json::from_slice::<Package>(&record.record.value) {
-                                    let mut queries = active_queries.write().await;
-                                    if let Some(query) = queries.get_mut(&id) {
-                                        debug!("DHT: Found package {} for query {:?}", package.id, id);
-                                        query.collected_results.push(package.clone());
-                                        if let Some(peer_id) = record.record.publisher {
-                                            let mut discovered = discovered_packages.write().await;
-                                            discovered.entry(package.id.clone())
-                                                .or_insert_with(HashSet::new)
-                                                .insert(peer_id);
-                                            let mut reputation = peer_reputation.write().await;
-                                            let entry = reputation.entry(peer_id)
-                                                .or_insert_with(|| PeerReputation::new(peer_id));
-                                            entry.packages_provided += 1;
-                                            entry.last_seen = chrono::Utc::now();
-                                        }
-                                    }
-                                }
-                            }
-                            kad::QueryResult::GetRecord(Err(_)) => {
-                                let mut queries = active_queries.write().await;
-                                if let Some(query) = queries.remove(&id) {
-                                    let result = if !query.collected_results.is_empty() {
-                                        Ok(Some(query.collected_results[0].clone()))
-                                    } else {
-                                        Ok(None)
-                                    };
-                                    let _ = query.result_sender.send(result);
-                                }
-                            }
-                            kad::QueryResult::GetProviders(Ok(kad::GetProvidersOk::FoundProviders { providers, .. })) => {
-                                let queries = active_queries.write().await;
-                                if let Some(query) = queries.get(&id) {
+            SwarmEvent::Behaviour(P2PBehaviourEvent::Kademlia(kad_event)) => match kad_event {
+                kad::Event::OutboundQueryProgressed { id, result, .. } => match result {
+                    kad::QueryResult::GetRecord(Ok(kad::GetRecordOk::FoundRecord(record))) => {
+                        if let Ok(package) = serde_json::from_slice::<Package>(&record.record.value)
+                        {
+                            let mut queries = active_queries.write().await;
+                            if let Some(query) = queries.get_mut(&id) {
+                                debug!("DHT: Found package {} for query {:?}", package.id, id);
+                                query.collected_results.push(package.clone());
+                                if let Some(peer_id) = record.record.publisher {
                                     let mut discovered = discovered_packages.write().await;
-                                    let entry = discovered.entry(query.package_id.clone())
-                                        .or_insert_with(HashSet::new);
-                                    for peer_id in providers {
-                                        entry.insert(peer_id);
-                                    }
+                                    discovered
+                                        .entry(package.id.clone())
+                                        .or_insert_with(HashSet::new)
+                                        .insert(peer_id);
+                                    let mut reputation = peer_reputation.write().await;
+                                    let entry = reputation
+                                        .entry(peer_id)
+                                        .or_insert_with(|| PeerReputation::new(peer_id));
+                                    entry.packages_provided += 1;
+                                    entry.last_seen = chrono::Utc::now();
                                 }
                             }
-                            _ => {}
                         }
                     }
-                    kad::Event::RoutingUpdated { peer, .. } => {
-                        let mut reputation = peer_reputation.write().await;
-                        reputation.entry(peer)
-                            .or_insert_with(|| PeerReputation::new(peer));
+                    kad::QueryResult::GetRecord(Err(_)) => {
+                        let mut queries = active_queries.write().await;
+                        if let Some(query) = queries.remove(&id) {
+                            let result = if !query.collected_results.is_empty() {
+                                Ok(Some(query.collected_results[0].clone()))
+                            } else {
+                                Ok(None)
+                            };
+                            let _ = query.result_sender.send(result);
+                        }
+                    }
+                    kad::QueryResult::GetProviders(Ok(kad::GetProvidersOk::FoundProviders {
+                        providers,
+                        ..
+                    })) => {
+                        let queries = active_queries.write().await;
+                        if let Some(query) = queries.get(&id) {
+                            let mut discovered = discovered_packages.write().await;
+                            let entry = discovered
+                                .entry(query.package_id.clone())
+                                .or_insert_with(HashSet::new);
+                            for peer_id in providers {
+                                entry.insert(peer_id);
+                            }
+                        }
                     }
                     _ => {}
+                },
+                kad::Event::RoutingUpdated { peer, .. } => {
+                    let mut reputation = peer_reputation.write().await;
+                    reputation
+                        .entry(peer)
+                        .or_insert_with(|| PeerReputation::new(peer));
                 }
-            }
+                _ => {}
+            },
             SwarmEvent::Behaviour(P2PBehaviourEvent::Gossipsub(gossipsub::Event::Message {
                 propagation_source: peer_id,
                 message,
@@ -345,15 +358,20 @@ impl P2PRegistry {
                 if message.topic == packages_topic.hash() {
                     match serde_json::from_slice::<Package>(&message.data) {
                         Ok(package) => {
-                            info!("Received package announcement: {} from peer {}", package.id, peer_id);
+                            info!(
+                                "Received package announcement: {} from peer {}",
+                                package.id, peer_id
+                            );
                             let mut discovered = discovered_packages.write().await;
-                            discovered.entry(package.id.clone())
+                            discovered
+                                .entry(package.id.clone())
                                 .or_insert_with(HashSet::new)
                                 .insert(peer_id);
                             let mut local = local_packages.write().await;
                             local.insert(package.id.clone(), package);
                             let mut reputation = peer_reputation.write().await;
-                            let entry = reputation.entry(peer_id)
+                            let entry = reputation
+                                .entry(peer_id)
                                 .or_insert_with(|| PeerReputation::new(peer_id));
                             entry.packages_provided += 1;
                             entry.last_seen = chrono::Utc::now();
@@ -367,7 +385,8 @@ impl P2PRegistry {
             SwarmEvent::ConnectionEstablished { peer_id, .. } => {
                 info!("Connection established with peer: {}", peer_id);
                 let mut reputation = peer_reputation.write().await;
-                reputation.entry(peer_id)
+                reputation
+                    .entry(peer_id)
                     .or_insert_with(|| PeerReputation::new(peer_id))
                     .last_seen = chrono::Utc::now();
             }
@@ -412,17 +431,19 @@ impl P2PRegistry {
             .kademlia
             .bootstrap()
             .map_err(|e| MarketplaceError::network_error(format!("Bootstrap failed: {}", e)))?;
-        
+
         let bootstrap_time_ms = bootstrap_start.elapsed().as_millis() as u64;
         Span::current().record("p2p.bootstrap.duration_ms", bootstrap_time_ms);
         Span::current().record("p2p.bootstrap.status", "success");
-        
+
         Ok(())
     }
 
-    async fn announce_package(&self, package: &Package) -> std::result::Result<(), MarketplaceError> {
-        let announcement = serde_json::to_vec(package)
-            .map_err(|e| MarketplaceError::serialization_error(e))?;
+    async fn announce_package(
+        &self, package: &Package,
+    ) -> std::result::Result<(), MarketplaceError> {
+        let announcement =
+            serde_json::to_vec(package).map_err(|e| MarketplaceError::serialization_error(e))?;
         let mut swarm = self.swarm.write().await;
         swarm
             .behaviour_mut()
@@ -432,10 +453,12 @@ impl P2PRegistry {
         Ok(())
     }
 
-    async fn store_in_dht(&self, package_id: &PackageId, package: &Package) -> std::result::Result<(), MarketplaceError> {
+    async fn store_in_dht(
+        &self, package_id: &PackageId, package: &Package,
+    ) -> std::result::Result<(), MarketplaceError> {
         let key = kad::RecordKey::new(&package_id.to_string().as_bytes());
-        let value = serde_json::to_vec(package)
-            .map_err(|e| MarketplaceError::serialization_error(e))?;
+        let value =
+            serde_json::to_vec(package).map_err(|e| MarketplaceError::serialization_error(e))?;
         let record = kad::Record {
             key,
             value,
@@ -452,7 +475,9 @@ impl P2PRegistry {
     }
 
     #[instrument(skip(self), fields(package_id = %package_id))]
-    async fn query_dht(&self, package_id: &PackageId) -> std::result::Result<Option<Package>, MarketplaceError> {
+    async fn query_dht(
+        &self, package_id: &PackageId,
+    ) -> std::result::Result<Option<Package>, MarketplaceError> {
         let query_start = Instant::now();
         let key = kad::RecordKey::new(&package_id.to_string().as_bytes());
         let (result_tx, result_rx) = oneshot::channel();
@@ -462,12 +487,15 @@ impl P2PRegistry {
         };
         {
             let mut queries = self.active_queries.write().await;
-            queries.insert(query_id, ActiveQuery {
-                package_id: package_id.clone(),
-                started_at: Instant::now(),
-                result_sender: result_tx,
-                collected_results: Vec::new(),
-            });
+            queries.insert(
+                query_id,
+                ActiveQuery {
+                    package_id: package_id.clone(),
+                    started_at: Instant::now(),
+                    result_sender: result_tx,
+                    collected_results: Vec::new(),
+                },
+            );
         }
         let timeout_duration = Duration::from_secs(self.config.query_timeout_secs);
         let result = match timeout(timeout_duration, result_rx).await {
@@ -493,7 +521,7 @@ impl P2PRegistry {
                 }
             }
         };
-        
+
         let query_time_ms = query_start.elapsed().as_millis() as u64;
         Span::current().record("p2p.dht.query.duration_ms", query_time_ms);
         if let Ok(Some(_)) = &result {
@@ -501,12 +529,14 @@ impl P2PRegistry {
         } else {
             Span::current().record("p2p.dht.query.found", false);
         }
-        
+
         result
     }
 
     #[instrument(skip(self), fields(package_id = %package_id, fan_out = fan_out))]
-    async fn query_dht_parallel(&self, package_id: &PackageId, fan_out: usize) -> std::result::Result<Option<Package>, MarketplaceError> {
+    async fn query_dht_parallel(
+        &self, package_id: &PackageId, fan_out: usize,
+    ) -> std::result::Result<Option<Package>, MarketplaceError> {
         let query_start = Instant::now();
         if fan_out <= 1 {
             return self.query_dht(package_id).await;
@@ -537,12 +567,12 @@ impl P2PRegistry {
                 Err(_) => continue,
             }
         }
-        
+
         let query_time_ms = query_start.elapsed().as_millis() as u64;
         Span::current().record("p2p.dht.query.parallel.duration_ms", query_time_ms);
         Span::current().record("p2p.dht.query.parallel.found", false);
         Span::current().record("p2p.dht.query.parallel.found_count", found_count);
-        
+
         Ok(None)
     }
 
@@ -555,7 +585,9 @@ impl P2PRegistry {
     }
 
     #[instrument(skip(self, my_location), fields(min_reputation = min_reputation, limit = limit))]
-    pub async fn select_best_peers(&self, min_reputation: f64, limit: usize, my_location: Option<&GeoLocation>) -> Vec<(PeerId, f64)> {
+    pub async fn select_best_peers(
+        &self, min_reputation: f64, limit: usize, my_location: Option<&GeoLocation>,
+    ) -> Vec<(PeerId, f64)> {
         let selection_start = Instant::now();
         let reputation = self.peer_reputation.read().await;
         let mut peers: Vec<_> = reputation
@@ -568,12 +600,12 @@ impl P2PRegistry {
             .collect();
         peers.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
         peers.truncate(limit);
-        
+
         let selection_time_ms = selection_start.elapsed().as_millis() as u64;
         Span::current().record("p2p.peer.selection.duration_ms", selection_time_ms);
         Span::current().record("p2p.peer.selection.count", peers.len());
         Span::current().record("p2p.peer.selection.filtered_count", peers.len());
-        
+
         peers
     }
 
@@ -599,10 +631,22 @@ impl Registry for P2PRegistry {
             .values()
             .filter(|package| {
                 let text_match = query.text.is_empty()
-                    || package.metadata.title.to_lowercase().contains(&query.text.to_lowercase())
-                    || package.metadata.description.to_lowercase().contains(&query.text.to_lowercase());
+                    || package
+                        .metadata
+                        .title
+                        .to_lowercase()
+                        .contains(&query.text.to_lowercase())
+                    || package
+                        .metadata
+                        .description
+                        .to_lowercase()
+                        .contains(&query.text.to_lowercase());
                 let category_match = query.categories.is_empty()
-                    || package.metadata.categories.iter().any(|c| query.categories.contains(c));
+                    || package
+                        .metadata
+                        .categories
+                        .iter()
+                        .any(|c| query.categories.contains(c));
                 let tag_match = query.tags.is_empty()
                     || package.metadata.tags.iter().any(|t| query.tags.contains(t));
                 text_match && category_match && tag_match
@@ -616,10 +660,22 @@ impl Registry for P2PRegistry {
         for package_id in discovered.keys() {
             if let Ok(Some(package)) = self.query_dht_parallel(package_id, fan_out).await {
                 let text_match = query.text.is_empty()
-                    || package.metadata.title.to_lowercase().contains(&query.text.to_lowercase())
-                    || package.metadata.description.to_lowercase().contains(&query.text.to_lowercase());
+                    || package
+                        .metadata
+                        .title
+                        .to_lowercase()
+                        .contains(&query.text.to_lowercase())
+                    || package
+                        .metadata
+                        .description
+                        .to_lowercase()
+                        .contains(&query.text.to_lowercase());
                 let category_match = query.categories.is_empty()
-                    || package.metadata.categories.iter().any(|c| query.categories.contains(c));
+                    || package
+                        .metadata
+                        .categories
+                        .iter()
+                        .any(|c| query.categories.contains(c));
                 let tag_match = query.tags.is_empty()
                     || package.metadata.tags.iter().any(|t| query.tags.contains(t));
                 if text_match && category_match && tag_match {
@@ -656,7 +712,10 @@ impl Registry for P2PRegistry {
             }
         }
         if let Some(package) = self.query_dht_parallel(id, 3).await? {
-            self.local_packages.write().await.insert(id.clone(), package.clone());
+            self.local_packages
+                .write()
+                .await
+                .insert(id.clone(), package.clone());
             let mut cache = self.package_cache.write().await;
             cache.insert(id.clone(), (package.clone(), std::time::Instant::now()));
             Span::current().record("cache_hit", false);
@@ -668,7 +727,9 @@ impl Registry for P2PRegistry {
         ))
     }
 
-    async fn get_package_version(&self, id: &PackageId, version: &str) -> std::result::Result<Package, MarketplaceError> {
+    async fn get_package_version(
+        &self, id: &PackageId, version: &str,
+    ) -> std::result::Result<Package, MarketplaceError> {
         let package = self.get_package(id).await?;
         if package.version.to_string() == version {
             Ok(package)
@@ -680,7 +741,9 @@ impl Registry for P2PRegistry {
         }
     }
 
-    async fn list_versions(&self, id: &PackageId) -> std::result::Result<Vec<Package>, MarketplaceError> {
+    async fn list_versions(
+        &self, id: &PackageId,
+    ) -> std::result::Result<Vec<Package>, MarketplaceError> {
         match self.get_package(id).await {
             Ok(package) => Ok(vec![package]),
             Err(_) => Ok(Vec::new()),
@@ -698,7 +761,9 @@ impl Registry for P2PRegistry {
         Ok(())
     }
 
-    async fn delete(&self, id: &PackageId, _version: &str) -> std::result::Result<(), MarketplaceError> {
+    async fn delete(
+        &self, id: &PackageId, _version: &str,
+    ) -> std::result::Result<(), MarketplaceError> {
         self.local_packages.write().await.remove(id);
         Ok(())
     }

@@ -101,15 +101,47 @@ pub struct SearchResult {
     pub downloads: u32,
 }
 
-/// Registry index structure matching ~/.ggen/registry/index.json
-#[derive(Debug, Clone, Deserialize)]
+/// Registry index structure matching ~/.ggen/registry/index.json or marketplace/registry/index.json
+#[derive(Debug, Clone, Serialize, Deserialize)]
 struct RegistryIndex {
+    #[serde(rename = "updated_at")]
     updated: String,
-    packs: HashMap<String, PackageMetadata>,
+    packages: Vec<PackageInfo>,
+    #[serde(default)]
+    search_index: HashMap<String, Vec<String>>,
 }
 
-/// Package metadata from registry
-#[derive(Debug, Clone, Deserialize)]
+/// Package info from registry index
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct PackageInfo {
+    name: String,
+    version: String,
+    category: String,
+    description: String,
+    tags: Vec<String>,
+    #[serde(default)]
+    keywords: Vec<String>,
+    #[serde(default)]
+    author: Option<String>,
+    #[serde(default)]
+    license: Option<String>,
+    #[serde(default)]
+    downloads: u32,
+    #[serde(default)]
+    stars: u32,
+    #[serde(default)]
+    production_ready: bool,
+    #[serde(default)]
+    dependencies: Vec<String>,
+    #[serde(default)]
+    path: Option<String>, // Path in GitHub repo (e.g., "marketplace/packages/agent-cli-copilot")
+    #[serde(default)]
+    download_url: Option<String>, // GitHub archive URL
+    #[serde(default)]
+    checksum: Option<String>, // SHA256 checksum
+}
+
+/// Package metadata converted from PackageInfo for search
 struct PackageMetadata {
     id: String,
     name: String,
@@ -120,9 +152,26 @@ struct PackageMetadata {
     author: String,
     latest_version: String,
     downloads: u32,
-    #[serde(default)]
     stars: u32,
     license: Option<String>,
+}
+
+impl From<PackageInfo> for PackageMetadata {
+    fn from(info: PackageInfo) -> Self {
+        Self {
+            id: info.name.clone(),
+            name: info.name,
+            description: info.description,
+            tags: info.tags,
+            keywords: info.keywords,
+            category: info.category,
+            author: info.author.unwrap_or_else(|| "unknown".to_string()),
+            latest_version: info.version,
+            downloads: info.downloads,
+            stars: info.stars,
+            license: info.license,
+        }
+    }
 }
 
 /// Calculate Levenshtein distance between two strings
@@ -218,40 +267,220 @@ fn calculate_relevance(pkg: &PackageMetadata, query: &str, fuzzy: bool) -> f64 {
     score
 }
 
-/// Load registry index from file system
-fn load_registry_index() -> Result<RegistryIndex> {
-    let registry_path = dirs::home_dir()
-        .ok_or_else(|| anyhow::anyhow!("Could not determine home directory"))?
-        .join(".ggen")
-        .join("registry")
-        .join("index.json");
+/// Load registry index from GitHub Pages or local filesystem
+///
+/// Priority order:
+/// 1. GitHub Pages (production): https://seanchatmangpt.github.io/ggen/marketplace/registry/index.json
+/// 2. Environment variable override: GGEN_REGISTRY_URL
+/// 3. Local cache: ~/.ggen/registry/index.json
+/// 4. Development: marketplace/registry/index.json (for developers)
+async fn load_registry_index() -> Result<RegistryIndex> {
+    // Determine registry URL
+    let registry_url = std::env::var("GGEN_REGISTRY_URL").unwrap_or_else(|_| {
+        "https://seanchatmangpt.github.io/ggen/marketplace/registry/index.json".to_string()
+    });
 
-    // Fallback to project registry for development/testing
-    let registry_path = if registry_path.exists() {
-        registry_path
-    } else {
-        PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .parent()
-            .ok_or_else(|| anyhow::anyhow!("Could not determine parent directory"))?
-            .join("registry")
-            .join("index.json")
-    };
-
-    if !registry_path.exists() {
-        // Return empty index if no registry found
-        return Ok(RegistryIndex {
-            updated: chrono::Utc::now().to_rfc3339(),
-            packs: HashMap::new(),
-        });
+    // Try fetching from URL first (for binary users)
+    if registry_url.starts_with("http://") || registry_url.starts_with("https://") {
+        match fetch_registry_from_url(&registry_url).await {
+            Ok(index) => {
+                // Cache the fetched registry for offline use
+                if let Err(e) = cache_registry_index(&index).await {
+                    // Log but don't fail - caching is optional
+                    tracing::warn!("Failed to cache registry index: {}", e);
+                }
+                return Ok(index);
+            }
+            Err(e) => {
+                tracing::debug!("Failed to fetch registry from {}: {}", registry_url, e);
+                // Fall through to try local filesystem
+            }
+        }
     }
 
-    let content = std::fs::read_to_string(&registry_path)
-        .map_err(|e| anyhow::anyhow!("Failed to read registry index: {}", e))?;
+    // Fallback to local filesystem (for development and offline use)
+    let possible_paths = vec![
+        // 1. User's home directory cache (production cache)
+        dirs::home_dir().map(|h| h.join(".ggen").join("registry").join("index.json")),
+        // 2. Workspace root marketplace/registry/index.json (development)
+        std::env::current_dir().ok().and_then(|cwd| {
+            // Try current directory and parent directories
+            let mut path = cwd.clone();
+            for _ in 0..5 {
+                let registry = path.join("marketplace").join("registry").join("index.json");
+                if registry.exists() {
+                    return Some(registry);
+                }
+                path = match path.parent() {
+                    Some(p) => p.to_path_buf(),
+                    None => break,
+                };
+            }
+            None
+        }),
+        // 3. Relative to CARGO_MANIFEST_DIR (compile-time path)
+        {
+            let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+            let workspace_root = manifest_dir
+                .parent()
+                .and_then(|p| p.parent())
+                .map(|p| p.join("marketplace").join("registry").join("index.json"));
+            workspace_root
+        },
+        // 4. Old registry location for backwards compatibility
+        {
+            let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+            manifest_dir
+                .parent()
+                .map(|p| p.join("registry").join("index.json"))
+        },
+    ];
 
-    let index: RegistryIndex = serde_json::from_str(&content)
-        .map_err(|e| anyhow::anyhow!("Failed to parse registry index: {}", e))?;
+    // Find first existing registry path
+    let registry_path = possible_paths.into_iter().flatten().find(|p| p.exists());
+
+    let registry_path = match registry_path {
+        Some(path) => path,
+        None => {
+            // Return empty index if no registry found
+            return Ok(RegistryIndex {
+                updated: chrono::Utc::now().to_rfc3339(),
+                packages: Vec::new(),
+                search_index: HashMap::new(),
+            });
+        }
+    };
+
+    let content = tokio::fs::read_to_string(&registry_path)
+        .await
+        .map_err(|e| {
+            ggen_utils::error::Error::new(&format!(
+                "Failed to read registry index {}: {}",
+                registry_path.display(),
+                e
+            ))
+        })?;
+
+    // Validate JSON structure before parsing
+    let json_value: serde_json::Value = serde_json::from_str(&content).map_err(|e| {
+        ggen_utils::error::Error::new(&format!(
+            "Invalid JSON in registry index {}: {}. Please check registry format.",
+            registry_path.display(),
+            e
+        ))
+    })?;
+
+    // Validate required fields
+    if !json_value.is_object() {
+        return Err(ggen_utils::error::Error::new(&format!(
+            "Invalid registry format: expected object, got {}",
+            json_value
+        )));
+    }
+
+    let index: RegistryIndex = serde_json::from_value(json_value).map_err(|e| {
+        ggen_utils::error::Error::new(&format!(
+            "Invalid registry structure {}: {}. Expected 'packages' array and 'updated' timestamp.",
+            registry_path.display(),
+            e
+        ))
+    })?;
 
     Ok(index)
+}
+
+/// Fetch registry index from HTTP/HTTPS URL with retry logic
+async fn fetch_registry_from_url(url: &str) -> Result<RegistryIndex> {
+    use reqwest::Client;
+
+    let client = Client::builder()
+        .timeout(std::time::Duration::from_secs(30))
+        .user_agent(format!("ggen/{}", env!("CARGO_PKG_VERSION")))
+        .build()
+        .map_err(|e| {
+            ggen_utils::error::Error::new(&format!("Failed to create HTTP client: {}", e))
+        })?;
+
+    const MAX_RETRIES: u32 = 3;
+    let mut last_error = None;
+
+    for attempt in 1..=MAX_RETRIES {
+        match client.get(url).send().await {
+            Ok(response) => {
+                if !response.status().is_success() {
+                    let status = response.status();
+                    if status.is_client_error() {
+                        // Don't retry on 4xx errors
+                        return Err(ggen_utils::error::Error::new(&format!(
+                            "Registry returned client error {} for URL: {}",
+                            status, url
+                        )));
+                    }
+                    last_error = Some(ggen_utils::error::Error::new(&format!(
+                        "Registry returned status {} for URL: {}",
+                        status, url
+                    )));
+                } else {
+                    match response.json::<RegistryIndex>().await {
+                        Ok(index) => {
+                            tracing::info!("Successfully fetched registry index from {}", url);
+                            return Ok(index);
+                        }
+                        Err(e) => {
+                            last_error = Some(ggen_utils::error::Error::new(&format!(
+                                "Failed to parse registry index JSON: {}",
+                                e
+                            )));
+                        }
+                    }
+                }
+            }
+            Err(e) => {
+                last_error = Some(ggen_utils::error::Error::new(&format!(
+                    "Network error fetching registry from {}: {}. Check your internet connection. Falling back to local cache if available.",
+                    url, e
+                )));
+            }
+        }
+
+        // Exponential backoff: wait 1s, 2s, 4s
+        if attempt < MAX_RETRIES {
+            let delay = std::time::Duration::from_secs(1 << (attempt - 1));
+            tokio::time::sleep(delay).await;
+        }
+    }
+
+    Err(last_error.unwrap_or_else(|| {
+        ggen_utils::error::Error::new(&format!(
+            "Failed to fetch registry after {} attempts",
+            MAX_RETRIES
+        ))
+    }))
+}
+
+/// Cache registry index to user's home directory for offline use
+async fn cache_registry_index(index: &RegistryIndex) -> Result<()> {
+    let cache_dir = dirs::home_dir()
+        .ok_or_else(|| ggen_utils::error::Error::new("Could not determine home directory"))?
+        .join(".ggen")
+        .join("registry");
+
+    // Create cache directory if it doesn't exist
+    tokio::fs::create_dir_all(&cache_dir).await.map_err(|e| {
+        ggen_utils::error::Error::new(&format!("Failed to create cache directory: {}", e))
+    })?;
+
+    let cache_path = cache_dir.join("index.json");
+    let content = serde_json::to_string_pretty(index).map_err(|e| {
+        ggen_utils::error::Error::new(&format!("Failed to serialize registry index: {}", e))
+    })?;
+
+    tokio::fs::write(&cache_path, content).await.map_err(|e| {
+        ggen_utils::error::Error::new(&format!("Failed to write cache file: {}", e))
+    })?;
+
+    tracing::debug!("Cached registry index to {}", cache_path.display());
+    Ok(())
 }
 
 /// Search for packages in the marketplace
@@ -262,17 +491,15 @@ fn load_registry_index() -> Result<RegistryIndex> {
 /// - Relevance scoring and ranking
 /// - Multiple filter options (category, author, license, stars, downloads)
 /// - Sorting by relevance, stars, or downloads
-pub async fn search_packages(
-    query: &str,
-    filters: &SearchFilters,
-) -> Result<Vec<SearchResult>> {
-    // Load registry index
-    let index = load_registry_index()?;
+pub async fn search_packages(query: &str, filters: &SearchFilters) -> Result<Vec<SearchResult>> {
+    // Load registry index (fetches from GitHub Pages or local filesystem)
+    let index = load_registry_index().await?;
 
-    // Score and filter packages
+    // Convert PackageInfo to PackageMetadata and score/filter packages
     let mut scored_packages: Vec<(PackageMetadata, f64)> = index
-        .packs
-        .into_values()
+        .packages
+        .into_iter()
+        .map(|info| PackageMetadata::from(info))
         .filter_map(|pkg| {
             // Apply filters
             if let Some(ref category) = filters.category {
@@ -288,7 +515,12 @@ pub async fn search_packages(
             }
 
             if let Some(ref license) = filters.license {
-                if pkg.license.as_ref().map(|l| !l.eq_ignore_ascii_case(license)).unwrap_or(true) {
+                if pkg
+                    .license
+                    .as_ref()
+                    .map(|l| !l.eq_ignore_ascii_case(license))
+                    .unwrap_or(true)
+                {
                     return None;
                 }
             }
@@ -307,17 +539,29 @@ pub async fn search_packages(
 
             if let Some(ref keyword) = filters.keyword {
                 let keyword_lower = keyword.to_lowercase();
-                let has_keyword = pkg.keywords.iter().any(|k| k.to_lowercase().contains(&keyword_lower))
-                    || pkg.tags.iter().any(|t| t.to_lowercase().contains(&keyword_lower));
+                let has_keyword = pkg
+                    .keywords
+                    .iter()
+                    .any(|k| k.to_lowercase().contains(&keyword_lower))
+                    || pkg
+                        .tags
+                        .iter()
+                        .any(|t| t.to_lowercase().contains(&keyword_lower));
                 if !has_keyword {
                     return None;
                 }
             }
 
             // Calculate relevance score
-            let score = calculate_relevance(&pkg, query, filters.fuzzy);
+            let score = if query.is_empty() {
+                // Empty query: give all packages a base score so they're included
+                1.0
+            } else {
+                calculate_relevance(&pkg, query, filters.fuzzy)
+            };
 
             // Only include packages with some relevance (score > 0)
+            // For empty queries, include all packages
             if score > 0.0 {
                 Some((pkg, score))
             } else {
@@ -385,19 +629,11 @@ pub async fn search_packages(
 ///
 /// This function bridges the CLI to the domain layer.
 pub async fn search_and_display(
-    query: &str,
-    category: Option<&str>,
-    keyword: Option<&str>,
-    author: Option<&str>,
-    fuzzy: bool,
-    detailed: bool,
-    json: bool,
-    limit: usize,
+    query: &str, category: Option<&str>, keyword: Option<&str>, author: Option<&str>, fuzzy: bool,
+    detailed: bool, json: bool, limit: usize,
 ) -> Result<()> {
     // Build search filters
-    let mut filters = SearchFilters::new()
-        .with_limit(limit)
-        .with_fuzzy(fuzzy);
+    let mut filters = SearchFilters::new().with_limit(limit).with_fuzzy(fuzzy);
 
     if let Some(cat) = category {
         filters = filters.with_category(cat);
@@ -415,34 +651,36 @@ pub async fn search_and_display(
     // Display results
     if json {
         let json_output = serde_json::to_string_pretty(&results)?;
-        println!("{}", json_output);
+        ggen_utils::alert_info!("{}", json_output);
     } else if results.is_empty() {
-        println!("No packages found matching '{}'", query);
-        println!("\nTry:");
-        println!("  - Using broader search terms");
-        println!("  - Removing filters");
-        println!("  - Using --fuzzy for typo tolerance");
+        ggen_utils::alert_info!("No packages found matching '{}'", query);
+        ggen_utils::alert_info!("\nTry:");
+        ggen_utils::alert_info!("  - Using broader search terms");
+        ggen_utils::alert_info!("  - Removing filters");
+        ggen_utils::alert_info!("  - Using --fuzzy for typo tolerance");
     } else {
-        println!("Found {} package(s) matching '{}':\n", results.len(), query);
+        ggen_utils::alert_info!("Found {} package(s) matching '{}':\n", results.len(), query);
 
         for result in results {
-            println!("📦 {} v{}", result.name, result.version);
-            println!("   {}", result.description);
+            ggen_utils::alert_info!("📦 {} v{}", result.name, result.version);
+            ggen_utils::alert_info!("   {}", result.description);
 
             if detailed {
                 if let Some(author) = result.author {
-                    println!("   Author: {}", author);
+                    ggen_utils::alert_info!("   Author: {}", author);
                 }
                 if let Some(category) = result.category {
-                    println!("   Category: {}", category);
+                    ggen_utils::alert_info!("   Category: {}", category);
                 }
                 if !result.tags.is_empty() {
-                    println!("   Tags: {}", result.tags.join(", "));
+                    ggen_utils::alert_info!("   Tags: {}", result.tags.join(", "));
                 }
-                println!("   ⭐ {} stars  📥 {} downloads", result.stars, result.downloads);
+                ggen_utils::alert_info!(
+                    "   ⭐ {} stars  📥 {} downloads",
+                    result.stars,
+                    result.downloads
+                );
             }
-
-            println!();
         }
     }
 
@@ -459,7 +697,7 @@ pub async fn execute_search(input: SearchInput) -> Result<Vec<SearchResult>> {
         limit: input.limit,
         ..Default::default()
     };
-    
+
     search_packages(&input.query, &filters).await
 }
 
@@ -508,7 +746,11 @@ mod tests {
 
         // Exact name match should give highest score
         let score = calculate_relevance(&pkg, "rust cli", false);
-        assert!(score >= 100.0, "Exact match should have high score: {}", score);
+        assert!(
+            score >= 100.0,
+            "Exact match should have high score: {}",
+            score
+        );
     }
 
     #[test]
@@ -533,7 +775,10 @@ mod tests {
 
         // Without fuzzy, no match
         let score_no_fuzzy = calculate_relevance(&pkg, "xyz", false);
-        assert!(score_no_fuzzy < 10.0, "Unrelated query should have low score");
+        assert!(
+            score_no_fuzzy < 10.0,
+            "Unrelated query should have low score"
+        );
     }
 
     #[tokio::test]

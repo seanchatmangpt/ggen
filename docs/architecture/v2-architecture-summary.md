@@ -39,31 +39,26 @@
 
 ```
 ggen/
-├── cli/src/
+├── crates/ggen-cli/src/
 │   ├── lib.rs                    # Entry point, auto-discovery
 │   │
-│   ├── commands/                 # CLI Layer (new in v2.0)
-│   │   ├── utils/
-│   │   │   ├── mod.rs           # Noun: "utils"
-│   │   │   └── doctor.rs        # #[verb] for "utils doctor"
-│   │   ├── project/
-│   │   │   ├── mod.rs           # Noun: "project"
-│   │   │   ├── new.rs           # #[verb] for "project new"
-│   │   │   └── gen.rs           # #[verb] for "project gen"
+│   ├── cmds/                     # CLI Layer (new in v2.0)
+│   │   ├── utils.rs             # Utils commands
+│   │   ├── project.rs           # Project commands
 │   │   └── ...
 │   │
-│   ├── domain/                   # Domain Layer (new in v2.0)
-│   │   ├── mod.rs               # Domain errors
-│   │   ├── utils/
-│   │   │   └── doctor.rs        # Pure business logic
-│   │   ├── project/
-│   │   │   ├── new.rs           # Project creation logic
-│   │   │   └── gen.rs           # Template generation logic
-│   │   └── ...
-│   │
-│   └── cmds/                     # Legacy (deprecated)
+│   └── runtime.rs                # Async/sync bridge
 │
-├── ggen-core/                    # Runtime Layer
+├── crates/ggen-domain/src/       # Domain Layer (new in v2.0)
+│   ├── lib.rs                   # Domain errors
+│   ├── utils/
+│   │   └── mod.rs               # Pure business logic
+│   ├── project/
+│   │   ├── mod.rs               # Project creation logic
+│   │   └── generate.rs          # Template generation logic
+│   └── ...
+│
+├── crates/ggen-core/             # Runtime Layer
 │   ├── template/
 │   │   ├── engine.rs            # Tera + RDF
 │   │   ├── frozen.rs            # Frozen sections

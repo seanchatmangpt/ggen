@@ -4,6 +4,7 @@
 //! not mocks like London School TDD. We verify actual behavior with real
 //! file system operations using tempdir.
 
+use chicago_tdd_tools::prelude::*;
 use ggen_utils::error::Result;
 use std::fs;
 use std::path::PathBuf;
@@ -61,53 +62,49 @@ mod search_tests {
     use super::*;
     use ggen_domain::marketplace::search::{search_packages, SearchFilters};
 
-    #[tokio::test]
-    async fn test_search_finds_exact_match() -> Result<()> {
-        let (_temp_dir, _registry_path) = setup_test_env()?;
+    async_test!(test_search_finds_exact_match, async {
+        // Arrange
+        let (_temp_dir, _registry_path) = setup_test_env().unwrap();
 
-        // Real search with real registry
+        // Act: Real search with real registry
         let filters = SearchFilters::new().with_limit(10);
         let results = search_packages("test-package", &filters).await;
 
-        // Chicago TDD: Verify ACTUAL state
-        assert!(results.is_ok(), "Search should succeed");
+        // Assert: Chicago TDD - Verify ACTUAL state
+        assert_ok!(results, "Search should succeed");
         let results = results.unwrap();
         assert_eq!(results.len(), 1, "Should find exactly one package");
         assert_eq!(results[0].id, "test-package");
         assert_eq!(results[0].version, "1.0.0");
+    });
 
-        Ok(())
-    }
+    async_test!(test_search_finds_partial_match, async {
+        // Arrange
+        let (_temp_dir, _registry_path) = setup_test_env().unwrap();
 
-    #[tokio::test]
-    async fn test_search_finds_partial_match() -> Result<()> {
-        let (_temp_dir, _registry_path) = setup_test_env()?;
-
+        // Act
         let filters = SearchFilters::new().with_limit(10);
         let results = search_packages("rust", &filters).await;
 
-        // Verify real results
-        assert!(results.is_ok());
+        // Assert: Verify real results
+        assert_ok!(results);
         let results = results.unwrap();
         assert!(!results.is_empty(), "Should find rust-related packages");
+    });
 
-        Ok(())
-    }
+    async_test!(test_search_respects_limit, async {
+        // Arrange
+        let (_temp_dir, _registry_path) = setup_test_env().unwrap();
 
-    #[tokio::test]
-    async fn test_search_respects_limit() -> Result<()> {
-        let (_temp_dir, _registry_path) = setup_test_env()?;
-
+        // Act
         let filters = SearchFilters::new().with_limit(1);
         let results = search_packages("test", &filters).await;
 
-        // Verify limit is enforced
-        assert!(results.is_ok());
+        // Assert: Verify limit is enforced
+        assert_ok!(results);
         let results = results.unwrap();
         assert!(results.len() <= 1, "Should respect limit of 1");
-
-        Ok(())
-    }
+    });
 }
 
 #[cfg(test)]
@@ -139,7 +136,10 @@ mod install_tests {
 
         // Verify lockfile was ACTUALLY created
         let lockfile = Lockfile::load()?;
-        assert!(lockfile.has_package("test-package"), "Package should be in lockfile");
+        assert!(
+            lockfile.has_package("test-package"),
+            "Package should be in lockfile"
+        );
 
         let installed = lockfile.get_package("test-package").unwrap();
         assert_eq!(installed.version, "1.0.0");
@@ -164,7 +164,10 @@ mod install_tests {
 
         // Chicago TDD: Verify NO state changes occurred
         let lockfile = Lockfile::load()?;
-        assert!(!lockfile.has_package("test-package"), "Dry run should not modify lockfile");
+        assert!(
+            !lockfile.has_package("test-package"),
+            "Dry run should not modify lockfile"
+        );
 
         Ok(())
     }
@@ -291,34 +294,34 @@ mod update_tests {
 mod publish_tests {
     use super::*;
 
-    #[test]
-    fn test_publish_validates_cargo_toml_exists() -> Result<()> {
-        let temp_dir = TempDir::new()?;
+    test!(test_publish_validates_cargo_toml_exists, {
+        // Arrange
+        let temp_dir = TempDir::new().unwrap();
         let package_dir = temp_dir.path().join("my-package");
-        fs::create_dir_all(&package_dir)?;
+        fs::create_dir_all(&package_dir).unwrap();
 
-        // Create Cargo.toml
+        // Act: Create Cargo.toml
         let cargo_toml = package_dir.join("Cargo.toml");
-        fs::write(&cargo_toml, "[package]\nname = \"my-package\"\nversion = \"1.0.0\"\n")?;
+        fs::write(
+            &cargo_toml,
+            "[package]\nname = \"my-package\"\nversion = \"1.0.0\"\n",
+        )
+        .unwrap();
 
-        // Chicago TDD: Verify REAL file exists
+        // Assert: Chicago TDD - Verify REAL file exists
         assert!(cargo_toml.exists(), "Cargo.toml should exist");
+    });
 
-        Ok(())
-    }
-
-    #[test]
-    fn test_publish_fails_without_cargo_toml() -> Result<()> {
-        let temp_dir = TempDir::new()?;
+    test!(test_publish_fails_without_cargo_toml, {
+        // Arrange
+        let temp_dir = TempDir::new().unwrap();
         let package_dir = temp_dir.path().join("my-package");
-        fs::create_dir_all(&package_dir)?;
+        fs::create_dir_all(&package_dir).unwrap();
 
-        // No Cargo.toml created
+        // Act: No Cargo.toml created
 
-        // Chicago TDD: Verify file does NOT exist
+        // Assert: Chicago TDD - Verify file does NOT exist
         let cargo_toml = package_dir.join("Cargo.toml");
         assert!(!cargo_toml.exists(), "Cargo.toml should not exist");
-
-        Ok(())
-    }
+    });
 }

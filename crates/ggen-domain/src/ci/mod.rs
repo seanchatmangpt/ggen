@@ -4,4 +4,4 @@
 
 pub mod workflow;
 
-pub use workflow::{WorkflowManager, WorkflowStatusChecker, WorkflowLogViewer};
+pub use workflow::{WorkflowLogViewer, WorkflowManager, WorkflowStatusChecker};

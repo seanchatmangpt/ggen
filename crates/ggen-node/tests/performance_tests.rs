@@ -112,11 +112,7 @@ mod performance {
         let start = Instant::now();
 
         let tasks: Vec<_> = (0..10)
-            .map(|_| {
-                tokio::spawn(async {
-                    run_for_node(vec!["--version".to_string()]).await
-                })
-            })
+            .map(|_| tokio::spawn(async { run_for_node(vec!["--version".to_string()]).await }))
             .collect();
 
         let results = futures::future::join_all(tasks).await;
@@ -214,7 +210,9 @@ mod performance {
         assert!(
             ratio < 3.0,
             "Performance should not degrade significantly: first={:?}, last={:?}, ratio={}",
-            first, last, ratio
+            first,
+            last,
+            ratio
         );
     }
 
@@ -224,12 +222,8 @@ mod performance {
         let large_arg = "x".repeat(10_000);
         let start = Instant::now();
 
-        let result = run_for_node(vec![
-            "market".to_string(),
-            "search".to_string(),
-            large_arg,
-        ])
-        .await;
+        let result =
+            run_for_node(vec!["market".to_string(), "search".to_string(), large_arg]).await;
 
         let duration = start.elapsed();
 
@@ -282,11 +276,7 @@ mod throughput_tests {
         let iterations = 20;
 
         let tasks: Vec<_> = (0..iterations)
-            .map(|_| {
-                tokio::spawn(async {
-                    run_for_node(vec!["--version".to_string()]).await
-                })
-            })
+            .map(|_| tokio::spawn(async { run_for_node(vec!["--version".to_string()]).await }))
             .collect();
 
         let results = futures::future::join_all(tasks).await;

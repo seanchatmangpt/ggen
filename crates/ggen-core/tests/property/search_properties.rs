@@ -2,7 +2,7 @@
 
 #[cfg(feature = "proptest")]
 mod tests {
-    use ggen_core::registry::{PackMetadata, VersionMetadata, RegistryIndex, SearchResult};
+    use ggen_core::registry::{PackMetadata, RegistryIndex, SearchResult, VersionMetadata};
     use proptest::prelude::*;
     use std::collections::HashMap;
 

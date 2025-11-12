@@ -10,6 +10,7 @@
 use assert_cmd::Command;
 use assert_fs::prelude::*;
 use assert_fs::TempDir;
+use chicago_tdd_tools::prelude::*;
 use predicates::prelude::*;
 use std::fs;
 
@@ -17,13 +18,12 @@ use std::fs;
 // E2E: Complete Template Generation Workflow
 // ============================================================================
 
-#[test]
-fn e2e_template_generate_complete() {
+test!(e2e_template_generate_complete, {
+    // Arrange
     let temp = TempDir::new().unwrap();
     let template_file = temp.child("microservice.yaml");
     let output_dir = temp.child("my-service");
 
-    // Create realistic microservice template
     template_file
         .write_str(
             r#"
@@ -105,7 +105,7 @@ nodes:
         )
         .unwrap();
 
-    // Execute complete generation
+    // Act
     Command::cargo_bin("ggen")
         .unwrap()
         .args([
@@ -125,7 +125,7 @@ nodes:
         .assert()
         .success();
 
-    // Verify complete project structure
+    // Assert
     let service_dir = output_dir.child("payment-api");
     service_dir.assert(predicate::path::exists());
 
@@ -146,10 +146,10 @@ nodes:
     let readme = service_dir.child("README.md");
     readme.assert(predicate::path::exists());
     readme.assert(predicate::str::contains("payment-api"));
-}
+});
 
-#[test]
-fn e2e_template_with_nested_structure() {
+test!(e2e_template_with_nested_structure, {
+    // Arrange
     let temp = TempDir::new().unwrap();
     let template_file = temp.child("webapp.yaml");
     let output_dir = temp.child("webapp");
@@ -218,32 +218,33 @@ nodes:
         .assert()
         .success();
 
-    // Verify nested structure
+    // Assert
     let app_dir = output_dir.child("my-app");
-    app_dir.child("frontend/src/App.tsx").assert(predicate::path::exists());
+    app_dir
+        .child("frontend/src/App.tsx")
+        .assert(predicate::path::exists());
     app_dir
         .child("backend/src/main.rs")
         .assert(predicate::path::exists());
     app_dir
         .child("docker-compose.yml")
         .assert(predicate::path::exists());
-}
+});
 
 // ============================================================================
 // E2E: Marketplace Search and Discovery
 // ============================================================================
 
-#[test]
-fn e2e_marketplace_search_complete() {
-    // Test complete search workflow
+test!(e2e_marketplace_search_complete, {
+    // Arrange & Act & Assert
     let mut cmd = Command::cargo_bin("ggen").unwrap();
     cmd.args(["market", "search", "rust", "--limit", "10"])
         .assert()
         .success();
-}
+});
 
-#[test]
-fn e2e_marketplace_search_with_filters() {
+test!(e2e_marketplace_search_with_filters, {
+    // Arrange & Act & Assert
     Command::cargo_bin("ggen")
         .unwrap()
         .args([
@@ -257,38 +258,36 @@ fn e2e_marketplace_search_with_filters() {
         ])
         .assert()
         .success();
-}
+});
 
-#[test]
-fn e2e_marketplace_package_info() {
-    // Test getting detailed package information
+test!(e2e_marketplace_package_info, {
+    // Arrange & Act & Assert
     Command::cargo_bin("ggen")
         .unwrap()
         .args(["market", "info", "rust-cli-template"])
         .assert()
         .success();
-}
+});
 
-#[test]
-fn e2e_marketplace_list_installed() {
-    // Test listing installed packages
+test!(e2e_marketplace_list_installed, {
+    // Arrange & Act & Assert
     Command::cargo_bin("ggen")
         .unwrap()
         .args(["market", "list"])
         .assert()
         .success();
-}
+});
 
 // ============================================================================
 // E2E: Complete Project Generation Workflow
 // ============================================================================
 
-#[test]
-fn e2e_project_gen_complete() {
+test!(e2e_project_gen_complete, {
+    // Arrange
     let temp = TempDir::new().unwrap();
     let project_dir = temp.child("my-cli-tool");
 
-    // Generate complete CLI project
+    // Act
     Command::cargo_bin("ggen")
         .unwrap()
         .args([
@@ -306,15 +305,16 @@ fn e2e_project_gen_complete() {
         .assert()
         .success();
 
-    // Verify project was created
+    // Assert
     project_dir.assert(predicate::path::exists());
-}
+});
 
-#[test]
-fn e2e_project_with_git_init() {
+test!(e2e_project_with_git_init, {
+    // Arrange
     let temp = TempDir::new().unwrap();
     let project_dir = temp.child("git-project");
 
+    // Act
     Command::cargo_bin("ggen")
         .unwrap()
         .args([
@@ -331,24 +331,21 @@ fn e2e_project_with_git_init() {
         .assert()
         .success();
 
-    // Verify git was initialized
-    let git_dir = project_dir.child(".git");
+    // Assert
     if project_dir.path().exists() {
-        // Git init is optional, just verify no errors
         assert!(true);
     }
-}
+});
 
 // ============================================================================
 // E2E: Complete Lifecycle Workflow
 // ============================================================================
 
-#[test]
-fn e2e_lifecycle_complete_workflow() {
+test!(e2e_lifecycle_complete_workflow, {
+    // Arrange
     let temp = TempDir::new().unwrap();
     let make_file = temp.child("make.toml");
 
-    // Create comprehensive lifecycle configuration
     make_file
         .write_str(
             r#"
@@ -401,7 +398,7 @@ commands = [
         )
         .unwrap();
 
-    // Run complete lifecycle
+    // Act & Assert
     Command::cargo_bin("ggen")
         .unwrap()
         .args([
@@ -413,10 +410,9 @@ commands = [
         ])
         .assert()
         .success();
-}
+});
 
-#[test]
-fn e2e_lifecycle_list_phases() {
+test!(e2e_lifecycle_list_phases, {
     let temp = TempDir::new().unwrap();
     let make_file = temp.child("make.toml");
 
@@ -448,18 +444,17 @@ commands = ["echo 'test'"]
         .assert()
         .success()
         .stdout(predicate::str::contains("build").or(predicate::str::contains("Phases")));
-}
+});
 
 // ============================================================================
 // E2E: Graph Operations Workflow
 // ============================================================================
 
-#[test]
-fn e2e_graph_import_and_query() {
+test!(e2e_graph_import_and_query, {
+    // Arrange
     let temp = TempDir::new().unwrap();
     let graph_file = temp.child("project-graph.ttl");
 
-    // Create RDF graph
     graph_file
         .write_str(
             r#"
@@ -481,7 +476,7 @@ ex:project2 a ex:Project ;
         )
         .unwrap();
 
-    // Import graph
+    // Act & Assert
     Command::cargo_bin("ggen")
         .unwrap()
         .args([
@@ -494,7 +489,6 @@ ex:project2 a ex:Project ;
         .assert()
         .success();
 
-    // Query graph
     Command::cargo_bin("ggen")
         .unwrap()
         .args([
@@ -506,18 +500,19 @@ ex:project2 a ex:Project ;
         ])
         .assert()
         .success();
-}
+});
 
 // ============================================================================
 // E2E: AI Integration Workflow
 // ============================================================================
 
 #[cfg(feature = "live-llm-tests")]
-#[test]
-fn e2e_ai_generate_template() {
+test!(e2e_ai_generate_template, {
+    // Arrange
     let temp = TempDir::new().unwrap();
     let output_file = temp.child("ai-template.yaml");
 
+    // Act & Assert
     Command::cargo_bin("ggen")
         .unwrap()
         .args([
@@ -532,24 +527,23 @@ fn e2e_ai_generate_template() {
         .success();
 
     output_file.assert(predicate::path::exists());
-}
+});
 
 // ============================================================================
 // E2E: Multi-Step Real-World Scenarios
 // ============================================================================
 
-#[test]
-fn e2e_scenario_new_microservice_project() {
+test!(e2e_scenario_new_microservice_project, {
+    // Arrange
     let temp = TempDir::new().unwrap();
 
-    // Step 1: Search for microservice template
+    // Act & Assert
     Command::cargo_bin("ggen")
         .unwrap()
         .args(["market", "search", "microservice", "--limit", "5"])
         .assert()
         .success();
 
-    // Step 2: Generate project
     let project_dir = temp.child("payment-service");
     Command::cargo_bin("ggen")
         .unwrap()
@@ -566,24 +560,22 @@ fn e2e_scenario_new_microservice_project() {
         .assert()
         .success();
 
-    // Step 3: Check doctor for prerequisites
     Command::cargo_bin("ggen")
         .unwrap()
         .args(["doctor"])
         .assert()
         .success();
-}
+});
 
-#[test]
-fn e2e_scenario_template_development() {
+test!(e2e_scenario_template_development, {
+    // Arrange
     let temp = TempDir::new().unwrap();
     let template_file = temp.child("custom-template.yaml");
     let test_output = temp.child("test-output");
 
-    // Step 1: Create template
     template_file
         .write_str(
-            r#"
+            r##"
 name: "custom-template"
 variables:
   - name: project_name
@@ -595,11 +587,11 @@ nodes:
       - name: "README.md"
         type: file
         content: "# {{project_name}}"
-"#,
+"##,
         )
         .unwrap();
 
-    // Step 2: Test template generation
+    // Act
     Command::cargo_bin("ggen")
         .unwrap()
         .args([
@@ -615,23 +607,23 @@ nodes:
         .assert()
         .success();
 
-    // Step 3: Validate output
+    // Assert
     test_output
         .child("test-project/README.md")
         .assert(predicate::path::exists());
-}
+});
 
 // ============================================================================
 // E2E: Error Recovery Scenarios
 // ============================================================================
 
-#[test]
-fn e2e_recovery_invalid_template_graceful() {
+test!(e2e_recovery_invalid_template_graceful, {
+    // Arrange
     let temp = TempDir::new().unwrap();
     let bad_template = temp.child("bad.yaml");
     bad_template.write_str("!!!invalid yaml!!!").unwrap();
 
-    // Should fail gracefully with helpful error
+    // Act & Assert
     Command::cargo_bin("ggen")
         .unwrap()
         .args([
@@ -645,11 +637,10 @@ fn e2e_recovery_invalid_template_graceful() {
         .assert()
         .failure()
         .stderr(predicate::str::is_empty().not());
-}
+});
 
-#[test]
-fn e2e_recovery_network_timeout_graceful() {
-    // Test graceful handling of network issues
+test!(e2e_recovery_network_timeout_graceful, {
+    // Arrange & Act & Assert
     Command::cargo_bin("ggen")
         .unwrap()
         .args([
@@ -660,20 +651,19 @@ fn e2e_recovery_network_timeout_graceful() {
             "1",
         ])
         .assert()
-        .success(); // Should complete even if no results
-}
+        .success();
+});
 
 // ============================================================================
 // E2E: Performance Scenarios
 // ============================================================================
 
-#[test]
-fn e2e_performance_large_template() {
+test!(e2e_performance_large_template, {
+    // Arrange
     let temp = TempDir::new().unwrap();
     let template_file = temp.child("large-template.yaml");
     let output_dir = temp.child("large-output");
 
-    // Create template with many files
     let mut nodes = String::from(
         r#"
 name: "large-project"
@@ -687,7 +677,6 @@ nodes:
 "#,
     );
 
-    // Generate 50 file nodes
     for i in 0..50 {
         nodes.push_str(&format!(
             r#"
@@ -701,7 +690,7 @@ nodes:
 
     template_file.write_str(&nodes).unwrap();
 
-    // Should complete in reasonable time
+    // Act & Assert
     Command::cargo_bin("ggen")
         .unwrap()
         .args([
@@ -716,4 +705,4 @@ nodes:
         ])
         .assert()
         .success();
-}
+});

@@ -197,9 +197,7 @@ fn test_marketplace_install_with_version() {
 
     // Should not panic or error on argument parsing
     assert!(
-        stderr.contains("not found")
-        || stderr.contains("No package")
-        || output.status.success(),
+        stderr.contains("not found") || stderr.contains("No package") || output.status.success(),
         "Should handle missing package gracefully"
     );
 }
@@ -409,11 +407,7 @@ fn test_help_command_performance() {
     // Verify: Help commands are fast
     let start = std::time::Instant::now();
 
-    ggen()
-        .arg("marketplace")
-        .arg("--help")
-        .assert()
-        .success();
+    ggen().arg("marketplace").arg("--help").assert().success();
 
     let duration = start.elapsed();
 
@@ -468,10 +462,7 @@ fn test_marketplace_install_creates_expected_structure() {
         .assert();
 
     // Verify install directory exists
-    assert!(
-        install_dir.exists(),
-        "Install directory should be created"
-    );
+    assert!(install_dir.exists(), "Install directory should be created");
 }
 
 // =============================================================================
@@ -529,7 +520,7 @@ fn test_marketplace_command_validates_arguments() {
         .stderr(
             predicate::str::contains("error")
                 .or(predicate::str::contains("invalid"))
-                .or(predicate::str::contains("unrecognized"))
+                .or(predicate::str::contains("unrecognized")),
         );
 }
 

@@ -1,9 +1,9 @@
 // Project Generator Module
 // Production-ready code with error handling
 
-pub mod rust;
-pub mod nextjs;
 pub mod common;
+pub mod nextjs;
+pub mod rust;
 
 use anyhow::Result;
 use std::path::{Path, PathBuf};
@@ -73,15 +73,19 @@ impl GeneratorFactory {
             ProjectType::RustWeb | ProjectType::RustCli | ProjectType::RustLib => {
                 Ok(Box::new(rust::RustProjectGenerator::new()))
             }
-            ProjectType::NextJs | ProjectType::Nuxt => {
-                Ok(Box::new(nextjs::NextJsGenerator::new()))
-            }
+            ProjectType::NextJs | ProjectType::Nuxt => Ok(Box::new(nextjs::NextJsGenerator::new())),
         }
     }
 }
 
 /// File system writer for creating files and directories
 pub struct FileSystemWriter;
+
+impl Default for FileSystemWriter {
+    fn default() -> Self {
+        Self
+    }
+}
 
 impl FileSystemWriter {
     pub fn new() -> Self {
@@ -101,6 +105,12 @@ impl FileSystemWriter {
 
 /// Git repository initializer
 pub struct GitInitializer;
+
+impl Default for GitInitializer {
+    fn default() -> Self {
+        Self
+    }
+}
 
 impl GitInitializer {
     pub fn new() -> Self {
@@ -130,6 +140,12 @@ impl GitInitializer {
 /// Dependency installer for different project types
 pub struct DependencyInstaller;
 
+impl Default for DependencyInstaller {
+    fn default() -> Self {
+        Self
+    }
+}
+
 impl DependencyInstaller {
     pub fn new() -> Self {
         Self
@@ -147,7 +163,7 @@ impl DependencyInstaller {
     fn install_cargo_deps(&self, path: &Path) -> Result<()> {
         use std::process::Command;
 
-        println!("Installing Cargo dependencies...");
+        ggen_utils::alert_info!("Installing Cargo dependencies...");
 
         let output = Command::new("cargo")
             .arg("fetch")
@@ -157,10 +173,11 @@ impl DependencyInstaller {
 
         if !output.status.success() {
             // Non-critical failure - dependencies will be fetched on first build
-            eprintln!(
-                "Warning: cargo fetch failed: {}",
+            let error_msg = format!(
+                "cargo fetch failed: {}",
                 String::from_utf8_lossy(&output.stderr)
             );
+            ggen_utils::alert_warning!(&error_msg);
         }
 
         Ok(())
@@ -169,7 +186,7 @@ impl DependencyInstaller {
     fn install_npm_deps(&self, path: &Path) -> Result<()> {
         use std::process::Command;
 
-        println!("Installing npm dependencies...");
+        ggen_utils::alert_info!("Installing npm dependencies...");
 
         let output = Command::new("npm")
             .arg("install")
@@ -235,9 +252,9 @@ pub async fn create_new_project(config: &ProjectConfig) -> Result<()> {
     let deps = DependencyInstaller::new();
     deps.install(&project_path, &config.project_type)?;
 
-    println!("✅ Successfully created project: {}", config.name);
-    println!("   Type: {}", config.project_type);
-    println!("   Path: {}", project_path.display());
+    ggen_utils::alert_success!(&format!("Successfully created project: {}", config.name));
+    ggen_utils::alert_info!(&format!("   Type: {}", config.project_type));
+    ggen_utils::alert_info!(&format!("   Path: {}", project_path.display()));
 
     Ok(())
 }

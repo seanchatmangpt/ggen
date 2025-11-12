@@ -3,7 +3,9 @@
 #[test]
 fn test_rdf_types_accessible_from_ggen_ai() {
     // Verify all RDF types are accessible from ggen_ai root
-    use ggen_ai::{Argument, ArgumentType, CliProject, Dependency, Noun, TemplateRenderer, Validation, Verb};
+    use ggen_ai::{
+        Argument, ArgumentType, CliProject, Dependency, Noun, TemplateRenderer, Validation, Verb,
+    };
 
     // Create a minimal project structure
     let _project = CliProject {
@@ -69,7 +71,9 @@ fn test_rdf_types_accessible_from_ggen_ai() {
 #[test]
 fn test_rdf_module_structure() {
     // Verify RDF module types are accessible via module path
-    use ggen_ai::rdf::types::{CliProject, Noun, Verb, Argument, ArgumentType, Validation, Dependency};
+    use ggen_ai::rdf::types::{
+        Argument, ArgumentType, CliProject, Dependency, Noun, Validation, Verb,
+    };
     use ggen_ai::rdf::TemplateRenderer;
 
     // Verify we can reference types via full path

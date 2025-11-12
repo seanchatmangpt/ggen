@@ -514,7 +514,7 @@ ggen hook create \
 
 4. **Test Chicago TDD validation:**
    ```bash
-   cargo test --package ggen-cli-lib --test integration_cli
+   cargo make test
    ```
 
 ---

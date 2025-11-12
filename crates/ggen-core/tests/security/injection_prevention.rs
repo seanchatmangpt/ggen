@@ -116,12 +116,7 @@ fn test_template_injection_prevention() {
 #[test]
 fn test_ldap_injection_prevention() {
     // Test LDAP injection attempts
-    let ldap_inputs = vec![
-        "*",
-        "*)(uid=*",
-        "admin)(|(password=*",
-        "\\2a\\28\\29",
-    ];
+    let ldap_inputs = vec!["*", "*)(uid=*", "admin)(|(password=*", "\\2a\\28\\29"];
 
     for input in ldap_inputs {
         let json = serde_json::to_string(&input).unwrap();
@@ -169,13 +164,7 @@ fn test_xml_injection_prevention() {
 #[test]
 fn test_csv_injection_prevention() {
     // Test CSV formula injection
-    let csv_inputs = vec![
-        "=1+1",
-        "+1+1",
-        "-1+1",
-        "@SUM(1+1)",
-        "=cmd|'/c calc'!A1",
-    ];
+    let csv_inputs = vec!["=1+1", "+1+1", "-1+1", "@SUM(1+1)", "=cmd|'/c calc'!A1"];
 
     for input in csv_inputs {
         let json = serde_json::to_string(&input).unwrap();

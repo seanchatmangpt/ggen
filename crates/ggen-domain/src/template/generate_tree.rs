@@ -1,25 +1,23 @@
 //! File tree generation domain logic
 
-
-use ggen_core::{FileTreeTemplate, TemplateContext, TemplateParser, GenerationResult};
+use ggen_core::{FileTreeTemplate, GenerationResult, TemplateContext, TemplateParser};
 use ggen_utils::error::Result;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
 /// Generate file tree from template
 pub fn generate_file_tree(
-    template_path: &Path,
-    output_dir: &Path,
-    variables: &HashMap<String, String>,
-    force: bool,
+    template_path: &Path, output_dir: &Path, variables: &HashMap<String, String>, force: bool,
 ) -> Result<GenerationResult> {
     // Load and parse template
     let template = TemplateParser::parse_file(template_path)
         .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to parse template: {}", e)))?;
 
     // Create template context from variables
-    let var_map: std::collections::BTreeMap<String, String> =
-        variables.iter().map(|(k, v)| (k.clone(), v.clone())).collect();
+    let var_map: std::collections::BTreeMap<String, String> = variables
+        .iter()
+        .map(|(k, v)| (k.clone(), v.clone()))
+        .collect();
 
     let context = TemplateContext::from_map(var_map)
         .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to create context: {}", e)))?;
@@ -48,14 +46,10 @@ pub fn generate_file_tree(
 
 /// Check if generation would overwrite existing files
 fn would_overwrite(
-    template: &FileTreeTemplate,
-    output: &Path,
-    context: &TemplateContext,
+    template: &FileTreeTemplate, output: &Path, context: &TemplateContext,
 ) -> Result<bool> {
     fn check_nodes(
-        nodes: &[ggen_core::FileTreeNode],
-        current_path: &Path,
-        context: &TemplateContext,
+        nodes: &[ggen_core::FileTreeNode], current_path: &Path, context: &TemplateContext,
     ) -> Result<bool> {
         for node in nodes {
             let rendered_name = context
@@ -192,10 +186,10 @@ pub fn run(args: &GenerateTreeInput) -> Result<()> {
 
     let output = runtime.block_on(execute_generate_tree(args.clone()))?;
 
-    println!("✅ Generated file tree from: {}", args.template.display());
-    println!("📁 Output directory: {}", output.output_path);
-    println!("📄 Files created: {}", output.files_generated);
-    println!("📂 Directories created: {}", output.directories_created);
+    ggen_utils::alert_success!("Generated file tree from: {}", args.template.display());
+    ggen_utils::alert_info!("📁 Output directory: {}", output.output_path);
+    ggen_utils::alert_info!("📄 Files created: {}", output.files_generated);
+    ggen_utils::alert_info!("📂 Directories created: {}", output.directories_created);
 
     Ok(())
 }

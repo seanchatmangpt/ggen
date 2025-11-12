@@ -10,7 +10,14 @@ use crate::lib::otel::*;
 fn test_all_commands_create_root_spans() {
     // Arrange
     let tracer = MockTracerProvider::new();
-    let commands = vec!["doctor", "help_me", "quickstart", "search", "add", "ai.generate"];
+    let commands = vec![
+        "doctor",
+        "help_me",
+        "quickstart",
+        "search",
+        "add",
+        "ai.generate",
+    ];
 
     // Act: Simulate each command creating a span
     for cmd in &commands {
@@ -169,8 +176,14 @@ fn test_performance_attributes_recorded() {
 
     // Assert: Performance metrics captured
     let recorded = tracer.find_span("ggen.search").unwrap();
-    assert!(recorded.attributes.iter().any(|(k, v)| k == "duration_ms" && v == "45"));
-    assert!(recorded.attributes.iter().any(|(k, v)| k == "results.count" && v == "12"));
+    assert!(recorded
+        .attributes
+        .iter()
+        .any(|(k, v)| k == "duration_ms" && v == "45"));
+    assert!(recorded
+        .attributes
+        .iter()
+        .any(|(k, v)| k == "results.count" && v == "12"));
 }
 
 #[test]
@@ -195,9 +208,18 @@ fn test_ai_provider_attributes_recorded() {
 
     // Assert: AI-specific attributes present
     let recorded = tracer.find_span("ggen.ai.generate").unwrap();
-    assert!(recorded.attributes.iter().any(|(k, v)| k == "ai.provider" && v == "openai"));
-    assert!(recorded.attributes.iter().any(|(k, v)| k == "ai.model" && v == "gpt-4o"));
-    assert!(recorded.attributes.iter().any(|(k, _)| k == "ai.tokens.input"));
+    assert!(recorded
+        .attributes
+        .iter()
+        .any(|(k, v)| k == "ai.provider" && v == "openai"));
+    assert!(recorded
+        .attributes
+        .iter()
+        .any(|(k, v)| k == "ai.model" && v == "gpt-4o"));
+    assert!(recorded
+        .attributes
+        .iter()
+        .any(|(k, _)| k == "ai.tokens.input"));
 }
 
 #[test]

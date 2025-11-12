@@ -1,0 +1,447 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix schema: <http://schema.org/> .
+@prefix dpipe: <http://ggen.cli/ontology/data-pipeline#> .
+@prefix clap: <http://ggen.cli/ontology/clap-noun-verb#> .
+
+# ============================================================================
+# Data Pipeline CLI Ontology
+# ============================================================================
+# Complete ETL pipeline ontology with nouns, verbs, and data integration
+# Supports multiple sources, transformations, and sinks
+# ============================================================================
+
+dpipe:DataPipelineOntology a owl:Ontology ;
+    dcterms:title "Data Pipeline CLI Ontology" ;
+    dcterms:description "ETL data pipelines, transformation, and integration using clap-noun-verb pattern" ;
+    dcterms:created "2025-01-09"^^xsd:date ;
+    dcterms:creator "ggen Marketplace" ;
+    owl:versionInfo "1.0.0" ;
+    rdfs:label "Data Pipeline CLI Ontology" .
+
+# ============================================================================
+# Core Noun Classes
+# ============================================================================
+
+dpipe:Pipeline a owl:Class ;
+    rdfs:label "Pipeline" ;
+    rdfs:comment "An ETL pipeline with sources, transformations, and sinks" ;
+    rdfs:subClassOf clap:Noun ;
+    schema:name "pipeline" .
+
+dpipe:Source a owl:Class ;
+    rdfs:label "Source" ;
+    rdfs:comment "A data source for ingestion (RDF, CSV, JSON, SQL, API)" ;
+    rdfs:subClassOf clap:Noun ;
+    schema:name "source" .
+
+dpipe:Transform a owl:Class ;
+    rdfs:label "Transform" ;
+    rdfs:comment "A data transformation operation (map, filter, join, aggregate)" ;
+    rdfs:subClassOf clap:Noun ;
+    schema:name "transform" .
+
+dpipe:Sink a owl:Class ;
+    rdfs:label "Sink" ;
+    rdfs:comment "A data sink target (RDF store, database, file, API)" ;
+    rdfs:subClassOf clap:Noun ;
+    schema:name "sink" .
+
+# ============================================================================
+# Pipeline Verbs
+# ============================================================================
+
+dpipe:create a clap:Verb ;
+    rdfs:label "create" ;
+    rdfs:comment "Create a new pipeline with sources, transforms, and sinks" ;
+    clap:appliesToNoun dpipe:Pipeline ;
+    clap:hasParameter dpipe:pipelineName, dpipe:pipelineDescription, dpipe:sourceConfig, dpipe:transformConfig, dpipe:sinkConfig ;
+    clap:example "data-pipeline pipeline create --name 'csv-to-rdf' --sources csv:data.csv --transforms 'map:schema' --sinks rdf:store" ;
+    schema:description "Create a new ETL pipeline definition" .
+
+dpipe:run a clap:Verb ;
+    rdfs:label "run" ;
+    rdfs:comment "Execute a pipeline immediately" ;
+    clap:appliesToNoun dpipe:Pipeline ;
+    clap:hasParameter dpipe:pipelineName, dpipe:dryRun, dpipe:parallelism, dpipe:checkpoints ;
+    clap:example "data-pipeline pipeline run --name 'csv-to-rdf' --parallelism 4" ;
+    schema:description "Execute an ETL pipeline with specified configuration" .
+
+dpipe:schedule a clap:Verb ;
+    rdfs:label "schedule" ;
+    rdfs:comment "Schedule pipeline execution (cron, interval, event-driven)" ;
+    clap:appliesToNoun dpipe:Pipeline ;
+    clap:hasParameter dpipe:pipelineName, dpipe:cronExpression, dpipe:interval, dpipe:eventTrigger ;
+    clap:example "data-pipeline pipeline schedule --name 'daily-etl' --cron '0 2 * * *'" ;
+    schema:description "Schedule automatic pipeline execution" .
+
+dpipe:pause a clap:Verb ;
+    rdfs:label "pause" ;
+    rdfs:comment "Pause a running or scheduled pipeline" ;
+    clap:appliesToNoun dpipe:Pipeline ;
+    clap:hasParameter dpipe:pipelineName, dpipe:graceful ;
+    clap:example "data-pipeline pipeline pause --name 'csv-to-rdf' --graceful" ;
+    schema:description "Pause pipeline execution gracefully or immediately" .
+
+dpipe:monitor a clap:Verb ;
+    rdfs:label "monitor" ;
+    rdfs:comment "Monitor pipeline execution and metrics" ;
+    clap:appliesToNoun dpipe:Pipeline ;
+    clap:hasParameter dpipe:pipelineName, dpipe:metricsType, dpipe:outputFormat ;
+    clap:example "data-pipeline pipeline monitor --name 'csv-to-rdf' --metrics all --format json" ;
+    schema:description "View pipeline execution metrics and status" .
+
+# ============================================================================
+# Source Verbs
+# ============================================================================
+
+dpipe:register a clap:Verb ;
+    rdfs:label "register" ;
+    rdfs:comment "Register a data source (RDF, CSV, JSON, SQL, API)" ;
+    clap:appliesToNoun dpipe:Source ;
+    clap:hasParameter dpipe:sourceName, dpipe:sourceType, dpipe:connectionString, dpipe:credentials ;
+    clap:example "data-pipeline source register --name 'users-db' --type postgresql --connection 'postgres://localhost/users'" ;
+    schema:description "Register a new data source for pipeline use" .
+
+dpipe:test a clap:Verb ;
+    rdfs:label "test" ;
+    rdfs:comment "Test source connection and accessibility" ;
+    clap:appliesToNoun dpipe:Source, dpipe:Sink ;
+    clap:hasParameter dpipe:sourceName, dpipe:timeout ;
+    clap:example "data-pipeline source test --name 'users-db' --timeout 30s" ;
+    schema:description "Validate source connectivity and permissions" .
+
+dpipe:preview a clap:Verb ;
+    rdfs:label "preview" ;
+    rdfs:comment "Preview source data (first N rows)" ;
+    clap:appliesToNoun dpipe:Source ;
+    clap:hasParameter dpipe:sourceName, dpipe:limit, dpipe:outputFormat ;
+    clap:example "data-pipeline source preview --name 'users-db' --limit 10 --format table" ;
+    schema:description "Preview sample data from source" .
+
+dpipe:schema a clap:Verb ;
+    rdfs:label "schema" ;
+    rdfs:comment "Extract and display source schema" ;
+    clap:appliesToNoun dpipe:Source ;
+    clap:hasParameter dpipe:sourceName, dpipe:outputFormat ;
+    clap:example "data-pipeline source schema --name 'users-db' --format json" ;
+    schema:description "Extract schema metadata from source" .
+
+dpipe:ingest a clap:Verb ;
+    rdfs:label "ingest" ;
+    rdfs:comment "Ingest data from source (extract phase)" ;
+    clap:appliesToNoun dpipe:Source ;
+    clap:hasParameter dpipe:sourceName, dpipe:batchSize, dpipe:filters ;
+    clap:example "data-pipeline source ingest --name 'users-db' --batch-size 1000 --filter 'active=true'" ;
+    schema:description "Extract data from source with optional filtering" .
+
+# ============================================================================
+# Transform Verbs
+# ============================================================================
+
+dpipe:map a clap:Verb ;
+    rdfs:label "map" ;
+    rdfs:comment "Map source schema to target schema" ;
+    clap:appliesToNoun dpipe:Transform ;
+    clap:hasParameter dpipe:transformName, dpipe:mappingRules, dpipe:mappingFile ;
+    clap:example "data-pipeline transform map --name 'user-mapping' --rules 'user_name -> foaf:name, email -> foaf:mbox'" ;
+    schema:description "Define field mappings and transformations" .
+
+dpipe:filter a clap:Verb ;
+    rdfs:label "filter" ;
+    rdfs:comment "Filter data based on conditions" ;
+    clap:appliesToNoun dpipe:Transform ;
+    clap:hasParameter dpipe:transformName, dpipe:filterExpression, dpipe:filterFile ;
+    clap:example "data-pipeline transform filter --name 'active-users' --expr 'status == \"active\" && age >= 18'" ;
+    schema:description "Apply filtering conditions to data stream" .
+
+dpipe:aggregate a clap:Verb ;
+    rdfs:label "aggregate" ;
+    rdfs:comment "Aggregate data (group by, sum, count, avg)" ;
+    clap:appliesToNoun dpipe:Transform ;
+    clap:hasParameter dpipe:transformName, dpipe:groupBy, dpipe:aggregateFunctions ;
+    clap:example "data-pipeline transform aggregate --name 'sales-summary' --group-by region,product --agg 'sum(amount),count(*)'" ;
+    schema:description "Perform aggregation operations on data" .
+
+dpipe:join a clap:Verb ;
+    rdfs:label "join" ;
+    rdfs:comment "Join multiple data sources" ;
+    clap:appliesToNoun dpipe:Transform ;
+    clap:hasParameter dpipe:transformName, dpipe:leftSource, dpipe:rightSource, dpipe:joinType, dpipe:joinCondition ;
+    clap:example "data-pipeline transform join --name 'user-orders' --left users --right orders --type inner --on 'users.id = orders.user_id'" ;
+    schema:description "Join data from multiple sources" .
+
+dpipe:validate a clap:Verb ;
+    rdfs:label "validate" ;
+    rdfs:comment "Validate data against schema or rules" ;
+    clap:appliesToNoun dpipe:Transform ;
+    clap:hasParameter dpipe:transformName, dpipe:validationRules, dpipe:schemaFile ;
+    clap:example "data-pipeline transform validate --name 'email-check' --rules 'email matches \"^[^@]+@[^@]+\\.[^@]+$\"'" ;
+    schema:description "Validate data quality and consistency" .
+
+# ============================================================================
+# Sink Verbs
+# ============================================================================
+
+dpipe:write a clap:Verb ;
+    rdfs:label "write" ;
+    rdfs:comment "Write transformed data to sink" ;
+    clap:appliesToNoun dpipe:Sink ;
+    clap:hasParameter dpipe:sinkName, dpipe:writeMode, dpipe:batchSize ;
+    clap:example "data-pipeline sink write --name 'rdf-store' --mode append --batch-size 1000" ;
+    schema:description "Write data to configured sink target" .
+
+dpipe:flush a clap:Verb ;
+    rdfs:label "flush" ;
+    rdfs:comment "Flush buffered data to sink" ;
+    clap:appliesToNoun dpipe:Sink ;
+    clap:hasParameter dpipe:sinkName, dpipe:force ;
+    clap:example "data-pipeline sink flush --name 'rdf-store' --force" ;
+    schema:description "Force flush of buffered sink data" .
+
+dpipe:verify a clap:Verb ;
+    rdfs:label "verify" ;
+    rdfs:comment "Verify sink data integrity and completeness" ;
+    clap:appliesToNoun dpipe:Sink ;
+    clap:hasParameter dpipe:sinkName, dpipe:verificationMode ;
+    clap:example "data-pipeline sink verify --name 'rdf-store' --mode full" ;
+    schema:description "Verify data was written correctly to sink" .
+
+# ============================================================================
+# Parameters (Arguments and Options)
+# ============================================================================
+
+# Pipeline Parameters
+dpipe:pipelineName a clap:Parameter ;
+    rdfs:label "pipeline-name" ;
+    rdfs:comment "Unique identifier for the pipeline" ;
+    schema:valueType xsd:string ;
+    clap:required true .
+
+dpipe:pipelineDescription a clap:Parameter ;
+    rdfs:label "description" ;
+    rdfs:comment "Human-readable pipeline description" ;
+    schema:valueType xsd:string ;
+    clap:required false .
+
+dpipe:sourceConfig a clap:Parameter ;
+    rdfs:label "sources" ;
+    rdfs:comment "Source configuration (format: type:location)" ;
+    schema:valueType xsd:string ;
+    clap:multiple true .
+
+dpipe:transformConfig a clap:Parameter ;
+    rdfs:label "transforms" ;
+    rdfs:comment "Transformation configuration" ;
+    schema:valueType xsd:string ;
+    clap:multiple true .
+
+dpipe:sinkConfig a clap:Parameter ;
+    rdfs:label "sinks" ;
+    rdfs:comment "Sink configuration (format: type:location)" ;
+    schema:valueType xsd:string ;
+    clap:multiple true .
+
+dpipe:dryRun a clap:Parameter ;
+    rdfs:label "dry-run" ;
+    rdfs:comment "Execute pipeline in dry-run mode (no writes)" ;
+    schema:valueType xsd:boolean ;
+    clap:defaultValue false .
+
+dpipe:parallelism a clap:Parameter ;
+    rdfs:label "parallelism" ;
+    rdfs:comment "Number of parallel workers" ;
+    schema:valueType xsd:integer ;
+    clap:defaultValue 1 .
+
+dpipe:checkpoints a clap:Parameter ;
+    rdfs:label "checkpoints" ;
+    rdfs:comment "Enable checkpointing for fault tolerance" ;
+    schema:valueType xsd:boolean ;
+    clap:defaultValue true .
+
+dpipe:cronExpression a clap:Parameter ;
+    rdfs:label "cron" ;
+    rdfs:comment "Cron expression for scheduling (e.g., '0 2 * * *')" ;
+    schema:valueType xsd:string .
+
+dpipe:interval a clap:Parameter ;
+    rdfs:label "interval" ;
+    rdfs:comment "Interval for periodic execution (e.g., '5m', '1h')" ;
+    schema:valueType xsd:string .
+
+dpipe:eventTrigger a clap:Parameter ;
+    rdfs:label "event" ;
+    rdfs:comment "Event trigger for pipeline execution" ;
+    schema:valueType xsd:string .
+
+dpipe:graceful a clap:Parameter ;
+    rdfs:label "graceful" ;
+    rdfs:comment "Graceful shutdown (complete current batch)" ;
+    schema:valueType xsd:boolean ;
+    clap:defaultValue true .
+
+dpipe:metricsType a clap:Parameter ;
+    rdfs:label "metrics" ;
+    rdfs:comment "Metrics to display (throughput, latency, errors, all)" ;
+    schema:valueType xsd:string ;
+    clap:defaultValue "all" .
+
+# Source Parameters
+dpipe:sourceName a clap:Parameter ;
+    rdfs:label "name" ;
+    rdfs:comment "Unique source identifier" ;
+    schema:valueType xsd:string ;
+    clap:required true .
+
+dpipe:sourceType a clap:Parameter ;
+    rdfs:label "type" ;
+    rdfs:comment "Source type (rdf, csv, json, postgresql, mysql, rest-api)" ;
+    schema:valueType xsd:string ;
+    clap:required true .
+
+dpipe:connectionString a clap:Parameter ;
+    rdfs:label "connection" ;
+    rdfs:comment "Connection string or URI for source" ;
+    schema:valueType xsd:string ;
+    clap:required true .
+
+dpipe:credentials a clap:Parameter ;
+    rdfs:label "credentials" ;
+    rdfs:comment "Authentication credentials (user:pass or token)" ;
+    schema:valueType xsd:string ;
+    clap:required false .
+
+dpipe:timeout a clap:Parameter ;
+    rdfs:label "timeout" ;
+    rdfs:comment "Connection timeout (e.g., '30s', '5m')" ;
+    schema:valueType xsd:string ;
+    clap:defaultValue "30s" .
+
+dpipe:limit a clap:Parameter ;
+    rdfs:label "limit" ;
+    rdfs:comment "Maximum number of rows to preview" ;
+    schema:valueType xsd:integer ;
+    clap:defaultValue 10 .
+
+dpipe:outputFormat a clap:Parameter ;
+    rdfs:label "format" ;
+    rdfs:comment "Output format (json, yaml, table, csv)" ;
+    schema:valueType xsd:string ;
+    clap:defaultValue "table" .
+
+dpipe:batchSize a clap:Parameter ;
+    rdfs:label "batch-size" ;
+    rdfs:comment "Number of records per batch" ;
+    schema:valueType xsd:integer ;
+    clap:defaultValue 1000 .
+
+dpipe:filters a clap:Parameter ;
+    rdfs:label "filter" ;
+    rdfs:comment "Filter expression for source data" ;
+    schema:valueType xsd:string ;
+    clap:multiple true .
+
+# Transform Parameters
+dpipe:transformName a clap:Parameter ;
+    rdfs:label "name" ;
+    rdfs:comment "Unique transform identifier" ;
+    schema:valueType xsd:string ;
+    clap:required true .
+
+dpipe:mappingRules a clap:Parameter ;
+    rdfs:label "rules" ;
+    rdfs:comment "Mapping rules (source -> target)" ;
+    schema:valueType xsd:string ;
+    clap:multiple true .
+
+dpipe:mappingFile a clap:Parameter ;
+    rdfs:label "mapping-file" ;
+    rdfs:comment "Path to mapping rules file (JSON/YAML)" ;
+    schema:valueType xsd:string .
+
+dpipe:filterExpression a clap:Parameter ;
+    rdfs:label "expr" ;
+    rdfs:comment "Filter expression (SQL-like syntax)" ;
+    schema:valueType xsd:string .
+
+dpipe:filterFile a clap:Parameter ;
+    rdfs:label "filter-file" ;
+    rdfs:comment "Path to filter rules file" ;
+    schema:valueType xsd:string .
+
+dpipe:groupBy a clap:Parameter ;
+    rdfs:label "group-by" ;
+    rdfs:comment "Comma-separated fields to group by" ;
+    schema:valueType xsd:string .
+
+dpipe:aggregateFunctions a clap:Parameter ;
+    rdfs:label "agg" ;
+    rdfs:comment "Aggregate functions (sum, count, avg, min, max)" ;
+    schema:valueType xsd:string ;
+    clap:multiple true .
+
+dpipe:leftSource a clap:Parameter ;
+    rdfs:label "left" ;
+    rdfs:comment "Left source for join operation" ;
+    schema:valueType xsd:string .
+
+dpipe:rightSource a clap:Parameter ;
+    rdfs:label "right" ;
+    rdfs:comment "Right source for join operation" ;
+    schema:valueType xsd:string .
+
+dpipe:joinType a clap:Parameter ;
+    rdfs:label "type" ;
+    rdfs:comment "Join type (inner, left, right, full)" ;
+    schema:valueType xsd:string ;
+    clap:defaultValue "inner" .
+
+dpipe:joinCondition a clap:Parameter ;
+    rdfs:label "on" ;
+    rdfs:comment "Join condition (e.g., 'left.id = right.user_id')" ;
+    schema:valueType xsd:string .
+
+dpipe:validationRules a clap:Parameter ;
+    rdfs:label "rules" ;
+    rdfs:comment "Validation rules" ;
+    schema:valueType xsd:string ;
+    clap:multiple true .
+
+dpipe:schemaFile a clap:Parameter ;
+    rdfs:label "schema" ;
+    rdfs:comment "Path to schema file for validation" ;
+    schema:valueType xsd:string .
+
+# Sink Parameters
+dpipe:sinkName a clap:Parameter ;
+    rdfs:label "name" ;
+    rdfs:comment "Unique sink identifier" ;
+    schema:valueType xsd:string ;
+    clap:required true .
+
+dpipe:writeMode a clap:Parameter ;
+    rdfs:label "mode" ;
+    rdfs:comment "Write mode (append, overwrite, upsert)" ;
+    schema:valueType xsd:string ;
+    clap:defaultValue "append" .
+
+dpipe:force a clap:Parameter ;
+    rdfs:label "force" ;
+    rdfs:comment "Force operation without confirmation" ;
+    schema:valueType xsd:boolean ;
+    clap:defaultValue false .
+
+dpipe:verificationMode a clap:Parameter ;
+    rdfs:label "mode" ;
+    rdfs:comment "Verification mode (quick, full, checksum)" ;
+    schema:valueType xsd:string ;
+    clap:defaultValue "quick" .
+
+# ============================================================================
+# End of Ontology
+# ============================================================================

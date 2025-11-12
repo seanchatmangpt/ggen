@@ -34,7 +34,9 @@ use std::sync::Arc;
 use tempfile::TempDir;
 use tokio::sync::RwLock;
 
-use ggen_core::registry::{PackMetadata, RegistryClient, RegistryIndex, ResolvedPack, SearchResult, VersionMetadata};
+use ggen_core::registry::{
+    PackMetadata, RegistryClient, RegistryIndex, ResolvedPack, SearchResult, VersionMetadata,
+};
 
 /// Main test harness for ggen testing with clnrm integration
 ///
@@ -108,8 +110,8 @@ impl TestHarness {
     /// # Errors
     /// Returns error if temporary directory creation fails
     pub async fn new() -> Result<Self> {
-        let temp_dir = TempDir::new()
-            .context("Failed to create temporary directory for test harness")?;
+        let temp_dir =
+            TempDir::new().context("Failed to create temporary directory for test harness")?;
 
         let isolation_id = format!(
             "test_{}_{}",
@@ -159,16 +161,15 @@ impl TestHarness {
 
         // Write index to file
         let index_path = data_dir.join("index.json");
-        let index_json = serde_json::to_string_pretty(&index)
-            .context("Failed to serialize registry index")?;
-        std::fs::write(&index_path, index_json)
-            .context("Failed to write registry index")?;
+        let index_json =
+            serde_json::to_string_pretty(&index).context("Failed to serialize registry index")?;
+        std::fs::write(&index_path, index_json).context("Failed to write registry index")?;
 
         // Create registry client
         let base_url = url::Url::from_file_path(&data_dir)
             .map_err(|_| anyhow::anyhow!("Failed to create file URL from path"))?;
-        let client = RegistryClient::with_base_url(base_url)
-            .context("Failed to create registry client")?;
+        let client =
+            RegistryClient::with_base_url(base_url).context("Failed to create registry client")?;
 
         Ok(MarketplaceFixture {
             client,
@@ -183,8 +184,7 @@ impl TestHarness {
     /// Returns error if fixture setup fails
     pub async fn lifecycle_fixture(&self, config: LifecycleConfig) -> Result<LifecycleFixture> {
         let project_dir = self.temp_dir.path().join(&config.name);
-        std::fs::create_dir_all(&project_dir)
-            .context("Failed to create project directory")?;
+        std::fs::create_dir_all(&project_dir).context("Failed to create project directory")?;
 
         // Create basic project structure
         std::fs::create_dir_all(project_dir.join("src"))
@@ -203,14 +203,10 @@ impl TestHarness {
     /// # Errors
     /// Returns error if container registration fails
     pub async fn register_container(
-        &self,
-        id: String,
-        container_type: String,
-        cleanup: Option<Box<dyn FnOnce() + Send>>,
+        &self, id: String, container_type: String, cleanup: Option<Box<dyn FnOnce() + Send>>,
     ) -> Result<()> {
         let data_dir = self.temp_dir.path().join(&id);
-        std::fs::create_dir_all(&data_dir)
-            .context("Failed to create container data directory")?;
+        std::fs::create_dir_all(&data_dir).context("Failed to create container data directory")?;
 
         let container = TestContainer {
             id,
@@ -342,8 +338,7 @@ edition = "2021"
         );
 
         let manifest_path = self.project_dir.join("Cargo.toml");
-        std::fs::write(&manifest_path, manifest)
-            .context("Failed to write Cargo.toml")?;
+        std::fs::write(&manifest_path, manifest).context("Failed to write Cargo.toml")?;
 
         // Create main source file
         let main_rs = r#"fn main() {
@@ -351,8 +346,7 @@ edition = "2021"
 }
 "#;
         let src_path = self.project_dir.join("src").join("main.rs");
-        std::fs::write(&src_path, main_rs)
-            .context("Failed to write main.rs")?;
+        std::fs::write(&src_path, main_rs).context("Failed to write main.rs")?;
 
         Ok(())
     }

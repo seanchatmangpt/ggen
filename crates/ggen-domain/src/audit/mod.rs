@@ -4,4 +4,4 @@
 
 pub mod security;
 
-pub use security::{SecurityScanner, DependencyChecker, ConfigAuditor};
+pub use security::{ConfigAuditor, DependencyChecker, SecurityScanner};

@@ -212,7 +212,7 @@ impl Template {
         for rdf_file in &self.front.rdf {
             // Render the RDF file path (may contain template variables)
             let rendered_path = tera.render_str(rdf_file, vars)?;
-            
+
             // Resolve path relative to template directory
             let rdf_path = if rendered_path.starts_with('/') {
                 std::path::PathBuf::from(&rendered_path)
@@ -222,7 +222,7 @@ impl Template {
                     .unwrap_or_else(|| std::path::Path::new("."))
                     .join(&rendered_path)
             };
-            
+
             let ttl_content = std::fs::read_to_string(&rdf_path).map_err(|e| {
                 anyhow::anyhow!(
                     "Failed to read RDF file '{}' (resolved from '{}'): {}",
@@ -231,7 +231,7 @@ impl Template {
                     e
                 )
             })?;
-            
+
             let final_ttl = if prolog.is_empty() {
                 ttl_content
             } else {
@@ -282,12 +282,8 @@ impl Template {
     /// Render template with RDF data from external sources (CLI/API).
     /// If RDF files are provided via CLI/API, they take precedence over frontmatter rdf: field.
     pub fn render_with_rdf(
-        &mut self,
-        rdf_files: Vec<std::path::PathBuf>,
-        graph: &mut Graph,
-        tera: &mut Tera,
-        vars: &Context,
-        template_path: &std::path::Path,
+        &mut self, rdf_files: Vec<std::path::PathBuf>, graph: &mut Graph, tera: &mut Tera,
+        vars: &Context, template_path: &std::path::Path,
     ) -> Result<String> {
         // Render frontmatter first
         self.render_frontmatter(tera, vars)?;

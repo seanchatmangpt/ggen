@@ -385,6 +385,9 @@ command = "echo 'Building...'"
         let phases = vec!["init".to_string(), "build".to_string(), "test".to_string()];
 
         let result = exec::run_pipeline(&ctx, &phases);
+        if let Err(e) = &result {
+            eprintln!("Pipeline execution failed: {:?}", e);
+        }
         assert!(result.is_ok());
 
         // Verify all phases executed in order
@@ -519,14 +522,17 @@ description = "Phase with no commands"
 
         fs::write(temp_dir.path().join("make.toml"), make_toml).unwrap();
 
-        let make = Arc::new(load_make(temp_dir.path().join("make.toml")).unwrap());
-        let state_path = temp_dir.path().join(".ggen/state.json");
+        // Poka-yoke: Empty phases are now prevented at load time
+        let result = load_make(temp_dir.path().join("make.toml"));
+        assert!(result.is_err());
 
-        let ctx = Context::new(temp_dir.path().to_path_buf(), make, state_path, vec![]);
-
-        // Running phase with no commands should succeed but do nothing
-        let result = run_phase(&ctx, "empty");
-        assert!(result.is_ok());
+        // Verify error is NoCommands
+        match result {
+            Err(super::super::error::LifecycleError::NoCommands { phase }) => {
+                assert_eq!(phase, "empty");
+            }
+            _ => panic!("Expected NoCommands error"),
+        }
     }
 
     #[test]

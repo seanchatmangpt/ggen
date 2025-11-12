@@ -3,6 +3,8 @@
 //! This crate provides the core functionality for RDF-based code generation,
 //! including template processing, RDF handling, and deterministic output generation.
 
+#![deny(warnings)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
+
 pub mod cache;
 pub mod cli_generator;
 pub mod config;
@@ -10,11 +12,9 @@ pub mod delta;
 #[cfg(test)]
 pub mod e2e_tests;
 pub mod generator;
-pub mod project_generator;
 pub mod github;
 pub mod gpack;
 pub mod graph;
-pub mod telemetry;
 pub mod inject;
 pub mod lifecycle;
 pub mod lockfile;
@@ -23,12 +23,14 @@ pub mod pipeline;
 pub mod poc;
 pub mod pqc;
 pub mod preprocessor;
+pub mod project_generator;
 pub mod rdf;
 pub mod register;
 pub mod registry;
 pub mod resolver;
 pub mod snapshot;
 pub mod streaming_generator;
+pub mod telemetry;
 pub mod template;
 pub mod template_cache;
 pub mod templates;
@@ -69,6 +71,6 @@ pub use template::Template;
 
 // Re-export template-to-file-tree generation types
 pub use templates::{
-    FileTreeGenerator, FileTreeNode, FileTreeTemplate, NodeType, TemplateContext,
-    TemplateFormat, TemplateParser, GenerationResult, generate_file_tree,
+    generate_file_tree, FileTreeGenerator, FileTreeNode, FileTreeTemplate, GenerationResult,
+    NodeType, TemplateContext, TemplateFormat, TemplateParser,
 };

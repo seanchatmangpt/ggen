@@ -17,7 +17,7 @@ AI-powered microservice with template generation, refactoring, and ontology supp
 
 ```bash
 # Add to your project
-ggen market add ai-microservice
+ggen market install ai-microservice
 
 # Or generate from template
 ggen template generate ai-microservice --vars '{"project_name":"my-service"}'

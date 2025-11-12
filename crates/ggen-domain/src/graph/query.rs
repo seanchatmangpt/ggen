@@ -94,7 +94,11 @@ pub fn execute_sparql(options: QueryOptions) -> Result<QueryResult> {
     // Convert Oxigraph results to our domain model
     match query_results {
         oxigraph::sparql::QueryResults::Solutions(solutions) => {
-            let variables: Vec<String> = solutions.variables().iter().map(|v| v.to_string()).collect();
+            let variables: Vec<String> = solutions
+                .variables()
+                .iter()
+                .map(|v| v.to_string())
+                .collect();
 
             let mut bindings = Vec::new();
             for solution in solutions {
@@ -162,9 +166,7 @@ mod tests {
         graph.insert_turtle(turtle)?;
 
         // Create temp file with RDF data
-        let temp_file = tempfile::Builder::new()
-            .suffix(".ttl")
-            .tempfile()?;
+        let temp_file = tempfile::Builder::new().suffix(".ttl").tempfile()?;
         std::fs::write(temp_file.path(), turtle.as_bytes())?;
         let temp_path = temp_file.path().to_string_lossy().to_string();
 
@@ -210,9 +212,7 @@ mod tests {
 
         graph.insert_turtle(turtle)?;
 
-        let temp_file = tempfile::Builder::new()
-            .suffix(".ttl")
-            .tempfile()?;
+        let temp_file = tempfile::Builder::new().suffix(".ttl").tempfile()?;
         std::fs::write(temp_file.path(), turtle.as_bytes())?;
         let temp_path = temp_file.path().to_string_lossy().to_string();
 
@@ -265,9 +265,7 @@ mod tests {
 
         graph.insert_turtle(turtle)?;
 
-        let temp_file = tempfile::Builder::new()
-            .suffix(".ttl")
-            .tempfile()?;
+        let temp_file = tempfile::Builder::new().suffix(".ttl").tempfile()?;
         std::fs::write(temp_file.path(), turtle.as_bytes())?;
         let temp_path = temp_file.path().to_string_lossy().to_string();
 
@@ -301,11 +299,12 @@ mod tests {
 pub async fn execute_query(input: QueryInput) -> Result<QueryResult> {
     let options = QueryOptions {
         query: input.query,
-        graph_file: input.graph_file.as_ref().map(|p| p.to_string_lossy().to_string()),
+        graph_file: input
+            .graph_file
+            .as_ref()
+            .map(|p| p.to_string_lossy().to_string()),
         output_format: input.format,
     };
 
-    execute_sparql(options).map_err(|e| {
-        anyhow::anyhow!("SPARQL query failed: {}", e)
-    })
+    execute_sparql(options).map_err(|e| anyhow::anyhow!("SPARQL query failed: {}", e))
 }

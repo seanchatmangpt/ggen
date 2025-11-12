@@ -1,0 +1,149 @@
+name: Deploy to crates.io
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Publish to crates.io (true/false)'
+        required: false
+        default: 'false'
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  validate:
+    name: Pre-deployment Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache Cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-registry-
+
+      - name: Cache Cargo build
+        uses: actions/cache@v4
+        with:
+          path: target/
+          key: ${{ runner.os }}-cargo-build-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-build-
+
+      - name: Install RDF validators
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y raptor2-utils
+
+      - name: Run validation script
+        run: |
+          chmod +x scripts/validate.sh
+          ./scripts/validate.sh
+
+  benchmark:
+    name: Performance Benchmarks
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-bench-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Run benchmarks
+        run: |
+          chmod +x scripts/benchmark.sh
+          ./scripts/benchmark.sh
+
+  deploy:
+    name: Deploy to crates.io
+    runs-on: ubuntu-latest
+    needs: [validate, benchmark]
+    if: startsWith(github.ref, 'refs/tags/v') || github.event.inputs.publish == 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-deploy-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Verify crates.io token
+        run: |
+          if [ -z "${{ secrets.CARGO_REGISTRY_TOKEN }}" ]; then
+            echo "::error::CARGO_REGISTRY_TOKEN secret not set"
+            exit 1
+          fi
+
+      - name: Run deployment script
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: |
+          chmod +x scripts/deploy.sh
+          ./scripts/deploy.sh --publish --token "$CARGO_REGISTRY_TOKEN"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/v')
+        with:
+          files: |
+            target/release/chatman-cli
+            target/release/chatman
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  test-install:
+    name: Test crates.io Installation
+    runs-on: ${{ matrix.os }}
+    needs: deploy
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - name: Install from crates.io
+        run: cargo install chatman-cli --locked
+
+      - name: Verify installation
+        run: |
+          chatman-cli --version
+          chatman-cli --help
+
+      - name: Run basic commands
+        run: |
+          chatman-cli validate
+          chatman-cli patterns list

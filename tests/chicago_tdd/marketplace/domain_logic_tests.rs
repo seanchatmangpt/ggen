@@ -8,7 +8,9 @@ use tokio;
 
 // Import domain logic (not CLI)
 use ggen_marketplace::backend::local::LocalRegistry;
-use ggen_marketplace::models::{Category, ContentId, HashAlgorithm, Package, PackageId, PackageMetadata, PackageStats, Version};
+use ggen_marketplace::models::{
+    Category, ContentId, HashAlgorithm, Package, PackageId, PackageMetadata, PackageStats, Version,
+};
 use ggen_marketplace::traits::Registry;
 
 /// Test 1: LocalRegistry creation and initialization
@@ -21,7 +23,11 @@ async fn test_local_registry_creation() {
     let result = LocalRegistry::new(temp_dir.path().to_path_buf()).await;
 
     // THEN: Registry should be created successfully
-    assert!(result.is_ok(), "Failed to create LocalRegistry: {:?}", result.err());
+    assert!(
+        result.is_ok(),
+        "Failed to create LocalRegistry: {:?}",
+        result.err()
+    );
 
     // AND: Registry directory should exist
     assert!(temp_dir.path().exists(), "Registry directory should exist");
@@ -70,7 +76,11 @@ async fn test_package_add_and_retrieve() {
     let add_result = registry.add_package(package.clone()).await;
 
     // THEN: Package should be added successfully
-    assert!(add_result.is_ok(), "Failed to add package: {:?}", add_result.err());
+    assert!(
+        add_result.is_ok(),
+        "Failed to add package: {:?}",
+        add_result.err()
+    );
 
     // AND: Package should be searchable
     let query = ggen_marketplace::models::Query::new("Test Package");
@@ -96,16 +106,29 @@ async fn test_search_by_name() {
     let package2 = create_test_package("org1", "web-client", "1.0.0", "Web client package");
     let package3 = create_test_package("org2", "database", "1.0.0", "Database package");
 
-    registry.add_package(package1).await.expect("Failed to add package1");
-    registry.add_package(package2).await.expect("Failed to add package2");
-    registry.add_package(package3).await.expect("Failed to add package3");
+    registry
+        .add_package(package1)
+        .await
+        .expect("Failed to add package1");
+    registry
+        .add_package(package2)
+        .await
+        .expect("Failed to add package2");
+    registry
+        .add_package(package3)
+        .await
+        .expect("Failed to add package3");
 
     // WHEN: Searching for "web" packages
     let query = ggen_marketplace::models::Query::new("web");
     let results = registry.search(&query).await.expect("Search failed");
 
     // THEN: Should find web-related packages
-    assert!(results.len() >= 2, "Should find at least 2 web packages, found {}", results.len());
+    assert!(
+        results.len() >= 2,
+        "Should find at least 2 web packages, found {}",
+        results.len()
+    );
 }
 
 // Helper function to create test packages with correct structure
@@ -135,7 +158,10 @@ fn create_test_package(namespace: &str, name: &str, version: &str, description: 
             changelog: None,
             custom_fields: std::collections::HashMap::new(),
         },
-        content_id: ContentId::new(format!("hash-{}-{}", namespace, name), HashAlgorithm::Sha256),
+        content_id: ContentId::new(
+            format!("hash-{}-{}", namespace, name),
+            HashAlgorithm::Sha256,
+        ),
         dependencies: vec![],
         stats: PackageStats::default(),
         created_at: chrono::Utc::now(),

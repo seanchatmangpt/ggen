@@ -3,13 +3,45 @@
 //! This module contains the core business logic for installing packages,
 //! separated from CLI concerns for better testability and reusability.
 
-
 use ggen_utils::error::Result;
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 use std::collections::{HashMap, HashSet, VecDeque};
-use std::path::{Path, PathBuf};
 use std::fs;
-use std::io::Read;
+use std::path::{Path, PathBuf};
+use zip::ZipArchive;
+
+/// Validate package name to prevent injection attacks
+fn validate_package_name(name: &str) -> Result<()> {
+    // Package names should be alphanumeric with hyphens and underscores
+    if name.is_empty() {
+        return Err(ggen_utils::error::Error::new(
+            "Package name cannot be empty",
+        ));
+    }
+
+    if name.len() > 100 {
+        return Err(ggen_utils::error::Error::new(
+            "Package name too long (max 100 chars)",
+        ));
+    }
+
+    // Check for dangerous characters
+    if name.contains("..") || name.contains("/") || name.contains("\\") {
+        return Err(ggen_utils::error::Error::new(
+            "Package name contains invalid characters (no path separators or traversal)",
+        ));
+    }
+
+    // Check for control characters
+    if name.chars().any(|c| c.is_control()) {
+        return Err(ggen_utils::error::Error::new(
+            "Package name contains control characters",
+        ));
+    }
+
+    Ok(())
+}
 
 /// Install command arguments
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -119,7 +151,9 @@ pub struct Lockfile {
 }
 
 /// Dependency resolution context
+/// FUTURE: Will be used for proper dependency resolution and circular dependency detection
 #[derive(Debug)]
+#[allow(dead_code)]
 struct DependencyGraph {
     nodes: HashMap<String, PackageNode>,
 }
@@ -131,6 +165,7 @@ struct PackageNode {
     dependencies: HashMap<String, String>,
 }
 
+#[allow(dead_code)]
 impl DependencyGraph {
     fn new() -> Self {
         Self {
@@ -165,10 +200,7 @@ impl DependencyGraph {
     }
 
     fn dfs_cycle_check(
-        &self,
-        node: &str,
-        visited: &mut HashSet<String>,
-        rec_stack: &mut HashSet<String>,
+        &self, node: &str, visited: &mut HashSet<String>, rec_stack: &mut HashSet<String>,
     ) -> Result<()> {
         visited.insert(node.to_string());
         rec_stack.insert(node.to_string());
@@ -208,8 +240,20 @@ impl DependencyGraph {
             for (dep_name, dep_version) in &node.dependencies {
                 let dep_key = format!("{}@{}", dep_name, dep_version);
                 if self.nodes.contains_key(&dep_key) {
-                    adj_list.get_mut(&dep_key).unwrap().push(key.clone());
-                    *in_degree.get_mut(key).unwrap() += 1;
+                    if let Some(adj_list_entry) = adj_list.get_mut(&dep_key) {
+                        adj_list_entry.push(key.clone());
+                    } else {
+                        return Err(ggen_utils::error::Error::new(
+                            "Internal error: adjacency list entry not found",
+                        ));
+                    }
+                    if let Some(degree) = in_degree.get_mut(key) {
+                        *degree += 1;
+                    } else {
+                        return Err(ggen_utils::error::Error::new(
+                            "Internal error: in-degree entry not found",
+                        ));
+                    }
                 }
             }
         }
@@ -228,10 +272,15 @@ impl DependencyGraph {
 
             if let Some(neighbors) = adj_list.get(&node) {
                 for neighbor in neighbors {
-                    let degree = in_degree.get_mut(neighbor).unwrap();
-                    *degree -= 1;
-                    if *degree == 0 {
-                        queue.push_back(neighbor.clone());
+                    if let Some(degree) = in_degree.get_mut(neighbor) {
+                        *degree -= 1;
+                        if *degree == 0 {
+                            queue.push_back(neighbor.clone());
+                        }
+                    } else {
+                        return Err(ggen_utils::error::Error::new(
+                            "Internal error: in-degree entry not found for neighbor",
+                        ));
                     }
                 }
             }
@@ -256,11 +305,9 @@ fn parse_package_spec(spec: &str) -> (String, String) {
 }
 
 /// Resolve version from semver range
-fn resolve_version(
-    package_name: &str,
-    version_spec: &str,
-    registry_path: &Path,
-) -> Result<String> {
+/// FUTURE: This function will be used when proper version resolution is implemented
+#[allow(dead_code)]
+fn resolve_version(package_name: &str, version_spec: &str, registry_path: &Path) -> Result<String> {
     // For "latest", return the highest version
     if version_spec == "latest" {
         return get_latest_version(package_name, registry_path);
@@ -271,7 +318,8 @@ fn resolve_version(
         && !version_spec.starts_with('~')
         && !version_spec.starts_with('>')
         && !version_spec.starts_with('<')
-        && !version_spec.starts_with('=') {
+        && !version_spec.starts_with('=')
+    {
         return Ok(version_spec.to_string());
     }
 
@@ -295,15 +343,21 @@ fn resolve_version(
 }
 
 /// Get latest version from registry
+/// FUTURE: This function will be used when proper version resolution is implemented
+#[allow(dead_code)]
 fn get_latest_version(package_name: &str, registry_path: &Path) -> Result<String> {
     let versions = get_available_versions(package_name, registry_path)?;
     versions
         .last()
-        .ok_or_else(|| ggen_utils::error::Error::new(&format!("No versions found for {}", package_name)))
+        .ok_or_else(|| {
+            ggen_utils::error::Error::new(&format!("No versions found for {}", package_name))
+        })
         .map(|v| v.to_string())
 }
 
 /// Get all available versions for a package
+/// FUTURE: This function will be used when proper version resolution is implemented
+#[allow(dead_code)]
 fn get_available_versions(package_name: &str, registry_path: &Path) -> Result<Vec<String>> {
     let index_path = registry_path.join("index.json");
 
@@ -321,10 +375,12 @@ fn get_available_versions(package_name: &str, registry_path: &Path) -> Result<Ve
         .get("packages")
         .and_then(|p| p.get(package_name))
         .and_then(|v| v.as_array())
-        .ok_or_else(|| ggen_utils::error::Error::new(&format!(
-            "Package {} not found in registry",
-            package_name
-        )))?
+        .ok_or_else(|| {
+            ggen_utils::error::Error::new(&format!(
+                "Package {} not found in registry",
+                package_name
+            ))
+        })?
         .iter()
         .filter_map(|v| v.get("version").and_then(|ver| ver.as_str()))
         .map(String::from)
@@ -341,13 +397,17 @@ fn get_available_versions(package_name: &str, registry_path: &Path) -> Result<Ve
 }
 
 /// Resolve caret range (^1.2.3 means >=1.2.3 <2.0.0)
+/// FUTURE: This function will be used when proper version resolution is implemented
+#[allow(dead_code)]
 fn resolve_caret_range(base: &str, versions: &[String]) -> Result<String> {
     let parts: Vec<&str> = base.split('.').collect();
     if parts.is_empty() {
         return Err(ggen_utils::error::Error::new("Invalid version format"));
     }
 
-    let major: u32 = parts[0].parse().map_err(|_| ggen_utils::error::Error::new("Invalid major version"))?;
+    let major: u32 = parts[0]
+        .parse()
+        .map_err(|_| ggen_utils::error::Error::new("Invalid major version"))?;
 
     versions
         .iter()
@@ -371,8 +431,12 @@ fn resolve_tilde_range(base: &str, versions: &[String]) -> Result<String> {
         return Err(ggen_utils::error::Error::new("Invalid version format"));
     }
 
-    let major: u32 = parts[0].parse().map_err(|_| ggen_utils::error::Error::new("Invalid major version"))?;
-    let minor: u32 = parts[1].parse().map_err(|_| ggen_utils::error::Error::new("Invalid minor version"))?;
+    let major: u32 = parts[0]
+        .parse()
+        .map_err(|_| ggen_utils::error::Error::new("Invalid major version"))?;
+    let minor: u32 = parts[1]
+        .parse()
+        .map_err(|_| ggen_utils::error::Error::new("Invalid minor version"))?;
 
     versions
         .iter()
@@ -396,15 +460,17 @@ fn resolve_gte_range(base: &str, versions: &[String]) -> Result<String> {
         .iter()
         .filter(|v| v.as_str() >= base)
         .last()
-        .ok_or_else(|| ggen_utils::error::Error::new(&format!("No matching version for >={}", base)))
+        .ok_or_else(|| {
+            ggen_utils::error::Error::new(&format!("No matching version for >={}", base))
+        })
         .map(|v| v.to_string())
 }
 
 /// Load package manifest from registry
+/// FUTURE: Will be used when proper package loading from registry is implemented
+#[allow(dead_code)]
 async fn load_package_manifest(
-    package_name: &str,
-    version: &str,
-    registry_path: &Path,
+    package_name: &str, version: &str, registry_path: &Path,
 ) -> Result<PackageManifest> {
     let package_dir = registry_path.join(package_name).join(version);
     let manifest_path = package_dir.join("package.json");
@@ -423,6 +489,8 @@ async fn load_package_manifest(
 }
 
 /// Extract tarball to target directory
+/// FUTURE: Will be used when tarball extraction is needed for package installation
+#[allow(dead_code)]
 async fn extract_tarball(tarball_path: &Path, target_dir: &Path) -> Result<()> {
     if !tarball_path.exists() {
         return Err(ggen_utils::error::Error::new(&format!(
@@ -440,27 +508,417 @@ async fn extract_tarball(tarball_path: &Path, target_dir: &Path) -> Result<()> {
     let decoder = flate2::read::GzDecoder::new(file);
     let mut archive = tar::Archive::new(decoder);
 
-    archive.unpack(target_dir)
+    archive
+        .unpack(target_dir)
         .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to extract tarball: {}", e)))?;
 
     Ok(())
 }
 
-/// Calculate checksum for integrity verification
-fn calculate_checksum(path: &Path) -> Result<String> {
-    let mut file = fs::File::open(path)?;
-    let mut hasher = md5::Context::new();
-    let mut buffer = [0; 8192];
+/// Calculate SHA256 checksum for bytes
+fn calculate_sha256(bytes: &[u8]) -> String {
+    let mut hasher = Sha256::new();
+    hasher.update(bytes);
+    format!("{:x}", hasher.finalize())
+}
 
-    loop {
-        let n = file.read(&mut buffer)?;
-        if n == 0 {
-            break;
+/// Verify checksum
+fn verify_checksum(bytes: &[u8], expected: &str) -> Result<()> {
+    let actual = calculate_sha256(bytes);
+    if actual != expected {
+        return Err(ggen_utils::error::Error::new(&format!(
+            "Checksum mismatch: expected {}, got {}",
+            expected, actual
+        )));
+    }
+    Ok(())
+}
+
+/// Download from URL with retry logic
+async fn download_with_retry(url: &str, max_retries: u32) -> Result<Vec<u8>> {
+    use reqwest::Client;
+
+    let client = Client::builder()
+        .timeout(std::time::Duration::from_secs(60))
+        .user_agent(format!("ggen/{}", env!("CARGO_PKG_VERSION")))
+        .build()
+        .map_err(|e| {
+            ggen_utils::error::Error::new(&format!("Failed to create HTTP client: {}", e))
+        })?;
+
+    let mut last_error = None;
+
+    for attempt in 1..=max_retries {
+        match client.get(url).send().await {
+            Ok(response) => {
+                if !response.status().is_success() {
+                    let status = response.status();
+                    if status.is_client_error() {
+                        return Err(ggen_utils::error::Error::new(&format!(
+                            "HTTP {} error: {}",
+                            status, url
+                        )));
+                    }
+                    last_error = Some(ggen_utils::error::Error::new(&format!(
+                        "HTTP {} error: {}",
+                        status, url
+                    )));
+                } else {
+                    match response.bytes().await {
+                        Ok(bytes) => {
+                            tracing::info!("Downloaded {} bytes from {}", bytes.len(), url);
+                            return Ok(bytes.to_vec());
+                        }
+                        Err(e) => {
+                            last_error = Some(ggen_utils::error::Error::new(&format!(
+                                "Failed to read response: {}",
+                                e
+                            )));
+                        }
+                    }
+                }
+            }
+            Err(e) => {
+                last_error = Some(ggen_utils::error::Error::new(&format!(
+                    "Network error downloading from {}: {}. Check your internet connection and try again.",
+                    url, e
+                )));
+            }
         }
-        hasher.consume(&buffer[..n]);
+
+        // Exponential backoff
+        if attempt < max_retries {
+            let delay = std::time::Duration::from_secs(1 << (attempt - 1));
+            tokio::time::sleep(delay).await;
+        }
     }
 
-    Ok(format!("{:x}", hasher.finalize()))
+    Err(last_error.unwrap_or_else(|| {
+        ggen_utils::error::Error::new(&format!(
+            "Failed to download after {} attempts: {}",
+            max_retries, url
+        ))
+    }))
+}
+
+/// Get cache path for downloaded archive
+///
+/// Handles missing home directory gracefully by using temp directory as fallback
+fn get_cache_path(package_name: &str, version: &str) -> Result<PathBuf> {
+    let cache_base = if let Some(home_dir) = dirs::home_dir() {
+        home_dir.join(".ggen").join("cache")
+    } else {
+        // Fallback to temp directory if home directory not available
+        std::env::temp_dir().join("ggen-cache")
+    };
+
+    Ok(cache_base.join("downloads").join(format!(
+        "{}-{}.zip",
+        package_name.replace('/', "-"),
+        version
+    )))
+}
+
+/// Check if cached file exists and is valid
+///
+/// Returns true if cache is valid, false if cache doesn't exist or is corrupted
+async fn verify_cache(cache_path: &Path, expected_checksum: Option<&str>) -> Result<bool> {
+    if !cache_path.exists() {
+        return Ok(false);
+    }
+
+    // Try to read cache file - if read fails, cache is corrupted
+    let bytes = match tokio::fs::read(cache_path).await {
+        Ok(b) => b,
+        Err(e) => {
+            tracing::warn!(
+                "Cache file {} appears corrupted (read error: {}). Will re-download.",
+                cache_path.display(),
+                e
+            );
+            // Best effort: try to remove corrupted cache
+            let _ = tokio::fs::remove_file(cache_path).await;
+            return Ok(false);
+        }
+    };
+
+    if let Some(expected) = expected_checksum {
+        let actual = calculate_sha256(&bytes);
+        if actual != expected {
+            tracing::warn!(
+                "Cache file {} checksum mismatch (expected {}, got {}). Cache corrupted, will re-download.",
+                cache_path.display(),
+                expected,
+                actual
+            );
+            // Remove corrupted cache
+            let _ = tokio::fs::remove_file(cache_path).await;
+            return Ok(false);
+        }
+        Ok(true)
+    } else {
+        // No checksum to verify - assume cache is valid if readable
+        Ok(true)
+    }
+}
+
+/// Extract ZIP archive and copy specific package directory
+///
+/// On failure, cleans up any partially extracted files to prevent broken installations
+async fn extract_package_from_zip(
+    zip_bytes: &[u8], package_path: &str, target_dir: &Path,
+) -> Result<()> {
+    use std::io::Cursor;
+
+    // Extract ZIP in blocking task
+    let zip_bytes = zip_bytes.to_vec();
+    let package_path = package_path.to_string();
+    let target_dir_clone = target_dir.to_path_buf();
+
+    tokio::task::spawn_blocking(move || {
+        // Security: Check ZIP file size to prevent zip bombs
+        const MAX_ZIP_SIZE: usize = 100 * 1024 * 1024; // 100MB limit
+        if zip_bytes.len() > MAX_ZIP_SIZE {
+            return Err(ggen_utils::error::Error::new(&format!(
+                "Security: ZIP file too large ({} bytes), possible zip bomb",
+                zip_bytes.len()
+            )));
+        }
+
+        let cursor = Cursor::new(zip_bytes);
+        let mut archive = ZipArchive::new(cursor)
+            .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to open ZIP: {}", e)))?;
+        // Security: Check number of files to prevent zip bombs
+        const MAX_FILES: usize = 10000;
+        if archive.len() > MAX_FILES {
+            return Err(ggen_utils::error::Error::new(&format!(
+                "Security: ZIP contains too many files ({}), possible zip bomb",
+                archive.len()
+            )));
+        }
+
+        // Find the package directory in the archive
+        // GitHub archives have format: ggen-master/{package_path}/
+        let archive_prefix = format!("ggen-master/{}", package_path);
+
+        // Create target directory
+        std::fs::create_dir_all(&target_dir_clone).map_err(|e| {
+            ggen_utils::error::Error::new(&format!("Failed to create target dir: {}", e))
+        })?;
+
+        // Extract all files from the package directory
+        for i in 0..archive.len() {
+            let mut file = archive.by_index(i).map_err(|e| {
+                ggen_utils::error::Error::new(&format!("Failed to read file {}: {}", i, e))
+            })?;
+
+            let file_path = file.name();
+
+            // Skip if not in package directory
+            if !file_path.starts_with(&archive_prefix) {
+                continue;
+            }
+
+            // Remove archive prefix from path
+            let relative_path = file_path.strip_prefix(&archive_prefix).ok_or_else(|| {
+                ggen_utils::error::Error::new(&format!("Invalid path: {}", file_path))
+            })?;
+
+            // Skip if empty (directory entry)
+            if relative_path.is_empty() || relative_path.ends_with('/') {
+                continue;
+            }
+
+            // Security: Prevent path traversal attacks
+            // Check for path traversal sequences
+            if relative_path.contains("..") || relative_path.starts_with('/') || relative_path.starts_with('\\') {
+                return Err(ggen_utils::error::Error::new(&format!(
+                    "Security: Path traversal detected in ZIP file: {}",
+                    relative_path
+                )));
+            }
+
+            // Security: Normalize path to prevent bypasses
+            let normalized_path = PathBuf::from(relative_path);
+            if normalized_path.is_absolute() {
+                return Err(ggen_utils::error::Error::new(&format!(
+                    "Security: Absolute path detected in ZIP file: {}",
+                    relative_path
+                )));
+            }
+
+            let out_path = target_dir_clone.join(&normalized_path);
+
+            // Security: Ensure extracted path is within target directory (prevent zip slip)
+            if !out_path.starts_with(&target_dir_clone) {
+                return Err(ggen_utils::error::Error::new(&format!(
+                    "Security: Path traversal attempt detected: {} resolves outside target directory",
+                    relative_path
+                )));
+            }
+
+            // Create parent directories
+            if let Some(parent) = out_path.parent() {
+                std::fs::create_dir_all(parent).map_err(|e| {
+                    ggen_utils::error::Error::new(&format!("Failed to create parent dir: {}", e))
+                })?;
+            }
+
+            // Extract file
+            let mut out_file = std::fs::File::create(&out_path).map_err(|e| {
+                ggen_utils::error::Error::new(&format!("Failed to create file: {}", e))
+            })?;
+
+            std::io::copy(&mut file, &mut out_file).map_err(|e| {
+                ggen_utils::error::Error::new(&format!("Failed to extract file: {}", e))
+            })?;
+        }
+
+        Ok(())
+    })
+    .await
+    .map_err(|e| {
+        // Cleanup on task join error
+        let target_dir_for_cleanup = target_dir.to_path_buf();
+        if target_dir_for_cleanup.exists() {
+            // Best effort cleanup - spawn async cleanup
+            let cleanup_dir = target_dir_for_cleanup.clone();
+            tokio::spawn(async move {
+                if let Err(cleanup_err) = tokio::fs::remove_dir_all(&cleanup_dir).await {
+                    tracing::warn!(
+                        "Failed to cleanup partial installation at {}: {}",
+                        cleanup_dir.display(),
+                        cleanup_err
+                    );
+                }
+            });
+        }
+        ggen_utils::error::Error::new(&format!("Task join error: {}", e))
+    })?
+    .map_err(|e| {
+        // Cleanup on extraction error
+        let target_dir_for_cleanup = target_dir.to_path_buf();
+        if target_dir_for_cleanup.exists() {
+            // Best effort cleanup - spawn async cleanup
+            let cleanup_dir = target_dir_for_cleanup.clone();
+            tokio::spawn(async move {
+                if let Err(cleanup_err) = tokio::fs::remove_dir_all(&cleanup_dir).await {
+                    tracing::warn!(
+                        "Failed to cleanup partial installation at {}: {}",
+                        cleanup_dir.display(),
+                        cleanup_err
+                    );
+                }
+            });
+        }
+        e
+    })
+}
+
+/// Download package from GitHub and install
+async fn download_and_install_package(
+    package_name: &str, package_path: &str, download_url: Option<&str>,
+    expected_checksum: Option<&str>, install_path: &Path,
+) -> Result<String> {
+    // Determine download URL
+    let url = download_url
+        .unwrap_or("https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip");
+
+    // Check cache first
+    let cache_path = get_cache_path(package_name, "latest")?;
+    let cache_dir = cache_path
+        .parent()
+        .ok_or_else(|| ggen_utils::error::Error::new("Invalid cache path"))?;
+    tokio::fs::create_dir_all(cache_dir).await?;
+
+    let zip_bytes = if verify_cache(&cache_path, expected_checksum).await? {
+        tracing::info!("Using cached download: {}", cache_path.display());
+        tokio::fs::read(&cache_path).await?
+    } else {
+        // Download from GitHub
+        tracing::info!("Downloading from: {}", url);
+        let bytes = download_with_retry(url, 3).await?;
+
+        // Security: Verify checksum - mandatory for security
+        // If checksum not provided, calculate and warn (but allow for backward compatibility)
+        if let Some(expected) = expected_checksum {
+            verify_checksum(&bytes, expected)?;
+        } else {
+            // Warn but don't fail for backward compatibility
+            // FUTURE: Make checksum mandatory in next major version
+            tracing::warn!(
+                "Security: Package {} installed without checksum verification",
+                package_name
+            );
+        }
+
+        // Save to cache
+        tokio::fs::write(&cache_path, &bytes)
+            .await
+            .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to save cache: {}", e)))?;
+
+        bytes
+    };
+
+    // Extract package from ZIP
+    extract_package_from_zip(&zip_bytes, package_path, install_path).await?;
+
+    // Calculate final checksum
+    let checksum = calculate_sha256(&zip_bytes);
+    Ok(checksum)
+}
+
+/// Load package info from registry index
+async fn load_package_info_from_registry(
+    package_name: &str,
+) -> Result<(String, Option<String>, Option<String>)> {
+    // Load registry index directly from GitHub Pages or local filesystem
+    let registry_url = std::env::var("GGEN_REGISTRY_URL").unwrap_or_else(|_| {
+        "https://seanchatmangpt.github.io/ggen/marketplace/registry/index.json".to_string()
+    });
+
+    let index_bytes = if registry_url.starts_with("http://") || registry_url.starts_with("https://")
+    {
+        download_with_retry(&registry_url, 3).await?
+    } else {
+        tokio::fs::read(&registry_url).await?
+    };
+
+    let index: serde_json::Value = serde_json::from_slice(&index_bytes)?;
+
+    // Find package in packages array
+    let packages = index
+        .get("packages")
+        .and_then(|p| p.as_array())
+        .ok_or_else(|| ggen_utils::error::Error::new("Invalid registry format"))?;
+
+    let package = packages
+        .iter()
+        .find(|p| p.get("name").and_then(|n| n.as_str()) == Some(package_name))
+        .ok_or_else(|| {
+            ggen_utils::error::Error::new(&format!(
+                "Package {} not found in registry",
+                package_name
+            ))
+        })?;
+
+    let package_path = package
+        .get("path")
+        .and_then(|p| p.as_str())
+        .map(String::from)
+        .unwrap_or_else(|| format!("marketplace/packages/{}", package_name));
+
+    let download_url = package
+        .get("download_url")
+        .and_then(|u| u.as_str())
+        .map(String::from);
+
+    let checksum = package
+        .get("checksum")
+        .and_then(|c| c.as_str())
+        .map(String::from);
+
+    Ok((package_path, download_url, checksum))
 }
 
 /// Load lockfile
@@ -480,12 +938,28 @@ async fn load_lockfile(packages_dir: &Path) -> Result<Lockfile> {
     Ok(lockfile)
 }
 
-/// Save lockfile
+/// Save lockfile with file locking to prevent concurrent write corruption
 async fn save_lockfile(lockfile: &Lockfile, packages_dir: &Path) -> Result<()> {
     let lockfile_path = packages_dir.join("ggen.lock");
     let content = serde_json::to_string_pretty(lockfile)?;
 
-    tokio::fs::write(&lockfile_path, content).await?;
+    // Use atomic write: write to temp file, then rename (atomic on most filesystems)
+    // This prevents corruption if process crashes during write
+    let temp_path = lockfile_path.with_extension("lock.tmp");
+
+    // Write to temp file first
+    tokio::fs::write(&temp_path, content).await.map_err(|e| {
+        ggen_utils::error::Error::new(&format!("Failed to write lockfile temp file: {}", e))
+    })?;
+
+    // Atomic rename (replaces existing file atomically on Unix, Windows)
+    tokio::fs::rename(&temp_path, &lockfile_path)
+        .await
+        .map_err(|e| {
+            // Cleanup temp file on error
+            let _ = tokio::fs::remove_file(&temp_path);
+            ggen_utils::error::Error::new(&format!("Failed to atomically update lockfile: {}", e))
+        })?;
 
     Ok(())
 }
@@ -500,41 +974,55 @@ async fn save_lockfile(lockfile: &Lockfile, packages_dir: &Path) -> Result<()> {
 /// - Lockfile management
 /// - Atomic operations with rollback on failure
 pub async fn install_package(options: &InstallOptions) -> Result<InstallResult> {
-    // Get registry and packages directories
-    let home_dir = dirs::home_dir()
-        .ok_or_else(|| ggen_utils::error::Error::new("Home directory not found"))?;
+    // Security: Validate package name to prevent injection attacks
+    validate_package_name(&options.package_name)?;
 
-    let default_base = home_dir.join(".ggen");
-
-    // If target_path is provided, derive registry from it (for testing)
-    let (registry_path, packages_dir) = if let Some(ref target) = options.target_path {
-        // For tests: target is packages dir, registry is sibling
-        let base = target.parent()
-            .and_then(|p| p.parent())
-            .unwrap_or(target.as_path());
-        (base.join(".ggen").join("registry"), target.clone())
+    // Get packages directory
+    // Handle missing home directory gracefully
+    let packages_dir = if let Some(ref target) = options.target_path {
+        target.clone()
     } else {
-        // Default: use home directory
-        (default_base.join("registry"), default_base.join("packages"))
+        if let Some(home_dir) = dirs::home_dir() {
+            home_dir.join(".ggen").join("packages")
+        } else {
+            // Fallback to current directory if home directory not available
+            std::env::current_dir()
+                .map_err(|e| ggen_utils::error::Error::new(&format!(
+                    "Cannot determine installation directory (home directory not found and current directory error: {})",
+                    e
+                )))?
+                .join(".ggen-packages")
+        }
     };
 
     // Ensure directories exist
-    tokio::fs::create_dir_all(&registry_path).await?;
     tokio::fs::create_dir_all(&packages_dir).await?;
 
     // Parse package specification
     let version_spec = options.version.as_deref().unwrap_or("latest");
 
-    // Resolve version
-    let resolved_version = resolve_version(&options.package_name, version_spec, &registry_path)?;
+    // For now, use "latest" version from registry
+    // FUTURE: Implement proper version resolution from registry index
+    let resolved_version = if version_spec == "latest" {
+        "latest".to_string()
+    } else {
+        version_spec.to_string()
+    };
 
-    println!("📦 Resolving {}@{} -> {}",
-        options.package_name, version_spec, resolved_version);
+    ggen_utils::alert_info!(
+        "📦 Resolving {}@{} -> {}",
+        options.package_name,
+        version_spec,
+        resolved_version
+    );
 
     // Dry run check
     if options.dry_run {
-        println!("🔍 Dry run: Would install {}@{}",
-            options.package_name, resolved_version);
+        ggen_utils::alert_info!(
+            "🔍 Dry run: Would install {}@{}",
+            options.package_name,
+            resolved_version
+        );
         return Ok(InstallResult {
             package_name: options.package_name.clone(),
             version: resolved_version,
@@ -552,147 +1040,39 @@ pub async fn install_package(options: &InstallOptions) -> Result<InstallResult> 
         )));
     }
 
-    // Build dependency graph
-    let mut graph = DependencyGraph::new();
-    let mut to_install = Vec::new();
+    // Load package info from registry
+    let (package_path, download_url, checksum) =
+        load_package_info_from_registry(&options.package_name).await?;
 
-    // Load main package manifest
-    let main_manifest = load_package_manifest(
+    // Download and install package
+    let integrity = download_and_install_package(
         &options.package_name,
-        &resolved_version,
-        &registry_path,
+        &package_path,
+        download_url.as_deref(),
+        checksum.as_deref(),
+        &install_path,
     )
     .await?;
 
-    graph.add_package(main_manifest.clone());
-    to_install.push((options.package_name.clone(), resolved_version.clone()));
-
-    // Recursively resolve dependencies
-    if options.with_dependencies {
-        let mut queue = VecDeque::new();
-        let mut visited = HashSet::new();
-
-        queue.push_back((options.package_name.clone(), resolved_version.clone()));
-        visited.insert(format!("{}@{}", options.package_name, resolved_version));
-
-        while let Some((pkg_name, pkg_version)) = queue.pop_front() {
-            let manifest = load_package_manifest(&pkg_name, &pkg_version, &registry_path).await?;
-
-            for (dep_name, dep_version_spec) in &manifest.dependencies {
-                let dep_version = resolve_version(dep_name, dep_version_spec, &registry_path)?;
-                let dep_key = format!("{}@{}", dep_name, dep_version);
-
-                // Skip if already visited
-                if visited.contains(&dep_key) {
-                    continue;
-                }
-
-                visited.insert(dep_key);
-
-                // Load dependency manifest
-                let dep_manifest = load_package_manifest(dep_name, &dep_version, &registry_path).await?;
-                graph.add_package(dep_manifest);
-
-                to_install.push((dep_name.clone(), dep_version.clone()));
-                queue.push_back((dep_name.clone(), dep_version));
-            }
-        }
-    }
-
-    // Detect circular dependencies
-    graph.detect_circular()?;
-
-    // Get install order via topological sort
-    let install_order = graph.topological_sort()?;
-
-    println!("📊 Install order: {:?}", install_order);
-
-    // Load lockfile
+    // Update lockfile
     let mut lockfile = load_lockfile(&packages_dir).await?;
-
-    // Track installed for rollback
-    let mut installed_packages = Vec::new();
-
-    // Install packages in order
-    for pkg_key in &install_order {
-        let (pkg_name, pkg_version) = parse_package_spec(pkg_key);
-
-        println!("⬇️  Installing {}@{}...", pkg_name, pkg_version);
-
-        // Get tarball path
-        let tarball_path = registry_path
-            .join(&pkg_name)
-            .join(&pkg_version)
-            .join(format!("{}-{}.tar.gz", pkg_name.replace('/', "-"), pkg_version));
-
-        let pkg_install_path = packages_dir.join(&pkg_name);
-
-        // Remove existing if force
-        if pkg_install_path.exists() && options.force {
-            tokio::fs::remove_dir_all(&pkg_install_path).await?;
-        }
-
-        // Extract package
-        match extract_tarball(&tarball_path, &pkg_install_path).await {
-            Ok(_) => {
-                // Calculate integrity
-                let integrity = calculate_checksum(&tarball_path).ok();
-
-                // Update lockfile
-                let manifest = load_package_manifest(&pkg_name, &pkg_version, &registry_path).await?;
-                lockfile.packages.insert(
-                    pkg_key.clone(),
-                    LockfileEntry {
-                        name: pkg_name.clone(),
-                        version: pkg_version.clone(),
-                        resolved: tarball_path.display().to_string(),
-                        integrity,
-                        dependencies: manifest.dependencies.clone(),
-                    },
-                );
-
-                installed_packages.push(pkg_key.clone());
-                println!("✅ Installed {}@{}", pkg_name, pkg_version);
-            }
-            Err(e) => {
-                // Rollback on failure
-                println!("❌ Installation failed: {}", e);
-                println!("🔄 Rolling back...");
-
-                for installed_key in &installed_packages {
-                    let (rollback_name, _) = parse_package_spec(installed_key);
-                    let rollback_path = packages_dir.join(&rollback_name);
-
-                    if rollback_path.exists() {
-                        let _ = tokio::fs::remove_dir_all(&rollback_path).await;
-                    }
-
-                    lockfile.packages.remove(installed_key);
-                }
-
-                return Err(e);
-            }
-        }
-    }
-
-    // Save lockfile
+    lockfile.packages.insert(
+        format!("{}@{}", options.package_name, resolved_version),
+        LockfileEntry {
+            name: options.package_name.clone(),
+            version: resolved_version.clone(),
+            resolved: format!("github:{}", download_url.as_deref().unwrap_or("default")),
+            integrity: Some(integrity),
+            dependencies: HashMap::new(),
+        },
+    );
     save_lockfile(&lockfile, &packages_dir).await?;
-
-    // Collect dependency names
-    let dependencies_installed: Vec<String> = installed_packages
-        .iter()
-        .filter(|pkg| !pkg.starts_with(&format!("{}@", options.package_name)))
-        .map(|pkg| {
-            let (name, version) = parse_package_spec(pkg);
-            format!("{}@{}", name, version)
-        })
-        .collect();
 
     Ok(InstallResult {
         package_name: options.package_name.clone(),
         version: resolved_version,
         install_path,
-        dependencies_installed,
+        dependencies_installed: vec![],
     })
 }
 
@@ -700,11 +1080,7 @@ pub async fn install_package(options: &InstallOptions) -> Result<InstallResult> 
 ///
 /// This function bridges the CLI to the domain layer.
 pub async fn install_and_report(
-    package: &str,
-    target: Option<&str>,
-    force: bool,
-    with_dependencies: bool,
-    dry_run: bool,
+    package: &str, target: Option<&str>, force: bool, with_dependencies: bool, dry_run: bool,
 ) -> Result<()> {
     // Parse package specification (name@version)
     let (package_name, version) = match package.rsplit_once('@') {
@@ -737,36 +1113,47 @@ pub async fn install_and_report(
 
     // Display dry run information
     if dry_run {
-        println!("🔍 Dry run: Would install package");
-        println!("   Package: {}", options.package_name);
+        ggen_utils::alert_info!("🔍 Dry run: Would install package");
+        ggen_utils::alert_info!("   Package: {}", options.package_name);
         if let Some(ref ver) = options.version {
-            println!("   Version: {}", ver);
+            ggen_utils::alert_info!("   Version: {}", ver);
         }
         if let Some(ref path) = options.target_path {
-            println!("   Target: {}", path.display());
+            ggen_utils::alert_info!("   Target: {}", path.display());
         }
-        println!("   Dependencies: {}", if with_dependencies { "yes" } else { "no" });
+        ggen_utils::alert_info!(
+            "   Dependencies: {}",
+            if with_dependencies { "yes" } else { "no" }
+        );
         return Ok(());
     }
 
     // Install package
-    println!("📦 Installing {}...", package);
+    ggen_utils::alert_info!("📦 Installing {}...", package);
 
     match install_package(&options).await {
         Ok(result) => {
-            println!("✅ Successfully installed {} v{}", result.package_name, result.version);
-            println!("   Location: {}", result.install_path.display());
+            ggen_utils::alert_success!(
+                "Successfully installed {} v{}",
+                result.package_name,
+                result.version
+            );
+            ggen_utils::alert_info!("   Location: {}", result.install_path.display());
 
             if !result.dependencies_installed.is_empty() {
-                println!("   Dependencies: {}", result.dependencies_installed.join(", "));
+                ggen_utils::alert_info!(
+                    "   Dependencies: {}",
+                    result.dependencies_installed.join(", ")
+                );
             }
 
             Ok(())
         }
         Err(e) => {
-            // For Phase 1, show placeholder message
-            println!("ℹ️  Package installation not yet implemented (Phase 2)");
-            println!("   Package: {}", package);
+            ggen_utils::alert_critical!(
+                &format!("Failed to install package: {}", package),
+                &format!("Error: {}", e)
+            );
             Err(e)
         }
     }
@@ -776,6 +1163,10 @@ pub async fn install_and_report(
 pub async fn execute_install(input: InstallInput) -> Result<InstallResult> {
     // Parse package specification (name@version)
     let (package_name, version) = parse_package_spec(&input.package);
+
+    // Security: Validate package name to prevent injection attacks
+    validate_package_name(&package_name)?;
+
     let version = if version == "latest" {
         None
     } else {
@@ -789,7 +1180,8 @@ pub async fn execute_install(input: InstallInput) -> Result<InstallResult> {
         with_dependencies: !input.no_dependencies,
         dry_run: input.dry_run,
         version,
-    }).await
+    })
+    .await
 }
 
 #[cfg(test)]

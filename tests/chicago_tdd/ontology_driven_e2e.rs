@@ -16,7 +16,7 @@
 use anyhow::Result;
 use ggen_core::{Graph, Template};
 use ggen_domain::graph::{execute_query, QueryInput};
-use ggen_domain::template::render_with_rdf::{RenderWithRdfOptions, render_with_rdf};
+use ggen_domain::template::render_with_rdf::{render_with_rdf, RenderWithRdfOptions};
 use std::fs;
 use std::path::PathBuf;
 use tempfile::TempDir;
@@ -33,7 +33,15 @@ fn assert_code_contains(code: &str, pattern: &str, context: &str) {
         context,
         pattern,
         code.len(),
-        if code.len() < 1000 { code } else { &format!("{}...\n\n[truncated {} more bytes]", &code[..1000], code.len() - 1000) }
+        if code.len() < 1000 {
+            code
+        } else {
+            &format!(
+                "{}...\n\n[truncated {} more bytes]",
+                &code[..1000],
+                code.len() - 1000
+            )
+        }
     );
 }
 
@@ -45,7 +53,15 @@ fn assert_code_not_contains(code: &str, pattern: &str, context: &str) {
         context,
         pattern,
         code.len(),
-        if code.len() < 1000 { code } else { &format!("{}...\n\n[truncated {} more bytes]", &code[..1000], code.len() - 1000) }
+        if code.len() < 1000 {
+            code
+        } else {
+            &format!(
+                "{}...\n\n[truncated {} more bytes]",
+                &code[..1000],
+                code.len() - 1000
+            )
+        }
     );
 }
 
@@ -71,41 +87,61 @@ async fn test_ontology_to_code_generation_workflow() -> Result<()> {
                 ?class rdfs:label ?label .
             }
             ORDER BY ?label
-        "#.to_string(),
+        "#
+        .to_string(),
         graph_file: Some(ontology_v1_path.clone()),
         format: "json".to_string(),
-    }).await?;
+    })
+    .await?;
 
     // ASSERT: Verify v1 ontology has base classes
     eprintln!("Query result count: {}", query_result.result_count);
     eprintln!("Query bindings: {:?}", query_result.bindings);
 
     assert_eq!(query_result.result_count, 3, "Should have 3 classes in v1");
-    let class_names: Vec<String> = query_result.bindings
+    let class_names: Vec<String> = query_result
+        .bindings
         .iter()
         .filter_map(|b| b.get("?label").map(|s| s.trim_matches('"').to_string()))
         .collect();
 
     eprintln!("Class names found: {:?}", class_names);
     assert!(class_names.len() == 3, "Should have 3 class labels");
-    assert!(class_names.iter().any(|n| n.contains("Product")), "Should have Product class");
-    assert!(class_names.iter().any(|n| n.contains("Category")), "Should have Category class");
-    assert!(class_names.iter().any(|n| n.contains("Supplier")), "Should have Supplier class");
+    assert!(
+        class_names.iter().any(|n| n.contains("Product")),
+        "Should have Product class"
+    );
+    assert!(
+        class_names.iter().any(|n| n.contains("Category")),
+        "Should have Category class"
+    );
+    assert!(
+        class_names.iter().any(|n| n.contains("Supplier")),
+        "Should have Supplier class"
+    );
 
     // Step 3: GENERATE RUST CODE FROM ONTOLOGY v1
     let rust_models_v1_path = base_path.join("models_v1.rs");
-    generate_rust_models_from_ontology(
-        &ontology_v1_path,
-        &rust_models_v1_path,
-        "v1"
-    )?;
+    generate_rust_models_from_ontology(&ontology_v1_path, &rust_models_v1_path, "v1")?;
 
     // ASSERT: Verify generated code v1
     let code_v1 = fs::read_to_string(&rust_models_v1_path)?;
     assert_code_contains(&code_v1, "struct Product", "v1 should have Product struct");
-    assert_code_contains(&code_v1, "struct Category", "v1 should have Category struct");
-    assert_code_contains(&code_v1, "struct Supplier", "v1 should have Supplier struct");
-    assert_code_contains(&code_v1, "name: String", "v1 Product should have name field");
+    assert_code_contains(
+        &code_v1,
+        "struct Category",
+        "v1 should have Category struct",
+    );
+    assert_code_contains(
+        &code_v1,
+        "struct Supplier",
+        "v1 should have Supplier struct",
+    );
+    assert_code_contains(
+        &code_v1,
+        "name: String",
+        "v1 Product should have name field",
+    );
     assert_code_contains(&code_v1, "price: f64", "v1 Product should have price field");
     assert_code_not_contains(&code_v1, "sku", "v1 should NOT have SKU field yet");
     assert_code_not_contains(&code_v1, "rating", "v1 should NOT have rating field yet");
@@ -124,10 +160,12 @@ async fn test_ontology_to_code_generation_workflow() -> Result<()> {
                 ?property a rdf:Property .
             }
             ORDER BY ?property
-        "#.to_string(),
+        "#
+        .to_string(),
         graph_file: Some(ontology_v2_path.clone()),
         format: "json".to_string(),
-    }).await?;
+    })
+    .await?;
 
     // ASSERT: v2 has more properties than v1
     assert!(
@@ -137,41 +175,78 @@ async fn test_ontology_to_code_generation_workflow() -> Result<()> {
 
     // Step 6: REGENERATE CODE FROM MODIFIED ONTOLOGY v2
     let rust_models_v2_path = base_path.join("models_v2.rs");
-    generate_rust_models_from_ontology(
-        &ontology_v2_path,
-        &rust_models_v2_path,
-        "v2"
-    )?;
+    generate_rust_models_from_ontology(&ontology_v2_path, &rust_models_v2_path, "v2")?;
 
     // ASSERT: Verify code changes propagated from ontology changes
     let code_v2 = fs::read_to_string(&rust_models_v2_path)?;
 
     // All original v1 structures should still exist
-    assert_code_contains(&code_v2, "struct Product", "v2 should still have Product struct");
-    assert_code_contains(&code_v2, "struct Category", "v2 should still have Category struct");
-    assert_code_contains(&code_v2, "struct Supplier", "v2 should still have Supplier struct");
+    assert_code_contains(
+        &code_v2,
+        "struct Product",
+        "v2 should still have Product struct",
+    );
+    assert_code_contains(
+        &code_v2,
+        "struct Category",
+        "v2 should still have Category struct",
+    );
+    assert_code_contains(
+        &code_v2,
+        "struct Supplier",
+        "v2 should still have Supplier struct",
+    );
 
     // NEW properties from v2 ontology should appear in code
-    assert_code_contains(&code_v2, "sku: String", "v2 should have NEW SKU field from ontology");
-    assert_code_contains(&code_v2, "rating: f64", "v2 should have NEW rating field from ontology");
-    assert_code_contains(&code_v2, "inventory_count: i32", "v2 should have NEW inventory field from ontology");
+    assert_code_contains(
+        &code_v2,
+        "sku: String",
+        "v2 should have NEW SKU field from ontology",
+    );
+    assert_code_contains(
+        &code_v2,
+        "rating: f64",
+        "v2 should have NEW rating field from ontology",
+    );
+    assert_code_contains(
+        &code_v2,
+        "inventory_count: i32",
+        "v2 should have NEW inventory field from ontology",
+    );
 
     // New relationship should generate method
-    assert_code_contains(&code_v2, "fn get_supplier", "v2 should have supplier relationship method");
+    assert_code_contains(
+        &code_v2,
+        "fn get_supplier",
+        "v2 should have supplier relationship method",
+    );
 
     // Step 7: QUERY-DRIVEN CODE GENERATION - Use SPARQL to generate API endpoints
     let api_endpoints_path = base_path.join("api_endpoints.rs");
-    generate_api_endpoints_from_queries(
-        &ontology_v2_path,
-        &api_endpoints_path
-    )?;
+    generate_api_endpoints_from_queries(&ontology_v2_path, &api_endpoints_path)?;
 
     // ASSERT: Verify API endpoints generated from SPARQL queries
     let api_code = fs::read_to_string(&api_endpoints_path)?;
-    assert_code_contains(&api_code, "async fn get_product_by_id", "API should have GET by ID endpoint");
-    assert_code_contains(&api_code, "async fn list_products_by_category", "API should have category filter endpoint");
-    assert_code_contains(&api_code, "async fn search_products", "API should have search endpoint");
-    assert_code_contains(&api_code, "async fn get_low_inventory_products", "API should have inventory endpoint from v2 ontology");
+    assert_code_contains(
+        &api_code,
+        "async fn get_product_by_id",
+        "API should have GET by ID endpoint",
+    );
+    assert_code_contains(
+        &api_code,
+        "async fn list_products_by_category",
+        "API should have category filter endpoint",
+    );
+    assert_code_contains(
+        &api_code,
+        "async fn search_products",
+        "API should have search endpoint",
+    );
+    assert_code_contains(
+        &api_code,
+        "async fn get_low_inventory_products",
+        "API should have inventory endpoint from v2 ontology",
+    );
 
     // Step 8: COMPREHENSIVE VALIDATION - Compare v1 vs v2 code delta
     eprintln!("\n=== CODE V1 ===\n{}\n", code_v1);
@@ -179,8 +254,10 @@ async fn test_ontology_to_code_generation_workflow() -> Result<()> {
 
     let code_diff = calculate_code_delta(&code_v1, &code_v2)?;
 
-    eprintln!("Code delta: {} new fields, {} new methods, {} new lines",
-        code_diff.new_fields, code_diff.new_methods, code_diff.lines_added);
+    eprintln!(
+        "Code delta: {} new fields, {} new methods, {} new lines",
+        code_diff.new_fields, code_diff.new_methods, code_diff.lines_added
+    );
 
     // ASSERT: Code delta matches ontology delta
     assert_eq!(
@@ -236,20 +313,56 @@ async fn test_ontology_change_cascade_to_all_artifacts() -> Result<()> {
     let tests_v2 = fs::read_to_string(&tests_path_v2)?;
 
     // Models should have new Review struct
-    assert_code_contains(&models_v2, "struct Review", "Models should have Review struct from ontology");
-    assert_code_contains(&models_v2, "product_id: String", "Review should reference Product via product_id");
+    assert_code_contains(
+        &models_v2,
+        "struct Review",
+        "Models should have Review struct from ontology",
+    );
+    assert_code_contains(
+        &models_v2,
+        "product_id: String",
+        "Review should reference Product via product_id",
+    );
     assert_code_contains(&models_v2, "rating: i32", "Review should have rating field");
-    assert_code_contains(&models_v2, "comment: String", "Review should have comment field");
+    assert_code_contains(
+        &models_v2,
+        "comment: String",
+        "Review should have comment field",
+    );
 
     // API should have new review endpoints
-    assert_code_contains(&api_v2, "async fn create_review", "API should have POST /reviews endpoint");
-    assert_code_contains(&api_v2, "async fn get_product_reviews", "API should have GET /products/:id/reviews endpoint");
-    assert_code_contains(&api_v2, "async fn get_average_rating", "API should have rating aggregation endpoint");
+    assert_code_contains(
+        &api_v2,
+        "async fn create_review",
+        "API should have POST /reviews endpoint",
+    );
+    assert_code_contains(
+        &api_v2,
+        "async fn get_product_reviews",
+        "API should have GET /products/:id/reviews endpoint",
+    );
+    assert_code_contains(
+        &api_v2,
+        "async fn get_average_rating",
+        "API should have rating aggregation endpoint",
+    );
 
     // Tests should have new review test cases
-    assert_code_contains(&tests_v2, "test_create_review", "Tests should validate review creation");
-    assert_code_contains(&tests_v2, "test_get_product_reviews", "Tests should validate review retrieval");
-    assert_code_contains(&tests_v2, "test_review_rating_range", "Tests should validate rating constraints (1-5)");
+    assert_code_contains(
+        &tests_v2,
+        "test_create_review",
+        "Tests should validate review creation",
+    );
+    assert_code_contains(
+        &tests_v2,
+        "test_get_product_reviews",
+        "Tests should validate review retrieval",
+    );
+    assert_code_contains(
+        &tests_v2,
+        "test_review_rating_range",
+        "Tests should validate rating constraints (1-5)",
+    );
 
     Ok(())
 }
@@ -275,10 +388,12 @@ async fn test_sparql_results_as_template_variables() -> Result<()> {
                 ?product pc:category pc:Electronics .
             }
             ORDER BY DESC(?price)
-        "#.to_string(),
+        "#
+        .to_string(),
         graph_file: Some(ontology_path.clone()),
         format: "json".to_string(),
-    }).await?;
+    })
+    .await?;
 
     // ACT: Use SPARQL results as template variables
     let template_path = base_path.join("product_list.tmpl");
@@ -303,10 +418,12 @@ async fn test_sparql_results_as_template_variables() -> Result<()> {
             vars.insert(format!("product_{}_price", i), clean_price.to_string());
         }
     }
-    vars.insert("product_count".to_string(), query_result.result_count.to_string());
+    vars.insert(
+        "product_count".to_string(),
+        query_result.result_count.to_string(),
+    );
 
-    let options = RenderWithRdfOptions::new(template_path, output_path.clone())
-        .with_vars(vars);
+    let options = RenderWithRdfOptions::new(template_path, output_path.clone()).with_vars(vars);
 
     render_with_rdf(&options)?;
 
@@ -474,7 +591,8 @@ pc:product_002 a pc:Product ;
 
 fn add_review_class_to_ontology(path: &PathBuf) -> Result<()> {
     let mut ontology = fs::read_to_string(path)?;
-    ontology.push_str(r#"
+    ontology.push_str(
+        r#"
 
 # NEW Class: Review
 pc:Review a rdfs:Class ;
@@ -495,7 +613,8 @@ pc:comment a rdf:Property ;
     rdfs:label "comment" ;
     rdfs:domain pc:Review ;
     rdfs:range xsd:string .
-"#);
+"#,
+    );
     fs::write(path, ontology)?;
     Ok(())
 }
@@ -505,9 +624,7 @@ pc:comment a rdf:Property ;
 // ============================================================================
 
 fn generate_rust_models_from_ontology(
-    ontology_path: &PathBuf,
-    output_path: &PathBuf,
-    version: &str
+    ontology_path: &PathBuf, output_path: &PathBuf, version: &str,
 ) -> Result<()> {
     // Query ontology for classes and properties
     let graph = Graph::load_from_file(ontology_path.to_str().unwrap())?;
@@ -559,7 +676,8 @@ fn generate_rust_models_from_ontology(
 fn generate_struct_for_class(ontology_path: &PathBuf, class_name: &str) -> Result<String> {
     let graph = Graph::load_from_file(ontology_path.to_str().unwrap())?;
 
-    let properties_query = format!(r#"
+    let properties_query = format!(
+        r#"
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
         PREFIX pc: <http://example.org/product_catalog#>
 
@@ -568,7 +686,9 @@ fn generate_struct_for_class(ontology_path: &PathBuf, class_name: &str) -> Resul
             ?property rdfs:label ?label .
             OPTIONAL {{ ?property rdfs:range ?range }}
         }}
-    "#, class_name);
+    "#,
+        class_name
+    );
 
     eprintln!("Properties query for {}:\n{}", class_name, properties_query);
     let properties = graph.query(&properties_query)?;
@@ -624,8 +744,7 @@ fn generate_struct_for_class(ontology_path: &PathBuf, class_name: &str) -> Resul
 }
 
 fn generate_api_endpoints_from_queries(
-    ontology_path: &PathBuf,
-    output_path: &PathBuf
+    ontology_path: &PathBuf, output_path: &PathBuf,
 ) -> Result<()> {
     let mut code = "// Generated API endpoints from ontology\n\n".to_string();
     code.push_str("use axum::{Json, extract::Path};\n");
@@ -637,7 +756,9 @@ fn generate_api_endpoints_from_queries(
     code.push_str("    Json(serde_json::json!({}))\n");
     code.push_str("}\n\n");
 
-    code.push_str("pub async fn list_products_by_category(Path(category): Path<String>) -> Json<Value> {\n");
+    code.push_str(
+        "pub async fn list_products_by_category(Path(category): Path<String>) -> Json<Value> {\n",
+    );
     code.push_str("    // Query products filtered by category\n");
     code.push_str("    Json(serde_json::json!([]))\n");
     code.push_str("}\n\n");
@@ -663,12 +784,16 @@ fn generate_api_endpoints_from_queries(
         code.push_str("    Json(review)\n");
         code.push_str("}\n\n");
 
-        code.push_str("pub async fn get_product_reviews(Path(product_id): Path<String>) -> Json<Value> {\n");
+        code.push_str(
+            "pub async fn get_product_reviews(Path(product_id): Path<String>) -> Json<Value> {\n",
+        );
         code.push_str("    // Get reviews for product\n");
         code.push_str("    Json(serde_json::json!([]))\n");
         code.push_str("}\n\n");
 
-        code.push_str("pub async fn get_average_rating(Path(product_id): Path<String>) -> Json<Value> {\n");
+        code.push_str(
+            "pub async fn get_average_rating(Path(product_id): Path<String>) -> Json<Value> {\n",
+        );
         code.push_str("    // Calculate average rating\n");
         code.push_str("    Json(serde_json::json!({\"average\": 0.0}))\n");
         code.push_str("}\n\n");
@@ -678,10 +803,7 @@ fn generate_api_endpoints_from_queries(
     Ok(())
 }
 
-fn generate_tests_from_ontology(
-    ontology_path: &PathBuf,
-    output_path: &PathBuf
-) -> Result<()> {
+fn generate_tests_from_ontology(ontology_path: &PathBuf, output_path: &PathBuf) -> Result<()> {
     let ontology_content = fs::read_to_string(ontology_path)?;
     let mut code = "// Generated tests from ontology\n\n".to_string();
     code.push_str("#[cfg(test)]\n");

@@ -6,17 +6,20 @@
 /// - How it resolves template dependencies
 /// - How it handles metadata
 /// - How it coordinates generation modes
-
 use super::fixtures::*;
-use std::path::PathBuf;
 use mockall::predicate::*;
+use std::path::PathBuf;
 
 /// GenerationPlanner trait - to be implemented
 trait PlannerService {
     fn build_generation_plan(&self, config: &ConventionConfig) -> anyhow::Result<GenerationPlan>;
-    fn resolve_template_dependencies(&self, templates: &[TemplateMetadata]) -> anyhow::Result<Vec<TemplateMetadata>>;
+    fn resolve_template_dependencies(
+        &self, templates: &[TemplateMetadata],
+    ) -> anyhow::Result<Vec<TemplateMetadata>>;
     fn parse_template_metadata(&self, path: &std::path::Path) -> anyhow::Result<TemplateMetadata>;
-    fn match_when_triggers(&self, template: &TemplateMetadata, rdf_files: &[PathBuf]) -> Vec<PathBuf>;
+    fn match_when_triggers(
+        &self, template: &TemplateMetadata, rdf_files: &[PathBuf],
+    ) -> Vec<PathBuf>;
     fn link_queries(&self, template: &TemplateMetadata, queries: &[PathBuf]) -> Option<PathBuf>;
     fn detect_circular_dependencies(&self, templates: &[TemplateMetadata]) -> anyhow::Result<()>;
 }
@@ -40,24 +43,24 @@ mod tests {
         };
 
         let expected_plan = GenerationPlan {
-            templates: vec![
-                TemplateMetadata {
-                    name: "user_model".to_string(),
-                    path: PathBuf::from("templates/user.hbs"),
-                    mode: GenerationMode::ForEach,
-                    when_trigger: Some("**/*user*.ttl".to_string()),
-                    output_path: Some("models/{{name}}.rs".to_string()),
-                    query: Some("get_users".to_string()),
-                    dependencies: vec![],
-                },
-            ],
+            templates: vec![TemplateMetadata {
+                name: "user_model".to_string(),
+                path: PathBuf::from("templates/user.hbs"),
+                mode: GenerationMode::ForEach,
+                when_trigger: Some("**/*user*.ttl".to_string()),
+                output_path: Some("models/{{name}}.rs".to_string()),
+                query: Some("get_users".to_string()),
+                dependencies: vec![],
+            }],
             rdf_files: vec![PathBuf::from("rdf/users.ttl")],
-            output_mappings: vec![
-                (PathBuf::from("rdf/users.ttl"), PathBuf::from("src/models/users.rs")),
-            ],
+            output_mappings: vec![(
+                PathBuf::from("rdf/users.ttl"),
+                PathBuf::from("src/models/users.rs"),
+            )],
         };
 
-        mock_planner.expect_build_plan()
+        mock_planner
+            .expect_build_plan()
             .with(eq(config.clone()))
             .returning(move |_| Ok(expected_plan.clone()));
 
@@ -102,7 +105,8 @@ mod tests {
             templates[1].clone(), // user_model second
         ];
 
-        mock_planner.expect_resolve_dependencies()
+        mock_planner
+            .expect_resolve_dependencies()
             .with(eq(templates.clone()))
             .returning(move |_| Ok(expected_order.clone()));
 
@@ -131,7 +135,8 @@ mod tests {
             "pub struct {{ name }} {\n    pub email: String,\n}".to_string(),
         );
 
-        mock_engine.expect_parse_frontmatter()
+        mock_engine
+            .expect_parse_frontmatter()
             .with(eq(template_content.clone()))
             .returning(move |_| Ok(expected_metadata.clone()));
 
@@ -243,17 +248,15 @@ mod tests {
     fn test_incremental_planning() {
         // ARRANGE: Existing generation plan + new templates
         let existing_plan = GenerationPlan {
-            templates: vec![
-                TemplateMetadata {
-                    name: "base".to_string(),
-                    path: PathBuf::from("templates/base.hbs"),
-                    mode: GenerationMode::Once,
-                    when_trigger: None,
-                    output_path: Some("lib.rs".to_string()),
-                    query: None,
-                    dependencies: vec![],
-                },
-            ],
+            templates: vec![TemplateMetadata {
+                name: "base".to_string(),
+                path: PathBuf::from("templates/base.hbs"),
+                mode: GenerationMode::Once,
+                when_trigger: None,
+                output_path: Some("lib.rs".to_string()),
+                query: None,
+                dependencies: vec![],
+            }],
             rdf_files: vec![PathBuf::from("rdf/users.ttl")],
             output_mappings: vec![],
         };
@@ -391,9 +394,9 @@ mod tests {
 
         // ACT: Match when trigger
         // ASSERT: No matches, template should be skipped
-        let matches_any = rdf_files.iter().any(|f| {
-            f.to_str().unwrap().contains("admin")
-        });
+        let matches_any = rdf_files
+            .iter()
+            .any(|f| f.to_str().unwrap().contains("admin"));
 
         assert!(!matches_any);
     }

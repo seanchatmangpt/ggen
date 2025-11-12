@@ -8,9 +8,7 @@
 //! - Type-aware code generation hints
 //! - Progressive disclosure of complexity
 
-use anyhow::{Context as _, Result};
-use std::path::Path;
-use crate::cli_generator::types::{CliProject, Noun, Verb, Argument};
+use crate::cli_generator::types::{Argument, CliProject, Noun, Verb};
 
 /// Enhanced error messages with fix suggestions
 pub struct ErrorEnhancer;
@@ -19,23 +17,23 @@ impl ErrorEnhancer {
     /// Generate a helpful error message with fix suggestions
     pub fn enhance_error(err: &anyhow::Error, context: &ErrorContext) -> String {
         let mut msg = format!("❌ Error: {}\n\n", err);
-        
+
         // Context-aware suggestions
         if let Some(suggestion) = Self::suggest_fix(err, context) {
             msg.push_str(&format!("💡 Suggestion: {}\n\n", suggestion));
         }
-        
+
         // Show related documentation
         if let Some(doc_link) = Self::get_doc_link(context) {
             msg.push_str(&format!("📚 Documentation: {}\n", doc_link));
         }
-        
+
         msg
     }
-    
-    fn suggest_fix(err: &anyhow::Error, context: &ErrorContext) -> Option<String> {
+
+    fn suggest_fix(err: &anyhow::Error, _context: &ErrorContext) -> Option<String> {
         let err_msg = err.to_string().to_lowercase();
-        
+
         if err_msg.contains("template not found") {
             Some("Check that templates exist in the templates/cli/ directory. Run 'ggen template list' to see available templates.".to_string())
         } else if err_msg.contains("domain function") {
@@ -46,12 +44,19 @@ impl ErrorEnhancer {
             None
         }
     }
-    
+
     fn get_doc_link(context: &ErrorContext) -> Option<String> {
         match context {
-            ErrorContext::TemplateGeneration => Some("See docs/CLI_GENERATOR_V2_2026_BEST_PRACTICES.md".to_string()),
-            ErrorContext::WorkspaceStructure => Some("See docs/CLI_GENERATOR_V2_2026_BEST_PRACTICES.md#workspace-pattern".to_string()),
-            ErrorContext::DomainFunctionReference => Some("See docs/CLI_GENERATOR_V2_2026_BEST_PRACTICES.md#domain-function-references".to_string()),
+            ErrorContext::TemplateGeneration => {
+                Some("See docs/CLI_GENERATOR_V2_2026_BEST_PRACTICES.md".to_string())
+            }
+            ErrorContext::WorkspaceStructure => Some(
+                "See docs/CLI_GENERATOR_V2_2026_BEST_PRACTICES.md#workspace-pattern".to_string(),
+            ),
+            ErrorContext::DomainFunctionReference => Some(
+                "See docs/CLI_GENERATOR_V2_2026_BEST_PRACTICES.md#domain-function-references"
+                    .to_string(),
+            ),
             _ => None,
         }
     }
@@ -70,15 +75,15 @@ pub struct CodeHints;
 impl CodeHints {
     /// Generate type-aware hints for domain functions
     pub fn generate_domain_function_hint(verb: &Verb, noun: &Noun, project: &CliProject) -> String {
-        let core_crate = project.domain_crate.as_ref()
+        let core_crate = project
+            .domain_crate
+            .as_ref()
             .map(|c| c.replace("-", "_"))
             .unwrap_or_else(|| format!("{}_core", project.name.replace("-", "_")));
-        
+
         let default_path = format!("{}::{}::{}", core_crate, noun.name, verb.name);
-        let function_path = verb.domain_function.as_ref()
-            .map(|f| f.as_str())
-            .unwrap_or(&default_path);
-        
+        let function_path = verb.domain_function.as_deref().unwrap_or(&default_path);
+
         format!(
             "/// Domain function reference: `{}`\n\
              /// Expected signature:\n\
@@ -88,28 +93,31 @@ impl CodeHints {
             function_path
         )
     }
-    
+
     /// Generate import suggestions for CLI layer
     pub fn generate_import_suggestion(verb: &Verb, noun: &Noun, project: &CliProject) -> String {
-        let core_crate = project.domain_crate.as_ref()
+        let core_crate = project
+            .domain_crate
+            .as_ref()
             .map(|c| c.replace("-", "_"))
             .unwrap_or_else(|| format!("{}_core", project.name.replace("-", "_")));
-        
+
         format!(
             "use {}::{}::{}::{{Input, Output, execute as domain_{}}};\n\
              use crate::runtime::execute as sync_execute;",
             core_crate, noun.name, verb.name, verb.name
         )
     }
-    
+
     /// Generate argument mapping hints
     pub fn generate_argument_mapping(verb: &Verb) -> String {
-        let mut mapping = String::from("// Map CLI arguments to domain input:\nlet input = Input {\n");
-        
+        let mut mapping =
+            String::from("// Map CLI arguments to domain input:\nlet input = Input {\n");
+
         for arg in &verb.arguments {
             mapping.push_str(&format!("    {}: args.{}.clone(),\n", arg.name, arg.name));
         }
-        
+
         mapping.push_str("};");
         mapping
     }
@@ -123,10 +131,8 @@ impl TemplatePreview {
     pub fn preview_workspace_structure(project: &CliProject) -> String {
         let default_cli = format!("{}-cli", project.name);
         let default_domain = format!("{}-core", project.name);
-        let cli_crate = project.cli_crate.as_ref()
-            .unwrap_or(&default_cli);
-        let domain_crate = project.domain_crate.as_ref()
-            .unwrap_or(&default_domain);
+        let cli_crate = project.cli_crate.as_ref().unwrap_or(&default_cli);
+        let domain_crate = project.domain_crate.as_ref().unwrap_or(&default_domain);
 
         format!(
             "📁 Workspace Structure Preview:\n\n\
@@ -156,13 +162,15 @@ impl TemplatePreview {
             deps = project.dependencies.len(),
         )
     }
-    
+
     /// Preview a specific verb implementation
     pub fn preview_verb_implementation(verb: &Verb, noun: &Noun, project: &CliProject) -> String {
-        let core_crate = project.domain_crate.as_ref()
+        let core_crate = project
+            .domain_crate
+            .as_ref()
             .map(|c| c.replace("-", "_"))
             .unwrap_or_else(|| format!("{}_core", project.name.replace("-", "_")));
-        
+
         format!(
             "📝 Verb Implementation Preview:\n\n\
              ```rust\n\
@@ -199,14 +207,14 @@ impl TemplatePreview {
             verb_args = format!("{}Args", verb.name.chars().next().unwrap().to_uppercase().to_string() + &verb.name[1..]),
             args = verb.arguments.iter().map(|a| {
                 format!("    /// {}\n    #[arg(long)]\n    pub {}: {},\n\n",
-                        a.help, a.name, Self::rust_type_for_arg(&a))
+                        a.help, a.name, Self::rust_type_for_arg(a))
             }).collect::<String>(),
             input_mapping = verb.arguments.iter().map(|a| {
                 format!("        {}: args.{}.clone(),\n", a.name, a.name)
             }).collect::<String>(),
         )
     }
-    
+
     fn rust_type_for_arg(arg: &Argument) -> String {
         match arg.arg_type.name.as_str() {
             "String" => "String".to_string(),
@@ -214,7 +222,7 @@ impl TemplatePreview {
             "PathBuf" => "std::path::PathBuf".to_string(),
             _ => {
                 if arg.required {
-                    format!("{}", arg.arg_type.name)
+                    arg.arg_type.name.to_string()
                 } else {
                     format!("Option<{}>", arg.arg_type.name)
                 }
@@ -229,12 +237,14 @@ pub struct AutoFix;
 impl AutoFix {
     /// Suggest fixes for missing domain function references
     pub fn suggest_domain_function_fix(verb: &Verb, noun: &Noun, project: &CliProject) -> String {
-        let core_crate = project.domain_crate.as_ref()
+        let core_crate = project
+            .domain_crate
+            .as_ref()
             .map(|c| c.replace("-", "_"))
             .unwrap_or_else(|| format!("{}_core", project.name.replace("-", "_")));
-        
+
         let suggested_path = format!("{}::{}::{}", core_crate, noun.name, verb.name);
-        
+
         format!(
             "💡 Add to your RDF ontology:\n\n\
              <#{verb}-{noun}> a cnv:Verb ;\n\
@@ -249,7 +259,7 @@ impl AutoFix {
             core_crate = core_crate,
         )
     }
-    
+
     /// Suggest fixes for workspace structure issues
     pub fn suggest_workspace_fix(project: &CliProject) -> String {
         format!(
@@ -262,8 +272,14 @@ impl AutoFix {
              ]\n\
              resolver = \"{resolver}\"\n\
              ```",
-            cli_crate = project.cli_crate.as_ref().unwrap_or(&format!("{}-cli", project.name)),
-            domain_crate = project.domain_crate.as_ref().unwrap_or(&format!("{}-core", project.name)),
+            cli_crate = project
+                .cli_crate
+                .as_ref()
+                .unwrap_or(&format!("{}-cli", project.name)),
+            domain_crate = project
+                .domain_crate
+                .as_ref()
+                .unwrap_or(&format!("{}-core", project.name)),
             resolver = project.resolver,
         )
     }
@@ -288,7 +304,7 @@ impl ProgressiveDisclosure {
             project.name,
         )
     }
-    
+
     /// Get advanced info for power users
     pub fn advanced_info(project: &CliProject) -> String {
         format!(
@@ -303,20 +319,39 @@ impl ProgressiveDisclosure {
              \n\
              Domain Functions:\n\
              {}",
-            project.cli_crate.as_ref().unwrap_or(&format!("{}-cli", project.name)),
-            project.domain_crate.as_ref().unwrap_or(&format!("{}-core", project.name)),
+            project
+                .cli_crate
+                .as_ref()
+                .unwrap_or(&format!("{}-cli", project.name)),
+            project
+                .domain_crate
+                .as_ref()
+                .unwrap_or(&format!("{}-core", project.name)),
             project.resolver,
-            project.dependencies.iter().map(|d| {
-                format!("  - {} = \"{}\"", d.name, d.version)
-            }).collect::<Vec<_>>().join("\n"),
-            project.nouns.iter().flat_map(|n| {
-                n.verbs.iter().map(move |v| {
-                    format!("  - {}::{}::{}", 
-                           project.domain_crate.as_ref().unwrap_or(&format!("{}-core", project.name)),
-                           n.name, v.name)
+            project
+                .dependencies
+                .iter()
+                .map(|d| { format!("  - {} = \"{}\"", d.name, d.version) })
+                .collect::<Vec<_>>()
+                .join("\n"),
+            project
+                .nouns
+                .iter()
+                .flat_map(|n| {
+                    n.verbs.iter().map(move |v| {
+                        format!(
+                            "  - {}::{}::{}",
+                            project
+                                .domain_crate
+                                .as_ref()
+                                .unwrap_or(&format!("{}-core", project.name)),
+                            n.name,
+                            v.name
+                        )
+                    })
                 })
-            }).collect::<Vec<_>>().join("\n"),
+                .collect::<Vec<_>>()
+                .join("\n"),
         )
     }
 }
-

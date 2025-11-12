@@ -1,7 +1,7 @@
 //! Security tests for signature verification
 
-use ggen_core::pqc::{PqcSigner, PqcVerifier, calculate_sha256};
 use anyhow::Result;
+use ggen_core::pqc::{calculate_sha256, PqcSigner, PqcVerifier};
 
 #[test]
 fn test_valid_signature_verification() -> Result<()> {
@@ -143,7 +143,10 @@ fn test_sha256_empty_input() {
     // Even empty input should produce valid hash
     assert_eq!(hash.len(), 64);
     // Known SHA256 of empty string
-    assert_eq!(hash, "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
+    assert_eq!(
+        hash,
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    );
 }
 
 #[test]

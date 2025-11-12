@@ -1,0 +1,324 @@
+@startuml knowledge-hook-execution
+!theme plain
+skinparam backgroundColor #FEFEFE
+
+title Knowledge Hook Execution Lifecycle - Hot/Warm/Cold Paths
+
+start
+
+:Receive Knowledge Hook Request;
+note right
+  Input:
+  - trigger: TriggerSpec
+  - check: CheckSpec
+  - act: ActionSpec
+  - context: RDF triples
+end note
+
+:Parse Hook Specification;
+
+partition "Trigger Phase" {
+  :Evaluate Trigger Condition;
+
+  if (Trigger matches?) then (yes)
+    :Collect Observations (O);
+    note right
+      O = {
+        state_triples,
+        provenance_chain,
+        temporal_metadata,
+        resource_usage
+      }
+    end note
+  else (no)
+    :Log trigger mismatch;
+    stop
+  endif
+}
+
+partition "Check Phase - Guard Enforcement" {
+  :Apply Measurement Function µ(O);
+
+  :Check Legal Guard;
+  if (action ∈ Legal(O)?) then (yes)
+    :✓ Legal constraint satisfied;
+  else (no)
+    :✗ Reject: Illegal action;
+    :Generate rejection receipt;
+    stop
+  endif
+
+  :Check Budget Guard;
+  if (cost(A) ≤ budget?) then (yes)
+    :✓ Budget constraint satisfied;
+  else (no)
+    :✗ Reject: Budget exceeded;
+    :Generate rejection receipt;
+    stop
+  endif
+
+  :Check Chronology Guard;
+  if (time(A) > time(O)?) then (yes)
+    :✓ Chronological constraint satisfied;
+  else (no)
+    :✗ Reject: Time violation;
+    :Generate rejection receipt;
+    stop
+  endif
+
+  :Check Causality Guard;
+  if (deps(A) ⊆ completed(O)?) then (yes)
+    :✓ Causal constraint satisfied;
+  else (no)
+    :✗ Reject: Dependency violation;
+    :Generate rejection receipt;
+    stop
+  endif
+
+  :All guards passed ✓;
+}
+
+partition "Act Phase - KNHK Executor" {
+  :Route to KNHK Executor;
+
+  :Attempt Hot-Path Execution (C);
+  note right
+    Hot-path criteria:
+    - Literal guards only
+    - Integer/boolean checks
+    - No heap allocation
+    - No SPARQL queries
+
+    Target: ≤2ns latency
+  end note
+
+  if (Hot-path applicable?) then (yes)
+    partition "Hot Path (≤2ns)" {
+      :Execute C rule checks;
+      :Validate type safety;
+      :Check literal bounds;
+      :Enforce enum constraints;
+
+      if (Hot-path succeeds?) then (yes)
+        :Record execution time;
+        :Generate fast receipt;
+
+        if (Latency ≤ 2ns?) then (yes)
+          :✓ Hot-path SLO met;
+          goto receipt_generation;
+        else (no)
+          :⚠ Hot-path SLO violation;
+          :Log performance drift;
+          goto drift_detection;
+        endif
+      else (no)
+        :Hot-path insufficient;
+        :Fallback to warm-path;
+      endif
+    }
+  else (no)
+    :Skip to warm-path;
+  endif
+
+  :Attempt Warm-Path Execution (Rust);
+  note right
+    Warm-path criteria:
+    - Pattern matching (43 Van der Aalst)
+    - Resource allocation
+    - State transitions
+    - No complex SPARQL
+
+    Target: ≤500ms latency
+  end note
+
+  if (Warm-path applicable?) then (yes)
+    partition "Warm Path (≤500ms)" {
+      :Match workflow pattern;
+      :Allocate resources;
+      :Execute state machine;
+      :Orchestrate action steps;
+
+      if (Warm-path succeeds?) then (yes)
+        :Record execution time;
+        :Generate standard receipt;
+
+        if (Latency ≤ 500ms?) then (yes)
+          :✓ Warm-path SLO met;
+          goto receipt_generation;
+        else (no)
+          :⚠ Warm-path SLO violation;
+          :Log performance drift;
+          goto drift_detection;
+        endif
+      else (no)
+        :Warm-path insufficient;
+        :Fallback to cold-path;
+      endif
+    }
+  else (no)
+    :Skip to cold-path;
+  endif
+
+  :Execute Cold-Path (SPARQL);
+  note right
+    Cold-path criteria:
+    - Complex reasoning
+    - Historical provenance
+    - Multi-hop queries
+    - Cross-entity patterns
+
+    Target: ≤500ms latency
+  end note
+
+  partition "Cold Path (≤500ms)" {
+    :Execute SPARQL queries;
+    :Trace provenance chain;
+    :Perform reasoning;
+    :Analyze historical data;
+
+    if (Cold-path succeeds?) then (yes)
+      :Record execution time;
+      :Generate complex receipt;
+
+      if (Latency ≤ 500ms?) then (yes)
+        :✓ Cold-path SLO met;
+        goto receipt_generation;
+      else (no)
+        :⚠ Cold-path SLO violation;
+        :Log performance drift;
+        goto drift_detection;
+      endif
+    else (no)
+      :✗ Execution failed;
+      :Generate failure receipt;
+      stop
+    endif
+  }
+}
+
+label receipt_generation
+partition "Receipt Generation" {
+  :Create receipt R;
+  note right
+    R = {
+      timestamp: ISO8601,
+      action_hash: SHA3-256(A),
+      obs_hash: SHA3-256(O),
+      measure_value: µ(O),
+      guard_proof: π,
+      execution_path: hot|warm|cold,
+      latency_ns: t_exec
+    }
+  end note
+
+  :Hash observations: H(O);
+  :Hash actions: H(A);
+  :Hash measurement: H(µ(O));
+
+  :Build Merkle tree;
+  note right
+    root = H(H(O) || H(A) || H(µ))
+
+    Provides:
+    - O(log n) verification
+    - Cryptographic proofs
+    - Tamper evidence
+  end note
+
+  :Link to previous receipt;
+  note right
+    R.prev_hash = SHA3-256(R₋₁)
+
+    Creates immutable chain:
+    R₀ → R₁ → R₂ → ... → Rₙ
+  end note
+
+  :Store receipt in lockchain;
+  :Return receipt to caller;
+}
+
+label drift_detection
+partition "Drift Detection & Bounded Regeneration" {
+  :Calculate drift δ;
+  note right
+    δ = |actual - expected| / expected
+
+    Drift types:
+    - Execution time drift
+    - Resource usage drift
+    - Output quality drift
+  end note
+
+  if (δ ≤ 0.5%?) then (yes)
+    :✓ Execution within bounds;
+    :Update drift statistics;
+    goto receipt_generation;
+  else (no)
+    :⚠ Drift exceeds threshold;
+    :Trigger bounded regeneration;
+
+    :Isolate drift source;
+    note right
+      Analyze:
+      - Hot-path misses
+      - Warm-path overhead
+      - Cold-path query plans
+      - Resource contention
+    end note
+
+    if (Retry count < 3?) then (yes)
+      :Regenerate action A';
+      :Re-verify guards;
+      :Retry execution;
+      note right
+        Bounded retry:
+        - Max 3 attempts
+        - Exponential backoff
+        - Guard strengthening
+        - Pattern learning
+      end note
+
+      :Increment retry counter;
+      backward :Route to KNHK Executor;
+    else (no)
+      :✗ Max retries exceeded;
+      :Generate drift violation receipt;
+      :Log for µ function tuning;
+      stop
+    endif
+  endif
+}
+
+:Return receipt to caller;
+
+stop
+
+note bottom
+  Knowledge Hook Execution Summary:
+
+  Phases:
+  1. Trigger: Event/time/condition matching
+  2. Check: Guard enforcement (legal, budget, chronology, causality)
+  3. Act: Three-tier execution (hot/warm/cold)
+  4. Receipt: Lockchain provenance generation
+
+  Performance SLOs:
+  - Hot path: ≤2ns (95th percentile)
+  - Warm path: ≤500ms (95th percentile)
+  - Cold path: ≤500ms (95th percentile)
+  - Drift: ≤0.5% (bounded regeneration)
+
+  Guard Adjunction (µ ⊣ H):
+  - µ: O → ℝ (measurement function)
+  - H: A → R (hook executor)
+  - Adjunction ensures correctness
+  - Monotonicity guarantees bounds
+
+  Receipt Properties:
+  - Immutable: SHA3-256 chain
+  - Verifiable: Merkle proofs
+  - Provenance: Full history
+  - Tamper-evident: Cryptographic hashes
+end note
+
+@enduml

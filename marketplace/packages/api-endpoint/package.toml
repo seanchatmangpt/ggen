@@ -46,7 +46,7 @@ base_path = { type = "string", default = "/api/v1", description = "API base path
 [examples]
 basic = """
 # Install the package
-ggen market add api-endpoint-templates
+ggen market install api-endpoint-templates
 
 # Generate user API endpoints
 ggen template generate api-endpoint-templates \\

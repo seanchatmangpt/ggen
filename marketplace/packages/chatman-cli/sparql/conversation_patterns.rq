@@ -1,0 +1,18 @@
+PREFIX chatman: <http://ggen.ai/ontology/chatman#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+# Analyze conversation patterns
+SELECT ?pattern ?patternType (COUNT(?message) AS ?messageCount) ?avgRelevance
+WHERE {
+    ?conversation chatman:hasContext ?context .
+    ?context rdf:type ?patternType .
+    
+    ?conversation chatman:hasMessage ?message .
+    ?message chatman:hasQuality ?quality .
+    ?quality chatman:hasRelevance ?relevance .
+    
+    BIND(?patternType AS ?pattern)
+}
+GROUP BY ?pattern ?patternType
+HAVING (COUNT(?message) > 5)
+ORDER BY DESC(?messageCount)

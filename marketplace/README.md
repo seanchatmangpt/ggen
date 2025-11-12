@@ -14,8 +14,8 @@ ggen market install "advanced-rust-api-8020"
 # List installed packages
 ggen market list
 
-# Get package details
-ggen market info "advanced-rust-api-8020"
+# Search for package details
+ggen market search "advanced-rust-api-8020"
 ```
 
 ## 📖 Documentation
@@ -26,7 +26,7 @@ ggen market info "advanced-rust-api-8020"
 
 ## 🌐 Live Marketplace
 
-- **Registry URL**: `https://seanchatmangpt.github.io/ggen/marketplace/registry/packages.toml`
+- **Registry URL**: `https://seanchatmangpt.github.io/ggen/marketplace/registry/index.json`
 - **Repository**: `https://github.com/seanchatmangpt/ggen`
 - **Documentation**: `https://seanchatmangpt.github.io/ggen/`
 

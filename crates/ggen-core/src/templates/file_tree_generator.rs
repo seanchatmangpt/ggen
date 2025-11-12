@@ -31,8 +31,9 @@ impl FileTreeTemplate {
 
     /// Load from YAML file
     pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Self> {
-        let content = std::fs::read_to_string(&path)
-            .with_context(|| format!("Failed to read template file: {}", path.as_ref().display()))?;
+        let content = std::fs::read_to_string(&path).with_context(|| {
+            format!("Failed to read template file: {}", path.as_ref().display())
+        })?;
 
         Self::from_yaml(&content)
     }
@@ -191,9 +192,7 @@ impl TemplateParser {
     }
 
     fn parse_simple_node(
-        line: &str,
-        _lines: &[&str],
-        _index: &mut usize,
+        line: &str, _lines: &[&str], _index: &mut usize,
     ) -> Result<Option<FileTreeNode>> {
         if line.starts_with("[directory:") {
             let name = Self::extract_name(line)?;
@@ -208,7 +207,9 @@ impl TemplateParser {
 
     fn extract_name(line: &str) -> Result<String> {
         let start = line.find('"').context("Missing opening quote")?;
-        let end = line[start + 1..].find('"').context("Missing closing quote")?;
+        let end = line[start + 1..]
+            .find('"')
+            .context("Missing closing quote")?;
         Ok(line[start + 1..start + 1 + end].to_string())
     }
 }

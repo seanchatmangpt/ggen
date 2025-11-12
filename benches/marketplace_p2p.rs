@@ -20,10 +20,8 @@
 //! - Regression detection via criterion's baseline comparison
 //! - Statistical analysis via criterion's built-in tools
 
-use criterion::{
-    black_box, criterion_group, criterion_main, BenchmarkId, Criterion,
-};
-use ggen_marketplace::backend::p2p::{P2PRegistry, P2PConfig};
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
+use ggen_marketplace::backend::p2p::{P2PConfig, P2PRegistry};
 use ggen_marketplace::models::{Package, PackageId, PackageMetadata, Query};
 use ggen_marketplace::traits::Registry;
 use std::collections::HashMap;
@@ -53,7 +51,10 @@ fn generate_test_package(id: usize) -> Package {
             ],
             categories: vec![format!("category-{}", id % 5)],
             tags: vec![format!("tag-{}", id % 10)],
-            readme: Some(format!("# Test Package {}\n\nBenchmark package for P2P testing.", id)),
+            readme: Some(format!(
+                "# Test Package {}\n\nBenchmark package for P2P testing.",
+                id
+            )),
             repository: Some(format!("https://github.com/test/pkg-{}", id)),
             dependencies: HashMap::new(),
             extra: HashMap::new(),
@@ -227,9 +228,7 @@ fn bench_concurrent_searches(c: &mut Criterion) {
                             for i in 0..conc {
                                 let reg = &registry;
                                 let query = generate_query(&format!("test-{}", i % 10), Some(10));
-                                let task = async move {
-                                    reg.search(&query).await.unwrap()
-                                };
+                                let task = async move { reg.search(&query).await.unwrap() };
                                 tasks.push(task);
                             }
 

@@ -6,6 +6,12 @@ use anyhow::Result;
 
 pub struct NextJsGenerator;
 
+impl Default for NextJsGenerator {
+    fn default() -> Self {
+        Self
+    }
+}
+
 impl NextJsGenerator {
     pub fn new() -> Self {
         Self

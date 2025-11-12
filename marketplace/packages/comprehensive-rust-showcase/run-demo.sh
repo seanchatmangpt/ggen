@@ -62,7 +62,7 @@ echo ""
 
 # 2. Install marketplace packages
 echo "2️⃣ Installing marketplace packages..."
-echo "   Command: ggen market add <packages>"
+echo "   Command: ggen market install <packages>"
 echo ""
 
 # Check if packages are already installed
@@ -71,7 +71,7 @@ INSTALLED_PACKAGES=$(ggen market list --installed 2>/dev/null || echo "")
 
 if ! echo "$INSTALLED_PACKAGES" | grep -q "rig-mcp"; then
     echo "📦 Installing AI integration package..."
-    if ggen market add "rig-mcp-integration" 2>/dev/null; then
+    if ggen market install "rig-mcp-integration" 2>/dev/null; then
         echo "   ✅ rig-mcp-integration installed"
     else
         echo "   ⚠️ Failed to install rig-mcp-integration (may not be available)"
@@ -82,7 +82,7 @@ fi
 
 if ! echo "$INSTALLED_PACKAGES" | grep -q "api-endpoint"; then
     echo "📦 Installing API template package..."
-    if ggen market add "api-endpoint-templates" 2>/dev/null; then
+    if ggen market install "api-endpoint-templates" 2>/dev/null; then
         echo "   ✅ api-endpoint-templates installed"
     else
         echo "   ⚠️ Failed to install api-endpoint-templates (may not be available)"

@@ -3,6 +3,7 @@
 //! These tests use REAL registry files and verify actual search behavior
 //! following the Classicist School of TDD.
 
+use chicago_tdd_tools::prelude::*;
 use ggen_domain::marketplace::search::{search_packages, SearchFilters};
 use ggen_utils::error::Result;
 use std::fs;
@@ -11,13 +12,13 @@ use tempfile::TempDir;
 /// Create a test registry with real packages
 /// Returns the temp dir - caller must set CARGO_MANIFEST_DIR before calling search_packages
 fn create_test_registry() -> Result<TempDir> {
-    let temp_dir = TempDir::new()?;
+    let temp_dir = TempDir::new().unwrap();
 
     // Create registry in parent dir to match expected structure
     // search_packages looks for: CARGO_MANIFEST_DIR/../registry/index.json
     let parent_dir = temp_dir.path();
     let registry_path = parent_dir.join("registry");
-    fs::create_dir_all(&registry_path)?;
+    fs::create_dir_all(&registry_path).unwrap();
 
     let index_content = r#"{
   "updated": "2025-01-15T00:00:00Z",
@@ -90,17 +91,17 @@ fn create_test_registry() -> Result<TempDir> {
   }
 }"#;
 
-    fs::write(registry_path.join("index.json"), index_content)?;
+    fs::write(registry_path.join("index.json"), index_content).unwrap();
 
     // Create a fake cli subdirectory to match the CARGO_MANIFEST_DIR/../registry structure
     let cli_dir = parent_dir.join("cli");
-    fs::create_dir_all(&cli_dir)?;
+    fs::create_dir_all(&cli_dir).unwrap();
 
     // Create a fake home directory with .ggen/registry to override ~/.ggen
     let fake_home = parent_dir.join("home");
     let home_registry = fake_home.join(".ggen").join("registry");
-    fs::create_dir_all(&home_registry)?;
-    fs::write(home_registry.join("index.json"), index_content)?;
+    fs::create_dir_all(&home_registry).unwrap();
+    fs::write(home_registry.join("index.json"), index_content).unwrap();
 
     // Set HOME to fake home so ~/.ggen/registry/index.json is found first
     std::env::set_var("HOME", fake_home.to_str().unwrap());
@@ -111,147 +112,158 @@ fn create_test_registry() -> Result<TempDir> {
     Ok(temp_dir)
 }
 
-#[tokio::test]
-async fn test_search_exact_name_match() -> Result<()> {
-    let _temp = create_test_registry()?;
+async_test!(test_search_exact_name_match, async {
+    // Arrange
+    let _temp = create_test_registry().unwrap();
 
+    // Act
     let filters = SearchFilters::new();
-    let results = search_packages("Rust CLI Template", &filters).await?;
+    let results = search_packages("Rust CLI Template", &filters)
+        .await
+        .unwrap();
 
-    // Should find exact match first
+    // Assert: Should find exact match first
     assert!(!results.is_empty(), "Should find exact match");
     assert_eq!(results[0].id, "io.ggen.rust.cli");
     assert_eq!(results[0].name, "Rust CLI Template");
+});
 
-    Ok(())
-}
+async_test!(test_search_partial_match, async {
+    // Arrange
+    let _temp = create_test_registry().unwrap();
 
-#[tokio::test]
-async fn test_search_partial_match() -> Result<()> {
-    let _temp = create_test_registry()?;
-
+    // Act
     let filters = SearchFilters::new();
-    let results = search_packages("rust", &filters).await?;
+    let results = search_packages("rust", &filters).await.unwrap();
 
-    // Should find all rust packages
+    // Assert: Should find all rust packages
     assert!(results.len() >= 3, "Should find at least 3 rust packages");
 
     // All results should be rust-related
     for result in &results {
         let is_rust = result.name.to_lowercase().contains("rust")
             || result.description.to_lowercase().contains("rust")
-            || result.tags.iter().any(|t| t.to_lowercase().contains("rust"));
+            || result
+                .tags
+                .iter()
+                .any(|t| t.to_lowercase().contains("rust"));
         assert!(is_rust, "Result {} should be rust-related", result.name);
     }
+});
 
-    Ok(())
-}
+async_test!(test_search_fuzzy_matching, async {
+    // Arrange
+    let _temp = create_test_registry().unwrap();
 
-#[tokio::test]
-async fn test_search_fuzzy_matching() -> Result<()> {
-    let _temp = create_test_registry()?;
-
-    // Search with typo
+    // Act: Search with typo
     let filters = SearchFilters::new().with_fuzzy(true);
-    let results = search_packages("rst cli", &filters).await?;
+    let results = search_packages("rst cli", &filters).await.unwrap();
 
-    // Should still find rust CLI packages with fuzzy matching
-    assert!(!results.is_empty(), "Fuzzy search should find results despite typo");
+    // Assert: Should still find rust CLI packages with fuzzy matching
+    assert!(
+        !results.is_empty(),
+        "Fuzzy search should find results despite typo"
+    );
+});
 
-    Ok(())
-}
+async_test!(test_search_category_filter, async {
+    // Arrange
+    let _temp = create_test_registry().unwrap();
 
-#[tokio::test]
-async fn test_search_category_filter() -> Result<()> {
-    let _temp = create_test_registry()?;
-
+    // Act
     let filters = SearchFilters::new().with_category("rust");
-    let results = search_packages("web", &filters).await?;
+    let results = search_packages("web", &filters).await.unwrap();
 
-    // Should only find rust web packages
+    // Assert: Should only find rust web packages
     for result in &results {
         assert_eq!(result.category, Some("rust".to_string()));
     }
+});
 
-    Ok(())
-}
+async_test!(test_search_keyword_filter, async {
+    // Arrange
+    let _temp = create_test_registry().unwrap();
 
-#[tokio::test]
-async fn test_search_keyword_filter() -> Result<()> {
-    let _temp = create_test_registry()?;
-
+    // Act
     let mut filters = SearchFilters::new();
     filters.keyword = Some("rest".to_string());
 
-    let results = search_packages("api", &filters).await?;
+    let results = search_packages("api", &filters).await.unwrap();
 
-    // Should only find packages with "rest" keyword
-    assert!(!results.is_empty(), "Should find packages with rest keyword");
+    // Assert: Should only find packages with "rest" keyword
+    assert!(
+        !results.is_empty(),
+        "Should find packages with rest keyword"
+    );
+});
 
-    Ok(())
-}
-
-#[tokio::test]
-async fn test_search_author_filter() -> Result<()> {
-    let _temp = create_test_registry()?;
+async_test!(test_search_author_filter, async {
+    let _temp = create_test_registry().unwrap();
 
     let mut filters = SearchFilters::new();
     filters.author = Some("ggen-team".to_string());
 
-    let results = search_packages("rust", &filters).await?;
+    let results = search_packages("rust", &filters).await.unwrap();
 
     // All results should be by ggen-team
     for result in &results {
         assert_eq!(result.author, Some("ggen-team".to_string()));
     }
 
-    Ok(())
-}
+    // Assert
+});
 
-#[tokio::test]
-async fn test_search_min_stars_filter() -> Result<()> {
-    let _temp = create_test_registry()?;
+async_test!(test_search_min_stars_filter, async {
+    let _temp = create_test_registry().unwrap();
 
     let mut filters = SearchFilters::new();
     filters.min_stars = Some(200);
 
-    let results = search_packages("rust", &filters).await?;
+    let results = search_packages("rust", &filters).await.unwrap();
 
     // All results should have >= 200 stars
     for result in &results {
-        assert!(result.stars >= 200, "Package {} has {} stars, expected >= 200", result.name, result.stars);
+        assert!(
+            result.stars >= 200,
+            "Package {} has {} stars, expected >= 200",
+            result.name,
+            result.stars
+        );
     }
 
-    Ok(())
-}
+    // Assert
+});
 
-#[tokio::test]
-async fn test_search_min_downloads_filter() -> Result<()> {
-    let _temp = create_test_registry()?;
+async_test!(test_search_min_downloads_filter, async {
+    let _temp = create_test_registry().unwrap();
 
     let mut filters = SearchFilters::new();
     filters.min_downloads = Some(10000);
 
-    let results = search_packages("api", &filters).await?;
+    let results = search_packages("api", &filters).await.unwrap();
 
     // All results should have >= 10000 downloads
     for result in &results {
-        assert!(result.downloads >= 10000, "Package {} has {} downloads, expected >= 10000", result.name, result.downloads);
+        assert!(
+            result.downloads >= 10000,
+            "Package {} has {} downloads, expected >= 10000",
+            result.name,
+            result.downloads
+        );
     }
 
-    Ok(())
-}
+    // Assert
+});
 
-#[tokio::test]
-async fn test_search_sort_by_downloads() -> Result<()> {
-    let _temp = create_test_registry()?;
+async_test!(test_search_sort_by_downloads, async {
+    let _temp = create_test_registry().unwrap();
 
     let mut filters = SearchFilters::new();
     filters.sort = "downloads".to_string();
     filters.order = "desc".to_string();
     filters.limit = 10;
 
-    let results = search_packages("rust", &filters).await?;
+    let results = search_packages("rust", &filters).await.unwrap();
 
     // Results should be sorted by downloads descending
     for i in 0..results.len().saturating_sub(1) {
@@ -265,19 +277,18 @@ async fn test_search_sort_by_downloads() -> Result<()> {
         );
     }
 
-    Ok(())
-}
+    // Assert
+});
 
-#[tokio::test]
-async fn test_search_sort_by_stars() -> Result<()> {
-    let _temp = create_test_registry()?;
+async_test!(test_search_sort_by_stars, async {
+    let _temp = create_test_registry().unwrap();
 
     let mut filters = SearchFilters::new();
     filters.sort = "stars".to_string();
     filters.order = "desc".to_string();
     filters.limit = 10;
 
-    let results = search_packages("rust", &filters).await?;
+    let results = search_packages("rust", &filters).await.unwrap();
 
     // Results should be sorted by stars descending
     for i in 0..results.len().saturating_sub(1) {
@@ -291,62 +302,68 @@ async fn test_search_sort_by_stars() -> Result<()> {
         );
     }
 
-    Ok(())
-}
+    // Assert
+});
 
-#[tokio::test]
-async fn test_search_limit() -> Result<()> {
-    let _temp = create_test_registry()?;
+async_test!(test_search_limit, async {
+    let _temp = create_test_registry().unwrap();
 
     let filters = SearchFilters::new().with_limit(2);
-    let results = search_packages("rust", &filters).await?;
+    let results = search_packages("rust", &filters).await.unwrap();
 
     // Should respect limit
     assert!(results.len() <= 2, "Results should be limited to 2");
 
-    Ok(())
-}
+    // Assert
+});
 
-#[tokio::test]
-async fn test_search_relevance_ranking() -> Result<()> {
-    let _temp = create_test_registry()?;
+async_test!(test_search_relevance_ranking, async {
+    let _temp = create_test_registry().unwrap();
 
     let filters = SearchFilters::new();
-    let results = search_packages("rust web", &filters).await?;
+    let results = search_packages("rust web", &filters).await.unwrap();
 
     // "Rust Web Service" should rank higher than generic rust packages
     assert!(!results.is_empty());
 
     // First result should be the most relevant (contains both "rust" and "web")
     let first = &results[0];
-    let has_rust = first.name.to_lowercase().contains("rust") || first.tags.contains(&"rust".to_string());
-    let has_web = first.name.to_lowercase().contains("web") || first.tags.contains(&"web".to_string());
+    let has_rust =
+        first.name.to_lowercase().contains("rust") || first.tags.contains(&"rust".to_string());
+    let has_web =
+        first.name.to_lowercase().contains("web") || first.tags.contains(&"web".to_string());
 
-    assert!(has_rust && has_web, "Most relevant result should contain both rust and web");
+    assert!(
+        has_rust && has_web,
+        "Most relevant result should contain both rust and web"
+    );
 
-    Ok(())
-}
+    // Assert
+});
 
-#[tokio::test]
-async fn test_search_no_results() -> Result<()> {
-    let _temp = create_test_registry()?;
+async_test!(test_search_no_results, async {
+    let _temp = create_test_registry().unwrap();
 
     let filters = SearchFilters::new();
-    let results = search_packages("nonexistent-language-xyz", &filters).await?;
+    let results = search_packages("nonexistent-language-xyz", &filters)
+        .await
+        .unwrap();
 
     // Should return empty results, not error
-    assert!(results.is_empty(), "Nonexistent query should return empty results");
+    assert!(
+        results.is_empty(),
+        "Nonexistent query should return empty results"
+    );
 
-    Ok(())
-}
+    // Assert
+});
 
-#[tokio::test]
-async fn test_search_performance() -> Result<()> {
-    let _temp = create_test_registry()?;
+async_test!(test_search_performance, async {
+    let _temp = create_test_registry().unwrap();
 
     let start = std::time::Instant::now();
     let filters = SearchFilters::new();
-    let _results = search_packages("rust", &filters).await?;
+    let _results = search_packages("rust", &filters).await.unwrap();
     let elapsed = start.elapsed();
 
     // Performance target: <100ms for small registry
@@ -357,12 +374,11 @@ async fn test_search_performance() -> Result<()> {
         elapsed.as_millis()
     );
 
-    Ok(())
-}
+    // Assert
+});
 
-#[tokio::test]
-async fn test_search_multiple_filters_combined() -> Result<()> {
-    let _temp = create_test_registry()?;
+async_test!(test_search_multiple_filters_combined, async {
+    let _temp = create_test_registry().unwrap();
 
     let mut filters = SearchFilters::new();
     filters.category = Some("rust".to_string());
@@ -370,7 +386,7 @@ async fn test_search_multiple_filters_combined() -> Result<()> {
     filters.sort = "downloads".to_string();
     filters.limit = 5;
 
-    let results = search_packages("web", &filters).await?;
+    let results = search_packages("web", &filters).await.unwrap();
 
     // All results should match all filters
     for result in &results {
@@ -383,50 +399,47 @@ async fn test_search_multiple_filters_combined() -> Result<()> {
         assert!(results[i].downloads >= results[i + 1].downloads);
     }
 
-    Ok(())
-}
+    // Assert
+});
 
-#[tokio::test]
-async fn test_search_empty_query() -> Result<()> {
-    let _temp = create_test_registry()?;
+async_test!(test_search_empty_query, async {
+    let _temp = create_test_registry().unwrap();
 
     let filters = SearchFilters::new();
-    let results = search_packages("", &filters).await?;
+    let results = search_packages("", &filters).await.unwrap();
 
     // Empty query might return all packages or none, but shouldn't error
     // Result is already unwrapped, so just check it exists
     let _ = results;
 
-    Ok(())
-}
+    // Assert
+});
 
-#[tokio::test]
-async fn test_search_tag_matching() -> Result<()> {
-    let _temp = create_test_registry()?;
+async_test!(test_search_tag_matching, async {
+    let _temp = create_test_registry().unwrap();
 
     let filters = SearchFilters::new();
-    let results = search_packages("axum", &filters).await?;
+    let results = search_packages("axum", &filters).await.unwrap();
 
     // Should find packages tagged with "axum"
     let has_axum = results.iter().any(|r| r.tags.contains(&"axum".to_string()));
     assert!(has_axum, "Should find packages with axum tag");
 
-    Ok(())
-}
+    // Assert
+});
 
-#[tokio::test]
-async fn test_search_case_insensitive() -> Result<()> {
-    let _temp = create_test_registry()?;
+async_test!(test_search_case_insensitive, async {
+    let _temp = create_test_registry().unwrap();
 
     let filters = SearchFilters::new();
 
-    let results_lower = search_packages("rust", &filters).await?;
-    let results_upper = search_packages("RUST", &filters).await?;
-    let results_mixed = search_packages("RuSt", &filters).await?;
+    let results_lower = search_packages("rust", &filters).await.unwrap();
+    let results_upper = search_packages("RUST", &filters).await.unwrap();
+    let results_mixed = search_packages("RuSt", &filters).await.unwrap();
 
     // All should return same results (case insensitive)
     assert_eq!(results_lower.len(), results_upper.len());
     assert_eq!(results_lower.len(), results_mixed.len());
 
-    Ok(())
-}
+    // Assert
+});

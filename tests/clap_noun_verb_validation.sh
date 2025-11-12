@@ -1,5 +1,5 @@
 #!/bin/bash
-# Standalone validation script for clap-noun-verb v3.2.0 integration
+# Standalone validation script for clap-noun-verb v3.4.0 integration
 # Tests CLI auto-discovery, template generation, and E2E workflow
 
 # Don't exit on first failure - we want to run all tests
@@ -26,7 +26,7 @@ function cleanup() {
 
 trap cleanup EXIT
 
-echo "=== CLAP-NOUN-VERB v3.2.0 INTEGRATION TESTS ==="
+echo "=== CLAP-NOUN-VERB v3.4.0 INTEGRATION TESTS ==="
 echo "Test directory: $TEST_DIR"
 echo ""
 
@@ -120,7 +120,7 @@ files:
 
       [dependencies]
       clap = { version = "4.5", features = ["derive"] }
-      clap-noun-verb = "3.2"
+      clap-noun-verb = "3.4.0"
   - path: "src/main.rs"
     content: |
       use clap::Parser;

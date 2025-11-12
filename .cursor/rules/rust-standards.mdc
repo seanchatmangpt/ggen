@@ -78,6 +78,7 @@ impl ServicePlugin for MyPlugin {
 
 ## Testing
 
+- **MANDATORY: Run tests before completion**
 - Test all public APIs
 - Test error paths and edge cases
 - **Test behaviors, not implementation details** - Focus on what code does, not how
@@ -85,6 +86,12 @@ impl ServicePlugin for MyPlugin {
 - Use deterministic snapshots via `insta` for regression testing
 - Use fixed seeds for reproducible tests
 - Single-threaded async tests `--test-threads=1` for determinism
+- **Before marking work complete:**
+  1. Run `cargo make test`
+  2. If tests fail, add to todo list
+  3. Fix failing tests
+  4. Re-run tests to verify
+  5. Only mark complete when all tests pass
 
 ## Deterministic Outputs
 

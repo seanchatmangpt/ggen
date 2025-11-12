@@ -145,7 +145,9 @@ fn test_template_supports_nested_variables() {
 
 #[automock]
 trait TemplateRenderer: Send + Sync {
-    fn render(&self, template: &str, vars: &HashMap<String, String>) -> Result<String, anyhow::Error>;
+    fn render(
+        &self, template: &str, vars: &HashMap<String, String>,
+    ) -> Result<String, anyhow::Error>;
 }
 
 #[derive(Debug)]
@@ -155,9 +157,7 @@ struct ParsedTemplate {
 }
 
 fn render_template(
-    renderer: &dyn TemplateRenderer,
-    template: &str,
-    vars: &HashMap<String, String>,
+    renderer: &dyn TemplateRenderer, template: &str, vars: &HashMap<String, String>,
 ) -> Result<String, anyhow::Error> {
     renderer.render(template, vars)
 }
@@ -168,8 +168,7 @@ fn parse_template(template: &str) -> Result<ParsedTemplate, anyhow::Error> {
         return Err(anyhow::anyhow!("Invalid template format"));
     }
 
-    let frontmatter: HashMap<String, serde_yaml::Value> =
-        serde_yaml::from_str(parts[1].trim())?;
+    let frontmatter: HashMap<String, serde_yaml::Value> = serde_yaml::from_str(parts[1].trim())?;
     let body = parts[2].to_string();
 
     Ok(ParsedTemplate { frontmatter, body })

@@ -27,7 +27,8 @@ pub async fn execute_monitor(input: MonitorInput) -> Result<MonitorResult> {
     let hooks = execute_list(ListInput {
         verbose: false,
         filter: Some(input.graph.clone()),
-    }).await?;
+    })
+    .await?;
 
     // For now, return basic monitoring status
     // Real implementation would watch file system and trigger hooks

@@ -73,7 +73,10 @@ fn test_marketplace_search_json_output() {
 
     // Command may succeed or fail (marketplace network dependent)
     // Just verify it completes without crashing
-    assert!(output.status.code().is_some(), "Command should exit cleanly");
+    assert!(
+        output.status.code().is_some(),
+        "Command should exit cleanly"
+    );
 }
 
 #[test]
@@ -87,9 +90,10 @@ fn test_marketplace_list_empty() {
         .current_dir(&temp_dir)
         .assert()
         .success()
-        .stdout(predicate::str::contains("No gpacks installed").or(
-            predicate::str::contains("Installed gpacks")
-        ));
+        .stdout(
+            predicate::str::contains("No gpacks installed")
+                .or(predicate::str::contains("Installed gpacks")),
+        );
 }
 
 #[test]
@@ -107,7 +111,10 @@ fn test_marketplace_list_json() {
 
     // Command may succeed or fail (implementation dependent)
     // Just verify it completes
-    assert!(output.status.code().is_some(), "Command should exit cleanly");
+    assert!(
+        output.status.code().is_some(),
+        "Command should exit cleanly"
+    );
 }
 
 #[test]
@@ -122,7 +129,10 @@ fn test_marketplace_info_missing_package() {
         .expect("Failed to execute");
 
     // Command should complete (may succeed with mock data or fail)
-    assert!(output.status.code().is_some(), "Command should exit cleanly");
+    assert!(
+        output.status.code().is_some(),
+        "Command should exit cleanly"
+    );
 }
 
 #[test]
@@ -137,9 +147,7 @@ fn test_marketplace_remove_not_installed() {
         .current_dir(&temp_dir)
         .assert()
         .failure()
-        .stderr(predicate::str::contains("not installed").or(
-            predicate::str::contains("error")
-        ));
+        .stderr(predicate::str::contains("not installed").or(predicate::str::contains("error")));
 }
 
 #[test]
@@ -153,7 +161,10 @@ fn test_marketplace_categories_list() {
         .expect("Failed to execute");
 
     // Command should complete
-    assert!(output.status.code().is_some(), "Command should exit cleanly");
+    assert!(
+        output.status.code().is_some(),
+        "Command should exit cleanly"
+    );
 }
 
 #[test]
@@ -170,7 +181,10 @@ fn test_marketplace_cache_clean() {
         .expect("Failed to execute");
 
     // Command should complete (may succeed or fail based on implementation)
-    assert!(output.status.code().is_some(), "Command should exit cleanly");
+    assert!(
+        output.status.code().is_some(),
+        "Command should exit cleanly"
+    );
 }
 
 #[test]
@@ -185,9 +199,7 @@ fn test_marketplace_cache_status() {
         .current_dir(&temp_dir)
         .assert()
         .success()
-        .stdout(predicate::str::contains("Cache").or(
-            predicate::str::contains("cache")
-        ));
+        .stdout(predicate::str::contains("Cache").or(predicate::str::contains("cache")));
 }
 
 #[test]
@@ -204,7 +216,10 @@ fn test_marketplace_lockfile_generate() {
         .expect("Failed to execute");
 
     // Command should complete
-    assert!(output.status.code().is_some(), "Command should exit cleanly");
+    assert!(
+        output.status.code().is_some(),
+        "Command should exit cleanly"
+    );
 }
 
 #[test]
@@ -218,7 +233,10 @@ fn test_marketplace_registry_info() {
         .expect("Failed to execute");
 
     // Command should complete
-    assert!(output.status.code().is_some(), "Command should exit cleanly");
+    assert!(
+        output.status.code().is_some(),
+        "Command should exit cleanly"
+    );
 }
 
 #[test]
@@ -235,7 +253,10 @@ fn test_marketplace_offline_sync() {
         .expect("Failed to execute");
 
     // Command should complete
-    assert!(output.status.code().is_some(), "Command should exit cleanly");
+    assert!(
+        output.status.code().is_some(),
+        "Command should exit cleanly"
+    );
 }
 
 #[test]
@@ -274,9 +295,7 @@ fn test_marketplace_invalid_verb() {
         .arg("invalid-verb")
         .assert()
         .failure()
-        .stderr(predicate::str::contains("error").or(
-            predicate::str::contains("invalid")
-        ));
+        .stderr(predicate::str::contains("error").or(predicate::str::contains("invalid")));
 }
 
 #[test]
@@ -287,9 +306,7 @@ fn test_marketplace_recommend_basic() {
         .arg("recommend")
         .assert()
         .success()
-        .stdout(predicate::str::contains("Recommend").or(
-            predicate::str::contains("recommend")
-        ));
+        .stdout(predicate::str::contains("Recommend").or(predicate::str::contains("recommend")));
 }
 
 #[test]

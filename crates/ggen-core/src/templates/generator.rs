@@ -25,9 +25,7 @@ pub struct FileTreeGenerator {
 impl FileTreeGenerator {
     /// Create a new file tree generator
     pub fn new<P: AsRef<Path>>(
-        template: FileTreeTemplate,
-        context: TemplateContext,
-        base_dir: P,
+        template: FileTreeTemplate, context: TemplateContext, base_dir: P,
     ) -> Self {
         Self {
             template,
@@ -58,13 +56,12 @@ impl FileTreeGenerator {
 
     /// Generate a single node
     fn generate_node(
-        &self,
-        node: &FileTreeNode,
-        current_dir: &Path,
-        result: &mut GenerationResult,
+        &self, node: &FileTreeNode, current_dir: &Path, result: &mut GenerationResult,
     ) -> Result<()> {
         // Render the node name with variables
-        let rendered_name = self.context.render_string(&node.name)
+        let rendered_name = self
+            .context
+            .render_string(&node.name)
             .with_context(|| format!("Failed to render node name: {}", node.name))?;
 
         let node_path = current_dir.join(&rendered_name);
@@ -83,10 +80,7 @@ impl FileTreeGenerator {
 
     /// Generate a directory
     fn generate_directory(
-        &self,
-        path: &Path,
-        node: &FileTreeNode,
-        result: &mut GenerationResult,
+        &self, path: &Path, node: &FileTreeNode, result: &mut GenerationResult,
     ) -> Result<()> {
         // Create directory if it doesn't exist
         if !path.exists() {
@@ -105,23 +99,22 @@ impl FileTreeGenerator {
 
     /// Generate a file
     fn generate_file(
-        &self,
-        path: &Path,
-        node: &FileTreeNode,
-        result: &mut GenerationResult,
+        &self, path: &Path, node: &FileTreeNode, result: &mut GenerationResult,
     ) -> Result<()> {
         // Ensure parent directory exists
         if let Some(parent) = path.parent() {
             if !parent.exists() {
-                fs::create_dir_all(parent)
-                    .with_context(|| format!("Failed to create parent directory: {}", parent.display()))?;
+                fs::create_dir_all(parent).with_context(|| {
+                    format!("Failed to create parent directory: {}", parent.display())
+                })?;
             }
         }
 
         // Get file content
         let content = if let Some(inline_content) = &node.content {
             // Render inline content
-            self.context.render_string(inline_content)
+            self.context
+                .render_string(inline_content)
                 .context("Failed to render inline content")?
         } else if let Some(template_path) = &node.template {
             // Load and render template file
@@ -155,7 +148,8 @@ impl FileTreeGenerator {
         let template_content = fs::read_to_string(&full_path)
             .with_context(|| format!("Failed to read template file: {}", full_path.display()))?;
 
-        self.context.render_string(&template_content)
+        self.context
+            .render_string(&template_content)
             .with_context(|| format!("Failed to render template: {}", template_path))
     }
 
@@ -227,16 +221,16 @@ impl GenerationResult {
 /// # Returns
 /// Result containing generation statistics
 pub fn generate_file_tree<P: AsRef<Path>>(
-    template: FileTreeTemplate,
-    context: TemplateContext,
-    output_dir: P,
+    template: FileTreeTemplate, context: TemplateContext, output_dir: P,
 ) -> Result<GenerationResult> {
     let mut generator = FileTreeGenerator::new(template, context, output_dir);
     generator.generate()
 }
 
 // TEMPORARILY DISABLED: tests require FileTreeTemplate which has compilation errors
-#[cfg(all(test, feature = "disabled_for_now"))]
+// TODO: Re-enable when FileTreeTemplate compilation errors are fixed
+/*
+#[cfg(test)]
 mod tests {
     use super::*;
     use crate::templates::format::TemplateFormat;
@@ -363,3 +357,4 @@ mod tests {
         assert!(temp_dir.path().join("default-service").exists());
     }
 }
+*/

@@ -343,7 +343,7 @@ impl PolicyEngine {
     async fn evaluate_custom_condition(
         &self, _name: &str, _parameters: &HashMap<String, String>, _decision: &Decision,
     ) -> Result<bool> {
-        // TODO: Implement plugin system for custom conditions
+        // FUTURE: Implement plugin system for custom conditions
         Ok(false)
     }
 

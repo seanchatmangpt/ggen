@@ -95,34 +95,29 @@ ggen v2.0 implements a strict three-layer architecture for clean separation of c
 
 ```
 ggen/
-├── cli/src/
+├── crates/ggen-cli/src/
 │   ├── lib.rs                    # Entry point
 │   │
-│   ├── commands/                 # CLI Layer
-│   │   ├── utils/
-│   │   │   ├── mod.rs           # Noun: "utils"
-│   │   │   └── doctor.rs        # Verb: "doctor" → ggen utils doctor
-│   │   ├── project/
-│   │   │   ├── mod.rs           # Noun: "project"
-│   │   │   ├── new.rs           # Verb: "new" → ggen project new
-│   │   │   └── gen.rs           # Verb: "gen" → ggen project gen
-│   │   ├── template/
-│   │   └── marketplace/
-│   │
-│   ├── domain/                   # Domain Layer
-│   │   ├── mod.rs               # Domain errors
-│   │   ├── utils/
-│   │   │   └── doctor.rs        # Business logic
-│   │   ├── project/
-│   │   │   ├── new.rs           # Project creation logic
-│   │   │   ├── gen.rs           # Template generation logic
-│   │   │   └── models.rs        # Domain models
-│   │   ├── template/
-│   │   └── marketplace/
+│   ├── cmds/                     # CLI Layer
+│   │   ├── utils.rs             # Utils commands
+│   │   ├── project.rs           # Project commands
+│   │   ├── template.rs          # Template commands
+│   │   └── marketplace.rs       # Marketplace commands
 │   │
 │   └── runtime.rs                # Async/sync bridge
 │
-└── ggen-core/                    # Runtime Layer
+├── crates/ggen-domain/src/       # Domain Layer
+│   ├── lib.rs                   # Domain errors
+│   ├── utils/
+│   │   └── mod.rs               # Business logic
+│   ├── project/
+│   │   ├── mod.rs               # Project creation logic
+│   │   ├── generate.rs          # Template generation logic
+│   │   └── models.rs            # Domain models
+│   ├── template/
+│   └── marketplace/
+│
+└── crates/ggen-core/             # Runtime Layer
     ├── template/
     │   ├── engine.rs            # Tera + RDF
     │   ├── frozen.rs            # Frozen sections

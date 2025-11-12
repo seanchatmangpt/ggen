@@ -1,9 +1,10 @@
 //! Unit tests for search parameters and filtering
 
+use chicago_tdd_tools::prelude::*;
 use ggen_core::registry::SearchParams;
 
-#[test]
-fn test_search_params_creation() {
+test!(test_search_params_creation, {
+    // Arrange
     let params = SearchParams {
         query: "rust",
         category: Some("cli"),
@@ -13,16 +14,17 @@ fn test_search_params_creation() {
         limit: 10,
     };
 
+    // Assert
     assert_eq!(params.query, "rust");
     assert_eq!(params.category, Some("cli"));
     assert_eq!(params.keyword, Some("clap"));
     assert_eq!(params.author, Some("test-author"));
     assert!(params.stable_only);
     assert_eq!(params.limit, 10);
-}
+});
 
-#[test]
-fn test_search_params_minimal() {
+test!(test_search_params_minimal, {
+    // Arrange
     let params = SearchParams {
         query: "test",
         category: None,
@@ -32,16 +34,17 @@ fn test_search_params_minimal() {
         limit: 50,
     };
 
+    // Assert
     assert_eq!(params.query, "test");
     assert!(params.category.is_none());
     assert!(params.keyword.is_none());
     assert!(params.author.is_none());
     assert!(!params.stable_only);
     assert_eq!(params.limit, 50);
-}
+});
 
-#[test]
-fn test_search_params_empty_query() {
+test!(test_search_params_empty_query, {
+    // Arrange
     let params = SearchParams {
         query: "",
         category: None,
@@ -51,11 +54,12 @@ fn test_search_params_empty_query() {
         limit: 10,
     };
 
+    // Assert
     assert_eq!(params.query, "");
-}
+});
 
-#[test]
-fn test_search_params_special_characters() {
+test!(test_search_params_special_characters, {
+    // Arrange
     let params = SearchParams {
         query: "rust-cli/tool@1.0",
         category: Some("cli/tools"),
@@ -65,13 +69,14 @@ fn test_search_params_special_characters() {
         limit: 10,
     };
 
+    // Assert
     assert!(params.query.contains('/'));
     assert!(params.query.contains('@'));
     assert!(params.category.unwrap().contains('/'));
-}
+});
 
-#[test]
-fn test_search_params_case_sensitivity() {
+test!(test_search_params_case_sensitivity, {
+    // Arrange
     let params1 = SearchParams {
         query: "RUST",
         category: Some("CLI"),
@@ -90,13 +95,13 @@ fn test_search_params_case_sensitivity() {
         limit: 10,
     };
 
-    // Verify case preservation (comparison should be case-insensitive in actual search)
+    // Assert
     assert_ne!(params1.query, params2.query);
     assert_ne!(params1.category, params2.category);
-}
+});
 
-#[test]
-fn test_search_params_unicode() {
+test!(test_search_params_unicode, {
+    // Arrange
     let params = SearchParams {
         query: "Rust 🦀",
         category: Some("CLI ⚡"),
@@ -106,13 +111,14 @@ fn test_search_params_unicode() {
         limit: 10,
     };
 
+    // Assert
     assert!(params.query.contains("🦀"));
     assert!(params.category.unwrap().contains("⚡"));
     assert!(params.keyword.unwrap().contains("命令行"));
-}
+});
 
-#[test]
-fn test_search_params_limit_boundaries() {
+test!(test_search_params_limit_boundaries, {
+    // Arrange
     let params_zero = SearchParams {
         query: "test",
         category: None,
@@ -131,12 +137,13 @@ fn test_search_params_limit_boundaries() {
         limit: 1000,
     };
 
+    // Assert
     assert_eq!(params_zero.limit, 0);
     assert_eq!(params_large.limit, 1000);
-}
+});
 
-#[test]
-fn test_search_params_whitespace() {
+test!(test_search_params_whitespace, {
+    // Arrange
     let params = SearchParams {
         query: "  rust cli  ",
         category: Some("  tools  "),
@@ -146,7 +153,7 @@ fn test_search_params_whitespace() {
         limit: 10,
     };
 
-    // Whitespace should be preserved (trimming happens in search logic)
+    // Assert
     assert_eq!(params.query, "  rust cli  ");
     assert_eq!(params.category, Some("  tools  "));
-}
+});

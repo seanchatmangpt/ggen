@@ -8,16 +8,16 @@
 //!
 //! Run with: cargo test --test marketplace_tests_main
 
-mod unit;
 mod integration;
 mod property;
 mod security;
+mod unit;
 
 // Re-export test modules for easy access
-pub use unit::*;
 pub use integration::*;
 pub use property::*;
 pub use security::*;
+pub use unit::*;
 
 #[cfg(test)]
 mod test_suite_validation {

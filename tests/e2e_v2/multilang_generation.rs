@@ -150,11 +150,12 @@ fn test_multi_file_project_generation() {
     assert!(project_dir.join("src/main.rs").exists());
 
     // Count files generated
-    let file_count = std::fs::read_dir(&project_dir)
-        .unwrap()
-        .count();
+    let file_count = std::fs::read_dir(&project_dir).unwrap().count();
 
     assert!(file_count >= 2, "Should generate multiple files");
 
-    println!("✅ Multi-file project generation: PASSED ({} files)", file_count);
+    println!(
+        "✅ Multi-file project generation: PASSED ({} files)",
+        file_count
+    );
 }

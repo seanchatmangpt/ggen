@@ -93,14 +93,16 @@ fn test_quickstart_generates_demo_project() {
         .expect_generate_rust_cli()
         .with(eq("hello-ggen"))
         .times(1)
-        .returning(|_| Ok(ProjectManifest {
-            name: "hello-ggen".to_string(),
-            files_created: vec![
-                "Cargo.toml".to_string(),
-                "src/main.rs".to_string(),
-                "tests/cli.rs".to_string(),
-            ],
-        }));
+        .returning(|_| {
+            Ok(ProjectManifest {
+                name: "hello-ggen".to_string(),
+                files_created: vec![
+                    "Cargo.toml".to_string(),
+                    "src/main.rs".to_string(),
+                    "tests/cli.rs".to_string(),
+                ],
+            })
+        });
 
     // Act
     let result = run_quickstart_command(&mock_system, &mock_fs, &mock_generator, "demo");
@@ -126,11 +128,13 @@ fn test_quickstart_runs_tests_and_validates_pass() {
         .expect_run_cargo_test()
         .with(eq("hello-ggen"))
         .times(1)
-        .returning(|_| Ok(TestResults {
-            passed: 3,
-            failed: 0,
-            total: 3,
-        }));
+        .returning(|_| {
+            Ok(TestResults {
+                passed: 3,
+                failed: 0,
+                total: 3,
+            })
+        });
 
     // Act
     let result = run_quickstart_command(&mock_system, &mock_fs, &mock_generator, "demo");
@@ -229,9 +233,7 @@ struct ProjectManifest {
 }
 
 fn run_quickstart_command(
-    system: &dyn SystemCommands,
-    _fs: &dyn Filesystem,
-    generator: &dyn ProjectGenerator,
+    system: &dyn SystemCommands, _fs: &dyn Filesystem, generator: &dyn ProjectGenerator,
     project_type: &str,
 ) -> Result<QuickstartReport, anyhow::Error> {
     // Check prerequisites
@@ -273,9 +275,7 @@ fn run_quickstart_command(
 }
 
 fn run_quickstart_with_tracing(
-    system: &dyn SystemCommands,
-    fs: &dyn Filesystem,
-    generator: &dyn ProjectGenerator,
+    system: &dyn SystemCommands, fs: &dyn Filesystem, generator: &dyn ProjectGenerator,
     tracer: &otel::MockTracerProvider,
 ) -> Result<QuickstartReport, anyhow::Error> {
     let span = otel::MockSpan {

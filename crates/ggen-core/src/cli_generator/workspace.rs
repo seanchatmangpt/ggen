@@ -2,9 +2,9 @@
 //!
 //! This module generates the workspace structure with separate CLI and domain crates.
 
-use anyhow::{Context as _, Result};
 use crate::cli_generator::types::CliProject;
-use std::path::{Path, PathBuf};
+use anyhow::{Context as _, Result};
+use std::path::Path;
 use tera::{Context, Tera};
 
 /// Workspace generator for creating workspace structure
@@ -19,10 +19,10 @@ impl WorkspaceGenerator {
         let tera = Tera::new(&pattern).with_context(|| {
             format!("Failed to load templates from: {}", template_dir.display())
         })?;
-        
+
         Ok(Self { tera })
     }
-    
+
     /// Generate workspace structure
     ///
     /// Creates:
@@ -40,34 +40,34 @@ impl WorkspaceGenerator {
         context.insert("authors", &project.authors);
         context.insert("resolver", &project.resolver);
         context.insert("project", project);
-        
+
         // Generate workspace root Cargo.toml
         let workspace_cargo = output_dir.join("Cargo.toml");
         self.render_template("cli/workspace/Cargo.toml.tmpl", &context, &workspace_cargo)
             .context("Failed to generate workspace Cargo.toml")?;
-        
+
         // Create crates directory
         let crates_dir = output_dir.join("crates");
-        std::fs::create_dir_all(&crates_dir)
-            .context("Failed to create crates directory")?;
-        
+        std::fs::create_dir_all(&crates_dir).context("Failed to create crates directory")?;
+
         Ok(())
     }
-    
+
     fn render_template(&self, template: &str, context: &Context, output: &Path) -> Result<()> {
-        let content = self.tera.render(template, context)
+        let content = self
+            .tera
+            .render(template, context)
             .with_context(|| format!("Failed to render template: {}", template))?;
-        
+
         // Create parent directory if needed
         if let Some(parent) = output.parent() {
             std::fs::create_dir_all(parent)
                 .with_context(|| format!("Failed to create directory: {}", parent.display()))?;
         }
-        
+
         std::fs::write(output, content)
             .with_context(|| format!("Failed to write file: {}", output.display()))?;
-        
+
         Ok(())
     }
 }
-

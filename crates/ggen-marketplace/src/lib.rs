@@ -1,3 +1,5 @@
+#![deny(warnings)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
+
 // Core modules
 pub mod error;
 pub mod models;

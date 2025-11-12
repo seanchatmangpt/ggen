@@ -102,14 +102,12 @@ impl TemplateFormat {
 
     /// Parse from YAML string
     pub fn from_yaml(yaml: &str) -> Result<Self> {
-        serde_yaml::from_str(yaml)
-            .context("Failed to parse template format from YAML")
+        serde_yaml::from_str(yaml).context("Failed to parse template format from YAML")
     }
 
     /// Serialize to YAML string
     pub fn to_yaml(&self) -> Result<String> {
-        serde_yaml::to_string(self)
-            .context("Failed to serialize template format to YAML")
+        serde_yaml::to_string(self).context("Failed to serialize template format to YAML")
     }
 
     /// Validate the template format
@@ -137,7 +135,10 @@ impl TemplateFormat {
             match node.node_type {
                 NodeType::File => {
                     if node.content.is_none() && node.template.is_none() {
-                        anyhow::bail!("File node '{}' must have either content or template", node.name);
+                        anyhow::bail!(
+                            "File node '{}' must have either content or template",
+                            node.name
+                        );
                     }
                     if !node.children.is_empty() {
                         anyhow::bail!("File node '{}' cannot have children", node.name);
@@ -145,7 +146,10 @@ impl TemplateFormat {
                 }
                 NodeType::Directory => {
                     if node.content.is_some() || node.template.is_some() {
-                        anyhow::bail!("Directory node '{}' cannot have content or template", node.name);
+                        anyhow::bail!(
+                            "Directory node '{}' cannot have content or template",
+                            node.name
+                        );
                     }
                     self.validate_nodes(&node.children)?;
                 }

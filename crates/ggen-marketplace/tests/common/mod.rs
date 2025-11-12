@@ -62,13 +62,22 @@ pub fn setup_memory_store() -> MemoryStore {
 /// ```
 /// let pkg = create_test_package("my-package", "1.0.0")?;
 /// ```
+/// Create a validated test package for use in tests.
+///
+/// **Root Cause Fix**: Returns validated Package instead of UnvalidatedPackage.
+/// This prevents tests from accessing fields directly without validation.
+///
+/// # Example
+/// ```
+/// let pkg = create_test_package("my-package", "1.0.0")?;
+/// ```
 pub fn create_test_package(name: &str, version: &str) -> Result<Package> {
     let version_parts: Vec<&str> = version.split('.').collect();
     let major = version_parts[0].parse().unwrap_or(1);
     let minor = version_parts.get(1).and_then(|v| v.parse().ok()).unwrap_or(0);
     let patch = version_parts.get(2).and_then(|v| v.parse().ok()).unwrap_or(0);
 
-    Package::builder(
+    let unvalidated = Package::builder(
         PackageId::new("test", name),
         Version::new(major, minor, patch),
     )
@@ -80,7 +89,11 @@ pub fn create_test_package(name: &str, version: &str) -> Result<Package> {
         format!("hash_{}", name),
         HashAlgorithm::Sha256,
     ))
-    .build()
+    .build()?;
+    
+    // Validate package before returning (Poka-yoke: ensures package meets requirements)
+    let validated = unvalidated.validate()?;
+    Ok(validated.package().clone())
 }
 
 /// Create a test package with custom metadata.

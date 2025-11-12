@@ -136,13 +136,8 @@ No RDF loaded"#;
     let vars = Context::new();
 
     // Empty RDF file list should work (no RDF to load)
-    let rendered = template.render_with_rdf(
-        vec![],
-        &mut graph,
-        &mut tera,
-        &vars,
-        Path::new("test.tmpl"),
-    )?;
+    let rendered =
+        template.render_with_rdf(vec![], &mut graph, &mut tera, &vars, Path::new("test.tmpl"))?;
 
     assert_eq!(rendered.trim(), "No RDF loaded");
     Ok(())
@@ -280,13 +275,8 @@ Count: {{ sparql_results.query | length }}"#;
     let vars = Context::new();
 
     // No external RDF files
-    let rendered = template.render_with_rdf(
-        vec![],
-        &mut graph,
-        &mut tera,
-        &vars,
-        Path::new("test.tmpl"),
-    )?;
+    let rendered =
+        template.render_with_rdf(vec![], &mut graph, &mut tera, &vars, Path::new("test.tmpl"))?;
 
     assert!(rendered.contains("Count: 1"));
     Ok(())
@@ -530,10 +520,7 @@ fn test_render_with_rdf_performance_large_file() -> Result<()> {
     // Create large RDF file with 1000 triples
     let mut large_rdf_content = String::from("@prefix ex: <http://example.org/> .\n");
     for i in 0..1000 {
-        large_rdf_content.push_str(&format!(
-            "ex:entity_{} a ex:Thing ; ex:index {} .\n",
-            i, i
-        ));
+        large_rdf_content.push_str(&format!("ex:entity_{} a ex:Thing ; ex:index {} .\n", i, i));
     }
     let large_rdf = create_rdf_file(&large_rdf_content)?;
 
@@ -672,13 +659,8 @@ fn main() {
     let vars = Context::new();
 
     // Should work with empty RDF file list
-    let rendered = template.render_with_rdf(
-        vec![],
-        &mut graph,
-        &mut tera,
-        &vars,
-        Path::new("test.tmpl"),
-    )?;
+    let rendered =
+        template.render_with_rdf(vec![], &mut graph, &mut tera, &vars, Path::new("test.tmpl"))?;
 
     assert!(rendered.contains("// Found: 1"));
     Ok(())

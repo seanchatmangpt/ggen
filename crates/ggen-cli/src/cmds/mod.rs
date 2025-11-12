@@ -27,9 +27,8 @@ pub fn run_cli() -> Result<()> {
         println!("ggen {}", env!("CARGO_PKG_VERSION"));
         return Ok(());
     }
-    
+
     // Use clap-noun-verb's auto-discovery to find all #[verb] functions
-    clap_noun_verb::run()
-        .map_err(|e| anyhow::anyhow!("CLI execution failed: {}", e))?;
+    clap_noun_verb::run().map_err(|e| anyhow::anyhow!("CLI execution failed: {}", e))?;
     Ok(())
 }
