@@ -137,9 +137,17 @@ SPR: ggen — language-agnostic, deterministic code projection CLI
   * Unit tests: `timeout 10s` (cargo test --lib)
   * Integration tests: `timeout 30s` (cargo test --test)
   * Long operations: `timeout 60s` (cargo audit, cargo deny, docs generation)
+  * **Pre-push hooks: `timeout 30s` (cargo make check-pre-push)** - Longer timeout for lock contention scenarios
   * Timeouts indicate issues early and prevent indefinite hangs
   * **USE `cargo make timeout-check` TO VERIFY TIMEOUT COMMAND EXISTS**
   * All cargo make tasks should include timeout wrappers in Makefile.toml
+  * **Build Directory Lock Behavior**:
+    * Cargo uses file locks on build directory to prevent concurrent builds
+    * If another cargo process is running, commands will wait for lock (up to timeout)
+    * Pre-push hooks use `check-pre-push` task (30s timeout) to handle lock contention
+    * Quick feedback tasks (`check` with 5s timeout) may timeout if lock contention occurs
+    * **Root Cause Fix**: Separate tasks for quick feedback (5s) vs pre-push validation (30s)
+    * Pattern: Pre-push hooks need longer timeout than quick feedback checks
 
 * **Elite Rust Mindset & 80/20 Thinking**:
 
