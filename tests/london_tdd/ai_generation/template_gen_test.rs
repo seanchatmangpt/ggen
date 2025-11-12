@@ -24,10 +24,7 @@ fn test_ai_generate_creates_template_from_description() {
 
     mock_llm
         .expect_generate()
-        .with(
-            predicate::str::contains("REST API module"),
-            eq("gpt-4o"),
-        )
+        .with(predicate::str::contains("REST API module"), eq("gpt-4o"))
         .times(1)
         .returning(|_, _| {
             Ok(r#"---
@@ -38,7 +35,8 @@ vars:
 pub struct {{name | capitalize}}Api {
     // API implementation
 }
-"#.to_string())
+"#
+            .to_string())
         });
 
     mock_fs
@@ -84,7 +82,8 @@ fn test_ai_generate_supports_multiple_providers() {
         .with(always(), eq("claude-3-5-sonnet-20241022"))
         .returning(|_, _| Ok("---\nto: test\n---\ntemplate".to_string()));
 
-    let result = run_ai_generate_with_provider(&mock_anthropic, "anthropic", "claude-3-5-sonnet-20241022");
+    let result =
+        run_ai_generate_with_provider(&mock_anthropic, "anthropic", "claude-3-5-sonnet-20241022");
     assert!(result.is_ok());
 
     // Test Ollama
@@ -137,7 +136,8 @@ vars:
     });
 
     // Act
-    let result = run_ai_generate_command(&mock_llm, &mock_fs, "simple template", "gpt-4o", "out.tmpl");
+    let result =
+        run_ai_generate_command(&mock_llm, &mock_fs, "simple template", "gpt-4o", "out.tmpl");
 
     // Assert: Contains standard metadata
     assert!(result.is_ok());
@@ -176,11 +176,7 @@ struct GeneratedTemplate {
 }
 
 fn run_ai_generate_command(
-    llm: &dyn LlmClient,
-    fs: &dyn Filesystem,
-    description: &str,
-    model: &str,
-    output_path: &str,
+    llm: &dyn LlmClient, fs: &dyn Filesystem, description: &str, model: &str, output_path: &str,
 ) -> Result<GeneratedTemplate, anyhow::Error> {
     let prompt = format!(
         "Generate a ggen template for: {}\n\nInclude YAML frontmatter with 'to:', 'vars:', and a Tera template body.",
@@ -212,24 +208,22 @@ fn run_ai_generate_command(
 }
 
 fn run_ai_generate_with_provider(
-    llm: &dyn LlmClient,
-    _provider: &str,
-    model: &str,
+    llm: &dyn LlmClient, _provider: &str, model: &str,
 ) -> Result<GeneratedTemplate, anyhow::Error> {
     let response = llm.generate("test", model)?;
     let parts: Vec<&str> = response.split("---").collect();
 
     Ok(GeneratedTemplate {
         frontmatter: parts[1].trim().to_string(),
-        body: parts.get(2).map(|s| s.trim().to_string()).unwrap_or_default(),
+        body: parts
+            .get(2)
+            .map(|s| s.trim().to_string())
+            .unwrap_or_default(),
     })
 }
 
 fn run_ai_generate_with_tracing(
-    llm: &dyn LlmClient,
-    fs: &dyn Filesystem,
-    tracer: &otel::MockTracerProvider,
-    description: &str,
+    llm: &dyn LlmClient, fs: &dyn Filesystem, tracer: &otel::MockTracerProvider, description: &str,
 ) -> Result<GeneratedTemplate, anyhow::Error> {
     let result = run_ai_generate_command(llm, fs, description, "gpt-4o", "out.tmpl")?;
 

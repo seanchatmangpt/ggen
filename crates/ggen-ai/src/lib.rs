@@ -20,6 +20,8 @@
 //! - **Ontology generation**: Domain descriptions to RDF/OWL
 //! - **Code refactoring**: AI-assisted code improvement suggestions
 //!
+#![deny(warnings)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
+
 //! ## Quick Start
 //!
 //! ```rust

@@ -1,0 +1,16 @@
+PREFIX chatman: <http://ggen.ai/ontology/chatman#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Find related topics from conversation history
+SELECT DISTINCT ?topic ?message ?content
+WHERE {
+    ?message a chatman:Message ;
+             chatman:hasContent ?content .
+    
+    ?message chatman:relatesToTopic ?topic .
+    
+    FILTER(CONTAINS(LCASE(?content), "rust") || 
+           CONTAINS(LCASE(?content), "ai") ||
+           CONTAINS(LCASE(?content), "programming"))
+}
+LIMIT 50

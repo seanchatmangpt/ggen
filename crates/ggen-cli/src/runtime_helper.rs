@@ -1,7 +1,7 @@
 //! Runtime helper for sync CLI wrappers
 //!
 //! This module provides utilities for executing async operations in sync CLI contexts.
-//! Required because clap-noun-verb v3.0.0 uses sync verb functions, but business logic
+//! Required because clap-noun-verb v3.4.0 uses sync verb functions, but business logic
 //! may require async operations (file I/O, network requests, etc.).
 //!
 //! # Examples
@@ -35,7 +35,10 @@ use tokio::runtime::Runtime;
 pub fn create_runtime() -> Result<Runtime, String> {
     // Check if we're already in a tokio runtime
     if tokio::runtime::Handle::try_current().is_ok() {
-        return Err("Cannot create runtime from within a runtime. Use Handle::current() instead.".to_string());
+        return Err(
+            "Cannot create runtime from within a runtime. Use Handle::current() instead."
+                .to_string(),
+        );
     }
     Runtime::new().map_err(|e| format!("Failed to create async runtime: {}", e))
 }
@@ -78,14 +81,15 @@ where
                     let rt = Runtime::new()
                         .map_err(|e| format!("Failed to create async runtime: {}", e))?;
                     rt.block_on(future)
-                }).join().unwrap_or_else(|e| {
-                    Err(format!("Thread panicked: {:?}", e))
                 })
+                .join()
+                .unwrap_or_else(|e| Err(format!("Thread panicked: {:?}", e)))
             })
         }
         Err(_) => {
             // No runtime, create one
-            let rt = Runtime::new().map_err(|e| format!("Failed to create async runtime: {}", e))?;
+            let rt =
+                Runtime::new().map_err(|e| format!("Failed to create async runtime: {}", e))?;
             rt.block_on(future)
         }
     }
@@ -123,25 +127,32 @@ where
             std::thread::scope(|s| {
                 s.spawn(|| {
                     // Create a new runtime in this thread
-                    let rt = Runtime::new()
-                        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(
-                            format!("Failed to create async runtime: {}", e)
-                        ))?;
+                    let rt = Runtime::new().map_err(|e| {
+                        clap_noun_verb::NounVerbError::execution_error(format!(
+                            "Failed to create async runtime: {}",
+                            e
+                        ))
+                    })?;
                     rt.block_on(future)
                         .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))
-                }).join().unwrap_or_else(|e| {
-                    Err(clap_noun_verb::NounVerbError::execution_error(
-                        format!("Thread panicked: {:?}", e)
-                    ))
+                })
+                .join()
+                .unwrap_or_else(|e| {
+                    Err(clap_noun_verb::NounVerbError::execution_error(format!(
+                        "Thread panicked: {:?}",
+                        e
+                    )))
                 })
             })
         }
         Err(_) => {
             // No runtime, create one
-            let rt = Runtime::new()
-                .map_err(|e| clap_noun_verb::NounVerbError::execution_error(
-                    format!("Failed to create async runtime: {}", e)
-                ))?;
+            let rt = Runtime::new().map_err(|e| {
+                clap_noun_verb::NounVerbError::execution_error(format!(
+                    "Failed to create async runtime: {}",
+                    e
+                ))
+            })?;
             rt.block_on(future)
                 .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))
         }

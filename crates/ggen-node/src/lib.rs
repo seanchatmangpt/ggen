@@ -149,7 +149,11 @@ pub async fn market_remove(package_id: String) -> Result<RunResult> {
 /// ```
 #[napi]
 pub async fn lifecycle_init() -> Result<RunResult> {
-    let args = vec!["lifecycle".to_string(), "run".to_string(), "init".to_string()];
+    let args = vec![
+        "lifecycle".to_string(),
+        "run".to_string(),
+        "init".to_string(),
+    ];
     run(args).await
 }
 
@@ -164,7 +168,11 @@ pub async fn lifecycle_init() -> Result<RunResult> {
 /// ```
 #[napi]
 pub async fn lifecycle_test() -> Result<RunResult> {
-    let args = vec!["lifecycle".to_string(), "run".to_string(), "test".to_string()];
+    let args = vec![
+        "lifecycle".to_string(),
+        "run".to_string(),
+        "test".to_string(),
+    ];
     run(args).await
 }
 
@@ -253,7 +261,9 @@ pub async fn lifecycle_readiness() -> Result<RunResult> {
 /// await lifecycleReadinessUpdate('auth-basic', 'complete');
 /// ```
 #[napi]
-pub async fn lifecycle_readiness_update(requirement_id: String, status: String) -> Result<RunResult> {
+pub async fn lifecycle_readiness_update(
+    requirement_id: String, status: String,
+) -> Result<RunResult> {
     let args = vec![
         "lifecycle".to_string(),
         "readiness-update".to_string(),
@@ -293,9 +303,7 @@ pub async fn lifecycle_list() -> Result<RunResult> {
 /// ```
 #[napi]
 pub async fn template_generate(
-    template_path: String,
-    vars: Option<String>,
-    manifest_path: Option<String>,
+    template_path: String, vars: Option<String>, manifest_path: Option<String>,
 ) -> Result<RunResult> {
     let mut args = vec!["gen".to_string(), template_path];
 
@@ -352,9 +360,7 @@ pub async fn template_list() -> Result<RunResult> {
 /// ```
 #[napi]
 pub async fn ai_project(
-    description: String,
-    name: Option<String>,
-    language: Option<String>,
+    description: String, name: Option<String>, language: Option<String>,
 ) -> Result<RunResult> {
     let mut args = vec!["ai".to_string(), "project".to_string(), description];
 

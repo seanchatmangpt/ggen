@@ -1,6 +1,6 @@
 //! DoS resistance tests
 
-use ggen_core::registry::{RegistryIndex, PackMetadata, VersionMetadata};
+use ggen_core::registry::{PackMetadata, RegistryIndex, VersionMetadata};
 use std::collections::HashMap;
 
 #[test]
@@ -14,32 +14,38 @@ fn test_large_registry_handling() {
 
         for j in 0..10 {
             let version = format!("{}.0.0", j);
-            versions.insert(version.clone(), VersionMetadata {
-                version: version.clone(),
-                git_url: format!("https://github.com/test/{}.git", id),
-                git_rev: format!("v{}", version),
-                manifest_url: None,
-                sha256: format!("hash{}", j),
-            });
+            versions.insert(
+                version.clone(),
+                VersionMetadata {
+                    version: version.clone(),
+                    git_url: format!("https://github.com/test/{}.git", id),
+                    git_rev: format!("v{}", version),
+                    manifest_url: None,
+                    sha256: format!("hash{}", j),
+                },
+            );
         }
 
-        packs.insert(id.clone(), PackMetadata {
-            id: id.clone(),
-            name: format!("Package {}", i),
-            description: format!("Description {}", i),
-            tags: vec![format!("tag{}", i % 10)],
-            keywords: vec![format!("keyword{}", i % 20)],
-            category: Some("test".to_string()),
-            author: Some("Test".to_string()),
-            latest_version: "9.0.0".to_string(),
-            versions,
-            downloads: Some(i as u64),
-            updated: Some(chrono::Utc::now()),
-            license: Some("MIT".to_string()),
-            homepage: None,
-            repository: None,
-            documentation: None,
-        });
+        packs.insert(
+            id.clone(),
+            PackMetadata {
+                id: id.clone(),
+                name: format!("Package {}", i),
+                description: format!("Description {}", i),
+                tags: vec![format!("tag{}", i % 10)],
+                keywords: vec![format!("keyword{}", i % 20)],
+                category: Some("test".to_string()),
+                author: Some("Test".to_string()),
+                latest_version: "9.0.0".to_string(),
+                versions,
+                downloads: Some(i as u64),
+                updated: Some(chrono::Utc::now()),
+                license: Some("MIT".to_string()),
+                homepage: None,
+                repository: None,
+                documentation: None,
+            },
+        );
     }
 
     let index = RegistryIndex {
@@ -60,13 +66,19 @@ fn test_deeply_nested_structures() {
         for j in 0..10 {
             for k in 0..10 {
                 let version = format!("{}.{}.{}", i, j, k);
-                versions.insert(version.clone(), VersionMetadata {
-                    version: version.clone(),
-                    git_url: "https://github.com/test/repo.git".to_string(),
-                    git_rev: format!("v{}", version),
-                    manifest_url: Some(format!("https://registry.test/manifest-{}.json", version)),
-                    sha256: format!("hash{}{}{}", i, j, k),
-                });
+                versions.insert(
+                    version.clone(),
+                    VersionMetadata {
+                        version: version.clone(),
+                        git_url: "https://github.com/test/repo.git".to_string(),
+                        git_rev: format!("v{}", version),
+                        manifest_url: Some(format!(
+                            "https://registry.test/manifest-{}.json",
+                            version
+                        )),
+                        sha256: format!("hash{}{}{}", i, j, k),
+                    },
+                );
             }
         }
     }
@@ -102,13 +114,16 @@ fn test_extremely_long_strings() {
     let long_description = "a".repeat(1_000_000);
 
     let mut versions = HashMap::new();
-    versions.insert("1.0.0".to_string(), VersionMetadata {
-        version: "1.0.0".to_string(),
-        git_url: "https://github.com/test/repo.git".to_string(),
-        git_rev: "main".to_string(),
-        manifest_url: None,
-        sha256: "abc123".to_string(),
-    });
+    versions.insert(
+        "1.0.0".to_string(),
+        VersionMetadata {
+            version: "1.0.0".to_string(),
+            git_url: "https://github.com/test/repo.git".to_string(),
+            git_rev: "main".to_string(),
+            manifest_url: None,
+            sha256: "abc123".to_string(),
+        },
+    );
 
     let pack = PackMetadata {
         id: "long-string-test".to_string(),
@@ -139,13 +154,16 @@ fn test_many_tags_and_keywords() {
     let keywords: Vec<String> = (0..1000).map(|i| format!("keyword{}", i)).collect();
 
     let mut versions = HashMap::new();
-    versions.insert("1.0.0".to_string(), VersionMetadata {
-        version: "1.0.0".to_string(),
-        git_url: "https://github.com/test/repo.git".to_string(),
-        git_rev: "main".to_string(),
-        manifest_url: None,
-        sha256: "abc123".to_string(),
-    });
+    versions.insert(
+        "1.0.0".to_string(),
+        VersionMetadata {
+            version: "1.0.0".to_string(),
+            git_url: "https://github.com/test/repo.git".to_string(),
+            git_rev: "main".to_string(),
+            manifest_url: None,
+            sha256: "abc123".to_string(),
+        },
+    );
 
     let pack = PackMetadata {
         id: "many-tags-test".to_string(),
@@ -177,31 +195,37 @@ fn test_serialization_bomb_prevention() {
     for i in 0..100 {
         let id = format!("pack{}", i);
         let mut versions = HashMap::new();
-        versions.insert("1.0.0".to_string(), VersionMetadata {
-            version: "1.0.0".to_string(),
-            git_url: "https://github.com/test/repo.git".to_string(),
-            git_rev: "main".to_string(),
-            manifest_url: None,
-            sha256: "abc123".to_string(),
-        });
+        versions.insert(
+            "1.0.0".to_string(),
+            VersionMetadata {
+                version: "1.0.0".to_string(),
+                git_url: "https://github.com/test/repo.git".to_string(),
+                git_rev: "main".to_string(),
+                manifest_url: None,
+                sha256: "abc123".to_string(),
+            },
+        );
 
-        packs.insert(id.clone(), PackMetadata {
-            id: id.clone(),
-            name: format!("Package {}", i),
-            description: "x".repeat(1000), // Repeated but not exponential
-            tags: vec!["test".to_string()],
-            keywords: vec!["test".to_string()],
-            category: Some("test".to_string()),
-            author: Some("Test".to_string()),
-            latest_version: "1.0.0".to_string(),
-            versions,
-            downloads: Some(i as u64),
-            updated: Some(chrono::Utc::now()),
-            license: Some("MIT".to_string()),
-            homepage: None,
-            repository: None,
-            documentation: None,
-        });
+        packs.insert(
+            id.clone(),
+            PackMetadata {
+                id: id.clone(),
+                name: format!("Package {}", i),
+                description: "x".repeat(1000), // Repeated but not exponential
+                tags: vec!["test".to_string()],
+                keywords: vec!["test".to_string()],
+                category: Some("test".to_string()),
+                author: Some("Test".to_string()),
+                latest_version: "1.0.0".to_string(),
+                versions,
+                downloads: Some(i as u64),
+                updated: Some(chrono::Utc::now()),
+                license: Some("MIT".to_string()),
+                homepage: None,
+                repository: None,
+                documentation: None,
+            },
+        );
     }
 
     let index = RegistryIndex {
@@ -225,31 +249,37 @@ fn test_hash_collision_resistance() {
     for i in 0..10000 {
         let id = format!("pack{:04}", i);
         let mut versions = HashMap::new();
-        versions.insert("1.0.0".to_string(), VersionMetadata {
-            version: "1.0.0".to_string(),
-            git_url: "https://github.com/test/repo.git".to_string(),
-            git_rev: "main".to_string(),
-            manifest_url: None,
-            sha256: "abc123".to_string(),
-        });
+        versions.insert(
+            "1.0.0".to_string(),
+            VersionMetadata {
+                version: "1.0.0".to_string(),
+                git_url: "https://github.com/test/repo.git".to_string(),
+                git_rev: "main".to_string(),
+                manifest_url: None,
+                sha256: "abc123".to_string(),
+            },
+        );
 
-        packs.insert(id.clone(), PackMetadata {
-            id: id.clone(),
-            name: format!("Package {:04}", i),
-            description: "Test".to_string(),
-            tags: vec![],
-            keywords: vec![],
-            category: None,
-            author: None,
-            latest_version: "1.0.0".to_string(),
-            versions,
-            downloads: None,
-            updated: None,
-            license: None,
-            homepage: None,
-            repository: None,
-            documentation: None,
-        });
+        packs.insert(
+            id.clone(),
+            PackMetadata {
+                id: id.clone(),
+                name: format!("Package {:04}", i),
+                description: "Test".to_string(),
+                tags: vec![],
+                keywords: vec![],
+                category: None,
+                author: None,
+                latest_version: "1.0.0".to_string(),
+                versions,
+                downloads: None,
+                updated: None,
+                license: None,
+                homepage: None,
+                repository: None,
+                documentation: None,
+            },
+        );
     }
 
     // HashMap should handle many similar keys efficiently
@@ -266,13 +296,16 @@ fn test_recursive_structure_prevention() {
     // RegistryIndex -> PackMetadata -> VersionMetadata (finite depth)
 
     let mut versions = HashMap::new();
-    versions.insert("1.0.0".to_string(), VersionMetadata {
-        version: "1.0.0".to_string(),
-        git_url: "https://github.com/test/repo.git".to_string(),
-        git_rev: "main".to_string(),
-        manifest_url: None,
-        sha256: "abc123".to_string(),
-    });
+    versions.insert(
+        "1.0.0".to_string(),
+        VersionMetadata {
+            version: "1.0.0".to_string(),
+            git_url: "https://github.com/test/repo.git".to_string(),
+            git_rev: "main".to_string(),
+            manifest_url: None,
+            sha256: "abc123".to_string(),
+        },
+    );
 
     let pack = PackMetadata {
         id: "test".to_string(),

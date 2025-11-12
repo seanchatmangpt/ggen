@@ -89,8 +89,7 @@ impl PublicKey {
         let cleaned = pem
             .replace("-----BEGIN PUBLIC KEY-----", "")
             .replace("-----END PUBLIC KEY-----", "")
-            .replace('\n', "")
-            .replace(' ', "");
+            .replace(['\n', ' '], "");
 
         use base64::{engine::general_purpose::STANDARD, Engine as _};
         let key_data = STANDARD.decode(&cleaned).map_err(|e| {

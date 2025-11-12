@@ -3,8 +3,8 @@
 //! These tests verify that ggen operations generate correct spans
 //! that can be validated by clnrm tests.
 
-use ggen_core::telemetry::{init_telemetry, shutdown_telemetry, TelemetryConfig};
 use ggen_core::registry::{RegistryClient, SearchParams};
+use ggen_core::telemetry::{init_telemetry, shutdown_telemetry, TelemetryConfig};
 
 #[tokio::test]
 async fn test_telemetry_initialization() {

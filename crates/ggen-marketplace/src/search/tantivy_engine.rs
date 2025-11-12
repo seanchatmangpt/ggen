@@ -17,6 +17,7 @@ pub struct TantivySearchEngine {
     index: Index,
     reader: IndexReader,
     writer: Arc<RwLock<IndexWriter>>,
+    #[allow(dead_code)]
     schema: Schema,
     fields: SchemaFields,
 }
@@ -300,7 +301,7 @@ impl TantivySearchEngine {
 
     /// Build query from SearchQuery
     fn build_query(&self, search_query: &SearchQuery) -> Result<Box<dyn Query>> {
-        let searcher = self.reader.searcher();
+        let _searcher = self.reader.searcher();
 
         // Parse main text query
         let query_parser = QueryParser::for_index(
@@ -394,7 +395,7 @@ impl SearchEngine for TantivySearchEngine {
                     packages.push(ScoredPackage {
                         package,
                         score,
-                        highlights: HashMap::new(), // TODO: Implement highlighting
+                        highlights: HashMap::new(), // FUTURE: Implement highlighting
                     });
                 }
             }
@@ -435,13 +436,13 @@ impl SearchEngine for TantivySearchEngine {
 
     async fn index(&self, package: &Package) -> Result<()> {
         let doc = self.package_to_doc(package);
-        let mut writer = self.writer.write().await;
+        let writer = self.writer.write().await;
         writer.add_document(doc)?;
         Ok(())
     }
 
     async fn bulk_index(&self, packages: Vec<Package>) -> Result<()> {
-        let mut writer = self.writer.write().await;
+        let writer = self.writer.write().await;
         for package in packages {
             let doc = self.package_to_doc(&package);
             writer.add_document(doc)?;
@@ -451,7 +452,7 @@ impl SearchEngine for TantivySearchEngine {
 
     async fn remove(&self, package_id: &str) -> Result<()> {
         let term = tantivy::Term::from_field_text(self.fields.id, package_id);
-        let mut writer = self.writer.write().await;
+        let writer = self.writer.write().await;
         writer.delete_term(term);
         Ok(())
     }
@@ -476,7 +477,7 @@ impl SearchEngine for TantivySearchEngine {
         let total_documents: usize = segment_metas.iter().map(|s| s.num_docs() as usize).sum();
 
         // Approximate index size
-        let index_size_bytes = 0; // TODO: Calculate actual size
+        let index_size_bytes = 0; // FUTURE: Calculate actual size
 
         Ok(IndexStats {
             total_documents,

@@ -107,7 +107,9 @@ pub trait SecurityScanner {
     fn scan(&self, path: &PathBuf, verbose: bool) -> Result<SecurityScanResult>;
 
     /// Attempt to automatically fix vulnerabilities
-    fn fix_vulnerabilities(&self, path: &PathBuf, vulnerabilities: &[Vulnerability]) -> Result<usize>;
+    fn fix_vulnerabilities(
+        &self, path: &PathBuf, vulnerabilities: &[Vulnerability],
+    ) -> Result<usize>;
 }
 
 /// Trait for checking dependency vulnerabilities
@@ -169,7 +171,9 @@ impl SecurityScanner for CargoAuditSecurityScanner {
         })
     }
 
-    fn fix_vulnerabilities(&self, _path: &PathBuf, vulnerabilities: &[Vulnerability]) -> Result<usize> {
+    fn fix_vulnerabilities(
+        &self, _path: &PathBuf, vulnerabilities: &[Vulnerability],
+    ) -> Result<usize> {
         // In a real implementation, this would attempt to update dependencies
         // or apply patches for known vulnerabilities
         Ok(vulnerabilities.len())
@@ -223,9 +227,7 @@ impl ConfigAuditor for FileSystemConfigAuditor {
     fn audit(&self, file: Option<&PathBuf>) -> Result<ConfigAuditResult> {
         let start = std::time::Instant::now();
 
-        let config_file = file
-            .cloned()
-            .unwrap_or_else(|| PathBuf::from("Cargo.toml"));
+        let config_file = file.cloned().unwrap_or_else(|| PathBuf::from("Cargo.toml"));
 
         // Check if file exists
         if !config_file.exists() {
@@ -240,7 +242,8 @@ impl ConfigAuditor for FileSystemConfigAuditor {
         let mut issues = Vec::new();
 
         // Check for hardcoded secrets (simple regex patterns)
-        if content.contains("password") || content.contains("api_key") || content.contains("token") {
+        if content.contains("password") || content.contains("api_key") || content.contains("token")
+        {
             issues.push(ConfigIssue {
                 issue_type: ConfigIssueType::HardcodedSecret,
                 severity: Severity::High,

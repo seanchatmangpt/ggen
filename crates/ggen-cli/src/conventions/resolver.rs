@@ -139,7 +139,9 @@ impl ConventionResolver {
     }
 
     /// Discover templates in templates/ directory
-    fn discover_templates(&self, overrides: &ConventionOverrides) -> Result<HashMap<String, PathBuf>> {
+    fn discover_templates(
+        &self, overrides: &ConventionOverrides,
+    ) -> Result<HashMap<String, PathBuf>> {
         let patterns = if overrides.templates.patterns.is_empty() {
             vec!["templates/**/*.tmpl".to_string()]
         } else {
@@ -244,8 +246,16 @@ mod tests {
         fs::create_dir_all(root.join("queries/user")).unwrap();
 
         // Create RDF files
-        fs::write(root.join("domain/user.ttl"), "@prefix ex: <http://example.org/> .").unwrap();
-        fs::write(root.join("domain/order.ttl"), "@prefix ex: <http://example.org/> .").unwrap();
+        fs::write(
+            root.join("domain/user.ttl"),
+            "@prefix ex: <http://example.org/> .",
+        )
+        .unwrap();
+        fs::write(
+            root.join("domain/order.ttl"),
+            "@prefix ex: <http://example.org/> .",
+        )
+        .unwrap();
 
         // Create template files
         fs::write(root.join("templates/main.tmpl"), "Hello {{ name }}").unwrap();
@@ -327,10 +337,7 @@ mod tests {
 
         let conventions = resolver.discover().unwrap();
 
-        assert_eq!(
-            conventions.output_dir,
-            temp_dir.path().join("generated")
-        );
+        assert_eq!(conventions.output_dir, temp_dir.path().join("generated"));
     }
 
     #[test]
@@ -411,7 +418,10 @@ patterns = ["views/**/*.tmpl"]
 
         assert_eq!(conventions.templates.len(), 1);
         // The template name will be just "page" since views is not recognized as templates base
-        assert!(conventions.templates.values().any(|p| p.ends_with("page.tmpl")));
+        assert!(conventions
+            .templates
+            .values()
+            .any(|p| p.ends_with("page.tmpl")));
     }
 
     #[test]
@@ -458,10 +468,7 @@ patterns = ["sparql/**/*.sparql"]
         assert!(conventions.rdf_files.is_empty());
         assert!(conventions.templates.is_empty());
         assert!(conventions.queries.is_empty());
-        assert_eq!(
-            conventions.output_dir,
-            temp_dir.path().join("generated")
-        );
+        assert_eq!(conventions.output_dir, temp_dir.path().join("generated"));
     }
 
     #[test]

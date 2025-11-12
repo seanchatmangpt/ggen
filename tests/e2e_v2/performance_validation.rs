@@ -93,7 +93,7 @@ fn test_rdf_query_performance() {
     // Create RDF file with moderate data
     let mut rdf_data = String::from(
         "@prefix : <http://example.org/> .\n\
-         @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n\n"
+         @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n\n",
     );
 
     // Add 1000 triples

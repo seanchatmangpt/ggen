@@ -1,0 +1,31 @@
+[package]
+name = "reasoner-cli"
+version = "1.0.0"
+description = "OWL inference engine and ontology classification using clap-noun-verb"
+authors = ["ggen marketplace"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/ggen-cli/marketplace"
+homepage = "https://ggen.ruv.io/packages/reasoner-cli"
+keywords = ["owl", "inference", "classification", "ontology", "semantic-web", "clap-noun-verb"]
+categories = ["cli-tools", "semantic-web", "inference-engines"]
+readme = "README.md"
+
+[dependencies]
+clap-noun-verb = "3.4.0"
+oxigraph = "0.3"
+petgraph = "0.6"
+serde = { version = "1.0", features = ["derive"] }
+tokio = { version = "1.35", features = ["full"] }
+anyhow = "1.0"
+tracing = "0.1"
+
+[features]
+default = ["owl2-dl"]
+owl2-profiles = ["owl2-dl", "owl2-el", "owl2-ql", "owl2-rl"]
+classification = []
+inference = []
+validation = []
+
+[metadata]
+ontology = "rdf/ontology.ttl"
+rdf_format = "turtle"

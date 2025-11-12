@@ -45,7 +45,7 @@ model = { type = "string", default = "gpt-4", description = "AI model to use" }
 [examples]
 basic = """
 # Install the package
-ggen market add rig-mcp-integration
+ggen market install rig-mcp-integration
 
 # Create new project with OpenAI
 ggen template generate rig-mcp-integration \\

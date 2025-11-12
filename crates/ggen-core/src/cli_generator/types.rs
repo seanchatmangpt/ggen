@@ -96,4 +96,3 @@ pub struct Dependency {
     #[serde(default)]
     pub optional: bool,
 }
-

@@ -27,11 +27,9 @@ pub fn execute<F>(future: F) -> Result<()>
 where
     F: Future<Output = Result<()>>,
 {
-    let runtime = tokio::runtime::Runtime::new()
-        .map_err(|e| ggen_utils::error::Error::new_fmt(format_args!(
-            "Failed to create Tokio runtime: {}",
-            e
-        )))?;
+    let runtime = tokio::runtime::Runtime::new().map_err(|e| {
+        ggen_utils::error::Error::new_fmt(format_args!("Failed to create Tokio runtime: {}", e))
+    })?;
 
     runtime.block_on(future)
 }
@@ -63,16 +61,17 @@ where
             // Already in runtime - spawn new thread with new runtime to avoid nesting
             std::thread::scope(|s| {
                 s.spawn(move || {
-                    let rt = tokio::runtime::Runtime::new()
-                        .expect("Failed to create Tokio runtime");
+                    let rt =
+                        tokio::runtime::Runtime::new().expect("Failed to create Tokio runtime");
                     rt.block_on(future)
-                }).join().expect("Runtime thread panicked")
+                })
+                .join()
+                .expect("Runtime thread panicked")
             })
         }
         Err(_) => {
             // Not in runtime - create one on current thread
-            let runtime = tokio::runtime::Runtime::new()
-                .expect("Failed to create Tokio runtime");
+            let runtime = tokio::runtime::Runtime::new().expect("Failed to create Tokio runtime");
             runtime.block_on(future)
         }
     }

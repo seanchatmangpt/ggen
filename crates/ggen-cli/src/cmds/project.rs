@@ -3,11 +3,11 @@
 //! Migrated from project.rs to use #[verb] macros for project scaffolding,
 //! code generation, and project management operations.
 
-use clap_noun_verb_macros::{verb};
 use clap_noun_verb::Result;
+use clap_noun_verb_macros::verb;
 use serde::Serialize;
-use std::path::PathBuf;
 use std::collections::BTreeMap;
+use std::path::PathBuf;
 
 // ============================================================================
 // Output Types (all must derive Serialize for JSON output)
@@ -108,13 +108,7 @@ struct WatchOutput {
 /// ```
 #[verb]
 fn new(
-    name: String,
-
-    project_type: String,
-
-    framework: Option<String>,
-
-    output: PathBuf,
+    name: String, project_type: String, framework: Option<String>, output: PathBuf,
     skip_install: bool,
 ) -> Result<NewOutput> {
     use ggen_domain::project;
@@ -166,12 +160,11 @@ fn new(
 /// ```
 #[verb]
 fn plan(
-    template_ref: String,
-    vars: Option<String>,
-    output: Option<String>,
-    format: Option<String>,
+    template_ref: String, vars: Option<String>, output: Option<String>, format: Option<String>,
 ) -> Result<PlanOutput> {
-    let vars: Vec<String> = vars.map(|v| v.split(',').map(String::from).collect()).unwrap_or_default();
+    let vars: Vec<String> = vars
+        .map(|v| v.split(',').map(String::from).collect())
+        .unwrap_or_default();
     let format = format.unwrap_or_else(|| "json".to_string());
     use ggen_domain::project;
 
@@ -219,12 +212,10 @@ fn plan(
 ///   --var db=postgres
 /// ```
 #[verb]
-fn gen(
-    template_ref: String,
-    vars: Option<String>,
-    dry_run: bool,
-) -> Result<GenOutput> {
-    let vars: Vec<String> = vars.map(|v| v.split(',').map(String::from).collect()).unwrap_or_default();
+fn gen(template_ref: String, vars: Option<String>, dry_run: bool) -> Result<GenOutput> {
+    let vars: Vec<String> = vars
+        .map(|v| v.split(',').map(String::from).collect())
+        .unwrap_or_default();
     use ggen_domain::project;
 
     crate::runtime::block_on(async move {
@@ -235,12 +226,15 @@ fn gen(
             dry_run,
         };
 
-        let result = project::gen::execute_gen(input).await
+        let result = project::gen::execute_gen(input)
+            .await
             .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;
 
         // Convert operations to summary
-        let operations: Vec<OperationSummary> = result.operations.iter().map(|op| {
-            match op {
+        let operations: Vec<OperationSummary> = result
+            .operations
+            .iter()
+            .map(|op| match op {
                 project::gen::Operation::Create { path, .. } => OperationSummary {
                     operation_type: "CREATE".to_string(),
                     path: path.clone(),
@@ -253,8 +247,8 @@ fn gen(
                     operation_type: "DELETE".to_string(),
                     path: path.clone(),
                 },
-            }
-        }).collect();
+            })
+            .collect();
 
         Ok(GenOutput {
             files_generated: result.files_created,
@@ -285,12 +279,7 @@ fn gen(
 /// ggen project apply plan.toml --dry-run
 /// ```
 #[verb]
-fn apply(
-    plan_file: String,
-
-    yes: bool,
-    dry_run: bool,
-) -> Result<ApplyOutput> {
+fn apply(plan_file: String, yes: bool, dry_run: bool) -> Result<ApplyOutput> {
     use ggen_domain::project;
 
     crate::runtime::block_on(async move {
@@ -300,15 +289,16 @@ fn apply(
             dry_run,
         };
 
-        let result = project::apply::apply_plan(&input)
-            .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Failed to apply plan: {}", e)))?;
+        let result = project::apply::apply_plan(&input).map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!("Failed to apply plan: {}", e))
+        })?;
 
         Ok(ApplyOutput {
             changes_applied: result.operations_count, // ApplicationResult doesn't have changes_applied
             operations_count: result.operations_count,
             files_modified: 0, // ApplicationResult doesn't have files_modified
-            files_created: 0, // ApplicationResult doesn't have files_created
-            files_deleted: 0, // ApplicationResult doesn't have files_deleted
+            files_created: 0,  // ApplicationResult doesn't have files_created
+            files_deleted: 0,  // ApplicationResult doesn't have files_deleted
             dry_run,
         })
     })
@@ -333,12 +323,7 @@ fn apply(
 /// ggen project init ./my-workspace --name workspace --preset custom
 /// ```
 #[verb]
-fn init(
-    path: PathBuf,
-
-    name: Option<String>,
-    preset: Option<String>,
-) -> Result<InitOutput> {
+fn init(path: PathBuf, name: Option<String>, preset: Option<String>) -> Result<InitOutput> {
     use crate::conventions::presets;
     use std::fs;
 
@@ -348,44 +333,70 @@ fn init(
         let mut directories_created = Vec::new();
 
         // Create base project structure
-        fs::create_dir_all(&path)
-            .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Failed to create project directory: {}", e)))?;
+        fs::create_dir_all(&path).map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!(
+                "Failed to create project directory: {}",
+                e
+            ))
+        })?;
 
         // Create .ggen directory
         let ggen_dir = path.join(".ggen");
-        fs::create_dir_all(&ggen_dir)
-            .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Failed to create .ggen directory: {}", e)))?;
+        fs::create_dir_all(&ggen_dir).map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!(
+                "Failed to create .ggen directory: {}",
+                e
+            ))
+        })?;
         directories_created.push(".ggen/".to_string());
 
         // Apply preset if specified
         if let Some(preset_name) = &preset {
-            let preset = presets::get_preset(preset_name)
-                .ok_or_else(|| clap_noun_verb::NounVerbError::execution_error(format!(
+            let preset = presets::get_preset(preset_name).ok_or_else(|| {
+                clap_noun_verb::NounVerbError::execution_error(format!(
                     "Unknown preset: {}. Available: {:?}",
                     preset_name,
                     presets::list_presets()
-                )))?;
+                ))
+            })?;
 
             // Create project structure
-            preset.create_structure(&path)
-                .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Failed to apply preset: {}", e)))?;
+            preset.create_structure(&path).map_err(|e| {
+                clap_noun_verb::NounVerbError::execution_error(format!(
+                    "Failed to apply preset: {}",
+                    e
+                ))
+            })?;
 
             // Create RDF files
             let rdf_dir = ggen_dir.join("rdf");
-            fs::create_dir_all(&rdf_dir)
-                .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Failed to create RDF directory: {}", e)))?;
+            fs::create_dir_all(&rdf_dir).map_err(|e| {
+                clap_noun_verb::NounVerbError::execution_error(format!(
+                    "Failed to create RDF directory: {}",
+                    e
+                ))
+            })?;
             directories_created.push(".ggen/rdf/".to_string());
 
             for (rdf_path, content) in preset.rdf_files() {
                 let file_path = rdf_dir.join(rdf_path);
                 if let Some(parent) = file_path.parent() {
-                    fs::create_dir_all(parent)
-                        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Failed to create directory: {}", e)))?;
+                    fs::create_dir_all(parent).map_err(|e| {
+                        clap_noun_verb::NounVerbError::execution_error(format!(
+                            "Failed to create directory: {}",
+                            e
+                        ))
+                    })?;
                 }
-                fs::write(&file_path, content)
-                    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Failed to write RDF file: {}", e)))?;
+                fs::write(&file_path, content).map_err(|e| {
+                    clap_noun_verb::NounVerbError::execution_error(format!(
+                        "Failed to write RDF file: {}",
+                        e
+                    ))
+                })?;
 
-                let relative_path = file_path.strip_prefix(&path)
+                let relative_path = file_path
+                    .strip_prefix(&path)
                     .unwrap_or(&file_path)
                     .display()
                     .to_string();
@@ -394,20 +405,33 @@ fn init(
 
             // Create templates
             let templates_dir = ggen_dir.join("templates");
-            fs::create_dir_all(&templates_dir)
-                .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Failed to create templates directory: {}", e)))?;
+            fs::create_dir_all(&templates_dir).map_err(|e| {
+                clap_noun_verb::NounVerbError::execution_error(format!(
+                    "Failed to create templates directory: {}",
+                    e
+                ))
+            })?;
             directories_created.push(".ggen/templates/".to_string());
 
             for (tmpl_path, content) in preset.templates() {
                 let file_path = templates_dir.join(tmpl_path);
                 if let Some(parent) = file_path.parent() {
-                    fs::create_dir_all(parent)
-                        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Failed to create directory: {}", e)))?;
+                    fs::create_dir_all(parent).map_err(|e| {
+                        clap_noun_verb::NounVerbError::execution_error(format!(
+                            "Failed to create directory: {}",
+                            e
+                        ))
+                    })?;
                 }
-                fs::write(&file_path, content)
-                    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Failed to write template: {}", e)))?;
+                fs::write(&file_path, content).map_err(|e| {
+                    clap_noun_verb::NounVerbError::execution_error(format!(
+                        "Failed to write template: {}",
+                        e
+                    ))
+                })?;
 
-                let relative_path = file_path.strip_prefix(&path)
+                let relative_path = file_path
+                    .strip_prefix(&path)
                     .unwrap_or(&file_path)
                     .display()
                     .to_string();
@@ -416,17 +440,24 @@ fn init(
 
             // Create conventions config
             let config_path = ggen_dir.join("conventions.toml");
-            fs::write(&config_path, preset.config_content())
-                .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Failed to write config: {}", e)))?;
+            fs::write(&config_path, preset.config_content()).map_err(|e| {
+                clap_noun_verb::NounVerbError::execution_error(format!(
+                    "Failed to write config: {}",
+                    e
+                ))
+            })?;
             files_created.push(".ggen/conventions.toml".to_string());
-
         } else {
             // Create basic structure without preset
             let dirs = ["domain", "templates", "queries", "generated"];
             for dir in &dirs {
                 let dir_path = path.join(dir);
-                fs::create_dir_all(&dir_path)
-                    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Failed to create directory: {}", e)))?;
+                fs::create_dir_all(&dir_path).map_err(|e| {
+                    clap_noun_verb::NounVerbError::execution_error(format!(
+                        "Failed to create directory: {}",
+                        e
+                    ))
+                })?;
                 directories_created.push(format!("{}/", dir));
             }
         }
@@ -473,12 +504,7 @@ fn init(
 /// ```
 #[verb]
 fn generate(
-    template: Option<String>,
-
-    path: PathBuf,
-
-    output: Option<String>,
-    force: bool,
+    template: Option<String>, path: PathBuf, output: Option<String>, force: bool,
 ) -> Result<GenerateOutput> {
     use ggen_domain::template;
     use std::fs;
@@ -489,11 +515,18 @@ fn generate(
         let mut templates = Vec::new();
 
         if templates_dir.exists() {
-            for entry in fs::read_dir(&templates_dir)
-                .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Failed to read templates directory: {}", e)))?
-            {
-                let entry = entry
-                    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Failed to read directory entry: {}", e)))?;
+            for entry in fs::read_dir(&templates_dir).map_err(|e| {
+                clap_noun_verb::NounVerbError::execution_error(format!(
+                    "Failed to read templates directory: {}",
+                    e
+                ))
+            })? {
+                let entry = entry.map_err(|e| {
+                    clap_noun_verb::NounVerbError::execution_error(format!(
+                        "Failed to read directory entry: {}",
+                        e
+                    ))
+                })?;
                 let entry_path = entry.path();
                 if entry_path.extension().and_then(|s| s.to_str()) == Some("tmpl") {
                     templates.push(entry_path);
@@ -505,10 +538,12 @@ fn generate(
         let templates_to_generate: Vec<_> = if let Some(ref template_name) = template {
             templates
                 .iter()
-                .filter(|t| t.file_name()
-                    .and_then(|n| n.to_str())
-                    .map(|n| n.contains(template_name))
-                    .unwrap_or(false))
+                .filter(|t| {
+                    t.file_name()
+                        .and_then(|n| n.to_str())
+                        .map(|n| n.contains(template_name))
+                        .unwrap_or(false)
+                })
                 .cloned()
                 .collect()
         } else {
@@ -590,22 +625,21 @@ fn generate(
 /// ggen project watch --path ./my-project --debounce 500
 /// ```
 #[verb]
-fn watch(
-    path: PathBuf,
-    debounce: u64,
-) -> Result<WatchOutput> {
+fn watch(path: PathBuf, debounce: u64) -> Result<WatchOutput> {
     use crate::conventions::ProjectWatcher;
 
     // Note: This is a long-running blocking operation
     // In v3.4.0, we'll need to handle this specially
 
     // Create watcher (uses fixed 300ms debounce internally)
-    let mut watcher = ProjectWatcher::new(path.clone())
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Failed to create watcher: {}", e)))?;
+    let mut watcher = ProjectWatcher::new(path.clone()).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Failed to create watcher: {}", e))
+    })?;
 
     // Start watching (blocking)
-    watcher.watch()
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Watch failed: {}", e)))?;
+    watcher.watch().map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Watch failed: {}", e))
+    })?;
 
     Ok(WatchOutput {
         project_path: path.display().to_string(),

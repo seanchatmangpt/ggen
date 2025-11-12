@@ -1,8 +1,8 @@
-use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId, Throughput};
-use tokio::runtime::{Runtime, Builder};
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
+use lazy_static::lazy_static;
 use std::sync::Arc;
 use std::time::Duration;
-use lazy_static::lazy_static;
+use tokio::runtime::{Builder, Runtime};
 
 // Mock async business logic simulating typical CLI operations
 async fn simulate_template_generation() -> String {
@@ -40,9 +40,7 @@ async fn simulate_ai_inference() -> String {
 // Option A: New runtime per command
 fn option_a_new_runtime() -> String {
     let rt = Runtime::new().unwrap();
-    rt.block_on(async {
-        simulate_template_generation().await
-    })
+    rt.block_on(async { simulate_template_generation().await })
 }
 
 // Option B: Shared static runtime
@@ -51,9 +49,7 @@ lazy_static! {
 }
 
 fn option_b_shared_runtime() -> String {
-    SHARED_RUNTIME.block_on(async {
-        simulate_template_generation().await
-    })
+    SHARED_RUNTIME.block_on(async { simulate_template_generation().await })
 }
 
 // Option C: Lazy static runtime
@@ -67,9 +63,7 @@ lazy_static! {
 }
 
 fn option_c_lazy_static() -> String {
-    LAZY_RUNTIME.block_on(async {
-        simulate_template_generation().await
-    })
+    LAZY_RUNTIME.block_on(async { simulate_template_generation().await })
 }
 
 // Benchmark 1: Runtime creation overhead
@@ -89,19 +83,14 @@ fn bench_runtime_creation(c: &mut Criterion) {
                     .worker_threads(4)
                     .enable_all()
                     .build()
-                    .unwrap()
+                    .unwrap(),
             );
         });
     });
 
     group.bench_function("new_runtime_current_thread", |b| {
         b.iter(|| {
-            black_box(
-                Builder::new_current_thread()
-                    .enable_all()
-                    .build()
-                    .unwrap()
-            );
+            black_box(Builder::new_current_thread().enable_all().build().unwrap());
         });
     });
 
@@ -199,7 +188,7 @@ fn bench_concurrent_commands(c: &mut Criterion) {
                         black_box(rt.block_on(simulate_template_generation()));
                     }
                 });
-            }
+            },
         );
 
         group.bench_with_input(
@@ -211,7 +200,7 @@ fn bench_concurrent_commands(c: &mut Criterion) {
                         black_box(SHARED_RUNTIME.block_on(simulate_template_generation()));
                     }
                 });
-            }
+            },
         );
     }
 
@@ -348,7 +337,7 @@ fn bench_thread_pool(c: &mut Criterion) {
                         }
                     }));
                 });
-            }
+            },
         );
     }
 

@@ -8,9 +8,7 @@ use collectors::*;
 use std::time::Instant;
 
 /// Run all README capability validations
-pub async fn validate_all_capabilities(
-    ctx: &ValidationContext,
-) -> Result<Vec<ValidationResult>> {
+pub async fn validate_all_capabilities(ctx: &ValidationContext) -> Result<Vec<ValidationResult>> {
     let mut results = Vec::new();
 
     info!("Starting comprehensive README capability validation");

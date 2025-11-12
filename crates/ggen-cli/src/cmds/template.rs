@@ -2,11 +2,11 @@
 //!
 //! This module implements template commands using the v3.4.0 #[verb] pattern.
 
-use clap_noun_verb_macros::verb;
 use clap_noun_verb::Result as NounVerbResult;
+use clap_noun_verb_macros::verb;
 use serde::Serialize;
-use std::path::PathBuf;
 use std::collections::BTreeMap;
+use std::path::PathBuf;
 
 // ============================================================================
 // Output Types
@@ -90,8 +90,9 @@ struct GenerateRdfOutput {
 fn show(template: String) -> NounVerbResult<ShowOutput> {
     use ggen_domain::template::show;
 
-    let metadata = show::show_template_metadata(&template)
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Failed to show template: {}", e)))?;
+    let metadata = show::show_template_metadata(&template).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Failed to show template: {}", e))
+    })?;
 
     Ok(ShowOutput {
         name: metadata.name,
@@ -113,12 +114,18 @@ fn new(name: String, template_type: Option<String>) -> NounVerbResult<NewOutput>
 
     let template_type_str = template_type.as_deref().unwrap_or("generic");
 
-    let content = template_new::generate_template_content(&name, template_type_str)
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Failed to generate template: {}", e)))?;
+    let content =
+        template_new::generate_template_content(&name, template_type_str).map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!(
+                "Failed to generate template: {}",
+                e
+            ))
+        })?;
 
     let service = TemplateService::default_instance();
-    let path = service.write_template(&name, &content)
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Failed to write template: {}", e)))?;
+    let path = service.write_template(&name, &content).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Failed to write template: {}", e))
+    })?;
 
     Ok(NewOutput {
         template_name: name,
@@ -141,8 +148,9 @@ fn list(directory: Option<PathBuf>) -> NounVerbResult<ListOutput> {
         gpack_only: false,
     };
 
-    let templates = list::list_templates(templates_dir, &filters)
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Failed to list templates: {}", e)))?;
+    let templates = list::list_templates(templates_dir, &filters).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Failed to list templates: {}", e))
+    })?;
 
     let template_infos = templates
         .into_iter()
@@ -168,7 +176,7 @@ fn list(directory: Option<PathBuf>) -> NounVerbResult<ListOutput> {
 
 /// Lint a template
 #[verb]
-fn lint(template: PathBuf) -> NounVerbResult<LintOutput> {
+fn lint(template: String) -> NounVerbResult<LintOutput> {
     use ggen_domain::template::lint;
 
     let options = lint::LintOptions {
@@ -176,8 +184,9 @@ fn lint(template: PathBuf) -> NounVerbResult<LintOutput> {
         check_schema: false,
     };
 
-    let report = lint::lint_template(&template.display().to_string(), &options)
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Failed to lint template: {}", e)))?;
+    let report = lint::lint_template(&template, &options).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Failed to lint template: {}", e))
+    })?;
 
     let has_errors = report.has_errors();
     let has_warnings = report.has_warnings();
@@ -211,9 +220,7 @@ fn lint(template: PathBuf) -> NounVerbResult<LintOutput> {
 /// Generate from template (basic version without Vec support)
 #[verb]
 fn generate(
-    template: Option<PathBuf>,
-    output: Option<PathBuf>,
-    force: bool,
+    template: Option<PathBuf>, output: Option<PathBuf>, force: bool,
 ) -> NounVerbResult<GenerateOutput> {
     use ggen_domain::template;
     use std::collections::BTreeMap;
@@ -225,8 +232,9 @@ fn generate(
         force_overwrite: force,
     };
 
-    let result = template::generate_file(&options)
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Failed to generate: {}", e)))?;
+    let result = template::generate_file(&options).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Failed to generate: {}", e))
+    })?;
 
     Ok(GenerateOutput {
         output_path: result.output_path.display().to_string(),
@@ -240,8 +248,7 @@ fn generate(
 /// Generate file tree from template
 #[verb]
 fn generate_tree(
-    template: Option<PathBuf>,
-    output: Option<PathBuf>,
+    template: Option<PathBuf>, output: Option<PathBuf>,
 ) -> NounVerbResult<GenerateTreeOutput> {
     use ggen_domain::template::generate_tree;
     use std::collections::HashMap;
@@ -259,13 +266,14 @@ fn generate_tree(
     // For now, use empty variables - full implementation needs var support
     let variables: HashMap<String, String> = HashMap::new();
 
-    generate_tree::generate_file_tree(&template_path, &output_path, &variables, false)
-        .map_err(|e| {
+    generate_tree::generate_file_tree(&template_path, &output_path, &variables, false).map_err(
+        |e| {
             clap_noun_verb::NounVerbError::execution_error(format!(
                 "Failed to generate file tree: {}",
                 e
             ))
-        })?;
+        },
+    )?;
 
     Ok(GenerateTreeOutput {
         output_directory: output_display,
@@ -288,16 +296,18 @@ fn regenerate(template: Option<PathBuf>) -> NounVerbResult<GenerateTreeOutput> {
 /// Generate CLI project from RDF/TTL file
 #[verb]
 fn generate_rdf(
-    ttl_file: PathBuf,
-    output: PathBuf,
-    templates: PathBuf,
+    ttl_file: PathBuf, output: PathBuf, templates: PathBuf,
 ) -> NounVerbResult<GenerateRdfOutput> {
     use ggen_domain::template::generate_rdf;
 
     let options = generate_rdf::GenerateFromRdfOptions::new(ttl_file, output, templates);
 
-    let result = generate_rdf::generate_cli_from_rdf(&options)
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Failed to generate from RDF: {}", e)))?;
+    let result = generate_rdf::generate_cli_from_rdf(&options).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!(
+            "Failed to generate from RDF: {}",
+            e
+        ))
+    })?;
 
     Ok(GenerateRdfOutput {
         output_dir: result.output_dir.display().to_string(),

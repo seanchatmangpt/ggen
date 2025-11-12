@@ -53,7 +53,7 @@ license = { type = "string", default = "MIT", description = "License type" }
 [examples]
 basic = """
 # Install the package
-ggen market add comprehensive-rust-showcase
+ggen market install comprehensive-rust-showcase
 
 # Initialize project
 cd comprehensive-rust-showcase

@@ -2,10 +2,10 @@
 //!
 //! Chicago TDD: Pure business logic with REAL generation
 
+use ggen_utils::error::Result;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::PathBuf;
-use serde::{Deserialize, Serialize};
-use ggen_utils::error::Result;
 
 /// Generation result with statistics
 #[derive(Debug, Clone)]
@@ -99,8 +99,8 @@ pub struct GenInput {
 
 /// Execute project generation with input (pure domain function)
 pub async fn execute_gen(input: GenInput) -> Result<GenerationResult> {
-    use ggen_core::{TemplateResolver, CacheManager, LockfileManager};
-    use ggen_core::{Generator, GenContext, Pipeline};
+    use ggen_core::{CacheManager, LockfileManager, TemplateResolver};
+    use ggen_core::{GenContext, Generator, Pipeline};
     use std::collections::BTreeMap;
 
     // Step 1: Validate input
@@ -111,13 +111,15 @@ pub async fn execute_gen(input: GenInput) -> Result<GenerationResult> {
 
     // Step 3: Resolve template using ggen-core
     // Create managers with defaults
-    let cache_manager = CacheManager::new()
-        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to create cache manager: {}", e)))?;
+    let cache_manager = CacheManager::new().map_err(|e| {
+        ggen_utils::error::Error::new(&format!("Failed to create cache manager: {}", e))
+    })?;
     let lockfile_manager = LockfileManager::new(&input.output_dir);
 
     let resolver = TemplateResolver::new(cache_manager, lockfile_manager);
-    let template_source = resolver.resolve(&input.template_ref)
-        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to resolve template: {}", e)))?;
+    let template_source = resolver.resolve(&input.template_ref).map_err(|e| {
+        ggen_utils::error::Error::new(&format!("Failed to resolve template: {}", e))
+    })?;
 
     let template_path = template_source.template_path;
 
@@ -133,9 +135,10 @@ pub async fn execute_gen(input: GenInput) -> Result<GenerationResult> {
         .dry(input.dry_run);
 
     let mut generator = Generator::new(pipeline, ctx);
-    
-    let _output_path = generator.generate()
-        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to generate project: {}", e)))?;
+
+    let _output_path = generator.generate().map_err(|e| {
+        ggen_utils::error::Error::new(&format!("Failed to generate project: {}", e))
+    })?;
 
     // Step 5: Collect operations from generated files
     let mut operations = Vec::new();
@@ -143,13 +146,15 @@ pub async fn execute_gen(input: GenInput) -> Result<GenerationResult> {
         // Scan output directory for generated files
         let files = collect_generated_files(&input.output_dir)?;
         for file_path in files {
-            let content = std::fs::read_to_string(&file_path)
-                .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to read generated file: {}", e)))?;
-            
-            let relative_path = file_path.strip_prefix(&input.output_dir)
+            let content = std::fs::read_to_string(&file_path).map_err(|e| {
+                ggen_utils::error::Error::new(&format!("Failed to read generated file: {}", e))
+            })?;
+
+            let relative_path = file_path
+                .strip_prefix(&input.output_dir)
                 .map(|p| p.to_string_lossy().to_string())
                 .unwrap_or_else(|_| file_path.to_string_lossy().to_string());
-            
+
             operations.push(Operation::Create {
                 path: relative_path,
                 content,
@@ -166,9 +171,9 @@ pub async fn execute_gen(input: GenInput) -> Result<GenerationResult> {
 /// Collect all generated files from output directory
 fn collect_generated_files(output_dir: &std::path::Path) -> Result<Vec<PathBuf>> {
     use std::fs;
-    
+
     let mut files = Vec::new();
-    
+
     if !output_dir.exists() {
         return Ok(files);
     }
@@ -177,7 +182,7 @@ fn collect_generated_files(output_dir: &std::path::Path) -> Result<Vec<PathBuf>>
         for entry in fs::read_dir(dir)? {
             let entry = entry?;
             let path = entry.path();
-            
+
             if path.is_dir() {
                 collect_recursive(&path, files)?;
             } else if path.is_file() {

@@ -1,8 +1,8 @@
 //! Clap noun-verb convention preset
 
 use anyhow::Result;
-use std::path::Path;
 use std::fs;
+use std::path::Path;
 
 use super::ConventionPreset;
 
@@ -28,10 +28,7 @@ impl ConventionPreset for ClapNounVerbPreset {
         }
 
         // Write convention config
-        fs::write(
-            root.join(".ggen/convention.toml"),
-            self.config_content()
-        )?;
+        fs::write(root.join(".ggen/convention.toml"), self.config_content())?;
 
         // Write RDF files
         for (path, content) in self.rdf_files() {
@@ -47,20 +44,21 @@ impl ConventionPreset for ClapNounVerbPreset {
     }
 
     fn rdf_files(&self) -> Vec<(&str, &str)> {
-        vec![
-            ("example_command.rdf", include_str!("../../templates/rdf/example_command.rdf")),
-        ]
+        vec![(
+            "example_command.rdf",
+            include_str!("../../templates/rdf/example_command.rdf"),
+        )]
     }
 
     fn templates(&self) -> Vec<(&str, &str)> {
         vec![
             (
                 "clap-noun-verb/command.rs.hbs",
-                include_str!("../../templates/clap-noun-verb/command.rs.hbs")
+                include_str!("../../templates/clap-noun-verb/command.rs.hbs"),
             ),
             (
                 "clap-noun-verb/domain.rs.hbs",
-                include_str!("../../templates/clap-noun-verb/domain.rs.hbs")
+                include_str!("../../templates/clap-noun-verb/domain.rs.hbs"),
             ),
         ]
     }

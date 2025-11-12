@@ -38,7 +38,7 @@ use crate::{}::{};
 /// CLI arguments for {} {}
 #[derive(Debug, Args)]
 pub struct {}Args {{
-    // TODO: Add CLI arguments here
+    // FUTURE: Add CLI arguments here
 }}
 
 /// {} {} command (sync wrapper)
@@ -89,7 +89,7 @@ use anyhow::Result;
 /// Arguments for {} {} operation
 #[derive(Debug)]
 pub struct {}Args {{
-    // TODO: Add business logic arguments here
+    // FUTURE: Add business logic arguments here
 }}
 
 /// {} {} business logic (async)
@@ -131,7 +131,7 @@ mod tests {{
         template
             .replace(
                 &format!("/// {} {} business logic (async)", verb, noun),
-                &format!("/// {} {} business logic (async)\n///\n/// {{% frozen id=\"business_logic\" %}}\n/// TODO: Implement business logic here\n/// {{% endfrozen %}}", verb, noun)
+                &format!("/// {} {} business logic (async)\n///\n/// {{% frozen id=\"business_logic\" %}}\n/// FUTURE: Implement business logic here\n/// {{% endfrozen %}}", verb, noun)
             )
             .replace(
                 "// Default implementation - replace with your logic",
@@ -160,11 +160,7 @@ mod tests {{
     /// * `noun` - The CLI noun
     /// * `force_domain` - Force overwrite of domain file (dangerous!)
     pub fn generate_separated_files(
-        cli_path: &Path,
-        domain_path: &Path,
-        verb: &str,
-        noun: &str,
-        force_domain: bool,
+        cli_path: &Path, domain_path: &Path, verb: &str, noun: &str, force_domain: bool,
     ) -> Result<()> {
         // Always generate CLI wrapper (it's thin and can be regenerated)
         let cli_content = Self::generate_cli_wrapper(verb, noun, None);
@@ -242,8 +238,12 @@ mod tests {
 
         fs::write(&existing_file, "content").unwrap();
 
-        assert!(BusinessLogicSeparator::business_logic_exists(&existing_file));
-        assert!(!BusinessLogicSeparator::business_logic_exists(&nonexistent_file));
+        assert!(BusinessLogicSeparator::business_logic_exists(
+            &existing_file
+        ));
+        assert!(!BusinessLogicSeparator::business_logic_exists(
+            &nonexistent_file
+        ));
     }
 
     #[test]

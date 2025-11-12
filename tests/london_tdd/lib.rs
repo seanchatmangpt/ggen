@@ -37,11 +37,7 @@ pub trait HttpClient: Send + Sync {
 #[automock]
 pub trait LlmClient: Send + Sync {
     fn generate(&self, prompt: &str, model: &str) -> Result<String, anyhow::Error>;
-    fn stream_generate(
-        &self,
-        prompt: &str,
-        model: &str,
-    ) -> Result<Vec<String>, anyhow::Error>;
+    fn stream_generate(&self, prompt: &str, model: &str) -> Result<Vec<String>, anyhow::Error>;
 }
 
 /// Mock marketplace/registry client

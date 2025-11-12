@@ -60,7 +60,12 @@ mod error_handling {
     async fn test_invalid_utf8_sequence() {
         // Test with characters that might cause UTF-8 issues
         let tricky_string = "Hello\u{FEFF}\u{200B}World"; // Zero-width chars
-        let result = run_for_node(vec!["market".to_string(), "search".to_string(), tricky_string.to_string()]).await;
+        let result = run_for_node(vec![
+            "market".to_string(),
+            "search".to_string(),
+            tricky_string.to_string(),
+        ])
+        .await;
 
         match result {
             Ok(res) => {
@@ -157,12 +162,12 @@ mod error_handling {
     #[tokio::test]
     async fn test_unicode_edge_cases() {
         let test_cases = vec![
-            "🚀",                          // Emoji
-            "你好世界",                    // Chinese
-            "Привет",                      // Russian
-            "مرحبا",                       // Arabic (RTL)
-            "\u{1F600}\u{1F601}",         // Multiple emojis
-            "A\u{0301}",                   // Combining character
+            "🚀",                 // Emoji
+            "你好世界",           // Chinese
+            "Привет",             // Russian
+            "مرحبا",              // Arabic (RTL)
+            "\u{1F600}\u{1F601}", // Multiple emojis
+            "A\u{0301}",          // Combining character
         ];
 
         for test_case in test_cases {
@@ -188,11 +193,11 @@ mod error_handling {
     #[tokio::test]
     async fn test_whitespace_edge_cases() {
         let test_cases = vec![
-            "   ",           // Only spaces
-            "\t\t\t",        // Only tabs
-            "\n\n",          // Only newlines
-            "\r\n",          // Windows newlines
-            " \t\n\r ",      // Mixed whitespace
+            "   ",      // Only spaces
+            "\t\t\t",   // Only tabs
+            "\n\n",     // Only newlines
+            "\r\n",     // Windows newlines
+            " \t\n\r ", // Mixed whitespace
         ];
 
         for test_case in test_cases {

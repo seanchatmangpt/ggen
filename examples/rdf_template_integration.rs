@@ -62,17 +62,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let template = Template::parse(template_source)?;
     println!("   ✓ Template parsed successfully");
     println!("   - Output file: {:?}", template.frontmatter.to);
-    println!("   - Variables: {:?}", template.frontmatter.vars.keys().collect::<Vec<_>>());
+    println!(
+        "   - Variables: {:?}",
+        template.frontmatter.vars.keys().collect::<Vec<_>>()
+    );
     println!();
 
     // 3. Extract metadata from frontmatter
     println!("3. Extracting RDF metadata from frontmatter...");
     let template_id = "http://ggen.dev/templates/rust-axum-service".to_string();
 
-    let mut metadata = TemplateMetadata::new(
-        template_id.clone(),
-        "Rust Axum Service".to_string(),
-    );
+    let mut metadata = TemplateMetadata::new(template_id.clone(), "Rust Axum Service".to_string());
 
     // Extract from template frontmatter vars
     if let Some(service_name) = template.frontmatter.vars.get("service_name") {
@@ -138,10 +138,22 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let results = store.query(&query)?;
     println!("   Found {} template variables:", results.len());
     for row in &results {
-        let name = row.get("varName").map(|s| s.trim_matches('"')).unwrap_or("?");
-        let var_type = row.get("varType").map(|s| s.trim_matches('"')).unwrap_or("?");
-        let required = row.get("required").map(|s| s.trim_matches('"')).unwrap_or("false");
-        let default = row.get("default").map(|s| s.trim_matches('"')).unwrap_or("N/A");
+        let name = row
+            .get("varName")
+            .map(|s| s.trim_matches('"'))
+            .unwrap_or("?");
+        let var_type = row
+            .get("varType")
+            .map(|s| s.trim_matches('"'))
+            .unwrap_or("?");
+        let required = row
+            .get("required")
+            .map(|s| s.trim_matches('"'))
+            .unwrap_or("false");
+        let default = row
+            .get("default")
+            .map(|s| s.trim_matches('"'))
+            .unwrap_or("N/A");
         println!(
             "     - {}: {} (required: {}, default: {})",
             name, var_type, required, default
@@ -176,9 +188,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let results = store.query(discovery_query)?;
     println!("   Discovered {} template(s):", results.len());
     for row in &results {
-        let name = row.get("name").map(|s| s.trim_matches('"')).unwrap_or("Unknown");
-        let category = row.get("category").map(|s| s.trim_matches('"')).unwrap_or("N/A");
-        let desc = row.get("description").map(|s| s.trim_matches('"')).unwrap_or("No description");
+        let name = row
+            .get("name")
+            .map(|s| s.trim_matches('"'))
+            .unwrap_or("Unknown");
+        let category = row
+            .get("category")
+            .map(|s| s.trim_matches('"'))
+            .unwrap_or("N/A");
+        let desc = row
+            .get("description")
+            .map(|s| s.trim_matches('"'))
+            .unwrap_or("No description");
         println!("     - {}", name);
         println!("       Category: {}", category);
         println!("       Description: {}", desc);

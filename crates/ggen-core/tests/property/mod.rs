@@ -5,5 +5,5 @@
 
 pub mod package_properties;
 pub mod search_properties;
-pub mod version_properties;
 pub mod serialization_properties;
+pub mod version_properties;

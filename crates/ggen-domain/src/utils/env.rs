@@ -4,8 +4,8 @@
 
 // NOTE: clap::Parser removed - domain layer must be CLI-agnostic
 use ggen_utils::error::Result;
-use std::path::PathBuf;
 use std::collections::HashMap;
+use std::path::PathBuf;
 
 // Domain types
 #[derive(Debug, Clone)]
@@ -129,47 +129,47 @@ pub fn run_env_old(args: &EnvInput) -> Result<()> {
     if args.list {
         let vars = manager.list_vars();
         if vars.is_empty() {
-            println!("No GGEN environment variables found");
+            ggen_utils::alert_info!("No GGEN environment variables found");
         } else {
-            println!("GGEN Environment Variables:");
+            ggen_utils::alert_info!("GGEN Environment Variables:");
             for (key, value) in vars {
-                println!("  {}={}", key, value);
+                ggen_utils::alert_info!("  {}={}", key, value);
             }
         }
     }
 
     if args.show_dirs {
         let env = manager.get_environment()?;
-        println!("GGEN Directories:");
-        println!("  Home: {}", env.home_dir.display());
-        println!("  Templates: {}", env.templates_dir.display());
-        println!("  Cache: {}", env.cache_dir.display());
-        println!("  Config: {}", env.config_dir.display());
+        ggen_utils::alert_info!("GGEN Directories:");
+        ggen_utils::alert_info!("  Home: {}", env.home_dir.display());
+        ggen_utils::alert_info!("  Templates: {}", env.templates_dir.display());
+        ggen_utils::alert_info!("  Cache: {}", env.cache_dir.display());
+        ggen_utils::alert_info!("  Config: {}", env.config_dir.display());
     }
 
     if args.ensure_dirs {
         manager.ensure_directories()?;
-        println!("✓ All directories created");
+        ggen_utils::alert_success!("All directories created");
     }
 
     if args.clear_cache {
         let count = manager.clear_cache()?;
-        println!("✓ Cleared {} cache files", count);
+        ggen_utils::alert_success!("Cleared {} cache files", count);
     }
 
     if let Some(key) = &args.get {
         match manager.get_var(key) {
-            Some(value) => println!("{}={}", key, value),
-            None => println!("Variable '{}' not found", key),
+            Some(value) => ggen_utils::alert_info!("{}={}", key, value),
+            None => ggen_utils::alert_info!("Variable '{}' not found", key),
         }
     }
 
     for set_arg in &args.set {
         if let Some((key, value)) = set_arg.split_once('=') {
             manager.set_var(key, value)?;
-            println!("✓ Set {}={}", key, value);
+            ggen_utils::alert_success!("Set {}={}", key, value);
         } else {
-            eprintln!("Invalid format: {}. Use KEY=VALUE", set_arg);
+            ggen_utils::alert_warning!("Invalid format: {}. Use KEY=VALUE", set_arg);
         }
     }
 
@@ -177,11 +177,11 @@ pub fn run_env_old(args: &EnvInput) -> Result<()> {
     if !args.list && !args.show_dirs && !args.ensure_dirs && !args.clear_cache
         && args.get.is_none() && args.set.is_empty() {
         let env = manager.get_environment()?;
-        println!("GGEN Environment:");
-        println!("  Home: {}", env.home_dir.display());
-        println!("  Templates: {}", env.templates_dir.display());
-        println!("  Cache: {}", env.cache_dir.display());
-        println!("  Config: {}", env.config_dir.display());
+        ggen_utils::alert_info!("GGEN Environment:");
+        ggen_utils::alert_info!("  Home: {}", env.home_dir.display());
+        ggen_utils::alert_info!("  Templates: {}", env.templates_dir.display());
+        ggen_utils::alert_info!("  Cache: {}", env.cache_dir.display());
+        ggen_utils::alert_info!("  Config: {}", env.config_dir.display());
     }
 
     Ok(())

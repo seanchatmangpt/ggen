@@ -3,7 +3,7 @@
 //! This module provides core business logic for generating individual files
 //! from templates using the ggen-core TemplateEngine.
 
-use ggen_core::{Generator, GenContext, Pipeline};
+use ggen_core::{GenContext, Generator, Pipeline};
 use ggen_utils::error::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -139,13 +139,11 @@ mod tests {
 
     #[test]
     fn test_generate_file_options_builder() {
-        let options = GenerateFileOptions::new(
-            PathBuf::from("template.tmpl"),
-            PathBuf::from("output.txt"),
-        )
-        .with_var("name", "test")
-        .with_var("version", "1.0")
-        .force();
+        let options =
+            GenerateFileOptions::new(PathBuf::from("template.tmpl"), PathBuf::from("output.txt"))
+                .with_var("name", "test")
+                .with_var("version", "1.0")
+                .force();
 
         assert_eq!(options.variables.len(), 2);
         assert_eq!(options.variables.get("name"), Some(&"test".to_string()));
@@ -158,11 +156,8 @@ mod tests {
         vars.insert("key1".to_string(), "value1".to_string());
         vars.insert("key2".to_string(), "value2".to_string());
 
-        let options = GenerateFileOptions::new(
-            PathBuf::from("tmpl"),
-            PathBuf::from("out"),
-        )
-        .with_vars(vars);
+        let options =
+            GenerateFileOptions::new(PathBuf::from("tmpl"), PathBuf::from("out")).with_vars(vars);
 
         assert_eq!(options.variables.len(), 2);
     }

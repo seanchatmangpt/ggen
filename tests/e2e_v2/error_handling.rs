@@ -20,9 +20,7 @@ fn test_template_not_found_error() {
         .current_dir(workspace.path())
         .assert()
         .failure()
-        .stderr(predicate::str::contains("not found").or(
-            predicate::str::contains("No such file")
-        ));
+        .stderr(predicate::str::contains("not found").or(predicate::str::contains("No such file")));
 
     println!("✅ Template not found error: PASSED");
 }
@@ -45,11 +43,10 @@ fn test_invalid_rdf_syntax_error() {
         .current_dir(workspace.path())
         .assert()
         .failure()
-        .stderr(predicate::str::contains("parse").or(
-            predicate::str::contains("invalid").or(
-                predicate::str::contains("error")
-            )
-        ));
+        .stderr(
+            predicate::str::contains("parse")
+                .or(predicate::str::contains("invalid").or(predicate::str::contains("error"))),
+        );
 
     println!("✅ Invalid RDF syntax error: PASSED");
 }
@@ -94,9 +91,7 @@ fn test_invalid_project_name_error() {
         .current_dir(workspace.path())
         .assert()
         .failure()
-        .stderr(predicate::str::contains("invalid").or(
-            predicate::str::contains("name")
-        ));
+        .stderr(predicate::str::contains("invalid").or(predicate::str::contains("name")));
 
     println!("✅ Invalid project name error: PASSED");
 }
@@ -124,9 +119,9 @@ fn test_project_already_exists_error() {
         .current_dir(workspace.path())
         .assert()
         .failure()
-        .stderr(predicate::str::contains("already exists").or(
-            predicate::str::contains("destination")
-        ));
+        .stderr(
+            predicate::str::contains("already exists").or(predicate::str::contains("destination")),
+        );
 
     println!("✅ Project already exists error: PASSED");
 }
@@ -141,16 +136,18 @@ fn test_graceful_network_failure() {
         .arg("marketplace")
         .arg("search")
         .arg("rust")
-        .env("GGEN_REGISTRY_URL", "https://invalid.nonexistent.domain.xyz/")
+        .env(
+            "GGEN_REGISTRY_URL",
+            "https://invalid.nonexistent.domain.xyz/",
+        )
         .current_dir(workspace.path())
         .timeout(std::time::Duration::from_secs(10))
         .assert()
         .failure()
-        .stderr(predicate::str::contains("network").or(
-            predicate::str::contains("connect").or(
-                predicate::str::contains("failed")
-            )
-        ));
+        .stderr(
+            predicate::str::contains("network")
+                .or(predicate::str::contains("connect").or(predicate::str::contains("failed"))),
+        );
 
     println!("✅ Network failure handling: PASSED");
 }

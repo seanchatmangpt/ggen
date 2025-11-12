@@ -39,8 +39,8 @@ The ggen **Hooks System** enables **automated workflows** triggered by specific 
 cat > format-code.sh << 'EOF'
 #!/bin/bash
 echo "Auto-formatting generated code..."
-cargo fmt
-cargo clippy --fix --allow-dirty
+cargo make fmt
+cargo make lint
 echo "Formatting complete!"
 EOF
 
@@ -115,10 +115,10 @@ ggen hook create \
 echo "Running post-generation tasks..."
 
 # Format code
-cargo fmt
+cargo make fmt
 
 # Run clippy
-cargo clippy --fix --allow-dirty --allow-staged
+cargo make lint
 
 # Generate docs
 cargo doc --no-deps
@@ -166,15 +166,15 @@ ggen graph load domain.ttl
 
 # 2. Run tests
 echo "Running tests..."
-cargo test
+cargo make test
 
 # 3. Check formatting
 echo "Checking formatting..."
-cargo fmt -- --check
+cargo make fmt
 
 # 4. Run clippy
 echo "Running clippy..."
-cargo clippy -- -D warnings
+cargo make lint
 
 # 5. Build
 echo "Building project..."
@@ -569,10 +569,10 @@ cat > format-and-lint.sh << 'EOF'
 set -e
 
 echo "Formatting code..."
-cargo fmt
+cargo make fmt
 
 echo "Running clippy..."
-cargo clippy --fix --allow-dirty --allow-staged
+cargo make lint
 
 echo "Checking for security issues..."
 cargo audit
@@ -661,19 +661,19 @@ if [ -f domain.ttl ]; then
 fi
 
 # 2. Check formatting
-cargo fmt -- --check || {
-  echo "Code not formatted! Run: cargo fmt"
+cargo make fmt || {
+  echo "Code not formatted! Run: cargo make fmt"
   exit 1
 }
 
 # 3. Run clippy
-cargo clippy -- -D warnings || {
+cargo make lint || {
   echo "Clippy warnings detected!"
   exit 1
 }
 
 # 4. Run tests
-cargo test || {
+cargo make test || {
   echo "Tests failed!"
   exit 1
 }
@@ -857,8 +857,8 @@ LOG_FILE="hook-$(date +%Y%m%d).log"
 
 {
   echo "=== Hook Started: $(date) ==="
-  cargo fmt
-  cargo clippy
+  cargo make fmt
+  cargo make lint
   echo "=== Hook Completed: $(date) ==="
 } 2>&1 | tee -a "$LOG_FILE"
 ```
@@ -906,12 +906,12 @@ ggen project gen . --graph "$GRAPH_FILE" $([ "$FORCE" = "true" ] && echo "--forc
 
 # Only run in CI environment
 if [ -n "$CI" ]; then
-  cargo test --release
+  cargo make test
 fi
 
 # Only format Rust files
 if git diff --name-only | grep -q "\.rs$"; then
-  cargo fmt
+  cargo make fmt
 fi
 
 # Only regenerate if ontology changed

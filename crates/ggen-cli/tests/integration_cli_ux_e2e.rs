@@ -101,25 +101,17 @@ fn test_cli_missing_required_arg() {
 #[test]
 fn test_doctor_basic_check() {
     // Chicago TDD: Verify doctor command runs system checks
-    ggen()
-        .arg("doctor")
-        .assert()
-        .success()
-        .stdout(
-            predicate::str::contains("Checking")
-                .or(predicate::str::contains("System"))
-                .or(predicate::str::contains("Prerequisites")),
-        );
+    ggen().arg("doctor").assert().success().stdout(
+        predicate::str::contains("Checking")
+            .or(predicate::str::contains("System"))
+            .or(predicate::str::contains("Prerequisites")),
+    );
 }
 
 #[test]
 fn test_doctor_verbose_output() {
     // Chicago TDD: Verify verbose mode provides detailed state
-    ggen()
-        .arg("doctor")
-        .arg("--verbose")
-        .assert()
-        .success();
+    ggen().arg("doctor").arg("--verbose").assert().success();
 }
 
 #[test]
@@ -158,7 +150,15 @@ fn test_help_progressive_topic() {
 fn test_all_nouns_have_help() {
     // Chicago TDD: Verify every noun command has help
     let nouns = vec![
-        "template", "market", "project", "graph", "ai", "hook", "lifecycle", "audit", "ci",
+        "template",
+        "market",
+        "project",
+        "graph",
+        "ai",
+        "hook",
+        "lifecycle",
+        "audit",
+        "ci",
         "shell",
     ];
 
@@ -211,15 +211,11 @@ fn test_cli_no_args_shows_help() {
 #[test]
 fn test_cli_subcommand_no_verb() {
     // Chicago TDD: Verify noun without verb shows help
-    ggen()
-        .arg("template")
-        .assert()
-        .failure()
-        .stderr(
-            predicate::str::contains("required")
-                .or(predicate::str::contains("subcommand"))
-                .or(predicate::str::contains("error")),
-        );
+    ggen().arg("template").assert().failure().stderr(
+        predicate::str::contains("required")
+            .or(predicate::str::contains("subcommand"))
+            .or(predicate::str::contains("error")),
+    );
 }
 
 #[test]

@@ -17,10 +17,10 @@ pub struct ListInput {
 
 /// Execute list hooks with input (pure domain function)
 pub async fn execute_list(input: ListInput) -> Result<Vec<HookInfo>> {
-    use std::fs;
-    use std::path::PathBuf;
     use dirs::home_dir;
     use glob::glob;
+    use std::fs;
+    use std::path::PathBuf;
 
     let hooks_dir = home_dir()
         .ok_or_else(|| ggen_utils::error::Error::new("Home directory not found"))?
@@ -37,13 +37,18 @@ pub async fn execute_list(input: ListInput) -> Result<Vec<HookInfo>> {
     for entry in glob(&pattern)
         .map_err(|e| ggen_utils::error::Error::new(&format!("Invalid glob pattern: {}", e)))?
     {
-        let entry = entry
-            .map_err(|e| ggen_utils::error::Error::new(&format!("Error reading directory: {}", e)))?;
+        let entry = entry.map_err(|e| {
+            ggen_utils::error::Error::new(&format!("Error reading directory: {}", e))
+        })?;
 
         if let Ok(content) = fs::read_to_string(&entry) {
             if let Ok(hook_data) = serde_json::from_str::<serde_json::Value>(&content) {
-                let trigger = hook_data.get("trigger").and_then(|v| v.as_str()).unwrap_or("").to_string();
-                
+                let trigger = hook_data
+                    .get("trigger")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("")
+                    .to_string();
+
                 // Apply filter if specified
                 if let Some(ref filter) = input.filter {
                     if !trigger.contains(filter) {
@@ -52,10 +57,22 @@ pub async fn execute_list(input: ListInput) -> Result<Vec<HookInfo>> {
                 }
 
                 hooks.push(HookInfo {
-                    id: hook_data.get("id").and_then(|v| v.as_str()).unwrap_or("").to_string(),
+                    id: hook_data
+                        .get("id")
+                        .and_then(|v| v.as_str())
+                        .unwrap_or("")
+                        .to_string(),
                     trigger,
-                    action: hook_data.get("action").and_then(|v| v.as_str()).unwrap_or("").to_string(),
-                    created_at: hook_data.get("created_at").and_then(|v| v.as_str()).unwrap_or("").to_string(),
+                    action: hook_data
+                        .get("action")
+                        .and_then(|v| v.as_str())
+                        .unwrap_or("")
+                        .to_string(),
+                    created_at: hook_data
+                        .get("created_at")
+                        .and_then(|v| v.as_str())
+                        .unwrap_or("")
+                        .to_string(),
                 });
             }
         }

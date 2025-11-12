@@ -1,3 +1,4 @@
+use chicago_tdd_tools::test;
 use ggen_utils::app_config::*;
 use std::sync::Once;
 
@@ -11,41 +12,39 @@ pub fn initialize() {
     });
 }
 
-#[test]
-fn fetch_config() {
+test!(fetch_config, {
+    // Arrange
     initialize();
 
-    // Fetch an instance of Config
+    // Act
     let config = AppConfig::fetch().unwrap();
 
-    // Check the values
+    // Assert
     assert_eq!(config.debug, false);
-    //dbg!(&config.database.url);
     assert_eq!(config.database.url, "custom database url");
-}
+});
 
-#[test]
-fn verify_get() {
+test!(verify_get, {
+    // Arrange
     initialize();
 
-    // Check value with get
-    assert_eq!(AppConfig::get::<bool>("debug").unwrap(), false);
-    assert_eq!(
-        AppConfig::get::<String>("database.url").unwrap(),
-        "custom database url"
-    );
-}
+    // Act
+    let debug_value = AppConfig::get::<bool>("debug").unwrap();
+    let db_url = AppConfig::get::<String>("database.url").unwrap();
 
-#[test]
-fn verify_set() {
+    // Assert
+    assert_eq!(debug_value, false);
+    assert_eq!(db_url, "custom database url");
+});
+
+test!(verify_set, {
+    // Arrange
     initialize();
 
-    // Set a field
+    // Act
     AppConfig::set("database.variable", "new value").unwrap();
-
-    // Fetch a new instance of Config
     let config = AppConfig::fetch().unwrap();
 
-    // Check value was modified
+    // Assert
     assert_eq!(config.database.variable, "new value");
-}
+});

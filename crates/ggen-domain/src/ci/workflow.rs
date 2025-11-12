@@ -119,7 +119,12 @@ pub struct GhWorkflowManager;
 impl WorkflowManager for GhWorkflowManager {
     fn list(&self, active_only: bool) -> Result<WorkflowListResult> {
         let mut cmd = std::process::Command::new("gh");
-        cmd.args(["run", "list", "--json", "databaseId,name,status,conclusion,createdAt,updatedAt,url"]);
+        cmd.args([
+            "run",
+            "list",
+            "--json",
+            "databaseId,name,status,conclusion,createdAt,updatedAt,url",
+        ]);
 
         if active_only {
             cmd.args(["--status", "in_progress,queued"]);
@@ -188,7 +193,10 @@ impl WorkflowStatusChecker for GhWorkflowStatusChecker {
             cmd.arg(id);
         }
 
-        cmd.args(["--json", "databaseId,name,status,conclusion,createdAt,updatedAt,url,jobs"]);
+        cmd.args([
+            "--json",
+            "databaseId,name,status,conclusion,createdAt,updatedAt,url,jobs",
+        ]);
 
         let output = cmd.output()?;
 

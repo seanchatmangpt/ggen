@@ -93,9 +93,7 @@ pub async fn execute_doctor(input: DoctorInput) -> Result<DoctorResult> {
 async fn check_rust() -> Result<CheckResult> {
     use std::process::Command;
 
-    let output = Command::new("rustc")
-        .arg("--version")
-        .output();
+    let output = Command::new("rustc").arg("--version").output();
 
     match output {
         Ok(output) if output.status.success() => {
@@ -110,7 +108,7 @@ async fn check_rust() -> Result<CheckResult> {
             name: "Rust".to_string(),
             status: CheckStatus::Error,
             message: "Not installed. Install from https://rustup.rs".to_string(),
-        })
+        }),
     }
 }
 
@@ -118,9 +116,7 @@ async fn check_rust() -> Result<CheckResult> {
 async fn check_cargo() -> Result<CheckResult> {
     use std::process::Command;
 
-    let output = Command::new("cargo")
-        .arg("--version")
-        .output();
+    let output = Command::new("cargo").arg("--version").output();
 
     match output {
         Ok(output) if output.status.success() => {
@@ -135,7 +131,7 @@ async fn check_cargo() -> Result<CheckResult> {
             name: "Cargo".to_string(),
             status: CheckStatus::Error,
             message: "Not installed. Install Rust from https://rustup.rs".to_string(),
-        })
+        }),
     }
 }
 
@@ -143,9 +139,7 @@ async fn check_cargo() -> Result<CheckResult> {
 async fn check_git() -> Result<CheckResult> {
     use std::process::Command;
 
-    let output = Command::new("git")
-        .arg("--version")
-        .output();
+    let output = Command::new("git").arg("--version").output();
 
     match output {
         Ok(output) if output.status.success() => {
@@ -160,7 +154,7 @@ async fn check_git() -> Result<CheckResult> {
             name: "Git".to_string(),
             status: CheckStatus::Warning,
             message: "Not installed. Optional but recommended".to_string(),
-        })
+        }),
     }
 }
 
@@ -172,19 +166,31 @@ async fn collect_environment() -> Result<EnvironmentInfo> {
         .arg("--version")
         .output()
         .ok()
-        .and_then(|o| o.status.success().then(|| String::from_utf8_lossy(&o.stdout).trim().to_string()));
+        .and_then(|o| {
+            o.status
+                .success()
+                .then(|| String::from_utf8_lossy(&o.stdout).trim().to_string())
+        });
 
     let cargo_version = Command::new("cargo")
         .arg("--version")
         .output()
         .ok()
-        .and_then(|o| o.status.success().then(|| String::from_utf8_lossy(&o.stdout).trim().to_string()));
+        .and_then(|o| {
+            o.status
+                .success()
+                .then(|| String::from_utf8_lossy(&o.stdout).trim().to_string())
+        });
 
     let git_version = Command::new("git")
         .arg("--version")
         .output()
         .ok()
-        .and_then(|o| o.status.success().then(|| String::from_utf8_lossy(&o.stdout).trim().to_string()));
+        .and_then(|o| {
+            o.status
+                .success()
+                .then(|| String::from_utf8_lossy(&o.stdout).trim().to_string())
+        });
 
     Ok(EnvironmentInfo {
         rust_version,

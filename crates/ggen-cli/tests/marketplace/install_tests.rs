@@ -163,7 +163,9 @@ async fn test_install_package_with_version() -> Result<()> {
 
     // TODO: Install with specific version
     // Verify correct version installed
-    let pkg_json_path = env.package_install_path("versioned-pkg").join("package.json");
+    let pkg_json_path = env
+        .package_install_path("versioned-pkg")
+        .join("package.json");
     let content = fs::read_to_string(pkg_json_path)?;
     let metadata: serde_json::Value = serde_json::from_str(&content)?;
 
@@ -508,7 +510,9 @@ async fn test_install_force_overwrite() -> Result<()> {
     // TODO: install with force=true
 
     // Verify new version installed and custom file removed
-    let pkg_json = env.package_install_path("overwrite-pkg").join("package.json");
+    let pkg_json = env
+        .package_install_path("overwrite-pkg")
+        .join("package.json");
     let content = fs::read_to_string(pkg_json)?;
     let metadata: serde_json::Value = serde_json::from_str(&content)?;
     assert_eq!(metadata["version"], "2.0.0");
@@ -606,7 +610,10 @@ async fn test_install_updates_lockfile_incrementally() -> Result<()> {
     // TODO: install
 
     let lockfile_content = fs::read_to_string(env.lockfile_path())?;
-    assert!(lockfile_content.contains("pkg-one"), "First package preserved");
+    assert!(
+        lockfile_content.contains("pkg-one"),
+        "First package preserved"
+    );
     assert!(lockfile_content.contains("pkg-two"), "Second package added");
 
     Ok(())
@@ -629,7 +636,10 @@ async fn test_install_large_package() -> Result<()> {
     // Create 10 x 1MB files
     let large_content = vec![0u8; 1024 * 1024]; // 1MB
     for i in 0..10 {
-        fs::write(pkg_dir.join(format!("large-file-{}.bin", i)), &large_content)?;
+        fs::write(
+            pkg_dir.join(format!("large-file-{}.bin", i)),
+            &large_content,
+        )?;
     }
 
     let _ = pkg.build()?;
@@ -802,7 +812,11 @@ async fn test_install_maintains_file_permissions() -> Result<()> {
         use std::os::unix::fs::PermissionsExt;
         let installed_script = env.package_install_path("exec-pkg").join("script.sh");
         let perms = fs::metadata(installed_script)?.permissions();
-        assert_eq!(perms.mode() & 0o777, 0o755, "Permissions should be preserved");
+        assert_eq!(
+            perms.mode() & 0o777,
+            0o755,
+            "Permissions should be preserved"
+        );
     }
 
     Ok(())

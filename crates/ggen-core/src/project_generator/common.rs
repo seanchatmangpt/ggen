@@ -22,7 +22,9 @@ pub fn validate_project_name(name: &str) -> Result<()> {
         .chars()
         .all(|c| c.is_alphanumeric() || c == '-' || c == '_')
     {
-        anyhow::bail!("Project name can only contain alphanumeric characters, dashes, and underscores");
+        anyhow::bail!(
+            "Project name can only contain alphanumeric characters, dashes, and underscores"
+        );
     }
 
     Ok(())
@@ -34,8 +36,8 @@ pub fn is_directory_empty(path: &Path) -> Result<bool> {
         return Ok(true);
     }
 
-    let entries = std::fs::read_dir(path)
-        .map_err(|e| anyhow::anyhow!("Failed to read directory: {}", e))?;
+    let entries =
+        std::fs::read_dir(path).map_err(|e| anyhow::anyhow!("Failed to read directory: {}", e))?;
 
     Ok(entries.count() == 0)
 }

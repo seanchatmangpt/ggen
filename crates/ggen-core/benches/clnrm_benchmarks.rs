@@ -9,12 +9,13 @@
 //! - Baseline metrics for production readiness
 
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
-use std::hint::black_box;
 use ggen_core::lifecycle::{
-    cache_key, load_state, run_phase, run_pipeline, save_state, Context, LifecycleState, Make, Phase, Project,
+    cache_key, load_state, run_phase, run_pipeline, save_state, Context, LifecycleState, Make,
+    Phase, Project,
 };
 use ggen_core::registry::{PackMetadata, RegistryIndex, VersionMetadata};
 use std::collections::{BTreeMap, HashMap};
+use std::hint::black_box;
 use std::sync::Arc;
 use tempfile::TempDir;
 
@@ -85,28 +86,27 @@ fn bench_marketplace_search_deterministic(c: &mut Criterion) {
     for size in [100, 1000, 10000].iter() {
         let index = create_mock_registry_deterministic(*size, 42);
 
-        group.bench_with_input(
-            BenchmarkId::new("simple_query", size),
-            size,
-            |b, _| {
-                b.iter(|| {
-                    let query = black_box("rust");
-                    let query_lower = query.to_lowercase();
+        group.bench_with_input(BenchmarkId::new("simple_query", size), size, |b, _| {
+            b.iter(|| {
+                let query = black_box("rust");
+                let query_lower = query.to_lowercase();
 
-                    let results: Vec<_> = index
-                        .packs
-                        .iter()
-                        .filter(|(_, pack)| {
-                            pack.name.to_lowercase().contains(&query_lower)
-                                || pack.description.to_lowercase().contains(&query_lower)
-                                || pack.tags.iter().any(|t| t.to_lowercase().contains(&query_lower))
-                        })
-                        .collect();
+                let results: Vec<_> = index
+                    .packs
+                    .iter()
+                    .filter(|(_, pack)| {
+                        pack.name.to_lowercase().contains(&query_lower)
+                            || pack.description.to_lowercase().contains(&query_lower)
+                            || pack
+                                .tags
+                                .iter()
+                                .any(|t| t.to_lowercase().contains(&query_lower))
+                    })
+                    .collect();
 
-                    black_box(results.len())
-                });
-            },
-        );
+                black_box(results.len())
+            });
+        });
 
         group.bench_with_input(
             BenchmarkId::new("complex_query_with_filters", size),
@@ -139,7 +139,10 @@ fn bench_marketplace_search_deterministic(c: &mut Criterion) {
                             // Query filter
                             pack.name.to_lowercase().contains(&query_lower)
                                 || pack.description.to_lowercase().contains(&query_lower)
-                                || pack.tags.iter().any(|t| t.to_lowercase().contains(&query_lower))
+                                || pack
+                                    .tags
+                                    .iter()
+                                    .any(|t| t.to_lowercase().contains(&query_lower))
                         })
                         .collect();
 
@@ -216,17 +219,13 @@ fn bench_marketplace_cache_operations(c: &mut Criterion) {
 
     group.bench_function("cache_index_serialization", |b| {
         let index = create_mock_registry_deterministic(1000, 42);
-        b.iter(|| {
-            black_box(serde_json::to_string(&index).unwrap())
-        });
+        b.iter(|| black_box(serde_json::to_string(&index).unwrap()));
     });
 
     group.bench_function("cache_index_deserialization", |b| {
         let index = create_mock_registry_deterministic(1000, 42);
         let json = serde_json::to_string(&index).unwrap();
-        b.iter(|| {
-            black_box(serde_json::from_str::<RegistryIndex>(&json).unwrap())
-        });
+        b.iter(|| black_box(serde_json::from_str::<RegistryIndex>(&json).unwrap()));
     });
 
     group.finish();
@@ -357,9 +356,7 @@ fn bench_lifecycle_cache_validation(c: &mut Criterion) {
                 let phase = format!("phase_{}", i);
                 let key = format!("key_{}", i);
                 black_box(ggen_core::lifecycle::cache::is_cache_valid(
-                    &cache_dir,
-                    &phase,
-                    &key,
+                    &cache_dir, &phase, &key,
                 ));
             }
         });
@@ -455,9 +452,7 @@ fn bench_stress_high_volume_cache(c: &mut Criterion) {
     let mut group = c.benchmark_group("stress_high_volume_cache");
     group.throughput(Throughput::Elements(10000));
 
-    let commands: Vec<String> = (0..10000)
-        .map(|i| format!("command_{}", i))
-        .collect();
+    let commands: Vec<String> = (0..10000).map(|i| format!("command_{}", i)).collect();
 
     group.bench_function("generate_10000_cache_keys", |b| {
         b.iter(|| {
@@ -479,17 +474,13 @@ fn bench_stress_large_registry_operations(c: &mut Criterion) {
     let index = create_mock_registry_deterministic(50000, 42);
 
     group.bench_function("serialize_50k_packages", |b| {
-        b.iter(|| {
-            black_box(serde_json::to_string(&index).unwrap())
-        });
+        b.iter(|| black_box(serde_json::to_string(&index).unwrap()));
     });
 
     let json = serde_json::to_string(&index).unwrap();
 
     group.bench_function("deserialize_50k_packages", |b| {
-        b.iter(|| {
-            black_box(serde_json::from_str::<RegistryIndex>(&json).unwrap())
-        });
+        b.iter(|| black_box(serde_json::from_str::<RegistryIndex>(&json).unwrap()));
     });
 
     group.bench_function("search_50k_packages", |b| {
@@ -502,7 +493,10 @@ fn bench_stress_large_registry_operations(c: &mut Criterion) {
                 .iter()
                 .filter(|(_, pack)| {
                     pack.name.to_lowercase().contains(&query_lower)
-                        || pack.tags.iter().any(|t| t.to_lowercase().contains(&query_lower))
+                        || pack
+                            .tags
+                            .iter()
+                            .any(|t| t.to_lowercase().contains(&query_lower))
                 })
                 .collect();
 
@@ -522,9 +516,7 @@ fn bench_baseline_operations(c: &mut Criterion) {
 
     // Baseline: Registry index creation
     group.bench_function("baseline_create_1000_packages", |b| {
-        b.iter(|| {
-            black_box(create_mock_registry_deterministic(1000, 42))
-        });
+        b.iter(|| black_box(create_mock_registry_deterministic(1000, 42)));
     });
 
     // Baseline: Simple search
@@ -545,9 +537,7 @@ fn bench_baseline_operations(c: &mut Criterion) {
     // Baseline: Cache key generation
     group.bench_function("baseline_cache_key_generation", |b| {
         let commands = vec!["cargo build".to_string(), "cargo test".to_string()];
-        b.iter(|| {
-            black_box(cache_key("build", &commands, &[], &[]))
-        });
+        b.iter(|| black_box(cache_key("build", &commands, &[], &[])));
     });
 
     // Baseline: Lifecycle phase execution
@@ -597,10 +587,7 @@ criterion_group!(
     bench_stress_large_registry_operations,
 );
 
-criterion_group!(
-    regression_benches,
-    bench_baseline_operations,
-);
+criterion_group!(regression_benches, bench_baseline_operations,);
 
 criterion_main!(
     marketplace_benches,

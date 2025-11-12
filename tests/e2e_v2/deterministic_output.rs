@@ -31,8 +31,7 @@ fn test_deterministic_code_generation() {
         let main_rs = output_dir.join("test-app/src/main.rs");
         assert!(main_rs.exists(), "Generated file should exist (run {})", i);
 
-        let content = fs::read_to_string(&main_rs)
-            .expect("Should be able to read generated file");
+        let content = fs::read_to_string(&main_rs).expect("Should be able to read generated file");
         generated_files.push(content);
     }
 
@@ -104,8 +103,10 @@ impl {{ struct_name }} {
     // All 5 renders must be identical
     for i in 1..5 {
         assert_eq!(
-            rendered_outputs[0], rendered_outputs[i],
-            "Render {} should match first render", i + 1
+            rendered_outputs[0],
+            rendered_outputs[i],
+            "Render {} should match first render",
+            i + 1
         );
     }
 

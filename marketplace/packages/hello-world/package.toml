@@ -41,7 +41,7 @@ author = { type = "string", default = "ggen-user", description = "Author name" }
 [examples]
 basic = """
 # Install the package
-ggen market add hello-world
+ggen market install hello-world
 
 # Create a new hello-world project
 ggen template generate hello-world --vars '{"project_name":"my-first-project"}'

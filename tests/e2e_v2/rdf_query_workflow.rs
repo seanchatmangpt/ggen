@@ -140,11 +140,10 @@ fn test_rdf_validation_workflow() {
         .current_dir(workspace_path)
         .assert()
         .failure()
-        .stderr(predicate::str::contains("parse").or(
-            predicate::str::contains("invalid").or(
-                predicate::str::contains("error")
-            )
-        ));
+        .stderr(
+            predicate::str::contains("parse")
+                .or(predicate::str::contains("invalid").or(predicate::str::contains("error"))),
+        );
 
     println!("✅ RDF validation workflow: PASSED");
 }

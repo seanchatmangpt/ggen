@@ -262,8 +262,7 @@ impl Validator {
             }
 
             // Validate variable type
-            if !["string", "number", "boolean", "array", "object"]
-                .contains(&var.var_type.as_str())
+            if !["string", "number", "boolean", "array", "object"].contains(&var.var_type.as_str())
             {
                 report.add_error(
                     format!("{}.variableType", var_path),

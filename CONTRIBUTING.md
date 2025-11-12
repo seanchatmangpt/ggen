@@ -5,36 +5,12 @@ Thank you for your interest in contributing to ggen! This guide will help you ge
 ## Quick Start for Contributors
 
 ```bash
-# 1. Fork and clone the repository
-git clone https://github.com/YOUR_USERNAME/ggen.git
-cd ggen
-
-# 2. Set up development environment
-cargo make quick  # Runs format + test
-
-# 3. Make your changes
-# ... edit files ...
-
-# 4. Test your changes
-cargo make dev    # Format, lint, and test
-
-# 5. Submit a pull request
-git add .
+git clone https://github.com/YOUR_USERNAME/ggen.git && cd ggen
+cargo make quick              # Format + test
+cargo make dev                # Format + lint + test
 git commit -m "Description of changes"
 git push origin your-branch-name
 ```
-
-## Table of Contents
-
-- [Code of Conduct](#code-of-conduct)
-- [Getting Started](#getting-started)
-- [Development Workflow](#development-workflow)
-- [Finding Good First Issues](#finding-good-first-issues)
-- [Pull Request Process](#pull-request-process)
-- [Code Style](#code-style)
-- [Testing](#testing)
-- [Documentation](#documentation)
-- [Getting Help](#getting-help)
 
 ## Code of Conduct
 
@@ -42,455 +18,91 @@ Be respectful, inclusive, and considerate. We're all here to build something gre
 
 ## Getting Started
 
-### Prerequisites
+**Prerequisites**: Rust 1.70+ (`curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh`), cargo-make (`cargo install cargo-make`), Git
 
-- **Rust 1.70+**: `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh`
-- **cargo-make**: `cargo install cargo-make` (optional but recommended)
-- **Git**: For version control
-
-### Development Setup
-
-```bash
-# Clone your fork
-git clone https://github.com/YOUR_USERNAME/ggen.git
-cd ggen
-
-# Add upstream remote
-git remote add upstream https://github.com/seanchatmangpt/ggen.git
-
-# Build the project
-cargo make build-release
-
-# Run tests
-cargo make test
-
-# Verify everything works
-ggen doctor  # Once implemented
-```
+**Development Setup**: Clone your fork → Add upstream remote (`git remote add upstream https://github.com/seanchatmangpt/ggen.git`) → Build (`cargo make build-release`) → Test (`cargo make test`) → Verify (`ggen doctor`)
 
 ## Development Workflow
 
-### Before You Start
+**Before You Start**: Check existing issues → Create an issue → Get feedback (wait for maintainer approval on larger changes)
 
-1. **Check existing issues**: See if someone is already working on it
-2. **Create an issue**: Discuss your idea before implementing
-3. **Get feedback**: Wait for maintainer approval on larger changes
+**Making Changes**: Create feature branch (`git checkout -b feature/your-feature-name`) → Make changes → Format (`cargo make fmt`) → Lint (`cargo make lint`) → Test (`cargo make test`) → Full CI (`cargo make ci`)
 
-### Making Changes
-
-```bash
-# Create a feature branch
-git checkout -b feature/your-feature-name
-
-# Make your changes
-# ...
-
-# Format code
-cargo make fmt
-
-# Run linter
-cargo make lint
-
-# Run tests
-cargo make test
-
-# Run full CI check
-cargo make ci
-```
-
-### Commit Messages
-
-Follow the [Conventional Commits](https://www.conventionalcommits.org/) format:
-
-```
-<type>(<scope>): <description>
-
-[optional body]
-
-[optional footer]
-```
-
-**Types:**
-- `feat`: New feature
-- `fix`: Bug fix
-- `docs`: Documentation changes
-- `test`: Adding or updating tests
-- `refactor`: Code refactoring
-- `perf`: Performance improvements
-- `chore`: Maintenance tasks
-
-**Examples:**
-```
-feat(cli): add ggen doctor command for health checks
-
-Implements a new doctor command that checks:
-- Rust/Cargo versions
-- Git installation
-- Optional tools (Ollama, Docker)
-
-Closes #123
-```
-
-```
-fix(ai): correct SPARQL query generation for complex graphs
-
-The AI was generating invalid SPARQL when handling nested queries.
-Added proper escaping and validation.
-
-Fixes #456
-```
+**Commit Messages**: Follow [Conventional Commits](https://www.conventionalcommits.org/) format: `<type>(<scope>): <description>`. Types: `feat` (new feature), `fix` (bug fix), `docs` (documentation), `test` (tests), `refactor` (refactoring), `perf` (performance), `chore` (maintenance). Examples: `feat(cli): add ggen doctor command`, `fix(ai): correct SPARQL query generation`
 
 ## Finding Good First Issues
 
-Look for issues tagged with:
-- **`good first issue`**: Perfect for newcomers
-- **`help wanted`**: We need help with this
-- **`documentation`**: Documentation improvements
+**Tags**: `good first issue` (perfect for newcomers), `help wanted` (we need help), `documentation` (documentation improvements)
 
-**New to Rust?** Start with:
-- Documentation improvements
-- Test coverage improvements
-- Example code additions
+**New to Rust?**: Start with documentation improvements, test coverage improvements, example code additions
 
-**Experienced?** Try:
-- Performance optimizations
-- New AI providers
-- Advanced features
+**Experienced?**: Try performance optimizations, new AI providers, advanced features
 
 ## Pull Request Process
 
-### Before Submitting
+**Before Submitting**: Code formatted (`cargo make fmt`), linting passes (`cargo make lint`), all tests pass (`cargo make test`), new tests added for new features, documentation updated, CHANGELOG.md updated (if applicable), files in correct locations (no test/template/data files in root)
 
-- ✅ Code formatted: `cargo make fmt`
-- ✅ Linting passes: `cargo make lint`
-- ✅ All tests pass: `cargo make test`
-- ✅ New tests added for new features
-- ✅ Documentation updated
-- ✅ CHANGELOG.md updated (if applicable)
+**Submitting a PR**: Push to your fork → Create Pull Request on GitHub (clear title, reference issues, describe changes, add screenshots for UI changes) → Fill PR template (description, type of change, related issues, testing, checklist)
 
-### Submitting a PR
-
-1. **Push to your fork**:
-   ```bash
-   git push origin feature/your-feature-name
-   ```
-
-2. **Create Pull Request on GitHub**:
-   - Use a clear, descriptive title
-   - Reference related issues
-   - Describe what changed and why
-   - Add screenshots for UI changes
-
-3. **PR Template** (fill this in):
-   ```markdown
-   ## Description
-   Brief description of changes
-
-   ## Type of Change
-   - [ ] Bug fix
-   - [ ] New feature
-   - [ ] Breaking change
-   - [ ] Documentation update
-
-   ## Related Issues
-   Closes #XXX
-
-   ## Testing
-   How did you test this?
-
-   ## Checklist
-   - [ ] Code formatted (cargo make fmt)
-   - [ ] Linting passes (cargo make lint)
-   - [ ] Tests pass (cargo make test)
-   - [ ] Documentation updated
-   ```
-
-### Review Process
-
-- **Response Time**: We aim to respond within 48 hours
-- **Feedback**: Address all review comments
-- **Approval**: Requires at least 1 maintainer approval
-- **Merge**: Maintainers will merge once approved
+**Review Process**: Response time (aim for 48 hours), feedback (address all review comments), approval (requires at least 1 maintainer approval), merge (maintainers will merge once approved)
 
 ## Code Style
 
-### Rust Style
+**Rust Style**: Follow [Rust API Guidelines](https://rust-lang.github.io/api-guidelines/). Use clear, descriptive names. Proper error handling (Result types, no `.expect()` or `.unwrap()` in production paths)
 
-Follow the [Rust API Guidelines](https://rust-lang.github.io/api-guidelines/):
+**File Organization**: `cli/` (CLI commands, `src/cmds/` for implementations), `ggen-core/` (core generation logic), `ggen-ai/` (AI integration), `cleanroom/` (testing framework), `utils/` (shared utilities), `tests/` (integration tests)
 
-```rust
-// ✅ Good: Clear, descriptive names
-pub fn generate_template_from_description(desc: &str) -> Result<Template> {
-    // ...
-}
+**Root Directory File Placement Rules**: **CRITICAL** - Files must be in correct directories. Root should only contain essential project files. **MUST be in root**: `Cargo.toml`, `Makefile.toml`, `README.md`, `CHANGELOG.md`, `CONTRIBUTING.md`, `LICENSE`, `SECURITY.md`, `deny.toml`, `rustfmt.toml`, `.clog.toml`, `VERSION`. **MUST NOT be in root**: Test files (`.rs`) → `tests/`, Template files (`.tmpl`) → `templates/`, Data files (`.ttl`, `.rdf`) → `tests/data/` or `examples/`, Scripts (`.sh`) → `scripts/`, Temporary files → Delete immediately, Redundant Makefiles → Use only `Makefile.toml`, Outdated completion reports → `docs/archive/`
 
-// ❌ Bad: Unclear abbreviations
-pub fn gen_tmpl(d: &str) -> Result<Tmpl> {
-    // ...
-}
-
-// ✅ Good: Proper error handling
-pub fn read_config() -> Result<Config> {
-    let path = config_path()?;
-    let content = fs::read_to_string(path)
-        .map_err(|e| anyhow::anyhow!("Failed to read config: {}", e))?;
-    Ok(toml::from_str(&content)?)
-}
-
-// ❌ Bad: Using .expect() or .unwrap()
-pub fn read_config() -> Result<Config> {
-    let path = config_path().expect("config path");  // Don't do this!
-    // ...
-}
-```
-
-### File Organization
-
-```
-ggen/
-├── cli/               # CLI commands
-│   └── src/cmds/      # Individual command implementations
-├── ggen-core/         # Core generation logic
-├── ggen-ai/           # AI integration
-├── cleanroom/         # Testing framework
-├── utils/             # Shared utilities
-└── tests/             # Integration tests
-```
-
-### Module Organization
-
-```rust
-// Module order:
-// 1. Imports (std, external, internal)
-use std::path::Path;
-use anyhow::Result;
-use crate::template::Template;
-
-// 2. Type definitions
-pub struct Generator { /* ... */ }
-
-// 3. Public API
-impl Generator {
-    pub fn new() -> Self { /* ... */ }
-    pub fn generate(&self) -> Result<String> { /* ... */ }
-}
-
-// 4. Private helpers
-impl Generator {
-    fn validate(&self) -> Result<()> { /* ... */ }
-}
-
-// 5. Tests
-#[cfg(test)]
-mod tests { /* ... */ }
-```
+**Module Organization**: Imports (std, external, internal) → Type definitions → Public API → Private helpers → Tests
 
 ## Testing
 
-### Running Tests
+**Running Tests**: All tests (`cargo make test`), specific test (`cargo test test_name`), with logging (`RUST_LOG=debug cargo test`), integration tests only (`cargo test --test integration_tests`), cleanroom tests (`cargo test --test cli_integration_cleanroom`)
 
-```bash
-# All tests
-cargo make test
+**Writing Tests**: Unit tests (colocated with code, use `#[cfg(test)] mod tests`), integration tests (in `tests/`, use `Command::new("ggen")`)
 
-# Specific test
-cargo test test_name
-
-# With logging
-RUST_LOG=debug cargo test
-
-# Integration tests only
-cargo test --test integration_tests
-
-# Cleanroom tests
-cargo test --test cli_integration_cleanroom
-```
-
-### Writing Tests
-
-**Unit Tests:**
-```rust
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_template_parsing() {
-        let input = r#"---
-to: "src/main.rs"
----
-fn main() {}
-"#;
-        let template = Template::parse(input).unwrap();
-        assert_eq!(template.target(), "src/main.rs");
-    }
-}
-```
-
-**Integration Tests:**
-```rust
-// tests/cli_integration_test.rs
-#[test]
-fn test_gen_command() {
-    let output = Command::new("ggen")
-        .arg("gen")
-        .arg("template.tmpl")
-        .output()
-        .expect("failed to execute");
-
-    assert!(output.status.success());
-}
-```
-
-### Test Coverage
-
-We aim for **>85% coverage** on critical paths:
-- Core generation logic
-- Template parsing
-- AI integration
-- CLI commands
+**Test Coverage**: Aim for **>85% coverage** on critical paths (core generation logic, template parsing, AI integration, CLI commands)
 
 ## Documentation
 
-### Code Documentation
+**Code Documentation**: All public APIs must have doc comments. Use `///` for documentation. Include arguments, returns, errors, examples. Examples should compile and run.
 
-```rust
-/// Generates code from a template with the given variables.
-///
-/// # Arguments
-///
-/// * `template` - The template to render
-/// * `vars` - Variables to substitute
-///
-/// # Returns
-///
-/// The rendered template as a String
-///
-/// # Errors
-///
-/// Returns an error if template rendering fails or variables are missing
-///
-/// # Examples
-///
-/// ```
-/// use ggen_core::Generator;
-///
-/// let generator = Generator::new();
-/// let result = generator.generate(template, vars)?;
-/// ```
-pub fn generate(&self, template: &Template, vars: &HashMap<String, String>) -> Result<String> {
-    // ...
-}
-```
+**README and Guides**: Keep README.md concise and focused on quick start. Put detailed guides in `docs/`. Include examples in `examples/`. Update CHANGELOG.md for user-facing changes.
 
-### README and Guides
-
-- Keep README.md concise and focused on quick start
-- Put detailed guides in `docs/`
-- Include examples in `examples/`
-- Update CHANGELOG.md for user-facing changes
-
-### Documentation Standards
-
-- All public APIs must have doc comments
-- Examples should compile and run
-- Update docs when changing APIs
-- Add inline comments for complex logic
+**Documentation Standards**: All public APIs must have doc comments. Examples should compile and run. Update docs when changing APIs. Add inline comments for complex logic.
 
 ## Getting Help
 
-### Stuck? Here's how to get help:
-
-1. **Check Documentation**:
-   - [Main README](README.md)
-   - [Full Docs](https://seanchatmangpt.github.io/ggen/)
-   - [Architecture Overview](CLAUDE.md)
-
-2. **Search Issues**:
-   - [Open Issues](https://github.com/seanchatmangpt/ggen/issues)
-   - [Closed Issues](https://github.com/seanchatmangpt/ggen/issues?q=is%3Aissue+is%3Aclosed)
-
-3. **Ask Questions**:
-   - [Create a Discussion](https://github.com/seanchatmangpt/ggen/discussions)
-   - [Join Discord](https://discord.gg/ggen) (coming soon)
-
-4. **Report Bugs**:
-   - [Create an Issue](https://github.com/seanchatmangpt/ggen/issues/new)
-   - Include: ggen version, OS, error message, steps to reproduce
+**Stuck?**: Check documentation ([Main README](README.md), [Full Docs](https://seanchatmangpt.github.io/ggen/), [Architecture Overview](CLAUDE.md)) → Search issues ([Open Issues](https://github.com/seanchatmangpt/ggen/issues), [Closed Issues](https://github.com/seanchatmangpt/ggen/issues?q=is%3Aissue+is%3Aclosed)) → Ask questions ([Create a Discussion](https://github.com/seanchatmangpt/ggen/discussions)) → Report bugs ([Create an Issue](https://github.com/seanchatmangpt/ggen/issues/new), include: ggen version, OS, error message, steps to reproduce)
 
 ## Project-Specific Guidelines
 
-### Working with AI Integration
+**Working with AI Integration**: Handle API failures gracefully (use `match` with error handling, retry on rate limits). Don't panic on API failures (no `.expect()` or `.unwrap()`)
 
-```rust
-// ✅ Good: Handle API failures gracefully
-match ai_client.generate(prompt).await {
-    Ok(response) => Ok(response),
-    Err(e) if e.is_rate_limit() => {
-        warn!("Rate limited, retrying...");
-        tokio::time::sleep(Duration::from_secs(5)).await;
-        ai_client.generate(prompt).await
-    }
-    Err(e) => Err(e),
-}
+**Working with Templates**: Templates use Tera syntax. Test templates with edge cases. Validate YAML frontmatter. Handle missing variables gracefully.
 
-// ❌ Bad: Panic on API failures
-let response = ai_client.generate(prompt).await.expect("API call failed");
-```
-
-### Working with Templates
-
-- Templates use Tera syntax
-- Test templates with edge cases
-- Validate YAML frontmatter
-- Handle missing variables gracefully
-
-### Working with RDF/SPARQL
-
-- Validate RDF graphs before processing
-- Cache SPARQL query results
-- Handle malformed SPARQL gracefully
-- Test with various RDF formats (Turtle, N-Triples, JSON-LD)
+**Working with RDF/SPARQL**: Validate RDF graphs before processing. Cache SPARQL query results. Handle malformed SPARQL gracefully. Test with various RDF formats (Turtle, N-Triples, JSON-LD).
 
 ## Recognition
 
-Contributors are automatically added to:
-- [README Contributors Section](README.md#contributors) (via All Contributors Bot)
-- [CONTRIBUTORS.md](CONTRIBUTORS.md) (manual updates)
-- Git commit history
+Contributors are automatically added to: [README Contributors Section](README.md#contributors) (via All Contributors Bot), [CONTRIBUTORS.md](CONTRIBUTORS.md) (manual updates), Git commit history.
 
-**Notable contributions** may receive:
-- Shout-outs in release notes
-- Special recognition in community channels
-- Swag (coming soon!)
+**Notable contributions** may receive: Shout-outs in release notes, special recognition in community channels, swag (coming soon!)
 
 ## Release Process
 
-**For maintainers only:**
-
-```bash
-# 1. Update version in Cargo.toml
-# 2. Update CHANGELOG.md
-# 3. Create release commit
-git commit -am "chore: release v1.x.x"
-
-# 4. Tag release
-git tag -a v1.x.x -m "Release v1.x.x"
-
-# 5. Push
-git push origin master --tags
-
-# 6. Publish to crates.io
-cargo publish
-```
+**For maintainers only**: Update version in Cargo.toml → Update CHANGELOG.md → Create release commit (`git commit -am "chore: release v1.x.x"`) → Tag release (`git tag -a v1.x.x -m "Release v1.x.x"`) → Push (`git push origin master --tags`) → Publish to crates.io (`cargo publish`)
 
 ## Questions?
 
-If you have questions not covered here:
-- **General questions**: [Start a Discussion](https://github.com/seanchatmangpt/ggen/discussions)
-- **Bug reports**: [Create an Issue](https://github.com/seanchatmangpt/ggen/issues/new)
-- **Security issues**: Email security@ggen.dev
-- **Direct contact**: Open an issue or discussion first
+**General questions**: [Start a Discussion](https://github.com/seanchatmangpt/ggen/discussions)
+
+**Bug reports**: [Create an Issue](https://github.com/seanchatmangpt/ggen/issues/new)
+
+**Security issues**: Email security@ggen.dev
+
+**Direct contact**: Open an issue or discussion first
 
 ## Thank You!
 

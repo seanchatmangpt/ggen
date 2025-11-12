@@ -56,16 +56,14 @@ pub fn apply_plan(args: &ApplyInput) -> Result<ApplicationResult> {
     }
 
     // Read and parse plan file
-    let content = fs::read_to_string(plan_path)
-        .map_err(ggen_utils::error::Error::from)?;
+    let content = fs::read_to_string(plan_path).map_err(ggen_utils::error::Error::from)?;
 
     let plan: GenerationPlan = match plan_path.extension().and_then(|ext| ext.to_str()) {
-        Some("json") => serde_json::from_str(&content)
-            .map_err(ggen_utils::error::Error::from)?,
-        Some("yaml") | Some("yml") => serde_yaml::from_str(&content)
-            .map_err(ggen_utils::error::Error::from)?,
-        Some("toml") => toml::from_str(&content)
-            .map_err(ggen_utils::error::Error::from)?,
+        Some("json") => serde_json::from_str(&content).map_err(ggen_utils::error::Error::from)?,
+        Some("yaml") | Some("yml") => {
+            serde_yaml::from_str(&content).map_err(ggen_utils::error::Error::from)?
+        }
+        Some("toml") => toml::from_str(&content).map_err(ggen_utils::error::Error::from)?,
         _ => {
             return Err(ggen_utils::error::Error::new_fmt(format_args!(
                 "Unsupported plan file format. Supported: .json, .yaml, .yml, .toml"
@@ -74,16 +72,16 @@ pub fn apply_plan(args: &ApplyInput) -> Result<ApplicationResult> {
     };
 
     // Show plan summary
-    println!("📋 Plan Summary:");
-    println!("  Template: {}", plan.template_ref);
-    println!("  Variables: {}", plan.variables.len());
-    println!(
+    ggen_utils::alert_info!("📋 Plan Summary:");
+    ggen_utils::alert_info!("  Template: {}", plan.template_ref);
+    ggen_utils::alert_info!("  Variables: {}", plan.variables.len());
+    ggen_utils::alert_info!(
         "  Created: {}",
         plan.timestamp.format("%Y-%m-%d %H:%M:%S UTC")
     );
 
     if args.dry_run {
-        println!("🔍 Dry run mode - no changes will be applied");
+        ggen_utils::alert_info!("🔍 Dry run mode - no changes will be applied");
         return Ok(ApplicationResult {
             operations_count: plan.variables.len(),
             plan_file: args.plan_file.clone(),
@@ -92,8 +90,8 @@ pub fn apply_plan(args: &ApplyInput) -> Result<ApplicationResult> {
 
     // Confirm before applying (if not auto-confirmed)
     if !args.auto_confirm {
-        println!("\n⚠️  This will apply the generation plan to your project.");
-        println!("Continue? [y/N]: ");
+        ggen_utils::alert_warning!("\nThis will apply the generation plan to your project.");
+        ggen_utils::alert_info!("Continue? [y/N]: ");
 
         let mut input = String::new();
         std::io::stdin()
@@ -101,7 +99,7 @@ pub fn apply_plan(args: &ApplyInput) -> Result<ApplicationResult> {
             .map_err(ggen_utils::error::Error::from)?;
 
         if !input.trim().to_lowercase().starts_with('y') {
-            println!("Plan application cancelled by user");
+            ggen_utils::alert_info!("Plan application cancelled by user");
             return Ok(ApplicationResult {
                 operations_count: 0,
                 plan_file: args.plan_file.clone(),

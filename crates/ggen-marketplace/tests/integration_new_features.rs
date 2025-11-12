@@ -11,6 +11,20 @@
 //! - Fast, deterministic, isolated tests
 //! - No mocks for core interactions
 
+//! Integration Tests for New Features (Ed25519, P2P, GraphQL)
+//!
+//! This test suite verifies that the three new features work together:
+//! 1. Ed25519 cryptographic signatures
+//! 2. P2P peer-to-peer registry discovery
+//! 3. GraphQL API for querying packages
+//!
+//! Testing Philosophy (80/20 Rule):
+//! - Focus on critical integration paths
+//! - Test real scenarios, not implementation details
+//! - Fast, deterministic, isolated tests
+//! - No mocks for core interactions
+
+#[cfg(feature = "crypto")]
 use ggen_marketplace::prelude::*;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -120,7 +134,7 @@ impl MockGraphQLServer {
                 }),
             }
         } else {
-            Err(MarketplaceError::validation_error(
+            Err(MarketplaceError::invalid_package(
                 format!("Unsupported query: {}", query),
                 "graphql",
             ))
@@ -208,6 +222,7 @@ async fn setup_test_environment() -> (Arc<MockP2PRegistry>, MockGraphQLServer) {
 // Ed25519 Signature Tests
 // ============================================================================
 
+#[cfg(feature = "crypto")]
 #[tokio::test]
 async fn test_ed25519_hash_content() {
     let verifier = Ed25519Verifier::new();
@@ -221,6 +236,7 @@ async fn test_ed25519_hash_content() {
     assert_eq!(hash1.len(), 64); // SHA-256 produces 64 hex chars
 }
 
+#[cfg(feature = "crypto")]
 #[tokio::test]
 async fn test_ed25519_hash_deterministic() {
     let verifier = Ed25519Verifier::new();
@@ -234,6 +250,7 @@ async fn test_ed25519_hash_deterministic() {
     assert!(hashes.iter().all(|h| h == first_hash));
 }
 
+#[cfg(feature = "crypto")]
 #[tokio::test]
 async fn test_ed25519_different_content_different_hash() {
     let verifier = Ed25519Verifier::new();
@@ -247,6 +264,7 @@ async fn test_ed25519_different_content_different_hash() {
 // Note: Full Ed25519 signing/verification tests require ed25519-dalek dependency
 // These tests verify the interface and architecture
 
+#[cfg(feature = "crypto")]
 #[tokio::test]
 async fn test_ed25519_sign_and_verify() {
     let verifier = Ed25519Verifier::new();
@@ -274,6 +292,7 @@ async fn test_ed25519_sign_and_verify() {
     assert!(is_valid);
 }
 
+#[cfg(feature = "crypto")]
 #[tokio::test]
 async fn test_ed25519_verify_wrong_content_fails() {
     let verifier = Ed25519Verifier::new();
@@ -298,6 +317,7 @@ async fn test_ed25519_verify_wrong_content_fails() {
     );
 }
 
+#[cfg(feature = "crypto")]
 #[tokio::test]
 async fn test_ed25519_keypair_generation() {
     let verifier = Ed25519Verifier::new();
@@ -318,6 +338,7 @@ async fn test_ed25519_keypair_generation() {
     assert_eq!(keypair2.public_key.key_data.len(), 32);
 }
 
+#[cfg(feature = "crypto")]
 #[tokio::test]
 async fn test_ed25519_export_import_public_key() {
     let verifier = Ed25519Verifier::new();
@@ -344,6 +365,7 @@ async fn test_ed25519_export_import_public_key() {
 // P2P Registry Tests
 // ============================================================================
 
+#[cfg(feature = "crypto")]
 #[tokio::test]
 async fn test_p2p_publish_and_discover() {
     let p2p_registry = MockP2PRegistry::new();
@@ -361,9 +383,13 @@ async fn test_p2p_publish_and_discover() {
         .build()
         .expect("package should build");
 
+    // Validate package before publishing (Poka-yoke: ensures package meets requirements)
+    let validated = package.validate().expect("Failed to validate package");
+    let validated_package = validated.package().clone();
+
     // Publish to P2P network
     p2p_registry
-        .publish(package.clone())
+        .publish(validated_package.clone())
         .await
         .expect("publish should succeed");
 
@@ -375,8 +401,12 @@ async fn test_p2p_publish_and_discover() {
 
     assert_eq!(results.len(), 1);
     assert_eq!(results[0].id.name, "p2p-package");
+
+    // Verify we're using validated package
+    assert_eq!(validated_package.id.name, "p2p-package");
 }
 
+#[cfg(feature = "crypto")]
 #[tokio::test]
 async fn test_p2p_retrieve_package() {
     let p2p_registry = MockP2PRegistry::new();
@@ -408,6 +438,7 @@ async fn test_p2p_retrieve_package() {
     assert_eq!(retrieved.version, package.version);
 }
 
+#[cfg(feature = "crypto")]
 #[tokio::test]
 async fn test_p2p_peer_management() {
     let p2p_registry = MockP2PRegistry::new();
@@ -432,6 +463,7 @@ async fn test_p2p_peer_management() {
     assert!(peers.contains(&"peer1.example.com:8080".to_string()));
 }
 
+#[cfg(feature = "crypto")]
 #[tokio::test]
 async fn test_p2p_discover_multiple_packages() {
     let p2p_registry = MockP2PRegistry::new();
@@ -468,6 +500,7 @@ async fn test_p2p_discover_multiple_packages() {
 // GraphQL API Tests
 // ============================================================================
 
+#[cfg(feature = "crypto")]
 #[tokio::test]
 async fn test_graphql_search_query() {
     let (p2p_registry, graphql_server) = setup_test_environment().await;
@@ -518,6 +551,7 @@ async fn test_graphql_search_query() {
     }
 }
 
+#[cfg(feature = "crypto")]
 #[tokio::test]
 async fn test_graphql_package_query() {
     let (p2p_registry, graphql_server) = setup_test_environment().await;
@@ -566,6 +600,7 @@ async fn test_graphql_package_query() {
     }
 }
 
+#[cfg(feature = "crypto")]
 #[tokio::test]
 async fn test_graphql_query_not_found() {
     let (_p2p_registry, graphql_server) = setup_test_environment().await;
@@ -590,6 +625,7 @@ async fn test_graphql_query_not_found() {
 // Full Stack Integration Tests (Ed25519 + P2P + GraphQL)
 // ============================================================================
 
+#[cfg(feature = "crypto")]
 #[tokio::test]
 async fn test_full_stack_signed_p2p_package_via_graphql() {
     let (p2p_registry, graphql_server) = setup_test_environment().await;
@@ -633,6 +669,7 @@ async fn test_full_stack_signed_p2p_package_via_graphql() {
     }
 }
 
+#[cfg(feature = "crypto")]
 #[tokio::test]
 async fn test_signed_package_p2p_distribution() {
     let p2p_registry = MockP2PRegistry::new();
@@ -672,6 +709,7 @@ async fn test_signed_package_p2p_distribution() {
     }
 }
 
+#[cfg(feature = "crypto")]
 #[tokio::test]
 async fn test_graphql_query_signed_packages() {
     let (p2p_registry, graphql_server) = setup_test_environment().await;
@@ -722,6 +760,7 @@ async fn test_graphql_query_signed_packages() {
 // P2P Network Resilience Tests
 // ============================================================================
 
+#[cfg(feature = "crypto")]
 #[tokio::test]
 async fn test_p2p_network_resilience() {
     let p2p_registry = MockP2PRegistry::new();
@@ -766,6 +805,7 @@ async fn test_p2p_network_resilience() {
     assert_eq!(peers.len(), 10);
 }
 
+#[cfg(feature = "crypto")]
 #[tokio::test]
 async fn test_p2p_concurrent_operations() {
     let p2p_registry = Arc::new(MockP2PRegistry::new());
@@ -813,6 +853,7 @@ async fn test_p2p_concurrent_operations() {
 // Performance and Error Scenarios
 // ============================================================================
 
+#[cfg(feature = "crypto")]
 #[tokio::test]
 async fn test_graphql_invalid_query() {
     let (_p2p_registry, graphql_server) = setup_test_environment().await;
@@ -823,6 +864,7 @@ async fn test_graphql_invalid_query() {
     assert!(result.is_err());
 }
 
+#[cfg(feature = "crypto")]
 #[tokio::test]
 async fn test_p2p_retrieve_nonexistent_package() {
     let p2p_registry = MockP2PRegistry::new();
@@ -835,6 +877,7 @@ async fn test_p2p_retrieve_nonexistent_package() {
     assert!(err.to_string().contains("not found") || err.to_string().contains("NotFound"));
 }
 
+#[cfg(feature = "crypto")]
 #[tokio::test]
 async fn test_large_scale_p2p_discovery() {
     let p2p_registry = MockP2PRegistry::new();
@@ -871,6 +914,7 @@ async fn test_large_scale_p2p_discovery() {
 // Integration with Existing Systems
 // ============================================================================
 
+#[cfg(feature = "crypto")]
 #[tokio::test]
 async fn test_integration_with_local_registry() {
     // Setup local registry

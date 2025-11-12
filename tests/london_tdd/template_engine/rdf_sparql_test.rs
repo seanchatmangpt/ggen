@@ -125,8 +125,14 @@ fn test_sparql_caching_for_repeated_queries() {
         });
 
     // Act: Execute same query twice
-    let result1 = execute_sparql_query(&mock_graph, "SELECT ?name WHERE { :person foaf:name ?name }");
-    let result2 = execute_sparql_query_cached(&mock_graph, "SELECT ?name WHERE { :person foaf:name ?name }");
+    let result1 = execute_sparql_query(
+        &mock_graph,
+        "SELECT ?name WHERE { :person foaf:name ?name }",
+    );
+    let result2 = execute_sparql_query_cached(
+        &mock_graph,
+        "SELECT ?name WHERE { :person foaf:name ?name }",
+    );
 
     // Assert: Both succeed, but only one actual query
     assert!(result1.is_ok());
@@ -151,15 +157,13 @@ fn load_rdf_graph(graph: &dyn RdfGraph, turtle: &str) -> Result<(), anyhow::Erro
 }
 
 fn execute_sparql_query(
-    graph: &dyn RdfGraph,
-    query: &str,
+    graph: &dyn RdfGraph, query: &str,
 ) -> Result<Vec<SparqlResult>, anyhow::Error> {
     graph.query(query)
 }
 
 fn execute_sparql_query_cached(
-    _graph: &dyn RdfGraph,
-    _query: &str,
+    _graph: &dyn RdfGraph, _query: &str,
 ) -> Result<Vec<SparqlResult>, anyhow::Error> {
     // In real implementation, would check cache first
     Ok(vec![SparqlResult {
@@ -168,8 +172,7 @@ fn execute_sparql_query_cached(
 }
 
 fn render_template_with_sparql(
-    graph: &dyn RdfGraph,
-    template: &str,
+    graph: &dyn RdfGraph, template: &str,
 ) -> Result<String, anyhow::Error> {
     let results = graph.query("SELECT ?type WHERE { ex:module a ?type }")?;
 

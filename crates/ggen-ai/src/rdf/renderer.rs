@@ -150,9 +150,8 @@ impl TemplateRenderer {
         // Render each noun module
         for noun in &project.nouns {
             let noun_dir = output_dir.join("src/cmds").join(&noun.name);
-            std::fs::create_dir_all(&noun_dir).with_context(|| {
-                format!("Failed to create noun directory: {}", noun.name)
-            })?;
+            std::fs::create_dir_all(&noun_dir)
+                .with_context(|| format!("Failed to create noun directory: {}", noun.name))?;
 
             // Build noun-specific context
             let mut noun_context = context.clone();
@@ -176,12 +175,7 @@ impl TemplateRenderer {
                     &verb_context,
                     noun_dir.join(format!("{}.rs", verb.name)),
                 )
-                .with_context(|| {
-                    format!(
-                        "Failed to render verb: {}.{}",
-                        noun.name, verb.name
-                    )
-                })?;
+                .with_context(|| format!("Failed to render verb: {}.{}", noun.name, verb.name))?;
             }
         }
 
@@ -221,15 +215,11 @@ impl TemplateRenderer {
     /// * `Ok(())` - Successfully rendered and wrote file
     /// * `Err` - Failed to render template or write file
     fn render_and_write(
-        &self,
-        template: &str,
-        context: &Context,
-        output_path: PathBuf,
+        &self, template: &str, context: &Context, output_path: PathBuf,
     ) -> Result<()> {
         let content = self.render_file(template, context)?;
-        std::fs::write(&output_path, content).with_context(|| {
-            format!("Failed to write file: {}", output_path.display())
-        })?;
+        std::fs::write(&output_path, content)
+            .with_context(|| format!("Failed to write file: {}", output_path.display()))?;
         Ok(())
     }
 }
@@ -248,6 +238,9 @@ mod tests {
             authors: vec!["Test Author <test@example.com>".to_string()],
             edition: "2021".to_string(),
             license: "MIT".to_string(),
+            cli_crate: None,
+            domain_crate: None,
+            resolver: "2".to_string(),
             nouns: vec![Noun {
                 name: "user".to_string(),
                 description: "User management".to_string(),
@@ -256,6 +249,8 @@ mod tests {
                     name: "create".to_string(),
                     description: "Create a new user".to_string(),
                     alias: None,
+                    domain_function: None,
+                    domain_module: None,
                     arguments: vec![Argument {
                         name: "name".to_string(),
                         long: Some("name".to_string()),
@@ -272,6 +267,8 @@ mod tests {
                     }],
                     validations: vec![],
                     execution_logic: None,
+                    domain_function: None,
+                    domain_module: None,
                 }],
             }],
             dependencies: vec![Dependency {
@@ -296,7 +293,10 @@ mod tests {
         let context = renderer.build_context(&project);
 
         // Verify the context can be used
-        let rendered = renderer.tera.render_str("{{ project.name }}", &context).unwrap();
+        let rendered = renderer
+            .tera
+            .render_str("{{ project.name }}", &context)
+            .unwrap();
         assert_eq!(rendered, "test-cli");
     }
 

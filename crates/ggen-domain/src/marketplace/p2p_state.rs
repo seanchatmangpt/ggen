@@ -3,9 +3,9 @@
 //! This module manages the global P2P registry state, allowing commands
 //! to share a single P2P node instance.
 
-use ggen_utils::error::{Result, GgenError};
-use std::sync::{Arc, Mutex};
+use ggen_utils::error::{GgenError, Result};
 use once_cell::sync::Lazy;
+use std::sync::{Arc, Mutex};
 
 #[cfg(feature = "p2p")]
 use ggen_marketplace::backend::p2p::P2PRegistry;
@@ -41,21 +41,25 @@ pub async fn init_p2p_registry(config: P2PNodeConfig) -> Result<Arc<P2PRegistry>
     use ggen_marketplace::backend::p2p::P2PConfig;
 
     // Parse listen addresses
-    let listen_addresses: Result<Vec<_>> = config.listen_addresses
+    let listen_addresses: Result<Vec<_>> = config
+        .listen_addresses
         .iter()
         .map(|addr| {
-            addr.parse()
-                .map_err(|e| GgenError::invalid_input(format!("Invalid listen address '{}': {}", addr, e)))
+            addr.parse().map_err(|e| {
+                GgenError::invalid_input(format!("Invalid listen address '{}': {}", addr, e))
+            })
         })
         .collect();
     let listen_addresses = listen_addresses?;
 
     // Parse bootstrap nodes
-    let bootstrap_nodes: Result<Vec<_>> = config.bootstrap_nodes
+    let bootstrap_nodes: Result<Vec<_>> = config
+        .bootstrap_nodes
         .iter()
         .map(|node| {
-            node.parse()
-                .map_err(|e| GgenError::invalid_input(format!("Invalid bootstrap node '{}': {}", node, e)))
+            node.parse().map_err(|e| {
+                GgenError::invalid_input(format!("Invalid bootstrap node '{}': {}", node, e))
+            })
         })
         .collect();
     let bootstrap_nodes = bootstrap_nodes?;
@@ -69,13 +73,15 @@ pub async fn init_p2p_registry(config: P2PNodeConfig) -> Result<Arc<P2PRegistry>
     };
 
     // Create registry
-    let registry = P2PRegistry::new(p2p_config).await
+    let registry = P2PRegistry::new(p2p_config)
+        .await
         .map_err(|e| GgenError::network_error(format!("Failed to create P2P registry: {}", e)))?;
 
     let registry = Arc::new(registry);
 
     // Store in global state
-    let mut state = P2P_STATE.lock()
+    let mut state = P2P_STATE
+        .lock()
         .map_err(|_| GgenError::internal_error("Failed to acquire P2P state lock"))?;
     *state = Some(registry.clone());
 
@@ -85,19 +91,22 @@ pub async fn init_p2p_registry(config: P2PNodeConfig) -> Result<Arc<P2PRegistry>
 /// Get the global P2P registry instance
 #[cfg(feature = "p2p")]
 pub fn get_p2p_registry() -> Result<Arc<P2PRegistry>> {
-    let state = P2P_STATE.lock()
+    let state = P2P_STATE
+        .lock()
         .map_err(|_| GgenError::internal_error("Failed to acquire P2P state lock"))?;
 
-    state.clone()
-        .ok_or_else(|| GgenError::invalid_state(
-            "P2P node not initialized. Run 'ggen marketplace p2p start' first."
-        ))
+    state.clone().ok_or_else(|| {
+        GgenError::invalid_state(
+            "P2P node not initialized. Run 'ggen marketplace p2p start' first.",
+        )
+    })
 }
 
 /// Check if P2P registry is initialized
 #[cfg(feature = "p2p")]
 pub fn is_p2p_initialized() -> bool {
-    P2P_STATE.lock()
+    P2P_STATE
+        .lock()
         .map(|state| state.is_some())
         .unwrap_or(false)
 }
@@ -105,7 +114,8 @@ pub fn is_p2p_initialized() -> bool {
 /// Shutdown the global P2P registry
 #[cfg(feature = "p2p")]
 pub fn shutdown_p2p_registry() -> Result<()> {
-    let mut state = P2P_STATE.lock()
+    let mut state = P2P_STATE
+        .lock()
         .map_err(|_| GgenError::internal_error("Failed to acquire P2P state lock"))?;
     *state = None;
     Ok(())
@@ -115,7 +125,7 @@ pub fn shutdown_p2p_registry() -> Result<()> {
 pub async fn init_p2p_registry(_config: P2PNodeConfig) -> Result<()> {
     Err(GgenError::feature_not_enabled(
         "p2p",
-        "Rebuild with --features p2p to enable P2P functionality"
+        "Rebuild with --features p2p to enable P2P functionality",
     ))
 }
 

@@ -176,8 +176,18 @@ fn test_auto_discovery_finds_all_command_modules() {
 
     // THEN: Should discover and list all 12 commands
     let command_count = [
-        "ai", "audit", "ci", "doctor", "graph", "help-me", "hook", "lifecycle", "market",
-        "project", "shell", "template",
+        "ai",
+        "audit",
+        "ci",
+        "doctor",
+        "graph",
+        "help-me",
+        "hook",
+        "lifecycle",
+        "market",
+        "project",
+        "shell",
+        "template",
     ]
     .iter()
     .filter(|&cmd_name| stdout.contains(cmd_name))

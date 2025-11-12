@@ -159,4 +159,3 @@ mod tests {
         assert!(!config.console_output);
     }
 }
-

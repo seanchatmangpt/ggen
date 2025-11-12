@@ -68,9 +68,7 @@ fn test_marketplace_search_with_network() {
         .current_dir(workspace.path())
         .assert()
         .success()
-        .stdout(predicate::str::contains("cli").or(
-            predicate::str::contains("template")
-        ));
+        .stdout(predicate::str::contains("cli").or(predicate::str::contains("template")));
 
     println!("✅ Marketplace search with network: PASSED");
 }
@@ -106,8 +104,10 @@ fn test_marketplace_install_flow() {
             assert!(content.contains("io.ggen"));
         }
     } else {
-        println!("Install failed (may be expected): {}",
-            String::from_utf8_lossy(&output.stderr));
+        println!(
+            "Install failed (may be expected): {}",
+            String::from_utf8_lossy(&output.stderr)
+        );
     }
 
     println!("✅ Marketplace install flow: PASSED (graceful)");

@@ -29,12 +29,19 @@ impl TemplateMetadataStore {
         let mut metadata = TemplateMetadata::new(template_id.to_string(), String::new());
 
         if let Some(row) = results.first() {
-            metadata.name = row.get("name").map(|s| s.trim_matches('"').to_string()).unwrap_or_default();
+            metadata.name = row
+                .get("name")
+                .map(|s| s.trim_matches('"').to_string())
+                .unwrap_or_default();
             metadata.version = row.get("version").map(|s| s.trim_matches('"').to_string());
-            metadata.description = row.get("description").map(|s| s.trim_matches('"').to_string());
+            metadata.description = row
+                .get("description")
+                .map(|s| s.trim_matches('"').to_string());
             metadata.author = row.get("author").map(|s| s.trim_matches('"').to_string());
             metadata.category = row.get("category").map(|s| s.trim_matches('"').to_string());
-            metadata.stability = row.get("stability").map(|s| s.trim_matches('"').to_string());
+            metadata.stability = row
+                .get("stability")
+                .map(|s| s.trim_matches('"').to_string());
 
             if let Some(coverage_str) = row.get("coverage") {
                 metadata.test_coverage = coverage_str.trim_matches('"').parse().ok();

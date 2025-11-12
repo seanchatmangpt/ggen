@@ -62,7 +62,11 @@ fn test_doctor_checks_all_prerequisites() {
 
     // Performance: <100ms
     let elapsed = start.elapsed();
-    assert!(elapsed.as_millis() < 100, "Doctor command took {:?}", elapsed);
+    assert!(
+        elapsed.as_millis() < 100,
+        "Doctor command took {:?}",
+        elapsed
+    );
 }
 
 #[test]
@@ -80,10 +84,18 @@ fn test_doctor_reports_missing_rust_toolchain() {
     // Assert: Provides installation instructions
     assert!(result.is_ok());
     let report = result.unwrap();
-    let rust_check = report.checks.iter().find(|c| c.name == "Rust toolchain").unwrap();
+    let rust_check = report
+        .checks
+        .iter()
+        .find(|c| c.name == "Rust toolchain")
+        .unwrap();
     assert!(!rust_check.passed);
     assert!(rust_check.fix_instructions.is_some());
-    assert!(rust_check.fix_instructions.as_ref().unwrap().contains("rustup"));
+    assert!(rust_check
+        .fix_instructions
+        .as_ref()
+        .unwrap()
+        .contains("rustup"));
 }
 
 #[test]
@@ -178,8 +190,7 @@ fn run_doctor_command(executor: &dyn SystemCommandExecutor) -> Result<DoctorRepo
 }
 
 fn run_doctor_command_with_platform(
-    executor: &dyn SystemCommandExecutor,
-    platform: Platform,
+    executor: &dyn SystemCommandExecutor, platform: Platform,
 ) -> Result<DoctorReport, anyhow::Error> {
     let mut checks = vec![];
 
@@ -195,7 +206,10 @@ fn run_doctor_command_with_platform(
             name: "Rust toolchain".to_string(),
             passed: false,
             version: None,
-            fix_instructions: Some("Install Rust: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh".to_string()),
+            fix_instructions: Some(
+                "Install Rust: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh"
+                    .to_string(),
+            ),
         },
     };
     checks.push(rust_check);
@@ -216,8 +230,7 @@ fn run_doctor_command_with_platform(
 }
 
 fn run_doctor_command_with_tracing(
-    executor: &dyn SystemCommandExecutor,
-    tracer: &otel::MockTracerProvider,
+    executor: &dyn SystemCommandExecutor, tracer: &otel::MockTracerProvider,
 ) -> Result<DoctorReport, anyhow::Error> {
     let span = otel::MockSpan {
         name: "ggen.doctor".to_string(),
@@ -237,15 +250,13 @@ fn setup_all_passing(executor: &mut MockSystemCommandExecutor) {
 }
 
 fn setup_all_passing_except_docker(executor: &mut MockSystemCommandExecutor) {
-    executor
-        .expect_execute()
-        .returning(|cmd, _| {
-            if cmd == "docker" {
-                Err(anyhow::anyhow!("command not found"))
-            } else {
-                Ok(format!("{} version 1.0.0", cmd))
-            }
-        });
+    executor.expect_execute().returning(|cmd, _| {
+        if cmd == "docker" {
+            Err(anyhow::anyhow!("command not found"))
+        } else {
+            Ok(format!("{} version 1.0.0", cmd))
+        }
+    });
 }
 
 fn setup_all_passing_executor() -> MockSystemCommandExecutor {
@@ -302,13 +313,17 @@ fn add_ollama_check(executor: &dyn SystemCommandExecutor, checks: &mut Vec<Prere
             name: "Ollama".to_string(),
             passed: false,
             version: None,
-            fix_instructions: Some("Install Ollama: https://ollama.ai/download (optional for local AI)".to_string()),
+            fix_instructions: Some(
+                "Install Ollama: https://ollama.ai/download (optional for local AI)".to_string(),
+            ),
         },
     };
     checks.push(check);
 }
 
-fn add_docker_check(executor: &dyn SystemCommandExecutor, checks: &mut Vec<PrerequisiteCheck>, platform: Platform) {
+fn add_docker_check(
+    executor: &dyn SystemCommandExecutor, checks: &mut Vec<PrerequisiteCheck>, platform: Platform,
+) {
     let check = match executor.execute("docker", vec!["--version"]) {
         Ok(output) => PrerequisiteCheck {
             name: "Docker".to_string(),
@@ -328,7 +343,7 @@ fn add_docker_check(executor: &dyn SystemCommandExecutor, checks: &mut Vec<Prere
                 version: None,
                 fix_instructions: Some(instructions.to_string()),
             }
-        },
+        }
     };
     checks.push(check);
 }

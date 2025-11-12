@@ -108,9 +108,8 @@ pub fn execute_new(input: NewInput) -> Result<NewOutput> {
     })?;
 
     // Write template file
-    std::fs::write(&output_path, content).map_err(|e| {
-        ggen_utils::error::Error::new(&format!("Failed to write template: {}", e))
-    })?;
+    std::fs::write(&output_path, content)
+        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to write template: {}", e)))?;
 
     // Return output
     Ok(NewOutput {
@@ -124,8 +123,12 @@ pub fn execute_new(input: NewInput) -> Result<NewOutput> {
 pub fn run(args: &NewInput) -> Result<()> {
     let output = execute_new(args.clone())?;
 
-    println!("✅ Created new {} template: {}", output.template_type, output.template_path);
-    println!("📝 Template name: {}", output.template_name);
+    ggen_utils::alert_success!(
+        "Created new {} template: {}",
+        output.template_type,
+        output.template_path
+    );
+    ggen_utils::alert_info!("📝 Template name: {}", output.template_name);
 
     Ok(())
 }

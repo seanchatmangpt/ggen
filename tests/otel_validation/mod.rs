@@ -233,7 +233,11 @@ impl ValidationReport {
         println!("───────────────────────────────────────────────────────");
 
         for result in &self.results {
-            let status = if result.success { "✅ PASS" } else { "❌ FAIL" };
+            let status = if result.success {
+                "✅ PASS"
+            } else {
+                "❌ FAIL"
+            };
             println!(
                 "{} {} ({:.2}ms)",
                 status, result.capability, result.duration_ms
@@ -276,7 +280,11 @@ impl ValidationReport {
         md.push_str("|------------|--------|---------------|-------|---------|--------|\n");
 
         for result in &self.results {
-            let status = if result.success { "✅ PASS" } else { "❌ FAIL" };
+            let status = if result.success {
+                "✅ PASS"
+            } else {
+                "❌ FAIL"
+            };
             let errors = if result.errors.is_empty() {
                 "None".to_string()
             } else {
@@ -344,11 +352,7 @@ mod tests {
     fn test_validation_report() {
         let results = vec![
             ValidationResult::success("cap1".to_string(), 100.0, 5, 3),
-            ValidationResult::failure(
-                "cap2".to_string(),
-                200.0,
-                vec!["Error 1".to_string()],
-            ),
+            ValidationResult::failure("cap2".to_string(), 200.0, vec!["Error 1".to_string()]),
         ];
 
         let report = ValidationReport::new(results, 300.0);

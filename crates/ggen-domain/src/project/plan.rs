@@ -89,10 +89,8 @@ pub fn create_plan(args: &PlanInput) -> Result<PlanResult> {
 
     // Serialize plan
     let content = match args.format.as_str() {
-        "json" => serde_json::to_string_pretty(&plan)
-            .map_err(ggen_utils::error::Error::from)?,
-        "yaml" => serde_yaml::to_string(&plan)
-            .map_err(ggen_utils::error::Error::from)?,
+        "json" => serde_json::to_string_pretty(&plan).map_err(ggen_utils::error::Error::from)?,
+        "yaml" => serde_yaml::to_string(&plan).map_err(ggen_utils::error::Error::from)?,
         "toml" => toml::to_string_pretty(&plan).map_err(|e| {
             ggen_utils::error::Error::new_fmt(format_args!("TOML serialization failed: {}", e))
         })?,
@@ -106,8 +104,7 @@ pub fn create_plan(args: &PlanInput) -> Result<PlanResult> {
 
     // Validate and write plan file
     validate_path(&output_path)?;
-    fs::write(&output_path, content)
-        .map_err(ggen_utils::error::Error::from)?;
+    fs::write(&output_path, content).map_err(ggen_utils::error::Error::from)?;
 
     Ok(PlanResult {
         output_path: output_path.display().to_string(),
@@ -135,7 +132,10 @@ mod tests {
         let result = parse_variables(&vars);
 
         assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().contains("Expected key=value"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("Expected key=value"));
     }
 
     #[test]

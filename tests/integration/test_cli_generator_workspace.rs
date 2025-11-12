@@ -73,7 +73,7 @@ fn test_generate_workspace_structure() -> Result<()> {
         let workspace_cargo = fs::read_to_string(output_dir.join("Cargo.toml"))?;
         assert!(workspace_cargo.contains("crates/test-cli"), "Should include CLI crate in members");
         assert!(workspace_cargo.contains("crates/test-core"), "Should include domain crate in members");
-        assert!(workspace_cargo.contains("clap-noun-verb = \"3.3.0\""), "Should use clap-noun-verb v3.3.0");
+        assert!(workspace_cargo.contains("clap-noun-verb = \"3.4.0\""), "Should use clap-noun-verb v3.4.0");
         
         // Verify CLI crate structure
         let cli_crate_dir = output_dir.join("crates/test-cli");

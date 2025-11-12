@@ -92,12 +92,12 @@ ggen market search "database integration"
 ### 2. **Install Required Packages**
 ```bash
 # Install AI and template packages
-ggen market add "ai-service-templates"         # AI-powered service generation
-ggen market add "rust-axum-service"             # Axum web framework
-ggen market add "crud-operations"               # CRUD operation templates
-ggen market add "postgresql-database"           # Database integration
-ggen market add "redis-cache"                   # Caching layer
-ggen market add "openapi-documentation"         # API documentation
+ggen market install "ai-service-templates"         # AI-powered service generation
+ggen market install "rust-axum-service"             # Axum web framework
+ggen market install "crud-operations"               # CRUD operation templates
+ggen market install "postgresql-database"           # Database integration
+ggen market install "redis-cache"                   # Caching layer
+ggen market install "openapi-documentation"         # API documentation
 ```
 
 ### 3. **Service Generation** using marketplace templates + AI
@@ -285,7 +285,7 @@ ggen market categories  # See what's available
 ### 2. **Use Marketplace Templates as Foundation**
 ```bash
 # Install proven patterns
-ggen market add "your-required-package"
+ggen market install "your-required-package"
 
 # Generate from marketplace template
 ggen template generate package-name:template.tmpl

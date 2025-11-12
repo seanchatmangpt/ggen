@@ -169,7 +169,7 @@ jobs:
         run: cargo build --release
 
       - name: Run Integration Tests
-        run: cargo test --workspace --release
+        run: cargo make test
 
       - name: Package for Distribution
         run: |
@@ -863,7 +863,7 @@ $ cargo build --release
 ✅ Binary size: 8.4MB
 
 # 2. Test Suite
-$ cargo test --workspace --release
+$ cargo make test
 ✅ 26 integration tests passed
 ✅ Chicago TDD: 782 lines validated
 ✅ RDF validation: 610+ files

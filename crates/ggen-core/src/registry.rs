@@ -149,14 +149,13 @@ impl RegistryClient {
 
         for attempt in 1..=MAX_RETRIES {
             tracing::Span::current().record("attempt", attempt);
-            tracing::info!(attempt, max_retries = MAX_RETRIES, "Fetching registry index");
+            tracing::info!(
+                attempt,
+                max_retries = MAX_RETRIES,
+                "Fetching registry index"
+            );
 
-            match self
-                .client
-                .get(url.clone())
-                .send()
-                .await
-            {
+            match self.client.get(url.clone()).send().await {
                 Ok(response) => {
                     if !response.status().is_success() {
                         let status = response.status();
@@ -184,17 +183,20 @@ impl RegistryClient {
                             }
                             Err(e) => {
                                 tracing::warn!(error = %e, attempt, "Failed to parse registry index");
-                                last_error = Some(anyhow::Error::from(e).context("Failed to parse registry index"));
+                                last_error = Some(
+                                    anyhow::Error::from(e)
+                                        .context("Failed to parse registry index"),
+                                );
                             }
                         }
                     }
                 }
                 Err(e) => {
                     tracing::warn!(error = %e, attempt, "Network error fetching registry");
-                    last_error = Some(anyhow::Error::from(e).context(format!(
-                        "Failed to fetch registry index from {}",
-                        url
-                    )));
+                    last_error = Some(
+                        anyhow::Error::from(e)
+                            .context(format!("Failed to fetch registry index from {}", url)),
+                    );
                 }
             }
 
@@ -207,7 +209,9 @@ impl RegistryClient {
         }
 
         // All retries exhausted
-        Err(last_error.unwrap_or_else(|| anyhow::anyhow!("Failed to fetch registry after {} attempts", MAX_RETRIES)))
+        Err(last_error.unwrap_or_else(|| {
+            anyhow::anyhow!("Failed to fetch registry after {} attempts", MAX_RETRIES)
+        }))
     }
 
     /// Search for gpacks matching the query
@@ -408,7 +412,11 @@ impl RegistryClient {
     }
 
     /// Resolve a pack ID to a specific version
-    #[tracing::instrument(name = "ggen.market.resolve", skip(self), fields(pack_id, version, resolved_version))]
+    #[tracing::instrument(
+        name = "ggen.market.resolve",
+        skip(self),
+        fields(pack_id, version, resolved_version)
+    )]
     pub async fn resolve(&self, pack_id: &str, version: Option<&str>) -> Result<ResolvedPack> {
         tracing::info!(pack_id = pack_id, requested_version = ?version, "resolving package");
 
@@ -431,7 +439,8 @@ impl RegistryClient {
             )
         })?;
 
-        tracing::Span::current().record("resolved_version", tracing::field::display(&target_version));
+        tracing::Span::current()
+            .record("resolved_version", tracing::field::display(&target_version));
         tracing::info!(pack_id = pack_id, version = %target_version, "package resolved");
 
         Ok(ResolvedPack {

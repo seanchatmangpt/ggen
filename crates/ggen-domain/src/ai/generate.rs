@@ -93,7 +93,10 @@ pub async fn generate_code(options: &GenerateOptions) -> Result<GenerateResult> 
     };
 
     let metadata = GenerateMetadata {
-        model_used: options.model.clone().unwrap_or_else(|| "placeholder".to_string()),
+        model_used: options
+            .model
+            .clone()
+            .unwrap_or_else(|| "placeholder".to_string()),
         tokens_used: Some(100),
         processing_time_ms: start.elapsed().as_millis() as u64,
     };

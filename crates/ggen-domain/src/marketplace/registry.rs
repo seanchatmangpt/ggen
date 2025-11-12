@@ -128,7 +128,10 @@ impl Default for RegistryIndex {
 }
 
 /// LRU cache entry
+/// NOTE: Currently unused - CacheManager uses HashMap directly
+/// FUTURE: May be used if LRU queue implementation changes
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 struct CacheEntry {
     key: String,
     value: PackageMetadata,
@@ -251,8 +254,8 @@ pub struct Registry {
 impl Registry {
     /// Create a new registry with default paths
     pub fn new() -> Result<Self> {
-        let home_dir = dirs::home_dir()
-            .ok_or_else(|| Error::new("Failed to determine home directory"))?;
+        let home_dir =
+            dirs::home_dir().ok_or_else(|| Error::new("Failed to determine home directory"))?;
 
         let index_path = home_dir.join(".ggen").join("registry").join("index.json");
 
@@ -274,8 +277,8 @@ impl Registry {
 
     /// Create a registry with custom cache capacity
     pub fn with_cache_capacity(capacity: usize) -> Result<Self> {
-        let home_dir = dirs::home_dir()
-            .ok_or_else(|| Error::new("Failed to determine home directory"))?;
+        let home_dir =
+            dirs::home_dir().ok_or_else(|| Error::new("Failed to determine home directory"))?;
 
         let index_path = home_dir.join(".ggen").join("registry").join("index.json");
 
@@ -307,7 +310,9 @@ impl Registry {
         };
 
         // Store in memory
-        let mut guard = self.index.write()
+        let mut guard = self
+            .index
+            .write()
             .map_err(|e| anyhow::anyhow!("Failed to acquire index write lock: {}", e))?;
         *guard = Some(index);
 
@@ -318,10 +323,13 @@ impl Registry {
     /// Save registry index to filesystem
     #[instrument(skip(self))]
     pub async fn save(&self) -> Result<()> {
-        let guard = self.index.read()
+        let guard = self
+            .index
+            .read()
             .map_err(|e| anyhow::anyhow!("Failed to acquire index read lock: {}", e))?;
 
-        let index = guard.as_ref()
+        let index = guard
+            .as_ref()
             .ok_or_else(|| Error::new("Registry index not loaded"))?;
 
         // Create parent directories if they don't exist
@@ -346,10 +354,13 @@ impl Registry {
         }
 
         // Load from index if not in cache
-        let guard = self.index.read()
+        let guard = self
+            .index
+            .read()
             .map_err(|e| anyhow::anyhow!("Failed to acquire index read lock: {}", e))?;
 
-        let index = guard.as_ref()
+        let index = guard
+            .as_ref()
             .ok_or_else(|| Error::new("Registry index not loaded"))?;
 
         if let Some(metadata) = index.get_package(name) {
@@ -365,10 +376,16 @@ impl Registry {
     /// List all versions for a package
     #[instrument(skip(self))]
     pub async fn list_versions(&self, name: &str) -> Result<Vec<String>> {
-        let metadata = self.get_package(name).await?
+        let metadata = self
+            .get_package(name)
+            .await?
             .ok_or_else(|| anyhow::anyhow!("Package not found: {}", name))?;
 
-        Ok(metadata.versions.iter().map(|v| v.version.clone()).collect())
+        Ok(metadata
+            .versions
+            .iter()
+            .map(|v| v.version.clone())
+            .collect())
     }
 
     /// Get specific version metadata
@@ -376,20 +393,19 @@ impl Registry {
     pub async fn get_version(&self, name: &str, version: &str) -> Result<Option<VersionMetadata>> {
         let metadata = self.get_package(name).await?;
 
-        Ok(metadata.and_then(|m| {
-            m.versions.iter()
-                .find(|v| v.version == version)
-                .cloned()
-        }))
+        Ok(metadata.and_then(|m| m.versions.iter().find(|v| v.version == version).cloned()))
     }
 
     /// List all packages in registry
     #[instrument(skip(self))]
     pub async fn list_packages(&self) -> Result<Vec<String>> {
-        let guard = self.index.read()
+        let guard = self
+            .index
+            .read()
             .map_err(|e| anyhow::anyhow!("Failed to acquire index read lock: {}", e))?;
 
-        let index = guard.as_ref()
+        let index = guard
+            .as_ref()
             .ok_or_else(|| Error::new("Registry index not loaded"))?;
 
         Ok(index.list_packages())
@@ -398,10 +414,13 @@ impl Registry {
     /// Add or update a package in the registry
     #[instrument(skip(self, metadata))]
     pub async fn add_package(&self, metadata: PackageMetadata) -> Result<()> {
-        let mut guard = self.index.write()
+        let mut guard = self
+            .index
+            .write()
             .map_err(|e| anyhow::anyhow!("Failed to acquire index write lock: {}", e))?;
 
-        let index = guard.as_mut()
+        let index = guard
+            .as_mut()
             .ok_or_else(|| Error::new("Registry index not loaded"))?;
 
         let name = metadata.name.clone();
@@ -431,7 +450,10 @@ impl Default for Registry {
         // This is handled by Registry::new() which returns Result
         Self::new().unwrap_or_else(|_| {
             // Fallback to temp directory if home not available
-            let temp_path = std::env::temp_dir().join("ggen").join("registry").join("index.json");
+            let temp_path = std::env::temp_dir()
+                .join("ggen")
+                .join("registry")
+                .join("index.json");
             Self::with_path(temp_path)
         })
     }
@@ -638,11 +660,17 @@ mod tests {
         let package = create_test_package("versioned-pkg", "3.2.1");
         registry.add_package(package).await.unwrap();
 
-        let version = registry.get_version("versioned-pkg", "3.2.1").await.unwrap();
+        let version = registry
+            .get_version("versioned-pkg", "3.2.1")
+            .await
+            .unwrap();
         assert!(version.is_some());
         assert_eq!(version.unwrap().version, "3.2.1");
 
-        let nonexistent = registry.get_version("versioned-pkg", "9.9.9").await.unwrap();
+        let nonexistent = registry
+            .get_version("versioned-pkg", "9.9.9")
+            .await
+            .unwrap();
         assert!(nonexistent.is_none());
     }
 
@@ -653,9 +681,18 @@ mod tests {
 
         registry.load().await.unwrap();
 
-        registry.add_package(create_test_package("pkg-a", "1.0.0")).await.unwrap();
-        registry.add_package(create_test_package("pkg-b", "2.0.0")).await.unwrap();
-        registry.add_package(create_test_package("pkg-c", "3.0.0")).await.unwrap();
+        registry
+            .add_package(create_test_package("pkg-a", "1.0.0"))
+            .await
+            .unwrap();
+        registry
+            .add_package(create_test_package("pkg-b", "2.0.0"))
+            .await
+            .unwrap();
+        registry
+            .add_package(create_test_package("pkg-c", "3.0.0"))
+            .await
+            .unwrap();
 
         let packages = registry.list_packages().await.unwrap();
         assert_eq!(packages.len(), 3);
@@ -673,7 +710,10 @@ mod tests {
         {
             let registry1 = Registry::with_path(index_path.clone());
             registry1.load().await.unwrap();
-            registry1.add_package(create_test_package("persistent-pkg", "1.0.0")).await.unwrap();
+            registry1
+                .add_package(create_test_package("persistent-pkg", "1.0.0"))
+                .await
+                .unwrap();
             registry1.save().await.unwrap();
         }
 

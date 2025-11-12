@@ -83,12 +83,7 @@ fn test_search_filters_by_category() {
         .expect_search()
         .with(eq("web"))
         .times(1)
-        .returning(|_| {
-            Ok(vec![
-                generators::fake_package(),
-                generators::fake_package(),
-            ])
-        });
+        .returning(|_| Ok(vec![generators::fake_package(), generators::fake_package()]));
 
     // Act
     let result = run_search_with_category(&mock_marketplace, "web", Some("rust"));
@@ -103,26 +98,24 @@ fn test_search_filters_by_category() {
 fn test_search_ranks_results_by_relevance() {
     // Arrange
     let mut mock_marketplace = MockMarketplaceClient::new();
-    mock_marketplace
-        .expect_search()
-        .returning(|_| {
-            Ok(vec![
-                Package {
-                    id: "io.ggen.rust.exact".to_string(),
-                    name: "Rust Web Service".to_string(), // Exact match
-                    version: "1.0.0".to_string(),
-                    description: "Web service".to_string(),
-                    category: "rust".to_string(),
-                },
-                Package {
-                    id: "io.ggen.rust.partial".to_string(),
-                    name: "Rust CLI".to_string(), // Partial match
-                    version: "1.0.0".to_string(),
-                    description: "CLI tool".to_string(),
-                    category: "rust".to_string(),
-                },
-            ])
-        });
+    mock_marketplace.expect_search().returning(|_| {
+        Ok(vec![
+            Package {
+                id: "io.ggen.rust.exact".to_string(),
+                name: "Rust Web Service".to_string(), // Exact match
+                version: "1.0.0".to_string(),
+                description: "Web service".to_string(),
+                category: "rust".to_string(),
+            },
+            Package {
+                id: "io.ggen.rust.partial".to_string(),
+                name: "Rust CLI".to_string(), // Partial match
+                version: "1.0.0".to_string(),
+                description: "CLI tool".to_string(),
+                category: "rust".to_string(),
+            },
+        ])
+    });
 
     // Act
     let result = run_search_command(&mock_marketplace, "rust web");
@@ -145,7 +138,10 @@ fn test_search_creates_otel_span() {
     // Assert
     let span = tracer.find_span("ggen.marketplace.search").unwrap();
     assert_eq!(span.status, otel::SpanStatus::Ok);
-    assert!(span.attributes.iter().any(|(k, v)| k == "search.query" && v == "rust web"));
+    assert!(span
+        .attributes
+        .iter()
+        .any(|(k, v)| k == "search.query" && v == "rust web"));
     assert!(span.attributes.iter().any(|(k, _)| k == "results.count"));
 }
 
@@ -158,8 +154,7 @@ struct SearchResponse {
 }
 
 fn run_search_command(
-    marketplace: &dyn MarketplaceClient,
-    query: &str,
+    marketplace: &dyn MarketplaceClient, query: &str,
 ) -> Result<SearchResponse, anyhow::Error> {
     let packages = marketplace.search(query)?;
     Ok(SearchResponse {
@@ -169,8 +164,7 @@ fn run_search_command(
 }
 
 fn run_search_with_suggestions(
-    marketplace: &dyn MarketplaceClient,
-    query: &str,
+    marketplace: &dyn MarketplaceClient, query: &str,
 ) -> Result<SearchResponse, anyhow::Error> {
     let packages = marketplace.search(query)?;
 
@@ -188,9 +182,7 @@ fn run_search_with_suggestions(
 }
 
 fn run_search_with_category(
-    marketplace: &dyn MarketplaceClient,
-    query: &str,
-    category: Option<&str>,
+    marketplace: &dyn MarketplaceClient, query: &str, category: Option<&str>,
 ) -> Result<SearchResponse, anyhow::Error> {
     let mut packages = marketplace.search(query)?;
 
@@ -205,9 +197,7 @@ fn run_search_with_category(
 }
 
 fn run_search_with_tracing(
-    marketplace: &dyn MarketplaceClient,
-    tracer: &otel::MockTracerProvider,
-    query: &str,
+    marketplace: &dyn MarketplaceClient, tracer: &otel::MockTracerProvider, query: &str,
 ) -> Result<SearchResponse, anyhow::Error> {
     let result = run_search_command(marketplace, query)?;
 
@@ -215,7 +205,10 @@ fn run_search_with_tracing(
         name: "ggen.marketplace.search".to_string(),
         attributes: vec![
             ("search.query".to_string(), query.to_string()),
-            ("results.count".to_string(), result.packages.len().to_string()),
+            (
+                "results.count".to_string(),
+                result.packages.len().to_string(),
+            ),
         ],
         events: vec!["search_completed".to_string()],
         status: otel::SpanStatus::Ok,

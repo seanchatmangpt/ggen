@@ -20,9 +20,7 @@ fn test_help_me_detects_newcomer_level() {
 
     // Arrange: User with <5 commands run
     let mut mock_analytics = MockUsageAnalytics::new();
-    mock_analytics
-        .expect_get_command_count()
-        .returning(|| 3);
+    mock_analytics.expect_get_command_count().returning(|| 3);
     mock_analytics
         .expect_get_command_history()
         .returning(|| vec!["doctor".to_string(), "list".to_string()]);
@@ -34,7 +32,9 @@ fn test_help_me_detects_newcomer_level() {
     assert!(result.is_ok());
     let help = result.unwrap();
     assert_eq!(help.level, ExperienceLevel::Newcomer);
-    assert!(help.recommendations.contains(&"ggen quickstart demo".to_string()));
+    assert!(help
+        .recommendations
+        .contains(&"ggen quickstart demo".to_string()));
     assert!(help.recommendations.contains(&"ggen doctor".to_string()));
 
     // Performance
@@ -45,9 +45,7 @@ fn test_help_me_detects_newcomer_level() {
 fn test_help_me_detects_intermediate_level() {
     // Arrange: User with 10-50 commands run
     let mut mock_analytics = MockUsageAnalytics::new();
-    mock_analytics
-        .expect_get_command_count()
-        .returning(|| 25);
+    mock_analytics.expect_get_command_count().returning(|| 25);
     mock_analytics
         .expect_get_command_history()
         .returning(|| vec!["gen".to_string(), "list".to_string(), "search".to_string()]);
@@ -59,8 +57,12 @@ fn test_help_me_detects_intermediate_level() {
     assert!(result.is_ok());
     let help = result.unwrap();
     assert_eq!(help.level, ExperienceLevel::Intermediate);
-    assert!(help.recommendations.contains(&"ggen ai project".to_string()));
-    assert!(help.recommendations.contains(&"ggen add <package>".to_string()));
+    assert!(help
+        .recommendations
+        .contains(&"ggen ai project".to_string()));
+    assert!(help
+        .recommendations
+        .contains(&"ggen add <package>".to_string()));
 }
 
 #[test]
@@ -101,7 +103,9 @@ fn test_help_me_provides_command_specific_help() {
     assert!(help.command_help.is_some());
     let cmd_help = help.command_help.unwrap();
     assert_eq!(cmd_help.command, "gen");
-    assert!(cmd_help.description.contains("Generate code from a template"));
+    assert!(cmd_help
+        .description
+        .contains("Generate code from a template"));
     assert!(cmd_help.tip.is_some());
 }
 
@@ -110,9 +114,9 @@ fn test_help_me_includes_contextual_tips() {
     // Arrange: User who hasn't used AI features
     let mut mock_analytics = MockUsageAnalytics::new();
     mock_analytics.expect_get_command_count().returning(|| 20);
-    mock_analytics.expect_get_command_history().returning(|| {
-        vec!["gen".to_string(), "list".to_string(), "search".to_string()]
-    });
+    mock_analytics
+        .expect_get_command_history()
+        .returning(|| vec!["gen".to_string(), "list".to_string(), "search".to_string()]);
 
     // Act
     let result = run_help_me_command_with_tips(&mock_analytics);
@@ -136,7 +140,10 @@ fn test_help_me_creates_otel_span() {
     // Assert
     let span = tracer.find_span("ggen.help_me").unwrap();
     assert_eq!(span.status, otel::SpanStatus::Ok);
-    assert!(span.attributes.iter().any(|(k, v)| k == "user.level" && v == "newcomer"));
+    assert!(span
+        .attributes
+        .iter()
+        .any(|(k, v)| k == "user.level" && v == "newcomer"));
 }
 
 #[test]
@@ -161,7 +168,10 @@ fn test_help_me_adapts_to_expert_users() {
     let help = result.unwrap();
     assert_eq!(help.level, ExperienceLevel::Expert);
     assert!(help.recommendations.iter().any(|r| r.contains("cleanroom")));
-    assert!(help.recommendations.iter().any(|r| r.contains("performance")));
+    assert!(help
+        .recommendations
+        .iter()
+        .any(|r| r.contains("performance")));
 }
 
 // Mock types and helpers
@@ -198,8 +208,7 @@ struct CommandHelp {
 }
 
 fn run_help_me_command(
-    analytics: &dyn UsageAnalytics,
-    command: Option<&str>,
+    analytics: &dyn UsageAnalytics, command: Option<&str>,
 ) -> Result<HelpResponse, anyhow::Error> {
     let count = analytics.get_command_count();
     let history = analytics.get_command_history();
@@ -217,7 +226,9 @@ fn run_help_me_command(
     let command_help = command.map(|cmd| CommandHelp {
         command: cmd.to_string(),
         description: get_command_description(cmd),
-        tip: Some(format!("💡 Tip: Try 'ggen list' to see available templates first!")),
+        tip: Some(format!(
+            "💡 Tip: Try 'ggen list' to see available templates first!"
+        )),
     });
 
     Ok(HelpResponse {
@@ -239,15 +250,16 @@ fn run_help_me_command_with_tips(
     let has_used_ai = history.iter().any(|cmd| cmd.starts_with("ai"));
 
     if !has_used_ai {
-        response.tips.push("Try 'ggen ai project \"your idea\"' for AI-powered scaffolding".to_string());
+        response
+            .tips
+            .push("Try 'ggen ai project \"your idea\"' for AI-powered scaffolding".to_string());
     }
 
     Ok(response)
 }
 
 fn run_help_me_with_tracing(
-    analytics: &dyn UsageAnalytics,
-    tracer: &otel::MockTracerProvider,
+    analytics: &dyn UsageAnalytics, tracer: &otel::MockTracerProvider,
 ) -> Result<HelpResponse, anyhow::Error> {
     let result = run_help_me_command(analytics, None)?;
 
@@ -255,7 +267,10 @@ fn run_help_me_with_tracing(
         name: "ggen.help_me".to_string(),
         attributes: vec![
             ("user.level".to_string(), "newcomer".to_string()),
-            ("command.count".to_string(), analytics.get_command_count().to_string()),
+            (
+                "command.count".to_string(),
+                analytics.get_command_count().to_string(),
+            ),
         ],
         events: vec!["help_generated".to_string()],
         status: otel::SpanStatus::Ok,
@@ -302,7 +317,8 @@ fn calculate_top_commands(history: &[String]) -> Vec<(String, usize)> {
 
 fn get_command_description(command: &str) -> String {
     match command {
-        "gen" => "Generate code from a template. Templates use YAML frontmatter and Tera syntax.".to_string(),
+        "gen" => "Generate code from a template. Templates use YAML frontmatter and Tera syntax."
+            .to_string(),
         "doctor" => "Check your environment setup and prerequisites.".to_string(),
         "list" => "List available templates.".to_string(),
         _ => format!("Help for {}", command),

@@ -29,9 +29,7 @@
 //! cargo bench --bench v2_performance -- memory_baseline
 //! ```
 
-use criterion::{
-    black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput,
-};
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 use std::fs;
 use std::path::PathBuf;
 use std::process::Command;
@@ -175,11 +173,7 @@ pub mod {{ module.name }} {
 
         // Create context files
         let simple_context = temp_dir.path().join("simple_context.json");
-        fs::write(
-            &simple_context,
-            r#"{"name": "SimpleApp"}"#,
-        )
-        .unwrap();
+        fs::write(&simple_context, r#"{"name": "SimpleApp"}"#).unwrap();
 
         let complex_context = temp_dir.path().join("complex_context.json");
         fs::write(
@@ -322,15 +316,8 @@ fn bench_rdf_operations(c: &mut Criterion) {
         let mut turtle_data = String::from("@prefix ex: <http://example.org/> .\n\n");
 
         for i in 0..num_triples {
-            turtle_data.push_str(&format!(
-                "ex:entity{} ex:hasProperty ex:value{} .\n",
-                i, i
-            ));
-            turtle_data.push_str(&format!(
-                "ex:entity{} ex:hasType ex:Type{} .\n",
-                i,
-                i % 10
-            ));
+            turtle_data.push_str(&format!("ex:entity{} ex:hasProperty ex:value{} .\n", i, i));
+            turtle_data.push_str(&format!("ex:entity{} ex:hasType ex:Type{} .\n", i, i % 10));
             turtle_data.push_str(&format!(
                 "ex:entity{} ex:relatesTo ex:entity{} .\n",
                 i,
@@ -352,11 +339,7 @@ fn bench_rdf_operations(c: &mut Criterion) {
             },
             |(temp_dir, graph_file)| {
                 let output = Command::new(&binary_path)
-                    .args([
-                        "graph",
-                        "load",
-                        graph_file.to_str().unwrap(),
-                    ])
+                    .args(["graph", "load", graph_file.to_str().unwrap()])
                     .current_dir(temp_dir.path())
                     .output()
                     .expect("Failed to load graph");
@@ -376,11 +359,7 @@ fn bench_rdf_operations(c: &mut Criterion) {
             },
             |(temp_dir, graph_file)| {
                 let output = Command::new(&binary_path)
-                    .args([
-                        "graph",
-                        "load",
-                        graph_file.to_str().unwrap(),
-                    ])
+                    .args(["graph", "load", graph_file.to_str().unwrap()])
                     .current_dir(temp_dir.path())
                     .output()
                     .expect("Failed to load graph");
@@ -440,11 +419,7 @@ fn bench_rdf_operations(c: &mut Criterion) {
             },
             |(temp_dir, graph_file)| {
                 let output = Command::new(&binary_path)
-                    .args([
-                        "graph",
-                        "validate",
-                        graph_file.to_str().unwrap(),
-                    ])
+                    .args(["graph", "validate", graph_file.to_str().unwrap()])
                     .current_dir(temp_dir.path())
                     .output()
                     .expect("Failed to validate graph");

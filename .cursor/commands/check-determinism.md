@@ -28,7 +28,7 @@ Runs tests in single-threaded mode for deterministic execution order.
 cargo make test
 
 # Update snapshots if needed (review changes carefully)
-cargo test --package <package> -- --nocapture
+cargo make test --package <package> -- --nocapture
 ```
 
 ## Determinism Requirements

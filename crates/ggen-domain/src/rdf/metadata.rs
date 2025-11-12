@@ -131,10 +131,7 @@ impl TemplateMetadata {
             ));
         }
         if let Some(usage) = self.usage_count {
-            turtle.push_str(&format!(
-                "  ggen:usageCount \"{}\"^^xsd:integer ;\n",
-                usage
-            ));
+            turtle.push_str(&format!("  ggen:usageCount \"{}\"^^xsd:integer ;\n", usage));
         }
 
         // Tags
@@ -204,8 +201,11 @@ impl TemplateMetadata {
 
     /// Parse template metadata from Turtle RDF
     pub fn from_turtle(turtle: &str, template_id: &str) -> Result<Self> {
-        let graph = Graph::new().map_err(|e| Error::new(&format!("Failed to create graph: {}", e)))?;
-        graph.insert_turtle(turtle).map_err(|e| Error::new(&format!("Failed to insert turtle: {}", e)))?;
+        let graph =
+            Graph::new().map_err(|e| Error::new(&format!("Failed to create graph: {}", e)))?;
+        graph
+            .insert_turtle(turtle)
+            .map_err(|e| Error::new(&format!("Failed to insert turtle: {}", e)))?;
 
         // Query for template metadata
         let query = format!(
@@ -229,7 +229,9 @@ impl TemplateMetadata {
             template_id = template_id
         );
 
-        let results = graph.query_cached(&query).map_err(|e| Error::new(&format!("Query failed: {}", e)))?;
+        let results = graph
+            .query_cached(&query)
+            .map_err(|e| Error::new(&format!("Query failed: {}", e)))?;
         let mut metadata = TemplateMetadata::new(template_id.to_string(), String::new());
 
         if let ggen_core::graph::CachedResult::Solutions(rows) = results {
@@ -279,7 +281,8 @@ pub struct TemplateMetadataStore {
 impl TemplateMetadataStore {
     /// Create new in-memory metadata store
     pub fn new() -> Result<Self> {
-        let store = Store::new().map_err(|e| Error::new(&format!("Failed to create Oxigraph store: {}", e)))?;
+        let store = Store::new()
+            .map_err(|e| Error::new(&format!("Failed to create Oxigraph store: {}", e)))?;
         Ok(Self {
             store: Arc::new(Mutex::new(store)),
             metadata_cache: Arc::new(Mutex::new(HashMap::new())),
@@ -288,7 +291,8 @@ impl TemplateMetadataStore {
 
     /// Create persistent metadata store at path
     pub fn open<P: AsRef<Path>>(path: P) -> Result<Self> {
-        let store = Store::open(path.as_ref()).map_err(|e| Error::new(&format!("Failed to open Oxigraph store: {}", e)))?;
+        let store = Store::open(path.as_ref())
+            .map_err(|e| Error::new(&format!("Failed to open Oxigraph store: {}", e)))?;
         Ok(Self {
             store: Arc::new(Mutex::new(store)),
             metadata_cache: Arc::new(Mutex::new(HashMap::new())),
@@ -360,7 +364,9 @@ impl TemplateMetadataStore {
             .lock()
             .map_err(|e| Error::new(&format!("Lock poisoned: {}", e)))?;
         #[allow(deprecated)]
-        let results = store.query(&query).map_err(|e| Error::new(&format!("Query failed: {}", e)))?;
+        let results = store
+            .query(&query)
+            .map_err(|e| Error::new(&format!("Query failed: {}", e)))?;
 
         if let oxigraph::sparql::QueryResults::Solutions(mut solutions) = results {
             if solutions.next().is_some() {
@@ -390,12 +396,15 @@ impl TemplateMetadataStore {
             .lock()
             .map_err(|e| Error::new(&format!("Lock poisoned: {}", e)))?;
         #[allow(deprecated)]
-        let results = store.query(sparql).map_err(|e| Error::new(&format!("Query failed: {}", e)))?;
+        let results = store
+            .query(sparql)
+            .map_err(|e| Error::new(&format!("Query failed: {}", e)))?;
 
         let mut rows = Vec::new();
         if let oxigraph::sparql::QueryResults::Solutions(solutions) = results {
             for solution in solutions {
-                let solution = solution.map_err(|e| Error::new(&format!("Solution error: {}", e)))?;
+                let solution =
+                    solution.map_err(|e| Error::new(&format!("Solution error: {}", e)))?;
                 let mut row = BTreeMap::new();
                 for (var, term) in solution.iter() {
                     row.insert(var.as_str().to_string(), term.to_string());
@@ -518,7 +527,9 @@ impl TemplateMetadataStore {
             .store
             .lock()
             .map_err(|e| Error::new(&format!("Lock poisoned: {}", e)))?;
-        store.clear().map_err(|e| Error::new(&format!("Failed to clear store: {}", e)))?;
+        store
+            .clear()
+            .map_err(|e| Error::new(&format!("Failed to clear store: {}", e)))?;
 
         let mut cache = self
             .metadata_cache

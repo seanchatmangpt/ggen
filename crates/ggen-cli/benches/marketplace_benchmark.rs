@@ -31,11 +31,7 @@ fn generate_package_names(count: usize) -> Vec<String> {
 /// Generate test search queries
 fn generate_search_queries(complexity: QueryComplexity) -> Vec<String> {
     match complexity {
-        QueryComplexity::Simple => vec![
-            "rust".to_string(),
-            "web".to_string(),
-            "cli".to_string(),
-        ],
+        QueryComplexity::Simple => vec!["rust".to_string(), "web".to_string(), "cli".to_string()],
         QueryComplexity::Medium => vec![
             "rust web framework".to_string(),
             "async database".to_string(),
@@ -53,7 +49,11 @@ fn generate_search_queries(complexity: QueryComplexity) -> Vec<String> {
 fn bench_search(c: &mut Criterion) {
     let mut group = c.benchmark_group("marketplace_search");
 
-    for complexity in [QueryComplexity::Simple, QueryComplexity::Medium, QueryComplexity::Complex] {
+    for complexity in [
+        QueryComplexity::Simple,
+        QueryComplexity::Medium,
+        QueryComplexity::Complex,
+    ] {
         let queries = generate_search_queries(complexity);
         let complexity_name = match complexity {
             QueryComplexity::Simple => "simple",
@@ -173,11 +173,7 @@ fn bench_concurrent_operations(c: &mut Criterion) {
 fn bench_metadata_parsing(c: &mut Criterion) {
     let mut group = c.benchmark_group("marketplace_metadata");
 
-    let metadata_sizes = [
-        ("small", 100),
-        ("medium", 1000),
-        ("large", 10000),
-    ];
+    let metadata_sizes = [("small", 100), ("medium", 1000), ("large", 10000)];
 
     for (name, size) in metadata_sizes {
         let metadata = "a".repeat(size);
@@ -274,10 +270,8 @@ fn bench_sort_filter(c: &mut Criterion) {
                     let mut sorted = packages.clone();
                     sorted.sort();
 
-                    let filtered: Vec<_> = sorted
-                        .iter()
-                        .filter(|p| p.contains("package"))
-                        .collect();
+                    let filtered: Vec<_> =
+                        sorted.iter().filter(|p| p.contains("package")).collect();
 
                     black_box(filtered)
                 });

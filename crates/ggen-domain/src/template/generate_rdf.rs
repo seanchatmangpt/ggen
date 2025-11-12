@@ -65,21 +65,15 @@ pub fn generate_cli_from_rdf(options: &GenerateFromRdfOptions) -> Result<Generat
 
     // Create output directory if needed
     std::fs::create_dir_all(&options.output_dir).map_err(|e| {
-        ggen_utils::error::Error::new(&format!(
-            "Failed to create output directory: {}",
-            e
-        ))
+        ggen_utils::error::Error::new(&format!("Failed to create output directory: {}", e))
     })?;
 
     // Use ggen-ai RDF generator
     let generator = ggen_ai::rdf::CliGenerator::new(options.template_dir.clone());
 
-    generator.generate_from_ttl(&options.ttl_file, &options.output_dir).map_err(|e| {
-        ggen_utils::error::Error::new(&format!(
-            "RDF generation failed: {}",
-            e
-        ))
-    })?;
+    generator
+        .generate_from_ttl(&options.ttl_file, &options.output_dir)
+        .map_err(|e| ggen_utils::error::Error::new(&format!("RDF generation failed: {}", e)))?;
 
     // Count generated files (approximate)
     let files_generated = count_files_in_directory(&options.output_dir)?;
@@ -107,12 +101,11 @@ fn count_files_in_directory(dir: &Path) -> Result<usize> {
         return Ok(0);
     }
 
-    for entry in std::fs::read_dir(dir).map_err(|e| {
-        ggen_utils::error::Error::new(&format!("Failed to read directory: {}", e))
-    })? {
-        let entry = entry.map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to read entry: {}", e))
-        })?;
+    for entry in std::fs::read_dir(dir)
+        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to read directory: {}", e)))?
+    {
+        let entry = entry
+            .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to read entry: {}", e)))?;
 
         let path = entry.path();
         if path.is_file() {
@@ -128,8 +121,8 @@ fn count_files_in_directory(dir: &Path) -> Result<usize> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use tempfile::TempDir;
     use std::fs;
+    use tempfile::TempDir;
 
     #[test]
     fn test_generate_from_rdf_options_creation() {
@@ -182,7 +175,10 @@ mod tests {
 
         let result = generate_cli_from_rdf(&options);
         assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().contains("TTL file not found"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("TTL file not found"));
     }
 
     #[test]
@@ -199,6 +195,9 @@ mod tests {
 
         let result = generate_cli_from_rdf(&options);
         assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().contains("Template directory not found"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("Template directory not found"));
     }
 }

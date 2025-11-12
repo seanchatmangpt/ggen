@@ -20,11 +20,8 @@ fn test_ai_project_generates_complete_rust_project() {
     let mut mock_llm = MockLlmClient::new();
     let mut mock_fs = MockFilesystem::new();
 
-    mock_llm
-        .expect_generate()
-        .times(1)
-        .returning(|_, _| {
-            Ok(r##"
+    mock_llm.expect_generate().times(1).returning(|_, _| {
+        Ok(r##"
             {
               "name": "my-api",
               "language": "rust",
@@ -35,13 +32,10 @@ fn test_ai_project_generates_complete_rust_project() {
               ]
             }
             "##
-            .to_string())
-        });
+        .to_string())
+    });
 
-    mock_fs
-        .expect_create_dir()
-        .times(1)
-        .returning(|_| Ok(()));
+    mock_fs.expect_create_dir().times(1).returning(|_| Ok(()));
     mock_fs
         .expect_write_file()
         .times(3) // 3 files
@@ -85,10 +79,7 @@ fn test_ai_project_includes_tests_by_default() {
     // Assert: Contains test files
     assert!(result.is_ok());
     let project = result.unwrap();
-    assert!(project
-        .files_created
-        .iter()
-        .any(|f| f.contains("tests/")));
+    assert!(project.files_created.iter().any(|f| f.contains("tests/")));
 }
 
 #[test]
@@ -152,7 +143,10 @@ fn test_ai_project_creates_otel_span() {
     // Assert
     let span = tracer.find_span("ggen.ai.project").unwrap();
     assert_eq!(span.status, otel::SpanStatus::Ok);
-    assert!(span.attributes.iter().any(|(k, v)| k == "project.name" && v == "my-api"));
+    assert!(span
+        .attributes
+        .iter()
+        .any(|(k, v)| k == "project.name" && v == "my-api"));
     assert!(span.attributes.iter().any(|(k, _)| k == "project.language"));
 }
 
@@ -166,15 +160,13 @@ struct ProjectScaffold {
 }
 
 fn run_ai_project_command(
-    llm: &dyn LlmClient,
-    fs: &dyn Filesystem,
-    description: &str,
-    name: &str,
-    language: &str,
+    llm: &dyn LlmClient, fs: &dyn Filesystem, description: &str, name: &str, language: &str,
 ) -> Result<ProjectScaffold, anyhow::Error> {
     // Validate project name
     if name.contains(' ') {
-        return Err(anyhow::anyhow!("Invalid project name: cannot contain spaces"));
+        return Err(anyhow::anyhow!(
+            "Invalid project name: cannot contain spaces"
+        ));
     }
 
     let prompt = format!(
@@ -196,8 +188,7 @@ fn run_ai_project_command(
         .map(|f| {
             let path = f["path"].as_str().unwrap_or("");
             let content = f["content"].as_str().unwrap_or("");
-            fs.write_file(&format!("{}/{}", name, path), content)
-                .ok();
+            fs.write_file(&format!("{}/{}", name, path), content).ok();
             path.to_string()
         })
         .collect();
@@ -210,10 +201,7 @@ fn run_ai_project_command(
 }
 
 fn run_ai_project_with_tracing(
-    llm: &dyn LlmClient,
-    fs: &dyn Filesystem,
-    tracer: &otel::MockTracerProvider,
-    name: &str,
+    llm: &dyn LlmClient, fs: &dyn Filesystem, tracer: &otel::MockTracerProvider, name: &str,
 ) -> Result<ProjectScaffold, anyhow::Error> {
     let result = run_ai_project_command(llm, fs, "test project", name, "rust")?;
 
@@ -222,7 +210,10 @@ fn run_ai_project_with_tracing(
         attributes: vec![
             ("project.name".to_string(), name.to_string()),
             ("project.language".to_string(), "rust".to_string()),
-            ("files.count".to_string(), result.files_created.len().to_string()),
+            (
+                "files.count".to_string(),
+                result.files_created.len().to_string(),
+            ),
         ],
         events: vec!["project_scaffolded".to_string()],
         status: otel::SpanStatus::Ok,

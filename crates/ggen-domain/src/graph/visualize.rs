@@ -144,8 +144,7 @@ pub struct VisualizeInput {
 ///
 /// Real implementation using ggen-core Graph APIs
 pub async fn visualize_graph(
-    graph_path: &Path,
-    options: &VisualizeOptions,
+    graph_path: &Path, options: &VisualizeOptions,
 ) -> Result<VisualizeStats> {
     use std::fs;
 
@@ -161,9 +160,7 @@ pub async fn visualize_graph(
     };
 
     // Determine output format
-    let format = options
-        .format
-        .unwrap_or(VisualizeFormat::Dot);
+    let format = options.format.unwrap_or(VisualizeFormat::Dot);
 
     // Extract nodes and edges from graph
     let nodes = extract_nodes(&graph, options)?;
@@ -189,8 +186,9 @@ pub async fn visualize_graph(
 
     // Write output file
     if let Some(ref path) = output_path {
-        fs::write(path, content)
-            .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to write visualization: {}", e)))?;
+        fs::write(path, content).map_err(|e| {
+            ggen_utils::error::Error::new(&format!("Failed to write visualization: {}", e))
+        })?;
     }
 
     let stats = VisualizeStats {
@@ -205,24 +203,29 @@ pub async fn visualize_graph(
 
 /// Extract nodes (subjects) from graph
 fn extract_nodes(graph: &Graph, options: &VisualizeOptions) -> Result<Vec<(String, String)>> {
-    
     let mut nodes = Vec::new();
     let mut seen = std::collections::HashSet::new();
 
     // Query all subjects
     let query = if let Some(ref filter) = options.subject_filter {
-        format!("SELECT DISTINCT ?s WHERE {{ ?s ?p ?o FILTER(strstarts(str(?s), \"{}\")) }}", filter)
+        format!(
+            "SELECT DISTINCT ?s WHERE {{ ?s ?p ?o FILTER(strstarts(str(?s), \"{}\")) }}",
+            filter
+        )
     } else {
         "SELECT DISTINCT ?s WHERE { ?s ?p ?o }".to_string()
     };
 
-    let results = graph.query(&query)
+    let results = graph
+        .query(&query)
         .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to query graph: {}", e)))?;
 
     match results {
         oxigraph::sparql::QueryResults::Solutions(solutions) => {
             for solution in solutions {
-                let solution = solution.map_err(|e| ggen_utils::error::Error::new(&format!("Query solution error: {}", e)))?;
+                let solution = solution.map_err(|e| {
+                    ggen_utils::error::Error::new(&format!("Query solution error: {}", e))
+                })?;
                 if let Some(term) = solution.get("s") {
                     let node_id = term.to_string();
                     if !seen.contains(&node_id) {
@@ -244,23 +247,33 @@ fn extract_nodes(graph: &Graph, options: &VisualizeOptions) -> Result<Vec<(Strin
 }
 
 /// Extract edges (triples) from graph
-fn extract_edges(graph: &Graph, options: &VisualizeOptions) -> Result<Vec<(String, String, String)>> {
+fn extract_edges(
+    graph: &Graph, options: &VisualizeOptions,
+) -> Result<Vec<(String, String, String)>> {
     let mut edges = Vec::new();
 
     let query = if let Some(ref filter) = options.subject_filter {
-        format!("SELECT ?s ?p ?o WHERE {{ ?s ?p ?o FILTER(strstarts(str(?s), \"{}\")) }}", filter)
+        format!(
+            "SELECT ?s ?p ?o WHERE {{ ?s ?p ?o FILTER(strstarts(str(?s), \"{}\")) }}",
+            filter
+        )
     } else {
         "SELECT ?s ?p ?o WHERE { ?s ?p ?o }".to_string()
     };
 
-    let results = graph.query(&query)
+    let results = graph
+        .query(&query)
         .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to query graph: {}", e)))?;
 
     match results {
         oxigraph::sparql::QueryResults::Solutions(solutions) => {
             for solution in solutions {
-                let solution = solution.map_err(|e| ggen_utils::error::Error::new(&format!("Query solution error: {}", e)))?;
-                if let (Some(s), Some(p), Some(o)) = (solution.get("s"), solution.get("p"), solution.get("o")) {
+                let solution = solution.map_err(|e| {
+                    ggen_utils::error::Error::new(&format!("Query solution error: {}", e))
+                })?;
+                if let (Some(s), Some(p), Some(o)) =
+                    (solution.get("s"), solution.get("p"), solution.get("o"))
+                {
                     edges.push((s.to_string(), p.to_string(), o.to_string()));
                 }
             }
@@ -277,14 +290,17 @@ fn extract_label(graph: &Graph, node_id: &str) -> Result<String> {
         "SELECT ?label WHERE {{ <{}> <http://www.w3.org/2000/01/rdf-schema#label> ?label }}",
         node_id
     );
-    
-    let results = graph.query(&query)
+
+    let results = graph
+        .query(&query)
         .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to query label: {}", e)))?;
 
     match results {
         oxigraph::sparql::QueryResults::Solutions(solutions) => {
             for solution in solutions {
-                let solution = solution.map_err(|e| ggen_utils::error::Error::new(&format!("Query solution error: {}", e)))?;
+                let solution = solution.map_err(|e| {
+                    ggen_utils::error::Error::new(&format!("Query solution error: {}", e))
+                })?;
                 if let Some(label) = solution.get("label") {
                     return Ok(label.to_string());
                 }
@@ -299,9 +315,7 @@ fn extract_label(graph: &Graph, node_id: &str) -> Result<String> {
 
 /// Generate DOT format representation
 pub fn generate_dot(
-    nodes: &[(String, String)],
-    edges: &[(String, String, String)],
-    include_labels: bool,
+    nodes: &[(String, String)], edges: &[(String, String, String)], include_labels: bool,
 ) -> String {
     let mut dot = String::from("digraph RDF {\n");
     dot.push_str("  rankdir=TB;\n");
@@ -336,8 +350,7 @@ pub fn generate_dot(
 
 /// Generate JSON format for web visualization
 pub fn generate_json(
-    nodes: &[(String, String)],
-    edges: &[(String, String, String)],
+    nodes: &[(String, String)], edges: &[(String, String, String)],
 ) -> Result<String> {
     let node_objects: Vec<_> = nodes
         .iter()
@@ -360,9 +373,8 @@ pub fn generate_json(
         "edges": edge_objects
     });
 
-    serde_json::to_string_pretty(&graph).map_err(|e| {
-        ggen_utils::error::Error::new(&format!("JSON serialization failed: {}", e))
-    })
+    serde_json::to_string_pretty(&graph)
+        .map_err(|e| ggen_utils::error::Error::new(&format!("JSON serialization failed: {}", e)))
 }
 
 #[cfg(test)]
@@ -474,15 +486,13 @@ pub async fn execute_visualize(input: VisualizeInput) -> Result<VisualizeOutput>
     let format = VisualizeFormat::from_str(&input.format)?;
 
     // Create visualize options
-    let mut options = VisualizeOptions::new()
-        .with_format(format)
-        .with_output(
-            input.output.clone().unwrap_or_else(|| {
-                let mut path = input.input.clone();
-                path.set_extension(format.extension());
-                path
-            })
-        );
+    let mut options = VisualizeOptions::new().with_format(format).with_output(
+        input.output.clone().unwrap_or_else(|| {
+            let mut path = input.input.clone();
+            path.set_extension(format.extension());
+            path
+        }),
+    );
 
     // Apply labels if requested
     if input.labels {
@@ -508,7 +518,9 @@ pub async fn execute_visualize(input: VisualizeInput) -> Result<VisualizeOutput>
     Ok(VisualizeOutput {
         nodes_rendered: stats.nodes_rendered,
         edges_rendered: stats.edges_rendered,
-        output_path: stats.output_path.as_ref()
+        output_path: stats
+            .output_path
+            .as_ref()
             .map(|p| p.to_string_lossy().to_string())
             .unwrap_or_default(),
         format: stats.format,
@@ -519,12 +531,13 @@ pub async fn execute_visualize(input: VisualizeInput) -> Result<VisualizeOutput>
 pub async fn run(args: &VisualizeInput) -> Result<()> {
     let output = execute_visualize(args.clone()).await?;
 
-    println!("✅ Visualized {} nodes and {} edges to {}",
+    ggen_utils::alert_success!(
+        "Visualized {} nodes and {} edges to {}",
         output.nodes_rendered,
         output.edges_rendered,
         output.output_path
     );
-    println!("   Format: {}", output.format);
+    ggen_utils::alert_info!("   Format: {}", output.format);
 
     Ok(())
 }

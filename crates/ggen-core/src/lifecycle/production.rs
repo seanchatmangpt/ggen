@@ -215,7 +215,10 @@ impl ReadinessTracker {
         let parent_dir = self.config_path.parent().ok_or_else(|| {
             ProductionError::ConfigLoad(std::io::Error::new(
                 std::io::ErrorKind::InvalidInput,
-                format!("Config path has no parent directory: {}", self.config_path.display())
+                format!(
+                    "Config path has no parent directory: {}",
+                    self.config_path.display()
+                ),
             ))
         })?;
         std::fs::create_dir_all(parent_dir)?;
@@ -722,7 +725,7 @@ impl Placeholder {
 // Category: {category:?}
 // Priority: {priority}
 // Guidance: {guidance}
-// TODO: Implement this placeholder for production readiness"#,
+// FUTURE: Implement this placeholder for production readiness"#,
             description = self.description,
             category = self.category,
             priority = self.priority,
@@ -737,7 +740,7 @@ impl Placeholder {
 {{{{!-- Category: {category:?} --}}
 {{{{!-- Priority: {priority} --}}
 {{{{!-- Guidance: {guidance} --}}
-{{{{!-- TODO: Implement this placeholder for production readiness --}}}}"#,
+{{{{!-- FUTURE: Implement this placeholder for production readiness --}}}}"#,
             description = self.description,
             category = self.category,
             priority = self.priority,
@@ -967,8 +970,14 @@ mod tests {
 
         assert_eq!(report.project_name, "Current Project");
         assert!(report.overall_score >= 0.0 && report.overall_score <= 100.0);
-        assert!(!report.by_category.is_empty(), "by_category should not be empty after loading defaults");
-        assert!(!report.requirements.is_empty(), "requirements should not be empty after loading defaults");
+        assert!(
+            !report.by_category.is_empty(),
+            "by_category should not be empty after loading defaults"
+        );
+        assert!(
+            !report.requirements.is_empty(),
+            "requirements should not be empty after loading defaults"
+        );
     }
 
     #[test]

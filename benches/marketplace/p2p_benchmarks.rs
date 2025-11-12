@@ -15,9 +15,7 @@
 //! - Local cache: <1ms
 //! - Memory per peer: ~50MB
 
-use criterion::{
-    black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput,
-};
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
@@ -122,9 +120,7 @@ impl MockPeer {
         let packages = self.packages.read().await;
         let results: Vec<MockPackage> = packages
             .values()
-            .filter(|p| {
-                p.name.contains(query) || p.metadata.values().any(|v| v.contains(query))
-            })
+            .filter(|p| p.name.contains(query) || p.metadata.values().any(|v| v.contains(query)))
             .cloned()
             .collect();
         (results, start.elapsed())
@@ -338,7 +334,10 @@ fn bench_package_search(c: &mut Criterion) {
 
     for (peer_count, package_count) in [(10, 100), (20, 500), (50, 1000)].iter() {
         group.bench_with_input(
-            BenchmarkId::new("search_across_peers", format!("{}p_{}pkg", peer_count, package_count)),
+            BenchmarkId::new(
+                "search_across_peers",
+                format!("{}p_{}pkg", peer_count, package_count),
+            ),
             &(*peer_count, *package_count),
             |b, (peers, packages)| {
                 b.to_async(&rt).iter(|| async move {
@@ -390,7 +389,9 @@ fn bench_gossipsub_propagation(c: &mut Criterion) {
                     let peer = &network.peers[0];
 
                     let message = b"Package announcement: test-package@1.0.0";
-                    let duration = peer.gossip_publish("/ggen/packages/v1".to_string(), message.to_vec()).await;
+                    let duration = peer
+                        .gossip_publish("/ggen/packages/v1".to_string(), message.to_vec())
+                        .await;
 
                     // Simulate propagation to other peers
                     let propagation_delay = Duration::from_millis(50 * (size as u64 - 1) / 5);
@@ -419,7 +420,8 @@ fn bench_gossipsub_propagation(c: &mut Criterion) {
             let start = Instant::now();
             peer.publish_package(package.clone()).await;
             let message = serde_json::to_vec(&package).unwrap();
-            peer.gossip_publish("/ggen/packages/v1".to_string(), message).await;
+            peer.gossip_publish("/ggen/packages/v1".to_string(), message)
+                .await;
             let duration = start.elapsed();
 
             black_box(duration)
@@ -464,7 +466,10 @@ fn bench_memory_usage(c: &mut Criterion) {
     // Memory with packages
     for (peer_count, package_count) in [(10, 100), (20, 500), (50, 1000)].iter() {
         group.bench_with_input(
-            BenchmarkId::new("memory_with_packages", format!("{}p_{}pkg", peer_count, package_count)),
+            BenchmarkId::new(
+                "memory_with_packages",
+                format!("{}p_{}pkg", peer_count, package_count),
+            ),
             &(*peer_count, *package_count),
             |b, (peers, packages)| {
                 b.to_async(&rt).iter(|| async move {
@@ -605,10 +610,12 @@ fn bench_cli_commands(c: &mut Criterion) {
 
             // Store in DHT
             let package_json = serde_json::to_vec(&package).unwrap();
-            peer.dht_put("new-package".to_string(), package_json.clone()).await;
+            peer.dht_put("new-package".to_string(), package_json.clone())
+                .await;
 
             // Announce via gossipsub
-            peer.gossip_publish("/ggen/packages/v1".to_string(), package_json).await;
+            peer.gossip_publish("/ggen/packages/v1".to_string(), package_json)
+                .await;
 
             let duration = start.elapsed();
             black_box(duration)
@@ -632,9 +639,12 @@ fn bench_peer_reputation(c: &mut Criterion) {
             let network = MockP2PNetwork::new(50).await;
 
             let start = Instant::now();
-            let avg_reputation: f64 = network.peers.iter()
+            let avg_reputation: f64 = network
+                .peers
+                .iter()
                 .map(|p| p.reputation_score)
-                .sum::<f64>() / network.peers.len() as f64;
+                .sum::<f64>()
+                / network.peers.len() as f64;
             let duration = start.elapsed();
 
             black_box((avg_reputation, duration))
@@ -647,7 +657,9 @@ fn bench_peer_reputation(c: &mut Criterion) {
             let network = MockP2PNetwork::new(50).await;
 
             let start = Instant::now();
-            let mut best_peers: Vec<_> = network.peers.iter()
+            let mut best_peers: Vec<_> = network
+                .peers
+                .iter()
                 .filter(|p| p.reputation_score > 0.8)
                 .collect();
             best_peers.sort_by(|a, b| b.reputation_score.partial_cmp(&a.reputation_score).unwrap());

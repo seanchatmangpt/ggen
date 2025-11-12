@@ -3,7 +3,8 @@
 //! These tests use REAL search operations with actual index data
 //! following the Chicago school of TDD (integration-focused testing).
 
-use ggen_cli_lib::domain::marketplace::{SearchFilters, SearchResult, search_packages};
+use chicago_tdd_tools::prelude::*;
+use ggen_domain::marketplace::{execute_search, SearchFilters, SearchInput, SearchResult};
 use ggen_utils::error::Result;
 use serde_json;
 use std::fs;
@@ -106,9 +107,9 @@ impl TestPackage {
 // KEYWORD SEARCH TESTS - 4 tests
 // ============================================================================
 
-#[tokio::test]
-async fn test_search_exact_keyword_match() -> Result<()> {
-    let temp_dir = TempDir::new()?;
+async_test!(test_search_exact_keyword_match, async {
+    // Arrange
+    let temp_dir = TempDir::new().unwrap();
 
     create_test_index(
         temp_dir.path(),
@@ -117,20 +118,27 @@ async fn test_search_exact_keyword_match() -> Result<()> {
             TestPackage::new("web-server").tags(vec!["web", "http"]),
             TestPackage::new("database").tags(vec!["db", "storage"]),
         ],
-    )?;
+    )
+    .unwrap();
 
+    // Act
     let filters = SearchFilters::new().with_limit(10);
-    let results = search_packages("cli", &filters).await?;
+    let results = execute_search(SearchInput {
+        query: "cli".to_string(),
+        limit: filters.limit,
+        category: filters.category.clone(),
+        ..Default::default()
+    })
+    .await
+    .unwrap();
 
-    // Placeholder returns empty - Phase 2 will implement real search
+    // Assert: Placeholder returns empty - Phase 2 will implement real search
     assert!(results.is_empty());
+});
 
-    Ok(())
-}
-
-#[tokio::test]
-async fn test_search_partial_keyword_match() -> Result<()> {
-    let temp_dir = TempDir::new()?;
+async_test!(test_search_partial_keyword_match, async {
+    // Arrange
+    let temp_dir = TempDir::new().unwrap();
 
     create_test_index(
         temp_dir.path(),
@@ -139,19 +147,27 @@ async fn test_search_partial_keyword_match() -> Result<()> {
             TestPackage::new("cli-tools").tags(vec!["cli", "dev"]),
             TestPackage::new("web-cli").tags(vec!["cli", "web"]),
         ],
-    )?;
+    )
+    .unwrap();
 
+    // Act
     let filters = SearchFilters::new().with_limit(10);
-    let results = search_packages("cli", &filters).await?;
+    let results = execute_search(SearchInput {
+        query: "cli".to_string(),
+        limit: filters.limit,
+        category: filters.category.clone(),
+        ..Default::default()
+    })
+    .await
+    .unwrap();
 
+    // Assert
     assert!(results.is_empty());
+});
 
-    Ok(())
-}
-
-#[tokio::test]
-async fn test_search_case_insensitive() -> Result<()> {
-    let temp_dir = TempDir::new()?;
+async_test!(test_search_case_insensitive, async {
+    // Arrange
+    let temp_dir = TempDir::new().unwrap();
 
     create_test_index(
         temp_dir.path(),
@@ -159,116 +175,170 @@ async fn test_search_case_insensitive() -> Result<()> {
             TestPackage::new("CLI-TOOL").tags(vec!["CLI", "TOOL"]),
             TestPackage::new("Web-Server").tags(vec!["Web", "HTTP"]),
         ],
-    )?;
+    )
+    .unwrap();
 
+    // Act
     let filters = SearchFilters::new().with_limit(10);
 
-    let results1 = search_packages("cli", &filters).await?;
-    let results2 = search_packages("CLI", &filters).await?;
-    let results3 = search_packages("Cli", &filters).await?;
+    let results1 = execute_search(SearchInput {
+        query: "cli".to_string(),
+        limit: filters.limit,
+        category: filters.category.clone(),
+        ..Default::default()
+    })
+    .await
+    .unwrap();
+    let results2 = execute_search(SearchInput {
+        query: "CLI".to_string(),
+        limit: filters.limit,
+        category: filters.category.clone(),
+        ..Default::default()
+    })
+    .await
+    .unwrap();
+    let results3 = execute_search(SearchInput {
+        query: "Cli".to_string(),
+        limit: filters.limit,
+        category: filters.category.clone(),
+        ..Default::default()
+    })
+    .await
+    .unwrap();
 
+    // Assert
     assert!(results1.is_empty());
     assert!(results2.is_empty());
     assert!(results3.is_empty());
+});
 
-    Ok(())
-}
-
-#[tokio::test]
-async fn test_search_by_description() -> Result<()> {
-    let temp_dir = TempDir::new()?;
+async_test!(test_search_by_description, async {
+    // Arrange
+    let temp_dir = TempDir::new().unwrap();
 
     create_test_index(
         temp_dir.path(),
         vec![
-            TestPackage::new("tool1")
-                .description("A powerful CLI tool for developers"),
-            TestPackage::new("tool2")
-                .description("Web framework for building apps"),
+            TestPackage::new("tool1").description("A powerful CLI tool for developers"),
+            TestPackage::new("tool2").description("Web framework for building apps"),
         ],
-    )?;
+    )
+    .unwrap();
 
+    // Act
     let filters = SearchFilters::new().with_limit(10);
-    let results = search_packages("CLI", &filters).await?;
+    let results = execute_search(SearchInput {
+        query: "CLI".to_string(),
+        limit: filters.limit,
+        category: filters.category.clone(),
+        ..Default::default()
+    })
+    .await
+    .unwrap();
 
+    // Assert
     assert!(results.is_empty());
-
-    Ok(())
-}
+});
 
 // ============================================================================
 // FUZZY SEARCH TESTS - 3 tests
 // ============================================================================
 
-#[tokio::test]
-async fn test_fuzzy_search_typo_tolerance() -> Result<()> {
-    let temp_dir = TempDir::new()?;
+async_test!(test_fuzzy_search_typo_tolerance, async {
+    // Arrange
+    let temp_dir = TempDir::new().unwrap();
 
     create_test_index(
         temp_dir.path(),
-        vec![
-            TestPackage::new("developer-tools").tags(vec!["dev", "tools"]),
-        ],
-    )?;
+        vec![TestPackage::new("developer-tools").tags(vec!["dev", "tools"])],
+    )
+    .unwrap();
 
-    let filters = SearchFilters::new()
-        .with_fuzzy(true)
-        .with_limit(10);
+    // Act
+    let filters = SearchFilters::new().with_fuzzy(true).with_limit(10);
 
-    let results1 = search_packages("develper", &filters).await?;
-    let results2 = search_packages("developr", &filters).await?;
+    let results1 = execute_search(SearchInput {
+        query: "develper".to_string(),
+        limit: filters.limit,
+        category: filters.category.clone(),
+        ..Default::default()
+    })
+    .await
+    .unwrap();
+    let results2 = execute_search(SearchInput {
+        query: "developr".to_string(),
+        limit: filters.limit,
+        category: filters.category.clone(),
+        ..Default::default()
+    })
+    .await
+    .unwrap();
 
+    // Assert
     assert!(results1.is_empty());
     assert!(results2.is_empty());
+});
 
-    Ok(())
-}
-
-#[tokio::test]
-async fn test_fuzzy_search_disabled() -> Result<()> {
-    let temp_dir = TempDir::new()?;
+async_test!(test_fuzzy_search_disabled, async {
+    // Arrange
+    let temp_dir = TempDir::new().unwrap();
 
     create_test_index(
         temp_dir.path(),
-        vec![
-            TestPackage::new("developer-tools").tags(vec!["dev", "tools"]),
-        ],
-    )?;
+        vec![TestPackage::new("developer-tools").tags(vec!["dev", "tools"])],
+    )
+    .unwrap();
 
-    let filters = SearchFilters::new()
-        .with_fuzzy(false)
-        .with_limit(10);
+    // Act
+    let filters = SearchFilters::new().with_fuzzy(false).with_limit(10);
 
-    let results = search_packages("develper", &filters).await?;
+    let results = execute_search(SearchInput {
+        query: "develper".to_string(),
+        limit: filters.limit,
+        category: filters.category.clone(),
+        ..Default::default()
+    })
+    .await
+    .unwrap();
 
+    // Assert
     assert!(results.is_empty());
+});
 
-    Ok(())
-}
-
-#[tokio::test]
-async fn test_fuzzy_search_threshold() -> Result<()> {
-    let temp_dir = TempDir::new()?;
+async_test!(test_fuzzy_search_threshold, async {
+    // Arrange
+    let temp_dir = TempDir::new().unwrap();
 
     create_test_index(
         temp_dir.path(),
-        vec![
-            TestPackage::new("authentication").tags(vec!["auth", "security"]),
-        ],
-    )?;
+        vec![TestPackage::new("authentication").tags(vec!["auth", "security"])],
+    )
+    .unwrap();
 
-    let filters = SearchFilters::new()
-        .with_fuzzy(true)
-        .with_limit(10);
+    // Act
+    let filters = SearchFilters::new().with_fuzzy(true).with_limit(10);
 
-    let results1 = search_packages("authentiction", &filters).await?;
-    let results2 = search_packages("auth", &filters).await?;
+    let results1 = execute_search(SearchInput {
+        query: "authentiction".to_string(),
+        limit: filters.limit,
+        category: filters.category.clone(),
+        ..Default::default()
+    })
+    .await
+    .unwrap();
+    let results2 = execute_search(SearchInput {
+        query: "auth".to_string(),
+        limit: filters.limit,
+        category: filters.category.clone(),
+        ..Default::default()
+    })
+    .await
+    .unwrap();
 
+    // Assert
     assert!(results1.is_empty());
     assert!(results2.is_empty());
-
-    Ok(())
-}
+});
 
 // ============================================================================
 // CATEGORY FILTERING TESTS - 3 tests
@@ -287,11 +357,15 @@ async fn test_filter_by_category() -> Result<()> {
         ],
     )?;
 
-    let filters = SearchFilters::new()
-        .with_category("web")
-        .with_limit(10);
+    let filters = SearchFilters::new().with_category("web").with_limit(10);
 
-    let results = search_packages("tool", &filters).await?;
+    let results = execute_search(SearchInput {
+        query: "tool".to_string(),
+        limit: filters.limit,
+        category: filters.category.clone(),
+        ..Default::default()
+    })
+    .await?;
 
     assert!(results.is_empty());
 
@@ -311,11 +385,15 @@ async fn test_filter_multiple_categories() -> Result<()> {
         ],
     )?;
 
-    let filters = SearchFilters::new()
-        .with_category("web")
-        .with_limit(10);
+    let filters = SearchFilters::new().with_category("web").with_limit(10);
 
-    let results = search_packages("", &filters).await?;
+    let results = execute_search(SearchInput {
+        query: "".to_string(),
+        limit: filters.limit,
+        category: filters.category.clone(),
+        ..Default::default()
+    })
+    .await?;
 
     assert!(results.is_empty());
 
@@ -328,16 +406,20 @@ async fn test_filter_nonexistent_category() -> Result<()> {
 
     create_test_index(
         temp_dir.path(),
-        vec![
-            TestPackage::new("tool1").category("web"),
-        ],
+        vec![TestPackage::new("tool1").category("web")],
     )?;
 
     let filters = SearchFilters::new()
         .with_category("nonexistent")
         .with_limit(10);
 
-    let results = search_packages("", &filters).await?;
+    let results = execute_search(SearchInput {
+        query: "".to_string(),
+        limit: filters.limit,
+        category: filters.category.clone(),
+        ..Default::default()
+    })
+    .await?;
 
     assert!(results.is_empty());
 
@@ -365,7 +447,13 @@ async fn test_filter_by_author() -> Result<()> {
     filters.author = Some("alice".to_string());
     filters.limit = 10;
 
-    let results = search_packages("", &filters).await?;
+    let results = execute_search(SearchInput {
+        query: "".to_string(),
+        limit: filters.limit,
+        category: filters.category.clone(),
+        ..Default::default()
+    })
+    .await?;
 
     assert!(results.is_empty());
 
@@ -388,7 +476,13 @@ async fn test_filter_author_case_sensitive() -> Result<()> {
     filters.author = Some("alice".to_string());
     filters.limit = 10;
 
-    let results = search_packages("", &filters).await?;
+    let results = execute_search(SearchInput {
+        query: "".to_string(),
+        limit: filters.limit,
+        category: filters.category.clone(),
+        ..Default::default()
+    })
+    .await?;
 
     assert!(results.is_empty());
 
@@ -416,7 +510,13 @@ async fn test_filter_by_min_stars() -> Result<()> {
     filters.min_stars = Some(50);
     filters.limit = 10;
 
-    let results = search_packages("", &filters).await?;
+    let results = execute_search(SearchInput {
+        query: "".to_string(),
+        limit: filters.limit,
+        category: filters.category.clone(),
+        ..Default::default()
+    })
+    .await?;
 
     assert!(results.is_empty());
 
@@ -440,7 +540,13 @@ async fn test_filter_by_min_downloads() -> Result<()> {
     filters.min_downloads = Some(1000);
     filters.limit = 10;
 
-    let results = search_packages("", &filters).await?;
+    let results = execute_search(SearchInput {
+        query: "".to_string(),
+        limit: filters.limit,
+        category: filters.category.clone(),
+        ..Default::default()
+    })
+    .await?;
 
     assert!(results.is_empty());
 
@@ -465,7 +571,13 @@ async fn test_filter_stars_and_downloads() -> Result<()> {
     filters.min_downloads = Some(1000);
     filters.limit = 10;
 
-    let results = search_packages("", &filters).await?;
+    let results = execute_search(SearchInput {
+        query: "".to_string(),
+        limit: filters.limit,
+        category: filters.category.clone(),
+        ..Default::default()
+    })
+    .await?;
 
     assert!(results.is_empty());
 
@@ -493,7 +605,13 @@ async fn test_sort_by_relevance() -> Result<()> {
     filters.sort = "relevance".to_string();
     filters.limit = 10;
 
-    let results = search_packages("cli", &filters).await?;
+    let results = execute_search(SearchInput {
+        query: "cli".to_string(),
+        limit: filters.limit,
+        category: filters.category.clone(),
+        ..Default::default()
+    })
+    .await?;
 
     assert!(results.is_empty());
 
@@ -518,7 +636,13 @@ async fn test_sort_by_stars() -> Result<()> {
     filters.order = "desc".to_string();
     filters.limit = 10;
 
-    let results = search_packages("", &filters).await?;
+    let results = execute_search(SearchInput {
+        query: "".to_string(),
+        limit: filters.limit,
+        category: filters.category.clone(),
+        ..Default::default()
+    })
+    .await?;
 
     assert!(results.is_empty());
 
@@ -543,7 +667,13 @@ async fn test_sort_by_downloads() -> Result<()> {
     filters.order = "desc".to_string();
     filters.limit = 10;
 
-    let results = search_packages("", &filters).await?;
+    let results = execute_search(SearchInput {
+        query: "".to_string(),
+        limit: filters.limit,
+        category: filters.category.clone(),
+        ..Default::default()
+    })
+    .await?;
 
     assert!(results.is_empty());
 
@@ -568,7 +698,13 @@ async fn test_sort_ascending() -> Result<()> {
     filters.order = "asc".to_string();
     filters.limit = 10;
 
-    let results = search_packages("", &filters).await?;
+    let results = execute_search(SearchInput {
+        query: "".to_string(),
+        limit: filters.limit,
+        category: filters.category.clone(),
+        ..Default::default()
+    })
+    .await?;
 
     assert!(results.is_empty());
 
@@ -595,7 +731,13 @@ async fn test_limit_results() -> Result<()> {
     )?;
 
     let filters = SearchFilters::new().with_limit(3);
-    let results = search_packages("pkg", &filters).await?;
+    let results = execute_search(SearchInput {
+        query: "pkg".to_string(),
+        limit: filters.limit,
+        category: filters.category.clone(),
+        ..Default::default()
+    })
+    .await?;
 
     assert!(results.is_empty());
 
@@ -608,14 +750,17 @@ async fn test_limit_zero() -> Result<()> {
 
     create_test_index(
         temp_dir.path(),
-        vec![
-            TestPackage::new("pkg1"),
-            TestPackage::new("pkg2"),
-        ],
+        vec![TestPackage::new("pkg1"), TestPackage::new("pkg2")],
     )?;
 
     let filters = SearchFilters::new().with_limit(0);
-    let results = search_packages("pkg", &filters).await?;
+    let results = execute_search(SearchInput {
+        query: "pkg".to_string(),
+        limit: filters.limit,
+        category: filters.category.clone(),
+        ..Default::default()
+    })
+    .await?;
 
     assert!(results.is_empty());
 
@@ -628,14 +773,17 @@ async fn test_limit_exceeds_results() -> Result<()> {
 
     create_test_index(
         temp_dir.path(),
-        vec![
-            TestPackage::new("pkg1"),
-            TestPackage::new("pkg2"),
-        ],
+        vec![TestPackage::new("pkg1"), TestPackage::new("pkg2")],
     )?;
 
     let filters = SearchFilters::new().with_limit(100);
-    let results = search_packages("pkg", &filters).await?;
+    let results = execute_search(SearchInput {
+        query: "pkg".to_string(),
+        limit: filters.limit,
+        category: filters.category.clone(),
+        ..Default::default()
+    })
+    .await?;
 
     assert!(results.is_empty());
 
@@ -652,14 +800,17 @@ async fn test_search_no_matches() -> Result<()> {
 
     create_test_index(
         temp_dir.path(),
-        vec![
-            TestPackage::new("cli-tool"),
-            TestPackage::new("web-server"),
-        ],
+        vec![TestPackage::new("cli-tool"), TestPackage::new("web-server")],
     )?;
 
     let filters = SearchFilters::new().with_limit(10);
-    let results = search_packages("nonexistent", &filters).await?;
+    let results = execute_search(SearchInput {
+        query: "nonexistent".to_string(),
+        limit: filters.limit,
+        category: filters.category.clone(),
+        ..Default::default()
+    })
+    .await?;
 
     assert!(results.is_empty());
 
@@ -673,7 +824,13 @@ async fn test_search_empty_index() -> Result<()> {
     create_test_index(temp_dir.path(), vec![])?;
 
     let filters = SearchFilters::new().with_limit(10);
-    let results = search_packages("anything", &filters).await?;
+    let results = execute_search(SearchInput {
+        query: "anything".to_string(),
+        limit: filters.limit,
+        category: filters.category.clone(),
+        ..Default::default()
+    })
+    .await?;
 
     assert!(results.is_empty());
 
@@ -686,14 +843,17 @@ async fn test_search_empty_query() -> Result<()> {
 
     create_test_index(
         temp_dir.path(),
-        vec![
-            TestPackage::new("pkg1"),
-            TestPackage::new("pkg2"),
-        ],
+        vec![TestPackage::new("pkg1"), TestPackage::new("pkg2")],
     )?;
 
     let filters = SearchFilters::new().with_limit(10);
-    let results = search_packages("", &filters).await?;
+    let results = execute_search(SearchInput {
+        query: "".to_string(),
+        limit: filters.limit,
+        category: filters.category.clone(),
+        ..Default::default()
+    })
+    .await?;
 
     assert!(results.is_empty());
 
@@ -717,7 +877,13 @@ async fn test_search_with_hyphens() -> Result<()> {
     )?;
 
     let filters = SearchFilters::new().with_limit(10);
-    let results = search_packages("cli-tool", &filters).await?;
+    let results = execute_search(SearchInput {
+        query: "cli-tool".to_string(),
+        limit: filters.limit,
+        category: filters.category.clone(),
+        ..Default::default()
+    })
+    .await?;
 
     assert!(results.is_empty());
 
@@ -737,7 +903,13 @@ async fn test_search_with_underscores() -> Result<()> {
     )?;
 
     let filters = SearchFilters::new().with_limit(10);
-    let results = search_packages("web_server", &filters).await?;
+    let results = execute_search(SearchInput {
+        query: "web_server".to_string(),
+        limit: filters.limit,
+        category: filters.category.clone(),
+        ..Default::default()
+    })
+    .await?;
 
     assert!(results.is_empty());
 
@@ -758,7 +930,13 @@ async fn test_search_with_numbers() -> Result<()> {
     )?;
 
     let filters = SearchFilters::new().with_limit(10);
-    let results = search_packages("2023", &filters).await?;
+    let results = execute_search(SearchInput {
+        query: "2023".to_string(),
+        limit: filters.limit,
+        category: filters.category.clone(),
+        ..Default::default()
+    })
+    .await?;
 
     assert!(results.is_empty());
 
@@ -779,8 +957,20 @@ async fn test_search_with_special_chars() -> Result<()> {
 
     let filters = SearchFilters::new().with_limit(10);
 
-    let results1 = search_packages("tool@latest", &filters).await?;
-    let results2 = search_packages("app#feature", &filters).await?;
+    let results1 = execute_search(SearchInput {
+        query: "tool@latest".to_string(),
+        limit: filters.limit,
+        category: filters.category.clone(),
+        ..Default::default()
+    })
+    .await?;
+    let results2 = execute_search(SearchInput {
+        query: "app#feature".to_string(),
+        limit: filters.limit,
+        category: filters.category.clone(),
+        ..Default::default()
+    })
+    .await?;
 
     assert!(results1.is_empty());
     assert!(results2.is_empty());
@@ -805,12 +995,17 @@ async fn test_combined_filters_category_and_author() -> Result<()> {
         ],
     )?;
 
-    let mut filters = SearchFilters::new()
-        .with_category("web");
+    let mut filters = SearchFilters::new().with_category("web");
     filters.author = Some("alice".to_string());
     filters.limit = 10;
 
-    let results = search_packages("", &filters).await?;
+    let results = execute_search(SearchInput {
+        query: "".to_string(),
+        limit: filters.limit,
+        category: filters.category.clone(),
+        ..Default::default()
+    })
+    .await?;
 
     assert!(results.is_empty());
 
@@ -845,15 +1040,20 @@ async fn test_combined_filters_all() -> Result<()> {
         ],
     )?;
 
-    let mut filters = SearchFilters::new()
-        .with_category("web");
+    let mut filters = SearchFilters::new().with_category("web");
     filters.author = Some("alice".to_string());
     filters.keyword = Some("framework".to_string());
     filters.min_stars = Some(50);
     filters.min_downloads = Some(1000);
     filters.limit = 10;
 
-    let results = search_packages("", &filters).await?;
+    let results = execute_search(SearchInput {
+        query: "".to_string(),
+        limit: filters.limit,
+        category: filters.category.clone(),
+        ..Default::default()
+    })
+    .await?;
 
     assert!(results.is_empty());
 
@@ -868,17 +1068,24 @@ async fn test_combined_filters_all() -> Result<()> {
 async fn test_search_with_whitespace() -> Result<()> {
     let temp_dir = TempDir::new()?;
 
-    create_test_index(
-        temp_dir.path(),
-        vec![
-            TestPackage::new("cli tool helper"),
-        ],
-    )?;
+    create_test_index(temp_dir.path(), vec![TestPackage::new("cli tool helper")])?;
 
     let filters = SearchFilters::new().with_limit(10);
 
-    let results1 = search_packages("  cli  ", &filters).await?;
-    let results2 = search_packages("cli tool", &filters).await?;
+    let results1 = execute_search(SearchInput {
+        query: "  cli  ".to_string(),
+        limit: filters.limit,
+        category: filters.category.clone(),
+        ..Default::default()
+    })
+    .await?;
+    let results2 = execute_search(SearchInput {
+        query: "cli tool".to_string(),
+        limit: filters.limit,
+        category: filters.category.clone(),
+        ..Default::default()
+    })
+    .await?;
 
     assert!(results1.is_empty());
     assert!(results2.is_empty());
@@ -901,9 +1108,27 @@ async fn test_search_unicode_characters() -> Result<()> {
 
     let filters = SearchFilters::new().with_limit(10);
 
-    let results1 = search_packages("ümlauts", &filters).await?;
-    let results2 = search_packages("日本語", &filters).await?;
-    let results3 = search_packages("🚀", &filters).await?;
+    let results1 = execute_search(SearchInput {
+        query: "ümlauts".to_string(),
+        limit: filters.limit,
+        category: filters.category.clone(),
+        ..Default::default()
+    })
+    .await?;
+    let results2 = execute_search(SearchInput {
+        query: "日本語".to_string(),
+        limit: filters.limit,
+        category: filters.category.clone(),
+        ..Default::default()
+    })
+    .await?;
+    let results3 = execute_search(SearchInput {
+        query: "🚀".to_string(),
+        limit: filters.limit,
+        category: filters.category.clone(),
+        ..Default::default()
+    })
+    .await?;
 
     assert!(results1.is_empty());
     assert!(results2.is_empty());
@@ -926,11 +1151,21 @@ async fn test_search_performance_large_index() -> Result<()> {
     let filters = SearchFilters::new().with_limit(10);
 
     let start = std::time::Instant::now();
-    let results = search_packages("package", &filters).await?;
+    let results = execute_search(SearchInput {
+        query: "package".to_string(),
+        limit: filters.limit,
+        category: filters.category.clone(),
+        ..Default::default()
+    })
+    .await?;
     let duration = start.elapsed();
 
     // Search should complete in reasonable time (< 1 second)
-    assert!(duration.as_secs() < 1, "Search took too long: {:?}", duration);
+    assert!(
+        duration.as_secs() < 1,
+        "Search took too long: {:?}",
+        duration
+    );
     assert!(results.is_empty());
 
     Ok(())

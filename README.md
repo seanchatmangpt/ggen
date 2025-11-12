@@ -24,286 +24,94 @@ ggen template generate-rdf --ontology domain.ttl --template python-pydantic
 
 ---
 
-## ⚡ Quick Start (2 Minutes)
+## ⚡ Quick Start
 
-### Install
-```bash
-# macOS/Linux (Homebrew) - Recommended
-brew tap seanchatmangpt/tap
-brew install ggen
+**Install**: `brew tap seanchatmangpt/tap && brew install ggen` or `cargo install ggen` or `git clone https://github.com/seanchatmangpt/ggen && cargo install --path crates/ggen-cli --bin ggen --force`
 
-# From crates.io
-cargo install ggen
+**Verify**: `ggen --version` (should output: ggen 2.5.0). If using `asdf`: `asdf reshim rust`
 
-# From source
-git clone https://github.com/seanchatmangpt/ggen && cd ggen
-cargo install --path crates/ggen-cli --bin ggen --force
-```
-
-### Verify Installation
-```bash
-ggen --version
-# Should output: ggen 2.5.0
-```
-
-**Note:** If using `asdf` for Rust version management, you may need to reshim after installation:
-```bash
-asdf reshim rust
-ggen --version  # Verify it works now
-```
-
-### Your First Generation
-```bash
-# Option 1: AI-Powered (fastest)
-ggen ai generate-ontology --prompt "Blog: User, Post, Comment" --output blog.ttl
-ggen template generate-rdf --ontology blog.ttl --template rust-graphql-api
-
-# Option 2: From Template
-ggen project new my-app --type rust-web --framework axum
-cd my-app && cargo run
-
-# Option 3: From Marketplace
-ggen marketplace search "rust microservice"
-ggen marketplace install io.ggen.rust.microservice
-ggen project gen my-service --template io.ggen.rust.microservice
-```
-
-**Done!** You just generated production-ready code from semantic ontologies.
+**First Generation**:
+- **AI-Powered**: `ggen ai generate-ontology --prompt "Blog: User, Post, Comment" --output blog.ttl` → `ggen template generate-rdf --ontology blog.ttl --template rust-graphql-api`
+- **From Template**: `ggen project new my-app --type rust-web --framework axum`
+- **From Marketplace**: `ggen marketplace search "rust microservice"` → `ggen marketplace install io.ggen.rust.microservice` → `ggen project gen my-service --template io.ggen.rust.microservice`
 
 ---
 
-## 🎯 The Core Workflow
+## 🎯 Core Workflow
 
-```bash
-# 1. Define domain (RDF ontology = single source of truth)
-ggen ai generate-ontology --prompt "Healthcare FHIR Patient data" --output domain.ttl
+**Ontology-Driven Development**: RDF ontology = single source of truth. SPARQL queries extract structure. Templates generate code. ONE regeneration command → Rust + TypeScript + Python (perfect sync, zero drift).
 
-# 2. Generate code (any language)
-ggen template generate-rdf --ontology domain.ttl --template rust-models    # Backend
-ggen template generate-rdf --ontology domain.ttl --template react-typescript # Frontend
-ggen template generate-rdf --ontology domain.ttl --template python-pydantic  # ML/Data
+**Workflow**: Define domain (RDF) → Generate code (any language) → Evolve (modify ontology → code auto-updates) → Validate (SPARQL queries ensure consistency) → Deploy (100% in sync, zero drift)
 
-# 3. Evolve (modify ontology → code auto-updates)
-# Edit domain.ttl: Add "Patient.allergies: [Allergy]" relationship
-ggen template generate-rdf --ontology domain.ttl --template rust-models
-# → Rust code now has: pub fn get_allergies(&self) -> Vec<Allergy>
-# → TypeScript: getAllergies(): Allergy[]
-# → Python: def get_allergies(self) -> list[Allergy]
-
-# 4. Validate (SPARQL queries ensure consistency)
-ggen graph query domain.ttl --sparql "SELECT ?patient WHERE { ?patient a fhir:Patient }"
-
-# 5. Deploy (100% in sync, zero drift)
-cargo build --release  # All languages perfectly aligned to ontology
-```
-
-**Power Move:** Install hooks for automatic regeneration:
-```bash
-ggen hook create pre-commit --name validate-ontology
-# Now every commit validates ontology + regenerates code automatically
-```
+**Power Move**: `ggen hook create pre-commit --name validate-ontology` → Every commit validates ontology + regenerates code automatically
 
 ---
 
 ## 🚀 What's Unique
 
-### 1. **Proven Ontology-Driven Development** ✅
+**Proven Ontology-Driven Development**: 782-line Chicago TDD E2E test proves it (2/3 scenarios passing, 67% success). 610 files contain "graph" (deep integration, not a feature). Real Oxigraph RDF triple store + SPARQL 1.1 execution. Validated: Add `Product.sku` to ontology → Rust struct gets `pub sku: String` automatically.
 
-**Not theoretical—782-line Chicago TDD E2E test proves it:**
-- 2/3 test scenarios passing (67% success)
-- **610 files** contain "graph" (deep integration, not a feature)
-- Real Oxigraph RDF triple store + SPARQL 1.1 execution
-- **Validated**: Add `Product.sku` to ontology → Rust struct gets `pub sku: String` automatically
+**Type Mapping** (tested and working): `xsd:string` → `String`/`string`/`str`, `xsd:decimal` → `f64`/`number`/`Decimal`, `xsd:integer` → `i32`/`number`/`int`, `rdfs:Class` → `struct`/`interface`/`class`, `rdf:Property` (object) → `fn get_*()`/`get*()`/`def get_*()`
 
-**Type Mapping (tested and working):**
-| RDF Type | Rust | TypeScript | Python |
-|----------|------|------------|--------|
-| `xsd:string` | `String` | `string` | `str` |
-| `xsd:decimal` | `f64` | `number` | `Decimal` |
-| `xsd:integer` | `i32` | `number` | `int` |
-| `rdfs:Class` | `struct` | `interface` | `class` |
-| `rdf:Property` (object) | `fn get_*()` | `get*()` | `def get_*()` |
+**10 Innovative Command Patterns**: Polyglot Sync (1 ontology → N languages), AI Refinement Loop (AI analyzes code → suggests ontology improvements), Hook Automation (Git commits auto-validate), Marketplace Mixing (combine proven templates with custom domain), Predictive Evolution (AI tracks SPARQL patterns → suggests optimizations). [Full Documentation →](docs/INNOVATIVE_COMMAND_COMBINATIONS.md)
 
-### 2. **10 Innovative Command Patterns**
-
-Beyond basic generation—creative workflows that unlock semantic superpowers:
-
-- **Polyglot Sync**: 1 ontology → N languages, perfect alignment
-- **AI Refinement Loop**: AI analyzes code → suggests ontology improvements → regenerate
-- **Hook Automation**: Git commits auto-validate ontology + regenerate code
-- **Marketplace Mixing**: Combine proven templates with custom domain extensions
-- **Predictive Evolution**: AI tracks SPARQL patterns → suggests optimizations
-
-[Full Documentation: 10 Patterns →](docs/INNOVATIVE_COMMAND_COMBINATIONS.md)
-
-### 3. **Production-Grade Stack**
-
-**v2.5.0 (Nov 2025) - 89% Production Ready:**
-- ✅ **Runtime Stability**: Fixed critical tokio panic, all 32 CLI commands functional
-- ✅ **Zero Unsafe Code**: Memory-safe, no `.expect()` in production paths
-- ✅ **Real RDF/SPARQL**: Oxigraph in-memory triple store (not mocks)
-- ✅ **Deterministic Output**: Byte-identical, reproducible builds every time
-- ✅ **Post-Quantum Security**: ML-DSA cryptographic signatures
-- ✅ **Chicago TDD**: 782-line E2E test with real systems, no mocks
+**Production-Grade Stack** (v2.5.0, Nov 2025, 89% Production Ready): Runtime stability (fixed critical tokio panic, all 32 CLI commands functional), zero unsafe code (memory-safe, no `.expect()` in production paths), real RDF/SPARQL (Oxigraph in-memory triple store, not mocks), deterministic output (byte-identical, reproducible builds), post-quantum security (ML-DSA cryptographic signatures), Chicago TDD (782-line E2E test with real systems, no mocks)
 
 ---
 
 ## 💡 Real-World Impact
 
-**E-Commerce Platform (Fortune 500)**:
-```turtle
-# Change: Add Review entity to ontology
-@prefix pc: <http://example.org/product#> .
+**E-Commerce Platform (Fortune 500)**: Add Review entity to ontology → ggen automatically generates Rust struct, TypeScript interface, API endpoints, tests. Impact: 70% fewer integration bugs, 3x faster feature delivery.
 
-pc:Review a rdfs:Class ;
-    rdfs:label "Review" .
+**Healthcare FHIR Compliance**: `ggen marketplace install io.ggen.healthcare.fhir` → `ggen template generate-rdf --ontology fhir-patient.ttl --template rust-fhir-server` → FHIR-compliant REST API with validation, audit trails, compliance checks.
 
-pc:rating a rdf:Property ;
-    rdfs:domain pc:Review ;
-    rdfs:range xsd:integer .
-
-# Result: ggen automatically generates:
-# ✅ Rust: pub struct Review { pub rating: i32 }
-# ✅ TypeScript: interface Review { rating: number }
-# ✅ API endpoints: POST /reviews, GET /products/{id}/reviews
-# ✅ Tests: test_create_review(), test_get_average_rating()
-```
-
-**Impact**: 70% fewer integration bugs, 3x faster feature delivery
-
-**Healthcare FHIR Compliance**:
-```bash
-ggen marketplace install io.ggen.healthcare.fhir
-ggen template generate-rdf --ontology fhir-patient.ttl --template rust-fhir-server
-# → FHIR-compliant REST API with validation, audit trails, compliance checks
-```
-
-**Financial Services**:
-```bash
-# Regulatory change: Add KYC verification requirement
-# Edit ontology → Regenerate → Compliance code auto-updates everywhere
-ggen template generate-rdf --ontology finance.ttl --template audit-trail
-```
+**Financial Services**: Regulatory change (add KYC verification requirement) → Edit ontology → Regenerate → Compliance code auto-updates everywhere.
 
 ---
 
 ## 📊 vs. Other Tools
 
-| Feature | ggen | Cookiecutter | Yeoman | Copier |
-|---------|------|--------------|--------|--------|
-| **RDF/SPARQL** | ✅ (610 files) | ❌ | ❌ | ❌ |
-| **Ontology-Driven** | ✅ Proven (E2E tests) | ❌ | ❌ | ❌ |
-| **Polyglot Sync** | ✅ Zero drift | ⚠️ Manual | ⚠️ Manual | ⚠️ Manual |
-| **AI Generation** | ✅ GPT-4o/Claude/Ollama | ❌ | ❌ | ❌ |
-| **Deterministic** | ✅ Byte-identical | ⚠️ Partial | ❌ | ⚠️ Partial |
-| **Type Safety** | ✅ RDF→Rust/TS/Py | ❌ | ❌ | ❌ |
-| **Performance** | <2s generation | Slower | Slower | Slower |
+| Feature | ggen | Cookiecutter/Yeoman/Copier |
+|---------|------|---------------------------|
+| **RDF/SPARQL** | ✅ (610 files) | ❌ |
+| **Ontology-Driven** | ✅ Proven (E2E tests) | ❌ |
+| **Polyglot Sync** | ✅ Zero drift | ⚠️ Manual |
+| **AI Generation** | ✅ GPT-4o/Claude/Ollama | ❌ |
+| **Deterministic** | ✅ Byte-identical | ⚠️ Partial |
+| **Type Safety** | ✅ RDF→Rust/TS/Py | ❌ |
+| **Performance** | <2s generation | Slower |
 
 **Key Difference**: ggen treats code as a *projection* of knowledge graphs. Others are templating tools.
 
 ---
 
-## 🎓 Core Concepts (60 Seconds)
+## 🎓 Core Concepts
 
-### Traditional Approach (Manual Drift Hell)
-```
-Requirements → Rust Code → TypeScript Code → Python Code
-            ↓ Manual sync ↓ Manual sync ↓ Manual sync
-        Bugs from drift, inconsistent types, hours of boilerplate
-```
+**Traditional Approach**: Requirements → Rust Code → TypeScript Code → Python Code (manual sync, bugs from drift, inconsistent types, hours of boilerplate)
 
-### ggen Approach (Ontology-Driven)
-```
-RDF Ontology (Single Source of Truth)
-    ↓ SPARQL queries extract structure
-    ↓ Templates generate code
-    ↓ ONE regeneration command
-Rust + TypeScript + Python (Perfect Sync, Zero Drift)
-```
+**ggen Approach**: RDF Ontology (Single Source of Truth) → SPARQL queries extract structure → Templates generate code → ONE regeneration command → Rust + TypeScript + Python (Perfect Sync, Zero Drift)
 
-**Why RDF?**
-1. **W3C Standard** (since 2004) - battle-tested semantic web technology
-2. **Type-Rich** - Relationships, constraints, inheritance all in one place
-3. **Queryable** - SPARQL drives generation decisions
-4. **Composable** - Merge ontologies from different sources
-5. **Universal** - One format → Any target language
+**Why RDF?**: W3C Standard (since 2004, battle-tested semantic web technology), Type-Rich (relationships, constraints, inheritance all in one place), Queryable (SPARQL drives generation decisions), Composable (merge ontologies from different sources), Universal (one format → any target language)
 
-**Example:**
-```turtle
-# Ontology (domain.ttl)
-@prefix : <http://example.org/> .
-
-:Product a rdfs:Class .
-:price a rdf:Property ;
-    rdfs:domain :Product ;
-    rdfs:range xsd:decimal ;
-    sh:minInclusive 0.01 .
-
-# Generated Rust (automatic)
-pub struct Product {
-    pub price: f64,
-}
-
-impl Product {
-    pub fn validate_price(&self) -> Result<()> {
-        if self.price < 0.01 {
-            return Err("price must be >= 0.01");
-        }
-        Ok(())
-    }
-}
-
-# Generated TypeScript (automatic)
-interface Product {
-    price: number;
-}
-
-function validatePrice(price: number): void {
-    if (price < 0.01) throw new Error("price must be >= 0.01");
-}
-```
-
-**Result**: Change `sh:minInclusive` to `1.00` → Both languages update validation automatically.
+**Example**: Ontology defines `Product.price` with `sh:minInclusive 0.01` → Generated Rust has `pub price: f64` with validation, TypeScript has `price: number` with validation. Change `sh:minInclusive` to `1.00` → Both languages update validation automatically.
 
 ---
 
 ## 🛠️ Key Commands
 
-```bash
-# AI-Powered
-ggen ai generate-ontology --prompt "Your domain"      # Natural language → RDF
-ggen ai chat --interactive                             # Interactive AI session
-ggen ai analyze src/ --focus domain-model              # Code analysis
+**AI-Powered**: `ggen ai generate-ontology --prompt "Your domain"`, `ggen ai chat --interactive`, `ggen ai analyze src/ --focus domain-model`
 
-# Graph Operations
-ggen graph load domain.ttl                             # Load RDF into Oxigraph
-ggen graph query --sparql "SELECT ?s WHERE..."         # Execute SPARQL
-ggen graph export --format json-ld                     # Export to formats
-ggen graph diff v1.ttl v2.ttl                          # Show ontology changes
+**Graph Operations**: `ggen graph load domain.ttl`, `ggen graph query --sparql "SELECT ?s WHERE..."`, `ggen graph export --format json-ld`, `ggen graph diff v1.ttl v2.ttl`
 
-# Template Generation
-ggen template generate-rdf --ontology domain.ttl       # Generate from RDF
-ggen template list                                     # Show available templates
-ggen template lint my-template.tmpl                    # Validate template
+**Template Generation**: `ggen template generate-rdf --ontology domain.ttl`, `ggen template list`, `ggen template lint my-template.tmpl`
 
-# Project Management
-ggen project new my-app --type rust-web                # Bootstrap new project
-ggen project gen --template rust-service               # Generate from template
-ggen project watch                                     # Auto-regenerate on changes
+**Project Management**: `ggen project new my-app --type rust-web`, `ggen project gen --template rust-service`, `ggen project watch`
 
-# Marketplace
-ggen marketplace search "rust graphql"                 # Find packages
-ggen marketplace install io.ggen.rust.graphql          # Install template
-ggen marketplace publish                               # Share your templates
+**Marketplace**: `ggen marketplace search "rust graphql"`, `ggen marketplace install io.ggen.rust.graphql`, `ggen marketplace publish`
 
-# Lifecycle Hooks
-ggen hook create pre-commit --name validate-ontology   # Auto-validate
-ggen hook create post-merge --name sync-ontology       # Team sync
-ggen hook monitor                                      # Watch executions
+**Lifecycle Hooks**: `ggen hook create pre-commit --name validate-ontology`, `ggen hook create post-merge --name sync-ontology`, `ggen hook monitor`
 
-# Health & Diagnostics
-ggen utils doctor                                      # System health check
-```
+**Health & Diagnostics**: `ggen utils doctor`
 
 [Complete CLI Reference →](https://seanchatmangpt.github.io/ggen/cli)
 
@@ -311,186 +119,67 @@ ggen utils doctor                                      # System health check
 
 ## 📚 Learn More
 
-### Documentation
-- 📖 **[Full Documentation](https://seanchatmangpt.github.io/ggen/)** - Complete guides and API reference
-- 🚀 **[10 Innovative Patterns](docs/INNOVATIVE_COMMAND_COMBINATIONS.md)** - Creative workflows (88KB guide)
-- 🧪 **[Ontology E2E Test](docs/ONTOLOGY_E2E_TEST_FINAL_STATUS.md)** - 782-line proof (2/3 passing)
-- 🏗️ **[Architecture](docs/ARCHITECTURE_V2.md)** - Three-layer design (v2.0.0)
-- 🔄 **[Migration v1→v2](docs/MIGRATION_V1_TO_V2.md)** - Upgrade guide
+**Documentation**: [Full Documentation](https://seanchatmangpt.github.io/ggen/), [10 Innovative Patterns](docs/INNOVATIVE_COMMAND_COMBINATIONS.md), [Ontology E2E Test](docs/ONTOLOGY_E2E_TEST_FINAL_STATUS.md), [Architecture](docs/ARCHITECTURE_V2.md), [Migration v1→v2](docs/MIGRATION_V1_TO_V2.md)
 
-### Examples
-- **[Microservices Architecture](examples/microservices-architecture/)** - Full stack with auth, users, payments
-- **[AI Code Generation](examples/ai-code-generation/)** - All AI features showcase
-- **[FastAPI from RDF](examples/fastapi-from-rdf/)** - Python API from ontology
+**Examples**: [Microservices Architecture](examples/microservices-architecture/), [AI Code Generation](examples/ai-code-generation/), [FastAPI from RDF](examples/fastapi-from-rdf/)
 
-### Release Notes
-- **[CHANGELOG](CHANGELOG.md)** - All versions
-- **[v2.5.0 Release Notes](docs/V2.5.0_RELEASE_NOTES.md)** - Latest (Nov 2025)
-- **[v2.0.0 Migration](docs/MIGRATION_V1_TO_V2.md)** - Breaking changes guide
+**Release Notes**: [CHANGELOG](CHANGELOG.md), [v2.5.0 Release Notes](docs/V2.5.0_RELEASE_NOTES.md), [v2.0.0 Migration](docs/MIGRATION_V1_TO_V2.md)
 
 ---
 
 ## 🤝 Contributing
 
 ```bash
-# Quick start
 git clone https://github.com/seanchatmangpt/ggen && cd ggen
 cargo make quick              # Format + test
-cargo make ci                 # Full CI pipeline
-
-# Make changes
 cargo make dev                # Format + lint + test
-cargo make test-coverage      # Coverage report
-
-# Submit
-git commit -m "feat: your feature"
-# Open PR
+cargo make ci                 # Full CI pipeline
 ```
 
-**See:** [CONTRIBUTING.md](CONTRIBUTING.md) | [Good First Issues](https://github.com/seanchatmangpt/ggen/labels/good%20first%20issue)
+[CONTRIBUTING.md](CONTRIBUTING.md) | [Good First Issues](https://github.com/seanchatmangpt/ggen/labels/good%20first%20issue)
 
 ---
 
 ## ❓ FAQ
 
-**Q: Do I need to know RDF/SPARQL?**
-A: No. Use `ggen ai generate-ontology --prompt "Your domain"` to create RDF from natural language. Advanced users can hand-craft ontologies for precise control.
+**Q: Do I need to know RDF/SPARQL?** A: No. Use `ggen ai generate-ontology --prompt "Your domain"` to create RDF from natural language. Advanced users can hand-craft ontologies for precise control.
 
-**Q: Which languages are supported?**
-A: Rust, TypeScript, Python, Go, Java templates included. Create custom templates for any language—RDF is universal.
+**Q: Which languages are supported?** A: Rust, TypeScript, Python, Go, Java templates included. Create custom templates for any language—RDF is universal.
 
-**Q: How does this differ from Cookiecutter/Yeoman?**
-A: Those are templating tools. ggen is a **semantic projection engine**—your ontology drives polyglot code generation with zero drift. 610 files of RDF integration prove it's architectural, not add-on.
+**Q: How does this differ from Cookiecutter/Yeoman?** A: Those are templating tools. ggen is a **semantic projection engine**—your ontology drives polyglot code generation with zero drift. 610 files of RDF integration prove it's architectural, not add-on.
 
-**Q: Is it production-ready?**
-A: **89% production readiness** (v2.5.0). Zero unsafe code, comprehensive E2E tests, real Oxigraph RDF store. Used in Fortune 500 e-commerce (70% fewer bugs, 3x faster delivery).
+**Q: Is it production-ready?** A: **89% production readiness** (v2.5.0). Zero unsafe code, comprehensive E2E tests, real Oxigraph RDF store. Used in Fortune 500 e-commerce (70% fewer bugs, 3x faster delivery).
 
-**Q: What's the learning curve?**
-A: 2 minutes to first generation (AI-powered). 20 minutes to understand ontology-driven benefits. Full mastery: explore [10 innovative patterns](docs/INNOVATIVE_COMMAND_COMBINATIONS.md).
+**Q: What's the learning curve?** A: 2 minutes to first generation (AI-powered). 20 minutes to understand ontology-driven benefits. Full mastery: explore [10 innovative patterns](docs/INNOVATIVE_COMMAND_COMBINATIONS.md).
 
-**Q: Can I use marketplace templates with custom ontologies?**
-A: **Yes!** That's Pattern #3. Install proven template, merge with your domain extensions, generate. Best of both worlds.
+**Q: Can I use marketplace templates with custom ontologies?** A: **Yes!** That's Pattern #3. Install proven template, merge with your domain extensions, generate. Best of both worlds.
 
-**More questions?** → [GitHub Discussions](https://github.com/seanchatmangpt/ggen/discussions)
+[More questions?](https://github.com/seanchatmangpt/ggen/discussions)
 
 ---
 
 ## 🔧 Troubleshooting
 
-### Command Not Found After Installation
+**Command Not Found**: Check `which ggen`. If using `asdf`: `asdf reshim rust`. If using cargo install: Check PATH includes `~/.cargo/bin`. If using Homebrew: `brew list ggen` or `brew reinstall ggen`
 
-**If `ggen` command is not found:**
+**Build Errors**: `rustup update stable`, `cargo clean`, `cargo build --release -p ggen-cli-lib --bin ggen`. If missing system dependencies (macOS): `brew install libgit2`
 
-```bash
-# Check if ggen is installed
-which ggen
+**Version Flag Not Working**: `ls -lh target/release/ggen`, rebuild with `cargo build --release -p ggen-cli-lib --bin ggen`, reinstall with `cargo install --path crates/ggen-cli --bin ggen --force`
 
-# If using asdf for Rust version management
-asdf reshim rust
-# Then verify:
-ggen --version
+**Homebrew Installation Issues**: `brew update`, `brew tap seanchatmangpt/tap`, `brew install -v ggen`, `brew doctor`
 
-# If using cargo install, check PATH
-echo $PATH | grep -E "(cargo|\.cargo)"
-# If missing, add to your shell profile:
-# For bash: echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> ~/.bashrc
-# For zsh:  echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> ~/.zshrc
-# Then reload: source ~/.bashrc  # or source ~/.zshrc
+**PATH Issues**: Find ggen with `find ~ -name ggen -type f 2>/dev/null`. Common locations: `~/.cargo/bin/ggen`, `~/.asdf/installs/rust/*/bin/ggen`, `/opt/homebrew/bin/ggen` (Apple Silicon), `/usr/local/bin/ggen` (Intel Mac). Add to PATH: `export PATH="$HOME/.cargo/bin:$PATH"` or add to `~/.zshrc`/`~/.bashrc`
 
-# If using Homebrew, verify installation
-brew list ggen
-# Reinstall if needed:
-brew reinstall ggen
-```
-
-### Build Errors
-
-**If building from source fails:**
-
-```bash
-# Ensure Rust toolchain is up to date
-rustup update stable
-
-# Clean and rebuild
-cargo clean
-cargo build --release -p ggen-cli-lib --bin ggen
-
-# If missing system dependencies (macOS)
-brew install libgit2
-
-# Verify build configuration
-cargo make verify-binary
-```
-
-### Version Flag Not Working
-
-**If `ggen --version` shows an error:**
-
-```bash
-# Verify binary was built correctly
-ls -lh target/release/ggen  # or target/debug/ggen
-
-# Rebuild with explicit binary target
-cargo build --release -p ggen-cli-lib --bin ggen
-
-# Reinstall
-cargo install --path crates/ggen-cli --bin ggen --force
-```
-
-### Homebrew Installation Issues
-
-**If Homebrew installation fails:**
-
-```bash
-# Update Homebrew
-brew update
-
-# Tap the repository
-brew tap seanchatmangpt/tap
-
-# Install with verbose output
-brew install -v ggen
-
-# Check for issues
-brew doctor
-```
-
-### PATH Issues
-
-**If ggen is installed but not in PATH:**
-
-```bash
-# Find where ggen is installed
-find ~ -name ggen -type f 2>/dev/null | head -5
-
-# Common locations:
-# - ~/.cargo/bin/ggen (cargo install)
-# - ~/.asdf/installs/rust/*/bin/ggen (asdf)
-# - /opt/homebrew/bin/ggen (Homebrew on Apple Silicon)
-# - /usr/local/bin/ggen (Homebrew on Intel Mac)
-
-# Add to PATH temporarily
-export PATH="$HOME/.cargo/bin:$PATH"
-
-# Or permanently (add to ~/.bashrc or ~/.zshrc)
-echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> ~/.zshrc
-source ~/.zshrc
-```
-
-**Still having issues?** Check the [full troubleshooting guide](docs/install.md#troubleshooting-installation) or [open an issue](https://github.com/seanchatmangpt/ggen/issues).
+[Full troubleshooting guide](docs/install.md#troubleshooting-installation) | [Open an issue](https://github.com/seanchatmangpt/ggen/issues)
 
 ---
 
 ## 🎉 Try It Now
 
 ```bash
-# Install
 brew tap seanchatmangpt/tap && brew install ggen
-
-# Generate your first ontology-driven project (30 seconds)
 ggen ai generate-ontology --prompt "Task management: Task, User, Project" --output tasks.ttl
 ggen template generate-rdf --ontology tasks.ttl --template rust-graphql-api
-
 # Edit tasks.ttl (add: Task.priority: xsd:integer)
 # Regenerate → Code automatically includes new field!
 ggen template generate-rdf --ontology tasks.ttl --template rust-graphql-api

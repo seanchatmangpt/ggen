@@ -224,11 +224,8 @@ impl OperationPermutations {
     }
 
     fn generate_sequences_recursive(
-        &self,
-        sequences: &mut Vec<Vec<PackageOperation>>,
-        current: &mut Vec<PackageOperation>,
-        remaining: usize,
-        max_sequences: usize,
+        &self, sequences: &mut Vec<Vec<PackageOperation>>, current: &mut Vec<PackageOperation>,
+        remaining: usize, max_sequences: usize,
     ) {
         if sequences.len() >= max_sequences {
             return;
@@ -262,7 +259,9 @@ impl ConcurrentPatterns {
     }
 
     /// Generate patterns of concurrent operations
-    pub fn generate(&self, num_threads: usize, ops_per_thread: usize) -> Vec<Vec<PackageOperation>> {
+    pub fn generate(
+        &self, num_threads: usize, ops_per_thread: usize,
+    ) -> Vec<Vec<PackageOperation>> {
         let op_gen = OperationPermutations::new(self.config.clone());
         let all_ops = op_gen.all();
 

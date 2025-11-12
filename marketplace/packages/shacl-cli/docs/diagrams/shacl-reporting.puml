@@ -1,0 +1,169 @@
+@startuml SHACL Report Generation
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam handwritten false
+
+title SHACL Validation Report Generation and Export
+
+package "Validation Results" {
+  class "sh:ValidationReport" as report {
+    + sh:conforms: boolean
+    + sh:result: [ValidationResult]
+    + timestamp
+    + shapesGraphWellFormed: boolean
+  }
+
+  class "sh:ValidationResult" as result {
+    + sh:focusNode
+    + sh:resultPath
+    + sh:resultSeverity
+    + sh:resultMessage
+    + sh:sourceConstraintComponent
+    + sh:sourceShape
+    + sh:value
+    + sh:detail: [ValidationResult]
+  }
+
+  report "1" *-- "0..*" result
+}
+
+package "Severity Levels" {
+  class "sh:Violation" as violation {
+    Critical failures
+    Validation fails
+  }
+
+  class "sh:Warning" as warning {
+    Non-critical issues
+    Validation passes
+  }
+
+  class "sh:Info" as info {
+    Informational only
+    Validation passes
+  }
+
+  result --> violation : has severity
+  result --> warning : has severity
+  result --> info : has severity
+}
+
+package "Report Formats" {
+  class "Turtle Report" as turtle {
+    RDF/Turtle format
+    --
+    @prefix sh: ...
+    :report a sh:ValidationReport
+    sh:conforms false
+    sh:result [ ... ]
+  }
+
+  class "JSON Report" as json {
+    JSON-LD format
+    --
+    \{
+      "@type": "ValidationReport",
+      "conforms": false,
+      "results": [...]
+    \}
+  }
+
+  class "HTML Report" as html {
+    Interactive HTML
+    --
+    + Visual tables
+    + Charts/graphs
+    + Filtering
+    + Collapsible sections
+  }
+
+  class "Markdown Report" as markdown {
+    Markdown format
+    --
+    # Validation Report
+    ## Violations
+    - Focus: ...
+    - Message: ...
+  }
+
+  report ..> turtle : generate
+  report ..> json : generate
+  report ..> html : generate
+  report ..> markdown : generate
+}
+
+package "Visualization" {
+  class "Bar Chart" as bar {
+    Violations by severity
+    Violations by shape
+  }
+
+  class "Pie Chart" as pie {
+    Distribution of results
+    Severity breakdown
+  }
+
+  class "Timeline" as timeline {
+    Validation over time
+    Continuous monitoring
+  }
+
+  class "Heatmap" as heatmap {
+    Constraint violations
+    Property coverage
+  }
+
+  html --> bar : includes
+  html --> pie : includes
+  html --> timeline : includes
+  html --> heatmap : includes
+}
+
+package "Report Processing" {
+  class "Summarizer" as summarizer {
+    + groupBySeverity()
+    + groupByShape()
+    + groupByProperty()
+    + calculateStats()
+  }
+
+  class "Exporter" as exporter {
+    + exportToFile()
+    + compress()
+    + convertFormat()
+  }
+
+  class "Visualizer" as visualizer {
+    + createChart()
+    + generateSVG()
+    + generatePNG()
+    + interactiveHTML()
+  }
+
+  report --> summarizer : process
+  report --> exporter : export
+  report --> visualizer : visualize
+}
+
+note right of report
+  Validation report is the
+  primary output of SHACL
+  validation, containing all
+  validation results
+end note
+
+note bottom of violation
+  Violations represent critical
+  constraint failures. When any
+  violation exists, sh:conforms
+  is set to false
+end note
+
+note bottom of html
+  HTML reports provide the richest
+  user experience with interactive
+  filtering, sorting, and
+  visualization capabilities
+end note
+
+@enduml

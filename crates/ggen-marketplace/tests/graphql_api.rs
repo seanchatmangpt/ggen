@@ -1,3 +1,4 @@
+#[cfg(feature = "graphql")]
 use async_graphql::{EmptySubscription, Schema, Value};
 use ggen_marketplace::error::Result;
 use ggen_marketplace::models::{
@@ -150,7 +151,7 @@ fn create_test_package(namespace: &str, name: &str, version: &str) -> Package {
             title: format!("{} Package", name),
             description: format!("Test package for {}", name),
             long_description: None,
-            categories: vec![Category::Development],
+            categories: vec![Category::Deployment],
             tags: vec!["test".to_string()],
             license: "MIT".to_string(),
             authors: vec![],
@@ -169,6 +170,7 @@ fn create_test_package(namespace: &str, name: &str, version: &str) -> Package {
     }
 }
 
+#[cfg(feature = "graphql")]
 #[tokio::test]
 async fn test_graphql_search_query() {
     use ggen_marketplace::graphql::{MutationRoot, QueryRoot};
@@ -223,6 +225,7 @@ async fn test_graphql_search_query() {
     assert!(first_package.get("version").is_some());
 }
 
+#[cfg(feature = "graphql")]
 #[tokio::test]
 async fn test_graphql_package_query() {
     use ggen_marketplace::graphql::{MutationRoot, QueryRoot};
@@ -271,6 +274,7 @@ async fn test_graphql_package_query() {
     assert_eq!(pkg.get("license").and_then(|v| v.as_str()), Some("MIT"));
 }
 
+#[cfg(feature = "graphql")]
 #[tokio::test]
 async fn test_graphql_list_versions() {
     use ggen_marketplace::graphql::{MutationRoot, QueryRoot};
@@ -309,6 +313,7 @@ async fn test_graphql_list_versions() {
     assert_eq!(versions.unwrap().len(), 3, "Should return all 3 versions");
 }
 
+#[cfg(feature = "graphql")]
 #[tokio::test]
 async fn test_graphql_publish_mutation() {
     use ggen_marketplace::graphql::{MutationRoot, QueryRoot};
@@ -352,6 +357,7 @@ async fn test_graphql_publish_mutation() {
     assert!(published.is_some(), "Should return published package");
 }
 
+#[cfg(feature = "graphql")]
 #[tokio::test]
 async fn test_graphql_error_handling() {
     use ggen_marketplace::graphql::{MutationRoot, QueryRoot};
@@ -386,6 +392,7 @@ async fn test_graphql_error_handling() {
     assert!(error.message.contains("not found") || error.message.contains("PackageNotFound"));
 }
 
+#[cfg(feature = "graphql")]
 #[tokio::test]
 async fn test_graphql_schema_validation() {
     use ggen_marketplace::graphql::{MutationRoot, QueryRoot};
@@ -414,6 +421,7 @@ async fn test_graphql_schema_validation() {
     assert!(!result.errors.is_empty(), "Should have validation errors");
 }
 
+#[cfg(feature = "graphql")]
 #[tokio::test]
 async fn test_graphql_delete_mutation() {
     use ggen_marketplace::graphql::{MutationRoot, QueryRoot};

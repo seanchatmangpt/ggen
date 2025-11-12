@@ -1,8 +1,9 @@
+use chicago_tdd_tools::prelude::*;
 use ggen_core::manifest::{ManifestInputs, compute_manifest_key};
 use std::collections::BTreeMap;
 
-#[test]
-fn test_identical_inputs_yield_identical_hash() {
+test!(test_identical_inputs_yield_identical_hash, {
+    // Arrange
     let inputs1 = ManifestInputs {
         canonical_graph: "test graph".to_string(),
         canonical_shapes: "test shapes".to_string(),
@@ -21,15 +22,17 @@ fn test_identical_inputs_yield_identical_hash() {
         canonical_rows: "test rows".to_string(),
     };
     
+    // Act
     let hash1 = compute_manifest_key(&inputs1);
     let hash2 = compute_manifest_key(&inputs2);
     
+    // Assert
     assert_eq!(hash1, hash2);
-    assert_eq!(hash1.len(), 64); // SHA256 hex length
-}
+    assert_eq!(hash1.len(), 64);
+});
 
-#[test]
-fn test_different_inputs_yield_different_hash() {
+test!(test_different_inputs_yield_different_hash, {
+    // Arrange
     let inputs1 = ManifestInputs {
         canonical_graph: "test graph".to_string(),
         canonical_shapes: "test shapes".to_string(),
@@ -48,8 +51,10 @@ fn test_different_inputs_yield_different_hash() {
         canonical_rows: "test rows".to_string(),
     };
     
+    // Act
     let hash1 = compute_manifest_key(&inputs1);
     let hash2 = compute_manifest_key(&inputs2);
     
+    // Assert
     assert_ne!(hash1, hash2);
-}
+});

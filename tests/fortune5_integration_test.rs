@@ -11,9 +11,9 @@
 
 #![cfg(test)]
 
-use std::time::Instant;
-use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use std::time::Instant;
 use tokio;
 
 // ============================================================================
@@ -124,7 +124,10 @@ impl FhirPatientManagement {
     }
 
     async fn get_patient(&self, id: &str) -> Result<Patient, String> {
-        self.patients.get(id).cloned().ok_or_else(|| "Patient not found".to_string())
+        self.patients
+            .get(id)
+            .cloned()
+            .ok_or_else(|| "Patient not found".to_string())
     }
 }
 
@@ -139,7 +142,9 @@ impl Hl7V2Integration {
         }
     }
 
-    async fn send_prescription_message(&mut self, prescription: &Prescription) -> Result<String, String> {
+    async fn send_prescription_message(
+        &mut self, prescription: &Prescription,
+    ) -> Result<String, String> {
         let hl7_msg = format!(
             "MSH|^~\\&|PRESCRIBER|CLINIC|PHARMACY|SYSTEM|{}||RDE^O11|{}|P|2.5\nORC|NW|{}|||||||{}\nRXE|1^{}^{}^{}",
             chrono::Utc::now().format("%Y%m%d%H%M%S"),
@@ -191,7 +196,11 @@ impl PharmacyManagement {
     }
 
     async fn check_inventory(&self, medication: &str, quantity: u32) -> Result<bool, String> {
-        Ok(self.inventory.get(medication).map(|&qty| qty >= quantity).unwrap_or(false))
+        Ok(self
+            .inventory
+            .get(medication)
+            .map(|&qty| qty >= quantity)
+            .unwrap_or(false))
     }
 
     async fn create_order(&mut self, order: PharmacyOrder) -> Result<String, String> {
@@ -200,7 +209,9 @@ impl PharmacyManagement {
         Ok(id)
     }
 
-    async fn fulfill_order(&mut self, order_id: &str, medication: &str, quantity: u32) -> Result<(), String> {
+    async fn fulfill_order(
+        &mut self, order_id: &str, medication: &str, quantity: u32,
+    ) -> Result<(), String> {
         if let Some(qty) = self.inventory.get_mut(medication) {
             if *qty >= quantity {
                 *qty -= quantity;
@@ -257,7 +268,9 @@ impl Iso20022Payments {
         }
     }
 
-    async fn process_payment(&mut self, amount: f64, from: &str, to: &str) -> Result<String, String> {
+    async fn process_payment(
+        &mut self, amount: f64, from: &str, to: &str,
+    ) -> Result<String, String> {
         let payment_id = format!("PMT-{}", uuid::Uuid::new_v4());
         let iso_msg = format!(
             "ISO20022:pain.001.001.09:{}:{}->{}:USD:{}",
@@ -280,7 +293,11 @@ impl BankingCore {
     }
 
     async fn verify_funds(&self, account_id: &str, amount: f64) -> Result<bool, String> {
-        Ok(self.accounts.get(account_id).map(|&balance| balance >= amount).unwrap_or(false))
+        Ok(self
+            .accounts
+            .get(account_id)
+            .map(|&balance| balance >= amount)
+            .unwrap_or(false))
     }
 
     async fn debit_account(&mut self, account_id: &str, amount: f64) -> Result<(), String> {
@@ -385,17 +402,22 @@ impl IdentityAccessManagement {
     async fn authenticate(&mut self, user_id: &str) -> Result<String, String> {
         if self.users.contains_key(user_id) {
             let session_token = format!("SESSION-{}", uuid::Uuid::new_v4());
-            self.sessions.insert(session_token.clone(), user_id.to_string());
+            self.sessions
+                .insert(session_token.clone(), user_id.to_string());
             Ok(session_token)
         } else {
             Err("User not found".to_string())
         }
     }
 
-    async fn authorize(&self, session_token: &str, required_clearance: &str) -> Result<bool, String> {
+    async fn authorize(
+        &self, session_token: &str, required_clearance: &str,
+    ) -> Result<bool, String> {
         if let Some(user_id) = self.sessions.get(session_token) {
             if let Some(user) = self.users.get(user_id) {
-                return Ok(user.clearance_level == required_clearance || user.clearance_level == "ADMIN");
+                return Ok(
+                    user.clearance_level == required_clearance || user.clearance_level == "ADMIN"
+                );
             }
         }
         Ok(false)
@@ -445,7 +467,9 @@ impl WorkflowAutomationEngine {
         }
     }
 
-    async fn start_workflow(&mut self, workflow_id: String, steps: Vec<String>) -> Result<String, String> {
+    async fn start_workflow(
+        &mut self, workflow_id: String, steps: Vec<String>,
+    ) -> Result<String, String> {
         self.workflows.insert(workflow_id.clone(), steps);
         Ok(workflow_id)
     }
@@ -507,12 +531,20 @@ mod fortune5_integration {
         observability.trace("hl7", "send_prescription", 32).await;
         assert!(hl7_msg.contains("RDE^O11"));
 
-        let has_stock = pharmacy.check_inventory(&prescription.medication, prescription.quantity).await.unwrap();
+        let has_stock = pharmacy
+            .check_inventory(&prescription.medication, prescription.quantity)
+            .await
+            .unwrap();
         observability.trace("pharmacy", "check_inventory", 12).await;
         assert!(has_stock);
 
-        let insurance_valid = billing.verify_insurance(&patient.insurance_id).await.unwrap();
-        observability.trace("billing", "verify_insurance", 156).await;
+        let insurance_valid = billing
+            .verify_insurance(&patient.insurance_id)
+            .await
+            .unwrap();
+        observability
+            .trace("billing", "verify_insurance", 156)
+            .await;
         assert!(insurance_valid);
 
         let claim = InsuranceClaim {
@@ -531,20 +563,28 @@ mod fortune5_integration {
         observability.trace("billing", "process_claim", 234).await;
         assert!(approval_code.starts_with("APR-"));
 
-        let payment_id = payments.process_payment(45.50, &patient.insurance_id, "PHARMACY-001").await.unwrap();
-        observability.trace("iso20022", "process_payment", 178).await;
+        let payment_id = payments
+            .process_payment(45.50, &patient.insurance_id, "PHARMACY-001")
+            .await
+            .unwrap();
+        observability
+            .trace("iso20022", "process_payment", 178)
+            .await;
         assert!(payment_id.starts_with("PMT-"));
 
         let workflow_id = format!("WF-{}", uuid::Uuid::new_v4());
-        workflow.start_workflow(
-            workflow_id.clone(),
-            vec![
-                "verify_prescription".to_string(),
-                "dispense_medication".to_string(),
-                "package_order".to_string(),
-                "ship_order".to_string(),
-            ]
-        ).await.unwrap();
+        workflow
+            .start_workflow(
+                workflow_id.clone(),
+                vec![
+                    "verify_prescription".to_string(),
+                    "dispense_medication".to_string(),
+                    "package_order".to_string(),
+                    "ship_order".to_string(),
+                ],
+            )
+            .await
+            .unwrap();
         observability.trace("workflow", "start_workflow", 23).await;
 
         let order = PharmacyOrder {
@@ -560,7 +600,10 @@ mod fortune5_integration {
         let order_id = pharmacy.create_order(order.clone()).await.unwrap();
         observability.trace("pharmacy", "create_order", 34).await;
 
-        pharmacy.fulfill_order(&order_id, &prescription.medication, prescription.quantity).await.unwrap();
+        pharmacy
+            .fulfill_order(&order_id, &prescription.medication, prescription.quantity)
+            .await
+            .unwrap();
         observability.trace("pharmacy", "fulfill_order", 67).await;
 
         let points = loyalty.earn_points(&patient_id, 45.50).await.unwrap();
@@ -571,9 +614,18 @@ mod fortune5_integration {
         assert_eq!(balance, 4);
 
         let duration = start.elapsed();
-        observability.trace("e2e_workflow", "prescription_to_delivery", duration.as_millis() as u64).await;
+        observability
+            .trace(
+                "e2e_workflow",
+                "prescription_to_delivery",
+                duration.as_millis() as u64,
+            )
+            .await;
 
-        println!("✓ Patient prescription to delivery completed in {:?}", duration);
+        println!(
+            "✓ Patient prescription to delivery completed in {:?}",
+            duration
+        );
         println!("  - Patient: {}", patient_id);
         println!("  - Approval: {}", approval_code);
         println!("  - Payment: {}", payment_id);
@@ -589,15 +641,31 @@ mod fortune5_integration {
         println!("Testing 25 marketplace packages working together\n");
 
         let packages = vec![
-            "fhir-patient-management", "hl7-v2-integration", "pharmacy-management",
-            "ehr-integration", "laboratory-information-system", "medical-billing",
-            "healthcare-analytics", "clinical-trials-management", "iso-20022-payments",
-            "banking-core", "kyc-aml-compliance", "enterprise-erp-core", "risk-management",
-            "multi-tenant-saas", "inventory-management", "order-management-system",
-            "customer-loyalty-rewards", "crm-customer-management", "supply-chain-management",
-            "human-resources-management", "business-intelligence-reporting",
-            "api-gateway-service-mesh", "observability-platform", "identity-access-management",
-            "workflow-automation-engine"
+            "fhir-patient-management",
+            "hl7-v2-integration",
+            "pharmacy-management",
+            "ehr-integration",
+            "laboratory-information-system",
+            "medical-billing",
+            "healthcare-analytics",
+            "clinical-trials-management",
+            "iso-20022-payments",
+            "banking-core",
+            "kyc-aml-compliance",
+            "enterprise-erp-core",
+            "risk-management",
+            "multi-tenant-saas",
+            "inventory-management",
+            "order-management-system",
+            "customer-loyalty-rewards",
+            "crm-customer-management",
+            "supply-chain-management",
+            "human-resources-management",
+            "business-intelligence-reporting",
+            "api-gateway-service-mesh",
+            "observability-platform",
+            "identity-access-management",
+            "workflow-automation-engine",
         ];
 
         assert_eq!(packages.len(), 25, "All 25 packages must be present");

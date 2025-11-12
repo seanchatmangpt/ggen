@@ -70,13 +70,17 @@ async fn test_announce_package_via_gossipsub() {
     let package_id = PackageId::new("test", "package");
     let version = Version::new(1, 0, 0);
 
-    let package = Package::builder(package_id.clone(), version)
+    let unvalidated = Package::builder(package_id.clone(), version)
         .title("Test Package")
         .description("A test package for P2P testing")
         .license("MIT")
         .content_id(ContentId::new("abcd1234567890", HashAlgorithm::Sha256))
         .build()
         .expect("Failed to build test package");
+
+    // Validate package before use (Poka-yoke: ensures package meets requirements)
+    let validated = unvalidated.validate().expect("Failed to validate package");
+    let package = validated.package().clone();
 
     // Simulate publishing (announcing) the package
     registry.published_packages.push(package.id.to_string());
@@ -103,21 +107,29 @@ async fn test_search_discovers_remote_packages() {
     let package1_id = PackageId::new("test", "web-server");
     let package2_id = PackageId::new("test", "web-client");
 
-    let package1 = Package::builder(package1_id.clone(), Version::new(1, 0, 0))
+    let unvalidated1 = Package::builder(package1_id.clone(), Version::new(1, 0, 0))
         .title("Web Server")
         .description("A web server package")
         .license("MIT")
         .content_id(ContentId::new("hash1", HashAlgorithm::Sha256))
         .build()
         .expect("Failed to build package1");
+    let validated1 = unvalidated1
+        .validate()
+        .expect("Failed to validate package1");
+    let package1 = validated1.package().clone();
 
-    let package2 = Package::builder(package2_id.clone(), Version::new(1, 0, 0))
+    let unvalidated2 = Package::builder(package2_id.clone(), Version::new(1, 0, 0))
         .title("Web Client")
         .description("A web client package")
         .license("MIT")
         .content_id(ContentId::new("hash2", HashAlgorithm::Sha256))
         .build()
         .expect("Failed to build package2");
+    let validated2 = unvalidated2
+        .validate()
+        .expect("Failed to validate package2");
+    let package2 = validated2.package().clone();
 
     // Set up mock search results from remote peers
     registry.set_search_results("web".to_string(), vec![package1.clone(), package2.clone()]);
@@ -143,13 +155,15 @@ async fn test_retrieve_package_from_peer() {
 
     // Create and store a package in local cache (simulating retrieval)
     let package_id = PackageId::new("test", "remote-package");
-    let package = Package::builder(package_id.clone(), Version::new(1, 0, 0))
+    let unvalidated = Package::builder(package_id.clone(), Version::new(1, 0, 0))
         .title("Remote Package")
         .description("A package from a remote peer")
         .license("MIT")
         .content_id(ContentId::new("remote-hash", HashAlgorithm::Sha256))
         .build()
         .expect("Failed to build package");
+    let validated = unvalidated.validate().expect("Failed to validate package");
+    let package = validated.package().clone();
 
     registry
         .local_packages
@@ -175,13 +189,15 @@ async fn test_multiple_peers_package_discovery() {
     let packages: Vec<Package> = (0..5)
         .map(|i| {
             let package_id = PackageId::new("test", format!("package{}", i));
-            Package::builder(package_id, Version::new(1, 0, 0))
+            let unvalidated = Package::builder(package_id, Version::new(1, 0, 0))
                 .title(format!("Package {}", i))
                 .description(format!("Test package number {}", i))
                 .license("MIT")
                 .content_id(ContentId::new(format!("hash{}", i), HashAlgorithm::Sha256))
                 .build()
-                .expect("Failed to build package")
+                .expect("Failed to build package");
+            let validated = unvalidated.validate().expect("Failed to validate package");
+            validated.package().clone()
         })
         .collect();
 
@@ -203,13 +219,15 @@ async fn test_package_republishing_prevents_duplicates() {
     let mut registry = MockP2PRegistry::new();
 
     let package_id = PackageId::new("test", "duplicate-test");
-    let package = Package::builder(package_id.clone(), Version::new(1, 0, 0))
+    let unvalidated = Package::builder(package_id.clone(), Version::new(1, 0, 0))
         .title("Duplicate Test")
         .description("Test duplicate prevention")
         .license("MIT")
         .content_id(ContentId::new("hash", HashAlgorithm::Sha256))
         .build()
         .expect("Failed to build package");
+    let validated = unvalidated.validate().expect("Failed to validate package");
+    let package = validated.package().clone();
 
     // Publish the package twice
     registry
@@ -253,13 +271,15 @@ async fn test_dht_put_get_operations() {
     let mut registry = MockP2PRegistry::new();
 
     let package_id = PackageId::new("test", "dht-package");
-    let package = Package::builder(package_id.clone(), Version::new(1, 0, 0))
+    let unvalidated = Package::builder(package_id.clone(), Version::new(1, 0, 0))
         .title("DHT Package")
         .description("Package stored in DHT")
         .license("MIT")
         .content_id(ContentId::new("dht-hash", HashAlgorithm::Sha256))
         .build()
         .expect("Failed to build package");
+    let validated = unvalidated.validate().expect("Failed to validate package");
+    let package = validated.package().clone();
 
     // Simulate DHT put operation
     registry
@@ -295,26 +315,30 @@ async fn test_package_version_updates() {
     let package_id = PackageId::new("test", "versioned-package");
 
     // Publish version 1.0.0
-    let v1 = Package::builder(package_id.clone(), Version::new(1, 0, 0))
+    let unvalidated_v1 = Package::builder(package_id.clone(), Version::new(1, 0, 0))
         .title("Versioned Package")
         .description("Test version updates")
         .license("MIT")
         .content_id(ContentId::new("hash-v1", HashAlgorithm::Sha256))
         .build()
         .expect("Failed to build v1");
+    let validated_v1 = unvalidated_v1.validate().expect("Failed to validate v1");
+    let v1 = validated_v1.package().clone();
 
     registry
         .local_packages
         .insert(format!("{}@1.0.0", package_id), v1);
 
     // Publish version 2.0.0
-    let v2 = Package::builder(package_id.clone(), Version::new(2, 0, 0))
+    let unvalidated_v2 = Package::builder(package_id.clone(), Version::new(2, 0, 0))
         .title("Versioned Package")
         .description("Test version updates - v2")
         .license("MIT")
         .content_id(ContentId::new("hash-v2", HashAlgorithm::Sha256))
         .build()
         .expect("Failed to build v2");
+    let validated_v2 = unvalidated_v2.validate().expect("Failed to validate v2");
+    let v2 = validated_v2.package().clone();
 
     registry
         .local_packages
