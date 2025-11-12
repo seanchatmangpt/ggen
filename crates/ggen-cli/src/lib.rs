@@ -1,12 +1,14 @@
+#![deny(warnings)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
+
 use std::io::{Read, Write};
 
 // Command modules - clap-noun-verb v3.4.0 auto-discovery
-pub mod cmds;            // clap-noun-verb v3 entry points with #[verb] functions
-pub mod conventions;     // File-based routing conventions
-// pub mod domain;          // Business logic layer - MOVED TO ggen-domain crate
-pub mod runtime;         // Async/sync bridge utilities
-pub mod runtime_helper;  // Sync CLI wrapper utilities for async operations
-pub mod prelude;         // Common imports for commands
+pub mod cmds; // clap-noun-verb v3 entry points with #[verb] functions
+pub mod conventions; // File-based routing conventions
+                     // pub mod domain;          // Business logic layer - MOVED TO ggen-domain crate
+pub mod prelude;
+pub mod runtime; // Async/sync bridge utilities
+pub mod runtime_helper; // Sync CLI wrapper utilities for async operations // Common imports for commands
 
 // Re-export clap-noun-verb for auto-discovery
 pub use clap_noun_verb::{run, CommandRouter, Result as ClapNounVerbResult};
@@ -22,10 +24,9 @@ pub async fn cli_match() -> ggen_utils::error::Result<()> {
         println!("ggen {}", env!("CARGO_PKG_VERSION"));
         return Ok(());
     }
-    
+
     // Use clap-noun-verb auto-discovery
-    clap_noun_verb::run()
-        .map_err(|e| anyhow::anyhow!("CLI execution failed: {}", e))?;
+    clap_noun_verb::run().map_err(|e| anyhow::anyhow!("CLI execution failed: {}", e))?;
     Ok(())
 }
 
@@ -44,7 +45,9 @@ pub async fn run_for_node(args: Vec<String>) -> ggen_utils::error::Result<RunRes
     use std::sync::Mutex;
 
     // Prefix with a binary name to satisfy clap-noun-verb semantics
-    let _argv: Vec<String> = std::iter::once("ggen".to_string()).chain(args.into_iter()).collect();
+    let _argv: Vec<String> = std::iter::once("ggen".to_string())
+        .chain(args.into_iter())
+        .collect();
 
     // Create thread-safe buffers for capturing output
     let stdout_buffer = Arc::new(Mutex::new(Vec::new()));

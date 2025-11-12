@@ -14,7 +14,7 @@ Complete REST API endpoint templates with OpenAPI documentation for ggen.
 
 ```bash
 # Add to your project
-ggen market add api-endpoint-templates
+ggen market install api-endpoint-templates
 
 # Generate API endpoints
 ggen template generate api-endpoint-templates --vars '{"name":"users","path":"/api/v1/users"}'
@@ -24,7 +24,7 @@ ggen template generate api-endpoint-templates --vars '{"name":"users","path":"/a
 
 1. **Install the package:**
    ```bash
-   ggen market add api-endpoint-templates
+   ggen market install api-endpoint-templates
    ```
 
 2. **Generate API endpoints:**
@@ -206,7 +206,7 @@ cargo test api_performance
 
 ```bash
 # Install the package
-ggen market add api-endpoint-templates
+ggen market install api-endpoint-templates
 
 # Generate users API
 ggen template generate api-endpoint-templates \

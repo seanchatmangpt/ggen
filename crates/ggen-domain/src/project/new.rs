@@ -31,7 +31,9 @@ pub fn create_project(args: &NewInput) -> Result<CreationResult> {
     let project_type: ProjectType = args.project_type.parse()?;
 
     // Convert output path from Option<String> to PathBuf
-    let output_path = args.output.as_deref()
+    let output_path = args
+        .output
+        .as_deref()
         .map(std::path::PathBuf::from)
         .unwrap_or_else(|| std::path::PathBuf::from("."));
 
@@ -47,9 +49,7 @@ pub fn create_project(args: &NewInput) -> Result<CreationResult> {
     let runtime = tokio::runtime::Runtime::new()
         .map_err(|e| ggen_utils::error::Error::new_fmt(format_args!("Runtime error: {}", e)))?;
 
-    runtime.block_on(async {
-        create_new_project(&config).await
-    })?;
+    runtime.block_on(async { create_new_project(&config).await })?;
 
     // Generate next steps message
     let next_steps = match project_type {

@@ -6,7 +6,6 @@
 /// - Preset application
 /// - Auto-discovery workflows
 /// - Template metadata to output flow
-
 use super::fixtures::*;
 use std::path::PathBuf;
 use tempfile::TempDir;
@@ -28,22 +27,21 @@ mod tests {
         fs::create_dir_all(project_root.join("queries")).unwrap();
 
         // Add sample RDF file
-        fs::write(
-            project_root.join("rdf/users.ttl"),
-            sample_rdf_content()
-        ).unwrap();
+        fs::write(project_root.join("rdf/users.ttl"), sample_rdf_content()).unwrap();
 
         // Add sample template
         fs::write(
             project_root.join("templates/user.hbs"),
-            sample_template_content()
-        ).unwrap();
+            sample_template_content(),
+        )
+        .unwrap();
 
         // Add sample query
         fs::write(
             project_root.join("queries/get_users.sparql"),
-            "SELECT ?s ?p ?o WHERE { ?s ?p ?o }"
-        ).unwrap();
+            "SELECT ?s ?p ?o WHERE { ?s ?p ?o }",
+        )
+        .unwrap();
 
         // ACT: Run convention-based generation (no config needed)
         // TODO: Call actual generator once implemented
@@ -72,8 +70,9 @@ mod tests {
             r#"
 [conventions]
 preset = "clap-noun-verb"
-"#
-        ).unwrap();
+"#,
+        )
+        .unwrap();
 
         // Create preset-specific structure
         fs::create_dir_all(project_root.join("rdf/commands")).unwrap();
@@ -89,8 +88,9 @@ cmd:UserCreate a cmd:Command ;
     cmd:noun "user" ;
     cmd:verb "create" ;
     cmd:description "Create a new user" .
-"#
-        ).unwrap();
+"#,
+        )
+        .unwrap();
 
         // Add CLI template
         fs::write(
@@ -104,8 +104,9 @@ output: "src/commands/{{noun}}_{{verb}}.rs"
 pub fn {{noun}}_{{verb}}() {
     // Generated command
 }
-"#
-        ).unwrap();
+"#,
+        )
+        .unwrap();
 
         // ACT: Generate with preset conventions
         // TODO: Call generator with preset support
@@ -139,13 +140,11 @@ pub fn {{noun}}_{{verb}}() {
         // Add multiple RDF files (numbered for ordering)
         fs::write(
             project_root.join("rdf/01-schema.ttl"),
-            "@prefix ex: <http://example.org/> ."
-        ).unwrap();
+            "@prefix ex: <http://example.org/> .",
+        )
+        .unwrap();
 
-        fs::write(
-            project_root.join("rdf/02-users.ttl"),
-            sample_rdf_content()
-        ).unwrap();
+        fs::write(project_root.join("rdf/02-users.ttl"), sample_rdf_content()).unwrap();
 
         // Add multiple templates
         fs::write(
@@ -156,19 +155,22 @@ mode: once
 output: "models/mod.rs"
 ---
 pub mod user;
-"#
-        ).unwrap();
+"#,
+        )
+        .unwrap();
 
         fs::write(
             project_root.join("templates/models/user.hbs"),
-            sample_template_content()
-        ).unwrap();
+            sample_template_content(),
+        )
+        .unwrap();
 
         // Add queries
         fs::write(
             project_root.join("queries/get_users.sparql"),
-            "SELECT * WHERE { ?s a ex:User }"
-        ).unwrap();
+            "SELECT * WHERE { ?s a ex:User }",
+        )
+        .unwrap();
 
         // ACT: Run auto-discovery workflow
         // TODO: Implement full workflow
@@ -218,18 +220,21 @@ pub struct {{name}}Service {
 
         fs::write(
             project_root.join("templates/user_service.hbs"),
-            template_content
-        ).unwrap();
+            template_content,
+        )
+        .unwrap();
 
         fs::write(
             project_root.join("rdf/admin_users.ttl"),
-            sample_rdf_content()
-        ).unwrap();
+            sample_rdf_content(),
+        )
+        .unwrap();
 
         fs::write(
             project_root.join("queries/get_users.sparql"),
-            "SELECT * WHERE { ?s a ex:User }"
-        ).unwrap();
+            "SELECT * WHERE { ?s a ex:User }",
+        )
+        .unwrap();
 
         // ACT: Process template metadata -> output
         // TODO: Implement metadata processor
@@ -262,20 +267,19 @@ pub struct {{name}}Service {
         // Existing output with timestamp
         fs::write(
             project_root.join("src/models/user.rs"),
-            "// Generated at 2024-01-01\npub struct User {}"
-        ).unwrap();
+            "// Generated at 2024-01-01\npub struct User {}",
+        )
+        .unwrap();
 
         // Template (unchanged)
         fs::write(
             project_root.join("templates/user.hbs"),
-            sample_template_content()
-        ).unwrap();
+            sample_template_content(),
+        )
+        .unwrap();
 
         // RDF file (unchanged)
-        fs::write(
-            project_root.join("rdf/users.ttl"),
-            sample_rdf_content()
-        ).unwrap();
+        fs::write(project_root.join("rdf/users.ttl"), sample_rdf_content()).unwrap();
 
         // ACT: Run generation again
         // TODO: Implement incremental generation
@@ -299,8 +303,9 @@ pub struct {{name}}Service {
 [conventions]
 rdf_dir = "custom_rdf"
 output_dir = "generated"
-"#
-        ).unwrap();
+"#,
+        )
+        .unwrap();
 
         // Command-line args (highest priority)
         // --rdf-dir="cli_rdf" --output-dir="cli_output"
@@ -336,8 +341,9 @@ name: user_model
 query: missing_query
 ---
 pub struct User {}
-"#
-        ).unwrap();
+"#,
+        )
+        .unwrap();
 
         // No queries/missing_query.sparql file
 
@@ -363,15 +369,17 @@ pub struct User {}
         for i in 1..=5 {
             fs::write(
                 project_root.join(format!("rdf/file{}.ttl", i)),
-                sample_rdf_content()
-            ).unwrap();
+                sample_rdf_content(),
+            )
+            .unwrap();
         }
 
         // Template for parallel execution
         fs::write(
             project_root.join("templates/model.hbs"),
-            sample_template_content()
-        ).unwrap();
+            sample_template_content(),
+        )
+        .unwrap();
 
         // ACT: Execute templates in parallel
         // TODO: Implement parallel executor

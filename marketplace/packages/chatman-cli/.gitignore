@@ -1,0 +1,49 @@
+# Rust
+/target/
+**/*.rs.bk
+*.pdb
+Cargo.lock
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Node.js (if using for tooling)
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+
+# Build artifacts
+/dist/
+/build/
+*.exe
+*.wasm
+
+# Test artifacts
+/coverage/
+*.profraw
+*.profdata
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+logs/
+
+# OS
+Thumbs.db
+.Spotlight-V100
+.Trashes
+
+# ChatMan specific
+conversations/
+.chatman/
+*.conversation.json

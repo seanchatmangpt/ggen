@@ -127,8 +127,8 @@ mod integration_tests {
     #[tokio::test]
     async fn test_graph_load_wrapper_integration() {
         use ggen_cli::commands::graph::load::{run, LoadArgs};
-        use tempfile::NamedTempFile;
         use std::io::Write;
+        use tempfile::NamedTempFile;
 
         // Create minimal RDF file
         let mut temp_file = NamedTempFile::new().unwrap();
@@ -267,7 +267,11 @@ mod performance_tests {
         // Wrapper overhead should be minimal (parsing + delegation)
         // Note: This includes domain execution time, so we're lenient
         println!("template list overhead: {:?}", elapsed);
-        assert!(elapsed < Duration::from_millis(100), "Wrapper overhead too high: {:?}", elapsed);
+        assert!(
+            elapsed < Duration::from_millis(100),
+            "Wrapper overhead too high: {:?}",
+            elapsed
+        );
     }
 
     /// Measure wrapper overhead for marketplace search
@@ -292,7 +296,11 @@ mod performance_tests {
 
         println!("marketplace search runtime spawn: {:?}", runtime_spawn);
         // Runtime spawning + domain execution
-        assert!(runtime_spawn < Duration::from_millis(100), "Runtime spawn too slow: {:?}", runtime_spawn);
+        assert!(
+            runtime_spawn < Duration::from_millis(100),
+            "Runtime spawn too slow: {:?}",
+            runtime_spawn
+        );
     }
 
     /// Measure runtime::execute performance
@@ -308,7 +316,11 @@ mod performance_tests {
         let spawn_time = start.elapsed();
 
         println!("runtime::execute spawn time: {:?}", spawn_time);
-        assert!(spawn_time < RUNTIME_SPAWN_MAX, "Runtime spawn too slow: {:?}", spawn_time);
+        assert!(
+            spawn_time < RUNTIME_SPAWN_MAX,
+            "Runtime spawn too slow: {:?}",
+            spawn_time
+        );
     }
 
     /// Measure graph query wrapper performance
@@ -327,7 +339,11 @@ mod performance_tests {
         let elapsed = start.elapsed();
 
         println!("graph query overhead: {:?}", elapsed);
-        assert!(elapsed < Duration::from_millis(100), "Wrapper overhead too high: {:?}", elapsed);
+        assert!(
+            elapsed < Duration::from_millis(100),
+            "Wrapper overhead too high: {:?}",
+            elapsed
+        );
     }
 
     /// Measure project gen wrapper performance with spawn_blocking
@@ -353,7 +369,11 @@ mod performance_tests {
 
         println!("project gen spawn_blocking overhead: {:?}", elapsed);
         // spawn_blocking has higher overhead than direct async
-        assert!(elapsed < Duration::from_millis(150), "spawn_blocking overhead too high: {:?}", elapsed);
+        assert!(
+            elapsed < Duration::from_millis(150),
+            "spawn_blocking overhead too high: {:?}",
+            elapsed
+        );
     }
 
     /// Measure utils doctor wrapper performance
@@ -372,7 +392,11 @@ mod performance_tests {
         let elapsed = start.elapsed();
 
         println!("utils doctor overhead: {:?}", elapsed);
-        assert!(elapsed < Duration::from_millis(200), "Wrapper overhead too high: {:?}", elapsed);
+        assert!(
+            elapsed < Duration::from_millis(200),
+            "Wrapper overhead too high: {:?}",
+            elapsed
+        );
     }
 
     /// Measure marketplace install wrapper performance
@@ -392,7 +416,11 @@ mod performance_tests {
         let elapsed = start.elapsed();
 
         println!("marketplace install overhead: {:?}", elapsed);
-        assert!(elapsed < Duration::from_millis(100), "Wrapper overhead too high: {:?}", elapsed);
+        assert!(
+            elapsed < Duration::from_millis(100),
+            "Wrapper overhead too high: {:?}",
+            elapsed
+        );
     }
 
     /// Measure graph load wrapper performance
@@ -411,7 +439,11 @@ mod performance_tests {
         let elapsed = start.elapsed();
 
         println!("graph load overhead: {:?}", elapsed);
-        assert!(elapsed < Duration::from_millis(50), "Wrapper overhead too high: {:?}", elapsed);
+        assert!(
+            elapsed < Duration::from_millis(50),
+            "Wrapper overhead too high: {:?}",
+            elapsed
+        );
     }
 
     /// Measure graph export wrapper performance
@@ -434,7 +466,11 @@ mod performance_tests {
         let elapsed = start.elapsed();
 
         println!("graph export overhead: {:?}", elapsed);
-        assert!(elapsed < Duration::from_millis(100), "Wrapper overhead too high: {:?}", elapsed);
+        assert!(
+            elapsed < Duration::from_millis(100),
+            "Wrapper overhead too high: {:?}",
+            elapsed
+        );
     }
 
     /// Measure template new wrapper performance
@@ -458,7 +494,11 @@ mod performance_tests {
         let elapsed = start.elapsed();
 
         println!("template new overhead: {:?}", elapsed);
-        assert!(elapsed < Duration::from_millis(150), "Wrapper overhead too high: {:?}", elapsed);
+        assert!(
+            elapsed < Duration::from_millis(150),
+            "Wrapper overhead too high: {:?}",
+            elapsed
+        );
     }
 }
 
@@ -474,9 +514,7 @@ mod component_tests {
         use ggen_cli::runtime;
         use ggen_utils::error::Error;
 
-        let result = runtime::execute(async {
-            Err(Error::new("Test error"))
-        });
+        let result = runtime::execute(async { Err(Error::new("Test error")) });
 
         assert!(result.is_err());
         assert!(result.unwrap_err().to_string().contains("Test error"));
@@ -487,9 +525,7 @@ mod component_tests {
     fn test_runtime_execute_success() {
         use ggen_cli::runtime;
 
-        let result = runtime::execute(async {
-            Ok(())
-        });
+        let result = runtime::execute(async { Ok(()) });
 
         assert!(result.is_ok());
     }

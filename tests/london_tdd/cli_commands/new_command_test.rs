@@ -2,8 +2,8 @@
 // Outside-in testing approach: Start with acceptance tests, then unit tests
 
 use anyhow::Result;
-use mockall::predicate::*;
 use mockall::mock;
+use mockall::predicate::*;
 use std::path::{Path, PathBuf};
 use tempfile::TempDir;
 use tokio::fs;
@@ -76,17 +76,26 @@ mod acceptance_tests {
         let project_name = "my-rust-web-app";
 
         let mut generator = MockProjectGenerator::new();
-        generator.expect_generate()
+        generator
+            .expect_generate()
             .with(function(|cfg: &ProjectConfig| {
                 cfg.name == "my-rust-web-app" && cfg.project_type == ProjectType::RustWeb
             }))
-            .returning(|_| Ok(ProjectStructure {
-                files: vec![
-                    ("Cargo.toml".to_string(), "[package]\nname = \"my-rust-web-app\"".to_string()),
-                    ("src/main.rs".to_string(), "fn main() { println!(\"Hello\"); }".to_string()),
-                ],
-                directories: vec!["src".to_string()],
-            }));
+            .returning(|_| {
+                Ok(ProjectStructure {
+                    files: vec![
+                        (
+                            "Cargo.toml".to_string(),
+                            "[package]\nname = \"my-rust-web-app\"".to_string(),
+                        ),
+                        (
+                            "src/main.rs".to_string(),
+                            "fn main() { println!(\"Hello\"); }".to_string(),
+                        ),
+                    ],
+                    directories: vec!["src".to_string()],
+                })
+            });
 
         let mut fs_writer = MockFileSystemWriter::new();
         fs_writer.expect_create_directory().returning(|_| Ok(()));
@@ -119,17 +128,26 @@ mod acceptance_tests {
         let temp_dir = TempDir::new()?;
 
         let mut generator = MockProjectGenerator::new();
-        generator.expect_generate()
+        generator
+            .expect_generate()
             .with(function(|cfg: &ProjectConfig| {
                 cfg.name == "my-nextjs-app" && cfg.project_type == ProjectType::NextJs
             }))
-            .returning(|_| Ok(ProjectStructure {
-                files: vec![
-                    ("package.json".to_string(), r#"{"name": "my-nextjs-app"}"#.to_string()),
-                    ("pages/index.tsx".to_string(), "export default function Home() {}".to_string()),
-                ],
-                directories: vec!["pages".to_string()],
-            }));
+            .returning(|_| {
+                Ok(ProjectStructure {
+                    files: vec![
+                        (
+                            "package.json".to_string(),
+                            r#"{"name": "my-nextjs-app"}"#.to_string(),
+                        ),
+                        (
+                            "pages/index.tsx".to_string(),
+                            "export default function Home() {}".to_string(),
+                        ),
+                    ],
+                    directories: vec!["pages".to_string()],
+                })
+            });
 
         let mut fs_writer = MockFileSystemWriter::new();
         fs_writer.expect_create_directory().returning(|_| Ok(()));
@@ -159,7 +177,8 @@ mod acceptance_tests {
         let temp_dir = TempDir::new()?;
 
         let mut generator = MockProjectGenerator::new();
-        generator.expect_generate()
+        generator
+            .expect_generate()
             .with(function(|cfg: &ProjectConfig| {
                 cfg.framework == Some("axum".to_string())
             }))
@@ -235,7 +254,9 @@ mod rust_web_generator_tests {
 
         let structure = generator.generate(&config)?;
 
-        let cargo_toml = structure.files.iter()
+        let cargo_toml = structure
+            .files
+            .iter()
             .find(|(path, _)| path == "Cargo.toml")
             .map(|(_, content)| content);
 
@@ -259,7 +280,9 @@ mod rust_web_generator_tests {
 
         let structure = generator.generate(&config)?;
 
-        let main_rs = structure.files.iter()
+        let main_rs = structure
+            .files
+            .iter()
             .find(|(path, _)| path == "src/main.rs")
             .map(|(_, content)| content);
 
@@ -307,7 +330,9 @@ mod nextjs_generator_tests {
 
         let structure = generator.generate(&config)?;
 
-        let package_json = structure.files.iter()
+        let package_json = structure
+            .files
+            .iter()
             .find(|(path, _)| path == "package.json")
             .map(|(_, content)| content);
 
@@ -330,7 +355,9 @@ mod nextjs_generator_tests {
 
         let structure = generator.generate(&config)?;
 
-        let index_tsx = structure.files.iter()
+        let index_tsx = structure
+            .files
+            .iter()
             .find(|(path, _)| path == "pages/index.tsx")
             .map(|(_, content)| content);
 
@@ -346,11 +373,8 @@ mod nextjs_generator_tests {
 // ============================================================================
 
 pub async fn create_new_project(
-    config: &ProjectConfig,
-    generator: &impl ProjectGenerator,
-    fs_writer: &impl FileSystemWriter,
-    git: &impl GitInitializer,
-    deps: &impl DependencyInstaller,
+    config: &ProjectConfig, generator: &impl ProjectGenerator, fs_writer: &impl FileSystemWriter,
+    git: &impl GitInitializer, deps: &impl DependencyInstaller,
 ) -> Result<()> {
     let project_path = config.path.join(&config.name);
 
@@ -434,15 +458,16 @@ async fn main() -> Result<()> {{
                 (".gitignore".to_string(), "/target\n".to_string()),
                 ("README.md".to_string(), format!("# {}\n", config.name)),
             ],
-            directories: vec![
-                "src".to_string(),
-                "tests".to_string(),
-            ],
+            directories: vec!["src".to_string(), "tests".to_string()],
         })
     }
 
     fn supported_types(&self) -> Vec<ProjectType> {
-        vec![ProjectType::RustWeb, ProjectType::RustCli, ProjectType::RustLib]
+        vec![
+            ProjectType::RustWeb,
+            ProjectType::RustCli,
+            ProjectType::RustLib,
+        ]
     }
 }
 
@@ -489,7 +514,10 @@ impl ProjectGenerator for NextJsGenerator {
             files: vec![
                 ("package.json".to_string(), package_json),
                 ("pages/index.tsx".to_string(), index_tsx.to_string()),
-                (".gitignore".to_string(), "node_modules\n.next\n".to_string()),
+                (
+                    ".gitignore".to_string(),
+                    "node_modules\n.next\n".to_string(),
+                ),
             ],
             directories: vec![
                 "pages".to_string(),

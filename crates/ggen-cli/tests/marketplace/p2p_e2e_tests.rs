@@ -59,8 +59,7 @@ impl MockP2PRegistry {
             return Err("Network failure".to_string());
         }
 
-        self.local_packages
-            .insert(package.id.to_string(), package);
+        self.local_packages.insert(package.id.to_string(), package);
         Ok(())
     }
 

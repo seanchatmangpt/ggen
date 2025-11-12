@@ -2,7 +2,6 @@
 ///
 /// These tests verify that P2P operations emit proper telemetry spans
 /// with correct attributes for production debugging and monitoring.
-
 use ggen_marketplace::backend::p2p::{P2PConfig, P2PRegistry};
 use ggen_marketplace::error::MarketplaceError;
 use ggen_marketplace::models::{Package, PackageId, Query, Semver};
@@ -42,13 +41,13 @@ where
     S: tracing::Subscriber,
 {
     fn on_new_span(
-        &self,
-        attrs: &tracing::span::Attributes<'_>,
-        _id: &tracing::span::Id,
+        &self, attrs: &tracing::span::Attributes<'_>, _id: &tracing::span::Id,
         _ctx: tracing_subscriber::layer::Context<'_, S>,
     ) {
         let mut fields = Vec::new();
-        let mut visitor = FieldVisitor { fields: &mut fields };
+        let mut visitor = FieldVisitor {
+            fields: &mut fields,
+        };
         attrs.record(&mut visitor);
 
         let span = CapturedSpan {
@@ -96,12 +95,12 @@ impl<'a> tracing::field::Visit for FieldVisitor<'a> {
 async fn test_bootstrap_instrumentation() {
     let (layer, captured) = SpanCaptureLayer::new();
 
-    let _subscriber = tracing_subscriber::registry()
-        .with(layer)
-        .set_default();
+    let _subscriber = tracing_subscriber::registry().with(layer).set_default();
 
     let config = P2PConfig::default();
-    let registry = P2PRegistry::new(config).await.expect("Failed to create registry");
+    let registry = P2PRegistry::new(config)
+        .await
+        .expect("Failed to create registry");
 
     // Execute bootstrap (will fail but should emit spans)
     let _ = registry.bootstrap().await;
@@ -134,12 +133,12 @@ async fn test_bootstrap_instrumentation() {
 async fn test_publish_instrumentation() {
     let (layer, captured) = SpanCaptureLayer::new();
 
-    let _subscriber = tracing_subscriber::registry()
-        .with(layer)
-        .set_default();
+    let _subscriber = tracing_subscriber::registry().with(layer).set_default();
 
     let config = P2PConfig::default();
-    let registry = P2PRegistry::new(config).await.expect("Failed to create registry");
+    let registry = P2PRegistry::new(config)
+        .await
+        .expect("Failed to create registry");
 
     // Create test package
     let package = Package {
@@ -197,8 +196,11 @@ async fn test_publish_instrumentation() {
         .find(|s| s.name.contains("gossipsub") || s.name.contains("announce"));
 
     if let Some(gossip) = gossip_span {
-        let gossip_fields: Vec<&str> =
-            gossip.fields.iter().map(|(name, _)| name.as_str()).collect();
+        let gossip_fields: Vec<&str> = gossip
+            .fields
+            .iter()
+            .map(|(name, _)| name.as_str())
+            .collect();
         assert!(
             gossip_fields.contains(&"operation") || gossip_fields.contains(&"package_id"),
             "Gossipsub span missing required fields"
@@ -210,12 +212,12 @@ async fn test_publish_instrumentation() {
 async fn test_search_instrumentation() {
     let (layer, captured) = SpanCaptureLayer::new();
 
-    let _subscriber = tracing_subscriber::registry()
-        .with(layer)
-        .set_default();
+    let _subscriber = tracing_subscriber::registry().with(layer).set_default();
 
     let config = P2PConfig::default();
-    let registry = P2PRegistry::new(config).await.expect("Failed to create registry");
+    let registry = P2PRegistry::new(config)
+        .await
+        .expect("Failed to create registry");
 
     // Execute search
     let query = Query {
@@ -265,12 +267,12 @@ async fn test_search_instrumentation() {
 async fn test_process_events_instrumentation() {
     let (layer, captured) = SpanCaptureLayer::new();
 
-    let _subscriber = tracing_subscriber::registry()
-        .with(layer)
-        .set_default();
+    let _subscriber = tracing_subscriber::registry().with(layer).set_default();
 
     let config = P2PConfig::default();
-    let registry = P2PRegistry::new(config).await.expect("Failed to create registry");
+    let registry = P2PRegistry::new(config)
+        .await
+        .expect("Failed to create registry");
 
     // Process events (may not generate events immediately)
     registry.process_events().await;
@@ -298,12 +300,12 @@ async fn test_process_events_instrumentation() {
 async fn test_peer_reputation_instrumentation() {
     let (layer, captured) = SpanCaptureLayer::new();
 
-    let _subscriber = tracing_subscriber::registry()
-        .with(layer)
-        .set_default();
+    let _subscriber = tracing_subscriber::registry().with(layer).set_default();
 
     let config = P2PConfig::default();
-    let registry = P2PRegistry::new(config).await.expect("Failed to create registry");
+    let registry = P2PRegistry::new(config)
+        .await
+        .expect("Failed to create registry");
 
     // Generate a test peer ID
     let keypair = libp2p::identity::Keypair::generate_ed25519();
@@ -322,12 +324,12 @@ async fn test_peer_reputation_instrumentation() {
 async fn test_span_hierarchy() {
     let (layer, captured) = SpanCaptureLayer::new();
 
-    let _subscriber = tracing_subscriber::registry()
-        .with(layer)
-        .set_default();
+    let _subscriber = tracing_subscriber::registry().with(layer).set_default();
 
     let config = P2PConfig::default();
-    let registry = P2PRegistry::new(config).await.expect("Failed to create registry");
+    let registry = P2PRegistry::new(config)
+        .await
+        .expect("Failed to create registry");
 
     // Create test package
     let package = Package {
@@ -353,10 +355,7 @@ async fn test_span_hierarchy() {
         .iter()
         .any(|s| s.name.contains("gossipsub") || s.name.contains("announce"));
 
-    assert!(
-        has_publish,
-        "Missing parent publish span in hierarchy"
-    );
+    assert!(has_publish, "Missing parent publish span in hierarchy");
 
     // Note: Child spans may or may not be captured depending on execution,
     // but we've verified the instrumentation is in place
@@ -366,12 +365,12 @@ async fn test_span_hierarchy() {
 async fn test_latency_tracking() {
     let (layer, captured) = SpanCaptureLayer::new();
 
-    let _subscriber = tracing_subscriber::registry()
-        .with(layer)
-        .set_default();
+    let _subscriber = tracing_subscriber::registry().with(layer).set_default();
 
     let config = P2PConfig::default();
-    let registry = P2PRegistry::new(config).await.expect("Failed to create registry");
+    let registry = P2PRegistry::new(config)
+        .await
+        .expect("Failed to create registry");
 
     // Execute search which should record latency
     let query = Query {
@@ -391,9 +390,6 @@ async fn test_latency_tracking() {
 
     if let Some(span) = search_span {
         let has_latency = span.fields.iter().any(|(name, _)| name.contains("latency"));
-        assert!(
-            has_latency,
-            "Search span missing latency measurement"
-        );
+        assert!(has_latency, "Search span missing latency measurement");
     }
 }

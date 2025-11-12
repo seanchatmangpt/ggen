@@ -124,7 +124,10 @@ fn test_add_creates_otel_span() {
     // Assert
     let span = tracer.find_span("ggen.marketplace.add").unwrap();
     assert_eq!(span.status, otel::SpanStatus::Ok);
-    assert!(span.attributes.iter().any(|(k, v)| k == "package.id" && v == "io.ggen.rust.axum"));
+    assert!(span
+        .attributes
+        .iter()
+        .any(|(k, v)| k == "package.id" && v == "io.ggen.rust.axum"));
 }
 
 // Helper types and functions
@@ -138,9 +141,7 @@ struct InstallResult {
 }
 
 fn run_add_command(
-    marketplace: &dyn MarketplaceClient,
-    fs: &dyn Filesystem,
-    package_id: &str,
+    marketplace: &dyn MarketplaceClient, fs: &dyn Filesystem, package_id: &str,
 ) -> Result<InstallResult, anyhow::Error> {
     // Check if already installed
     if fs.exists(&format!(".ggen/packages/{}", package_id)) {
@@ -170,10 +171,7 @@ fn run_add_command(
 }
 
 fn run_add_with_version(
-    marketplace: &dyn MarketplaceClient,
-    fs: &dyn Filesystem,
-    package_id: &str,
-    version: &str,
+    marketplace: &dyn MarketplaceClient, fs: &dyn Filesystem, package_id: &str, version: &str,
 ) -> Result<InstallResult, anyhow::Error> {
     let versioned_id = format!("{}@{}", package_id, version);
     let data = marketplace.download(&versioned_id)?;
@@ -192,9 +190,7 @@ fn run_add_with_version(
 }
 
 fn run_add_with_tracing(
-    marketplace: &dyn MarketplaceClient,
-    fs: &dyn Filesystem,
-    tracer: &otel::MockTracerProvider,
+    marketplace: &dyn MarketplaceClient, fs: &dyn Filesystem, tracer: &otel::MockTracerProvider,
     package_id: &str,
 ) -> Result<InstallResult, anyhow::Error> {
     let result = run_add_command(marketplace, fs, package_id)?;

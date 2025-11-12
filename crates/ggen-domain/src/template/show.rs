@@ -244,40 +244,40 @@ pub fn execute_show(input: ShowInput) -> Result<ShowOutput> {
 pub fn run(args: &ShowInput) -> Result<()> {
     let output = execute_show(args.clone())?;
 
-    println!("📋 Template: {}", output.name);
-    println!("📍 Path: {}", output.path);
+    ggen_utils::alert_info!("📋 Template: {}", output.name);
+    ggen_utils::alert_info!("📍 Path: {}", output.path);
 
     if let Some(desc) = &output.description {
-        println!("📝 Description: {}", desc);
+        ggen_utils::alert_info!("📝 Description: {}", desc);
     }
 
     if let Some(output_path) = &output.output_path {
-        println!("📂 Output path: {}", output_path);
+        ggen_utils::alert_info!("📂 Output path: {}", output_path);
     }
 
     if !output.variables.is_empty() {
-        println!("\n🔧 Variables ({}):", output.variables.len());
+        ggen_utils::alert_info!("\n🔧 Variables ({}):", output.variables.len());
         for var in &output.variables {
-            println!("  • {}", var);
+            ggen_utils::alert_info!("  • {}", var);
         }
     }
 
     if !output.rdf_sources.is_empty() {
-        println!("\n🔗 RDF Sources ({}):", output.rdf_sources.len());
+        ggen_utils::alert_info!("\n🔗 RDF Sources ({}):", output.rdf_sources.len());
         for source in &output.rdf_sources {
-            println!("  • {}", source);
+            ggen_utils::alert_info!("  • {}", source);
         }
     }
 
     if !output.sparql_queries.is_empty() {
-        println!("\n🔍 SPARQL Queries ({}):", output.sparql_queries.len());
+        ggen_utils::alert_info!("\n🔍 SPARQL Queries ({}):", output.sparql_queries.len());
         for (name, query) in &output.sparql_queries {
-            println!("  • {}: {}", name, query);
+            ggen_utils::alert_info!("  • {}: {}", name, query);
         }
     }
 
     if let Some(seed) = output.determinism_seed {
-        println!("\n🎲 Determinism seed: {}", seed);
+        ggen_utils::alert_info!("\n🎲 Determinism seed: {}", seed);
     }
 
     Ok(())

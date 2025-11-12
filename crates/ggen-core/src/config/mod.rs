@@ -5,6 +5,4 @@
 
 pub mod template_config;
 
-pub use template_config::{
-    GenerationOptions, MarketplaceSettings, TemplateConfig,
-};
+pub use template_config::{GenerationOptions, MarketplaceSettings, TemplateConfig};

@@ -22,18 +22,22 @@ fn assert_success_with_content(result: RunResult, expected_content: &str, test_n
     assert!(
         result.stdout.contains(expected_content) || result.stderr.contains(expected_content),
         "{}: Expected output to contain '{}'\nstdout: {}\nstderr: {}",
-        test_name, expected_content, result.stdout, result.stderr
+        test_name,
+        expected_content,
+        result.stdout,
+        result.stderr
     );
 
     // For successful commands, stderr should be empty or only contain progress messages
     if !result.stderr.is_empty() {
         assert!(
-            result.stderr.contains("Searching") ||
-            result.stderr.contains("Loading") ||
-            result.stderr.contains("Building") ||
-            result.stderr.is_empty(),
+            result.stderr.contains("Searching")
+                || result.stderr.contains("Loading")
+                || result.stderr.contains("Building")
+                || result.stderr.is_empty(),
             "{}: Unexpected stderr for successful command: {}",
-            test_name, result.stderr
+            test_name,
+            result.stderr
         );
     }
 }
@@ -128,8 +132,8 @@ mod help_tests {
 
         // Should contain usage information
         assert!(
-            result.stdout.to_lowercase().contains("usage") ||
-            result.stdout.to_lowercase().contains("commands"),
+            result.stdout.to_lowercase().contains("usage")
+                || result.stdout.to_lowercase().contains("commands"),
             "Help should contain usage information, got: {}",
             result.stdout
         );
@@ -153,9 +157,9 @@ mod help_tests {
 
         // Should mention marketplace-related commands
         assert!(
-            result.stdout.to_lowercase().contains("market") ||
-            result.stdout.to_lowercase().contains("search") ||
-            result.stdout.to_lowercase().contains("add"),
+            result.stdout.to_lowercase().contains("market")
+                || result.stdout.to_lowercase().contains("search")
+                || result.stdout.to_lowercase().contains("add"),
             "Market help should mention marketplace commands, got: {}",
             result.stdout
         );
@@ -237,10 +241,7 @@ mod marketplace_tests {
         .expect("market add should not panic");
 
         // Should fail (package doesn't exist)
-        assert_ne!(
-            result.code, 0,
-            "Adding non-existent package should fail"
-        );
+        assert_ne!(result.code, 0, "Adding non-existent package should fail");
 
         // Should have error message
         assert!(
@@ -450,13 +451,9 @@ mod error_handling_tests {
     #[tokio::test]
     async fn test_very_long_args_handled() {
         let long_arg = "a".repeat(10_000);
-        let result = run_for_node(vec![
-            "market".to_string(),
-            "search".to_string(),
-            long_arg,
-        ])
-        .await
-        .expect("very long args should not panic");
+        let result = run_for_node(vec!["market".to_string(), "search".to_string(), long_arg])
+            .await
+            .expect("very long args should not panic");
 
         // Should complete (may succeed or fail)
         assert!(result.code >= 0, "Should handle long args");
@@ -478,9 +475,9 @@ mod ggen_broken_detection_tests {
             // Success should not have error messages in stderr
             if !result.stderr.is_empty() {
                 assert!(
-                    result.stderr.contains("Searching") ||
-                    result.stderr.contains("Loading") ||
-                    result.stderr.contains("Building"),
+                    result.stderr.contains("Searching")
+                        || result.stderr.contains("Loading")
+                        || result.stderr.contains("Building"),
                     "Success (exit code 0) should not have unexpected errors in stderr: {}",
                     result.stderr
                 );
@@ -512,8 +509,8 @@ mod ggen_broken_detection_tests {
 
         if result.code == 0 {
             // Version should contain semantic version pattern
-            let has_version = result.stdout.contains('.')
-                && result.stdout.chars().any(|c| c.is_numeric());
+            let has_version =
+                result.stdout.contains('.') && result.stdout.chars().any(|c| c.is_numeric());
 
             assert!(
                 has_version,
@@ -568,10 +565,7 @@ mod data_structure_validation_tests {
 
         if result.code == 0 {
             // Extract version number (remove "ggen " prefix if present)
-            let version_str = result.stdout.trim()
-                .replace("ggen ", "")
-                .trim()
-                .to_string();
+            let version_str = result.stdout.trim().replace("ggen ", "").trim().to_string();
 
             // Should have 3 parts
             let parts: Vec<&str> = version_str.split('.').collect();
@@ -586,7 +580,8 @@ mod data_structure_validation_tests {
                 assert!(
                     part.chars().any(|c| c.is_numeric()),
                     "Version part {} should contain number, got: {}",
-                    i, part
+                    i,
+                    part
                 );
             }
         }

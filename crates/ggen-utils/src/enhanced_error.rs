@@ -382,10 +382,9 @@ mod tests {
 
     #[test]
     fn test_error_with_fixes() {
-        let error =
-            EnhancedError::new(ErrorCategory::ConfigurationError, "Config error")
-                .with_fix("Fix 1")
-                .with_fix("Fix 2");
+        let error = EnhancedError::new(ErrorCategory::ConfigurationError, "Config error")
+            .with_fix("Fix 1")
+            .with_fix("Fix 2");
         assert_eq!(error.fix_suggestions.len(), 2);
     }
 
@@ -410,7 +409,11 @@ mod tests {
 
     #[test]
     fn test_command_not_found_with_suggestions() {
-        let available = vec!["generate".to_string(), "list".to_string(), "search".to_string()];
+        let available = vec![
+            "generate".to_string(),
+            "list".to_string(),
+            "search".to_string(),
+        ];
         let error = common_errors::command_not_found("gen", available);
         assert!(error.did_you_mean.is_some());
     }

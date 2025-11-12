@@ -12,9 +12,9 @@ fn test_ci_validate_requires_workflow_or_all() {
     let mut cmd = Command::cargo_bin("ggen").unwrap();
     cmd.args(["ci", "validate"]);
 
-    cmd.assert()
-        .failure()
-        .stderr(predicate::str::contains("Either --workflow or --all must be specified"));
+    cmd.assert().failure().stderr(predicate::str::contains(
+        "Either --workflow or --all must be specified",
+    ));
 }
 
 #[test]
@@ -35,9 +35,9 @@ fn test_ci_validate_all_no_workflows_directory() {
     let mut cmd = Command::cargo_bin("ggen").unwrap();
     cmd.args(["ci", "validate", "--all"]);
 
-    cmd.assert()
-        .failure()
-        .stderr(predicate::str::contains("No .github/workflows directory found"));
+    cmd.assert().failure().stderr(predicate::str::contains(
+        "No .github/workflows directory found",
+    ));
 }
 
 #[test]
@@ -47,8 +47,9 @@ fn test_ci_validate_valid_yaml_workflow() {
     workflows_dir.create_dir_all().unwrap();
 
     let workflow_file = workflows_dir.child("test.yml");
-    workflow_file.write_str(
-        r#"
+    workflow_file
+        .write_str(
+            r#"
 name: Test Workflow
 on: [push]
 jobs:
@@ -58,7 +59,8 @@ jobs:
       - uses: actions/checkout@v2
       - run: echo "test"
 "#,
-    ).unwrap();
+        )
+        .unwrap();
 
     std::env::set_current_dir(&temp).unwrap();
 
@@ -78,17 +80,24 @@ fn test_ci_validate_invalid_yaml() {
     workflows_dir.create_dir_all().unwrap();
 
     let workflow_file = workflows_dir.child("invalid.yml");
-    workflow_file.write_str(
-        r#"
+    workflow_file
+        .write_str(
+            r#"
 invalid: yaml: syntax:
   - this is: [broken
 "#,
-    ).unwrap();
+        )
+        .unwrap();
 
     std::env::set_current_dir(&temp).unwrap();
 
     let mut cmd = Command::cargo_bin("ggen").unwrap();
-    cmd.args(["ci", "validate", "--workflow", ".github/workflows/invalid.yml"]);
+    cmd.args([
+        "ci",
+        "validate",
+        "--workflow",
+        ".github/workflows/invalid.yml",
+    ]);
 
     cmd.assert()
         .failure()
@@ -104,8 +113,9 @@ fn test_ci_validate_all_workflows() {
     // Create multiple valid workflows
     for i in 1..=3 {
         let workflow = workflows_dir.child(format!("workflow{}.yml", i));
-        workflow.write_str(&format!(
-            r#"
+        workflow
+            .write_str(&format!(
+                r#"
 name: Workflow {}
 on: [push]
 jobs:
@@ -114,8 +124,9 @@ jobs:
     steps:
       - run: echo "test"
 "#,
-            i, i
-        )).unwrap();
+                i, i
+            ))
+            .unwrap();
     }
 
     std::env::set_current_dir(&temp).unwrap();
@@ -141,7 +152,13 @@ fn test_ci_validate_with_verbose() {
     std::env::set_current_dir(&temp).unwrap();
 
     let mut cmd = Command::cargo_bin("ggen").unwrap();
-    cmd.args(["ci", "validate", "--workflow", ".github/workflows/test.yml", "--verbose"]);
+    cmd.args([
+        "ci",
+        "validate",
+        "--workflow",
+        ".github/workflows/test.yml",
+        "--verbose",
+    ]);
 
     cmd.assert()
         .success()
@@ -160,7 +177,13 @@ fn test_ci_validate_with_security() {
     std::env::set_current_dir(&temp).unwrap();
 
     let mut cmd = Command::cargo_bin("ggen").unwrap();
-    cmd.args(["ci", "validate", "--workflow", ".github/workflows/test.yml", "--security"]);
+    cmd.args([
+        "ci",
+        "validate",
+        "--workflow",
+        ".github/workflows/test.yml",
+        "--security",
+    ]);
 
     cmd.assert()
         .success()

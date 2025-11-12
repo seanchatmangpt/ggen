@@ -125,6 +125,13 @@ impl LifecycleState {
             .find(|k| k.phase == phase)
             .map(|k| k.key.as_str())
     }
+
+    /// Check if a phase has been completed successfully
+    pub fn has_completed_phase(&self, phase: &str) -> bool {
+        self.phase_history
+            .iter()
+            .any(|r| r.phase == phase && r.success)
+    }
 }
 
 // Unit tests removed - covered by integration_test.rs:

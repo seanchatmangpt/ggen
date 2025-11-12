@@ -233,9 +233,13 @@ impl ParallelOrchestrator {
     }
 
     /// Run multiple independent stages in parallel
+    #[allow(clippy::type_complexity)]
     pub async fn run_parallel<R>(
         &self,
-        stages: Vec<(&str, Box<dyn std::future::Future<Output = Result<R>> + Send + Unpin>)>,
+        stages: Vec<(
+            &str,
+            Box<dyn std::future::Future<Output = Result<R>> + Send + Unpin>,
+        )>,
     ) -> Result<Vec<R>>
     where
         R: Send + 'static,
@@ -469,7 +473,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_parallel_orchestrator() {
-        let orchestrator = ParallelOrchestrator::new(4);
+        let _orchestrator = ParallelOrchestrator::new(4);
 
         // Simplified test with tokio::join!
         let (r1, r2, r3) = tokio::join!(

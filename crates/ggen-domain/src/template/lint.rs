@@ -1,6 +1,5 @@
 //! Template linting domain logic
 
-
 use ggen_utils::error::Result;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -332,32 +331,34 @@ pub fn run(args: &LintInput) -> Result<()> {
 
     let output = runtime.block_on(execute_lint(args.clone()))?;
 
-    println!("📋 Linting template: {}", output.template_path);
+    ggen_utils::alert_info!("📋 Linting template: {}", output.template_path);
 
     if output.errors_found > 0 {
-        println!("\n❌ Errors found: {}", output.errors_found);
+        let msg = format!("\nErrors found: {}", output.errors_found);
+        ggen_utils::alert_critical!(&msg);
         for error in &output.report.errors {
             if let Some(line) = error.line {
-                println!("  Line {}: {}", line, error.message);
+                ggen_utils::alert_info!("  Line {}: {}", line, error.message);
             } else {
-                println!("  {}", error.message);
+                ggen_utils::alert_info!("  {}", error.message);
             }
         }
     }
 
     if output.warnings_found > 0 {
-        println!("\n⚠️  Warnings found: {}", output.warnings_found);
+        let msg = format!("\nWarnings found: {}", output.warnings_found);
+        ggen_utils::alert_warning!(&msg);
         for warning in &output.report.warnings {
             if let Some(line) = warning.line {
-                println!("  Line {}: {}", line, warning.message);
+                ggen_utils::alert_info!("  Line {}: {}", line, warning.message);
             } else {
-                println!("  {}", warning.message);
+                ggen_utils::alert_info!("  {}", warning.message);
             }
         }
     }
 
     if output.errors_found == 0 && output.warnings_found == 0 {
-        println!("✅ No issues found. Template is valid!");
+        ggen_utils::alert_success!("No issues found. Template is valid!");
     }
 
     // Return error if errors were found

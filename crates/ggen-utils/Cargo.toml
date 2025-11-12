@@ -54,9 +54,23 @@ tera = "1.20"
 oxigraph = "0.5"
 colored = "3.0"
 dirs = "6.0"
+regex = "1.10"
 
 [dev-dependencies]
 tempfile = "3"
+chicago-tdd-tools = { workspace = true }
+
+[[bin]]
+name = "git_hook_pre_commit"
+path = "src/bin/git_hook_pre_commit.rs"
+
+[[bin]]
+name = "git_hook_pre_push"
+path = "src/bin/git_hook_pre_push.rs"
+
+[[bin]]
+name = "git_hook_installer"
+path = "src/bin/git_hook_installer.rs"
 
 [target.'cfg(target_os = "linux")'.dependencies]
 slog-journald = "2.2.0"

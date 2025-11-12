@@ -57,10 +57,7 @@ impl ProjectWatcher {
         // Get conventions to determine watch directories
         let conventions = self.resolver.discover()?;
 
-        let watched_dirs = vec![
-            &conventions.rdf_dir,
-            &conventions.templates_dir,
-        ];
+        let watched_dirs = vec![&conventions.rdf_dir, &conventions.templates_dir];
 
         for dir in watched_dirs {
             if dir.exists() {

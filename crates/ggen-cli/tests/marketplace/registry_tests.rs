@@ -14,6 +14,7 @@
 //! - Error handling
 //! - Concurrent access safety
 
+use chrono;
 use ggen_cli_lib::domain::marketplace::registry::*;
 use ggen_utils::error::Result;
 use std::collections::HashMap;
@@ -21,7 +22,6 @@ use std::path::Path;
 use tempfile::TempDir;
 use tokio::fs;
 use tokio::io::AsyncWriteExt;
-use chrono;
 
 // ============================================================================
 // Test Helpers

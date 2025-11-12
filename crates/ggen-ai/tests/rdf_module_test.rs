@@ -88,46 +88,38 @@ fn test_cli_project_with_complete_structure() {
         authors: vec!["Author <author@example.com>".to_string()],
         edition: "2021".to_string(),
         license: "MIT".to_string(),
-        nouns: vec![
-            Noun {
-                name: "user".to_string(),
-                description: "User operations".to_string(),
-                module_path: "cmds::user".to_string(),
-                verbs: vec![
-                    Verb {
-                        name: "create".to_string(),
-                        description: "Create user".to_string(),
-                        alias: Some("add".to_string()),
-                        arguments: vec![
-                            Argument {
-                                name: "name".to_string(),
-                                long: Some("name".to_string()),
-                                short: Some('n'),
-                                help: "User name".to_string(),
-                                required: true,
-                                default: None,
-                                value_name: Some("NAME".to_string()),
-                                position: None,
-                                arg_type: ArgumentType {
-                                    name: "String".to_string(),
-                                    parser: None,
-                                },
-                            },
-                        ],
-                        validations: vec![],
-                        execution_logic: None,
+        nouns: vec![Noun {
+            name: "user".to_string(),
+            description: "User operations".to_string(),
+            module_path: "cmds::user".to_string(),
+            verbs: vec![Verb {
+                name: "create".to_string(),
+                description: "Create user".to_string(),
+                alias: Some("add".to_string()),
+                arguments: vec![Argument {
+                    name: "name".to_string(),
+                    long: Some("name".to_string()),
+                    short: Some('n'),
+                    help: "User name".to_string(),
+                    required: true,
+                    default: None,
+                    value_name: Some("NAME".to_string()),
+                    position: None,
+                    arg_type: ArgumentType {
+                        name: "String".to_string(),
+                        parser: None,
                     },
-                ],
-            },
-        ],
-        dependencies: vec![
-            Dependency {
-                name: "clap".to_string(),
-                version: "4.0".to_string(),
-                features: vec!["derive".to_string()],
-                optional: false,
-            },
-        ],
+                }],
+                validations: vec![],
+                execution_logic: None,
+            }],
+        }],
+        dependencies: vec![Dependency {
+            name: "clap".to_string(),
+            version: "4.0".to_string(),
+            features: vec!["derive".to_string()],
+            optional: false,
+        }],
     };
 
     // Verify structure is accessible

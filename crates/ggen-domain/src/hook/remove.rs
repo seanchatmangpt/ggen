@@ -19,12 +19,14 @@ pub struct RemoveInput {
 
 /// Execute remove hook with input (pure domain function)
 pub async fn execute_remove(input: RemoveInput) -> Result<HookResult> {
+    use dirs::home_dir;
     use std::fs;
     use std::path::PathBuf;
-    use dirs::home_dir;
 
     if !input.force {
-        return Err(ggen_utils::error::Error::new("Use force flag to confirm removal"));
+        return Err(ggen_utils::error::Error::new(
+            "Use force flag to confirm removal",
+        ));
     }
 
     let hooks_dir = home_dir()
@@ -35,7 +37,10 @@ pub async fn execute_remove(input: RemoveInput) -> Result<HookResult> {
     let hook_file = hooks_dir.join(format!("{}.json", input.hook_id));
 
     if !hook_file.exists() {
-        return Err(ggen_utils::error::Error::new(&format!("Hook not found: {}", input.hook_id)));
+        return Err(ggen_utils::error::Error::new(&format!(
+            "Hook not found: {}",
+            input.hook_id
+        )));
     }
 
     fs::remove_file(&hook_file)

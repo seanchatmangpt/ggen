@@ -32,9 +32,7 @@ impl StreamingGenerator {
 
     /// Create with custom cache capacity
     pub fn with_cache_capacity(
-        template_dir: PathBuf,
-        output_dir: PathBuf,
-        cache_capacity: usize,
+        template_dir: PathBuf, output_dir: PathBuf, cache_capacity: usize,
     ) -> Result<Self> {
         Ok(Self {
             template_dir,
@@ -50,9 +48,8 @@ impl StreamingGenerator {
         let start = std::time::Instant::now();
 
         for entry in WalkDir::new(&self.template_dir) {
-            let entry = entry.map_err(|e| {
-                anyhow::anyhow!("Failed to read directory entry: {}", e)
-            })?;
+            let entry =
+                entry.map_err(|e| anyhow::anyhow!("Failed to read directory entry: {}", e))?;
 
             if !entry.file_type().is_file() {
                 continue;
@@ -70,11 +67,9 @@ impl StreamingGenerator {
                 }
                 Err(e) => {
                     result.error_count += 1;
-                    result.errors.push(format!(
-                        "Failed to process {}: {}",
-                        path.display(),
-                        e
-                    ));
+                    result
+                        .errors
+                        .push(format!("Failed to process {}: {}", path.display(), e));
                 }
             }
 
@@ -98,9 +93,7 @@ impl StreamingGenerator {
 
         // Process RDF graph if needed (inline RDF and SPARQL only)
         // ❌ REMOVED: template.front.rdf check - RDF files now via CLI/API
-        if !template.front.rdf_inline.is_empty()
-            || !template.front.sparql.is_empty()
-        {
+        if !template.front.rdf_inline.is_empty() || !template.front.sparql.is_empty() {
             template.process_graph(
                 &mut self.pipeline.graph,
                 &mut self.pipeline.tera,
@@ -189,7 +182,6 @@ impl GenerationResult {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::io::Write;
     use tempfile::TempDir;
 
     fn create_test_template(dir: &Path, name: &str, content: &str) -> Result<PathBuf> {

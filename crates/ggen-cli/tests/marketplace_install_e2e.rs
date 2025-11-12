@@ -4,7 +4,7 @@
 //! Tests real dependency resolution, circular detection, and rollback.
 
 use ggen_cli_lib::domain::marketplace::install::{
-    install_package, InstallOptions, PackageManifest, Lockfile,
+    install_package, InstallOptions, Lockfile, PackageManifest,
 };
 use serde_json;
 use std::collections::HashMap;
@@ -39,10 +39,7 @@ impl TestRegistry {
 
     /// Create a package in the registry with manifest and tarball
     fn create_package(
-        &self,
-        name: &str,
-        version: &str,
-        dependencies: HashMap<String, String>,
+        &self, name: &str, version: &str, dependencies: HashMap<String, String>,
     ) -> PathBuf {
         let package_dir = self.registry_path.join(name).join(version);
         fs::create_dir_all(&package_dir).unwrap();
@@ -62,7 +59,8 @@ impl TestRegistry {
         fs::write(package_dir.join("package.json"), manifest_json).unwrap();
 
         // Create a simple tarball
-        let tarball_path = package_dir.join(format!("{}-{}.tar.gz", name.replace('/', "-"), version));
+        let tarball_path =
+            package_dir.join(format!("{}-{}.tar.gz", name.replace('/', "-"), version));
         self.create_tarball(&tarball_path, name);
 
         // Update registry index
@@ -81,7 +79,9 @@ impl TestRegistry {
         let encoder = flate2::write::GzEncoder::new(tarball_file, flate2::Compression::default());
         let mut archive = tar::Builder::new(encoder);
 
-        archive.append_path_with_name(&content_file, "README.md").unwrap();
+        archive
+            .append_path_with_name(&content_file, "README.md")
+            .unwrap();
         archive.finish().unwrap();
     }
 
@@ -342,7 +342,10 @@ async fn test_force_reinstall() {
     // Try to install again without force - should fail
     let result = install_package(&options).await;
     assert!(result.is_err());
-    assert!(result.unwrap_err().to_string().contains("already installed"));
+    assert!(result
+        .unwrap_err()
+        .to_string()
+        .contains("already installed"));
 
     // Install again with force - should succeed
     let options_force = options.force();

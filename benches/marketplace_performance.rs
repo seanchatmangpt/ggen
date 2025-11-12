@@ -45,20 +45,29 @@ fn setup_test_registry(num_packages: usize, temp_dir: &TempDir) -> TestRegistry 
     for i in 0..num_packages {
         let category = i % 5;
         let (name, tags) = match category {
-            0 => (format!("web-framework-{}", i), vec!["web", "framework", "http"]),
+            0 => (
+                format!("web-framework-{}", i),
+                vec!["web", "framework", "http"],
+            ),
             1 => (format!("cli-tool-{}", i), vec!["cli", "terminal", "tool"]),
             2 => (format!("data-parser-{}", i), vec!["data", "parser", "json"]),
-            3 => (format!("util-helper-{}", i), vec!["utility", "helper", "core"]),
+            3 => (
+                format!("util-helper-{}", i),
+                vec!["utility", "helper", "core"],
+            ),
             _ => (format!("misc-package-{}", i), vec!["misc", "general"]),
         };
 
-        let num_deps = if i % 10 == 0 { 5 } else if i % 5 == 0 { 2 } else { 0 };
+        let num_deps = if i % 10 == 0 {
+            5
+        } else if i % 5 == 0 {
+            2
+        } else {
+            0
+        };
         let mut dependencies = HashMap::new();
         for d in 0..num_deps {
-            dependencies.insert(
-                format!("dep-{}-{}", i, d),
-                format!("^{}.0.0", d + 1),
-            );
+            dependencies.insert(format!("dep-{}-{}", i, d), format!("^{}.0.0", d + 1));
         }
 
         packages.push(TestPackage {
@@ -161,19 +170,14 @@ fn bench_registry_loading(c: &mut Criterion) {
         let registry = setup_test_registry(*size, &temp_dir);
 
         group.throughput(Throughput::Elements(*size as u64));
-        group.bench_with_input(
-            BenchmarkId::new("load_index", size),
-            size,
-            |b, _| {
-                b.iter(|| {
-                    let index_file = registry.index_path.join("index.json");
-                    let content = std::fs::read_to_string(&index_file).unwrap();
-                    let packages: Vec<TestPackage> =
-                        serde_json::from_str(&content).unwrap();
-                    black_box(packages)
-                });
-            },
-        );
+        group.bench_with_input(BenchmarkId::new("load_index", size), size, |b, _| {
+            b.iter(|| {
+                let index_file = registry.index_path.join("index.json");
+                let content = std::fs::read_to_string(&index_file).unwrap();
+                let packages: Vec<TestPackage> = serde_json::from_str(&content).unwrap();
+                black_box(packages)
+            });
+        });
     }
 
     group.finish();
@@ -196,72 +200,56 @@ fn bench_search_performance(c: &mut Criterion) {
         let packages: Vec<TestPackage> = serde_json::from_str(&content).unwrap();
 
         // Benchmark exact keyword search
-        group.bench_with_input(
-            BenchmarkId::new("keyword_search", size),
-            size,
-            |b, _| {
-                b.iter(|| {
-                    let results: Vec<_> = packages
-                        .iter()
-                        .filter(|p| p.name.contains("web-framework"))
-                        .collect();
-                    black_box(results)
-                });
-            },
-        );
+        group.bench_with_input(BenchmarkId::new("keyword_search", size), size, |b, _| {
+            b.iter(|| {
+                let results: Vec<_> = packages
+                    .iter()
+                    .filter(|p| p.name.contains("web-framework"))
+                    .collect();
+                black_box(results)
+            });
+        });
 
         // Benchmark tag filtering
-        group.bench_with_input(
-            BenchmarkId::new("tag_filter", size),
-            size,
-            |b, _| {
-                b.iter(|| {
-                    let results: Vec<_> = packages
-                        .iter()
-                        .filter(|p| p.tags.contains(&"web".to_string()))
-                        .collect();
-                    black_box(results)
-                });
-            },
-        );
+        group.bench_with_input(BenchmarkId::new("tag_filter", size), size, |b, _| {
+            b.iter(|| {
+                let results: Vec<_> = packages
+                    .iter()
+                    .filter(|p| p.tags.contains(&"web".to_string()))
+                    .collect();
+                black_box(results)
+            });
+        });
 
         // Benchmark fuzzy search
-        group.bench_with_input(
-            BenchmarkId::new("fuzzy_search", size),
-            size,
-            |b, _| {
-                b.iter(|| {
-                    let query = "web fram";
-                    let results: Vec<_> = packages
-                        .iter()
-                        .filter(|p| {
-                            p.name.to_lowercase().contains(&query.to_lowercase())
-                                || p.description.to_lowercase().contains(&query.to_lowercase())
-                        })
-                        .collect();
-                    black_box(results)
-                });
-            },
-        );
+        group.bench_with_input(BenchmarkId::new("fuzzy_search", size), size, |b, _| {
+            b.iter(|| {
+                let query = "web fram";
+                let results: Vec<_> = packages
+                    .iter()
+                    .filter(|p| {
+                        p.name.to_lowercase().contains(&query.to_lowercase())
+                            || p.description.to_lowercase().contains(&query.to_lowercase())
+                    })
+                    .collect();
+                black_box(results)
+            });
+        });
 
         // Benchmark combined filters
-        group.bench_with_input(
-            BenchmarkId::new("combined_filters", size),
-            size,
-            |b, _| {
-                b.iter(|| {
-                    let results: Vec<_> = packages
-                        .iter()
-                        .filter(|p| {
-                            p.tags.contains(&"web".to_string())
-                                && p.author.starts_with("author-1")
-                                && !p.dependencies.is_empty()
-                        })
-                        .collect();
-                    black_box(results)
-                });
-            },
-        );
+        group.bench_with_input(BenchmarkId::new("combined_filters", size), size, |b, _| {
+            b.iter(|| {
+                let results: Vec<_> = packages
+                    .iter()
+                    .filter(|p| {
+                        p.tags.contains(&"web".to_string())
+                            && p.author.starts_with("author-1")
+                            && !p.dependencies.is_empty()
+                    })
+                    .collect();
+                black_box(results)
+            });
+        });
     }
 
     group.finish();
@@ -310,7 +298,9 @@ fn bench_installation_performance(c: &mut Criterion) {
                 std::fs::create_dir_all(&install_dir).unwrap();
 
                 // Find package with dependencies
-                let pkg = registry.packages.iter()
+                let pkg = registry
+                    .packages
+                    .iter()
                     .find(|p| p.dependencies.len() >= 2)
                     .unwrap();
 
@@ -320,7 +310,8 @@ fn bench_installation_performance(c: &mut Criterion) {
                 std::fs::write(
                     pkg_dir.join("package.json"),
                     serde_json::to_string_pretty(&pkg).unwrap(),
-                ).unwrap();
+                )
+                .unwrap();
 
                 // Install dependencies
                 for (dep_name, _version) in &pkg.dependencies {
@@ -344,7 +335,9 @@ fn bench_installation_performance(c: &mut Criterion) {
                 std::fs::create_dir_all(&install_dir).unwrap();
 
                 // Find package with many dependencies
-                let pkg = registry.packages.iter()
+                let pkg = registry
+                    .packages
+                    .iter()
                     .find(|p| p.dependencies.len() >= 5)
                     .unwrap();
 
@@ -354,7 +347,8 @@ fn bench_installation_performance(c: &mut Criterion) {
                 std::fs::write(
                     pkg_dir.join("package.json"),
                     serde_json::to_string_pretty(&pkg).unwrap(),
-                ).unwrap();
+                )
+                .unwrap();
 
                 // Install all dependencies
                 for (dep_name, _version) in &pkg.dependencies {
@@ -387,7 +381,9 @@ fn bench_dependency_resolution(c: &mut Criterion) {
 
         group.bench_function("resolve_shallow_tree", |b| {
             b.iter(|| {
-                let pkg = registry.packages.iter()
+                let pkg = registry
+                    .packages
+                    .iter()
                     .find(|p| p.dependencies.len() >= 2 && p.dependencies.len() <= 3)
                     .unwrap();
 
@@ -411,7 +407,9 @@ fn bench_dependency_resolution(c: &mut Criterion) {
 
         group.bench_function("resolve_deep_tree", |b| {
             b.iter(|| {
-                let root = registry.packages.iter()
+                let root = registry
+                    .packages
+                    .iter()
                     .find(|p| p.name == "root-package")
                     .unwrap();
 
@@ -452,7 +450,8 @@ fn bench_dependency_resolution(c: &mut Criterion) {
                     resolved.insert(pkg.name.clone(), pkg.version.clone());
 
                     for (dep_name, dep_version) in &pkg.dependencies {
-                        resolved.entry(dep_name.clone())
+                        resolved
+                            .entry(dep_name.clone())
                             .or_insert(dep_version.clone());
                     }
                 }
@@ -489,7 +488,8 @@ fn bench_cache_performance(c: &mut Criterion) {
         std::fs::write(
             pkg_cache.join("package.json"),
             format!(r#"{{"name":"{}","version":"{}"}}"#, name, version),
-        ).unwrap();
+        )
+        .unwrap();
     }
 
     // Benchmark cache hit
@@ -524,7 +524,8 @@ fn bench_cache_performance(c: &mut Criterion) {
             std::fs::write(
                 pkg_cache.join("package.json"),
                 format!(r#"{{"name":"{}","version":"1.0.0"}}"#, pkg_name),
-            ).unwrap();
+            )
+            .unwrap();
             black_box(pkg_cache)
         });
     });
@@ -574,7 +575,8 @@ fn bench_concurrent_operations(c: &mut Criterion) {
                             _ => "data",
                         };
 
-                        let results: Vec<_> = registry.packages
+                        let results: Vec<_> = registry
+                            .packages
                             .iter()
                             .filter(|p| p.name.contains(query))
                             .collect();
@@ -616,7 +618,8 @@ fn bench_concurrent_operations(c: &mut Criterion) {
                         std::fs::write(
                             pkg_dir.join("package.json"),
                             serde_json::to_string_pretty(&pkg).unwrap(),
-                        ).unwrap();
+                        )
+                        .unwrap();
 
                         pkg_dir
                     });
@@ -647,7 +650,8 @@ fn bench_concurrent_operations(c: &mut Criterion) {
                     let handle = tokio::spawn(async move {
                         if i % 2 == 0 {
                             // Search operation
-                            let results: Vec<_> = registry.packages
+                            let results: Vec<_> = registry
+                                .packages
                                 .iter()
                                 .filter(|p| p.tags.contains(&"web".to_string()))
                                 .take(10)

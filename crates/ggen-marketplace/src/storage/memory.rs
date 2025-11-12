@@ -64,9 +64,10 @@ impl PackageStore for MemoryStore {
     async fn retrieve(&self, id: &ContentId) -> Result<Vec<u8>> {
         let storage = self.storage.read().await;
 
-        storage.get(id).cloned().ok_or_else(|| {
-            MarketplaceError::package_not_found(&id.to_string(), "content not found")
-        })
+        storage
+            .get(id)
+            .cloned()
+            .ok_or_else(|| MarketplaceError::package_not_found(id.to_string(), "content not found"))
     }
 
     async fn exists(&self, id: &ContentId) -> Result<bool> {
@@ -79,7 +80,7 @@ impl PackageStore for MemoryStore {
 
         if storage.remove(id).is_none() {
             return Err(MarketplaceError::package_not_found(
-                &id.to_string(),
+                id.to_string(),
                 "content not found",
             ));
         }
@@ -94,7 +95,7 @@ impl PackageStore for MemoryStore {
         let metadata_map = self.metadata.read().await;
 
         metadata_map.get(id).cloned().ok_or_else(|| {
-            MarketplaceError::package_not_found(&id.to_string(), "content metadata not found")
+            MarketplaceError::package_not_found(id.to_string(), "content metadata not found")
         })
     }
 

@@ -41,7 +41,7 @@ pub struct PaginatedResults {
 
 impl PaginatedResults {
     pub fn new(packages: Vec<Package>, total_count: usize, page: usize, per_page: usize) -> Self {
-        let total_pages = (total_count + per_page - 1) / per_page;
+        let total_pages = total_count.div_ceil(per_page);
         Self {
             packages,
             total_count,

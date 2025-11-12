@@ -71,14 +71,8 @@ pub struct AnalyzeOutput {
 /// ```
 #[verb]
 fn generate(
-    prompt: String,
-    code: Option<String>,
-    model: Option<String>,
-    api_key: Option<String>,
-    suggestions: bool,
-    language: Option<String>,
-    max_tokens: u32,
-    temperature: f32,
+    prompt: String, code: Option<String>, model: Option<String>, api_key: Option<String>,
+    suggestions: bool, language: Option<String>, max_tokens: u32, temperature: f32,
 ) -> Result<GenerateOutput> {
     use ggen_ai::{GenAiClient, LlmClient, LlmConfig};
 
@@ -94,11 +88,17 @@ fn generate(
         };
 
         // Validate configuration
-        config.validate().map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Invalid configuration: {}", e)))?;
+        config.validate().map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!("Invalid configuration: {}", e))
+        })?;
 
         // Create client
-        let client = GenAiClient::new(config)
-            .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Failed to create AI client: {}", e)))?;
+        let client = GenAiClient::new(config).map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!(
+                "Failed to create AI client: {}",
+                e
+            ))
+        })?;
 
         // Build prompt
         let mut full_prompt = prompt.clone();
@@ -116,10 +116,9 @@ fn generate(
         }
 
         // Generate response
-        let response = client
-            .complete(&full_prompt)
-            .await
-            .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("AI generation failed: {}", e)))?;
+        let response = client.complete(&full_prompt).await.map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!("AI generation failed: {}", e))
+        })?;
 
         Ok(GenerateOutput {
             generated_code: response.content,
@@ -151,13 +150,8 @@ fn generate(
 /// ```
 #[verb]
 fn chat(
-    message: Option<String>,
-    model: Option<String>,
-    api_key: Option<String>,
-    interactive: bool,
-    stream: bool,
-    max_tokens: u32,
-    temperature: f32,
+    message: Option<String>, model: Option<String>, api_key: Option<String>, interactive: bool,
+    stream: bool, max_tokens: u32, temperature: f32,
 ) -> Result<ChatOutput> {
     use ggen_ai::{GenAiClient, LlmClient, LlmConfig};
     use std::io::Write;
@@ -165,71 +159,147 @@ fn chat(
     crate::runtime::block_on(async move {
         // Build configuration
         let config = LlmConfig {
-        model: model.unwrap_or_else(|| "gpt-3.5-turbo".to_string()),
-        max_tokens: Some(max_tokens),
-        temperature: Some(temperature),
-        top_p: Some(0.9),
-        stop: None,
-        extra: HashMap::new(),
-    };
+            model: model.unwrap_or_else(|| "gpt-3.5-turbo".to_string()),
+            max_tokens: Some(max_tokens),
+            temperature: Some(temperature),
+            top_p: Some(0.9),
+            stop: None,
+            extra: HashMap::new(),
+        };
 
-    // Create client
-    let client = GenAiClient::new(config)
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Failed to create AI client: {}", e)))?;
+        // Create client
+        let client = GenAiClient::new(config).map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!(
+                "Failed to create AI client: {}",
+                e
+            ))
+        })?;
 
-    let session_id = uuid::Uuid::new_v4().to_string();
-    let mut messages: Vec<ChatMessage> = Vec::new();
-    let mut total_tokens: Option<usize> = None;
-    let model_name = client.get_config().model.clone();
+        let session_id = uuid::Uuid::new_v4().to_string();
+        let mut messages: Vec<ChatMessage> = Vec::new();
+        let mut total_tokens: Option<usize> = None;
+        let model_name = client.get_config().model.clone();
 
-    if interactive {
-        // Interactive mode with multiple turns
-        eprintln!("🤖 AI Chat - Interactive Mode");
-        eprintln!("Model: {}", model_name);
-        eprintln!("Type 'exit' or 'quit' to end session\n");
+        if interactive {
+            // Interactive mode with multiple turns
+            ggen_utils::alert_info!("🤖 AI Chat - Interactive Mode");
+            ggen_utils::alert_info!("Model: {}", model_name);
+            ggen_utils::alert_info!("Type 'exit' or 'quit' to end session\n");
 
-        loop {
-            eprint!("> ");
-            std::io::stderr().flush().unwrap();
+            loop {
+                eprint!("> ");
+                std::io::stderr().flush().map_err(|e| {
+                    clap_noun_verb::NounVerbError::execution_error(format!(
+                        "Failed to flush stderr: {}",
+                        e
+                    ))
+                })?;
 
-            let mut input = String::new();
-            std::io::stdin()
-                .read_line(&mut input)
-                .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Failed to read input: {}", e)))?;
+                let mut input = String::new();
+                std::io::stdin().read_line(&mut input).map_err(|e| {
+                    clap_noun_verb::NounVerbError::execution_error(format!(
+                        "Failed to read input: {}",
+                        e
+                    ))
+                })?;
 
-            let input = input.trim();
-            if input.is_empty() {
-                continue;
+                let input = input.trim();
+                if input.is_empty() {
+                    continue;
+                }
+
+                if input == "exit" || input == "quit" {
+                    break;
+                }
+
+                messages.push(ChatMessage {
+                    role: "user".to_string(),
+                    content: input.to_string(),
+                });
+
+                if stream {
+                    // Stream response
+                    let mut stream = client.complete_stream(input).await.map_err(|e| {
+                        clap_noun_verb::NounVerbError::execution_error(format!(
+                            "Streaming failed: {}",
+                            e
+                        ))
+                    })?;
+
+                    let mut full_response = String::new();
+                    eprint!("🤖: ");
+                    while let Some(chunk) = stream.next().await {
+                        eprint!("{}", chunk.content);
+                        std::io::stderr().flush().map_err(|e| {
+                            clap_noun_verb::NounVerbError::execution_error(format!(
+                                "Failed to flush stderr: {}",
+                                e
+                            ))
+                        })?;
+                        full_response.push_str(&chunk.content);
+
+                        if let Some(usage) = chunk.usage {
+                            total_tokens = Some(usage.total_tokens as usize);
+                        }
+                    }
+                    ggen_utils::alert_info!("\n");
+
+                    messages.push(ChatMessage {
+                        role: "assistant".to_string(),
+                        content: full_response,
+                    });
+                } else {
+                    // Non-streaming response
+                    let response = client.complete(input).await.map_err(|e| {
+                        clap_noun_verb::NounVerbError::execution_error(format!(
+                            "Chat failed: {}",
+                            e
+                        ))
+                    })?;
+
+                    ggen_utils::alert_info!("🤖: {}\n", response.content);
+
+                    if let Some(usage) = response.usage {
+                        total_tokens = Some(usage.total_tokens as usize);
+                    }
+
+                    messages.push(ChatMessage {
+                        role: "assistant".to_string(),
+                        content: response.content,
+                    });
+                }
             }
-
-            if input == "exit" || input == "quit" {
-                break;
-            }
-
+        } else if let Some(msg) = message {
+            // Single message mode
             messages.push(ChatMessage {
                 role: "user".to_string(),
-                content: input.to_string(),
+                content: msg.clone(),
             });
 
             if stream {
                 // Stream response
-                let mut stream = client
-                    .complete_stream(input)
-                    .await
-                    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Streaming failed: {}", e)))?;
+                let mut stream = client.complete_stream(&msg).await.map_err(|e| {
+                    clap_noun_verb::NounVerbError::execution_error(format!(
+                        "Streaming failed: {}",
+                        e
+                    ))
+                })?;
 
                 let mut full_response = String::new();
-                eprint!("🤖: ");
                 while let Some(chunk) = stream.next().await {
                     eprint!("{}", chunk.content);
-                    std::io::stderr().flush().unwrap();
+                    std::io::stderr().flush().map_err(|e| {
+                        clap_noun_verb::NounVerbError::execution_error(format!(
+                            "Failed to flush stderr: {}",
+                            e
+                        ))
+                    })?;
                     full_response.push_str(&chunk.content);
 
                     if let Some(usage) = chunk.usage {
                         total_tokens = Some(usage.total_tokens as usize);
                     }
                 }
-                eprintln!("\n");
 
                 messages.push(ChatMessage {
                     role: "assistant".to_string(),
@@ -237,12 +307,9 @@ fn chat(
                 });
             } else {
                 // Non-streaming response
-                let response = client
-                    .complete(input)
-                    .await
-                    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Chat failed: {}", e)))?;
-
-                eprintln!("🤖: {}\n", response.content);
+                let response = client.complete(&msg).await.map_err(|e| {
+                    clap_noun_verb::NounVerbError::execution_error(format!("Chat failed: {}", e))
+                })?;
 
                 if let Some(usage) = response.usage {
                     total_tokens = Some(usage.total_tokens as usize);
@@ -253,58 +320,11 @@ fn chat(
                     content: response.content,
                 });
             }
-        }
-    } else if let Some(msg) = message {
-        // Single message mode
-        messages.push(ChatMessage {
-            role: "user".to_string(),
-            content: msg.clone(),
-        });
-
-        if stream {
-            // Stream response
-            let mut stream = client
-                .complete_stream(&msg)
-                .await
-                .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Streaming failed: {}", e)))?;
-
-            let mut full_response = String::new();
-            while let Some(chunk) = stream.next().await {
-                eprint!("{}", chunk.content);
-                std::io::stderr().flush().unwrap();
-                full_response.push_str(&chunk.content);
-
-                if let Some(usage) = chunk.usage {
-                    total_tokens = Some(usage.total_tokens as usize);
-                }
-            }
-            eprintln!();
-
-            messages.push(ChatMessage {
-                role: "assistant".to_string(),
-                content: full_response,
-            });
         } else {
-            // Non-streaming response
-            let response = client
-                .complete(&msg)
-                .await
-                .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Chat failed: {}", e)))?;
-
-            if let Some(usage) = response.usage {
-                total_tokens = Some(usage.total_tokens as usize);
-            }
-
-            messages.push(ChatMessage {
-                role: "assistant".to_string(),
-                content: response.content,
-            });
+            return Err(clap_noun_verb::NounVerbError::execution_error(
+                "Provide a message or use --interactive for chat session",
+            ));
         }
-    } else {
-        return Err(clap_noun_verb::NounVerbError::execution_error(
-            "Provide a message or use --interactive for chat session"
-        ));
-    }
 
         Ok(ChatOutput {
             messages,
@@ -335,84 +355,86 @@ fn chat(
 /// ```
 #[verb]
 fn analyze(
-    code: Option<String>,
-    file: Option<PathBuf>,
-    project: Option<PathBuf>,
-    model: Option<String>,
-    api_key: Option<String>,
-    complexity: bool,
-    security: bool,
-    performance: bool,
-    max_tokens: u32,
+    code: Option<String>, file: Option<PathBuf>, project: Option<PathBuf>, model: Option<String>,
+    api_key: Option<String>, complexity: bool, security: bool, performance: bool, max_tokens: u32,
 ) -> Result<AnalyzeOutput> {
     use ggen_ai::{GenAiClient, LlmClient, LlmConfig};
 
     crate::runtime::block_on(async move {
         // Determine what to analyze
         let (code_content, file_path) = if let Some(code_str) = code {
-        (code_str, None)
-    } else if let Some(file_path) = &file {
-        let content = std::fs::read_to_string(file_path)
-            .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Failed to read file: {}", e)))?;
-        (content, Some(file_path.display().to_string()))
-    } else if let Some(project_path) = &project {
-        // For project analysis, we'll provide a summary prompt
-        return analyze_project(project_path, model, api_key, max_tokens).await;
-    } else {
-        return Err(clap_noun_verb::NounVerbError::execution_error("Provide code, --file, or --project to analyze"));
-    };
+            (code_str, None)
+        } else if let Some(file_path) = &file {
+            let content = std::fs::read_to_string(file_path).map_err(|e| {
+                clap_noun_verb::NounVerbError::execution_error(format!(
+                    "Failed to read file: {}",
+                    e
+                ))
+            })?;
+            (content, Some(file_path.display().to_string()))
+        } else if let Some(project_path) = &project {
+            // For project analysis, we'll provide a summary prompt
+            return analyze_project(project_path, model, api_key, max_tokens).await;
+        } else {
+            return Err(clap_noun_verb::NounVerbError::execution_error(
+                "Provide code, --file, or --project to analyze",
+            ));
+        };
 
-    // Build configuration
-    let config = LlmConfig {
-        model: model.unwrap_or_else(|| "gpt-3.5-turbo".to_string()),
-        max_tokens: Some(max_tokens),
-        temperature: Some(0.3), // Lower temperature for analysis
-        top_p: Some(0.9),
-        stop: None,
-        extra: HashMap::new(),
-    };
+        // Build configuration
+        let config = LlmConfig {
+            model: model.unwrap_or_else(|| "gpt-3.5-turbo".to_string()),
+            max_tokens: Some(max_tokens),
+            temperature: Some(0.3), // Lower temperature for analysis
+            top_p: Some(0.9),
+            stop: None,
+            extra: HashMap::new(),
+        };
 
-    // Create client
-    let client = GenAiClient::new(config)
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Failed to create AI client: {}", e)))?;
+        // Create client
+        let client = GenAiClient::new(config).map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!(
+                "Failed to create AI client: {}",
+                e
+            ))
+        })?;
 
-    // Build analysis prompt
-    let mut prompt = format!(
-        "Analyze the following code and provide insights:\n\n```\n{}\n```\n\n",
-        code_content
-    );
+        // Build analysis prompt
+        let mut prompt = format!(
+            "Analyze the following code and provide insights:\n\n```\n{}\n```\n\n",
+            code_content
+        );
 
-    prompt.push_str("Provide:\n");
-    prompt.push_str("1. Key insights about the code structure and design\n");
-    prompt.push_str("2. Suggestions for improvements\n");
+        prompt.push_str("Provide:\n");
+        prompt.push_str("1. Key insights about the code structure and design\n");
+        prompt.push_str("2. Suggestions for improvements\n");
 
-    if complexity {
-        prompt.push_str("3. Complexity analysis (cyclomatic, cognitive)\n");
-    }
-    if security {
-        prompt.push_str("4. Security considerations and potential vulnerabilities\n");
-    }
-    if performance {
-        prompt.push_str("5. Performance optimization opportunities\n");
-    }
+        if complexity {
+            prompt.push_str("3. Complexity analysis (cyclomatic, cognitive)\n");
+        }
+        if security {
+            prompt.push_str("4. Security considerations and potential vulnerabilities\n");
+        }
+        if performance {
+            prompt.push_str("5. Performance optimization opportunities\n");
+        }
 
-    prompt.push_str("\nFormat your response with clear sections.");
+        prompt.push_str("\nFormat your response with clear sections.");
 
-    // Generate analysis
-    let response = client
-        .complete(&prompt)
-        .await
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Analysis failed: {}", e)))?;
+        // Generate analysis
+        let response = client.complete(&prompt).await.map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!("Analysis failed: {}", e))
+        })?;
 
-    // Parse response into structured output
-    let (insights, suggestions) = parse_analysis_response(&response.content);
+        // Parse response into structured output
+        let (insights, suggestions) = parse_analysis_response(&response.content);
 
-    // Calculate complexity score if requested (simplified placeholder)
-    let complexity_score = if complexity {
-        Some(estimate_complexity(&code_content))
-    } else {
-        None
-    };
+        // Calculate complexity score if requested (simplified placeholder)
+        let complexity_score = if complexity {
+            Some(estimate_complexity(&code_content))
+        } else {
+            None
+        };
 
         Ok(AnalyzeOutput {
             file_path,
@@ -431,10 +453,7 @@ fn analyze(
 
 /// Analyze a project directory
 async fn analyze_project(
-    project_path: &PathBuf,
-    model: Option<String>,
-    api_key: Option<String>,
-    max_tokens: u32,
+    project_path: &PathBuf, model: Option<String>, api_key: Option<String>, max_tokens: u32,
 ) -> Result<AnalyzeOutput> {
     use ggen_ai::{GenAiClient, LlmClient, LlmConfig};
     use walkdir::WalkDir;
@@ -467,8 +486,9 @@ async fn analyze_project(
     };
 
     // Create client
-    let client = GenAiClient::new(config)
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Failed to create AI client: {}", e)))?;
+    let client = GenAiClient::new(config).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Failed to create AI client: {}", e))
+    })?;
 
     // Build project summary
     let file_list: Vec<String> = source_files
@@ -488,10 +508,9 @@ async fn analyze_project(
     );
 
     // Generate analysis
-    let response = client
-        .complete(&prompt)
-        .await
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Project analysis failed: {}", e)))?;
+    let response = client.complete(&prompt).await.map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Project analysis failed: {}", e))
+    })?;
 
     // Parse response
     let (insights, suggestions) = parse_analysis_response(&response.content);

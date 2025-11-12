@@ -2,7 +2,6 @@
 //!
 //! Real implementation of installed packages listing functionality.
 
-
 use ggen_utils::error::Result;
 use serde_json;
 
@@ -27,20 +26,22 @@ pub struct ListInput {
 ///
 /// Returns Ok(()) on success, or an error if listing fails
 pub async fn list_and_display(detailed: bool, json: bool) -> Result<()> {
-    // Get installed packages directory
-    let packages_dir = dirs::home_dir()
-        .ok_or_else(|| ggen_utils::error::Error::new("home directory not found"))?
-        .join(".ggen")
-        .join("packages");
+    // Get installed packages directory - handle missing home directory gracefully
+    let packages_dir = if let Some(home_dir) = dirs::home_dir() {
+        home_dir.join(".ggen").join("packages")
+    } else {
+        // Fallback to temp directory if home directory not available
+        std::env::temp_dir().join("ggen-packages")
+    };
 
     // Read lockfile to get installed packages
     let lockfile_path = packages_dir.join("ggen.lock");
 
     if !lockfile_path.exists() {
         if json {
-            println!("[]");
+            ggen_utils::alert_info!("[]");
         } else {
-            println!("No packages installed.");
+            ggen_utils::alert_info!("No packages installed.");
         }
         return Ok(());
     }
@@ -53,9 +54,9 @@ pub async fn list_and_display(detailed: bool, json: bool) -> Result<()> {
 
     if lockfile.packages.is_empty() {
         if json {
-            println!("[]");
+            ggen_utils::alert_info!("[]");
         } else {
-            println!("No packages installed.");
+            ggen_utils::alert_info!("No packages installed.");
         }
         return Ok(());
     }
@@ -75,30 +76,28 @@ pub async fn list_and_display(detailed: bool, json: bool) -> Result<()> {
             .collect();
 
         let json_output = serde_json::to_string_pretty(&packages)?;
-        println!("{}", json_output);
+        ggen_utils::alert_info!("{}", json_output);
     } else {
         // Output human-readable format
-        println!("Installed packages ({}):\n", lockfile.packages.len());
+        ggen_utils::alert_info!("Installed packages ({}):\n", lockfile.packages.len());
 
         for (name, info) in &lockfile.packages {
-            println!("📦 {}", name);
-            println!("   Version: {}", info.version);
+            ggen_utils::alert_info!("📦 {}", name);
+            ggen_utils::alert_info!("   Version: {}", info.version);
 
             if detailed {
                 if let Some(installed_at) = &info.installed_at {
-                    println!("   Installed: {}", installed_at);
+                    ggen_utils::alert_info!("   Installed: {}", installed_at);
                 }
 
                 // Check if package directory exists
                 let pkg_dir = packages_dir.join(name);
                 if pkg_dir.exists() {
-                    println!("   Location: {}", pkg_dir.display());
+                    ggen_utils::alert_info!("   Location: {}", pkg_dir.display());
                 } else {
-                    println!("   ⚠️  Package directory not found");
+                    ggen_utils::alert_warning!("Package directory not found");
                 }
             }
-
-            println!();
         }
     }
 
@@ -107,23 +106,31 @@ pub async fn list_and_display(detailed: bool, json: bool) -> Result<()> {
 
 /// Execute list command using ggen-marketplace backend
 pub async fn execute_list(input: ListInput) -> Result<ListOutput> {
-    use ggen_marketplace::prelude::*;
     use ggen_marketplace::backend::LocalRegistry;
+    use ggen_marketplace::prelude::*;
 
-    let registry_path = dirs::home_dir()
-        .ok_or_else(|| ggen_utils::error::Error::new("home directory not found"))?
-        .join(".ggen")
-        .join("registry");
+    // Handle missing home directory gracefully
+    let registry_path = if let Some(home_dir) = dirs::home_dir() {
+        home_dir.join(".ggen").join("registry")
+    } else {
+        // Fallback to temp directory if home directory not available
+        std::env::temp_dir().join("ggen-registry")
+    };
 
     // Initialize registry
-    let registry = LocalRegistry::new(registry_path.clone()).await
-        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to initialize registry: {}", e)))?;
+    let registry = LocalRegistry::new(registry_path.clone())
+        .await
+        .map_err(|e| {
+            ggen_utils::error::Error::new(&format!("Failed to initialize registry: {}", e))
+        })?;
 
-    // Load installed packages
-    let packages_dir = dirs::home_dir()
-        .ok_or_else(|| ggen_utils::error::Error::new("home directory not found"))?
-        .join(".ggen")
-        .join("packages");
+    // Load installed packages - handle missing home directory gracefully
+    let packages_dir = if let Some(home_dir) = dirs::home_dir() {
+        home_dir.join(".ggen").join("packages")
+    } else {
+        // Fallback to temp directory if home directory not available
+        std::env::temp_dir().join("ggen-packages")
+    };
 
     let lockfile_path = packages_dir.join("ggen.lock");
     let lockfile: Lockfile = if lockfile_path.exists() {
@@ -137,7 +144,9 @@ pub async fn execute_list(input: ListInput) -> Result<ListOutput> {
     };
 
     // Get registry metadata (unused but shows we can interact with registry)
-    let _metadata = registry.metadata().await
+    let _metadata = registry
+        .metadata()
+        .await
         .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to get metadata: {}", e)))?;
 
     let mut packages = vec![];

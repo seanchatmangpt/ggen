@@ -100,10 +100,7 @@ impl TemplateRenderer {
     }
 
     fn render_and_write(
-        &self,
-        template: &str,
-        context: &Context,
-        output_path: PathBuf,
+        &self, template: &str, context: &Context, output_path: PathBuf,
     ) -> Result<()> {
         let content = self.render_file(template, context)?;
         std::fs::write(output_path, content)?;

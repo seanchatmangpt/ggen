@@ -15,7 +15,7 @@ Production-ready Rig LLM framework + MCP protocol integration for ggen.
 
 ```bash
 # Add to your project
-ggen market add rig-mcp-integration
+ggen market install rig-mcp-integration
 
 # Or install manually
 cargo add rig-mcp-integration

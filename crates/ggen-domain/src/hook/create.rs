@@ -20,9 +20,8 @@ pub struct CreateInput {
 
 /// Execute create hook with input (pure domain function)
 pub async fn execute_create(input: CreateInput) -> Result<HookResult> {
-    use std::fs;
-    use std::path::PathBuf;
     use dirs::home_dir;
+    use std::fs;
 
     // Generate hook ID
     let hook_id = input.name.clone().unwrap_or_else(|| {
@@ -42,8 +41,9 @@ pub async fn execute_create(input: CreateInput) -> Result<HookResult> {
         .join(".ggen")
         .join("hooks");
 
-    fs::create_dir_all(&hooks_dir)
-        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to create hooks directory: {}", e)))?;
+    fs::create_dir_all(&hooks_dir).map_err(|e| {
+        ggen_utils::error::Error::new(&format!("Failed to create hooks directory: {}", e))
+    })?;
 
     // Create hook file
     let hook_file = hooks_dir.join(format!("{}.json", hook_id));

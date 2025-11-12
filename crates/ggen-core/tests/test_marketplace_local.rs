@@ -1,73 +1,80 @@
-use anyhow::Result;
+use chicago_tdd_tools::prelude::*;
 use ggen_core::RegistryClient;
 use std::env;
 use std::path::PathBuf;
 
-#[tokio::test]
-async fn test_local_registry_index() -> Result<()> {
-    // Get absolute path to registry directory
-    let manifest_dir = env::var("CARGO_MANIFEST_DIR")?;
+async_test_with_timeout!(test_local_registry_index, 30, async {
+    // Arrange
+    let manifest_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
     let registry_path = PathBuf::from(manifest_dir).join("../registry");
-    let file_url = format!("file://{}/", registry_path.canonicalize()?.display());
-
-    // Set environment variable for testing
+    let file_url = format!(
+        "file://{}/",
+        registry_path.canonicalize().unwrap().display()
+    );
     env::set_var("GGEN_REGISTRY_URL", &file_url);
 
-    // Test fetching index
-    let client = RegistryClient::new()?;
-    let index = client.fetch_index().await?;
+    // Act
+    let client = RegistryClient::new().unwrap();
+    let index = client.fetch_index().await.unwrap();
 
+    // Assert
     assert!(!index.packs.is_empty());
     assert!(index.packs.contains_key("io.ggen.rust.cli-subcommand"));
+});
 
-    Ok(())
-}
-
-#[tokio::test]
-async fn test_resolve_from_local_registry() -> Result<()> {
-    let manifest_dir = env::var("CARGO_MANIFEST_DIR")?;
+async_test_with_timeout!(test_resolve_from_local_registry, 30, async {
+    // Arrange
+    let manifest_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
     let registry_path = PathBuf::from(manifest_dir).join("../registry");
-    let file_url = format!("file://{}/", registry_path.canonicalize()?.display());
-
+    let file_url = format!(
+        "file://{}/",
+        registry_path.canonicalize().unwrap().display()
+    );
     env::set_var("GGEN_REGISTRY_URL", &file_url);
+    let client = RegistryClient::new().unwrap();
 
-    let client = RegistryClient::new()?;
-    let resolved = client.resolve("io.ggen.rust.cli-subcommand", None).await?;
+    // Act
+    let resolved = client
+        .resolve("io.ggen.rust.cli-subcommand", None)
+        .await
+        .unwrap();
 
+    // Assert
     assert_eq!(resolved.id, "io.ggen.rust.cli-subcommand");
     assert_eq!(resolved.version, "1.2.0");
+});
 
-    Ok(())
-}
-
-#[tokio::test]
-async fn test_search_from_local_registry() -> Result<()> {
-    let manifest_dir = env::var("CARGO_MANIFEST_DIR")?;
+async_test_with_timeout!(test_search_from_local_registry, 30, async {
+    // Arrange
+    let manifest_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
     let registry_path = PathBuf::from(manifest_dir).join("../registry");
-    let file_url = format!("file://{}/", registry_path.canonicalize()?.display());
-
+    let file_url = format!(
+        "file://{}/",
+        registry_path.canonicalize().unwrap().display()
+    );
     env::set_var("GGEN_REGISTRY_URL", &file_url);
+    let client = RegistryClient::new().unwrap();
 
-    let client = RegistryClient::new()?;
-    let results = client.search("rust").await?;
+    // Act
+    let results = client.search("rust").await.unwrap();
 
+    // Assert
     assert!(!results.is_empty());
     assert!(results
         .iter()
         .any(|r| r.id == "io.ggen.rust.cli-subcommand"));
+});
 
-    Ok(())
-}
-
-#[tokio::test]
-async fn test_advanced_search_from_local_registry() -> Result<()> {
-    let manifest_dir = env::var("CARGO_MANIFEST_DIR")?;
+async_test_with_timeout!(test_advanced_search_from_local_registry, 30, async {
+    // Arrange
+    let manifest_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
     let registry_path = PathBuf::from(manifest_dir).join("../registry");
-    let file_url = format!("file://{}/", registry_path.canonicalize()?.display());
-
+    let file_url = format!(
+        "file://{}/",
+        registry_path.canonicalize().unwrap().display()
+    );
     env::set_var("GGEN_REGISTRY_URL", &file_url);
-
-    let client = RegistryClient::new()?;
+    let client = RegistryClient::new().unwrap();
     let search_params = ggen_core::registry::SearchParams {
         query: "rust",
         category: Some("rust"),
@@ -77,12 +84,12 @@ async fn test_advanced_search_from_local_registry() -> Result<()> {
         limit: 10,
     };
 
-    let results = client.advanced_search(&search_params).await?;
+    // Act
+    let results = client.advanced_search(&search_params).await.unwrap();
 
+    // Assert
     assert!(!results.is_empty());
     assert!(results
         .iter()
         .any(|r| r.id == "io.ggen.rust.cli-subcommand"));
-
-    Ok(())
-}
+});

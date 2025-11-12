@@ -25,7 +25,9 @@ async fn test_registry_fetch_package_by_name() {
     registry.publish(package.clone()).await.unwrap();
 
     // Act
-    let result = registry.get_package(&PackageId::new("test", "rust-web-service")).await;
+    let result = registry
+        .get_package(&PackageId::new("test", "rust-web-service"))
+        .await;
 
     // Assert
     assert!(result.is_ok());
@@ -120,7 +122,9 @@ async fn test_registry_list_all_versions() {
     registry.publish(pkg_v3).await.unwrap();
 
     // Act
-    let result = registry.list_versions(&PackageId::new("test", "service")).await;
+    let result = registry
+        .list_versions(&PackageId::new("test", "service"))
+        .await;
 
     // Assert
     assert!(result.is_ok());
@@ -139,7 +143,9 @@ async fn test_registry_returns_error_for_nonexistent_package() {
     let registry = create_test_registry(temp_dir.path()).await;
 
     // Act
-    let result = registry.get_package(&PackageId::new("test", "nonexistent")).await;
+    let result = registry
+        .get_package(&PackageId::new("test", "nonexistent"))
+        .await;
 
     // Assert
     assert!(result.is_err());
@@ -179,7 +185,9 @@ async fn test_registry_persists_packages_to_disk() {
 
     // Act - Create new registry instance
     let registry = LocalRegistry::new(registry_path).await.unwrap();
-    let result = registry.get_package(&PackageId::new("test", "service")).await;
+    let result = registry
+        .get_package(&PackageId::new("test", "service"))
+        .await;
 
     // Assert
     assert!(result.is_ok());
@@ -232,11 +240,15 @@ async fn test_registry_delete_package_version() {
     registry.publish(pkg).await.unwrap();
 
     // Act
-    let result = registry.delete(&PackageId::new("test", "service"), "1.0.0").await;
+    let result = registry
+        .delete(&PackageId::new("test", "service"), "1.0.0")
+        .await;
 
     // Assert
     assert!(result.is_ok());
-    let get_result = registry.get_package(&PackageId::new("test", "service")).await;
+    let get_result = registry
+        .get_package(&PackageId::new("test", "service"))
+        .await;
     assert!(get_result.is_err());
 }
 
@@ -250,8 +262,14 @@ async fn test_registry_check_package_exists() {
     registry.publish(pkg).await.unwrap();
 
     // Act
-    let exists = registry.exists(&PackageId::new("test", "service")).await.unwrap();
-    let not_exists = registry.exists(&PackageId::new("test", "nonexistent")).await.unwrap();
+    let exists = registry
+        .exists(&PackageId::new("test", "service"))
+        .await
+        .unwrap();
+    let not_exists = registry
+        .exists(&PackageId::new("test", "nonexistent"))
+        .await
+        .unwrap();
 
     // Assert
     assert!(exists);
@@ -294,7 +312,10 @@ async fn test_registry_creates_otel_span() {
     // Assert
     let span = tracer.find_span("ggen.registry.search").unwrap();
     assert_eq!(span.status, otel::SpanStatus::Ok);
-    assert!(span.attributes.iter().any(|(k, v)| k == "search.query" && v == "service"));
+    assert!(span
+        .attributes
+        .iter()
+        .any(|(k, v)| k == "search.query" && v == "service"));
 }
 
 // Helper functions
@@ -304,10 +325,7 @@ async fn create_test_registry(path: &std::path::Path) -> LocalRegistry {
 }
 
 fn create_test_package(name: &str, version: &str) -> Package {
-    let version_parts: Vec<u32> = version
-        .split('.')
-        .map(|s| s.parse().unwrap())
-        .collect();
+    let version_parts: Vec<u32> = version.split('.').map(|s| s.parse().unwrap()).collect();
 
     Package::builder(
         PackageId::new("test", name),
@@ -325,9 +343,7 @@ fn create_test_package(name: &str, version: &str) -> Package {
 }
 
 async fn search_with_tracing(
-    registry: &LocalRegistry,
-    tracer: &otel::MockTracerProvider,
-    query: &str,
+    registry: &LocalRegistry, tracer: &otel::MockTracerProvider, query: &str,
 ) -> Result<Vec<Package>, anyhow::Error> {
     let result = registry.search(&Query::new(query)).await?;
 

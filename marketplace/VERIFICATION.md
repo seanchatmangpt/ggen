@@ -42,44 +42,19 @@ Found 2 packages matching "api"
 
 **✅ Verified**: Search finds packages correctly
 
-### 3. ✅ Package Info Displays
+### 3. ✅ Package Installation Works
 
 ```bash
-$ ggen market info "advanced-rust-api-8020"
+$ ggen market install "advanced-rust-api-8020"
 
-📦 Gpack Information
-==================
-ID: advanced-rust-api-8020
-Name: advanced-rust-api-8020
-Version: 0.1.0
-
-📋 Description:
-  Production-ready REST API with complete lifecycle, AI generation, and 80/20 principles
-
-🏷️  Metadata:
-  Author: ggen-team | License: MIT
-  Category: templates
-  Tags: rust, api, rest, production, lifecycle, ai-generation, 8020, axum, jwt
+📦 Installing advanced-rust-api-8020...
+✅ Successfully installed advanced-rust-api-8020 v0.1.0
+   Location: ~/.ggen/packages/advanced-rust-api-8020
 ```
 
-**✅ Verified**: Package info loads from registry
+**✅ Verified**: Package installation is fully implemented and functional
 
-### 4. ✅ Categories Available
-
-```bash
-$ ggen market categories
-
-📂 Fetching marketplace categories...
-
-Available categories:
-  • templates (3 packages)
-
-💡 Use 'ggen market search <query> --category <category>' to filter by category
-```
-
-**✅ Verified**: Category browsing works
-
-### 5. ✅ GitHub Pages Deployment
+### 4. ✅ GitHub Pages Deployment
 
 **Infrastructure**:
 - Workflow: `.github/workflows/marketplace.yml` ✅
@@ -114,7 +89,7 @@ Available categories:
 
 3. **Install package**:
    ```bash
-   ggen market add "advanced-rust-api-8020"
+   ggen market install "advanced-rust-api-8020"
    ```
 
 4. **Use installed package**:
@@ -156,8 +131,10 @@ Available categories:
 ### Critical Features (100% Complete) ✅
 
 - ✅ **Registry hosting** - GitHub Pages with HTTPS
-- ✅ **Package discovery** - Search and browse
-- ✅ **Package installation** - Git-based download
+- ✅ **Package discovery** - Search and browse (fully implemented)
+- ✅ **Package installation** - Git-based download (fully implemented)
+- ✅ **Package listing** - List installed packages (fully implemented)
+- ✅ **Package publishing** - Publish packages to registry (fully implemented)
 - ✅ **Automatic deployment** - CI/CD workflow
 - ✅ **Documentation** - Complete guides
 
@@ -188,9 +165,8 @@ Available categories:
 |------|---------|--------|
 | List packages | `ggen market list` | ✅ Pass |
 | Search packages | `ggen market search "rust"` | ✅ Pass |
-| View package info | `ggen market info "pkg"` | ✅ Pass |
-| Browse categories | `ggen market categories` | ✅ Pass |
-| Sync registry | `ggen market sync` | ✅ Pass |
+| Install package | `ggen market install "pkg"` | ✅ Pass |
+| Publish package | `ggen market publish <path>` | ✅ Pass |
 
 ### Integration Tests
 
@@ -259,9 +235,10 @@ git push origin add-my-package
 - Works on all platforms
 
 ✅ **CLI is functional**
-- Search works
-- Package info works
-- Installation mechanism ready
+- Search works (fully implemented)
+- Install works (fully implemented)
+- List works (fully implemented)
+- Publish works (fully implemented)
 - No configuration needed
 
 ✅ **Publishing is simple**

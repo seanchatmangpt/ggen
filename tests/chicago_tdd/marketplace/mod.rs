@@ -6,7 +6,8 @@
 //! - Test with REAL file system (using TempDir)
 //! - Minimal mocking - only external APIs
 
-mod integration_tests;
-mod search_tests;
 mod domain_logic_tests;
+mod expert_testing_patterns;
+mod integration_tests;
 mod p2p_integration;
+mod search_tests;

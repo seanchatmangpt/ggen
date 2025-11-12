@@ -20,11 +20,9 @@
 //! cargo bench --bench runtime_overhead
 //! ```
 
-use criterion::{
-    black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput,
-};
-use std::sync::Arc;
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::Arc;
 
 // ============================================================================
 // Mock Runtime Module (for benchmarking before actual implementation)
@@ -74,11 +72,7 @@ fn bench_execute_simple(c: &mut Criterion) {
 
     // Simple value return (no actual async work)
     group.bench_function("simple_return", |b| {
-        b.iter(|| {
-            mock_runtime::execute(async {
-                black_box(42)
-            })
-        });
+        b.iter(|| mock_runtime::execute(async { black_box(42) }));
     });
 
     // With minimal computation
@@ -162,20 +156,14 @@ fn bench_vs_naive(c: &mut Criterion) {
 
     // GLOBAL RUNTIME: Reuse single runtime (our approach)
     group.bench_function("global_runtime", |b| {
-        b.iter(|| {
-            mock_runtime::execute(async {
-                black_box(42)
-            })
-        });
+        b.iter(|| mock_runtime::execute(async { black_box(42) }));
     });
 
     // NAIVE APPROACH: Create new runtime per call (what we're avoiding)
     group.bench_function("naive_per_call_runtime", |b| {
         b.iter(|| {
             let rt = tokio::runtime::Runtime::new().unwrap();
-            rt.block_on(async {
-                black_box(42)
-            })
+            rt.block_on(async { black_box(42) })
         });
     });
 
@@ -259,9 +247,7 @@ fn bench_memory_pressure(c: &mut Criterion) {
     group.bench_function("many_small_executions", |b| {
         b.iter(|| {
             for _ in 0..1000 {
-                mock_runtime::execute(async {
-                    black_box(42)
-                });
+                mock_runtime::execute(async { black_box(42) });
             }
         });
     });
@@ -317,20 +303,12 @@ fn bench_error_handling(c: &mut Criterion) {
 
     // Success path (baseline)
     group.bench_function("success_path", |b| {
-        b.iter(|| {
-            mock_runtime::execute(async {
-                Ok::<_, anyhow::Error>(black_box(42))
-            })
-        });
+        b.iter(|| mock_runtime::execute(async { Ok::<_, anyhow::Error>(black_box(42)) }));
     });
 
     // Error path
     group.bench_function("error_path", |b| {
-        b.iter(|| {
-            mock_runtime::execute(async {
-                Err::<i32, _>(anyhow::anyhow!("test error"))
-            })
-        });
+        b.iter(|| mock_runtime::execute(async { Err::<i32, _>(anyhow::anyhow!("test error")) }));
     });
 
     group.finish();

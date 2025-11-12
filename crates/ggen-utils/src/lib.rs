@@ -1,5 +1,8 @@
 // backtrace is stable since 1.65.0, no feature flag needed
 
+#![deny(warnings)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
+
+pub mod alert;
 pub mod app_config;
 pub mod enhanced_error;
 pub mod error;

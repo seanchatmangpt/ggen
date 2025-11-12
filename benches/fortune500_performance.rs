@@ -17,9 +17,7 @@
 //! - Production-grade reliability (99.9% uptime)
 //! - Enterprise security compliance
 
-use criterion::{
-    black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput,
-};
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 use std::fs;
 use std::path::PathBuf;
 use std::process::Command;
@@ -299,11 +297,7 @@ fn bench_rdf_query_performance(c: &mut Criterion) {
         turtle_data.push_str("@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n\n");
 
         for i in 0..num_entities {
-            turtle_data.push_str(&format!(
-                "ex:Entity{} a ex:Type{} ;\n",
-                i,
-                i % 10
-            ));
+            turtle_data.push_str(&format!("ex:Entity{} a ex:Type{} ;\n", i, i % 10));
             turtle_data.push_str(&format!("  ex:hasName \"Entity {}\" ;\n", i));
             turtle_data.push_str(&format!("  ex:hasValue {} ;\n", i * 100));
             turtle_data.push_str(&format!(
@@ -530,7 +524,11 @@ fn bench_memory_usage(c: &mut Criterion) {
                             "--context",
                             context.to_str().unwrap(),
                             "--output",
-                            temp_dir.path().join(format!("out_{}.rs", i)).to_str().unwrap(),
+                            temp_dir
+                                .path()
+                                .join(format!("out_{}.rs", i))
+                                .to_str()
+                                .unwrap(),
                         ])
                         .current_dir(temp_dir.path())
                         .output()
@@ -755,7 +753,11 @@ fn bench_e2e_workflows(c: &mut Criterion) {
                             "--context",
                             temp_dir.path().join("context.json").to_str().unwrap(),
                             "--output",
-                            temp_dir.path().join(format!("{}.rs", template)).to_str().unwrap(),
+                            temp_dir
+                                .path()
+                                .join(format!("{}.rs", template))
+                                .to_str()
+                                .unwrap(),
                         ])
                         .current_dir(temp_dir.path())
                         .output()
@@ -802,7 +804,11 @@ fn bench_e2e_workflows(c: &mut Criterion) {
 
                 // Query graph
                 let query_file = temp_dir.path().join("query.sparql");
-                fs::write(&query_file, "SELECT ?project WHERE { ?project a ex:Project }").unwrap();
+                fs::write(
+                    &query_file,
+                    "SELECT ?project WHERE { ?project a ex:Project }",
+                )
+                .unwrap();
 
                 let output = Command::new(&binary_path)
                     .args([
@@ -829,35 +835,17 @@ fn bench_e2e_workflows(c: &mut Criterion) {
 // Criterion Configuration
 // ============================================================================
 
-criterion_group!(
-    startup_benches,
-    bench_cli_startup_times,
-);
+criterion_group!(startup_benches, bench_cli_startup_times,);
 
-criterion_group!(
-    template_benches,
-    bench_template_rendering_scale,
-);
+criterion_group!(template_benches, bench_template_rendering_scale,);
 
-criterion_group!(
-    rdf_benches,
-    bench_rdf_query_performance,
-);
+criterion_group!(rdf_benches, bench_rdf_query_performance,);
 
-criterion_group!(
-    memory_benches,
-    bench_memory_usage,
-);
+criterion_group!(memory_benches, bench_memory_usage,);
 
-criterion_group!(
-    concurrency_benches,
-    bench_concurrent_operations,
-);
+criterion_group!(concurrency_benches, bench_concurrent_operations,);
 
-criterion_group!(
-    e2e_benches,
-    bench_e2e_workflows,
-);
+criterion_group!(e2e_benches, bench_e2e_workflows,);
 
 criterion_main!(
     startup_benches,

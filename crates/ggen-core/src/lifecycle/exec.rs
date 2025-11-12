@@ -96,7 +96,7 @@ fn run_phase_internal(ctx: &Context, phase_name: &str) -> Result<()> {
     run_before_hooks(ctx, phase_name)?;
 
     // Print phase start message for CLI output (after hooks)
-    println!("Running phase: {}", phase_name);
+    ggen_utils::alert_info!(&format!("Running phase: {}", phase_name));
 
     // Get commands for this phase using new Phase::commands() method
     let cmds = phase.commands();
@@ -129,11 +129,17 @@ fn run_phase_internal(ctx: &Context, phase_name: &str) -> Result<()> {
         "Phase completed successfully"
     );
 
-    // Update state
+    // Update state with validation (poka-yoke)
     let mut state = load_state(&ctx.state_path)?;
     state.record_run(phase_name.to_string(), started, duration, true);
     state.add_cache_key(phase_name.to_string(), key);
-    save_state(&ctx.state_path, &state)?;
+
+    // Validate state before saving (poka-yoke)
+    use super::state_validation::ValidatedLifecycleState;
+    let validated_state = ValidatedLifecycleState::new(state.clone())
+        .map_err(|e| LifecycleError::Other(format!("State validation failed: {}", e)))?;
+
+    save_state(&ctx.state_path, validated_state.state())?;
 
     // Run after hooks
     run_after_hooks(ctx, phase_name)?;

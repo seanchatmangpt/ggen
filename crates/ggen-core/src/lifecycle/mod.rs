@@ -22,9 +22,12 @@
 pub mod cache;
 pub mod error;
 pub mod exec;
+pub mod hooks;
 pub mod loader;
 pub mod model;
 pub mod state;
+pub mod state_machine;
+pub mod state_validation;
 
 // Production readiness tracking (80/20 rule implementation)
 pub mod production;
@@ -49,13 +52,24 @@ mod integration_test;
 #[cfg(test)]
 mod behavior_tests;
 
+#[cfg(test)]
+mod poka_yoke_tests;
+
+#[cfg(test)]
+mod poka_yoke_runtime_tests;
+
 // Public API (minimal and focused)
 pub use cache::cache_key;
 pub use error::{LifecycleError, Result};
 pub use exec::{run_phase, run_pipeline, Context};
+pub use hooks::{validate_hooks, HookValidationError, ValidatedHooks};
 pub use loader::load_make;
-pub use model::{Hooks, Make, Phase, Project, Workspace};
+pub use model::{Hooks, Make, Phase, PhaseBuilder, Project, ValidatedPhase, Workspace};
 pub use state::{load_state, save_state, LifecycleState};
+pub use state_machine::{
+    Built, Deployed, Initial, Initialized, LifecycleStateMachine, Setup, Tested,
+};
+pub use state_validation::{StateValidationError, ValidatedLifecycleState};
 
 // Production readiness exports
 pub use production::{Placeholder, PlaceholderProcessor, PlaceholderRegistry};

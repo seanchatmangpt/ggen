@@ -7,16 +7,15 @@
 //! - clap-noun-verb v3.3.0 integration
 //! - Hyper-Advanced DX (enhanced error messages, live preview, IDE hints)
 
-pub mod workspace;
 pub mod cli_layer;
 pub mod domain_layer;
+pub mod dx;
 pub mod ontology_parser;
 pub mod types;
-pub mod dx;
+pub mod workspace;
 
-pub use workspace::WorkspaceGenerator;
 pub use cli_layer::CliLayerGenerator;
 pub use domain_layer::DomainLayerGenerator;
 pub use ontology_parser::OntologyParser;
-pub use types::{CliProject, Noun, Verb, Argument, ArgumentType, Validation, Dependency};
-
+pub use types::{Argument, ArgumentType, CliProject, Dependency, Noun, Validation, Verb};
+pub use workspace::WorkspaceGenerator;

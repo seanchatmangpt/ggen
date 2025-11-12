@@ -8,7 +8,7 @@ use std::path::PathBuf;
 /// User experience level
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum UserLevel {
-    Newcomer,    // 0-5 commands run
+    Newcomer,     // 0-5 commands run
     Intermediate, // 6-20 commands run
     Advanced,     // 21-50 commands run
     Expert,       // 50+ commands run
@@ -104,7 +104,9 @@ impl UserActivity {
 
     /// Get most used commands
     pub fn get_top_commands(&self, limit: usize) -> Vec<(String, usize)> {
-        let mut commands: Vec<_> = self.command_counts.iter()
+        let mut commands: Vec<_> = self
+            .command_counts
+            .iter()
             .map(|(k, v)| (k.clone(), *v))
             .collect();
         commands.sort_by(|a, b| b.1.cmp(&a.1));
@@ -118,8 +120,7 @@ impl UserActivity {
 
     /// Get config file path
     fn config_path() -> Result<PathBuf, Box<dyn std::error::Error>> {
-        let home = dirs::home_dir()
-            .ok_or("Could not determine home directory")?;
+        let home = dirs::home_dir().ok_or("Could not determine home directory")?;
         Ok(home.join(".ggen").join("user_activity.toml"))
     }
 }
@@ -132,21 +133,19 @@ impl ProgressiveHelp {
     pub fn get_command_help(command: &str, level: UserLevel) -> String {
         match (command, level) {
             // Generate command
-            ("gen", UserLevel::Newcomer) => {
-                "Generate code from a template.\n\n\
+            ("gen", UserLevel::Newcomer) => "Generate code from a template.\n\n\
                  Quickstart: ggen gen templates/example.tmpl\n\n\
                  This will read the template and generate the output file.\n\
                  Templates use YAML frontmatter and Tera syntax.\n\n\
-                 💡 Tip: Try 'ggen list' to see available templates first!".to_string()
-            }
-            ("gen", UserLevel::Intermediate) => {
-                "Generate code from templates with variables.\n\n\
+                 💡 Tip: Try 'ggen list' to see available templates first!"
+                .to_string(),
+            ("gen", UserLevel::Intermediate) => "Generate code from templates with variables.\n\n\
                  Usage: ggen gen <template> [--vars key=value]\n\n\
                  Examples:\n\
                  • ggen gen rust-module.tmpl --vars name=auth\n\
                  • ggen gen service.tmpl --vars name=user service=api\n\n\
-                 Variables are passed to the template engine for substitution.".to_string()
-            }
+                 Variables are passed to the template engine for substitution."
+                .to_string(),
             ("gen", UserLevel::Advanced | UserLevel::Expert) => {
                 "Advanced template generation with RDF graphs and SPARQL.\n\n\
                  Usage: ggen gen <template> [--vars] [--graph] [--inject]\n\n\
@@ -155,27 +154,29 @@ impl ProgressiveHelp {
                  • SPARQL queries in templates for semantic data\n\
                  • Injection modes for idempotent updates\n\
                  • Deterministic generation with fixed seeds\n\n\
-                 See: https://seanchatmangpt.github.io/ggen/advanced-templates".to_string()
+                 See: https://seanchatmangpt.github.io/ggen/advanced-templates"
+                    .to_string()
             }
 
             // Doctor command
-            ("doctor", UserLevel::Newcomer) => {
-                "Check if your environment is ready for ggen.\n\n\
+            ("doctor", UserLevel::Newcomer) => "Check if your environment is ready for ggen.\n\n\
                  This command verifies:\n\
                  • Rust and Cargo are installed\n\
                  • Git is available\n\
                  • Optional tools like Ollama and Docker\n\n\
-                 Run 'ggen doctor' whenever you encounter setup issues!".to_string()
-            }
-            ("doctor", _) => {
-                "Environment health check and diagnostics.\n\n\
+                 Run 'ggen doctor' whenever you encounter setup issues!"
+                .to_string(),
+            ("doctor", _) => "Environment health check and diagnostics.\n\n\
                  Usage: ggen doctor [-v|--verbose]\n\n\
                  Checks for required and optional dependencies.\n\
-                 Use --verbose for detailed fix instructions.".to_string()
-            }
+                 Use --verbose for detailed fix instructions."
+                .to_string(),
 
             // Default help
-            _ => format!("Help for '{}' command\n\nRun 'ggen {} --help' for details.", command, command),
+            _ => format!(
+                "Help for '{}' command\n\nRun 'ggen {} --help' for details.",
+                command, command
+            ),
         }
     }
 
@@ -213,15 +214,9 @@ impl ProgressiveHelp {
     /// Get next suggested command based on current context
     pub fn suggest_next_command(last_command: Option<&str>, level: UserLevel) -> Option<String> {
         match (last_command, level) {
-            (Some("doctor"), UserLevel::Newcomer) => {
-                Some("Try: ggen quickstart demo".to_string())
-            }
-            (Some("list"), _) => {
-                Some("Try: ggen gen <template-name>".to_string())
-            }
-            (Some("search"), _) => {
-                Some("Try: ggen add <package-name>".to_string())
-            }
+            (Some("doctor"), UserLevel::Newcomer) => Some("Try: ggen quickstart demo".to_string()),
+            (Some("list"), _) => Some("Try: ggen gen <template-name>".to_string()),
+            (Some("search"), _) => Some("Try: ggen add <package-name>".to_string()),
             (Some("gen"), UserLevel::Newcomer) => {
                 Some("Next: ggen ai project \"your idea\"".to_string())
             }

@@ -46,7 +46,7 @@ ai_model = { type = "string", default = "gpt-4", description = "AI model" }
 [examples]
 basic = """
 # Install the package
-ggen market add ai-microservice
+ggen market install ai-microservice
 
 # Generate microservice
 ggen ai generate "Create product catalog microservice with REST API"

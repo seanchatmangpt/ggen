@@ -1,3 +1,0 @@
-std::pin::Pin<std::boxed::Box<(dyn futures::Future<Output = ()> + std::marker::Send + 'static)>>
-futures::stream::FuturesUnordered<std::pin::Pin<std::boxed::Box<(dyn futures::Future<Output = ()> + std::marker::Send + 'static)>>>
-libp2p::libp2p_swarm::connection::pool::Pool<libp2p::libp2p_swarm::ConnectionHandlerSelect<libp2p::libp2p_swarm::ConnectionHandlerSelect<libp2p::libp2p_kad::handler::Handler, libp2p::libp2p_gossipsub::handler::Handler>, libp2p::libp2p_identify::handler::Handler>>

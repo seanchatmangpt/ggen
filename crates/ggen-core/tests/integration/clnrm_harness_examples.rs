@@ -147,12 +147,7 @@ async fn example_complete_lifecycle() -> Result<()> {
 
     for phase in phases {
         let result = fixture.run_phase(phase).await?;
-        assert!(
-            result.success,
-            "Phase {} failed: {}",
-            phase,
-            result.message
-        );
+        assert!(result.success, "Phase {} failed: {}", phase, result.message);
     }
 
     Ok(())
@@ -257,7 +252,10 @@ async fn example_lifecycle_validation() -> Result<()> {
     let validation = fixture.run_phase("validate").await?;
 
     assert!(validation.success);
-    assert_eq!(fixture.config.settings.get("min_coverage"), Some(&"80".to_string()));
+    assert_eq!(
+        fixture.config.settings.get("min_coverage"),
+        Some(&"80".to_string())
+    );
 
     Ok(())
 }

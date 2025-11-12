@@ -1,0 +1,79 @@
+[package]
+name = "sparql-cli"
+version = "1.0.0"
+description = "SPARQL query execution, optimization, and federation using clap-noun-verb"
+authors = ["SPARQL CLI Contributors"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/yourusername/sparql-cli"
+homepage = "https://sparql-cli.org"
+documentation = "https://docs.sparql-cli.org"
+readme = "README.md"
+keywords = ["sparql", "rdf", "query", "federation", "optimization", "clap-noun-verb"]
+categories = ["cli-tools", "database-tools", "query-engines"]
+edition = "2021"
+rust-version = "1.70"
+
+[package.metadata]
+ontology = "rdf/ontology.ttl"
+clap_noun_verb_version = "3.4.0"
+
+[features]
+default = ["query-execution", "federation", "optimization", "caching"]
+query-execution = ["oxigraph", "spargebra"]
+federation = ["query-execution", "tokio", "futures"]
+optimization = ["query-execution", "petgraph"]
+caching = ["lru"]
+telemetry = ["opentelemetry", "tracing"]
+tls = ["reqwest/native-tls"]
+
+[dependencies]
+clap-noun-verb = "3.4.0"
+oxigraph = "0.3"
+spargebra = "0.2"
+reqwest = { version = "0.11", features = ["json"] }
+tokio = { version = "1.35", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+anyhow = "1.0"
+thiserror = "1.0"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+lru = { version = "0.12", optional = true }
+petgraph = { version = "0.6", optional = true }
+futures = { version = "0.3", optional = true }
+opentelemetry = { version = "0.21", optional = true }
+regex = "1.10"
+url = "2.5"
+sha2 = "0.10"
+base64 = "0.21"
+
+[dev-dependencies]
+criterion = "0.5"
+mockito = "1.2"
+tempfile = "3.8"
+test-case = "3.3"
+
+[build-dependencies]
+clap-noun-verb-build = "3.4.0"
+
+[[bin]]
+name = "sparql-cli"
+path = "src/main.rs"
+
+[[example]]
+name = "basic"
+path = "examples/basic.rs"
+
+[[bench]]
+name = "query_performance"
+harness = false
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
+
+[profile.dev]
+opt-level = 0
+debug = true

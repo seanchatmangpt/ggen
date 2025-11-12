@@ -1,9 +1,9 @@
 //! Generation planner for creating task execution plans
 
 use anyhow::{anyhow, Result};
-use std::path::{Path, PathBuf};
 use std::collections::{HashMap, HashSet};
 use std::fs;
+use std::path::{Path, PathBuf};
 
 use super::ProjectConventions;
 
@@ -145,7 +145,10 @@ impl GenerationPlanner {
             let mut rec_stack = HashSet::new();
 
             if self.has_cycle(task, graph, &mut visited, &mut rec_stack) {
-                return Err(anyhow!("Circular dependency detected involving task: {}", task));
+                return Err(anyhow!(
+                    "Circular dependency detected involving task: {}",
+                    task
+                ));
             }
         }
 
@@ -154,10 +157,7 @@ impl GenerationPlanner {
 
     /// DFS-based cycle detection
     fn has_cycle(
-        &self,
-        task: &str,
-        graph: &HashMap<String, Vec<String>>,
-        visited: &mut HashSet<String>,
+        &self, task: &str, graph: &HashMap<String, Vec<String>>, visited: &mut HashSet<String>,
         rec_stack: &mut HashSet<String>,
     ) -> bool {
         if rec_stack.contains(task) {
@@ -234,7 +234,9 @@ impl GenerationPlanner {
 
         // If there are remaining tasks, there's a cycle
         if !tasks.is_empty() {
-            return Err(anyhow!("Circular dependency detected during topological sort"));
+            return Err(anyhow!(
+                "Circular dependency detected during topological sort"
+            ));
         }
 
         Ok(sorted)
@@ -253,7 +255,9 @@ mod tests {
         path
     }
 
-    fn create_test_conventions(temp_dir: &Path, templates: Vec<(&str, &str)>) -> ProjectConventions {
+    fn create_test_conventions(
+        temp_dir: &Path, templates: Vec<(&str, &str)>,
+    ) -> ProjectConventions {
         let template_dir = temp_dir.join("templates");
         fs::create_dir_all(&template_dir).unwrap();
 
@@ -444,8 +448,16 @@ content
         assert_eq!(plan.tasks.len(), 2);
 
         // Base task should come before derived
-        let base_idx = plan.tasks.iter().position(|t| t.template == "base").unwrap();
-        let derived_idx = plan.tasks.iter().position(|t| t.template == "derived").unwrap();
+        let base_idx = plan
+            .tasks
+            .iter()
+            .position(|t| t.template == "base")
+            .unwrap();
+        let derived_idx = plan
+            .tasks
+            .iter()
+            .position(|t| t.template == "derived")
+            .unwrap();
         assert!(base_idx < derived_idx);
     }
 

@@ -46,6 +46,8 @@ tempfile = { workspace = true }
 tar = "0.4"
 flate2 = "1.0"
 dirs = "5.0"
+reqwest = { workspace = true }
+zip = "0.6"
 
 # CRITICAL: NO clap or clap-noun-verb dependencies
 # Domain must be CLI-agnostic
@@ -56,4 +58,5 @@ assert_fs = "1"
 predicates = "3"
 tempfile = { workspace = true }
 tokio-test = "0.4"
+chicago-tdd-tools = { workspace = true }
 

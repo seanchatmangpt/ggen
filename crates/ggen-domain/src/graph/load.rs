@@ -140,9 +140,7 @@ mod tests {
                 foaf:name "Bob" .
         "#;
 
-        let temp_file = tempfile::Builder::new()
-            .suffix(".ttl")
-            .tempfile()?;
+        let temp_file = tempfile::Builder::new().suffix(".ttl").tempfile()?;
         std::fs::write(temp_file.path(), turtle.as_bytes())?;
         let temp_path = temp_file.path().to_string_lossy().to_string();
 
@@ -186,9 +184,7 @@ mod tests {
             ex:triple3 ex:predicate3 "value3" .
         "#;
 
-        let temp_file = tempfile::Builder::new()
-            .suffix(".ttl")
-            .tempfile()?;
+        let temp_file = tempfile::Builder::new().suffix(".ttl").tempfile()?;
         std::fs::write(temp_file.path(), turtle.as_bytes())?;
         let temp_path = temp_file.path().to_string_lossy().to_string();
 
@@ -241,9 +237,7 @@ mod tests {
         "#;
 
         // Create temp file with .ttl extension so format can be auto-detected
-        let temp_file = tempfile::Builder::new()
-            .suffix(".ttl")
-            .tempfile()?;
+        let temp_file = tempfile::Builder::new().suffix(".ttl").tempfile()?;
         std::fs::write(temp_file.path(), turtle.as_bytes())?;
         let temp_path = temp_file.path().to_string_lossy().to_string();
 
@@ -312,18 +306,18 @@ pub async fn execute_load(input: LoadInput) -> Result<LoadOutput> {
 /// CLI run function - bridges sync CLI to async domain logic
 pub fn run(args: &LoadInput) -> Result<()> {
     // Use tokio runtime to execute async function
-    let rt = tokio::runtime::Runtime::new()
-        .context("Failed to create tokio runtime")?;
+    let rt = tokio::runtime::Runtime::new().context("Failed to create tokio runtime")?;
 
     let output = rt.block_on(execute_load(args.clone()))?;
 
-    println!("✅ Loaded {} triples from {} ({})",
+    ggen_utils::alert_success!(
+        "Loaded {} triples from {} ({})",
         output.triples_loaded,
         output.file_path,
         output.format
     );
     if args.merge {
-        println!("   Total triples in graph: {}", output.total_triples);
+        ggen_utils::alert_info!("   Total triples in graph: {}", output.total_triples);
     }
 
     Ok(())

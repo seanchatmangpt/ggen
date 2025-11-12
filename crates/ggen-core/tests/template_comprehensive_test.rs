@@ -29,13 +29,8 @@ fn ctx_from_pairs(pairs: &[(&str, &str)]) -> Context {
 
 fn load_template_fixture(name: &str) -> Result<String> {
     let fixture_path = Path::new("tests/fixtures/templates").join(name);
-    fs::read_to_string(&fixture_path).map_err(|e| {
-        anyhow::anyhow!(
-            "Failed to load fixture '{}': {}",
-            fixture_path.display(),
-            e
-        )
-    })
+    fs::read_to_string(&fixture_path)
+        .map_err(|e| anyhow::anyhow!("Failed to load fixture '{}': {}", fixture_path.display(), e))
 }
 
 /* ========== Unit Tests: Template Parsing ========== */
@@ -84,7 +79,9 @@ fn main() {
 }"#;
 
     let template = Template::parse(input)?;
-    assert!(template.body.contains("        println!(\"World\");  // extra indent"));
+    assert!(template
+        .body
+        .contains("        println!(\"World\");  // extra indent"));
     Ok(())
 }
 
@@ -338,14 +335,18 @@ fn test_generate_microservice_from_templates() -> Result<()> {
     let rendered = template.render(&mut tera, &vars)?;
 
     // Write to output directory
-    let output_path = output_dir
-        .path()
-        .join(template.front.to.as_ref().ok_or_else(|| {
-            anyhow::anyhow!("Template must have 'to' field")
-        })?);
-    fs::create_dir_all(output_path.parent().ok_or_else(|| {
-        anyhow::anyhow!("Output path has no parent")
-    })?)?;
+    let output_path = output_dir.path().join(
+        template
+            .front
+            .to
+            .as_ref()
+            .ok_or_else(|| anyhow::anyhow!("Template must have 'to' field"))?,
+    );
+    fs::create_dir_all(
+        output_path
+            .parent()
+            .ok_or_else(|| anyhow::anyhow!("Output path has no parent"))?,
+    )?;
     fs::write(&output_path, rendered)?;
 
     // Verify generated file
@@ -369,14 +370,18 @@ fn test_generate_cargo_toml() -> Result<()> {
     template.render_frontmatter(&mut tera, &vars)?;
     let rendered = template.render(&mut tera, &vars)?;
 
-    let output_path = output_dir
-        .path()
-        .join(template.front.to.as_ref().ok_or_else(|| {
-            anyhow::anyhow!("Template must have 'to' field")
-        })?);
-    fs::create_dir_all(output_path.parent().ok_or_else(|| {
-        anyhow::anyhow!("Output path has no parent")
-    })?)?;
+    let output_path = output_dir.path().join(
+        template
+            .front
+            .to
+            .as_ref()
+            .ok_or_else(|| anyhow::anyhow!("Template must have 'to' field"))?,
+    );
+    fs::create_dir_all(
+        output_path
+            .parent()
+            .ok_or_else(|| anyhow::anyhow!("Output path has no parent"))?,
+    )?;
     fs::write(&output_path, rendered)?;
 
     let content = fs::read_to_string(&output_path)?;
@@ -398,14 +403,18 @@ fn test_generate_integration_test() -> Result<()> {
     template.render_frontmatter(&mut tera, &vars)?;
     let rendered = template.render(&mut tera, &vars)?;
 
-    let output_path = output_dir
-        .path()
-        .join(template.front.to.as_ref().ok_or_else(|| {
-            anyhow::anyhow!("Template must have 'to' field")
-        })?);
-    fs::create_dir_all(output_path.parent().ok_or_else(|| {
-        anyhow::anyhow!("Output path has no parent")
-    })?)?;
+    let output_path = output_dir.path().join(
+        template
+            .front
+            .to
+            .as_ref()
+            .ok_or_else(|| anyhow::anyhow!("Template must have 'to' field"))?,
+    );
+    fs::create_dir_all(
+        output_path
+            .parent()
+            .ok_or_else(|| anyhow::anyhow!("Output path has no parent"))?,
+    )?;
     fs::write(&output_path, rendered)?;
 
     let content = fs::read_to_string(&output_path)?;
@@ -488,7 +497,10 @@ fn test_parse_performance_large_template() -> Result<()> {
 
     let mut body = String::new();
     for i in 0..100 {
-        body.push_str(&format!("fn func{}() {{ println!(\"{{{{var{}}}}}\"); }}\n", i, i));
+        body.push_str(&format!(
+            "fn func{}() {{ println!(\"{{{{var{}}}}}\"); }}\n",
+            i, i
+        ));
     }
 
     let template_str = format!("{}{}", frontmatter, body);
@@ -558,10 +570,7 @@ malicious content"#;
 
     // The 'to' field will contain the path, but actual file writing should be prevented
     // by the caller (Generator or CLI). Template parsing doesn't validate paths.
-    assert_eq!(
-        template.front.to.as_deref(),
-        Some("../../../etc/passwd")
-    );
+    assert_eq!(template.front.to.as_deref(), Some("../../../etc/passwd"));
 
     Ok(())
 }

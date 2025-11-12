@@ -201,7 +201,8 @@ pub async fn validate_marketplace(ctx: &ValidationContext) -> Result<ValidationR
 
     match output {
         Ok(out) if out.status.success() => {
-            ctx.collector.assert_span_exists("ggen.marketplace.search")?;
+            ctx.collector
+                .assert_span_exists("ggen.marketplace.search")?;
             ctx.collector
                 .assert_duration_under("ggen.marketplace.search", 5000.0)?; // <5s
         }

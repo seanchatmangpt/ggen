@@ -1,0 +1,154 @@
+@startuml sparql-federation
+!theme blueprint
+title SPARQL Federated Query Architecture
+
+actor User
+participant "CLI Parser" as CLI
+participant "Federation\nManager" as FedManager
+participant "Query Planner" as Planner
+participant "Load Balancer" as LB
+participant "Result Merger" as Merger
+collections "Endpoint Pool" as Pool
+participant "Endpoint 1\n(DBpedia)" as EP1
+participant "Endpoint 2\n(Wikidata)" as EP2
+participant "Endpoint 3\n(YAGO)" as EP3
+database "Shared Cache" as Cache
+
+User -> CLI: federation merge\n--query "SELECT..."\n--endpoints dbpedia,wikidata,yago\n--strategy cost-based
+activate CLI
+
+CLI -> FedManager: Initialize federation
+activate FedManager
+
+FedManager -> Planner: Create execution plan
+activate Planner
+
+Planner -> Planner: Analyze query\npatterns
+
+Planner -> Pool: Get endpoint\nstatistics
+activate Pool
+Pool --> Planner: Endpoint stats:\n- Latency\n- Availability\n- Cardinality
+deactivate Pool
+
+Planner -> Planner: Cost-based\nquery decomposition
+
+alt Cost-based strategy
+    Planner -> Planner: Calculate costs:\n- Network latency\n- Data size\n- Selectivity
+    Planner -> Planner: Assign subqueries\nto optimal endpoints
+else Hash-based strategy
+    Planner -> Planner: Hash triple patterns\nto endpoints
+else Round-robin strategy
+    Planner -> Planner: Distribute evenly\nacross endpoints
+end
+
+Planner --> FedManager: Execution plan:\n- EP1: Subquery A\n- EP2: Subquery B\n- EP3: Subquery C
+deactivate Planner
+
+FedManager -> Cache: Check cache
+activate Cache
+Cache --> FedManager: Partial results\n(if any)
+deactivate Cache
+
+par Parallel execution
+    FedManager -> LB: Execute on EP1
+    activate LB
+    LB -> EP1: POST subquery A
+    activate EP1
+    EP1 --> LB: Results A
+    deactivate EP1
+    LB --> FedManager: Results A
+    deactivate LB
+else
+    FedManager -> LB: Execute on EP2
+    activate LB
+    LB -> EP2: POST subquery B
+    activate EP2
+    EP2 --> LB: Results B
+    deactivate EP2
+    LB --> FedManager: Results B
+    deactivate LB
+else
+    FedManager -> LB: Execute on EP3
+    activate LB
+    LB -> EP3: POST subquery C
+    activate EP3
+    EP3 --> LB: Results C
+    deactivate EP3
+    LB --> FedManager: Results C
+    deactivate LB
+end
+
+FedManager -> Merger: Merge results
+activate Merger
+
+Merger -> Merger: Combine result sets
+
+alt Deduplicate enabled
+    Merger -> Merger: Remove duplicates\nusing hash set
+end
+
+alt Order-by specified
+    Merger -> Merger: Sort merged results
+end
+
+Merger -> Merger: Apply LIMIT/OFFSET
+
+Merger --> FedManager: Merged results
+deactivate Merger
+
+FedManager -> Cache: Store merged results
+activate Cache
+Cache -> Cache: Put(query_hash,\nmerged_results, ttl)
+deactivate Cache
+
+FedManager --> CLI: Final results
+deactivate FedManager
+
+CLI --> User: Display results
+deactivate CLI
+
+note over Planner
+Query planning strategies:
+1. Cost-based (default)
+   - Network cost
+   - Data cardinality
+   - Endpoint performance
+2. Hash-based
+   - Consistent hashing
+   - Load distribution
+3. Round-robin
+   - Even distribution
+   - Simple balancing
+4. Priority-based
+   - User-defined priorities
+   - SLA compliance
+end note
+
+note over LB
+Load balancing features:
+- Health checking
+- Automatic failover
+- Retry logic
+- Timeout handling
+- Circuit breaker
+end note
+
+note over Merger
+Merge operations:
+- Union (default)
+- Join on shared variables
+- Deduplication
+- Sorting
+- Aggregation
+- LIMIT/OFFSET
+end note
+
+note over Cache
+Shared cache benefits:
+- Reduced endpoint load
+- Faster repeated queries
+- Network efficiency
+- TTL-based expiration
+end note
+
+@enduml

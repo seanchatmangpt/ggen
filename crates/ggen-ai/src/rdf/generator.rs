@@ -43,18 +43,23 @@ impl CliGenerator {
     /// - IDE-friendly code hints
     /// - Progressive disclosure (beginner → advanced)
     pub fn generate_from_ttl(&self, ttl_path: &Path, output_dir: &Path) -> Result<()> {
-        use ggen_core::cli_generator::dx::*;
-        
-        println!("🚀 Generating CLI project from {} (2026 best practices + Hyper DX)", ttl_path.display());
+        use ggen_core::cli_generator::dx::{
+            ErrorContext, ErrorEnhancer, ProgressiveDisclosure, TemplatePreview,
+        };
+
+        ggen_utils::alert_info!(
+            "🚀 Generating CLI project from {} (2026 best practices + Hyper DX)",
+            ttl_path.display()
+        );
 
         // Step 1: Parse RDF
-        println!("  [1/6] Parsing RDF...");
+        ggen_utils::alert_info!("  [1/6] Parsing RDF...");
         let mut parser = RdfParser::new()?;
         parser.load_schema()?;
         parser.load_ttl(ttl_path)?;
 
         // Step 2: Execute SPARQL queries
-        println!("  [2/6] Extracting project structure...");
+        ggen_utils::alert_info!("  [2/6] Extracting project structure...");
         let executor = QueryExecutor::new(parser.get_store());
         let mut project = executor.extract_project()?;
         project.nouns = executor.extract_nouns()?;
@@ -69,76 +74,101 @@ impl CliGenerator {
         }
 
         // Step 3: Validate project
-        println!("  [3/7] Validating project...");
+        ggen_utils::alert_info!("  [3/7] Validating project...");
         if let Err(e) = validate_project(&project) {
             let enhanced = ErrorEnhancer::enhance_error(&e, &ErrorContext::WorkspaceStructure);
-            eprintln!("{}", enhanced);
+            ggen_utils::alert_critical!("{}", &enhanced);
             return Err(e);
         }
 
         // Step 3.5: Show live preview (Hyper DX)
-        println!("  [4/7] 📋 Live Preview...");
+        ggen_utils::alert_info!("  [4/7] 📋 Live Preview...");
         let cli_project = convert_project(&project)?;
-        println!("{}", TemplatePreview::preview_workspace_structure(&cli_project));
-        
+        ggen_utils::alert_info!(
+            "{}",
+            TemplatePreview::preview_workspace_structure(&cli_project)
+        );
+
         // Show beginner-friendly info
-        println!("\n{}", ProgressiveDisclosure::beginner_info(&cli_project));
+        ggen_utils::alert_info!("\n{}", ProgressiveDisclosure::beginner_info(&cli_project));
 
         // Step 4: Convert to ggen-core types and generate workspace
-        println!("\n  [5/7] Generating workspace structure...");
+        ggen_utils::alert_info!("\n  [5/7] Generating workspace structure...");
         std::fs::create_dir_all(output_dir)?;
         if let Err(e) = self.generate_workspace(&project, output_dir) {
             let enhanced = ErrorEnhancer::enhance_error(&e, &ErrorContext::TemplateGeneration);
-            eprintln!("{}", enhanced);
+            ggen_utils::alert_critical!("{}", &enhanced);
             return Err(e);
         }
 
         // Step 5: Post-generation
-        println!("  [6/7] Running post-generation hooks...");
+        ggen_utils::alert_info!("  [6/7] Running post-generation hooks...");
         run_post_generation(output_dir)?;
 
         // Step 6: Show completion summary with advanced info
-        println!("  [7/7] ✅ Generation Complete!\n");
-        println!("✓ CLI project generated at {}", output_dir.display());
-        println!("📁 Workspace: crates/{}, crates/{}", 
-                 project.cli_crate.as_ref().unwrap(),
-                 project.domain_crate.as_ref().unwrap());
-        
+        ggen_utils::alert_info!("  [7/7] ✅ Generation Complete!\n");
+        ggen_utils::alert_success!("CLI project generated at {}", output_dir.display());
+        let cli_crate = project
+            .cli_crate
+            .as_ref()
+            .ok_or_else(|| anyhow::anyhow!("CLI crate name is required but was not provided"))?;
+        let domain_crate = project
+            .domain_crate
+            .as_ref()
+            .ok_or_else(|| anyhow::anyhow!("Domain crate name is required but was not provided"))?;
+        ggen_utils::alert_info!(
+            "📁 Workspace: crates/{}, crates/{}",
+            cli_crate,
+            domain_crate
+        );
+
         // Show advanced info for power users
-        println!("\n{}", ProgressiveDisclosure::advanced_info(&cli_project));
-        
+        ggen_utils::alert_info!("\n{}", ProgressiveDisclosure::advanced_info(&cli_project));
+
         // Show next steps
-        println!("\n🎯 Next Steps:");
-        println!("  1. cd {}", project.name);
-        println!("  2. cargo build");
-        println!("  3. cargo run -- --help");
-        println!("  4. cargo run -- {} --help", 
-                 project.nouns.first().map(|n| n.name.as_str()).unwrap_or("noun"));
+        ggen_utils::alert_info!("\n🎯 Next Steps:");
+        ggen_utils::alert_info!("  1. cd {}", project.name);
+        ggen_utils::alert_info!("  2. cargo build");
+        ggen_utils::alert_info!("  3. cargo run -- --help");
+        ggen_utils::alert_info!(
+            "  4. cargo run -- {} --help",
+            project
+                .nouns
+                .first()
+                .map(|n| n.name.as_str())
+                .unwrap_or("noun")
+        );
 
         Ok(())
     }
 
     /// Generate workspace structure using ggen-core CLI generator
-    fn generate_workspace(&self, project: &crate::rdf::types::CliProject, output_dir: &Path) -> Result<()> {
-        use ggen_core::cli_generator::{CliLayerGenerator, DomainLayerGenerator, WorkspaceGenerator};
-        use ggen_core::cli_generator::dx::*;
+    fn generate_workspace(
+        &self, project: &crate::rdf::types::CliProject, output_dir: &Path,
+    ) -> Result<()> {
+        use ggen_core::cli_generator::{
+            CliLayerGenerator, DomainLayerGenerator, WorkspaceGenerator,
+        };
 
         // Convert project to ggen-core types
         let cli_project = convert_project(project)?;
 
         // Generate workspace
         let workspace_gen = WorkspaceGenerator::new(&self.template_dir)?;
-        workspace_gen.generate(&cli_project, output_dir)
+        workspace_gen
+            .generate(&cli_project, output_dir)
             .context("Failed to generate workspace structure")?;
 
         // Generate CLI layer
         let cli_gen = CliLayerGenerator::new(&self.template_dir)?;
-        cli_gen.generate(&cli_project, output_dir)
+        cli_gen
+            .generate(&cli_project, output_dir)
             .context("Failed to generate CLI layer")?;
 
         // Generate domain layer
         let domain_gen = DomainLayerGenerator::new(&self.template_dir)?;
-        domain_gen.generate(&cli_project, output_dir)
+        domain_gen
+            .generate(&cli_project, output_dir)
             .context("Failed to generate domain layer")?;
 
         Ok(())
@@ -146,65 +176,83 @@ impl CliGenerator {
 }
 
 /// Convert ggen-ai::rdf::types::CliProject to ggen-core::cli_generator::types::CliProject
-fn convert_project(project: &crate::rdf::types::CliProject) -> Result<ggen_core::cli_generator::types::CliProject> {
-    use ggen_core::cli_generator::types::{CliProject, Noun, Verb, Argument, ArgumentType, Validation, Dependency};
+fn convert_project(
+    project: &crate::rdf::types::CliProject,
+) -> Result<ggen_core::cli_generator::types::CliProject> {
+    use ggen_core::cli_generator::types::{
+        Argument, ArgumentType, CliProject, Dependency, Noun, Validation, Verb,
+    };
 
-    let nouns: Vec<Noun> = project.nouns.iter().map(|n| {
-        let verbs: Vec<Verb> = n.verbs.iter().map(|v| {
-            let arguments: Vec<Argument> = v.arguments.iter().map(|a| {
-                Argument {
-                    name: a.name.clone(),
-                    long: a.long.clone(),
-                    short: a.short,
-                    help: a.help.clone(),
-                    required: a.required,
-                    default: a.default.clone(),
-                    value_name: a.value_name.clone(),
-                    position: a.position,
-                    arg_type: ArgumentType {
-                        name: a.arg_type.name.clone(),
-                        parser: a.arg_type.parser.clone(),
-                    },
-                }
-            }).collect();
+    let nouns: Vec<Noun> = project
+        .nouns
+        .iter()
+        .map(|n| {
+            let verbs: Vec<Verb> = n
+                .verbs
+                .iter()
+                .map(|v| {
+                    let arguments: Vec<Argument> = v
+                        .arguments
+                        .iter()
+                        .map(|a| Argument {
+                            name: a.name.clone(),
+                            long: a.long.clone(),
+                            short: a.short,
+                            help: a.help.clone(),
+                            required: a.required,
+                            default: a.default.clone(),
+                            value_name: a.value_name.clone(),
+                            position: a.position,
+                            arg_type: ArgumentType {
+                                name: a.arg_type.name.clone(),
+                                parser: a.arg_type.parser.clone(),
+                            },
+                        })
+                        .collect();
 
-            let validations: Vec<Validation> = v.validations.iter().map(|val| {
-                Validation {
-                    rule: val.rule.clone(),
-                    pattern: val.pattern.clone(),
-                    message: val.message.clone(),
-                    arg_name: val.arg_name.clone(),
-                }
-            }).collect();
+                    let validations: Vec<Validation> = v
+                        .validations
+                        .iter()
+                        .map(|val| Validation {
+                            rule: val.rule.clone(),
+                            pattern: val.pattern.clone(),
+                            message: val.message.clone(),
+                            arg_name: val.arg_name.clone(),
+                        })
+                        .collect();
 
-            Verb {
-                name: v.name.clone(),
-                description: v.description.clone(),
-                alias: v.alias.clone(),
-                arguments,
-                validations,
-                execution_logic: v.execution_logic.clone(),
-                domain_function: v.domain_function.clone(),
-                domain_module: v.domain_module.clone(),
+                    Verb {
+                        name: v.name.clone(),
+                        description: v.description.clone(),
+                        alias: v.alias.clone(),
+                        arguments,
+                        validations,
+                        execution_logic: v.execution_logic.clone(),
+                        domain_function: v.domain_function.clone(),
+                        domain_module: v.domain_module.clone(),
+                    }
+                })
+                .collect();
+
+            Noun {
+                name: n.name.clone(),
+                description: n.description.clone(),
+                module_path: n.module_path.clone(),
+                verbs,
             }
-        }).collect();
+        })
+        .collect();
 
-        Noun {
-            name: n.name.clone(),
-            description: n.description.clone(),
-            module_path: n.module_path.clone(),
-            verbs,
-        }
-    }).collect();
-
-    let dependencies: Vec<Dependency> = project.dependencies.iter().map(|d| {
-        Dependency {
+    let dependencies: Vec<Dependency> = project
+        .dependencies
+        .iter()
+        .map(|d| Dependency {
             name: d.name.clone(),
             version: d.version.clone(),
             features: d.features.clone(),
             optional: d.optional,
-        }
-    }).collect();
+        })
+        .collect();
 
     Ok(CliProject {
         name: project.name.clone(),
@@ -250,7 +298,7 @@ fn run_post_generation(output_dir: &Path) -> Result<()> {
 
     // Format code
     let fmt_status = Command::new("cargo")
-        .args(&["fmt"])
+        .args(["fmt"])
         .current_dir(output_dir)
         .status()?;
 
@@ -260,7 +308,7 @@ fn run_post_generation(output_dir: &Path) -> Result<()> {
 
     // Check compilation
     let check_status = Command::new("cargo")
-        .args(&["check"])
+        .args(["check"])
         .current_dir(output_dir)
         .status()?;
 

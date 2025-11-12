@@ -1,6 +1,4 @@
-use criterion::{
-    black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput,
-};
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 use ggen_core::graph::Graph;
 use ggen_core::pipeline::Pipeline;
 use ggen_core::template::Template;
@@ -82,16 +80,12 @@ fn bench_template_parsing(c: &mut Criterion) {
     for var_count in [1, 10, 50].iter() {
         let template_str = create_simple_template(*var_count);
 
-        group.bench_with_input(
-            BenchmarkId::new("simple", var_count),
-            var_count,
-            |b, _| {
-                b.iter(|| {
-                    let result = Template::parse(black_box(&template_str));
-                    black_box(result)
-                });
-            },
-        );
+        group.bench_with_input(BenchmarkId::new("simple", var_count), var_count, |b, _| {
+            b.iter(|| {
+                let result = Template::parse(black_box(&template_str));
+                black_box(result)
+            });
+        });
     }
 
     // Complex template parsing (with RDF and SPARQL)
@@ -130,17 +124,13 @@ fn bench_frontmatter_rendering(c: &mut Criterion) {
         let mut ctx = Context::new();
         ctx.insert("name", "test_app");
 
-        group.bench_with_input(
-            BenchmarkId::new("render", var_count),
-            var_count,
-            |b, _| {
-                b.iter(|| {
-                    let mut tera = pipeline.tera.clone();
-                    let result = template.render_frontmatter(&mut tera, &ctx);
-                    black_box(result)
-                });
-            },
-        );
+        group.bench_with_input(BenchmarkId::new("render", var_count), var_count, |b, _| {
+            b.iter(|| {
+                let mut tera = pipeline.tera.clone();
+                let result = template.render_frontmatter(&mut tera, &ctx);
+                black_box(result)
+            });
+        });
     }
 
     group.finish();
@@ -532,11 +522,7 @@ criterion_group!(
     bench_frontmatter_rendering
 );
 
-criterion_group!(
-    rdf_benches,
-    bench_rdf_processing,
-    bench_sparql_execution
-);
+criterion_group!(rdf_benches, bench_rdf_processing, bench_sparql_execution);
 
 criterion_group!(
     rendering_benches,

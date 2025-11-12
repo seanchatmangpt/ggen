@@ -4,7 +4,7 @@
 
 #[cfg(all(test, feature = "p2p"))]
 mod persistence_demo {
-    use ggen_marketplace::backend::p2p::{P2PRegistry, P2PConfig};
+    use ggen_marketplace::backend::p2p::{P2PConfig, P2PRegistry};
     use libp2p::Multiaddr;
     use tempfile::TempDir;
 
@@ -79,7 +79,9 @@ mod persistence_demo {
             }),
             packages_provided: 10,
         });
-        state.bootstrap_nodes.push("/ip4/104.131.131.82/tcp/4001".to_string());
+        state
+            .bootstrap_nodes
+            .push("/ip4/104.131.131.82/tcp/4001".to_string());
 
         // Save state
         persistence.update_state(state).await;
@@ -124,11 +126,13 @@ mod persistence_demo {
         // Perform multiple rapid writes
         for i in 0..10 {
             let mut state = ggen_marketplace::backend::p2p_persistence::P2PState::default();
-            state.peers.push(ggen_marketplace::backend::p2p_persistence::SerializedPeer {
-                peer_id: format!("Peer{}", i),
-                addresses: vec![format!("/ip4/127.0.0.1/tcp/{}", 4000 + i)],
-                last_seen: chrono::Utc::now(),
-            });
+            state
+                .peers
+                .push(ggen_marketplace::backend::p2p_persistence::SerializedPeer {
+                    peer_id: format!("Peer{}", i),
+                    addresses: vec![format!("/ip4/127.0.0.1/tcp/{}", 4000 + i)],
+                    last_seen: chrono::Utc::now(),
+                });
 
             persistence.update_state(state).await;
             persistence.save_state().await.unwrap();

@@ -120,7 +120,10 @@ fn test_version_resolution_performance() {
     let package_id = "package-500";
     let version = "2.0.0";
 
-    let result = index.packs.get(package_id).and_then(|pack| pack.versions.get(version));
+    let result = index
+        .packs
+        .get(package_id)
+        .and_then(|pack| pack.versions.get(version));
 
     let duration = start.elapsed();
 
@@ -188,7 +191,12 @@ fn test_lifecycle_phase_execution_performance() {
     };
 
     let root = tmp.path().to_path_buf();
-    let ctx = Context::new(root.clone(), Arc::new(make), root.join(".ggen/state.json"), vec![]);
+    let ctx = Context::new(
+        root.clone(),
+        Arc::new(make),
+        root.join(".ggen/state.json"),
+        vec![],
+    );
 
     let start = Instant::now();
     ggen_core::lifecycle::run_phase(&ctx, "test").expect("Failed to run phase");
@@ -236,11 +244,7 @@ fn test_deterministic_performance() {
 
     // Note: This is a weak assertion since system scheduling can vary
     // In a true cleanroom container environment, variance would be much lower
-    assert!(
-        variance_pct < 100,
-        "Variance too high: {}%",
-        variance_pct
-    );
+    assert!(variance_pct < 100, "Variance too high: {}%", variance_pct);
 }
 
 #[test]
@@ -332,5 +336,7 @@ fn test_performance_metrics_collection() {
     }
 
     // Verify all operations completed within reasonable time
-    assert!(metrics.iter().all(|m| m.duration < std::time::Duration::from_secs(1)));
+    assert!(metrics
+        .iter()
+        .all(|m| m.duration < std::time::Duration::from_secs(1)));
 }

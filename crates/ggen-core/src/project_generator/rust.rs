@@ -6,6 +6,12 @@ use anyhow::Result;
 
 pub struct RustProjectGenerator;
 
+impl Default for RustProjectGenerator {
+    fn default() -> Self {
+        Self
+    }
+}
+
 impl RustProjectGenerator {
     pub fn new() -> Self {
         Self
@@ -27,20 +33,16 @@ tracing-subscriber = "0.3"
                     framework
                 )
             }
-            ProjectType::RustCli => {
-                r#"clap = { version = "4.0", features = ["derive"] }
+            ProjectType::RustCli => r#"clap = { version = "4.0", features = ["derive"] }
 anyhow = "1.0"
 tokio = { version = "1.0", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
 "#
-                .to_string()
-            }
-            ProjectType::RustLib => {
-                r#"anyhow = "1.0"
+            .to_string(),
+            ProjectType::RustLib => r#"anyhow = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 "#
-                .to_string()
-            }
+            .to_string(),
             _ => String::new(),
         };
 

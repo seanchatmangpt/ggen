@@ -16,12 +16,7 @@ fn test_template_not_found_suggests_alternatives() {
     let start = std::time::Instant::now();
 
     // Arrange: User types "rust-servce" instead of "rust-service"
-    let available_templates = vec![
-        "rust-service",
-        "rust-server",
-        "rust-svc",
-        "python-service",
-    ];
+    let available_templates = vec!["rust-service", "rust-server", "rust-svc", "python-service"];
 
     // Act
     let error = generate_template_not_found_error("rust-servce", &available_templates);
@@ -57,8 +52,14 @@ fn test_error_provides_platform_specific_fixes() {
     let linux_error = generate_dependency_error("docker", Platform::Linux);
 
     // Assert: Platform-specific instructions
-    assert!(macos_error.fix_steps.iter().any(|s| s.contains("Docker Desktop for Mac")));
-    assert!(linux_error.fix_steps.iter().any(|s| s.contains("Docker Engine")));
+    assert!(macos_error
+        .fix_steps
+        .iter()
+        .any(|s| s.contains("Docker Desktop for Mac")));
+    assert!(linux_error
+        .fix_steps
+        .iter()
+        .any(|s| s.contains("Docker Engine")));
 }
 
 #[test]
@@ -133,11 +134,12 @@ fn generate_marketplace_error(message: &str, _package_id: &str) -> EnhancedError
 fn generate_dependency_error(tool: &str, platform: Platform) -> EnhancedError {
     let fix_steps = match (tool, platform) {
         ("docker", Platform::MacOS) => vec![
-            "Install Docker Desktop for Mac: https://docs.docker.com/desktop/install/mac-install/".to_string(),
+            "Install Docker Desktop for Mac: https://docs.docker.com/desktop/install/mac-install/"
+                .to_string(),
         ],
-        ("docker", Platform::Linux) => vec![
-            "Install Docker Engine: https://docs.docker.com/engine/install/".to_string(),
-        ],
+        ("docker", Platform::Linux) => {
+            vec!["Install Docker Engine: https://docs.docker.com/engine/install/".to_string()]
+        }
         _ => vec![format!("Install {}", tool)],
     };
 
