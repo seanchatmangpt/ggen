@@ -28,6 +28,7 @@ args = ["5s", "cargo", "check"]
 # Pre-push check with longer timeout for lock contention scenarios
 [tasks.check-pre-push]
 description = "Check code for pre-push hook (30s timeout for lock contention)"
+workspace = false
 command = "timeout"
 args = ["30s", "cargo", "check"]
 
