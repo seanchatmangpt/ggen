@@ -1,6 +1,7 @@
 //! Load make.toml configuration
 
 use super::error::{LifecycleError, Result};
+use super::hooks::validate_hooks;
 use super::model::Make;
 use std::path::Path;
 
@@ -10,7 +11,32 @@ pub fn load_make<P: AsRef<Path>>(path: P) -> Result<Make> {
     let content =
         std::fs::read_to_string(path_ref).map_err(|e| LifecycleError::config_load(path_ref, e))?;
 
-    toml::from_str::<Make>(&content).map_err(|e| LifecycleError::config_parse(path_ref, e))
+    let make: Make =
+        toml::from_str(&content).map_err(|e| LifecycleError::config_parse(path_ref, e))?;
+
+    // Validate phases have commands (poka-yoke)
+    validate_phases(&make)?;
+
+    // Validate hooks (poka-yoke)
+    if make.hooks.is_some() {
+        validate_hooks(&make)?;
+    }
+
+    Ok(make)
+}
+
+/// Validate that all phases have at least one command
+///
+/// **Poka-yoke**: Prevents phases with no commands from being loaded.
+fn validate_phases(make: &Make) -> Result<()> {
+    for (phase_name, phase) in &make.lifecycle {
+        if phase.commands().is_empty() {
+            return Err(LifecycleError::NoCommands {
+                phase: phase_name.clone(),
+            });
+        }
+    }
+    Ok(())
 }
 
 /// Load make.toml from project root, with fallback to default

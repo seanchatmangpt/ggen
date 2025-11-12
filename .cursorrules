@@ -9,6 +9,28 @@ SPR: ggen — language-agnostic, deterministic code projection CLI
 * **CRITICAL: ALL DEVELOPMENT WORKFLOWS MUST USE `cargo make` COMMANDS**
 * **NEVER USE DIRECT CARGO COMMANDS - THIS IS NON-NEGOTIABLE**
 
+* **Andon Signals (Critical Non-Negotiable - Stop the Line)**:
+
+  * **Andon signals are visual problem indicators - treat compiler errors, test failures, and warnings as stop signals**
+  * **STOP THE LINE**: When any Andon signal appears, immediately stop work and fix the problem before proceeding
+  * **Never proceed with signals present** - Do not ignore, suppress, or work around signals
+  * **Signal Types**:
+    * **CRITICAL (Red) - Must stop immediately**: Compiler errors (`error[E...]`), test failures (`test ... FAILED`)
+    * **HIGH (Yellow) - Should stop**: Compiler warnings (`warning:`), linting errors (clippy warnings/errors)
+    * **MEDIUM (Yellow) - Investigate**: Performance regressions, code quality warnings
+  * **Andon Signal Workflow**:
+    1. **Monitor**: Run `cargo make check`, `cargo make test`, `cargo make lint` to check for signals
+    2. **Stop**: When signal appears, immediately stop current work - do not proceed
+    3. **Investigate**: Use root cause analysis (5 Whys) to understand why signal appeared
+    4. **Fix**: Address root cause, not just symptom
+    5. **Verify**: Re-run checks to confirm signal cleared - signal must be cleared before work continues
+  * **Signal Verification Before Completion**:
+    * ✅ No compiler errors: `cargo make check` passes cleanly
+    * ✅ No test failures: `cargo make test` - all tests pass
+    * ✅ No warnings: `cargo make lint` - no clippy warnings/errors
+    * ✅ No performance regressions: `cargo make slo-check` - meets SLOs
+  * **Andon Principle**: "Stop the line" - Any problem visible through signals must be fixed immediately. Don't hide signals, don't ignore them, don't proceed with them present. This prevents defects from propagating and waste from accumulating (DfLSS alignment).
+
 * Collaborative frame: Rust core optimizes safety and performance. Cursor core optimizes DX and feedback. Goal is compile-time assurance with rapid iteration.
 
 * Repo topology contract: Keep files as declared. Do not move without docs and CI updates.
@@ -106,58 +128,75 @@ SPR: ggen — language-agnostic, deterministic code projection CLI
   * Sandbox template execution. No arbitrary code eval.
   * Audit log security events.
 
-* Testing strategy:
+* **Timeout SLA (Critical Non-Negotiable)**:
 
-  * **USE `cargo make test` - NEVER `cargo test` DIRECTLY**
-  * **USE `cargo make test-single-threaded` FOR DETERMINISTIC TESTS**
-  * **USE `cargo make deterministic` FOR FIXED SEED TESTS**
-  * Unit tests colocated. Integration tests in `/tests`.
-  * Property tests with proptest for parsers, RDF, templating.
-  * Compile-time assertions for constants and type constraints.
-  * Deterministic snapshots via `insta`.
-  * Single-threaded async tests `--test-threads=1`.
-  * Fixed seeds. Mock FS, network, time.
-  * Run `--release`, `--debug`, and feature variants.
-  * **Test behavior, not existence** - Tests must verify observable outputs/state changes, not just that functions return Ok/Err
-  * **Never trust claims** - Verify with tests. Test results are truth.
-  * All public APIs must be tested
-  * Test error paths and edge cases
-  * Test critical paths (aim for 80%+ coverage)
+  * **Every CLI command MUST have timeout wrapper to prevent freezing**
+  * Quick checks: `timeout 5s` (cargo check, cargo fmt, cargo clippy)
+  * Compilation: `timeout 10s` (cargo build debug)
+  * Release builds: `timeout 30s` (cargo build --release)
+  * Unit tests: `timeout 10s` (cargo test --lib)
+  * Integration tests: `timeout 30s` (cargo test --test)
+  * Long operations: `timeout 60s` (cargo audit, cargo deny, docs generation)
+  * Timeouts indicate issues early and prevent indefinite hangs
+  * **USE `cargo make timeout-check` TO VERIFY TIMEOUT COMMAND EXISTS**
+  * All cargo make tasks should include timeout wrappers in Makefile.toml
+
+* **Elite Rust Mindset & 80/20 Thinking**:
+
+  * **Type-First Thinking**: Types encode invariants; compiler as design tool. Use types to make invalid states unrepresentable. PhantomData for type-level state machines. Const generics over runtime values. Ask: "What can I express in types?" before "What values do I need?"
+  * **Zero-Cost Awareness**: Generics monomorphize (zero-cost). Const generics are zero-cost. Macros expand efficiently. References are zero-cost. Trait objects have dynamic dispatch cost. Heap allocation has cost. Ask: "Is this abstraction zero-cost?"
+  * **Performance Intuition**: References over owned values. Stack over heap. Cache locality matters. Minimize allocations. Optimize hot paths (20% that matters). Ask: "What's the performance characteristic?"
+  * **Memory Safety**: Ownership is explicit. Borrowing enables zero-cost. Lifetimes prevent use-after-free. Rc/Arc for shared ownership. Encapsulate unsafe in safe APIs. Ask: "What are the ownership semantics?"
+  * **API Design**: Type-safe by default (errors impossible through types). Ergonomic interfaces (easy to use correctly, hard to misuse). Composable design. Self-documenting types. Explicit error handling (Result types, not panics). Ask: "How can I make misuse impossible?"
+  * **Idea Generation**: Always generate 3 ideas. First: solve immediate problem. Second: go bigger (80% of related problems with 20% effort) while maintaining quality. Third: maximum value (type-level solutions, compile-time guarantees). Second idea is usually sweet spot.
+  * **Quality-First 80/20**: Value includes quality, consistency, maintainability - not optional. Quality prevents defects, maintains consistency, improves maintainability. Consistency is high value, not "extra effort".
+  * **DfLSS Alignment**: Design for Lean Six Sigma - addresses efficiency (Lean waste elimination) AND quality (Six Sigma defect prevention) from start. Prevent defects AND waste rather than fixing later. DfLSS superior to DFSS (addresses both waste elimination and quality prevention simultaneously).
+  * **Questions to Ask**: "What invariants can I encode in types?" "Is this abstraction zero-cost?" "What are the ownership semantics?" "Can I move this to compile time?" "How can I make misuse impossible?" **"What's my second idea? Third idea? How can I go bigger with 80/20?"**
+  * **Patterns**: Type state machines (PhantomData), newtype patterns, const generics, HRTB, zero-sized types. References over owned, stack over heap, reuse buffers, minimize allocations, cache-friendly structures. Builder patterns, type state APIs, error types, generic APIs.
+  * **Leverage Rust's Strengths**: Type system prevents error classes. Zero-cost abstractions (generics, macros, const generics). Memory safety (ownership/borrowing). Performance (minimize allocations, references). Compile-time guarantees. Ask: "How can I leverage Rust's strengths?" not "How do I work around constraints?"
+
+* Testing strategy (Chicago TDD):
+
+  * **MANDATORY: RUN TESTS BEFORE COMPLETION** - **USE `cargo make test` - NEVER `cargo test` DIRECTLY**
+  * **IF TESTS FAIL: ADD TO TODO LIST AND FIX BEFORE COMPLETION**
+  * **Chicago TDD**: State-based testing (verify outputs, not implementation). Real collaborators (use real objects, minimize mocks). Behavior verification (verify what code does, observable outputs/state changes). AAA pattern required (Arrange-Act-Assert). Tests verify: return values, state changes, side effects, execution order, actual effects on system. No tests that only check `assert_ok!()` without verifying actual behavior.
+  * Unit tests colocated. Integration tests in `/tests`. Property tests (proptest) for parsers, RDF, templating. Mutation testing (cargo-mutants) for critical paths. Snapshot testing (insta) for deterministic outputs. Compile-time assertions for constants and type constraints.
+  * Single-threaded async tests `--test-threads=1`. Fixed seeds. Mock FS, network, time. Run `--release`, `--debug`, and feature variants.
+  * **USE `cargo make test-single-threaded` FOR DETERMINISTIC TESTS**, **USE `cargo make deterministic` FOR FIXED SEED TESTS**, **USE `cargo make test-timings` TO IDENTIFY SLOW TESTS**
+  * **Test behavior, not existence** - Verify observable outputs/state changes, not just Ok/Err. **Never trust claims** - Verify with tests. Test results are truth. **Never claim completion without running tests** - Tests must pass before work is done.
+  * All public APIs must be tested. Test error paths, edge cases, critical paths (aim for 80%+ coverage). Expert testing: Test the 20% that catches 80% of bugs (error paths, boundary conditions, resource cleanup, concurrency, real dependencies).
 
 * Determinism:
 
   * Same inputs → identical bytes. Snapshots guard regressions.
 
-* CI/CD:
+* CI/CD & Workflow Commands:
 
-  * **USE CARGO MAKE COMMANDS - NO MANUAL CARGO COMMANDS**
-  * `cargo make fmt`, `cargo make lint`, `cargo make test`, `cargo make release`.
-  * **NEVER USE `cargo fmt`, `cargo clippy`, `cargo test` DIRECTLY**
-  * **ALWAYS USE `cargo make` FOR ALL DEVELOPMENT WORKFLOWS**
-  * Matrix over supported Rust versions.
-  * Performance checks against SLOs.
-  * Completion generation validated.
+  * **USE CARGO MAKE COMMANDS - NO MANUAL CARGO COMMANDS** - **NEVER USE `cargo fmt`, `cargo clippy`, `cargo test` DIRECTLY** - **ALWAYS USE `cargo make` FOR ALL DEVELOPMENT WORKFLOWS** - **USE `cargo make timeout-check` BEFORE RUNNING TASKS**
+  * Quick Feedback: `cargo make check` (timeout 5s), `cargo make test-unit` (timeout 10s), `cargo make test test_name` (single test). Full Validation: `cargo make test` (timeout 10s unit + 30s integration), `cargo make pre-commit` (fmt + lint + test-unit). Comprehensive: `cargo make ci` (full CI pipeline), `cargo make release-validate` (release checks). Test Timing: `cargo make test-timings` (identify slow tests).
+  * Matrix over supported Rust versions. Performance checks against SLOs. Completion generation validated.
+  * IDE/DX: **USE `cargo make completions` FOR SHELL COMPLETIONS**, **USE `cargo make watch` FOR LIVE DEVELOPMENT**, **USE `cargo make debug` FOR DEBUGGING**. Rust-analyzer friendly. Rich error lenses. Completions for template vars and SPARQL builders. Live preview of generated code. Source maps for debugging.
+  * PR checklist: What changed and why. Link spec or issue. Perf impact. Tests added. Docs updated. Backward compatibility considered.
 
-* PR checklist:
+* **Output and Logging Guidelines**:
 
-  * What changed and why. Link spec or issue.
-  * Perf impact. Tests added. Docs updated.
-  * Backward compatibility considered.
-
-* IDE and DX:
-
-  * **USE `cargo make completions` FOR SHELL COMPLETIONS**
-  * **USE `cargo make watch` FOR LIVE DEVELOPMENT**
-  * **USE `cargo make debug` FOR DEBUGGING**
-  * Rust-analyzer friendly. Rich error lenses.
-  * Completions for template vars and SPARQL builders.
-  * Live preview of generated code. Source maps for debugging.
+  * **Library Code**: Use `log!` macros (`log::error!`, `log::warn!`, `log::info!`, `log::debug!`) or alert macros (`alert_critical!`, `alert_warning!`, `alert_info!`, etc.) for structured logging. These integrate with alert system, can be filtered/redirected, provide consistent formatting. When logging feature disabled, alert macros fall back to `eprintln!`. **NEVER use `println!` or `print!` in library code**.
+  * **CLI Binaries** (`src/bin/*.rs`): Use `println!` for stdout (user-facing output) and `eprintln!` for stderr (error output).
+  * **Build Scripts** (`build.rs`): Use `println!("cargo:warning=...")` format for Cargo build-time messages (required by Cargo's build script protocol).
+  * **Test Code**: `println!` may be used for test output/debugging when needed, but prefer structured logging when testing logging behavior.
+  * **Error Output**: Use `eprintln!` for immediate error output or `log::error!`/`alert_critical!` for structured error logging.
 
 * Prohibited Patterns (80/20 Production-Ready Standards):
 
   * **NEVER USE DIRECT CARGO COMMANDS - ALWAYS USE `cargo make`**
   * **NEVER USE `cargo fmt`, `cargo clippy`, `cargo test` DIRECTLY**
   * **NEVER USE `cargo build` WITHOUT `cargo make`**
+  * **NEVER RUN COMMANDS WITHOUT TIMEOUT WRAPPERS** - All CLI commands must have timeout protection
+  * **NEVER SKIP TIMEOUT-CHECK** - Always verify timeout command exists before running tasks
+  * **NEVER IGNORE ANDON SIGNALS** - Stop the line when signals appear, fix before proceeding
+  * **NEVER PROCEED WITH SIGNALS PRESENT** - Do not continue work with compiler errors, test failures, or warnings
+  * **NEVER SUPPRESS OR HIDE SIGNALS** - Do not use `#[allow(...)]` or ignore warnings without fixing root cause
+  * **NEVER MARK COMPLETE WITHOUT VERIFYING SIGNALS CLEARED** - All validation checks must pass before completion
   * No placeholders - No "In production, this would..." comments
   * No TODOs - No TODO comments except clearly documented future enhancements (use FUTURE: prefix)
   * No unimplemented!() - Complete implementations required, no stubs
@@ -167,34 +206,70 @@ SPR: ggen — language-agnostic, deterministic code projection CLI
   * No claims without verification - Never claim code works without test validation
   * No defensive programming in execution paths - Validation happens at ingress only
   * No meaningless tests - Tests must verify observable outputs/state changes, not just assert_ok!()
+  * **No behavior verification violations** - Tests must verify what code does, not just that functions exist
+  * **No Chicago TDD violations** - Must use state-based testing, real collaborators, AAA pattern
+  * **No timeout violations** - All commands must have timeout wrappers
   * No new top-level files or renames without docs + CI.
   * No hardcoded outputs in prod paths.
   * No cfg mazes. Prefer explicit features.
   * No swallowing errors. No compromise on type safety.
+  * **No `print!` or `println!` in library code** - Use `log!` macros or alert macros (exceptions: CLI binaries, build.rs, test code)
 
-* Definition of done:
+* Definition of done / Completion workflow (Andon Signals Enforced):
 
-  * **USE `cargo make ci` TO VERIFY ALL REQUIREMENTS**
-  * **USE `cargo make fmt` FOR FORMATTING**
-  * **USE `cargo make lint` FOR CLIPPY CHECKS**
-  * **USE `cargo make test` FOR ALL TESTS**
-  * **USE `cargo make slo-check` FOR SLO COMPLIANCE**
-  * Compiles. Clippy clean. Tests deterministic and passing.
-  * Behavior covered by unit, integration, property tests.
-  * Clear errors. Meets SLOs. Docs and examples updated.
-  * Cross-platform validated. No placeholders.
-  * Drop-in compatible. Outputs deterministic. RDF validated.
-  * **Code Review Checklist**:
-    * [ ] All functions have proper error handling (Result<T, E>)
-    * [ ] No unwrap() or panic!() in production paths
-    * [ ] Real implementations, not placeholders
-    * [ ] Feature-gated when dependencies are optional
-    * [ ] Tests cover critical paths and verify observable outputs
-    * [ ] Resources are properly cleaned up
-    * [ ] No secrets or credentials in code
-    * [ ] Code verified with tests (test results are truth)
-    * [ ] Tests verify observable outputs/state changes, not just function existence
-    * [ ] **Build system**: Used `cargo make` commands instead of direct cargo commands
+  * **BEFORE MARKING ANY TASK AS COMPLETE - MANDATORY VALIDATION CHECKS**:
+    1. **Verify Timeout Command**: Run `cargo make timeout-check` to verify timeout command exists
+    2. **Check for Compiler Errors (CRITICAL SIGNAL)**: Run `cargo make check`
+      * **IF ERRORS FOUND**: STOP THE LINE - Do not proceed. Fix compiler errors immediately.
+      * **VERIFY**: No `error[E...]` patterns in output - must be clean
+    3. **Check for Compiler Warnings (HIGH SIGNAL)**: Review `cargo make check` output
+      * **IF WARNINGS FOUND**: STOP THE LINE - Fix warnings before proceeding
+      * **VERIFY**: No `warning:` patterns in output - must be clean
+    4. **Run Tests (CRITICAL SIGNAL)**: Run `cargo make test` to verify all tests pass
+      * **IF TESTS FAIL**: STOP THE LINE - Do not proceed. Extract failing test names, create rich todos with:
+        * Test name
+        * Error message
+        * File/line location
+        * Root cause analysis (use 5 Whys)
+        * Proposed fix
+        * Status (pending/in_progress/completed)
+      * **VERIFY**: No `test ... FAILED` patterns - all tests must pass
+    5. **Check for Linting Errors (HIGH SIGNAL)**: Run `cargo make lint`
+      * **IF LINTING ERRORS FOUND**: STOP THE LINE - Fix linting errors before proceeding
+      * **VERIFY**: No clippy warnings/errors - must be clean
+    6. **Verify Performance SLOs**: Run `cargo make slo-check`
+      * **IF SLOs NOT MET**: Investigate performance regressions
+      * **VERIFY**: All SLOs met
+    7. **Systematic Fixing**: If any signals found:
+      * Batch create 5-10+ related todos in single call for systematic fixing
+      * Fix systematically: Read failure message → Identify root cause → Fix issue → Run specific check → Verify signal cleared → Update todo status → Remove when fixed
+      * Re-run validation checks to verify all signals cleared
+      * If still failing, return to step 2
+    8. **Final Verification - All Signals Cleared**:
+      * ✅ `cargo make check` - No compiler errors or warnings
+      * ✅ `cargo make test` - All tests pass
+      * ✅ `cargo make lint` - No linting errors
+      * ✅ `cargo make slo-check` - SLOs met
+      * ✅ All failing tests fixed and removed from todos
+      * ✅ No compilation errors
+      * ✅ No test failures
+      * ✅ No pending test-related todos
+  * **ONLY mark complete when ALL signals are cleared and ALL validation checks pass**
+  * **NEVER claim completion without running validation checks**
+  * **NEVER ignore signals - they must be fixed before proceeding**
+  * **NEVER proceed with signals present - STOP THE LINE**
+  * **Test results are truth - code doesn't work if tests don't pass**
+  * **Andon Signals are truth - if signals present, work is not complete**
+  * **Quick Feedback**: `cargo make check` (~5s), `cargo make test-unit` (~10s), `cargo make test test_name` (single test). Full validation: `cargo make test`, `cargo make pre-commit`.
+
+* Workflow Commands:
+
+  * **Quick Feedback**: `cargo make check` (timeout 5s), `cargo make test-unit` (timeout 10s), `cargo make test test_name` (single test)
+  * **Full Validation**: `cargo make test` (timeout 10s unit + 30s integration), `cargo make pre-commit` (fmt + lint + test-unit)
+  * **Timeout Check**: `cargo make timeout-check` - Verify timeout command exists before running tasks
+  * **Test Timing**: `cargo make test-timings` - Identify slow tests for optimization
+  * **Comprehensive Validation**: `cargo make ci` - Full CI pipeline with all checks
+  * **Release Validation**: `cargo make release-validate` - Comprehensive release checks
 
 * Metaphors to prime:
 
@@ -202,3 +277,16 @@ SPR: ggen — language-agnostic, deterministic code projection CLI
   * Type system is the contract. Compiler is the auditor.
   * Determinism is a checksum across the pipeline.
   * Workspace is an orchestra with `core` as conductor and `cli` as stagehand.
+  * Types encode invariants. Compiler enforces correctness. If it compiles, invariants are enforced.
+  * Zero-cost abstractions are free. Trait objects have cost. References over owned. Stack over heap.
+
+* Summary:
+
+  * **Elite Mindset**: Think in types first, zero-cost abstractions, performance intuition, ergonomic APIs, leverage type system, maximize Rust's strengths, go extra mile (3 ideas, 80/20 thinking). Type-First Design: Identify invariants → Encode in types → Design APIs → Verify at compile time. Compile-Time vs Runtime: Prefer compile-time guarantees. Zero-Cost Identification: generics/const generics/macros/references are zero-cost; trait objects/heap allocation have cost.
+  * **Critical Requirements**: Use `cargo make` commands, timeout SLAs for all CLI commands, behavior verification in tests, test before completion, rich todos for failures, Chicago TDD principles.
+  * **Andon Signals (Stop the Line)**: Compiler errors, test failures, warnings are stop signals. Never proceed with signals present. Verify all signals cleared before completion. Stop the line, fix root cause, verify signal cleared. Signals = stop = fix = verify.
+  * **Key Associations**: Types = invariants = compile-time guarantees. Zero-cost = generics/macros/const generics. Performance = references/stack/minimize allocations. Ownership = explicit = memory safety. APIs = type-safe = ergonomic = composable. Tests = observable outputs = behavior verification. 80/20 = second idea = sweet spot = maximum value.
+  * **Never trust text, only test results**: All code is production-ready with error handling. Focus on 80% value paths. Types encode invariants; compiler enforces correctness.
+  * **Andon Principle**: "Stop the line" - When signals appear, stop work immediately, fix root cause, verify signal cleared. Never proceed with signals present. Prevents defects from propagating and waste from accumulating (DfLSS alignment).
+
+TODO LISTS ARE ALWAYS 10 ITEMS OR MORE. THEY ARE ALWAYS FULLY COMPLETED BEFORE PROGRESSING TO THE NEXT TASK.
