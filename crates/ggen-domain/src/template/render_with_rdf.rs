@@ -132,9 +132,8 @@ pub fn render_with_rdf(options: &RenderWithRdfOptions) -> Result<RenderWithRdfRe
     }
 
     // Read template content
-    let template_content = std::fs::read_to_string(&options.template_path).map_err(|e| {
-        ggen_utils::error::Error::new(&format!("Failed to read template: {}", e))
-    })?;
+    let template_content = std::fs::read_to_string(&options.template_path)
+        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to read template: {}", e)))?;
 
     // Parse template with or without preprocessor
     let output_dir = options
@@ -173,9 +172,11 @@ pub fn render_with_rdf(options: &RenderWithRdfOptions) -> Result<RenderWithRdfRe
     })?;
 
     // Render frontmatter first
-    template.render_frontmatter(&mut tera, &context).map_err(|e| {
-        ggen_utils::error::Error::new(&format!("Failed to render frontmatter: {}", e))
-    })?;
+    template
+        .render_frontmatter(&mut tera, &context)
+        .map_err(|e| {
+            ggen_utils::error::Error::new(&format!("Failed to render frontmatter: {}", e))
+        })?;
 
     // Render using v2 RDF integration
     // If RDF files provided via CLI, use those (take precedence)
@@ -228,16 +229,19 @@ pub fn render_with_rdf(options: &RenderWithRdfOptions) -> Result<RenderWithRdfRe
             options.output_path.clone()
         } else {
             // Get parent directory, fallback to current directory if no parent
-            options.output_path.parent().map(|p| p.to_path_buf()).unwrap_or_else(|| {
-                // If no parent, try to get project root from current directory
-                // Use proper error handling - fallback to current directory
-                std::env::current_dir()
-                    .unwrap_or_else(|_| std::path::PathBuf::from("."))
-            })
+            options
+                .output_path
+                .parent()
+                .map(|p| p.to_path_buf())
+                .unwrap_or_else(|| {
+                    // If no parent, try to get project root from current directory
+                    // Use proper error handling - fallback to current directory
+                    std::env::current_dir().unwrap_or_else(|_| std::path::PathBuf::from("."))
+                })
         };
-        
+
         let files = split_file_markers(&rendered_content, &base_dir)?;
-        
+
         for (file_path, content) in &files {
             if let Some(parent) = file_path.parent() {
                 std::fs::create_dir_all(parent).map_err(|e| {
@@ -248,7 +252,7 @@ pub fn render_with_rdf(options: &RenderWithRdfOptions) -> Result<RenderWithRdfRe
                     ))
                 })?;
             }
-            
+
             std::fs::write(file_path, content).map_err(|e| {
                 ggen_utils::error::Error::new(&format!(
                     "Failed to write file {}: {}",
@@ -257,7 +261,7 @@ pub fn render_with_rdf(options: &RenderWithRdfOptions) -> Result<RenderWithRdfRe
                 ))
             })?;
         }
-        
+
         let total_bytes: usize = files.iter().map(|(_, content)| content.len()).sum();
         (files.len(), total_bytes, base_dir.to_path_buf())
     } else {
@@ -265,7 +269,7 @@ pub fn render_with_rdf(options: &RenderWithRdfOptions) -> Result<RenderWithRdfRe
         std::fs::write(&options.output_path, &rendered_content).map_err(|e| {
             ggen_utils::error::Error::new(&format!("Failed to write output: {}", e))
         })?;
-        
+
         (1, rendered_content.len(), options.output_path.clone())
     };
 
@@ -297,8 +301,7 @@ pub fn render_with_rdf(options: &RenderWithRdfOptions) -> Result<RenderWithRdfRe
 /// This function takes RDF/TTL files describing template metadata
 /// and generates a template file from them.
 pub fn generate_from_rdf(
-    rdf_files: Vec<PathBuf>,
-    output_template_path: PathBuf,
+    rdf_files: Vec<PathBuf>, output_template_path: PathBuf,
 ) -> Result<PathBuf> {
     // Create RDF graph
     let graph = Graph::new().map_err(|e| {
@@ -315,9 +318,9 @@ pub fn generate_from_rdf(
             ))
         })?;
 
-        graph.insert_turtle(&ttl_content).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to parse RDF: {}", e))
-        })?;
+        graph
+            .insert_turtle(&ttl_content)
+            .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to parse RDF: {}", e)))?;
     }
 
     // Query for template metadata
@@ -333,9 +336,9 @@ pub fn generate_from_rdf(
         LIMIT 1
     "#;
 
-    let results = graph.query_cached(query).map_err(|e| {
-        ggen_utils::error::Error::new(&format!("SPARQL query failed: {}", e))
-    })?;
+    let results = graph
+        .query_cached(query)
+        .map_err(|e| ggen_utils::error::Error::new(&format!("SPARQL query failed: {}", e)))?;
 
     // Extract template metadata
     let (name, description, to) = match results {
@@ -376,9 +379,8 @@ pub fn generate_from_rdf(
     template_content.push_str("Hello from {{ name }}!\n");
 
     // Write template file
-    std::fs::write(&output_template_path, template_content).map_err(|e| {
-        ggen_utils::error::Error::new(&format!("Failed to write template: {}", e))
-    })?;
+    std::fs::write(&output_template_path, template_content)
+        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to write template: {}", e)))?;
 
     Ok(output_template_path)
 }
@@ -391,14 +393,12 @@ mod tests {
 
     #[test]
     fn test_render_with_rdf_options_builder() {
-        let options = RenderWithRdfOptions::new(
-            PathBuf::from("template.tmpl"),
-            PathBuf::from("output.txt"),
-        )
-        .with_rdf_file(PathBuf::from("data.ttl"))
-        .with_var("name", "test")
-        .force()
-        .with_preprocessor(true);
+        let options =
+            RenderWithRdfOptions::new(PathBuf::from("template.tmpl"), PathBuf::from("output.txt"))
+                .with_rdf_file(PathBuf::from("data.ttl"))
+                .with_var("name", "test")
+                .force()
+                .with_preprocessor(true);
 
         assert_eq!(options.rdf_files.len(), 1);
         assert_eq!(options.variables.len(), 1);
@@ -422,8 +422,8 @@ Hello, {{ name }}!"#,
         )
         .unwrap();
 
-        let options = RenderWithRdfOptions::new(template_path, output_path.clone())
-            .with_var("name", "World");
+        let options =
+            RenderWithRdfOptions::new(template_path, output_path.clone()).with_var("name", "World");
 
         let result = render_with_rdf(&options).unwrap();
 
@@ -465,7 +465,11 @@ Found {{ sparql_results.people | length }} person(s)"#,
 
         // Verify the SPARQL query was executed by checking output content
         let content = fs::read_to_string(&output_path).unwrap();
-        assert!(content.contains("Found 1 person(s)"), "Expected output to contain 'Found 1 person(s)' but got: {}", content);
+        assert!(
+            content.contains("Found 1 person(s)"),
+            "Expected output to contain 'Found 1 person(s)' but got: {}",
+            content
+        );
     }
 
     #[test]
@@ -496,10 +500,7 @@ Found {{ sparql_results.people | length }} person(s)"#,
 
         let result = render_with_rdf(&options);
         assert!(result.is_err());
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("already exists"));
+        assert!(result.unwrap_err().to_string().contains("already exists"));
     }
 
     #[test]
@@ -564,7 +565,7 @@ Content for file 2
 "#;
         let base_dir = std::path::Path::new("/tmp/test");
         let files = split_file_markers(content, base_dir).unwrap();
-        
+
         assert_eq!(files.len(), 2);
         assert_eq!(files[0].0, base_dir.join("file1.txt"));
         assert_eq!(files[0].1.trim(), "Content for file 1\nLine 2");
@@ -577,24 +578,22 @@ Content for file 2
 ///
 /// Parses `{# FILE: path/to/file.ext #}` markers and returns a vector of
 /// (file_path, content) tuples. Content before the first marker is discarded.
-fn split_file_markers(
-    content: &str,
-    base_dir: &Path,
-) -> Result<Vec<(PathBuf, String)>> {
-    let file_marker_re = Regex::new(r"\{#\s*FILE:\s*([^\s#]+)\s*#\}")
-        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to compile file marker regex: {}", e)))?;
-    
+fn split_file_markers(content: &str, base_dir: &Path) -> Result<Vec<(PathBuf, String)>> {
+    let file_marker_re = Regex::new(r"\{#\s*FILE:\s*([^\s#]+)\s*#\}").map_err(|e| {
+        ggen_utils::error::Error::new(&format!("Failed to compile file marker regex: {}", e))
+    })?;
+
     let mut files = Vec::new();
     let mut current_file: Option<PathBuf> = None;
     let mut current_content = String::new();
-    
+
     for line in content.lines() {
         if let Some(captures) = file_marker_re.captures(line) {
             // Write previous file if exists
             if let Some(path) = current_file.take() {
                 files.push((path, current_content.trim_end().to_string()));
             }
-            
+
             // Start new file
             let file_path = captures.get(1).unwrap().as_str();
             let full_path = base_dir.join(file_path);
@@ -607,11 +606,11 @@ fn split_file_markers(
         }
         // Content before first marker is ignored
     }
-    
+
     // Write last file if exists
     if let Some(path) = current_file {
         files.push((path, current_content.trim_end().to_string()));
     }
-    
+
     Ok(files)
 }

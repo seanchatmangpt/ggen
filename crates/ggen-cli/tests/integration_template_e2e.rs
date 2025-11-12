@@ -59,8 +59,7 @@ description = { type = "string", optional = true }
 features = { type = "array", default = [] }
 "#;
 
-    fs::write(template_dir.join("template.toml"), metadata)
-        .expect("Failed to write metadata");
+    fs::write(template_dir.join("template.toml"), metadata).expect("Failed to write metadata");
 
     template_dir
 }
@@ -105,7 +104,8 @@ fn test_template_list_empty() {
         .assert()
         .success()
         .stdout(
-            predicate::str::contains("No templates found").or(predicate::str::contains("templates"))
+            predicate::str::contains("No templates found")
+                .or(predicate::str::contains("templates")),
         );
 }
 

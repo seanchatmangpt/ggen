@@ -84,8 +84,7 @@ impl SimpleTracer {
             &format!(
                 "Frontmatter processed: to={:?}, inject={}",
                 frontmatter.to,
-                frontmatter.inject
-                // ❌ REMOVED: vars count - no longer in frontmatter
+                frontmatter.inject // ❌ REMOVED: vars count - no longer in frontmatter
             ),
             Some("frontmatter"),
         );

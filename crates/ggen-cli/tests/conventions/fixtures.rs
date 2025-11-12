@@ -1,6 +1,6 @@
+use anyhow::Result;
 use mockall::mock;
 use std::path::{Path, PathBuf};
-use anyhow::Result;
 
 /// Mock filesystem abstraction for testing file discovery
 mock! {
@@ -75,8 +75,8 @@ pub struct TemplateMetadata {
 /// Generation mode enum
 #[derive(Debug, Clone, PartialEq)]
 pub enum GenerationMode {
-    ForEach,  // Generate once per RDF file
-    Once,     // Generate single output
+    ForEach, // Generate once per RDF file
+    Once,    // Generate single output
 }
 
 /// Generation plan fixture
@@ -96,7 +96,8 @@ pub fn sample_rdf_content() -> String {
 ex:User1 rdf:type ex:User ;
     ex:name "Alice" ;
     ex:email "alice@example.com" .
-"#.to_string()
+"#
+    .to_string()
 }
 
 /// Create test template content with frontmatter
@@ -111,7 +112,8 @@ query: get_users
 pub struct {{ name }} {
     pub email: String,
 }
-"#.to_string()
+"#
+    .to_string()
 }
 
 /// Create test .ggen config content
@@ -122,5 +124,6 @@ rdf_dir = "data/rdf"
 templates_dir = "templates"
 output_dir = "generated"
 preset = "clap-noun-verb"
-"#.to_string()
+"#
+    .to_string()
 }

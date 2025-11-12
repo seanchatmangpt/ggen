@@ -9,7 +9,7 @@ See `package.toml` for complete feature list.
 ## Installation
 
 ```bash
-ggen market add agent-memory-forge
+ggen market install agent-memory-forge
 ```
 
 ## Usage

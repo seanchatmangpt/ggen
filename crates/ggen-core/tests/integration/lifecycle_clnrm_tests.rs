@@ -47,8 +47,7 @@ struct ClnrmContainer {
 impl ClnrmContainer {
     /// Create a new clnrm container for testing
     fn new(name: &str) -> Result<Self> {
-        let temp_dir = TempDir::new()
-            .context("Failed to create temporary directory")?;
+        let temp_dir = TempDir::new().context("Failed to create temporary directory")?;
         let project_path = temp_dir.path().to_path_buf();
 
         Ok(Self {
@@ -118,13 +117,16 @@ fn test_clnrm_basic_phase_execution() -> Result<()> {
     let container = ClnrmContainer::new("basic-test")?;
 
     // Setup project in container
-    container.write_file("make.toml", r#"
+    container.write_file(
+        "make.toml",
+        r#"
 [project]
 name = "clnrm-basic-test"
 
 [lifecycle.test-phase]
 command = "echo 'Running in isolated container'"
-"#)?;
+"#,
+    )?;
 
     // Execute phase
     let output = container.exec("echo", &["Container environment ready"])?;
@@ -141,21 +143,27 @@ fn test_clnrm_environment_isolation() -> Result<()> {
     let container2 = ClnrmContainer::new("container-2")?;
 
     // Setup different projects in each container
-    container1.write_file("make.toml", r#"
+    container1.write_file(
+        "make.toml",
+        r#"
 [project]
 name = "project-1"
 
 [lifecycle.build]
 command = "echo 'Building project 1'"
-"#)?;
+"#,
+    )?;
 
-    container2.write_file("make.toml", r#"
+    container2.write_file(
+        "make.toml",
+        r#"
 [project]
 name = "project-2"
 
 [lifecycle.build]
 command = "echo 'Building project 2'"
-"#)?;
+"#,
+    )?;
 
     // Verify containers are isolated
     let path1 = container1.project_path.to_str().unwrap();
@@ -175,7 +183,9 @@ fn test_clnrm_reproducible_builds() -> Result<()> {
 
     // Create first container and build
     let container1 = ClnrmContainer::new("reproducible-1")?;
-    container1.write_file("make.toml", r#"
+    container1.write_file(
+        "make.toml",
+        r#"
 [project]
 name = "reproducible-test"
 
@@ -186,17 +196,23 @@ commands = [
     "echo 'Step 3: Verify build'"
 ]
 cache = true
-"#)?;
+"#,
+    )?;
 
-    container1.write_file("src/main.rs", r#"
+    container1.write_file(
+        "src/main.rs",
+        r#"
 fn main() {
     println!("Hello from reproducible build!");
 }
-"#)?;
+"#,
+    )?;
 
     // Create second container with same content
     let container2 = ClnrmContainer::new("reproducible-2")?;
-    container2.write_file("make.toml", r#"
+    container2.write_file(
+        "make.toml",
+        r#"
 [project]
 name = "reproducible-test"
 
@@ -207,13 +223,17 @@ commands = [
     "echo 'Step 3: Verify build'"
 ]
 cache = true
-"#)?;
+"#,
+    )?;
 
-    container2.write_file("src/main.rs", r#"
+    container2.write_file(
+        "src/main.rs",
+        r#"
 fn main() {
     println!("Hello from reproducible build!");
 }
-"#)?;
+"#,
+    )?;
 
     // Both containers should produce consistent results
     // Note: Actual cache key comparison would require running lifecycle
@@ -233,7 +253,9 @@ fn test_clnrm_staging_environment() -> Result<()> {
 
     let staging = ClnrmContainer::new("staging-env")?;
 
-    staging.write_file("make.toml", r#"
+    staging.write_file(
+        "make.toml",
+        r#"
 [project]
 name = "staging-deployment"
 
@@ -254,7 +276,8 @@ commands = [
 
 [hooks]
 after_deploy-staging = ["verify-staging"]
-"#)?;
+"#,
+    )?;
 
     // Verify container represents staging environment
     assert!(staging.project_path.exists());
@@ -268,7 +291,9 @@ fn test_clnrm_production_environment() -> Result<()> {
 
     let production = ClnrmContainer::new("production-env")?;
 
-    production.write_file("make.toml", r#"
+    production.write_file(
+        "make.toml",
+        r#"
 [project]
 name = "production-deployment"
 
@@ -299,7 +324,8 @@ commands = [
 [hooks]
 before_deploy-production = ["pre-production-checks"]
 after_deploy-production = ["post-production-verification"]
-"#)?;
+"#,
+    )?;
 
     // Verify production environment setup
     assert!(production.project_path.exists());
@@ -318,7 +344,9 @@ fn test_clnrm_parallel_workspaces() -> Result<()> {
     let monorepo = ClnrmContainer::new("monorepo-test")?;
 
     // Create workspace structure
-    monorepo.write_file("make.toml", r#"
+    monorepo.write_file(
+        "make.toml",
+        r#"
 [project]
 name = "monorepo-parallel-test"
 type = "monorepo"
@@ -341,16 +369,20 @@ parallel = true
 [lifecycle.test]
 command = "echo 'Testing workspace'"
 parallel = true
-"#)?;
+"#,
+    )?;
 
     // Create workspace directories
     for workspace in &["frontend", "backend", "database"] {
-        monorepo.write_file(&format!("{}/package.json", workspace), r#"
+        monorepo.write_file(
+            &format!("{}/package.json", workspace),
+            r#"
 {
     "name": "workspace-package",
     "version": "1.0.0"
 }
-"#)?;
+"#,
+        )?;
     }
 
     // Verify workspace structure
@@ -371,7 +403,9 @@ fn test_clnrm_failure_isolation() -> Result<()> {
 
     let container = ClnrmContainer::new("failure-isolation")?;
 
-    container.write_file("make.toml", r#"
+    container.write_file(
+        "make.toml",
+        r#"
 [project]
 name = "failure-test"
 
@@ -383,7 +417,8 @@ command = "exit 1"
 
 [lifecycle.step3]
 command = "echo 'Step 3 should not run'"
-"#)?;
+"#,
+    )?;
 
     // Execute phases manually
     let step1_result = container.exec("echo", &["Step 1"]);
@@ -406,7 +441,9 @@ fn test_clnrm_state_persistence() -> Result<()> {
 
     let container = ClnrmContainer::new("state-persistence")?;
 
-    container.write_file("make.toml", r#"
+    container.write_file(
+        "make.toml",
+        r#"
 [project]
 name = "state-test"
 
@@ -418,7 +455,8 @@ command = "echo 'Building'"
 
 [lifecycle.test]
 command = "echo 'Testing'"
-"#)?;
+"#,
+    )?;
 
     // Create .ggen directory structure
     fs::create_dir_all(container.state_path().parent().unwrap())?;
@@ -448,7 +486,9 @@ fn test_clnrm_resource_cleanup() -> Result<()> {
     let container_path = {
         let container = ClnrmContainer::new("cleanup-test")?;
 
-        container.write_file("make.toml", r#"
+        container.write_file(
+            "make.toml",
+            r#"
 [project]
 name = "cleanup-test"
 
@@ -465,7 +505,8 @@ commands = [
     "echo 'Releasing resources'",
     "echo 'Cleanup complete'"
 ]
-"#)?;
+"#,
+        )?;
 
         container.project_path.clone()
     }; // Container drops here
@@ -487,7 +528,9 @@ fn test_clnrm_security_boundaries() -> Result<()> {
 
     let container = ClnrmContainer::new("security-test")?;
 
-    container.write_file("make.toml", r#"
+    container.write_file(
+        "make.toml",
+        r#"
 [project]
 name = "security-boundary-test"
 
@@ -497,7 +540,8 @@ commands = [
     "echo 'Environment variables isolated'",
     "echo 'File system isolated'"
 ]
-"#)?;
+"#,
+    )?;
 
     // Verify container has isolated environment
     let env_check = container.exec("printenv", &[])?;
@@ -516,7 +560,9 @@ fn test_clnrm_performance_baseline() -> Result<()> {
 
     let container = ClnrmContainer::new("performance-test")?;
 
-    container.write_file("make.toml", r#"
+    container.write_file(
+        "make.toml",
+        r#"
 [project]
 name = "performance-baseline"
 
@@ -526,7 +572,8 @@ commands = [
     "echo 'Container overhead: minimal'",
     "echo 'Isolation cost: acceptable'"
 ]
-"#)?;
+"#,
+    )?;
 
     use std::time::Instant;
 
@@ -554,7 +601,9 @@ fn test_clnrm_lifecycle_integration() -> Result<()> {
 
     let container = ClnrmContainer::new("lifecycle-integration")?;
 
-    container.write_file("make.toml", r#"
+    container.write_file(
+        "make.toml",
+        r#"
 [project]
 name = "lifecycle-integration-test"
 
@@ -582,21 +631,28 @@ command = "echo 'Validating production readiness'"
 [hooks]
 before_build = ["setup"]
 after_test = ["validate"]
-"#)?;
+"#,
+    )?;
 
     // Create minimal Rust project
-    container.write_file("Cargo.toml", r#"
+    container.write_file(
+        "Cargo.toml",
+        r#"
 [package]
 name = "integration-test"
 version = "0.1.0"
 edition = "2021"
-"#)?;
+"#,
+    )?;
 
-    container.write_file("src/main.rs", r#"
+    container.write_file(
+        "src/main.rs",
+        r#"
 fn main() {
     println!("Integration test");
 }
-"#)?;
+"#,
+    )?;
 
     // Verify project structure
     assert!(container.project_path.join("make.toml").exists());
@@ -616,7 +672,9 @@ fn test_clnrm_example_web_service() -> Result<()> {
 
     let container = ClnrmContainer::new("web-service-example")?;
 
-    container.write_file("make.toml", r#"
+    container.write_file(
+        "make.toml",
+        r#"
 [project]
 name = "web-service"
 type = "microservice"
@@ -662,7 +720,8 @@ commands = [
 [hooks]
 before_build = ["setup"]
 before_deploy-production = ["test"]
-"#)?;
+"#,
+    )?;
 
     // Verify web service example structure
     assert!(container.project_path.join("make.toml").exists());

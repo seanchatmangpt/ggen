@@ -10,8 +10,11 @@
 //! 4. Error messages are meaningful when failures occur
 //! 5. No false positives (exit 0 with errors in stderr)
 
+use chicago_tdd_tools::prelude::*;
+
 #[cfg(test)]
 mod integration {
+    use super::*;
     use ggen_cli_lib::run_for_node;
 
     /// Helper to run a command and validate success with content validation
@@ -21,18 +24,16 @@ mod integration {
         match run_for_node(args_owned).await {
             Ok(result) => {
                 if result.code == 0 {
-                    // JTBD: Validate success means actual output, not just exit code 0
                     if result.stdout.is_empty() && result.stderr.is_empty() {
                         return Err(format!(
                             "Command succeeded (exit 0) but produced no output - possible false success"
                         ));
                     }
 
-                    // JTBD: Detect false success (exit 0 but errors in stderr)
                     if !result.stderr.is_empty() {
-                        let is_progress = result.stderr.contains("Searching") ||
-                                         result.stderr.contains("Loading") ||
-                                         result.stderr.contains("Building");
+                        let is_progress = result.stderr.contains("Searching")
+                            || result.stderr.contains("Loading")
+                            || result.stderr.contains("Building");
                         if !is_progress {
                             return Err(format!(
                                 "Command succeeded (exit 0) but has unexpected stderr: {}",
@@ -69,16 +70,14 @@ mod integration {
         }
     }
 
-    #[tokio::test]
-    async fn test_version_command() {
+    async_test_with_timeout!(test_version_command, 30, async {
+        // Arrange & Act
         let result = run_and_expect_success(vec!["--version"]).await;
 
+        // Assert
         match result {
             Ok(output) => {
-                assert!(
-                    !output.is_empty(),
-                    "Version output should not be empty"
-                );
+                assert!(!output.is_empty(), "Version output should not be empty");
                 assert!(
                     output.contains('.'),
                     "Version should contain dots (semver format)"
@@ -86,31 +85,30 @@ mod integration {
             }
             Err(e) => panic!("Version command failed: {}", e),
         }
-    }
+    });
 
-    #[tokio::test]
-    async fn test_help_command() {
+    async_test_with_timeout!(test_help_command, 30, async {
+        // Arrange & Act
         let result = run_and_expect_success(vec!["--help"]).await;
 
+        // Assert
         match result {
             Ok(output) => {
                 assert!(
                     output.to_lowercase().contains("usage"),
                     "Help should contain usage information"
                 );
-                assert!(
-                    output.len() > 100,
-                    "Help output should be substantial"
-                );
+                assert!(output.len() > 100, "Help output should be substantial");
             }
             Err(e) => panic!("Help command failed: {}", e),
         }
-    }
+    });
 
-    #[tokio::test]
-    async fn test_invalid_command() {
+    async_test_with_timeout!(test_invalid_command, 30, async {
+        // Arrange & Act
         let result = run_and_expect_failure(vec!["invalid-command"]).await;
 
+        // Assert
         match result {
             Ok((code, stderr)) => {
                 assert_ne!(code, 0, "Invalid command should return non-zero exit code");
@@ -121,26 +119,25 @@ mod integration {
             }
             Err(e) => panic!("Expected failure but got: {}", e),
         }
-    }
+    });
 
-    #[tokio::test]
-    async fn test_marketplace_list() {
+    async_test_with_timeout!(test_marketplace_list, 30, async {
+        // Arrange & Act
         let result = run_and_expect_success(vec!["market", "list"]).await;
 
+        // Assert
         match result {
             Ok(output) => {
-                // JTBD: List should return package data or explicit "no packages" message
                 assert!(
                     !output.is_empty(),
                     "Market list should return data (packages or 'no packages' message)"
                 );
 
-                // Should be structured output (list format)
-                let has_structure = output.contains('\n') ||
-                                   output.contains("•") ||
-                                   output.contains("-") ||
-                                   output.contains("package") ||
-                                   output.contains("No");
+                let has_structure = output.contains('\n')
+                    || output.contains("•")
+                    || output.contains("-")
+                    || output.contains("package")
+                    || output.contains("No");
 
                 assert!(
                     has_structure,
@@ -150,22 +147,21 @@ mod integration {
             }
             Err(e) => panic!("Market list failed: {}", e),
         }
-    }
+    });
 
-    #[tokio::test]
-    async fn test_marketplace_categories() {
+    async_test_with_timeout!(test_marketplace_categories, 30, async {
+        // Arrange & Act
         let result = run_and_expect_success(vec!["market", "categories"]).await;
 
+        // Assert
         match result {
             Ok(output) => {
-                // JTBD: Categories should list known category types
                 assert!(!output.is_empty(), "Should have at least one category");
 
-                // Should contain category-like words
-                let has_categories = output.to_lowercase().contains("category") ||
-                                    output.to_lowercase().contains("rust") ||
-                                    output.to_lowercase().contains("template") ||
-                                    output.to_lowercase().contains("service");
+                let has_categories = output.to_lowercase().contains("category")
+                    || output.to_lowercase().contains("rust")
+                    || output.to_lowercase().contains("template")
+                    || output.to_lowercase().contains("service");
 
                 assert!(
                     has_categories,
@@ -175,24 +171,26 @@ mod integration {
             }
             Err(e) => panic!("Market categories failed: {}", e),
         }
-    }
+    });
 
-    #[tokio::test]
-    async fn test_marketplace_search_empty_query() {
-        // JTBD: Empty query should error with meaningful message
-        let result = run_for_node(vec!["market".to_string(), "search".to_string(), "".to_string()]).await;
+    async_test_with_timeout!(test_marketplace_search_empty_query, 30, async {
+        // Arrange & Act
+        let result = run_for_node(vec![
+            "market".to_string(),
+            "search".to_string(),
+            "".to_string(),
+        ])
+        .await;
 
+        // Assert
         match result {
             Ok(res) => {
-                // Should either error OR return all packages (but must pick one behavior)
                 if res.code != 0 {
-                    // Expected: error for empty query
                     assert!(
                         !res.stderr.is_empty() || !res.stdout.is_empty(),
                         "Empty query error should have message"
                     );
                 } else {
-                    // If it succeeds, should return package results
                     assert!(
                         !res.stdout.is_empty(),
                         "Empty query success should return all packages"
@@ -200,14 +198,13 @@ mod integration {
                 }
             }
             Err(e) => {
-                // Parse error is acceptable
                 assert!(!format!("{}", e).is_empty());
             }
         }
-    }
+    });
 
-    #[tokio::test]
-    async fn test_marketplace_search_with_query() {
+    async_test_with_timeout!(test_marketplace_search_with_query, 30, async {
+        // Arrange & Act
         let result = run_for_node(vec![
             "market".to_string(),
             "search".to_string(),
@@ -215,28 +212,25 @@ mod integration {
         ])
         .await;
 
+        // Assert
         match result {
             Ok(res) => {
-                // JTBD: Search should succeed (found packages) or fail (no packages found)
-                // Exit code 0 = found packages, 1 = no results (both are valid)
                 assert!(
                     res.code == 0 || res.code == 1,
                     "Search should complete with success (0) or no results (1), got: {}",
                     res.code
                 );
 
-                // Should always have output explaining what happened
                 assert!(
                     !res.stdout.is_empty() || !res.stderr.is_empty(),
                     "Search should explain results (found packages or 'no results')"
                 );
 
-                // If successful, should show package-like results
                 if res.code == 0 {
-                    let has_results = res.stdout.contains("package") ||
-                                     res.stdout.contains("rust") ||
-                                     res.stdout.contains("found") ||
-                                     res.stdout.contains("•");
+                    let has_results = res.stdout.contains("package")
+                        || res.stdout.contains("rust")
+                        || res.stdout.contains("found")
+                        || res.stdout.contains("•");
 
                     assert!(
                         has_results,
@@ -246,19 +240,19 @@ mod integration {
                 }
             }
             Err(_) => {
-                // Network errors are acceptable in tests, but shouldn't be silent
+                // Network errors are acceptable in tests
             }
         }
-    }
+    });
 
-    #[tokio::test]
-    async fn test_lifecycle_list() {
+    async_test_with_timeout!(test_lifecycle_list, 30, async {
+        // Arrange & Act
         let result = run_and_expect_success(vec!["lifecycle", "list"]).await;
 
+        // Assert
         match result {
             Ok(output) => {
                 assert!(!output.is_empty(), "Should list lifecycle phases");
-                // Should contain common phases
                 let has_phases = output.to_lowercase().contains("init")
                     || output.to_lowercase().contains("build")
                     || output.to_lowercase().contains("test");
@@ -266,16 +260,16 @@ mod integration {
             }
             Err(e) => panic!("Lifecycle list failed: {}", e),
         }
-    }
+    });
 
-    #[tokio::test]
-    async fn test_doctor_command() {
+    async_test_with_timeout!(test_doctor_command, 30, async {
+        // Arrange & Act
         let result = run_and_expect_success(vec!["doctor"]).await;
 
+        // Assert
         match result {
             Ok(output) => {
                 assert!(!output.is_empty(), "Doctor should output diagnostics");
-                // Should check environment
                 let checks_env = output.to_lowercase().contains("rust")
                     || output.to_lowercase().contains("cargo")
                     || output.to_lowercase().contains("environment");
@@ -283,10 +277,10 @@ mod integration {
             }
             Err(e) => panic!("Doctor command failed: {}", e),
         }
-    }
+    });
 
-    #[tokio::test]
-    async fn test_command_with_special_chars() {
+    async_test_with_timeout!(test_command_with_special_chars, 30, async {
+        // Arrange & Act
         let result = run_for_node(vec![
             "market".to_string(),
             "search".to_string(),
@@ -294,24 +288,21 @@ mod integration {
         ])
         .await;
 
+        // Assert
         match result {
             Ok(res) => {
-                // Should handle special characters without crashing
                 assert!(res.code == 0 || res.code == 1);
             }
             Err(_) => {
                 // Errors are acceptable, just shouldn't panic
             }
         }
-    }
+    });
 
-    #[tokio::test]
-    async fn test_concurrent_commands() {
-        // Test that multiple commands can run concurrently without issues
+    async_test_with_timeout!(test_concurrent_commands, 30, async {
+        // Arrange & Act
         let tasks = vec![
-            tokio::spawn(async {
-                run_for_node(vec!["--version".to_string()]).await
-            }),
+            tokio::spawn(async { run_for_node(vec!["--version".to_string()]).await }),
             tokio::spawn(async {
                 run_for_node(vec!["market".to_string(), "list".to_string()]).await
             }),
@@ -322,13 +313,13 @@ mod integration {
 
         let results = futures::future::join_all(tasks).await;
 
+        // Assert
         for result in results {
             match result {
                 Ok(Ok(_)) => {
                     // Command completed successfully
                 }
                 Ok(Err(e)) => {
-                    // Command error is acceptable
                     eprintln!("Command error (acceptable): {}", e);
                 }
                 Err(e) => {
@@ -336,21 +327,21 @@ mod integration {
                 }
             }
         }
-    }
+    });
 }
 
 #[cfg(test)]
 mod error_recovery_tests {
+    use super::*;
     use ggen_cli_lib::run_for_node;
 
-    #[tokio::test]
-    async fn test_recovers_from_invalid_utf8() {
-        // Test that the binding handles potential UTF-8 issues gracefully
+    async_test_with_timeout!(test_recovers_from_invalid_utf8, 30, async {
+        // Arrange & Act
         let result = run_for_node(vec!["--version".to_string()]).await;
 
+        // Assert
         match result {
             Ok(res) => {
-                // Should return valid UTF-8
                 assert!(std::str::from_utf8(res.stdout.as_bytes()).is_ok());
                 assert!(std::str::from_utf8(res.stderr.as_bytes()).is_ok());
             }
@@ -358,25 +349,25 @@ mod error_recovery_tests {
                 // Error is acceptable, just shouldn't panic
             }
         }
-    }
+    });
 
-    #[tokio::test]
-    async fn test_handles_missing_subcommand() {
+    async_test_with_timeout!(test_handles_missing_subcommand, 30, async {
+        // Arrange & Act
         let result = run_for_node(vec!["market".to_string()]).await;
 
+        // Assert
         match result {
             Ok(res) => {
-                // Should return help or error, not panic
                 assert!(res.code != 0 || !res.stdout.is_empty());
             }
             Err(_) => {
                 // Error is acceptable
             }
         }
-    }
+    });
 
-    #[tokio::test]
-    async fn test_handles_too_many_args() {
+    async_test_with_timeout!(test_handles_too_many_args, 30, async {
+        // Arrange & Act
         let result = run_for_node(vec![
             "market".to_string(),
             "list".to_string(),
@@ -385,48 +376,55 @@ mod error_recovery_tests {
         ])
         .await;
 
+        // Assert
         match result {
             Ok(res) => {
-                // Should handle gracefully (error or ignore)
                 assert!(res.code == 0 || res.code != 0);
             }
             Err(_) => {
                 // Error is acceptable
             }
         }
-    }
+    });
 }
 
 #[cfg(test)]
 mod timeout_tests {
+    use super::*;
     use ggen_cli_lib::run_for_node;
     use std::time::{Duration, Instant};
 
-    #[tokio::test]
-    async fn test_version_completes_quickly() {
+    async_test_with_timeout!(test_version_completes_quickly, 30, async {
+        // Arrange
         let start = Instant::now();
+
+        // Act
         let result = run_for_node(vec!["--version".to_string()]).await;
         let duration = start.elapsed();
 
-        assert!(result.is_ok(), "Version command should succeed");
+        // Assert
+        assert_ok!(&result, "Version command should succeed");
         assert!(
             duration < Duration::from_secs(5),
             "Version should complete in under 5 seconds, took {:?}",
             duration
         );
-    }
+    });
 
-    #[tokio::test]
-    async fn test_help_completes_quickly() {
+    async_test_with_timeout!(test_help_completes_quickly, 30, async {
+        // Arrange
         let start = Instant::now();
+
+        // Act
         let result = run_for_node(vec!["--help".to_string()]).await;
         let duration = start.elapsed();
 
-        assert!(result.is_ok(), "Help command should succeed");
+        // Assert
+        assert_ok!(&result, "Help command should succeed");
         assert!(
             duration < Duration::from_secs(5),
             "Help should complete in under 5 seconds, took {:?}",
             duration
         );
-    }
+    });
 }

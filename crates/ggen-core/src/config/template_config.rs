@@ -69,10 +69,7 @@ pub struct MarketplaceSettings {
 impl Default for TemplateConfig {
     fn default() -> Self {
         Self {
-            search_paths: vec![
-                PathBuf::from("templates"),
-                PathBuf::from(".ggen/templates"),
-            ],
+            search_paths: vec![PathBuf::from("templates"), PathBuf::from(".ggen/templates")],
             default_variables: HashMap::new(),
             metadata_store: PathBuf::from(".ggen/metadata.ttl"),
             cache_dir: Some(PathBuf::from(".ggen/template-cache")),

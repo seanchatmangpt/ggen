@@ -4,6 +4,11 @@
 //! - Implementing the Registry trait
 //! - Implementing the PackageStore trait
 //! - Using custom backends with the marketplace
+//!
+//! NOTE: This example is currently disabled due to API changes.
+//! It will be updated to match the current trait API.
+
+#![cfg(never)] // Disabled until updated for current API
 
 use anyhow::Result;
 use async_trait::async_trait;

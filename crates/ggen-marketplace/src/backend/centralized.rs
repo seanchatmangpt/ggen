@@ -66,6 +66,7 @@ impl CentralizedRegistry {
     }
 
     /// Fetch the registry index
+    #[allow(dead_code)]
     async fn fetch_index(&self) -> Result<RegistryIndex> {
         let url = format!("{}/api/v1/index", self.base_url);
 
@@ -335,6 +336,7 @@ impl Registry for CentralizedRegistry {
 }
 
 /// Registry index structure
+#[allow(dead_code)]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct RegistryIndex {
     pub version: String,
@@ -342,6 +344,7 @@ struct RegistryIndex {
 }
 
 /// Package entry in the index
+#[allow(dead_code)]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct PackageEntry {
     pub id: PackageId,

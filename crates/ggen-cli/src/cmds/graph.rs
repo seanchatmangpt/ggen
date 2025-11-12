@@ -2,8 +2,8 @@
 //!
 //! This module implements RDF graph operations using the v3.4.0 #[verb] pattern.
 
-use clap_noun_verb_macros::verb;
 use clap_noun_verb::Result;
+use clap_noun_verb_macros::verb;
 use serde::Serialize;
 use std::path::PathBuf;
 
@@ -58,9 +58,10 @@ fn load(file: PathBuf, format: Option<String>) -> Result<LoadOutput> {
         merge: false,
     };
 
-    let result = crate::runtime::block_on(async move {
-        execute_load(input).await
-    }).map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Load failed: {}", e)))?;
+    let result =
+        crate::runtime::block_on(async move { execute_load(input).await }).map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!("Load failed: {}", e))
+        })?;
 
     Ok(LoadOutput {
         triples_loaded: result.triples_loaded,
@@ -73,9 +74,7 @@ fn load(file: PathBuf, format: Option<String>) -> Result<LoadOutput> {
 /// Query graph with SPARQL
 #[verb]
 fn query(
-    sparql_query: String,
-    graph_file: Option<PathBuf>,
-    format: Option<String>,
+    sparql_query: String, graph_file: Option<PathBuf>, format: Option<String>,
 ) -> Result<QueryOutput> {
     use ggen_domain::graph::{execute_query, QueryInput};
 
@@ -85,9 +84,10 @@ fn query(
         format: format.unwrap_or_else(|| "json".to_string()),
     };
 
-    let result = crate::runtime::block_on(async move {
-        execute_query(input).await
-    }).map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Query failed: {}", e)))?;
+    let result =
+        crate::runtime::block_on(async move { execute_query(input).await }).map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!("Query failed: {}", e))
+        })?;
 
     Ok(QueryOutput {
         bindings: result.bindings,
@@ -108,9 +108,10 @@ fn export(input_file: PathBuf, output: PathBuf, format: String) -> Result<Export
         pretty: false,
     };
 
-    let result = crate::runtime::block_on(async move {
-        execute_export(input_data).await
-    }).map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Export failed: {}", e)))?;
+    let result = crate::runtime::block_on(async move { execute_export(input_data).await })
+        .map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!("Export failed: {}", e))
+        })?;
 
     Ok(ExportOutput {
         output_path: result.output_path,
@@ -134,9 +135,10 @@ fn visualize(input_file: PathBuf, format: Option<String>) -> Result<VisualizeOut
         subject: None,
     };
 
-    let result = crate::runtime::block_on(async move {
-        execute_visualize(input_data).await
-    }).map_err(|e| clap_noun_verb::NounVerbError::execution_error(format!("Visualize failed: {}", e)))?;
+    let result = crate::runtime::block_on(async move { execute_visualize(input_data).await })
+        .map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!("Visualize failed: {}", e))
+        })?;
 
     Ok(VisualizeOutput {
         nodes_rendered: result.nodes_rendered,

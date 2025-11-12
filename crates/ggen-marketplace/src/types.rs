@@ -52,19 +52,14 @@ pub struct SearchFilters {
     pub min_rating: Option<f32>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub enum SortOption {
+    #[default]
     Relevance,
     Downloads,
     Rating,
     UpdatedAt,
     CreatedAt,
-}
-
-impl Default for SortOption {
-    fn default() -> Self {
-        SortOption::Relevance
-    }
 }
 
 /// Search results with facets and metadata

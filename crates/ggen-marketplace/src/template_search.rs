@@ -7,7 +7,7 @@ use crate::models::{TemplatePackage, TemplateType};
 use crate::types::Package;
 
 /// Template-specific search filters
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct TemplateSearchFilters {
     /// Filter by template category
     pub category: Option<String>,
@@ -23,18 +23,6 @@ pub struct TemplateSearchFilters {
 
     /// Has examples
     pub has_examples: bool,
-}
-
-impl Default for TemplateSearchFilters {
-    fn default() -> Self {
-        Self {
-            category: None,
-            frameworks: Vec::new(),
-            template_type: None,
-            min_variables: None,
-            has_examples: false,
-        }
-    }
 }
 
 /// Template search results

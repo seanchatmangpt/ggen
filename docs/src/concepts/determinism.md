@@ -375,7 +375,7 @@ assert_eq!(code_diff.new_methods, 1, "Should have 1 new method");
 
 ```bash
 # Run the Chicago TDD end-to-end test
-cargo test --test chicago_tdd ontology_driven_e2e -- --nocapture
+cargo make test --test chicago_tdd ontology_driven_e2e -- --nocapture
 
 # Output shows:
 # [1/6] Parsing RDF...

@@ -34,80 +34,15 @@ ggen market search "GRAPHQL"
 ### Search by Category
 
 ```bash
-# View all categories
-ggen market search --list-categories
-
 # Search within category
-ggen market search --category templates
-ggen market search --category utilities
-ggen market search --category ai
-```
-
-### Search by Tags
-
-```bash
-# Find packages with specific tags
-ggen market search --tag rust
-ggen market search --tag api
-ggen market search --tag production
-```
-
-### Browse All Packages
-
-```bash
-# List all available packages
-ggen market search --all
-
-# Limit results
-ggen market search --all --limit 10
-
-# JSON output for scripting
-ggen market search --all --json
+ggen market search "query" --category templates
+ggen market search "query" --category utilities
+ggen market search "query" --category ai
 ```
 
 ## 📦 Package Information
 
-### View Package Details
-
-```bash
-# Get detailed information
-ggen market info "advanced-rust-api-8020"
-
-# Output:
-# Name: advanced-rust-api-8020
-# Version: 0.1.0
-# Description: Production-ready REST API...
-# Author: ggen-team
-# License: MIT
-# Features:
-#   - JWT authentication
-#   - PostgreSQL integration
-#   - OpenAPI documentation
-# Tags: rust, api, production
-# Dependencies: []
-```
-
-### View Package README
-
-```bash
-# Display README
-ggen market readme "advanced-rust-api-8020"
-
-# Open in browser
-ggen market readme "advanced-rust-api-8020" --web
-```
-
-### Check Package Versions
-
-```bash
-# List available versions
-ggen market versions "advanced-rust-api-8020"
-
-# Output:
-# 0.1.0 (latest)
-# 0.1.0-beta
-# 0.1.0-alpha
-```
+Package information is available through search results. Use `ggen market search` to find packages and view their details.
 
 ## 💾 Installing Packages
 
@@ -168,31 +103,6 @@ ggen market list --detailed
 ggen market list --json
 ```
 
-### Update Packages
-
-```bash
-# Update specific package
-ggen market update "package-name"
-
-# Update all packages
-ggen market update --all
-
-# Check for updates without installing
-ggen market update --check
-```
-
-### Remove Packages
-
-```bash
-# Remove package
-ggen market remove "package-name"
-
-# Remove with dependencies (if not used elsewhere)
-ggen market remove "package-name" --cascade
-
-# Dry run
-ggen market remove "package-name" --dry-run
-```
 
 ## 🎯 Using Installed Packages
 
@@ -255,21 +165,13 @@ ggen lifecycle run
 ```bash
 # View package manifest
 cat ~/.ggen/packages/package-name/package.toml
-
-# Edit package configuration
-ggen market config "package-name" --edit
 ```
 
 ### Package Dependencies
 
 ```bash
-# Show dependency tree
-ggen market deps "package-name"
-
-# Visualize dependencies
-ggen market deps "package-name" --graph
-
-# Find packages that depend on this
+# View package dependencies - check package.toml file
+cat ~/.ggen/packages/package-name/package.toml | grep dependencies
 ggen market reverse-deps "package-name"
 ```
 
@@ -385,16 +287,8 @@ ggen market search "microservice production ready"
 ### Combining Filters
 
 ```bash
-# Category + tag
-ggen market search \
-  --category templates \
-  --tag production
-
-# Multiple tags
-ggen market search \
-  --tag rust \
-  --tag api \
-  --tag docker
+# Search with category filter
+ggen market search "query" --category templates
 
 # Limit results
 ggen market search "api" --limit 5
@@ -442,15 +336,8 @@ ggen market cache path
 ### Verify Package Integrity
 
 ```bash
-# Check package checksums
-ggen market verify "package-name"
-
-# View package source
-ggen market source "package-name"
-
-# Review before installation
-ggen market info "package-name"
-ggen market readme "package-name"
+# Review before installation - use search to view package details
+ggen market search "package-name"
 ```
 
 ### Safe Installation
@@ -563,8 +450,7 @@ ggen market install "package" && \
 cd package && \
 ggen lifecycle run
 
-# Update all packages daily (cron)
-0 9 * * * ggen market update --all --quiet
+# Note: Package update functionality is not yet implemented
 ```
 
 ## 🆘 Getting Help
@@ -598,7 +484,7 @@ gh issue create \
 
 ## 📚 Next Steps
 
-1. **Explore Packages**: `ggen market search --all`
+1. **Explore Packages**: `ggen market search ""` (empty query to see all)
 2. **Try Examples**: Install and run sample packages
 3. **Build Projects**: Use templates for your projects
 4. **Contribute**: Publish your own packages

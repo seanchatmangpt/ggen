@@ -51,7 +51,7 @@ cache = { type = "string", default = "redis", description = "Cache provider" }
 [examples]
 basic = """
 # Install the package
-ggen market add microservices-architecture
+ggen market install microservices-architecture
 
 # Initialize project
 cd microservices-architecture

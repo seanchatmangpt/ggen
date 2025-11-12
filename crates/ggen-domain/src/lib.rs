@@ -25,6 +25,8 @@
 //! - `ci` - CI/CD operations
 //! - `shell` - Shell completion generation
 
+#![deny(warnings)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
+
 pub mod ai;
 pub mod audit;
 pub mod ci;
@@ -38,5 +40,4 @@ pub mod template;
 pub mod utils;
 
 // Re-export commonly used types for convenience
-pub use ggen_utils::error::{Result, Error};
-
+pub use ggen_utils::error::{Error, Result};

@@ -9,7 +9,7 @@ See `package.toml` for complete feature list.
 ## Installation
 
 ```bash
-ggen market add agent-editor
+ggen market install agent-editor
 ```
 
 ## Usage

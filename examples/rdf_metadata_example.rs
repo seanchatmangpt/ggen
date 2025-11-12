@@ -8,9 +8,7 @@
 //! - Template discovery and relationships
 
 use anyhow::Result;
-use ggen_core::rdf::{
-    TemplateMetadata, TemplateMetadataStore, TemplateVariable, Validator,
-};
+use ggen_core::rdf::{TemplateMetadata, TemplateMetadataStore, TemplateVariable, Validator};
 
 fn main() -> Result<()> {
     println!("=== Ggen RDF Metadata Example ===\n");
@@ -82,7 +80,10 @@ fn main() -> Result<()> {
     println!("   ✓ Created metadata for: {}", rust_template.name);
     println!("   - Version: {}", rust_template.version.as_ref().unwrap());
     println!("   - Variables: {}", rust_template.variables.len());
-    println!("   - Generated files: {}", rust_template.generated_files.len());
+    println!(
+        "   - Generated files: {}",
+        rust_template.generated_files.len()
+    );
     println!();
 
     // 3. Validate metadata
@@ -128,7 +129,11 @@ fn main() -> Result<()> {
     python_template.version = Some("2.1.0".to_string());
     python_template.description = Some("FastAPI REST service with async support".to_string());
     python_template.category = Some("web".to_string());
-    python_template.tags = vec!["python".to_string(), "fastapi".to_string(), "api".to_string()];
+    python_template.tags = vec![
+        "python".to_string(),
+        "fastapi".to_string(),
+        "api".to_string(),
+    ];
     python_template.stability = Some("stable".to_string());
 
     let mut typescript_template = TemplateMetadata::new(
@@ -165,7 +170,11 @@ fn main() -> Result<()> {
     println!("   Found {} web templates:", web_templates.len());
     for template_id in &web_templates {
         if let Some(metadata) = store.get_metadata(template_id)? {
-            println!("     - {} (v{})", metadata.name, metadata.version.unwrap_or_default());
+            println!(
+                "     - {} (v{})",
+                metadata.name,
+                metadata.version.unwrap_or_default()
+            );
         }
     }
     println!();
@@ -176,7 +185,11 @@ fn main() -> Result<()> {
     println!("   Found {} Rust templates:", rust_templates.len());
     for template_id in &rust_templates {
         if let Some(metadata) = store.get_metadata(template_id)? {
-            println!("     - {} ({})", metadata.name, metadata.stability.unwrap_or_default());
+            println!(
+                "     - {} ({})",
+                metadata.name,
+                metadata.stability.unwrap_or_default()
+            );
         }
     }
     println!();
@@ -200,8 +213,14 @@ fn main() -> Result<()> {
     println!("   Query: All stable templates");
     let results = store.query(stable_query)?;
     for row in &results {
-        let name = row.get("name").map(|s| s.trim_matches('"')).unwrap_or("Unknown");
-        let version = row.get("version").map(|s| s.trim_matches('"')).unwrap_or("N/A");
+        let name = row
+            .get("name")
+            .map(|s| s.trim_matches('"'))
+            .unwrap_or("Unknown");
+        let version = row
+            .get("version")
+            .map(|s| s.trim_matches('"'))
+            .unwrap_or("N/A");
         println!("     - {}: v{}", name, version);
     }
     println!();
@@ -223,8 +242,14 @@ fn main() -> Result<()> {
     println!("   Query: Templates with >80% test coverage");
     let results = store.query(coverage_query)?;
     for row in &results {
-        let name = row.get("name").map(|s| s.trim_matches('"')).unwrap_or("Unknown");
-        let coverage = row.get("coverage").map(|s| s.trim_matches('"')).unwrap_or("N/A");
+        let name = row
+            .get("name")
+            .map(|s| s.trim_matches('"'))
+            .unwrap_or("Unknown");
+        let coverage = row
+            .get("coverage")
+            .map(|s| s.trim_matches('"'))
+            .unwrap_or("N/A");
         println!("     - {}: {}%", name, coverage);
     }
     println!();

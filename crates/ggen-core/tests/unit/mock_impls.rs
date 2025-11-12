@@ -1,8 +1,8 @@
 //! Mock implementations for testing
 
-use ggen_core::registry::{PackMetadata, VersionMetadata, RegistryIndex};
-use std::collections::HashMap;
 use chrono::Utc;
+use ggen_core::registry::{PackMetadata, RegistryIndex, VersionMetadata};
+use std::collections::HashMap;
 
 /// Create a mock VersionMetadata for testing
 pub fn create_mock_version(version: &str) -> VersionMetadata {
@@ -18,7 +18,10 @@ pub fn create_mock_version(version: &str) -> VersionMetadata {
 /// Create a mock PackMetadata for testing
 pub fn create_mock_pack(id: &str, name: &str, latest_version: &str) -> PackMetadata {
     let mut versions = HashMap::new();
-    versions.insert(latest_version.to_string(), create_mock_version(latest_version));
+    versions.insert(
+        latest_version.to_string(),
+        create_mock_version(latest_version),
+    );
 
     PackMetadata {
         id: id.to_string(),

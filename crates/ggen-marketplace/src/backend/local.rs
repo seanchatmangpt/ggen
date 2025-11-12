@@ -286,13 +286,17 @@ mod tests {
 
         let registry = LocalRegistry::new(db_path).await.unwrap();
 
-        let package = Package::builder(PackageId::new("test", "example"), Version::new(1, 0, 0))
-            .title("Example Package")
-            .description("A test package")
-            .license("MIT")
-            .content_id(ContentId::new("abc123", HashAlgorithm::Sha256))
-            .build()
-            .unwrap();
+        let unvalidated =
+            Package::builder(PackageId::new("test", "example"), Version::new(1, 0, 0))
+                .title("Example Package")
+                .description("A test package")
+                .license("MIT")
+                .content_id(ContentId::new("abc123", HashAlgorithm::Sha256))
+                .build()
+                .unwrap();
+
+        let validated = unvalidated.validate().unwrap();
+        let package = validated.package().clone();
 
         registry.add_package(package).await.unwrap();
 

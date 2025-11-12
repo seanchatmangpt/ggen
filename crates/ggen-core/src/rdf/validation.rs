@@ -255,16 +255,19 @@ impl Validator {
             if !is_valid_identifier(&var.name) {
                 report.add_error(
                     format!("{}.variableName", var_path),
-                    "Variable name must be a valid identifier (letters, numbers, underscores)".to_string(),
+                    "Variable name must be a valid identifier (letters, numbers, underscores)"
+                        .to_string(),
                     Some(var.name.clone()),
                 );
             }
 
             // Validate variable type
-            if !["string", "number", "boolean", "array", "object"].contains(&var.var_type.as_str()) {
+            if !["string", "number", "boolean", "array", "object"].contains(&var.var_type.as_str())
+            {
                 report.add_error(
                     format!("{}.variableType", var_path),
-                    "Variable type must be one of: string, number, boolean, array, object".to_string(),
+                    "Variable type must be one of: string, number, boolean, array, object"
+                        .to_string(),
                     Some(var.var_type.clone()),
                 );
             }
@@ -273,7 +276,8 @@ impl Validator {
             if var.required && var.description.is_none() {
                 report.add_info(
                     format!("{}.description", var_path),
-                    "Required variables should have a description for better documentation".to_string(),
+                    "Required variables should have a description for better documentation"
+                        .to_string(),
                     None,
                 );
             }
@@ -385,10 +389,8 @@ mod tests {
 
     #[test]
     fn test_validate_empty_name() -> Result<()> {
-        let metadata = TemplateMetadata::new(
-            "http://example.org/template1".to_string(),
-            "".to_string(),
-        );
+        let metadata =
+            TemplateMetadata::new("http://example.org/template1".to_string(), "".to_string());
 
         let validator = Validator::new();
         let report = validator.validate(&metadata)?;
@@ -450,7 +452,10 @@ mod tests {
         let report = validator.validate(&metadata)?;
 
         assert!(!report.is_valid());
-        assert!(report.errors.iter().any(|e| e.path.contains("variableName")));
+        assert!(report
+            .errors
+            .iter()
+            .any(|e| e.path.contains("variableName")));
 
         Ok(())
     }
@@ -473,7 +478,10 @@ mod tests {
         let report = validator.validate(&metadata)?;
 
         assert!(!report.is_valid());
-        assert!(report.errors.iter().any(|e| e.path.contains("variableType")));
+        assert!(report
+            .errors
+            .iter()
+            .any(|e| e.path.contains("variableType")));
 
         Ok(())
     }

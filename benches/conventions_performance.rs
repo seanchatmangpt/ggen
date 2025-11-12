@@ -40,9 +40,7 @@
 //! cargo bench --bench conventions_performance -- incremental
 //! ```
 
-use criterion::{
-    black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput,
-};
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 use std::fs;
 use std::io::Write as IoWrite;
 use std::path::{Path, PathBuf};
@@ -226,12 +224,7 @@ fn setup_templates(count: usize) -> TempDir {
     for i in 0..count {
         let template_file = template_dir.join(format!("template_{}.tera", i));
         let mut file = fs::File::create(&template_file).unwrap();
-        writeln!(
-            file,
-            "// Template {}\n{{{{ name }}}}\n{{{{ content }}}}",
-            i
-        )
-        .unwrap();
+        writeln!(file, "// Template {}\n{{{{ name }}}}\n{{{{ content }}}}", i).unwrap();
     }
 
     temp_dir
@@ -281,7 +274,9 @@ fn build_generation_plan(root: &Path) -> Vec<(PathBuf, PathBuf)> {
         // Simple convention: template_name.tera -> output/template_name.rs
         for template in templates {
             if let Some(stem) = template.file_stem() {
-                let output = root.join("output").join(format!("{}.rs", stem.to_string_lossy()));
+                let output = root
+                    .join("output")
+                    .join(format!("{}.rs", stem.to_string_lossy()));
                 plan.push((template, output));
             }
         }
@@ -344,9 +339,7 @@ fn bench_watch_mode_latency(c: &mut Criterion) {
         b.iter_batched(
             || setup_watch_mode_project(),
             |temp_dir| {
-                let template_file = temp_dir
-                    .path()
-                    .join(".ggen/templates/main.tera");
+                let template_file = temp_dir.path().join(".ggen/templates/main.tera");
 
                 // Simulate file change
                 let start = Instant::now();
@@ -511,7 +504,8 @@ fn bench_full_project_generation(c: &mut Criterion) {
                     let template_content = fs::read_to_string(&template_path).unwrap();
 
                     // Simple template rendering (replace {{ name }} with "MyApp")
-                    let rendered = template_content.replace("{{ name }}", "MyApp")
+                    let rendered = template_content
+                        .replace("{{ name }}", "MyApp")
                         .replace("{{ app_name }}", "my-app")
                         .replace("{{ version }}", "1.0.0");
 
@@ -550,9 +544,15 @@ fn setup_full_clap_project() -> TempDir {
     let templates = vec![
         ("main.tera", include_str!("../templates/clap_main.template")),
         ("cli.tera", include_str!("../templates/clap_cli.template")),
-        ("commands.tera", include_str!("../templates/clap_commands.template")),
+        (
+            "commands.tera",
+            include_str!("../templates/clap_commands.template"),
+        ),
         ("lib.tera", include_str!("../templates/clap_lib.template")),
-        ("cargo.tera", include_str!("../templates/clap_cargo.template")),
+        (
+            "cargo.tera",
+            include_str!("../templates/clap_cargo.template"),
+        ),
     ];
 
     for (name, content) in templates {

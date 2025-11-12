@@ -42,23 +42,23 @@ args = ["build", "--release"]
 description = "Run comprehensive test suite"
 script = '''
 echo "Running unit tests..."
-cargo test --lib
+cargo make test
 
 echo "Running integration tests..."
-cargo test --test '*'
+cargo make test-integration
 
 echo "Running doc tests..."
-cargo test --doc
+cargo make test-doc
 '''
 
 [tasks.lint]
 description = "Run clippy and formatting checks"
 script = '''
 echo "Running clippy..."
-cargo clippy --all-targets --all-features -- -D warnings
+cargo make lint
 
 echo "Checking formatting..."
-cargo fmt -- --check
+cargo make fmt
 '''
 
 [tasks.security]

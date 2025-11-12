@@ -1,0 +1,43 @@
+[package]
+name = "knowledge-graph-cli"
+version = "1.0.0"
+namespace = "io.ggen.cli.knowledge-graph"
+description = "Knowledge graph operations CLI using clap-noun-verb pattern"
+authors = ["ggen-team"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/seanchatmangpt/ggen"
+keywords = ["knowledge-graph", "rdf", "graph", "cli", "clap-noun-verb"]
+categories = ["cli-tools", "semantic-web", "graph-databases"]
+
+[features]
+default = ["graph-operations", "inference", "persistence"]
+graph-operations = ["petgraph"]
+inference = ["owlapi-rust"]
+persistence = ["sled"]
+
+[dependencies]
+clap-noun-verb = "3.4.0"
+clap-noun-verb-macros = "3.4.0"
+petgraph = "0.6"
+oxigraph = "0.3"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "1.0"
+anyhow = "1.0"
+uuid = { version = "1.0", features = ["v4", "serde"] }
+
+[marketplace]
+category = "cli-tools"
+subcategory = "graph-databases"
+tags = ["knowledge-graph", "rdf", "inference", "graph", "clap-noun-verb"]
+crates_io_ready = true
+production_ready = true
+
+[templates]
+cli = "templates/cli.tmpl"
+lib = "templates/lib.tmpl"
+commands = "templates/commands.tmpl"
+
+[ontology]
+file = "rdf/ontology.ttl"
+namespace = "http://ggen.io/ontology/knowledge-graph-cli#"

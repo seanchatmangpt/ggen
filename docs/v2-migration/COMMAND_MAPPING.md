@@ -81,7 +81,7 @@
 ## Directory Structure
 
 ```
-cli/src/
+crates/ggen-cli/src/
 ├── cmds/                          # CLI Layer (1,608 LOC total)
 │   ├── mod.rs                     # Main router (58 LOC)
 │   ├── template.rs                # Template commands (238 LOC)
@@ -93,7 +93,9 @@ cli/src/
 │   ├── utils.rs                   # Utils commands (67 LOC)
 │   └── ci.rs                      # CI commands (45 LOC)
 │
-├── domain/                        # Domain Layer (9,533 LOC total)
+├── runtime.rs                     # Async/sync bridge
+│
+crates/ggen-domain/src/            # Domain Layer (9,533 LOC total)
 │   ├── template/                  # Template operations (2,847 LOC)
 │   │   ├── mod.rs                 # Module exports
 │   │   ├── generate.rs            # Generation logic (342 LOC)

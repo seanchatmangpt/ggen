@@ -131,10 +131,8 @@ impl MockP2PNetwork {
 
     /// Add a node to the network
     fn add_node(&mut self, peer_id: &str) -> &mut MockP2PRegistry {
-        self.nodes.insert(
-            peer_id.to_string(),
-            MockP2PRegistry::new(peer_id),
-        );
+        self.nodes
+            .insert(peer_id.to_string(), MockP2PRegistry::new(peer_id));
         self.nodes.get_mut(peer_id).unwrap()
     }
 
@@ -180,7 +178,9 @@ async fn test_p2p_peer_discovery() -> Result<()> {
     // Verify connection
     let peer = network.get_node("peer-1").unwrap();
     assert_eq!(peer.connected_peers().len(), 1);
-    assert!(peer.connected_peers().contains(&"bootstrap-peer".to_string()));
+    assert!(peer
+        .connected_peers()
+        .contains(&"bootstrap-peer".to_string()));
 
     Ok(())
 }
@@ -197,10 +197,9 @@ async fn test_p2p_multi_peer_connectivity() -> Result<()> {
     // Connect peers in a mesh topology
     for i in 0..5 {
         for j in (i + 1)..5 {
-            network.connect_nodes(
-                &format!("peer-{}", i),
-                &format!("peer-{}", j),
-            ).await?;
+            network
+                .connect_nodes(&format!("peer-{}", i), &format!("peer-{}", j))
+                .await?;
         }
     }
 
@@ -228,13 +227,16 @@ async fn test_p2p_publish_package() -> Result<()> {
 
     // Create test package
     let mut versions = HashMap::new();
-    versions.insert("1.0.0".to_string(), VersionMetadata {
-        version: "1.0.0".to_string(),
-        git_url: "https://github.com/test/p2p-package.git".to_string(),
-        git_rev: "v1.0.0".to_string(),
-        manifest_url: None,
-        sha256: "test-hash".to_string(),
-    });
+    versions.insert(
+        "1.0.0".to_string(),
+        VersionMetadata {
+            version: "1.0.0".to_string(),
+            git_url: "https://github.com/test/p2p-package.git".to_string(),
+            git_rev: "v1.0.0".to_string(),
+            manifest_url: None,
+            sha256: "test-hash".to_string(),
+        },
+    );
 
     let package = PackMetadata {
         id: "p2p-test-package".to_string(),
@@ -280,13 +282,16 @@ async fn test_p2p_package_propagation() -> Result<()> {
 
     // Publish package on peer-a
     let mut versions = HashMap::new();
-    versions.insert("1.0.0".to_string(), VersionMetadata {
-        version: "1.0.0".to_string(),
-        git_url: "https://github.com/test/propagate.git".to_string(),
-        git_rev: "v1.0.0".to_string(),
-        manifest_url: None,
-        sha256: "propagate-hash".to_string(),
-    });
+    versions.insert(
+        "1.0.0".to_string(),
+        VersionMetadata {
+            version: "1.0.0".to_string(),
+            git_url: "https://github.com/test/propagate.git".to_string(),
+            git_rev: "v1.0.0".to_string(),
+            manifest_url: None,
+            sha256: "propagate-hash".to_string(),
+        },
+    );
 
     let package = PackMetadata {
         id: "propagated-package".to_string(),
@@ -347,10 +352,13 @@ async fn test_p2p_distributed_search() -> Result<()> {
 
     // Connect peers
     network.connect_nodes("peer-rust", "peer-python").await?;
-    network.connect_nodes("peer-python", "peer-javascript").await?;
+    network
+        .connect_nodes("peer-python", "peer-javascript")
+        .await?;
 
     // Add rust package to peer-rust
-    let rust_package = create_test_package("rust-web-server", "Rust web server", vec!["rust", "web"]);
+    let rust_package =
+        create_test_package("rust-web-server", "Rust web server", vec!["rust", "web"]);
     if let Some(peer) = network.get_node_mut("peer-rust") {
         peer.publish_package(rust_package).await?;
     }
@@ -362,7 +370,11 @@ async fn test_p2p_distributed_search() -> Result<()> {
     }
 
     // Add javascript package to peer-javascript
-    let js_package = create_test_package("nodejs-service", "Node.js service", vec!["javascript", "nodejs"]);
+    let js_package = create_test_package(
+        "nodejs-service",
+        "Node.js service",
+        vec!["javascript", "nodejs"],
+    );
     if let Some(peer) = network.get_node_mut("peer-javascript") {
         peer.publish_package(js_package).await?;
     }
@@ -382,19 +394,13 @@ async fn test_p2p_search_with_timeout() -> Result<()> {
     registry.latency_ms = 2000; // 2 second latency
 
     // Search with 1 second timeout should fail
-    let result = timeout(
-        Duration::from_millis(1000),
-        registry.search("test"),
-    ).await;
+    let result = timeout(Duration::from_millis(1000), registry.search("test")).await;
 
     assert!(result.is_err(), "Search should timeout");
 
     // Search with 3 second timeout should succeed
     registry.latency_ms = 10; // Reset to fast
-    let result = timeout(
-        Duration::from_millis(3000),
-        registry.search("test"),
-    ).await;
+    let result = timeout(Duration::from_millis(3000), registry.search("test")).await;
 
     assert!(result.is_ok(), "Search should succeed with longer timeout");
 
@@ -488,11 +494,13 @@ async fn test_p2p_network_partition_handling() -> Result<()> {
     assert!(local_package.is_some());
 
     // Simulate network heal
-    registry.simulate_heal(vec![
-        "peer-1".to_string(),
-        "peer-2".to_string(),
-        "peer-3".to_string(),
-    ]).await?;
+    registry
+        .simulate_heal(vec![
+            "peer-1".to_string(),
+            "peer-2".to_string(),
+            "peer-3".to_string(),
+        ])
+        .await?;
 
     assert_eq!(registry.connected_peers().len(), 3);
 
@@ -511,7 +519,9 @@ async fn test_p2p_peer_failure_recovery() -> Result<()> {
     // Connect in a ring: 0->1->2->3->4->0
     for i in 0..5 {
         let next = (i + 1) % 5;
-        network.connect_nodes(&format!("peer-{}", i), &format!("peer-{}", next)).await?;
+        network
+            .connect_nodes(&format!("peer-{}", i), &format!("peer-{}", next))
+            .await?;
     }
 
     // Publish package on peer-0
@@ -679,13 +689,16 @@ async fn test_p2p_large_network_scalability() -> Result<()> {
 /// Create a test package with the given ID, description, and tags
 fn create_test_package(id: &str, description: &str, tags: Vec<&str>) -> PackMetadata {
     let mut versions = HashMap::new();
-    versions.insert("1.0.0".to_string(), VersionMetadata {
-        version: "1.0.0".to_string(),
-        git_url: format!("https://github.com/test/{}.git", id),
-        git_rev: "v1.0.0".to_string(),
-        manifest_url: None,
-        sha256: format!("hash-{}", id),
-    });
+    versions.insert(
+        "1.0.0".to_string(),
+        VersionMetadata {
+            version: "1.0.0".to_string(),
+            git_url: format!("https://github.com/test/{}.git", id),
+            git_rev: "v1.0.0".to_string(),
+            manifest_url: None,
+            sha256: format!("hash-{}", id),
+        },
+    );
 
     PackMetadata {
         id: id.to_string(),

@@ -63,11 +63,7 @@ impl ShellType {
             Self::Fish => {
                 // Try XDG_CONFIG_HOME first, then fallback to ~/.config/fish
                 if let Ok(xdg_config) = std::env::var("XDG_CONFIG_HOME") {
-                    Some(
-                        PathBuf::from(xdg_config)
-                            .join("fish")
-                            .join("completions"),
-                    )
+                    Some(PathBuf::from(xdg_config).join("fish").join("completions"))
                 } else if let Ok(home) = std::env::var("HOME") {
                     Some(
                         PathBuf::from(home)
@@ -131,8 +127,9 @@ pub struct FileSystemCompletionInstaller;
 
 impl CompletionInstaller for FileSystemCompletionInstaller {
     fn install(&self, result: &CompletionResult, force: bool) -> Result<PathBuf> {
-        let dir = result.shell.default_completion_dir()
-            .ok_or_else(|| ggen_utils::error::Error::new("Could not determine completion directory"))?;
+        let dir = result.shell.default_completion_dir().ok_or_else(|| {
+            ggen_utils::error::Error::new("Could not determine completion directory")
+        })?;
 
         let filename = format!("ggen.{}", result.shell.as_str());
         let path = dir.join(filename);
@@ -208,7 +205,10 @@ mod tests {
         assert_eq!(ShellType::from_str("BASH"), Some(ShellType::Bash));
         assert_eq!(ShellType::from_str("zsh"), Some(ShellType::Zsh));
         assert_eq!(ShellType::from_str("fish"), Some(ShellType::Fish));
-        assert_eq!(ShellType::from_str("powershell"), Some(ShellType::PowerShell));
+        assert_eq!(
+            ShellType::from_str("powershell"),
+            Some(ShellType::PowerShell)
+        );
         assert_eq!(ShellType::from_str("pwsh"), Some(ShellType::PowerShell));
         assert_eq!(ShellType::from_str("invalid"), None);
     }

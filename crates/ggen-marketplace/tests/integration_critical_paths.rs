@@ -23,8 +23,14 @@ async fn setup_local_registry() -> (LocalRegistry, TempDir) {
 fn create_test_package(name: &str, version: &str) -> Result<Package> {
     let version_parts: Vec<&str> = version.split('.').collect();
     let major = version_parts[0].parse().unwrap_or(1);
-    let minor = version_parts.get(1).and_then(|v| v.parse().ok()).unwrap_or(0);
-    let patch = version_parts.get(2).and_then(|v| v.parse().ok()).unwrap_or(0);
+    let minor = version_parts
+        .get(1)
+        .and_then(|v| v.parse().ok())
+        .unwrap_or(0);
+    let patch = version_parts
+        .get(2)
+        .and_then(|v| v.parse().ok())
+        .unwrap_or(0);
 
     Package::builder(
         PackageId::new("test", name),
@@ -167,10 +173,7 @@ async fn test_critical_content_addressable_storage() -> Result<()> {
     );
 
     // Act: Verify content exists
-    assert!(
-        store.exists(&id1).await?,
-        "Stored content must be findable"
-    );
+    assert!(store.exists(&id1).await?, "Stored content must be findable");
 
     // Act: Get metadata
     let metadata = store.metadata(&id1).await?;
@@ -225,10 +228,7 @@ async fn test_critical_package_not_found_error() -> Result<()> {
         .await;
 
     // Assert: Should return NotFound error
-    assert!(
-        result.is_err(),
-        "Getting non-existent package should fail"
-    );
+    assert!(result.is_err(), "Getting non-existent package should fail");
 
     if let Err(e) = result {
         let error_msg = e.to_string().to_lowercase();
@@ -254,10 +254,7 @@ async fn test_critical_duplicate_version_error() -> Result<()> {
     let result = registry.publish(pkg).await;
 
     // Assert: Should return error on duplicate
-    assert!(
-        result.is_err(),
-        "Publishing duplicate version should fail"
-    );
+    assert!(result.is_err(), "Publishing duplicate version should fail");
 
     if let Err(e) = result {
         let error_msg = e.to_string().to_lowercase();
@@ -274,12 +271,9 @@ async fn test_critical_duplicate_version_error() -> Result<()> {
 #[tokio::test]
 async fn test_critical_invalid_package_builder() {
     // Act: Try to build package without required fields
-    let result = Package::builder(
-        PackageId::new("test", "invalid"),
-        Version::new(1, 0, 0),
-    )
-    // Missing: title, description, content_id
-    .build();
+    let result = Package::builder(PackageId::new("test", "invalid"), Version::new(1, 0, 0))
+        // Missing: title, description, content_id
+        .build();
 
     // Assert: Should fail validation
     assert!(
@@ -447,10 +441,7 @@ async fn test_critical_concurrent_registry_access() -> Result<()> {
     // Assert: All publishes should succeed
     for result in results {
         let publish_result = result.expect("task panicked");
-        assert!(
-            publish_result.is_ok(),
-            "Concurrent publish should succeed"
-        );
+        assert!(publish_result.is_ok(), "Concurrent publish should succeed");
     }
 
     // Assert: All packages should be searchable

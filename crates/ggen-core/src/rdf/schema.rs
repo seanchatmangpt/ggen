@@ -216,10 +216,7 @@ mod tests {
     #[test]
     fn test_namespace_constants() {
         assert_eq!(GGEN_NAMESPACE, "http://ggen.dev/ontology#");
-        assert_eq!(
-            RDF_NAMESPACE,
-            "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-        );
+        assert_eq!(RDF_NAMESPACE, "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
         assert_eq!(RDFS_NAMESPACE, "http://www.w3.org/2000/01/rdf-schema#");
     }
 }

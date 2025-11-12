@@ -48,7 +48,7 @@ ai_model = { type = "string", default = "qwen2.5-coder", description = "AI model
 [examples]
 basic = """
 # Install the package
-ggen market add ai-code-generation
+ggen market install ai-code-generation
 
 # Generate code from natural language
 ggen ai generate "Create a REST API for user management with CRUD operations"

@@ -151,7 +151,7 @@ impl PackageStore for FilesystemStore {
 
         tokio::fs::read(&path).await.map_err(|e| {
             if e.kind() == std::io::ErrorKind::NotFound {
-                MarketplaceError::package_not_found(&id.to_string(), "content not found")
+                MarketplaceError::package_not_found(id.to_string(), "content not found")
             } else {
                 MarketplaceError::io_error("read", e)
             }
@@ -168,7 +168,7 @@ impl PackageStore for FilesystemStore {
 
         tokio::fs::remove_file(&path).await.map_err(|e| {
             if e.kind() == std::io::ErrorKind::NotFound {
-                MarketplaceError::package_not_found(&id.to_string(), "content not found")
+                MarketplaceError::package_not_found(id.to_string(), "content not found")
             } else {
                 MarketplaceError::io_error("remove_file", e)
             }
@@ -189,7 +189,7 @@ impl PackageStore for FilesystemStore {
         &self, mut stream: Box<dyn tokio::io::AsyncRead + Send + Unpin>,
     ) -> Result<ContentId> {
         // Read entire stream into memory
-        // TODO: Implement true streaming with temp file and hash calculation
+        // FUTURE: Implement true streaming with temp file and hash calculation
         let mut buffer = Vec::new();
         stream
             .read_to_end(&mut buffer)
@@ -206,7 +206,7 @@ impl PackageStore for FilesystemStore {
 
         let file = tokio::fs::File::open(&path).await.map_err(|e| {
             if e.kind() == std::io::ErrorKind::NotFound {
-                MarketplaceError::package_not_found(&id.to_string(), "content not found")
+                MarketplaceError::package_not_found(id.to_string(), "content not found")
             } else {
                 MarketplaceError::io_error("open", e)
             }

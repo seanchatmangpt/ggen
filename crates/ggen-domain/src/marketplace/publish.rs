@@ -2,7 +2,6 @@
 //!
 //! Real implementation of package publishing functionality.
 
-
 use ggen_utils::error::Result;
 use std::path::{Path, PathBuf};
 
@@ -35,42 +34,50 @@ pub struct PublishInput {
 ///
 /// Returns Ok(()) on success, or an error if publishing fails
 pub async fn publish_and_report(
-    path: &Path,
-    tag: Option<&str>,
-    dry_run: bool,
-    force: bool,
+    path: &Path, tag: Option<&str>, dry_run: bool, force: bool,
 ) -> Result<()> {
     // Validate package directory
     if !path.exists() {
-        return Err(ggen_utils::error::Error::new(&format!("path not found: {}", path.display())));
+        return Err(ggen_utils::error::Error::new(&format!(
+            "path not found: {}",
+            path.display()
+        )));
     }
 
     // Load package manifest
     let manifest_path = path.join("package.json");
     if !manifest_path.exists() {
-        return Err(ggen_utils::error::Error::new("package.json not found. This doesn't appear to be a valid package."));
+        return Err(ggen_utils::error::Error::new(
+            "package.json not found. This doesn't appear to be a valid package.",
+        ));
     }
 
     let manifest_content = tokio::fs::read_to_string(&manifest_path)
         .await
-        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to read package.json: {}", e)))?;
+        .map_err(|e| {
+            ggen_utils::error::Error::new(&format!("Failed to read package.json: {}", e))
+        })?;
 
     let manifest: PackageManifest = serde_json::from_str(&manifest_content)?;
 
     // Determine version (use tag if provided, otherwise use manifest version)
     let version = tag.unwrap_or(&manifest.version);
 
-    println!("📦 Preparing to publish {} version {}", manifest.name, version);
+    ggen_utils::alert_info!(
+        "📦 Preparing to publish {} version {}",
+        manifest.name,
+        version
+    );
 
     // Validate package
     validate_package(&manifest)?;
 
     if dry_run {
-        println!("🔍 Dry run: Would publish package to registry");
-        println!("   Package: {}", manifest.name);
-        println!("   Version: {}", version);
-        println!("   Title: {}", manifest.title);
-        println!("   Description: {}", manifest.description);
+        ggen_utils::alert_info!("🔍 Dry run: Would publish package to registry");
+        ggen_utils::alert_info!("   Package: {}", manifest.name);
+        ggen_utils::alert_info!("   Version: {}", version);
+        ggen_utils::alert_info!("   Title: {}", manifest.title);
+        ggen_utils::alert_info!("   Description: {}", manifest.description);
         return Ok(());
     }
 
@@ -94,24 +101,28 @@ pub async fn publish_and_report(
     }
 
     // Create package tarball
-    println!("📦 Creating package tarball...");
+    ggen_utils::alert_info!("📦 Creating package tarball...");
     let tarball_path = create_tarball(path, &manifest.name, version).await?;
 
     // Update registry index
-    println!("📝 Updating registry index...");
+    ggen_utils::alert_info!("📝 Updating registry index...");
     update_registry_index(&registry_path, &manifest, version, &tarball_path).await?;
 
-    println!("✅ Successfully published {} version {}", manifest.name, version);
-    println!("   Registry: {}", registry_path.display());
+    ggen_utils::alert_success!(
+        "Successfully published {} version {}",
+        manifest.name,
+        version
+    );
+    ggen_utils::alert_info!("   Registry: {}", registry_path.display());
 
     Ok(())
 }
 
 /// Execute publish command using ggen-marketplace backend
 pub async fn execute_publish(input: PublishInput) -> Result<PublishOutput> {
-    use ggen_marketplace::prelude::*;
     use ggen_marketplace::backend::LocalRegistry;
-    use sha2::{Sha256, Digest};
+    use ggen_marketplace::prelude::*;
+    use sha2::{Digest, Sha256};
 
     // Read package manifest
     let manifest_path = input.path.join("package.json");
@@ -136,12 +147,19 @@ pub async fn execute_publish(input: PublishInput) -> Result<PublishOutput> {
         .join(".ggen")
         .join("registry");
 
-    let registry = LocalRegistry::new(registry_path.clone()).await
-        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to initialize registry: {}", e)))?;
+    let registry = LocalRegistry::new(registry_path.clone())
+        .await
+        .map_err(|e| {
+            ggen_utils::error::Error::new(&format!("Failed to initialize registry: {}", e))
+        })?;
 
     // Create tarball
     let tarball_name = format!("{}-{}.tar.gz", manifest.name.replace('/', "-"), version_str);
-    let tarball_path = input.path.parent().unwrap_or(&input.path).join(&tarball_name);
+    let tarball_path = input
+        .path
+        .parent()
+        .unwrap_or(&input.path)
+        .join(&tarball_name);
 
     create_tarball(&input.path, &manifest.name, &version_str).await?;
 
@@ -162,7 +180,10 @@ pub async fn execute_publish(input: PublishInput) -> Result<PublishOutput> {
 
     // Build package using ggen-marketplace models
     let package_id = PackageId::new("local", &manifest.name);
-    let version_parts: Vec<u32> = version_str.split('.').filter_map(|s| s.parse().ok()).collect();
+    let version_parts: Vec<u32> = version_str
+        .split('.')
+        .filter_map(|s| s.parse().ok())
+        .collect();
     let version = Version::new(
         version_parts.get(0).copied().unwrap_or(0),
         version_parts.get(1).copied().unwrap_or(0),
@@ -182,15 +203,32 @@ pub async fn execute_publish(input: PublishInput) -> Result<PublishOutput> {
         builder = builder.tag(tag);
     }
 
-    let package = builder.build()
+    let unvalidated = builder
+        .build()
         .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to build package: {}", e)))?;
 
+    // Validate package before publishing (Poka-yoke: ensures package meets requirements)
+    let validated = unvalidated.validate().map_err(|e| {
+        ggen_utils::error::Error::new(&format!("Failed to validate package: {}", e))
+    })?;
+
+    // Extract Package from ValidatedPackage for publishing
+    let package = validated.package().clone();
+
     // Publish to registry
-    registry.publish(package).await
+    registry
+        .publish(package)
+        .await
         .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to publish: {}", e)))?;
 
     // Update index
-    update_registry_index(&registry_path, &manifest, &version_str, &tarball_path.display().to_string()).await?;
+    update_registry_index(
+        &registry_path,
+        &manifest,
+        &version_str,
+        &tarball_path.display().to_string(),
+    )
+    .await?;
 
     Ok(PublishOutput {
         package_name: manifest.name,
@@ -208,8 +246,12 @@ pub fn run(args: &PublishInput) -> Result<()> {
     let output = rt.block_on(execute_publish(args.clone()))?;
 
     if !output.dry_run {
-        println!("✅ Successfully published {} version {}", output.package_name, output.version);
-        println!("   Registry: {}", output.registry_path);
+        ggen_utils::alert_success!(
+            "Successfully published {} version {}",
+            output.package_name,
+            output.version
+        );
+        ggen_utils::alert_info!("   Registry: {}", output.registry_path);
     }
 
     Ok(())
@@ -246,7 +288,9 @@ fn validate_package(manifest: &PackageManifest) -> Result<()> {
     }
 
     if manifest.description.is_empty() {
-        return Err(ggen_utils::error::Error::new("Package description is required"));
+        return Err(ggen_utils::error::Error::new(
+            "Package description is required",
+        ));
     }
 
     Ok(())
@@ -254,9 +298,7 @@ fn validate_package(manifest: &PackageManifest) -> Result<()> {
 
 /// Check if package version already exists in registry
 async fn package_version_exists(
-    registry_path: &Path,
-    package_name: &str,
-    version: &str,
+    registry_path: &Path, package_name: &str, version: &str,
 ) -> Result<bool> {
     let index_path = registry_path.join("index.json");
 
@@ -264,9 +306,9 @@ async fn package_version_exists(
         return Ok(false);
     }
 
-    let content = tokio::fs::read_to_string(&index_path).await.map_err(|e| {
-        ggen_utils::error::Error::new(&format!("IO error: {}", e))
-    })?;
+    let content = tokio::fs::read_to_string(&index_path)
+        .await
+        .map_err(|e| ggen_utils::error::Error::new(&format!("IO error: {}", e)))?;
 
     let index: serde_json::Value = serde_json::from_str(&content)?;
 
@@ -284,27 +326,26 @@ async fn package_version_exists(
 
 /// Create tarball of package
 async fn create_tarball(path: &Path, package_name: &str, version: &str) -> Result<String> {
-    use std::fs::File;
     use flate2::write::GzEncoder;
     use flate2::Compression;
-    use tar::Builder;
+    use std::fs::File;
     use std::io::Write;
+    use tar::Builder;
 
     let tarball_name = format!("{}-{}.tar.gz", package_name.replace('/', "-"), version);
-    let tarball_path = path.parent()
-        .unwrap_or(path)
-        .join(&tarball_name);
+    let tarball_path = path.parent().unwrap_or(path).join(&tarball_name);
 
     // Create tarball file
     let tarball_file = File::create(&tarball_path)
         .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to create tarball: {}", e)))?;
-    
+
     let encoder = GzEncoder::new(tarball_file, Compression::default());
     let mut tar = Builder::new(encoder);
 
     // Add all files from package directory to tarball
-    tar.append_dir_all(".", path)
-        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to add files to tarball: {}", e)))?;
+    tar.append_dir_all(".", path).map_err(|e| {
+        ggen_utils::error::Error::new(&format!("Failed to add files to tarball: {}", e))
+    })?;
 
     tar.finish()
         .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to finish tarball: {}", e)))?;
@@ -314,17 +355,14 @@ async fn create_tarball(path: &Path, package_name: &str, version: &str) -> Resul
 
 /// Update registry index with new package
 async fn update_registry_index(
-    registry_path: &Path,
-    manifest: &PackageManifest,
-    version: &str,
-    tarball_path: &str,
+    registry_path: &Path, manifest: &PackageManifest, version: &str, tarball_path: &str,
 ) -> Result<()> {
     let index_path = registry_path.join("index.json");
 
     let mut index: serde_json::Value = if index_path.exists() {
-        let content = tokio::fs::read_to_string(&index_path).await.map_err(|e| {
-            ggen_utils::error::Error::new(&format!("IO error: {}", e))
-        })?;
+        let content = tokio::fs::read_to_string(&index_path)
+            .await
+            .map_err(|e| ggen_utils::error::Error::new(&format!("IO error: {}", e)))?;
         serde_json::from_str(&content)?
     } else {
         serde_json::json!({

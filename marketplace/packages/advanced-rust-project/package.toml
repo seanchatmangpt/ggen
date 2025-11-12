@@ -55,7 +55,7 @@ author = { type = "string", default = "ggen-user", description = "Author name" }
 [examples]
 basic = """
 # Install the package
-ggen market add advanced-rust-project
+ggen market install advanced-rust-project
 
 # Initialize project
 cd advanced-rust-project

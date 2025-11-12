@@ -2,7 +2,7 @@
 //!
 //! Verifies that search performance meets <100ms target for 1000 packages
 
-use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId};
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
 use ggen_cli_lib::domain::marketplace::search::{search_packages, SearchFilters};
 use std::fs;
 use tempfile::TempDir;
@@ -48,8 +48,20 @@ fn create_large_registry(num_packages: usize) -> TempDir {
       "stars": {},
       "license": "MIT"
     }}"#,
-            category, i, category, i, i, category, category, category, tags, category,
-            i % 10, i % 100, (i * 100) % 50000, (i * 10) % 1000
+            category,
+            i,
+            category,
+            i,
+            i,
+            category,
+            category,
+            category,
+            tags,
+            category,
+            i % 10,
+            i % 100,
+            (i * 100) % 50000,
+            (i * 10) % 1000
         ));
     }
 

@@ -40,9 +40,8 @@ fn test_runtime_execute_success() {
 
 #[test]
 fn test_runtime_execute_error_propagation() {
-    let result = ggen_cli_lib::runtime::execute(async {
-        Err(ggen_utils::error::Error::new("Test error"))
-    });
+    let result =
+        ggen_cli_lib::runtime::execute(async { Err(ggen_utils::error::Error::new("Test error")) });
 
     assert!(result.is_err(), "Expected error to propagate");
     assert!(
@@ -237,9 +236,7 @@ async fn test_component_performance() {
 fn test_e2e_runtime_execute_success() {
     let start = std::time::Instant::now();
 
-    let result = ggen_cli_lib::runtime::execute(async {
-        simulate_domain_doctor_success().await
-    });
+    let result = ggen_cli_lib::runtime::execute(async { simulate_domain_doctor_success().await });
 
     let elapsed = start.elapsed();
 
@@ -253,12 +250,13 @@ fn test_e2e_runtime_execute_success() {
 
 #[test]
 fn test_e2e_runtime_execute_domain_error() {
-    let result = ggen_cli_lib::runtime::execute(async {
-        simulate_domain_doctor_failure().await
-    });
+    let result = ggen_cli_lib::runtime::execute(async { simulate_domain_doctor_failure().await });
 
     assert!(result.is_err());
-    assert!(result.unwrap_err().to_string().contains("Some required checks failed"));
+    assert!(result
+        .unwrap_err()
+        .to_string()
+        .contains("Some required checks failed"));
 }
 
 #[test]
@@ -266,9 +264,7 @@ fn test_e2e_sequential_executions() {
     let start = std::time::Instant::now();
 
     for i in 0..5 {
-        let result = ggen_cli_lib::runtime::execute(async move {
-            simulate_quick_check(i).await
-        });
+        let result = ggen_cli_lib::runtime::execute(async move { simulate_quick_check(i).await });
         assert!(result.is_ok());
     }
 
@@ -282,9 +278,7 @@ fn test_e2e_sequential_executions() {
 
 #[test]
 fn test_e2e_error_propagation() {
-    let result = ggen_cli_lib::runtime::execute(async {
-        simulate_nested_domain_error().await
-    });
+    let result = ggen_cli_lib::runtime::execute(async { simulate_nested_domain_error().await });
 
     assert!(result.is_err());
     let err = result.unwrap_err();

@@ -10,20 +10,24 @@ pub mod publish;
 pub mod registry;
 pub mod search;
 pub mod update;
+pub mod validate;
 
 // Re-export commonly used types and functions
-pub use search::{SearchInput, SearchFilters, SearchResult, execute_search};
-pub use install::{InstallInput, InstallOptions, InstallResult, execute_install};
-pub use list::{ListInput, ListOutput, execute_list};
-pub use publish::{PublishInput, PublishOutput, execute_publish};
-pub use update::{UpdateInput, UpdateOutput, execute_update};
-pub use registry::{
-    Registry, CacheManager, PackageMetadata, VersionMetadata, Dependency, RegistryIndex
-};
+pub use install::{execute_install, InstallInput, InstallOptions, InstallResult};
+pub use list::{execute_list, ListInput, ListOutput};
 pub use p2p::{
-    P2PInput, P2PCommand, StartInput, PublishInput as P2PPublishInput,
-    SearchInput as P2PSearchInput, PeerListInput, PeerInfoInput, BootstrapInput,
-    execute_p2p_command
+    execute_p2p_command, BootstrapInput, P2PCommand, P2PInput, PeerInfoInput, PeerListInput,
+    PublishInput as P2PPublishInput, SearchInput as P2PSearchInput, StartInput,
+};
+pub use publish::{execute_publish, PublishInput, PublishOutput};
+pub use registry::{
+    CacheManager, Dependency, PackageMetadata, Registry, RegistryIndex, VersionMetadata,
+};
+pub use search::{execute_search, SearchFilters, SearchInput, SearchResult};
+pub use update::{execute_update, UpdateInput, UpdateOutput};
+pub use validate::{
+    validate_all_packages, validate_package, CheckResult, PackageValidation, QualityCheck,
+    RequiredCheck,
 };
 
 // Legacy types for backwards compatibility

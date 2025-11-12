@@ -81,7 +81,7 @@ impl ValidatedHooks {
                 for dep in deps {
                     graph
                         .entry(hook_name.to_string())
-                        .or_insert_with(Vec::new)
+                        .or_default()
                         .push(dep.clone());
                 }
             }

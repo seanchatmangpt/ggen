@@ -78,11 +78,17 @@ impl TemplateMetadata {
 
         // Template declaration
         turtle.push_str(&format!("<{}> a ggen:Template ;\n", self.id));
-        turtle.push_str(&format!("  ggen:templateName \"{}\" ;\n", escape_literal(&self.name)));
+        turtle.push_str(&format!(
+            "  ggen:templateName \"{}\" ;\n",
+            escape_literal(&self.name)
+        ));
 
         // Optional metadata
         if let Some(version) = &self.version {
-            turtle.push_str(&format!("  ggen:templateVersion \"{}\" ;\n", escape_literal(version)));
+            turtle.push_str(&format!(
+                "  ggen:templateVersion \"{}\" ;\n",
+                escape_literal(version)
+            ));
         }
         if let Some(desc) = &self.description {
             turtle.push_str(&format!(
@@ -91,7 +97,10 @@ impl TemplateMetadata {
             ));
         }
         if let Some(author) = &self.author {
-            turtle.push_str(&format!("  ggen:templateAuthor \"{}\" ;\n", escape_literal(author)));
+            turtle.push_str(&format!(
+                "  ggen:templateAuthor \"{}\" ;\n",
+                escape_literal(author)
+            ));
         }
         if let Some(created) = &self.created_at {
             turtle.push_str(&format!(
@@ -106,13 +115,22 @@ impl TemplateMetadata {
             ));
         }
         if let Some(category) = &self.category {
-            turtle.push_str(&format!("  ggen:category \"{}\" ;\n", escape_literal(category)));
+            turtle.push_str(&format!(
+                "  ggen:category \"{}\" ;\n",
+                escape_literal(category)
+            ));
         }
         if let Some(stability) = &self.stability {
-            turtle.push_str(&format!("  ggen:stability \"{}\" ;\n", escape_literal(stability)));
+            turtle.push_str(&format!(
+                "  ggen:stability \"{}\" ;\n",
+                escape_literal(stability)
+            ));
         }
         if let Some(coverage) = self.test_coverage {
-            turtle.push_str(&format!("  ggen:testCoverage \"{}\"^^xsd:decimal ;\n", coverage));
+            turtle.push_str(&format!(
+                "  ggen:testCoverage \"{}\"^^xsd:decimal ;\n",
+                coverage
+            ));
         }
         if let Some(usage) = self.usage_count {
             turtle.push_str(&format!("  ggen:usageCount \"{}\"^^xsd:integer ;\n", usage));
@@ -131,7 +149,10 @@ impl TemplateMetadata {
 
         // Generated files
         for file in &self.generated_files {
-            turtle.push_str(&format!("  ggen:generatesFile \"{}\" ;\n", escape_literal(file)));
+            turtle.push_str(&format!(
+                "  ggen:generatesFile \"{}\" ;\n",
+                escape_literal(file)
+            ));
         }
 
         // Dependencies
@@ -157,7 +178,10 @@ impl TemplateMetadata {
                 "  ggen:variableType \"{}\" ;\n",
                 escape_literal(&var.var_type)
             ));
-            turtle.push_str(&format!("  ggen:isRequired \"{}\"^^xsd:boolean", var.required));
+            turtle.push_str(&format!(
+                "  ggen:isRequired \"{}\"^^xsd:boolean",
+                var.required
+            ));
 
             if let Some(default) = &var.default_value {
                 turtle.push_str(&format!(
@@ -209,12 +233,19 @@ impl TemplateMetadata {
 
         if let crate::graph::CachedResult::Solutions(rows) = results {
             if let Some(row) = rows.first() {
-                metadata.name = row.get("name").map(|s| s.trim_matches('"').to_string()).unwrap_or_default();
+                metadata.name = row
+                    .get("name")
+                    .map(|s| s.trim_matches('"').to_string())
+                    .unwrap_or_default();
                 metadata.version = row.get("version").map(|s| s.trim_matches('"').to_string());
-                metadata.description = row.get("description").map(|s| s.trim_matches('"').to_string());
+                metadata.description = row
+                    .get("description")
+                    .map(|s| s.trim_matches('"').to_string());
                 metadata.author = row.get("author").map(|s| s.trim_matches('"').to_string());
                 metadata.category = row.get("category").map(|s| s.trim_matches('"').to_string());
-                metadata.stability = row.get("stability").map(|s| s.trim_matches('"').to_string());
+                metadata.stability = row
+                    .get("stability")
+                    .map(|s| s.trim_matches('"').to_string());
 
                 if let Some(coverage_str) = row.get("coverage") {
                     metadata.test_coverage = coverage_str.trim_matches('"').parse().ok();
@@ -266,7 +297,10 @@ impl TemplateMetadataStore {
     /// Load Ggen schema into store
     pub fn load_schema(&self) -> Result<()> {
         let schema = super::schema::load_schema()?;
-        let store = self.store.lock().map_err(|e| anyhow::anyhow!("Lock poisoned: {}", e))?;
+        let store = self
+            .store
+            .lock()
+            .map_err(|e| anyhow::anyhow!("Lock poisoned: {}", e))?;
         store
             .load_from_reader(RdfFormat::Turtle, schema.as_bytes())
             .context("Failed to load schema")?;
@@ -276,13 +310,19 @@ impl TemplateMetadataStore {
     /// Store template metadata as RDF triples
     pub fn store_metadata(&self, metadata: &TemplateMetadata) -> Result<()> {
         let turtle = metadata.to_turtle()?;
-        let store = self.store.lock().map_err(|e| anyhow::anyhow!("Lock poisoned: {}", e))?;
+        let store = self
+            .store
+            .lock()
+            .map_err(|e| anyhow::anyhow!("Lock poisoned: {}", e))?;
         store
             .load_from_reader(RdfFormat::Turtle, turtle.as_bytes())
             .context("Failed to store metadata")?;
 
         // Update cache
-        let mut cache = self.metadata_cache.lock().map_err(|e| anyhow::anyhow!("Lock poisoned: {}", e))?;
+        let mut cache = self
+            .metadata_cache
+            .lock()
+            .map_err(|e| anyhow::anyhow!("Lock poisoned: {}", e))?;
         cache.insert(metadata.id.clone(), metadata.clone());
 
         Ok(())
@@ -292,7 +332,10 @@ impl TemplateMetadataStore {
     pub fn get_metadata(&self, template_id: &str) -> Result<Option<TemplateMetadata>> {
         // Check cache first
         {
-            let cache = self.metadata_cache.lock().map_err(|e| anyhow::anyhow!("Lock poisoned: {}", e))?;
+            let cache = self
+                .metadata_cache
+                .lock()
+                .map_err(|e| anyhow::anyhow!("Lock poisoned: {}", e))?;
             if let Some(metadata) = cache.get(template_id) {
                 return Ok(Some(metadata.clone()));
             }
@@ -311,7 +354,10 @@ impl TemplateMetadataStore {
             template_id = template_id
         );
 
-        let store = self.store.lock().map_err(|e| anyhow::anyhow!("Lock poisoned: {}", e))?;
+        let store = self
+            .store
+            .lock()
+            .map_err(|e| anyhow::anyhow!("Lock poisoned: {}", e))?;
         #[allow(deprecated)]
         let results = store.query(&query)?;
 
@@ -325,7 +371,10 @@ impl TemplateMetadataStore {
                 let metadata = self.query_full_metadata(template_id)?;
 
                 // Update cache
-                let mut cache = self.metadata_cache.lock().map_err(|e| anyhow::anyhow!("Lock poisoned: {}", e))?;
+                let mut cache = self
+                    .metadata_cache
+                    .lock()
+                    .map_err(|e| anyhow::anyhow!("Lock poisoned: {}", e))?;
                 cache.insert(template_id.to_string(), metadata.clone());
 
                 return Ok(Some(metadata));
@@ -337,7 +386,10 @@ impl TemplateMetadataStore {
 
     /// Query templates using SPARQL
     pub fn query(&self, sparql: &str) -> Result<Vec<BTreeMap<String, String>>> {
-        let store = self.store.lock().map_err(|e| anyhow::anyhow!("Lock poisoned: {}", e))?;
+        let store = self
+            .store
+            .lock()
+            .map_err(|e| anyhow::anyhow!("Lock poisoned: {}", e))?;
         #[allow(deprecated)]
         let results = store.query(sparql)?;
 
@@ -374,7 +426,10 @@ impl TemplateMetadataStore {
         let results = self.query(&query)?;
         Ok(results
             .iter()
-            .filter_map(|row| row.get("template").map(|s| s.trim_matches('<').trim_matches('>').to_string()))
+            .filter_map(|row| {
+                row.get("template")
+                    .map(|s| s.trim_matches('<').trim_matches('>').to_string())
+            })
             .collect())
     }
 
@@ -395,7 +450,10 @@ impl TemplateMetadataStore {
         let results = self.query(&query)?;
         Ok(results
             .iter()
-            .filter_map(|row| row.get("template").map(|s| s.trim_matches('<').trim_matches('>').to_string()))
+            .filter_map(|row| {
+                row.get("template")
+                    .map(|s| s.trim_matches('<').trim_matches('>').to_string())
+            })
             .collect())
     }
 
@@ -415,7 +473,10 @@ impl TemplateMetadataStore {
         let results = self.query(&query)?;
         Ok(results
             .iter()
-            .filter_map(|row| row.get("dependency").map(|s| s.trim_matches('<').trim_matches('>').to_string()))
+            .filter_map(|row| {
+                row.get("dependency")
+                    .map(|s| s.trim_matches('<').trim_matches('>').to_string())
+            })
             .collect())
     }
 
@@ -454,10 +515,16 @@ impl TemplateMetadataStore {
 
     /// Clear all metadata
     pub fn clear(&self) -> Result<()> {
-        let store = self.store.lock().map_err(|e| anyhow::anyhow!("Lock poisoned: {}", e))?;
+        let store = self
+            .store
+            .lock()
+            .map_err(|e| anyhow::anyhow!("Lock poisoned: {}", e))?;
         store.clear().context("Failed to clear store")?;
 
-        let mut cache = self.metadata_cache.lock().map_err(|e| anyhow::anyhow!("Lock poisoned: {}", e))?;
+        let mut cache = self
+            .metadata_cache
+            .lock()
+            .map_err(|e| anyhow::anyhow!("Lock poisoned: {}", e))?;
         cache.clear();
 
         Ok(())

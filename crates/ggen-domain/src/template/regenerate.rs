@@ -1,6 +1,5 @@
 //! Template regeneration domain logic
 
-
 use ggen_core::{MergeStrategy, RegionAwareMerger};
 use ggen_utils::error::Result;
 use std::fs;
@@ -22,10 +21,7 @@ pub fn parse_merge_strategy(strategy: &str) -> Result<MergeStrategy> {
 
 /// Regenerate template with merge support
 pub fn regenerate_with_merge(
-    _template_path: &Path,
-    output_path: &Path,
-    generated_content: &str,
-    strategy: &MergeStrategy,
+    _template_path: &Path, output_path: &Path, generated_content: &str, strategy: &MergeStrategy,
 ) -> Result<()> {
     if output_path.exists() {
         // File exists - need to merge
@@ -66,9 +62,8 @@ pub fn regenerate_with_merge(
         })?;
     } else {
         // New file - just write generated content
-        fs::write(output_path, generated_content).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to write file: {}", e))
-        })?;
+        fs::write(output_path, generated_content)
+            .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to write file: {}", e)))?;
     }
 
     Ok(())
@@ -156,7 +151,7 @@ pub struct RegenerateInput {
 
 /// Execute regenerate with input (pure domain function)
 pub async fn execute_regenerate(input: RegenerateInput) -> Result<()> {
-    use ggen_core::{Generator, GenContext, Pipeline};
+    use ggen_core::{GenContext, Generator, Pipeline};
     use std::collections::BTreeMap;
 
     // Parse merge strategy
@@ -173,22 +168,32 @@ pub async fn execute_regenerate(input: RegenerateInput) -> Result<()> {
     // Create pipeline and generator
     let pipeline = Pipeline::new()
         .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to create pipeline: {}", e)))?;
-    
-    let ctx = GenContext::new(input.template.clone(), input.output.parent().unwrap_or(&input.output).to_path_buf())
-        .with_vars(vars);
+
+    let ctx = GenContext::new(
+        input.template.clone(),
+        input.output.parent().unwrap_or(&input.output).to_path_buf(),
+    )
+    .with_vars(vars);
 
     let mut generator = Generator::new(pipeline, ctx);
-    
+
     // Generate template content
-    let generated_path = generator.generate()
-        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to generate template: {}", e)))?;
-    
+    let generated_path = generator.generate().map_err(|e| {
+        ggen_utils::error::Error::new(&format!("Failed to generate template: {}", e))
+    })?;
+
     // Read generated content
-    let generated_content = std::fs::read_to_string(&generated_path)
-        .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to read generated content: {}", e)))?;
+    let generated_content = std::fs::read_to_string(&generated_path).map_err(|e| {
+        ggen_utils::error::Error::new(&format!("Failed to read generated content: {}", e))
+    })?;
 
     // Regenerate with merge
-    regenerate_with_merge(&input.template, &input.output, &generated_content, &strategy)?;
+    regenerate_with_merge(
+        &input.template,
+        &input.output,
+        &generated_content,
+        &strategy,
+    )?;
 
     Ok(())
 }

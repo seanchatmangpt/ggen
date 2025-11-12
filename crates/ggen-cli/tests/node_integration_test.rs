@@ -43,7 +43,10 @@ async fn test_run_for_node_invalid_command() {
     let result = run_for_node(args).await;
 
     // Should still return Ok(RunResult) but with non-zero exit code
-    assert!(result.is_ok(), "Should return Ok(RunResult) even for errors");
+    assert!(
+        result.is_ok(),
+        "Should return Ok(RunResult) even for errors"
+    );
     let run_result = result.unwrap();
     assert_ne!(
         run_result.code, 0,

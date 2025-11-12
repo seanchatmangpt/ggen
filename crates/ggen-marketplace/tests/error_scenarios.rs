@@ -93,10 +93,7 @@ async fn error_corrupted_registry_index() {
     let result = LocalRegistry::new(db_path).await;
 
     // Assert: Should fail with parse error
-    assert!(
-        result.is_err(),
-        "Should fail when index.json is corrupted"
-    );
+    assert!(result.is_err(), "Should fail when index.json is corrupted");
 }
 
 // ============================================================================
@@ -116,10 +113,7 @@ async fn error_extremely_large_content() {
 
     // Assert: Should either succeed or fail gracefully (not panic)
     // For MemoryStore, this should succeed (just slow)
-    assert!(
-        result.is_ok(),
-        "Large content storage should not panic"
-    );
+    assert!(result.is_ok(), "Large content storage should not panic");
 }
 
 // ============================================================================
@@ -143,9 +137,7 @@ async fn error_concurrent_delete_race() {
         let store_clone = Arc::clone(&store);
         let id_clone = id.clone();
 
-        let handle = tokio::spawn(async move {
-            store_clone.delete(&id_clone).await
-        });
+        let handle = tokio::spawn(async move { store_clone.delete(&id_clone).await });
 
         handles.push(handle);
     }
@@ -159,10 +151,7 @@ async fn error_concurrent_delete_race() {
         .filter(|r| r.as_ref().unwrap().is_ok())
         .count();
 
-    assert_eq!(
-        successes, 1,
-        "Only one concurrent delete should succeed"
-    );
+    assert_eq!(successes, 1, "Only one concurrent delete should succeed");
 }
 
 // ============================================================================
@@ -172,38 +161,29 @@ async fn error_concurrent_delete_race() {
 #[tokio::test]
 async fn error_package_missing_required_fields() {
     // Test 1: Missing title
-    let result = Package::builder(
-        PackageId::new("test", "invalid"),
-        Version::new(1, 0, 0),
-    )
-    .description("Has description")
-    .license("MIT")
-    .content_id(ContentId::new("hash", HashAlgorithm::Sha256))
-    .build();
+    let result = Package::builder(PackageId::new("test", "invalid"), Version::new(1, 0, 0))
+        .description("Has description")
+        .license("MIT")
+        .content_id(ContentId::new("hash", HashAlgorithm::Sha256))
+        .build();
 
     assert!(result.is_err(), "Should fail without title");
 
     // Test 2: Missing description
-    let result = Package::builder(
-        PackageId::new("test", "invalid"),
-        Version::new(1, 0, 0),
-    )
-    .title("Has title")
-    .license("MIT")
-    .content_id(ContentId::new("hash", HashAlgorithm::Sha256))
-    .build();
+    let result = Package::builder(PackageId::new("test", "invalid"), Version::new(1, 0, 0))
+        .title("Has title")
+        .license("MIT")
+        .content_id(ContentId::new("hash", HashAlgorithm::Sha256))
+        .build();
 
     assert!(result.is_err(), "Should fail without description");
 
     // Test 3: Missing content_id
-    let result = Package::builder(
-        PackageId::new("test", "invalid"),
-        Version::new(1, 0, 0),
-    )
-    .title("Has title")
-    .description("Has description")
-    .license("MIT")
-    .build();
+    let result = Package::builder(PackageId::new("test", "invalid"), Version::new(1, 0, 0))
+        .title("Has title")
+        .description("Has description")
+        .license("MIT")
+        .build();
 
     assert!(result.is_err(), "Should fail without content_id");
 }
@@ -216,7 +196,9 @@ async fn error_package_missing_required_fields() {
 async fn error_empty_query_string() {
     let temp_dir = tempfile::tempdir().expect("temp dir failed");
     let db_path = temp_dir.path().join("registry");
-    let registry = LocalRegistry::new(db_path).await.expect("registry creation failed");
+    let registry = LocalRegistry::new(db_path)
+        .await
+        .expect("registry creation failed");
 
     // Publish some packages
     let pkg = Package::builder(PackageId::new("test", "example"), Version::new(1, 0, 0))
@@ -230,7 +212,10 @@ async fn error_empty_query_string() {
     registry.publish(pkg).await.expect("publish failed");
 
     // Search with empty query
-    let results = registry.search(&Query::new("")).await.expect("search failed");
+    let results = registry
+        .search(&Query::new(""))
+        .await
+        .expect("search failed");
 
     // Assert: Empty query should return all packages (not error)
     assert!(
@@ -243,7 +228,9 @@ async fn error_empty_query_string() {
 async fn error_query_special_characters() {
     let temp_dir = tempfile::tempdir().expect("temp dir failed");
     let db_path = temp_dir.path().join("registry");
-    let registry = LocalRegistry::new(db_path).await.expect("registry creation failed");
+    let registry = LocalRegistry::new(db_path)
+        .await
+        .expect("registry creation failed");
 
     // Test queries with special characters
     let special_queries = vec![
@@ -277,15 +264,12 @@ async fn error_query_special_characters() {
 #[tokio::test]
 async fn error_version_zero() {
     // Test: Version 0.0.0
-    let result = Package::builder(
-        PackageId::new("test", "v0"),
-        Version::new(0, 0, 0),
-    )
-    .title("Zero Version")
-    .description("Test")
-    .license("MIT")
-    .content_id(ContentId::new("hash", HashAlgorithm::Sha256))
-    .build();
+    let result = Package::builder(PackageId::new("test", "v0"), Version::new(0, 0, 0))
+        .title("Zero Version")
+        .description("Test")
+        .license("MIT")
+        .content_id(ContentId::new("hash", HashAlgorithm::Sha256))
+        .build();
 
     // Assert: 0.0.0 should be valid (common for pre-release)
     assert!(result.is_ok(), "Version 0.0.0 should be valid");

@@ -15,7 +15,8 @@ use utils::{ConcurrentPatterns, PackageOperation, PermutationConfig};
 /// Test concurrent reads from marketplace
 #[tokio::test]
 async fn test_concurrent_reads() -> Result<()> {
-    let temp_dir = TempDir::new().map_err(|e| anyhow::anyhow!("Failed to create temp dir: {}", e))?;
+    let temp_dir =
+        TempDir::new().map_err(|e| anyhow::anyhow!("Failed to create temp dir: {}", e))?;
     let reader_count = 10;
     let barrier = Arc::new(Barrier::new(reader_count));
 
@@ -49,7 +50,8 @@ async fn test_concurrent_reads() -> Result<()> {
 /// Test concurrent writes to marketplace
 #[tokio::test]
 async fn test_concurrent_writes() -> Result<()> {
-    let temp_dir = TempDir::new().map_err(|e| anyhow::anyhow!("Failed to create temp dir: {}", e))?;
+    let temp_dir =
+        TempDir::new().map_err(|e| anyhow::anyhow!("Failed to create temp dir: {}", e))?;
     let writer_count = 5;
     let barrier = Arc::new(Barrier::new(writer_count));
     let write_counter = Arc::new(RwLock::new(0));
@@ -91,7 +93,8 @@ async fn test_concurrent_writes() -> Result<()> {
 /// Test mixed read/write operations
 #[tokio::test]
 async fn test_mixed_concurrent_operations() -> Result<()> {
-    let temp_dir = TempDir::new().map_err(|e| anyhow::anyhow!("Failed to create temp dir: {}", e))?;
+    let temp_dir =
+        TempDir::new().map_err(|e| anyhow::anyhow!("Failed to create temp dir: {}", e))?;
     let operation_count = 20;
     let barrier = Arc::new(Barrier::new(operation_count));
     let shared_state = Arc::new(RwLock::new(Vec::<String>::new()));
@@ -138,7 +141,8 @@ async fn test_mixed_concurrent_operations() -> Result<()> {
 /// Test race condition in package installation
 #[tokio::test]
 async fn test_concurrent_package_installation() -> Result<()> {
-    let temp_dir = TempDir::new().map_err(|e| anyhow::anyhow!("Failed to create temp dir: {}", e))?;
+    let temp_dir =
+        TempDir::new().map_err(|e| anyhow::anyhow!("Failed to create temp dir: {}", e))?;
     let installer_count = 5;
     let same_package = "shared-package";
     let barrier = Arc::new(Barrier::new(installer_count));
@@ -186,17 +190,12 @@ async fn test_concurrent_package_installation() -> Result<()> {
 /// Test concurrent search operations
 #[tokio::test]
 async fn test_concurrent_search() -> Result<()> {
-    let temp_dir = TempDir::new().map_err(|e| anyhow::anyhow!("Failed to create temp dir: {}", e))?;
+    let temp_dir =
+        TempDir::new().map_err(|e| anyhow::anyhow!("Failed to create temp dir: {}", e))?;
     let searcher_count = 15;
     let barrier = Arc::new(Barrier::new(searcher_count));
 
-    let queries = vec![
-        "rust",
-        "web",
-        "database",
-        "async",
-        "framework",
-    ];
+    let queries = vec!["rust", "web", "database", "async", "framework"];
 
     let mut tasks = JoinSet::new();
 

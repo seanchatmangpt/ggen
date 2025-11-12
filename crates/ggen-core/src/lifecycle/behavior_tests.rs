@@ -298,7 +298,7 @@ mod behavior_tests {
         mock_cache
             .expect_generate_key()
             .times(2)
-            .returning(|_, cmds, env| {
+            .returning(|_, _cmds, env| {
                 // Generate different keys based on env
                 if env.iter().any(|(_, v)| v == "debug") {
                     "key_debug".to_string()

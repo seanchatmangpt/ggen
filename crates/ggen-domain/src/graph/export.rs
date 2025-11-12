@@ -100,9 +100,9 @@ pub struct ExportInput {
 /// Chicago TDD: This performs REAL graph serialization and file writing
 pub fn export_graph(options: ExportOptions) -> Result<String> {
     // Use provided graph or create empty one
-    let graph = options.graph.unwrap_or_else(|| {
-        Graph::new().expect("Failed to create empty graph")
-    });
+    let graph = options
+        .graph
+        .unwrap_or_else(|| Graph::new().expect("Failed to create empty graph"));
 
     // Generate RDF content in requested format
     let content = match options.format {
@@ -114,8 +114,10 @@ pub fn export_graph(options: ExportOptions) -> Result<String> {
     };
 
     // Write REAL file to disk
-    fs::write(&options.output_path, &content)
-        .context(format!("Failed to write export file: {}", options.output_path))?;
+    fs::write(&options.output_path, &content).context(format!(
+        "Failed to write export file: {}",
+        options.output_path
+    ))?;
 
     Ok(content)
 }
@@ -330,8 +332,10 @@ pub struct ExportOutput {
 /// This is the main entry point for the export command from CLI
 pub async fn execute_export(input: ExportInput) -> Result<ExportOutput> {
     // Load the graph from input file
-    let graph = Graph::load_from_file(&input.input)
-        .context(format!("Failed to load graph from {}", input.input.display()))?;
+    let graph = Graph::load_from_file(&input.input).context(format!(
+        "Failed to load graph from {}",
+        input.input.display()
+    ))?;
 
     // Get triple count before export
     let triples_exported = graph.len();
@@ -364,17 +368,17 @@ pub async fn execute_export(input: ExportInput) -> Result<ExportOutput> {
 /// CLI run function - bridges sync CLI to async domain logic
 pub fn run(args: &ExportInput) -> Result<()> {
     // Use tokio runtime to execute async function
-    let rt = tokio::runtime::Runtime::new()
-        .context("Failed to create tokio runtime")?;
+    let rt = tokio::runtime::Runtime::new().context("Failed to create tokio runtime")?;
 
     let output = rt.block_on(execute_export(args.clone()))?;
 
-    println!("✅ Exported {} triples to {} ({})",
+    ggen_utils::alert_success!(
+        "Exported {} triples to {} ({})",
         output.triples_exported,
         output.output_path,
         output.format
     );
-    println!("   File size: {} bytes", output.file_size_bytes);
+    ggen_utils::alert_info!("   File size: {} bytes", output.file_size_bytes);
 
     Ok(())
 }

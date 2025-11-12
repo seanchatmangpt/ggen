@@ -76,15 +76,15 @@ ggen market categories
 ### 2. **Install Required Packages** from marketplace
 ```bash
 # Install core packages for microservices architecture
-ggen market add "microservices-architecture"    # Base microservices patterns
-ggen market add "rust-axum-service"             # Axum web framework
-ggen market add "rust-actix-service"            # Actix web framework
-ggen market add "rust-warp-service"             # Warp web framework
-ggen market add "rust-tonic-service"            # gRPC services
-ggen market add "postgresql-database"           # Database integration
-ggen market add "redis-cache"                   # Caching layer
-ggen market add "docker-compose"                # Container orchestration
-ggen market add "kubernetes-deployment"         # K8s manifests
+ggen market install "microservices-architecture"    # Base microservices patterns
+ggen market install "rust-axum-service"             # Axum web framework
+ggen market install "rust-actix-service"            # Actix web framework
+ggen market install "rust-warp-service"             # Warp web framework
+ggen market install "rust-tonic-service"            # gRPC services
+ggen market install "postgresql-database"           # Database integration
+ggen market install "redis-cache"                   # Caching layer
+ggen market install "docker-compose"                # Container orchestration
+ggen market install "kubernetes-deployment"         # K8s manifests
 ```
 
 ### 3. **Initialize Project** using lifecycle management
@@ -185,7 +185,7 @@ microservices-architecture/
 ### 1. **Design Phase** - Define domain model in RDF/Turtle
 ```bash
 # Create domain model using marketplace patterns
-ggen market add "domain-modeling"
+ggen market install "domain-modeling"
 
 # Generate domain model template
 ggen template generate domain-modeling:ecommerce-domain.tmpl
@@ -202,10 +202,10 @@ ggen market search "authentication"
 ggen market search "docker"
 
 # Install packages based on search results
-ggen market add "rust-axum-service"
-ggen market add "postgresql-database"
-ggen market add "jwt-authentication"
-ggen market add "docker-compose"
+ggen market install "rust-axum-service"
+ggen market install "postgresql-database"
+ggen market install "jwt-authentication"
+ggen market install "docker-compose"
 ```
 
 ### 3. **Service Generation** - Generate services using marketplace templates

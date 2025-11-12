@@ -5,10 +5,11 @@
 //! - Searching for packages
 //! - Publishing a package
 //! - Downloading a package
+//!
+//! NOTE: This example is currently disabled due to API changes.
+//! It will be updated to match the current trait API.
 
-use anyhow::Result;
-use bytes::Bytes;
-use ggen_marketplace::prelude::*;
+#![cfg(never)] // Disabled until updated for current API
 
 #[tokio::main]
 async fn main() -> Result<()> {

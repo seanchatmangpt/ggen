@@ -404,7 +404,7 @@ fin:riskScore a rdf:Property ;
 
 4. **Run Final Validation** (5 min)
    ```bash
-   cargo test --test chicago_tdd_main ontology_driven_e2e -- --nocapture
+   cargo make test --test chicago_tdd_main ontology_driven_e2e -- --nocapture
    ```
 
 **Total**: 10-15 minutes to complete validation

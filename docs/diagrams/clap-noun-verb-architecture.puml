@@ -1,0 +1,77 @@
+@startuml clap-noun-verb-architecture
+!theme plain
+
+title clap-noun-verb Architecture for ggen Marketplace
+
+package "RDF Ontology Layer" {
+  [ontology.ttl] as ont
+  [SPARQL Queries] as sparql
+  [Oxigraph Store] as store
+}
+
+package "Marketplace Package" {
+  [package.toml] as pkg
+  [Templates] as tmpl
+  [Examples] as ex
+  note right of pkg
+    name = "semantic-cli"
+    version = "1.0.0"
+    category = "cli-tools"
+  end note
+}
+
+package "Generated CLI (clap-noun-verb)" {
+  package "src/" {
+    [main.rs] as main
+    package "commands/" {
+      [ontology.rs] as ont_cmd
+      [schema.rs] as schema_cmd
+      [query.rs] as query_cmd
+    }
+  }
+  [Cargo.toml] as cargo
+}
+
+package "Runtime Execution" {
+  [clap Parser] as clap
+  [Verb Functions] as verbs
+  [JSON Output] as json
+  note right of verbs
+    #[verb]
+    fn parse_ontology(file: String)
+      -> Result<OntologyInfo>
+  end note
+}
+
+' Ontology to Templates
+ont --> sparql : defines structure
+sparql --> tmpl : queries extract CLI design
+
+' Package structure
+pkg --> ont : references
+pkg --> tmpl : includes
+tmpl --> ex : generates
+
+' Generation flow
+tmpl --> main : generate from RDF
+tmpl --> ont_cmd : extract nouns
+tmpl --> schema_cmd : extract verbs
+tmpl --> query_cmd : extract args
+
+' Runtime flow
+main --> clap : parse CLI args
+clap --> verbs : route to #[verb]
+verbs --> json : serialize output
+
+note bottom of ont
+  @prefix cli: <http://ggen.io/cli/semantic#>
+
+  cli:ontology a cli:Noun ;
+    cli:hasVerb cli:parse, cli:validate, cli:info .
+
+  cli:parse a cli:Verb ;
+    cli:arg [ cli:name "file" ; cli:type xsd:string ] ;
+    cli:returns cli:OntologyInfo .
+end note
+
+@enduml

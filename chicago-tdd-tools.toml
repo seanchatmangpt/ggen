@@ -1,0 +1,152 @@
+# Chicago TDD Tools Configuration
+# Configuration file for chicago-tdd-tools package defaults
+# Follows the pattern of clippy.toml and rustfmt.toml
+#
+# **Root Cause Prevention**: All options in this file MUST have corresponding
+# read_config_value() calls in src/core/config/loading.rs. If you add a new
+# option, you MUST:
+# 1. Add read_config_value() call in loading.rs first
+# 2. Then add option to this config file
+# 3. Run tests to verify option is read correctly
+#
+# This file allows users to override framework defaults for:
+# - Test timeouts (unit, integration)
+# - Property-based testing defaults
+# - Observability/Weaver settings
+# - Testcontainers defaults
+#
+# Place this file in your project root (same directory as Cargo.toml)
+# Configuration is read at runtime when using chicago-tdd-tools
+# Some values are also read at compile time for macro constants (see build.rs)
+
+[test]
+# Test timeout configuration (SLA compliance)
+# Unit tests: Fast feedback loop, forces test optimization
+# Integration tests: Docker operations, network calls require longer timeouts
+# ggen-specific: Integration tests include RDF processing (≤5s SLO) + Docker startup
+
+# Unit test timeout in seconds
+# Default: 1 second (matches DEFAULT_UNIT_TEST_TIMEOUT_SECONDS)
+# Actual execution time: ~0.05s (well under SLA)
+# When to override: If you have legitimate slow unit tests (rare)
+unit_timeout_seconds = 1
+
+# Integration test timeout in seconds
+# Default: 30 seconds (matches DEFAULT_INTEGRATION_TEST_TIMEOUT_SECONDS)
+# Required for: Docker container startup (5-10s), network operations, RDF processing
+# ggen-specific: Accommodates RDF processing SLO (≤5s) + Docker operations
+# When to override: If you have very slow integration tests
+integration_timeout_seconds = 30
+
+[property]
+# Property-based testing defaults
+# Uses proptest crate for random test generation
+# ggen-specific: Used for RDF parsing, template validation, and SPARQL query testing
+
+# Default number of test cases to generate
+# Default: 100 (matches DEFAULT_PROPERTY_TEST_CASES)
+# When to override: Increase for more thorough testing, decrease for faster tests
+default_test_cases = 100
+
+[observability.weaver]
+# Weaver configuration for OpenTelemetry semantic convention validation
+# Weaver validates OTEL spans/metrics against semantic conventions
+# ggen-specific: Used for OpenTelemetry integration in ggen-core and ggen-cli
+
+# Registry version to pin to (tag, branch, or commit)
+# Default: None (uses latest version, may have validation errors)
+# **Root Cause Fix**: Pin to known-good version to avoid upstream validation errors
+# Example: "v1.25.0" or "main" or commit hash
+# Set via WEAVER_REGISTRY_VERSION environment variable
+# registry_version = "v1.25.0"
+
+# OTLP gRPC port (OpenTelemetry standard)
+# Default: 4317 (matches DEFAULT_OTLP_GRPC_PORT)
+# When to override: If port conflicts with other services
+otlp_grpc_port = 4317
+
+# Weaver startup wait time (milliseconds)
+# Default: 1000 (1 second wait for Weaver to be ready)
+# When to override: If Weaver takes longer to start
+startup_wait_milliseconds = 1000
+
+# Telemetry processing wait time (milliseconds)
+# Default: 2000 (2 seconds wait for telemetry to be processed)
+# When to override: If telemetry processing takes longer
+telemetry_processing_wait_milliseconds = 2000
+
+[testcontainers]
+# Testcontainers defaults for Docker container testing
+# Uses testcontainers-rs crate for container lifecycle management
+# ggen-specific: Used for integration tests with Docker containers
+
+# Default HTTP port for containers
+# Default: 80 (matches DEFAULT_HTTP_PORT)
+# When to override: If you need different port mappings
+default_http_port = 80
+
+# Default HTTPS port for containers
+# Default: 443 (standard HTTPS port)
+# When to override: If you need different port mappings
+default_https_port = 443
+
+# Default HTTP alternate port for containers
+# Default: 8080 (common alternate HTTP port)
+# When to override: If you need different port mappings
+default_http_alt_port = 8080
+
+# Container wait timeout in seconds (for wait conditions)
+# Default: 5 (for container readiness checks)
+# When to override: If containers need more time to be ready
+container_wait_timeout_seconds = 5
+
+# HTTP connection timeout in seconds
+# Default: 2 (for HTTP service connectivity checks)
+# When to override: If network is slow or unreliable
+http_connection_timeout_seconds = 2
+
+# Concurrent containers count for stress testing
+# Default: 5 (number of containers to create concurrently)
+# When to override: Adjust for different test load scenarios
+concurrent_containers_count = 5
+
+# Concurrent commands count for stress testing
+# Default: 10 (number of commands to execute concurrently)
+# When to override: Adjust for different test load scenarios
+concurrent_commands_count = 10
+
+# Multi-container count for multi-container stress testing
+# Default: 3 (number of containers in multi-container tests)
+# When to override: Adjust for different test scenarios
+multi_container_count = 3
+
+# Commands per container for multi-container stress testing
+# Default: 5 (number of commands per container)
+# When to override: Adjust for different test scenarios
+commands_per_container = 5
+
+[performance]
+# Performance testing configuration
+# RDTSC benchmarking and tick measurement utilities
+# ggen-specific: Aligns with ggen's performance SLOs (first build ≤15s, incremental ≤2s)
+
+# Hot path tick budget (Chatman Constant: ≤8 ticks = 2ns)
+# Default: 8 (matches HOT_PATH_TICK_BUDGET)
+# When to override: If you need stricter/looser performance requirements
+hot_path_tick_budget = 8
+
+[guards]
+# Guard constraint enforcement configuration
+# Enforces MAX_RUN_LEN ≤ 8 (Chatman Constant) and MAX_BATCH_SIZE constraints
+# ggen-specific: Ensures deterministic outputs and batch processing limits
+
+# Maximum run length (Chatman Constant: ≤8)
+# Default: 8 (matches MAX_RUN_LEN)
+# When to override: Rare - this is a fundamental constraint
+max_run_len = 8
+
+# Maximum batch size
+# Default: 1000 (matches MAX_BATCH_SIZE)
+# When to override: If you need larger batches
+max_batch_size = 1000
+

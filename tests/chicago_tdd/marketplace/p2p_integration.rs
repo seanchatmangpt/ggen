@@ -93,7 +93,8 @@ mod p2p_primitives_tests {
         fn record_peer_success(&mut self, peer_id: &str, response_time_ms: u64) {
             let current_rep = self.peer_reputation.get(peer_id).unwrap_or(&0.8);
             // Successful retrieval with fast response improves reputation
-            let new_rep = (current_rep * 0.9 + 0.1 * (1.0 - response_time_ms as f64 / 1000.0)).min(1.0);
+            let new_rep =
+                (current_rep * 0.9 + 0.1 * (1.0 - response_time_ms as f64 / 1000.0)).min(1.0);
             self.peer_reputation.insert(peer_id.to_string(), new_rep);
         }
 
@@ -120,7 +121,10 @@ mod p2p_primitives_tests {
         // Chicago TDD: Verify ACTUAL state
         assert_eq!(harness.nodes.len(), 1, "Should have created 1 node");
         assert_eq!(harness.nodes[0].id, node_id, "Node ID should match");
-        assert!(elapsed < Duration::from_secs(1), "Node creation should be fast");
+        assert!(
+            elapsed < Duration::from_secs(1),
+            "Node creation should be fast"
+        );
 
         println!("✓ P2P node started in {:?}", elapsed);
         println!("✓ Node ID: {}", node_id);
@@ -140,8 +144,15 @@ mod p2p_primitives_tests {
 
         // Verify bootstrap configuration
         assert_eq!(harness.nodes.len(), 2, "Should have 2 nodes");
-        assert_eq!(harness.nodes[1].bootstrap_peers.len(), 1, "Node2 should have 1 bootstrap peer");
-        assert_eq!(harness.nodes[1].bootstrap_peers[0], bootstrap_addr, "Bootstrap address should match");
+        assert_eq!(
+            harness.nodes[1].bootstrap_peers.len(),
+            1,
+            "Node2 should have 1 bootstrap peer"
+        );
+        assert_eq!(
+            harness.nodes[1].bootstrap_peers[0], bootstrap_addr,
+            "Bootstrap address should match"
+        );
 
         println!("✓ Bootstrap node: {}", bootstrap_node);
         println!("✓ Node 2 configured to bootstrap to: {}", bootstrap_addr);
@@ -155,7 +166,11 @@ mod p2p_primitives_tests {
 
         // Chicago TDD: Verify package doesn't exist before publishing
         let search_before = harness.search_packages(&node_id, "test-package");
-        assert_eq!(search_before.len(), 0, "Package should not exist before publishing");
+        assert_eq!(
+            search_before.len(),
+            0,
+            "Package should not exist before publishing"
+        );
 
         // Publish package
         let publish_start = Instant::now();
@@ -164,7 +179,11 @@ mod p2p_primitives_tests {
 
         // Verify package was stored
         assert_eq!(harness.packages.len(), 1, "Should have 1 package");
-        assert_eq!(harness.nodes[0].local_packages.len(), 1, "Node should have 1 local package");
+        assert_eq!(
+            harness.nodes[0].local_packages.len(),
+            1,
+            "Node should have 1 local package"
+        );
 
         let package = harness.packages.get("test-package@1.0.0").unwrap();
         assert_eq!(package.name, "test-package");
@@ -197,7 +216,11 @@ mod p2p_primitives_tests {
         assert!(results.iter().any(|r| r.contains("search-test-2")));
         assert!(!results.iter().any(|r| r.contains("other-package")));
 
-        println!("✓ Search found {} packages in {:?}", results.len(), search_duration);
+        println!(
+            "✓ Search found {} packages in {:?}",
+            results.len(),
+            search_duration
+        );
         println!("✓ Results: {:?}", results);
     }
 
@@ -255,11 +278,17 @@ mod p2p_primitives_tests {
         for (i, result) in results.iter().enumerate() {
             let (duration, count) = result.as_ref().unwrap();
             total_results += count;
-            println!("  Search {} completed in {:?}: {} results", i, duration, count);
+            println!(
+                "  Search {} completed in {:?}: {} results",
+                i, duration, count
+            );
         }
 
         assert!(results.len() == 3, "All 3 searches should complete");
-        println!("✓ 3/3 concurrent searches succeeded in {:?}", total_duration);
+        println!(
+            "✓ 3/3 concurrent searches succeeded in {:?}",
+            total_duration
+        );
         println!("✓ Total results across all searches: {}", total_results);
     }
 
@@ -270,24 +299,28 @@ mod p2p_primitives_tests {
 
         // Create two groups of nodes
         let group1_node1 = harness.create_node(5001, vec![]);
-        let _group1_node2 = harness.create_node(5002, vec![
-            format!("/ip4/127.0.0.1/tcp/5001/p2p/{}", group1_node1)
-        ]);
+        let _group1_node2 = harness.create_node(
+            5002,
+            vec![format!("/ip4/127.0.0.1/tcp/5001/p2p/{}", group1_node1)],
+        );
 
         let group2_node1 = harness.create_node(6001, vec![]);
-        let _group2_node2 = harness.create_node(6002, vec![
-            format!("/ip4/127.0.0.1/tcp/6001/p2p/{}", group2_node1)
-        ]);
+        let _group2_node2 = harness.create_node(
+            6002,
+            vec![format!("/ip4/127.0.0.1/tcp/6001/p2p/{}", group2_node1)],
+        );
 
         // Publish different packages in each partition
         harness.publish_package(&group1_node1, "partition-a-pkg", "1.0.0");
         harness.publish_package(&group2_node1, "partition-b-pkg", "1.0.0");
 
         // Verify partitioned state (each group only knows its own packages)
-        let group1_packages: Vec<_> = harness.nodes[0..2].iter()
+        let group1_packages: Vec<_> = harness.nodes[0..2]
+            .iter()
             .flat_map(|n| n.local_packages.iter())
             .collect();
-        let group2_packages: Vec<_> = harness.nodes[2..4].iter()
+        let group2_packages: Vec<_> = harness.nodes[2..4]
+            .iter()
             .flat_map(|n| n.local_packages.iter())
             .collect();
 
@@ -295,16 +328,23 @@ mod p2p_primitives_tests {
         assert_eq!(group2_packages.len(), 1, "Group 2 should have 1 package");
 
         // Simulate recovery by connecting the partitions
-        harness.nodes[2].bootstrap_peers.push(
-            format!("/ip4/127.0.0.1/tcp/5001/p2p/{}", group1_node1)
-        );
+        harness.nodes[2]
+            .bootstrap_peers
+            .push(format!("/ip4/127.0.0.1/tcp/5001/p2p/{}", group1_node1));
 
         // After recovery, all packages should be discoverable
         let all_results = harness.search_packages(&group1_node1, "partition");
-        assert_eq!(all_results.len(), 2, "After recovery, should find both packages");
+        assert_eq!(
+            all_results.len(),
+            2,
+            "After recovery, should find both packages"
+        );
 
         println!("✓ Network partition detected and recovered");
-        println!("✓ All packages discoverable after recovery: {}", all_results.len());
+        println!(
+            "✓ All packages discoverable after recovery: {}",
+            all_results.len()
+        );
     }
 
     #[tokio::test]
@@ -319,12 +359,15 @@ mod p2p_primitives_tests {
         assert_eq!(initial_rep, 1.0, "New peer should have default reputation");
 
         // Record successful retrievals with fast response times
-        harness.record_peer_success(peer_id, 50);  // 50ms
-        harness.record_peer_success(peer_id, 75);  // 75ms
-        harness.record_peer_success(peer_id, 60);  // 60ms
+        harness.record_peer_success(peer_id, 50); // 50ms
+        harness.record_peer_success(peer_id, 75); // 75ms
+        harness.record_peer_success(peer_id, 60); // 60ms
 
         let after_successes = harness.get_peer_reputation(peer_id);
-        assert!(after_successes >= 0.8, "Reputation should remain high after successes");
+        assert!(
+            after_successes >= 0.8,
+            "Reputation should remain high after successes"
+        );
         println!("✓ Reputation after successes: {:.3}", after_successes);
 
         // Record failures
@@ -333,12 +376,17 @@ mod p2p_primitives_tests {
         harness.record_peer_failure(peer_id);
 
         let after_failures = harness.get_peer_reputation(peer_id);
-        assert!(after_failures < after_successes, "Reputation should decrease after failures");
+        assert!(
+            after_failures < after_successes,
+            "Reputation should decrease after failures"
+        );
         assert!(after_failures >= 0.4, "Reputation shouldn't drop too fast");
 
         println!("✓ Reputation after failures: {:.3}", after_failures);
-        println!("✓ Reputation degradation: -{:.1}%",
-                 (after_successes - after_failures) / after_successes * 100.0);
+        println!(
+            "✓ Reputation degradation: -{:.1}%",
+            (after_successes - after_failures) / after_successes * 100.0
+        );
     }
 
     #[tokio::test]
@@ -349,39 +397,44 @@ mod p2p_primitives_tests {
 
         // Search with short timeout
         let search_start = Instant::now();
-        let search_result = timeout(
-            Duration::from_secs(2),
-            async {
-                // Simulate search that might hang
-                tokio::time::sleep(Duration::from_millis(100)).await;
-                harness.search_packages(&node_id, "nonexistent")
-            }
-        ).await;
+        let search_result = timeout(Duration::from_secs(2), async {
+            // Simulate search that might hang
+            tokio::time::sleep(Duration::from_millis(100)).await;
+            harness.search_packages(&node_id, "nonexistent")
+        })
+        .await;
         let search_duration = search_start.elapsed();
 
         // Verify completed within timeout
-        assert!(search_duration < Duration::from_secs(3), "Should complete within timeout");
+        assert!(
+            search_duration < Duration::from_secs(3),
+            "Should complete within timeout"
+        );
         assert!(search_result.is_ok(), "Should not timeout");
 
         let results = search_result.unwrap();
         assert_eq!(results.len(), 0, "Should find no nonexistent packages");
 
-        println!("✓ Search completed in {:?} (within 2s timeout)", search_duration);
+        println!(
+            "✓ Search completed in {:?} (within 2s timeout)",
+            search_duration
+        );
 
         // Test actual timeout scenario
         let timeout_start = Instant::now();
-        let timeout_result = timeout(
-            Duration::from_millis(50),
-            async {
-                // Simulate slow operation
-                tokio::time::sleep(Duration::from_millis(200)).await;
-                harness.search_packages(&node_id, "test")
-            }
-        ).await;
+        let timeout_result = timeout(Duration::from_millis(50), async {
+            // Simulate slow operation
+            tokio::time::sleep(Duration::from_millis(200)).await;
+            harness.search_packages(&node_id, "test")
+        })
+        .await;
         let timeout_duration = timeout_start.elapsed();
 
         assert!(timeout_result.is_err(), "Should timeout");
-        assert!(timeout_duration < Duration::from_millis(100), "Should fail fast");
+        assert!(
+            timeout_duration < Duration::from_millis(100),
+            "Should fail fast"
+        );
 
         println!("✓ Timeout triggered correctly in {:?}", timeout_duration);
     }
@@ -401,11 +454,17 @@ mod p2p_primitives_tests {
 
         // Search operation
         let results = harness.search_packages(&node_id, "otel");
-        println!("✓ Searched with OTEL span: p2p_search ({} results)", results.len());
+        println!(
+            "✓ Searched with OTEL span: p2p_search ({} results)",
+            results.len()
+        );
 
         // Reputation operation
         let rep = harness.get_peer_reputation("test-peer");
-        println!("✓ Reputation checked with OTEL span: p2p_reputation ({:.2})", rep);
+        println!(
+            "✓ Reputation checked with OTEL span: p2p_reputation ({:.2})",
+            rep
+        );
 
         println!("✓ All P2P operations instrumented with OTEL spans");
     }
@@ -428,7 +487,10 @@ mod p2p_primitives_tests {
             packages_created = harness.packages.len();
             nodes_created = harness.nodes.len();
 
-            println!("✓ Created {} nodes and {} packages", nodes_created, packages_created);
+            println!(
+                "✓ Created {} nodes and {} packages",
+                nodes_created, packages_created
+            );
             // Harness will be dropped here
         }
 
@@ -437,11 +499,17 @@ mod p2p_primitives_tests {
         // Create new harness to verify independence
         let new_harness = P2PTestHarness::new();
         assert_eq!(new_harness.nodes.len(), 0, "New harness should start empty");
-        assert_eq!(new_harness.packages.len(), 0, "New harness should have no packages");
+        assert_eq!(
+            new_harness.packages.len(),
+            0,
+            "New harness should have no packages"
+        );
 
         println!("✓ New harness is independent and clean");
-        println!("✓ Previous session had {} nodes, {} packages (now cleaned up)",
-                 nodes_created, packages_created);
+        println!(
+            "✓ Previous session had {} nodes, {} packages (now cleaned up)",
+            nodes_created, packages_created
+        );
     }
 }
 

@@ -110,7 +110,8 @@ pub struct StressTestRunner {
 
 impl StressTestRunner {
     pub fn new(config: StressConfig) -> Result<Self> {
-        let temp_dir = TempDir::new().map_err(|e| anyhow::anyhow!("Failed to create temp dir: {}", e))?;
+        let temp_dir =
+            TempDir::new().map_err(|e| anyhow::anyhow!("Failed to create temp dir: {}", e))?;
         Ok(Self { config, temp_dir })
     }
 
@@ -134,9 +135,11 @@ impl StressTestRunner {
         let mut failed = 0;
 
         for (query, filters) in queries.into_iter().take(self.config.total_operations) {
-            let permit = semaphore.clone().acquire_owned().await.map_err(|e| {
-                anyhow::anyhow!("Failed to acquire semaphore permit: {}", e)
-            })?;
+            let permit = semaphore
+                .clone()
+                .acquire_owned()
+                .await
+                .map_err(|e| anyhow::anyhow!("Failed to acquire semaphore permit: {}", e))?;
 
             let task = tokio::spawn(async move {
                 let _permit = permit; // Hold permit for duration of task
@@ -308,8 +311,7 @@ impl StressTestRunner {
 
     /// Execute a sequence of operations
     async fn execute_operation_sequence(
-        &self,
-        _sequence: Vec<crate::utils::PackageOperation>,
+        &self, _sequence: Vec<crate::utils::PackageOperation>,
     ) -> Result<()> {
         // Simulate operation execution
         tokio::time::sleep(Duration::from_micros(100)).await;
@@ -325,11 +327,7 @@ impl StressTestRunner {
 
     /// Calculate metrics from collected data
     fn calculate_metrics(
-        &self,
-        latencies: Vec<Duration>,
-        completed: usize,
-        failed: usize,
-        total_duration: Duration,
+        &self, latencies: Vec<Duration>, completed: usize, failed: usize, total_duration: Duration,
     ) -> StressMetrics {
         if latencies.is_empty() {
             return StressMetrics::default();
@@ -408,7 +406,10 @@ mod tests {
         };
 
         let runner = StressTestRunner::new(config).expect("Failed to create runner");
-        let metrics = runner.run_memory_stress().await.expect("Stress test failed");
+        let metrics = runner
+            .run_memory_stress()
+            .await
+            .expect("Stress test failed");
 
         assert!(metrics.operations_completed > 0);
         assert!(metrics.peak_memory_bytes > 0);

@@ -1,4 +1,0 @@
-(dyn libp2p::libp2p_core::transport::boxed::Abstract<(libp2p::PeerId, libp2p::libp2p_core::muxing::StreamMuxerBox)> + std::marker::Send + std::marker::Unpin + 'static)
-std::ptr::Unique<(dyn libp2p::libp2p_core::transport::boxed::Abstract<(libp2p::PeerId, libp2p::libp2p_core::muxing::StreamMuxerBox)> + std::marker::Send + std::marker::Unpin + 'static)>
-std::boxed::Box<(dyn libp2p::libp2p_core::transport::boxed::Abstract<(libp2p::PeerId, libp2p::libp2p_core::muxing::StreamMuxerBox)> + std::marker::Send + std::marker::Unpin + 'static)>
-libp2p::libp2p_core::transport::Boxed<(libp2p::PeerId, libp2p::libp2p_core::muxing::StreamMuxerBox)>

@@ -1,7 +1,7 @@
+use lazy_static::lazy_static;
 use std::alloc::{GlobalAlloc, Layout, System};
 use std::sync::atomic::{AtomicUsize, Ordering};
-use tokio::runtime::{Runtime, Builder};
-use lazy_static::lazy_static;
+use tokio::runtime::{Builder, Runtime};
 
 // Custom allocator to track memory usage
 struct TrackingAllocator;
@@ -142,14 +142,23 @@ mod memory_tests {
         println!("  Baseline: {} bytes", baseline);
         println!("  After creation: {} bytes", after_creation);
         println!("  After execution: {} bytes", after_execution);
-        println!("  Creation overhead: {} KB", (after_creation - baseline) / 1024);
-        println!("  Execution overhead: {} KB", (after_execution - after_creation) / 1024);
+        println!(
+            "  Creation overhead: {} KB",
+            (after_creation - baseline) / 1024
+        );
+        println!(
+            "  Execution overhead: {} KB",
+            (after_execution - after_creation) / 1024
+        );
 
         drop(rt);
 
         let after_drop = get_current_memory_usage();
         println!("  After drop: {} bytes", after_drop);
-        println!("  Memory reclaimed: {} KB", (after_execution - after_drop) / 1024);
+        println!(
+            "  Memory reclaimed: {} KB",
+            (after_execution - after_drop) / 1024
+        );
     }
 
     #[test]
@@ -157,10 +166,7 @@ mod memory_tests {
         reset_memory_tracking();
         let baseline = get_current_memory_usage();
 
-        let rt = Builder::new_current_thread()
-            .enable_all()
-            .build()
-            .unwrap();
+        let rt = Builder::new_current_thread().enable_all().build().unwrap();
 
         let after_creation = get_current_memory_usage();
 
@@ -176,8 +182,14 @@ mod memory_tests {
         println!("  Baseline: {} bytes", baseline);
         println!("  After creation: {} bytes", after_creation);
         println!("  After execution: {} bytes", after_execution);
-        println!("  Creation overhead: {} KB", (after_creation - baseline) / 1024);
-        println!("  Execution overhead: {} KB", (after_execution - after_creation) / 1024);
+        println!(
+            "  Creation overhead: {} KB",
+            (after_creation - baseline) / 1024
+        );
+        println!(
+            "  Execution overhead: {} KB",
+            (after_execution - after_creation) / 1024
+        );
     }
 }
 

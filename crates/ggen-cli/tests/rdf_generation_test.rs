@@ -350,7 +350,7 @@ fn test_invalid_ttl_file() {
             predicate::str::contains("not found")
                 .or(predicate::str::contains("No such file"))
                 .or(predicate::str::contains("does not exist"))
-                .or(predicate::str::contains("error"))
+                .or(predicate::str::contains("error")),
         );
 
     // Verify output directory is not created or is empty
@@ -399,7 +399,7 @@ fn test_invalid_rdf_syntax() {
                 .or(predicate::str::contains("invalid"))
                 .or(predicate::str::contains("RDF"))
                 .or(predicate::str::contains("TTL"))
-                .or(predicate::str::contains("error"))
+                .or(predicate::str::contains("error")),
         );
 }
 
@@ -448,7 +448,7 @@ fn test_missing_required_fields() {
                 .or(predicate::str::contains("hasName"))
                 .or(predicate::str::contains("hasVersion"))
                 .or(predicate::str::contains("validation"))
-                .or(predicate::str::contains("error"))
+                .or(predicate::str::contains("error")),
         );
 }
 
@@ -499,8 +499,8 @@ fn test_missing_dependencies() {
 
     // If it succeeds, verify Cargo.toml has minimal dependencies
     if result.status.success() && output_dir.join("Cargo.toml").exists() {
-        let cargo_toml = fs::read_to_string(output_dir.join("Cargo.toml"))
-            .expect("Failed to read Cargo.toml");
+        let cargo_toml =
+            fs::read_to_string(output_dir.join("Cargo.toml")).expect("Failed to read Cargo.toml");
 
         // Should at least have clap and anyhow as default dependencies
         assert!(
@@ -609,8 +609,8 @@ fn test_generated_module_structure() {
         .success();
 
     // Verify mod.rs files properly export submodules
-    let cmds_mod = fs::read_to_string(output_dir.join("src/cmds/mod.rs"))
-        .expect("Failed to read cmds/mod.rs");
+    let cmds_mod =
+        fs::read_to_string(output_dir.join("src/cmds/mod.rs")).expect("Failed to read cmds/mod.rs");
 
     assert!(
         cmds_mod.contains("pub mod template") || cmds_mod.contains("mod template"),
@@ -670,8 +670,8 @@ fn test_generated_readme() {
 
     // Verify README exists and has content
     if output_dir.join("README.md").exists() {
-        let readme = fs::read_to_string(output_dir.join("README.md"))
-            .expect("Failed to read README.md");
+        let readme =
+            fs::read_to_string(output_dir.join("README.md")).expect("Failed to read README.md");
 
         assert!(
             readme.contains("##") || readme.contains("# "),
@@ -747,10 +747,7 @@ fn test_sample_ttl_file_exists() {
 
 #[test]
 fn test_ggen_binary_available() {
-    ggen()
-        .arg("--version")
-        .assert()
-        .success();
+    ggen().arg("--version").assert().success();
 }
 
 #[test]
@@ -760,5 +757,5 @@ fn test_template_command_available() {
         .arg("--help")
         .assert()
         .success()
-        .stdout(predicate::str::contains("template") .or(predicate::str::contains("SUBCOMMANDS")));
+        .stdout(predicate::str::contains("template").or(predicate::str::contains("SUBCOMMANDS")));
 }

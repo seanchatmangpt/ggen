@@ -32,10 +32,7 @@ fn test_new_user_complete_workflow() {
 
     // Step 3: Verify project structure created
     let project_dir = workspace_path.join("my-cli-app");
-    assert!(
-        project_dir.exists(),
-        "Project directory should be created"
-    );
+    assert!(project_dir.exists(), "Project directory should be created");
 
     // Essential files should exist
     let cargo_toml = project_dir.join("Cargo.toml");
@@ -49,8 +46,7 @@ fn test_new_user_complete_workflow() {
 
     // Step 5: Verify project builds (critical!)
     // This proves the generated code is actually valid
-    verify_rust_project_builds(&project_dir)
-        .expect("Generated project should build successfully");
+    verify_rust_project_builds(&project_dir).expect("Generated project should build successfully");
 
     // Step 6: Verify generated binary can be run
     let output = std::process::Command::new("cargo")

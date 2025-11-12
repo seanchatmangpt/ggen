@@ -43,6 +43,6 @@ pub use parser::RdfParser;
 pub use query::QueryExecutor;
 pub use renderer::TemplateRenderer;
 pub use types::{
-    Argument, ArgumentType, CliConfig, CliProject, Dependency, Noun,
-    RdfArgument, RdfCommand, RdfFlag, TemplateContext, Validation, Verb,
+    Argument, ArgumentType, CliConfig, CliProject, Dependency, Noun, RdfArgument, RdfCommand,
+    RdfFlag, TemplateContext, Validation, Verb,
 };

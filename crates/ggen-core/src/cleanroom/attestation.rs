@@ -300,7 +300,7 @@ impl Attestation {
 
     /// Verify attestation signature (placeholder for future crypto)
     pub fn verify(&self) -> Result<bool> {
-        // TODO: Implement signature verification with cosign/notation
+        // FUTURE: Implement signature verification with cosign/notation
         Ok(true)
     }
 

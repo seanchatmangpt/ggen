@@ -97,7 +97,11 @@ impl {{command.label | capitalize}}Command {
     }
 }
 "#;
-    fs::write(project_path.join("templates/command.tmpl"), command_template).unwrap();
+    fs::write(
+        project_path.join("templates/command.tmpl"),
+        command_template,
+    )
+    .unwrap();
 
     // Step 4: Run ggen generate
     let mut cmd = Command::cargo_bin("ggen").unwrap();
@@ -181,7 +185,11 @@ pub async fn {{resource.label}}_handler() -> impl IntoResponse {
     }))
 }
 "#;
-    fs::write(project_path.join("templates/handler.tmpl"), handler_template).unwrap();
+    fs::write(
+        project_path.join("templates/handler.tmpl"),
+        handler_template,
+    )
+    .unwrap();
 
     // Step 3: Run ggen generate again
     let mut cmd = Command::cargo_bin("ggen").unwrap();
@@ -289,10 +297,7 @@ ggen:NameArg a ggen:Argument ;
     assert!(create_content.contains("pub struct CreateCommand"));
 
     // Verify list command still exists (not deleted)
-    assert!(
-        list_command_path.exists(),
-        "Existing command should remain"
-    );
+    assert!(list_command_path.exists(), "Existing command should remain");
 
     // Check if list command was actually regenerated (timestamp changed)
     let list_mtime_after = fs::metadata(&list_command_path)
@@ -302,7 +307,10 @@ ggen:NameArg a ggen:Argument ;
 
     // In a real implementation, unchanged entities might be skipped
     // For now, we just verify both files exist
-    assert!(list_mtime_after >= list_mtime, "File should be regenerated or unchanged");
+    assert!(
+        list_mtime_after >= list_mtime,
+        "File should be regenerated or unchanged"
+    );
 }
 
 /// E2E Test: Watch mode with hot reload
@@ -392,13 +400,18 @@ fn test_e2e_preset_clap_noun_verb() {
         .arg("clap-noun-verb")
         .assert()
         .success()
-        .stdout(predicate::str::contains("Initialized project with preset: clap-noun-verb"))
+        .stdout(predicate::str::contains(
+            "Initialized project with preset: clap-noun-verb",
+        ))
         .stdout(predicate::str::contains("domain/"))
         .stdout(predicate::str::contains("templates/"));
 
     // Step 2: Verify structure
     assert!(project_path.join("domain").exists(), "domain/ should exist");
-    assert!(project_path.join("templates").exists(), "templates/ should exist");
+    assert!(
+        project_path.join("templates").exists(),
+        "templates/ should exist"
+    );
     assert!(
         project_path.join("domain/commands.ttl").exists(),
         "Preset should create sample RDF"
@@ -433,18 +446,13 @@ fn test_e2e_preset_clap_noun_verb() {
 
     // Check for generated command files
     let commands_dir = generated_dir.join("commands");
-    assert!(
-        commands_dir.exists(),
-        "commands/ subdirectory should exist"
-    );
+    assert!(commands_dir.exists(), "commands/ subdirectory should exist");
 
     // Verify at least one command file was generated
     let generated_files: Vec<_> = fs::read_dir(&commands_dir)
         .unwrap()
         .filter_map(Result::ok)
-        .filter(|entry| {
-            entry.path().extension().and_then(|s| s.to_str()) == Some("rs")
-        })
+        .filter(|entry| entry.path().extension().and_then(|s| s.to_str()) == Some("rs"))
         .collect();
 
     assert!(
@@ -455,12 +463,10 @@ fn test_e2e_preset_clap_noun_verb() {
     // Verify content structure of first generated file
     let first_file = &generated_files[0];
     let file_content = fs::read_to_string(first_file.path()).unwrap();
+    assert!(file_content.contains("use clap::"), "Should import clap");
     assert!(
-        file_content.contains("use clap::"),
-        "Should import clap"
-    );
-    assert!(
-        file_content.contains("#[derive(Parser)]") || file_content.contains("#[derive(Subcommand)]"),
+        file_content.contains("#[derive(Parser)]")
+            || file_content.contains("#[derive(Subcommand)]"),
         "Should contain clap derive macros"
     );
 }
@@ -490,7 +496,11 @@ fn test_e2e_multi_domain_orchestration() {
 ggen:ImportCommand a ggen:Command ;
     rdfs:label "import" .
 "#;
-    fs::write(project_path.join("domain/commands/import.ttl"), commands_ttl).unwrap();
+    fs::write(
+        project_path.join("domain/commands/import.ttl"),
+        commands_ttl,
+    )
+    .unwrap();
 
     // API domain
     let api_ttl = r#"@prefix ggen: <http://ggen.io/ontology#> .
@@ -524,12 +534,20 @@ ggen:UsernameField a ggen:Field ;
     let command_template = r#"// Command: {{command.label}}
 pub struct {{command.label | capitalize}}Command;
 "#;
-    fs::write(project_path.join("templates/command.tmpl"), command_template).unwrap();
+    fs::write(
+        project_path.join("templates/command.tmpl"),
+        command_template,
+    )
+    .unwrap();
 
     let api_template = r#"// Endpoint: {{endpoint.path}}
 pub async fn {{endpoint.label}}_handler() {}
 "#;
-    fs::write(project_path.join("templates/api_endpoint.tmpl"), api_template).unwrap();
+    fs::write(
+        project_path.join("templates/api_endpoint.tmpl"),
+        api_template,
+    )
+    .unwrap();
 
     let model_template = r#"// Model: {{model.label}}
 #[derive(Debug, Clone)]
@@ -553,24 +571,24 @@ pub struct {{model.label}} {
         .stdout(predicate::str::contains("model.tmpl"));
 
     // Verify isolation and correct routing
-    assert!(project_path.join("generated/commands/import_command.rs").exists());
-    assert!(project_path.join("generated/api_endpoints/users_handler.rs").exists());
+    assert!(project_path
+        .join("generated/commands/import_command.rs")
+        .exists());
+    assert!(project_path
+        .join("generated/api_endpoints/users_handler.rs")
+        .exists());
     assert!(project_path.join("generated/models/user.rs").exists());
 
     // Verify content correctness
-    let command_content = fs::read_to_string(
-        project_path.join("generated/commands/import_command.rs")
-    ).unwrap();
+    let command_content =
+        fs::read_to_string(project_path.join("generated/commands/import_command.rs")).unwrap();
     assert!(command_content.contains("pub struct ImportCommand"));
 
-    let api_content = fs::read_to_string(
-        project_path.join("generated/api_endpoints/users_handler.rs")
-    ).unwrap();
+    let api_content =
+        fs::read_to_string(project_path.join("generated/api_endpoints/users_handler.rs")).unwrap();
     assert!(api_content.contains("/api/users"));
 
-    let model_content = fs::read_to_string(
-        project_path.join("generated/models/user.rs")
-    ).unwrap();
+    let model_content = fs::read_to_string(project_path.join("generated/models/user.rs")).unwrap();
     assert!(model_content.contains("pub struct User"));
     assert!(model_content.contains("pub id: u64"));
     assert!(model_content.contains("pub username: String"));

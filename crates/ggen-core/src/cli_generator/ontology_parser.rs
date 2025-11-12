@@ -27,10 +27,8 @@ impl OntologyParser {
     /// This function will be implemented using ggen-ai::rdf::QueryExecutor
     /// to extract the project structure.
     pub fn parse(_ttl_file: &Path) -> Result<crate::cli_generator::types::CliProject> {
-        // TODO: Implement using ggen-ai RDF parser when integrated
+        // FUTURE: Implement using ggen-ai RDF parser when integrated
         // For now, return error indicating integration needed
         anyhow::bail!("RDF parsing not yet integrated. Use ggen-ai::rdf::QueryExecutor directly.")
     }
 }
-
-

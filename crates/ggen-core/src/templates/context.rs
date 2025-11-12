@@ -44,7 +44,10 @@ impl TemplateContext {
 
     /// Get a variable as a string
     pub fn get_string(&self, key: &str) -> Option<String> {
-        self.variables.get(key).and_then(|v| v.as_str()).map(|s| s.to_string())
+        self.variables
+            .get(key)
+            .and_then(|v| v.as_str())
+            .map(|s| s.to_string())
     }
 
     /// Check if a variable exists
@@ -92,7 +95,8 @@ impl TemplateContext {
         if !missing.is_empty() {
             anyhow::bail!(
                 "Missing required template variables: {}",
-                missing.iter()
+                missing
+                    .iter()
                     .map(|v| v.as_str())
                     .collect::<Vec<_>>()
                     .join(", ")
@@ -106,7 +110,8 @@ impl TemplateContext {
     pub fn apply_defaults(&mut self, defaults: &BTreeMap<String, String>) {
         for (key, value) in defaults {
             if !self.variables.contains_key(key) {
-                self.variables.insert(key.clone(), Value::String(value.clone()));
+                self.variables
+                    .insert(key.clone(), Value::String(value.clone()));
             }
         }
     }
@@ -159,7 +164,10 @@ mod tests {
 
         let ctx = TemplateContext::from_map(vars).unwrap();
 
-        assert_eq!(ctx.get_string("service_name"), Some("my-service".to_string()));
+        assert_eq!(
+            ctx.get_string("service_name"),
+            Some("my-service".to_string())
+        );
         assert_eq!(ctx.get_string("port"), Some("8080".to_string()));
     }
 
@@ -212,7 +220,9 @@ mod tests {
         ctx.set("name", "World").unwrap();
         ctx.set("count", 42).unwrap();
 
-        let rendered = ctx.render_string("Hello, {{ name }}! Count: {{ count }}").unwrap();
+        let rendered = ctx
+            .render_string("Hello, {{ name }}! Count: {{ count }}")
+            .unwrap();
         assert_eq!(rendered, "Hello, World! Count: 42");
     }
 

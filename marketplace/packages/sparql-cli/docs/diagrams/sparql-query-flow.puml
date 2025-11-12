@@ -1,0 +1,102 @@
+@startuml sparql-query-flow
+!theme blueprint
+title SPARQL Query Execution Flow
+
+actor User
+participant "CLI Parser" as CLI
+participant "Query Parser\n(spargebra)" as Parser
+participant "Query Optimizer" as Optimizer
+participant "Cache Layer\n(LRU)" as Cache
+participant "Execution Engine" as Engine
+participant "RDF Store\n(oxigraph)" as Store
+participant "SPARQL Endpoint" as Endpoint
+database "Local Cache" as LocalCache
+
+User -> CLI: query execute\n--query "SELECT * WHERE {...}"\n--endpoint dbpedia
+activate CLI
+
+CLI -> Parser: Parse SPARQL query
+activate Parser
+Parser -> Parser: Tokenize
+Parser -> Parser: Build AST
+Parser --> CLI: Parsed query tree
+deactivate Parser
+
+CLI -> Optimizer: Optimize query
+activate Optimizer
+Optimizer -> Optimizer: Analyze patterns
+Optimizer -> Optimizer: Apply rewrite rules:\n- Filter pushdown\n- Join reordering\n- Subquery elimination
+Optimizer -> Optimizer: Estimate costs
+Optimizer --> CLI: Optimized query plan
+deactivate Optimizer
+
+CLI -> Cache: Check cache
+activate Cache
+Cache -> LocalCache: Lookup(query_hash)
+alt Cache Hit
+    LocalCache --> Cache: Cached results
+    Cache --> CLI: Return cached results
+    CLI --> User: Display results\n(from cache)
+else Cache Miss
+    Cache --> CLI: Cache miss
+    deactivate Cache
+
+    CLI -> Engine: Execute query
+    activate Engine
+
+    alt Local execution
+        Engine -> Store: Query local RDF store
+        activate Store
+        Store -> Store: Triple pattern matching
+        Store -> Store: Apply filters
+        Store -> Store: Join operations
+        Store --> Engine: Result bindings
+        deactivate Store
+    else Remote execution
+        Engine -> Endpoint: HTTP POST\nContent-Type: application/sparql-query
+        activate Endpoint
+        Endpoint -> Endpoint: Process query
+        Endpoint --> Engine: Result set\n(JSON/XML/CSV)
+        deactivate Endpoint
+    end
+
+    Engine -> Engine: Format results
+    Engine --> CLI: Query results
+    deactivate Engine
+
+    CLI -> Cache: Store in cache
+    activate Cache
+    Cache -> LocalCache: Put(query_hash, results, ttl)
+    deactivate Cache
+
+    CLI --> User: Display results
+end
+
+deactivate CLI
+
+note over Parser
+SPARQL 1.1 support:
+- SELECT
+- ASK
+- CONSTRUCT
+- DESCRIBE
+end note
+
+note over Optimizer
+Optimization techniques:
+- Filter pushdown
+- Join reordering
+- Common subexpression elimination
+- Projection pushdown
+- OPTIONAL optimization
+end note
+
+note over Cache
+Cache strategy:
+- LRU eviction
+- TTL-based expiration
+- Query hash as key
+- Configurable size
+end note
+
+@enduml

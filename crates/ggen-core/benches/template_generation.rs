@@ -20,10 +20,7 @@
 /// - Performance vs SLO targets
 /// - Regression analysis
 /// - Optimization recommendations
-
-use criterion::{
-    black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput,
-};
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 use ggen_core::{graph::Graph, pipeline::Pipeline, template::Template};
 use std::collections::HashMap;
 use std::fs;
@@ -72,7 +69,8 @@ fn create_rdf_template(rdf_triple_count: usize, sparql_query_count: usize) -> St
         .map(|i| {
             format!(
                 "  query{}: \"SELECT ?s ?name WHERE {{ ?s a ex:Type{} ; ex:name ?name }}\"",
-                i, i % 5
+                i,
+                i % 5
             )
         })
         .collect();
@@ -103,7 +101,11 @@ fn create_rdf_file(triple_count: usize) -> NamedTempFile {
     let mut file = NamedTempFile::new().unwrap();
 
     writeln!(file, "@prefix ex: <http://example.org/> .").unwrap();
-    writeln!(file, "@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .").unwrap();
+    writeln!(
+        file,
+        "@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ."
+    )
+    .unwrap();
     writeln!(file, "").unwrap();
 
     for i in 0..triple_count {
@@ -230,8 +232,12 @@ fn bench_single_template_single_rdf(c: &mut Criterion) {
                         graph.insert_turtle(&rdf_content).unwrap();
 
                         // Process and render
-                        template.render_frontmatter(pipeline.tera_mut(), &ctx).unwrap();
-                        template.process_graph(&mut graph, pipeline.tera_mut(), &ctx, &rdf_path).unwrap();
+                        template
+                            .render_frontmatter(pipeline.tera_mut(), &ctx)
+                            .unwrap();
+                        template
+                            .process_graph(&mut graph, pipeline.tera_mut(), &ctx, &rdf_path)
+                            .unwrap();
                         let _output = template.render(pipeline.tera_mut(), &ctx).unwrap();
 
                         total += start.elapsed();
@@ -259,8 +265,12 @@ fn bench_single_template_single_rdf(c: &mut Criterion) {
                     ctx.insert("name", "test_app");
                     let mut pipeline_clone = Pipeline::new().unwrap();
 
-                    template.render_frontmatter(pipeline_clone.tera_mut(), &ctx).unwrap();
-                    template.process_graph(&mut graph, pipeline_clone.tera_mut(), &ctx, &rdf_path).unwrap();
+                    template
+                        .render_frontmatter(pipeline_clone.tera_mut(), &ctx)
+                        .unwrap();
+                    template
+                        .process_graph(&mut graph, pipeline_clone.tera_mut(), &ctx, &rdf_path)
+                        .unwrap();
                     let output = template.render(pipeline_clone.tera_mut(), &ctx).unwrap();
                     black_box(output)
                 });
@@ -305,8 +315,12 @@ fn bench_single_template_multiple_rdf(c: &mut Criterion) {
                     graph.insert_turtle(&rdf_content).unwrap();
                 }
 
-                template.render_frontmatter(pipeline.tera_mut(), &ctx).unwrap();
-                template.process_graph(&mut graph, pipeline.tera_mut(), &ctx, &rdf_paths[0]).unwrap();
+                template
+                    .render_frontmatter(pipeline.tera_mut(), &ctx)
+                    .unwrap();
+                template
+                    .process_graph(&mut graph, pipeline.tera_mut(), &ctx, &rdf_paths[0])
+                    .unwrap();
                 let _output = template.render(pipeline.tera_mut(), &ctx).unwrap();
 
                 total += start.elapsed();
@@ -332,8 +346,12 @@ fn bench_single_template_multiple_rdf(c: &mut Criterion) {
             ctx.insert("name", "multi_rdf_app");
             let mut pipeline_clone = Pipeline::new().unwrap();
 
-            template.render_frontmatter(pipeline_clone.tera_mut(), &ctx).unwrap();
-            template.process_graph(&mut graph, pipeline_clone.tera_mut(), &ctx, &rdf_paths[0]).unwrap();
+            template
+                .render_frontmatter(pipeline_clone.tera_mut(), &ctx)
+                .unwrap();
+            template
+                .process_graph(&mut graph, pipeline_clone.tera_mut(), &ctx, &rdf_paths[0])
+                .unwrap();
             let output = template.render(pipeline_clone.tera_mut(), &ctx).unwrap();
             black_box(output)
         });
@@ -362,8 +380,12 @@ fn bench_single_template_multiple_rdf(c: &mut Criterion) {
                     mem_snapshot.update_peak();
                 }
 
-                template.render_frontmatter(pipeline.tera_mut(), &ctx).unwrap();
-                template.process_graph(&mut graph, pipeline.tera_mut(), &ctx, &rdf_paths[0]).unwrap();
+                template
+                    .render_frontmatter(pipeline.tera_mut(), &ctx)
+                    .unwrap();
+                template
+                    .process_graph(&mut graph, pipeline.tera_mut(), &ctx, &rdf_paths[0])
+                    .unwrap();
                 let _output = template.render(pipeline.tera_mut(), &ctx).unwrap();
 
                 mem_snapshot.finish();
@@ -441,8 +463,12 @@ fn main() {{
                     let mut ctx = Context::new();
                     ctx.insert("name", "shared_rdf_app");
 
-                    template.render_frontmatter(pipeline.tera_mut(), &ctx).unwrap();
-                    template.process_graph(&mut graph, pipeline.tera_mut(), &ctx, &rdf_path).unwrap();
+                    template
+                        .render_frontmatter(pipeline.tera_mut(), &ctx)
+                        .unwrap();
+                    template
+                        .process_graph(&mut graph, pipeline.tera_mut(), &ctx, &rdf_path)
+                        .unwrap();
                     let output = template.render(pipeline.tera_mut(), &ctx).unwrap();
                     outputs.push(output);
                 }
@@ -470,8 +496,12 @@ fn main() {{
                 ctx.insert("name", "shared_rdf_app");
                 let mut pipeline_clone = Pipeline::new().unwrap();
 
-                template.render_frontmatter(pipeline_clone.tera_mut(), &ctx).unwrap();
-                template.process_graph(&mut graph, pipeline_clone.tera_mut(), &ctx, &rdf_path).unwrap();
+                template
+                    .render_frontmatter(pipeline_clone.tera_mut(), &ctx)
+                    .unwrap();
+                template
+                    .process_graph(&mut graph, pipeline_clone.tera_mut(), &ctx, &rdf_path)
+                    .unwrap();
                 let output = template.render(pipeline_clone.tera_mut(), &ctx).unwrap();
                 outputs.push(output);
             }
@@ -497,8 +527,12 @@ fn main() {{
                     let mut ctx = Context::new();
                     ctx.insert("name", "shared_rdf_app");
 
-                    template.render_frontmatter(pipeline.tera_mut(), &ctx).unwrap();
-                    template.process_graph(&mut graph, pipeline.tera_mut(), &ctx, &rdf_path).unwrap();
+                    template
+                        .render_frontmatter(pipeline.tera_mut(), &ctx)
+                        .unwrap();
+                    template
+                        .process_graph(&mut graph, pipeline.tera_mut(), &ctx, &rdf_path)
+                        .unwrap();
                     template.render(pipeline.tera_mut(), &ctx).unwrap()
                 })
                 .collect();
@@ -720,8 +754,12 @@ ex:Test3 a ex:TestCase ; ex:name "db_connection" ."#,
                     let mut ctx = Context::new();
                     ctx.insert("project_name", "TestProject");
 
-                    template.render_frontmatter(pipeline.tera_mut(), &ctx).unwrap();
-                    template.process_graph(&mut graph, pipeline.tera_mut(), &ctx, temp_dir.path()).unwrap();
+                    template
+                        .render_frontmatter(pipeline.tera_mut(), &ctx)
+                        .unwrap();
+                    template
+                        .process_graph(&mut graph, pipeline.tera_mut(), &ctx, temp_dir.path())
+                        .unwrap();
                     let output = template.render(pipeline.tera_mut(), &ctx).unwrap();
 
                     // Write to disk
@@ -762,8 +800,12 @@ ex:Test3 a ex:TestCase ; ex:name "db_connection" ."#,
                     let mut ctx = Context::new();
                     ctx.insert("project_name", "TestProject");
 
-                    template.render_frontmatter(pipeline.tera_mut(), &ctx).unwrap();
-                    template.process_graph(&mut graph, pipeline.tera_mut(), &ctx, temp_dir.path()).unwrap();
+                    template
+                        .render_frontmatter(pipeline.tera_mut(), &ctx)
+                        .unwrap();
+                    template
+                        .process_graph(&mut graph, pipeline.tera_mut(), &ctx, temp_dir.path())
+                        .unwrap();
                     let output = template.render(pipeline.tera_mut(), &ctx).unwrap();
 
                     (file_path.clone(), output)
@@ -800,8 +842,12 @@ fn bench_cache_effectiveness(c: &mut Criterion) {
             let rdf_content = fs::read_to_string(&rdf_path).unwrap();
             graph.insert_turtle(&rdf_content).unwrap();
 
-            template.render_frontmatter(pipeline.tera_mut(), &ctx).unwrap();
-            template.process_graph(&mut graph, pipeline.tera_mut(), &ctx, &rdf_path).unwrap();
+            template
+                .render_frontmatter(pipeline.tera_mut(), &ctx)
+                .unwrap();
+            template
+                .process_graph(&mut graph, pipeline.tera_mut(), &ctx, &rdf_path)
+                .unwrap();
             let output = template.render(pipeline.tera_mut(), &ctx).unwrap();
             black_box(output)
         });
@@ -819,8 +865,12 @@ fn bench_cache_effectiveness(c: &mut Criterion) {
             ctx.insert("name", "cache_test");
             let mut pipeline_clone = Pipeline::new().unwrap();
 
-            template.render_frontmatter(pipeline_clone.tera_mut(), &ctx).unwrap();
-            template.process_graph(&mut graph, pipeline_clone.tera_mut(), &ctx, &rdf_path).unwrap();
+            template
+                .render_frontmatter(pipeline_clone.tera_mut(), &ctx)
+                .unwrap();
+            template
+                .process_graph(&mut graph, pipeline_clone.tera_mut(), &ctx, &rdf_path)
+                .unwrap();
             let output = template.render(pipeline_clone.tera_mut(), &ctx).unwrap();
             black_box(output)
         });

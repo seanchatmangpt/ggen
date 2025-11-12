@@ -42,13 +42,11 @@ impl FrozenParser {
         let mut sections = Vec::new();
 
         // Regex to match {% frozen %} or {% frozen id="..." %}
-        let start_regex = Regex::new(
-            r#"\{%\s*frozen(?:\s+id\s*=\s*"([^"]+)")?\s*%\}"#
-        ).map_err(|e| anyhow!("Invalid frozen tag regex: {}", e))?;
+        let start_regex = Regex::new(r#"\{%\s*frozen(?:\s+id\s*=\s*"([^"]+)")?\s*%\}"#)
+            .map_err(|e| anyhow!("Invalid frozen tag regex: {}", e))?;
 
-        let end_regex = Regex::new(
-            r"\{%\s*endfrozen\s*%\}"
-        ).map_err(|e| anyhow!("Invalid endfrozen tag regex: {}", e))?;
+        let end_regex = Regex::new(r"\{%\s*endfrozen\s*%\}")
+            .map_err(|e| anyhow!("Invalid endfrozen tag regex: {}", e))?;
 
         // Find all start tags
         for start_match in start_regex.captures_iter(template_content) {
@@ -78,14 +76,15 @@ impl FrozenParser {
     }
 
     /// Extract frozen sections indexed by ID or position
-    pub fn extract_frozen_map(
-        content: &str,
-    ) -> Result<std::collections::HashMap<String, String>> {
+    pub fn extract_frozen_map(content: &str) -> Result<std::collections::HashMap<String, String>> {
         let sections = Self::parse_frozen_tags(content)?;
         let mut map = std::collections::HashMap::new();
 
         for (index, section) in sections.iter().enumerate() {
-            let key = section.id.clone().unwrap_or_else(|| format!("section_{}", index));
+            let key = section
+                .id
+                .clone()
+                .unwrap_or_else(|| format!("section_{}", index));
             map.insert(key, section.content.clone());
         }
 
@@ -118,10 +117,9 @@ impl FrozenMerger {
         let mut result = new_content.to_string();
 
         // Regex to match frozen tags in new content
-        let frozen_regex = Regex::new(
-            r#"\{%\s*frozen(?:\s+id\s*=\s*"([^"]+)")?\s*%\}.*?\{%\s*endfrozen\s*%\}"#
-        )
-        .map_err(|e| anyhow!("Invalid frozen merge regex: {}", e))?;
+        let frozen_regex =
+            Regex::new(r#"\{%\s*frozen(?:\s+id\s*=\s*"([^"]+)")?\s*%\}.*?\{%\s*endfrozen\s*%\}"#)
+                .map_err(|e| anyhow!("Invalid frozen merge regex: {}", e))?;
 
         let mut section_index = 0;
         result = frozen_regex
@@ -295,7 +293,9 @@ new generated code
 
     #[test]
     fn test_has_frozen_sections() {
-        assert!(FrozenMerger::has_frozen_sections("{% frozen %}code{% endfrozen %}"));
+        assert!(FrozenMerger::has_frozen_sections(
+            "{% frozen %}code{% endfrozen %}"
+        ));
         assert!(!FrozenMerger::has_frozen_sections("no frozen sections"));
     }
 

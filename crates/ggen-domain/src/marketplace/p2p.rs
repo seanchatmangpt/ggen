@@ -2,7 +2,7 @@
 //!
 //! This module provides CLI commands for interacting with the P2P marketplace network.
 
-use ggen_utils::error::{Result, GgenError};
+use ggen_utils::error::{GgenError, Result};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
@@ -192,7 +192,7 @@ pub async fn execute_p2p_command(command: P2PCommand) -> Result<()> {
 
 /// Start P2P node
 async fn start_node(args: StartInput) -> Result<()> {
-    println!("🚀 Starting P2P node...");
+    ggen_utils::alert_info!("🚀 Starting P2P node...");
 
     #[cfg(feature = "p2p")]
     {
@@ -202,8 +202,9 @@ async fn start_node(args: StartInput) -> Result<()> {
         let mut listen_addresses = Vec::new();
         if let Some(addr) = args.listen {
             listen_addresses.push(
-                addr.parse()
-                    .map_err(|e| GgenError::invalid_input(format!("Invalid listen address: {}", e)))?
+                addr.parse().map_err(|e| {
+                    GgenError::invalid_input(format!("Invalid listen address: {}", e))
+                })?,
             );
         }
 
@@ -211,8 +212,9 @@ async fn start_node(args: StartInput) -> Result<()> {
         let mut bootstrap_nodes = Vec::new();
         for node in args.bootstrap {
             bootstrap_nodes.push(
-                node.parse()
-                    .map_err(|e| GgenError::invalid_input(format!("Invalid bootstrap node: {}", e)))?
+                node.parse().map_err(|e| {
+                    GgenError::invalid_input(format!("Invalid bootstrap node: {}", e))
+                })?,
             );
         }
 
@@ -233,35 +235,42 @@ async fn start_node(args: StartInput) -> Result<()> {
         };
 
         // Create P2P registry
-        let registry = P2PRegistry::new(config).await
-            .map_err(|e| GgenError::network_error(format!("Failed to create P2P registry: {}", e)))?;
+        let registry = P2PRegistry::new(config).await.map_err(|e| {
+            GgenError::network_error(format!("Failed to create P2P registry: {}", e))
+        })?;
 
         // Start listening
-        registry.start_listening().await
+        registry
+            .start_listening()
+            .await
             .map_err(|e| GgenError::network_error(format!("Failed to start listening: {}", e)))?;
 
         // Subscribe to package announcements
-        registry.subscribe_to_packages().await
+        registry
+            .subscribe_to_packages()
+            .await
             .map_err(|e| GgenError::network_error(format!("Failed to subscribe: {}", e)))?;
 
         // Bootstrap if nodes provided
         if !config.bootstrap_nodes.is_empty() {
-            registry.bootstrap().await
+            registry
+                .bootstrap()
+                .await
                 .map_err(|e| GgenError::network_error(format!("Bootstrap failed: {}", e)))?;
         }
 
-        println!("✅ P2P node started successfully");
-        println!("📡 Listening for package announcements...");
+        ggen_utils::alert_success!("P2P node started successfully");
+        ggen_utils::alert_info!("📡 Listening for package announcements...");
 
         if args.daemon {
-            println!("🔄 Running in daemon mode (press Ctrl+C to stop)");
+            ggen_utils::alert_info!("🔄 Running in daemon mode (press Ctrl+C to stop)");
             // Keep running and processing events
             loop {
                 registry.process_events().await;
                 tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
             }
         } else {
-            println!("ℹ️  Use --daemon flag to run in background");
+            ggen_utils::alert_info!("ℹ️  Use --daemon flag to run in background");
         }
 
         Ok(())
@@ -271,7 +280,7 @@ async fn start_node(args: StartInput) -> Result<()> {
     {
         Err(GgenError::feature_not_enabled(
             "p2p",
-            "Rebuild with --features p2p to enable P2P functionality"
+            "Rebuild with --features p2p to enable P2P functionality",
         ))
     }
 }
@@ -298,7 +307,7 @@ async fn publish_package(args: PublishInput) -> Result<()> {
         let metadata_path = args.path.join("gpack.toml");
         if !metadata_path.exists() {
             return Err(GgenError::invalid_input(
-                "Package directory must contain gpack.toml"
+                "Package directory must contain gpack.toml",
             ));
         }
 
@@ -309,15 +318,21 @@ async fn publish_package(args: PublishInput) -> Result<()> {
         let metadata: toml::Value = toml::from_str(&metadata_content)
             .map_err(|e| GgenError::invalid_input(format!("Invalid gpack.toml: {}", e)))?;
 
-        let name = metadata.get("name")
+        let name = metadata
+            .get("name")
             .and_then(|v| v.as_str())
             .ok_or_else(|| GgenError::invalid_input("Missing 'name' in gpack.toml"))?;
 
-        let version_str = args.version.as_deref()
+        let version_str = args
+            .version
+            .as_deref()
             .or_else(|| metadata.get("version").and_then(|v| v.as_str()))
-            .ok_or_else(|| GgenError::invalid_input("Missing version (provide via --version or in gpack.toml)"))?;
+            .ok_or_else(|| {
+                GgenError::invalid_input("Missing version (provide via --version or in gpack.toml)")
+            })?;
 
-        let description = metadata.get("description")
+        let description = metadata
+            .get("description")
             .and_then(|v| v.as_str())
             .unwrap_or("No description")
             .to_string();
@@ -325,13 +340,21 @@ async fn publish_package(args: PublishInput) -> Result<()> {
         // Parse version
         let version_parts: Vec<&str> = version_str.split('.').collect();
         if version_parts.len() < 3 {
-            return Err(GgenError::invalid_input("Version must be in format major.minor.patch"));
+            return Err(GgenError::invalid_input(
+                "Version must be in format major.minor.patch",
+            ));
         }
 
         let version = Version::new(
-            version_parts[0].parse().map_err(|_| GgenError::invalid_input("Invalid major version"))?,
-            version_parts[1].parse().map_err(|_| GgenError::invalid_input("Invalid minor version"))?,
-            version_parts[2].parse().map_err(|_| GgenError::invalid_input("Invalid patch version"))?,
+            version_parts[0]
+                .parse()
+                .map_err(|_| GgenError::invalid_input("Invalid major version"))?,
+            version_parts[1]
+                .parse()
+                .map_err(|_| GgenError::invalid_input("Invalid minor version"))?,
+            version_parts[2]
+                .parse()
+                .map_err(|_| GgenError::invalid_input("Invalid patch version"))?,
         );
 
         // Create package metadata
@@ -339,7 +362,8 @@ async fn publish_package(args: PublishInput) -> Result<()> {
         let package_metadata = PackageMetadata {
             title: name.to_string(),
             description,
-            author: metadata.get("author")
+            author: metadata
+                .get("author")
                 .and_then(|v| v.as_str())
                 .unwrap_or("Unknown")
                 .to_string(),
@@ -366,7 +390,9 @@ async fn publish_package(args: PublishInput) -> Result<()> {
         println!("✅ Package '{}@{}' ready for publishing", name, version);
         println!("📡 Would announce to network peers");
         println!("💾 Would store in DHT");
-        println!("\nℹ️  Full P2P publishing requires a running P2P node (ggen marketplace p2p start)");
+        println!(
+            "\nℹ️  Full P2P publishing requires a running P2P node (ggen marketplace p2p start)"
+        );
 
         Ok(())
     }
@@ -375,7 +401,7 @@ async fn publish_package(args: PublishInput) -> Result<()> {
     {
         Err(GgenError::feature_not_enabled(
             "p2p",
-            "Rebuild with --features p2p to enable P2P functionality"
+            "Rebuild with --features p2p to enable P2P functionality",
         ))
     }
 }
@@ -386,7 +412,7 @@ async fn search_packages(args: SearchInput) -> Result<()> {
 
     #[cfg(feature = "p2p")]
     {
-        use ggen_marketplace::models::{Query, PackageId};
+        use ggen_marketplace::models::{PackageId, Query};
 
         let query = Query {
             text: args.query.clone(),
@@ -404,7 +430,7 @@ async fn search_packages(args: SearchInput) -> Result<()> {
     {
         Err(GgenError::feature_not_enabled(
             "p2p",
-            "Rebuild with --features p2p to enable P2P functionality"
+            "Rebuild with --features p2p to enable P2P functionality",
         ))
     }
 }
@@ -425,7 +451,7 @@ async fn list_peers(args: PeerListInput) -> Result<()> {
         // Get registry instance
         let registry = p2p_state::get_p2p_registry()?;
 
-        // TODO: Implement actual peer discovery from libp2p swarm
+        // FUTURE: Implement actual peer discovery from libp2p swarm
         // For now, return empty list with informative message
         let peers: Vec<PeerInfo> = Vec::new();
 
@@ -501,8 +527,10 @@ async fn list_peers(args: PeerListInput) -> Result<()> {
                     for peer in filtered_peers.iter() {
                         println!("\n  Peer: {}", peer.peer_id);
                         println!("    Addresses: {:?}", peer.addresses);
-                        println!("    Successful: {} | Failed: {}",
-                            peer.successful_retrievals, peer.failed_retrievals);
+                        println!(
+                            "    Successful: {} | Failed: {}",
+                            peer.successful_retrievals, peer.failed_retrievals
+                        );
                         println!("    Last Seen: {}", peer.last_seen);
                     }
                 }
@@ -516,7 +544,7 @@ async fn list_peers(args: PeerListInput) -> Result<()> {
     {
         Err(GgenError::feature_not_enabled(
             "p2p",
-            "Rebuild with --features p2p to enable P2P functionality"
+            "Rebuild with --features p2p to enable P2P functionality",
         ))
     }
 }
@@ -538,7 +566,9 @@ async fn show_peer_info(args: PeerInfoArgs) -> Result<()> {
         let registry = p2p_state::get_p2p_registry()?;
 
         // Parse peer ID
-        let peer_id = args.peer_id.parse::<libp2p::PeerId>()
+        let peer_id = args
+            .peer_id
+            .parse::<libp2p::PeerId>()
             .map_err(|e| GgenError::invalid_input(format!("Invalid peer ID: {}", e)))?;
 
         // Get reputation from registry
@@ -546,7 +576,14 @@ async fn show_peer_info(args: PeerInfoArgs) -> Result<()> {
 
         println!("ℹ️  Peer Information: {}\n", args.peer_id);
         println!("  Reputation: {:.2}", reputation);
-        println!("  Status: {}", if reputation > 0.0 { "Active" } else { "Unknown" });
+        println!(
+            "  Status: {}",
+            if reputation > 0.0 {
+                "Active"
+            } else {
+                "Unknown"
+            }
+        );
 
         if args.full {
             println!("\nDetailed Information:");
@@ -562,7 +599,7 @@ async fn show_peer_info(args: PeerInfoArgs) -> Result<()> {
     {
         Err(GgenError::feature_not_enabled(
             "p2p",
-            "Rebuild with --features p2p to enable P2P functionality"
+            "Rebuild with --features p2p to enable P2P functionality",
         ))
     }
 }
@@ -582,7 +619,7 @@ async fn bootstrap_dht(args: BootstrapArgs) -> Result<()> {
     {
         Err(GgenError::feature_not_enabled(
             "p2p",
-            "Rebuild with --features p2p to enable P2P functionality"
+            "Rebuild with --features p2p to enable P2P functionality",
         ))
     }
 }
@@ -597,15 +634,34 @@ async fn show_status() -> Result<()> {
 
         if p2p_state::is_p2p_initialized() {
             let registry = p2p_state::get_p2p_registry()?;
-            let metadata = registry.metadata().await
+            let metadata = registry
+                .metadata()
+                .await
                 .map_err(|e| GgenError::network_error(format!("Failed to get metadata: {}", e)))?;
 
             println!("  Status: ✅ Running");
             println!("  Registry: {}", metadata.name);
-            println!("  Description: {}", metadata.description.unwrap_or_default());
+            println!(
+                "  Description: {}",
+                metadata.description.unwrap_or_default()
+            );
             println!("  URL: {}", metadata.url);
-            println!("  Publishing: {}", if metadata.supports_publish { "Enabled" } else { "Disabled" });
-            println!("  Authentication: {}", if metadata.requires_auth { "Required" } else { "Not required" });
+            println!(
+                "  Publishing: {}",
+                if metadata.supports_publish {
+                    "Enabled"
+                } else {
+                    "Disabled"
+                }
+            );
+            println!(
+                "  Authentication: {}",
+                if metadata.requires_auth {
+                    "Required"
+                } else {
+                    "Not required"
+                }
+            );
             println!("\nCapabilities:");
             println!("  • Decentralized package discovery");
             println!("  • DHT-based metadata storage");
@@ -626,7 +682,7 @@ async fn show_status() -> Result<()> {
     {
         Err(GgenError::feature_not_enabled(
             "p2p",
-            "Rebuild with --features p2p to enable P2P functionality"
+            "Rebuild with --features p2p to enable P2P functionality",
         ))
     }
 }

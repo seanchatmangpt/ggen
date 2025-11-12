@@ -158,10 +158,7 @@ async fn test_watch_detects_rdf_file_changes() {
         .returning(|_| vec![PathBuf::from("templates/output.md")]);
 
     // Expect watcher to be configured and started
-    mock_watcher
-        .expect_watch()
-        .times(1)
-        .returning(|| Ok(()));
+    mock_watcher.expect_watch().times(1).returning(|| Ok(()));
 
     let event_triggered = Arc::new(Mutex::new(false));
     let event_triggered_clone = event_triggered.clone();
@@ -209,10 +206,7 @@ async fn test_watch_detects_template_file_changes() {
         .times(1)
         .returning(|_| Ok(()));
 
-    mock_watcher
-        .expect_watch()
-        .times(1)
-        .returning(|| Ok(()));
+    mock_watcher.expect_watch().times(1).returning(|| Ok(()));
 
     // ACT: Start watching and trigger template change
     panic!("not yet implemented: WatchService does not exist");
@@ -247,10 +241,7 @@ async fn test_watch_detects_query_file_changes() {
         .times(1)
         .returning(|_| vec![PathBuf::from("templates/report.md")]);
 
-    mock_watcher
-        .expect_watch()
-        .times(1)
-        .returning(|| Ok(()));
+    mock_watcher.expect_watch().times(1).returning(|| Ok(()));
 
     // ACT: Start watching and trigger query change
     panic!("not yet implemented: Query file watching not implemented");
@@ -366,10 +357,7 @@ async fn test_watch_respects_debounce_period() {
         .times(1)
         .returning(|_| ());
 
-    mock_watcher
-        .expect_watch()
-        .times(1)
-        .returning(|| Ok(()));
+    mock_watcher.expect_watch().times(1).returning(|| Ok(()));
 
     // ACT: Configure and start watcher
     panic!("not yet implemented: Debounce configuration not implemented");
@@ -409,10 +397,7 @@ async fn test_watch_handles_file_deletion() {
         .times(1)
         .returning(|_| Ok(()));
 
-    mock_watcher
-        .expect_watch()
-        .times(1)
-        .returning(|| Ok(()));
+    mock_watcher.expect_watch().times(1).returning(|| Ok(()));
 
     // ACT: Start watching and trigger deletion
     panic!("not yet implemented: File deletion handling not implemented");
@@ -463,10 +448,7 @@ async fn test_watch_handles_new_file_creation() {
         .times(1)
         .returning(|_| Ok(()));
 
-    mock_watcher
-        .expect_watch()
-        .times(1)
-        .returning(|| Ok(()));
+    mock_watcher.expect_watch().times(1).returning(|| Ok(()));
 
     // ACT: Start watching and trigger file creation
     panic!("not yet implemented: File creation handling not implemented");
@@ -502,10 +484,7 @@ async fn test_watch_handles_directory_creation() {
         .times(1)
         .returning(|_| Ok(()));
 
-    mock_watcher
-        .expect_watch()
-        .times(1)
-        .returning(|| Ok(()));
+    mock_watcher.expect_watch().times(1).returning(|| Ok(()));
 
     // ACT: Start watching and trigger directory creation
     panic!("not yet implemented: Directory watching not implemented");
@@ -541,13 +520,9 @@ async fn test_watch_ignores_generated_directory() {
         .returning(|_| true);
 
     // Regeneration should NOT be triggered for generated files
-    mock_regen
-        .expect_regenerate_template()
-        .times(0);
+    mock_regen.expect_regenerate_template().times(0);
 
-    mock_regen
-        .expect_regenerate_affected()
-        .times(0);
+    mock_regen.expect_regenerate_affected().times(0);
 
     // ACT: Trigger change in generated directory
     panic!("not yet implemented: Event filtering not implemented");
@@ -599,10 +574,7 @@ fn test_event_filter_patterns() {
         .times(1)
         .returning(|_| ());
 
-    filter
-        .expect_should_ignore()
-        .times(2)
-        .returning(|_| true);
+    filter.expect_should_ignore().times(2).returning(|_| true);
 
     // ACT: Add ignore patterns
     panic!("not yet implemented: EventFilter not implemented");

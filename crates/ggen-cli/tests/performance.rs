@@ -386,7 +386,7 @@ fn perf_response_time_simple_template() {
 
     template_file
         .write_str(
-            r#"
+            r##"
 name: "simple"
 variables:
   - name: name
@@ -398,7 +398,7 @@ nodes:
       - name: "README.md"
         type: file
         content: "# {{name}}"
-"#,
+"##,
         )
         .unwrap();
 
@@ -576,7 +576,12 @@ fn perf_no_resource_leaks_failed_commands() {
     for _ in 0..5 {
         let _ = Command::cargo_bin("ggen")
             .unwrap()
-            .args(["template", "generate-tree", "--template", "/nonexistent.yaml"])
+            .args([
+                "template",
+                "generate-tree",
+                "--template",
+                "/nonexistent.yaml",
+            ])
             .assert()
             .failure();
     }
@@ -594,7 +599,7 @@ fn perf_throughput_sequential_generations() {
 
     template_file
         .write_str(
-            r#"
+            r##"
 name: "throughput-test"
 variables:
   - name: id
@@ -606,7 +611,7 @@ nodes:
       - name: "README.md"
         type: file
         content: "# Project {{id}}"
-"#,
+"##,
         )
         .unwrap();
 

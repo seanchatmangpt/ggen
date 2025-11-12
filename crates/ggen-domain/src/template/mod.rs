@@ -9,7 +9,7 @@
 //! - TTL file → Template generation support
 //! - Preprocessor integration for advanced template processing
 
-use ggen_core::{Generator, GenContext, Pipeline};
+use ggen_core::{GenContext, Generator, Pipeline};
 use ggen_utils::error::Result;
 use std::collections::BTreeMap;
 use std::fs;
@@ -76,9 +76,8 @@ impl TemplateService {
     /// Read template content
     pub fn read_template(&self, name: &str) -> Result<String> {
         let path = self.template_path(name);
-        fs::read_to_string(&path).map_err(|e| {
-            ggen_utils::error::Error::new(&format!("Failed to read template: {}", e))
-        })
+        fs::read_to_string(&path)
+            .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to read template: {}", e)))
     }
 
     /// Write template content
@@ -103,14 +102,11 @@ impl TemplateService {
 
     /// Render a template using the ggen-core engine
     pub fn render_template(
-        &self,
-        template_path: &Path,
-        output_dir: &Path,
-        vars: BTreeMap<String, String>,
+        &self, template_path: &Path, output_dir: &Path, vars: BTreeMap<String, String>,
     ) -> Result<PathBuf> {
         let pipeline = Pipeline::new()?;
-        let ctx = GenContext::new(template_path.to_path_buf(), output_dir.to_path_buf())
-            .with_vars(vars);
+        let ctx =
+            GenContext::new(template_path.to_path_buf(), output_dir.to_path_buf()).with_vars(vars);
 
         let mut generator = Generator::new(pipeline, ctx);
         generator.generate().map_err(|e| {
