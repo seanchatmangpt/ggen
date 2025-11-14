@@ -29,7 +29,7 @@ pub fn regenerate_with_merge(
             ggen_utils::error::Error::new(&format!("Failed to read existing file: {}", e))
         })?;
 
-        let merger = RegionAwareMerger::new(strategy.clone());
+        let merger = RegionAwareMerger::new(*strategy);
 
         // Create a dummy snapshot for merge
         let dummy_snapshot = ggen_core::snapshot::FileSnapshot {

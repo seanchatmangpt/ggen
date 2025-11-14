@@ -7,7 +7,7 @@
 //! Uses: cargo make commands (NEVER direct cargo commands)
 
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::{Command, ExitCode};
 
 fn main() -> ExitCode {
@@ -260,7 +260,7 @@ fn is_main_branch() -> bool {
     }
 }
 
-fn is_test_file(file: &PathBuf) -> bool {
+fn is_test_file(file: &Path) -> bool {
     let path_str = file.to_string_lossy();
     path_str.contains("/test")
         || path_str.contains("/tests")
@@ -277,7 +277,7 @@ fn is_test_file(file: &PathBuf) -> bool {
         || path_str.starts_with("benches/")
 }
 
-fn is_cli_file(file: &PathBuf) -> bool {
+fn is_cli_file(file: &Path) -> bool {
     let path_str = file.to_string_lossy();
     path_str.contains("crates/ggen-cli/") || path_str.starts_with("crates/ggen-cli/")
 }
