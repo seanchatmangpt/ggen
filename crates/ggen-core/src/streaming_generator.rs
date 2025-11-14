@@ -12,6 +12,39 @@ use crate::pipeline::Pipeline;
 use crate::template_cache::TemplateCache;
 
 /// Streaming generator that processes templates one at a time
+///
+/// Provides memory-efficient template processing by processing templates
+/// sequentially rather than loading the entire file tree into memory.
+/// This enables constant memory usage regardless of project size.
+///
+/// # Features
+///
+/// - **Memory efficient**: Processes one template at a time
+/// - **LRU caching**: Caches parsed templates for reuse
+/// - **Streaming processing**: Walks directory tree and processes templates on-the-fly
+/// - **Error resilience**: Continues processing even if individual templates fail
+///
+/// # Examples
+///
+/// ```rust,no_run
+/// use ggen_core::streaming_generator::StreamingGenerator;
+/// use tera::Context;
+/// use std::path::PathBuf;
+///
+/// # fn main() -> anyhow::Result<()> {
+/// let generator = StreamingGenerator::new(
+///     PathBuf::from("templates"),
+///     PathBuf::from("output")
+/// )?;
+///
+/// let mut vars = Context::new();
+/// vars.insert("name", "MyApp");
+///
+/// let result = generator.generate_all(&vars)?;
+/// println!("Generated {} files", result.success_count);
+/// # Ok(())
+/// # }
+/// ```
 pub struct StreamingGenerator {
     template_dir: PathBuf,
     output_dir: PathBuf,
@@ -21,6 +54,28 @@ pub struct StreamingGenerator {
 
 impl StreamingGenerator {
     /// Create a new streaming generator
+    ///
+    /// Creates a generator with default cache capacity (100 templates).
+    ///
+    /// # Arguments
+    ///
+    /// * `template_dir` - Directory containing template files (`.tmpl`)
+    /// * `output_dir` - Directory where generated files will be written
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::streaming_generator::StreamingGenerator;
+    /// use std::path::PathBuf;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let generator = StreamingGenerator::new(
+    ///     PathBuf::from("templates"),
+    ///     PathBuf::from("output")
+    /// )?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn new(template_dir: PathBuf, output_dir: PathBuf) -> Result<Self> {
         Ok(Self {
             template_dir,
@@ -31,6 +86,31 @@ impl StreamingGenerator {
     }
 
     /// Create with custom cache capacity
+    ///
+    /// Creates a generator with a specified cache capacity for parsed templates.
+    ///
+    /// # Arguments
+    ///
+    /// * `template_dir` - Directory containing template files
+    /// * `output_dir` - Directory where generated files will be written
+    /// * `cache_capacity` - Maximum number of templates to cache
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::streaming_generator::StreamingGenerator;
+    /// use std::path::PathBuf;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// // Create generator with larger cache for many templates
+    /// let generator = StreamingGenerator::with_cache_capacity(
+    ///     PathBuf::from("templates"),
+    ///     PathBuf::from("output"),
+    ///     500
+    /// )?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn with_cache_capacity(
         template_dir: PathBuf, output_dir: PathBuf, cache_capacity: usize,
     ) -> Result<Self> {
@@ -43,6 +123,43 @@ impl StreamingGenerator {
     }
 
     /// Generate all template files in streaming fashion
+    ///
+    /// Walks the template directory and processes each `.tmpl` file sequentially,
+    /// generating output files. Templates are processed one at a time to minimize
+    /// memory usage.
+    ///
+    /// # Arguments
+    ///
+    /// * `vars` - Tera context containing template variables
+    ///
+    /// # Returns
+    ///
+    /// A `GenerationResult` containing statistics about the generation run,
+    /// including success count, error count, and generated file paths.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::streaming_generator::StreamingGenerator;
+    /// use tera::Context;
+    /// use std::path::PathBuf;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let mut generator = StreamingGenerator::new(
+    ///     PathBuf::from("templates"),
+    ///     PathBuf::from("output")
+    /// )?;
+    ///
+    /// let mut vars = Context::new();
+    /// vars.insert("project_name", "MyApp");
+    ///
+    /// let result = generator.generate_all(&vars)?;
+    /// println!("Generated {} files successfully", result.success_count);
+    /// println!("Errors: {}", result.error_count);
+    /// println!("Throughput: {:.2} files/sec", result.throughput());
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn generate_all(&mut self, vars: &Context) -> Result<GenerationResult> {
         let mut result = GenerationResult::default();
         let start = std::time::Instant::now();
@@ -141,12 +258,56 @@ impl StreamingGenerator {
     }
 
     /// Get cache statistics
+    ///
+    /// Returns information about the template cache, including current size
+    /// and capacity.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::streaming_generator::StreamingGenerator;
+    /// use std::path::PathBuf;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let generator = StreamingGenerator::new(
+    ///     PathBuf::from("templates"),
+    ///     PathBuf::from("output")
+    /// )?;
+    ///
+    /// let stats = generator.cache_stats()?;
+    /// println!("Cache: {}/{} templates", stats.size, stats.capacity);
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn cache_stats(&self) -> Result<crate::template_cache::CacheStats> {
         self.cache.stats()
     }
 }
 
 /// Result of streaming generation
+///
+/// Contains statistics and results from a streaming generation run,
+/// including success/error counts, generated file paths, and performance metrics.
+///
+/// # Examples
+///
+/// ```rust,no_run
+/// use ggen_core::streaming_generator::{StreamingGenerator, GenerationResult};
+/// use tera::Context;
+/// use std::path::PathBuf;
+///
+/// # fn main() -> anyhow::Result<()> {
+/// let mut generator = StreamingGenerator::new(
+///     PathBuf::from("templates"),
+///     PathBuf::from("output")
+/// )?;
+///
+/// let result = generator.generate_all(&Context::new())?;
+/// println!("Success rate: {:.1}%", result.success_rate());
+/// println!("Throughput: {:.2} files/sec", result.throughput());
+/// # Ok(())
+/// # }
+/// ```
 #[derive(Debug, Default)]
 pub struct GenerationResult {
     pub success_count: usize,
@@ -158,11 +319,44 @@ pub struct GenerationResult {
 
 impl GenerationResult {
     /// Total number of templates processed
+    ///
+    /// Returns the sum of successful and failed template generations.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use ggen_core::streaming_generator::GenerationResult;
+    ///
+    /// # fn main() {
+    /// let mut result = GenerationResult::default();
+    /// result.success_count = 8;
+    /// result.error_count = 2;
+    ///
+    /// assert_eq!(result.total_count(), 10);
+    /// # }
+    /// ```
     pub fn total_count(&self) -> usize {
         self.success_count + self.error_count
     }
 
     /// Success rate as percentage
+    ///
+    /// Calculates the percentage of templates that were successfully generated.
+    /// Returns 0.0 if no templates were processed.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use ggen_core::streaming_generator::GenerationResult;
+    ///
+    /// # fn main() {
+    /// let mut result = GenerationResult::default();
+    /// result.success_count = 9;
+    /// result.error_count = 1;
+    ///
+    /// assert_eq!(result.success_rate(), 90.0);
+    /// # }
+    /// ```
     pub fn success_rate(&self) -> f64 {
         if self.total_count() == 0 {
             return 0.0;
@@ -171,6 +365,24 @@ impl GenerationResult {
     }
 
     /// Generation throughput (files per second)
+    ///
+    /// Calculates the number of files generated per second based on the
+    /// generation duration. Returns 0.0 if duration is zero.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use ggen_core::streaming_generator::GenerationResult;
+    /// use std::time::Duration;
+    ///
+    /// # fn main() {
+    /// let mut result = GenerationResult::default();
+    /// result.success_count = 10;
+    /// result.duration = Duration::from_secs(2);
+    ///
+    /// assert_eq!(result.throughput(), 5.0); // 10 files in 2 seconds
+    /// # }
+    /// ```
     pub fn throughput(&self) -> f64 {
         if self.duration.as_secs_f64() == 0.0 {
             return 0.0;

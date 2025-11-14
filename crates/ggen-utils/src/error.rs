@@ -48,10 +48,15 @@
 //! ```rust,no_run
 //! use ggen_utils::error::{Error, Result};
 //!
+//! # fn main() -> Result<()> {
 //! fn read_config() -> Result<String> {
 //!     std::fs::read_to_string("config.toml")
 //!         .map_err(|e| Error::with_source("Failed to read config", Box::new(e)))
 //! }
+//!
+//! let _config = read_config()?;
+//! # Ok(())
+//! # }
 //! ```
 //!
 //! ### Helper Methods

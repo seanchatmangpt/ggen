@@ -106,6 +106,22 @@ use std::path::Path;
 use super::format::{FileTreeNode, TemplateFormat};
 
 /// File tree template with metadata and RDF support
+///
+/// Wraps a `TemplateFormat` with RDF metadata support. Provides methods for
+/// loading templates from files, parsing YAML, and managing template metadata.
+///
+/// # Examples
+///
+/// ```rust,no_run
+/// use ggen_core::templates::file_tree_generator::FileTreeTemplate;
+/// use std::path::Path;
+///
+/// # fn main() -> anyhow::Result<()> {
+/// let template = FileTreeTemplate::from_file(Path::new("template.yaml"))?;
+/// println!("Template: {}", template.name());
+/// # Ok(())
+/// # }
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FileTreeTemplate {
     /// Template metadata
@@ -118,6 +134,28 @@ pub struct FileTreeTemplate {
 
 impl FileTreeTemplate {
     /// Create a new file tree template
+    ///
+    /// Creates a template from a `TemplateFormat`. RDF metadata will be
+    /// initialized if present in the format.
+    ///
+    /// # Arguments
+    ///
+    /// * `format` - The template format to wrap
+    ///
+    /// # Returns
+    ///
+    /// A new `FileTreeTemplate` with the provided format.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use ggen_core::templates::file_tree_generator::FileTreeTemplate;
+    /// use ggen_core::templates::format::TemplateFormat;
+    ///
+    /// let format = TemplateFormat::new("my-template");
+    /// let template = FileTreeTemplate::new(format);
+    /// assert_eq!(template.name(), "my-template");
+    /// ```
     pub fn new(format: TemplateFormat) -> Self {
         Self {
             format,
@@ -126,6 +164,37 @@ impl FileTreeTemplate {
     }
 
     /// Load from YAML file
+    ///
+    /// Reads a template from a YAML file and parses it into a `FileTreeTemplate`.
+    /// RDF metadata is automatically extracted and converted to Turtle format.
+    ///
+    /// # Arguments
+    ///
+    /// * `path` - Path to the YAML template file
+    ///
+    /// # Returns
+    ///
+    /// A parsed `FileTreeTemplate` on success.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if:
+    /// - The file cannot be read
+    /// - The YAML is invalid
+    /// - Template validation fails
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::templates::file_tree_generator::FileTreeTemplate;
+    /// use std::path::Path;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let template = FileTreeTemplate::from_file(Path::new("template.yaml"))?;
+    /// println!("Template: {}", template.name());
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Self> {
         let content = std::fs::read_to_string(&path).with_context(|| {
             format!("Failed to read template file: {}", path.as_ref().display())
@@ -135,6 +204,45 @@ impl FileTreeTemplate {
     }
 
     /// Parse from YAML string
+    ///
+    /// Parses a template from a YAML string. RDF metadata is automatically
+    /// extracted and converted to Turtle format if present.
+    ///
+    /// # Arguments
+    ///
+    /// * `yaml` - YAML string to parse
+    ///
+    /// # Returns
+    ///
+    /// A parsed `FileTreeTemplate` on success.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if:
+    /// - The YAML is invalid
+    /// - Template validation fails
+    /// - RDF metadata processing fails
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use ggen_core::templates::file_tree_generator::FileTreeTemplate;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let yaml = r#"
+    /// name: my-template
+    /// variables:
+    ///   - service_name
+    /// tree:
+    ///   - name: src
+    ///     type: directory
+    /// "#;
+    ///
+    /// let template = FileTreeTemplate::from_yaml(yaml)?;
+    /// assert_eq!(template.name(), "my-template");
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn from_yaml(yaml: &str) -> Result<Self> {
         let format = TemplateFormat::from_yaml(yaml)?;
         format.validate()?;
@@ -199,58 +307,297 @@ impl FileTreeTemplate {
     }
 
     /// Get required variables
+    ///
+    /// Returns a slice of all required variable names for this template.
+    ///
+    /// # Returns
+    ///
+    /// A slice of variable names that must be provided during generation.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use ggen_core::templates::file_tree_generator::FileTreeTemplate;
+    /// use ggen_core::templates::format::TemplateFormat;
+    ///
+    /// let mut format = TemplateFormat::new("my-template");
+    /// format.add_variable("service_name")
+    ///       .add_variable("port");
+    ///
+    /// let template = FileTreeTemplate::new(format);
+    /// let vars = template.required_variables();
+    /// assert_eq!(vars.len(), 2);
+    /// ```
     pub fn required_variables(&self) -> &[String] {
         &self.format.variables
     }
 
     /// Get default values
+    ///
+    /// Returns a reference to the map of default variable values.
+    ///
+    /// # Returns
+    ///
+    /// A map of variable names to their default string values.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use ggen_core::templates::file_tree_generator::FileTreeTemplate;
+    /// use ggen_core::templates::format::TemplateFormat;
+    ///
+    /// let mut format = TemplateFormat::new("my-template");
+    /// format.add_default("port", "8080");
+    ///
+    /// let template = FileTreeTemplate::new(format);
+    /// let defaults = template.defaults();
+    /// assert_eq!(defaults.get("port"), Some(&"8080".to_string()));
+    /// ```
     pub fn defaults(&self) -> &BTreeMap<String, String> {
         &self.format.defaults
     }
 
     /// Validate the template
+    ///
+    /// Validates that the template format is well-formed. See `TemplateFormat::validate()`
+    /// for validation rules.
+    ///
+    /// # Returns
+    ///
+    /// `Ok(())` if the template is valid.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if validation fails.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use ggen_core::templates::file_tree_generator::FileTreeTemplate;
+    /// use ggen_core::templates::format::{TemplateFormat, FileTreeNode};
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let mut format = TemplateFormat::new("my-template");
+    /// format.add_node(FileTreeNode::directory("src"));
+    ///
+    /// let template = FileTreeTemplate::new(format);
+    /// template.validate()?; // Ok
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn validate(&self) -> Result<()> {
         self.format.validate()
     }
 
     /// Get the template name
+    ///
+    /// Returns the name of this template.
+    ///
+    /// # Returns
+    ///
+    /// The template name as a string slice.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use ggen_core::templates::file_tree_generator::FileTreeTemplate;
+    /// use ggen_core::templates::format::TemplateFormat;
+    ///
+    /// let format = TemplateFormat::new("my-template");
+    /// let template = FileTreeTemplate::new(format);
+    /// assert_eq!(template.name(), "my-template");
+    /// ```
     pub fn name(&self) -> &str {
         &self.format.name
     }
 
     /// Get the template description
+    ///
+    /// Returns the optional description of this template.
+    ///
+    /// # Returns
+    ///
+    /// `Some(&str)` if a description exists, `None` otherwise.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use ggen_core::templates::file_tree_generator::FileTreeTemplate;
+    /// use ggen_core::templates::format::TemplateFormat;
+    ///
+    /// let format = TemplateFormat::new("my-template");
+    /// let template = FileTreeTemplate::new(format);
+    /// assert!(template.description().is_none());
+    /// ```
     pub fn description(&self) -> Option<&str> {
         self.format.description.as_deref()
     }
 
     /// Get the file tree nodes
+    ///
+    /// Returns a slice of all root-level nodes in the file tree.
+    ///
+    /// # Returns
+    ///
+    /// A slice of root-level `FileTreeNode` instances.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use ggen_core::templates::file_tree_generator::FileTreeTemplate;
+    /// use ggen_core::templates::format::{TemplateFormat, FileTreeNode};
+    ///
+    /// let mut format = TemplateFormat::new("my-template");
+    /// format.add_node(FileTreeNode::directory("src"));
+    ///
+    /// let template = FileTreeTemplate::new(format);
+    /// let nodes = template.nodes();
+    /// assert_eq!(nodes.len(), 1);
+    /// ```
     pub fn nodes(&self) -> &[FileTreeNode] {
         &self.format.tree
     }
 }
 
 /// Template parser for different input formats
+///
+/// Provides parsing functionality for templates in various formats (YAML, simple format).
+/// Supports both modern YAML format and legacy simple format for backward compatibility.
+///
+/// # Examples
+///
+/// ```rust
+/// use ggen_core::templates::file_tree_generator::TemplateParser;
+///
+/// # fn main() -> anyhow::Result<()> {
+/// let yaml = r#"
+/// name: my-template
+/// tree:
+///   - name: src
+///     type: directory
+/// "#;
+///
+/// let template = TemplateParser::parse_yaml(yaml)?;
+/// assert_eq!(template.name(), "my-template");
+/// # Ok(())
+/// # }
+/// ```
 pub struct TemplateParser;
 
 impl TemplateParser {
     /// Parse a template from YAML string
+    ///
+    /// Parses a template from a YAML string. This is a convenience method
+    /// that delegates to `FileTreeTemplate::from_yaml()`.
+    ///
+    /// # Arguments
+    ///
+    /// * `yaml` - YAML string to parse
+    ///
+    /// # Returns
+    ///
+    /// A parsed `FileTreeTemplate` on success.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if parsing or validation fails.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use ggen_core::templates::file_tree_generator::TemplateParser;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let yaml = r#"
+    /// name: my-template
+    /// tree:
+    ///   - name: src
+    ///     type: directory
+    /// "#;
+    ///
+    /// let template = TemplateParser::parse_yaml(yaml)?;
+    /// assert_eq!(template.name(), "my-template");
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn parse_yaml(yaml: &str) -> Result<FileTreeTemplate> {
         FileTreeTemplate::from_yaml(yaml)
     }
 
     /// Parse a template from file
+    ///
+    /// Reads and parses a template from a YAML file. This is a convenience method
+    /// that delegates to `FileTreeTemplate::from_file()`.
+    ///
+    /// # Arguments
+    ///
+    /// * `path` - Path to the YAML template file
+    ///
+    /// # Returns
+    ///
+    /// A parsed `FileTreeTemplate` on success.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the file cannot be read or parsing fails.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::templates::file_tree_generator::TemplateParser;
+    /// use std::path::Path;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let template = TemplateParser::parse_file(Path::new("template.yaml"))?;
+    /// println!("Template: {}", template.name());
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn parse_file<P: AsRef<Path>>(path: P) -> Result<FileTreeTemplate> {
         FileTreeTemplate::from_file(path)
     }
 
     /// Parse a simple template format (legacy support)
     ///
-    /// Format:
+    /// Parses a legacy simple template format for backward compatibility.
+    /// The format uses bracket notation to define directories and files.
+    ///
+    /// # Format
+    ///
     /// ```text
     /// [directory: "src"]
     ///   [file: "main.rs"]
     ///     content: |
     ///       fn main() {}
+    /// ```
+    ///
+    /// # Arguments
+    ///
+    /// * `content` - Simple format template string
+    ///
+    /// # Returns
+    ///
+    /// A parsed `FileTreeTemplate` on success.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if parsing fails.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use ggen_core::templates::file_tree_generator::TemplateParser;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let content = r#"
+    /// [directory: "src"]
+    /// [file: "main.rs"]
+    /// "#;
+    ///
+    /// let template = TemplateParser::parse_simple(content)?;
+    /// assert_eq!(template.nodes().len(), 2);
+    /// # Ok(())
+    /// # }
     /// ```
     pub fn parse_simple(content: &str) -> Result<FileTreeTemplate> {
         let nodes = Self::parse_simple_nodes(content)?;
