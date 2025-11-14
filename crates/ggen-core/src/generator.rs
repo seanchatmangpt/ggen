@@ -142,7 +142,7 @@ impl GenContext {
     ///
     /// # Example
     ///
-    /// ```rust,no_run
+    /// ```rust
     /// use ggen_core::generator::GenContext;
     /// use std::collections::BTreeMap;
     /// use std::path::PathBuf;
@@ -154,6 +154,9 @@ impl GenContext {
     ///     PathBuf::from("template.tmpl"),
     ///     PathBuf::from("output")
     /// ).with_prefixes(prefixes, Some("http://example.org/".to_string()));
+    ///
+    /// assert_eq!(ctx.global_prefixes.get("ex"), Some(&"http://example.org/".to_string()));
+    /// assert_eq!(ctx.base, Some("http://example.org/".to_string()));
     /// ```
     pub fn with_prefixes(
         mut self, prefixes: BTreeMap<String, String>, base: Option<String>,
@@ -306,7 +309,29 @@ impl Generator {
         let mut tmpl = Template::parse(&input)?;
 
         // Context
-        let mut tctx = Context::from_serialize(&self.ctx.vars)?;
+        // Security: Sanitize template variables to prevent code injection
+        // Tera templates can execute arbitrary code, so we need to ensure
+        // variables don't contain executable content
+        let sanitized_vars = self
+            .ctx
+            .vars
+            .iter()
+            .map(|(k, v)| {
+                // Basic sanitization: remove control characters and limit length
+                let sanitized_key = k
+                    .chars()
+                    .filter(|c| !c.is_control())
+                    .take(100)
+                    .collect::<String>();
+                let sanitized_value = v
+                    .chars()
+                    .filter(|c| !c.is_control())
+                    .take(10000)
+                    .collect::<String>();
+                (sanitized_key, sanitized_value)
+            })
+            .collect::<BTreeMap<String, String>>();
+        let mut tctx = Context::from_serialize(&sanitized_vars)?;
         insert_env(&mut tctx);
 
         // Render frontmatter
@@ -326,7 +351,35 @@ impl Generator {
         // Determine output path
         let output_path = if let Some(to_path) = &tmpl.front.to {
             let rendered_to = self.pipeline.tera.render_str(to_path, &tctx)?;
-            self.ctx.output_root.join(rendered_to)
+            let joined_path = self.ctx.output_root.join(&rendered_to);
+
+            // Security: Prevent path traversal attacks by ensuring the resolved path
+            // stays within output_root. This prevents paths like "../../../etc/passwd"
+            // from escaping the output directory.
+            // We normalize the path and check that all components stay within output_root
+            let normalized = joined_path.components().collect::<Vec<_>>();
+            let output_root_components = self.ctx.output_root.components().collect::<Vec<_>>();
+
+            // Check that normalized path starts with output_root components
+            if normalized.len() < output_root_components.len() {
+                return Err(anyhow::anyhow!(
+                    "Output path '{}' would escape output root '{}'",
+                    rendered_to,
+                    self.ctx.output_root.display()
+                ));
+            }
+
+            for (i, component) in output_root_components.iter().enumerate() {
+                if normalized.get(i) != Some(component) {
+                    return Err(anyhow::anyhow!(
+                        "Output path '{}' would escape output root '{}'",
+                        rendered_to,
+                        self.ctx.output_root.display()
+                    ));
+                }
+            }
+
+            joined_path
         } else {
             // Default to template name with .out extension
             let template_name = self

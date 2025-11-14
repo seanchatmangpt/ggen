@@ -54,10 +54,14 @@ fn validate_input(template_ref: &str, vars: &[String]) -> Result<()> {
         ));
     }
 
-    if template_ref.len() > 500 {
-        return Err(ggen_utils::error::Error::new(
-            "Template reference too long (max 500 characters)",
-        ));
+    /// Maximum length for template reference
+    const MAX_TEMPLATE_REF_LEN: usize = 500;
+
+    if template_ref.len() > MAX_TEMPLATE_REF_LEN {
+        return Err(ggen_utils::error::Error::new(&format!(
+            "Template reference too long (max {} characters)",
+            MAX_TEMPLATE_REF_LEN
+        )));
     }
 
     // Validate variables format

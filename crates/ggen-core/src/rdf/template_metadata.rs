@@ -16,6 +16,26 @@ use std::sync::{Arc, Mutex};
 use crate::graph::Graph;
 
 /// Template variable metadata
+///
+/// Represents a variable that can be used in template rendering.
+///
+/// # Examples
+///
+/// ```rust
+/// use ggen_core::rdf::template_metadata::TemplateVariable;
+///
+/// # fn main() {
+/// let variable = TemplateVariable {
+///     name: "project_name".to_string(),
+///     var_type: "string".to_string(),
+///     default_value: Some("MyProject".to_string()),
+///     description: Some("Name of the project".to_string()),
+///     required: true,
+/// };
+/// assert_eq!(variable.name, "project_name");
+/// assert!(variable.required);
+/// # }
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct TemplateVariable {
     pub name: String,
@@ -48,6 +68,27 @@ pub struct TemplateMetadata {
 
 impl TemplateMetadata {
     /// Create new template metadata with required fields
+    ///
+    /// # Arguments
+    ///
+    /// * `id` - Unique identifier for the template
+    /// * `name` - Human-readable name of the template
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use ggen_core::rdf::template_metadata::TemplateMetadata;
+    ///
+    /// # fn main() {
+    /// let metadata = TemplateMetadata::new(
+    ///     "template://example/rust-cli".to_string(),
+    ///     "Rust CLI Template".to_string(),
+    /// );
+    /// assert_eq!(metadata.id, "template://example/rust-cli");
+    /// assert_eq!(metadata.name, "Rust CLI Template");
+    /// assert!(metadata.created_at.is_some());
+    /// # }
+    /// ```
     pub fn new(id: String, name: String) -> Self {
         Self {
             id,

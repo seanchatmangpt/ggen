@@ -65,7 +65,7 @@
 //! ```
 
 #![allow(clippy::unwrap_used)] // Safe: f64 scores from cosine similarity are never NaN
-use anyhow::{Result, Context};
+use anyhow::{anyhow, Context, Result};
 use ndarray::{Array1, Array2, ArrayView1};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -179,7 +179,12 @@ impl RecommendationEngine {
         }
 
         // Sort by score and take top N
-        recommendations.sort_by(|a, b| b.score.partial_cmp(&a.score).unwrap());
+        // Use unwrap_or to handle NaN values safely (treat as equal ordering)
+        recommendations.sort_by(|a, b| {
+            b.score
+                .partial_cmp(&a.score)
+                .unwrap_or(std::cmp::Ordering::Equal)
+        });
         recommendations.truncate(n_recommendations);
 
         Ok(recommendations)
@@ -196,7 +201,11 @@ impl RecommendationEngine {
             }
         }
 
-        similarities.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
+        // Use unwrap_or to handle NaN values safely (treat as equal ordering)
+        similarities.sort_by(|a, b| {
+            b.1.partial_cmp(&a.1)
+                .unwrap_or(std::cmp::Ordering::Equal)
+        });
         Ok(similarities)
     }
 
@@ -237,7 +246,12 @@ impl RecommendationEngine {
             }
         }
 
-        similarities.sort_by(|a, b| b.score.partial_cmp(&a.score).unwrap());
+        // Use unwrap_or to handle NaN values safely (treat as equal ordering)
+        similarities.sort_by(|a, b| {
+            b.score
+                .partial_cmp(&a.score)
+                .unwrap_or(std::cmp::Ordering::Equal)
+        });
         similarities.truncate(n_similar);
 
         Ok(similarities)
@@ -265,7 +279,12 @@ impl RecommendationEngine {
             })
             .collect();
 
-        trending.sort_by(|a, b| b.score.partial_cmp(&a.score).unwrap());
+        // Use unwrap_or to handle NaN values safely (treat as equal ordering)
+        trending.sort_by(|a, b| {
+            b.score
+                .partial_cmp(&a.score)
+                .unwrap_or(std::cmp::Ordering::Equal)
+        });
         trending.truncate(n_trending);
         trending
     }
@@ -312,7 +331,12 @@ impl RecommendationEngine {
             })
             .collect();
 
-        complementary.sort_by(|a, b| b.score.partial_cmp(&a.score).unwrap());
+        // Use unwrap_or to handle NaN values safely (treat as equal ordering)
+        complementary.sort_by(|a, b| {
+            b.score
+                .partial_cmp(&a.score)
+                .unwrap_or(std::cmp::Ordering::Equal)
+        });
         complementary.truncate(n_complementary);
 
         Ok(complementary)
@@ -332,9 +356,18 @@ impl RecommendationEngine {
             ];
         }
 
-        let user_idx = self.user_ids.iter()
+        // User must exist at this point (we just added it if it didn't exist)
+        // Use ok_or_else for proper error handling instead of unwrap()
+        let user_idx = self
+            .user_ids
+            .iter()
             .position(|u| u == &preferences.user_id)
-            .unwrap();
+            .ok_or_else(|| {
+                anyhow::anyhow!(
+                    "User '{}' not found after insertion - internal state error",
+                    preferences.user_id
+                )
+            })?;
 
         // Update interaction scores based on download counts
         for (package_id, count) in preferences.download_counts {

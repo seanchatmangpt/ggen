@@ -24,34 +24,30 @@
 //!
 //! ### Generating a Key Pair
 //!
-//! ```rust,no_run
+//! ```rust
 //! use ggen_core::pqc::PqcSigner;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! // Generate a new keypair (in-memory, no files needed)
 //! let signer = PqcSigner::new();
-//! signer.save_to_files(
-//!     Path::new("secret.key"),
-//!     Path::new("public.key")
-//! )?;
-//! # Ok(())
-//! # }
+//! let public_key_b64 = signer.public_key_base64();
+//! assert!(!public_key_b64.is_empty());
 //! ```
 //!
 //! ### Signing Content
 //!
-//! ```rust,no_run
-//! use ggen_core::pqc::PqcSigner;
+//! ```rust
+//! use ggen_core::pqc::{PqcSigner, PqcVerifier};
 //!
-//! # fn main() -> anyhow::Result<()> {
 //! let signer = PqcSigner::new();
 //! let content = b"package content";
-//! let signature = signer.sign(content)?;
+//! let signature = signer.sign(content);
 //!
-//! // Verify signature
-//! let verifier = PqcVerifier::from_public_key(&signer.public_key_bytes())?;
-//! assert!(verifier.verify(content, &signature)?);
-//! # Ok(())
-//! # }
+//! // Verify signature - decode base64 public key to get bytes
+//! use base64::{engine::general_purpose, Engine as _};
+//! let public_key_b64 = signer.public_key_base64();
+//! let public_key_bytes = general_purpose::STANDARD.decode(&public_key_b64).unwrap();
+//! let verifier = PqcVerifier::from_public_key(&public_key_bytes).unwrap();
+//! assert!(verifier.verify(content, &signature).unwrap());
 //! ```
 use anyhow::{Context, Result};
 use base64::{engine::general_purpose, Engine as _};

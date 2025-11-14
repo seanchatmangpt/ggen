@@ -7,8 +7,9 @@
 //! - Error handling best practices
 
 use anyhow::{Context, Result};
-use ggen_core::{GenContext, Generator, Template};
-use std::collections::HashMap;
+use ggen_core::{GenContext, Generator, Pipeline, Template};
+use std::collections::BTreeMap;
+use std::path::PathBuf;
 use tracing::{info, Level};
 use tracing_subscriber::FmtSubscriber;
 
@@ -48,19 +49,17 @@ fn example_template_from_string() -> Result<()> {
     info!("=== Example 1: Template from String ===");
 
     let template_content = r#"---
-name: simple-template
-description: A simple hello world template
-version: 1.0.0
+to: "output.txt"
 ---
 Hello, {{ name }}!
 Welcome to {{ project }}.
 "#;
 
-    let template = Template::from_str(template_content)
+    let template = Template::parse(template_content)
         .context("Failed to parse template from string")?;
 
-    info!("Template name: {}", template.metadata.name);
-    info!("Template description: {:?}", template.metadata.description);
+    info!("Template body length: {}", template.body.len());
+    info!("Template has frontmatter: {}", template.front.to.is_some());
 
     Ok(())
 }
@@ -75,9 +74,7 @@ async fn example_template_from_file() -> Result<()> {
     std::fs::write(
         sample_path,
         r#"---
-name: file-template
-description: Template loaded from file
-version: 1.0.0
+to: "output.md"
 ---
 # {{ title }}
 
@@ -86,10 +83,13 @@ This is a template loaded from: {{ filename }}
     )
     .context("Failed to create sample template file")?;
 
-    let template = Template::from_file(sample_path)
-        .context("Failed to load template from file")?;
+    // Read file and parse
+    let content = std::fs::read_to_string(sample_path)
+        .context("Failed to read template file")?;
+    let template = Template::parse(&content)
+        .context("Failed to parse template from file")?;
 
-    info!("Loaded template: {}", template.metadata.name);
+    info!("Loaded template with body length: {}", template.body.len());
 
     // Clean up
     std::fs::remove_file(sample_path).ok();
@@ -101,34 +101,46 @@ This is a template loaded from: {{ filename }}
 async fn example_generator_with_context() -> Result<()> {
     info!("=== Example 3: Generator with Context ===");
 
-    let template_content = r#"---
-name: user-greeting
-description: User greeting template
+    // Create a temporary template file
+    let temp_dir = std::env::temp_dir();
+    let template_path = temp_dir.join("user-greeting.tmpl");
+    std::fs::write(
+        &template_path,
+        r#"---
+to: "greeting.txt"
 ---
 Hello {{ user_name }}!
 Your role is: {{ user_role }}
 Email: {{ email }}
-"#;
+"#,
+    )?;
 
-    let template = Template::from_str(template_content)?;
+    // Create pipeline and context
+    let pipeline = Pipeline::new()?;
+    let mut vars = BTreeMap::new();
+    vars.insert("user_name".to_string(), "Alice".to_string());
+    vars.insert("user_role".to_string(), "Developer".to_string());
+    vars.insert("email".to_string(), "alice@example.com".to_string());
 
-    // Create generation context
-    let mut context = GenContext::new();
-    context.insert("user_name", "Alice");
-    context.insert("user_role", "Developer");
-    context.insert("email", "alice@example.com");
+    let ctx = GenContext::new(
+        template_path.clone(),
+        temp_dir.clone()
+    ).with_vars(vars);
 
     // Create generator
-    let generator = Generator::new(vec![], HashMap::new())
-        .context("Failed to create generator")?;
+    let mut generator = Generator::new(pipeline, ctx);
 
     // Generate output
-    let output = generator
-        .generate(&template, &context)
-        .await
+    let output_path = generator.generate()
         .context("Failed to generate output")?;
 
-    info!("Generated output:\n{}", output);
+    info!("Generated output at: {:?}", output_path);
+
+    // Clean up
+    std::fs::remove_file(&template_path).ok();
+    if output_path.exists() {
+        std::fs::remove_file(&output_path).ok();
+    }
 
     Ok(())
 }
@@ -137,9 +149,12 @@ Email: {{ email }}
 async fn example_multiple_variables() -> Result<()> {
     info!("=== Example 4: Multiple Variables ===");
 
-    let template_content = r#"---
-name: project-structure
-description: Project structure template
+    let temp_dir = std::env::temp_dir();
+    let template_path = temp_dir.join("project-structure.tmpl");
+    std::fs::write(
+        &template_path,
+        r#"---
+to: "project.md"
 ---
 # {{ project_name }}
 
@@ -151,28 +166,32 @@ description: Project structure template
 
 ## Description
 {{ description }}
+"#,
+    )?;
 
-## Dependencies
-{% for dep in dependencies -%}
-- {{ dep }}
-{% endfor %}
-"#;
+    let pipeline = Pipeline::new()?;
+    let mut vars = BTreeMap::new();
+    vars.insert("project_name".to_string(), "awesome-app".to_string());
+    vars.insert("version".to_string(), "1.0.0".to_string());
+    vars.insert("author".to_string(), "The Team".to_string());
+    vars.insert("license".to_string(), "MIT".to_string());
+    vars.insert("description".to_string(), "An awesome application built with ggen".to_string());
 
-    let template = Template::from_str(template_content)?;
+    let ctx = GenContext::new(
+        template_path.clone(),
+        temp_dir.clone()
+    ).with_vars(vars);
 
-    let mut context = GenContext::new();
-    context.insert("project_name", "awesome-app");
-    context.insert("version", "1.0.0");
-    context.insert("author", "The Team");
-    context.insert("license", "MIT");
-    context.insert("description", "An awesome application built with ggen");
+    let mut generator = Generator::new(pipeline, ctx);
+    let output_path = generator.generate()?;
 
-    // Note: For array/list support, you'd need to use the template engine's
-    // native context. This is a simplified example.
-    let generator = Generator::new(vec![], HashMap::new())?;
-    let output = generator.generate(&template, &context).await?;
+    info!("Generated output at: {:?}", output_path);
 
-    info!("Generated output:\n{}", output);
+    // Clean up
+    std::fs::remove_file(&template_path).ok();
+    if output_path.exists() {
+        std::fs::remove_file(&output_path).ok();
+    }
 
     Ok(())
 }
@@ -181,9 +200,12 @@ description: Project structure template
 async fn example_conditional_rendering() -> Result<()> {
     info!("=== Example 5: Conditional Rendering ===");
 
-    let template_content = r#"---
-name: conditional-template
-description: Template with conditional logic
+    let temp_dir = std::env::temp_dir();
+    let template_path = temp_dir.join("conditional-template.tmpl");
+    std::fs::write(
+        &template_path,
+        r#"---
+to: "project-info.md"
 ---
 # {{ project_name }}
 
@@ -201,21 +223,32 @@ This is a private project.
 {% if has_docs %}
 ✓ Documentation included
 {% endif %}
-"#;
+"#,
+    )?;
 
-    let template = Template::from_str(template_content)?;
+    let pipeline = Pipeline::new()?;
+    let mut vars = BTreeMap::new();
+    vars.insert("project_name".to_string(), "my-library".to_string());
+    vars.insert("is_public".to_string(), "true".to_string());
+    vars.insert("repo_url".to_string(), "https://github.com/user/my-library".to_string());
+    vars.insert("has_tests".to_string(), "true".to_string());
+    vars.insert("has_docs".to_string(), "true".to_string());
 
-    let mut context = GenContext::new();
-    context.insert("project_name", "my-library");
-    context.insert("is_public", "true");
-    context.insert("repo_url", "https://github.com/user/my-library");
-    context.insert("has_tests", "true");
-    context.insert("has_docs", "true");
+    let ctx = GenContext::new(
+        template_path.clone(),
+        temp_dir.clone()
+    ).with_vars(vars);
 
-    let generator = Generator::new(vec![], HashMap::new())?;
-    let output = generator.generate(&template, &context).await?;
+    let mut generator = Generator::new(pipeline, ctx);
+    let output_path = generator.generate()?;
 
-    info!("Generated output:\n{}", output);
+    info!("Generated output at: {:?}", output_path);
+
+    // Clean up
+    std::fs::remove_file(&template_path).ok();
+    if output_path.exists() {
+        std::fs::remove_file(&output_path).ok();
+    }
 
     Ok(())
 }
@@ -240,7 +273,7 @@ mod tests {
     async fn test_error_handling() {
         // Test invalid template
         let invalid_template = "---\nno closing frontmatter";
-        let result = Template::from_str(invalid_template);
+        let result = Template::parse(invalid_template);
         assert!(result.is_err());
     }
 }

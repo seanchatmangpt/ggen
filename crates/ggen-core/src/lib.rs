@@ -56,7 +56,7 @@
 //! use std::collections::BTreeMap;
 //! use std::path::PathBuf;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let pipeline = Pipeline::new()?;
 //! let mut vars = BTreeMap::new();
 //! vars.insert("name".to_string(), "MyApp".to_string());
@@ -78,7 +78,7 @@
 //! ```rust
 //! use ggen_core::Graph;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let graph = Graph::new()?;
 //! graph.insert_turtle(r#"
 //!     @prefix ex: <http://example.org/> .

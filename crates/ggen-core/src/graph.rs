@@ -91,6 +91,12 @@ use std::sync::{
     Arc, Mutex,
 };
 
+/// Default size for SPARQL query plan cache
+const DEFAULT_PLAN_CACHE_SIZE: usize = 100;
+
+/// Default size for SPARQL query result cache
+const DEFAULT_RESULT_CACHE_SIZE: usize = 1000;
+
 /// Cached SPARQL query result types.
 ///
 /// This enum represents the different types of results that can be returned
@@ -289,10 +295,6 @@ impl Graph {
     /// assert!(graph.is_empty());
     /// ```
     pub fn new() -> Result<Self> {
-        /// Default size for SPARQL query plan cache
-        const DEFAULT_PLAN_CACHE_SIZE: usize = 100;
-        /// Default size for SPARQL query result cache
-        const DEFAULT_RESULT_CACHE_SIZE: usize = 1000;
         let plan_cache_size = NonZeroUsize::new(DEFAULT_PLAN_CACHE_SIZE)
             .ok_or_else(|| anyhow::anyhow!("Invalid cache size"))?;
         let result_cache_size = NonZeroUsize::new(DEFAULT_RESULT_CACHE_SIZE)
@@ -308,13 +310,50 @@ impl Graph {
 
     /// Load RDF data from a file into a new Graph
     ///
-    /// # Example
+    /// # Errors
+    ///
+    /// Returns an error if:
+    /// - The file cannot be opened or read
+    /// - The file format is unsupported
+    /// - The RDF syntax is invalid
+    ///
+    /// # Examples
+    ///
+    /// ## Success case
     ///
     /// ```rust,no_run
     /// use ggen_core::graph::Graph;
     ///
     /// # fn main() -> anyhow::Result<()> {
     /// let graph = Graph::load_from_file("data.ttl")?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// ## Error case - File not found
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::graph::Graph;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// // This will fail because the file doesn't exist
+    /// let result = Graph::load_from_file("nonexistent.ttl");
+    /// assert!(result.is_err());
+    /// // Error message indicates file not found
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// ## Error case - Invalid RDF format
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::graph::Graph;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// // This will fail if the file contains invalid RDF
+    /// let result = Graph::load_from_file("invalid.ttl");
+    /// assert!(result.is_err());
+    /// // Error message indicates invalid RDF syntax
     /// # Ok(())
     /// # }
     /// ```
@@ -437,7 +476,15 @@ impl Graph {
     /// * `turtle` - Turtle-formatted RDF data
     /// * `base_iri` - Base IRI for resolving relative IRIs (currently not fully supported)
     ///
+    /// # Errors
+    ///
+    /// Returns an error if:
+    /// - The Turtle syntax is invalid
+    /// - The RDF data cannot be parsed
+    ///
     /// # Examples
+    ///
+    /// ## Success case
     ///
     /// ```rust,no_run
     /// use ggen_core::graph::Graph;
@@ -452,6 +499,21 @@ impl Graph {
     ///     "#,
     ///     "http://example.org/"
     /// )?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// ## Error case - Invalid Turtle syntax
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::graph::Graph;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let graph = Graph::new()?;
+    /// // This will fail because the Turtle syntax is invalid
+    /// let result = graph.insert_turtle_with_base("invalid syntax {", "http://example.org/");
+    /// assert!(result.is_err());
+    /// // Error message indicates invalid Turtle syntax
     /// # Ok(())
     /// # }
     /// ```
@@ -479,7 +541,15 @@ impl Graph {
     /// * `turtle` - Turtle-formatted RDF data
     /// * `graph_iri` - IRI of the named graph (currently not fully supported)
     ///
+    /// # Errors
+    ///
+    /// Returns an error if:
+    /// - The Turtle syntax is invalid
+    /// - The RDF data cannot be parsed
+    ///
     /// # Examples
+    ///
+    /// ## Success case
     ///
     /// ```rust,no_run
     /// use ggen_core::graph::Graph;
@@ -494,6 +564,21 @@ impl Graph {
     ///     "#,
     ///     "http://example.org/graph1"
     /// )?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// ## Error case - Invalid Turtle syntax
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::graph::Graph;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let graph = Graph::new()?;
+    /// // This will fail because the Turtle syntax is invalid
+    /// let result = graph.insert_turtle_in("invalid syntax {", "http://example.org/graph1");
+    /// assert!(result.is_err());
+    /// // Error message indicates invalid Turtle syntax
     /// # Ok(())
     /// # }
     /// ```
@@ -522,7 +607,15 @@ impl Graph {
     /// Returns `Ok(())` if the quad was successfully inserted, or an error if
     /// any of the IRIs are invalid.
     ///
+    /// # Errors
+    ///
+    /// Returns an error if:
+    /// - Any of the IRIs are invalid (not valid IRI syntax)
+    /// - The quad cannot be inserted
+    ///
     /// # Examples
+    ///
+    /// ## Success case
     ///
     /// ```rust,no_run
     /// use ggen_core::graph::Graph;
@@ -535,6 +628,21 @@ impl Graph {
     ///     "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
     ///     "http://example.org/Person"
     /// )?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// ## Error case - Invalid IRI
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::graph::Graph;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let graph = Graph::new()?;
+    /// // This will fail because the IRI is invalid
+    /// let result = graph.insert_quad("not a valid IRI", "http://example.org/p", "http://example.org/o");
+    /// assert!(result.is_err());
+    /// // Error message indicates invalid IRI syntax
     /// # Ok(())
     /// # }
     /// ```
@@ -655,6 +763,8 @@ impl Graph {
     /// ```
     pub fn query_cached(&self, sparql: &str) -> Result<CachedResult> {
         let query_hash = self.hash_query(sparql);
+        // Capture epoch atomically to prevent race condition where epoch changes
+        // between cache check and query execution, which could cause stale results
         let epoch = self.current_epoch();
         let cache_key = (query_hash, epoch);
 
@@ -668,6 +778,27 @@ impl Graph {
         {
             return Ok(cached);
         }
+
+        // Re-check epoch after cache miss to ensure we're still on the same epoch
+        // If epoch changed, recalculate cache key to avoid stale results
+        let final_epoch = self.current_epoch();
+        let final_cache_key = if final_epoch != epoch {
+            // Epoch changed, use new epoch for cache key
+            let new_cache_key = (query_hash, final_epoch);
+            // Check cache again with new epoch
+            if let Some(cached) = self
+                .result_cache
+                .lock()
+                .map_err(|e| anyhow::anyhow!("Cache lock poisoned: {}", e))?
+                .get(&new_cache_key)
+                .cloned()
+            {
+                return Ok(cached);
+            }
+            new_cache_key
+        } else {
+            cache_key
+        };
 
         // Check plan cache or parse
         let query_str = {
@@ -690,11 +821,11 @@ impl Graph {
         let results = self.inner.query(&query_str)?;
         let cached = self.materialize_results(results)?;
 
-        // Store in cache
+        // Store in cache using final_cache_key (which accounts for epoch changes)
         self.result_cache
             .lock()
             .map_err(|e| anyhow::anyhow!("Cache lock poisoned: {}", e))?
-            .put(cache_key, cached.clone());
+            .put(final_cache_key, cached.clone());
 
         Ok(cached)
     }
@@ -707,7 +838,21 @@ impl Graph {
     /// For SELECT, CONSTRUCT, and DESCRIBE queries, it bypasses the cache and queries
     /// directly. For full caching of all query types, use `query_cached` instead.
     ///
-    /// # Example
+    /// **Performance note**: This method uses `query_cached` internally for boolean
+    /// queries, but for SELECT, CONSTRUCT, and DESCRIBE queries, it bypasses the cache
+    /// and queries directly. This is less efficient than `query_cached` but maintains
+    /// API compatibility with code expecting `QueryResults` iterators.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if:
+    /// - The SPARQL query syntax is invalid
+    /// - The query cannot be executed
+    /// - Cache lock is poisoned (internal error, should not occur in normal use)
+    ///
+    /// # Examples
+    ///
+    /// ## Success case
     ///
     /// ```rust,no_run
     /// use ggen_core::graph::Graph;
@@ -721,6 +866,20 @@ impl Graph {
     /// "#)?;
     ///
     /// let results = graph.query("SELECT ?s ?o WHERE { ?s ex:name ?o }")?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// ## Error case - Invalid SPARQL syntax
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::graph::Graph;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let graph = Graph::new()?;
+    /// // This will fail because the SPARQL query is invalid
+    /// let result = graph.query("INVALID SPARQL SYNTAX {");
+    /// assert!(result.is_err());
     /// # Ok(())
     /// # }
     /// ```
@@ -797,6 +956,61 @@ impl Graph {
         self.query(&q)
     }
 
+    /// Execute a prepared SPARQL query (low-level API)
+    ///
+    /// This method provides direct access to Oxigraph's query API.
+    /// For most use cases, prefer `query()` or `query_cached()` instead.
+    ///
+    /// **Note**: This method uses the deprecated `Store::query()` API and will
+    /// be migrated to `SparqlEvaluator` in a later version.
+    ///
+    /// # Arguments
+    ///
+    /// * `q` - SPARQL query string
+    ///
+    /// # Returns
+    ///
+    /// Returns raw `QueryResults` from Oxigraph.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if:
+    /// - The SPARQL query syntax is invalid
+    /// - The query cannot be executed
+    ///
+    /// # Examples
+    ///
+    /// ## Success case
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::graph::Graph;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let graph = Graph::new()?;
+    /// graph.insert_turtle(r#"
+    ///     @prefix ex: <http://example.org/> .
+    ///     ex:alice a ex:Person .
+    /// "#)?;
+    ///
+    /// let results = graph.query_prepared("SELECT ?s WHERE { ?s ?p ?o }")?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// ## Error case - Invalid SPARQL syntax
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::graph::Graph;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let graph = Graph::new()?;
+    /// // This will fail because the SPARQL query is invalid
+    /// let result = graph.query_prepared("INVALID SPARQL {");
+    /// assert!(result.is_err());
+    /// // Error message indicates invalid SPARQL syntax
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn query_prepared<'a>(&'a self, q: &str) -> Result<QueryResults<'a>> {
         // Note: Using deprecated Store::query() API - will migrate to SparqlEvaluator post-1.0
         #[allow(deprecated)]
@@ -824,31 +1038,28 @@ impl Graph {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```rust
     /// use ggen_core::graph::Graph;
     /// use oxigraph::model::{NamedNode, NamedOrBlankNode};
     ///
-    /// # fn main() -> anyhow::Result<()> {
-    /// let graph = Graph::new()?;
+    /// let graph = Graph::new().unwrap();
     /// graph.insert_turtle(r#"
-    ///     @prefix ex: <http://example.org/> .
-    ///     ex:alice a ex:Person .
-    ///     ex:bob a ex:Person .
-    /// "#)?;
+    /// @prefix ex: <http://example.org/> .
+    /// ex:alice a ex:Person .
+    /// ex:bob a ex:Person .
+    /// "#).unwrap();
     ///
     /// // Find all quads with ex:Person as object
-    /// let person_type = NamedNode::new("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")?;
-    /// let person_class = NamedNode::new("http://example.org/Person")?;
+    /// let person_type = NamedNode::new("http://www.w3.org/1999/02/22-rdf-syntax-ns#type").unwrap();
+    /// let person_class = NamedNode::new("http://example.org/Person").unwrap();
     /// let quads = graph.quads_for_pattern(
     ///     None, // any subject
     ///     Some(&person_type.into()),
     ///     Some(&person_class.into()),
     ///     None  // default graph
-    /// )?;
+    /// ).unwrap();
     ///
     /// assert_eq!(quads.len(), 2); // alice and bob
-    /// # Ok(())
-    /// # }
     /// ```
     pub fn quads_for_pattern(
         &self, s: Option<&NamedOrBlankNode>, p: Option<&NamedNode>, o: Option<&Term>,
@@ -865,12 +1076,68 @@ impl Graph {
             .collect::<Result<Vec<_>, _>>()?)
     }
 
+    /// Clear all data from the graph
+    ///
+    /// Removes all triples from the graph and increments the epoch counter,
+    /// invalidating all cached query results.
+    ///
+    /// # Returns
+    ///
+    /// Returns `Ok(())` if the graph was successfully cleared.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the clear operation fails (should not occur in normal use).
+    ///
+    /// # Examples
+    ///
+    /// ## Success case
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::graph::Graph;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let graph = Graph::new()?;
+    /// graph.insert_turtle(r#"
+    ///     @prefix ex: <http://example.org/> .
+    ///     ex:alice a ex:Person .
+    /// "#)?;
+    ///
+    /// // Clear all data
+    /// graph.clear()?;
+    /// assert!(graph.is_empty());
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn clear(&self) -> Result<()> {
         self.inner.clear()?;
         self.bump_epoch();
         Ok(())
     }
 
+    /// Get the number of triples in the graph
+    ///
+    /// Returns the total count of triples (quads) stored in the graph.
+    ///
+    /// # Returns
+    ///
+    /// The number of triples in the graph, or 0 if the count cannot be determined.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use ggen_core::graph::Graph;
+    ///
+    /// let graph = Graph::new().unwrap();
+    /// assert_eq!(graph.len(), 0);
+    ///
+    /// graph.insert_turtle(r#"
+    ///     @prefix ex: <http://example.org/> .
+    ///     ex:alice a ex:Person .
+    /// "#).unwrap();
+    ///
+    /// assert!(graph.len() > 0);
+    /// ```
     pub fn len(&self) -> usize {
         #[allow(deprecated)]
         {
@@ -878,6 +1145,29 @@ impl Graph {
         }
     }
 
+    /// Check if the graph is empty
+    ///
+    /// Returns `true` if the graph contains no triples, `false` otherwise.
+    ///
+    /// # Returns
+    ///
+    /// `true` if `len() == 0`, `false` otherwise.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use ggen_core::graph::Graph;
+    ///
+    /// let graph = Graph::new().unwrap();
+    /// assert!(graph.is_empty());
+    ///
+    /// graph.insert_turtle(r#"
+    ///     @prefix ex: <http://example.org/> .
+    ///     ex:alice a ex:Person .
+    /// "#).unwrap();
+    ///
+    /// assert!(!graph.is_empty());
+    /// ```
     pub fn is_empty(&self) -> bool {
         self.len() == 0
     }

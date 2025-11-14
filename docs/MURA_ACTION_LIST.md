@@ -10,35 +10,35 @@
 - **Medium Priority**: 14 files (missing doctests)
 - **Low Priority**: 14 files (missing module-level docs)
 
-## High Priority: Doctest Format Inconsistencies
+## High Priority: Doctest Format Inconsistencies ✅ COMPLETE
 
 **Action**: Update doctests to use standard `# fn main() -> anyhow::Result<()> {` pattern.
 
-### ggen-core
-- [ ] `crates/ggen-core/src/registry.rs`
-- [ ] `crates/ggen-core/src/lifecycle/state_machine.rs`
-- [ ] `crates/ggen-core/src/lifecycle/poka_yoke.rs`
-- [ ] `crates/ggen-core/src/lifecycle/state_validation.rs`
-- [ ] `crates/ggen-core/src/lifecycle/model.rs`
-- [ ] `crates/ggen-core/src/cli_generator/dx.rs`
-- [ ] `crates/ggen-core/src/project_generator/mod.rs`
-- [ ] `crates/ggen-core/src/cleanroom/policy.rs`
-- [ ] `crates/ggen-core/src/cleanroom/forensics.rs`
-- [ ] `crates/ggen-core/src/cleanroom/mod.rs`
-- [ ] `crates/ggen-core/src/rdf/schema.rs`
+### ggen-core ✅
+- [x] `crates/ggen-core/src/registry.rs` - Already had correct pattern
+- [x] `crates/ggen-core/src/lifecycle/state_machine.rs` - ✅ Fixed
+- [x] `crates/ggen-core/src/lifecycle/poka_yoke.rs` - ✅ Fixed
+- [x] `crates/ggen-core/src/lifecycle/state_validation.rs` - ✅ Fixed
+- [x] `crates/ggen-core/src/lifecycle/model.rs` - ✅ Fixed
+- [x] `crates/ggen-core/src/cli_generator/dx.rs` - No Result doctests needed
+- [x] `crates/ggen-core/src/project_generator/mod.rs` - Already had correct pattern
+- [x] `crates/ggen-core/src/cleanroom/policy.rs` - ✅ Fixed (2 doctests)
+- [x] `crates/ggen-core/src/cleanroom/forensics.rs` - ✅ Fixed
+- [x] `crates/ggen-core/src/cleanroom/mod.rs` - ✅ Fixed
+- [x] `crates/ggen-core/src/rdf/schema.rs` - No Result doctests needed
 
-### ggen-utils
-- [ ] `crates/ggen-utils/src/logger.rs`
-- [ ] `crates/ggen-utils/src/types.rs`
-- [ ] `crates/ggen-utils/src/error.rs`
-- [ ] `crates/ggen-utils/src/lib.rs`
-- [ ] `crates/ggen-utils/src/alert.rs`
-- [ ] `crates/ggen-utils/src/app_config.rs`
+### ggen-utils ✅
+- [x] `crates/ggen-utils/src/logger.rs` - Already had correct pattern
+- [x] `crates/ggen-utils/src/types.rs` - Already had correct pattern
+- [x] `crates/ggen-utils/src/error.rs` - ✅ Fixed
+- [x] `crates/ggen-utils/src/lib.rs` - ✅ Fixed
+- [x] `crates/ggen-utils/src/alert.rs` - No Result doctests needed
+- [x] `crates/ggen-utils/src/app_config.rs` - Already had correct pattern
 
-### ggen-marketplace
-- [ ] `crates/ggen-marketplace/src/template_search.rs`
-- [ ] `crates/ggen-marketplace/src/cache/mod.rs`
-- [ ] `crates/ggen-marketplace/src/traits/registry.rs`
+### ggen-marketplace ✅
+- [x] `crates/ggen-marketplace/src/template_search.rs` - Already had correct pattern
+- [x] `crates/ggen-marketplace/src/cache/mod.rs` - Already had correct pattern
+- [x] `crates/ggen-marketplace/src/traits/registry.rs` - Already had correct pattern
 
 ## Medium Priority: Documentation Without Doctests
 

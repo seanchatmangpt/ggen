@@ -50,7 +50,7 @@
 //! use ggen_core::register::register_all;
 //! use tera::Tera;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let mut tera = Tera::default();
 //! register_all(&mut tera);
 //!
@@ -69,7 +69,7 @@
 //! use ggen_core::register::bless_context;
 //! use tera::Context;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let mut ctx = Context::new();
 //! ctx.insert("name", "user_profile");
 //!

@@ -8,7 +8,7 @@
 //! "Make invalid states unrepresentable" - Use the type system to prevent entire
 //! classes of errors rather than detecting them at runtime.
 
-use anyhow::Result;
+use super::error::Result;
 use std::path::{Path, PathBuf};
 
 // ============================================================================
@@ -30,13 +30,16 @@ use std::path::{Path, PathBuf};
 /// use ggen_core::lifecycle::poka_yoke::NonEmptyPath;
 /// use std::path::PathBuf;
 ///
+/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// // ✅ Valid: Non-empty path
-/// let path = NonEmptyPath::new(PathBuf::from("output.rs")).unwrap();
+/// let path = NonEmptyPath::new(PathBuf::from("output.rs"))?;
 /// assert_eq!(path.as_path().to_str(), Some("output.rs"));
 ///
 /// // ❌ Invalid: Empty path rejected at construction
 /// let empty = NonEmptyPath::new(PathBuf::from(""));
 /// assert!(empty.is_err());
+/// # Ok(())
+/// # }
 /// ```
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct NonEmptyPath(PathBuf);
@@ -59,7 +62,7 @@ impl NonEmptyPath {
     /// Returns `Err(EmptyPathError)` if path is empty.
     ///
     /// **Poka-yoke**: Empty paths rejected at construction - cannot create invalid state.
-    pub fn new(path: PathBuf) -> Result<Self, EmptyPathError> {
+    pub fn new(path: PathBuf) -> std::result::Result<Self, EmptyPathError> {
         if path.as_os_str().is_empty() {
             Err(EmptyPathError)
         } else {
@@ -70,7 +73,7 @@ impl NonEmptyPath {
     /// Create from string (convenience method)
     ///
     /// Note: This is a convenience method. For trait-based parsing, use `FromStr::from_str`.
-    pub fn from_string(s: &str) -> Result<Self, EmptyPathError> {
+    pub fn from_string(s: &str) -> std::result::Result<Self, EmptyPathError> {
         if s.is_empty() {
             Err(EmptyPathError)
         } else {
@@ -100,7 +103,7 @@ impl NonEmptyPath {
 impl std::str::FromStr for NonEmptyPath {
     type Err = EmptyPathError;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
         if s.is_empty() {
             Err(EmptyPathError)
         } else {
@@ -168,7 +171,7 @@ impl NonEmptyString {
     /// Returns `Err(EmptyStringError)` if string is empty.
     ///
     /// **Poka-yoke**: Empty strings rejected at construction.
-    pub fn new(s: String) -> Result<Self, EmptyStringError> {
+    pub fn new(s: String) -> std::result::Result<Self, EmptyStringError> {
         if s.is_empty() {
             Err(EmptyStringError)
         } else {

@@ -30,7 +30,7 @@
 //! use ggen_core::graph::Graph;
 //! use std::path::PathBuf;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let graph = Graph::new()?;
 //! let files = vec![(PathBuf::from("output.rs"), "content".to_string())];
 //! let templates = vec![(PathBuf::from("template.tmpl"), "template content".to_string())];
@@ -46,7 +46,7 @@
 //! use ggen_core::snapshot::SnapshotManager;
 //! use std::path::Path;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let manager = SnapshotManager::new(Path::new(".ggen/snapshots"));
 //! manager.save(&snapshot)?;
 //!
@@ -55,8 +55,8 @@
 //! # }
 //! ```
 
-use anyhow::Result;
 use chrono::{DateTime, Utc};
+use ggen_utils::error::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::fs::{self, File};
@@ -82,7 +82,7 @@ use crate::graph::Graph;
 /// use ggen_core::graph::Graph;
 /// use std::path::PathBuf;
 ///
-/// # fn main() -> anyhow::Result<()> {
+/// # fn main() -> ggen_utils::error::Result<()> {
 /// let graph = Graph::new()?;
 /// graph.insert_turtle(r#"
 ///     @prefix ex: <http://example.org/> .
@@ -137,7 +137,7 @@ impl Snapshot {
     /// use ggen_core::graph::Graph;
     /// use std::path::PathBuf;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let graph = Graph::new()?;
     /// let files = vec![(PathBuf::from("main.rs"), "fn main() {}".to_string())];
     /// let templates = vec![];
@@ -186,7 +186,7 @@ impl Snapshot {
     /// use ggen_core::snapshot::Snapshot;
     /// use ggen_core::graph::Graph;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let graph = Graph::new()?;
     /// let snapshot = Snapshot::new("test".to_string(), &graph, vec![], vec![])?;
     ///
@@ -264,7 +264,7 @@ impl GraphSnapshot {
 /// use ggen_core::snapshot::FileSnapshot;
 /// use std::path::PathBuf;
 ///
-/// # fn main() -> anyhow::Result<()> {
+/// # fn main() -> ggen_utils::error::Result<()> {
 /// let path = PathBuf::from("output.rs");
 /// let content = "fn main() { println!(\"Hello\"); }";
 ///
@@ -335,7 +335,7 @@ impl FileSnapshot {
     /// use ggen_core::snapshot::FileSnapshot;
     /// use std::path::PathBuf;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let snapshot = FileSnapshot::new(
     ///     PathBuf::from("file.rs"),
     ///     "original content".to_string()
@@ -422,7 +422,7 @@ pub enum RegionType {
 /// use ggen_core::graph::Graph;
 /// use std::path::PathBuf;
 ///
-/// # fn main() -> anyhow::Result<()> {
+/// # fn main() -> ggen_utils::error::Result<()> {
 /// let manager = SnapshotManager::new(PathBuf::from(".ggen/snapshots"))?;
 ///
 /// let graph = Graph::new()?;
@@ -461,7 +461,7 @@ impl SnapshotManager {
     /// use ggen_core::snapshot::SnapshotManager;
     /// use std::path::PathBuf;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let manager = SnapshotManager::new(PathBuf::from(".ggen/snapshots"))?;
     /// // Directory is created automatically
     /// # Ok(())
@@ -484,7 +484,7 @@ impl SnapshotManager {
     /// use ggen_core::graph::Graph;
     /// use std::path::PathBuf;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let manager = SnapshotManager::new(PathBuf::from(".ggen/snapshots"))?;
     /// let graph = Graph::new()?;
     /// let snapshot = Snapshot::new("my-snapshot".to_string(), &graph, vec![], vec![])?;
@@ -521,7 +521,7 @@ impl SnapshotManager {
     /// use ggen_core::graph::Graph;
     /// use std::path::PathBuf;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let manager = SnapshotManager::new(PathBuf::from(".ggen/snapshots"))?;
     /// let graph = Graph::new()?;
     /// let snapshot = Snapshot::new("test".to_string(), &graph, vec![], vec![])?;

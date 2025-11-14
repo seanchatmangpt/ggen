@@ -17,9 +17,10 @@
 //!
 //! ```rust,no_run
 //! use ggen_core::lifecycle::state::{load_state, save_state, LifecycleState};
+//! use ggen_core::lifecycle::Result;
 //! use std::path::PathBuf;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> Result<()> {
 //! let state_path = PathBuf::from(".ggen/state.json");
 //!
 //! // Load existing state or create new
@@ -38,16 +39,17 @@
 //!
 //! ```rust,no_run
 //! use ggen_core::lifecycle::state::{LifecycleState, RunRecord};
+//! use ggen_core::lifecycle::Result;
 //! use chrono::Utc;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> Result<()> {
 //! let mut state = LifecycleState::default();
 //!
 //! // Record phase execution
 //! use std::time::{SystemTime, UNIX_EPOCH};
 //! let started_ms = SystemTime::now()
 //!     .duration_since(UNIX_EPOCH)
-//!     .map_err(|_| anyhow::anyhow!("Time went backwards"))?
+//!     .map_err(|_| ggen_utils::error::Error::new("Time went backwards"))?
 //!     .as_millis();
 //! state.phase_history.push(RunRecord {
 //!     phase: "test".to_string(),

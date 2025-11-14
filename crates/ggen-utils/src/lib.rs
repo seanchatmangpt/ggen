@@ -22,6 +22,11 @@
 //!     // Operations that may fail
 //!     Ok(())
 //! }
+//!
+//! # fn main() -> Result<()> {
+//! process_data()?;
+//! # Ok(())
+//! # }
 //! ```
 //!
 //! ### Configuration

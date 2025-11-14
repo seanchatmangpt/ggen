@@ -18,7 +18,7 @@
 //! ```rust,no_run
 //! use ggen_core::lifecycle::dag::topo;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let phases = &["init", "setup", "build", "test"];
 //! let deps = &[
 //!     ("init", "setup"),

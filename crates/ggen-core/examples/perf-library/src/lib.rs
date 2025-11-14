@@ -1,3 +1,5 @@
+#![deny(warnings)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
+
 //! High-performance data structures library
 //!
 //! This library provides optimized data structures for high-performance applications:

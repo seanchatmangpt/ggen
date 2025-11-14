@@ -7,7 +7,7 @@
 //! ## Architecture
 //!
 //! - **Command Discovery**: Uses clap-noun-verb v3.4.0 auto-discovery to find
-//!   all `#[verb]` functions in the `cmds` module
+//!   all `\[verb\]` functions in the `cmds` module
 //! - **Async/Sync Bridge**: Provides runtime utilities to bridge async domain
 //!   functions with synchronous CLI execution
 //! - **Conventions**: File-based routing conventions for template-based command
@@ -49,55 +49,6 @@
 //! # }
 //! ```
 
-//! CLI entry point and programmatic execution interface
-//!
-//! This crate provides the main CLI entry point for ggen using clap-noun-verb v3.4.0
-//! auto-discovery, as well as programmatic execution capabilities for integration
-//! with other systems (e.g., Node.js addon).
-//!
-//! ## Features
-//!
-//! - **Auto-discovery**: Automatically discovers all `#[verb]` functions in the `cmds` module
-//! - **Version handling**: Handles `--version` and `-V` flags before routing
-//! - **Programmatic execution**: `run_for_node()` for capturing CLI output programmatically
-//! - **Output capture**: Thread-safe stdout/stderr capture for Node.js integration
-//!
-//! ## Architecture
-//!
-//! ```
-//! lib.rs (entry point)
-//!   ├── cli_match() → clap-noun-verb::run() → auto-discovers #[verb] functions
-//!   └── run_for_node() → captures output → returns RunResult
-//! ```
-//!
-//! ## Examples
-//!
-//! ### CLI Execution
-//!
-//! ```rust,no_run
-//! use ggen_cli::cli_match;
-//!
-//! #[tokio::main]
-//! async fn main() -> ggen_utils::error::Result<()> {
-//!     cli_match().await
-//! }
-//! ```
-//!
-//! ### Programmatic Execution
-//!
-//! ```rust,no_run
-//! use ggen_cli::run_for_node;
-//!
-//! #[tokio::main]
-//! async fn main() -> ggen_utils::error::Result<()> {
-//!     let args = vec!["template".to_string(), "generate".to_string()];
-//!     let result = run_for_node(args).await?;
-//!     println!("Exit code: {}", result.code);
-//!     println!("Stdout: {}", result.stdout);
-//!     Ok(())
-//! }
-//! ```
-
 #![deny(warnings)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
 #![allow(non_upper_case_globals)] // Allow macro-generated static variables from clap-noun-verb
 
@@ -117,7 +68,7 @@ pub use clap_noun_verb::{run, CommandRouter, Result as ClapNounVerbResult};
 /// Main entry point using clap-noun-verb v3.4.0 auto-discovery
 ///
 /// This function delegates to clap-noun-verb::run() which automatically discovers
-/// all #[verb] functions in the cmds module and its submodules.
+/// all `\[verb\]` functions in the cmds module and its submodules.
 pub async fn cli_match() -> ggen_utils::error::Result<()> {
     // Handle --version flag before delegating to clap-noun-verb
     let args: Vec<String> = std::env::args().collect();

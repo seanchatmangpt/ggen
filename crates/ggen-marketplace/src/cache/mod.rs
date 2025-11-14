@@ -125,27 +125,40 @@ struct CacheStatsInternal {
 
 impl SmartCache {
     pub fn new() -> Self {
+        /// Package cache TTL: 1 hour
+        const PACKAGE_CACHE_TTL_SECS: u64 = 3600;
+        /// Package cache TTI: 30 minutes
+        const PACKAGE_CACHE_TTI_SECS: u64 = 1800;
+        /// Search results cache TTL: 10 minutes
+        const SEARCH_CACHE_TTL_SECS: u64 = 600;
+        /// Search results cache TTI: 5 minutes
+        const SEARCH_CACHE_TTI_SECS: u64 = 300;
+        /// Download counts cache TTL: 5 minutes
+        const DOWNLOAD_CACHE_TTL_SECS: u64 = 300;
+        /// Version cache TTL: 30 minutes
+        const VERSION_CACHE_TTL_SECS: u64 = 1800;
+        
         Self {
             packages: Cache::builder()
                 .max_capacity(10_000)
-                .time_to_live(Duration::from_secs(3600)) // 1 hour
-                .time_to_idle(Duration::from_secs(1800)) // 30 minutes
+                .time_to_live(Duration::from_secs(PACKAGE_CACHE_TTL_SECS))
+                .time_to_idle(Duration::from_secs(PACKAGE_CACHE_TTI_SECS))
                 .build(),
 
             search_results: Cache::builder()
                 .max_capacity(5_000)
-                .time_to_live(Duration::from_secs(600)) // 10 minutes
-                .time_to_idle(Duration::from_secs(300)) // 5 minutes
+                .time_to_live(Duration::from_secs(SEARCH_CACHE_TTL_SECS))
+                .time_to_idle(Duration::from_secs(SEARCH_CACHE_TTI_SECS))
                 .build(),
 
             download_counts: Cache::builder()
                 .max_capacity(50_000)
-                .time_to_live(Duration::from_secs(300)) // 5 minutes
+                .time_to_live(Duration::from_secs(DOWNLOAD_CACHE_TTL_SECS))
                 .build(),
 
             versions: Cache::builder()
                 .max_capacity(10_000)
-                .time_to_live(Duration::from_secs(1800)) // 30 minutes
+                .time_to_live(Duration::from_secs(VERSION_CACHE_TTL_SECS))
                 .build(),
 
             stats: Arc::new(tokio::sync::RwLock::new(CacheStatsInternal::default())),

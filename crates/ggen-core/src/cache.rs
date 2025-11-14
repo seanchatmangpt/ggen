@@ -164,9 +164,18 @@ impl CacheManager {
     /// Downloads the pack from its git repository if not already cached, or
     /// verifies the cached version matches the expected SHA256 checksum.
     ///
+    /// **SHA256 verification**: If `resolved_pack.sha256` is provided and not empty,
+    /// the cached pack's SHA256 is verified. If the checksum doesn't match, the
+    /// corrupted cache is automatically removed and the pack is re-downloaded.
+    /// If no SHA256 is provided, the cached pack is used as-is without verification.
+    ///
+    /// **Automatic recovery**: If a cached pack is found but its SHA256 doesn't match
+    /// the expected value, the method automatically removes the corrupted cache and
+    /// re-downloads the pack. This ensures data integrity without manual intervention.
+    ///
     /// # Arguments
     ///
-    /// * `resolved_pack` - Pack metadata including git URL, revision, and SHA256
+    /// * `resolved_pack` - Pack metadata including git URL, revision, and optional SHA256
     ///
     /// # Returns
     ///
@@ -176,8 +185,9 @@ impl CacheManager {
     ///
     /// Returns an error if:
     /// - The pack cannot be downloaded from git
-    /// - The SHA256 checksum doesn't match (if provided)
-    /// - The cache directory cannot be accessed
+    /// - The SHA256 checksum doesn't match after re-download (if provided)
+    /// - The cache directory cannot be accessed or created
+    /// - The corrupted cache cannot be removed (should not occur in normal use)
     ///
     /// # Examples
     ///

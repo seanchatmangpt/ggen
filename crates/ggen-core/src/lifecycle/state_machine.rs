@@ -13,6 +13,7 @@
 //! ```rust
 //! use ggen_core::lifecycle::state_machine::*;
 //!
+//! # fn main() -> Result<(), Box<dyn std::error::Error>> {
 //! // Start with initial state
 //! let lifecycle = LifecycleStateMachine::<Initial>::new();
 //!
@@ -25,6 +26,8 @@
 //!
 //! // Invalid transitions fail at compile time:
 //! // lifecycle.deploy() // Compile error: method doesn't exist on Built state
+//! # Ok(())
+//! # }
 //! ```
 
 use super::error::{LifecycleError, Result};

@@ -21,6 +21,7 @@
 //! ```rust,no_run
 //! use ggen_core::cleanroom::forensics::ForensicsPack;
 //!
+//! # fn main() -> Result<(), Box<dyn std::error::Error>> {
 //! let mut pack = ForensicsPack::new("/tmp/test");
 //!
 //! // Capture output
@@ -33,7 +34,8 @@
 //!
 //! // Generate the pack
 //! pack.generate("/tmp/failure.crf", &attestation)?;
-//! # Ok::<(), Box<dyn std::error::Error>>(())
+//! # Ok(())
+//! # }
 //! ```
 
 use std::collections::HashMap;
