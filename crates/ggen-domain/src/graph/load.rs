@@ -122,8 +122,6 @@ pub fn load_rdf(options: LoadOptions) -> Result<LoadStats> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::io::Write;
-    use tempfile::NamedTempFile;
 
     /// Chicago TDD: Test loading REAL Turtle file
     #[test]

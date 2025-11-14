@@ -263,7 +263,6 @@ struct PackageInfo {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use tempfile::tempdir;
 
     #[tokio::test]
     async fn test_list_no_lockfile() {

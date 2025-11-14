@@ -201,19 +201,17 @@ impl ShellLister for SystemShellLister {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::str::FromStr;
 
     #[test]
     fn test_shell_type_from_str() {
-        assert_eq!(ShellType::from_str("bash"), Some(ShellType::Bash));
-        assert_eq!(ShellType::from_str("BASH"), Some(ShellType::Bash));
-        assert_eq!(ShellType::from_str("zsh"), Some(ShellType::Zsh));
-        assert_eq!(ShellType::from_str("fish"), Some(ShellType::Fish));
-        assert_eq!(
-            ShellType::from_str("powershell"),
-            Some(ShellType::PowerShell)
-        );
-        assert_eq!(ShellType::from_str("pwsh"), Some(ShellType::PowerShell));
-        assert_eq!(ShellType::from_str("invalid"), None);
+        assert_eq!(ShellType::from_str("bash"), Ok(ShellType::Bash));
+        assert_eq!(ShellType::from_str("BASH"), Ok(ShellType::Bash));
+        assert_eq!(ShellType::from_str("zsh"), Ok(ShellType::Zsh));
+        assert_eq!(ShellType::from_str("fish"), Ok(ShellType::Fish));
+        assert_eq!(ShellType::from_str("powershell"), Ok(ShellType::PowerShell));
+        assert_eq!(ShellType::from_str("pwsh"), Ok(ShellType::PowerShell));
+        assert!(ShellType::from_str("invalid").is_err());
     }
 
     #[test]

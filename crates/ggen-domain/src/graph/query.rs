@@ -140,8 +140,6 @@ pub fn execute_sparql(options: QueryOptions) -> Result<QueryResult> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::io::Write;
-    use tempfile::NamedTempFile;
 
     /// Chicago TDD: Test with REAL in-memory RDF graph
     #[test]
