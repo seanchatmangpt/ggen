@@ -178,6 +178,27 @@ fn main() -> ExitCode {
         }
     }
 
+    // Check 7: Historical documentation files should not be committed (archive removed)
+    println!("   Checking for historical documentation files...");
+    match check_historical_docs() {
+        Ok(count) => {
+            if count > 0 {
+                eprintln!(
+                    "❌ ERROR: Cannot commit {} historical documentation file(s) to docs/",
+                    count
+                );
+                eprintln!("   Historical reports (*COMPLETION*.md, *SUMMARY*.md, *STATUS*.md) should not be committed");
+                eprintln!("   These files are archived in git history - do not add new historical reports");
+                return ExitCode::FAILURE;
+            }
+            println!("  ✅ No historical docs in wrong location");
+        }
+        Err(e) => {
+            eprintln!("❌ ERROR: Failed to check historical docs: {}", e);
+            return ExitCode::FAILURE;
+        }
+    }
+
     println!("✅ Pre-commit validation passed");
     ExitCode::SUCCESS
 }
@@ -518,4 +539,55 @@ fn check_clippy(files: &[PathBuf]) -> Result<(), Box<dyn std::error::Error>> {
     }
 
     Ok(())
+}
+
+fn get_staged_markdown_files() -> Result<Vec<PathBuf>, Box<dyn std::error::Error>> {
+    let output = Command::new("git")
+        .arg("diff")
+        .arg("--cached")
+        .arg("--name-only")
+        .arg("--diff-filter=d")
+        .output()?;
+
+    if !output.status.success() {
+        return Err("Failed to get staged files".into());
+    }
+
+    let files: Vec<PathBuf> = String::from_utf8(output.stdout)?
+        .lines()
+        .filter(|line| line.ends_with(".md"))
+        .map(PathBuf::from)
+        .collect();
+
+    Ok(files)
+}
+
+fn check_historical_docs() -> Result<usize, Box<dyn std::error::Error>> {
+    let staged_md_files = get_staged_markdown_files()?;
+    let mut count = 0;
+
+    for file in &staged_md_files {
+        let path_str = file.to_string_lossy();
+
+        // Only check files in docs/ directory (archive/ removed - all historical docs should be avoided)
+        if !path_str.starts_with("docs/") {
+            continue;
+        }
+
+        let filename = file.file_name().and_then(|n| n.to_str()).unwrap_or("");
+
+        // Check for historical documentation patterns
+        if filename.contains("COMPLETION")
+            || filename.contains("SUMMARY")
+            || filename.contains("STATUS")
+        {
+            println!(
+                "     ❌ {}: Historical documentation file should not be committed (archive removed)",
+                file.display()
+            );
+            count += 1;
+        }
+    }
+
+    Ok(count)
 }

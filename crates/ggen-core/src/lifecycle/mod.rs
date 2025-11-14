@@ -25,6 +25,7 @@ pub mod exec;
 pub mod hooks;
 pub mod loader;
 pub mod model;
+pub mod poka_yoke;
 pub mod state;
 pub mod state_machine;
 pub mod state_validation;
@@ -70,6 +71,12 @@ pub use state_machine::{
     Built, Deployed, Initial, Initialized, LifecycleStateMachine, Setup, Tested,
 };
 pub use state_validation::{StateValidationError, ValidatedLifecycleState};
+
+// Poka-yoke (error prevention) types
+pub use poka_yoke::{
+    Closed, Counter, EmptyPathError, EmptyStringError, FileHandle, NonEmptyPath, NonEmptyString,
+    Open,
+};
 
 // Production readiness exports
 pub use production::{Placeholder, PlaceholderProcessor, PlaceholderRegistry};

@@ -277,7 +277,7 @@ mod tests {
             .state_mut()
             .record_run("init".to_string(), 0, 100, true);
         let lifecycle = lifecycle.init().unwrap();
-        let mut lifecycle = LifecycleStateMachine::<Initialized> {
+        let lifecycle = LifecycleStateMachine::<Initialized> {
             state: lifecycle.state().clone(),
             _marker: PhantomData,
         };

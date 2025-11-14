@@ -10,7 +10,6 @@ mod behavior_tests {
     use anyhow::Result;
     use mockall::mock;
     use mockall::predicate::*;
-    use std::collections::BTreeMap;
     use std::path::PathBuf;
 
     // ============================================================================
