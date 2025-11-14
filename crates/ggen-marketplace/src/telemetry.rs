@@ -5,7 +5,9 @@
 
 use anyhow::{Context, Result};
 use opentelemetry::KeyValue;
+use opentelemetry_otlp::WithExportConfig;
 use opentelemetry_sdk::{
+    runtime,
     trace::{RandomIdGenerator, Sampler},
     Resource,
 };
@@ -28,7 +30,7 @@ impl Default for TelemetryConfig {
     fn default() -> Self {
         Self {
             endpoint: std::env::var("OTEL_EXPORTER_OTLP_ENDPOINT")
-                .unwrap_or_else(|_| "http://localhost:4318".to_string()),
+                .unwrap_or_else(|_| "http://localhost:4317".to_string()), // gRPC default port
             service_name: "ggen-marketplace".to_string(),
             sample_ratio: 1.0,
             console_output: true,
@@ -39,7 +41,7 @@ impl Default for TelemetryConfig {
 /// Initialize OpenTelemetry with OTLP exporter
 ///
 /// This sets up:
-/// - OTLP HTTP exporter for traces
+/// - OTLP gRPC exporter for traces (CLI-only, no HTTP)
 /// - Tracing subscriber with OpenTelemetry layer
 /// - Console output for local debugging
 ///
@@ -60,40 +62,28 @@ impl Default for TelemetryConfig {
 /// }
 /// ```
 pub fn init_telemetry(config: TelemetryConfig) -> Result<()> {
-    // Set OTLP endpoint environment variable for HTTP exporter (v0.31.0 API)
-    std::env::set_var("OTEL_EXPORTER_OTLP_ENDPOINT", &config.endpoint);
-
-    // Create OTLP HTTP exporter using v0.31.0 API
-    let exporter = opentelemetry_otlp::SpanExporter::builder()
-        .with_http()
-        .build()
-        .context("Failed to create OTLP HTTP exporter")?;
-
-    // Create resource with service information (v0.31.0 API)
-    let resource = Resource::builder_empty()
-        .with_service_name(config.service_name.clone())
-        .with_attributes([
-            KeyValue::new("service.version", env!("CARGO_PKG_VERSION")),
-            KeyValue::new("service.namespace", "ggen-marketplace"),
-            KeyValue::new("telemetry.sdk.language", "rust"),
-            KeyValue::new("telemetry.sdk.name", "opentelemetry"),
-            KeyValue::new("telemetry.sdk.version", "0.31.0"),
-        ])
-        .build();
-
-    // Create tracer provider with batch exporter (v0.31.0 API)
-    let tracer_provider = opentelemetry_sdk::trace::SdkTracerProvider::builder()
-        .with_sampler(Sampler::TraceIdRatioBased(config.sample_ratio))
-        .with_id_generator(RandomIdGenerator::default())
-        .with_resource(resource)
-        .with_batch_exporter(exporter)
-        .build();
-
-    // Set global tracer provider
-    opentelemetry::global::set_tracer_provider(tracer_provider);
-
-    // Create tracer
-    let tracer = opentelemetry::global::tracer("ggen-marketplace");
+    // Create OTLP tracer pipeline with gRPC exporter (matching ggen-core API)
+    let tracer = opentelemetry_otlp::new_pipeline()
+        .tracing()
+        .with_exporter(
+            opentelemetry_otlp::new_exporter()
+                .tonic() // Use tonic/gRPC transport
+                .with_endpoint(&config.endpoint),
+        )
+        .with_trace_config(
+            opentelemetry_sdk::trace::config()
+                .with_sampler(Sampler::TraceIdRatioBased(config.sample_ratio))
+                .with_id_generator(RandomIdGenerator::default())
+                .with_resource(Resource::new(vec![
+                    KeyValue::new("service.name", config.service_name.clone()),
+                    KeyValue::new("service.version", env!("CARGO_PKG_VERSION")),
+                    KeyValue::new("service.namespace", "ggen-marketplace"),
+                    KeyValue::new("telemetry.sdk.language", "rust"),
+                    KeyValue::new("telemetry.sdk.name", "opentelemetry"),
+                ])),
+        )
+        .install_batch(runtime::Tokio)
+        .context("Failed to install OTLP tracer")?;
 
     // Create OpenTelemetry tracing layer
     let telemetry_layer = tracing_opentelemetry::layer().with_tracer(tracer);

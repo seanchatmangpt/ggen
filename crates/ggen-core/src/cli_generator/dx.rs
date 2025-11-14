@@ -204,7 +204,13 @@ impl TemplatePreview {
             core_crate = core_crate,
             noun_name = noun.name,
             verb_name = verb.name,
-            verb_args = format!("{}Args", verb.name.chars().next().unwrap().to_uppercase().to_string() + &verb.name[1..]),
+            verb_args = format!("{}Args", {
+                if let Some(first_char) = verb.name.chars().next() {
+                    format!("{}{}", first_char.to_uppercase(), &verb.name[1..])
+                } else {
+                    "VerbArgs".to_string() // Fallback for empty verb name
+                }
+            }),
             args = verb.arguments.iter().map(|a| {
                 format!("    /// {}\n    #[arg(long)]\n    pub {}: {},\n\n",
                         a.help, a.name, Self::rust_type_for_arg(a))

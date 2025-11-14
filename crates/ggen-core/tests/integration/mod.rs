@@ -11,7 +11,6 @@
 pub mod clnrm_harness;
 pub mod clnrm_harness_examples;
 pub mod end_to_end_flow;
-pub mod marketplace_p2p_tests;
 pub mod marketplace_validation;
 pub mod multi_node_scenario;
 pub mod registry_api_integration;

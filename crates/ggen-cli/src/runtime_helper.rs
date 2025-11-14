@@ -121,7 +121,7 @@ where
 {
     // Check if we're already in a tokio runtime
     match tokio::runtime::Handle::try_current() {
-        Ok(handle) => {
+        Ok(_handle) => {
             // We're in a runtime, spawn a blocking task to run the future
             // This prevents "Cannot start a runtime from within a runtime" error
             std::thread::scope(|s| {

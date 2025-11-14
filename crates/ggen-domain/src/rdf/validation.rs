@@ -7,7 +7,7 @@ use ggen_utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-use super::metadata::{TemplateMetadata, TemplateVariable};
+use super::metadata::TemplateMetadata;
 
 /// SHACL validation result
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -365,6 +365,7 @@ fn is_valid_identifier(s: &str) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::rdf::metadata::TemplateVariable;
 
     #[test]
     fn test_validate_valid_template() -> Result<()> {

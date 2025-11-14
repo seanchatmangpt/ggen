@@ -3,6 +3,20 @@
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
+/// Default configuration constants
+///
+/// **Kaizen improvement**: Extracted magic strings to named constants for maintainability.
+pub mod defaults {
+    /// Default project name when not specified
+    pub const DEFAULT_PROJECT_NAME: &str = "unnamed";
+
+    /// Default project version when not specified
+    pub const DEFAULT_PROJECT_VERSION: &str = "0.1.0";
+
+    /// Default project name for readiness reports
+    pub const DEFAULT_READINESS_PROJECT_NAME: &str = "Current Project";
+}
+
 /// Root configuration from make.toml
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Make {

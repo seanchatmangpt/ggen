@@ -323,14 +323,18 @@ impl Registry {
     /// Save registry index to filesystem
     #[instrument(skip(self))]
     pub async fn save(&self) -> Result<()> {
-        let guard = self
-            .index
-            .read()
-            .map_err(|e| anyhow::anyhow!("Failed to acquire index read lock: {}", e))?;
+        // Extract index data before await to avoid holding lock across await
+        let index_data = {
+            let guard = self
+                .index
+                .read()
+                .map_err(|e| anyhow::anyhow!("Failed to acquire index read lock: {}", e))?;
 
-        let index = guard
-            .as_ref()
-            .ok_or_else(|| Error::new("Registry index not loaded"))?;
+            guard
+                .as_ref()
+                .ok_or_else(|| Error::new("Registry index not loaded"))?
+                .clone()
+        };
 
         // Create parent directories if they don't exist
         if let Some(parent) = self.index_path.parent() {
@@ -338,7 +342,7 @@ impl Registry {
         }
 
         // Serialize and write to file
-        let contents = serde_json::to_string_pretty(index)?;
+        let contents = serde_json::to_string_pretty(&index_data)?;
         fs::write(&self.index_path, contents).await?;
 
         info!("Registry index saved to: {}", self.index_path.display());

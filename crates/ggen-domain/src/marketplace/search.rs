@@ -8,6 +8,56 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::PathBuf;
 
+/// Relevance scoring constants
+///
+/// **Kaizen improvement**: Extracted magic numbers to named constants for:
+/// - Improved readability and self-documentation
+/// - Easier maintenance and tuning
+/// - Consistency across scoring logic
+mod scoring {
+    /// Exact name match score (highest priority)
+    pub const EXACT_NAME_MATCH: f64 = 100.0;
+
+    /// Name contains query score
+    pub const NAME_CONTAINS_QUERY: f64 = 50.0;
+
+    /// Fuzzy name match multiplier (applied to similarity)
+    pub const FUZZY_NAME_MULTIPLIER: f64 = 30.0;
+
+    /// Description contains query score
+    pub const DESCRIPTION_CONTAINS_QUERY: f64 = 20.0;
+
+    /// Tag or keyword match score (per match)
+    pub const TAG_KEYWORD_MATCH: f64 = 10.0;
+
+    /// Maximum popularity boost from downloads
+    pub const MAX_DOWNLOADS_BOOST: f64 = 10.0;
+
+    /// Maximum popularity boost from stars
+    pub const MAX_STARS_BOOST: f64 = 5.0;
+
+    /// Downloads divisor for popularity calculation
+    pub const DOWNLOADS_DIVISOR: f64 = 1000.0;
+
+    /// Stars divisor for popularity calculation
+    pub const STARS_DIVISOR: f64 = 10.0;
+
+    /// Minimum similarity threshold for fuzzy matching (0.7 = 70% similarity)
+    pub const FUZZY_SIMILARITY_THRESHOLD: f64 = 0.7;
+}
+
+/// Default search configuration constants
+mod defaults {
+    /// Default result limit when not specified
+    pub const DEFAULT_RESULT_LIMIT: usize = 10;
+
+    /// Default HTTP request timeout in seconds
+    pub const DEFAULT_TIMEOUT_SECONDS: u64 = 30;
+
+    /// Maximum retry attempts for registry fetch
+    pub const MAX_RETRY_ATTEMPTS: u32 = 3;
+}
+
 /// Search input options (pure domain type - no CLI dependencies)
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct SearchInput {
@@ -40,7 +90,7 @@ impl SearchInput {
     pub fn new(query: String) -> Self {
         Self {
             query,
-            limit: 10,
+            limit: defaults::DEFAULT_RESULT_LIMIT,
             ..Default::default()
         }
     }
@@ -66,7 +116,7 @@ impl SearchFilters {
         Self {
             sort: "relevance".to_string(),
             order: "desc".to_string(),
-            limit: 10,
+            limit: defaults::DEFAULT_RESULT_LIMIT,
             ..Default::default()
         }
     }
@@ -190,11 +240,11 @@ fn levenshtein_distance(s1: &str, s2: &str) -> usize {
 
     let mut matrix = vec![vec![0; len2 + 1]; len1 + 1];
 
-    for i in 0..=len1 {
-        matrix[i][0] = i;
+    for (i, row) in matrix.iter_mut().enumerate().take(len1 + 1) {
+        row[0] = i;
     }
-    for j in 0..=len2 {
-        matrix[0][j] = j;
+    for (j, col) in matrix[0].iter_mut().enumerate().take(len2 + 1) {
+        *col = j;
     }
 
     for (i, c1) in s1.chars().enumerate() {
@@ -220,25 +270,25 @@ fn calculate_relevance(pkg: &PackageMetadata, query: &str, fuzzy: bool) -> f64 {
 
     // Exact name match: highest score
     if name_lower == query_lower {
-        score += 100.0;
+        score += scoring::EXACT_NAME_MATCH;
     }
     // Name contains query
     else if name_lower.contains(&query_lower) {
-        score += 50.0;
+        score += scoring::NAME_CONTAINS_QUERY;
     }
     // Fuzzy name match
     else if fuzzy {
         let distance = levenshtein_distance(&name_lower, &query_lower);
         let max_len = std::cmp::max(name_lower.len(), query_lower.len());
         let similarity = 1.0 - (distance as f64 / max_len as f64);
-        if similarity > 0.7 {
-            score += similarity * 30.0;
+        if similarity > scoring::FUZZY_SIMILARITY_THRESHOLD {
+            score += similarity * scoring::FUZZY_NAME_MULTIPLIER;
         }
     }
 
     // Description contains query
     if desc_lower.contains(&query_lower) {
-        score += 20.0;
+        score += scoring::DESCRIPTION_CONTAINS_QUERY;
     }
 
     // Query words match tags or keywords
@@ -247,21 +297,22 @@ fn calculate_relevance(pkg: &PackageMetadata, query: &str, fuzzy: bool) -> f64 {
 
         for tag in &pkg.tags {
             if tag.to_lowercase().contains(&word_lower) {
-                score += 10.0;
+                score += scoring::TAG_KEYWORD_MATCH;
             }
         }
 
         for keyword in &pkg.keywords {
             if keyword.to_lowercase().contains(&word_lower) {
-                score += 10.0;
+                score += scoring::TAG_KEYWORD_MATCH;
             }
         }
     }
 
     // Only boost by popularity if there's already some relevance
     if score > 0.0 {
-        score += (pkg.downloads as f64 / 1000.0).min(10.0);
-        score += (pkg.stars as f64 / 10.0).min(5.0);
+        score +=
+            (pkg.downloads as f64 / scoring::DOWNLOADS_DIVISOR).min(scoring::MAX_DOWNLOADS_BOOST);
+        score += (pkg.stars as f64 / scoring::STARS_DIVISOR).min(scoring::MAX_STARS_BOOST);
     }
 
     score
@@ -394,14 +445,16 @@ async fn fetch_registry_from_url(url: &str) -> Result<RegistryIndex> {
     use reqwest::Client;
 
     let client = Client::builder()
-        .timeout(std::time::Duration::from_secs(30))
+        .timeout(std::time::Duration::from_secs(
+            defaults::DEFAULT_TIMEOUT_SECONDS,
+        ))
         .user_agent(format!("ggen/{}", env!("CARGO_PKG_VERSION")))
         .build()
         .map_err(|e| {
             ggen_utils::error::Error::new(&format!("Failed to create HTTP client: {}", e))
         })?;
 
-    const MAX_RETRIES: u32 = 3;
+    const MAX_RETRIES: u32 = defaults::MAX_RETRY_ATTEMPTS;
     let mut last_error = None;
 
     for attempt in 1..=MAX_RETRIES {
@@ -499,7 +552,7 @@ pub async fn search_packages(query: &str, filters: &SearchFilters) -> Result<Vec
     let mut scored_packages: Vec<(PackageMetadata, f64)> = index
         .packages
         .into_iter()
-        .map(|info| PackageMetadata::from(info))
+        .map(PackageMetadata::from)
         .filter_map(|pkg| {
             // Apply filters
             if let Some(ref category) = filters.category {
@@ -594,8 +647,18 @@ pub async fn search_packages(query: &str, filters: &SearchFilters) -> Result<Vec
         }
         _ => {
             // Default: sort by relevance
+            // Note: Scores should never be NaN (calculated from relevance function),
+            // but we handle None explicitly for robustness
             scored_packages.sort_by(|a, b| {
-                let cmp = b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal);
+                let cmp = b.1.partial_cmp(&a.1).unwrap_or_else(|| {
+                    // If somehow we get NaN values, log warning and treat as equal
+                    tracing::warn!(
+                        "Unexpected NaN in relevance score comparison: {:?} vs {:?}",
+                        a.1,
+                        b.1
+                    );
+                    std::cmp::Ordering::Equal
+                });
                 if filters.order == "asc" {
                     cmp.reverse()
                 } else {
@@ -628,44 +691,68 @@ pub async fn search_packages(query: &str, filters: &SearchFilters) -> Result<Vec
 /// Search for packages and display results
 ///
 /// This function bridges the CLI to the domain layer.
+#[allow(clippy::too_many_arguments)] // Bridge function - parameters match CLI interface
 pub async fn search_and_display(
     query: &str, category: Option<&str>, keyword: Option<&str>, author: Option<&str>, fuzzy: bool,
     detailed: bool, json: bool, limit: usize,
 ) -> Result<()> {
-    // Build search filters
-    let mut filters = SearchFilters::new().with_limit(limit).with_fuzzy(fuzzy);
+    // Build search input from parameters
+    let input = SearchInput {
+        query: query.to_string(),
+        category: category.map(|s| s.to_string()),
+        keyword: keyword.map(|s| s.to_string()),
+        author: author.map(|s| s.to_string()),
+        fuzzy,
+        detailed,
+        json,
+        limit,
+    };
 
-    if let Some(cat) = category {
+    search_and_display_with_input(&input).await
+}
+
+/// Search and display with SearchInput struct (reduces parameter count)
+pub async fn search_and_display_with_input(input: &SearchInput) -> Result<()> {
+    // Build search filters
+    let mut filters = SearchFilters::new()
+        .with_limit(input.limit)
+        .with_fuzzy(input.fuzzy);
+
+    if let Some(ref cat) = input.category {
         filters = filters.with_category(cat);
     }
-    if let Some(kw) = keyword {
-        filters.keyword = Some(kw.to_string());
+    if let Some(ref kw) = input.keyword {
+        filters.keyword = Some(kw.clone());
     }
-    if let Some(auth) = author {
-        filters.author = Some(auth.to_string());
+    if let Some(ref auth) = input.author {
+        filters.author = Some(auth.clone());
     }
 
     // Search packages
-    let results = search_packages(query, &filters).await?;
+    let results = search_packages(&input.query, &filters).await?;
 
     // Display results
-    if json {
+    if input.json {
         let json_output = serde_json::to_string_pretty(&results)?;
         ggen_utils::alert_info!("{}", json_output);
     } else if results.is_empty() {
-        ggen_utils::alert_info!("No packages found matching '{}'", query);
+        ggen_utils::alert_info!("No packages found matching '{}'", input.query);
         ggen_utils::alert_info!("\nTry:");
         ggen_utils::alert_info!("  - Using broader search terms");
         ggen_utils::alert_info!("  - Removing filters");
         ggen_utils::alert_info!("  - Using --fuzzy for typo tolerance");
     } else {
-        ggen_utils::alert_info!("Found {} package(s) matching '{}':\n", results.len(), query);
+        ggen_utils::alert_info!(
+            "Found {} package(s) matching '{}':\n",
+            results.len(),
+            input.query
+        );
 
         for result in results {
             ggen_utils::alert_info!("📦 {} v{}", result.name, result.version);
             ggen_utils::alert_info!("   {}", result.description);
 
-            if detailed {
+            if input.detailed {
                 if let Some(author) = result.author {
                     ggen_utils::alert_info!("   Author: {}", author);
                 }
@@ -747,7 +834,7 @@ mod tests {
         // Exact name match should give highest score
         let score = calculate_relevance(&pkg, "rust cli", false);
         assert!(
-            score >= 100.0,
+            score >= scoring::EXACT_NAME_MATCH,
             "Exact match should have high score: {}",
             score
         );
@@ -776,7 +863,7 @@ mod tests {
         // Without fuzzy, no match
         let score_no_fuzzy = calculate_relevance(&pkg, "xyz", false);
         assert!(
-            score_no_fuzzy < 10.0,
+            score_no_fuzzy < scoring::TAG_KEYWORD_MATCH,
             "Unrelated query should have low score"
         );
     }

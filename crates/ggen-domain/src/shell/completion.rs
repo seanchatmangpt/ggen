@@ -15,18 +15,21 @@ pub enum ShellType {
     PowerShell,
 }
 
-impl ShellType {
-    /// Parse shell type from string
-    pub fn from_str(s: &str) -> Option<Self> {
+impl std::str::FromStr for ShellType {
+    type Err = String;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
-            "bash" => Some(Self::Bash),
-            "zsh" => Some(Self::Zsh),
-            "fish" => Some(Self::Fish),
-            "powershell" | "pwsh" => Some(Self::PowerShell),
-            _ => None,
+            "bash" => Ok(Self::Bash),
+            "zsh" => Ok(Self::Zsh),
+            "fish" => Ok(Self::Fish),
+            "powershell" | "pwsh" => Ok(Self::PowerShell),
+            _ => Err(format!("Invalid shell type: {}", s)),
         }
     }
+}
 
+impl ShellType {
     /// Get shell name as string
     pub fn as_str(&self) -> &'static str {
         match self {

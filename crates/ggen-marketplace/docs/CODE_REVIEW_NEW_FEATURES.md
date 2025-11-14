@@ -75,37 +75,33 @@
 
 ---
 
-## 3. GraphQL API (/Users/sac/ggen/ggen-marketplace/src/graphql/mod.rs)
+## 3. GraphQL API (Removed in v2.6.0)
 
-### Status: FILE NOT FOUND ❌
+### Status: ❌ **REMOVED** - Waste Elimination
 
-**Issue**: The file `/Users/sac/ggen/ggen-marketplace/src/graphql/mod.rs` does not exist.
+**Reason**: GraphQL module removed in v2.6.0 as part of waste elimination (muda). CLI-only version does not require GraphQL API layer.
 
-**Action Required**:
-- Verify if GraphQL implementation was planned but not created
-- Check if implementation is in a different location
-- Update documentation if feature was deferred
+**Files Removed**:
+- `src/graphql/mod.rs`
+- `src/graphql/types.rs`
+- `tests/graphql_api.rs`
+- `examples/graphql_server.rs`
+
+**Action Required**: None - removal was intentional for CLI-focused architecture.
 
 ---
 
-## 4. Centralized Registry (/Users/sac/ggen/ggen-marketplace/src/backend/centralized.rs)
+## 4. Centralized Registry (Removed in v2.6.0)
 
-### ⚠️ Zero unwrap/expect
-**Status**: PARTIAL PASS - One production .unwrap() found
+### Status: ❌ **REMOVED** - CLI-Only Version
 
-**CRITICAL ISSUE** (Line 256):
-```rust
-format!("HTTP {}: {}", response.status(), response.text().await.unwrap_or_default())
-```
-**Problem**: Uses `.unwrap_or_default()` which is acceptable, but could be more explicit
-**Impact**: Low - Already has fallback to empty string
-**Fix Priority**: LOW
+**Reason**: `CentralizedRegistry` HTTP backend removed in v2.6.0 as part of waste elimination. CLI-only version uses `LocalRegistry` for local template management.
 
-### ✅ Error Handling
-**Status**: PASS - Comprehensive error handling
-- Line 42-53: Proper reqwest client builder with error mapping
-- Line 72-90: Network errors properly mapped to `MarketplaceError::network_error`
-- Line 93-112: Retry logic with exponential backoff (excellent!)
+**Files Removed**:
+- `src/backend/centralized.rs` (~386 lines)
+- HTTP dependencies (reqwest, axum, tower, tower-http)
+
+**Migration**: Use `LocalRegistry` for local template management. For remote access, implement custom registry backend or use local file paths.
 - Line 161-163: Proper 404 handling with `MarketplaceError::not_found`
 - All HTTP errors properly mapped
 

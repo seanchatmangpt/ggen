@@ -1,4 +1,5 @@
 #![deny(warnings)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
+#![allow(unexpected_cfgs)] // Allow graphql-server feature cfg - potential extension point
 
 // Core modules
 pub mod error;
@@ -18,15 +19,8 @@ pub mod storage;
 // Template integration
 pub mod template_search;
 
-// GraphQL API (optional feature)
-#[cfg(feature = "graphql")]
-pub mod graphql;
-
 // Re-exports for convenience
-pub use backend::{CentralizedRegistry, LocalRegistry};
-
-#[cfg(feature = "p2p")]
-pub use backend::P2PRegistry;
+pub use backend::LocalRegistry;
 
 pub use crypto::{DefaultVerifier, Ed25519Verifier};
 pub use search::TantivySearchEngine;
@@ -37,10 +31,7 @@ pub use template_search::{
 
 // Prelude for common imports
 pub mod prelude {
-    pub use crate::backend::{CentralizedRegistry, LocalRegistry};
-
-    #[cfg(feature = "p2p")]
-    pub use crate::backend::P2PRegistry;
+    pub use crate::backend::LocalRegistry;
 
     pub use crate::crypto::{DefaultVerifier, Ed25519Verifier};
     pub use crate::error::{MarketplaceError, Result};

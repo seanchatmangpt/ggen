@@ -418,27 +418,25 @@ The architecture documentation describes a "progressive enhancement" strategy:
 
 ---
 
-### 10. ❌ GraphQL API (async-graphql) - NOT IMPLEMENTED
+### 10. ❌ GraphQL API (async-graphql) - REMOVED in v2.6.0
 
-**Status:** ❌ **NOT IMPLEMENTED**
-**Evidence:** Not in Cargo.toml, not found in codebase
-**Grade:** F (0/100)
+**Status:** ❌ **REMOVED** - Waste Elimination
+**Evidence:** Removed in v2.6.0 as part of CLI-only architecture
+**Grade:** N/A (intentionally removed)
 
-**What Was Expected:**
+**What Was Removed:**
 ```rust
-// Expected but NOT FOUND:
-async-graphql = "7.0"
-
-#[Object]
-impl Query {
-    async fn search_packages(&self, query: String) -> Vec<Package> {
-        // GraphQL query implementation
-    }
-}
+// Removed in v2.6.0:
+async-graphql = "7.0"  // Dependency removed
+src/graphql/mod.rs     // Module removed
+src/graphql/types.rs    // Types removed
+tests/graphql_api.rs   // Tests removed
+examples/graphql_server.rs  // Example removed
 ```
 
 **What Actually Exists:**
 - ✅ Trait-based API (Registry, PackageStore, SearchEngine, CryptoVerifier)
+- ✅ CLI-only architecture (no HTTP/GraphQL dependencies)
 - ✅ Async methods via `async-trait`
 - ❌ NO GraphQL schema
 - ❌ NO GraphQL server

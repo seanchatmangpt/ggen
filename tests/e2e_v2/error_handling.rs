@@ -7,6 +7,10 @@ use std::fs;
 
 use super::test_helpers::*;
 
+// #[path = "../../common/mod.rs"]
+// mod test_config;
+// use test_config::integration_timeout;
+
 #[test]
 fn test_template_not_found_error() {
     let workspace = setup_workspace().unwrap();
@@ -141,7 +145,7 @@ fn test_graceful_network_failure() {
             "https://invalid.nonexistent.domain.xyz/",
         )
         .current_dir(workspace.path())
-        .timeout(std::time::Duration::from_secs(10))
+        .timeout(integration_timeout())
         .assert()
         .failure()
         .stderr(

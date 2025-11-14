@@ -1,4 +1,5 @@
 #![deny(warnings)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
+#![allow(non_upper_case_globals)] // Allow macro-generated static variables from clap-noun-verb
 
 use std::io::{Read, Write};
 

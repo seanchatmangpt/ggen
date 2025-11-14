@@ -1,6 +1,6 @@
 # Production Readiness Guide
 
-**ggen v2.5.0 - Enterprise-Grade Ontology-Driven Code Generation**
+**ggen v2.6.0 - Enterprise-Grade Ontology-Driven Code Generation**
 
 ## Executive Summary
 
@@ -94,7 +94,7 @@ Production-ready template engine with Tera + RDF metadata:
 ```yaml
 # templates/rust-microservice/template.yaml
 name: rust-microservice
-version: 2.5.0
+version: 2.6.0
 sparql_context:
   query: |
     PREFIX ms: <http://example.org/microservice#>
@@ -119,7 +119,6 @@ sparql_context:
 #### Advanced Features (5%)
 - **AI-powered template refinement** - Works but needs production telemetry
 - **Multi-language code search** - Implemented, needs performance tuning
-- **P2P marketplace sync** - Functional, needs enterprise security audit
 
 #### Edge Cases (4%)
 - **Large ontology validation** (>100,000 triples) - Performance regression testing needed
@@ -216,7 +215,7 @@ ENTRYPOINT ["ggen"]
 #### Semantic Versioning Strategy
 
 ```bash
-# Current: v2.5.0 (89% production ready)
+# Current: v2.6.0 (89% production ready)
 # - Major: Breaking RDF schema changes
 # - Minor: New commands, backward-compatible features
 # - Patch: Bug fixes, performance improvements
@@ -441,7 +440,7 @@ templates/
 ```yaml
 # templates/enterprise/rust-microservice/template.yaml
 name: rust-microservice
-version: 2.5.0
+version: 2.6.0
 stability: production
 maintainer: platform-team@company.com
 
@@ -566,7 +565,7 @@ generated/payment-service/src/custom_logic.rs  # Manual edit tracked
 
 ```yaml
 # ggen.yaml (committed to repo)
-version: 2.5.0
+version: 2.6.0
 ontology: ecommerce-domain.ttl
 ontology_hash: sha256:8f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c
 
@@ -908,17 +907,17 @@ $ cargo build --release --locked
 $ strip target/release/ggen  # 8.4MB → 7.2MB
 
 # 3. Package for distribution
-$ tar -czf ggen-v2.5.0-linux-x64.tar.gz \
+$ tar -czf ggen-v2.6.0-linux-x64.tar.gz \
     -C target/release ggen \
     -C ../../templates templates/
 
 # 4. Upload to artifact registry
-$ aws s3 cp ggen-v2.5.0-linux-x64.tar.gz \
+$ aws s3 cp ggen-v2.6.0-linux-x64.tar.gz \
     s3://company-artifacts/ggen/releases/
 
 # 5. Update Docker image
-$ docker build -t company/ggen:2.5.0 .
-$ docker push company/ggen:2.5.0
+$ docker build -t company/ggen:2.6.0 .
+$ docker push company/ggen:2.6.0
 
 # 6. Deploy to Kubernetes
 $ kubectl apply -f k8s/ggen-deployment.yaml
@@ -939,7 +938,7 @@ $ kubectl exec -it ggen-pod -- ggen utils doctor
 # Production telemetry (already instrumented)
 export OTEL_EXPORTER_OTLP_ENDPOINT=https://otel-collector.company.com:4317
 export OTEL_SERVICE_NAME=ggen
-export OTEL_RESOURCE_ATTRIBUTES=environment=production,version=2.5.0
+export OTEL_RESOURCE_ATTRIBUTES=environment=production,version=2.6.0
 
 $ ggen project gen payment-service --telemetry
 ✅ Span: project.gen (duration: 2.1s)

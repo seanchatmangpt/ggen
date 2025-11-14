@@ -40,6 +40,16 @@ alwaysApply: false
 - Clear, actionable error messages. No swallowing.
 - `anyhow` only in binaries (CLI), not in libraries
 
+## Waste Prevention (Muda Elimination)
+
+- **YAGNI Principle**: Don't add features until they're actually needed
+- **Remove unused code immediately**: Dead code is waste (inventory muda)
+- **Validate examples compile**: Use `cargo make validate-examples` - examples must be runnable or removed
+- **Check for unused features**: Use `cargo make check-unused-features` - remove features that are never enabled
+- **Dead code detection**: Use `cargo make check-dead-code` - remove unused items
+- **Feature gating standards**: Features should be removed if unused for 6+ months, not kept "for future use"
+- **Code review checklist**: Check for unused features, dead code, and incomplete implementations (todo!/unimplemented!)
+
 ## Async/Sync Patterns
 
 ### ❌ NEVER make trait methods async - breaks dyn compatibility

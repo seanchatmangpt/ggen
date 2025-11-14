@@ -654,6 +654,7 @@ fn watch(path: PathBuf, debounce: u64) -> Result<WatchOutput> {
 // ============================================================================
 
 /// Parse variable arguments from key=value format
+#[allow(dead_code)]
 fn parse_variables(vars: &[String]) -> Result<BTreeMap<String, String>> {
     let mut map = BTreeMap::new();
     for var in vars {

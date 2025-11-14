@@ -68,7 +68,7 @@ E0560: struct field mismatches (5 errors)
 
 #### 1.2 Test Compilation
 ```bash
-cargo test --all
+cargo make test
 ```
 
 **Status**: ❌ **FAIL**
@@ -95,7 +95,7 @@ cargo bench --no-run
 
 #### 2.1 Clippy Analysis
 ```bash
-cargo clippy --all-targets --all-features -- -D warnings
+cargo make lint
 ```
 
 **Status**: ❌ **FAIL**
@@ -115,7 +115,7 @@ cargo clippy --all-targets --all-features -- -D warnings
 
 #### 2.2 Code Formatting
 ```bash
-cargo fmt --all -- --check
+cargo make fmt
 ```
 
 **Status**: ❌ **FAIL**
@@ -125,7 +125,7 @@ cargo fmt --all -- --check
   - ggen-core/ (6 files)
   - utils/ (1 file)
 
-**Recommendation**: Run `cargo fmt --all` before publication
+**Recommendation**: Run `cargo make fmt` before publication
 
 ---
 
@@ -394,7 +394,7 @@ ggen-utils = { path = "../utils", version = "2.0.0" }
 | Criterion | Status | Notes |
 |-----------|--------|-------|
 | cargo build --release (0 errors) | ⚠️ PARTIAL | Builds with warnings, test compilation fails |
-| cargo test --all (100% pass) | ❌ FAIL | Cannot run due to compilation errors |
+| cargo make test (100% pass) | ❌ FAIL | Cannot run due to compilation errors |
 | cargo bench (all pass) | ✅ PASS | Benchmarks compile successfully |
 
 ### 2. Code Quality
@@ -505,7 +505,7 @@ ggen-utils = { path = "../utils", version = "2.0.0" }
 
 **Resolution**:
 ```bash
-cargo fmt --all
+cargo make fmt
 git add -u
 git commit -m "chore: format code with cargo fmt"
 ```
@@ -610,13 +610,13 @@ evaluator.query(query)?
 3. ✅ Run test suite and fix failures
 
 **Step 2: Code Quality (Day 1, 2-4 hours)**
-1. ✅ Run `cargo fmt --all`
+1. ✅ Run `cargo make fmt`
 2. ✅ Fix clippy errors (add feature/implement Default)
 3. ✅ Fix rustdoc warnings (escape HTML, fix links)
-4. ✅ Run `cargo clippy --all-targets -- -D warnings`
+4. ✅ Run `cargo make lint`
 
 **Step 3: Testing (Day 2, 4-6 hours)**
-1. ✅ Run full test suite: `cargo test --all`
+1. ✅ Run full test suite: `cargo make test`
 2. ✅ Run benchmarks: `cargo bench`
 3. ✅ Manual E2E testing:
    - Create test project
@@ -684,9 +684,9 @@ To change recommendation to **SHIP**, the following must be achieved:
 
 ### Must Have (Blockers)
 - ✅ `cargo build --release` succeeds with 0 errors
-- ✅ `cargo test --all` passes 100%
+- ✅ `cargo make test` passes 100%
 - ✅ `cargo clippy -- -D warnings` passes with 0 errors
-- ✅ `cargo fmt --all -- --check` passes
+- ✅ `cargo make fmt` passes
 - ✅ All workspace crates published to crates.io
 - ✅ Version bumped to 2.2.0
 
@@ -717,11 +717,11 @@ To change recommendation to **SHIP**, the following must be achieved:
 ### Pre-Publication Checklist
 ```bash
 # 1. Fix and format code
-cargo fmt --all
+cargo make fmt
 cargo clippy --all-targets -- -D warnings
 
 # 2. Run full test suite
-cargo test --all --all-features
+cargo make test --all-features
 
 # 3. Run benchmarks
 cargo bench --no-run
@@ -748,8 +748,8 @@ cargo publish
 ```bash
 # One-liner for current status
 cargo build --release 2>&1 | grep -E "(error|warning)" | wc -l
-cargo test --all 2>&1 | grep "test result"
-cargo clippy --all-targets 2>&1 | grep -E "(error|warning)" | wc -l
+cargo make test 2>&1 | grep "test result"
+cargo make lint 2>&1 | grep -E "(error|warning)" | wc -l
 ```
 
 ---

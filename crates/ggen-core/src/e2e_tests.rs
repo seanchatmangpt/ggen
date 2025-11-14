@@ -25,7 +25,6 @@ to: "output/{{ name | lower }}.rs"
 // Version: {{ version }}
 
 pub struct {{ name }} {
-    // TODO: Add implementation
 }
 
 impl {{ name }} {
@@ -101,11 +100,9 @@ prefixes:
 // Generated models from RDF data
 
 pub struct User {{
-    // TODO: Add fields
 }}
 
 pub struct Product {{
-    // TODO: Add fields
 }}
 "#,
             rdf_path_str

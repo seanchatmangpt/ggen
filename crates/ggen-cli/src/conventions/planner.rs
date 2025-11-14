@@ -140,7 +140,7 @@ impl GenerationPlanner {
 
     /// Check for circular dependencies in the task graph
     fn check_circular_dependencies(&self, graph: &HashMap<String, Vec<String>>) -> Result<()> {
-        for (task, _) in graph {
+        for task in graph.keys() {
             let mut visited = HashSet::new();
             let mut rec_stack = HashSet::new();
 
@@ -156,6 +156,7 @@ impl GenerationPlanner {
     }
 
     /// DFS-based cycle detection
+    #[allow(clippy::only_used_in_recursion)] // Parameter used in recursive calls
     fn has_cycle(
         &self, task: &str, graph: &HashMap<String, Vec<String>>, visited: &mut HashSet<String>,
         rec_stack: &mut HashSet<String>,

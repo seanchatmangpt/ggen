@@ -2,7 +2,7 @@
 
 use ggen_utils::error::Result;
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 #[derive(Debug, Clone)]
 pub struct LintOptions {

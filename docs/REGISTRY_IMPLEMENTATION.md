@@ -171,28 +171,13 @@ impl Registry for LocalRegistry {
 - ✅ Tag-based search
 - ✅ Persistence across sessions
 
-### 2. CentralizedRegistry (Implemented)
+### 2. CentralizedRegistry (Removed in v2.6.0)
 
-**Purpose**: Connect to remote marketplace
+**Status**: ❌ **REMOVED** - CLI-only version (v2.6.0)
 
-**Features**:
-- ✅ HTTP/HTTPS support
-- ✅ Retry with exponential backoff
-- ✅ Response caching (TTL-based)
-- ✅ Connection pooling
-- ✅ Timeout handling
-- ✅ User-agent identification
+**Reason**: HTTP dependencies removed for CLI-focused architecture. Use `LocalRegistry` for local template management.
 
-**API Endpoints**:
-```
-GET  /api/v1/packages/search?q={query}
-GET  /api/v1/packages/{namespace}/{name}
-GET  /api/v1/packages/{namespace}/{name}/versions/{version}
-GET  /api/v1/packages/{namespace}/{name}/versions
-POST /api/v1/packages
-DELETE /api/v1/packages/{namespace}/{name}/versions/{version}
-GET  /api/v1/metadata
-```
+**Migration**: If you need remote template access, use `LocalRegistry` with local file paths or implement custom registry backend.
 
 ### 3. P2PRegistry (Optional, requires p2p feature)
 

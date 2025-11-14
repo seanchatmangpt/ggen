@@ -95,13 +95,11 @@ fn parse_yaml_frontmatter(frontmatter: &str, name: &str, path: &str) -> Result<T
         let line = line.trim();
         if let Some(stripped) = line.strip_prefix("to:") {
             metadata.output_path = Some(stripped.trim().to_string());
-        } else if line.starts_with("vars:") {
-            continue;
-        } else if line.starts_with("rdf:") {
-            continue;
-        } else if line.starts_with("sparql:") {
-            continue;
-        } else if line.starts_with("determinism:") {
+        } else if line.starts_with("vars:")
+            || line.starts_with("rdf:")
+            || line.starts_with("sparql:")
+            || line.starts_with("determinism:")
+        {
             continue;
         } else if let Some(stripped) = line.strip_prefix("- ") {
             let var = stripped.trim();

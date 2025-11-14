@@ -199,6 +199,8 @@ pub async fn execute_list(input: ListInput) -> Result<Vec<TemplateInfo>> {
 }
 
 impl TemplateInfo {
+    /// Display-friendly representation of template source
+    #[allow(dead_code)]
     fn source_display(&self) -> &str {
         match &self.source {
             TemplateSource::Local => "local",

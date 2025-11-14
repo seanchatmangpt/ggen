@@ -154,8 +154,17 @@ impl ValidatedHooks {
                         }
                     } else if rec_stack.contains(dep) {
                         // Found a cycle
-                        let cycle_start = path.iter().position(|p| p == dep).unwrap();
-                        let mut cycle = path[cycle_start..].to_vec();
+                        // Kaizen improvement: Replace unwrap() with proper error handling
+                        // If dep is in rec_stack, it should be in path (we push before checking deps)
+                        // But handle None case explicitly for type safety (Poka-Yoke)
+                        if let Some(cycle_start) = path.iter().position(|p| p == dep) {
+                            let mut cycle = path[cycle_start..].to_vec();
+                            cycle.push(dep.clone());
+                            return Some(cycle);
+                        }
+                        // Fallback: if position() returns None (shouldn't happen logically),
+                        // create cycle from current path + dep
+                        let mut cycle = path.clone();
                         cycle.push(dep.clone());
                         return Some(cycle);
                     }

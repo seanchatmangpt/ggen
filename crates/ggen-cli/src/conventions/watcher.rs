@@ -17,6 +17,8 @@ pub struct ProjectWatcher {
     receiver: Receiver<DebounceEventResult>,
     resolver: ConventionResolver,
     planner: GenerationPlanner,
+    /// Debounce delay in milliseconds
+    #[allow(dead_code)]
     debounce_ms: u64,
 }
 
@@ -137,7 +139,7 @@ impl ProjectWatcher {
         if path
             .file_name()
             .and_then(|n| n.to_str())
-            .map_or(false, |n| n.starts_with('.'))
+            .is_some_and(|n| n.starts_with('.'))
         {
             return false;
         }
@@ -151,6 +153,7 @@ impl ProjectWatcher {
     }
 
     /// Find templates affected by file changes
+    #[allow(dead_code)]
     fn find_affected_templates(&self, _changed: &[PathBuf]) -> Vec<String> {
         // For now, return all templates
         // A more sophisticated implementation would analyze dependencies

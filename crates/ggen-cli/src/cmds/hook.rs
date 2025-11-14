@@ -9,8 +9,8 @@ use std::path::PathBuf;
 
 use crate::runtime_helper::execute_async_verb;
 use ggen_domain::hook::{
-    execute_create, execute_list, execute_monitor, execute_remove, CreateInput,
-    HookInfo as DomainHookInfo, ListInput, MonitorInput, RemoveInput,
+    execute_create, execute_list, execute_monitor, execute_remove, CreateInput, ListInput,
+    MonitorInput, RemoveInput,
 };
 
 // ============================================================================

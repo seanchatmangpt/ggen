@@ -25,13 +25,16 @@ pub async fn execute_create(input: CreateInput) -> Result<HookResult> {
 
     // Generate hook ID
     let hook_id = input.name.clone().unwrap_or_else(|| {
+        // SystemTime::now() is always after UNIX_EPOCH, so this is safe
+        #[allow(clippy::expect_used)]
+        let timestamp = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .expect("SystemTime::now() should always be after UNIX_EPOCH")
+            .as_secs();
         format!(
             "hook_{}_{}",
             input.trigger.replace([':', ' '], "_"),
-            std::time::SystemTime::now()
-                .duration_since(std::time::UNIX_EPOCH)
-                .unwrap()
-                .as_secs()
+            timestamp
         )
     });
 

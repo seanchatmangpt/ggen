@@ -543,8 +543,14 @@ description = "Phase with no commands"
         let make = loader::load_make_or_default(temp_dir.path()).unwrap();
 
         // Should get default config
-        assert_eq!(make.project.name, "unnamed");
-        assert_eq!(make.project.version, Some("0.1.0".to_string()));
+        assert_eq!(
+            make.project.name,
+            super::model::defaults::DEFAULT_PROJECT_NAME
+        );
+        assert_eq!(
+            make.project.version,
+            Some(super::model::defaults::DEFAULT_PROJECT_VERSION.to_string())
+        );
         assert_eq!(make.lifecycle.len(), 0);
     }
 

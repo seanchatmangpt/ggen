@@ -1,3 +1,5 @@
+#![allow(clippy::unwrap_used)] // Safe unwrap in JSON parsing where structure is controlled
+#![allow(clippy::expect_used)] // NAPI functions use expect for error conversion
 //! Production-grade Node.js N-API bindings for ggen CLI
 //!
 //! This module provides high-performance, type-safe bindings to the ggen CLI

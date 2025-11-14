@@ -180,15 +180,29 @@ pub async fn execute_publish(input: PublishInput) -> Result<PublishOutput> {
 
     // Build package using ggen-marketplace models
     let package_id = PackageId::new("local", &manifest.name);
+
+    // Parse version string (format: "major.minor.patch")
+    // Return error if version format is invalid instead of silently creating 0.0.0
     let version_parts: Vec<u32> = version_str
         .split('.')
-        .filter_map(|s| s.parse().ok())
-        .collect();
-    let version = Version::new(
-        version_parts.get(0).copied().unwrap_or(0),
-        version_parts.get(1).copied().unwrap_or(0),
-        version_parts.get(2).copied().unwrap_or(0),
-    );
+        .map(|s| {
+            s.parse::<u32>().map_err(|_| {
+                ggen_utils::error::Error::new(&format!(
+                    "Invalid version component '{}' in version string '{}'. Expected format: major.minor.patch (e.g., 1.2.3)",
+                    s, version_str
+                ))
+            })
+        })
+        .collect::<std::result::Result<Vec<u32>, ggen_utils::error::Error>>()?;
+
+    if version_parts.len() < 3 {
+        return Err(ggen_utils::error::Error::new(&format!(
+            "Invalid version format '{}'. Expected format: major.minor.patch (e.g., 1.2.3). Found {} component(s)",
+            version_str, version_parts.len()
+        )));
+    }
+
+    let version = Version::new(version_parts[0], version_parts[1], version_parts[2]);
 
     let content_id = ContentId::new(&checksum, HashAlgorithm::Sha256);
 
@@ -329,7 +343,6 @@ async fn create_tarball(path: &Path, package_name: &str, version: &str) -> Resul
     use flate2::write::GzEncoder;
     use flate2::Compression;
     use std::fs::File;
-    use std::io::Write;
     use tar::Builder;
 
     let tarball_name = format!("{}-{}.tar.gz", package_name.replace('/', "-"), version);

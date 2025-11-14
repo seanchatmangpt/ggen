@@ -54,8 +54,6 @@ pub struct EnvironmentInfo {
 
 /// Execute doctor checks (pure domain function)
 pub async fn execute_doctor(input: DoctorInput) -> Result<DoctorResult> {
-    use std::process::Command;
-
     let mut checks = Vec::new();
 
     // Check Rust

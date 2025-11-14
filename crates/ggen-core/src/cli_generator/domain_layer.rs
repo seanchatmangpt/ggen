@@ -31,7 +31,9 @@ impl DomainLayerGenerator {
     /// - Domain crate lib.rs
     /// - Domain modules ({domain}/mod.rs, {domain}/{verb}.rs)
     pub fn generate(&self, project: &CliProject, output_dir: &Path) -> Result<()> {
-        let core_crate = project.domain_crate.as_ref().unwrap();
+        let core_crate = project.domain_crate.as_ref().ok_or_else(|| {
+            anyhow::anyhow!("domain_crate is required for domain layer generation")
+        })?;
         let core_dir = output_dir.join("crates").join(core_crate);
         let core_src = core_dir.join("src");
 

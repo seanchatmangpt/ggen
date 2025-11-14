@@ -558,7 +558,6 @@ ggen marketplace list
 
 - ❌ **Neural code generation** (27+ trained models)
 - ❌ **SHACL validation** (ontology constraint checking)
-- ❌ **P2P marketplace** (decentralized template sharing)
 - ❌ **Advanced hooks** (conditional triggers, dependencies)
 - ❌ **WASM plugins** (extensible code generators)
 

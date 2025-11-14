@@ -51,10 +51,8 @@ pub fn regenerate_with_merge(
             )
             .map_err(|e| ggen_utils::error::Error::new(&format!("Merge failed: {}", e)))?;
 
-        if merge_result.has_conflicts {
-            if matches!(strategy, MergeStrategy::FailOnConflict) {
-                return Err(ggen_utils::error::Error::new("Merge conflicts detected"));
-            }
+        if merge_result.has_conflicts && matches!(strategy, MergeStrategy::FailOnConflict) {
+            return Err(ggen_utils::error::Error::new("Merge conflicts detected"));
         }
 
         fs::write(output_path, &merge_result.content).map_err(|e| {

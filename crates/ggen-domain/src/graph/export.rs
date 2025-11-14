@@ -7,6 +7,7 @@ use anyhow::{Context, Result};
 use ggen_core::Graph;
 use std::fs;
 use std::path::PathBuf;
+use std::str::FromStr;
 
 /// Export format for RDF graphs
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -18,9 +19,10 @@ pub enum ExportFormat {
     N3,
 }
 
-impl ExportFormat {
-    /// Parse format from string
-    pub fn from_str(s: &str) -> Result<Self> {
+impl FromStr for ExportFormat {
+    type Err = anyhow::Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
             "turtle" | "ttl" => Ok(ExportFormat::Turtle),
             "ntriples" | "nt" => Ok(ExportFormat::NTriples),
@@ -30,7 +32,9 @@ impl ExportFormat {
             _ => anyhow::bail!("Unsupported export format: {}", s),
         }
     }
+}
 
+impl ExportFormat {
     /// Get format name as string
     pub fn as_str(&self) -> &'static str {
         match self {

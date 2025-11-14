@@ -323,7 +323,7 @@ cargo clean
 cargo build --release
 
 # Run full test suite
-cargo test --all-features
+cargo make test
 
 # Or use npm scripts
 npm test

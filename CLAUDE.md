@@ -344,6 +344,258 @@ Message 4: Write "file.js"
 
 Remember: **Claude Flow coordinates, Claude Code creates!**
 
+## 🧪 MANDATORY: Testing Requirements
+
+### Critical Rule: NO CODE WITHOUT TESTS
+
+**ABSOLUTE TESTING REQUIREMENTS:**
+1. **NEVER implement features without corresponding tests**
+2. **NEVER skip subsystems** - If code exists, tests MUST exist
+3. **ALWAYS verify test execution** - 100% pass rate required
+4. **ALWAYS organize tests properly** - Mirror source structure in /tests
+5. **ALWAYS update package.json** - Add test scripts for new modules
+
+### 📋 Mandatory Test Checklist
+
+**Before marking ANY task complete, verify:**
+- [ ] Unit tests written for core functionality (20% critical paths)
+- [ ] Integration tests for system boundaries
+- [ ] Performance tests for time-critical operations
+- [ ] Security tests for authentication/authorization
+- [ ] ALL tests passing (npm test shows 100% success)
+- [ ] Test files organized in proper /tests structure
+- [ ] Package.json updated with test scripts
+- [ ] OTEL spans/traces verified (not just CLI help output)
+
+### 🎯 Test Coverage Requirements by Component Type
+
+**Backend/API Components:**
+- Unit tests: Core business logic
+- Integration tests: Database, external APIs
+- Performance tests: Response times, throughput
+- Security tests: Auth, input validation, injection prevention
+
+**CLI Components:**
+- Unit tests: Argument parsing, validation
+- Integration tests: Command execution, file operations
+- Performance tests: Startup time, command latency
+- Security tests: Path traversal, command injection
+
+**Domain Logic:**
+- Unit tests: Pure functions, transformations
+- Integration tests: Cross-module interactions
+- Performance tests: Algorithm complexity
+- Security tests: Data validation, sanitization
+
+**Infrastructure:**
+- Unit tests: Configuration parsing
+- Integration tests: Service startup, health checks
+- Performance tests: Resource usage, container startup
+- Security tests: Secrets handling, network isolation
+
+### 🚨 Gap Prevention Protocol
+
+**When implementing features, ALWAYS follow this sequence:**
+
+```javascript
+// Step 1: Identify ALL subsystems that need testing
+[Single Message - Gap Analysis]:
+  Glob "src/**/*.{rs,ts,js}"        // Find all source files
+  Grep "pub fn|export|class"        // Identify public APIs
+  Bash "find tests -name '*.test.*'" // Check existing tests
+
+// Step 2: Create comprehensive test plan
+[Single Message - Test Planning]:
+  Task("Test Architect", "Design test suite covering all public APIs", "system-architect")
+  Task("Gap Analyzer", "Identify missing tests by comparing src vs tests", "code-analyzer")
+
+  TodoWrite { todos: [
+    {content: "Unit tests for module A", status: "pending"},
+    {content: "Unit tests for module B", status: "pending"},
+    {content: "Integration tests for A+B", status: "pending"},
+    {content: "Performance benchmarks", status: "pending"},
+    {content: "Security validation", status: "pending"},
+    ...all subsystems listed...
+  ]}
+
+// Step 3: Implement tests in parallel
+[Single Message - Test Implementation]:
+  Task("Tester 1", "Write unit tests for module A", "tester")
+  Task("Tester 2", "Write unit tests for module B", "tester")
+  Task("Tester 3", "Write integration tests", "tester")
+  Task("Performance Engineer", "Write benchmarks", "performance-benchmarker")
+  Task("Security Auditor", "Write security tests", "reviewer")
+
+  // Create ALL test files together
+  Write "tests/unit/module-a.test.js"
+  Write "tests/unit/module-b.test.js"
+  Write "tests/integration/a-b.test.js"
+  Write "tests/performance/benchmarks.test.js"
+  Write "tests/security/validation.test.js"
+
+// Step 4: Verify and validate
+[Single Message - Validation]:
+  Bash "npm test"  // Run all tests
+  Bash "npm run test:coverage"  // Check coverage
+  Bash "npx claude-flow@alpha hooks post-task --task-id 'testing-complete'"
+```
+
+### 🤖 Automated Gap Detection
+
+**MANDATORY: Run before completing any feature work:**
+
+```bash
+# 1. Find source files without tests
+find src -name '*.rs' -o -name '*.ts' -o -name '*.js' | while read file; do
+  basename="${file##*/}"
+  testfile="tests/${basename%.{rs,ts,js}}.test.${file##*.}"
+  [ ! -f "$testfile" ] && echo "MISSING: $testfile for $file"
+done
+
+# 2. Verify test execution
+npm test 2>&1 | grep -E "(FAIL|ERROR|0 passing)" && echo "TESTS FAILING" || echo "TESTS PASSING"
+
+# 3. Check OTEL instrumentation (not just CLI help)
+npx claude-flow@alpha hooks session-end --export-metrics true | grep "spans_created" || echo "NO OTEL SPANS DETECTED"
+```
+
+### 📊 Test Organization Structure
+
+**REQUIRED directory structure:**
+```
+/tests
+  /unit              # Pure function tests
+    /domain          # Domain logic
+    /utils           # Utilities
+    /core            # Core functionality
+  /integration       # Cross-module tests
+    /api             # API integration
+    /database        # DB integration
+    /external        # External service mocks
+  /performance       # Benchmarks
+    /latency         # Response time tests
+    /throughput      # Load tests
+    /memory          # Memory usage
+  /security          # Security validation
+    /auth            # Authentication
+    /input           # Input validation
+    /injection       # Injection prevention
+  /e2e               # End-to-end scenarios
+  /common            # Shared test utilities
+    /mocks           # Mock implementations
+    /fixtures        # Test data
+    /helpers         # Test helpers
+```
+
+### ⚠️ Common Testing Gaps to Avoid
+
+**CRITICAL FAILURES FROM PAST WORK:**
+
+1. **Subsystem Neglect**
+   - ❌ Testing only "main" module, ignoring dependencies
+   - ✅ Test ALL modules discovered by Glob/Grep analysis
+
+2. **False Positive Validation**
+   - ❌ Trusting CLI help output as proof of functionality
+   - ✅ Require OTEL spans/traces showing actual execution
+
+3. **Incomplete Test Suites**
+   - ❌ Only unit tests, no integration/performance/security
+   - ✅ All 4 test categories for every component
+
+4. **Disorganized Tests**
+   - ❌ Tests in root folder or random locations
+   - ✅ Proper /tests structure mirroring /src
+
+5. **Skipped Verification**
+   - ❌ Writing tests but not running them
+   - ✅ npm test with 100% pass rate verified
+
+6. **Missing Package Scripts**
+   - ❌ Tests exist but no npm scripts to run them
+   - ✅ package.json updated with test:unit, test:integration, etc.
+
+### 🎯 Agent-Specific Testing Responsibilities
+
+**When spawning agents, ALWAYS include testing requirements:**
+
+```javascript
+// ✅ CORRECT: Testing integrated into all agent tasks
+[Parallel Agent Execution]:
+  Task("Backend Developer", "Build REST API. INCLUDE unit + integration tests.", "backend-dev")
+  Task("System Architect", "Design architecture. INCLUDE test strategy.", "system-architect")
+  Task("Performance Benchmarker", "Benchmark API. WRITE performance tests.", "performance-benchmarker")
+  Task("Production Validator", "Validate deployment. VERIFY test coverage.", "production-validator")
+  Task("Tester", "Write comprehensive test suite. ENSURE 100% pass rate.", "tester")
+
+  TodoWrite { todos: [
+    {content: "Implement API endpoints", status: "in_progress"},
+    {content: "Write API unit tests", status: "pending"},  // ← ALWAYS add test todos
+    {content: "Write integration tests", status: "pending"},
+    {content: "Write performance tests", status: "pending"},
+    {content: "Write security tests", status: "pending"},
+    {content: "Run and verify all tests", status: "pending"},
+    ...
+  ]}
+```
+
+### 🔍 Pre-Completion Testing Validation
+
+**MANDATORY: Before responding to user with "done":**
+
+```bash
+# 1. Check for untested code
+echo "=== SEARCHING FOR UNTESTED MODULES ==="
+find src -type f -name '*.{rs,ts,js}' | wc -l
+find tests -type f -name '*.test.*' | wc -l
+# If src count >> test count, TESTS ARE MISSING
+
+# 2. Verify test execution
+echo "=== RUNNING ALL TESTS ==="
+npm test || echo "CRITICAL: TESTS FAILING"
+
+# 3. Check test organization
+echo "=== VALIDATING TEST STRUCTURE ==="
+[ -d "tests/unit" ] || echo "MISSING: tests/unit"
+[ -d "tests/integration" ] || echo "MISSING: tests/integration"
+[ -d "tests/performance" ] || echo "MISSING: tests/performance"
+[ -d "tests/security" ] || echo "MISSING: tests/security"
+
+# 4. Verify OTEL instrumentation
+echo "=== CHECKING OTEL SPANS ==="
+npx claude-flow@alpha hooks session-end --export-metrics true | grep -q "spans_created: [1-9]" || echo "CRITICAL: NO OTEL SPANS"
+```
+
+### 📈 Progressive Testing Strategy (80/20 Rule)
+
+**For large codebases, prioritize testing effort:**
+
+**Phase 1: Critical 20% (MANDATORY)**
+- Entry points (main, init, bootstrap)
+- Public APIs (exported functions/classes)
+- Security boundaries (auth, validation)
+- Data transformations (core business logic)
+
+**Phase 2: Integration 30% (HIGH PRIORITY)**
+- Cross-module interactions
+- Database operations
+- External API calls
+- File system operations
+
+**Phase 3: Edge Cases 30% (MEDIUM PRIORITY)**
+- Error handling paths
+- Boundary conditions
+- Concurrent operations
+- Resource cleanup
+
+**Phase 4: Comprehensive 20% (LOW PRIORITY)**
+- Internal helpers
+- Utility functions
+- Logging/metrics
+- Configuration parsing
+
+**Apply this strategy but NEVER skip Phase 1 for ANY subsystem.**
+
 # important-instruction-reminders
 Do what has been asked; nothing more, nothing less.
 NEVER create files unless they're absolutely necessary for achieving your goal.

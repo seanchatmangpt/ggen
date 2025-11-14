@@ -10,6 +10,7 @@ use ggen_core::Graph;
 use ggen_utils::error::Result;
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
+use std::str::FromStr;
 
 /// Visualization format options
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
@@ -24,8 +25,10 @@ pub enum VisualizeFormat {
     Json,
 }
 
-impl VisualizeFormat {
-    pub fn from_str(s: &str) -> Result<Self> {
+impl FromStr for VisualizeFormat {
+    type Err = ggen_utils::error::Error;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
             "dot" => Ok(Self::Dot),
             "svg" => Ok(Self::Svg),
@@ -37,7 +40,9 @@ impl VisualizeFormat {
             ))),
         }
     }
+}
 
+impl VisualizeFormat {
     pub fn extension(&self) -> &str {
         match self {
             Self::Dot => "dot",
@@ -220,27 +225,24 @@ fn extract_nodes(graph: &Graph, options: &VisualizeOptions) -> Result<Vec<(Strin
         .query(&query)
         .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to query graph: {}", e)))?;
 
-    match results {
-        oxigraph::sparql::QueryResults::Solutions(solutions) => {
-            for solution in solutions {
-                let solution = solution.map_err(|e| {
-                    ggen_utils::error::Error::new(&format!("Query solution error: {}", e))
-                })?;
-                if let Some(term) = solution.get("s") {
-                    let node_id = term.to_string();
-                    if !seen.contains(&node_id) {
-                        seen.insert(node_id.clone());
-                        let label = if options.include_labels {
-                            extract_label(graph, &node_id)?
-                        } else {
-                            node_id.clone()
-                        };
-                        nodes.push((node_id, label));
-                    }
+    if let oxigraph::sparql::QueryResults::Solutions(solutions) = results {
+        for solution in solutions {
+            let solution = solution.map_err(|e| {
+                ggen_utils::error::Error::new(&format!("Query solution error: {}", e))
+            })?;
+            if let Some(term) = solution.get("s") {
+                let node_id = term.to_string();
+                if !seen.contains(&node_id) {
+                    seen.insert(node_id.clone());
+                    let label = if options.include_labels {
+                        extract_label(graph, &node_id)?
+                    } else {
+                        node_id.clone()
+                    };
+                    nodes.push((node_id, label));
                 }
             }
         }
-        _ => {}
     }
 
     Ok(nodes)
@@ -265,20 +267,17 @@ fn extract_edges(
         .query(&query)
         .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to query graph: {}", e)))?;
 
-    match results {
-        oxigraph::sparql::QueryResults::Solutions(solutions) => {
-            for solution in solutions {
-                let solution = solution.map_err(|e| {
-                    ggen_utils::error::Error::new(&format!("Query solution error: {}", e))
-                })?;
-                if let (Some(s), Some(p), Some(o)) =
-                    (solution.get("s"), solution.get("p"), solution.get("o"))
-                {
-                    edges.push((s.to_string(), p.to_string(), o.to_string()));
-                }
+    if let oxigraph::sparql::QueryResults::Solutions(solutions) = results {
+        for solution in solutions {
+            let solution = solution.map_err(|e| {
+                ggen_utils::error::Error::new(&format!("Query solution error: {}", e))
+            })?;
+            if let (Some(s), Some(p), Some(o)) =
+                (solution.get("s"), solution.get("p"), solution.get("o"))
+            {
+                edges.push((s.to_string(), p.to_string(), o.to_string()));
             }
         }
-        _ => {}
     }
 
     Ok(edges)
@@ -295,22 +294,23 @@ fn extract_label(graph: &Graph, node_id: &str) -> Result<String> {
         .query(&query)
         .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to query label: {}", e)))?;
 
-    match results {
-        oxigraph::sparql::QueryResults::Solutions(solutions) => {
-            for solution in solutions {
-                let solution = solution.map_err(|e| {
-                    ggen_utils::error::Error::new(&format!("Query solution error: {}", e))
-                })?;
-                if let Some(label) = solution.get("label") {
-                    return Ok(label.to_string());
-                }
+    if let oxigraph::sparql::QueryResults::Solutions(solutions) = results {
+        for solution in solutions {
+            let solution = solution.map_err(|e| {
+                ggen_utils::error::Error::new(&format!("Query solution error: {}", e))
+            })?;
+            if let Some(label) = solution.get("label") {
+                return Ok(label.to_string());
             }
         }
-        _ => {}
     }
 
     // Fallback to node ID (shortened if IRI)
-    Ok(node_id.split('/').last().unwrap_or(node_id).to_string())
+    Ok(node_id
+        .split('/')
+        .next_back()
+        .unwrap_or(node_id)
+        .to_string())
 }
 
 /// Generate DOT format representation
@@ -330,7 +330,7 @@ pub fn generate_dot(
         }
     }
 
-    dot.push_str("\n");
+    dot.push('\n');
 
     // Add edges
     for (from, to, predicate) in edges {

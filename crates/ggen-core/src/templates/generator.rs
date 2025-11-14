@@ -228,7 +228,6 @@ pub fn generate_file_tree<P: AsRef<Path>>(
 }
 
 // TEMPORARILY DISABLED: tests require FileTreeTemplate which has compilation errors
-// TODO: Re-enable when FileTreeTemplate compilation errors are fixed
 /*
 #[cfg(test)]
 mod tests {

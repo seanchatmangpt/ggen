@@ -105,9 +105,10 @@ pub async fn list_and_display(detailed: bool, json: bool) -> Result<()> {
 }
 
 /// Execute list command using ggen-marketplace backend
-pub async fn execute_list(input: ListInput) -> Result<ListOutput> {
+pub async fn execute_list(_input: ListInput) -> Result<ListOutput> {
     use ggen_marketplace::backend::LocalRegistry;
     use ggen_marketplace::prelude::*;
+    use std::path::PathBuf;
 
     // Handle missing home directory gracefully
     let registry_path = if let Some(home_dir) = dirs::home_dir() {
@@ -163,6 +164,58 @@ pub async fn execute_list(input: ListInput) -> Result<ListOutput> {
                 description: pkg.metadata.description.clone(),
                 installed_at: info.installed_at.clone(),
             });
+        }
+    }
+
+    // CRITICAL FIX: Fallback to repo marketplace packages if no installed packages
+    // ROOT CAUSE: Developers expect to see all available packages, not just installed ones
+    // WHY: `marketplace list` should show what's available, not just what's installed
+    if packages.is_empty() {
+        // Search for packages in marketplace/packages directory (relative to project root)
+        let repo_marketplace_dir = PathBuf::from("marketplace/packages");
+
+        if repo_marketplace_dir.exists() {
+            if let Ok(entries) = std::fs::read_dir(&repo_marketplace_dir) {
+                for entry in entries.flatten() {
+                    let path = entry.path();
+                    if path.is_dir() {
+                        let package_toml = path.join("package.toml");
+                        if package_toml.exists() {
+                            // Parse package.toml to get package info
+                            if let Ok(content) = std::fs::read_to_string(&package_toml) {
+                                if let Ok(pkg_toml) = toml::from_str::<toml::Value>(&content) {
+                                    let package_table = pkg_toml.get("package");
+                                    if let Some(pkg) = package_table {
+                                        // Get package name from TOML or fallback to directory name
+                                        let dir_name =
+                                            entry.file_name().to_string_lossy().to_string();
+                                        let name = pkg
+                                            .get("name")
+                                            .and_then(|v| v.as_str())
+                                            .unwrap_or(&dir_name);
+                                        let version = pkg
+                                            .get("version")
+                                            .and_then(|v| v.as_str())
+                                            .unwrap_or("0.1.0");
+                                        let description = pkg
+                                            .get("description")
+                                            .and_then(|v| v.as_str())
+                                            .unwrap_or("");
+
+                                        packages.push(PackageListItem {
+                                            name: name.to_string(),
+                                            version: version.to_string(),
+                                            title: name.to_string(),
+                                            description: description.to_string(),
+                                            installed_at: None, // Not installed, available in repo
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 

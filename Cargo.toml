@@ -1,6 +1,6 @@
 [package]
 name = "ggen"
-version = "2.5.1"
+version = "2.6.0"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 edition = "2021"
 repository = "https://github.com/seanchatmangpt/ggen"
@@ -124,10 +124,10 @@ syslog = ["ggen-utils/syslog"]
 london_tdd = []
 
 [dependencies]
-ggen-utils = { path = "crates/ggen-utils", version = "2.5.1" }
-ggen-cli-lib = { path = "crates/ggen-cli", version = "2.5.1" }
-ggen-core = { path = "crates/ggen-core", version = "2.5.1" }
-ggen-ai = { path = "crates/ggen-ai", version = "2.5.1" }
+ggen-utils = { path = "crates/ggen-utils", version = "2.6.0" }
+ggen-cli-lib = { path = "crates/ggen-cli", version = "2.6.0" }
+ggen-core = { path = "crates/ggen-core", version = "2.6.0" }
+ggen-ai = { path = "crates/ggen-ai", version = "2.6.0" }
 human-panic = "2.0.3"
 better-panic = "0.3.0"
 log = "0.4.28"
@@ -170,7 +170,7 @@ toml = "0.9"
 reqwest = { version = "0.12", features = ["blocking", "json"] }
 genai = "0.4"
 proptest.workspace = true
-chicago-tdd-tools.workspace = true
+chicago-tdd-tools = { workspace = true, features = ["testcontainers"] }
 # Cleanroom integration for CLI testing
 clnrm = "0.1.0"
 testcontainers = "0.25"
@@ -182,7 +182,7 @@ opentelemetry.workspace = true
 opentelemetry-otlp.workspace = true
 opentelemetry_sdk.workspace = true
 futures.workspace = true
-ggen-marketplace = { path = "crates/ggen-marketplace", version = "2.5.1" }
+ggen-marketplace = { path = "crates/ggen-marketplace", version = "2.6.0" }
 tracing.workspace = true
 tracing-subscriber.workspace = true
 tracing-opentelemetry.workspace = true
@@ -252,12 +252,27 @@ harness = false
 name = "marketplace_performance"
 harness = false
 
-[[bench]]
-name = "p2p_benchmarks"
-harness = false
-path = "benches/marketplace/p2p_benchmarks.rs"
+[[test]]
+name = "testcontainer_marketplace_git_hooks"
+path = "tests/integration/testcontainer_marketplace_git_hooks.rs"
+required-features = []
 
-[[bench]]
-name = "marketplace_p2p"
-harness = false
-path = "benches/marketplace_p2p.rs"
+[[test]]
+name = "full_cycle_container_validation"
+path = "tests/integration/full_cycle_container_validation.rs"
+required-features = []
+
+[[test]]
+name = "nextjs_ontology_sync"
+path = "tests/integration/nextjs_ontology_sync.rs"
+required-features = []
+
+[[test]]
+name = "marketplace_nextjs_ontology_e2e"
+path = "tests/integration/marketplace_nextjs_ontology_e2e.rs"
+required-features = []
+
+[[test]]
+name = "marketplace_package_e2e"
+path = "tests/integration/marketplace_package_e2e.rs"
+required-features = []

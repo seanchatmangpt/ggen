@@ -23,6 +23,59 @@ ggen market search "advanced-rust-api-8020"
 - **[User Guide](USER_GUIDE.md)** - Browse, install, and use packages
 - **[Publishing Guide](PUBLISHING_GUIDE.md)** - Create and publish your packages
 - **[API Reference](API.md)** - Registry API and package format
+- **[Validation Guide](#validation)** - Package production readiness validation
+
+## ✅ Validation
+
+The marketplace includes a comprehensive validation system to ensure package production readiness.
+
+### Quick Validation
+
+```bash
+# Validate all packages
+cargo make marketplace-validate
+
+# Generate validation reports
+cargo make marketplace-report
+
+# Validate and update production flags
+cargo make marketplace-validate-update
+```
+
+### Validation Criteria
+
+**Required Checks (Critical - 60% weight)**:
+- ✅ `package.toml` - Complete metadata with version, description, license
+- ✅ `README.md` - Documentation with examples (100+ characters)
+- ✅ Source code - At least `src/main.rs` or `src/lib.rs` exists (or `templates/` for template-only packages)
+- ✅ License file - `LICENSE`, `LICENSE-MIT`, or `LICENSE-APACHE` present
+
+**Quality Checks (Bonus - 40% weight)**:
+- ✅ RDF ontology - `rdf/ontology.ttl` with 200+ lines (if applicable)
+- ✅ SPARQL queries - `sparql/*.rq` files (if applicable)
+- ✅ Examples - Runnable examples in `examples/` directory
+- ✅ Tests - Test files in `tests/` directory
+- ✅ Documentation - Additional docs in `docs/` directory
+
+### Scoring
+
+- **95%+**: Production ready ✅
+- **80-94%**: Needs improvement ⚠️
+- **<80%**: Not ready ❌
+
+### Validation Reports
+
+Reports are generated in:
+- **Markdown**: `marketplace/VALIDATION_REPORT.md`
+- **JSON**: `marketplace/validation_results.json`
+
+### Updating Production Flags
+
+The validation system can automatically update `production_ready` flags in:
+- `package.toml` files (under `[package.metadata]`)
+- `marketplace/registry/index.json`
+
+Use `cargo make marketplace-validate-update` to validate all packages and update flags based on validation results.
 
 ## 🌐 Live Marketplace
 

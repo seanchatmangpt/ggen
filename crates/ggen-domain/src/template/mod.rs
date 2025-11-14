@@ -27,13 +27,23 @@ pub mod show;
 
 pub use generate::*;
 pub use generate_rdf::*;
-pub use generate_tree::*;
-pub use lint::*;
-pub use list::*;
-pub use new::*;
+pub use generate_tree::{generate_file_tree, GenerateTreeInput, GenerateTreeOutput};
+pub use lint::{
+    lint_template, LintError, LintInput, LintOptions, LintOutput, LintReport, LintWarning,
+};
+pub use list::{
+    execute_list, list_templates, ListFilters, ListInput, TemplateInfo, TemplateSource,
+};
+pub use new::{execute_new, generate_template_content, NewInput, NewOutput};
 pub use regenerate::*;
 pub use render_with_rdf::*;
-pub use show::*;
+pub use show::{execute_show, show_template_metadata, ShowInput, ShowOutput, TemplateMetadata};
+
+// Re-export run functions with specific names to avoid ambiguity
+pub use generate_tree::run as generate_tree_run;
+pub use lint::run as lint_run;
+pub use new::run as new_run;
+pub use show::run as show_run;
 
 /// Template service for coordinating template operations
 pub struct TemplateService {
