@@ -43,11 +43,37 @@ fn main() {
 "#)?;
 ```
 
-**Note:** To load from a file, read the file first:
+##### `from_str`
+Parse template from a string. Convenience alias for `parse`.
+
 ```rust
-use std::fs;
-let content = fs::read_to_string("path/to/template.tmpl")?;
-let template = Template::parse(&content)?;
+pub fn from_str(content: &str) -> Result<Self>
+```
+
+**Example:**
+```rust
+let template = Template::from_str(r#"
+---
+to: "output.rs"
+---
+fn main() {
+    println!("Hello, {{ name }}!");
+}
+"#)?;
+```
+
+##### `from_file`
+Load template from a file and parse it.
+
+```rust
+pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Self>
+```
+
+**Example:**
+```rust
+use std::path::Path;
+
+let template = Template::from_file(Path::new("template.tmpl"))?;
 ```
 
 ##### `parse_with_preprocessor`

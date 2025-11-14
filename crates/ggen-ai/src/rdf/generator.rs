@@ -39,7 +39,7 @@
 //! # }
 //! ```
 
-use anyhow::{Context as _, Result};
+use ggen_utils::error::{bail, Context, Result};
 use std::path::{Path, PathBuf};
 
 use crate::rdf::{QueryExecutor, RdfParser};
@@ -140,14 +140,12 @@ impl CliGenerator {
         // Step 6: Show completion summary with advanced info
         ggen_utils::alert_info!("  [7/7] ✅ Generation Complete!\n");
         ggen_utils::alert_success!("CLI project generated at {}", output_dir.display());
-        let cli_crate = project
-            .cli_crate
-            .as_ref()
-            .ok_or_else(|| anyhow::anyhow!("CLI crate name is required but was not provided"))?;
-        let domain_crate = project
-            .domain_crate
-            .as_ref()
-            .ok_or_else(|| anyhow::anyhow!("Domain crate name is required but was not provided"))?;
+        let cli_crate = project.cli_crate.as_ref().ok_or_else(|| {
+            ggen_utils::error::Error::new("CLI crate name is required but was not provided")
+        })?;
+        let domain_crate = project.domain_crate.as_ref().ok_or_else(|| {
+            ggen_utils::error::Error::new("Domain crate name is required but was not provided")
+        })?;
         ggen_utils::alert_info!(
             "📁 Workspace: crates/{}, crates/{}",
             cli_crate,
@@ -308,12 +306,12 @@ fn convert_project(
 /// - Each noun has at least one verb
 fn validate_project(project: &crate::rdf::types::CliProject) -> Result<()> {
     if project.nouns.is_empty() {
-        anyhow::bail!("Project must have at least one noun");
+        bail!("Project must have at least one noun");
     }
 
     for noun in &project.nouns {
         if noun.verbs.is_empty() {
-            anyhow::bail!("Noun '{}' must have at least one verb", noun.name);
+            bail!("Noun '{}' must have at least one verb", noun.name);
         }
     }
 
@@ -335,7 +333,7 @@ fn run_post_generation(output_dir: &Path) -> Result<()> {
         .status()?;
 
     if !fmt_status.success() {
-        anyhow::bail!("cargo fmt failed");
+        bail!("cargo fmt failed");
     }
 
     // Check compilation
@@ -345,7 +343,7 @@ fn run_post_generation(output_dir: &Path) -> Result<()> {
         .status()?;
 
     if !check_status.success() {
-        anyhow::bail!("cargo check failed");
+        bail!("cargo check failed");
     }
 
     Ok(())

@@ -65,7 +65,7 @@
 
 #![allow(clippy::unwrap_used)] // Test code uses unwrap
 // Smart Caching using moka
-use anyhow::Result;
+use ggen_utils::error::Result;
 use moka::future::Cache;
 use serde::{Deserialize, Serialize};
 use std::hash::Hash;

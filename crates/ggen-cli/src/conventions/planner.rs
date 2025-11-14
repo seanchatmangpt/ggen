@@ -1,6 +1,6 @@
 //! Generation planner for creating task execution plans
 
-use anyhow::{anyhow, Result};
+use ggen_utils::error::{bail, Result};
 use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::path::{Path, PathBuf};

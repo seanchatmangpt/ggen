@@ -30,7 +30,7 @@
 //! ```rust,no_run
 //! use ggen_core::tracing::init_tracing;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! init_tracing()?;
 //! # Ok(())
 //! # }
@@ -194,7 +194,7 @@
     }
     
     /// Log error with context
-    pub fn error_with_context(error: &anyhow::Error, context: &str) {
+    pub fn error_with_context(error: &ggen_utils::error::Error, context: &str) {
         error!(
             error = %error,
             context = context,
@@ -292,24 +292,22 @@ mod tests {
     use super::*;
     use tempfile::TempDir;
     use std::fs;
+    use chicago_tdd_tools::{test, async_test};
     
-    #[test]
-    fn test_tracing_initialization() {
+    test!(test_tracing_initialization, {
         // Test that tracing can be initialized without errors
         std::env::set_var("GGEN_TRACE", "debug");
         let result = init_tracing();
         assert!(result.is_ok());
-    }
+    });
     
-    #[test]
-    fn test_performance_timer() {
+    test!(test_performance_timer, {
         let timer = PerformanceTimer::start("test_operation");
         std::thread::sleep(std::time::Duration::from_millis(10));
         timer.finish(); // Should not panic
-    }
+    });
     
-    #[test]
-    fn test_tracing_macros() {
+    test!(test_tracing_macros, {
         // Test that the macros compile and work
         let _span = trace_span!("test_span", operation = "test");
         
@@ -317,5 +315,5 @@ mod tests {
             42
         });
         assert_eq!(result, 42);
-    }
+    });
 }

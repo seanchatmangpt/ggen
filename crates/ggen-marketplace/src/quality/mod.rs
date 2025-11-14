@@ -46,7 +46,7 @@
 //! # }
 //! ```
 
-use anyhow::{Result, Context};
+use ggen_utils::error::{Context, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::Path;

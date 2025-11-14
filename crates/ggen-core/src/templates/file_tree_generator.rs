@@ -45,7 +45,7 @@
 //! use ggen_core::templates::file_tree_generator::FileTreeTemplate;
 //! use std::path::Path;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let template = FileTreeTemplate::from_file(Path::new("template.yaml"))?;
 //!
 //! println!("Template: {}", template.name());
@@ -59,7 +59,7 @@
 //! ```rust,no_run
 //! use ggen_core::templates::file_tree_generator::{FileTreeTemplate, TemplateParser};
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let yaml = r#"
 //! name: my-template
 //! variables:
@@ -80,7 +80,7 @@
 //! ```rust,no_run
 //! use ggen_core::templates::file_tree_generator::FileTreeTemplate;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let yaml = r#"
 //! name: microservice
 //! rdf:
@@ -98,7 +98,7 @@
 //! # }
 //! ```
 
-use anyhow::{Context, Result};
+use ggen_utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::path::Path;
@@ -116,7 +116,7 @@ use super::format::{FileTreeNode, TemplateFormat};
 /// use ggen_core::templates::file_tree_generator::FileTreeTemplate;
 /// use std::path::Path;
 ///
-/// # fn main() -> anyhow::Result<()> {
+/// # fn main() -> ggen_utils::error::Result<()> {
 /// let template = FileTreeTemplate::from_file(Path::new("template.yaml"))?;
 /// println!("Template: {}", template.name());
 /// # Ok(())
@@ -189,15 +189,18 @@ impl FileTreeTemplate {
     /// use ggen_core::templates::file_tree_generator::FileTreeTemplate;
     /// use std::path::Path;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let template = FileTreeTemplate::from_file(Path::new("template.yaml"))?;
     /// println!("Template: {}", template.name());
     /// # Ok(())
     /// # }
     /// ```
     pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Self> {
-        let content = std::fs::read_to_string(&path).with_context(|| {
-            format!("Failed to read template file: {}", path.as_ref().display())
+        let content = std::fs::read_to_string(&path).map_err(|e| {
+            Error::with_context(
+                "Failed to read template file",
+                &format!("{}: {}", path.as_ref().display(), e),
+            )
         })?;
 
         Self::from_yaml(&content)
@@ -228,7 +231,7 @@ impl FileTreeTemplate {
     /// ```rust
     /// use ggen_core::templates::file_tree_generator::FileTreeTemplate;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let yaml = r#"
     /// name: my-template
     /// variables:
@@ -376,7 +379,7 @@ impl FileTreeTemplate {
     /// use ggen_core::templates::file_tree_generator::FileTreeTemplate;
     /// use ggen_core::templates::format::{TemplateFormat, FileTreeNode};
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let mut format = TemplateFormat::new("my-template");
     /// format.add_node(FileTreeNode::directory("src"));
     ///
@@ -469,7 +472,7 @@ impl FileTreeTemplate {
 /// ```rust
 /// use ggen_core::templates::file_tree_generator::TemplateParser;
 ///
-/// # fn main() -> anyhow::Result<()> {
+/// # fn main() -> ggen_utils::error::Result<()> {
 /// let yaml = r#"
 /// name: my-template
 /// tree:
@@ -507,7 +510,7 @@ impl TemplateParser {
     /// ```rust
     /// use ggen_core::templates::file_tree_generator::TemplateParser;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let yaml = r#"
     /// name: my-template
     /// tree:
@@ -547,7 +550,7 @@ impl TemplateParser {
     /// use ggen_core::templates::file_tree_generator::TemplateParser;
     /// use std::path::Path;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let template = TemplateParser::parse_file(Path::new("template.yaml"))?;
     /// println!("Template: {}", template.name());
     /// # Ok(())
@@ -588,7 +591,7 @@ impl TemplateParser {
     /// ```rust
     /// use ggen_core::templates::file_tree_generator::TemplateParser;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let content = r#"
     /// [directory: "src"]
     /// [file: "main.rs"]
@@ -649,10 +652,12 @@ impl TemplateParser {
     }
 
     fn extract_name(line: &str) -> Result<String> {
-        let start = line.find('"').context("Missing opening quote")?;
+        let start = line
+            .find('"')
+            .ok_or_else(|| Error::new("Missing opening quote"))?;
         let end = line[start + 1..]
             .find('"')
-            .context("Missing closing quote")?;
+            .ok_or_else(|| Error::new("Missing closing quote"))?;
         Ok(line[start + 1..start + 1 + end].to_string())
     }
 }
@@ -660,18 +665,17 @@ impl TemplateParser {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chicago_tdd_tools::{async_test, test};
 
-    #[test]
-    fn test_create_template() {
+    test!(test_create_template, {
         let format = TemplateFormat::new("test-template");
         let template = FileTreeTemplate::new(format);
 
         assert_eq!(template.name(), "test-template");
         assert!(template.description().is_none());
-    }
+    });
 
-    #[test]
-    fn test_parse_yaml_template() {
+    test!(test_parse_yaml_template, {
         let yaml = r#"
 name: test-template
 description: A test template
@@ -696,10 +700,9 @@ tree:
         assert_eq!(template.required_variables(), &["service_name", "port"]);
         assert_eq!(template.defaults().get("port"), Some(&"8080".to_string()));
         assert_eq!(template.nodes().len(), 1);
-    }
+    });
 
-    #[test]
-    fn test_parse_template_with_rdf() {
+    test!(test_parse_template_with_rdf, {
         let yaml = r#"
 name: microservice-template
 rdf:
@@ -717,26 +720,23 @@ tree:
 
         assert_eq!(template.name(), "microservice-template");
         assert!(template.rdf_turtle.is_some());
-    }
+    });
 
-    #[test]
-    fn test_template_validation() {
+    test!(test_template_validation, {
         let format = TemplateFormat::new("test");
         let template = FileTreeTemplate::new(format);
 
         // Should fail because tree is empty
         assert!(template.validate().is_err());
-    }
+    });
 
-    #[test]
-    fn test_parser_extract_name() {
+    test!(test_parser_extract_name, {
         let line = r#"[directory: "src"]"#;
         let name = TemplateParser::extract_name(line).unwrap();
         assert_eq!(name, "src");
-    }
+    });
 
-    #[test]
-    fn test_parse_simple_format() {
+    test!(test_parse_simple_format, {
         let content = r#"
 [directory: "src"]
 [file: "main.rs"]
@@ -744,5 +744,5 @@ tree:
 
         let template = TemplateParser::parse_simple(content).unwrap();
         assert_eq!(template.nodes().len(), 2);
-    }
+    });
 }

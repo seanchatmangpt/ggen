@@ -31,6 +31,24 @@ pub use template_package::{
 };
 
 /// Package version following semantic versioning
+///
+/// Represents a semantic version (SemVer) with major, minor, and patch components.
+///
+/// # Examples
+///
+/// ```rust
+/// use ggen_marketplace::models::Version;
+///
+/// # fn main() {
+/// let version = Version::new(1, 2, 3);
+/// assert_eq!(version.major, 1);
+/// assert_eq!(version.minor, 2);
+/// assert_eq!(version.patch, 3);
+///
+/// let version_with_pre = Version::new(1, 0, 0).with_pre_release("alpha.1");
+/// assert_eq!(version_with_pre.to_string(), "1.0.0-alpha.1");
+/// # }
+/// ```
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct Version {
     pub major: u32,
@@ -40,6 +58,18 @@ pub struct Version {
 }
 
 impl Version {
+    /// Create a new version
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use ggen_marketplace::models::Version;
+    ///
+    /// # fn main() {
+    /// let version = Version::new(1, 2, 3);
+    /// assert_eq!(version.to_string(), "1.2.3");
+    /// # }
+    /// ```
     pub fn new(major: u32, minor: u32, patch: u32) -> Self {
         Self {
             major,
@@ -66,17 +96,43 @@ impl fmt::Display for Version {
 }
 
 /// Package category for classification
+///
+/// Categorizes packages by their primary purpose or domain.
+///
+/// # Examples
+///
+/// ```rust
+/// use ggen_marketplace::models::Category;
+///
+/// # fn main() {
+/// let category = Category::WebService;
+/// assert_eq!(category.to_string(), "web-service");
+///
+/// let custom = Category::Custom("my-category".to_string());
+/// assert_eq!(custom.to_string(), "my-category");
+/// # }
+/// ```
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Category {
+    /// Web service templates
     WebService,
+    /// Database templates
     Database,
+    /// Authentication templates
     Authentication,
+    /// Middleware templates
     Middleware,
+    /// Testing templates
     Testing,
+    /// Deployment templates
     Deployment,
+    /// Monitoring templates
     Monitoring,
+    /// Documentation templates
     Documentation,
+    /// Utility templates
     Utility,
+    /// Custom category
     Custom(String),
 }
 
@@ -130,12 +186,45 @@ pub struct Dependency {
 }
 
 /// Version requirement for dependencies
-#[derive(Debug, Clone, Serialize, Deserialize)]
+///
+/// Specifies version constraints for package dependencies.
+///
+/// # Examples
+///
+/// ```rust
+/// use ggen_marketplace::models::{Version, VersionRequirement};
+///
+/// # fn main() {
+/// // Exact version
+/// let req = VersionRequirement::Exact(Version::new(1, 2, 3));
+///
+/// // Version range
+/// let req = VersionRequirement::Range {
+///     min: Version::new(1, 0, 0),
+///     max: Version::new(2, 0, 0),
+/// };
+///
+/// // Minimum version
+/// let req = VersionRequirement::Minimum(Version::new(1, 0, 0));
+///
+/// // Compatible version (^x.y.z)
+/// let req = VersionRequirement::Compatible(Version::new(1, 0, 0));
+///
+/// // Any version
+/// let req = VersionRequirement::Any;
+/// # }
+/// ```
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum VersionRequirement {
+    /// Exact version match required
     Exact(Version),
+    /// Version must be within range
     Range { min: Version, max: Version },
+    /// Minimum version required
     Minimum(Version),
-    Compatible(Version), // ^x.y.z
+    /// Compatible version (^x.y.z semantic)
+    Compatible(Version),
+    /// Any version acceptable
     Any,
 }
 
@@ -151,13 +240,39 @@ pub struct RegistryMetadata {
 }
 
 /// Registry capabilities and features
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+///
+/// Indicates which operations a registry supports.
+///
+/// # Examples
+///
+/// ```rust
+/// use ggen_marketplace::models::RegistryCapability;
+///
+/// # fn main() {
+/// let capability = RegistryCapability::Search;
+/// match capability {
+///     RegistryCapability::Search => assert!(true),
+///     RegistryCapability::Publish => assert!(true),
+///     RegistryCapability::Delete => assert!(true),
+///     RegistryCapability::Analytics => assert!(true),
+///     RegistryCapability::Webhooks => assert!(true),
+///     RegistryCapability::Mirroring => assert!(true),
+/// }
+/// # }
+/// ```
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum RegistryCapability {
+    /// Registry supports search operations
     Search,
+    /// Registry supports publishing packages
     Publish,
+    /// Registry supports deleting packages
     Delete,
+    /// Registry provides analytics
     Analytics,
+    /// Registry supports webhooks
     Webhooks,
+    /// Registry supports mirroring
     Mirroring,
 }
 

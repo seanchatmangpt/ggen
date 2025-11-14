@@ -183,7 +183,7 @@ cargo make test
   - File: `src/parser.rs:45`
   - Actual behavior: Returns `ParseError::EmptyInput` for empty string
   - Decision: Code is correct, update documentation
-  - Action: Update `docs/testing/chicago-tdd-guide.md` to match code
+  - Action: Update `docs/testing/chicago-tdd-guide.md` to match code (or `docs/wip/` for work-in-progress documentation)
   - Verify: Documentation now matches code
 
 **Comments vs Behavior Fixes**:
@@ -258,7 +258,7 @@ cargo make test
 # Edit src/file.rs
 
 # Fix documentation if needed
-# Edit docs/testing/chicago-tdd-guide.md
+# Edit docs/testing/chicago-tdd-guide.md (or docs/wip/ for work-in-progress documentation)
 
 # Fix tests if needed
 # Edit tests/file_test.rs
@@ -303,7 +303,7 @@ cargo make test
 
 # Step 5: Fix at Source
 # Decision: Code is correct, documentation is wrong
-# Fix: Update docs/testing/chicago-tdd-guide.md to match code
+# Fix: Update docs/testing/chicago-tdd-guide.md to match code (or docs/wip/ for work-in-progress docs)
 # Verify: cargo make check && cargo make test
 ```
 

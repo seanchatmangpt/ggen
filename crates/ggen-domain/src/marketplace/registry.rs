@@ -303,7 +303,7 @@ impl Registry {
         let index = if self.index_path.exists() {
             let contents = fs::read_to_string(&self.index_path).await?;
             serde_json::from_str::<RegistryIndex>(&contents)
-                .map_err(|e| anyhow::anyhow!("Failed to parse registry index: {}", e))?
+                .map_err(|e| Error::new(&format!("Failed to parse registry index: {}", e)))?
         } else {
             warn!("Registry index not found, creating new index");
             RegistryIndex::new()
@@ -313,7 +313,7 @@ impl Registry {
         let mut guard = self
             .index
             .write()
-            .map_err(|e| anyhow::anyhow!("Failed to acquire index write lock: {}", e))?;
+            .map_err(|e| Error::new(&format!("Failed to acquire index write lock: {}", e)))?;
         *guard = Some(index);
 
         info!("Registry index loaded successfully");
@@ -328,7 +328,7 @@ impl Registry {
             let guard = self
                 .index
                 .read()
-                .map_err(|e| anyhow::anyhow!("Failed to acquire index read lock: {}", e))?;
+                .map_err(|e| Error::new(&format!("Failed to acquire index read lock: {}", e)))?;
 
             guard
                 .as_ref()
@@ -361,7 +361,7 @@ impl Registry {
         let guard = self
             .index
             .read()
-            .map_err(|e| anyhow::anyhow!("Failed to acquire index read lock: {}", e))?;
+            .map_err(|e| Error::new(&format!("Failed to acquire index read lock: {}", e)))?;
 
         let index = guard
             .as_ref()
@@ -383,7 +383,7 @@ impl Registry {
         let metadata = self
             .get_package(name)
             .await?
-            .ok_or_else(|| anyhow::anyhow!("Package not found: {}", name))?;
+            .ok_or_else(|| Error::new(&format!("Package not found: {}", name)))?;
 
         Ok(metadata
             .versions
@@ -406,7 +406,7 @@ impl Registry {
         let guard = self
             .index
             .read()
-            .map_err(|e| anyhow::anyhow!("Failed to acquire index read lock: {}", e))?;
+            .map_err(|e| Error::new(&format!("Failed to acquire index read lock: {}", e)))?;
 
         let index = guard
             .as_ref()
@@ -421,7 +421,7 @@ impl Registry {
         let mut guard = self
             .index
             .write()
-            .map_err(|e| anyhow::anyhow!("Failed to acquire index write lock: {}", e))?;
+            .map_err(|e| Error::new(&format!("Failed to acquire index write lock: {}", e)))?;
 
         let index = guard
             .as_mut()

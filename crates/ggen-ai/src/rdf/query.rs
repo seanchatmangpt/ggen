@@ -3,7 +3,7 @@
 //! QueryExecutor extracts structured CLI project data from RDF graph via SPARQL queries.
 //! This implements Phase 3 of the RDF-to-CLI generator.
 
-use anyhow::{Context as _, Result};
+use ggen_utils::error::{bail, Context, Result};
 use oxigraph::sparql::{QueryResults, QuerySolution};
 use oxigraph::store::Store;
 
@@ -74,7 +74,7 @@ impl<'a> QueryExecutor<'a> {
             }
         }
 
-        anyhow::bail!("No project found in RDF graph")
+        bail!("No project found in RDF graph")
     }
 
     /// Extract all Noun definitions from RDF graph

@@ -123,13 +123,9 @@ pub enum GgenAiError {
     #[error("UTF-8 conversion error: {0}")]
     Utf8(#[from] std::string::FromUtf8Error),
 
-    /// Generic errors from ggen-core
-    #[error("ggen-core error: {0}")]
-    GgenCore(#[from] ggen_utils::error::Error),
-
-    /// Anyhow errors
+    /// Generic errors from ggen-core and ggen-utils
     #[error("Generic error: {0}")]
-    Anyhow(#[from] anyhow::Error),
+    Generic(#[from] ggen_utils::error::Error),
 
     /// Tera template errors
     #[error("Template error: {0}")]

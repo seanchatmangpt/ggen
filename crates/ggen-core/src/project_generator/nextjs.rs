@@ -25,7 +25,7 @@
 //! use ggen_core::project_generator::nextjs::NextJsGenerator;
 //! use std::path::PathBuf;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let config = ProjectConfig {
 //!     name: "my-app".to_string(),
 //!     project_type: ProjectType::NextJs,
@@ -46,7 +46,7 @@
 //! use ggen_core::project_generator::nextjs::NextJsGenerator;
 //! use std::path::PathBuf;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let config = ProjectConfig {
 //!     name: "my-nuxt-app".to_string(),
 //!     project_type: ProjectType::Nuxt,
@@ -61,7 +61,7 @@
 //! ```
 
 use super::{ProjectConfig, ProjectGenerator, ProjectStructure, ProjectType};
-use anyhow::Result;
+use ggen_utils::error::Result;
 
 pub struct NextJsGenerator;
 
@@ -362,10 +362,10 @@ export default function App({ Component, pageProps }: AppProps) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chicago_tdd_tools::{async_test, test};
     use std::path::PathBuf;
 
-    #[test]
-    fn test_generate_nextjs_project() {
+    test!(test_generate_nextjs_project, {
         let generator = NextJsGenerator::new();
         let config = ProjectConfig {
             name: "test-nextjs".to_string(),
@@ -400,10 +400,9 @@ mod tests {
 
         assert!(package_json.contains(r#""name": "test-nextjs""#));
         assert!(package_json.contains("next"));
-    }
+    });
 
-    #[test]
-    fn test_generate_nuxt_project() {
+    test!(test_generate_nuxt_project, {
         let generator = NextJsGenerator::new();
         let config = ProjectConfig {
             name: "test-nuxt".to_string(),
@@ -426,5 +425,5 @@ mod tests {
 
         // Check directories
         assert!(structure.directories.contains(&"components".to_string()));
-    }
+    });
 }

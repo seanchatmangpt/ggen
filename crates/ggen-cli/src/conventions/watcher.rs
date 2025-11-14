@@ -1,6 +1,6 @@
 //! File watcher for automatic regeneration on RDF changes
 
-use anyhow::{Context, Result};
+use ggen_utils::error::{Context, Result};
 use notify::{Event, RecursiveMode, Watcher};
 use notify_debouncer_full::{new_debouncer, DebounceEventResult, Debouncer, FileIdMap};
 use std::collections::HashMap;

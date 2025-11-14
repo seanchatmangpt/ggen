@@ -38,7 +38,7 @@
 //! use ggen_core::templates::business_logic::BusinessLogicSeparator;
 //! use std::path::Path;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let cli_path = Path::new("cli/create_project.rs");
 //! let domain_path = Path::new("domain/create_project.rs");
 //!
@@ -59,7 +59,7 @@
 //!
 //! ```rust,no_run
 //! //! CLI wrapper for create project
-//! use anyhow::Result;
+//! use ggen_utils::error::Result;
 //! use clap::Args;
 //! use crate::domain::create_project;
 //!
@@ -82,7 +82,7 @@
 //!
 //! ```rust,no_run
 //! //! Business logic for create project
-//! use anyhow::Result;
+//! use ggen_utils::error::Result;
 //!
 //! #[derive(Debug)]
 //! pub struct CreateProjectArgs {
@@ -96,7 +96,7 @@
 //! }
 //! ```
 
-use anyhow::Result;
+use ggen_utils::error::Result;
 use std::fs;
 use std::path::Path;
 
@@ -111,7 +111,7 @@ use std::path::Path;
 /// use ggen_core::templates::business_logic::BusinessLogicSeparator;
 /// use std::path::Path;
 ///
-/// # fn main() -> anyhow::Result<()> {
+/// # fn main() -> ggen_utils::error::Result<()> {
 /// let cli_path = Path::new("cli/create_project.rs");
 /// let domain_path = Path::new("domain/create_project.rs");
 ///
@@ -147,7 +147,7 @@ impl BusinessLogicSeparator {
 //!
 //! This is a thin synchronous wrapper that delegates to async business logic.
 
-use anyhow::Result;
+use ggen_utils::error::Result;
 use clap::Args;
 use crate::{}::{};
 
@@ -218,7 +218,7 @@ pub fn {}(args: {}Args) -> Result<()> {{
 //! This module contains the async business logic implementation.
 //! Modify this file freely - it will never be regenerated.
 
-use anyhow::Result;
+use ggen_utils::error::Result;
 
 /// Arguments for {} {} operation
 #[derive(Debug)]
@@ -236,6 +236,7 @@ pub async fn {}(args: {}Args) -> Result<()> {{
 #[cfg(test)]
 mod tests {{
     use super::*;
+    use chicago_tdd_tools::{{{{test, async_test}}}};
 
     #[tokio::test]
     async fn test_{}() {{
@@ -330,7 +331,7 @@ mod tests {{
     /// use ggen_core::templates::business_logic::BusinessLogicSeparator;
     /// use std::path::Path;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// BusinessLogicSeparator::generate_separated_files(
     ///     Path::new("cli/create_project.rs"),
     ///     Path::new("domain/create_project.rs"),
@@ -392,28 +393,25 @@ mod tests {
     use super::*;
     use tempfile::TempDir;
 
-    #[test]
-    fn test_generate_cli_wrapper() {
+    test!(test_generate_cli_wrapper, {
         let cli_code = BusinessLogicSeparator::generate_cli_wrapper("create", "project", None);
 
         assert!(cli_code.contains("CreateProjectArgs"));
         assert!(cli_code.contains("#[create]"));
         assert!(cli_code.contains("pub fn create_project"));
         assert!(cli_code.contains("use crate::domain::create_project"));
-    }
+    });
 
-    #[test]
-    fn test_generate_domain_skeleton() {
+    test!(test_generate_domain_skeleton, {
         let domain_code = BusinessLogicSeparator::generate_domain_skeleton("delete", "user");
 
         assert!(domain_code.contains("DeleteUserArgs"));
         assert!(domain_code.contains("pub async fn delete_user"));
         assert!(domain_code.contains("{% frozen id=\"business_logic\" %}"));
         assert!(domain_code.contains("#[tokio::test]"));
-    }
+    });
 
-    #[test]
-    fn test_business_logic_exists() {
+    test!(test_business_logic_exists, {
         let temp_dir = TempDir::new().unwrap();
         let existing_file = temp_dir.path().join("existing.rs");
         let nonexistent_file = temp_dir.path().join("nonexistent.rs");
@@ -426,10 +424,9 @@ mod tests {
         assert!(!BusinessLogicSeparator::business_logic_exists(
             &nonexistent_file
         ));
-    }
+    });
 
-    #[test]
-    fn test_generate_separated_files() {
+    test!(test_generate_separated_files, {
         let temp_dir = TempDir::new().unwrap();
         let cli_path = temp_dir.path().join("cli/list_task.rs");
         let domain_path = temp_dir.path().join("domain/list_task.rs");
@@ -451,10 +448,9 @@ mod tests {
 
         let domain_content = fs::read_to_string(&domain_path).unwrap();
         assert!(domain_content.contains("pub async fn list_task"));
-    }
+    });
 
-    #[test]
-    fn test_no_overwrite_existing_domain() {
+    test!(test_no_overwrite_existing_domain, {
         let temp_dir = TempDir::new().unwrap();
         let cli_path = temp_dir.path().join("cli/update_file.rs");
         let domain_path = temp_dir.path().join("domain/update_file.rs");
@@ -477,10 +473,9 @@ mod tests {
         let domain_content = fs::read_to_string(&domain_path).unwrap();
         assert!(domain_content.contains("// My custom implementation"));
         assert!(!domain_content.contains("pub async fn update_file"));
-    }
+    });
 
-    #[test]
-    fn test_force_overwrite_domain() {
+    test!(test_force_overwrite_domain, {
         let temp_dir = TempDir::new().unwrap();
         let cli_path = temp_dir.path().join("cli/update_file.rs");
         let domain_path = temp_dir.path().join("domain/update_file.rs");
@@ -503,10 +498,9 @@ mod tests {
         let domain_content = fs::read_to_string(&domain_path).unwrap();
         assert!(!domain_content.contains("// Old implementation"));
         assert!(domain_content.contains("pub async fn update_file"));
-    }
+    });
 
-    #[test]
-    fn test_to_pascal_case() {
+    test!(test_to_pascal_case, {
         assert_eq!(
             BusinessLogicSeparator::to_pascal_case("create-project"),
             "CreateProject"
@@ -519,10 +513,9 @@ mod tests {
             BusinessLogicSeparator::to_pascal_case("list-all-tasks"),
             "ListAllTasks"
         );
-    }
+    });
 
-    #[test]
-    fn test_to_snake_case() {
+    test!(test_to_snake_case, {
         assert_eq!(
             BusinessLogicSeparator::to_snake_case("CreateProject"),
             "createproject"
@@ -535,5 +528,5 @@ mod tests {
             BusinessLogicSeparator::to_snake_case("list-all-tasks"),
             "list_all_tasks"
         );
-    }
+    });
 }

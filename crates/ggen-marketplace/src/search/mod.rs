@@ -57,8 +57,8 @@ pub mod tantivy_engine;
 pub use tantivy_engine::TantivySearchEngine;
 
 use crate::types::{Package, SearchQuery, SearchResults};
-use anyhow::Result;
 use async_trait::async_trait;
+use ggen_utils::error::Result;
 
 /// Core search engine trait
 #[async_trait]

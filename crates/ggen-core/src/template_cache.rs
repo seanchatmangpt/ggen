@@ -3,7 +3,7 @@
 //! Provides LRU caching for parsed templates and compiled RDF graphs
 //! to avoid redundant parsing and improve generation performance.
 
-use anyhow::Result;
+use ggen_utils::error::{Error, Result};
 use lru::LruCache;
 use std::num::NonZeroUsize;
 use std::path::Path;
@@ -29,7 +29,7 @@ use crate::template::Template;
 /// use ggen_core::template_cache::TemplateCache;
 /// use std::path::Path;
 ///
-/// # fn main() -> anyhow::Result<()> {
+/// # fn main() -> ggen_utils::error::Result<()> {
 /// // Create cache with capacity of 50 templates
 /// let cache = TemplateCache::new(50);
 ///
@@ -96,7 +96,7 @@ impl TemplateCache {
     /// use ggen_core::template_cache::TemplateCache;
     /// use std::path::Path;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let cache = TemplateCache::new(10);
     ///
     /// // First call - parses and caches
@@ -116,15 +116,19 @@ impl TemplateCache {
         let mut cache = self
             .cache
             .lock()
-            .map_err(|e| anyhow::anyhow!("Cache lock poisoned: {}", e))?;
+            .map_err(|_| Error::new("Cache lock poisoned"))?;
 
         if let Some(template) = cache.get(&path_str) {
             return Ok(Arc::clone(template));
         }
 
         // Parse template
-        let content = std::fs::read_to_string(path)
-            .map_err(|e| anyhow::anyhow!("Failed to read template {}: {}", path.display(), e))?;
+        let content = std::fs::read_to_string(path).map_err(|e| {
+            Error::with_source(
+                &format!("Failed to read template {}", path.display()),
+                Box::new(e),
+            )
+        })?;
         let template = Template::parse(&content)?;
         let arc_template = Arc::new(template);
 
@@ -144,7 +148,7 @@ impl TemplateCache {
     /// use ggen_core::template_cache::TemplateCache;
     /// use std::path::Path;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let cache = TemplateCache::new(10);
     /// cache.get_or_parse(Path::new("template.tmpl"))?;
     ///
@@ -159,7 +163,7 @@ impl TemplateCache {
         let mut cache = self
             .cache
             .lock()
-            .map_err(|e| anyhow::anyhow!("Cache lock poisoned: {}", e))?;
+            .map_err(|_| Error::new("Cache lock poisoned"))?;
         cache.clear();
         Ok(())
     }
@@ -175,7 +179,7 @@ impl TemplateCache {
     /// use ggen_core::template_cache::TemplateCache;
     /// use std::path::Path;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let cache = TemplateCache::new(50);
     ///
     /// let stats = cache.stats()?;
@@ -187,7 +191,7 @@ impl TemplateCache {
         let cache = self
             .cache
             .lock()
-            .map_err(|e| anyhow::anyhow!("Cache lock poisoned: {}", e))?;
+            .map_err(|_| Error::new("Cache lock poisoned"))?;
 
         Ok(CacheStats {
             size: cache.len(),
@@ -211,7 +215,7 @@ impl Default for TemplateCache {
 /// ```rust,no_run
 /// use ggen_core::template_cache::{TemplateCache, CacheStats};
 ///
-/// # fn main() -> anyhow::Result<()> {
+/// # fn main() -> ggen_utils::error::Result<()> {
 /// let cache = TemplateCache::new(100);
 /// let stats = cache.stats()?;
 ///
@@ -228,27 +232,25 @@ pub struct CacheStats {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chicago_tdd_tools::{async_test, test};
     use std::io::Write;
     use tempfile::NamedTempFile;
 
-    #[test]
-    fn test_template_cache_new() {
+    test!(test_template_cache_new, {
         let cache = TemplateCache::new(50);
         let stats = cache.stats().unwrap();
         assert_eq!(stats.capacity, 50);
         assert_eq!(stats.size, 0);
-    }
+    });
 
-    #[test]
-    fn test_template_cache_default() {
+    test!(test_template_cache_default, {
         let cache = TemplateCache::default();
         let stats = cache.stats().unwrap();
         assert_eq!(stats.capacity, 100);
         assert_eq!(stats.size, 0);
-    }
+    });
 
-    #[test]
-    fn test_get_or_parse() -> Result<()> {
+    test!(test_get_or_parse, {
         let cache = TemplateCache::new(10);
 
         let mut temp = NamedTempFile::new()?;
@@ -272,10 +274,9 @@ fn main() {{}}"#
         assert!(Arc::ptr_eq(&template1, &template2));
 
         Ok(())
-    }
+    });
 
-    #[test]
-    fn test_cache_clear() -> Result<()> {
+    test!(test_cache_clear, {
         let cache = TemplateCache::new(10);
 
         let mut temp = NamedTempFile::new()?;
@@ -294,10 +295,9 @@ fn main() {{}}"#
         assert_eq!(cache.stats()?.size, 0);
 
         Ok(())
-    }
+    });
 
-    #[test]
-    fn test_cache_eviction() -> Result<()> {
+    test!(test_cache_eviction, {
         let cache = TemplateCache::new(2);
 
         // Create 3 temp files
@@ -319,5 +319,5 @@ fn main() {{}}"#
         assert_eq!(cache.stats()?.size, 2);
 
         Ok(())
-    }
+    });
 }

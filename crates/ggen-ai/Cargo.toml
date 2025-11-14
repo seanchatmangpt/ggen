@@ -37,7 +37,6 @@ rusqlite = { version = "0.37", features = ["bundled"] }
 dotenvy = "0.15"
 
 # Error handling
-anyhow = { workspace = true }
 thiserror = { workspace = true }
 
 # Streaming and futures

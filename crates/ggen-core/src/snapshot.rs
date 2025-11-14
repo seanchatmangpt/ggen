@@ -132,20 +132,17 @@ impl Snapshot {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```rust
     /// use ggen_core::snapshot::Snapshot;
     /// use ggen_core::graph::Graph;
     /// use std::path::PathBuf;
     ///
-    /// # fn main() -> ggen_utils::error::Result<()> {
-    /// let graph = Graph::new()?;
+    /// let graph = Graph::new().unwrap();
     /// let files = vec![(PathBuf::from("main.rs"), "fn main() {}".to_string())];
     /// let templates = vec![];
     ///
-    /// let snapshot = Snapshot::new("v1.0".to_string(), &graph, files, templates)?;
+    /// let snapshot = Snapshot::new("v1.0".to_string(), &graph, files, templates).unwrap();
     /// assert_eq!(snapshot.name, "v1.0");
-    /// # Ok(())
-    /// # }
     /// ```
     pub fn new(
         name: String, graph: &Graph, files: Vec<(PathBuf, String)>,
@@ -404,9 +401,28 @@ pub struct Region {
     pub region_type: RegionType,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+/// Type of region in a file
+///
+/// Represents whether a region in a file is generated or manually edited.
+///
+/// # Examples
+///
+/// ```rust
+/// use ggen_core::snapshot::RegionType;
+///
+/// # fn main() {
+/// let region_type = RegionType::Generated;
+/// match region_type {
+///     RegionType::Generated => assert!(true),
+///     RegionType::Manual => assert!(true),
+/// }
+/// # }
+/// ```
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum RegionType {
+    /// Region contains generated content
     Generated,
+    /// Region contains manual edits
     Manual,
 }
 
@@ -577,71 +593,70 @@ impl SnapshotManager {
 mod tests {
     use super::*;
     use crate::graph::Graph;
+    use chicago_tdd_tools::{async_test, test};
     use std::fs;
     use tempfile::tempdir;
 
-    #[test]
-    fn test_snapshot_creation() -> Result<()> {
-        let graph = Graph::new()?;
-        graph.insert_turtle("@prefix : <http://example.org/> . :test a :Class .")?;
+    test!(test_snapshot_creation, {
+        let graph = Graph::new().unwrap();
+        graph
+            .insert_turtle("@prefix : <http://example.org/> . :test a :Class .")
+            .unwrap();
 
-        let temp_dir = tempdir()?;
+        let temp_dir = tempdir().unwrap();
         let test_file = temp_dir.path().join("test.txt");
         let test_template = temp_dir.path().join("test.tmpl");
 
         // Create the actual files
-        fs::write(&test_file, "test content")?;
-        fs::write(&test_template, "template content")?;
+        fs::write(&test_file, "test content").unwrap();
+        fs::write(&test_template, "template content").unwrap();
 
         let files = vec![(test_file, "test content".to_string())];
         let templates = vec![(test_template, "template content".to_string())];
 
-        let snapshot = Snapshot::new("test_snapshot".to_string(), &graph, files, templates)?;
+        let snapshot =
+            Snapshot::new("test_snapshot".to_string(), &graph, files, templates).unwrap();
 
         assert_eq!(snapshot.name, "test_snapshot");
         assert_eq!(snapshot.files.len(), 1);
         assert_eq!(snapshot.templates.len(), 1);
         assert!(!snapshot.graph.hash.is_empty());
+    });
 
-        Ok(())
-    }
+    test!(test_snapshot_manager, {
+        let temp_dir = tempdir().unwrap();
+        let manager = SnapshotManager::new(temp_dir.path().to_path_buf()).unwrap();
 
-    #[test]
-    fn test_snapshot_manager() -> Result<()> {
-        let temp_dir = tempdir()?;
-        let manager = SnapshotManager::new(temp_dir.path().to_path_buf())?;
+        let graph = Graph::new().unwrap();
+        graph
+            .insert_turtle("@prefix : <http://example.org/> . :test a :Class .")
+            .unwrap();
 
-        let graph = Graph::new()?;
-        graph.insert_turtle("@prefix : <http://example.org/> . :test a :Class .")?;
-
-        let snapshot = Snapshot::new("manager_test".to_string(), &graph, vec![], vec![])?;
+        let snapshot = Snapshot::new("manager_test".to_string(), &graph, vec![], vec![]).unwrap();
 
         // Save snapshot
-        manager.save(&snapshot)?;
+        manager.save(&snapshot).unwrap();
         assert!(manager.exists("manager_test"));
 
         // Load snapshot
-        let loaded = manager.load("manager_test")?;
+        let loaded = manager.load("manager_test").unwrap();
         assert_eq!(loaded.name, snapshot.name);
 
         // List snapshots
-        let list = manager.list()?;
+        let list = manager.list().unwrap();
         assert!(list.contains(&"manager_test".to_string()));
 
         // Delete snapshot
-        manager.delete("manager_test")?;
+        manager.delete("manager_test").unwrap();
         assert!(!manager.exists("manager_test"));
+    });
 
-        Ok(())
-    }
-
-    #[test]
-    fn test_file_snapshot() -> Result<()> {
-        let temp_dir = tempdir()?;
+    test!(test_file_snapshot, {
+        let temp_dir = tempdir().unwrap();
         let file_path = temp_dir.path().join("test.txt");
-        fs::write(&file_path, "test content")?;
+        fs::write(&file_path, "test content").unwrap();
 
-        let snapshot = FileSnapshot::new(file_path.clone(), "test content".to_string())?;
+        let snapshot = FileSnapshot::new(file_path.clone(), "test content".to_string()).unwrap();
 
         assert_eq!(snapshot.path, file_path);
         assert!(!snapshot.hash.is_empty());
@@ -650,23 +665,19 @@ mod tests {
         // Test change detection
         assert!(!snapshot.has_changed("test content"));
         assert!(snapshot.has_changed("different content"));
+    });
 
-        Ok(())
-    }
-
-    #[test]
-    fn test_template_snapshot() -> Result<()> {
-        let temp_dir = tempdir()?;
+    test!(test_template_snapshot, {
+        let temp_dir = tempdir().unwrap();
         let template_path = temp_dir.path().join("test.tmpl");
 
         let snapshot = TemplateSnapshot::new(
             template_path.clone(),
             "SELECT ?s WHERE { ?s ?p ?o }".to_string(),
-        )?;
+        )
+        .unwrap();
 
         assert_eq!(snapshot.path, template_path);
         assert!(!snapshot.hash.is_empty());
-
-        Ok(())
-    }
+    });
 }

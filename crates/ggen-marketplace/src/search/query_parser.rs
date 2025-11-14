@@ -44,7 +44,7 @@
 //! # }
 //! ```
 
-use anyhow::Result;
+use ggen_utils::error::Result;
 
 pub struct AdvancedQueryParser {
     query: String,
@@ -85,9 +85,30 @@ pub struct BooleanClause {
     pub query: String,
 }
 
+/// Boolean operator for query composition
+///
+/// Represents logical operators for combining search query terms.
+///
+/// # Examples
+///
+/// ```rust
+/// use ggen_marketplace::search::query_parser::BooleanOperator;
+///
+/// # fn main() {
+/// let op = BooleanOperator::And;
+/// match op {
+///     BooleanOperator::And => assert!(true),
+///     BooleanOperator::Or => assert!(true),
+///     BooleanOperator::Not => assert!(true),
+/// }
+/// # }
+/// ```
 #[derive(Debug, Clone)]
 pub enum BooleanOperator {
+    /// Logical AND operator
     And,
+    /// Logical OR operator
     Or,
+    /// Logical NOT operator
     Not,
 }

@@ -28,7 +28,7 @@
 //! All: {{ sparql_values(results=sparql_results.people, column="name") }}
 //! ```
 
-use anyhow::Result;
+use ggen_utils::error::{Error, Result};
 use gray_matter::{engine::YAML, Matter, ParsedEntity};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -112,16 +112,92 @@ pub struct Template {
 }
 
 impl Template {
-    /// Parse frontmatter + body. Does NOT render yet.
+    /// Parse template from a string (frontmatter + body). Does NOT render yet.
+    ///
+    /// This is the core parsing method. For convenience, see also:
+    /// - [`from_str`](Self::from_str) - Alias for `parse`
+    /// - [`from_file`](Self::from_file) - Load from file and parse
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use ggen_core::Template;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let template = Template::parse(r#"
+    /// ---
+    /// to: "output.rs"
+    /// ---
+    /// fn main() {
+    ///     println!("Hello, {{ name }}!");
+    /// }
+    /// "#)?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn parse(input: &str) -> Result<Self> {
         let matter = Matter::<YAML>::new();
-        let ParsedEntity { data, content, .. } = matter.parse::<serde_yaml::Value>(input)?;
+        let ParsedEntity { data, content, .. } = matter
+            .parse::<serde_yaml::Value>(input)
+            .map_err(|e| Error::new(&format!("Failed to parse template frontmatter: {}", e)))?;
         let raw_frontmatter = data.unwrap_or(serde_yaml::Value::Null);
         Ok(Self {
             raw_frontmatter,
             front: Frontmatter::default(),
             body: content,
         })
+    }
+
+    /// Parse template from a string. Convenience alias for [`parse`](Self::parse).
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use ggen_core::Template;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let template = Template::from_str(r#"
+    /// ---
+    /// to: "output.rs"
+    /// ---
+    /// fn main() {
+    ///     println!("Hello, {{ name }}!");
+    /// }
+    /// "#)?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn from_str(content: &str) -> Result<Self> {
+        Self::parse(content)
+    }
+
+    /// Load template from a file and parse it.
+    ///
+    /// This is a convenience method that reads the file and calls [`parse`](Self::parse).
+    ///
+    /// # Arguments
+    ///
+    /// * `path` - Path to the template file
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::Template;
+    /// use std::path::Path;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let template = Template::from_file(Path::new("template.tmpl"))?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn from_file<P: AsRef<std::path::Path>>(path: P) -> Result<Self> {
+        let content = std::fs::read_to_string(&path).map_err(|e| {
+            Error::with_source(
+                &format!("Failed to read template file '{}'", path.as_ref().display()),
+                Box::new(e),
+            )
+        })?;
+        Self::parse(&content)
     }
 
     /// Parse with preprocessor pipeline. Runs preprocessor before parsing.
@@ -224,11 +300,13 @@ impl Template {
             };
 
             let ttl_content = std::fs::read_to_string(&rdf_path).map_err(|e| {
-                anyhow::anyhow!(
-                    "Failed to read RDF file '{}' (resolved from '{}'): {}",
-                    rdf_path.display(),
-                    rendered_path,
-                    e
+                Error::with_source(
+                    &format!(
+                        "Failed to read RDF file '{}' (resolved from '{}')",
+                        rdf_path.display(),
+                        rendered_path
+                    ),
+                    Box::new(e),
                 )
             })?;
 
@@ -256,8 +334,9 @@ impl Template {
                 oxigraph::sparql::QueryResults::Solutions(solutions) => {
                     let mut rows = Vec::new();
                     for solution in solutions {
-                        let solution = solution
-                            .map_err(|e| anyhow::anyhow!("SPARQL solution error: {}", e))?;
+                        let solution = solution.map_err(|e| {
+                            Error::with_source("SPARQL solution error", Box::new(e))
+                        })?;
                         let mut row = serde_json::Map::new();
                         for (var, term) in solution.iter() {
                             row.insert(
@@ -295,7 +374,10 @@ impl Template {
         if !rdf_files.is_empty() {
             for rdf_path in rdf_files {
                 let ttl_content = std::fs::read_to_string(&rdf_path).map_err(|e| {
-                    anyhow::anyhow!("Failed to read RDF file '{}': {}", rdf_path.display(), e)
+                    Error::with_source(
+                        &format!("Failed to read RDF file '{}'", rdf_path.display()),
+                        Box::new(e),
+                    )
                 })?;
                 let final_ttl = if prolog.is_empty() {
                     ttl_content
@@ -321,7 +403,10 @@ impl Template {
             // Render the from path as a template to resolve variables
             let rendered_from = tera.render_str(from_path, vars)?;
             std::fs::read_to_string(&rendered_from).map_err(|e| {
-                anyhow::anyhow!("Failed to read from file '{}': {}", rendered_from, e)
+                Error::with_source(
+                    &format!("Failed to read from file '{}'", rendered_from),
+                    Box::new(e),
+                )
             })?
         } else {
             self.body.clone()
@@ -349,7 +434,7 @@ impl Template {
 /* ---------------- helpers ---------------- */
 
 // Accept either "rdf: <string>" or "rdf: [<string>, ...]"
-fn string_or_seq<'de, D>(de: D) -> Result<Vec<String>, D::Error>
+fn string_or_seq<'de, D>(de: D) -> std::result::Result<Vec<String>, D::Error>
 where
     D: serde::Deserializer<'de>,
 {
@@ -365,21 +450,21 @@ where
             f.write_str("a string or a sequence of strings")
         }
 
-        fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
+        fn visit_str<E>(self, v: &str) -> std::result::Result<Self::Value, E>
         where
             E: DeError,
         {
             Ok(vec![v.to_string()])
         }
 
-        fn visit_string<E>(self, v: String) -> Result<Self::Value, E>
+        fn visit_string<E>(self, v: String) -> std::result::Result<Self::Value, E>
         where
             E: DeError,
         {
             Ok(vec![v])
         }
 
-        fn visit_seq<A>(self, mut seq: A) -> Result<Self::Value, A::Error>
+        fn visit_seq<A>(self, mut seq: A) -> std::result::Result<Self::Value, A::Error>
         where
             A: SeqAccess<'de>,
         {
@@ -397,7 +482,7 @@ where
 // ❌ REMOVED: deserialize_flexible_vars - vars field no longer in frontmatter
 
 // Accept either "sparql: '<query>'" or "sparql: { name: '<query>' }"
-fn sparql_map<'de, D>(de: D) -> Result<BTreeMap<String, String>, D::Error>
+fn sparql_map<'de, D>(de: D) -> std::result::Result<BTreeMap<String, String>, D::Error>
 where
     D: serde::Deserializer<'de>,
 {
@@ -428,7 +513,8 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use anyhow::Result;
+    use chicago_tdd_tools::{async_test, test};
+    use ggen_utils::error::{Error, Result};
     use std::{io::Write, path::Path};
     use tempfile::NamedTempFile;
     use tera::Context;
@@ -476,8 +562,7 @@ mod tests {
 
     /* ---------- parsing & frontmatter ---------- */
 
-    #[test]
-    fn parse_variants_and_preserve_body() -> Result<()> {
+    test!(parse_variants_and_preserve_body, {
         let cases = [
             (
                 // basic with frontmatter
@@ -502,14 +587,12 @@ fn main() { println!("Hello"); }"#,
         ];
 
         for (input, want_body) in cases {
-            let t = Template::parse(input)?;
+            let t = Template::parse(input).unwrap();
             assert_eq!(t.body, want_body);
         }
-        Ok(())
-    }
+    });
 
-    #[test]
-    fn frontmatter_render_core_fields() -> Result<()> {
+    test!(frontmatter_render_core_fields, {
         let input = r#"---
 to: "{{name}}.rs"
 prefixes: { ex: "http://example.org/" }
@@ -519,11 +602,11 @@ sparql: "SELECT ?s WHERE { ?s a ex:Person }"
 ---
 body"#;
 
-        let mut t = Template::parse(input)?;
+        let mut t = Template::parse(input).unwrap();
         let mut tera = mk_tera();
         let v = ctx(&[("name", "Alice"), ("ns", "test")]);
 
-        t.render_frontmatter(&mut tera, &v)?;
+        t.render_frontmatter(&mut tera, &v).unwrap();
         assert_eq!(t.front.to.as_deref(), Some("Alice.rs"));
         assert_eq!(
             t.front.prefixes.get("ex").map(String::as_str),
@@ -533,28 +616,26 @@ body"#;
         assert_eq!(t.front.rdf_inline.len(), 1);
         assert_eq!(t.front.sparql.len(), 1);
         // ❌ REMOVED: vars test - no longer in frontmatter
-        Ok(())
-    }
+    });
 
-    #[test]
-    fn deserializers_string_or_seq_and_sparql_map() -> Result<()> {
-        let fm1: Frontmatter = serde_yaml::from_str(r#"rdf_inline: "a""#)?;
-        let fm2: Frontmatter = serde_yaml::from_str(r#"rdf_inline: ["a","b"]"#)?;
+    test!(deserializers_string_or_seq_and_sparql_map, {
+        let fm1: Frontmatter = serde_yaml::from_str(r#"rdf_inline: "a""#).unwrap();
+        let fm2: Frontmatter = serde_yaml::from_str(r#"rdf_inline: ["a","b"]"#).unwrap();
         assert_eq!(fm1.rdf_inline, vec!["a"]);
         assert_eq!(fm2.rdf_inline, vec!["a", "b"]);
 
-        let fm3: Frontmatter = serde_yaml::from_str(r#"sparql: "SELECT * WHERE { ?s ?p ?o }""#)?;
+        let fm3: Frontmatter =
+            serde_yaml::from_str(r#"sparql: "SELECT * WHERE { ?s ?p ?o }""#).unwrap();
         let fm4: Frontmatter =
-            serde_yaml::from_str(r#"sparql: { q1: "SELECT 1 {}", q2: "SELECT 2 {}" }"#)?;
-        let fm5: Frontmatter = serde_yaml::from_str(r#"sparql: ["SELECT 1 {}", "SELECT 2 {}"]"#)?;
+            serde_yaml::from_str(r#"sparql: { q1: "SELECT 1 {}", q2: "SELECT 2 {}" }"#).unwrap();
+        let fm5: Frontmatter =
+            serde_yaml::from_str(r#"sparql: ["SELECT 1 {}", "SELECT 2 {}"]"#).unwrap();
         assert!(fm3.sparql.contains_key("default"));
         assert!(fm4.sparql.contains_key("q1"));
         assert!(fm5.sparql.contains_key("query_0"));
-        Ok(())
-    }
+    });
 
-    #[test]
-    fn boolean_and_injection_flags() -> Result<()> {
+    test!(boolean_and_injection_flags, {
         let fm: Frontmatter = serde_yaml::from_str(
             r#"
 force: true
@@ -571,7 +652,8 @@ skip_if: "needle"
 sh_before: "echo pre"
 sh_after: "echo post"
 "#,
-        )?;
+        )
+        .unwrap();
         assert!(fm.force && fm.unless_exists && fm.inject && fm.prepend && fm.append);
         assert!(fm.eof_last && fm.idempotent);
         assert_eq!(fm.before.as_deref(), Some("// before"));
@@ -580,24 +662,22 @@ sh_after: "echo post"
         assert_eq!(fm.skip_if.as_deref(), Some("needle"));
         assert_eq!(fm.sh_before.as_deref(), Some("echo pre"));
         assert_eq!(fm.sh_after.as_deref(), Some("echo post"));
-        Ok(())
-    }
+    });
 
     /* ---------- body rendering ---------- */
 
-    #[test]
-    fn body_render_inline_and_from_file() -> Result<()> {
+    test!(body_render_inline_and_from_file, {
         // inline
         let inline = r#"---
 to: "x"
 ---
 fn main() { println!("Hello, {{name}}!"); }"#;
-        let got = render_only(inline, &ctx(&[("name", "Alice")]))?;
+        let got = render_only(inline, &ctx(&[("name", "Alice")])).unwrap();
         assert_contains!(got, "Hello, Alice!");
 
         // from: - need to render frontmatter first to populate 'from' field
-        let mut tmp = NamedTempFile::new()?;
-        writeln!(tmp, "fn main() {{ println!(\"Hello, {{{{name}}}}!\"); }}")?;
+        let mut tmp = NamedTempFile::new().unwrap();
+        writeln!(tmp, "fn main() {{ println!(\"Hello, {{{{name}}}}!\"); }}").unwrap();
         let from_tmpl = format!(
             r#"---
 from: "{}"
@@ -605,19 +685,17 @@ from: "{}"
 ignored"#,
             tmp.path().display()
         );
-        let mut tmpl = Template::parse(&from_tmpl)?;
+        let mut tmpl = Template::parse(&from_tmpl).unwrap();
         let mut tera = mk_tera();
         let vars = ctx(&[("name", "Bob")]);
-        tmpl.render_frontmatter(&mut tera, &vars)?;
-        let got2 = tmpl.render(&mut tera, &vars)?;
+        tmpl.render_frontmatter(&mut tera, &vars).unwrap();
+        let got2 = tmpl.render(&mut tera, &vars).unwrap();
         assert_contains!(got2, "Hello, Bob!");
-        Ok(())
-    }
+    });
 
     /* ---------- graph + sparql ---------- */
 
-    #[test]
-    fn rdf_insert_and_select_visible() -> Result<()> {
+    test!(rdf_insert_and_select_visible, {
         let input = r#"---
 prefixes: { ex: "http://example.org/" }
 rdf_inline:
@@ -627,13 +705,11 @@ sparql:
 ---
 Count: {{ sparql_results.q | length }}"#;
 
-        let out = process_then_render(input, &Context::new())?;
+        let out = process_then_render(input, &Context::new()).unwrap();
         assert_contains!(out, "Count: 1");
-        Ok(())
-    }
+    });
 
-    #[test]
-    fn boolean_ask_and_empty_result_helpers() -> Result<()> {
+    test!(boolean_ask_and_empty_result_helpers, {
         let input = r#"---
 prefixes: { ex: "http://example.org/" }
 rdf_inline:
@@ -646,15 +722,13 @@ Has: {{ sparql_results.has_people }}
 Empty: {{ sparql_empty(results=sparql_results.none) }}
 Count: {{ sparql_count(results=sparql_results.none) }}"#;
 
-        let out = process_then_render(input, &Context::new())?;
+        let out = process_then_render(input, &Context::new()).unwrap();
         assert_contains!(out, "Has: true");
         assert_contains!(out, "Empty: true");
         assert_contains!(out, "Count: 0");
-        Ok(())
-    }
+    });
 
-    #[test]
-    fn projection_helpers_and_multiple_queries() -> Result<()> {
+    test!(projection_helpers_and_multiple_queries, {
         let input = r#"---
 prefixes: { ex: "http://example.org/" }
 rdf_inline:
@@ -669,19 +743,17 @@ First: {{ sparql_first(results=sparql_results.people, column="name") }}
 People count: {{ sparql_count(results=sparql_results.people) }}
 Ages: {{ sparql_values(results=sparql_results.ages, column="age") }}"#;
 
-        let out = process_then_render(input, &Context::new())?;
+        let out = process_then_render(input, &Context::new()).unwrap();
         assert_contains!(out, "First: \"Alice\"");
         assert_contains!(out, "People count: 2");
         assert_contains!(out, "Ages:");
-        Ok(())
-    }
+    });
 
-    #[test]
-    fn preprocessor_integration() -> Result<()> {
+    test!(preprocessor_integration, {
         use std::path::Path;
         use tempfile::TempDir;
 
-        let temp_dir = TempDir::new()?;
+        let temp_dir = TempDir::new().unwrap();
         let template_path = Path::new("test.tmpl");
         let out_dir = temp_dir.path();
 
@@ -704,12 +776,13 @@ fn main() {
             out_dir,
             Some(&slots_dir),
             Some(FreezePolicy::Always),
-        )?;
+        )
+        .unwrap();
 
         // Render frontmatter to populate the 'to' field
         let mut tera = mk_tera();
         let vars = Context::new();
-        template.render_frontmatter(&mut tera, &vars)?;
+        template.render_frontmatter(&mut tera, &vars).unwrap();
 
         assert_eq!(template.front.to, Some("output.rs".to_string()));
         assert!(template.body.contains("Hello"));
@@ -717,9 +790,7 @@ fn main() {
         assert!(template.body.contains("World"));
         assert!(!template.body.contains("startfreeze"));
         assert!(!template.body.contains("endfreeze"));
-
-        Ok(())
-    }
+    });
 
     #[cfg(feature = "proptest")]
     mod proptest_tests {

@@ -49,8 +49,8 @@
 //! let verifier = PqcVerifier::from_public_key(&public_key_bytes).unwrap();
 //! assert!(verifier.verify(content, &signature).unwrap());
 //! ```
-use anyhow::{Context, Result};
 use base64::{engine::general_purpose, Engine as _};
+use ggen_utils::error::{Error, Result};
 use pqcrypto_mldsa::mldsa65;
 use pqcrypto_traits::sign::{PublicKey, SecretKey, SignedMessage};
 use sha2::{Digest, Sha256};
@@ -75,13 +75,15 @@ impl PqcSigner {
 
     /// Load keypair from files
     pub fn from_files(secret_key_path: &Path, public_key_path: &Path) -> Result<Self> {
-        let sk_bytes = fs::read(secret_key_path).context("Failed to read secret key")?;
-        let pk_bytes = fs::read(public_key_path).context("Failed to read public key")?;
+        let sk_bytes = fs::read(secret_key_path)
+            .map_err(|e| Error::with_context("Failed to read secret key", &e.to_string()))?;
+        let pk_bytes = fs::read(public_key_path)
+            .map_err(|e| Error::with_context("Failed to read public key", &e.to_string()))?;
 
         let secret_key = mldsa65::SecretKey::from_bytes(&sk_bytes)
-            .map_err(|_| anyhow::anyhow!("Invalid secret key format"))?;
+            .map_err(|_| Error::new("Invalid secret key format"))?;
         let public_key = mldsa65::PublicKey::from_bytes(&pk_bytes)
-            .map_err(|_| anyhow::anyhow!("Invalid public key format"))?;
+            .map_err(|_| Error::new("Invalid public key format"))?;
 
         Ok(Self {
             secret_key,
@@ -92,9 +94,9 @@ impl PqcSigner {
     /// Save keypair to files
     pub fn save_to_files(&self, secret_key_path: &Path, public_key_path: &Path) -> Result<()> {
         fs::write(secret_key_path, self.secret_key.as_bytes())
-            .context("Failed to write secret key")?;
+            .map_err(|e| Error::with_context("Failed to write secret key", &e.to_string()))?;
         fs::write(public_key_path, self.public_key.as_bytes())
-            .context("Failed to write public key")?;
+            .map_err(|e| Error::with_context("Failed to write public key", &e.to_string()))?;
         Ok(())
     }
 
@@ -137,7 +139,7 @@ impl PqcVerifier {
     /// Create verifier from public key bytes
     pub fn from_public_key(public_key_bytes: &[u8]) -> Result<Self> {
         let public_key = mldsa65::PublicKey::from_bytes(public_key_bytes)
-            .map_err(|_| anyhow::anyhow!("Invalid public key format"))?;
+            .map_err(|_| Error::new("Invalid public key format"))?;
         Ok(Self { public_key })
     }
 
@@ -145,14 +147,14 @@ impl PqcVerifier {
     pub fn from_base64(public_key_b64: &str) -> Result<Self> {
         let public_key_bytes = general_purpose::STANDARD
             .decode(public_key_b64)
-            .context("Failed to decode public key")?;
+            .map_err(|e| Error::with_context("Failed to decode public key", &e.to_string()))?;
         Self::from_public_key(&public_key_bytes)
     }
 
     /// Verify a signature
     pub fn verify(&self, message: &[u8], signature: &[u8]) -> Result<bool> {
         let signed_message = SignedMessage::from_bytes(signature)
-            .map_err(|_| anyhow::anyhow!("Invalid signature format"))?;
+            .map_err(|_| Error::new("Invalid signature format"))?;
 
         match mldsa65::open(&signed_message, &self.public_key) {
             Ok(verified_msg) => Ok(verified_msg == message),
@@ -167,7 +169,7 @@ impl PqcVerifier {
         let message = format!("{}:{}:{}", pack_id, version, sha256);
         let signature = general_purpose::STANDARD
             .decode(signature_b64)
-            .context("Failed to decode signature")?;
+            .map_err(|e| Error::with_context("Failed to decode signature", &e.to_string()))?;
         self.verify(message.as_bytes(), &signature)
     }
 
@@ -179,7 +181,8 @@ impl PqcVerifier {
 
 /// Calculate SHA256 hash of file content
 pub fn calculate_sha256_file(path: &Path) -> Result<String> {
-    let content = fs::read(path).context("Failed to read file")?;
+    let content =
+        fs::read(path).map_err(|e| Error::with_context("Failed to read file", &e.to_string()))?;
     Ok(calculate_sha256(&content))
 }
 
@@ -193,16 +196,15 @@ pub fn calculate_sha256(data: &[u8]) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chicago_tdd_tools::{async_test, test};
 
-    #[test]
-    fn test_pqc_signer_creation() {
+    test!(test_pqc_signer_creation, {
         let signer = PqcSigner::new();
         assert!(!signer.public_key_base64().is_empty());
         assert!(!signer.secret_key_base64().is_empty());
-    }
+    });
 
-    #[test]
-    fn test_pqc_sign_and_verify() {
+    test!(test_pqc_sign_and_verify, {
         let signer = PqcSigner::new();
         let message = b"test message";
 
@@ -212,10 +214,9 @@ mod tests {
         let verifier = PqcVerifier::from_public_key(signer.public_key.as_bytes()).unwrap();
         let verified = verifier.verify(message, &signature).unwrap();
         assert!(verified);
-    }
+    });
 
-    #[test]
-    fn test_pqc_pack_signature() {
+    test!(test_pqc_pack_signature, {
         let signer = PqcSigner::new();
         let pack_id = "io.ggen.test";
         let version = "1.0.0";
@@ -229,10 +230,9 @@ mod tests {
             .verify_pack(pack_id, version, sha256, &signature)
             .unwrap();
         assert!(verified);
-    }
+    });
 
-    #[test]
-    fn test_pqc_invalid_signature() {
+    test!(test_pqc_invalid_signature, {
         let signer = PqcSigner::new();
         let verifier = PqcVerifier::from_public_key(signer.public_key.as_bytes()).unwrap();
 
@@ -243,10 +243,9 @@ mod tests {
         let tampered_message = b"tampered message";
         let verified = verifier.verify(tampered_message, &signature).unwrap();
         assert!(!verified);
-    }
+    });
 
-    #[test]
-    fn test_sha256_calculation() {
+    test!(test_sha256_calculation, {
         let data = b"test data";
         let hash = calculate_sha256(data);
         // SHA256 of "test data"
@@ -254,5 +253,5 @@ mod tests {
             hash,
             "916f0027a575074ce72a331777c3478d6513f786a591bd892da1a577bf2335f9"
         );
-    }
+    });
 }

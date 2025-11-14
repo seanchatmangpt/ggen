@@ -4,7 +4,6 @@
 //! following the Classicist School of TDD.
 
 use chicago_tdd_tools::async_test;
-use chicago_tdd_tools::prelude::*;
 use ggen_domain::marketplace::search::{search_packages, SearchFilters};
 use ggen_utils::error::Result;
 use std::fs;

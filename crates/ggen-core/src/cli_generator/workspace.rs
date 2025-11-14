@@ -31,7 +31,7 @@
 //! use ggen_core::cli_generator::{WorkspaceGenerator, types::CliProject};
 //! use std::path::Path;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let generator = WorkspaceGenerator::new(Path::new("templates"))?;
 //!
 //! let project = CliProject {
@@ -52,9 +52,12 @@
 //! ```
 
 use crate::cli_generator::types::CliProject;
-use anyhow::{Context as _, Result};
+use ggen_utils::error::{Error, Result};
 use std::path::Path;
 use tera::{Context, Tera};
+
+/// Template path for workspace Cargo.toml
+const WORKSPACE_CARGO_TEMPLATE: &str = "cli/workspace/Cargo.toml.tmpl";
 
 /// Workspace generator for creating workspace structure
 ///
@@ -68,7 +71,7 @@ use tera::{Context, Tera};
 /// use ggen_core::cli_generator::workspace::WorkspaceGenerator;
 /// use std::path::Path;
 ///
-/// # fn main() -> anyhow::Result<()> {
+/// # fn main() -> ggen_utils::error::Result<()> {
 /// let generator = WorkspaceGenerator::new(Path::new("templates"))?;
 /// # Ok(())
 /// # }
@@ -98,15 +101,18 @@ impl WorkspaceGenerator {
     /// use ggen_core::cli_generator::workspace::WorkspaceGenerator;
     /// use std::path::Path;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let generator = WorkspaceGenerator::new(Path::new("./templates"))?;
     /// # Ok(())
     /// # }
     /// ```
     pub fn new(template_dir: &Path) -> Result<Self> {
         let pattern = format!("{}/**/*.tmpl", template_dir.display());
-        let tera = Tera::new(&pattern).with_context(|| {
-            format!("Failed to load templates from: {}", template_dir.display())
+        let tera = Tera::new(&pattern).map_err(|e| {
+            Error::with_context(
+                "Failed to load templates",
+                &format!("{}: {}", template_dir.display(), e),
+            )
         })?;
 
         Ok(Self { tera })
@@ -136,7 +142,7 @@ impl WorkspaceGenerator {
     /// use ggen_core::cli_generator::{workspace::WorkspaceGenerator, types::CliProject};
     /// use std::path::Path;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let generator = WorkspaceGenerator::new(Path::new("templates"))?;
     ///
     /// let project = CliProject {
@@ -162,11 +168,11 @@ impl WorkspaceGenerator {
         let cli_crate = project
             .cli_crate
             .as_ref()
-            .ok_or_else(|| anyhow::anyhow!("cli_crate is required for workspace generation"))?;
+            .ok_or_else(|| Error::new("cli_crate is required for workspace generation"))?;
         let core_crate = project
             .domain_crate
             .as_ref()
-            .ok_or_else(|| anyhow::anyhow!("domain_crate is required for workspace generation"))?;
+            .ok_or_else(|| Error::new("domain_crate is required for workspace generation"))?;
         context.insert("cli_crate", cli_crate);
         context.insert("core_crate", core_crate);
         context.insert("version", &project.version);
@@ -178,30 +184,41 @@ impl WorkspaceGenerator {
 
         // Generate workspace root Cargo.toml
         let workspace_cargo = output_dir.join("Cargo.toml");
-        self.render_template("cli/workspace/Cargo.toml.tmpl", &context, &workspace_cargo)
-            .context("Failed to generate workspace Cargo.toml")?;
+        self.render_template(WORKSPACE_CARGO_TEMPLATE, &context, &workspace_cargo)
+            .map_err(|e| {
+                Error::with_context("Failed to generate workspace Cargo.toml", &e.to_string())
+            })?;
 
         // Create crates directory
         let crates_dir = output_dir.join("crates");
-        std::fs::create_dir_all(&crates_dir).context("Failed to create crates directory")?;
+        std::fs::create_dir_all(&crates_dir).map_err(|e| {
+            Error::with_context("Failed to create crates directory", &e.to_string())
+        })?;
 
         Ok(())
     }
 
     fn render_template(&self, template: &str, context: &Context, output: &Path) -> Result<()> {
-        let content = self
-            .tera
-            .render(template, context)
-            .with_context(|| format!("Failed to render template: {}", template))?;
+        let content = self.tera.render(template, context).map_err(|e| {
+            Error::with_context("Failed to render template", &format!("{}: {}", template, e))
+        })?;
 
         // Create parent directory if needed
         if let Some(parent) = output.parent() {
-            std::fs::create_dir_all(parent)
-                .with_context(|| format!("Failed to create directory: {}", parent.display()))?;
+            std::fs::create_dir_all(parent).map_err(|e| {
+                Error::with_context(
+                    "Failed to create directory",
+                    &format!("{}: {}", parent.display(), e),
+                )
+            })?;
         }
 
-        std::fs::write(output, content)
-            .with_context(|| format!("Failed to write file: {}", output.display()))?;
+        std::fs::write(output, content).map_err(|e| {
+            Error::with_context(
+                "Failed to write file",
+                &format!("{}: {}", output.display(), e),
+            )
+        })?;
 
         Ok(())
     }

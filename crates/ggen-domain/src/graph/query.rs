@@ -2,8 +2,8 @@
 //!
 //! Chicago TDD: Uses REAL in-memory RDF stores and ACTUAL SPARQL queries
 
-use anyhow::{Context, Result};
 use ggen_core::Graph;
+use ggen_utils::error::{Context, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::PathBuf;
@@ -304,5 +304,6 @@ pub async fn execute_query(input: QueryInput) -> Result<QueryResult> {
         output_format: input.format,
     };
 
-    execute_sparql(options).map_err(|e| anyhow::anyhow!("SPARQL query failed: {}", e))
+    execute_sparql(options)
+        .map_err(|e| ggen_utils::error::Error::new(&format!("SPARQL query failed: {}", e)))
 }

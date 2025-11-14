@@ -29,6 +29,7 @@ pub fn run_cli() -> Result<()> {
     }
 
     // Use clap-noun-verb's auto-discovery to find all [verb] functions
-    clap_noun_verb::run().map_err(|e| anyhow::anyhow!("CLI execution failed: {}", e))?;
+    clap_noun_verb::run()
+        .map_err(|e| ggen_utils::error::Error::new(&format!("CLI execution failed: {}", e)))?;
     Ok(())
 }

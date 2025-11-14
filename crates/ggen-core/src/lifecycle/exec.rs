@@ -18,10 +18,11 @@
 //! ```rust,no_run
 //! use ggen_core::lifecycle::exec::Context;
 //! use ggen_core::lifecycle::exec::run_phase;
+//! use ggen_core::lifecycle::Result;
 //! use std::path::PathBuf;
 //! use std::sync::Arc;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> Result<()> {
 //! // Create execution context
 //! let root = PathBuf::from(".");
 //! let make = Arc::new(ggen_core::lifecycle::loader::load_make("make.toml")?);
@@ -38,10 +39,11 @@
 //!
 //! ```rust,no_run
 //! use ggen_core::lifecycle::exec::run_pipeline;
+//! use ggen_core::lifecycle::Result;
 //! use std::path::PathBuf;
 //! use std::sync::Arc;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> Result<()> {
 //! // Create context (same as above)
 //! let root = PathBuf::from(".");
 //! let make = Arc::new(ggen_core::lifecycle::loader::load_make("make.toml")?);
@@ -418,7 +420,10 @@ fn execute_command(cmd: &str, cwd: &Path, env: &[(String, String)]) -> Result<()
         .map_err(|e| LifecycleError::command_spawn("unknown", cmd, e))?;
 
     // PRODUCTION FIX: Implement timeout to prevent hung processes
-    let timeout = Duration::from_secs(300); // 5 minutes
+    /// Default command execution timeout: 5 minutes
+    const DEFAULT_COMMAND_TIMEOUT_SECS: u64 = 300;
+
+    let timeout = Duration::from_secs(DEFAULT_COMMAND_TIMEOUT_SECS);
     let start = Instant::now();
 
     loop {

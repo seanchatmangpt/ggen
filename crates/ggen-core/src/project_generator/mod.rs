@@ -62,7 +62,7 @@ pub mod common;
 pub mod nextjs;
 pub mod rust;
 
-use anyhow::Result;
+use ggen_utils::error::{Error, Result};
 use std::path::{Path, PathBuf};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -87,16 +87,16 @@ impl std::fmt::Display for ProjectType {
 }
 
 impl std::str::FromStr for ProjectType {
-    type Err = anyhow::Error;
+    type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self> {
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
             "rust-web" => Ok(ProjectType::RustWeb),
             "rust-cli" => Ok(ProjectType::RustCli),
             "rust-lib" => Ok(ProjectType::RustLib),
             "nextjs" => Ok(ProjectType::NextJs),
             "nuxt" => Ok(ProjectType::Nuxt),
-            _ => anyhow::bail!("Unsupported project type: {}", s),
+            _ => return Err(Error::new(&format!("Unsupported project type: {}", s))),
         }
     }
 }
@@ -150,13 +150,21 @@ impl FileSystemWriter {
     }
 
     pub fn write_file(&self, path: &Path, content: &str) -> Result<()> {
-        std::fs::write(path, content)
-            .map_err(|e| anyhow::anyhow!("Failed to write file {}: {}", path.display(), e))
+        std::fs::write(path, content).map_err(|e| {
+            Error::with_source(
+                &format!("Failed to write file {}", path.display()),
+                Box::new(e),
+            )
+        })
     }
 
     pub fn create_directory(&self, path: &Path) -> Result<()> {
-        std::fs::create_dir_all(path)
-            .map_err(|e| anyhow::anyhow!("Failed to create directory {}: {}", path.display(), e))
+        std::fs::create_dir_all(path).map_err(|e| {
+            Error::with_source(
+                &format!("Failed to create directory {}", path.display()),
+                Box::new(e),
+            )
+        })
     }
 }
 
@@ -181,13 +189,13 @@ impl GitInitializer {
             .arg("init")
             .current_dir(path)
             .output()
-            .map_err(|e| anyhow::anyhow!("Failed to run git init: {}", e))?;
+            .map_err(|e| Error::with_source("Failed to run git init", Box::new(e)))?;
 
         if !output.status.success() {
-            anyhow::bail!(
+            return Err(Error::new(&format!(
                 "git init failed: {}",
                 String::from_utf8_lossy(&output.stderr)
-            );
+            )));
         }
 
         Ok(())
@@ -226,7 +234,7 @@ impl DependencyInstaller {
             .arg("fetch")
             .current_dir(path)
             .output()
-            .map_err(|e| anyhow::anyhow!("Failed to run cargo fetch: {}", e))?;
+            .map_err(|e| Error::with_source("Failed to run cargo fetch", Box::new(e)))?;
 
         if !output.status.success() {
             // Non-critical failure - dependencies will be fetched on first build
@@ -249,13 +257,13 @@ impl DependencyInstaller {
             .arg("install")
             .current_dir(path)
             .output()
-            .map_err(|e| anyhow::anyhow!("Failed to run npm install: {}", e))?;
+            .map_err(|e| Error::with_source("Failed to run npm install", Box::new(e)))?;
 
         if !output.status.success() {
-            anyhow::bail!(
+            return Err(Error::new(&format!(
                 "npm install failed: {}",
                 String::from_utf8_lossy(&output.stderr)
-            );
+            )));
         }
 
         Ok(())
@@ -268,7 +276,10 @@ pub async fn create_new_project(config: &ProjectConfig) -> Result<()> {
 
     // Check if project already exists
     if project_path.exists() {
-        anyhow::bail!("Project directory '{}' already exists", config.name);
+        return Err(Error::new(&format!(
+            "Project directory '{}' already exists",
+            config.name
+        )));
     }
 
     // Create generator
@@ -319,9 +330,9 @@ pub async fn create_new_project(config: &ProjectConfig) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chicago_tdd_tools::{async_test, test};
 
-    #[test]
-    fn test_project_type_from_str() {
+    test!(test_project_type_from_str, {
         assert_eq!(
             "rust-web".parse::<ProjectType>().unwrap(),
             ProjectType::RustWeb
@@ -330,11 +341,10 @@ mod tests {
             "nextjs".parse::<ProjectType>().unwrap(),
             ProjectType::NextJs
         );
-    }
+    });
 
-    #[test]
-    fn test_project_type_display() {
+    test!(test_project_type_display, {
         assert_eq!(ProjectType::RustWeb.to_string(), "rust-web");
         assert_eq!(ProjectType::NextJs.to_string(), "nextjs");
-    }
+    });
 }

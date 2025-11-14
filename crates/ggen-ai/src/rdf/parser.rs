@@ -28,7 +28,7 @@
 //! # }
 //! ```
 
-use anyhow::Result;
+use ggen_utils::error::{bail, Result};
 use oxigraph::io::RdfFormat;
 use oxigraph::store::Store;
 use std::fs::File;
@@ -117,7 +117,7 @@ impl RdfParser {
             }
 
             if !loaded {
-                anyhow::bail!(
+                bail!(
                     "Could not find project-schema.ttl at {} or alternative locations",
                     schema_path.display()
                 );

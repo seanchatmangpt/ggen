@@ -25,8 +25,9 @@
 //!
 //! ```rust,no_run
 //! use ggen_core::lifecycle::loader::load_make;
+//! use ggen_core::lifecycle::Result;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> Result<()> {
 //! let make = load_make("make.toml")?;
 //! println!("Project: {}", make.project.name);
 //! # Ok(())
@@ -37,8 +38,9 @@
 //!
 //! ```rust,no_run
 //! use ggen_core::lifecycle::loader::load_make_or_default;
+//! use ggen_core::lifecycle::Result;
 //!
-//! # fn main() -> ggen_utils::error::Result<()> {
+//! # fn main() -> Result<()> {
 //! // Returns default config if make.toml doesn't exist
 //! let make = load_make_or_default(".")?;
 //! # Ok(())

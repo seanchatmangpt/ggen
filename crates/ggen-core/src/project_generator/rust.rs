@@ -27,7 +27,7 @@
 //! use ggen_core::project_generator::rust::RustProjectGenerator;
 //! use std::path::PathBuf;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let config = ProjectConfig {
 //!     name: "my-cli".to_string(),
 //!     project_type: ProjectType::RustCli,
@@ -48,7 +48,7 @@
 //! use ggen_core::project_generator::rust::RustProjectGenerator;
 //! use std::path::PathBuf;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let config = ProjectConfig {
 //!     name: "my-web".to_string(),
 //!     project_type: ProjectType::RustWeb,
@@ -63,7 +63,7 @@
 //! ```
 
 use super::{ProjectConfig, ProjectGenerator, ProjectStructure, ProjectType};
-use anyhow::Result;
+use ggen_utils::error::Result;
 
 pub struct RustProjectGenerator;
 
@@ -130,7 +130,7 @@ tokio-test = "0.4"
                 let framework = config.framework.as_deref().unwrap_or("axum");
                 if framework == "axum" {
                     format!(
-                        r#"use anyhow::Result;
+                        r#"use ggen_utils::error::Result;
 use axum::{{
     routing::get,
     Router,
@@ -170,7 +170,7 @@ async fn health() -> &'static str {{
                     )
                 } else {
                     format!(
-                        r#"use anyhow::Result;
+                        r#"use ggen_utils::error::Result;
 
 #[tokio::main]
 async fn main() -> Result<()> {{
@@ -184,7 +184,7 @@ async fn main() -> Result<()> {{
             }
             ProjectType::RustCli => {
                 format!(
-                    r#"use anyhow::Result;
+                    r#"use ggen_utils::error::Result;
 use clap::Parser;
 
 #[derive(Parser)]
@@ -220,7 +220,7 @@ async fn main() -> Result<()> {{
 //!
 //! This library provides...
 
-use anyhow::Result;
+use ggen_utils::error::Result;
 
 /// Main library function
 pub fn run() -> Result<()> {{
@@ -230,11 +230,11 @@ pub fn run() -> Result<()> {{
 #[cfg(test)]
 mod tests {{
     use super::*;
+    use chicago_tdd_tools::{{{{test, async_test}}}};
 
-    #[test]
-    fn test_run() {{
+    test!(test_run, {{
         assert!(run().is_ok());
-    }}
+    }});
 }}
 "#,
             config.name
@@ -322,8 +322,7 @@ mod tests {
     use super::*;
     use std::path::PathBuf;
 
-    #[test]
-    fn test_generate_rust_web_project() {
+    test!(test_generate_rust_web_project, {
         let generator = RustProjectGenerator::new();
         let config = ProjectConfig {
             name: "test-web".to_string(),
@@ -351,10 +350,9 @@ mod tests {
 
         assert!(cargo_toml.contains("name = \"test-web\""));
         assert!(cargo_toml.contains("axum"));
-    }
+    });
 
-    #[test]
-    fn test_generate_rust_cli_project() {
+    test!(test_generate_rust_cli_project, {
         let generator = RustProjectGenerator::new();
         let config = ProjectConfig {
             name: "test-cli".to_string(),
@@ -373,10 +371,9 @@ mod tests {
             .unwrap();
 
         assert!(main_rs.contains("clap::Parser"));
-    }
+    });
 
-    #[test]
-    fn test_generate_rust_lib_project() {
+    test!(test_generate_rust_lib_project, {
         let generator = RustProjectGenerator::new();
         let config = ProjectConfig {
             name: "test-lib".to_string(),
@@ -392,5 +389,5 @@ mod tests {
             .files
             .iter()
             .any(|(path, _)| path == "src/main.rs"));
-    }
+    });
 }

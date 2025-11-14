@@ -2,7 +2,7 @@
 //!
 //! Chicago TDD: Uses REAL graph export and file writing
 
-use anyhow::{Context, Result};
+use ggen_utils::error::{bail, Context, Result};
 
 use ggen_core::Graph;
 use std::fs;
@@ -20,16 +20,19 @@ pub enum ExportFormat {
 }
 
 impl FromStr for ExportFormat {
-    type Err = anyhow::Error;
+    type Err = ggen_utils::error::Error;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
             "turtle" | "ttl" => Ok(ExportFormat::Turtle),
             "ntriples" | "nt" => Ok(ExportFormat::NTriples),
             "rdfxml" | "rdf" | "xml" => Ok(ExportFormat::RdfXml),
             "jsonld" | "json" => Ok(ExportFormat::JsonLd),
             "n3" => Ok(ExportFormat::N3),
-            _ => anyhow::bail!("Unsupported export format: {}", s),
+            _ => Err(ggen_utils::error::Error::new(&format!(
+                "Unsupported export format: {}",
+                s
+            ))),
         }
     }
 }

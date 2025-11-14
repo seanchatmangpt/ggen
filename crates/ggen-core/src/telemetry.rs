@@ -26,7 +26,7 @@
 //! ```rust,no_run
 //! use ggen_core::telemetry::{init_telemetry, TelemetryConfig};
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let config = TelemetryConfig {
 //!     endpoint: "http://localhost:4318".to_string(),
 //!     service_name: "ggen".to_string(),
@@ -40,7 +40,7 @@
 //! # }
 //! ```
 
-use anyhow::{Context, Result};
+use ggen_utils::error::{Error, Result};
 use opentelemetry::{global, KeyValue};
 use opentelemetry_otlp::WithExportConfig;
 use opentelemetry_sdk::{
@@ -88,7 +88,7 @@ impl Default for TelemetryConfig {
 /// use ggen_core::telemetry::{init_telemetry, TelemetryConfig};
 ///
 /// #[tokio::main]
-/// async fn main() -> anyhow::Result<()> {
+/// async fn main() -> ggen_utils::error::Result<()> {
 ///     let config = TelemetryConfig::default();
 ///     init_telemetry(config)?;
 ///
@@ -117,7 +117,7 @@ pub fn init_telemetry(config: TelemetryConfig) -> Result<()> {
                 ])),
         )
         .install_batch(runtime::Tokio)
-        .context("Failed to install OTLP tracer")?;
+        .map_err(|e| Error::with_context("Failed to install OTLP tracer", &e.to_string()))?;
 
     // Create OpenTelemetry tracing layer
     let telemetry_layer = tracing_opentelemetry::layer().with_tracer(tracer);
@@ -173,17 +173,16 @@ macro_rules! telemetry_context {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chicago_tdd_tools::test;
 
-    #[test]
-    fn test_telemetry_config_default() {
+    test!(test_telemetry_config_default, {
         let config = TelemetryConfig::default();
         assert_eq!(config.service_name, "ggen");
         assert_eq!(config.sample_ratio, 1.0);
         assert!(config.console_output);
-    }
+    });
 
-    #[test]
-    fn test_telemetry_config_custom() {
+    test!(test_telemetry_config_custom, {
         let config = TelemetryConfig {
             endpoint: "http://custom:4318".to_string(),
             service_name: "test-service".to_string(),
@@ -194,5 +193,5 @@ mod tests {
         assert_eq!(config.service_name, "test-service");
         assert_eq!(config.sample_ratio, 0.5);
         assert!(!config.console_output);
-    }
+    });
 }

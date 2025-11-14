@@ -38,7 +38,7 @@
 //! use ggen_core::lockfile::LockfileManager;
 //! use std::path::Path;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let manager = LockfileManager::new(Path::new("."));
 //! # Ok(())
 //! # }
@@ -50,7 +50,7 @@
 //! use ggen_core::lockfile::LockfileManager;
 //! use std::path::Path;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let manager = LockfileManager::new(Path::new("."));
 //! manager.upsert(
 //!     "io.ggen.rust.cli",
@@ -68,7 +68,7 @@
 //! use ggen_core::lockfile::LockfileManager;
 //! use std::path::Path;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let manager = LockfileManager::new(Path::new("."));
 //! manager.upsert_with_pqc(
 //!     "io.ggen.rust.cli",
@@ -82,8 +82,8 @@
 //! # }
 //! ```
 
-use anyhow::{Context, Result};
 use chrono::{DateTime, Utc};
+use ggen_utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
@@ -165,9 +165,11 @@ impl LockfileManager {
             return Ok(None);
         }
 
-        let content = fs::read_to_string(&self.lockfile_path).context("Failed to read lockfile")?;
+        let content = fs::read_to_string(&self.lockfile_path)
+            .map_err(|e| Error::with_context("Failed to read lockfile", &e.to_string()))?;
 
-        let lockfile: Lockfile = toml::from_str(&content).context("Failed to parse lockfile")?;
+        let lockfile: Lockfile = toml::from_str(&content)
+            .map_err(|e| Error::with_context("Failed to parse lockfile", &e.to_string()))?;
 
         Ok(Some(lockfile))
     }
@@ -185,12 +187,16 @@ impl LockfileManager {
     pub fn save(&self, lockfile: &Lockfile) -> Result<()> {
         // Create parent directory if it doesn't exist
         if let Some(parent) = self.lockfile_path.parent() {
-            fs::create_dir_all(parent).context("Failed to create lockfile directory")?;
+            fs::create_dir_all(parent).map_err(|e| {
+                Error::with_context("Failed to create lockfile directory", &e.to_string())
+            })?;
         }
 
-        let content = toml::to_string_pretty(lockfile).context("Failed to serialize lockfile")?;
+        let content = toml::to_string_pretty(lockfile)
+            .map_err(|e| Error::with_context("Failed to serialize lockfile", &e.to_string()))?;
 
-        fs::write(&self.lockfile_path, content).context("Failed to write lockfile")?;
+        fs::write(&self.lockfile_path, content)
+            .map_err(|e| Error::with_context("Failed to write lockfile", &e.to_string()))?;
 
         Ok(())
     }
@@ -283,11 +289,10 @@ impl LockfileManager {
 
         // If not in cache, try to load from source (this is a simplified approach)
         // In a real implementation, you might want to download and parse the manifest
-        Err(anyhow::anyhow!(
+        Err(Error::new(&format!(
             "Could not load manifest for pack {}@{}",
-            pack_id,
-            version
-        ))
+            pack_id, version
+        )))
     }
 
     /// Remove a pack from the lockfile
@@ -390,18 +395,17 @@ pub struct LockfileStats {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chicago_tdd_tools::{async_test, test};
     use tempfile::TempDir;
 
-    #[test]
-    fn test_lockfile_manager_creation() {
+    test!(test_lockfile_manager_creation, {
         let temp_dir = TempDir::new().unwrap();
         let manager = LockfileManager::new(temp_dir.path());
 
         assert_eq!(manager.lockfile_path(), temp_dir.path().join("ggen.lock"));
-    }
+    });
 
-    #[test]
-    fn test_lockfile_create_and_save() {
+    test!(test_lockfile_create_and_save, {
         let temp_dir = TempDir::new().unwrap();
         let manager = LockfileManager::new(temp_dir.path());
 
@@ -409,19 +413,17 @@ mod tests {
         manager.save(&lockfile).unwrap();
 
         assert!(manager.lockfile_path().exists());
-    }
+    });
 
-    #[test]
-    fn test_lockfile_load_nonexistent() {
+    test!(test_lockfile_load_nonexistent, {
         let temp_dir = TempDir::new().unwrap();
         let manager = LockfileManager::new(temp_dir.path());
 
         let loaded = manager.load().unwrap();
         assert!(loaded.is_none());
-    }
+    });
 
-    #[test]
-    fn test_lockfile_upsert_and_get() {
+    test!(test_lockfile_upsert_and_get, {
         let temp_dir = TempDir::new().unwrap();
         let manager = LockfileManager::new(temp_dir.path());
 
@@ -438,10 +440,9 @@ mod tests {
         assert_eq!(entry.source, "https://example.com");
         assert!(entry.pqc_signature.is_none());
         assert!(entry.pqc_pubkey.is_none());
-    }
+    });
 
-    #[test]
-    fn test_lockfile_upsert_with_pqc() {
+    test!(test_lockfile_upsert_with_pqc, {
         let temp_dir = TempDir::new().unwrap();
         let manager = LockfileManager::new(temp_dir.path());
 
@@ -462,10 +463,9 @@ mod tests {
         assert_eq!(entry.id, "io.ggen.test");
         assert_eq!(entry.pqc_signature, Some("pqc_sig_base64".to_string()));
         assert_eq!(entry.pqc_pubkey, Some("pqc_pubkey_base64".to_string()));
-    }
+    });
 
-    #[test]
-    fn test_lockfile_remove() {
+    test!(test_lockfile_remove, {
         let temp_dir = TempDir::new().unwrap();
         let manager = LockfileManager::new(temp_dir.path());
 
@@ -479,10 +479,9 @@ mod tests {
         let removed = manager.remove("io.ggen.test").unwrap();
         assert!(removed);
         assert!(!manager.is_installed("io.ggen.test").unwrap());
-    }
+    });
 
-    #[test]
-    fn test_lockfile_stats() {
+    test!(test_lockfile_stats, {
         let temp_dir = TempDir::new().unwrap();
         let manager = LockfileManager::new(temp_dir.path());
 
@@ -501,5 +500,5 @@ mod tests {
         assert_eq!(stats.total_packs, 1);
         assert!(stats.generated.is_some());
         assert_eq!(stats.version, Some("1.0".to_string()));
-    }
+    });
 }

@@ -10,6 +10,8 @@ Welcome to the ggen documentation! This documentation follows the [Diataxis fram
 2. **[Installation Guide](how-to-guides/installation.md)** - Complete installation instructions
 3. **[CLI Reference](reference/cli.md)** - All available commands
 
+**Note**: This directory uses `_CURRENT` suffix for active documentation files. Older versions are removed to prevent waste (see [MUDA_INVENTORY.md](wip/MUDA_INVENTORY.md)). Work-in-progress and intermediate documentation is stored in the [`wip/`](wip/) directory.
+
 ## Documentation Structure
 
 ### 📚 Tutorials (Learning-Oriented)
@@ -31,6 +33,7 @@ Task-based guides that help you solve specific problems:
 - **[Configure Hooks](how-to-guides/configure-hooks.md)** - How to set up Git hooks
 - **[Deploy Production](how-to-guides/deploy-production.md)** - How to deploy to production
 - **[Troubleshoot](how-to-guides/troubleshoot.md)** - How to solve common problems
+- **[Development Workflow](DEVELOPMENT_WORKFLOW.md)** - How to develop ggen (testing, error handling, quality assurance)
 
 ### 📖 Reference (Information-Oriented)
 
@@ -46,6 +49,7 @@ Complete, accurate information about ggen's features:
 Background information and conceptual explanations:
 
 - **[Architecture](explanations/architecture.md)** - System architecture and design
+- **[Development Workflow](DEVELOPMENT_WORKFLOW.md)** - Development practices, testing, and quality assurance
 - **[Ontology-Driven Development](explanations/ontology-driven.md)** - Why ontology-driven development
 - **[Determinism](explanations/determinism.md)** - How determinism works
 - **[Code Projections](explanations/projections.md)** - How code projections work

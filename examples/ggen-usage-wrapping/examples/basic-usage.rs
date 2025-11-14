@@ -55,7 +55,7 @@ Hello, {{ name }}!
 Welcome to {{ project }}.
 "#;
 
-    let template = Template::parse(template_content)
+    let template = Template::from_str(template_content)
         .context("Failed to parse template from string")?;
 
     info!("Template body length: {}", template.body.len());
@@ -83,11 +83,9 @@ This is a template loaded from: {{ filename }}
     )
     .context("Failed to create sample template file")?;
 
-    // Read file and parse
-    let content = std::fs::read_to_string(sample_path)
-        .context("Failed to read template file")?;
-    let template = Template::parse(&content)
-        .context("Failed to parse template from file")?;
+    // Load template from file (convenience method)
+    let template = Template::from_file(sample_path)
+        .context("Failed to load template from file")?;
 
     info!("Loaded template with body length: {}", template.body.len());
 
@@ -273,7 +271,7 @@ mod tests {
     async fn test_error_handling() {
         // Test invalid template
         let invalid_template = "---\nno closing frontmatter";
-        let result = Template::parse(invalid_template);
+        let result = Template::from_str(invalid_template);
         assert!(result.is_err());
     }
 }

@@ -29,7 +29,7 @@
 //! use ggen_core::lockfile::LockfileManager;
 //! use std::path::Path;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let cache = CacheManager::new()?;
 //! let lockfile = LockfileManager::new(Path::new("."));
 //! let resolver = TemplateResolver::new(cache, lockfile);
@@ -49,7 +49,7 @@
 //! use ggen_core::lockfile::LockfileManager;
 //! use std::path::Path;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let cache = CacheManager::new()?;
 //! let lockfile = LockfileManager::new(Path::new("."));
 //! let resolver = TemplateResolver::new(cache, lockfile);
@@ -71,7 +71,7 @@
 //! use ggen_core::lockfile::LockfileManager;
 //! use std::path::Path;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let cache = CacheManager::new()?;
 //! let lockfile = LockfileManager::new(Path::new("."));
 //! let resolver = TemplateResolver::new(cache, lockfile);
@@ -83,7 +83,7 @@
 //! # }
 //! ```
 
-use anyhow::{Context, Result};
+use ggen_utils::error::{Error, Result};
 use glob::glob;
 use std::path::PathBuf;
 
@@ -126,7 +126,7 @@ impl TemplateResolver {
     /// use ggen_core::lockfile::LockfileManager;
     /// use std::path::Path;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let cache = CacheManager::new()?;
     /// let lockfile = LockfileManager::new(Path::new("."));
     /// let resolver = TemplateResolver::new(cache, lockfile);
@@ -161,7 +161,7 @@ impl TemplateResolver {
     /// use ggen_core::lockfile::LockfileManager;
     /// use std::path::Path;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let cache = CacheManager::new()?;
     /// let lockfile = LockfileManager::new(Path::new("."));
     /// let resolver = TemplateResolver::new(cache, lockfile);
@@ -181,7 +181,7 @@ impl TemplateResolver {
     /// use ggen_core::lockfile::LockfileManager;
     /// use std::path::Path;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let cache = CacheManager::new()?;
     /// let lockfile = LockfileManager::new(Path::new("."));
     /// let resolver = TemplateResolver::new(cache, lockfile);
@@ -201,7 +201,7 @@ impl TemplateResolver {
     /// use ggen_core::lockfile::LockfileManager;
     /// use std::path::Path;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let cache = CacheManager::new()?;
     /// let lockfile = LockfileManager::new(Path::new("."));
     /// let resolver = TemplateResolver::new(cache, lockfile);
@@ -219,24 +219,28 @@ impl TemplateResolver {
         let lock_entry = self
             .lockfile_manager
             .get(&pack_id)?
-            .with_context(|| format!("Pack '{}' not found in lockfile", pack_id))?;
+            .ok_or_else(|| Error::new(&format!("Pack '{}' not found in lockfile", pack_id)))?;
 
         // Load cached pack
         let cached_pack = self
             .cache_manager
             .load_cached(&pack_id, &lock_entry.version)
-            .with_context(|| format!("Pack '{}' not found in cache", pack_id))?;
+            .map_err(|e| {
+                Error::with_context(
+                    &format!("Pack '{}' not found in cache", pack_id),
+                    &e.to_string(),
+                )
+            })?;
 
         // Resolve template path
         let full_template_path = self.resolve_template_path(&cached_pack, &template_path)?;
 
         // Verify template exists
         if !full_template_path.exists() {
-            anyhow::bail!(
+            return Err(ggen_utils::error::Error::new(&format!(
                 "Template '{}' not found in pack '{}'",
-                template_path,
-                pack_id
-            );
+                template_path, pack_id
+            )));
         }
 
         let manifest = cached_pack.manifest.clone();
@@ -254,24 +258,27 @@ impl TemplateResolver {
         let parts: Vec<&str> = template_ref.split(':').collect();
 
         if parts.len() != 2 {
-            anyhow::bail!(
+            return Err(ggen_utils::error::Error::new(&format!(
                 "Invalid template reference format: '{}'. Expected 'pack_id:template_path'",
                 template_ref
-            );
+            )));
         }
 
         let pack_id = parts[0].to_string();
         let template_path = parts[1].to_string();
 
         if pack_id.is_empty() {
-            anyhow::bail!("Empty pack ID in template reference: '{}'", template_ref);
+            return Err(ggen_utils::error::Error::new(&format!(
+                "Empty pack ID in template reference: '{}'",
+                template_ref
+            )));
         }
 
         if template_path.is_empty() {
-            anyhow::bail!(
+            return Err(ggen_utils::error::Error::new(&format!(
                 "Empty template path in template reference: '{}'",
                 template_ref
-            );
+            )));
         }
 
         Ok((pack_id, template_path))
@@ -287,7 +294,10 @@ impl TemplateResolver {
         // Add template path components
         for component in template_path.split('/') {
             if component == ".." {
-                anyhow::bail!("Template path cannot contain '..': {}", template_path);
+                return Err(ggen_utils::error::Error::new(&format!(
+                    "Template path cannot contain '..': {}",
+                    template_path
+                )));
             }
             if component.is_empty() {
                 continue;
@@ -308,7 +318,7 @@ impl TemplateResolver {
     /// use ggen_core::lockfile::LockfileManager;
     /// use std::path::Path;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let cache = CacheManager::new()?;
     /// let lockfile = LockfileManager::new(Path::new("."));
     /// let resolver = TemplateResolver::new(cache, lockfile);
@@ -385,8 +395,12 @@ impl TemplateResolver {
 
             for pattern in conventions.template_patterns {
                 let full_pattern = cached_pack.path.join(pattern);
-                for entry in glob(&full_pattern.to_string_lossy())? {
-                    templates.push(entry?);
+                // Explicit error conversion: glob errors don't implement From
+                for entry in glob(&full_pattern.to_string_lossy())
+                    .map_err(|e| Error::new(&format!("Glob pattern error: {}", e)))?
+                {
+                    templates
+                        .push(entry.map_err(|e| Error::new(&format!("Glob entry error: {}", e)))?);
                 }
             }
 
@@ -400,12 +414,17 @@ impl TemplateResolver {
         let lock_entry = self
             .lockfile_manager
             .get(pack_id)?
-            .with_context(|| format!("Pack '{}' not found in lockfile", pack_id))?;
+            .ok_or_else(|| Error::new(&format!("Pack '{}' not found in lockfile", pack_id)))?;
 
         let cached_pack = self
             .cache_manager
             .load_cached(pack_id, &lock_entry.version)
-            .with_context(|| format!("Pack '{}' not found in cache", pack_id))?;
+            .map_err(|e| {
+                Error::with_context(
+                    &format!("Pack '{}' not found in cache", pack_id),
+                    &e.to_string(),
+                )
+            })?;
 
         // Use manifest discovery to find templates
         let templates = self.find_templates_in_pack(&cached_pack)?;
@@ -414,9 +433,9 @@ impl TemplateResolver {
 
         for template_path in templates {
             // Get relative path from templates directory
-            let relative_path = template_path
-                .strip_prefix(&templates_dir)
-                .context("Failed to get relative template path")?;
+            let relative_path = template_path.strip_prefix(&templates_dir).map_err(|e| {
+                Error::with_context("Failed to get relative template path", &e.to_string())
+            })?;
 
             template_paths.push(relative_path.to_string_lossy().to_string());
         }
@@ -433,7 +452,7 @@ impl TemplateResolver {
 
         // Read template content
         let content = std::fs::read_to_string(&template_source.template_path)
-            .context("Failed to read template file")?;
+            .map_err(|e| Error::with_context("Failed to read template file", &e.to_string()))?;
 
         // Parse frontmatter if present
         let (frontmatter, template_content) = self.parse_frontmatter(&content)?;
@@ -452,7 +471,10 @@ impl TemplateResolver {
         use gray_matter::Matter;
 
         let matter = Matter::<gray_matter::engine::YAML>::new();
-        let parsed = matter.parse(content)?;
+        // Explicit error conversion: gray_matter errors don't implement From
+        let parsed = matter
+            .parse(content)
+            .map_err(|e| Error::new(&format!("Failed to parse frontmatter: {}", e)))?;
 
         let frontmatter = parsed.data.map(|data: serde_yaml::Value| data);
         let content = parsed.content;
@@ -474,11 +496,11 @@ pub struct TemplateInfo {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chicago_tdd_tools::{async_test, test};
     use std::fs;
     use tempfile::TempDir;
 
-    #[test]
-    fn test_parse_template_ref() {
+    test!(test_parse_template_ref, {
         let temp_dir = TempDir::new().unwrap();
         let cache_manager = CacheManager::with_dir(temp_dir.path().join("cache")).unwrap();
         let lockfile_manager = LockfileManager::new(temp_dir.path());
@@ -489,10 +511,9 @@ mod tests {
             .unwrap();
         assert_eq!(pack_id, "io.ggen.test");
         assert_eq!(template_path, "main.tmpl");
-    }
+    });
 
-    #[test]
-    fn test_parse_template_ref_invalid() {
+    test!(test_parse_template_ref_invalid, {
         let temp_dir = TempDir::new().unwrap();
         let cache_manager = CacheManager::with_dir(temp_dir.path().join("cache")).unwrap();
         let lockfile_manager = LockfileManager::new(temp_dir.path());
@@ -506,10 +527,9 @@ mod tests {
 
         // Empty template path
         assert!(resolver.parse_template_ref("pack:").is_err());
-    }
+    });
 
-    #[test]
-    fn test_resolve_template_path() {
+    test!(test_resolve_template_path, {
         let temp_dir = TempDir::new().unwrap();
         let pack_dir = temp_dir.path().join("pack");
         let templates_dir = pack_dir.join("templates");
@@ -531,10 +551,9 @@ mod tests {
             .resolve_template_path(&cached_pack, "main.tmpl")
             .unwrap();
         assert_eq!(resolved_path, templates_dir.join("main.tmpl"));
-    }
+    });
 
-    #[test]
-    fn test_resolve_template_path_security() {
+    test!(test_resolve_template_path_security, {
         let temp_dir = TempDir::new().unwrap();
         let pack_dir = temp_dir.path().join("pack");
         let cached_pack = CachedPack {
@@ -553,10 +572,9 @@ mod tests {
         assert!(resolver
             .resolve_template_path(&cached_pack, "../outside.tmpl")
             .is_err());
-    }
+    });
 
-    #[test]
-    fn test_template_resolver_new() {
+    test!(test_template_resolver_new, {
         let temp_dir = TempDir::new().unwrap();
         let cache_manager = CacheManager::with_dir(temp_dir.path().join("cache")).unwrap();
         let lockfile_manager = LockfileManager::new(temp_dir.path());
@@ -565,10 +583,9 @@ mod tests {
 
         // Resolver should be created successfully
         assert!(resolver.cache_manager.cache_dir().exists());
-    }
+    });
 
-    #[test]
-    fn test_resolve_template_path_nested() {
+    test!(test_resolve_template_path_nested, {
         let temp_dir = TempDir::new().unwrap();
         let pack_dir = temp_dir.path().join("pack");
         let templates_dir = pack_dir.join("templates");
@@ -590,10 +607,9 @@ mod tests {
             .resolve_template_path(&cached_pack, "nested/sub.tmpl")
             .unwrap();
         assert_eq!(resolved_path, templates_dir.join("nested").join("sub.tmpl"));
-    }
+    });
 
-    #[test]
-    fn test_resolve_template_path_empty_components() {
+    test!(test_resolve_template_path_empty_components, {
         let temp_dir = TempDir::new().unwrap();
         let pack_dir = temp_dir.path().join("pack");
         let templates_dir = pack_dir.join("templates");
@@ -616,10 +632,9 @@ mod tests {
             .resolve_template_path(&cached_pack, "a//b/")
             .unwrap();
         assert_eq!(resolved_path, templates_dir.join("a").join("b"));
-    }
+    });
 
-    #[test]
-    fn test_parse_frontmatter_basic() {
+    test!(test_parse_frontmatter_basic, {
         let temp_dir = TempDir::new().unwrap();
         let cache_manager = CacheManager::with_dir(temp_dir.path().join("cache")).unwrap();
         let lockfile_manager = LockfileManager::new(temp_dir.path());
@@ -637,10 +652,9 @@ Hello {{ name }}
 
         assert!(frontmatter.is_some());
         assert!(template_content.contains("Hello {{ name }}"));
-    }
+    });
 
-    #[test]
-    fn test_parse_frontmatter_no_frontmatter() {
+    test!(test_parse_frontmatter_no_frontmatter, {
         let temp_dir = TempDir::new().unwrap();
         let cache_manager = CacheManager::with_dir(temp_dir.path().join("cache")).unwrap();
         let lockfile_manager = LockfileManager::new(temp_dir.path());
@@ -652,10 +666,9 @@ Hello {{ name }}
 
         assert!(frontmatter.is_none());
         assert_eq!(template_content, "Hello World");
-    }
+    });
 
-    #[test]
-    fn test_find_templates_in_pack_with_manifest() {
+    test!(test_find_templates_in_pack_with_manifest, {
         let temp_dir = TempDir::new().unwrap();
         let pack_dir = temp_dir.path().join("pack");
         let templates_dir = pack_dir.join("templates");
@@ -711,10 +724,9 @@ Hello {{ name }}
         assert_eq!(templates.len(), 2);
         assert!(templates.iter().any(|t| t.ends_with("main.tmpl")));
         assert!(templates.iter().any(|t| t.ends_with("sub.tmpl")));
-    }
+    });
 
-    #[test]
-    fn test_find_templates_in_pack_without_manifest() {
+    test!(test_find_templates_in_pack_without_manifest, {
         let temp_dir = TempDir::new().unwrap();
         let pack_dir = temp_dir.path().join("pack");
         let templates_dir = pack_dir.join("templates");
@@ -741,10 +753,9 @@ Hello {{ name }}
         assert_eq!(templates.len(), 2);
         assert!(templates.iter().any(|t| t.ends_with("main.tmpl")));
         assert!(templates.iter().any(|t| t.ends_with("sub.tmpl")));
-    }
+    });
 
-    #[test]
-    fn test_search_templates_empty() {
+    test!(test_search_templates_empty, {
         let temp_dir = TempDir::new().unwrap();
         let cache_manager = CacheManager::with_dir(temp_dir.path().join("cache")).unwrap();
         let lockfile_manager = LockfileManager::new(temp_dir.path());
@@ -752,10 +763,9 @@ Hello {{ name }}
 
         let results = resolver.search_templates(None).unwrap();
         assert!(results.is_empty());
-    }
+    });
 
-    #[test]
-    fn test_get_pack_templates_nonexistent_pack() {
+    test!(test_get_pack_templates_nonexistent_pack, {
         let temp_dir = TempDir::new().unwrap();
         let cache_manager = CacheManager::with_dir(temp_dir.path().join("cache")).unwrap();
         let lockfile_manager = LockfileManager::new(temp_dir.path());
@@ -763,5 +773,5 @@ Hello {{ name }}
 
         // Should fail for nonexistent pack
         assert!(resolver.get_pack_templates("nonexistent.pack").is_err());
-    }
+    });
 }

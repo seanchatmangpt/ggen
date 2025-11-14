@@ -16,7 +16,7 @@
 //! ```rust,no_run
 //! use ggen_core::project_generator::common::validate_project_name;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! // Valid names
 //! validate_project_name("my-project")?;
 //! validate_project_name("my_project")?;
@@ -38,21 +38,21 @@
 //! let prettierrc = generate_prettierrc();
 //! ```
 
-use anyhow::Result;
+use ggen_utils::error::{Error, Result};
 use std::path::Path;
 
 /// Validates project name
 pub fn validate_project_name(name: &str) -> Result<()> {
     if name.is_empty() {
-        anyhow::bail!("Project name cannot be empty");
+        return Err(Error::new("Project name cannot be empty"));
     }
 
     if name.contains(char::is_whitespace) {
-        anyhow::bail!("Project name cannot contain whitespace");
+        return Err(Error::new("Project name cannot contain whitespace"));
     }
 
     if name.starts_with('-') || name.starts_with('_') {
-        anyhow::bail!("Project name cannot start with '-' or '_'");
+        return Err(Error::new("Project name cannot start with '-' or '_'"));
     }
 
     // Check for valid characters (alphanumeric, dash, underscore)
@@ -60,9 +60,9 @@ pub fn validate_project_name(name: &str) -> Result<()> {
         .chars()
         .all(|c| c.is_alphanumeric() || c == '-' || c == '_')
     {
-        anyhow::bail!(
-            "Project name can only contain alphanumeric characters, dashes, and underscores"
-        );
+        return Err(Error::new(
+            "Project name can only contain alphanumeric characters, dashes, and underscores",
+        ));
     }
 
     Ok(())
@@ -74,8 +74,8 @@ pub fn is_directory_empty(path: &Path) -> Result<bool> {
         return Ok(true);
     }
 
-    let entries =
-        std::fs::read_dir(path).map_err(|e| anyhow::anyhow!("Failed to read directory: {}", e))?;
+    let entries = std::fs::read_dir(path)
+        .map_err(|e| Error::with_source("Failed to read directory", Box::new(e)))?;
 
     Ok(entries.count() == 0)
 }
@@ -133,9 +133,9 @@ pub fn generate_eslintrc() -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chicago_tdd_tools::{async_test, test};
 
-    #[test]
-    fn test_validate_project_name() {
+    test!(test_validate_project_name, {
         assert!(validate_project_name("my-project").is_ok());
         assert!(validate_project_name("my_project").is_ok());
         assert!(validate_project_name("myproject123").is_ok());
@@ -144,12 +144,11 @@ mod tests {
         assert!(validate_project_name("my project").is_err());
         assert!(validate_project_name("-myproject").is_err());
         assert!(validate_project_name("my@project").is_err());
-    }
+    });
 
-    #[test]
-    fn test_generate_editorconfig() {
+    test!(test_generate_editorconfig, {
         let config = generate_editorconfig();
         assert!(config.contains("root = true"));
         assert!(config.contains("charset = utf-8"));
-    }
+    });
 }

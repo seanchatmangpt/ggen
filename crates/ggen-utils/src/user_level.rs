@@ -41,12 +41,32 @@ use std::fs;
 use std::path::PathBuf;
 
 /// User experience level
+///
+/// Tracks user proficiency based on command usage history.
+///
+/// # Examples
+///
+/// ```rust
+/// use ggen_utils::user_level::UserLevel;
+///
+/// # fn main() {
+/// let level = UserLevel::from_usage_count(10);
+/// assert_eq!(level, UserLevel::Intermediate);
+///
+/// let level = UserLevel::from_usage_count(100);
+/// assert_eq!(level, UserLevel::Expert);
+/// # }
+/// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum UserLevel {
-    Newcomer,     // 0-5 commands run
-    Intermediate, // 6-20 commands run
-    Advanced,     // 21-50 commands run
-    Expert,       // 50+ commands run
+    /// Newcomer: 0-5 commands run
+    Newcomer,
+    /// Intermediate: 6-20 commands run
+    Intermediate,
+    /// Advanced: 21-50 commands run
+    Advanced,
+    /// Expert: 50+ commands run
+    Expert,
 }
 
 impl UserLevel {

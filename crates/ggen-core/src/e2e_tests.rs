@@ -34,16 +34,16 @@
 //! ```
 
 use crate::generator::Generator;
-use anyhow::Result;
+use ggen_utils::error::Result;
 use std::collections::BTreeMap;
 use tempfile::TempDir;
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chicago_tdd_tools::{async_test, test};
 
-    #[test]
-    fn test_end_to_end_template_generation() -> Result<()> {
+    test!(test_end_to_end_template_generation, {
         // Create a temporary directory for testing
         let temp_dir = TempDir::new()?;
         let output_dir = temp_dir.path().join("output");
@@ -92,10 +92,9 @@ impl {{ name }} {
         assert!(generated_content.contains("impl TestModule"));
 
         Ok(())
-    }
+    });
 
-    #[test]
-    fn test_end_to_end_with_rdf_data() -> Result<()> {
+    test!(test_end_to_end_with_rdf_data, {
         let temp_dir = TempDir::new()?;
         let output_dir = temp_dir.path().join("output");
         std::fs::create_dir_all(&output_dir)?;
@@ -119,7 +118,7 @@ ex:Product a ex:Class ;
         // Create template that uses RDF data with absolute path (simplified)
         let rdf_path_str = rdf_path
             .to_str()
-            .ok_or_else(|| anyhow::anyhow!("Invalid UTF-8 in RDF path"))?;
+            .ok_or_else(|| ggen_utils::error::Error::new("Invalid UTF-8 in RDF path"))?;
         let template_content = format!(
             r#"---
 to: "models.rs"
@@ -159,10 +158,9 @@ pub struct Product {{
         assert!(generated_content.contains("pub struct Product"));
 
         Ok(())
-    }
+    });
 
-    #[test]
-    fn test_end_to_end_deterministic_output() -> Result<()> {
+    test!(test_end_to_end_deterministic_output, {
         let temp_dir = TempDir::new()?;
         let output_dir1 = temp_dir.path().join("output1");
         let output_dir2 = temp_dir.path().join("output2");
@@ -213,10 +211,9 @@ pub struct {{ name }} {
         );
 
         Ok(())
-    }
+    });
 
-    #[test]
-    fn test_end_to_end_error_handling() -> Result<()> {
+    test!(test_end_to_end_error_handling, {
         let temp_dir = TempDir::new()?;
         let output_dir = temp_dir.path().join("output");
         std::fs::create_dir_all(&output_dir)?;
@@ -253,5 +250,5 @@ pub struct Test {
         );
 
         Ok(())
-    }
+    });
 }

@@ -4,7 +4,7 @@
 //! that the CLI layer can reference.
 
 use crate::cli_generator::types::{CliProject, Noun, Verb};
-use anyhow::{Context as _, Result};
+use ggen_utils::error::{Error, Result};
 use std::path::Path;
 use tera::{Context, Tera};
 
@@ -17,8 +17,11 @@ impl DomainLayerGenerator {
     /// Create a new domain layer generator
     pub fn new(template_dir: &Path) -> Result<Self> {
         let pattern = format!("{}/**/*.tmpl", template_dir.display());
-        let tera = Tera::new(&pattern).with_context(|| {
-            format!("Failed to load templates from: {}", template_dir.display())
+        let tera = Tera::new(&pattern).map_err(|e| {
+            Error::with_context(
+                &format!("Failed to load templates from: {}", template_dir.display()),
+                &e.to_string(),
+            )
         })?;
 
         Ok(Self { tera })
@@ -31,13 +34,16 @@ impl DomainLayerGenerator {
     /// - Domain crate lib.rs
     /// - Domain modules ({domain}/mod.rs, {domain}/{verb}.rs)
     pub fn generate(&self, project: &CliProject, output_dir: &Path) -> Result<()> {
-        let core_crate = project.domain_crate.as_ref().ok_or_else(|| {
-            anyhow::anyhow!("domain_crate is required for domain layer generation")
-        })?;
+        let core_crate = project
+            .domain_crate
+            .as_ref()
+            .ok_or_else(|| Error::new("domain_crate is required for domain layer generation"))?;
         let core_dir = output_dir.join("crates").join(core_crate);
         let core_src = core_dir.join("src");
 
-        std::fs::create_dir_all(&core_src).context("Failed to create domain src directory")?;
+        std::fs::create_dir_all(&core_src).map_err(|e| {
+            Error::with_context("Failed to create domain src directory", &e.to_string())
+        })?;
 
         let mut context = Context::new();
         context.insert("project_name", &project.name);
@@ -123,17 +129,20 @@ impl DomainLayerGenerator {
     }
 
     fn render_template(&self, template: &str, context: &Context, output: &Path) -> Result<()> {
-        let content = self
-            .tera
-            .render(template, context)
-            .with_context(|| format!("Failed to render template: {}", template))?;
+        let content = self.tera.render(template, context).map_err(|e| {
+            Error::with_context("Failed to render template", &format!("{}: {}", template, e))
+        })?;
 
         if let Some(parent) = output.parent() {
             std::fs::create_dir_all(parent)?;
         }
 
-        std::fs::write(output, content)
-            .with_context(|| format!("Failed to write: {}", output.display()))?;
+        std::fs::write(output, content).map_err(|e| {
+            Error::with_context(
+                &format!("Failed to write: {}", output.display()),
+                &e.to_string(),
+            )
+        })?;
 
         Ok(())
     }

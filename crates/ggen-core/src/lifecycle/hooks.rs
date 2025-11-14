@@ -220,9 +220,9 @@ pub fn validate_hooks(make: &Make) -> Result<ValidatedHooks> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chicago_tdd_tools::{async_test, test};
 
-    #[test]
-    fn test_valid_hooks_pass_validation() {
+    test!(test_valid_hooks_pass_validation, {
         let mut hooks = Hooks::default();
         hooks.before_build = Some(vec!["validate".to_string()]);
 
@@ -231,10 +231,9 @@ mod tests {
         phase_names.insert("build".to_string());
 
         assert!(ValidatedHooks::validate(&hooks, &phase_names).is_ok());
-    }
+    });
 
-    #[test]
-    fn test_invalid_phase_reference_fails() {
+    test!(test_invalid_phase_reference_fails, {
         let mut hooks = Hooks::default();
         hooks.before_build = Some(vec!["nonexistent".to_string()]);
 
@@ -242,10 +241,9 @@ mod tests {
         phase_names.insert("build".to_string());
 
         assert!(ValidatedHooks::validate(&hooks, &phase_names).is_err());
-    }
+    });
 
-    #[test]
-    fn test_self_reference_fails() {
+    test!(test_self_reference_fails, {
         let mut hooks = Hooks::default();
         hooks.before_build = Some(vec!["build".to_string()]);
 
@@ -253,10 +251,9 @@ mod tests {
         phase_names.insert("build".to_string());
 
         assert!(ValidatedHooks::validate(&hooks, &phase_names).is_err());
-    }
+    });
 
-    #[test]
-    fn test_circular_dependency_fails() {
+    test!(test_circular_dependency_fails, {
         // Test circular dependency with existing hook types
         let mut hooks = Hooks::default();
         hooks.before_build = Some(vec!["validate".to_string()]);
@@ -277,5 +274,5 @@ mod tests {
 
         // This should pass validation (no actual cycle)
         assert!(ValidatedHooks::validate(&hooks, &phase_names).is_ok());
-    }
+    });
 }

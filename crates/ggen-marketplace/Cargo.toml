@@ -28,7 +28,7 @@ rand = { version = "0.8", optional = true }
 
 # Error handling
 thiserror = "1.0"
-anyhow = "1.0"
+ggen-utils = { path = "../ggen-utils", version = "2.6.0" }
 
 # Machine Learning / Recommendations
 ndarray = "0.16"

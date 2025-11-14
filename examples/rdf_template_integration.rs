@@ -11,7 +11,7 @@ use ggen_core::{
     rdf::{TemplateMetadata, TemplateMetadataStore, TemplateVariable},
     Template,
 };
-use std::collections::BTreeMap;
+// Note: BTreeMap unused - vars field removed from frontmatter
 
 fn main() -> Result<()> {
     println!("=== Template Engine + RDF Integration ===\n");
@@ -61,11 +61,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("2. Parsing template...");
     let template = Template::parse(template_source)?;
     println!("   ✓ Template parsed successfully");
-    println!("   - Output file: {:?}", template.frontmatter.to);
-    println!(
-        "   - Variables: {:?}",
-        template.frontmatter.vars.keys().collect::<Vec<_>>()
-    );
+    println!("   - Output file: {:?}", template.front.to);
+    // Note: vars field was removed from frontmatter in v2.0
+    // Variables now come from CLI/API only
+    println!("   - Variables: (now provided via CLI/API, not frontmatter)");
     println!();
 
     // 3. Extract metadata from frontmatter
@@ -75,32 +74,31 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut metadata = TemplateMetadata::new(template_id.clone(), "Rust Axum Service".to_string());
 
     // Extract from template frontmatter vars
-    if let Some(service_name) = template.frontmatter.vars.get("service_name") {
-        metadata.variables.push(TemplateVariable {
-            name: "service_name".to_string(),
-            var_type: "string".to_string(),
-            default_value: Some(service_name.as_str().unwrap_or("").to_string()),
-            description: Some("Name of the service".to_string()),
-            required: true,
-        });
-    }
+    // Note: vars field was removed - this example needs updating for v2.0 API
+    // For now, using hardcoded values to demonstrate the flow
+    metadata.variables.push(TemplateVariable {
+        name: "service_name".to_string(),
+        var_type: "string".to_string(),
+        default_value: Some("my-service".to_string()),
+        description: Some("Name of the service".to_string()),
+        required: true,
+    });
 
-    if let Some(port) = template.frontmatter.vars.get("port") {
-        metadata.variables.push(TemplateVariable {
-            name: "port".to_string(),
-            var_type: "number".to_string(),
-            default_value: Some(port.as_i64().unwrap_or(3000).to_string()),
-            description: Some("HTTP port".to_string()),
-            required: false,
-        });
-    }
+    // Note: vars field was removed - using hardcoded value for demonstration
+    metadata.variables.push(TemplateVariable {
+        name: "port".to_string(),
+        var_type: "number".to_string(),
+        default_value: Some("3000".to_string()),
+        description: Some("HTTP port".to_string()),
+        required: false,
+    });
 
     metadata.version = Some("1.0.0".to_string());
     metadata.description = Some("Rust web service with Axum".to_string());
     metadata.category = Some("web".to_string());
     metadata.tags = vec!["rust".to_string(), "web".to_string(), "axum".to_string()];
     metadata.stability = Some("stable".to_string());
-    metadata.generated_files = vec![template.frontmatter.to.clone().unwrap_or_default()];
+    metadata.generated_files = vec![template.front.to.clone().unwrap_or_default()];
 
     println!("   ✓ Extracted metadata:");
     println!("     - Version: {}", metadata.version.as_ref().unwrap());

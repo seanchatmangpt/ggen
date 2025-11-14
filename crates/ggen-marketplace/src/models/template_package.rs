@@ -92,6 +92,24 @@ pub struct TemplateInfo {
     pub required_vars: Vec<String>,
 }
 
+/// Template type classification
+///
+/// Represents the structure and organization of a template.
+///
+/// # Examples
+///
+/// ```rust
+/// use ggen_marketplace::models::TemplateType;
+///
+/// # fn main() {
+/// let template_type = TemplateType::FileTree;
+/// match template_type {
+///     TemplateType::FileTree => assert!(true),
+///     TemplateType::SingleFile => assert!(true),
+///     TemplateType::Bundle => assert!(true),
+/// }
+/// # }
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "snake_case")]
 pub enum TemplateType {

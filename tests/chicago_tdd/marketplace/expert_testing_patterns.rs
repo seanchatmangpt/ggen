@@ -9,7 +9,6 @@
 //! Reference: ggen/expert-testing-patterns.md
 
 use chicago_tdd_tools::async_test;
-use chicago_tdd_tools::prelude::*;
 use ggen_domain::marketplace::install::{execute_install, InstallInput};
 use ggen_domain::marketplace::search::{search_packages, SearchFilters};
 use ggen_utils::error::Result;

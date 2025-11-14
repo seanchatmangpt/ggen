@@ -34,13 +34,13 @@
 //! }
 //! ```
 
-use anyhow::Result;
+use ggen_utils::error::{bail, Result};
 use std::path::Path;
 
 /// Initialize a new project
 pub async fn init_project(path: &Path, name: &str) -> Result<()> {
     if name.is_empty() {
-        anyhow::bail!("Project name cannot be empty");
+        bail!("Project name cannot be empty");
     }
 
     // Create project directory

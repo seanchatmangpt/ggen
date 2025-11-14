@@ -7,7 +7,7 @@
 #[cfg(test)]
 mod behavior_tests {
     use super::super::*;
-    use anyhow::Result;
+    use ggen_utils::error::Result;
     use mockall::mock;
     use mockall::predicate::*;
     use std::path::PathBuf;
@@ -85,8 +85,7 @@ mod behavior_tests {
     // Verify that hooks are called in the correct order:
     // before_all -> before_phase -> phase_execution -> after_phase -> after_all
 
-    #[test]
-    fn test_hook_execution_order_contract() {
+    test!(test_hook_execution_order_contract, {
         // GIVEN: A mock hook executor that tracks call order
         let mut mock_hooks = MockHookExecutor::new();
         let mut call_sequence = mockall::Sequence::new();
@@ -115,10 +114,9 @@ mod behavior_tests {
         assert!(result.is_ok());
 
         // THEN: Mock expectations verify correct order
-    }
+    });
 
-    #[test]
-    fn test_hooks_called_even_when_phase_succeeds() {
+    test!(test_hooks_called_even_when_phase_succeeds, {
         // GIVEN: Hooks that should always be called
         let mut mock_hooks = MockHookExecutor::new();
 
@@ -139,10 +137,9 @@ mod behavior_tests {
         let _ = mock_hooks.run_after_hooks("test");
 
         // THEN: Both hooks were called (verified by mockall)
-    }
+    });
 
-    #[test]
-    fn test_after_hooks_not_called_when_before_hooks_fail() {
+    test!(test_after_hooks_not_called_when_before_hooks_fail, {
         // GIVEN: Before hooks that fail
         let mut mock_hooks = MockHookExecutor::new();
 
@@ -150,7 +147,7 @@ mod behavior_tests {
             .expect_run_before_hooks()
             .with(eq("deploy"))
             .times(1)
-            .returning(|_| Err(anyhow::anyhow!("Hook failed")));
+            .returning(|_| Err(ggen_utils::error::Error::new("Hook failed")));
 
         mock_hooks
             .expect_run_after_hooks()
@@ -162,15 +159,14 @@ mod behavior_tests {
         assert!(result.is_err());
 
         // THEN: After hooks are not called (verified by times(0))
-    }
+    });
 
     // ============================================================================
     // TEST 2: STATE PERSISTENCE CONTRACT
     // ============================================================================
     // Verify that state is saved after each phase execution
 
-    #[test]
-    fn test_state_saved_after_successful_phase() {
+    test!(test_state_saved_after_successful_phase, {
         // GIVEN: A mock state persister
         let mut mock_state = MockStatePersister::new();
 
@@ -200,10 +196,9 @@ mod behavior_tests {
 
         // THEN: State was saved (verified by mock)
         assert!(result.is_ok());
-    }
+    });
 
-    #[test]
-    fn test_state_includes_duration_and_timestamp() {
+    test!(test_state_includes_duration_and_timestamp, {
         // GIVEN: A mock state persister
         let mut mock_state = MockStatePersister::new();
 
@@ -227,10 +222,9 @@ mod behavior_tests {
 
         // THEN: State includes proper timestamps
         assert!(result.is_ok());
-    }
+    });
 
-    #[test]
-    fn test_state_not_saved_when_phase_fails() {
+    test!(test_state_not_saved_when_phase_fails, {
         // GIVEN: A command that will fail
         let mut mock_cmd = MockCommandExecutor::new();
         let mut mock_state = MockStatePersister::new();
@@ -238,7 +232,7 @@ mod behavior_tests {
         mock_cmd
             .expect_execute()
             .times(1)
-            .returning(|_, _, _| Err(anyhow::anyhow!("Command failed")));
+            .returning(|_, _, _| Err(ggen_utils::error::Error::new("Command failed")));
 
         // State should NOT be saved on failure
         mock_state.expect_save().times(0);
@@ -248,15 +242,14 @@ mod behavior_tests {
 
         // THEN: Command failed and state was not saved
         assert!(result.is_err());
-    }
+    });
 
     // ============================================================================
     // TEST 3: CACHE INVALIDATION CONTRACT
     // ============================================================================
     // Verify cache keys are regenerated when inputs change
 
-    #[test]
-    fn test_cache_key_regenerated_when_command_changes() {
+    test!(test_cache_key_regenerated_when_command_changes, {
         // GIVEN: A mock cache manager
         let mut mock_cache = MockCacheManager::new();
 
@@ -284,10 +277,9 @@ mod behavior_tests {
 
         // THEN: Different keys are generated
         assert_ne!(key1, key2);
-    }
+    });
 
-    #[test]
-    fn test_cache_key_regenerated_when_env_changes() {
+    test!(test_cache_key_regenerated_when_env_changes, {
         // GIVEN: A mock cache manager
         let mut mock_cache = MockCacheManager::new();
 
@@ -312,10 +304,9 @@ mod behavior_tests {
 
         // THEN: Different keys are generated
         assert_ne!(key1, key2);
-    }
+    });
 
-    #[test]
-    fn test_cache_invalidated_when_phase_fails() {
+    test!(test_cache_invalidated_when_phase_fails, {
         // GIVEN: A mock cache that should be invalidated
         let mut mock_cache = MockCacheManager::new();
 
@@ -330,10 +321,9 @@ mod behavior_tests {
 
         // THEN: Cache was invalidated
         assert!(result.is_ok());
-    }
+    });
 
-    #[test]
-    fn test_cache_valid_check_before_execution() {
+    test!(test_cache_valid_check_before_execution, {
         // GIVEN: A cache manager that checks validity
         let mut mock_cache = MockCacheManager::new();
 
@@ -358,22 +348,21 @@ mod behavior_tests {
         // THEN: Correct validity is returned
         assert!(is_valid1);
         assert!(!is_valid2);
-    }
+    });
 
     // ============================================================================
     // TEST 4: ERROR PROPAGATION CONTRACT
     // ============================================================================
     // Verify errors are properly handled and rolled back
 
-    #[test]
-    fn test_error_propagates_from_command_execution() {
+    test!(test_error_propagates_from_command_execution, {
         // GIVEN: A command executor that fails
         let mut mock_cmd = MockCommandExecutor::new();
 
         mock_cmd
             .expect_execute()
             .times(1)
-            .returning(|_, _, _| Err(anyhow::anyhow!("Command execution failed")));
+            .returning(|_, _, _| Err(ggen_utils::error::Error::new("Command execution failed")));
 
         // WHEN: Command is executed
         let result = mock_cmd.execute("bad_command", &PathBuf::from("/tmp"), &[]);
@@ -384,17 +373,16 @@ mod behavior_tests {
             .unwrap_err()
             .to_string()
             .contains("Command execution failed"));
-    }
+    });
 
-    #[test]
-    fn test_error_hooks_called_on_failure() {
+    test!(test_error_hooks_called_on_failure, {
         // GIVEN: Hooks that should be called on error
         let mut mock_hooks = MockHookExecutor::new();
 
         mock_hooks
             .expect_run_before_hooks()
             .times(1)
-            .returning(|_| Err(anyhow::anyhow!("Hook failed")));
+            .returning(|_| Err(ggen_utils::error::Error::new("Hook failed")));
 
         mock_hooks
             .expect_run_error_hooks()
@@ -410,10 +398,9 @@ mod behavior_tests {
 
         // THEN: Error hooks were called
         assert!(error_result.is_ok());
-    }
+    });
 
-    #[test]
-    fn test_rollback_on_partial_failure() {
+    test!(test_rollback_on_partial_failure, {
         // GIVEN: Multiple commands where second fails
         let mut mock_cmd = MockCommandExecutor::new();
         let mut mock_cache = MockCacheManager::new();
@@ -430,7 +417,7 @@ mod behavior_tests {
             .expect_execute()
             .with(eq("cmd2"), always(), always())
             .times(1)
-            .returning(|_, _, _| Err(anyhow::anyhow!("cmd2 failed")));
+            .returning(|_, _, _| Err(ggen_utils::error::Error::new("cmd2 failed")));
 
         // Cache should be invalidated on failure
         mock_cache
@@ -450,19 +437,18 @@ mod behavior_tests {
 
         // THEN: Rollback was performed
         assert!(rollback.is_ok());
-    }
+    });
 
-    #[test]
-    fn test_error_includes_context() {
+    test!(test_error_includes_context, {
         // GIVEN: An executor that provides context in errors
         let mut mock_cmd = MockCommandExecutor::new();
 
         mock_cmd.expect_execute().times(1).returning(|cmd, cwd, _| {
-            Err(anyhow::anyhow!(
+            Err(ggen_utils::error::Error::new(&format!(
                 "Command '{}' failed in directory '{}'",
                 cmd,
                 cwd.display()
-            ))
+            )))
         });
 
         // WHEN: Command fails
@@ -473,15 +459,14 @@ mod behavior_tests {
         let err = result.unwrap_err();
         assert!(err.to_string().contains("test_cmd"));
         assert!(err.to_string().contains("/project"));
-    }
+    });
 
     // ============================================================================
     // TEST 5: WORKSPACE COORDINATION CONTRACT
     // ============================================================================
     // Verify parallel/sequential workspace execution behavior
 
-    #[test]
-    fn test_sequential_workspace_execution() {
+    test!(test_sequential_workspace_execution, {
         // GIVEN: Multiple workspaces to execute sequentially
         let mut mock_cmd = MockCommandExecutor::new();
         let mut sequence = mockall::Sequence::new();
@@ -509,10 +494,9 @@ mod behavior_tests {
         // THEN: Both succeeded in correct order
         assert!(result1.is_ok());
         assert!(result2.is_ok());
-    }
+    });
 
-    #[test]
-    fn test_workspace_failure_stops_pipeline() {
+    test!(test_workspace_failure_stops_pipeline, {
         // GIVEN: Workspaces where first fails
         let mut mock_cmd = MockCommandExecutor::new();
 
@@ -521,7 +505,7 @@ mod behavior_tests {
             .expect_execute()
             .with(eq("build"), always(), always())
             .times(1)
-            .returning(|_, _, _| Err(anyhow::anyhow!("Build failed")));
+            .returning(|_, _, _| Err(ggen_utils::error::Error::new("Build failed")));
 
         // Second workspace should NOT be called
         // (verified by not setting up expectation)
@@ -531,10 +515,9 @@ mod behavior_tests {
 
         // THEN: Pipeline stops
         assert!(result.is_err());
-    }
+    });
 
-    #[test]
-    fn test_workspace_isolation() {
+    test!(test_workspace_isolation, {
         // GIVEN: Workspaces with different working directories
         let mut mock_cmd = MockCommandExecutor::new();
 
@@ -557,10 +540,9 @@ mod behavior_tests {
         // THEN: Each workspace is isolated
         assert!(result1.is_ok());
         assert!(result2.is_ok());
-    }
+    });
 
-    #[test]
-    fn test_parallel_workspace_execution_contract() {
+    test!(test_parallel_workspace_execution_contract, {
         // GIVEN: Workspaces that can execute in parallel
         let mut mock_cmd = MockCommandExecutor::new();
 
@@ -578,15 +560,14 @@ mod behavior_tests {
         // THEN: Both can succeed independently
         assert!(result1.is_ok());
         assert!(result2.is_ok());
-    }
+    });
 
     // ============================================================================
     // TEST 6: INTEGRATION CONTRACT TESTS
     // ============================================================================
     // Test how components collaborate together
 
-    #[test]
-    fn test_full_phase_execution_contract() {
+    test!(test_full_phase_execution_contract, {
         // GIVEN: All mocked collaborators
         let mut mock_hooks = MockHookExecutor::new();
         let mut mock_cmd = MockCommandExecutor::new();
@@ -645,10 +626,9 @@ mod behavior_tests {
         let _ = mock_hooks.run_after_hooks("build");
 
         // THEN: All collaborations happened in correct order (verified by sequence)
-    }
+    });
 
-    #[test]
-    fn test_cache_hit_skips_execution() {
+    test!(test_cache_hit_skips_execution, {
         // GIVEN: Valid cache exists
         let mut mock_cache = MockCacheManager::new();
         let mut mock_cmd = MockCommandExecutor::new();
@@ -664,10 +644,9 @@ mod behavior_tests {
 
         // THEN: Execution is skipped when cache is valid
         assert!(cache_valid);
-    }
+    });
 
-    #[test]
-    fn test_state_persistence_across_phases() {
+    test!(test_state_persistence_across_phases, {
         // GIVEN: State persisted after first phase
         let mut mock_state = MockStatePersister::new();
 
@@ -691,5 +670,5 @@ mod behavior_tests {
         // THEN: State is persisted across phases
         assert!(loaded_state.last_phase.is_some());
         assert_eq!(loaded_state.phase_history.len(), 1);
-    }
+    });
 }

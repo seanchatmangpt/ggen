@@ -99,7 +99,7 @@ args = [
 [tasks.pre-commit]
 description = "Run pre-commit validation checks (format, lint, test, hooks, docs)"
 workspace = false
-dependencies = ["timeout-check", "fmt", "lint", "test", "validate-docs", "docs-check"]
+dependencies = ["timeout-check", "fmt", "lint", "test", "test-doc", "validate-docs", "docs-check"]
 script_runner = "@shell"
 script = '''
 # Run git hook validation if available
@@ -134,6 +134,12 @@ description = "Integration tests only"
 workspace = false
 command = "timeout"
 args = ["30s", "cargo", "test", "--test"]
+
+[tasks.test-doc]
+description = "Run doctests (CRITICAL: Verifies all doctests compile and run)"
+workspace = false
+command = "timeout"
+args = ["60s", "cargo", "test", "--doc", "--workspace"]
 
 [tasks.test-timings]
 description = "Run tests and generate timing report to identify slow tests"

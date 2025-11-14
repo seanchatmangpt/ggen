@@ -385,6 +385,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chicago_tdd_tools::test;
     use tera::Context;
 
     fn create_test_tera() -> Tera {
@@ -393,8 +394,7 @@ mod tests {
         tera
     }
 
-    #[test]
-    fn test_case_conversions() {
+    test!(test_case_conversions, {
         let mut tera = create_test_tera();
         let mut ctx = Context::new();
         ctx.insert("name", "hello_world_example");
@@ -430,10 +430,9 @@ mod tests {
         // Test train case
         let result = tera.render_str("{{ name | train }}", &ctx).unwrap();
         assert_eq!(result, "Hello-World-Example");
-    }
+    });
 
-    #[test]
-    fn test_heck_fill_ins() {
+    test!(test_heck_fill_ins, {
         let mut tera = create_test_tera();
         let mut ctx = Context::new();
         ctx.insert("name", "hello_world_example");
@@ -449,10 +448,9 @@ mod tests {
         // Test titlecase (heck version)
         let result = tera.render_str("{{ name | titlecase }}", &ctx).unwrap();
         assert_eq!(result, "Hello World Example");
-    }
+    });
 
-    #[test]
-    fn test_ordinalization() {
+    test!(test_ordinalization, {
         let mut tera = create_test_tera();
         let mut ctx = Context::new();
 
@@ -485,10 +483,9 @@ mod tests {
         ctx.insert("num", "2nd");
         let result = tera.render_str("{{ num | deordinalize }}", &ctx).unwrap();
         assert_eq!(result, "2");
-    }
+    });
 
-    #[test]
-    fn test_string_manipulation() {
+    test!(test_string_manipulation, {
         let mut tera = create_test_tera();
         let mut ctx = Context::new();
 
@@ -506,10 +503,9 @@ mod tests {
         ctx.insert("name", "Message");
         let result = tera.render_str("{{ name | foreign_key }}", &ctx).unwrap();
         assert_eq!(result, "message_id");
-    }
+    });
 
-    #[test]
-    fn test_complex_combinations() {
+    test!(test_complex_combinations, {
         let mut tera = create_test_tera();
         let mut ctx = Context::new();
         ctx.insert("class_name", "UserProfile");
@@ -529,10 +525,9 @@ mod tests {
             .render_str("{{ class_name | demodulize | snake }}", &ctx)
             .unwrap();
         assert_eq!(result, "user_profile");
-    }
+    });
 
-    #[test]
-    fn test_edge_cases() {
+    test!(test_edge_cases, {
         let mut tera = create_test_tera();
         let mut ctx = Context::new();
 
@@ -555,10 +550,9 @@ mod tests {
         ctx.insert("special", "hello@world#test");
         let result = tera.render_str("{{ special | kebab }}", &ctx).unwrap();
         assert_eq!(result, "hello-world-test");
-    }
+    });
 
-    #[test]
-    fn test_non_string_input() {
+    test!(test_non_string_input, {
         let mut tera = create_test_tera();
         let mut ctx = Context::new();
 
@@ -571,10 +565,9 @@ mod tests {
         ctx.insert("flag", &true);
         let result = tera.render_str("{{ flag | snake }}", &ctx).unwrap();
         assert_eq!(result, "true");
-    }
+    });
 
-    #[test]
-    fn test_real_world_scenarios() {
+    test!(test_real_world_scenarios, {
         let mut tera = create_test_tera();
         let mut ctx = Context::new();
 
@@ -601,10 +594,9 @@ mod tests {
         ctx.insert("action", "get_user_profile");
         let method = tera.render_str("{{ action | camel }}", &ctx).unwrap();
         assert_eq!(method, "getUserProfile");
-    }
+    });
 
-    #[test]
-    fn test_change_case_aliases() {
+    test!(test_change_case_aliases, {
         let mut tera = create_test_tera();
         let mut ctx = Context::new();
         ctx.insert("name", "hello_world_example");
@@ -648,10 +640,9 @@ mod tests {
         ctx.insert("name", "ñáéíóú");
         let result = tera.render_str("{{ name | ucfirst }}", &ctx).unwrap();
         assert_eq!(result, "Ñáéíóú");
-    }
+    });
 
-    #[test]
-    fn test_all_filters_registered() {
+    test!(test_all_filters_registered, {
         let mut tera = create_test_tera();
 
         // Test that all expected filters are registered
@@ -690,10 +681,9 @@ mod tests {
             let result = tera.render_str(&format!("{{{{ test | {} }}}}", filter), &ctx);
             assert!(result.is_ok(), "Filter '{}' should be registered", filter);
         }
-    }
+    });
 
-    #[test]
-    fn test_bless_context_name() {
+    test!(test_bless_context_name, {
         let mut ctx = Context::new();
         ctx.insert("name", "hello_world");
 
@@ -703,10 +693,9 @@ mod tests {
         assert_eq!(ctx.get("Name").unwrap().as_str().unwrap(), "HelloWorld");
         // Original name should still be there
         assert_eq!(ctx.get("name").unwrap().as_str().unwrap(), "hello_world");
-    }
+    });
 
-    #[test]
-    fn test_bless_context_no_name() {
+    test!(test_bless_context_no_name, {
         let mut ctx = Context::new();
         ctx.insert("other", "value");
 
@@ -716,10 +705,9 @@ mod tests {
         assert!(ctx.get("Name").is_none());
         // Should have locals placeholder
         assert!(ctx.get("locals").is_some());
-    }
+    });
 
-    #[test]
-    fn test_bless_context_non_string_name() {
+    test!(test_bless_context_non_string_name, {
         let mut ctx = Context::new();
         ctx.insert("name", &42); // Non-string value
 
@@ -727,10 +715,9 @@ mod tests {
 
         // Should not bless Name for non-string values
         assert!(ctx.get("Name").is_none());
-    }
+    });
 
-    #[test]
-    fn test_sparql_column_function() {
+    test!(test_sparql_column_function, {
         let mut tera = create_test_tera();
         let mut ctx = Context::new();
 
@@ -751,10 +738,9 @@ mod tests {
             .unwrap();
         // Tera returns a string representation of the array
         assert_eq!(result, "[Alice, Bob, Charlie]");
-    }
+    });
 
-    #[test]
-    fn test_sparql_row_function() {
+    test!(test_sparql_row_function, {
         let mut tera = create_test_tera();
         let mut ctx = Context::new();
 
@@ -781,10 +767,9 @@ mod tests {
             .render_str("{{ sparql_row(results=results, index=5) }}", &ctx)
             .unwrap();
         assert_eq!(result, "");
-    }
+    });
 
-    #[test]
-    fn test_sparql_first_function() {
+    test!(test_sparql_first_function, {
         let mut tera = create_test_tera();
         let mut ctx = Context::new();
 
@@ -814,10 +799,9 @@ mod tests {
             )
             .unwrap();
         assert_eq!(result, "");
-    }
+    });
 
-    #[test]
-    fn test_sparql_values_function() {
+    test!(test_sparql_values_function, {
         let mut tera = create_test_tera();
         let mut ctx = Context::new();
 
@@ -836,10 +820,9 @@ mod tests {
             )
             .unwrap();
         assert_eq!(result, "[Alice, Bob, Charlie]");
-    }
+    });
 
-    #[test]
-    fn test_sparql_empty_function() {
+    test!(test_sparql_empty_function, {
         let mut tera = create_test_tera();
         let mut ctx = Context::new();
 
@@ -868,10 +851,9 @@ mod tests {
             .render_str("{{ sparql_empty(results=bool_results) }}", &ctx)
             .unwrap();
         assert_eq!(result, "false");
-    }
+    });
 
-    #[test]
-    fn test_sparql_count_function() {
+    test!(test_sparql_count_function, {
         let mut tera = create_test_tera();
         let mut ctx = Context::new();
 
@@ -902,5 +884,5 @@ mod tests {
             .render_str("{{ sparql_count(results=bool_results) }}", &ctx)
             .unwrap();
         assert_eq!(result, "1");
-    }
+    });
 }

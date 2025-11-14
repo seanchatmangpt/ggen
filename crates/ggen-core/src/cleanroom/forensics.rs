@@ -367,24 +367,22 @@ impl ForensicsBundle {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chicago_tdd_tools::{test, async_test};
 
-    #[test]
-    fn test_secret_detection() {
+    test!(test_secret_detection, {
         assert!(ForensicsPack::is_secret("SECRET_KEY"));
         assert!(ForensicsPack::is_secret("API_TOKEN"));
         assert!(ForensicsPack::is_secret("PASSWORD"));
         assert!(!ForensicsPack::is_secret("PATH"));
         assert!(!ForensicsPack::is_secret("HOME"));
-    }
+    });
 
-    #[test]
-    fn test_secret_redaction() {
+    test!(test_secret_redaction, {
         assert_eq!(ForensicsPack::redact("sk-1234567890"), "sk...90");
         assert_eq!(ForensicsPack::redact("short"), "*****");
-    }
+    });
 
-    #[test]
-    fn test_forensics_pack_creation() {
+    test!(test_forensics_pack_creation, {
         let mut pack = ForensicsPack::new("/tmp/test");
 
         pack.add_env("PATH", "/usr/bin");
@@ -392,15 +390,14 @@ mod tests {
 
         assert_eq!(pack.env.get("PATH").unwrap(), "/usr/bin");
         assert!(pack.env.get("SECRET_KEY").unwrap().contains("..."));
-    }
+    });
 
-    #[test]
-    fn test_reproducer_generation() {
+    test!(test_reproducer_generation, {
         let mut pack = ForensicsPack::new("/tmp/test");
         pack.set_command(vec!["cargo".to_string(), "test".to_string()]);
         pack.generate_reproducer();
 
         assert!(pack.reproducer.contains("#!/usr/bin/env bash"));
         assert!(pack.reproducer.contains("cargo test"));
-    }
+    });
 }

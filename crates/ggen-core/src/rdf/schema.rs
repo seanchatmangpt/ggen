@@ -40,7 +40,7 @@
 //! # }
 //! ```
 
-use anyhow::Result;
+use ggen_utils::error::Result;
 
 /// Ggen ontology namespace
 pub const GGEN_NAMESPACE: &str = "http://ggen.dev/ontology#";
@@ -669,7 +669,7 @@ impl GgenOntology {
 /// ```rust
 /// use ggen_core::rdf::schema::load_schema;
 ///
-/// # fn main() -> anyhow::Result<()> {
+/// # fn main() -> ggen_utils::error::Result<()> {
 /// let schema = load_schema()?;
 /// assert!(schema.contains("@prefix ggen:"));
 /// assert!(schema.contains("ggen:Template"));
@@ -683,9 +683,9 @@ pub fn load_schema() -> Result<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chicago_tdd_tools::{async_test, test};
 
-    #[test]
-    fn test_ontology_uris() {
+    test!(test_ontology_uris, {
         assert_eq!(
             GgenOntology::template(),
             "http://ggen.dev/ontology#Template"
@@ -702,20 +702,18 @@ mod tests {
             GgenOntology::rdf_type(),
             "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
         );
-    }
+    });
 
-    #[test]
-    fn test_load_schema() {
+    test!(test_load_schema, {
         let schema = load_schema().expect("Failed to load schema");
         assert!(schema.contains("@prefix ggen:"));
         assert!(schema.contains("ggen:Template a rdfs:Class"));
         assert!(schema.contains("ggen:generatesFile a rdf:Property"));
-    }
+    });
 
-    #[test]
-    fn test_namespace_constants() {
+    test!(test_namespace_constants, {
         assert_eq!(GGEN_NAMESPACE, "http://ggen.dev/ontology#");
         assert_eq!(RDF_NAMESPACE, "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
         assert_eq!(RDFS_NAMESPACE, "http://www.w3.org/2000/01/rdf-schema#");
-    }
+    });
 }

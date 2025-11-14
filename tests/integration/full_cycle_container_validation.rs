@@ -56,8 +56,7 @@ extern crate md5;
 
 // Import chicago-tdd-tools testcontainer API
 use chicago_tdd_tools::testcontainers::{
-    exec::{ExecResult, SUCCESS_EXIT_CODE},
-    ContainerClient, GenericContainer, TestcontainersResult,
+    exec::SUCCESS_EXIT_CODE, ContainerClient, GenericContainer, TestcontainersResult,
 };
 
 // Constants for Docker images

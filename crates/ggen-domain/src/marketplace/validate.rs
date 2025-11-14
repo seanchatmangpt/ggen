@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::{Path, PathBuf};
 
+use ggen_core::graph::Graph;
 use ggen_utils::error::{Error, Result};
 
 /// Validation result for a single check
@@ -303,33 +304,71 @@ fn validate_quality_checks(validation: &mut PackageValidation, package_path: &Pa
     let ontology_dir = package_path.join("ontology");
 
     if ontology_ttl.exists() {
-        if let Ok(content) = fs::read_to_string(&ontology_ttl) {
-            let lines = content.lines().count();
-            if lines >= 200 {
-                validation.quality_checks.push((
-                    QualityCheck::RdfOntology,
-                    CheckResult::Pass(format!(
-                        "RDF ontology found with {} lines (≥200 required)",
-                        lines
-                    )),
-                ));
-            } else {
+        // Use new graph API to validate RDF ontology
+        match Graph::new() {
+            Ok(graph) => {
+                // Try to load the ontology using the graph API
+                match graph.load_path(&ontology_ttl) {
+                    Ok(()) => {
+                        // Get triple count using graph.len() method (simpler than querying)
+                        let triple_count = graph.len();
+
+                        let lines = fs::read_to_string(&ontology_ttl)
+                            .map(|c| c.lines().count())
+                            .unwrap_or(0);
+
+                        if lines >= 200 && triple_count > 0 {
+                            validation.quality_checks.push((
+                                QualityCheck::RdfOntology,
+                                CheckResult::Pass(format!(
+                                    "RDF ontology validated: {} lines, {} triples (≥200 lines required)",
+                                    lines, triple_count
+                                )),
+                            ));
+                        } else if lines >= 200 {
+                            validation.quality_checks.push((
+                                QualityCheck::RdfOntology,
+                                CheckResult::Warning(format!(
+                                    "RDF ontology loaded but no triples found (≥200 lines, {} triples)",
+                                    triple_count
+                                )),
+                            ));
+                        } else {
+                            validation.quality_checks.push((
+                                QualityCheck::RdfOntology,
+                                CheckResult::Warning(format!(
+                                    "RDF ontology found but only {} lines (<200 recommended), {} triples",
+                                    lines, triple_count
+                                )),
+                            ));
+                            validation
+                                .warnings
+                                .push(format!("RDF ontology has only {} lines", lines));
+                        }
+                    }
+                    Err(e) => {
+                        validation.quality_checks.push((
+                            QualityCheck::RdfOntology,
+                            CheckResult::Warning(format!(
+                                "RDF ontology file exists but cannot be loaded: {}",
+                                e
+                            )),
+                        ));
+                        validation
+                            .warnings
+                            .push(format!("Failed to load RDF ontology: {}", e));
+                    }
+                }
+            }
+            Err(e) => {
                 validation.quality_checks.push((
                     QualityCheck::RdfOntology,
                     CheckResult::Warning(format!(
-                        "RDF ontology found but only {} lines (<200 recommended)",
-                        lines
+                        "RDF ontology file exists but graph initialization failed: {}",
+                        e
                     )),
                 ));
-                validation
-                    .warnings
-                    .push(format!("RDF ontology has only {} lines", lines));
             }
-        } else {
-            validation.quality_checks.push((
-                QualityCheck::RdfOntology,
-                CheckResult::Warning("RDF ontology file exists but cannot be read".to_string()),
-            ));
         }
     } else if rdf_dir.exists() || ontology_dir.exists() {
         // RDF directory exists but no ontology.ttl

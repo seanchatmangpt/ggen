@@ -430,9 +430,9 @@ impl DependencyCache {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chicago_tdd_tools::{async_test, test};
 
-    #[test]
-    fn test_performance_targets() {
+    test!(test_performance_targets, {
         let targets = PerformanceTargets::default();
         assert_eq!(targets.total, Duration::from_secs(45));
 
@@ -441,10 +441,9 @@ mod tests {
 
         let stretch = PerformanceTargets::stretch();
         assert_eq!(stretch.total, Duration::from_secs(45));
-    }
+    });
 
-    #[test]
-    fn test_stage_metrics() {
+    test!(test_stage_metrics, {
         let metric = StageMetrics::new("test", Duration::from_secs(5), Duration::from_secs(10));
         assert!(metric.met_target);
         assert!(metric.improvement_percent() > 0.0);
@@ -453,10 +452,9 @@ mod tests {
             StageMetrics::new("test", Duration::from_secs(15), Duration::from_secs(10));
         assert!(!metric_exceeded.met_target);
         assert!(metric_exceeded.improvement_percent() < 0.0);
-    }
+    });
 
-    #[tokio::test]
-    async fn test_pipeline_profiler() {
+    async_test!(test_pipeline_profiler, {
         let mut profiler = PipelineProfiler::new(PerformanceTargets::default());
         profiler.start_pipeline();
 
@@ -469,37 +467,34 @@ mod tests {
         let metrics = profiler.get_metrics();
         assert_eq!(metrics.len(), 1);
         assert_eq!(metrics[0].name, "test_stage");
-    }
+    });
 
-    #[tokio::test]
-    async fn test_parallel_orchestrator() {
+    async_test!(test_parallel_orchestrator, {
         let _orchestrator = ParallelOrchestrator::new(4);
 
         // Simplified test with tokio::join!
         let (r1, r2, r3) = tokio::join!(
-            async { Ok::<_, super::super::LifecycleError>(1) },
-            async { Ok::<_, super::super::LifecycleError>(2) },
-            async { Ok::<_, super::super::LifecycleError>(3) },
+            async { Ok::<i32, super::super::LifecycleError>(1) },
+            async { Ok::<i32, super::super::LifecycleError>(2) },
+            async { Ok::<i32, super::super::LifecycleError>(3) },
         );
 
         assert!(r1.is_ok());
         assert!(r2.is_ok());
         assert!(r3.is_ok());
-    }
+    });
 
-    #[tokio::test]
-    async fn test_container_pool() {
+    async_test!(test_container_pool, {
         let pool = ContainerPool::new(3).await.unwrap();
         assert_eq!(pool.total(), 3);
         assert_eq!(pool.available(), 3);
-    }
+    });
 
-    #[test]
-    fn test_improvement_calculation() {
+    test!(test_improvement_calculation, {
         let metric = StageMetrics::new("test", Duration::from_secs(3), Duration::from_secs(5));
         assert!((metric.improvement_percent() - 40.0).abs() < 0.01);
 
         let metric_over = StageMetrics::new("test", Duration::from_secs(7), Duration::from_secs(5));
         assert!((metric_over.improvement_percent() + 40.0).abs() < 0.01);
-    }
+    });
 }
