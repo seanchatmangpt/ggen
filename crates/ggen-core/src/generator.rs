@@ -220,6 +220,27 @@ impl Generator {
     /// Processes the template, renders it with the provided context,
     /// and writes the output to the specified location.
     ///
+    /// # Returns
+    ///
+    /// Returns the path to the generated file. The path is returned even in
+    /// dry run mode (when `dry_run` is `true`), allowing you to preview where
+    /// the file would be written without actually creating it.
+    ///
+    /// The output path is determined as follows:
+    /// - If the template frontmatter specifies a `to` field, that path is used
+    ///   (rendered with template variables)
+    /// - Otherwise, the output path defaults to the template filename with a
+    ///   `.out` extension in the output root directory
+    ///
+    /// # Behavior
+    ///
+    /// - **Parent directories**: Automatically creates parent directories as needed
+    /// - **Frozen sections**: If the output file already exists and contains frozen
+    ///   sections (marked with `# frozen` comments), those sections are preserved
+    ///   and merged with the new generated content
+    /// - **Dry run**: When `dry_run` is `true`, the file is not written to disk,
+    ///   but the path is still returned
+    ///
     /// # Errors
     ///
     /// Returns an error if:
@@ -227,8 +248,10 @@ impl Generator {
     /// - The template syntax is invalid
     /// - Template variables are missing or invalid
     /// - RDF processing fails (if RDF is used)
-    /// - The output file cannot be written
+    /// - The template path has no file stem (cannot determine default output name)
+    /// - The output file cannot be written (unless in dry run mode)
     /// - File system permissions are insufficient
+    /// - Parent directories cannot be created
     ///
     /// # Examples
     ///
