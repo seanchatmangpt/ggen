@@ -1,0 +1,312 @@
+@prefix tele: <http://example.org/telemedicine#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix fhir: <http://hl7.org/fhir/> .
+@prefix schema: <http://schema.org/> .
+
+# Ontology Definition
+tele:TelemedicineOntology a owl:Ontology ;
+    rdfs:label "Telemedicine Platform Ontology" ;
+    rdfs:comment "Complete ontology for telemedicine services including video consultations, appointments, and prescriptions" ;
+    owl:versionInfo "1.0.0" .
+
+# Core Classes - Consultation
+tele:Consultation a owl:Class ;
+    rdfs:label "Consultation" ;
+    rdfs:comment "Virtual medical consultation between provider and patient" .
+
+tele:VideoConsultation a owl:Class ;
+    rdfs:subClassOf tele:Consultation ;
+    rdfs:label "Video Consultation" ;
+    rdfs:comment "Video-based consultation with audio and video" .
+
+tele:AudioConsultation a owl:Class ;
+    rdfs:subClassOf tele:Consultation ;
+    rdfs:label "Audio Consultation" ;
+    rdfs:comment "Audio-only consultation without video" .
+
+tele:ChatConsultation a owl:Class ;
+    rdfs:subClassOf tele:Consultation ;
+    rdfs:label "Chat Consultation" ;
+    rdfs:comment "Text-based consultation using messaging" .
+
+# Appointment Management
+tele:Appointment a owl:Class ;
+    rdfs:label "Appointment" ;
+    rdfs:comment "Scheduled telemedicine appointment" .
+
+tele:AppointmentSlot a owl:Class ;
+    rdfs:label "Appointment Slot" ;
+    rdfs:comment "Available time slot for scheduling" .
+
+tele:Scheduler a owl:Class ;
+    rdfs:label "Scheduler" ;
+    rdfs:comment "Appointment scheduling system" .
+
+tele:WaitingRoom a owl:Class ;
+    rdfs:label "Waiting Room" ;
+    rdfs:comment "Virtual waiting room for patients" .
+
+# Prescription Management
+tele:EPrescription a owl:Class ;
+    rdfs:label "Electronic Prescription" ;
+    rdfs:comment "Digital prescription for medications" .
+
+tele:Medication a owl:Class ;
+    rdfs:label "Medication" ;
+    rdfs:comment "Prescribed medication details" .
+
+tele:Pharmacy a owl:Class ;
+    rdfs:label "Pharmacy" ;
+    rdfs:comment "Pharmacy for prescription fulfillment" .
+
+tele:DrugInteraction a owl:Class ;
+    rdfs:label "Drug Interaction" ;
+    rdfs:comment "Potential drug-drug interaction" .
+
+# Participants
+tele:Provider a owl:Class ;
+    rdfs:label "Healthcare Provider" ;
+    rdfs:comment "Doctor, nurse, or other healthcare professional" .
+
+tele:Patient a owl:Class ;
+    rdfs:label "Patient" ;
+    rdfs:comment "Patient receiving telemedicine services" .
+
+tele:Caregiver a owl:Class ;
+    rdfs:label "Caregiver" ;
+    rdfs:comment "Family member or caregiver assisting patient" .
+
+# Communication
+tele:VideoStream a owl:Class ;
+    rdfs:label "Video Stream" ;
+    rdfs:comment "Real-time video stream" .
+
+tele:AudioStream a owl:Class ;
+    rdfs:label "Audio Stream" ;
+    rdfs:comment "Real-time audio stream" .
+
+tele:Message a owl:Class ;
+    rdfs:label "Message" ;
+    rdfs:comment "Text message in consultation" .
+
+tele:FileAttachment a owl:Class ;
+    rdfs:label "File Attachment" ;
+    rdfs:comment "Attached file (image, document, etc.)" .
+
+# Medical Records
+tele:MedicalRecord a owl:Class ;
+    rdfs:label "Medical Record" ;
+    rdfs:comment "Patient's medical record" .
+
+tele:VitalSign a owl:Class ;
+    rdfs:label "Vital Sign" ;
+    rdfs:comment "Vital sign measurement (BP, HR, temp, etc.)" .
+
+tele:Diagnosis a owl:Class ;
+    rdfs:label "Diagnosis" ;
+    rdfs:comment "Clinical diagnosis" .
+
+tele:TreatmentPlan a owl:Class ;
+    rdfs:label "Treatment Plan" ;
+    rdfs:comment "Recommended treatment plan" .
+
+# Technical Infrastructure
+tele:ConferenceServer a owl:Class ;
+    rdfs:label "Conference Server" ;
+    rdfs:comment "Video conferencing server" .
+
+tele:RecordingSession a owl:Class ;
+    rdfs:label "Recording Session" ;
+    rdfs:comment "Recorded consultation session" .
+
+tele:EncryptionKey a owl:Class ;
+    rdfs:label "Encryption Key" ;
+    rdfs:comment "Encryption key for secure transmission" .
+
+# Properties - Consultation
+tele:hasConsultationType a owl:ObjectProperty ;
+    rdfs:domain tele:Consultation ;
+    rdfs:range xsd:string ;
+    rdfs:label "has consultation type" .
+
+tele:hasStartTime a owl:DatatypeProperty ;
+    rdfs:domain tele:Consultation ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "has start time" .
+
+tele:hasEndTime a owl:DatatypeProperty ;
+    rdfs:domain tele:Consultation ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "has end time" .
+
+tele:hasDuration a owl:DatatypeProperty ;
+    rdfs:domain tele:Consultation ;
+    rdfs:range xsd:duration ;
+    rdfs:label "has duration" .
+
+tele:hasProvider a owl:ObjectProperty ;
+    rdfs:domain tele:Consultation ;
+    rdfs:range tele:Provider ;
+    rdfs:label "has provider" .
+
+tele:hasPatient a owl:ObjectProperty ;
+    rdfs:domain tele:Consultation ;
+    rdfs:range tele:Patient ;
+    rdfs:label "has patient" .
+
+tele:hasStatus a owl:DatatypeProperty ;
+    rdfs:domain tele:Consultation ;
+    rdfs:range xsd:string ;
+    rdfs:label "has status" ;
+    rdfs:comment "scheduled, in-progress, completed, cancelled" .
+
+# Appointment Properties
+tele:hasAppointment a owl:ObjectProperty ;
+    rdfs:domain tele:Consultation ;
+    rdfs:range tele:Appointment ;
+    rdfs:label "has appointment" .
+
+tele:hasScheduledTime a owl:DatatypeProperty ;
+    rdfs:domain tele:Appointment ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "has scheduled time" .
+
+tele:hasSlot a owl:ObjectProperty ;
+    rdfs:domain tele:Appointment ;
+    rdfs:range tele:AppointmentSlot ;
+    rdfs:label "has slot" .
+
+tele:requiresReminder a owl:DatatypeProperty ;
+    rdfs:domain tele:Appointment ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "requires reminder" .
+
+# Prescription Properties
+tele:hasPrescription a owl:ObjectProperty ;
+    rdfs:domain tele:Consultation ;
+    rdfs:range tele:EPrescription ;
+    rdfs:label "has prescription" .
+
+tele:hasMedication a owl:ObjectProperty ;
+    rdfs:domain tele:EPrescription ;
+    rdfs:range tele:Medication ;
+    rdfs:label "has medication" .
+
+tele:hasDosage a owl:DatatypeProperty ;
+    rdfs:domain tele:EPrescription ;
+    rdfs:range xsd:string ;
+    rdfs:label "has dosage" .
+
+tele:hasFrequency a owl:DatatypeProperty ;
+    rdfs:domain tele:EPrescription ;
+    rdfs:range xsd:string ;
+    rdfs:label "has frequency" .
+
+tele:hasPrescribedDate a owl:DatatypeProperty ;
+    rdfs:domain tele:EPrescription ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "has prescribed date" .
+
+tele:sentToPharmacy a owl:ObjectProperty ;
+    rdfs:domain tele:EPrescription ;
+    rdfs:range tele:Pharmacy ;
+    rdfs:label "sent to pharmacy" .
+
+# Video/Audio Properties
+tele:hasVideoStream a owl:ObjectProperty ;
+    rdfs:domain tele:VideoConsultation ;
+    rdfs:range tele:VideoStream ;
+    rdfs:label "has video stream" .
+
+tele:hasAudioStream a owl:ObjectProperty ;
+    rdfs:domain tele:Consultation ;
+    rdfs:range tele:AudioStream ;
+    rdfs:label "has audio stream" .
+
+tele:hasVideoQuality a owl:DatatypeProperty ;
+    rdfs:domain tele:VideoStream ;
+    rdfs:range xsd:string ;
+    rdfs:label "has video quality" ;
+    rdfs:comment "HD, SD, mobile" .
+
+tele:hasBandwidth a owl:DatatypeProperty ;
+    rdfs:domain tele:VideoStream ;
+    rdfs:range xsd:integer ;
+    rdfs:label "has bandwidth" ;
+    rdfs:comment "Bandwidth in Kbps" .
+
+# Medical Record Properties
+tele:hasMedicalRecord a owl:ObjectProperty ;
+    rdfs:domain tele:Patient ;
+    rdfs:range tele:MedicalRecord ;
+    rdfs:label "has medical record" .
+
+tele:hasVitalSign a owl:ObjectProperty ;
+    rdfs:domain tele:Consultation ;
+    rdfs:range tele:VitalSign ;
+    rdfs:label "has vital sign" .
+
+tele:hasDiagnosis a owl:ObjectProperty ;
+    rdfs:domain tele:Consultation ;
+    rdfs:range tele:Diagnosis ;
+    rdfs:label "has diagnosis" .
+
+tele:hasTreatmentPlan a owl:ObjectProperty ;
+    rdfs:domain tele:Consultation ;
+    rdfs:range tele:TreatmentPlan ;
+    rdfs:label "has treatment plan" .
+
+# Security Properties
+tele:isEncrypted a owl:DatatypeProperty ;
+    rdfs:domain tele:VideoStream ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "is encrypted" .
+
+tele:hasEncryptionKey a owl:ObjectProperty ;
+    rdfs:domain tele:Consultation ;
+    rdfs:range tele:EncryptionKey ;
+    rdfs:label "has encryption key" .
+
+tele:requiresConsent a owl:DatatypeProperty ;
+    rdfs:domain tele:Consultation ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "requires consent" .
+
+tele:hasConsentDate a owl:DatatypeProperty ;
+    rdfs:domain tele:Patient ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "has consent date" .
+
+# Example Instances
+tele:consultation_001 a tele:VideoConsultation ;
+    tele:hasProvider tele:provider_dr_smith ;
+    tele:hasPatient tele:patient_john_doe ;
+    tele:hasStartTime "2025-01-15T10:00:00Z"^^xsd:dateTime ;
+    tele:hasDuration "PT30M"^^xsd:duration ;
+    tele:hasStatus "completed" ;
+    tele:isEncrypted true .
+
+tele:provider_dr_smith a tele:Provider ;
+    schema:name "Dr. Sarah Smith" ;
+    schema:specialty "Internal Medicine" ;
+    tele:hasLicenseNumber "MD123456" .
+
+tele:patient_john_doe a tele:Patient ;
+    schema:name "John Doe" ;
+    schema:birthDate "1985-06-15"^^xsd:date ;
+    tele:hasConsentDate "2025-01-10T09:00:00Z"^^xsd:dateTime .
+
+tele:prescription_001 a tele:EPrescription ;
+    tele:hasMedication tele:medication_amoxicillin ;
+    tele:hasDosage "500mg" ;
+    tele:hasFrequency "twice daily" ;
+    tele:hasPrescribedDate "2025-01-15T10:25:00Z"^^xsd:dateTime ;
+    tele:sentToPharmacy tele:pharmacy_cvs_main .
+
+tele:medication_amoxicillin a tele:Medication ;
+    schema:name "Amoxicillin" ;
+    schema:activeIngredient "Amoxicillin" ;
+    tele:hasNDC "00093-4157-01" .

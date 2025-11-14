@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ggen Marketplace</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 { font-size: 3em; margin-bottom: 10px; }
+        .subtitle { font-size: 1.2em; opacity: 0.9; }
+        .content { background: white; border-radius: 8px; padding: 30px; margin: 20px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h2 { color: #667eea; margin: 30px 0 15px 0; }
+        pre {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        code { font-family: 'Monaco', 'Menlo', 'Courier New', monospace; }
+        .badge {
+            display: inline-block;
+            background: #48bb78;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin: 5px;
+        }
+        .links { display: flex; gap: 15px; justify-content: center; margin-top: 20px; }
+        .links a {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: background 0.3s;
+        }
+        .links a:hover { background: #5568d3; }
+        .feature { margin: 20px 0; padding: 15px; background: #f7fafc; border-left: 4px solid #667eea; border-radius: 4px; }
+        footer { text-align: center; padding: 40px 20px; color: #666; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🚀 ggen Marketplace</h1>
+        <p class="subtitle">Production-ready packages for the ggen ecosystem</p>
+        <div style="margin-top: 20px;">
+            <span class="badge">✅ Live</span>
+            <span class="badge">📦 3 Packages</span>
+            <span class="badge">🔒 Secure</span>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="content">
+            <h2>🔧 Quick Start</h2>
+            <p>Install and use packages in seconds:</p>
+            <pre><code># Search for packages
+ggen market search "rust api"
+
+# View package details
+ggen market info "advanced-rust-api-8020"
+
+# Install a package
+ggen market add "advanced-rust-api-8020"
+
+# List installed packages
+ggen market list</code></pre>
+        </div>
+
+        <div class="content">
+            <h2>📦 Featured Packages</h2>
+
+            <div class="feature">
+                <h3>🦀 advanced-rust-api-8020</h3>
+                <p>Production-ready REST API with complete lifecycle, AI generation, and 80/20 principles</p>
+                <p><strong>Features:</strong> JWT auth, Health checks, Docker, AI-powered generation, SPARQL specs</p>
+            </div>
+
+            <div class="feature">
+                <h3>⚡ rust-cli-template</h3>
+                <p>Production-ready CLI application template with clap, error handling, and testing</p>
+                <p><strong>Features:</strong> Clap args, Error handling, Unit tests, CI/CD ready</p>
+            </div>
+
+            <div class="feature">
+                <h3>🔗 graphql-api-rust</h3>
+                <p>GraphQL API server with async-graphql, authentication, and subscriptions</p>
+                <p><strong>Features:</strong> async-graphql, JWT, Real-time subscriptions, Database</p>
+            </div>
+        </div>
+
+        <div class="content">
+            <h2>📚 Resources</h2>
+            <div class="links">
+                <a href="registry/packages.toml" target="_blank">📋 Registry File</a>
+                <a href="https://github.com/seanchatmangpt/ggen" target="_blank">🐙 GitHub Repo</a>
+                <a href="README.md" target="_blank">📖 Publishing Guide</a>
+            </div>
+        </div>
+
+        <div class="content">
+            <h2>🎯 Publishing Your Package</h2>
+            <p>Share your work with the community:</p>
+            <pre><code># 1. Create your package
+mkdir -p marketplace/packages/my-package
+
+# 2. Add to registry
+# Edit: marketplace/registry/packages.toml
+
+# 3. Submit PR
+git add marketplace/
+git commit -m "Add my-package"
+git push origin add-my-package
+
+# 4. Automatic deployment after merge!</code></pre>
+        </div>
+    </div>
+
+    <footer>
+        <p>🚀 Powered by GitHub Pages | 📦 Registry updated automatically</p>
+        <p style="margin-top: 10px;">© 2025 ggen | MIT License</p>
+    </footer>
+</body>
+</html>

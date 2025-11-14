@@ -1,0 +1,57 @@
+# Hello World Package
+# Simple starter template for ggen
+
+[package]
+name = "hello-world"
+full_name = "hello-world-starter"
+version = "1.0.0"
+description = "Simple Hello World starter template for learning ggen basics"
+category = "starter"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+path = "marketplace/packages/hello-world"
+license = "MIT"
+dependencies = []
+features = [
+    "Basic Rust project structure",
+    "Simple main.rs template",
+    "Cargo.toml configuration",
+    "Getting started documentation"
+]
+tags = ["starter", "hello-world", "beginner", "tutorial"]
+keywords = ["hello-world", "starter", "beginner", "rust"]
+
+# Installation
+[install]
+type = "template"
+template_path = "marketplace/packages/hello-world"
+source_path = "examples/hello-world"
+
+# Template files to copy
+[files]
+"Cargo.toml" = "Cargo.toml"
+"src/" = "src/"
+
+# Variables for template substitution
+[variables]
+project_name = { type = "string", default = "hello-world", description = "Project name" }
+author = { type = "string", default = "ggen-user", description = "Author name" }
+
+# Examples
+[examples]
+basic = """
+# Install the package
+ggen market install hello-world
+
+# Create a new hello-world project
+ggen template generate hello-world --vars '{"project_name":"my-first-project"}'
+
+# Build and run
+cd my-first-project
+cargo run
+"""
+
+# Documentation
+[docs]
+quick_start = "Simple Hello World starter for learning ggen"
+use_cases = "Getting started, learning Rust, testing ggen"

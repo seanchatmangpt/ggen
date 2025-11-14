@@ -1,0 +1,723 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix tm: <http://example.org/taskmanagement/ontology#> .
+@prefix tmd: <http://example.org/taskmanagement/data#> .
+
+# ============================================================================
+# Task Management Ontology
+# ============================================================================
+# A comprehensive RDF ontology for task management systems with SHACL validation
+#
+# Entities:
+#   - User: System users with roles and authentication
+#   - Project: Containers for organizing related tasks
+#   - Task: Individual work items with status, priority, and assignments
+#   - Comment: Discussion threads attached to tasks
+#
+# Features:
+#   - Email format validation
+#   - Enum constraints for status and roles
+#   - Priority range validation (1-5)
+#   - Required field enforcement
+#   - Date/time tracking
+#   - Relationship integrity
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# Class Definitions
+# ----------------------------------------------------------------------------
+
+tm:User a rdfs:Class ;
+    rdfs:label "User" ;
+    rdfs:comment "A person who can interact with the task management system" .
+
+tm:Project a rdfs:Class ;
+    rdfs:label "Project" ;
+    rdfs:comment "A container for organizing related tasks" .
+
+tm:Task a rdfs:Class ;
+    rdfs:label "Task" ;
+    rdfs:comment "An individual work item that can be assigned and tracked" .
+
+tm:Comment a rdfs:Class ;
+    rdfs:label "Comment" ;
+    rdfs:comment "A discussion entry attached to a task" .
+
+# ----------------------------------------------------------------------------
+# Property Definitions - User
+# ----------------------------------------------------------------------------
+
+tm:userName a rdf:Property ;
+    rdfs:label "user name" ;
+    rdfs:comment "The full display name of the user" ;
+    rdfs:domain tm:User ;
+    rdfs:range xsd:string .
+
+tm:userEmail a rdf:Property ;
+    rdfs:label "user email" ;
+    rdfs:comment "The email address for user authentication and notifications" ;
+    rdfs:domain tm:User ;
+    rdfs:range xsd:string .
+
+tm:userRole a rdf:Property ;
+    rdfs:label "user role" ;
+    rdfs:comment "The authorization role of the user (admin or user)" ;
+    rdfs:domain tm:User ;
+    rdfs:range xsd:string .
+
+tm:userCreatedAt a rdf:Property ;
+    rdfs:label "user created at" ;
+    rdfs:comment "Timestamp when the user account was created" ;
+    rdfs:domain tm:User ;
+    rdfs:range xsd:dateTime .
+
+# ----------------------------------------------------------------------------
+# Property Definitions - Project
+# ----------------------------------------------------------------------------
+
+tm:projectName a rdf:Property ;
+    rdfs:label "project name" ;
+    rdfs:comment "The display name of the project" ;
+    rdfs:domain tm:Project ;
+    rdfs:range xsd:string .
+
+tm:projectDescription a rdf:Property ;
+    rdfs:label "project description" ;
+    rdfs:comment "A detailed description of the project's purpose and scope" ;
+    rdfs:domain tm:Project ;
+    rdfs:range xsd:string .
+
+tm:projectCreatedAt a rdf:Property ;
+    rdfs:label "project created at" ;
+    rdfs:comment "Timestamp when the project was created" ;
+    rdfs:domain tm:Project ;
+    rdfs:range xsd:dateTime .
+
+tm:projectOwner a rdf:Property ;
+    rdfs:label "project owner" ;
+    rdfs:comment "The user who owns and manages this project" ;
+    rdfs:domain tm:Project ;
+    rdfs:range tm:User .
+
+# ----------------------------------------------------------------------------
+# Property Definitions - Task
+# ----------------------------------------------------------------------------
+
+tm:taskTitle a rdf:Property ;
+    rdfs:label "task title" ;
+    rdfs:comment "A concise title summarizing the task" ;
+    rdfs:domain tm:Task ;
+    rdfs:range xsd:string .
+
+tm:taskDescription a rdf:Property ;
+    rdfs:label "task description" ;
+    rdfs:comment "Detailed description of what needs to be done" ;
+    rdfs:domain tm:Task ;
+    rdfs:range xsd:string .
+
+tm:taskStatus a rdf:Property ;
+    rdfs:label "task status" ;
+    rdfs:comment "Current state of the task (todo, in-progress, or done)" ;
+    rdfs:domain tm:Task ;
+    rdfs:range xsd:string .
+
+tm:taskPriority a rdf:Property ;
+    rdfs:label "task priority" ;
+    rdfs:comment "Priority level from 1 (lowest) to 5 (highest)" ;
+    rdfs:domain tm:Task ;
+    rdfs:range xsd:integer .
+
+tm:taskAssignee a rdf:Property ;
+    rdfs:label "task assignee" ;
+    rdfs:comment "The user assigned to complete this task" ;
+    rdfs:domain tm:Task ;
+    rdfs:range tm:User .
+
+tm:taskDueDate a rdf:Property ;
+    rdfs:label "task due date" ;
+    rdfs:comment "Target completion date for the task" ;
+    rdfs:domain tm:Task ;
+    rdfs:range xsd:dateTime .
+
+tm:taskCreatedAt a rdf:Property ;
+    rdfs:label "task created at" ;
+    rdfs:comment "Timestamp when the task was created" ;
+    rdfs:domain tm:Task ;
+    rdfs:range xsd:dateTime .
+
+tm:taskUpdatedAt a rdf:Property ;
+    rdfs:label "task updated at" ;
+    rdfs:comment "Timestamp of the last task modification" ;
+    rdfs:domain tm:Task ;
+    rdfs:range xsd:dateTime .
+
+# ----------------------------------------------------------------------------
+# Property Definitions - Comment
+# ----------------------------------------------------------------------------
+
+tm:commentContent a rdf:Property ;
+    rdfs:label "comment content" ;
+    rdfs:comment "The text content of the comment" ;
+    rdfs:domain tm:Comment ;
+    rdfs:range xsd:string .
+
+tm:commentAuthor a rdf:Property ;
+    rdfs:label "comment author" ;
+    rdfs:comment "The user who wrote this comment" ;
+    rdfs:domain tm:Comment ;
+    rdfs:range tm:User .
+
+tm:commentCreatedAt a rdf:Property ;
+    rdfs:label "comment created at" ;
+    rdfs:comment "Timestamp when the comment was posted" ;
+    rdfs:domain tm:Comment ;
+    rdfs:range xsd:dateTime .
+
+# ----------------------------------------------------------------------------
+# Relationship Properties
+# ----------------------------------------------------------------------------
+
+tm:belongsToProject a rdf:Property ;
+    rdfs:label "belongs to project" ;
+    rdfs:comment "Links a task to its parent project" ;
+    rdfs:domain tm:Task ;
+    rdfs:range tm:Project .
+
+tm:belongsToTask a rdf:Property ;
+    rdfs:label "belongs to task" ;
+    rdfs:comment "Links a comment to its parent task" ;
+    rdfs:domain tm:Comment ;
+    rdfs:range tm:Task .
+
+# ============================================================================
+# SHACL Shapes for Validation
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# User Shape - Validates user entities
+# ----------------------------------------------------------------------------
+
+tm:UserShape a sh:NodeShape ;
+    sh:targetClass tm:User ;
+    rdfs:label "User Validation Shape" ;
+    rdfs:comment "Validates user entities with required fields and format constraints" ;
+
+    # Name is required and must be a non-empty string
+    sh:property [
+        sh:path tm:userName ;
+        sh:name "user name" ;
+        sh:description "User's display name" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        sh:maxLength 100 ;
+        sh:message "User name is required and must be 1-100 characters" ;
+    ] ;
+
+    # Email is required and must match email pattern
+    sh:property [
+        sh:path tm:userEmail ;
+        sh:name "user email" ;
+        sh:description "User's email address" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:pattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" ;
+        sh:message "Valid email address is required (e.g., user@example.com)" ;
+    ] ;
+
+    # Role is required and must be either 'admin' or 'user'
+    sh:property [
+        sh:path tm:userRole ;
+        sh:name "user role" ;
+        sh:description "User's authorization role" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ("admin" "user") ;
+        sh:message "User role must be either 'admin' or 'user'" ;
+    ] ;
+
+    # Created timestamp is required
+    sh:property [
+        sh:path tm:userCreatedAt ;
+        sh:name "created at" ;
+        sh:description "Account creation timestamp" ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "User creation timestamp is required" ;
+    ] .
+
+# ----------------------------------------------------------------------------
+# Project Shape - Validates project entities
+# ----------------------------------------------------------------------------
+
+tm:ProjectShape a sh:NodeShape ;
+    sh:targetClass tm:Project ;
+    rdfs:label "Project Validation Shape" ;
+    rdfs:comment "Validates project entities with required fields and ownership" ;
+
+    # Project name is required
+    sh:property [
+        sh:path tm:projectName ;
+        sh:name "project name" ;
+        sh:description "Project's display name" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        sh:maxLength 200 ;
+        sh:message "Project name is required and must be 1-200 characters" ;
+    ] ;
+
+    # Description is optional but limited in length
+    sh:property [
+        sh:path tm:projectDescription ;
+        sh:name "project description" ;
+        sh:description "Detailed project description" ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:maxLength 2000 ;
+        sh:message "Project description must not exceed 2000 characters" ;
+    ] ;
+
+    # Created timestamp is required
+    sh:property [
+        sh:path tm:projectCreatedAt ;
+        sh:name "created at" ;
+        sh:description "Project creation timestamp" ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Project creation timestamp is required" ;
+    ] ;
+
+    # Project must have an owner
+    sh:property [
+        sh:path tm:projectOwner ;
+        sh:name "project owner" ;
+        sh:description "User who owns this project" ;
+        sh:class tm:User ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Project must have exactly one owner" ;
+    ] .
+
+# ----------------------------------------------------------------------------
+# Task Shape - Validates task entities
+# ----------------------------------------------------------------------------
+
+tm:TaskShape a sh:NodeShape ;
+    sh:targetClass tm:Task ;
+    rdfs:label "Task Validation Shape" ;
+    rdfs:comment "Validates task entities with status, priority, and assignment constraints" ;
+
+    # Task title is required
+    sh:property [
+        sh:path tm:taskTitle ;
+        sh:name "task title" ;
+        sh:description "Brief task summary" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        sh:maxLength 300 ;
+        sh:message "Task title is required and must be 1-300 characters" ;
+    ] ;
+
+    # Description is optional but limited
+    sh:property [
+        sh:path tm:taskDescription ;
+        sh:name "task description" ;
+        sh:description "Detailed task description" ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:maxLength 5000 ;
+        sh:message "Task description must not exceed 5000 characters" ;
+    ] ;
+
+    # Status is required and must be valid enum value
+    sh:property [
+        sh:path tm:taskStatus ;
+        sh:name "task status" ;
+        sh:description "Current task status" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ("todo" "in-progress" "done") ;
+        sh:message "Task status must be 'todo', 'in-progress', or 'done'" ;
+    ] ;
+
+    # Priority is required and must be 1-5
+    sh:property [
+        sh:path tm:taskPriority ;
+        sh:name "task priority" ;
+        sh:description "Priority level (1=lowest, 5=highest)" ;
+        sh:datatype xsd:integer ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 5 ;
+        sh:message "Task priority is required and must be between 1 and 5" ;
+    ] ;
+
+    # Task must belong to a project
+    sh:property [
+        sh:path tm:belongsToProject ;
+        sh:name "belongs to project" ;
+        sh:description "Parent project" ;
+        sh:class tm:Project ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Task must belong to exactly one project" ;
+    ] ;
+
+    # Assignee is optional but must be a valid user
+    sh:property [
+        sh:path tm:taskAssignee ;
+        sh:name "task assignee" ;
+        sh:description "User assigned to this task" ;
+        sh:class tm:User ;
+        sh:maxCount 1 ;
+        sh:message "Task can have at most one assignee" ;
+    ] ;
+
+    # Due date is optional
+    sh:property [
+        sh:path tm:taskDueDate ;
+        sh:name "due date" ;
+        sh:description "Target completion date" ;
+        sh:datatype xsd:dateTime ;
+        sh:maxCount 1 ;
+    ] ;
+
+    # Created timestamp is required
+    sh:property [
+        sh:path tm:taskCreatedAt ;
+        sh:name "created at" ;
+        sh:description "Task creation timestamp" ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Task creation timestamp is required" ;
+    ] ;
+
+    # Updated timestamp tracks modifications
+    sh:property [
+        sh:path tm:taskUpdatedAt ;
+        sh:name "updated at" ;
+        sh:description "Last modification timestamp" ;
+        sh:datatype xsd:dateTime ;
+        sh:maxCount 1 ;
+    ] .
+
+# ----------------------------------------------------------------------------
+# Comment Shape - Validates comment entities
+# ----------------------------------------------------------------------------
+
+tm:CommentShape a sh:NodeShape ;
+    sh:targetClass tm:Comment ;
+    rdfs:label "Comment Validation Shape" ;
+    rdfs:comment "Validates comment entities with authorship and content constraints" ;
+
+    # Comment content is required
+    sh:property [
+        sh:path tm:commentContent ;
+        sh:name "comment content" ;
+        sh:description "Comment text" ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:minLength 1 ;
+        sh:maxLength 5000 ;
+        sh:message "Comment content is required and must be 1-5000 characters" ;
+    ] ;
+
+    # Comment must have an author
+    sh:property [
+        sh:path tm:commentAuthor ;
+        sh:name "comment author" ;
+        sh:description "User who wrote this comment" ;
+        sh:class tm:User ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Comment must have exactly one author" ;
+    ] ;
+
+    # Comment must belong to a task
+    sh:property [
+        sh:path tm:belongsToTask ;
+        sh:name "belongs to task" ;
+        sh:description "Parent task" ;
+        sh:class tm:Task ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Comment must belong to exactly one task" ;
+    ] ;
+
+    # Created timestamp is required
+    sh:property [
+        sh:path tm:commentCreatedAt ;
+        sh:name "created at" ;
+        sh:description "Comment creation timestamp" ;
+        sh:datatype xsd:dateTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Comment creation timestamp is required" ;
+    ] .
+
+# ============================================================================
+# Sample Data - Demonstrates Valid Usage
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# Users
+# ----------------------------------------------------------------------------
+
+tmd:user1 a tm:User ;
+    tm:userName "Alice Johnson" ;
+    tm:userEmail "alice.johnson@example.com" ;
+    tm:userRole "admin" ;
+    tm:userCreatedAt "2024-01-15T09:00:00Z"^^xsd:dateTime .
+
+tmd:user2 a tm:User ;
+    tm:userName "Bob Smith" ;
+    tm:userEmail "bob.smith@example.com" ;
+    tm:userRole "user" ;
+    tm:userCreatedAt "2024-01-16T10:30:00Z"^^xsd:dateTime .
+
+tmd:user3 a tm:User ;
+    tm:userName "Carol Martinez" ;
+    tm:userEmail "carol.martinez@example.com" ;
+    tm:userRole "user" ;
+    tm:userCreatedAt "2024-01-17T14:15:00Z"^^xsd:dateTime .
+
+# ----------------------------------------------------------------------------
+# Projects
+# ----------------------------------------------------------------------------
+
+tmd:project1 a tm:Project ;
+    tm:projectName "Website Redesign" ;
+    tm:projectDescription "Complete overhaul of company website with modern UI/UX" ;
+    tm:projectOwner tmd:user1 ;
+    tm:projectCreatedAt "2024-02-01T08:00:00Z"^^xsd:dateTime .
+
+tmd:project2 a tm:Project ;
+    tm:projectName "Mobile App v2.0" ;
+    tm:projectDescription "Second major release of mobile application with new features" ;
+    tm:projectOwner tmd:user1 ;
+    tm:projectCreatedAt "2024-02-05T09:30:00Z"^^xsd:dateTime .
+
+# ----------------------------------------------------------------------------
+# Tasks
+# ----------------------------------------------------------------------------
+
+tmd:task1 a tm:Task ;
+    tm:taskTitle "Design homepage mockup" ;
+    tm:taskDescription "Create high-fidelity mockups for the new homepage layout including hero section, feature highlights, and call-to-action buttons" ;
+    tm:taskStatus "done" ;
+    tm:taskPriority 5 ;
+    tm:taskAssignee tmd:user2 ;
+    tm:belongsToProject tmd:project1 ;
+    tm:taskDueDate "2024-02-15T17:00:00Z"^^xsd:dateTime ;
+    tm:taskCreatedAt "2024-02-02T10:00:00Z"^^xsd:dateTime ;
+    tm:taskUpdatedAt "2024-02-14T16:30:00Z"^^xsd:dateTime .
+
+tmd:task2 a tm:Task ;
+    tm:taskTitle "Implement responsive navigation" ;
+    tm:taskDescription "Build mobile-friendly navigation menu with hamburger icon and smooth transitions" ;
+    tm:taskStatus "in-progress" ;
+    tm:taskPriority 4 ;
+    tm:taskAssignee tmd:user3 ;
+    tm:belongsToProject tmd:project1 ;
+    tm:taskDueDate "2024-02-20T17:00:00Z"^^xsd:dateTime ;
+    tm:taskCreatedAt "2024-02-10T11:00:00Z"^^xsd:dateTime ;
+    tm:taskUpdatedAt "2024-02-18T14:20:00Z"^^xsd:dateTime .
+
+tmd:task3 a tm:Task ;
+    tm:taskTitle "Setup CI/CD pipeline" ;
+    tm:taskDescription "Configure automated testing and deployment pipeline for the website" ;
+    tm:taskStatus "todo" ;
+    tm:taskPriority 3 ;
+    tm:belongsToProject tmd:project1 ;
+    tm:taskCreatedAt "2024-02-12T09:00:00Z"^^xsd:dateTime .
+
+tmd:task4 a tm:Task ;
+    tm:taskTitle "Design app onboarding flow" ;
+    tm:taskDescription "Create user-friendly onboarding screens for first-time app users" ;
+    tm:taskStatus "in-progress" ;
+    tm:taskPriority 5 ;
+    tm:taskAssignee tmd:user2 ;
+    tm:belongsToProject tmd:project2 ;
+    tm:taskDueDate "2024-02-25T17:00:00Z"^^xsd:dateTime ;
+    tm:taskCreatedAt "2024-02-06T10:00:00Z"^^xsd:dateTime ;
+    tm:taskUpdatedAt "2024-02-19T11:15:00Z"^^xsd:dateTime .
+
+tmd:task5 a tm:Task ;
+    tm:taskTitle "Implement push notifications" ;
+    tm:taskDescription "Add push notification support for iOS and Android with user preferences" ;
+    tm:taskStatus "todo" ;
+    tm:taskPriority 2 ;
+    tm:taskAssignee tmd:user3 ;
+    tm:belongsToProject tmd:project2 ;
+    tm:taskDueDate "2024-03-10T17:00:00Z"^^xsd:dateTime ;
+    tm:taskCreatedAt "2024-02-08T13:30:00Z"^^xsd:dateTime .
+
+# ----------------------------------------------------------------------------
+# Comments
+# ----------------------------------------------------------------------------
+
+tmd:comment1 a tm:Comment ;
+    tm:commentContent "Great work on the mockups! The color scheme really matches our brand guidelines." ;
+    tm:commentAuthor tmd:user1 ;
+    tm:belongsToTask tmd:task1 ;
+    tm:commentCreatedAt "2024-02-14T15:00:00Z"^^xsd:dateTime .
+
+tmd:comment2 a tm:Comment ;
+    tm:commentContent "Thanks! I've incorporated the feedback from the stakeholder meeting." ;
+    tm:commentAuthor tmd:user2 ;
+    tm:belongsToTask tmd:task1 ;
+    tm:commentCreatedAt "2024-02-14T16:00:00Z"^^xsd:dateTime .
+
+tmd:comment3 a tm:Comment ;
+    tm:commentContent "The navigation is almost complete. Just need to fix the dropdown animation on Safari." ;
+    tm:commentAuthor tmd:user3 ;
+    tm:belongsToTask tmd:task2 ;
+    tm:commentCreatedAt "2024-02-18T14:00:00Z"^^xsd:dateTime .
+
+tmd:comment4 a tm:Comment ;
+    tm:commentContent "Let me know if you need help with the Safari-specific issues. I've dealt with similar problems before." ;
+    tm:commentAuthor tmd:user2 ;
+    tm:belongsToTask tmd:task2 ;
+    tm:commentCreatedAt "2024-02-18T14:30:00Z"^^xsd:dateTime .
+
+tmd:comment5 a tm:Comment ;
+    tm:commentContent "Should we use GitHub Actions or Jenkins for the CI/CD pipeline?" ;
+    tm:commentAuthor tmd:user1 ;
+    tm:belongsToTask tmd:task3 ;
+    tm:commentCreatedAt "2024-02-12T10:00:00Z"^^xsd:dateTime .
+
+# ============================================================================
+# Usage Notes and Integration Guide
+# ============================================================================
+#
+# VALIDATION INTEGRATION:
+# -----------------------
+# This ontology can drive UI validation in multiple ways:
+#
+# 1. Form Field Validation:
+#    - Extract sh:minLength, sh:maxLength for input field constraints
+#    - Use sh:pattern for regex validation (e.g., email format)
+#    - Apply sh:minInclusive, sh:maxInclusive for numeric ranges
+#
+# 2. Dropdown/Select Options:
+#    - Use sh:in values to populate dropdown options
+#    - Example: taskStatus -> ["todo", "in-progress", "done"]
+#    - Example: userRole -> ["admin", "user"]
+#
+# 3. Required Field Indicators:
+#    - Check sh:minCount >= 1 to mark fields as required
+#    - Display asterisks (*) or "required" labels accordingly
+#
+# 4. Error Messages:
+#    - Use sh:message for user-friendly validation error messages
+#    - Display these when validation fails client-side or server-side
+#
+# 5. Relationship Validation:
+#    - Enforce sh:class constraints for reference fields
+#    - Example: Task assignee must reference a valid User
+#
+# SPARQL QUERY EXAMPLES:
+# ----------------------
+#
+# Get all high-priority tasks in progress:
+# SELECT ?task ?title ?assignee WHERE {
+#   ?task a tm:Task ;
+#         tm:taskTitle ?title ;
+#         tm:taskStatus "in-progress" ;
+#         tm:taskPriority ?priority ;
+#         tm:taskAssignee ?assignee .
+#   FILTER(?priority >= 4)
+# }
+#
+# Get all tasks due this week:
+# SELECT ?task ?title ?dueDate WHERE {
+#   ?task a tm:Task ;
+#         tm:taskTitle ?title ;
+#         tm:taskDueDate ?dueDate .
+#   FILTER(?dueDate >= "2024-02-19T00:00:00Z"^^xsd:dateTime &&
+#          ?dueDate < "2024-02-26T00:00:00Z"^^xsd:dateTime)
+# }
+#
+# Get all comments for a task with authors:
+# SELECT ?comment ?content ?authorName ?createdAt WHERE {
+#   ?comment a tm:Comment ;
+#            tm:belongsToTask tmd:task1 ;
+#            tm:commentContent ?content ;
+#            tm:commentAuthor ?author ;
+#            tm:commentCreatedAt ?createdAt .
+#   ?author tm:userName ?authorName .
+# } ORDER BY ?createdAt
+#
+# SHACL VALIDATION:
+# -----------------
+# Use a SHACL validator to check data integrity:
+#
+# Python (pySHACL):
+#   import rdflib
+#   from pyshacl import validate
+#
+#   data_graph = rdflib.Graph()
+#   data_graph.parse("task-management.ttl", format="turtle")
+#
+#   conforms, results_graph, results_text = validate(
+#       data_graph,
+#       shacl_graph=data_graph,
+#       inference='rdfs',
+#       abort_on_first=False
+#   )
+#
+#   if not conforms:
+#       print("Validation failures:")
+#       print(results_text)
+#
+# JavaScript (rdf-validate-shacl):
+#   const factory = require('rdf-ext')
+#   const SHACLValidator = require('rdf-validate-shacl')
+#
+#   const validator = new SHACLValidator(shapesGraph, { factory })
+#   const report = validator.validate(dataGraph)
+#
+#   for (const result of report.results) {
+#       console.log(result.message)
+#   }
+#
+# EXTENSION POINTS:
+# -----------------
+# This ontology can be extended with:
+#
+# 1. Additional Properties:
+#    - tm:taskEstimatedHours for time tracking
+#    - tm:taskTags for categorization
+#    - tm:taskBlockedBy for dependency management
+#
+# 2. New Classes:
+#    - tm:Milestone for project milestones
+#    - tm:Attachment for file uploads
+#    - tm:ActivityLog for audit trails
+#
+# 3. Advanced Constraints:
+#    - Due date must be after creation date
+#    - Task cannot be assigned to inactive users
+#    - Admin users can only be project owners
+#
+# 4. Integration with External Systems:
+#    - Link tasks to GitHub issues via tm:externalId
+#    - Connect users to LDAP/Active Directory
+#    - Sync with calendar systems using iCal format
+#
+# ============================================================================

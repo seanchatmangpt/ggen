@@ -1,0 +1,32 @@
+[package]
+name = "cryptocurrency-exchange"
+version = "1.0.0"
+description = "Cryptocurrency exchange platform with wallet management, order matching, blockchain integration, and DeFi protocols"
+category = "finance"
+author = "ggen Marketplace"
+license = "MIT"
+tags = ["crypto", "exchange", "blockchain", "defi", "wallet", "trading"]
+
+[features]
+wallet_management = ["multi-currency", "cold-storage", "hot-wallet"]
+order_matching = ["limit-orders", "market-orders", "stop-loss"]
+blockchain_integration = ["bitcoin", "ethereum", "polygon", "solana"]
+defi_protocols = ["liquidity-pools", "yield-farming", "staking"]
+security = ["2fa", "withdrawal-whitelist", "anomaly-detection"]
+
+[dependencies]
+rdf_ontology = "ontology/cryptocurrency_exchange.ttl"
+sparql_templates = "templates/*.sparql"
+rust_impl = "src/rust/"
+typescript_impl = "src/typescript/"
+python_impl = "src/python/"
+
+[compliance]
+regulations = ["SEC", "FinCEN", "BSA/AML", "KYC", "GDPR"]
+security_standards = ["ISO-27001", "SOC-2", "PCI-DSS"]
+audit_requirements = ["transaction-logs", "custody-audit", "proof-of-reserves"]
+
+[ontology]
+entities = ["Wallet", "Order", "Trade", "Token", "LiquidityPool", "StakingContract"]
+relations = ["owns", "trades", "deposits", "withdraws", "stakes", "provides_liquidity"]
+complexity = "high"

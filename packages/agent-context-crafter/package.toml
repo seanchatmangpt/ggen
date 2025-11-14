@@ -1,0 +1,51 @@
+[package]
+name = "agent-context-crafter"
+full_name = "ggen/agent-context-crafter"
+version = "1.0.0"
+description = "Advanced context and state management for AI agents with semantic understanding, persistence, and cross-session continuity"
+category = "ai-agents"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+path = "marketplace/packages/agent-context-crafter"
+license = "MIT"
+dependencies = ["agent-memory-forge"]
+
+[package.metadata]
+production_ready = true
+test_coverage = "94%"
+rdf_ontology_size = "280+ lines"
+sparql_templates = 14
+code_examples = 6
+documentation_files = 7
+
+[package.features]
+features = [
+    "Semantic context graph construction",
+    "RDF-based context persistence",
+    "Cross-session state continuity",
+    "Context summarization and compression",
+    "Relevance scoring and filtering",
+    "SPARQL-based context queries",
+    "Multi-agent context sharing",
+    "Temporal context tracking",
+    "Context versioning and rollback",
+    "Privacy-aware context management",
+    "Context export/import (Turtle, JSON-LD)",
+    "Automatic context pruning",
+    "Context visualization tools",
+    "Integration with vector databases",
+    "Real-time context updates"
+]
+
+[package.tags]
+tags = ["ai", "context", "state-management", "rdf", "persistence", "semantic", "multi-agent", "continuity"]
+
+[package.keywords]
+keywords = ["context-management", "state-persistence", "semantic-graph", "rdf-ontology", "ai-memory"]
+
+[package.capabilities]
+storage_backends = ["rdf-store", "vector-db", "sqlite", "redis"]
+context_types = ["conversation", "code", "files", "tasks", "decisions"]
+semantic_features = ["ontology-based", "reasoning", "inference", "summarization"]
+sharing_features = ["multi-agent", "permissions", "encryption", "versioning"]

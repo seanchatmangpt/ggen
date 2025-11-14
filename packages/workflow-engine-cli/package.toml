@@ -1,0 +1,99 @@
+[package]
+name = "workflow-engine-cli"
+version = "1.0.0"
+description = "BPMN workflow execution and orchestration using clap-noun-verb"
+authors = ["Generated Ontology System"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/yourusername/workflow-engine-cli"
+homepage = "https://ggen.ruv.io/packages/workflow-engine-cli"
+documentation = "https://docs.ggen.ruv.io/workflow-engine-cli"
+readme = "README.md"
+keywords = ["bpmn", "workflow", "orchestration", "process", "automation", "clap-noun-verb"]
+categories = ["cli-tools", "workflow-automation", "business-process"]
+edition = "2021"
+
+[package.metadata]
+ontology_uri = "http://ggen.ruv.io/workflow-engine"
+ontology_version = "1.0.0"
+sparql_endpoint = "http://localhost:3030/workflow-engine"
+
+[features]
+default = ["bpmn2", "workflow-execution", "state-management", "event-handling"]
+bpmn2 = []
+workflow-execution = ["tokio"]
+state-management = ["serde"]
+event-handling = ["async-trait"]
+persistence = ["sqlx", "tokio-postgres"]
+metrics = ["prometheus"]
+distributed = ["redis", "kafka"]
+
+[dependencies]
+clap-noun-verb = "3.4.0"
+petgraph = "0.6"
+tokio = { version = "1.35", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+uuid = { version = "1.6", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+async-trait = "0.1"
+thiserror = "1.0"
+anyhow = "1.0"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+quick-xml = "0.31"
+regex = "1.10"
+
+[dependencies.sqlx]
+version = "0.7"
+features = ["runtime-tokio-native-tls", "postgres", "uuid", "chrono", "json"]
+optional = true
+
+[dependencies.tokio-postgres]
+version = "0.7"
+optional = true
+
+[dependencies.prometheus]
+version = "0.13"
+optional = true
+
+[dependencies.redis]
+version = "0.24"
+features = ["tokio-comp", "connection-manager"]
+optional = true
+
+[dependencies.kafka]
+version = "0.10"
+optional = true
+
+[dev-dependencies]
+criterion = "0.5"
+proptest = "1.4"
+tokio-test = "0.4"
+mockall = "0.12"
+temp-env = "0.3"
+
+[[bin]]
+name = "workflow-engine"
+path = "src/main.rs"
+
+[lib]
+name = "workflow_engine"
+path = "src/lib.rs"
+
+[[example]]
+name = "service_task"
+path = "examples/service_task.rs"
+
+[[example]]
+name = "parallel_gateway"
+path = "examples/parallel_gateway.rs"
+
+[[example]]
+name = "event_driven"
+path = "examples/event_driven.rs"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true

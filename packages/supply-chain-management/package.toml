@@ -1,0 +1,42 @@
+[package]
+name = "supply-chain-management"
+version = "1.0.0"
+description = "Supply chain optimization with procurement, logistics, and warehouse management"
+author = "GGEN Marketplace"
+license = "MIT"
+category = "enterprise"
+tags = ["supply-chain", "procurement", "logistics", "warehouse", "demand-planning"]
+
+[ontology]
+main = "ontology/supply-chain.ttl"
+namespaces = [
+    { prefix = "sc", uri = "http://ggen.io/ontology/supply-chain#" }
+]
+
+[sparql]
+queries = "sparql/queries.rq"
+templates = [
+    "purchase_recommendations",
+    "optimal_order_quantities",
+    "shipment_schedules",
+    "supplier_performance",
+    "demand_forecast",
+    "warehouse_utilization"
+]
+
+[templates.rust]
+main = "templates/rust/supply_chain_engine.rs"
+dependencies = [
+    "rust_decimal = \"1.33\"",
+    "serde = { version = \"1.0\", features = [\"derive\"] }"
+]
+
+[tests]
+framework = "chicago-tdd"
+test_dir = "tests/chicago_tdd"
+
+[metadata]
+complexity = "high"
+domain = "logistics"
+rdf_classes = 32
+sparql_queries = 12

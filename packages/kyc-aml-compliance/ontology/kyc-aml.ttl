@@ -1,0 +1,591 @@
+@prefix kyc: <http://example.org/kyc-aml#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# ============================================================
+# KYC/AML Compliance Ontology
+# Version: 1.0.0
+# Coverage: Identity verification, Risk scoring, Sanctions, SAR
+# ============================================================
+
+# ============================================================
+# Customer Identity Verification
+# ============================================================
+
+kyc:Customer a owl:Class ;
+    rdfs:label "Customer" ;
+    rdfs:comment "Individual or entity subject to KYC" .
+
+kyc:Individual a owl:Class ;
+    rdfs:subClassOf kyc:Customer ;
+    rdfs:label "Individual" ;
+    rdfs:comment "Natural person" .
+
+kyc:Entity a owl:Class ;
+    rdfs:subClassOf kyc:Customer ;
+    rdfs:label "Entity" ;
+    rdfs:comment "Legal entity (corporation, partnership, trust)" .
+
+kyc:IdentityDocument a owl:Class ;
+    rdfs:label "Identity Document" ;
+    rdfs:comment "Document used to verify identity" .
+
+kyc:Passport a owl:Class ;
+    rdfs:subClassOf kyc:IdentityDocument ;
+    rdfs:label "Passport" ;
+    rdfs:comment "Government-issued passport" .
+
+kyc:DriversLicense a owl:Class ;
+    rdfs:subClassOf kyc:IdentityDocument ;
+    rdfs:label "Driver's License" ;
+    rdfs:comment "Government-issued driver's license" .
+
+kyc:NationalID a owl:Class ;
+    rdfs:subClassOf kyc:IdentityDocument ;
+    rdfs:label "National ID" ;
+    rdfs:comment "Government-issued national ID card" .
+
+kyc:UtilityBill a owl:Class ;
+    rdfs:subClassOf kyc:IdentityDocument ;
+    rdfs:label "Utility Bill" ;
+    rdfs:comment "Proof of address document" .
+
+kyc:BankStatement a owl:Class ;
+    rdfs:subClassOf kyc:IdentityDocument ;
+    rdfs:label "Bank Statement" ;
+    rdfs:comment "Bank statement for address verification" .
+
+kyc:IdentityVerification a owl:Class ;
+    rdfs:label "Identity Verification" ;
+    rdfs:comment "Process of verifying customer identity" .
+
+kyc:DocumentVerification a owl:Class ;
+    rdfs:subClassOf kyc:IdentityVerification ;
+    rdfs:label "Document Verification" ;
+    rdfs:comment "Verification of submitted documents" .
+
+kyc:BiometricVerification a owl:Class ;
+    rdfs:subClassOf kyc:IdentityVerification ;
+    rdfs:label "Biometric Verification" ;
+    rdfs:comment "Verification using biometric data" .
+
+kyc:VideoVerification a owl:Class ;
+    rdfs:subClassOf kyc:IdentityVerification ;
+    rdfs:label "Video Verification" ;
+    rdfs:comment "Video call identity verification" .
+
+# ============================================================
+# Risk Assessment
+# ============================================================
+
+kyc:RiskAssessment a owl:Class ;
+    rdfs:label "Risk Assessment" ;
+    rdfs:comment "Evaluation of customer risk level" .
+
+kyc:RiskScore a owl:Class ;
+    rdfs:label "Risk Score" ;
+    rdfs:comment "Numerical risk rating" .
+
+kyc:RiskLevel a owl:Class ;
+    rdfs:label "Risk Level" ;
+    rdfs:comment "Categorical risk classification" .
+
+kyc:LowRisk a owl:Class ;
+    rdfs:subClassOf kyc:RiskLevel ;
+    rdfs:label "Low Risk" ;
+    rdfs:comment "Customer poses low risk" .
+
+kyc:MediumRisk a owl:Class ;
+    rdfs:subClassOf kyc:RiskLevel ;
+    rdfs:label "Medium Risk" ;
+    rdfs:comment "Customer poses medium risk" .
+
+kyc:HighRisk a owl:Class ;
+    rdfs:subClassOf kyc:RiskLevel ;
+    rdfs:label "High Risk" ;
+    rdfs:comment "Customer poses high risk" .
+
+kyc:RiskFactor a owl:Class ;
+    rdfs:label "Risk Factor" ;
+    rdfs:comment "Factor contributing to risk score" .
+
+kyc:GeographicRisk a owl:Class ;
+    rdfs:subClassOf kyc:RiskFactor ;
+    rdfs:label "Geographic Risk" ;
+    rdfs:comment "Risk based on location" .
+
+kyc:IndustryRisk a owl:Class ;
+    rdfs:subClassOf kyc:RiskFactor ;
+    rdfs:label "Industry Risk" ;
+    rdfs:comment "Risk based on business sector" .
+
+kyc:TransactionRisk a owl:Class ;
+    rdfs:subClassOf kyc:RiskFactor ;
+    rdfs:label "Transaction Risk" ;
+    rdfs:comment "Risk based on transaction patterns" .
+
+kyc:ProductRisk a owl:Class ;
+    rdfs:subClassOf kyc:RiskFactor ;
+    rdfs:label "Product Risk" ;
+    rdfs:comment "Risk based on products/services used" .
+
+# ============================================================
+# Sanctions and PEP Screening
+# ============================================================
+
+kyc:SanctionsScreening a owl:Class ;
+    rdfs:label "Sanctions Screening" ;
+    rdfs:comment "Screening against sanctions lists" .
+
+kyc:SanctionsList a owl:Class ;
+    rdfs:label "Sanctions List" ;
+    rdfs:comment "Official sanctions or watchlist" .
+
+kyc:OFACList a owl:Class ;
+    rdfs:subClassOf kyc:SanctionsList ;
+    rdfs:label "OFAC List" ;
+    rdfs:comment "US Office of Foreign Assets Control sanctions list" .
+
+kyc:EUSanctionsList a owl:Class ;
+    rdfs:subClassOf kyc:SanctionsList ;
+    rdfs:label "EU Sanctions List" ;
+    rdfs:comment "European Union sanctions list" .
+
+kyc:UNSanctionsList a owl:Class ;
+    rdfs:subClassOf kyc:SanctionsList ;
+    rdfs:label "UN Sanctions List" ;
+    rdfs:comment "United Nations sanctions list" .
+
+kyc:PEPScreening a owl:Class ;
+    rdfs:label "PEP Screening" ;
+    rdfs:comment "Politically Exposed Persons screening" .
+
+kyc:PEP a owl:Class ;
+    rdfs:label "PEP" ;
+    rdfs:comment "Politically Exposed Person" .
+
+kyc:ForeignPEP a owl:Class ;
+    rdfs:subClassOf kyc:PEP ;
+    rdfs:label "Foreign PEP" ;
+    rdfs:comment "Foreign government official or family member" .
+
+kyc:DomesticPEP a owl:Class ;
+    rdfs:subClassOf kyc:PEP ;
+    rdfs:label "Domestic PEP" ;
+    rdfs:comment "Domestic government official or family member" .
+
+kyc:InternationalOrgPEP a owl:Class ;
+    rdfs:subClassOf kyc:PEP ;
+    rdfs:label "International Organization PEP" ;
+    rdfs:comment "International organization official" .
+
+kyc:SanctionsMatch a owl:Class ;
+    rdfs:label "Sanctions Match" ;
+    rdfs:comment "Potential match against sanctions list" .
+
+kyc:ExactMatch a owl:Class ;
+    rdfs:subClassOf kyc:SanctionsMatch ;
+    rdfs:label "Exact Match" ;
+    rdfs:comment "Exact name match" .
+
+kyc:FuzzyMatch a owl:Class ;
+    rdfs:subClassOf kyc:SanctionsMatch ;
+    rdfs:label "Fuzzy Match" ;
+    rdfs:comment "Approximate name match" .
+
+# ============================================================
+# Transaction Monitoring
+# ============================================================
+
+kyc:TransactionMonitoring a owl:Class ;
+    rdfs:label "Transaction Monitoring" ;
+    rdfs:comment "Ongoing monitoring of transactions" .
+
+kyc:MonitoringRule a owl:Class ;
+    rdfs:label "Monitoring Rule" ;
+    rdfs:comment "Rule for detecting suspicious activity" .
+
+kyc:ThresholdRule a owl:Class ;
+    rdfs:subClassOf kyc:MonitoringRule ;
+    rdfs:label "Threshold Rule" ;
+    rdfs:comment "Rule based on transaction amount thresholds" .
+
+kyc:VelocityRule a owl:Class ;
+    rdfs:subClassOf kyc:MonitoringRule ;
+    rdfs:label "Velocity Rule" ;
+    rdfs:comment "Rule based on transaction frequency" .
+
+kyc:PatternRule a owl:Class ;
+    rdfs:subClassOf kyc:MonitoringRule ;
+    rdfs:label "Pattern Rule" ;
+    rdfs:comment "Rule based on transaction patterns" .
+
+kyc:SuspiciousActivity a owl:Class ;
+    rdfs:label "Suspicious Activity" ;
+    rdfs:comment "Potentially suspicious transaction or behavior" .
+
+kyc:Alert a owl:Class ;
+    rdfs:label "Alert" ;
+    rdfs:comment "System-generated alert" .
+
+kyc:TruePositive a owl:Class ;
+    rdfs:subClassOf kyc:Alert ;
+    rdfs:label "True Positive" ;
+    rdfs:comment "Confirmed suspicious activity" .
+
+kyc:FalsePositive a owl:Class ;
+    rdfs:subClassOf kyc:Alert ;
+    rdfs:label "False Positive" ;
+    rdfs:comment "Alert dismissed as non-suspicious" .
+
+# ============================================================
+# Suspicious Activity Reporting (SAR)
+# ============================================================
+
+kyc:SAR a owl:Class ;
+    rdfs:label "SAR" ;
+    rdfs:comment "Suspicious Activity Report" .
+
+kyc:SARFiling a owl:Class ;
+    rdfs:label "SAR Filing" ;
+    rdfs:comment "Filing of SAR with authorities" .
+
+kyc:ReportableActivity a owl:Class ;
+    rdfs:label "Reportable Activity" ;
+    rdfs:comment "Activity requiring SAR filing" .
+
+kyc:MoneyLaundering a owl:Class ;
+    rdfs:subClassOf kyc:ReportableActivity ;
+    rdfs:label "Money Laundering" ;
+    rdfs:comment "Suspected money laundering activity" .
+
+kyc:TerroristFinancing a owl:Class ;
+    rdfs:subClassOf kyc:ReportableActivity ;
+    rdfs:label "Terrorist Financing" ;
+    rdfs:comment "Suspected terrorist financing" .
+
+kyc:FraudActivity a owl:Class ;
+    rdfs:subClassOf kyc:ReportableActivity ;
+    rdfs:label "Fraud Activity" ;
+    rdfs:comment "Suspected fraud" .
+
+kyc:StructuringActivity a owl:Class ;
+    rdfs:subClassOf kyc:ReportableActivity ;
+    rdfs:label "Structuring Activity" ;
+    rdfs:comment "Suspected structuring to avoid reporting" .
+
+# ============================================================
+# Regulatory Frameworks
+# ============================================================
+
+kyc:RegulatoryFramework a owl:Class ;
+    rdfs:label "Regulatory Framework" ;
+    rdfs:comment "AML/KYC regulatory framework" .
+
+kyc:FATF a owl:Class ;
+    rdfs:subClassOf kyc:RegulatoryFramework ;
+    rdfs:label "FATF" ;
+    rdfs:comment "Financial Action Task Force recommendations" .
+
+kyc:FinCEN a owl:Class ;
+    rdfs:subClassOf kyc:RegulatoryFramework ;
+    rdfs:label "FinCEN" ;
+    rdfs:comment "US Financial Crimes Enforcement Network" .
+
+kyc:MiFIDII a owl:Class ;
+    rdfs:subClassOf kyc:RegulatoryFramework ;
+    rdfs:label "MiFID II" ;
+    rdfs:comment "EU Markets in Financial Instruments Directive" .
+
+kyc:AMLD a owl:Class ;
+    rdfs:subClassOf kyc:RegulatoryFramework ;
+    rdfs:label "AMLD" ;
+    rdfs:comment "EU Anti-Money Laundering Directive" .
+
+kyc:BSAct a owl:Class ;
+    rdfs:subClassOf kyc:RegulatoryFramework ;
+    rdfs:label "Bank Secrecy Act" ;
+    rdfs:comment "US Bank Secrecy Act" .
+
+# ============================================================
+# Enhanced Due Diligence
+# ============================================================
+
+kyc:DueDiligence a owl:Class ;
+    rdfs:label "Due Diligence" ;
+    rdfs:comment "Customer due diligence process" .
+
+kyc:CDD a owl:Class ;
+    rdfs:subClassOf kyc:DueDiligence ;
+    rdfs:label "CDD" ;
+    rdfs:comment "Customer Due Diligence" .
+
+kyc:EDD a owl:Class ;
+    rdfs:subClassOf kyc:DueDiligence ;
+    rdfs:label "EDD" ;
+    rdfs:comment "Enhanced Due Diligence for high-risk customers" .
+
+kyc:SDD a owl:Class ;
+    rdfs:subClassOf kyc:DueDiligence ;
+    rdfs:label "SDD" ;
+    rdfs:comment "Simplified Due Diligence for low-risk customers" .
+
+kyc:OngoingMonitoring a owl:Class ;
+    rdfs:label "Ongoing Monitoring" ;
+    rdfs:comment "Continuous monitoring of customer activity" .
+
+kyc:PeriodicReview a owl:Class ;
+    rdfs:label "Periodic Review" ;
+    rdfs:comment "Scheduled re-evaluation of customer risk" .
+
+# ============================================================
+# Object Properties
+# ============================================================
+
+kyc:hasIdentityDocument a owl:ObjectProperty ;
+    rdfs:domain kyc:Customer ;
+    rdfs:range kyc:IdentityDocument ;
+    rdfs:label "has identity document" .
+
+kyc:hasVerification a owl:ObjectProperty ;
+    rdfs:domain kyc:Customer ;
+    rdfs:range kyc:IdentityVerification ;
+    rdfs:label "has verification" .
+
+kyc:hasRiskAssessment a owl:ObjectProperty ;
+    rdfs:domain kyc:Customer ;
+    rdfs:range kyc:RiskAssessment ;
+    rdfs:label "has risk assessment" .
+
+kyc:hasRiskScore a owl:ObjectProperty ;
+    rdfs:domain kyc:RiskAssessment ;
+    rdfs:range kyc:RiskScore ;
+    rdfs:label "has risk score" .
+
+kyc:hasRiskLevel a owl:ObjectProperty ;
+    rdfs:domain kyc:RiskAssessment ;
+    rdfs:range kyc:RiskLevel ;
+    rdfs:label "has risk level" .
+
+kyc:hasRiskFactor a owl:ObjectProperty ;
+    rdfs:domain kyc:RiskAssessment ;
+    rdfs:range kyc:RiskFactor ;
+    rdfs:label "has risk factor" .
+
+kyc:hasSanctionsScreening a owl:ObjectProperty ;
+    rdfs:domain kyc:Customer ;
+    rdfs:range kyc:SanctionsScreening ;
+    rdfs:label "has sanctions screening" .
+
+kyc:hasPEPScreening a owl:ObjectProperty ;
+    rdfs:domain kyc:Customer ;
+    rdfs:range kyc:PEPScreening ;
+    rdfs:label "has PEP screening" .
+
+kyc:hasSanctionsMatch a owl:ObjectProperty ;
+    rdfs:domain kyc:SanctionsScreening ;
+    rdfs:range kyc:SanctionsMatch ;
+    rdfs:label "has sanctions match" .
+
+kyc:matchesList a owl:ObjectProperty ;
+    rdfs:domain kyc:SanctionsMatch ;
+    rdfs:range kyc:SanctionsList ;
+    rdfs:label "matches list" .
+
+kyc:isPEP a owl:ObjectProperty ;
+    rdfs:domain kyc:Customer ;
+    rdfs:range kyc:PEP ;
+    rdfs:label "is PEP" .
+
+kyc:hasAlert a owl:ObjectProperty ;
+    rdfs:domain kyc:TransactionMonitoring ;
+    rdfs:range kyc:Alert ;
+    rdfs:label "has alert" .
+
+kyc:triggeredByRule a owl:ObjectProperty ;
+    rdfs:domain kyc:Alert ;
+    rdfs:range kyc:MonitoringRule ;
+    rdfs:label "triggered by rule" .
+
+kyc:hasSAR a owl:ObjectProperty ;
+    rdfs:domain kyc:SuspiciousActivity ;
+    rdfs:range kyc:SAR ;
+    rdfs:label "has SAR" .
+
+kyc:hasReportableActivity a owl:ObjectProperty ;
+    rdfs:domain kyc:SAR ;
+    rdfs:range kyc:ReportableActivity ;
+    rdfs:label "has reportable activity" .
+
+kyc:hasDueDiligence a owl:ObjectProperty ;
+    rdfs:domain kyc:Customer ;
+    rdfs:range kyc:DueDiligence ;
+    rdfs:label "has due diligence" .
+
+kyc:requiresEDD a owl:ObjectProperty ;
+    rdfs:domain kyc:HighRisk ;
+    rdfs:range kyc:EDD ;
+    rdfs:label "requires EDD" .
+
+# ============================================================
+# Data Properties
+# ============================================================
+
+kyc:customerID a owl:DatatypeProperty ;
+    rdfs:domain kyc:Customer ;
+    rdfs:range xsd:string ;
+    rdfs:label "customer ID" .
+
+kyc:fullName a owl:DatatypeProperty ;
+    rdfs:domain kyc:Customer ;
+    rdfs:range xsd:string ;
+    rdfs:label "full name" .
+
+kyc:dateOfBirth a owl:DatatypeProperty ;
+    rdfs:domain kyc:Individual ;
+    rdfs:range xsd:date ;
+    rdfs:label "date of birth" .
+
+kyc:nationality a owl:DatatypeProperty ;
+    rdfs:domain kyc:Individual ;
+    rdfs:range xsd:string ;
+    rdfs:label "nationality" .
+
+kyc:countryOfResidence a owl:DatatypeProperty ;
+    rdfs:domain kyc:Customer ;
+    rdfs:range xsd:string ;
+    rdfs:label "country of residence" .
+
+kyc:occupation a owl:DatatypeProperty ;
+    rdfs:domain kyc:Individual ;
+    rdfs:range xsd:string ;
+    rdfs:label "occupation" .
+
+kyc:entityType a owl:DatatypeProperty ;
+    rdfs:domain kyc:Entity ;
+    rdfs:range xsd:string ;
+    rdfs:label "entity type" ;
+    rdfs:comment "Corporation, Partnership, Trust, etc." .
+
+kyc:registrationNumber a owl:DatatypeProperty ;
+    rdfs:domain kyc:Entity ;
+    rdfs:range xsd:string ;
+    rdfs:label "registration number" .
+
+kyc:incorporationCountry a owl:DatatypeProperty ;
+    rdfs:domain kyc:Entity ;
+    rdfs:range xsd:string ;
+    rdfs:label "incorporation country" .
+
+kyc:documentNumber a owl:DatatypeProperty ;
+    rdfs:domain kyc:IdentityDocument ;
+    rdfs:range xsd:string ;
+    rdfs:label "document number" .
+
+kyc:documentIssuer a owl:DatatypeProperty ;
+    rdfs:domain kyc:IdentityDocument ;
+    rdfs:range xsd:string ;
+    rdfs:label "document issuer" .
+
+kyc:documentExpiryDate a owl:DatatypeProperty ;
+    rdfs:domain kyc:IdentityDocument ;
+    rdfs:range xsd:date ;
+    rdfs:label "document expiry date" .
+
+kyc:verificationStatus a owl:DatatypeProperty ;
+    rdfs:domain kyc:IdentityVerification ;
+    rdfs:range xsd:string ;
+    rdfs:label "verification status" ;
+    rdfs:comment "PENDING, VERIFIED, REJECTED" .
+
+kyc:verificationDate a owl:DatatypeProperty ;
+    rdfs:domain kyc:IdentityVerification ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "verification date" .
+
+kyc:scoreValue a owl:DatatypeProperty ;
+    rdfs:domain kyc:RiskScore ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "score value" ;
+    rdfs:comment "Numerical risk score (e.g., 0-100)" .
+
+kyc:scoreReason a owl:DatatypeProperty ;
+    rdfs:domain kyc:RiskScore ;
+    rdfs:range xsd:string ;
+    rdfs:label "score reason" .
+
+kyc:assessmentDate a owl:DatatypeProperty ;
+    rdfs:domain kyc:RiskAssessment ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "assessment date" .
+
+kyc:matchScore a owl:DatatypeProperty ;
+    rdfs:domain kyc:SanctionsMatch ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "match score" ;
+    rdfs:comment "Confidence score for match (0-1)" .
+
+kyc:matchReason a owl:DatatypeProperty ;
+    rdfs:domain kyc:SanctionsMatch ;
+    rdfs:range xsd:string ;
+    rdfs:label "match reason" .
+
+kyc:screeningDate a owl:DatatypeProperty ;
+    rdfs:label "screening date" ;
+    rdfs:range xsd:dateTime .
+
+kyc:alertID a owl:DatatypeProperty ;
+    rdfs:domain kyc:Alert ;
+    rdfs:range xsd:string ;
+    rdfs:label "alert ID" .
+
+kyc:alertDate a owl:DatatypeProperty ;
+    rdfs:domain kyc:Alert ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "alert date" .
+
+kyc:alertStatus a owl:DatatypeProperty ;
+    rdfs:domain kyc:Alert ;
+    rdfs:range xsd:string ;
+    rdfs:label "alert status" ;
+    rdfs:comment "OPEN, INVESTIGATING, CLOSED, ESCALATED" .
+
+kyc:alertSeverity a owl:DatatypeProperty ;
+    rdfs:domain kyc:Alert ;
+    rdfs:range xsd:string ;
+    rdfs:label "alert severity" ;
+    rdfs:comment "LOW, MEDIUM, HIGH, CRITICAL" .
+
+kyc:sarID a owl:DatatypeProperty ;
+    rdfs:domain kyc:SAR ;
+    rdfs:range xsd:string ;
+    rdfs:label "SAR ID" .
+
+kyc:sarFilingDate a owl:DatatypeProperty ;
+    rdfs:domain kyc:SARFiling ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "SAR filing date" .
+
+kyc:filingAuthority a owl:DatatypeProperty ;
+    rdfs:domain kyc:SARFiling ;
+    rdfs:range xsd:string ;
+    rdfs:label "filing authority" ;
+    rdfs:comment "Authority where SAR was filed (e.g., FinCEN)" .
+
+kyc:narrativeDescription a owl:DatatypeProperty ;
+    rdfs:domain kyc:SAR ;
+    rdfs:range xsd:string ;
+    rdfs:label "narrative description" ;
+    rdfs:comment "Detailed description of suspicious activity" .
+
+kyc:reviewDate a owl:DatatypeProperty ;
+    rdfs:domain kyc:PeriodicReview ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "review date" .
+
+kyc:nextReviewDate a owl:DatatypeProperty ;
+    rdfs:domain kyc:PeriodicReview ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "next review date" .

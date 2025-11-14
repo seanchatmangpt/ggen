@@ -1,0 +1,622 @@
+@prefix trade: <http://example.org/trading#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# ============================================================
+# Trading Platform Ontology
+# Version: 1.0.0
+# Coverage: Order types, Order book, Market data, FIX protocol
+# ============================================================
+
+# ============================================================
+# Order Types
+# ============================================================
+
+trade:Order a owl:Class ;
+    rdfs:label "Order" ;
+    rdfs:comment "Trading order instruction" .
+
+trade:MarketOrder a owl:Class ;
+    rdfs:subClassOf trade:Order ;
+    rdfs:label "Market Order" ;
+    rdfs:comment "Order to buy/sell at best available price" .
+
+trade:LimitOrder a owl:Class ;
+    rdfs:subClassOf trade:Order ;
+    rdfs:label "Limit Order" ;
+    rdfs:comment "Order to buy/sell at specified price or better" .
+
+trade:StopOrder a owl:Class ;
+    rdfs:subClassOf trade:Order ;
+    rdfs:label "Stop Order" ;
+    rdfs:comment "Order triggered when price reaches stop level" .
+
+trade:StopLimitOrder a owl:Class ;
+    rdfs:subClassOf trade:Order ;
+    rdfs:label "Stop-Limit Order" ;
+    rdfs:comment "Stop order that becomes limit order when triggered" .
+
+trade:IcebergOrder a owl:Class ;
+    rdfs:subClassOf trade:Order ;
+    rdfs:label "Iceberg Order" ;
+    rdfs:comment "Large order with only portion visible" .
+
+trade:FOKOrder a owl:Class ;
+    rdfs:subClassOf trade:Order ;
+    rdfs:label "Fill-or-Kill Order" ;
+    rdfs:comment "Order must be filled immediately and completely or canceled" .
+
+trade:IOCOrder a owl:Class ;
+    rdfs:subClassOf trade:Order ;
+    rdfs:label "Immediate-or-Cancel Order" ;
+    rdfs:comment "Order filled immediately, unfilled portion canceled" .
+
+# ============================================================
+# Order Book Structure
+# ============================================================
+
+trade:OrderBook a owl:Class ;
+    rdfs:label "Order Book" ;
+    rdfs:comment "Collection of all buy and sell orders for an instrument" .
+
+trade:BidSide a owl:Class ;
+    rdfs:label "Bid Side" ;
+    rdfs:comment "Buy orders in the order book" .
+
+trade:AskSide a owl:Class ;
+    rdfs:label "Ask Side" ;
+    rdfs:comment "Sell orders in the order book (also called Offer side)" .
+
+trade:PriceLevel a owl:Class ;
+    rdfs:label "Price Level" ;
+    rdfs:comment "Price point with aggregated order quantity" .
+
+trade:BidLevel a owl:Class ;
+    rdfs:subClassOf trade:PriceLevel ;
+    rdfs:label "Bid Level" ;
+    rdfs:comment "Price level on bid side" .
+
+trade:AskLevel a owl:Class ;
+    rdfs:subClassOf trade:PriceLevel ;
+    rdfs:label "Ask Level" ;
+    rdfs:comment "Price level on ask side" .
+
+trade:BestBid a owl:Class ;
+    rdfs:subClassOf trade:BidLevel ;
+    rdfs:label "Best Bid" ;
+    rdfs:comment "Highest bid price" .
+
+trade:BestAsk a owl:Class ;
+    rdfs:subClassOf trade:AskLevel ;
+    rdfs:label "Best Ask" ;
+    rdfs:comment "Lowest ask price" .
+
+trade:Spread a owl:Class ;
+    rdfs:label "Spread" ;
+    rdfs:comment "Difference between best bid and best ask" .
+
+# ============================================================
+# Trading Instruments
+# ============================================================
+
+trade:Instrument a owl:Class ;
+    rdfs:label "Trading Instrument" ;
+    rdfs:comment "Financial instrument that can be traded" .
+
+trade:Stock a owl:Class ;
+    rdfs:subClassOf trade:Instrument ;
+    rdfs:label "Stock" ;
+    rdfs:comment "Equity security representing ownership" .
+
+trade:Option a owl:Class ;
+    rdfs:subClassOf trade:Instrument ;
+    rdfs:label "Option" ;
+    rdfs:comment "Derivative giving right to buy/sell" .
+
+trade:CallOption a owl:Class ;
+    rdfs:subClassOf trade:Option ;
+    rdfs:label "Call Option" ;
+    rdfs:comment "Right to buy at strike price" .
+
+trade:PutOption a owl:Class ;
+    rdfs:subClassOf trade:Option ;
+    rdfs:label "Put Option" ;
+    rdfs:comment "Right to sell at strike price" .
+
+trade:Future a owl:Class ;
+    rdfs:subClassOf trade:Instrument ;
+    rdfs:label "Future" ;
+    rdfs:comment "Contract to buy/sell at future date" .
+
+trade:Cryptocurrency a owl:Class ;
+    rdfs:subClassOf trade:Instrument ;
+    rdfs:label "Cryptocurrency" ;
+    rdfs:comment "Digital currency instrument" .
+
+trade:ETF a owl:Class ;
+    rdfs:subClassOf trade:Instrument ;
+    rdfs:label "ETF" ;
+    rdfs:comment "Exchange-Traded Fund" .
+
+# ============================================================
+# Market Data
+# ============================================================
+
+trade:MarketData a owl:Class ;
+    rdfs:label "Market Data" ;
+    rdfs:comment "Real-time or historical market information" .
+
+trade:Tick a owl:Class ;
+    rdfs:subClassOf trade:MarketData ;
+    rdfs:label "Tick" ;
+    rdfs:comment "Single price change event" .
+
+trade:Quote a owl:Class ;
+    rdfs:subClassOf trade:MarketData ;
+    rdfs:label "Quote" ;
+    rdfs:comment "Bid and ask prices with sizes" .
+
+trade:Candle a owl:Class ;
+    rdfs:subClassOf trade:MarketData ;
+    rdfs:label "Candle" ;
+    rdfs:comment "OHLCV data for time period" .
+
+trade:MarketDepth a owl:Class ;
+    rdfs:subClassOf trade:MarketData ;
+    rdfs:label "Market Depth" ;
+    rdfs:comment "Order book levels (Level 2 data)" .
+
+trade:TimeAndSales a owl:Class ;
+    rdfs:subClassOf trade:MarketData ;
+    rdfs:label "Time and Sales" ;
+    rdfs:comment "Executed trades (tape)" .
+
+# ============================================================
+# Execution and Fills
+# ============================================================
+
+trade:Execution a owl:Class ;
+    rdfs:label "Execution" ;
+    rdfs:comment "Order execution event" .
+
+trade:Fill a owl:Class ;
+    rdfs:label "Fill" ;
+    rdfs:comment "Portion or complete execution of an order" .
+
+trade:PartialFill a owl:Class ;
+    rdfs:subClassOf trade:Fill ;
+    rdfs:label "Partial Fill" ;
+    rdfs:comment "Order partially executed" .
+
+trade:CompleteFill a owl:Class ;
+    rdfs:subClassOf trade:Fill ;
+    rdfs:label "Complete Fill" ;
+    rdfs:comment "Order fully executed" .
+
+trade:Trade a owl:Class ;
+    rdfs:label "Trade" ;
+    rdfs:comment "Matched buy and sell orders" .
+
+# ============================================================
+# Order Status
+# ============================================================
+
+trade:OrderStatus a owl:Class ;
+    rdfs:label "Order Status" ;
+    rdfs:comment "Current state of an order" .
+
+trade:PendingNew a owl:Class ;
+    rdfs:subClassOf trade:OrderStatus ;
+    rdfs:label "Pending New" ;
+    rdfs:comment "Order submitted, awaiting acceptance" .
+
+trade:New a owl:Class ;
+    rdfs:subClassOf trade:OrderStatus ;
+    rdfs:label "New" ;
+    rdfs:comment "Order accepted and active" .
+
+trade:PartiallyFilled a owl:Class ;
+    rdfs:subClassOf trade:OrderStatus ;
+    rdfs:label "Partially Filled" ;
+    rdfs:comment "Order partially executed" .
+
+trade:Filled a owl:Class ;
+    rdfs:subClassOf trade:OrderStatus ;
+    rdfs:label "Filled" ;
+    rdfs:comment "Order completely executed" .
+
+trade:Canceled a owl:Class ;
+    rdfs:subClassOf trade:OrderStatus ;
+    rdfs:label "Canceled" ;
+    rdfs:comment "Order canceled" .
+
+trade:Rejected a owl:Class ;
+    rdfs:subClassOf trade:OrderStatus ;
+    rdfs:label "Rejected" ;
+    rdfs:comment "Order rejected" .
+
+trade:Expired a owl:Class ;
+    rdfs:subClassOf trade:OrderStatus ;
+    rdfs:label "Expired" ;
+    rdfs:comment "Order expired (time-in-force elapsed)" .
+
+# ============================================================
+# Risk Management
+# ============================================================
+
+trade:Position a owl:Class ;
+    rdfs:label "Position" ;
+    rdfs:comment "Open position in an instrument" .
+
+trade:LongPosition a owl:Class ;
+    rdfs:subClassOf trade:Position ;
+    rdfs:label "Long Position" ;
+    rdfs:comment "Position from buying" .
+
+trade:ShortPosition a owl:Class ;
+    rdfs:subClassOf trade:Position ;
+    rdfs:label "Short Position" ;
+    rdfs:comment "Position from selling (borrowed)" .
+
+trade:PositionLimit a owl:Class ;
+    rdfs:label "Position Limit" ;
+    rdfs:comment "Maximum position size allowed" .
+
+trade:MarginRequirement a owl:Class ;
+    rdfs:label "Margin Requirement" ;
+    rdfs:comment "Collateral required for position" .
+
+trade:RiskMetric a owl:Class ;
+    rdfs:label "Risk Metric" ;
+    rdfs:comment "Risk measurement" .
+
+trade:VaR a owl:Class ;
+    rdfs:subClassOf trade:RiskMetric ;
+    rdfs:label "Value at Risk" ;
+    rdfs:comment "Potential loss over time period at confidence level" .
+
+trade:ExposureLimit a owl:Class ;
+    rdfs:label "Exposure Limit" ;
+    rdfs:comment "Maximum risk exposure allowed" .
+
+# ============================================================
+# FIX Protocol Messages
+# ============================================================
+
+trade:FIXMessage a owl:Class ;
+    rdfs:label "FIX Message" ;
+    rdfs:comment "Financial Information eXchange protocol message" .
+
+trade:NewOrderSingle a owl:Class ;
+    rdfs:subClassOf trade:FIXMessage ;
+    rdfs:label "New Order Single (35=D)" ;
+    rdfs:comment "Submit a new order" .
+
+trade:OrderCancelRequest a owl:Class ;
+    rdfs:subClassOf trade:FIXMessage ;
+    rdfs:label "Order Cancel Request (35=F)" ;
+    rdfs:comment "Request to cancel an order" .
+
+trade:OrderCancelReplaceRequest a owl:Class ;
+    rdfs:subClassOf trade:FIXMessage ;
+    rdfs:label "Order Cancel/Replace Request (35=G)" ;
+    rdfs:comment "Request to modify an order" .
+
+trade:ExecutionReport a owl:Class ;
+    rdfs:subClassOf trade:FIXMessage ;
+    rdfs:label "Execution Report (35=8)" ;
+    rdfs:comment "Report order status or execution" .
+
+trade:MarketDataRequest a owl:Class ;
+    rdfs:subClassOf trade:FIXMessage ;
+    rdfs:label "Market Data Request (35=V)" ;
+    rdfs:comment "Subscribe to market data" .
+
+trade:MarketDataSnapshot a owl:Class ;
+    rdfs:subClassOf trade:FIXMessage ;
+    rdfs:label "Market Data Snapshot (35=W)" ;
+    rdfs:comment "Current market data snapshot" .
+
+# ============================================================
+# Object Properties
+# ============================================================
+
+trade:hasOrderBook a owl:ObjectProperty ;
+    rdfs:domain trade:Instrument ;
+    rdfs:range trade:OrderBook ;
+    rdfs:label "has order book" .
+
+trade:hasBidSide a owl:ObjectProperty ;
+    rdfs:domain trade:OrderBook ;
+    rdfs:range trade:BidSide ;
+    rdfs:label "has bid side" .
+
+trade:hasAskSide a owl:ObjectProperty ;
+    rdfs:domain trade:OrderBook ;
+    rdfs:range trade:AskSide ;
+    rdfs:label "has ask side" .
+
+trade:hasPriceLevel a owl:ObjectProperty ;
+    rdfs:label "has price level" ;
+    rdfs:range trade:PriceLevel .
+
+trade:hasBestBid a owl:ObjectProperty ;
+    rdfs:domain trade:OrderBook ;
+    rdfs:range trade:BestBid ;
+    rdfs:label "has best bid" .
+
+trade:hasBestAsk a owl:ObjectProperty ;
+    rdfs:domain trade:OrderBook ;
+    rdfs:range trade:BestAsk ;
+    rdfs:label "has best ask" .
+
+trade:hasSpread a owl:ObjectProperty ;
+    rdfs:domain trade:OrderBook ;
+    rdfs:range trade:Spread ;
+    rdfs:label "has spread" .
+
+trade:hasInstrument a owl:ObjectProperty ;
+    rdfs:domain trade:Order ;
+    rdfs:range trade:Instrument ;
+    rdfs:label "has instrument" .
+
+trade:hasStatus a owl:ObjectProperty ;
+    rdfs:domain trade:Order ;
+    rdfs:range trade:OrderStatus ;
+    rdfs:label "has status" .
+
+trade:hasFill a owl:ObjectProperty ;
+    rdfs:domain trade:Order ;
+    rdfs:range trade:Fill ;
+    rdfs:label "has fill" .
+
+trade:hasExecution a owl:ObjectProperty ;
+    rdfs:domain trade:Order ;
+    rdfs:range trade:Execution ;
+    rdfs:label "has execution" .
+
+trade:hasPosition a owl:ObjectProperty ;
+    rdfs:label "has position" ;
+    rdfs:range trade:Position .
+
+trade:hasMarginRequirement a owl:ObjectProperty ;
+    rdfs:domain trade:Position ;
+    rdfs:range trade:MarginRequirement ;
+    rdfs:label "has margin requirement" .
+
+trade:hasPositionLimit a owl:ObjectProperty ;
+    rdfs:domain trade:Instrument ;
+    rdfs:range trade:PositionLimit ;
+    rdfs:label "has position limit" .
+
+# ============================================================
+# Data Properties
+# ============================================================
+
+trade:orderID a owl:DatatypeProperty ;
+    rdfs:domain trade:Order ;
+    rdfs:range xsd:string ;
+    rdfs:label "order ID" .
+
+trade:clientOrderID a owl:DatatypeProperty ;
+    rdfs:domain trade:Order ;
+    rdfs:range xsd:string ;
+    rdfs:label "client order ID" .
+
+trade:side a owl:DatatypeProperty ;
+    rdfs:domain trade:Order ;
+    rdfs:range xsd:string ;
+    rdfs:label "side" ;
+    rdfs:comment "BUY or SELL" .
+
+trade:quantity a owl:DatatypeProperty ;
+    rdfs:label "quantity" ;
+    rdfs:range xsd:decimal .
+
+trade:price a owl:DatatypeProperty ;
+    rdfs:label "price" ;
+    rdfs:range xsd:decimal .
+
+trade:limitPrice a owl:DatatypeProperty ;
+    rdfs:domain trade:LimitOrder ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "limit price" .
+
+trade:stopPrice a owl:DatatypeProperty ;
+    rdfs:domain trade:StopOrder ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "stop price" .
+
+trade:displayQuantity a owl:DatatypeProperty ;
+    rdfs:domain trade:IcebergOrder ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "display quantity" ;
+    rdfs:comment "Visible portion of iceberg order" .
+
+trade:timeInForce a owl:DatatypeProperty ;
+    rdfs:domain trade:Order ;
+    rdfs:range xsd:string ;
+    rdfs:label "time in force" ;
+    rdfs:comment "DAY, GTC, IOC, FOK, GTD" .
+
+trade:orderTimestamp a owl:DatatypeProperty ;
+    rdfs:domain trade:Order ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "order timestamp" .
+
+trade:filledQuantity a owl:DatatypeProperty ;
+    rdfs:domain trade:Order ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "filled quantity" .
+
+trade:remainingQuantity a owl:DatatypeProperty ;
+    rdfs:domain trade:Order ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "remaining quantity" .
+
+trade:averageFillPrice a owl:DatatypeProperty ;
+    rdfs:domain trade:Order ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "average fill price" .
+
+trade:symbol a owl:DatatypeProperty ;
+    rdfs:domain trade:Instrument ;
+    rdfs:range xsd:string ;
+    rdfs:label "symbol" ;
+    rdfs:comment "Ticker symbol" .
+
+trade:isin a owl:DatatypeProperty ;
+    rdfs:domain trade:Instrument ;
+    rdfs:range xsd:string ;
+    rdfs:label "ISIN" ;
+    rdfs:comment "International Securities Identification Number" .
+
+trade:currency a owl:DatatypeProperty ;
+    rdfs:domain trade:Instrument ;
+    rdfs:range xsd:string ;
+    rdfs:label "currency" .
+
+trade:lotSize a owl:DatatypeProperty ;
+    rdfs:domain trade:Instrument ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "lot size" ;
+    rdfs:comment "Minimum tradable quantity" .
+
+trade:tickSize a owl:DatatypeProperty ;
+    rdfs:domain trade:Instrument ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "tick size" ;
+    rdfs:comment "Minimum price increment" .
+
+trade:strikePrice a owl:DatatypeProperty ;
+    rdfs:domain trade:Option ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "strike price" .
+
+trade:expirationDate a owl:DatatypeProperty ;
+    rdfs:label "expiration date" ;
+    rdfs:range xsd:date .
+
+trade:underlyingSymbol a owl:DatatypeProperty ;
+    rdfs:domain trade:Option ;
+    rdfs:range xsd:string ;
+    rdfs:label "underlying symbol" .
+
+trade:bidPrice a owl:DatatypeProperty ;
+    rdfs:domain trade:Quote ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "bid price" .
+
+trade:askPrice a owl:DatatypeProperty ;
+    rdfs:domain trade:Quote ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "ask price" .
+
+trade:bidSize a owl:DatatypeProperty ;
+    rdfs:domain trade:Quote ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "bid size" .
+
+trade:askSize a owl:DatatypeProperty ;
+    rdfs:domain trade:Quote ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "ask size" .
+
+trade:openPrice a owl:DatatypeProperty ;
+    rdfs:domain trade:Candle ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "open price" .
+
+trade:highPrice a owl:DatatypeProperty ;
+    rdfs:domain trade:Candle ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "high price" .
+
+trade:lowPrice a owl:DatatypeProperty ;
+    rdfs:domain trade:Candle ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "low price" .
+
+trade:closePrice a owl:DatatypeProperty ;
+    rdfs:domain trade:Candle ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "close price" .
+
+trade:volume a owl:DatatypeProperty ;
+    rdfs:label "volume" ;
+    rdfs:range xsd:decimal .
+
+trade:spreadValue a owl:DatatypeProperty ;
+    rdfs:domain trade:Spread ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "spread value" .
+
+trade:tradePrice a owl:DatatypeProperty ;
+    rdfs:domain trade:Trade ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "trade price" .
+
+trade:tradeQuantity a owl:DatatypeProperty ;
+    rdfs:domain trade:Trade ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "trade quantity" .
+
+trade:tradeTimestamp a owl:DatatypeProperty ;
+    rdfs:domain trade:Trade ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "trade timestamp" .
+
+trade:positionQuantity a owl:DatatypeProperty ;
+    rdfs:domain trade:Position ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "position quantity" .
+
+trade:entryPrice a owl:DatatypeProperty ;
+    rdfs:domain trade:Position ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "entry price" .
+
+trade:unrealizedPnL a owl:DatatypeProperty ;
+    rdfs:domain trade:Position ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "unrealized PnL" .
+
+trade:realizedPnL a owl:DatatypeProperty ;
+    rdfs:domain trade:Position ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "realized PnL" .
+
+trade:marginAmount a owl:DatatypeProperty ;
+    rdfs:domain trade:MarginRequirement ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "margin amount" .
+
+trade:leverageRatio a owl:DatatypeProperty ;
+    rdfs:domain trade:Position ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "leverage ratio" .
+
+trade:varValue a owl:DatatypeProperty ;
+    rdfs:domain trade:VaR ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "VaR value" .
+
+trade:confidenceLevel a owl:DatatypeProperty ;
+    rdfs:domain trade:VaR ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "confidence level" ;
+    rdfs:comment "e.g., 0.95 for 95%" .
+
+trade:fixMsgType a owl:DatatypeProperty ;
+    rdfs:domain trade:FIXMessage ;
+    rdfs:range xsd:string ;
+    rdfs:label "FIX message type" ;
+    rdfs:comment "Tag 35 value (D, F, G, 8, V, W, etc.)" .
+
+trade:fixVersion a owl:DatatypeProperty ;
+    rdfs:domain trade:FIXMessage ;
+    rdfs:range xsd:string ;
+    rdfs:label "FIX version" ;
+    rdfs:comment "FIX.4.2, FIX.4.4, FIXT.1.1, etc." .

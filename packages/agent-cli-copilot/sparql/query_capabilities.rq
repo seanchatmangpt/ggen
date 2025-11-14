@@ -1,0 +1,9 @@
+PREFIX pkg: <http://ggen.io/ontology/package#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?capability ?description
+WHERE {
+  ?package pkg:hasCapability ?capability .
+  ?capability rdfs:comment ?description .
+}
+ORDER BY ?capability

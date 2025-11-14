@@ -1,0 +1,43 @@
+[package]
+name = "crm-customer-management"
+version = "1.0.0"
+description = "CRM system for sales pipeline, customer relationships, and opportunity tracking"
+author = "GGEN Marketplace"
+license = "MIT"
+category = "enterprise"
+tags = ["crm", "sales", "pipeline", "customers", "opportunities"]
+
+[ontology]
+main = "ontology/crm.ttl"
+namespaces = [
+    { prefix = "crm", uri = "http://ggen.io/ontology/crm#" }
+]
+
+[sparql]
+queries = "sparql/queries.rq"
+templates = [
+    "pipeline_by_stage",
+    "win_rates",
+    "sales_forecast",
+    "lead_scoring",
+    "activity_timeline",
+    "campaign_performance"
+]
+
+[templates.rust]
+main = "templates/rust/crm_backend.rs"
+dependencies = [
+    "chrono = \"0.4\"",
+    "rust_decimal = \"1.33\"",
+    "serde = { version = \"1.0\", features = [\"derive\"] }"
+]
+
+[tests]
+framework = "chicago-tdd"
+test_dir = "tests/chicago_tdd"
+
+[metadata]
+complexity = "medium"
+domain = "sales-marketing"
+rdf_classes = 30
+sparql_queries = 12

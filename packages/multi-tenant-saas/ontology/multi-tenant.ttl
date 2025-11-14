@@ -1,0 +1,470 @@
+@prefix mt: <http://example.org/multi-tenant#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+# ============================================================================
+# Multi-Tenant SaaS Ontology
+# ============================================================================
+# Description: Comprehensive ontology for multi-tenant SaaS applications
+# Covers: Tenant isolation, provisioning, subscription tiers, feature flags,
+#         usage metering, billing, security, and migration patterns
+# Version: 1.0.0
+# ============================================================================
+
+# Ontology Definition
+mt:MultiTenantSaasOntology a owl:Ontology ;
+    dc:title "Multi-Tenant SaaS Ontology" ;
+    dc:description "RDF ontology for multi-tenant SaaS architecture patterns" ;
+    dc:creator "ggen-team" ;
+    dc:version "1.0.0" ;
+    rdfs:comment "Defines tenant isolation strategies, provisioning, billing, and security" .
+
+# ============================================================================
+# CORE CLASSES - Tenant Management
+# ============================================================================
+
+mt:Tenant a rdfs:Class ;
+    rdfs:label "Tenant" ;
+    rdfs:comment "An isolated customer organization in a multi-tenant system" ;
+    rdfs:subClassOf foaf:Organization .
+
+mt:TenantIsolationStrategy a rdfs:Class ;
+    rdfs:label "Tenant Isolation Strategy" ;
+    rdfs:comment "Strategy for isolating tenant data and resources" .
+
+mt:SchemaIsolation a rdfs:Class ;
+    rdfs:label "Schema Isolation" ;
+    rdfs:comment "Each tenant has a dedicated database schema" ;
+    rdfs:subClassOf mt:TenantIsolationStrategy .
+
+mt:DatabaseIsolation a rdfs:Class ;
+    rdfs:label "Database Isolation" ;
+    rdfs:comment "Each tenant has a dedicated database instance" ;
+    rdfs:subClassOf mt:TenantIsolationStrategy .
+
+mt:RowLevelIsolation a rdfs:Class ;
+    rdfs:label "Row-Level Isolation" ;
+    rdfs:comment "Shared schema with tenant_id column for isolation" ;
+    rdfs:subClassOf mt:TenantIsolationStrategy .
+
+mt:HybridIsolation a rdfs:Class ;
+    rdfs:label "Hybrid Isolation" ;
+    rdfs:comment "Combination of isolation strategies based on tenant tier" ;
+    rdfs:subClassOf mt:TenantIsolationStrategy .
+
+# ============================================================================
+# SUBSCRIPTION TIERS
+# ============================================================================
+
+mt:SubscriptionTier a rdfs:Class ;
+    rdfs:label "Subscription Tier" ;
+    rdfs:comment "Pricing and feature tier for tenant subscription" .
+
+mt:FreeTier a rdfs:Class ;
+    rdfs:label "Free Tier" ;
+    rdfs:comment "Free plan with limited features and resources" ;
+    rdfs:subClassOf mt:SubscriptionTier .
+
+mt:BasicTier a rdfs:Class ;
+    rdfs:label "Basic Tier" ;
+    rdfs:comment "Entry-level paid plan" ;
+    rdfs:subClassOf mt:SubscriptionTier .
+
+mt:ProTier a rdfs:Class ;
+    rdfs:label "Pro Tier" ;
+    rdfs:comment "Professional plan with advanced features" ;
+    rdfs:subClassOf mt:SubscriptionTier .
+
+mt:EnterpriseTier a rdfs:Class ;
+    rdfs:label "Enterprise Tier" ;
+    rdfs:comment "Enterprise plan with custom SLA and dedicated resources" ;
+    rdfs:subClassOf mt:SubscriptionTier .
+
+# ============================================================================
+# FEATURE FLAGS & ENTITLEMENTS
+# ============================================================================
+
+mt:FeatureFlag a rdfs:Class ;
+    rdfs:label "Feature Flag" ;
+    rdfs:comment "Toggle for enabling/disabling features per tenant" .
+
+mt:Entitlement a rdfs:Class ;
+    rdfs:label "Entitlement" ;
+    rdfs:comment "Permission to access a specific feature or resource" .
+
+mt:ResourceQuota a rdfs:Class ;
+    rdfs:label "Resource Quota" ;
+    rdfs:comment "Limit on resource consumption (storage, API calls, users)" .
+
+mt:ApiRateLimit a rdfs:Class ;
+    rdfs:label "API Rate Limit" ;
+    rdfs:comment "Throttling limit for API requests per tenant" ;
+    rdfs:subClassOf mt:ResourceQuota .
+
+mt:StorageQuota a rdfs:Class ;
+    rdfs:label "Storage Quota" ;
+    rdfs:comment "Maximum storage capacity for tenant data" ;
+    rdfs:subClassOf mt:ResourceQuota .
+
+mt:UserLimit a rdfs:Class ;
+    rdfs:label "User Limit" ;
+    rdfs:comment "Maximum number of users per tenant" ;
+    rdfs:subClassOf mt:ResourceQuota .
+
+# ============================================================================
+# TENANT PROVISIONING & LIFECYCLE
+# ============================================================================
+
+mt:TenantProvisioningRequest a rdfs:Class ;
+    rdfs:label "Tenant Provisioning Request" ;
+    rdfs:comment "Request to create and configure a new tenant" .
+
+mt:TenantProvisioningStatus a rdfs:Class ;
+    rdfs:label "Tenant Provisioning Status" ;
+    rdfs:comment "Current status of tenant provisioning process" .
+
+mt:TenantLifecycleState a rdfs:Class ;
+    rdfs:label "Tenant Lifecycle State" ;
+    rdfs:comment "Current state in tenant lifecycle" .
+
+mt:ActiveTenant a rdfs:Class ;
+    rdfs:label "Active Tenant" ;
+    rdfs:comment "Tenant with active subscription" ;
+    rdfs:subClassOf mt:TenantLifecycleState .
+
+mt:SuspendedTenant a rdfs:Class ;
+    rdfs:label "Suspended Tenant" ;
+    rdfs:comment "Tenant temporarily suspended (non-payment, policy violation)" ;
+    rdfs:subClassOf mt:TenantLifecycleState .
+
+mt:DeletedTenant a rdfs:Class ;
+    rdfs:label "Deleted Tenant" ;
+    rdfs:comment "Tenant marked for deletion with retention period" ;
+    rdfs:subClassOf mt:TenantLifecycleState .
+
+# ============================================================================
+# USAGE METERING & BILLING
+# ============================================================================
+
+mt:UsageMetric a rdfs:Class ;
+    rdfs:label "Usage Metric" ;
+    rdfs:comment "Measurable consumption of resources or features" .
+
+mt:ApiCallMetric a rdfs:Class ;
+    rdfs:label "API Call Metric" ;
+    rdfs:comment "Number of API calls made by tenant" ;
+    rdfs:subClassOf mt:UsageMetric .
+
+mt:StorageMetric a rdfs:Class ;
+    rdfs:label "Storage Metric" ;
+    rdfs:comment "Amount of storage consumed by tenant" ;
+    rdfs:subClassOf mt:UsageMetric .
+
+mt:ComputeMetric a rdfs:Class ;
+    rdfs:label "Compute Metric" ;
+    rdfs:comment "Compute resources consumed (CPU, memory)" ;
+    rdfs:subClassOf mt:UsageMetric .
+
+mt:BillingRecord a rdfs:Class ;
+    rdfs:label "Billing Record" ;
+    rdfs:comment "Invoice or billing statement for tenant" .
+
+mt:BillingCycle a rdfs:Class ;
+    rdfs:label "Billing Cycle" ;
+    rdfs:comment "Period for billing calculation (monthly, annual)" .
+
+mt:MonthlyBilling a rdfs:Class ;
+    rdfs:label "Monthly Billing" ;
+    rdfs:comment "Monthly billing cycle" ;
+    rdfs:subClassOf mt:BillingCycle .
+
+mt:AnnualBilling a rdfs:Class ;
+    rdfs:label "Annual Billing" ;
+    rdfs:comment "Annual billing cycle with discount" ;
+    rdfs:subClassOf mt:BillingCycle .
+
+# ============================================================================
+# TENANT MIGRATION & BACKUP
+# ============================================================================
+
+mt:TenantMigration a rdfs:Class ;
+    rdfs:label "Tenant Migration" ;
+    rdfs:comment "Process of moving tenant data to different infrastructure" .
+
+mt:TenantBackup a rdfs:Class ;
+    rdfs:label "Tenant Backup" ;
+    rdfs:comment "Backup of tenant data for disaster recovery" .
+
+mt:BackupSchedule a rdfs:Class ;
+    rdfs:label "Backup Schedule" ;
+    rdfs:comment "Automated backup frequency and retention policy" .
+
+mt:DailyBackup a rdfs:Class ;
+    rdfs:label "Daily Backup" ;
+    rdfs:comment "Daily automated backups" ;
+    rdfs:subClassOf mt:BackupSchedule .
+
+mt:HourlyBackup a rdfs:Class ;
+    rdfs:label "Hourly Backup" ;
+    rdfs:comment "Hourly backups for enterprise tiers" ;
+    rdfs:subClassOf mt:BackupSchedule .
+
+# ============================================================================
+# SECURITY & COMPLIANCE
+# ============================================================================
+
+mt:TenantSecurityPolicy a rdfs:Class ;
+    rdfs:label "Tenant Security Policy" ;
+    rdfs:comment "Security policies and rules for tenant" .
+
+mt:DataResidency a rdfs:Class ;
+    rdfs:label "Data Residency" ;
+    rdfs:comment "Geographic location where tenant data must reside" .
+
+mt:EncryptionPolicy a rdfs:Class ;
+    rdfs:label "Encryption Policy" ;
+    rdfs:comment "Encryption requirements for tenant data" .
+
+mt:AtRestEncryption a rdfs:Class ;
+    rdfs:label "At-Rest Encryption" ;
+    rdfs:comment "Encryption of stored data" ;
+    rdfs:subClassOf mt:EncryptionPolicy .
+
+mt:InTransitEncryption a rdfs:Class ;
+    rdfs:label "In-Transit Encryption" ;
+    rdfs:comment "TLS/SSL encryption for data in transit" ;
+    rdfs:subClassOf mt:EncryptionPolicy .
+
+mt:ComplianceRequirement a rdfs:Class ;
+    rdfs:label "Compliance Requirement" ;
+    rdfs:comment "Regulatory compliance requirements (GDPR, HIPAA, SOC2)" .
+
+# ============================================================================
+# PROPERTIES - Tenant Attributes
+# ============================================================================
+
+mt:tenantId a rdf:Property ;
+    rdfs:label "tenant ID" ;
+    rdfs:comment "Unique identifier for the tenant" ;
+    rdfs:domain mt:Tenant ;
+    rdfs:range xsd:string .
+
+mt:tenantName a rdf:Property ;
+    rdfs:label "tenant name" ;
+    rdfs:comment "Display name of the tenant organization" ;
+    rdfs:domain mt:Tenant ;
+    rdfs:range xsd:string .
+
+mt:tenantSlug a rdf:Property ;
+    rdfs:label "tenant slug" ;
+    rdfs:comment "URL-safe identifier for tenant (subdomain)" ;
+    rdfs:domain mt:Tenant ;
+    rdfs:range xsd:string .
+
+mt:hasIsolationStrategy a rdf:Property ;
+    rdfs:label "has isolation strategy" ;
+    rdfs:comment "Isolation strategy used by tenant" ;
+    rdfs:domain mt:Tenant ;
+    rdfs:range mt:TenantIsolationStrategy .
+
+mt:hasSubscriptionTier a rdf:Property ;
+    rdfs:label "has subscription tier" ;
+    rdfs:comment "Current subscription tier of tenant" ;
+    rdfs:domain mt:Tenant ;
+    rdfs:range mt:SubscriptionTier .
+
+mt:hasLifecycleState a rdf:Property ;
+    rdfs:label "has lifecycle state" ;
+    rdfs:comment "Current lifecycle state of tenant" ;
+    rdfs:domain mt:Tenant ;
+    rdfs:range mt:TenantLifecycleState .
+
+# ============================================================================
+# PROPERTIES - Feature Flags & Entitlements
+# ============================================================================
+
+mt:hasFeatureFlag a rdf:Property ;
+    rdfs:label "has feature flag" ;
+    rdfs:comment "Feature flag associated with tenant" ;
+    rdfs:domain mt:Tenant ;
+    rdfs:range mt:FeatureFlag .
+
+mt:featureName a rdf:Property ;
+    rdfs:label "feature name" ;
+    rdfs:comment "Name of the feature" ;
+    rdfs:domain mt:FeatureFlag ;
+    rdfs:range xsd:string .
+
+mt:isEnabled a rdf:Property ;
+    rdfs:label "is enabled" ;
+    rdfs:comment "Whether feature is enabled for tenant" ;
+    rdfs:domain mt:FeatureFlag ;
+    rdfs:range xsd:boolean .
+
+mt:hasEntitlement a rdf:Property ;
+    rdfs:label "has entitlement" ;
+    rdfs:comment "Entitlement granted to tenant" ;
+    rdfs:domain mt:Tenant ;
+    rdfs:range mt:Entitlement .
+
+mt:hasQuota a rdf:Property ;
+    rdfs:label "has quota" ;
+    rdfs:comment "Resource quota for tenant" ;
+    rdfs:domain mt:Tenant ;
+    rdfs:range mt:ResourceQuota .
+
+mt:quotaLimit a rdf:Property ;
+    rdfs:label "quota limit" ;
+    rdfs:comment "Maximum allowed value for quota" ;
+    rdfs:domain mt:ResourceQuota ;
+    rdfs:range xsd:integer .
+
+mt:currentUsage a rdf:Property ;
+    rdfs:label "current usage" ;
+    rdfs:comment "Current consumption of quota" ;
+    rdfs:domain mt:ResourceQuota ;
+    rdfs:range xsd:integer .
+
+# ============================================================================
+# PROPERTIES - Usage Metering & Billing
+# ============================================================================
+
+mt:hasUsageMetric a rdf:Property ;
+    rdfs:label "has usage metric" ;
+    rdfs:comment "Usage metric tracked for tenant" ;
+    rdfs:domain mt:Tenant ;
+    rdfs:range mt:UsageMetric .
+
+mt:metricValue a rdf:Property ;
+    rdfs:label "metric value" ;
+    rdfs:comment "Measured value of usage metric" ;
+    rdfs:domain mt:UsageMetric ;
+    rdfs:range xsd:decimal .
+
+mt:metricTimestamp a rdf:Property ;
+    rdfs:label "metric timestamp" ;
+    rdfs:comment "When metric was recorded" ;
+    rdfs:domain mt:UsageMetric ;
+    rdfs:range xsd:dateTime .
+
+mt:hasBillingRecord a rdf:Property ;
+    rdfs:label "has billing record" ;
+    rdfs:comment "Billing record for tenant" ;
+    rdfs:domain mt:Tenant ;
+    rdfs:range mt:BillingRecord .
+
+mt:billingAmount a rdf:Property ;
+    rdfs:label "billing amount" ;
+    rdfs:comment "Total amount for billing period" ;
+    rdfs:domain mt:BillingRecord ;
+    rdfs:range xsd:decimal .
+
+mt:billingCurrency a rdf:Property ;
+    rdfs:label "billing currency" ;
+    rdfs:comment "Currency for billing (USD, EUR, etc.)" ;
+    rdfs:domain mt:BillingRecord ;
+    rdfs:range xsd:string .
+
+mt:hasBillingCycle a rdf:Property ;
+    rdfs:label "has billing cycle" ;
+    rdfs:comment "Billing frequency for tenant" ;
+    rdfs:domain mt:Tenant ;
+    rdfs:range mt:BillingCycle .
+
+# ============================================================================
+# PROPERTIES - Tenant Provisioning
+# ============================================================================
+
+mt:createdAt a rdf:Property ;
+    rdfs:label "created at" ;
+    rdfs:comment "When tenant was created" ;
+    rdfs:domain mt:Tenant ;
+    rdfs:range xsd:dateTime .
+
+mt:provisionedAt a rdf:Property ;
+    rdfs:label "provisioned at" ;
+    rdfs:comment "When tenant infrastructure was provisioned" ;
+    rdfs:domain mt:Tenant ;
+    rdfs:range xsd:dateTime .
+
+mt:suspendedAt a rdf:Property ;
+    rdfs:label "suspended at" ;
+    rdfs:comment "When tenant was suspended" ;
+    rdfs:domain mt:Tenant ;
+    rdfs:range xsd:dateTime .
+
+mt:deletedAt a rdf:Property ;
+    rdfs:label "deleted at" ;
+    rdfs:comment "When tenant was marked for deletion" ;
+    rdfs:domain mt:Tenant ;
+    rdfs:range xsd:dateTime .
+
+# ============================================================================
+# PROPERTIES - Security & Compliance
+# ============================================================================
+
+mt:hasSecurityPolicy a rdf:Property ;
+    rdfs:label "has security policy" ;
+    rdfs:comment "Security policy for tenant" ;
+    rdfs:domain mt:Tenant ;
+    rdfs:range mt:TenantSecurityPolicy .
+
+mt:hasDataResidency a rdf:Property ;
+    rdfs:label "has data residency" ;
+    rdfs:comment "Geographic data residency requirement" ;
+    rdfs:domain mt:Tenant ;
+    rdfs:range mt:DataResidency .
+
+mt:residencyRegion a rdf:Property ;
+    rdfs:label "residency region" ;
+    rdfs:comment "Required region for data storage (US, EU, APAC)" ;
+    rdfs:domain mt:DataResidency ;
+    rdfs:range xsd:string .
+
+mt:hasEncryptionPolicy a rdf:Property ;
+    rdfs:label "has encryption policy" ;
+    rdfs:comment "Encryption requirements for tenant" ;
+    rdfs:domain mt:Tenant ;
+    rdfs:range mt:EncryptionPolicy .
+
+mt:hasComplianceRequirement a rdf:Property ;
+    rdfs:label "has compliance requirement" ;
+    rdfs:comment "Regulatory compliance requirements" ;
+    rdfs:domain mt:Tenant ;
+    rdfs:range mt:ComplianceRequirement .
+
+mt:complianceStandard a rdf:Property ;
+    rdfs:label "compliance standard" ;
+    rdfs:comment "Name of compliance standard (GDPR, HIPAA, SOC2)" ;
+    rdfs:domain mt:ComplianceRequirement ;
+    rdfs:range xsd:string .
+
+# ============================================================================
+# PROPERTIES - Migration & Backup
+# ============================================================================
+
+mt:hasBackupSchedule a rdf:Property ;
+    rdfs:label "has backup schedule" ;
+    rdfs:comment "Backup schedule for tenant" ;
+    rdfs:domain mt:Tenant ;
+    rdfs:range mt:BackupSchedule .
+
+mt:backupRetentionDays a rdf:Property ;
+    rdfs:label "backup retention days" ;
+    rdfs:comment "Number of days to retain backups" ;
+    rdfs:domain mt:BackupSchedule ;
+    rdfs:range xsd:integer .
+
+mt:lastBackupAt a rdf:Property ;
+    rdfs:label "last backup at" ;
+    rdfs:comment "Timestamp of most recent backup" ;
+    rdfs:domain mt:Tenant ;
+    rdfs:range xsd:dateTime .
+
+# ============================================================================
+# End of Multi-Tenant SaaS Ontology
+# ============================================================================

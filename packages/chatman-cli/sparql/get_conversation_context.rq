@@ -1,0 +1,20 @@
+PREFIX chatman: <http://ggen.ai/ontology/chatman#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+# Get conversation context with all messages and participants
+SELECT ?conversation ?message ?content ?role ?timestamp ?participant ?provider
+WHERE {
+    ?conversation a chatman:Conversation ;
+                  chatman:hasMessage ?message ;
+                  chatman:hasParticipant ?participant .
+    
+    ?message chatman:hasContent ?content ;
+             chatman:hasRole ?role ;
+             chatman:hasTimestamp ?timestamp .
+    
+    OPTIONAL {
+        ?participant chatman:usesProvider ?provider .
+    }
+}
+ORDER BY ?timestamp

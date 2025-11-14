@@ -1,0 +1,7 @@
+PREFIX iam: <https://ggen.ai/ontology/iam#>
+SELECT ?user ?sessionId ?expiresAt WHERE {
+  ?user iam:hasSession ?session .
+  ?session iam:sessionId ?sessionId ;
+           iam:expiresAt ?expiresAt .
+  FILTER(?expiresAt < NOW())
+}

@@ -1,0 +1,501 @@
+# ============================================================================
+# Enterprise ERP SPARQL Query Templates
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# Query 1: Generate Trial Balance
+# ----------------------------------------------------------------------------
+PREFIX erp: <http://ggen.io/ontology/erp#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?accountNumber ?accountName ?debitTotal ?creditTotal (?debitTotal - ?creditTotal AS ?balance)
+WHERE {
+  ?account a erp:Account ;
+           erp:accountNumber ?accountNumber ;
+           erp:accountName ?accountName ;
+           erp:isActive true .
+
+  OPTIONAL {
+    SELECT ?account (SUM(?debit) AS ?debitTotal)
+    WHERE {
+      ?entry a erp:JournalEntry ;
+             erp:journalEntryDate ?date ;
+             erp:hasLine ?line .
+      ?line erp:lineAccount ?account ;
+            erp:debitAmount ?debit .
+      FILTER(?date >= "{{start_date}}"^^xsd:date && ?date <= "{{end_date}}"^^xsd:date)
+    }
+    GROUP BY ?account
+  }
+
+  OPTIONAL {
+    SELECT ?account (SUM(?credit) AS ?creditTotal)
+    WHERE {
+      ?entry a erp:JournalEntry ;
+             erp:journalEntryDate ?date ;
+             erp:hasLine ?line .
+      ?line erp:lineAccount ?account ;
+            erp:creditAmount ?credit .
+      FILTER(?date >= "{{start_date}}"^^xsd:date && ?date <= "{{end_date}}"^^xsd:date)
+    }
+    GROUP BY ?account
+  }
+
+  BIND(COALESCE(?debitTotal, 0) AS ?debitTotal)
+  BIND(COALESCE(?creditTotal, 0) AS ?creditTotal)
+}
+ORDER BY ?accountNumber
+
+# ----------------------------------------------------------------------------
+# Query 2: Extract Accounts Payable Aging
+# ----------------------------------------------------------------------------
+PREFIX erp: <http://ggen.io/ontology/erp#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?vendorName ?invoiceNumber ?invoiceDate ?dueDate ?amountDue
+       (xsd:integer(?daysPastDue) AS ?agingBucket)
+WHERE {
+  ?invoice a erp:Invoice ;
+           erp:invoiceNumber ?invoiceNumber ;
+           erp:invoiceDate ?invoiceDate ;
+           erp:dueDate ?dueDate ;
+           erp:amountDue ?amountDue ;
+           erp:invoiceVendor ?vendor .
+
+  ?vendor rdfs:label ?vendorName .
+
+  FILTER(?amountDue > 0)
+
+  BIND(xsd:integer((xsd:date("{{as_of_date}}") - ?dueDate) / xsd:dayTimeDuration("P1D")) AS ?daysPastDue)
+}
+ORDER BY ?daysPastDue DESC, ?vendorName
+
+# ----------------------------------------------------------------------------
+# Query 3: Extract Accounts Receivable Aging
+# ----------------------------------------------------------------------------
+PREFIX erp: <http://ggen.io/ontology/erp#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?customerName ?invoiceNumber ?invoiceDate ?dueDate ?amountDue
+       (CASE
+         WHEN ?daysPastDue <= 0 THEN "Current"
+         WHEN ?daysPastDue <= 30 THEN "1-30 Days"
+         WHEN ?daysPastDue <= 60 THEN "31-60 Days"
+         WHEN ?daysPastDue <= 90 THEN "61-90 Days"
+         ELSE "Over 90 Days"
+       END AS ?agingBucket)
+WHERE {
+  ?invoice a erp:Invoice ;
+           erp:invoiceNumber ?invoiceNumber ;
+           erp:invoiceDate ?invoiceDate ;
+           erp:dueDate ?dueDate ;
+           erp:amountDue ?amountDue ;
+           erp:invoiceCustomer ?customer .
+
+  ?customer rdfs:label ?customerName .
+
+  FILTER(?amountDue > 0)
+
+  BIND(xsd:integer((xsd:date("{{as_of_date}}") - ?dueDate) / xsd:dayTimeDuration("P1D")) AS ?daysPastDue)
+}
+ORDER BY ?daysPastDue DESC, ?customerName
+
+# ----------------------------------------------------------------------------
+# Query 4: Calculate Depreciation Schedules
+# ----------------------------------------------------------------------------
+PREFIX erp: <http://ggen.io/ontology/erp#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?assetTag ?assetName ?acquisitionCost ?salvageValue ?usefulLife
+       ?monthlyDepreciation ?accumulatedDepreciation ?bookValue
+WHERE {
+  ?asset a erp:FixedAsset ;
+         erp:assetTag ?assetTag ;
+         rdfs:label ?assetName ;
+         erp:acquisitionCost ?acquisitionCost ;
+         erp:salvageValue ?salvageValue ;
+         erp:usefulLife ?usefulLife ;
+         erp:accumulatedDepreciation ?accumulatedDepreciation ;
+         erp:depreciationMethod erp:StraightLine .
+
+  BIND((?acquisitionCost - ?salvageValue) / ?usefulLife AS ?monthlyDepreciation)
+  BIND(?acquisitionCost - ?accumulatedDepreciation AS ?bookValue)
+
+  FILTER(?bookValue > 0)
+}
+ORDER BY ?assetTag
+
+# ----------------------------------------------------------------------------
+# Query 5: Generate Income Statement
+# ----------------------------------------------------------------------------
+PREFIX erp: <http://ggen.io/ontology/erp#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?accountType ?accountNumber ?accountName (SUM(?amount) AS ?total)
+WHERE {
+  ?account a erp:Account ;
+           erp:accountNumber ?accountNumber ;
+           erp:accountName ?accountName ;
+           erp:accountType ?type ;
+           erp:isActive true .
+
+  ?type rdfs:label ?accountType .
+
+  FILTER(?accountType IN ("Revenue", "Expense"))
+
+  {
+    SELECT ?account (SUM(?credit - ?debit) AS ?amount)
+    WHERE {
+      ?entry a erp:JournalEntry ;
+             erp:journalEntryDate ?date ;
+             erp:hasLine ?line .
+      ?line erp:lineAccount ?account .
+
+      OPTIONAL { ?line erp:debitAmount ?debit }
+      OPTIONAL { ?line erp:creditAmount ?credit }
+
+      BIND(COALESCE(?debit, 0) AS ?debit)
+      BIND(COALESCE(?credit, 0) AS ?credit)
+
+      FILTER(?date >= "{{start_date}}"^^xsd:date && ?date <= "{{end_date}}"^^xsd:date)
+    }
+    GROUP BY ?account
+  }
+}
+GROUP BY ?accountType ?accountNumber ?accountName
+ORDER BY ?accountType, ?accountNumber
+
+# ----------------------------------------------------------------------------
+# Query 6: Generate Balance Sheet
+# ----------------------------------------------------------------------------
+PREFIX erp: <http://ggen.io/ontology/erp#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?accountType ?accountNumber ?accountName (SUM(?balance) AS ?total)
+WHERE {
+  ?account a erp:Account ;
+           erp:accountNumber ?accountNumber ;
+           erp:accountName ?accountName ;
+           erp:accountType ?type ;
+           erp:isActive true .
+
+  ?type rdfs:label ?accountType .
+
+  FILTER(?accountType IN ("Asset", "Liability", "Equity"))
+
+  {
+    SELECT ?account (SUM(?debit - ?credit) AS ?balance)
+    WHERE {
+      ?entry a erp:JournalEntry ;
+             erp:journalEntryDate ?date ;
+             erp:hasLine ?line .
+      ?line erp:lineAccount ?account .
+
+      OPTIONAL { ?line erp:debitAmount ?debit }
+      OPTIONAL { ?line erp:creditAmount ?credit }
+
+      BIND(COALESCE(?debit, 0) AS ?debit)
+      BIND(COALESCE(?credit, 0) AS ?credit)
+
+      FILTER(?date <= "{{as_of_date}}"^^xsd:date)
+    }
+    GROUP BY ?account
+  }
+}
+GROUP BY ?accountType ?accountNumber ?accountName
+ORDER BY ?accountType, ?accountNumber
+
+# ----------------------------------------------------------------------------
+# Query 7: Cost Allocation by Department
+# ----------------------------------------------------------------------------
+PREFIX erp: <http://ggen.io/ontology/erp#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?department ?expenseAccount (SUM(?amount) AS ?totalCost)
+WHERE {
+  ?entry a erp:JournalEntry ;
+         erp:journalEntryDate ?date ;
+         erp:hasLine ?line .
+
+  ?line erp:lineAccount ?account ;
+        erp:debitAmount ?amount ;
+        erp:department ?department .
+
+  ?account erp:accountType erp:Expense ;
+           rdfs:label ?expenseAccount .
+
+  FILTER(?date >= "{{start_date}}"^^xsd:date && ?date <= "{{end_date}}"^^xsd:date)
+}
+GROUP BY ?department ?expenseAccount
+ORDER BY ?department, ?totalCost DESC
+
+# ----------------------------------------------------------------------------
+# Query 8: Multi-Currency Transaction Summary
+# ----------------------------------------------------------------------------
+PREFIX erp: <http://ggen.io/ontology/erp#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?currency ?transactionCount (SUM(?amount) AS ?totalAmount)
+       (SUM(?amountInBase) AS ?totalInBaseCurrency)
+WHERE {
+  ?invoice a erp:Invoice ;
+           erp:invoiceDate ?date ;
+           erp:invoiceAmount ?amount ;
+           erp:currency ?curr .
+
+  ?curr erp:currencyCode ?currency .
+
+  OPTIONAL {
+    ?rate a erp:ExchangeRate ;
+          erp:baseCurrency ?baseCurr ;
+          erp:quoteCurrency ?curr ;
+          erp:exchangeRateDate ?rateDate ;
+          erp:exchangeRateValue ?rateValue .
+    FILTER(?rateDate <= ?date)
+  }
+
+  BIND(?amount * COALESCE(?rateValue, 1.0) AS ?amountInBase)
+
+  FILTER(?date >= "{{start_date}}"^^xsd:date && ?date <= "{{end_date}}"^^xsd:date)
+}
+GROUP BY ?currency
+
+# ----------------------------------------------------------------------------
+# Query 9: Audit Trail for Account
+# ----------------------------------------------------------------------------
+PREFIX erp: <http://ggen.io/ontology/erp#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?date ?entryNumber ?description ?debit ?credit ?runningBalance ?user
+WHERE {
+  ?entry a erp:JournalEntry ;
+         erp:journalEntryNumber ?entryNumber ;
+         erp:journalEntryDate ?date ;
+         erp:journalEntryDescription ?description ;
+         erp:createdBy ?user ;
+         erp:hasLine ?line .
+
+  ?line erp:lineAccount ?account .
+
+  OPTIONAL { ?line erp:debitAmount ?debit }
+  OPTIONAL { ?line erp:creditAmount ?credit }
+
+  BIND(COALESCE(?debit, 0) AS ?debit)
+  BIND(COALESCE(?credit, 0) AS ?credit)
+
+  FILTER(?account = <{{account_uri}}>)
+  FILTER(?date >= "{{start_date}}"^^xsd:date && ?date <= "{{end_date}}"^^xsd:date)
+}
+ORDER BY ?date, ?entryNumber
+
+# ----------------------------------------------------------------------------
+# Query 10: Purchase Order Status
+# ----------------------------------------------------------------------------
+PREFIX erp: <http://ggen.io/ontology/erp#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?poNumber ?vendorName ?poDate ?totalAmount ?receivedAmount
+       ((?totalAmount - ?receivedAmount) AS ?pendingAmount) ?status
+WHERE {
+  ?po a erp:PurchaseOrder ;
+      erp:poNumber ?poNumber ;
+      erp:poDate ?poDate ;
+      erp:vendor ?vendor ;
+      erp:status ?status .
+
+  ?vendor rdfs:label ?vendorName .
+
+  {
+    SELECT ?po (SUM(?lineTotal) AS ?totalAmount)
+    WHERE {
+      ?po erp:hasLine ?line .
+      ?line erp:quantity ?qty ;
+            erp:unitPrice ?price .
+      BIND(?qty * ?price AS ?lineTotal)
+    }
+    GROUP BY ?po
+  }
+
+  OPTIONAL {
+    SELECT ?po (SUM(?receivedQty * ?price) AS ?receivedAmount)
+    WHERE {
+      ?po erp:hasLine ?line .
+      ?line erp:receivedQuantity ?receivedQty ;
+            erp:unitPrice ?price .
+    }
+    GROUP BY ?po
+  }
+
+  BIND(COALESCE(?receivedAmount, 0) AS ?receivedAmount)
+
+  FILTER(?status != "Closed")
+}
+ORDER BY ?poDate DESC
+
+# ----------------------------------------------------------------------------
+# Query 11: Sales Order Fulfillment Pipeline
+# ----------------------------------------------------------------------------
+PREFIX erp: <http://ggen.io/ontology/erp#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?soNumber ?customerName ?orderDate ?totalAmount ?fulfilledAmount
+       ?fulfillmentStatus
+WHERE {
+  ?so a erp:SalesOrder ;
+      erp:soNumber ?soNumber ;
+      erp:orderDate ?orderDate ;
+      erp:customer ?customer ;
+      erp:fulfillmentStatus ?fulfillmentStatus .
+
+  ?customer rdfs:label ?customerName .
+
+  {
+    SELECT ?so (SUM(?lineTotal) AS ?totalAmount)
+    WHERE {
+      ?so erp:hasLine ?line .
+      ?line erp:quantity ?qty ;
+            erp:unitPrice ?price .
+      BIND(?qty * ?price AS ?lineTotal)
+    }
+    GROUP BY ?so
+  }
+
+  OPTIONAL {
+    SELECT ?so (SUM(?shippedQty * ?price) AS ?fulfilledAmount)
+    WHERE {
+      ?so erp:hasLine ?line .
+      ?line erp:shippedQuantity ?shippedQty ;
+            erp:unitPrice ?price .
+    }
+    GROUP BY ?so
+  }
+
+  BIND(COALESCE(?fulfilledAmount, 0) AS ?fulfilledAmount)
+
+  FILTER(?fulfillmentStatus IN ("Pending", "Partial", "Processing"))
+}
+ORDER BY ?orderDate
+
+# ----------------------------------------------------------------------------
+# Query 12: Inventory Valuation
+# ----------------------------------------------------------------------------
+PREFIX erp: <http://ggen.io/ontology/erp#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?itemCode ?itemName ?location ?quantityOnHand ?unitCost
+       (?quantityOnHand * ?unitCost AS ?totalValue)
+WHERE {
+  ?item a erp:InventoryItem ;
+        erp:itemCode ?itemCode ;
+        rdfs:label ?itemName ;
+        erp:stockLocation ?loc .
+
+  ?loc rdfs:label ?location .
+
+  {
+    SELECT ?item ?loc (SUM(?quantity) AS ?quantityOnHand)
+    WHERE {
+      ?txn a erp:InventoryTransaction ;
+           erp:item ?item ;
+           erp:location ?loc ;
+           erp:quantity ?quantity ;
+           erp:transactionDate ?date .
+      FILTER(?date <= "{{as_of_date}}"^^xsd:date)
+    }
+    GROUP BY ?item ?loc
+  }
+
+  ?item erp:currentCost ?unitCost .
+
+  FILTER(?quantityOnHand > 0)
+}
+ORDER BY ?totalValue DESC
+
+# ----------------------------------------------------------------------------
+# Query 13: Period Close Checklist
+# ----------------------------------------------------------------------------
+PREFIX erp: <http://ggen.io/ontology/erp#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?checkpointName ?isComplete ?completedBy ?completedDate ?notes
+WHERE {
+  ?period a erp:AccountingPeriod ;
+          erp:periodName "{{period_name}}" ;
+          erp:hasCheckpoint ?checkpoint .
+
+  ?checkpoint rdfs:label ?checkpointName ;
+              erp:isComplete ?isComplete .
+
+  OPTIONAL {
+    ?checkpoint erp:completedBy ?completedBy ;
+                erp:completedDate ?completedDate ;
+                erp:notes ?notes .
+  }
+}
+ORDER BY ?checkpointName
+
+# ----------------------------------------------------------------------------
+# Query 14: Cash Flow Statement
+# ----------------------------------------------------------------------------
+PREFIX erp: <http://ggen.io/ontology/erp#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?cashFlowCategory ?accountName (SUM(?amount) AS ?totalCashFlow)
+WHERE {
+  ?account a erp:Account ;
+           erp:accountName ?accountName ;
+           erp:cashFlowCategory ?category ;
+           erp:isActive true .
+
+  ?category rdfs:label ?cashFlowCategory .
+
+  {
+    SELECT ?account (SUM(?debit - ?credit) AS ?amount)
+    WHERE {
+      ?entry a erp:JournalEntry ;
+             erp:journalEntryDate ?date ;
+             erp:hasLine ?line .
+      ?line erp:lineAccount ?account .
+
+      OPTIONAL { ?line erp:debitAmount ?debit }
+      OPTIONAL { ?line erp:creditAmount ?credit }
+
+      BIND(COALESCE(?debit, 0) AS ?debit)
+      BIND(COALESCE(?credit, 0) AS ?credit)
+
+      FILTER(?date >= "{{start_date}}"^^xsd:date && ?date <= "{{end_date}}"^^xsd:date)
+    }
+    GROUP BY ?account
+  }
+}
+GROUP BY ?cashFlowCategory ?accountName
+ORDER BY ?cashFlowCategory, ?totalCashFlow DESC
+
+# ----------------------------------------------------------------------------
+# Query 15: Compliance Control Points
+# ----------------------------------------------------------------------------
+PREFIX erp: <http://ggen.io/ontology/erp#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT ?controlName ?ruleDescription ?lastChecked ?status ?exceptions
+WHERE {
+  ?control a erp:ControlPoint ;
+           rdfs:label ?controlName ;
+           erp:complianceRule ?rule ;
+           erp:lastChecked ?lastChecked ;
+           erp:status ?status .
+
+  ?rule erp:description ?ruleDescription .
+
+  OPTIONAL {
+    SELECT ?control (COUNT(?exception) AS ?exceptions)
+    WHERE {
+      ?control erp:hasException ?exception .
+      ?exception erp:isResolved false .
+    }
+    GROUP BY ?control
+  }
+
+  BIND(COALESCE(?exceptions, 0) AS ?exceptions)
+}
+ORDER BY ?status, ?lastChecked

@@ -1,0 +1,357 @@
+@prefix crypto: <http://ggen.dev/ontology/cryptocurrency-exchange#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+
+# Ontology Metadata
+crypto:CryptocurrencyExchangeOntology a owl:Ontology ;
+    dc:title "Cryptocurrency Exchange Ontology" ;
+    dc:description "Comprehensive ontology for cryptocurrency exchange platforms" ;
+    dc:creator "ggen Marketplace" ;
+    dc:date "2025-11-08" ;
+    owl:versionInfo "1.0.0" .
+
+# ==================== Core Classes ====================
+
+crypto:User a owl:Class ;
+    rdfs:label "User" ;
+    rdfs:comment "Exchange platform user with KYC verification" .
+
+crypto:Wallet a owl:Class ;
+    rdfs:label "Wallet" ;
+    rdfs:comment "Cryptocurrency wallet (hot or cold storage)" .
+
+crypto:HotWallet a owl:Class ;
+    rdfs:subClassOf crypto:Wallet ;
+    rdfs:label "Hot Wallet" ;
+    rdfs:comment "Online wallet for active trading" .
+
+crypto:ColdWallet a owl:Class ;
+    rdfs:subClassOf crypto:Wallet ;
+    rdfs:label "Cold Wallet" ;
+    rdfs:comment "Offline wallet for secure storage" .
+
+crypto:Token a owl:Class ;
+    rdfs:label "Token" ;
+    rdfs:comment "Cryptocurrency or digital asset token" .
+
+crypto:TradingPair a owl:Class ;
+    rdfs:label "Trading Pair" ;
+    rdfs:comment "Pair of tokens that can be traded" .
+
+crypto:Order a owl:Class ;
+    rdfs:label "Order" ;
+    rdfs:comment "Buy or sell order on the exchange" .
+
+crypto:MarketOrder a owl:Class ;
+    rdfs:subClassOf crypto:Order ;
+    rdfs:label "Market Order" ;
+    rdfs:comment "Order executed at current market price" .
+
+crypto:LimitOrder a owl:Class ;
+    rdfs:subClassOf crypto:Order ;
+    rdfs:label "Limit Order" ;
+    rdfs:comment "Order executed at specified price or better" .
+
+crypto:StopLossOrder a owl:Class ;
+    rdfs:subClassOf crypto:Order ;
+    rdfs:label "Stop Loss Order" ;
+    rdfs:comment "Order triggered when price reaches stop level" .
+
+crypto:Trade a owl:Class ;
+    rdfs:label "Trade" ;
+    rdfs:comment "Executed trade between two orders" .
+
+crypto:Transaction a owl:Class ;
+    rdfs:label "Transaction" ;
+    rdfs:comment "Blockchain transaction" .
+
+crypto:Deposit a owl:Class ;
+    rdfs:subClassOf crypto:Transaction ;
+    rdfs:label "Deposit" ;
+    rdfs:comment "Deposit of cryptocurrency to exchange" .
+
+crypto:Withdrawal a owl:Class ;
+    rdfs:subClassOf crypto:Transaction ;
+    rdfs:label "Withdrawal" ;
+    rdfs:comment "Withdrawal of cryptocurrency from exchange" .
+
+# ==================== DeFi Classes ====================
+
+crypto:LiquidityPool a owl:Class ;
+    rdfs:label "Liquidity Pool" ;
+    rdfs:comment "DeFi liquidity pool for automated market making" .
+
+crypto:StakingContract a owl:Class ;
+    rdfs:label "Staking Contract" ;
+    rdfs:comment "Smart contract for token staking" .
+
+crypto:YieldFarm a owl:Class ;
+    rdfs:label "Yield Farm" ;
+    rdfs:comment "DeFi protocol for yield farming" .
+
+crypto:LiquidityProvider a owl:Class ;
+    rdfs:label "Liquidity Provider" ;
+    rdfs:comment "User providing liquidity to pools" .
+
+crypto:StakingPosition a owl:Class ;
+    rdfs:label "Staking Position" ;
+    rdfs:comment "User's staking position" .
+
+# ==================== Security Classes ====================
+
+crypto:TwoFactorAuth a owl:Class ;
+    rdfs:label "Two Factor Authentication" ;
+    rdfs:comment "2FA security mechanism" .
+
+crypto:WithdrawalWhitelist a owl:Class ;
+    rdfs:label "Withdrawal Whitelist" ;
+    rdfs:comment "Pre-approved withdrawal addresses" .
+
+crypto:AnomalyDetection a owl:Class ;
+    rdfs:label "Anomaly Detection" ;
+    rdfs:comment "Security anomaly detection system" .
+
+crypto:KYCVerification a owl:Class ;
+    rdfs:label "KYC Verification" ;
+    rdfs:comment "Know Your Customer verification" .
+
+crypto:AMLCheck a owl:Class ;
+    rdfs:label "AML Check" ;
+    rdfs:comment "Anti-Money Laundering verification" .
+
+# ==================== Object Properties ====================
+
+crypto:ownsWallet a owl:ObjectProperty ;
+    rdfs:domain crypto:User ;
+    rdfs:range crypto:Wallet ;
+    rdfs:label "owns wallet" .
+
+crypto:holdsToken a owl:ObjectProperty ;
+    rdfs:domain crypto:Wallet ;
+    rdfs:range crypto:Token ;
+    rdfs:label "holds token" .
+
+crypto:placesOrder a owl:ObjectProperty ;
+    rdfs:domain crypto:User ;
+    rdfs:range crypto:Order ;
+    rdfs:label "places order" .
+
+crypto:executesAs a owl:ObjectProperty ;
+    rdfs:domain crypto:Order ;
+    rdfs:range crypto:Trade ;
+    rdfs:label "executes as" .
+
+crypto:tradesOn a owl:ObjectProperty ;
+    rdfs:domain crypto:Order ;
+    rdfs:range crypto:TradingPair ;
+    rdfs:label "trades on" .
+
+crypto:depositsTo a owl:ObjectProperty ;
+    rdfs:domain crypto:User ;
+    rdfs:range crypto:Deposit ;
+    rdfs:label "deposits to" .
+
+crypto:withdrawsFrom a owl:ObjectProperty ;
+    rdfs:domain crypto:User ;
+    rdfs:range crypto:Withdrawal ;
+    rdfs:label "withdraws from" .
+
+crypto:providesLiquidity a owl:ObjectProperty ;
+    rdfs:domain crypto:LiquidityProvider ;
+    rdfs:range crypto:LiquidityPool ;
+    rdfs:label "provides liquidity" .
+
+crypto:stakesIn a owl:ObjectProperty ;
+    rdfs:domain crypto:User ;
+    rdfs:range crypto:StakingContract ;
+    rdfs:label "stakes in" .
+
+crypto:hasPosition a owl:ObjectProperty ;
+    rdfs:domain crypto:User ;
+    rdfs:range crypto:StakingPosition ;
+    rdfs:label "has position" .
+
+crypto:requiresAuth a owl:ObjectProperty ;
+    rdfs:domain crypto:User ;
+    rdfs:range crypto:TwoFactorAuth ;
+    rdfs:label "requires authentication" .
+
+crypto:whitelistsAddress a owl:ObjectProperty ;
+    rdfs:domain crypto:User ;
+    rdfs:range crypto:WithdrawalWhitelist ;
+    rdfs:label "whitelists address" .
+
+crypto:triggersAnomaly a owl:ObjectProperty ;
+    rdfs:domain crypto:Transaction ;
+    rdfs:range crypto:AnomalyDetection ;
+    rdfs:label "triggers anomaly" .
+
+crypto:passesKYC a owl:ObjectProperty ;
+    rdfs:domain crypto:User ;
+    rdfs:range crypto:KYCVerification ;
+    rdfs:label "passes KYC" .
+
+crypto:passesAML a owl:ObjectProperty ;
+    rdfs:domain crypto:User ;
+    rdfs:range crypto:AMLCheck ;
+    rdfs:label "passes AML" .
+
+# ==================== Data Properties ====================
+
+crypto:userId a owl:DatatypeProperty ;
+    rdfs:domain crypto:User ;
+    rdfs:range xsd:string ;
+    rdfs:label "user ID" .
+
+crypto:email a owl:DatatypeProperty ;
+    rdfs:domain crypto:User ;
+    rdfs:range xsd:string ;
+    rdfs:label "email" .
+
+crypto:walletAddress a owl:DatatypeProperty ;
+    rdfs:domain crypto:Wallet ;
+    rdfs:range xsd:string ;
+    rdfs:label "wallet address" .
+
+crypto:walletType a owl:DatatypeProperty ;
+    rdfs:domain crypto:Wallet ;
+    rdfs:range xsd:string ;
+    rdfs:label "wallet type" .
+
+crypto:balance a owl:DatatypeProperty ;
+    rdfs:domain crypto:Wallet ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "balance" .
+
+crypto:tokenSymbol a owl:DatatypeProperty ;
+    rdfs:domain crypto:Token ;
+    rdfs:range xsd:string ;
+    rdfs:label "token symbol" .
+
+crypto:tokenName a owl:DatatypeProperty ;
+    rdfs:domain crypto:Token ;
+    rdfs:range xsd:string ;
+    rdfs:label "token name" .
+
+crypto:blockchain a owl:DatatypeProperty ;
+    rdfs:domain crypto:Token ;
+    rdfs:range xsd:string ;
+    rdfs:label "blockchain" .
+
+crypto:contractAddress a owl:DatatypeProperty ;
+    rdfs:domain crypto:Token ;
+    rdfs:range xsd:string ;
+    rdfs:label "contract address" .
+
+crypto:orderId a owl:DatatypeProperty ;
+    rdfs:domain crypto:Order ;
+    rdfs:range xsd:string ;
+    rdfs:label "order ID" .
+
+crypto:orderType a owl:DatatypeProperty ;
+    rdfs:domain crypto:Order ;
+    rdfs:range xsd:string ;
+    rdfs:label "order type" .
+
+crypto:side a owl:DatatypeProperty ;
+    rdfs:domain crypto:Order ;
+    rdfs:range xsd:string ;
+    rdfs:label "side" .
+
+crypto:price a owl:DatatypeProperty ;
+    rdfs:domain crypto:Order ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "price" .
+
+crypto:quantity a owl:DatatypeProperty ;
+    rdfs:domain crypto:Order ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "quantity" .
+
+crypto:status a owl:DatatypeProperty ;
+    rdfs:domain crypto:Order ;
+    rdfs:range xsd:string ;
+    rdfs:label "status" .
+
+crypto:createdAt a owl:DatatypeProperty ;
+    rdfs:domain crypto:Order ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "created at" .
+
+crypto:tradeId a owl:DatatypeProperty ;
+    rdfs:domain crypto:Trade ;
+    rdfs:range xsd:string ;
+    rdfs:label "trade ID" .
+
+crypto:executionPrice a owl:DatatypeProperty ;
+    rdfs:domain crypto:Trade ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "execution price" .
+
+crypto:executionQuantity a owl:DatatypeProperty ;
+    rdfs:domain crypto:Trade ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "execution quantity" .
+
+crypto:feeAmount a owl:DatatypeProperty ;
+    rdfs:domain crypto:Trade ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "fee amount" .
+
+crypto:executedAt a owl:DatatypeProperty ;
+    rdfs:domain crypto:Trade ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "executed at" .
+
+crypto:txHash a owl:DatatypeProperty ;
+    rdfs:domain crypto:Transaction ;
+    rdfs:range xsd:string ;
+    rdfs:label "transaction hash" .
+
+crypto:confirmations a owl:DatatypeProperty ;
+    rdfs:domain crypto:Transaction ;
+    rdfs:range xsd:integer ;
+    rdfs:label "confirmations" .
+
+crypto:poolId a owl:DatatypeProperty ;
+    rdfs:domain crypto:LiquidityPool ;
+    rdfs:range xsd:string ;
+    rdfs:label "pool ID" .
+
+crypto:totalLiquidity a owl:DatatypeProperty ;
+    rdfs:domain crypto:LiquidityPool ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "total liquidity" .
+
+crypto:apy a owl:DatatypeProperty ;
+    rdfs:domain crypto:LiquidityPool ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "APY" .
+
+crypto:stakingAmount a owl:DatatypeProperty ;
+    rdfs:domain crypto:StakingPosition ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "staking amount" .
+
+crypto:rewardRate a owl:DatatypeProperty ;
+    rdfs:domain crypto:StakingContract ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "reward rate" .
+
+crypto:lockPeriod a owl:DatatypeProperty ;
+    rdfs:domain crypto:StakingContract ;
+    rdfs:range xsd:integer ;
+    rdfs:label "lock period" .
+
+crypto:verificationLevel a owl:DatatypeProperty ;
+    rdfs:domain crypto:KYCVerification ;
+    rdfs:range xsd:string ;
+    rdfs:label "verification level" .
+
+crypto:riskScore a owl:DatatypeProperty ;
+    rdfs:domain crypto:AMLCheck ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "risk score" .

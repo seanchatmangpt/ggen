@@ -1,0 +1,11 @@
+# Don't track generated files in marketplace package
+lib/types.ts
+lib/validation.ts
+app/api/tasks/route.ts
+app/api/projects/route.ts
+components/generated/
+node_modules/
+.next/
+dist/
+build/
+.env.local

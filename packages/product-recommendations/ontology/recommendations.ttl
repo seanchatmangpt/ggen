@@ -1,0 +1,556 @@
+@prefix rec: <http://example.org/recommendations#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+# ============================================================================
+# Product Recommendations Ontology
+# ============================================================================
+# Description: Comprehensive ontology for product recommendation systems
+# Covers: User behavior tracking, algorithms, personalization, A/B testing,
+#         real-time events, collaborative filtering, content-based filtering
+# Version: 1.0.0
+# ============================================================================
+
+# Ontology Definition
+rec:ProductRecommendationsOntology a owl:Ontology ;
+    dc:title "Product Recommendations Ontology" ;
+    dc:description "RDF ontology for recommendation engines and personalization" ;
+    dc:creator "ggen-team" ;
+    dc:version "1.0.0" ;
+    rdfs:comment "Defines user behavior, algorithms, ML models, and personalization rules" .
+
+# ============================================================================
+# CORE CLASSES - User Behavior
+# ============================================================================
+
+rec:UserBehavior a rdfs:Class ;
+    rdfs:label "User Behavior" ;
+    rdfs:comment "Action performed by user (view, click, purchase, rate)" .
+
+rec:ViewEvent a rdfs:Class ;
+    rdfs:label "View Event" ;
+    rdfs:comment "User viewed product page" ;
+    rdfs:subClassOf rec:UserBehavior .
+
+rec:ClickEvent a rdfs:Class ;
+    rdfs:label "Click Event" ;
+    rdfs:comment "User clicked on product recommendation" ;
+    rdfs:subClassOf rec:UserBehavior .
+
+rec:PurchaseEvent a rdfs:Class ;
+    rdfs:label "Purchase Event" ;
+    rdfs:comment "User purchased product" ;
+    rdfs:subClassOf rec:UserBehavior .
+
+rec:AddToCartEvent a rdfs:Class ;
+    rdfs:label "Add to Cart Event" ;
+    rdfs:comment "User added product to cart" ;
+    rdfs:subClassOf rec:UserBehavior .
+
+rec:RatingEvent a rdfs:Class ;
+    rdfs:label "Rating Event" ;
+    rdfs:comment "User rated or reviewed product" ;
+    rdfs:subClassOf rec:UserBehavior .
+
+rec:WishlistEvent a rdfs:Class ;
+    rdfs:label "Wishlist Event" ;
+    rdfs:comment "User added product to wishlist" ;
+    rdfs:subClassOf rec:UserBehavior .
+
+rec:SearchEvent a rdfs:Class ;
+    rdfs:label "Search Event" ;
+    rdfs:comment "User searched for products" ;
+    rdfs:subClassOf rec:UserBehavior .
+
+# ============================================================================
+# PRODUCT ATTRIBUTES
+# ============================================================================
+
+rec:Product a rdfs:Class ;
+    rdfs:label "Product" ;
+    rdfs:comment "Product available for recommendation" .
+
+rec:ProductCategory a rdfs:Class ;
+    rdfs:label "Product Category" ;
+    rdfs:comment "Hierarchical category for products" .
+
+rec:ProductAttribute a rdfs:Class ;
+    rdfs:label "Product Attribute" ;
+    rdfs:comment "Feature or characteristic of product (color, brand, size)" .
+
+rec:ProductTag a rdfs:Class ;
+    rdfs:label "Product Tag" ;
+    rdfs:comment "Keyword or label for product discovery" .
+
+rec:ProductImage a rdfs:Class ;
+    rdfs:label "Product Image" ;
+    rdfs:comment "Visual representation for image-based recommendations" .
+
+# ============================================================================
+# RECOMMENDATION ALGORITHMS
+# ============================================================================
+
+rec:RecommendationAlgorithm a rdfs:Class ;
+    rdfs:label "Recommendation Algorithm" ;
+    rdfs:comment "Method for generating recommendations" .
+
+rec:CollaborativeFiltering a rdfs:Class ;
+    rdfs:label "Collaborative Filtering" ;
+    rdfs:comment "Recommendations based on similar users or items" ;
+    rdfs:subClassOf rec:RecommendationAlgorithm .
+
+rec:UserBasedCF a rdfs:Class ;
+    rdfs:label "User-Based Collaborative Filtering" ;
+    rdfs:comment "Recommend items liked by similar users" ;
+    rdfs:subClassOf rec:CollaborativeFiltering .
+
+rec:ItemBasedCF a rdfs:Class ;
+    rdfs:label "Item-Based Collaborative Filtering" ;
+    rdfs:comment "Recommend items similar to user's preferences" ;
+    rdfs:subClassOf rec:CollaborativeFiltering .
+
+rec:ContentBasedFiltering a rdfs:Class ;
+    rdfs:label "Content-Based Filtering" ;
+    rdfs:comment "Recommendations based on product attributes" ;
+    rdfs:subClassOf rec:RecommendationAlgorithm .
+
+rec:HybridRecommendation a rdfs:Class ;
+    rdfs:label "Hybrid Recommendation" ;
+    rdfs:comment "Combination of collaborative and content-based" ;
+    rdfs:subClassOf rec:RecommendationAlgorithm .
+
+rec:MatrixFactorization a rdfs:Class ;
+    rdfs:label "Matrix Factorization" ;
+    rdfs:comment "SVD, ALS, or other MF algorithms" ;
+    rdfs:subClassOf rec:RecommendationAlgorithm .
+
+rec:DeepLearningRec a rdfs:Class ;
+    rdfs:label "Deep Learning Recommendation" ;
+    rdfs:comment "Neural network-based recommendations" ;
+    rdfs:subClassOf rec:RecommendationAlgorithm .
+
+rec:AssociationRules a rdfs:Class ;
+    rdfs:label "Association Rules" ;
+    rdfs:comment "Frequent item patterns (market basket analysis)" ;
+    rdfs:subClassOf rec:RecommendationAlgorithm .
+
+# ============================================================================
+# USER SEGMENTS & PERSONAS
+# ============================================================================
+
+rec:UserSegment a rdfs:Class ;
+    rdfs:label "User Segment" ;
+    rdfs:comment "Group of users with similar behavior or attributes" .
+
+rec:NewUser a rdfs:Class ;
+    rdfs:label "New User" ;
+    rdfs:comment "User with minimal interaction history (cold start)" ;
+    rdfs:subClassOf rec:UserSegment .
+
+rec:ActiveUser a rdfs:Class ;
+    rdfs:label "Active User" ;
+    rdfs:comment "User with significant purchase history" ;
+    rdfs:subClassOf rec:UserSegment .
+
+rec:HighValueUser a rdfs:Class ;
+    rdfs:label "High Value User" ;
+    rdfs:comment "User with high lifetime value" ;
+    rdfs:subClassOf rec:UserSegment .
+
+rec:ChurnRiskUser a rdfs:Class ;
+    rdfs:label "Churn Risk User" ;
+    rdfs:comment "User likely to stop using platform" ;
+    rdfs:subClassOf rec:UserSegment .
+
+rec:UserPersona a rdfs:Class ;
+    rdfs:label "User Persona" ;
+    rdfs:comment "Fictional character representing user archetype" .
+
+# ============================================================================
+# A/B TESTING & EXPERIMENTS
+# ============================================================================
+
+rec:ABTest a rdfs:Class ;
+    rdfs:label "A/B Test" ;
+    rdfs:comment "Experiment comparing recommendation algorithms" .
+
+rec:ExperimentVariant a rdfs:Class ;
+    rdfs:label "Experiment Variant" ;
+    rdfs:comment "Treatment or control group in A/B test" .
+
+rec:ControlVariant a rdfs:Class ;
+    rdfs:label "Control Variant" ;
+    rdfs:comment "Baseline algorithm for comparison" ;
+    rdfs:subClassOf rec:ExperimentVariant .
+
+rec:TreatmentVariant a rdfs:Class ;
+    rdfs:label "Treatment Variant" ;
+    rdfs:comment "New algorithm being tested" ;
+    rdfs:subClassOf rec:ExperimentVariant .
+
+rec:MetricGoal a rdfs:Class ;
+    rdfs:label "Metric Goal" ;
+    rdfs:comment "Success metric for experiment (CTR, conversion, revenue)" .
+
+# ============================================================================
+# REAL-TIME EVENT TRACKING
+# ============================================================================
+
+rec:EventStream a rdfs:Class ;
+    rdfs:label "Event Stream" ;
+    rdfs:comment "Real-time stream of user behavior events" .
+
+rec:SessionContext a rdfs:Class ;
+    rdfs:label "Session Context" ;
+    rdfs:comment "User's current browsing session" .
+
+rec:RealtimeRecommendation a rdfs:Class ;
+    rdfs:label "Real-time Recommendation" ;
+    rdfs:comment "Recommendation generated during user session" .
+
+rec:BatchRecommendation a rdfs:Class ;
+    rdfs:label "Batch Recommendation" ;
+    rdfs:comment "Pre-computed recommendation updated periodically" .
+
+# ============================================================================
+# RECOMMENDATION CONTEXT
+# ============================================================================
+
+rec:RecommendationContext a rdfs:Class ;
+    rdfs:label "Recommendation Context" ;
+    rdfs:comment "Contextual information influencing recommendations" .
+
+rec:PageType a rdfs:Class ;
+    rdfs:label "Page Type" ;
+    rdfs:comment "Type of page displaying recommendations" .
+
+rec:ProductPage a rdfs:Class ;
+    rdfs:label "Product Page" ;
+    rdfs:comment "Individual product detail page" ;
+    rdfs:subClassOf rec:PageType .
+
+rec:HomePage a rdfs:Class ;
+    rdfs:label "Home Page" ;
+    rdfs:comment "Main landing page" ;
+    rdfs:subClassOf rec:PageType .
+
+rec:CartPage a rdfs:Class ;
+    rdfs:label "Cart Page" ;
+    rdfs:comment "Shopping cart page" ;
+    rdfs:subClassOf rec:PageType .
+
+rec:SearchResultsPage a rdfs:Class ;
+    rdfs:label "Search Results Page" ;
+    rdfs:comment "Product search results" ;
+    rdfs:subClassOf rec:PageType .
+
+rec:DeviceType a rdfs:Class ;
+    rdfs:label "Device Type" ;
+    rdfs:comment "User's device (mobile, desktop, tablet)" .
+
+rec:TimeContext a rdfs:Class ;
+    rdfs:label "Time Context" ;
+    rdfs:comment "Temporal context (time of day, day of week, season)" .
+
+# ============================================================================
+# PERSONALIZATION RULES
+# ============================================================================
+
+rec:PersonalizationRule a rdfs:Class ;
+    rdfs:label "Personalization Rule" ;
+    rdfs:comment "Business rule for customizing recommendations" .
+
+rec:CategoryBoost a rdfs:Class ;
+    rdfs:label "Category Boost" ;
+    rdfs:comment "Increase ranking of specific categories" ;
+    rdfs:subClassOf rec:PersonalizationRule .
+
+rec:BrandBoost a rdfs:Class ;
+    rdfs:label "Brand Boost" ;
+    rdfs:comment "Increase ranking of specific brands" ;
+    rdfs:subClassOf rec:PersonalizationRule .
+
+rec:DiversityRule a rdfs:Class ;
+    rdfs:label "Diversity Rule" ;
+    rdfs:comment "Ensure variety in recommendations" ;
+    rdfs:subClassOf rec:PersonalizationRule .
+
+rec:SerendipityRule a rdfs:Class ;
+    rdfs:label "Serendipity Rule" ;
+    rdfs:comment "Introduce unexpected discoveries" ;
+    rdfs:subClassOf rec:PersonalizationRule .
+
+rec:RecencyBoost a rdfs:Class ;
+    rdfs:label "Recency Boost" ;
+    rdfs:comment "Favor recently released products" ;
+    rdfs:subClassOf rec:PersonalizationRule .
+
+# ============================================================================
+# PROPERTIES - User Behavior
+# ============================================================================
+
+rec:byUser a rdf:Property ;
+    rdfs:label "by user" ;
+    rdfs:comment "User who performed the action" ;
+    rdfs:domain rec:UserBehavior ;
+    rdfs:range foaf:Person .
+
+rec:onProduct a rdf:Property ;
+    rdfs:label "on product" ;
+    rdfs:comment "Product involved in the behavior" ;
+    rdfs:domain rec:UserBehavior ;
+    rdfs:range rec:Product .
+
+rec:eventTimestamp a rdf:Property ;
+    rdfs:label "event timestamp" ;
+    rdfs:comment "When the event occurred" ;
+    rdfs:domain rec:UserBehavior ;
+    rdfs:range xsd:dateTime .
+
+rec:eventValue a rdf:Property ;
+    rdfs:label "event value" ;
+    rdfs:comment "Numeric value (rating, price, duration)" ;
+    rdfs:domain rec:UserBehavior ;
+    rdfs:range xsd:decimal .
+
+rec:inSession a rdf:Property ;
+    rdfs:label "in session" ;
+    rdfs:comment "User session for event" ;
+    rdfs:domain rec:UserBehavior ;
+    rdfs:range rec:SessionContext .
+
+# ============================================================================
+# PROPERTIES - Product Attributes
+# ============================================================================
+
+rec:productId a rdf:Property ;
+    rdfs:label "product ID" ;
+    rdfs:comment "Unique identifier for product" ;
+    rdfs:domain rec:Product ;
+    rdfs:range xsd:string .
+
+rec:productName a rdf:Property ;
+    rdfs:label "product name" ;
+    rdfs:comment "Display name of product" ;
+    rdfs:domain rec:Product ;
+    rdfs:range xsd:string .
+
+rec:hasCategory a rdf:Property ;
+    rdfs:label "has category" ;
+    rdfs:comment "Category assignment for product" ;
+    rdfs:domain rec:Product ;
+    rdfs:range rec:ProductCategory .
+
+rec:categoryName a rdf:Property ;
+    rdfs:label "category name" ;
+    rdfs:comment "Name of product category" ;
+    rdfs:domain rec:ProductCategory ;
+    rdfs:range xsd:string .
+
+rec:parentCategory a rdf:Property ;
+    rdfs:label "parent category" ;
+    rdfs:comment "Hierarchical parent category" ;
+    rdfs:domain rec:ProductCategory ;
+    rdfs:range rec:ProductCategory .
+
+rec:hasAttribute a rdf:Property ;
+    rdfs:label "has attribute" ;
+    rdfs:comment "Product attribute (color, size, brand)" ;
+    rdfs:domain rec:Product ;
+    rdfs:range rec:ProductAttribute .
+
+rec:attributeName a rdf:Property ;
+    rdfs:label "attribute name" ;
+    rdfs:comment "Name of attribute (e.g., 'color', 'brand')" ;
+    rdfs:domain rec:ProductAttribute ;
+    rdfs:range xsd:string .
+
+rec:attributeValue a rdf:Property ;
+    rdfs:label "attribute value" ;
+    rdfs:comment "Value of attribute (e.g., 'red', 'Nike')" ;
+    rdfs:domain rec:ProductAttribute ;
+    rdfs:range xsd:string .
+
+rec:hasTag a rdf:Property ;
+    rdfs:label "has tag" ;
+    rdfs:comment "Tag for product discovery" ;
+    rdfs:domain rec:Product ;
+    rdfs:range rec:ProductTag .
+
+rec:tagValue a rdf:Property ;
+    rdfs:label "tag value" ;
+    rdfs:comment "Tag text" ;
+    rdfs:domain rec:ProductTag ;
+    rdfs:range xsd:string .
+
+rec:productPrice a rdf:Property ;
+    rdfs:label "product price" ;
+    rdfs:comment "Current price of product" ;
+    rdfs:domain rec:Product ;
+    rdfs:range xsd:decimal .
+
+rec:averageRating a rdf:Property ;
+    rdfs:label "average rating" ;
+    rdfs:comment "Average user rating (1-5 stars)" ;
+    rdfs:domain rec:Product ;
+    rdfs:range xsd:decimal .
+
+rec:reviewCount a rdf:Property ;
+    rdfs:label "review count" ;
+    rdfs:comment "Number of user reviews" ;
+    rdfs:domain rec:Product ;
+    rdfs:range xsd:integer .
+
+# ============================================================================
+# PROPERTIES - Recommendation Algorithms
+# ============================================================================
+
+rec:usesAlgorithm a rdf:Property ;
+    rdfs:label "uses algorithm" ;
+    rdfs:comment "Algorithm used for recommendation" ;
+    rdfs:domain rec:RealtimeRecommendation ;
+    rdfs:range rec:RecommendationAlgorithm .
+
+rec:algorithmWeight a rdf:Property ;
+    rdfs:label "algorithm weight" ;
+    rdfs:comment "Weight in hybrid algorithm ensemble" ;
+    rdfs:range xsd:decimal .
+
+rec:similarityScore a rdf:Property ;
+    rdfs:label "similarity score" ;
+    rdfs:comment "Similarity between users or items (0-1)" ;
+    rdfs:range xsd:decimal .
+
+rec:confidenceScore a rdf:Property ;
+    rdfs:label "confidence score" ;
+    rdfs:comment "Confidence in recommendation (0-1)" ;
+    rdfs:range xsd:decimal .
+
+# ============================================================================
+# PROPERTIES - User Segments
+# ============================================================================
+
+rec:belongsToSegment a rdf:Property ;
+    rdfs:label "belongs to segment" ;
+    rdfs:comment "User segment assignment" ;
+    rdfs:domain foaf:Person ;
+    rdfs:range rec:UserSegment .
+
+rec:segmentName a rdf:Property ;
+    rdfs:label "segment name" ;
+    rdfs:comment "Name of user segment" ;
+    rdfs:domain rec:UserSegment ;
+    rdfs:range xsd:string .
+
+rec:segmentCriteria a rdf:Property ;
+    rdfs:label "segment criteria" ;
+    rdfs:comment "Rules for segment membership" ;
+    rdfs:domain rec:UserSegment ;
+    rdfs:range xsd:string .
+
+rec:hasPersona a rdf:Property ;
+    rdfs:label "has persona" ;
+    rdfs:comment "User persona assignment" ;
+    rdfs:domain foaf:Person ;
+    rdfs:range rec:UserPersona .
+
+# ============================================================================
+# PROPERTIES - A/B Testing
+# ============================================================================
+
+rec:hasABTest a rdf:Property ;
+    rdfs:label "has A/B test" ;
+    rdfs:comment "Active A/B test" ;
+    rdfs:range rec:ABTest .
+
+rec:testName a rdf:Property ;
+    rdfs:label "test name" ;
+    rdfs:comment "Name of A/B test" ;
+    rdfs:domain rec:ABTest ;
+    rdfs:range xsd:string .
+
+rec:hasVariant a rdf:Property ;
+    rdfs:label "has variant" ;
+    rdfs:comment "Variant in A/B test" ;
+    rdfs:domain rec:ABTest ;
+    rdfs:range rec:ExperimentVariant .
+
+rec:variantTraffic a rdf:Property ;
+    rdfs:label "variant traffic" ;
+    rdfs:comment "Percentage of users in variant (0-100)" ;
+    rdfs:domain rec:ExperimentVariant ;
+    rdfs:range xsd:decimal .
+
+rec:assignedVariant a rdf:Property ;
+    rdfs:label "assigned variant" ;
+    rdfs:comment "Variant assigned to user" ;
+    rdfs:domain foaf:Person ;
+    rdfs:range rec:ExperimentVariant .
+
+rec:hasGoal a rdf:Property ;
+    rdfs:label "has goal" ;
+    rdfs:comment "Success metric for test" ;
+    rdfs:domain rec:ABTest ;
+    rdfs:range rec:MetricGoal .
+
+rec:goalMetric a rdf:Property ;
+    rdfs:label "goal metric" ;
+    rdfs:comment "Name of metric (CTR, conversion, revenue)" ;
+    rdfs:domain rec:MetricGoal ;
+    rdfs:range xsd:string .
+
+# ============================================================================
+# PROPERTIES - Recommendation Context
+# ============================================================================
+
+rec:hasContext a rdf:Property ;
+    rdfs:label "has context" ;
+    rdfs:comment "Contextual information for recommendation" ;
+    rdfs:domain rec:RealtimeRecommendation ;
+    rdfs:range rec:RecommendationContext .
+
+rec:onPageType a rdf:Property ;
+    rdfs:label "on page type" ;
+    rdfs:comment "Type of page displaying recommendation" ;
+    rdfs:domain rec:RecommendationContext ;
+    rdfs:range rec:PageType .
+
+rec:onDevice a rdf:Property ;
+    rdfs:label "on device" ;
+    rdfs:comment "Device type for recommendation" ;
+    rdfs:domain rec:RecommendationContext ;
+    rdfs:range rec:DeviceType .
+
+rec:atTime a rdf:Property ;
+    rdfs:label "at time" ;
+    rdfs:comment "Temporal context for recommendation" ;
+    rdfs:domain rec:RecommendationContext ;
+    rdfs:range rec:TimeContext .
+
+# ============================================================================
+# PROPERTIES - Personalization Rules
+# ============================================================================
+
+rec:hasRule a rdf:Property ;
+    rdfs:label "has rule" ;
+    rdfs:comment "Personalization rule applied" ;
+    rdfs:range rec:PersonalizationRule .
+
+rec:ruleWeight a rdf:Property ;
+    rdfs:label "rule weight" ;
+    rdfs:comment "Weight/importance of rule" ;
+    rdfs:domain rec:PersonalizationRule ;
+    rdfs:range xsd:decimal .
+
+rec:boostFactor a rdf:Property ;
+    rdfs:label "boost factor" ;
+    rdfs:comment "Multiplier for boosting ranking" ;
+    rdfs:range xsd:decimal .
+
+# ============================================================================
+# End of Product Recommendations Ontology
+# ============================================================================

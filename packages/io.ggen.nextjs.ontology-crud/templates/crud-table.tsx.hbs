@@ -1,0 +1,612 @@
+{{!--
+  shadcn DataTable Component Generator
+  Generates type-safe CRUD tables with filtering, sorting, and actions
+--}}
+/**
+ * Auto-generated {{className}} DataTable Component
+ * Generated: {{generatedDate}}
+ */
+
+'use client';
+
+import * as React from 'react';
+import {
+  ColumnDef,
+  ColumnFiltersState,
+  SortingState,
+  VisibilityState,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from '@tanstack/react-table';
+import {
+  ArrowUpDown,
+  ChevronDown,
+  MoreHorizontal,
+  Plus,
+  Pencil,
+  Trash2,
+  Search,
+} from 'lucide-react';
+
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { Label } from '@/components/ui/label';
+import { useToast } from '@/components/ui/use-toast';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+
+import type {
+  {{className}},
+  {{className}}Response,
+  Create{{className}}Input,
+  Update{{className}}Input,
+} from '@/types/generated';
+
+interface {{className}}TableProps {
+  initialData?: {{className}}Response[];
+}
+
+export function {{className}}Table({ initialData = [] }: {{className}}TableProps) {
+  const { toast } = useToast();
+  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = React.useState({});
+  const [data, setData] = React.useState<{{className}}Response[]>(initialData);
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  // Form state
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = React.useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
+  const [selectedItem, setSelectedItem] = React.useState<{{className}}Response | null>(null);
+  const [formData, setFormData] = React.useState<Partial<Create{{className}}Input>>({});
+  const [formErrors, setFormErrors] = React.useState<Record<string, string>>({});
+
+  // Fetch data
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/{{routePath}}');
+      const result = await response.json();
+      if (result.success) {
+        setData(result.data.data);
+      }
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to fetch {{pluralName}}',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  React.useEffect(() => {
+    fetchData();
+  }, []);
+
+  // CRUD operations
+  const handleCreate = async () => {
+    try {
+      const response = await fetch('/api/{{routePath}}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        if (result.details) {
+          setFormErrors(result.details);
+        }
+        throw new Error(result.message);
+      }
+
+      toast({
+        title: 'Success',
+        description: '{{className}} created successfully',
+      });
+
+      setIsCreateDialogOpen(false);
+      setFormData({});
+      setFormErrors({});
+      fetchData();
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: error.message || 'Failed to create {{className}}',
+      });
+    }
+  };
+
+  const handleUpdate = async () => {
+    if (!selectedItem) return;
+
+    try {
+      const response = await fetch(`/api/{{routePath}}/${selectedItem.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        if (result.details) {
+          setFormErrors(result.details);
+        }
+        throw new Error(result.message);
+      }
+
+      toast({
+        title: 'Success',
+        description: '{{className}} updated successfully',
+      });
+
+      setIsEditDialogOpen(false);
+      setSelectedItem(null);
+      setFormData({});
+      setFormErrors({});
+      fetchData();
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: error.message || 'Failed to update {{className}}',
+      });
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!selectedItem) return;
+
+    try {
+      const response = await fetch(`/api/{{routePath}}/${selectedItem.id}`, {
+        method: 'DELETE',
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message);
+      }
+
+      toast({
+        title: 'Success',
+        description: '{{className}} deleted successfully',
+      });
+
+      setIsDeleteDialogOpen(false);
+      setSelectedItem(null);
+      fetchData();
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: error.message || 'Failed to delete {{className}}',
+      });
+    }
+  };
+
+  const columns: ColumnDef<{{className}}Response>[] = [
+    {{#each displayColumns}}
+    {
+      accessorKey: '{{propertyName}}',
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          {{displayName}}
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      ),
+      cell: ({ row }) => {
+        const value = row.getValue('{{propertyName}}');
+        {{#if isDateType}}
+        return value ? new Date(value as string).toLocaleDateString() : '-';
+        {{else if isBooleanType}}
+        return value ? 'Yes' : 'No';
+        {{else if isEnumType}}
+        return <span className="capitalize">{String(value)}</span>;
+        {{else if isNumberType}}
+        return <div className="font-medium">{value}</div>;
+        {{else}}
+        return <div className="{{#if isTruncated}}max-w-[200px] truncate{{/if}}">{String(value)}</div>;
+        {{/if}}
+      },
+    },
+    {{/each}}
+    {
+      id: 'actions',
+      enableHiding: false,
+      cell: ({ row }) => {
+        const item = row.original;
+
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem
+                onClick={() => navigator.clipboard.writeText(item.id)}
+              >
+                Copy ID
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => {
+                  setSelectedItem(item);
+                  setFormData(item);
+                  setIsEditDialogOpen(true);
+                }}
+              >
+                <Pencil className="mr-2 h-4 w-4" />
+                Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  setSelectedItem(item);
+                  setIsDeleteDialogOpen(true);
+                }}
+                className="text-destructive"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
+    },
+  ];
+
+  const table = useReactTable({
+    data,
+    columns,
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    onColumnVisibilityChange: setColumnVisibility,
+    onRowSelectionChange: setRowSelection,
+    state: {
+      sorting,
+      columnFilters,
+      columnVisibility,
+      rowSelection,
+    },
+  });
+
+  return (
+    <div className="w-full space-y-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search {{pluralName}}..."
+              value={(table.getColumn('{{searchColumn}}')?.getFilterValue() as string) ?? ''}
+              onChange={(event) =>
+                table.getColumn('{{searchColumn}}')?.setFilterValue(event.target.value)
+              }
+              className="pl-8 max-w-sm"
+            />
+          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">
+                Columns <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => {
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(!!value)
+                      }
+                    >
+                      {column.id}
+                    </DropdownMenuCheckboxItem>
+                  );
+                })}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+        <Button onClick={() => setIsCreateDialogOpen(true)}>
+          <Plus className="mr-2 h-4 w-4" />
+          Create {{className}}
+        </Button>
+      </div>
+
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => {
+                  return (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
+                  );
+                })}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={columns.length} className="h-24 text-center">
+                  Loading...
+                </TableCell>
+              </TableRow>
+            ) : table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && 'selected'}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
+                  No results.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      <div className="flex items-center justify-end space-x-2">
+        <div className="flex-1 text-sm text-muted-foreground">
+          {table.getFilteredSelectedRowModel().rows.length} of{' '}
+          {table.getFilteredRowModel().rows.length} row(s) selected.
+        </div>
+        <div className="space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            Previous
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            Next
+          </Button>
+        </div>
+      </div>
+
+      {/* Create/Edit Dialog */}
+      <FormDialog
+        open={isCreateDialogOpen || isEditDialogOpen}
+        onOpenChange={(open) => {
+          setIsCreateDialogOpen(open);
+          setIsEditDialogOpen(open);
+          if (!open) {
+            setFormData({});
+            setFormErrors({});
+            setSelectedItem(null);
+          }
+        }}
+        title={isEditDialogOpen ? 'Edit {{className}}' : 'Create {{className}}'}
+        description={isEditDialogOpen ? 'Update the {{className}} details' : 'Add a new {{className}}'}
+        formData={formData}
+        setFormData={setFormData}
+        formErrors={formErrors}
+        onSubmit={isEditDialogOpen ? handleUpdate : handleCreate}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the {{className}}.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+}
+
+interface FormDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  title: string;
+  description: string;
+  formData: Partial<Create{{className}}Input>;
+  setFormData: (data: Partial<Create{{className}}Input>) => void;
+  formErrors: Record<string, string>;
+  onSubmit: () => void;
+}
+
+function FormDialog({
+  open,
+  onOpenChange,
+  title,
+  description,
+  formData,
+  setFormData,
+  formErrors,
+  onSubmit,
+}: FormDialogProps) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[525px]">
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>{description}</DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          {{#each formFields}}
+          <div className="grid gap-2">
+            <Label htmlFor="{{propertyName}}">
+              {{displayName}}{{#if isRequired}}<span className="text-destructive">*</span>{{/if}}
+            </Label>
+            {{#if isEnumType}}
+            <Select
+              value={formData.{{propertyName}} as string}
+              onValueChange={(value) => setFormData({ ...formData, {{propertyName}}: value })}
+            >
+              <SelectTrigger id="{{propertyName}}">
+                <SelectValue placeholder="Select {{displayName}}" />
+              </SelectTrigger>
+              <SelectContent>
+                {{#each enumValues}}
+                <SelectItem value="{{this}}">{{this}}</SelectItem>
+                {{/each}}
+              </SelectContent>
+            </Select>
+            {{else if isBooleanType}}
+            <Select
+              value={formData.{{propertyName}} ? 'true' : 'false'}
+              onValueChange={(value) => setFormData({ ...formData, {{propertyName}}: value === 'true' })}
+            >
+              <SelectTrigger id="{{propertyName}}">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="true">Yes</SelectItem>
+                <SelectItem value="false">No</SelectItem>
+              </SelectContent>
+            </Select>
+            {{else if isDateType}}
+            <Input
+              id="{{propertyName}}"
+              type="date"
+              value={formData.{{propertyName}} ? new Date(formData.{{propertyName}} as any).toISOString().split('T')[0] : ''}
+              onChange={(e) => setFormData({ ...formData, {{propertyName}}: new Date(e.target.value) })}
+              className={formErrors.{{propertyName}} ? 'border-destructive' : ''}
+            />
+            {{else if isNumberType}}
+            <Input
+              id="{{propertyName}}"
+              type="number"
+              value={formData.{{propertyName}} ?? ''}
+              onChange={(e) => setFormData({ ...formData, {{propertyName}}: Number(e.target.value) })}
+              className={formErrors.{{propertyName}} ? 'border-destructive' : ''}
+              {{#if minValue}}min="{{minValue}}"{{/if}}
+              {{#if maxValue}}max="{{maxValue}}"{{/if}}
+            />
+            {{else}}
+            <Input
+              id="{{propertyName}}"
+              value={formData.{{propertyName}} as string ?? ''}
+              onChange={(e) => setFormData({ ...formData, {{propertyName}}: e.target.value })}
+              placeholder="Enter {{displayName}}"
+              className={formErrors.{{propertyName}} ? 'border-destructive' : ''}
+              {{#if pattern}}pattern="{{pattern}}"{{/if}}
+            />
+            {{/if}}
+            {formErrors.{{propertyName}} && (
+              <p className="text-sm text-destructive">{formErrors.{{propertyName}}}</p>
+            )}
+          </div>
+          {{/each}}
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button onClick={onSubmit}>Save</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}

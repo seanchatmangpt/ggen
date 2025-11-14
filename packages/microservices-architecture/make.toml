@@ -1,0 +1,191 @@
+# Microservices Architecture Lifecycle Configuration
+# Demonstrates comprehensive lifecycle management with ggen
+
+[project]
+name = "microservices-architecture"
+version = "1.0.0"
+description = "E-commerce microservices with Rust"
+authors = ["ggen-example"]
+
+[env.development]
+RUST_LOG = "debug"
+DATABASE_URL = "postgresql://localhost:5432/microservices_dev"
+REDIS_URL = "redis://localhost:6379"
+API_GATEWAY_PORT = "8080"
+USER_SERVICE_PORT = "8081"
+PRODUCT_SERVICE_PORT = "8082"
+AUTH_SERVICE_PORT = "8083"
+ORDER_SERVICE_PORT = "8084"
+PAYMENT_SERVICE_PORT = "8085"
+
+[env.production]
+RUST_LOG = "info"
+DATABASE_URL = "postgresql://prod-db:5432/microservices_prod"
+REDIS_URL = "redis://prod-redis:6379"
+API_GATEWAY_PORT = "80"
+USER_SERVICE_PORT = "8081"
+PRODUCT_SERVICE_PORT = "8082"
+AUTH_SERVICE_PORT = "8083"
+ORDER_SERVICE_PORT = "8084"
+PAYMENT_SERVICE_PORT = "8085"
+
+[workspace.default]
+path = "."
+description = "Main workspace"
+
+[lifecycle.init]
+description = "Initialize project structure and dependencies"
+commands = [
+  "cargo init --name microservices-architecture",
+  "mkdir -p services/{api-gateway,user-service,product-service,auth-service,order-service,payment-service}",
+  "mkdir -p shared/{models,proto,utils}",
+  "mkdir -p templates data docs k8s",
+]
+
+[lifecycle.setup]
+description = "Setup development environment"
+commands = [
+  "docker-compose up -d postgres redis",
+  "cargo install cargo-make cargo-watch cargo-nextest",
+  "cp .env.example .env",
+]
+parallel = true
+
+[lifecycle.build]
+description = "Build all microservices"
+commands = ["cargo build --workspace", "cargo build --workspace --release"]
+parallel = true
+
+[lifecycle.test]
+description = "Run comprehensive test suite"
+commands = [
+  "cargo nextest run --workspace",
+  "cargo test --workspace --no-default-features",
+  "cargo clippy --workspace -- -D warnings",
+  "cargo fmt --check --all",
+]
+parallel = true
+
+[lifecycle.dev]
+description = "Start development environment"
+commands = [
+  "docker-compose up -d",
+  "cargo watch -x 'run --bin api-gateway' -x 'run --bin user-service' -x 'run --bin product-service'",
+]
+
+[lifecycle.lint]
+description = "Run code quality checks"
+commands = [
+  "cargo clippy --workspace -- -D warnings",
+  "cargo fmt --check --all",
+  "cargo audit",
+  "cargo outdated --workspace",
+]
+
+[lifecycle.docs]
+description = "Generate documentation"
+commands = [
+  "cargo doc --workspace --no-deps",
+  "ggen ai generate -d 'Generate comprehensive API documentation' --validate",
+]
+
+[lifecycle.docker]
+description = "Build Docker images"
+commands = [
+  "docker build -t microservices/api-gateway:latest services/api-gateway/",
+  "docker build -t microservices/user-service:latest services/user-service/",
+  "docker build -t microservices/product-service:latest services/product-service/",
+  "docker build -t microservices/auth-service:latest services/auth-service/",
+  "docker build -t microservices/order-service:latest services/order-service/",
+  "docker build -t microservices/payment-service:latest services/payment-service/",
+]
+parallel = true
+
+[lifecycle.deploy]
+description = "Deploy to Kubernetes"
+commands = [
+  "kubectl apply -f k8s/namespace.yaml",
+  "kubectl apply -f k8s/configmap.yaml",
+  "kubectl apply -f k8s/secrets.yaml",
+  "kubectl apply -f k8s/services/",
+  "kubectl apply -f k8s/deployments/",
+  "kubectl apply -f k8s/ingress.yaml",
+]
+
+[lifecycle.clean]
+description = "Clean build artifacts"
+commands = ["cargo clean", "docker system prune -f", "rm -rf target/ .cargo/"]
+
+[lifecycle.ai-generate]
+description = "Generate code using AI"
+commands = [
+  "ggen ai generate -d 'Generate user service with CRUD operations' --validate",
+  "ggen ai generate -d 'Generate product catalog with search functionality' --validate",
+  "ggen ai generate -d 'Generate order processing with state machine' --validate",
+]
+
+[lifecycle.sparql-query]
+description = "Run SPARQL queries on domain model"
+commands = [
+  "ggen ai sparql -d 'Find all entities and their relationships' -g data/domain.ttl",
+  "ggen ai sparql -d 'Query service dependencies' -g data/services.ttl",
+]
+
+[lifecycle.graph-analysis]
+description = "Analyze domain model graph"
+commands = [
+  "ggen ai graph -d 'E-commerce domain model' -o data/domain.ttl --verify",
+  "ggen ai graph -d 'Service architecture model' -o data/services.ttl --verify",
+]
+
+# Hooks for cross-cutting concerns
+[hooks]
+after_test = ["coverage-report"]
+
+after_deploy = ["post-deploy-verification"]
+
+# Hook phases that execute shell commands
+[lifecycle.pre-flight-checks]
+description = "Pre-flight checks"
+commands = [
+  "rustc --version",
+  "cargo --version",
+  "docker --version",
+  "kubectl version --client",
+]
+
+[lifecycle.coverage-report]
+description = "Generate test coverage report"
+commands = [
+  "cargo tarpaulin --workspace --out Html",
+  "echo 'Test coverage report generated in tarpaulin-report.html'",
+]
+
+[lifecycle.post-deploy-verification]
+description = "Post-deployment verification"
+commands = [
+  "kubectl get pods -n microservices",
+  "kubectl get services -n microservices",
+  "curl -f http://localhost/api/health || echo 'Health check failed'",
+]
+
+# Production readiness phases
+[lifecycle.readiness-check]
+description = "Check production readiness status"
+commands = ["ggen lifecycle readiness --detailed"]
+
+[lifecycle.readiness-update]
+description = "Update production readiness for a requirement"
+commands = []
+watch = false
+port = 0
+cache = false
+
+# Workspace-specific configurations
+[workspace.services]
+path = "services"
+description = "Microservices workspace"
+
+[workspace.shared]
+path = "shared"
+description = "Shared components workspace"

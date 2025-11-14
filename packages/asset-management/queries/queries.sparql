@@ -1,0 +1,165 @@
+# Asset Management - SPARQL Query Templates
+# Collection of 10 essential queries for asset management operations
+
+PREFIX am: <https://ggen.ai/ontology/asset-management#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+# Query 1: Asset register with location and custodian
+SELECT ?asset ?name ?serialNumber ?category ?location ?custodian ?status
+WHERE {
+    ?asset a am:Asset ;
+           am:assetName ?name ;
+           am:serialNumber ?serialNumber ;
+           am:hasCategory ?cat ;
+           am:locatedAt ?loc ;
+           am:assetStatus ?status .
+    ?cat am:categoryName ?category .
+    ?loc am:locationName ?location .
+    OPTIONAL {
+        ?asset am:assignedTo ?cust .
+        ?cust am:custodianName ?custodian
+    }
+}
+ORDER BY ?category ?name
+
+# Query 2: Depreciation schedule and book value
+SELECT ?asset ?name ?acquisitionCost ?currentValue ?accumulatedDep ?bookValue ?method
+WHERE {
+    ?asset a am:Asset ;
+           am:assetName ?name ;
+           am:acquisitionCost ?acquisitionCost ;
+           am:currentValue ?currentValue ;
+           am:accumulatedDepreciation ?accumulatedDep ;
+           am:bookValue ?bookValue ;
+           am:hasDepreciationSchedule ?schedule .
+    ?schedule am:depreciationMethod ?method .
+}
+ORDER BY DESC(?acquisitionCost)
+
+# Query 3: Maintenance schedule and overdue tasks
+SELECT ?asset ?name ?task ?taskDescription ?scheduledDate ?status ?daysOverdue
+WHERE {
+    ?asset a am:Asset ;
+           am:assetName ?name ;
+           am:hasMaintenanceTask ?task .
+    ?task am:taskDescription ?taskDescription ;
+          am:scheduledDate ?scheduledDate ;
+          am:taskStatus ?status .
+    BIND((NOW() - ?scheduledDate) AS ?daysOverdue)
+    FILTER(?status != "completed" && ?scheduledDate < NOW())
+}
+ORDER BY DESC(?daysOverdue)
+
+# Query 4: Asset tracking events and location history
+SELECT ?asset ?name ?event ?eventType ?timestamp ?fromLoc ?toLoc
+WHERE {
+    ?asset a am:Asset ;
+           am:assetName ?name ;
+           am:hasTrackingEvent ?event .
+    ?event am:eventType ?eventType ;
+           am:eventTimestamp ?timestamp .
+    OPTIONAL {
+        ?event am:fromLocation ?from ;
+               am:toLocation ?to .
+        ?from am:locationName ?fromLoc .
+        ?to am:locationName ?toLoc
+    }
+}
+ORDER BY DESC(?timestamp)
+
+# Query 5: Warranty and insurance expiration alerts
+SELECT ?asset ?name ?warrantyEnd ?insuranceEnd ?daysToWarrantyEnd ?daysToInsuranceEnd
+WHERE {
+    ?asset a am:Asset ;
+           am:assetName ?name .
+    OPTIONAL {
+        ?asset am:hasWarranty ?warranty .
+        ?warranty am:warrantyEndDate ?warrantyEnd .
+        BIND((?warrantyEnd - NOW()) AS ?daysToWarrantyEnd)
+    }
+    OPTIONAL {
+        ?asset am:hasInsurance ?insurance .
+        ?insurance am:policyEndDate ?insuranceEnd .
+        BIND((?insuranceEnd - NOW()) AS ?daysToInsuranceEnd)
+    }
+    FILTER(?daysToWarrantyEnd <= 30 || ?daysToInsuranceEnd <= 30)
+}
+ORDER BY ?daysToWarrantyEnd
+
+# Query 6: Asset lifecycle and disposal planning
+SELECT ?asset ?name ?acquisitionDate ?age ?usefulLife ?remainingLife ?disposalDate
+WHERE {
+    ?asset a am:Asset ;
+           am:assetName ?name ;
+           am:acquisitionDate ?acquisitionDate ;
+           am:hasDepreciationSchedule ?schedule .
+    ?schedule am:usefulLife ?usefulLife .
+    BIND((NOW() - ?acquisitionDate) AS ?age)
+    BIND((?usefulLife - ?age) AS ?remainingLife)
+    OPTIONAL {
+        ?asset am:hasDisposal ?disposal .
+        ?disposal am:disposalDate ?disposalDate
+    }
+    FILTER(?remainingLife <= 365)
+}
+ORDER BY ?remainingLife
+
+# Query 7: Barcode and RFID inventory scan
+SELECT ?asset ?name ?tagType ?tagId ?lastScan ?location
+WHERE {
+    ?asset a am:Asset ;
+           am:assetName ?name ;
+           am:hasTag ?tag ;
+           am:locatedAt ?loc .
+    ?tag a ?tagType ;
+         am:tagId ?tagId ;
+         am:lastScanned ?lastScan .
+    ?loc am:locationName ?location .
+    FILTER(?tagType IN (am:Barcode, am:RFID, am:QRCode))
+}
+ORDER BY DESC(?lastScan)
+
+# Query 8: Maintenance cost analysis
+SELECT ?asset ?name ?category (SUM(?cost) AS ?totalMaintenanceCost) (COUNT(?task) AS ?taskCount)
+WHERE {
+    ?asset a am:Asset ;
+           am:assetName ?name ;
+           am:hasCategory ?cat ;
+           am:hasMaintenanceTask ?task .
+    ?cat am:categoryName ?category .
+    ?task am:maintenanceCost ?cost .
+}
+GROUP BY ?asset ?name ?category
+ORDER BY DESC(?totalMaintenanceCost)
+
+# Query 9: Asset valuation summary by category
+SELECT ?category (COUNT(?asset) AS ?assetCount) (SUM(?acquisitionCost) AS ?totalCost)
+       (SUM(?currentValue) AS ?totalValue) (SUM(?accumulatedDep) AS ?totalDepreciation)
+WHERE {
+    ?asset a am:Asset ;
+           am:hasCategory ?cat ;
+           am:acquisitionCost ?acquisitionCost ;
+           am:currentValue ?currentValue ;
+           am:accumulatedDepreciation ?accumulatedDep .
+    ?cat am:categoryName ?category .
+}
+GROUP BY ?category
+ORDER BY DESC(?totalValue)
+
+# Query 10: Transfer and acquisition history
+SELECT ?asset ?name ?transferDate ?fromLoc ?toLoc ?transferReason
+WHERE {
+    ?asset a am:Asset ;
+           am:assetName ?name ;
+           am:hasTransfer ?transfer .
+    ?transfer am:transferDate ?transferDate ;
+              am:fromLocation ?from ;
+              am:toLocation ?to ;
+              am:transferReason ?transferReason .
+    ?from am:locationName ?fromLoc .
+    ?to am:locationName ?toLoc .
+}
+ORDER BY DESC(?transferDate)

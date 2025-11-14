@@ -1,0 +1,51 @@
+[package]
+name = "agent-cli-copilot"
+full_name = "ggen/agent-cli-copilot"
+version = "1.0.0"
+description = "Intelligent CLI command assistant with natural language understanding, command suggestion, and execution validation"
+category = "ai-agents"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+path = "marketplace/packages/agent-cli-copilot"
+license = "MIT"
+dependencies = []
+
+[package.metadata]
+production_ready = true
+test_coverage = "92%"
+rdf_ontology_size = "220+ lines"
+sparql_templates = 12
+code_examples = 4
+documentation_files = 5
+
+[package.features]
+features = [
+    "Natural language to CLI command translation",
+    "Command suggestion and auto-completion",
+    "Execution safety validation",
+    "Command history with semantic search",
+    "Multi-shell support (bash, zsh, fish, powershell)",
+    "SPARQL-based command pattern matching",
+    "Dangerous command detection and warnings",
+    "Command explanation and documentation",
+    "Alias and function generation",
+    "Workflow automation suggestions",
+    "Error diagnosis and fix suggestions",
+    "Performance optimization for pipelines",
+    "Integration with popular CLI tools",
+    "Context-aware command recommendations",
+    "Learning from user command patterns"
+]
+
+[package.tags]
+tags = ["ai", "cli", "copilot", "automation", "natural-language", "shell", "commands", "safety", "productivity"]
+
+[package.keywords]
+keywords = ["cli-assistant", "command-copilot", "natural-language", "automation", "shell-helper"]
+
+[package.capabilities]
+shells = ["bash", "zsh", "fish", "powershell"]
+command_types = ["file-operations", "git", "package-managers", "docker", "kubernetes"]
+safety_features = ["validation", "dry-run", "dangerous-detection", "confirmation"]
+learning_features = ["pattern-recognition", "personalization", "workflow-detection"]

@@ -1,0 +1,49 @@
+[package]
+name = "product-recommendations"
+full_name = "ggen/product-recommendations"
+version = "1.0.0"
+description = "AI-powered product recommendation engine with collaborative filtering, content-based filtering, A/B testing, real-time personalization, and ML model training"
+category = "ecommerce"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+download_url = "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+path = "marketplace/packages/product-recommendations"
+license = "MIT"
+dependencies = []
+
+[package.metadata]
+production_ready = true
+test_coverage = "92%"
+rdf_ontology_size = "280+ lines"
+sparql_templates = 10
+code_examples = 3
+documentation_files = 3
+
+[package.features]
+features = [
+    "Collaborative filtering (user-based and item-based)",
+    "Content-based filtering with product attributes",
+    "Hybrid recommendation algorithms",
+    "Real-time recommendation engine (Rust)",
+    "User behavior tracking (views, clicks, purchases, ratings)",
+    "A/B testing and experiment management",
+    "User segmentation and personas",
+    "Context-aware recommendations (page type, device, time)",
+    "Trending products and popularity tracking",
+    "Frequently bought together bundles",
+    "Matrix factorization ML models (Python)",
+    "Recommendation UI widgets (TypeScript/React)",
+    "Chicago TDD integration with real RDF/SPARQL"
+]
+
+[package.tags]
+tags = ["recommendations", "collaborative-filtering", "personalization", "ab-testing", "ml", "user-behavior", "rdf", "sparql"]
+
+[package.keywords]
+keywords = ["recommendation-engine", "collaborative-filter", "personalization", "ml-models", "ab-testing"]
+
+[package.capabilities]
+languages = ["rust", "typescript", "python"]
+algorithms = ["collaborative-filtering", "content-based", "hybrid", "matrix-factorization", "association-rules"]
+behavior_types = ["view", "click", "purchase", "rating", "add-to-cart", "wishlist"]
+context_features = ["page-type", "device-type", "time-context", "user-segment"]

@@ -1,0 +1,228 @@
+# Project Management - SPARQL Query Templates
+# Collection of 12 essential queries for project management operations
+
+PREFIX pm: <https://ggen.ai/ontology/project-management#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+# Query 1: Get project overview with key metrics
+SELECT ?project ?name ?status ?startDate ?endDate ?manager ?budget ?spent
+WHERE {
+    ?project a pm:Project ;
+             pm:projectName ?name ;
+             pm:projectStatus ?status ;
+             pm:startDate ?startDate ;
+             pm:endDate ?endDate ;
+             pm:projectManager ?manager ;
+             pm:hasBudget ?budgetObj .
+    ?budgetObj pm:plannedCost ?budget ;
+               pm:actualCost ?spent .
+}
+ORDER BY ?startDate
+
+# Query 2: Find tasks on critical path
+SELECT ?task ?taskName ?startDate ?endDate ?duration ?dependencies
+WHERE {
+    ?project a pm:Project ;
+             pm:hasCriticalPath ?criticalPath .
+    ?criticalPath pm:includesTask ?task .
+    ?task pm:taskName ?taskName ;
+          pm:startDate ?startDate ;
+          pm:endDate ?endDate .
+    BIND((?endDate - ?startDate) AS ?duration)
+    OPTIONAL {
+        ?task pm:dependsOn ?dep .
+        ?dep pm:taskName ?dependencies
+    }
+}
+ORDER BY ?startDate
+
+# Query 3: Get overdue tasks with assigned resources
+SELECT ?task ?taskName ?dueDate ?daysOverdue ?assignedTo ?priority
+WHERE {
+    ?task a pm:Task ;
+          pm:taskName ?taskName ;
+          pm:endDate ?dueDate ;
+          pm:assignedTo ?resource ;
+          pm:taskPriority ?priority ;
+          pm:taskStatus ?status .
+    ?resource pm:resourceName ?assignedTo .
+    BIND((NOW() - ?dueDate) AS ?daysOverdue)
+    FILTER(?status != "completed" && ?dueDate < NOW())
+}
+ORDER BY DESC(?daysOverdue)
+
+# Query 4: Sprint velocity and burndown analysis
+SELECT ?sprint ?sprintNumber ?goal ?plannedPoints ?completedPoints ?velocity
+WHERE {
+    ?project a pm:Project ;
+             pm:hasSprint ?sprint .
+    ?sprint pm:sprintNumber ?sprintNumber ;
+            pm:sprintGoal ?goal ;
+            pm:sprintVelocity ?velocity .
+    {
+        SELECT ?sprint (SUM(?points) AS ?plannedPoints)
+        WHERE {
+            ?sprint pm:hasBacklog ?backlog .
+            ?backlog pm:includesStory ?story .
+            ?story pm:storyPoints ?points
+        }
+        GROUP BY ?sprint
+    }
+    {
+        SELECT ?sprint (SUM(?points) AS ?completedPoints)
+        WHERE {
+            ?sprint pm:hasBacklog ?backlog .
+            ?backlog pm:includesStory ?story .
+            ?story pm:storyPoints ?points ;
+                   pm:status "completed"
+        }
+        GROUP BY ?sprint
+    }
+}
+ORDER BY DESC(?sprintNumber)
+
+# Query 5: Resource allocation and availability
+SELECT ?resource ?resourceName ?availability ?allocatedHours ?remainingCapacity
+WHERE {
+    ?resource a pm:Resource ;
+              pm:resourceName ?resourceName ;
+              pm:availability ?availability .
+    {
+        SELECT ?resource (SUM(?hours) AS ?allocatedHours)
+        WHERE {
+            ?allocation a pm:ResourceAllocation ;
+                        pm:resource ?resource ;
+                        pm:allocatedHours ?hours
+        }
+        GROUP BY ?resource
+    }
+    BIND((?availability - ?allocatedHours) AS ?remainingCapacity)
+}
+ORDER BY ?remainingCapacity
+
+# Query 6: Gantt chart data with dependencies
+SELECT ?task ?taskName ?startDate ?endDate ?percentComplete ?predecessors
+WHERE {
+    ?project a pm:Project ;
+             pm:hasTask ?task .
+    ?task pm:taskName ?taskName ;
+          pm:startDate ?startDate ;
+          pm:endDate ?endDate ;
+          pm:percentComplete ?percentComplete .
+    OPTIONAL {
+        ?task pm:hasDependency ?dep .
+        ?dep pm:predecessorTask ?pred .
+        ?pred pm:taskName ?predecessors
+    }
+}
+ORDER BY ?startDate
+
+# Query 7: Budget variance analysis
+SELECT ?project ?name ?plannedCost ?actualCost ?variance ?variancePct
+WHERE {
+    ?project a pm:Project ;
+             pm:projectName ?name ;
+             pm:hasBudget ?budget .
+    ?budget pm:plannedCost ?plannedCost ;
+            pm:actualCost ?actualCost ;
+            pm:costVariance ?variance .
+    BIND(((?actualCost - ?plannedCost) / ?plannedCost * 100) AS ?variancePct)
+}
+ORDER BY DESC(?variancePct)
+
+# Query 8: Milestone progress tracking
+SELECT ?milestone ?milestoneName ?milestoneDate ?isAchieved ?relatedTasks ?completionPct
+WHERE {
+    ?project a pm:Project ;
+             pm:hasMilestone ?milestone .
+    ?milestone pm:milestoneName ?milestoneName ;
+               pm:milestoneDate ?milestoneDate ;
+               pm:isAchieved ?isAchieved .
+    {
+        SELECT ?milestone (COUNT(?task) AS ?relatedTasks)
+               (AVG(?percentComplete) AS ?completionPct)
+        WHERE {
+            ?task pm:linkedToMilestone ?milestone ;
+                  pm:percentComplete ?percentComplete
+        }
+        GROUP BY ?milestone
+    }
+}
+ORDER BY ?milestoneDate
+
+# Query 9: Time tracking summary by project and resource
+SELECT ?project ?resource ?totalHours ?estimatedHours ?variance
+WHERE {
+    ?project a pm:Project ;
+             pm:hasTask ?task .
+    ?task pm:assignedTo ?resource ;
+          pm:estimatedHours ?estimatedHours ;
+          pm:hasTimeEntry ?entry .
+    ?entry pm:hoursLogged ?hours ;
+           pm:loggedBy ?resource .
+    {
+        SELECT ?project ?resource (SUM(?hours) AS ?totalHours)
+        WHERE {
+            ?project pm:hasTask ?task .
+            ?task pm:hasTimeEntry ?entry .
+            ?entry pm:hoursLogged ?hours ;
+                   pm:loggedBy ?resource
+        }
+        GROUP BY ?project ?resource
+    }
+    BIND((?totalHours - ?estimatedHours) AS ?variance)
+}
+
+# Query 10: Kanban board state
+SELECT ?column ?columnName ?wipLimit ?currentWIP ?tasks
+WHERE {
+    ?board a pm:KanbanBoard ;
+           pm:hasColumn ?column .
+    ?column pm:columnName ?columnName ;
+            pm:wipLimit ?wipLimit ;
+            pm:columnOrder ?order .
+    {
+        SELECT ?column (COUNT(?task) AS ?currentWIP)
+        WHERE {
+            ?task pm:inColumn ?column
+        }
+        GROUP BY ?column
+    }
+    OPTIONAL {
+        ?task pm:inColumn ?column ;
+              pm:taskName ?tasks
+    }
+}
+ORDER BY ?order
+
+# Query 11: Risk register with mitigation status
+SELECT ?risk ?description ?probability ?impact ?riskScore ?mitigation ?status
+WHERE {
+    ?project a pm:Project ;
+             pm:hasRisk ?risk .
+    ?risk pm:riskDescription ?description ;
+          pm:riskProbability ?probability ;
+          pm:riskImpact ?impact ;
+          pm:hasMitigation ?mitigationPlan .
+    ?mitigationPlan pm:mitigationStatus ?status ;
+                    pm:mitigationDescription ?mitigation .
+    BIND((?probability * ?impact) AS ?riskScore)
+}
+ORDER BY DESC(?riskScore)
+
+# Query 12: Invoice and billing summary
+SELECT ?project ?invoice ?invoiceDate ?amount ?status ?dueDate
+WHERE {
+    ?project a pm:Project ;
+             pm:projectName ?projectName ;
+             pm:hasInvoice ?invoice .
+    ?invoice pm:invoiceDate ?invoiceDate ;
+             pm:invoiceAmount ?amount ;
+             pm:invoiceStatus ?status ;
+             pm:dueDate ?dueDate .
+    FILTER(?status != "paid")
+}
+ORDER BY ?dueDate

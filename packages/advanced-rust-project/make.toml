@@ -1,0 +1,127 @@
+# Advanced Rust Project Lifecycle Configuration
+# Demonstrates all lifecycle features: phases, hooks, environments, parallel execution
+
+[project]
+name = "advanced-rust-project"
+version = "1.0.0"
+description = "Advanced Rust project demonstrating all ggen features"
+author = "ggen-examples"
+
+# Lifecycle phases with comprehensive workflow
+[lifecycle.init]
+description = "Initialize project structure and dependencies"
+commands = [
+  "mkdir -p generated/{src,api,database,docs}",
+  "mkdir -p data/{domain,api,database}",
+  "mkdir -p scripts/{build,deploy,test}",
+  "cargo init --name advanced-rust-project generated/",
+  "echo 'Project initialized successfully'"
+]
+watch = true
+cache = true
+
+[lifecycle.setup]
+description = "Setup development environment and install dependencies"
+commands = [
+  "cd generated && cargo add serde serde_json tokio axum",
+  "cd generated && cargo add --dev tokio-test",
+  "cd generated && cargo add thiserror anyhow",
+  "echo 'Dependencies installed'",
+]
+depends_on = ["init"]
+cache = true
+
+[lifecycle.generate]
+description = "Generate code using AI and templates"
+commands = [
+  "../../../target/release/ggen ai generate --description 'Complete Rust microservice with API endpoints' --output generated/src/services/user_service.rs --mock",
+  "../../../target/release/ggen ai generate --description 'REST API endpoint for user management' --output generated/src/api/users.rs --mock",
+  "../../../target/release/ggen ai generate --description 'Database schema and models for user system' --output generated/src/database/schema.rs --mock",
+  "../../../target/release/ggen ai generate --description 'API documentation for user service' --output generated/docs/api.md --mock",
+  "echo 'Code generation completed'",
+]
+depends_on = ["setup"]
+watch = true
+cache = true
+
+[lifecycle.build]
+description = "Build the Rust project"
+commands = [
+  "cd generated && cargo build --release",
+  "cd generated && cargo check",
+  "echo 'Build completed successfully'",
+]
+depends_on = ["generate"]
+cache = true
+
+[lifecycle.test]
+description = "Run comprehensive tests"
+commands = [
+  "cd generated && cargo test",
+  "cd generated && cargo test --release",
+  "cd generated && cargo clippy -- -D warnings",
+  "cd generated && cargo fmt --check",
+  "echo 'All tests passed'",
+]
+depends_on = ["build"]
+cache = true
+
+[lifecycle.deploy]
+description = "Deploy to target environment"
+commands = ["scripts/deploy/deploy.sh", "echo 'Deployment completed'"]
+depends_on = ["test"]
+cache = false
+
+# Environment-specific configurations
+[lifecycle.deploy.env.development]
+description = "Deploy to development environment"
+commands = ["scripts/deploy/deploy-dev.sh", "echo 'Deployed to development'"]
+
+[lifecycle.deploy.env.staging]
+description = "Deploy to staging environment"
+commands = ["scripts/deploy/deploy-staging.sh", "echo 'Deployed to staging'"]
+
+[lifecycle.deploy.env.production]
+description = "Deploy to production environment"
+commands = ["scripts/deploy/deploy-prod.sh", "echo 'Deployed to production'"]
+
+# Hooks system (simplified for now)
+[hooks]
+# before_init = ["setup"]
+# after_init = ["test"]
+# before_generate = ["setup"]
+# after_generate = ["test"]
+
+# Parallel execution configuration
+[execution]
+max_parallel_phases = 4
+timeout_seconds = 300
+retry_attempts = 3
+retry_delay_seconds = 5
+
+# State management
+[state]
+persist_execution_state = true
+state_file = ".ggen/state.json"
+backup_state = true
+
+# Caching configuration
+[cache]
+enable_caching = true
+cache_directory = ".ggen/cache"
+cache_ttl_seconds = 3600
+invalidate_on_change = true
+
+# Monitoring and observability
+[monitoring]
+enable_metrics = true
+metrics_file = ".ggen/metrics.json"
+log_level = "info"
+trace_execution = true
+
+# Security configuration
+[security]
+validate_commands = true
+block_dangerous_commands = true
+require_confirmation = false
+audit_log = ".ggen/audit.log"
