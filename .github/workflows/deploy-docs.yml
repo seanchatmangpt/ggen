@@ -18,7 +18,7 @@ jobs:
       - name: Setup mdBook
         uses: peaceiris/actions-mdbook@v2
         with:
-          mdbook-version: 'latest'
+          mdbook-version: '0.4.40'
 
       - name: Build mdbook
         run: |
@@ -33,7 +33,7 @@ jobs:
           publish_dir: ./docs/book
           destination_dir: docs
           publish_branch: gh-pages
-          keep_files: true
+          keep_files: false
           user_name: 'github-actions[bot]'
           user_email: 'github-actions[bot]@users.noreply.github.com'
           commit_message: 'Deploy documentation to GitHub Pages'

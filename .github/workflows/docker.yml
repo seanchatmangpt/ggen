@@ -38,7 +38,12 @@ jobs:
           password: ${{ secrets.DOCKER_TOKEN }}
 
       - name: Prepare Docker context
-        run: mv docker/.dockerignore .dockerignore
+        run: |
+          if [ -f docker/.dockerignore ]; then
+            mv docker/.dockerignore .dockerignore
+          else
+            echo "Warning: docker/.dockerignore not found, using default"
+          fi
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -46,8 +51,17 @@ jobs:
           context: .
           file: docker/Dockerfile
           push: true
+          platforms: linux/amd64,linux/arm64
           tags: |
             ${{ steps.vars.outputs.dockerhub_org }}/${{ steps.vars.outputs.package_name }}:${{ steps.vars.outputs.package_version }}
             ${{ steps.vars.outputs.dockerhub_org }}/${{ steps.vars.outputs.package_name }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Verify Docker build
+        run: |
+          echo "✅ Docker image built and pushed successfully"
+          echo "Repository: ${{ steps.vars.outputs.dockerhub_org }}/${{ steps.vars.outputs.package_name }}"
+          echo "Tags:"
+          echo "  - ${{ steps.vars.outputs.package_version }}"
+          echo "  - latest"

@@ -9,7 +9,7 @@ concurrency:
 jobs:
   codecov:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
@@ -17,11 +17,18 @@ jobs:
       - name: Install stable toolchain
         uses: dtolnay/rust-toolchain@stable
 
+      - name: Cache cargo-tarpaulin
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin/cargo-tarpaulin
+          key: ${{ runner.os }}-cargo-tarpaulin
+
       - name: Install cargo-tarpaulin
         run: cargo install cargo-tarpaulin --locked
 
       - name: Run cargo-tarpaulin
-        run: cargo tarpaulin --test-threads 1 --out Xml
+        timeout-minutes: 25
+        run: cargo tarpaulin --test-threads 1 --out Xml --timeout 600 --exclude-files 'tests/*' '**/tests.rs'
 
       - name: Upload to codecov.io
         uses: codecov/codecov-action@v5

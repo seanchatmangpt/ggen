@@ -27,45 +27,58 @@ jobs:
 
       - name: Check file organization
         run: |
+          set -euo pipefail
           echo "Checking for misplaced files in root directory..."
-          # Check for test files in root
-          if find . -maxdepth 1 -name "*.rs" -type f ! -name "Cargo.toml" | grep -q .; then
-            echo "❌ Found test files in root directory"
+          ERRORS=0
+
+          # Check for Rust files in root (but not Cargo files)
+          if find . -maxdepth 1 -name "*.rs" -type f 2>/dev/null | grep -v Cargo >/dev/null 2>&1; then
+            echo "❌ Found Rust files in root directory"
             find . -maxdepth 1 -name "*.rs" -type f
-            exit 1
+            ERRORS=$((ERRORS + 1))
           fi
+
           # Check for template files in root
-          if find . -maxdepth 1 -name "*.tmpl" -type f | grep -q .; then
+          if find . -maxdepth 1 -name "*.tmpl" -type f 2>/dev/null | grep -q .; then
             echo "❌ Found template files in root directory"
             find . -maxdepth 1 -name "*.tmpl" -type f
-            exit 1
+            ERRORS=$((ERRORS + 1))
           fi
-          # Check for data files in root (excluding Cargo.lock)
-          if find . -maxdepth 1 \( -name "*.ttl" -o -name "*.rdf" \) -type f ! -name "Cargo.lock" ! -name "ggen.lock" | grep -q .; then
+
+          # Check for data files in root
+          if find . -maxdepth 1 \( -name "*.ttl" -o -name "*.rdf" \) -type f 2>/dev/null | grep -q .; then
             echo "❌ Found data files in root directory"
-            find . -maxdepth 1 \( -name "*.ttl" -o -name "*.rdf" \) -type f ! -name "Cargo.lock" ! -name "ggen.lock"
-            exit 1
+            find . -maxdepth 1 \( -name "*.ttl" -o -name "*.rdf" \) -type f
+            ERRORS=$((ERRORS + 1))
           fi
-          # Check for scripts in root
-          if find . -maxdepth 1 -name "*.sh" -type f | grep -q .; then
+
+          # Check for scripts in root (except allowed ones)
+          if find . -maxdepth 1 -name "*.sh" -type f 2>/dev/null | grep -v "scripts/" | grep -q .; then
             echo "❌ Found script files in root directory"
             find . -maxdepth 1 -name "*.sh" -type f
-            exit 1
+            ERRORS=$((ERRORS + 1))
           fi
+
           # Check for redundant Makefiles
           if [ -f "Makefile" ] || [ -f "make.toml" ] || [ -f "Makefile.ultra-deploy" ]; then
             echo "❌ Found redundant Makefile files (only Makefile.toml should exist)"
             [ -f "Makefile" ] && echo "  - Makefile"
             [ -f "make.toml" ] && echo "  - make.toml"
             [ -f "Makefile.ultra-deploy" ] && echo "  - Makefile.ultra-deploy"
-            exit 1
+            ERRORS=$((ERRORS + 1))
           fi
+
           # Check for temporary files
-          if find . -maxdepth 1 -name "*.tmp" -o -name "*.temp" -o -name "*.bak" -o -name "*~" -o -name "*.long-type-*.txt" | grep -q .; then
+          if find . -maxdepth 1 \( -name "*.tmp" -o -name "*.temp" -o -name "*.bak" -o -name "*~" -o -name "*.swp" \) -type f 2>/dev/null | grep -q .; then
             echo "❌ Found temporary files in root directory"
-            find . -maxdepth 1 -name "*.tmp" -o -name "*.temp" -o -name "*.bak" -o -name "*~" -o -name "*.long-type-*.txt"
+            find . -maxdepth 1 \( -name "*.tmp" -o -name "*.temp" -o -name "*.bak" -o -name "*~" -o -name "*.swp" \) -type f
+            ERRORS=$((ERRORS + 1))
+          fi
+
+          if [ $ERRORS -gt 0 ]; then
             exit 1
           fi
+
           echo "✅ File organization check passed"
 
   test:

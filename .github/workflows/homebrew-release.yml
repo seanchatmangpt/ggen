@@ -56,6 +56,22 @@ jobs:
 
           echo "✅ Version verification passed"
 
+      - name: Verify release assets exist
+        run: |
+          set -euo pipefail
+          VERSION="${{ steps.extract_version.outputs.version }}"
+          RELEASE_URL="https://github.com/seanchatmangpt/ggen/releases/download/v$VERSION"
+
+          echo "Checking for release assets..."
+          for target in "x86_64-apple-darwin" "aarch64-apple-darwin" "x86_64-unknown-linux-gnu" "aarch64-unknown-linux-gnu"; do
+            ASSET_URL="$RELEASE_URL/ggen-$target.tar.gz"
+            if curl -s --head "$ASSET_URL" | grep -q "200\|302"; then
+              echo "✅ Found: ggen-$target.tar.gz"
+            else
+              echo "⚠️  Missing: ggen-$target.tar.gz (optional for Homebrew)"
+            fi
+          done
+
       - name: Bump Homebrew Formula
         uses: mislav/bump-homebrew-formula-action@v3.6
         with:
@@ -63,7 +79,7 @@ jobs:
           homebrew-tap: seanchatmangpt/homebrew-tap
           download-url: https://github.com/seanchatmangpt/ggen/releases/download/v${{ steps.extract_version.outputs.version }}/ggen-x86_64-apple-darwin.tar.gz
         env:
-          COMMITTER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COMMITTER_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN || secrets.GITHUB_TOKEN }}
         continue-on-error: false
 
       - name: Verify formula update

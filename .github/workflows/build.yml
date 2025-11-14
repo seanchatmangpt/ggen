@@ -59,9 +59,17 @@ jobs:
         run: cargo install cargo-make --locked --force
 
       - name: Build
-        run: cargo build --verbose
+        run: |
+          cargo build --verbose
+          if [ "${{ matrix.rust }}" = "nightly" ]; then
+            echo "⚠️  Nightly build completed (failures ignored)"
+          fi
         continue-on-error: ${{ matrix.rust == 'nightly' }}
 
       - name: Run tests
-        run: cargo test --verbose
+        run: |
+          cargo test --verbose
+          if [ "${{ matrix.rust }}" = "nightly" ]; then
+            echo "⚠️  Nightly tests completed (failures ignored)"
+          fi
         continue-on-error: ${{ matrix.rust == 'nightly' }}
