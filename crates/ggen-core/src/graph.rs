@@ -288,17 +288,14 @@ impl Graph {
     /// let graph = Graph::new().unwrap();
     /// assert!(graph.is_empty());
     /// ```
-
-    /// Default size for SPARQL query plan cache
-    const DEFAULT_PLAN_CACHE_SIZE: usize = 100;
-
-    /// Default size for SPARQL query result cache
-    const DEFAULT_RESULT_CACHE_SIZE: usize = 1000;
-
     pub fn new() -> Result<Self> {
-        let plan_cache_size = NonZeroUsize::new(Self::DEFAULT_PLAN_CACHE_SIZE)
+        /// Default size for SPARQL query plan cache
+        const DEFAULT_PLAN_CACHE_SIZE: usize = 100;
+        /// Default size for SPARQL query result cache
+        const DEFAULT_RESULT_CACHE_SIZE: usize = 1000;
+        let plan_cache_size = NonZeroUsize::new(DEFAULT_PLAN_CACHE_SIZE)
             .ok_or_else(|| anyhow::anyhow!("Invalid cache size"))?;
-        let result_cache_size = NonZeroUsize::new(Self::DEFAULT_RESULT_CACHE_SIZE)
+        let result_cache_size = NonZeroUsize::new(DEFAULT_RESULT_CACHE_SIZE)
             .ok_or_else(|| anyhow::anyhow!("Invalid cache size"))?;
 
         Ok(Self {
@@ -394,16 +391,14 @@ impl Graph {
     ///
     /// let graph = Graph::new().unwrap();
     ///
+    /// // Insert simple Turtle data
     /// graph.insert_turtle(r#"
-    ///     @prefix ex: <http://example.org/> .
-    ///     ex:alice a ex:Person ;
-    ///              ex:name "Alice" ;
-    ///              ex:age 30 .
+    /// @prefix ex: <http://example.org/> .
+    /// ex:alice ex:name "Alice" .
     /// "#).unwrap();
     ///
-    /// // Query the data
-    /// let results = graph.query("SELECT ?name WHERE { ?s ex:name ?name }").unwrap();
-    /// // Results contain the query results
+    /// // Verify data was inserted
+    /// assert!(!graph.is_empty());
     /// ```
     ///
     /// ## Error case - Invalid Turtle syntax
@@ -433,7 +428,9 @@ impl Graph {
     ///
     /// **Note**: The current Oxigraph API doesn't fully support base IRI in
     /// `load_from_reader`, so this method currently behaves the same as
-    /// `insert_turtle`. The base IRI parameter is accepted for API compatibility.
+    /// `insert_turtle`. The `base_iri` parameter is accepted for API compatibility
+    /// but is currently ignored. This allows code to be written that will work
+    /// correctly when full base IRI support is added.
     ///
     /// # Arguments
     ///
@@ -473,7 +470,9 @@ impl Graph {
     ///
     /// **Note**: The current Oxigraph API doesn't fully support named graphs in
     /// `load_from_reader`, so this method currently loads into the default graph.
-    /// The graph IRI parameter is accepted for API compatibility.
+    /// The `graph_iri` parameter is accepted for API compatibility but is currently
+    /// ignored. This allows code to be written that will work correctly when full
+    /// named graph support is added.
     ///
     /// # Arguments
     ///
@@ -552,8 +551,8 @@ impl Graph {
     /// Load RDF data from a file path
     ///
     /// Automatically detects the RDF format from the file extension:
-    /// - `.ttl` - Turtle format
-    /// - `.nt` - N-Triples format
+    /// - `.ttl` or `.turtle` - Turtle format
+    /// - `.nt` or `.ntriples` - N-Triples format
     /// - `.rdf` or `.xml` - RDF/XML format
     ///
     /// The graph's epoch counter is incremented, invalidating cached query results.
@@ -566,6 +565,13 @@ impl Graph {
     ///
     /// Returns `Ok(())` if the file was successfully loaded, or an error if
     /// the file cannot be read or the format is invalid.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if:
+    /// - The file cannot be opened or read
+    /// - The file extension indicates an unsupported format (error message format: `"unsupported RDF format: <extension>"`)
+    /// - The RDF syntax is invalid for the detected format
     ///
     /// # Examples
     ///

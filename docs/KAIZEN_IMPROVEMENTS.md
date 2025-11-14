@@ -44,6 +44,19 @@ This document tracks small, incremental improvements made to the codebase follow
 - ✅ No linter errors
 - ✅ Tests still pass (test code can use `anyhow`)
 - ✅ No `anyhow` usage in production code (only in `#[cfg(test)]` module)
+- ✅ Fixed `regex::Error` conversion by using explicit `map_err`
+
+### Technical Details
+**Error conversion**: `regex::Error` doesn't have automatic `From` implementation, so we use explicit conversion:
+```rust
+// Before
+if regex::Regex::new(skip_if)?.is_match(&existing_content) {
+
+// After
+let regex = regex::Regex::new(skip_if)
+    .map_err(|e| Error::new(&format!("Invalid regex pattern '{}': {}", skip_if, e)))?;
+if regex.is_match(&existing_content) {
+```
 
 ### Pattern Established
 **Standard**: Library modules should use `ggen_utils::error::Result`, not `anyhow::Result`

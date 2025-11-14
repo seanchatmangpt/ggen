@@ -1,4 +1,54 @@
 //! Convention presets for common project structures
+//!
+//! This module provides pre-configured convention presets that generate complete
+//! project structures following established patterns. Presets include RDF ontologies,
+//! templates, and configuration files needed for specific project types.
+//!
+//! ## Features
+//!
+//! - **Pre-configured Structures**: Complete project scaffolding with RDF and templates
+//! - **Extensible Design**: Trait-based system for adding new presets
+//! - **RDF Integration**: Automatic generation of RDF ontology files
+//! - **Template Generation**: Pre-configured template files for common patterns
+//!
+//! ## Available Presets
+//!
+//! - **clap-noun-verb**: CLI projects using clap with noun-verb command structure
+//!
+//! ## Examples
+//!
+//! ### Using a Preset
+//!
+//! ```rust,no_run
+//! use ggen_cli::conventions::presets::{get_preset, ConventionPreset};
+//! use std::path::Path;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let preset = get_preset("clap-noun-verb")
+//!     .expect("Preset not found");
+//!
+//! // Create project structure
+//! preset.create_structure(Path::new("."))?;
+//!
+//! // Get RDF files to create
+//! let rdf_files = preset.rdf_files();
+//! for (path, content) in rdf_files {
+//!     println!("RDF file: {}", path);
+//! }
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Listing Available Presets
+//!
+//! ```rust,no_run
+//! use ggen_cli::conventions::presets::list_presets;
+//!
+//! let presets = list_presets();
+//! for preset_name in presets {
+//!     println!("Available preset: {}", preset_name);
+//! }
+//! ```
 
 use anyhow::Result;
 use std::path::Path;
