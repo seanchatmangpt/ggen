@@ -1,4 +1,69 @@
-// Smart Recommendations using Collaborative Filtering and ML
+//! Smart recommendation system using collaborative filtering and machine learning
+//!
+//! This module provides a recommendation engine that uses collaborative filtering
+//! algorithms to suggest packages to users based on their preferences, interaction
+//! history, and similarity to other users and packages.
+//!
+//! ## Features
+//!
+//! - **Collaborative Filtering**: User-based and item-based recommendation algorithms
+//! - **Cosine Similarity**: Calculate similarity between users and packages
+//! - **Trending Detection**: Identify trending packages in categories
+//! - **Complementary Packages**: Find packages frequently used together
+//! - **User Preference Learning**: Learn from user interaction history
+//!
+//! ## Recommendation Types
+//!
+//! - **SimilarUsers**: Based on users with similar preferences
+//! - **SimilarPackages**: Based on package feature similarity
+//! - **TrendingInCategory**: Based on trending scores in a category
+//! - **FrequentlyUsedTogether**: Based on co-occurrence patterns
+//!
+//! ## Examples
+//!
+//! ### Getting User Recommendations
+//!
+//! ```rust,no_run
+//! use ggen_marketplace::recommendations::RecommendationEngine;
+//!
+//! # fn example() -> anyhow::Result<()> {
+//! let mut engine = RecommendationEngine::new();
+//!
+//! // Initialize with user-package interactions
+//! let interactions = vec![
+//!     ("user1".to_string(), "pkg1".to_string(), 1.0),
+//!     ("user1".to_string(), "pkg2".to_string(), 0.8),
+//! ];
+//! engine.initialize(interactions)?;
+//!
+//! // Get recommendations for a user
+//! let recommendations = engine.recommend_for_user("user1", 10)?;
+//! for rec in recommendations {
+//!     println!("{}: {:.2} ({:?})", rec.package_id, rec.score, rec.reason);
+//! }
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Finding Similar Packages
+//!
+//! ```rust,no_run
+//! use ggen_marketplace::recommendations::RecommendationEngine;
+//! use ndarray::Array1;
+//!
+//! # fn example() -> anyhow::Result<()> {
+//! let mut engine = RecommendationEngine::new();
+//!
+//! // Set package features for similarity calculation
+//! let features = Array1::from_vec(vec![0.8, 0.6, 0.9, 0.7]);
+//! engine.update_package_features("pkg1".to_string(), features);
+//!
+//! // Find similar packages
+//! let similar = engine.find_similar_packages("pkg1", 5)?;
+//! # Ok(())
+//! # }
+//! ```
+
 #![allow(clippy::unwrap_used)] // Safe: f64 scores from cosine similarity are never NaN
 use anyhow::{Result, Context};
 use ndarray::{Array1, Array2, ArrayView1};

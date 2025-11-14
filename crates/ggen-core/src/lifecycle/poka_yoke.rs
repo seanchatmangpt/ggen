@@ -68,7 +68,9 @@ impl NonEmptyPath {
     }
 
     /// Create from string (convenience method)
-    pub fn from_str(s: &str) -> Result<Self, EmptyPathError> {
+    ///
+    /// Note: This is a convenience method. For trait-based parsing, use `FromStr::from_str`.
+    pub fn from_string(s: &str) -> Result<Self, EmptyPathError> {
         if s.is_empty() {
             Err(EmptyPathError)
         } else {
@@ -92,6 +94,18 @@ impl NonEmptyPath {
     pub fn join(&self, path: impl AsRef<Path>) -> NonEmptyPath {
         // Safety: Base path is non-empty, so result is non-empty
         NonEmptyPath(self.0.join(path))
+    }
+}
+
+impl std::str::FromStr for NonEmptyPath {
+    type Err = EmptyPathError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        if s.is_empty() {
+            Err(EmptyPathError)
+        } else {
+            Ok(Self(PathBuf::from(s)))
+        }
     }
 }
 
@@ -369,7 +383,7 @@ mod tests {
 
     #[test]
     fn test_non_empty_path_join() {
-        let base = NonEmptyPath::from_str("base").unwrap();
+        let base: NonEmptyPath = "base".parse().unwrap();
         let joined = base.join("file.txt");
         assert!(joined.as_path().to_str().unwrap().contains("base"));
         assert!(joined.as_path().to_str().unwrap().contains("file.txt"));

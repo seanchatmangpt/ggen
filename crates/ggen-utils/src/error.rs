@@ -1,3 +1,78 @@
+//! Error handling types and utilities
+//!
+//! This module provides the core error handling infrastructure for the ggen project.
+//! It defines a custom `Error` type that supports error chaining, context, and
+//! conversion from common error types.
+//!
+//! ## Features
+//!
+//! - **Error chaining**: Support for source errors with full error chain
+//! - **Context information**: Additional context can be attached to errors
+//! - **Type conversions**: Automatic conversion from common error types
+//! - **Helper methods**: Convenient constructors for common error scenarios
+//!
+//! ## Error Type
+//!
+//! The `Error` type is the primary error type used throughout ggen. It implements
+//! `std::error::Error` and provides:
+//!
+//! - Message: Primary error message
+//! - Context: Optional additional context
+//! - Source: Optional underlying error (for error chaining)
+//!
+//! ## Examples
+//!
+//! ### Creating Errors
+//!
+//! ```rust
+//! use ggen_utils::error::Error;
+//!
+//! # fn main() {
+//! // Simple error
+//! let err = Error::new("Something went wrong");
+//! assert_eq!(err.to_string(), "Something went wrong");
+//!
+//! // Error with context
+//! let err = Error::with_context("Failed to read file", "config.toml");
+//! assert!(err.to_string().contains("Failed to read file"));
+//!
+//! // Error with source
+//! let io_err = std::io::Error::new(std::io::ErrorKind::NotFound, "File not found");
+//! let err = Error::with_source("Configuration error", Box::new(io_err));
+//! assert!(err.to_string().contains("Configuration error"));
+//! # }
+//! ```
+//!
+//! ### Using Result Type
+//!
+//! ```rust,no_run
+//! use ggen_utils::error::{Error, Result};
+//!
+//! fn read_config() -> Result<String> {
+//!     std::fs::read_to_string("config.toml")
+//!         .map_err(|e| Error::with_source("Failed to read config", Box::new(e)))
+//! }
+//! ```
+//!
+//! ### Helper Methods
+//!
+//! ```rust
+//! use ggen_utils::error::Error;
+//! use std::path::PathBuf;
+//!
+//! # fn main() {
+//! // Common error types
+//! let err = Error::file_not_found(PathBuf::from("config.toml"));
+//! assert!(err.to_string().contains("config.toml"));
+//!
+//! let err = Error::invalid_input("Invalid project name");
+//! assert!(err.to_string().contains("Invalid project name"));
+//!
+//! let err = Error::network_error("Connection timeout");
+//! assert!(err.to_string().contains("Connection timeout"));
+//! # }
+//! ```
+
 use std::error::Error as StdError;
 use std::fmt;
 

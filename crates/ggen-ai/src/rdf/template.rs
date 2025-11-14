@@ -1,4 +1,36 @@
-// ggen-ai/src/rdf/template.rs
+//! Template rendering for CLI project generation
+//!
+//! This module provides template rendering functionality for generating CLI projects
+//! from RDF-based project definitions. It uses Tera templates to render project files
+//! including Cargo.toml, main.rs, command.rs, and lib.rs.
+//!
+//! ## Features
+//!
+//! - **Template Loading**: Load templates from directory with glob support
+//! - **Context Building**: Build Tera context from CliProject structure
+//! - **File Rendering**: Render individual templates or entire project structure
+//! - **Output Management**: Write rendered files to output directory
+//!
+//! ## Examples
+//!
+//! ### Rendering a Project
+//!
+//! ```rust,no_run
+//! use ggen_ai::rdf::template::TemplateRenderer;
+//! use ggen_ai::rdf::types::CliProject;
+//! use std::path::Path;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let template_dir = Path::new("templates");
+//! let renderer = TemplateRenderer::new(template_dir)?;
+//!
+//! let project = CliProject::default(); // Load from RDF
+//! let output_dir = Path::new("output");
+//!
+//! renderer.render_all(&project, output_dir)?;
+//! # Ok(())
+//! # }
+//! ```
 
 use anyhow::Result;
 use std::path::{Path, PathBuf};

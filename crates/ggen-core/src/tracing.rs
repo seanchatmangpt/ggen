@@ -1,84 +1,75 @@
-use anyhow::Result;
-use std::collections::BTreeMap;
-use std::path::Path;
-use tracing::{debug, error, info, span, trace, warn, Level, Span};
+//! Tracing utilities for the ggen pipeline
+//!
+//! This module provides structured tracing capabilities using the `tracing` crate
+//! for observability and debugging. It initializes tracing based on environment
+//! variables and provides utilities for creating spans and logging pipeline operations.
+//!
+//! ## Features
+//!
+//! - **Environment-based configuration**: Controlled via `GGEN_TRACE` environment variable
+//! - **Structured spans**: Create spans for template processing, RDF operations, etc.
+//! - **Performance timing**: Built-in timer for measuring operation duration
+//! - **Integration**: Works with OpenTelemetry and other tracing backends
+//!
+//! ## Configuration
+//!
+//! Set the `GGEN_TRACE` environment variable to control trace levels:
+//!
+//! - `error` - Only error messages
+//! - `warn` - Warnings and errors
+//! - `info` - Informational messages (default)
+//! - `debug` - Debug information
+//! - `trace` - Verbose trace information
+//! - `1`, `true`, `yes` - Enable debug level
+//! - `0`, `false`, `no` - Disable (error only)
+//!
+//! ## Examples
+//!
+//! ### Initializing Tracing
+//!
+//! ```rust,no_run
+//! use ggen_core::tracing::init_tracing;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! init_tracing()?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Creating Spans
+//!
+//! ```rust,no_run
+//! use ggen_core::tracing::PipelineTracer;
+//! use std::path::Path;
+//!
+//! let span = PipelineTracer::template_span(Path::new("template.tmpl"));
+//! let _guard = span.enter();
+//! // ... template processing code ...
+//! ```
+//!
+//! ### Performance Timing
+//!
+//! ```rust,no_run
+//! use ggen_core::tracing::PerformanceTimer;
+//!
+//! let timer = PerformanceTimer::start("template_processing");
+//! // ... do work ...
+//! timer.finish(); // Automatically logs the duration
+//! ```
+//!
+//! ### Using Macros
+//!
+//! ```rust,no_run
+//! use ggen_core::{time_operation, trace_span};
+//!
+//! let result = time_operation!("expensive_operation", {
+//!     // ... operation code ...
+//!     42
+//! });
+//!
+//! let span = trace_span!("my_span", operation = "test");
+//! ```
 
-/// Initialize tracing based on environment variables
-pub fn init_tracing() -> Result<()> {
-    use tracing_subscriber::{fmt, EnvFilter};
-    
-    // Check for GGEN_TRACE environment variable
-    let trace_level = std::env::var("GGEN_TRACE")
-        .unwrap_or_else(|_| "info".to_string())
-        .to_lowercase();
-    
-    // Map GGEN_TRACE values to tracing levels
-    let filter = match trace_level.as_str() {
-        "error" => EnvFilter::new("error"),
-        "warn" => EnvFilter::new("warn"),
-        "info" => EnvFilter::new("info"),
-        "debug" => EnvFilter::new("debug"),
-        "trace" => EnvFilter::new("trace"),
-        "1" | "true" | "yes" => EnvFilter::new("debug"),
-        "0" | "false" | "no" => EnvFilter::new("error"),
-        _ => EnvFilter::new("info"),
-    };
-    
-    // Initialize the subscriber
-    fmt()
-        .with_env_filter(filter)
-        .with_target(false)
-        .with_thread_ids(false)
-        .with_file(false)
-        .with_line_number(false)
-        .init();
-    
-    Ok(())
-}
-
-/// Tracing utilities for the pipeline
-pub struct PipelineTracer;
-
-impl PipelineTracer {
-    /// Create a span for template processing
-    pub fn template_span(template_path: &Path) -> Span {
-        span!(
-            Level::INFO,
-            "template_processing",
-            template = %template_path.display()
-        )
-    }
-    
-    /// Create a span for frontmatter processing
-    pub fn frontmatter_span() -> Span {
-        span!(Level::DEBUG, "frontmatter_processing")
-    }
-    
-    /// Create a span for RDF processing
-    pub fn rdf_span() -> Span {
-        span!(Level::DEBUG, "rdf_processing")
-    }
-    
-    /// Create a span for template rendering
-    pub fn render_span() -> Span {
-        span!(Level::DEBUG, "template_rendering")
-    }
-    
-    /// Create a span for file operations
-    pub fn file_span(operation: &str, path: &Path) -> Span {
-        span!(
-            Level::DEBUG,
-            "file_operation",
-            operation = operation,
-            path = %path.display()
-        )
-    }
-    
-    /// Log template parsing start
-    pub fn template_parsing_start(template_path: &Path) {
-        info!(
-            template = %template_path.display(),
-            "Starting template parsing"
         );
     }
     

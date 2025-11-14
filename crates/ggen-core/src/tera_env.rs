@@ -1,3 +1,53 @@
+//! Tera template environment setup and configuration
+//!
+//! This module provides utilities for building and configuring Tera template
+//! engines with glob support for includes and macros. It sets up the template
+//! environment with all necessary filters and functions.
+//!
+//! ## Features
+//!
+//! - **Glob Support**: Enable `{% include %}` and `{% import %}` across template directories
+//! - **Auto-escape Control**: Disable auto-escaping for code generation (literal output)
+//! - **Filter Registration**: Automatically register all text transformation filters
+//! - **Minimal Mode**: Build lightweight Tera instances for ad-hoc string rendering
+//!
+//! ## Examples
+//!
+//! ### Building Tera with Glob Support
+//!
+//! ```rust,no_run
+//! use ggen_core::tera_env::build_tera_with_glob;
+//! use std::path::Path;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let templates_dir = Path::new("./templates");
+//! let mut tera = build_tera_with_glob(templates_dir)?;
+//!
+//! // Now templates can use {% include %} and {% import %}
+//! let mut ctx = tera::Context::new();
+//! ctx.insert("name", "World");
+//! let result = tera.render("main.tmpl", &ctx)?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Building Minimal Tera Instance
+//!
+//! ```rust
+//! use ggen_core::tera_env::build_tera_minimal;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let mut tera = build_tera_minimal()?;
+//!
+//! // Use for ad-hoc string rendering
+//! let mut ctx = tera::Context::new();
+//! ctx.insert("name", "hello_world");
+//! let result = tera.render_str("{{ name | pascal }}", &ctx)?;
+//! assert_eq!(result, "HelloWorld");
+//! # Ok(())
+//! # }
+//! ```
+
 use anyhow::Result;
 use std::path::Path;
 use tera::Tera;

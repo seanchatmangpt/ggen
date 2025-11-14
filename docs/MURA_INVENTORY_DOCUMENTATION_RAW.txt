@@ -1,0 +1,95 @@
+=== Documentation Mura Analysis ===
+
+## Public API Counts
+Total public APIs: 1148
+Total documentation lines: 11810
+Total doctests: 330
+Non-runnable doctests (no_run): 249
+Ignored doctests: 18
+
+## Files Without Module-Level Documentation
+
+  - crates/ggen-core/examples/async-web-service/src/middleware/auth.rs
+  - crates/ggen-core/examples/async-web-service/src/middleware/mod.rs
+  - crates/ggen-core/examples/async-web-service/src/models.rs
+  - crates/ggen-core/examples/async-web-service/src/db/users.rs
+  - crates/ggen-core/examples/async-web-service/src/db/mod.rs
+  - crates/ggen-core/examples/async-web-service/src/main.rs
+  - crates/ggen-core/examples/async-web-service/src/routes/health.rs
+  - crates/ggen-core/examples/async-web-service/src/routes/users.rs
+  - crates/ggen-core/examples/async-web-service/src/routes/auth.rs
+  - crates/ggen-core/examples/async-web-service/src/routes/mod.rs
+
+## Public Functions Without Documentation
+
+
+## Public Structs/Enums Without Documentation
+
+crates/ggen-core/examples/async-web-service/src/middleware/auth.rs:9: pub struct AuthenticatedUser {
+crates/ggen-core/examples/async-web-service/src/models.rs:8: pub struct User {
+crates/ggen-core/examples/async-web-service/src/models.rs:19: pub struct CreateUserRequest {
+crates/ggen-core/examples/async-web-service/src/models.rs:29: pub struct UpdateUserRequest {
+crates/ggen-core/examples/async-web-service/src/models.rs:37: pub struct LoginRequest {
+crates/ggen-core/examples/async-web-service/src/models.rs:44: pub struct RegisterRequest {
+crates/ggen-core/examples/async-web-service/src/models.rs:54: pub struct AuthResponse {
+crates/ggen-core/examples/async-web-service/src/models.rs:60: pub struct ErrorResponse {
+crates/ggen-core/examples/async-web-service/src/models.rs:65: pub struct Claims {
+crates/ggen-core/examples/async-web-service/src/models.rs:85: pub struct HealthResponse {
+crates/ggen-core/examples/async-web-service/src/models.rs:92: pub struct PaginatedResponse<T> {
+crates/ggen-core/examples/async-web-service/src/main.rs:17: pub struct AppState {
+crates/ggen-core/examples/perf-library/src/concurrent.rs:9: pub struct LockFreeQueue<T> {
+crates/ggen-core/examples/perf-library/src/concurrent.rs:56: pub struct BoundedQueue<T> {
+crates/ggen-core/examples/perf-library/src/concurrent.rs:116: pub struct LockFreeStack<T> {
+crates/ggen-core/examples/perf-library/src/hashtable.rs:14: pub struct FastHashMap<K, V> {
+crates/ggen-core/examples/perf-library/src/storage.rs:8: pub struct CompactStorage<T> {
+crates/ggen-core/examples/perf-library/src/storage.rs:119: pub struct SparseArray<T> {
+crates/ggen-core/examples/wasm-crypto/src/crypto.rs:16: pub enum CryptoError {
+crates/ggen-core/examples/wasm-crypto/src/crypto.rs:78: pub struct EncryptedData {
+
+## Documentation Without Doctests
+
+  - crates/ggen-core/examples/async-web-service/src/routes/health.rs (has docs, no doctests)
+  - crates/ggen-core/examples/async-web-service/src/routes/users.rs (has docs, no doctests)
+  - crates/ggen-core/examples/async-web-service/src/routes/auth.rs (has docs, no doctests)
+  - crates/ggen-core/examples/wasm-crypto/src/lib.rs (has docs, no doctests)
+  - crates/ggen-core/examples/wasm-crypto/src/utils.rs (has docs, no doctests)
+  - crates/ggen-core/examples/wasm-crypto/src/crypto.rs (has docs, no doctests)
+  - crates/ggen-core/src/lifecycle/hooks.rs (has docs, no doctests)
+  - crates/ggen-core/src/lifecycle/template_phase.rs (has docs, no doctests)
+  - crates/ggen-ai/src/config/global.rs (has docs, no doctests)
+  - crates/ggen-ai/src/providers/adapter.rs (has docs, no doctests)
+  - crates/ggen-ai/src/ultrathink/core.rs (has docs, no doctests)
+  - crates/ggen-ai/src/ultrathink/mod.rs (has docs, no doctests)
+  - crates/ggen-ai/src/cli.rs (has docs, no doctests)
+  - crates/ggen-cli/src/runtime.rs (has docs, no doctests)
+  - crates/ggen-cli/src/cmds/mod.rs (has docs, no doctests)
+  - crates/ggen-cli/src/conventions/presets/mod.rs (has docs, no doctests)
+  - crates/ggen-node/src/lib.rs (has docs, no doctests)
+  - crates/ggen-domain/src/marketplace/publish.rs (has docs, no doctests)
+  - crates/ggen-domain/src/marketplace/validate.rs (has docs, no doctests)
+  - crates/ggen-domain/src/graph/export.rs (has docs, no doctests)
+
+## Doctest Format Inconsistencies
+
+  - crates/ggen-core/src/registry.rs (Result doctest missing standard pattern)
+  - crates/ggen-core/src/lifecycle/state_machine.rs (Result doctest missing standard pattern)
+  - crates/ggen-core/src/lifecycle/poka_yoke.rs (Result doctest missing standard pattern)
+  - crates/ggen-core/src/lifecycle/state_validation.rs (Result doctest missing standard pattern)
+  - crates/ggen-core/src/lifecycle/model.rs (Result doctest missing standard pattern)
+  - crates/ggen-core/src/cli_generator/dx.rs (Result doctest missing standard pattern)
+  - crates/ggen-core/src/project_generator/mod.rs (Result doctest missing standard pattern)
+  - crates/ggen-core/src/cleanroom/policy.rs (Result doctest missing standard pattern)
+  - crates/ggen-core/src/cleanroom/forensics.rs (Result doctest missing standard pattern)
+  - crates/ggen-core/src/cleanroom/mod.rs (Result doctest missing standard pattern)
+  - crates/ggen-core/src/rdf/schema.rs (Result doctest missing standard pattern)
+  - crates/ggen-utils/src/logger.rs (Result doctest missing standard pattern)
+  - crates/ggen-utils/src/types.rs (Result doctest missing standard pattern)
+  - crates/ggen-utils/src/error.rs (Result doctest missing standard pattern)
+  - crates/ggen-utils/src/lib.rs (Result doctest missing standard pattern)
+  - crates/ggen-utils/src/alert.rs (Result doctest missing standard pattern)
+  - crates/ggen-utils/src/app_config.rs (Result doctest missing standard pattern)
+  - crates/ggen-marketplace/src/template_search.rs (Result doctest missing standard pattern)
+  - crates/ggen-marketplace/src/cache/mod.rs (Result doctest missing standard pattern)
+  - crates/ggen-marketplace/src/traits/registry.rs (Result doctest missing standard pattern)
+
+=== Analysis Complete ===

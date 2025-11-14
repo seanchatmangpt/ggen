@@ -1,3 +1,21 @@
+//! Core trait definitions for marketplace operations
+//!
+//! This module defines the core traits that form the foundation of the marketplace
+//! architecture. These traits enable pluggable implementations of registry, storage,
+//! search, and cryptographic operations.
+//!
+//! ## Trait Architecture
+//!
+//! The marketplace is built on four core traits:
+//!
+//! - **Registry**: Package discovery and management operations
+//! - **PackageStore**: Content-addressable storage for package binaries
+//! - **SearchEngine**: Full-text search with advanced querying
+//! - **CryptoVerifier**: Cryptographic signature verification
+//!
+//! Each trait has extension traits in submodules that provide additional functionality
+//! and convenience methods.
+
 use crate::error::Result;
 use crate::models::{ContentId, Package, PackageId, Query, SearchQuery, SearchResults, Signature};
 use async_trait::async_trait;

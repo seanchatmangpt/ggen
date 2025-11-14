@@ -1,3 +1,69 @@
+//! Template generation engine
+//!
+//! This module provides the core generation engine that orchestrates template
+//! processing, RDF graph operations, and file generation. The `Generator` type
+//! coordinates the entire generation pipeline from template parsing to output
+//! file creation.
+//!
+//! ## Architecture
+//!
+//! The generation process follows these steps:
+//! 1. Parse template (frontmatter + body)
+//! 2. Render frontmatter with variables
+//! 3. Process RDF graph (load data, execute SPARQL queries)
+//! 4. Render template body with full context
+//! 5. Handle file injection/merging if needed
+//! 6. Write output file
+//!
+//! ## Examples
+//!
+//! ### Basic Generation
+//!
+//! ```rust,no_run
+//! use ggen_core::generator::{Generator, GenContext};
+//! use ggen_core::pipeline::Pipeline;
+//! use std::collections::BTreeMap;
+//! use std::path::PathBuf;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let pipeline = Pipeline::new()?;
+//! let ctx = GenContext::new(
+//!     PathBuf::from("template.tmpl"),
+//!     PathBuf::from("output")
+//! ).with_vars({
+//!     let mut vars = BTreeMap::new();
+//!     vars.insert("name".to_string(), "MyApp".to_string());
+//!     vars
+//! });
+//!
+//! let mut generator = Generator::new(pipeline, ctx);
+//! let output_path = generator.generate()?;
+//! println!("Generated: {:?}", output_path);
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Dry Run
+//!
+//! ```rust,no_run
+//! use ggen_core::generator::{Generator, GenContext};
+//! use ggen_core::pipeline::Pipeline;
+//! use std::path::PathBuf;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let pipeline = Pipeline::new()?;
+//! let ctx = GenContext::new(
+//!     PathBuf::from("template.tmpl"),
+//!     PathBuf::from("output")
+//! ).dry(true); // Enable dry run mode
+//!
+//! let mut generator = Generator::new(pipeline, ctx);
+//! let output_path = generator.generate()?;
+//! // File is not actually written in dry run mode
+//! # Ok(())
+//! # }
+//! ```
+
 use anyhow::Result;
 use std::collections::BTreeMap;
 use std::env;
@@ -20,6 +86,23 @@ pub struct GenContext {
 }
 
 impl GenContext {
+    /// Create a new generation context
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use ggen_core::generator::GenContext;
+    /// use std::path::PathBuf;
+    ///
+    /// let ctx = GenContext::new(
+    ///     PathBuf::from("template.tmpl"),
+    ///     PathBuf::from("output")
+    /// );
+    /// assert_eq!(ctx.template_path, PathBuf::from("template.tmpl"));
+    /// assert_eq!(ctx.output_root, PathBuf::from("output"));
+    /// assert!(ctx.vars.is_empty());
+    /// assert!(!ctx.dry_run);
+    /// ```
     pub fn new(template_path: PathBuf, output_root: PathBuf) -> Self {
         Self {
             template_path,
@@ -30,10 +113,48 @@ impl GenContext {
             dry_run: false,
         }
     }
+    /// Add variables to the generation context
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use ggen_core::generator::GenContext;
+    /// use std::collections::BTreeMap;
+    /// use std::path::PathBuf;
+    ///
+    /// let mut vars = BTreeMap::new();
+    /// vars.insert("name".to_string(), "MyApp".to_string());
+    /// vars.insert("version".to_string(), "1.0.0".to_string());
+    ///
+    /// let ctx = GenContext::new(
+    ///     PathBuf::from("template.tmpl"),
+    ///     PathBuf::from("output")
+    /// ).with_vars(vars);
+    ///
+    /// assert_eq!(ctx.vars.get("name"), Some(&"MyApp".to_string()));
+    /// assert_eq!(ctx.vars.get("version"), Some(&"1.0.0".to_string()));
+    /// ```
     pub fn with_vars(mut self, vars: BTreeMap<String, String>) -> Self {
         self.vars = vars;
         self
     }
+    /// Add RDF prefixes and base IRI to the context
+    ///
+    /// # Example
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::generator::GenContext;
+    /// use std::collections::BTreeMap;
+    /// use std::path::PathBuf;
+    ///
+    /// let mut prefixes = BTreeMap::new();
+    /// prefixes.insert("ex".to_string(), "http://example.org/".to_string());
+    ///
+    /// let ctx = GenContext::new(
+    ///     PathBuf::from("template.tmpl"),
+    ///     PathBuf::from("output")
+    /// ).with_prefixes(prefixes, Some("http://example.org/".to_string()));
+    /// ```
     pub fn with_prefixes(
         mut self, prefixes: BTreeMap<String, String>, base: Option<String>,
     ) -> Self {
@@ -41,6 +162,23 @@ impl GenContext {
         self.base = base;
         self
     }
+    /// Enable or disable dry run mode
+    ///
+    /// When dry run is enabled, files are not actually written to disk.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use ggen_core::generator::GenContext;
+    /// use std::path::PathBuf;
+    ///
+    /// let ctx = GenContext::new(
+    ///     PathBuf::from("template.tmpl"),
+    ///     PathBuf::from("output")
+    /// ).dry(true);
+    ///
+    /// assert!(ctx.dry_run);
+    /// ```
     pub fn dry(mut self, dry: bool) -> Self {
         self.dry_run = dry;
         self
@@ -54,10 +192,92 @@ pub struct Generator {
 }
 
 impl Generator {
+    /// Create a new generator with a pipeline and context
+    ///
+    /// # Example
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::generator::{Generator, GenContext};
+    /// use ggen_core::pipeline::Pipeline;
+    /// use std::path::PathBuf;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let pipeline = Pipeline::new()?;
+    /// let ctx = GenContext::new(
+    ///     PathBuf::from("template.tmpl"),
+    ///     PathBuf::from("output")
+    /// );
+    /// let generator = Generator::new(pipeline, ctx);
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn new(pipeline: Pipeline, ctx: GenContext) -> Self {
         Self { pipeline, ctx }
     }
 
+    /// Generate output from the template
+    ///
+    /// Processes the template, renders it with the provided context,
+    /// and writes the output to the specified location.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if:
+    /// - The template file cannot be read
+    /// - The template syntax is invalid
+    /// - Template variables are missing or invalid
+    /// - RDF processing fails (if RDF is used)
+    /// - The output file cannot be written
+    /// - File system permissions are insufficient
+    ///
+    /// # Examples
+    ///
+    /// ## Success case
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::generator::{Generator, GenContext};
+    /// use ggen_core::pipeline::Pipeline;
+    /// use std::collections::BTreeMap;
+    /// use std::path::PathBuf;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let pipeline = Pipeline::new()?;
+    /// let mut vars = BTreeMap::new();
+    /// vars.insert("name".to_string(), "MyApp".to_string());
+    ///
+    /// let ctx = GenContext::new(
+    ///     PathBuf::from("template.tmpl"),
+    ///     PathBuf::from("output")
+    /// ).with_vars(vars);
+    ///
+    /// let mut generator = Generator::new(pipeline, ctx);
+    /// let output_path = generator.generate()?;
+    /// println!("Generated: {:?}", output_path);
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// ## Error case - Template file not found
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::generator::{Generator, GenContext};
+    /// use ggen_core::pipeline::Pipeline;
+    /// use std::path::PathBuf;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let pipeline = Pipeline::new()?;
+    /// let ctx = GenContext::new(
+    ///     PathBuf::from("nonexistent.tmpl"), // File doesn't exist
+    ///     PathBuf::from("output")
+    /// );
+    ///
+    /// let mut generator = Generator::new(pipeline, ctx);
+    /// // This will fail because the template file doesn't exist
+    /// let result = generator.generate();
+    /// assert!(result.is_err());
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn generate(&mut self) -> Result<PathBuf> {
         let input = fs::read_to_string(&self.ctx.template_path)?;
         let mut tmpl = Template::parse(&input)?;

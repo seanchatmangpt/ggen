@@ -1,3 +1,58 @@
+//! Extended registry trait with additional functionality
+//!
+//! This module provides the `RegistryExt` trait which extends the base `Registry`
+//! trait with additional convenience methods for pagination, statistics, dependencies,
+//! updates, and trending packages.
+//!
+//! ## Features
+//!
+//! - **Pagination**: Search with pagination support
+//! - **Statistics**: Get and update package statistics
+//! - **Dependencies**: Recursive dependency resolution
+//! - **Updates**: Check for package updates
+//! - **Trending**: Get trending and recently updated packages
+//!
+//! ## Examples
+//!
+//! ### Paginated Search
+//!
+//! ```rust,no_run
+//! use ggen_marketplace::traits::registry::RegistryExt;
+//! use ggen_marketplace::models::Query;
+//!
+//! # async fn example() -> anyhow::Result<()> {
+//! let registry: Box<dyn RegistryExt> = /* ... */;
+//! let query = Query::new("rust");
+//!
+//! let results = registry.search_paginated(&query, 1, 20).await?;
+//! println!("Found {} packages (page {} of {})",
+//!     results.total_count, results.page, results.total_pages);
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Checking for Updates
+//!
+//! ```rust,no_run
+//! use ggen_marketplace::traits::registry::RegistryExt;
+//!
+//! # async fn example() -> anyhow::Result<()> {
+//! let registry: Box<dyn RegistryExt> = /* ... */;
+//! let packages = vec!["io.ggen.rust.cli".to_string()];
+//!
+//! let updates = registry.check_updates(&packages).await?;
+//! for update in updates {
+//!     if update.update_available {
+//!         println!("{}: {} -> {}",
+//!             update.package_id,
+//!             update.current_version,
+//!             update.latest_version);
+//!     }
+//! }
+//! # Ok(())
+//! # }
+//! ```
+
 use crate::error::Result;
 use crate::models::{Package, PackageId, Query};
 use async_trait::async_trait;

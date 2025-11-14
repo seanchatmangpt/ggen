@@ -2,6 +2,55 @@
 //!
 //! This module provides validation rules for template metadata using SHACL shapes.
 //! It ensures templates have required fields, valid relationships, and consistent structure.
+//!
+//! ## Features
+//!
+//! - **SHACL-based validation**: Uses W3C SHACL standard for validation rules
+//! - **Template metadata validation**: Validates template structure and relationships
+//! - **Rich error reporting**: Detailed validation errors with context
+//! - **Extensible rules**: Easy to add new validation rules
+//!
+//! ## Examples
+//!
+//! ### Validating Template Metadata
+//!
+//! ```rust,no_run
+//! use ggen_core::rdf::validation::Validator;
+//! use ggen_core::rdf::template_metadata::TemplateMetadata;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let validator = Validator::new();
+//! let metadata = TemplateMetadata::default();
+//!
+//! let report = validator.validate(&metadata)?;
+//! if report.is_valid() {
+//!     println!("Template metadata is valid");
+//! } else {
+//!     for error in &report.errors {
+//!         println!("Validation error: {}", error.message);
+//!     }
+//! }
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Getting Validation Report
+//!
+//! ```rust,no_run
+//! use ggen_core::rdf::validation::Validator;
+//! use ggen_core::rdf::template_metadata::TemplateMetadata;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let validator = Validator::new();
+//! let metadata = TemplateMetadata::default();
+//!
+//! let report = validator.validate(&metadata)?;
+//! println!("Validation report: {} errors, {} warnings",
+//!          report.errors.len(), report.warnings.len());
+//! println!("Total issues: {}", report.total_issues());
+//! # Ok(())
+//! # }
+//! ```
 
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};

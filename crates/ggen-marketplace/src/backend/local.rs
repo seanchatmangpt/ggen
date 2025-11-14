@@ -1,3 +1,37 @@
+//! Local filesystem-based registry implementation
+//!
+//! This module provides a local registry implementation that stores package metadata
+//! in a JSON index file on the filesystem. It's designed for offline-first operation
+//! and can be used as a cache or standalone registry.
+//!
+//! ## Features
+//!
+//! - **Offline Support**: Works without network connectivity
+//! - **JSON Storage**: Human-readable package index format
+//! - **Thread-Safe**: Concurrent read/write operations with RwLock
+//! - **Atomic Updates**: Safe concurrent access patterns
+//! - **Version Management**: Track multiple versions per package
+//!
+//! ## Storage Format
+//!
+//! Packages are stored in `{db_path}/index.json` with package metadata organized
+//! by package ID. Each package can have multiple versions.
+//!
+//! ## Examples
+//!
+//! ### Creating a Local Registry
+//!
+//! ```rust,no_run
+//! use ggen_marketplace::backend::LocalRegistry;
+//! use std::path::PathBuf;
+//!
+//! # async fn example() -> anyhow::Result<()> {
+//! let registry = LocalRegistry::new(PathBuf::from("~/.ggen/registry")).await?;
+//! let packages = registry.list_packages().await?;
+//! # Ok(())
+//! # }
+//! ```
+
 #![allow(clippy::unwrap_used)] // Test code uses unwrap
 use crate::error::{MarketplaceError, Result};
 use crate::models::{Package, PackageId, Query, RegistryMetadata};

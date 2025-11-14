@@ -1,4 +1,33 @@
-// Helper methods for TemplateMetadataStore
+//! Helper methods for TemplateMetadataStore
+//!
+//! This module provides helper methods for querying and managing template metadata
+//! stored in RDF format. It extends the `TemplateMetadataStore` with convenience
+//! methods for querying full metadata, relationships, and variables.
+//!
+//! ## Features
+//!
+//! - **Full Metadata Queries**: Query complete template metadata in a single operation
+//! - **Relationship Discovery**: Find related templates and dependencies
+//! - **Variable Extraction**: Extract template variables from RDF metadata
+//! - **SPARQL Integration**: Uses SPARQL queries to extract structured metadata
+//!
+//! ## Examples
+//!
+//! ### Querying Full Metadata
+//!
+//! ```rust,no_run
+//! use ggen_core::rdf::TemplateMetadataStore;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let store = TemplateMetadataStore::new()?;
+//! let metadata = store.query_full_metadata("http://example.org/template1")?;
+//!
+//! println!("Template: {}", metadata.name);
+//! println!("Version: {:?}", metadata.version);
+//! # Ok(())
+//! # }
+//! ```
+
 use super::template_metadata::{TemplateMetadata, TemplateMetadataStore};
 use anyhow::Result;
 

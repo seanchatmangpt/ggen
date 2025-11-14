@@ -68,13 +68,15 @@ Be respectful, inclusive, and considerate. We're all here to build something gre
 
 **Code Documentation**: All public APIs must have doc comments. Use `///` for documentation. Include arguments, returns, errors, examples. Examples should compile and run.
 
+**Module Documentation**: All public modules must have module-level documentation using `//!` comments. Top-level crates (`lib.rs`) should use `#` heading format. See [Documentation Standards](docs/DOCUMENTATION_STANDARDS.md) for complete guidelines.
+
 **README and Guides**: Keep README.md concise and focused on quick start. Put detailed guides in `docs/`. Include examples in `examples/`. Update CHANGELOG.md for user-facing changes.
 
-**Documentation Standards**: All public APIs must have doc comments. Examples should compile and run. Update docs when changing APIs. Add inline comments for complex logic.
+**Documentation Standards**: All public APIs must have doc comments. Examples should compile and run. Update docs when changing APIs. Add inline comments for complex logic. See [Documentation Standards](docs/DOCUMENTATION_STANDARDS.md) for detailed formatting guidelines.
 
 ## Getting Help
 
-**Stuck?**: Check documentation ([Main README](README.md), [Full Docs](https://seanchatmangpt.github.io/ggen/), [Architecture Overview](CLAUDE.md)) → Search issues ([Open Issues](https://github.com/seanchatmangpt/ggen/issues), [Closed Issues](https://github.com/seanchatmangpt/ggen/issues?q=is%3Aissue+is%3Aclosed)) → Ask questions ([Create a Discussion](https://github.com/seanchatmangpt/ggen/discussions)) → Report bugs ([Create an Issue](https://github.com/seanchatmangpt/ggen/issues/new), include: ggen version, OS, error message, steps to reproduce)
+**Stuck?**: Check documentation ([Main README](README.md), [Full Docs](https://seanchatmangpt.github.io/ggen/), [Architecture Overview](docs/CLAUDE.md)) → Search issues ([Open Issues](https://github.com/seanchatmangpt/ggen/issues), [Closed Issues](https://github.com/seanchatmangpt/ggen/issues?q=is%3Aissue+is%3Aclosed)) → Ask questions ([Create a Discussion](https://github.com/seanchatmangpt/ggen/discussions)) → Report bugs ([Create an Issue](https://github.com/seanchatmangpt/ggen/issues/new), include: ggen version, OS, error message, steps to reproduce)
 
 ## Project-Specific Guidelines
 
@@ -98,7 +100,7 @@ Contributors are automatically added to: [README Contributors Section](README.md
 
 2. **Release Steps**: Update version in Cargo.toml → Update CHANGELOG.md → Run `cargo make release-validate` → Create release commit (`git commit -am "chore: release v2.x.x"`) → Tag release (`git tag -a v2.x.x -m "Release v2.x.x"`) → Push (`git push origin master --tags`) → Publish to crates.io (`cargo publish`)
 
-**Quick Reference**: See `RELEASE_v2.6.0_CHECKLIST.md` for complete release checklist with FMEA-based validation.
+**Quick Reference**: See `docs/releases/RELEASE_v2.6.0_CHECKLIST.md` for complete release checklist with FMEA-based validation.
 
 ## Questions?
 

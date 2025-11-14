@@ -424,7 +424,12 @@ mod tests {
         alert_warning!("Test warning", "Test fix");
 
         // Test warning alert with fix and actions
-        alert_warning!("Test warning", "Test fix", "Action 1", "Action 2");
+        alert_warning!(
+            "Test warning: {} - Actions: {}, {}",
+            "Test fix",
+            "Action 1",
+            "Action 2"
+        );
     }
 
     #[test]
@@ -433,7 +438,7 @@ mod tests {
         alert_info!("Test info");
 
         // Test info alert with details
-        alert_info!("Test info", "Detail 1", "Detail 2");
+        alert_info!("Test info: {}, {}", "Detail 1", "Detail 2");
     }
 
     #[test]
@@ -442,7 +447,7 @@ mod tests {
         alert_success!("Test success");
 
         // Test success alert with details
-        alert_success!("Test success", "Detail 1", "Detail 2");
+        alert_success!("Test success: {}, {}", "Detail 1", "Detail 2");
     }
 
     #[test]

@@ -1,9 +1,67 @@
 //! Three-way merge for delta-driven projection
 //!
-//! This module provides functionality to:
-//! - Merge generated code with manual edits
-//! - Preserve manual customizations during regeneration
-//! - Handle conflicts between generated and manual content
+//! This module provides functionality to merge generated code with manual edits,
+//! preserving user customizations during regeneration. It implements a three-way
+//! merge algorithm that uses baselines to intelligently combine generated and
+//! manual content.
+//!
+//! ## Features
+//!
+//! - **Three-Way Merge**: Merge generated, manual, and baseline content
+//! - **Region-Aware**: Preserve manual regions while updating generated regions
+//! - **Conflict Detection**: Identify and report merge conflicts
+//! - **Merge Strategies**: Configurable merge strategies (prefer-generated, prefer-manual, etc.)
+//! - **Conflict Resolution**: Tools for resolving merge conflicts
+//!
+//! ## Merge Process
+//!
+//! 1. **Identify Regions**: Separate generated and manual regions in files
+//! 2. **Compare Changes**: Compare generated and manual changes from baseline
+//! 3. **Apply Strategy**: Apply merge strategy to combine changes
+//! 4. **Detect Conflicts**: Identify conflicts where both sides changed the same region
+//! 5. **Report Results**: Return merge result with conflicts if any
+//!
+//! ## Examples
+//!
+//! ### Performing a Three-Way Merge
+//!
+//! ```rust,no_run
+//! use ggen_core::merge::{ThreeWayMerger, MergeStrategy};
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let merger = ThreeWayMerger::new(MergeStrategy::PreferGenerated);
+//!
+//! let result = merger.merge(
+//!     "baseline content",
+//!     "new generated content",
+//!     "manual edits"
+//! )?;
+//!
+//! if result.has_conflicts() {
+//!     println!("Conflicts detected: {:?}", result.conflicts);
+//! } else {
+//!     println!("Merged content: {}", result.merged_content);
+//! }
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Region-Aware Merging
+//!
+//! ```rust,no_run
+//! use ggen_core::merge::RegionAwareMerger;
+//! use ggen_core::snapshot::{FileSnapshot, Region, RegionType};
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let baseline = FileSnapshot::new(PathBuf::from("file.rs"), "baseline".to_string())?;
+//! let generated = "new generated";
+//! let manual = "manual edits";
+//!
+//! let merger = RegionAwareMerger::new();
+//! let result = merger.merge_regions(&baseline, generated, manual)?;
+//! # Ok(())
+//! # }
+//! ```
 
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
@@ -13,6 +71,30 @@ use std::path::{Path, PathBuf};
 use crate::snapshot::{FileSnapshot, Region, RegionType};
 
 /// Represents a merge conflict between generated and manual content
+///
+/// A `MergeConflict` describes a situation where both generated and manual
+/// content have changed the same region, making automatic merging impossible.
+///
+/// # Examples
+///
+/// ```rust,no_run
+/// use ggen_core::merge::{MergeConflict, ConflictType};
+/// use std::path::PathBuf;
+///
+/// # fn main() -> anyhow::Result<()> {
+/// let conflict = MergeConflict::new(
+///     PathBuf::from("file.rs"),
+///     ConflictType::OverlappingEdit,
+///     "Both generated and manual edits changed the same function".to_string(),
+///     "fn generated() {}".to_string(),
+///     "fn manual() {}".to_string(),
+///     "fn original() {}".to_string(),
+/// );
+///
+/// println!("Conflict in {:?}: {}", conflict.file_path, conflict.description);
+/// # Ok(())
+/// # }
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MergeConflict {
     /// Path to the file with conflict
@@ -47,6 +129,20 @@ impl MergeConflict {
 }
 
 /// Types of merge conflicts
+///
+/// Describes the nature of a merge conflict to help with resolution.
+///
+/// # Examples
+///
+/// ```rust,no_run
+/// use ggen_core::merge::ConflictType;
+///
+/// # fn main() -> anyhow::Result<()> {
+/// let conflict_type = ConflictType::OverlappingEdit;
+/// println!("Conflict type: {}", conflict_type);
+/// # Ok(())
+/// # }
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum ConflictType {
     /// Manual edit overlaps with generated content
@@ -68,6 +164,35 @@ impl fmt::Display for ConflictType {
 }
 
 /// Result of a three-way merge operation
+///
+/// Contains the merged content, any conflicts that were detected, and the
+/// strategy used for resolution.
+///
+/// # Examples
+///
+/// ```rust,no_run
+/// use ggen_core::merge::{MergeResult, MergeStrategy};
+///
+/// # fn main() -> anyhow::Result<()> {
+/// // Successful merge
+/// let result = MergeResult::success(
+///     "merged content".to_string(),
+///     MergeStrategy::GeneratedWins
+/// );
+///
+/// assert!(!result.has_conflicts);
+/// assert_eq!(result.content, "merged content");
+///
+/// // Merge with conflicts
+/// let result_with_conflicts = MergeResult::with_conflicts(
+///     "partial merge".to_string(),
+///     vec![],
+///     MergeStrategy::GeneratedWins
+/// );
+/// assert!(result_with_conflicts.has_conflicts);
+/// # Ok(())
+/// # }
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MergeResult {
     /// Merged content
@@ -82,6 +207,30 @@ pub struct MergeResult {
 
 impl MergeResult {
     /// Create a successful merge result
+    ///
+    /// Creates a merge result indicating successful merging with no conflicts.
+    ///
+    /// # Arguments
+    ///
+    /// * `content` - The merged content
+    /// * `strategy` - The merge strategy that was used
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::merge::{MergeResult, MergeStrategy};
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let result = MergeResult::success(
+    ///     "merged file content".to_string(),
+    ///     MergeStrategy::GeneratedWins
+    /// );
+    ///
+    /// assert!(!result.has_conflicts);
+    /// assert_eq!(result.content, "merged file content");
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn success(content: String, strategy: MergeStrategy) -> Self {
         Self {
             content,
@@ -105,6 +254,27 @@ impl MergeResult {
 }
 
 /// Strategy for resolving merge conflicts
+///
+/// Defines how conflicts should be resolved when both generated and manual
+/// content have changed.
+///
+/// # Examples
+///
+/// ```rust,no_run
+/// use ggen_core::merge::{ThreeWayMerger, MergeStrategy};
+///
+/// # fn main() -> anyhow::Result<()> {
+/// // Prefer generated content
+/// let merger = ThreeWayMerger::new(MergeStrategy::GeneratedWins);
+///
+/// // Prefer manual edits
+/// let merger = ThreeWayMerger::new(MergeStrategy::ManualWins);
+///
+/// // Fail on conflicts
+/// let merger = ThreeWayMerger::new(MergeStrategy::FailOnConflict);
+/// # Ok(())
+/// # }
+/// ```
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum MergeStrategy {
     /// Automatically resolve using generated content (overwrite manual)
@@ -129,6 +299,34 @@ impl fmt::Display for MergeStrategy {
 }
 
 /// Three-way merger for files with mixed generated and manual content
+///
+/// Performs three-way merges using a baseline, new generated content, and
+/// manual edits. Uses the configured merge strategy to resolve conflicts.
+///
+/// # Examples
+///
+/// ```rust,no_run
+/// use ggen_core::merge::{ThreeWayMerger, MergeStrategy};
+/// use std::path::Path;
+///
+/// # fn main() -> anyhow::Result<()> {
+/// let merger = ThreeWayMerger::new(MergeStrategy::GeneratedWins);
+///
+/// let result = merger.merge(
+///     "baseline content",
+///     "new generated content",
+///     "manual edits",
+///     Path::new("file.rs")
+/// )?;
+///
+/// if result.has_conflicts {
+///     println!("Conflicts: {:?}", result.conflicts);
+/// } else {
+///     println!("Merged: {}", result.content);
+/// }
+/// # Ok(())
+/// # }
+/// ```
 pub struct ThreeWayMerger {
     /// Strategy for resolving conflicts
     strategy: MergeStrategy,
@@ -136,11 +334,67 @@ pub struct ThreeWayMerger {
 
 impl ThreeWayMerger {
     /// Create a new three-way merger with specified strategy
+    ///
+    /// Creates a merger with the specified conflict resolution strategy.
+    ///
+    /// # Arguments
+    ///
+    /// * `strategy` - Strategy to use when conflicts are detected
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::merge::{ThreeWayMerger, MergeStrategy};
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let merger = ThreeWayMerger::new(MergeStrategy::GeneratedWins);
+    /// // Use merger to merge content
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn new(strategy: MergeStrategy) -> Self {
         Self { strategy }
     }
 
     /// Merge three versions of a file
+    ///
+    /// Merges three versions of content: baseline (original), generated (new
+    /// generated content), and manual (user edits). Returns merged content
+    /// and any conflicts detected.
+    ///
+    /// # Arguments
+    ///
+    /// * `baseline` - Original content from snapshot
+    /// * `generated` - New generated content
+    /// * `manual` - User's manual edits
+    /// * `file_path` - Path to the file being merged
+    ///
+    /// # Returns
+    ///
+    /// A `MergeResult` containing the merged content and any conflicts.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::merge::{ThreeWayMerger, MergeStrategy};
+    /// use std::path::Path;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let merger = ThreeWayMerger::new(MergeStrategy::GeneratedWins);
+    ///
+    /// let result = merger.merge(
+    ///     "original function",
+    ///     "new generated function",
+    ///     "manual function edit",
+    ///     Path::new("file.rs")
+    /// )?;
+    ///
+    /// if !result.has_conflicts {
+    ///     println!("Successfully merged: {}", result.content);
+    /// }
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn merge(
         &self, baseline: &str, generated: &str, manual: &str, file_path: &Path,
     ) -> Result<MergeResult> {
@@ -202,6 +456,34 @@ impl ThreeWayMerger {
 }
 
 /// Advanced merger that understands generated vs manual regions
+///
+/// A specialized merger that understands file regions (generated vs manual)
+/// and preserves manual regions while updating generated regions.
+///
+/// # Examples
+///
+/// ```rust,no_run
+/// use ggen_core::merge::{RegionAwareMerger, MergeStrategy};
+/// use ggen_core::snapshot::FileSnapshot;
+/// use std::path::PathBuf;
+///
+/// # fn main() -> anyhow::Result<()> {
+/// let merger = RegionAwareMerger::new(MergeStrategy::ManualWins);
+/// let baseline = FileSnapshot::new(
+///     PathBuf::from("file.rs"),
+///     "baseline content".to_string()
+/// )?;
+///
+/// let result = merger.merge_with_regions(
+///     "baseline content",
+///     "new generated content",
+///     "manual edits",
+///     &baseline,
+///     std::path::Path::new("file.rs")
+/// )?;
+/// # Ok(())
+/// # }
+/// ```
 pub struct RegionAwareMerger {
     /// Strategy for conflict resolution
     strategy: MergeStrategy,

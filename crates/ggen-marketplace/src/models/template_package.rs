@@ -1,3 +1,51 @@
+//! Template package models for marketplace
+//!
+//! This module provides data structures for representing template packages in the
+//! marketplace. Template packages contain one or more template files along with
+//! metadata about variables, dependencies, examples, and supported frameworks.
+//!
+//! ## Types
+//!
+//! - **TemplatePackage**: Complete template package metadata
+//! - **TemplateInfo**: Information about individual template files
+//! - **TemplateType**: Type of template (FileTree, SingleFile, Bundle)
+//! - **TemplateVariable**: Variable definition with validation
+//! - **TemplateExample**: Example usage of the template
+//!
+//! ## Examples
+//!
+//! ### Creating a Template Package
+//!
+//! ```rust,no_run
+//! use ggen_marketplace::models::template_package::TemplatePackage;
+//!
+//! let package = TemplatePackage::new(
+//!     "io.ggen.rust.api".to_string(),
+//!     "web-service".to_string()
+//! );
+//! ```
+//!
+//! ### Adding Template Variables
+//!
+//! ```rust,no_run
+//! use ggen_marketplace::models::template_package::{TemplatePackage, TemplateVariable};
+//!
+//! # fn example() {
+//! let mut package = TemplatePackage::new(
+//!     "io.ggen.rust.api".to_string(),
+//!     "web-service".to_string()
+//! );
+//!
+//! package.add_variable(TemplateVariable {
+//!     name: "service_name".to_string(),
+//!     description: "Name of the service".to_string(),
+//!     default: Some("MyService".to_string()),
+//!     required: true,
+//!     pattern: Some(r"^[a-zA-Z][a-zA-Z0-9_]*$".to_string()),
+//! });
+//! # }
+//! ```
+
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 

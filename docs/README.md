@@ -94,6 +94,31 @@ Found an error or want to improve the documentation? Contributions are welcome!
 2. Create a new issue or pull request
 3. Follow the [Diataxis Guide](DATAXIS_GUIDE.md) for documentation structure
 
+## Additional Documentation
+
+### Development Tools
+- **[Cargo Make Guide](MAKEFILE.md)** - Complete guide to `cargo make` tasks and workflows
+- **[Claude Development Configuration](CLAUDE.md)** - Claude-specific development environment setup
+
+### Marketplace
+- **[Marketplace Production Guide](MARKETPLACE.md)** - Production deployment guide for the marketplace
+
+### Release Information
+- **[Release Documentation](releases/)** - Historical release checklists and commands
+  - [v2.6.0 Release Checklist](releases/RELEASE_v2.6.0_CHECKLIST.md)
+  - [v2.6.0 Release Status](releases/RELEASE_v2.6.0_STATUS.md)
+  - [v2.5.1 Release Checklist](releases/RELEASE_v2.5.1_CHECKLIST.md)
+  - [v2.0.0 Release Commands](releases/RELEASE_v2.0.0_COMMANDS.md)
+
+### Advanced How-to Guides
+- **[Dogfooding Quick Start](how-to-guides/DOGFOODING_QUICKSTART.md)** - Using ggen to fix ggen's own problems
+
+## Documentation Tools
+
+For information about tools to compile this documentation into a website:
+- **[Documentation Tools Survey](DOCUMENTATION_TOOLS_SURVEY.md)** - Complete survey of all options
+- **[Core Team Recommendation](CORE_TEAM_RECOMMENDATION.md)** - What the core team would choose (mdBook + rustdoc + GitHub Pages)
+
 ## See Also
 
 - **[Main README](../README.md)** - Project overview

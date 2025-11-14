@@ -1,5 +1,64 @@
-// Next.js Project Generator
-// Generates Next.js and Nuxt.js projects
+//! Next.js and Nuxt.js project generator
+//!
+//! This module generates JavaScript/TypeScript projects for Next.js and Nuxt.js
+//! frameworks. It creates the complete project structure including package.json,
+//! configuration files, and initial page components.
+//!
+//! ## Supported Project Types
+//!
+//! - **NextJs**: React-based framework with server-side rendering
+//! - **Nuxt**: Vue.js-based framework with server-side rendering
+//!
+//! ## Features
+//!
+//! - **TypeScript support**: Full TypeScript configuration
+//! - **ESLint integration**: Pre-configured ESLint rules
+//! - **Modern tooling**: Latest versions of frameworks and dependencies
+//! - **Development setup**: Ready-to-run development scripts
+//!
+//! ## Examples
+//!
+//! ### Generating a Next.js Project
+//!
+//! ```rust,no_run
+//! use ggen_core::project_generator::{ProjectConfig, ProjectType};
+//! use ggen_core::project_generator::nextjs::NextJsGenerator;
+//! use std::path::PathBuf;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let config = ProjectConfig {
+//!     name: "my-app".to_string(),
+//!     project_type: ProjectType::NextJs,
+//!     framework: None,
+//!     path: PathBuf::from("."),
+//! };
+//!
+//! let generator = NextJsGenerator::new();
+//! let structure = generator.generate(&config)?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Generating a Nuxt Project
+//!
+//! ```rust,no_run
+//! use ggen_core::project_generator::{ProjectConfig, ProjectType};
+//! use ggen_core::project_generator::nextjs::NextJsGenerator;
+//! use std::path::PathBuf;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let config = ProjectConfig {
+//!     name: "my-nuxt-app".to_string(),
+//!     project_type: ProjectType::Nuxt,
+//!     framework: None,
+//!     path: PathBuf::from("."),
+//! };
+//!
+//! let generator = NextJsGenerator::new();
+//! let structure = generator.generate(&config)?;
+//! # Ok(())
+//! # }
+//! ```
 
 use super::{ProjectConfig, ProjectGenerator, ProjectStructure, ProjectType};
 use anyhow::Result;

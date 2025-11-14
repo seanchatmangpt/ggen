@@ -1,3 +1,39 @@
+//! Project initialization operations
+//!
+//! This module provides functionality for initializing new ggen projects and
+//! validating existing project structures.
+//!
+//! ## Features
+//!
+//! - **Project Initialization**: Create new project structure with directories
+//! - **Project Validation**: Check if a path is a valid project
+//! - **Directory Creation**: Set up standard project directories (src, tests)
+//!
+//! ## Examples
+//!
+//! ### Initializing a New Project
+//!
+//! ```rust,no_run
+//! use ggen_domain::project::init::init_project;
+//! use std::path::Path;
+//!
+//! # async fn example() -> anyhow::Result<()> {
+//! init_project(Path::new("my-new-project"), "my-new-project").await?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Validating a Project
+//!
+//! ```rust,no_run
+//! use ggen_domain::project::init::is_project;
+//! use std::path::Path;
+//!
+//! if is_project(Path::new("my-project")) {
+//!     println!("Valid project!");
+//! }
+//! ```
+
 use anyhow::Result;
 use std::path::Path;
 

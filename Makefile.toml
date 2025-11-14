@@ -734,11 +734,17 @@ args = [
 
 # mdbook documentation tasks (workspace-level only)
 
+[tasks.docs-api]
+description = "Build API documentation with rustdoc"
+workspace = false
+command = "timeout"
+args = ["10s", "cargo", "doc", "--no-deps", "--open"]
+
 [tasks.docs-build]
 description = "Build documentation with mdbook"
 workspace = false
-command = "mdbook"
-args = ["build", "docs"]
+command = "timeout"
+args = ["30s", "mdbook", "build", "docs"]
 
 [tasks.docs-serve]
 description = "Serve documentation locally with mdbook"
@@ -756,14 +762,19 @@ args = ["watch", "docs"]
 description = "Clean built documentation"
 workspace = false
 command = "rm"
-args = ["-rf", "docs/book"]
+args = ["-rf", "docs/book", "target/doc"]
 
 [tasks.docs-test]
 description = "Test documentation build"
 workspace = false
 dependencies = ["docs-build"]
 command = "echo"
-args = ["Documentation built successfully"]
+args = ["✅ Documentation built successfully"]
+
+[tasks.docs]
+description = "Build all documentation (API + guides)"
+workspace = false
+dependencies = ["docs-api", "docs-build"]
 
 [tasks.docs-validate]
 description = "Validate documentation structure and links"

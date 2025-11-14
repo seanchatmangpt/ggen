@@ -1,10 +1,48 @@
-/// Custom scoring algorithms for search results
-///
-/// Combines:
-/// - TF-IDF relevance
-/// - Popularity (downloads)
-/// - Quality (rating)
-/// - Recency (updated_at)
+//! Custom scoring algorithms for search results
+//!
+//! This module provides customizable scoring algorithms for ranking search results
+//! in the marketplace. It combines multiple factors including relevance, popularity,
+//! quality metrics, and recency to produce a final score for each package.
+//!
+//! ## Scoring Factors
+//!
+//! The `CustomScorer` combines four weighted factors:
+//! - **Relevance**: TF-IDF based text relevance score (default: 50%)
+//! - **Popularity**: Download count on logarithmic scale (default: 20%)
+//! - **Quality**: User rating normalized to 0-1 (default: 20%)
+//! - **Recency**: Time since last update with 1-year decay (default: 10%)
+//!
+//! ## Examples
+//!
+//! ### Using Default Scorer
+//!
+//! ```rust,no_run
+//! use ggen_marketplace::search::scoring::CustomScorer;
+//! use ggen_marketplace::types::Package;
+//!
+//! # fn example() {
+//! let scorer = CustomScorer::default();
+//! let package = /* ... get package ... */;
+//! let base_relevance = 0.8; // From search engine
+//!
+//! let final_score = scorer.score(&package, base_relevance);
+//! # }
+//! ```
+//!
+//! ### Custom Weight Configuration
+//!
+//! ```rust,no_run
+//! use ggen_marketplace::search::scoring::CustomScorer;
+//!
+//! // Emphasize quality over popularity
+//! let scorer = CustomScorer::new(
+//!     0.4,  // relevance: 40%
+//!     0.1,  // popularity: 10%
+//!     0.4,  // quality: 40%
+//!     0.1,  // recency: 10%
+//! );
+//! ```
+
 use crate::types::Package;
 
 pub struct CustomScorer {

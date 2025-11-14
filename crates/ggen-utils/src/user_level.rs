@@ -1,4 +1,39 @@
 //! User experience level tracking for progressive help
+//!
+//! This module provides functionality to track user experience levels based on
+//! command usage history. It enables progressive disclosure of features and
+//! context-aware help messages tailored to the user's experience level.
+//!
+//! ## User Levels
+//!
+//! - **Newcomer**: 0-5 commands run - Focus on getting started
+//! - **Intermediate**: 6-20 commands run - Common workflows
+//! - **Advanced**: 21-50 commands run - Advanced features
+//! - **Expert**: 50+ commands run - Power user tips
+//!
+//! ## Features
+//!
+//! - **Usage Tracking**: Track command execution counts
+//! - **Level Detection**: Automatically determine user level from usage
+//! - **Progressive Help**: Provide level-appropriate help text
+//! - **Persistent Storage**: Save usage data to disk
+//!
+//! ## Examples
+//!
+//! ### Tracking User Activity
+//!
+//! ```rust,no_run
+//! use ggen_utils::user_level::{UserActivity, UserLevel};
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let mut activity = UserActivity::load_or_create()?;
+//! activity.record_command("template generate");
+//!
+//! let level = UserLevel::from_usage_count(activity.total_commands);
+//! println!("User level: {:?}", level);
+//! # Ok(())
+//! # }
+//! ```
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;

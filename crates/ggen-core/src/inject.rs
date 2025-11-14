@@ -1,3 +1,60 @@
+//! File injection utilities for template generation
+//!
+//! This module provides utilities for injecting generated content into existing files.
+//! It handles end-of-line (EOL) normalization and provides skip-if pattern generation
+//! for idempotent file injection.
+//!
+//! ## Features
+//!
+//! - **EOL Detection**: Automatically detect and preserve file line endings
+//! - **EOL Normalization**: Normalize content to match target file's EOL style
+//! - **Skip-if Patterns**: Generate regex patterns to detect existing content
+//! - **Idempotent Injection**: Prevent duplicate content injection
+//!
+//! ## Examples
+//!
+//! ### Detecting EOL Style
+//!
+//! ```rust,no_run
+//! use ggen_core::inject::EolNormalizer;
+//! use std::path::Path;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let eol = EolNormalizer::detect_eol(Path::new("file.txt"))?;
+//! println!("File uses EOL: {:?}", eol);
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Normalizing Content to Match File
+//!
+//! ```rust,no_run
+//! use ggen_core::inject::EolNormalizer;
+//! use std::path::Path;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let content = "line1\nline2\n";
+//! let normalized = EolNormalizer::normalize_to_match_file(
+//!     content,
+//!     Path::new("target.txt")
+//! )?;
+//! // Content now matches target file's EOL style
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Generating Skip-if Patterns
+//!
+//! ```rust
+//! use ggen_core::inject::SkipIfGenerator;
+//!
+//! # fn main() {
+//! let content = "function hello() { return 'world'; }";
+//! let pattern = SkipIfGenerator::generate_exact_match(content);
+//! // Pattern can be used to check if content already exists
+//! # }
+//! ```
+
 use anyhow::Result;
 use std::fs;
 use std::path::Path;
@@ -10,6 +67,19 @@ impl EolNormalizer {
     ///
     /// Returns the EOL string used in the file, or the platform default
     /// if no EOL is detected or the file is empty.
+    ///
+    /// # Example
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::inject::EolNormalizer;
+    /// use std::path::Path;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let eol = EolNormalizer::detect_eol(Path::new("file.txt"))?;
+    /// println!("File uses EOL: {:?}", eol);
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn detect_eol(file_path: &Path) -> Result<String> {
         if !file_path.exists() {
             return Ok(Self::platform_default());
@@ -61,6 +131,23 @@ impl EolNormalizer {
     }
 
     /// Normalize content to match the EOL of a target file.
+    ///
+    /// # Example
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::inject::EolNormalizer;
+    /// use std::path::Path;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let content = "line1\nline2\n";
+    /// let normalized = EolNormalizer::normalize_to_match_file(
+    ///     content,
+    ///     Path::new("target.txt")
+    /// )?;
+    /// // Content now matches target file's EOL style
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn normalize_to_match_file(content: &str, target_file: &Path) -> Result<String> {
         let target_eol = Self::detect_eol(target_file)?;
         Ok(Self::normalize_to_eol(content, &target_eol))

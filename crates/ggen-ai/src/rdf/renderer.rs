@@ -267,8 +267,6 @@ mod tests {
                     }],
                     validations: vec![],
                     execution_logic: None,
-                    domain_function: None,
-                    domain_module: None,
                 }],
             }],
             dependencies: vec![Dependency {

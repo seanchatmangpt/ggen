@@ -1,6 +1,72 @@
 //! File tree generation from templates
 //!
-//! Generates actual file trees from parsed templates with variable substitution.
+//! This module generates actual file trees from parsed templates with variable substitution.
+//! It takes a `FileTreeTemplate` and a `TemplateContext`, then creates directories and
+//! files in the specified output directory.
+//!
+//! ## Features
+//!
+//! - **Variable Substitution**: Renders template variables in file names and content
+//! - **Directory Creation**: Automatically creates directory structure
+//! - **File Generation**: Generates files with rendered content
+//! - **Template Support**: Supports inline content and external template files
+//! - **Permission Handling**: Sets file permissions on Unix systems
+//! - **Validation**: Validates required variables before generation
+//! - **Default Values**: Applies default variable values when not provided
+//!
+//! ## Generation Process
+//!
+//! 1. **Validation**: Validates that all required variables are provided
+//! 2. **Defaults**: Applies default values for optional variables
+//! 3. **Node Processing**: Processes each node in the template tree
+//! 4. **Rendering**: Renders node names and content with variable substitution
+//! 5. **File System**: Creates directories and writes files
+//!
+//! ## Examples
+//!
+//! ### Generating a Simple File Tree
+//!
+//! ```rust,no_run
+//! use ggen_core::templates::{FileTreeTemplate, TemplateContext, generate_file_tree};
+//! use ggen_core::templates::format::{TemplateFormat, FileTreeNode, NodeType};
+//! use std::path::Path;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let mut format = TemplateFormat::new("my-template");
+//! format.add_node(FileTreeNode::directory("src"));
+//!
+//! let template = FileTreeTemplate::new(format);
+//! let context = TemplateContext::new();
+//!
+//! let result = generate_file_tree(template, context, Path::new("output"))?;
+//! println!("Generated {} files and {} directories",
+//!          result.files().len(), result.directories().len());
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Generating with Variables
+//!
+//! ```rust,no_run
+//! use ggen_core::templates::{FileTreeTemplate, TemplateContext, generate_file_tree};
+//! use ggen_core::templates::format::{TemplateFormat, FileTreeNode};
+//! use serde_json::json;
+//! use std::path::Path;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let mut format = TemplateFormat::new("service-template");
+//! format.add_variable("service_name");
+//! format.add_node(FileTreeNode::directory("{{ service_name }}"));
+//!
+//! let template = FileTreeTemplate::new(format);
+//! let mut context = TemplateContext::new();
+//! context.set("service_name", json!("my-service"))?;
+//!
+//! let result = generate_file_tree(template, context, Path::new("output"))?;
+//! // Creates output/my-service/ directory
+//! # Ok(())
+//! # }
+//! ```
 
 use anyhow::{Context, Result};
 use std::fs;
@@ -10,7 +76,29 @@ use super::context::TemplateContext;
 use super::file_tree_generator::FileTreeTemplate;
 use super::format::{FileTreeNode, NodeType};
 
-/// File tree generator
+/// File tree generator for creating directory structures from templates
+///
+/// Takes a `FileTreeTemplate` and a `TemplateContext`, then generates the
+/// corresponding file tree in the filesystem with variable substitution.
+///
+/// # Examples
+///
+/// ```rust,no_run
+/// use ggen_core::templates::generator::FileTreeGenerator;
+/// use ggen_core::templates::{FileTreeTemplate, TemplateContext};
+/// use ggen_core::templates::format::TemplateFormat;
+/// use std::path::Path;
+///
+/// # fn main() -> anyhow::Result<()> {
+/// let format = TemplateFormat::new("my-template");
+/// let template = FileTreeTemplate::new(format);
+/// let context = TemplateContext::new();
+///
+/// let mut generator = FileTreeGenerator::new(template, context, Path::new("output"));
+/// let result = generator.generate()?;
+/// # Ok(())
+/// # }
+/// ```
 pub struct FileTreeGenerator {
     /// Template to generate from
     template: FileTreeTemplate,
@@ -24,6 +112,30 @@ pub struct FileTreeGenerator {
 
 impl FileTreeGenerator {
     /// Create a new file tree generator
+    ///
+    /// # Arguments
+    ///
+    /// * `template` - The file tree template to generate from
+    /// * `context` - Variable context for template rendering
+    /// * `base_dir` - Base directory where files will be generated
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::templates::generator::FileTreeGenerator;
+    /// use ggen_core::templates::{FileTreeTemplate, TemplateContext};
+    /// use ggen_core::templates::format::TemplateFormat;
+    /// use std::path::Path;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let format = TemplateFormat::new("my-template");
+    /// let template = FileTreeTemplate::new(format);
+    /// let context = TemplateContext::new();
+    ///
+    /// let generator = FileTreeGenerator::new(template, context, Path::new("output"));
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn new<P: AsRef<Path>>(
         template: FileTreeTemplate, context: TemplateContext, base_dir: P,
     ) -> Self {
@@ -34,7 +146,41 @@ impl FileTreeGenerator {
         }
     }
 
-    /// Generate the file tree
+    /// Generate the file tree from the template
+    ///
+    /// This method:
+    /// 1. Validates that all required variables are provided
+    /// 2. Applies default values for optional variables
+    /// 3. Processes each node in the template tree
+    /// 4. Creates directories and files with rendered content
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if:
+    /// - Required variables are missing
+    /// - Template rendering fails
+    /// - File system operations fail
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::templates::generator::FileTreeGenerator;
+    /// use ggen_core::templates::{FileTreeTemplate, TemplateContext};
+    /// use ggen_core::templates::format::{TemplateFormat, FileTreeNode};
+    /// use std::path::Path;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let mut format = TemplateFormat::new("my-template");
+    /// format.add_node(FileTreeNode::directory("src"));
+    /// let template = FileTreeTemplate::new(format);
+    /// let context = TemplateContext::new();
+    ///
+    /// let mut generator = FileTreeGenerator::new(template, context, Path::new("output"));
+    /// let result = generator.generate()?;
+    /// println!("Generated {} directories", result.directories().len());
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn generate(&mut self) -> Result<GenerationResult> {
         // Validate required variables
         self.context
@@ -165,6 +311,19 @@ impl FileTreeGenerator {
 }
 
 /// Result of file tree generation
+///
+/// Tracks all directories and files created during generation.
+/// Provides statistics about the generation process.
+///
+/// # Examples
+///
+/// ```rust,no_run
+/// use ggen_core::templates::generator::GenerationResult;
+///
+/// let mut result = GenerationResult::new();
+/// assert!(result.is_empty());
+/// assert_eq!(result.total_count(), 0);
+/// ```
 #[derive(Debug, Clone, Default)]
 pub struct GenerationResult {
     /// Generated directories
@@ -191,21 +350,68 @@ impl GenerationResult {
     }
 
     /// Get generated directories
+    ///
+    /// Returns a slice of all directory paths that were created during generation.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::templates::generator::GenerationResult;
+    ///
+    /// let result = GenerationResult::new();
+    /// let dirs = result.directories();
+    /// println!("Created {} directories", dirs.len());
+    /// ```
     pub fn directories(&self) -> &[PathBuf] {
         &self.directories
     }
 
     /// Get generated files
+    ///
+    /// Returns a slice of all file paths that were created during generation.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::templates::generator::GenerationResult;
+    ///
+    /// let result = GenerationResult::new();
+    /// let files = result.files();
+    /// println!("Created {} files", files.len());
+    /// ```
     pub fn files(&self) -> &[PathBuf] {
         &self.files
     }
 
     /// Get total count of generated items
+    ///
+    /// Returns the sum of directories and files created.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::templates::generator::GenerationResult;
+    ///
+    /// let result = GenerationResult::new();
+    /// let total = result.total_count();
+    /// println!("Generated {} items total", total);
+    /// ```
     pub fn total_count(&self) -> usize {
         self.directories.len() + self.files.len()
     }
 
-    /// Check if any files were generated
+    /// Check if any files or directories were generated
+    ///
+    /// Returns `true` if no directories or files were created.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::templates::generator::GenerationResult;
+    ///
+    /// let result = GenerationResult::new();
+    /// assert!(result.is_empty());
+    /// ```
     pub fn is_empty(&self) -> bool {
         self.directories.is_empty() && self.files.is_empty()
     }
@@ -213,13 +419,40 @@ impl GenerationResult {
 
 /// Generate a file tree from a template
 ///
+/// Convenience function that creates a `FileTreeGenerator` and generates
+/// the file tree in a single call.
+///
 /// # Arguments
+///
 /// * `template` - The template to generate from
 /// * `context` - Variable context for rendering
 /// * `output_dir` - Base directory for output
 ///
 /// # Returns
-/// Result containing generation statistics
+///
+/// A `GenerationResult` containing statistics about what was generated.
+///
+/// # Errors
+///
+/// Returns an error if generation fails (see `FileTreeGenerator::generate()`).
+///
+/// # Examples
+///
+/// ```rust,no_run
+/// use ggen_core::templates::{FileTreeTemplate, TemplateContext, generate_file_tree};
+/// use ggen_core::templates::format::TemplateFormat;
+/// use std::path::Path;
+///
+/// # fn main() -> anyhow::Result<()> {
+/// let format = TemplateFormat::new("my-template");
+/// let template = FileTreeTemplate::new(format);
+/// let context = TemplateContext::new();
+///
+/// let result = generate_file_tree(template, context, Path::new("output"))?;
+/// println!("Generated {} items", result.total_count());
+/// # Ok(())
+/// # }
+/// ```
 pub fn generate_file_tree<P: AsRef<Path>>(
     template: FileTreeTemplate, context: TemplateContext, output_dir: P,
 ) -> Result<GenerationResult> {

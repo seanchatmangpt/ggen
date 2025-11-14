@@ -1,7 +1,56 @@
-// LLM Response Caching with Moka
-//
-// Provides in-memory caching of LLM responses with TTL and size limits.
-// Reduces API costs by 30-60% for repeated prompts.
+//! LLM response caching with Moka
+//!
+//! This module provides in-memory caching of LLM responses using the Moka cache library.
+//! It reduces API costs by 30-60% for repeated prompts by caching responses with TTL
+//! and size limits.
+//!
+//! ## Features
+//!
+//! - **In-memory caching**: Fast access to cached responses
+//! - **TTL support**: Time-to-live for cache entries
+//! - **Size limits**: Maximum capacity to prevent memory issues
+//! - **Cache statistics**: Track hits and misses
+//! - **Content hashing**: SHA256-based cache keys for deterministic lookups
+//!
+//! ## Examples
+//!
+//! ### Creating a Cache
+//!
+//! ```rust,no_run
+//! use ggen_ai::cache::{LlmCache, CacheConfig};
+//! use std::time::Duration;
+//!
+//! # async fn example() -> anyhow::Result<()> {
+//! let config = CacheConfig {
+//!     max_capacity: 1000,
+//!     ttl: Duration::from_secs(3600),
+//!     tti: Some(Duration::from_secs(600)),
+//! };
+//! let cache = LlmCache::new(config);
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Caching and Retrieving Responses
+//!
+//! ```rust,no_run
+//! use ggen_ai::cache::LlmCache;
+//!
+//! # async fn example() -> anyhow::Result<()> {
+//! let cache = LlmCache::default();
+//!
+//! // Cache a response
+//! let prompt = "What is Rust?";
+//! let response = "Rust is a systems programming language...".to_string();
+//! cache.put(prompt, response.clone(), "gpt-4", Some(100)).await;
+//!
+//! // Retrieve from cache
+//! if let Some(cached) = cache.get(prompt).await {
+//!     println!("Cache hit! {}", cached.content);
+//! }
+//! # Ok(())
+//! # }
+//! ```
 
 use anyhow::Result;
 use moka::future::Cache;

@@ -1,3 +1,43 @@
+//! Package data models and types
+//!
+//! This module provides the core data structures for representing packages in the
+//! marketplace, including package identifiers, content addressing, validation states,
+//! and metadata.
+//!
+//! ## Key Types
+//!
+//! - **PackageId**: Unique identifier for packages (namespace/name format)
+//! - **ContentId**: Content-addressable identifier using hash algorithms
+//! - **Package**: Complete package metadata with validation states
+//! - **HashAlgorithm**: Supported hash algorithms (SHA-256, SHA-512, etc.)
+//!
+//! ## Examples
+//!
+//! ### Creating a Package ID
+//!
+//! ```rust
+//! use ggen_marketplace::models::PackageId;
+//!
+//! # fn main() {
+//! let package_id = PackageId::new("io.ggen", "rust-cli");
+//! assert_eq!(package_id.to_string(), "io.ggen/rust-cli");
+//! # }
+//! ```
+//!
+//! ### Creating a Content ID
+//!
+//! ```rust
+//! use ggen_marketplace::models::{ContentId, HashAlgorithm};
+//!
+//! # fn main() {
+//! let content_id = ContentId::new(
+//!     "abc123def456",
+//!     HashAlgorithm::Sha256
+//! );
+//! assert_eq!(content_id.to_string(), "sha256:abc123def456");
+//! # }
+//! ```
+
 use super::{Category, Dependency, Identity, PackageStats, Version};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;

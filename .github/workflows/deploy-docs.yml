@@ -5,6 +5,8 @@ on:
     branches: [ main ]
     paths:
       - 'docs/**'
+      - 'src/**'
+      - 'crates/**'
       - '.github/workflows/deploy-docs.yml'
   workflow_dispatch:
 
@@ -15,23 +17,35 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          components: rust-docs
+
       - name: Setup mdBook
         uses: peaceiris/actions-mdbook@v2
         with:
           mdbook-version: '0.4.40'
 
-      - name: Build mdbook
+      - name: Build API documentation
+        run: |
+          cargo doc --no-deps
+          echo "✅ API documentation built successfully"
+
+      - name: Build mdBook
         run: |
           cd docs
           mdbook build
           echo "✅ mdBook built successfully"
 
-      - name: Deploy to GitHub Pages (docs subdirectory)
+      - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs/book
-          destination_dir: docs
+          publish_dir: |
+            target/doc
+            docs/book
           publish_branch: gh-pages
           keep_files: false
           user_name: 'github-actions[bot]'
@@ -42,7 +56,7 @@ jobs:
         run: |
           echo "📚 Documentation deployed successfully!"
           echo ""
-          echo "📍 Docs URL: https://seanchatmangpt.github.io/ggen/docs/"
-          echo "📦 Marketplace URL: https://seanchatmangpt.github.io/ggen/marketplace/"
+          echo "📍 API Docs: https://seanchatmangpt.github.io/ggen/target/doc/"
+          echo "📍 Guides: https://seanchatmangpt.github.io/ggen/docs/book/"
           echo ""
           echo "✅ Deployment complete!"

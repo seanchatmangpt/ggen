@@ -1,4 +1,48 @@
 //! Enhanced error handling with contextual help and platform-specific fixes
+//!
+//! This module provides enhanced error types that include contextual help,
+//! platform-specific fix suggestions, and categorized error information.
+//! It extends the base error handling with actionable guidance for users.
+//!
+//! ## Features
+//!
+//! - **Error Categorization**: Group errors by type (FileNotFound, PermissionDenied, etc.)
+//! - **Platform-Specific Fixes**: Provide OS-specific solution suggestions
+//! - **Contextual Help**: Include relevant documentation links and examples
+//! - **Colorized Output**: Visual error formatting for better readability
+//!
+//! ## Error Categories
+//!
+//! - **FileNotFound**: File or directory not found
+//! - **PermissionDenied**: Insufficient permissions
+//! - **InvalidInput**: Invalid user input or configuration
+//! - **NetworkError**: Network-related failures
+//! - **ConfigurationError**: Configuration file issues
+//! - **TemplateError**: Template parsing or rendering errors
+//! - **DependencyError**: Missing or incompatible dependencies
+//! - **BuildError**: Build or compilation errors
+//!
+//! ## Examples
+//!
+//! ### Creating an Enhanced Error
+//!
+//! ```rust,no_run
+//! use ggen_utils::enhanced_error::{EnhancedError, ErrorCategory, PlatformFix};
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let fix = PlatformFix::new()
+//!     .macos("Check file permissions: chmod +x script.sh")
+//!     .linux("Check file permissions: chmod +x script.sh")
+//!     .windows("Run as administrator or check file permissions");
+//!
+//! let error = EnhancedError::new(
+//!     ErrorCategory::PermissionDenied,
+//!     "Cannot execute script",
+//!     Some(fix)
+//! );
+//! # Ok(())
+//! # }
+//! ```
 
 use colored::Colorize;
 use std::fmt;

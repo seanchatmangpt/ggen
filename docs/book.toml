@@ -1,0 +1,39 @@
+[book]
+title = "ggen Documentation"
+description = "Knowledge graph-driven code generation - Complete documentation"
+authors = ["ggen Contributors"]
+language = "en"
+multilingual = false
+src = "src"
+
+[build]
+build-dir = "book"
+create-missing = true
+
+[output.html]
+default-theme = "navy"
+preferred-dark-theme = "navy"
+git-repository-url = "https://github.com/seanchatmangpt/ggen"
+git-repository-icon = "fa-github"
+edit-url-template = "https://github.com/seanchatmangpt/ggen/edit/main/docs/src/{path}"
+
+[output.html.search]
+enable = true
+limit-results = 30
+teaser-word-count = 30
+use-boolean-and = true
+boost-title = 2
+boost-hierarchy = 1
+boost-paragraph = 1
+expand = true
+heading-split-level = 3
+
+[output.html.playground]
+editable = true
+copyable = true
+copyable-hidden = false
+runnable = true
+line-numbers = false
+
+# Redirect removed - mdBook handles index automatically
+

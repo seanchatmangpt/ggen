@@ -2,6 +2,43 @@
 //!
 //! This module provides programmatic access to the Ggen ontology,
 //! making it easy to construct RDF triples with proper namespacing.
+//!
+//! ## Features
+//!
+//! - **Namespace constants**: Pre-defined URIs for Ggen, RDF, RDFS, XSD, and OWL
+//! - **Ontology builder**: Type-safe methods for constructing ontology triples
+//! - **Standard compliance**: Uses W3C standard namespaces
+//!
+//! ## Examples
+//!
+//! ### Using Namespace Constants
+//!
+//! ```rust,no_run
+//! use ggen_core::rdf::schema::{GGEN_NAMESPACE, RDF_NAMESPACE, RDFS_NAMESPACE};
+//!
+//! // Construct URIs with proper namespacing
+//! let template_uri = format!("{}Template", GGEN_NAMESPACE);
+//! let class_uri = format!("{}Class", RDFS_NAMESPACE);
+//! let type_uri = format!("{}type", RDF_NAMESPACE);
+//! ```
+//!
+//! ### Building Ontology Triples
+//!
+//! ```rust
+//! use ggen_core::rdf::schema::GgenOntology;
+//!
+//! # fn main() {
+//! // Create a template class URI
+//! let template_class = GgenOntology::template();
+//!
+//! // Create a variable class URI
+//! let variable_class = GgenOntology::variable();
+//!
+//! // Use in RDF construction
+//! println!("Template class: {}", template_class);
+//! println!("Variable class: {}", variable_class);
+//! # }
+//! ```
 
 use anyhow::Result;
 

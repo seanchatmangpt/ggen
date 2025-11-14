@@ -1,3 +1,16 @@
+//! Core data models for the marketplace
+//!
+//! This module defines the core data structures used throughout the marketplace
+//! system, including packages, versions, queries, signatures, and template packages.
+//!
+//! ## Key Types
+//!
+//! - **Package**: Complete package metadata with version, dependencies, and content
+//! - **Version**: Semantic versioning support
+//! - **Query**: Search query structures with filters and facets
+//! - **Signature**: Cryptographic signatures for package verification
+//! - **TemplatePackage**: Template-specific package metadata
+
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fmt;

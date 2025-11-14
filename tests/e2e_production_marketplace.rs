@@ -161,8 +161,6 @@ fn test_production_registry_index_accessible() -> Result<()> {
     // Test that the production registry index.json is accessible
     // This is a basic connectivity test
 
-    use std::time::Duration;
-
     // Use reqwest to check if index is accessible
     let client = reqwest::blocking::Client::builder()
         .timeout(integration_timeout())

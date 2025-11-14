@@ -1,3 +1,80 @@
+//! Application configuration management
+//!
+//! This module provides centralized configuration management for ggen applications.
+//! It supports multiple configuration sources with a precedence order:
+//! 1. Default configuration (embedded in binary)
+//! 2. Configuration file (if specified)
+//! 3. Environment variables (APP_* prefix)
+//! 4. CLI arguments (highest precedence)
+//!
+//! ## Features
+//!
+//! - **Multi-source configuration**: Merge configs from files, env vars, and CLI args
+//! - **Thread-safe access**: RwLock-based configuration builder
+//! - **Type-safe access**: Deserialize configuration into typed structures
+//! - **Runtime updates**: Update configuration at runtime
+//!
+//! ## Configuration Precedence
+//!
+//! When multiple sources provide the same configuration key, the following precedence
+//! applies (highest to lowest):
+//!
+//! 1. CLI arguments
+//! 2. Environment variables (APP_*)
+//! 3. Configuration file
+//! 4. Default configuration
+//!
+//! ## Examples
+//!
+//! ### Initializing Configuration
+//!
+//! ```rust,no_run
+//! use ggen_utils::app_config::AppConfig;
+//!
+//! # fn main() -> ggen_utils::error::Result<()> {
+//! // Initialize with default config
+//! AppConfig::init(Some(include_str!("../resources/default_config.toml")))?;
+//!
+//! // Load configuration
+//! let config = AppConfig::fetch()?;
+//! println!("Debug mode: {}", config.debug);
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Merging CLI Arguments
+//!
+//! ```rust,no_run
+//! use ggen_utils::app_config::AppConfig;
+//! use clap::Parser;
+//!
+//! # #[derive(Parser)]
+//! # struct Args {
+//! #     #[arg(long)]
+//! #     debug: bool,
+//! # }
+//! # fn main() -> ggen_utils::error::Result<()> {
+//! let args = Args::parse();
+//! AppConfig::merge_args(&args)?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Accessing Configuration Values
+//!
+//! ```rust,no_run
+//! use ggen_utils::app_config::AppConfig;
+//!
+//! # fn main() -> ggen_utils::error::Result<()> {
+//! // Get a single value
+//! let debug: bool = AppConfig::get("debug")?;
+//!
+//! // Get the full configuration
+//! let config = AppConfig::fetch()?;
+//! # Ok(())
+//! # }
+//! ```
+
 #![allow(clippy::expect_used)] // RwLock poisoning is considered unrecoverable
 use config::builder::DefaultState;
 use config::{Config, ConfigBuilder, Environment};
@@ -165,7 +242,7 @@ impl AppConfig {
 
     /// Get the current configuration.
     ///
-    /// This clones Config (from `RwLock`<Config>) into a new `AppConfig` object.
+    /// This clones Config (from `RwLock<Config>`) into a new `AppConfig` object.
     /// This means you have to fetch this again if you changed the configuration.
     ///
     /// # Errors

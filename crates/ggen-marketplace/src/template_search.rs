@@ -1,7 +1,47 @@
-#![allow(clippy::unwrap_used)] // Test code uses unwrap
 //! Template search and discovery in marketplace
 //!
-//! Provides search capabilities specifically for template packages
+//! This module provides specialized search capabilities for template packages,
+//! enabling discovery of templates by type, framework, variables, and examples.
+//! It extends the general marketplace search with template-specific filters and
+//! metadata.
+//!
+//! ## Features
+//!
+//! - **Template-Specific Filters**: Filter by template type, framework, variables
+//! - **Example Detection**: Find templates with usage examples
+//! - **Variable Matching**: Search templates by required variables
+//! - **Type Filtering**: Filter by template type (FileTree, SingleFile, Bundle)
+//! - **Framework Support**: Find templates for specific frameworks
+//!
+//! ## Template Types
+//!
+//! - **FileTree**: Generate complete directory structures
+//! - **SingleFile**: Generate individual files
+//! - **Bundle**: Multiple related templates packaged together
+//!
+//! ## Examples
+//!
+//! ### Searching Templates
+//!
+//! ```rust,no_run
+//! use ggen_marketplace::template_search::{TemplateSearchEngine, TemplateSearchFilters};
+//!
+//! # async fn example() -> anyhow::Result<()> {
+//! let engine = TemplateSearchEngine::new()?;
+//! let filters = TemplateSearchFilters {
+//!     category: Some("web-service".to_string()),
+//!     frameworks: vec!["axum".to_string()],
+//!     template_type: Some(TemplateType::FileTree),
+//!     has_examples: true,
+//!     ..Default::default()
+//! };
+//!
+//! let results = engine.search("rust api", &filters).await?;
+//! # Ok(())
+//! # }
+//! ```
+
+#![allow(clippy::unwrap_used)] // Test code uses unwrap
 
 use crate::error::{MarketplaceError, Result};
 use crate::models::{TemplatePackage, TemplateType};

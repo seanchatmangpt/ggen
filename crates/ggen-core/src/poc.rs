@@ -1,22 +1,74 @@
-//! Hygen-like POC with RDF support, prefixes, and inline RDF.
-//! - gray_matter: YAML frontmatter
-//! - Tera: full {{ }} in header and body (includes/macros supported)
-//! - Oxigraph: RDF load + `sparql(query=..., var=...)` with auto PREFIX/BASE
-//! - Inline Turtle via `rdf_inline:`
-//! - Prefix prolog via `prefixes:`
-//! - Utility `local(iri=...)` to get local name
+//! Hygen-like POC with RDF support, prefixes, and inline RDF
 //!
-//! Frontmatter example:
+//! This module provides a proof-of-concept implementation of a Hygen-like template
+//! generation system with RDF integration. It supports YAML frontmatter, Tera templating,
+//! and SPARQL queries with automatic prefix/base handling.
+//!
+//! ## Features
+//!
+//! - **YAML Frontmatter**: Uses `gray_matter` for parsing YAML frontmatter
+//! - **Tera Templating**: Full `{{ }}` syntax in header and body (includes/macros supported)
+//! - **RDF Integration**: Oxigraph store with `sparql(query=..., var=...)` function
+//! - **Automatic Prefixes**: Auto PREFIX/BASE handling from frontmatter
+//! - **Inline RDF**: Load Turtle data directly in frontmatter via `rdf_inline:`
+//! - **Prefix Prolog**: Define prefixes via `prefixes:` in frontmatter
+//! - **Local Name Utility**: `local(iri=...)` function to extract local name from IRI
+//!
+//! ## Frontmatter Format
+//!
+//! Templates use YAML frontmatter with the following fields:
+//!
+//! - `to`: Output file path (supports Tera templating)
+//! - `prefixes`: Map of prefix names to IRIs (e.g., `{ ex: "http://example/" }`)
+//! - `base`: Base IRI for relative IRIs
+//! - `rdf_inline`: Array of inline Turtle strings
+//!
+//! ## Template Functions
+//!
+//! The following Tera functions are available in templates:
+//!
+//! - `sparql(query=..., var=...)`: Execute SPARQL query and optionally extract a variable
+//! - `local(iri=...)`: Extract local name from IRI (after last `#` or `/`)
+//!
+//! ## Examples
+//!
+//! ### Basic Template with RDF
+//!
+//! ```rust,no_run
+//! use ggen_core::poc::poc_hygen;
+//! use std::collections::BTreeMap;
+//! use std::path::Path;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let template_path = Path::new("template.tmpl");
+//! let output_dir = Path::new("output");
+//! let mut vars = BTreeMap::new();
+//! vars.insert("name".to_string(), "MyComponent".to_string());
+//!
+//! let output = poc_hygen(template_path, output_dir, &vars, false)?;
+//! println!("Generated: {:?}", output);
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Template File Example
+//!
+//! ```yaml
 //! ---
 //! to: "src/{{ name | lower }}.rs"
 //! prefixes: { ex: "http://example/" }
 //! base: "http://example/"
 //! rdf_inline:
 //!   - "@prefix ex: <http://example/> . ex:x a ex:Type ."
-//!     vars: { license: "MIT" }
 //! ---
 //! {% set slug = sparql(query="SELECT ?s WHERE { ?s a ex:Type }", var="s") %}
 //! /// {{name}} ({{ local(iri=slug) }}) | {{license}}
+//! ```
+//!
+//! ## Note
+//!
+//! This is a proof-of-concept module. For production use, see the main [`pipeline`] module
+//! which provides a more complete and tested implementation.
 
 use std::collections::BTreeMap;
 use std::fs;

@@ -1,3 +1,37 @@
+//! Default cryptographic verifier implementation
+//!
+//! This module provides the `DefaultVerifier` type which serves as a convenience
+//! wrapper around `Ed25519Verifier`. It implements the `CryptoVerifier` trait and
+//! supports Ed25519 signature algorithms.
+//!
+//! ## Features
+//!
+//! - **Ed25519 Signatures**: High-performance elliptic curve signatures
+//! - **Content Verification**: Verify package integrity and authenticity
+//! - **Key Management**: Key pair generation and import/export
+//! - **Hash Computation**: Content hashing for integrity checks
+//!
+//! ## Examples
+//!
+//! ### Creating a Verifier
+//!
+//! ```rust,no_run
+//! use ggen_marketplace::crypto::verifier::DefaultVerifier;
+//! use ggen_marketplace::traits::CryptoVerifier;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let verifier = DefaultVerifier::new();
+//!
+//! // Generate a key pair
+//! let keypair = verifier.generate_keypair()?;
+//!
+//! // Sign content
+//! let content = b"package content";
+//! let signature = verifier.sign(content)?;
+//! # Ok(())
+//! # }
+//! ```
+
 use crate::crypto::Ed25519Verifier;
 use crate::error::Result;
 use crate::models::{PublicKey, Signature};

@@ -1,5 +1,66 @@
-// Rust Project Generator
-// Generates Rust web, CLI, and library projects
+//! Rust project generator
+//!
+//! This module generates Rust projects for web applications, CLI tools, and libraries.
+//! It creates the complete project structure including Cargo.toml, source files,
+//! and configuration files.
+//!
+//! ## Supported Project Types
+//!
+//! - **RustWeb**: Web applications using async frameworks (Axum, Actix, etc.)
+//! - **RustCli**: Command-line interface applications using clap
+//! - **RustLib**: Library crates for reusable code
+//!
+//! ## Features
+//!
+//! - **Framework support**: Configurable web frameworks (default: Axum)
+//! - **Async runtime**: Tokio-based async/await support
+//! - **Error handling**: anyhow for error propagation
+//! - **Serialization**: serde for data serialization
+//! - **Tracing**: Structured logging with tracing
+//!
+//! ## Examples
+//!
+//! ### Generating a Rust CLI Project
+//!
+//! ```rust,no_run
+//! use ggen_core::project_generator::{ProjectConfig, ProjectType};
+//! use ggen_core::project_generator::rust::RustProjectGenerator;
+//! use std::path::PathBuf;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let config = ProjectConfig {
+//!     name: "my-cli".to_string(),
+//!     project_type: ProjectType::RustCli,
+//!     framework: None,
+//!     path: PathBuf::from("."),
+//! };
+//!
+//! let generator = RustProjectGenerator::new();
+//! let structure = generator.generate(&config)?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Generating a Rust Web Project
+//!
+//! ```rust,no_run
+//! use ggen_core::project_generator::{ProjectConfig, ProjectType};
+//! use ggen_core::project_generator::rust::RustProjectGenerator;
+//! use std::path::PathBuf;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let config = ProjectConfig {
+//!     name: "my-web".to_string(),
+//!     project_type: ProjectType::RustWeb,
+//!     framework: Some("axum".to_string()),
+//!     path: PathBuf::from("."),
+//! };
+//!
+//! let generator = RustProjectGenerator::new();
+//! let structure = generator.generate(&config)?;
+//! # Ok(())
+//! # }
+//! ```
 
 use super::{ProjectConfig, ProjectGenerator, ProjectStructure, ProjectType};
 use anyhow::Result;
