@@ -8,6 +8,7 @@
 //!
 //! Reference: ggen/expert-testing-patterns.md
 
+use chicago_tdd_tools::async_test;
 use chicago_tdd_tools::prelude::*;
 use ggen_domain::marketplace::install::{execute_install, InstallInput};
 use ggen_domain::marketplace::search::{search_packages, SearchFilters};
@@ -131,7 +132,7 @@ fn create_valid_registry() -> Result<TempDir> {
 
 // Error Path Tests for Search
 
-async_test!(test_search_invalid_json_registry, async {
+async_test!(test_search_invalid_json_registry, {
     // Arrange: Registry with invalid JSON
     let _temp = create_invalid_registry().unwrap();
 
@@ -155,7 +156,7 @@ async_test!(test_search_invalid_json_registry, async {
     }
 });
 
-async_test!(test_search_malformed_package_data, async {
+async_test!(test_search_malformed_package_data, {
     // Arrange: Registry with malformed package data
     let _temp = create_malformed_registry().unwrap();
 
@@ -175,7 +176,7 @@ async_test!(test_search_malformed_package_data, async {
     }
 });
 
-async_test!(test_search_empty_registry, async {
+async_test!(test_search_empty_registry, {
     // Arrange: Empty registry
     let _temp = create_empty_registry().unwrap();
 
@@ -190,7 +191,7 @@ async_test!(test_search_empty_registry, async {
     );
 });
 
-async_test!(test_search_missing_registry_file, async {
+async_test!(test_search_missing_registry_file, {
     // Arrange: No registry file exists
     let temp_dir = TempDir::new().unwrap();
     let parent_dir = temp_dir.path();
@@ -214,7 +215,7 @@ async_test!(test_search_missing_registry_file, async {
     );
 });
 
-async_test!(test_search_network_error_recovery, async {
+async_test!(test_search_network_error_recovery, {
     // Arrange: Set invalid registry URL to force network error
     std::env::set_var(
         "GGEN_REGISTRY_URL",
@@ -243,7 +244,7 @@ async_test!(test_search_network_error_recovery, async {
 
 // Error Path Tests for Install
 
-async_test!(test_install_invalid_package_name, async {
+async_test!(test_install_invalid_package_name, {
     // Arrange: Invalid package name
     let input = InstallInput {
         package: "".to_string(), // Empty package name
@@ -260,7 +261,7 @@ async_test!(test_install_invalid_package_name, async {
     assert_err!(&result, "Empty package name should return error");
 });
 
-async_test!(test_install_nonexistent_package, async {
+async_test!(test_install_nonexistent_package, {
     // Arrange: Package that doesn't exist
     let input = InstallInput {
         package: "nonexistent-package-xyz-12345".to_string(),
@@ -277,7 +278,7 @@ async_test!(test_install_nonexistent_package, async {
     assert_err!(&result, "Nonexistent package should return error");
 });
 
-async_test!(test_install_invalid_version_format, async {
+async_test!(test_install_invalid_version_format, {
     // Arrange: Invalid version format
     let input = InstallInput {
         package: "test-package@invalid-version-format".to_string(),
@@ -305,7 +306,7 @@ async_test!(test_install_invalid_version_format, async {
 // Pattern 2: Boundary Condition Testing
 // ============================================================================
 
-async_test!(test_search_boundary_empty_query, async {
+async_test!(test_search_boundary_empty_query, {
     // Arrange: Valid registry
     let _temp = create_valid_registry().unwrap();
 
@@ -318,7 +319,7 @@ async_test!(test_search_boundary_empty_query, async {
     let _ = results; // Just verify it doesn't panic
 });
 
-async_test!(test_search_boundary_very_long_query, async {
+async_test!(test_search_boundary_very_long_query, {
     // Arrange: Valid registry
     let _temp = create_valid_registry().unwrap();
 
@@ -332,7 +333,7 @@ async_test!(test_search_boundary_very_long_query, async {
     let _ = results;
 });
 
-async_test!(test_search_boundary_limit_zero, async {
+async_test!(test_search_boundary_limit_zero, {
     // Arrange: Valid registry
     let _temp = create_valid_registry().unwrap();
 
@@ -346,7 +347,7 @@ async_test!(test_search_boundary_limit_zero, async {
     assert_eq!(results.len(), 0, "Limit 0 should return empty results");
 });
 
-async_test!(test_search_boundary_limit_max, async {
+async_test!(test_search_boundary_limit_max, {
     // Arrange: Valid registry
     let _temp = create_valid_registry().unwrap();
 
@@ -364,7 +365,7 @@ async_test!(test_search_boundary_limit_max, async {
     );
 });
 
-async_test!(test_search_boundary_special_characters, async {
+async_test!(test_search_boundary_special_characters, {
     // Arrange: Valid registry
     let _temp = create_valid_registry().unwrap();
 
@@ -393,7 +394,7 @@ async_test!(test_search_boundary_special_characters, async {
 // Pattern 3: Resource Cleanup Testing
 // ============================================================================
 
-async_test!(test_search_registry_file_cleanup, async {
+async_test!(test_search_registry_file_cleanup, {
     // Arrange: Create registry file
     let temp_dir = create_valid_registry().unwrap();
     let registry_path = temp_dir.path().join("registry").join("index.json");
@@ -408,7 +409,7 @@ async_test!(test_search_registry_file_cleanup, async {
     assert!(!content.is_empty(), "File should be readable after search");
 });
 
-async_test!(test_install_temp_file_cleanup, async {
+async_test!(test_install_temp_file_cleanup, {
     // Arrange: Dry run install (creates temp files)
     let input = InstallInput {
         package: "test-package".to_string(),
@@ -438,7 +439,7 @@ async_test!(test_install_temp_file_cleanup, async {
 // Pattern 4: Concurrency Testing
 // ============================================================================
 
-async_test!(test_concurrent_searches, async {
+async_test!(test_concurrent_searches, {
     // Arrange: Valid registry
     let _temp = create_valid_registry().unwrap();
 
@@ -469,7 +470,7 @@ async_test!(test_concurrent_searches, async {
     assert_eq!(results.len(), 10, "All concurrent searches should complete");
 });
 
-async_test!(test_concurrent_registry_reads, async {
+async_test!(test_concurrent_registry_reads, {
     // Arrange: Valid registry
     let _temp = create_valid_registry().unwrap();
 
@@ -509,7 +510,7 @@ async_test!(test_concurrent_registry_reads, async {
 // Pattern 5: Error Recovery Testing
 // ============================================================================
 
-async_test!(test_search_error_recovery, async {
+async_test!(test_search_error_recovery, {
     // Arrange: Start with invalid registry, then fix it
     let temp_dir = TempDir::new().unwrap();
     let parent_dir = temp_dir.path();

@@ -70,10 +70,54 @@ impl ValidatedLifecycleState {
         &self.state
     }
 
-    /// Get mutable access to state (with re-validation)
+    /// Modify state with automatic re-validation
     ///
-    /// **Warning**: Modifying state directly can break invariants.
-    /// State is re-validated after modification.
+    /// **Poka-yoke**: Modification happens inside closure, then state is re-validated.
+    /// If validation fails, state modification is NOT applied (transaction-like behavior).
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use ggen_core::lifecycle::state_validation::ValidatedLifecycleState;
+    /// # use ggen_core::lifecycle::state::LifecycleState;
+    /// let mut state = LifecycleState::default();
+    /// state.record_run("init".to_string(), 0, 100, true);
+    /// let mut validated = ValidatedLifecycleState::new(state).unwrap();
+    ///
+    /// // Safe modification with automatic re-validation
+    /// validated.modify(|state| {
+    ///     state.record_run("setup".to_string(), 100, 200, true);
+    /// }).unwrap();
+    /// ```
+    pub fn modify<F>(&mut self, f: F) -> Result<()>
+    where
+        F: FnOnce(&mut LifecycleState),
+    {
+        // Clone state for transactional modification
+        let mut new_state = self.state.clone();
+
+        // Apply modification
+        f(&mut new_state);
+
+        // Validate modified state
+        Self::validate(&new_state)?;
+
+        // Only commit if validation passes
+        self.state = new_state;
+
+        Ok(())
+    }
+
+    /// Get mutable access to state (DEPRECATED - use modify() instead)
+    ///
+    /// **Warning**: This method is deprecated. Use `modify()` for safe mutation.
+    /// Direct mutation can break validation invariants.
+    ///
+    /// **Poka-yoke**: Prefer `modify()` which re-validates after changes.
+    #[deprecated(
+        since = "0.1.0",
+        note = "Use modify() instead for automatic re-validation"
+    )]
     pub fn state_mut(&mut self) -> &mut LifecycleState {
         &mut self.state
     }
@@ -138,7 +182,6 @@ impl AsRef<LifecycleState> for ValidatedLifecycleState {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::lifecycle::state::{CacheKey, RunRecord};
 
     #[test]
     fn test_valid_state_passes_validation() {

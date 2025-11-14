@@ -4,6 +4,7 @@
 //! not mocks like London School TDD. We verify actual behavior with real
 //! file system operations using tempdir.
 
+use chicago_tdd_tools::async_test;
 use chicago_tdd_tools::prelude::*;
 use ggen_utils::error::Result;
 use std::fs;
@@ -62,7 +63,7 @@ mod search_tests {
     use super::*;
     use ggen_domain::marketplace::search::{search_packages, SearchFilters};
 
-    async_test!(test_search_finds_exact_match, async {
+    async_test!(test_search_finds_exact_match, {
         // Arrange
         let (_temp_dir, _registry_path) = setup_test_env().unwrap();
 
@@ -78,7 +79,7 @@ mod search_tests {
         assert_eq!(results[0].version, "1.0.0");
     });
 
-    async_test!(test_search_finds_partial_match, async {
+    async_test!(test_search_finds_partial_match, {
         // Arrange
         let (_temp_dir, _registry_path) = setup_test_env().unwrap();
 
@@ -92,7 +93,7 @@ mod search_tests {
         assert!(!results.is_empty(), "Should find rust-related packages");
     });
 
-    async_test!(test_search_respects_limit, async {
+    async_test!(test_search_respects_limit, {
         // Arrange
         let (_temp_dir, _registry_path) = setup_test_env().unwrap();
 

@@ -1,159 +1,101 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
+# ggen Documentation
 
-- [ggen docs](#ggen-docs)
-  - [🚀 Getting Started with AI (v1.0.0)](#-getting-started-with-ai-v100)
-  - [📚 Core Documentation](#-core-documentation)
-  - [Core Concepts](#core-concepts)
-  - [Advanced Topics](#advanced-topics)
-  - [Additional Resources](#additional-resources)
-    - [Integration & Implementation](#integration--implementation)
-    - [Testing & Validation](#testing--validation)
-    - [Development & Architecture](#development--architecture)
-  - [Reference](#reference)
-  - [Marketplace Ecosystem](#marketplace-ecosystem)
-    - [Key Benefits](#key-benefits)
-    - [Workflow](#workflow)
-  - [Documentation Structure](#documentation-structure)
-  - [Contributing](#contributing)
-  - [Support](#support)
+Welcome to the ggen documentation! This documentation follows the [Diataxis framework](https://diataxis.fr/), organized into four categories: **Tutorials**, **How-to Guides**, **Reference**, and **Explanations**.
 
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+## Quick Start
 
-# ggen docs
+**New to ggen?** Start here:
 
-Purpose: project one ontology into many artifacts. Deterministic. Language-agnostic. **AI-powered**.
-
-## 🚀 Getting Started with AI (v1.2.0)
-
-**New to ggen? Start here for AI-powered development:**
-
-1. **[RELEASE_NOTES_v1.0.0.md](RELEASE_NOTES_v1.0.0.md)** - What's new in v1.0.0 *(AI Revolution)*
-2. **[install.md](install.md)** - Installation and AI setup
-3. **[ai-guide.md](ai-guide.md)** - Complete AI usage guide
-4. **[ggen-ai-integration.md](ggen-ai-integration.md)** - Technical AI integration details
-5. **[AI_INTEGRATION_CLARIFICATION.md](AI_INTEGRATION_CLARIFICATION.md)** - AI integration approach and CLI commands
-6. **[GENAI_GGEN_INTEGRATION_PLAN.md](GENAI_GGEN_INTEGRATION_PLAN.md)** - AI integration roadmap and milestones
-7. **[GENAI_OLLAMA_INTEGRATION.md](GENAI_OLLAMA_INTEGRATION.md)** - Ollama provider integration guide
-8. **[MULTI_PROVIDER_ANALYSIS.md](MULTI_PROVIDER_ANALYSIS.md)** - Multi-provider AI analysis
-9. **[RUNTIME_MODEL_CONFIG.md](RUNTIME_MODEL_CONFIG.md)** - Runtime model configuration
-10. **[GENAI_INTEGRATION_STATUS.md](GENAI_INTEGRATION_STATUS.md)** - Current integration status
-
-## 📚 Core Documentation
-
-**Traditional ggen workflow (still supported):**
-11. [quickstart.md](quickstart.md) - Quick start with marketplace gpacks
-12. [templates.md](templates.md) - Template development guide
-13. [marketplace.md](marketplace.md) - Using and publishing gpacks
-
-## Core Concepts
-
-14. [frontmatter.md](frontmatter.md) - Template frontmatter syntax
-15. [rdf-shacl-sparql.md](rdf-shacl-sparql.md) - Semantic web integration
-16. [projections.md](projections.md) - Code projection patterns
-17. [determinism.md](determinism.md) - Reproducible generation
-
-## Advanced Topics
-
-18. [calculus.md](calculus.md) - Mathematical foundations
-19. [dx-features.md](dx-features.md) - Developer experience features
-20. [gpack-development.md](gpack-development.md) - Creating and publishing gpacks
-21. **[CARGO_BEST_PRACTICES.md](CARGO_BEST_PRACTICES.md)** - Cargo.toml optimization and best practices
-22. **[BUILD_OPTIMIZATION.md](BUILD_OPTIMIZATION.md)** - Build performance optimization
-23. **[TESTING_AND_QUALITY_ASSURANCE.md](TESTING_AND_QUALITY_ASSURANCE.md)** - Comprehensive testing and quality assurance framework
-24. **[SECURITY_AND_OBSERVABILITY.md](SECURITY_AND_OBSERVABILITY.md)** - Security controls and observability practices
-25. **[CORE_TEAM_RECOMMENDATIONS.md](CORE_TEAM_RECOMMENDATIONS.md)** - Core team recommendations for next development priorities
-
-## Additional Resources
-
-### Integration & Implementation
-
-### Testing & Validation
-35. **[E2E_TESTS.md](E2E_TESTS.md)** - End-to-end testing guide
-36. **[E2E_TEST_RESULTS.md](E2E_TEST_RESULTS.md)** - Test results and analysis
-37. **[DISPLACEMENT_VALIDATION.md](DISPLACEMENT_VALIDATION.md)** - Validation testing framework
-
-### Development & Architecture
-38. **[CODE-REVIEW.md](CODE-REVIEW.md)** - Code review guidelines
-39. **[GRAPH_VERBS_IMPLEMENTATION.md](GRAPH_VERBS_IMPLEMENTATION.md)** - Graph verb implementation
-40. **[GITHUB_API_RUST_INTEGRATION.md](GITHUB_API_RUST_INTEGRATION.md)** - GitHub API integration
-
-## Reference
-
-41. **[CHANGELOG.md](CHANGELOG.md)** - Complete changelog with semantic versioning
-42. **[RECENT_FIXES_AND_IMPROVEMENTS.md](RECENT_FIXES_AND_IMPROVEMENTS.md)** - Summary of recent fixes and improvements
-43. **[P0-FIXES-APPLIED.md](P0-FIXES-APPLIED.md)** - P0 critical fixes and security assessment
-44. **[IMPLEMENTATION_COMPLETE.md](IMPLEMENTATION_COMPLETE.md)** - Core team recommendations implementation summary
-45. **[FINAL_STATUS_REPORT.md](FINAL_STATUS_REPORT.md)** - Final status report and project assessment
-46. **[DEPLOYMENT.md](DEPLOYMENT.md)** - GitHub Pages deployment guide
-47. [cli.md](cli.md) - Complete CLI reference
-48. [troubleshooting.md](troubleshooting.md) - Common issues and solutions
-49. [examples/](examples/) - Usage examples and tutorials
-
-## Marketplace Ecosystem
-
-The ggen marketplace provides a curated ecosystem of reusable code generation packs (gpacks):
-
-- **Discover**: Search and browse gpacks by language, framework, or use case
-- **Install**: Add gpacks to your project with version management
-- **Generate**: Use gpack templates for consistent code generation
-- **Publish**: Share your own gpacks with the community
-
-### Key Benefits
-
-- **Quality**: Community-tested templates
-- **Consistency**: Standardized patterns across languages
-- **Maintenance**: Automatic updates and dependency management
-- **Collaboration**: Shared knowledge and best practices
-
-### Workflow
-
-1. **Search** for gpacks matching your needs
-2. **Install** gpacks and their dependencies
-3. **Generate** code using gpack templates
-4. **Customize** with local templates if needed
-5. **Publish** your own gpacks to contribute back
+1. **[Getting Started Tutorial](tutorials/getting-started.md)** - Install ggen and generate your first code in 5 minutes
+2. **[Installation Guide](how-to-guides/installation.md)** - Complete installation instructions
+3. **[CLI Reference](reference/cli.md)** - All available commands
 
 ## Documentation Structure
 
-- **Getting Started**: Installation and quick start guides
-- **Core Concepts**: Templates, RDF, projections, determinism
-- **Advanced Topics**: Mathematical foundations, DX features, gpack development
-- **Reference**: CLI reference, troubleshooting, examples
-- **Marketplace**: Ecosystem overview and workflows
+### 📚 Tutorials (Learning-Oriented)
+
+Step-by-step guides that teach you how to accomplish a goal:
+
+- **[Getting Started](tutorials/getting-started.md)** - Install and generate your first code
+- **[Ontology-to-Code Workflow](tutorials/ontology-to-code.md)** - Master the complete workflow
+- **[AI-Powered Generation](tutorials/ai-powered-generation.md)** - Use AI to generate ontologies
+- **[Marketplace Workflow](tutorials/marketplace-workflow.md)** - Discover and use marketplace templates
+
+### 🔧 How-to Guides (Problem-Oriented)
+
+Task-based guides that help you solve specific problems:
+
+- **[Installation](how-to-guides/installation.md)** - How to install ggen
+- **[Create Templates](how-to-guides/create-templates.md)** - How to create custom templates
+- **[Use RDF Ontologies](how-to-guides/use-rdf-ontologies.md)** - How to work with RDF
+- **[Configure Hooks](how-to-guides/configure-hooks.md)** - How to set up Git hooks
+- **[Deploy Production](how-to-guides/deploy-production.md)** - How to deploy to production
+- **[Troubleshoot](how-to-guides/troubleshoot.md)** - How to solve common problems
+
+### 📖 Reference (Information-Oriented)
+
+Complete, accurate information about ggen's features:
+
+- **[CLI Reference](reference/cli.md)** - Complete command reference
+- **[Template Reference](reference/templates.md)** - Template syntax and features
+- **[RDF/SPARQL Reference](reference/rdf-sparql.md)** - RDF and SPARQL documentation
+- **[Configuration Reference](reference/configuration.md)** - Configuration options
+
+### 💡 Explanations (Understanding-Oriented)
+
+Background information and conceptual explanations:
+
+- **[Architecture](explanations/architecture.md)** - System architecture and design
+- **[Ontology-Driven Development](explanations/ontology-driven.md)** - Why ontology-driven development
+- **[Determinism](explanations/determinism.md)** - How determinism works
+- **[Code Projections](explanations/projections.md)** - How code projections work
+- **[Marketplace Ecosystem](explanations/marketplace.md)** - Marketplace ecosystem overview
+
+## Common Tasks
+
+### I want to...
+
+- **Install ggen** → [Installation Guide](how-to-guides/installation.md)
+- **Generate code from an ontology** → [Getting Started Tutorial](tutorials/getting-started.md)
+- **Create a custom template** → [Create Templates Guide](how-to-guides/create-templates.md)
+- **Use AI to generate ontologies** → [AI-Powered Generation Tutorial](tutorials/ai-powered-generation.md)
+- **Find and install templates** → [Marketplace Workflow Tutorial](tutorials/marketplace-workflow.md)
+- **Understand how it works** → [Architecture Explanation](explanations/architecture.md)
+- **Troubleshoot a problem** → [Troubleshooting Guide](how-to-guides/troubleshoot.md)
+- **See all commands** → [CLI Reference](reference/cli.md)
+
+## Documentation Principles
+
+This documentation follows the **Diataxis framework**:
+
+- **Tutorials**: Goal-oriented, learning paths
+- **How-to Guides**: Problem-oriented, task-based
+- **Reference**: Information-oriented, complete and accurate
+- **Explanations**: Understanding-oriented, background information
+
+Each document type serves a different purpose and answers different questions.
+
+## Documentation Framework
+
+This documentation follows the [Diataxis framework](https://diataxis.fr/), which organizes content into four types:
+
+- **Tutorials**: Learning-oriented, step-by-step guides
+- **How-to Guides**: Problem-oriented, task-based guides
+- **Reference**: Information-oriented, complete documentation
+- **Explanations**: Understanding-oriented, conceptual background
+
+For a complete guide to the Diataxis framework and how it's applied here, see the [Diataxis Guide](DATAXIS_GUIDE.md).
 
 ## Contributing
 
-- **Documentation**: Improve guides and examples
-- **Gpacks**: Create and publish template collections
-- **Examples**: Share usage patterns and best practices
-- **Feedback**: Report issues and suggest improvements
+Found an error or want to improve the documentation? Contributions are welcome!
 
-## Documentation & Search
+1. Check existing issues
+2. Create a new issue or pull request
+3. Follow the [Diataxis Guide](DATAXIS_GUIDE.md) for documentation structure
 
-### 📚 **Complete Documentation Index**
-- **Browse All Docs**: [`DOCUMENTATION_INDEX.md`](DOCUMENTATION_INDEX.md) - Complete organized index
-- **Search Interface**: [`search.html`](search.html) - AI-powered documentation search
-- **Learning Paths**: Structured learning journeys for different experience levels
+## See Also
 
-### 🔍 **Search & Discovery**
-- **📚 Documentation Index**: [`DOCUMENTATION_INDEX.md`](DOCUMENTATION_INDEX.md) - Complete organized index of all documentation
-- **🔍 Advanced Search Interface**: [`search.html`](search.html) - AI-powered search across all documentation
-- **Topic Search**: Find documentation by category, difficulty, and estimated time
-- **Keyword Search**: Full-text search across all documentation
-- **Auto-Suggestions**: Smart search suggestions as you type
-- **Cross-References**: Links between related documents
-
-### 🌐 **Live Documentation Site**
-- **📖 GitHub Pages**: [seanchatmangpt.github.io/ggen/](https://seanchatmangpt.github.io/ggen/) - Complete documentation site
-- **🔍 Integrated Search**: Built-in search with advanced filtering
-- **📱 Mobile Responsive**: Optimized for all devices
-- **⚡ Fast Loading**: Optimized performance and caching
-
-## Support
-
-- **Community**: Join discussions and get help
-- **Issues**: Report bugs and request features
-- **Examples**: Learn from community examples
-- **Guides**: Follow step-by-step tutorials
+- **[Main README](../README.md)** - Project overview
+- **[CHANGELOG](../CHANGELOG.md)** - Version history
+- **[Examples](../examples/)** - Example projects

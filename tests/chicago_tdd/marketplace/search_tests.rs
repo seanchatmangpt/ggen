@@ -3,6 +3,7 @@
 //! These tests use REAL registry files and verify actual search behavior
 //! following the Classicist School of TDD.
 
+use chicago_tdd_tools::async_test;
 use chicago_tdd_tools::prelude::*;
 use ggen_domain::marketplace::search::{search_packages, SearchFilters};
 use ggen_utils::error::Result;
@@ -112,7 +113,7 @@ fn create_test_registry() -> Result<TempDir> {
     Ok(temp_dir)
 }
 
-async_test!(test_search_exact_name_match, async {
+async_test!(test_search_exact_name_match, {
     // Arrange
     let _temp = create_test_registry().unwrap();
 
@@ -128,7 +129,7 @@ async_test!(test_search_exact_name_match, async {
     assert_eq!(results[0].name, "Rust CLI Template");
 });
 
-async_test!(test_search_partial_match, async {
+async_test!(test_search_partial_match, {
     // Arrange
     let _temp = create_test_registry().unwrap();
 
@@ -151,7 +152,7 @@ async_test!(test_search_partial_match, async {
     }
 });
 
-async_test!(test_search_fuzzy_matching, async {
+async_test!(test_search_fuzzy_matching, {
     // Arrange
     let _temp = create_test_registry().unwrap();
 
@@ -166,7 +167,7 @@ async_test!(test_search_fuzzy_matching, async {
     );
 });
 
-async_test!(test_search_category_filter, async {
+async_test!(test_search_category_filter, {
     // Arrange
     let _temp = create_test_registry().unwrap();
 
@@ -180,7 +181,7 @@ async_test!(test_search_category_filter, async {
     }
 });
 
-async_test!(test_search_keyword_filter, async {
+async_test!(test_search_keyword_filter, {
     // Arrange
     let _temp = create_test_registry().unwrap();
 
@@ -197,7 +198,7 @@ async_test!(test_search_keyword_filter, async {
     );
 });
 
-async_test!(test_search_author_filter, async {
+async_test!(test_search_author_filter, {
     let _temp = create_test_registry().unwrap();
 
     let mut filters = SearchFilters::new();
@@ -213,7 +214,7 @@ async_test!(test_search_author_filter, async {
     // Assert
 });
 
-async_test!(test_search_min_stars_filter, async {
+async_test!(test_search_min_stars_filter, {
     let _temp = create_test_registry().unwrap();
 
     let mut filters = SearchFilters::new();
@@ -234,7 +235,7 @@ async_test!(test_search_min_stars_filter, async {
     // Assert
 });
 
-async_test!(test_search_min_downloads_filter, async {
+async_test!(test_search_min_downloads_filter, {
     let _temp = create_test_registry().unwrap();
 
     let mut filters = SearchFilters::new();
@@ -255,7 +256,7 @@ async_test!(test_search_min_downloads_filter, async {
     // Assert
 });
 
-async_test!(test_search_sort_by_downloads, async {
+async_test!(test_search_sort_by_downloads, {
     let _temp = create_test_registry().unwrap();
 
     let mut filters = SearchFilters::new();
@@ -280,7 +281,7 @@ async_test!(test_search_sort_by_downloads, async {
     // Assert
 });
 
-async_test!(test_search_sort_by_stars, async {
+async_test!(test_search_sort_by_stars, {
     let _temp = create_test_registry().unwrap();
 
     let mut filters = SearchFilters::new();
@@ -305,7 +306,7 @@ async_test!(test_search_sort_by_stars, async {
     // Assert
 });
 
-async_test!(test_search_limit, async {
+async_test!(test_search_limit, {
     let _temp = create_test_registry().unwrap();
 
     let filters = SearchFilters::new().with_limit(2);
@@ -317,7 +318,7 @@ async_test!(test_search_limit, async {
     // Assert
 });
 
-async_test!(test_search_relevance_ranking, async {
+async_test!(test_search_relevance_ranking, {
     let _temp = create_test_registry().unwrap();
 
     let filters = SearchFilters::new();
@@ -341,7 +342,7 @@ async_test!(test_search_relevance_ranking, async {
     // Assert
 });
 
-async_test!(test_search_no_results, async {
+async_test!(test_search_no_results, {
     let _temp = create_test_registry().unwrap();
 
     let filters = SearchFilters::new();
@@ -358,7 +359,7 @@ async_test!(test_search_no_results, async {
     // Assert
 });
 
-async_test!(test_search_performance, async {
+async_test!(test_search_performance, {
     let _temp = create_test_registry().unwrap();
 
     let start = std::time::Instant::now();
@@ -377,7 +378,7 @@ async_test!(test_search_performance, async {
     // Assert
 });
 
-async_test!(test_search_multiple_filters_combined, async {
+async_test!(test_search_multiple_filters_combined, {
     let _temp = create_test_registry().unwrap();
 
     let mut filters = SearchFilters::new();
@@ -402,7 +403,7 @@ async_test!(test_search_multiple_filters_combined, async {
     // Assert
 });
 
-async_test!(test_search_empty_query, async {
+async_test!(test_search_empty_query, {
     let _temp = create_test_registry().unwrap();
 
     let filters = SearchFilters::new();
@@ -415,7 +416,7 @@ async_test!(test_search_empty_query, async {
     // Assert
 });
 
-async_test!(test_search_tag_matching, async {
+async_test!(test_search_tag_matching, {
     let _temp = create_test_registry().unwrap();
 
     let filters = SearchFilters::new();
@@ -428,7 +429,7 @@ async_test!(test_search_tag_matching, async {
     // Assert
 });
 
-async_test!(test_search_case_insensitive, async {
+async_test!(test_search_case_insensitive, {
     let _temp = create_test_registry().unwrap();
 
     let filters = SearchFilters::new();

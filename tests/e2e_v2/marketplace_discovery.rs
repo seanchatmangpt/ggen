@@ -6,9 +6,9 @@ use predicates::prelude::*;
 
 use super::test_helpers::*;
 
-// #[path = "../../common/mod.rs"]
-// mod test_config;
-// use test_config::integration_timeout;
+#[path = "../common/mod.rs"]
+mod test_config;
+use test_config::integration_timeout;
 
 #[test]
 fn test_marketplace_search_local() {

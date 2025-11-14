@@ -256,11 +256,10 @@ fn main() { println!("Hello, {{ name }}!"); }
                 &format!("test_{}", i),
                 &format!(
                     r#"---
-to: "output_{}.rs"
+to: "output_{i}.rs"
 ---
 fn main_{i}() {{ println!("File {i}"); }}
 "#,
-                    i = i
                 ),
             )?;
         }

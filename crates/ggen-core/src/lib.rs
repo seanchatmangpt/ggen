@@ -44,6 +44,12 @@ pub use lifecycle::{
     ReadinessRequirement, ReadinessStatus, ReadinessTracker,
 };
 
+// Re-export poka-yoke (error prevention) types
+pub use lifecycle::{
+    Closed, Counter, EmptyPathError, EmptyStringError, FileHandle, NonEmptyPath, NonEmptyString,
+    Open,
+};
+
 // Re-export commonly used types for convenience
 pub use cache::{CacheManager, CachedPack};
 pub use delta::{DeltaType, GraphDelta, ImpactAnalyzer, TemplateImpact};
