@@ -30,6 +30,7 @@
 //!         Noun {
 //!             name: "user".to_string(),
 //!             description: "User operations".to_string(),
+//!             module_path: "user".to_string(),
 //!             verbs: vec![
 //!                 Verb {
 //!                     name: "create".to_string(),
@@ -37,17 +38,32 @@
 //!                     arguments: vec![
 //!                         Argument {
 //!                             name: "name".to_string(),
-//!                             argument_type: ArgumentType::String,
+//!                             long: Some("name".to_string()),
+//!                             short: Some('n'),
+//!                             help: "User name".to_string(),
 //!                             required: true,
-//!                             description: Some("User name".to_string()),
-//!                             validation: None,
+//!                             default: None,
+//!                             value_name: Some("NAME".to_string()),
+//!                             position: None,
+//!                             arg_type: ArgumentType {
+//!                                 name: "String".to_string(),
+//!                                 parser: None,
+//!                             },
 //!                         }
 //!                     ],
+//!                     validations: vec![],
+//!                     alias: None,
+//!                     execution_logic: None,
+//!                     domain_function: None,
+//!                     domain_module: None,
 //!                 }
 //!             ],
 //!         }
 //!     ],
 //!     dependencies: vec![],
+//!     cli_crate: None,
+//!     domain_crate: None,
+//!     resolver: "2".to_string(),
 //! };
 //! # Ok(())
 //! # }
@@ -62,16 +78,27 @@
 //! let noun = Noun {
 //!     name: "project".to_string(),
 //!     description: "Project management".to_string(),
+//!     module_path: "project".to_string(),
 //!     verbs: vec![
 //!         Verb {
 //!             name: "init".to_string(),
 //!             description: "Initialize a project".to_string(),
 //!             arguments: vec![],
+//!             validations: vec![],
+//!             alias: None,
+//!             execution_logic: None,
+//!             domain_function: None,
+//!             domain_module: None,
 //!         },
 //!         Verb {
 //!             name: "build".to_string(),
 //!             description: "Build the project".to_string(),
 //!             arguments: vec![],
+//!             validations: vec![],
+//!             alias: None,
+//!             execution_logic: None,
+//!             domain_function: None,
+//!             domain_module: None,
 //!         },
 //!     ],
 //! };

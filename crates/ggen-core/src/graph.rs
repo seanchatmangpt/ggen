@@ -116,7 +116,7 @@ use std::sync::{
 ///     ex:alice a ex:Person .
 /// "#)?;
 ///
-/// let result = graph.query("ASK { ?s a ex:Person }")?;
+/// let result = graph.query_cached("ASK { ?s a ex:Person }")?;
 /// if let CachedResult::Boolean(true) = result {
 ///     println!("Person exists in graph");
 /// }
@@ -136,7 +136,7 @@ use std::sync::{
 ///     ex:alice ex:name "Alice" .
 /// "#)?;
 ///
-/// let result = graph.query("SELECT ?name WHERE { ?s ex:name ?name }")?;
+/// let result = graph.query_cached("SELECT ?name WHERE { ?s ex:name ?name }")?;
 /// if let CachedResult::Solutions(rows) = result {
 ///     for row in rows {
 ///         println!("Name: {}", row.get("name").unwrap());
@@ -217,7 +217,8 @@ impl CachedResult {
 ///              ex:name "Alice" .
 /// "#)?;
 ///
-/// // Query with automatic caching
+/// // Query the graph (note: query() only caches boolean queries)
+/// // For full caching, use query_cached() instead
 /// let results = graph.query("SELECT ?name WHERE { ?s ex:name ?name }")?;
 /// # Ok(())
 /// # }
@@ -232,9 +233,9 @@ impl CachedResult {
 /// // Load RDF from a file
 /// let graph = Graph::load_from_file("data.ttl")?;
 ///
-/// // Query with cached results (second query uses cache)
-/// let _first = graph.query("SELECT ?s WHERE { ?s ?p ?o }")?;
-/// let _cached = graph.query("SELECT ?s WHERE { ?s ?p ?o }")?; // Uses cache
+/// // Query with cached results (use query_cached for full caching)
+/// let _first = graph.query_cached("SELECT ?s WHERE { ?s ?p ?o }")?;
+/// let _cached = graph.query_cached("SELECT ?s WHERE { ?s ?p ?o }")?; // Uses cache
 /// # Ok(())
 /// # }
 /// ```
@@ -256,12 +257,12 @@ impl CachedResult {
 /// let graph1 = graph.clone();
 /// let graph2 = graph.clone();
 ///
-/// // Multiple threads can query concurrently
+/// // Multiple threads can query concurrently (using query_cached for caching)
 /// let t1 = thread::spawn(move || {
-///     graph1.query("SELECT ?name WHERE { ?s ex:name ?name }")
+///     graph1.query_cached("SELECT ?name WHERE { ?s ex:name ?name }")
 /// });
 /// let t2 = thread::spawn(move || {
-///     graph2.query("SELECT ?name WHERE { ?s ex:name ?name }")
+///     graph2.query_cached("SELECT ?name WHERE { ?s ex:name ?name }")
 /// });
 ///
 /// let _r1 = t1.join().unwrap()?;
@@ -281,19 +282,24 @@ impl Graph {
     ///
     /// # Example
     ///
-    /// ```rust,no_run
+    /// ```rust
     /// use ggen_core::graph::Graph;
     ///
-    /// # fn main() -> anyhow::Result<()> {
-    /// let graph = Graph::new()?;
-    /// # Ok(())
-    /// # }
+    /// let graph = Graph::new().unwrap();
+    /// assert!(graph.is_empty());
     /// ```
+
+    /// Default size for SPARQL query plan cache
+    const DEFAULT_PLAN_CACHE_SIZE: usize = 100;
+
+    /// Default size for SPARQL query result cache
+    const DEFAULT_RESULT_CACHE_SIZE: usize = 1000;
+
     pub fn new() -> Result<Self> {
-        let plan_cache_size =
-            NonZeroUsize::new(100).ok_or_else(|| anyhow::anyhow!("Invalid cache size"))?;
-        let result_cache_size =
-            NonZeroUsize::new(1000).ok_or_else(|| anyhow::anyhow!("Invalid cache size"))?;
+        let plan_cache_size = NonZeroUsize::new(Self::DEFAULT_PLAN_CACHE_SIZE)
+            .ok_or_else(|| anyhow::anyhow!("Invalid cache size"))?;
+        let result_cache_size = NonZeroUsize::new(Self::DEFAULT_RESULT_CACHE_SIZE)
+            .ok_or_else(|| anyhow::anyhow!("Invalid cache size"))?;
 
         Ok(Self {
             inner: Store::new()?,
@@ -383,23 +389,21 @@ impl Graph {
     ///
     /// ## Success case
     ///
-    /// ```rust,no_run
+    /// ```rust
     /// use ggen_core::graph::Graph;
     ///
-    /// # fn main() -> anyhow::Result<()> {
-    /// let graph = Graph::new()?;
+    /// let graph = Graph::new().unwrap();
     ///
     /// graph.insert_turtle(r#"
     ///     @prefix ex: <http://example.org/> .
     ///     ex:alice a ex:Person ;
     ///              ex:name "Alice" ;
     ///              ex:age 30 .
-    /// "#)?;
+    /// "#).unwrap();
     ///
     /// // Query the data
-    /// let results = graph.query("SELECT ?name WHERE { ?s ex:name ?name }")?;
-    /// # Ok(())
-    /// # }
+    /// let results = graph.query("SELECT ?name WHERE { ?s ex:name ?name }").unwrap();
+    /// // Results contain the query results
     /// ```
     ///
     /// ## Error case - Invalid Turtle syntax
@@ -692,7 +696,10 @@ impl Graph {
     /// Execute a SPARQL query (returns raw QueryResults)
     ///
     /// This method provides direct access to Oxigraph's QueryResults.
-    /// For cached queries, use `query_cached` instead.
+    ///
+    /// **Caching behavior**: This method only uses caching for boolean (ASK) queries.
+    /// For SELECT, CONSTRUCT, and DESCRIBE queries, it bypasses the cache and queries
+    /// directly. For full caching of all query types, use `query_cached` instead.
     ///
     /// # Example
     ///

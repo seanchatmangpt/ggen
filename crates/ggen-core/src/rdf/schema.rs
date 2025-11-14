@@ -52,51 +52,186 @@ pub const XSD_NAMESPACE: &str = "http://www.w3.org/2001/XMLSchema#";
 pub const OWL_NAMESPACE: &str = "http://www.w3.org/2002/07/owl#";
 
 /// Ggen ontology class and property URIs
+///
+/// **Kaizen improvement**: All public methods include runnable doctest examples
+/// for consistency and developer experience. Pattern: Use `# fn main() { ... }`
+/// wrapper with assertions to verify URI generation.
 pub struct GgenOntology;
 
 impl GgenOntology {
-    // Core Classes
+    /// Get the URI for the Template class.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use ggen_core::rdf::schema::GgenOntology;
+    ///
+    /// # fn main() {
+    /// let uri = GgenOntology::template();
+    /// assert!(uri.contains("Template"));
+    /// # }
+    /// ```
     pub fn template() -> String {
         format!("{}Template", GGEN_NAMESPACE)
     }
 
+    /// Get the URI for the File class.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use ggen_core::rdf::schema::GgenOntology;
+    ///
+    /// # fn main() {
+    /// let uri = GgenOntology::file();
+    /// assert!(uri.contains("File"));
+    /// # }
+    /// ```
     pub fn file() -> String {
         format!("{}File", GGEN_NAMESPACE)
     }
 
+    /// Get the URI for the Variable class.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use ggen_core::rdf::schema::GgenOntology;
+    ///
+    /// # fn main() {
+    /// let uri = GgenOntology::variable();
+    /// assert!(uri.contains("Variable"));
+    /// # }
+    /// ```
     pub fn variable() -> String {
         format!("{}Variable", GGEN_NAMESPACE)
     }
 
+    /// Get the URI for the Directory class.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use ggen_core::rdf::schema::GgenOntology;
+    ///
+    /// # fn main() {
+    /// let uri = GgenOntology::directory();
+    /// assert!(uri.contains("Directory"));
+    /// # }
+    /// ```
     pub fn directory() -> String {
         format!("{}Directory", GGEN_NAMESPACE)
     }
 
+    /// Get the URI for the Artifact class.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use ggen_core::rdf::schema::GgenOntology;
+    ///
+    /// # fn main() {
+    /// let uri = GgenOntology::artifact();
+    /// assert!(uri.contains("Artifact"));
+    /// # }
+    /// ```
     pub fn artifact() -> String {
         format!("{}Artifact", GGEN_NAMESPACE)
     }
 
+    /// Get the URI for the Dependency class.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use ggen_core::rdf::schema::GgenOntology;
+    ///
+    /// # fn main() {
+    /// let uri = GgenOntology::dependency();
+    /// assert!(uri.contains("Dependency"));
+    /// # }
+    /// ```
     pub fn dependency() -> String {
         format!("{}Dependency", GGEN_NAMESPACE)
     }
 
+    /// Get the URI for the FileFormat class.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use ggen_core::rdf::schema::GgenOntology;
+    ///
+    /// # fn main() {
+    /// let uri = GgenOntology::file_format();
+    /// assert!(uri.contains("FileFormat"));
+    /// # }
+    /// ```
     pub fn file_format() -> String {
         format!("{}FileFormat", GGEN_NAMESPACE)
     }
 
     // Generation Properties
+    /// Get the URI for the generatesFile property.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use ggen_core::rdf::schema::GgenOntology;
+    ///
+    /// # fn main() {
+    /// let uri = GgenOntology::generates_file();
+    /// assert!(uri.contains("generatesFile"));
+    /// # }
+    /// ```
     pub fn generates_file() -> String {
         format!("{}generatesFile", GGEN_NAMESPACE)
     }
 
+    /// Get the URI for the generatesDirectory property.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use ggen_core::rdf::schema::GgenOntology;
+    ///
+    /// # fn main() {
+    /// let uri = GgenOntology::generates_directory();
+    /// assert!(uri.contains("generatesDirectory"));
+    /// # }
+    /// ```
     pub fn generates_directory() -> String {
         format!("{}generatesDirectory", GGEN_NAMESPACE)
     }
 
+    /// Get the URI for the hasVariable property.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use ggen_core::rdf::schema::GgenOntology;
+    ///
+    /// # fn main() {
+    /// let uri = GgenOntology::has_variable();
+    /// assert!(uri.contains("hasVariable"));
+    /// # }
+    /// ```
     pub fn has_variable() -> String {
         format!("{}hasVariable", GGEN_NAMESPACE)
     }
 
+    /// Get the URI for the requiresVariable property.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use ggen_core::rdf::schema::GgenOntology;
+    ///
+    /// # fn main() {
+    /// let uri = GgenOntology::requires_variable();
+    /// assert!(uri.contains("requiresVariable"));
+    /// # }
+    /// ```
     pub fn requires_variable() -> String {
         format!("{}requiresVariable", GGEN_NAMESPACE)
     }

@@ -30,7 +30,7 @@
 //! use std::collections::BTreeMap;
 //! use std::path::Path;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! // Create a new pipeline
 //! let mut pipeline = Pipeline::new()?;
 //!
@@ -53,7 +53,7 @@
 //! use ggen_core::pipeline::PipelineBuilder;
 //! use std::collections::BTreeMap;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let mut prefixes = BTreeMap::new();
 //! prefixes.insert("ex".to_string(), "http://example.org/".to_string());
 //!
@@ -70,7 +70,7 @@ use crate::graph::{build_prolog, Graph};
 use crate::register;
 use crate::simple_tracing::SimpleTracer;
 use crate::template::Frontmatter;
-use anyhow::Result;
+use ggen_utils::error::{Error, Result};
 use oxigraph::sparql::QueryResults;
 use serde_json::Value;
 use sha2::{Digest, Sha256};
@@ -91,7 +91,7 @@ impl Pipeline {
     /// ```rust,no_run
     /// use ggen_core::pipeline::Pipeline;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let pipeline = Pipeline::new()?;
     /// # Ok(())
     /// # }
@@ -267,7 +267,7 @@ impl PipelineBuilder {
     /// use ggen_core::pipeline::PipelineBuilder;
     /// use std::collections::BTreeMap;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let mut prefixes = BTreeMap::new();
     /// prefixes.insert("ex".to_string(), "http://example.org/".to_string());
     ///
@@ -420,7 +420,9 @@ impl Plan {
 
         // Check idempotency guards
         if let Some(skip_if) = &self.frontmatter.skip_if {
-            if regex::Regex::new(skip_if)?.is_match(&existing_content) {
+            let regex = regex::Regex::new(skip_if)
+                .map_err(|e| Error::new(&format!("Invalid regex pattern '{}': {}", skip_if, e)))?;
+            if regex.is_match(&existing_content) {
                 // PipelineTracer::skip_condition("skip_if", &format!("pattern '{}' found", skip_if)); // Temporarily disabled
                 return Ok(());
             }
@@ -475,10 +477,10 @@ impl Plan {
 
         // Check force flag
         if !self.frontmatter.force && self.output_path.exists() {
-            return Err(anyhow::anyhow!(
+            return Err(Error::new(&format!(
                 "File already exists: {}. Use --force to overwrite.",
                 self.output_path.display()
-            ));
+            )));
         }
 
         // Create parent directories if needed
@@ -582,11 +584,11 @@ impl Plan {
 
         // Security validation: block dangerous commands
         if self.is_dangerous_command(command) {
-            return Err(anyhow::anyhow!(
+            return Err(Error::new(&format!(
                 "SECURITY: Blocked potentially dangerous shell command: '{}'. \
                 Shell hooks are disabled for security. Use trusted templates only.",
                 command
-            ));
+            )));
         }
 
         // PipelineTracer::shell_hook_start(command, timing); // Temporarily disabled
@@ -603,7 +605,7 @@ impl Plan {
         if !output.status.success() {
             let stderr = String::from_utf8_lossy(&output.stderr);
             // PipelineTracer::shell_hook_complete(command, timing, exit_code); // Temporarily disabled
-            return Err(anyhow::anyhow!("Shell hook failed: {}", stderr));
+            return Err(Error::new(&format!("Shell hook failed: {}", stderr)));
         }
 
         // Print stdout if any

@@ -303,7 +303,9 @@ impl RegistryClient {
 
             // Exponential backoff before retry (except on last attempt)
             if attempt < MAX_RETRIES {
-                let backoff_ms = 100 * 2u64.pow(attempt - 1); // 100ms, 200ms, 400ms
+                /// Base backoff time in milliseconds for exponential backoff
+                const BASE_BACKOFF_MS: u64 = 100;
+                let backoff_ms = BASE_BACKOFF_MS * 2u64.pow(attempt - 1); // 100ms, 200ms, 400ms
                 tracing::info!(backoff_ms, "Waiting before retry");
                 tokio::time::sleep(std::time::Duration::from_millis(backoff_ms)).await;
             }

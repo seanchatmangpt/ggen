@@ -89,7 +89,25 @@ impl EolNormalizer {
         Self::detect_eol_from_content(&content)
     }
 
-    /// Detect EOL from file content.
+    /// Detect EOL from file content
+    ///
+    /// Analyzes content to determine which EOL style is used (CRLF, LF, or CR).
+    /// Returns the detected EOL string, or platform default if none detected.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use ggen_core::inject::EolNormalizer;
+    ///
+    /// let content = "line1\r\nline2\r\n";
+    /// let eol = EolNormalizer::detect_eol_from_content(content).unwrap();
+    /// assert_eq!(eol, "\r\n");
+    ///
+    /// // Test LF detection
+    /// let content_lf = "line1\nline2\n";
+    /// let eol_lf = EolNormalizer::detect_eol_from_content(content_lf).unwrap();
+    /// assert_eq!(eol_lf, "\n");
+    /// ```
     pub fn detect_eol_from_content(content: &str) -> Result<String> {
         // Look for CRLF first (Windows)
         if content.contains("\r\n") {
@@ -110,7 +128,20 @@ impl EolNormalizer {
         Ok(Self::platform_default())
     }
 
-    /// Get the platform default EOL.
+    /// Get the platform default EOL
+    ///
+    /// Returns the default EOL for the current platform:
+    /// - Windows: `\r\n` (CRLF)
+    /// - Unix/Linux/macOS: `\n` (LF)
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use ggen_core::inject::EolNormalizer;
+    ///
+    /// let default = EolNormalizer::platform_default();
+    /// // On Unix: "\n", on Windows: "\r\n"
+    /// ```
     pub fn platform_default() -> String {
         if cfg!(windows) {
             "\r\n".to_string()
@@ -119,7 +150,25 @@ impl EolNormalizer {
         }
     }
 
-    /// Normalize content to use the specified EOL.
+    /// Normalize content to use the specified EOL
+    ///
+    /// Converts all line endings in the content to the specified EOL style,
+    /// regardless of the original EOL format.
+    ///
+    /// # Arguments
+    ///
+    /// * `content` - Content to normalize
+    /// * `target_eol` - Target EOL string (e.g., `"\n"` or `"\r\n"`)
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use ggen_core::inject::EolNormalizer;
+    ///
+    /// let content = "line1\r\nline2\nline3\r";
+    /// let normalized = EolNormalizer::normalize_to_eol(content, "\n");
+    /// // All line endings are now "\n"
+    /// ```
     pub fn normalize_to_eol(content: &str, target_eol: &str) -> String {
         // First normalize to LF, then convert to target
         let normalized = content
@@ -154,21 +203,85 @@ impl EolNormalizer {
     }
 }
 
-/// Default skip_if pattern generator for injection templates.
+/// Default skip_if pattern generator for injection templates
+///
+/// Generates regex patterns to detect if content has already been injected
+/// into a file, enabling idempotent file injection.
+///
+/// # Examples
+///
+/// ```rust
+/// use ggen_core::inject::SkipIfGenerator;
+///
+/// # fn main() {
+/// let content = "// Generated code\nfunction hello() {}";
+/// let pattern = SkipIfGenerator::generate_exact_match(content);
+/// // Pattern can be used to check if content already exists
+/// # }
+/// ```
 pub struct SkipIfGenerator;
 
 impl SkipIfGenerator {
-    /// Generate a default skip_if pattern for exact substring match.
+    /// Generate a default skip_if pattern for exact substring match
     ///
-    /// This creates a regex pattern that will match if the injection
-    /// content already exists in the target file.
+    /// Creates a regex pattern that will match if the injection content
+    /// already exists in the target file. The pattern escapes special regex
+    /// characters and enables multiline matching.
+    ///
+    /// # Arguments
+    ///
+    /// * `content` - Content to generate pattern for
+    ///
+    /// # Returns
+    ///
+    /// A regex pattern string that can be used to check if the content exists.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use ggen_core::inject::SkipIfGenerator;
+    ///
+    /// # fn main() {
+    /// let content = "function hello() { return 'world'; }";
+    /// let pattern = SkipIfGenerator::generate_exact_match(content);
+    /// // Pattern: "(?s)function hello\\(\\) \\{ return 'world'; \\}"
+    /// # }
+    /// ```
     pub fn generate_exact_match(content: &str) -> String {
         // Escape special regex characters in the content
         let escaped = regex::escape(content);
         format!("(?s){}", escaped) // (?s) enables dotall mode for multiline matching
     }
 
-    /// Check if content already exists in target file using exact substring match.
+    /// Check if content already exists in target file using exact substring match
+    ///
+    /// Reads the target file and checks if the content is already present.
+    /// Returns `false` if the file doesn't exist.
+    ///
+    /// # Arguments
+    ///
+    /// * `content` - Content to check for
+    /// * `file_path` - Path to the target file
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::inject::SkipIfGenerator;
+    /// use std::path::Path;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let content = "// Generated code";
+    /// let exists = SkipIfGenerator::content_exists_in_file(
+    ///     content,
+    ///     Path::new("file.rs")
+    /// )?;
+    ///
+    /// if !exists {
+    ///     // Inject content
+    /// }
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn content_exists_in_file(content: &str, file_path: &Path) -> Result<bool> {
         if !file_path.exists() {
             return Ok(false);
@@ -178,11 +291,27 @@ impl SkipIfGenerator {
         Ok(file_content.contains(content))
     }
 
-    /// Generate a default skip_if for idempotent injection.
+    /// Generate a default skip_if for idempotent injection
     ///
-    /// This is more sophisticated than exact match - it looks for
-    /// content that has already been injected by checking for
-    /// ggen-specific markers or patterns.
+    /// Generates a pattern for detecting if content has already been injected.
+    /// This is more sophisticated than exact match and can detect ggen-specific
+    /// markers or content signatures.
+    ///
+    /// # Arguments
+    ///
+    /// * `content` - Content to generate pattern for
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use ggen_core::inject::SkipIfGenerator;
+    ///
+    /// # fn main() {
+    /// let content = "// GENERATED: DO NOT EDIT\nfunction hello() {}";
+    /// let pattern = SkipIfGenerator::generate_idempotent_pattern(content);
+    /// // Pattern can detect if this generated section already exists
+    /// # }
+    /// ```
     pub fn generate_idempotent_pattern(content: &str) -> String {
         // For now, use exact match
         // In the future, this could be enhanced to look for
