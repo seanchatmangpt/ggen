@@ -1,4 +1,4 @@
-//! ggen-domain - Domain Logic Layer
+//! # ggen-domain - Domain Logic Layer
 //!
 //! This crate contains all domain/business logic for ggen, completely separated
 //! from CLI concerns. It provides pure business logic functions that can be used

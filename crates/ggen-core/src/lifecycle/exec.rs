@@ -1,4 +1,58 @@
 //! Phase execution with hooks and state management
+//!
+//! This module provides the core execution engine for lifecycle phases, including
+//! hook execution (before/after), state persistence, and deterministic caching.
+//!
+//! ## Features
+//!
+//! - **Phase execution**: Run lifecycle phases with command execution
+//! - **Hook support**: Execute before/after hooks for phases
+//! - **State persistence**: Track phase history and generated files
+//! - **Deterministic caching**: Cache key generation for reproducible builds
+//! - **Thread-safe**: Support for parallel workspace execution
+//!
+//! ## Examples
+//!
+//! ### Running a Phase
+//!
+//! ```rust,no_run
+//! use ggen_core::lifecycle::exec::Context;
+//! use ggen_core::lifecycle::exec::run_phase;
+//! use std::path::PathBuf;
+//! use std::sync::Arc;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! // Create execution context
+//! let root = PathBuf::from(".");
+//! let make = Arc::new(ggen_core::lifecycle::loader::load_make("make.toml")?);
+//! let state_path = root.join(".ggen/state.json");
+//! let ctx = Context::new(root, make, state_path, vec![]);
+//!
+//! // Run a phase
+//! run_phase(&ctx, "build")?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Running Multiple Phases
+//!
+//! ```rust,no_run
+//! use ggen_core::lifecycle::exec::run_pipeline;
+//! use std::path::PathBuf;
+//! use std::sync::Arc;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! // Create context (same as above)
+//! let root = PathBuf::from(".");
+//! let make = Arc::new(ggen_core::lifecycle::loader::load_make("make.toml")?);
+//! let state_path = root.join(".ggen/state.json");
+//! let ctx = ggen_core::lifecycle::exec::Context::new(root, make, state_path, vec![]);
+//!
+//! // Run multiple phases in sequence
+//! run_pipeline(&ctx, &vec!["test".to_string(), "lint".to_string(), "build".to_string()])?;
+//! # Ok(())
+//! # }
+//! ```
 
 use super::{cache::cache_key, error::*, loader::load_make, model::*, state::*};
 use std::path::{Path, PathBuf};

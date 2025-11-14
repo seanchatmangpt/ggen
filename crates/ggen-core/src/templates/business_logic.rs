@@ -2,19 +2,135 @@
 //!
 //! This module provides functionality for separating CLI layer (thin wrapper)
 //! from business logic (domain implementation) to enable easier maintenance
-//! and testing.
+//! and testing. This follows the 2026 best practice of keeping CLI layers thin
+//! and business logic in a separate domain layer.
+//!
+//! ## Features
+//!
+//! - **CLI Wrapper Generation**: Creates thin synchronous wrappers for async business logic
+//! - **Domain Skeleton Generation**: Generates async business logic templates
+//! - **Non-Destructive**: Never overwrites existing business logic files
+//! - **Frozen Sections**: Uses frozen tags to protect user code
+//! - **Type Safety**: Generates type-safe argument structures
+//! - **Test Templates**: Includes test boilerplate for business logic
+//!
+//! ## Architecture
+//!
+//! The separation creates two layers:
+//!
+//! 1. **CLI Layer** (`cli/`): Thin synchronous wrappers that:
+//!    - Parse CLI arguments using clap
+//!    - Create a Tokio runtime
+//!    - Call async business logic
+//!    - Handle errors and output
+//!
+//! 2. **Domain Layer** (`domain/`): Async business logic that:
+//!    - Contains actual implementation
+//!    - Is never overwritten once created
+//!    - Can be freely modified by users
+//!    - Includes frozen sections for regeneration safety
+//!
+//! ## Examples
+//!
+//! ### Generating Separated Files
+//!
+//! ```rust,no_run
+//! use ggen_core::templates::business_logic::BusinessLogicSeparator;
+//! use std::path::Path;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let cli_path = Path::new("cli/create_project.rs");
+//! let domain_path = Path::new("domain/create_project.rs");
+//!
+//! BusinessLogicSeparator::generate_separated_files(
+//!     cli_path,
+//!     domain_path,
+//!     "create",
+//!     "project",
+//!     false, // Don't overwrite existing domain file
+//! )?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Generated CLI Wrapper
+//!
+//! The CLI wrapper will look like:
+//!
+//! ```rust,no_run
+//! //! CLI wrapper for create project
+//! use anyhow::Result;
+//! use clap::Args;
+//! use crate::domain::create_project;
+//!
+//! #[derive(Debug, Args)]
+//! pub struct CreateProjectArgs {
+//!     // CLI arguments here
+//! }
+//!
+//! #[create]
+//! pub fn create_project(args: CreateProjectArgs) -> Result<()> {
+//!     tokio::runtime::Runtime::new()?.block_on(async {
+//!         create_project(args).await
+//!     })
+//! }
+//! ```
+//!
+//! ### Generated Domain Logic
+//!
+//! The domain logic will look like:
+//!
+//! ```rust,no_run
+//! //! Business logic for create project
+//! use anyhow::Result;
+//!
+//! #[derive(Debug)]
+//! pub struct CreateProjectArgs {
+//!     // Business logic arguments
+//! }
+//!
+//! pub async fn create_project(args: CreateProjectArgs) -> Result<()> {
+//!     {% frozen id="implementation" %}
+//!     // User's implementation here
+//!     {% endfrozen %}
+//! }
+//! ```
 
 use anyhow::Result;
 use std::fs;
 use std::path::Path;
 
 /// Generator for separated business logic files
+///
+/// Generates code that separates CLI layer (thin wrapper) from business logic
+/// (domain implementation), following 2026 best practices for maintainable CLI projects.
+///
+/// # Examples
+///
+/// ```rust,no_run
+/// use ggen_core::templates::business_logic::BusinessLogicSeparator;
+/// use std::path::Path;
+///
+/// # fn main() -> anyhow::Result<()> {
+/// let cli_path = Path::new("cli/create_project.rs");
+/// let domain_path = Path::new("domain/create_project.rs");
+///
+/// BusinessLogicSeparator::generate_separated_files(
+///     cli_path,
+///     domain_path,
+///     "create",
+///     "project",
+///     false,
+/// )?;
+/// # Ok(())
+/// # }
+/// ```
 pub struct BusinessLogicSeparator;
 
 impl BusinessLogicSeparator {
     /// Generate CLI wrapper file (sync wrapper calling async business logic)
     ///
-    /// Creates a thin CLI layer with #[verb] attribute that delegates to
+    /// Creates a thin CLI layer with `#[verb]` attribute that delegates to
     /// async business logic in the domain layer.
     ///
     /// # Arguments
@@ -68,12 +184,30 @@ pub fn {}(args: {}Args) -> Result<()> {{
 
     /// Generate business logic skeleton (only if doesn't exist)
     ///
-    /// Creates an async business logic template in the domain layer.
-    /// NEVER overwrites existing business logic files.
+    /// Creates an async business logic template in the domain layer with
+    /// frozen sections to protect user code. This file is NEVER overwritten
+    /// once it exists, allowing users to freely modify business logic.
     ///
     /// # Arguments
+    ///
     /// * `verb` - The CLI verb (e.g., "create", "delete", "list")
     /// * `noun` - The CLI noun (e.g., "project", "user", "task")
+    ///
+    /// # Returns
+    ///
+    /// Generated Rust code as a string containing the async business logic skeleton
+    /// with frozen sections for safe regeneration.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::templates::business_logic::BusinessLogicSeparator;
+    ///
+    /// let code = BusinessLogicSeparator::generate_domain_skeleton("delete", "user");
+    /// assert!(code.contains("pub async fn delete_user"));
+    /// assert!(code.contains("{% frozen"));
+    /// assert!(code.contains("#[tokio::test]"));
+    /// ```
     pub fn generate_domain_skeleton(verb: &str, noun: &str) -> String {
         let function_name = Self::to_snake_case(&format!("{}_{}", verb, noun));
         let struct_name = Self::to_pascal_case(&format!("{}-{}", verb, noun));
@@ -145,20 +279,68 @@ mod tests {{
 
     /// Check if business logic file exists
     ///
-    /// Returns true if the business logic file already exists and should
-    /// NOT be overwritten.
+    /// Returns `true` if the business logic file already exists and should
+    /// NOT be overwritten. This prevents accidental loss of user code.
+    ///
+    /// # Arguments
+    ///
+    /// * `path` - Path to the business logic file to check
+    ///
+    /// # Returns
+    ///
+    /// `true` if the file exists, `false` otherwise.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::templates::business_logic::BusinessLogicSeparator;
+    /// use std::path::Path;
+    ///
+    /// let exists = BusinessLogicSeparator::business_logic_exists(Path::new("domain/create.rs"));
+    /// if !exists {
+    ///     // Safe to generate new file
+    /// }
+    /// ```
     pub fn business_logic_exists(path: &Path) -> bool {
         path.exists()
     }
 
     /// Generate both CLI wrapper and domain logic files
     ///
+    /// Generates the complete separation: a CLI wrapper file and a domain logic file.
+    /// The CLI wrapper is always generated (it's thin and safe to regenerate).
+    /// The domain logic file is only generated if it doesn't exist, unless `force_domain`
+    /// is `true` (which is dangerous and should be used with caution).
+    ///
     /// # Arguments
-    /// * `cli_path` - Path for CLI wrapper file
-    /// * `domain_path` - Path for business logic file
-    /// * `verb` - The CLI verb
-    /// * `noun` - The CLI noun
-    /// * `force_domain` - Force overwrite of domain file (dangerous!)
+    ///
+    /// * `cli_path` - Path for CLI wrapper file (always generated)
+    /// * `domain_path` - Path for business logic file (only if missing or forced)
+    /// * `verb` - The CLI verb (e.g., "create", "delete", "list")
+    /// * `noun` - The CLI noun (e.g., "project", "user", "task")
+    /// * `force_domain` - Force overwrite of domain file (dangerous! Use with caution)
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if file system operations fail.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::templates::business_logic::BusinessLogicSeparator;
+    /// use std::path::Path;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// BusinessLogicSeparator::generate_separated_files(
+    ///     Path::new("cli/create_project.rs"),
+    ///     Path::new("domain/create_project.rs"),
+    ///     "create",
+    ///     "project",
+    ///     false, // Don't overwrite existing domain file
+    /// )?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn generate_separated_files(
         cli_path: &Path, domain_path: &Path, verb: &str, noun: &str, force_domain: bool,
     ) -> Result<()> {

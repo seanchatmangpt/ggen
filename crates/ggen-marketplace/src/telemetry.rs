@@ -1,7 +1,44 @@
 //! OpenTelemetry instrumentation for ggen marketplace
 //!
-//! This module provides OTLP tracing capabilities for all marketplace operations,
-//! enabling trace validation by clnrm tests.
+//! This module provides OTLP (OpenTelemetry Protocol) tracing capabilities for
+//! all marketplace operations. It enables distributed tracing, performance monitoring,
+//! and trace validation by clnrm tests.
+//!
+//! ## Features
+//!
+//! - **OTLP Export**: Export traces via OTLP gRPC
+//! - **Structured Tracing**: Rich span attributes and events
+//! - **Console Output**: Local debugging with formatted trace output
+//! - **Configurable Sampling**: Control trace sampling ratio
+//! - **Service Identification**: Tag traces with service name and version
+//!
+//! ## Configuration
+//!
+//! Telemetry can be configured via environment variables:
+//! - `OTEL_EXPORTER_OTLP_ENDPOINT`: OTLP endpoint URL (default: http://localhost:4317)
+//! - `OTEL_SERVICE_NAME`: Service name for traces (default: "ggen-marketplace")
+//! - `RUST_LOG`: Log level filter (default: "info")
+//!
+//! ## Examples
+//!
+//! ### Initializing Telemetry
+//!
+//! ```rust,no_run
+//! use ggen_marketplace::telemetry::{init_telemetry, TelemetryConfig};
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let config = TelemetryConfig {
+//!     endpoint: "http://localhost:4317".to_string(),
+//!     service_name: "ggen-marketplace".to_string(),
+//!     sample_ratio: 1.0,
+//!     console_output: true,
+//! };
+//!
+//! let _guard = init_telemetry(config)?;
+//! // Telemetry is now active
+//! # Ok(())
+//! # }
+//! ```
 
 use anyhow::{Context, Result};
 use opentelemetry::KeyValue;

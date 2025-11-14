@@ -1,3 +1,46 @@
+//! Search query models and types
+//!
+//! This module provides data structures for constructing and executing search queries
+//! against the marketplace. It includes simple queries, advanced queries with filters,
+//! and search result types.
+//!
+//! ## Query Types
+//!
+//! - **Query**: Simple text-based search query with optional filters
+//! - **SearchQuery**: Advanced query with ranking, faceting, and pagination
+//! - **SearchResults**: Paginated search results with metadata
+//!
+//! ## Examples
+//!
+//! ### Creating a Simple Query
+//!
+//! ```rust
+//! use ggen_marketplace::models::{Query, Category};
+//!
+//! # fn main() {
+//! let query = Query::new("rust web service")
+//!     .with_category(Category::WebService)
+//!     .with_tag("async")
+//!     .with_limit(20);
+//! # }
+//! ```
+//!
+//! ### Creating an Advanced Search Query
+//!
+//! ```rust,no_run
+//! use ggen_marketplace::models::{SearchQuery, Query, Category};
+//!
+//! # fn main() {
+//! let base_query = Query::new("rust");
+//! let search_query = SearchQuery {
+//!     query: base_query,
+//!     min_score: 0.5,
+//!     fuzzy: true,
+//!     // ... other options
+//! };
+//! # }
+//! ```
+
 use super::{Category, Package, Version};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;

@@ -1,5 +1,62 @@
-// Project Generator Module
-// Production-ready code with error handling
+//! Project generator for scaffolding new projects
+//!
+//! This module provides functionality for generating complete project structures
+//! from templates. It supports multiple project types including Rust (web, CLI, library)
+//! and JavaScript frameworks (Next.js, Nuxt).
+//!
+//! ## Features
+//!
+//! - **Multi-language support**: Generate Rust and JavaScript/TypeScript projects
+//! - **Project type detection**: Automatically select appropriate generator
+//! - **File system operations**: Create directories and write files
+//! - **Git integration**: Initialize git repositories for new projects
+//! - **Dependency management**: Install dependencies via cargo or npm
+//!
+//! ## Architecture
+//!
+//! The module uses a trait-based design with `ProjectGenerator` trait that allows
+//! different generators for different project types. The `GeneratorFactory` creates
+//! the appropriate generator based on project type.
+//!
+//! ## Examples
+//!
+//! ### Creating a Rust CLI Project
+//!
+//! ```rust,no_run
+//! use ggen_core::project_generator::{ProjectConfig, ProjectType, create_new_project};
+//! use std::path::PathBuf;
+//!
+//! # async fn example() -> anyhow::Result<()> {
+//! let config = ProjectConfig {
+//!     name: "my-cli".to_string(),
+//!     project_type: ProjectType::RustCli,
+//!     framework: None,
+//!     path: PathBuf::from("."),
+//! };
+//!
+//! create_new_project(&config).await?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Creating a Next.js Project
+//!
+//! ```rust,no_run
+//! use ggen_core::project_generator::{ProjectConfig, ProjectType, create_new_project};
+//! use std::path::PathBuf;
+//!
+//! # async fn example() -> anyhow::Result<()> {
+//! let config = ProjectConfig {
+//!     name: "my-app".to_string(),
+//!     project_type: ProjectType::NextJs,
+//!     framework: None,
+//!     path: PathBuf::from("."),
+//! };
+//!
+//! create_new_project(&config).await?;
+//! # Ok(())
+//! # }
+//! ```
 
 pub mod common;
 pub mod nextjs;

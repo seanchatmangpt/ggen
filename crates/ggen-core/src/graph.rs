@@ -1,3 +1,77 @@
+//! RDF graph management with SPARQL query caching
+//!
+//! This module provides a thread-safe wrapper around Oxigraph's RDF store with
+//! intelligent caching for SPARQL queries. The `Graph` type maintains an in-memory
+//! triple store and provides efficient query execution with result caching.
+//!
+//! ## Features
+//!
+//! - **Thread-safe**: Clone is cheap (shared store via Arc)
+//! - **Query caching**: LRU cache for query plans and results
+//! - **Epoch-based invalidation**: Cache automatically invalidates when graph changes
+//! - **Multiple RDF formats**: Supports Turtle, N-Triples, and RDF/XML
+//! - **SPARQL 1.1**: Full SPARQL query support with boolean, solutions, and graph results
+//!
+//! ## Examples
+//!
+//! ### Basic Usage
+//!
+//! ```rust,no_run
+//! use ggen_core::graph::Graph;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! // Create a new graph
+//! let graph = Graph::new()?;
+//!
+//! // Load RDF data
+//! graph.insert_turtle(r#"
+//!     @prefix ex: <http://example.org/> .
+//!     ex:alice a ex:Person ;
+//!              ex:name "Alice" .
+//! "#)?;
+//!
+//! // Query the graph
+//! let results = graph.query("SELECT ?s ?o WHERE { ?s ex:name ?o }")?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Loading from File
+//!
+//! ```rust,no_run
+//! use ggen_core::graph::Graph;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! // Load RDF from a file
+//! let graph = Graph::load_from_file("data.ttl")?;
+//!
+//! // Query with cached results
+//! let cached = graph.query_cached("SELECT ?s WHERE { ?s ?p ?o }")?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Pattern Matching
+//!
+//! ```rust,no_run
+//! use ggen_core::graph::Graph;
+//! use oxigraph::model::NamedNode;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let graph = Graph::new()?;
+//! graph.insert_quad(
+//!     "http://example.org/subject",
+//!     "http://example.org/predicate",
+//!     "http://example.org/object"
+//! )?;
+//!
+//! // Find all quads with a specific subject
+//! let subject = NamedNode::new("http://example.org/subject")?;
+//! let quads = graph.quads_for_pattern(Some(&subject.into()), None, None, None)?;
+//! # Ok(())
+//! # }
+//! ```
+
 use ahash::AHasher;
 use anyhow::{bail, Result};
 use lru::LruCache;
@@ -17,11 +91,68 @@ use std::sync::{
     Arc, Mutex,
 };
 
+/// Cached SPARQL query result types.
+///
+/// This enum represents the different types of results that can be returned
+/// from SPARQL queries and cached for efficient reuse.
+///
+/// # Variants
+///
+/// * `Boolean(bool)` - Result of an ASK query (true/false)
+/// * `Solutions(Vec<BTreeMap<String, String>>)` - Result of a SELECT query (rows of variable bindings)
+/// * `Graph(Vec<String>)` - Result of a CONSTRUCT/DESCRIBE query (serialized triples)
+///
+/// # Examples
+///
+/// ## Boolean result
+///
+/// ```rust,no_run
+/// use ggen_core::graph::{Graph, CachedResult};
+///
+/// # fn main() -> anyhow::Result<()> {
+/// let graph = Graph::new()?;
+/// graph.insert_turtle(r#"
+///     @prefix ex: <http://example.org/> .
+///     ex:alice a ex:Person .
+/// "#)?;
+///
+/// let result = graph.query("ASK { ?s a ex:Person }")?;
+/// if let CachedResult::Boolean(true) = result {
+///     println!("Person exists in graph");
+/// }
+/// # Ok(())
+/// # }
+/// ```
+///
+/// ## Solutions result
+///
+/// ```rust,no_run
+/// use ggen_core::graph::{Graph, CachedResult};
+///
+/// # fn main() -> anyhow::Result<()> {
+/// let graph = Graph::new()?;
+/// graph.insert_turtle(r#"
+///     @prefix ex: <http://example.org/> .
+///     ex:alice ex:name "Alice" .
+/// "#)?;
+///
+/// let result = graph.query("SELECT ?name WHERE { ?s ex:name ?name }")?;
+/// if let CachedResult::Solutions(rows) = result {
+///     for row in rows {
+///         println!("Name: {}", row.get("name").unwrap());
+///     }
+/// }
+/// # Ok(())
+/// # }
+/// ```
 #[derive(Clone, Debug)]
 pub enum CachedResult {
+    /// Boolean result from ASK queries
     Boolean(bool),
+    /// Solution bindings from SELECT queries
     Solutions(Vec<BTreeMap<String, String>>),
-    Graph(Vec<String>), // Serialized triples
+    /// Serialized triples from CONSTRUCT/DESCRIBE queries
+    Graph(Vec<String>),
 }
 
 impl CachedResult {
@@ -47,7 +178,97 @@ impl CachedResult {
     }
 }
 
-/// Thread-safe Oxigraph wrapper with SPARQL caching. Clone is cheap (shared store).
+/// Thread-safe Oxigraph wrapper with SPARQL caching.
+///
+/// The `Graph` type provides a high-level interface to an in-memory RDF triple store
+/// with intelligent query caching. It wraps Oxigraph's `Store` and adds:
+///
+/// - **Query result caching**: LRU cache for SPARQL query results
+/// - **Query plan caching**: Cached query plans for faster execution
+/// - **Epoch-based invalidation**: Automatic cache invalidation when graph changes
+/// - **Thread safety**: Cheap cloning via `Arc` for concurrent access
+///
+/// # Thread Safety
+///
+/// `Graph` is designed for concurrent use. Cloning a `Graph` is cheap (O(1)) as it
+/// shares the underlying store via `Arc`. Multiple threads can safely query the same
+/// graph concurrently.
+///
+/// # Cache Invalidation
+///
+/// The graph maintains an epoch counter that increments whenever data is inserted.
+/// This automatically invalidates cached query results, ensuring consistency.
+///
+/// # Examples
+///
+/// ## Basic usage
+///
+/// ```rust,no_run
+/// use ggen_core::graph::Graph;
+///
+/// # fn main() -> anyhow::Result<()> {
+/// // Create a new graph
+/// let graph = Graph::new()?;
+///
+/// // Load RDF data
+/// graph.insert_turtle(r#"
+///     @prefix ex: <http://example.org/> .
+///     ex:alice a ex:Person ;
+///              ex:name "Alice" .
+/// "#)?;
+///
+/// // Query with automatic caching
+/// let results = graph.query("SELECT ?name WHERE { ?s ex:name ?name }")?;
+/// # Ok(())
+/// # }
+/// ```
+///
+/// ## Loading from file
+///
+/// ```rust,no_run
+/// use ggen_core::graph::Graph;
+///
+/// # fn main() -> anyhow::Result<()> {
+/// // Load RDF from a file
+/// let graph = Graph::load_from_file("data.ttl")?;
+///
+/// // Query with cached results (second query uses cache)
+/// let _first = graph.query("SELECT ?s WHERE { ?s ?p ?o }")?;
+/// let _cached = graph.query("SELECT ?s WHERE { ?s ?p ?o }")?; // Uses cache
+/// # Ok(())
+/// # }
+/// ```
+///
+/// ## Concurrent access
+///
+/// ```rust,no_run
+/// use ggen_core::graph::Graph;
+/// use std::thread;
+///
+/// # fn main() -> anyhow::Result<()> {
+/// let graph = Graph::new()?;
+/// graph.insert_turtle(r#"
+///     @prefix ex: <http://example.org/> .
+///     ex:alice ex:name "Alice" .
+/// "#)?;
+///
+/// // Clone is cheap - shares underlying store
+/// let graph1 = graph.clone();
+/// let graph2 = graph.clone();
+///
+/// // Multiple threads can query concurrently
+/// let t1 = thread::spawn(move || {
+///     graph1.query("SELECT ?name WHERE { ?s ex:name ?name }")
+/// });
+/// let t2 = thread::spawn(move || {
+///     graph2.query("SELECT ?name WHERE { ?s ex:name ?name }")
+/// });
+///
+/// let _r1 = t1.join().unwrap()?;
+/// let _r2 = t2.join().unwrap()?;
+/// # Ok(())
+/// # }
+/// ```
 pub struct Graph {
     inner: Store,
     epoch: Arc<AtomicU64>,
@@ -56,6 +277,18 @@ pub struct Graph {
 }
 
 impl Graph {
+    /// Create a new empty graph
+    ///
+    /// # Example
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::graph::Graph;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let graph = Graph::new()?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn new() -> Result<Self> {
         let plan_cache_size =
             NonZeroUsize::new(100).ok_or_else(|| anyhow::anyhow!("Invalid cache size"))?;
@@ -71,6 +304,17 @@ impl Graph {
     }
 
     /// Load RDF data from a file into a new Graph
+    ///
+    /// # Example
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::graph::Graph;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let graph = Graph::load_from_file("data.ttl")?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn load_from_file<P: AsRef<Path>>(path: P) -> Result<Self> {
         let graph = Self::new()?;
         graph.load_path(path)?;
@@ -115,6 +359,62 @@ impl Graph {
         }
     }
 
+    /// Insert RDF data in Turtle format
+    ///
+    /// Loads RDF triples from a Turtle string into the graph. The graph's
+    /// epoch counter is incremented, invalidating cached query results.
+    ///
+    /// # Arguments
+    ///
+    /// * `turtle` - Turtle-formatted RDF data
+    ///
+    /// # Returns
+    ///
+    /// Returns `Ok(())` if the data was successfully loaded, or an error if
+    /// the Turtle syntax is invalid.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if:
+    /// - The Turtle syntax is invalid
+    /// - The RDF data cannot be parsed
+    ///
+    /// # Examples
+    ///
+    /// ## Success case
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::graph::Graph;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let graph = Graph::new()?;
+    ///
+    /// graph.insert_turtle(r#"
+    ///     @prefix ex: <http://example.org/> .
+    ///     ex:alice a ex:Person ;
+    ///              ex:name "Alice" ;
+    ///              ex:age 30 .
+    /// "#)?;
+    ///
+    /// // Query the data
+    /// let results = graph.query("SELECT ?name WHERE { ?s ex:name ?name }")?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// ## Error case - Invalid Turtle syntax
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::graph::Graph;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let graph = Graph::new()?;
+    /// // This will fail because the Turtle syntax is invalid
+    /// let result = graph.insert_turtle("invalid turtle syntax {");
+    /// assert!(result.is_err());
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn insert_turtle(&self, turtle: &str) -> Result<()> {
         self.inner
             .load_from_reader(RdfFormat::Turtle, turtle.as_bytes())?;
@@ -122,6 +422,38 @@ impl Graph {
         Ok(())
     }
 
+    /// Insert RDF data in Turtle format with a base IRI
+    ///
+    /// Loads RDF triples from a Turtle string with a specified base IRI.
+    /// Relative IRIs in the Turtle data will be resolved against this base.
+    ///
+    /// **Note**: The current Oxigraph API doesn't fully support base IRI in
+    /// `load_from_reader`, so this method currently behaves the same as
+    /// `insert_turtle`. The base IRI parameter is accepted for API compatibility.
+    ///
+    /// # Arguments
+    ///
+    /// * `turtle` - Turtle-formatted RDF data
+    /// * `base_iri` - Base IRI for resolving relative IRIs (currently not fully supported)
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::graph::Graph;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let graph = Graph::new()?;
+    ///
+    /// graph.insert_turtle_with_base(
+    ///     r#"
+    ///     @prefix ex: <http://example.org/> .
+    ///     ex:alice a ex:Person .
+    ///     "#,
+    ///     "http://example.org/"
+    /// )?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn insert_turtle_with_base(&self, turtle: &str, _base_iri: &str) -> Result<()> {
         // Note: The new Oxigraph API doesn't support base IRI in load_from_reader
         // We'll need to handle this differently or use a different approach
@@ -131,6 +463,37 @@ impl Graph {
         Ok(())
     }
 
+    /// Insert RDF data in Turtle format into a named graph
+    ///
+    /// Loads RDF triples from a Turtle string into a specific named graph.
+    ///
+    /// **Note**: The current Oxigraph API doesn't fully support named graphs in
+    /// `load_from_reader`, so this method currently loads into the default graph.
+    /// The graph IRI parameter is accepted for API compatibility.
+    ///
+    /// # Arguments
+    ///
+    /// * `turtle` - Turtle-formatted RDF data
+    /// * `graph_iri` - IRI of the named graph (currently not fully supported)
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::graph::Graph;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let graph = Graph::new()?;
+    ///
+    /// graph.insert_turtle_in(
+    ///     r#"
+    ///     @prefix ex: <http://example.org/> .
+    ///     ex:alice a ex:Person .
+    ///     "#,
+    ///     "http://example.org/graph1"
+    /// )?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn insert_turtle_in(&self, turtle: &str, _graph_iri: &str) -> Result<()> {
         // Note: The new Oxigraph API doesn't support named graphs in load_from_reader
         // We'll need to handle this differently or use a different approach
@@ -140,6 +503,38 @@ impl Graph {
         Ok(())
     }
 
+    /// Insert a single RDF quad (triple) into the graph
+    ///
+    /// Adds a single triple to the graph. All components must be valid IRIs.
+    /// The graph's epoch counter is incremented, invalidating cached query results.
+    ///
+    /// # Arguments
+    ///
+    /// * `s` - Subject IRI
+    /// * `p` - Predicate IRI
+    /// * `o` - Object IRI
+    ///
+    /// # Returns
+    ///
+    /// Returns `Ok(())` if the quad was successfully inserted, or an error if
+    /// any of the IRIs are invalid.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::graph::Graph;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let graph = Graph::new()?;
+    ///
+    /// graph.insert_quad(
+    ///     "http://example.org/alice",
+    ///     "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+    ///     "http://example.org/Person"
+    /// )?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn insert_quad(&self, s: &str, p: &str, o: &str) -> Result<()> {
         let s = NamedNode::new(s)?;
         let p = NamedNode::new(p)?;
@@ -150,6 +545,38 @@ impl Graph {
         Ok(())
     }
 
+    /// Load RDF data from a file path
+    ///
+    /// Automatically detects the RDF format from the file extension:
+    /// - `.ttl` - Turtle format
+    /// - `.nt` - N-Triples format
+    /// - `.rdf` or `.xml` - RDF/XML format
+    ///
+    /// The graph's epoch counter is incremented, invalidating cached query results.
+    ///
+    /// # Arguments
+    ///
+    /// * `path` - Path to the RDF file
+    ///
+    /// # Returns
+    ///
+    /// Returns `Ok(())` if the file was successfully loaded, or an error if
+    /// the file cannot be read or the format is invalid.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::graph::Graph;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let graph = Graph::new()?;
+    /// graph.load_path("data.ttl")?;
+    ///
+    /// // Query the loaded data
+    /// let results = graph.query("SELECT ?s ?p ?o WHERE { ?s ?p ?o }")?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn load_path<P: AsRef<Path>>(&self, path: P) -> Result<()> {
         let path = path.as_ref();
         let ext = path
@@ -172,6 +599,50 @@ impl Graph {
         Ok(())
     }
 
+    /// Execute a SPARQL query with caching
+    ///
+    /// Results are cached based on query string and graph epoch.
+    /// Cache is automatically invalidated when the graph changes.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if:
+    /// - The SPARQL query syntax is invalid
+    /// - The query cannot be executed
+    ///
+    /// # Examples
+    ///
+    /// ## Success case
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::graph::Graph;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let graph = Graph::new()?;
+    /// graph.insert_turtle(r#"
+    ///     @prefix ex: <http://example.org/> .
+    ///     ex:alice a ex:Person ;
+    ///              ex:name "Alice" .
+    /// "#)?;
+    ///
+    /// let results = graph.query_cached("SELECT ?s ?o WHERE { ?s ex:name ?o }")?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// ## Error case - Invalid SPARQL query
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::graph::Graph;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let graph = Graph::new()?;
+    /// // This will fail because the SPARQL query is invalid
+    /// let result = graph.query_cached("INVALID SPARQL SYNTAX {");
+    /// assert!(result.is_err());
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn query_cached(&self, sparql: &str) -> Result<CachedResult> {
         let query_hash = self.hash_query(sparql);
         let epoch = self.current_epoch();
@@ -218,6 +689,28 @@ impl Graph {
         Ok(cached)
     }
 
+    /// Execute a SPARQL query (returns raw QueryResults)
+    ///
+    /// This method provides direct access to Oxigraph's QueryResults.
+    /// For cached queries, use `query_cached` instead.
+    ///
+    /// # Example
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::graph::Graph;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let graph = Graph::new()?;
+    /// graph.insert_turtle(r#"
+    ///     @prefix ex: <http://example.org/> .
+    ///     ex:alice a ex:Person ;
+    ///              ex:name "Alice" .
+    /// "#)?;
+    ///
+    /// let results = graph.query("SELECT ?s ?o WHERE { ?s ex:name ?o }")?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn query<'a>(&'a self, sparql: &str) -> Result<QueryResults<'a>> {
         // For backward compatibility, we need to reconstruct QueryResults
         // This is inefficient but maintains API compatibility
@@ -237,6 +730,48 @@ impl Graph {
         }
     }
 
+    /// Execute a SPARQL query with PREFIX and BASE declarations
+    ///
+    /// This method automatically prepends PREFIX and BASE declarations to the
+    /// SPARQL query based on the provided prefixes and base IRI. This is useful
+    /// when you want to use prefixed names in your query without manually writing
+    /// the PREFIX declarations.
+    ///
+    /// # Arguments
+    ///
+    /// * `sparql` - SPARQL query string (without PREFIX/BASE declarations)
+    /// * `prefixes` - Map of prefix names to namespace URIs
+    /// * `base` - Optional base IRI for relative IRIs
+    ///
+    /// # Returns
+    ///
+    /// Returns raw `QueryResults` from Oxigraph. For cached results, use `query_cached`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::graph::Graph;
+    /// use std::collections::BTreeMap;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let graph = Graph::new()?;
+    /// graph.insert_turtle(r#"
+    ///     @prefix ex: <http://example.org/> .
+    ///     ex:alice a ex:Person .
+    /// "#)?;
+    ///
+    /// let mut prefixes = BTreeMap::new();
+    /// prefixes.insert("ex".to_string(), "http://example.org/".to_string());
+    ///
+    /// // Query using prefix (PREFIX ex: <http://example.org/> is auto-added)
+    /// let results = graph.query_with_prolog(
+    ///     "SELECT ?s WHERE { ?s a ex:Person }",
+    ///     &prefixes,
+    ///     None
+    /// )?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn query_with_prolog<'a>(
         &'a self, sparql: &str, prefixes: &BTreeMap<String, String>, base: Option<&str>,
     ) -> Result<QueryResults<'a>> {
@@ -257,7 +792,51 @@ impl Graph {
         }
     }
 
-    /// Typed pattern filter (no extra allocs).
+    /// Find quads matching a pattern
+    ///
+    /// Searches for quads (triples) in the graph that match the specified pattern.
+    /// This is a typed pattern filter with no extra allocations.
+    /// Any component can be `None` to match any value (wildcard).
+    ///
+    /// # Arguments
+    ///
+    /// * `s` - Subject pattern (None = match any)
+    /// * `p` - Predicate pattern (None = match any)
+    /// * `o` - Object pattern (None = match any)
+    /// * `g` - Graph name pattern (None = match any)
+    ///
+    /// # Returns
+    ///
+    /// Returns a vector of quads matching the pattern.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::graph::Graph;
+    /// use oxigraph::model::{NamedNode, NamedOrBlankNode};
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let graph = Graph::new()?;
+    /// graph.insert_turtle(r#"
+    ///     @prefix ex: <http://example.org/> .
+    ///     ex:alice a ex:Person .
+    ///     ex:bob a ex:Person .
+    /// "#)?;
+    ///
+    /// // Find all quads with ex:Person as object
+    /// let person_type = NamedNode::new("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")?;
+    /// let person_class = NamedNode::new("http://example.org/Person")?;
+    /// let quads = graph.quads_for_pattern(
+    ///     None, // any subject
+    ///     Some(&person_type.into()),
+    ///     Some(&person_class.into()),
+    ///     None  // default graph
+    /// )?;
+    ///
+    /// assert_eq!(quads.len(), 2); // alice and bob
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn quads_for_pattern(
         &self, s: Option<&NamedOrBlankNode>, p: Option<&NamedNode>, o: Option<&Term>,
         g: Option<&GraphName>,
@@ -302,6 +881,62 @@ impl Clone for Graph {
     }
 }
 
+/// Build SPARQL prolog (PREFIX and BASE declarations) from a prefix map.
+///
+/// Constructs the prolog section of a SPARQL query by generating PREFIX
+/// declarations for each entry in the prefix map, and optionally a BASE
+/// declaration if a base IRI is provided.
+///
+/// # Arguments
+///
+/// * `prefixes` - Map of prefix names (e.g., "ex") to namespace URIs (e.g., "http://example.org/")
+/// * `base` - Optional base IRI for relative IRI resolution
+///
+/// # Returns
+///
+/// A string containing the SPARQL prolog with PREFIX and BASE declarations.
+///
+/// # Examples
+///
+/// ## With prefixes only
+///
+/// ```rust
+/// use ggen_core::graph::build_prolog;
+/// use std::collections::BTreeMap;
+///
+/// let mut prefixes = BTreeMap::new();
+/// prefixes.insert("ex".to_string(), "http://example.org/".to_string());
+/// prefixes.insert("rdf".to_string(), "http://www.w3.org/1999/02/22-rdf-syntax-ns#".to_string());
+///
+/// let prolog = build_prolog(&prefixes, None);
+/// assert!(prolog.contains("PREFIX ex: <http://example.org/>"));
+/// assert!(prolog.contains("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>"));
+/// ```
+///
+/// ## With base IRI
+///
+/// ```rust
+/// use ggen_core::graph::build_prolog;
+/// use std::collections::BTreeMap;
+///
+/// let prefixes = BTreeMap::new();
+/// let prolog = build_prolog(&prefixes, Some("http://example.org/"));
+/// assert!(prolog.contains("BASE <http://example.org/>"));
+/// ```
+///
+/// ## Combined
+///
+/// ```rust
+/// use ggen_core::graph::build_prolog;
+/// use std::collections::BTreeMap;
+///
+/// let mut prefixes = BTreeMap::new();
+/// prefixes.insert("ex".to_string(), "http://example.org/".to_string());
+///
+/// let prolog = build_prolog(&prefixes, Some("http://example.org/base/"));
+/// assert!(prolog.contains("BASE <http://example.org/base/>"));
+/// assert!(prolog.contains("PREFIX ex: <http://example.org/>"));
+/// ```
 pub fn build_prolog(prefixes: &BTreeMap<String, String>, base: Option<&str>) -> String {
     let mut s = String::new();
     if let Some(b) = base {

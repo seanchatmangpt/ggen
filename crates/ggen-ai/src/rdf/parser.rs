@@ -1,7 +1,32 @@
-// ggen-ai/src/rdf/parser.rs
-//
-// RDF parser for loading TTL (Turtle) files into an in-memory graph store.
-// Uses oxigraph for efficient RDF triple storage and SPARQL querying.
+//! RDF parser for loading TTL (Turtle) files
+//!
+//! This module provides functionality for parsing RDF/Turtle files and loading them
+//! into an in-memory graph store using Oxigraph. It supports loading schema files,
+//! user-defined TTL files, and provides access to the underlying RDF store for
+//! SPARQL querying.
+//!
+//! ## Features
+//!
+//! - **TTL Parsing**: Load Turtle format RDF files
+//! - **Schema Loading**: Load predefined schema files
+//! - **In-memory Store**: Efficient triple storage with Oxigraph
+//! - **SPARQL Support**: Access to store for querying
+//!
+//! ## Examples
+//!
+//! ### Loading RDF Files
+//!
+//! ```rust,no_run
+//! use ggen_ai::rdf::RdfParser;
+//! use std::path::Path;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let mut parser = RdfParser::new()?;
+//! parser.load_schema()?;
+//! parser.load_ttl(Path::new("sample-cli.ttl"))?;
+//! # Ok(())
+//! # }
+//! ```
 
 use anyhow::Result;
 use oxigraph::io::RdfFormat;

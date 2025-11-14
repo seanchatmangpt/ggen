@@ -1,3 +1,45 @@
+//! Filesystem-based content-addressable storage
+//!
+//! This module provides a filesystem implementation of the `PackageStore` trait
+//! using content-addressable storage (CAS). Files are stored by their SHA-256 hash,
+//! enabling deduplication and integrity verification.
+//!
+//! ## Storage Layout
+//!
+//! Content is stored in a two-level directory structure:
+//! - First two hex characters of hash → directory
+//! - Remaining hash → filename
+//!
+//! This provides efficient directory traversal and prevents filesystem limitations
+//! with large numbers of files in a single directory.
+//!
+//! ## Features
+//!
+//! - **Content Addressing**: Files stored by hash for deduplication
+//! - **Streaming Support**: Async streaming for large files
+//! - **Metadata Storage**: Separate metadata directory for package information
+//! - **Integrity Verification**: Automatic hash verification on retrieval
+//!
+//! ## Examples
+//!
+//! ### Storing and Retrieving Content
+//!
+//! ```rust,no_run
+//! use ggen_marketplace::storage::FilesystemStore;
+//! use std::path::PathBuf;
+//!
+//! # async fn example() -> anyhow::Result<()> {
+//! let store = FilesystemStore::new(PathBuf::from("/tmp/storage")).await?;
+//!
+//! let content = b"package content";
+//! let content_id = store.store(content).await?;
+//!
+//! let retrieved = store.retrieve(&content_id).await?;
+//! assert_eq!(retrieved, content);
+//! # Ok(())
+//! # }
+//! ```
+
 #![allow(clippy::unwrap_used)] // Test code uses unwrap
 use crate::error::{MarketplaceError, Result};
 use crate::models::ContentId;

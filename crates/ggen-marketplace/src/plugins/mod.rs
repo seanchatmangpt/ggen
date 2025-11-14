@@ -1,5 +1,61 @@
+//! WebAssembly plugin system for marketplace extensions
+//!
+//! This module provides a WebAssembly-based plugin system that allows third-party
+//! extensions to customize marketplace behavior. Plugins can implement custom search
+//! ranking, package validation, data transformations, and security scanning.
+//!
+//! ## Features
+//!
+//! - **WebAssembly Runtime**: Uses `wasmtime` for secure, sandboxed plugin execution
+//! - **Plugin Capabilities**: Support for multiple plugin types (search, validation, etc.)
+//! - **Host Functions**: Plugins can call back into the marketplace runtime
+//! - **Plugin Management**: Load, unload, and configure plugins dynamically
+//! - **Isolation**: Each plugin runs in its own isolated WebAssembly instance
+//!
+//! ## Plugin Capabilities
+//!
+//! - **SearchRanking**: Customize search result ranking algorithms
+//! - **PackageValidation**: Validate packages before publication
+//! - **CustomProtocol**: Implement custom communication protocols
+//! - **DataTransform**: Transform package data during processing
+//! - **SecurityScan**: Perform security scans on packages
+//!
+//! ## Examples
+//!
+//! ### Loading a Plugin
+//!
+//! ```rust,no_run
+//! use ggen_marketplace::plugins::PluginManager;
+//!
+//! # async fn example() -> anyhow::Result<()> {
+//! let manager = PluginManager::new()?;
+//! let wasm_bytes = std::fs::read("plugin.wasm")?;
+//!
+//! manager.load_plugin("my-plugin".to_string(), &wasm_bytes).await?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Configuring a Plugin
+//!
+//! ```rust,no_run
+//! use ggen_marketplace::plugins::{PluginManager, PluginConfig};
+//! use std::collections::HashMap;
+//!
+//! # async fn example() -> anyhow::Result<()> {
+//! let manager = PluginManager::new()?;
+//! let config = PluginConfig {
+//!     enabled: true,
+//!     priority: 10,
+//!     settings: HashMap::new(),
+//! };
+//!
+//! manager.configure_plugin("my-plugin".to_string(), config).await?;
+//! # Ok(())
+//! # }
+//! ```
+
 #![allow(clippy::unwrap_used)] // Test code uses unwrap
-// WebAssembly Plugin System using wasmtime
 use anyhow::{Result, Context, anyhow};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;

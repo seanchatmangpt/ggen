@@ -1,11 +1,49 @@
-/// Advanced query parser for search expressions
-///
-/// Supports:
-/// - Boolean operators: AND, OR, NOT
-/// - Phrase queries: "exact match"
-/// - Field queries: name:rust, category:web
-/// - Range queries: downloads:[1000 TO *]
-/// - Wildcards: rust*
+//! Advanced query parser for search expressions
+//!
+//! This module provides a query parser that supports advanced search syntax for
+//! the marketplace search engine. It parses user queries into structured components
+//! that can be executed by the search backend.
+//!
+//! ## Supported Query Syntax
+//!
+//! - **Boolean operators**: `AND`, `OR`, `NOT` (e.g., `rust AND web`)
+//! - **Phrase queries**: `"exact match"` for exact phrase matching
+//! - **Field queries**: `name:rust`, `category:web` for field-specific searches
+//! - **Range queries**: `downloads:[1000 TO *]` for numeric ranges
+//! - **Wildcards**: `rust*` for prefix matching
+//!
+//! ## Examples
+//!
+//! ### Parsing a Simple Query
+//!
+//! ```rust,no_run
+//! use ggen_marketplace::search::query_parser::AdvancedQueryParser;
+//!
+//! # fn example() -> anyhow::Result<()> {
+//! let parser = AdvancedQueryParser::new("rust web service".to_string());
+//! let parsed = parser.parse()?;
+//!
+//! println!("Query text: {}", parsed.text);
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Parsing Field Queries
+//!
+//! ```rust,no_run
+//! use ggen_marketplace::search::query_parser::AdvancedQueryParser;
+//!
+//! # fn example() -> anyhow::Result<()> {
+//! let parser = AdvancedQueryParser::new("name:rust category:web".to_string());
+//! let parsed = parser.parse()?;
+//!
+//! for field_query in parsed.field_queries {
+//!     println!("Field: {} = {}", field_query.field, field_query.value);
+//! }
+//! # Ok(())
+//! # }
+//! ```
+
 use anyhow::Result;
 
 pub struct AdvancedQueryParser {

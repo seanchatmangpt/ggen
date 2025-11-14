@@ -1,11 +1,43 @@
-// ggen-ai/src/rdf/generator.rs
-//
-// Phase 5: Main Generator - Complete CLI generation pipeline
-//
-// Updated for 2026 best practices:
-// - Workspace structure with separate CLI and domain crates
-// - Domain function references for stable contracts
-// - clap-noun-verb v3.3.0 integration
+//! Main CLI generator for RDF-to-CLI generation pipeline
+//!
+//! This module provides the main entry point for generating CLI projects from RDF
+//! ontologies. It implements 2026 best practices including workspace structure with
+//! separate CLI and domain crates, domain function references for stable contracts,
+//! and clap-noun-verb v3.3.0 integration.
+//!
+//! ## Generation Pipeline
+//!
+//! The generator orchestrates a complete pipeline:
+//! 1. Parse RDF (load schema + user TTL)
+//! 2. Execute SPARQL queries to extract project structure
+//! 3. Validate the extracted project data
+//! 4. Generate workspace structure with CLI and domain crates
+//! 5. Run post-generation hooks (cargo fmt, cargo check)
+//!
+//! ## Features
+//!
+//! - **Workspace Structure**: Separate CLI and domain crates
+//! - **Domain Function References**: Stable contracts between CLI and domain
+//! - **clap-noun-verb Integration**: Modern CLI argument parsing
+//! - **Hyper-Advanced DX**: Live preview, enhanced errors, IDE hints
+//!
+//! ## Examples
+//!
+//! ### Generating a CLI Project
+//!
+//! ```rust,no_run
+//! use ggen_ai::rdf::CliGenerator;
+//! use std::path::Path;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let generator = CliGenerator::new("templates".into());
+//! generator.generate_from_ttl(
+//!     Path::new("project.ttl"),
+//!     Path::new("output")
+//! )?;
+//! # Ok(())
+//! # }
+//! ```
 
 use anyhow::{Context as _, Result};
 use std::path::{Path, PathBuf};

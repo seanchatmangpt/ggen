@@ -1,4 +1,51 @@
-// Package Quality Scoring System
+//! Package quality scoring system
+//!
+//! This module provides a comprehensive quality scoring system for marketplace packages.
+//! It evaluates packages based on multiple quality dimensions including code quality,
+//! test coverage, documentation, maintenance, security, and performance.
+//!
+//! ## Quality Dimensions
+//!
+//! The quality score is computed from six components:
+//!
+//! - **Code Quality**: Code structure, complexity, and best practices
+//! - **Test Coverage**: Test coverage percentage and test quality
+//! - **Documentation**: Documentation completeness and quality
+//! - **Maintenance**: Update frequency, issue resolution, and maintenance activity
+//! - **Security**: Security best practices and vulnerability scanning
+//! - **Performance**: Performance benchmarks and optimization
+//!
+//! ## Quality Grades
+//!
+//! Packages receive a letter grade based on their overall score:
+//!
+//! - **A**: 90-100 (Excellent)
+//! - **B**: 80-89 (Good)
+//! - **C**: 70-79 (Fair)
+//! - **D**: 60-69 (Poor)
+//! - **F**: <60 (Failing)
+//!
+//! ## Examples
+//!
+//! ### Computing Quality Score
+//!
+//! ```rust,no_run
+//! use ggen_marketplace::quality::{QualityScorer, CodeMetrics};
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let scorer = QualityScorer::new();
+//! let metrics = CodeMetrics {
+//!     lines_of_code: 1000,
+//!     complexity: 2.5,
+//!     // ... other metrics
+//! };
+//!
+//! let score = scorer.compute_score(&metrics)?;
+//! println!("Quality Score: {} ({:?})", score.overall, score.grade);
+//! # Ok(())
+//! # }
+//! ```
+
 use anyhow::{Result, Context};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;

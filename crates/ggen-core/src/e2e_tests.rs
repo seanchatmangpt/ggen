@@ -1,5 +1,37 @@
 //! End-to-end tests for the ggen core functionality
-//! These tests verify the complete pipeline from template parsing to code generation
+//!
+//! This module provides comprehensive end-to-end tests that verify the complete
+//! pipeline from template parsing to code generation. These tests exercise the
+//! full generation workflow including template processing, RDF integration, and
+//! file generation.
+//!
+//! ## Test Coverage
+//!
+//! - **Template generation**: Basic template rendering with variables
+//! - **RDF integration**: Templates with RDF data and SPARQL queries
+//! - **Deterministic output**: Verify identical outputs for same inputs
+//! - **Error handling**: Verify graceful error handling for invalid inputs
+//!
+//! ## Test Structure
+//!
+//! Each test:
+//! 1. Creates temporary directories and files
+//! 2. Sets up test templates and data
+//! 3. Executes the generation pipeline
+//! 4. Verifies generated output matches expectations
+//! 5. Cleans up temporary resources
+//!
+//! ## Examples
+//!
+//! ### Running Tests
+//!
+//! ```bash
+//! # Run all e2e tests
+//! cargo make test --test e2e_tests
+//!
+//! # Run specific test
+//! cargo test test_end_to_end_template_generation
+//! ```
 
 use crate::generator::Generator;
 use anyhow::Result;

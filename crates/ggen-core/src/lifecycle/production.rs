@@ -307,7 +307,8 @@ impl ReadinessTracker {
         }
 
         ReadinessReport {
-            project_name: super::model::defaults::DEFAULT_READINESS_PROJECT_NAME.to_string(),
+            project_name: crate::lifecycle::model::defaults::DEFAULT_READINESS_PROJECT_NAME
+                .to_string(),
             generated_at: Utc::now(),
             overall_score,
             by_category,
@@ -970,7 +971,7 @@ mod tests {
 
         assert_eq!(
             report.project_name,
-            super::model::defaults::DEFAULT_READINESS_PROJECT_NAME
+            crate::lifecycle::model::defaults::DEFAULT_READINESS_PROJECT_NAME
         );
         assert!(report.overall_score >= 0.0 && report.overall_score <= 100.0);
         assert!(

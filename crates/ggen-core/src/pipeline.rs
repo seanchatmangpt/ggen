@@ -1,3 +1,71 @@
+//! Template processing pipeline with RDF/SPARQL integration
+//!
+//! This module provides the core pipeline for processing templates with integrated
+//! RDF graph operations and SPARQL query execution. The `Pipeline` type orchestrates
+//! template parsing, frontmatter rendering, graph processing, and body rendering.
+//!
+//! ## Architecture
+//!
+//! The pipeline follows a multi-stage processing flow:
+//! 1. **Template Parsing**: Parse YAML frontmatter and template body
+//! 2. **Frontmatter Rendering**: Render frontmatter variables with Tera
+//! 3. **Graph Processing**: Load RDF data and execute SPARQL queries
+//! 4. **Body Rendering**: Render template body with full context
+//! 5. **Plan Execution**: Apply generation plan (write files, inject content, etc.)
+//!
+//! ## Features
+//!
+//! - **SPARQL Integration**: Execute queries and expose results to templates
+//! - **Prefix Management**: Register RDF prefixes and base IRIs
+//! - **File Injection**: Support for modifying existing files with markers
+//! - **Dry Run Mode**: Preview changes without writing files
+//! - **Shell Hooks**: Execute commands before/after file operations (with security checks)
+//!
+//! ## Examples
+//!
+//! ### Basic Pipeline Usage
+//!
+//! ```rust,no_run
+//! use ggen_core::pipeline::{Pipeline, PipelineBuilder};
+//! use std::collections::BTreeMap;
+//! use std::path::Path;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! // Create a new pipeline
+//! let mut pipeline = Pipeline::new()?;
+//!
+//! // Register RDF prefixes
+//! let mut prefixes = BTreeMap::new();
+//! prefixes.insert("ex".to_string(), "http://example.org/".to_string());
+//! pipeline.register_prefixes(Some("http://example.org/base/"), &prefixes);
+//!
+//! // Render a template file
+//! let vars = BTreeMap::new();
+//! let plan = pipeline.render_file(Path::new("template.tmpl"), &vars, false)?;
+//! plan.apply()?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Using PipelineBuilder
+//!
+//! ```rust,no_run
+//! use ggen_core::pipeline::PipelineBuilder;
+//! use std::collections::BTreeMap;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let mut prefixes = BTreeMap::new();
+//! prefixes.insert("ex".to_string(), "http://example.org/".to_string());
+//!
+//! let pipeline = PipelineBuilder::new()
+//!     .with_prefixes(prefixes, Some("http://example.org/base/".to_string()))
+//!     .with_rdf_file("data.ttl")
+//!     .with_inline_rdf(vec!["@prefix ex: <http://example.org/> . ex:test a ex:Type ."])
+//!     .build()?;
+//! # Ok(())
+//! # }
+//! ```
+
 use crate::graph::{build_prolog, Graph};
 use crate::register;
 use crate::simple_tracing::SimpleTracer;
@@ -16,6 +84,18 @@ pub struct Pipeline {
 }
 
 impl Pipeline {
+    /// Create a new pipeline with default configuration
+    ///
+    /// # Example
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::pipeline::Pipeline;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let pipeline = Pipeline::new()?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn new() -> Result<Self> {
         let mut tera = Tera::default();
         tera.autoescape_on(vec![]);
@@ -144,6 +224,15 @@ impl Default for PipelineBuilder {
 }
 
 impl PipelineBuilder {
+    /// Create a new pipeline builder
+    ///
+    /// # Example
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::pipeline::PipelineBuilder;
+    ///
+    /// let builder = PipelineBuilder::new();
+    /// ```
     pub fn new() -> Self {
         Self {
             prefixes: BTreeMap::new(),
@@ -170,6 +259,25 @@ impl PipelineBuilder {
         self.preload_ttl_inline = blocks.into_iter().map(Into::into).collect();
         self
     }
+    /// Build the pipeline with the configured options
+    ///
+    /// # Example
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::pipeline::PipelineBuilder;
+    /// use std::collections::BTreeMap;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let mut prefixes = BTreeMap::new();
+    /// prefixes.insert("ex".to_string(), "http://example.org/".to_string());
+    ///
+    /// let pipeline = PipelineBuilder::new()
+    ///     .with_prefixes(prefixes, Some("http://example.org/".to_string()))
+    ///     .with_rdf_file("data.ttl")
+    ///     .build()?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn build(self) -> Result<Pipeline> {
         let mut p = Pipeline::new()?;
         for f in &self.preload_ttl_files {

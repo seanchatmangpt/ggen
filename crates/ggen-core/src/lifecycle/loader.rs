@@ -1,4 +1,49 @@
-//! Load make.toml configuration
+//! Configuration loader for make.toml lifecycle files
+//!
+//! This module provides functionality for loading and validating `make.toml` configuration
+//! files that define project lifecycle phases, hooks, and workspace structure. It includes
+//! poka-yoke validation to prevent invalid configurations from being loaded.
+//!
+//! ## Features
+//!
+//! - **Configuration loading**: Load `make.toml` from file paths
+//! - **Default fallback**: Provide default configuration when file doesn't exist
+//! - **Poka-yoke validation**: Validate phases have commands and hooks are valid
+//! - **Error handling**: Clear error messages for configuration issues
+//!
+//! ## Configuration Structure
+//!
+//! The `make.toml` file defines:
+//! - **Project**: Project metadata (name, type, version, description)
+//! - **Workspace**: Workspace structure for monorepos (optional)
+//! - **Lifecycle**: Phase definitions with commands
+//! - **Hooks**: Before/after hooks for phases (optional)
+//!
+//! ## Examples
+//!
+//! ### Loading Configuration
+//!
+//! ```rust,no_run
+//! use ggen_core::lifecycle::loader::load_make;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let make = load_make("make.toml")?;
+//! println!("Project: {}", make.project.name);
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Loading with Default Fallback
+//!
+//! ```rust,no_run
+//! use ggen_core::lifecycle::loader::load_make_or_default;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! // Returns default config if make.toml doesn't exist
+//! let make = load_make_or_default(".")?;
+//! # Ok(())
+//! # }
+//! ```
 
 use super::error::{LifecycleError, Result};
 use super::hooks::validate_hooks;
@@ -49,9 +94,11 @@ pub fn load_make_or_default<P: AsRef<Path>>(root: P) -> Result<Make> {
         // Return minimal default configuration
         Ok(Make {
             project: super::model::Project {
-                name: super::model::defaults::DEFAULT_PROJECT_NAME.to_string(),
+                name: crate::lifecycle::model::defaults::DEFAULT_PROJECT_NAME.to_string(),
                 project_type: None,
-                version: Some(super::model::defaults::DEFAULT_PROJECT_VERSION.to_string()),
+                version: Some(
+                    crate::lifecycle::model::defaults::DEFAULT_PROJECT_VERSION.to_string(),
+                ),
                 description: None,
             },
             workspace: None,

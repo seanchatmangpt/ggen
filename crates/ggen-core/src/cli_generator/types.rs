@@ -3,6 +3,83 @@
 //! These types mirror ggen_ai::rdf::types but are defined here
 //! to avoid circular dependencies. When integrated, they should
 //! match the types in ggen-ai::rdf::types.
+//!
+//! ## Features
+//!
+//! - **CLI project structure**: Complete representation of CLI project metadata
+//! - **Noun-verb pattern**: Support for clap-noun-verb command structure
+//! - **Type-safe arguments**: Argument types with validation rules
+//! - **Dependency management**: Track project dependencies
+//!
+//! ## Examples
+//!
+//! ### Creating a CLI Project
+//!
+//! ```rust,no_run
+//! use ggen_core::cli_generator::types::{CliProject, Noun, Verb, Argument, ArgumentType};
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let project = CliProject {
+//!     name: "my-cli".to_string(),
+//!     version: "1.0.0".to_string(),
+//!     description: "My CLI tool".to_string(),
+//!     authors: vec!["Alice".to_string()],
+//!     edition: "2021".to_string(),
+//!     license: "MIT".to_string(),
+//!     nouns: vec![
+//!         Noun {
+//!             name: "user".to_string(),
+//!             description: "User operations".to_string(),
+//!             verbs: vec![
+//!                 Verb {
+//!                     name: "create".to_string(),
+//!                     description: "Create a user".to_string(),
+//!                     arguments: vec![
+//!                         Argument {
+//!                             name: "name".to_string(),
+//!                             argument_type: ArgumentType::String,
+//!                             required: true,
+//!                             description: Some("User name".to_string()),
+//!                             validation: None,
+//!                         }
+//!                     ],
+//!                 }
+//!             ],
+//!         }
+//!     ],
+//!     dependencies: vec![],
+//! };
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Working with Nouns and Verbs
+//!
+//! ```rust,no_run
+//! use ggen_core::cli_generator::types::{Noun, Verb};
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let noun = Noun {
+//!     name: "project".to_string(),
+//!     description: "Project management".to_string(),
+//!     verbs: vec![
+//!         Verb {
+//!             name: "init".to_string(),
+//!             description: "Initialize a project".to_string(),
+//!             arguments: vec![],
+//!         },
+//!         Verb {
+//!             name: "build".to_string(),
+//!             description: "Build the project".to_string(),
+//!             arguments: vec![],
+//!         },
+//!     ],
+//! };
+//!
+//! // Generates: `my-cli project init` and `my-cli project build`
+//! # Ok(())
+//! # }
+//! ```
 
 use serde::{Deserialize, Serialize};
 

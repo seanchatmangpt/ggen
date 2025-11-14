@@ -1,3 +1,39 @@
+//! # ggen-utils - Shared utilities for ggen project
+//!
+//! This crate provides common utilities used across the ggen codebase, including:
+//! - Error handling types and utilities
+//! - Application configuration management
+//! - Logging infrastructure
+//! - Alert system for critical notifications
+//! - Project configuration types
+//! - Time utilities
+//! - Type definitions and helpers
+//! - User level management
+//!
+//! ## Examples
+//!
+//! ### Error Handling
+//!
+//! ```rust,no_run
+//! use ggen_utils::error::Result;
+//! use ggen_utils::error::Error;
+//!
+//! fn process_data() -> Result<()> {
+//!     // Operations that may fail
+//!     Ok(())
+//! }
+//! ```
+//!
+//! ### Configuration
+//!
+//! ```rust,no_run
+//! use ggen_utils::app_config::AppConfig;
+//!
+//! let config = AppConfig::load()?;
+//! println!("Config loaded: {:?}", config);
+//! # Ok::<(), Box<dyn std::error::Error>>(())
+//! ```
+
 // backtrace is stable since 1.65.0, no feature flag needed
 
 #![deny(warnings)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness

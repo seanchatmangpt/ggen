@@ -1,3 +1,88 @@
+//! Template resolver for gpack:template syntax
+//!
+//! This module provides functionality to resolve template references in the
+//! format `pack_id:template_path` to actual template files in cached packs.
+//! It integrates with the cache manager and lockfile to locate and load templates.
+//!
+//! ## Template Reference Format
+//!
+//! Templates are referenced using the format: `pack_id:template_path`
+//!
+//! - `pack_id`: The identifier of the gpack (e.g., `io.ggen.rust.api`)
+//! - `template_path`: Relative path from the pack's templates directory (e.g., `main.tmpl`)
+//!
+//! ## Features
+//!
+//! - **Template Resolution**: Resolve `pack_id:template_path` to file system paths
+//! - **Template Discovery**: Find all templates in installed packs
+//! - **Template Search**: Search templates by name across all packs
+//! - **Security**: Prevent path traversal attacks
+//! - **Manifest Integration**: Use gpack manifests for template discovery
+//!
+//! ## Examples
+//!
+//! ### Resolving a Template
+//!
+//! ```rust,no_run
+//! use ggen_core::resolver::TemplateResolver;
+//! use ggen_core::cache::CacheManager;
+//! use ggen_core::lockfile::LockfileManager;
+//! use std::path::Path;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let cache = CacheManager::new()?;
+//! let lockfile = LockfileManager::new(Path::new("."));
+//! let resolver = TemplateResolver::new(cache, lockfile);
+//!
+//! // Resolve template reference
+//! let source = resolver.resolve("io.ggen.rust.api:main.tmpl")?;
+//! println!("Template at: {:?}", source.template_path);
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Searching Templates
+//!
+//! ```rust,no_run
+//! use ggen_core::resolver::TemplateResolver;
+//! use ggen_core::cache::CacheManager;
+//! use ggen_core::lockfile::LockfileManager;
+//! use std::path::Path;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let cache = CacheManager::new()?;
+//! let lockfile = LockfileManager::new(Path::new("."));
+//! let resolver = TemplateResolver::new(cache, lockfile);
+//!
+//! // Search for templates containing "api"
+//! let results = resolver.search_templates(Some("api"))?;
+//! for result in results {
+//!     println!("Found: {}:{}", result.pack_id, result.template_path.display());
+//! }
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Getting Template Information
+//!
+//! ```rust,no_run
+//! use ggen_core::resolver::TemplateResolver;
+//! use ggen_core::cache::CacheManager;
+//! use ggen_core::lockfile::LockfileManager;
+//! use std::path::Path;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let cache = CacheManager::new()?;
+//! let lockfile = LockfileManager::new(Path::new("."));
+//! let resolver = TemplateResolver::new(cache, lockfile);
+//!
+//! // Get template info including frontmatter
+//! let info = resolver.get_template_info("io.ggen.rust.api:main.tmpl")?;
+//! println!("Template frontmatter: {:?}", info.frontmatter);
+//! # Ok(())
+//! # }
+//! ```
+
 use anyhow::{Context, Result};
 use glob::glob;
 use std::path::PathBuf;
@@ -32,6 +117,22 @@ pub struct TemplateSearchResult {
 
 impl TemplateResolver {
     /// Create a new template resolver
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::resolver::TemplateResolver;
+    /// use ggen_core::cache::CacheManager;
+    /// use ggen_core::lockfile::LockfileManager;
+    /// use std::path::Path;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let cache = CacheManager::new()?;
+    /// let lockfile = LockfileManager::new(Path::new("."));
+    /// let resolver = TemplateResolver::new(cache, lockfile);
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn new(cache_manager: CacheManager, lockfile_manager: LockfileManager) -> Self {
         Self {
             cache_manager,
@@ -40,6 +141,77 @@ impl TemplateResolver {
     }
 
     /// Resolve a template reference in the format "pack_id:template_path"
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if:
+    /// - The template reference format is invalid (must be `pack_id:template_path`)
+    /// - The pack is not found in the lockfile
+    /// - The pack is not cached locally
+    /// - The template path doesn't exist in the pack
+    /// - Path traversal is detected (e.g., `../` in template path)
+    ///
+    /// # Examples
+    ///
+    /// ## Success case
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::resolver::TemplateResolver;
+    /// use ggen_core::cache::CacheManager;
+    /// use ggen_core::lockfile::LockfileManager;
+    /// use std::path::Path;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let cache = CacheManager::new()?;
+    /// let lockfile = LockfileManager::new(Path::new("."));
+    /// let resolver = TemplateResolver::new(cache, lockfile);
+    ///
+    /// // Resolve template reference
+    /// let source = resolver.resolve("io.ggen.rust.api:main.tmpl")?;
+    /// println!("Template at: {:?}", source.template_path);
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// ## Error case - Invalid format
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::resolver::TemplateResolver;
+    /// use ggen_core::cache::CacheManager;
+    /// use ggen_core::lockfile::LockfileManager;
+    /// use std::path::Path;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let cache = CacheManager::new()?;
+    /// let lockfile = LockfileManager::new(Path::new("."));
+    /// let resolver = TemplateResolver::new(cache, lockfile);
+    ///
+    /// // This will fail because the format is invalid (missing colon)
+    /// let result = resolver.resolve("invalid-format");
+    /// assert!(result.is_err());
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// ## Error case - Pack not found
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::resolver::TemplateResolver;
+    /// use ggen_core::cache::CacheManager;
+    /// use ggen_core::lockfile::LockfileManager;
+    /// use std::path::Path;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let cache = CacheManager::new()?;
+    /// let lockfile = LockfileManager::new(Path::new("."));
+    /// let resolver = TemplateResolver::new(cache, lockfile);
+    ///
+    /// // This will fail because the pack is not in the lockfile
+    /// let result = resolver.resolve("nonexistent.pack:template.tmpl");
+    /// assert!(result.is_err());
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn resolve(&self, template_ref: &str) -> Result<TemplateSource> {
         let (pack_id, template_path) = self.parse_template_ref(template_ref)?;
 
@@ -127,6 +299,28 @@ impl TemplateResolver {
     }
 
     /// Search for templates across all installed packs
+    ///
+    /// # Example
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::resolver::TemplateResolver;
+    /// use ggen_core::cache::CacheManager;
+    /// use ggen_core::lockfile::LockfileManager;
+    /// use std::path::Path;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let cache = CacheManager::new()?;
+    /// let lockfile = LockfileManager::new(Path::new("."));
+    /// let resolver = TemplateResolver::new(cache, lockfile);
+    ///
+    /// // Search for templates containing "api"
+    /// let results = resolver.search_templates(Some("api"))?;
+    /// for result in results {
+    ///     println!("Found: {}:{}", result.pack_id, result.template_path.display());
+    /// }
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn search_templates(&self, query: Option<&str>) -> Result<Vec<TemplateSearchResult>> {
         let installed_packs = self.lockfile_manager.installed_packs()?;
         let mut results = Vec::new();

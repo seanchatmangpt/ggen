@@ -1,9 +1,59 @@
 //! Snapshot management for delta-driven projection
 //!
-//! This module provides functionality to:
-//! - Store baselines of graph and file states
-//! - Track generation metadata and hashes
-//! - Support rollback and drift detection
+//! This module provides functionality to create and manage snapshots of generation
+//! baselines, including RDF graph state, generated file states, and template metadata.
+//! Snapshots enable rollback, drift detection, and three-way merging.
+//!
+//! ## Features
+//!
+//! - **Graph Snapshots**: Capture RDF graph state with content hashing
+//! - **File Snapshots**: Track generated file content and metadata
+//! - **Template Snapshots**: Store template states and rendering context
+//! - **Region Tracking**: Identify generated vs manual regions in files
+//! - **Snapshot Management**: Create, load, and compare snapshots
+//! - **Drift Detection**: Detect when files have drifted from snapshots
+//!
+//! ## Snapshot Structure
+//!
+//! A snapshot contains:
+//! - Graph state (triple count, content hash)
+//! - File states (path, content hash, regions)
+//! - Template states (path, content hash, variables)
+//! - Metadata (creation time, description)
+//!
+//! ## Examples
+//!
+//! ### Creating a Snapshot
+//!
+//! ```rust,no_run
+//! use ggen_core::snapshot::{Snapshot, SnapshotManager};
+//! use ggen_core::graph::Graph;
+//! use std::path::PathBuf;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let graph = Graph::new()?;
+//! let files = vec![(PathBuf::from("output.rs"), "content".to_string())];
+//! let templates = vec![(PathBuf::from("template.tmpl"), "template content".to_string())];
+//!
+//! let snapshot = Snapshot::new("baseline".to_string(), &graph, files, templates)?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Managing Snapshots
+//!
+//! ```rust,no_run
+//! use ggen_core::snapshot::SnapshotManager;
+//! use std::path::Path;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let manager = SnapshotManager::new(Path::new(".ggen/snapshots"));
+//! manager.save(&snapshot)?;
+//!
+//! let loaded = manager.load("baseline")?;
+//! # Ok(())
+//! # }
+//! ```
 
 use anyhow::Result;
 use chrono::{DateTime, Utc};
@@ -16,6 +66,41 @@ use std::path::{Path, PathBuf};
 use crate::graph::Graph;
 
 /// Represents a snapshot of a generation baseline
+///
+/// A `Snapshot` captures the complete state of a generation run, including:
+/// - Graph state (hash, triple count)
+/// - File states (paths, hashes, regions)
+/// - Template states (paths, hashes, queries)
+/// - Metadata (key-value pairs)
+///
+/// Snapshots enable rollback, drift detection, and three-way merging.
+///
+/// # Examples
+///
+/// ```rust,no_run
+/// use ggen_core::snapshot::Snapshot;
+/// use ggen_core::graph::Graph;
+/// use std::path::PathBuf;
+///
+/// # fn main() -> anyhow::Result<()> {
+/// let graph = Graph::new()?;
+/// graph.insert_turtle(r#"
+///     @prefix ex: <http://example.org/> .
+///     ex:alice a ex:Person .
+/// "#)?;
+///
+/// let files = vec![
+///     (PathBuf::from("output.rs"), "fn main() {}".to_string())
+/// ];
+/// let templates = vec![
+///     (PathBuf::from("template.tmpl"), "template content".to_string())
+/// ];
+///
+/// let snapshot = Snapshot::new("baseline".to_string(), &graph, files, templates)?;
+/// println!("Snapshot: {} with {} files", snapshot.name, snapshot.files.len());
+/// # Ok(())
+/// # }
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Snapshot {
     /// Unique name for this snapshot
@@ -34,6 +119,34 @@ pub struct Snapshot {
 
 impl Snapshot {
     /// Create a new snapshot from current state
+    ///
+    /// Captures the current state of a graph, generated files, and templates
+    /// into a snapshot that can be used for rollback or drift detection.
+    ///
+    /// # Arguments
+    ///
+    /// * `name` - Unique name for this snapshot
+    /// * `graph` - Current RDF graph state
+    /// * `files` - Vector of (path, content) tuples for generated files
+    /// * `templates` - Vector of (path, content) tuples for templates
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::snapshot::Snapshot;
+    /// use ggen_core::graph::Graph;
+    /// use std::path::PathBuf;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let graph = Graph::new()?;
+    /// let files = vec![(PathBuf::from("main.rs"), "fn main() {}".to_string())];
+    /// let templates = vec![];
+    ///
+    /// let snapshot = Snapshot::new("v1.0".to_string(), &graph, files, templates)?;
+    /// assert_eq!(snapshot.name, "v1.0");
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn new(
         name: String, graph: &Graph, files: Vec<(PathBuf, String)>,
         templates: Vec<(PathBuf, String)>,
@@ -63,6 +176,29 @@ impl Snapshot {
     }
 
     /// Check if this snapshot is compatible with a graph
+    ///
+    /// Returns `true` if the graph's hash matches the snapshot's graph hash,
+    /// indicating the graph state hasn't changed since the snapshot was taken.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::snapshot::Snapshot;
+    /// use ggen_core::graph::Graph;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let graph = Graph::new()?;
+    /// let snapshot = Snapshot::new("test".to_string(), &graph, vec![], vec![])?;
+    ///
+    /// // Same graph should be compatible
+    /// assert!(snapshot.is_compatible_with(&graph)?);
+    ///
+    /// // Modified graph should not be compatible
+    /// graph.insert_turtle("@prefix ex: <http://example.org/> . ex:new a ex:Class .")?;
+    /// assert!(!snapshot.is_compatible_with(&graph)?);
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn is_compatible_with(&self, graph: &Graph) -> Result<bool> {
         let current_hash = graph.compute_hash()?;
         Ok(self.graph.hash == current_hash)
@@ -118,6 +254,30 @@ impl GraphSnapshot {
 }
 
 /// Snapshot of file state
+///
+/// Captures the state of a generated file, including its content hash,
+/// size, modification time, and regions (generated vs manual).
+///
+/// # Examples
+///
+/// ```rust,no_run
+/// use ggen_core::snapshot::FileSnapshot;
+/// use std::path::PathBuf;
+///
+/// # fn main() -> anyhow::Result<()> {
+/// let path = PathBuf::from("output.rs");
+/// let content = "fn main() { println!(\"Hello\"); }";
+///
+/// let snapshot = FileSnapshot::new(path.clone(), content.to_string())?;
+/// assert_eq!(snapshot.path, path);
+/// assert!(!snapshot.hash.is_empty());
+///
+/// // Check if content has changed
+/// assert!(!snapshot.has_changed(content));
+/// assert!(snapshot.has_changed("different content"));
+/// # Ok(())
+/// # }
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FileSnapshot {
     /// Path to the file
@@ -165,6 +325,27 @@ impl FileSnapshot {
     }
 
     /// Check if file content has changed
+    ///
+    /// Compares the hash of new content with the snapshot's hash.
+    /// Returns `true` if the content has changed since the snapshot was taken.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::snapshot::FileSnapshot;
+    /// use std::path::PathBuf;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let snapshot = FileSnapshot::new(
+    ///     PathBuf::from("file.rs"),
+    ///     "original content".to_string()
+    /// )?;
+    ///
+    /// assert!(!snapshot.has_changed("original content"));
+    /// assert!(snapshot.has_changed("modified content"));
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn has_changed(&self, new_content: &str) -> bool {
         let new_hash = Self::compute_hash(new_content);
         self.hash != new_hash
@@ -230,6 +411,36 @@ pub enum RegionType {
 }
 
 /// Manager for snapshot operations
+///
+/// Provides persistence and management for snapshots, including save, load,
+/// list, and delete operations.
+///
+/// # Examples
+///
+/// ```rust,no_run
+/// use ggen_core::snapshot::{SnapshotManager, Snapshot};
+/// use ggen_core::graph::Graph;
+/// use std::path::PathBuf;
+///
+/// # fn main() -> anyhow::Result<()> {
+/// let manager = SnapshotManager::new(PathBuf::from(".ggen/snapshots"))?;
+///
+/// let graph = Graph::new()?;
+/// let snapshot = Snapshot::new("baseline".to_string(), &graph, vec![], vec![])?;
+///
+/// // Save snapshot
+/// manager.save(&snapshot)?;
+///
+/// // Load snapshot
+/// let loaded = manager.load("baseline")?;
+/// assert_eq!(loaded.name, "baseline");
+///
+/// // List snapshots
+/// let snapshots = manager.list()?;
+/// assert!(snapshots.contains(&"baseline".to_string()));
+/// # Ok(())
+/// # }
+/// ```
 pub struct SnapshotManager {
     /// Directory where snapshots are stored
     snapshot_dir: PathBuf,
@@ -237,12 +448,52 @@ pub struct SnapshotManager {
 
 impl SnapshotManager {
     /// Create a new snapshot manager
+    ///
+    /// Creates the snapshot directory if it doesn't exist.
+    ///
+    /// # Arguments
+    ///
+    /// * `snapshot_dir` - Directory path where snapshots will be stored
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::snapshot::SnapshotManager;
+    /// use std::path::PathBuf;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let manager = SnapshotManager::new(PathBuf::from(".ggen/snapshots"))?;
+    /// // Directory is created automatically
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn new(snapshot_dir: PathBuf) -> Result<Self> {
         fs::create_dir_all(&snapshot_dir)?;
         Ok(Self { snapshot_dir })
     }
 
     /// Save a snapshot to disk
+    ///
+    /// Persists a snapshot to a JSON file in the snapshot directory.
+    /// The file is named `{snapshot.name}.json`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::snapshot::{SnapshotManager, Snapshot};
+    /// use ggen_core::graph::Graph;
+    /// use std::path::PathBuf;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let manager = SnapshotManager::new(PathBuf::from(".ggen/snapshots"))?;
+    /// let graph = Graph::new()?;
+    /// let snapshot = Snapshot::new("my-snapshot".to_string(), &graph, vec![], vec![])?;
+    ///
+    /// manager.save(&snapshot)?;
+    /// assert!(manager.exists("my-snapshot"));
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn save(&self, snapshot: &Snapshot) -> Result<()> {
         let file_path = self.snapshot_dir.join(format!("{}.json", snapshot.name));
         let file = File::create(file_path)?;
@@ -252,6 +503,35 @@ impl SnapshotManager {
     }
 
     /// Load a snapshot from disk
+    ///
+    /// Loads a snapshot from a JSON file in the snapshot directory.
+    ///
+    /// # Arguments
+    ///
+    /// * `name` - Name of the snapshot to load (without `.json` extension)
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the snapshot file doesn't exist or cannot be parsed.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::snapshot::{SnapshotManager, Snapshot};
+    /// use ggen_core::graph::Graph;
+    /// use std::path::PathBuf;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let manager = SnapshotManager::new(PathBuf::from(".ggen/snapshots"))?;
+    /// let graph = Graph::new()?;
+    /// let snapshot = Snapshot::new("test".to_string(), &graph, vec![], vec![])?;
+    /// manager.save(&snapshot)?;
+    ///
+    /// let loaded = manager.load("test")?;
+    /// assert_eq!(loaded.name, "test");
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn load(&self, name: &str) -> Result<Snapshot> {
         let file_path = self.snapshot_dir.join(format!("{}.json", name));
         let file = File::open(file_path)?;

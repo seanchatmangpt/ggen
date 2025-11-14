@@ -1,3 +1,90 @@
+//! Gpack manifest structure and file discovery
+//!
+//! This module provides the structure and functionality for gpack manifests (`gpack.toml`),
+//! which define template packs for ggen. It handles manifest parsing, file discovery,
+//! and provides default conventions for organizing pack files.
+//!
+//! ## Gpack Structure
+//!
+//! A gpack is a template pack that contains:
+//! - Templates (`.tmpl` files)
+//! - RDF data files (`.ttl`, `.rdf`, `.jsonld`)
+//! - SPARQL queries (`.rq`, `.sparql`)
+//! - SHACL shapes (`.shacl.ttl`)
+//! - Macros and includes
+//!
+//! ## Manifest Format
+//!
+//! The `gpack.toml` manifest defines:
+//! - Metadata (id, name, version, description, license)
+//! - Dependencies on other gpacks
+//! - File discovery patterns (or uses conventions)
+//! - RDF configuration (prefixes, base IRI)
+//! - Preset configurations
+//!
+//! ## File Discovery
+//!
+//! The module provides default conventions for discovering files:
+//! - Templates: `templates/**/*.tmpl`, `templates/**/*.tera`
+//! - RDF: `templates/**/graphs/*.ttl`, `templates/**/graphs/*.rdf`, etc.
+//! - Queries: `templates/**/queries/*.rq`, `templates/**/queries/*.sparql`
+//! - Shapes: `templates/**/graphs/shapes/*.shacl.ttl`
+//!
+//! Custom patterns can be specified in the manifest to override conventions.
+//!
+//! ## Examples
+//!
+//! ### Loading a Manifest
+//!
+//! ```rust,no_run
+//! use ggen_core::gpack::GpackManifest;
+//! use std::path::PathBuf;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let manifest = GpackManifest::load_from_file(&PathBuf::from("gpack.toml"))?;
+//! println!("Pack: {} v{}", manifest.metadata.name, manifest.metadata.version);
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Discovering Templates
+//!
+//! ```rust,no_run
+//! use ggen_core::gpack::GpackManifest;
+//! use std::path::Path;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let manifest = GpackManifest::load_from_file(&PathBuf::from("gpack.toml"))?;
+//! let templates = manifest.discover_templates(Path::new("."))?;
+//!
+//! for template in templates {
+//!     println!("Found template: {:?}", template);
+//! }
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Discovering Files
+//!
+//! ```rust,no_run
+//! use ggen_core::gpack::GpackManifest;
+//! use std::path::Path;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let manifest = GpackManifest::load_from_file(&Path::new("gpack.toml").to_path_buf())?;
+//!
+//! // Discover templates using manifest patterns or conventions
+//! let templates = manifest.discover_templates(Path::new("."))?;
+//!
+//! // Discover RDF files
+//! let rdf_files = manifest.discover_rdf_files(Path::new("."))?;
+//!
+//! // Discover SPARQL queries
+//! let queries = manifest.discover_query_files(Path::new("."))?;
+//! # Ok(())
+//! # }
+//! ```
+
 use anyhow::Result;
 use glob::glob;
 use serde::{Deserialize, Serialize};

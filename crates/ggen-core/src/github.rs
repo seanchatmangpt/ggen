@@ -1,3 +1,221 @@
+//! GitHub API client for Pages and workflow operations
+//!
+//! This module provides a client for interacting with the GitHub API, specifically
+//! for managing GitHub Pages configurations and GitHub Actions workflow runs.
+//!
+//! ## Features
+//!
+//! - **GitHub Pages**: Query and manage Pages configuration
+//! - **Workflow Runs**: List, query, and trigger GitHub Actions workflows
+//! - **Authentication**: Support for GitHub tokens via environment variables
+//! - **Error Handling**: Comprehensive error messages for API failures
+//!
+//! ## Authentication
+//!
+//! The client automatically detects GitHub tokens from environment variables:
+//! - `GITHUB_TOKEN` (primary)
+//! - `GH_TOKEN` (fallback)
+//!
+//! ## Examples
+//!
+//! ### Creating a Client
+//!
+//! ```rust,no_run
+//! use ggen_core::github::{GitHubClient, RepoInfo};
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let repo = RepoInfo::parse("owner/repo")?;
+//! let client = GitHubClient::new(repo)?;
+//!
+//! if client.is_authenticated() {
+//!     println!("Authenticated with GitHub");
+//! }
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Getting Pages Configuration
+//!
+//! ```rust,no_run
+//! use ggen_core::github::{GitHubClient, RepoInfo};
+//!
+//! # async fn example() -> anyhow::Result<()> {
+//! let repo = RepoInfo::parse("owner/repo")?;
+//! let client = GitHubClient::new(repo.clone())?;
+//!
+//! let pages_config = client.get_pages_config(&repo).await?;
+//! println!("Pages URL: {:?}", pages_config.url);
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Listing Workflow Runs
+//!
+//! ```rust,no_run
+//! use ggen_core::github::{GitHubClient, RepoInfo};
+//!
+//! # async fn example() -> anyhow::Result<()> {
+//! let repo = RepoInfo::parse("owner/repo")?;
+//! let client = GitHubClient::new(repo.clone())?;
+//!
+//! let runs = client.get_workflow_runs(&repo, "deploy.yml", 10).await?;
+//! println!("Found {} workflow runs", runs.total_count);
+//! # Ok(())
+//! # }
+//! ```
+
+//! GitHub API client for Pages and workflow operations
+//!
+//! This module provides a client for interacting with the GitHub API, specifically
+//! for managing GitHub Pages configurations and GitHub Actions workflow runs.
+//! It supports authentication via GitHub tokens and provides convenient methods
+//! for common operations.
+//!
+//! ## Features
+//!
+//! - **GitHub Pages**: Get Pages configuration and check site status
+//! - **Workflow Management**: List workflow runs, get run details, trigger workflows
+//! - **Authentication**: Automatic token detection from environment variables
+//! - **Error Handling**: Comprehensive error handling with context
+//! - **Repository Parsing**: Parse "owner/repo" format into structured types
+//!
+//! ## Authentication
+//!
+//! The client automatically detects GitHub tokens from environment variables:
+//! - `GITHUB_TOKEN` (preferred)
+//! - `GH_TOKEN` (fallback)
+//!
+//! Operations that require authentication will fail with a clear error message
+//! if no token is available.
+//!
+//! ## Examples
+//!
+//! ### Getting Pages Configuration
+//!
+//! ```rust,no_run
+//! use ggen_core::github::{GitHubClient, RepoInfo};
+//!
+//! # async fn example() -> anyhow::Result<()> {
+//! let repo = RepoInfo::parse("seanchatmangpt/ggen")?;
+//! let client = GitHubClient::new(repo.clone())?;
+//!
+//! let pages_config = client.get_pages_config(&repo).await?;
+//! println!("Pages URL: {:?}", pages_config.url);
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Listing Workflow Runs
+//!
+//! ```rust,no_run
+//! use ggen_core::github::{GitHubClient, RepoInfo};
+//!
+//! # async fn example() -> anyhow::Result<()> {
+//! let repo = RepoInfo::parse("seanchatmangpt/ggen")?;
+//! let client = GitHubClient::new(repo.clone())?;
+//!
+//! let runs = client.get_workflow_runs(&repo, "ci.yml", 10).await?;
+//! for run in runs.workflow_runs {
+//!     println!("Run #{}: {} - {}", run.run_number, run.name, run.status);
+//! }
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Triggering a Workflow
+//!
+//! ```rust,no_run
+//! use ggen_core::github::{GitHubClient, RepoInfo};
+//!
+//! # async fn example() -> anyhow::Result<()> {
+//! let repo = RepoInfo::parse("seanchatmangpt/ggen")?;
+//! let client = GitHubClient::new(repo.clone())?;
+//!
+//! // Requires GITHUB_TOKEN or GH_TOKEN environment variable
+//! client.trigger_workflow(&repo, "deploy.yml", "main").await?;
+//! # Ok(())
+//! # }
+//! ```
+
+//! GitHub API client for Pages and Actions integration
+//!
+//! This module provides a client for interacting with the GitHub API to manage
+//! GitHub Pages deployments and GitHub Actions workflow runs. It supports
+//! authentication via environment variables and provides typed interfaces for
+//! common GitHub operations.
+//!
+//! ## Features
+//!
+//! - **GitHub Pages**: Query Pages configuration and deployment status
+//! - **Workflow Management**: List and trigger GitHub Actions workflows
+//! - **Authentication**: Support for GITHUB_TOKEN and GH_TOKEN environment variables
+//! - **Repository Info**: Parse and work with "owner/repo" format
+//! - **Site Status**: Check accessibility of GitHub Pages sites
+//!
+//! ## Authentication
+//!
+//! The client automatically detects GitHub tokens from environment variables:
+//! - `GITHUB_TOKEN` (primary)
+//! - `GH_TOKEN` (fallback)
+//!
+//! Some operations (like triggering workflows) require authentication.
+//!
+//! ## Examples
+//!
+//! ### Creating a Client
+//!
+//! ```rust,no_run
+//! use ggen_core::github::{GitHubClient, RepoInfo};
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let repo = RepoInfo::parse("seanchatmangpt/ggen")?;
+//! let client = GitHubClient::new(repo)?;
+//!
+//! if client.is_authenticated() {
+//!     println!("Authenticated with GitHub");
+//! }
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Querying GitHub Pages
+//!
+//! ```rust,no_run
+//! use ggen_core::github::{GitHubClient, RepoInfo};
+//!
+//! # async fn example() -> anyhow::Result<()> {
+//! let repo = RepoInfo::parse("seanchatmangpt/ggen")?;
+//! let client = GitHubClient::new(repo.clone())?;
+//!
+//! let pages_config = client.get_pages_config(&repo).await?;
+//! if let Some(url) = pages_config.url {
+//!     println!("Pages URL: {}", url);
+//! }
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Working with Workflows
+//!
+//! ```rust,no_run
+//! use ggen_core::github::{GitHubClient, RepoInfo};
+//!
+//! # async fn example() -> anyhow::Result<()> {
+//! let repo = RepoInfo::parse("seanchatmangpt/ggen")?;
+//! let client = GitHubClient::new(repo.clone())?;
+//!
+//! // List workflow runs
+//! let runs = client.get_workflow_runs(&repo, "deploy.yml", 10).await?;
+//! for run in runs.workflow_runs {
+//!     println!("Run #{}: {} ({})", run.run_number, run.name, run.status);
+//! }
+//!
+//! // Trigger a workflow (requires authentication)
+//! client.trigger_workflow(&repo, "deploy.yml", "main").await?;
+//! # Ok(())
+//! # }
+//! ```
+
 use anyhow::{Context, Result};
 use reqwest;
 use serde::{Deserialize, Serialize};

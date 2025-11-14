@@ -1,3 +1,74 @@
+//! Local cache manager for gpack templates
+//!
+//! This module provides caching functionality for downloaded gpack templates.
+//! The `CacheManager` handles local storage, versioning, and integrity verification
+//! of cached template packs.
+//!
+//! ## Features
+//!
+//! - **Local caching**: Store downloaded packs in user cache directory
+//! - **SHA256 verification**: Verify pack integrity using checksums
+//! - **Version management**: Support multiple versions of the same pack
+//! - **Automatic cleanup**: Remove old versions, keeping only the latest
+//! - **Git integration**: Clone and checkout specific revisions
+//!
+//! ## Examples
+//!
+//! ### Creating a Cache Manager
+//!
+//! ```rust,no_run
+//! use ggen_core::cache::CacheManager;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! // Use default cache directory (~/.cache/ggen/gpacks)
+//! let cache = CacheManager::new()?;
+//!
+//! // Or use a custom directory (useful for testing)
+//! use std::path::PathBuf;
+//! let cache = CacheManager::with_dir(PathBuf::from("/tmp/ggen-cache"))?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Ensuring a Pack is Cached
+//!
+//! ```rust,no_run
+//! use ggen_core::cache::CacheManager;
+//! use ggen_core::registry::ResolvedPack;
+//!
+//! # async fn example() -> anyhow::Result<()> {
+//! let cache = CacheManager::new()?;
+//! let resolved_pack = ResolvedPack {
+//!     id: "io.ggen.example".to_string(),
+//!     version: "1.0.0".to_string(),
+//!     git_url: "https://github.com/example/pack.git".to_string(),
+//!     git_rev: "v1.0.0".to_string(),
+//!     sha256: "abc123...".to_string(),
+//! };
+//!
+//! // Download and cache the pack if not already cached
+//! let cached = cache.ensure(&resolved_pack).await?;
+//! println!("Cached pack at: {:?}", cached.path);
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Listing Cached Packs
+//!
+//! ```rust,no_run
+//! use ggen_core::cache::CacheManager;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let cache = CacheManager::new()?;
+//! let cached_packs = cache.list_cached()?;
+//!
+//! for pack in cached_packs {
+//!     println!("{}@{}: {:?}", pack.id, pack.version, pack.path);
+//! }
+//! # Ok(())
+//! # }
+//! ```
+
 use anyhow::{Context, Result};
 use git2::{FetchOptions, RemoteCallbacks, Repository};
 use sha2::{Digest, Sha256};
@@ -25,6 +96,20 @@ pub struct CachedPack {
 
 impl CacheManager {
     /// Create a new cache manager
+    ///
+    /// Uses the default cache directory (`~/.cache/ggen/gpacks` on Unix systems).
+    ///
+    /// # Example
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::cache::CacheManager;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let cache = CacheManager::new()?;
+    /// println!("Cache directory: {:?}", cache.cache_dir());
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn new() -> Result<Self> {
         let cache_dir = dirs::cache_dir()
             .context("Failed to find cache directory")?
@@ -37,6 +122,19 @@ impl CacheManager {
     }
 
     /// Create a cache manager with custom directory (for testing)
+    ///
+    /// # Example
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::cache::CacheManager;
+    /// use std::path::PathBuf;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let cache = CacheManager::with_dir(PathBuf::from("/tmp/ggen-cache"))?;
+    /// println!("Cache directory: {:?}", cache.cache_dir());
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn with_dir(cache_dir: PathBuf) -> Result<Self> {
         fs::create_dir_all(&cache_dir).context("Failed to create cache directory")?;
 
@@ -44,11 +142,89 @@ impl CacheManager {
     }
 
     /// Get the cache directory path
+    ///
+    /// # Example
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::cache::CacheManager;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let cache = CacheManager::new()?;
+    /// let cache_path = cache.cache_dir();
+    /// println!("Cache is at: {:?}", cache_path);
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn cache_dir(&self) -> &Path {
         &self.cache_dir
     }
 
     /// Ensure a pack is cached locally
+    ///
+    /// Downloads the pack from its git repository if not already cached, or
+    /// verifies the cached version matches the expected SHA256 checksum.
+    ///
+    /// # Arguments
+    ///
+    /// * `resolved_pack` - Pack metadata including git URL, revision, and SHA256
+    ///
+    /// # Returns
+    ///
+    /// Returns information about the cached pack, including its local path.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if:
+    /// - The pack cannot be downloaded from git
+    /// - The SHA256 checksum doesn't match (if provided)
+    /// - The cache directory cannot be accessed
+    ///
+    /// # Examples
+    ///
+    /// ## Success case
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::cache::CacheManager;
+    /// use ggen_core::registry::ResolvedPack;
+    ///
+    /// # async fn example() -> anyhow::Result<()> {
+    /// let cache = CacheManager::new()?;
+    /// let pack = ResolvedPack {
+    ///     id: "io.ggen.example".to_string(),
+    ///     version: "1.0.0".to_string(),
+    ///     git_url: "https://github.com/example/pack.git".to_string(),
+    ///     git_rev: "v1.0.0".to_string(),
+    ///     sha256: "abc123...".to_string(),
+    /// };
+    ///
+    /// let cached = cache.ensure(&pack).await?;
+    /// println!("Pack cached at: {:?}", cached.path);
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// ## Error case - Invalid git URL
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::cache::CacheManager;
+    /// use ggen_core::registry::ResolvedPack;
+    ///
+    /// # async fn example() -> anyhow::Result<()> {
+    /// let cache = CacheManager::new()?;
+    /// let pack = ResolvedPack {
+    ///     id: "io.ggen.example".to_string(),
+    ///     version: "1.0.0".to_string(),
+    ///     git_url: "https://invalid-url-that-does-not-exist.git".to_string(),
+    ///     git_rev: "v1.0.0".to_string(),
+    ///     sha256: "".to_string(),
+    /// };
+    ///
+    /// // This will fail because the git URL is invalid
+    /// let result = cache.ensure(&pack).await;
+    /// assert!(result.is_err());
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn ensure(&self, resolved_pack: &ResolvedPack) -> Result<CachedPack> {
         let pack_dir = self
             .cache_dir
@@ -124,6 +300,46 @@ impl CacheManager {
     }
 
     /// Load a cached pack
+    ///
+    /// Returns information about a pack that is already cached locally.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if:
+    /// - The pack is not found in the cache
+    /// - The pack directory exists but is corrupted
+    /// - The manifest file cannot be read or parsed
+    ///
+    /// # Examples
+    ///
+    /// ## Success case
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::cache::CacheManager;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let cache = CacheManager::new()?;
+    /// // Assuming pack is already cached
+    /// let cached = cache.load_cached("io.ggen.example", "1.0.0")?;
+    /// println!("Pack path: {:?}", cached.path);
+    /// println!("Pack SHA256: {}", cached.sha256);
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// ## Error case - Pack not found
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::cache::CacheManager;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let cache = CacheManager::new()?;
+    /// // This will fail because the pack is not cached
+    /// let result = cache.load_cached("nonexistent.pack", "1.0.0");
+    /// assert!(result.is_err());
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn load_cached(&self, pack_id: &str, version: &str) -> Result<CachedPack> {
         let pack_dir = self.cache_dir.join(pack_id).join(version);
 
@@ -170,6 +386,22 @@ impl CacheManager {
     }
 
     /// List all cached packs
+    ///
+    /// # Example
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::cache::CacheManager;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let cache = CacheManager::new()?;
+    /// let cached_packs = cache.list_cached()?;
+    ///
+    /// for pack in cached_packs {
+    ///     println!("{}@{}: {:?}", pack.id, pack.version, pack.path);
+    /// }
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn list_cached(&self) -> Result<Vec<CachedPack>> {
         let mut packs = Vec::new();
 
@@ -206,6 +438,44 @@ impl CacheManager {
     }
 
     /// Remove a cached pack
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if:
+    /// - The pack directory cannot be removed
+    /// - The cache directory cannot be accessed
+    ///
+    /// # Examples
+    ///
+    /// ## Success case
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::cache::CacheManager;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let cache = CacheManager::new()?;
+    /// // Remove a specific version of a pack
+    /// cache.remove("io.ggen.example", "1.0.0")?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// ## Error case - Permission denied
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::cache::CacheManager;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let cache = CacheManager::new()?;
+    /// // This may fail if we don't have permission to remove the pack
+    /// let result = cache.remove("io.ggen.example", "1.0.0");
+    /// // Handle error appropriately
+    /// if let Err(e) = result {
+    ///     eprintln!("Failed to remove pack: {}", e);
+    /// }
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn remove(&self, pack_id: &str, version: &str) -> Result<()> {
         let pack_dir = self.cache_dir.join(pack_id).join(version);
 

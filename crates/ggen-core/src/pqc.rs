@@ -1,7 +1,58 @@
 //! Post-Quantum Cryptography (PQC) module for ggen
 //!
-//! Uses ML-DSA (Dilithium3) - NIST-approved post-quantum signature scheme
-//! Provides quantum-resistant signatures for lockfile integrity verification
+//! This module provides post-quantum cryptographic signatures using ML-DSA (Dilithium3),
+//! a NIST-approved post-quantum signature scheme. It enables quantum-resistant
+//! signatures for lockfile integrity verification and package authentication.
+//!
+//! ## Features
+//!
+//! - **ML-DSA (Dilithium3)**: NIST-approved post-quantum signature algorithm
+//! - **Key Management**: Generate, load, and save key pairs
+//! - **Content Signing**: Sign arbitrary content with quantum-resistant signatures
+//! - **Signature Verification**: Verify signatures against content and public keys
+//! - **SHA-256 Integration**: Content hashing for integrity verification
+//!
+//! ## Security
+//!
+//! ML-DSA (Dilithium3) provides:
+//! - **Quantum Resistance**: Secure against attacks from quantum computers
+//! - **NIST Standard**: Approved for post-quantum cryptography
+//! - **Strong Security**: 128-bit security level
+//! - **Efficient**: Fast signature generation and verification
+//!
+//! ## Examples
+//!
+//! ### Generating a Key Pair
+//!
+//! ```rust,no_run
+//! use ggen_core::pqc::PqcSigner;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let signer = PqcSigner::new();
+//! signer.save_to_files(
+//!     Path::new("secret.key"),
+//!     Path::new("public.key")
+//! )?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Signing Content
+//!
+//! ```rust,no_run
+//! use ggen_core::pqc::PqcSigner;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let signer = PqcSigner::new();
+//! let content = b"package content";
+//! let signature = signer.sign(content)?;
+//!
+//! // Verify signature
+//! let verifier = PqcVerifier::from_public_key(&signer.public_key_bytes())?;
+//! assert!(verifier.verify(content, &signature)?);
+//! # Ok(())
+//! # }
+//! ```
 use anyhow::{Context, Result};
 use base64::{engine::general_purpose, Engine as _};
 use pqcrypto_mldsa::mldsa65;

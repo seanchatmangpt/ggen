@@ -1,3 +1,41 @@
+//! Project conventions resolver
+//!
+//! This module provides functionality for discovering and resolving project conventions
+//! from the file system. It automatically detects RDF files, templates, SPARQL queries,
+//! and output directories based on common patterns, with support for custom overrides
+//! via `.ggen/conventions.toml`.
+//!
+//! ## Features
+//!
+//! - **Automatic Discovery**: Find RDF files, templates, and queries in standard locations
+//! - **Convention Presets**: Support for presets like "clap-noun-verb" and "default"
+//! - **Custom Overrides**: Override patterns via configuration file
+//! - **File Watching**: Track directories for changes (for watch mode)
+//!
+//! ## Convention Structure
+//!
+//! Conventions define:
+//! - RDF file patterns (e.g., `domain/**/*.ttl`)
+//! - Template patterns (e.g., `templates/**/*.tmpl`)
+//! - Query patterns (e.g., `queries/**/*.rq`)
+//! - Output directory location
+//!
+//! ## Examples
+//!
+//! ### Resolving Conventions
+//!
+//! ```rust,no_run
+//! use ggen_cli::conventions::resolver::resolve_conventions;
+//! use std::path::Path;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let conventions = resolve_conventions(Path::new("."), "clap-noun-verb")?;
+//! println!("Found {} RDF files", conventions.rdf_files.len());
+//! println!("Found {} templates", conventions.templates.len());
+//! # Ok(())
+//! # }
+//! ```
+
 use anyhow::{Context, Result};
 use glob::glob;
 use serde::{Deserialize, Serialize};

@@ -55,7 +55,7 @@ pub async fn check_ollama_availability() -> bool {
     match GenAiClient::new(config) {
         Ok(client) => {
             // Try a simple completion to verify Ollama is running
-            let test_config = LlmConfig {
+            let _test_config = LlmConfig {
                 model: "qwen3-coder:30b".to_string(),
                 max_tokens: Some(10),
                 temperature: Some(0.1),

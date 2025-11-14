@@ -1,3 +1,56 @@
+//! Tantivy-based full-text search engine
+//!
+//! This module provides a high-performance full-text search engine using Tantivy,
+//! a Rust port of Apache Lucene. It supports advanced search features including
+//! fuzzy matching, faceted filtering, and relevance scoring.
+//!
+//! ## Features
+//!
+//! - **Full-Text Search**: Fast, indexed search across package metadata
+//! - **Fuzzy Matching**: Typo-tolerant search with configurable fuzziness
+//! - **Faceted Search**: Filter by category, language, license, etc.
+//! - **Relevance Scoring**: BM25-based relevance ranking
+//! - **Incremental Updates**: Add/update/remove packages from index
+//! - **Statistics**: Index size, document count, and performance metrics
+//!
+//! ## Index Schema
+//!
+//! The search index includes fields for:
+//! - Package ID, name, description
+//! - Version, category, language, license
+//! - Tags, downloads, rating
+//! - Timestamps (created_at, updated_at)
+//! - Author and repository URL
+//!
+//! ## Examples
+//!
+//! ### Creating a Search Engine
+//!
+//! ```rust,no_run
+//! use ggen_marketplace::search::TantivySearchEngine;
+//! use std::path::Path;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let engine = TantivySearchEngine::new(Path::new("/tmp/search_index"))?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Indexing a Package
+//!
+//! ```rust,no_run
+//! use ggen_marketplace::search::TantivySearchEngine;
+//! use ggen_marketplace::types::Package;
+//!
+//! # async fn example() -> anyhow::Result<()> {
+//! let engine = TantivySearchEngine::new("/tmp/index")?;
+//! let package = Package { /* ... */ };
+//!
+//! engine.index(&package).await?;
+//! # Ok(())
+//! # }
+//! ```
+
 use crate::search::{IndexStats, SearchEngine};
 use crate::types::{Facet as CustomFacet, Package, ScoredPackage, SearchQuery, SearchResults};
 use anyhow::{Context, Result};

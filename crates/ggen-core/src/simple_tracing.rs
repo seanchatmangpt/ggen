@@ -1,3 +1,63 @@
+//! Simple tracing system for pipeline debugging
+//!
+//! This module provides a lightweight tracing system for debugging template processing
+//! and generation operations. It uses environment variables for configuration and
+//! provides structured logging for key pipeline operations.
+//!
+//! ## Features
+//!
+//! - **Environment-based configuration**: Controlled via `GGEN_TRACE` environment variable
+//! - **Multiple trace levels**: Error, Warn, Info, Debug, Trace
+//! - **Performance timing**: Built-in timer for measuring operation duration
+//! - **Structured logging**: Context-aware logging for templates, RDF, SPARQL, etc.
+//!
+//! ## Configuration
+//!
+//! Set the `GGEN_TRACE` environment variable to enable tracing:
+//!
+//! - `error` - Only error messages
+//! - `warn` - Warnings and errors
+//! - `info` - Informational messages (default)
+//! - `debug` - Debug information
+//! - `trace` - Verbose trace information
+//! - `1`, `true`, `yes` - Enable debug level
+//! - `0`, `false`, `no` - Disable (error only)
+//!
+//! ## Examples
+//!
+//! ### Basic Usage
+//!
+//! ```rust,no_run
+//! use ggen_core::simple_tracing::SimpleTracer;
+//! use std::path::Path;
+//!
+//! // Check if tracing is enabled
+//! if SimpleTracer::is_enabled() {
+//!     SimpleTracer::template_start(Path::new("template.tmpl"));
+//! }
+//! ```
+//!
+//! ### Performance Timing
+//!
+//! ```rust,no_run
+//! use ggen_core::simple_tracing::SimpleTimer;
+//!
+//! let timer = SimpleTimer::start("template_processing");
+//! // ... do work ...
+//! timer.finish(); // Automatically logs the duration
+//! ```
+//!
+//! ### Using the Macro
+//!
+//! ```rust,no_run
+//! use ggen_core::time_operation;
+//!
+//! let result = time_operation!("expensive_operation", {
+//!     // ... operation code ...
+//!     42
+//! });
+//! ```
+
 use std::path::Path;
 use std::time::Instant;
 

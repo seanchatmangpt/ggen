@@ -1,3 +1,40 @@
+//! In-memory package storage implementation
+//!
+//! This module provides an in-memory implementation of the `PackageStore` trait,
+//! useful for testing, caching, and scenarios where persistent storage is not needed.
+//!
+//! ## Features
+//!
+//! - **Fast Access**: In-memory storage for low-latency operations
+//! - **Thread-Safe**: Concurrent access with RwLock
+//! - **Content Addressing**: SHA-256 based content IDs
+//! - **Metadata Support**: Stores content metadata alongside content
+//!
+//! ## Use Cases
+//!
+//! - **Testing**: Fast, ephemeral storage for unit tests
+//! - **Caching**: Cache layer for frequently accessed packages
+//! - **Development**: Quick iteration without filesystem I/O
+//!
+//! ## Examples
+//!
+//! ### Basic Usage
+//!
+//! ```rust,no_run
+//! use ggen_marketplace::storage::MemoryStore;
+//!
+//! # async fn example() -> anyhow::Result<()> {
+//! let store = MemoryStore::new();
+//!
+//! let content = b"test content";
+//! let content_id = store.store(content).await?;
+//!
+//! let retrieved = store.retrieve(&content_id).await?;
+//! assert_eq!(retrieved, content);
+//! # Ok(())
+//! # }
+//! ```
+
 #![allow(clippy::unwrap_used)] // Test code uses unwrap
 use crate::error::{MarketplaceError, Result};
 use crate::models::ContentId;

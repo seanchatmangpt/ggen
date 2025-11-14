@@ -1,3 +1,39 @@
+//! Ed25519 cryptographic signature implementation
+//!
+//! This module provides an implementation of the `CryptoVerifier` trait using
+//! the Ed25519 elliptic curve signature algorithm. Ed25519 is a modern, high-performance
+//! signature scheme that provides strong security guarantees with excellent performance.
+//!
+//! ## Features
+//!
+//! - **High Performance**: ~70,000 verifications/second
+//! - **Small Signatures**: 64-byte signatures
+//! - **Deterministic**: No random number generation needed
+//! - **128-bit Security**: Strong cryptographic security
+//! - **Key Management**: Key pair generation, import, and export
+//!
+//! ## Examples
+//!
+//! ### Signing and Verifying Content
+//!
+//! ```rust,no_run
+//! use ggen_marketplace::crypto::Ed25519Verifier;
+//! use ggen_marketplace::traits::CryptoVerifier;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let verifier = Ed25519Verifier::new();
+//! let keypair = verifier.generate_keypair()?;
+//!
+//! let content = b"Hello, World!";
+//! let verifier_with_key = Ed25519Verifier::with_keypair(keypair);
+//! let signature = verifier_with_key.sign(content)?;
+//!
+//! let valid = verifier_with_key.verify(content, &signature)?;
+//! assert!(valid);
+//! # Ok(())
+//! # }
+//! ```
+
 #![allow(clippy::unwrap_used)] // Test code at end of file uses unwrap
 use crate::error::{MarketplaceError, Result};
 use crate::models::signature::{KeyPair, PublicKey, Signature, SignatureAlgorithm};

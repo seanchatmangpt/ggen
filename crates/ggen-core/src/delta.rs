@@ -1,9 +1,59 @@
 //! Delta-driven projection for detecting and analyzing RDF graph changes
 //!
-//! This module provides functionality to:
-//! - Compare RDF graphs and detect semantic deltas
-//! - Analyze which templates are affected by graph changes
-//! - Support three-way merging for hybrid files
+//! This module provides functionality to detect and analyze changes in RDF graphs,
+//! determine which templates are affected by those changes, and support three-way
+//! merging for files that contain both generated and manual content.
+//!
+//! ## Features
+//!
+//! - **Graph Comparison**: Compare two RDF graphs and detect semantic differences
+//! - **Delta Types**: Track additions, deletions, and modifications of triples
+//! - **Impact Analysis**: Determine which templates are affected by graph changes
+//! - **Template Impact**: Calculate impact scores for template regeneration
+//! - **Change Detection**: Efficient change detection using graph hashing
+//!
+//! ## Delta Types
+//!
+//! - **Addition**: New triple added to the graph
+//! - **Deletion**: Triple removed from the graph
+//! - **Modification**: Triple's object value changed
+//!
+//! ## Examples
+//!
+//! ### Detecting Graph Changes
+//!
+//! ```rust,no_run
+//! use ggen_core::delta::{GraphDelta, ImpactAnalyzer};
+//! use ggen_core::graph::Graph;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let old_graph = Graph::new()?;
+//! let new_graph = Graph::new()?;
+//!
+//! let delta = GraphDelta::compute(&old_graph, &new_graph)?;
+//! println!("Detected {} changes", delta.changes.len());
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Analyzing Template Impact
+//!
+//! ```rust,no_run
+//! use ggen_core::delta::ImpactAnalyzer;
+//! use ggen_core::graph::Graph;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let analyzer = ImpactAnalyzer::new();
+//! let old_graph = Graph::new()?;
+//! let new_graph = Graph::new()?;
+//!
+//! let impacts = analyzer.analyze(&old_graph, &new_graph, &["template1.tmpl".into()])?;
+//! for impact in impacts {
+//!     println!("Template {}: impact score {}", impact.template_path.display(), impact.score);
+//! }
+//! # Ok(())
+//! # }
+//! ```
 
 use ahash::AHasher;
 use anyhow::Result;
@@ -16,6 +66,50 @@ use std::hash::{Hash, Hasher};
 use crate::graph::Graph;
 
 /// Represents a semantic change in an RDF graph
+///
+/// A `DeltaType` describes a single change between two RDF graphs:
+/// - **Addition**: A new triple was added
+/// - **Deletion**: A triple was removed
+/// - **Modification**: A triple's object value changed
+///
+/// # Examples
+///
+/// ```rust,no_run
+/// use ggen_core::delta::DeltaType;
+/// use oxigraph::model::{NamedNode, Literal, Quad};
+///
+/// # fn main() -> anyhow::Result<()> {
+/// // Create an addition delta
+/// let addition = DeltaType::Addition {
+///     subject: "http://example.org/alice".to_string(),
+///     predicate: "http://example.org/name".to_string(),
+///     object: "Alice".to_string(),
+/// };
+///
+/// // Check which IRIs are affected
+/// let affected = addition.subjects();
+/// assert_eq!(affected, vec!["http://example.org/alice"]);
+/// # Ok(())
+/// # }
+/// ```
+///
+/// ```rust,no_run
+/// use ggen_core::delta::DeltaType;
+///
+/// # fn main() -> anyhow::Result<()> {
+/// // Create a modification delta
+/// let modification = DeltaType::Modification {
+///     subject: "http://example.org/alice".to_string(),
+///     predicate: "http://example.org/age".to_string(),
+///     old_object: "30".to_string(),
+///     new_object: "31".to_string(),
+/// };
+///
+/// // Check if a specific IRI is affected
+/// assert!(modification.affects_iri("http://example.org/alice"));
+/// # Ok(())
+/// # }
+/// ```
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum DeltaType {
     /// A triple was added to the graph
@@ -41,6 +135,37 @@ pub enum DeltaType {
 
 impl DeltaType {
     /// Create a delta from two quads
+    ///
+    /// Compares an old quad (from baseline graph) and a new quad (from current graph)
+    /// and returns the appropriate delta type, or `None` if there's no change.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::delta::DeltaType;
+    /// use oxigraph::model::{NamedNode, Literal, Quad, Subject, Term};
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let old_quad = Quad::new(
+    ///     Subject::NamedNode(NamedNode::new("http://example.org/alice")?),
+    ///     NamedNode::new("http://example.org/name")?,
+    ///     Term::Literal(Literal::new_simple_literal("Alice")),
+    ///     None,
+    /// );
+    ///
+    /// let new_quad = Quad::new(
+    ///     Subject::NamedNode(NamedNode::new("http://example.org/alice")?),
+    ///     NamedNode::new("http://example.org/name")?,
+    ///     Term::Literal(Literal::new_simple_literal("Alice Smith")),
+    ///     None,
+    /// );
+    ///
+    /// // Detect modification
+    /// let delta = DeltaType::from_quads(Some(&old_quad), Some(&new_quad));
+    /// assert!(matches!(delta, Some(DeltaType::Modification { .. })));
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn from_quads(old: Option<&Quad>, new: Option<&Quad>) -> Option<Self> {
         match (old, new) {
             (None, Some(new_quad)) => Some(DeltaType::Addition {
@@ -73,6 +198,26 @@ impl DeltaType {
     }
 
     /// Get all subjects affected by this delta
+    ///
+    /// Returns a vector of subject IRIs that are affected by this change.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::delta::DeltaType;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let delta = DeltaType::Addition {
+    ///     subject: "http://example.org/alice".to_string(),
+    ///     predicate: "http://example.org/name".to_string(),
+    ///     object: "Alice".to_string(),
+    /// };
+    ///
+    /// let subjects = delta.subjects();
+    /// assert_eq!(subjects, vec!["http://example.org/alice"]);
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn subjects(&self) -> Vec<&str> {
         match self {
             DeltaType::Addition { subject, .. }
@@ -135,6 +280,35 @@ impl fmt::Display for DeltaType {
 }
 
 /// Collection of deltas representing the difference between two graphs
+///
+/// A `GraphDelta` contains all changes detected between a baseline graph and
+/// a current graph, along with metadata for tracking and verification.
+///
+/// # Examples
+///
+/// ```rust,no_run
+/// use ggen_core::delta::GraphDelta;
+/// use ggen_core::graph::Graph;
+///
+/// # fn main() -> anyhow::Result<()> {
+/// let baseline = Graph::new()?;
+/// baseline.insert_turtle(r#"
+///     @prefix ex: <http://example.org/> .
+///     ex:alice a ex:Person .
+/// "#)?;
+///
+/// let current = Graph::new()?;
+/// current.insert_turtle(r#"
+///     @prefix ex: <http://example.org/> .
+///     ex:alice a ex:Person .
+///     ex:bob a ex:Person .
+/// "#)?;
+///
+/// let delta = GraphDelta::new(&baseline, &current)?;
+/// println!("Detected {} changes", delta.deltas.len());
+/// # Ok(())
+/// # }
+/// ```
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct GraphDelta {
     /// All detected changes
@@ -149,6 +323,29 @@ pub struct GraphDelta {
 
 impl GraphDelta {
     /// Create a new delta by comparing two graphs
+    ///
+    /// Computes all differences between the baseline and current graphs,
+    /// including additions, deletions, and modifications.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::delta::GraphDelta;
+    /// use ggen_core::graph::Graph;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let baseline = Graph::new()?;
+    /// let current = Graph::new()?;
+    /// current.insert_turtle(r#"
+    ///     @prefix ex: <http://example.org/> .
+    ///     ex:alice ex:name "Alice" .
+    /// "#)?;
+    ///
+    /// let delta = GraphDelta::new(&baseline, &current)?;
+    /// assert!(!delta.deltas.is_empty());
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn new(baseline: &Graph, current: &Graph) -> Result<Self> {
         let mut deltas = Vec::new();
 
@@ -231,6 +428,30 @@ impl GraphDelta {
     }
 
     /// Get all IRIs affected by this delta
+    ///
+    /// Returns a set of all unique IRIs (subjects, predicates, objects) that
+    /// appear in any of the changes.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::delta::GraphDelta;
+    /// use ggen_core::graph::Graph;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let baseline = Graph::new()?;
+    /// let current = Graph::new()?;
+    /// current.insert_turtle(r#"
+    ///     @prefix ex: <http://example.org/> .
+    ///     ex:alice ex:name "Alice" .
+    /// "#)?;
+    ///
+    /// let delta = GraphDelta::new(&baseline, &current)?;
+    /// let affected = delta.affected_iris();
+    /// assert!(affected.contains("http://example.org/alice"));
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn affected_iris(&self) -> BTreeSet<String> {
         let mut iris = BTreeSet::new();
         for delta in &self.deltas {
@@ -254,6 +475,29 @@ impl GraphDelta {
     }
 
     /// Check if this delta affects a specific IRI
+    ///
+    /// Returns `true` if any change in this delta affects the given IRI
+    /// (as subject, predicate, or object).
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::delta::GraphDelta;
+    /// use ggen_core::graph::Graph;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let baseline = Graph::new()?;
+    /// let current = Graph::new()?;
+    /// current.insert_turtle(r#"
+    ///     @prefix ex: <http://example.org/> .
+    ///     ex:alice ex:name "Alice" .
+    /// "#)?;
+    ///
+    /// let delta = GraphDelta::new(&baseline, &current)?;
+    /// assert!(delta.affects_iri("http://example.org/alice"));
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn affects_iri(&self, iri: &str) -> bool {
         self.deltas.iter().any(|d| d.affects_iri(iri))
     }

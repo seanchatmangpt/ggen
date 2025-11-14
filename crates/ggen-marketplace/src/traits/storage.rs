@@ -1,3 +1,51 @@
+//! Extended storage trait with additional functionality
+//!
+//! This module provides the `PackageStoreExt` trait which extends the base
+//! `PackageStore` trait with additional convenience methods for storage management,
+//! integrity verification, compaction, and snapshots.
+//!
+//! ## Features
+//!
+//! - **Content Operations**: Copy, list, and manage stored content
+//! - **Integrity Verification**: Verify content integrity and detect corruption
+//! - **Storage Management**: Compaction, statistics, and space management
+//! - **Snapshots**: Create and restore storage snapshots for backup/recovery
+//! - **Caching**: Optional content caching for performance optimization
+//!
+//! ## Examples
+//!
+//! ### Getting Storage Statistics
+//!
+//! ```rust,no_run
+//! use ggen_marketplace::traits::storage::PackageStoreExt;
+//!
+//! # async fn example() -> anyhow::Result<()> {
+//! let store: Box<dyn PackageStoreExt> = /* ... */;
+//! let stats = store.storage_stats().await?;
+//! println!("Total size: {} bytes", stats.total_size_bytes);
+//! println!("Total items: {}", stats.total_items);
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Verifying Content Integrity
+//!
+//! ```rust,no_run
+//! use ggen_marketplace::traits::storage::PackageStoreExt;
+//! use ggen_marketplace::models::ContentId;
+//!
+//! # async fn example() -> anyhow::Result<()> {
+//! let store: Box<dyn PackageStoreExt> = /* ... */;
+//! let content_id = ContentId::from("abc123...");
+//!
+//! let is_valid = store.verify_integrity(&content_id).await?;
+//! if !is_valid {
+//!     eprintln!("Content integrity check failed!");
+//! }
+//! # Ok(())
+//! # }
+//! ```
+
 use crate::error::Result;
 use crate::models::ContentId;
 use async_trait::async_trait;

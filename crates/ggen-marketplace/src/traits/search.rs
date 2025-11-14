@@ -1,3 +1,50 @@
+//! Extended search engine trait with advanced features
+//!
+//! This module provides the `SearchEngineExt` trait which extends the base
+//! `SearchEngine` trait with additional functionality for search suggestions,
+//! related packages, analytics, and batch operations.
+//!
+//! ## Features
+//!
+//! - **Search Suggestions**: Autocomplete and query suggestions
+//! - **Related Packages**: Find packages related to a given package
+//! - **Popular Searches**: Get trending search terms
+//! - **Batch Operations**: Index multiple packages efficiently
+//! - **Autocorrect**: Automatic query correction for typos
+//! - **Analytics**: Search analytics and statistics
+//!
+//! ## Examples
+//!
+//! ### Getting Search Suggestions
+//!
+//! ```rust,no_run
+//! use ggen_marketplace::traits::search::SearchEngineExt;
+//!
+//! # async fn example() -> anyhow::Result<()> {
+//! let engine: Box<dyn SearchEngineExt> = /* ... */;
+//! let suggestions = engine.suggest("rust cl", 5).await?;
+//! for suggestion in suggestions {
+//!     println!("Suggestion: {}", suggestion);
+//! }
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Finding Related Packages
+//!
+//! ```rust,no_run
+//! use ggen_marketplace::traits::search::SearchEngineExt;
+//!
+//! # async fn example() -> anyhow::Result<()> {
+//! let engine: Box<dyn SearchEngineExt> = /* ... */;
+//! let related = engine.related(&"io.ggen.rust.cli".into(), 5).await?;
+//! for package in related {
+//!     println!("Related: {} - {}", package.id, package.name);
+//! }
+//! # Ok(())
+//! # }
+//! ```
+
 use crate::error::Result;
 use crate::models::{Category, Package, PackageId};
 use async_trait::async_trait;

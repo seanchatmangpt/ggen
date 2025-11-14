@@ -1,4 +1,42 @@
-// Common utilities for project generators
+//! Common utilities for project generators
+//!
+//! This module provides shared utilities used across different project generators,
+//! including validation functions, configuration file generators, and helper functions.
+//!
+//! ## Features
+//!
+//! - **Project name validation**: Ensures project names follow naming conventions
+//! - **Directory utilities**: Check if directories are empty
+//! - **Configuration file generation**: Generate common config files (.editorconfig, .prettierrc, .eslintrc)
+//!
+//! ## Examples
+//!
+//! ### Validating a Project Name
+//!
+//! ```rust,no_run
+//! use ggen_core::project_generator::common::validate_project_name;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! // Valid names
+//! validate_project_name("my-project")?;
+//! validate_project_name("my_project")?;
+//! validate_project_name("myproject123")?;
+//!
+//! // Invalid names
+//! assert!(validate_project_name("my project").is_err()); // Contains space
+//! assert!(validate_project_name("-myproject").is_err()); // Starts with dash
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Generating Configuration Files
+//!
+//! ```rust,no_run
+//! use ggen_core::project_generator::common::{generate_editorconfig, generate_prettierrc};
+//!
+//! let editorconfig = generate_editorconfig();
+//! let prettierrc = generate_prettierrc();
+//! ```
 
 use anyhow::Result;
 use std::path::Path;

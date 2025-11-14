@@ -1,3 +1,87 @@
+//! Lockfile manager for ggen.lock
+//!
+//! This module provides functionality for managing the `ggen.lock` file, which tracks
+//! installed gpack versions and their dependencies. The lockfile ensures reproducible
+//! builds by pinning exact versions and checksums.
+//!
+//! ## Features
+//!
+//! - **Lockfile management**: Create, read, update, and delete lockfile entries
+//! - **Dependency tracking**: Automatically resolve and track pack dependencies
+//! - **PQC signatures**: Support for post-quantum cryptography signatures (ML-DSA/Dilithium3)
+//! - **Version pinning**: Lock exact versions and SHA256 checksums
+//! - **Statistics**: Get lockfile statistics (total packs, generation time, version)
+//!
+//! ## Lockfile Format
+//!
+//! The `ggen.lock` file is a TOML file with the following structure:
+//!
+//! ```toml
+//! version = "1.0"
+//! generated = "2024-01-01T00:00:00Z"
+//!
+//! [[packs]]
+//! id = "io.ggen.rust.cli"
+//! version = "1.0.0"
+//! sha256 = "abc123..."
+//! source = "https://github.com/example/pack.git"
+//! dependencies = ["io.ggen.macros.std@0.1.0"]
+//! pqc_signature = "base64_signature..."
+//! pqc_pubkey = "base64_public_key..."
+//! ```
+//!
+//! ## Examples
+//!
+//! ### Creating a Lockfile Manager
+//!
+//! ```rust,no_run
+//! use ggen_core::lockfile::LockfileManager;
+//! use std::path::Path;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let manager = LockfileManager::new(Path::new("."));
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Adding a Pack to the Lockfile
+//!
+//! ```rust,no_run
+//! use ggen_core::lockfile::LockfileManager;
+//! use std::path::Path;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let manager = LockfileManager::new(Path::new("."));
+//! manager.upsert(
+//!     "io.ggen.rust.cli",
+//!     "1.0.0",
+//!     "abc123...",
+//!     "https://github.com/example/pack.git"
+//! )?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Adding a Pack with PQC Signature
+//!
+//! ```rust,no_run
+//! use ggen_core::lockfile::LockfileManager;
+//! use std::path::Path;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let manager = LockfileManager::new(Path::new("."));
+//! manager.upsert_with_pqc(
+//!     "io.ggen.rust.cli",
+//!     "1.0.0",
+//!     "abc123...",
+//!     "https://github.com/example/pack.git",
+//!     Some("pqc_signature_base64".to_string()),
+//!     Some("pqc_pubkey_base64".to_string()),
+//! )?;
+//! # Ok(())
+//! # }
+//! ```
+
 use anyhow::{Context, Result};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -39,6 +123,16 @@ pub struct LockEntry {
 
 impl LockfileManager {
     /// Create a new lockfile manager
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use ggen_core::lockfile::LockfileManager;
+    /// use std::path::Path;
+    ///
+    /// let manager = LockfileManager::new(Path::new("."));
+    /// assert_eq!(manager.lockfile_path(), Path::new("./ggen.lock"));
+    /// ```
     pub fn new(project_dir: &Path) -> Self {
         let lockfile_path = project_dir.join("ggen.lock");
         Self { lockfile_path }
@@ -50,6 +144,17 @@ impl LockfileManager {
     }
 
     /// Get the lockfile path
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use ggen_core::lockfile::LockfileManager;
+    /// use std::path::Path;
+    ///
+    /// let manager = LockfileManager::new(Path::new("."));
+    /// let path = manager.lockfile_path();
+    /// assert!(path.ends_with("ggen.lock"));
+    /// ```
     pub fn lockfile_path(&self) -> &Path {
         &self.lockfile_path
     }

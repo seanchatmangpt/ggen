@@ -20,9 +20,9 @@
 //! cargo bench --bench runtime_overhead
 //! ```
 
-use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
+use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
+use std::hint::black_box;
 use std::sync::atomic::{AtomicUsize, Ordering};
-use std::sync::Arc;
 
 // ============================================================================
 // Mock Runtime Module (for benchmarking before actual implementation)

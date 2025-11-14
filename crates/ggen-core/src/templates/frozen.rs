@@ -1,12 +1,123 @@
 //! Frozen section preservation during regeneration
 //!
 //! This module provides functionality for preserving user-modified code sections
-//! during template regeneration using {% frozen %} tags.
+//! during template regeneration using `{% frozen %}` tags. This allows users to
+//! customize generated code while still benefiting from template updates.
+//!
+//! ## Features
+//!
+//! - **Frozen Tag Parsing**: Parses `{% frozen %}` and `{% endfrozen %}` tags
+//! - **Section Identification**: Supports named sections with `id` attribute
+//! - **Content Preservation**: Preserves user code during regeneration
+//! - **Merge Support**: Merges preserved sections into regenerated content
+//! - **Tag Stripping**: Removes frozen tags while preserving content
+//!
+//! ## Frozen Section Syntax
+//!
+//! ### Basic Frozen Section
+//!
+//! ```text
+//! {% frozen %}
+//! // User's custom code here
+//! // This will be preserved during regeneration
+//! {% endfrozen %}
+//! ```
+//!
+//! ### Named Frozen Section
+//!
+//! ```text
+//! {% frozen id="custom_logic" %}
+//! // User's custom implementation
+//! // Can be referenced by ID during merge
+//! {% endfrozen %}
+//! ```
+//!
+//! ## Use Cases
+//!
+//! - **Business Logic**: Preserve custom business logic implementations
+//! - **Configuration**: Keep user-specific configuration values
+//! - **Custom Functions**: Maintain user-added helper functions
+//! - **Integration Code**: Preserve integration with other systems
+//!
+//! ## Examples
+//!
+//! ### Parsing Frozen Sections
+//!
+//! ```rust,no_run
+//! use ggen_core::templates::frozen::FrozenParser;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let content = r#"
+//! // Generated code
+//! {% frozen id="custom" %}
+//! fn my_custom_function() {
+//!     println!("Custom logic");
+//! }
+//! {% endfrozen %}
+//! // More generated code
+//! "#;
+//!
+//! let sections = FrozenParser::parse_frozen_tags(content)?;
+//! assert_eq!(sections.len(), 1);
+//! assert_eq!(sections[0].id, Some("custom".to_string()));
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Merging Frozen Sections
+//!
+//! ```rust,no_run
+//! use ggen_core::templates::frozen::FrozenMerger;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let old_content = r#"
+//! {% frozen id="logic" %}
+//! // User's preserved code
+//! {% endfrozen %}
+//! "#;
+//!
+//! let new_content = r#"
+//! {% frozen id="logic" %}
+//! // New generated code (will be replaced)
+//! {% endfrozen %}
+//! "#;
+//!
+//! let merged = FrozenMerger::merge_with_frozen(old_content, new_content)?;
+//! // merged contains "User's preserved code", not "New generated code"
+//! # Ok(())
+//! # }
+//! ```
 
 use anyhow::{anyhow, Result};
 use regex::Regex;
 
 /// Represents a frozen section in a template
+///
+/// A frozen section is a region of code that should be preserved during
+/// template regeneration. Users can mark sections with `{% frozen %}` tags
+/// to prevent them from being overwritten.
+///
+/// # Examples
+///
+/// ```rust,no_run
+/// use ggen_core::templates::frozen::{FrozenSection, FrozenParser};
+///
+/// # fn main() -> anyhow::Result<()> {
+/// let content = r#"
+/// {% frozen id="custom" %}
+/// fn my_function() {
+///     println!("Custom code");
+/// }
+/// {% endfrozen %}
+/// "#;
+///
+/// let sections = FrozenParser::parse_frozen_tags(content)?;
+/// let section = &sections[0];
+/// assert_eq!(section.id, Some("custom".to_string()));
+/// assert!(section.content.contains("my_function"));
+/// # Ok(())
+/// # }
+/// ```
 #[derive(Debug, Clone, PartialEq)]
 pub struct FrozenSection {
     /// Start position in the content
@@ -20,6 +131,27 @@ pub struct FrozenSection {
 }
 
 /// Parser for frozen section tags in templates
+///
+/// Parses `{% frozen %}` and `{% endfrozen %}` tags from template content
+/// and extracts the sections for preservation during regeneration.
+///
+/// # Examples
+///
+/// ```rust,no_run
+/// use ggen_core::templates::frozen::FrozenParser;
+///
+/// # fn main() -> anyhow::Result<()> {
+/// let content = r#"
+/// {% frozen %}
+/// preserved code
+/// {% endfrozen %}
+/// "#;
+///
+/// let sections = FrozenParser::parse_frozen_tags(content)?;
+/// assert_eq!(sections.len(), 1);
+/// # Ok(())
+/// # }
+/// ```
 pub struct FrozenParser;
 
 impl FrozenParser {
@@ -37,6 +169,39 @@ impl FrozenParser {
     /// {% frozen id="custom_logic" %}
     /// user code here
     /// {% endfrozen %}
+    /// ```
+    ///
+    /// # Arguments
+    ///
+    /// * `template_content` - The template content to parse
+    ///
+    /// # Returns
+    ///
+    /// A vector of `FrozenSection` structs representing all frozen sections found.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if:
+    /// - A frozen tag is not properly closed
+    /// - The regex pattern fails to compile
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::templates::frozen::FrozenParser;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let content = r#"
+    /// {% frozen id="logic" %}
+    /// fn custom_logic() {}
+    /// {% endfrozen %}
+    /// "#;
+    ///
+    /// let sections = FrozenParser::parse_frozen_tags(content)?;
+    /// assert_eq!(sections.len(), 1);
+    /// assert_eq!(sections[0].id, Some("logic".to_string()));
+    /// # Ok(())
+    /// # }
     /// ```
     pub fn parse_frozen_tags(template_content: &str) -> Result<Vec<FrozenSection>> {
         let mut sections = Vec::new();
@@ -76,6 +241,40 @@ impl FrozenParser {
     }
 
     /// Extract frozen sections indexed by ID or position
+    ///
+    /// Parses frozen sections and returns a map where keys are section IDs
+    /// (or generated position-based keys like "section_0") and values are
+    /// the section content.
+    ///
+    /// # Arguments
+    ///
+    /// * `content` - The template content to parse
+    ///
+    /// # Returns
+    ///
+    /// A `HashMap` mapping section identifiers to their content.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if parsing fails (see `parse_frozen_tags()`).
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::templates::frozen::FrozenParser;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let content = r#"
+    /// {% frozen id="custom" %}
+    /// preserved code
+    /// {% endfrozen %}
+    /// "#;
+    ///
+    /// let map = FrozenParser::extract_frozen_map(content)?;
+    /// assert_eq!(map.get("custom"), Some(&"preserved code\n".to_string()));
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn extract_frozen_map(content: &str) -> Result<std::collections::HashMap<String, String>> {
         let sections = Self::parse_frozen_tags(content)?;
         let mut map = std::collections::HashMap::new();
@@ -93,17 +292,71 @@ impl FrozenParser {
 }
 
 /// Merger for frozen sections during regeneration
+///
+/// Merges preserved frozen sections from old content into newly generated content,
+/// ensuring user modifications are not lost during template regeneration.
+///
+/// # Examples
+///
+/// ```rust,no_run
+/// use ggen_core::templates::frozen::FrozenMerger;
+///
+/// # fn main() -> anyhow::Result<()> {
+/// let old = r#"{% frozen id="custom" %}old code{% endfrozen %}"#;
+/// let new = r#"{% frozen id="custom" %}new code{% endfrozen %}"#;
+/// let merged = FrozenMerger::merge_with_frozen(old, new)?;
+/// assert!(merged.contains("old code"));
+/// # Ok(())
+/// # }
+/// ```
 pub struct FrozenMerger;
 
 impl FrozenMerger {
     /// Merge frozen sections from old content into new content
     ///
+    /// Extracts frozen sections from `old_content` and replaces corresponding
+    /// sections in `new_content` with the preserved content. Sections are
+    /// matched by ID if present, or by position if no ID is specified.
+    ///
     /// # Arguments
-    /// * `old_content` - The existing file content with frozen sections
+    ///
+    /// * `old_content` - The existing file content with frozen sections to preserve
     /// * `new_content` - The newly generated content with frozen placeholders
     ///
     /// # Returns
-    /// Merged content with preserved frozen sections
+    ///
+    /// Merged content with preserved frozen sections from old content.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if parsing fails or if section matching fails.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::templates::frozen::FrozenMerger;
+    ///
+    /// # fn main() -> anyhow::Result<()> {
+    /// let old_content = r#"
+    /// {% frozen id="logic" %}
+    /// fn my_custom_function() {
+    ///     println!("User's code");
+    /// }
+    /// {% endfrozen %}
+    /// "#;
+    ///
+    /// let new_content = r#"
+    /// {% frozen id="logic" %}
+    /// // Generated placeholder
+    /// {% endfrozen %}
+    /// "#;
+    ///
+    /// let merged = FrozenMerger::merge_with_frozen(old_content, new_content)?;
+    /// assert!(merged.contains("my_custom_function"));
+    /// assert!(merged.contains("User's code"));
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn merge_with_frozen(old_content: &str, new_content: &str) -> Result<String> {
         // Extract frozen sections from old content
         let old_sections = FrozenParser::extract_frozen_map(old_content)?;
@@ -170,11 +423,59 @@ impl FrozenMerger {
     }
 
     /// Check if content contains frozen sections
+    ///
+    /// Performs a simple string check to determine if the content contains
+    /// any frozen section tags. This is faster than parsing but less precise.
+    ///
+    /// # Arguments
+    ///
+    /// * `content` - The content to check
+    ///
+    /// # Returns
+    ///
+    /// `true` if the content contains `{% frozen` tags, `false` otherwise.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::templates::frozen::FrozenMerger;
+    ///
+    /// assert!(FrozenMerger::has_frozen_sections("{% frozen %}code{% endfrozen %}"));
+    /// assert!(!FrozenMerger::has_frozen_sections("regular code"));
+    /// ```
     pub fn has_frozen_sections(content: &str) -> bool {
         content.contains("{% frozen")
     }
 
     /// Remove all frozen tags but keep content
+    ///
+    /// Strips `{% frozen %}` and `{% endfrozen %}` tags from content while
+    /// preserving the actual content within frozen sections. Useful for
+    /// extracting user code without the template markers.
+    ///
+    /// # Arguments
+    ///
+    /// * `content` - The content to strip tags from
+    ///
+    /// # Returns
+    ///
+    /// Content with frozen tags removed but section content preserved.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::templates::frozen::FrozenMerger;
+    ///
+    /// let content = r#"
+    /// {% frozen id="test" %}
+    /// preserved code
+    /// {% endfrozen %}
+    /// "#;
+    ///
+    /// let stripped = FrozenMerger::strip_frozen_tags(content);
+    /// assert!(!stripped.contains("{% frozen"));
+    /// assert!(stripped.contains("preserved code"));
+    /// ```
     pub fn strip_frozen_tags(content: &str) -> String {
         let start_regex = Regex::new(r#"\{%\s*frozen(?:\s+id\s*=\s*"[^"]+")?\s*%\}"#).unwrap();
         let end_regex = Regex::new(r"\{%\s*endfrozen\s*%\}").unwrap();

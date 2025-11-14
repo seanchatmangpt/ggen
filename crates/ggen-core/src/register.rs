@@ -1,3 +1,86 @@
+//! Tera template environment registration and text transformation helpers
+//!
+//! This module provides comprehensive text transformation filters and functions
+//! for the Tera templating engine. It includes case conversion, string manipulation,
+//! SPARQL query helpers, and context blessing for Hygen compatibility.
+//!
+//! ## Features
+//!
+//! - **Case Conversion**: camelCase, PascalCase, snake_case, kebab-case, and more
+//! - **String Manipulation**: Pluralization, singularization, ordinalization
+//! - **SPARQL Helpers**: Functions for working with SPARQL query results in templates
+//! - **Context Blessing**: Auto-generate derived variables (Name, locals) for Hygen compatibility
+//! - **Inflector Integration**: Full integration with the Inflector crate
+//! - **Heck Integration**: Additional case conversion utilities from Heck
+//!
+//! ## Available Filters
+//!
+//! ### Case Conversion
+//! - `camel` - camelCase
+//! - `pascal` - PascalCase
+//! - `snake` - snake_case
+//! - `kebab` - kebab-case
+//! - `class` - ClassCase
+//! - `title` - Title Case
+//! - `sentence` - Sentence case
+//! - `train` - Train-Case
+//! - `shouty_snake` - SCREAMING_SNAKE_CASE
+//! - `shouty_kebab` - SCREAMING-KEBAB-CASE
+//!
+//! ### String Manipulation
+//! - `pluralize` - Convert to plural form
+//! - `singularize` - Convert to singular form
+//! - `ordinalize` - Convert number to ordinal (1st, 2nd, 3rd)
+//! - `deordinalize` - Remove ordinal suffix
+//! - `foreign_key` - Generate foreign key name
+//!
+//! ### SPARQL Functions
+//! - `sparql_column` - Extract a column from SPARQL results
+//! - `sparql_row` - Get a specific row from SPARQL results
+//! - `sparql_first` - Get first value from a column
+//! - `sparql_values` - Get all values from a column
+//! - `sparql_empty` - Check if results are empty
+//! - `sparql_count` - Count results
+//!
+//! ## Examples
+//!
+//! ### Registering Filters
+//!
+//! ```rust
+//! use ggen_core::register::register_all;
+//! use tera::Tera;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let mut tera = Tera::default();
+//! register_all(&mut tera);
+//!
+//! // Now you can use filters in templates
+//! let mut ctx = tera::Context::new();
+//! ctx.insert("name", "hello_world");
+//! let result = tera.render_str("{{ name | pascal }}", &ctx)?;
+//! assert_eq!(result, "HelloWorld");
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Context Blessing
+//!
+//! ```rust
+//! use ggen_core::register::bless_context;
+//! use tera::Context;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let mut ctx = Context::new();
+//! ctx.insert("name", "user_profile");
+//!
+//! bless_context(&mut ctx);
+//!
+//! // Name is auto-generated from name
+//! assert_eq!(ctx.get("Name").unwrap().as_str().unwrap(), "UserProfile");
+//! # Ok(())
+//! # }
+//! ```
+
 use heck::{
     ToShoutyKebabCase,
     ToShoutySnakeCase,

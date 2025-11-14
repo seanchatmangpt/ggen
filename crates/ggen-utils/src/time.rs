@@ -1,3 +1,39 @@
+//! Time utilities for ggen
+//!
+//! This module provides utilities for working with timestamps and durations,
+//! including Unix timestamp generation and human-readable duration formatting.
+//!
+//! ## Features
+//!
+//! - **Unix timestamps**: Get current Unix timestamp
+//! - **Duration formatting**: Format durations in human-readable format
+//! - **Time calculations**: Helper functions for time-based operations
+//!
+//! ## Examples
+//!
+//! ### Getting Current Timestamp
+//!
+//! ```rust
+//! use ggen_utils::time::current_timestamp;
+//!
+//! # fn main() {
+//! let timestamp = current_timestamp();
+//! println!("Current Unix timestamp: {}", timestamp);
+//! # }
+//! ```
+//!
+//! ### Formatting Durations
+//!
+//! ```rust
+//! use ggen_utils::time::format_duration;
+//!
+//! # fn main() {
+//! assert_eq!(format_duration(30), "30s");
+//! assert_eq!(format_duration(90), "1m 30s");
+//! assert_eq!(format_duration(3661), "1h 1m 1s");
+//! # }
+//! ```
+
 use std::time::{SystemTime, UNIX_EPOCH};
 
 /// Get the current Unix timestamp.

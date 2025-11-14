@@ -261,7 +261,9 @@ mod tests {
     fn test_find_templates_dir() {
         let dir = PromptTemplateLoader::find_templates_dir();
         // Should find the directory we just created
-        assert!(dir.is_ok() || cfg!(not(feature = "template-prompts")));
+        // Note: template-prompts feature may not be defined in Cargo.toml
+        let has_feature = cfg!(feature = "template-prompts");
+        assert!(dir.is_ok() || !has_feature);
     }
 
     #[test]

@@ -1,3 +1,54 @@
+//! # ggen-cli - Command-line interface for ggen code generation
+//!
+//! This crate provides the command-line interface for ggen, using clap-noun-verb
+//! for automatic command discovery and routing. It bridges between user commands
+//! and the domain logic layer (ggen-domain).
+//!
+//! ## Architecture
+//!
+//! - **Command Discovery**: Uses clap-noun-verb v3.4.0 auto-discovery to find
+//!   all `#[verb]` functions in the `cmds` module
+//! - **Async/Sync Bridge**: Provides runtime utilities to bridge async domain
+//!   functions with synchronous CLI execution
+//! - **Conventions**: File-based routing conventions for template-based command
+//!   generation
+//! - **Node Integration**: Programmatic entry point for Node.js addon integration
+//!
+//! ## Features
+//!
+//! - **Auto-discovery**: Commands are automatically discovered via clap-noun-verb
+//! - **Version handling**: Built-in `--version` flag support
+//! - **Output capture**: Programmatic execution with stdout/stderr capture
+//! - **Async support**: Full async/await support for non-blocking operations
+//!
+//! ## Examples
+//!
+//! ### Basic CLI Execution
+//!
+//! ```rust,no_run
+//! use ggen_cli::cli_match;
+//!
+//! # async fn example() -> ggen_utils::error::Result<()> {
+//! // Execute CLI with auto-discovered commands
+//! cli_match().await?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Programmatic Execution
+//!
+//! ```rust,no_run
+//! use ggen_cli::run_for_node;
+//!
+//! # async fn example() -> ggen_utils::error::Result<()> {
+//! let args = vec!["template".to_string(), "generate".to_string()];
+//! let result = run_for_node(args).await?;
+//! println!("Exit code: {}", result.code);
+//! println!("Output: {}", result.stdout);
+//! # Ok(())
+//! # }
+//! ```
+
 #![deny(warnings)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
 #![allow(non_upper_case_globals)] // Allow macro-generated static variables from clap-noun-verb
 

@@ -1,3 +1,57 @@
+//! Extended cryptographic verifier with advanced features
+//!
+//! This module provides the `CryptoVerifierExt` trait which extends the base
+//! `CryptoVerifier` trait with additional functionality for batch verification,
+//! detached signatures, timestamped signatures, and key management.
+//!
+//! ## Features
+//!
+//! - **Batch Verification**: Verify multiple signatures efficiently
+//! - **Detached Signatures**: Sign and verify content separately from signatures
+//! - **Timestamped Signatures**: Add timestamps to signatures for audit trails
+//! - **Key Management**: Secure key storage and retrieval
+//!
+//! ## Examples
+//!
+//! ### Batch Verification
+//!
+//! ```rust,no_run
+//! use ggen_marketplace::traits::crypto::{CryptoVerifierExt, VerificationRequest};
+//!
+//! # async fn example() -> anyhow::Result<()> {
+//! let verifier: Box<dyn CryptoVerifierExt> = /* ... */;
+//! let requests = vec![
+//!     VerificationRequest { content: b"content1".to_vec(), signature: /* ... */ },
+//!     VerificationRequest { content: b"content2".to_vec(), signature: /* ... */ },
+//! ];
+//!
+//! let results = verifier.verify_batch(&requests).await?;
+//! for result in results {
+//!     println!("Verification: {}", result.valid);
+//! }
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Detached Signatures
+//!
+//! ```rust,no_run
+//! use ggen_marketplace::traits::crypto::CryptoVerifierExt;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let verifier: Box<dyn CryptoVerifierExt> = /* ... */;
+//! let content = b"Hello, World!";
+//!
+//! // Create detached signature
+//! let signature_bytes = verifier.sign_detached(content)?;
+//!
+//! // Verify detached signature
+//! let public_key = /* ... */;
+//! let valid = verifier.verify_detached(content, &signature_bytes, &public_key)?;
+//! # Ok(())
+//! # }
+//! ```
+
 use crate::error::Result;
 use crate::models::signature::{KeyPair, PublicKey, Signature, VerificationResult};
 use async_trait::async_trait;

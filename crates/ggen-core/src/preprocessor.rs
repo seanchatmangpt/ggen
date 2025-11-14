@@ -1,19 +1,63 @@
 //! Template preprocessor pipeline for deterministic text transformations
 //!
-//! ## Pipeline Order
-//! 1. Preprocessor (freeze, includes, macros)
-//! 2. render_frontmatter (Tera on YAML)
-//! 3. Graph operations (RDF/SPARQL)
-//! 4. Body render (Tera)
+//! This module provides a preprocessing pipeline that applies deterministic text
+//! transformations to templates before rendering. The preprocessor handles freeze
+//! blocks, includes, and macros in a controlled order to ensure reproducible output.
 //!
-//! ## Stages
+//! ## Pipeline Order
+//!
+//! The preprocessing pipeline executes in the following order:
+//! 1. **Preprocessor**: Freeze, includes, macros
+//! 2. **Render Frontmatter**: Tera rendering on YAML frontmatter
+//! 3. **Graph Operations**: RDF loading and SPARQL query execution
+//! 4. **Body Render**: Final Tera rendering of template body
+//!
+//! ## Preprocessing Stages
+//!
 //! - **Freeze**: Replace `{% freeze %}` blocks with cached slot contents
+//!   - Preserves manual edits in generated files
+//!   - Supports checksum-based validation
 //! - **Includes**: Process `{% include %}` directives
+//!   - Resolve template includes recursively
+//!   - Support for relative and absolute paths
 //! - **Macros**: Expand template macros
+//!   - Macro definition and invocation
+//!   - Parameter passing and scoping
 //!
 //! ## Error Model
-//! - Each stage returns contextual errors: stage name, byte span, snippet
-//! - No partial silent edits
+//!
+//! - Each stage returns contextual errors with:
+//!   - Stage name for identification
+//!   - Byte span for error location
+//!   - Code snippet for context
+//! - No partial silent edits - all transformations are explicit
+//!
+//! ## Examples
+//!
+//! ### Using the Preprocessor
+//!
+//! ```rust,no_run
+//! use ggen_core::preprocessor::{Preprocessor, FreezePolicy, PrepCtx};
+//! use std::path::Path;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let preprocessor = Preprocessor::new(FreezePolicy::Checksum);
+//! let ctx = PrepCtx {
+//!     template_path: Path::new("template.tmpl"),
+//!     out_dir: Path::new("output"),
+//!     vars_json: &serde_json::json!({}),
+//! };
+//!
+//! let input = r#"
+//! {% freeze slot="header" %}
+//! // Generated header
+//! {% endfreeze %}
+//! "#;
+//!
+//! let output = preprocessor.process(input, &ctx)?;
+//! # Ok(())
+//! # }
+//! ```
 
 use anyhow::{anyhow, Result};
 use serde_json;

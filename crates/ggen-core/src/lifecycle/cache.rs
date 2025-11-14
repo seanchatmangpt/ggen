@@ -1,4 +1,60 @@
 //! Deterministic cache key generation
+//!
+//! This module provides deterministic cache key generation for lifecycle phases,
+//! enabling reproducible builds and efficient caching of phase execution results.
+//!
+//! ## Features
+//!
+//! - **Deterministic keys**: Same inputs always produce same cache key
+//! - **SHA256 hashing**: Uses SHA256 for reliable key generation
+//! - **Input tracking**: Includes phase name, commands, environment, and input files
+//! - **Reproducible builds**: Enables caching based on actual inputs
+//!
+//! ## Cache Key Components
+//!
+//! The cache key includes:
+//! - Phase name
+//! - Command lines (sorted)
+//! - Environment variables (sorted by key)
+//! - Input file contents (SHA256 hashes)
+//!
+//! ## Examples
+//!
+//! ### Generating a Cache Key
+//!
+//! ```rust,no_run
+//! use ggen_core::lifecycle::cache::cache_key;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let phase_name = "build";
+//! let cmd_lines = vec!["cargo build --release".to_string()];
+//! let env = vec![("RUSTFLAGS".to_string(), "-C opt-level=3".to_string())];
+//! let inputs = vec!["Cargo.toml".to_string(), "src/main.rs".to_string()];
+//!
+//! let key = cache_key(phase_name, &cmd_lines, &env, &inputs);
+//! println!("Cache key: {}", key);
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Using Cache Keys for Conditional Execution
+//!
+//! ```rust,no_run
+//! use ggen_core::lifecycle::cache::cache_key;
+//! use std::collections::HashSet;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let mut executed_keys = HashSet::new();
+//!
+//! let key = cache_key("test", &vec!["cargo test".to_string()], &[], &[]);
+//!
+//! if !executed_keys.contains(&key) {
+//!     // Execute phase
+//!     executed_keys.insert(key);
+//! }
+//! # Ok(())
+//! # }
+//! ```
 
 use super::error::{LifecycleError, Result};
 use sha2::{Digest, Sha256};

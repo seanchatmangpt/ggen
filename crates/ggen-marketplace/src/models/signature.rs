@@ -1,3 +1,45 @@
+//! Cryptographic signature models and types
+//!
+//! This module provides data structures for representing cryptographic signatures
+//! used for package verification. It supports multiple signature algorithms and
+//! provides utilities for signature serialization and key management.
+//!
+//! ## Types
+//!
+//! - **Signature**: Complete signature with algorithm, value, public key, and timestamp
+//! - **PublicKey**: Public key for signature verification
+//! - **KeyPair**: Public/private key pair for signing
+//! - **SignatureAlgorithm**: Supported signature algorithms (Ed25519, ECDSA, RSA)
+//!
+//! ## Examples
+//!
+//! ### Creating a Signature
+//!
+//! ```rust,no_run
+//! use ggen_marketplace::models::signature::{Signature, SignatureAlgorithm, PublicKey};
+//!
+//! let public_key = PublicKey::new(
+//!     SignatureAlgorithm::Ed25519,
+//!     vec![/* key bytes */]
+//! );
+//! let signature = Signature::new(
+//!     SignatureAlgorithm::Ed25519,
+//!     vec![/* signature bytes */],
+//!     public_key
+//! );
+//! ```
+//!
+//! ### Converting to Hex
+//!
+//! ```rust
+//! use ggen_marketplace::models::signature::Signature;
+//!
+//! # fn example(signature: Signature) {
+//! let hex_string = signature.to_hex();
+//! println!("Signature: {}", hex_string);
+//! # }
+//! ```
+
 use serde::{Deserialize, Serialize};
 use std::fmt;
 

@@ -85,4 +85,4 @@ cargo script fix-panic-points.rs cli/src ggen-core/src
 
 ## Documentation
 
-See `docs/DOGFOODING_GUIDE.md` for complete usage guide.
+See `docs/how-to-guides/DOGFOODING_QUICKSTART.md` for complete usage guide.

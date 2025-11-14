@@ -1,6 +1,102 @@
 //! File tree template parsing and generation
 //!
-//! Provides core functionality for parsing template formats and generating file trees.
+//! This module provides core functionality for parsing template formats and generating
+//! file trees. It handles YAML template parsing, RDF metadata extraction, and template
+//! validation.
+//!
+//! ## Features
+//!
+//! - **YAML Parsing**: Parse templates from YAML files or strings
+//! - **RDF Metadata**: Extract and convert RDF metadata to Turtle format
+//! - **Template Validation**: Validate template structure and required fields
+//! - **Variable Management**: Track required variables and default values
+//! - **Simple Format Support**: Legacy support for simple template format
+//! - **File Tree Structure**: Represent hierarchical file and directory structures
+//!
+//! ## Template Format
+//!
+//! Templates are defined in YAML with the following structure:
+//!
+//! ```yaml
+//! name: my-template
+//! description: A sample template
+//! variables:
+//!   - service_name
+//!   - port
+//! defaults:
+//!   port: "8080"
+//! rdf:
+//!   type: "ggen:MicroserviceTemplate"
+//!   language: "rust"
+//! tree:
+//!   - type: directory
+//!     name: src
+//!     children:
+//!       - type: file
+//!         name: main.rs
+//!         content: "fn main() {}"
+//! ```
+//!
+//! ## Examples
+//!
+//! ### Loading a Template from File
+//!
+//! ```rust,no_run
+//! use ggen_core::templates::file_tree_generator::FileTreeTemplate;
+//! use std::path::Path;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let template = FileTreeTemplate::from_file(Path::new("template.yaml"))?;
+//!
+//! println!("Template: {}", template.name());
+//! println!("Variables: {:?}", template.required_variables());
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Parsing from YAML String
+//!
+//! ```rust,no_run
+//! use ggen_core::templates::file_tree_generator::{FileTreeTemplate, TemplateParser};
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let yaml = r#"
+//! name: my-template
+//! variables:
+//!   - name
+//! tree:
+//!   - type: directory
+//!     name: src
+//! "#;
+//!
+//! let template = TemplateParser::parse_yaml(yaml)?;
+//! assert_eq!(template.name(), "my-template");
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Working with RDF Metadata
+//!
+//! ```rust,no_run
+//! use ggen_core::templates::file_tree_generator::FileTreeTemplate;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let yaml = r#"
+//! name: microservice
+//! rdf:
+//!   type: "ggen:MicroserviceTemplate"
+//!   language: "rust"
+//! tree:
+//!   - type: directory
+//!     name: src
+//! "#;
+//!
+//! let template = FileTreeTemplate::from_yaml(yaml)?;
+//! // RDF metadata is automatically converted to Turtle format
+//! assert!(template.rdf_turtle.is_some());
+//! # Ok(())
+//! # }
+//! ```
 
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};

@@ -1,3 +1,68 @@
+//! Smart caching system for marketplace operations
+//!
+//! This module provides a high-performance caching layer using the `moka` crate
+//! for caching package metadata, search results, download counts, and version
+//! information. It includes automatic expiration, hit/miss statistics, and
+//! cache warming strategies.
+//!
+//! ## Features
+//!
+//! - **Multi-tier caching**: Separate caches for packages, searches, downloads, versions
+//! - **TTL and TTI**: Time-to-live and time-to-idle expiration policies
+//! - **Statistics**: Track cache hits, misses, and hit rates
+//! - **Cache warming**: Pre-populate cache with popular packages and searches
+//! - **Memory management**: Monitor and manage cache memory usage
+//! - **Async operations**: Full async/await support for non-blocking operations
+//!
+//! ## Cache Types
+//!
+//! - **Package Cache**: Metadata for individual packages (1 hour TTL)
+//! - **Search Cache**: Cached search results (10 minutes TTL)
+//! - **Download Cache**: Download counts (5 minutes TTL)
+//! - **Version Cache**: Available versions for packages (30 minutes TTL)
+//!
+//! ## Examples
+//!
+//! ### Basic Cache Usage
+//!
+//! ```rust,no_run
+//! use ggen_marketplace::cache::SmartCache;
+//!
+//! # async fn example() -> anyhow::Result<()> {
+//! let cache = SmartCache::new();
+//!
+//! // Cache a package
+//! let package = Package {
+//!     id: "io.ggen.rust.api".to_string(),
+//!     name: "Rust API".to_string(),
+//!     version: "1.0.0".to_string(),
+//!     description: "Rust API templates".to_string(),
+//!     downloads: 1000,
+//! };
+//! cache.set_package(package.id.clone(), package.clone()).await;
+//!
+//! // Retrieve from cache
+//! let cached = cache.get_package(&package.id).await;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Cache Statistics
+//!
+//! ```rust,no_run
+//! use ggen_marketplace::cache::SmartCache;
+//!
+//! # async fn example() -> anyhow::Result<()> {
+//! let cache = SmartCache::new();
+//! // ... use cache ...
+//!
+//! let stats = cache.get_stats().await;
+//! println!("Hit rate: {:.2}%", stats.hit_rate * 100.0);
+//! println!("Total entries: {}", stats.entries);
+//! # Ok(())
+//! # }
+//! ```
+
 #![allow(clippy::unwrap_used)] // Test code uses unwrap
 // Smart Caching using moka
 use anyhow::Result;

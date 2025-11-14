@@ -1,3 +1,90 @@
+//! Registry client for fetching gpack metadata
+//!
+//! This module provides a client for interacting with the ggen registry at
+//! `registry.ggen.dev` (or custom registry URLs). It handles fetching pack metadata,
+//! searching for packs, resolving versions, and checking for updates.
+//!
+//! ## Features
+//!
+//! - **Registry index fetching**: Download and parse the registry index
+//! - **Pack search**: Search for packs by name, description, tags, and keywords
+//! - **Advanced search**: Filter by category, author, keywords, and stability
+//! - **Version resolution**: Resolve pack IDs to specific versions
+//! - **Update checking**: Check if installed packs have updates available
+//! - **Retry logic**: Automatic retry with exponential backoff for network failures
+//! - **Local testing**: Support for `file://` URLs for local registry testing
+//!
+//! ## Configuration
+//!
+//! The registry URL can be configured via the `GGEN_REGISTRY_URL` environment variable.
+//! Defaults to `https://seanchatmangpt.github.io/ggen/registry/`.
+//!
+//! ## Examples
+//!
+//! ### Creating a Registry Client
+//!
+//! ```rust,no_run
+//! use ggen_core::registry::RegistryClient;
+//!
+//! # async fn example() -> anyhow::Result<()> {
+//! let client = RegistryClient::new()?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Searching for Packs
+//!
+//! ```rust,no_run
+//! use ggen_core::registry::RegistryClient;
+//!
+//! # async fn example() -> anyhow::Result<()> {
+//! let client = RegistryClient::new()?;
+//! let results = client.search("rust cli").await?;
+//!
+//! for result in results {
+//!     println!("Found: {} - {}", result.name, result.description);
+//! }
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Resolving a Pack Version
+//!
+//! ```rust,no_run
+//! use ggen_core::registry::RegistryClient;
+//!
+//! # async fn example() -> anyhow::Result<()> {
+//! let client = RegistryClient::new()?;
+//! let resolved = client.resolve("io.ggen.rust.cli", Some("1.0.0")).await?;
+//!
+//! println!("Git URL: {}", resolved.git_url);
+//! println!("Git Rev: {}", resolved.git_rev);
+//! println!("SHA256: {}", resolved.sha256);
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Advanced Search with Filters
+//!
+//! ```rust,no_run
+//! use ggen_core::registry::{RegistryClient, SearchParams};
+//!
+//! # async fn example() -> anyhow::Result<()> {
+//! let client = RegistryClient::new()?;
+//! let params = SearchParams {
+//!     query: "api",
+//!     category: Some("web"),
+//!     keyword: None,
+//!     author: None,
+//!     stable_only: true,
+//!     limit: 10,
+//! };
+//!
+//! let results = client.advanced_search(&params).await?;
+//! # Ok(())
+//! # }
+//! ```
+
 use anyhow::{Context, Result};
 use chrono::{DateTime, Utc};
 use reqwest;
@@ -91,6 +178,20 @@ pub struct ResolvedPack {
 
 impl RegistryClient {
     /// Create a new registry client
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// use ggen_core::registry::RegistryClient;
+    ///
+    /// # async fn example() -> anyhow::Result<()> {
+    /// let client = RegistryClient::new()?;
+    /// // Client is ready to use
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// The registry URL can be configured via the `GGEN_REGISTRY_URL` environment variable.
     pub fn new() -> Result<Self> {
         // Check environment variable for registry URL
         let registry_url = std::env::var("GGEN_REGISTRY_URL")

@@ -1,7 +1,115 @@
-//! Core graph-aware code generation engine
+//! # ggen-core - Core graph-aware code generation engine
 //!
 //! This crate provides the core functionality for RDF-based code generation,
 //! including template processing, RDF handling, and deterministic output generation.
+//!
+//! ## Overview
+//!
+//! `ggen-core` is the foundational crate for the ggen code generation system. It provides:
+//!
+//! - **Template Processing**: Parse, render, and generate code from templates with RDF integration
+//! - **RDF Graph Management**: Load, query, and manipulate RDF data using SPARQL
+//! - **Project Generation**: Scaffold complete projects from templates
+//! - **Registry Integration**: Discover and install template packs from the registry
+//! - **Lifecycle Management**: Orchestrate build, test, and deployment phases
+//! - **Deterministic Output**: Ensure reproducible code generation
+//!
+//! ## Key Modules
+//!
+//! ### Template System
+//! - [`template`] - Core template parsing and rendering
+//! - [`templates`] - File tree generation from templates
+//! - [`pipeline`] - Template processing pipeline
+//! - [`generator`] - High-level generation engine
+//!
+//! ### RDF Integration
+//! - [`graph`] - RDF graph management with SPARQL caching
+//! - [`rdf`] - Template metadata and validation
+//! - [`delta`] - Delta-driven projection for graph changes
+//!
+//! ### Project Management
+//! - [`project_generator`] - Scaffold new projects (Rust, Next.js, etc.)
+//! - [`cli_generator`] - Generate CLI projects from ontologies
+//! - [`lifecycle`] - Universal lifecycle system for cross-language projects
+//!
+//! ### Registry and Packs
+//! - [`registry`] - Registry client for pack discovery
+//! - [`cache`] - Local cache manager for downloaded packs
+//! - [`lockfile`] - Dependency lockfile management
+//! - [`resolver`] - Template resolution from packs
+//! - [`gpack`] - Gpack manifest structure and file discovery
+//!
+//! ### Utilities
+//! - [`inject`] - File injection utilities
+//! - [`merge`] - Three-way merge for delta-driven projection
+//! - [`snapshot`] - Snapshot management for baselines
+//! - [`preprocessor`] - Template preprocessor pipeline
+//! - [`register`] - Tera filter and function registration
+//! - [`tera_env`] - Tera template engine environment utilities
+//!
+//! ## Quick Start
+//!
+//! ### Basic Template Generation
+//!
+//! ```rust,no_run
+//! use ggen_core::{Generator, GenContext, Pipeline};
+//! use std::collections::BTreeMap;
+//! use std::path::PathBuf;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let pipeline = Pipeline::new()?;
+//! let mut vars = BTreeMap::new();
+//! vars.insert("name".to_string(), "MyApp".to_string());
+//!
+//! let ctx = GenContext::new(
+//!     PathBuf::from("template.tmpl"),
+//!     PathBuf::from("output")
+//! ).with_vars(vars);
+//!
+//! let mut generator = Generator::new(pipeline, ctx);
+//! let output_path = generator.generate()?;
+//! println!("Generated: {:?}", output_path);
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Using RDF Graph
+//!
+//! ```rust
+//! use ggen_core::Graph;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let graph = Graph::new()?;
+//! graph.insert_turtle(r#"
+//!     @prefix ex: <http://example.org/> .
+//!     ex:alice a ex:Person ;
+//!              ex:name "Alice" .
+//! "#)?;
+//!
+//! let results = graph.query("SELECT ?s ?o WHERE { ?s ex:name ?o }")?;
+//! assert!(!results.is_empty());
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Creating a New Project
+//!
+//! ```rust,no_run
+//! use ggen_core::project_generator::{ProjectConfig, ProjectType, create_new_project};
+//! use std::path::PathBuf;
+//!
+//! # async fn example() -> anyhow::Result<()> {
+//! let config = ProjectConfig {
+//!     name: "my-cli".to_string(),
+//!     project_type: ProjectType::RustCli,
+//!     framework: None,
+//!     path: PathBuf::from("."),
+//! };
+//!
+//! create_new_project(&config).await?;
+//! # Ok(())
+//! # }
+//! ```
 
 #![deny(warnings)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
 

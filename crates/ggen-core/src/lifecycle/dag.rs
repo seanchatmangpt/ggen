@@ -1,4 +1,51 @@
 //! DAG construction and topological sorting for phase dependencies
+//!
+//! This module provides functionality for building dependency graphs and performing
+//! topological sorting of lifecycle phases. It ensures phases execute in the correct
+//! order based on their dependencies and detects circular dependencies.
+//!
+//! ## Features
+//!
+//! - **Topological sorting**: Order phases based on dependencies
+//! - **Dependency graph construction**: Build graphs from phase dependencies
+//! - **Cycle detection**: Detect and report circular dependencies
+//! - **Hook-based dependencies**: Extract dependencies from before/after hooks
+//!
+//! ## Examples
+//!
+//! ### Topological Sorting
+//!
+//! ```rust,no_run
+//! use ggen_core::lifecycle::dag::topo;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let phases = &["init", "setup", "build", "test"];
+//! let deps = &[
+//!     ("init", "setup"),
+//!     ("setup", "build"),
+//!     ("build", "test"),
+//! ];
+//!
+//! let order = topo(phases, deps)?;
+//! // Result: ["init", "setup", "build", "test"]
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Extracting Dependencies from Hooks
+//!
+//! ```rust,no_run
+//! use ggen_core::lifecycle::dag::deps_from_hooks;
+//!
+//! // If build phase has before=["test", "lint"] and after=["deploy"]
+//! let deps = deps_from_hooks(
+//!     "build",
+//!     &["test".to_string(), "lint".to_string()],
+//!     &["deploy".to_string()],
+//! );
+//!
+//! // Result: [("test", "build"), ("lint", "build"), ("build", "deploy")]
+//! ```
 
 use super::error::{LifecycleError, Result};
 use petgraph::algo::toposort;

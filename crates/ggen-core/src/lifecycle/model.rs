@@ -1,4 +1,54 @@
 //! Data model for make.toml lifecycle configuration
+//!
+//! This module defines the data structures used to represent lifecycle configuration
+//! from `make.toml` files. It includes project metadata, phase definitions, workspace
+//! structure, and hook configurations.
+//!
+//! ## Features
+//!
+//! - **Project metadata**: Name, type, version, description
+//! - **Phase definitions**: Commands and configuration for each lifecycle phase
+//! - **Workspace support**: Monorepo workspace structure
+//! - **Hook system**: Before/after hooks for phases
+//! - **Default values**: Sensible defaults for optional fields
+//!
+//! ## Configuration Structure
+//!
+//! ### Project
+//! - `name`: Project name (required)
+//! - `type`: Project type (optional)
+//! - `version`: Project version (optional, defaults to "0.1.0")
+//! - `description`: Project description (optional)
+//!
+//! ### Lifecycle Phases
+//! Each phase defines:
+//! - `commands`: List of commands to execute
+//! - `env`: Environment variables (optional)
+//! - `inputs`: Input files for caching (optional)
+//!
+//! ### Hooks
+//! Hooks define before/after relationships:
+//! - `before_<phase>`: Phases that must run before this phase
+//! - `after_<phase>`: Phases that must run after this phase
+//!
+//! ## Examples
+//!
+//! ### Example make.toml
+//!
+//! ```toml
+//! [project]
+//! name = "my-project"
+//! version = "1.0.0"
+//!
+//! [lifecycle.build]
+//! commands = ["cargo build --release"]
+//!
+//! [lifecycle.test]
+//! commands = ["cargo test"]
+//!
+//! [hooks]
+//! before_build = ["test"]
+//! ```
 
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;

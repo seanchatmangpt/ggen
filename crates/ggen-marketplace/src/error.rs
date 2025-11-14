@@ -1,3 +1,68 @@
+//! Error types for marketplace operations
+//!
+//! This module provides comprehensive error handling for all marketplace operations,
+//! including package management, storage, search, and cryptographic verification.
+//!
+//! ## Error Types
+//!
+//! The `MarketplaceError` enum covers all failure modes:
+//! - **PackageNotFound**: Package doesn't exist in registry
+//! - **InvalidPackage**: Package data is malformed or invalid
+//! - **StorageError**: Storage operation failures
+//! - **SearchError**: Search query execution failures
+//! - **VerificationError**: Cryptographic verification failures
+//! - **IoError**: File system and network I/O errors
+//! - **SerializationError**: JSON/TOML parsing errors
+//! - **RegistryError**: Registry operation failures
+//! - **AuthError**: Authentication/authorization failures
+//! - **RateLimitExceeded**: API rate limiting
+//! - **ConfigError**: Configuration validation errors
+//! - **PersistenceError**: Data persistence failures
+//!
+//! ## Examples
+//!
+//! ### Handling Errors
+//!
+//! ```rust,no_run
+//! use ggen_marketplace::error::{MarketplaceError, Result};
+//!
+//! # fn some_operation() -> Result<(), String> {
+//! #     Err("not found".to_string())
+//! # }
+//!
+//! fn process_package(package_id: &str) -> Result<()> {
+//!     // Operations that may fail
+//!     match some_operation() {
+//!         Ok(_) => Ok(()),
+//!         Err(e) => Err(MarketplaceError::PackageNotFound {
+//!             package_id: package_id.to_string(),
+//!             context: format!("Failed to process: {}", e),
+//!         }),
+//!     }
+//! }
+//!
+//! # fn main() -> Result<(), MarketplaceError> {
+//! #     let result = process_package("test.package");
+//! #     assert!(result.is_err());
+//! #     Ok(())
+//! # }
+//! ```
+//!
+//! ### Converting from IO Errors
+//!
+//! ```rust,no_run
+//! use ggen_marketplace::error::{MarketplaceError, Result};
+//! use std::fs;
+//!
+//! fn read_config() -> Result<String> {
+//!     fs::read_to_string("config.toml")
+//!         .map_err(|e| MarketplaceError::IoError {
+//!             operation: "read_config".to_string(),
+//!             source: e,
+//!         })
+//! }
+//! ```
+
 use std::fmt;
 
 /// Result type alias for marketplace operations

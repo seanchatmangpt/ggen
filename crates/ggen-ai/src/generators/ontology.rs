@@ -218,6 +218,7 @@ impl OntologyGenerator {
 
 #[cfg(test)]
 mod tests {
+    #[allow(unused_imports)]
     use super::*;
     use crate::test_helpers::create_ontology_test_generator;
 

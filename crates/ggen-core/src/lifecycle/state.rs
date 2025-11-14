@@ -1,4 +1,65 @@
 //! Lifecycle state management and persistence
+//!
+//! This module provides state management for lifecycle execution, tracking
+//! phase history, generated files, and cache keys for deterministic builds.
+//!
+//! ## Features
+//!
+//! - **State persistence**: Save and load lifecycle state from JSON files
+//! - **Phase history**: Track all executed phases with timestamps
+//! - **Generated file tracking**: Record files created during generation
+//! - **Cache key storage**: Store deterministic cache keys for phases
+//! - **State queries**: Query state for phase execution history
+//!
+//! ## Examples
+//!
+//! ### Loading and Saving State
+//!
+//! ```rust,no_run
+//! use ggen_core::lifecycle::state::{load_state, save_state, LifecycleState};
+//! use std::path::PathBuf;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let state_path = PathBuf::from(".ggen/state.json");
+//!
+//! // Load existing state or create new
+//! let mut state = load_state(&state_path).unwrap_or_default();
+//!
+//! // Update state
+//! state.last_phase = Some("build".to_string());
+//!
+//! // Save state
+//! save_state(&state_path, &state)?;
+//! # Ok(())
+//! # }
+//! ```
+//!
+//! ### Tracking Phase Execution
+//!
+//! ```rust,no_run
+//! use ggen_core::lifecycle::state::{LifecycleState, RunRecord};
+//! use chrono::Utc;
+//!
+//! # fn main() -> anyhow::Result<()> {
+//! let mut state = LifecycleState::default();
+//!
+//! // Record phase execution
+//! use std::time::{SystemTime, UNIX_EPOCH};
+//! let started_ms = SystemTime::now()
+//!     .duration_since(UNIX_EPOCH)
+//!     .map_err(|_| anyhow::anyhow!("Time went backwards"))?
+//!     .as_millis();
+//! state.phase_history.push(RunRecord {
+//!     phase: "test".to_string(),
+//!     started_ms,
+//!     duration_ms: 1500,
+//!     success: true,
+//! });
+//!
+//! state.last_phase = Some("test".to_string());
+//! # Ok(())
+//! # }
+//! ```
 
 use super::error::{LifecycleError, Result};
 use serde::{Deserialize, Serialize};

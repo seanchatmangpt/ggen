@@ -545,11 +545,11 @@ description = "Phase with no commands"
         // Should get default config
         assert_eq!(
             make.project.name,
-            super::model::defaults::DEFAULT_PROJECT_NAME
+            crate::lifecycle::model::defaults::DEFAULT_PROJECT_NAME
         );
         assert_eq!(
             make.project.version,
-            Some(super::model::defaults::DEFAULT_PROJECT_VERSION.to_string())
+            Some(crate::lifecycle::model::defaults::DEFAULT_PROJECT_VERSION.to_string())
         );
         assert_eq!(make.lifecycle.len(), 0);
     }

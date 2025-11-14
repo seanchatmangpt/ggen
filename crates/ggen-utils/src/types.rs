@@ -1,3 +1,36 @@
+//! Common type definitions for ggen
+//!
+//! This module provides shared type definitions used across the ggen codebase,
+//! including log levels, configuration types, and other common enums and structs.
+//!
+//! ## Types
+//!
+//! - **LogLevel**: Logging level enumeration (Debug, Info, Warn, Error)
+//! - **Serialization support**: All types support serde serialization/deserialization
+//!
+//! ## Examples
+//!
+//! ### Using LogLevel
+//!
+//! ```rust
+//! use ggen_utils::types::LogLevel;
+//! use std::str::FromStr;
+//!
+//! # fn main() -> Result<(), Box<dyn std::error::Error>> {
+//! // Parse from string
+//! let level = LogLevel::from_str("debug")?;
+//! assert_eq!(level, LogLevel::Debug);
+//!
+//! // Display
+//! assert_eq!(level.to_string(), "debug");
+//!
+//! // Serialize
+//! let json = serde_json::to_string(&level)?;
+//! assert_eq!(json, "\"debug\"");
+//! # Ok(())
+//! # }
+//! ```
+
 use serde::{Deserialize, Serialize};
 
 use crate::error::Result;

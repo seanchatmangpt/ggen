@@ -1,4 +1,4 @@
-//! # ggen-ai
+//! # ggen-ai - LLM integration layer for ggen
 //!
 //! Thin wrapper around genai for ggen with environment support and caching.
 //!
@@ -19,27 +19,39 @@
 //! - **SPARQL query generation**: Intent-based query construction
 //! - **Ontology generation**: Domain descriptions to RDF/OWL
 //! - **Code refactoring**: AI-assisted code improvement suggestions
+//! - **RDF-based CLI generation**: Generate CLI projects from RDF ontologies
 //!
-#![deny(warnings)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
-
 //! ## Quick Start
 //!
-//! ```rust
+//! ```rust,no_run
 //! use ggen_ai::{GenAiClient, LlmClient, LlmConfig};
 //!
-//! #[tokio::main]
-//! async fn main() -> Result<(), Box<dyn std::error::Error>> {
-//!     // Initialize client with default configuration
-//!     let config = LlmConfig::default();
-//!     let client = GenAiClient::new(config)?;
+//! # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+//! // Initialize client with default configuration
+//! let config = LlmConfig::default();
+//! let client = GenAiClient::new(config)?;
 //!
-//!     // Generate response
-//!     let response = client.complete("Explain Rust ownership").await?;
-//!     println!("{}", response.content);
-//!
-//!     Ok(())
-//! }
+//! // Generate response
+//! let response = client.complete("Explain Rust ownership").await?;
+//! println!("{}", response.content);
+//! # Ok(())
+//! # }
 //! ```
+//!
+//! ## Module Organization
+//!
+//! - `cache` - LLM response caching
+//! - `client` - LLM client abstraction
+//! - `config` - Configuration management
+//! - `generators` - Specialized generators (templates, SPARQL, ontologies)
+//! - `providers` - LLM provider implementations
+//! - `prompts` - Prompt templates and builders
+//! - `rdf` - RDF-based CLI generation
+//! - `security` - API key masking and security
+//! - `streaming` - Streaming response support
+//! - `types` - Type definitions
+
+#![deny(warnings)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
 
 pub mod cache;
 pub mod client;

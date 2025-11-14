@@ -39,6 +39,7 @@ pub fn reset_memory_tracking() {
 // Memory profiling tests
 #[cfg(test)]
 mod memory_tests {
+    #[allow(unused_imports)]
     use super::*;
 
     async fn sample_async_work() -> String {
@@ -276,6 +277,7 @@ pub fn run_memory_comparison() {
 
 #[cfg(test)]
 mod integration_tests {
+    #[allow(unused_imports)]
     use super::*;
 
     #[test]
