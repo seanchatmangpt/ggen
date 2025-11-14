@@ -78,7 +78,6 @@ pub fn create_project(args: &NewInput) -> Result<CreationResult> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::path::PathBuf;
 
     #[test]
     fn test_validate_project_name() {
