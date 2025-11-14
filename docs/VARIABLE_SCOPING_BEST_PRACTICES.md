@@ -81,3 +81,5 @@ These practices prevent scope-related compilation errors by:
 - Providing examples of common mistakes
 - Enforcing scope rules in code review
 
+
+

@@ -6,6 +6,10 @@ use predicates::prelude::*;
 
 use super::test_helpers::*;
 
+// #[path = "../../common/mod.rs"]
+// mod test_config;
+// use test_config::integration_timeout;
+
 #[test]
 fn test_marketplace_search_local() {
     let workspace = setup_workspace().unwrap();
@@ -17,7 +21,7 @@ fn test_marketplace_search_local() {
         .arg("search")
         .arg("rust")
         .current_dir(workspace.path())
-        .timeout(std::time::Duration::from_secs(10))
+        .timeout(integration_timeout())
         .output()
         .unwrap();
 
@@ -90,7 +94,7 @@ fn test_marketplace_install_flow() {
         .arg("install")
         .arg("io.ggen.rust.cli-subcommand")
         .current_dir(workspace.path())
-        .timeout(std::time::Duration::from_secs(30))
+        .timeout(integration_timeout())
         .output()
         .unwrap();
 

@@ -69,16 +69,17 @@ pub struct AnalyzeOutput {
 /// ```bash
 /// ggen ai generate "Generate REST API" --model gpt-4 --api-key $OPENAI_API_KEY
 /// ```
+#[allow(clippy::too_many_arguments)] // CLI command with many options
 #[verb]
 fn generate(
-    prompt: String, code: Option<String>, model: Option<String>, api_key: Option<String>,
+    prompt: String, code: Option<String>, model: Option<String>, _api_key: Option<String>,
     suggestions: bool, language: Option<String>, max_tokens: u32, temperature: f32,
 ) -> Result<GenerateOutput> {
     use ggen_ai::{GenAiClient, LlmClient, LlmConfig};
 
     crate::runtime::block_on(async move {
         // Build configuration
-        let mut config = LlmConfig {
+        let config = LlmConfig {
             model: model.unwrap_or_else(|| "gpt-3.5-turbo".to_string()),
             max_tokens: Some(max_tokens),
             temperature: Some(temperature),
@@ -150,7 +151,7 @@ fn generate(
 /// ```
 #[verb]
 fn chat(
-    message: Option<String>, model: Option<String>, api_key: Option<String>, interactive: bool,
+    message: Option<String>, model: Option<String>, _api_key: Option<String>, interactive: bool,
     stream: bool, max_tokens: u32, temperature: f32,
 ) -> Result<ChatOutput> {
     use ggen_ai::{GenAiClient, LlmClient, LlmConfig};
@@ -353,6 +354,7 @@ fn chat(
 /// ```bash
 /// ggen ai analyze --project ./my-crate --model gpt-4
 /// ```
+#[allow(clippy::too_many_arguments)] // CLI command with many options
 #[verb]
 fn analyze(
     code: Option<String>, file: Option<PathBuf>, project: Option<PathBuf>, model: Option<String>,
@@ -453,7 +455,7 @@ fn analyze(
 
 /// Analyze a project directory
 async fn analyze_project(
-    project_path: &PathBuf, model: Option<String>, api_key: Option<String>, max_tokens: u32,
+    project_path: &PathBuf, model: Option<String>, _api_key: Option<String>, max_tokens: u32,
 ) -> Result<AnalyzeOutput> {
     use ggen_ai::{GenAiClient, LlmClient, LlmConfig};
     use walkdir::WalkDir;

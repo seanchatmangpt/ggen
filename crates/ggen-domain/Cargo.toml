@@ -1,6 +1,6 @@
 [package]
 name = "ggen-domain"
-version = "3.0.0"
+version = "3.1.0"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "Domain logic layer for ggen - pure business logic without CLI dependencies"
 edition = "2021"
@@ -23,10 +23,10 @@ anyhow = { workspace = true }
 thiserror = { workspace = true }
 
 # Local infrastructure dependencies (stay at 2.4.0 for now)
-ggen-core = { path = "../ggen-core", version = "2.5.0" }
-ggen-ai = { path = "../ggen-ai", version = "2.5.0" }
-ggen-marketplace = { path = "../ggen-marketplace", version = "2.5.0" }
-ggen-utils = { path = "../ggen-utils", version = "2.5.0" }
+ggen-core = { path = "../ggen-core", version = "2.6.0" }
+ggen-ai = { path = "../ggen-ai", version = "2.6.0" }
+ggen-marketplace = { path = "../ggen-marketplace", version = "2.6.0" }
+ggen-utils = { path = "../ggen-utils", version = "2.6.0" }
 
 # Crate-specific dependencies
 tera = { workspace = true }
@@ -51,6 +51,9 @@ zip = "0.6"
 
 # CRITICAL: NO clap or clap-noun-verb dependencies
 # Domain must be CLI-agnostic
+
+[features]
+default = []
 
 [dev-dependencies]
 assert_cmd = "2"

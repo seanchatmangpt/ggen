@@ -3,6 +3,10 @@ use assert_cmd::Command;
 use std::fs;
 use tempfile::TempDir;
 
+#[path = "common/mod.rs"]
+mod test_config;
+use test_config::integration_timeout;
+
 /// E2E tests for production marketplace workflow
 ///
 /// Tests the complete marketplace workflow against the production registry
@@ -161,7 +165,7 @@ fn test_production_registry_index_accessible() -> Result<()> {
 
     // Use reqwest to check if index is accessible
     let client = reqwest::blocking::Client::builder()
-        .timeout(Duration::from_secs(10))
+        .timeout(integration_timeout())
         .build()?;
 
     let index_url = "https://seanchatmangpt.github.io/ggen/docs/registry/index.json";

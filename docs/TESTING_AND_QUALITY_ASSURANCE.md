@@ -172,7 +172,7 @@ async fn test_production_database_integration() {
 
 ```bash
 # Run all tests including production validation (requires Docker)
-cargo test --test production_validation
+cargo make test
 
 # Run production validation script (comprehensive validation)
 ./scripts/production-validation.sh

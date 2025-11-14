@@ -49,9 +49,9 @@ pub fn load_make_or_default<P: AsRef<Path>>(root: P) -> Result<Make> {
         // Return minimal default configuration
         Ok(Make {
             project: super::model::Project {
-                name: "unnamed".to_string(),
+                name: super::model::defaults::DEFAULT_PROJECT_NAME.to_string(),
                 project_type: None,
-                version: Some("0.1.0".to_string()),
+                version: Some(super::model::defaults::DEFAULT_PROJECT_VERSION.to_string()),
                 description: None,
             },
             workspace: None,

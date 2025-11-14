@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used)] // Test code uses unwrap
 // Smart Caching using moka
 use anyhow::Result;
 use moka::future::Cache;

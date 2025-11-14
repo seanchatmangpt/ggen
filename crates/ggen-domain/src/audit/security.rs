@@ -4,7 +4,7 @@
 //! and configuration auditing.
 
 use ggen_utils::error::Result;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 /// Security scan result
 #[derive(Debug, Clone)]
@@ -104,12 +104,10 @@ pub enum ConfigIssueType {
 /// Trait for scanning code for security vulnerabilities
 pub trait SecurityScanner {
     /// Scan a directory for security vulnerabilities
-    fn scan(&self, path: &PathBuf, verbose: bool) -> Result<SecurityScanResult>;
+    fn scan(&self, path: &Path, verbose: bool) -> Result<SecurityScanResult>;
 
     /// Attempt to automatically fix vulnerabilities
-    fn fix_vulnerabilities(
-        &self, path: &PathBuf, vulnerabilities: &[Vulnerability],
-    ) -> Result<usize>;
+    fn fix_vulnerabilities(&self, path: &Path, vulnerabilities: &[Vulnerability]) -> Result<usize>;
 }
 
 /// Trait for checking dependency vulnerabilities
@@ -134,7 +132,7 @@ pub trait ConfigAuditor {
 pub struct CargoAuditSecurityScanner;
 
 impl SecurityScanner for CargoAuditSecurityScanner {
-    fn scan(&self, path: &PathBuf, verbose: bool) -> Result<SecurityScanResult> {
+    fn scan(&self, path: &Path, verbose: bool) -> Result<SecurityScanResult> {
         let start = std::time::Instant::now();
 
         let mut cmd = std::process::Command::new("cargo");
@@ -172,7 +170,7 @@ impl SecurityScanner for CargoAuditSecurityScanner {
     }
 
     fn fix_vulnerabilities(
-        &self, _path: &PathBuf, vulnerabilities: &[Vulnerability],
+        &self, _path: &Path, vulnerabilities: &[Vulnerability],
     ) -> Result<usize> {
         // In a real implementation, this would attempt to update dependencies
         // or apply patches for known vulnerabilities

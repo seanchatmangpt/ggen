@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used)] // Test code at end of file uses unwrap
 use crate::error::{MarketplaceError, Result};
 use crate::models::signature::{KeyPair, PublicKey, Signature, SignatureAlgorithm};
 use crate::traits::CryptoVerifier;

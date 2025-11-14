@@ -1,6 +1,6 @@
 [package]
 name = "ggen-marketplace"
-version = "2.5.1"
+version = "2.6.0"
 edition = "2021"
 authors = ["Ggen Contributors"]
 description = "Core trait system for distributed package marketplace"
@@ -11,9 +11,6 @@ repository = "https://github.com/yourusername/ggen"
 # Async runtime and traits
 tokio = { version = "1.35", features = ["full"] }
 async-trait = "0.1"
-
-# HTTP client
-reqwest = { version = "0.12", features = ["json"], default-features = false }
 
 # Serialization
 serde = { version = "1.0", features = ["derive"] }
@@ -40,9 +37,6 @@ ndarray = "0.16"
 cid = "0.11"
 multihash = "0.19"
 
-# P2P Networking
-libp2p = { version = "0.54", features = ["tcp", "noise", "yamux", "gossipsub", "kad", "identify", "tokio", "macros"], optional = true }
-bs58 = { version = "0.5", optional = true }
 
 # Unix file locking
 [target.'cfg(unix)'.dependencies]
@@ -63,44 +57,17 @@ futures = "0.3"
 # Search engine
 tantivy = "0.22"
 
-# OpenTelemetry instrumentation (latest versions matching clnrm)
+# OpenTelemetry instrumentation (matching workspace versions)
 tracing = "0.1"
-opentelemetry = { version = "0.31.0", default-features = false, features = [
-  "trace",
-  "metrics",
-  "logs",
-  "futures",
-] }
-opentelemetry_sdk = { version = "0.31.0", default-features = false, features = [
-  "trace",
-  "metrics",
-  "logs",
-  "rt-tokio",
-] }
-opentelemetry-otlp = { version = "0.31.0", default-features = false, features = [
-  "trace",
-  "metrics",
-  "logs",
-  "http-proto",
-  "grpc-tonic",
-  "reqwest-client",
-] }
-opentelemetry-semantic-conventions = "0.15.0"
-tracing-opentelemetry = "0.32.0"
-tracing-subscriber = { version = "0.3.20", features = [
+opentelemetry.workspace = true
+opentelemetry_sdk.workspace = true
+opentelemetry-otlp.workspace = true
+tracing-opentelemetry.workspace = true
+tracing-subscriber = { version = "0.3", features = [
   "fmt",
   "env-filter",
   "registry",
 ] }
-
-# GraphQL API
-async-graphql = { version = "7.0", optional = true }
-async-graphql-axum = { version = "7.0", optional = true }
-
-# HTTP server (for examples)
-axum = { version = "0.7", optional = true }
-tower = { version = "0.4", optional = true }
-tower-http = { version = "0.5", features = ["cors"], optional = true }
 
 [dev-dependencies]
 tokio-test = "0.4"
@@ -113,9 +80,13 @@ name = "ggen_marketplace"
 path = "src/lib.rs"
 
 [features]
+# Active features (actually used in codebase):
+# - crypto: Cryptographic signing support (Ed25519)
+# - default: Includes crypto feature
 default = ["crypto"]
-p2p = ["libp2p", "bs58", "nix"]
-graphql = ["async-graphql", "async-graphql-axum"]
-graphql-server = ["graphql", "axum", "tower", "tower-http"]
 crypto = ["ed25519-dalek", "rand"]
-all = ["p2p", "graphql-server", "crypto"]
+all = ["crypto"]
+# Note: GraphQL and graphql-server features removed (waste elimination - unused code)
+# Note: Replication feature never existed (distributed_setup example was waste)
+# Note: HTTP dependencies removed (reqwest, axum, tower, tower-http) - CLI-only version
+# Note: CentralizedRegistry removed - HTTP-based registry not needed for CLI

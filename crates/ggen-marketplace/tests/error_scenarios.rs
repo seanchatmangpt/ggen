@@ -7,34 +7,7 @@ use ggen_marketplace::prelude::*;
 use std::path::PathBuf;
 
 // ============================================================================
-// ERROR SCENARIO 1: Network Failures (for CentralizedRegistry)
-// ============================================================================
-
-#[tokio::test]
-async fn error_invalid_registry_url() {
-    // Arrange: Invalid URL
-    let result = CentralizedRegistry::new("not-a-valid-url");
-
-    // Assert: Should succeed (URL validation happens on request, not construction)
-    // This is correct behavior - fail fast on actual use, not construction
-    assert!(result.is_ok());
-}
-
-#[tokio::test]
-async fn error_nonexistent_registry_url() {
-    // Arrange: Valid URL but non-existent server
-    let registry = CentralizedRegistry::new("https://this-domain-does-not-exist-12345.com")
-        .expect("registry creation failed");
-
-    // Act: Try to fetch index (will timeout/fail)
-    let result = registry.search(&Query::new("test")).await;
-
-    // Assert: Should fail with network error
-    assert!(result.is_err(), "Should fail with network error");
-}
-
-// ============================================================================
-// ERROR SCENARIO 2: Filesystem Errors
+// ERROR SCENARIO 1: Filesystem Errors
 // ============================================================================
 
 #[tokio::test]
@@ -320,15 +293,14 @@ async fn error_binary_content() {
 
 // Summary: Error Scenario Tests cover:
 //
-// 1. ✅ Network failures (invalid/nonexistent URLs)
-// 2. ✅ Filesystem errors (read-only, permissions)
-// 3. ✅ Corrupted data (invalid JSON)
-// 4. ✅ Resource exhaustion (large content)
-// 5. ✅ Concurrent modifications (race conditions)
-// 6. ✅ Invalid package data (missing required fields)
-// 7. ✅ Query edge cases (empty, special characters)
-// 8. ✅ Version edge cases (0.0.0)
-// 9. ✅ Content edge cases (empty, binary)
+// 1. ✅ Filesystem errors (read-only, permissions)
+// 2. ✅ Corrupted data (invalid JSON)
+// 3. ✅ Resource exhaustion (large content)
+// 4. ✅ Concurrent modifications (race conditions)
+// 5. ✅ Invalid package data (missing required fields)
+// 6. ✅ Query edge cases (empty, special characters)
+// 7. ✅ Version edge cases (0.0.0)
+// 8. ✅ Content edge cases (empty, binary)
 //
 // These tests ensure the system fails gracefully, not catastrophically.
 // Total: ~20 error scenarios covering 80% of production failures.

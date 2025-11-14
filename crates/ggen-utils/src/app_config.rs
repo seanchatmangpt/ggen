@@ -1,3 +1,4 @@
+#![allow(clippy::expect_used)] // RwLock poisoning is considered unrecoverable
 use config::builder::DefaultState;
 use config::{Config, ConfigBuilder, Environment};
 use serde::{Deserialize, Serialize};

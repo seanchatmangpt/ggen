@@ -76,7 +76,7 @@ cat > examples/advanced-cli-tool/make.toml <<EOF
 command = "cargo build --release"
 
 [lifecycle.test]
-command = "cargo test --all-features"
+command = "cargo make test"
 
 [hooks]
 before_build = ["format", "lint"]

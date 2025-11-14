@@ -20,7 +20,6 @@ pub async fn execute_list(input: ListInput) -> Result<Vec<HookInfo>> {
     use dirs::home_dir;
     use glob::glob;
     use std::fs;
-    use std::path::PathBuf;
 
     let hooks_dir = home_dir()
         .ok_or_else(|| ggen_utils::error::Error::new("Home directory not found"))?

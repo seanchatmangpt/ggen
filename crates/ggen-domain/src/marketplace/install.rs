@@ -159,6 +159,7 @@ struct DependencyGraph {
 }
 
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 struct PackageNode {
     name: String,
     version: String,
@@ -411,7 +412,8 @@ fn resolve_caret_range(base: &str, versions: &[String]) -> Result<String> {
 
     versions
         .iter()
-        .filter(|v| {
+        .rev()
+        .find(|v| {
             let v_parts: Vec<&str> = v.split('.').collect();
             if v_parts.is_empty() {
                 return false;
@@ -419,7 +421,6 @@ fn resolve_caret_range(base: &str, versions: &[String]) -> Result<String> {
             let v_major: u32 = v_parts[0].parse().unwrap_or(0);
             v_major == major && v.as_str() >= base
         })
-        .last()
         .ok_or_else(|| ggen_utils::error::Error::new(&format!("No matching version for ^{}", base)))
         .map(|v| v.to_string())
 }
@@ -440,7 +441,8 @@ fn resolve_tilde_range(base: &str, versions: &[String]) -> Result<String> {
 
     versions
         .iter()
-        .filter(|v| {
+        .rev()
+        .find(|v| {
             let v_parts: Vec<&str> = v.split('.').collect();
             if v_parts.len() < 2 {
                 return false;
@@ -449,7 +451,6 @@ fn resolve_tilde_range(base: &str, versions: &[String]) -> Result<String> {
             let v_minor: u32 = v_parts[1].parse().unwrap_or(0);
             v_major == major && v_minor == minor && v.as_str() >= base
         })
-        .last()
         .ok_or_else(|| ggen_utils::error::Error::new(&format!("No matching version for ~{}", base)))
         .map(|v| v.to_string())
 }
@@ -458,8 +459,8 @@ fn resolve_tilde_range(base: &str, versions: &[String]) -> Result<String> {
 fn resolve_gte_range(base: &str, versions: &[String]) -> Result<String> {
     versions
         .iter()
-        .filter(|v| v.as_str() >= base)
-        .last()
+        .rev()
+        .find(|v| v.as_str() >= base)
         .ok_or_else(|| {
             ggen_utils::error::Error::new(&format!("No matching version for >={}", base))
         })
@@ -795,7 +796,7 @@ async fn extract_package_from_zip(
         }
         ggen_utils::error::Error::new(&format!("Task join error: {}", e))
     })?
-    .map_err(|e| {
+    .inspect_err(|_e| {
         // Cleanup on extraction error
         let target_dir_for_cleanup = target_dir.to_path_buf();
         if target_dir_for_cleanup.exists() {
@@ -811,7 +812,6 @@ async fn extract_package_from_zip(
                 }
             });
         }
-        e
     })
 }
 
@@ -957,7 +957,7 @@ async fn save_lockfile(lockfile: &Lockfile, packages_dir: &Path) -> Result<()> {
         .await
         .map_err(|e| {
             // Cleanup temp file on error
-            let _ = tokio::fs::remove_file(&temp_path);
+            std::mem::drop(tokio::fs::remove_file(&temp_path));
             ggen_utils::error::Error::new(&format!("Failed to atomically update lockfile: {}", e))
         })?;
 
@@ -981,18 +981,16 @@ pub async fn install_package(options: &InstallOptions) -> Result<InstallResult> 
     // Handle missing home directory gracefully
     let packages_dir = if let Some(ref target) = options.target_path {
         target.clone()
+    } else if let Some(home_dir) = dirs::home_dir() {
+        home_dir.join(".ggen").join("packages")
     } else {
-        if let Some(home_dir) = dirs::home_dir() {
-            home_dir.join(".ggen").join("packages")
-        } else {
-            // Fallback to current directory if home directory not available
-            std::env::current_dir()
-                .map_err(|e| ggen_utils::error::Error::new(&format!(
-                    "Cannot determine installation directory (home directory not found and current directory error: {})",
-                    e
-                )))?
-                .join(".ggen-packages")
-        }
+        // Fallback to current directory if home directory not available
+        std::env::current_dir()
+            .map_err(|e| ggen_utils::error::Error::new(&format!(
+                "Cannot determine installation directory (home directory not found and current directory error: {})",
+                e
+            )))?
+            .join(".ggen-packages")
     };
 
     // Ensure directories exist

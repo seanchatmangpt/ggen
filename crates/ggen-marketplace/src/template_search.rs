@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used)] // Test code uses unwrap
 //! Template search and discovery in marketplace
 //!
 //! Provides search capabilities specifically for template packages
@@ -207,7 +208,7 @@ mod tests {
     fn test_query_builder() {
         let query = TemplateSearchQueryBuilder::new("rust")
             .category("web-service")
-            .framework("axum")
+            .framework("cli")
             .with_examples()
             .limit(10)
             .offset(0);

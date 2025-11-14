@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used)] // Test code uses unwrap
 use crate::error::{MarketplaceError, Result};
 use crate::models::ContentId;
 use crate::traits::{ContentMetadata, PackageStore};

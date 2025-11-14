@@ -217,10 +217,9 @@ const _SUMMARY: () = ();
    - HashMap-based in-memory store
    - Arc + RwLock for thread safety
 
-✅ CentralizedRegistry - production-ready
-   - HTTP client via reqwest
-   - Remote template fetching
-   - Error handling and retries
+❌ CentralizedRegistry - REMOVED in v2.6.0 (CLI-only version)
+   - HTTP dependencies removed for CLI-focused architecture
+   - Use LocalRegistry for local template management
 
 ✅ LocalRegistry - production-ready
    - Local filesystem template cache
@@ -254,23 +253,17 @@ const _SUMMARY: () = ();
 
 ### 3.4 GraphQL API
 
-**Status:** ✅ PASS (Feature-Gated)
+**Status:** ❌ **REMOVED** in v2.6.0 (Waste Elimination)
 
-**Implementation:**
-```
-✅ QueryRoot with template queries
-✅ MutationRoot with publish/update operations
-✅ Schema creation via async-graphql
-✅ Type system (TemplateMetadata, SearchResult)
-✅ Axum integration for HTTP server
-```
+**Reason**: GraphQL API layer removed as part of waste elimination (muda). CLI-only version does not require GraphQL API.
 
-**⚠️ Considerations:**
-- Feature must be explicitly enabled: `--features graphql-server`
-- Optional dependencies: axum, tower, tower-http
-- Tests require feature flag to compile
+**Files Removed**:
+- GraphQL module (`src/graphql/mod.rs`, `src/graphql/types.rs`)
+- GraphQL tests (`tests/graphql_api.rs`)
+- GraphQL example (`examples/graphql_server.rs`)
+- GraphQL dependencies (async-graphql, async-graphql-axum)
 
-**Status:** Production-ready when feature is enabled. Optional component.
+**Migration**: Use CLI commands for template operations. GraphQL API is not available in CLI-only version.
 
 ### 3.5 CLI Commands
 

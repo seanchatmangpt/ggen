@@ -140,3 +140,5 @@ log "Backup saved: $REGISTRY_INDEX.bak"
 
 exit 0
 
+
+

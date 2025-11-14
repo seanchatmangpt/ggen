@@ -18,12 +18,16 @@
 //! - OTEL collector started via docker-compose
 //! - Ports 4318 (OTLP HTTP), 13133 (health) available
 
+use chicago_tdd_tools::prelude::*;
 use reqwest;
 use serde_json::Value;
 use std::collections::HashMap;
 use std::process::Command;
 use std::time::Duration;
 use tokio;
+
+mod test_config;
+use test_config::{http_connection_timeout, integration_timeout};
 
 /// OTEL Collector endpoints
 const COLLECTOR_OTLP_HTTP: &str = "http://localhost:4318";
@@ -38,19 +42,20 @@ const SERVICE_NAME: &str = "ggen-marketplace-p2p";
 // TEST SUITE 1: COLLECTOR INFRASTRUCTURE
 // =============================================================================
 
-#[tokio::test]
 #[ignore] // Requires Docker infrastructure
-async fn test_otel_collector_is_healthy() {
-    // Verify: OTEL collector is running and healthy
+async_test_with_timeout!(test_otel_collector_is_healthy, 30, async {
+    // Arrange
     let client = reqwest::Client::new();
 
+    // Act
     let response = client
         .get(COLLECTOR_HEALTH)
-        .timeout(Duration::from_secs(5))
+        .timeout(http_connection_timeout())
         .send()
         .await
         .expect("Failed to connect to OTEL collector health endpoint");
 
+    // Assert
     assert!(
         response.status().is_success(),
         "OTEL collector health check failed: {}",
@@ -64,17 +69,17 @@ async fn test_otel_collector_is_healthy() {
         "Unexpected health response: {}",
         body
     );
-}
+});
 
-#[tokio::test]
 #[ignore]
-async fn test_otel_collector_endpoints_available() {
-    // Verify: All OTEL collector endpoints are accessible
+async_test_with_timeout!(test_otel_collector_endpoints_available, 30, async {
+    // Arrange
     let client = reqwest::Client::builder()
-        .timeout(Duration::from_secs(5))
+        .timeout(http_connection_timeout())
         .build()
         .unwrap();
 
+    // Act & Assert
     // Check health endpoint
     let health = client.get(COLLECTOR_HEALTH).send().await;
     assert!(health.is_ok(), "Health endpoint not available");
@@ -86,21 +91,18 @@ async fn test_otel_collector_endpoints_available() {
     // OTLP HTTP endpoint should accept POST (but reject empty body)
     let otlp = client.post(format!("{}/v1/traces", COLLECTOR_OTLP_HTTP)).send().await;
     assert!(otlp.is_ok(), "OTLP HTTP endpoint not available");
-}
+});
 
 // =============================================================================
 // TEST SUITE 2: TRACE EMISSION VALIDATION
 // =============================================================================
 
-#[tokio::test]
 #[ignore]
-async fn test_marketplace_search_emits_spans_to_collector() {
-    // Verify: marketplace search command emits actual spans to collector
-
-    // Get baseline metrics
+async_test_with_timeout!(test_marketplace_search_emits_spans_to_collector, 30, async {
+    // Arrange
     let baseline_spans = get_collector_span_count().await;
 
-    // Run marketplace search with OTEL enabled
+    // Act
     let output = Command::new("cargo")
         .args(&["run", "--bin", "ggen", "--features", "otel", "--",
                 "marketplace", "search", "test"])
@@ -119,7 +121,7 @@ async fn test_marketplace_search_emits_spans_to_collector() {
     // Wait for spans to be exported
     tokio::time::sleep(Duration::from_secs(2)).await;
 
-    // Verify collector received new spans
+    // Assert
     let current_spans = get_collector_span_count().await;
 
     assert!(
@@ -133,15 +135,14 @@ async fn test_marketplace_search_emits_spans_to_collector() {
         "✅ Collector received {} new spans from marketplace search",
         current_spans - baseline_spans
     );
-}
+});
 
-#[tokio::test]
 #[ignore]
-async fn test_p2p_operations_emit_trace_context() {
-    // Verify: P2P operations create proper trace context with parent-child relationships
-
+async_test_with_timeout!(test_p2p_operations_emit_trace_context, 30, async {
+    // Arrange
     let baseline = get_collector_span_count().await;
 
+    // Act
     // Execute P2P initialization (should create multiple spans)
     let output = Command::new("cargo")
         .args(&["run", "--bin", "ggen", "--features", "otel,p2p", "--",
@@ -155,11 +156,13 @@ async fn test_p2p_operations_emit_trace_context() {
     if !output.status.success() {
         eprintln!("Warning: P2P command failed (expected if backend not ready)");
         eprintln!("{}", String::from_utf8_lossy(&output.stderr));
-        return; // Skip test if P2P not ready
+        // Skip test if P2P not ready - early return handled by conditional check
+        return;
     }
 
     tokio::time::sleep(Duration::from_secs(3)).await;
 
+    // Assert
     let current = get_collector_span_count().await;
 
     // P2P should emit multiple spans (network init, DHT query, etc.)
@@ -170,13 +173,11 @@ async fn test_p2p_operations_emit_trace_context() {
     );
 
     println!("✅ P2P operation emitted {} spans", current - baseline);
-}
+});
 
-#[tokio::test]
 #[ignore]
-async fn test_span_attributes_contain_operation_metadata() {
-    // Verify: Spans contain proper attributes (operation, package name, etc.)
-
+async_test_with_timeout!(test_span_attributes_contain_operation_metadata, 30, async {
+    // Arrange & Act
     // Run operation
     let _output = Command::new("cargo")
         .args(&["run", "--bin", "ggen", "--features", "otel", "--",
@@ -196,6 +197,7 @@ async fn test_span_attributes_contain_operation_metadata() {
         return;
     }
 
+    // Assert
     // Verify at least one span has expected attributes
     let has_attributes = traces.iter().any(|trace| {
         // Check if trace has spans with marketplace attributes
@@ -225,17 +227,15 @@ async fn test_span_attributes_contain_operation_metadata() {
     );
 
     println!("✅ Spans contain proper operation metadata");
-}
+});
 
 // =============================================================================
 // TEST SUITE 3: PARENT-CHILD SPAN RELATIONSHIPS
 // =============================================================================
 
-#[tokio::test]
 #[ignore]
-async fn test_parent_child_span_relationships_preserved() {
-    // Verify: Nested operations create proper parent-child span relationships
-
+async_test_with_timeout!(test_parent_child_span_relationships_preserved, 30, async {
+    // Arrange & Act
     // Run operation that should create nested spans
     let _output = Command::new("cargo")
         .args(&["run", "--bin", "ggen", "--features", "otel", "--",
@@ -254,6 +254,7 @@ async fn test_parent_child_span_relationships_preserved() {
         return;
     }
 
+    // Assert
     // Check for parent-child relationships
     let has_relationships = traces.iter().any(|trace| {
         trace.get("spans")
@@ -276,13 +277,11 @@ async fn test_parent_child_span_relationships_preserved() {
     );
 
     println!("✅ Parent-child span relationships preserved");
-}
+});
 
-#[tokio::test]
 #[ignore]
-async fn test_trace_context_propagates_across_operations() {
-    // Verify: Trace context (trace_id, span_id) propagates correctly
-
+async_test_with_timeout!(test_trace_context_propagates_across_operations, 30, async {
+    // Arrange & Act
     let _output = Command::new("cargo")
         .args(&["run", "--bin", "ggen", "--features", "otel", "--",
                 "marketplace", "search", "propagation-test"])
@@ -299,6 +298,7 @@ async fn test_trace_context_propagates_across_operations() {
         return; // Skip if no traces yet
     }
 
+    // Assert
     // Verify all spans in a trace share the same trace_id
     for trace in traces.iter() {
         if let Some(spans) = trace.get("spans").and_then(|s| s.as_array()) {
@@ -327,17 +327,15 @@ async fn test_trace_context_propagates_across_operations() {
     }
 
     println!("✅ Trace context propagates correctly");
-}
+});
 
 // =============================================================================
 // TEST SUITE 4: SERVICE IDENTIFICATION
 // =============================================================================
 
-#[tokio::test]
 #[ignore]
-async fn test_spans_have_correct_service_name() {
-    // Verify: All spans are tagged with correct service name
-
+async_test_with_timeout!(test_spans_have_correct_service_name, 30, async {
+    // Arrange & Act
     let _output = Command::new("cargo")
         .args(&["run", "--bin", "ggen", "--features", "otel", "--",
                 "marketplace", "search", "service-test"])
@@ -350,6 +348,7 @@ async fn test_spans_have_correct_service_name() {
 
     let traces = query_jaeger_traces(SERVICE_NAME).await;
 
+    // Assert
     assert!(
         !traces.is_empty(),
         "Expected to find traces for service '{}'",
@@ -376,17 +375,15 @@ async fn test_spans_have_correct_service_name() {
     }
 
     println!("✅ Service name correctly set: {}", SERVICE_NAME);
-}
+});
 
 // =============================================================================
 // TEST SUITE 5: PERFORMANCE & RELIABILITY
 // =============================================================================
 
-#[tokio::test]
 #[ignore]
-async fn test_span_export_does_not_block_operation() {
-    // Verify: OTEL export doesn't significantly slow down operations
-
+async_test_with_timeout!(test_span_export_does_not_block_operation, 30, async {
+    // Arrange & Act
     // Run without OTEL
     let start_no_otel = std::time::Instant::now();
     let _output1 = Command::new("cargo")
@@ -406,6 +403,7 @@ async fn test_span_export_does_not_block_operation() {
         .expect("Failed to run search with OTEL");
     let duration_with_otel = start_with_otel.elapsed();
 
+    // Assert
     // OTEL overhead should be minimal (< 50% slowdown)
     let overhead_ratio = duration_with_otel.as_secs_f64() / duration_no_otel.as_secs_f64();
 
@@ -423,15 +421,14 @@ async fn test_span_export_does_not_block_operation() {
         duration_with_otel,
         duration_no_otel
     );
-}
+});
 
-#[tokio::test]
 #[ignore]
-async fn test_collector_handles_burst_of_spans() {
-    // Verify: Collector can handle rapid span emission
-
+async_test_with_timeout!(test_collector_handles_burst_of_spans, 30, async {
+    // Arrange
     let baseline = get_collector_span_count().await;
 
+    // Act
     // Run multiple operations concurrently
     let mut handles = vec![];
 
@@ -455,6 +452,7 @@ async fn test_collector_handles_burst_of_spans() {
 
     tokio::time::sleep(Duration::from_secs(3)).await;
 
+    // Assert
     let current = get_collector_span_count().await;
 
     assert!(
@@ -466,7 +464,7 @@ async fn test_collector_handles_burst_of_spans() {
         "✅ Collector handled burst: {} spans from 5 concurrent operations",
         current - baseline
     );
-}
+});
 
 // =============================================================================
 // HELPER FUNCTIONS
@@ -478,7 +476,7 @@ async fn get_collector_span_count() -> u64 {
 
     let response = client
         .get(COLLECTOR_METRICS)
-        .timeout(Duration::from_secs(5))
+        .timeout(http_connection_timeout())
         .send()
         .await
         .expect("Failed to get collector metrics");
@@ -518,7 +516,7 @@ async fn query_jaeger_traces(service: &str) -> Vec<Value> {
 
     let response = client
         .get(&url)
-        .timeout(Duration::from_secs(5))
+        .timeout(http_connection_timeout())
         .send()
         .await;
 
@@ -537,11 +535,9 @@ async fn query_jaeger_traces(service: &str) -> Vec<Value> {
 // INFRASTRUCTURE VALIDATION
 // =============================================================================
 
-#[tokio::test]
 #[ignore]
-async fn test_docker_compose_otel_stack_running() {
-    // Verify: Complete OTEL stack is running
-
+async_test_with_timeout!(test_docker_compose_otel_stack_running, 30, async {
+    // Arrange
     let services = vec![
         ("Collector Health", COLLECTOR_HEALTH),
         ("Collector Metrics", COLLECTOR_METRICS),
@@ -549,10 +545,11 @@ async fn test_docker_compose_otel_stack_running() {
     ];
 
     let client = reqwest::Client::builder()
-        .timeout(Duration::from_secs(5))
+        .timeout(http_connection_timeout())
         .build()
         .unwrap();
 
+    // Act & Assert
     for (name, url) in services {
         let result = client.get(url).send().await;
 
@@ -564,4 +561,4 @@ async fn test_docker_compose_otel_stack_running() {
 
         println!("✅ {} available at {}", name, url);
     }
-}
+});

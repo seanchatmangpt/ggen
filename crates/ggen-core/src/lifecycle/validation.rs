@@ -1,8 +1,10 @@
 //! Lifecycle validation module
 //!
 //! This module provides validation functionality for lifecycle operations.
-//! Currently a placeholder - implementation pending.
+//! Validates production readiness for lifecycle operations.
 
+use super::state::LifecycleState;
+use super::state_validation::ValidatedLifecycleState;
 use serde::{Deserialize, Serialize};
 
 /// Validation severity levels
@@ -46,6 +48,19 @@ impl ValidationResult {
             self.is_valid = false;
         }
     }
+
+    pub fn add_issue_with_field(
+        &mut self, severity: ValidationSeverity, message: String, field: String,
+    ) {
+        self.issues.push(ValidationIssue {
+            severity,
+            message,
+            field: Some(field),
+        });
+        if severity == ValidationSeverity::Error {
+            self.is_valid = false;
+        }
+    }
 }
 
 impl Default for ValidationResult {
@@ -62,9 +77,73 @@ impl ReadinessValidator {
         Self
     }
 
-    pub fn validate(&self) -> ValidationResult {
-        // Placeholder implementation
-        ValidationResult::new()
+    /// Validate lifecycle state for production readiness
+    ///
+    /// Performs basic validation checks:
+    /// - State structure validity (using ValidatedLifecycleState)
+    /// - Critical phase prerequisites (deploy requires test)
+    /// - Cache key validity
+    pub fn validate(&self, state: &LifecycleState) -> ValidationResult {
+        let mut result = ValidationResult::new();
+
+        // Validate state structure using ValidatedLifecycleState
+        match ValidatedLifecycleState::new(state.clone()) {
+            Ok(_) => {
+                // State structure is valid
+            }
+            Err(e) => {
+                result.add_issue(
+                    ValidationSeverity::Error,
+                    format!("Lifecycle state validation failed: {}", e),
+                );
+                return result;
+            }
+        }
+
+        // Check critical production readiness requirements
+        let completed_phases: std::collections::HashSet<&str> = state
+            .phase_history
+            .iter()
+            .filter(|r| r.success)
+            .map(|r| r.phase.as_str())
+            .collect();
+
+        // Critical: deploy phase requires test phase to have completed
+        if completed_phases.contains("deploy") && !completed_phases.contains("test") {
+            result.add_issue(
+                ValidationSeverity::Error,
+                "Deploy phase executed without test phase completion".to_string(),
+            );
+        }
+
+        // Warning: check for phases that should typically run before deploy
+        if completed_phases.contains("deploy") {
+            let recommended_phases = ["build", "test"];
+            for phase in recommended_phases {
+                if !completed_phases.contains(phase) {
+                    result.add_issue(
+                        ValidationSeverity::Warning,
+                        format!("Deploy phase executed without {} phase completion", phase),
+                    );
+                }
+            }
+        }
+
+        // Validate cache keys reference valid phases
+        for cache_key in &state.cache_keys {
+            if !completed_phases.contains(cache_key.phase.as_str()) {
+                result.add_issue_with_field(
+                    ValidationSeverity::Error,
+                    format!(
+                        "Cache key references non-existent phase: {}",
+                        cache_key.phase
+                    ),
+                    cache_key.phase.clone(),
+                );
+            }
+        }
+
+        result
     }
 }
 

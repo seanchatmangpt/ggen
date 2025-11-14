@@ -22,6 +22,7 @@ ignore_errors = false
 # Core development tasks - with timeout wrappers
 [tasks.check]
 description = "Check code without building (quick feedback, 5s timeout)"
+workspace = false
 command = "timeout"
 args = ["5s", "cargo", "check"]
 
@@ -82,6 +83,7 @@ args = ["5s", "cargo", "fmt", "--all"]
 
 [tasks.lint]
 description = "Run clippy with strict settings"
+workspace = false
 command = "timeout"
 args = [
   "5s",
@@ -95,9 +97,9 @@ args = [
 ]
 
 [tasks.pre-commit]
-description = "Run pre-commit validation checks (format, lint, test, hooks)"
+description = "Run pre-commit validation checks (format, lint, test, hooks, docs)"
 workspace = false
-dependencies = ["timeout-check", "fmt", "lint", "test"]
+dependencies = ["timeout-check", "fmt", "lint", "test", "validate-docs"]
 script_runner = "@shell"
 script = '''
 # Run git hook validation if available
@@ -123,11 +125,13 @@ workspace = false
 
 [tasks.test-unit]
 description = "Unit tests only"
+workspace = false
 command = "timeout"
-args = ["10s", "cargo", "test", "--lib"]
+args = ["10s", "cargo", "test", "--workspace", "--lib"]
 
 [tasks.test-integration]
 description = "Integration tests only"
+workspace = false
 command = "timeout"
 args = ["30s", "cargo", "test", "--test"]
 
@@ -630,6 +634,45 @@ command = "cargo"
 args = ["+nightly", "udeps"]
 workspace = false
 
+[tasks.check-dead-code]
+description = "Check for dead code and unused items (waste detection)"
+workspace = false
+command = "timeout"
+args = [
+  "10s",
+  "cargo",
+  "clippy",
+  "--workspace",
+  "--all-targets",
+  "--",
+  "-W",
+  "dead_code",
+  "-W",
+  "unused_imports",
+  "-W",
+  "unused_variables",
+]
+
+[tasks.check-unused-features]
+description = "Check for unused feature flags (waste detection)"
+workspace = false
+command = "timeout"
+args = ["10s", "cargo", "check", "--workspace", "--all-features"]
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+# Check for feature flags that might be unused
+echo "Checking for potentially unused features..."
+echo "Review Cargo.toml files for features that are never enabled"
+echo "Run: grep -r 'feature.*=' crates/*/Cargo.toml | grep -v 'default'"
+'''
+
+[tasks.validate-examples]
+description = "Validate all examples compile (waste prevention)"
+workspace = false
+command = "timeout"
+args = ["30s", "cargo", "check", "--workspace", "--examples"]
+
 [tasks.audit-deny]
 description = "Comprehensive dependency audit with cargo-deny"
 command = "cargo"
@@ -728,6 +771,11 @@ workspace = false
 dependencies = ["docs-build"]
 command = "./scripts/docs-validate.sh"
 
+[tasks.validate-docs]
+description = "Validate documentation accuracy (FMEA-based checks: cargo commands, paths, macros)"
+workspace = false
+command = "./scripts/validate-docs.sh"
+
 [tasks.docs-deploy]
 description = "Build and validate documentation for deployment"
 workspace = false
@@ -815,14 +863,84 @@ dependencies = [
   "format",
   "clippy-ci-flow",
   "check-all-crates",
+  "detect-gaps",
   "test",
   "audit-all",
   "docs-test",
 ]
 
+# ============================================================================
+# Release Validation Tasks (FMEA-based)
+# ============================================================================
+
+[tasks.release-validate-git-state]
+description = "Validate git state is clean (FMEA: prevents release with uncommitted changes, RPN 504)"
+workspace = false
+command = "./scripts/release-validate-git-state.sh"
+
+[tasks.release-validate-version]
+description = "Validate version consistency across all crates (FMEA: prevents version mismatches, RPN 504)"
+workspace = false
+command = "./scripts/release-validate-version.sh"
+
+[tasks.release-validate-artifacts]
+description = "Validate all required release artifacts exist (FMEA: prevents missing artifacts, RPN 180)"
+workspace = false
+command = "./scripts/release-validate-artifacts.sh"
+
+[tasks.release-validate-build]
+description = "Validate release build succeeds (FMEA: prevents config-specific errors, RPN 432)"
+workspace = false
+dependencies = ["build-release"]
+
+[tasks.release-validate-security]
+description = "Validate security audit passes (FMEA: prevents vulnerabilities in release, RPN 360)"
+workspace = false
+dependencies = ["audit-all"]
+
+[tasks.release-validate-changelog]
+description = "Validate CHANGELOG has entry for release version (FMEA: prevents missing changelog, RPN 288)"
+workspace = false
+script_runner = "@shell"
+script = '''
+#!/bin/bash
+root_version=$(grep '^version = ' Cargo.toml | head -1 | sed 's/.*version = "\(.*\)"/\1/' | tr -d '"')
+if ! grep -q "^## \[$root_version\]" CHANGELOG.md; then
+    echo "❌ ERROR: CHANGELOG.md missing entry for version $root_version"
+    exit 1
+fi
+echo "✅ CHANGELOG.md has entry for $root_version"
+'''
+
+[tasks.release-validate-breaking-changes]
+description = "Detect breaking changes requiring documentation (FMEA: prevents undocumented breaking changes, RPN 240)"
+workspace = false
+command = "./scripts/release-validate-breaking-changes.sh"
+
+[tasks.release-validate-docs-sync]
+description = "Validate documentation version sync (FMEA: prevents outdated version references, RPN 96)"
+workspace = false
+command = "./scripts/release-validate-docs-sync.sh"
+
+[tasks.release-validate]
+description = "Comprehensive release validation (all FMEA checks)"
+workspace = false
+dependencies = [
+  "release-validate-git-state",
+  "release-validate-version",
+  "release-validate-artifacts",
+  "release-validate-build",
+  "release-validate-security",
+  "release-validate-changelog",
+  "release-validate-breaking-changes",
+  "release-validate-docs-sync",
+  "test",
+  "lint",
+]
+
 [tasks.release]
 description = "Create a release"
-dependencies = ["ci", "docs-build"]
+dependencies = ["release-validate", "ci", "docs-build"]
 
 # ============================================================================
 # Homebrew Release Tasks
@@ -860,6 +978,38 @@ command = "./scripts/ci-health-check.sh"
 
 [tasks.ci-health]
 alias = "ci-check"
+
+# ============================================================================
+# Gap Detection Tasks
+# ============================================================================
+
+[tasks.detect-gaps]
+description = "Detect missing tests and coverage gaps (80/20 focused)"
+workspace = false
+command = "./scripts/detect-test-gaps.sh"
+
+[tasks.enforce-coverage]
+description = "Enforce test coverage for changed files"
+workspace = false
+command = "./scripts/enforce-test-coverage.sh"
+
+[tasks.install-hooks]
+description = "Install git hooks with gap detection"
+workspace = false
+command = "./scripts/install-git-hooks.sh"
+
+[tasks.gap-report]
+description = "Generate comprehensive gap detection report"
+workspace = false
+dependencies = ["detect-gaps"]
+script = '''
+if [ -f target/gap-detection-report.json ]; then
+  echo "📊 Gap Detection Report:"
+  cat target/gap-detection-report.json | jq .
+else
+  echo "❌ No report found. Run: cargo make detect-gaps"
+fi
+'''
 
 # ============================================================================
 # Shell Completion Tasks

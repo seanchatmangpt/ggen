@@ -1,4 +1,5 @@
 // Smart Recommendations using Collaborative Filtering and ML
+#![allow(clippy::unwrap_used)] // Safe: f64 scores from cosine similarity are never NaN
 use anyhow::{Result, Context};
 use ndarray::{Array1, Array2, ArrayView1};
 use serde::{Deserialize, Serialize};

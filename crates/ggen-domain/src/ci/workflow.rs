@@ -4,6 +4,7 @@
 //! viewing logs, and canceling runs.
 
 use ggen_utils::error::Result;
+use std::str::FromStr;
 
 /// Workflow status
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -15,18 +16,22 @@ pub enum WorkflowStatus {
     Cancelled,
 }
 
-impl WorkflowStatus {
-    pub fn from_str(s: &str) -> Option<Self> {
+impl FromStr for WorkflowStatus {
+    type Err = String;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
-            "queued" => Some(Self::Queued),
-            "in_progress" => Some(Self::InProgress),
-            "completed" => Some(Self::Completed),
-            "failed" => Some(Self::Failed),
-            "cancelled" => Some(Self::Cancelled),
-            _ => None,
+            "queued" => Ok(Self::Queued),
+            "in_progress" => Ok(Self::InProgress),
+            "completed" => Ok(Self::Completed),
+            "failed" => Ok(Self::Failed),
+            "cancelled" => Ok(Self::Cancelled),
+            _ => Err(format!("Invalid workflow status: {}", s)),
         }
     }
+}
 
+impl WorkflowStatus {
     pub fn as_str(&self) -> &'static str {
         match self {
             Self::Queued => "queued",
@@ -286,26 +291,26 @@ mod tests {
     #[test]
     fn test_workflow_status_from_str() {
         assert_eq!(
-            WorkflowStatus::from_str("queued"),
+            "queued".parse::<WorkflowStatus>().ok(),
             Some(WorkflowStatus::Queued)
         );
         assert_eq!(
-            WorkflowStatus::from_str("IN_PROGRESS"),
+            "IN_PROGRESS".parse::<WorkflowStatus>().ok(),
             Some(WorkflowStatus::InProgress)
         );
         assert_eq!(
-            WorkflowStatus::from_str("completed"),
+            "completed".parse::<WorkflowStatus>().ok(),
             Some(WorkflowStatus::Completed)
         );
         assert_eq!(
-            WorkflowStatus::from_str("failed"),
+            "failed".parse::<WorkflowStatus>().ok(),
             Some(WorkflowStatus::Failed)
         );
         assert_eq!(
-            WorkflowStatus::from_str("cancelled"),
+            "cancelled".parse::<WorkflowStatus>().ok(),
             Some(WorkflowStatus::Cancelled)
         );
-        assert_eq!(WorkflowStatus::from_str("unknown"), None);
+        assert_eq!("unknown".parse::<WorkflowStatus>().ok(), None);
     }
 
     #[test]

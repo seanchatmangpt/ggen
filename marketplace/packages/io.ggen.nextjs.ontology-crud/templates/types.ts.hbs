@@ -1,0 +1,145 @@
+{{!--
+  TypeScript Types Generator from RDF Ontology
+  Generates TypeScript interfaces, Zod schemas, and type guards from rdfs:Class definitions
+--}}
+/**
+ * Auto-generated TypeScript types from RDF ontology
+ * Generated: {{generatedDate}}
+ * Ontology: {{ontologyUri}}
+ */
+
+import { z } from 'zod';
+
+{{#each classes}}
+/**
+ * {{comment}}
+ * @class {{name}}
+ * @extends {{#if superClass}}{{superClass}}{{else}}Object{{/if}}
+ */
+export interface {{name}} {
+{{#each properties}}
+  /**
+   * {{comment}}
+   * @type {{#if isRequired}}{{tsType}}{{else}}{{tsType}} | undefined{{/if}}
+   {{#if minValue}}* @minimum {{minValue}}{{/if}}
+   {{#if maxValue}}* @maximum {{maxValue}}{{/if}}
+   {{#if pattern}}* @pattern {{pattern}}{{/if}}
+   */
+  {{propertyName}}{{#unless isRequired}}?{{/unless}}: {{tsType}}{{#if isArray}}[]{{/if}};
+{{/each}}
+}
+
+/**
+ * Zod validation schema for {{name}}
+ */
+export const {{name}}Schema = z.object({
+{{#each properties}}
+  {{propertyName}}: {{zodType}}{{#if isRequired}}{{else}}.optional(){{/if}}{{#if description}}.describe('{{description}}'){{/if}},
+{{/each}}
+}){{#if isStrict}}.strict(){{/if}};
+
+/**
+ * Type guard for {{name}}
+ */
+export function is{{name}}(value: unknown): value is {{name}} {
+  return {{name}}Schema.safeParse(value).success;
+}
+
+{{#if hasEnumerations}}
+/**
+ * Enumeration types for {{name}}
+ */
+{{#each enumerations}}
+export const {{enumName}}Values = [
+{{#each values}}
+  '{{this}}',
+{{/each}}
+] as const;
+
+export type {{enumName}} = typeof {{enumName}}Values[number];
+
+export const {{enumName}}Schema = z.enum({{enumName}}Values);
+{{/each}}
+{{/if}}
+
+{{/each}}
+
+{{!-- Generate utility types --}}
+/**
+ * Utility Types
+ */
+export type DeepPartial<T> = T extends object ? {
+  [P in keyof T]?: DeepPartial<T[P]>;
+} : T;
+
+export type Nullable<T> = T | null;
+
+export type WithTimestamps<T> = T & {
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+{{!-- Generate type mappings for CRUD operations --}}
+{{#each classes}}
+export type Create{{name}}Input = Omit<{{name}}, 'id' | 'createdAt' | 'updatedAt'>;
+export type Update{{name}}Input = Partial<Create{{name}}Input>;
+export type {{name}}Response = WithTimestamps<{{name}}>;
+{{/each}}
+
+{{!-- Generate API response types --}}
+export interface PaginatedResponse<T> {
+  data: T[];
+  pagination: {
+    page: number;
+    pageSize: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export interface ApiError {
+  error: string;
+  message: string;
+  details?: Record<string, unknown>;
+  statusCode: number;
+}
+
+export interface ApiSuccess<T = unknown> {
+  success: true;
+  data: T;
+  message?: string;
+}
+
+export type ApiResponse<T> = ApiSuccess<T> | ApiError;
+
+{{!-- Helper functions for type conversion --}}
+/**
+ * Type conversion utilities
+ */
+export const TypeConverters = {
+  toDate: (value: string | Date): Date =>
+    value instanceof Date ? value : new Date(value),
+
+  toString: (value: unknown): string =>
+    String(value),
+
+  toNumber: (value: unknown): number => {
+    const num = Number(value);
+    if (isNaN(num)) throw new Error(`Cannot convert ${value} to number`);
+    return num;
+  },
+
+  toBoolean: (value: unknown): boolean =>
+    Boolean(value),
+};
+
+/**
+ * Validation error formatting
+ */
+export function formatZodError(error: z.ZodError): Record<string, string> {
+  return error.errors.reduce((acc, err) => {
+    const path = err.path.join('.');
+    acc[path] = err.message;
+    return acc;
+  }, {} as Record<string, string>);
+}

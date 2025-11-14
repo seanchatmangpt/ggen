@@ -5,7 +5,7 @@
 use clap_noun_verb::Result;
 use clap_noun_verb_macros::verb;
 use serde::Serialize;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use crate::runtime_helper::execute_async_verb;
 use ggen_domain::marketplace::{
@@ -79,6 +79,19 @@ struct ValidateOutput {
 // ============================================================================
 
 /// Search for packages in the marketplace
+///
+/// # Usage
+///
+/// ```bash
+/// # Search with the --query flag (required)
+/// ggen marketplace search --query "rust web framework"
+///
+/// # Limit results
+/// ggen marketplace search --query "microservice" --limit 5
+///
+/// # Filter by category
+/// ggen marketplace search --query "api" --category "backend"
+/// ```
 #[verb]
 fn search(query: String, limit: Option<usize>, category: Option<String>) -> Result<SearchOutput> {
     let input = SearchInput {
@@ -265,7 +278,7 @@ fn validate(
 
 /// Update production_ready flag in package.toml
 fn update_package_toml_production_flag(
-    package_path: &PathBuf, production_ready: bool,
+    package_path: &Path, production_ready: bool,
 ) -> std::result::Result<(), Box<dyn std::error::Error>> {
     use std::fs;
     use toml::Value;

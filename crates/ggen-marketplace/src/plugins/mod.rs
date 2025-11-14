@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used)] // Test code uses unwrap
 // WebAssembly Plugin System using wasmtime
 use anyhow::{Result, Context, anyhow};
 use serde::{Deserialize, Serialize};

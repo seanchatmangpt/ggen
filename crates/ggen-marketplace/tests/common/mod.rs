@@ -22,12 +22,6 @@ pub async fn setup_local_registry() -> (LocalRegistry, TempDir) {
     (registry, temp_dir)
 }
 
-/// Create a centralized registry pointing to a test URL.
-/// Note: This doesn't start a real server - use for testing error paths.
-pub fn setup_centralized_registry(url: &str) -> CentralizedRegistry {
-    CentralizedRegistry::new(url).expect("failed to create centralized registry")
-}
-
 // ============================================================================
 // Storage Helpers
 // ============================================================================

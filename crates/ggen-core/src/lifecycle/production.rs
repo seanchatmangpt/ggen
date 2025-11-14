@@ -307,7 +307,7 @@ impl ReadinessTracker {
         }
 
         ReadinessReport {
-            project_name: "Current Project".to_string(),
+            project_name: super::model::defaults::DEFAULT_READINESS_PROJECT_NAME.to_string(),
             generated_at: Utc::now(),
             overall_score,
             by_category,
@@ -968,7 +968,10 @@ mod tests {
         tracker.load().unwrap(); // Load default requirements
         let report = tracker.generate_report();
 
-        assert_eq!(report.project_name, "Current Project");
+        assert_eq!(
+            report.project_name,
+            super::model::defaults::DEFAULT_READINESS_PROJECT_NAME
+        );
         assert!(report.overall_score >= 0.0 && report.overall_score <= 100.0);
         assert!(
             !report.by_category.is_empty(),

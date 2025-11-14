@@ -321,6 +321,7 @@ fn generate_rdf(
 // ============================================================================
 
 /// Parse variable arguments (key=value format)
+#[allow(dead_code)]
 fn parse_variables(vars: &[String]) -> Result<BTreeMap<String, String>, String> {
     let mut map = BTreeMap::new();
     for var in vars {

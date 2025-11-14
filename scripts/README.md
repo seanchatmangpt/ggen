@@ -18,6 +18,38 @@ ggen lifecycle run setup-git-hooks
 
 ## Scripts
 
+### validate-marketplace-package.sh
+End-to-end validation of marketplace packages in a clean Docker environment.
+
+**Usage:**
+```bash
+# Validate a package
+./validate-marketplace-package.sh io.ggen.nextjs.ontology-crud
+
+# Keep container for debugging
+./validate-marketplace-package.sh io.ggen.nextjs.ontology-crud --keep-container
+```
+
+**What it does:**
+1. Creates clean Docker container (node:20-bookworm)
+2. Installs system dependencies (git, curl, build-essential)
+3. Installs Rust toolchain via rustup
+4. Clones and builds ggen from source
+5. Installs the specified marketplace package
+6. Runs `npm install` and `npm run regenerate`
+7. Validates generated files
+8. Runs `npm run build` (if available)
+9. Reports detailed validation results
+
+**Exit codes:**
+- 0: Success
+- 1: Invalid arguments
+- 2: Docker not available
+- 3: Container creation failed
+- 4: Build failed
+- 5: Package installation failed
+- 6: Validation failed
+
 ### check-no-panic-points.sh
 Scans production code for `.expect()` and `.unwrap()` calls.
 

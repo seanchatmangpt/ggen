@@ -21,7 +21,6 @@ pub struct RemoveInput {
 pub async fn execute_remove(input: RemoveInput) -> Result<HookResult> {
     use dirs::home_dir;
     use std::fs;
-    use std::path::PathBuf;
 
     if !input.force {
         return Err(ggen_utils::error::Error::new(

@@ -32,8 +32,16 @@ impl WorkspaceGenerator {
     pub fn generate(&self, project: &CliProject, output_dir: &Path) -> Result<()> {
         let mut context = Context::new();
         context.insert("project_name", &project.name);
-        context.insert("cli_crate", &project.cli_crate.as_ref().unwrap());
-        context.insert("core_crate", &project.domain_crate.as_ref().unwrap());
+        let cli_crate = project
+            .cli_crate
+            .as_ref()
+            .ok_or_else(|| anyhow::anyhow!("cli_crate is required for workspace generation"))?;
+        let core_crate = project
+            .domain_crate
+            .as_ref()
+            .ok_or_else(|| anyhow::anyhow!("domain_crate is required for workspace generation"))?;
+        context.insert("cli_crate", cli_crate);
+        context.insert("core_crate", core_crate);
         context.insert("version", &project.version);
         context.insert("edition", &project.edition);
         context.insert("license", &project.license);

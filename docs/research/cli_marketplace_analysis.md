@@ -656,7 +656,7 @@ ggen market cache stats                          # Cache management
 ## Appendix B: File Locations
 
 ```
-cli/src/cmds/market/
+crates/ggen-cli/src/cmds/marketplace/
 ├── mod.rs              # Command router (14 verbs)
 ├── search.rs           # Search command (450 lines)
 ├── add.rs              # Add command (327 lines)
@@ -684,7 +684,7 @@ ggen-marketplace/src/
 ├── storage/            # Storage backends
 └── crypto/             # Signature verification
 
-cli/tests/integration/
+crates/ggen-cli/tests/integration/
 └── marketplace_tests.rs # Integration tests (419 lines)
 ```
 

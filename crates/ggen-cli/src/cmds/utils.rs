@@ -3,7 +3,7 @@
 //! This module implements utility commands using the v3.4.0 #[verb] pattern.
 
 use clap_noun_verb::Result;
-use clap_noun_verb_macros::{arg, verb};
+use clap_noun_verb_macros::verb;
 use serde::Serialize;
 use std::collections::HashMap;
 
@@ -33,7 +33,9 @@ struct EnvOutput {
     total: usize,
 }
 
+/// Output for setting environment variables
 #[derive(Serialize)]
+#[allow(dead_code)]
 struct EnvSetOutput {
     key: String,
     value: String,
@@ -98,7 +100,7 @@ fn doctor(all: bool, _fix: bool, format: Option<String>) -> Result<DoctorOutput>
 fn env(list: bool, get: Option<String>, set: Option<String>, _system: bool) -> Result<EnvOutput> {
     use ggen_domain::utils::{execute_env_get, execute_env_list, execute_env_set};
 
-    let variables = if list || (!get.is_some() && !set.is_some()) {
+    let variables = if list || (get.is_none() && set.is_none()) {
         // List all GGEN_ variables
         crate::runtime::block_on(async move { execute_env_list().await }).map_err(|e| {
             clap_noun_verb::NounVerbError::execution_error(format!(

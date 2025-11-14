@@ -14,7 +14,7 @@ The Hive Queen swarm has successfully delivered **95% of v1.2.0 scope**, impleme
 
 | Component | Status | Evidence |
 |-----------|--------|----------|
-| **Core CLI System** | 100% | 10,029 LOC in `cli/src/lib.rs` |
+| **Core CLI System** | 100% | 10,029 LOC in `crates/ggen-cli/src/lib.rs` |
 | **Lifecycle Management** | 100% | 5,252 LOC across 14 modules |
 | **Node NIF Architecture** | 100% | 71 tests written, architecture complete |
 | **Bootstrap Command** | 100% | `ggen project new` implemented |
@@ -40,7 +40,7 @@ The Hive Queen swarm has successfully delivered **95% of v1.2.0 scope**, impleme
 
 ### 1. Core CLI System ✅ (100%)
 
-**Location:** `cli/src/lib.rs` (10,029 lines)
+**Location:** `crates/ggen-cli/src/lib.rs` (10,029 lines)
 
 **Completed Features:**
 - ✅ Clap-based argument parser
@@ -101,7 +101,7 @@ The Hive Queen swarm has successfully delivered **95% of v1.2.0 scope**, impleme
 
 ### 4. Bootstrap Command ✅ (100%)
 
-**Location:** `cli/src/cmds/project/new.rs`
+**Location:** `crates/ggen-cli/src/cmds/project.rs`
 
 **Implemented Features:**
 ```bash
@@ -391,7 +391,7 @@ exclude = ["ggen-marketplace"]
 
 3. **Wire CLI Commands**
    ```rust
-   // cli/src/cmds/market.rs
+   // crates/ggen-cli/src/cmds/marketplace.rs
    #[derive(Subcommand)]
    pub enum MarketCommands {
        Search { query: String },
@@ -466,7 +466,7 @@ exclude = ["ggen-marketplace"]
    - Update PlantUML diagrams (already done)
 
 5. **Pre-Release Checklist**
-   - [ ] All tests pass (`cargo test --workspace`)
+   - [ ] All tests pass (`cargo make test`)
    - [ ] No compilation errors
    - [ ] CLI commands functional
    - [ ] Documentation accurate
@@ -667,10 +667,10 @@ With v1.2.0 deployed, ggen will have a solid foundation for:
 ## Appendix: File Locations
 
 ### Core Systems
-- CLI: `cli/src/lib.rs` (10,029 LOC)
-- Lifecycle: `ggen-core/src/lifecycle/` (5,252 LOC)
-- Node NIF: `node/` (tests + architecture)
-- Bootstrap: `cli/src/cmds/project/new.rs`
+- CLI: `crates/ggen-cli/src/lib.rs` (10,029 LOC)
+- Lifecycle: `crates/ggen-core/src/lifecycle/` (5,252 LOC)
+- Node NIF: `crates/ggen-node/` (tests + architecture)
+- Bootstrap: `crates/ggen-cli/src/cmds/project.rs`
 
 ### Testing
 - London TDD: `tests/london_tdd/` (60 files)

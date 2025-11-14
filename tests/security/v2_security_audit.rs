@@ -23,6 +23,9 @@ use predicates::prelude::*;
 use std::fs;
 use std::os::unix::fs as unix_fs;
 
+#[path = "../common/mod.rs"]
+mod test_config;
+
 // ============================================================================
 // PATH TRAVERSAL PROTECTION
 // ============================================================================
@@ -555,7 +558,7 @@ vars:
         .arg("--template")
         .arg(template_file.path())
         .current_dir(&temp)
-        .timeout(std::time::Duration::from_secs(5))
+        .timeout(test_config::integration_timeout())
         .assert();
         // If we get here without timeout, YAML parser prevented the attack
 }
@@ -576,7 +579,7 @@ fn test_regex_dos_prevention() {
         .arg("--var")
         .arg(format!("input={}", evil_input))
         .current_dir(&temp)
-        .timeout(std::time::Duration::from_secs(2))
+        .timeout(test_config::http_connection_timeout())
         .assert();
         // Should not hang
 }

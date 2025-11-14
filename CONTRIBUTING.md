@@ -92,7 +92,13 @@ Contributors are automatically added to: [README Contributors Section](README.md
 
 ## Release Process
 
-**For maintainers only**: Update version in Cargo.toml → Update CHANGELOG.md → Create release commit (`git commit -am "chore: release v1.x.x"`) → Tag release (`git tag -a v1.x.x -m "Release v1.x.x"`) → Push (`git push origin master --tags`) → Publish to crates.io (`cargo publish`)
+**For maintainers only**: 
+
+1. **FMEA-Based Validation**: Run `cargo make release-validate` to execute all automated release checks (git state, version consistency, artifacts, build, security, CHANGELOG, breaking changes, docs sync). See [FMEA Analysis](./docs/FMEA_RELEASE_V2.6.0.md) for details.
+
+2. **Release Steps**: Update version in Cargo.toml → Update CHANGELOG.md → Run `cargo make release-validate` → Create release commit (`git commit -am "chore: release v2.x.x"`) → Tag release (`git tag -a v2.x.x -m "Release v2.x.x"`) → Push (`git push origin master --tags`) → Publish to crates.io (`cargo publish`)
+
+**Quick Reference**: See `RELEASE_v2.6.0_CHECKLIST.md` for complete release checklist with FMEA-based validation.
 
 ## Questions?
 

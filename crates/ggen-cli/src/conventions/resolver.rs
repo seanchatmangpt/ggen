@@ -2,7 +2,7 @@ use anyhow::{Context, Result};
 use glob::glob;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 /// Project conventions discovered from the file system
 #[derive(Debug, Clone)]
