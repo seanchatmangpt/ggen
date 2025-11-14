@@ -31,42 +31,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
+      - name: Setup Rust and cache
+        uses: ./.github/actions/setup-rust-cached
         with:
+          toolchain: stable
           components: clippy
 
-      - name: Cache cargo registry
-        uses: actions/cache@v4
+      - name: Install security audit tools
+        uses: ./.github/actions/install-cargo-tools
         with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-cargo-
-
-      - name: Cache cargo build
-        uses: actions/cache@v4
-        with:
-          path: target
-          key: ${{ runner.os }}-cargo-build-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-cargo-build-
-
-      - name: Install cargo-audit
-        run: |
-          cargo install cargo-audit --locked || cargo install cargo-audit
-
-      - name: Install cargo-deny
-        run: |
-          cargo install cargo-deny --locked || cargo install cargo-deny
-
-      - name: Install cargo-outdated
-        run: |
-          cargo install cargo-outdated --locked || cargo install cargo-outdated
+          tools: audit,deny,outdated
+          cache-tools: 'true'
 
       - name: Run cargo audit
         id: audit

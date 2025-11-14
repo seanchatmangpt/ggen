@@ -13,7 +13,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v4
+
+      - name: Validate Docker credentials
+        run: |
+          if [ -z "${{ secrets.DOCKER_USERNAME }}" ] || [ -z "${{ secrets.DOCKER_TOKEN }}" ]; then
+            echo "::error::Docker credentials not configured. Please set DOCKER_USERNAME and DOCKER_TOKEN secrets."
+            exit 1
+          fi
 
       - name: Set variables
         id: vars
