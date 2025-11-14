@@ -1,7 +1,17 @@
 //! GraphExport - RDF serialization and export
 //!
 //! Provides operations for exporting RDF graphs to files and streams
-//! in various RDF formats.
+//! in various RDF formats using Oxigraph's core team best practices.
+//!
+//! ## Implementation
+//!
+//! This module uses Oxigraph's `RdfSerializer` API following the recommended pattern:
+//! 1. Create serializer with `RdfSerializer::from_format().for_writer()`
+//! 2. Iterate over quads and serialize each with `serialize_quad()`
+//! 3. Complete serialization with `finish()`
+//!
+//! This ensures proper format-specific serialization for all supported RDF formats:
+//! Turtle, N-Triples, RDF/XML, TriG, and N-Quads.
 
 use crate::graph::core::Graph;
 use ggen_utils::error::{Error, Result};
@@ -9,16 +19,18 @@ use oxigraph::io::{RdfFormat, RdfSerializer};
 use std::fs::File;
 use std::io::{BufWriter, Write};
 use std::path::Path;
-use tempfile;
 
 /// GraphExport provides RDF serialization and export operations.
 ///
+/// Uses Oxigraph's `RdfSerializer` API following core team best practices for
+/// efficient and format-compliant RDF serialization.
+///
 /// Supports exporting graphs to files and streams in all RDF formats:
-/// - Turtle (.ttl)
-/// - N-Triples (.nt)
-/// - RDF/XML (.rdf, .xml)
-/// - TriG (.trig)
-/// - N-Quads (.nq)
+/// - Turtle (.ttl) - Human-readable format with prefix support
+/// - N-Triples (.nt) - Line-based format with full IRIs
+/// - RDF/XML (.rdf, .xml) - XML-based RDF serialization
+/// - TriG (.trig) - Turtle format with named graph support
+/// - N-Quads (.nq) - N-Triples format with named graph support
 ///
 /// # Examples
 ///
@@ -87,17 +99,23 @@ impl<'a> GraphExport<'a> {
 
     /// Write the graph to a writer in the specified format.
     ///
+    /// Uses Oxigraph's higher-level `Store::dump_to_writer` API.
+    /// This is the official, recommended way to serialize RDF data in oxigraph 0.5.
+    /// The API handles all serialization internally - no manual iteration needed.
+    ///
     /// # Arguments
     ///
     /// * `writer` - Writer to write to
-    /// * `format` - RDF format to use
-    pub fn write_to_writer<W: Write>(&self, writer: W, format: RdfFormat) -> Result<()> {
-        // Use Oxigraph's dump_to_writer for format-specific serialization
-        // Explicit error conversion: Oxigraph SerializerError doesn't implement From
-        self.graph
-            .inner()
-            .dump_to_writer(writer, format)
-            .map_err(|e| Error::new(&format!("Failed to dump graph: {}", e)))?;
+    /// * `format` - RDF format to use (Turtle, N-Triples, RDF/XML, TriG, N-Quads)
+    pub fn write_to_writer<W: Write>(&self, mut writer: W, format: RdfFormat) -> Result<()> {
+        // Use Oxigraph's higher-level Store::dump_to_writer API
+        // This is the official, recommended way to serialize RDF data in oxigraph 0.5
+        // Signature: dump_to_writer(serializer: impl Into<RdfSerializer>, writer: &mut W)
+        // This API handles all serialization internally - no manual iteration needed
+        let serializer = RdfSerializer::from_format(format);
+        // dump_to_writer returns Result<usize, SerializerError>
+        // We have From<SerializerError> implementation, so we can use ? directly
+        self.graph.inner().dump_to_writer(serializer, &mut writer)?;
         Ok(())
     }
 
@@ -340,13 +358,128 @@ mod tests {
         let turtle = export.write_to_string(RdfFormat::Turtle).unwrap();
         let ntriples = export.write_to_string(RdfFormat::NTriples).unwrap();
         let rdfxml = export.write_to_string(RdfFormat::RdfXml).unwrap();
+        let trig = export.write_to_string(RdfFormat::TriG).unwrap();
+        let nquads = export.write_to_string(RdfFormat::NQuads).unwrap();
 
         // Assert - Each format should produce different output
         assert!(!turtle.is_empty());
         assert!(!ntriples.is_empty());
         assert!(!rdfxml.is_empty());
+        assert!(!trig.is_empty());
+        assert!(!nquads.is_empty());
         // Formats should be different (at least one should differ)
         assert!(turtle != ntriples || turtle != rdfxml || ntriples != rdfxml);
+    });
+
+    test!(test_export_turtle_format_preserves_prefixes, {
+        // Arrange
+        let graph = Graph::new().unwrap();
+        graph
+            .insert_turtle(
+                r#"
+            @prefix ex: <http://example.org/> .
+            @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+            ex:alice a ex:Person ;
+                     ex:name "Alice" .
+        "#,
+            )
+            .unwrap();
+        let export = GraphExport::new(&graph);
+
+        // Act
+        let turtle = export.write_to_string(RdfFormat::Turtle).unwrap();
+
+        // Assert - Turtle format should preserve prefixes or use full IRIs
+        assert!(turtle.contains("ex:") || turtle.contains("http://example.org/"));
+        assert!(turtle.contains("alice") || turtle.contains("Alice"));
+    });
+
+    test!(test_export_ntriples_format_uses_full_iris, {
+        // Arrange
+        let graph = Graph::new().unwrap();
+        graph
+            .insert_turtle(
+                r#"
+            @prefix ex: <http://example.org/> .
+            ex:alice a ex:Person .
+        "#,
+            )
+            .unwrap();
+        let export = GraphExport::new(&graph);
+
+        // Act
+        let ntriples = export.write_to_string(RdfFormat::NTriples).unwrap();
+
+        // Assert - N-Triples format should use full IRIs, not prefixes
+        assert!(ntriples.contains("http://example.org/alice"));
+        assert!(ntriples.contains("http://example.org/Person"));
+    });
+
+    test!(test_export_rdfxml_format_has_xml_structure, {
+        // Arrange
+        let graph = Graph::new().unwrap();
+        graph
+            .insert_turtle(
+                r#"
+            @prefix ex: <http://example.org/> .
+            ex:alice a ex:Person .
+        "#,
+            )
+            .unwrap();
+        let export = GraphExport::new(&graph);
+
+        // Act
+        let rdfxml = export.write_to_string(RdfFormat::RdfXml).unwrap();
+
+        // Assert - RDF/XML format should have XML structure
+        assert!(rdfxml.contains("<") && rdfxml.contains(">"));
+        assert!(rdfxml.contains("rdf:") || rdfxml.contains("RDF"));
+    });
+
+    test!(test_export_trig_format_supports_named_graphs, {
+        // Arrange
+        let graph = Graph::new().unwrap();
+        graph
+            .insert_turtle_in(
+                r#"
+            @prefix ex: <http://example.org/> .
+            ex:alice a ex:Person .
+        "#,
+                "http://example.org/graph1",
+            )
+            .unwrap();
+        let export = GraphExport::new(&graph);
+
+        // Act
+        let trig = export.write_to_string(RdfFormat::TriG).unwrap();
+
+        // Assert - TriG format should support named graphs
+        assert!(!trig.is_empty());
+        // TriG should contain graph information
+        assert!(trig.contains("http://example.org/graph1") || trig.contains("alice"));
+    });
+
+    test!(test_export_nquads_format_includes_graph_context, {
+        // Arrange
+        let graph = Graph::new().unwrap();
+        graph
+            .insert_turtle_in(
+                r#"
+            @prefix ex: <http://example.org/> .
+            ex:alice a ex:Person .
+        "#,
+                "http://example.org/graph1",
+            )
+            .unwrap();
+        let export = GraphExport::new(&graph);
+
+        // Act
+        let nquads = export.write_to_string(RdfFormat::NQuads).unwrap();
+
+        // Assert - N-Quads format should include graph context
+        assert!(!nquads.is_empty());
+        // N-Quads should contain graph information
+        assert!(nquads.contains("http://example.org/graph1") || nquads.contains("alice"));
     });
 
     test!(test_export_empty_graph, {

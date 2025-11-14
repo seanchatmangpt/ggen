@@ -35,7 +35,7 @@
 //! # }
 //! ```
 
-use ggen_utils::error::{bail, Result};
+use ggen_utils::{bail, error::Result};
 use std::path::Path;
 
 /// Build a project

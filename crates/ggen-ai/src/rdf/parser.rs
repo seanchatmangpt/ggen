@@ -28,7 +28,7 @@
 //! # }
 //! ```
 
-use ggen_utils::error::{bail, Result};
+use ggen_utils::{bail, error::Result};
 use oxigraph::io::RdfFormat;
 use oxigraph::store::Store;
 use std::fs::File;
@@ -78,7 +78,9 @@ impl RdfParser {
         let file = File::open(path)?;
         let reader = BufReader::new(file);
 
-        self.store.load_from_reader(RdfFormat::Turtle, reader)?;
+        self.store
+            .load_from_reader(RdfFormat::Turtle, reader)
+            .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to load RDF: {}", e)))?;
 
         Ok(())
     }

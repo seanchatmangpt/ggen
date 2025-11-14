@@ -3,7 +3,7 @@
 //! QueryExecutor extracts structured CLI project data from RDF graph via SPARQL queries.
 //! This implements Phase 3 of the RDF-to-CLI generator.
 
-use ggen_utils::error::{bail, Context, Result};
+use ggen_utils::{bail, error::Result};
 use oxigraph::sparql::{QueryResults, QuerySolution};
 use oxigraph::store::Store;
 
@@ -316,7 +316,7 @@ fn get_string(solution: &QuerySolution, var: &str) -> Result<String> {
                 None
             }
         })
-        .context(format!("Missing variable: {}", var))
+        .ok_or_else(|| ggen_utils::error::Error::new(&format!("Missing variable: {}", var)))
 }
 
 /// Extract optional string value from SPARQL query solution
@@ -341,7 +341,7 @@ fn get_uri(solution: &QuerySolution, var: &str) -> Result<String> {
                 None
             }
         })
-        .context(format!("Missing URI: {}", var))
+        .ok_or_else(|| ggen_utils::error::Error::new(&format!("Missing URI: {}", var)))
 }
 
 /// Extract optional boolean value from SPARQL query solution

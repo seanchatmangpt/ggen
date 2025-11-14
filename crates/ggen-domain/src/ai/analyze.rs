@@ -42,7 +42,7 @@
 //! # }
 //! ```
 
-use ggen_utils::error::{bail, Result};
+use ggen_utils::{bail, error::Result};
 
 /// Analyze code and provide insights
 pub async fn analyze_code(code: &str) -> Result<String> {

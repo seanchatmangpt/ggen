@@ -56,6 +56,8 @@ impl GraphStore {
     /// - The path cannot be created or accessed
     /// - The store is corrupted
     pub fn open<P: AsRef<Path>>(path: P) -> Result<Self> {
+        // **Root Cause Fix**: Use explicit `.map_err()` for oxigraph error conversion
+        // Pattern: Always use `.map_err()` for external library errors that don't implement `From`
         let store = Store::open(path.as_ref())
             .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to open store: {}", e)))?;
         Ok(Self {
@@ -69,6 +71,8 @@ impl GraphStore {
     /// returns a `GraphStore` instead of a `Graph`, providing a consistent API
     /// for store management.
     pub fn new() -> Result<Self> {
+        // **Root Cause Fix**: Use explicit `.map_err()` for oxigraph error conversion
+        // Pattern: Always use `.map_err()` for external library errors that don't implement `From`
         let store = Store::new().map_err(|e| {
             ggen_utils::error::Error::new(&format!("Failed to create store: {}", e))
         })?;
@@ -90,7 +94,7 @@ impl GraphStore {
     ///
     /// This allows direct access to Oxigraph's Store API if needed.
     pub fn inner(&self) -> &Store {
-        &*self.store
+        &self.store
     }
 }
 
@@ -204,5 +208,33 @@ mod tests {
 
         // Assert - Should be able to access inner store
         assert_eq!(inner.len().unwrap_or(0), 0);
+    });
+
+    test!(test_store_resource_cleanup, {
+        // Arrange
+        let temp_dir = TempDir::new().unwrap();
+        let store_path = temp_dir.path().join("cleanup_test");
+
+        // Act - Create store, add data, then drop
+        {
+            let store = GraphStore::open(&store_path).unwrap();
+            let graph = store.create_graph().unwrap();
+            graph
+                .insert_turtle(
+                    r#"
+                @prefix ex: <http://example.org/> .
+                ex:alice a ex:Person .
+            "#,
+                )
+                .unwrap();
+            // Store and graph are dropped here - Rust's Drop should handle cleanup
+        }
+
+        // Assert - Store should be properly closed and data persisted
+        // Reopen store to verify cleanup didn't corrupt data
+        let store2 = GraphStore::open(&store_path).unwrap();
+        let graph2 = store2.create_graph().unwrap();
+        assert!(!graph2.is_empty());
+        assert!(graph2.len() > 0);
     });
 }

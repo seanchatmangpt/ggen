@@ -440,14 +440,12 @@ impl ThreeWayMerger {
         // A full implementation would use proper diff3 algorithm
 
         match self.strategy {
-            MergeStrategy::GeneratedWins => Ok(MergeResult::success(
-                generated.to_string(),
-                self.strategy.clone(),
-            )),
-            MergeStrategy::ManualWins => Ok(MergeResult::success(
-                manual.to_string(),
-                self.strategy.clone(),
-            )),
+            MergeStrategy::GeneratedWins => {
+                Ok(MergeResult::success(generated.to_string(), self.strategy))
+            }
+            MergeStrategy::ManualWins => {
+                Ok(MergeResult::success(manual.to_string(), self.strategy))
+            }
             MergeStrategy::FailOnConflict => {
                 // Check for conflicts (simplified)
                 if self.has_conflicts(baseline, generated, manual)? {
@@ -456,22 +454,16 @@ impl ThreeWayMerger {
                     Ok(MergeResult::with_conflicts(
                         String::new(),
                         conflicts,
-                        self.strategy.clone(),
+                        self.strategy,
                     ))
                 } else {
-                    Ok(MergeResult::success(
-                        generated.to_string(),
-                        self.strategy.clone(),
-                    ))
+                    Ok(MergeResult::success(generated.to_string(), self.strategy))
                 }
             }
             MergeStrategy::Interactive => {
                 // Interactive resolution would require user input
                 // For now, fall back to generated wins
-                Ok(MergeResult::success(
-                    generated.to_string(),
-                    self.strategy.clone(),
-                ))
+                Ok(MergeResult::success(generated.to_string(), self.strategy))
             }
         }
     }
@@ -667,10 +659,10 @@ impl RegionAwareMerger {
             Ok(MergeResult::with_conflicts(
                 result,
                 conflicts,
-                self.strategy.clone(),
+                self.strategy,
             ))
         } else {
-            Ok(MergeResult::success(result, self.strategy.clone()))
+            Ok(MergeResult::success(result, self.strategy))
         }
     }
 }

@@ -144,10 +144,18 @@ impl ConventionResolver {
         let override_path = self.project_root.join(".ggen").join("conventions.toml");
 
         if override_path.exists() {
-            let content = std::fs::read_to_string(&override_path)
-                .context("Failed to read conventions.toml")?;
-            let overrides: ConventionOverrides =
-                toml::from_str(&content).context("Failed to parse conventions.toml")?;
+            let content = std::fs::read_to_string(&override_path).map_err(|e| {
+                ggen_utils::error::Error::new(&format!("Failed to read conventions.toml: {}", e))
+            })?;
+            let overrides: ConventionOverrides = Context::context(
+                toml::from_str(&content).map_err(|e| {
+                    ggen_utils::error::Error::new(&format!(
+                        "Failed to parse conventions.toml: {}",
+                        e
+                    ))
+                }),
+                "Failed to parse conventions.toml",
+            )?;
             Ok(overrides)
         } else {
             Ok(ConventionOverrides::default())
@@ -165,8 +173,16 @@ impl ConventionResolver {
         let mut files = Vec::new();
         for pattern in patterns {
             let full_pattern = self.project_root.join(&pattern);
-            for entry in glob(&full_pattern.to_string_lossy())? {
-                files.push(entry?);
+            for entry in glob(&full_pattern.to_string_lossy()).map_err(|e| {
+                ggen_utils::error::Error::new(&format!(
+                    "Failed to glob pattern {}: {}",
+                    full_pattern.display(),
+                    e
+                ))
+            })? {
+                files.push(entry.map_err(|e| {
+                    ggen_utils::error::Error::new(&format!("Failed to read glob entry: {}", e))
+                })?);
             }
         }
 
@@ -191,8 +207,16 @@ impl ConventionResolver {
 
         for pattern in patterns {
             let full_pattern = self.project_root.join(&pattern);
-            for entry in glob(&full_pattern.to_string_lossy())? {
-                let path = entry?;
+            for entry in glob(&full_pattern.to_string_lossy()).map_err(|e| {
+                ggen_utils::error::Error::new(&format!(
+                    "Failed to glob pattern {}: {}",
+                    full_pattern.display(),
+                    e
+                ))
+            })? {
+                let path = entry.map_err(|e| {
+                    ggen_utils::error::Error::new(&format!("Failed to read glob entry: {}", e))
+                })?;
 
                 // Convert nested path to template name
                 // e.g., templates/api/user.tmpl -> api/user
@@ -229,12 +253,27 @@ impl ConventionResolver {
 
         for pattern in patterns {
             let full_pattern = self.project_root.join(&pattern);
-            for entry in glob(&full_pattern.to_string_lossy())? {
-                let path = entry?;
+            for entry in glob(&full_pattern.to_string_lossy()).map_err(|e| {
+                ggen_utils::error::Error::new(&format!(
+                    "Failed to glob pattern {}: {}",
+                    full_pattern.display(),
+                    e
+                ))
+            })? {
+                let path = entry.map_err(|e| {
+                    ggen_utils::error::Error::new(&format!("Failed to read glob entry: {}", e))
+                })?;
 
                 // Read query content
-                let content = std::fs::read_to_string(&path)
-                    .with_context(|| format!("Failed to read query file: {:?}", path))?;
+                let content = Context::with_context(
+                    std::fs::read_to_string(&path).map_err(|e| {
+                        ggen_utils::error::Error::new(&format!(
+                            "Failed to read query file {:?}: {}",
+                            path, e
+                        ))
+                    }),
+                    || format!("Failed to read query file: {:?}", path),
+                )?;
 
                 // Convert nested path to query name
                 // e.g., queries/user/find.sparql -> user/find

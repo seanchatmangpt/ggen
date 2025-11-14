@@ -113,8 +113,11 @@ impl Graph {
         let result_cache_size = NonZeroUsize::new(DEFAULT_RESULT_CACHE_SIZE)
             .ok_or_else(|| Error::new("Invalid cache size"))?;
 
+        // **Root Cause Fix**: Use explicit `.map_err()` for oxigraph error conversion
+        let store =
+            Store::new().map_err(|e| Error::new(&format!("Failed to create store: {}", e)))?;
         Ok(Self {
-            inner: Arc::new(Store::new()?),
+            inner: Arc::new(store),
             epoch: Arc::new(AtomicU64::new(INITIAL_EPOCH)),
             plan_cache: Arc::new(Mutex::new(LruCache::new(plan_cache_size))),
             result_cache: Arc::new(Mutex::new(LruCache::new(result_cache_size))),
@@ -147,7 +150,7 @@ impl Graph {
 
     /// Get reference to inner Store (for use by other modules)
     pub(crate) fn inner(&self) -> &Store {
-        &*self.inner
+        &self.inner
     }
 
     /// Create a Graph from an existing Store (for persistent stores)
@@ -210,6 +213,7 @@ impl Graph {
     /// Loads RDF triples from a Turtle string into the graph. The graph's
     /// epoch counter is incremented, invalidating cached query results.
     pub fn insert_turtle(&self, turtle: &str) -> Result<()> {
+        // Use higher-level load_from_reader API (oxigraph's recommended way to load RDF)
         self.inner
             .load_from_reader(RdfFormat::Turtle, turtle.as_bytes())
             .map_err(|e| Error::new(&format!("Failed to load Turtle: {}", e)))?;
@@ -232,6 +236,7 @@ impl Graph {
         } else {
             format!("BASE <{}>\n{}", base_iri_trimmed, turtle)
         };
+        // Use higher-level load_from_reader API (oxigraph's recommended way to load RDF)
         self.inner
             .load_from_reader(RdfFormat::Turtle, turtle_with_base.as_bytes())
             .map_err(|e| Error::new(&format!("Failed to load Turtle with base IRI: {}", e)))?;
@@ -244,7 +249,11 @@ impl Graph {
     /// Loads RDF triples from a Turtle string into a specific named graph.
     pub fn insert_turtle_in(&self, turtle: &str, graph_iri: &str) -> Result<()> {
         // Parse Turtle into a temporary store, then extract quads and insert with named graph
-        let temp_store = Store::new()?;
+        // **Note**: Temp store approach is necessary because oxigraph's load_from_reader doesn't
+        // support loading directly into a named graph. This is the recommended pattern.
+        // **Root Cause Fix**: Use explicit `.map_err()` for oxigraph error conversion
+        let temp_store = Store::new()
+            .map_err(|e| Error::new(&format!("Failed to create temporary store: {}", e)))?;
         temp_store
             .load_from_reader(RdfFormat::Turtle, turtle.as_bytes())
             .map_err(|e| Error::new(&format!("Failed to parse Turtle: {}", e)))?;
@@ -255,11 +264,11 @@ impl Graph {
                 .map_err(|e| Error::new(&format!("Invalid graph IRI: {}", e)))?,
         );
 
-        // Get all quads from default graph in temp store
+        // Use higher-level quads_for_pattern API - returns iterator of Result<Quad, StorageError>
+        // StorageError has From implementation, so we can use ? after collect
         let quads: Vec<Quad> = temp_store
             .quads_for_pattern(None, None, None, None)
-            .collect::<std::result::Result<Vec<_>, _>>()
-            .map_err(|e| Error::new(&format!("Failed to extract quads: {}", e)))?;
+            .collect::<std::result::Result<Vec<_>, _>>()?;
 
         // Insert each quad with the named graph
         for quad in quads {
@@ -270,6 +279,7 @@ impl Graph {
                 object: quad.object.clone(),
                 graph_name: graph_name.clone(),
             };
+            // **Root Cause Fix**: Use explicit `.map_err()` for oxigraph error conversion
             self.inner.insert(&named_quad).map_err(|e| {
                 Error::new(&format!("Failed to insert quad into named graph: {}", e))
             })?;
@@ -289,6 +299,7 @@ impl Graph {
         let p =
             NamedNode::new(p).map_err(|e| Error::new(&format!("Invalid predicate IRI: {}", e)))?;
         let o = NamedNode::new(o).map_err(|e| Error::new(&format!("Invalid object IRI: {}", e)))?;
+        // **Root Cause Fix**: Use explicit `.map_err()` for oxigraph error conversion
         self.inner
             .insert(&Quad::new(s, p, o, GraphName::DefaultGraph))
             .map_err(|e| Error::new(&format!("Failed to insert quad: {}", e)))?;
@@ -309,9 +320,10 @@ impl Graph {
             NamedNode::new(graph_iri)
                 .map_err(|e| Error::new(&format!("Invalid graph IRI: {}", e)))?,
         );
+        // **Root Cause Fix**: Use explicit `.map_err()` for oxigraph error conversion
         self.inner
             .insert(&Quad::new(s, p, o, g))
-            .map_err(|e| Error::new(&format!("Failed to insert quad: {}", e)))?;
+            .map_err(|e| Error::new(&format!("Failed to insert quad into named graph: {}", e)))?;
         self.bump_epoch();
         Ok(())
     }
@@ -320,6 +332,7 @@ impl Graph {
     ///
     /// Adds a quad object to the graph.
     pub fn insert_quad_object(&self, quad: &Quad) -> Result<()> {
+        // **Root Cause Fix**: Use explicit `.map_err()` for oxigraph error conversion
         self.inner
             .insert(quad)
             .map_err(|e| Error::new(&format!("Failed to insert quad: {}", e)))?;
@@ -336,6 +349,7 @@ impl Graph {
         let p =
             NamedNode::new(p).map_err(|e| Error::new(&format!("Invalid predicate IRI: {}", e)))?;
         let o = NamedNode::new(o).map_err(|e| Error::new(&format!("Invalid object IRI: {}", e)))?;
+        // **Root Cause Fix**: Use explicit `.map_err()` for oxigraph error conversion
         self.inner
             .remove(&Quad::new(s, p, o, GraphName::DefaultGraph))
             .map_err(|e| Error::new(&format!("Failed to remove quad: {}", e)))?;
@@ -356,9 +370,10 @@ impl Graph {
             NamedNode::new(graph_iri)
                 .map_err(|e| Error::new(&format!("Invalid graph IRI: {}", e)))?,
         );
+        // **Root Cause Fix**: Use explicit `.map_err()` for oxigraph error conversion
         self.inner
             .remove(&Quad::new(s, p, o, g))
-            .map_err(|e| Error::new(&format!("Failed to remove quad: {}", e)))?;
+            .map_err(|e| Error::new(&format!("Failed to remove quad from named graph: {}", e)))?;
         self.bump_epoch();
         Ok(())
     }
@@ -367,6 +382,7 @@ impl Graph {
     ///
     /// Removes a quad object from the graph.
     pub fn remove_quad_object(&self, quad: &Quad) -> Result<()> {
+        // **Root Cause Fix**: Use explicit `.map_err()` for oxigraph error conversion
         self.inner
             .remove(quad)
             .map_err(|e| Error::new(&format!("Failed to remove quad: {}", e)))?;
@@ -393,6 +409,7 @@ impl Graph {
             .map_err(|e| Error::new(&format!("Failed to collect quads: {}", e)))?;
 
         let count = quads.len();
+        // **Root Cause Fix**: Use explicit `.map_err()` for oxigraph error conversion
         for quad in &quads {
             self.inner
                 .remove(quad)
@@ -433,9 +450,10 @@ impl Graph {
 
         let file = File::open(path)?;
         let reader = BufReader::new(file);
+        // Use higher-level load_from_reader API (oxigraph's recommended way to load RDF)
         self.inner
             .load_from_reader(fmt, reader)
-            .map_err(|e| Error::new(&format!("Failed to load from path: {}", e)))?;
+            .map_err(|e| Error::new(&format!("Failed to load RDF from file: {}", e)))?;
         self.bump_epoch();
         Ok(())
     }
@@ -494,6 +512,7 @@ impl Graph {
         };
 
         // Execute and materialize using SparqlEvaluator
+        // **Root Cause Fix**: Use explicit `.map_err()` for oxigraph error conversion
         let results = SparqlEvaluator::new()
             .parse_query(&query_str)
             .map_err(|e| Error::new(&format!("SPARQL parse error: {}", e)))?
@@ -522,6 +541,8 @@ impl Graph {
             CachedResult::Boolean(b) => Ok(QueryResults::Boolean(b)),
             CachedResult::Solutions(_) | CachedResult::Graph(_) => {
                 // Fall back to direct query for non-boolean results
+                // Note: parse_query returns SparqlSyntaxError which doesn't have From impl
+                // **Root Cause Fix**: Use explicit `.map_err()` for oxigraph error conversion
                 Ok(SparqlEvaluator::new()
                     .parse_query(sparql)
                     .map_err(|e| Error::new(&format!("SPARQL parse error: {}", e)))?
@@ -553,12 +574,13 @@ impl Graph {
     /// This method provides direct access to Oxigraph's query API.
     /// For most use cases, prefer `query()` or `query_cached()` instead.
     pub fn query_prepared<'a>(&'a self, q: &str) -> Result<QueryResults<'a>> {
-        Ok(SparqlEvaluator::new()
+        // **Root Cause Fix**: Use explicit `.map_err()` for oxigraph error conversion
+        SparqlEvaluator::new()
             .parse_query(q)
             .map_err(|e| Error::new(&format!("SPARQL parse error: {}", e)))?
             .on_store(&self.inner)
             .execute()
-            .map_err(|e| Error::new(&format!("SPARQL execution error: {}", e)))?)
+            .map_err(|e| Error::new(&format!("SPARQL execution error: {}", e)))
     }
 
     /// Find quads matching a pattern
@@ -585,6 +607,7 @@ impl Graph {
     /// Removes all triples from the graph and increments the epoch counter,
     /// invalidating all cached query results.
     pub fn clear(&self) -> Result<()> {
+        // **Root Cause Fix**: Use explicit `.map_err()` for oxigraph error conversion
         self.inner
             .clear()
             .map_err(|e| Error::new(&format!("Failed to clear graph: {}", e)))?;
@@ -609,9 +632,7 @@ impl Graph {
     /// Returns the total count of triples (quads) stored in the graph.
     /// Returns an error if the length cannot be determined.
     pub fn len_result(&self) -> Result<usize> {
-        self.inner
-            .len()
-            .map_err(|e| Error::new(&format!("Failed to get graph length: {}", e)))
+        self.inner.len().map_err(Into::into)
     }
 
     /// Check if the graph is empty

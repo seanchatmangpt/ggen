@@ -133,26 +133,22 @@ mod tests {
     });
 
     test!(test_build_tera_minimal, {
-        let mut tera = build_tera_minimal()?;
+        let mut tera = build_tera_minimal().unwrap();
 
         // Should have filters registered
         let mut ctx = tera::Context::new();
         ctx.insert("name", "hello_world");
-        let result = tera.render_str("{{ name | snake }}", &ctx)?;
+        let result = tera.render_str("{{ name | snake }}", &ctx).unwrap();
         assert_eq!(result, "hello_world");
-
-        Ok(())
     });
 
     test!(test_autoescape_disabled, {
-        let mut tera = build_tera_minimal()?;
+        let mut tera = build_tera_minimal().unwrap();
 
         // HTML should not be escaped
         let mut ctx = tera::Context::new();
         ctx.insert("html", "<script>alert('xss')</script>");
-        let result = tera.render_str("{{ html }}", &ctx)?;
+        let result = tera.render_str("{{ html }}", &ctx).unwrap();
         assert_eq!(result, "<script>alert('xss')</script>");
-
-        Ok(())
     });
 }
