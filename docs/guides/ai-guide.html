@@ -1,0 +1,1008 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>AI-Powered Generation - ggen Documentation</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="Language-agnostic generator for reproducible code projections">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">ggen Documentation</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/seanchatmangpt/ggen" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/seanchatmangpt/ggen/edit/main/docs/src/src/guides/ai-guide.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="ai-powered-code-generation-guide"><a class="header" href="#ai-powered-code-generation-guide">AI-Powered Code Generation Guide</a></h1>
+<p><strong>ggen v2.5.0</strong> | <strong>AI Integration</strong> | <strong>Multi-Provider Support</strong></p>
+<hr />
+<h2 id="overview"><a class="header" href="#overview">Overview</a></h2>
+<p>ggen revolutionizes code generation by combining <strong>AI-powered natural language processing</strong> with <strong>formal RDF ontologies</strong>. This guide shows you how to leverage AI to:</p>
+<ol>
+<li>Generate ontologies from natural language descriptions</li>
+<li>Create code with AI assistance and context awareness</li>
+<li>Analyze and improve existing codebases</li>
+<li>Build interactive AI-assisted development workflows</li>
+</ol>
+<hr />
+<h2 id="table-of-contents"><a class="header" href="#table-of-contents">Table of Contents</a></h2>
+<ul>
+<li><a href="#quick-start">Quick Start</a></li>
+<li><a href="#multi-provider-configuration">Multi-Provider Configuration</a></li>
+<li><a href="#command-reference">Command Reference</a></li>
+<li><a href="#workflows-and-examples">Workflows and Examples</a></li>
+<li><a href="#best-practices">Best Practices</a></li>
+<li><a href="#troubleshooting">Troubleshooting</a></li>
+</ul>
+<hr />
+<h2 id="quick-start"><a class="header" href="#quick-start">Quick Start</a></h2>
+<h3 id="installation-verification"><a class="header" href="#installation-verification">Installation Verification</a></h3>
+<pre><code class="language-bash"># Check if AI commands are available
+ggen ai --help
+
+# Verify system setup
+ggen utils doctor
+</code></pre>
+<h3 id="your-first-ai-generated-ontology"><a class="header" href="#your-first-ai-generated-ontology">Your First AI-Generated Ontology</a></h3>
+<pre><code class="language-bash"># Generate an ontology from natural language
+ggen ai generate-ontology \
+  "Create a task management system with projects, tasks, and users" \
+  --output tasks.ttl \
+  --model gpt-4
+
+# View the generated ontology
+cat tasks.ttl
+
+# Generate code from the ontology
+ggen project gen task-manager --graph tasks.ttl
+</code></pre>
+<hr />
+<h2 id="multi-provider-configuration"><a class="header" href="#multi-provider-configuration">Multi-Provider Configuration</a></h2>
+<p>ggen supports <strong>three AI providers</strong> for maximum flexibility:</p>
+<h3 id="1-openai-gpt-models"><a class="header" href="#1-openai-gpt-models">1. OpenAI (GPT Models)</a></h3>
+<p><strong>Models:</strong> <code>gpt-4</code>, <code>gpt-4-turbo</code>, <code>gpt-3.5-turbo</code></p>
+<p><strong>Setup:</strong></p>
+<pre><code class="language-bash"># Set provider and API key
+export GGEN_AI_PROVIDER=openai
+export OPENAI_API_KEY=sk-your-key-here
+
+# Or via ggen utils
+ggen utils env --set GGEN_AI_PROVIDER=openai
+ggen utils env --set OPENAI_API_KEY=sk-your-key-here
+</code></pre>
+<p><strong>Usage:</strong></p>
+<pre><code class="language-bash">ggen ai generate "Create REST API" --model gpt-4
+</code></pre>
+<p><strong>Best For:</strong></p>
+<ul>
+<li>Production code generation</li>
+<li>Fast iteration cycles</li>
+<li>Cost-effective at scale</li>
+</ul>
+<hr />
+<h3 id="2-anthropic-claude-models"><a class="header" href="#2-anthropic-claude-models">2. Anthropic (Claude Models)</a></h3>
+<p><strong>Models:</strong> <code>claude-3-opus-20240229</code>, <code>claude-3-sonnet-20240229</code>, <code>claude-3-haiku-20240307</code></p>
+<p><strong>Setup:</strong></p>
+<pre><code class="language-bash"># Set provider and API key
+export GGEN_AI_PROVIDER=anthropic
+export ANTHROPIC_API_KEY=sk-ant-your-key-here
+
+# Or via ggen utils
+ggen utils env --set GGEN_AI_PROVIDER=anthropic
+ggen utils env --set ANTHROPIC_API_KEY=sk-ant-your-key-here
+</code></pre>
+<p><strong>Usage:</strong></p>
+<pre><code class="language-bash">ggen ai generate "Create REST API" --model claude-3-opus-20240229
+</code></pre>
+<p><strong>Best For:</strong></p>
+<ul>
+<li>Complex reasoning tasks</li>
+<li>Large context windows (200k tokens)</li>
+<li>Detailed code analysis</li>
+</ul>
+<hr />
+<h3 id="3-local-models-ollamalm-studio"><a class="header" href="#3-local-models-ollamalm-studio">3. Local Models (Ollama/LM Studio)</a></h3>
+<p><strong>Models:</strong> <code>codellama</code>, <code>deepseek-coder</code>, <code>mistral</code>, custom models</p>
+<p><strong>Setup:</strong></p>
+<pre><code class="language-bash"># Start Ollama server
+ollama serve
+
+# Pull a code model
+ollama pull codellama
+
+# Configure ggen
+export GGEN_AI_PROVIDER=local
+export GGEN_LOCAL_MODEL=codellama
+export GGEN_LOCAL_ENDPOINT=http://localhost:11434
+</code></pre>
+<p><strong>Usage:</strong></p>
+<pre><code class="language-bash">ggen ai generate "Create REST API" --model codellama
+</code></pre>
+<p><strong>Best For:</strong></p>
+<ul>
+<li>Privacy-first development</li>
+<li>Offline coding</li>
+<li>No API costs</li>
+<li>Custom fine-tuned models</li>
+</ul>
+<hr />
+<h2 id="command-reference"><a class="header" href="#command-reference">Command Reference</a></h2>
+<h3 id="ggen-ai-generate-ontology"><a class="header" href="#ggen-ai-generate-ontology"><code>ggen ai generate-ontology</code></a></h3>
+<p><strong>Generate RDF ontologies from natural language descriptions</strong></p>
+<h4 id="syntax"><a class="header" href="#syntax">Syntax</a></h4>
+<pre><code class="language-bash">ggen ai generate-ontology &lt;description&gt; [OPTIONS]
+</code></pre>
+<h4 id="arguments"><a class="header" href="#arguments">Arguments</a></h4>
+<div class="table-wrapper"><table><thead><tr><th>Argument</th><th>Required</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>&lt;description&gt;</code></td><td>✅</td><td>Natural language description of domain</td></tr>
+</tbody></table>
+</div>
+<h4 id="options"><a class="header" href="#options">Options</a></h4>
+<div class="table-wrapper"><table><thead><tr><th>Option</th><th>Short</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>--output</code></td><td><code>-o</code></td><td>path</td><td>stdout</td><td>Output file path (.ttl)</td></tr>
+<tr><td><code>--model</code></td><td><code>-m</code></td><td>string</td><td><code>gpt-3.5-turbo</code></td><td>AI model to use</td></tr>
+<tr><td><code>--api-key</code></td><td></td><td>string</td><td>env</td><td>API key (overrides env)</td></tr>
+<tr><td><code>--max-tokens</code></td><td></td><td>int</td><td>4000</td><td>Maximum tokens in response</td></tr>
+<tr><td><code>--temperature</code></td><td><code>-t</code></td><td>float</td><td>0.7</td><td>Creativity (0.0-1.0)</td></tr>
+<tr><td><code>--format</code></td><td><code>-f</code></td><td>enum</td><td>turtle</td><td>Output format (turtle/ntriples/rdfxml/jsonld)</td></tr>
+</tbody></table>
+</div>
+<h4 id="examples"><a class="header" href="#examples">Examples</a></h4>
+<p><strong>Basic Usage:</strong></p>
+<pre><code class="language-bash">ggen ai generate-ontology "E-commerce system with products and orders" \
+  --output ecommerce.ttl
+</code></pre>
+<p><strong>With Specific Model:</strong></p>
+<pre><code class="language-bash">ggen ai generate-ontology "Blog platform with posts, comments, tags" \
+  --model gpt-4 \
+  --output blog.ttl \
+  --temperature 0.3
+</code></pre>
+<p><strong>Complex Domain:</strong></p>
+<pre><code class="language-bash">ggen ai generate-ontology \
+  "Healthcare system with:
+   - Patients (name, DOB, medical record number)
+   - Doctors (name, specialization, license number)
+   - Appointments (date, time, status)
+   - Prescriptions (medication, dosage, duration)" \
+  --output healthcare.ttl \
+  --model claude-3-opus-20240229 \
+  --max-tokens 8000
+</code></pre>
+<p><strong>Output Example:</strong></p>
+<pre><code class="language-turtle">@prefix ex: &lt;http://example.org/ecommerce#&gt; .
+@prefix rdf: &lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#&gt; .
+@prefix rdfs: &lt;http://www.w3.org/2000/01/rdf-schema#&gt; .
+@prefix xsd: &lt;http://www.w3.org/2001/XMLSchema#&gt; .
+
+# Classes
+ex:Product a rdfs:Class ;
+    rdfs:label "Product" ;
+    rdfs:comment "A product in the e-commerce system" .
+
+ex:Order a rdfs:Class ;
+    rdfs:label "Order" ;
+    rdfs:comment "A customer order" .
+
+ex:Customer a rdfs:Class ;
+    rdfs:label "Customer" ;
+    rdfs:comment "A customer account" .
+
+# Properties
+ex:productName a rdf:Property ;
+    rdfs:domain ex:Product ;
+    rdfs:range xsd:string ;
+    rdfs:label "Product Name" .
+
+ex:price a rdf:Property ;
+    rdfs:domain ex:Product ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "Price" .
+
+ex:orderDate a rdf:Property ;
+    rdfs:domain ex:Order ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Order Date" .
+
+ex:containsProduct a rdf:Property ;
+    rdfs:domain ex:Order ;
+    rdfs:range ex:Product ;
+    rdfs:label "Contains Product" .
+</code></pre>
+<hr />
+<h3 id="ggen-ai-generate"><a class="header" href="#ggen-ai-generate"><code>ggen ai generate</code></a></h3>
+<p><strong>Generate code with AI assistance</strong></p>
+<h4 id="syntax-1"><a class="header" href="#syntax-1">Syntax</a></h4>
+<pre><code class="language-bash">ggen ai generate &lt;prompt&gt; [OPTIONS]
+</code></pre>
+<h4 id="arguments-1"><a class="header" href="#arguments-1">Arguments</a></h4>
+<div class="table-wrapper"><table><thead><tr><th>Argument</th><th>Required</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>&lt;prompt&gt;</code></td><td>✅</td><td>Description of code to generate</td></tr>
+</tbody></table>
+</div>
+<h4 id="options-1"><a class="header" href="#options-1">Options</a></h4>
+<div class="table-wrapper"><table><thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>--code</code></td><td>string</td><td>-</td><td>Existing code for context</td></tr>
+<tr><td><code>--model</code></td><td>string</td><td><code>gpt-3.5-turbo</code></td><td>AI model to use</td></tr>
+<tr><td><code>--api-key</code></td><td>string</td><td>env</td><td>API key override</td></tr>
+<tr><td><code>--suggestions</code></td><td>bool</td><td>false</td><td>Include improvement suggestions</td></tr>
+<tr><td><code>--language</code></td><td>string</td><td>auto</td><td>Target language (rust/python/typescript)</td></tr>
+<tr><td><code>--max-tokens</code></td><td>int</td><td>2000</td><td>Maximum response tokens</td></tr>
+<tr><td><code>--temperature</code></td><td>float</td><td>0.7</td><td>Response creativity</td></tr>
+</tbody></table>
+</div>
+<h4 id="examples-1"><a class="header" href="#examples-1">Examples</a></h4>
+<p><strong>Basic Code Generation:</strong></p>
+<pre><code class="language-bash">ggen ai generate "Create a Rust function that calculates Fibonacci numbers"
+</code></pre>
+<p><strong>Output:</strong></p>
+<pre><code class="language-json">{
+  "generated_code": "fn fibonacci(n: u64) -&gt; u64 {\n    match n {\n        0 =&gt; 0,\n        1 =&gt; 1,\n        _ =&gt; fibonacci(n - 1) + fibonacci(n - 2)\n    }\n}",
+  "language": "rust",
+  "model": "gpt-3.5-turbo",
+  "tokens_used": 156
+}
+</code></pre>
+<p><strong>With Existing Code Context:</strong></p>
+<pre><code class="language-bash">ggen ai generate "Add error handling to this function" \
+  --code "fn divide(a: f64, b: f64) -&gt; f64 { a / b }" \
+  --language rust
+</code></pre>
+<p><strong>Output:</strong></p>
+<pre><code class="language-json">{
+  "generated_code": "fn divide(a: f64, b: f64) -&gt; Result&lt;f64, String&gt; {\n    if b == 0.0 {\n        Err(\"Division by zero\".to_string())\n    } else {\n        Ok(a / b)\n    }\n}",
+  "language": "rust",
+  "model": "gpt-3.5-turbo"
+}
+</code></pre>
+<p><strong>With Suggestions:</strong></p>
+<pre><code class="language-bash">ggen ai generate "Create a REST API server" \
+  --language rust \
+  --suggestions \
+  --model gpt-4
+</code></pre>
+<hr />
+<h3 id="ggen-ai-chat"><a class="header" href="#ggen-ai-chat"><code>ggen ai chat</code></a></h3>
+<p><strong>Interactive AI chat sessions for development assistance</strong></p>
+<h4 id="syntax-2"><a class="header" href="#syntax-2">Syntax</a></h4>
+<pre><code class="language-bash">ggen ai chat [message] [OPTIONS]
+</code></pre>
+<h4 id="arguments-2"><a class="header" href="#arguments-2">Arguments</a></h4>
+<div class="table-wrapper"><table><thead><tr><th>Argument</th><th>Required</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>[message]</code></td><td>Optional</td><td>Single message (omit for interactive mode)</td></tr>
+</tbody></table>
+</div>
+<h4 id="options-2"><a class="header" href="#options-2">Options</a></h4>
+<div class="table-wrapper"><table><thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>--model</code></td><td>string</td><td><code>gpt-3.5-turbo</code></td><td>AI model to use</td></tr>
+<tr><td><code>--api-key</code></td><td>string</td><td>env</td><td>API key override</td></tr>
+<tr><td><code>--interactive</code></td><td>bool</td><td>false</td><td>Start interactive session</td></tr>
+<tr><td><code>--stream</code></td><td>bool</td><td>false</td><td>Stream responses in real-time</td></tr>
+<tr><td><code>--max-tokens</code></td><td>int</td><td>2000</td><td>Maximum tokens per response</td></tr>
+<tr><td><code>--temperature</code></td><td>float</td><td>0.7</td><td>Response creativity</td></tr>
+</tbody></table>
+</div>
+<h4 id="examples-2"><a class="header" href="#examples-2">Examples</a></h4>
+<p><strong>Single Question:</strong></p>
+<pre><code class="language-bash">ggen ai chat "Explain Rust ownership and borrowing"
+</code></pre>
+<p><strong>Interactive Mode:</strong></p>
+<pre><code class="language-bash">ggen ai chat --interactive --model claude-3-sonnet-20240229
+</code></pre>
+<p><strong>Interactive Session Example:</strong></p>
+<pre><code>🤖 AI Chat - Interactive Mode
+Model: claude-3-sonnet-20240229
+Type 'exit' or 'quit' to end session
+
+&gt; How do I implement async/await in Rust?
+
+🤖: To implement async/await in Rust, you need:
+
+1. Add the tokio runtime to Cargo.toml:
+   [dependencies]
+   tokio = { version = "1", features = ["full"] }
+
+2. Mark your main function as async:
+   #[tokio::main]
+   async fn main() {
+       // Your async code here
+   }
+
+3. Use .await on async functions:
+   async fn fetch_data() -&gt; Result&lt;String, Error&gt; {
+       // async operations
+   }
+
+&gt; Show me an example with reqwest
+
+🤖: Here's a complete example using reqwest for HTTP requests:
+   [code example follows...]
+</code></pre>
+<p><strong>Streaming Responses:</strong></p>
+<pre><code class="language-bash">ggen ai chat "Write a comprehensive Rust web server tutorial" --stream
+</code></pre>
+<hr />
+<h3 id="ggen-ai-analyze"><a class="header" href="#ggen-ai-analyze"><code>ggen ai analyze</code></a></h3>
+<p><strong>Analyze code with AI insights</strong></p>
+<h4 id="syntax-3"><a class="header" href="#syntax-3">Syntax</a></h4>
+<pre><code class="language-bash">ggen ai analyze [code|--file|--project] [OPTIONS]
+</code></pre>
+<h4 id="arguments-3"><a class="header" href="#arguments-3">Arguments</a></h4>
+<div class="table-wrapper"><table><thead><tr><th>Argument</th><th>Required</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>[code]</code></td><td>One of</td><td>Code string to analyze</td></tr>
+<tr><td><code>--file</code></td><td></td><td>File path to analyze</td></tr>
+<tr><td><code>--project</code></td><td></td><td>Project directory to analyze</td></tr>
+</tbody></table>
+</div>
+<h4 id="options-3"><a class="header" href="#options-3">Options</a></h4>
+<div class="table-wrapper"><table><thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>--model</code></td><td>string</td><td><code>gpt-3.5-turbo</code></td><td>AI model to use</td></tr>
+<tr><td><code>--api-key</code></td><td>string</td><td>env</td><td>API key override</td></tr>
+<tr><td><code>--complexity</code></td><td>bool</td><td>false</td><td>Include complexity analysis</td></tr>
+<tr><td><code>--security</code></td><td>bool</td><td>false</td><td>Security considerations</td></tr>
+<tr><td><code>--performance</code></td><td>bool</td><td>false</td><td>Performance optimization</td></tr>
+<tr><td><code>--max-tokens</code></td><td>int</td><td>4000</td><td>Maximum analysis tokens</td></tr>
+</tbody></table>
+</div>
+<h4 id="examples-3"><a class="header" href="#examples-3">Examples</a></h4>
+<p><strong>Analyze Code String:</strong></p>
+<pre><code class="language-bash">ggen ai analyze "fn main() { let x = vec![1,2,3]; for i in x { println!(\"{}\", i); } }"
+</code></pre>
+<p><strong>Output:</strong></p>
+<pre><code class="language-json">{
+  "insights": [
+    "Uses Rust's ownership system correctly with move semantics",
+    "Iterator pattern applied with for loop",
+    "Vector initialization is concise and idiomatic"
+  ],
+  "suggestions": [
+    "Consider using .iter() for borrowed iteration if x is needed later",
+    "Use {:?} debug formatting for better output",
+    "Add type annotations for clarity in larger projects"
+  ],
+  "model": "gpt-3.5-turbo"
+}
+</code></pre>
+<p><strong>Analyze File with Security Focus:</strong></p>
+<pre><code class="language-bash">ggen ai analyze \
+  --file src/api/auth.rs \
+  --security \
+  --model gpt-4
+</code></pre>
+<p><strong>Output:</strong></p>
+<pre><code class="language-json">{
+  "file_path": "src/api/auth.rs",
+  "insights": [
+    "Password hashing implemented with bcrypt",
+    "JWT tokens used for session management",
+    "Input validation on all endpoints"
+  ],
+  "suggestions": [
+    "Add rate limiting to prevent brute force attacks",
+    "Implement password strength requirements",
+    "Use secure random for token generation",
+    "Add CSRF protection for state-changing operations"
+  ],
+  "model": "gpt-4"
+}
+</code></pre>
+<p><strong>Analyze Project with Complexity:</strong></p>
+<pre><code class="language-bash">ggen ai analyze \
+  --project . \
+  --complexity \
+  --performance \
+  --model claude-3-opus-20240229
+</code></pre>
+<p><strong>Output:</strong></p>
+<pre><code class="language-json">{
+  "file_path": ".",
+  "insights": [
+    "Well-structured Cargo workspace with 8 crates",
+    "Clear separation of CLI, domain, and core layers",
+    "Consistent async/await usage throughout"
+  ],
+  "suggestions": [
+    "Consider extracting common types to shared crate",
+    "Add connection pooling for database operations",
+    "Implement caching for frequently accessed data"
+  ],
+  "complexity_score": 45.2,
+  "model": "claude-3-opus-20240229"
+}
+</code></pre>
+<hr />
+<h2 id="workflows-and-examples"><a class="header" href="#workflows-and-examples">Workflows and Examples</a></h2>
+<h3 id="workflow-1-natural-language--rdf--code"><a class="header" href="#workflow-1-natural-language--rdf--code">Workflow 1: Natural Language → RDF → Code</a></h3>
+<p><strong>Complete E2E workflow for building a domain model</strong></p>
+<h4 id="step-1-define-your-domain"><a class="header" href="#step-1-define-your-domain">Step 1: Define Your Domain</a></h4>
+<p>Write a natural language description:</p>
+<pre><code>"Social media platform with:
+ - Users (username, email, bio, avatar)
+ - Posts (content, timestamp, likes, author)
+ - Comments (text, author, post, timestamp)
+ - Follows (follower, following, since)"
+</code></pre>
+<h4 id="step-2-generate-ontology"><a class="header" href="#step-2-generate-ontology">Step 2: Generate Ontology</a></h4>
+<pre><code class="language-bash">ggen ai generate-ontology \
+  "Social media platform with users, posts, comments, and follows" \
+  --output social.ttl \
+  --model gpt-4 \
+  --temperature 0.3
+</code></pre>
+<h4 id="step-3-validate-ontology"><a class="header" href="#step-3-validate-ontology">Step 3: Validate Ontology</a></h4>
+<pre><code class="language-bash"># Load and validate
+ggen graph load social.ttl
+
+# Visualize structure
+ggen graph visualize social.ttl --output social.svg
+
+# Lint for issues
+ggen template lint --graph social.ttl
+</code></pre>
+<h4 id="step-4-generate-code"><a class="header" href="#step-4-generate-code">Step 4: Generate Code</a></h4>
+<pre><code class="language-bash"># Generate Rust project
+ggen project gen social-media \
+  --graph social.ttl \
+  --template rust-actix-api
+
+# View generated structure
+tree social-media/
+</code></pre>
+<h4 id="step-5-iterate-with-ai"><a class="header" href="#step-5-iterate-with-ai">Step 5: Iterate with AI</a></h4>
+<pre><code class="language-bash"># Analyze generated code
+ggen ai analyze --project social-media --performance
+
+# Generate additional features
+ggen ai generate "Add authentication middleware" \
+  --code "$(cat social-media/src/main.rs)" \
+  --language rust
+</code></pre>
+<hr />
+<h3 id="workflow-2-ai-assisted-code-refinement"><a class="header" href="#workflow-2-ai-assisted-code-refinement">Workflow 2: AI-Assisted Code Refinement</a></h3>
+<p><strong>Use AI to improve existing codebases</strong></p>
+<h4 id="step-1-analyze-current-code"><a class="header" href="#step-1-analyze-current-code">Step 1: Analyze Current Code</a></h4>
+<pre><code class="language-bash">ggen ai analyze \
+  --file src/main.rs \
+  --complexity \
+  --security \
+  --performance
+</code></pre>
+<h4 id="step-2-get-specific-improvements"><a class="header" href="#step-2-get-specific-improvements">Step 2: Get Specific Improvements</a></h4>
+<pre><code class="language-bash">ggen ai generate "Refactor this code for better performance" \
+  --code "$(cat src/main.rs)" \
+  --suggestions
+</code></pre>
+<h4 id="step-3-interactive-refinement"><a class="header" href="#step-3-interactive-refinement">Step 3: Interactive Refinement</a></h4>
+<pre><code class="language-bash">ggen ai chat --interactive --model gpt-4
+
+&gt; I have a function that's too complex (complexity score 78). How should I refactor it?
+[paste code]
+
+&gt; What are the most critical security issues?
+
+&gt; Generate unit tests for the refactored version
+</code></pre>
+<hr />
+<h3 id="workflow-3-domain-evolution"><a class="header" href="#workflow-3-domain-evolution">Workflow 3: Domain Evolution</a></h3>
+<p><strong>Update your domain model and regenerate code</strong></p>
+<h4 id="step-1-current-state"><a class="header" href="#step-1-current-state">Step 1: Current State</a></h4>
+<pre><code class="language-bash"># Existing ontology
+cat domain.ttl
+</code></pre>
+<h4 id="step-2-describe-changes"><a class="header" href="#step-2-describe-changes">Step 2: Describe Changes</a></h4>
+<pre><code class="language-bash">ggen ai generate-ontology \
+  "Add these features to the existing e-commerce system:
+   - Product reviews with ratings
+   - Wishlist functionality
+   - Product recommendations based on purchase history" \
+  --output domain-v2.ttl \
+  --model claude-3-opus-20240229
+</code></pre>
+<h4 id="step-3-merge-ontologies"><a class="header" href="#step-3-merge-ontologies">Step 3: Merge Ontologies</a></h4>
+<pre><code class="language-bash"># Manual merge or use SPARQL update
+ggen graph load domain.ttl domain-v2.ttl --output merged.ttl
+</code></pre>
+<h4 id="step-4-regenerate-code"><a class="header" href="#step-4-regenerate-code">Step 4: Regenerate Code</a></h4>
+<pre><code class="language-bash">ggen project gen . \
+  --graph merged.ttl \
+  --force \
+  --backup
+</code></pre>
+<h4 id="step-5-set-up-auto-regeneration-hook"><a class="header" href="#step-5-set-up-auto-regeneration-hook">Step 5: Set Up Auto-Regeneration Hook</a></h4>
+<pre><code class="language-bash">ggen hook create \
+  --event on-ontology-change \
+  --script ./scripts/regenerate.sh \
+  --name "auto-regen-on-ontology-update"
+</code></pre>
+<hr />
+<h2 id="best-practices"><a class="header" href="#best-practices">Best Practices</a></h2>
+<h3 id="1-model-selection"><a class="header" href="#1-model-selection">1. Model Selection</a></h3>
+<p><strong>Use GPT-4 for:</strong></p>
+<ul>
+<li>✅ Production code generation</li>
+<li>✅ Complex domain modeling</li>
+<li>✅ Critical security analysis</li>
+</ul>
+<p><strong>Use GPT-3.5 for:</strong></p>
+<ul>
+<li>✅ Rapid prototyping</li>
+<li>✅ Simple code generation</li>
+<li>✅ Cost-sensitive operations</li>
+</ul>
+<p><strong>Use Claude 3 Opus for:</strong></p>
+<ul>
+<li>✅ Large context analysis (200k tokens)</li>
+<li>✅ Detailed architectural reviews</li>
+<li>✅ Complex reasoning tasks</li>
+</ul>
+<p><strong>Use Local Models for:</strong></p>
+<ul>
+<li>✅ Privacy-first development</li>
+<li>✅ Offline coding</li>
+<li>✅ High-frequency iterations</li>
+</ul>
+<h3 id="2-prompt-engineering"><a class="header" href="#2-prompt-engineering">2. Prompt Engineering</a></h3>
+<p><strong>Be Specific:</strong></p>
+<pre><code class="language-bash"># ❌ Vague
+ggen ai generate-ontology "A system"
+
+# ✅ Specific
+ggen ai generate-ontology "Inventory management system with:
+ - Products (SKU, name, quantity, warehouse location)
+ - Warehouses (ID, address, capacity)
+ - Transfers (from_warehouse, to_warehouse, product, quantity, date)"
+</code></pre>
+<p><strong>Provide Context:</strong></p>
+<pre><code class="language-bash"># ❌ No context
+ggen ai generate "Add logging"
+
+# ✅ With context
+ggen ai generate "Add structured logging with tracing crate" \
+  --code "$(cat src/main.rs)" \
+  --language rust
+</code></pre>
+<p><strong>Iterate Incrementally:</strong></p>
+<pre><code class="language-bash"># Start broad
+ggen ai generate-ontology "Blog platform" --output blog-v1.ttl
+
+# Refine with chat
+ggen ai chat --interactive
+&gt; Expand the blog ontology with SEO metadata, social sharing, and analytics
+
+# Generate final version
+ggen ai generate-ontology "Blog platform with [refined requirements]" \
+  --output blog-v2.ttl
+</code></pre>
+<h3 id="3-version-control"><a class="header" href="#3-version-control">3. Version Control</a></h3>
+<p><strong>Always commit ontologies:</strong></p>
+<pre><code class="language-bash">git add domain.ttl
+git commit -m "feat: Add product review ontology"
+</code></pre>
+<p><strong>Tag ontology versions:</strong></p>
+<pre><code class="language-bash">git tag v1.0.0-ontology
+git push --tags
+</code></pre>
+<p><strong>Use hooks for validation:</strong></p>
+<pre><code class="language-bash">ggen hook create \
+  --event pre-commit \
+  --script ./scripts/validate-ontology.sh
+</code></pre>
+<h3 id="4-testing-ai-generated-code"><a class="header" href="#4-testing-ai-generated-code">4. Testing AI-Generated Code</a></h3>
+<p><strong>Never trust blindly - always test:</strong></p>
+<pre><code class="language-bash"># Generate code
+ggen ai generate "Create authentication system" &gt; auth.rs
+
+# Analyze for issues
+ggen ai analyze --file auth.rs --security --performance
+
+# Write tests
+ggen ai generate "Generate unit tests for this code" \
+  --code "$(cat auth.rs)"
+
+# Run tests
+cargo test
+</code></pre>
+<h3 id="5-cost-management"><a class="header" href="#5-cost-management">5. Cost Management</a></h3>
+<p><strong>Monitor token usage:</strong></p>
+<pre><code class="language-bash"># Check usage in output
+ggen ai generate "..." --model gpt-4 | jq '.tokens_used'
+
+# Use cheaper models for iteration
+ggen ai generate "..." --model gpt-3.5-turbo
+
+# Switch to local models for high-volume
+export GGEN_AI_PROVIDER=local
+</code></pre>
+<hr />
+<h2 id="troubleshooting"><a class="header" href="#troubleshooting">Troubleshooting</a></h2>
+<h3 id="api-key-issues"><a class="header" href="#api-key-issues">API Key Issues</a></h3>
+<p><strong>Problem:</strong> <code>API key not found</code></p>
+<p><strong>Solution:</strong></p>
+<pre><code class="language-bash"># Verify environment variable
+echo $OPENAI_API_KEY
+
+# Set via ggen utils
+ggen utils env --set OPENAI_API_KEY=sk-...
+
+# Or export directly
+export OPENAI_API_KEY=sk-...
+</code></pre>
+<h3 id="model-not-available"><a class="header" href="#model-not-available">Model Not Available</a></h3>
+<p><strong>Problem:</strong> <code>Model 'gpt-4' not available</code></p>
+<p><strong>Solution:</strong></p>
+<pre><code class="language-bash"># Check your API plan
+# Use alternative model
+ggen ai generate "..." --model gpt-3.5-turbo
+
+# Or use local model
+ggen ai generate "..." --model codellama
+</code></pre>
+<h3 id="rate-limits"><a class="header" href="#rate-limits">Rate Limits</a></h3>
+<p><strong>Problem:</strong> <code>Rate limit exceeded</code></p>
+<p><strong>Solution:</strong></p>
+<pre><code class="language-bash"># Add delays between requests
+sleep 1 &amp;&amp; ggen ai generate "..."
+
+# Use local model
+export GGEN_AI_PROVIDER=local
+ggen ai generate "..."
+
+# Reduce max_tokens
+ggen ai generate "..." --max-tokens 1000
+</code></pre>
+<h3 id="invalid-ontology-output"><a class="header" href="#invalid-ontology-output">Invalid Ontology Output</a></h3>
+<p><strong>Problem:</strong> Generated ontology has syntax errors</p>
+<p><strong>Solution:</strong></p>
+<pre><code class="language-bash"># Validate with graph load
+ggen graph load output.ttl
+
+# If errors, regenerate with stricter parameters
+ggen ai generate-ontology "..." \
+  --temperature 0.1 \
+  --model gpt-4
+
+# Or use Claude for better structure
+ggen ai generate-ontology "..." \
+  --model claude-3-opus-20240229
+</code></pre>
+<h3 id="large-project-analysis-timeout"><a class="header" href="#large-project-analysis-timeout">Large Project Analysis Timeout</a></h3>
+<p><strong>Problem:</strong> <code>ggen ai analyze --project . </code> times out</p>
+<p><strong>Solution:</strong></p>
+<pre><code class="language-bash"># Analyze specific subdirectories
+ggen ai analyze --project src/
+
+# Increase max tokens
+ggen ai analyze --project . --max-tokens 8000
+
+# Use Claude 3 with larger context
+ggen ai analyze --project . \
+  --model claude-3-opus-20240229
+</code></pre>
+<hr />
+<h2 id="advanced-topics"><a class="header" href="#advanced-topics">Advanced Topics</a></h2>
+<h3 id="custom-prompts-with-templates"><a class="header" href="#custom-prompts-with-templates">Custom Prompts with Templates</a></h3>
+<p>Create reusable prompt templates:</p>
+<p><strong>File: <code>templates/api-prompt.txt</code></strong></p>
+<pre><code>Generate a REST API in Rust with:
+- Framework: {framework}
+- Database: {database}
+- Authentication: {auth_method}
+- Features: {features}
+
+Include:
+- Error handling with anyhow
+- Async/await with tokio
+- Database migrations
+- OpenAPI documentation
+</code></pre>
+<p><strong>Usage:</strong></p>
+<pre><code class="language-bash"># Expand template
+PROMPT=$(cat templates/api-prompt.txt | \
+  sed 's/{framework}/actix-web/' | \
+  sed 's/{database}/PostgreSQL/' | \
+  sed 's/{auth_method}/JWT/' | \
+  sed 's/{features}/CRUD operations, pagination/')
+
+# Generate code
+ggen ai generate "$PROMPT" --model gpt-4
+</code></pre>
+<h3 id="chain-multiple-ai-operations"><a class="header" href="#chain-multiple-ai-operations">Chain Multiple AI Operations</a></h3>
+<p><strong>Script: <code>ai-workflow.sh</code></strong></p>
+<pre><code class="language-bash">#!/bin/bash
+
+# 1. Generate ontology
+ggen ai generate-ontology "$1" --output temp.ttl
+
+# 2. Analyze ontology
+ggen ai analyze --file temp.ttl --complexity
+
+# 3. Generate code
+ggen project gen temp-project --graph temp.ttl
+
+# 4. Analyze generated code
+ggen ai analyze --project temp-project --security --performance
+
+# 5. Generate tests
+for file in temp-project/src/*.rs; do
+  ggen ai generate "Generate unit tests" --code "$(cat $file)"
+done
+</code></pre>
+<h3 id="integration-with-cicd"><a class="header" href="#integration-with-cicd">Integration with CI/CD</a></h3>
+<p><strong>GitHub Actions Example:</strong></p>
+<pre><code class="language-yaml">name: AI-Powered Code Review
+
+on: [pull_request]
+
+jobs:
+  ai-review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install ggen
+        run: cargo install ggen
+
+      - name: AI Analysis
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          ggen ai analyze --project . --security --performance &gt; ai-review.json
+
+      - name: Post Results
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const analysis = JSON.parse(fs.readFileSync('ai-review.json'));
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## AI Code Review\n\n${JSON.stringify(analysis, null, 2)}`
+            });
+</code></pre>
+<hr />
+<h2 id="next-steps"><a class="header" href="#next-steps">Next Steps</a></h2>
+<ol>
+<li><strong>Explore Examples:</strong> See <code>docs/src/examples/</code> for complete projects</li>
+<li><strong>Join Community:</strong> Share your AI-generated ontologies</li>
+<li><strong>Contribute Templates:</strong> Submit prompt templates for common use cases</li>
+<li><strong>Advanced Features:</strong> Try neural code generation (v2.6.0+)</li>
+</ol>
+<hr />
+<h2 id="references"><a class="header" href="#references">References</a></h2>
+<ul>
+<li><strong>Release Notes:</strong> <code>docs/src/whats-new-2.5.0.md</code></li>
+<li><strong>Hooks Guide:</strong> <code>docs/src/guides/hooks.md</code></li>
+<li><strong>Ontology Patterns:</strong> <code>docs/src/guides/ontology-patterns.md</code> (coming soon)</li>
+<li><strong>Model Comparison:</strong> <code>docs/src/guides/model-selection.md</code> (coming soon)</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../guides/templates.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../guides/hooks.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../guides/templates.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../guides/hooks.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+        <script>
+            window.playground_line_numbers = true;
+        </script>
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="../ace.js"></script>
+        <script src="../mode-rust.js"></script>
+        <script src="../editor.js"></script>
+        <script src="../theme-dawn.js"></script>
+        <script src="../theme-tomorrow_night.js"></script>
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

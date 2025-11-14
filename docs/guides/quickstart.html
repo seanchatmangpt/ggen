@@ -1,0 +1,541 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Quick Start (5 Minutes) - ggen Documentation</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="Language-agnostic generator for reproducible code projections">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">ggen Documentation</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/seanchatmangpt/ggen" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/seanchatmangpt/ggen/edit/main/docs/src/src/guides/quickstart.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="quick-start-your-first-generation-in-5-minutes"><a class="header" href="#quick-start-your-first-generation-in-5-minutes">Quick Start: Your First Generation in 5 Minutes</a></h1>
+<p><strong>Goal:</strong> Generate a Rust REST API from an RDF ontology in 5 minutes.</p>
+<p><strong>What you'll learn:</strong> The core ggen workflow: ontology → SPARQL queries → code generation across any language.</p>
+<h2 id="the-ggen-philosophy"><a class="header" href="#the-ggen-philosophy">The ggen Philosophy</a></h2>
+<p>Traditional generators copy templates. ggen <strong>projects semantic knowledge</strong> into code:</p>
+<pre><code>RDF Ontology (single source of truth)
+         ↓
+   SPARQL Queries (extract domain logic)
+         ↓
+  Code Generation (Rust, TypeScript, Python...)
+</code></pre>
+<p>Change the ontology → code automatically updates. <strong>One ontology, unlimited projections.</strong></p>
+<h2 id="step-1-create-your-first-ontology-1-minute"><a class="header" href="#step-1-create-your-first-ontology-1-minute">Step 1: Create Your First Ontology (1 minute)</a></h2>
+<p>Let's model a simple REST API: Users, Products, Orders.</p>
+<p><strong>Option A: AI-Powered (fastest)</strong></p>
+<pre><code class="language-bash">ggen ai generate-ontology \
+  --prompt "E-commerce API: User (name, email), Product (title, price), Order (user, products, total)" \
+  --output ecommerce.ttl
+</code></pre>
+<p><strong>Option B: Manual RDF (learn the fundamentals)</strong></p>
+<p>Create <code>ecommerce.ttl</code>:</p>
+<pre><code class="language-turtle">@prefix ex: &lt;http://example.org/ecommerce/&gt; .
+@prefix rdfs: &lt;http://www.w3.org/2000/01/rdf-schema#&gt; .
+@prefix xsd: &lt;http://www.w3.org/2001/XMLSchema#&gt; .
+
+# Define domain classes
+ex:User a rdfs:Class ;
+    rdfs:label "User" ;
+    rdfs:comment "Customer account" .
+
+ex:Product a rdfs:Class ;
+    rdfs:label "Product" ;
+    rdfs:comment "Product listing" .
+
+ex:Order a rdfs:Class ;
+    rdfs:label "Order" ;
+    rdfs:comment "Customer order" .
+
+# Define properties
+ex:userName a rdf:Property ;
+    rdfs:domain ex:User ;
+    rdfs:range xsd:string ;
+    rdfs:label "name" .
+
+ex:userEmail a rdf:Property ;
+    rdfs:domain ex:User ;
+    rdfs:range xsd:string ;
+    rdfs:label "email" .
+
+ex:productTitle a rdf:Property ;
+    rdfs:domain ex:Product ;
+    rdfs:range xsd:string ;
+    rdfs:label "title" .
+
+ex:productPrice a rdf:Property ;
+    rdfs:domain ex:Product ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "price" .
+
+ex:orderUser a rdf:Property ;
+    rdfs:domain ex:Order ;
+    rdfs:range ex:User ;
+    rdfs:label "user" .
+
+ex:orderTotal a rdf:Property ;
+    rdfs:domain ex:Order ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "total" .
+</code></pre>
+<p><strong>Key insight:</strong> This RDF ontology is your <strong>single source of truth</strong>. All code generates from here.</p>
+<h2 id="step-2-generate-rust-models-1-minute"><a class="header" href="#step-2-generate-rust-models-1-minute">Step 2: Generate Rust Models (1 minute)</a></h2>
+<p>Now project this ontology into Rust structs:</p>
+<pre><code class="language-bash">ggen template generate-rdf \
+  --ontology ecommerce.ttl \
+  --template rust-models \
+  --output src/
+</code></pre>
+<p><strong>Generated <code>src/models.rs</code>:</strong></p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use serde::{Deserialize, Serialize};
+use uuid::Uuid;
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct User {
+    pub id: Uuid,
+    pub name: String,
+    pub email: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Product {
+    pub id: Uuid,
+    pub title: String,
+    pub price: f64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Order {
+    pub id: Uuid,
+    pub user_id: Uuid,
+    pub total: f64,
+}
+<span class="boring">}</span></code></pre></pre>
+<p><strong>What happened?</strong></p>
+<ol>
+<li>ggen loaded <code>ecommerce.ttl</code> into an RDF graph</li>
+<li>SPARQL queries extracted class definitions and properties</li>
+<li>Templates rendered Rust structs with correct types (<code>xsd:string</code> → <code>String</code>, <code>xsd:decimal</code> → <code>f64</code>)</li>
+</ol>
+<h2 id="step-3-generate-rest-api-endpoints-1-minute"><a class="header" href="#step-3-generate-rest-api-endpoints-1-minute">Step 3: Generate REST API Endpoints (1 minute)</a></h2>
+<p>Same ontology, different projection—now generate API handlers:</p>
+<pre><code class="language-bash">ggen template generate-rdf \
+  --ontology ecommerce.ttl \
+  --template rust-axum-api \
+  --output src/
+</code></pre>
+<p><strong>Generated <code>src/api/users.rs</code>:</strong></p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use axum::{Json, extract::Path};
+use uuid::Uuid;
+use crate::models::User;
+
+pub async fn get_user(Path(id): Path&lt;Uuid&gt;) -&gt; Json&lt;User&gt; {
+    // TODO: Fetch from database
+    Json(User {
+        id,
+        name: "Example".to_string(),
+        email: "user@example.com".to_string(),
+    })
+}
+
+pub async fn list_users() -&gt; Json&lt;Vec&lt;User&gt;&gt; {
+    // TODO: Fetch from database
+    Json(vec![])
+}
+
+pub async fn create_user(Json(user): Json&lt;User&gt;) -&gt; Json&lt;User&gt; {
+    // TODO: Save to database
+    Json(user)
+}
+<span class="boring">}</span></code></pre></pre>
+<p><strong>Same ontology → different template → REST API code!</strong></p>
+<h2 id="step-4-generate-typescript-frontend-1-minute"><a class="header" href="#step-4-generate-typescript-frontend-1-minute">Step 4: Generate TypeScript Frontend (1 minute)</a></h2>
+<p>Let's prove the point: <strong>one ontology, unlimited languages</strong>.</p>
+<pre><code class="language-bash">ggen template generate-rdf \
+  --ontology ecommerce.ttl \
+  --template typescript-models \
+  --output frontend/src/types/
+</code></pre>
+<p><strong>Generated <code>frontend/src/types/models.ts</code>:</strong></p>
+<pre><code class="language-typescript">export interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
+export interface Product {
+  id: string;
+  title: string;
+  price: number;
+}
+
+export interface Order {
+  id: string;
+  userId: string;
+  total: number;
+}
+</code></pre>
+<p><strong>Key insight:</strong> Rust, TypeScript, Python—all generated from the <strong>same RDF ontology</strong>. Update <code>ecommerce.ttl</code> once, regenerate all languages.</p>
+<h2 id="step-5-evolve-your-domain-1-minute"><a class="header" href="#step-5-evolve-your-domain-1-minute">Step 5: Evolve Your Domain (1 minute)</a></h2>
+<p>Business requirement: "Add product categories."</p>
+<p><strong>Edit <code>ecommerce.ttl</code></strong> (add 5 lines):</p>
+<pre><code class="language-turtle">ex:Category a rdfs:Class ;
+    rdfs:label "Category" ;
+    rdfs:comment "Product category" .
+
+ex:productCategory a rdf:Property ;
+    rdfs:domain ex:Product ;
+    rdfs:range ex:Category ;
+    rdfs:label "category" .
+</code></pre>
+<p><strong>Regenerate everything:</strong></p>
+<pre><code class="language-bash"># Rust models
+ggen template generate-rdf --ontology ecommerce.ttl --template rust-models --output src/
+
+# Rust API
+ggen template generate-rdf --ontology ecommerce.ttl --template rust-axum-api --output src/
+
+# TypeScript types
+ggen template generate-rdf --ontology ecommerce.ttl --template typescript-models --output frontend/src/types/
+</code></pre>
+<p><strong>Result:</strong> All code now has <code>category</code> fields. Zero manual edits.</p>
+<h2 id="what-just-happened"><a class="header" href="#what-just-happened">What Just Happened?</a></h2>
+<p>You experienced the <strong>ontology-driven workflow</strong>:</p>
+<ol>
+<li><strong>Single source of truth:</strong> RDF ontology defines your domain</li>
+<li><strong>SPARQL extraction:</strong> Queries pull structured data from the graph</li>
+<li><strong>Multi-language projection:</strong> Same ontology → Rust, TypeScript, Python, GraphQL...</li>
+<li><strong>Automatic sync:</strong> Change ontology → regenerate → all code updates</li>
+</ol>
+<p>This isn't template expansion—it's <strong>semantic code generation</strong>.</p>
+<h2 id="next-steps"><a class="header" href="#next-steps">Next Steps</a></h2>
+<h3 id="learn-the-template-system"><a class="header" href="#learn-the-template-system">Learn the Template System</a></h3>
+<p>Understand how templates use SPARQL to extract ontology data: <a href="templates.html">Templates Guide</a></p>
+<h3 id="browse-the-marketplace"><a class="header" href="#browse-the-marketplace">Browse the Marketplace</a></h3>
+<p>Discover pre-built ontologies and templates: <a href="marketplace.html">Marketplace Guide</a></p>
+<h3 id="advanced-workflows"><a class="header" href="#advanced-workflows">Advanced Workflows</a></h3>
+<ul>
+<li><strong>SHACL validation:</strong> Ensure ontology consistency before generation</li>
+<li><strong>SPARQL customization:</strong> Write custom queries for domain-specific logic</li>
+<li><strong>Multi-project sync:</strong> Share one ontology across microservices</li>
+</ul>
+<h3 id="full-example-projects"><a class="header" href="#full-example-projects">Full Example Projects</a></h3>
+<pre><code class="language-bash"># Microservices architecture
+ggen project new my-microservices --type rust-microservices
+cd my-microservices &amp;&amp; cat README.md
+
+# GraphQL API from ontology
+ggen template generate-rdf \
+  --ontology ecommerce.ttl \
+  --template rust-graphql-api \
+  --output graphql/
+
+# Python FastAPI + Pydantic models
+ggen template generate-rdf \
+  --ontology ecommerce.ttl \
+  --template python-pydantic \
+  --output models.py
+</code></pre>
+<h2 id="common-patterns"><a class="header" href="#common-patterns">Common Patterns</a></h2>
+<h3 id="pattern-1-domain-first-development"><a class="header" href="#pattern-1-domain-first-development">Pattern 1: Domain-First Development</a></h3>
+<pre><code class="language-bash"># 1. Model domain in RDF (NOT code)
+ggen ai generate-ontology --prompt "Healthcare FHIR Patient" --output domain.ttl
+
+# 2. Generate all code layers
+ggen template generate-rdf --ontology domain.ttl --template rust-models
+ggen template generate-rdf --ontology domain.ttl --template rust-api
+ggen template generate-rdf --ontology domain.ttl --template typescript-sdk
+
+# 3. Evolve domain (add Patient.allergies)
+# 4. Regenerate → code auto-updates
+</code></pre>
+<h3 id="pattern-2-marketplace-bootstrap"><a class="header" href="#pattern-2-marketplace-bootstrap">Pattern 2: Marketplace Bootstrap</a></h3>
+<pre><code class="language-bash"># Search for existing ontologies
+ggen marketplace search "e-commerce"
+
+# Install and extend
+ggen marketplace install io.ggen.ontologies.ecommerce
+ggen template generate-rdf \
+  --ontology .ggen/ontologies/io.ggen.ontologies.ecommerce/schema.ttl \
+  --template rust-models
+</code></pre>
+<h3 id="pattern-3-multi-repo-sync"><a class="header" href="#pattern-3-multi-repo-sync">Pattern 3: Multi-Repo Sync</a></h3>
+<pre><code class="language-bash"># Shared ontology repository
+cd ontologies/
+ggen ai generate-ontology --prompt "Shared domain model" --output shared.ttl
+
+# Backend (Rust)
+cd ../backend/
+ggen template generate-rdf --ontology ../ontologies/shared.ttl --template rust-models
+
+# Frontend (TypeScript)
+cd ../frontend/
+ggen template generate-rdf --ontology ../ontologies/shared.ttl --template typescript-models
+
+# Mobile (Kotlin)
+cd ../mobile/
+ggen template generate-rdf --ontology ../ontologies/shared.ttl --template kotlin-models
+</code></pre>
+<p><strong>Key advantage:</strong> Update <code>shared.ttl</code> once → regenerate all repos → guaranteed type safety across stack.</p>
+<h2 id="troubleshooting"><a class="header" href="#troubleshooting">Troubleshooting</a></h2>
+<h3 id="template-not-found"><a class="header" href="#template-not-found">"Template not found"</a></h3>
+<pre><code class="language-bash"># List available templates
+ggen template list
+
+# If template missing, install from marketplace
+ggen marketplace search "rust-models"
+ggen marketplace install io.ggen.templates.rust-models
+</code></pre>
+<h3 id="sparql-query-failed"><a class="header" href="#sparql-query-failed">"SPARQL query failed"</a></h3>
+<pre><code class="language-bash"># Validate ontology syntax
+ggen graph validate ecommerce.ttl
+
+# Inspect loaded graph
+ggen graph query ecommerce.ttl --sparql "SELECT ?s ?p ?o WHERE { ?s ?p ?o } LIMIT 10"
+</code></pre>
+<h3 id="invalid-rdf-syntax"><a class="header" href="#invalid-rdf-syntax">"Invalid RDF syntax"</a></h3>
+<pre><code class="language-bash"># Use AI to fix
+ggen ai generate-ontology --prompt "Fix this RDF: $(cat broken.ttl)" --output fixed.ttl
+
+# Or validate manually
+ggen graph validate broken.ttl --verbose
+</code></pre>
+<hr />
+<p><strong>Congratulations!</strong> You've mastered the ontology-driven workflow. Now explore <a href="templates.html">Templates</a> to customize SPARQL queries and create your own projections.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../guides/install.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../whats-new-2.5.0.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../guides/install.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../whats-new-2.5.0.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+        <script>
+            window.playground_line_numbers = true;
+        </script>
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="../ace.js"></script>
+        <script src="../mode-rust.js"></script>
+        <script src="../editor.js"></script>
+        <script src="../theme-dawn.js"></script>
+        <script src="../theme-tomorrow_night.js"></script>
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>
