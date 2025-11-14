@@ -199,8 +199,11 @@ impl RegistryClient {
 
         let base_url = Url::parse(&registry_url).context("Failed to parse registry URL")?;
 
+        /// Default HTTP client timeout in seconds
+        const DEFAULT_HTTP_TIMEOUT_SECS: u64 = 30;
+
         let client = reqwest::Client::builder()
-            .timeout(std::time::Duration::from_secs(30))
+            .timeout(std::time::Duration::from_secs(DEFAULT_HTTP_TIMEOUT_SECS))
             .build()
             .context("Failed to create HTTP client")?;
 
@@ -209,8 +212,11 @@ impl RegistryClient {
 
     /// Create a registry client with custom base URL (for testing)
     pub fn with_base_url(base_url: Url) -> Result<Self> {
+        /// Default HTTP client timeout in seconds
+        const DEFAULT_HTTP_TIMEOUT_SECS: u64 = 30;
+
         let client = reqwest::Client::builder()
-            .timeout(std::time::Duration::from_secs(30))
+            .timeout(std::time::Duration::from_secs(DEFAULT_HTTP_TIMEOUT_SECS))
             .build()
             .context("Failed to create HTTP client")?;
 
@@ -644,7 +650,14 @@ mod tests {
                 if pack_id.is_empty() || pack_name.is_empty() || pack_description.is_empty() {
                     return Ok(());
                 }
-                if pack_id.len() > 100 || pack_name.len() > 200 || pack_description.len() > 500 {
+                /// Maximum length for pack ID
+                const MAX_PACK_ID_LEN: usize = 100;
+                /// Maximum length for pack name
+                const MAX_PACK_NAME_LEN: usize = 200;
+                /// Maximum length for pack description
+                const MAX_PACK_DESCRIPTION_LEN: usize = 500;
+
+                if pack_id.len() > MAX_PACK_ID_LEN || pack_name.len() > MAX_PACK_NAME_LEN || pack_description.len() > MAX_PACK_DESCRIPTION_LEN {
                     return Ok(());
                 }
 
@@ -709,7 +722,13 @@ mod tests {
                 sha256 in r"[a-f0-9]{64}"
             ) {
                 // Skip invalid combinations
-                if pack_id.is_empty() || pack_name.is_empty() || pack_id.len() > 100 {
+                if pack_id.is_empty() || pack_name.is_empty() {
+                    return Ok(());
+                }
+                /// Maximum length for pack ID in search
+                const MAX_SEARCH_PACK_ID_LEN: usize = 100;
+
+                if pack_id.len() > MAX_SEARCH_PACK_ID_LEN {
                     return Ok(());
                 }
 
@@ -764,7 +783,14 @@ mod tests {
                 if query.is_empty() || pack_name.is_empty() || pack_description.is_empty() {
                     return Ok(());
                 }
-                if query.len() > 50 || pack_name.len() > 200 || pack_description.len() > 500 {
+                /// Maximum length for search query
+                const MAX_SEARCH_QUERY_LEN: usize = 50;
+                /// Maximum length for pack name in search
+                const MAX_SEARCH_PACK_NAME_LEN: usize = 200;
+                /// Maximum length for pack description in search
+                const MAX_SEARCH_PACK_DESCRIPTION_LEN: usize = 500;
+
+                if query.len() > MAX_SEARCH_QUERY_LEN || pack_name.len() > MAX_SEARCH_PACK_NAME_LEN || pack_description.len() > MAX_SEARCH_PACK_DESCRIPTION_LEN {
                     return Ok(());
                 }
 

@@ -13,134 +13,222 @@ Complete API reference for ggen-core and ggen-ai libraries.
 
 ### Template
 
-Core template structure with metadata and content.
+Core template structure with frontmatter and body content.
 
 ```rust
 pub struct Template {
-    pub metadata: TemplateMetadata,
-    pub content: String,
+    pub front: Frontmatter, // populated after render_frontmatter()
+    pub body: String,
 }
 ```
 
 #### Methods
 
-##### `from_file`
-Load template from a file.
+##### `parse`
+Parse template from a string (frontmatter + body). Does NOT render yet.
 
 ```rust
-pub fn from_file(path: impl AsRef<Path>) -> Result<Self>
+pub fn parse(input: &str) -> Result<Self>
 ```
 
 **Example:**
 ```rust
-let template = Template::from_file("path/to/template.md")?;
-```
-
-##### `from_str`
-Parse template from a string.
-
-```rust
-pub fn from_str(content: &str) -> Result<Self>
-```
-
-**Example:**
-```rust
-let template = Template::from_str(r#"
+let template = Template::parse(r#"
 ---
-name: my-template
+to: "output.rs"
 ---
-Content here
+fn main() {
+    println!("Hello, {{ name }}!");
+}
 "#)?;
 ```
 
-### TemplateMetadata
+**Note:** To load from a file, read the file first:
+```rust
+use std::fs;
+let content = fs::read_to_string("path/to/template.tmpl")?;
+let template = Template::parse(&content)?;
+```
 
-Template metadata from frontmatter.
+##### `parse_with_preprocessor`
+Parse template with preprocessor pipeline. Runs preprocessor before parsing.
 
 ```rust
-pub struct TemplateMetadata {
-    pub name: String,
-    pub description: Option<String>,
-    pub version: Option<String>,
-    pub author: Option<String>,
-    pub license: Option<String>,
-    pub tags: Option<Vec<String>>,
+pub fn parse_with_preprocessor(
+    input: &str,
+    template_path: &Path,
+    out_dir: &Path
+) -> Result<Self>
+```
+
+##### `render_frontmatter`
+Render frontmatter through Tera to resolve template variables in YAML.
+
+```rust
+pub fn render_frontmatter(&mut self, tera: &mut Tera, vars: &Context) -> Result<()>
+```
+
+##### `process_graph`
+Load RDF and run SPARQL queries using the rendered frontmatter.
+
+```rust
+pub fn process_graph(
+    &mut self,
+    graph: &mut Graph,
+    tera: &mut Tera,
+    vars: &Context,
+    template_path: &Path
+) -> Result<()>
+```
+
+##### `render`
+Render template body with Tera.
+
+```rust
+pub fn render(&self, tera: &mut Tera, vars: &Context) -> Result<String>
+```
+
+### Frontmatter
+
+Template frontmatter containing configuration and metadata.
+
+```rust
+pub struct Frontmatter {
+    pub to: Option<String>,              // Output file path
+    pub from: Option<String>,            // Input file path
+    pub force: bool,                     // Overwrite existing files
+    pub unless_exists: bool,             // Skip if file exists
+    pub inject: bool,                    // Enable file injection
+    pub before: Option<String>,          // Insert before marker
+    pub after: Option<String>,           // Insert after marker
+    pub prepend: bool,                   // Prepend to file
+    pub append: bool,                    // Append to file
+    pub at_line: Option<u32>,            // Insert at line number
+    pub skip_if: Option<String>,         // Skip if pattern matches
+    pub rdf: Vec<String>,                // RDF file paths
+    pub rdf_inline: Vec<String>,        // Inline RDF triples
+    pub sparql: BTreeMap<String, String>, // SPARQL queries
+    pub prefixes: BTreeMap<String, String>, // RDF prefixes
+    pub base: Option<String>,            // Base IRI
+    // ... and more fields
 }
 ```
 
 ### Generator
 
-Code generation engine.
+Main generator that orchestrates template processing and file generation.
 
 ```rust
 pub struct Generator {
-    // Internal implementation
+    pub pipeline: Pipeline,
+    pub ctx: GenContext,
 }
 ```
 
 #### Methods
 
 ##### `new`
-Create a new generator instance.
+Create a new generator with a pipeline and context.
 
 ```rust
-pub fn new(
-    templates: Vec<String>,
-    context: HashMap<String, String>
-) -> Result<Self>
+pub fn new(pipeline: Pipeline, ctx: GenContext) -> Self
 ```
 
 **Example:**
 ```rust
-let generator = Generator::new(vec![], HashMap::new())?;
+use ggen_core::{Generator, GenContext, Pipeline};
+use std::path::PathBuf;
+
+let pipeline = Pipeline::new()?;
+let ctx = GenContext::new(
+    PathBuf::from("template.tmpl"),
+    PathBuf::from("output")
+);
+let generator = Generator::new(pipeline, ctx);
 ```
 
 ##### `generate`
-Generate code from template and context.
+Generate output from the template.
 
 ```rust
-pub async fn generate(
-    &self,
-    template: &Template,
-    context: &GenContext
-) -> Result<String>
+pub fn generate(&mut self) -> Result<PathBuf>
 ```
 
 **Example:**
 ```rust
-let output = generator.generate(&template, &context).await?;
+let mut generator = Generator::new(pipeline, ctx);
+let output_path = generator.generate()?;
+println!("Generated: {:?}", output_path);
 ```
 
 ### GenContext
 
-Generation context for template variables.
+Context for template generation with paths, variables, and configuration.
 
 ```rust
 pub struct GenContext {
-    // Internal implementation
+    pub template_path: PathBuf,
+    pub output_root: PathBuf,
+    pub vars: BTreeMap<String, String>,
+    pub global_prefixes: BTreeMap<String, String>,
+    pub base: Option<String>,
+    pub dry_run: bool,
 }
 ```
 
 #### Methods
 
 ##### `new`
-Create a new empty context.
+Create a new generation context.
 
 ```rust
-pub fn new() -> Self
-```
-
-##### `insert`
-Add a variable to the context.
-
-```rust
-pub fn insert(&mut self, key: &str, value: &str)
+pub fn new(template_path: PathBuf, output_root: PathBuf) -> Self
 ```
 
 **Example:**
 ```rust
-let mut context = GenContext::new();
-context.insert("name", "value");
+use ggen_core::generator::GenContext;
+use std::path::PathBuf;
+
+let ctx = GenContext::new(
+    PathBuf::from("template.tmpl"),
+    PathBuf::from("output")
+);
+```
+
+##### `with_vars`
+Add variables to the generation context.
+
+```rust
+pub fn with_vars(self, vars: BTreeMap<String, String>) -> Self
+```
+
+**Example:**
+```rust
+use std::collections::BTreeMap;
+
+let mut vars = BTreeMap::new();
+vars.insert("name".to_string(), "MyApp".to_string());
+let ctx = GenContext::new(PathBuf::from("template.tmpl"), PathBuf::from("output"))
+    .with_vars(vars);
+```
+
+##### `with_prefixes`
+Add RDF prefixes and base IRI to the context.
+
+```rust
+pub fn with_prefixes(
+    self,
+    prefixes: BTreeMap<String, String>,
+    base: Option<String>
+) -> Self
+```
+
+##### `dry`
+Enable or disable dry run mode.
+
+```rust
+pub fn dry(self, dry: bool) -> Self
 ```
 
 ### Pipeline

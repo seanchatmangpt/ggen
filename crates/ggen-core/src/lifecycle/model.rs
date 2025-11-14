@@ -198,13 +198,12 @@ impl Phase {
 /// ```rust
 /// use ggen_core::lifecycle::model::PhaseBuilder;
 ///
-/// let phase = match PhaseBuilder::new("build")
+/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+/// let phase = PhaseBuilder::new("build")
 ///     .command("cargo build --release")
-///     .build()
-/// {
-///     Ok(phase) => phase,
-///     Err(e) => return Err(e), // Handle error appropriately
-/// };
+///     .build()?;
+/// # Ok(())
+/// # }
 /// ```
 pub struct PhaseBuilder {
     name: String,

@@ -75,6 +75,21 @@ pub struct ValidationError {
 }
 
 /// Error severity levels
+///
+/// # Examples
+///
+/// ```rust
+/// use ggen_core::rdf::validation::Severity;
+///
+/// # fn main() {
+/// let error = Severity::Error;
+/// let warning = Severity::Warning;
+/// let info = Severity::Info;
+///
+/// assert_ne!(error, warning);
+/// assert_ne!(warning, info);
+/// # }
+/// ```
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
 pub enum Severity {
     Error,
@@ -93,6 +108,23 @@ pub struct ValidationReport {
 }
 
 impl ValidationReport {
+    /// Create a new validation report for a template
+    ///
+    /// # Arguments
+    ///
+    /// * `template_id` - Identifier of the template being validated
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use ggen_core::rdf::validation::ValidationReport;
+    ///
+    /// # fn main() {
+    /// let report = ValidationReport::new("template://example/test".to_string());
+    /// assert_eq!(report.template_id, "template://example/test");
+    /// assert!(report.is_valid());
+    /// # }
+    /// ```
     pub fn new(template_id: String) -> Self {
         Self {
             template_id,
@@ -131,10 +163,41 @@ impl ValidationReport {
         });
     }
 
+    /// Check if the validation report indicates valid metadata
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use ggen_core::rdf::validation::ValidationReport;
+    ///
+    /// # fn main() {
+    /// let mut report = ValidationReport::new("template://test".to_string());
+    /// assert!(report.is_valid());
+    ///
+    /// report.add_error("path".to_string(), "Error message".to_string(), None);
+    /// assert!(!report.is_valid());
+    /// # }
+    /// ```
     pub fn is_valid(&self) -> bool {
         matches!(self.result, ValidationResult::Valid)
     }
 
+    /// Get the total number of validation issues (errors + warnings + info)
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use ggen_core::rdf::validation::ValidationReport;
+    ///
+    /// # fn main() {
+    /// let mut report = ValidationReport::new("template://test".to_string());
+    /// assert_eq!(report.total_issues(), 0);
+    ///
+    /// report.add_error("path1".to_string(), "Error".to_string(), None);
+    /// report.add_warning("path2".to_string(), "Warning".to_string(), None);
+    /// assert_eq!(report.total_issues(), 2);
+    /// # }
+    /// ```
     pub fn total_issues(&self) -> usize {
         self.errors.len() + self.warnings.len() + self.info.len()
     }

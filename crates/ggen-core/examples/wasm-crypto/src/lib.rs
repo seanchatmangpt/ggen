@@ -1,3 +1,5 @@
+#![deny(warnings)] // Poka-Yoke: Prevent warnings at compile time - compiler enforces correctness
+
 //! WebAssembly Cryptographic Operations Module
 //!
 //! Provides secure cryptographic primitives optimized for web environments:

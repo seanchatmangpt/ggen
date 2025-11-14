@@ -317,10 +317,10 @@ impl FileTreeGenerator {
 ///
 /// # Examples
 ///
-/// ```rust,no_run
+/// ```rust
 /// use ggen_core::templates::generator::GenerationResult;
 ///
-/// let mut result = GenerationResult::new();
+/// let result = GenerationResult::new();
 /// assert!(result.is_empty());
 /// assert_eq!(result.total_count(), 0);
 /// ```
@@ -355,12 +355,12 @@ impl GenerationResult {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```rust
     /// use ggen_core::templates::generator::GenerationResult;
     ///
     /// let result = GenerationResult::new();
     /// let dirs = result.directories();
-    /// println!("Created {} directories", dirs.len());
+    /// assert_eq!(dirs.len(), 0);
     /// ```
     pub fn directories(&self) -> &[PathBuf] {
         &self.directories
@@ -372,12 +372,12 @@ impl GenerationResult {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```rust
     /// use ggen_core::templates::generator::GenerationResult;
     ///
     /// let result = GenerationResult::new();
     /// let files = result.files();
-    /// println!("Created {} files", files.len());
+    /// assert_eq!(files.len(), 0);
     /// ```
     pub fn files(&self) -> &[PathBuf] {
         &self.files
@@ -389,12 +389,12 @@ impl GenerationResult {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```rust
     /// use ggen_core::templates::generator::GenerationResult;
     ///
     /// let result = GenerationResult::new();
     /// let total = result.total_count();
-    /// println!("Generated {} items total", total);
+    /// assert_eq!(total, 0);
     /// ```
     pub fn total_count(&self) -> usize {
         self.directories.len() + self.files.len()
@@ -406,7 +406,7 @@ impl GenerationResult {
     ///
     /// # Examples
     ///
-    /// ```rust,no_run
+    /// ```rust
     /// use ggen_core::templates::generator::GenerationResult;
     ///
     /// let result = GenerationResult::new();

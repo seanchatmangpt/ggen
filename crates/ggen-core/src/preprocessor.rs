@@ -40,7 +40,7 @@
 //! use ggen_core::preprocessor::{Preprocessor, FreezePolicy, PrepCtx};
 //! use std::path::Path;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let preprocessor = Preprocessor::new(FreezePolicy::Checksum);
 //! let ctx = PrepCtx {
 //!     template_path: Path::new("template.tmpl"),
@@ -59,7 +59,7 @@
 //! # }
 //! ```
 
-use anyhow::{anyhow, Result};
+use ggen_utils::error::{Error, Result};
 use serde_json;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -145,9 +145,9 @@ impl Preprocessor {
     /// Run all stages in order on the input
     pub fn run(&self, mut input: String, ctx: &PrepCtx) -> Result<String> {
         for stage in &self.stages {
-            input = stage
-                .run(&input, ctx)
-                .map_err(|e| anyhow!("Stage '{}' failed: {}", stage.name(), e))?;
+            input = stage.run(&input, ctx).map_err(|e| {
+                Error::with_source(&format!("Stage '{}' failed", stage.name()), Box::new(e))
+            })?;
         }
         Ok(input)
     }
@@ -182,20 +182,20 @@ fn process_freeze_blocks(input: &str, ctx: &PrepCtx, stage: &FreezeStage) -> Res
         let end_start = if let Some(end) = input[absolute_start..].find("%}") {
             absolute_start + end + 2
         } else {
-            return Err(anyhow!(
+            return Err(Error::new(&format!(
                 "Unclosed startfreeze tag at position {}",
                 absolute_start
-            ));
+            )));
         };
 
         // Find the matching endfreeze tag
         let endfreeze_start = if let Some(end) = input[end_start..].find("{% endfreeze %}") {
             end_start + end
         } else {
-            return Err(anyhow!(
+            return Err(Error::new(&format!(
                 "Missing endfreeze tag for startfreeze at position {}",
                 absolute_start
-            ));
+            )));
         };
 
         let endfreeze_end = endfreeze_start + "{% endfreeze %}".len();
@@ -251,10 +251,10 @@ fn process_includes(input: &str, ctx: &PrepCtx, stage: &IncludeStage) -> Result<
         let end_start = if let Some(end) = input[absolute_start..].find("%}") {
             absolute_start + end + 2
         } else {
-            return Err(anyhow!(
+            return Err(Error::new(&format!(
                 "Unclosed include tag at position {}",
                 absolute_start
-            ));
+            )));
         };
 
         // Extract include path from tag
@@ -266,11 +266,11 @@ fn process_includes(input: &str, ctx: &PrepCtx, stage: &IncludeStage) -> Result<
 
         // Read included content
         let included_content = fs::read_to_string(&resolved_path).map_err(|e| {
-            anyhow!(
+            Error::new(&format!(
                 "Failed to read include file '{}': {}",
                 resolved_path.display(),
                 e
-            )
+            ))
         })?;
 
         // Add content before this include
@@ -318,7 +318,7 @@ fn parse_include_path(tag: &str) -> Result<String> {
     } else if let Some(start) = tag.find("'") {
         start + 1
     } else {
-        return Err(anyhow!("Invalid include tag format: {}", tag));
+        return Err(Error::new(&format!("Invalid include tag format: {}", tag)));
     };
 
     let path_end = if let Some(end) = tag[path_start..].find("\"") {
@@ -326,7 +326,10 @@ fn parse_include_path(tag: &str) -> Result<String> {
     } else if let Some(end) = tag[path_start..].find("'") {
         path_start + end
     } else {
-        return Err(anyhow!("Unclosed include path in tag: {}", tag));
+        return Err(Error::new(&format!(
+            "Unclosed include path in tag: {}",
+            tag
+        )));
     };
 
     Ok(tag[path_start..path_end].to_string())
@@ -352,7 +355,10 @@ fn resolve_include_path(
         }
     }
 
-    Err(anyhow!("Include file not found: {}", include_path))
+    Err(Error::new(&format!(
+        "Include file not found: {}",
+        include_path
+    )))
 }
 
 /// Generate default ID for freeze block
@@ -388,7 +394,7 @@ fn load_or_generate_slot(
         if let Ok(cached_checksum) = fs::read_to_string(&checksum_path) {
             if cached_checksum.trim() == checksum {
                 return fs::read_to_string(&slot_path)
-                    .map_err(|e| anyhow!("Failed to read cached slot: {}", e));
+                    .map_err(|e| Error::with_source("Failed to read cached slot", Box::new(e)));
             }
         }
     }
@@ -403,15 +409,16 @@ fn generate_and_save_slot(
 ) -> Result<String> {
     // Ensure slots directory exists
     fs::create_dir_all(slots_dir)
-        .map_err(|e| anyhow!("Failed to create slots directory: {}", e))?;
+        .map_err(|e| Error::with_source("Failed to create slots directory", Box::new(e)))?;
 
     let slot_path = slots_dir.join(format!("{}.slot", id));
     let checksum_path = slots_dir.join(format!("{}.checksum", id));
 
     // Save content and checksum
-    fs::write(&slot_path, content).map_err(|e| anyhow!("Failed to write slot file: {}", e))?;
+    fs::write(&slot_path, content)
+        .map_err(|e| Error::with_source("Failed to write slot file", Box::new(e)))?;
     fs::write(&checksum_path, checksum)
-        .map_err(|e| anyhow!("Failed to write checksum file: {}", e))?;
+        .map_err(|e| Error::with_source("Failed to write checksum file", Box::new(e)))?;
 
     Ok(content.to_string())
 }

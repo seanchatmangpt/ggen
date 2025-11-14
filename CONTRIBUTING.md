@@ -68,7 +68,33 @@ Be respectful, inclusive, and considerate. We're all here to build something gre
 
 **Code Documentation**: All public APIs must have doc comments. Use `///` for documentation. Include arguments, returns, errors, examples. Examples should compile and run.
 
-**Module Documentation**: All public modules must have module-level documentation using `//!` comments. Top-level crates (`lib.rs`) should use `#` heading format. See [Documentation Standards](docs/DOCUMENTATION_STANDARDS.md) for complete guidelines.
+**Module Documentation**: All public modules must have module-level documentation using `//!` comments at the top of the file. Top-level crates (`lib.rs`) should use `#` heading format. Module documentation should include:
+- Brief description of the module's purpose
+- Key features/capabilities (bullet list)
+- Usage examples where appropriate (using `rust,no_run` for non-executable examples)
+- Architecture notes for complex modules
+
+**Module Documentation Format**:
+```rust
+//! Brief description of module purpose
+//!
+//! This module provides [key functionality]. It handles [main responsibilities]
+//! and integrates with [related systems].
+//!
+//! ## Features
+//!
+//! - **Feature 1**: Description
+//! - **Feature 2**: Description
+//!
+//! ## Examples
+//!
+//! ```rust,no_run
+//! use crate::module::Function;
+//! // Example code
+//! ```
+```
+
+**Verification**: Run `cargo make docs-check` to verify documentation compiles without errors. This is automatically run in pre-commit hooks. See [Documentation Standards](docs/DOCUMENTATION_STANDARDS.md) for complete guidelines.
 
 **README and Guides**: Keep README.md concise and focused on quick start. Put detailed guides in `docs/`. Include examples in `examples/`. Update CHANGELOG.md for user-facing changes.
 

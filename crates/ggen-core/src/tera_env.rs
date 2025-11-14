@@ -19,7 +19,7 @@
 //! use ggen_core::tera_env::build_tera_with_glob;
 //! use std::path::Path;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let templates_dir = Path::new("./templates");
 //! let mut tera = build_tera_with_glob(templates_dir)?;
 //!
@@ -36,7 +36,7 @@
 //! ```rust
 //! use ggen_core::tera_env::build_tera_minimal;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let mut tera = build_tera_minimal()?;
 //!
 //! // Use for ad-hoc string rendering
@@ -48,7 +48,7 @@
 //! # }
 //! ```
 
-use anyhow::Result;
+use ggen_utils::error::Result;
 use std::path::Path;
 use tera::Tera;
 

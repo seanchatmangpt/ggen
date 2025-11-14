@@ -80,14 +80,17 @@ impl ValidatedLifecycleState {
     /// ```rust
     /// # use ggen_core::lifecycle::state_validation::ValidatedLifecycleState;
     /// # use ggen_core::lifecycle::state::LifecycleState;
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// let mut state = LifecycleState::default();
     /// state.record_run("init".to_string(), 0, 100, true);
-    /// let mut validated = ValidatedLifecycleState::new(state).unwrap();
+    /// let mut validated = ValidatedLifecycleState::new(state)?;
     ///
     /// // Safe modification with automatic re-validation
     /// validated.modify(|state| {
     ///     state.record_run("setup".to_string(), 100, 200, true);
-    /// }).unwrap();
+    /// })?;
+    /// # Ok(())
+    /// # }
     /// ```
     pub fn modify<F>(&mut self, f: F) -> Result<()>
     where

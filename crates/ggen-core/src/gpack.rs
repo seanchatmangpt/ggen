@@ -386,7 +386,14 @@ ggen_compat = ">=0.1 <0.2"
                 if pack_id.is_empty() || pack_name.is_empty() || pack_description.is_empty() {
                     return Ok(());
                 }
-                if pack_id.len() > 100 || pack_name.len() > 200 || pack_description.len() > 500 {
+                /// Maximum length for pack ID in gpack manifest
+                const MAX_GPACK_ID_LEN: usize = 100;
+                /// Maximum length for pack name in gpack manifest
+                const MAX_GPACK_NAME_LEN: usize = 200;
+                /// Maximum length for pack description in gpack manifest
+                const MAX_GPACK_DESCRIPTION_LEN: usize = 500;
+
+                if pack_id.len() > MAX_GPACK_ID_LEN || pack_name.len() > MAX_GPACK_NAME_LEN || pack_description.len() > MAX_GPACK_DESCRIPTION_LEN {
                     return Ok(());
                 }
 
@@ -433,7 +440,14 @@ ggen_compat = ">=0.1 <0.2"
                 if pack_id.is_empty() || pack_name.is_empty() || pack_description.is_empty() {
                     return Ok(());
                 }
-                if pack_id.len() > 100 || pack_name.len() > 200 || pack_description.len() > 500 {
+                /// Maximum length for pack ID in gpack metadata validation
+                const MAX_GPACK_ID_LEN: usize = 100;
+                /// Maximum length for pack name in gpack metadata validation
+                const MAX_GPACK_NAME_LEN: usize = 200;
+                /// Maximum length for pack description in gpack metadata validation
+                const MAX_GPACK_DESCRIPTION_LEN: usize = 500;
+
+                if pack_id.len() > MAX_GPACK_ID_LEN || pack_name.len() > MAX_GPACK_NAME_LEN || pack_description.len() > MAX_GPACK_DESCRIPTION_LEN {
                     return Ok(());
                 }
 
@@ -478,7 +492,10 @@ ggen_compat = ">=0.1 <0.2"
                 pattern in r"[a-zA-Z0-9_\-\.\/\*\?\[\]]+"
             ) {
                 // Skip invalid patterns
-                if pattern.is_empty() || pattern.len() > 100 {
+                /// Maximum length for template pattern
+                const MAX_TEMPLATE_PATTERN_LEN: usize = 100;
+
+                if pattern.is_empty() || pattern.len() > MAX_TEMPLATE_PATTERN_LEN {
                     return Ok(());
                 }
 
@@ -510,7 +527,12 @@ ggen_compat = ">=0.1 <0.2"
                 if prefix_name.is_empty() || prefix_uri.is_empty() {
                     return Ok(());
                 }
-                if prefix_name.len() > 50 || prefix_uri.len() > 200 {
+                /// Maximum length for prefix name
+                const MAX_PREFIX_NAME_LEN: usize = 50;
+                /// Maximum length for prefix URI
+                const MAX_PREFIX_URI_LEN: usize = 200;
+
+                if prefix_name.len() > MAX_PREFIX_NAME_LEN || prefix_uri.len() > MAX_PREFIX_URI_LEN {
                     return Ok(());
                 }
 

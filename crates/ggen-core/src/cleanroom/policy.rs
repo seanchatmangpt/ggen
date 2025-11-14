@@ -13,6 +13,7 @@
 //! ```rust,no_run
 //! use ggen_core::cleanroom::{CleanroomCore, policy::{Locked, Permissive}};
 //!
+//! # fn main() -> Result<(), Box<dyn std::error::Error>> {
 //! // This is locked down - cannot access network
 //! let locked_env = CleanroomCore::<Locked>::builder()
 //!     .time_frozen(42)
@@ -22,7 +23,8 @@
 //! // This is permissive - can access network for integration tests
 //! let permissive_env = CleanroomCore::<Permissive>::builder()
 //!     .build()?;
-//! # Ok::<(), Box<dyn std::error::Error>>(())
+//! # Ok(())
+//! # }
 //! ```
 
 use std::marker::PhantomData;
@@ -72,13 +74,15 @@ pub trait Policy: Sized + Send + Sync + 'static {
 /// ```rust,no_run
 /// use ggen_core::cleanroom::{CleanroomCore, policy::Locked};
 ///
+/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let env = CleanroomCore::<Locked>::builder()
 ///     .time_frozen(42)
 ///     .rng_seeded(42)
 ///     .fs_ephemeral()
 ///     .net_offline()
 ///     .build()?;
-/// # Ok::<(), Box<dyn std::error::Error>>(())
+/// # Ok(())
+/// # }
 /// ```
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct Locked;

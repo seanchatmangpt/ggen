@@ -51,6 +51,7 @@ use forensics::ForensicsPack;
 /// ```rust,no_run
 /// use ggen_core::cleanroom::{CleanroomCore, Policy};
 ///
+/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let env = CleanroomCore::builder()
 ///     .policy(Policy::Locked)
 ///     .time_frozen(42)
@@ -63,7 +64,8 @@ use forensics::ForensicsPack;
 /// env.run_test(|| {
 ///     // Test code here
 /// })?;
-/// # Ok::<(), Box<dyn std::error::Error>>(())
+/// # Ok(())
+/// # }
 /// ```
 pub struct CleanroomCore<P: Policy> {
     /// Temporary directory (auto-deleted on drop)

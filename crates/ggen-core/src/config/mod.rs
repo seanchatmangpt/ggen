@@ -18,7 +18,7 @@
 //! use ggen_core::config::TemplateConfig;
 //! use std::path::PathBuf;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let config = TemplateConfig {
 //!     search_paths: vec![PathBuf::from("templates")],
 //!     default_variables: std::collections::HashMap::new(),

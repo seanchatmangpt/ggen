@@ -1,11 +1,11 @@
 //! Command Router Module - clap-noun-verb v3.4.0 Auto-Discovery
 //!
 //! This module provides the entry point for clap-noun-verb auto-discovery.
-//! All noun modules with #[verb] functions are automatically discovered and registered.
+//! All noun modules with `\[verb\]` functions are automatically discovered and registered.
 //!
 //! ## Architecture
-//! ```
-//! cmds (router) → auto-discovery → #[verb] functions → domain (async logic)
+//! ```text
+//! cmds (router) -> auto-discovery -> [verb] functions -> domain (async logic)
 //! ```
 
 // Command modules - clap-noun-verb auto-discovery
@@ -28,7 +28,7 @@ pub fn run_cli() -> Result<()> {
         return Ok(());
     }
 
-    // Use clap-noun-verb's auto-discovery to find all #[verb] functions
+    // Use clap-noun-verb's auto-discovery to find all [verb] functions
     clap_noun_verb::run().map_err(|e| anyhow::anyhow!("CLI execution failed: {}", e))?;
     Ok(())
 }

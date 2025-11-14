@@ -21,7 +21,7 @@
 //! use std::path::PathBuf;
 //! use std::sync::Arc;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! // Create execution context
 //! let root = PathBuf::from(".");
 //! let make = Arc::new(ggen_core::lifecycle::loader::load_make("make.toml")?);
@@ -41,7 +41,7 @@
 //! use std::path::PathBuf;
 //! use std::sync::Arc;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! // Create context (same as above)
 //! let root = PathBuf::from(".");
 //! let make = Arc::new(ggen_core::lifecycle::loader::load_make("make.toml")?);
@@ -104,10 +104,20 @@ impl Context {
 
     /// Remove phase from guard after completion
     fn exit_phase(&self, phase: &str) {
-        if let Ok(mut guard) = self.hook_guard.lock() {
-            guard.remove(phase);
+        match self.hook_guard.lock() {
+            Ok(mut guard) => {
+                guard.remove(phase);
+            }
+            Err(e) => {
+                // Log mutex poisoning for debugging, but don't fail
+                // If mutex is poisoned, we're in a panic scenario anyway
+                tracing::error!(
+                    phase = %phase,
+                    error = %e,
+                    "CRITICAL: Hook guard mutex poisoned - system may be in inconsistent state"
+                );
+            }
         }
-        // If mutex is poisoned, we're in a panic scenario anyway
     }
 }
 

@@ -24,8 +24,9 @@
 //!
 //! ```rust,no_run
 //! use ggen_core::lifecycle::cache::cache_key;
+//! use ggen_core::lifecycle::Result;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> Result<()> {
 //! let phase_name = "build";
 //! let cmd_lines = vec!["cargo build --release".to_string()];
 //! let env = vec![("RUSTFLAGS".to_string(), "-C opt-level=3".to_string())];
@@ -41,9 +42,10 @@
 //!
 //! ```rust,no_run
 //! use ggen_core::lifecycle::cache::cache_key;
+//! use ggen_core::lifecycle::Result;
 //! use std::collections::HashSet;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> Result<()> {
 //! let mut executed_keys = HashSet::new();
 //!
 //! let key = cache_key("test", &vec!["cargo test".to_string()], &[], &[]);
