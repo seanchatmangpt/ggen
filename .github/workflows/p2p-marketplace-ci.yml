@@ -2,14 +2,14 @@ name: P2P Marketplace CI/CD
 
 on:
   push:
-    branches: [master, main]
+    branches: [main]
     paths:
       - 'ggen-marketplace/**'
       - 'cli/src/cmds/marketplace.rs'
       - 'cli/src/domain/marketplace/**'
       - '.github/workflows/p2p-marketplace-ci.yml'
   pull_request:
-    branches: [master, main]
+    branches: [main]
     paths:
       - 'ggen-marketplace/**'
       - 'cli/src/cmds/marketplace.rs'

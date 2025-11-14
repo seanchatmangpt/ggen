@@ -61,7 +61,7 @@ jobs:
         with:
           formula-name: ggen
           homebrew-tap: seanchatmangpt/homebrew-tap
-          download-url: https://github.com/seanchatmangpt/ggen/releases/download/v${{ steps.extract_version.outputs.version }}/ggen-${{ matrix.target }}.tar.gz
+          download-url: https://github.com/seanchatmangpt/ggen/releases/download/v${{ steps.extract_version.outputs.version }}/ggen-x86_64-apple-darwin.tar.gz
         env:
           COMMITTER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: false

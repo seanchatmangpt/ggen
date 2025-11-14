@@ -2,9 +2,9 @@ name: Ultra-Deploy Performance Tests
 
 on:
   push:
-    branches: [main, master, develop]
+    branches: [main]
   pull_request:
-    branches: [main, master, develop]
+    branches: [main]
   schedule:
     # Run nightly at 2 AM UTC
     - cron: '0 2 * * *'

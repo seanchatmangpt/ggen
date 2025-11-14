@@ -2,7 +2,7 @@ name: Deploy Marketplace to GitHub Pages
 
 on:
   push:
-    branches: [master, main]
+    branches: [main]
     paths:
       - 'marketplace/**'
       - '.github/workflows/marketplace.yml'
