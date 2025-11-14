@@ -1,0 +1,137 @@
+name: Comprehensive Cargo Security Audit
+description: Run cargo-audit, cargo-deny, and cargo-outdated with reporting
+
+inputs:
+  fail-on-critical:
+    description: 'Fail if critical vulnerabilities found'
+    required: false
+    default: 'true'
+  generate-report:
+    description: 'Generate markdown report'
+    required: false
+    default: 'true'
+  create-issue:
+    description: 'Create GitHub issue on critical vulnerability'
+    required: false
+    default: 'true'
+
+runs:
+  using: composite
+  steps:
+    - name: Install cargo security tools
+      uses: ./.github/actions/install-cargo-tools
+      with:
+        tools: 'audit,deny,outdated'
+
+    - name: Run cargo audit
+      id: audit
+      continue-on-error: true
+      run: |
+        set -euo pipefail
+        echo "## 🔒 Cargo Audit Results" > audit-report.md
+        echo "" >> audit-report.md
+
+        if cargo audit --json > audit.json 2>&1; then
+          echo "✅ **No vulnerabilities found**" >> audit-report.md
+          echo "status=success" >> $GITHUB_OUTPUT
+          echo "has_critical=false" >> $GITHUB_OUTPUT
+        else
+          echo "⚠️ **Vulnerabilities detected**" >> audit-report.md
+          cargo audit >> audit-report.md 2>&1 || true
+
+          # Check for critical vulnerabilities
+          if jq -e '.vulnerabilities.list[] | select(.advisory.severity == "critical")' audit.json > /dev/null 2>&1; then
+            echo "has_critical=true" >> $GITHUB_OUTPUT
+            echo "status=critical" >> $GITHUB_OUTPUT
+          else
+            echo "has_critical=false" >> $GITHUB_OUTPUT
+            echo "status=warning" >> $GITHUB_OUTPUT
+          fi
+        fi
+      shell: bash
+
+    - name: Run cargo deny
+      id: deny
+      continue-on-error: true
+      run: |
+        set -euo pipefail
+        echo "" >> audit-report.md
+        echo "## 📋 License & Dependency Check" >> audit-report.md
+        echo "" >> audit-report.md
+
+        if cargo deny check 2>&1 | tee deny-output.txt; then
+          echo "✅ **All checks passed**" >> audit-report.md
+          echo "status=success" >> $GITHUB_OUTPUT
+        else
+          echo "⚠️ **Issues detected**" >> audit-report.md
+          cat deny-output.txt >> audit-report.md
+          echo "status=failed" >> $GITHUB_OUTPUT
+        fi
+      shell: bash
+
+    - name: Run cargo outdated
+      id: outdated
+      continue-on-error: true
+      run: |
+        set -euo pipefail
+        echo "" >> audit-report.md
+        echo "## 📦 Dependency Freshness" >> audit-report.md
+        echo "" >> audit-report.md
+
+        if cargo outdated --exit-code 1 2>&1 | tee outdated-output.txt; then
+          echo "✅ **All dependencies up to date**" >> audit-report.md
+          echo "status=current" >> $GITHUB_OUTPUT
+        else
+          echo "⚠️ **Outdated dependencies found**" >> audit-report.md
+          cat outdated-output.txt >> audit-report.md
+          echo "status=outdated" >> $GITHUB_OUTPUT
+        fi
+      shell: bash
+
+    - name: Generate security summary
+      if: inputs.generate-report == 'true'
+      run: |
+        echo "" >> audit-report.md
+        echo "---" >> audit-report.md
+        echo "### Summary" >> audit-report.md
+        echo "- 🔒 Vulnerability Scan: ${{ steps.audit.outputs.status }}" >> audit-report.md
+        echo "- 📋 License Check: ${{ steps.deny.outputs.status }}" >> audit-report.md
+        echo "- 📦 Dependencies: ${{ steps.outdated.outputs.status }}" >> audit-report.md
+        echo "_Generated on $(date -u '+%Y-%m-%d %H:%M:%S UTC')_" >> audit-report.md
+      shell: bash
+
+    - name: Upload security report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: security-audit-report
+        path: |
+          audit-report.md
+          audit.json
+          deny-output.txt
+          outdated-output.txt
+        retention-days: 30
+
+    - name: Create issue for critical vulnerabilities
+      if: inputs.create-issue == 'true' && steps.audit.outputs.has_critical == 'true'
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const fs = require('fs');
+          const report = fs.readFileSync('audit-report.md', 'utf8');
+
+          await github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: '🚨 Critical Security Vulnerabilities Detected',
+            body: `Critical security vulnerabilities have been detected in dependencies.\n\n${report}\n\n**Action Required**: Please review and update affected dependencies immediately.`,
+            labels: ['security', 'critical', 'dependencies']
+          });
+
+    - name: Fail on critical vulnerabilities
+      if: inputs.fail-on-critical == 'true' && steps.audit.outputs.has_critical == 'true'
+      run: |
+        echo "::error::Critical security vulnerabilities detected. Build failed."
+        exit 1
+      shell: bash

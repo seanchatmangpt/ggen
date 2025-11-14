@@ -1,0 +1,106 @@
+name: Extract and Validate Semantic Version
+description: Extract version from tag/inputs and validate against Cargo.toml
+
+inputs:
+  version-source:
+    description: 'Source of version: tag, input, or cargo'
+    required: false
+    default: 'tag'
+  version-input:
+    description: 'Version to use (if version-source is input)'
+    required: false
+    default: ''
+  check-cargo-toml:
+    description: 'Verify Cargo.toml version matches'
+    required: false
+    default: 'true'
+  check-all-manifests:
+    description: 'Check all Cargo.toml files match'
+    required: false
+    default: 'false'
+
+outputs:
+  version:
+    description: 'Extracted version (without v prefix)'
+    value: ${{ steps.extract.outputs.version }}
+  version-with-v:
+    description: 'Version with v prefix'
+    value: ${{ steps.extract.outputs.version-with-v }}
+  version-valid:
+    description: 'Whether version is valid'
+    value: ${{ steps.extract.outputs.version-valid }}
+
+runs:
+  using: composite
+  steps:
+    - name: Extract version
+      id: extract
+      run: |
+        set -euo pipefail
+
+        VERSION=""
+        case "${{ inputs.version-source }}" in
+          tag)
+            VERSION="${{ github.event.release.tag_name }}"
+            ;;
+          input)
+            VERSION="${{ inputs.version-input }}"
+            ;;
+          cargo)
+            VERSION=$(grep '^version = ' Cargo.toml | head -1 | sed 's/version = "\(.*\)"/\1/')
+            ;;
+        esac
+
+        # Remove 'v' prefix if present
+        VERSION="${VERSION#v}"
+
+        # Validate semantic versioning format
+        if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          echo "❌ Invalid version format: $VERSION"
+          echo "Expected format: x.y.z (e.g., 1.2.3)"
+          echo "version-valid=false" >> $GITHUB_OUTPUT
+          exit 1
+        fi
+
+        echo "✅ Extracted version: $VERSION"
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "version-with-v=v$VERSION" >> $GITHUB_OUTPUT
+        echo "version-valid=true" >> $GITHUB_OUTPUT
+      shell: bash
+
+    - name: Verify Cargo.toml matches
+      if: inputs.check-cargo-toml == 'true'
+      run: |
+        set -euo pipefail
+        VERSION="${{ steps.extract.outputs.version }}"
+        CARGO_VERSION=$(grep '^version = ' Cargo.toml | head -1 | sed 's/version = "\(.*\)"/\1/')
+
+        echo "🔍 Cargo.toml version: $CARGO_VERSION"
+        echo "🔍 Release version: $VERSION"
+
+        if [ "$CARGO_VERSION" != "$VERSION" ]; then
+          echo "❌ Version mismatch!"
+          exit 1
+        fi
+
+        echo "✅ Cargo.toml version matches"
+      shell: bash
+
+    - name: Check all manifests match
+      if: inputs.check-all-manifests == 'true'
+      run: |
+        set -euo pipefail
+        VERSION="${{ steps.extract.outputs.version }}"
+
+        echo "Checking all Cargo.toml files..."
+        find . -name "Cargo.toml" -type f | while read manifest; do
+          MANIFEST_VERSION=$(grep '^version = ' "$manifest" | head -1 | sed 's/version = "\(.*\)"/\1/')
+          if [ "$MANIFEST_VERSION" != "$VERSION" ]; then
+            echo "❌ Version mismatch in $manifest: $MANIFEST_VERSION != $VERSION"
+            exit 1
+          fi
+          echo "✅ $manifest: $MANIFEST_VERSION"
+        done
+
+        echo "✅ All manifests match version $VERSION"
+      shell: bash
