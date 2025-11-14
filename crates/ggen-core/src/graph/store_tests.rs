@@ -7,10 +7,10 @@
 mod tests {
     use super::super::core::Graph;
     use super::super::store::GraphStore;
+    use chicago_tdd_tools::test;
     use chicago_tdd_tools::testcontainers::{
         ContainerClient, GenericContainer, TestcontainersResult,
     };
-    use chicago_tdd_tools::{async_test, test};
     use std::path::PathBuf;
     use tempfile::TempDir;
 
@@ -102,21 +102,23 @@ mod tests {
     /// 2. Files are created in container filesystem (/workspace)
     /// 3. Files persist and can be verified via container.exec()
     #[cfg(feature = "docker")]
-    async_test!(test_store_in_container_with_volume_verification, async {
+    test!(test_store_in_container_with_volume_verification, {
         use chicago_tdd_tools::testcontainers::exec::SUCCESS_EXIT_CODE;
 
         // Arrange - create container with filesystem
         let client = ContainerClient::default();
-        let container = GenericContainer::new("alpine:latest")
-            .with_command(vec!["sleep", "infinity"])
-            .start(&client)
-            .await
-            .unwrap();
+        let container = GenericContainer::with_command(
+            client.client(),
+            "alpine",
+            "latest",
+            "sleep",
+            &["infinity"],
+        )
+        .unwrap();
 
         // Create workspace directory in container
         let workspace_setup = container
             .exec("sh", &["-c", "mkdir -p /workspace/graph_store"])
-            .await
             .unwrap();
         assert_eq!(
             workspace_setup.exit_code, SUCCESS_EXIT_CODE,
@@ -129,7 +131,7 @@ mod tests {
         let store_path = "/workspace/graph_store";
 
         // Verify directory exists in container
-        let dir_check = container.exec("test", &["-d", store_path]).await.unwrap();
+        let dir_check = container.exec("test", &["-d", store_path]).unwrap();
         assert_eq!(
             dir_check.exit_code, SUCCESS_EXIT_CODE,
             "Store directory should exist in container"
@@ -139,7 +141,6 @@ mod tests {
         let test_file = "/workspace/graph_store/test.txt";
         let file_create = container
             .exec("sh", &["-c", &format!("echo 'test data' > {}", test_file)])
-            .await
             .unwrap();
         assert_eq!(
             file_create.exit_code, SUCCESS_EXIT_CODE,
@@ -147,7 +148,7 @@ mod tests {
         );
 
         // Verify file exists and has content
-        let file_verify = container.exec("cat", &[test_file]).await.unwrap();
+        let file_verify = container.exec("cat", &[test_file]).unwrap();
         assert_eq!(
             file_verify.exit_code, SUCCESS_EXIT_CODE,
             "File should exist in container"
@@ -158,7 +159,7 @@ mod tests {
         );
 
         // List files in store directory to verify filesystem operations
-        let list_files = container.exec("ls", &["-la", store_path]).await.unwrap();
+        let list_files = container.exec("ls", &["-la", store_path]).unwrap();
         assert_eq!(
             list_files.exit_code, SUCCESS_EXIT_CODE,
             "Should be able to list files in container"

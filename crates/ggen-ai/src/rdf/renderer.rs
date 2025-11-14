@@ -40,14 +40,13 @@ impl TemplateRenderer {
     /// ```
     pub fn new(template_dir: &Path) -> Result<Self> {
         let pattern = format!("{}/**/*.tmpl", template_dir.display());
-        let tera = Tera::new(&pattern)
-            .map_err(|e| ggen_utils::error::Error::from(e))
-            .with_context(|| {
-                format!(
-                    "Failed to load templates from directory: {}",
-                    template_dir.display()
-                )
-            })?;
+        let tera = Tera::new(&pattern).map_err(|e| {
+            ggen_utils::error::Error::new(&format!(
+                "Failed to load templates from directory {}: {}",
+                template_dir.display(),
+                e
+            ))
+        })?;
 
         Ok(Self { tera })
     }
@@ -82,9 +81,9 @@ impl TemplateRenderer {
     /// * `Ok(String)` - Rendered template content
     /// * `Err` - Template not found or rendering failed
     pub fn render_file(&self, template: &str, context: &Context) -> Result<String> {
-        self.tera
-            .render(template, context)
-            .with_context(|| format!("Failed to render template: {}", template))
+        self.tera.render(template, context).map_err(|e| {
+            ggen_utils::error::Error::new(&format!("Failed to render template {}: {}", template, e))
+        })
     }
 
     /// Renders all templates and writes them to create a complete CLI project.
@@ -114,92 +113,119 @@ impl TemplateRenderer {
         let context = self.build_context(project);
 
         // Render Cargo.toml
-        self.render_and_write("Cargo.toml.tmpl", &context, output_dir.join("Cargo.toml"))
-            .context("Failed to render Cargo.toml")?;
+        ErrorContext::context(
+            self.render_and_write("Cargo.toml.tmpl", &context, output_dir.join("Cargo.toml")),
+            "Failed to render Cargo.toml",
+        )?;
 
         // Create src directory
-        std::fs::create_dir_all(output_dir.join("src"))
-            .context("Failed to create src directory")?;
+        std::fs::create_dir_all(output_dir.join("src")).map_err(|e| {
+            ggen_utils::error::Error::new(&format!("Failed to create src directory: {}", e))
+        })?;
 
         // Render main.rs
-        self.render_and_write("main.rs.tmpl", &context, output_dir.join("src/main.rs"))
-            .context("Failed to render main.rs")?;
+        ErrorContext::context(
+            self.render_and_write("main.rs.tmpl", &context, output_dir.join("src/main.rs")),
+            "Failed to render main.rs",
+        )?;
 
         // Render command.rs
-        self.render_and_write(
-            "command.rs.tmpl",
-            &context,
-            output_dir.join("src/command.rs"),
-        )
-        .context("Failed to render command.rs")?;
+        ErrorContext::context(
+            self.render_and_write(
+                "command.rs.tmpl",
+                &context,
+                output_dir.join("src/command.rs"),
+            ),
+            "Failed to render command.rs",
+        )?;
 
         // Render lib.rs
-        self.render_and_write("lib.rs.tmpl", &context, output_dir.join("src/lib.rs"))
-            .context("Failed to render lib.rs")?;
+        ErrorContext::context(
+            self.render_and_write("lib.rs.tmpl", &context, output_dir.join("src/lib.rs")),
+            "Failed to render lib.rs",
+        )?;
 
         // Create cmds directory
-        std::fs::create_dir_all(output_dir.join("src/cmds"))
-            .context("Failed to create src/cmds directory")?;
+        std::fs::create_dir_all(output_dir.join("src/cmds")).map_err(|e| {
+            ggen_utils::error::Error::new(&format!("Failed to create src/cmds directory: {}", e))
+        })?;
 
         // Render cmds/mod.rs
-        self.render_and_write(
-            "cmds/mod.rs.tmpl",
-            &context,
-            output_dir.join("src/cmds/mod.rs"),
-        )
-        .context("Failed to render cmds/mod.rs")?;
+        ErrorContext::context(
+            self.render_and_write(
+                "cmds/mod.rs.tmpl",
+                &context,
+                output_dir.join("src/cmds/mod.rs"),
+            ),
+            "Failed to render cmds/mod.rs",
+        )?;
 
         // Render each noun module
         for noun in &project.nouns {
             let noun_dir = output_dir.join("src/cmds").join(&noun.name);
-            std::fs::create_dir_all(&noun_dir)
-                .with_context(|| format!("Failed to create noun directory: {}", noun.name))?;
+            std::fs::create_dir_all(&noun_dir).map_err(|e| {
+                ggen_utils::error::Error::new(&format!(
+                    "Failed to create noun directory {}: {}",
+                    noun.name, e
+                ))
+            })?;
 
             // Build noun-specific context
             let mut noun_context = context.clone();
             noun_context.insert("noun", noun);
 
             // Render noun/mod.rs
-            self.render_and_write(
-                "cmds/noun_mod.rs.tmpl",
-                &noun_context,
-                noun_dir.join("mod.rs"),
-            )
-            .with_context(|| format!("Failed to render mod.rs for noun: {}", noun.name))?;
+            ErrorContext::with_context(
+                self.render_and_write(
+                    "cmds/noun_mod.rs.tmpl",
+                    &noun_context,
+                    noun_dir.join("mod.rs"),
+                ),
+                || format!("Failed to render mod.rs for noun: {}", noun.name),
+            )?;
 
             // Render each verb
             for verb in &noun.verbs {
                 let mut verb_context = noun_context.clone();
                 verb_context.insert("verb", verb);
 
-                self.render_and_write(
-                    "cmds/verb.rs.tmpl",
-                    &verb_context,
-                    noun_dir.join(format!("{}.rs", verb.name)),
-                )
-                .with_context(|| format!("Failed to render verb: {}.{}", noun.name, verb.name))?;
+                ErrorContext::with_context(
+                    self.render_and_write(
+                        "cmds/verb.rs.tmpl",
+                        &verb_context,
+                        noun_dir.join(format!("{}.rs", verb.name)),
+                    ),
+                    || format!("Failed to render verb: {}.{}", noun.name, verb.name),
+                )?;
             }
         }
 
         // Create tests directory
-        std::fs::create_dir_all(output_dir.join("tests"))
-            .context("Failed to create tests directory")?;
+        std::fs::create_dir_all(output_dir.join("tests")).map_err(|e| {
+            ggen_utils::error::Error::new(&format!("Failed to create tests directory: {}", e))
+        })?;
 
         // Render tests/integration_test.rs
-        self.render_and_write(
-            "tests/integration.rs.tmpl",
-            &context,
-            output_dir.join("tests/integration_test.rs"),
-        )
-        .context("Failed to render integration tests")?;
+        ErrorContext::context(
+            self.render_and_write(
+                "tests/integration.rs.tmpl",
+                &context,
+                output_dir.join("tests/integration_test.rs"),
+            ),
+            "Failed to render integration tests",
+        )?;
 
         // Render README.md
-        self.render_and_write("README.md.tmpl", &context, output_dir.join("README.md"))
-            .context("Failed to render README.md")?;
+        ErrorContext::context(
+            self.render_and_write("README.md.tmpl", &context, output_dir.join("README.md")),
+            "Failed to render README.md",
+        )?;
 
         // Render .gitignore
-        self.render_and_write("gitignore.tmpl", &context, output_dir.join(".gitignore"))
-            .context("Failed to render .gitignore")?;
+        ErrorContext::context(
+            self.render_and_write("gitignore.tmpl", &context, output_dir.join(".gitignore")),
+            "Failed to render .gitignore",
+        )?;
 
         Ok(())
     }
@@ -220,8 +246,13 @@ impl TemplateRenderer {
         &self, template: &str, context: &Context, output_path: PathBuf,
     ) -> Result<()> {
         let content = self.render_file(template, context)?;
-        std::fs::write(&output_path, content)
-            .with_context(|| format!("Failed to write file: {}", output_path.display()))?;
+        std::fs::write(&output_path, content).map_err(|e| {
+            ggen_utils::error::Error::new(&format!(
+                "Failed to write file {}: {}",
+                output_path.display(),
+                e
+            ))
+        })?;
         Ok(())
     }
 }

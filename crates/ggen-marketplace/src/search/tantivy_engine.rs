@@ -54,7 +54,7 @@
 use crate::search::{IndexStats, SearchEngine};
 use crate::types::{Facet as CustomFacet, Package, ScoredPackage, SearchQuery, SearchResults};
 use async_trait::async_trait;
-use ggen_utils::error::{Context, Error, Result};
+use ggen_utils::error::{Error, Result};
 use std::collections::HashMap;
 use std::path::Path;
 use std::sync::Arc;
@@ -100,21 +100,29 @@ impl TantivySearchEngine {
         let fields = Self::extract_fields(&schema)?;
 
         // Create or open index
+        // Explicit error conversion: Tantivy errors don't implement From
         let index = if index_path.as_ref().exists() {
-            Index::open_in_dir(index_path)?
+            Index::open_in_dir(index_path)
+                .map_err(|e| Error::new(&format!("Failed to open index: {}", e)))?
         } else {
             std::fs::create_dir_all(&index_path)?;
-            Index::create_in_dir(index_path, schema.clone())?
+            Index::create_in_dir(index_path, schema.clone())
+                .map_err(|e| Error::new(&format!("Failed to create index: {}", e)))?
         };
 
         // Create reader with auto-reload
+        // Explicit error conversion: Tantivy errors don't implement From
         let reader = index
             .reader_builder()
             .reload_policy(ReloadPolicy::OnCommitWithDelay)
-            .try_into()?;
+            .try_into()
+            .map_err(|e| Error::new(&format!("Failed to create reader: {}", e)))?;
 
         // Create writer with 50MB buffer
-        let writer = index.writer(50_000_000)?;
+        // Explicit error conversion: Tantivy errors don't implement From
+        let writer = index
+            .writer(50_000_000)
+            .map_err(|e| Error::new(&format!("Failed to create writer: {}", e)))?;
 
         Ok(Self {
             index,
@@ -195,21 +203,50 @@ impl TantivySearchEngine {
 
     /// Extract fields from schema
     fn extract_fields(schema: &Schema) -> Result<SchemaFields> {
+        // Explicit error conversion: Tantivy errors don't implement From
         Ok(SchemaFields {
-            id: schema.get_field("id")?,
-            name: schema.get_field("name")?,
-            description: schema.get_field("description")?,
-            version: schema.get_field("version")?,
-            category: schema.get_field("category")?,
-            language: schema.get_field("language")?,
-            license: schema.get_field("license")?,
-            tags: schema.get_field("tags")?,
-            downloads: schema.get_field("downloads")?,
-            rating: schema.get_field("rating")?,
-            created_at: schema.get_field("created_at")?,
-            updated_at: schema.get_field("updated_at")?,
-            author: schema.get_field("author")?,
-            repository_url: schema.get_field("repository_url")?,
+            id: schema
+                .get_field("id")
+                .map_err(|e| Error::new(&format!("Failed to get field 'id': {}", e)))?,
+            name: schema
+                .get_field("name")
+                .map_err(|e| Error::new(&format!("Failed to get field 'name': {}", e)))?,
+            description: schema
+                .get_field("description")
+                .map_err(|e| Error::new(&format!("Failed to get field 'description': {}", e)))?,
+            version: schema
+                .get_field("version")
+                .map_err(|e| Error::new(&format!("Failed to get field 'version': {}", e)))?,
+            category: schema
+                .get_field("category")
+                .map_err(|e| Error::new(&format!("Failed to get field 'category': {}", e)))?,
+            language: schema
+                .get_field("language")
+                .map_err(|e| Error::new(&format!("Failed to get field 'language': {}", e)))?,
+            license: schema
+                .get_field("license")
+                .map_err(|e| Error::new(&format!("Failed to get field 'license': {}", e)))?,
+            tags: schema
+                .get_field("tags")
+                .map_err(|e| Error::new(&format!("Failed to get field 'tags': {}", e)))?,
+            downloads: schema
+                .get_field("downloads")
+                .map_err(|e| Error::new(&format!("Failed to get field 'downloads': {}", e)))?,
+            rating: schema
+                .get_field("rating")
+                .map_err(|e| Error::new(&format!("Failed to get field 'rating': {}", e)))?,
+            created_at: schema
+                .get_field("created_at")
+                .map_err(|e| Error::new(&format!("Failed to get field 'created_at': {}", e)))?,
+            updated_at: schema
+                .get_field("updated_at")
+                .map_err(|e| Error::new(&format!("Failed to get field 'updated_at': {}", e)))?,
+            author: schema
+                .get_field("author")
+                .map_err(|e| Error::new(&format!("Failed to get field 'author': {}", e)))?,
+            repository_url: schema
+                .get_field("repository_url")
+                .map_err(|e| Error::new(&format!("Failed to get field 'repository_url': {}", e)))?,
         })
     }
 
@@ -376,7 +413,10 @@ impl TantivySearchEngine {
                     subqueries.push((Occur::Should, Box::new(fuzzy_query)));
                 }
             } else {
-                let parsed_query = query_parser.parse_query(&search_query.query)?;
+                // Explicit error conversion: Tantivy errors don't implement From
+                let parsed_query = query_parser
+                    .parse_query(&search_query.query)
+                    .map_err(|e| Error::new(&format!("Failed to parse query: {}", e)))?;
                 subqueries.push((Occur::Must, parsed_query));
             }
         }
@@ -429,19 +469,27 @@ impl SearchEngine for TantivySearchEngine {
         let tantivy_query = self.build_query(query)?;
 
         // Calculate total results
+        // Explicit error conversion: Tantivy errors don't implement From
         let count_collector = Count;
-        let total = searcher.search(&tantivy_query, &count_collector)?;
+        let total = searcher
+            .search(&tantivy_query, &count_collector)
+            .map_err(|e| Error::new(&format!("Search failed: {}", e)))?;
 
         // Collect top docs based on sorting
         let limit = query.limit.min(1000); // Cap at 1000 for safety
         let collector = TopDocs::with_limit(limit).and_offset(query.offset);
 
-        let top_docs = searcher.search(&tantivy_query, &collector)?;
+        let top_docs = searcher
+            .search(&tantivy_query, &collector)
+            .map_err(|e| Error::new(&format!("Search failed: {}", e)))?;
 
         // Convert to scored packages
         let mut packages = Vec::new();
         for (score, doc_address) in top_docs {
-            let retrieved_doc = searcher.doc(doc_address)?;
+            // Explicit error conversion: Tantivy errors don't implement From
+            let retrieved_doc = searcher
+                .doc(doc_address)
+                .map_err(|e| Error::new(&format!("Failed to retrieve document: {}", e)))?;
             if let Ok(package) = self.doc_to_package(&retrieved_doc) {
                 // Filter by min_score
                 if score >= query.min_score {
@@ -489,8 +537,11 @@ impl SearchEngine for TantivySearchEngine {
 
     async fn index(&self, package: &Package) -> Result<()> {
         let doc = self.package_to_doc(package);
+        // Explicit error conversion: Tantivy errors don't implement From
         let writer = self.writer.write().await;
-        writer.add_document(doc)?;
+        writer
+            .add_document(doc)
+            .map_err(|e| Error::new(&format!("Failed to add document: {}", e)))?;
         Ok(())
     }
 
@@ -498,7 +549,10 @@ impl SearchEngine for TantivySearchEngine {
         let writer = self.writer.write().await;
         for package in packages {
             let doc = self.package_to_doc(&package);
-            writer.add_document(doc)?;
+            // Explicit error conversion: Tantivy errors don't implement From
+            writer
+                .add_document(doc)
+                .map_err(|e| Error::new(&format!("Failed to add document: {}", e)))?;
         }
         Ok(())
     }
@@ -518,8 +572,11 @@ impl SearchEngine for TantivySearchEngine {
     }
 
     async fn commit(&self) -> Result<()> {
+        // Explicit error conversion: Tantivy errors don't implement From
         let mut writer = self.writer.write().await;
-        writer.commit()?;
+        writer
+            .commit()
+            .map_err(|e| Error::new(&format!("Failed to commit: {}", e)))?;
         Ok(())
     }
 
@@ -546,11 +603,17 @@ impl TantivySearchEngine {
         &self, searcher: &tantivy::Searcher, query: &dyn Query, field: Field,
     ) -> Result<Vec<CustomFacet>> {
         // Simple facet collection by grouping documents
-        let top_docs = searcher.search(query, &TopDocs::with_limit(10000))?;
+        // Explicit error conversion: Tantivy errors don't implement From
+        let top_docs = searcher
+            .search(query, &TopDocs::with_limit(10000))
+            .map_err(|e| Error::new(&format!("Search failed: {}", e)))?;
         let mut counts: HashMap<String, usize> = HashMap::new();
 
         for (_score, doc_address) in top_docs {
-            let doc: TantivyDocument = searcher.doc(doc_address)?;
+            // Explicit error conversion: Tantivy errors don't implement From
+            let doc: TantivyDocument = searcher
+                .doc(doc_address)
+                .map_err(|e| Error::new(&format!("Failed to retrieve document: {}", e)))?;
             if let Some(value) = doc.get_first(field).and_then(|v| v.as_str()) {
                 *counts.entry(value.to_string()).or_insert(0) += 1;
             }

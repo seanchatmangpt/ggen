@@ -40,7 +40,7 @@
 //! # }
 //! ```
 
-use ggen_utils::error::{Context, Error, Result};
+use ggen_utils::error::{Error, Result};
 use opentelemetry::KeyValue;
 use opentelemetry_otlp::WithExportConfig;
 use opentelemetry_sdk::{

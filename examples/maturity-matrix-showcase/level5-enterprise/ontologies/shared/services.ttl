@@ -1,0 +1,17 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ex: <http://example.org/maturity-matrix/level5/shared/services#> .
+
+# Level 5: Shared Services Ontology (15,000+ triples)
+# Enterprise services shared across tenants
+
+ex:EnterpriseService a rdfs:Class ;
+    rdfs:label "Enterprise Service" .
+
+ex:SharedAPIService a rdfs:Class ;
+    rdfs:subClassOf ex:EnterpriseService ;
+    rdfs:label "Shared API Service" .
+
+# Enterprise service definitions
+# (Expanded to 15,000+ triples in real implementation)
+

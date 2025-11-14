@@ -167,6 +167,7 @@ impl Template {
     /// # Ok(())
     /// # }
     /// ```
+    #[allow(clippy::should_implement_trait)] // Method name matches FromStr but we use parse() internally
     pub fn from_str(content: &str) -> Result<Self> {
         Self::parse(content)
     }

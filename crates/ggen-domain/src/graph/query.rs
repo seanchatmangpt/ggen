@@ -102,7 +102,14 @@ pub fn execute_sparql(options: QueryOptions) -> Result<QueryResult> {
 
             let mut bindings = Vec::new();
             for solution in solutions {
-                let solution = solution.context("Failed to process SPARQL solution")?;
+                let solution = solution
+                    .map_err(|e| {
+                        ggen_utils::error::Error::new(&format!(
+                            "Failed to process SPARQL solution: {}",
+                            e
+                        ))
+                    })
+                    .context("Failed to process SPARQL solution")?;
                 let mut binding = HashMap::new();
 
                 for variable in &variables {

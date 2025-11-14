@@ -3,7 +3,10 @@
 //! Chicago TDD: Uses REAL RDF file loading and graph state verification
 
 use ggen_core::Graph;
-use ggen_utils::error::{bail, Context, Result};
+use ggen_utils::{
+    bail,
+    error::{Context, Result},
+};
 use std::path::{Path, PathBuf};
 
 /// Supported RDF formats
@@ -304,7 +307,11 @@ pub async fn execute_load(input: LoadInput) -> Result<LoadOutput> {
 /// CLI run function - bridges sync CLI to async domain logic
 pub fn run(args: &LoadInput) -> Result<()> {
     // Use tokio runtime to execute async function
-    let rt = tokio::runtime::Runtime::new().context("Failed to create tokio runtime")?;
+    let rt = tokio::runtime::Runtime::new()
+        .map_err(|e| {
+            ggen_utils::error::Error::new(&format!("Failed to create tokio runtime: {}", e))
+        })
+        .context("Failed to create tokio runtime")?;
 
     let output = rt.block_on(execute_load(args.clone()))?;
 

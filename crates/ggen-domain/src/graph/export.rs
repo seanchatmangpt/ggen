@@ -1,10 +1,12 @@
 //! Graph export domain logic with real RDF serialization
 //!
-//! Chicago TDD: Uses REAL graph export and file writing
+//! Chicago TDD: Uses REAL graph export and file writing via Oxigraph's
+//! RdfSerializer API following core team best practices.
 
-use ggen_utils::error::{bail, Context, Result};
+use ggen_utils::error::{Context, Result};
 
-use ggen_core::Graph;
+use ggen_core::graph::{Graph, GraphExport};
+use oxigraph::io::RdfFormat;
 use std::fs;
 use std::path::PathBuf;
 use std::str::FromStr;
@@ -105,34 +107,67 @@ pub struct ExportInput {
 /// Export graph to file in specified format
 ///
 /// Chicago TDD: This performs REAL graph serialization and file writing
+/// using Oxigraph's RdfSerializer API following core team best practices.
 pub fn export_graph(options: ExportOptions) -> Result<String> {
     // Use provided graph or create empty one
     let graph = options
         .graph
         .unwrap_or_else(|| Graph::new().expect("Failed to create empty graph"));
 
-    // Generate RDF content in requested format
-    let content = match options.format {
-        ExportFormat::Turtle => generate_turtle(&graph, options.pretty)?,
-        ExportFormat::NTriples => generate_ntriples(&graph)?,
-        ExportFormat::RdfXml => generate_rdfxml(&graph, options.pretty)?,
-        ExportFormat::JsonLd => generate_jsonld(&graph, options.pretty)?,
-        ExportFormat::N3 => generate_n3(&graph, options.pretty)?,
+    // Convert domain ExportFormat to Oxigraph RdfFormat
+    let rdf_format = match options.format {
+        ExportFormat::Turtle => RdfFormat::Turtle,
+        ExportFormat::NTriples => RdfFormat::NTriples,
+        ExportFormat::RdfXml => RdfFormat::RdfXml,
+        ExportFormat::JsonLd => {
+            // JSON-LD is not directly supported by Oxigraph's RdfFormat
+            return Err(ggen_utils::error::Error::new(
+                "JSON-LD format not yet supported via Oxigraph RdfSerializer",
+            ));
+        }
+        ExportFormat::N3 => {
+            // N3 is not directly supported by Oxigraph's RdfFormat
+            return Err(ggen_utils::error::Error::new(
+                "N3 format not yet supported via Oxigraph RdfSerializer",
+            ));
+        }
     };
 
-    // Write REAL file to disk
-    fs::write(&options.output_path, &content).context(format!(
-        "Failed to write export file: {}",
-        options.output_path
-    ))?;
+    // Use GraphExport with Oxigraph's RdfSerializer API
+    let export = GraphExport::new(&graph);
+
+    // Export to file using Oxigraph's best practices
+    export
+        .write_to_file(&options.output_path, rdf_format)
+        .context(format!(
+            "Failed to write export file: {}",
+            options.output_path
+        ))?;
+
+    // Read back the content to return it
+    let content = fs::read_to_string(&options.output_path)
+        .map_err(|e| {
+            ggen_utils::error::Error::new(&format!(
+                "Failed to read exported file {}: {}",
+                options.output_path, e
+            ))
+        })
+        .context(format!(
+            "Failed to read exported file: {}",
+            options.output_path
+        ))?;
 
     Ok(content)
 }
 
 /// Generate Turtle format
+///
+/// **DEPRECATED**: This function is no longer used. The `export_graph` function
+/// now uses `GraphExport` with Oxigraph's `RdfSerializer` API following core team
+/// best practices. This function is kept for backwards compatibility only.
+#[allow(dead_code)]
 fn generate_turtle(_graph: &Graph, pretty: bool) -> Result<String> {
-    // For now, generate sample Turtle
-    // In production, would use graph.export_turtle() or similar
+    // DEPRECATED: Use GraphExport::write_to_string(RdfFormat::Turtle) instead
     let content = if pretty {
         r#"@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
@@ -150,6 +185,7 @@ ex:subject a ex:Type ;
 }
 
 /// Generate N-Triples format
+#[allow(dead_code)]
 fn generate_ntriples(_graph: &Graph) -> Result<String> {
     let content = r#"<http://example.org/subject> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.org/Type> .
 <http://example.org/subject> <http://www.w3.org/2000/01/rdf-schema#label> "Example Subject" .
@@ -160,6 +196,7 @@ fn generate_ntriples(_graph: &Graph) -> Result<String> {
 }
 
 /// Generate RDF/XML format
+#[allow(dead_code)]
 fn generate_rdfxml(_graph: &Graph, pretty: bool) -> Result<String> {
     let content = if pretty {
         r#"<?xml version="1.0" encoding="UTF-8"?>
@@ -181,6 +218,7 @@ fn generate_rdfxml(_graph: &Graph, pretty: bool) -> Result<String> {
 }
 
 /// Generate JSON-LD format
+#[allow(dead_code)]
 fn generate_jsonld(_graph: &Graph, pretty: bool) -> Result<String> {
     let content = if pretty {
         r#"{
@@ -203,6 +241,7 @@ fn generate_jsonld(_graph: &Graph, pretty: bool) -> Result<String> {
 }
 
 /// Generate N3 format
+#[allow(dead_code)]
 fn generate_n3(graph: &Graph, pretty: bool) -> Result<String> {
     // N3 is similar to Turtle
     generate_turtle(graph, pretty)
@@ -375,7 +414,11 @@ pub async fn execute_export(input: ExportInput) -> Result<ExportOutput> {
 /// CLI run function - bridges sync CLI to async domain logic
 pub fn run(args: &ExportInput) -> Result<()> {
     // Use tokio runtime to execute async function
-    let rt = tokio::runtime::Runtime::new().context("Failed to create tokio runtime")?;
+    let rt = tokio::runtime::Runtime::new()
+        .map_err(|e| {
+            ggen_utils::error::Error::new(&format!("Failed to create tokio runtime: {}", e))
+        })
+        .context("Failed to create tokio runtime")?;
 
     let output = rt.block_on(execute_export(args.clone()))?;
 

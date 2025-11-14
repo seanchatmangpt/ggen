@@ -267,6 +267,12 @@ impl From<oxigraph::sparql::QueryEvaluationError> for Error {
     }
 }
 
+impl From<oxigraph::store::SerializerError> for Error {
+    fn from(err: oxigraph::store::SerializerError) -> Self {
+        Self::new(&err.to_string())
+    }
+}
+
 impl From<toml::ser::Error> for Error {
     fn from(err: toml::ser::Error) -> Self {
         Self::new(&err.to_string())

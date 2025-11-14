@@ -99,7 +99,15 @@ args = [
 [tasks.pre-commit]
 description = "Run pre-commit validation checks (format, lint, test, hooks, docs)"
 workspace = false
-dependencies = ["timeout-check", "fmt", "lint", "test", "test-doc", "validate-docs", "docs-check"]
+dependencies = [
+  "timeout-check",
+  "fmt",
+  "lint",
+  "test",
+  "test-doc",
+  "validate-docs",
+  "docs-check",
+]
 script_runner = "@shell"
 script = '''
 # Run git hook validation if available
@@ -945,6 +953,7 @@ dependencies = [
   "check-all-crates",
   "detect-gaps",
   "test",
+  "test-doc",
   "audit-all",
   "docs-test",
 ]

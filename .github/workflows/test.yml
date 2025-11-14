@@ -56,3 +56,6 @@ jobs:
 
       - name: Run examples
         run: cargo run --example cli-subcommand
+
+      - name: Run doctests (CRITICAL: Verify all doctests compile and run)
+        run: cargo test --doc --workspace

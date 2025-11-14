@@ -68,6 +68,15 @@ if [ -f "scripts/enforce-test-coverage.sh" ]; then
     fi
 fi
 
+# Run doctest verification (CRITICAL: FMEA RPN 630 - prevent unverified conversions)
+echo "📚 Running doctest verification..."
+if ! timeout 30s cargo test --doc --workspace 2>/dev/null; then
+    echo ""
+    echo "❌ Doctest verification failed. Fix doctests before committing."
+    echo "   Run: cargo make test-doc"
+    exit 1
+fi
+
 exit 0
 EOF
     chmod +x .git/hooks/pre-commit
@@ -85,6 +94,13 @@ set -e
 
 # Run test coverage enforcement
 scripts/enforce-test-coverage.sh || exit 1
+
+# Run doctest verification (CRITICAL: FMEA RPN 630)
+echo "📚 Running doctest verification..."
+timeout 30s cargo test --doc --workspace || {
+    echo "❌ Doctest verification failed. Fix doctests before committing."
+    exit 1
+}
 
 exit 0
 EOF

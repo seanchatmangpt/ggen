@@ -39,7 +39,10 @@
 //! # }
 //! ```
 
-use ggen_utils::error::{bail, Context, Result};
+use ggen_utils::{
+    bail,
+    error::{Context, Result},
+};
 use std::path::{Path, PathBuf};
 
 use crate::rdf::{QueryExecutor, RdfParser};

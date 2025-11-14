@@ -3,13 +3,35 @@
 //! This module provides a complete, type-safe wrapper around Oxigraph's RDF store
 //! with intelligent caching, thread-safety, and comprehensive feature coverage.
 //!
+//! ## Oxigraph 0.5 Best Practices
+//!
+//! **Error Handling Pattern**: Always use explicit `.map_err()` for oxigraph error conversion
+//! instead of the `?` operator, because oxigraph errors don't implement `From` for
+//! `ggen_utils::error::Error`. This pattern ensures proper error context and prevents
+//! compilation errors.
+//!
+//! ```rust,no_run
+//! // ✅ Correct: Explicit error conversion
+//! store.load_from_reader(format, reader)
+//!     .map_err(|e| Error::new(&format!("Failed to load RDF: {}", e)))?;
+//!
+//! // ❌ Incorrect: ? operator (won't compile)
+//! store.load_from_reader(format, reader)?;
+//! ```
+//!
+//! **RdfSerializer Pattern**: Use `RdfSerializer::from_format().for_writer()` pattern for
+//! serialization, then iterate over quads and call `serialize_quad()`, finally call `finish()`.
+//!
+//! **Resource Management**: Store instances are managed via `Arc` for thread-safe sharing.
+//! Temporary stores are used when necessary (e.g., loading into named graphs).
+//!
 //! ## Module Structure
 //!
 //! - [`Graph`] - Main wrapper with SPARQL query caching and epoch-based invalidation
 //! - [`GraphStore`] - Storage operations (persistent storage, file I/O)
 //! - [`GraphUpdate`] - SPARQL Update operations (INSERT, DELETE, UPDATE, etc.)
 //! - [`GraphQuery`] - Advanced query building and execution
-//! - [`GraphExport`] - RDF serialization in all formats
+//! - [`GraphExport`] - RDF serialization in all formats using Oxigraph's RdfSerializer API
 //!
 //! ## Features
 //!

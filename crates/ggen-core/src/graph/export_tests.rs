@@ -7,7 +7,6 @@
 mod tests {
     use super::super::core::Graph;
     use super::super::export::GraphExport;
-    use chicago_tdd_tools::async_test;
     use chicago_tdd_tools::test;
     use chicago_tdd_tools::testcontainers::{
         exec::SUCCESS_EXIT_CODE, ContainerClient, GenericContainer,
@@ -102,19 +101,21 @@ mod tests {
     /// 2. Files are created in container filesystem (/workspace)
     /// 3. Files can be read back via container.exec()
     #[cfg(feature = "docker")]
-    async_test!(test_export_in_container_with_verification, async {
+    test!(test_export_in_container_with_verification, {
         // Arrange - create container
         let client = ContainerClient::default();
-        let container = GenericContainer::new("alpine:latest")
-            .with_command(vec!["sleep", "infinity"])
-            .start(&client)
-            .await
-            .unwrap();
+        let container = GenericContainer::with_command(
+            client.client(),
+            "alpine",
+            "latest",
+            "sleep",
+            &["infinity"],
+        )
+        .unwrap();
 
         // Create workspace in container
         let workspace_setup = container
             .exec("sh", &["-c", "mkdir -p /workspace/exports"])
-            .await
             .unwrap();
         assert_eq!(
             workspace_setup.exit_code, SUCCESS_EXIT_CODE,
@@ -133,7 +134,6 @@ ex:alice a ex:Person ."#;
                     &format!("cat > {} << 'EOF'\n{}\nEOF", rdf_file, rdf_content),
                 ],
             )
-            .await
             .unwrap();
         assert_eq!(
             file_create.exit_code, SUCCESS_EXIT_CODE,
@@ -141,14 +141,14 @@ ex:alice a ex:Person ."#;
         );
 
         // Verify file exists in container
-        let file_check = container.exec("test", &["-f", rdf_file]).await.unwrap();
+        let file_check = container.exec("test", &["-f", rdf_file]).unwrap();
         assert_eq!(
             file_check.exit_code, SUCCESS_EXIT_CODE,
             "RDF file should exist in container"
         );
 
         // Verify file content
-        let content_check = container.exec("cat", &[rdf_file]).await.unwrap();
+        let content_check = container.exec("cat", &[rdf_file]).unwrap();
         assert_eq!(
             content_check.exit_code, SUCCESS_EXIT_CODE,
             "Should be able to read file from container"
@@ -161,7 +161,6 @@ ex:alice a ex:Person ."#;
         // List files to verify filesystem operations
         let list_result = container
             .exec("ls", &["-la", "/workspace/exports"])
-            .await
             .unwrap();
         assert_eq!(
             list_result.exit_code, SUCCESS_EXIT_CODE,

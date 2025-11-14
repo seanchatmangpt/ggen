@@ -96,7 +96,7 @@ impl std::str::FromStr for ProjectType {
             "rust-lib" => Ok(ProjectType::RustLib),
             "nextjs" => Ok(ProjectType::NextJs),
             "nuxt" => Ok(ProjectType::Nuxt),
-            _ => return Err(Error::new(&format!("Unsupported project type: {}", s))),
+            _ => Err(Error::new(&format!("Unsupported project type: {}", s))),
         }
     }
 }
