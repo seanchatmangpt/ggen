@@ -1,0 +1,77 @@
+name: Upsert PR Comment
+description: Create or update a bot comment on a pull request
+
+inputs:
+  comment-id:
+    description: 'Unique ID for comment deduplication (usually the workflow name)'
+    required: true
+  body:
+    description: 'Comment body (can be markdown)'
+    required: true
+  update-if-exists:
+    description: 'Update existing comment instead of creating new'
+    required: false
+    default: 'true'
+
+outputs:
+  comment-id:
+    description: 'ID of created/updated comment'
+    value: ${{ steps.upsert.outputs.comment-id }}
+  comment-url:
+    description: 'URL to the comment'
+    value: ${{ steps.upsert.outputs.comment-url }}
+
+runs:
+  using: composite
+  steps:
+    - name: Upsert PR comment
+      id: upsert
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const commentId = '${{ inputs.comment-id }}';
+          const body = `<!-- bot-comment-id: ${commentId} -->\n${{ inputs.body }}`;
+          const updateIfExists = ${{ inputs.update-if-exists }};
+
+          if (context.eventName !== 'pull_request') {
+            console.log('Not a pull request, skipping comment');
+            return;
+          }
+
+          const { data: comments } = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+          });
+
+          const botComment = comments.find(comment =>
+            comment.user.type === 'Bot' &&
+            comment.body.includes(`<!-- bot-comment-id: ${commentId} -->`)
+          );
+
+          if (botComment && updateIfExists) {
+            // Update existing comment
+            const { data: updated } = await github.rest.issues.updateComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: botComment.id,
+              body: body
+            });
+
+            core.setOutput('comment-id', updated.id);
+            core.setOutput('comment-url', updated.html_url);
+            console.log(`Updated comment: ${updated.html_url}`);
+          } else {
+            // Create new comment
+            const { data: created } = await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: body
+            });
+
+            core.setOutput('comment-id', created.id);
+            core.setOutput('comment-url', created.html_url);
+            console.log(`Created comment: ${created.html_url}`);
+          }

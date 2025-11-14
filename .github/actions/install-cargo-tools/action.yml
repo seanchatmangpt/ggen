@@ -1,0 +1,51 @@
+name: Install Cargo Tools
+description: Install and cache cargo development tools
+
+inputs:
+  tools:
+    description: 'Comma-separated list of tools to install (make, audit, deny, outdated, tarpaulin, nextest)'
+    required: true
+  cache-tools:
+    description: 'Whether to cache tool binaries'
+    required: false
+    default: 'true'
+
+runs:
+  using: composite
+  steps:
+    - name: Cache cargo tools
+      if: inputs.cache-tools == 'true'
+      uses: actions/cache@v4
+      with:
+        path: ~/.cargo/bin/
+        key: ${{ runner.os }}-cargo-tools-${{ inputs.tools }}
+
+    - name: Install cargo-make
+      if: contains(inputs.tools, 'make')
+      run: cargo install cargo-make --locked
+      shell: bash
+
+    - name: Install cargo-audit
+      if: contains(inputs.tools, 'audit')
+      run: cargo install cargo-audit --locked
+      shell: bash
+
+    - name: Install cargo-deny
+      if: contains(inputs.tools, 'deny')
+      run: cargo install cargo-deny --locked
+      shell: bash
+
+    - name: Install cargo-outdated
+      if: contains(inputs.tools, 'outdated')
+      run: cargo install cargo-outdated --locked
+      shell: bash
+
+    - name: Install cargo-tarpaulin
+      if: contains(inputs.tools, 'tarpaulin')
+      run: cargo install cargo-tarpaulin --locked
+      shell: bash
+
+    - name: Install cargo-nextest
+      if: contains(inputs.tools, 'nextest')
+      uses: taiki-e/install-action@cargo-nextest
+      shell: bash

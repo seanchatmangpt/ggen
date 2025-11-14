@@ -2,11 +2,15 @@ name: Deploy Marketplace Documentation
 
 on:
   push:
-    branches: [master, main]
+    branches: [main]
     paths:
       - "ggen-marketplace/**"
       - ".github/workflows/marketplace-docs.yml"
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   deploy:

@@ -19,51 +19,46 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
-      - name: Extract version from release tag
+      - name: Extract and validate version
+        uses: ./.github/actions/extract-semantic-version
         id: extract_version
-        run: |
-          # Extract version from tag (remove 'v' prefix)
-          VERSION="${{ github.event.release.tag_name }}"
-          VERSION="${VERSION#v}"
+        with:
+          version-source: 'tag'
+          check-cargo-toml: 'true'
 
-          # Validate version format (semantic versioning)
-          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "❌ Invalid version format: $VERSION"
-            echo "Expected format: x.y.z (e.g., 1.2.3)"
+      - name: Validate Homebrew token
+        run: |
+          if [ -z "${{ secrets.HOMEBREW_TAP_TOKEN }}" ] && [ -z "${{ secrets.GITHUB_TOKEN }}" ]; then
+            echo "::error::HOMEBREW_TAP_TOKEN or GITHUB_TOKEN not configured. Cannot update Homebrew formula."
             exit 1
           fi
 
-          echo "✅ Extracted version: $VERSION"
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-
-      - name: Verify Cargo.toml version matches
+      - name: Verify release assets exist
         run: |
+          set -euo pipefail
           VERSION="${{ steps.extract_version.outputs.version }}"
-          CARGO_VERSION=$(grep '^version = ' Cargo.toml | head -1 | sed 's/version = "\(.*\)"/\1/')
+          RELEASE_URL="https://github.com/seanchatmangpt/ggen/releases/download/v$VERSION"
 
-          echo "🔍 Cargo.toml version: $CARGO_VERSION"
-          echo "🔍 Release version: $VERSION"
-
-          if [ "$CARGO_VERSION" != "$VERSION" ]; then
-            echo "❌ Version mismatch!"
-            echo "Cargo.toml version: $CARGO_VERSION"
-            echo "Release version: $VERSION"
-            echo "These must match for Homebrew release"
-            exit 1
-          fi
-
-          echo "✅ Version verification passed"
+          echo "Checking for release assets..."
+          for target in "x86_64-apple-darwin" "aarch64-apple-darwin" "x86_64-unknown-linux-gnu" "aarch64-unknown-linux-gnu"; do
+            ASSET_URL="$RELEASE_URL/ggen-$target.tar.gz"
+            if curl -s --head "$ASSET_URL" | grep -q "200\|302"; then
+              echo "✅ Found: ggen-$target.tar.gz"
+            else
+              echo "⚠️  Missing: ggen-$target.tar.gz (optional for Homebrew)"
+            fi
+          done
 
       - name: Bump Homebrew Formula
         uses: mislav/bump-homebrew-formula-action@v3.6
         with:
           formula-name: ggen
           homebrew-tap: seanchatmangpt/homebrew-tap
-          download-url: https://github.com/seanchatmangpt/ggen/releases/download/v${{ steps.extract_version.outputs.version }}/ggen-${{ matrix.target }}.tar.gz
+          download-url: https://github.com/seanchatmangpt/ggen/releases/download/v${{ steps.extract_version.outputs.version }}/ggen-x86_64-apple-darwin.tar.gz
         env:
-          COMMITTER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COMMITTER_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN || secrets.GITHUB_TOKEN }}
         continue-on-error: false
 
       - name: Verify formula update
