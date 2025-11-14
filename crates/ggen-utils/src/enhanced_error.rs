@@ -48,16 +48,48 @@ use colored::Colorize;
 use std::fmt;
 
 /// Error category for better error grouping
+///
+/// Categorizes errors for better grouping and user experience.
+///
+/// # Examples
+///
+/// ```rust
+/// use ggen_utils::enhanced_error::ErrorCategory;
+///
+/// # fn main() {
+/// let category = ErrorCategory::FileNotFound;
+/// match category {
+///     ErrorCategory::FileNotFound => assert!(true),
+///     ErrorCategory::PermissionDenied => assert!(true),
+///     ErrorCategory::InvalidInput => assert!(true),
+///     ErrorCategory::NetworkError => assert!(true),
+///     ErrorCategory::ConfigurationError => assert!(true),
+///     ErrorCategory::TemplateError => assert!(true),
+///     ErrorCategory::DependencyError => assert!(true),
+///     ErrorCategory::BuildError => assert!(true),
+///     ErrorCategory::Unknown => assert!(true),
+/// }
+/// # }
+/// ```
 #[derive(Debug, Clone, PartialEq)]
 pub enum ErrorCategory {
+    /// File not found error
     FileNotFound,
+    /// Permission denied error
     PermissionDenied,
+    /// Invalid input error
     InvalidInput,
+    /// Network error
     NetworkError,
+    /// Configuration error
     ConfigurationError,
+    /// Template error
     TemplateError,
+    /// Dependency error
     DependencyError,
+    /// Build error
     BuildError,
+    /// Unknown error
     Unknown,
 }
 

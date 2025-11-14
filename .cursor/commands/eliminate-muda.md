@@ -53,7 +53,7 @@ Step 1: Identify Muda → Step 2: Measure Waste Impact → Step 3: Eliminate Was
    - Premature abstractions
    - Unused features
 
-**Action**: Create waste inventory list
+**Action**: Create waste inventory list in `docs/wip/` directory
 
 ```markdown
 ## Muda Inventory

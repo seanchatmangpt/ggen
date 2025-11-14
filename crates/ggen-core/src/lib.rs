@@ -98,7 +98,7 @@
 //! use ggen_core::project_generator::{ProjectConfig, ProjectType, create_new_project};
 //! use std::path::PathBuf;
 //!
-//! # async fn example() -> anyhow::Result<()> {
+//! # async fn example() -> ggen_utils::error::Result<()> {
 //! let config = ProjectConfig {
 //!     name: "my-cli".to_string(),
 //!     project_type: ProjectType::RustCli,

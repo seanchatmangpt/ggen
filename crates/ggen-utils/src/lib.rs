@@ -54,3 +54,8 @@ pub mod types;
 pub mod user_level;
 
 pub use project_config::{GgenConfig as UtilsGgenConfig, Project, RdfConfig};
+
+// Re-export error handling utilities
+// Note: bail! and ensure! macros are exported via #[macro_export] in error.rs
+// They are available as ggen_utils::bail! and ggen_utils::ensure!
+pub use error::{Context, Error, Result};

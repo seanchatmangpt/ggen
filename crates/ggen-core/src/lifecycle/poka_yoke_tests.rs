@@ -9,35 +9,44 @@ mod compile_time_tests {
         model::PhaseBuilder, state::LifecycleState, state_machine::*,
         state_validation::ValidatedLifecycleState,
     };
+    use chicago_tdd_tools::test;
 
     /// Test that phase builder requires at least one command
-    #[test]
-    fn test_phase_builder_requires_command() {
+    test!(test_phase_builder_requires_command, {
+        // Arrange
         let builder = PhaseBuilder::new("test");
+
+        // Act
         // This should fail at compile time if we try to use it without commands
         // But since build() returns Result, we test runtime validation
         let result = builder.build();
+
+        // Assert
         assert!(result.is_err());
-    }
+    });
 
     /// Test that validated phase has commands
-    #[test]
-    fn test_validated_phase_has_commands() {
+    test!(test_validated_phase_has_commands, {
+        // Arrange
         let phase = PhaseBuilder::new("build")
             .command("cargo build")
             .build()
             .unwrap();
 
+        // Act
         let commands = phase.commands();
+
+        // Assert
         assert!(!commands.is_empty());
         assert_eq!(commands[0], "cargo build");
-    }
+    });
 
     /// Test state machine valid transitions
-    #[test]
-    fn test_state_machine_valid_transitions() {
+    test!(test_state_machine_valid_transitions, {
+        // Arrange
         let mut lifecycle = LifecycleStateMachine::<Initial>::new();
-        // Record phases as they would be executed
+
+        // Act - Record phases as they would be executed
         lifecycle
             .state_mut()
             .record_run("init".to_string(), 0, 100, true);
@@ -79,33 +88,39 @@ mod compile_time_tests {
             .record_run("deploy".to_string(), 400, 500, true);
         let lifecycle = lifecycle.deploy().unwrap();
 
-        // All transitions succeeded
+        // Assert - All transitions succeeded
         assert!(lifecycle.has_completed_phase("init"));
         assert!(lifecycle.has_completed_phase("deploy"));
-    }
+    });
 
     /// Test that state validation catches invalid state
-    #[test]
-    fn test_state_validation_catches_invalid_state() {
+    test!(test_state_validation_catches_invalid_state, {
+        // Arrange
         let mut state = LifecycleState::default();
         // Deploy without test should fail (critical safety check)
         state.record_run("deploy".to_string(), 0, 100, true);
 
+        // Act
         let result = ValidatedLifecycleState::new(state);
+
+        // Assert
         assert!(result.is_err());
-    }
+    });
 
     /// Test that validated state can be created from valid state
-    #[test]
-    fn test_validated_state_from_valid_state() {
+    test!(test_validated_state_from_valid_state, {
+        // Arrange
         let mut state = LifecycleState::default();
         state.record_run("init".to_string(), 0, 100, true);
         state.record_run("setup".to_string(), 100, 200, true);
 
+        // Act
         let validated = ValidatedLifecycleState::new(state).unwrap();
+
+        // Assert
         assert!(validated.state().has_completed_phase("init"));
         assert!(validated.state().has_completed_phase("setup"));
-    }
+    });
 }
 
 // Note: True compile-time tests would be in a separate file that's expected to fail compilation.

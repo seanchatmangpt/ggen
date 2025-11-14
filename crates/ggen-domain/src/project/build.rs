@@ -35,17 +35,17 @@
 //! # }
 //! ```
 
-use anyhow::Result;
+use ggen_utils::error::{bail, Result};
 use std::path::Path;
 
 /// Build a project
 pub async fn build_project(path: &Path) -> Result<()> {
     if !path.exists() {
-        anyhow::bail!("Project path does not exist: {}", path.display());
+        bail!("Project path does not exist: {}", path.display());
     }
 
     if !path.is_dir() {
-        anyhow::bail!("Project path is not a directory: {}", path.display());
+        bail!("Project path is not a directory: {}", path.display());
     }
 
     // Basic build orchestration - can be enhanced later

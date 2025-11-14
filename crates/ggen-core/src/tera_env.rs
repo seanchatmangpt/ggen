@@ -91,11 +91,11 @@ pub fn build_tera_minimal() -> Result<Tera> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chicago_tdd_tools::{async_test, test};
     use std::fs;
     use tempfile::TempDir;
 
-    #[test]
-    fn test_build_tera_with_glob() -> Result<()> {
+    test!(test_build_tera_with_glob, {
         let temp_dir = TempDir::new()?;
         let templates_dir = temp_dir.path().join("templates");
         fs::create_dir_all(&templates_dir)?;
@@ -113,10 +113,9 @@ mod tests {
         assert_eq!(result, "Hello World!");
 
         Ok(())
-    }
+    });
 
-    #[test]
-    fn test_build_tera_empty_directory() -> Result<()> {
+    test!(test_build_tera_empty_directory, {
         let temp_dir = TempDir::new()?;
         let templates_dir = temp_dir.path().join("templates");
         fs::create_dir_all(&templates_dir)?;
@@ -131,10 +130,9 @@ mod tests {
         assert_eq!(result, "HelloWorld");
 
         Ok(())
-    }
+    });
 
-    #[test]
-    fn test_build_tera_minimal() -> Result<()> {
+    test!(test_build_tera_minimal, {
         let mut tera = build_tera_minimal()?;
 
         // Should have filters registered
@@ -144,10 +142,9 @@ mod tests {
         assert_eq!(result, "hello_world");
 
         Ok(())
-    }
+    });
 
-    #[test]
-    fn test_autoescape_disabled() -> Result<()> {
+    test!(test_autoescape_disabled, {
         let mut tera = build_tera_minimal()?;
 
         // HTML should not be escaped
@@ -157,5 +154,5 @@ mod tests {
         assert_eq!(result, "<script>alert('xss')</script>");
 
         Ok(())
-    }
+    });
 }

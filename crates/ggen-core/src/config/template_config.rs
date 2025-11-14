@@ -108,15 +108,17 @@ impl Default for MarketplaceSettings {
 
 impl TemplateConfig {
     /// Load configuration from file
-    pub fn load(path: &PathBuf) -> anyhow::Result<Self> {
+    pub fn load(path: &PathBuf) -> ggen_utils::error::Result<Self> {
         let content = std::fs::read_to_string(path)?;
         let config: Self = toml::from_str(&content)?;
         Ok(config)
     }
 
     /// Save configuration to file
-    pub fn save(&self, path: &PathBuf) -> anyhow::Result<()> {
-        let content = toml::to_string_pretty(self)?;
+    pub fn save(&self, path: &PathBuf) -> ggen_utils::error::Result<()> {
+        let content = toml::to_string_pretty(self).map_err(|e| {
+            ggen_utils::error::Error::new(&format!("Failed to serialize config: {}", e))
+        })?;
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent)?;
         }
@@ -156,17 +158,16 @@ impl TemplateConfig {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chicago_tdd_tools::{async_test, test};
 
-    #[test]
-    fn test_default_config() {
+    test!(test_default_config, {
         let config = TemplateConfig::default();
         assert_eq!(config.search_paths.len(), 2);
         assert!(config.generation.auto_format);
         assert!(config.marketplace.enabled);
-    }
+    });
 
-    #[test]
-    fn test_add_search_path() {
+    test!(test_add_search_path, {
         let mut config = TemplateConfig::default();
         let new_path = PathBuf::from("/custom/templates");
 
@@ -177,10 +178,9 @@ mod tests {
         let len_before = config.search_paths.len();
         config.add_search_path(new_path);
         assert_eq!(config.search_paths.len(), len_before);
-    }
+    });
 
-    #[test]
-    fn test_default_variables() {
+    test!(test_default_variables, {
         let mut config = TemplateConfig::default();
 
         config.set_default_variable("project_name".to_string(), "my-project".to_string());
@@ -192,5 +192,5 @@ mod tests {
         );
         assert_eq!(config.get_default_variable("version").unwrap(), "1.0.0");
         assert!(config.get_default_variable("nonexistent").is_none());
-    }
+    });
 }

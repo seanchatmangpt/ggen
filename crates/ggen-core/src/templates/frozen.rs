@@ -46,7 +46,7 @@
 //! ```rust,no_run
 //! use ggen_core::templates::frozen::FrozenParser;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let content = r#"
 //! // Generated code
 //! {% frozen id="custom" %}
@@ -69,7 +69,7 @@
 //! ```rust,no_run
 //! use ggen_core::templates::frozen::FrozenMerger;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let old_content = r#"
 //! {% frozen id="logic" %}
 //! // User's preserved code
@@ -88,7 +88,7 @@
 //! # }
 //! ```
 
-use anyhow::{anyhow, Result};
+use ggen_utils::error::{Error, Result};
 use regex::Regex;
 
 /// Represents a frozen section in a template
@@ -102,7 +102,7 @@ use regex::Regex;
 /// ```rust,no_run
 /// use ggen_core::templates::frozen::{FrozenSection, FrozenParser};
 ///
-/// # fn main() -> anyhow::Result<()> {
+/// # fn main() -> ggen_utils::error::Result<()> {
 /// let content = r#"
 /// {% frozen id="custom" %}
 /// fn my_function() {
@@ -140,7 +140,7 @@ pub struct FrozenSection {
 /// ```rust,no_run
 /// use ggen_core::templates::frozen::FrozenParser;
 ///
-/// # fn main() -> anyhow::Result<()> {
+/// # fn main() -> ggen_utils::error::Result<()> {
 /// let content = r#"
 /// {% frozen %}
 /// preserved code
@@ -190,7 +190,7 @@ impl FrozenParser {
     /// ```rust,no_run
     /// use ggen_core::templates::frozen::FrozenParser;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let content = r#"
     /// {% frozen id="logic" %}
     /// fn custom_logic() {}
@@ -208,10 +208,10 @@ impl FrozenParser {
 
         // Regex to match {% frozen %} or {% frozen id="..." %}
         let start_regex = Regex::new(r#"\{%\s*frozen(?:\s+id\s*=\s*"([^"]+)")?\s*%\}"#)
-            .map_err(|e| anyhow!("Invalid frozen tag regex: {}", e))?;
+            .map_err(|e| Error::new(&format!("Invalid frozen tag regex: {}", e)))?;
 
         let end_regex = Regex::new(r"\{%\s*endfrozen\s*%\}")
-            .map_err(|e| anyhow!("Invalid endfrozen tag regex: {}", e))?;
+            .map_err(|e| Error::new(&format!("Invalid endfrozen tag regex: {}", e)))?;
 
         // Find all start tags
         for start_match in start_regex.captures_iter(template_content) {
@@ -230,10 +230,10 @@ impl FrozenParser {
                     id,
                 });
             } else {
-                return Err(anyhow!(
+                return Err(Error::new(&format!(
                     "Unclosed frozen tag at position {}",
                     start_match.get(0).unwrap().start()
-                ));
+                )));
             }
         }
 
@@ -263,7 +263,7 @@ impl FrozenParser {
     /// ```rust,no_run
     /// use ggen_core::templates::frozen::FrozenParser;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let content = r#"
     /// {% frozen id="custom" %}
     /// preserved code
@@ -301,7 +301,7 @@ impl FrozenParser {
 /// ```rust,no_run
 /// use ggen_core::templates::frozen::FrozenMerger;
 ///
-/// # fn main() -> anyhow::Result<()> {
+/// # fn main() -> ggen_utils::error::Result<()> {
 /// let old = r#"{% frozen id="custom" %}old code{% endfrozen %}"#;
 /// let new = r#"{% frozen id="custom" %}new code{% endfrozen %}"#;
 /// let merged = FrozenMerger::merge_with_frozen(old, new)?;
@@ -336,7 +336,7 @@ impl FrozenMerger {
     /// ```rust,no_run
     /// use ggen_core::templates::frozen::FrozenMerger;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let old_content = r#"
     /// {% frozen id="logic" %}
     /// fn my_custom_function() {
@@ -372,7 +372,7 @@ impl FrozenMerger {
         // Regex to match frozen tags in new content
         let frozen_regex =
             Regex::new(r#"\{%\s*frozen(?:\s+id\s*=\s*"([^"]+)")?\s*%\}.*?\{%\s*endfrozen\s*%\}"#)
-                .map_err(|e| anyhow!("Invalid frozen merge regex: {}", e))?;
+                .map_err(|e| Error::new(&format!("Invalid frozen merge regex: {}", e)))?;
 
         let mut section_index = 0;
         result = frozen_regex
@@ -488,9 +488,9 @@ impl FrozenMerger {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chicago_tdd_tools::{async_test, test};
 
-    #[test]
-    fn test_parse_simple_frozen_section() {
+    test!(test_parse_simple_frozen_section, {
         let content = r#"
 Before frozen
 {% frozen %}
@@ -503,10 +503,9 @@ After frozen
         assert_eq!(sections.len(), 1);
         assert!(sections[0].content.contains("user custom code"));
         assert_eq!(sections[0].id, None);
-    }
+    });
 
-    #[test]
-    fn test_parse_frozen_section_with_id() {
+    test!(test_parse_frozen_section_with_id, {
         let content = r#"
 {% frozen id="custom_logic" %}
 my implementation
@@ -517,10 +516,9 @@ my implementation
         assert_eq!(sections.len(), 1);
         assert!(sections[0].content.contains("my implementation"));
         assert_eq!(sections[0].id, Some("custom_logic".to_string()));
-    }
+    });
 
-    #[test]
-    fn test_parse_multiple_frozen_sections() {
+    test!(test_parse_multiple_frozen_sections, {
         let content = r#"
 {% frozen id="section1" %}
 code 1
@@ -537,10 +535,9 @@ code 2
         assert_eq!(sections.len(), 2);
         assert_eq!(sections[0].id, Some("section1".to_string()));
         assert_eq!(sections[1].id, Some("section2".to_string()));
-    }
+    });
 
-    #[test]
-    fn test_parse_unclosed_frozen_tag() {
+    test!(test_parse_unclosed_frozen_tag, {
         let content = r#"
 {% frozen %}
 unclosed section
@@ -548,10 +545,9 @@ unclosed section
 
         let result = FrozenParser::parse_frozen_tags(content);
         assert!(result.is_err());
-    }
+    });
 
-    #[test]
-    fn test_extract_frozen_map() {
+    test!(test_extract_frozen_map, {
         let content = r#"
 {% frozen id="logic" %}
 preserved code
@@ -561,11 +557,10 @@ preserved code
         let map = FrozenParser::extract_frozen_map(content).unwrap();
         assert_eq!(map.len(), 1);
         assert!(map.get("logic").unwrap().contains("preserved code"));
-    }
+    });
 
-    #[test]
     #[ignore = "Frozen section merging needs implementation review - v2.0.1"]
-    fn test_merge_with_frozen() {
+    test!(test_merge_with_frozen, {
         let old_content = r#"
 {% frozen id="custom" %}
 old user code
@@ -581,27 +576,24 @@ new generated code
         let merged = FrozenMerger::merge_with_frozen(old_content, new_content).unwrap();
         assert!(merged.contains("old user code"));
         assert!(!merged.contains("new generated code"));
-    }
+    });
 
-    #[test]
-    fn test_merge_without_frozen_sections() {
+    test!(test_merge_without_frozen_sections, {
         let old_content = "no frozen sections";
         let new_content = "new content";
 
         let merged = FrozenMerger::merge_with_frozen(old_content, new_content).unwrap();
         assert_eq!(merged, "new content");
-    }
+    });
 
-    #[test]
-    fn test_has_frozen_sections() {
+    test!(test_has_frozen_sections, {
         assert!(FrozenMerger::has_frozen_sections(
             "{% frozen %}code{% endfrozen %}"
         ));
         assert!(!FrozenMerger::has_frozen_sections("no frozen sections"));
-    }
+    });
 
-    #[test]
-    fn test_strip_frozen_tags() {
+    test!(test_strip_frozen_tags, {
         let content = r#"
 Before
 {% frozen id="test" %}
@@ -614,11 +606,10 @@ After
         assert!(!stripped.contains("{% frozen"));
         assert!(!stripped.contains("{% endfrozen %}"));
         assert!(stripped.contains("keep this content"));
-    }
+    });
 
-    #[test]
     #[ignore = "Frozen section merging needs implementation review - v2.0.1"]
-    fn test_merge_numbered_sections() {
+    test!(test_merge_numbered_sections, {
         let old_content = r#"
 {% frozen %}
 first section
@@ -642,5 +633,5 @@ new second
         assert!(merged.contains("second section"));
         assert!(!merged.contains("new first"));
         assert!(!merged.contains("new second"));
-    }
+    });
 }

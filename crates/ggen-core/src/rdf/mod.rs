@@ -26,7 +26,7 @@
 //! ```rust
 //! use ggen_core::rdf::schema::{GgenOntology, GGEN_NAMESPACE};
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let ontology = GgenOntology::new();
 //! let template_uri = ontology.template("my-template");
 //! assert!(template_uri.contains("my-template"));
@@ -40,7 +40,7 @@
 //! use ggen_core::rdf::template_metadata::TemplateMetadataStore;
 //! use ggen_core::graph::Graph;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let graph = Graph::new()?;
 //! let store = TemplateMetadataStore::new(graph);
 //!
@@ -56,7 +56,7 @@
 //! use ggen_core::rdf::validation::Validator;
 //! use ggen_core::rdf::template_metadata::TemplateMetadata;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let validator = Validator::new();
 //! let metadata = TemplateMetadata::default();
 //!

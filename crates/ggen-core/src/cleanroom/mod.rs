@@ -221,9 +221,9 @@ impl<P: Policy> CleanroomBuilder<P> {
 mod tests {
     use super::*;
     use crate::cleanroom::policy::{Locked, Permissive};
+    use chicago_tdd_tools::{test, async_test};
 
-    #[test]
-    fn test_cleanroom_core_builder() {
+    test!(test_cleanroom_core_builder, {
         let env = CleanroomCore::<Locked>::builder()
             .time_frozen(42)
             .rng_seeded(42)
@@ -233,10 +233,9 @@ mod tests {
             .expect("Failed to build cleanroom");
 
         assert!(env.root().exists());
-    }
+    });
 
-    #[test]
-    fn test_cleanroom_deterministic_surfaces() {
+    test!(test_cleanroom_deterministic_surfaces, {
         let env = CleanroomCore::<Locked>::builder()
             .time_frozen(42)
             .rng_seeded(42)
@@ -248,15 +247,14 @@ mod tests {
 
         // RNG should be seeded
         assert!(matches!(env.surfaces.rng_mode(), RngMode::Seeded(42)));
-    }
+    });
 
-    #[test]
-    fn test_cleanroom_attestation() {
+    test!(test_cleanroom_attestation, {
         let env = CleanroomCore::<Locked>::builder()
             .build()
             .expect("Failed to build cleanroom");
 
         let attestation = env.attestation();
         assert_eq!(attestation.policy(), "Locked");
-    }
+    });
 }

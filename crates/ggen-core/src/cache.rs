@@ -19,7 +19,7 @@
 //! ```rust,no_run
 //! use ggen_core::cache::CacheManager;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! // Use default cache directory (~/.cache/ggen/gpacks)
 //! let cache = CacheManager::new()?;
 //!
@@ -36,7 +36,7 @@
 //! use ggen_core::cache::CacheManager;
 //! use ggen_core::registry::ResolvedPack;
 //!
-//! # async fn example() -> anyhow::Result<()> {
+//! # async fn example() -> ggen_utils::error::Result<()> {
 //! let cache = CacheManager::new()?;
 //! let resolved_pack = ResolvedPack {
 //!     id: "io.ggen.example".to_string(),
@@ -58,7 +58,7 @@
 //! ```rust,no_run
 //! use ggen_core::cache::CacheManager;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let cache = CacheManager::new()?;
 //! let cached_packs = cache.list_cached()?;
 //!
@@ -69,7 +69,7 @@
 //! # }
 //! ```
 
-use anyhow::{Context, Result};
+use ggen_utils::error::{Error, Result};
 use git2::{FetchOptions, RemoteCallbacks, Repository};
 use sha2::{Digest, Sha256};
 use std::fs;
@@ -104,7 +104,7 @@ impl CacheManager {
     /// ```rust,no_run
     /// use ggen_core::cache::CacheManager;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let cache = CacheManager::new()?;
     /// println!("Cache directory: {:?}", cache.cache_dir());
     /// # Ok(())
@@ -112,11 +112,12 @@ impl CacheManager {
     /// ```
     pub fn new() -> Result<Self> {
         let cache_dir = dirs::cache_dir()
-            .context("Failed to find cache directory")?
+            .ok_or_else(|| Error::new("Failed to find cache directory"))?
             .join("ggen")
             .join("gpacks");
 
-        fs::create_dir_all(&cache_dir).context("Failed to create cache directory")?;
+        fs::create_dir_all(&cache_dir)
+            .map_err(|e| Error::with_context("Failed to create cache directory", &e.to_string()))?;
 
         Ok(Self { cache_dir })
     }
@@ -129,14 +130,15 @@ impl CacheManager {
     /// use ggen_core::cache::CacheManager;
     /// use std::path::PathBuf;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let cache = CacheManager::with_dir(PathBuf::from("/tmp/ggen-cache"))?;
     /// println!("Cache directory: {:?}", cache.cache_dir());
     /// # Ok(())
     /// # }
     /// ```
     pub fn with_dir(cache_dir: PathBuf) -> Result<Self> {
-        fs::create_dir_all(&cache_dir).context("Failed to create cache directory")?;
+        fs::create_dir_all(&cache_dir)
+            .map_err(|e| Error::with_context("Failed to create cache directory", &e.to_string()))?;
 
         Ok(Self { cache_dir })
     }
@@ -148,7 +150,7 @@ impl CacheManager {
     /// ```rust,no_run
     /// use ggen_core::cache::CacheManager;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let cache = CacheManager::new()?;
     /// let cache_path = cache.cache_dir();
     /// println!("Cache is at: {:?}", cache_path);
@@ -251,8 +253,9 @@ impl CacheManager {
                         return Ok(cached);
                     } else {
                         // SHA256 mismatch, remove and re-download
-                        fs::remove_dir_all(&pack_dir)
-                            .context("Failed to remove corrupted cache")?;
+                        fs::remove_dir_all(&pack_dir).map_err(|e| {
+                            Error::with_context("Failed to remove corrupted cache", &e.to_string())
+                        })?;
                     }
                 } else {
                     return Ok(cached);
@@ -272,8 +275,9 @@ impl CacheManager {
         // Create parent directory
         let parent_dir = pack_dir
             .parent()
-            .ok_or_else(|| anyhow::anyhow!("Invalid pack path: no parent directory"))?;
-        fs::create_dir_all(parent_dir).context("Failed to create pack directory")?;
+            .ok_or_else(|| Error::new("Invalid pack path: no parent directory"))?;
+        fs::create_dir_all(parent_dir)
+            .map_err(|e| Error::with_context("Failed to create pack directory", &e.to_string()))?;
 
         // Clone the repository
         let mut fetch_options = FetchOptions::new();
@@ -290,21 +294,24 @@ impl CacheManager {
         fetch_options.remote_callbacks(callbacks);
 
         // Clone to temporary directory first
-        let temp_dir = TempDir::new().context("Failed to create temporary directory")?;
+        let temp_dir = TempDir::new().map_err(|e| {
+            Error::with_context("Failed to create temporary directory", &e.to_string())
+        })?;
 
         let repo = Repository::clone(&resolved_pack.git_url, temp_dir.path())
-            .context("Failed to clone repository")?;
+            .map_err(|e| Error::with_context("Failed to clone repository", &e.to_string()))?;
 
         // Checkout specific revision
         let object = repo
             .revparse_single(&resolved_pack.git_rev)
-            .context("Failed to find revision")?;
+            .map_err(|e| Error::with_context("Failed to find revision", &e.to_string()))?;
 
         repo.checkout_tree(&object, None)
-            .context("Failed to checkout revision")?;
+            .map_err(|e| Error::with_context("Failed to checkout revision", &e.to_string()))?;
 
         // Move to final location
-        fs::rename(temp_dir.path(), pack_dir).context("Failed to move downloaded pack")?;
+        fs::rename(temp_dir.path(), pack_dir)
+            .map_err(|e| Error::with_context("Failed to move downloaded pack", &e.to_string()))?;
 
         Ok(())
     }
@@ -327,7 +334,7 @@ impl CacheManager {
     /// ```rust,no_run
     /// use ggen_core::cache::CacheManager;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let cache = CacheManager::new()?;
     /// // Assuming pack is already cached
     /// let cached = cache.load_cached("io.ggen.example", "1.0.0")?;
@@ -342,7 +349,7 @@ impl CacheManager {
     /// ```rust,no_run
     /// use ggen_core::cache::CacheManager;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let cache = CacheManager::new()?;
     /// // This will fail because the pack is not cached
     /// let result = cache.load_cached("nonexistent.pack", "1.0.0");
@@ -354,7 +361,10 @@ impl CacheManager {
         let pack_dir = self.cache_dir.join(pack_id).join(version);
 
         if !pack_dir.exists() {
-            anyhow::bail!("Pack not found in cache: {}@{}", pack_id, version);
+            return Err(Error::new(&format!(
+                "Pack not found in cache: {}@{}",
+                pack_id, version
+            )));
         }
 
         let sha256 = self.calculate_sha256(&pack_dir)?;
@@ -362,8 +372,12 @@ impl CacheManager {
         // Try to load manifest
         let manifest_path = pack_dir.join("gpack.toml");
         let manifest = if manifest_path.exists() {
-            let content = fs::read_to_string(&manifest_path).context("Failed to read manifest")?;
-            Some(toml::from_str(&content).context("Failed to parse manifest")?)
+            let content = fs::read_to_string(&manifest_path)
+                .map_err(|e| Error::with_context("Failed to read manifest", &e.to_string()))?;
+            Some(
+                toml::from_str(&content)
+                    .map_err(|e| Error::with_context("Failed to parse manifest", &e.to_string()))?,
+            )
         } else {
             None
         };
@@ -383,11 +397,15 @@ impl CacheManager {
 
         // Walk directory and hash all files
         for entry in walkdir::WalkDir::new(dir) {
-            let entry = entry.context("Failed to read directory entry")?;
+            let entry = entry.map_err(|e| {
+                Error::with_context("Failed to read directory entry", &e.to_string())
+            })?;
             let path = entry.path();
 
             if path.is_file() {
-                let content = fs::read(path).context("Failed to read file for hashing")?;
+                let content = fs::read(path).map_err(|e| {
+                    Error::with_context("Failed to read file for hashing", &e.to_string())
+                })?;
                 hasher.update(&content);
             }
         }
@@ -402,7 +420,7 @@ impl CacheManager {
     /// ```rust,no_run
     /// use ggen_core::cache::CacheManager;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let cache = CacheManager::new()?;
     /// let cached_packs = cache.list_cached()?;
     ///
@@ -419,18 +437,23 @@ impl CacheManager {
             return Ok(packs);
         }
 
-        for pack_entry in fs::read_dir(&self.cache_dir).context("Failed to read cache directory")? {
-            let pack_entry = pack_entry.context("Failed to read pack entry")?;
+        for pack_entry in fs::read_dir(&self.cache_dir)
+            .map_err(|e| Error::with_context("Failed to read cache directory", &e.to_string()))?
+        {
+            let pack_entry = pack_entry
+                .map_err(|e| Error::with_context("Failed to read pack entry", &e.to_string()))?;
             let pack_path = pack_entry.path();
 
             if pack_path.is_dir() {
                 let pack_id = pack_entry.file_name().to_string_lossy().to_string();
 
                 // Look for version directories
-                for version_entry in
-                    fs::read_dir(&pack_path).context("Failed to read pack directory")?
-                {
-                    let version_entry = version_entry.context("Failed to read version entry")?;
+                for version_entry in fs::read_dir(&pack_path).map_err(|e| {
+                    Error::with_context("Failed to read pack directory", &e.to_string())
+                })? {
+                    let version_entry = version_entry.map_err(|e| {
+                        Error::with_context("Failed to read version entry", &e.to_string())
+                    })?;
                     let version_path = version_entry.path();
 
                     if version_path.is_dir() {
@@ -462,7 +485,7 @@ impl CacheManager {
     /// ```rust,no_run
     /// use ggen_core::cache::CacheManager;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let cache = CacheManager::new()?;
     /// // Remove a specific version of a pack
     /// cache.remove("io.ggen.example", "1.0.0")?;
@@ -475,7 +498,7 @@ impl CacheManager {
     /// ```rust,no_run
     /// use ggen_core::cache::CacheManager;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let cache = CacheManager::new()?;
     /// // This may fail if we don't have permission to remove the pack
     /// let result = cache.remove("io.ggen.example", "1.0.0");
@@ -490,13 +513,16 @@ impl CacheManager {
         let pack_dir = self.cache_dir.join(pack_id).join(version);
 
         if pack_dir.exists() {
-            fs::remove_dir_all(&pack_dir).context("Failed to remove cached pack")?;
+            fs::remove_dir_all(&pack_dir)
+                .map_err(|e| Error::with_context("Failed to remove cached pack", &e.to_string()))?;
         }
 
         // Remove pack directory if empty
         if let Some(pack_parent) = pack_dir.parent() {
             if pack_parent.exists() && fs::read_dir(pack_parent)?.next().is_none() {
-                fs::remove_dir(pack_parent).context("Failed to remove empty pack directory")?;
+                fs::remove_dir(pack_parent).map_err(|e| {
+                    Error::with_context("Failed to remove empty pack directory", &e.to_string())
+                })?;
             }
         }
 
@@ -509,18 +535,23 @@ impl CacheManager {
             return Ok(());
         }
 
-        for pack_entry in fs::read_dir(&self.cache_dir).context("Failed to read cache directory")? {
-            let pack_entry = pack_entry.context("Failed to read pack entry")?;
+        for pack_entry in fs::read_dir(&self.cache_dir)
+            .map_err(|e| Error::with_context("Failed to read cache directory", &e.to_string()))?
+        {
+            let pack_entry = pack_entry
+                .map_err(|e| Error::with_context("Failed to read pack entry", &e.to_string()))?;
             let pack_path = pack_entry.path();
 
             if pack_path.is_dir() {
                 let mut versions = Vec::new();
 
                 // Collect all versions
-                for version_entry in
-                    fs::read_dir(&pack_path).context("Failed to read pack directory")?
-                {
-                    let version_entry = version_entry.context("Failed to read version entry")?;
+                for version_entry in fs::read_dir(&pack_path).map_err(|e| {
+                    Error::with_context("Failed to read pack directory", &e.to_string())
+                })? {
+                    let version_entry = version_entry.map_err(|e| {
+                        Error::with_context("Failed to read version entry", &e.to_string())
+                    })?;
                     let version_path = version_entry.path();
 
                     if version_path.is_dir() {
@@ -536,7 +567,9 @@ impl CacheManager {
                 versions.sort_by(|a, b| a.0.cmp(&b.0));
 
                 for (_, version_path) in versions.into_iter().rev().skip(1) {
-                    fs::remove_dir_all(&version_path).context("Failed to remove old version")?;
+                    fs::remove_dir_all(&version_path).map_err(|e| {
+                        Error::with_context("Failed to remove old version", &e.to_string())
+                    })?;
                 }
             }
         }
@@ -548,28 +581,32 @@ impl CacheManager {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chicago_tdd_tools::test;
     use std::fs;
     use tempfile::TempDir;
 
-    #[test]
-    fn test_cache_manager_creation() -> Result<()> {
-        let temp_dir = TempDir::new().context("Failed to create temp dir")?;
+    test!(test_cache_manager_creation, {
+        let temp_dir = TempDir::new()
+            .map_err(|e| Error::with_context("Failed to create temp dir", &e.to_string()))?;
         let cache_dir = temp_dir.path().to_path_buf();
 
         let cache_manager = CacheManager::with_dir(cache_dir.clone())?;
         assert_eq!(cache_manager.cache_dir(), cache_dir);
         Ok(())
-    }
+    });
 
-    #[test]
-    fn test_sha256_calculation() -> Result<()> {
-        let temp_dir = TempDir::new().context("Failed to create temp dir")?;
+    test!(test_sha256_calculation, {
+        let temp_dir = TempDir::new()
+            .map_err(|e| Error::with_context("Failed to create temp dir", &e.to_string()))?;
         let test_dir = temp_dir.path().join("test");
-        fs::create_dir_all(&test_dir).context("Failed to create test dir")?;
+        fs::create_dir_all(&test_dir)
+            .map_err(|e| Error::with_context("Failed to create test dir", &e.to_string()))?;
 
         // Create test files
-        fs::write(test_dir.join("file1.txt"), "content1").context("Failed to write file1")?;
-        fs::write(test_dir.join("file2.txt"), "content2").context("Failed to write file2")?;
+        fs::write(test_dir.join("file1.txt"), "content1")
+            .map_err(|e| Error::with_context("Failed to write file1", &e.to_string()))?;
+        fs::write(test_dir.join("file2.txt"), "content2")
+            .map_err(|e| Error::with_context("Failed to write file2", &e.to_string()))?;
 
         let cache_manager = CacheManager::with_dir(temp_dir.path().to_path_buf())?;
         let sha256 = cache_manager.calculate_sha256(&test_dir)?;
@@ -578,15 +615,15 @@ mod tests {
         assert_eq!(sha256.len(), 64);
         assert!(sha256.chars().all(|c| c.is_ascii_hexdigit()));
         Ok(())
-    }
+    });
 
-    #[test]
-    fn test_list_cached_empty() -> Result<()> {
-        let temp_dir = TempDir::new().context("Failed to create temp dir")?;
+    test!(test_list_cached_empty, {
+        let temp_dir = TempDir::new()
+            .map_err(|e| Error::with_context("Failed to create temp dir", &e.to_string()))?;
         let cache_manager = CacheManager::with_dir(temp_dir.path().to_path_buf())?;
 
         let cached = cache_manager.list_cached()?;
         assert!(cached.is_empty());
         Ok(())
-    }
+    });
 }

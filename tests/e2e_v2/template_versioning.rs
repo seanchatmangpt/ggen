@@ -1,7 +1,6 @@
 // Scenario 7: Template version management
 // Chicago TDD: REAL version pinning and upgrades
 
-use assert_cmd::Command;
 use std::fs;
 
 use super::test_helpers::*;

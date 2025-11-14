@@ -40,7 +40,7 @@ Step 1: Identify Mura → Step 2: Measure Variability → Step 3: Standardize �
    - Example: Inconsistent doctest formats (`no_run` vs runnable)
    - Example: Missing error case examples in doctests
 
-**Action**: Create Mura inventory
+**Action**: Create Mura inventory in `docs/wip/` directory
 
 ```markdown
 ## Mura Inventory

@@ -143,7 +143,26 @@ impl MergeConflict {
 /// # Ok(())
 /// # }
 /// ```
-#[derive(Debug, Clone, Serialize, Deserialize)]
+///
+/// Type of merge conflict
+///
+/// Represents different types of conflicts that can occur during three-way merging.
+///
+/// # Examples
+///
+/// ```rust
+/// use ggen_core::merge::ConflictType;
+///
+/// # fn main() {
+/// let conflict = ConflictType::OverlappingEdit;
+/// match conflict {
+///     ConflictType::OverlappingEdit => assert!(true),
+///     ConflictType::RegionConflict => assert!(true),
+///     ConflictType::StructuralConflict => assert!(true),
+/// }
+/// # }
+/// ```
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ConflictType {
     /// Manual edit overlaps with generated content
     OverlappingEdit,
@@ -275,7 +294,26 @@ impl MergeResult {
 /// # Ok(())
 /// # }
 /// ```
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+/// Merge strategy for resolving conflicts
+///
+/// Determines how to handle conflicts during three-way merging.
+///
+/// # Examples
+///
+/// ```rust
+/// use ggen_core::merge::MergeStrategy;
+///
+/// # fn main() {
+/// let strategy = MergeStrategy::GeneratedWins;
+/// match strategy {
+///     MergeStrategy::GeneratedWins => assert!(true),
+///     MergeStrategy::ManualWins => assert!(true),
+///     MergeStrategy::Interactive => assert!(true),
+///     MergeStrategy::FailOnConflict => assert!(true),
+/// }
+/// # }
+/// ```
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum MergeStrategy {
     /// Automatically resolve using generated content (overwrite manual)
     GeneratedWins,
@@ -701,9 +739,9 @@ impl RegionUtils {
 mod tests {
     use super::*;
     use crate::snapshot::FileSnapshot;
+    use chicago_tdd_tools::{async_test, test};
 
-    #[test]
-    fn test_merge_strategies() {
+    test!(test_merge_strategies, {
         let merger = ThreeWayMerger::new(MergeStrategy::GeneratedWins);
 
         let baseline = "line 1\nline 2\n";
@@ -717,10 +755,9 @@ mod tests {
         assert!(!result.has_conflicts);
         assert_eq!(result.strategy, MergeStrategy::GeneratedWins);
         assert_eq!(result.content, generated);
-    }
+    });
 
-    #[test]
-    fn test_region_aware_merge() {
+    test!(test_region_aware_merge, {
         let merger = RegionAwareMerger::new(MergeStrategy::ManualWins);
 
         let baseline = "line 1\n// GENERATED: DO NOT EDIT\nline 2\n// END GENERATED\nline 3\n";
@@ -758,10 +795,9 @@ mod tests {
 
         assert!(!result.has_conflicts);
         assert_eq!(result.strategy, MergeStrategy::ManualWins);
-    }
+    });
 
-    #[test]
-    fn test_region_parsing() {
+    test!(test_region_parsing, {
         let content = r#"
 line 1
 // GENERATED: DO NOT EDIT
@@ -786,10 +822,9 @@ line 4
         assert_eq!(generated[0].end, 6);
         assert_eq!(manual[0].start, 7);
         assert_eq!(manual[0].end, 10);
-    }
+    });
 
-    #[test]
-    fn test_region_check() {
+    test!(test_region_check, {
         let regions = vec![
             Region {
                 start: 2,
@@ -815,5 +850,5 @@ line 4
             &regions,
             &RegionType::Generated
         ));
-    }
+    });
 }

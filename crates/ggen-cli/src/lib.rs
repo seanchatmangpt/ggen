@@ -78,7 +78,8 @@ pub async fn cli_match() -> ggen_utils::error::Result<()> {
     }
 
     // Use clap-noun-verb auto-discovery
-    clap_noun_verb::run().map_err(|e| anyhow::anyhow!("CLI execution failed: {}", e))?;
+    clap_noun_verb::run()
+        .map_err(|e| ggen_utils::error::Error::new(&format!("CLI execution failed: {}", e)))?;
     Ok(())
 }
 
@@ -148,7 +149,7 @@ pub async fn run_for_node(args: Vec<String>) -> ggen_utils::error::Result<RunRes
         code
     })
     .await
-    .map_err(|e| anyhow::anyhow!("Failed to execute CLI: {}", e))?;
+    .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to execute CLI: {}", e)))?;
 
     let stdout = String::from_utf8_lossy(&stdout_buffer.lock().unwrap()).to_string();
     let stderr = String::from_utf8_lossy(&stderr_buffer.lock().unwrap()).to_string();

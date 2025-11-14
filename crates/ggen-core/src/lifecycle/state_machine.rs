@@ -207,9 +207,9 @@ impl Default for LifecycleStateMachine<Initial> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chicago_tdd_tools::{async_test, test};
 
-    #[test]
-    fn test_valid_state_transitions() {
+    test!(test_valid_state_transitions, {
         // State machine validates transitions but doesn't record phases
         // Phases are recorded in exec.rs during actual execution
         let mut lifecycle = LifecycleStateMachine::<Initial>::new();
@@ -259,17 +259,15 @@ mod tests {
         assert!(lifecycle.has_completed_phase("build"));
         assert!(lifecycle.has_completed_phase("test"));
         assert!(lifecycle.has_completed_phase("deploy"));
-    }
+    });
 
-    #[test]
-    fn test_state_access() {
+    test!(test_state_access, {
         let lifecycle = LifecycleStateMachine::<Initial>::new();
         assert_eq!(lifecycle.last_phase(), None);
         assert!(!lifecycle.has_completed_phase("init"));
-    }
+    });
 
-    #[test]
-    fn test_invalid_transition_validation() {
+    test!(test_invalid_transition_validation, {
         let lifecycle = LifecycleStateMachine::<Initial>::new();
         // Cannot call setup() on Initial state - compile error!
         // let lifecycle = lifecycle.setup().unwrap(); // This would fail to compile
@@ -285,5 +283,5 @@ mod tests {
             _marker: PhantomData,
         };
         let _lifecycle = lifecycle.setup().unwrap(); // Now this works
-    }
+    });
 }

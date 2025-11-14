@@ -261,7 +261,7 @@ impl SimpleTracer {
     }
 
     /// Log error
-    pub fn error(error: &anyhow::Error, context: &str) {
+    pub fn error(error: &ggen_utils::error::Error, context: &str) {
         Self::trace(
             TraceLevel::Error,
             &format!("Error in {}: {}", context, error),
@@ -320,26 +320,24 @@ macro_rules! time_operation {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chicago_tdd_tools::{async_test, test};
     use std::fs;
     use tempfile::TempDir;
 
-    #[test]
-    fn test_trace_level_ordering() {
+    test!(test_trace_level_ordering, {
         assert!(TraceLevel::Error < TraceLevel::Warn);
         assert!(TraceLevel::Warn < TraceLevel::Info);
         assert!(TraceLevel::Info < TraceLevel::Debug);
         assert!(TraceLevel::Debug < TraceLevel::Trace);
-    }
+    });
 
-    #[test]
-    fn test_simple_timer() {
+    test!(test_simple_timer, {
         let timer = SimpleTimer::start("test_operation");
         std::thread::sleep(std::time::Duration::from_millis(10));
         timer.finish(); // Should not panic
-    }
+    });
 
-    #[test]
-    fn test_tracing_methods() {
+    test!(test_tracing_methods, {
         let temp_dir = TempDir::new().unwrap();
         let test_path = temp_dir.path().join("test.tmpl");
         fs::write(&test_path, "test content").unwrap();
@@ -362,14 +360,13 @@ mod tests {
         SimpleTracer::backup_created(&test_path, &temp_dir.path().join("backup.tmpl"));
         SimpleTracer::skip_condition("skip_if", "pattern found");
 
-        let error = anyhow::anyhow!("Test error");
+        let error = ggen_utils::error::Error::new("Test error");
         SimpleTracer::error(&error, "test context");
         SimpleTracer::warning("Test warning", Some("test context"));
         SimpleTracer::warning("Test warning", None);
-    }
+    });
 
-    #[test]
-    fn test_tracing_environment_variables() {
+    test!(test_tracing_environment_variables, {
         // Test different GGEN_TRACE values
         let test_values = [
             "error", "warn", "info", "debug", "trace", "1", "0", "true", "false",
@@ -387,14 +384,13 @@ mod tests {
                     | TraceLevel::Trace
             ));
         }
-    }
+    });
 
-    #[test]
-    fn test_time_operation_macro() {
+    test!(test_time_operation_macro, {
         let result = crate::time_operation!("test_op", {
             std::thread::sleep(std::time::Duration::from_millis(2));
             42
         });
         assert_eq!(result, 42);
-    }
+    });
 }

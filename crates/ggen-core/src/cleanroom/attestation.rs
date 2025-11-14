@@ -340,9 +340,9 @@ fn format_timestamp(time: SystemTime) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chicago_tdd_tools::{test, async_test};
 
-    #[test]
-    fn test_attestation_creation() {
+    test!(test_attestation_creation, {
         let surfaces = DeterministicSurfaces::deterministic(42);
         let attestation = Attestation::new(&surfaces, "Locked");
 
@@ -351,10 +351,9 @@ mod tests {
         assert_eq!(attestation.security_level, 100);
         assert!(attestation.seeds.contains_key("time"));
         assert!(attestation.seeds.contains_key("rng"));
-    }
+    });
 
-    #[test]
-    fn test_attestation_export_import() {
+    test!(test_attestation_export_import, {
         use tempfile::TempDir;
 
         let surfaces = DeterministicSurfaces::deterministic(42);
@@ -368,10 +367,9 @@ mod tests {
 
         assert_eq!(attestation.policy, imported.policy);
         assert_eq!(attestation.determinism_score, imported.determinism_score);
-    }
+    });
 
-    #[test]
-    fn test_reproducibility_instructions() {
+    test!(test_reproducibility_instructions, {
         let surfaces = DeterministicSurfaces::deterministic(42);
         let attestation = Attestation::new(&surfaces, "Locked");
 
@@ -381,5 +379,5 @@ mod tests {
         assert!(instructions.contains("Determinism Score: 1.00"));
         assert!(instructions.contains("time: 42"));
         assert!(instructions.contains("rng: 42"));
-    }
+    });
 }

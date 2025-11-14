@@ -14,7 +14,7 @@
 //! - Verifies actual code changes based on ontology changes
 
 use anyhow::Result;
-use ggen_core::{Graph, Template};
+use ggen_core::Graph;
 use ggen_domain::graph::{execute_query, QueryInput};
 use ggen_domain::template::render_with_rdf::{render_with_rdf, RenderWithRdfOptions};
 use std::fs;

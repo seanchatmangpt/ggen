@@ -36,7 +36,7 @@
 //! # }
 //! ```
 
-use anyhow::{Context, Result};
+use ggen_utils::error::{Context, Result};
 use glob::glob;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;

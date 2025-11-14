@@ -26,7 +26,7 @@
 //! ```rust,no_run
 //! use ggen_core::registry::RegistryClient;
 //!
-//! # async fn example() -> anyhow::Result<()> {
+//! # async fn example() -> ggen_utils::error::Result<()> {
 //! let client = RegistryClient::new()?;
 //! # Ok(())
 //! # }
@@ -37,7 +37,7 @@
 //! ```rust,no_run
 //! use ggen_core::registry::RegistryClient;
 //!
-//! # async fn example() -> anyhow::Result<()> {
+//! # async fn example() -> ggen_utils::error::Result<()> {
 //! let client = RegistryClient::new()?;
 //! let results = client.search("rust cli").await?;
 //!
@@ -53,7 +53,7 @@
 //! ```rust,no_run
 //! use ggen_core::registry::RegistryClient;
 //!
-//! # async fn example() -> anyhow::Result<()> {
+//! # async fn example() -> ggen_utils::error::Result<()> {
 //! let client = RegistryClient::new()?;
 //! let resolved = client.resolve("io.ggen.rust.cli", Some("1.0.0")).await?;
 //!
@@ -69,7 +69,7 @@
 //! ```rust,no_run
 //! use ggen_core::registry::{RegistryClient, SearchParams};
 //!
-//! # async fn example() -> anyhow::Result<()> {
+//! # async fn example() -> ggen_utils::error::Result<()> {
 //! let client = RegistryClient::new()?;
 //! let params = SearchParams {
 //!     query: "api",
@@ -85,8 +85,8 @@
 //! # }
 //! ```
 
-use anyhow::{Context, Result};
 use chrono::{DateTime, Utc};
+use ggen_utils::error::{Error, Result};
 use reqwest;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -197,7 +197,8 @@ impl RegistryClient {
         let registry_url = std::env::var("GGEN_REGISTRY_URL")
             .unwrap_or_else(|_| "https://seanchatmangpt.github.io/ggen/registry/".to_string());
 
-        let base_url = Url::parse(&registry_url).context("Failed to parse registry URL")?;
+        let base_url = Url::parse(&registry_url)
+            .map_err(|e| Error::with_context("Failed to parse registry URL", &e.to_string()))?;
 
         /// Default HTTP client timeout in seconds
         const DEFAULT_HTTP_TIMEOUT_SECS: u64 = 30;
@@ -205,7 +206,7 @@ impl RegistryClient {
         let client = reqwest::Client::builder()
             .timeout(std::time::Duration::from_secs(DEFAULT_HTTP_TIMEOUT_SECS))
             .build()
-            .context("Failed to create HTTP client")?;
+            .map_err(|e| Error::with_context("Failed to create HTTP client", &e.to_string()))?;
 
         Ok(Self { base_url, client })
     }
@@ -218,7 +219,7 @@ impl RegistryClient {
         let client = reqwest::Client::builder()
             .timeout(std::time::Duration::from_secs(DEFAULT_HTTP_TIMEOUT_SECS))
             .build()
-            .context("Failed to create HTTP client")?;
+            .map_err(|e| Error::with_context("Failed to create HTTP client", &e.to_string()))?;
 
         Ok(Self { base_url, client })
     }
@@ -229,7 +230,7 @@ impl RegistryClient {
         let url = self
             .base_url
             .join("index.json")
-            .context("Failed to construct index URL")?;
+            .map_err(|e| Error::with_context("Failed to construct index URL", &e.to_string()))?;
 
         tracing::Span::current().record("url", tracing::field::display(&url));
 
@@ -237,15 +238,18 @@ impl RegistryClient {
         if url.scheme() == "file" {
             let path = url
                 .to_file_path()
-                .map_err(|_| anyhow::anyhow!("Invalid file URL: {}", url))?;
+                .map_err(|_| Error::new(&format!("Invalid file URL: {}", url)))?;
 
-            let content = std::fs::read_to_string(&path).context(format!(
-                "Failed to read registry index from {}",
-                path.display()
-            ))?;
+            let content = std::fs::read_to_string(&path).map_err(|e| {
+                Error::with_context(
+                    &format!("Failed to read registry index from {}", path.display()),
+                    &e.to_string(),
+                )
+            })?;
 
-            let index: RegistryIndex =
-                serde_json::from_str(&content).context("Failed to parse registry index")?;
+            let index: RegistryIndex = serde_json::from_str(&content).map_err(|e| {
+                Error::with_context("Failed to parse registry index", &e.to_string())
+            })?;
 
             return Ok(index);
         }
@@ -270,18 +274,16 @@ impl RegistryClient {
 
                         // Don't retry on client errors (4xx), only server errors (5xx) and network issues
                         if status.is_client_error() {
-                            anyhow::bail!(
+                            return Err(Error::new(&format!(
                                 "Registry returned client error status: {} for URL: {}",
-                                status,
-                                url
-                            );
+                                status, url
+                            )));
                         }
 
-                        last_error = Some(anyhow::anyhow!(
+                        last_error = Some(Error::new(&format!(
                             "Registry returned status: {} for URL: {}",
-                            status,
-                            url
-                        ));
+                            status, url
+                        )));
                     } else {
                         match response.json::<RegistryIndex>().await {
                             Ok(index) => {
@@ -290,20 +292,20 @@ impl RegistryClient {
                             }
                             Err(e) => {
                                 tracing::warn!(error = %e, attempt, "Failed to parse registry index");
-                                last_error = Some(
-                                    anyhow::Error::from(e)
-                                        .context("Failed to parse registry index"),
-                                );
+                                last_error = Some(Error::with_source(
+                                    "Failed to parse registry index",
+                                    Box::new(e),
+                                ));
                             }
                         }
                     }
                 }
                 Err(e) => {
                     tracing::warn!(error = %e, attempt, "Network error fetching registry");
-                    last_error = Some(
-                        anyhow::Error::from(e)
-                            .context(format!("Failed to fetch registry index from {}", url)),
-                    );
+                    last_error = Some(Error::with_source(
+                        &format!("Failed to fetch registry index from {}", url),
+                        Box::new(e),
+                    ));
                 }
             }
 
@@ -319,7 +321,10 @@ impl RegistryClient {
 
         // All retries exhausted
         Err(last_error.unwrap_or_else(|| {
-            anyhow::anyhow!("Failed to fetch registry after {} attempts", MAX_RETRIES)
+            Error::new(&format!(
+                "Failed to fetch registry after {} attempts",
+                MAX_RETRIES
+            ))
         }))
     }
 
@@ -531,21 +536,20 @@ impl RegistryClient {
 
         let index = self.fetch_index().await?;
 
-        let pack = index
-            .packs
-            .get(pack_id)
-            .with_context(|| format!("Pack '{}' not found in registry", pack_id))?;
+        let pack = index.packs.get(pack_id).ok_or_else(|| {
+            ggen_utils::error::Error::new(&format!("Pack '{}' not found in registry", pack_id))
+        })?;
 
         let target_version = match version {
             Some(v) => v.to_string(),
             None => pack.latest_version.clone(),
         };
 
-        let version_meta = pack.versions.get(&target_version).with_context(|| {
-            format!(
+        let version_meta = pack.versions.get(&target_version).ok_or_else(|| {
+            ggen_utils::error::Error::new(&format!(
                 "Version '{}' not found for pack '{}'",
                 target_version, pack_id
-            )
+            ))
         })?;
 
         tracing::Span::current()
@@ -567,17 +571,24 @@ impl RegistryClient {
     ) -> Result<Option<ResolvedPack>> {
         let index = self.fetch_index().await?;
 
-        let pack = index
-            .packs
-            .get(pack_id)
-            .with_context(|| format!("Pack '{}' not found in registry", pack_id))?;
+        let pack = index.packs.get(pack_id).ok_or_else(|| {
+            ggen_utils::error::Error::new(&format!("Pack '{}' not found in registry", pack_id))
+        })?;
 
         // Compare versions using semver
-        let current = semver::Version::parse(current_version)
-            .with_context(|| format!("Invalid current version: {}", current_version))?;
+        let current = semver::Version::parse(current_version).map_err(|e| {
+            ggen_utils::error::Error::with_source(
+                &format!("Invalid current version: {}", current_version),
+                Box::new(e),
+            )
+        })?;
 
-        let latest = semver::Version::parse(&pack.latest_version)
-            .with_context(|| format!("Invalid latest version: {}", pack.latest_version))?;
+        let latest = semver::Version::parse(&pack.latest_version).map_err(|e| {
+            ggen_utils::error::Error::with_source(
+                &format!("Invalid latest version: {}", pack.latest_version),
+                Box::new(e),
+            )
+        })?;
 
         if latest > current {
             self.resolve(pack_id, Some(&pack.latest_version))
@@ -628,6 +639,7 @@ impl RegistryClient {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chicago_tdd_tools::{async_test, test};
     use std::fs;
     use tempfile::TempDir;
 
@@ -883,7 +895,8 @@ mod tests {
     #[ignore] // Disabled due to file:// URL not supported by reqwest
     async fn test_registry_client_search() -> Result<()> {
         // Create a temporary directory for mock registry
-        let temp_dir = TempDir::new().context("Failed to create temp dir")?;
+        let temp_dir = TempDir::new()
+            .map_err(|e| Error::with_context("Failed to create temp dir", &e.to_string()))?;
         let index_path = temp_dir.path().join("index.json");
 
         // Create mock index
@@ -908,11 +921,12 @@ mod tests {
             }
         }"#;
 
-        fs::write(&index_path, mock_index).context("Failed to write mock index")?;
+        fs::write(&index_path, mock_index)
+            .map_err(|e| Error::with_context("Failed to write mock index", &e.to_string()))?;
 
         // Create registry client with file:// URL
         let base_url = Url::from_file_path(temp_dir.path())
-            .map_err(|_| anyhow::anyhow!("Failed to create file URL"))?;
+            .map_err(|_| Error::new("Failed to create file URL"))?;
         let client = RegistryClient::with_base_url(base_url)?;
 
         // Test search
@@ -925,7 +939,8 @@ mod tests {
     #[tokio::test]
     #[ignore] // Disabled due to file:// URL not supported by reqwest
     async fn test_registry_client_resolve() -> Result<()> {
-        let temp_dir = TempDir::new().context("Failed to create temp dir")?;
+        let temp_dir = TempDir::new()
+            .map_err(|e| Error::with_context("Failed to create temp dir", &e.to_string()))?;
         let index_path = temp_dir.path().join("index.json");
 
         let mock_index = r#"{
@@ -949,10 +964,11 @@ mod tests {
             }
         }"#;
 
-        fs::write(&index_path, mock_index).context("Failed to write mock index")?;
+        fs::write(&index_path, mock_index)
+            .map_err(|e| Error::with_context("Failed to write mock index", &e.to_string()))?;
 
         let base_url = Url::from_file_path(temp_dir.path())
-            .map_err(|_| anyhow::anyhow!("Failed to create file URL"))?;
+            .map_err(|_| Error::new("Failed to create file URL"))?;
         let client = RegistryClient::with_base_url(base_url)?;
 
         // Test resolve

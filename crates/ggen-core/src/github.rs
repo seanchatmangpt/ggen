@@ -23,7 +23,7 @@
 //! ```rust,no_run
 //! use ggen_core::github::{GitHubClient, RepoInfo};
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let repo = RepoInfo::parse("owner/repo")?;
 //! let client = GitHubClient::new(repo)?;
 //!
@@ -39,7 +39,7 @@
 //! ```rust,no_run
 //! use ggen_core::github::{GitHubClient, RepoInfo};
 //!
-//! # async fn example() -> anyhow::Result<()> {
+//! # async fn example() -> ggen_utils::error::Result<()> {
 //! let repo = RepoInfo::parse("owner/repo")?;
 //! let client = GitHubClient::new(repo.clone())?;
 //!
@@ -54,7 +54,7 @@
 //! ```rust,no_run
 //! use ggen_core::github::{GitHubClient, RepoInfo};
 //!
-//! # async fn example() -> anyhow::Result<()> {
+//! # async fn example() -> ggen_utils::error::Result<()> {
 //! let repo = RepoInfo::parse("owner/repo")?;
 //! let client = GitHubClient::new(repo.clone())?;
 //!
@@ -95,7 +95,7 @@
 //! ```rust,no_run
 //! use ggen_core::github::{GitHubClient, RepoInfo};
 //!
-//! # async fn example() -> anyhow::Result<()> {
+//! # async fn example() -> ggen_utils::error::Result<()> {
 //! let repo = RepoInfo::parse("seanchatmangpt/ggen")?;
 //! let client = GitHubClient::new(repo.clone())?;
 //!
@@ -110,7 +110,7 @@
 //! ```rust,no_run
 //! use ggen_core::github::{GitHubClient, RepoInfo};
 //!
-//! # async fn example() -> anyhow::Result<()> {
+//! # async fn example() -> ggen_utils::error::Result<()> {
 //! let repo = RepoInfo::parse("seanchatmangpt/ggen")?;
 //! let client = GitHubClient::new(repo.clone())?;
 //!
@@ -127,7 +127,7 @@
 //! ```rust,no_run
 //! use ggen_core::github::{GitHubClient, RepoInfo};
 //!
-//! # async fn example() -> anyhow::Result<()> {
+//! # async fn example() -> ggen_utils::error::Result<()> {
 //! let repo = RepoInfo::parse("seanchatmangpt/ggen")?;
 //! let client = GitHubClient::new(repo.clone())?;
 //!
@@ -167,7 +167,7 @@
 //! ```rust,no_run
 //! use ggen_core::github::{GitHubClient, RepoInfo};
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let repo = RepoInfo::parse("seanchatmangpt/ggen")?;
 //! let client = GitHubClient::new(repo)?;
 //!
@@ -183,7 +183,7 @@
 //! ```rust,no_run
 //! use ggen_core::github::{GitHubClient, RepoInfo};
 //!
-//! # async fn example() -> anyhow::Result<()> {
+//! # async fn example() -> ggen_utils::error::Result<()> {
 //! let repo = RepoInfo::parse("seanchatmangpt/ggen")?;
 //! let client = GitHubClient::new(repo.clone())?;
 //!
@@ -200,7 +200,7 @@
 //! ```rust,no_run
 //! use ggen_core::github::{GitHubClient, RepoInfo};
 //!
-//! # async fn example() -> anyhow::Result<()> {
+//! # async fn example() -> ggen_utils::error::Result<()> {
 //! let repo = RepoInfo::parse("seanchatmangpt/ggen")?;
 //! let client = GitHubClient::new(repo.clone())?;
 //!
@@ -216,7 +216,7 @@
 //! # }
 //! ```
 
-use anyhow::{Context, Result};
+use ggen_utils::error::{Error, Result};
 use reqwest;
 use serde::{Deserialize, Serialize};
 use std::env;
@@ -293,10 +293,10 @@ impl RepoInfo {
     pub fn parse(repo_str: &str) -> Result<Self> {
         let parts: Vec<&str> = repo_str.split('/').collect();
         if parts.len() != 2 {
-            anyhow::bail!(
+            return Err(Error::new(&format!(
                 "Invalid repository format. Expected 'owner/repo', got '{}'",
                 repo_str
-            );
+            )));
         }
         Ok(Self {
             owner: parts[0].to_string(),
@@ -313,8 +313,9 @@ impl RepoInfo {
 impl GitHubClient {
     /// Create a new GitHub API client
     pub fn new(_repo: RepoInfo) -> Result<Self> {
-        let base_url =
-            Url::parse("https://api.github.com").context("Failed to parse GitHub API base URL")?;
+        let base_url = Url::parse("https://api.github.com").map_err(|e| {
+            Error::with_context("Failed to parse GitHub API base URL", &e.to_string())
+        })?;
 
         // Check for GitHub token in environment
         let token = env::var("GITHUB_TOKEN")
@@ -331,14 +332,14 @@ impl GitHubClient {
             headers.insert(
                 reqwest::header::AUTHORIZATION,
                 reqwest::header::HeaderValue::from_str(&format!("Bearer {}", token))
-                    .context("Invalid GitHub token")?,
+                    .map_err(|e| Error::with_context("Invalid GitHub token", &e.to_string()))?,
             );
             client_builder = client_builder.default_headers(headers);
         }
 
         let client = client_builder
             .build()
-            .context("Failed to create HTTP client")?;
+            .map_err(|e| Error::with_context("Failed to create HTTP client", &e.to_string()))?;
 
         Ok(Self {
             base_url,
@@ -357,34 +358,35 @@ impl GitHubClient {
         let url = self
             .base_url
             .join(&format!("repos/{}/pages", repo.as_str()))
-            .context("Failed to construct Pages API URL")?;
+            .map_err(|e| {
+                Error::with_context("Failed to construct Pages API URL", &e.to_string())
+            })?;
 
-        let response = self
-            .client
-            .get(url.clone())
-            .send()
-            .await
-            .context(format!("Failed to fetch Pages config from {}", url))?;
+        let response = self.client.get(url.clone()).send().await.map_err(|e| {
+            Error::with_context(
+                &format!("Failed to fetch Pages config from {}", url),
+                &e.to_string(),
+            )
+        })?;
 
         if response.status() == 404 {
-            anyhow::bail!(
+            return Err(Error::new(&format!(
                 "GitHub Pages not configured for repository {}",
                 repo.as_str()
-            );
+            )));
         }
 
         if !response.status().is_success() {
-            anyhow::bail!(
+            return Err(Error::new(&format!(
                 "GitHub API returned status: {} for URL: {}",
                 response.status(),
                 url
-            );
+            )));
         }
 
-        let config: PagesConfig = response
-            .json()
-            .await
-            .context("Failed to parse Pages configuration")?;
+        let config: PagesConfig = response.json().await.map_err(|e| {
+            Error::with_context("Failed to parse Pages configuration", &e.to_string())
+        })?;
 
         Ok(config)
     }
@@ -401,27 +403,29 @@ impl GitHubClient {
                 workflow_file,
                 per_page
             ))
-            .context("Failed to construct workflow runs API URL")?;
+            .map_err(|e| {
+                Error::with_context("Failed to construct workflow runs API URL", &e.to_string())
+            })?;
 
-        let response = self
-            .client
-            .get(url.clone())
-            .send()
-            .await
-            .context(format!("Failed to fetch workflow runs from {}", url))?;
+        let response = self.client.get(url.clone()).send().await.map_err(|e| {
+            Error::with_context(
+                &format!("Failed to fetch workflow runs from {}", url),
+                &e.to_string(),
+            )
+        })?;
 
         if !response.status().is_success() {
-            anyhow::bail!(
+            return Err(Error::new(&format!(
                 "GitHub API returned status: {} for URL: {}",
                 response.status(),
                 url
-            );
+            )));
         }
 
         let runs: WorkflowRunsResponse = response
             .json()
             .await
-            .context("Failed to parse workflow runs")?;
+            .map_err(|e| Error::with_context("Failed to parse workflow runs", &e.to_string()))?;
 
         Ok(runs)
     }
@@ -431,27 +435,29 @@ impl GitHubClient {
         let url = self
             .base_url
             .join(&format!("repos/{}/actions/runs/{}", repo.as_str(), run_id))
-            .context("Failed to construct workflow run API URL")?;
+            .map_err(|e| {
+                Error::with_context("Failed to construct workflow run API URL", &e.to_string())
+            })?;
 
-        let response = self
-            .client
-            .get(url.clone())
-            .send()
-            .await
-            .context(format!("Failed to fetch workflow run from {}", url))?;
+        let response = self.client.get(url.clone()).send().await.map_err(|e| {
+            Error::with_context(
+                &format!("Failed to fetch workflow run from {}", url),
+                &e.to_string(),
+            )
+        })?;
 
         if !response.status().is_success() {
-            anyhow::bail!(
+            return Err(Error::new(&format!(
                 "GitHub API returned status: {} for URL: {}",
                 response.status(),
                 url
-            );
+            )));
         }
 
         let run: WorkflowRun = response
             .json()
             .await
-            .context("Failed to parse workflow run")?;
+            .map_err(|e| Error::with_context("Failed to parse workflow run", &e.to_string()))?;
 
         Ok(run)
     }
@@ -464,7 +470,7 @@ impl GitHubClient {
         ref_name: &str, // branch, tag, or SHA
     ) -> Result<()> {
         if !self.is_authenticated() {
-            anyhow::bail!("GitHub token required to trigger workflows. Set GITHUB_TOKEN or GH_TOKEN environment variable.");
+            return Err(Error::new("GitHub token required to trigger workflows. Set GITHUB_TOKEN or GH_TOKEN environment variable."));
         }
 
         let url = self
@@ -474,7 +480,12 @@ impl GitHubClient {
                 repo.as_str(),
                 workflow_file
             ))
-            .context("Failed to construct workflow dispatch API URL")?;
+            .map_err(|e| {
+                Error::with_context(
+                    "Failed to construct workflow dispatch API URL",
+                    &e.to_string(),
+                )
+            })?;
 
         #[derive(Serialize)]
         struct DispatchRequest<'a> {
@@ -490,10 +501,18 @@ impl GitHubClient {
             .json(&body)
             .send()
             .await
-            .context(format!("Failed to trigger workflow at {}", url))?;
+            .map_err(|e| {
+                Error::with_context(
+                    &format!("Failed to trigger workflow at {}", url),
+                    &e.to_string(),
+                )
+            })?;
 
         if !response.status().is_success() {
-            anyhow::bail!("Failed to trigger workflow. Status: {}", response.status());
+            return Err(Error::new(&format!(
+                "Failed to trigger workflow. Status: {}",
+                response.status()
+            )));
         }
 
         Ok(())
@@ -501,12 +520,12 @@ impl GitHubClient {
 
     /// Check if a GitHub Pages site is accessible
     pub async fn check_site_status(&self, pages_url: &str) -> Result<u16> {
-        let response = self
-            .client
-            .get(pages_url)
-            .send()
-            .await
-            .context(format!("Failed to check site status at {}", pages_url))?;
+        let response = self.client.get(pages_url).send().await.map_err(|e| {
+            Error::with_context(
+                &format!("Failed to check site status at {}", pages_url),
+                &e.to_string(),
+            )
+        })?;
 
         Ok(response.status().as_u16())
     }
@@ -515,26 +534,24 @@ impl GitHubClient {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chicago_tdd_tools::{async_test, test};
 
-    #[test]
-    fn test_repo_info_parse() {
+    test!(test_repo_info_parse, {
         let repo = RepoInfo::parse("seanchatmangpt/ggen").unwrap();
         assert_eq!(repo.owner, "seanchatmangpt");
         assert_eq!(repo.name, "ggen");
         assert_eq!(repo.as_str(), "seanchatmangpt/ggen");
-    }
+    });
 
-    #[test]
-    fn test_repo_info_parse_invalid() {
+    test!(test_repo_info_parse_invalid, {
         assert!(RepoInfo::parse("invalid").is_err());
         assert!(RepoInfo::parse("too/many/parts").is_err());
-    }
+    });
 
-    #[tokio::test]
     #[ignore] // Requires network access
-    async fn test_github_client_creation() {
+    async_test!(test_github_client_creation, {
         let repo = RepoInfo::parse("seanchatmangpt/ggen").unwrap();
         let client = GitHubClient::new(repo);
         assert!(client.is_ok());
-    }
+    });
 }

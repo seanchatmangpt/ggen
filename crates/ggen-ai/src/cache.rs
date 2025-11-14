@@ -52,7 +52,7 @@
 //! # }
 //! ```
 
-use anyhow::Result;
+use ggen_utils::error::Result;
 use moka::future::Cache;
 use serde::{Deserialize, Serialize};
 use sha2::Sha256;

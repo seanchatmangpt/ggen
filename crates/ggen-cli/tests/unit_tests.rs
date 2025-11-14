@@ -3,6 +3,7 @@
 //! These tests use mocks and fake data to verify that commands actually
 //! perform the work they claim to do, not just print messages.
 
+use chicago_tdd_tools::prelude::*;
 use fake::{Fake, Faker};
 use std::fs;
 use tempfile::TempDir;
@@ -40,8 +41,7 @@ fn create_fake_source_file(dir: &TempDir, name: &str, content: &str) -> String {
 // AI VALIDATE COMMAND TESTS
 // ============================================================================
 
-#[tokio::test]
-async fn test_validate_actually_parses_template() {
+async_test!(test_validate_actually_parses_template, async {
     use ggen_core::Template;
     use tera::{Context, Tera};
 
@@ -78,10 +78,9 @@ async fn test_validate_actually_parses_template() {
         Some("test"),
         "Template should have 'name' variable set to 'test'"
     );
-}
+});
 
-#[tokio::test]
-async fn test_validate_detects_invalid_template() {
+async_test!(test_validate_detects_invalid_template, async {
     use ggen_core::Template;
     use tera::{Context, Tera};
 
@@ -119,10 +118,9 @@ Body
         // If parsing itself fails, that's also acceptable
         assert!(result.is_err(), "Invalid template should fail to parse");
     }
-}
+});
 
-#[tokio::test]
-async fn test_validate_checks_required_frontmatter_fields() {
+async_test!(test_validate_checks_required_frontmatter_fields, async {
     use ggen_core::Template;
 
     let temp_dir = TempDir::new().unwrap();
@@ -145,14 +143,13 @@ Template body
         template.front.to.is_none(),
         "Template should be missing 'to' field"
     );
-}
+});
 
 // ============================================================================
 // AI GENERATE COMMAND TESTS
 // ============================================================================
 
-#[tokio::test]
-async fn test_generate_creates_valid_template_structure() {
+async_test!(test_generate_creates_valid_template_structure, async {
     use ggen_ai::MockClient;
     use ggen_ai::TemplateGenerator;
     use std::sync::Arc;
@@ -195,10 +192,9 @@ pub fn example() {
         template.front.to.is_some(),
         "Generated template should have 'to' field"
     );
-}
+});
 
-#[tokio::test]
-async fn test_generate_with_mock_client_uses_fake_data() {
+async_test!(test_generate_with_mock_client_uses_fake_data, async {
     use ggen_ai::{MockClient, TemplateGenerator};
     use std::sync::Arc;
 
@@ -216,14 +212,13 @@ async fn test_generate_with_mock_client_uses_fake_data() {
         result.is_ok() || result.is_err(),
         "Generator should handle any response"
     );
-}
+});
 
 // ============================================================================
 // AI FROM-SOURCE COMMAND TESTS
 // ============================================================================
 
-#[tokio::test]
-async fn test_from_source_reads_actual_file() {
+async_test!(test_from_source_reads_actual_file, async {
     let temp_dir = TempDir::new().unwrap();
 
     let rust_source = r#"pub fn hello_world() {
@@ -248,10 +243,9 @@ pub fn greet(name: &str) {
         content.contains("greet"),
         "Source should contain second function"
     );
-}
+});
 
-#[tokio::test]
-async fn test_from_source_extracts_variables_from_code() {
+async_test!(test_from_source_extracts_variables_from_code, async {
     let rust_source = r#"pub struct User {
     pub name: String,
     pub email: String,
@@ -278,14 +272,13 @@ async fn test_from_source_extracts_variables_from_code() {
         "Should identify String type"
     );
     assert!(rust_source.contains("u32"), "Should identify u32 type");
-}
+});
 
 // ============================================================================
 // ULTRATHINK TASK COMMAND TESTS
 // ============================================================================
 
-#[tokio::test]
-async fn test_ultrathink_task_creates_actual_task_object() {
+async_test!(test_ultrathink_task_creates_actual_task_object, async {
     // use ggen_ai::ultrathink::{create_task, TaskPriority, TaskType};
 
     // Test that create_task actually creates a task with proper fields
@@ -311,10 +304,9 @@ async fn test_ultrathink_task_creates_actual_task_object() {
     //     matches!(task.priority, TaskPriority::High),
     //     "Task priority should be High"
     // );
-}
+});
 
-#[tokio::test]
-async fn test_ultrathink_task_validates_task_type() {
+async_test!(test_ultrathink_task_validates_task_type, async {
     // Test that invalid task types are rejected
     let valid_types = vec![
         "code-generation",
@@ -344,10 +336,9 @@ async fn test_ultrathink_task_validates_task_type() {
         ),
         "Invalid task type should be rejected"
     );
-}
+});
 
-#[tokio::test]
-async fn test_ultrathink_task_validates_priority() {
+async_test!(test_ultrathink_task_validates_priority, async {
     // Test that priority validation works
     let valid_priorities = vec!["critical", "high", "medium", "low"];
 
@@ -365,36 +356,37 @@ async fn test_ultrathink_task_validates_priority() {
         !matches!(invalid_priority, "critical" | "high" | "medium" | "low"),
         "Invalid priority should be rejected"
     );
-}
+});
 
 // ============================================================================
 // AUTONOMOUS EVOLVE COMMAND TESTS
 // ============================================================================
 
-#[tokio::test]
-async fn test_autonomous_evolve_requires_non_empty_requirements() {
-    // Test that empty requirements are rejected
-    let empty_requirements = "";
-    assert!(
-        empty_requirements.is_empty(),
-        "Empty requirements should be rejected"
-    );
+async_test!(
+    test_autonomous_evolve_requires_non_empty_requirements,
+    async {
+        // Test that empty requirements are rejected
+        let empty_requirements = "";
+        assert!(
+            empty_requirements.is_empty(),
+            "Empty requirements should be rejected"
+        );
 
-    let whitespace_only = "   \n  \t  ";
-    assert!(
-        whitespace_only.trim().is_empty(),
-        "Whitespace-only requirements should be rejected"
-    );
+        let whitespace_only = "   \n  \t  ";
+        assert!(
+            whitespace_only.trim().is_empty(),
+            "Whitespace-only requirements should be rejected"
+        );
 
-    let valid_requirements = "Create a user management system";
-    assert!(
-        !valid_requirements.trim().is_empty(),
-        "Valid requirements should be accepted"
-    );
-}
+        let valid_requirements = "Create a user management system";
+        assert!(
+            !valid_requirements.trim().is_empty(),
+            "Valid requirements should be accepted"
+        );
+    }
+);
 
-#[tokio::test]
-async fn test_autonomous_evolve_validates_provider() {
+async_test!(test_autonomous_evolve_validates_provider, async {
     use ggen_ai::LlmProvider;
 
     // Test that provider validation works
@@ -407,14 +399,13 @@ async fn test_autonomous_evolve_validates_provider() {
 
     // All providers should be valid
     assert_eq!(valid_providers.len(), 4, "Should have 4 valid providers");
-}
+});
 
 // ============================================================================
 // TEMPLATE PARSING AND VALIDATION INTEGRATION TESTS
 // ============================================================================
 
-#[tokio::test]
-async fn test_template_with_liquid_syntax_is_valid() {
+async_test!(test_template_with_liquid_syntax_is_valid, async {
     use ggen_core::Template;
 
     let liquid_template = r#"---
@@ -438,10 +429,9 @@ Hello {{ name }}!
         template.body.contains("{% for"),
         "Template should contain Liquid loops"
     );
-}
+});
 
-#[tokio::test]
-async fn test_template_variables_are_accessible() {
+async_test!(test_template_variables_are_accessible, async {
     use ggen_core::Template;
     use tera::{Context, Tera};
 
@@ -480,14 +470,13 @@ User: {{ name }}
         template.front.vars.contains_key("active"),
         "Template should have 'active' variable"
     );
-}
+});
 
 // ============================================================================
 // FAKE DATA GENERATION TESTS
 // ============================================================================
 
-#[test]
-fn test_fake_data_generation_for_templates() {
+test!(test_fake_data_generation_for_templates, {
     use fake::faker::name::en::Name;
 
     // Generate fake data for template variables
@@ -499,18 +488,16 @@ fn test_fake_data_generation_for_templates() {
         fake_age >= 18 && fake_age < 99,
         "Fake age should be in range"
     );
-}
+});
 
-#[test]
-fn test_fake_data_for_file_paths() {
+test!(test_fake_data_for_file_paths, {
     use fake::faker::filesystem::en::FilePath;
 
     let fake_path: String = FilePath().fake();
     assert!(!fake_path.is_empty(), "Fake file path should not be empty");
-}
+});
 
-#[test]
-fn test_fake_data_for_code_content() {
+test!(test_fake_data_for_code_content, {
     use fake::faker::lorem::en::Paragraph;
 
     let fake_code: String = Paragraph(3..5).fake();
@@ -518,14 +505,13 @@ fn test_fake_data_for_code_content() {
         !fake_code.is_empty(),
         "Fake code content should not be empty"
     );
-}
+});
 
 // ============================================================================
 // ERROR HANDLING TESTS
 // ============================================================================
 
-#[tokio::test]
-async fn test_validate_handles_missing_file_gracefully() {
+async_test!(test_validate_handles_missing_file_gracefully, async {
     let nonexistent_path = "/this/path/does/not/exist/template.tmpl";
     let result = fs::read_to_string(nonexistent_path);
 
@@ -537,10 +523,9 @@ async fn test_validate_handles_missing_file_gracefully() {
         result.unwrap_err().kind() == std::io::ErrorKind::NotFound,
         "Error should be NotFound"
     );
-}
+});
 
-#[tokio::test]
-async fn test_generate_handles_empty_description_gracefully() {
+async_test!(test_generate_handles_empty_description_gracefully, async {
     use ggen_ai::{MockClient, TemplateGenerator};
     use std::sync::Arc;
 
@@ -555,14 +540,13 @@ async fn test_generate_handles_empty_description_gracefully() {
         result.is_ok() || result.is_err(),
         "Should handle empty description"
     );
-}
+});
 
 // ============================================================================
 // MOCK CLIENT BEHAVIOR TESTS
 // ============================================================================
 
-#[tokio::test]
-async fn test_mock_client_returns_configured_response() {
+async_test!(test_mock_client_returns_configured_response, async {
     use ggen_ai::MockClient;
 
     let expected_response = "This is a test response";
@@ -575,10 +559,9 @@ async fn test_mock_client_returns_configured_response() {
         !expected_response.is_empty(),
         "Mock should have a configured response"
     );
-}
+});
 
-#[tokio::test]
-async fn test_mock_client_can_be_used_in_generator() {
+async_test!(test_mock_client_can_be_used_in_generator, async {
     use ggen_ai::{MockClient, TemplateGenerator};
     use std::sync::Arc;
 
@@ -590,14 +573,13 @@ async fn test_mock_client_can_be_used_in_generator() {
     let result = generator.generate_template("Test", vec!["Example"]).await;
 
     assert!(result.is_ok(), "Generator should work with mock client");
-}
+});
 
 // ============================================================================
 // INTEGRATION: FULL WORKFLOW TESTS
 // ============================================================================
 
-#[tokio::test]
-async fn test_full_template_generation_workflow() {
+async_test!(test_full_template_generation_workflow, async {
     use ggen_ai::{MockClient, TemplateGenerator};
     use std::sync::Arc;
 
@@ -631,10 +613,9 @@ pub fn workflow_test() {}
         !generated.front.vars.is_empty(),
         "Generated template should have variables"
     );
-}
+});
 
-#[tokio::test]
-async fn test_from_source_to_template_workflow() {
+async_test!(test_from_source_to_template_workflow, async {
     use ggen_ai::{MockClient, TemplateGenerator};
     use std::sync::Arc;
 
@@ -678,4 +659,4 @@ async fn test_from_source_to_template_workflow() {
         template.front.to.is_some(),
         "Template should have 'to' field"
     );
-}
+});

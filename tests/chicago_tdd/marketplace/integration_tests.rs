@@ -5,7 +5,6 @@
 //! file system operations using tempdir.
 
 use chicago_tdd_tools::async_test;
-use chicago_tdd_tools::prelude::*;
 use ggen_utils::error::Result;
 use std::fs;
 use std::path::PathBuf;

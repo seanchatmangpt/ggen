@@ -2,8 +2,8 @@
 //!
 //! Chicago TDD: Uses REAL RDF file loading and graph state verification
 
-use anyhow::{Context, Result};
 use ggen_core::Graph;
+use ggen_utils::error::{bail, Context, Result};
 use std::path::{Path, PathBuf};
 
 /// Supported RDF formats
@@ -92,7 +92,7 @@ pub fn load_rdf(options: LoadOptions) -> Result<LoadStats> {
     // Verify file exists
     let file_path = Path::new(&options.file_path);
     if !file_path.exists() {
-        anyhow::bail!("RDF file not found: {}", options.file_path);
+        bail!("RDF file not found: {}", options.file_path);
     }
 
     // Detect format if not provided
@@ -276,7 +276,7 @@ pub async fn execute_load(input: LoadInput) -> Result<LoadOutput> {
             "rdfxml" | "rdf" | "xml" => Some(RdfFormat::RdfXml),
             "jsonld" | "json" => Some(RdfFormat::JsonLd),
             "n3" => Some(RdfFormat::N3),
-            _ => anyhow::bail!("Unsupported format: {}", format_str),
+            _ => bail!("Unsupported format: {}", format_str),
         }
     } else {
         None

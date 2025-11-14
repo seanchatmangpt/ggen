@@ -370,60 +370,53 @@ impl FileHandle<Closed> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chicago_tdd_tools::{async_test, test};
 
-    #[test]
-    fn test_non_empty_path_valid() {
+    test!(test_non_empty_path_valid, {
         let path = NonEmptyPath::new(PathBuf::from("test.txt")).unwrap();
         assert_eq!(path.as_path(), Path::new("test.txt"));
-    }
+    });
 
-    #[test]
-    fn test_non_empty_path_empty_rejected() {
+    test!(test_non_empty_path_empty_rejected, {
         let empty = NonEmptyPath::new(PathBuf::from(""));
         assert!(empty.is_err());
         assert_eq!(empty.unwrap_err(), EmptyPathError);
-    }
+    });
 
-    #[test]
-    fn test_non_empty_path_join() {
+    test!(test_non_empty_path_join, {
         let base: NonEmptyPath = "base".parse().unwrap();
         let joined = base.join("file.txt");
         assert!(joined.as_path().to_str().unwrap().contains("base"));
         assert!(joined.as_path().to_str().unwrap().contains("file.txt"));
-    }
+    });
 
-    #[test]
-    fn test_non_empty_string_valid() {
+    test!(test_non_empty_string_valid, {
         let s = NonEmptyString::new("hello".to_string()).unwrap();
         assert_eq!(s.as_str(), "hello");
-    }
+    });
 
-    #[test]
-    fn test_non_empty_string_empty_rejected() {
+    test!(test_non_empty_string_empty_rejected, {
         let empty = NonEmptyString::new("".to_string());
         assert!(empty.is_err());
         assert_eq!(empty.unwrap_err(), EmptyStringError);
-    }
+    });
 
-    #[test]
-    fn test_counter_cannot_be_negative() {
+    test!(test_counter_cannot_be_negative, {
         let mut counter = Counter::new(0);
         counter.decrement(); // Saturates at 0
         assert_eq!(counter.get(), 0);
 
         counter.decrement(); // Still 0
         assert_eq!(counter.get(), 0);
-    }
+    });
 
-    #[test]
-    fn test_counter_cannot_overflow() {
+    test!(test_counter_cannot_overflow, {
         let mut counter = Counter::new(u32::MAX);
         counter.increment(); // Saturates at MAX
         assert_eq!(counter.get(), u32::MAX);
-    }
+    });
 
-    #[test]
-    fn test_counter_normal_operations() {
+    test!(test_counter_normal_operations, {
         let mut counter = Counter::new(5);
         counter.increment();
         assert_eq!(counter.get(), 6);
@@ -439,10 +432,9 @@ mod tests {
 
         counter.reset();
         assert_eq!(counter.get(), 0);
-    }
+    });
 
-    #[test]
-    fn test_file_handle_type_safety() {
+    test!(test_file_handle_type_safety, {
         // This test demonstrates compile-time safety (cannot actually run without files)
         // The important part is that this compiles and shows correct types
 
@@ -456,7 +448,7 @@ mod tests {
         // After closing:
         // let closed = open.close();
         // closed.read(); // ❌ Compile error - method doesn't exist
-    }
+    });
 
     // Compile-time error test (uncomment to verify it fails to compile)
     // #[test]

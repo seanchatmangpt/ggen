@@ -40,7 +40,7 @@
 //! use ggen_core::gpack::GpackManifest;
 //! use std::path::PathBuf;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let manifest = GpackManifest::load_from_file(&PathBuf::from("gpack.toml"))?;
 //! println!("Pack: {} v{}", manifest.metadata.name, manifest.metadata.version);
 //! # Ok(())
@@ -53,7 +53,7 @@
 //! use ggen_core::gpack::GpackManifest;
 //! use std::path::Path;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let manifest = GpackManifest::load_from_file(&PathBuf::from("gpack.toml"))?;
 //! let templates = manifest.discover_templates(Path::new("."))?;
 //!
@@ -70,7 +70,7 @@
 //! use ggen_core::gpack::GpackManifest;
 //! use std::path::Path;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let manifest = GpackManifest::load_from_file(&Path::new("gpack.toml").to_path_buf())?;
 //!
 //! // Discover templates using manifest patterns or conventions
@@ -85,7 +85,7 @@
 //! # }
 //! ```
 
-use anyhow::Result;
+use ggen_utils::error::Result;
 use glob::glob;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -215,8 +215,12 @@ fn discover_files(base_path: &Path, patterns: &[&str]) -> Result<Vec<PathBuf>> {
     let mut files = Vec::new();
     for pattern in patterns {
         let full_pattern = base_path.join(pattern);
-        for entry in glob(&full_pattern.to_string_lossy())? {
-            files.push(entry?);
+        for entry in glob(&full_pattern.to_string_lossy())
+            .map_err(|e| ggen_utils::error::Error::new(&format!("Invalid glob pattern: {}", e)))?
+        {
+            files.push(
+                entry.map_err(|e| ggen_utils::error::Error::new(&format!("Glob error: {}", e)))?,
+            );
         }
     }
     files.sort(); // Deterministic order
@@ -299,11 +303,11 @@ impl GpackManifest {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chicago_tdd_tools::{async_test, test};
     use std::io::Write;
     use tempfile::NamedTempFile;
 
-    #[test]
-    fn test_manifest_parsing() {
+    test!(test_manifest_parsing, {
         let toml_content = r#"
 [gpack]
 id = "io.ggen.rust.cli-subcommand"
@@ -346,10 +350,9 @@ vars = { author = "Acme", license = "MIT" }
         assert_eq!(manifest.templates.patterns.len(), 1);
         assert_eq!(manifest.rdf.patterns.len(), 1);
         assert_eq!(manifest.queries.aliases.len(), 1);
-    }
+    });
 
-    #[test]
-    fn test_manifest_load_from_file() {
+    test!(test_manifest_load_from_file, {
         let mut temp_file = NamedTempFile::new().unwrap();
         let toml_content = r#"
 [gpack]
@@ -364,7 +367,7 @@ ggen_compat = ">=0.1 <0.2"
 
         let manifest = GpackManifest::load_from_file(&temp_file.path().to_path_buf()).unwrap();
         assert_eq!(manifest.metadata.id, "test");
-    }
+    });
 
     #[cfg(feature = "proptest")]
     mod proptest_tests {

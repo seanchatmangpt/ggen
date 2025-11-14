@@ -9,13 +9,14 @@
 //! - Progressive disclosure of complexity
 
 use crate::cli_generator::types::{Argument, CliProject, Noun, Verb};
+use ggen_utils::error::Error;
 
 /// Enhanced error messages with fix suggestions
 pub struct ErrorEnhancer;
 
 impl ErrorEnhancer {
     /// Generate a helpful error message with fix suggestions
-    pub fn enhance_error(err: &anyhow::Error, context: &ErrorContext) -> String {
+    pub fn enhance_error(err: &Error, context: &ErrorContext) -> String {
         let mut msg = format!("❌ Error: {}\n\n", err);
 
         // Context-aware suggestions
@@ -31,7 +32,7 @@ impl ErrorEnhancer {
         msg
     }
 
-    fn suggest_fix(err: &anyhow::Error, _context: &ErrorContext) -> Option<String> {
+    fn suggest_fix(err: &Error, _context: &ErrorContext) -> Option<String> {
         let err_msg = err.to_string().to_lowercase();
 
         if err_msg.contains("template not found") {
@@ -177,7 +178,7 @@ impl TemplatePreview {
              // crates/{cli_crate}/src/cmds/{noun_name}/{verb_name}.rs\n\
              \n\
              use clap::Args;\n\
-             use anyhow::Result;\n\
+             use ggen_utils::error::Result;\n\
              use crate::runtime::execute;\n\
              use {core_crate}::{noun_name}::{verb_name}::{{Input, execute as domain_{verb_name}}};\n\
              \n\

@@ -19,7 +19,6 @@ tokio = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 serde_yaml = { workspace = true }
-anyhow = { workspace = true }
 thiserror = { workspace = true }
 
 # Local infrastructure dependencies (stay at 2.4.0 for now)

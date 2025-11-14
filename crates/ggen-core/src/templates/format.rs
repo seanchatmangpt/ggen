@@ -17,7 +17,7 @@
 //! use ggen_core::templates::format::{FileTreeNode, NodeType, TemplateFormat};
 //! use serde_json::json;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let template = TemplateFormat {
 //!     nodes: vec![
 //!         FileTreeNode {
@@ -44,7 +44,7 @@
 //! ```rust,no_run
 //! use ggen_core::templates::format::TemplateFormat;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let yaml = r#"
 //! nodes:
 //!   - name: src
@@ -60,7 +60,7 @@
 //! # }
 //! ```
 
-use anyhow::{Context, Result};
+use ggen_utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
@@ -327,7 +327,7 @@ impl TemplateFormat {
     /// ```rust
     /// use ggen_core::templates::format::TemplateFormat;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let yaml = r#"
     /// name: my-template
     /// variables:
@@ -343,7 +343,9 @@ impl TemplateFormat {
     /// # }
     /// ```
     pub fn from_yaml(yaml: &str) -> Result<Self> {
-        serde_yaml::from_str(yaml).context("Failed to parse template format from YAML")
+        serde_yaml::from_str(yaml).map_err(|e| {
+            Error::with_context("Failed to parse template format from YAML", &e.to_string())
+        })
     }
 
     /// Serialize to YAML string
@@ -363,7 +365,7 @@ impl TemplateFormat {
     /// ```rust
     /// use ggen_core::templates::format::{TemplateFormat, FileTreeNode};
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let mut format = TemplateFormat::new("my-template");
     /// format.add_node(FileTreeNode::directory("src"));
     ///
@@ -373,7 +375,12 @@ impl TemplateFormat {
     /// # }
     /// ```
     pub fn to_yaml(&self) -> Result<String> {
-        serde_yaml::to_string(self).context("Failed to serialize template format to YAML")
+        serde_yaml::to_string(self).map_err(|e| {
+            Error::with_context(
+                "Failed to serialize template format to YAML",
+                &e.to_string(),
+            )
+        })
     }
 
     /// Validate the template format
@@ -398,7 +405,7 @@ impl TemplateFormat {
     /// ```rust
     /// use ggen_core::templates::format::{TemplateFormat, FileTreeNode};
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let mut format = TemplateFormat::new("my-template");
     /// format.add_node(FileTreeNode::directory("src"));
     ///
@@ -438,11 +445,15 @@ impl TemplateFormat {
     /// ```
     pub fn validate(&self) -> Result<()> {
         if self.name.is_empty() {
-            anyhow::bail!("Template name cannot be empty");
+            return Err(ggen_utils::error::Error::new(
+                "Template name cannot be empty",
+            ));
         }
 
         if self.tree.is_empty() {
-            anyhow::bail!("Template must contain at least one tree node");
+            return Err(ggen_utils::error::Error::new(
+                "Template must contain at least one tree node",
+            ));
         }
 
         self.validate_nodes(&self.tree)?;
@@ -454,27 +465,30 @@ impl TemplateFormat {
         #![allow(clippy::only_used_in_recursion)]
         for node in nodes {
             if node.name.is_empty() {
-                anyhow::bail!("Node name cannot be empty");
+                return Err(ggen_utils::error::Error::new("Node name cannot be empty"));
             }
 
             match node.node_type {
                 NodeType::File => {
                     if node.content.is_none() && node.template.is_none() {
-                        anyhow::bail!(
+                        return Err(ggen_utils::error::Error::new(&format!(
                             "File node '{}' must have either content or template",
                             node.name
-                        );
+                        )));
                     }
                     if !node.children.is_empty() {
-                        anyhow::bail!("File node '{}' cannot have children", node.name);
+                        return Err(ggen_utils::error::Error::new(&format!(
+                            "File node '{}' cannot have children",
+                            node.name
+                        )));
                     }
                 }
                 NodeType::Directory => {
                     if node.content.is_some() || node.template.is_some() {
-                        anyhow::bail!(
+                        return Err(ggen_utils::error::Error::new(&format!(
                             "Directory node '{}' cannot have content or template",
                             node.name
-                        );
+                        )));
                     }
                     self.validate_nodes(&node.children)?;
                 }
@@ -650,35 +664,32 @@ impl FileTreeNode {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chicago_tdd_tools::{async_test, test};
 
-    #[test]
-    fn test_directory_node() {
+    test!(test_directory_node, {
         let node = FileTreeNode::directory("src");
         assert_eq!(node.node_type, NodeType::Directory);
         assert_eq!(node.name, "src");
         assert!(node.children.is_empty());
-    }
+    });
 
-    #[test]
-    fn test_file_node_with_content() {
+    test!(test_file_node_with_content, {
         let node = FileTreeNode::file_with_content("main.rs", "fn main() {}");
         assert_eq!(node.node_type, NodeType::File);
         assert_eq!(node.name, "main.rs");
         assert_eq!(node.content, Some("fn main() {}".to_string()));
         assert_eq!(node.template, None);
-    }
+    });
 
-    #[test]
-    fn test_file_node_with_template() {
+    test!(test_file_node_with_template, {
         let node = FileTreeNode::file_with_template("lib.rs", "templates/lib.rs.tera");
         assert_eq!(node.node_type, NodeType::File);
         assert_eq!(node.name, "lib.rs");
         assert_eq!(node.template, Some("templates/lib.rs.tera".to_string()));
         assert_eq!(node.content, None);
-    }
+    });
 
-    #[test]
-    fn test_template_format_creation() {
+    test!(test_template_format_creation, {
         let mut format = TemplateFormat::new("test-template");
         format.add_variable("service_name");
         format.add_default("port", "8080");
@@ -686,19 +697,17 @@ mod tests {
         assert_eq!(format.name, "test-template");
         assert_eq!(format.variables, vec!["service_name"]);
         assert_eq!(format.defaults.get("port"), Some(&"8080".to_string()));
-    }
+    });
 
-    #[test]
-    fn test_template_format_validation() {
+    test!(test_template_format_validation, {
         let mut format = TemplateFormat::new("test");
         format.add_node(FileTreeNode::directory("src"));
 
         assert!(format.validate().is_ok());
-    }
+    });
 
-    #[test]
-    fn test_empty_template_validation_fails() {
+    test!(test_empty_template_validation_fails, {
         let format = TemplateFormat::new("test");
         assert!(format.validate().is_err());
-    }
+    });
 }

@@ -129,6 +129,35 @@ impl Error {
             source: Some(source),
         }
     }
+
+    /// Add context to an existing error, creating a new error with the context as the message
+    /// and the original error as the source
+    #[must_use]
+    pub fn context<C>(self, context: C) -> Self
+    where
+        C: fmt::Display + Send + Sync + 'static,
+    {
+        Self {
+            message: context.to_string(),
+            context: None,
+            source: Some(Box::new(self)),
+        }
+    }
+
+    /// Add context to an existing error using a closure, creating a new error with the context as the message
+    /// and the original error as the source
+    #[must_use]
+    pub fn with_context_fn<C, F>(self, f: F) -> Self
+    where
+        C: fmt::Display + Send + Sync + 'static,
+        F: FnOnce() -> C,
+    {
+        Self {
+            message: f().to_string(),
+            context: None,
+            source: Some(Box::new(self)),
+        }
+    }
 }
 
 impl fmt::Display for Error {
@@ -225,8 +254,114 @@ impl From<&str> for Error {
     }
 }
 
+// Oxigraph error types
+impl From<oxigraph::store::StorageError> for Error {
+    fn from(err: oxigraph::store::StorageError) -> Self {
+        Self::new(&err.to_string())
+    }
+}
+
+impl From<oxigraph::sparql::QueryEvaluationError> for Error {
+    fn from(err: oxigraph::sparql::QueryEvaluationError) -> Self {
+        Self::new(&err.to_string())
+    }
+}
+
+impl From<toml::ser::Error> for Error {
+    fn from(err: toml::ser::Error) -> Self {
+        Self::new(&err.to_string())
+    }
+}
+
 /// GgenError type alias for backwards compatibility with P2P module
 pub type GgenError = Error;
+
+/// Extension trait for adding context to Results, similar to anyhow::Context
+pub trait Context<T> {
+    /// Add context to an error result
+    fn context<C>(self, context: C) -> Result<T>
+    where
+        C: fmt::Display + Send + Sync + 'static;
+
+    /// Add context to an error result using a closure
+    fn with_context<C, F>(self, f: F) -> Result<T>
+    where
+        C: fmt::Display + Send + Sync + 'static,
+        F: FnOnce() -> C;
+}
+
+impl<T> Context<T> for Result<T> {
+    fn context<C>(self, context: C) -> Result<T>
+    where
+        C: fmt::Display + Send + Sync + 'static,
+    {
+        self.map_err(|e| e.context(context))
+    }
+
+    fn with_context<C, F>(self, f: F) -> Result<T>
+    where
+        C: fmt::Display + Send + Sync + 'static,
+        F: FnOnce() -> C,
+    {
+        self.map_err(|e| e.with_context_fn(f))
+    }
+}
+
+/// Return early with an error
+///
+/// This macro is similar to `anyhow::bail!` and provides a convenient way to
+/// return early from a function with an error.
+///
+/// # Examples
+///
+/// ```rust
+/// use ggen_utils::error::{Result, bail};
+///
+/// fn validate_positive(n: i32) -> Result<()> {
+///     if n < 0 {
+///         bail!("Number must be positive, got {}", n);
+///     }
+///     Ok(())
+/// }
+/// ```
+#[macro_export]
+macro_rules! bail {
+    ($msg:literal $(,)?) => {
+        return Err($crate::error::Error::new($msg));
+    };
+    ($fmt:expr, $($arg:tt)*) => {
+        return Err($crate::error::Error::new(&format!($fmt, $($arg)*)));
+    };
+}
+
+/// Ensure a condition is true, or return early with an error
+///
+/// This macro is similar to `anyhow::ensure!` and provides a convenient way to
+/// check conditions and return early with an error if they fail.
+///
+/// # Examples
+///
+/// ```rust
+/// use ggen_utils::error::{Result, ensure};
+///
+/// fn divide(a: i32, b: i32) -> Result<i32> {
+///     ensure!(b != 0, "Division by zero");
+///     Ok(a / b)
+/// }
+/// ```
+#[macro_export]
+macro_rules! ensure {
+    ($condition:expr, $msg:literal $(,)?) => {
+        if !$condition {
+            $crate::bail!($msg);
+        }
+    };
+    ($condition:expr, $fmt:expr, $($arg:tt)*) => {
+        if !$condition {
+            $crate::bail!($fmt, $($arg)*);
+        }
+    };
+}
 
 impl Error {
     /// Create an invalid input error
@@ -364,5 +499,32 @@ mod tests {
         // Test that the error can be used as std::error::Error
         let error_ref: &dyn std::error::Error = &error;
         assert!(!error_ref.to_string().is_empty());
+    }
+
+    #[test]
+    fn test_context_trait() {
+        let result: Result<()> = Err(Error::new("Original error"));
+        let result_with_context = result.context("Failed to process");
+        assert!(result_with_context.is_err());
+        let err = result_with_context.unwrap_err();
+        assert!(err.to_string().contains("Failed to process"));
+    }
+
+    #[test]
+    fn test_with_context_trait() {
+        let result: Result<()> = Err(Error::new("Original error"));
+        let result_with_context = result.with_context(|| format!("Failed at step {}", 1));
+        assert!(result_with_context.is_err());
+        let err = result_with_context.unwrap_err();
+        assert!(err.to_string().contains("Failed at step 1"));
+    }
+
+    #[test]
+    fn test_error_context_method() {
+        let error = Error::new("Original error");
+        let error_with_context = error.context("Additional context");
+        assert!(error_with_context
+            .to_string()
+            .contains("Additional context"));
     }
 }

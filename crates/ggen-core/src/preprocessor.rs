@@ -78,6 +78,23 @@ pub trait Stage: Send + Sync {
 }
 
 /// Freeze policy for handling cached content
+///
+/// Determines when to use cached content vs regenerating from templates.
+///
+/// # Examples
+///
+/// ```rust
+/// use ggen_core::preprocessor::FreezePolicy;
+///
+/// # fn main() {
+/// let policy = FreezePolicy::Always;
+/// match policy {
+///     FreezePolicy::Always => assert!(true),
+///     FreezePolicy::Checksum => assert!(true),
+///     FreezePolicy::Never => assert!(true),
+/// }
+/// # }
+/// ```
 #[derive(Debug, Clone)]
 pub enum FreezePolicy {
     /// Always use cached content if available
@@ -426,6 +443,7 @@ fn generate_and_save_slot(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chicago_tdd_tools::test;
     use tempfile::TempDir;
 
     fn create_test_ctx() -> PrepCtx<'static> {
@@ -436,8 +454,7 @@ mod tests {
         }
     }
 
-    #[test]
-    fn test_freeze_stage_basic() -> Result<()> {
+    test!(test_freeze_stage_basic, {
         let temp_dir = TempDir::new()?;
         let stage = FreezeStage {
             slots_dir: temp_dir.path().to_path_buf(),
@@ -458,10 +475,9 @@ World
         assert!(!result.contains("endfreeze"));
 
         Ok(())
-    }
+    });
 
-    #[test]
-    fn test_include_stage_basic() -> Result<()> {
+    test!(test_include_stage_basic, {
         let temp_dir = TempDir::new()?;
         let include_file = temp_dir.path().join("included.tmpl");
         fs::write(&include_file, "Included content")?;
@@ -481,10 +497,9 @@ World
         assert!(!result.contains("include"));
 
         Ok(())
-    }
+    });
 
-    #[test]
-    fn test_preprocessor_pipeline() -> Result<()> {
+    test!(test_preprocessor_pipeline, {
         let temp_dir = TempDir::new()?;
         let include_file = temp_dir.path().join("included.tmpl");
         fs::write(&include_file, "Included")?;
@@ -514,5 +529,5 @@ Frozen
         assert!(!result.contains("startfreeze"));
 
         Ok(())
-    }
+    });
 }

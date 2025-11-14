@@ -9,6 +9,7 @@
 //! 3. Output contains expected content
 //! 4. No unexpected errors in stderr
 
+use chicago_tdd_tools::prelude::*;
 use ggen_cli_lib::{run_for_node, RunResult};
 
 /// Helper to assert successful command execution with content validation
@@ -62,8 +63,7 @@ mod version_tests {
     use super::*;
 
     /// JTBD: Verify that --version returns a valid semantic version string
-    #[tokio::test]
-    async fn test_version_returns_valid_semver() {
+    async_test!(test_version_returns_valid_semver, async {
         let result = run_for_node(vec!["--version".to_string()])
             .await
             .expect("version command should not panic");
@@ -95,11 +95,10 @@ mod version_tests {
                 part
             );
         }
-    }
+    });
 
     /// JTBD: Verify version command is fast
-    #[tokio::test]
-    async fn test_version_performance() {
+    async_test!(test_version_performance, async {
         use std::time::{Duration, Instant};
 
         let start = Instant::now();
@@ -114,7 +113,7 @@ mod version_tests {
             "Version should complete in under 100ms, took {:?}",
             duration
         );
-    }
+    });
 }
 
 #[cfg(test)]
@@ -122,8 +121,7 @@ mod help_tests {
     use super::*;
 
     /// JTBD: Verify that --help returns usage information
-    #[tokio::test]
-    async fn test_help_shows_usage() {
+    async_test!(test_help_shows_usage, async {
         let result = run_for_node(vec!["--help".to_string()])
             .await
             .expect("help command should not panic");
@@ -144,11 +142,10 @@ mod help_tests {
             "Help output should be substantial, got {} chars",
             result.stdout.len()
         );
-    }
+    });
 
     /// JTBD: Verify that help for specific commands works
-    #[tokio::test]
-    async fn test_help_for_market_command() {
+    async_test!(test_help_for_market_command, async {
         let result = run_for_node(vec!["market".to_string(), "--help".to_string()])
             .await
             .expect("market help should not panic");
@@ -163,7 +160,7 @@ mod help_tests {
             "Market help should mention marketplace commands, got: {}",
             result.stdout
         );
-    }
+    });
 }
 
 #[cfg(test)]
@@ -171,8 +168,7 @@ mod marketplace_tests {
     use super::*;
 
     /// JTBD: Verify that market list returns installed packages
-    #[tokio::test]
-    async fn test_market_list_returns_packages() {
+    async_test!(test_market_list_returns_packages, async {
         let result = run_for_node(vec!["market".to_string(), "list".to_string()])
             .await
             .expect("market list should not panic");
@@ -185,11 +181,10 @@ mod marketplace_tests {
             !result.stdout.is_empty() || !result.stderr.is_empty(),
             "market list should produce output"
         );
-    }
+    });
 
     /// JTBD: Verify that market categories returns available categories
-    #[tokio::test]
-    async fn test_market_categories_returns_list() {
+    async_test!(test_market_categories_returns_list, async {
         let result = run_for_node(vec!["market".to_string(), "categories".to_string()])
             .await
             .expect("market categories should not panic");
@@ -201,11 +196,10 @@ mod marketplace_tests {
             !result.stdout.is_empty(),
             "market categories should return data"
         );
-    }
+    });
 
     /// JTBD: Verify that market search with valid query works
-    #[tokio::test]
-    async fn test_market_search_executes() {
+    async_test!(test_market_search_executes, async {
         let result = run_for_node(vec![
             "market".to_string(),
             "search".to_string(),
@@ -227,11 +221,10 @@ mod marketplace_tests {
                 "Successful search should produce output"
             );
         }
-    }
+    });
 
     /// JTBD: Verify that market add with invalid package fails gracefully
-    #[tokio::test]
-    async fn test_market_add_invalid_package_fails_gracefully() {
+    async_test!(test_market_add_invalid_package_fails_gracefully, async {
         let result = run_for_node(vec![
             "market".to_string(),
             "add".to_string(),
@@ -248,7 +241,7 @@ mod marketplace_tests {
             !result.stderr.is_empty() || !result.stdout.is_empty(),
             "Failed add should produce error message"
         );
-    }
+    });
 }
 
 #[cfg(test)]
@@ -256,8 +249,7 @@ mod lifecycle_tests {
     use super::*;
 
     /// JTBD: Verify that lifecycle list returns available phases
-    #[tokio::test]
-    async fn test_lifecycle_list_returns_phases() {
+    async_test!(test_lifecycle_list_returns_phases, async {
         let result = run_for_node(vec!["lifecycle".to_string(), "list".to_string()])
             .await
             .expect("lifecycle list should not panic");
@@ -276,11 +268,10 @@ mod lifecycle_tests {
             "lifecycle list should mention common phases, got: {}",
             result.stdout
         );
-    }
+    });
 
     /// JTBD: Verify that lifecycle readiness returns status
-    #[tokio::test]
-    async fn test_lifecycle_readiness_returns_status() {
+    async_test!(test_lifecycle_readiness_returns_status, async {
         let result = run_for_node(vec!["lifecycle".to_string(), "readiness".to_string()])
             .await
             .expect("lifecycle readiness should not panic");
@@ -296,7 +287,7 @@ mod lifecycle_tests {
             !result.stdout.is_empty() || !result.stderr.is_empty(),
             "lifecycle readiness should produce output"
         );
-    }
+    });
 }
 
 #[cfg(test)]
@@ -304,8 +295,7 @@ mod template_tests {
     use super::*;
 
     /// JTBD: Verify that template list (list command) returns templates
-    #[tokio::test]
-    async fn test_template_list_returns_templates() {
+    async_test!(test_template_list_returns_templates, async {
         let result = run_for_node(vec!["list".to_string()])
             .await
             .expect("list command should not panic");
@@ -321,11 +311,10 @@ mod template_tests {
             !result.stdout.is_empty() || !result.stderr.is_empty(),
             "list command should produce output"
         );
-    }
+    });
 
     /// JTBD: Verify that gen with invalid template fails gracefully
-    #[tokio::test]
-    async fn test_template_generate_invalid_fails_gracefully() {
+    async_test!(test_template_generate_invalid_fails_gracefully, async {
         let result = run_for_node(vec![
             "gen".to_string(),
             "definitely-not-a-template-12345.tmpl".to_string(),
@@ -344,7 +333,7 @@ mod template_tests {
             !result.stderr.is_empty() || !result.stdout.is_empty(),
             "Failed gen should produce error message"
         );
-    }
+    });
 }
 
 #[cfg(test)]
@@ -352,8 +341,7 @@ mod utility_tests {
     use super::*;
 
     /// JTBD: Verify that doctor command runs diagnostics
-    #[tokio::test]
-    async fn test_doctor_runs_diagnostics() {
+    async_test!(test_doctor_runs_diagnostics, async {
         let result = run_for_node(vec!["doctor".to_string()])
             .await
             .expect("doctor command should not panic");
@@ -372,7 +360,7 @@ mod utility_tests {
             "doctor should check environment, got: {}",
             result.stdout
         );
-    }
+    });
 }
 
 #[cfg(test)]
@@ -380,8 +368,7 @@ mod error_handling_tests {
     use super::*;
 
     /// JTBD: Verify that empty args don't crash (should show help or error)
-    #[tokio::test]
-    async fn test_empty_args_handled() {
+    async_test!(test_empty_args_handled, async {
         let result = run_for_node(vec![])
             .await
             .expect("empty args should not panic");
@@ -394,11 +381,10 @@ mod error_handling_tests {
             !result.stdout.is_empty() || !result.stderr.is_empty(),
             "Empty args should produce help or error"
         );
-    }
+    });
 
     /// JTBD: Verify that invalid command produces error
-    #[tokio::test]
-    async fn test_invalid_command_produces_error() {
+    async_test!(test_invalid_command_produces_error, async {
         let result = run_for_node(vec!["definitely-not-a-valid-command-12345".to_string()])
             .await
             .expect("invalid command should not panic");
@@ -411,11 +397,10 @@ mod error_handling_tests {
             !result.stderr.is_empty() || !result.stdout.is_empty(),
             "Invalid command should produce error message"
         );
-    }
+    });
 
     /// JTBD: Verify that special characters don't crash
-    #[tokio::test]
-    async fn test_special_characters_handled() {
+    async_test!(test_special_characters_handled, async {
         let result = run_for_node(vec![
             "market".to_string(),
             "search".to_string(),
@@ -426,11 +411,10 @@ mod error_handling_tests {
 
         // Should complete (doesn't matter if success or failure)
         assert!(result.code >= 0, "Should handle special chars");
-    }
+    });
 
     /// JTBD: Verify that unicode doesn't crash
-    #[tokio::test]
-    async fn test_unicode_handled() {
+    async_test!(test_unicode_handled, async {
         let result = run_for_node(vec![
             "market".to_string(),
             "search".to_string(),
@@ -445,11 +429,10 @@ mod error_handling_tests {
         // Output should be valid UTF-8
         assert!(std::str::from_utf8(result.stdout.as_bytes()).is_ok());
         assert!(std::str::from_utf8(result.stderr.as_bytes()).is_ok());
-    }
+    });
 
     /// JTBD: Verify that very long args don't crash
-    #[tokio::test]
-    async fn test_very_long_args_handled() {
+    async_test!(test_very_long_args_handled, async {
         let long_arg = "a".repeat(10_000);
         let result = run_for_node(vec!["market".to_string(), "search".to_string(), long_arg])
             .await
@@ -457,7 +440,7 @@ mod error_handling_tests {
 
         // Should complete (may succeed or fail)
         assert!(result.code >= 0, "Should handle long args");
-    }
+    });
 }
 
 #[cfg(test)]
@@ -465,8 +448,7 @@ mod ggen_broken_detection_tests {
     use super::*;
 
     /// JTBD: Detect when ggen returns 0 but stderr has unexpected errors
-    #[tokio::test]
-    async fn test_detects_false_success() {
+    async_test!(test_detects_false_success, async {
         let result = run_for_node(vec!["--version".to_string()])
             .await
             .expect("version should not panic");
@@ -483,11 +465,10 @@ mod ggen_broken_detection_tests {
                 );
             }
         }
-    }
+    });
 
     /// JTBD: Detect when ggen returns 0 but output is empty
-    #[tokio::test]
-    async fn test_detects_silent_failure() {
+    async_test!(test_detects_silent_failure, async {
         let result = run_for_node(vec!["--version".to_string()])
             .await
             .expect("version should not panic");
@@ -498,11 +479,10 @@ mod ggen_broken_detection_tests {
                 "Successful version command should return version string"
             );
         }
-    }
+    });
 
     /// JTBD: Detect when ggen returns 0 but output format is wrong
-    #[tokio::test]
-    async fn test_validates_version_format() {
+    async_test!(test_validates_version_format, async {
         let result = run_for_node(vec!["--version".to_string()])
             .await
             .expect("version should not panic");
@@ -518,11 +498,10 @@ mod ggen_broken_detection_tests {
                 result.stdout
             );
         }
-    }
+    });
 
     /// JTBD: Detect when ggen returns error but no error message
-    #[tokio::test]
-    async fn test_detects_silent_error() {
+    async_test!(test_detects_silent_error, async {
         let result = run_for_node(vec!["definitely-invalid-command-xyz".to_string()])
             .await
             .expect("invalid command should not panic");
@@ -533,11 +512,10 @@ mod ggen_broken_detection_tests {
                 "Failed command should produce error message"
             );
         }
-    }
+    });
 
     /// JTBD: Detect when ggen crashes vs returns error
-    #[tokio::test]
-    async fn test_distinguishes_crash_from_error() {
+    async_test!(test_distinguishes_crash_from_error, async {
         // Invalid commands should error, not crash
         let result = run_for_node(vec!["invalid".to_string()])
             .await
@@ -549,7 +527,7 @@ mod ggen_broken_detection_tests {
             "Exit code should indicate error, not crash: {}",
             result.code
         );
-    }
+    });
 }
 
 #[cfg(test)]
@@ -557,8 +535,7 @@ mod data_structure_validation_tests {
     use super::*;
 
     /// JTBD: Verify that version output is actually semantic versioning
-    #[tokio::test]
-    async fn test_version_is_semver() {
+    async_test!(test_version_is_semver, async {
         let result = run_for_node(vec!["--version".to_string()])
             .await
             .expect("version should not panic");
@@ -585,5 +562,5 @@ mod data_structure_validation_tests {
                 );
             }
         }
-    }
+    });
 }

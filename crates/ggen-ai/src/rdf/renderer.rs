@@ -3,7 +3,7 @@
 //! Uses Tera templates to generate complete Rust CLI projects from
 //! structured data extracted from RDF graphs.
 
-use anyhow::{Context as AnyhowContext, Result};
+use ggen_utils::error::{Context as ErrorContext, Result};
 use std::path::{Path, PathBuf};
 use tera::{Context, Tera};
 
@@ -40,12 +40,14 @@ impl TemplateRenderer {
     /// ```
     pub fn new(template_dir: &Path) -> Result<Self> {
         let pattern = format!("{}/**/*.tmpl", template_dir.display());
-        let tera = Tera::new(&pattern).with_context(|| {
-            format!(
-                "Failed to load templates from directory: {}",
-                template_dir.display()
-            )
-        })?;
+        let tera = Tera::new(&pattern)
+            .map_err(|e| ggen_utils::error::Error::from(e))
+            .with_context(|| {
+                format!(
+                    "Failed to load templates from directory: {}",
+                    template_dir.display()
+                )
+            })?;
 
         Ok(Self { tera })
     }

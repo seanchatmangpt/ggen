@@ -18,7 +18,7 @@
 //! use ggen_core::rdf::validation::Validator;
 //! use ggen_core::rdf::template_metadata::TemplateMetadata;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let validator = Validator::new();
 //! let metadata = TemplateMetadata::default();
 //!
@@ -40,7 +40,7 @@
 //! use ggen_core::rdf::validation::Validator;
 //! use ggen_core::rdf::template_metadata::TemplateMetadata;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let validator = Validator::new();
 //! let metadata = TemplateMetadata::default();
 //!
@@ -52,16 +52,48 @@
 //! # }
 //! ```
 
-use anyhow::{Context, Result};
+use ggen_utils::error::{Error, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 use super::template_metadata::TemplateMetadata;
 
 /// SHACL validation result
+///
+/// Represents the result of validating template metadata against SHACL shapes.
+///
+/// # Examples
+///
+/// ```rust
+/// use ggen_core::rdf::validation::{ValidationResult, ValidationError, Severity};
+///
+/// # fn main() {
+/// // Valid result
+/// let valid = ValidationResult::Valid;
+/// match valid {
+///     ValidationResult::Valid => assert!(true),
+///     ValidationResult::Invalid(_) => panic!("Should be valid"),
+/// }
+///
+/// // Invalid result with errors
+/// let errors = vec![ValidationError {
+///     severity: Severity::Error,
+///     path: "template.name".to_string(),
+///     message: "Name is required".to_string(),
+///     value: None,
+/// }];
+/// let invalid = ValidationResult::Invalid(errors);
+/// match invalid {
+///     ValidationResult::Valid => panic!("Should be invalid"),
+///     ValidationResult::Invalid(errs) => assert_eq!(errs.len(), 1),
+/// }
+/// # }
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum ValidationResult {
+    /// Validation passed - no errors found
     Valid,
+    /// Validation failed - contains list of validation errors
     Invalid(Vec<ValidationError>),
 }
 
@@ -438,8 +470,9 @@ impl Validator {
 
     /// Validate Turtle RDF against shapes
     pub fn validate_turtle(&self, turtle: &str, template_id: &str) -> Result<ValidationReport> {
-        let metadata = TemplateMetadata::from_turtle(turtle, template_id)
-            .context("Failed to parse Turtle for validation")?;
+        let metadata = TemplateMetadata::from_turtle(turtle, template_id).map_err(|e| {
+            Error::with_context("Failed to parse Turtle for validation", &e.to_string())
+        })?;
         self.validate(&metadata)
     }
 }
@@ -478,9 +511,9 @@ fn is_valid_identifier(s: &str) -> bool {
 mod tests {
     use super::*;
     use crate::rdf::template_metadata::TemplateVariable;
+    use chicago_tdd_tools::{async_test, test};
 
-    #[test]
-    fn test_validate_valid_template() -> Result<()> {
+    test!(test_validate_valid_template, {
         let mut metadata = TemplateMetadata::new(
             "http://example.org/template1".to_string(),
             "Test Template".to_string(),
@@ -491,30 +524,24 @@ mod tests {
         metadata.stability = Some("stable".to_string());
 
         let validator = Validator::new();
-        let report = validator.validate(&metadata)?;
+        let report = validator.validate(&metadata).unwrap();
 
         assert!(report.is_valid());
         assert_eq!(report.errors.len(), 0);
+    });
 
-        Ok(())
-    }
-
-    #[test]
-    fn test_validate_empty_name() -> Result<()> {
+    test!(test_validate_empty_name, {
         let metadata =
             TemplateMetadata::new("http://example.org/template1".to_string(), "".to_string());
 
         let validator = Validator::new();
-        let report = validator.validate(&metadata)?;
+        let report = validator.validate(&metadata).unwrap();
 
         assert!(!report.is_valid());
         assert!(report.errors.iter().any(|e| e.path == "templateName"));
+    });
 
-        Ok(())
-    }
-
-    #[test]
-    fn test_validate_invalid_version() -> Result<()> {
+    test!(test_validate_invalid_version, {
         let mut metadata = TemplateMetadata::new(
             "http://example.org/template1".to_string(),
             "Test".to_string(),
@@ -522,15 +549,12 @@ mod tests {
         metadata.version = Some("invalid".to_string());
 
         let validator = Validator::new();
-        let report = validator.validate(&metadata)?;
+        let report = validator.validate(&metadata).unwrap();
 
         assert!(report.warnings.iter().any(|w| w.path == "templateVersion"));
+    });
 
-        Ok(())
-    }
-
-    #[test]
-    fn test_validate_invalid_stability() -> Result<()> {
+    test!(test_validate_invalid_stability, {
         let mut metadata = TemplateMetadata::new(
             "http://example.org/template1".to_string(),
             "Test".to_string(),
@@ -538,16 +562,13 @@ mod tests {
         metadata.stability = Some("invalid".to_string());
 
         let validator = Validator::new();
-        let report = validator.validate(&metadata)?;
+        let report = validator.validate(&metadata).unwrap();
 
         assert!(!report.is_valid());
         assert!(report.errors.iter().any(|e| e.path == "stability"));
+    });
 
-        Ok(())
-    }
-
-    #[test]
-    fn test_validate_variable_name() -> Result<()> {
+    test!(test_validate_variable_name, {
         let mut metadata = TemplateMetadata::new(
             "http://example.org/template1".to_string(),
             "Test".to_string(),
@@ -561,19 +582,16 @@ mod tests {
         });
 
         let validator = Validator::new();
-        let report = validator.validate(&metadata)?;
+        let report = validator.validate(&metadata).unwrap();
 
         assert!(!report.is_valid());
         assert!(report
             .errors
             .iter()
             .any(|e| e.path.contains("variableName")));
+    });
 
-        Ok(())
-    }
-
-    #[test]
-    fn test_validate_variable_type() -> Result<()> {
+    test!(test_validate_variable_type, {
         let mut metadata = TemplateMetadata::new(
             "http://example.org/template1".to_string(),
             "Test".to_string(),
@@ -587,19 +605,16 @@ mod tests {
         });
 
         let validator = Validator::new();
-        let report = validator.validate(&metadata)?;
+        let report = validator.validate(&metadata).unwrap();
 
         assert!(!report.is_valid());
         assert!(report
             .errors
             .iter()
             .any(|e| e.path.contains("variableType")));
+    });
 
-        Ok(())
-    }
-
-    #[test]
-    fn test_is_semantic_version() {
+    test!(test_is_semantic_version, {
         assert!(is_semantic_version("1.0.0"));
         assert!(is_semantic_version("1.2.3"));
         assert!(is_semantic_version("10.20.30"));
@@ -609,10 +624,9 @@ mod tests {
         assert!(!is_semantic_version("1.0.0.0"));
         assert!(!is_semantic_version("v1.0.0"));
         assert!(!is_semantic_version("invalid"));
-    }
+    });
 
-    #[test]
-    fn test_is_valid_identifier() {
+    test!(test_is_valid_identifier, {
         assert!(is_valid_identifier("valid_name"));
         assert!(is_valid_identifier("_underscore"));
         assert!(is_valid_identifier("camelCase"));
@@ -623,10 +637,9 @@ mod tests {
         assert!(!is_valid_identifier(""));
         assert!(!is_valid_identifier("invalid-name"));
         assert!(!is_valid_identifier("invalid name"));
-    }
+    });
 
-    #[test]
-    fn test_validation_report() {
+    test!(test_validation_report, {
         let mut report = ValidationReport::new("test".to_string());
 
         assert!(report.is_valid());
@@ -643,5 +656,5 @@ mod tests {
         report.add_info("path".to_string(), "Info".to_string(), None);
         assert_eq!(report.info.len(), 1);
         assert_eq!(report.total_issues(), 3);
-    }
+    });
 }

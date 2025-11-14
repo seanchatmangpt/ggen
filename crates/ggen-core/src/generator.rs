@@ -25,7 +25,7 @@
 //! use std::collections::BTreeMap;
 //! use std::path::PathBuf;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let pipeline = Pipeline::new()?;
 //! let ctx = GenContext::new(
 //!     PathBuf::from("template.tmpl"),
@@ -50,7 +50,7 @@
 //! use ggen_core::pipeline::Pipeline;
 //! use std::path::PathBuf;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let pipeline = Pipeline::new()?;
 //! let ctx = GenContext::new(
 //!     PathBuf::from("template.tmpl"),
@@ -64,7 +64,7 @@
 //! # }
 //! ```
 
-use anyhow::Result;
+use ggen_utils::error::Result;
 use std::collections::BTreeMap;
 use std::env;
 use std::fs;
@@ -204,7 +204,7 @@ impl Generator {
     /// use ggen_core::pipeline::Pipeline;
     /// use std::path::PathBuf;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let pipeline = Pipeline::new()?;
     /// let ctx = GenContext::new(
     ///     PathBuf::from("template.tmpl"),
@@ -266,7 +266,7 @@ impl Generator {
     /// use std::collections::BTreeMap;
     /// use std::path::PathBuf;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let pipeline = Pipeline::new()?;
     /// let mut vars = BTreeMap::new();
     /// vars.insert("name".to_string(), "MyApp".to_string());
@@ -290,7 +290,7 @@ impl Generator {
     /// use ggen_core::pipeline::Pipeline;
     /// use std::path::PathBuf;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let pipeline = Pipeline::new()?;
     /// let ctx = GenContext::new(
     ///     PathBuf::from("nonexistent.tmpl"), // File doesn't exist
@@ -362,20 +362,20 @@ impl Generator {
 
             // Check that normalized path starts with output_root components
             if normalized.len() < output_root_components.len() {
-                return Err(anyhow::anyhow!(
+                return Err(ggen_utils::error::Error::new(&format!(
                     "Output path '{}' would escape output root '{}'",
                     rendered_to,
                     self.ctx.output_root.display()
-                ));
+                )));
             }
 
             for (i, component) in output_root_components.iter().enumerate() {
                 if normalized.get(i) != Some(component) {
-                    return Err(anyhow::anyhow!(
+                    return Err(ggen_utils::error::Error::new(&format!(
                         "Output path '{}' would escape output root '{}'",
                         rendered_to,
                         self.ctx.output_root.display()
-                    ));
+                    )));
                 }
             }
 
@@ -387,10 +387,10 @@ impl Generator {
                 .template_path
                 .file_stem()
                 .ok_or_else(|| {
-                    anyhow::anyhow!(
+                    ggen_utils::error::Error::new(&format!(
                         "Template path has no file stem: {}",
                         self.ctx.template_path.display()
-                    )
+                    ))
                 })?
                 .to_string_lossy();
             self.ctx.output_root.join(format!("{}.out", template_name))
@@ -431,6 +431,7 @@ fn insert_env(ctx: &mut Context) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chicago_tdd_tools::{async_test, test};
     use std::collections::BTreeMap;
     use std::fs;
     use tempfile::TempDir;
@@ -446,8 +447,7 @@ mod tests {
         (temp_dir, template_path)
     }
 
-    #[test]
-    fn test_gen_context_new() {
+    test!(test_gen_context_new, {
         let template_path = PathBuf::from("test.tmpl");
         let output_root = PathBuf::from("output");
 
@@ -459,10 +459,9 @@ mod tests {
         assert!(ctx.global_prefixes.is_empty());
         assert!(ctx.base.is_none());
         assert!(!ctx.dry_run);
-    }
+    });
 
-    #[test]
-    fn test_gen_context_with_vars() {
+    test!(test_gen_context_with_vars, {
         let template_path = PathBuf::from("test.tmpl");
         let output_root = PathBuf::from("output");
         let mut vars = BTreeMap::new();
@@ -472,10 +471,9 @@ mod tests {
         let ctx = GenContext::new(template_path, output_root).with_vars(vars.clone());
 
         assert_eq!(ctx.vars, vars);
-    }
+    });
 
-    #[test]
-    fn test_gen_context_with_prefixes() {
+    test!(test_gen_context_with_prefixes, {
         let template_path = PathBuf::from("test.tmpl");
         let output_root = PathBuf::from("output");
         let mut prefixes = BTreeMap::new();
@@ -487,10 +485,9 @@ mod tests {
 
         assert_eq!(ctx.global_prefixes, prefixes);
         assert_eq!(ctx.base, base);
-    }
+    });
 
-    #[test]
-    fn test_gen_context_dry() {
+    test!(test_gen_context_dry, {
         let template_path = PathBuf::from("test.tmpl");
         let output_root = PathBuf::from("output");
 
@@ -499,10 +496,9 @@ mod tests {
 
         let ctx = GenContext::new(PathBuf::from("test.tmpl"), PathBuf::from("output")).dry(false);
         assert!(!ctx.dry_run);
-    }
+    });
 
-    #[test]
-    fn test_generator_new() {
+    test!(test_generator_new, {
         let pipeline = create_test_pipeline();
         let template_path = PathBuf::from("test.tmpl");
         let output_root = PathBuf::from("output");
@@ -521,10 +517,9 @@ mod tests {
             .output_root
             .to_string_lossy()
             .contains("output"));
-    }
+    });
 
-    #[test]
-    fn test_generate_simple_template() {
+    test!(test_generate_simple_template, {
         let (_temp_dir, template_path) = create_test_template(
             r#"---
 to: "output/{{ name | lower }}.rs"
@@ -558,10 +553,9 @@ to: "output/{{ name | lower }}.rs"
         assert!(content.contains("// Generated by ggen"));
         assert!(content.contains("// Name: MyApp"));
         assert!(content.contains("// Description: A test application"));
-    }
+    });
 
-    #[test]
-    fn test_generate_dry_run() {
+    test!(test_generate_dry_run, {
         let (_temp_dir, template_path) = create_test_template(
             r#"---
 to: "output/{{ name | lower }}.rs"
@@ -588,10 +582,9 @@ to: "output/{{ name | lower }}.rs"
 
         // Verify file was NOT created in dry run
         assert!(!output_path.exists());
-    }
+    });
 
-    #[test]
-    fn test_generate_with_default_output() {
+    test!(test_generate_with_default_output, {
         let (_temp_dir, template_path) = create_test_template(
             r#"---
 {}
@@ -617,10 +610,9 @@ to: "output/{{ name | lower }}.rs"
         // Verify file was created
         let content = fs::read_to_string(&output_path).expect("Failed to read output file");
         assert!(content.contains("// Default output content"));
-    }
+    });
 
-    #[test]
-    fn test_generate_with_nested_output_path() {
+    test!(test_generate_with_nested_output_path, {
         let (_temp_dir, template_path) = create_test_template(
             r#"---
 to: "src/{{ module }}/{{ name | lower }}.rs"
@@ -648,10 +640,9 @@ to: "src/{{ module }}/{{ name | lower }}.rs"
         assert!(output_path.exists());
         let content = fs::read_to_string(&output_path).expect("Failed to read output file");
         assert!(content.contains("// Nested output content"));
-    }
+    });
 
-    #[test]
-    fn test_generate_invalid_template() {
+    test!(test_generate_invalid_template, {
         let (_temp_dir, template_path) = create_test_template(
             r#"---
 invalid_yaml: [unclosed
@@ -669,10 +660,9 @@ invalid_yaml: [unclosed
 
         // Should fail due to invalid YAML in frontmatter
         assert!(result.is_err());
-    }
+    });
 
-    #[test]
-    fn test_generate_missing_template_file() {
+    test!(test_generate_missing_template_file, {
         let temp_dir = TempDir::new().expect("Failed to create temp dir");
         let template_path = temp_dir.path().join("nonexistent.tmpl");
         let output_dir = temp_dir.path();
@@ -685,10 +675,9 @@ invalid_yaml: [unclosed
 
         // Should fail due to missing template file
         assert!(result.is_err());
-    }
+    });
 
-    #[test]
-    fn test_insert_env() {
+    test!(test_insert_env, {
         let mut ctx = Context::new();
 
         // Set a test environment variable
@@ -701,5 +690,5 @@ invalid_yaml: [unclosed
 
         // Clean up
         std::env::remove_var("TEST_GGEN_VAR");
-    }
+    });
 }

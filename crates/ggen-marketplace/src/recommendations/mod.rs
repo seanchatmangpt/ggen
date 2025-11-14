@@ -65,7 +65,7 @@
 //! ```
 
 #![allow(clippy::unwrap_used)] // Safe: f64 scores from cosine similarity are never NaN
-use anyhow::{anyhow, Context, Result};
+use ggen_utils::error::{bail, Context, Result};
 use ndarray::{Array1, Array2, ArrayView1};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -77,11 +77,34 @@ pub struct PackageRecommendation {
     pub reason: RecommendationReason,
 }
 
+/// Reason for a package recommendation
+///
+/// Explains why a package was recommended to the user.
+///
+/// # Examples
+///
+/// ```rust
+/// use ggen_marketplace::recommendations::RecommendationReason;
+///
+/// # fn main() {
+/// let reason = RecommendationReason::SimilarUsers;
+/// match reason {
+///     RecommendationReason::SimilarUsers => assert!(true),
+///     RecommendationReason::SimilarPackages => assert!(true),
+///     RecommendationReason::TrendingInCategory => assert!(true),
+///     RecommendationReason::FrequentlyUsedTogether => assert!(true),
+/// }
+/// # }
+/// ```
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum RecommendationReason {
+    /// Recommended because similar users use it
     SimilarUsers,
+    /// Recommended because it's similar to other packages
     SimilarPackages,
+    /// Recommended because it's trending in the category
     TrendingInCategory,
+    /// Recommended because it's frequently used together
     FrequentlyUsedTogether,
 }
 
@@ -363,10 +386,10 @@ impl RecommendationEngine {
             .iter()
             .position(|u| u == &preferences.user_id)
             .ok_or_else(|| {
-                anyhow::anyhow!(
+                ggen_utils::error::Error::new(&format!(
                     "User '{}' not found after insertion - internal state error",
                     preferences.user_id
-                )
+                ))
             })?;
 
         // Update interaction scores based on download counts

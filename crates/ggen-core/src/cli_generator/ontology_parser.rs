@@ -8,7 +8,7 @@
 //! NOTE: This module is a placeholder that will use ggen-ai RDF parser
 //! when integrated. For now, it provides the interface.
 
-use anyhow::Result;
+use ggen_utils::error::{Error, Result};
 use std::path::Path;
 
 /// Enhanced ontology parser for 2026 CLI generation
@@ -29,6 +29,8 @@ impl OntologyParser {
     pub fn parse(_ttl_file: &Path) -> Result<crate::cli_generator::types::CliProject> {
         // FUTURE: Implement using ggen-ai RDF parser when integrated
         // For now, return error indicating integration needed
-        anyhow::bail!("RDF parsing not yet integrated. Use ggen-ai::rdf::QueryExecutor directly.")
+        return Err(Error::new(
+            "RDF parsing not yet integrated. Use ggen-ai::rdf::QueryExecutor directly.",
+        ));
     }
 }

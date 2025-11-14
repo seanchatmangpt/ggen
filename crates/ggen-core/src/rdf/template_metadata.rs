@@ -4,8 +4,8 @@
 //! It extracts metadata from template frontmatter, stores it in an Oxigraph store,
 //! and provides SPARQL-based querying capabilities.
 
-use anyhow::{Context, Result};
 use chrono::{DateTime, Utc};
+use ggen_utils::error::{Error, Result};
 use oxigraph::io::RdfFormat;
 use oxigraph::store::Store;
 use serde::{Deserialize, Serialize};
@@ -302,11 +302,35 @@ impl TemplateMetadata {
 }
 
 /// Relationship between templates
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+///
+/// Template relationship types
+///
+/// Represents different types of relationships between templates.
+///
+/// # Examples
+///
+/// ```rust
+/// use ggen_core::rdf::template_metadata::TemplateRelationship;
+///
+/// # fn main() {
+/// let relationship = TemplateRelationship::DependsOn;
+/// match relationship {
+///     TemplateRelationship::DependsOn => assert!(true),
+///     TemplateRelationship::Extends => assert!(true),
+///     TemplateRelationship::Includes => assert!(true),
+///     TemplateRelationship::Overrides => assert!(true),
+/// }
+/// # }
+/// ```
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum TemplateRelationship {
+    /// Template depends on another template
     DependsOn,
+    /// Template extends another template
     Extends,
+    /// Template includes another template
     Includes,
+    /// Template overrides another template
     Overrides,
 }
 
@@ -319,7 +343,8 @@ pub struct TemplateMetadataStore {
 impl TemplateMetadataStore {
     /// Create new in-memory metadata store
     pub fn new() -> Result<Self> {
-        let store = Store::new().context("Failed to create Oxigraph store")?;
+        let store = Store::new()
+            .map_err(|e| Error::with_context("Failed to create Oxigraph store", &e.to_string()))?;
         Ok(Self {
             store: Arc::new(Mutex::new(store)),
             metadata_cache: Arc::new(Mutex::new(HashMap::new())),
@@ -328,7 +353,8 @@ impl TemplateMetadataStore {
 
     /// Create persistent metadata store at path
     pub fn open<P: AsRef<Path>>(path: P) -> Result<Self> {
-        let store = Store::open(path.as_ref()).context("Failed to open Oxigraph store")?;
+        let store = Store::open(path.as_ref())
+            .map_err(|e| Error::with_context("Failed to open Oxigraph store", &e.to_string()))?;
         Ok(Self {
             store: Arc::new(Mutex::new(store)),
             metadata_cache: Arc::new(Mutex::new(HashMap::new())),
@@ -338,32 +364,26 @@ impl TemplateMetadataStore {
     /// Load Ggen schema into store
     pub fn load_schema(&self) -> Result<()> {
         let schema = super::schema::load_schema()?;
-        let store = self
-            .store
-            .lock()
-            .map_err(|e| anyhow::anyhow!("Lock poisoned: {}", e))?;
+        let store = self.store.lock().map_err(|_| Error::new("Lock poisoned"))?;
         store
             .load_from_reader(RdfFormat::Turtle, schema.as_bytes())
-            .context("Failed to load schema")?;
+            .map_err(|e| Error::with_context("Failed to load schema", &e.to_string()))?;
         Ok(())
     }
 
     /// Store template metadata as RDF triples
     pub fn store_metadata(&self, metadata: &TemplateMetadata) -> Result<()> {
         let turtle = metadata.to_turtle()?;
-        let store = self
-            .store
-            .lock()
-            .map_err(|e| anyhow::anyhow!("Lock poisoned: {}", e))?;
+        let store = self.store.lock().map_err(|_| Error::new("Lock poisoned"))?;
         store
             .load_from_reader(RdfFormat::Turtle, turtle.as_bytes())
-            .context("Failed to store metadata")?;
+            .map_err(|e| Error::with_context("Failed to store metadata", &e.to_string()))?;
 
         // Update cache
         let mut cache = self
             .metadata_cache
             .lock()
-            .map_err(|e| anyhow::anyhow!("Lock poisoned: {}", e))?;
+            .map_err(|_| Error::new("Lock poisoned"))?;
         cache.insert(metadata.id.clone(), metadata.clone());
 
         Ok(())
@@ -376,7 +396,7 @@ impl TemplateMetadataStore {
             let cache = self
                 .metadata_cache
                 .lock()
-                .map_err(|e| anyhow::anyhow!("Lock poisoned: {}", e))?;
+                .map_err(|_| Error::new("Lock poisoned"))?;
             if let Some(metadata) = cache.get(template_id) {
                 return Ok(Some(metadata.clone()));
             }
@@ -395,10 +415,7 @@ impl TemplateMetadataStore {
             template_id = template_id
         );
 
-        let store = self
-            .store
-            .lock()
-            .map_err(|e| anyhow::anyhow!("Lock poisoned: {}", e))?;
+        let store = self.store.lock().map_err(|_| Error::new("Lock poisoned"))?;
         #[allow(deprecated)]
         let results = store.query(&query)?;
 
@@ -415,7 +432,7 @@ impl TemplateMetadataStore {
                 let mut cache = self
                     .metadata_cache
                     .lock()
-                    .map_err(|e| anyhow::anyhow!("Lock poisoned: {}", e))?;
+                    .map_err(|_| Error::new("Lock poisoned"))?;
                 cache.insert(template_id.to_string(), metadata.clone());
 
                 return Ok(Some(metadata));
@@ -427,10 +444,7 @@ impl TemplateMetadataStore {
 
     /// Query templates using SPARQL
     pub fn query(&self, sparql: &str) -> Result<Vec<BTreeMap<String, String>>> {
-        let store = self
-            .store
-            .lock()
-            .map_err(|e| anyhow::anyhow!("Lock poisoned: {}", e))?;
+        let store = self.store.lock().map_err(|_| Error::new("Lock poisoned"))?;
         #[allow(deprecated)]
         let results = store.query(sparql)?;
 
@@ -556,16 +570,15 @@ impl TemplateMetadataStore {
 
     /// Clear all metadata
     pub fn clear(&self) -> Result<()> {
-        let store = self
-            .store
-            .lock()
-            .map_err(|e| anyhow::anyhow!("Lock poisoned: {}", e))?;
-        store.clear().context("Failed to clear store")?;
+        let store = self.store.lock().map_err(|_| Error::new("Lock poisoned"))?;
+        store
+            .clear()
+            .map_err(|e| Error::with_context("Failed to clear store", &e.to_string()))?;
 
         let mut cache = self
             .metadata_cache
             .lock()
-            .map_err(|e| anyhow::anyhow!("Lock poisoned: {}", e))?;
+            .map_err(|_| Error::new("Lock poisoned"))?;
         cache.clear();
 
         Ok(())
@@ -590,9 +603,9 @@ fn escape_literal(s: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chicago_tdd_tools::{async_test, test};
 
-    #[test]
-    fn test_template_metadata_creation() {
+    test!(test_template_metadata_creation, {
         let metadata = TemplateMetadata::new(
             "http://example.org/template1".to_string(),
             "Test Template".to_string(),
@@ -603,10 +616,9 @@ mod tests {
         assert!(metadata.created_at.is_some());
         assert_eq!(metadata.stability, Some("stable".to_string()));
         assert_eq!(metadata.usage_count, Some(0));
-    }
+    });
 
-    #[test]
-    fn test_template_to_turtle() -> Result<()> {
+    test!(test_template_to_turtle, {
         let mut metadata = TemplateMetadata::new(
             "http://example.org/template1".to_string(),
             "Test Template".to_string(),
@@ -614,21 +626,18 @@ mod tests {
         metadata.description = Some("A test template".to_string());
         metadata.category = Some("testing".to_string());
 
-        let turtle = metadata.to_turtle()?;
+        let turtle = metadata.to_turtle().unwrap();
 
         assert!(turtle.contains("@prefix ggen:"));
         assert!(turtle.contains("ggen:Template"));
         assert!(turtle.contains("ggen:templateName \"Test Template\""));
         assert!(turtle.contains("ggen:templateDescription \"A test template\""));
         assert!(turtle.contains("ggen:category \"testing\""));
+    });
 
-        Ok(())
-    }
-
-    #[test]
-    fn test_metadata_store_operations() -> Result<()> {
-        let store = TemplateMetadataStore::new()?;
-        store.load_schema()?;
+    test!(test_metadata_store_operations, {
+        let store = TemplateMetadataStore::new().unwrap();
+        store.load_schema().unwrap();
 
         let mut metadata = TemplateMetadata::new(
             "http://example.org/template1".to_string(),
@@ -638,21 +647,18 @@ mod tests {
         metadata.tags = vec!["rust".to_string(), "test".to_string()];
 
         // Store metadata
-        store.store_metadata(&metadata)?;
+        store.store_metadata(&metadata).unwrap();
 
         // Retrieve metadata
-        let retrieved = store.get_metadata("http://example.org/template1")?;
+        let retrieved = store.get_metadata("http://example.org/template1").unwrap();
         assert!(retrieved.is_some());
         let retrieved = retrieved.unwrap();
         assert_eq!(retrieved.name, "Test Template");
+    });
 
-        Ok(())
-    }
-
-    #[test]
-    fn test_find_by_category() -> Result<()> {
-        let store = TemplateMetadataStore::new()?;
-        store.load_schema()?;
+    test!(test_find_by_category, {
+        let store = TemplateMetadataStore::new().unwrap();
+        store.load_schema().unwrap();
 
         let mut metadata1 = TemplateMetadata::new(
             "http://example.org/template1".to_string(),
@@ -666,25 +672,21 @@ mod tests {
         );
         metadata2.category = Some("web".to_string());
 
-        store.store_metadata(&metadata1)?;
-        store.store_metadata(&metadata2)?;
+        store.store_metadata(&metadata1).unwrap();
+        store.store_metadata(&metadata2).unwrap();
 
-        let found = store.find_by_category("web")?;
+        let found = store.find_by_category("web").unwrap();
         assert_eq!(found.len(), 2);
+    });
 
-        Ok(())
-    }
-
-    #[test]
-    fn test_escape_literal() {
+    test!(test_escape_literal, {
         assert_eq!(escape_literal("hello"), "hello");
         assert_eq!(escape_literal("hello\"world"), "hello\\\"world");
         assert_eq!(escape_literal("line1\nline2"), "line1\\nline2");
         assert_eq!(escape_literal("tab\there"), "tab\\there");
-    }
+    });
 
-    #[test]
-    fn test_template_variables() -> Result<()> {
+    test!(test_template_variables, {
         let mut metadata = TemplateMetadata::new(
             "http://example.org/template1".to_string(),
             "Test Template".to_string(),
@@ -705,5 +707,5 @@ mod tests {
         assert!(turtle.contains("ggen:isRequired \"true\""));
 
         Ok(())
-    }
+    });
 }

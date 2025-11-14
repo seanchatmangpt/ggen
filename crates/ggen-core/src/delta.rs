@@ -74,6 +74,46 @@ use crate::graph::Graph;
 ///
 /// # Examples
 ///
+/// ```rust
+/// use ggen_core::delta::DeltaType;
+///
+/// # fn main() {
+/// // Addition example
+/// let addition = DeltaType::Addition {
+///     subject: "http://example.org/subject".to_string(),
+///     predicate: "http://example.org/predicate".to_string(),
+///     object: "http://example.org/object".to_string(),
+/// };
+/// match addition {
+///     DeltaType::Addition { .. } => assert!(true),
+///     _ => panic!("Should be Addition"),
+/// }
+///
+/// // Deletion example
+/// let deletion = DeltaType::Deletion {
+///     subject: "http://example.org/subject".to_string(),
+///     predicate: "http://example.org/predicate".to_string(),
+///     object: "http://example.org/object".to_string(),
+/// };
+/// match deletion {
+///     DeltaType::Deletion { .. } => assert!(true),
+///     _ => panic!("Should be Deletion"),
+/// }
+///
+/// // Modification example
+/// let modification = DeltaType::Modification {
+///     subject: "http://example.org/subject".to_string(),
+///     predicate: "http://example.org/predicate".to_string(),
+///     old_object: "old".to_string(),
+///     new_object: "new".to_string(),
+/// };
+/// match modification {
+///     DeltaType::Modification { .. } => assert!(true),
+///     _ => panic!("Should be Modification"),
+/// }
+/// # }
+/// ```
+///
 /// ```rust,no_run
 /// use ggen_core::delta::DeltaType;
 /// use oxigraph::model::{NamedNode, Literal, Quad};
@@ -750,6 +790,7 @@ impl Graph {
 mod tests {
     use super::*;
     use crate::graph::Graph;
+    use chicago_tdd_tools::{async_test, test};
 
     fn create_test_graph() -> Result<(Graph, Graph)> {
         let baseline = Graph::new()?;
@@ -781,10 +822,9 @@ mod tests {
         Ok((baseline, current))
     }
 
-    #[test]
-    fn test_delta_creation() -> Result<()> {
-        let (baseline, current) = create_test_graph()?;
-        let delta = GraphDelta::new(&baseline, &current)?;
+    test!(test_delta_creation, {
+        let (baseline, current) = create_test_graph().unwrap();
+        let delta = GraphDelta::new(&baseline, &current).unwrap();
 
         assert!(!delta.is_empty());
         assert!(delta.affects_iri("<http://example.org/email>"));
@@ -794,25 +834,19 @@ mod tests {
         assert_eq!(counts.get("additions"), Some(&2));
         assert_eq!(counts.get("deletions"), None); // No deletions
         assert_eq!(counts.get("modifications"), None); // No modifications
+    });
 
-        Ok(())
-    }
-
-    #[test]
-    fn test_delta_affected_iris() -> Result<()> {
-        let (baseline, current) = create_test_graph()?;
-        let delta = GraphDelta::new(&baseline, &current)?;
+    test!(test_delta_affected_iris, {
+        let (baseline, current) = create_test_graph().unwrap();
+        let delta = GraphDelta::new(&baseline, &current).unwrap();
 
         let affected = delta.affected_iris();
         assert!(affected.contains("<http://example.org/email>"));
         assert!(affected.contains("<http://example.org/User>"));
         assert!(affected.contains("<http://www.w3.org/2000/01/rdf-schema#domain>"));
+    });
 
-        Ok(())
-    }
-
-    #[test]
-    fn test_delta_filtering() -> Result<()> {
+    test!(test_delta_filtering, {
         let (baseline, current) = create_test_graph()?;
         let delta = GraphDelta::new(&baseline, &current)?;
 
@@ -823,12 +857,11 @@ mod tests {
         assert!(!filtered.is_empty());
 
         Ok(())
-    }
+    });
 
-    #[test]
-    fn test_impact_analyzer() -> Result<()> {
-        let (baseline, current) = create_test_graph()?;
-        let delta = GraphDelta::new(&baseline, &current)?;
+    test!(test_impact_analyzer, {
+        let (baseline, current) = create_test_graph().unwrap();
+        let delta = GraphDelta::new(&baseline, &current).unwrap();
 
         let mut analyzer = ImpactAnalyzer::new();
         // Add a mock query that should match the email property
@@ -838,35 +871,35 @@ mod tests {
         );
 
         let template_paths = vec!["template1.tmpl".to_string()];
-        let impacts = analyzer.analyze_impacts(&delta, &template_paths, &baseline)?;
+        let impacts = analyzer
+            .analyze_impacts(&delta, &template_paths, &baseline)
+            .unwrap();
 
         // Should find some impacts since template queries match affected IRIs
         assert!(!impacts.is_empty());
 
         Ok(())
-    }
+    });
 
-    #[test]
-    fn test_graph_hash() -> Result<()> {
-        let (baseline, current) = create_test_graph()?;
+    test!(test_graph_hash, {
+        let (baseline, current) = create_test_graph().unwrap();
 
-        let hash1 = baseline.compute_hash()?;
-        let hash2 = current.compute_hash()?;
+        let hash1 = baseline.compute_hash().unwrap();
+        let hash2 = current.compute_hash().unwrap();
 
         // Different graphs should have different hashes
         assert_ne!(hash1, hash2);
 
         // Same graph should have same hash
-        let hash3 = baseline.compute_hash()?;
+        let hash3 = baseline.compute_hash().unwrap();
         assert_eq!(hash1, hash3);
 
         Ok(())
-    }
+    });
 
-    #[test]
-    fn test_delta_display() -> Result<()> {
-        let (baseline, current) = create_test_graph()?;
-        let delta = GraphDelta::new(&baseline, &current)?;
+    test!(test_delta_display, {
+        let (baseline, current) = create_test_graph().unwrap();
+        let delta = GraphDelta::new(&baseline, &current).unwrap();
 
         let display = format!("{}", delta);
         assert!(display.contains("GraphDelta"));
@@ -874,5 +907,5 @@ mod tests {
         assert!(display.contains("http://example.org/email"));
 
         Ok(())
-    }
+    });
 }

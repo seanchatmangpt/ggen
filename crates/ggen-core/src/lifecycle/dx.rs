@@ -486,25 +486,23 @@ fn format_timestamp(timestamp_ms: u128) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chicago_tdd_tools::{async_test, test};
 
-    #[test]
-    fn test_execution_mode_defaults() {
+    test!(test_execution_mode_defaults, {
         let mode = ExecutionMode::default();
         assert!(!mode.verbose);
         assert!(!mode.dry_run);
         assert!(mode.show_progress);
         assert!(mode.use_colors);
-    }
+    });
 
-    #[test]
-    fn test_ci_mode() {
+    test!(test_ci_mode, {
         let mode = ExecutionMode::ci();
         assert!(!mode.show_progress);
         assert!(!mode.use_colors);
-    }
+    });
 
-    #[test]
-    fn test_metrics_tracking() {
+    test!(test_metrics_tracking, {
         let mut metrics = ExecutionMetrics::new();
         metrics.record_phase("build".to_string(), 1000);
         metrics.record_command();
@@ -514,30 +512,27 @@ mod tests {
         assert_eq!(metrics.phase_times.len(), 1);
         assert_eq!(metrics.commands_executed, 2);
         assert_eq!(metrics.hooks_executed, 1);
-    }
+    });
 
-    #[test]
-    fn test_format_duration() {
+    test!(test_format_duration, {
         assert_eq!(format_duration(Duration::from_millis(500)), "500ms");
         assert_eq!(format_duration(Duration::from_millis(1500)), "1.50s");
         assert_eq!(format_duration(Duration::from_secs(90)), "1m 30s");
-    }
+    });
 
-    #[test]
-    fn test_output_modes() {
+    test!(test_output_modes, {
         let output = Output::new(ExecutionMode::default());
         output.info("test");
         output.success("test");
         output.warning("test");
         output.phase_start("build");
         output.command("cargo build");
-    }
+    });
 
-    #[test]
-    fn test_state_visualizer() {
+    test!(test_state_visualizer, {
         let state = LifecycleState::default();
         let viz = StateVisualizer::new(false);
         let display = viz.display(&state);
         assert!(display.contains("Lifecycle State"));
-    }
+    });
 }

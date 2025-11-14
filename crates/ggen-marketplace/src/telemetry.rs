@@ -40,7 +40,7 @@
 //! # }
 //! ```
 
-use anyhow::{Context, Result};
+use ggen_utils::error::{Context, Error, Result};
 use opentelemetry::KeyValue;
 use opentelemetry_otlp::WithExportConfig;
 use opentelemetry_sdk::{
@@ -120,7 +120,7 @@ pub fn init_telemetry(config: TelemetryConfig) -> Result<()> {
                 ])),
         )
         .install_batch(runtime::Tokio)
-        .context("Failed to install OTLP tracer")?;
+        .map_err(|e| Error::with_context("Failed to install OTLP tracer", &e.to_string()))?;
 
     // Create OpenTelemetry tracing layer
     let telemetry_layer = tracing_opentelemetry::layer().with_tracer(tracer);

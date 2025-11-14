@@ -18,7 +18,7 @@
 //! ```rust,no_run
 //! use ggen_core::rdf::TemplateMetadataStore;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let store = TemplateMetadataStore::new()?;
 //! let metadata = store.query_full_metadata("http://example.org/template1")?;
 //!
@@ -29,7 +29,7 @@
 //! ```
 
 use super::template_metadata::{TemplateMetadata, TemplateMetadataStore};
-use anyhow::Result;
+use ggen_utils::error::Result;
 
 impl TemplateMetadataStore {
     /// Query full metadata by executing multiple SPARQL queries

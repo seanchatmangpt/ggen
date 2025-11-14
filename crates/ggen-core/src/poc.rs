@@ -39,7 +39,7 @@
 //! use std::collections::BTreeMap;
 //! use std::path::Path;
 //!
-//! # fn main() -> anyhow::Result<()> {
+//! # fn main() -> ggen_utils::error::Result<()> {
 //! let template_path = Path::new("template.tmpl");
 //! let output_dir = Path::new("output");
 //! let mut vars = BTreeMap::new();
@@ -342,11 +342,11 @@ fn virtual_name_for(p: &Path) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chicago_tdd_tools::{async_test, test};
     use std::fs;
 
-    #[test]
     #[ignore = "POC feature - experimental, not production critical"]
-    fn poc_with_prefixes_and_inline_rdf() {
+    test!(poc_with_prefixes_and_inline_rdf, {
         let dir = tempfile::tempdir().unwrap();
         let root = dir.path();
 
@@ -375,5 +375,5 @@ vars:
         // In dry-run mode, file should not exist but we can still verify the path
         assert!(!out.exists());
         // The test still validates that the template processing works correctly
-    }
+    });
 }

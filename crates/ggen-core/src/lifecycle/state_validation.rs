@@ -185,37 +185,34 @@ impl AsRef<LifecycleState> for ValidatedLifecycleState {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chicago_tdd_tools::{async_test, test};
 
-    #[test]
-    fn test_valid_state_passes_validation() {
+    test!(test_valid_state_passes_validation, {
         let mut state = LifecycleState::default();
         state.record_run("init".to_string(), 0, 100, true);
         state.record_run("setup".to_string(), 100, 200, true);
         state.record_run("build".to_string(), 200, 300, true);
 
         assert!(ValidatedLifecycleState::validate(&state).is_ok());
-    }
+    });
 
-    #[test]
-    fn test_missing_prerequisite_fails_validation() {
+    test!(test_missing_prerequisite_fails_validation, {
         let mut state = LifecycleState::default();
         // Deploy without test should fail (critical safety check)
         state.record_run("deploy".to_string(), 0, 100, true);
 
         assert!(ValidatedLifecycleState::validate(&state).is_err());
-    }
+    });
 
-    #[test]
-    fn test_invalid_cache_key_fails_validation() {
+    test!(test_invalid_cache_key_fails_validation, {
         let mut state = LifecycleState::default();
         state.record_run("init".to_string(), 0, 100, true);
         state.add_cache_key("nonexistent".to_string(), "key".to_string());
 
         assert!(ValidatedLifecycleState::validate(&state).is_err());
-    }
+    });
 
-    #[test]
-    fn test_inconsistent_history_allowed_for_hooks() {
+    test!(test_inconsistent_history_allowed_for_hooks, {
         // Hooks can run phases out of order, so this should be allowed
         let mut state = LifecycleState::default();
         state.record_run("build".to_string(), 0, 100, true);
@@ -223,14 +220,13 @@ mod tests {
 
         // This should pass because hooks can run phases in any order
         assert!(ValidatedLifecycleState::validate(&state).is_ok());
-    }
+    });
 
-    #[test]
-    fn test_validated_state_wrapper() {
+    test!(test_validated_state_wrapper, {
         let mut state = LifecycleState::default();
         state.record_run("init".to_string(), 0, 100, true);
 
         let validated = ValidatedLifecycleState::new(state).unwrap();
         assert!(validated.state().has_completed_phase("init"));
-    }
+    });
 }

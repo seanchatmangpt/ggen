@@ -13,31 +13,27 @@
 //!
 //! ### Creating and Using Template Context
 //!
-//! ```rust,no_run
+//! ```rust
 //! use ggen_core::templates::context::TemplateContext;
 //! use serde_json::json;
 //!
-//! # fn main() -> anyhow::Result<()> {
 //! let mut ctx = TemplateContext::new();
 //!
 //! // Add variables
-//! ctx.set("name", json!("MyApp"))?;
-//! ctx.set("version", json!("1.0.0"))?;
-//! ctx.set("author", json!("Alice"))?;
+//! ctx.set("name", json!("MyApp")).unwrap();
+//! ctx.set("version", json!("1.0.0")).unwrap();
+//! ctx.set("author", json!("Alice")).unwrap();
 //!
-//! // Convert to Tera context for rendering
-//! let tera_ctx = ctx.to_tera_context()?;
-//! # Ok(())
-//! # }
+//! // Verify variables are set
+//! assert_eq!(ctx.get_string("name"), Some("MyApp".to_string()));
 //! ```
 //!
 //! ### Working with Nested Values
 //!
-//! ```rust,no_run
+//! ```rust
 //! use ggen_core::templates::context::TemplateContext;
 //! use serde_json::json;
 //!
-//! # fn main() -> anyhow::Result<()> {
 //! let mut ctx = TemplateContext::new();
 //!
 //! // Add nested object
@@ -45,14 +41,14 @@
 //!     "name": "MyApp",
 //!     "version": "1.0.0",
 //!     "dependencies": ["serde", "tokio"]
-//! }))?;
+//! })).unwrap();
 //!
-//! // Access in template: {{ project.name }}, {{ project.dependencies | length }}
-//! # Ok(())
-//! # }
+//! // Verify nested value can be accessed
+//! let project = ctx.get("project").unwrap();
+//! assert!(project.is_object());
 //! ```
 
-use anyhow::{Context as AnyhowContext, Result};
+use ggen_utils::error::{Error, Result};
 use serde_json::Value;
 use std::collections::BTreeMap;
 use tera::Context;
@@ -120,7 +116,7 @@ impl TemplateContext {
     /// use ggen_core::templates::context::TemplateContext;
     /// use std::collections::BTreeMap;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let mut vars = BTreeMap::new();
     /// vars.insert("service_name".to_string(), "my-service".to_string());
     /// vars.insert("port".to_string(), "8080".to_string());
@@ -162,7 +158,7 @@ impl TemplateContext {
     /// use ggen_core::templates::context::TemplateContext;
     /// use serde_json::json;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let mut ctx = TemplateContext::new();
     ///
     /// // Set string value
@@ -202,7 +198,7 @@ impl TemplateContext {
     /// use ggen_core::templates::context::TemplateContext;
     /// use serde_json::json;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let mut ctx = TemplateContext::new();
     /// ctx.set("name", json!("MyApp"))?;
     ///
@@ -237,7 +233,7 @@ impl TemplateContext {
     /// use ggen_core::templates::context::TemplateContext;
     /// use serde_json::json;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let mut ctx = TemplateContext::new();
     /// ctx.set("name", json!("MyApp"))?;
     ///
@@ -274,7 +270,7 @@ impl TemplateContext {
     /// use ggen_core::templates::context::TemplateContext;
     /// use serde_json::json;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let mut ctx = TemplateContext::new();
     /// ctx.set("name", json!("MyApp"))?;
     ///
@@ -302,7 +298,7 @@ impl TemplateContext {
     /// use ggen_core::templates::context::TemplateContext;
     /// use serde_json::json;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let mut ctx1 = TemplateContext::new();
     /// ctx1.set("name", json!("App1"))?;
     ///
@@ -342,7 +338,7 @@ impl TemplateContext {
     /// use ggen_core::templates::context::TemplateContext;
     /// use serde_json::json;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let mut ctx = TemplateContext::new();
     /// ctx.set("name", json!("MyApp"))?;
     /// ctx.set("port", json!(8080))?;
@@ -383,7 +379,7 @@ impl TemplateContext {
     /// use ggen_core::templates::context::TemplateContext;
     /// use serde_json::json;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let mut ctx = TemplateContext::new();
     /// ctx.set("name", json!("MyApp"))?;
     /// ctx.set("port", json!(8080))?;
@@ -427,7 +423,7 @@ impl TemplateContext {
     /// use ggen_core::templates::context::TemplateContext;
     /// use serde_json::json;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let mut ctx = TemplateContext::new();
     /// ctx.set("name", json!("MyApp"))?;
     /// ctx.set("port", json!(8080))?;
@@ -444,7 +440,7 @@ impl TemplateContext {
     /// use ggen_core::templates::context::TemplateContext;
     /// use serde_json::json;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let mut ctx = TemplateContext::new();
     /// ctx.set("name", json!("MyApp"))?;
     ///
@@ -462,14 +458,14 @@ impl TemplateContext {
             .collect();
 
         if !missing.is_empty() {
-            anyhow::bail!(
+            return Err(ggen_utils::error::Error::new(&format!(
                 "Missing required template variables: {}",
                 missing
                     .iter()
                     .map(|v| v.as_str())
                     .collect::<Vec<_>>()
                     .join(", ")
-            );
+            )));
         }
 
         Ok(())
@@ -491,7 +487,7 @@ impl TemplateContext {
     /// use serde_json::json;
     /// use std::collections::BTreeMap;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let mut ctx = TemplateContext::new();
     /// ctx.set("name", json!("MyApp"))?; // Existing value
     ///
@@ -543,7 +539,7 @@ impl TemplateContext {
     /// use ggen_core::templates::context::TemplateContext;
     /// use serde_json::json;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let mut ctx = TemplateContext::new();
     /// ctx.set("name", json!("World"))?;
     /// ctx.set("count", json!(42))?;
@@ -558,7 +554,7 @@ impl TemplateContext {
         let context = self.to_tera_context()?;
 
         tera.render_str(template, &context)
-            .context("Failed to render template string")
+            .map_err(|e| Error::with_context("Failed to render template string", &e.to_string()))
     }
 
     /// Clone the variables map
@@ -576,24 +572,22 @@ impl Default for TemplateContext {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chicago_tdd_tools::{async_test, test};
 
-    #[test]
-    fn test_new_context() {
+    test!(test_new_context, {
         let ctx = TemplateContext::new();
         assert!(ctx.variables.is_empty());
-    }
+    });
 
-    #[test]
-    fn test_set_and_get() {
+    test!(test_set_and_get, {
         let mut ctx = TemplateContext::new();
         ctx.set("name", "test").unwrap();
 
         assert_eq!(ctx.get_string("name"), Some("test".to_string()));
         assert!(ctx.contains("name"));
-    }
+    });
 
-    #[test]
-    fn test_from_map() {
+    test!(test_from_map, {
         let mut vars = BTreeMap::new();
         vars.insert("service_name".to_string(), "my-service".to_string());
         vars.insert("port".to_string(), "8080".to_string());
@@ -605,10 +599,9 @@ mod tests {
             Some("my-service".to_string())
         );
         assert_eq!(ctx.get_string("port"), Some("8080".to_string()));
-    }
+    });
 
-    #[test]
-    fn test_merge() {
+    test!(test_merge, {
         let mut ctx1 = TemplateContext::new();
         ctx1.set("name", "test1").unwrap();
 
@@ -619,10 +612,9 @@ mod tests {
 
         assert_eq!(ctx1.get_string("name"), Some("test1".to_string()));
         assert_eq!(ctx1.get_string("port"), Some("8080".to_string()));
-    }
+    });
 
-    #[test]
-    fn test_validate_required() {
+    test!(test_validate_required, {
         let mut ctx = TemplateContext::new();
         ctx.set("name", "test").unwrap();
 
@@ -631,10 +623,9 @@ mod tests {
 
         assert!(result.is_err());
         assert!(result.unwrap_err().to_string().contains("port"));
-    }
+    });
 
-    #[test]
-    fn test_apply_defaults() {
+    test!(test_apply_defaults, {
         let mut ctx = TemplateContext::new();
         ctx.set("name", "test").unwrap();
 
@@ -648,10 +639,9 @@ mod tests {
         assert_eq!(ctx.get_string("name"), Some("test".to_string()));
         // Default should be applied for missing value
         assert_eq!(ctx.get_string("port"), Some("8080".to_string()));
-    }
+    });
 
-    #[test]
-    fn test_render_string() {
+    test!(test_render_string, {
         let mut ctx = TemplateContext::new();
         ctx.set("name", "World").unwrap();
         ctx.set("count", 42).unwrap();
@@ -660,10 +650,9 @@ mod tests {
             .render_string("Hello, {{ name }}! Count: {{ count }}")
             .unwrap();
         assert_eq!(rendered, "Hello, World! Count: 42");
-    }
+    });
 
-    #[test]
-    fn test_variable_names() {
+    test!(test_variable_names, {
         let mut ctx = TemplateContext::new();
         ctx.set("name", "test").unwrap();
         ctx.set("port", "8080").unwrap();
@@ -672,5 +661,5 @@ mod tests {
         assert_eq!(names.len(), 2);
         assert!(names.contains(&"name"));
         assert!(names.contains(&"port"));
-    }
+    });
 }

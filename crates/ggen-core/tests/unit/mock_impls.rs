@@ -116,54 +116,64 @@ pub fn create_multiver_mock_pack(id: &str, versions_list: &[&str]) -> PackMetada
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chicago_tdd_tools::prelude::*;
 
-    #[test]
-    fn test_create_mock_version() {
+    test!(test_create_mock_version, {
+        // Arrange & Act
         let version = create_mock_version("1.2.3");
+
+        // Assert
         assert_eq!(version.version, "1.2.3");
         assert!(version.git_url.contains("1.2.3"));
         assert_eq!(version.sha256.len(), 64);
-    }
+    });
 
-    #[test]
-    fn test_create_mock_pack() {
+    test!(test_create_mock_pack, {
+        // Arrange & Act
         let pack = create_mock_pack("test-id", "Test Name", "1.0.0");
+
+        // Assert
         assert_eq!(pack.id, "test-id");
         assert_eq!(pack.name, "Test Name");
         assert_eq!(pack.latest_version, "1.0.0");
         assert!(pack.versions.contains_key("1.0.0"));
-    }
+    });
 
-    #[test]
-    fn test_create_mock_registry_index() {
+    test!(test_create_mock_registry_index, {
+        // Arrange & Act
         let index = create_mock_registry_index(5);
-        assert_eq!(index.packs.len(), 5);
 
+        // Assert
+        assert_eq!(index.packs.len(), 5);
         for i in 0..5 {
             let id = format!("mock-pack-{}", i);
             assert!(index.packs.contains_key(&id));
         }
-    }
+    });
 
-    #[test]
-    fn test_create_minimal_mock_pack() {
+    test!(test_create_minimal_mock_pack, {
+        // Arrange & Act
         let pack = create_minimal_mock_pack("minimal");
+
+        // Assert
         assert_eq!(pack.id, "minimal");
         assert!(pack.tags.is_empty());
         assert!(pack.keywords.is_empty());
         assert!(pack.category.is_none());
-    }
+    });
 
-    #[test]
-    fn test_create_multiver_mock_pack() {
+    test!(test_create_multiver_mock_pack, {
+        // Arrange
         let versions = vec!["1.0.0", "1.1.0", "2.0.0"];
+
+        // Act
         let pack = create_multiver_mock_pack("multiver", &versions);
 
+        // Assert
         assert_eq!(pack.versions.len(), 3);
         assert_eq!(pack.latest_version, "2.0.0");
-
         for version in versions {
             assert!(pack.versions.contains_key(version));
         }
-    }
+    });
 }

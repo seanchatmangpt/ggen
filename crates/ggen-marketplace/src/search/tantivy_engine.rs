@@ -53,8 +53,8 @@
 
 use crate::search::{IndexStats, SearchEngine};
 use crate::types::{Facet as CustomFacet, Package, ScoredPackage, SearchQuery, SearchResults};
-use anyhow::{Context, Result};
 use async_trait::async_trait;
+use ggen_utils::error::{Context, Error, Result};
 use std::collections::HashMap;
 use std::path::Path;
 use std::sync::Arc;
@@ -253,43 +253,43 @@ impl TantivySearchEngine {
         let id = doc
             .get_first(self.fields.id)
             .and_then(|v| v.as_str())
-            .context("Missing id")?
+            .ok_or_else(|| Error::new("Missing id"))?
             .to_string();
 
         let name = doc
             .get_first(self.fields.name)
             .and_then(|v| v.as_str())
-            .context("Missing name")?
+            .ok_or_else(|| Error::new("Missing name"))?
             .to_string();
 
         let description = doc
             .get_first(self.fields.description)
             .and_then(|v| v.as_str())
-            .context("Missing description")?
+            .ok_or_else(|| Error::new("Missing description"))?
             .to_string();
 
         let version = doc
             .get_first(self.fields.version)
             .and_then(|v| v.as_str())
-            .context("Missing version")?
+            .ok_or_else(|| Error::new("Missing version"))?
             .to_string();
 
         let category = doc
             .get_first(self.fields.category)
             .and_then(|v| v.as_str())
-            .context("Missing category")?
+            .ok_or_else(|| Error::new("Missing category"))?
             .to_string();
 
         let language = doc
             .get_first(self.fields.language)
             .and_then(|v| v.as_str())
-            .context("Missing language")?
+            .ok_or_else(|| Error::new("Missing language"))?
             .to_string();
 
         let license = doc
             .get_first(self.fields.license)
             .and_then(|v| v.as_str())
-            .context("Missing license")?
+            .ok_or_else(|| Error::new("Missing license"))?
             .to_string();
 
         let tags: Vec<String> = doc
@@ -300,12 +300,12 @@ impl TantivySearchEngine {
         let downloads = doc
             .get_first(self.fields.downloads)
             .and_then(|v| v.as_u64())
-            .context("Missing downloads")?;
+            .ok_or_else(|| Error::new("Missing downloads"))?;
 
         let rating = doc
             .get_first(self.fields.rating)
             .and_then(|v| v.as_f64())
-            .context("Missing rating")? as f32;
+            .ok_or_else(|| Error::new("Missing rating"))? as f32;
 
         let created_at = doc
             .get_first(self.fields.created_at)
@@ -313,7 +313,7 @@ impl TantivySearchEngine {
             .map(|dt| {
                 chrono::DateTime::from_timestamp(dt.into_timestamp_secs(), 0).unwrap_or_default()
             })
-            .context("Missing created_at")?;
+            .ok_or_else(|| Error::new("Missing created_at"))?;
 
         let updated_at = doc
             .get_first(self.fields.updated_at)
@@ -321,12 +321,12 @@ impl TantivySearchEngine {
             .map(|dt| {
                 chrono::DateTime::from_timestamp(dt.into_timestamp_secs(), 0).unwrap_or_default()
             })
-            .context("Missing updated_at")?;
+            .ok_or_else(|| Error::new("Missing updated_at"))?;
 
         let author = doc
             .get_first(self.fields.author)
             .and_then(|v| v.as_str())
-            .context("Missing author")?
+            .ok_or_else(|| Error::new("Missing author"))?
             .to_string();
 
         let repository_url = doc

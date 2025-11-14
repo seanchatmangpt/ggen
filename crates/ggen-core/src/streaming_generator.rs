@@ -3,7 +3,7 @@
 //! Processes templates one at a time instead of loading entire file tree
 //! into memory, enabling constant memory usage regardless of project size.
 
-use anyhow::Result;
+use ggen_utils::error::{Error, Result};
 use std::path::{Path, PathBuf};
 use tera::Context;
 use walkdir::WalkDir;
@@ -31,7 +31,7 @@ use crate::template_cache::TemplateCache;
 /// use tera::Context;
 /// use std::path::PathBuf;
 ///
-/// # fn main() -> anyhow::Result<()> {
+/// # fn main() -> ggen_utils::error::Result<()> {
 /// let generator = StreamingGenerator::new(
 ///     PathBuf::from("templates"),
 ///     PathBuf::from("output")
@@ -68,7 +68,7 @@ impl StreamingGenerator {
     /// use ggen_core::streaming_generator::StreamingGenerator;
     /// use std::path::PathBuf;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let generator = StreamingGenerator::new(
     ///     PathBuf::from("templates"),
     ///     PathBuf::from("output")
@@ -101,7 +101,7 @@ impl StreamingGenerator {
     /// use ggen_core::streaming_generator::StreamingGenerator;
     /// use std::path::PathBuf;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// // Create generator with larger cache for many templates
     /// let generator = StreamingGenerator::with_cache_capacity(
     ///     PathBuf::from("templates"),
@@ -144,7 +144,7 @@ impl StreamingGenerator {
     /// use tera::Context;
     /// use std::path::PathBuf;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let mut generator = StreamingGenerator::new(
     ///     PathBuf::from("templates"),
     ///     PathBuf::from("output")
@@ -166,7 +166,7 @@ impl StreamingGenerator {
 
         for entry in WalkDir::new(&self.template_dir) {
             let entry =
-                entry.map_err(|e| anyhow::anyhow!("Failed to read directory entry: {}", e))?;
+                entry.map_err(|e| Error::new(&format!("Failed to read directory entry: {}", e)))?;
 
             if !entry.file_type().is_file() {
                 continue;
@@ -229,7 +229,7 @@ impl StreamingGenerator {
         } else {
             let filename = template_path
                 .file_stem()
-                .ok_or_else(|| anyhow::anyhow!("Template has no filename"))?
+                .ok_or_else(|| Error::new("Template has no filename"))?
                 .to_string_lossy();
             self.output_dir.join(format!("{}.out", filename))
         };
@@ -237,21 +237,21 @@ impl StreamingGenerator {
         // Ensure parent directory exists
         if let Some(parent) = output_path.parent() {
             std::fs::create_dir_all(parent).map_err(|e| {
-                anyhow::anyhow!(
+                Error::new(&format!(
                     "Failed to create output directory {}: {}",
                     parent.display(),
                     e
-                )
+                ))
             })?;
         }
 
         // Write output file
         std::fs::write(&output_path, rendered).map_err(|e| {
-            anyhow::anyhow!(
+            Error::new(&format!(
                 "Failed to write output file {}: {}",
                 output_path.display(),
                 e
-            )
+            ))
         })?;
 
         Ok(output_path)
@@ -268,7 +268,7 @@ impl StreamingGenerator {
     /// use ggen_core::streaming_generator::StreamingGenerator;
     /// use std::path::PathBuf;
     ///
-    /// # fn main() -> anyhow::Result<()> {
+    /// # fn main() -> ggen_utils::error::Result<()> {
     /// let generator = StreamingGenerator::new(
     ///     PathBuf::from("templates"),
     ///     PathBuf::from("output")
@@ -296,7 +296,7 @@ impl StreamingGenerator {
 /// use tera::Context;
 /// use std::path::PathBuf;
 ///
-/// # fn main() -> anyhow::Result<()> {
+/// # fn main() -> ggen_utils::error::Result<()> {
 /// let mut generator = StreamingGenerator::new(
 ///     PathBuf::from("templates"),
 ///     PathBuf::from("output")
@@ -394,6 +394,7 @@ impl GenerationResult {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chicago_tdd_tools::{async_test, test};
     use tempfile::TempDir;
 
     fn create_test_template(dir: &Path, name: &str, content: &str) -> Result<PathBuf> {
@@ -402,8 +403,7 @@ mod tests {
         Ok(path)
     }
 
-    #[test]
-    fn test_streaming_generator_new() -> Result<()> {
+    test!(test_streaming_generator_new, {
         let temp_dir = TempDir::new()?;
         let output_dir = TempDir::new()?;
 
@@ -416,10 +416,9 @@ mod tests {
         assert_eq!(generator.output_dir, output_dir.path());
 
         Ok(())
-    }
+    });
 
-    #[test]
-    fn test_streaming_generator_single_file() -> Result<()> {
+    test!(test_streaming_generator_single_file, {
         let temp_dir = TempDir::new()?;
         let output_dir = TempDir::new()?;
 
@@ -454,10 +453,9 @@ fn main() { println!("Hello, {{ name }}!"); }
         assert!(content.contains("Hello, World!"));
 
         Ok(())
-    }
+    });
 
-    #[test]
-    fn test_streaming_generator_multiple_files() -> Result<()> {
+    test!(test_streaming_generator_multiple_files, {
         let temp_dir = TempDir::new()?;
         let output_dir = TempDir::new()?;
 
@@ -490,10 +488,9 @@ fn main_{i}() {{ println!("File {i}"); }}
         assert!(result.throughput() > 0.0);
 
         Ok(())
-    }
+    });
 
-    #[test]
-    fn test_streaming_generator_nested_output() -> Result<()> {
+    test!(test_streaming_generator_nested_output, {
         let temp_dir = TempDir::new()?;
         let output_dir = TempDir::new()?;
 
@@ -523,10 +520,9 @@ to: "src/handlers/{{ module }}.rs"
         assert!(output_path.exists());
 
         Ok(())
-    }
+    });
 
-    #[test]
-    fn test_streaming_generator_cache_reuse() -> Result<()> {
+    test!(test_streaming_generator_cache_reuse, {
         let temp_dir = TempDir::new()?;
         let output_dir = TempDir::new()?;
 
@@ -558,5 +554,5 @@ fn main() {}
         assert_eq!(stats2.size, 1); // Still 1, reused from cache
 
         Ok(())
-    }
+    });
 }

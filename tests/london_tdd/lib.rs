@@ -10,9 +10,7 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 
 // Re-export common test dependencies
-pub use assert_cmd::Command;
 pub use fake::{Fake, Faker};
-pub use predicates::prelude::*;
 pub use tempfile::TempDir;
 
 /// Mock filesystem for testing file operations

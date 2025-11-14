@@ -4,7 +4,7 @@
 //! with domain function references.
 
 use crate::cli_generator::types::{CliProject, Noun, Verb};
-use anyhow::{Context as _, Result};
+use ggen_utils::error::{Error, Result};
 use std::path::Path;
 use tera::{Context, Tera};
 
@@ -17,8 +17,11 @@ impl CliLayerGenerator {
     /// Create a new CLI layer generator
     pub fn new(template_dir: &Path) -> Result<Self> {
         let pattern = format!("{}/**/*.tmpl", template_dir.display());
-        let tera = Tera::new(&pattern).with_context(|| {
-            format!("Failed to load templates from: {}", template_dir.display())
+        let tera = Tera::new(&pattern).map_err(|e| {
+            Error::with_context(
+                &format!("Failed to load templates from: {}", template_dir.display()),
+                &e.to_string(),
+            )
         })?;
 
         Ok(Self { tera })
@@ -34,15 +37,17 @@ impl CliLayerGenerator {
         let cli_crate = project
             .cli_crate
             .as_ref()
-            .ok_or_else(|| anyhow::anyhow!("CLI crate name is required but was not provided"))?;
+            .ok_or_else(|| Error::new("CLI crate name is required but was not provided"))?;
         let core_crate = project
             .domain_crate
             .as_ref()
-            .ok_or_else(|| anyhow::anyhow!("Domain crate name is required but was not provided"))?;
+            .ok_or_else(|| Error::new("Domain crate name is required but was not provided"))?;
         let cli_dir = output_dir.join("crates").join(cli_crate);
         let cli_src = cli_dir.join("src");
 
-        std::fs::create_dir_all(&cli_src).context("Failed to create CLI src directory")?;
+        std::fs::create_dir_all(&cli_src).map_err(|e| {
+            Error::with_context("Failed to create CLI src directory", &e.to_string())
+        })?;
 
         let mut context = Context::new();
         context.insert("project_name", &project.name);
@@ -142,7 +147,7 @@ impl CliLayerGenerator {
         let core_crate_name = project
             .domain_crate
             .as_ref()
-            .ok_or_else(|| anyhow::anyhow!("Domain crate name is required but was not provided"))?;
+            .ok_or_else(|| Error::new("Domain crate name is required but was not provided"))?;
         let domain_function = verb.domain_function.as_ref().cloned().unwrap_or_else(|| {
             // Default: core_crate::noun::verb
             let core_crate = core_crate_name.replace("-", "_");
@@ -161,17 +166,20 @@ impl CliLayerGenerator {
     }
 
     fn render_template(&self, template: &str, context: &Context, output: &Path) -> Result<()> {
-        let content = self
-            .tera
-            .render(template, context)
-            .with_context(|| format!("Failed to render template: {}", template))?;
+        let content = self.tera.render(template, context).map_err(|e| {
+            Error::with_context("Failed to render template", &format!("{}: {}", template, e))
+        })?;
 
         if let Some(parent) = output.parent() {
             std::fs::create_dir_all(parent)?;
         }
 
-        std::fs::write(output, content)
-            .with_context(|| format!("Failed to write: {}", output.display()))?;
+        std::fs::write(output, content).map_err(|e| {
+            Error::with_context(
+                &format!("Failed to write: {}", output.display()),
+                &e.to_string(),
+            )
+        })?;
 
         Ok(())
     }
