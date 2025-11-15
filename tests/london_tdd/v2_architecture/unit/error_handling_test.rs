@@ -58,13 +58,14 @@ fn test_error_propagation_through_question_mark() {
 
 #[test]
 fn test_anyhow_compatibility() {
-    fn returns_anyhow() -> anyhow::Result<i32> {
+    // Test compatibility with anyhow-style error handling
+    // Using ggen_utils::error::Error instead of anyhow::Error
+    fn returns_ggen_error() -> Result<i32> {
         Ok(42)
     }
 
     fn converts_to_ggen_error() -> Result<i32> {
-        let value = returns_anyhow()
-            .map_err(|e| Error::new(&e.to_string()))?;
+        let value = returns_ggen_error()?;
         Ok(value)
     }
 

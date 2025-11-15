@@ -21,8 +21,8 @@
 //! - Real container execution (chicago-tdd-tools)
 //! - Verifies actual type safety, not mocks
 
-use anyhow::{Context, Result};
 use ggen_core::Graph;
+use ggen_utils::error::{Error, Result};
 use std::fs;
 use std::path::Path;
 use std::process::Command;
@@ -80,7 +80,9 @@ task:status a rdf:Property ;
     ] .
 "#;
 
-    fs::write(path, ontology).context("Failed to write base task ontology")
+    fs::write(path, ontology)
+        .map_err(|e| Error::new(&format!("Failed to write base task ontology: {}", e)))?;
+    Ok(())
 }
 
 /// Create extended Task ontology (v2) with priority property
@@ -143,7 +145,9 @@ task:priority a rdf:Property ;
     ] .
 "#;
 
-    fs::write(path, ontology).context("Failed to write extended task ontology")
+    fs::write(path, ontology)
+        .map_err(|e| Error::new(&format!("Failed to write extended task ontology: {}", e)))?;
+    Ok(())
 }
 
 // ============================================================================
@@ -153,7 +157,7 @@ task:priority a rdf:Property ;
 /// Generate TypeScript types from ontology
 fn generate_typescript_types(ontology_path: &Path, output_path: &Path) -> Result<()> {
     let graph = Graph::load_from_file(ontology_path.to_str().unwrap())
-        .context("Failed to load ontology")?;
+        .map_err(|e| Error::new(&format!("Failed to load ontology: {}", e)))?;
 
     // Query for class properties with SHACL constraints
     // Note: SHACL constraints are in nested blank nodes, so we need to query the property shape
@@ -187,7 +191,9 @@ fn generate_typescript_types(ontology_path: &Path, output_path: &Path) -> Result
         ORDER BY ?label
     "#;
 
-    let results = graph.query(query).context("Failed to query ontology")?;
+    let results = graph
+        .query(query)
+        .map_err(|e| Error::new(&format!("Failed to query ontology: {}", e)))?;
 
     let mut code = String::new();
     code.push_str("// Generated TypeScript types from ontology\n");
@@ -273,13 +279,15 @@ fn generate_typescript_types(ontology_path: &Path, output_path: &Path) -> Result
     // Generate type from schema
     code.push_str("export type TaskFromSchema = z.infer<typeof TaskSchema>;\n");
 
-    fs::write(output_path, code).context("Failed to write TypeScript types")
+    fs::write(output_path, code)
+        .map_err(|e| Error::new(&format!("Failed to write TypeScript types: {}", e)))?;
+    Ok(())
 }
 
 /// Generate CRUD component from TypeScript types
 fn generate_crud_component(types_path: &Path, output_path: &Path) -> Result<()> {
-    let types_content =
-        fs::read_to_string(types_path).context("Failed to read TypeScript types")?;
+    let types_content = fs::read_to_string(types_path)
+        .map_err(|e| Error::new(&format!("Failed to read TypeScript types: {}", e)))?;
 
     // Detect properties from the types file
     let has_priority = types_content.contains("priority:");
@@ -375,7 +383,9 @@ fn generate_crud_component(types_path: &Path, output_path: &Path) -> Result<()> 
     code.push_str("  );\n");
     code.push_str("};\n");
 
-    fs::write(output_path, code).context("Failed to write CRUD component")
+    fs::write(output_path, code)
+        .map_err(|e| Error::new(&format!("Failed to write CRUD component: {}", e)))?;
+    Ok(())
 }
 
 // ============================================================================
@@ -402,7 +412,7 @@ fn verify_typescript_compilation(project_dir: &Path) -> Result<()> {
 "#;
 
     fs::write(project_dir.join("tsconfig.json"), tsconfig)
-        .context("Failed to write tsconfig.json")?;
+        .map_err(|e| Error::new(&format!("Failed to write tsconfig.json: {}", e)))?;
 
     // Create package.json with zod dependency
     let package_json = r#"{
@@ -420,7 +430,7 @@ fn verify_typescript_compilation(project_dir: &Path) -> Result<()> {
 "#;
 
     fs::write(project_dir.join("package.json"), package_json)
-        .context("Failed to write package.json")?;
+        .map_err(|e| Error::new(&format!("Failed to write package.json: {}", e)))?;
 
     // Install dependencies (skip if in CI or npm not available)
     if Command::new("npm").arg("--version").output().is_ok() {
@@ -430,14 +440,14 @@ fn verify_typescript_compilation(project_dir: &Path) -> Result<()> {
             .arg("--silent")
             .current_dir(project_dir)
             .output()
-            .context("Failed to run npm install")?;
+            .map_err(|e| Error::new(&format!("Failed to run npm install: {}", e)))?;
 
         if !install.status.success() {
             eprintln!(
                 "npm install failed: {}",
                 String::from_utf8_lossy(&install.stderr)
             );
-            return Err(anyhow::anyhow!("npm install failed"));
+            return Err(Error::new("npm install failed"));
         }
 
         // Run tsc --noEmit
@@ -445,15 +455,15 @@ fn verify_typescript_compilation(project_dir: &Path) -> Result<()> {
             .args(["tsc", "--noEmit"])
             .current_dir(project_dir)
             .output()
-            .context("Failed to run tsc")?;
+            .map_err(|e| Error::new(&format!("Failed to run tsc: {}", e)))?;
 
         if !tsc.status.success() {
             eprintln!("TypeScript compilation errors:");
             eprintln!("{}", String::from_utf8_lossy(&tsc.stdout));
-            return Err(anyhow::anyhow!(
+            return Err(Error::new(&format!(
                 "TypeScript compilation failed: {}",
                 String::from_utf8_lossy(&tsc.stderr)
-            ));
+            )));
         }
     } else {
         eprintln!("⚠️  npm not available, skipping TypeScript compilation check");
@@ -515,7 +525,8 @@ fn parse_integer(value: &str) -> Option<i32> {
 
 #[tokio::test]
 async fn test_nextjs_ontology_sync_complete_workflow() -> Result<()> {
-    let temp_dir = TempDir::new().context("Failed to create temp directory")?;
+    let temp_dir = TempDir::new()
+        .map_err(|e| Error::new(&format!("Failed to create temp directory: {}", e)))?;
     let base_path = temp_dir.path();
 
     // ========================================================================

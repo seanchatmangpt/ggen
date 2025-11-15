@@ -85,21 +85,17 @@ impl<'a> TraceAsserter<'a> {
         let span = self
             .collector
             .find_span(name)
-            .context(format!("Span '{}' not found", name))?;
+            .ok_or_else(|| Error::new(&format!("Span '{}' not found", name)))?;
 
-        let actual = span
-            .attributes
-            .get(key)
-            .context(format!("Attribute '{}' not found in span '{}'", key, name))?;
+        let actual = span.attributes.get(key).ok_or_else(|| {
+            Error::new(&format!("Attribute '{}' not found in span '{}'", key, name))
+        })?;
 
         if actual != value {
-            anyhow::bail!(
+            return Err(Error::new(&format!(
                 "Attribute '{}' in span '{}': expected '{}', got '{}'",
-                key,
-                name,
-                value,
-                actual
-            );
+                key, name, value, actual
+            )));
         }
 
         Ok(self)
@@ -110,10 +106,13 @@ impl<'a> TraceAsserter<'a> {
         let metrics = self.collector.get_metrics();
         let actual = metrics
             .get(name)
-            .context(format!("Metric '{}' not found", name))?;
+            .ok_or_else(|| Error::new(&format!("Metric '{}' not found", name)))?;
 
         if (actual - expected).abs() > f64::EPSILON {
-            anyhow::bail!("Metric '{}': expected {}, got {}", name, expected, actual);
+            return Err(Error::new(&format!(
+                "Metric '{}': expected {}, got {}",
+                name, expected, actual
+            )));
         }
 
         Ok(self)
@@ -124,16 +123,13 @@ impl<'a> TraceAsserter<'a> {
         let metrics = self.collector.get_metrics();
         let actual = metrics
             .get(name)
-            .context(format!("Metric '{}' not found", name))?;
+            .ok_or_else(|| Error::new(&format!("Metric '{}' not found", name)))?;
 
         if *actual < min || *actual > max {
-            anyhow::bail!(
+            return Err(Error::new(&format!(
                 "Metric '{}': expected in range [{}, {}], got {}",
-                name,
-                min,
-                max,
-                actual
-            );
+                name, min, max, actual
+            )));
         }
 
         Ok(self)
@@ -152,17 +148,17 @@ impl PerformanceMetrics {
     pub fn validate_slos(&self) -> Result<()> {
         // Validate against README performance SLOs
         if self.generation_time_ms > 3000.0 {
-            anyhow::bail!(
+            return Err(Error::new(&format!(
                 "Generation time {}ms exceeds SLO of 3000ms",
                 self.generation_time_ms
-            );
+            )));
         }
 
         if self.memory_usage_mb > 100.0 {
-            anyhow::bail!(
+            return Err(Error::new(&format!(
                 "Memory usage {}MB exceeds SLO of 100MB",
                 self.memory_usage_mb
-            );
+            )));
         }
 
         Ok(())

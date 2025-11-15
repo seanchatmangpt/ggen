@@ -8,6 +8,7 @@
 //!
 //! Reference: ggen/expert-testing-patterns.md
 
+#[allow(unused_imports)] // False positive - these are used in async_test! blocks
 use chicago_tdd_tools::prelude::*;
 use ggen_domain::marketplace::install::{execute_install, InstallInput};
 use ggen_domain::marketplace::search::{search_packages, SearchFilters};

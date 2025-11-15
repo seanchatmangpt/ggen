@@ -3,6 +3,7 @@
 //! These tests use REAL registry files and verify actual search behavior
 //! following the Classicist School of TDD.
 
+#[allow(unused_imports)] // Macros are used in async_test! blocks
 use chicago_tdd_tools::prelude::*;
 use ggen_domain::marketplace::search::{search_packages, SearchFilters};
 use ggen_utils::error::Result;

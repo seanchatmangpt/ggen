@@ -1,7 +1,7 @@
 // London TDD - Test Suite for `ggen new` Command
 // Outside-in testing approach: Start with acceptance tests, then unit tests
 
-use anyhow::Result;
+use ggen_utils::error::{Error, Result};
 use mockall::predicate::*;
 use std::path::{Path, PathBuf};
 use tempfile::TempDir;
@@ -383,7 +383,10 @@ pub async fn create_new_project(
 
     // Check if project already exists
     if project_path.exists() {
-        anyhow::bail!("Project directory '{}' already exists", config.name);
+        return Err(Error::new(&format!(
+            "Project directory '{}' already exists",
+            config.name
+        )));
     }
 
     // Generate project structure
@@ -442,7 +445,7 @@ anyhow = "1.0"
         );
 
         let main_rs = format!(
-            r#"use anyhow::Result;
+            r#"use ggen_utils::error::{Error, Result};
 use {}::*;
 
 #[tokio::main]
