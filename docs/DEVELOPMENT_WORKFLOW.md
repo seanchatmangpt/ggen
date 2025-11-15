@@ -281,6 +281,32 @@ All public APIs must have:
 - Error documentation for `Result`-returning functions
 - Parameter and return value documentation
 
+### Documentation Waste Prevention (Muda Elimination)
+
+Documentation work-in-progress files should be actively managed to prevent waste accumulation:
+
+**Work-in-Progress Documentation**:
+- Place intermediate analysis and reports in `docs/wip/`
+- Use `_CURRENT` suffix for active tracking documents (e.g., `KAIZEN_IMPROVEMENT_CURRENT.md`)
+- Remove outdated versions immediately when creating new ones
+
+**When to Archive**:
+- ✅ Work is complete and documented in code (improvements applied)
+- ✅ Document is superseded by a newer version
+- ✅ Information is consolidated into permanent documentation
+
+**When NOT to Keep**:
+- ❌ Historical analysis reports for completed work
+- ❌ Intermediate work summaries that are no longer referenced
+- ❌ Gemba walks and FMEA analyses after action items are implemented
+- ❌ Duplicate files (keep only the `_CURRENT` version)
+
+**Archival Schedule**:
+- Monthly review: Check `docs/wip/` for outdated documents
+- Remove files immediately after work is completed and verified
+- Keep documentation clean to reduce cognitive load
+- Prevent WIP directory from becoming permanent dumping ground
+
 ## Git Workflow
 
 ### Pre-Commit Hooks
