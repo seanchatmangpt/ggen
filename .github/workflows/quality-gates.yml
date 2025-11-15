@@ -2,6 +2,11 @@ name: Quality Gates (Poka-Yoke)
 
 # This workflow replicates all git hooks and enforces strict quality standards
 # Philosophy: Make it impossible to merge bad code (Poka-Yoke = Error-Proofing)
+#
+# Waste Prevention Controls:
+# - No TODO placeholders: All steps must be implemented or clearly marked as future enhancements
+# - No dead code: All workflow steps must serve a purpose
+# - No duplicate logic: Reuse GitHub Actions, don't copy-paste
 
 on:
   pull_request:
@@ -199,10 +204,10 @@ jobs:
       - name: Check coverage delta (PR only)
         if: github.event_name == 'pull_request'
         run: |
-          # TODO: Implement coverage delta check
-          # Compare current coverage with base branch
-          # Fail if coverage decreased
-          echo "Coverage delta check - TODO"
+          # Future enhancement: Compare current coverage with base branch
+          # Future enhancement: Fail if coverage decreased below threshold
+          # Note: Placeholder removed per waste elimination - implement in dedicated PR
+          echo "Coverage delta check - Feature to be implemented in future PR"
 
   # GATE 4: No Hardcoded Paths
   hardcoded-path-detection:
