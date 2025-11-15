@@ -109,6 +109,8 @@ impl NaturalLanguageInterpreter {
         &self, query: &str,
     ) -> Result<String, Box<dyn std::error::Error>> {
         // Mock AI interpretation - in real implementation, this would call Ollama
+        // Using model: {} for interpretation (currently unused in mock implementation)
+        let _ = &self.model;
         let query_lower = query.to_lowercase();
 
         if query_lower.contains("authentication")

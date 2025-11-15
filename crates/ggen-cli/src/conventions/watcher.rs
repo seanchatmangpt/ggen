@@ -101,7 +101,7 @@ impl ProjectWatcher {
                 }
                 Err(errors) => {
                     for error in errors {
-                        eprintln!("Watch error: {:?}", error);
+                        log::error!("Watch error: {:?}", error);
                     }
                 }
             }
@@ -184,7 +184,7 @@ impl ProjectWatcher {
     pub fn regenerate_template(&self, template: &str) -> Result<()> {
         // In a real implementation, this would call the template engine
         // For now, we just log it
-        println!("Regenerating template: {}", template);
+        log::info!("Regenerating template: {}", template);
         Ok(())
     }
 

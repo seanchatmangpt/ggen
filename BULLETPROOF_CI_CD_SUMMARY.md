@@ -32,25 +32,27 @@
 
 ### What Claims Say vs. Reality
 
-| Claim | Reality | Gap |
-|-------|---------|-----|
-| "89% production ready" | Can't even compile fresh clone | 🔴 CRITICAL |
-| "Zero unsafe code" | 8 files contain `unsafe` | 🔴 FALSE |
-| "No .expect() in production" | 918 occurrences of unwrap/expect | 🔴 FALSE |
-| "Comprehensive E2E tests" | 11 critical paths untested | 🟡 PARTIAL |
-| "Code coverage tracked" | 54%, not enforced | 🟡 PARTIAL |
-| "Production-grade stack" | Has production panic macros | 🔴 FALSE |
+| Claim                        | Reality                          | Gap        |
+| ---------------------------- | -------------------------------- | ---------- |
+| "89% production ready"       | Can't even compile fresh clone   | 🔴 CRITICAL |
+| "Zero unsafe code"           | 8 files contain `unsafe`         | 🔴 FALSE    |
+| "No .expect() in production" | 918 occurrences of unwrap/expect | 🔴 FALSE    |
+| "Comprehensive E2E tests"    | 11 critical paths untested       | 🟡 PARTIAL  |
+| "Code coverage tracked"      | 54%, not enforced                | 🟡 PARTIAL  |
+| "Production-grade stack"     | Has production panic macros      | 🔴 FALSE    |
 
 ### Critical Blockers
 
-**🚨 BLOCKER #1: Project Doesn't Compile** (SEVERITY: P0)
+**🚨 BLOCKER #1: Project Doesn't Compile** (SEVERITY: P0) ✅ **FIXED**
 
 ```toml
-# Cargo.toml:79
-chicago-tdd-tools = { path = "/Users/sac/chicago-tdd-tools", version = "1.1.0" }
+# Cargo.toml:79 (CURRENT - ALREADY FIXED)
+chicago-tdd-tools = "1.2.0"  # Updated from hardcoded path to crates.io (was 1.1.0)
 ```
 
-**Impact**: EVERY fresh clone fails, CI WILL fail, Docker WILL fail
+**Status**: ✅ **RESOLVED** - Cargo.toml now uses crates.io version 1.2.0. Project compiles successfully.
+
+**Previous Impact** (before fix): EVERY fresh clone failed, CI would fail, Docker would fail
 
 **🚨 BLOCKER #2: 11 Production Panic Points** (SEVERITY: P0)
 
@@ -188,17 +190,17 @@ git push
 
 ### Before vs After
 
-| Metric | Before | After (Week 1) | After (Month 1) |
-|--------|--------|----------------|-----------------|
-| **Compilation** | ❌ Fails on fresh clone | ✅ Always works | ✅ Always works |
-| **Panic Points** | 11 in production | 0 | 0 |
-| **Code Coverage** | 54% (not enforced) | 80% (enforced) | 85%+ (enforced) |
-| **Quality Gates** | Bypassable | Mandatory | Mandatory + comprehensive |
-| **CI Duration** | ~30 minutes | ~20 minutes | ~15 minutes |
-| **False Positives** | Unknown | <5% | <2% |
-| **Production Failures** | Unknown | Tracked | Zero in 90 days |
-| **Deploy Confidence** | 🔴 Low | 🟡 Medium | 🟢 High |
-| **"Production Ready"** | 89% (unmeasured) | 95% (measured) | 100% (proven) |
+| Metric                  | Before                 | After (Week 1) | After (Month 1)           |
+| ----------------------- | ---------------------- | -------------- | ------------------------- |
+| **Compilation**         | ❌ Fails on fresh clone | ✅ Always works | ✅ Always works            |
+| **Panic Points**        | 11 in production       | 0              | 0                         |
+| **Code Coverage**       | 54% (not enforced)     | 80% (enforced) | 85%+ (enforced)           |
+| **Quality Gates**       | Bypassable             | Mandatory      | Mandatory + comprehensive |
+| **CI Duration**         | ~30 minutes            | ~20 minutes    | ~15 minutes               |
+| **False Positives**     | Unknown                | <5%            | <2%                       |
+| **Production Failures** | Unknown                | Tracked        | Zero in 90 days           |
+| **Deploy Confidence**   | 🔴 Low                  | 🟡 Medium       | 🟢 High                    |
+| **"Production Ready"**  | 89% (unmeasured)       | 95% (measured) | 100% (proven)             |
 
 ### Deployment Confidence Ladder
 
@@ -426,31 +428,31 @@ All documentation created and ready:
 
 ### Decision 1: Which Dependency Fix?
 
-| Option | Pros | Cons | Recommendation |
-|--------|------|------|----------------|
-| Publish to crates.io | Standard, fast builds | Need crates.io account | ✅ BEST |
-| Git dependency | Quick fix | Slower builds | ⚠️  OK |
-| Make optional | No external dep | Complex refactor | ❌ AVOID |
+| Option               | Pros                  | Cons                   | Recommendation |
+| -------------------- | --------------------- | ---------------------- | -------------- |
+| Publish to crates.io | Standard, fast builds | Need crates.io account | ✅ BEST         |
+| Git dependency       | Quick fix             | Slower builds          | ⚠️  OK          |
+| Make optional        | No external dep       | Complex refactor       | ❌ AVOID        |
 
 **Recommendation**: Publish to crates.io (Day 1)
 
 ### Decision 2: Coverage Threshold?
 
-| Threshold | Achievable | Time to Reach | Recommendation |
-|-----------|------------|---------------|----------------|
-| 70% | Easy | Week 1 | ❌ Too low |
-| 80% | Moderate | 2-3 weeks | ✅ GOOD |
-| 90% | Hard | 1-2 months | ⚠️  Ideal but later |
+| Threshold | Achievable | Time to Reach | Recommendation     |
+| --------- | ---------- | ------------- | ------------------ |
+| 70%       | Easy       | Week 1        | ❌ Too low          |
+| 80%       | Moderate   | 2-3 weeks     | ✅ GOOD             |
+| 90%       | Hard       | 1-2 months    | ⚠️  Ideal but later |
 
 **Recommendation**: Start at 80%, increase to 85% after month 1
 
 ### Decision 3: Workflow Strategy?
 
-| Strategy | Pros | Cons | Recommendation |
-|----------|------|------|----------------|
-| Fix existing workflows | Familiar | Overlapping logic | ❌ AVOID |
-| New quality-gates.yml | Clean slate, comprehensive | Need to migrate | ✅ BEST |
-| Consolidate all | Single workflow | Complex to maintain | ⚠️  Maybe later |
+| Strategy               | Pros                       | Cons                | Recommendation |
+| ---------------------- | -------------------------- | ------------------- | -------------- |
+| Fix existing workflows | Familiar                   | Overlapping logic   | ❌ AVOID        |
+| New quality-gates.yml  | Clean slate, comprehensive | Need to migrate     | ✅ BEST         |
+| Consolidate all        | Single workflow            | Complex to maintain | ⚠️  Maybe later |
 
 **Recommendation**: Deploy quality-gates.yml, archive old workflows
 

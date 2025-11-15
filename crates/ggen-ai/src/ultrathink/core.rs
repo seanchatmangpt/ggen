@@ -354,7 +354,7 @@ impl UltrathinkCore {
                 let agents = agents.read()
                     .map_err(|_| crate::error::UltrathinkError::InternalError("Failed to acquire agents read lock".into()))?;
                 if !agents.is_empty() {
-                    println!("✅ Task {} assigned to core agent", task.id);
+                    log::info!("✅ Task {} assigned to core agent", task.id);
 
                     // Update metrics
                     let _metrics = task_queue.read()
@@ -511,7 +511,7 @@ impl WipManager {
             tokio::time::sleep(sync_interval).await;
 
             if let Err(e) = self.sync_all().await {
-                eprintln!("WIP sync error: {:?}", e);
+                log::error!("WIP sync error: {:?}", e);
             }
         }
     }
@@ -526,7 +526,7 @@ impl WipManager {
 
     /// Synchronize with a specific WIP endpoint
     async fn sync_with_endpoint(&self, _endpoint: &str) -> Result<()> {
-        println!("🔄 Syncing with WIP endpoint");
+        log::info!("🔄 Syncing with WIP endpoint");
         Ok(())
     }
 
@@ -547,7 +547,7 @@ impl NeuralEngine {
 
     /// Start the learning loop
     pub async fn start_learning_loop(&self) {
-        println!("🧠 Neural learning loop started");
+        log::info!("🧠 Neural learning loop started");
     }
 }
 
@@ -593,10 +593,10 @@ pub async fn initialize_ultrathink_core() -> Result<()> {
     let config = UltrathinkConfig::default();
     let _core = UltrathinkCore::new(config).await?;
 
-    println!("✅ Ultrathink Core initialized successfully");
-    println!("🤖 Ready for autonomous software development");
-    println!("🔗 WIP integration active");
-    println!("🧠 Neural intelligence enabled");
+    log::info!("✅ Ultrathink Core initialized successfully");
+    log::info!("🤖 Ready for autonomous software development");
+    log::info!("🔗 WIP integration active");
+    log::info!("🧠 Neural intelligence enabled");
 
     Ok(())
 }

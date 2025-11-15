@@ -376,7 +376,7 @@ command = "echo 'Building...'"
 
         let result = exec::run_pipeline(&ctx, &phases);
         if let Err(e) = &result {
-            eprintln!("Pipeline execution failed: {:?}", e);
+            log::error!("Pipeline execution failed: {:?}", e);
         }
         assert!(result.is_ok());
 

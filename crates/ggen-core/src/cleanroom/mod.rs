@@ -221,7 +221,7 @@ impl<P: Policy> CleanroomBuilder<P> {
 mod tests {
     use super::*;
     use crate::cleanroom::policy::{Locked, Permissive};
-    use chicago_tdd_tools::{test, async_test};
+    use chicago_tdd_tools::prelude::*;
 
     test!(test_cleanroom_core_builder, {
         let env = CleanroomCore::<Locked>::builder()

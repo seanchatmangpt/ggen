@@ -370,7 +370,7 @@ impl FileHandle<Closed> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::{async_test, test};
+    use chicago_tdd_tools::prelude::*;
 
     test!(test_non_empty_path_valid, {
         let path = NonEmptyPath::new(PathBuf::from("test.txt")).unwrap();

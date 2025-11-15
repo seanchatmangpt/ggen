@@ -91,7 +91,7 @@ pub fn build_tera_minimal() -> Result<Tera> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::{async_test, test};
+    use chicago_tdd_tools::prelude::*;
     use std::fs;
     use tempfile::TempDir;
 

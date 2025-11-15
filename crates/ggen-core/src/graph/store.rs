@@ -101,7 +101,7 @@ impl GraphStore {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::test;
+    use chicago_tdd_tools::prelude::*;
     use tempfile::TempDir;
 
     test!(test_store_new, {

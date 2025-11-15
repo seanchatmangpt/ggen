@@ -456,7 +456,7 @@ impl Plan {
 
         // Write the modified content
         std::fs::write(&self.output_path, new_content)?;
-        println!("Injected: {}", self.output_path.display());
+        log::info!("Injected: {}", self.output_path.display());
 
         // Execute shell hook after writing (if specified)
         if let Some(sh_after) = &self.frontmatter.sh_after {
@@ -470,7 +470,7 @@ impl Plan {
     fn apply_regular(&self) -> Result<()> {
         // Check unless_exists guard
         if self.frontmatter.unless_exists && self.output_path.exists() {
-            println!("Skipped: file already exists and unless_exists=true");
+            log::info!("Skipped: file already exists and unless_exists=true");
             return Ok(());
         }
 
@@ -495,7 +495,7 @@ impl Plan {
         // Write content
         std::fs::write(&self.output_path, &self.content)?;
 
-        println!("Generated: {}", self.output_path.display());
+        log::info!("Generated: {}", self.output_path.display());
 
         // Execute shell hook after writing (if specified)
         if let Some(sh_after) = &self.frontmatter.sh_after {
@@ -687,7 +687,7 @@ impl Plan {
 
     /// Print unified diff of what would be written
     pub fn print_diff(&self) -> Result<()> {
-        println!("DRY RUN - Would generate: {}", self.output_path.display());
+        log::info!("DRY RUN - Would generate: {}", self.output_path.display());
 
         if self.output_path.exists() {
             let existing_content = std::fs::read_to_string(&self.output_path)?;
@@ -711,8 +711,8 @@ impl Plan {
 fn print_colorized_diff(old: &str, new: &str, path: &Path) {
     use colored::*;
 
-    println!("{} {}", "---".red(), path.display());
-    println!("{} {}", "+++".green(), path.display());
+    log::debug!("{} {}", "---".red(), path.display());
+    log::debug!("{} {}", "+++".green(), path.display());
 
     let old_lines: Vec<&str> = old.lines().collect();
     let new_lines: Vec<&str> = new.lines().collect();
@@ -726,17 +726,17 @@ fn print_colorized_diff(old: &str, new: &str, path: &Path) {
 
         match (old_line, new_line) {
             (Some(old), Some(new)) if old == new => {
-                println!(" {}", old);
+                log::debug!(" {}", old);
             }
             (Some(old), Some(new)) => {
-                println!("{}{}", "-".red(), old.red());
-                println!("{}{}", "+".green(), new.green());
+                log::debug!("{}{}", "-".red(), old.red());
+                log::debug!("{}{}", "+".green(), new.green());
             }
             (Some(old), None) => {
-                println!("{}{}", "-".red(), old.red());
+                log::debug!("{}{}", "-".red(), old.red());
             }
             (None, Some(new)) => {
-                println!("{}{}", "+".green(), new.green());
+                log::debug!("{}{}", "+".green(), new.green());
             }
             (None, None) => break,
         }
@@ -747,18 +747,18 @@ fn print_colorized_diff(old: &str, new: &str, path: &Path) {
 fn print_colorized_new_file(content: &str, path: &Path) {
     use colored::*;
 
-    println!("{} /dev/null", "---".red());
-    println!("{} {}", "+++".green(), path.display());
+    log::debug!("{} /dev/null", "---".red());
+    log::debug!("{} {}", "+++".green(), path.display());
 
     for line in content.lines() {
-        println!("{}{}", "+".green(), line.green());
+        log::debug!("{}{}", "+".green(), line.green());
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::{async_test, test};
+    use chicago_tdd_tools::prelude::*;
     use ggen_utils::error::Result;
     use std::collections::BTreeMap;
     use tempfile::TempDir;

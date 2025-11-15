@@ -134,7 +134,7 @@ impl EventRouter {
             tokio::spawn(async move {
                 let source = unsafe { &*source_clone };
                 if let Err(e) = Self::monitor_event_source(source, event_tx).await {
-                    eprintln!("Error monitoring event source {}: {}", name, e);
+                    log::error!("Error monitoring event source {}: {}", name, e);
                 }
             });
         }
@@ -152,12 +152,12 @@ impl EventRouter {
                 Ok(events) => {
                     for event in events {
                         if let Err(e) = event_tx.send(event) {
-                            eprintln!("Failed to broadcast event: {}", e);
+                            log::error!("Failed to broadcast event: {}", e);
                         }
                     }
                 }
                 Err(e) => {
-                    eprintln!("Error polling events from {}: {}", source.name(), e);
+                    log::error!("Error polling events from {}: {}", source.name(), e);
                 }
             }
 

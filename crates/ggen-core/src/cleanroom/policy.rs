@@ -254,7 +254,7 @@ pub struct PolicyMetadata {
 mod tests {
     use super::*;
     use crate::cleanroom::surfaces::DeterministicSurfaces;
-    use chicago_tdd_tools::{test, async_test};
+    use chicago_tdd_tools::prelude::*;
 
     test!(test_locked_policy, {
         assert_eq!(Locked::name(), "Locked");

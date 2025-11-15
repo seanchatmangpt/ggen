@@ -2,7 +2,7 @@ name: Deploy Marketplace Documentation
 
 on:
   push:
-    branches: [main]
+    branches: [master]
     paths:
       - "ggen-marketplace/**"
       - ".github/workflows/marketplace-docs.yml"
@@ -57,5 +57,3 @@ jobs:
           echo "📚 Main docs URL: https://seanchatmangpt.github.io/ggen/"
           echo ""
           echo "✅ Deployment complete!"
-
-

@@ -731,7 +731,7 @@ impl RegionUtils {
 mod tests {
     use super::*;
     use crate::snapshot::FileSnapshot;
-    use chicago_tdd_tools::{async_test, test};
+    use chicago_tdd_tools::prelude::*;
 
     test!(test_merge_strategies, {
         let merger = ThreeWayMerger::new(MergeStrategy::GeneratedWins);
@@ -805,8 +805,8 @@ line 4
 
         let (generated, manual) = RegionUtils::parse_regions(content);
 
-        println!("Generated regions: {:?}", generated);
-        println!("Manual regions: {:?}", manual);
+        log::debug!("Generated regions: {:?}", generated);
+        log::debug!("Manual regions: {:?}", manual);
 
         assert_eq!(generated.len(), 1);
         assert_eq!(manual.len(), 1);

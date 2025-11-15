@@ -96,7 +96,7 @@ pub fn deps_from_hooks(phase: &str, before: &[String], after: &[String]) -> Vec<
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::{async_test, test};
+    use chicago_tdd_tools::prelude::*;
 
     test!(test_topo_simple, {
         let phases = &["init", "setup", "build"];

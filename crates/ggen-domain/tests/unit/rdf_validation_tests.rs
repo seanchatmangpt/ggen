@@ -2,7 +2,7 @@
 //!
 //! Testing individual validation functions and business logic.
 
-use chicago_tdd_tools::test;
+use chicago_tdd_tools::prelude::*;
 use ggen_domain::rdf::metadata::{TemplateMetadata, TemplateVariable};
 use ggen_domain::rdf::validation::*;
 

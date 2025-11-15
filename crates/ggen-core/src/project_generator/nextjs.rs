@@ -362,7 +362,7 @@ export default function App({ Component, pageProps }: AppProps) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::{async_test, test};
+    use chicago_tdd_tools::prelude::*;
     use std::path::PathBuf;
 
     test!(test_generate_nextjs_project, {

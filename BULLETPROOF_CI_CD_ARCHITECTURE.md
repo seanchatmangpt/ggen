@@ -12,9 +12,13 @@
 
 ### 1. Hardcoded Dependency Path (SEVERITY: P0 - BUILDS WILL FAIL)
 
-**Problem**: `Cargo.toml:79`
+**Problem**: `Cargo.toml:79` ✅ **FIXED**
 ```toml
-chicago-tdd-tools = { path = "/Users/sac/chicago-tdd-tools", version = "1.1.0" }
+# CURRENT (FIXED):
+chicago-tdd-tools = "1.2.0"  # Updated from hardcoded path to crates.io
+
+# PREVIOUS (BROKEN):
+# chicago-tdd-tools = { path = "/Users/sac/chicago-tdd-tools", version = "1.1.0" }
 ```
 
 **Impact**:
@@ -25,20 +29,24 @@ chicago-tdd-tools = { path = "/Users/sac/chicago-tdd-tools", version = "1.1.0" }
 
 **Solution Options**:
 
-**Option A: Publish to crates.io** (RECOMMENDED)
+**Option A: Publish to crates.io** (RECOMMENDED) ✅ **IMPLEMENTED**
 ```toml
-chicago-tdd-tools = { version = "1.1.0" }
+chicago-tdd-tools = "1.2.0"  # Current implementation
 ```
 
-**Option B: Use Git dependency**
+**Option B: Use Git dependency** (Historical Alternative)
 ```toml
-chicago-tdd-tools = { git = "https://github.com/seanchatmangpt/chicago-tdd-tools", tag = "v1.1.0" }
+# NOTE: Current implementation uses crates.io version 1.2.0 (Option A)
+# This is a historical alternative that was considered:
+chicago-tdd-tools = { git = "https://github.com/seanchatmangpt/chicago-tdd-tools", tag = "v1.2.0" }
 ```
 
-**Option C: Make it optional**
+**Option C: Make it optional** (Historical Alternative)
 ```toml
+# NOTE: Current implementation uses crates.io version 1.2.0 (Option A)
+# This is a historical alternative that was considered:
 [dependencies]
-chicago-tdd-tools = { version = "1.1.0", optional = true }
+chicago-tdd-tools = { version = "1.2.0", optional = true }
 
 [features]
 chicago_tdd = ["chicago-tdd-tools"]
@@ -307,7 +315,7 @@ release_checks:
 ### Branch Protection Rules
 
 ```yaml
-main:
+master:
   required_status_checks:
     strict: true
     contexts:
@@ -598,7 +606,7 @@ release_metrics:
 alerts:
   critical:
     - Security vulnerability (critical severity)
-    - Build failing on main
+    - Build failing on master
     - Deployment failed
     - Health check failing (canary)
     - Code coverage drop >5%
@@ -623,11 +631,11 @@ channels:
 
 **Priority**: P0 - BLOCKING ALL PROGRESS
 
-- [ ] **Day 1**: Fix hardcoded path dependency
-  - Option A: Publish chicago-tdd-tools to crates.io
-  - Option B: Switch to Git dependency
-  - Option C: Make optional with feature flag
-  - **Verification**: `cargo build` succeeds in fresh clone
+- [x] **Day 1**: Fix hardcoded path dependency ✅ **COMPLETED**
+  - Option A: Publish chicago-tdd-tools to crates.io ✅ **IMPLEMENTED** (version 1.2.0)
+  - Option B: Switch to Git dependency (historical alternative)
+  - Option C: Make optional with feature flag (historical alternative)
+  - **Verification**: ✅ `cargo build` succeeds in fresh clone
 
 - [ ] **Day 2**: Replicate git hooks in CI
   - Create `pre-commit-ci.yml` workflow
@@ -641,17 +649,17 @@ channels:
   - Add per-PR coverage delta check
   - **Verification**: Coverage report on all PRs
 
-- [ ] **Day 4**: Delete obsolete P2P workflows
-  - Remove p2p-marketplace-ci.yml
-  - Remove p2p-release.yml
-  - Update documentation
-  - **Verification**: Workflow list clean
+- [x] **Day 4**: Delete obsolete P2P workflows ✅ **COMPLETED**
+  - Remove p2p-marketplace-ci.yml ✅ **DELETED**
+  - Remove p2p-release.yml ✅ **DELETED**
+  - Update documentation ✅ **UPDATED**
+  - **Verification**: ✅ Workflow list clean
 
 - [ ] **Day 5**: Test fixes in PR
   - Create PR with all fixes
   - Verify all workflows pass
-  - Merge to main
-  - **Success Criteria**: Green CI on main
+  - Merge to master
+  - **Success Criteria**: Green CI on master
 
 ### Phase 2: Comprehensive Testing (Week 2)
 
@@ -805,20 +813,20 @@ Process:
 
 ### Existing Workflows (20 total)
 
-| Workflow | Purpose | Issues | Recommendation |
-|----------|---------|--------|----------------|
-| `ci.yml` | Main CI | No panic check, coverage not enforced | Fix |
-| `test.yml` | Test suite | Overlaps with ci.yml | Consolidate |
-| `build.yml` | Build test | Nightly failures ignored | Fix |
-| `lint.yml` | Linting | Doesn't match Cargo.toml lints | Fix |
-| `security-audit.yml` | Security | ✅ Excellent | Keep |
-| `release.yml` | Release | No smoke tests | Fix |
-| `docker.yml` | Docker | No container scan | Fix |
-| `homebrew-release.yml` | Homebrew | Manual process | Automate |
-| `marketplace-test.yml` | Marketplace | ? | Review |
-| `p2p-marketplace-ci.yml` | **P2P** | **P2P REMOVED** | **DELETE** |
-| `p2p-release.yml` | **P2P** | **P2P REMOVED** | **DELETE** |
-| Others | Various | Need review | Audit |
+| Workflow                 | Purpose     | Issues                                | Recommendation |
+| ------------------------ | ----------- | ------------------------------------- | -------------- |
+| `ci.yml`                 | Main CI     | No panic check, coverage not enforced | Fix            |
+| `test.yml`               | Test suite  | Overlaps with ci.yml                  | Consolidate    |
+| `build.yml`              | Build test  | Nightly failures ignored              | Fix            |
+| `lint.yml`               | Linting     | Doesn't match Cargo.toml lints        | Fix            |
+| `security-audit.yml`     | Security    | ✅ Excellent                           | Keep           |
+| `release.yml`            | Release     | No smoke tests                        | Fix            |
+| `docker.yml`             | Docker      | No container scan                     | Fix            |
+| `homebrew-release.yml`   | Homebrew    | Manual process                        | Automate       |
+| `marketplace-test.yml`   | Marketplace | ?                                     | Review         |
+| `p2p-marketplace-ci.yml` | **P2P**     | **P2P REMOVED**                       | **DELETE**     |
+| `p2p-release.yml`        | **P2P**     | **P2P REMOVED**                       | **DELETE**     |
+| Others                   | Various     | Need review                           | Audit          |
 
 ### Workflow Consolidation Plan
 

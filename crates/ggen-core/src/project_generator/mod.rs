@@ -330,7 +330,7 @@ pub async fn create_new_project(config: &ProjectConfig) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::{async_test, test};
+    use chicago_tdd_tools::prelude::*;
 
     test!(test_project_type_from_str, {
         assert_eq!(

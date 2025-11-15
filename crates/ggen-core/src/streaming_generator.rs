@@ -394,7 +394,7 @@ impl GenerationResult {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::{async_test, test};
+    use chicago_tdd_tools::prelude::*;
     use tempfile::TempDir;
 
     fn create_test_template(dir: &Path, name: &str, content: &str) -> Result<PathBuf> {

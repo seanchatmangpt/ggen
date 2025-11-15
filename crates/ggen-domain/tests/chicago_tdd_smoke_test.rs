@@ -4,8 +4,8 @@
 //! with the ggen-domain crate. It tests basic functionality to ensure the
 //! integration is stable.
 
-// Import macros from crate root (they're exported via #[macro_export])
-use chicago_tdd_tools::{async_test, test};
+// Use prelude::* to import all common macros and types
+use chicago_tdd_tools::prelude::*;
 
 // Basic smoke test - verify chicago-tdd-tools macro works
 test!(test_chicago_tdd_works, {

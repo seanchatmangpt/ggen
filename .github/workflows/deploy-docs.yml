@@ -2,12 +2,12 @@ name: Deploy Documentation
 
 on:
   push:
-    branches: [ main ]
+    branches: [master]
     paths:
-      - 'docs/**'
-      - 'src/**'
-      - 'crates/**'
-      - '.github/workflows/deploy-docs.yml'
+      - "docs/**"
+      - "src/**"
+      - "crates/**"
+      - ".github/workflows/deploy-docs.yml"
   workflow_dispatch:
 
 jobs:
@@ -26,7 +26,7 @@ jobs:
       - name: Setup mdBook
         uses: peaceiris/actions-mdbook@v2
         with:
-          mdbook-version: '0.4.40'
+          mdbook-version: "0.4.40"
 
       - name: Build API documentation
         run: |
@@ -48,9 +48,9 @@ jobs:
             docs/book
           publish_branch: gh-pages
           keep_files: false
-          user_name: 'github-actions[bot]'
-          user_email: 'github-actions[bot]@users.noreply.github.com'
-          commit_message: 'Deploy documentation to GitHub Pages'
+          user_name: "github-actions[bot]"
+          user_email: "github-actions[bot]@users.noreply.github.com"
+          commit_message: "Deploy documentation to GitHub Pages"
 
       - name: Deployment Summary
         run: |

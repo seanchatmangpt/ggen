@@ -664,7 +664,7 @@ impl FileTreeNode {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::{async_test, test};
+    use chicago_tdd_tools::prelude::*;
 
     test!(test_directory_node, {
         let node = FileTreeNode::directory("src");

@@ -2,10 +2,10 @@ name: Deploy Marketplace to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: [master]
     paths:
-      - 'marketplace/**'
-      - '.github/workflows/marketplace.yml'
+      - "marketplace/**"
+      - ".github/workflows/marketplace.yml"
   workflow_dispatch:
 
 permissions:
@@ -135,7 +135,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
         with:
-          path: 'marketplace'
+          path: "marketplace"
 
   # Deployment job
   deploy:

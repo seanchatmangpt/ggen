@@ -185,7 +185,7 @@ impl AsRef<LifecycleState> for ValidatedLifecycleState {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::{async_test, test};
+    use chicago_tdd_tools::prelude::*;
 
     test!(test_valid_state_passes_validation, {
         let mut state = LifecycleState::default();

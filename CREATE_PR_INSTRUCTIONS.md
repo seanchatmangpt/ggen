@@ -8,7 +8,7 @@ Go to: https://github.com/jmanhype/ggen
 ### Step 2: Create Pull Request
 1. Click "Pull requests" tab
 2. Click green "New pull request" button
-3. Set **base**: `main` (or `master` - whichever is your default branch)
+3. Set **base**: `master` (this is the default branch)
 4. Set **compare**: `claude/deep-analysis-review-01DfXs673FhMj9UNZy4xURnE`
 
 ### Step 3: Fill PR Details
@@ -23,7 +23,7 @@ Copy/paste the entire content from: `PR_DESCRIPTION.md`
 
 Or use this direct link format:
 ```
-https://github.com/jmanhype/ggen/compare/main...claude/deep-analysis-review-01DfXs673FhMj9UNZy4xURnE
+https://github.com/jmanhype/ggen/compare/master...claude/deep-analysis-review-01DfXs673FhMj9UNZy4xURnE
 ```
 
 ### Step 4: Create PR
@@ -97,7 +97,7 @@ The quality gates workflow (`.github/workflows/quality-gates.yml`) is included b
 
 ### Configure Branch Protection (Recommended)
 1. Go to: Settings → Branches
-2. Add rule for `main` branch
+2. Add rule for `master` branch
 3. Require status checks:
    - GATE 1: No Panic Points
    - GATE 2: Clippy Strict

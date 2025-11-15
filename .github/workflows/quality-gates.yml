@@ -7,7 +7,7 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
   push:
-    branches: [main]
+    branches: [master]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -27,7 +27,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Need full history for diff
+          fetch-depth: 0 # Need full history for diff
 
       - name: Detect panic points in production code
         run: |
@@ -192,7 +192,7 @@ jobs:
         uses: codecov/codecov-action@v4
         with:
           files: ./coverage/cobertura.xml
-          fail_ci_if_error: true  # ENFORCE: Fail if upload fails
+          fail_ci_if_error: true # ENFORCE: Fail if upload fails
           flags: unittests
           name: codecov-ggen
 

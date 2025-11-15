@@ -9,7 +9,7 @@ mod compile_time_tests {
         model::PhaseBuilder, state::LifecycleState, state_machine::*,
         state_validation::ValidatedLifecycleState,
     };
-    use chicago_tdd_tools::test;
+    use chicago_tdd_tools::prelude::*;
 
     /// Test that phase builder requires at least one command
     test!(test_phase_builder_requires_command, {
