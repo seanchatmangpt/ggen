@@ -535,12 +535,21 @@ fn verify_checksum(bytes: &[u8], expected: &str) -> Result<()> {
     Ok(())
 }
 
-/// Download from URL with retry logic
+/// Download from URL with enhanced retry logic and better error handling
+///
+/// This addresses FM2 (RPN 336): Package download fails
+///
+/// Improvements:
+/// - Exponential backoff with jitter to prevent thundering herd
+/// - Retry on transient errors (5xx, timeouts, connection errors)
+/// - Don't retry on permanent errors (4xx)
+/// - Detect and handle rate limiting (429) with longer backoff
+/// - Better error messages for debugging
 async fn download_with_retry(url: &str, max_retries: u32) -> Result<Vec<u8>> {
     use reqwest::Client;
 
     let client = Client::builder()
-        .timeout(std::time::Duration::from_secs(60))
+        .timeout(std::time::Duration::from_secs(120)) // Increased from 60s to 120s
         .user_agent(format!("ggen/{}", env!("CARGO_PKG_VERSION")))
         .build()
         .map_err(|e| {
@@ -548,56 +557,105 @@ async fn download_with_retry(url: &str, max_retries: u32) -> Result<Vec<u8>> {
         })?;
 
     let mut last_error = None;
+    let mut is_rate_limited = false;
 
     for attempt in 1..=max_retries {
         match client.get(url).send().await {
             Ok(response) => {
-                if !response.status().is_success() {
-                    let status = response.status();
-                    if status.is_client_error() {
-                        return Err(ggen_utils::error::Error::new(&format!(
-                            "HTTP {} error: {}",
-                            status, url
-                        )));
-                    }
-                    last_error = Some(ggen_utils::error::Error::new(&format!(
-                        "HTTP {} error: {}",
-                        status, url
-                    )));
-                } else {
+                let status = response.status();
+
+                if status.is_success() {
+                    // Success - read and return bytes
                     match response.bytes().await {
                         Ok(bytes) => {
-                            tracing::info!("Downloaded {} bytes from {}", bytes.len(), url);
+                            tracing::info!("Downloaded {} bytes from {} on attempt {}",
+                                bytes.len(), url, attempt);
                             return Ok(bytes.to_vec());
                         }
                         Err(e) => {
                             last_error = Some(ggen_utils::error::Error::new(&format!(
-                                "Failed to read response: {}",
-                                e
+                                "Failed to read response body: {} (attempt {}/{})",
+                                e, attempt, max_retries
                             )));
                         }
                     }
+                } else if status.is_client_error() && status != reqwest::StatusCode::TOO_MANY_REQUESTS {
+                    // Permanent client error (not rate limit) - don't retry
+                    return Err(ggen_utils::error::Error::new(&format!(
+                        "HTTP {} error (permanent): {} (attempt {}/{})",
+                        status, url, attempt, max_retries
+                    )));
+                } else if status == reqwest::StatusCode::TOO_MANY_REQUESTS {
+                    // Rate limited - mark and retry with longer backoff
+                    is_rate_limited = true;
+                    tracing::warn!("Rate limited (HTTP 429) from {} - backing off (attempt {}/{})", url, attempt, max_retries);
+                    last_error = Some(ggen_utils::error::Error::new(&format!(
+                        "HTTP 429 Too Many Requests from {} (attempt {}/{})",
+                        url, attempt, max_retries
+                    )));
+                } else {
+                    // Transient server error (5xx) - retry with backoff
+                    tracing::warn!("HTTP {} error from {} - retrying (attempt {}/{})",
+                        status, url, attempt, max_retries);
+                    last_error = Some(ggen_utils::error::Error::new(&format!(
+                        "HTTP {} error (transient): {} (attempt {}/{})",
+                        status, url, attempt, max_retries
+                    )));
                 }
             }
             Err(e) => {
+                // Network error - likely transient
+                let error_msg = e.to_string();
+
+                // Classify error type for better backoff strategy
+                let is_timeout = error_msg.contains("timeout") || error_msg.contains("timed out");
+                let is_connection = error_msg.contains("connect") || error_msg.contains("connection");
+
+                if is_timeout {
+                    tracing::warn!("Download timeout from {} - retrying (attempt {}/{})", url, attempt, max_retries);
+                } else if is_connection {
+                    tracing::warn!("Connection error from {} - retrying (attempt {}/{})", url, attempt, max_retries);
+                } else {
+                    tracing::warn!("Network error from {}: {} - retrying (attempt {}/{})",
+                        url, error_msg, attempt, max_retries);
+                }
+
                 last_error = Some(ggen_utils::error::Error::new(&format!(
-                    "Network error downloading from {}: {}. Check your internet connection and try again.",
-                    url, e
+                    "Network error downloading from {}: {} (attempt {}/{}). Check your internet connection.",
+                    url, error_msg, attempt, max_retries
                 )));
             }
         }
 
-        // Exponential backoff
+        // Calculate backoff delay with jitter
         if attempt < max_retries {
-            let delay = std::time::Duration::from_secs(1 << (attempt - 1));
+            let base_delay_secs = if is_rate_limited {
+                // For rate limiting, use longer backoff
+                30 << attempt.saturating_sub(1)
+            } else {
+                // Exponential backoff: 1s, 2s, 4s, 8s, etc.
+                1 << (attempt - 1)
+            };
+
+            // Add small random jitter to prevent thundering herd
+            let jitter_ms = fastrand::u64(0..100);
+            let delay = std::time::Duration::from_secs(base_delay_secs)
+                + std::time::Duration::from_millis(jitter_ms);
+
+            tracing::info!("Waiting {:?} before retry attempt {}", delay, attempt + 1);
             tokio::time::sleep(delay).await;
         }
     }
 
     Err(last_error.unwrap_or_else(|| {
         ggen_utils::error::Error::new(&format!(
-            "Failed to download after {} attempts: {}",
-            max_retries, url
+            "Failed to download from {} after {} attempts. {}",
+            url, max_retries,
+            if is_rate_limited {
+                "Server returned rate limit (429). Please try again later."
+            } else {
+                "Check your network connection and try again."
+            }
         ))
     }))
 }
