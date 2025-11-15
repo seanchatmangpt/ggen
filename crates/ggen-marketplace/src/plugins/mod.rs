@@ -56,7 +56,7 @@
 //! ```
 
 #![allow(clippy::unwrap_used)] // Test code uses unwrap
-use ggen_utils::error::{bail, Context, Result};
+use ggen_utils::error::{bail, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::Path;

@@ -5,6 +5,50 @@ All notable changes to ggen will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.0] - 2025-12-XX
+
+### Changed
+
+#### Code Quality Improvements
+- **Test Refactoring**: Removed commented-out tests using deprecated doctor API types
+  - Replaced with updated tests using current `ggen_domain::utils::doctor` API
+  - Tests now use `CheckStatus::Ok/Warning/Error` instead of deprecated `Pass/Warn/Fail/Info`
+  - Files: `tests/london_tdd/v2_architecture/component/doctor_domain_test.rs`, `tests/london_tdd/v2_arch_comprehensive_test.rs`
+- **Unused Code Cleanup**: Removed unused imports and dead code
+  - Removed unused `Context` import from `crates/ggen-marketplace/src/plugins/mod.rs`
+  - Improved code cleanliness and compilation warnings
+
+#### Compiler Error Fixes
+- **Missing Imports**: Added missing imports in benchmark files
+  - Added `Arc`, `Duration`, `Throughput` imports where needed
+  - Files: `benches/async_runtime_benchmarks.rs`, `benches/runtime_overhead.rs`
+- **API Compatibility**: Fixed GenericContainer API calls
+  - Added missing 6th argument (`None`) to all `GenericContainer::with_command` calls
+  - Files: `tests/integration/full_cycle_container_validation.rs`, `tests/integration/marketplace_package_e2e.rs`
+- **Type Mismatches**: Fixed error type conversions
+  - Changed `anyhow::Error` to `ggen_utils::error::Error` in tracing tests
+  - Fixed `execute_async_verb` test types to use `anyhow::Result`
+  - Files: `tests/tracing.rs`, `crates/ggen-cli/src/runtime_helper.rs`
+- **Linting Fixes**: Fixed clippy warnings
+  - Changed `push_str("\n")` to `push('\n')` for single character strings
+  - Files: `tests/otel_validation/mod.rs`, `crates/ggen-core/src/cleanroom/forensics.rs`
+
+### Fixed
+
+#### Test Infrastructure
+- **Async Test Macros**: Fixed `async_test!` macro usage
+  - Changed from direct import to `chicago_tdd_tools::prelude::*`
+  - Resolves type alias generic argument mismatches
+  - Files: `tests/chicago_tdd/marketplace/*.rs`
+- **Module Access**: Fixed private module access issues
+  - Changed `ggen_marketplace::backend::local::LocalRegistry` to `ggen_marketplace::backend::LocalRegistry`
+  - Files: `tests/chicago_tdd/marketplace/domain_logic_tests.rs`
+- **Domain Module**: Fixed missing domain module imports
+  - Changed `ggen_cli_lib::domain` to `ggen_domain` where appropriate
+  - Files: `tests/chicago_tdd/marketplace/integration_tests.rs`
+- **Benchmark Main Function**: Added missing `main()` function to `memory_profiling` benchmark
+  - Files: `benches/memory_profiling.rs`
+
 ## [2.6.0] - 2025-11-12
 
 ### Removed

@@ -109,51 +109,8 @@ fn test_runtime_bridge_suite_performance() {
 // COMPONENT TESTS (60%) - Domain Logic
 // ============================================================================
 
-// Note: doctor module types have changed - these tests use old API
-// Commenting out until tests are updated to match current domain layer API
-// Tests need to be updated to use ggen_domain::utils::doctor types (CheckStatus::Ok/Warning/Error, CheckResult)
-/*
-use ggen_domain::utils::doctor::{CheckStatus, CheckResult};
-
-#[tokio::test]
-async fn test_check_status_as_str() {
-    // Current API uses Ok, Warning, Error - not Pass, Warn, Fail, Info
-    // assert_eq!(CheckStatus::Pass.as_str(), "pass");
-    // Tests need to be updated to match current domain layer
-}
-
-#[tokio::test]
-async fn test_check_summary_has_failures() {
-    // CheckSummary doesn't exist in current domain layer
-    // Tests need to be updated
-}
-
-#[tokio::test]
-async fn test_check_summary_all_passed() {
-    // CheckSummary doesn't exist in current domain layer
-    // Tests need to be updated
-}
-
-#[tokio::test]
-async fn test_system_check_creation() {
-    // SystemCheck doesn't exist - should use CheckResult instead
-    // Tests need to be updated
-}
-*/
-
-// Commented out - uses old API types (CheckSummary, SystemCheck, CheckStatus::Pass/Warn/Fail/Info)
-// Tests need to be updated to use ggen_domain::utils::doctor types
-/*
-#[tokio::test]
-async fn test_summary_calculation() {
-    // Uses old types - needs update
-}
-
-#[tokio::test]
-async fn test_component_performance() {
-    // Uses old types - needs update
-}
-*/
+// Doctor domain tests moved to tests/london_tdd/v2_architecture/component/doctor_domain_test.rs
+// This file focuses on integration tests for the v2 architecture
 
 // ============================================================================
 // INTEGRATION TESTS (20%) - Full CLI Flow
@@ -227,11 +184,7 @@ fn test_full_suite_performance_target() {
         let _ = ggen_cli_lib::runtime::execute(async { Ok(()) });
     }
 
-    // Component tests
-    // Commented out - uses old CheckSummary type
-    // for _ in 0..3 {
-    //     let _summary = CheckSummary { ... };
-    // }
+    // Component tests - moved to component-specific test files
 
     // Integration tests
     for _ in 0..2 {
