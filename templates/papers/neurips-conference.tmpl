@@ -1,0 +1,163 @@
+---
+name: NeurIPS Conference Paper
+description: NeurIPS/NeurIPS proceedings format with double-blind review
+input_type: rdf
+output_type: latex
+author: ggen core team
+version: 1.0.0
+tags: [paper, neurips, conference, machine-learning, latex]
+---
+\documentclass{article}
+
+\usepackage[preprint]{neurips_2023}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  commentstyle=\color{gray},
+  keywordstyle=\color{blue},
+  stringstyle=\color{red},
+}
+
+\title{ {{- paper.title -}} }
+
+\author{
+{% for author in paper.hasAuthor | sort_by("authorOrder") %}
+  {{- author.authorName -}}
+  {% if not loop.last %} \\ {% endif %}
+{% endfor %}
+}
+
+\begin{document}
+
+\maketitle
+
+% ============================================================================
+% ABSTRACT
+% ============================================================================
+
+\begin{abstract}
+{{- paper.abstract }}
+\end{abstract}
+
+% ============================================================================
+% INTRODUCTION
+% ============================================================================
+
+{% for section in paper.hasSection | filter(attribute="sectionType", value="introduction") %}
+\section{ {{- section.sectionTitle -}} }
+{{- section.sectionContent }}
+{% endfor %}
+
+% ============================================================================
+% RELATED WORK
+% ============================================================================
+
+{% for section in paper.hasSection | filter(attribute="sectionType", value="related-work") %}
+\section{ {{- section.sectionTitle -}} }
+{{- section.sectionContent }}
+{% endfor %}
+
+% ============================================================================
+% METHODS
+% ============================================================================
+
+{% for section in paper.hasSection | filter(attribute="sectionType", value="methods") %}
+\section{ {{- section.sectionTitle -}} }
+{{- section.sectionContent }}
+
+{% for subsection in section.subsectionOf | sort_by("sectionOrder") %}
+\subsection{ {{- subsection.sectionTitle -}} }
+{{- subsection.sectionContent }}
+{% endfor %}
+{% endfor %}
+
+% ============================================================================
+% EXPERIMENTS
+% ============================================================================
+
+{% for section in paper.hasSection | filter(attribute="sectionType", value="results") %}
+\section{ {{- section.sectionTitle -}} }
+{{- section.sectionContent }}
+
+{% for figure in paper.hasFigure | sort_by("figureOrder") %}
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width={{- figure.figureWidth | default("0.5\\textwidth") -}}]{ {{- figure.figureFile -}} }
+  \caption{ {{- figure.figureCaption -}} }
+  \label{fig: {{- figure.figureName -}} }
+\end{figure}
+
+{% endfor %}
+
+{% for table in paper.hasTable | sort_by("tableOrder") %}
+\begin{table}[ht]
+  \centering
+  \caption{ {{- table.tableCaption -}} }
+  \label{tbl: {{- table.tableName -}} }
+  {{- table.tableContent }}
+\end{table}
+
+{% endfor %}
+{% endfor %}
+
+% ============================================================================
+% DISCUSSION
+% ============================================================================
+
+{% for section in paper.hasSection | filter(attribute="sectionType", value="discussion") %}
+\section{ {{- section.sectionTitle -}} }
+{{- section.sectionContent }}
+{% endfor %}
+
+% ============================================================================
+% CONCLUSION
+% ============================================================================
+
+{% for section in paper.hasSection | filter(attribute="sectionType", value="conclusion") %}
+\section{ {{- section.sectionTitle -}} }
+{{- section.sectionContent }}
+{% endfor %}
+
+% ============================================================================
+% ACKNOWLEDGMENTS
+% ============================================================================
+
+{% for section in paper.hasSection | filter(attribute="sectionType", value="acknowledgments") %}
+\section*{ {{- section.sectionTitle -}} }
+{{- section.sectionContent }}
+{% endfor %}
+
+% ============================================================================
+% REFERENCES
+% ============================================================================
+
+\bibliographystyle{plain}
+\bibliography{references}
+
+% ============================================================================
+% APPENDICES
+% ============================================================================
+
+{% for section in paper.hasSection | filter(attribute="sectionType", value="appendix") %}
+\appendix
+
+\section{ {{- section.sectionTitle -}} }
+{{- section.sectionContent }}
+{% endfor %}
+
+\end{document}
