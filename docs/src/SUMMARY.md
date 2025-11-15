@@ -32,6 +32,7 @@ Reference documentation provides complete, accurate information about ggen's fea
 - [CLI Reference](reference/cli.md)
 - [Template Reference](reference/templates.md)
 - [RDF/SPARQL Reference](reference/rdf-sparql.md)
+- [SPARQL Cookbook](reference/sparql-cookbook.md)
 - [Configuration Reference](reference/configuration.md)
 
 # Explanations
@@ -39,6 +40,7 @@ Reference documentation provides complete, accurate information about ggen's fea
 Explanations provide background information and conceptual understanding.
 
 - [Architecture](explanations/architecture.md)
+- [Architecture Deep Dive](explanations/architecture-deep-dive.md)
 - [Ontology-Driven Development](explanations/ontology-driven.md)
 - [Determinism](explanations/determinism.md)
 - [Code Projections](explanations/projections.md)
