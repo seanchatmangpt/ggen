@@ -1,0 +1,156 @@
+---
+name: ACM Journal Paper
+description: ACM journal paper template with modern formatting
+input_type: rdf
+output_type: latex
+author: ggen core team
+version: 1.0.0
+tags: [paper, acm, journal, latex]
+---
+\documentclass[manuscript,screen,review]{acmart}
+
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{cite}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  commentstyle=\color{gray},
+  keywordstyle=\color{blue},
+  stringstyle=\color{red},
+}
+
+\title{ {{- paper.title -}} }
+
+{% for author in paper.hasAuthor | sort_by("authorOrder") %}
+\author{ {{- author.authorName -}} }
+{% if author.hasAffiliation %}
+\affiliation{
+  \institution{ {{- author.hasAffiliation.affiliationName -}} }
+  \country{ {{- author.hasAffiliation.country -}} }
+}
+{% endif %}
+{% if author.email %}
+\email{ {{- author.email -}} }
+{% endif %}
+{% endfor %}
+
+\keywords{ {{- paper.keywords -}} }
+
+\begin{document}
+
+\begin{abstract}
+{{- paper.abstract }}
+\end{abstract}
+
+% ============================================================================
+% INTRODUCTION
+% ============================================================================
+
+{% for section in paper.hasSection | filter(attribute="sectionType", value="introduction") %}
+\section{ {{- section.sectionTitle -}} }
+\label{sec:introduction}
+{{- section.sectionContent }}
+{% endfor %}
+
+% ============================================================================
+% RELATED WORK
+% ============================================================================
+
+{% for section in paper.hasSection | filter(attribute="sectionType", value="related-work") %}
+\section{ {{- section.sectionTitle -}} }
+\label{sec:relatedwork}
+{{- section.sectionContent }}
+{% endfor %}
+
+% ============================================================================
+% METHODOLOGY
+% ============================================================================
+
+{% for section in paper.hasSection | filter(attribute="sectionType", value="methods") %}
+\section{ {{- section.sectionTitle -}} }
+\label{sec:methodology}
+{{- section.sectionContent }}
+
+{% for subsection in section.subsectionOf %}
+\subsection{ {{- subsection.sectionTitle -}} }
+{{- subsection.sectionContent }}
+{% endfor %}
+{% endfor %}
+
+% ============================================================================
+% RESULTS
+% ============================================================================
+
+{% for section in paper.hasSection | filter(attribute="sectionType", value="results") %}
+\section{ {{- section.sectionTitle -}} }
+\label{sec:results}
+{{- section.sectionContent }}
+
+{% for figure in paper.hasFigure %}
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width={{- figure.figureWidth | default("0.8\\columnwidth") -}}]{ {{- figure.figureFile -}} }
+  \caption{ {{- figure.figureCaption -}} }
+  \label{fig: {{- figure.figureName -}} }
+\end{figure}
+
+{% endfor %}
+
+{% for table in paper.hasTable %}
+\begin{table}[ht]
+  \centering
+  \caption{ {{- table.tableCaption -}} }
+  \label{tbl: {{- table.tableName -}} }
+  {{- table.tableContent }}
+\end{table}
+
+{% endfor %}
+{% endfor %}
+
+% ============================================================================
+% DISCUSSION
+% ============================================================================
+
+{% for section in paper.hasSection | filter(attribute="sectionType", value="discussion") %}
+\section{ {{- section.sectionTitle -}} }
+\label{sec:discussion}
+{{- section.sectionContent }}
+{% endfor %}
+
+% ============================================================================
+% CONCLUSION & FUTURE WORK
+% ============================================================================
+
+{% for section in paper.hasSection | filter(attribute="sectionType", value="conclusion") %}
+\section{ {{- section.sectionTitle -}} }
+\label{sec:conclusion}
+{{- section.sectionContent }}
+{% endfor %}
+
+% ============================================================================
+% ACKNOWLEDGMENTS
+% ============================================================================
+
+{% for section in paper.hasSection | filter(attribute="sectionType", value="acknowledgments") %}
+\section*{ {{- section.sectionTitle -}} }
+{{- section.sectionContent }}
+{% endfor %}
+
+% ============================================================================
+% REFERENCES
+% ============================================================================
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{references}
+
+\end{document}

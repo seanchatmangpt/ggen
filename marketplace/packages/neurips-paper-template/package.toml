@@ -1,0 +1,86 @@
+# NeurIPS Conference Paper Template Package
+# NeurIPS proceedings format with double-blind review support
+
+[package]
+name = "neurips-paper-template"
+full_name = "NeurIPS Conference Paper Template"
+version = "1.0.0"
+description = "NeurIPS conference paper generation with double-blind review, appendices, and neural networks focus"
+category = "academic-paper"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+path = "marketplace/packages/neurips-paper-template"
+license = "MIT"
+production = true
+maturity = 95
+
+dependencies = []
+
+features = [
+    "NeurIPS official LaTeX style",
+    "Double-blind review support (anonymization)",
+    "Appendix and supplementary material handling",
+    "Algorithm environment support",
+    "Figure and table captions optimization",
+    "BibTeX with NeurIPS style",
+    "Author block anonymization",
+    "Equation numbering and references",
+    "Page limit enforcement (8 pages + references)",
+    "Submission validation"
+]
+
+tags = ["paper", "neurips", "conference", "machine-learning", "latex"]
+keywords = ["neurips", "conference-paper", "machine-learning", "neural-networks", "deep-learning"]
+
+# Installation
+[install]
+type = "template"
+template_path = "marketplace/packages/neurips-paper-template"
+
+# Template files to copy
+[files]
+"README.md" = "README.md"
+"USAGE.md" = "USAGE.md"
+"templates/neurips-conference.tmpl" = "templates/neurips-conference.tmpl"
+"data/neurips-schema.ttl" = "data/neurips-schema.ttl"
+"examples/" = "examples/"
+
+# Variables for template substitution
+[variables]
+title = { type = "string", required = true, description = "Paper title" }
+authors = { type = "array", required = true, description = "Authors (will be anonymized)" }
+abstract = { type = "string", required = true, description = "Abstract (100-150 words)" }
+keywords = { type = "array", default = [], description = "Keywords" }
+
+# Examples
+[examples]
+basic = """
+# Create NeurIPS paper
+ggen paper new "Deep Reinforcement Learning" --template neurips
+
+# Generate NeurIPS format
+ggen paper generate paper.rdf --style neurips --output paper.tex
+
+# Validate page limits
+ggen paper validate paper.rdf --strict
+"""
+
+submission = """
+# Create with anonymization
+ggen paper new my-paper --template neurips
+
+# Compile blind version
+ggen paper compile paper.tex
+
+# Validate compliance
+ggen paper validate paper.rdf --check compliance,page-limit,citations
+
+# Submit
+ggen paper submit paper.pdf --venue neurips-2025
+"""
+
+# Documentation
+[docs]
+quick_start = "NeurIPS conference paper with double-blind review support"
+features = "Anonymization, appendices, algorithm environment, strict validation"
+use_cases = "NeurIPS submissions, machine learning conferences, deep learning research"

@@ -13,6 +13,7 @@ pub mod ai;
 pub mod graph;
 pub mod hook;
 pub mod marketplace;
+pub mod paper;
 pub mod project;
 pub mod template;
 pub mod utils;
