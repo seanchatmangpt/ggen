@@ -254,7 +254,7 @@ impl SwarmOrchestrator {
 
         tokio::spawn(async move {
             if let Err(e) = Self::run_autonomous_loop(swarm, event_router).await {
-                eprintln!("Autonomous loop error: {}", e);
+                log::error!("Autonomous loop error: {}", e);
             }
         });
 
@@ -283,7 +283,7 @@ impl SwarmOrchestrator {
                     };
 
                     if let Ok(result) = swarm.execute(swarm_input).await {
-                        println!("Swarm execution completed: success={}, artifacts={}",
+                        log::info!("Swarm execution completed: success={}, artifacts={}",
                             result.success, result.artifacts.len());
                     }
                 }

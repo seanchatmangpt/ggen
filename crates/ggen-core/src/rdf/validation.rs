@@ -511,7 +511,7 @@ fn is_valid_identifier(s: &str) -> bool {
 mod tests {
     use super::*;
     use crate::rdf::template_metadata::TemplateVariable;
-    use chicago_tdd_tools::{async_test, test};
+    use chicago_tdd_tools::prelude::*;
 
     test!(test_validate_valid_template, {
         let mut metadata = TemplateMetadata::new(

@@ -107,10 +107,35 @@ impl SimpleTracer {
             TraceLevel::Trace => "TRACE",
         };
 
-        if let Some(ctx) = context {
-            eprintln!("[GGEN {}] {}: {}", prefix, ctx, message);
-        } else {
-            eprintln!("[GGEN {}] {}", prefix, message);
+        match level {
+            TraceLevel::Error => {
+                if let Some(ctx) = context {
+                    log::error!("[GGEN {}] {}: {}", prefix, ctx, message);
+                } else {
+                    log::error!("[GGEN {}] {}", prefix, message);
+                }
+            }
+            TraceLevel::Warn => {
+                if let Some(ctx) = context {
+                    log::warn!("[GGEN {}] {}: {}", prefix, ctx, message);
+                } else {
+                    log::warn!("[GGEN {}] {}", prefix, message);
+                }
+            }
+            TraceLevel::Info => {
+                if let Some(ctx) = context {
+                    log::info!("[GGEN {}] {}: {}", prefix, ctx, message);
+                } else {
+                    log::info!("[GGEN {}] {}", prefix, message);
+                }
+            }
+            TraceLevel::Debug | TraceLevel::Trace => {
+                if let Some(ctx) = context {
+                    log::debug!("[GGEN {}] {}: {}", prefix, ctx, message);
+                } else {
+                    log::debug!("[GGEN {}] {}", prefix, message);
+                }
+            }
         }
     }
 
@@ -320,7 +345,7 @@ macro_rules! time_operation {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::{async_test, test};
+    use chicago_tdd_tools::prelude::*;
     use std::fs;
     use tempfile::TempDir;
 

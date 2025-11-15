@@ -2,9 +2,9 @@ name: Build
 
 on:
   push:
-    branches: [main]
+    branches: [master]
   pull_request:
-    branches: [main]
+    branches: [master]
 
 env:
   CARGO_TERM_COLOR: always
@@ -36,7 +36,7 @@ jobs:
         uses: ./.github/actions/install-cargo-tools
         with:
           tools: make
-          cache-tools: 'true'
+          cache-tools: "true"
 
       - name: Build
         run: |

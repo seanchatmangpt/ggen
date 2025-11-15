@@ -180,7 +180,7 @@ impl PluginManager {
                 let data = memory.data(&caller);
                 if let Ok(slice) = Self::read_memory(data, ptr as usize, len as usize) {
                     if let Ok(message) = std::str::from_utf8(slice) {
-                        println!("[Plugin] {}", message);
+                        log::info!("[Plugin] {}", message);
                     }
                 }
             }

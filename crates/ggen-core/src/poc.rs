@@ -117,7 +117,7 @@ impl TeraFunction for SparqlFn {
             format!("{}\n{}", self.prolog, q)
         };
         if self.trace {
-            eprintln!("[ggen.sparql] {}", final_q.replace('\n', " "))
+            log::debug!("[ggen.sparql] {}", final_q.replace('\n', " "))
         }
 
         #[allow(deprecated)]
@@ -342,7 +342,7 @@ fn virtual_name_for(p: &Path) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::{async_test, test};
+    use chicago_tdd_tools::prelude::*;
     use std::fs;
 
     #[ignore = "POC feature - experimental, not production critical"]

@@ -47,6 +47,7 @@ tracing-subscriber = { version = "0.3", features = [
   "json",
   "ansi",
 ] }
+log = "0.4.28"
 clap = { version = "4.5", features = ["derive"] }
 clap-noun-verb = "3.4.0"
 clap-noun-verb-macros = "3.4.0"

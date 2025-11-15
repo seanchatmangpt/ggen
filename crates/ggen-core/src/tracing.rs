@@ -292,7 +292,7 @@ mod tests {
     use super::*;
     use tempfile::TempDir;
     use std::fs;
-    use chicago_tdd_tools::{test, async_test};
+    use chicago_tdd_tools::prelude::*;
     
     test!(test_tracing_initialization, {
         // Test that tracing can be initialized without errors

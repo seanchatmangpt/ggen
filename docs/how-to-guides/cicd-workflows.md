@@ -17,7 +17,7 @@ ggen uses GitHub Actions to provide:
 
 #### CI (Continuous Integration)
 **File**: `.github/workflows/ci.yml`
-**Triggers**: Push to `main`, Pull Requests
+**Triggers**: Push to `master`, Pull Requests
 **Purpose**: Comprehensive testing and validation
 
 **Checks**:
@@ -33,7 +33,7 @@ ggen uses GitHub Actions to provide:
 
 #### Build
 **File**: `.github/workflows/build.yml`
-**Triggers**: Push to `main`
+**Triggers**: Push to `master`
 **Purpose**: Compile release binaries
 
 **Creates**:
@@ -42,7 +42,7 @@ ggen uses GitHub Actions to provide:
 
 #### Test
 **File**: `.github/workflows/test.yml`
-**Triggers**: Push to `main`, Pull Requests
+**Triggers**: Push to `master`, Pull Requests
 **Purpose**: Run all test suites
 
 **Runs**:
@@ -189,12 +189,12 @@ ggen uses GitHub Actions to provide:
 > ⚠️ **Note**: The following workflows reference P2P marketplace functionality that was removed in v2.6.0 and are deprecated:
 
 #### P2P Marketplace CI (DEPRECATED)
-**File**: `.github/workflows/p2p-marketplace-ci.yml`
+**File**: `.github/workflows/p2p-marketplace-ci.yml` ⚠️ **OBSOLETE - REMOVED**
 **Status**: Deprecated (P2P removed in v2.6.0)
 **Action**: Consider for removal
 
 #### P2P Release (DEPRECATED)
-**File**: `.github/workflows/p2p-release.yml`
+**File**: `.github/workflows/p2p-release.yml` ⚠️ **OBSOLETE - REMOVED**
 **Status**: Deprecated (P2P removed in v2.6.0)
 **Action**: Consider for removal
 

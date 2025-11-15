@@ -790,7 +790,7 @@ impl Graph {
 mod tests {
     use super::*;
     use crate::graph::Graph;
-    use chicago_tdd_tools::{async_test, test};
+    use chicago_tdd_tools::prelude::*;
 
     fn create_test_graph() -> Result<(Graph, Graph)> {
         let baseline = Graph::new()?;

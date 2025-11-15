@@ -431,7 +431,7 @@ fn insert_env(ctx: &mut Context) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::{async_test, test};
+    use chicago_tdd_tools::prelude::*;
     use std::collections::BTreeMap;
     use std::fs;
     use tempfile::TempDir;
@@ -542,7 +542,7 @@ to: "output/{{ name | lower }}.rs"
         let result = generator.generate();
 
         if let Err(e) = &result {
-            eprintln!("Generation failed: {}", e);
+            log::error!("Generation failed: {}", e);
         }
         assert!(result.is_ok());
         let output_path = result.unwrap();
@@ -601,7 +601,7 @@ to: "output/{{ name | lower }}.rs"
         let result = generator.generate();
 
         if let Err(e) = &result {
-            eprintln!("Generation failed: {}", e);
+            log::error!("Generation failed: {}", e);
         }
         assert!(result.is_ok());
         let output_path = result.unwrap();

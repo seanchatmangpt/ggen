@@ -55,7 +55,7 @@ ggen uses Chicago School TDD with state-based testing and behavior verification.
 Use `chicago_tdd_tools` macros instead of standard `#[test]` attributes:
 
 ```rust
-use chicago_tdd_tools::{test, async_test};
+use chicago_tdd_tools::prelude::*;  // prelude::* imports all common macros and types
 
 // Synchronous test
 test!(test_name, {
@@ -80,7 +80,21 @@ async_test!(test_async_function, {
     // Assert
     assert_eq!(result, expected_value);
 });
+
+// Test with Result handling
+test!(test_with_result, {
+    // Arrange
+    let result: Result<u32, String> = Ok(42);
+    
+    // Act & Assert
+    assert_ok!(&result, "Result should be Ok");
+    if let Ok(value) = result {
+        assert_eq!(value, 42);
+    }
+});
 ```
+
+**Note**: Assertion macros like `assert_ok!` and `assert_err!` are exported with `#[macro_export]`, so they're available at crate root automatically. You can use them directly or with fully qualified paths like `chicago_tdd_tools::assert_ok!`.
 
 #### Testing Principles
 

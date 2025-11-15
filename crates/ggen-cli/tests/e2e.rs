@@ -331,10 +331,19 @@ test!(e2e_project_with_git_init, {
         .assert()
         .success();
 
-    // Assert
-    if project_dir.path().exists() {
-        assert!(true);
-    }
+    // Assert: Verify project directory was created with expected structure
+    assert!(
+        project_dir.path().exists(),
+        "Project directory should be created"
+    );
+    assert!(
+        project_dir.path().join("Cargo.toml").exists(),
+        "Cargo.toml should be generated"
+    );
+    assert!(
+        project_dir.path().join("src").exists(),
+        "src directory should be created"
+    );
 });
 
 // ============================================================================

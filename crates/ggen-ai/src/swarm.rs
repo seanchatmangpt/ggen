@@ -287,7 +287,7 @@ impl SwarmCoordinator {
         let agent_id = agent.id().clone();
         agents.insert(agent_id.clone(), agent);
 
-        println!("🤖 Registered agent: {} ({})", agent_id, agents.len());
+        log::info!("🤖 Registered agent: {} ({})", agent_id, agents.len());
         Ok(())
     }
 
@@ -399,14 +399,14 @@ impl McpSwarmServer {
 
     /// Start the MCP swarm server
     pub async fn start(&self) -> Result<()> {
-        println!("🚀 Starting MCP Swarm Server");
+        log::info!("🚀 Starting MCP Swarm Server");
 
         // Register WIP discovery agent
         self.coordinator.register_agent(Box::new(self.wip_discovery.clone()))?;
-        println!("🤖 Registered WIP discovery agent");
+        log::info!("🤖 Registered WIP discovery agent");
 
-        println!("🎪 MCP Swarm Server ready for connections");
-        println!("📋 Swarm stats: {:?}", self.coordinator.get_stats());
+        log::info!("🎪 MCP Swarm Server ready for connections");
+        log::info!("📋 Swarm stats: {:?}", self.coordinator.get_stats());
 
         Ok(())
     }

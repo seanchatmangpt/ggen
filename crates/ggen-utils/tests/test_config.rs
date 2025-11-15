@@ -1,4 +1,4 @@
-use chicago_tdd_tools::test;
+use chicago_tdd_tools::prelude::*;
 use ggen_utils::app_config::*;
 use std::sync::Once;
 

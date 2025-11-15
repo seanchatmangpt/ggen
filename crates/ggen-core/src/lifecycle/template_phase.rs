@@ -50,8 +50,8 @@ pub async fn execute_template_phase(
     use ggen_template::template_tree::TemplateTree;
     use ggen_template::rdf_metadata::MetadataStore;
 
-    println!("🔧 Template Generation Phase");
-    println!("   Template: {}", config.template);
+    log::info!("🔧 Template Generation Phase");
+    log::info!("   Template: {}", config.template);
 
     // Resolve template path
     let template_path = if Path::new(&config.template).is_absolute() {
@@ -85,17 +85,17 @@ pub async fn execute_template_phase(
     }
 
     // Generate files
-    println!("   Generating files to: {}", output_dir.display());
+    log::info!("   Generating files to: {}", output_dir.display());
     let metadata_store = MetadataStore::new();
     let count = tree
         .generate(&output_dir, &config.variables, &metadata_store)
         .map_err(|e| LifecycleError::ExecutionError(format!("Generation failed: {}", e)))?;
 
-    println!("   ✅ Generated {} files", count);
+    log::info!("   ✅ Generated {} files", count);
 
     // Run post-generation hooks
     if !config.post_hooks.is_empty() {
-        println!("   Running post-generation hooks...");
+        log::info!("   Running post-generation hooks...");
         for hook in &config.post_hooks {
             run_post_hook(hook, &output_dir).await?;
         }
@@ -159,7 +159,7 @@ fn check_file_conflicts(
 async fn run_post_hook(command: &str, working_dir: &Path) -> Result<()> {
     use tokio::process::Command;
 
-    println!("      Hook: {}", command);
+    log::info!("      Hook: {}", command);
 
     let output = Command::new("sh")
         .arg("-c")
@@ -177,7 +177,7 @@ async fn run_post_hook(command: &str, working_dir: &Path) -> Result<()> {
         )));
     }
 
-    println!("      ✅ Hook completed");
+    log::info!("      ✅ Hook completed");
     Ok(())
 }
 
@@ -203,7 +203,7 @@ pub fn register_template_phase(make: &mut crate::lifecycle::Make) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::{test, async_test};
+    use chicago_tdd_tools::prelude::*;
 
     test!(test_default_config, {
         let config = TemplatePhaseConfig::default();

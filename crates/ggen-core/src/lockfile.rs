@@ -395,7 +395,7 @@ pub struct LockfileStats {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::{async_test, test};
+    use chicago_tdd_tools::prelude::*;
     use tempfile::TempDir;
 
     test!(test_lockfile_manager_creation, {

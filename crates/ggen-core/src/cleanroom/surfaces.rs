@@ -303,7 +303,7 @@ impl ControlledRng {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::{test, async_test};
+    use chicago_tdd_tools::prelude::*;
 
     test!(test_time_frozen, {
         let mut time = ControlledTime::new(TimeMode::Frozen(42));

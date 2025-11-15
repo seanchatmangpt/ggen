@@ -219,56 +219,56 @@ impl Output {
     /// Print info message
     pub fn info(&self, msg: &str) {
         if self.mode.use_colors {
-            println!("{} {}", "ℹ".bright_blue(), msg);
+            log::info!("{} {}", "ℹ".bright_blue(), msg);
         } else {
-            println!("[INFO] {}", msg);
+            log::info!("[INFO] {}", msg);
         }
     }
 
     /// Print success message
     pub fn success(&self, msg: &str) {
         if self.mode.use_colors {
-            println!("{} {}", "✓".bright_green(), msg.bright_green());
+            log::info!("{} {}", "✓".bright_green(), msg.bright_green());
         } else {
-            println!("[SUCCESS] {}", msg);
+            log::info!("[SUCCESS] {}", msg);
         }
     }
 
     /// Print warning message
     pub fn warning(&self, msg: &str) {
         if self.mode.use_colors {
-            println!("{} {}", "⚠".bright_yellow(), msg.yellow());
+            log::warn!("{} {}", "⚠".bright_yellow(), msg.yellow());
         } else {
-            println!("[WARNING] {}", msg);
+            log::warn!("[WARNING] {}", msg);
         }
     }
 
     /// Print error message
     pub fn error(&self, msg: &str) {
         if self.mode.use_colors {
-            eprintln!("{} {}", "✗".bright_red(), msg.red());
+            log::error!("{} {}", "✗".bright_red(), msg.red());
         } else {
-            eprintln!("[ERROR] {}", msg);
+            log::error!("[ERROR] {}", msg);
         }
     }
 
     /// Print phase start
     pub fn phase_start(&self, phase: &str) {
         if self.mode.use_colors {
-            println!(
+            log::info!(
                 "\n{} {}",
                 "▶".bright_cyan().bold(),
                 phase.bright_cyan().bold()
             );
         } else {
-            println!("\n[PHASE] {}", phase);
+            log::info!("\n[PHASE] {}", phase);
         }
     }
 
     /// Print phase complete
     pub fn phase_complete(&self, phase: &str, duration_ms: u128) {
         if self.mode.use_colors {
-            println!(
+            log::info!(
                 "{} {} {} {}",
                 "✓".bright_green(),
                 phase.bright_green(),
@@ -276,7 +276,7 @@ impl Output {
                 format!("{}ms", duration_ms).bright_white()
             );
         } else {
-            println!("[COMPLETE] {} ({}ms)", phase, duration_ms);
+            log::info!("[COMPLETE] {} ({}ms)", phase, duration_ms);
         }
     }
 
@@ -284,9 +284,9 @@ impl Output {
     pub fn command(&self, cmd: &str) {
         if self.mode.verbose {
             if self.mode.use_colors {
-                println!("  {} {}", "$".bright_blue(), cmd.dimmed());
+                log::debug!("  {} {}", "$".bright_blue(), cmd.dimmed());
             } else {
-                println!("  $ {}", cmd);
+                log::debug!("  $ {}", cmd);
             }
         }
     }
@@ -294,9 +294,9 @@ impl Output {
     /// Print dry-run command
     pub fn dry_run(&self, cmd: &str) {
         if self.mode.use_colors {
-            println!("  {} {}", "[DRY-RUN]".bright_magenta().bold(), cmd.dimmed());
+            log::info!("  {} {}", "[DRY-RUN]".bright_magenta().bold(), cmd.dimmed());
         } else {
-            println!("  [DRY-RUN] {}", cmd);
+            log::info!("  [DRY-RUN] {}", cmd);
         }
     }
 
@@ -304,14 +304,14 @@ impl Output {
     pub fn hook(&self, hook_type: &str, phase: &str) {
         if self.mode.verbose {
             if self.mode.use_colors {
-                println!(
+                log::debug!(
                     "  {} {} {}",
                     "↪".bright_yellow(),
                     hook_type.yellow(),
                     phase.dimmed()
                 );
             } else {
-                println!("  [HOOK] {} {}", hook_type, phase);
+                log::debug!("  [HOOK] {} {}", hook_type, phase);
             }
         }
     }
@@ -320,14 +320,14 @@ impl Output {
     pub fn cache_hit(&self, phase: &str) {
         if self.mode.verbose {
             if self.mode.use_colors {
-                println!(
+                log::debug!(
                     "  {} {} {}",
                     "⚡".bright_yellow(),
                     "Cache hit for".dimmed(),
                     phase.yellow()
                 );
             } else {
-                println!("  [CACHE] Hit for {}", phase);
+                log::debug!("  [CACHE] Hit for {}", phase);
             }
         }
     }
@@ -335,13 +335,13 @@ impl Output {
     /// Print workspace
     pub fn workspace(&self, name: &str) {
         if self.mode.use_colors {
-            println!(
+            log::info!(
                 "\n{} {}",
                 "📦".bright_magenta(),
                 name.bright_magenta().bold()
             );
         } else {
-            println!("\n[WORKSPACE] {}", name);
+            log::info!("\n[WORKSPACE] {}", name);
         }
     }
 }
@@ -486,7 +486,7 @@ fn format_timestamp(timestamp_ms: u128) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::{async_test, test};
+    use chicago_tdd_tools::prelude::*;
 
     test!(test_execution_mode_defaults, {
         let mode = ExecutionMode::default();

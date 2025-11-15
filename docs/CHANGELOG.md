@@ -63,7 +63,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Error Handling Pattern**: Migrated all library code from `anyhow::Result` to `ggen_utils::error::Result` for consistent, typed error handling across the codebase
 - **Error Construction**: Replaced all `anyhow::anyhow!()` calls with `Error::new()` or `Error::with_source()` for better error context and type safety
 - **Error Context Formatting**: Standardized error context formatting using `Error::with_context()` with consistent message and context string patterns
-- **Test Framework**: Migrated from standard `#[test]` attributes to `chicago_tdd_tools::{test, async_test}` macros for behavior verification and state-based testing
+- **Test Framework**: Migrated from standard `#[test]` attributes to `chicago_tdd_tools::prelude::*` for behavior verification and state-based testing (recommended pattern from examples)
 - **Development Workflow**: All development workflows now use `cargo make` commands with timeout wrappers instead of direct `cargo` commands
 - **Module Structure**: Refactored `graph.rs` into `graph/core.rs` for better modular organization
 - **AI Command Structure**: Reformatted and cleaned up AI-related CLI commands for better maintainability

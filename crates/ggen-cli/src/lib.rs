@@ -73,7 +73,7 @@ pub async fn cli_match() -> ggen_utils::error::Result<()> {
     // Handle --version flag before delegating to clap-noun-verb
     let args: Vec<String> = std::env::args().collect();
     if args.iter().any(|arg| arg == "--version" || arg == "-V") {
-        println!("ggen {}", env!("CARGO_PKG_VERSION"));
+        log::info!("ggen {}", env!("CARGO_PKG_VERSION"));
         return Ok(());
     }
 
@@ -139,7 +139,7 @@ pub async fn run_for_node(args: Vec<String>) -> ggen_utils::error::Result<RunRes
                 match cmds::run_cli() {
                     Ok(()) => 0,
                     Err(err) => {
-                        eprintln!("{}", err);
+                        log::error!("{}", err);
                         1
                     }
                 }

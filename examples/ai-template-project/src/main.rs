@@ -122,7 +122,11 @@ impl AiTemplateGenerator {
         &self, description: &str, name: &str, language: &str, framework: Option<&str>, tests: bool,
         docs: bool, ci: bool,
     ) -> Result<ProjectStructure, Box<dyn std::error::Error>> {
-        println!("🤖 AI Template Generator");
+        if self.mock_mode {
+            println!("🤖 AI Template Generator (Mock Mode)");
+        } else {
+            println!("🤖 AI Template Generator");
+        }
         println!("Description: {}", description);
         println!("Name: {}", name);
         println!("Language: {}", language);
@@ -2470,7 +2474,11 @@ async fn generate_project(
         }
 
         fs::write(&file_path, &file.content)?;
-        println!("📁 Generated: {}", file_path.display());
+        println!(
+            "📁 Generated: {} ({})",
+            file_path.display(),
+            file.description
+        );
     }
 
     // Generate marketplace metadata
@@ -2514,6 +2522,18 @@ async fn generate_marketplace_metadata(
     name: &str, description: &str, language: &str, framework: &Option<String>,
     structure: &ProjectStructure,
 ) -> Result<String, Box<dyn std::error::Error>> {
+    // Use metadata from structure - extract values if available
+    let generated_by = structure
+        .metadata
+        .get("generated_by")
+        .and_then(|v| v.as_str())
+        .unwrap_or("ggen-ai");
+    let generation_date = structure
+        .metadata
+        .get("generation_date")
+        .and_then(|v| v.as_str())
+        .map(|s| s.to_string())
+        .unwrap_or_else(|| chrono::Utc::now().format("%Y-%m-%d").to_string());
     let metadata = format!(
         r#"[package]
 name = "{}"
@@ -2527,7 +2547,7 @@ keywords = ["ai-generated", "template", "{}"]
 categories = ["templates"]
 
 [package.metadata.ggen]
-generated_by = "ggen-ai"
+generated_by = "{}"
 generation_date = "{}"
 language = "{}"
 framework = {:?}
@@ -2554,7 +2574,8 @@ validation_passed = true
         name,
         name,
         language,
-        chrono::Utc::now().format("%Y-%m-%d"),
+        generated_by,
+        generation_date,
         language,
         framework,
         structure.features,

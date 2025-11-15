@@ -176,8 +176,8 @@ impl PipelineProfiler {
     }
 
     pub fn report(&self) {
-        println!("\n📊 Pipeline Performance Report");
-        println!("═══════════════════════════════════════════════");
+        log::info!("\n📊 Pipeline Performance Report");
+        log::info!("═══════════════════════════════════════════════");
 
         let metrics = self.get_metrics();
         for metric in &metrics {
@@ -185,7 +185,7 @@ impl PipelineProfiler {
             let improvement = metric.improvement_percent();
             let sign = if improvement >= 0.0 { "↓" } else { "↑" };
 
-            println!(
+            log::info!(
                 "{} {:<20} {:>6.2}s / {:>6.2}s ({}{:>5.1}%)",
                 status,
                 metric.name,
@@ -200,8 +200,8 @@ impl PipelineProfiler {
             let total_met = total <= self.targets.total;
             let status = if total_met { "✅" } else { "❌" };
 
-            println!("───────────────────────────────────────────────");
-            println!(
+            log::info!("───────────────────────────────────────────────");
+            log::info!(
                 "{} {:<20} {:>6.2}s / {:>6.2}s",
                 status,
                 "TOTAL PIPELINE",
@@ -210,14 +210,14 @@ impl PipelineProfiler {
             );
 
             if total_met {
-                println!("\n🎉 Performance target achieved!");
+                log::info!("\n🎉 Performance target achieved!");
             } else {
                 let exceeded = (total - self.targets.total).as_secs_f64();
-                println!("\n⚠️  Performance target missed by {:.2}s", exceeded);
+                log::warn!("\n⚠️  Performance target missed by {:.2}s", exceeded);
             }
         }
 
-        println!("═══════════════════════════════════════════════\n");
+        log::info!("═══════════════════════════════════════════════\n");
     }
 }
 
@@ -430,7 +430,7 @@ impl DependencyCache {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::{async_test, test};
+    use chicago_tdd_tools::prelude::*;
 
     test!(test_performance_targets, {
         let targets = PerformanceTargets::default();

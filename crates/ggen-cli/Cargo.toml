@@ -34,6 +34,7 @@ tera.workspace = true
 regex.workspace = true
 rayon.workspace = true
 tracing.workspace = true
+log.workspace = true
 clap.workspace = true
 clap-noun-verb.workspace = true
 once_cell.workspace = true

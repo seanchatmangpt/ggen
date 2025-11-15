@@ -340,7 +340,7 @@ fn format_timestamp(time: SystemTime) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::{test, async_test};
+    use chicago_tdd_tools::prelude::*;
 
     test!(test_attestation_creation, {
         let surfaces = DeterministicSurfaces::deterministic(42);
