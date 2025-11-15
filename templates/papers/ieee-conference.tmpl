@@ -1,0 +1,167 @@
+---
+name: IEEE Conference Paper
+description: IEEE conference paper template with two-column format
+input_type: rdf
+output_type: latex
+author: ggen core team
+version: 1.0.0
+tags: [paper, ieee, conference, latex]
+---
+\documentclass[conference]{IEEEtran}
+
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{cite}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{url}
+\usepackage{xcolor}
+\usepackage{listings}
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  commentstyle=\color{gray},
+  keywordstyle=\color{blue},
+  stringstyle=\color{red},
+  showstringspaces=false,
+}
+
+\title{ {{- paper.title -}} }
+
+{% for author in paper.hasAuthor | sort_by("authorOrder") %}
+  {% if loop.first %}\author{ {{- author.authorName -}}{% endif %}
+  {% if not loop.first %}, {{- author.authorName -}}{% endif %}
+  {% if loop.last %}}{% endif %}
+{% endfor %}
+
+\begin{document}
+
+\maketitle
+
+% ============================================================================
+% ABSTRACT
+% ============================================================================
+
+\begin{abstract}
+{{- paper.abstract }}
+\end{abstract}
+
+\begin{IEEEkeywords}
+{{- paper.keywords }}
+\end{IEEEkeywords}
+
+% ============================================================================
+% INTRODUCTION
+% ============================================================================
+
+{% for section in paper.hasSection | filter(attribute="sectionType", value="introduction") %}
+\section{ {{- section.sectionTitle -}} }
+{{- section.sectionContent }}
+{% endfor %}
+
+% ============================================================================
+% RELATED WORK / BACKGROUND
+% ============================================================================
+
+{% for section in paper.hasSection | filter(attribute="sectionType", value="related-work") %}
+\section{ {{- section.sectionTitle -}} }
+{{- section.sectionContent }}
+{% endfor %}
+
+% ============================================================================
+% METHODS
+% ============================================================================
+
+{% for section in paper.hasSection | filter(attribute="sectionType", value="methods") %}
+\section{ {{- section.sectionTitle -}} }
+{{- section.sectionContent }}
+
+{% for subsection in section.subsectionOf %}
+\subsection{ {{- subsection.sectionTitle -}} }
+{{- subsection.sectionContent }}
+{% endfor %}
+{% endfor %}
+
+% ============================================================================
+% RESULTS
+% ============================================================================
+
+{% for section in paper.hasSection | filter(attribute="sectionType", value="results") %}
+\section{ {{- section.sectionTitle -}} }
+{{- section.sectionContent }}
+
+{% for figure in paper.hasFigure %}
+\begin{figure}[h]
+  \centering
+  \includegraphics[width={{- figure.figureWidth | default("0.45\\textwidth") -}}]{ {{- figure.figureFile -}} }
+  \caption{ {{- figure.figureCaption -}} }
+  \label{fig: {{- figure.figureName -}} }
+\end{figure}
+
+{% endfor %}
+
+{% for table in paper.hasTable %}
+\begin{table}[h]
+  \centering
+  \caption{ {{- table.tableCaption -}} }
+  {{- table.tableContent }}
+  \label{tbl: {{- table.tableName -}} }
+\end{table}
+
+{% endfor %}
+{% endfor %}
+
+% ============================================================================
+% DISCUSSION
+% ============================================================================
+
+{% for section in paper.hasSection | filter(attribute="sectionType", value="discussion") %}
+\section{ {{- section.sectionTitle -}} }
+{{- section.sectionContent }}
+{% endfor %}
+
+% ============================================================================
+% CONCLUSION
+% ============================================================================
+
+{% for section in paper.hasSection | filter(attribute="sectionType", value="conclusion") %}
+\section{ {{- section.sectionTitle -}} }
+{{- section.sectionContent }}
+{% endfor %}
+
+% ============================================================================
+% ACKNOWLEDGMENTS
+% ============================================================================
+
+{% for section in paper.hasSection | filter(attribute="sectionType", value="acknowledgments") %}
+\section*{ {{- section.sectionTitle -}} }
+{{- section.sectionContent }}
+{% endfor %}
+
+% ============================================================================
+% BIBLIOGRAPHY
+% ============================================================================
+
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+% ============================================================================
+% AUTHOR BIOGRAPHIES
+% ============================================================================
+
+{% for author in paper.hasAuthor | sort_by("authorOrder") %}
+\begin{IEEEbiography}{ {{- author.authorName -}} }
+Biography of {{- author.authorName }}.
+{% if author.hasAffiliation %}
+{{- author.hasAffiliation.affiliationName -}}, {{- author.hasAffiliation.country }}.
+{% endif %}
+\end{IEEEbiography}
+
+{% endfor %}
+
+\end{document}

@@ -1,0 +1,97 @@
+# IEEE Conference Paper Template Package
+# Complete IEEE conference paper generation with LaTeX and RDF ontology
+
+[package]
+name = "ieee-paper-template"
+full_name = "IEEE Conference Paper Template"
+version = "1.0.0"
+description = "IEEE conference paper generation with two-column layout, automatic bibliography, and figure/table support"
+category = "academic-paper"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+path = "marketplace/packages/ieee-paper-template"
+license = "MIT"
+production = true
+maturity = 95
+
+dependencies = []
+
+features = [
+    "IEEE two-column conference format",
+    "Automatic author and affiliation management",
+    "BibTeX bibliography integration",
+    "Figure and table generation from RDF",
+    "Keywords and subject indexing",
+    "Author biography blocks",
+    "PDF compilation with pdflatex/xelatex",
+    "Multiple section templates",
+    "Citation validation and checking"
+]
+
+tags = ["paper", "ieee", "conference", "latex", "academic"]
+keywords = ["ieee", "conference-paper", "two-column", "latex", "academic-writing"]
+
+# Installation
+[install]
+type = "template"
+template_path = "marketplace/packages/ieee-paper-template"
+
+# Template files to copy
+[files]
+"README.md" = "README.md"
+"USAGE.md" = "USAGE.md"
+"templates/" = "templates/"
+"data/paper-schema.ttl" = "data/paper-schema.ttl"
+"examples/" = "examples/"
+"docs/" = "docs/"
+
+# Variables for template substitution
+[variables]
+paper_title = { type = "string", required = true, description = "Paper title" }
+authors = { type = "array", required = true, description = "List of authors with affiliations" }
+abstract = { type = "string", required = true, description = "Paper abstract (150-300 words)" }
+keywords = { type = "array", default = [], description = "Paper keywords" }
+discipline = { type = "string", default = "Computer Science", description = "Academic discipline" }
+
+# Examples
+[examples]
+basic = """
+# Create a new IEEE paper
+ggen paper new "Deep Learning for Code Generation" --template ieee
+
+# Edit the paper RDF ontology
+ggen paper edit paper.rdf --section abstract
+
+# Generate LaTeX
+ggen paper generate paper.rdf --style ieee --output paper.tex
+
+# Compile to PDF
+ggen paper compile paper.tex
+"""
+
+advanced = """
+# Create with metadata
+ggen paper new "Research Paper" --template ieee --discipline computer-science
+
+# Initialize bibliography
+ggen paper init-bibliography paper.rdf
+
+# Add citations from bibliography
+ggen paper validate paper.rdf --check citations
+
+# Export to multiple formats
+ggen paper export paper.rdf --format latex
+ggen paper export paper.rdf --format pdf
+ggen paper export paper.rdf --format json-ld
+"""
+
+# Documentation
+[docs]
+quick_start = "IEEE conference paper template with two-column layout"
+features = "Automatic bibliography, author management, figure/table support, PDF compilation"
+use_cases = "IEEE conference submissions, academic research papers, computer science publications"
+
+# Validation rules
+[validation]
+requires = ["paper.rdf", "references.bib"]
+checks = ["metadata", "citations", "formatting", "compliance"]

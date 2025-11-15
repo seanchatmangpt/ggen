@@ -1,0 +1,90 @@
+# Minimal Academic Paper Example
+# This is the ABSOLUTE SMALLEST working paper
+# Copy this file and modify it to create your own paper
+# GUARANTEE: This RDF generates valid LaTeX that compiles to PDF
+
+@prefix : <http://example.org/paper#> .
+@prefix ap: <http://example.org/academic-paper#> .
+@prefix math: <http://example.org/math#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# =============================================================================
+# PAPER METADATA (REQUIRED)
+# =============================================================================
+
+:MinimalPaper a ap:Paper ;
+    ap:title "A Minimal Example of Semantic Equation Generation" ;
+    ap:author "Research Team" ;
+    ap:date "2025-11-15" ;
+    ap:abstract "This is the smallest possible academic paper to demonstrate semantic equation generation using RDF and ggen. It shows how to define equations in RDF ontology and have LaTeX generate automatically." ;
+    ap:keywords "semantic generation, RDF, LaTeX, academic papers, equations" ;
+
+    # Paper has one section and one equation
+    ap:hasSection :IntroSection ;
+    math:hasEquation :FirstEquation .
+
+# =============================================================================
+# SECTION 1: INTRODUCTION (REQUIRED - at least one section)
+# =============================================================================
+
+:IntroSection a ap:Section ;
+    ap:sectionNumber 1 ;
+    ap:sectionTitle "Introduction" ;
+    ap:sectionContent "In this paper, we introduce the fundamental principle of semantic equation generation. Rather than writing equations directly in LaTeX, we define them in RDF and let the system generate LaTeX automatically. This guarantees perfect consistency and makes it easy to maintain papers." .
+
+# =============================================================================
+# EQUATION 1: THE CORE EQUATION (REQUIRED - equations as RDF objects)
+# =============================================================================
+
+:FirstEquation a math:Equation ;
+    # Name (used internally, must be unique)
+    ap:equationName "fundamental_principle" ;
+
+    # LaTeX code (the actual equation)
+    # Use \\ for LaTeX backslashes (to escape for RDF)
+    ap:equationLatex "A = \\mu(O)" ;
+
+    # Equation number (auto-assigned by equationOrder)
+    math:equationNumber 1 ;
+
+    # Order determines sequence (must start at 1, no gaps)
+    ap:equationOrder 1 ;
+
+    # Description (appears in text around equation)
+    math:description "The fundamental principle where action A is the measurement function μ applied to observation O." ;
+
+    # Optional: meaning and implications
+    math:meaning "This captures the deterministic mapping from observations to actions." ;
+    math:implication "All actions are completely determined by the system state." .
+
+# =============================================================================
+# HOW TO EXTEND THIS EXAMPLE
+# =============================================================================
+#
+# ADD ANOTHER SECTION:
+#   :Section2 a ap:Section ;
+#       ap:sectionNumber 2 ;
+#       ap:sectionTitle "Methods" ;
+#       ap:sectionContent "..." .
+#
+#   And add to main paper: ap:hasSection :Section2 ;
+#
+# ADD ANOTHER EQUATION:
+#   :SecondEquation a math:Equation ;
+#       ap:equationName "second_principle" ;
+#       ap:equationLatex "..." ;
+#       math:equationNumber 2 ;
+#       ap:equationOrder 2 ;
+#       math:description "..." .
+#
+#   And add to main paper: math:hasEquation :SecondEquation ;
+#
+# CHANGE TEMPLATE:
+#   Run: ggen paper generate minimal-paper.rdf --style ieee
+#        (instead of default arxiv)
+#
+# COMPILE TO PDF:
+#   ggen paper generate minimal-paper.rdf --style arxiv --output minimal.tex
+#   pdflatex minimal.tex
+#
+# =============================================================================

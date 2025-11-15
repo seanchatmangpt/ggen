@@ -1,0 +1,658 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix ap: <http://ggen.dev/schema/academic-paper#> .
+@prefix bib: <http://purl.org/net/biblio#> .
+
+# ============================================================================
+# ACADEMIC PAPER ONTOLOGY v1.0.0
+# ============================================================================
+#
+# Complete ontology for academic paper generation, management, and publishing.
+#
+# Features:
+# - Paper metadata (title, abstract, authors, keywords)
+# - Document structure (sections, figures, tables, equations)
+# - Bibliography and citations (BibTeX integration)
+# - Lifecycle tracking (draft, review, revision, published)
+# - Submission management (venue, status, reviews)
+# - Collaboration (multi-author, roles, contributions)
+# - Publishing integration (arXiv, DOI, journal submission)
+#
+
+# ============================================================================
+# ONTOLOGY DEFINITION
+# ============================================================================
+
+ap:AcademicPaperOntology a owl:Ontology ;
+    rdfs:label "Academic Paper v1.0.0 Ontology Schema" ;
+    rdfs:comment "Complete RDF schema for academic paper generation and lifecycle management" ;
+    owl:versionInfo "1.0.0" ;
+    owl:imports <http://purl.org/net/biblio#> ;
+    owl:imports <http://ggen.dev/schema/cli#> .
+
+# ============================================================================
+# CORE CLASSES
+# ============================================================================
+
+ap:Paper a owl:Class ;
+    rdfs:label "Paper" ;
+    rdfs:comment "An academic research paper" .
+
+ap:Author a owl:Class ;
+    rdfs:label "Author" ;
+    rdfs:comment "Author of an academic paper" .
+
+ap:Section a owl:Class ;
+    rdfs:label "Section" ;
+    rdfs:comment "A section of the paper" .
+
+ap:Figure a owl:Class ;
+    rdfs:label "Figure" ;
+    rdfs:comment "A figure or diagram in the paper" .
+
+ap:Table a owl:Class ;
+    rdfs:label "Table" ;
+    rdfs:comment "A table in the paper" .
+
+ap:Equation a owl:Class ;
+    rdfs:label "Equation" ;
+    rdfs:comment "A mathematical equation" .
+
+ap:Citation a owl:Class ;
+    rdfs:label "Citation" ;
+    rdfs:comment "A bibliographic citation" .
+
+ap:BibliographyEntry a owl:Class ;
+    rdfs:label "Bibliography Entry" ;
+    rdfs:comment "An entry in the bibliography" ;
+    rdfs:subClassOf bib:Document .
+
+ap:Submission a owl:Class ;
+    rdfs:label "Submission" ;
+    rdfs:comment "Paper submission to venue" .
+
+ap:PeerReview a owl:Class ;
+    rdfs:label "Peer Review" ;
+    rdfs:comment "Peer review feedback" .
+
+ap:Revision a owl:Class ;
+    rdfs:label "Revision" ;
+    rdfs:comment "A revision of the paper" .
+
+ap:Venue a owl:Class ;
+    rdfs:label "Venue" ;
+    rdfs:comment "Publication venue (conference, journal)" .
+
+ap:Discipline a owl:Class ;
+    rdfs:label "Discipline" ;
+    rdfs:comment "Academic discipline category" .
+
+ap:Affiliation a owl:Class ;
+    rdfs:label "Affiliation" ;
+    rdfs:comment "Institutional affiliation" .
+
+ap:Contribution a owl:Class ;
+    rdfs:label "Contribution" ;
+    rdfs:comment "Author contribution statement" .
+
+# ============================================================================
+# PAPER PROPERTIES
+# ============================================================================
+
+ap:title a owl:DatatypeProperty ;
+    rdfs:domain ap:Paper ;
+    rdfs:range xsd:string ;
+    rdfs:label "title" ;
+    rdfs:comment "Paper title" ;
+    owl:minCardinality 1 .
+
+ap:abstract a owl:DatatypeProperty ;
+    rdfs:domain ap:Paper ;
+    rdfs:range xsd:string ;
+    rdfs:label "abstract" ;
+    rdfs:comment "Paper abstract (150-300 words)" .
+
+ap:keywords a owl:DatatypeProperty ;
+    rdfs:domain ap:Paper ;
+    rdfs:range xsd:string ;
+    rdfs:label "keywords" ;
+    rdfs:comment "Paper keywords (comma-separated)" .
+
+ap:discipline a owl:ObjectProperty ;
+    rdfs:domain ap:Paper ;
+    rdfs:range ap:Discipline ;
+    rdfs:label "discipline" ;
+    rdfs:comment "Academic discipline" .
+
+ap:hasAuthor a owl:ObjectProperty ;
+    rdfs:domain ap:Paper ;
+    rdfs:range ap:Author ;
+    rdfs:label "has author" ;
+    rdfs:comment "Authors of the paper" .
+
+ap:hasSection a owl:ObjectProperty ;
+    rdfs:domain ap:Paper ;
+    rdfs:range ap:Section ;
+    rdfs:label "has section" ;
+    rdfs:comment "Sections in the paper" .
+
+ap:hasFigure a owl:ObjectProperty ;
+    rdfs:domain ap:Paper ;
+    rdfs:range ap:Figure ;
+    rdfs:label "has figure" ;
+    rdfs:comment "Figures in the paper" .
+
+ap:hasTable a owl:ObjectProperty ;
+    rdfs:domain ap:Paper ;
+    rdfs:range ap:Table ;
+    rdfs:label "has table" ;
+    rdfs:comment "Tables in the paper" .
+
+ap:hasBibliography a owl:ObjectProperty ;
+    rdfs:domain ap:Paper ;
+    rdfs:range ap:BibliographyEntry ;
+    rdfs:label "has bibliography" ;
+    rdfs:comment "Bibliography entries" .
+
+ap:hasSubmission a owl:ObjectProperty ;
+    rdfs:domain ap:Paper ;
+    rdfs:range ap:Submission ;
+    rdfs:label "has submission" ;
+    rdfs:comment "Submission history" .
+
+ap:hasRevision a owl:ObjectProperty ;
+    rdfs:domain ap:Paper ;
+    rdfs:range ap:Revision ;
+    rdfs:label "has revision" ;
+    rdfs:comment "Revisions of the paper" .
+
+ap:createdDate a owl:DatatypeProperty ;
+    rdfs:domain ap:Paper ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "created date" ;
+    rdfs:comment "Date paper was created" .
+
+ap:modifiedDate a owl:DatatypeProperty ;
+    rdfs:domain ap:Paper ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "modified date" ;
+    rdfs:comment "Date paper was last modified" .
+
+ap:status a owl:DatatypeProperty ;
+    rdfs:domain ap:Paper ;
+    rdfs:range [ rdf:type rdfs:Datatype ;
+        owl:oneOf ( "draft" "under-review" "revision-requested" "accepted" "published" ) ] ;
+    rdfs:label "status" ;
+    rdfs:comment "Current status: draft, under-review, revision-requested, accepted, published" .
+
+ap:pageCount a owl:DatatypeProperty ;
+    rdfs:domain ap:Paper ;
+    rdfs:range xsd:integer ;
+    rdfs:label "page count" ;
+    rdfs:comment "Total number of pages" .
+
+ap:wordCount a owl:DatatypeProperty ;
+    rdfs:domain ap:Paper ;
+    rdfs:range xsd:integer ;
+    rdfs:label "word count" ;
+    rdfs:comment "Total word count" .
+
+# ============================================================================
+# AUTHOR PROPERTIES
+# ============================================================================
+
+ap:authorName a owl:DatatypeProperty ;
+    rdfs:domain ap:Author ;
+    rdfs:range xsd:string ;
+    rdfs:label "author name" ;
+    rdfs:comment "Full name of author" ;
+    owl:minCardinality 1 .
+
+ap:email a owl:DatatypeProperty ;
+    rdfs:domain ap:Author ;
+    rdfs:range xsd:string ;
+    rdfs:label "email" ;
+    rdfs:comment "Email address" .
+
+ap:orcid a owl:DatatypeProperty ;
+    rdfs:domain ap:Author ;
+    rdfs:range xsd:string ;
+    rdfs:label "ORCID" ;
+    rdfs:comment "ORCID identifier" .
+
+ap:authorOrder a owl:DatatypeProperty ;
+    rdfs:domain ap:Author ;
+    rdfs:range xsd:integer ;
+    rdfs:label "author order" ;
+    rdfs:comment "Position in author list" .
+
+ap:correspondingAuthor a owl:DatatypeProperty ;
+    rdfs:domain ap:Author ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "corresponding author" ;
+    rdfs:comment "Is this the corresponding author?" .
+
+ap:hasAffiliation a owl:ObjectProperty ;
+    rdfs:domain ap:Author ;
+    rdfs:range ap:Affiliation ;
+    rdfs:label "has affiliation" ;
+    rdfs:comment "Institutional affiliation" .
+
+ap:hasContribution a owl:ObjectProperty ;
+    rdfs:domain ap:Author ;
+    rdfs:range ap:Contribution ;
+    rdfs:label "has contribution" ;
+    rdfs:comment "Contribution statement (CRediT taxonomy)" .
+
+# ============================================================================
+# AFFILIATION PROPERTIES
+# ============================================================================
+
+ap:affiliationName a owl:DatatypeProperty ;
+    rdfs:domain ap:Affiliation ;
+    rdfs:range xsd:string ;
+    rdfs:label "affiliation name" ;
+    rdfs:comment "Name of institution" ;
+    owl:minCardinality 1 .
+
+ap:department a owl:DatatypeProperty ;
+    rdfs:domain ap:Affiliation ;
+    rdfs:range xsd:string ;
+    rdfs:label "department" ;
+    rdfs:comment "Department or faculty" .
+
+ap:country a owl:DatatypeProperty ;
+    rdfs:domain ap:Affiliation ;
+    rdfs:range xsd:string ;
+    rdfs:label "country" ;
+    rdfs:comment "Country" .
+
+# ============================================================================
+# CONTRIBUTION PROPERTIES
+# ============================================================================
+
+ap:contributionRole a owl:DatatypeProperty ;
+    rdfs:domain ap:Contribution ;
+    rdfs:range [ rdf:type rdfs:Datatype ;
+        owl:oneOf ( "Conceptualization" "Data curation" "Formal analysis"
+                    "Funding acquisition" "Investigation" "Methodology"
+                    "Project administration" "Resources" "Software"
+                    "Supervision" "Validation" "Visualization" "Writing" ) ] ;
+    rdfs:label "contribution role" ;
+    rdfs:comment "CRediT taxonomy contribution role" .
+
+# ============================================================================
+# SECTION PROPERTIES
+# ============================================================================
+
+ap:sectionTitle a owl:DatatypeProperty ;
+    rdfs:domain ap:Section ;
+    rdfs:range xsd:string ;
+    rdfs:label "section title" ;
+    rdfs:comment "Section heading" ;
+    owl:minCardinality 1 .
+
+ap:sectionType a owl:DatatypeProperty ;
+    rdfs:domain ap:Section ;
+    rdfs:range [ rdf:type rdfs:Datatype ;
+        owl:oneOf ( "introduction" "related-work" "methods" "results"
+                    "discussion" "conclusion" "acknowledgments" "appendix" ) ] ;
+    rdfs:label "section type" ;
+    rdfs:comment "Type of section" .
+
+ap:sectionOrder a owl:DatatypeProperty ;
+    rdfs:domain ap:Section ;
+    rdfs:range xsd:integer ;
+    rdfs:label "section order" ;
+    rdfs:comment "Position in document" .
+
+ap:sectionContent a owl:DatatypeProperty ;
+    rdfs:domain ap:Section ;
+    rdfs:range xsd:string ;
+    rdfs:label "section content" ;
+    rdfs:comment "Markdown or LaTeX content" .
+
+ap:subsectionOf a owl:ObjectProperty ;
+    rdfs:domain ap:Section ;
+    rdfs:range ap:Section ;
+    rdfs:label "subsection of" ;
+    rdfs:comment "Parent section for subsections" .
+
+# ============================================================================
+# FIGURE PROPERTIES
+# ============================================================================
+
+ap:figureName a owl:DatatypeProperty ;
+    rdfs:domain ap:Figure ;
+    rdfs:range xsd:string ;
+    rdfs:label "figure name" ;
+    rdfs:comment "Figure identifier" ;
+    owl:minCardinality 1 .
+
+ap:figureCaption a owl:DatatypeProperty ;
+    rdfs:domain ap:Figure ;
+    rdfs:range xsd:string ;
+    rdfs:label "figure caption" ;
+    rdfs:comment "Figure caption text" .
+
+ap:figureFile a owl:DatatypeProperty ;
+    rdfs:domain ap:Figure ;
+    rdfs:range xsd:string ;
+    rdfs:label "figure file" ;
+    rdfs:comment "Path to figure file (PNG, PDF, etc.)" .
+
+ap:figureWidth a owl:DatatypeProperty ;
+    rdfs:domain ap:Figure ;
+    rdfs:range xsd:string ;
+    rdfs:label "figure width" ;
+    rdfs:comment "Figure width (e.g., 0.8\\textwidth)" .
+
+ap:figureOrder a owl:DatatypeProperty ;
+    rdfs:domain ap:Figure ;
+    rdfs:range xsd:integer ;
+    rdfs:label "figure order" ;
+    rdfs:comment "Position in document" .
+
+# ============================================================================
+# TABLE PROPERTIES
+# ============================================================================
+
+ap:tableName a owl:DatatypeProperty ;
+    rdfs:domain ap:Table ;
+    rdfs:range xsd:string ;
+    rdfs:label "table name" ;
+    rdfs:comment "Table identifier" ;
+    owl:minCardinality 1 .
+
+ap:tableCaption a owl:DatatypeProperty ;
+    rdfs:domain ap:Table ;
+    rdfs:range xsd:string ;
+    rdfs:label "table caption" ;
+    rdfs:comment "Table title/caption" .
+
+ap:tableContent a owl:DatatypeProperty ;
+    rdfs:domain ap:Table ;
+    rdfs:range xsd:string ;
+    rdfs:label "table content" ;
+    rdfs:comment "CSV or LaTeX table format" .
+
+ap:tableOrder a owl:DatatypeProperty ;
+    rdfs:domain ap:Table ;
+    rdfs:range xsd:integer ;
+    rdfs:label "table order" ;
+    rdfs:comment "Position in document" .
+
+# ============================================================================
+# EQUATION PROPERTIES
+# ============================================================================
+
+ap:equationName a owl:DatatypeProperty ;
+    rdfs:domain ap:Equation ;
+    rdfs:range xsd:string ;
+    rdfs:label "equation name" ;
+    rdfs:comment "Equation identifier (e.g., eq:drift)" .
+
+ap:equationLatex a owl:DatatypeProperty ;
+    rdfs:domain ap:Equation ;
+    rdfs:range xsd:string ;
+    rdfs:label "equation LaTeX" ;
+    rdfs:comment "LaTeX equation code" ;
+    owl:minCardinality 1 .
+
+ap:equationOrder a owl:DatatypeProperty ;
+    rdfs:domain ap:Equation ;
+    rdfs:range xsd:integer ;
+    rdfs:label "equation order" ;
+    rdfs:comment "Position in document" .
+
+# ============================================================================
+# CITATION & BIBLIOGRAPHY PROPERTIES
+# ============================================================================
+
+ap:citeKey a owl:DatatypeProperty ;
+    rdfs:domain [ owl:unionOf ( ap:Citation ap:BibliographyEntry ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:label "cite key" ;
+    rdfs:comment "BibTeX citation key" ;
+    owl:minCardinality 1 .
+
+ap:authors a owl:DatatypeProperty ;
+    rdfs:domain ap:BibliographyEntry ;
+    rdfs:range xsd:string ;
+    rdfs:label "authors" ;
+    rdfs:comment "Author names (comma-separated)" .
+
+ap:year a owl:DatatypeProperty ;
+    rdfs:domain ap:BibliographyEntry ;
+    rdfs:range xsd:gYear ;
+    rdfs:label "year" ;
+    rdfs:comment "Publication year" .
+
+ap:journal a owl:DatatypeProperty ;
+    rdfs:domain ap:BibliographyEntry ;
+    rdfs:range xsd:string ;
+    rdfs:label "journal" ;
+    rdfs:comment "Journal name" .
+
+ap:volume a owl:DatatypeProperty ;
+    rdfs:domain ap:BibliographyEntry ;
+    rdfs:range xsd:string ;
+    rdfs:label "volume" ;
+    rdfs:comment "Journal volume" .
+
+ap:issue a owl:DatatypeProperty ;
+    rdfs:domain ap:BibliographyEntry ;
+    rdfs:range xsd:string ;
+    rdfs:label "issue" ;
+    rdfs:comment "Journal issue" .
+
+ap:pages a owl:DatatypeProperty ;
+    rdfs:domain ap:BibliographyEntry ;
+    rdfs:range xsd:string ;
+    rdfs:label "pages" ;
+    rdfs:comment "Page numbers" .
+
+ap:doi a owl:DatatypeProperty ;
+    rdfs:domain ap:BibliographyEntry ;
+    rdfs:range xsd:string ;
+    rdfs:label "DOI" ;
+    rdfs:comment "Digital Object Identifier" .
+
+ap:url a owl:DatatypeProperty ;
+    rdfs:domain ap:BibliographyEntry ;
+    rdfs:range xsd:anyURI ;
+    rdfs:label "URL" ;
+    rdfs:comment "URL to resource" .
+
+ap:bibType a owl:DatatypeProperty ;
+    rdfs:domain ap:BibliographyEntry ;
+    rdfs:range [ rdf:type rdfs:Datatype ;
+        owl:oneOf ( "article" "book" "inproceedings" "misc" "thesis" "techreport" ) ] ;
+    rdfs:label "bibliography type" ;
+    rdfs:comment "BibTeX entry type" .
+
+# ============================================================================
+# SUBMISSION & REVIEW PROPERTIES
+# ============================================================================
+
+ap:submissionVenue a owl:ObjectProperty ;
+    rdfs:domain ap:Submission ;
+    rdfs:range ap:Venue ;
+    rdfs:label "submission venue" ;
+    rdfs:comment "Target venue for submission" .
+
+ap:submissionDate a owl:DatatypeProperty ;
+    rdfs:domain ap:Submission ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "submission date" ;
+    rdfs:comment "Date of submission" .
+
+ap:submissionStatus a owl:DatatypeProperty ;
+    rdfs:domain ap:Submission ;
+    rdfs:range [ rdf:type rdfs:Datatype ;
+        owl:oneOf ( "submitted" "desk-reject" "under-review" "revision-requested"
+                    "accepted" "rejected" "published" ) ] ;
+    rdfs:label "submission status" ;
+    rdfs:comment "Current submission status" .
+
+ap:decisionDate a owl:DatatypeProperty ;
+    rdfs:domain ap:Submission ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "decision date" ;
+    rdfs:comment "Date decision was made" .
+
+ap:hasPeerReview a owl:ObjectProperty ;
+    rdfs:domain ap:Submission ;
+    rdfs:range ap:PeerReview ;
+    rdfs:label "has peer review" ;
+    rdfs:comment "Peer review feedback" .
+
+ap:reviewNumber a owl:DatatypeProperty ;
+    rdfs:domain ap:PeerReview ;
+    rdfs:range xsd:integer ;
+    rdfs:label "review number" ;
+    rdfs:comment "Reviewer number" .
+
+ap:reviewDate a owl:DatatypeProperty ;
+    rdfs:domain ap:PeerReview ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "review date" ;
+    rdfs:comment "Date review was submitted" .
+
+ap:reviewContent a owl:DatatypeProperty ;
+    rdfs:domain ap:PeerReview ;
+    rdfs:range xsd:string ;
+    rdfs:label "review content" ;
+    rdfs:comment "Review comments and feedback" .
+
+ap:reviewRecommendation a owl:DatatypeProperty ;
+    rdfs:domain ap:PeerReview ;
+    rdfs:range [ rdf:type rdfs:Datatype ;
+        owl:oneOf ( "accept" "minor-revisions" "major-revisions" "reject" ) ] ;
+    rdfs:label "review recommendation" ;
+    rdfs:comment "Reviewer recommendation" .
+
+# ============================================================================
+# REVISION PROPERTIES
+# ============================================================================
+
+ap:revisionNumber a owl:DatatypeProperty ;
+    rdfs:domain ap:Revision ;
+    rdfs:range xsd:integer ;
+    rdfs:label "revision number" ;
+    rdfs:comment "Revision version (1, 2, 3...)" .
+
+ap:revisionDate a owl:DatatypeProperty ;
+    rdfs:domain ap:Revision ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "revision date" ;
+    rdfs:comment "Date revision was created" .
+
+ap:revisionNotes a owl:DatatypeProperty ;
+    rdfs:domain ap:Revision ;
+    rdfs:range xsd:string ;
+    rdfs:label "revision notes" ;
+    rdfs:comment "Author response to review" .
+
+ap:revisionChanges a owl:DatatypeProperty ;
+    rdfs:domain ap:Revision ;
+    rdfs:range xsd:string ;
+    rdfs:label "revision changes" ;
+    rdfs:comment "Summary of changes made" .
+
+# ============================================================================
+# VENUE PROPERTIES
+# ============================================================================
+
+ap:venueName a owl:DatatypeProperty ;
+    rdfs:domain ap:Venue ;
+    rdfs:range xsd:string ;
+    rdfs:label "venue name" ;
+    rdfs:comment "Name of conference or journal" ;
+    owl:minCardinality 1 .
+
+ap:venueType a owl:DatatypeProperty ;
+    rdfs:domain ap:Venue ;
+    rdfs:range [ rdf:type rdfs:Datatype ;
+        owl:oneOf ( "conference" "journal" "preprint" "workshop" ) ] ;
+    rdfs:label "venue type" ;
+    rdfs:comment "Type of venue" .
+
+ap:venueDeadline a owl:DatatypeProperty ;
+    rdfs:domain ap:Venue ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "venue deadline" ;
+    rdfs:comment "Submission deadline" .
+
+ap:venueAcceptanceRate a owl:DatatypeProperty ;
+    rdfs:domain ap:Venue ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "acceptance rate" ;
+    rdfs:comment "Historical acceptance rate" .
+
+ap:venueRanking a owl:DatatypeProperty ;
+    rdfs:domain ap:Venue ;
+    rdfs:range xsd:string ;
+    rdfs:label "venue ranking" ;
+    rdfs:comment "Ranking/tier (A*, A, B, C, etc.)" .
+
+# ============================================================================
+# DISCIPLINE INSTANCES
+# ============================================================================
+
+ap:ComputerScience a ap:Discipline ;
+    rdfs:label "Computer Science" ;
+    rdfs:comment "Computer Science and related fields" .
+
+ap:Mathematics a ap:Discipline ;
+    rdfs:label "Mathematics" ;
+    rdfs:comment "Mathematics and computational mathematics" .
+
+ap:Physics a ap:Discipline ;
+    rdfs:label "Physics" ;
+    rdfs:comment "Physics and theoretical physics" .
+
+ap:Biology a ap:Discipline ;
+    rdfs:label "Biology" ;
+    rdfs:comment "Biology and life sciences" .
+
+ap:Medicine a ap:Discipline ;
+    rdfs:label "Medicine" ;
+    rdfs:comment "Medicine and health sciences" .
+
+ap:Economics a ap:Discipline ;
+    rdfs:label "Economics" ;
+    rdfs:comment "Economics and business research" .
+
+ap:Psychology a ap:Discipline ;
+    rdfs:label "Psychology" ;
+    rdfs:comment "Psychology and social sciences" .
+
+ap:Engineering a ap:Discipline ;
+    rdfs:label "Engineering" ;
+    rdfs:comment "Engineering and applied sciences" .
+
+# ============================================================================
+# INFERENCE RULES
+# ============================================================================
+
+# Papers with published submissions are marked as published
+[] a owl:Axiom ;
+    owl:subject ap:Paper ;
+    owl:predicate ap:status ;
+    owl:object "published" ;
+    rdfs:comment "If paper has submission with published status, paper is published" .
+
+# Corresponding author is first author if not specified
+[] a owl:Axiom ;
+    owl:subject ap:Author ;
+    owl:predicate ap:correspondingAuthor ;
+    rdfs:comment "Corresponding author defaults to first author" .
+
+# Word count auto-calculated from sections
+[] a owl:Axiom ;
+    owl:subject ap:Paper ;
+    owl:predicate ap:wordCount ;
+    rdfs:comment "Word count calculated from section content" .

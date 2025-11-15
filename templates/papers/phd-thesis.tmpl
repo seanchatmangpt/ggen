@@ -1,0 +1,219 @@
+---
+name: PhD Thesis
+description: PhD thesis template with multiple chapters and comprehensive structure
+input_type: rdf
+output_type: latex
+author: ggen core team
+version: 1.0.0
+tags: [paper, thesis, phd, latex]
+---
+\documentclass[12pt,twoside,openright]{book}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{cite}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{fancyhdr}
+\usepackage{tocloft}
+\usepackage{lipsum}
+
+\geometry{
+  left=1.5in,
+  right=1in,
+  top=1.25in,
+  bottom=1.25in,
+}
+
+\onehalfspacing
+
+\pagestyle{fancy}
+\fancyhead{}
+\fancyfoot{}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  commentstyle=\color{gray},
+  keywordstyle=\color{blue},
+  stringstyle=\color{red},
+}
+
+% ============================================================================
+% TITLE PAGE
+% ============================================================================
+
+\title{ {{- paper.title -}} }
+
+\author{
+{% for author in paper.hasAuthor | first %}
+  {{- author.authorName -}}
+{% endfor %}
+}
+
+\date{\the\year}
+
+\begin{document}
+
+% ============================================================================
+% FRONT MATTER
+% ============================================================================
+
+\frontmatter
+
+\maketitle
+
+% ============================================================================
+% DEDICATION (Optional)
+% ============================================================================
+
+\chapter*{Dedication}
+To...
+
+% ============================================================================
+% ACKNOWLEDGMENTS
+% ============================================================================
+
+{% for section in paper.hasSection | filter(attribute="sectionType", value="acknowledgments") %}
+\chapter*{ {{- section.sectionTitle -}} }
+{{- section.sectionContent }}
+{% endfor %}
+
+% ============================================================================
+% TABLE OF CONTENTS
+% ============================================================================
+
+\tableofcontents
+\listoffigures
+\listoftables
+
+% ============================================================================
+% MAIN MATTER
+% ============================================================================
+
+\mainmatter
+
+% ============================================================================
+% INTRODUCTION
+% ============================================================================
+
+{% for section in paper.hasSection | filter(attribute="sectionType", value="introduction") %}
+\chapter{ {{- section.sectionTitle -}} }
+\label{ch:introduction}
+{{- section.sectionContent }}
+{% endfor %}
+
+% ============================================================================
+% BACKGROUND / LITERATURE REVIEW
+% ============================================================================
+
+{% for section in paper.hasSection | filter(attribute="sectionType", value="related-work") %}
+\chapter{ {{- section.sectionTitle -}} }
+\label{ch:background}
+{{- section.sectionContent }}
+{% endfor %}
+
+% ============================================================================
+% METHODOLOGY / APPROACH
+% ============================================================================
+
+{% for section in paper.hasSection | filter(attribute="sectionType", value="methods") %}
+\chapter{ {{- section.sectionTitle -}} }
+\label{ch:methodology}
+{{- section.sectionContent }}
+
+{% for subsection in section.subsectionOf | sort_by("sectionOrder") %}
+\section{ {{- subsection.sectionTitle -}} }
+{{- subsection.sectionContent }}
+{% endfor %}
+{% endfor %}
+
+% ============================================================================
+% RESULTS
+% ============================================================================
+
+{% for section in paper.hasSection | filter(attribute="sectionType", value="results") %}
+\chapter{ {{- section.sectionTitle -}} }
+\label{ch:results}
+{{- section.sectionContent }}
+
+{% for figure in paper.hasFigure | sort_by("figureOrder") %}
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width={{- figure.figureWidth | default("0.75\\textwidth") -}}]{ {{- figure.figureFile -}} }
+  \caption{ {{- figure.figureCaption -}} }
+  \label{fig: {{- figure.figureName -}} }
+\end{figure}
+
+{% endfor %}
+
+{% for table in paper.hasTable | sort_by("tableOrder") %}
+\begin{table}[ht]
+  \centering
+  \caption{ {{- table.tableCaption -}} }
+  \label{tbl: {{- table.tableName -}} }
+  {{- table.tableContent }}
+\end{table}
+
+{% endfor %}
+{% endfor %}
+
+% ============================================================================
+% DISCUSSION
+% ============================================================================
+
+{% for section in paper.hasSection | filter(attribute="sectionType", value="discussion") %}
+\chapter{ {{- section.sectionTitle -}} }
+\label{ch:discussion}
+{{- section.sectionContent }}
+{% endfor %}
+
+% ============================================================================
+% CONCLUSION
+% ============================================================================
+
+{% for section in paper.hasSection | filter(attribute="sectionType", value="conclusion") %}
+\chapter{ {{- section.sectionTitle -}} }
+\label{ch:conclusion}
+{{- section.sectionContent }}
+{% endfor %}
+
+% ============================================================================
+% BACK MATTER
+% ============================================================================
+
+\backmatter
+
+% ============================================================================
+% APPENDICES
+% ============================================================================
+
+{% if paper.hasSection | filter(attribute="sectionType", value="appendix") | length > 0 %}
+\appendix
+{% for section in paper.hasSection | filter(attribute="sectionType", value="appendix") %}
+\chapter{ {{- section.sectionTitle -}} }
+{{- section.sectionContent }}
+{% endfor %}
+{% endif %}
+
+% ============================================================================
+% REFERENCES
+% ============================================================================
+
+\bibliographystyle{plain}
+\bibliography{references}
+
+\end{document}

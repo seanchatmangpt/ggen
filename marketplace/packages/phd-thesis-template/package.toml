@@ -1,0 +1,94 @@
+# PhD Thesis Template Package
+# Comprehensive thesis template with chapters, front/back matter, and university compliance
+
+[package]
+name = "phd-thesis-template"
+full_name = "PhD Thesis Template"
+version = "1.0.0"
+description = "PhD thesis template with chapters, appendices, TOC/LOF/LOT, and customizable university requirements"
+category = "academic-paper"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+path = "marketplace/packages/phd-thesis-template"
+license = "MIT"
+production = true
+maturity = 95
+
+dependencies = []
+
+features = [
+    "Multi-chapter thesis organization",
+    "Front matter: dedication, acknowledgments, TOC",
+    "List of figures and tables auto-generation",
+    "Chapter-level organization with \\ (pagebreak)",
+    "Appendices support with separate numbering",
+    "Bibliography per-chapter or global",
+    "Page numbering (roman, arabic) control",
+    "University-compliant formatting",
+    "Margin and spacing configuration",
+    "PDF bookmarks and navigation"
+]
+
+tags = ["thesis", "phd", "dissertation", "latex", "academic"]
+keywords = ["phd-thesis", "dissertation", "chapter-based", "academic-writing", "latex"]
+
+# Installation
+[install]
+type = "template"
+template_path = "marketplace/packages/phd-thesis-template"
+
+# Template files to copy
+[files]
+"README.md" = "README.md"
+"USAGE.md" = "USAGE.md"
+"templates/phd-thesis.tmpl" = "templates/phd-thesis.tmpl"
+"data/thesis-schema.ttl" = "data/thesis-schema.ttl"
+"examples/sample-thesis/" = "examples/sample-thesis/"
+
+# Variables for template substitution
+[variables]
+title = { type = "string", required = true, description = "Thesis title" }
+author = { type = "string", required = true, description = "PhD candidate name" }
+department = { type = "string", required = true, description = "Department/Faculty" }
+university = { type = "string", default = "University", description = "University name" }
+degree = { type = "string", default = "Doctor of Philosophy", description = "Degree type" }
+year = { type = "integer", default = 2024, description = "Graduation year" }
+
+# Examples
+[examples]
+basic = """
+# Create PhD thesis
+ggen paper new "Advanced Code Generation Systems" --template phd
+
+# Compile thesis
+ggen paper compile thesis.tex
+
+# Generate PDF
+pdflatex thesis.tex
+bibtex thesis
+pdflatex thesis.tex
+"""
+
+complete = """
+# Create thesis structure
+ggen paper new my-thesis --template phd
+
+# Edit chapters in sections/
+ggen paper edit my-thesis.rdf --section introduction
+
+# Initialize bibliography
+ggen paper init-bibliography my-thesis.rdf
+
+# Compile with full processing
+ggen paper compile my-thesis.tex --engine xelatex --bibtex
+"""
+
+# Documentation
+[docs]
+quick_start = "PhD thesis with multi-chapter organization and university compliance"
+features = "Chapter organization, appendices, front/back matter, bibliography management"
+use_cases = "PhD dissertations, master's theses, research monographs, technical documentation"
+
+# Validation
+[validation]
+requires = ["thesis.rdf", "chapters/", "references.bib"]

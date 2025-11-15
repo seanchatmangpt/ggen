@@ -1,0 +1,102 @@
+# Academic Bibliography Manager Package
+# Complete bibliography management with BibTeX, citation validation, and multi-format export
+
+[package]
+name = "academic-bibliography-manager"
+full_name = "Academic Bibliography Manager"
+version = "1.0.0"
+description = "Bibliography management system with BibTeX support, citation validation, duplicate detection, and multi-format export"
+category = "academic-tools"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+path = "marketplace/packages/academic-bibliography-manager"
+license = "MIT"
+production = true
+maturity = 92
+
+dependencies = []
+
+features = [
+    "BibTeX parsing and generation",
+    "Citation key validation and management",
+    "Duplicate entry detection",
+    "Citation style conversion (CSL, RIS, BibTeX)",
+    "Digital Object Identifier (DOI) lookup",
+    "ORCID integration for author identification",
+    "Export to multiple formats",
+    "Citation completeness validation",
+    "Author name standardization",
+    "Journal abbreviation management",
+    "Bibliography cross-referencing",
+    "Automatic metadata extraction from PDFs"
+]
+
+tags = ["bibliography", "bibtex", "citations", "academic"]
+keywords = ["bibliography", "bibtex", "citations", "references", "doi", "orcid"]
+
+# Installation
+[install]
+type = "tool"
+template_path = "marketplace/packages/academic-bibliography-manager"
+
+# Tool files
+[files]
+"README.md" = "README.md"
+"USAGE.md" = "USAGE.md"
+"templates/bibtex-references.tmpl" = "templates/bibtex-references.tmpl"
+"templates/bibliography.rdf" = "templates/bibliography.rdf"
+"data/bibtex-schema.ttl" = "data/bibtex-schema.ttl"
+"tools/bibtex-parser.rs" = "tools/bibtex-parser.rs"
+"examples/" = "examples/"
+
+# Variables for configuration
+[variables]
+bibliography_name = { type = "string", default = "references", description = "Bibliography filename" }
+citation_style = { type = "string", default = "ieee", description = "Default citation style" }
+include_dois = { type = "boolean", default = true, description = "Include DOI numbers" }
+include_urls = { type = "boolean", default = true, description = "Include URLs" }
+
+# Examples
+[examples]
+basic = """
+# Initialize bibliography
+ggen paper init-bibliography paper.rdf
+
+# Add entries from BibTeX file
+ggen bibliography import --input references.bib
+
+# Validate citations
+ggen bibliography validate paper.rdf
+
+# Export to different formats
+ggen bibliography export --input references.bib --format csl-json
+ggen bibliography export --input references.bib --format ris
+"""
+
+advanced = """
+# Manage citations
+ggen bibliography add --title "Deep Learning" --authors "LeCun, Bengio, Hinton" --year 2015
+
+# Find duplicates
+ggen bibliography deduplicate references.bib
+
+# Standardize author names
+ggen bibliography normalize references.bib
+
+# Generate BibTeX from ontology
+ggen paper generate paper.rdf --template bibtex-references.tmpl --output refs.bib
+
+# Look up DOI
+ggen bibliography lookup-doi "10.1038/nature14539"
+"""
+
+# Documentation
+[docs]
+quick_start = "Bibliography management with BibTeX support and citation validation"
+features = "BibTeX parsing, citation validation, duplicate detection, multi-format export, DOI lookup"
+use_cases = "Academic writing, literature reviews, thesis bibliography, journal submissions"
+
+# Validation
+[validation]
+requires = ["references.bib"]
+formats_supported = ["bibtex", "csl-json", "ris", "mods", "json-ld"]
