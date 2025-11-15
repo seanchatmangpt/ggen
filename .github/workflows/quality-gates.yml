@@ -1,0 +1,322 @@
+name: Quality Gates (Poka-Yoke)
+
+# This workflow replicates all git hooks and enforces strict quality standards
+# Philosophy: Make it impossible to merge bad code (Poka-Yoke = Error-Proofing)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  push:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  # GATE 1: No Panic Points (Replicate .githooks/pre-commit)
+  panic-point-detection:
+    name: "GATE 1: No Panic Points"
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Need full history for diff
+
+      - name: Detect panic points in production code
+        run: |
+          set -euo pipefail
+
+          echo "🔍 Scanning for panic points in production code..."
+          echo ""
+
+          # Get changed Rust files (exclude tests)
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep "\.rs$" | grep -v "/tests/" | grep -v "_test\.rs" || true)
+          else
+            CHANGED_FILES=$(git diff --name-only HEAD~1 | grep "\.rs$" | grep -v "/tests/" | grep -v "_test\.rs" || true)
+          fi
+
+          if [ -z "$CHANGED_FILES" ]; then
+            echo "✅ No Rust files changed"
+            exit 0
+          fi
+
+          echo "Checking files:"
+          echo "$CHANGED_FILES" | sed 's/^/  - /'
+          echo ""
+
+          PANIC_POINTS=0
+          FAILED_FILES=""
+
+          # Check for panic points in production code
+          for file in $CHANGED_FILES; do
+            if [ ! -f "$file" ]; then
+              continue
+            fi
+
+            # Count .expect() calls (excluding SAFE comments)
+            EXPECT_COUNT=$(grep -n "\.expect(" "$file" 2>/dev/null | grep -v "// SAFE:" | grep -v "#\[cfg(test)\]" | wc -l | tr -d ' ')
+
+            # Count .unwrap() calls (excluding SAFE comments and safe variants)
+            UNWRAP_COUNT=$(grep -n "\.unwrap()" "$file" 2>/dev/null | grep -v "// SAFE:" | grep -v "#\[cfg(test)\]" | grep -v "unwrap_or" | wc -l | tr -d ' ')
+
+            # Count panic! macros
+            PANIC_COUNT=$(grep -n "panic!(" "$file" 2>/dev/null | grep -v "// SAFE:" | grep -v "#\[cfg(test)\]" | wc -l | tr -d ' ')
+
+            FILE_PANIC_POINTS=$((EXPECT_COUNT + UNWRAP_COUNT + PANIC_COUNT))
+
+            if [ "$FILE_PANIC_POINTS" -gt 0 ]; then
+              echo "❌ $file: $FILE_PANIC_POINTS panic point(s)"
+
+              if [ "$EXPECT_COUNT" -gt 0 ]; then
+                echo "  .expect() calls:"
+                grep -n "\.expect(" "$file" 2>/dev/null | grep -v "// SAFE:" | grep -v "#\[cfg(test)\]" | head -3 | sed 's/^/    /'
+              fi
+
+              if [ "$UNWRAP_COUNT" -gt 0 ]; then
+                echo "  .unwrap() calls:"
+                grep -n "\.unwrap()" "$file" 2>/dev/null | grep -v "// SAFE:" | grep -v "#\[cfg(test)\]" | grep -v "unwrap_or" | head -3 | sed 's/^/    /'
+              fi
+
+              if [ "$PANIC_COUNT" -gt 0 ]; then
+                echo "  panic!() calls:"
+                grep -n "panic!(" "$file" 2>/dev/null | grep -v "// SAFE:" | grep -v "#\[cfg(test)\]" | head -3 | sed 's/^/    /'
+              fi
+
+              echo ""
+              PANIC_POINTS=$((PANIC_POINTS + FILE_PANIC_POINTS))
+              FAILED_FILES="$FAILED_FILES\n  - $file ($FILE_PANIC_POINTS points)"
+            fi
+          done
+
+          if [ "$PANIC_POINTS" -gt 0 ]; then
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo "❌ QUALITY GATE FAILED: Found $PANIC_POINTS panic point(s)"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo ""
+            echo "Failed files:"
+            echo -e "$FAILED_FILES"
+            echo ""
+            echo "Production code must not contain panic points."
+            echo ""
+            echo "To fix:"
+            echo "  1. Replace .expect() with ? operator and proper error types"
+            echo "  2. Replace .unwrap() with .unwrap_or_default() or ?"
+            echo "  3. Remove panic!() and use Result<T, E> instead"
+            echo "  4. If truly safe, add comment: // SAFE: <reason>"
+            echo ""
+            exit 1
+          fi
+
+          echo "✅ No panic points found - quality gate passed"
+
+  # GATE 2: Strict Clippy (Match Cargo.toml exactly)
+  clippy-strict:
+    name: "GATE 2: Clippy Strict"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-clippy-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Run clippy with strict lints (match Cargo.toml)
+        run: |
+          cargo clippy --workspace --all-targets --all-features -- \
+            -D warnings \
+            -D clippy::all \
+            -D clippy::pedantic \
+            -D clippy::nursery \
+            -D clippy::cargo \
+            -D clippy::unwrap_used \
+            -D clippy::expect_used \
+            -D clippy::panic \
+            -D clippy::todo \
+            -D clippy::unimplemented
+
+  # GATE 3: Code Coverage Enforcement
+  coverage-enforcement:
+    name: "GATE 3: Code Coverage ≥80%"
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install tarpaulin
+        run: cargo install cargo-tarpaulin
+
+      - name: Generate coverage
+        run: |
+          cargo tarpaulin --workspace --out Xml --output-dir ./coverage --timeout 300
+
+      - name: Enforce minimum coverage
+        run: |
+          COVERAGE=$(grep -oP 'line-rate="\K[0-9.]+' coverage/cobertura.xml | head -1)
+          COVERAGE_PCT=$(echo "$COVERAGE * 100" | bc)
+
+          echo "Current coverage: ${COVERAGE_PCT}%"
+
+          MIN_COVERAGE=80
+          if (( $(echo "$COVERAGE_PCT < $MIN_COVERAGE" | bc -l) )); then
+            echo "❌ QUALITY GATE FAILED: Coverage ${COVERAGE_PCT}% < ${MIN_COVERAGE}%"
+            exit 1
+          fi
+
+          echo "✅ Coverage ${COVERAGE_PCT}% ≥ ${MIN_COVERAGE}%"
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage/cobertura.xml
+          fail_ci_if_error: true  # ENFORCE: Fail if upload fails
+          flags: unittests
+          name: codecov-ggen
+
+      - name: Check coverage delta (PR only)
+        if: github.event_name == 'pull_request'
+        run: |
+          # TODO: Implement coverage delta check
+          # Compare current coverage with base branch
+          # Fail if coverage decreased
+          echo "Coverage delta check - TODO"
+
+  # GATE 4: No Hardcoded Paths
+  hardcoded-path-detection:
+    name: "GATE 4: No Hardcoded Paths"
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for hardcoded paths
+        run: |
+          echo "🔍 Checking for hardcoded paths..."
+
+          # Check Cargo.toml files for hardcoded paths
+          HARDCODED=$(grep -rn "path = \"/Users/" --include="Cargo.toml" . || true)
+
+          if [ -n "$HARDCODED" ]; then
+            echo "❌ QUALITY GATE FAILED: Found hardcoded paths"
+            echo ""
+            echo "$HARDCODED"
+            echo ""
+            echo "Fix: Replace hardcoded paths with:"
+            echo "  - Crates.io dependencies: dep = \"1.0.0\""
+            echo "  - Git dependencies: dep = { git = \"https://...\", tag = \"v1.0.0\" }"
+            echo "  - Workspace dependencies: dep = { workspace = true }"
+            exit 1
+          fi
+
+          echo "✅ No hardcoded paths found"
+
+  # GATE 5: All Tests Pass
+  all-tests:
+    name: "GATE 5: All Tests Pass"
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-test-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Run all tests
+        run: cargo test --workspace --all-features --verbose
+
+      - name: Run doc tests
+        run: cargo test --doc --workspace
+
+  # GATE 6: Build Verification
+  build-all-platforms:
+    name: "GATE 6: Build All Platforms"
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-build-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Build
+        run: cargo build --workspace --all-features --verbose
+
+  # Summary: All Gates Must Pass
+  quality-gates-summary:
+    name: "Quality Gates Summary"
+    runs-on: ubuntu-latest
+    needs:
+      - panic-point-detection
+      - clippy-strict
+      - coverage-enforcement
+      - hardcoded-path-detection
+      - all-tests
+      - build-all-platforms
+
+    steps:
+      - name: All quality gates passed
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "✅ ALL QUALITY GATES PASSED"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo ""
+          echo "✅ Gate 1: No panic points"
+          echo "✅ Gate 2: Clippy strict"
+          echo "✅ Gate 3: Coverage ≥80%"
+          echo "✅ Gate 4: No hardcoded paths"
+          echo "✅ Gate 5: All tests pass"
+          echo "✅ Gate 6: Builds on all platforms"
+          echo ""
+          echo "This PR meets all quality standards and is ready to merge."

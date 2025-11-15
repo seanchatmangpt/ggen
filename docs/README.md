@@ -32,6 +32,7 @@ Task-based guides that help you solve specific problems:
 - **[Use RDF Ontologies](how-to-guides/use-rdf-ontologies.md)** - How to work with RDF
 - **[Configure Hooks](how-to-guides/configure-hooks.md)** - How to set up Git hooks
 - **[Deploy Production](how-to-guides/deploy-production.md)** - How to deploy to production
+- **[CI/CD Workflows](how-to-guides/cicd-workflows.md)** - How to use GitHub Actions workflows
 - **[Troubleshoot](how-to-guides/troubleshoot.md)** - How to solve common problems
 - **[Development Workflow](DEVELOPMENT_WORKFLOW.md)** - How to develop ggen (testing, error handling, quality assurance)
 
@@ -102,6 +103,7 @@ Found an error or want to improve the documentation? Contributions are welcome!
 
 ### Development Tools
 - **[Cargo Make Guide](MAKEFILE.md)** - Complete guide to `cargo make` tasks and workflows
+- **[CI/CD Workflows](how-to-guides/cicd-workflows.md)** - GitHub Actions workflows for CI/CD and releases
 - **[Claude Development Configuration](CLAUDE.md)** - Claude-specific development environment setup
 
 ### Marketplace

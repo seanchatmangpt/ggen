@@ -28,7 +28,7 @@ ggen template generate-rdf --ontology domain.ttl --template python-pydantic
 
 **Install**: `brew tap seanchatmangpt/tap && brew install ggen` or `cargo install ggen` or `git clone https://github.com/seanchatmangpt/ggen && cargo install --path crates/ggen-cli --bin ggen --force`
 
-**Verify**: `ggen --version` (should output: ggen 2.7.0). If using `asdf`: `asdf reshim rust`
+**Verify**: `ggen --version` (should output: ggen 2.6.0). If using `asdf`: `asdf reshim rust`
 
 **First Generation**:
 - **AI-Powered**: `ggen ai generate-ontology --prompt "Blog: User, Post, Comment" --output blog.ttl` → `ggen template generate-rdf --ontology blog.ttl --template rust-graphql-api`
@@ -53,9 +53,9 @@ ggen template generate-rdf --ontology domain.ttl --template python-pydantic
 
 **Type Mapping** (tested and working): `xsd:string` → `String`/`string`/`str`, `xsd:decimal` → `f64`/`number`/`Decimal`, `xsd:integer` → `i32`/`number`/`int`, `rdfs:Class` → `struct`/`interface`/`class`, `rdf:Property` (object) → `fn get_*()`/`get*()`/`def get_*()`
 
-**10 Innovative Command Patterns**: Polyglot Sync (1 ontology → N languages), AI Refinement Loop (AI analyzes code → suggests ontology improvements), Hook Automation (Git commits auto-validate), Marketplace Mixing (combine proven templates with custom domain), Predictive Evolution (AI tracks SPARQL patterns → suggests optimizations). [Full Documentation →](docs/INNOVATIVE_COMMAND_COMBINATIONS.md)
+**10 Innovative Command Patterns**: Polyglot Sync (1 ontology → N languages), AI Refinement Loop (AI analyzes code → suggests ontology improvements), Hook Automation (Git commits auto-validate), Marketplace Mixing (combine proven templates with custom domain), Predictive Evolution (AI tracks SPARQL patterns → suggests optimizations). [Full Documentation →](docs/explanations/architecture.md)
 
-**Production-Grade Stack** (v2.7.0, Nov 2025, 89% Production Ready): Runtime stability (fixed critical tokio panic, all 32 CLI commands functional), zero unsafe code (memory-safe, no `.expect()` in production paths), real RDF/SPARQL (Oxigraph in-memory triple store, not mocks), deterministic output (byte-identical, reproducible builds), post-quantum security (ML-DSA cryptographic signatures), Chicago TDD (782-line E2E test with real systems, no mocks), containerized validation (marketplace lifecycle tested in isolated containers, 100% host protection via chicago-tdd-tools framework)
+**Production-Grade Stack** (v2.6.0, Nov 2025, 89% Production Ready): Runtime stability (fixed critical tokio panic, all 32 CLI commands functional), zero unsafe code (memory-safe, no `.expect()` in production paths), real RDF/SPARQL (Oxigraph in-memory triple store, not mocks), deterministic output (byte-identical, reproducible builds), post-quantum security (ML-DSA cryptographic signatures), Chicago TDD (782-line E2E test with real systems, no mocks), containerized validation (marketplace lifecycle tested in isolated containers, 100% host protection via chicago-tdd-tools framework)
 
 ---
 
@@ -123,7 +123,7 @@ ggen template generate-rdf --ontology domain.ttl --template python-pydantic
 
 **Examples**: [Microservices Architecture](examples/microservices-architecture/), [AI Code Generation](examples/ai-code-generation/), [FastAPI from RDF](examples/fastapi-from-rdf/)
 
-**Release Notes**: [CHANGELOG](CHANGELOG.md), [v2.7.0 Release Summary](docs/RELEASE_2.7.0_SUMMARY.md), [v2.0.0 Migration](docs/MIGRATION_V1_TO_V2.md)
+**Release Notes**: [CHANGELOG](CHANGELOG.md), [v2.6.0 Release Checklist](docs/releases/RELEASE_v2.6.0_CHECKLIST.md), [v2.6.0 Release Status](docs/releases/RELEASE_v2.6.0_STATUS.md)
 
 ---
 
@@ -148,9 +148,9 @@ cargo make ci                 # Full CI pipeline
 
 **Q: How does this differ from Cookiecutter/Yeoman?** A: Those are templating tools. ggen is a **semantic projection engine**—your ontology drives polyglot code generation with zero drift. 610 files of RDF integration prove it's architectural, not add-on.
 
-**Q: Is it production-ready?** A: **89% production readiness** (v2.7.0). Zero unsafe code, comprehensive E2E tests, real Oxigraph RDF store. Used in Fortune 500 e-commerce (70% fewer bugs, 3x faster delivery).
+**Q: Is it production-ready?** A: **89% production readiness** (v2.6.0). Zero unsafe code, comprehensive E2E tests, real Oxigraph RDF store. Used in Fortune 500 e-commerce (70% fewer bugs, 3x faster delivery).
 
-**Q: What's the learning curve?** A: 2 minutes to first generation (AI-powered). 20 minutes to understand ontology-driven benefits. Full mastery: explore [10 innovative patterns](docs/INNOVATIVE_COMMAND_COMBINATIONS.md).
+**Q: What's the learning curve?** A: 2 minutes to first generation (AI-powered). 20 minutes to understand ontology-driven benefits. Full mastery: explore [Architecture Explanation](docs/explanations/architecture.md).
 
 **Q: Can I use marketplace templates with custom ontologies?** A: **Yes!** That's Pattern #3. Install proven template, merge with your domain extensions, generate. Best of both worlds.
 
@@ -170,7 +170,7 @@ cargo make ci                 # Full CI pipeline
 
 **PATH Issues**: Find ggen with `find ~ -name ggen -type f 2>/dev/null`. Common locations: `~/.cargo/bin/ggen`, `~/.asdf/installs/rust/*/bin/ggen`, `/opt/homebrew/bin/ggen` (Apple Silicon), `/usr/local/bin/ggen` (Intel Mac). Add to PATH: `export PATH="$HOME/.cargo/bin:$PATH"` or add to `~/.zshrc`/`~/.bashrc`
 
-[Full troubleshooting guide](docs/install.md#troubleshooting-installation) | [Open an issue](https://github.com/seanchatmangpt/ggen/issues)
+[Full troubleshooting guide](docs/how-to-guides/installation.md) | [Open an issue](https://github.com/seanchatmangpt/ggen/issues)
 
 ---
 
@@ -206,4 +206,4 @@ MIT License - see [LICENSE](LICENSE)
 
 **Built with ❤️ using Rust, RDF, and SPARQL**
 
-**v2.7.0** | Nov 2025 | 89% Production Ready | 610 Files of Graph Integration | 782-Line E2E Test
+**v2.6.0** | Nov 2025 | 89% Production Ready | 610 Files of Graph Integration | 782-Line E2E Test
