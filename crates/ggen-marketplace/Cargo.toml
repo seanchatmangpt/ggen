@@ -1,6 +1,6 @@
 [package]
 name = "ggen-marketplace"
-version = "2.6.0"
+version = "2.7.0"
 edition = "2021"
 authors = ["Ggen Contributors"]
 description = "Core trait system for distributed package marketplace"

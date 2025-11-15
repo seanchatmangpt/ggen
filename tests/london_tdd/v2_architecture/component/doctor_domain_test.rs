@@ -1,268 +1,106 @@
-#![cfg(feature = "london_tdd")] // Fixed: use underscore not hyphen
+#![cfg(feature = "london_tdd")]
 //! London TDD component tests for doctor domain logic
 //!
-//! Tests the async business logic in `cli/src/domain/utils/doctor.rs` with mocked boundaries.
+//! Tests the async business logic in `ggen_domain::utils::doctor` with mocked boundaries.
 //!
 //! Coverage:
 //! - All system checks (Rust, Cargo, Git, GH, disk, network, permissions)
-//! - Check status transitions (Pass, Warn, Fail, Info)
+//! - Check status transitions (Ok, Warning, Error)
 //! - Verbose vs. normal output
 //! - Specific check execution
 //! - Environment info collection
-//! - Summary generation
 //! - Performance (<100ms per test)
 
-// Note: doctor module types have changed - these tests use old API
-// All tests commented out until updated to match current domain layer API
-// Tests need to be updated to use ggen_domain::utils::doctor types
-/*
-use ggen_domain::utils::doctor::{
-    CheckStatus, CheckResult, DoctorResult,
-};
+use ggen_domain::utils::doctor::{execute_doctor, CheckResult, CheckStatus, DoctorInput, DoctorResult};
 
 #[tokio::test]
-async fn test_check_status_as_str() {
-    // Uses old CheckStatus::Pass/Warn/Fail/Info - needs update to CheckStatus::Ok/Warning/Error
+async fn test_check_status_variants() {
+    // Verify CheckStatus enum variants exist
+    let _ok = CheckStatus::Ok;
+    let _warning = CheckStatus::Warning;
+    let _error = CheckStatus::Error;
 }
 
 #[tokio::test]
-async fn test_check_summary_defaults() {
-    let summary = CheckSummary::default();
-    assert_eq!(summary.total, 0);
-    assert_eq!(summary.passed, 0);
-    assert_eq!(summary.warnings, 0);
-    assert_eq!(summary.failures, 0);
-    assert_eq!(summary.info, 0);
-}
-
-#[tokio::test]
-async fn test_check_summary_has_failures() {
-    let summary = CheckSummary {
-        total: 5,
-        passed: 3,
-        warnings: 1,
-        failures: 1,
-        info: 0,
-    };
-    assert!(summary.has_failures());
-}
-
-#[tokio::test]
-async fn test_check_summary_no_failures() {
-    let summary = CheckSummary {
-        total: 5,
-        passed: 4,
-        warnings: 1,
-        failures: 0,
-        info: 0,
-    };
-    assert!(!summary.has_failures());
-}
-
-#[tokio::test]
-async fn test_check_summary_all_passed() {
-    let summary = CheckSummary {
-        total: 5,
-        passed: 5,
-        warnings: 0,
-        failures: 0,
-        info: 0,
-    };
-    assert!(summary.all_passed());
-}
-
-#[tokio::test]
-async fn test_check_summary_all_passed_with_warnings() {
-    let summary = CheckSummary {
-        total: 5,
-        passed: 4,
-        warnings: 1,
-        failures: 0,
-        info: 0,
-    };
-    assert!(!summary.all_passed());
-}
-
-#[tokio::test]
-async fn test_system_check_creation() {
-    let check = SystemCheck {
+async fn test_check_result_structure() {
+    let check = CheckResult {
         name: "Rust".to_string(),
-        status: CheckStatus::Pass,
+        status: CheckStatus::Ok,
         message: "Rust is installed".to_string(),
-        details: None,
-        required: true,
     };
 
     assert_eq!(check.name, "Rust");
-    assert_eq!(check.status, CheckStatus::Pass);
-    assert!(check.required);
+    assert_eq!(check.status, CheckStatus::Ok);
+    assert_eq!(check.message, "Rust is installed");
 }
 
 #[tokio::test]
-async fn test_system_check_with_details() {
-    let check = SystemCheck {
-        name: "Git".to_string(),
-        status: CheckStatus::Warn,
-        message: "Git is not installed".to_string(),
-        details: Some("Install from https://git-scm.com".to_string()),
-        required: false,
-    };
-
-    assert!(check.details.is_some());
-    assert!(check.details.as_ref().unwrap().contains("git-scm.com"));
+async fn test_doctor_input_default() {
+    let input = DoctorInput::default();
+    assert!(!input.verbose);
+    assert!(input.check.is_none());
+    assert!(!input.env);
 }
 
 #[tokio::test]
-async fn test_system_check_result_structure() {
-    let checks = vec![
-        SystemCheck {
-            name: "Rust".to_string(),
-            status: CheckStatus::Pass,
-            message: "OK".to_string(),
-            details: None,
-            required: true,
-        },
-        SystemCheck {
-            name: "Cargo".to_string(),
-            status: CheckStatus::Pass,
-            message: "OK".to_string(),
-            details: None,
-            required: true,
-        },
-    ];
-
-    let summary = CheckSummary {
-        total: 2,
-        passed: 2,
-        warnings: 0,
-        failures: 0,
-        info: 0,
+async fn test_doctor_input_custom() {
+    let input = DoctorInput {
+        verbose: true,
+        check: Some("rust".to_string()),
+        env: true,
     };
 
-    let result = SystemCheckResult {
-        checks,
-        summary,
-        check_duration_ms: 50,
-    };
-
-    assert_eq!(result.checks.len(), 2);
-    assert_eq!(result.summary.total, 2);
-    assert_eq!(result.check_duration_ms, 50);
+    assert!(input.verbose);
+    assert_eq!(input.check.as_deref(), Some("rust"));
+    assert!(input.env);
 }
 
 #[tokio::test]
-async fn test_summary_calculation() {
-    let checks = vec![
-        SystemCheck {
-            name: "Check1".to_string(),
-            status: CheckStatus::Pass,
-            message: "OK".to_string(),
-            details: None,
-            required: true,
-        },
-        SystemCheck {
-            name: "Check2".to_string(),
-            status: CheckStatus::Warn,
-            message: "Warning".to_string(),
-            details: None,
-            required: false,
-        },
-        SystemCheck {
-            name: "Check3".to_string(),
-            status: CheckStatus::Fail,
-            message: "Failed".to_string(),
-            details: Some("Fix instructions".to_string()),
-            required: true,
-        },
-        SystemCheck {
-            name: "Check4".to_string(),
-            status: CheckStatus::Info,
-            message: "Info".to_string(),
-            details: None,
-            required: false,
-        },
-    ];
-
-    let mut summary = CheckSummary {
-        total: checks.len(),
-        ..Default::default()
+async fn test_execute_doctor_basic() {
+    let input = DoctorInput {
+        verbose: false,
+        check: None,
+        env: false,
     };
 
-    for check in &checks {
-        match check.status {
-            CheckStatus::Pass => summary.passed += 1,
-            CheckStatus::Warn => summary.warnings += 1,
-            CheckStatus::Fail => summary.failures += 1,
-            CheckStatus::Info => summary.info += 1,
-        }
-    }
+    let result = execute_doctor(input).await;
+    assert!(result.is_ok(), "Doctor execution should succeed");
 
-    assert_eq!(summary.total, 4);
-    assert_eq!(summary.passed, 1);
-    assert_eq!(summary.warnings, 1);
-    assert_eq!(summary.failures, 1);
-    assert_eq!(summary.info, 1);
-    assert!(summary.has_failures());
-    assert!(!summary.all_passed());
+    let doctor_result = result.unwrap();
+    assert!(!doctor_result.checks.is_empty(), "Should have at least one check");
+    assert!(doctor_result.environment.is_none(), "Environment should not be included when env=false");
 }
 
-/// Test component execution performance
 #[tokio::test]
-async fn test_component_test_performance() {
-    let start = std::time::Instant::now();
-
-    // Simulate check logic
-    let _checks = vec![
-        CheckStatus::Pass,
-        CheckStatus::Pass,
-        CheckStatus::Warn,
-        CheckStatus::Info,
-    ];
-
-    let summary = CheckSummary {
-        total: 4,
-        passed: 2,
-        warnings: 1,
-        failures: 0,
-        info: 1,
+async fn test_execute_doctor_with_env() {
+    let input = DoctorInput {
+        verbose: false,
+        check: None,
+        env: true,
     };
 
-    let elapsed = start.elapsed();
+    let result = execute_doctor(input).await;
+    assert!(result.is_ok(), "Doctor execution should succeed");
 
-    assert!(!summary.all_passed()); // Has warnings
-    assert!(!summary.has_failures());
-    assert!(
-        elapsed.as_millis() < 10,
-        "Component test took {:?} (expected <10ms)",
-        elapsed
-    );
+    let doctor_result = result.unwrap();
+    assert!(doctor_result.environment.is_some(), "Environment should be included when env=true");
 }
 
-/// Test required vs. optional checks
 #[tokio::test]
-async fn test_required_and_optional_checks() {
-    let checks = vec![
-        SystemCheck {
-            name: "Rust".to_string(),
-            status: CheckStatus::Pass,
-            message: "OK".to_string(),
-            details: None,
-            required: true,
-        },
-        SystemCheck {
-            name: "GitHub CLI".to_string(),
-            status: CheckStatus::Info,
-            message: "Not installed".to_string(),
-            details: Some("Optional".to_string()),
-            required: false,
-        },
-    ];
+async fn test_execute_doctor_specific_check() {
+    let input = DoctorInput {
+        verbose: false,
+        check: Some("rust".to_string()),
+        env: false,
+    };
 
-    let required_count = checks.iter().filter(|c| c.required).count();
-    let optional_count = checks.iter().filter(|c| !c.required).count();
+    let result = execute_doctor(input).await;
+    assert!(result.is_ok(), "Doctor execution should succeed");
 
-    assert_eq!(required_count, 1);
-    assert_eq!(optional_count, 1);
+    let doctor_result = result.unwrap();
+    // Should have at least the rust check
+    assert!(!doctor_result.checks.is_empty());
+    assert!(doctor_result.checks.iter().any(|c| c.name == "Rust"));
 }
 
 /// Test performance: Component suite should be fast
@@ -270,23 +108,13 @@ async fn test_required_and_optional_checks() {
 async fn test_component_suite_performance() {
     let start = std::time::Instant::now();
 
-    // Run 10 minimal component tests
-    for _ in 0..10 {
-        let summary = CheckSummary {
-            total: 5,
-            passed: 5,
-            warnings: 0,
-            failures: 0,
-            info: 0,
-        };
-        assert!(summary.all_passed());
-    }
+    let input = DoctorInput::default();
+    let _result = execute_doctor(input).await;
 
     let elapsed = start.elapsed();
     assert!(
-        elapsed.as_millis() < 50,
-        "10 component tests took {:?} (expected <50ms)",
+        elapsed.as_millis() < 1000,
+        "Doctor execution took {:?} (expected <1000ms)",
         elapsed
     );
 }
-*/
