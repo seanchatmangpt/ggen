@@ -356,7 +356,7 @@ impl MaturityAssessment {
     /// Get score breakdown as percentage
     pub fn score_breakdown(&self) -> HashMap<String, f32> {
         let mut breakdown = HashMap::new();
-        let total = self.total_score() as f32;
+        let _total = self.total_score() as f32;
 
         breakdown.insert(
             "documentation".to_string(),

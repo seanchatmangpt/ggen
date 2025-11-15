@@ -5,7 +5,6 @@
 
 use crate::maturity::*;
 use serde::{Deserialize, Serialize};
-use std::path::Path;
 
 /// Package evaluation input data
 #[derive(Debug, Clone, Serialize, Deserialize)]
