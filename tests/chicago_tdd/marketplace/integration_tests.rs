@@ -4,6 +4,7 @@
 //! not mocks like London School TDD. We verify actual behavior with real
 //! file system operations using tempdir.
 
+#[allow(unused_imports)] // Macros are used in submodules
 use chicago_tdd_tools::prelude::*;
 use ggen_utils::error::Result;
 use std::fs;
@@ -59,7 +60,8 @@ keywords = ["rust", "cli", "template"]
 
 #[cfg(test)]
 mod search_tests {
-    use super::*;
+    use super::setup_test_env;
+    use chicago_tdd_tools::prelude::*;
     use ggen_domain::marketplace::search::{search_packages, SearchFilters};
 
     async_test!(test_search_finds_exact_match, {
@@ -294,7 +296,9 @@ mod update_tests {
 
 #[cfg(test)]
 mod publish_tests {
-    use super::*;
+    use chicago_tdd_tools::prelude::*;
+    use std::fs;
+    use tempfile::TempDir;
 
     test!(test_publish_validates_cargo_toml_exists, {
         // Arrange

@@ -3,8 +3,8 @@
 //! This module provides trace-based validation that all README capabilities
 //! work correctly end-to-end using OpenTelemetry instrumentation.
 
-use anyhow::{Context, Result};
 use ggen_core::telemetry::{init_telemetry, shutdown_telemetry, TelemetryConfig};
+use ggen_utils::error::{Error, Result};
 use opentelemetry::{global, trace::Tracer, KeyValue};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
@@ -75,17 +75,20 @@ impl TraceCollector {
 
     pub fn assert_span_exists(&self, name: &str) -> Result<()> {
         self.find_span(name)
-            .context(format!("Expected span '{}' not found", name))?;
+            .ok_or_else(|| Error::new(&format!("Expected span '{}' not found", name)))?;
         Ok(())
     }
 
     pub fn assert_span_success(&self, name: &str) -> Result<()> {
         let span = self
             .find_span(name)
-            .context(format!("Span '{}' not found", name))?;
+            .ok_or_else(|| Error::new(&format!("Span '{}' not found", name)))?;
 
         if span.status != SpanStatus::Ok {
-            anyhow::bail!("Span '{}' did not complete successfully", name);
+            return Err(Error::new(&format!(
+                "Span '{}' did not complete successfully",
+                name
+            )));
         }
         Ok(())
     }
@@ -93,15 +96,13 @@ impl TraceCollector {
     pub fn assert_duration_under(&self, name: &str, max_ms: f64) -> Result<()> {
         let span = self
             .find_span(name)
-            .context(format!("Span '{}' not found", name))?;
+            .ok_or_else(|| Error::new(&format!("Span '{}' not found", name)))?;
 
         if span.duration_ms > max_ms {
-            anyhow::bail!(
+            return Err(Error::new(&format!(
                 "Span '{}' took {}ms (expected <{}ms)",
-                name,
-                span.duration_ms,
-                max_ms
-            );
+                name, span.duration_ms, max_ms
+            )));
         }
         Ok(())
     }

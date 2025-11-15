@@ -1,6 +1,6 @@
-use anyhow::Result;
 use ggen_core::pipeline::PipelineBuilder;
 use ggen_core::simple_tracing::SimpleTracer;
+use ggen_utils::error::Result;
 use std::collections::BTreeMap;
 use std::fs;
 use std::path::Path;

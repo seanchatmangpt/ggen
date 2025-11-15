@@ -4,6 +4,7 @@
 //! This module provides reusable mocks and utilities for testing
 //! ggen CLI capabilities using London School TDD principles.
 
+use ggen_utils::error::Error as GgenError;
 use mockall::predicate::*;
 use mockall::*;
 use std::collections::HashMap;
@@ -28,35 +29,35 @@ pub trait Filesystem: Send + Sync {
 #[allow(dead_code)]
 #[automock]
 pub trait HttpClient: Send + Sync {
-    fn get(&self, url: &str) -> Result<String, anyhow::Error>;
-    fn post(&self, url: &str, body: &str) -> Result<String, anyhow::Error>;
-    fn download_file(&self, url: &str, dest: &str) -> Result<(), anyhow::Error>;
+    fn get(&self, url: &str) -> Result<String, GgenError>;
+    fn post(&self, url: &str, body: &str) -> Result<String, GgenError>;
+    fn download_file(&self, url: &str, dest: &str) -> Result<(), GgenError>;
 }
 
 /// Mock LLM client for AI operations
 #[allow(dead_code)]
 #[automock]
 pub trait LlmClient: Send + Sync {
-    fn generate(&self, prompt: &str, model: &str) -> Result<String, anyhow::Error>;
-    fn stream_generate(&self, prompt: &str, model: &str) -> Result<Vec<String>, anyhow::Error>;
+    fn generate(&self, prompt: &str, model: &str) -> Result<String, GgenError>;
+    fn stream_generate(&self, prompt: &str, model: &str) -> Result<Vec<String>, GgenError>;
 }
 
 /// Mock marketplace/registry client
 #[allow(dead_code)]
 #[automock]
 pub trait MarketplaceClient: Send + Sync {
-    fn search(&self, query: &str) -> Result<Vec<Package>, anyhow::Error>;
-    fn download(&self, package_id: &str) -> Result<Vec<u8>, anyhow::Error>;
-    fn list_categories(&self) -> Result<Vec<String>, anyhow::Error>;
+    fn search(&self, query: &str) -> Result<Vec<Package>, GgenError>;
+    fn download(&self, package_id: &str) -> Result<Vec<u8>, GgenError>;
+    fn list_categories(&self) -> Result<Vec<String>, GgenError>;
 }
 
 /// Mock GitHub API client
 #[allow(dead_code)]
 #[automock]
 pub trait GitHubClient: Send + Sync {
-    fn get_pages_status(&self, repo: &str) -> Result<PagesStatus, anyhow::Error>;
-    fn get_workflow_status(&self, repo: &str) -> Result<Vec<WorkflowRun>, anyhow::Error>;
-    fn trigger_workflow(&self, repo: &str, workflow: &str) -> Result<(), anyhow::Error>;
+    fn get_pages_status(&self, repo: &str) -> Result<PagesStatus, GgenError>;
+    fn get_workflow_status(&self, repo: &str) -> Result<Vec<WorkflowRun>, GgenError>;
+    fn trigger_workflow(&self, repo: &str, workflow: &str) -> Result<(), GgenError>;
 }
 
 /// Package information from marketplace

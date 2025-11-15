@@ -1,6 +1,6 @@
 // Shared test utilities for E2E validation
 
-use anyhow::Result;
+use ggen_utils::error::{Error, Result};
 use std::path::{Path, PathBuf};
 use std::process::Command as StdCommand;
 use tempfile::TempDir;
@@ -19,7 +19,10 @@ pub fn verify_rust_project_builds(project_dir: &Path) -> Result<()> {
 
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);
-        anyhow::bail!("Rust project failed to build:\n{}", stderr);
+        return Err(Error::new(&format!(
+            "Rust project failed to build:\n{}",
+            stderr
+        )));
     }
 
     Ok(())
@@ -29,11 +32,11 @@ pub fn verify_rust_project_builds(project_dir: &Path) -> Result<()> {
 pub fn verify_file_contains(file_path: &Path, expected: &str) -> Result<()> {
     let content = std::fs::read_to_string(file_path)?;
     if !content.contains(expected) {
-        anyhow::bail!(
+        return Err(Error::new(&format!(
             "File {} does not contain expected text: {}",
             file_path.display(),
             expected
-        );
+        )));
     }
     Ok(())
 }
