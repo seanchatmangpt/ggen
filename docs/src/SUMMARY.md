@@ -11,6 +11,7 @@ Tutorials are learning-oriented, step-by-step guides that teach you how to accom
 - [AI-Powered Generation](tutorials/ai-powered-generation.md)
 - [Marketplace Workflow](tutorials/marketplace-workflow.md)
 - [Creating Marketplace Packages](tutorials/marketplace-packages.md)
+- [Maturity Progression](tutorials/maturity-progression.md)
 
 # How-to Guides
 
@@ -19,6 +20,8 @@ How-to guides are problem-oriented, task-based guides that help you solve specif
 - [Installation](how-to-guides/installation.md)
 - [Create Templates](how-to-guides/create-templates.md)
 - [Testing Strategy](how-to-guides/testing-strategy.md)
+- [Cleanroom Testing](how-to-guides/cleanroom-testing.md)
+- [Post-Quantum Cryptography](how-to-guides/post-quantum-cryptography.md)
 - [Use RDF Ontologies](how-to-guides/use-rdf-ontologies.md)
 - [Troubleshoot RDF & SPARQL](how-to-guides/troubleshoot-rdf-sparql.md)
 - [Configure Hooks](how-to-guides/configure-hooks.md)
@@ -42,6 +45,8 @@ Explanations provide background information and conceptual understanding.
 
 - [Architecture](explanations/architecture.md)
 - [Architecture Deep Dive](explanations/architecture-deep-dive.md)
+- [Ultrathink Autonomous Intelligence](explanations/ultrathink-autonomous-intelligence.md)
+- [Poka-Yoke: Error Prevention by Design](explanations/poka-yoke-design.md)
 - [Ontology-Driven Development](explanations/ontology-driven.md)
 - [Determinism](explanations/determinism.md)
 - [Code Projections](explanations/projections.md)
