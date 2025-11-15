@@ -10,6 +10,7 @@ Tutorials are learning-oriented, step-by-step guides that teach you how to accom
 - [Ontology-to-Code Workflow](tutorials/ontology-to-code.md)
 - [AI-Powered Generation](tutorials/ai-powered-generation.md)
 - [Marketplace Workflow](tutorials/marketplace-workflow.md)
+- [Creating Marketplace Packages](tutorials/marketplace-packages.md)
 
 # How-to Guides
 
@@ -17,6 +18,7 @@ How-to guides are problem-oriented, task-based guides that help you solve specif
 
 - [Installation](how-to-guides/installation.md)
 - [Create Templates](how-to-guides/create-templates.md)
+- [Testing Strategy](how-to-guides/testing-strategy.md)
 - [Use RDF Ontologies](how-to-guides/use-rdf-ontologies.md)
 - [Configure Hooks](how-to-guides/configure-hooks.md)
 - [Deploy Production](how-to-guides/deploy-production.md)
@@ -26,6 +28,7 @@ How-to guides are problem-oriented, task-based guides that help you solve specif
 
 Reference documentation provides complete, accurate information about ggen's features.
 
+- [Examples Catalog](reference/examples-catalog.md)
 - [CLI Reference](reference/cli.md)
 - [Template Reference](reference/templates.md)
 - [RDF/SPARQL Reference](reference/rdf-sparql.md)
