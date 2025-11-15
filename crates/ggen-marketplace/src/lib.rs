@@ -80,6 +80,7 @@ pub mod types;
 pub mod maturity;
 pub mod maturity_evaluator;
 pub mod workflow_analytics;
+pub mod assessment_helpers;
 
 // OpenTelemetry instrumentation
 pub mod telemetry;
@@ -123,4 +124,9 @@ pub mod prelude {
     pub use crate::models::{ContentId, HashAlgorithm, Package, PackageId, Query, Version};
     pub use crate::storage::{FilesystemStore, MemoryStore};
     pub use crate::traits::{CryptoVerifier, PackageStore, Registry, SearchEngine};
+    pub use crate::assessment_helpers::{
+        sample_packages, generate_all_assessments, filter_by_level, filter_by_score_range,
+        filter_by_dimensions, get_recommendations, compare_assessments, export_as_json,
+        export_as_csv, find_for_use_case,
+    };
 }
