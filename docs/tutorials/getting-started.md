@@ -1,8 +1,12 @@
 # Getting Started with ggen
 
+**Type: Tutorial** | [← Back to Documentation](../README.md) | ⏱️ **5 minutes**
+
 **Goal:** Install ggen and generate your first code from an RDF ontology in under 5 minutes.
 
 **What you'll learn:** The core ggen workflow: ontology → SPARQL queries → code generation.
+
+---
 
 ## Prerequisites
 
