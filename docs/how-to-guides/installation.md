@@ -1,5 +1,9 @@
 # How to Install ggen
 
+**Type: How-to Guide** | [← Back to Documentation](../README.md)
+
+> Step-by-step installation instructions for all platforms. New to ggen? Try the [Getting Started Tutorial](../tutorials/getting-started.md) instead.
+
 Complete installation guide for all platforms and methods.
 
 ## Prerequisites

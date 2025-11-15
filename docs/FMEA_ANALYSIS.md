@@ -1,5 +1,11 @@
 # FMEA Analysis - Documentation and Code Quality System
 
+**Type: Explanation** | [← Back to Documentation](README.md)
+
+> Learn how ggen uses Failure Mode and Effects Analysis (FMEA) to systematically identify and prevent quality failures. See also: [Poke-Yoke: Error Prevention Design](explanations/poke-yoke.md)
+
+---
+
 ## Scope Definition
 
 **What**: Documentation system and code quality for ggen project

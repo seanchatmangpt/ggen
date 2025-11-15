@@ -50,11 +50,12 @@ Complete, accurate information about ggen's features:
 Background information and conceptual explanations:
 
 - **[Architecture](explanations/architecture.md)** - System architecture and design
-- **[Development Workflow](DEVELOPMENT_WORKFLOW.md)** - Development practices, testing, and quality assurance
 - **[Ontology-Driven Development](explanations/ontology-driven.md)** - Why ontology-driven development
 - **[Determinism](explanations/determinism.md)** - How determinism works
 - **[Code Projections](explanations/projections.md)** - How code projections work
 - **[Marketplace Ecosystem](explanations/marketplace.md)** - Marketplace ecosystem overview
+- **[Quality & Reliability: FMEA Analysis](FMEA_ANALYSIS.md)** - How ggen uses systematic failure analysis to ensure quality
+- **[Error Prevention: Poke-Yoke Design](explanations/poke-yoke.md)** - How single-source-of-truth ontology prevents errors
 
 ## Common Tasks
 
@@ -68,6 +69,7 @@ Background information and conceptual explanations:
 - **Understand how it works** → [Architecture Explanation](explanations/architecture.md)
 - **Troubleshoot a problem** → [Troubleshooting Guide](how-to-guides/troubleshoot.md)
 - **See all commands** → [CLI Reference](reference/cli.md)
+- **Learn about quality & error prevention** → [FMEA Analysis](FMEA_ANALYSIS.md) & [Poke-Yoke Design](explanations/poke-yoke.md)
 
 ## Documentation Principles
 
