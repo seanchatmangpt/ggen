@@ -127,7 +127,7 @@ struct SubmissionInfo {
 fn new(
     name: String,
     template: Option<String>,
-    discipline: Option<String>,
+    _discipline: Option<String>,
     output: Option<PathBuf>,
 ) -> Result<NewPaperOutput> {
     let template = template.unwrap_or_else(|| "arxiv".to_string());
@@ -169,7 +169,7 @@ fn new(
 fn generate(
     paper_file: PathBuf,
     style: Option<String>,
-    template: Option<PathBuf>,
+    _template: Option<PathBuf>,
     output: Option<PathBuf>,
 ) -> Result<GenerateOutput> {
     let style = style.unwrap_or_else(|| "arxiv".to_string());
@@ -210,7 +210,7 @@ fn generate(
 #[verb]
 fn validate(
     paper_file: PathBuf,
-    check: Option<String>,
+    _check: Option<String>,
     strict: bool,
 ) -> Result<ValidateOutput> {
     let mut errors = vec![];
@@ -350,7 +350,7 @@ fn compile(
     engine: Option<String>,
     bibtex: bool,
 ) -> Result<CompileOutput> {
-    let engine = engine.unwrap_or_else(|| "pdflatex".to_string());
+    let _engine = engine.unwrap_or_else(|| "pdflatex".to_string());
     let mut output_pdf = tex_file.clone();
     output_pdf.set_extension("pdf");
 
@@ -422,7 +422,7 @@ fn init_bibliography(
 fn submit(
     paper_file: PathBuf,
     venue: String,
-    metadata: Option<PathBuf>,
+    _metadata: Option<PathBuf>,
 ) -> Result<SubmitOutput> {
     Ok(SubmitOutput {
         paper_file: paper_file.display().to_string(),
@@ -448,7 +448,7 @@ fn submit(
 /// ggen paper track research.rdf --venue neurips-2024
 /// ```
 #[verb]
-fn track(paper_file: PathBuf, venue: Option<String>) -> Result<TrackOutput> {
+fn track(paper_file: PathBuf, _venue: Option<String>) -> Result<TrackOutput> {
     Ok(TrackOutput {
         paper_file: paper_file.display().to_string(),
         current_status: "draft".to_string(),
