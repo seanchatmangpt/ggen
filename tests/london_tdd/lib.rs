@@ -14,6 +14,7 @@ pub use fake::{Fake, Faker};
 pub use tempfile::TempDir;
 
 /// Mock filesystem for testing file operations
+#[allow(dead_code)]
 #[automock]
 pub trait Filesystem: Send + Sync {
     fn read_file(&self, path: &str) -> Result<String, std::io::Error>;
@@ -24,6 +25,7 @@ pub trait Filesystem: Send + Sync {
 }
 
 /// Mock HTTP client for network requests
+#[allow(dead_code)]
 #[automock]
 pub trait HttpClient: Send + Sync {
     fn get(&self, url: &str) -> Result<String, anyhow::Error>;
@@ -32,6 +34,7 @@ pub trait HttpClient: Send + Sync {
 }
 
 /// Mock LLM client for AI operations
+#[allow(dead_code)]
 #[automock]
 pub trait LlmClient: Send + Sync {
     fn generate(&self, prompt: &str, model: &str) -> Result<String, anyhow::Error>;
@@ -39,6 +42,7 @@ pub trait LlmClient: Send + Sync {
 }
 
 /// Mock marketplace/registry client
+#[allow(dead_code)]
 #[automock]
 pub trait MarketplaceClient: Send + Sync {
     fn search(&self, query: &str) -> Result<Vec<Package>, anyhow::Error>;
@@ -47,6 +51,7 @@ pub trait MarketplaceClient: Send + Sync {
 }
 
 /// Mock GitHub API client
+#[allow(dead_code)]
 #[automock]
 pub trait GitHubClient: Send + Sync {
     fn get_pages_status(&self, repo: &str) -> Result<PagesStatus, anyhow::Error>;
@@ -55,6 +60,7 @@ pub trait GitHubClient: Send + Sync {
 }
 
 /// Package information from marketplace
+#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct Package {
     pub id: String,
@@ -65,6 +71,7 @@ pub struct Package {
 }
 
 /// GitHub Pages deployment status
+#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct PagesStatus {
     pub status: String,
@@ -73,6 +80,7 @@ pub struct PagesStatus {
 }
 
 /// GitHub workflow run information
+#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct WorkflowRun {
     pub id: u64,
@@ -94,6 +102,7 @@ pub fn create_mock_template(dir: &TempDir, name: &str, content: &str) -> PathBuf
 }
 
 /// Test helper to create a mock config file
+#[allow(dead_code)]
 pub fn create_mock_config(dir: &TempDir, config: &str) -> PathBuf {
     let path = dir.path().join("config.toml");
     std::fs::write(&path, config).expect("Failed to write config");
@@ -105,6 +114,7 @@ pub mod otel {
     use std::sync::{Arc, Mutex};
 
     /// Mock span for testing OpenTelemetry instrumentation
+    #[allow(dead_code)]
     #[derive(Debug, Clone)]
     pub struct MockSpan {
         pub name: String,
@@ -113,6 +123,7 @@ pub mod otel {
         pub status: SpanStatus,
     }
 
+    #[allow(dead_code)]
     #[derive(Debug, Clone, PartialEq)]
     pub enum SpanStatus {
         Unset,
@@ -141,6 +152,7 @@ pub mod otel {
             self.spans.lock().unwrap().clone()
         }
 
+        #[allow(dead_code)]
         pub fn clear(&self) {
             self.spans.lock().unwrap().clear();
         }
@@ -176,10 +188,12 @@ pub mod generators {
         }
     }
 
+    #[allow(dead_code)]
     pub fn fake_packages(count: usize) -> Vec<Package> {
         (0..count).map(|_| fake_package()).collect()
     }
 
+    #[allow(dead_code)]
     pub fn fake_pages_status() -> PagesStatus {
         PagesStatus {
             status: "built".to_string(),
@@ -188,6 +202,7 @@ pub mod generators {
         }
     }
 
+    #[allow(dead_code)]
     pub fn fake_workflow_run() -> WorkflowRun {
         WorkflowRun {
             id: Faker.fake(),

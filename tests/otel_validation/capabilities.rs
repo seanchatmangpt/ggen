@@ -16,7 +16,7 @@ pub async fn validate_quickstart(ctx: &ValidationContext) -> Result<ValidationRe
 
     // Test: quickstart demo command
     let output = Command::new("cargo")
-        .args(&["run", "--", "quickstart", "demo", "--dry-run"])
+        .args(["run", "--", "quickstart", "demo", "--dry-run"])
         .output();
 
     match output {
@@ -59,7 +59,7 @@ pub async fn validate_ai_generation(ctx: &ValidationContext) -> Result<Validatio
 
     // Test: AI template generation (dry-run)
     let output = Command::new("cargo")
-        .args(&[
+        .args([
             "run",
             "--",
             "ai",
@@ -112,9 +112,7 @@ pub async fn validate_doctor(ctx: &ValidationContext) -> Result<ValidationResult
     let start = Instant::now();
     let mut errors = Vec::new();
 
-    let output = Command::new("cargo")
-        .args(&["run", "--", "doctor"])
-        .output();
+    let output = Command::new("cargo").args(["run", "--", "doctor"]).output();
 
     match output {
         Ok(out) if out.status.success() => {
@@ -155,7 +153,7 @@ pub async fn validate_lifecycle(ctx: &ValidationContext) -> Result<ValidationRes
 
     // Test: lifecycle list command
     let output = Command::new("cargo")
-        .args(&["run", "--", "lifecycle", "list"])
+        .args(["run", "--", "lifecycle", "list"])
         .output();
 
     match output {
@@ -196,7 +194,7 @@ pub async fn validate_marketplace(ctx: &ValidationContext) -> Result<ValidationR
     let mut errors = Vec::new();
 
     let output = Command::new("cargo")
-        .args(&["run", "--", "search", "rust"])
+        .args(["run", "--", "search", "rust"])
         .output();
 
     match output {
@@ -239,7 +237,7 @@ pub async fn validate_github(ctx: &ValidationContext) -> Result<ValidationResult
     let mut errors = Vec::new();
 
     let output = Command::new("cargo")
-        .args(&["run", "--", "github", "pages-status"])
+        .args(["run", "--", "github", "pages-status"])
         .output();
 
     match output {
@@ -282,7 +280,7 @@ pub async fn validate_generation_performance(ctx: &ValidationContext) -> Result<
     let mut errors = Vec::new();
 
     let output = Command::new("cargo")
-        .args(&[
+        .args([
             "run",
             "--",
             "gen",
@@ -333,7 +331,7 @@ pub async fn validate_deterministic(ctx: &ValidationContext) -> Result<Validatio
 
     // Generate same template twice, verify identical output
     let output1 = Command::new("cargo")
-        .args(&[
+        .args([
             "run",
             "--",
             "gen",
@@ -344,7 +342,7 @@ pub async fn validate_deterministic(ctx: &ValidationContext) -> Result<Validatio
         .output();
 
     let output2 = Command::new("cargo")
-        .args(&[
+        .args([
             "run",
             "--",
             "gen",

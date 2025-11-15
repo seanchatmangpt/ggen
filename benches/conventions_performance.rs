@@ -40,8 +40,9 @@
 //! cargo bench --bench conventions_performance -- incremental
 //! ```
 
-use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
+use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 use std::fs;
+use std::hint::black_box;
 use std::io::Write as IoWrite;
 use std::path::{Path, PathBuf};
 use std::time::{Duration, Instant};
@@ -241,7 +242,7 @@ fn bench_build_generation_plan(c: &mut Criterion) {
 
     group.bench_function("typical_clap_project", |b| {
         b.iter_batched(
-            || setup_typical_clap_project(),
+            setup_typical_clap_project,
             |temp_dir| {
                 let start = Instant::now();
                 let plan = build_generation_plan(temp_dir.path());
@@ -337,7 +338,7 @@ fn bench_watch_mode_latency(c: &mut Criterion) {
 
     group.bench_function("detect_and_plan_regeneration", |b| {
         b.iter_batched(
-            || setup_watch_mode_project(),
+            setup_watch_mode_project,
             |temp_dir| {
                 let template_file = temp_dir.path().join(".ggen/templates/main.tera");
 
@@ -396,7 +397,7 @@ fn bench_incremental_generation(c: &mut Criterion) {
 
     group.bench_function("cache_hit_rate_90_percent", |b| {
         b.iter_batched(
-            || setup_incremental_project(),
+            setup_incremental_project,
             |temp_dir| {
                 let cache_dir = temp_dir.path().join(".ggen/cache");
                 fs::create_dir_all(&cache_dir).unwrap();
@@ -486,7 +487,7 @@ fn bench_full_project_generation(c: &mut Criterion) {
 
     group.bench_function("clap_noun_verb_project", |b| {
         b.iter_batched(
-            || setup_full_clap_project(),
+            setup_full_clap_project,
             |temp_dir| {
                 let start = Instant::now();
 

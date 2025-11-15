@@ -345,9 +345,6 @@ macro_rules! time_operation {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::prelude::*;
-    use std::fs;
-    use tempfile::TempDir;
 
     test!(test_trace_level_ordering, {
         assert!(TraceLevel::Error < TraceLevel::Warn);

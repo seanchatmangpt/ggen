@@ -2,7 +2,6 @@
 // Outside-in testing approach: Start with acceptance tests, then unit tests
 
 use anyhow::Result;
-use mockall::mock;
 use mockall::predicate::*;
 use std::path::{Path, PathBuf};
 use tempfile::TempDir;
@@ -15,9 +14,12 @@ use tokio::fs;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ProjectType {
     RustWeb,
+    #[allow(dead_code)]
     RustCli,
+    #[allow(dead_code)]
     RustLib,
     NextJs,
+    #[allow(dead_code)]
     Nuxt,
 }
 
@@ -42,6 +44,7 @@ pub struct ProjectStructure {
 #[cfg_attr(test, mockall::automock)]
 pub trait ProjectGenerator: Send + Sync {
     fn generate(&self, config: &ProjectConfig) -> Result<ProjectStructure>;
+    #[allow(dead_code)]
     fn supported_types(&self) -> Vec<ProjectType>;
 }
 

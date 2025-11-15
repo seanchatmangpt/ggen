@@ -488,9 +488,9 @@ mod tests {
     #[test]
     fn test_testcontainers_config_values() {
         // Ports should be valid
-        assert!(default_http_port() > 0 && default_http_port() <= 65535);
-        assert!(default_https_port() > 0 && default_https_port() <= 65535);
-        assert!(default_http_alt_port() > 0 && default_http_alt_port() <= 65535);
+        assert!(default_http_port() > 0);
+        assert!(default_https_port() > 0);
+        assert!(default_http_alt_port() > 0);
 
         // Counts should be positive
         assert!(concurrent_containers_count() > 0);
