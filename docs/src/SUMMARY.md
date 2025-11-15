@@ -34,9 +34,27 @@ How-to guides are problem-oriented, task-based guides that help you solve specif
 ## Marketplace Maturity
 - [Assess Package Maturity](how-to-guides/assess-package-maturity.md)
   - Understand maturity scores
-  - Compare packages
+  - Scenario-based guidance
   - Make go/no-go decisions
   - Act on assessment results
+
+- [Get Package Recommendations](how-to-guides/package-recommendations.md)
+  - Find packages for your use case
+  - Production, research, enterprise, startup
+  - Priority-based filtering
+  - Combine with validation
+
+- [Compare Packages](how-to-guides/compare-packages.md)
+  - Side-by-side comparison
+  - Dimension-by-dimension analysis
+  - Export for sharing
+  - Decision workflows
+
+- [Advanced Marketplace Search](how-to-guides/advanced-marketplace-search.md)
+  - Filter by dimension scores
+  - Complex search queries
+  - Real-world scenarios
+  - Industry-specific searches
 
 - [Set Up Maturity Gates in CI/CD](how-to-guides/maturity-cicd-gates.md)
   - Enforce quality standards
