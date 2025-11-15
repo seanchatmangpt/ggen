@@ -125,10 +125,7 @@ struct SubmissionInfo {
 /// ```
 #[verb]
 fn new(
-    name: String,
-    template: Option<String>,
-    discipline: Option<String>,
-    output: Option<PathBuf>,
+    name: String, template: Option<String>, _discipline: Option<String>, output: Option<PathBuf>,
 ) -> Result<NewPaperOutput> {
     let template = template.unwrap_or_else(|| "arxiv".to_string());
     let output_path = output.unwrap_or_else(|| PathBuf::from("."));
@@ -167,10 +164,7 @@ fn new(
 /// ```
 #[verb]
 fn generate(
-    paper_file: PathBuf,
-    style: Option<String>,
-    template: Option<PathBuf>,
-    output: Option<PathBuf>,
+    paper_file: PathBuf, style: Option<String>, _template: Option<PathBuf>, output: Option<PathBuf>,
 ) -> Result<GenerateOutput> {
     let style = style.unwrap_or_else(|| "arxiv".to_string());
     let output_path = output.unwrap_or_else(|| {
@@ -208,11 +202,7 @@ fn generate(
 /// ggen paper validate thesis.rdf --strict
 /// ```
 #[verb]
-fn validate(
-    paper_file: PathBuf,
-    check: Option<String>,
-    strict: bool,
-) -> Result<ValidateOutput> {
+fn validate(paper_file: PathBuf, _check: Option<String>, strict: bool) -> Result<ValidateOutput> {
     let mut errors = vec![];
     let mut warnings = vec![];
 
@@ -255,11 +245,7 @@ fn validate(
 /// ggen paper export paper.rdf --format json-ld
 /// ```
 #[verb]
-fn export(
-    paper_file: PathBuf,
-    format: String,
-    output: Option<PathBuf>,
-) -> Result<ExportOutput> {
+fn export(paper_file: PathBuf, format: String, output: Option<PathBuf>) -> Result<ExportOutput> {
     let output_path = output.unwrap_or_else(|| {
         let mut path = paper_file.clone();
         path.set_extension(&format);
@@ -307,7 +293,10 @@ fn list_templates(filter: Option<String>) -> Result<ListTemplatesOutput> {
     ];
 
     let templates = if let Some(f) = filter {
-        all_templates.into_iter().filter(|t| t.contains(&f)).collect()
+        all_templates
+            .into_iter()
+            .filter(|t| t.contains(&f))
+            .collect()
     } else {
         all_templates
     };
@@ -345,12 +334,8 @@ fn list_templates(filter: Option<String>) -> Result<ListTemplatesOutput> {
 /// ggen paper compile research.tex --bibtex
 /// ```
 #[verb]
-fn compile(
-    tex_file: PathBuf,
-    engine: Option<String>,
-    bibtex: bool,
-) -> Result<CompileOutput> {
-    let engine = engine.unwrap_or_else(|| "pdflatex".to_string());
+fn compile(tex_file: PathBuf, engine: Option<String>, bibtex: bool) -> Result<CompileOutput> {
+    let _engine = engine.unwrap_or_else(|| "pdflatex".to_string());
     let mut output_pdf = tex_file.clone();
     output_pdf.set_extension("pdf");
 
@@ -383,8 +368,7 @@ fn compile(
 /// ```
 #[verb]
 fn init_bibliography(
-    paper_file: PathBuf,
-    output: Option<PathBuf>,
+    paper_file: PathBuf, output: Option<PathBuf>,
 ) -> Result<InitBibliographyOutput> {
     let bibtex_file = output.unwrap_or_else(|| {
         let mut path = paper_file.clone();
@@ -419,11 +403,7 @@ fn init_bibliography(
 /// ggen paper submit paper.pdf --venue journal --metadata paper.rdf
 /// ```
 #[verb]
-fn submit(
-    paper_file: PathBuf,
-    venue: String,
-    metadata: Option<PathBuf>,
-) -> Result<SubmitOutput> {
+fn submit(paper_file: PathBuf, venue: String, _metadata: Option<PathBuf>) -> Result<SubmitOutput> {
     Ok(SubmitOutput {
         paper_file: paper_file.display().to_string(),
         venue,
@@ -448,7 +428,7 @@ fn submit(
 /// ggen paper track research.rdf --venue neurips-2024
 /// ```
 #[verb]
-fn track(paper_file: PathBuf, venue: Option<String>) -> Result<TrackOutput> {
+fn track(paper_file: PathBuf, _venue: Option<String>) -> Result<TrackOutput> {
     Ok(TrackOutput {
         paper_file: paper_file.display().to_string(),
         current_status: "draft".to_string(),
