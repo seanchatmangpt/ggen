@@ -16,6 +16,7 @@ pub mod marketplace;
 pub mod project;
 pub mod template;
 pub mod utils;
+pub mod workflow;
 
 use ggen_utils::error::Result;
 

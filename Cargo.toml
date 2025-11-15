@@ -195,6 +195,9 @@ once_cell = "1.20"
 lazy_static = "1.4"
 fastrand = "2.3"
 
+# Process Mining for workflow analytics
+process_mining = "0.2"
+
 [profile.dev]
 opt-level = 0
 debug = true
