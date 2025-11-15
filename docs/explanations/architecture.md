@@ -1,5 +1,9 @@
 # Architecture
 
+**Type: Explanation** | [← Back to Documentation](../README.md)
+
+---
+
 ggen's architecture separates concerns into distinct layers: CLI, domain logic, and infrastructure.
 
 ## System Architecture

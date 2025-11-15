@@ -1,0 +1,91 @@
+# arXiv Preprint Template Package
+# arXiv-compatible preprint generation with minimal styling
+
+[package]
+name = "arxiv-paper-template"
+full_name = "arXiv Preprint Template"
+version = "1.0.0"
+description = "arXiv-compatible preprint format with automatic metadata extraction and submission support"
+category = "academic-paper"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+path = "marketplace/packages/arxiv-paper-template"
+license = "MIT"
+production = true
+maturity = 95
+
+dependencies = []
+
+features = [
+    "arXiv-compliant LaTeX format",
+    "Automatic metadata extraction",
+    "arXiv submission API integration",
+    "Multi-category tagging",
+    "Abstract and keywords optimization",
+    "Version control and revision tracking",
+    "DOI assignment support",
+    "BibTeX bibliography integration",
+    "Cross-platform compilation",
+    "PDF optimization for web"
+]
+
+tags = ["paper", "arxiv", "preprint", "latex", "academic"]
+keywords = ["arxiv", "preprint", "latex", "open-access", "academic-writing"]
+
+# Installation
+[install]
+type = "template"
+template_path = "marketplace/packages/arxiv-paper-template"
+
+# Template files to copy
+[files]
+"README.md" = "README.md"
+"USAGE.md" = "USAGE.md"
+"templates/arxiv-preprint.tmpl" = "templates/arxiv-preprint.tmpl"
+"data/arxiv-schema.ttl" = "data/arxiv-schema.ttl"
+"examples/" = "examples/"
+"docs/" = "docs/"
+
+# Variables for template substitution
+[variables]
+title = { type = "string", required = true, description = "Paper title" }
+authors = { type = "array", required = true, description = "List of authors" }
+abstract = { type = "string", required = true, description = "Paper abstract" }
+arxiv_category = { type = "string", default = "cs.AI", description = "arXiv category code" }
+subjects = { type = "array", default = [], description = "Subject areas" }
+
+# Examples
+[examples]
+basic = """
+# Create arXiv paper
+ggen paper new "Semantic Code Projections" --template arxiv
+
+# Generate from RDF
+ggen paper generate paper.rdf --style arxiv --output paper.tex
+
+# Submit to arXiv
+ggen paper submit paper.pdf --venue arxiv --category cs.AI
+"""
+
+workflow = """
+# Create and validate
+ggen paper new research --template arxiv
+ggen paper validate research.rdf
+
+# Compile to PDF
+ggen paper compile research.tex
+
+# Track submission
+ggen paper track research.rdf --venue arxiv
+"""
+
+# Documentation
+[docs]
+quick_start = "arXiv preprint with automatic metadata and submission support"
+features = "arXiv API integration, DOI support, multi-category tagging, version tracking"
+use_cases = "Preprints, open-access publishing, rapid research dissemination, cross-domain research"
+
+# Validation
+[validation]
+requires = ["paper.rdf", "references.bib"]
+arxiv_categories = ["cs.AI", "cs.CL", "cs.LG", "math.AT", "physics.quant-ph"]

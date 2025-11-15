@@ -1,0 +1,115 @@
+# Academic Peer Review Workflow Package
+# Complete peer review process with tracking, annotations, and revision management
+
+[package]
+name = "academic-peer-review-workflow"
+full_name = "Academic Peer Review Workflow"
+version = "1.0.0"
+description = "Integrated peer review workflow with reviewer comments, author responses, revision tracking, and decision management"
+category = "academic-workflow"
+author = "ggen-team"
+repository = "https://github.com/seanchatmangpt/ggen"
+path = "marketplace/packages/academic-peer-review-workflow"
+license = "MIT"
+production = true
+maturity = 90
+
+dependencies = ["academic-paper-lifecycle"]
+
+features = [
+    "Multi-reviewer coordination",
+    "Reviewer comment tracking with line-by-line annotations",
+    "Author response template generation",
+    "Revision change tracking and highlighting",
+    "Decision workflow (accept/major/minor/reject)",
+    "Timeline and deadline management",
+    "Reviewer consensus tracking",
+    "Conflict of interest management",
+    "Version comparison (diff views)",
+    "RDF-based metadata storage",
+    "Git integration for version control",
+    "Review summary generation"
+]
+
+tags = ["workflow", "peer-review", "academic", "collaboration"]
+keywords = ["peer-review", "workflow", "academic-publishing", "revision-tracking", "collaboration"]
+
+# Installation
+[install]
+type = "workflow"
+template_path = "marketplace/packages/academic-peer-review-workflow"
+
+# Workflow files
+[files]
+"README.md" = "README.md"
+"USAGE.md" = "USAGE.md"
+"workflows/" = "workflows/"
+"templates/reviewer-template.rdf" = "templates/reviewer-template.rdf"
+"templates/response-template.md" = "templates/response-template.md"
+"data/review-schema.ttl" = "data/review-schema.ttl"
+"hooks/" = "hooks/"
+
+# Variables for workflow
+[variables]
+paper_id = { type = "string", required = true, description = "Paper identifier" }
+num_reviewers = { type = "integer", default = 3, description = "Number of reviewers" }
+deadline = { type = "string", required = true, description = "Review deadline (YYYY-MM-DD)" }
+managing_editor = { type = "string", required = true, description = "Managing editor name" }
+
+# Workflow stages
+[workflow]
+stages = [
+    "initial-submission",
+    "editorial-screening",
+    "reviewer-assignment",
+    "review-period",
+    "decision-compilation",
+    "decision-communication",
+    "author-revision",
+    "re-review",
+    "final-decision"
+]
+
+# Examples
+[examples]
+basic = """
+# Initialize peer review workflow
+ggen paper submit paper.pdf --venue conference --with-review
+
+# Track reviews
+ggen paper track paper.rdf
+
+# View reviewer comments
+ggen paper show-reviews paper.rdf
+
+# Generate author response
+ggen paper generate-response paper.rdf --reviewer 1
+"""
+
+advanced = """
+# Set up multi-reviewer process
+ggen paper submit paper.pdf --num-reviewers 3 --deadline 2025-01-15
+
+# Track review progress
+ggen paper track paper.rdf --watch
+
+# Compile review feedback
+ggen paper compile-reviews paper.rdf
+
+# Generate revision summary
+ggen paper revision-notes paper.rdf
+
+# Compare versions
+ggen paper diff paper-v1.rdf paper-v2.rdf
+"""
+
+# Documentation
+[docs]
+quick_start = "Peer review workflow with reviewer tracking and author responses"
+features = "Multi-reviewer coordination, comment tracking, revision management, decision workflow"
+use_cases = "Journal submissions, conference reviewing, thesis committee feedback, collaborative editing"
+
+# Validation
+[validation]
+requires = ["paper.rdf", "reviewers.json"]
+stages_required = ["reviewer-assignment", "review-period", "decision-compilation"]
