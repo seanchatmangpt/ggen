@@ -275,6 +275,10 @@ pub fn run_memory_comparison() {
     }
 }
 
+fn main() {
+    run_memory_comparison();
+}
+
 #[cfg(test)]
 mod integration_tests {
     #[allow(unused_imports)]

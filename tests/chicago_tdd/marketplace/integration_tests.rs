@@ -4,7 +4,7 @@
 //! not mocks like London School TDD. We verify actual behavior with real
 //! file system operations using tempdir.
 
-use chicago_tdd_tools::async_test;
+use chicago_tdd_tools::prelude::*;
 use ggen_utils::error::Result;
 use std::fs;
 use std::path::PathBuf;
@@ -111,7 +111,9 @@ mod search_tests {
 #[cfg(feature = "lockfile-tests-disabled")] // Disabled until Lockfile is implemented
 mod install_tests {
     use super::*;
-    use ggen_cli_lib::domain::marketplace::install::{install_package, InstallOptions};
+    use ggen_domain::marketplace::install::{
+        execute_install as install_package, InstallInput as InstallOptions,
+    };
     // Lockfile functionality is not yet implemented
     // use ggen_cli_lib::cmds::market::lockfile::Lockfile;
 

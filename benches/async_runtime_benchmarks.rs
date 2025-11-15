@@ -1,5 +1,7 @@
-use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
+use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 use lazy_static::lazy_static;
+use std::hint::black_box;
+use std::time::Duration;
 use tokio::runtime::{Builder, Runtime};
 
 // Mock async business logic simulating typical CLI operations

@@ -195,6 +195,7 @@ fn run_marketplace_package_validation(client: &ContainerClient) -> Testcontainer
         NODE_TAG,
         "sleep",
         &["infinity"],
+        None,
     )?;
 
     println!("  ✅ Container started");

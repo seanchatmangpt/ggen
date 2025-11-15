@@ -283,6 +283,7 @@ fn run_marketplace_lifecycle_container(client: &ContainerClient) -> Testcontaine
         RUST_TAG,
         "sleep",
         &["infinity"],
+        None,
     )?;
 
     println!("  ✅ Container started");
@@ -608,6 +609,7 @@ fn run_build_container(client: &ContainerClient) -> TestcontainersResult<()> {
         RUST_TAG,
         "sleep",
         &["infinity"],
+        None,
     )?;
 
     println!("  ✅ Container started");
@@ -707,6 +709,7 @@ fn run_marketplace_container(client: &ContainerClient) -> TestcontainersResult<(
         ALPINE_TAG,
         "sleep",
         &["infinity"],
+        None,
     )?;
 
     println!("  ✅ Container started");
@@ -783,6 +786,7 @@ fn run_git_hooks_container(client: &ContainerClient) -> TestcontainersResult<()>
         ALPINE_TAG,
         "sleep",
         &["infinity"],
+        None,
     )?;
 
     println!("  ✅ Container started");
@@ -872,6 +876,7 @@ fn run_validation_container(client: &ContainerClient) -> TestcontainersResult<()
         ALPINE_TAG,
         "sleep",
         &["infinity"],
+        None,
     )?;
 
     println!("  ✅ Container started");
