@@ -30,6 +30,9 @@ Task-based guides that help you solve specific problems:
 - **[Installation](how-to-guides/installation.md)** - How to install ggen
 - **[Create Templates](how-to-guides/create-templates.md)** - How to create custom templates
 - **[Use RDF Ontologies](how-to-guides/use-rdf-ontologies.md)** - How to work with RDF
+- **[Validate Ontologies with SHACL](how-to-guides/validate-ontologies-shacl.md)** - How to validate ontologies
+- **[Migrate Existing Code](how-to-guides/migrate-existing-code.md)** - How to migrate legacy code to ggen
+- **[Dogfood ggen](how-to-guides/DOGFOODING_QUICKSTART.md)** - How to use ggen on ggen's own codebase
 - **[Configure Hooks](how-to-guides/configure-hooks.md)** - How to set up Git hooks
 - **[Deploy Production](how-to-guides/deploy-production.md)** - How to deploy to production
 - **[CI/CD Workflows](how-to-guides/cicd-workflows.md)** - How to use GitHub Actions workflows
@@ -50,11 +53,12 @@ Complete, accurate information about ggen's features:
 Background information and conceptual explanations:
 
 - **[Architecture](explanations/architecture.md)** - System architecture and design
-- **[Development Workflow](DEVELOPMENT_WORKFLOW.md)** - Development practices, testing, and quality assurance
 - **[Ontology-Driven Development](explanations/ontology-driven.md)** - Why ontology-driven development
+- **[Lifecycle and Hooks](explanations/lifecycle-and-hooks.md)** - How hooks automate your workflow
 - **[Determinism](explanations/determinism.md)** - How determinism works
 - **[Code Projections](explanations/projections.md)** - How code projections work
 - **[Marketplace Ecosystem](explanations/marketplace.md)** - Marketplace ecosystem overview
+- **[Development Workflow](DEVELOPMENT_WORKFLOW.md)** - Development practices, testing, and quality assurance
 
 ## Common Tasks
 
@@ -65,6 +69,9 @@ Background information and conceptual explanations:
 - **Create a custom template** → [Create Templates Guide](how-to-guides/create-templates.md)
 - **Use AI to generate ontologies** → [AI-Powered Generation Tutorial](tutorials/ai-powered-generation.md)
 - **Find and install templates** → [Marketplace Workflow Tutorial](tutorials/marketplace-workflow.md)
+- **Validate my ontology** → [Validate with SHACL Guide](how-to-guides/validate-ontologies-shacl.md)
+- **Migrate existing code to ggen** → [Migration Guide](how-to-guides/migrate-existing-code.md)
+- **Set up automated validation** → [Lifecycle and Hooks Explanation](explanations/lifecycle-and-hooks.md)
 - **Understand how it works** → [Architecture Explanation](explanations/architecture.md)
 - **Troubleshoot a problem** → [Troubleshooting Guide](how-to-guides/troubleshoot.md)
 - **See all commands** → [CLI Reference](reference/cli.md)

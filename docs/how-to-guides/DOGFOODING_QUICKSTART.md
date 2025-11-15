@@ -1,90 +1,141 @@
-# 🐕 Ggen Dogfooding Quick Start
+# How to Dogfood ggen (Fix Your Own Code)
 
-**Using ggen to fix ggen's own problems - the ultimate proof it works!**
+## What is Dogfooding?
 
-## 🚨 Current Problem
+"Eating your own dog food" means using ggen to improve ggen's own codebase. This demonstrates that ggen works reliably for real, production-grade code and serves as the ultimate proof of its capabilities.
 
-**403 panic points** in production code that could crash the application.
+## Problem Statement
 
-## ✅ Solution: Dogfooding Tools Created
+Production code may contain panic points (`unwrap()`, `expect()`, etc.) that could crash the application. Instead of manually finding and fixing these issues, you can use ggen's automation tools to:
 
-### 1️⃣ Automatic Panic Point Fixer
+- Automatically detect all panic points
+- Fix them systematically
+- Prevent new ones from being introduced
+- Validate code safety continuously
+
+## Prerequisites
+
+- ggen installed and working
+- Access to the ggen source code repository
+- Basic familiarity with Rust and error handling patterns
+
+## Step-by-Step: Fix Production Code Issues
+
+### Step 1: Check Current State
+
+First, scan your codebase to identify all panic points:
+
 ```bash
-# See what would be fixed
+./scripts/check-no-panic-points.sh
+```
+
+Output:
+```
+PASS: No panic points found
+```
+or
+```
+FAIL: Found 403 panic points in: src/cli, src/core, src/api
+```
+
+### Step 2: Automatically Fix Panic Points
+
+Once you understand the scope, use ggen to fix them automatically:
+
+```bash
+# Preview changes without applying them
 cargo script scripts/fix-panic-points.rs --dry-run
 
-# Fix all panic points automatically
+# Apply fixes to specific paths
+cargo script scripts/fix-panic-points.rs src/cli src/core
+
+# Or fix all paths
 cargo script scripts/fix-panic-points.rs
 ```
 
-### 2️⃣ Pre-Commit Hook (Prevents Future Issues)
-```bash
-# Install once
-ggen lifecycle run setup-git-hooks
+This command:
+- Detects all `unwrap()`, `expect()`, and other panic points
+- Generates safe error handling using ggen templates
+- Applies fixes while preserving code logic
 
-# Now commits with panic points are automatically blocked!
-```
+### Step 3: Validate the Results
 
-### 3️⃣ Safety Validation Script
+After fixes, verify the code is safe:
+
 ```bash
-# Check if code is production-safe
 ./scripts/check-no-panic-points.sh
-
-# Returns:
-# ✅ PASS: No panic points found
-# or
-# ❌ FAIL: Found X panic points
 ```
 
-### 4️⃣ Safe Error Handling Template
-```bash
-# Generate safe code patterns
-ggen template generate templates/safe-error-handling.tmpl
+Expected output:
+```
+PASS: No panic points found
 ```
 
-### 5️⃣ Production Lifecycle
+### Step 4: Set Up Prevention (Pre-Commit Hook)
+
+Prevent new panic points from being committed:
+
 ```bash
-# Run complete validation
+ggen lifecycle run setup-git-hooks
+```
+
+Now, any commit containing panic points will be automatically blocked:
+
+```bash
+git commit -m "Add new feature"
+# Hook runs: Check for panic points
+# FAIL: New panic point detected in src/feature.rs:42
+# Commit rejected
+```
+
+## Validation Strategies
+
+### Complete Production Validation
+
+Run all production checks:
+
+```bash
 ggen lifecycle run production-validate
+```
 
-# Or just safety check
+This includes:
+- Panic point detection
+- Error handling validation
+- Type safety checks
+- Performance benchmarks
+
+### Safety Check Only
+
+For quick validation:
+
+```bash
 ggen lifecycle run validate-safety
+```
 
-# Or dogfooding workflow
+### Full Dogfooding Workflow
+
+Complete dogfooding cycle:
+
+```bash
 ggen lifecycle run dogfood
 ```
 
-## 🚀 60-Second Setup
+## Using Safe Error Handling Templates
+
+After fixing panic points, reference the safe patterns for future code:
 
 ```bash
-# 1. Install git hooks (prevents panic points in commits)
-ggen lifecycle run setup-git-hooks
-
-# 2. Check current state
-./scripts/check-no-panic-points.sh
-
-# 3. Fix critical paths
-cargo script scripts/fix-panic-points.rs cli/src
-
-# Done! You're now dogfooding!
+ggen template generate templates/safe-error-handling.tmpl
 ```
 
-## 🎯 What This Proves
+This generates examples of:
+- Proper `Result<T, E>` usage
+- Error propagation patterns
+- Structured logging
+- User-friendly error messages
 
-1. **Ggen works for production code** - We trust it for our own codebase
-2. **Automation saves time** - Fixes 403 panic points automatically
-3. **Templates ensure quality** - Safe patterns by default
-4. **Lifecycle integrates** - Validation happens automatically
-5. **Tools prevent issues** - Pre-commit hooks stop bad code
+## See Also
 
-## 📚 Full Documentation
-
-- `docs/DOGFOODING_GUIDE.md` - Complete guide
-- `docs/PRODUCTION_READINESS_8020.md` - Production checklist
-- `scripts/README.md` - Script usage
-
-## 🎓 Key Learning
-
-**"Eat your own dog food"** - If we don't trust ggen to fix ggen, why should anyone else?
-
-**Result:** Production-safe code, automated validation, and proof that ggen works!
+- [Production Deployment Guide](deploy-production.md) - Full production readiness checklist
+- [Configure Hooks Guide](configure-hooks.md) - Setting up git hooks
+- [How to Troubleshoot](troubleshoot.md) - Resolving issues

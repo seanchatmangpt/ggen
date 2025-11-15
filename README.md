@@ -117,13 +117,27 @@ ggen template generate-rdf --ontology domain.ttl --template python-pydantic
 
 ---
 
-## 📚 Learn More
+## 📚 Documentation Map (Diataxis Framework)
 
-**Documentation**: [Full Documentation](docs/README.md) - [Getting Started](docs/tutorials/getting-started.md) | [Installation](docs/how-to-guides/installation.md) | [CLI Reference](docs/reference/cli.md) | [Architecture](docs/explanations/architecture.md)
+Our documentation is organized using the **[Diataxis framework](https://diataxis.fr/)** to help you find exactly what you need:
+
+| I want to... | Start here |
+|---|---|
+| **Learn ggen from scratch** | [Tutorials](docs/tutorials/) – Step-by-step guides to build understanding |
+| **Solve a specific problem** | [How-to Guides](docs/how-to-guides/) – Task-oriented instructions |
+| **Look up syntax/commands** | [Reference](docs/reference/) – Complete technical information |
+| **Understand concepts deeply** | [Explanations](docs/explanations/) – Background and design philosophy |
+
+**Quick Links**:
+- 🚀 **Getting Started**: [5-minute tutorial](docs/tutorials/getting-started.md)
+- 📖 **Full Documentation**: [docs/README.md](docs/README.md)
+- 🔧 **Installation**: [How to install ggen](docs/how-to-guides/installation.md)
+- 📋 **CLI Reference**: [All commands](docs/reference/cli.md)
+- 🏗️ **Architecture**: [How it works](docs/explanations/architecture.md)
 
 **Examples**: [Microservices Architecture](examples/microservices-architecture/), [AI Code Generation](examples/ai-code-generation/), [FastAPI from RDF](examples/fastapi-from-rdf/)
 
-**Release Notes**: [CHANGELOG](CHANGELOG.md), [v2.6.0 Release Checklist](docs/releases/RELEASE_v2.6.0_CHECKLIST.md), [v2.6.0 Release Status](docs/releases/RELEASE_v2.6.0_STATUS.md)
+**Release Notes**: [CHANGELOG](CHANGELOG.md), [v2.6.0 Release Status](docs/releases/RELEASE_v2.6.0_STATUS.md)
 
 ---
 
