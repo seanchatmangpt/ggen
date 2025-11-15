@@ -20,6 +20,7 @@ How-to guides are problem-oriented, task-based guides that help you solve specif
 - [Create Templates](how-to-guides/create-templates.md)
 - [Testing Strategy](how-to-guides/testing-strategy.md)
 - [Use RDF Ontologies](how-to-guides/use-rdf-ontologies.md)
+- [Troubleshoot RDF & SPARQL](how-to-guides/troubleshoot-rdf-sparql.md)
 - [Configure Hooks](how-to-guides/configure-hooks.md)
 - [Deploy Production](how-to-guides/deploy-production.md)
 - [Troubleshoot](how-to-guides/troubleshoot.md)
