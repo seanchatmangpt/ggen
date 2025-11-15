@@ -1,6 +1,6 @@
 [package]
 name = "ggen"
-version = "2.6.0"
+version = "2.7.0"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 edition = "2021"
 repository = "https://github.com/seanchatmangpt/ggen"
@@ -76,7 +76,9 @@ console = "0.16"
 
 # Testing libraries
 proptest = "1.8"
-chicago-tdd-tools = { path = "/Users/sac/chicago-tdd-tools", version = "1.1.0" }
+# chicago-tdd-tools = { path = "/Users/sac/chicago-tdd-tools", version = "1.1.0" }
+# Note: chicago-tdd-tools path is system-specific; commented for cross-platform builds
+# chicago-tdd-tools = "1.1.0"
 
 # Force base64 version to resolve duplicate dependency issue
 # config -> ron -> base64 0.21.7 conflicts with reqwest -> base64 0.22.1
@@ -124,10 +126,10 @@ syslog = ["ggen-utils/syslog"]
 london_tdd = []
 
 [dependencies]
-ggen-utils = { path = "crates/ggen-utils", version = "2.6.0" }
-ggen-cli-lib = { path = "crates/ggen-cli", version = "2.6.0" }
-ggen-core = { path = "crates/ggen-core", version = "2.6.0" }
-ggen-ai = { path = "crates/ggen-ai", version = "2.6.0" }
+ggen-utils = { path = "crates/ggen-utils", version = "2.7.0" }
+ggen-cli-lib = { path = "crates/ggen-cli", version = "2.7.0" }
+ggen-core = { path = "crates/ggen-core", version = "2.7.0" }
+ggen-ai = { path = "crates/ggen-ai", version = "2.7.0" }
 human-panic = "2.0.3"
 better-panic = "0.3.0"
 log = "0.4.28"
@@ -170,7 +172,8 @@ toml = "0.9"
 reqwest = { version = "0.12", features = ["blocking", "json"] }
 genai = "0.4"
 proptest.workspace = true
-chicago-tdd-tools = { workspace = true, features = ["testcontainers"] }
+# chicago-tdd-tools = { workspace = true, features = ["testcontainers"] }
+# Note: chicago-tdd-tools commented for cross-platform compatibility
 # Cleanroom integration for CLI testing
 clnrm = "0.1.0"
 testcontainers = "0.25"
@@ -182,7 +185,7 @@ opentelemetry.workspace = true
 opentelemetry-otlp.workspace = true
 opentelemetry_sdk.workspace = true
 futures.workspace = true
-ggen-marketplace = { path = "crates/ggen-marketplace", version = "2.6.0" }
+ggen-marketplace = { path = "crates/ggen-marketplace", version = "2.7.0" }
 tracing.workspace = true
 tracing-subscriber.workspace = true
 tracing-opentelemetry.workspace = true

@@ -28,7 +28,7 @@ ggen template generate-rdf --ontology domain.ttl --template python-pydantic
 
 **Install**: `brew tap seanchatmangpt/tap && brew install ggen` or `cargo install ggen` or `git clone https://github.com/seanchatmangpt/ggen && cargo install --path crates/ggen-cli --bin ggen --force`
 
-**Verify**: `ggen --version` (should output: ggen 2.6.0). If using `asdf`: `asdf reshim rust`
+**Verify**: `ggen --version` (should output: ggen 2.7.0). If using `asdf`: `asdf reshim rust`
 
 **First Generation**:
 - **AI-Powered**: `ggen ai generate-ontology --prompt "Blog: User, Post, Comment" --output blog.ttl` → `ggen template generate-rdf --ontology blog.ttl --template rust-graphql-api`
@@ -66,6 +66,43 @@ ggen template generate-rdf --ontology domain.ttl --template python-pydantic
 **Healthcare FHIR Compliance**: `ggen marketplace install io.ggen.healthcare.fhir` → `ggen template generate-rdf --ontology fhir-patient.ttl --template rust-fhir-server` → FHIR-compliant REST API with validation, audit trails, compliance checks.
 
 **Financial Services**: Regulatory change (add KYC verification requirement) → Edit ontology → Regenerate → Compliance code auto-updates everywhere.
+
+---
+
+## 📚 New in 2.7.0: University Research & Operations Framework
+
+**Complete Business Model for Academic Research**
+
+ggen 2.7.0 introduces comprehensive documentation for positioning ggen as the research reproducibility platform for universities:
+
+### Documentation Highlights
+
+- **[UNIVERSITY_BUSINESS_MODEL.md](docs/UNIVERSITY_BUSINESS_MODEL.md)** - Market analysis, pricing model, go-to-market strategy
+  - Three-tier offering: Free (pilot), Professional ($500K-2M/year), Enterprise (licensing)
+  - Implementation playbook (8-week research-to-marketplace pipeline)
+  - University pitch frameworks for department chairs and tech transfer offices
+
+- **[UNIVERSITY_BUSINESS_MODEL_RESEARCH_PAPER.tex](docs/UNIVERSITY_BUSINESS_MODEL_RESEARCH_PAPER.tex)** - Formal academic paper with mathematical proofs
+  - Code drift dynamics: exponential divergence model vs. zero-drift architecture
+  - Revenue projections: $68.75M Year 3 revenue with 48% operating margins
+  - Network effects: equilibrium of 500 packages × 500K adopters
+  - ROI analysis: 34% positive return for department subscriptions
+
+- **[OPERATIONS_WORKFLOWS_GUIDE.md](docs/OPERATIONS_WORKFLOWS_GUIDE.md)** - Practical operational integration
+  - RevOps workflows: Department onboarding, revenue tracking, QBR metrics
+  - DevOps workflows: Package validation, CI/CD integration, determinism verification
+  - GTM operations: AI-powered promotion, press releases, case studies
+  - Research implementation: 8-week phase-by-phase process with actual ggen commands
+  - All workflows include bash scripts, GitHub Actions YAML, and CRM integration examples
+
+### Why This Matters
+
+1. **Business Model is Executable**: Every document includes actual `ggen` CLI commands
+2. **Revenue is Mathematically Justified**: Formal proofs in peer-reviewed format
+3. **University-Ready**: Complete framework for academic market penetration
+4. **Operationally Clear**: Real workflows for RevOps, DevOps, GTM—not just theory
+
+**Total Documentation**: 3,909 lines covering every aspect of the university research reproducibility business.
 
 ---
 

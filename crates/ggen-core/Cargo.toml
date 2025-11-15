@@ -1,6 +1,6 @@
 [package]
 name = "ggen-core"
-version = "2.6.0"
+version = "2.7.0"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "Core graph-aware code generation engine"
 edition = "2021"
@@ -14,7 +14,7 @@ categories = ["development-tools", "command-line-utilities"]
 multiple_crate_versions = "allow"
 
 [dependencies]
-ggen-utils = { path = "../ggen-utils", version = "2.6.0" }
+ggen-utils = { path = "../ggen-utils", version = "2.7.0" }
 tera = "1.20"
 oxigraph = "0.5"
 serde = { version = "1.0", features = ["derive"] }
@@ -79,7 +79,6 @@ serde_json = "1"
 mockall = "0.13"
 criterion = { version = "0.7", features = ["html_reports"] }
 proptest = { workspace = true }
-chicago-tdd-tools = { workspace = true, features = ["testcontainers"] }
 tracing-subscriber = { version = "0.3", features = ["json", "env-filter"] }
 testcontainers = "0.25"
 uuid = { version = "1.18", features = ["v4"] }
