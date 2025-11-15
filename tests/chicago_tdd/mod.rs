@@ -5,3 +5,4 @@
 
 pub mod marketplace;
 pub mod ontology_driven_e2e;
+pub mod expert_patterns;
