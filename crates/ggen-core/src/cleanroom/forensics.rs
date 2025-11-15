@@ -250,7 +250,7 @@ impl ForensicsPack {
 
         script.push_str("# Run command\n");
         script.push_str(&self.command.join(" "));
-        script.push_str("\n");
+        script.push('\n');
 
         self.reproducer = script;
     }

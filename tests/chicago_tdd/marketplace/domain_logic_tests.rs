@@ -7,7 +7,7 @@ use tempfile::TempDir;
 use tokio;
 
 // Import domain logic (not CLI)
-use ggen_marketplace::backend::local::LocalRegistry;
+use ggen_marketplace::backend::LocalRegistry;
 use ggen_marketplace::models::{
     Category, ContentId, HashAlgorithm, Package, PackageId, PackageMetadata, PackageStats, Version,
 };

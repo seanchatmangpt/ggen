@@ -189,7 +189,7 @@ fn test_tracing_levels() -> Result<()> {
         );
         SimpleTracer::skip_condition("skip_if", "pattern found");
 
-        let error = anyhow::anyhow!("Test error");
+        let error = ggen_utils::error::Error::new("Test error");
         SimpleTracer::error(&error, "test context");
         SimpleTracer::warning("Test warning", Some("test context"));
     }
@@ -245,7 +245,7 @@ fn test_tracing_error_handling_detailed() -> Result<()> {
     std::env::set_var("GGEN_TRACE", "error");
 
     // Test error logging
-    let error = anyhow::anyhow!("Test error message");
+    let error = ggen_utils::error::Error::new("Test error message");
     SimpleTracer::error(&error, "test operation");
 
     // Test warning logging

@@ -309,7 +309,7 @@ impl ValidationReport {
                 for error in &result.errors {
                     md.push_str(&format!("- {}\n", error));
                 }
-                md.push_str("\n");
+                md.push('\n');
             }
         }
 

@@ -184,13 +184,14 @@ mod tests {
 
     #[test]
     fn test_execute_async_verb_success() {
-        let result = execute_async_verb(async { Ok::<i32, String>(42) });
+        let result = execute_async_verb(async { Ok::<i32, anyhow::Error>(42) });
         assert!(result.is_ok());
     }
 
     #[test]
     fn test_execute_async_verb_error() {
-        let result = execute_async_verb(async { Err::<i32, String>("test error".to_string()) });
+        let result =
+            execute_async_verb(async { Err::<i32, anyhow::Error>(anyhow::anyhow!("test error")) });
         assert!(result.is_err());
     }
 }
