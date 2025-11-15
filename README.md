@@ -28,7 +28,7 @@ ggen template generate-rdf --ontology domain.ttl --template python-pydantic
 
 **Install**: `brew tap seanchatmangpt/tap && brew install ggen` or `cargo install ggen` or `git clone https://github.com/seanchatmangpt/ggen && cargo install --path crates/ggen-cli --bin ggen --force`
 
-**Verify**: `ggen --version` (should output: ggen 2.7.0). If using `asdf`: `asdf reshim rust`
+**Verify**: `ggen --version` (should output: ggen 2.6.0). If using `asdf`: `asdf reshim rust`
 
 **First Generation**:
 - **AI-Powered**: `ggen ai generate-ontology --prompt "Blog: User, Post, Comment" --output blog.ttl` → `ggen template generate-rdf --ontology blog.ttl --template rust-graphql-api`
@@ -55,7 +55,7 @@ ggen template generate-rdf --ontology domain.ttl --template python-pydantic
 
 **10 Innovative Command Patterns**: Polyglot Sync (1 ontology → N languages), AI Refinement Loop (AI analyzes code → suggests ontology improvements), Hook Automation (Git commits auto-validate), Marketplace Mixing (combine proven templates with custom domain), Predictive Evolution (AI tracks SPARQL patterns → suggests optimizations). [Full Documentation →](docs/INNOVATIVE_COMMAND_COMBINATIONS.md)
 
-**Production-Grade Stack** (v2.7.0, Nov 2025, 89% Production Ready): Runtime stability (fixed critical tokio panic, all 32 CLI commands functional), zero unsafe code (memory-safe, no `.expect()` in production paths), real RDF/SPARQL (Oxigraph in-memory triple store, not mocks), deterministic output (byte-identical, reproducible builds), post-quantum security (ML-DSA cryptographic signatures), Chicago TDD (782-line E2E test with real systems, no mocks), containerized validation (marketplace lifecycle tested in isolated containers, 100% host protection via chicago-tdd-tools framework)
+**Production-Grade Stack** (v2.6.0, 2025-11-12, 89% Production Ready): Runtime stability (fixed critical tokio panic, all 32 CLI commands functional), zero unsafe code (memory-safe, no `.expect()` in production paths), real RDF/SPARQL (Oxigraph in-memory triple store, not mocks), deterministic output (byte-identical, reproducible builds), post-quantum security (ML-DSA cryptographic signatures), Chicago TDD (782-line E2E test with real systems, no mocks), containerized validation (marketplace lifecycle tested in isolated containers, 100% host protection via chicago-tdd-tools framework)
 
 ---
 
@@ -123,7 +123,7 @@ ggen template generate-rdf --ontology domain.ttl --template python-pydantic
 
 **Examples**: [Microservices Architecture](examples/microservices-architecture/), [AI Code Generation](examples/ai-code-generation/), [FastAPI from RDF](examples/fastapi-from-rdf/)
 
-**Release Notes**: [CHANGELOG](CHANGELOG.md), [v2.7.0 Release Summary](docs/RELEASE_2.7.0_SUMMARY.md), [v2.0.0 Migration](docs/MIGRATION_V1_TO_V2.md)
+**Release Notes**: [CHANGELOG](CHANGELOG.md), [v2.6.0 Release Summary](docs/RELEASE_2.6.0_SUMMARY.md), [v2.0.0 Migration](docs/MIGRATION_V1_TO_V2.md)
 
 ---
 
@@ -148,7 +148,7 @@ cargo make ci                 # Full CI pipeline
 
 **Q: How does this differ from Cookiecutter/Yeoman?** A: Those are templating tools. ggen is a **semantic projection engine**—your ontology drives polyglot code generation with zero drift. 610 files of RDF integration prove it's architectural, not add-on.
 
-**Q: Is it production-ready?** A: **89% production readiness** (v2.7.0). Zero unsafe code, comprehensive E2E tests, real Oxigraph RDF store. Used in Fortune 500 e-commerce (70% fewer bugs, 3x faster delivery).
+**Q: Is it production-ready?** A: **89% production readiness** (v2.6.0). Zero unsafe code, comprehensive E2E tests, real Oxigraph RDF store. Used in Fortune 500 e-commerce (70% fewer bugs, 3x faster delivery).
 
 **Q: What's the learning curve?** A: 2 minutes to first generation (AI-powered). 20 minutes to understand ontology-driven benefits. Full mastery: explore [10 innovative patterns](docs/INNOVATIVE_COMMAND_COMBINATIONS.md).
 
@@ -206,4 +206,4 @@ MIT License - see [LICENSE](LICENSE)
 
 **Built with ❤️ using Rust, RDF, and SPARQL**
 
-**v2.7.0** | Nov 2025 | 89% Production Ready | 610 Files of Graph Integration | 782-Line E2E Test
+**v2.6.0** | 2025-11-12 | 89% Production Ready | 610 Files of Graph Integration | 782-Line E2E Test
