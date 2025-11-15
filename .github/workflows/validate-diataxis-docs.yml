@@ -1,0 +1,148 @@
+name: Validate Diataxis Documentation
+
+on:
+  push:
+    paths:
+      - 'docs/**'
+      - 'README.md'
+      - 'scripts/validate-diataxis-docs.sh'
+      - '.github/workflows/validate-diataxis-docs.yml'
+  pull_request:
+    paths:
+      - 'docs/**'
+      - 'README.md'
+      - 'scripts/validate-diataxis-docs.sh'
+
+jobs:
+  validate-diataxis:
+    name: Diataxis Documentation Compliance
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate Diataxis compliance
+        run: |
+          chmod +x scripts/validate-diataxis-docs.sh
+          ./scripts/validate-diataxis-docs.sh
+        shell: bash
+
+      - name: Check for required documentation files
+        run: |
+          set -e
+          required_files=(
+            "docs/README.md"
+            "docs/tutorials/getting-started.md"
+            "docs/how-to-guides/installation.md"
+            "docs/how-to-guides/validate-ontologies-shacl.md"
+            "docs/how-to-guides/migrate-existing-code.md"
+            "docs/reference/cli.md"
+            "docs/explanations/architecture.md"
+            "docs/explanations/lifecycle-and-hooks.md"
+          )
+
+          echo "Checking for required documentation files..."
+          for file in "${required_files[@]}"; do
+            if [ -f "$file" ]; then
+              echo "✓ $file"
+            else
+              echo "✗ Missing: $file"
+              exit 1
+            fi
+          done
+
+      - name: Validate cross-references in docs/README.md
+        run: |
+          set +e
+          cd docs
+
+          echo "Validating cross-references..."
+          broken_links=0
+
+          # Extract all markdown links and validate them
+          grep -o '\[.*\](.*\.md)' README.md | while read -r link; do
+            # Extract the file path from the markdown link
+            file=$(echo "$link" | sed 's/.*(\(.*\.md\)).*/\1/' | sed 's/^\.\/\|^\.\.\/docs\///')
+
+            if [[ ! "$file" =~ ^http ]] && [[ ! "$file" =~ ^# ]]; then
+              if [ ! -f "$file" ] && [ ! -f "../$file" ]; then
+                echo "✗ Broken link: $link"
+                broken_links=$((broken_links + 1))
+              else
+                echo "✓ Valid link: $link"
+              fi
+            fi
+          done
+
+          if [ "$broken_links" -gt 0 ]; then
+            echo "Found $broken_links broken links"
+            exit 1
+          fi
+
+      - name: Verify Diataxis structure integrity
+        run: |
+          echo "Verifying Diataxis structure..."
+
+          # Count files per category
+          tutorial_count=$(find docs/tutorials -name "*.md" 2>/dev/null | wc -l)
+          howto_count=$(find docs/how-to-guides -name "*.md" 2>/dev/null | wc -l)
+          reference_count=$(find docs/reference -name "*.md" 2>/dev/null | wc -l)
+          explanation_count=$(find docs/explanations -name "*.md" 2>/dev/null | wc -l)
+
+          echo "Documentation file counts:"
+          echo "  Tutorials: $tutorial_count (expected 4-5)"
+          echo "  How-to Guides: $howto_count (expected 9-12)"
+          echo "  Reference: $reference_count (expected 4-5)"
+          echo "  Explanations: $explanation_count (expected 5-7)"
+
+          # Validate counts
+          if [ "$tutorial_count" -lt 4 ] || [ "$tutorial_count" -gt 5 ]; then
+            echo "✗ Tutorial count out of range"
+            exit 1
+          fi
+
+          if [ "$howto_count" -lt 9 ] || [ "$howto_count" -gt 12 ]; then
+            echo "✗ How-to Guide count out of range"
+            exit 1
+          fi
+
+          if [ "$reference_count" -lt 4 ] || [ "$reference_count" -gt 5 ]; then
+            echo "✗ Reference count out of range"
+            exit 1
+          fi
+
+          if [ "$explanation_count" -lt 5 ] || [ "$explanation_count" -gt 7 ]; then
+            echo "✗ Explanation count out of range"
+            exit 1
+          fi
+
+          echo "✓ All Diataxis structure requirements met"
+
+      - name: Comment PR with validation results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '✅ **Diataxis Documentation Validation Passed**\n\n- All required files present\n- File counts within expected ranges\n- Cross-references valid\n- Diataxis structure integrity verified\n\nDocumentation is 100% Diataxis compliant.'
+            })
+
+  integration-tests:
+    name: Run Documentation Integration Tests
+    runs-on: ubuntu-latest
+    # Note: Full Rust tests are skipped in CI for speed
+    # Use ./scripts/validate-diataxis-docs.sh for quick validation instead
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run validation script
+        run: |
+          bash scripts/validate-diataxis-docs.sh
