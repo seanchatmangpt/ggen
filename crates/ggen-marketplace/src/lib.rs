@@ -77,6 +77,8 @@ pub mod error;
 pub mod models;
 pub mod traits;
 pub mod types;
+pub mod maturity;
+pub mod maturity_evaluator;
 
 // OpenTelemetry instrumentation
 pub mod telemetry;
@@ -106,6 +108,13 @@ pub mod prelude {
 
     pub use crate::crypto::{DefaultVerifier, Ed25519Verifier};
     pub use crate::error::{MarketplaceError, Result};
+    pub use crate::maturity::{
+        AdoptionScore, DocumentationScore, MaintenanceScore, MaturityAssessment, MaturityLevel,
+        PerformanceScore, SecurityScore, TestingScore,
+    };
+    pub use crate::maturity_evaluator::{
+        EvaluationInput, MaturityDashboard, MaturityEvaluator,
+    };
     pub use crate::models::{ContentId, HashAlgorithm, Package, PackageId, Query, Version};
     pub use crate::storage::{FilesystemStore, MemoryStore};
     pub use crate::traits::{CryptoVerifier, PackageStore, Registry, SearchEngine};
