@@ -117,13 +117,48 @@ ggen template generate-rdf --ontology domain.ttl --template python-pydantic
 
 ---
 
-## 📚 Learn More
+## 📚 Documentation
 
-**Documentation**: [Full Documentation](docs/README.md) - [Getting Started](docs/tutorials/getting-started.md) | [Installation](docs/how-to-guides/installation.md) | [CLI Reference](docs/reference/cli.md) | [Architecture](docs/explanations/architecture.md)
+ggen documentation is organized using the **[Diátaxis framework](https://diataxis.fr/)** - four documentation types for different user needs:
 
-**Examples**: [Microservices Architecture](examples/microservices-architecture/), [AI Code Generation](examples/ai-code-generation/), [FastAPI from RDF](examples/fastapi-from-rdf/)
+### 🎯 Getting Started (Choose Your Path)
 
-**Release Notes**: [CHANGELOG](CHANGELOG.md), [v2.6.0 Release Checklist](docs/releases/RELEASE_v2.6.0_CHECKLIST.md), [v2.6.0 Release Status](docs/releases/RELEASE_v2.6.0_STATUS.md)
+**New to ggen?**
+- 📖 **[Getting Started Tutorial](docs/tutorials/getting-started.md)** (5 min) - Install & generate your first code
+- 🔧 **[Installation Guide](docs/how-to-guides/installation.md)** - Step-by-step for your OS
+
+**Want to understand the concepts?**
+- 💡 **[Ontology-Driven Development](docs/explanations/ontology-driven.md)** - Why this approach works
+- 🏗️ **[Architecture Explanation](docs/explanations/architecture.md)** - How ggen works internally
+
+**Need complete reference?**
+- 📋 **[CLI Reference](docs/reference/cli.md)** - All 32 commands documented
+- ⚙️ **[Configuration Reference](docs/reference/configuration.md)** - All settings
+
+### 📚 Full Documentation Structure
+
+- **[Complete Documentation Index](docs/README.md)** - All tutorials, guides, references, and explanations organized by learning path
+- **[Diataxis Framework Guide](docs/DATAXIS_GUIDE.md)** - How documentation is organized and how to navigate it
+
+### 🌟 Quality & Reliability
+
+Learn how ggen maintains quality through systematic analysis:
+- 📊 **[FMEA Analysis](docs/explanations/error-prevention-fmea.md)** - How ggen uses Failure Mode and Effects Analysis
+- ✅ **[Poke-Yoke Design](docs/explanations/error-prevention-poke-yoke.md)** - How ontology-driven code prevents errors
+- 🔍 **[Code Quality Principles](docs/explanations/quality-and-testing.md)** - Testing, validation, and reliability
+
+### 📂 Examples & Guides
+
+- **[Microservices Architecture](examples/microservices-architecture/)** - Full example project
+- **[AI Code Generation](examples/ai-code-generation/)** - Using AI with ggen
+- **[FastAPI from RDF](examples/fastapi-from-rdf/)** - Quality control system example
+
+**[More Examples →](examples/)**
+
+### 📝 Release Notes
+
+- **[CHANGELOG](CHANGELOG.md)** - All version history
+- **[v2.6.0 Release](docs/releases/RELEASE_v2.6.0_CHECKLIST.md)** - Latest release details
 
 ---
 
