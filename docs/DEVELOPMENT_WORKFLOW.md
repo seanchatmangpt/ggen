@@ -318,5 +318,4 @@ cargo make slo-check
 - [Build System Practices](.cursor/rules/build-system-practices.mdc)
 - [Determinism Standards](.cursor/rules/determinism-standards.mdc)
 - [Contributing Guide](../CONTRIBUTING.md)
-- [FMEA Analysis](FMEA_ANALYSIS.md)
 
