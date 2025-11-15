@@ -1,9 +1,0 @@
-PREFIX obs: <https://ggen.ai/ontology/observability#>
-SELECT ?slo ?target ?errorBudgetRemaining ?timeWindow WHERE {
-  ?slo a obs:ServiceLevelObjective ;
-       obs:targetPercentage ?target ;
-       obs:timeWindow ?timeWindow .
-  ?errorBudget obs:hasSLO ?slo ;
-               obs:errorBudgetRemaining ?errorBudgetRemaining .
-  FILTER(?errorBudgetRemaining < 10.0)
-}
