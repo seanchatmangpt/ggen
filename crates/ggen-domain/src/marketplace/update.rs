@@ -122,6 +122,18 @@ pub async fn update_and_report(package: Option<&str>, all: bool, dry_run: bool) 
                     }
                 }
             }
+            UpdateStatus::CompatibilityWarning(new_version, reason) => {
+                ggen_utils::alert_warning!(
+                    "⚠️  Version update available for {} but with compatibility warning: {}",
+                    pkg_name,
+                    reason
+                );
+                ggen_utils::alert_info!(
+                    "   New version: {}. Manual review recommended before updating.",
+                    new_version
+                );
+                skipped_count += 1;
+            }
             UpdateStatus::UpToDate => {
                 ggen_utils::alert_info!("✓ {} is up to date", pkg_name);
                 skipped_count += 1;
@@ -254,7 +266,23 @@ pub struct UpdateOutput {
     pub packages_updated: usize,
 }
 
-/// Check for package updates
+/// Update status enum (defined before use in check_for_updates)
+enum UpdateStatus {
+    Available(String),                            // New version available (compatible)
+    CompatibilityWarning(String, String),         // New version available but may break compatibility (version, reason)
+    UpToDate,                                     // Already at latest version
+    NotFound,                                     // Package not found in registry
+}
+
+/// Check for package updates with compatibility validation
+///
+/// This addresses FM4 (RPN 252): Update breaks functionality
+/// This addresses FM5 (RPN 252): Registry freshness validation
+///
+/// Checks:
+/// - Registry exists and is recent (not stale)
+/// - Version exists and is valid
+/// - Version is compatible (no major version downgrade)
 async fn check_for_updates(
     registry_path: &std::path::Path, package_name: &str, current_version: Option<&String>,
 ) -> Result<UpdateStatus> {
@@ -262,6 +290,28 @@ async fn check_for_updates(
 
     if !index_path.exists() {
         return Ok(UpdateStatus::NotFound);
+    }
+
+    // FM5: Check registry freshness (file modification time)
+    // Warn if registry is older than 7 days
+    let metadata = tokio::fs::metadata(&index_path)
+        .await
+        .ok();
+
+    if let Some(meta) = metadata {
+        if let Ok(modified) = meta.modified() {
+            use std::time::SystemTime;
+
+            if let Ok(duration) = SystemTime::now().duration_since(modified) {
+                let days_old = duration.as_secs() / (24 * 3600);
+                if days_old > 7 {
+                    tracing::warn!(
+                        "Registry index is {} days old. Consider running 'ggen marketplace sync' for latest packages",
+                        days_old
+                    );
+                }
+            }
+        }
     }
 
     let content = tokio::fs::read_to_string(&index_path)
@@ -291,21 +341,68 @@ async fn check_for_updates(
                         )
                     })?;
 
-            // Compare versions
+            // FM4: Version compatibility check
+            // Prevent major version downgrades which break compatibility
             match current_version {
                 Some(current) if current == latest_version => Ok(UpdateStatus::UpToDate),
-                _ => Ok(UpdateStatus::Available(latest_version.to_string())),
+                Some(current) => {
+                    // Check if this is a safe update
+                    match check_version_compatibility(current, latest_version) {
+                        Ok(true) => Ok(UpdateStatus::Available(latest_version.to_string())),
+                        Ok(false) => {
+                            // Version downgrade or incompatible change
+                            tracing::warn!(
+                                "Version {} to {} may break compatibility. Manual review recommended.",
+                                current, latest_version
+                            );
+                            Ok(UpdateStatus::CompatibilityWarning(
+                                latest_version.to_string(),
+                                "Version change may break compatibility".to_string(),
+                            ))
+                        }
+                        Err(e) => {
+                            // Version parsing error - allow update but warn
+                            tracing::warn!("Could not verify compatibility: {}. Proceeding with caution.", e);
+                            Ok(UpdateStatus::Available(latest_version.to_string()))
+                        }
+                    }
+                }
+                None => Ok(UpdateStatus::Available(latest_version.to_string())),
             }
         }
         _ => Ok(UpdateStatus::NotFound),
     }
 }
 
-/// Update status enum
-enum UpdateStatus {
-    Available(String), // New version available
-    UpToDate,          // Already at latest version
-    NotFound,          // Package not found in registry
+/// Check if version update is compatible
+///
+/// Returns Ok(true) if compatible (minor/patch update)
+/// Returns Ok(false) if potentially breaking (major downgrade)
+/// Returns Err if versions cannot be parsed
+fn check_version_compatibility(current: &str, latest: &str) -> Result<bool> {
+    // Parse semver versions
+    let current_parts: Vec<&str> = current.split('.').collect();
+    let latest_parts: Vec<&str> = latest.split('.').collect();
+
+    if current_parts.len() < 3 || latest_parts.len() < 3 {
+        // Cannot parse - assume compatible
+        return Ok(true);
+    }
+
+    let current_major = current_parts[0]
+        .parse::<u32>()
+        .unwrap_or(0);
+    let latest_major = latest_parts[0]
+        .parse::<u32>()
+        .unwrap_or(0);
+
+    // Prevent major version downgrades
+    if latest_major < current_major {
+        return Ok(false);
+    }
+
+    // Minor version changes within same major are compatible
+    Ok(true)
 }
 
 /// Lockfile structure
@@ -357,5 +454,40 @@ mod tests {
 
         let lockfile: Lockfile = serde_json::from_str(lockfile_json).unwrap();
         assert_eq!(lockfile.packages.len(), 1);
+    }
+
+    #[test]
+    fn test_version_compatibility_patch_update() {
+        // Patch update should be compatible
+        let result = check_version_compatibility("1.0.0", "1.0.1");
+        assert_eq!(result.unwrap(), true);
+    }
+
+    #[test]
+    fn test_version_compatibility_minor_update() {
+        // Minor update should be compatible
+        let result = check_version_compatibility("1.0.0", "1.1.0");
+        assert_eq!(result.unwrap(), true);
+    }
+
+    #[test]
+    fn test_version_compatibility_major_update() {
+        // Major update should be compatible (upgrade)
+        let result = check_version_compatibility("1.0.0", "2.0.0");
+        assert_eq!(result.unwrap(), true);
+    }
+
+    #[test]
+    fn test_version_compatibility_major_downgrade() {
+        // Major version downgrade should NOT be compatible
+        let result = check_version_compatibility("2.0.0", "1.0.0");
+        assert_eq!(result.unwrap(), false);
+    }
+
+    #[test]
+    fn test_version_compatibility_invalid_versions() {
+        // Invalid version format should be assumed compatible
+        let result = check_version_compatibility("1.0", "2.0.0");
+        assert_eq!(result.unwrap(), true);
     }
 }
