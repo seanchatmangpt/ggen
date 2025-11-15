@@ -29,8 +29,9 @@
 //! cargo bench --bench v2_performance -- memory_baseline
 //! ```
 
-use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
+use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 use std::fs;
+use std::hint::black_box;
 use std::path::PathBuf;
 use std::process::Command;
 use tempfile::TempDir;

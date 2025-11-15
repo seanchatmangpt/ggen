@@ -184,7 +184,7 @@ fn capture_project_snapshot() -> ProjectSnapshot {
         .unwrap_or(0);
 
     let output = Command::new("sh")
-        .args(&["-c", "find . -type d -not -path '*/target/*' -not -path '*/.git/*' -not -path '*/node_modules/*' 2>/dev/null | wc -l"])
+        .args(["-c", "find . -type d -not -path '*/target/*' -not -path '*/.git/*' -not -path '*/node_modules/*' 2>/dev/null | wc -l"])
         .output()
         .expect("Failed to count directories");
 
@@ -195,7 +195,7 @@ fn capture_project_snapshot() -> ProjectSnapshot {
 
     // Get git status hash to detect any modifications
     let output = Command::new("git")
-        .args(&["status", "--porcelain"])
+        .args(["status", "--porcelain"])
         .output()
         .expect("Failed to get git status");
 

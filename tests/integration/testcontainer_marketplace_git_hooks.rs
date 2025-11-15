@@ -37,9 +37,9 @@ fn test_marketplace_project_with_git_hooks() {
     let run_cmd = |cmd: &str, desc: &str| {
         println!("  Running: {}", desc);
         let output = Command::new("docker")
-            .args(&["exec", container.id(), "sh", "-c", cmd])
+            .args(["exec", container.id(), "sh", "-c", cmd])
             .output()
-            .expect(&format!("Failed to execute: {}", desc));
+            .unwrap_or_else(|_| panic!("Failed to execute: {}", desc));
 
         if !output.status.success() {
             eprintln!("❌ {} failed:", desc);
@@ -149,7 +149,7 @@ fn test_marketplace_project_with_git_hooks() {
     // Step 14: Commit (triggers pre-commit hook)
     println!("💾 Committing changes (triggers pre-commit hook)...");
     let commit_result = Command::new("docker")
-        .args(&[
+        .args([
             "exec",
             container.id(),
             "sh",
@@ -168,7 +168,7 @@ fn test_marketplace_project_with_git_hooks() {
     // Step 15: List generated files
     println!("📂 Listing generated ontology files...");
     let list_result = Command::new("docker")
-        .args(&[
+        .args([
             "exec",
             container.id(),
             "sh",
@@ -188,7 +188,7 @@ fn test_marketplace_project_with_git_hooks() {
     // Step 16: Check ontology directory
     println!("🔍 Checking for ontology directory...");
     let ontology_result = Command::new("docker")
-        .args(&[
+        .args([
             "exec",
             container.id(),
             "sh",
@@ -206,7 +206,7 @@ fn test_marketplace_project_with_git_hooks() {
     // Step 17: Check hook content
     println!("✅ Verifying git hook content...");
     let hook_result = Command::new("docker")
-        .args(&[
+        .args([
             "exec",
             container.id(),
             "sh",
@@ -222,7 +222,7 @@ fn test_marketplace_project_with_git_hooks() {
     // Step 18: Final validation
     println!("🏁 Final project structure validation...");
     let structure_result = Command::new("docker")
-        .args(&[
+        .args([
             "exec",
             container.id(),
             "sh",
@@ -272,7 +272,7 @@ fn test_container_basic_setup() {
 
     // Verify Rust is installed using docker exec
     let output = Command::new("docker")
-        .args(&["exec", container.id(), "rustc", "--version"])
+        .args(["exec", container.id(), "rustc", "--version"])
         .output()
         .expect("Failed to check rustc version");
 

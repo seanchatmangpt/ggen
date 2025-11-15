@@ -13,7 +13,6 @@
 //!
 //! Performance target: <1s total, <100ms per test
 
-use ggen_cli_lib;
 use ggen_utils::error::Result;
 
 // ============================================================================

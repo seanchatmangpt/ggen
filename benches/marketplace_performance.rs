@@ -1,6 +1,7 @@
-use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
+use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::hint::black_box;
 use std::path::PathBuf;
 use std::sync::Arc;
 use tempfile::TempDir;

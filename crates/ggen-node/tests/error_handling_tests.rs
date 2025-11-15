@@ -255,11 +255,7 @@ async_test!(test_whitespace_edge_cases, {
 async_test!(test_binary_data_in_args, {
     // Arrange: Create binary data string (boundary condition)
     let binary_string = String::from_utf8_lossy(&[0xFF, 0xFE, 0xFD, 0x00]).to_string();
-    let args = vec![
-        "market".to_string(),
-        "search".to_string(),
-        binary_string,
-    ];
+    let args = vec!["market".to_string(), "search".to_string(), binary_string];
 
     // Act: Run with binary data
     let result = run_for_node(args).await;
@@ -298,11 +294,7 @@ async_test!(test_maximum_args_count, {
 
 async_test!(test_empty_string_args, {
     // Arrange: Create args with empty string (boundary condition)
-    let args = vec![
-        "market".to_string(),
-        "".to_string(),
-        "search".to_string(),
-    ];
+    let args = vec!["market".to_string(), "".to_string(), "search".to_string()];
 
     // Act: Run with empty argument
     let result = run_for_node(args).await;
@@ -372,7 +364,10 @@ async_test!(test_no_memory_leak_on_error, {
         let result = run_for_node(vec!["invalid".to_string()]).await;
         // Error is expected - just verify no panic
         let _ = result;
-        assert!(i < error_count, "Should complete all iterations without resource leak");
+        assert!(
+            i < error_count,
+            "Should complete all iterations without resource leak"
+        );
     }
 
     // Assert: If there were memory leaks, this test would fail
@@ -393,10 +388,7 @@ async_test!(test_no_memory_leak_on_success, {
     }
 
     // Assert: Should complete all iterations without resource leak
-    assert!(
-        success_count > 0,
-        "At least some commands should succeed"
-    );
+    assert!(success_count > 0, "At least some commands should succeed");
 });
 
 async_test!(test_large_output_handling, {
