@@ -85,7 +85,7 @@ git commit -m "feat: add ontology"
 
 **Purpose:** Regenerate code after pulling changes with ontology updates.
 
-**Trigger:** After `git pull`, `git merge`, or `git rebase` completes.
+**Trigger:** After `git pull` or `git merge` completes.
 
 **Steps:**
 1. Check if ontologies changed in merge
@@ -100,6 +100,24 @@ git commit -m "feat: add ontology"
 - ✅ Clear notification of what changed
 - ✅ Prevents running with stale generated code
 - ✅ Maintains consistency across team
+
+**Why Merge Instead of Rebase:**
+
+This workflow uses merge operations rather than rebasing for several critical reasons:
+
+- **History Preservation**: Merge commits preserve the complete development history, showing when and how changes were integrated. Rebasing rewrites history, making it impossible to see the actual sequence of events.
+
+- **Collaborative Safety**: Rebasing requires force-pushing, which disrupts other developers who have already pulled the branch. Merge operations work seamlessly with multiple developers on the same branch without requiring force-pushes.
+
+- **Conflict Resolution Tracking**: Merge commits maintain a clear record of conflict resolution decisions. Rebasing loses this context by creating new commits with different SHAs.
+
+- **Debugging Stability**: Commit SHAs remain stable with merges, allowing CI/CD pipelines, issue trackers, and debugging tools to reliably reference specific commits. Rebasing changes commit hashes, breaking these references.
+
+- **CI/CD Compatibility**: Automated systems that reference commit hashes (build artifacts, deployment pipelines, test results) break when commits are rebased. Merge operations maintain stable commit references.
+
+- **Reduced Conflicts**: When multiple developers work on the same branch, rebasing creates unnecessary conflicts as each developer must rebase their work on top of others' rebased commits. Merging handles parallel development naturally.
+
+- **Audit Trail**: Merge commits provide a clear audit trail showing when features were integrated and by whom. This is essential for compliance, debugging, and understanding project evolution.
 
 ### Regeneration Script (`regenerate-from-ontology.sh`)
 

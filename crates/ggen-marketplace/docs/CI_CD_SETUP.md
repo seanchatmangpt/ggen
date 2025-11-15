@@ -278,7 +278,34 @@ For `main` branch:
 
 - At least one approval
 - All CI checks must pass
-- No merge commits (squash or rebase)
+- Merge commits preferred (avoid rebasing)
+
+**Why Merge Commits Are Preferred:**
+
+Merge commits are the recommended approach for integrating pull requests because they:
+
+- **Preserve Complete History**: Merge commits maintain the full development timeline, showing exactly when features were developed and integrated. This historical accuracy is crucial for debugging, auditing, and understanding project evolution.
+
+- **Maintain Accurate Timestamps**: Each commit retains its original timestamp and author information, providing an accurate record of when work was actually done. Rebasing rewrites these timestamps, making it difficult to understand the true development timeline.
+
+- **Track Relationships**: Merge commits clearly show the relationship between feature branches and the main branch, making it easy to identify which commits belong to which feature and when they were integrated.
+
+- **Enable Proper Conflict Resolution Tracking**: When conflicts occur, merge commits preserve the resolution process. This allows teams to understand how conflicts were resolved and learn from past decisions.
+
+- **Support Collaborative Workflows**: Merge operations work seamlessly with multiple developers without requiring force-pushes. This eliminates the disruption that rebasing causes when team members have already pulled a branch.
+
+- **Enable Better Debugging**: Stable commit references (SHAs) allow CI/CD pipelines, issue trackers, deployment systems, and debugging tools to reliably reference specific commits. Rebasing changes commit hashes, breaking these critical integrations.
+
+**Why Rebasing Is Discouraged:**
+
+Rebasing is discouraged in this workflow because it:
+
+- Rewrites history, making it impossible to see the actual sequence of development
+- Requires force-pushes that disrupt other developers working on the same branch
+- Changes commit SHAs, breaking CI/CD pipelines and external references
+- Loses merge context and conflict resolution history
+- Creates unnecessary conflicts when multiple developers collaborate on the same branch
+- Makes debugging harder by changing commit references that tools depend on
 
 ## Caching Strategy
 
