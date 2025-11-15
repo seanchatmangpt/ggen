@@ -1,6 +1,6 @@
 [package]
 name = "ggen-utils"
-version = "2.6.0"
+version = "2.7.0"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "Shared utilities for ggen"
 edition = "2021"
@@ -58,7 +58,6 @@ regex = "1.10"
 
 [dev-dependencies]
 tempfile = "3"
-chicago-tdd-tools = { workspace = true }
 
 [[bin]]
 name = "git_hook_pre_commit"
