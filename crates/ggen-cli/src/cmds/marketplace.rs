@@ -795,58 +795,83 @@ fn recommend(
     min_score: Option<u32>,
     min_dimension_score: Option<u32>,
 ) -> Result<serde_json::Value> {
-    let _min_dimension_score = min_dimension_score.unwrap_or(15);
+    // Generate all assessments
+    let assessments = ggen_marketplace::prelude::generate_all_assessments();
 
-    // Generate sample recommendations based on use case
-    let (min_score_threshold, title) = match use_case.as_str() {
-        "production" => (65, "Production-Ready Recommendations"),
-        "research" => (40, "Research & Evaluation Recommendations"),
-        "enterprise" => (85, "Enterprise-Grade Recommendations"),
-        "startup" => (50, "Startup MVP Recommendations"),
-        _ => (60, "General Recommendations"),
+    // Find packages matching use case
+    let candidates = ggen_marketplace::prelude::find_for_use_case(&assessments, &use_case);
+
+    // Filter by min_score if specified
+    let min_score_val = min_score.unwrap_or_else(|| match use_case.as_str() {
+        "production" => 65,
+        "research" => 40,
+        "enterprise" => 85,
+        "startup" => 50,
+        _ => 60,
+    });
+
+    let filtered: Vec<_> = candidates
+        .iter()
+        .filter(|a| a.total_score() >= min_score_val)
+        .collect();
+
+    // Filter by dimension if priority is security
+    let final_candidates: Vec<_> = if priority.as_deref() == Some("security") {
+        let min_dim = min_dimension_score.unwrap_or(15);
+        filtered
+            .iter()
+            .filter(|a| a.security.total() >= min_dim)
+            .copied()
+            .collect()
+    } else {
+        filtered.iter().copied().collect()
     };
 
-    let min_score = min_score.unwrap_or(min_score_threshold);
+    // Sort by score descending
+    let mut sorted = final_candidates;
+    sorted.sort_by(|a, b| b.total_score().cmp(&a.total_score()));
 
-    // Priority dimension (if specified)
-    let priority_dimension = priority.unwrap_or_else(|| "all".to_string());
+    // Build recommendations
+    let recommendations: Vec<_> = sorted
+        .iter()
+        .enumerate()
+        .map(|(idx, assessment)| {
+            serde_json::json!({
+                "rank": idx + 1,
+                "package_id": &assessment.package_id,
+                "package_name": &assessment.package_name,
+                "maturity_level": format!("{:?}", assessment.level()),
+                "total_score": assessment.total_score(),
+                "reason": format!(
+                    "Score: {} - {}",
+                    assessment.total_score(),
+                    assessment.level().description()
+                ),
+                "best_for": &assessment.package_name
+            })
+        })
+        .collect();
+
+    let (title, _) = match use_case.as_str() {
+        "production" => ("Production-Ready Recommendations", 65),
+        "research" => ("Research & Evaluation Recommendations", 40),
+        "enterprise" => ("Enterprise-Grade Recommendations", 85),
+        "startup" => ("Startup MVP Recommendations", 50),
+        _ => ("General Recommendations", 60),
+    };
 
     Ok(serde_json::json!({
         "title": title,
         "use_case": use_case,
-        "priority": priority_dimension,
-        "min_score": min_score,
-        "min_dimension_score": _min_dimension_score,
-        "recommendations": [
-            {
-                "rank": 1,
-                "package_id": "io.ggen.research-compiler",
-                "maturity_level": "Production",
-                "total_score": 78,
-                "reason": "Excellent documentation and testing with strong security posture",
-                "best_for": "Research implementations with production requirements"
-            },
-            {
-                "rank": 2,
-                "package_id": "io.ggen.data-processor",
-                "maturity_level": "Production",
-                "total_score": 71,
-                "reason": "Strong testing coverage and active maintenance",
-                "best_for": "Data processing pipelines"
-            },
-            {
-                "rank": 3,
-                "package_id": "io.ggen.lightweight-parser",
-                "maturity_level": "Beta",
-                "total_score": 55,
-                "reason": "Good foundation, still improving",
-                "best_for": "Evaluation and feedback gathering"
-            }
-        ],
+        "priority": priority.unwrap_or_else(|| "all".to_string()),
+        "min_score": min_score_val,
+        "total_matches": recommendations.len(),
+        "recommendations": recommendations,
         "guidance": format!(
-            "For {}, focus on packages with score >= {} and strong {} support",
-            use_case, min_score,
-            if priority_dimension == "all" { "all dimensions".to_string() } else { priority_dimension }
+            "Found {} packages matching {} use case with score >= {}",
+            recommendations.len(),
+            use_case,
+            min_score_val
         )
     }))
 }
@@ -872,82 +897,99 @@ fn compare(
     detailed: bool,
     output: Option<PathBuf>,
 ) -> Result<serde_json::Value> {
-    // Mock packages for comparison
-    let pkg_a_score = 78;
-    let pkg_b_score = 65;
+    // Generate assessments
+    let assessments = ggen_marketplace::prelude::generate_all_assessments();
 
-    let comparison = serde_json::json!({
+    // Find packages A and B
+    let pkg_a = assessments
+        .iter()
+        .find(|a| a.package_id == package_a)
+        .ok_or_else(|| anyhow::anyhow!("Package {} not found", package_a))?;
+
+    let pkg_b = assessments
+        .iter()
+        .find(|a| a.package_id == package_b)
+        .ok_or_else(|| anyhow::anyhow!("Package {} not found", package_b))?;
+
+    // Get scores
+    let pkg_a_score = pkg_a.total_score();
+    let pkg_b_score = pkg_b.total_score();
+
+    // Build comparison
+    let mut comparison = serde_json::json!({
         "package_a": {
-            "id": package_a.clone(),
+            "id": pkg_a.package_id.clone(),
+            "name": pkg_a.package_name.clone(),
             "total_score": pkg_a_score,
-            "maturity_level": "Production",
+            "maturity_level": format!("{:?}", pkg_a.level()),
             "scores": {
-                "documentation": 18,
-                "testing": 16,
-                "security": 18,
-                "performance": 12,
-                "adoption": 12,
-                "maintenance": 2
+                "documentation": pkg_a.documentation.total(),
+                "testing": pkg_a.testing.total(),
+                "security": pkg_a.security.total(),
+                "performance": pkg_a.performance.total(),
+                "adoption": pkg_a.adoption.total(),
+                "maintenance": pkg_a.maintenance.total()
             }
         },
         "package_b": {
-            "id": package_b.clone(),
+            "id": pkg_b.package_id.clone(),
+            "name": pkg_b.package_name.clone(),
             "total_score": pkg_b_score,
-            "maturity_level": "Beta",
+            "maturity_level": format!("{:?}", pkg_b.level()),
             "scores": {
-                "documentation": 15,
-                "testing": 14,
-                "security": 16,
-                "performance": 10,
-                "adoption": 8,
-                "maintenance": 2
+                "documentation": pkg_b.documentation.total(),
+                "testing": pkg_b.testing.total(),
+                "security": pkg_b.security.total(),
+                "performance": pkg_b.performance.total(),
+                "adoption": pkg_b.adoption.total(),
+                "maintenance": pkg_b.maintenance.total()
             }
         },
         "comparison": {
             "winner": if pkg_a_score > pkg_b_score {
-                Some(package_a.clone())
+                Some(&pkg_a.package_id)
             } else if pkg_b_score > pkg_a_score {
-                Some(package_b.clone())
+                Some(&pkg_b.package_id)
             } else {
                 None
             },
             "score_difference": (pkg_a_score as i32 - pkg_b_score as i32).abs(),
             "dimension_comparison": {
                 "documentation": {
-                    "package_a": 18,
-                    "package_b": 15,
-                    "winner": "package_a"
+                    "package_a": pkg_a.documentation.total(),
+                    "package_b": pkg_b.documentation.total(),
+                    "winner": if pkg_a.documentation.total() > pkg_b.documentation.total() { "package_a" } else if pkg_b.documentation.total() > pkg_a.documentation.total() { "package_b" } else { "tie" }
                 },
                 "testing": {
-                    "package_a": 16,
-                    "package_b": 14,
-                    "winner": "package_a"
+                    "package_a": pkg_a.testing.total(),
+                    "package_b": pkg_b.testing.total(),
+                    "winner": if pkg_a.testing.total() > pkg_b.testing.total() { "package_a" } else if pkg_b.testing.total() > pkg_a.testing.total() { "package_b" } else { "tie" }
                 },
                 "security": {
-                    "package_a": 18,
-                    "package_b": 16,
-                    "winner": "package_a"
+                    "package_a": pkg_a.security.total(),
+                    "package_b": pkg_b.security.total(),
+                    "winner": if pkg_a.security.total() > pkg_b.security.total() { "package_a" } else if pkg_b.security.total() > pkg_a.security.total() { "package_b" } else { "tie" }
                 },
                 "performance": {
-                    "package_a": 12,
-                    "package_b": 10,
-                    "winner": "package_a"
+                    "package_a": pkg_a.performance.total(),
+                    "package_b": pkg_b.performance.total(),
+                    "winner": if pkg_a.performance.total() > pkg_b.performance.total() { "package_a" } else if pkg_b.performance.total() > pkg_a.performance.total() { "package_b" } else { "tie" }
                 },
                 "adoption": {
-                    "package_a": 12,
-                    "package_b": 8,
-                    "winner": "package_a"
+                    "package_a": pkg_a.adoption.total(),
+                    "package_b": pkg_b.adoption.total(),
+                    "winner": if pkg_a.adoption.total() > pkg_b.adoption.total() { "package_a" } else if pkg_b.adoption.total() > pkg_a.adoption.total() { "package_b" } else { "tie" }
                 },
                 "maintenance": {
-                    "package_a": 2,
-                    "package_b": 2,
-                    "winner": "tie"
+                    "package_a": pkg_a.maintenance.total(),
+                    "package_b": pkg_b.maintenance.total(),
+                    "winner": if pkg_a.maintenance.total() > pkg_b.maintenance.total() { "package_a" } else if pkg_b.maintenance.total() > pkg_a.maintenance.total() { "package_b" } else { "tie" }
                 }
             }
         },
         "recommendation": format!(
             "{} is better suited for production use (score: {} vs {})",
-            if pkg_a_score >= pkg_b_score { &package_a } else { &package_b },
+            if pkg_a_score >= pkg_b_score { &pkg_a.package_id } else { &pkg_b.package_id },
             pkg_a_score.max(pkg_b_score),
             pkg_a_score.min(pkg_b_score)
         ),
@@ -958,9 +1000,9 @@ fn compare(
     if let Some(output_path) = output {
         use std::fs;
         let json = serde_json::to_string_pretty(&comparison)
-            .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;
+            .map_err(|e| anyhow::anyhow!("JSON serialization failed: {}", e))?;
         fs::write(output_path, json)
-            .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;
+            .map_err(|e| anyhow::anyhow!("Failed to write file: {}", e))?;
     }
 
     Ok(comparison)
@@ -994,6 +1036,9 @@ fn search_maturity(
     min_maintenance: Option<u32>,
     exclude_maintenance_low: bool,
 ) -> Result<serde_json::Value> {
+    // Generate assessments
+    let assessments = ggen_marketplace::prelude::generate_all_assessments();
+
     // Parse min_level to score
     let min_score = match min_level.as_deref() {
         Some("experimental") => 0,
@@ -1003,7 +1048,53 @@ fn search_maturity(
         _ => 0,
     };
 
-    let filters = serde_json::json!({
+    // Filter by score first
+    let mut filtered: Vec<_> = assessments
+        .iter()
+        .filter(|a| a.total_score() >= min_score)
+        .collect();
+
+    // Apply dimension filters
+    filtered.retain(|a| {
+        let checks = vec![
+            min_documentation.map(|m| a.documentation.total() >= m),
+            min_testing.map(|m| a.testing.total() >= m),
+            min_security.map(|m| a.security.total() >= m),
+            min_performance.map(|m| a.performance.total() >= m),
+            min_adoption.map(|m| a.adoption.total() >= m),
+            min_maintenance.map(|m| a.maintenance.total() >= m),
+        ];
+        checks.into_iter().all(|c| c.unwrap_or(true))
+    });
+
+    // Exclude low maintenance if requested
+    if exclude_maintenance_low {
+        filtered.retain(|a| a.maintenance.total() >= 3);
+    }
+
+    // Build results
+    let results: Vec<_> = filtered
+        .iter()
+        .map(|a| {
+            serde_json::json!({
+                "package_id": a.package_id.clone(),
+                "package_name": a.package_name.clone(),
+                "total_score": a.total_score(),
+                "maturity_level": format!("{:?}", a.level()),
+                "matches": {
+                    "documentation": a.documentation.total(),
+                    "testing": a.testing.total(),
+                    "security": a.security.total(),
+                    "performance": a.performance.total(),
+                    "adoption": a.adoption.total(),
+                    "maintenance": a.maintenance.total()
+                },
+                "all_criteria_met": true
+            })
+        })
+        .collect();
+
+    let criteria = serde_json::json!({
         "min_score": min_score,
         "min_documentation": min_documentation,
         "min_testing": min_testing,
@@ -1015,38 +1106,9 @@ fn search_maturity(
     });
 
     Ok(serde_json::json!({
-        "search_criteria": filters,
-        "results": [
-            {
-                "package_id": "io.ggen.research-compiler",
-                "total_score": 78,
-                "maturity_level": "Production",
-                "matches": {
-                    "documentation": 18,
-                    "testing": 16,
-                    "security": 18,
-                    "performance": 12,
-                    "adoption": 12,
-                    "maintenance": 2
-                },
-                "all_criteria_met": true
-            },
-            {
-                "package_id": "io.ggen.data-processor",
-                "total_score": 71,
-                "maturity_level": "Production",
-                "matches": {
-                    "documentation": 15,
-                    "testing": 16,
-                    "security": 16,
-                    "performance": 10,
-                    "adoption": 10,
-                    "maintenance": 4
-                },
-                "all_criteria_met": true
-            }
-        ],
-        "total_matches": 2,
+        "search_criteria": criteria,
+        "results": results,
+        "total_matches": results.len(),
         "note": "Use results to filter marketplace packages for your specific needs"
     }))
 }
@@ -1075,38 +1137,78 @@ fn export(
     detailed: bool,
     min_maturity: Option<String>,
 ) -> Result<serde_json::Value> {
-    let format = format.unwrap_or_else(|| "json".to_string());
-    let output = output.unwrap_or_else(|| PathBuf::from("marketplace-export.json"));
+    let format_str = format.unwrap_or_else(|| "json".to_string());
+    let output_path = output.unwrap_or_else(|| {
+        if format_str == "csv" {
+            PathBuf::from("marketplace-export.csv")
+        } else {
+            PathBuf::from("marketplace-export.json")
+        }
+    });
 
-    // Create export metadata
-    let export_data = serde_json::json!({
+    // Generate assessments
+    let mut assessments = ggen_marketplace::prelude::generate_all_assessments();
+
+    // Filter by maturity level if specified
+    if let Some(level) = &min_maturity {
+        assessments.retain(|a| {
+            let pkg_level = format!("{:?}", a.level()).to_lowercase();
+            pkg_level == level.to_lowercase()
+        });
+    }
+
+    // Generate export content
+    let export_content = match format_str.as_str() {
+        "csv" => ggen_marketplace::prelude::export_as_csv(&assessments),
+        "json" => {
+            let json_val = ggen_marketplace::prelude::export_as_json(&assessments);
+            serde_json::to_string_pretty(&json_val)
+                .map_err(|e| anyhow::anyhow!("JSON serialization failed: {}", e))?
+        }
+        "html" => {
+            // Generate basic HTML report
+            let mut html = String::from("<html><head><title>Marketplace Assessment Report</title>");
+            html.push_str("<style>table{border-collapse:collapse}td,th{border:1px solid #ddd;padding:8px}</style>");
+            html.push_str("</head><body><h1>Marketplace Assessment Report</h1>");
+            html.push_str(&format!("<p>Generated: {}</p>", chrono::Utc::now().to_rfc3339()));
+            html.push_str("<table><tr><th>Package</th><th>Score</th><th>Level</th><th>Docs</th><th>Tests</th><th>Security</th></tr>");
+
+            for a in &assessments {
+                html.push_str(&format!(
+                    "<tr><td>{}</td><td>{}</td><td>{:?}</td><td>{}</td><td>{}</td><td>{}</td></tr>",
+                    a.package_name,
+                    a.total_score(),
+                    a.level(),
+                    a.documentation.total(),
+                    a.testing.total(),
+                    a.security.total()
+                ));
+            }
+
+            html.push_str("</table></body></html>");
+            html
+        }
+        _ => {
+            return Err(anyhow::anyhow!("Unknown export format: {}", format_str));
+        }
+    };
+
+    // Write file
+    use std::fs;
+    fs::write(&output_path, &export_content)
+        .map_err(|e| anyhow::anyhow!("Failed to write export file: {}", e))?;
+
+    Ok(serde_json::json!({
+        "status": "success",
+        "format": format_str,
+        "output_path": output_path.to_string_lossy(),
         "export_timestamp": chrono::Utc::now().to_rfc3339(),
-        "format": format.clone(),
-        "output_file": output.to_string_lossy(),
+        "total_packages": assessments.len(),
         "filters": {
             "min_maturity": min_maturity,
             "detailed": detailed
         },
-        "content_summary": {
-            "total_packages": 45,
-            "exported_packages": 18,
-            "format_details": match format.as_str() {
-                "csv" => "CSV format with headers: id, name, score, level, documentation, testing, security, performance, adoption, maintenance",
-                "html" => "HTML report with interactive tables, charts, and filtering",
-                "json" => "Structured JSON with full assessment details",
-                _ => "Unknown format"
-            }
-        }
-    });
-
-    // In real implementation, would write the file here
-    // For now, show what would be exported
-    Ok(serde_json::json!({
-        "status": "ready_to_export",
-        "format": format,
-        "output_path": output.to_string_lossy(),
-        "export_plan": export_data,
-        "note": "Run with actual package data to generate export file"
+        "message": format!("Successfully exported {} packages to {}", assessments.len(), output_path.display())
     }))
 }
 
