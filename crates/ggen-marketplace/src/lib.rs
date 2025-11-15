@@ -79,6 +79,7 @@ pub mod traits;
 pub mod types;
 pub mod maturity;
 pub mod maturity_evaluator;
+pub mod workflow_analytics;
 
 // OpenTelemetry instrumentation
 pub mod telemetry;
@@ -114,6 +115,10 @@ pub mod prelude {
     };
     pub use crate::maturity_evaluator::{
         EvaluationInput, MaturityDashboard, MaturityEvaluator,
+    };
+    pub use crate::workflow_analytics::{
+        WorkflowEvent, WorkflowEventType, WorkflowLog, WorkflowTrace,
+        DirectlyFollowsGraph, ProcessStatistics,
     };
     pub use crate::models::{ContentId, HashAlgorithm, Package, PackageId, Query, Version};
     pub use crate::storage::{FilesystemStore, MemoryStore};
