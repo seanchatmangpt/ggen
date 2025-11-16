@@ -6,7 +6,6 @@
 use crate::maturity::{MaturityAssessment, MaturityLevel};
 use crate::maturity_evaluator::{EvaluationInput, MaturityEvaluator};
 use serde_json::json;
-use std::collections::HashMap;
 
 /// Sample packages for demonstration (would come from registry in production)
 pub fn sample_packages() -> Vec<EvaluationInput> {
@@ -202,7 +201,7 @@ pub fn get_recommendations(
     use_case: &str,
     priority: Option<&str>,
     min_score: Option<u32>,
-) -> Vec<&'static str> {
+) -> Vec<String> {
     let default_score = match use_case {
         "production" => 65,
         "research" => 40,
@@ -215,21 +214,21 @@ pub fn get_recommendations(
 
     // In production, would query based on these criteria
     // For now, return guidance
-    let mut guidance = vec!["Start by searching packages meeting your criteria"];
+    let mut guidance = vec!["Start by searching packages meeting your criteria".to_string()];
 
     if let Some(pri) = priority {
         match pri {
-            "security" => guidance.push("Focus on packages with security score >= 18"),
-            "testing" => guidance.push("Focus on packages with testing score >= 16"),
-            "documentation" => guidance.push("Focus on packages with documentation score >= 15"),
-            "performance" => guidance.push("Focus on packages with performance score >= 12"),
-            "adoption" => guidance.push("Focus on packages with adoption score >= 12"),
-            "maintenance" => guidance.push("Focus on packages with maintenance score >= 5"),
+            "security" => guidance.push("Focus on packages with security score >= 18".to_string()),
+            "testing" => guidance.push("Focus on packages with testing score >= 16".to_string()),
+            "documentation" => guidance.push("Focus on packages with documentation score >= 15".to_string()),
+            "performance" => guidance.push("Focus on packages with performance score >= 12".to_string()),
+            "adoption" => guidance.push("Focus on packages with adoption score >= 12".to_string()),
+            "maintenance" => guidance.push("Focus on packages with maintenance score >= 5".to_string()),
             _ => {}
         }
     }
 
-    guidance.push(&format!("Minimum score threshold: {}", min));
+    guidance.push(format!("Minimum score threshold: {}", min));
 
     guidance
 }
@@ -306,10 +305,10 @@ pub fn export_as_csv(assessments: &[MaturityAssessment]) -> String {
 }
 
 /// Find packages matching use case criteria
-pub fn find_for_use_case(
-    assessments: &[MaturityAssessment],
+pub fn find_for_use_case<'a>(
+    assessments: &'a [MaturityAssessment],
     use_case: &str,
-) -> Vec<&MaturityAssessment> {
+) -> Vec<&'a MaturityAssessment> {
     let (min_level, min_score) = match use_case {
         "production" => (MaturityLevel::Production, 61),
         "research" => (MaturityLevel::Beta, 40),
