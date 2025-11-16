@@ -4,11 +4,8 @@
 use assert_cmd::Command;
 use predicates::prelude::*;
 
+use super::common::integration_timeout;
 use super::test_helpers::*;
-
-#[path = "../common/mod.rs"]
-mod test_config;
-use test_config::integration_timeout;
 
 #[test]
 fn test_marketplace_search_local() {

@@ -5,7 +5,7 @@ use std::str;
 test!(test_gen_cli_subcommand, {
     // Arrange
     let mut cmd = Command::new("cargo");
-    cmd.args(&["run", "--", "gen", "cli", "subcommand", "--vars", "cmd=hello", "summary=Test greeting"])
+    cmd.args(["run", "--", "gen", "cli", "subcommand", "--vars", "cmd=hello", "summary=Test greeting"])
         .current_dir("..");
 
     // Act
@@ -20,7 +20,7 @@ test!(test_gen_cli_subcommand, {
 test!(test_gen_with_invalid_template, {
     // Arrange
     let mut cmd = Command::new("cargo");
-    cmd.args(&["run", "--", "gen", "invalid", "template"])
+    cmd.args(["run", "--", "gen", "invalid", "template"])
         .current_dir("..");
 
     // Act

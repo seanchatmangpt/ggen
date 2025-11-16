@@ -488,9 +488,7 @@ struct PropertyInfo {
 }
 
 fn map_xsd_to_typescript(xsd_type: &str) -> String {
-    if xsd_type.contains("integer") {
-        "number".to_string()
-    } else if xsd_type.contains("decimal") || xsd_type.contains("double") {
+    if xsd_type.contains("integer") || xsd_type.contains("decimal") || xsd_type.contains("double") {
         "number".to_string()
     } else if xsd_type.contains("boolean") {
         "boolean".to_string()

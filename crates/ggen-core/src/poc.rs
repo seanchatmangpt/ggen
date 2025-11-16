@@ -342,7 +342,7 @@ fn virtual_name_for(p: &Path) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::prelude::*;
+    use chicago_tdd_tools::test;
     use std::fs;
 
     #[ignore = "POC feature - experimental, not production critical"]

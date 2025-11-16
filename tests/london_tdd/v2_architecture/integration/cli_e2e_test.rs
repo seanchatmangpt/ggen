@@ -1,4 +1,4 @@
-#![cfg(feature = "london-tdd")]
+#![cfg(feature = "london_tdd")]
 //! London TDD integration tests for CLI → domain flow
 //!
 //! Tests the full execution path from CLI entry point to domain logic and output.

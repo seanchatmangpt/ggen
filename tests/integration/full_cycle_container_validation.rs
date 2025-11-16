@@ -162,6 +162,7 @@ fn full_cycle_container_validation() {
 
 /// Project structure snapshot for validation
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 struct ProjectSnapshot {
     file_count: usize,
     dir_count: usize,
@@ -174,7 +175,7 @@ fn capture_project_snapshot() -> ProjectSnapshot {
 
     // Count files and directories (excluding target, .git, node_modules)
     let output = Command::new("sh")
-        .args(&["-c", "find . -type f -not -path '*/target/*' -not -path '*/.git/*' -not -path '*/node_modules/*' 2>/dev/null | wc -l"])
+        .args(["-c", "find . -type f -not -path '*/target/*' -not -path '*/.git/*' -not -path '*/node_modules/*' 2>/dev/null | wc -l"])
         .output()
         .expect("Failed to count files");
 
@@ -336,7 +337,7 @@ fn run_marketplace_lifecycle_container(client: &ContainerClient) -> Testcontaine
 
     // Step 1: Initialize new marketplace package
     println!("\n  📦 Step 1: Initialize marketplace package...");
-    let init_result = container.exec(
+    let _init_result = container.exec(
         "sh",
         &["-c", "cd /workspace && ggen marketplace init my-test-package --template basic 2>&1 || echo 'Init command needs implementation'"]
     )?;

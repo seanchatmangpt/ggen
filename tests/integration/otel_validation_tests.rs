@@ -104,7 +104,7 @@ async_test_with_timeout!(test_marketplace_search_emits_spans_to_collector, 30, a
 
     // Act
     let output = Command::new("cargo")
-        .args(&["run", "--bin", "ggen", "--features", "otel", "--",
+        .args(["run", "--bin", "ggen", "--features", "otel", "--",
                 "marketplace", "search", "test"])
         .env("OTEL_EXPORTER_OTLP_ENDPOINT", COLLECTOR_OTLP_HTTP)
         .env("OTEL_SERVICE_NAME", SERVICE_NAME)
@@ -145,7 +145,7 @@ async_test_with_timeout!(test_p2p_operations_emit_trace_context, 30, async {
     // Act
     // Execute P2P initialization (should create multiple spans)
     let output = Command::new("cargo")
-        .args(&["run", "--bin", "ggen", "--features", "otel,p2p", "--",
+        .args(["run", "--bin", "ggen", "--features", "otel,p2p", "--",
                 "marketplace", "search", "test", "--p2p"])
         .env("OTEL_EXPORTER_OTLP_ENDPOINT", COLLECTOR_OTLP_HTTP)
         .env("OTEL_SERVICE_NAME", SERVICE_NAME)
@@ -180,7 +180,7 @@ async_test_with_timeout!(test_span_attributes_contain_operation_metadata, 30, as
     // Arrange & Act
     // Run operation
     let _output = Command::new("cargo")
-        .args(&["run", "--bin", "ggen", "--features", "otel", "--",
+        .args(["run", "--bin", "ggen", "--features", "otel", "--",
                 "marketplace", "search", "test-package"])
         .env("OTEL_EXPORTER_OTLP_ENDPOINT", COLLECTOR_OTLP_HTTP)
         .env("OTEL_SERVICE_NAME", SERVICE_NAME)
@@ -238,7 +238,7 @@ async_test_with_timeout!(test_parent_child_span_relationships_preserved, 30, asy
     // Arrange & Act
     // Run operation that should create nested spans
     let _output = Command::new("cargo")
-        .args(&["run", "--bin", "ggen", "--features", "otel", "--",
+        .args(["run", "--bin", "ggen", "--features", "otel", "--",
                 "marketplace", "search", "test"])
         .env("OTEL_EXPORTER_OTLP_ENDPOINT", COLLECTOR_OTLP_HTTP)
         .env("OTEL_SERVICE_NAME", SERVICE_NAME)
@@ -283,7 +283,7 @@ async_test_with_timeout!(test_parent_child_span_relationships_preserved, 30, asy
 async_test_with_timeout!(test_trace_context_propagates_across_operations, 30, async {
     // Arrange & Act
     let _output = Command::new("cargo")
-        .args(&["run", "--bin", "ggen", "--features", "otel", "--",
+        .args(["run", "--bin", "ggen", "--features", "otel", "--",
                 "marketplace", "search", "propagation-test"])
         .env("OTEL_EXPORTER_OTLP_ENDPOINT", COLLECTOR_OTLP_HTTP)
         .env("OTEL_SERVICE_NAME", SERVICE_NAME)
@@ -337,7 +337,7 @@ async_test_with_timeout!(test_trace_context_propagates_across_operations, 30, as
 async_test_with_timeout!(test_spans_have_correct_service_name, 30, async {
     // Arrange & Act
     let _output = Command::new("cargo")
-        .args(&["run", "--bin", "ggen", "--features", "otel", "--",
+        .args(["run", "--bin", "ggen", "--features", "otel", "--",
                 "marketplace", "search", "service-test"])
         .env("OTEL_EXPORTER_OTLP_ENDPOINT", COLLECTOR_OTLP_HTTP)
         .env("OTEL_SERVICE_NAME", SERVICE_NAME)
@@ -387,7 +387,7 @@ async_test_with_timeout!(test_span_export_does_not_block_operation, 30, async {
     // Run without OTEL
     let start_no_otel = std::time::Instant::now();
     let _output1 = Command::new("cargo")
-        .args(&["run", "--bin", "ggen", "--", "marketplace", "search", "perf-test"])
+        .args(["run", "--bin", "ggen", "--", "marketplace", "search", "perf-test"])
         .output()
         .expect("Failed to run search without OTEL");
     let duration_no_otel = start_no_otel.elapsed();
@@ -395,7 +395,7 @@ async_test_with_timeout!(test_span_export_does_not_block_operation, 30, async {
     // Run with OTEL
     let start_with_otel = std::time::Instant::now();
     let _output2 = Command::new("cargo")
-        .args(&["run", "--bin", "ggen", "--features", "otel", "--",
+        .args(["run", "--bin", "ggen", "--features", "otel", "--",
                 "marketplace", "search", "perf-test"])
         .env("OTEL_EXPORTER_OTLP_ENDPOINT", COLLECTOR_OTLP_HTTP)
         .env("OTEL_SERVICE_NAME", SERVICE_NAME)
@@ -435,7 +435,7 @@ async_test_with_timeout!(test_collector_handles_burst_of_spans, 30, async {
     for i in 0..5 {
         let handle = tokio::spawn(async move {
             Command::new("cargo")
-                .args(&["run", "--bin", "ggen", "--features", "otel", "--",
+                .args(["run", "--bin", "ggen", "--features", "otel", "--",
                         "marketplace", "search", &format!("burst-test-{}", i)])
                 .env("OTEL_EXPORTER_OTLP_ENDPOINT", COLLECTOR_OTLP_HTTP)
                 .env("OTEL_SERVICE_NAME", SERVICE_NAME)

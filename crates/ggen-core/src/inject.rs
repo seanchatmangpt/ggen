@@ -323,7 +323,7 @@ impl SkipIfGenerator {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::prelude::*;
+    use chicago_tdd_tools::test;
     use tempfile::NamedTempFile;
 
     test!(test_detect_eol_crlf, {

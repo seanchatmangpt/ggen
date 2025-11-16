@@ -327,7 +327,7 @@ pub type Result<T> = std::result::Result<T, LifecycleError>;
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::prelude::*;
+    use chicago_tdd_tools::test;
 
     test!(test_phase_not_found_error, {
         let err = LifecycleError::phase_not_found("build");

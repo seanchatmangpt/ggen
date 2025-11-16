@@ -4,20 +4,21 @@
 //! for validation purposes.
 
 use super::*;
-use opentelemetry::trace::{Span, SpanKind, Status, Tracer};
 use std::sync::Arc;
-use tracing_subscriber::layer::SubscriberExt;
 
 /// In-memory trace exporter for testing
+#[allow(dead_code)]
 pub struct InMemoryExporter {
     collector: Arc<TraceCollector>,
 }
 
 impl InMemoryExporter {
+    #[allow(dead_code)]
     pub fn new(collector: Arc<TraceCollector>) -> Self {
         Self { collector }
     }
 
+    #[allow(dead_code)]
     pub fn export_span(&self, span: SpanRecord) {
         self.collector.record_span(span);
     }
@@ -102,6 +103,7 @@ impl<'a> TraceAsserter<'a> {
     }
 
     /// Assert metric value
+    #[allow(dead_code)]
     pub fn metric_equals(&self, name: &str, expected: f64) -> Result<&Self> {
         let metrics = self.collector.get_metrics();
         let actual = metrics
@@ -119,6 +121,7 @@ impl<'a> TraceAsserter<'a> {
     }
 
     /// Assert metric is within range
+    #[allow(dead_code)]
     pub fn metric_in_range(&self, name: &str, min: f64, max: f64) -> Result<&Self> {
         let metrics = self.collector.get_metrics();
         let actual = metrics
@@ -138,6 +141,7 @@ impl<'a> TraceAsserter<'a> {
 
 /// Performance metrics collector
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 pub struct PerformanceMetrics {
     pub generation_time_ms: f64,
     pub memory_usage_mb: f64,

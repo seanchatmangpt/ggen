@@ -443,7 +443,7 @@ fn generate_and_save_slot(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::prelude::*;
+    use chicago_tdd_tools::test;
     use tempfile::TempDir;
 
     fn create_test_ctx() -> PrepCtx<'static> {

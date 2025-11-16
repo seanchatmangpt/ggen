@@ -26,13 +26,15 @@ pub struct ListInput {
 ///
 /// Returns Ok(()) on success, or an error if listing fails
 pub async fn list_and_display(detailed: bool, json: bool) -> Result<()> {
-    // Get installed packages directory - handle missing home directory gracefully
-    let packages_dir = if let Some(home_dir) = dirs::home_dir() {
-        home_dir.join(".ggen").join("packages")
-    } else {
-        // Fallback to temp directory if home directory not available
-        std::env::temp_dir().join("ggen-packages")
-    };
+    // FM22 (RPN 350): Missing home directory - fail fast for determinism (no temp fallback)
+    let packages_dir = dirs::home_dir()
+        .ok_or_else(|| {
+            ggen_utils::error::Error::new(
+                "❌ Home directory not found. Cannot determine packages directory. Marketplace operations require a valid home directory."
+            )
+        })?
+        .join(".ggen")
+        .join("packages");
 
     // Read lockfile to get installed packages
     let lockfile_path = packages_dir.join("ggen.lock");
@@ -46,11 +48,54 @@ pub async fn list_and_display(detailed: bool, json: bool) -> Result<()> {
         return Ok(());
     }
 
+    // FM21 (RPN 240): Corrupted lockfile - handle gracefully with recovery
     let content = tokio::fs::read_to_string(&lockfile_path)
         .await
-        .map_err(|e| ggen_utils::error::Error::new(&format!("IO error: {}", e)))?;
+        .map_err(|e| {
+            ggen_utils::error::Error::new(&format!(
+                "Failed to read lockfile from {}: {}. Lockfile may be corrupted.",
+                lockfile_path.display(),
+                e
+            ))
+        })?;
 
-    let lockfile: Lockfile = serde_json::from_str(&content)?;
+    let lockfile: Lockfile = match serde_json::from_str(&content) {
+        Ok(lockfile) => lockfile,
+        Err(e) => {
+            // Try to recover from backup
+            let backup_path = lockfile_path.with_extension("lock.backup");
+            if backup_path.exists() {
+                match tokio::fs::read_to_string(&backup_path).await {
+                    Ok(backup_content) => match serde_json::from_str::<Lockfile>(&backup_content) {
+                        Ok(backup_lockfile) => {
+                            tracing::info!("Recovered lockfile from backup for list operation");
+                            backup_lockfile
+                        }
+                        Err(_) => {
+                            return Err(ggen_utils::error::Error::new(&format!(
+                                    "Lockfile corrupted at {} and backup also corrupted: {}. Please manually restore or delete lockfile.",
+                                    lockfile_path.display(),
+                                    e
+                                )));
+                        }
+                    },
+                    Err(_) => {
+                        return Err(ggen_utils::error::Error::new(&format!(
+                            "Lockfile corrupted at {} and backup unreadable: {}. Please manually restore or delete lockfile.",
+                            lockfile_path.display(),
+                            e
+                        )));
+                    }
+                }
+            } else {
+                return Err(ggen_utils::error::Error::new(&format!(
+                    "Lockfile corrupted at {} and no backup available: {}. Please manually restore or delete lockfile.",
+                    lockfile_path.display(),
+                    e
+                )));
+            }
+        }
+    };
 
     if lockfile.packages.is_empty() {
         if json {
@@ -110,13 +155,15 @@ pub async fn execute_list(_input: ListInput) -> Result<ListOutput> {
     use ggen_marketplace::prelude::*;
     use std::path::PathBuf;
 
-    // Handle missing home directory gracefully
-    let registry_path = if let Some(home_dir) = dirs::home_dir() {
-        home_dir.join(".ggen").join("registry")
-    } else {
-        // Fallback to temp directory if home directory not available
-        std::env::temp_dir().join("ggen-registry")
-    };
+    // FM22 (RPN 350): Missing home directory - fail fast for determinism (no temp fallback)
+    let registry_path = dirs::home_dir()
+        .ok_or_else(|| {
+            ggen_utils::error::Error::new(
+                "❌ Home directory not found. Cannot determine registry directory. Marketplace operations require a valid home directory."
+            )
+        })?
+        .join(".ggen")
+        .join("registry");
 
     // Initialize registry
     let registry = LocalRegistry::new(registry_path.clone())
@@ -125,13 +172,15 @@ pub async fn execute_list(_input: ListInput) -> Result<ListOutput> {
             ggen_utils::error::Error::new(&format!("Failed to initialize registry: {}", e))
         })?;
 
-    // Load installed packages - handle missing home directory gracefully
-    let packages_dir = if let Some(home_dir) = dirs::home_dir() {
-        home_dir.join(".ggen").join("packages")
-    } else {
-        // Fallback to temp directory if home directory not available
-        std::env::temp_dir().join("ggen-packages")
-    };
+    // FM22 (RPN 350): Missing home directory - fail fast for determinism (no temp fallback)
+    let packages_dir = dirs::home_dir()
+        .ok_or_else(|| {
+            ggen_utils::error::Error::new(
+                "❌ Home directory not found. Cannot determine packages directory. Marketplace operations require a valid home directory."
+            )
+        })?
+        .join(".ggen")
+        .join("packages");
 
     let lockfile_path = packages_dir.join("ggen.lock");
     let lockfile: Lockfile = if lockfile_path.exists() {

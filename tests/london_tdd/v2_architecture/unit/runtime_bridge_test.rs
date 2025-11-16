@@ -1,4 +1,4 @@
-#![cfg(feature = "london-tdd")]
+#![cfg(feature = "london_tdd")]
 //! London TDD unit tests for runtime::execute bridge
 //!
 //! Tests the async→sync boundary wrapper that bridges sync CLI code to async domain logic.

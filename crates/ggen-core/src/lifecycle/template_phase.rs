@@ -203,7 +203,7 @@ pub fn register_template_phase(make: &mut crate::lifecycle::Make) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::prelude::*;
+    use chicago_tdd_tools::test;
 
     test!(test_default_config, {
         let config = TemplatePhaseConfig::default();

@@ -665,7 +665,7 @@ impl TemplateParser {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::prelude::*;
+    use chicago_tdd_tools::test;
 
     test!(test_create_template, {
         let format = TemplateFormat::new("test-template");

@@ -430,7 +430,7 @@ impl DependencyCache {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::prelude::*;
+    use chicago_tdd_tools::test;
 
     test!(test_performance_targets, {
         let targets = PerformanceTargets::default();

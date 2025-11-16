@@ -1,4 +1,4 @@
-#![cfg(feature = "london-tdd")]
+#![cfg(feature = "london_tdd")]
 //! London TDD tests for marketplace registry
 //!
 //! Tests verify:
@@ -9,6 +9,7 @@
 //! - Version resolution
 
 use crate::lib::*;
+use ggen_marketplace::models::Category;
 use ggen_marketplace::prelude::*;
 use mockall::predicate::*;
 
@@ -324,10 +325,10 @@ async fn create_test_registry(path: &std::path::Path) -> LocalRegistry {
     LocalRegistry::new(path.to_path_buf()).await.unwrap()
 }
 
-fn create_test_package(name: &str, version: &str) -> Package {
+fn create_test_package(name: &str, version: &str) -> ggen_marketplace::models::Package {
     let version_parts: Vec<u32> = version.split('.').map(|s| s.parse().unwrap()).collect();
 
-    Package::builder(
+    let unvalidated = ggen_marketplace::models::Package::builder(
         PackageId::new("test", name),
         Version::new(version_parts[0], version_parts[1], version_parts[2]),
     )
@@ -339,12 +340,13 @@ fn create_test_package(name: &str, version: &str) -> Package {
         ggen_marketplace::models::package::HashAlgorithm::Sha256,
     ))
     .build()
-    .unwrap()
+    .unwrap();
+    unvalidated.validate().unwrap().package().clone()
 }
 
 async fn search_with_tracing(
     registry: &LocalRegistry, tracer: &otel::MockTracerProvider, query: &str,
-) -> Result<Vec<Package>, anyhow::Error> {
+) -> std::result::Result<Vec<ggen_marketplace::models::Package>, anyhow::Error> {
     let result = registry.search(&Query::new(query)).await?;
 
     let span = otel::MockSpan {

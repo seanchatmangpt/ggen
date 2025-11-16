@@ -7,7 +7,7 @@
 mod tests {
     use super::super::core::Graph;
     use super::super::store::GraphStore;
-    use chicago_tdd_tools::prelude::*;
+    use chicago_tdd_tools::test;
     use chicago_tdd_tools::testcontainers::{
         ContainerClient, GenericContainer, TestcontainersResult,
     };

@@ -42,6 +42,7 @@ pub fn verify_file_contains(file_path: &Path, expected: &str) -> Result<()> {
 }
 
 /// Get the ggen binary path
+#[allow(dead_code)]
 pub fn ggen_bin() -> PathBuf {
     assert_cmd::cargo::cargo_bin("ggen")
 }

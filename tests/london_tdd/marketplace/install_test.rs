@@ -1,4 +1,4 @@
-#![cfg(feature = "london-tdd")]
+#![cfg(feature = "london_tdd")]
 //! London TDD tests for `ggen add` command
 //!
 //! README.md §Marketplace - Package Installation
@@ -75,7 +75,7 @@ fn test_add_fails_for_nonexistent_package() {
         .expect_download()
         .with(eq("io.ggen.nonexistent"))
         .times(1)
-        .returning(|_| Err(anyhow::anyhow!("Package not found")));
+        .returning(|_| Err(ggen_utils::error::Error::new("Package not found")));
 
     // Act
     let result = run_add_command(&mock_marketplace, &mock_fs, "io.ggen.nonexistent");
@@ -94,7 +94,7 @@ fn test_add_skips_if_already_installed() {
 
     mock_fs
         .expect_exists()
-        .with(predicate::str::contains("io.ggen.rust.axum"))
+        .with(str::contains("io.ggen.rust.axum"))
         .returning(|_| true); // Package already exists
 
     // Act

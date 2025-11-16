@@ -237,7 +237,7 @@ impl From<PackageInfo> for PackageMetadata {
 fn validate_package_for_search(pkg: &PackageInfo) -> Result<()> {
     if pkg.name.is_empty() {
         return Err(ggen_utils::error::Error::new(
-            "Package in search index has empty name"
+            "Package in search index has empty name",
         ));
     }
 
@@ -408,11 +408,11 @@ fn calculate_relevance(pkg: &PackageMetadata, query: &str, fuzzy: bool) -> f64 {
     // Quality signal: better score for packages with good documentation
     // Packages with longer descriptions are usually better documented
     let desc_quality_bonus = if pkg.description.len() > 200 {
-        1.0  // Good documentation
+        1.0 // Good documentation
     } else if pkg.description.len() > 100 {
-        0.5  // Adequate documentation
+        0.5 // Adequate documentation
     } else {
-        0.0  // Minimal documentation
+        0.0 // Minimal documentation
     };
 
     if score > 0.0 {
@@ -658,6 +658,11 @@ async fn cache_registry_index(index: &RegistryIndex) -> Result<()> {
 /// - Multiple filter options (category, author, license, stars, downloads)
 /// - Sorting by relevance, stars, or downloads
 pub async fn search_packages(query: &str, filters: &SearchFilters) -> Result<Vec<SearchResult>> {
+    // Poka-yoke: Use validated type to prevent empty queries at compile time
+    use crate::marketplace::NonEmptyQuery;
+    let validated_query = NonEmptyQuery::new(query)?;
+    let query_str = validated_query.as_str();
+
     // Load registry index (fetches from GitHub Pages or local filesystem)
     let index = load_registry_index().await?;
 
@@ -719,15 +724,11 @@ pub async fn search_packages(query: &str, filters: &SearchFilters) -> Result<Vec
             }
 
             // Calculate relevance score
-            let score = if query.is_empty() {
-                // Empty query: give all packages a base score so they're included
-                1.0
-            } else {
-                calculate_relevance(&pkg, query, filters.fuzzy)
-            };
+            // Poka-yoke: query_str is guaranteed non-empty by NonEmptyQuery type
+            let score = calculate_relevance(&pkg, query_str, filters.fuzzy);
 
             // Only include packages with some relevance (score > 0)
-            // For empty queries, include all packages
+            // Poka-yoke: Empty queries prevented by NonEmptyQuery type
             if score > 0.0 {
                 Some((pkg, score))
             } else {
@@ -997,7 +998,8 @@ mod tests {
                 // If registry missing, error message should be clear and actionable
                 let msg = e.to_string();
                 assert!(
-                    msg.contains("Registry index not found") || msg.contains("registry is corrupted"),
+                    msg.contains("Registry index not found")
+                        || msg.contains("registry is corrupted"),
                     "Error message should indicate missing or corrupted registry: {}",
                     msg
                 );
@@ -1049,7 +1051,8 @@ mod tests {
                 // If registry missing, error message should be clear
                 let msg = e.to_string();
                 assert!(
-                    msg.contains("Registry index not found") || msg.contains("registry is corrupted"),
+                    msg.contains("Registry index not found")
+                        || msg.contains("registry is corrupted"),
                     "Error should indicate missing or corrupted registry: {}",
                     msg
                 );

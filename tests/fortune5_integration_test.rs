@@ -63,6 +63,7 @@ struct PharmacyOrder {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[allow(dead_code)]
 struct ClinicalTrial {
     id: String,
     protocol_id: String,
@@ -73,6 +74,7 @@ struct ClinicalTrial {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[allow(dead_code)]
 struct LabResult {
     id: String,
     patient_id: String,
@@ -83,6 +85,7 @@ struct LabResult {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[allow(dead_code)]
 struct Employee {
     id: String,
     name: String,
@@ -122,6 +125,7 @@ impl FhirPatientManagement {
         Ok(id)
     }
 
+    #[allow(dead_code)]
     async fn get_patient(&self, id: &str) -> Result<Patient, String> {
         self.patients
             .get(id)
@@ -158,6 +162,7 @@ impl Hl7V2Integration {
         Ok(hl7_msg)
     }
 
+    #[allow(dead_code)]
     async fn send_lab_result(&mut self, lab_result: &LabResult) -> Result<String, String> {
         let hl7_msg = format!(
             "MSH|^~\\&|LIS|LABORATORY|EHR|HOSPITAL|{}||ORU^R01|{}|P|2.5\nOBR|1|{}||{}^^^{}\nOBX|1|ST|{}||{}",
@@ -280,17 +285,20 @@ impl Iso20022Payments {
     }
 }
 
+#[allow(dead_code)]
 struct BankingCore {
     accounts: HashMap<String, f64>,
 }
 
 impl BankingCore {
+    #[allow(dead_code)]
     fn new() -> Self {
         Self {
             accounts: HashMap::new(),
         }
     }
 
+    #[allow(dead_code)]
     async fn verify_funds(&self, account_id: &str, amount: f64) -> Result<bool, String> {
         Ok(self
             .accounts
@@ -299,6 +307,7 @@ impl BankingCore {
             .unwrap_or(false))
     }
 
+    #[allow(dead_code)]
     async fn debit_account(&mut self, account_id: &str, amount: f64) -> Result<(), String> {
         if let Some(balance) = self.accounts.get_mut(account_id) {
             if *balance >= amount {
@@ -310,12 +319,14 @@ impl BankingCore {
     }
 }
 
+#[allow(dead_code)]
 struct KycAmlCompliance {
     verified_entities: HashMap<String, bool>,
     suspicious_activities: Vec<String>,
 }
 
 impl KycAmlCompliance {
+    #[allow(dead_code)]
     fn new() -> Self {
         Self {
             verified_entities: HashMap::new(),
@@ -323,11 +334,13 @@ impl KycAmlCompliance {
         }
     }
 
+    #[allow(dead_code)]
     async fn verify_identity(&mut self, entity_id: &str) -> Result<bool, String> {
         self.verified_entities.insert(entity_id.to_string(), true);
         Ok(true)
     }
 
+    #[allow(dead_code)]
     async fn check_aml(&mut self, transaction_id: &str, amount: f64) -> Result<bool, String> {
         if amount > 10000.0 {
             self.suspicious_activities.push(transaction_id.to_string());
@@ -358,23 +371,27 @@ impl CustomerLoyaltyRewards {
     }
 }
 
+#[allow(dead_code)]
 struct ClinicalTrialsManagement {
     trials: HashMap<String, ClinicalTrial>,
 }
 
 impl ClinicalTrialsManagement {
+    #[allow(dead_code)]
     fn new() -> Self {
         Self {
             trials: HashMap::new(),
         }
     }
 
+    #[allow(dead_code)]
     async fn create_trial(&mut self, trial: ClinicalTrial) -> Result<String, String> {
         let id = trial.id.clone();
         self.trials.insert(id.clone(), trial);
         Ok(id)
     }
 
+    #[allow(dead_code)]
     async fn enroll_patient(&mut self, trial_id: &str, patient_id: String) -> Result<(), String> {
         if let Some(trial) = self.trials.get_mut(trial_id) {
             trial.patient_ids.push(patient_id);
@@ -385,12 +402,14 @@ impl ClinicalTrialsManagement {
     }
 }
 
+#[allow(dead_code)]
 struct IdentityAccessManagement {
     users: HashMap<String, Employee>,
     sessions: HashMap<String, String>,
 }
 
 impl IdentityAccessManagement {
+    #[allow(dead_code)]
     fn new() -> Self {
         Self {
             users: HashMap::new(),
@@ -398,6 +417,7 @@ impl IdentityAccessManagement {
         }
     }
 
+    #[allow(dead_code)]
     async fn authenticate(&mut self, user_id: &str) -> Result<String, String> {
         if self.users.contains_key(user_id) {
             let session_token = format!("SESSION-{}", uuid::Uuid::new_v4());
@@ -409,6 +429,7 @@ impl IdentityAccessManagement {
         }
     }
 
+    #[allow(dead_code)]
     async fn authorize(
         &self, session_token: &str, required_clearance: &str,
     ) -> Result<bool, String> {
@@ -423,9 +444,11 @@ impl IdentityAccessManagement {
     }
 }
 
+#[allow(dead_code)]
 struct ObservabilityPlatform {
     traces: Vec<String>,
     metrics: HashMap<String, f64>,
+    #[allow(dead_code)]
     logs: Vec<AuditLog>,
 }
 
@@ -446,15 +469,18 @@ impl ObservabilityPlatform {
         *self.metrics.entry(metric_key).or_insert(0.0) += duration_ms as f64;
     }
 
+    #[allow(dead_code)]
     async fn log_audit(&mut self, log: AuditLog) {
         self.logs.push(log);
     }
 
+    #[allow(dead_code)]
     async fn get_p99_latency(&self, _service: &str) -> f64 {
         self.metrics.values().cloned().fold(0.0, f64::max) * 0.99
     }
 }
 
+#[allow(dead_code)]
 struct WorkflowAutomationEngine {
     workflows: HashMap<String, Vec<String>>,
 }
@@ -473,6 +499,7 @@ impl WorkflowAutomationEngine {
         Ok(workflow_id)
     }
 
+    #[allow(dead_code)]
     async fn execute_step(&self, workflow_id: &str, step_index: usize) -> Result<String, String> {
         if let Some(steps) = self.workflows.get(workflow_id) {
             if step_index < steps.len() {

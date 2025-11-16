@@ -207,7 +207,7 @@ impl Default for LifecycleStateMachine<Initial> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::prelude::*;
+    use chicago_tdd_tools::test;
 
     test!(test_valid_state_transitions, {
         // State machine validates transitions but doesn't record phases

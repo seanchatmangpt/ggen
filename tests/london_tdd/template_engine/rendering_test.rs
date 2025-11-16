@@ -1,4 +1,3 @@
-#![cfg(feature = "london-tdd")]
 #![cfg(feature = "london_tdd")]
 //! London TDD tests for template rendering
 //!
@@ -10,7 +9,6 @@
 //! - Variable substitution
 //! - Filters and functions
 
-use crate::lib::*;
 use mockall::automock;
 use mockall::predicate::*;
 use std::collections::HashMap;

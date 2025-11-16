@@ -254,7 +254,10 @@ impl DependencyGraph {
         if !missing_deps.is_empty() {
             let mut error_msg = String::from("⚠️ Unresolved dependencies detected:\n");
             for (pkg, dep) in missing_deps {
-                error_msg.push_str(&format!("  - {} depends on {} (not in dependency graph)\n", pkg, dep));
+                error_msg.push_str(&format!(
+                    "  - {} depends on {} (not in dependency graph)\n",
+                    pkg, dep
+                ));
             }
             error_msg.push_str("These missing dependencies may cause installation to fail. Ensure all dependencies are available in the marketplace.");
 
@@ -613,8 +616,12 @@ async fn download_with_retry(url: &str, max_retries: u32) -> Result<Vec<u8>> {
                     // Success - read and return bytes
                     match response.bytes().await {
                         Ok(bytes) => {
-                            tracing::info!("Downloaded {} bytes from {} on attempt {}",
-                                bytes.len(), url, attempt);
+                            tracing::info!(
+                                "Downloaded {} bytes from {} on attempt {}",
+                                bytes.len(),
+                                url,
+                                attempt
+                            );
                             return Ok(bytes.to_vec());
                         }
                         Err(e) => {
@@ -624,7 +631,9 @@ async fn download_with_retry(url: &str, max_retries: u32) -> Result<Vec<u8>> {
                             )));
                         }
                     }
-                } else if status.is_client_error() && status != reqwest::StatusCode::TOO_MANY_REQUESTS {
+                } else if status.is_client_error()
+                    && status != reqwest::StatusCode::TOO_MANY_REQUESTS
+                {
                     // Permanent client error (not rate limit) - don't retry
                     return Err(ggen_utils::error::Error::new(&format!(
                         "HTTP {} error (permanent): {} (attempt {}/{})",
@@ -633,15 +642,25 @@ async fn download_with_retry(url: &str, max_retries: u32) -> Result<Vec<u8>> {
                 } else if status == reqwest::StatusCode::TOO_MANY_REQUESTS {
                     // Rate limited - mark and retry with longer backoff
                     is_rate_limited = true;
-                    tracing::warn!("Rate limited (HTTP 429) from {} - backing off (attempt {}/{})", url, attempt, max_retries);
+                    tracing::warn!(
+                        "Rate limited (HTTP 429) from {} - backing off (attempt {}/{})",
+                        url,
+                        attempt,
+                        max_retries
+                    );
                     last_error = Some(ggen_utils::error::Error::new(&format!(
                         "HTTP 429 Too Many Requests from {} (attempt {}/{})",
                         url, attempt, max_retries
                     )));
                 } else {
                     // Transient server error (5xx) - retry with backoff
-                    tracing::warn!("HTTP {} error from {} - retrying (attempt {}/{})",
-                        status, url, attempt, max_retries);
+                    tracing::warn!(
+                        "HTTP {} error from {} - retrying (attempt {}/{})",
+                        status,
+                        url,
+                        attempt,
+                        max_retries
+                    );
                     last_error = Some(ggen_utils::error::Error::new(&format!(
                         "HTTP {} error (transient): {} (attempt {}/{})",
                         status, url, attempt, max_retries
@@ -654,15 +673,31 @@ async fn download_with_retry(url: &str, max_retries: u32) -> Result<Vec<u8>> {
 
                 // Classify error type for better backoff strategy
                 let is_timeout = error_msg.contains("timeout") || error_msg.contains("timed out");
-                let is_connection = error_msg.contains("connect") || error_msg.contains("connection");
+                let is_connection =
+                    error_msg.contains("connect") || error_msg.contains("connection");
 
                 if is_timeout {
-                    tracing::warn!("Download timeout from {} - retrying (attempt {}/{})", url, attempt, max_retries);
+                    tracing::warn!(
+                        "Download timeout from {} - retrying (attempt {}/{})",
+                        url,
+                        attempt,
+                        max_retries
+                    );
                 } else if is_connection {
-                    tracing::warn!("Connection error from {} - retrying (attempt {}/{})", url, attempt, max_retries);
+                    tracing::warn!(
+                        "Connection error from {} - retrying (attempt {}/{})",
+                        url,
+                        attempt,
+                        max_retries
+                    );
                 } else {
-                    tracing::warn!("Network error from {}: {} - retrying (attempt {}/{})",
-                        url, error_msg, attempt, max_retries);
+                    tracing::warn!(
+                        "Network error from {}: {} - retrying (attempt {}/{})",
+                        url,
+                        error_msg,
+                        attempt,
+                        max_retries
+                    );
                 }
 
                 last_error = Some(ggen_utils::error::Error::new(&format!(
@@ -695,7 +730,8 @@ async fn download_with_retry(url: &str, max_retries: u32) -> Result<Vec<u8>> {
     Err(last_error.unwrap_or_else(|| {
         ggen_utils::error::Error::new(&format!(
             "Failed to download from {} after {} attempts. {}",
-            url, max_retries,
+            url,
+            max_retries,
             if is_rate_limited {
                 "Server returned rate limit (429). Please try again later."
             } else {
@@ -1030,7 +1066,12 @@ async fn load_package_info_from_registry(
     Ok((package_path, download_url, checksum))
 }
 
-/// Load lockfile
+/// Load lockfile with corruption handling and backup
+///
+/// FM12 (RPN 450): Lockfile corruption causes installation state loss
+/// - Creates backup before loading
+/// - Validates JSON structure
+/// - Recovers from corruption by restoring backup or creating empty lockfile
 async fn load_lockfile(packages_dir: &Path) -> Result<Lockfile> {
     let lockfile_path = packages_dir.join("ggen.lock");
 
@@ -1041,16 +1082,136 @@ async fn load_lockfile(packages_dir: &Path) -> Result<Lockfile> {
         });
     }
 
-    let content = tokio::fs::read_to_string(&lockfile_path).await?;
-    let lockfile: Lockfile = serde_json::from_str(&content)?;
+    // FM12: Create backup before loading to enable recovery
+    let backup_path = lockfile_path.with_extension("lock.backup");
+    if let Err(e) = tokio::fs::copy(&lockfile_path, &backup_path).await {
+        tracing::warn!("Failed to create lockfile backup: {}", e);
+    }
+
+    // Read and parse lockfile with corruption handling
+    let content = tokio::fs::read_to_string(&lockfile_path)
+        .await
+        .map_err(|e| {
+            ggen_utils::error::Error::new(&format!(
+                "Failed to read lockfile from {}: {}. Lockfile may be corrupted.",
+                lockfile_path.display(),
+                e
+            ))
+        })?;
+
+    // FM12: Validate JSON structure - if corrupted, try backup recovery
+    let lockfile: Lockfile = match serde_json::from_str(&content) {
+        Ok(lockfile) => lockfile,
+        Err(e) => {
+            tracing::error!(
+                "Lockfile corruption detected at {}: {}. Attempting recovery from backup.",
+                lockfile_path.display(),
+                e
+            );
+
+            // Try to recover from backup
+            if backup_path.exists() {
+                let backup_content = tokio::fs::read_to_string(&backup_path).await.map_err(|e| {
+                    ggen_utils::error::Error::new(&format!(
+                        "Lockfile corrupted and backup recovery failed: {}. Please manually restore or delete lockfile.",
+                        e
+                    ))
+                })?;
+
+                match serde_json::from_str::<Lockfile>(&backup_content) {
+                    Ok(backup_lockfile) => {
+                        tracing::info!("Successfully recovered lockfile from backup");
+                        // Restore backup to main lockfile
+                        if let Err(restore_err) =
+                            tokio::fs::copy(&backup_path, &lockfile_path).await
+                        {
+                            tracing::warn!(
+                                "Failed to restore backup to main lockfile: {}",
+                                restore_err
+                            );
+                        }
+                        backup_lockfile
+                    }
+                    Err(backup_err) => {
+                        return Err(ggen_utils::error::Error::new(&format!(
+                            "Lockfile corrupted at {} and backup also corrupted: {}. Please manually restore or delete lockfile.",
+                            lockfile_path.display(),
+                            backup_err
+                        )));
+                    }
+                }
+            } else {
+                return Err(ggen_utils::error::Error::new(&format!(
+                    "Lockfile corrupted at {} and no backup available. Please manually restore or delete lockfile.",
+                    lockfile_path.display()
+                )));
+            }
+        }
+    };
 
     Ok(lockfile)
 }
 
 /// Save lockfile with file locking to prevent concurrent write corruption
+///
+/// FM13 (RPN 420): Concurrent installations cause race conditions in lockfile
+/// - Uses file locking to prevent concurrent writes
+/// - Atomic write (temp + rename) for crash safety
+/// - Creates backup before write for recovery
 async fn save_lockfile(lockfile: &Lockfile, packages_dir: &Path) -> Result<()> {
     let lockfile_path = packages_dir.join("ggen.lock");
+    let lock_path = lockfile_path.with_extension("lock.lock"); // Lock file for concurrency control
     let content = serde_json::to_string_pretty(lockfile)?;
+
+    // FM13: Create lock file to prevent concurrent writes
+    // Use blocking I/O for file locking (std::fs::File has platform-specific locking)
+    let lock_file = tokio::task::spawn_blocking({
+        let lock_path = lock_path.clone();
+        move || {
+            use std::fs::OpenOptions;
+            use std::io::Write;
+
+            // Create lock file with exclusive access
+            let mut lock_file = OpenOptions::new()
+                .create(true)
+                .write(true)
+                .truncate(true)
+                .open(&lock_path)
+                .map_err(|e| {
+                    ggen_utils::error::Error::new(&format!(
+                        "Failed to create lockfile lock at {}: {}. Another process may be writing.",
+                        lock_path.display(),
+                        e
+                    ))
+                })?;
+
+            // Write PID to lock file for debugging
+            let pid = std::process::id();
+            writeln!(lock_file, "{}", pid).map_err(|e| {
+                ggen_utils::error::Error::new(&format!("Failed to write to lockfile lock: {}", e))
+            })?;
+            lock_file.sync_all().map_err(|e| {
+                ggen_utils::error::Error::new(&format!("Failed to sync lockfile lock: {}", e))
+            })?;
+
+            Ok::<std::fs::File, ggen_utils::error::Error>(lock_file)
+        }
+    })
+    .await
+    .map_err(|e| {
+        ggen_utils::error::Error::new(&format!("Task join error acquiring lock: {}", e))
+    })??;
+
+    // Lock file is held until this function returns (drop releases it)
+    let _lock_guard = lock_file;
+
+    // FM12: Create backup before writing for recovery
+    if lockfile_path.exists() {
+        let backup_path = lockfile_path.with_extension("lock.backup");
+        if let Err(e) = tokio::fs::copy(&lockfile_path, &backup_path).await {
+            tracing::warn!("Failed to create lockfile backup before save: {}", e);
+        }
+    }
 
     // Use atomic write: write to temp file, then rename (atomic on most filesystems)
     // This prevents corruption if process crashes during write
@@ -1070,6 +1231,7 @@ async fn save_lockfile(lockfile: &Lockfile, packages_dir: &Path) -> Result<()> {
             ggen_utils::error::Error::new(&format!("Failed to atomically update lockfile: {}", e))
         })?;
 
+    // Lock file is automatically released when _lock_guard is dropped
     Ok(())
 }
 

@@ -4,7 +4,6 @@
 
 use super::*;
 use capabilities::*;
-use collectors::*;
 use std::time::Instant;
 
 /// Run all README capability validations
@@ -50,6 +49,7 @@ pub async fn validate_critical_path(ctx: &ValidationContext) -> Result<Vec<Valid
 }
 
 /// Validate AI features
+#[allow(dead_code)]
 pub async fn validate_ai_features(ctx: &ValidationContext) -> Result<Vec<ValidationResult>> {
     let mut results = Vec::new();
 
@@ -61,6 +61,7 @@ pub async fn validate_ai_features(ctx: &ValidationContext) -> Result<Vec<Validat
 }
 
 /// Validate performance SLOs
+#[allow(dead_code)]
 pub async fn validate_performance_slos(ctx: &ValidationContext) -> Result<Vec<ValidationResult>> {
     let mut results = Vec::new();
 
@@ -85,6 +86,7 @@ pub async fn generate_validation_report(ctx: &ValidationContext) -> Result<Valid
 }
 
 /// Validate and generate markdown report
+#[allow(dead_code)]
 pub async fn validate_and_report(ctx: &ValidationContext) -> Result<String> {
     let report = generate_validation_report(ctx).await?;
 
