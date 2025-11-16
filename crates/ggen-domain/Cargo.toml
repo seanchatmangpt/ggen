@@ -61,4 +61,3 @@ assert_fs = "1"
 predicates = "3"
 tempfile = { workspace = true }
 tokio-test = "0.4"
-chicago-tdd-tools = { workspace = true }

@@ -20,9 +20,11 @@ ggen market search "advanced-rust-api-8020"
 
 ## 📖 Documentation
 
+- **[Packages Directory](PACKAGES.md)** - Complete guide to all 48+ marketplace packages
 - **[User Guide](USER_GUIDE.md)** - Browse, install, and use packages
 - **[Publishing Guide](PUBLISHING_GUIDE.md)** - Create and publish your packages
 - **[API Reference](API.md)** - Registry API and package format
+- **[Documentation Index](DOCUMENTATION_INDEX.md)** - Navigation and overview
 - **[Validation Guide](#validation)** - Package production readiness validation
 
 ## ✅ Validation
