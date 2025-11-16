@@ -148,7 +148,9 @@ mod tests {
         // HTML should not be escaped
         let mut ctx = tera::Context::new();
         ctx.insert("html", "<script>alert('xss')</script>");
-        let result = tera.render_str("{{ html }}", &ctx)?;
+        let result = tera
+            .render_str("{{ html }}", &ctx)
+            .map_err(ggen_utils::error::Error::from)?;
         assert_eq!(result, "<script>alert('xss')</script>");
         Ok(())
     });
