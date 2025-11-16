@@ -119,9 +119,10 @@ pub fn render_with_rdf(options: &RenderWithRdfOptions) -> Result<RenderWithRdfRe
     // For multi-file output, we check the base directory, not the specific file
     // (File marker detection happens after rendering, so we can't check individual files yet)
     if options.output_path.exists() && !options.force_overwrite {
-        // If it's a directory and might contain generated files, still check
-        // For now, we'll allow overwriting if force is set
-        // Individual file conflicts will be handled during file writing
+        return Err(ggen_utils::error::Error::new(&format!(
+            "Output file already exists: {}. Use force_overwrite to overwrite.",
+            options.output_path.display()
+        )));
     }
 
     // Prepare output directory

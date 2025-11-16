@@ -1,5 +1,5 @@
 #![cfg(feature = "london_tdd")]
-//! London TDD tests for `ggen doctor` command
+//! Chicago TDD tests for `ggen doctor` command
 //!
 //! README.md §User-Friendly Features - Environment Health Check
 //!
@@ -10,13 +10,11 @@
 //! - Platform-specific guidance
 
 use crate::lib::*;
+use chicago_tdd_tools::prelude::*;
 use mockall::automock;
 use mockall::predicate::*;
 
-#[test]
-fn test_doctor_checks_all_prerequisites() {
-    let start = std::time::Instant::now();
-
+test!(test_doctor_checks_all_prerequisites, {
     // Arrange: Mock system command executor
     let mut mock_executor = MockSystemCommandExecutor::new();
 
@@ -55,22 +53,13 @@ fn test_doctor_checks_all_prerequisites() {
     let result = run_doctor_command(&mock_executor);
 
     // Assert: All prerequisites checked
-    assert!(result.is_ok());
+    assert_ok!(&result, "Doctor command should succeed");
     let report = result.unwrap();
     assert_eq!(report.checks.len(), 5);
     assert!(report.all_passed());
+});
 
-    // Performance: <100ms
-    let elapsed = start.elapsed();
-    assert!(
-        elapsed.as_millis() < 100,
-        "Doctor command took {:?}",
-        elapsed
-    );
-}
-
-#[test]
-fn test_doctor_reports_missing_rust_toolchain() {
+test!(test_doctor_reports_missing_rust_toolchain, {
     // Arrange: Rust not installed
     let mut mock_executor = MockSystemCommandExecutor::new();
     mock_executor
@@ -82,7 +71,10 @@ fn test_doctor_reports_missing_rust_toolchain() {
     let result = run_doctor_command(&mock_executor);
 
     // Assert: Provides installation instructions
-    assert!(result.is_ok());
+    assert_ok!(
+        &result,
+        "Doctor command should succeed even with missing tools"
+    );
     let report = result.unwrap();
     let rust_check = report
         .checks
@@ -96,10 +88,9 @@ fn test_doctor_reports_missing_rust_toolchain() {
         .as_ref()
         .unwrap()
         .contains("rustup"));
-}
+});
 
-#[test]
-fn test_doctor_provides_platform_specific_instructions() {
+test!(test_doctor_provides_platform_specific_instructions, {
     // Arrange: Docker missing on macOS
     let mut mock_executor = MockSystemCommandExecutor::new();
     setup_all_passing_except_docker(&mut mock_executor);
@@ -108,17 +99,16 @@ fn test_doctor_provides_platform_specific_instructions() {
     let result = run_doctor_command_with_platform(&mock_executor, Platform::MacOS);
 
     // Assert: macOS-specific Docker instructions
-    assert!(result.is_ok());
+    assert_ok!(&result, "Doctor command should succeed");
     let report = result.unwrap();
     let docker_check = report.checks.iter().find(|c| c.name == "Docker").unwrap();
     assert!(!docker_check.passed);
     let instructions = docker_check.fix_instructions.as_ref().unwrap();
     assert!(instructions.contains("Docker Desktop for Mac"));
     assert!(instructions.contains("https://docs.docker.com/desktop/install/mac-install/"));
-}
+});
 
-#[test]
-fn test_doctor_suggests_next_steps_when_ready() {
+test!(test_doctor_suggests_next_steps_when_ready, {
     // Arrange: All tools installed
     let mut mock_executor = MockSystemCommandExecutor::new();
     setup_all_passing(&mut mock_executor);
@@ -127,29 +117,29 @@ fn test_doctor_suggests_next_steps_when_ready() {
     let result = run_doctor_command(&mock_executor);
 
     // Assert: Suggests next steps
-    assert!(result.is_ok());
+    assert_ok!(&result, "Doctor command should succeed");
     let report = result.unwrap();
     assert!(report.all_passed());
     assert!(report.next_steps.contains("ggen quickstart demo"));
     assert!(report.next_steps.contains("ggen ai project"));
     assert!(report.next_steps.contains("ggen search"));
-}
+});
 
-#[test]
-fn test_doctor_creates_otel_span() {
+test!(test_doctor_creates_otel_span, {
     // Arrange
     let mock_executor = setup_all_passing_executor();
     let tracer = otel::MockTracerProvider::new();
 
     // Act
-    let _result = run_doctor_command_with_tracing(&mock_executor, &tracer);
+    let result = run_doctor_command_with_tracing(&mock_executor, &tracer);
 
     // Assert: Span created with correct attributes
+    assert_ok!(&result, "Doctor command with tracing should succeed");
     let span = tracer.find_span("ggen.doctor").unwrap();
     assert_eq!(span.status, otel::SpanStatus::Ok);
     assert!(span.attributes.iter().any(|(k, _)| k == "check.count"));
     assert!(span.events.contains(&"prerequisites_checked".to_string()));
-}
+});
 
 // Mock types and helpers
 

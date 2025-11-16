@@ -107,6 +107,9 @@ pub async fn update_and_report(package: Option<&str>, all: bool, dry_run: bool) 
             UpdateStatus::Available(new_version) => {
                 ggen_utils::alert_info!("📦 Updating {} to version {}...", pkg_name, new_version);
 
+                // FM20 (RPN 360): Atomic update with rollback - save state before update
+                let lockfile_backup = lockfile.clone();
+
                 // Use install function to update the package
                 use super::install::install_and_report;
                 let pkg_spec = format!("{}@{}", pkg_name, new_version);
@@ -117,7 +120,19 @@ pub async fn update_and_report(package: Option<&str>, all: bool, dry_run: bool) 
                         updated_count += 1;
                     }
                     Err(e) => {
-                        let msg = format!("Failed to update {}: {}", pkg_name, e);
+                        // FM20: Rollback on update failure
+                        tracing::warn!(
+                            "Update failed for {}: {}. Rolling back to previous state.",
+                            pkg_name,
+                            e
+                        );
+                        // Restore lockfile from backup
+                        let backup_content = serde_json::to_string_pretty(&lockfile_backup)?;
+                        tokio::fs::write(&lockfile_path, backup_content).await?;
+                        let msg = format!(
+                            "Failed to update {}: {}. Rolled back to previous version.",
+                            pkg_name, e
+                        );
                         ggen_utils::alert_critical!(&msg);
                     }
                 }

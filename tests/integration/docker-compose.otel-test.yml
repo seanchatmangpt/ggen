@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # OpenTelemetry Collector - Receives traces/metrics/logs via OTLP
   otel-collector:
