@@ -7,7 +7,7 @@ mod tests {
     use crate::mape_k::{
         AnalyzeEngine, ExecuteEngine, FindingKind, KnowledgeStore as KStore, MonitorEngine,
         Observation, ObservationType, OverlayKind, OverlayProposal, PlanEngine, PolicyRule,
-        PolicyAction, ValidationStatus,
+        PolicyAction, ValidationStatus, SLOConfig,
     };
     use std::collections::HashMap;
 
@@ -40,7 +40,7 @@ mod tests {
         assert!(!aggregates.is_empty());
 
         // Phase 6b: Analyze - Generate findings
-        let mut analyzer = AnalyzeEngine::new();
+        let mut analyzer = AnalyzeEngine::new(SLOConfig::default());
         let findings = analyzer.analyze(&monitor);
         assert!(!findings.is_empty());
 
@@ -114,7 +114,7 @@ mod tests {
 
     #[test]
     fn test_analyze_detection_types() {
-        let mut analyzer = AnalyzeEngine::new();
+        let mut analyzer = AnalyzeEngine::new(SLOConfig::default());
         let mut monitor = MonitorEngine::new();
         let now = get_timestamp();
 
@@ -208,8 +208,8 @@ mod tests {
         assert!(active.is_active);
 
         // Old snapshot should be inactive
-        let old = knowledge
-            .snapshot_history()
+        let history = knowledge.snapshot_history();
+        let old = history
             .iter()
             .find(|s| s.id == "snapshot-0");
         assert!(old.is_some());
@@ -291,7 +291,7 @@ mod tests {
     #[test]
     fn test_end_to_end_finding_to_execution() {
         let mut monitor = MonitorEngine::new();
-        let mut analyzer = AnalyzeEngine::new();
+        let mut analyzer = AnalyzeEngine::new(SLOConfig::default());
         let mut planner = PlanEngine::new();
         let mut executor = ExecuteEngine::new();
         let mut knowledge = KStore::new();

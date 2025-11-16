@@ -7,7 +7,6 @@ use super::types::{
     OntologyOverlay, OverlayProposal, ValidationStatus, ValidationResult, ValidationStage,
     PromotionGate,
 };
-use std::collections::HashMap;
 
 /// Validator implementation with custom logic
 pub trait Validator: Send + Sync {
@@ -105,6 +104,7 @@ impl Validator for TDDValidator {
 
 /// Performance validation - ensure changes maintain SLOs
 pub struct PerformanceValidator {
+    #[allow(dead_code)]
     max_latency_increase_percent: f64,
 }
 
@@ -380,6 +380,11 @@ impl ExecuteEngine {
     /// Get promotion history
     pub fn promotion_history(&self) -> &[PromotionResult] {
         &self.promotion_history
+    }
+
+    /// Get validators from orchestrator
+    pub fn validators(&self) -> &[Box<dyn Validator>] {
+        self.orchestrator.validators()
     }
 
     /// Set active snapshot (for rollback scenarios)

@@ -24,6 +24,7 @@ pub mod capability_marker {
 /// Many can exist concurrently (immutable access pattern)
 #[derive(Debug, Clone)]
 pub struct ReadObservationCapability {
+    #[allow(dead_code)]
     granted_at: u64,
     grant_id: String,
 }
@@ -48,6 +49,7 @@ impl ReadObservationCapability {
 /// Read snapshot capability
 #[derive(Debug, Clone)]
 pub struct ReadSnapshotCapability {
+    #[allow(dead_code)]
     granted_at: u64,
     grant_id: String,
 }
@@ -71,6 +73,7 @@ impl ReadSnapshotCapability {
 /// Write snapshot capability (writes go to staging, not active Σ)
 /// Single holder only (exclusive write semantics)
 pub struct WriteSnapshotCapability {
+    #[allow(dead_code)]
     granted_at: u64,
     grant_id: String,
     _not_clone: std::marker::PhantomData<*const ()>, // Prevent automatic Clone
@@ -104,6 +107,7 @@ impl std::fmt::Debug for WriteSnapshotCapability {
 /// Write ontology capability (direct Σ mutation - very scarce)
 /// Single holder only
 pub struct WriteOntologyCapability {
+    #[allow(dead_code)]
     granted_at: u64,
     grant_id: String,
     /// Only valid if doctrine check passed
@@ -147,6 +151,7 @@ impl std::fmt::Debug for WriteOntologyCapability {
 /// Promote marketplace package capability
 /// Requires strong proof
 pub struct PromoteMarketplaceCapability {
+    #[allow(dead_code)]
     granted_at: u64,
     grant_id: String,
     proof_id: String, // Links to the proof object that justified this
@@ -187,6 +192,7 @@ impl std::fmt::Debug for PromoteMarketplaceCapability {
 
 /// Modify doctrine capability (rarest - only for tightening)
 pub struct ModifyDoctrineCapability {
+    #[allow(dead_code)]
     granted_at: u64,
     grant_id: String,
     allow_tightening_only: bool,
@@ -489,7 +495,7 @@ mod tests {
 
     #[test]
     fn test_effect_creation() {
-        let cap = ReadObservationCapability::grant("cap-1");
+        let _cap = ReadObservationCapability::grant("cap-1");
         let effect = ReadObservationEffect::new("effect-1", "Read observation data");
 
         assert_eq!(effect.effect_id(), "effect-1");

@@ -10,7 +10,6 @@
 //! - CriticalProof (≤80 doctrine distance) - for marketplace changes
 
 use serde::{Deserialize, Serialize};
-use std::marker::PhantomData;
 
 // ============================================================================
 // PROOF TRAIT HIERARCHY
@@ -387,7 +386,9 @@ impl CriticalProof for CriticalityProof {}
 
 /// Decision that requires a weak proof
 pub struct WeakDecision<P: WeakProof> {
+    #[allow(dead_code)]
     decision_id: String,
+    #[allow(dead_code)]
     description: String,
     proof: P,
 }
@@ -415,7 +416,9 @@ impl<P: WeakProof> WeakDecision<P> {
 
 /// Decision that requires a standard proof
 pub struct StandardDecision<P: StandardProof> {
+    #[allow(dead_code)]
     decision_id: String,
+    #[allow(dead_code)]
     description: String,
     proof: P,
 }
@@ -442,7 +445,9 @@ impl<P: StandardProof> StandardDecision<P> {
 
 /// Decision that requires a strong proof
 pub struct StrongDecision<P: StrongProof> {
+    #[allow(dead_code)]
     decision_id: String,
+    #[allow(dead_code)]
     description: String,
     proof: P,
 }
@@ -469,7 +474,9 @@ impl<P: StrongProof> StrongDecision<P> {
 
 /// Decision that requires critical proof
 pub struct CriticalDecision<P: CriticalProof> {
+    #[allow(dead_code)]
     decision_id: String,
+    #[allow(dead_code)]
     description: String,
     proof: P,
 }

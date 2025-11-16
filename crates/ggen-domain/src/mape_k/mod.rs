@@ -16,21 +16,20 @@ mod integration_tests;
 
 // Re-export public API
 pub use types::{
-    Finding, FindingKind, OntologyOverlay, OverlayProposal, KnowledgeStore,
+    Finding, FindingKind, OntologyOverlay, OverlayProposal,
     PolicyRule, PolicyAction, PromotionGate, ValidationResult, ValidationStatus,
     ValidationStage, SnapshotMetadata, MAPEMetrics, OverlayKind, OverlayProposer,
     Observation, ObservationType,
 };
 pub use monitor::MonitorEngine;
-pub use analyze::AnalyzeEngine;
+pub use analyze::{AnalyzeEngine, SLOConfig};
 pub use plan::PlanEngine;
 pub use execute::{ExecuteEngine, Validator, ValidatorOrchestrator, PromotionResult, ExecutionResult};
-pub use knowledge::{KnowledgeStore as KStore, HistoryQuery, CompactionPolicy, CompactionResult, KnowledgeStatistics};
+pub use knowledge::{KnowledgeStore, KnowledgeStore as KStore, HistoryQuery, CompactionPolicy, CompactionResult, KnowledgeStatistics};
 
 #[cfg(test)]
 mod integration_tests_inline {
     use super::*;
-    use std::collections::HashMap;
 
     fn get_timestamp() -> u64 {
         std::time::SystemTime::now()
@@ -59,7 +58,7 @@ mod integration_tests_inline {
         assert!(!aggregates.is_empty());
 
         // Analyze: Generate findings
-        let mut analyzer = AnalyzeEngine::new();
+        let mut analyzer = AnalyzeEngine::new(SLOConfig::default());
         let findings = analyzer.analyze(&monitor);
         assert!(!findings.is_empty());
 

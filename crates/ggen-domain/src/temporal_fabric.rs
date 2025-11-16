@@ -10,7 +10,6 @@
 //! advances if all prior phases succeeded.
 
 use std::marker::PhantomData;
-use std::cmp::Ordering;
 use serde::{Deserialize, Serialize};
 
 // ============================================================================
@@ -83,8 +82,10 @@ pub struct CausalEffect<T: Timed> {
     /// The object being written
     object: T,
     /// Time it was written at
+    #[allow(dead_code)]
     written_at: LogicalTime,
     /// Time it affects (must be >= written_at)
+    #[allow(dead_code)]
     affects_at: LogicalTime,
 }
 

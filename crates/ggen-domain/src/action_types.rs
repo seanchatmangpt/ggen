@@ -337,24 +337,31 @@ impl HighRiskActionBuilder {
 // ===== TYPE MARKERS: THESE ENFORCE GOVERNANCE AT COMPILE TIME =====
 
 /// Marker for ReadOnly risk class
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct ReadOnlyMarker;
 
 /// Marker for Low risk class
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct LowRiskMarker;
 
 /// Marker for Medium risk class
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct MediumRiskMarker;
 
 /// Marker for High risk class
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct HighRiskMarker;
 
 /// Marker for ImmutableRead mutation class
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct ImmutableReadMarker;
 
 /// Marker for SnapshotWrite mutation class
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct SnapshotWriteMarker;
 
 /// Marker for OntologyMutate mutation class
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct OntologyMutateMarker;
 
 // ===== PROOF SYSTEM: GATING CONSTRUCTORS =====
@@ -375,6 +382,7 @@ pub trait DoctrineProof: Send + Sync {
 /// Weak proof: suitable for low-risk operations (distance band: Good)
 #[derive(Debug, Clone)]
 pub struct WeakProof {
+    #[allow(dead_code)]
     proof_id: String,
 }
 
@@ -403,6 +411,7 @@ impl DoctrineProof for WeakProof {
 /// Standard proof: for medium-risk operations (distance band: Acceptable)
 #[derive(Debug, Clone)]
 pub struct StandardProof {
+    #[allow(dead_code)]
     proof_id: String,
     doctrine_checks_passed: usize,
 }
@@ -436,6 +445,7 @@ impl DoctrineProof for StandardProof {
 /// Strong proof: for high-risk operations (distance band: Marginal or better)
 #[derive(Debug, Clone)]
 pub struct StrongProof {
+    #[allow(dead_code)]
     proof_id: String,
     doctrine_distance: f64,
     tests_passed: usize,
@@ -482,13 +492,14 @@ impl<const TICKS: usize> HotPathEligible for Action<ReadOnlyMarker, TICKS, Immut
     }
 }
 
-impl<const TICKS: usize> HotPathEligible for Action<LowRiskMarker, TICKS, SnapshotWriteMarker>
-where
-    // Compile-time constraint: only if TICKS ≤ 6
-    [(); (TICKS <= 6) as usize]:,
-{
+impl<const TICKS: usize> HotPathEligible for Action<LowRiskMarker, TICKS, SnapshotWriteMarker> {
     fn execute_hot_path(&self) -> Result<(), String> {
-        Ok(())
+        // Runtime check: LowRiskMarker with ≤6 ticks is hot-path eligible
+        if TICKS <= 6 {
+            Ok(())
+        } else {
+            Err(format!("Low-risk action with {} ticks exceeds hot path budget of 6", TICKS))
+        }
     }
 }
 
@@ -509,12 +520,14 @@ impl<const TICKS: usize> WarmPathEligible for Action<LowRiskMarker, TICKS, Snaps
     }
 }
 
-impl<const TICKS: usize> WarmPathEligible for Action<MediumRiskMarker, TICKS, SnapshotWriteMarker>
-where
-    [(); (TICKS <= 100) as usize]:,
-{
+impl<const TICKS: usize> WarmPathEligible for Action<MediumRiskMarker, TICKS, SnapshotWriteMarker> {
     fn execute_warm_path(&self) -> Result<(), String> {
-        Ok(())
+        // Runtime check: MediumRiskMarker with ≤100 ticks is warm-path eligible
+        if TICKS <= 100 {
+            Ok(())
+        } else {
+            Err(format!("Medium-risk action with {} ticks exceeds warm path budget of 100", TICKS))
+        }
     }
 }
 
@@ -567,7 +580,7 @@ mod tests {
     fn test_high_risk_action_requires_proof() {
         let proof = StrongProof::new("proof-1", 50.0);
 
-        let action = HighRiskActionBuilder::create_with_proof::<1000>(
+        let action = HighRiskActionBuilder::create_with_proof::<1000, StrongProof>(
             "test-high-risk",
             "High-risk ontology mutation",
             &proof,

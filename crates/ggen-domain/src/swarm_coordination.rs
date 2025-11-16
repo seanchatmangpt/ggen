@@ -8,7 +8,6 @@
 //!
 //! The type system guides execution; the runtime follows.
 
-use std::marker::PhantomData;
 use std::sync::Arc;
 use serde::{Deserialize, Serialize};
 
@@ -172,7 +171,7 @@ pub trait ConflictFree: Clone {
     fn try_merge(&self, other: &Self) -> Result<Self, String>;
 
     /// Is this proposal commutative with another?
-    fn is_commutative_with(&self, other: &Self) -> bool {
+    fn is_commutative_with(&self, _other: &Self) -> bool {
         true // Default: assume commutative unless proven otherwise
     }
 }

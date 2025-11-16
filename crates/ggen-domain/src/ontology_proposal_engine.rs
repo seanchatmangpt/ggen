@@ -10,7 +10,7 @@
 //! - Justifies every proposal with Γ evidence
 //! - Estimates impact and risk
 
-use super::ahi_contract::{Proposal, AHIError};
+use super::ahi_contract::Proposal;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -40,7 +40,7 @@ pub struct OntologySigmaProposal {
     pub estimated_performance_delta: f64,    // ticks delta (negative = improvement)
     pub risk_score: f64,                     // 0-100
     pub affected_patterns: Vec<String>,
-    pub affected_guardsΣ: Vec<String>,
+    pub affected_guards: Vec<String>,
     pub doctrine_aligned: bool,
 }
 
@@ -177,7 +177,7 @@ impl ProposalMiningStrategy for PatternMiningStrategy {
                     estimated_performance_delta: -50.0, // Performance improvement
                     risk_score: 35.0,
                     affected_patterns: vec![component.clone()],
-                    affected_guardsΣ: vec![],
+                    affected_guards: vec![],
                     doctrine_aligned: true,
                 });
             }
@@ -215,7 +215,7 @@ impl ProposalMiningStrategy for AnomalyMiningStrategy {
                     estimated_performance_delta: -10.0,
                     risk_score: 40.0,
                     affected_patterns: vec![obs.component.clone()],
-                    affected_guardsΣ: vec![obs.component.clone()],
+                    affected_guards: vec![obs.component.clone()],
                     doctrine_aligned: true,
                 });
             }
@@ -268,7 +268,7 @@ impl ProposalMiningStrategy for SectorSpecificMiningStrategy {
                     estimated_performance_delta: 20.0, // Slight cost for compliance
                     risk_score: 50.0,
                     affected_patterns: vec!["transaction_processing".to_string()],
-                    affected_guardsΣ: vec!["audit_trail".to_string(), "sarbanes_oxley".to_string()],
+                    affected_guards: vec!["audit_trail".to_string(), "sarbanes_oxley".to_string()],
                     doctrine_aligned: true,
                 });
             }
@@ -285,7 +285,7 @@ impl ProposalMiningStrategy for SectorSpecificMiningStrategy {
                     estimated_performance_delta: 15.0,
                     risk_score: 45.0,
                     affected_patterns: vec!["patient_data_flow".to_string()],
-                    affected_guardsΣ: vec!["encryption".to_string(), "access_control".to_string()],
+                    affected_guards: vec!["encryption".to_string(), "access_control".to_string()],
                     doctrine_aligned: true,
                 });
             }

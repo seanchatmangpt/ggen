@@ -69,7 +69,7 @@ pub struct Finding {
 }
 
 /// Categories of findings
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub enum FindingKind {
     /// Pattern (workflow structure) exceeds tick budget
     TickBudgetViolation,

@@ -7,9 +7,8 @@
 //! - Ensures all promotions are justified by Γ signals and doctrine-aligned
 
 use super::marketplace_scorer::{MarketplaceScorer, PackageScore, PackageRecommendation};
-use super::proof_carrier::ProofCarrier;
 use super::ontology_proposal_engine::OntologySigmaProposal;
-use super::ahi_contract::{AHIError, Proposal};
+use super::ahi_contract::AHIError;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -71,6 +70,7 @@ pub struct DecisionMetrics {
 /// Pipeline state and history
 #[derive(Debug, Clone)]
 pub struct AutoPromotionPipeline {
+    #[allow(dead_code)]
     scorer: MarketplaceScorer,
     promotion_threshold: f64,  // Composite score ≥ this to promote
     deprecation_threshold: f64, // Composite score ≤ this to deprecate
@@ -284,7 +284,7 @@ impl AutoPromotionPipeline {
                 estimated_performance_delta: 5.0,
                 risk_score: 30.0,
                 affected_patterns: vec![],
-                affected_guardsΣ: vec!["all_guards".to_string()],
+                affected_guards: vec!["all_guards".to_string()],
                 doctrine_aligned: true,
             };
             suggestions.push(suggestion);
@@ -307,7 +307,7 @@ impl AutoPromotionPipeline {
                 estimated_performance_delta: -100.0,
                 risk_score: 40.0,
                 affected_patterns: vec!["all_packages".to_string()],
-                affected_guardsΣ: vec![],
+                affected_guards: vec![],
                 doctrine_aligned: true,
             };
             suggestions.push(suggestion);

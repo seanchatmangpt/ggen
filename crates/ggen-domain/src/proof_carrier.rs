@@ -8,7 +8,7 @@
 //! - Doctrine alignment verification
 
 use super::ontology_proposal_engine::OntologySigmaProposal;
-use super::ahi_contract::{AHIError, ElementKind, Proposal};
+use super::ahi_contract::{AHIError, Proposal};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -428,7 +428,7 @@ mod tests {
             estimated_performance_delta: -50.0,
             risk_score: 35.0,
             affected_patterns: vec![],
-            affected_guardsΣ: vec![],
+            affected_guards: vec![],
             doctrine_aligned: true,
         };
 
@@ -451,7 +451,7 @@ mod tests {
             estimated_performance_delta: -100.0,
             risk_score: 40.0,
             affected_patterns: vec!["transaction_processing".to_string()],
-            affected_guardsΣ: vec![],
+            affected_guards: vec![],
             doctrine_aligned: true,
         };
 
@@ -484,7 +484,7 @@ mod tests {
             estimated_performance_delta: 0.0,
             risk_score: 25.0,
             affected_patterns: vec![],
-            affected_guardsΣ: vec!["error_threshold".to_string()],
+            affected_guards: vec!["error_threshold".to_string()],
             doctrine_aligned: true,
         };
 
@@ -521,7 +521,7 @@ mod tests {
             estimated_performance_delta: 200.0,
             risk_score: 70.0, // High base risk
             affected_patterns: vec![],
-            affected_guardsΣ: vec![],
+            affected_guards: vec![],
             doctrine_aligned: true,
         };
 
@@ -571,7 +571,7 @@ mod tests {
             estimated_performance_delta: -50.0,
             risk_score: 30.0,
             affected_patterns: vec![],
-            affected_guardsΣ: vec![],
+            affected_guards: vec![],
             doctrine_aligned: true,
         };
 
@@ -613,7 +613,7 @@ mod tests {
             estimated_performance_delta: -75.0,
             risk_score: 35.0,
             affected_patterns: vec![],
-            affected_guardsΣ: vec![],
+            affected_guards: vec![],
             doctrine_aligned: true,
         };
 
