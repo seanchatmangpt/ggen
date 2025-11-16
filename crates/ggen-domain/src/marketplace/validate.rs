@@ -160,7 +160,8 @@ impl PackageValidation {
         let quality_score = self.calculate_quality_score();
 
         // Final score: weighted combination
-        self.score = (required_score * config.required_checks_weight) + (quality_score * config.quality_checks_weight);
+        self.score = (required_score * config.required_checks_weight)
+            + (quality_score * config.quality_checks_weight);
 
         // Check if all required checks pass (warnings can optionally fail)
         let all_required_pass = if config.required_warnings_fail {
@@ -173,7 +174,8 @@ impl PackageValidation {
                 .all(|(_, result)| !result.is_fail())
         };
 
-        self.production_ready = self.score >= config.production_ready_threshold && all_required_pass;
+        self.production_ready =
+            self.score >= config.production_ready_threshold && all_required_pass;
     }
 
     /// Calculate final score and production readiness with default configuration
@@ -184,8 +186,16 @@ impl PackageValidation {
 
     /// Generate a human-readable validation summary
     pub fn summary(&self) -> String {
-        let required_pass = self.required_checks.iter().filter(|(_, r)| r.is_pass()).count();
-        let quality_pass = self.quality_checks.iter().filter(|(_, r)| r.is_pass()).count();
+        let required_pass = self
+            .required_checks
+            .iter()
+            .filter(|(_, r)| r.is_pass())
+            .count();
+        let quality_pass = self
+            .quality_checks
+            .iter()
+            .filter(|(_, r)| r.is_pass())
+            .count();
 
         format!(
             "Package: {} | Score: {:.1}% | Production Ready: {} | Required: {}/{} | Quality: {}/{} | Errors: {}",
@@ -279,7 +289,8 @@ fn validate_toml_file(path: &Path, required_fields: &[&str]) -> bool {
                     // Fallback: Try simple string matching if TOML parsing fails
                     // This handles edge cases where content might be malformed
                     required_fields.iter().all(|field| {
-                        content.contains(&format!("{}\\s*=", field)) || content.contains(&format!("{} =", field))
+                        content.contains(&format!("{}\\s*=", field))
+                            || content.contains(&format!("{} =", field))
                     })
                 }
             }
@@ -357,7 +368,10 @@ fn validate_required_checks(validation: &mut PackageValidation, package_path: &P
         if validate_toml_file(&package_toml, &["name", "version", "description"]) {
             validation.required_checks.push((
                 RequiredCheck::PackageToml,
-                CheckResult::Pass("package.toml exists with all required fields (name, version, description)".to_string()),
+                CheckResult::Pass(
+                    "package.toml exists with all required fields (name, version, description)"
+                        .to_string(),
+                ),
             ));
         } else {
             // Determine if it's invalid TOML or missing required fields
@@ -488,57 +502,55 @@ fn check_rdf_ontology(validation: &mut PackageValidation, package_path: &Path) -
 
     if ontology_ttl.exists() {
         match Graph::new() {
-            Ok(graph) => {
-                match graph.load_path(&ontology_ttl) {
-                    Ok(()) => {
-                        let triple_count = graph.len();
-                        let lines = fs::read_to_string(&ontology_ttl)
-                            .map(|c| c.lines().count())
-                            .unwrap_or(0);
+            Ok(graph) => match graph.load_path(&ontology_ttl) {
+                Ok(()) => {
+                    let triple_count = graph.len();
+                    let lines = fs::read_to_string(&ontology_ttl)
+                        .map(|c| c.lines().count())
+                        .unwrap_or(0);
 
-                        if lines >= ONTOLOGY_MIN_LINES && triple_count >= ONTOLOGY_MIN_TRIPLES {
-                            validation.quality_checks.push((
+                    if lines >= ONTOLOGY_MIN_LINES && triple_count >= ONTOLOGY_MIN_TRIPLES {
+                        validation.quality_checks.push((
                                 QualityCheck::RdfOntology,
                                 CheckResult::Pass(format!(
                                     "RDF ontology validated: {} lines, {} triples (≥{} lines, ≥{} triples required)",
                                     lines, triple_count, ONTOLOGY_MIN_LINES, ONTOLOGY_MIN_TRIPLES
                                 )),
                             ));
-                        } else if lines >= ONTOLOGY_MIN_LINES {
-                            validation.quality_checks.push((
+                    } else if lines >= ONTOLOGY_MIN_LINES {
+                        validation.quality_checks.push((
                                 QualityCheck::RdfOntology,
                                 CheckResult::Warning(format!(
                                     "RDF ontology loaded but only {} triples found (≥{} lines, but {} triples)",
                                     triple_count, ONTOLOGY_MIN_LINES, triple_count
                                 )),
                             ));
-                        } else {
-                            validation.quality_checks.push((
+                    } else {
+                        validation.quality_checks.push((
                                 QualityCheck::RdfOntology,
                                 CheckResult::Warning(format!(
                                     "RDF ontology found but only {} lines (<{} recommended), {} triples",
                                     lines, ONTOLOGY_MIN_LINES, triple_count
                                 )),
                             ));
-                            validation
-                                .warnings
-                                .push(format!("RDF ontology has only {} lines", lines));
-                        }
-                    }
-                    Err(e) => {
-                        validation.quality_checks.push((
-                            QualityCheck::RdfOntology,
-                            CheckResult::Warning(format!(
-                                "RDF ontology file exists but cannot be loaded: {}",
-                                e
-                            )),
-                        ));
                         validation
                             .warnings
-                            .push(format!("Failed to load RDF ontology: {}", e));
+                            .push(format!("RDF ontology has only {} lines", lines));
                     }
                 }
-            }
+                Err(e) => {
+                    validation.quality_checks.push((
+                        QualityCheck::RdfOntology,
+                        CheckResult::Warning(format!(
+                            "RDF ontology file exists but cannot be loaded: {}",
+                            e
+                        )),
+                    ));
+                    validation
+                        .warnings
+                        .push(format!("Failed to load RDF ontology: {}", e));
+                }
+            },
             Err(e) => {
                 validation.quality_checks.push((
                     QualityCheck::RdfOntology,
@@ -618,9 +630,7 @@ fn check_sparql_queries(validation: &mut PackageValidation, package_path: &Path)
 
     validation.quality_checks.push((
         QualityCheck::SparqlQueries,
-        CheckResult::NotApplicable(
-            "No SPARQL queries (not required for all packages)".to_string(),
-        ),
+        CheckResult::NotApplicable("No SPARQL queries (not required for all packages)".to_string()),
     ));
 
     Ok(())
@@ -702,7 +712,9 @@ fn check_documentation(validation: &mut PackageValidation, package_path: &Path) 
         _ => {
             validation.quality_checks.push((
                 QualityCheck::Documentation,
-                CheckResult::NotApplicable("No docs/ directory (README.md is sufficient)".to_string()),
+                CheckResult::NotApplicable(
+                    "No docs/ directory (README.md is sufficient)".to_string(),
+                ),
             ));
         }
     }
@@ -814,7 +826,7 @@ mod tests {
         let mut rdf_content = String::from(
             "@prefix ex: <http://example.org/> .\n\
             @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n\
-            @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n\n"
+            @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n\n",
         );
 
         // Add 100+ valid RDF triples to ensure parsing succeeds
@@ -1031,7 +1043,10 @@ mod tests {
 
         let result = validate_package(&file_path);
 
-        assert!(result.is_err(), "Should return error for file instead of directory");
+        assert!(
+            result.is_err(),
+            "Should return error for file instead of directory"
+        );
         let err_msg = result.unwrap_err().to_string();
         assert!(
             err_msg.contains("not a directory"),

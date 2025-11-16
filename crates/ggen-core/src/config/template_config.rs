@@ -160,14 +160,14 @@ mod tests {
     use super::*;
     use chicago_tdd_tools::prelude::*;
 
-    test!(test_default_config, {
+    chicago_tdd_tools::test!(test_default_config, {
         let config = TemplateConfig::default();
         assert_eq!(config.search_paths.len(), 2);
         assert!(config.generation.auto_format);
         assert!(config.marketplace.enabled);
     });
 
-    test!(test_add_search_path, {
+    chicago_tdd_tools::test!(test_add_search_path, {
         let mut config = TemplateConfig::default();
         let new_path = PathBuf::from("/custom/templates");
 
@@ -180,7 +180,7 @@ mod tests {
         assert_eq!(config.search_paths.len(), len_before);
     });
 
-    test!(test_default_variables, {
+    chicago_tdd_tools::test!(test_default_variables, {
         let mut config = TemplateConfig::default();
 
         config.set_default_variable("project_name".to_string(), "my-project".to_string());

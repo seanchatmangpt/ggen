@@ -207,7 +207,6 @@ impl NaturalSearchGenerator {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use crate::test_helpers::{
         create_natural_search_generator_with_response, create_natural_search_test_generator,
     };

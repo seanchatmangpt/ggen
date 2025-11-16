@@ -22,10 +22,10 @@ serde_yaml = { workspace = true }
 thiserror = { workspace = true }
 
 # Local infrastructure dependencies (stay at 2.4.0 for now)
-ggen-core = { path = "../ggen-core", version = "2.6.0" }
-ggen-ai = { path = "../ggen-ai", version = "2.6.0" }
-ggen-marketplace = { path = "../ggen-marketplace", version = "2.6.0" }
-ggen-utils = { path = "../ggen-utils", version = "2.6.0" }
+ggen-core = { path = "../ggen-core", version = "2.7.0" }
+ggen-ai = { path = "../ggen-ai", version = "2.7.0" }
+ggen-marketplace = { path = "../ggen-marketplace", version = "2.7.0" }
+ggen-utils = { path = "../ggen-utils", version = "2.7.0" }
 
 # Crate-specific dependencies
 tera = { workspace = true }
