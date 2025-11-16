@@ -79,13 +79,13 @@ jobs:
 
           echo "✅ File organization check passed"
 
-  test:
-    name: Test Suite
-    runs-on: ${{ matrix.os }}
+  comprehensive-test:
+    name: Comprehensive Tests (${{ matrix.rust }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
-        rust: [stable]
+        rust: [stable, beta]
     steps:
       - uses: actions/checkout@v4
 
@@ -93,16 +93,63 @@ jobs:
         uses: ./.github/actions/setup-rust-cached
         with:
           toolchain: ${{ matrix.rust }}
-          cache-key-suffix: ${{ matrix.os }}-${{ matrix.rust }}
+          cache-key-suffix: comprehensive-${{ matrix.rust }}-${{ hashFiles('**/Cargo.lock') }}
 
-      - name: Install cargo-nextest
-        uses: taiki-e/install-action@cargo-nextest
+      - name: Install cargo tools
+        uses: ./.github/actions/install-cargo-tools
+        with:
+          tools: make
+          cache-tools: 'true'
+
+      - name: Run unit tests
+        run: cargo test --workspace --lib
+
+      - name: Run integration tests
+        run: cargo test --test cli --test marketplace --test e2e_github_integration --test e2e_lockfile_sha256 --test e2e_marketplace --test e2e_pqc_infrastructure --test e2e_production_marketplace
+
+      - name: Run BDD tests
+        run: cargo test --test bdd
+
+      - name: Generate BDD report
+        run: cargo test --test bdd -- --nocapture
+
+      - name: Upload BDD results
+        uses: actions/upload-artifact@v4
+        with:
+          name: bdd-results-${{ matrix.rust }}
+          path: target/bdd-report.xml
+
+      - name: Run examples
+        run: cargo run --example cli-subcommand
+
+      - name: "Run doctests (CRITICAL: Verify all doctests compile and run)"
+        run: cargo test --doc --workspace
+
+  build-matrix:
+    name: Build (${{ matrix.os }}, ${{ matrix.rust }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        rust: [stable, beta, nightly]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust and cache
+        uses: ./.github/actions/setup-rust-cached
+        with:
+          toolchain: ${{ matrix.rust }}
+          cache-key-suffix: build-${{ matrix.os }}-${{ matrix.rust }}-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Build
-        run: cargo build --workspace --all-features
+        run: cargo build --verbose
+        continue-on-error: ${{ matrix.rust == 'nightly' }}
 
       - name: Run tests
-        run: cargo nextest run --workspace --all-features
+        run: cargo test --verbose
+        continue-on-error: ${{ matrix.rust == 'nightly' }}
 
   fmt:
     name: Rustfmt
@@ -143,3 +190,29 @@ jobs:
         with:
           files: ./coverage/cobertura.xml
           fail_ci_if_error: false
+
+  # Summary: All CI checks must pass before merge
+  ci-status:
+    name: CI Status
+    runs-on: ubuntu-latest
+    needs:
+      - file-organization
+      - comprehensive-test
+      - build-matrix
+      - fmt
+      - clippy
+      - coverage
+    if: always()
+    steps:
+      - name: Check CI status
+        run: |
+          if [ "${{ needs.file-organization.result }}" != "success" ] || \
+             [ "${{ needs.comprehensive-test.result }}" != "success" ] || \
+             [ "${{ needs.build-matrix.result }}" != "success" ] || \
+             [ "${{ needs.fmt.result }}" != "success" ] || \
+             [ "${{ needs.clippy.result }}" != "success" ] || \
+             [ "${{ needs.coverage.result }}" != "success" ]; then
+            echo "❌ CI checks failed"
+            exit 1
+          fi
+          echo "✅ All CI checks passed"
