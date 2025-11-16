@@ -1,5 +1,4 @@
 #![cfg(feature = "london_tdd")]
-#![cfg(feature = "london_tdd")]
 //! London TDD tests for `ggen help-me` command
 //!
 //! README.md §User-Friendly Features - Progressive Help System
@@ -194,6 +193,7 @@ enum ExperienceLevel {
 #[derive(Debug)]
 struct HelpResponse {
     level: ExperienceLevel,
+    #[allow(dead_code)]
     command_count: usize,
     recommendations: Vec<String>,
     top_commands: Vec<(String, usize)>,
@@ -227,9 +227,7 @@ fn run_help_me_command(
     let command_help = command.map(|cmd| CommandHelp {
         command: cmd.to_string(),
         description: get_command_description(cmd),
-        tip: Some(format!(
-            "💡 Tip: Try 'ggen list' to see available templates first!"
-        )),
+        tip: Some("💡 Tip: Try 'ggen list' to see available templates first!".to_string()),
     });
 
     Ok(HelpResponse {

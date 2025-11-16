@@ -143,12 +143,13 @@ mod tests {
     });
 
     test!(test_autoescape_disabled, {
-        let mut tera = build_tera_minimal().unwrap();
+        let mut tera = build_tera_minimal()?;
 
         // HTML should not be escaped
         let mut ctx = tera::Context::new();
         ctx.insert("html", "<script>alert('xss')</script>");
-        let result = tera.render_str("{{ html }}", &ctx).unwrap();
+        let result = tera.render_str("{{ html }}", &ctx)?;
         assert_eq!(result, "<script>alert('xss')</script>");
+        Ok(())
     });
 }

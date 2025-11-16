@@ -168,6 +168,7 @@ struct DoctorReport {
 struct PrerequisiteCheck {
     name: String,
     passed: bool,
+    #[allow(dead_code)]
     version: Option<String>,
     fix_instructions: Option<String>,
 }
@@ -175,7 +176,9 @@ struct PrerequisiteCheck {
 #[derive(Debug, Clone, Copy)]
 enum Platform {
     MacOS,
+    #[allow(dead_code)]
     Linux,
+    #[allow(dead_code)]
     Windows,
 }
 
@@ -266,7 +269,7 @@ fn setup_all_passing_executor() -> MockSystemCommandExecutor {
 }
 
 fn add_cargo_check(executor: &dyn SystemCommandExecutor, checks: &mut Vec<PrerequisiteCheck>) {
-    let check = match executor.execute("cargo", vec!["--version"]) {
+    let check = match executor.execute("cargo", vec!["--version".to_string()]) {
         Ok(output) => PrerequisiteCheck {
             name: "Cargo".to_string(),
             passed: true,
@@ -284,7 +287,7 @@ fn add_cargo_check(executor: &dyn SystemCommandExecutor, checks: &mut Vec<Prereq
 }
 
 fn add_git_check(executor: &dyn SystemCommandExecutor, checks: &mut Vec<PrerequisiteCheck>) {
-    let check = match executor.execute("git", vec!["--version"]) {
+    let check = match executor.execute("git", vec!["--version".to_string()]) {
         Ok(output) => PrerequisiteCheck {
             name: "Git".to_string(),
             passed: true,
@@ -302,7 +305,7 @@ fn add_git_check(executor: &dyn SystemCommandExecutor, checks: &mut Vec<Prerequi
 }
 
 fn add_ollama_check(executor: &dyn SystemCommandExecutor, checks: &mut Vec<PrerequisiteCheck>) {
-    let check = match executor.execute("ollama", vec!["--version"]) {
+    let check = match executor.execute("ollama", vec!["--version".to_string()]) {
         Ok(output) => PrerequisiteCheck {
             name: "Ollama".to_string(),
             passed: true,
@@ -324,7 +327,7 @@ fn add_ollama_check(executor: &dyn SystemCommandExecutor, checks: &mut Vec<Prere
 fn add_docker_check(
     executor: &dyn SystemCommandExecutor, checks: &mut Vec<PrerequisiteCheck>, platform: Platform,
 ) {
-    let check = match executor.execute("docker", vec!["--version"]) {
+    let check = match executor.execute("docker", vec!["--version".to_string()]) {
         Ok(output) => PrerequisiteCheck {
             name: "Docker".to_string(),
             passed: true,

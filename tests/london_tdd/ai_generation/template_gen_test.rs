@@ -1,5 +1,4 @@
 #![cfg(feature = "london_tdd")]
-#![cfg(feature = "london_tdd")]
 //! London TDD tests for `ggen ai generate` command
 //!
 //! README.md §AI-Powered Generation - Template Generation
@@ -11,7 +10,6 @@
 //! - Tera template body generation
 
 use crate::lib::*;
-use mockall::automock;
 use mockall::predicate::*;
 
 #[test]
