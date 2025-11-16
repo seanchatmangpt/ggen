@@ -804,6 +804,112 @@ async fn verify_cache(cache_path: &Path, expected_checksum: Option<&str>) -> Res
     }
 }
 
+/// Install package from local filesystem (for development/testing)
+///
+/// This allows installing packages directly from the local filesystem without
+/// requiring download_url and checksum. Useful for development and testing.
+async fn install_from_local_filesystem(source_path: &Path, target_path: &Path) -> Result<String> {
+    if !source_path.exists() {
+        return Err(ggen_utils::error::Error::new(&format!(
+            "Local package path does not exist: {}",
+            source_path.display()
+        )));
+    }
+
+    if !source_path.is_dir() {
+        return Err(ggen_utils::error::Error::new(&format!(
+            "Local package path is not a directory: {}",
+            source_path.display()
+        )));
+    }
+
+    // Create target directory
+    tokio::fs::create_dir_all(target_path).await?;
+
+    // Copy package directory recursively
+    tokio::task::spawn_blocking({
+        let source = source_path.to_path_buf();
+        let target = target_path.to_path_buf();
+        move || copy_dir_all(&source, &target)
+    })
+    .await
+    .map_err(|e| ggen_utils::error::Error::new(&format!("Task join error: {}", e)))??;
+
+    // Calculate checksum of installed package for verification
+    let checksum = tokio::task::spawn_blocking({
+        let target = target_path.to_path_buf();
+        move || calculate_directory_checksum(&target)
+    })
+    .await
+    .map_err(|e| ggen_utils::error::Error::new(&format!("Task join error: {}", e)))?;
+
+    Ok(checksum)
+}
+
+/// Recursively copy directory
+fn copy_dir_all(src: &Path, dst: &Path) -> Result<()> {
+    if !src.is_dir() {
+        return Err(ggen_utils::error::Error::new(&format!(
+            "Source is not a directory: {}",
+            src.display()
+        )));
+    }
+
+    fs::create_dir_all(dst)?;
+
+    for entry in fs::read_dir(src)? {
+        let entry = entry?;
+        let path = entry.path();
+        let file_name = entry.file_name();
+        let dst_path = dst.join(&file_name);
+
+        if path.is_dir() {
+            copy_dir_all(&path, &dst_path)?;
+        } else {
+            // Skip hidden files and common build artifacts
+            if file_name.to_string_lossy().starts_with('.') {
+                continue;
+            }
+            fs::copy(&path, &dst_path)?;
+        }
+    }
+
+    Ok(())
+}
+
+/// Calculate SHA256 checksum of directory
+fn calculate_directory_checksum(dir: &Path) -> String {
+    use sha2::{Digest, Sha256};
+    use std::fs;
+
+    let mut hasher = Sha256::new();
+
+    fn walk_dir(dir: &Path, hasher: &mut Sha256) {
+        if let Ok(entries) = fs::read_dir(dir) {
+            for entry in entries.flatten() {
+                let path = entry.path();
+
+                if path.is_dir() {
+                    walk_dir(&path, hasher);
+                } else {
+                    // Hash relative path
+                    if let Ok(rel_path) = path.strip_prefix(dir) {
+                        hasher.update(rel_path.to_string_lossy().as_bytes());
+                    }
+
+                    // Hash file content
+                    if let Ok(content) = fs::read(&path) {
+                        hasher.update(&content);
+                    }
+                }
+            }
+        }
+    }
+
+    walk_dir(dir, &mut hasher);
+    format!("{:x}", hasher.finalize())
+}
+
 /// Extract ZIP archive and copy specific package directory
 ///
 /// On failure, cleans up any partially extracted files to prevent broken installations
@@ -1309,33 +1415,97 @@ pub async fn install_package(options: &InstallOptions) -> Result<InstallResult> 
         )));
     }
 
+    // FM14 (RPN 400): Partial installation rollback - save lockfile state before installation
+    let lockfile_backup = load_lockfile(&packages_dir).await?;
+    let install_path_exists_before = install_path.exists();
+
     // Load package info from registry
     let (package_path, download_url, checksum) =
         load_package_info_from_registry(&options.package_name).await?;
 
-    // Download and install package
-    let integrity = download_and_install_package(
-        &options.package_name,
-        &package_path,
-        download_url.as_deref(),
-        checksum.as_deref(),
-        &install_path,
-    )
-    .await?;
+    // Check if package exists locally (for development/testing)
+    // If GGEN_DEV_MODE is set and package exists locally, install from filesystem
+    // Also check if we're in a container with the repo cloned
+    let use_local = std::env::var("GGEN_DEV_MODE").is_ok();
+    let local_package_path = if use_local {
+        // Try to find package in current workspace or common locations
+        let possible_paths = [
+            PathBuf::from("marketplace/packages").join(&options.package_name),
+            PathBuf::from("../marketplace/packages").join(&options.package_name),
+            PathBuf::from("../../marketplace/packages").join(&options.package_name),
+            // For container tests, check workspace directory
+            PathBuf::from("/workspace/marketplace/packages").join(&options.package_name),
+        ];
 
-    // Update lockfile
+        possible_paths
+            .iter()
+            .find(|p| p.exists() && p.is_dir())
+            .cloned()
+    } else {
+        None
+    };
+
+    // Download and install package
+    let integrity_result = if let Some(local_path) = local_package_path {
+        // Install from local filesystem (development mode)
+        install_from_local_filesystem(&local_path, &install_path).await
+    } else {
+        // Download and install from registry
+        download_and_install_package(
+            &options.package_name,
+            &package_path,
+            download_url.as_deref(),
+            checksum.as_deref(),
+            &install_path,
+        )
+        .await
+    };
+
+    // FM14: If installation failed, rollback
+    let integrity = match integrity_result {
+        Ok(integrity) => integrity,
+        Err(e) => {
+            // Rollback: Remove partial installation
+            if install_path.exists() && !install_path_exists_before {
+                if let Err(cleanup_err) = tokio::fs::remove_dir_all(&install_path).await {
+                    tracing::warn!(
+                        "Failed to cleanup partial installation at {}: {}",
+                        install_path.display(),
+                        cleanup_err
+                    );
+                }
+            }
+            return Err(e);
+        }
+    };
+
+    // Update lockfile - if this fails, rollback lockfile too
     let mut lockfile = load_lockfile(&packages_dir).await?;
+    let lockfile_entry = LockfileEntry {
+        name: options.package_name.clone(),
+        version: resolved_version.clone(),
+        resolved: format!("github:{}", download_url.as_deref().unwrap_or("default")),
+        integrity: Some(integrity.clone()),
+        dependencies: HashMap::new(),
+    };
     lockfile.packages.insert(
         format!("{}@{}", options.package_name, resolved_version),
-        LockfileEntry {
-            name: options.package_name.clone(),
-            version: resolved_version.clone(),
-            resolved: format!("github:{}", download_url.as_deref().unwrap_or("default")),
-            integrity: Some(integrity),
-            dependencies: HashMap::new(),
-        },
+        lockfile_entry,
     );
-    save_lockfile(&lockfile, &packages_dir).await?;
+
+    // FM14: If lockfile save fails, rollback installation
+    if let Err(e) = save_lockfile(&lockfile, &packages_dir).await {
+        // Rollback: Remove installation and restore lockfile
+        if install_path.exists() && !install_path_exists_before {
+            let _ = tokio::fs::remove_dir_all(&install_path).await;
+        }
+        // Restore lockfile backup
+        let _ = save_lockfile(&lockfile_backup, &packages_dir).await;
+        return Err(ggen_utils::error::Error::new(&format!(
+            "Failed to update lockfile after installation: {}. Installation rolled back.",
+            e
+        )));
+    }
 
     Ok(InstallResult {
         package_name: options.package_name.clone(),
