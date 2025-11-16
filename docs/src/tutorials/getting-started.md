@@ -1,3 +1,18 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Getting Started with ggen](#getting-started-with-ggen)
+  - [Prerequisites](#prerequisites)
+  - [Step 1: Install ggen (1 minute)](#step-1-install-ggen-1-minute)
+  - [Step 2: Generate Your First Ontology (1 minute)](#step-2-generate-your-first-ontology-1-minute)
+  - [Step 3: Generate Rust Code (1 minute)](#step-3-generate-rust-code-1-minute)
+  - [Step 4: Modify Ontology and Regenerate (1 minute)](#step-4-modify-ontology-and-regenerate-1-minute)
+  - [What You've Learned](#what-youve-learned)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Getting Started with ggen
 
 **Goal:** Install ggen and generate your first code from an RDF ontology in under 5 minutes.

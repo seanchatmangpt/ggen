@@ -1,3 +1,18 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Code Projections](#code-projections)
+  - [The Core Concept](#the-core-concept)
+  - [One Ontology, Many Languages](#one-ontology-many-languages)
+  - [Type Mapping](#type-mapping)
+  - [Evolution: Update Once, Regenerate Everywhere](#evolution-update-once-regenerate-everywhere)
+  - [How Projections Work](#how-projections-work)
+  - [Best Practices](#best-practices)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Code Projections
 
 Semantic projections transform a single RDF ontology into multiple language-specific code representations.

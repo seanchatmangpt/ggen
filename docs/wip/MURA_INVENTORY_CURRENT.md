@@ -1,3 +1,22 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Mura (Unevenness) Inventory - Current State](#mura-unevenness-inventory---current-state)
+  - [Measurement Summary](#measurement-summary)
+    - [Documentation Consistency](#documentation-consistency)
+    - [Error Handling Pattern Consistency](#error-handling-pattern-consistency)
+    - [Return Type Consistency](#return-type-consistency)
+    - [Doctest Format Consistency](#doctest-format-consistency)
+    - [Code Style Consistency](#code-style-consistency)
+  - [Priority Issues](#priority-issues)
+    - [Priority 1: Documentation Inconsistency (HIGH)](#priority-1-documentation-inconsistency-high)
+    - [Priority 2: Error Handling Pattern Inconsistency (HIGH)](#priority-2-error-handling-pattern-inconsistency-high)
+    - [Priority 3: Doctest Format Inconsistency (MEDIUM)](#priority-3-doctest-format-inconsistency-medium)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Mura (Unevenness) Inventory - Current State
 
 This document tracks current inconsistencies identified in the ggen codebase that need to be standardized.

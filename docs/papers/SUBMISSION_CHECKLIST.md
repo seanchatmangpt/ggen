@@ -1,3 +1,43 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Pre-Submission Checklist: "No Way This Can Fail"](#pre-submission-checklist-no-way-this-can-fail)
+  - [📋 Pre-Submission Process (15 minutes)](#-pre-submission-process-15-minutes)
+    - [Step 1: Validate RDF (2 minutes)](#step-1-validate-rdf-2-minutes)
+    - [Step 2: Generate LaTeX (2 minutes)](#step-2-generate-latex-2-minutes)
+    - [Step 3: Compile to PDF (3 minutes)](#step-3-compile-to-pdf-3-minutes)
+    - [Step 4: Manual PDF Inspection (3 minutes)](#step-4-manual-pdf-inspection-3-minutes)
+    - [Step 5: Metadata Verification (2 minutes)](#step-5-metadata-verification-2-minutes)
+    - [Step 6: Content Completeness (2 minutes)](#step-6-content-completeness-2-minutes)
+  - [🎯 Venue-Specific Checklists](#-venue-specific-checklists)
+  - [Venue Option 1: arXiv](#venue-option-1-arxiv)
+    - [arXiv Submission Requirements](#arxiv-submission-requirements)
+  - [Venue Option 2: IEEE Conference](#venue-option-2-ieee-conference)
+    - [IEEE Submission Requirements](#ieee-submission-requirements)
+  - [Venue Option 3: ACM Conference/Journal](#venue-option-3-acm-conferencejournal)
+    - [ACM Submission Requirements](#acm-submission-requirements)
+  - [Venue Option 4: NeurIPS Conference](#venue-option-4-neurips-conference)
+    - [NeurIPS Submission Requirements](#neurips-submission-requirements)
+  - [Venue Option 5: PhD Thesis / Dissertation](#venue-option-5-phd-thesis--dissertation)
+    - [Thesis Submission Requirements](#thesis-submission-requirements)
+  - [🎓 Cross-Venue Final Checklist](#-cross-venue-final-checklist)
+    - [Quality Assurance](#quality-assurance)
+    - [Technical Correctness](#technical-correctness)
+    - [Formatting Compliance](#formatting-compliance)
+    - [Metadata](#metadata)
+    - [Files](#files)
+  - [✅ Final Approval](#-final-approval)
+  - [🆘 Last-Minute Issues](#-last-minute-issues)
+    - [Issue: PDF has wrong page count](#issue-pdf-has-wrong-page-count)
+    - [Issue: Equations don't match venue format](#issue-equations-dont-match-venue-format)
+    - [Issue: Bibliography missing](#issue-bibliography-missing)
+    - [Issue: Can't find something in PDF](#issue-cant-find-something-in-pdf)
+    - [Issue: Formatting looks wrong for venue](#issue-formatting-looks-wrong-for-venue)
+  - [📞 Getting Help](#-getting-help)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Pre-Submission Checklist: "No Way This Can Fail"
 
 **Purpose**: Verify your paper is ready for publication. Use this checklist BEFORE submitting to any venue.

@@ -1,3 +1,38 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen v2.0.0 - Release Commands](#ggen-v200---release-commands)
+  - [Quick Release Summary](#quick-release-summary)
+  - [Commands to Ship Release](#commands-to-ship-release)
+    - [1. Push to GitHub](#1-push-to-github)
+    - [2. Create GitHub Release](#2-create-github-release)
+    - [3. Verify Release (Optional)](#3-verify-release-optional)
+  - [Release Artifacts (CI/CD or Manual)](#release-artifacts-cicd-or-manual)
+    - [Option A: CI/CD Pipeline (Recommended)](#option-a-cicd-pipeline-recommended)
+    - [Option B: Manual Platform Builds](#option-b-manual-platform-builds)
+  - [Post-Release Verification](#post-release-verification)
+    - [Check Release is Live](#check-release-is-live)
+    - [Monitor Issues](#monitor-issues)
+  - [Release Announcement (Optional)](#release-announcement-optional)
+    - [Update README.md](#update-readmemd)
+    - [Announce on Social Media](#announce-on-social-media)
+    - [Blog Post (Optional)](#blog-post-optional)
+  - [Rollback Plan (If Needed)](#rollback-plan-if-needed)
+    - [If Critical Issues Discovered](#if-critical-issues-discovered)
+  - [Next Steps After Release](#next-steps-after-release)
+    - [Week 1](#week-1)
+    - [Week 2-4](#week-2-4)
+    - [Month 2+](#month-2)
+  - [Key Documentation References](#key-documentation-references)
+  - [Release Checklist](#release-checklist)
+    - [Pre-Release (All Complete ✅)](#pre-release-all-complete-)
+    - [Release Execution (Ready to Execute)](#release-execution-ready-to-execute)
+    - [Post-Release (Week 1)](#post-release-week-1)
+  - [Contact & Support](#contact--support)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen v2.0.0 - Release Commands
 
 **Status**: ✅ READY TO SHIP

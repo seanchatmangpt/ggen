@@ -1,3 +1,39 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [RDF/SPARQL Reference](#rdfsparql-reference)
+  - [RDF Formats](#rdf-formats)
+  - [RDF Basics](#rdf-basics)
+    - [Triples](#triples)
+    - [Prefixes](#prefixes)
+    - [Classes](#classes)
+    - [Properties](#properties)
+  - [SPARQL Query Syntax](#sparql-query-syntax)
+    - [SELECT Queries](#select-queries)
+    - [Basic Patterns](#basic-patterns)
+    - [Filters](#filters)
+    - [Optional Patterns](#optional-patterns)
+    - [Aggregates](#aggregates)
+  - [SHACL Validation](#shacl-validation)
+    - [Node Shapes](#node-shapes)
+    - [Property Shapes](#property-shapes)
+    - [Constraints](#constraints)
+  - [Type System](#type-system)
+    - [XSD Types](#xsd-types)
+    - [RDF Types](#rdf-types)
+  - [Common Patterns](#common-patterns)
+    - [Inheritance](#inheritance)
+    - [Relationships](#relationships)
+    - [Collections](#collections)
+  - [Query Optimization](#query-optimization)
+    - [Use LIMIT](#use-limit)
+    - [Specific Patterns](#specific-patterns)
+    - [ORDER BY for Determinism](#order-by-for-determinism)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # RDF/SPARQL Reference
 
 Complete reference for RDF, SHACL, and SPARQL in ggen.

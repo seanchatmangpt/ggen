@@ -1,3 +1,32 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Template Reference](#template-reference)
+  - [Template Structure](#template-structure)
+    - [Basic Template](#basic-template)
+  - [Template Syntax](#template-syntax)
+    - [Variables](#variables)
+    - [Control Flow](#control-flow)
+    - [SPARQL Queries](#sparql-queries)
+  - [Template Metadata (Frontmatter)](#template-metadata-frontmatter)
+    - [Frontmatter Keys](#frontmatter-keys)
+  - [Built-in Functions](#built-in-functions)
+    - [String Functions](#string-functions)
+    - [Type Conversion](#type-conversion)
+    - [Formatting](#formatting)
+  - [SPARQL Query Results](#sparql-query-results)
+    - [Result Structure](#result-structure)
+  - [Type Mapping](#type-mapping)
+  - [Template Includes](#template-includes)
+  - [Filters](#filters)
+    - [Custom Filters](#custom-filters)
+  - [Error Handling](#error-handling)
+  - [Best Practices](#best-practices)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Template Reference
 
 Complete reference for ggen template syntax, structure, and features.

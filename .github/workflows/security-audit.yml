@@ -109,6 +109,7 @@ jobs:
 
       - name: Generate security summary
         run: |
+          set -euo pipefail
           echo "" >> audit-report.md
           echo "---" >> audit-report.md
           echo "" >> audit-report.md
@@ -191,6 +192,7 @@ jobs:
       - name: Fail on critical vulnerabilities
         if: steps.audit.outputs.has_critical == 'true'
         run: |
+          set -euo pipefail
           echo "::error::Critical security vulnerabilities detected. Build failed."
           exit 1
 
@@ -199,6 +201,7 @@ jobs:
           steps.audit.outputs.status == 'warning' ||
           steps.deny.outputs.status == 'failed'
         run: |
+          set -euo pipefail
           echo "::warning::Security issues detected but not critical. Please review the audit report."
 
   dependency-review:

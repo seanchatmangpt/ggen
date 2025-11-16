@@ -1,3 +1,52 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [CI/CD Workflows Guide](#cicd-workflows-guide)
+  - [Overview](#overview)
+  - [Workflows](#workflows)
+    - [Core Development Workflows](#core-development-workflows)
+      - [CI (Continuous Integration)](#ci-continuous-integration)
+      - [Build](#build)
+      - [Test](#test)
+      - [Lint](#lint)
+    - [Release & Distribution Workflows](#release--distribution-workflows)
+      - [Release](#release)
+      - [Homebrew Release](#homebrew-release)
+      - [Publish Registry](#publish-registry)
+    - [Marketplace & Documentation Workflows](#marketplace--documentation-workflows)
+      - [Marketplace](#marketplace)
+      - [Marketplace Test](#marketplace-test)
+      - [Marketplace Docs](#marketplace-docs)
+      - [Deploy Docs](#deploy-docs)
+      - [Docker](#docker)
+    - [Testing & Quality Workflows](#testing--quality-workflows)
+      - [London TDD Tests](#london-tdd-tests)
+      - [Security Audit](#security-audit)
+    - [Deprecated/Maintenance Workflows](#deprecatedmaintenance-workflows)
+      - [P2P Marketplace CI (DEPRECATED)](#p2p-marketplace-ci-deprecated)
+      - [P2P Release (DEPRECATED)](#p2p-release-deprecated)
+  - [Using Workflows](#using-workflows)
+    - [Triggering Workflows Manually](#triggering-workflows-manually)
+    - [Monitoring Workflow Status](#monitoring-workflow-status)
+    - [Creating Releases](#creating-releases)
+    - [Workflow Concurrency](#workflow-concurrency)
+  - [Environment Variables](#environment-variables)
+  - [Secrets & Credentials](#secrets--credentials)
+  - [Troubleshooting](#troubleshooting)
+    - [CI Workflow Failing](#ci-workflow-failing)
+    - [Release Workflow Failing](#release-workflow-failing)
+    - [Marketplace Deployment Not Working](#marketplace-deployment-not-working)
+    - [Docker Build Failing](#docker-build-failing)
+  - [Best Practices](#best-practices)
+    - [For Developers](#for-developers)
+    - [For Release Management](#for-release-management)
+    - [For CI Maintenance](#for-ci-maintenance)
+  - [Related Documentation](#related-documentation)
+  - [Quick Links](#quick-links)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # CI/CD Workflows Guide
 
 This guide explains ggen's GitHub Actions workflows and how they automate build, test, and deployment processes.

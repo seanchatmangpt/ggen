@@ -1,3 +1,26 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Release Checklist - v2.6.0](#release-checklist---v260)
+  - [Pre-Release Validation](#pre-release-validation)
+    - [Version Updates ✅](#version-updates-)
+    - [Documentation ✅](#documentation-)
+    - [Code Quality ✅](#code-quality-)
+  - [Release Steps](#release-steps)
+    - [1. Final Verification (Before Tagging)](#1-final-verification-before-tagging)
+    - [2. Create Release Tag](#2-create-release-tag)
+    - [3. Create GitHub Release](#3-create-github-release)
+    - [4. Post-Release Tasks](#4-post-release-tasks)
+  - [Release Notes Summary](#release-notes-summary)
+    - [Removed (Waste Elimination)](#removed-waste-elimination)
+    - [Added](#added)
+    - [Changed](#changed)
+  - [Verification Commands](#verification-commands)
+  - [Notes](#notes)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Release Checklist - v2.6.0
 
 **Release Date**: 2025-11-12  

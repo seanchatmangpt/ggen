@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [How to Create Templates](#how-to-create-templates)
+  - [Part 1: Template Fundamentals](#part-1-template-fundamentals)
+    - [What is a Template?](#what-is-a-template)
+    - [Template Structure](#template-structure)
+    - [Creating Your First Template](#creating-your-first-template)
+  - [Part 2: Advanced Template Features](#part-2-advanced-template-features)
+    - [Frontmatter Specification](#frontmatter-specification)
+    - [Frozen Sections (Incremental Generation)](#frozen-sections-incremental-generation)
+    - [Type Mapping Reference](#type-mapping-reference)
+    - [Advanced SPARQL Patterns](#advanced-sparql-patterns)
+  - [Part 3: Testing & Quality](#part-3-testing--quality)
+    - [Unit Testing Templates](#unit-testing-templates)
+    - [Golden File Testing](#golden-file-testing)
+    - [Error Handling in Templates](#error-handling-in-templates)
+  - [Part 4: Publishing & Distribution](#part-4-publishing--distribution)
+    - [Creating Marketplace Packages](#creating-marketplace-packages)
+  - [Requirements](#requirements)
+- [Publish to marketplace](#publish-to-marketplace)
+  - [Part 5: Best Practices](#part-5-best-practices)
+    - [Do's ✓](#dos-%E2%9C%93)
+    - [Don'ts ✗](#donts-%E2%9C%97)
+  - [Quick Reference](#quick-reference)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # How to Create Templates
 
 Complete guide to creating production-quality templates. Templates are the heart of ggen—they transform RDF ontologies into code in any language. This guide covers basic templates through advanced patterns like frozen sections, incremental generation, type mapping, and marketplace distribution.

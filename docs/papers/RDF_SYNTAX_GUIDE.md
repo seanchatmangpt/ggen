@@ -1,3 +1,43 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [RDF Syntax Quick Reference Guide](#rdf-syntax-quick-reference-guide)
+  - [🎯 The Absolute Minimum You Need to Know](#-the-absolute-minimum-you-need-to-know)
+  - [✅ RDF Copy-Paste Templates](#-rdf-copy-paste-templates)
+    - [Template 1: Define a Paper](#template-1-define-a-paper)
+    - [Template 2: Define a Section](#template-2-define-a-section)
+    - [Template 3: Define an Equation](#template-3-define-an-equation)
+  - [⚠️ Common Syntax Errors (How to Fix)](#-common-syntax-errors-how-to-fix)
+    - [ERROR 1: Missing Colon After Property](#error-1-missing-colon-after-property)
+    - [ERROR 2: Missing Period at End](#error-2-missing-period-at-end)
+    - [ERROR 3: Quotes Inside String](#error-3-quotes-inside-string)
+    - [ERROR 4: LaTeX Backslashes](#error-4-latex-backslashes)
+    - [ERROR 5: Property Name Typo](#error-5-property-name-typo)
+    - [ERROR 6: Integer vs String](#error-6-integer-vs-string)
+    - [ERROR 7: Missing Namespace Prefix](#error-7-missing-namespace-prefix)
+  - [📋 RDF Validation Checklist](#-rdf-validation-checklist)
+    - [Structure](#structure)
+    - [Content](#content)
+    - [References](#references)
+  - [🔍 Debugging Strategy](#-debugging-strategy)
+    - [Strategy 1: Look for the Error](#strategy-1-look-for-the-error)
+    - [Strategy 2: Check Indentation](#strategy-2-check-indentation)
+    - [Strategy 3: Compare to Minimal Example](#strategy-3-compare-to-minimal-example)
+    - [Strategy 4: Validate Step by Step](#strategy-4-validate-step-by-step)
+  - [📚 Property Reference](#-property-reference)
+    - [Paper-Level Properties](#paper-level-properties)
+    - [Section Properties](#section-properties)
+    - [Equation Properties](#equation-properties)
+    - [How to Use Properties](#how-to-use-properties)
+  - [🎯 Copy-Paste Ready Examples](#-copy-paste-ready-examples)
+    - [Example 1: Simple Paper (No Equations)](#example-1-simple-paper-no-equations)
+    - [Example 2: Paper with One Equation](#example-2-paper-with-one-equation)
+    - [Example 3: Multi-Equation Paper](#example-3-multi-equation-paper)
+  - [✅ Final Validation](#-final-validation)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # RDF Syntax Quick Reference Guide
 
 **Purpose**: Copy-paste your way to valid RDF. No syntax errors possible.

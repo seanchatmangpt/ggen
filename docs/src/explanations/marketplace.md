@@ -1,3 +1,22 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Marketplace Ecosystem](#marketplace-ecosystem)
+  - [Overview](#overview)
+  - [Gpack Structure](#gpack-structure)
+  - [Gpack Manifest](#gpack-manifest)
+  - [Using Gpacks](#using-gpacks)
+    - [Search](#search)
+    - [Install](#install)
+    - [Use](#use)
+  - [Version Management](#version-management)
+  - [Publishing Gpacks](#publishing-gpacks)
+  - [Best Practices](#best-practices)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Marketplace Ecosystem
 
 The ggen marketplace provides a curated ecosystem of reusable code generation templates (gpacks).

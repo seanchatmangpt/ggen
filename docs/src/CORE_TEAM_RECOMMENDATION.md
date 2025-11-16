@@ -1,3 +1,34 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Core Team Documentation Tool Recommendation](#core-team-documentation-tool-recommendation)
+  - [Decision Framework](#decision-framework)
+    - [Core Team Values (from codebase analysis)](#core-team-values-from-codebase-analysis)
+  - [Core Team Choice: **mdBook + rustdoc + GitHub Pages**](#core-team-choice-mdbook--rustdoc--github-pages)
+    - [Primary Stack](#primary-stack)
+  - [Why NOT Other Tools?](#why-not-other-tools)
+    - [❌ MkDocs / Sphinx](#-mkdocs--sphinx)
+    - [❌ Docusaurus](#-docusaurus)
+    - [❌ Read the Docs / Netlify / Vercel](#-read-the-docs--netlify--vercel)
+  - [Implementation Plan](#implementation-plan)
+    - [Phase 1: mdBook Setup](#phase-1-mdbook-setup)
+    - [Phase 2: Convert Diataxis to mdBook](#phase-2-convert-diataxis-to-mdbook)
+    - [Phase 3: GitHub Actions Workflow](#phase-3-github-actions-workflow)
+    - [Phase 4: Integration with cargo make](#phase-4-integration-with-cargo-make)
+  - [Benefits Alignment](#benefits-alignment)
+    - [✅ Rust-first](#-rust-first)
+    - [✅ Official tools](#-official-tools)
+    - [✅ 80/20 principle](#-8020-principle)
+    - [✅ Deterministic](#-deterministic)
+    - [✅ Fast builds](#-fast-builds)
+    - [✅ cargo make integration](#-cargo-make-integration)
+    - [✅ Production-ready](#-production-ready)
+  - [Comparison with Alternatives](#comparison-with-alternatives)
+  - [Recommendation Summary](#recommendation-summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Core Team Documentation Tool Recommendation
 
 ## Decision Framework

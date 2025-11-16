@@ -1,3 +1,27 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Configuration Reference](#configuration-reference)
+  - [Configuration Files](#configuration-files)
+    - [Global Configuration](#global-configuration)
+    - [Project Configuration](#project-configuration)
+  - [Environment Variables](#environment-variables)
+    - [Cache](#cache)
+    - [Marketplace](#marketplace)
+    - [AI Providers](#ai-providers)
+    - [Logging](#logging)
+  - [Configuration Precedence](#configuration-precedence)
+  - [Configuration Sections](#configuration-sections)
+    - [Cache Configuration](#cache-configuration)
+    - [Marketplace Configuration](#marketplace-configuration)
+    - [AI Configuration](#ai-configuration)
+    - [Generation Configuration](#generation-configuration)
+  - [Command-Line Overrides](#command-line-overrides)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Configuration Reference
 
 Complete reference for ggen configuration options.

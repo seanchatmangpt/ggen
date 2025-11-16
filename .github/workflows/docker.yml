@@ -17,6 +17,7 @@ jobs:
 
       - name: Validate Docker credentials
         run: |
+          set -euo pipefail
           if [ -z "${{ secrets.DOCKER_USERNAME }}" ] || [ -z "${{ secrets.DOCKER_TOKEN }}" ]; then
             echo "::error::Docker credentials not configured. Please set DOCKER_USERNAME and DOCKER_TOKEN secrets."
             exit 1
@@ -25,6 +26,7 @@ jobs:
       - name: Set variables
         id: vars
         run: |
+          set -euo pipefail
           echo "package_name=$(sed -En 's/name[[:space:]]*=[[:space:]]*"([^"]+)"/\1/p' Cargo.toml | head -1)" >> $GITHUB_OUTPUT
           echo "package_version=$(sed -En 's/version[[:space:]]*=[[:space:]]*"([^"]+)"/\1/p' Cargo.toml | head -1)" >> $GITHUB_OUTPUT
           echo "dockerhub_org=${{ github.repository_owner }}" >> $GITHUB_OUTPUT
@@ -46,6 +48,7 @@ jobs:
 
       - name: Prepare Docker context
         run: |
+          set -euo pipefail
           if [ -f docker/.dockerignore ]; then
             mv docker/.dockerignore .dockerignore
           else
@@ -67,6 +70,7 @@ jobs:
 
       - name: Verify Docker build
         run: |
+          set -euo pipefail
           echo "✅ Docker image built and pushed successfully"
           echo "Repository: ${{ steps.vars.outputs.dockerhub_org }}/${{ steps.vars.outputs.package_name }}"
           echo "Tags:"

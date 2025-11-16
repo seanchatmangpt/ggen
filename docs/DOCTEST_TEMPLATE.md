@@ -1,3 +1,21 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Doctest Template - Standard Format for ggen](#doctest-template---standard-format-for-ggen)
+  - [Standard Doctest Pattern](#standard-doctest-pattern)
+    - [For Fallible Functions (Return `Result<T, E>`)](#for-fallible-functions-return-resultt-e)
+    - [For Infallible Functions (Return `T`)](#for-infallible-functions-return-t)
+    - [For Async Functions](#for-async-functions)
+  - [Doctest Format Guidelines](#doctest-format-guidelines)
+    - [When to Use `no_run`](#when-to-use-no_run)
+    - [When to Use Runnable Doctests](#when-to-use-runnable-doctests)
+    - [Error Case Examples](#error-case-examples)
+  - [Complete Example](#complete-example)
+  - [Checklist](#checklist)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Doctest Template - Standard Format for ggen
 
 This document provides templates for writing consistent, comprehensive doctests in ggen.

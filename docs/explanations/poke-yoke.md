@@ -1,3 +1,41 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Poke-Yoke: Error Prevention in Code Generation](#poke-yoke-error-prevention-in-code-generation)
+  - [What is Poke-Yoke?](#what-is-poke-yoke)
+    - [Real-World Examples](#real-world-examples)
+  - [How ggen is a Poke-Yoke](#how-ggen-is-a-poke-yoke)
+    - [The Failure Mode](#the-failure-mode)
+    - [Traditional Approach (Error-Prone)](#traditional-approach-error-prone)
+    - [ggen's Poke-Yoke Solution](#ggens-poke-yoke-solution)
+  - [Example: Quality Control System with FMEA](#example-quality-control-system-with-fmea)
+    - [Scenario: Building a Failure Mode & Effects Analysis (FMEA) System](#scenario-building-a-failure-mode--effects-analysis-fmea-system)
+      - [Without ggen (Error-Prone)](#without-ggen-error-prone)
+      - [With ggen (Poke-Yoke Applied)](#with-ggen-poke-yoke-applied)
+  - [Poke-Yoke Mechanisms in ggen](#poke-yoke-mechanisms-in-ggen)
+    - [1. Single Source of Truth (Ontology)](#1-single-source-of-truth-ontology)
+    - [2. Deterministic Generation](#2-deterministic-generation)
+    - [3. Semantic Validation](#3-semantic-validation)
+    - [4. Type Safety Across Languages](#4-type-safety-across-languages)
+    - [5. Automated Regeneration](#5-automated-regeneration)
+  - [Poke-Yoke vs. Error Detection](#poke-yoke-vs-error-detection)
+  - [Types of Poke-Yoke in ggen](#types-of-poke-yoke-in-ggen)
+    - [1. Design Constraint Poke-Yoke](#1-design-constraint-poke-yoke)
+    - [2. Automated Enforcement Poke-Yoke](#2-automated-enforcement-poke-yoke)
+    - [3. Structural Poke-Yoke](#3-structural-poke-yoke)
+  - [Real-World Failure Mode: Documentation Drift](#real-world-failure-mode-documentation-drift)
+    - [Without Poke-Yoke](#without-poke-yoke)
+    - [With Poke-Yoke (ggen's approach)](#with-poke-yoke-ggens-approach)
+  - [Why Poke-Yoke Matters](#why-poke-yoke-matters)
+    - [Failure Without It](#failure-without-it)
+    - [Success With It](#success-with-it)
+  - [Learning Path](#learning-path)
+  - [Key Takeaway](#key-takeaway)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Poke-Yoke: Error Prevention in Code Generation
 
 **Type: Explanation** | [← Back to Documentation](../README.md)
