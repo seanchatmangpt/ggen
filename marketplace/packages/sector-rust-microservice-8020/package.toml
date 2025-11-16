@@ -1,0 +1,27 @@
+[package]
+name = "sector-rust-microservice-8020"
+version = "1.0.0"
+edition = "2021"
+authors = ["ggen Contributors"]
+description = "8020 Bundle: Production-ready Rust microservice scaffolding covering 80% of service architecture needs"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/seanchatmangpt/ggen"
+
+# 8020 Innovation: Critical fields for bundle curation
+is_8020 = true
+is_8020_certified = false  # Certification pending completion of Guard8020Coverage validation
+sector = "microservice"
+dark_matter_reduction_target = "Eliminates ~50% of service scaffolding work (from 16 hours to 8 hours per service)"
+
+[dependencies]
+# This bundle composes these core packages
+sector-base-rust = "1.0.0"
+sector-observability-8020 = "1.0.0"
+error-handling-patterns = "1.0.0"
+
+[features]
+default = []
+
+[metadata]
+keywords = ["microservice", "rust", "service-architecture", "scaffolding", "production", "api", "rest"]
+categories = ["development-tools", "microservices", "web-programming"]
