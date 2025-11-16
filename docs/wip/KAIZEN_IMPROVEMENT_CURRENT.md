@@ -1,3 +1,34 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Kaizen Improvement Report - RegistryCapability Doctest](#kaizen-improvement-report---registrycapability-doctest)
+  - [Executive Summary](#executive-summary)
+  - [Step 1: Identify Opportunity ✅](#step-1-identify-opportunity-)
+    - [Opportunity Found](#opportunity-found)
+  - [Step 2: Plan Change ✅](#step-2-plan-change-)
+    - [Improvement Plan](#improvement-plan)
+    - [Safety Checks](#safety-checks)
+  - [Step 3: Do (Implement) ✅](#step-3-do-implement-)
+    - [Changes Made](#changes-made)
+    - [Improvements](#improvements)
+  - [Step 4: Check (Verify) ✅](#step-4-check-verify-)
+    - [Verification Results](#verification-results)
+    - [Improvement Verification](#improvement-verification)
+  - [Step 5: Act (Standardize) ✅](#step-5-act-standardize-)
+    - [Pattern Applied](#pattern-applied)
+    - [Standard Established](#standard-established)
+  - [Results](#results)
+    - [Before vs After](#before-vs-after)
+    - [Total Runnable Doctests](#total-runnable-doctests)
+  - [Kaizen Principles Applied](#kaizen-principles-applied)
+  - [Next Steps](#next-steps)
+    - [Future Kaizen Opportunities](#future-kaizen-opportunities)
+    - [Continuous Improvement](#continuous-improvement)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Kaizen Improvement Report - RegistryCapability Doctest
 
 ## Executive Summary

@@ -1,3 +1,30 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen - Knowledge Graph Code Generation](#ggen---knowledge-graph-code-generation)
+  - [⚡ Quick Start](#-quick-start)
+  - [🎯 Core Workflow](#-core-workflow)
+  - [🚀 What's Unique](#-whats-unique)
+  - [💡 Real-World Impact](#-real-world-impact)
+  - [📊 vs. Other Tools](#-vs-other-tools)
+  - [🎓 Core Concepts](#-core-concepts)
+  - [🛠️ Key Commands](#-key-commands)
+  - [📚 Documentation](#-documentation)
+    - [🎯 Getting Started (Choose Your Path)](#-getting-started-choose-your-path)
+    - [📚 Full Documentation Structure](#-full-documentation-structure)
+    - [🌟 Quality & Reliability](#-quality--reliability)
+    - [📂 Examples & Guides](#-examples--guides)
+    - [📝 Release Notes](#-release-notes)
+  - [🤝 Contributing](#-contributing)
+  - [❓ FAQ](#-faq)
+  - [🔧 Troubleshooting](#-troubleshooting)
+  - [🎉 Try It Now](#-try-it-now)
+  - [📄 License](#-license)
+  - [🔗 Links](#-links)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen - Knowledge Graph Code Generation
 
 [![Rust](https://img.shields.io/badge/rust-1.70%2B-orange.svg)](https://www.rust-lang.org/)

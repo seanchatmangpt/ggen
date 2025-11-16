@@ -1,3 +1,52 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [START HERE: Academic Paper with ggen (5 Minutes)](#start-here-academic-paper-with-ggen-5-minutes)
+  - [🎯 What You're About to Do](#-what-youre-about-to-do)
+  - [⚡ The 5-Minute Start](#-the-5-minute-start)
+    - [Step 1: Copy the Minimal Example (1 minute)](#step-1-copy-the-minimal-example-1-minute)
+    - [Step 2: Generate LaTeX (2 minutes)](#step-2-generate-latex-2-minutes)
+    - [Step 3: Compile to PDF (1 minute)](#step-3-compile-to-pdf-1-minute)
+  - [🤔 What Just Happened?](#-what-just-happened)
+    - [The Magic of Semantic Generation](#the-magic-of-semantic-generation)
+    - [The Three Files Explained](#the-three-files-explained)
+  - [📚 What's Next?](#-whats-next)
+    - [Option 1: Learn More (Read Next)](#option-1-learn-more-read-next)
+    - [Option 2: Customize Your Paper (Do Next)](#option-2-customize-your-paper-do-next)
+  - [⚠️ Common Mistakes (How to Avoid Them)](#-common-mistakes-how-to-avoid-them)
+    - [Mistake 1: "I edited the .tex file"](#mistake-1-i-edited-the-tex-file)
+    - [Mistake 2: "My equation didn't renumber"](#mistake-2-my-equation-didnt-renumber)
+    - [Mistake 3: "I don't know what RDF syntax is"](#mistake-3-i-dont-know-what-rdf-syntax-is)
+  - [🎯 Common Tasks (Quick Reference)](#-common-tasks-quick-reference)
+    - [Task: Add a New Equation](#task-add-a-new-equation)
+    - [Task: Add a New Section](#task-add-a-new-section)
+    - [Task: Change the Template](#task-change-the-template)
+  - [🆘 Something Went Wrong?](#-something-went-wrong)
+    - [Problem: Command not found: `ggen`](#problem-command-not-found-ggen)
+    - [Problem: Invalid RDF syntax](#problem-invalid-rdf-syntax)
+    - [Problem: PDF won't compile](#problem-pdf-wont-compile)
+    - [Problem: I can't find where to fix it](#problem-i-cant-find-where-to-fix-it)
+  - [📖 Reading Order (By Your Experience Level)](#-reading-order-by-your-experience-level)
+    - [Path 1: Quick Learning (30 minutes)](#path-1-quick-learning-30-minutes)
+    - [Path 2: Full Understanding (2 hours)](#path-2-full-understanding-2-hours)
+    - [Path 3: Deep Expertise (4+ hours)](#path-3-deep-expertise-4-hours)
+  - [🎓 Five Key Principles](#-five-key-principles)
+    - [Principle 1: RDF is Source of Truth](#principle-1-rdf-is-source-of-truth)
+    - [Principle 2: One Equation One way](#principle-2-one-equation-one-way)
+    - [Principle 3: Equations Auto-Number](#principle-3-equations-auto-number)
+    - [Principle 4: Everything is Queryable](#principle-4-everything-is-queryable)
+    - [Principle 5: Deterministic Output](#principle-5-deterministic-output)
+  - [✅ Success Checklist](#-success-checklist)
+  - [🚀 Next Steps](#-next-steps)
+    - [For the Impatient](#for-the-impatient)
+    - [For the Curious](#for-the-curious)
+    - [For the Thorough](#for-the-thorough)
+    - [For Questions](#for-questions)
+  - [Questions?](#questions)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # START HERE: Academic Paper with ggen (5 Minutes)
 
 **Welcome!** You're about to create a professional academic paper that automatically manages equations, cross-references, and formatting.

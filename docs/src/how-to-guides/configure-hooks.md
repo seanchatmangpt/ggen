@@ -1,3 +1,28 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [How to Configure Hooks](#how-to-configure-hooks)
+  - [What Are Hooks?](#what-are-hooks)
+  - [Creating Hooks](#creating-hooks)
+    - [Pre-Commit Hook](#pre-commit-hook)
+    - [Post-Merge Hook](#post-merge-hook)
+  - [Hook Lifecycle Phases](#hook-lifecycle-phases)
+  - [Common Hook Patterns](#common-hook-patterns)
+    - [Validate Ontology](#validate-ontology)
+    - [Regenerate Code](#regenerate-code)
+    - [Run Tests](#run-tests)
+  - [Listing Hooks](#listing-hooks)
+  - [Removing Hooks](#removing-hooks)
+  - [Monitoring Hooks](#monitoring-hooks)
+  - [Best Practices](#best-practices)
+  - [Troubleshooting](#troubleshooting)
+    - [Hook Not Executing](#hook-not-executing)
+    - [Hook Too Slow](#hook-too-slow)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # How to Configure Hooks
 
 Guide to setting up Git hooks and automation with ggen.

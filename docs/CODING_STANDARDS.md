@@ -1,3 +1,40 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Coding Standards - Eliminate Mura](#ggen-coding-standards---eliminate-mura)
+  - [Philosophy](#philosophy)
+  - [1. Error Handling Standards](#1-error-handling-standards)
+    - [Standard Pattern: Result<T, E>](#standard-pattern-resultt-e)
+  - [2. Error Type Standards](#2-error-type-standards)
+    - [Standard: One Error Type Per Module](#standard-one-error-type-per-module)
+  - [3. Documentation Standards](#3-documentation-standards)
+    - [Module-Level Documentation (`//!`)](#module-level-documentation-)
+    - [Item-Level Documentation (`///`)](#item-level-documentation-)
+    - [Doctest Standards](#doctest-standards)
+  - [4. Test Coverage Standards](#4-test-coverage-standards)
+    - [Minimum Coverage: 80%](#minimum-coverage-80)
+  - [5. Code Style Standards](#5-code-style-standards)
+    - [Style Enforcement: cargo fmt](#style-enforcement-cargo-fmt)
+    - [Naming Conventions](#naming-conventions)
+    - [Import Organization](#import-organization)
+  - [6. Quality Gates](#6-quality-gates)
+    - [Pre-commit Checks](#pre-commit-checks)
+    - [CI Checks](#ci-checks)
+    - [Breaking Changes](#breaking-changes)
+  - [7. Refactoring Guidelines](#7-refactoring-guidelines)
+    - [When to Refactor](#when-to-refactor)
+    - [Refactoring Pattern](#refactoring-pattern)
+  - [8. Documentation Examples](#8-documentation-examples)
+    - [Good Example: Complete Standard](#good-example-complete-standard)
+  - [9. Enforcement Summary](#9-enforcement-summary)
+  - [10. Quick Reference](#10-quick-reference)
+    - [Checklist for New Code](#checklist-for-new-code)
+    - [Checklist for Code Review](#checklist-for-code-review)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Coding Standards - Eliminate Mura
 
 ## Philosophy

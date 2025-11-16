@@ -1,3 +1,41 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Troubleshoot RDF & SPARQL Issues](#troubleshoot-rdf--sparql-issues)
+  - [Quick Diagnosis](#quick-diagnosis)
+  - [RDF Parsing Errors](#rdf-parsing-errors)
+    - [Error: Invalid RDF Syntax](#error-invalid-rdf-syntax)
+    - [Error: Undefined Prefix](#error-undefined-prefix)
+    - [Error: Invalid URI Format](#error-invalid-uri-format)
+  - [Ontology Validation](#ontology-validation)
+    - [Error: No Classes Found](#error-no-classes-found)
+    - [Error: Classes Have No Properties](#error-classes-have-no-properties)
+    - [Error: Undefined Property Range](#error-undefined-property-range)
+  - [SPARQL Query Problems](#sparql-query-problems)
+    - [Error: SPARQL Syntax Error](#error-sparql-syntax-error)
+    - [Query Returns Empty Results](#query-returns-empty-results)
+    - [Query Performance Issues](#query-performance-issues)
+  - [Type Mapping Issues](#type-mapping-issues)
+    - [Error: Unknown Type in Generated Code](#error-unknown-type-in-generated-code)
+    - [Error: Type Incompatibility](#error-type-incompatibility)
+  - [Template Rendering Issues](#template-rendering-issues)
+    - [Error: SPARQL Query in Template Fails](#error-sparql-query-in-template-fails)
+    - [Error: Template Variable Undefined](#error-template-variable-undefined)
+  - [Common Patterns & Solutions](#common-patterns--solutions)
+    - [Checking ontology structure:](#checking-ontology-structure)
+    - [Debugging templates:](#debugging-templates)
+    - [Validating ontologies:](#validating-ontologies)
+  - [When to Ask for Help](#when-to-ask-for-help)
+  - [Tools for Debugging](#tools-for-debugging)
+    - [Online RDF Validators](#online-rdf-validators)
+    - [SPARQL Testers](#sparql-testers)
+    - [RDF Viewers](#rdf-viewers)
+    - [ggen Tools](#ggen-tools)
+  - [Additional Resources](#additional-resources)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Troubleshoot RDF & SPARQL Issues
 
 Common RDF and SPARQL errors you might encounter and how to fix them. This guide covers validation errors, query issues, type mismatches, and ontology problems.

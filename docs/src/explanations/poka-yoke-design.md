@@ -1,3 +1,47 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Poka-Yoke: Error Prevention by Design](#poka-yoke-error-prevention-by-design)
+  - [What is Poka-Yoke?](#what-is-poka-yoke)
+    - [Traditional Error Handling](#traditional-error-handling)
+    - [Poka-Yoke Approach](#poka-yoke-approach)
+  - [Poka-Yoke in ggen](#poka-yoke-in-ggen)
+    - [1. Configuration Type System](#1-configuration-type-system)
+    - [2. Ontology Validation](#2-ontology-validation)
+    - [3. Template Frontmatter Validation](#3-template-frontmatter-validation)
+    - [4. Type-Level Properties](#4-type-level-properties)
+  - [Poka-Yoke Patterns in ggen](#poka-yoke-patterns-in-ggen)
+    - [Pattern 1: Phantom Types](#pattern-1-phantom-types)
+    - [Pattern 2: Newtype Wrapper](#pattern-2-newtype-wrapper)
+    - [Pattern 3: Builder Pattern](#pattern-3-builder-pattern)
+    - [Pattern 4: Type-Driven Generation](#pattern-4-type-driven-generation)
+    - [Pattern 5: Zero-Cost Abstractions](#pattern-5-zero-cost-abstractions)
+  - [Designing Poka-Yoke Templates](#designing-poka-yoke-templates)
+    - [Principle 1: Make Invalid States Unrepresentable](#principle-1-make-invalid-states-unrepresentable)
+    - [Principle 2: Document Assumptions](#principle-2-document-assumptions)
+    - [Principle 3: Use Type-Level Validation](#principle-3-use-type-level-validation)
+  - [Real-World Benefits](#real-world-benefits)
+    - [Before Poka-Yoke](#before-poka-yoke)
+    - [After Poka-Yoke](#after-poka-yoke)
+  - [Best Practices](#best-practices)
+    - [1. Use Strong Types](#1-use-strong-types)
+    - [2. Validate Early](#2-validate-early)
+    - [3. Document Assumptions](#3-document-assumptions)
+    - [4. Fail Fast](#4-fail-fast)
+  - [Common Poka-Yoke Patterns in ggen](#common-poka-yoke-patterns-in-ggen)
+    - [Pattern: Required Fields in Frontmatter](#pattern-required-fields-in-frontmatter)
+    - [Pattern: Frozen Sections](#pattern-frozen-sections)
+    - [Pattern: SPARQL Query Validation](#pattern-sparql-query-validation)
+  - [Extending Poka-Yoke in Your Templates](#extending-poka-yoke-in-your-templates)
+    - [Example: Enforce Naming Convention](#example-enforce-naming-convention)
+    - [Example: Enforce Domain-Specific Rules](#example-enforce-domain-specific-rules)
+  - [Learning Resources](#learning-resources)
+  - [Next Steps](#next-steps)
+  - [FAQ](#faq)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Poka-Yoke: Error Prevention by Design
 
 **Goal:** Understand how ggen prevents errors through type-level design, making invalid states unrepresentable.

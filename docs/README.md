@@ -1,3 +1,29 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Documentation](#ggen-documentation)
+  - [Quick Start](#quick-start)
+  - [Documentation Structure](#documentation-structure)
+    - [📚 Tutorials (Learning-Oriented)](#-tutorials-learning-oriented)
+    - [🔧 How-to Guides (Problem-Oriented)](#-how-to-guides-problem-oriented)
+    - [📖 Reference (Information-Oriented)](#-reference-information-oriented)
+    - [💡 Explanations (Understanding-Oriented)](#-explanations-understanding-oriented)
+  - [Common Tasks](#common-tasks)
+    - [I want to...](#i-want-to)
+  - [Documentation Principles](#documentation-principles)
+  - [Documentation Framework](#documentation-framework)
+  - [Contributing](#contributing)
+  - [Additional Documentation](#additional-documentation)
+    - [Development Tools](#development-tools)
+    - [Marketplace](#marketplace)
+    - [Release Information](#release-information)
+    - [Advanced How-to Guides](#advanced-how-to-guides)
+  - [Documentation Tools](#documentation-tools)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Documentation
 
 Welcome to the ggen documentation! This documentation follows the [Diataxis framework](https://diataxis.fr/), organized into four categories: **Tutorials**, **How-to Guides**, **Reference**, and **Explanations**.

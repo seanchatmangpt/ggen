@@ -1,3 +1,51 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [SPARQL Cookbook](#sparql-cookbook)
+  - [Pattern Categories](#pattern-categories)
+  - [Basic Extraction](#basic-extraction)
+    - [1. Extract All Classes](#1-extract-all-classes)
+    - [2. Extract All Properties](#2-extract-all-properties)
+    - [3. Get Properties for a Class](#3-get-properties-for-a-class)
+  - [Class Hierarchies](#class-hierarchies)
+    - [4. Class Inheritance Chain](#4-class-inheritance-chain)
+    - [5. Full Inheritance Tree (Transitive)](#5-full-inheritance-tree-transitive)
+    - [6. Find Leaf Classes (No Subclasses)](#6-find-leaf-classes-no-subclasses)
+  - [Property Extraction](#property-extraction)
+    - [7. Required vs Optional Properties](#7-required-vs-optional-properties)
+    - [8. Properties with Descriptions](#8-properties-with-descriptions)
+    - [9. Data Type Properties vs Object Properties](#9-data-type-properties-vs-object-properties)
+  - [Type Mapping](#type-mapping)
+    - [10. Map XSD Types to Primitives](#10-map-xsd-types-to-primitives)
+    - [11. Find Unmapped Types](#11-find-unmapped-types)
+    - [12. Enum-like Classes](#12-enum-like-classes)
+  - [Validation & Constraints](#validation--constraints)
+    - [13. SHACL Shape Validation](#13-shacl-shape-validation)
+    - [14. Datatype Constraints](#14-datatype-constraints)
+    - [15. Find Unique Identifiers](#15-find-unique-identifiers)
+  - [Advanced Aggregation](#advanced-aggregation)
+    - [16. Class with Property Count](#16-class-with-property-count)
+    - [17. Properties Shared Between Classes](#17-properties-shared-between-classes)
+    - [18. Class Relationships Network](#18-class-relationships-network)
+    - [19. Classes by Category](#19-classes-by-category)
+  - [Performance Tips](#performance-tips)
+    - [General Optimization](#general-optimization)
+    - [Debugging Queries](#debugging-queries)
+  - [Quick Reference](#quick-reference)
+    - [Common Prefixes](#common-prefixes)
+    - [Common Patterns](#common-patterns)
+    - [Operators](#operators)
+  - [Real-World Examples](#real-world-examples)
+    - [Example 1: Generate TypeScript Interfaces](#example-1-generate-typescript-interfaces)
+    - [Example 2: Generate Validation Schema](#example-2-generate-validation-schema)
+    - [Example 3: Generate GraphQL Types](#example-3-generate-graphql-types)
+  - [When to Use This Cookbook](#when-to-use-this-cookbook)
+  - [Further Learning](#further-learning)
+  - [Contributing Patterns](#contributing-patterns)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # SPARQL Cookbook
 
 Practical SPARQL query patterns for extracting data from RDF ontologies. Each pattern is battle-tested and ready to use in your templates.

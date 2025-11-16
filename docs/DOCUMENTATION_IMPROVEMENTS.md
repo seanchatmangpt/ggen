@@ -1,3 +1,41 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Documentation Improvements Plan - v2.7.0](#documentation-improvements-plan---v270)
+  - [Overview](#overview)
+  - [Current State](#current-state)
+  - [Documentation Standards Compliance](#documentation-standards-compliance)
+    - [✅ Fully Compliant Modules](#-fully-compliant-modules)
+  - [Documentation Gaps Identified](#documentation-gaps-identified)
+    - [Priority 1: Item-Level Documentation](#priority-1-item-level-documentation)
+  - [Doctest Improvements](#doctest-improvements)
+    - [Current Status](#current-status)
+    - [Doctest Standards](#doctest-standards)
+  - [Documentation Tasks](#documentation-tasks)
+    - [Task 1: Audit Main Crates](#task-1-audit-main-crates)
+    - [Task 2: Document Key Modules](#task-2-document-key-modules)
+    - [Task 3: Improve Function Documentation](#task-3-improve-function-documentation)
+    - [Task 4: Add Error Documentation](#task-4-add-error-documentation)
+    - [Task 5: Verify Doctest Compilation](#task-5-verify-doctest-compilation)
+  - [Documentation Checklist](#documentation-checklist)
+    - [For Each Public Module](#for-each-public-module)
+    - [For Each Public Function](#for-each-public-function)
+    - [For Each Public Type](#for-each-public-type)
+  - [Quality Gates](#quality-gates)
+  - [Documentation Tools](#documentation-tools)
+    - [Visual verification:](#visual-verification)
+    - [Automated checking:](#automated-checking)
+  - [Success Metrics](#success-metrics)
+  - [Implementation Priority](#implementation-priority)
+    - [Phase 1 (Quick wins - 1-2 hours)](#phase-1-quick-wins---1-2-hours)
+    - [Phase 2 (Medium effort - 3-4 hours)](#phase-2-medium-effort---3-4-hours)
+    - [Phase 3 (Full compliance - 2-3 hours)](#phase-3-full-compliance---2-3-hours)
+  - [References](#references)
+  - [Integration with Standards](#integration-with-standards)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Documentation Improvements Plan - v2.7.0
 
 ## Overview

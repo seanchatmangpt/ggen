@@ -1,3 +1,28 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Academic Paper Lifecycle - Quick Start Guide](#academic-paper-lifecycle---quick-start-guide)
+  - [1. Create Your First Paper (1 minute)](#1-create-your-first-paper-1-minute)
+  - [2. Edit Paper Metadata (1 minute)](#2-edit-paper-metadata-1-minute)
+  - [3. Add Content (2 minutes)](#3-add-content-2-minutes)
+  - [4. Generate LaTeX & PDF (1 minute)](#4-generate-latex--pdf-1-minute)
+  - [Next Steps](#next-steps)
+    - [Add Bibliography](#add-bibliography)
+    - [Change Format](#change-format)
+    - [Submit to arXiv](#submit-to-arxiv)
+    - [Collaborate with Others](#collaborate-with-others)
+  - [Available Commands](#available-commands)
+  - [Get Help](#get-help)
+  - [Marketplace Templates](#marketplace-templates)
+  - [Tips & Tricks](#tips--tricks)
+    - [Use RDF Queries](#use-rdf-queries)
+    - [Version Control](#version-control)
+    - [Online Compilation](#online-compilation)
+  - [Example: Complete Workflow](#example-complete-workflow)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Academic Paper Lifecycle - Quick Start Guide
 
 Get up and running with the academic paper lifecycle in 5 minutes.
