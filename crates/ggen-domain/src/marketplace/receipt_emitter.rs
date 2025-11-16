@@ -4,7 +4,7 @@
 //! for audit trail and downstream artifact generation.
 
 use crate::marketplace::guards::{Guard, GuardCheckResult, Severity, ValidationReceipt};
-use crate::marketplace::guards::factories::{GuardMetadata, GuardLicense, GuardReadme, GuardTests};
+use crate::marketplace::guards::factories::{GuardMetadata, GuardLicense, GuardReadme, GuardTests, GuardChicagoCompliance};
 use std::path::{Path, PathBuf};
 use chrono::Utc;
 
@@ -101,6 +101,7 @@ pub fn emit_receipt_for_package(
         Box::new(GuardLicense),
         Box::new(GuardReadme),
         Box::new(GuardTests),
+        Box::new(GuardChicagoCompliance),
     ];
 
     for guard in guards {

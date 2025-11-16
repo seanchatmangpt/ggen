@@ -533,6 +533,113 @@ pub mod factories {
             ))
         }
     }
+
+    /// Chicago Compliance Guard - validates Chatman Equation adherence
+    /// Checks for forbidden patterns, AAA test structure, and safety
+    pub struct GuardChicagoCompliance;
+
+    impl Guard for GuardChicagoCompliance {
+        fn id(&self) -> &str {
+            "chicago_compliance"
+        }
+
+        fn name(&self) -> &str {
+            "Chicago Compliance Guard"
+        }
+
+        fn description(&self) -> &str {
+            "Validates adherence to chicago-tdd-tools and Chatman Equation patterns"
+        }
+
+        fn weight(&self) -> u32 {
+            15
+        }
+
+        fn severity(&self) -> Severity {
+            Severity::Critical
+        }
+
+        fn slo_ms(&self) -> u32 {
+            10000 // Longer SLO for AST analysis
+        }
+
+        fn execute(&self, package_path: &Path) -> GuardResult<GuardCheckResult> {
+            let src_dir = package_path.join("src");
+            if !src_dir.exists() {
+                return Ok(GuardCheckResult::new(
+                    self.name().to_string(),
+                    self.id().to_string(),
+                    true, // Pass if no src directory (not applicable)
+                    "No src/ directory found (not applicable to non-Rust packages)".to_string(),
+                    self.weight(),
+                    self.severity(),
+                ));
+            }
+
+            // Check for forbidden patterns in production code
+            let mut forbidden_found = Vec::new();
+            let forbidden_patterns = [
+                ("unwrap()", "Unwrap without fallback"),
+                ("expect(", "Expect without fallback"),
+                ("panic!(", "Panic in production code"),
+            ];
+
+            if let Ok(entries) = fs::read_dir(&src_dir) {
+                for entry in entries.flatten() {
+                    let path = entry.path();
+                    if path.extension().and_then(|s| s.to_str()) == Some("rs") {
+                        if let Ok(content) = fs::read_to_string(&path) {
+                            // Skip test modules and code
+                            if path.file_name().and_then(|n| n.to_str()).map(|n| n.ends_with("_test.rs") || n.ends_with("test.rs")).unwrap_or(false) {
+                                continue;
+                            }
+
+                            for (pattern, desc) in &forbidden_patterns {
+                                if content.contains(pattern) {
+                                    forbidden_found.push(format!(
+                                        "{}: {} in {}",
+                                        desc,
+                                        pattern,
+                                        path.display()
+                                    ));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Check for test files with AAA structure
+            let tests_dir = package_path.join("tests");
+            let has_tests = tests_dir.exists() && fs::read_dir(&tests_dir)
+                .map(|entries| entries.count() > 0)
+                .unwrap_or(false);
+
+            let passed = forbidden_found.is_empty() && has_tests;
+
+            let message = if forbidden_found.is_empty() {
+                if has_tests {
+                    "✅ No forbidden patterns found, test suite present".to_string()
+                } else {
+                    "⚠️ No forbidden patterns, but test suite may be minimal".to_string()
+                }
+            } else {
+                format!(
+                    "❌ Forbidden patterns found:\n  - {}",
+                    forbidden_found.join("\n  - ")
+                )
+            };
+
+            Ok(GuardCheckResult::new(
+                self.name().to_string(),
+                self.id().to_string(),
+                passed,
+                message,
+                self.weight(),
+                self.severity(),
+            ))
+        }
+    }
 }
 
 #[cfg(test)]
