@@ -1,3 +1,25 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Architecture](#architecture)
+  - [System Architecture](#system-architecture)
+  - [Layer Responsibilities](#layer-responsibilities)
+    - [CLI Layer (`ggen-cli`)](#cli-layer-ggen-cli)
+    - [Domain Layer (`ggen-domain`)](#domain-layer-ggen-domain)
+    - [Infrastructure Layer](#infrastructure-layer)
+  - [Data Flow](#data-flow)
+    - [Code Generation Flow](#code-generation-flow)
+    - [Marketplace Flow](#marketplace-flow)
+  - [Component Interactions](#component-interactions)
+    - [RDF Processing](#rdf-processing)
+    - [Template System](#template-system)
+    - [Lifecycle Management](#lifecycle-management)
+  - [Design Principles](#design-principles)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Architecture
 
 ggen's architecture separates concerns into distinct layers: CLI, domain logic, and infrastructure.

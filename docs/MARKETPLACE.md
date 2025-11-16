@@ -1,3 +1,39 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Marketplace - Production Deployment Guide](#ggen-marketplace---production-deployment-guide)
+  - [🎯 80/20 Production Architecture](#-8020-production-architecture)
+    - [Critical Components (20% effort, 80% value)](#critical-components-20-effort-80-value)
+  - [🚀 How It Works](#-how-it-works)
+    - [For Users (Installing Packages)](#for-users-installing-packages)
+    - [For Publishers (Publishing Packages)](#for-publishers-publishing-packages)
+  - [📁 Repository Structure](#-repository-structure)
+  - [🌐 Production URLs](#-production-urls)
+    - [GitHub Pages Deployment](#github-pages-deployment)
+    - [Repository](#repository)
+  - [🔧 CLI Implementation](#-cli-implementation)
+    - [Registry Loading (80/20 Approach)](#registry-loading-8020-approach)
+    - [Package Installation (Git-based)](#package-installation-git-based)
+  - [🎯 Why This Approach (80/20)](#-why-this-approach-8020)
+    - [✅ What We DID Implement (Critical 20%)](#-what-we-did-implement-critical-20)
+    - [❌ What We DIDN'T Implement (80% complexity)](#-what-we-didnt-implement-80-complexity)
+    - [💡 Benefits](#-benefits)
+  - [🚢 Deployment Checklist](#-deployment-checklist)
+    - [Enable GitHub Pages](#enable-github-pages)
+    - [Verify Deployment](#verify-deployment)
+    - [Test CLI](#test-cli)
+  - [📊 Success Metrics](#-success-metrics)
+    - [For Users](#for-users)
+    - [For Publishers](#for-publishers)
+    - [For Maintainers](#for-maintainers)
+  - [🔐 Security](#-security)
+    - [Package Verification](#package-verification)
+    - [Installation Safety](#installation-safety)
+  - [🤝 Contributing Packages](#-contributing-packages)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Marketplace - Production Deployment Guide
 
 ## 🎯 80/20 Production Architecture

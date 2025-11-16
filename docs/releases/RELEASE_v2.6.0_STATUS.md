@@ -1,3 +1,25 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Release v2.6.0 - Preparation Status](#release-v260---preparation-status)
+  - [Completed Steps ✅](#completed-steps-)
+    - [Version Updates](#version-updates)
+    - [Documentation](#documentation)
+    - [Build Verification](#build-verification)
+    - [Git Operations](#git-operations)
+  - [Blocking Issues ⚠️](#blocking-issues-)
+    - [Pre-Commit Hook Issues](#pre-commit-hook-issues)
+    - [Pre-Push Hook Issues](#pre-push-hook-issues)
+  - [Next Steps](#next-steps)
+    - [Option 1: Fix Issues (Recommended)](#option-1-fix-issues-recommended)
+    - [Option 2: Bypass Hooks (Not Recommended)](#option-2-bypass-hooks-not-recommended)
+    - [Option 3: Create Release Branch](#option-3-create-release-branch)
+  - [Files Ready for Release](#files-ready-for-release)
+  - [Release Tag](#release-tag)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Release v2.6.0 - Preparation Status
 
 **Date**: 2025-11-12  

@@ -1,3 +1,53 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Ultrathink: Autonomous Intelligence System](#ultrathink-autonomous-intelligence-system)
+  - [What is Ultrathink?](#what-is-ultrathink)
+    - [Why Autonomous AI?](#why-autonomous-ai)
+  - [Core Architecture](#core-architecture)
+    - [The Autonomy Loop](#the-autonomy-loop)
+    - [Agent Specialization](#agent-specialization)
+      - [1. Analysis Agent](#1-analysis-agent)
+      - [2. Planning Agent](#2-planning-agent)
+      - [3. Generation Agent](#3-generation-agent)
+      - [4. Validation Agent](#4-validation-agent)
+      - [5. Optimization Agent](#5-optimization-agent)
+  - [WIP (Work In Progress) Synchronization](#wip-work-in-progress-synchronization)
+    - [WIP State Machine](#wip-state-machine)
+    - [WIP Entry Structure](#wip-entry-structure)
+    - [WIP Synchronization Protocol](#wip-synchronization-protocol)
+    - [Monitoring WIP](#monitoring-wip)
+  - [Adaptive Decision Making](#adaptive-decision-making)
+    - [Decision Framework](#decision-framework)
+    - [Examples of Adaptive Decisions](#examples-of-adaptive-decisions)
+      - [1. Template Selection](#1-template-selection)
+      - [2. Conflict Resolution](#2-conflict-resolution)
+      - [3. Performance Optimization](#3-performance-optimization)
+  - [Self-Healing and Error Recovery](#self-healing-and-error-recovery)
+    - [Failure Detection](#failure-detection)
+    - [Automatic Recovery](#automatic-recovery)
+  - [Learning and Improvement](#learning-and-improvement)
+    - [Learning Mechanism](#learning-mechanism)
+    - [Feedback Loop](#feedback-loop)
+  - [Monitoring and Observability](#monitoring-and-observability)
+    - [Core Metrics](#core-metrics)
+    - [Dashboard Access](#dashboard-access)
+    - [Example Dashboard Output](#example-dashboard-output)
+  - [Use Cases](#use-cases)
+    - [1. Complex Ontology Generation](#1-complex-ontology-generation)
+    - [2. Multi-Language Generation](#2-multi-language-generation)
+    - [3. Incremental Generation](#3-incremental-generation)
+  - [Best Practices](#best-practices)
+  - [Troubleshooting](#troubleshooting)
+    - [Ultrathink Takes Too Long](#ultrathink-takes-too-long)
+    - [Memory Usage Growing](#memory-usage-growing)
+    - [WIP Synchronization Failures](#wip-synchronization-failures)
+  - [Next Steps](#next-steps)
+  - [Resources](#resources)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Ultrathink: Autonomous Intelligence System
 
 **Goal:** Understand how ggen's autonomous AI system processes complex code generation tasks independently with intelligent decision-making and adaptive behavior.

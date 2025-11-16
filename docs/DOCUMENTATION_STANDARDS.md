@@ -1,3 +1,30 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Documentation Standards for ggen](#documentation-standards-for-ggen)
+  - [Module-Level Documentation (`//!`)](#module-level-documentation-)
+    - [Top-Level Crates (`lib.rs`)](#top-level-crates-librs)
+    - [Sub-Modules (`mod.rs` or individual files)](#sub-modules-modrs-or-individual-files)
+  - [Function Documentation (`///`)](#function-documentation-)
+    - [Format](#format)
+    - [Required Elements](#required-elements)
+  - [Type Documentation (`///`)](#type-documentation-)
+    - [Format](#format-1)
+  - [Documentation Quality Standards](#documentation-quality-standards)
+    - [Completeness](#completeness)
+    - [Consistency](#consistency)
+    - [Clarity](#clarity)
+  - [Examples](#examples)
+    - [Good Module Documentation](#good-module-documentation)
+    - [Good Function Documentation](#good-function-documentation)
+  - [Enforcement](#enforcement)
+    - [Automated Checks](#automated-checks)
+    - [Code Review](#code-review)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Documentation Standards for ggen
 
 This document defines the standards for code documentation in the ggen project, ensuring consistency and quality across all modules.

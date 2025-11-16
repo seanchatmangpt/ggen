@@ -1,3 +1,22 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Determinism](#determinism)
+  - [Why Determinism Matters](#why-determinism-matters)
+  - [The Guarantee](#the-guarantee)
+  - [How ggen Achieves Determinism](#how-ggen-achieves-determinism)
+    - [1. Content Hashing](#1-content-hashing)
+    - [2. Sorted RDF Graphs](#2-sorted-rdf-graphs)
+    - [3. Ordered SPARQL Results](#3-ordered-sparql-results)
+    - [4. Version-Locked Templates](#4-version-locked-templates)
+  - [Manifest Key](#manifest-key)
+  - [Validation](#validation)
+  - [Best Practices](#best-practices)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Determinism
 
 ggen guarantees deterministic code generation: same inputs always produce byte-identical outputs.

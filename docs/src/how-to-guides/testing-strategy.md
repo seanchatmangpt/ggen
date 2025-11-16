@@ -1,3 +1,48 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Testing Strategy Guide](#testing-strategy-guide)
+  - [Testing Strategies Overview](#testing-strategies-overview)
+  - [BDD (Behavior-Driven Development)](#bdd-behavior-driven-development)
+    - [When to Use BDD](#when-to-use-bdd)
+    - [How to Write BDD Tests](#how-to-write-bdd-tests)
+    - [Implementing BDD Steps](#implementing-bdd-steps)
+    - [BDD Best Practices](#bdd-best-practices)
+    - [Running BDD Tests](#running-bdd-tests)
+  - [Chicago TDD (Inside-Out Unit Testing)](#chicago-tdd-inside-out-unit-testing)
+    - [When to Use Chicago TDD](#when-to-use-chicago-tdd)
+    - [How to Write Chicago Tests](#how-to-write-chicago-tests)
+    - [Chicago Test Structure](#chicago-test-structure)
+    - [Chicago Best Practices](#chicago-best-practices)
+    - [Running Chicago Tests](#running-chicago-tests)
+  - [London TDD (Outside-In Testing)](#london-tdd-outside-in-testing)
+    - [When to Use London TDD](#when-to-use-london-tdd)
+    - [How to Write London Tests](#how-to-write-london-tests)
+    - [London Test Structure](#london-test-structure)
+    - [London Best Practices](#london-best-practices)
+    - [Running London Tests](#running-london-tests)
+  - [Property-Based Testing](#property-based-testing)
+    - [When to Use Property-Based Testing](#when-to-use-property-based-testing)
+    - [How to Write Property-Based Tests](#how-to-write-property-based-tests)
+    - [Property-Based Best Practices](#property-based-best-practices)
+    - [Running Property-Based Tests](#running-property-based-tests)
+  - [E2E (End-to-End) Integration Testing](#e2e-end-to-end-integration-testing)
+    - [When to Use E2E Testing](#when-to-use-e2e-testing)
+    - [How to Write E2E Tests](#how-to-write-e2e-tests)
+    - [E2E Test Structure](#e2e-test-structure)
+    - [E2E Best Practices](#e2e-best-practices)
+    - [Running E2E Tests](#running-e2e-tests)
+  - [Choosing Your Testing Strategy](#choosing-your-testing-strategy)
+    - [Decision Tree](#decision-tree)
+    - [By Component](#by-component)
+  - [Test Organization](#test-organization)
+  - [Running Test Suites](#running-test-suites)
+  - [Continuous Integration](#continuous-integration)
+  - [Key Takeaways](#key-takeaways)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Testing Strategy Guide
 
 Complete guide to ggen's multi-strategy testing approach. ggen uses 5 complementary testing strategies suited to different scenarios. Choose the right strategy for your test to maximize effectiveness and maintainability.

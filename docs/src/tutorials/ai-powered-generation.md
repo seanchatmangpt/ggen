@@ -1,3 +1,23 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [AI-Powered Generation](#ai-powered-generation)
+  - [Prerequisites](#prerequisites)
+  - [Step 1: Generate Ontology with AI](#step-1-generate-ontology-with-ai)
+  - [Step 2: Review and Refine](#step-2-review-and-refine)
+  - [Step 3: Generate Code](#step-3-generate-code)
+  - [Step 4: AI-Assisted Analysis](#step-4-ai-assisted-analysis)
+  - [AI Features](#ai-features)
+    - [Generate Ontology](#generate-ontology)
+    - [Interactive Chat](#interactive-chat)
+    - [Code Analysis](#code-analysis)
+  - [Workflow: AI → Ontology → Code](#workflow-ai-%E2%86%92-ontology-%E2%86%92-code)
+  - [Best Practices](#best-practices)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # AI-Powered Generation
 
 **Goal:** Use AI to generate ontologies, refine them, and generate code automatically.

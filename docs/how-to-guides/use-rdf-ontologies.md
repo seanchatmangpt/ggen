@@ -1,3 +1,30 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [How to Use RDF Ontologies](#how-to-use-rdf-ontologies)
+  - [RDF Basics](#rdf-basics)
+    - [Basic RDF Structure](#basic-rdf-structure)
+  - [Creating Ontologies](#creating-ontologies)
+    - [Manual Creation](#manual-creation)
+    - [AI Generation](#ai-generation)
+  - [SPARQL Queries](#sparql-queries)
+    - [Basic SELECT Query](#basic-select-query)
+    - [Query in Templates](#query-in-templates)
+    - [Complex Queries](#complex-queries)
+  - [SHACL Validation](#shacl-validation)
+    - [SHACL Shapes](#shacl-shapes)
+    - [Validate Ontology](#validate-ontology)
+  - [Type Mapping](#type-mapping)
+  - [Best Practices](#best-practices)
+  - [Common Patterns](#common-patterns)
+    - [Inheritance](#inheritance)
+    - [Relationships](#relationships)
+    - [Constraints](#constraints)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # How to Use RDF Ontologies
 
 Guide to working with RDF ontologies, SPARQL queries, and SHACL validation.

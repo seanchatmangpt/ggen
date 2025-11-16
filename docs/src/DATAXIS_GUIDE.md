@@ -1,3 +1,45 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Diataxis Documentation Framework Guide](#diataxis-documentation-framework-guide)
+  - [What is Diataxis?](#what-is-diataxis)
+  - [The Four Documentation Types](#the-four-documentation-types)
+  - [Documentation Type Matrix](#documentation-type-matrix)
+  - [1. Tutorials (Learning-Oriented)](#1-tutorials-learning-oriented)
+  - [2. How-to Guides (Problem-Oriented)](#2-how-to-guides-problem-oriented)
+  - [3. Reference (Information-Oriented)](#3-reference-information-oriented)
+  - [&#91;Category 2&#93;](#category-2)
+  - [See Also](#see-also)
+  - [Choosing the Right Type](#choosing-the-right-type)
+  - [Common Patterns](#common-patterns)
+    - [Tutorial → How-to → Reference](#tutorial-%E2%86%92-how-to-%E2%86%92-reference)
+    - [How-to → Explanation](#how-to-%E2%86%92-explanation)
+    - [Reference → How-to](#reference-%E2%86%92-how-to)
+  - [Cross-Referencing](#cross-referencing)
+  - [ggen Documentation Structure](#ggen-documentation-structure)
+  - [Writing Checklist](#writing-checklist)
+    - [For Tutorials:](#for-tutorials)
+    - [For How-to Guides:](#for-how-to-guides)
+    - [For Reference:](#for-reference)
+    - [For Explanations:](#for-explanations)
+  - [Anti-Patterns to Avoid](#anti-patterns-to-avoid)
+    - [❌ Mixing Types](#-mixing-types)
+    - [❌ Wrong Orientation](#-wrong-orientation)
+    - [❌ Missing Cross-References](#-missing-cross-references)
+    - [❌ Incomplete Reference](#-incomplete-reference)
+  - [Examples from ggen](#examples-from-ggen)
+    - [Tutorial Example](#tutorial-example)
+    - [How-to Guide Example](#how-to-guide-example)
+    - [Reference Example](#reference-example)
+    - [Explanation Example](#explanation-example)
+  - [Benefits of Diataxis](#benefits-of-diataxis)
+  - [Resources](#resources)
+  - [Contributing](#contributing)
+  - [Summary](#summary)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Diataxis Documentation Framework Guide
 
 Complete guide to the Diataxis framework and how it's applied to ggen documentation.

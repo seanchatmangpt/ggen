@@ -1,3 +1,17 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Documentation](#ggen-documentation)
+  - [Quick Start](#quick-start)
+  - [Documentation Structure](#documentation-structure)
+  - [Common Tasks](#common-tasks)
+    - [I want to...](#i-want-to)
+  - [Contributing](#contributing)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Documentation
 
 Welcome to the ggen documentation! This documentation follows the [Diataxis framework](https://diataxis.fr/), organized into four categories: **Tutorials**, **How-to Guides**, **Reference**, and **Explanations**.

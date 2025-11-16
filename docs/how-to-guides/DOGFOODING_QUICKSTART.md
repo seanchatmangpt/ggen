@@ -1,3 +1,22 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [🐕 Ggen Dogfooding Quick Start](#-ggen-dogfooding-quick-start)
+  - [🚨 Current Problem](#-current-problem)
+  - [✅ Solution: Dogfooding Tools Created](#-solution-dogfooding-tools-created)
+    - [1️⃣ Automatic Panic Point Fixer](#-automatic-panic-point-fixer)
+    - [2️⃣ Pre-Commit Hook (Prevents Future Issues)](#-pre-commit-hook-prevents-future-issues)
+    - [3️⃣ Safety Validation Script](#-safety-validation-script)
+    - [4️⃣ Safe Error Handling Template](#-safe-error-handling-template)
+    - [5️⃣ Production Lifecycle](#-production-lifecycle)
+  - [🚀 60-Second Setup](#-60-second-setup)
+  - [🎯 What This Proves](#-what-this-proves)
+  - [📚 Full Documentation](#-full-documentation)
+  - [🎓 Key Learning](#-key-learning)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 🐕 Ggen Dogfooding Quick Start
 
 **Using ggen to fix ggen's own problems - the ultimate proof it works!**

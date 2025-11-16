@@ -1,3 +1,43 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Development Workflow](#development-workflow)
+  - [Overview](#overview)
+  - [Development Commands](#development-commands)
+    - [Required: Use `cargo make` Commands](#required-use-cargo-make-commands)
+    - [Timeout SLAs](#timeout-slas)
+  - [Testing Strategy](#testing-strategy)
+    - [Chicago TDD (Test-Driven Development)](#chicago-tdd-test-driven-development)
+      - [Test Macros](#test-macros)
+      - [Testing Principles](#testing-principles)
+      - [Test Execution](#test-execution)
+  - [Error Handling Standards](#error-handling-standards)
+    - [Error Types](#error-types)
+    - [Error Construction](#error-construction)
+    - [Error Handling Patterns](#error-handling-patterns)
+  - [Andon Signals (Quality Assurance)](#andon-signals-quality-assurance)
+    - [Signal Types](#signal-types)
+    - [Andon Workflow](#andon-workflow)
+    - [Verification Before Completion](#verification-before-completion)
+  - [Code Quality Standards](#code-quality-standards)
+    - [Prohibited Patterns](#prohibited-patterns)
+    - [Required Patterns](#required-patterns)
+  - [Continuous Improvement (Kaizen)](#continuous-improvement-kaizen)
+    - [Kaizen Workflow](#kaizen-workflow)
+    - [Improvement Criteria](#improvement-criteria)
+  - [Documentation Standards](#documentation-standards)
+    - [Module Documentation](#module-documentation)
+    - [Public API Documentation](#public-api-documentation)
+    - [Documentation Waste Prevention (Muda Elimination)](#documentation-waste-prevention-muda-elimination)
+  - [Git Workflow](#git-workflow)
+    - [Pre-Commit Hooks](#pre-commit-hooks)
+    - [Pre-Push Hooks](#pre-push-hooks)
+  - [Performance SLOs](#performance-slos)
+  - [Resources](#resources)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Development Workflow
 
 This document describes the development workflow for ggen, including testing practices, error handling standards, and quality assurance processes.

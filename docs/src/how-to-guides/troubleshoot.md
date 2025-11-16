@@ -1,3 +1,34 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [How to Troubleshoot Common Issues](#how-to-troubleshoot-common-issues)
+  - [Installation Issues](#installation-issues)
+    - [Command Not Found](#command-not-found)
+    - [Version Flag Not Working](#version-flag-not-working)
+  - [Generation Issues](#generation-issues)
+    - [Template Not Found](#template-not-found)
+    - [SPARQL Query Failed](#sparql-query-failed)
+    - [Invalid RDF Syntax](#invalid-rdf-syntax)
+  - [Ontology Issues](#ontology-issues)
+    - [Missing Properties](#missing-properties)
+    - [Type Mismatches](#type-mismatches)
+  - [Performance Issues](#performance-issues)
+    - [Slow Generation](#slow-generation)
+    - [Memory Issues](#memory-issues)
+  - [Marketplace Issues](#marketplace-issues)
+    - [Connection Failed](#connection-failed)
+    - [Package Not Found](#package-not-found)
+  - [Build Issues](#build-issues)
+    - [Generated Code Doesn't Compile](#generated-code-doesnt-compile)
+  - [Getting Help](#getting-help)
+    - [Enable Verbose Output](#enable-verbose-output)
+    - [Check Logs](#check-logs)
+    - [Report Issues](#report-issues)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # How to Troubleshoot Common Issues
 
 Solutions to common problems when using ggen.

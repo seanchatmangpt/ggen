@@ -1,3 +1,23 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Muda (Waste) Inventory - Documentation Cleanup](#muda-waste-inventory---documentation-cleanup)
+  - [Waste Identified](#waste-identified)
+    - [1. Duplicate/Outdated Files (Inventory Muda)](#1-duplicateoutdated-files-inventory-muda)
+    - [2. Over-Production (YAGNI Muda)](#2-over-production-yagni-muda)
+    - [3. Motion Muda (Redundant Information)](#3-motion-muda-redundant-information)
+  - [Waste Impact Measurement](#waste-impact-measurement)
+    - [Files to Remove: 12 files](#files-to-remove-12-files)
+    - [Estimated Space Savings](#estimated-space-savings)
+    - [Maintenance Cost](#maintenance-cost)
+  - [Prioritization](#prioritization)
+    - [High Impact, Low Effort (Do First)](#high-impact-low-effort-do-first)
+    - [Medium Impact, Medium Effort](#medium-impact-medium-effort)
+    - [Low Impact, Low Effort (Cleanup)](#low-impact-low-effort-cleanup)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Muda (Waste) Inventory - Documentation Cleanup
 
 **Waste Removal Decision**: Removed 10 duplicate/outdated files on 2025-11-15.

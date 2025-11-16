@@ -1,3 +1,57 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Semantic Equation Generation: The Chatman Equation Paper Example](#semantic-equation-generation-the-chatman-equation-paper-example)
+  - [Overview](#overview)
+  - [The Demonstration](#the-demonstration)
+    - [Three Files Showing Progressive Development](#three-files-showing-progressive-development)
+      - [1. **RDF Ontology v1** (`chatman-equation-paper.rdf`)](#1-rdf-ontology-v1-chatman-equation-paperrdf)
+      - [2. **Generated LaTeX v1** (`chatman-equation-paper-GENERATED-v1.tex`)](#2-generated-latex-v1-chatman-equation-paper-generated-v1tex)
+      - [3. **Modified RDF v2** (`chatman-equation-paper-MODIFIED-v2.rdf`)](#3-modified-rdf-v2-chatman-equation-paper-modified-v2rdf)
+      - [4. **Generated LaTeX v2** (`chatman-equation-paper-GENERATED-v2.tex`)](#4-generated-latex-v2-chatman-equation-paper-generated-v2tex)
+  - [Key Insight: Single Source of Truth](#key-insight-single-source-of-truth)
+    - [Example: Adding New Equation](#example-adding-new-equation)
+  - [Practical Workflow: Version 1 → Version 2](#practical-workflow-version-1-%E2%86%92-version-2)
+    - [Step 1: Start with v1 RDF](#step-1-start-with-v1-rdf)
+    - [Step 2: Enhance RDF with New Equations](#step-2-enhance-rdf-with-new-equations)
+    - [Step 3: Regenerate LaTeX](#step-3-regenerate-latex)
+  - [Equations Comparison: v1 vs v2](#equations-comparison-v1-vs-v2)
+    - [v1 (Original)](#v1-original)
+    - [v2 (Extended)](#v2-extended)
+  - [RDF Properties Used for Equation Generation](#rdf-properties-used-for-equation-generation)
+    - [Equation Definition in RDF](#equation-definition-in-rdf)
+    - [LaTeX Generation Template](#latex-generation-template)
+  - [Use Cases for Semantic Equation Generation](#use-cases-for-semantic-equation-generation)
+    - [1. **Evolving Research Papers**](#1-evolving-research-papers)
+    - [2. **Multiple Paper Versions**](#2-multiple-paper-versions)
+    - [3. **Collaborative Editing**](#3-collaborative-editing)
+    - [4. **Reproducible Mathematics**](#4-reproducible-mathematics)
+  - [Practical Example: Updating a Parameter](#practical-example-updating-a-parameter)
+    - [Scenario](#scenario)
+    - [v1: Manual Update](#v1-manual-update)
+    - [v2: Semantic Update](#v2-semantic-update)
+  - [The Power of Semantic Generation](#the-power-of-semantic-generation)
+    - [Traditional Templating](#traditional-templating)
+    - [Semantic Generation (ggen approach)](#semantic-generation-ggen-approach)
+  - [Files in This Demonstration](#files-in-this-demonstration)
+    - [To See the Difference](#to-see-the-difference)
+  - [Workflow for Researchers](#workflow-for-researchers)
+    - [Create a Research Paper with Semantic Equations](#create-a-research-paper-with-semantic-equations)
+  - [Key Insights](#key-insights)
+    - [1. Single Source of Truth](#1-single-source-of-truth)
+    - [2. Deterministic Generation](#2-deterministic-generation)
+    - [3. Semantic Richness](#3-semantic-richness)
+    - [4. Version Control](#4-version-control)
+    - [5. Automated Verification](#5-automated-verification)
+  - [Future Extensions](#future-extensions)
+    - [Multi-Language Generation](#multi-language-generation)
+    - [Proof Generation](#proof-generation)
+    - [Interactive Papers](#interactive-papers)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Semantic Equation Generation: The Chatman Equation Paper Example
 
 ## Overview
