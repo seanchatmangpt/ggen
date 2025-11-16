@@ -11,6 +11,7 @@ pub mod types; // Poka-yoke types for error prevention
 pub mod update;
 pub mod validate;
 pub mod guards;
+pub mod receipt_emitter;
 
 #[cfg(test)]
 #[path = "expert_tests.rs"]
@@ -32,6 +33,10 @@ pub use validate::{
 };
 pub use guards::{
     Guard, GuardCheckResult, GuardError, GuardResult, Severity, ValidationReceipt,
+};
+pub use receipt_emitter::{
+    emit_receipt_for_package, emit_receipts_for_marketplace, generate_validation_report,
+    update_production_flags, PackageReport, ValidationReport,
 };
 
 // Legacy types for backwards compatibility

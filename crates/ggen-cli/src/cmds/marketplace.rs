@@ -1197,6 +1197,136 @@ fn export(
     }))
 }
 
+/// Emit validation receipts for all marketplace packages
+///
+/// # Usage
+///
+/// ```bash
+/// # Emit receipts for all packages
+/// ggen marketplace emit-receipts
+///
+/// # Emit with output reporting
+/// ggen marketplace emit-receipts --report
+/// ```
+#[verb]
+fn emit_receipts(report: bool) -> Result<serde_json::Value> {
+    use ggen_domain::marketplace::{emit_receipts_for_marketplace, generate_validation_report};
+    use std::path::PathBuf;
+
+    let marketplace_root = PathBuf::from(".");
+
+    // Emit receipts for all packages
+    let results = emit_receipts_for_marketplace(&marketplace_root);
+
+    let total = results.len();
+    let successful = results.iter().filter(|(_, r)| r.is_ok()).count();
+    let failed = total - successful;
+
+    // Generate validation report if requested
+    let report_data = if report {
+        match generate_validation_report(&marketplace_root) {
+            Ok(validation_report) => serde_json::to_value(&validation_report).ok(),
+            Err(_) => None,
+        }
+    } else {
+        None
+    };
+
+    println!(
+        "\n✅ Validation Receipts Emitted\n\
+         Total Packages: {}\n\
+         Successful: {}\n\
+         Failed: {}",
+        total, successful, failed
+    );
+
+    if failed > 0 {
+        println!("\n❌ Failed packages:");
+        for (pkg_name, result) in &results {
+            if let Err(e) = result {
+                println!("  - {}: {}", pkg_name, e);
+            }
+        }
+    }
+
+    Ok(serde_json::json!({
+        "status": if failed == 0 { "success" } else { "partial" },
+        "total_packages": total,
+        "successful": successful,
+        "failed": failed,
+        "results": results.iter().map(|(name, result)| {
+            (name.clone(), match result {
+                Ok(path) => serde_json::json!({
+                    "status": "ok",
+                    "path": path.to_string_lossy()
+                }),
+                Err(e) => serde_json::json!({
+                    "status": "error",
+                    "error": e
+                })
+            })
+        }).collect::<std::collections::HashMap<_, _>>(),
+        "report": report_data
+    }))
+}
+
+/// Generate a validation report showing package scores and health
+///
+/// # Usage
+///
+/// ```bash
+/// # Generate report
+/// ggen marketplace report
+///
+/// # Generate and save to file
+/// ggen marketplace report --output marketplace-health.json
+/// ```
+#[verb]
+fn report(output: Option<PathBuf>) -> Result<serde_json::Value> {
+    use ggen_domain::marketplace::generate_validation_report;
+    use std::path::PathBuf;
+
+    let marketplace_root = PathBuf::from(".");
+
+    let report_data = generate_validation_report(&marketplace_root)
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e))?;
+
+    // Print summary
+    println!(
+        "\n📊 Marketplace Validation Report\n\
+         Generated: {}\n\
+         Total Packages: {}\n\
+         Production Ready: {}\n\
+         Average Score: {:.1}%\n\
+         Median Score: {:.1}%\n\
+         \n\
+         Score Distribution:\n\
+         ✅ 95-100%: {}\n\
+         ⚠️  80-94%:  {}\n\
+         ❌ <80%:    {}",
+        report_data.generated_at,
+        report_data.total_packages,
+        report_data.production_ready_count,
+        report_data.average_score,
+        report_data.median_score,
+        report_data.score_95_plus,
+        report_data.score_80_94,
+        report_data.score_below_80
+    );
+
+    // Save to file if requested
+    if let Some(out_path) = output {
+        let json = serde_json::to_string_pretty(&report_data)
+            .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;
+        std::fs::write(&out_path, json)
+            .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;
+        println!("\n💾 Report saved to: {}", out_path.display());
+    }
+
+    Ok(serde_json::to_value(&report_data)
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?)
+}
+
 /// Update production_ready flag in package.toml
 fn update_package_toml_production_flag(
     package_path: &Path, production_ready: bool,
