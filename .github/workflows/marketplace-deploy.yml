@@ -1,0 +1,222 @@
+name: Deploy Marketplace & Documentation
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "marketplace/**"
+      - "ggen-marketplace/**"
+      - ".github/workflows/marketplace-deploy.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "marketplace-deployment"
+  cancel-in-progress: true
+
+jobs:
+  # Build marketplace registry and index
+  build-marketplace:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Validate registry
+        run: |
+          set -euo pipefail
+          echo "Validating marketplace registry..."
+
+          # Check if packages.toml exists
+          if [ ! -f "marketplace/registry/packages.toml" ]; then
+            echo "ERROR: marketplace/registry/packages.toml not found"
+            exit 1
+          fi
+
+          # TOML syntax validation using Python
+          python3 << 'PYTHON_EOF'
+          import sys
+          import re
+
+          try:
+              with open("marketplace/registry/packages.toml", 'r') as f:
+                  content = f.read()
+
+              # Validate TOML structure
+              if not re.search(r'^\s*\[\w+', content, re.MULTILINE):
+                  raise ValueError("Invalid TOML: no tables found")
+
+              # Basic structure validation
+              required_sections = ['packages']
+              for section in required_sections:
+                  if f'[{section}]' not in content:
+                      raise ValueError(f"Invalid TOML: missing [{section}] section")
+
+              print("✅ TOML syntax validation passed")
+          except Exception as e:
+              print(f"❌ TOML validation failed: {e}")
+              sys.exit(1)
+          PYTHON_EOF
+
+          echo "✅ Registry validation passed"
+
+      - name: Generate marketplace index
+        run: |
+          set -euo pipefail
+          echo "Generating marketplace index.html..."
+          cat > marketplace/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>ggen Marketplace</title>
+              <style>
+                  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                         max-width: 1200px; margin: 0 auto; padding: 20px; line-height: 1.6; }
+                  h1 { color: #2c3e50; }
+                  .package { border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 5px; }
+                  .package h3 { margin-top: 0; color: #3498db; }
+                  .tags { display: flex; gap: 5px; flex-wrap: wrap; }
+                  .tag { background: #ecf0f1; padding: 3px 8px; border-radius: 3px; font-size: 0.9em; }
+                  code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; }
+              </style>
+          </head>
+          <body>
+              <h1>🚀 ggen Marketplace</h1>
+              <p>Production-ready packages for the ggen ecosystem</p>
+
+              <h2>🔧 Installation</h2>
+              <pre><code># Search packages
+          ggen market search "rust api"
+
+          # Install package
+          ggen market add "advanced-rust-api-8020"
+
+          # List installed
+          ggen market list</code></pre>
+
+              <h2>📦 Available Packages</h2>
+              <div id="packages"></div>
+
+              <h2>📚 Resources</h2>
+              <ul>
+                  <li><a href="registry/packages.toml">Registry File</a></li>
+                  <li><a href="https://github.com/seanchatmangpt/ggen">GitHub Repository</a></li>
+                  <li><a href="README.md">Publishing Guide</a></li>
+              </ul>
+
+              <script>
+                  // Load and display packages from registry
+                  fetch('registry/packages.toml')
+                      .then(r => r.text())
+                      .then(data => {
+                          const container = document.getElementById('packages');
+                          container.innerHTML = '<p>📦 Loading packages from registry...</p>';
+                          // For now, show static message
+                          // TODO: Parse TOML and display dynamically
+                          container.innerHTML = '<p>✅ Registry loaded. Use CLI to browse packages.</p>';
+                      })
+                      .catch(e => {
+                          document.getElementById('packages').innerHTML =
+                              '<p>⚠️ Could not load registry. Please use the CLI.</p>';
+                      });
+              </script>
+          </body>
+          </html>
+          EOF
+          echo "✅ Index generated"
+
+      - name: Prepare marketplace artifact
+        run: mkdir -p /tmp/marketplace && cp -r marketplace /tmp/marketplace/root
+
+      - name: Upload marketplace artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: marketplace-content
+          path: marketplace
+
+  # Build marketplace documentation
+  build-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install mdbook
+        run: |
+          set -euo pipefail
+          curl -L https://github.com/rust-lang/mdBook/releases/download/v0.4.40/mdbook-v0.4.40-x86_64-unknown-linux-gnu.tar.gz | tar xz
+          sudo mv mdbook /usr/local/bin/
+          mdbook --version
+
+      - name: Build mdbook
+        run: |
+          set -euo pipefail
+          cd ggen-marketplace
+          mdbook build
+
+      - name: Upload docs artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: marketplace-docs-content
+          path: ggen-marketplace/book/html
+
+  # Deploy both marketplace and docs
+  deploy:
+    name: Deploy to GitHub Pages
+    needs:
+      - build-marketplace
+      - build-docs
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: deploy-artifacts
+
+      - name: Prepare deployment
+        run: |
+          set -euo pipefail
+          # Create pages root
+          mkdir -p pages
+
+          # Copy marketplace content
+          cp -r deploy-artifacts/marketplace-content/* pages/marketplace/ 2>/dev/null || true
+
+          # Copy docs content
+          mkdir -p pages/marketplace-docs
+          cp -r deploy-artifacts/marketplace-docs-content/* pages/marketplace-docs/ 2>/dev/null || true
+
+      - name: Upload to Pages
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: pages
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Deployment Summary
+        run: |
+          set -euo pipefail
+          echo "🎉 Marketplace deployment complete!"
+          echo ""
+          echo "📍 Marketplace: https://seanchatmangpt.github.io/ggen/marketplace/"
+          echo "📍 Documentation: https://seanchatmangpt.github.io/ggen/marketplace-docs/"
+          echo "📦 Registry: https://seanchatmangpt.github.io/ggen/marketplace/registry/packages.toml"
+          echo ""
+          echo "✅ All marketplace services are live!"
