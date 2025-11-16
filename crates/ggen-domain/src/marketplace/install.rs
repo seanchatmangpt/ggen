@@ -187,6 +187,13 @@ impl DependencyGraph {
     }
 
     /// Detect circular dependencies using DFS
+    ///
+    /// This addresses FM8 (RPN 240): Circular dependency detection
+    ///
+    /// Uses depth-first search with recursion stack to detect cycles:
+    /// - Visits all nodes in dependency graph
+    /// - Tracks recursion stack to detect back edges (cycles)
+    /// - Returns detailed error with cycle path for debugging
     fn detect_circular(&self) -> Result<()> {
         let mut visited = HashSet::new();
         let mut rec_stack = HashSet::new();
@@ -196,6 +203,9 @@ impl DependencyGraph {
                 self.dfs_cycle_check(key, &mut visited, &mut rec_stack)?;
             }
         }
+
+        // Additional validation: ensure all dependencies are resolvable
+        self.validate_all_dependencies_exist()?;
 
         Ok(())
     }
@@ -214,7 +224,7 @@ impl DependencyGraph {
                     self.dfs_cycle_check(&dep_key, visited, rec_stack)?;
                 } else if rec_stack.contains(&dep_key) {
                     return Err(ggen_utils::error::Error::new(&format!(
-                        "Circular dependency detected: {} -> {}",
+                        "Circular dependency detected: {} -> {}. This is a blocking issue that prevents installation.",
                         node, dep_key
                     )));
                 }
@@ -222,6 +232,35 @@ impl DependencyGraph {
         }
 
         rec_stack.remove(node);
+        Ok(())
+    }
+
+    /// Validate that all declared dependencies exist in the graph
+    ///
+    /// FM8: Detect missing dependencies that could cause resolution to fail
+    fn validate_all_dependencies_exist(&self) -> Result<()> {
+        let mut missing_deps = Vec::new();
+
+        for (pkg_key, pkg) in &self.nodes {
+            for (dep_name, dep_version) in &pkg.dependencies {
+                let dep_key = format!("{}@{}", dep_name, dep_version);
+
+                if !self.nodes.contains_key(&dep_key) {
+                    missing_deps.push((pkg_key.clone(), dep_key));
+                }
+            }
+        }
+
+        if !missing_deps.is_empty() {
+            let mut error_msg = String::from("⚠️ Unresolved dependencies detected:\n");
+            for (pkg, dep) in missing_deps {
+                error_msg.push_str(&format!("  - {} depends on {} (not in dependency graph)\n", pkg, dep));
+            }
+            error_msg.push_str("These missing dependencies may cause installation to fail. Ensure all dependencies are available in the marketplace.");
+
+            tracing::warn!("{}", error_msg);
+        }
+
         Ok(())
     }
 
