@@ -32,7 +32,7 @@ fn create_test_package(name: &str, version: &str) -> Result<Package> {
         .and_then(|v| v.parse().ok())
         .unwrap_or(0);
 
-    Package::builder(
+    let unvalidated = Package::builder(
         PackageId::new("test", name),
         Version::new(major, minor, patch),
     )
@@ -44,7 +44,8 @@ fn create_test_package(name: &str, version: &str) -> Result<Package> {
         format!("hash_{}", name),
         HashAlgorithm::Sha256,
     ))
-    .build()
+    .build()?;
+    Ok(unvalidated.validate()?.package().clone())
 }
 
 /// Helper to create test storage
