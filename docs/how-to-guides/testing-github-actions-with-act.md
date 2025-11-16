@@ -88,13 +88,13 @@ cargo make act WORKFLOW=build.yml JOB=build
 
 The act tasks have been consolidated using 80/20 principles - only essential tasks remain:
 
-| Task | Description | Usage |
-|------|-------------|-------|
-| `act` | Run any GitHub Actions workflow | `cargo make act WORKFLOW=ci.yml JOB=fmt` |
-| `act-list` | List all available workflows | `cargo make act-list` |
-| `act-validate` | Validate all workflows can be parsed | `cargo make act-validate` |
-| `act-status` | Check act installation and Docker status | `cargo make act-status` |
-| `act-cleanup` | Clean up act containers and images | `cargo make act-cleanup` |
+| Task           | Description                              | Usage                                    |
+| -------------- | ---------------------------------------- | ---------------------------------------- |
+| `act`          | Run any GitHub Actions workflow          | `cargo make act WORKFLOW=ci.yml JOB=fmt` |
+| `act-list`     | List all available workflows             | `cargo make act-list`                    |
+| `act-validate` | Validate all workflows can be parsed     | `cargo make act-validate`                |
+| `act-status`   | Check act installation and Docker status | `cargo make act-status`                  |
+| `act-cleanup`  | Clean up act containers and images       | `cargo make act-cleanup`                 |
 
 **Note**: All specific workflow tasks have been consolidated into the generic `act` task. Use `cargo make act WORKFLOW=<workflow> JOB=<job>` to run any workflow or job.
 
