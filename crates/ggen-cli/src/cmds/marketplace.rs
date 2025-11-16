@@ -1521,6 +1521,143 @@ fn report(output: Option<PathBuf>) -> Result<serde_json::Value> {
         .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?)
 }
 
+/// Generate marketplace artifacts (JSON registry and Markdown docs) from receipts
+///
+/// # Usage
+///
+/// ```bash
+/// # Generate all artifacts
+/// ggen marketplace generate-artifacts
+///
+/// # Save to custom locations
+/// ggen marketplace generate-artifacts --json-output registry.json --md-output PACKAGES.md
+/// ```
+#[verb]
+fn generate_artifacts(
+    json_output: Option<PathBuf>,
+    md_output: Option<PathBuf>,
+) -> Result<serde_json::Value> {
+    use ggen_domain::marketplace::{generate_registry_index, generate_packages_markdown, write_registry_index, write_packages_markdown};
+    use std::path::PathBuf;
+
+    let marketplace_root = PathBuf::from(".");
+
+    // Generate JSON registry
+    let json_output_path = json_output.unwrap_or_else(|| PathBuf::from("marketplace/registry/index.json"));
+    let registry_json = generate_registry_index(&marketplace_root)
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e))?;
+
+    write_registry_index(&registry_json, &json_output_path)
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e))?;
+
+    println!("📄 Generated: {}", json_output_path.display());
+
+    // Generate Markdown documentation
+    let md_output_path = md_output.unwrap_or_else(|| PathBuf::from("marketplace/PACKAGES.md"));
+    let packages_md = generate_packages_markdown(&marketplace_root)
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e))?;
+
+    write_packages_markdown(&packages_md, &md_output_path)
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e))?;
+
+    println!("📚 Generated: {}", md_output_path.display());
+
+    Ok(serde_json::json!({
+        "status": "success",
+        "artifacts_generated": [
+            json_output_path.to_string_lossy(),
+            md_output_path.to_string_lossy()
+        ],
+        "message": "Marketplace artifacts regenerated from receipts"
+    }))
+}
+
+/// Get improvement suggestions for a package
+///
+/// # Usage
+///
+/// ```bash
+/// # Get improvement plan for a package
+/// ggen marketplace improve data-pipeline-cli
+///
+/// # Apply suggested improvements
+/// ggen marketplace improve data-pipeline-cli --apply license-mit
+/// ```
+#[verb]
+fn improve(package_id: String, apply: Option<String>) -> Result<serde_json::Value> {
+    use ggen_domain::marketplace::{generate_improvement_plan, apply_template_improvements};
+    use std::path::PathBuf;
+
+    let marketplace_root = PathBuf::from(".");
+    let package_path = marketplace_root.join("marketplace").join("packages").join(&package_id);
+
+    if !package_path.exists() {
+        return Err(clap_noun_verb::NounVerbError::execution_error(
+            format!("Package not found: {}", package_id)
+        ));
+    }
+
+    // Generate improvement plan
+    let plan = generate_improvement_plan(&package_id, &marketplace_root)
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e))?;
+
+    println!(
+        "\n🚀 Improvement Plan for {}\n\
+         Current Score: {:.1}%\n\
+         Target Score: {:.1}%\n\
+         Projected Score: {:.1}%\n\
+         Estimated Effort: {:.1} hours\n\
+         \n\
+         Suggestions:\n",
+        package_id, plan.current_score, plan.target_score, plan.projected_new_score, plan.estimated_effort_hours
+    );
+
+    for (i, suggestion) in plan.suggestions.iter().enumerate() {
+        let status = if suggestion.guard_failed { "❌" } else { "✨" };
+        println!(
+            "{}. {} ({})\n\
+             • {}\n\
+             • Effort: {} | Gain: +{:.1}%\n\
+             • Template available: {}\n",
+            i + 1,
+            status,
+            suggestion.guard_name,
+            suggestion.suggestion,
+            suggestion.effort_level,
+            suggestion.potential_score_gain,
+            if suggestion.template_available { "yes" } else { "no" }
+        );
+    }
+
+    // Apply template if requested
+    if let Some(template) = apply {
+        match apply_template_improvements(&package_path, &template) {
+            Ok(message) => {
+                println!("\n✅ {}", message);
+                return Ok(serde_json::json!({
+                    "status": "applied",
+                    "package_id": package_id,
+                    "template": template,
+                    "message": message
+                }));
+            }
+            Err(e) => {
+                return Err(clap_noun_verb::NounVerbError::execution_error(e));
+            }
+        }
+    }
+
+    Ok(serde_json::json!({
+        "status": "success",
+        "package_id": package_id,
+        "current_score": plan.current_score,
+        "projected_score": plan.projected_new_score,
+        "suggestions": plan.suggestions.len(),
+        "estimated_effort_hours": plan.estimated_effort_hours,
+        "suggestions": plan.suggestions
+    }))
+}
+
 /// Update production_ready flag in package.toml
 fn update_package_toml_production_flag(
     package_path: &Path, production_ready: bool,

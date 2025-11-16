@@ -806,6 +806,17 @@ description = "Validate all packages and emit receipts (combined Track A)"
 workspace = false
 dependencies = ["marketplace-validate", "marketplace-emit-receipts"]
 
+[tasks.marketplace-generate-artifacts]
+description = "Generate JSON registry and Markdown from receipts (Track B)"
+workspace = false
+command = "cargo"
+args = ["run", "--release", "--bin", "ggen", "--", "marketplace", "generate-artifacts"]
+
+[tasks.marketplace-full-pipeline]
+description = "Complete marketplace pipeline: validate → emit receipts → generate artifacts (Track A+B)"
+workspace = false
+dependencies = ["marketplace-validate", "marketplace-emit-receipts", "marketplace-generate-artifacts"]
+
 # ============================================================================
 # Compilation Validation Tasks (Root Cause Prevention)
 # ============================================================================

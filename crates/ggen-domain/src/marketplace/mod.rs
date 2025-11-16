@@ -13,6 +13,8 @@ pub mod validate;
 pub mod guards;
 pub mod receipt_emitter;
 pub mod bundles;
+pub mod artifact_generator;
+pub mod quality_autopilot;
 
 #[cfg(test)]
 #[path = "expert_tests.rs"]
@@ -41,6 +43,14 @@ pub use receipt_emitter::{
 };
 pub use bundles::{
     BundleRegistry, SectorBundle, BundleInstallManifest, generate_bundle_docs,
+};
+pub use artifact_generator::{
+    generate_registry_index, generate_packages_markdown, write_registry_index,
+    write_packages_markdown,
+};
+pub use quality_autopilot::{
+    ImprovementPlan, ImprovementSuggestion, generate_improvement_plan,
+    apply_template_improvements,
 };
 
 // Legacy types for backwards compatibility
