@@ -73,10 +73,14 @@
 #![allow(unexpected_cfgs)] // Allow graphql-server feature cfg - potential extension point
 
 // Core modules
+pub mod assessment_helpers;
 pub mod error;
+pub mod maturity;
+pub mod maturity_evaluator;
 pub mod models;
 pub mod traits;
 pub mod types;
+pub mod workflow_analytics;
 
 // OpenTelemetry instrumentation
 pub mod telemetry;
@@ -104,9 +108,23 @@ pub use template_search::{
 pub mod prelude {
     pub use crate::backend::LocalRegistry;
 
+    pub use crate::assessment_helpers::{
+        compare_assessments, export_as_csv, export_as_json, filter_by_dimensions, filter_by_level,
+        filter_by_score_range, find_for_use_case, generate_all_assessments, get_recommendations,
+        sample_packages,
+    };
     pub use crate::crypto::{DefaultVerifier, Ed25519Verifier};
     pub use crate::error::{MarketplaceError, Result};
+    pub use crate::maturity::{
+        AdoptionScore, DocumentationScore, MaintenanceScore, MaturityAssessment, MaturityLevel,
+        PerformanceScore, SecurityScore, TestingScore,
+    };
+    pub use crate::maturity_evaluator::{EvaluationInput, MaturityDashboard, MaturityEvaluator};
     pub use crate::models::{ContentId, HashAlgorithm, Package, PackageId, Query, Version};
     pub use crate::storage::{FilesystemStore, MemoryStore};
     pub use crate::traits::{CryptoVerifier, PackageStore, Registry, SearchEngine};
+    pub use crate::workflow_analytics::{
+        DirectlyFollowsGraph, ProcessStatistics, WorkflowEvent, WorkflowEventType, WorkflowLog,
+        WorkflowTrace,
+    };
 }
