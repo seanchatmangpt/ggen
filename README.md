@@ -319,8 +319,8 @@ ggen documentation follows **Diataxis** (4 learning paths):
 
 - **[Ontology-Driven Development](docs/explanations/ontology-driven.md)** - Why this approach works
 - **[Architecture Deep Dive](docs/explanations/architecture.md)** - How ggen works internally
-- **[Poka-Yoke Design](docs/explanations/poke-yoke.md)** - How ontology prevents errors
-- **[Quality & Testing](docs/explanations/quality-and-testing.md)** - Testing strategy & validation
+- **[Poke-Yoke Design](docs/explanations/poke-yoke.md)** - How ontology prevents errors
+- **[Determinism & Reproducibility](docs/explanations/determinism.md)** - Byte-identical output guarantees
 
 ### 📖 Need to Look Something Up
 
