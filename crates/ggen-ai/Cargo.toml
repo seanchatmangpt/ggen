@@ -1,6 +1,6 @@
 [package]
 name = "ggen-ai"
-version = "2.7.0"
+version = "2.7.1"
 edition = "2021"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "Thin wrapper around genai for ggen - LLM integration with environment support"
