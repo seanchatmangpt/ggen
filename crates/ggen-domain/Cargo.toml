@@ -47,7 +47,7 @@ flate2 = "1.0"
 dirs = "5.0"
 reqwest = { workspace = true }
 zip = "0.6"
-fastrand = "2.3"  # Lightweight RNG for jitter in retry logic
+fastrand = "2.3"                 # Lightweight RNG for jitter in retry logic
 
 # CRITICAL: NO clap or clap-noun-verb dependencies
 # Domain must be CLI-agnostic
@@ -62,4 +62,3 @@ predicates = "3"
 tempfile = { workspace = true }
 tokio-test = "0.4"
 chicago-tdd-tools = { workspace = true }
-

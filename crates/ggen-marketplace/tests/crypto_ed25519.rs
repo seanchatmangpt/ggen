@@ -111,7 +111,7 @@ fn test_verify_invalid_signature_returns_false() {
 
     // AND: Signed content
     let content = b"Original content";
-    let verifier_with_key = Ed25519Verifier::with_keypair(keypair.clone());
+    let verifier_with_key = Ed25519Verifier::with_keypair(keypair);
     let signature = verifier_with_key
         .sign(content)
         .expect("Should sign content");
@@ -252,7 +252,7 @@ fn test_signature_verification_with_wrong_public_key_fails() {
     let mut signature = verifier1.sign(content).expect("Should sign with key 1");
 
     // WHEN: We replace the public key with keypair2's public key
-    signature.public_key = keypair2.public_key;
+    signature.public_key = keypair2.public_key.clone();
 
     // AND: Try to verify with the wrong public key
     let verifier2 = Ed25519Verifier::with_keypair(keypair2);
