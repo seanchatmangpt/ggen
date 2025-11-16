@@ -7,6 +7,8 @@ pub mod list;
 pub mod publish;
 pub mod registry;
 pub mod search;
+pub mod search_advanced;
+pub mod recommender;
 pub mod types; // Poka-yoke types for error prevention
 pub mod update;
 pub mod validate;
@@ -55,6 +57,14 @@ pub use artifact_generator::{
 pub use quality_autopilot::{
     ImprovementPlan, ImprovementSuggestion, generate_improvement_plan,
     apply_template_improvements,
+};
+pub use search_advanced::{
+    AdvancedSearchQuery, AdvancedSearchResults, SearchEngine, SearchResultEntry,
+    SearchStatistics, SortField,
+};
+pub use recommender::{
+    Recommendation, RecommendationReason, RecommendationSet, Recommender,
+    RecommenderConfig, PackageInfo,
 };
 
 // Legacy types for backwards compatibility
