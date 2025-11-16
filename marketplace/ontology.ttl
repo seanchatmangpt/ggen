@@ -1,0 +1,487 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix spdx: <http://spdx.org/rdfterms#> .
+@prefix market: <https://ggen.io/marketplace/ontology/> .
+
+# ==============================================================================
+# MARKETPLACE ONTOLOGY - O_market
+# Single source of truth for package metadata, validation, and ecosystem structure
+# ==============================================================================
+
+<https://ggen.io/marketplace/ontology/> a owl:Ontology ;
+  rdfs:label "Ggen Marketplace Ontology"@en ;
+  rdfs:comment "Formal ontology for the ggen code generation marketplace, enabling audit-grade validation, scoring, and ecosystem management"@en ;
+  owl:versionInfo "1.0.0"@en ;
+  dct:created "2025-11-16"^^xsd:date ;
+  dct:creator "ggen-team" .
+
+# ==============================================================================
+# CORE CLASSES
+# ==============================================================================
+
+market:Package a owl:Class ;
+  rdfs:label "Package"@en ;
+  rdfs:comment "A deployable package in the ggen marketplace (template, CLI tool, library, etc.)"@en ;
+  owl:equivalentClass [
+    a owl:Restriction ;
+    owl:onProperty market:id ;
+    owl:minCardinality "1"^^xsd:nonNegativeInteger
+  ] .
+
+market:Asset a owl:Class ;
+  rdfs:label "Asset"@en ;
+  rdfs:comment "A deliverable artifact within a package (templates, source code, RDF, SPARQL, tests, docs)"@en .
+
+market:QualityMetric a owl:Class ;
+  rdfs:label "Quality Metric"@en ;
+  rdfs:comment "A measured dimension of package quality"@en .
+
+market:Guard a owl:Class ;
+  rdfs:label "Guard"@en ;
+  rdfs:comment "A validation rule that enforces package quality standards"@en .
+
+market:GuardResult a owl:Class ;
+  rdfs:label "Guard Result"@en ;
+  rdfs:comment "The outcome of applying a single guard to a package"@en .
+
+market:ValidationReceipt a owl:Class ;
+  rdfs:label "Validation Receipt"@en ;
+  rdfs:comment "Immutable record of a complete validation run for a package version"@en .
+
+market:Bundle a owl:Class ;
+  rdfs:label "Bundle"@en ;
+  rdfs:comment "A curated collection of packages forming a vertical stack"@en .
+
+market:Dependency a owl:Class ;
+  rdfs:label "Dependency"@en ;
+  rdfs:comment "A requirement on another package, runtime, or tool"@en .
+
+# ==============================================================================
+# PACKAGE PROPERTIES
+# ==============================================================================
+
+market:id a owl:DatatypeProperty ;
+  rdfs:label "Package ID"@en ;
+  rdfs:domain market:Package ;
+  rdfs:range xsd:string ;
+  owl:minCardinality "1"^^xsd:nonNegativeInteger .
+
+market:version a owl:DatatypeProperty ;
+  rdfs:label "Version"@en ;
+  rdfs:domain market:Package ;
+  rdfs:range xsd:string ;
+  owl:minCardinality "1"^^xsd:nonNegativeInteger .
+
+market:description a owl:DatatypeProperty ;
+  rdfs:label "Description"@en ;
+  rdfs:domain market:Package ;
+  rdfs:range xsd:string .
+
+market:license a owl:ObjectProperty ;
+  rdfs:label "License"@en ;
+  rdfs:domain market:Package ;
+  rdfs:range xsd:string .
+
+market:author a owl:DatatypeProperty ;
+  rdfs:label "Author"@en ;
+  rdfs:domain market:Package ;
+  rdfs:range xsd:string .
+
+market:category a owl:DatatypeProperty ;
+  rdfs:label "Category"@en ;
+  rdfs:domain market:Package ;
+  rdfs:range xsd:string .
+
+market:tags a owl:DatatypeProperty ;
+  rdfs:label "Tags"@en ;
+  rdfs:domain market:Package ;
+  rdfs:range xsd:string .
+
+market:keywords a owl:DatatypeProperty ;
+  rdfs:label "Keywords"@en ;
+  rdfs:domain market:Package ;
+  rdfs:range xsd:string .
+
+market:productionReady a owl:DatatypeProperty ;
+  rdfs:label "Production Ready"@en ;
+  rdfs:domain market:Package ;
+  rdfs:range xsd:boolean ;
+  owl:cardinality "1"^^xsd:nonNegativeInteger .
+
+market:path a owl:DatatypeProperty ;
+  rdfs:label "Filesystem Path"@en ;
+  rdfs:domain market:Package ;
+  rdfs:range xsd:string .
+
+market:downloadUrl a owl:DatatypeProperty ;
+  rdfs:label "Download URL"@en ;
+  rdfs:domain market:Package ;
+  rdfs:range xsd:anyURI .
+
+market:checksum a owl:DatatypeProperty ;
+  rdfs:label "Checksum"@en ;
+  rdfs:domain market:Package ;
+  rdfs:range xsd:string .
+
+# ==============================================================================
+# ASSET PROPERTIES
+# ==============================================================================
+
+market:hasTemplates a owl:ObjectProperty ;
+  rdfs:label "Has Templates"@en ;
+  rdfs:domain market:Package ;
+  rdfs:range market:Asset .
+
+market:hasSrc a owl:ObjectProperty ;
+  rdfs:label "Has Source Code"@en ;
+  rdfs:domain market:Package ;
+  rdfs:range market:Asset .
+
+market:hasRdf a owl:ObjectProperty ;
+  rdfs:label "Has RDF"@en ;
+  rdfs:domain market:Package ;
+  rdfs:range market:Asset .
+
+market:hasSparql a owl:ObjectProperty ;
+  rdfs:label "Has SPARQL"@en ;
+  rdfs:domain market:Package ;
+  rdfs:range market:Asset .
+
+market:hasTests a owl:ObjectProperty ;
+  rdfs:label "Has Tests"@en ;
+  rdfs:domain market:Package ;
+  rdfs:range market:Asset .
+
+market:hasDocs a owl:ObjectProperty ;
+  rdfs:label "Has Documentation"@en ;
+  rdfs:domain market:Package ;
+  rdfs:range market:Asset .
+
+market:hasExamples a owl:ObjectProperty ;
+  rdfs:label "Has Examples"@en ;
+  rdfs:domain market:Package ;
+  rdfs:range market:Asset .
+
+market:assetPath a owl:DatatypeProperty ;
+  rdfs:label "Asset Path"@en ;
+  rdfs:domain market:Asset ;
+  rdfs:range xsd:string .
+
+market:assetType a owl:DatatypeProperty ;
+  rdfs:label "Asset Type"@en ;
+  rdfs:domain market:Asset ;
+  rdfs:range xsd:string .
+
+# ==============================================================================
+# QUALITY METRICS
+# ==============================================================================
+
+market:hasValidationScore a owl:ObjectProperty ;
+  rdfs:label "Has Validation Score"@en ;
+  rdfs:domain market:Package ;
+  rdfs:range market:QualityMetric .
+
+market:hasCriticalScore a owl:ObjectProperty ;
+  rdfs:label "Has Critical Score"@en ;
+  rdfs:domain market:Package ;
+  rdfs:range market:QualityMetric .
+
+market:hasBonusScore a owl:ObjectProperty ;
+  rdfs:label "Has Bonus Score"@en ;
+  rdfs:domain market:Package ;
+  rdfs:range market:QualityMetric .
+
+market:scoreValue a owl:DatatypeProperty ;
+  rdfs:label "Score Value"@en ;
+  rdfs:domain market:QualityMetric ;
+  rdfs:range xsd:decimal ;
+  owl:minInclusive "0"^^xsd:decimal ;
+  owl:maxInclusive "100"^^xsd:decimal .
+
+market:scoreDimension a owl:DatatypeProperty ;
+  rdfs:label "Score Dimension"@en ;
+  rdfs:domain market:QualityMetric ;
+  rdfs:range xsd:string .
+
+market:scoreTimestamp a owl:DatatypeProperty ;
+  rdfs:label "Score Timestamp"@en ;
+  rdfs:domain market:QualityMetric ;
+  rdfs:range xsd:dateTime .
+
+# ==============================================================================
+# GUARD DEFINITIONS
+# ==============================================================================
+
+market:GuardMetadata a owl:Class ;
+  rdfs:subClassOf market:Guard ;
+  rdfs:label "Metadata Guard"@en ;
+  rdfs:comment "Validates package metadata completeness (id, version, description)"@en ;
+  market:weight "10"^^xsd:integer ;
+  market:severity "critical" .
+
+market:GuardLicense a owl:Class ;
+  rdfs:subClassOf market:Guard ;
+  rdfs:label "License Guard"@en ;
+  rdfs:comment "Validates that package has a recognized license file"@en ;
+  market:weight "8"^^xsd:integer ;
+  market:severity "critical" .
+
+market:GuardReadme a owl:Class ;
+  rdfs:subClassOf market:Guard ;
+  rdfs:label "README Guard"@en ;
+  rdfs:comment "Validates README existence and minimum quality (length, sections)"@en ;
+  market:weight "7"^^xsd:integer ;
+  market:severity "critical" .
+
+market:GuardSrc a owl:Class ;
+  rdfs:subClassOf market:Guard ;
+  rdfs:label "Source Code Guard"@en ;
+  rdfs:comment "Validates presence of meaningful source code"@en ;
+  market:weight "9"^^xsd:integer ;
+  market:severity "critical" .
+
+market:GuardTemplates a owl:Class ;
+  rdfs:subClassOf market:Guard ;
+  rdfs:label "Templates Guard"@en ;
+  rdfs:comment "Validates presence of reusable templates"@en ;
+  market:weight "6"^^xsd:integer ;
+  market:severity "bonus" .
+
+market:GuardRdf a owl:Class ;
+  rdfs:subClassOf market:Guard ;
+  rdfs:label "RDF Guard"@en ;
+  rdfs:comment "Validates RDF/ontology for packages requiring semantic structure"@en ;
+  market:weight "5"^^xsd:integer ;
+  market:severity "bonus" .
+
+market:GuardSparql a owl:Class ;
+  rdfs:subClassOf market:Guard ;
+  rdfs:label "SPARQL Guard"@en ;
+  rdfs:comment "Validates SPARQL queries for ontology-rich packages"@en ;
+  market:weight "4"^^xsd:integer ;
+  market:severity "bonus" .
+
+market:GuardTests a owl:Class ;
+  rdfs:subClassOf market:Guard ;
+  rdfs:label "Tests Guard"@en ;
+  rdfs:comment "Validates test suite existence and coverage"@en ;
+  market:weight "8"^^xsd:integer ;
+  market:severity "critical" .
+
+market:GuardDocs a owl:Class ;
+  rdfs:subClassOf market:Guard ;
+  rdfs:label "Documentation Guard"@en ;
+  rdfs:comment "Validates documentation completeness"@en ;
+  market:weight "5"^^xsd:integer ;
+  market:severity "bonus" .
+
+market:GuardChicagoCompliance a owl:Class ;
+  rdfs:subClassOf market:Guard ;
+  rdfs:label "Chicago Compliance Guard"@en ;
+  rdfs:comment "Validates adherence to chicago-tdd-tools and Chatman Equation patterns"@en ;
+  market:weight "15"^^xsd:integer ;
+  market:severity "critical" ;
+  market:applicableToPackageType "advanced-rust-api", "ai-microservice", "hook-engine" .
+
+market:weight a owl:DatatypeProperty ;
+  rdfs:label "Guard Weight"@en ;
+  rdfs:domain market:Guard ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Numerical weight for scoring contribution" .
+
+market:severity a owl:DatatypeProperty ;
+  rdfs:label "Guard Severity"@en ;
+  rdfs:domain market:Guard ;
+  rdfs:range xsd:string ;
+  rdfs:comment "One of: critical, bonus" .
+
+market:slo a owl:DatatypeProperty ;
+  rdfs:label "SLO (Service Level Objective)"@en ;
+  rdfs:domain market:Guard ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Expected runtime in milliseconds" .
+
+market:applicableToPackageType a owl:DatatypeProperty ;
+  rdfs:label "Applicable To Package Type"@en ;
+  rdfs:domain market:Guard ;
+  rdfs:range xsd:string .
+
+# ==============================================================================
+# GUARD RESULT PROPERTIES
+# ==============================================================================
+
+market:guardType a owl:DatatypeProperty ;
+  rdfs:label "Guard Type"@en ;
+  rdfs:domain market:GuardResult ;
+  rdfs:range xsd:string .
+
+market:guardPassed a owl:DatatypeProperty ;
+  rdfs:label "Guard Passed"@en ;
+  rdfs:domain market:GuardResult ;
+  rdfs:range xsd:boolean .
+
+market:guardMessage a owl:DatatypeProperty ;
+  rdfs:label "Guard Message"@en ;
+  rdfs:domain market:GuardResult ;
+  rdfs:range xsd:string .
+
+market:guardWeight a owl:DatatypeProperty ;
+  rdfs:label "Guard Weight"@en ;
+  rdfs:domain market:GuardResult ;
+  rdfs:range xsd:integer .
+
+market:guardSeverity a owl:DatatypeProperty ;
+  rdfs:label "Guard Severity"@en ;
+  rdfs:domain market:GuardResult ;
+  rdfs:range xsd:string .
+
+# ==============================================================================
+# VALIDATION RECEIPT PROPERTIES
+# ==============================================================================
+
+market:packageId a owl:DatatypeProperty ;
+  rdfs:label "Package ID"@en ;
+  rdfs:domain market:ValidationReceipt ;
+  rdfs:range xsd:string .
+
+market:packageVersion a owl:DatatypeProperty ;
+  rdfs:label "Package Version"@en ;
+  rdfs:domain market:ValidationReceipt ;
+  rdfs:range xsd:string .
+
+market:validationTimestamp a owl:DatatypeProperty ;
+  rdfs:label "Validation Timestamp"@en ;
+  rdfs:domain market:ValidationReceipt ;
+  rdfs:range xsd:dateTime .
+
+market:ggenVersion a owl:DatatypeProperty ;
+  rdfs:label "Ggen Version"@en ;
+  rdfs:domain market:ValidationReceipt ;
+  rdfs:range xsd:string .
+
+market:hasGuardResult a owl:ObjectProperty ;
+  rdfs:label "Has Guard Result"@en ;
+  rdfs:domain market:ValidationReceipt ;
+  rdfs:range market:GuardResult .
+
+market:overallScore a owl:DatatypeProperty ;
+  rdfs:label "Overall Score"@en ;
+  rdfs:domain market:ValidationReceipt ;
+  rdfs:range xsd:decimal ;
+  owl:minInclusive "0"^^xsd:decimal ;
+  owl:maxInclusive "100"^^xsd:decimal .
+
+market:receiptChecksum a owl:DatatypeProperty ;
+  rdfs:label "Receipt Checksum"@en ;
+  rdfs:domain market:ValidationReceipt ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Merkle hash for immutability and chaining" .
+
+# ==============================================================================
+# DEPENDENCY PROPERTIES
+# ==============================================================================
+
+market:dependsOnPackage a owl:ObjectProperty ;
+  rdfs:label "Depends on Package"@en ;
+  rdfs:domain market:Package ;
+  rdfs:range market:Package .
+
+market:dependsOnRuntime a owl:DatatypeProperty ;
+  rdfs:label "Depends on Runtime"@en ;
+  rdfs:domain market:Package ;
+  rdfs:range xsd:string ;
+  rdfs:comment "e.g., 'rust >= 1.70', 'node >= 18', 'python >= 3.9'" .
+
+market:compatibleWithGgenVersion a owl:DatatypeProperty ;
+  rdfs:label "Compatible With Ggen Version"@en ;
+  rdfs:domain market:Package ;
+  rdfs:range xsd:string ;
+  rdfs:comment "SemVer range, e.g., '2.7.0 - 3.0.0'" .
+
+# ==============================================================================
+# BUNDLE PROPERTIES
+# ==============================================================================
+
+market:includesPackage a owl:ObjectProperty ;
+  rdfs:label "Includes Package"@en ;
+  rdfs:domain market:Bundle ;
+  rdfs:range market:Package .
+
+market:bundleId a owl:DatatypeProperty ;
+  rdfs:label "Bundle ID"@en ;
+  rdfs:domain market:Bundle ;
+  rdfs:range xsd:string .
+
+market:bundleVersion a owl:DatatypeProperty ;
+  rdfs:label "Bundle Version"@en ;
+  rdfs:domain market:Bundle ;
+  rdfs:range xsd:string .
+
+market:bundleDescription a owl:DatatypeProperty ;
+  rdfs:label "Bundle Description"@en ;
+  rdfs:domain market:Bundle ;
+  rdfs:range xsd:string .
+
+market:bundleDomain a owl:DatatypeProperty ;
+  rdfs:label "Bundle Domain"@en ;
+  rdfs:domain market:Bundle ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Sector/vertical name (academic, finance, healthcare, etc.)" .
+
+market:bundleMinimumScore a owl:DatatypeProperty ;
+  rdfs:label "Bundle Minimum Score"@en ;
+  rdfs:domain market:Bundle ;
+  rdfs:range xsd:decimal ;
+  rdfs:comment "Minimum combined score for all included packages" .
+
+market:hasBundleReceipt a owl:ObjectProperty ;
+  rdfs:label "Has Bundle Receipt"@en ;
+  rdfs:domain market:Bundle ;
+  rdfs:range market:ValidationReceipt ;
+  rdfs:comment "Higher-level receipt validating entire bundle" .
+
+# ==============================================================================
+# ADDITIONAL PROPERTIES
+# ==============================================================================
+
+market:chatmanCertified a owl:DatatypeProperty ;
+  rdfs:label "Chatman Certified"@en ;
+  rdfs:domain market:Package ;
+  rdfs:range xsd:boolean ;
+  rdfs:comment "True if package passes GuardChicagoCompliance and related criteria" .
+
+market:lastValidated a owl:DatatypeProperty ;
+  rdfs:label "Last Validated"@en ;
+  rdfs:domain market:Package ;
+  rdfs:range xsd:dateTime .
+
+market:validationReceiptUrl a owl:DatatypeProperty ;
+  rdfs:label "Validation Receipt URL"@en ;
+  rdfs:domain market:Package ;
+  rdfs:range xsd:anyURI ;
+  rdfs:comment "Reference to latest ValidationReceipt JSON file" .
+
+# ==============================================================================
+# SCORING RULES (meta-information)
+# ==============================================================================
+
+market:ScoringScheme a owl:Class ;
+  rdfs:label "Scoring Scheme"@en ;
+  rdfs:comment "Rules for computing overall package score from guard results" .
+
+market:criticalGuardsThreshold a owl:DatatypeProperty ;
+  rdfs:label "Critical Guards Threshold"@en ;
+  rdfs:domain market:ScoringScheme ;
+  rdfs:range xsd:decimal ;
+  owl:sameAs "80"^^xsd:decimal ;
+  rdfs:comment "Minimum score required if any critical guard fails" .
+
+market:bonusMaximum a owl:DatatypeProperty ;
+  rdfs:label "Bonus Maximum"@en ;
+  rdfs:domain market:ScoringScheme ;
+  rdfs:range xsd:decimal ;
+  owl:sameAs "20"^^xsd:decimal ;
+  rdfs:comment "Maximum additional points from bonus guards" .

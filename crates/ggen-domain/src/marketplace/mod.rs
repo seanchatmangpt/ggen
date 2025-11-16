@@ -10,6 +10,7 @@ pub mod search;
 pub mod types; // Poka-yoke types for error prevention
 pub mod update;
 pub mod validate;
+pub mod guards;
 
 #[cfg(test)]
 #[path = "expert_tests.rs"]
@@ -28,6 +29,9 @@ pub use update::{execute_update, UpdateInput, UpdateOutput};
 pub use validate::{
     validate_all_packages, validate_package, CheckResult, PackageValidation, QualityCheck,
     RequiredCheck,
+};
+pub use guards::{
+    Guard, GuardCheckResult, GuardError, GuardResult, Severity, ValidationReceipt,
 };
 
 // Legacy types for backwards compatibility
