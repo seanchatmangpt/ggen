@@ -485,3 +485,57 @@ market:bonusMaximum a owl:DatatypeProperty ;
   rdfs:range xsd:decimal ;
   owl:sameAs "20"^^xsd:decimal ;
   rdfs:comment "Maximum additional points from bonus guards" .
+
+# ==============================================================================
+# SECTOR BUNDLE DEFINITIONS - Concrete Marketplace Bundles
+# ==============================================================================
+
+# Academic Papers Bundle
+<https://ggen.io/marketplace/bundle/sector-academic-papers> a market:Bundle ;
+  market:bundleId "sector-academic-papers"@en ;
+  market:bundleVersion "1.0.0"@en ;
+  market:bundleDescription "Complete lifecycle for academic paper development, peer review, and publishing with ontological metadata"@en ;
+  market:bundleDomain "academic"@en ;
+  market:bundleMinimumScore "80"^^xsd:decimal ;
+  rdfs:label "Academic Papers Sector Bundle"@en ;
+  rdfs:comment "Packages for managing academic paper workflows from draft to publication" .
+
+# Enterprise SaaS Bundle
+<https://ggen.io/marketplace/bundle/sector-enterprise-saas> a market:Bundle ;
+  market:bundleId "sector-enterprise-saas"@en ;
+  market:bundleVersion "1.0.0"@en ;
+  market:bundleDescription "Multi-tenant SaaS architectures with CRM, ERP, and enterprise features"@en ;
+  market:bundleDomain "enterprise"@en ;
+  market:bundleMinimumScore "80"^^xsd:decimal ;
+  rdfs:label "Enterprise SaaS Sector Bundle"@en ;
+  rdfs:comment "Complete SaaS stack for enterprise applications" .
+
+# Data Pipelines Bundle
+<https://ggen.io/marketplace/bundle/sector-data-pipelines> a market:Bundle ;
+  market:bundleId "sector-data-pipelines"@en ;
+  market:bundleVersion "1.0.0"@en ;
+  market:bundleDescription "Data engineering stack for ETL, transformation, schema management, and analytics"@en ;
+  market:bundleDomain "data"@en ;
+  market:bundleMinimumScore "80"^^xsd:decimal ;
+  rdfs:label "Data Pipelines Sector Bundle"@en ;
+  rdfs:comment "Complete data engineering toolkit" .
+
+# Healthcare Systems Bundle
+<https://ggen.io/marketplace/bundle/sector-healthcare> a market:Bundle ;
+  market:bundleId "sector-healthcare"@en ;
+  market:bundleVersion "1.0.0"@en ;
+  market:bundleDescription "Healthcare system architectures including EHR, laboratory management, and clinical data"@en ;
+  market:bundleDomain "healthcare"@en ;
+  market:bundleMinimumScore "85"^^xsd:decimal ;
+  rdfs:label "Healthcare Systems Sector Bundle"@en ;
+  rdfs:comment "Regulated healthcare system components" .
+
+# Financial Services Bundle
+<https://ggen.io/marketplace/bundle/sector-fintech> a market:Bundle ;
+  market:bundleId "sector-fintech"@en ;
+  market:bundleVersion "1.0.0"@en ;
+  market:bundleDescription "Financial services stack including banking, payments, KYC/AML, and trading systems"@en ;
+  market:bundleDomain "finance"@en ;
+  market:bundleMinimumScore "90"^^xsd:decimal ;
+  rdfs:label "FinTech Sector Bundle"@en ;
+  rdfs:comment "Regulated financial system components" .

@@ -12,6 +12,7 @@ pub mod update;
 pub mod validate;
 pub mod guards;
 pub mod receipt_emitter;
+pub mod bundles;
 
 #[cfg(test)]
 #[path = "expert_tests.rs"]
@@ -37,6 +38,9 @@ pub use guards::{
 pub use receipt_emitter::{
     emit_receipt_for_package, emit_receipts_for_marketplace, generate_validation_report,
     update_production_flags, PackageReport, ValidationReport,
+};
+pub use bundles::{
+    BundleRegistry, SectorBundle, BundleInstallManifest, generate_bundle_docs,
 };
 
 // Legacy types for backwards compatibility

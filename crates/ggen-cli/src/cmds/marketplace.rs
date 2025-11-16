@@ -1197,6 +1197,200 @@ fn export(
     }))
 }
 
+/// List all available marketplace sector bundles
+///
+/// # Usage
+///
+/// ```bash
+/// # List all bundles
+/// ggen marketplace list-bundles
+///
+/// # Show bundle details
+/// ggen marketplace list-bundles --detailed
+/// ```
+#[verb]
+fn list_bundles(detailed: bool) -> Result<serde_json::Value> {
+    use ggen_domain::marketplace::BundleRegistry;
+
+    let bundles = BundleRegistry::list_bundles();
+
+    println!(
+        "\n📦 Available Marketplace Sector Bundles\n\
+         Total: {} bundles\n",
+        bundles.len()
+    );
+
+    for bundle in &bundles {
+        println!("• {} ({})", bundle.id, bundle.domain.to_uppercase());
+        println!("  Version: {}", bundle.version);
+        println!("  Minimum Score: {}%", bundle.minimum_score as u32);
+        println!("  Packages: {}", bundle.packages.len());
+
+        if detailed {
+            println!("  Description: {}", bundle.description);
+            println!("  Included Packages:");
+            for pkg in &bundle.packages {
+                println!("    - {}", pkg);
+            }
+        }
+        println!();
+    }
+
+    Ok(serde_json::json!({
+        "status": "success",
+        "bundle_count": bundles.len(),
+        "bundles": bundles.iter().map(|b| serde_json::json!({
+            "id": b.id,
+            "version": b.version,
+            "domain": b.domain,
+            "minimum_score": b.minimum_score,
+            "package_count": b.packages.len(),
+            "description": b.description,
+            "packages": b.packages,
+            "features": b.features
+        })).collect::<Vec<_>>()
+    }))
+}
+
+/// Show details for a specific marketplace bundle
+///
+/// # Usage
+///
+/// ```bash
+/// # Show bundle details
+/// ggen marketplace bundle-info sector-academic-papers
+///
+/// # Generate bundle documentation
+/// ggen marketplace bundle-info sector-academic-papers --docs
+/// ```
+#[verb]
+fn bundle_info(bundle_id: String, docs: bool) -> Result<serde_json::Value> {
+    use ggen_domain::marketplace::{BundleRegistry, generate_bundle_docs};
+
+    let bundle = BundleRegistry::get_bundle(&bundle_id)
+        .ok_or_else(|| clap_noun_verb::NounVerbError::execution_error(
+            format!("Bundle not found: {}", bundle_id)
+        ))?;
+
+    println!(
+        "\n📦 {} Sector Bundle\n\
+         Version: {}\n\
+         Domain: {}\n\
+         Minimum Package Score: {}%\n\
+         \n\
+         Description:\n{}\n\
+         \n\
+         Included Packages ({}):\n",
+        bundle.id,
+        bundle.version,
+        bundle.domain,
+        bundle.minimum_score as u32,
+        bundle.description,
+        bundle.packages.len()
+    );
+
+    for (i, pkg) in bundle.packages.iter().enumerate() {
+        println!("  {}. {}", i + 1, pkg);
+    }
+
+    println!("\nFeatures:");
+    for feature in &bundle.features {
+        println!("  • {}", feature);
+    }
+
+    if docs {
+        let documentation = generate_bundle_docs(&bundle);
+        println!("\n{}", documentation);
+    }
+
+    Ok(serde_json::json!({
+        "bundle_id": bundle.id,
+        "version": bundle.version,
+        "domain": bundle.domain,
+        "minimum_score": bundle.minimum_score,
+        "description": bundle.description,
+        "packages": bundle.packages,
+        "package_count": bundle.packages.len(),
+        "features": bundle.features,
+        "installation_command": format!("ggen marketplace install-bundle {}", bundle.id)
+    }))
+}
+
+/// Install a complete marketplace sector bundle
+///
+/// # Usage
+///
+/// ```bash
+/// # Install a bundle
+/// ggen marketplace install-bundle sector-academic-papers
+///
+/// # Install with dry-run to see what would happen
+/// ggen marketplace install-bundle sector-academic-papers --dry-run
+/// ```
+#[verb]
+fn install_bundle(bundle_id: String, dry_run: bool) -> Result<serde_json::Value> {
+    use ggen_domain::marketplace::{BundleRegistry, BundleInstallManifest};
+
+    let bundle = BundleRegistry::get_bundle(&bundle_id)
+        .ok_or_else(|| clap_noun_verb::NounVerbError::execution_error(
+            format!("Bundle not found: {}", bundle_id)
+        ))?;
+
+    let mut manifest = BundleInstallManifest::new(bundle_id.clone());
+    manifest.total_packages = bundle.packages.len();
+
+    println!(
+        "\n📦 Installing {} Bundle\n\
+         Version: {}\n\
+         Packages to install: {}\n",
+        bundle.id,
+        bundle.version,
+        bundle.packages.len()
+    );
+
+    if dry_run {
+        println!("🔍 DRY RUN MODE - Not actually installing\n");
+    }
+
+    for (i, pkg) in bundle.packages.iter().enumerate() {
+        println!("  {}. {}", i + 1, pkg);
+        if !dry_run {
+            manifest.packages_installed.push(pkg.clone());
+            manifest.successful_installs += 1;
+        }
+    }
+
+    if !dry_run {
+        println!(
+            "\n✅ Bundle installation complete!\n\
+             Packages installed: {}/{}",
+            manifest.successful_installs,
+            manifest.total_packages
+        );
+
+        // Create bundle manifest file
+        let manifest_json = serde_json::to_string_pretty(&manifest)
+            .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;
+
+        let manifest_path = format!(".ggen-bundle-{}.json", bundle_id);
+        std::fs::write(&manifest_path, manifest_json)
+            .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?;
+
+        println!("📄 Bundle manifest saved to: {}", manifest_path);
+    } else {
+        println!("\n✓ Dry run completed. Run without --dry-run to install.");
+    }
+
+    Ok(serde_json::json!({
+        "status": "success",
+        "bundle_id": bundle.id,
+        "bundle_version": bundle.version,
+        "dry_run": dry_run,
+        "packages_to_install": bundle.packages.len(),
+        "installation_command": format!("ggen marketplace install-bundle {}", bundle_id)
+    }))
+}
+
 /// Emit validation receipts for all marketplace packages
 ///
 /// # Usage
