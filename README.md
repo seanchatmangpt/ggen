@@ -305,6 +305,7 @@ ggen documentation follows **Diataxis** (4 learning paths):
 ### 🎓 Just Want to Learn
 
 - **[5-minute Getting Started](docs/tutorials/getting-started.md)** - Install & generate your first code
+- **[Zero to Generated Code](docs/tutorials/zero-to-generated-code.md)** - Complete 10-minute walkthrough
 - **[Ontology-to-Code Workflow](docs/tutorials/ontology-to-code.md)** - Complete end-to-end example
 - **[AI-Powered Generation](docs/tutorials/ai-powered-generation.md)** - Generate code without RDF knowledge
 
@@ -325,9 +326,13 @@ ggen documentation follows **Diataxis** (4 learning paths):
 ### 📖 Need to Look Something Up
 
 - **[CLI Reference](docs/reference/cli.md)** - All 32+ commands documented
+- **[Type Mapping Reference](docs/reference/type-mapping.md)** - RDF to Rust/TS/Python type mappings
+- **[Template Directives Reference](docs/reference/template-directives.md)** - Template metadata & frontmatter
+- **[Hooks & Lifecycle Reference](docs/reference/hooks-lifecycle.md)** - Hook types and automation
+- **[SPARQL Cookbook](docs/reference/sparql-cookbook.md)** - SPARQL patterns by task
 - **[Configuration Reference](docs/reference/configuration.md)** - All settings
 - **[Template Syntax Reference](docs/reference/templates.md)** - Template language
-- **[RDF/SPARQL Reference](docs/reference/rdf-sparql.md)** - RDF basics & SPARQL patterns
+- **[RDF/SPARQL Reference](docs/reference/rdf-sparql.md)** - RDF basics & SPARQL fundamentals
 
 ### 📂 See It in Action
 
