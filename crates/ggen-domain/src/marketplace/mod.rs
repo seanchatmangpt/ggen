@@ -20,6 +20,10 @@ pub mod quality_autopilot;
 #[path = "expert_tests.rs"]
 mod expert_tests;
 
+#[cfg(test)]
+#[path = "integration_tests.rs"]
+mod integration_tests;
+
 // Re-export commonly used types and functions
 pub use install::{execute_install, InstallInput, InstallOptions, InstallResult};
 pub use list::{execute_list, ListInput, ListOutput};

@@ -11,7 +11,7 @@
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 use std::fs;
-use chrono::{DateTime, Utc};
+use chrono::Utc;
 
 /// Result type for guard operations
 pub type GuardResult<T> = Result<T, GuardError>;
@@ -259,8 +259,7 @@ impl ValidationReceipt {
         }
 
         let mut latest_receipt: Option<Self> = None;
-        let mut latest_version = semver::Version::parse("0.0.0")
-            .map_err(|e| GuardError::ReceiptRead(format!("Failed to parse version: {}", e)))?;
+        let mut latest_version_str = "0.0.0".to_string();
 
         for entry in fs::read_dir(&receipts_dir)
             .map_err(|e| GuardError::ReceiptRead(format!("Failed to read receipts dir: {}", e)))?
@@ -271,12 +270,12 @@ impl ValidationReceipt {
 
             if path.extension().and_then(|s| s.to_str()) == Some("json") {
                 if let Some(filename) = path.file_stem().and_then(|s| s.to_str()) {
-                    if let Ok(version) = semver::Version::parse(filename) {
-                        if version > latest_version {
-                            if let Ok(receipt) = Self::read_from_file(&path) {
-                                latest_receipt = Some(receipt);
-                                latest_version = version;
-                            }
+                    // Simple version comparison: compare as semantic version strings
+                    // Latest receipt is determined by alphanumeric sort (works for semver)
+                    if Self::compare_versions(filename, &latest_version_str) > 0 {
+                        if let Ok(receipt) = Self::read_from_file(&path) {
+                            latest_receipt = Some(receipt);
+                            latest_version_str = filename.to_string();
                         }
                     }
                 }
@@ -284,6 +283,25 @@ impl ValidationReceipt {
         }
 
         Ok(latest_receipt)
+    }
+
+    /// Compare two semantic version strings
+    /// Returns: -1 if a < b, 0 if a == b, 1 if a > b
+    fn compare_versions(a: &str, b: &str) -> i32 {
+        let a_parts: Vec<&str> = a.split('.').collect();
+        let b_parts: Vec<&str> = b.split('.').collect();
+
+        for i in 0..std::cmp::max(a_parts.len(), b_parts.len()) {
+            let a_part = a_parts.get(i).and_then(|p| p.parse::<u32>().ok()).unwrap_or(0);
+            let b_part = b_parts.get(i).and_then(|p| p.parse::<u32>().ok()).unwrap_or(0);
+
+            if a_part > b_part {
+                return 1;
+            } else if a_part < b_part {
+                return -1;
+            }
+        }
+        0
     }
 }
 

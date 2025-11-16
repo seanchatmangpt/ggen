@@ -3,7 +3,7 @@
 //! Extends the validation system to emit immutable, checksummed ValidationReceipt JSON files
 //! for audit trail and downstream artifact generation.
 
-use crate::marketplace::guards::{Guard, GuardCheckResult, Severity, ValidationReceipt};
+use crate::marketplace::guards::{Guard, ValidationReceipt};
 use crate::marketplace::guards::factories::{GuardMetadata, GuardLicense, GuardReadme, GuardTests, GuardChicagoCompliance};
 use std::path::{Path, PathBuf};
 use chrono::Utc;
@@ -274,8 +274,6 @@ pub struct PackageReport {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-
     #[test]
     fn test_extract_version() {
         // Will be tested with real packages

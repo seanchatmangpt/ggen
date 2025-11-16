@@ -3,7 +3,7 @@
 //! Automatically suggests improvements to packages based on failing guards.
 
 use serde::{Deserialize, Serialize};
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 /// Improvement suggestion for a package
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -56,14 +56,13 @@ pub fn generate_improvement_plan(
     package_id: &str,
     marketplace_root: &Path,
 ) -> Result<ImprovementPlan, String> {
-    let mut plan = ImprovementPlan::new(package_id.to_string(), 0.0);
-
-    // Get latest receipt
+    // Get latest receipt first
     let receipt = crate::marketplace::ValidationReceipt::latest_for_package(marketplace_root, package_id)
         .map_err(|e| format!("Failed to read receipt: {}", e))?
         .ok_or_else(|| "No receipt found for package. Run marketplace-emit-receipts first.".to_string())?;
 
-    plan.current_score = receipt.overall_score;
+    let mut plan = ImprovementPlan::new(package_id.to_string(), receipt.overall_score);
+    plan.projected_new_score = receipt.overall_score; // Ensure projected score starts at current
 
     // Analyze guard results and suggest improvements
     for result in &receipt.guard_results {

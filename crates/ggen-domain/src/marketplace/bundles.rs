@@ -3,7 +3,6 @@
 //! Bundles are curated collections of packages forming complete vertical stacks.
 
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 /// Sector bundle definition
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -186,7 +185,7 @@ impl BundleInstallManifest {
 
 /// Generate bundle documentation
 pub fn generate_bundle_docs(bundle: &SectorBundle) -> String {
-    let mut doc = format!(
+    let doc = format!(
         r#"# {} Sector Bundle
 
 **Version**: {}

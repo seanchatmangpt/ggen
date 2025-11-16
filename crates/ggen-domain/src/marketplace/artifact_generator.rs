@@ -4,7 +4,7 @@
 //! Implements the μ_market projection layer: ontology → JSON/Markdown artifacts.
 
 use serde_json::{json, Value};
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use chrono::Utc;
 
 /// Generate registry index.json from marketplace receipts and ontology
@@ -134,7 +134,7 @@ pub fn generate_packages_markdown(marketplace_root: &Path) -> Result<String, Str
 
     // Package sections by category
     for (category, packages) in packages_by_category {
-        let safe_category = category.replace(" ", "-").to_lowercase();
+        let _safe_category = category.replace(" ", "-").to_lowercase();
         markdown.push_str(&format!("## {} {}\n\n", category_emoji(&category), category));
 
         for (pkg_id, score, prod_ready) in packages {
