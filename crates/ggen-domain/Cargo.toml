@@ -1,6 +1,6 @@
 [package]
 name = "ggen-domain"
-version = "3.1.0"
+version = "2.7.0"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "Domain logic layer for ggen - pure business logic without CLI dependencies"
 edition = "2021"

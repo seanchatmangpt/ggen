@@ -392,14 +392,26 @@ fn run_idempotency_test(client: &ContainerClient) -> TestcontainersResult<()> {
 fn setup_container_environment(client: &ContainerClient) -> TestcontainersResult<GenericContainer> {
     println!("  📦 Setting up container with Node.js, Rust, and git...");
 
+    // Use sh -c with echo to signal readiness, then sleep to keep container alive
+    // This ensures container is ready before we proceed
     let container = GenericContainer::with_command(
         client.client(),
         NODE_IMAGE,
         NODE_TAG,
-        "sleep",
-        &["infinity"],
+        "sh",
+        &["-c", "echo 'Container ready' && sleep infinity"],
         None,
     )?;
+
+    // Verify container is actually ready by running a simple command
+    let ready_check = container.exec("sh", &["-c", "echo 'ready'"])?;
+    if ready_check.exit_code != SUCCESS_EXIT_CODE {
+        return Err(
+            chicago_tdd_tools::testcontainers::TestcontainersError::CommandExecutionFailed(
+                format!("Container not ready: {}", ready_check.stderr),
+            ),
+        );
+    }
 
     // Install Rust toolchain
     println!("    Installing Rust toolchain...");

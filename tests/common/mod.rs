@@ -331,8 +331,6 @@ pub fn max_batch_size() -> usize {
 #[allow(dead_code)]
 pub fn docker_available() -> bool {
     use std::process::Command;
-    use std::sync::mpsc;
-    use std::thread;
 
     // Use docker ps to verify daemon is running (fast and reliable)
     // Simple synchronous check - docker ps is fast enough (< 1s typically)

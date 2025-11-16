@@ -13,6 +13,9 @@
 //! - Mock only external AI APIs
 
 pub mod export;
+#[cfg(test)]
+#[path = "export_expert_tests.rs"]
+mod export_expert_tests;
 pub mod load;
 pub mod query;
 pub mod visualize;
