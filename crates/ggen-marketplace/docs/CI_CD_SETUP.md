@@ -296,16 +296,23 @@ Merge commits are the recommended approach for integrating pull requests because
 
 - **Enable Better Debugging**: Stable commit references (SHAs) allow CI/CD pipelines, issue trackers, deployment systems, and debugging tools to reliably reference specific commits. Rebasing changes commit hashes, breaking these critical integrations.
 
-**Why Rebasing Is Discouraged:**
+**Why Rebasing Is an Anti-Pattern (Never Use It):**
 
-Rebasing is discouraged in this workflow because it:
+Rebasing is an anti-pattern that should never be used because it:
 
-- Rewrites history, making it impossible to see the actual sequence of development
-- Requires force-pushes that disrupt other developers working on the same branch
-- Changes commit SHAs, breaking CI/CD pipelines and external references
-- Loses merge context and conflict resolution history
-- Creates unnecessary conflicts when multiple developers collaborate on the same branch
-- Makes debugging harder by changing commit references that tools depend on
+- **Rewrites History**: Rewrites history, making it impossible to see the actual sequence of development. This destroys the historical accuracy that is essential for debugging, auditing, and understanding project evolution.
+
+- **Requires Force-Push**: Requires force-pushes that disrupt all other developers working on the same branch. This creates a destructive workflow that breaks collaboration and forces team members to re-sync their work.
+
+- **Breaks CI/CD**: Changes commit SHAs, breaking CI/CD pipelines, issue trackers, deployment systems, and all external references. This creates a cascade of failures across the entire development infrastructure.
+
+- **Loses Context**: Loses merge context and conflict resolution history. Merge commits preserve the complete development timeline and show how conflicts were resolved, which is essential for learning and maintaining code quality.
+
+- **Creates Unnecessary Conflicts**: Creates unnecessary conflicts when multiple developers collaborate on the same branch. Each developer must rebase their work on top of others' rebased commits, creating a conflict spiral that merging avoids entirely.
+
+- **Makes Debugging Impossible**: Makes debugging harder by changing commit references that tools depend on. Stable commit SHAs allow debugging tools, CI/CD systems, and deployment pipelines to reliably reference specific commits. Rebasing breaks these critical integrations.
+
+**Always use merge operations - never use rebase. Use `git pull` (which merges by default) instead of `git pull --rebase`.**
 
 ## Caching Strategy
 

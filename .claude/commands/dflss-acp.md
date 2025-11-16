@@ -306,10 +306,30 @@ git remote -v
 # Set upstream if needed
 git push --set-upstream origin <branch>
 
-# Pull and merge if diverged
-git pull --rebase
+# Pull and merge if diverged (NEVER use --rebase)
+git pull
 git push
 ```
+
+**Why Merge Instead of Rebase:**
+
+Rebasing is an anti-pattern that should never be used because it:
+
+- **Rewrites History**: Rebasing rewrites commit SHAs, breaking all references to those commits in CI/CD pipelines, issue trackers, deployment systems, and debugging tools. This creates a cascade of failures across the entire development infrastructure.
+
+- **Requires Force-Push**: Rebasing requires force-pushing (`git push --force`), which disrupts all other developers who have already pulled the branch. This creates a destructive workflow that breaks collaboration.
+
+- **Loses Context**: Merge commits preserve the complete development timeline, showing when features were developed and integrated. Rebasing destroys this historical accuracy, making debugging and auditing impossible.
+
+- **Breaks CI/CD**: Automated systems that reference commit hashes (build artifacts, deployment pipelines, test results) break when commits are rebased. Merge operations maintain stable commit references that CI/CD systems depend on.
+
+- **Creates Unnecessary Conflicts**: When multiple developers work on the same branch, rebasing creates unnecessary conflicts as each developer must rebase their work on top of others' rebased commits. Merging handles parallel development naturally without requiring force-pushes.
+
+- **Destroys Audit Trail**: Merge commits provide a clear audit trail showing when features were integrated and by whom. This is essential for compliance, debugging, and understanding project evolution. Rebasing makes this impossible.
+
+- **Makes Debugging Harder**: Stable commit references (SHAs) allow debugging tools to reliably reference specific commits. Rebasing changes commit hashes, breaking these critical integrations and making it impossible to track down issues.
+
+**Always use `git pull` (which merges by default) - never use `git pull --rebase` or any rebase operations.**
 
 ## Best Practices
 
