@@ -1,3 +1,45 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Cleanroom Testing Framework](#cleanroom-testing-framework)
+  - [What is Cleanroom Testing?](#what-is-cleanroom-testing)
+    - [Why Cleanroom Testing?](#why-cleanroom-testing)
+    - [Real-World Impact](#real-world-impact)
+  - [The 5 Deterministic Surfaces](#the-5-deterministic-surfaces)
+    - [1. Process Surface](#1-process-surface)
+    - [2. FileSystem Surface](#2-filesystem-surface)
+    - [3. Network Surface](#3-network-surface)
+    - [4. Time Surface](#4-time-surface)
+    - [5. RNG Surface](#5-rng-surface)
+  - [Attestation: Proving Test Claims](#attestation-proving-test-claims)
+    - [What is Attestation?](#what-is-attestation)
+    - [Using Attestation](#using-attestation)
+    - [Attestation Content](#attestation-content)
+    - [Verifying Attestations in CI/CD](#verifying-attestations-in-cicd)
+  - [Forensics: Debugging Flaky Tests](#forensics-debugging-flaky-tests)
+    - [Forensics Features](#forensics-features)
+    - [Examining Forensics Output](#examining-forensics-output)
+    - [Debugging Specific Failures](#debugging-specific-failures)
+  - [Complete Example: Testing Template Generation](#complete-example-testing-template-generation)
+    - [The Test](#the-test)
+    - [Test Output](#test-output)
+  - [Best Practices](#best-practices)
+    - [1. Always Control Surfaces Explicitly](#1-always-control-surfaces-explicitly)
+    - [2. Use Fixed Seeds for Reproducibility](#2-use-fixed-seeds-for-reproducibility)
+    - [3. Isolate Tests Completely](#3-isolate-tests-completely)
+    - [4. Enable Attestation in CI](#4-enable-attestation-in-ci)
+    - [5. Document Surface Assumptions](#5-document-surface-assumptions)
+  - [Troubleshooting](#troubleshooting)
+    - [Test Fails Locally But Passes in CI](#test-fails-locally-but-passes-in-ci)
+    - [Attestation Verification Fails](#attestation-verification-fails)
+    - [Forensics Output Too Large](#forensics-output-too-large)
+  - [Real-World Benefits](#real-world-benefits)
+  - [Next Steps](#next-steps)
+  - [Resources](#resources)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Cleanroom Testing Framework
 
 **Goal:** Build deterministic, reproducible tests that eliminate flakiness and guarantee consistent behavior across all environments.

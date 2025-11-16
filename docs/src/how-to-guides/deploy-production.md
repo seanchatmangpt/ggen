@@ -1,3 +1,31 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [How to Deploy to Production](#how-to-deploy-to-production)
+  - [Pre-Deployment Checklist](#pre-deployment-checklist)
+    - [1. Validate Ontology](#1-validate-ontology)
+    - [2. Verify Generated Code](#2-verify-generated-code)
+    - [3. Check Determinism](#3-check-determinism)
+  - [Deployment Strategies](#deployment-strategies)
+    - [Strategy 1: Generate at Build Time](#strategy-1-generate-at-build-time)
+    - [Strategy 2: Pre-Generated Code](#strategy-2-pre-generated-code)
+    - [Strategy 3: Runtime Generation](#strategy-3-runtime-generation)
+  - [Production Considerations](#production-considerations)
+    - [Version Pinning](#version-pinning)
+    - [Caching](#caching)
+    - [Monitoring](#monitoring)
+  - [Security](#security)
+    - [Validate Inputs](#validate-inputs)
+    - [Sanitize Outputs](#sanitize-outputs)
+  - [Rollback Strategy](#rollback-strategy)
+    - [Version Control](#version-control)
+    - [Regenerate from Tag](#regenerate-from-tag)
+  - [Best Practices](#best-practices)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # How to Deploy to Production
 
 Production deployment checklist and strategies for ggen-generated code.

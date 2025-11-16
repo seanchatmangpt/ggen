@@ -1,3 +1,18 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Work-In-Progress Documentation](#work-in-progress-documentation)
+  - [Purpose](#purpose)
+  - [When to Use](#when-to-use)
+  - [When to DELETE (Critical!)](#when-to-delete-critical)
+  - [File Naming Convention](#file-naming-convention)
+  - [Document Lifecycle](#document-lifecycle)
+  - [Best Practices](#best-practices)
+  - [Maintenance Schedule](#maintenance-schedule)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Work-In-Progress Documentation
 
 This directory contains work-in-progress and intermediate documentation reports that are part of ongoing improvement processes (Kaizen, Mura elimination, Muda elimination, etc.).

@@ -1,3 +1,18 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Marketplace Workflow](#marketplace-workflow)
+  - [Step 1: Search for Templates](#step-1-search-for-templates)
+  - [Step 2: Install a Template](#step-2-install-a-template)
+  - [Step 3: Use the Template](#step-3-use-the-template)
+  - [Step 4: Customize with Your Ontology](#step-4-customize-with-your-ontology)
+  - [Marketplace Benefits](#marketplace-benefits)
+  - [Advanced: Publishing Your Own Templates](#advanced-publishing-your-own-templates)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Marketplace Workflow
 
 **Goal:** Discover, install, and use marketplace templates to accelerate development.

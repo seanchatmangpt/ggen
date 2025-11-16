@@ -1,3 +1,20 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Ontology-to-Code Workflow](#ontology-to-code-workflow)
+  - [The Core Workflow](#the-core-workflow)
+  - [Step 1: Create a Domain Ontology](#step-1-create-a-domain-ontology)
+  - [Step 2: Generate Rust Models](#step-2-generate-rust-models)
+  - [Step 3: Generate TypeScript Types](#step-3-generate-typescript-types)
+  - [Step 4: Evolve the Domain](#step-4-evolve-the-domain)
+  - [Understanding SPARQL Queries](#understanding-sparql-queries)
+  - [Key Concepts](#key-concepts)
+  - [Advanced: Custom SPARQL Queries](#advanced-custom-sparql-queries)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Ontology-to-Code Workflow
 
 **Goal:** Master the complete ontology-driven development workflow from RDF to production code.

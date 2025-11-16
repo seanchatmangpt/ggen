@@ -1,3 +1,24 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Ontology-Driven Development](#ontology-driven-development)
+  - [Core Concept](#core-concept)
+  - [Why Ontology-Driven?](#why-ontology-driven)
+    - [Single Source of Truth](#single-source-of-truth)
+    - [Semantic Precision](#semantic-precision)
+    - [Evolution Without Drift](#evolution-without-drift)
+  - [How It Works](#how-it-works)
+    - [1. Define Domain in RDF](#1-define-domain-in-rdf)
+    - [2. Extract with SPARQL](#2-extract-with-sparql)
+    - [3. Project to Code](#3-project-to-code)
+    - [4. Regenerate on Change](#4-regenerate-on-change)
+  - [Benefits](#benefits)
+  - [Best Practices](#best-practices)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Ontology-Driven Development
 
 ggen uses ontology-driven development: the domain model (RDF ontology) is the single source of truth for all code generation.

@@ -1,3 +1,33 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [How to Install ggen](#how-to-install-ggen)
+  - [Prerequisites](#prerequisites)
+  - [Installation Methods](#installation-methods)
+    - [Homebrew (Recommended for macOS/Linux)](#homebrew-recommended-for-macoslinux)
+    - [Cargo (Rust Package Manager)](#cargo-rust-package-manager)
+    - [From Source (Latest Development Version)](#from-source-latest-development-version)
+  - [Post-Installation Setup](#post-installation-setup)
+    - [Shell Completions (Optional)](#shell-completions-optional)
+    - [Environment Variables (Optional)](#environment-variables-optional)
+    - [Verify AI Features (Optional)](#verify-ai-features-optional)
+  - [Troubleshooting Installation](#troubleshooting-installation)
+    - [Command Not Found](#command-not-found)
+    - [Marketplace Connection Issues](#marketplace-connection-issues)
+    - [Cargo Installation Fails](#cargo-installation-fails)
+    - [Permission Denied](#permission-denied)
+  - [Uninstallation](#uninstallation)
+    - [Homebrew](#homebrew)
+    - [Cargo](#cargo)
+    - [Cleanup Cache](#cleanup-cache)
+  - [Updates](#updates)
+    - [Check for Updates](#check-for-updates)
+    - [Version Management](#version-management)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # How to Install ggen
 
 **Type: How-to Guide** | [← Back to Documentation](../README.md)

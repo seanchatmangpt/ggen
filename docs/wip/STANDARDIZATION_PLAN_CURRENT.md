@@ -1,3 +1,36 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Standardization Plan - Eliminate Mura](#standardization-plan---eliminate-mura)
+  - [Priority 1: Documentation Consistency (HIGH)](#priority-1-documentation-consistency-high)
+    - [Problem](#problem)
+    - [Standard](#standard)
+    - [Migration Strategy](#migration-strategy)
+      - [Phase 1: High-Value APIs First](#phase-1-high-value-apis-first)
+      - [Phase 2: Convert Unnecessary `no_run`](#phase-2-convert-unnecessary-no_run)
+      - [Phase 3: Add Missing Doctests](#phase-3-add-missing-doctests)
+    - [Example Standardization](#example-standardization)
+  - [Priority 2: Error Handling Pattern Standardization (HIGH)](#priority-2-error-handling-pattern-standardization-high)
+    - [Problem](#problem-1)
+    - [Standard](#standard-1)
+    - [Migration Strategy](#migration-strategy-1)
+      - [Phase 1: Identify All Violations](#phase-1-identify-all-violations)
+      - [Phase 2: Create Migration Script](#phase-2-create-migration-script)
+      - [Phase 3: Apply Migration](#phase-3-apply-migration)
+      - [Phase 4: Verification](#phase-4-verification)
+    - [Example Migration](#example-migration)
+  - [Priority 3: Doctest Format Standardization (MEDIUM)](#priority-3-doctest-format-standardization-medium)
+    - [Problem](#problem-2)
+    - [Standard](#standard-2)
+    - [Migration Strategy](#migration-strategy-2)
+      - [Phase 1: Identify Convertible Doctests](#phase-1-identify-convertible-doctests)
+      - [Phase 2: Standardize Pattern](#phase-2-standardize-pattern)
+  - [Implementation Order](#implementation-order)
+  - [Success Criteria](#success-criteria)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Standardization Plan - Eliminate Mura
 
 This document outlines the plan to standardize inconsistencies identified in the Mura inventory.

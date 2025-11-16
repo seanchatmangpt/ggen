@@ -1,3 +1,27 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Troubleshooting Guide: Decision Tree Format](#troubleshooting-guide-decision-tree-format)
+  - [🌳 The Troubleshooting Decision Tree](#-the-troubleshooting-decision-tree)
+  - [🔧 Solutions by Decision Path](#-solutions-by-decision-path)
+    - [SOLUTION A: "ggen command not found"](#solution-a-ggen-command-not-found)
+      - [Option 1: Install ggen (Recommended)](#option-1-install-ggen-recommended)
+      - [Option 2: Use full path](#option-2-use-full-path)
+      - [Option 3: Use docker](#option-3-use-docker)
+    - [SOLUTION B1: "Invalid RDF" Error](#solution-b1-invalid-rdf-error)
+    - [SOLUTION B2: "Equation undefined" Error](#solution-b2-equation-undefined-error)
+    - [SOLUTION B3: "Missing Metadata" Error](#solution-b3-missing-metadata-error)
+    - [SOLUTION B4: Other Error Messages](#solution-b4-other-error-messages)
+    - [SOLUTION C: "pdflatex" Compilation Error](#solution-c-pdflatex-compilation-error)
+    - [SOLUTION D1: "Equations aren't numbering right"](#solution-d1-equations-arent-numbering-right)
+    - [SOLUTION D2: "Text formatting is wrong"](#solution-d2-text-formatting-is-wrong)
+    - [SOLUTION D3: "Content is missing from PDF"](#solution-d3-content-is-missing-from-pdf)
+  - [✅ "SUCCESS" Checkpoint](#-success-checkpoint)
+  - [🆘 Still Stuck?](#-still-stuck)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Troubleshooting Guide: Decision Tree Format
 
 **Purpose**: No matter what goes wrong, follow this tree to find your answer in <5 minutes.

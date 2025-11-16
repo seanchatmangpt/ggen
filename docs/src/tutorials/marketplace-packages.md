@@ -1,3 +1,40 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Creating Marketplace Packages](#creating-marketplace-packages)
+  - [Part 1: Understanding Packages](#part-1-understanding-packages)
+    - [What is a Package?](#what-is-a-package)
+    - [Package Structure](#package-structure)
+  - [Part 2: Building a Package](#part-2-building-a-package)
+    - [Step 1: Initialize Package](#step-1-initialize-package)
+    - [Step 2: Create `ggen.toml` Manifest](#step-2-create-ggentoml-manifest)
+    - [Step 3: Create Manifest README](#step-3-create-manifest-readme)
+  - [Example](#example)
+  - [Installation](#installation)
+  - [Configuration](#configuration)
+  - [Requirements](#requirements)
+  - [License](#license)
+    - [Step 5: Create SPARQL Queries](#step-5-create-sparql-queries)
+  - [Part 3: Testing Your Package](#part-3-testing-your-package)
+    - [Step 6: Create Golden File Tests](#step-6-create-golden-file-tests)
+    - [Step 7: Run Tests](#step-7-run-tests)
+  - [Part 4: Documentation & Examples](#part-4-documentation--examples)
+    - [Step 8: Create Examples](#step-8-create-examples)
+  - [Generation](#generation)
+  - [Usage](#usage)
+    - [Step 10: Publish to Marketplace](#step-10-publish-to-marketplace)
+    - [Step 11: Share Your Package](#step-11-share-your-package)
+  - [Part 6: Maintenance](#part-6-maintenance)
+    - [Version Updates](#version-updates)
+    - [Getting Help](#getting-help)
+  - [Best Practices Checklist](#best-practices-checklist)
+  - [Common Issues](#common-issues)
+  - [Next Steps](#next-steps)
+  - [Resources](#resources)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Creating Marketplace Packages
 
 **Goal:** Build and publish a reusable template package to the ggen marketplace.

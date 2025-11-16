@@ -1,3 +1,29 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [How to Create Templates](#how-to-create-templates)
+  - [Template Basics](#template-basics)
+    - [Template Structure](#template-structure)
+    - [Basic Template](#basic-template)
+    - [SPARQL Query](#sparql-query)
+  - [Template Syntax](#template-syntax)
+    - [Variables](#variables)
+    - [Loops](#loops)
+    - [Conditionals](#conditionals)
+    - [SPARQL Queries](#sparql-queries)
+  - [Template Metadata](#template-metadata)
+  - [Type Mapping](#type-mapping)
+  - [Advanced Patterns](#advanced-patterns)
+    - [Nested Structures](#nested-structures)
+    - [Validation Code](#validation-code)
+  - [Testing Templates](#testing-templates)
+  - [Best Practices](#best-practices)
+  - [Publishing Templates](#publishing-templates)
+  - [Next Steps](#next-steps)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # How to Create Templates
 
 Guide to creating custom templates for code generation.

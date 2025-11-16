@@ -1,3 +1,18 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Release v2.5.1 - Homebrew Binary Distribution Test](#release-v251---homebrew-binary-distribution-test)
+  - [Tag Pushed ✅](#tag-pushed-)
+  - [Monitor Progress](#monitor-progress)
+  - [Verify Release (after ~10-15 minutes)](#verify-release-after-10-15-minutes)
+  - [Update Homebrew Formula](#update-homebrew-formula)
+  - [Test Homebrew Installation](#test-homebrew-installation)
+  - [Expected Timeline](#expected-timeline)
+  - [Verification Checklist](#verification-checklist)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Release v2.5.1 - Homebrew Binary Distribution Test
 
 ## Tag Pushed ✅
