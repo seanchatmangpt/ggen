@@ -92,6 +92,7 @@ pub fn build_tera_minimal() -> Result<Tera> {
 mod tests {
     use super::*;
     use chicago_tdd_tools::test;
+    use ggen_utils::error::Error;
     use std::fs;
     use tempfile::TempDir;
 
@@ -149,7 +150,7 @@ mod tests {
         // HTML should not be escaped
         let mut ctx = tera::Context::new();
         ctx.insert("html", "<script>alert('xss')</script>");
-        let result = tera.render_str("{{ html }}", &ctx)?;
+        let result = tera.render_str("{{ html }}", &ctx).map_err(Error::from)?;
         assert_eq!(result, "<script>alert('xss')</script>");
         Ok(())
     });
