@@ -19,6 +19,7 @@ pub mod artifact_generator;
 pub mod quality_autopilot;
 pub mod observability;
 pub mod production_readiness;
+pub mod mape_k_integration;
 
 #[cfg(test)]
 #[path = "expert_tests.rs"]
@@ -73,6 +74,10 @@ pub use observability::{
 };
 pub use production_readiness::{
     ReadinessChecker, ReadinessAssessment, ReadinessCheck, CheckStatus, DeploymentGuide,
+};
+pub use mape_k_integration::{
+    AutonomicMarketplace, ReceiptObserver, MarketplaceObservation, MarketplaceObservationType,
+    AutonomicStatus, MarketplaceHealth, ObservationStats,
 };
 
 // Legacy types for backwards compatibility
