@@ -1,0 +1,241 @@
+@prefix : <http://ggen.io/ontology/api_gateway/v1.0.0#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+<http://ggen.io/ontology/api_gateway/v1.0.0>
+    a owl:Ontology ;
+    dcterms:title "API Gateway Infrastructure Ontology" ;
+    dcterms:description "Ontology for describing API gateway configuration, routing, and security" ;
+    dcterms:version "1.0.0" ;
+    dcterms:created "2025-11-16"^^xsd:date .
+
+# Core Classes
+
+:Gateway a owl:Class ;
+    rdfs:label "Gateway" ;
+    rdfs:comment "API gateway instance managing traffic and security" .
+
+:Route a owl:Class ;
+    rdfs:label "Route" ;
+    rdfs:comment "Routing rule mapping requests to backend services" .
+
+:BackendService a owl:Class ;
+    rdfs:label "BackendService" ;
+    rdfs:comment "Backend microservice receiving routed requests" .
+
+:AuthenticationMethod a owl:Class ;
+    rdfs:label "AuthenticationMethod" ;
+    rdfs:comment "Authentication mechanism (JWT, OAuth2, API key, etc.)" .
+
+:AuthorizationPolicy a owl:Class ;
+    rdfs:label "AuthorizationPolicy" ;
+    rdfs:comment "Authorization policy defining access control rules" .
+
+:RateLimit a owl:Class ;
+    rdfs:label "RateLimit" ;
+    rdfs:comment "Rate limiting configuration to prevent abuse" .
+
+:LoadBalancer a owl:Class ;
+    rdfs:label "LoadBalancer" ;
+    rdfs:comment "Load balancing strategy for distributing traffic" .
+
+:TLSConfig a owl:Class ;
+    rdfs:label "TLSConfig" ;
+    rdfs:comment "TLS/SSL certificate and encryption configuration" .
+
+:CORSPolicy a owl:Class ;
+    rdfs:label "CORSPolicy" ;
+    rdfs:comment "Cross-Origin Resource Sharing policy configuration" .
+
+:Middleware a owl:Class ;
+    rdfs:label "Middleware" ;
+    rdfs:comment "Request/response transformation middleware" .
+
+:HealthProbe a owl:Class ;
+    rdfs:label "HealthProbe" ;
+    rdfs:comment "Health check probe for backend service monitoring" .
+
+:SecurityRule a owl:Class ;
+    rdfs:label "SecurityRule" ;
+    rdfs:comment "Security rule (WAF, IP filtering, etc.)" .
+
+# Properties
+
+:hasRoute a owl:ObjectProperty ;
+    rdfs:label "hasRoute" ;
+    rdfs:domain :Gateway ;
+    rdfs:range :Route ;
+    rdfs:comment "Gateway has this routing rule configured" .
+
+:routesTo a owl:ObjectProperty ;
+    rdfs:label "routesTo" ;
+    rdfs:domain :Route ;
+    rdfs:range :BackendService ;
+    rdfs:comment "Route forwards requests to this backend service" .
+
+:requiresAuthentication a owl:ObjectProperty ;
+    rdfs:label "requiresAuthentication" ;
+    rdfs:domain :Route ;
+    rdfs:range :AuthenticationMethod ;
+    rdfs:comment "Route requires this authentication method" .
+
+:enforcesAuthorization a owl:ObjectProperty ;
+    rdfs:label "enforcesAuthorization" ;
+    rdfs:domain :Route ;
+    rdfs:range :AuthorizationPolicy ;
+    rdfs:comment "Route enforces this authorization policy" .
+
+:hasRateLimit a owl:ObjectProperty ;
+    rdfs:label "hasRateLimit" ;
+    rdfs:domain :Route ;
+    rdfs:range :RateLimit ;
+    rdfs:comment "Route applies this rate limit configuration" .
+
+:usesLoadBalancer a owl:ObjectProperty ;
+    rdfs:label "usesLoadBalancer" ;
+    rdfs:domain :BackendService ;
+    rdfs:range :LoadBalancer ;
+    rdfs:comment "Backend service uses this load balancing strategy" .
+
+:hasTLSConfig a owl:ObjectProperty ;
+    rdfs:label "hasTLSConfig" ;
+    rdfs:domain :Gateway ;
+    rdfs:range :TLSConfig ;
+    rdfs:comment "Gateway is configured with this TLS/SSL setup" .
+
+:enforcesCORS a owl:ObjectProperty ;
+    rdfs:label "enforcesCORS" ;
+    rdfs:domain :Gateway ;
+    rdfs:range :CORSPolicy ;
+    rdfs:comment "Gateway enforces this CORS policy" .
+
+:appliesMiddleware a owl:ObjectProperty ;
+    rdfs:label "appliesMiddleware" ;
+    rdfs:domain :Route ;
+    rdfs:range :Middleware ;
+    rdfs:comment "Route applies this middleware transformation" .
+
+:hasHealthProbe a owl:ObjectProperty ;
+    rdfs:label "hasHealthProbe" ;
+    rdfs:domain :BackendService ;
+    rdfs:range :HealthProbe ;
+    rdfs:comment "Backend service is monitored by this health probe" .
+
+:enforcesSecurityRule a owl:ObjectProperty ;
+    rdfs:label "enforcesSecurityRule" ;
+    rdfs:domain :Gateway ;
+    rdfs:range :SecurityRule ;
+    rdfs:comment "Gateway enforces this security rule" .
+
+# Data Properties
+
+:gatewayName a owl:DatatypeProperty ;
+    rdfs:label "gatewayName" ;
+    rdfs:domain :Gateway ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Name of the API gateway instance" .
+
+:gatewayPort a owl:DatatypeProperty ;
+    rdfs:label "gatewayPort" ;
+    rdfs:domain :Gateway ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Port number the gateway listens on" .
+
+:routePath a owl:DatatypeProperty ;
+    rdfs:label "routePath" ;
+    rdfs:domain :Route ;
+    rdfs:range xsd:string ;
+    rdfs:comment "URL path pattern for the route" .
+
+:routeMethod a owl:DatatypeProperty ;
+    rdfs:label "routeMethod" ;
+    rdfs:domain :Route ;
+    rdfs:range xsd:string ;
+    rdfs:comment "HTTP method for the route (GET, POST, etc.)" .
+
+:serviceURL a owl:DatatypeProperty ;
+    rdfs:label "serviceURL" ;
+    rdfs:domain :BackendService ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Base URL of the backend service" .
+
+:serviceHealthEndpoint a owl:DatatypeProperty ;
+    rdfs:label "serviceHealthEndpoint" ;
+    rdfs:domain :BackendService ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Health check endpoint path" .
+
+:authType a owl:DatatypeProperty ;
+    rdfs:label "authType" ;
+    rdfs:domain :AuthenticationMethod ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type of authentication (jwt, oauth2, apikey, mtls)" .
+
+:jwtSecret a owl:DatatypeProperty ;
+    rdfs:label "jwtSecret" ;
+    rdfs:domain :AuthenticationMethod ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Secret key for JWT validation" .
+
+:allowedRoles a owl:DatatypeProperty ;
+    rdfs:label "allowedRoles" ;
+    rdfs:domain :AuthorizationPolicy ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Comma-separated list of allowed roles" .
+
+:requestsPerMinute a owl:DatatypeProperty ;
+    rdfs:label "requestsPerMinute" ;
+    rdfs:domain :RateLimit ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Maximum requests allowed per minute" .
+
+:burstSize a owl:DatatypeProperty ;
+    rdfs:label "burstSize" ;
+    rdfs:domain :RateLimit ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Number of burst requests allowed above rate limit" .
+
+:loadBalancingStrategy a owl:DatatypeProperty ;
+    rdfs:label "loadBalancingStrategy" ;
+    rdfs:domain :LoadBalancer ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Strategy name (round-robin, least-connections, weighted)" .
+
+:certificatePath a owl:DatatypeProperty ;
+    rdfs:label "certificatePath" ;
+    rdfs:domain :TLSConfig ;
+    rdfs:range xsd:string ;
+    rdfs:comment "File path to TLS certificate" .
+
+:tlsVersion a owl:DatatypeProperty ;
+    rdfs:label "tlsVersion" ;
+    rdfs:domain :TLSConfig ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Minimum TLS version required (1.2, 1.3)" .
+
+:allowedOrigins a owl:DatatypeProperty ;
+    rdfs:label "allowedOrigins" ;
+    rdfs:domain :CORSPolicy ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Comma-separated list of allowed origins for CORS" .
+
+:allowCredentials a owl:DatatypeProperty ;
+    rdfs:label "allowCredentials" ;
+    rdfs:domain :CORSPolicy ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether to allow credentials in CORS requests" .
+
+:timeout a owl:DatatypeProperty ;
+    rdfs:label "timeout" ;
+    rdfs:domain :Route ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "Request timeout duration" .
+
+:retryAttempts a owl:DatatypeProperty ;
+    rdfs:label "retryAttempts" ;
+    rdfs:domain :Route ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Number of retry attempts for failed requests" .

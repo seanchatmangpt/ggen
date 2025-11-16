@@ -24,7 +24,7 @@ members = [
   "examples/frontmatter-cli",
   "examples/natural-market-search",
   "examples/ai-template-project",
-  "crates/ggen-node",
+  "crates/ggen-node", "crates/ggen-macros",
 ]
 exclude = [
   "examples/rust-cli-lifecycle",
