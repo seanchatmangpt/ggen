@@ -574,16 +574,22 @@ fn verify_checksum(bytes: &[u8], expected: &str) -> Result<()> {
     Ok(())
 }
 
-/// Download from URL with enhanced retry logic and better error handling
+/// Download from URL with enhanced retry logic and deterministic error handling
 ///
 /// This addresses FM2 (RPN 336): Package download fails
 ///
+/// Behavior (FM2 - STRICT fail-fast):
+/// - Retries ONLY on transient errors (5xx, timeouts, connection errors)
+/// - FAILS IMMEDIATELY on permanent errors (4xx) - no silent fallback
+/// - FAILS on rate limiting (429) after exponential backoff
+/// - Provides clear, actionable error messages
+/// - All errors are deterministic and explicit
+///
 /// Improvements:
 /// - Exponential backoff with jitter to prevent thundering herd
-/// - Retry on transient errors (5xx, timeouts, connection errors)
-/// - Don't retry on permanent errors (4xx)
-/// - Detect and handle rate limiting (429) with longer backoff
-/// - Better error messages for debugging
+/// - Retry on transient errors only
+/// - Fail fast on permanent/configuration errors
+/// - Rate limiting detection with extended backoff
 async fn download_with_retry(url: &str, max_retries: u32) -> Result<Vec<u8>> {
     use reqwest::Client;
 
@@ -701,14 +707,16 @@ async fn download_with_retry(url: &str, max_retries: u32) -> Result<Vec<u8>> {
 
 /// Get cache path for downloaded archive
 ///
-/// Handles missing home directory gracefully by using temp directory as fallback
+/// FM2: STRICT fail-fast behavior - requires valid home directory (no temp directory fallback)
 fn get_cache_path(package_name: &str, version: &str) -> Result<PathBuf> {
-    let cache_base = if let Some(home_dir) = dirs::home_dir() {
-        home_dir.join(".ggen").join("cache")
-    } else {
-        // Fallback to temp directory if home directory not available
-        std::env::temp_dir().join("ggen-cache")
-    };
+    let cache_base = dirs::home_dir()
+        .ok_or_else(|| {
+            ggen_utils::error::Error::new(
+                "❌ Home directory not found. Cannot determine cache location for downloaded packages."
+            )
+        })?
+        .join(".ggen")
+        .join("cache");
 
     Ok(cache_base.join("downloads").join(format!(
         "{}-{}.zip",
@@ -917,9 +925,14 @@ async fn download_and_install_package(
     package_name: &str, package_path: &str, download_url: Option<&str>,
     expected_checksum: Option<&str>, install_path: &Path,
 ) -> Result<String> {
-    // Determine download URL
+    // FM2: STRICT fail-fast behavior - download URL must be explicitly provided (no silent fallback)
     let url = download_url
-        .unwrap_or("https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip");
+        .ok_or_else(|| {
+            ggen_utils::error::Error::new(&format!(
+                "❌ Missing download URL for package {}. Package metadata is incomplete. Run 'ggen marketplace sync' to refresh the registry.",
+                package_name
+            ))
+        })?;
 
     // Check cache first
     let cache_path = get_cache_path(package_name, "latest")?;
@@ -936,18 +949,17 @@ async fn download_and_install_package(
         tracing::info!("Downloading from: {}", url);
         let bytes = download_with_retry(url, 3).await?;
 
-        // Security: Verify checksum - mandatory for security
-        // If checksum not provided, calculate and warn (but allow for backward compatibility)
-        if let Some(expected) = expected_checksum {
-            verify_checksum(&bytes, expected)?;
-        } else {
-            // Warn but don't fail for backward compatibility
-            // FUTURE: Make checksum mandatory in next major version
-            tracing::warn!(
-                "Security: Package {} installed without checksum verification",
-                package_name
-            );
-        }
+        // FM2: STRICT fail-fast behavior - checksums are MANDATORY for security and determinism
+        let expected = expected_checksum
+            .ok_or_else(|| {
+                ggen_utils::error::Error::new(&format!(
+                    "❌ Missing checksum for package {}. Package metadata is incomplete. Run 'ggen marketplace sync' to refresh the registry.",
+                    package_name
+                ))
+            })?;
+
+        // Verify checksum - MANDATORY for security and reproducibility
+        verify_checksum(&bytes, expected)?;
 
         // Save to cache
         tokio::fs::write(&cache_path, &bytes)
