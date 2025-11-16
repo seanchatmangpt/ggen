@@ -585,7 +585,7 @@ mod tests {
     use std::fs;
     use tempfile::TempDir;
 
-    test!(test_cache_manager_creation, {
+    chicago_tdd_tools::test!(test_cache_manager_creation, {
         let temp_dir = TempDir::new()
             .map_err(|e| Error::with_context("Failed to create temp dir", &e.to_string()))?;
         let cache_dir = temp_dir.path().to_path_buf();
@@ -595,7 +595,7 @@ mod tests {
         Ok(())
     });
 
-    test!(test_sha256_calculation, {
+    chicago_tdd_tools::test!(test_sha256_calculation, {
         let temp_dir = TempDir::new()
             .map_err(|e| Error::with_context("Failed to create temp dir", &e.to_string()))?;
         let test_dir = temp_dir.path().join("test");
@@ -617,7 +617,7 @@ mod tests {
         Ok(())
     });
 
-    test!(test_list_cached_empty, {
+    chicago_tdd_tools::test!(test_list_cached_empty, {
         let temp_dir = TempDir::new()
             .map_err(|e| Error::with_context("Failed to create temp dir", &e.to_string()))?;
         let cache_manager = CacheManager::with_dir(temp_dir.path().to_path_buf())?;

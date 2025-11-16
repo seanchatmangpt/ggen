@@ -10,6 +10,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 #### Code Quality Improvements
+- **Test Framework Upgrade**: Migrated all tests to use `chicago_tdd_tools::prelude::*` pattern
+  - Standardized test imports across entire codebase for consistency
+  - Updated all test files to use recommended `prelude::*` import pattern
+  - Improved test maintainability and adherence to Chicago TDD standards
+- **Structured Logging**: Replaced `println!` and `eprintln!` with structured `log::*` macros
+  - Library code now uses `log::info!`, `log::debug!`, `log::warn!`, `log::error!` for better log management
+  - Improved log filtering, integration with logging backends, and consistency
+  - Files affected: `ggen-core`, `ggen-cli`, `ggen-ai`, `ggen-marketplace` crates
+- **Dependency Updates**: Updated `chicago-tdd-tools` from 1.2.0 to 1.3.0
+  - Added new features: `testing-extras`, `testcontainers`, `otel` for enhanced testing capabilities
+  - Improved test framework integration and observability
 - **Test Refactoring**: Removed commented-out tests using deprecated doctor API types
   - Replaced with updated tests using current `ggen_domain::utils::doctor` API
   - Tests now use `CheckStatus::Ok/Warning/Error` instead of deprecated `Pass/Warn/Fail/Info`
@@ -34,6 +45,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Files: `tests/otel_validation/mod.rs`, `crates/ggen-core/src/cleanroom/forensics.rs`
 
 ### Fixed
+
+#### Test Quality Improvements
+- **Dead Test Elimination**: Fixed `assert!(true)` dead tests with proper behavior verification
+  - Replaced meaningless assertions with actual observable output/state verification
+  - Files: `crates/ggen-cli/tests/e2e.rs`, `crates/ggen-core/tests/marketplace_tests_main.rs`
+- **Dependency Management**: Added missing `log` crate dependency
+  - Added `log` to workspace dependencies and `ggen-cli` crate
+  - Resolves compilation errors from structured logging migration
 
 #### Test Infrastructure
 - **Async Test Macros**: Fixed `async_test!` macro usage
@@ -239,14 +258,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    - Template rendering: Frontmatter structure issue (non-blocking)
 
 **RDF/SPARQL Type Mapping Validated**:
-| RDF Type | Rust Type | Test Evidence |
-|----------|-----------|---------------|
-| `xsd:string` | `String` | name, description, sku fields |
-| `xsd:decimal` | `f64` | price, rating fields |
-| `xsd:integer` | `i32` | inventory_count field |
-| `rdfs:Class` | `pub struct` | Product, Category, Supplier structs |
-| `rdf:Property` (data) | `pub field` | All struct fields generated |
-| `rdf:Property` (object) | `fn get_*()` | Supplier relationship method |
+| RDF Type                | Rust Type    | Test Evidence                       |
+| ----------------------- | ------------ | ----------------------------------- |
+| `xsd:string`            | `String`     | name, description, sku fields       |
+| `xsd:decimal`           | `f64`        | price, rating fields                |
+| `xsd:integer`           | `i32`        | inventory_count field               |
+| `rdfs:Class`            | `pub struct` | Product, Category, Supplier structs |
+| `rdf:Property` (data)   | `pub field`  | All struct fields generated         |
+| `rdf:Property` (object) | `fn get_*()` | Supplier relationship method        |
 
 **Key Findings**:
 - ✅ **Real Oxigraph Integration**: Production-ready in-memory RDF triple store
@@ -684,14 +703,14 @@ Each pattern includes complete workflow, real commands, use cases, and impact me
 
 ### Performance Improvements
 
-| Metric | v1.x | v2.0.0 | Improvement |
-|--------|------|--------|-------------|
-| Full compilation | 60-90s | 30-45s | **50% faster** |
-| Incremental build | 10-15s | 5-8s | **50% faster** |
-| Generation speed | <3s | <2s | **33% faster** |
-| Binary size | 25MB | 18MB | **28% smaller** |
-| Memory usage | 150MB | 100MB | **33% less** |
-| Test suite | 120s | 60s | **50% faster** |
+| Metric            | v1.x   | v2.0.0 | Improvement     |
+| ----------------- | ------ | ------ | --------------- |
+| Full compilation  | 60-90s | 30-45s | **50% faster**  |
+| Incremental build | 10-15s | 5-8s   | **50% faster**  |
+| Generation speed  | <3s    | <2s    | **33% faster**  |
+| Binary size       | 25MB   | 18MB   | **28% smaller** |
+| Memory usage      | 150MB  | 100MB  | **33% less**    |
+| Test suite        | 120s   | 60s    | **50% faster**  |
 
 ### Testing Enhancements
 

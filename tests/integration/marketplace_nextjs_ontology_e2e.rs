@@ -99,7 +99,7 @@ fn run_nextjs_ontology_lifecycle(client: &ContainerClient) -> TestcontainersResu
     // ========================================
     println!("📦 Phase 1: Setting up container with Node.js, Rust, and git...");
 
-    let container = GenericContainer::new(client, NODE_TAG, NODE_IMAGE)?;
+    let container = GenericContainer::new(client, NODE_IMAGE, NODE_TAG)?;
 
     // Install Rust toolchain
     println!("  Installing Rust toolchain...");
