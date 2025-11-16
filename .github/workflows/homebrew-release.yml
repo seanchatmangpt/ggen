@@ -30,6 +30,7 @@ jobs:
 
       - name: Validate Homebrew token
         run: |
+          set -euo pipefail
           if [ -z "${{ secrets.HOMEBREW_TAP_TOKEN }}" ] && [ -z "${{ secrets.GITHUB_TOKEN }}" ]; then
             echo "::error::HOMEBREW_TAP_TOKEN or GITHUB_TOKEN not configured. Cannot update Homebrew formula."
             exit 1
@@ -63,6 +64,7 @@ jobs:
 
       - name: Verify formula update
         run: |
+          set -euo pipefail
           VERSION="${{ steps.extract_version.outputs.version }}"
 
           echo "🧪 Verifying Homebrew formula update..."
@@ -78,6 +80,7 @@ jobs:
       - name: Create success summary
         if: success()
         run: |
+          set -euo pipefail
           VERSION="${{ steps.extract_version.outputs.version }}"
 
           echo "## ✅ Homebrew Release Complete" >> $GITHUB_STEP_SUMMARY
@@ -97,6 +100,7 @@ jobs:
       - name: Create failure summary
         if: failure()
         run: |
+          set -euo pipefail
           VERSION="${{ steps.extract_version.outputs.version }}"
 
           echo "## ❌ Homebrew Release Failed" >> $GITHUB_STEP_SUMMARY
