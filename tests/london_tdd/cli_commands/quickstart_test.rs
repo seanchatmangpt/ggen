@@ -1,5 +1,4 @@
 #![cfg(feature = "london_tdd")]
-#![cfg(feature = "london_tdd")]
 //! London TDD tests for `ggen quickstart` command
 //!
 //! README.md §Quick Start - 2-Minute Quickstart
@@ -20,7 +19,7 @@ fn test_quickstart_complete_flow_with_all_prerequisites() {
 
     // Arrange: All prerequisites available
     let mut mock_system = MockSystemCommands::new();
-    let mut mock_fs = MockFilesystem::new();
+    let mock_fs = MockFilesystem::new();
     let mut mock_generator = MockProjectGenerator::new();
 
     setup_prerequisites_check_all_pass(&mut mock_system);
@@ -46,7 +45,7 @@ fn test_quickstart_complete_flow_with_all_prerequisites() {
 fn test_quickstart_installs_rust_if_missing() {
     // Arrange: Rust not installed
     let mut mock_system = MockSystemCommands::new();
-    let mut mock_fs = MockFilesystem::new();
+    let mock_fs = MockFilesystem::new();
     let mock_generator = MockProjectGenerator::new();
 
     // First check fails, then installation succeeds
@@ -78,7 +77,7 @@ fn test_quickstart_installs_rust_if_missing() {
 fn test_quickstart_generates_demo_project() {
     // Arrange
     let mock_system = setup_prerequisites_met();
-    let mut mock_fs = MockFilesystem::new();
+    let mock_fs = MockFilesystem::new();
     let mut mock_generator = MockProjectGenerator::new();
 
     // Expect project directory creation
@@ -188,6 +187,7 @@ fn test_quickstart_creates_otel_span_for_full_flow() {
 #[automock]
 trait SystemCommands: Send + Sync {
     fn check_rust_installed(&self) -> bool;
+    #[allow(dead_code)]
     fn check_ggen_installed(&self) -> bool;
     fn install_rust(&self) -> Result<(), anyhow::Error>;
     fn run_cargo_test(&self, project_dir: &str) -> Result<TestResults, anyhow::Error>;
@@ -213,6 +213,7 @@ struct QuickstartReport {
 struct TestResults {
     passed: usize,
     failed: usize,
+    #[allow(dead_code)]
     total: usize,
 }
 
@@ -228,7 +229,9 @@ impl Default for TestResults {
 
 #[derive(Debug)]
 struct ProjectManifest {
+    #[allow(dead_code)]
     name: String,
+    #[allow(dead_code)]
     files_created: Vec<String>,
 }
 

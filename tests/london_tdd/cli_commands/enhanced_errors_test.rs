@@ -9,8 +9,6 @@
 //! - Step-by-step fix instructions
 //! - Platform-specific guidance
 
-use crate::lib::*;
-
 #[test]
 fn test_template_not_found_suggests_alternatives() {
     let start = std::time::Instant::now();
@@ -25,7 +23,7 @@ fn test_template_not_found_suggests_alternatives() {
     assert!(error.message.contains("Template 'rust-servce' not found"));
     assert!(error.suggestions.contains(&"rust-service".to_string()));
     assert!(error.suggestions.contains(&"rust-server".to_string()));
-    assert!(error.fix_steps.len() > 0);
+    assert!(!error.fix_steps.is_empty());
     assert!(error.fix_steps[0].contains("ggen list"));
 
     // Performance
@@ -71,7 +69,7 @@ fn test_error_calculates_edit_distance_for_suggestions() {
     let suggestions = find_similar_templates("rust-web-servce", &available); // typo: servce
 
     // Assert: Most similar suggestions first
-    assert!(suggestions.len() > 0);
+    assert!(!suggestions.is_empty());
     assert_eq!(suggestions[0], "rust-web-service");
 }
 
@@ -92,6 +90,7 @@ fn test_error_limits_suggestions_to_top_3() {
 #[derive(Debug)]
 struct EnhancedError {
     message: String,
+    #[allow(dead_code)]
     context: String,
     suggestions: Vec<String>,
     fix_steps: Vec<String>,
@@ -102,6 +101,7 @@ struct EnhancedError {
 enum Platform {
     MacOS,
     Linux,
+    #[allow(dead_code)]
     Windows,
 }
 
@@ -171,6 +171,7 @@ fn levenshtein_distance(s1: &str, s2: &str) -> usize {
     let len2 = s2.len();
     let mut matrix = vec![vec![0; len2 + 1]; len1 + 1];
 
+    #[allow(clippy::needless_range_loop)]
     for i in 0..=len1 {
         matrix[i][0] = i;
     }

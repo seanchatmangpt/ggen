@@ -58,6 +58,7 @@ struct WorkflowResult {
     success: bool,
     total_duration: Duration,
     timings: Vec<TimingReport>,
+    #[allow(dead_code)]
     output_dir: PathBuf,
     artifacts: Vec<PathBuf>,
 }
@@ -416,7 +417,7 @@ async fn test_stage_performance_breakdown() -> Result<()> {
     // Stage 2: Validation
     let start = Instant::now();
     Command::new("cargo")
-        .args(&["check"])
+        .args(["check"])
         .current_dir(&project_dir)
         .assert()
         .success();

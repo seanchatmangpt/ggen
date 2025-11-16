@@ -155,6 +155,7 @@ fn test_ai_project_creates_otel_span() {
 #[derive(Debug)]
 struct ProjectScaffold {
     name: String,
+    #[allow(dead_code)]
     language: String,
     files_created: Vec<String>,
 }
