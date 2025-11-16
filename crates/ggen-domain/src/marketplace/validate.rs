@@ -10,6 +10,28 @@ use std::path::{Path, PathBuf};
 use ggen_core::graph::Graph;
 use ggen_utils::error::{Error, Result};
 
+// ============================================================================
+// VALIDATION CONSTANTS - Configurable thresholds and weights
+// ============================================================================
+
+/// Weight for required checks in final score calculation (must multiply with quality weight = 1.0)
+const REQUIRED_CHECKS_WEIGHT: f64 = 0.6;
+
+/// Weight for quality checks in final score calculation
+const QUALITY_CHECKS_WEIGHT: f64 = 0.4;
+
+/// Minimum score required for production readiness (as percentage)
+const PRODUCTION_READY_THRESHOLD: f64 = 95.0;
+
+/// Minimum length for README.md content in characters
+const README_MIN_LENGTH: usize = 100;
+
+/// Minimum number of lines for RDF ontology files
+const ONTOLOGY_MIN_LINES: usize = 200;
+
+/// Minimum number of valid RDF triples in ontology
+const ONTOLOGY_MIN_TRIPLES: usize = 1;
+
 /// Validation result for a single check
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum CheckResult {
@@ -30,6 +52,14 @@ impl CheckResult {
 
     pub fn is_fail(&self) -> bool {
         matches!(self, CheckResult::Fail(_))
+    }
+
+    pub fn is_warning(&self) -> bool {
+        matches!(self, CheckResult::Warning(_))
+    }
+
+    pub fn is_not_applicable(&self) -> bool {
+        matches!(self, CheckResult::NotApplicable(_))
     }
 
     pub fn message(&self) -> &str {
@@ -90,22 +120,22 @@ impl PackageValidation {
 
     /// Calculate final score and production readiness
     pub fn calculate_score(&mut self) {
-        // Required checks: 60% weight, all must pass for production_ready
+        // Required checks: weighted portion, all must pass for production_ready
         let required_score = self.calculate_required_score();
 
-        // Quality checks: 40% weight (bonus points)
+        // Quality checks: weighted portion (bonus points)
         let quality_score = self.calculate_quality_score();
 
         // Final score: weighted combination
-        self.score = (required_score * 0.6) + (quality_score * 0.4);
+        self.score = (required_score * REQUIRED_CHECKS_WEIGHT) + (quality_score * QUALITY_CHECKS_WEIGHT);
 
-        // Production ready if score >= 95% AND all required checks pass
+        // Production ready if score >= threshold AND all required checks pass
         let all_required_pass = self
             .required_checks
             .iter()
             .all(|(_, result)| result.is_pass());
 
-        self.production_ready = self.score >= 95.0 && all_required_pass;
+        self.production_ready = self.score >= PRODUCTION_READY_THRESHOLD && all_required_pass;
     }
 
     fn calculate_required_score(&self) -> f64 {
@@ -149,6 +179,21 @@ impl PackageValidation {
 
 /// Validate a single package
 pub fn validate_package(package_path: &Path) -> Result<PackageValidation> {
+    // Validate path exists and is a directory
+    if !package_path.exists() {
+        return Err(Error::new(&format!(
+            "Package path does not exist: {}",
+            package_path.display()
+        )));
+    }
+
+    if !package_path.is_dir() {
+        return Err(Error::new(&format!(
+            "Package path is not a directory: {}",
+            package_path.display()
+        )));
+    }
+
     let package_name = package_path
         .file_name()
         .and_then(|n| n.to_str())
@@ -217,19 +262,27 @@ fn validate_required_checks(validation: &mut PackageValidation, package_path: &P
     let readme = package_path.join("README.md");
     if readme.exists() {
         if let Ok(content) = fs::read_to_string(&readme) {
-            if content.len() > 100 {
+            if content.len() > README_MIN_LENGTH {
                 validation.required_checks.push((
                     RequiredCheck::Readme,
-                    CheckResult::Pass("README.md exists with content".to_string()),
+                    CheckResult::Pass(format!(
+                        "README.md exists with {} characters (>{} required)",
+                        content.len(),
+                        README_MIN_LENGTH
+                    )),
                 ));
             } else {
                 validation.required_checks.push((
                     RequiredCheck::Readme,
-                    CheckResult::Warning("README.md exists but is very short".to_string()),
+                    CheckResult::Warning(format!(
+                        "README.md exists but only {} characters (<{} recommended)",
+                        content.len(),
+                        README_MIN_LENGTH
+                    )),
                 ));
                 validation
                     .warnings
-                    .push("README.md is very short".to_string());
+                    .push(format!("README.md is very short ({} chars)", content.len()));
             }
         } else {
             validation.required_checks.push((
@@ -317,28 +370,28 @@ fn validate_quality_checks(validation: &mut PackageValidation, package_path: &Pa
                             .map(|c| c.lines().count())
                             .unwrap_or(0);
 
-                        if lines >= 200 && triple_count > 0 {
+                        if lines >= ONTOLOGY_MIN_LINES && triple_count >= ONTOLOGY_MIN_TRIPLES {
                             validation.quality_checks.push((
                                 QualityCheck::RdfOntology,
                                 CheckResult::Pass(format!(
-                                    "RDF ontology validated: {} lines, {} triples (≥200 lines required)",
-                                    lines, triple_count
+                                    "RDF ontology validated: {} lines, {} triples (≥{} lines, ≥{} triples required)",
+                                    lines, triple_count, ONTOLOGY_MIN_LINES, ONTOLOGY_MIN_TRIPLES
                                 )),
                             ));
-                        } else if lines >= 200 {
+                        } else if lines >= ONTOLOGY_MIN_LINES {
                             validation.quality_checks.push((
                                 QualityCheck::RdfOntology,
                                 CheckResult::Warning(format!(
-                                    "RDF ontology loaded but no triples found (≥200 lines, {} triples)",
-                                    triple_count
+                                    "RDF ontology loaded but only {} triples found (≥{} lines, but {} triples)",
+                                    triple_count, ONTOLOGY_MIN_LINES, triple_count
                                 )),
                             ));
                         } else {
                             validation.quality_checks.push((
                                 QualityCheck::RdfOntology,
                                 CheckResult::Warning(format!(
-                                    "RDF ontology found but only {} lines (<200 recommended), {} triples",
-                                    lines, triple_count
+                                    "RDF ontology found but only {} lines (<{} recommended), {} triples",
+                                    lines, ONTOLOGY_MIN_LINES, triple_count
                                 )),
                             ));
                             validation
@@ -631,11 +684,26 @@ mod tests {
 
         // Create quality files
         fs::create_dir_all(package_path.join("rdf")).unwrap();
-        fs::write(
-            package_path.join("rdf/ontology.ttl"),
-            "ontology content\n".repeat(250),
-        )
-        .unwrap();
+
+        // Create valid Turtle RDF ontology with >200 lines and valid triples
+        let mut rdf_content = String::from(
+            "@prefix ex: <http://example.org/> .\n\
+            @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n\
+            @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n\n"
+        );
+
+        // Add 100+ valid RDF triples to ensure parsing succeeds
+        for i in 0..100 {
+            rdf_content.push_str(&format!(
+                "ex:Entity{} rdf:type ex:TestType .\n\
+                ex:Entity{} rdfs:label \"Test Entity {}\" .\n\
+                ex:Entity{} rdfs:comment \"Comment for entity {}\" .\n",
+                i, i, i, i, i
+            ));
+        }
+
+        fs::write(package_path.join("rdf/ontology.ttl"), rdf_content).unwrap();
+
         fs::create_dir_all(package_path.join("examples")).unwrap();
         fs::write(package_path.join("examples/test.rs"), "// example").unwrap();
         fs::create_dir_all(package_path.join("tests")).unwrap();
@@ -647,7 +715,252 @@ mod tests {
             validation.package_name,
             package_path.file_name().unwrap().to_str().unwrap()
         );
-        assert!(validation.score >= 95.0);
-        assert!(validation.production_ready);
+        assert!(
+            validation.score >= 95.0,
+            "Expected score >= 95.0 but got {}, errors: {:?}, quality checks: {:?}",
+            validation.score,
+            validation.errors,
+            validation.quality_checks
+        );
+        assert!(
+            validation.production_ready,
+            "Package should be production ready"
+        );
+    }
+
+    #[test]
+    fn test_validate_template_only_package() {
+        let temp_dir = TempDir::new().unwrap();
+        let package_path = temp_dir.path();
+
+        // Create required files but no source code
+        fs::write(
+            package_path.join("package.toml"),
+            "name = \"template\"\nversion = \"1.0.0\"\ndescription = \"Template package\"",
+        )
+        .unwrap();
+        fs::write(
+            package_path.join("README.md"),
+            "Template package documentation".repeat(5),
+        )
+        .unwrap();
+        fs::write(package_path.join("LICENSE"), "MIT").unwrap();
+
+        // Create templates directory instead of src/
+        fs::create_dir_all(package_path.join("templates")).unwrap();
+        fs::write(package_path.join("templates/test.txt"), "template content").unwrap();
+
+        let validation = validate_package(package_path).unwrap();
+
+        // Should have NotApplicable for SourceCode check since it's a template package
+        let source_code_check = validation
+            .required_checks
+            .iter()
+            .find(|(check, _)| matches!(check, RequiredCheck::SourceCode));
+
+        assert!(source_code_check.is_some());
+        match source_code_check {
+            Some((_, CheckResult::NotApplicable(_))) => {}
+            _ => panic!("Template package should have NotApplicable for SourceCode check"),
+        }
+    }
+
+    #[test]
+    fn test_validate_readme_boundary_short() {
+        let temp_dir = TempDir::new().unwrap();
+        let package_path = temp_dir.path();
+
+        fs::write(
+            package_path.join("package.toml"),
+            "name = \"test\"\nversion = \"1.0.0\"\ndescription = \"Test\"",
+        )
+        .unwrap();
+        fs::write(package_path.join("README.md"), "x".repeat(99)).unwrap(); // 99 chars < 100
+        fs::write(package_path.join("LICENSE"), "MIT").unwrap();
+        fs::create_dir_all(package_path.join("src")).unwrap();
+        fs::write(package_path.join("src/main.rs"), "fn main() {}").unwrap();
+
+        let validation = validate_package(package_path).unwrap();
+
+        // Should have Warning for README
+        let readme_check = validation
+            .required_checks
+            .iter()
+            .find(|(check, _)| matches!(check, RequiredCheck::Readme));
+
+        assert!(readme_check.is_some());
+        match readme_check {
+            Some((_, CheckResult::Warning(_))) => {}
+            _ => panic!("Short README should trigger Warning"),
+        }
+    }
+
+    #[test]
+    fn test_validate_readme_boundary_pass() {
+        let temp_dir = TempDir::new().unwrap();
+        let package_path = temp_dir.path();
+
+        fs::write(
+            package_path.join("package.toml"),
+            "name = \"test\"\nversion = \"1.0.0\"\ndescription = \"Test\"",
+        )
+        .unwrap();
+        fs::write(package_path.join("README.md"), "x".repeat(101)).unwrap(); // 101 chars > 100
+        fs::write(package_path.join("LICENSE"), "MIT").unwrap();
+        fs::create_dir_all(package_path.join("src")).unwrap();
+        fs::write(package_path.join("src/main.rs"), "fn main() {}").unwrap();
+
+        let validation = validate_package(package_path).unwrap();
+
+        // Should have Pass for README
+        let readme_check = validation
+            .required_checks
+            .iter()
+            .find(|(check, _)| matches!(check, RequiredCheck::Readme));
+
+        assert!(readme_check.is_some());
+        match readme_check {
+            Some((_, CheckResult::Pass(_))) => {}
+            _ => panic!("Sufficient README should trigger Pass"),
+        }
+    }
+
+    #[test]
+    fn test_validate_alternative_license_files() {
+        // Test with LICENSE file
+        let temp_dir = TempDir::new().unwrap();
+        let package_path = temp_dir.path();
+
+        fs::write(
+            package_path.join("package.toml"),
+            "name = \"test\"\nversion = \"1.0.0\"\ndescription = \"Test\"",
+        )
+        .unwrap();
+        fs::write(package_path.join("README.md"), "content".repeat(50)).unwrap();
+        fs::write(package_path.join("LICENSE"), "MIT License").unwrap(); // Generic LICENSE file
+        fs::create_dir_all(package_path.join("src")).unwrap();
+        fs::write(package_path.join("src/main.rs"), "fn main() {}").unwrap();
+
+        let validation = validate_package(package_path).unwrap();
+
+        let license_check = validation
+            .required_checks
+            .iter()
+            .find(|(check, _)| matches!(check, RequiredCheck::License));
+
+        assert!(license_check.is_some());
+        match license_check {
+            Some((_, CheckResult::Pass(_))) => {}
+            _ => panic!("LICENSE file should be accepted"),
+        }
+    }
+
+    #[test]
+    fn test_validate_lib_rs_source() {
+        let temp_dir = TempDir::new().unwrap();
+        let package_path = temp_dir.path();
+
+        fs::write(
+            package_path.join("package.toml"),
+            "name = \"test\"\nversion = \"1.0.0\"\ndescription = \"Test\"",
+        )
+        .unwrap();
+        fs::write(package_path.join("README.md"), "content".repeat(50)).unwrap();
+        fs::write(package_path.join("LICENSE"), "MIT").unwrap();
+        fs::create_dir_all(package_path.join("src")).unwrap();
+        fs::write(package_path.join("src/lib.rs"), "pub fn lib_fn() {}").unwrap(); // Use lib.rs instead of main.rs
+
+        let validation = validate_package(package_path).unwrap();
+
+        let source_check = validation
+            .required_checks
+            .iter()
+            .find(|(check, _)| matches!(check, RequiredCheck::SourceCode));
+
+        assert!(source_check.is_some());
+        match source_check {
+            Some((_, CheckResult::Pass(_))) => {}
+            _ => panic!("lib.rs should be accepted as source code"),
+        }
+    }
+
+    #[test]
+    fn test_validate_nonexistent_path() {
+        let nonexistent_path = std::path::PathBuf::from("/nonexistent/package/path");
+
+        let result = validate_package(&nonexistent_path);
+
+        assert!(result.is_err(), "Should return error for nonexistent path");
+        let err_msg = result.unwrap_err().to_string();
+        assert!(
+            err_msg.contains("does not exist"),
+            "Error should mention path doesn't exist"
+        );
+    }
+
+    #[test]
+    fn test_validate_file_instead_of_directory() {
+        let temp_dir = TempDir::new().unwrap();
+        let file_path = temp_dir.path().join("file.txt");
+        fs::write(&file_path, "content").unwrap();
+
+        let result = validate_package(&file_path);
+
+        assert!(result.is_err(), "Should return error for file instead of directory");
+        let err_msg = result.unwrap_err().to_string();
+        assert!(
+            err_msg.contains("not a directory"),
+            "Error should mention it's not a directory"
+        );
+    }
+
+    #[test]
+    fn test_score_with_all_required_no_quality() {
+        let temp_dir = TempDir::new().unwrap();
+        let package_path = temp_dir.path();
+
+        // Create only required files, no quality files
+        fs::write(
+            package_path.join("package.toml"),
+            "name = \"test\"\nversion = \"1.0.0\"\ndescription = \"Test\"",
+        )
+        .unwrap();
+        fs::write(package_path.join("README.md"), "content".repeat(50)).unwrap();
+        fs::write(package_path.join("LICENSE"), "MIT").unwrap();
+        fs::create_dir_all(package_path.join("src")).unwrap();
+        fs::write(package_path.join("src/main.rs"), "fn main() {}").unwrap();
+
+        let validation = validate_package(package_path).unwrap();
+
+        // Score should be 60% (all required pass) + 0% (no quality) = 60%
+        assert_eq!(validation.score, 60.0);
+        assert!(!validation.production_ready); // < 95%
+    }
+
+    #[test]
+    fn test_check_result_helpers() {
+        let pass = CheckResult::Pass("test".to_string());
+        assert!(pass.is_pass());
+        assert!(!pass.is_fail());
+        assert!(!pass.is_warning());
+        assert!(!pass.is_not_applicable());
+
+        let fail = CheckResult::Fail("test".to_string());
+        assert!(!fail.is_pass());
+        assert!(fail.is_fail());
+        assert!(!fail.is_warning());
+        assert!(!fail.is_not_applicable());
+
+        let warning = CheckResult::Warning("test".to_string());
+        assert!(!warning.is_pass());
+        assert!(!warning.is_fail());
+        assert!(warning.is_warning());
+        assert!(!warning.is_not_applicable());
+
+        let na = CheckResult::NotApplicable("test".to_string());
+        assert!(!na.is_pass());
+        assert!(!na.is_fail());
+        assert!(!na.is_warning());
+        assert!(na.is_not_applicable());
     }
 }
