@@ -1,0 +1,44 @@
+[package]
+name = "ggen-dod"
+version = "2.7.1"
+edition = "2021"
+authors = ["Sean Chatman <sean@chatmangpt.com>"]
+description = "Definition of Done: Type-safe observation system, deterministic kernel, provenance tracking, and MAPE-K autonomic governance"
+
+[dependencies]
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+async-trait = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }
+futures = { workspace = true }
+futures-util = { workspace = true }
+anyhow = { workspace = true }
+regex = { workspace = true }
+rayon = { workspace = true }
+
+# DoD-specific dependencies
+dashmap = "5.5"  # Concurrent hash map for thread-safe observation store
+parking_lot = "0.12"  # Efficient synchronization primitives
+nom = "7.1"  # Parser combinator library for schema parsing
+sha2 = "0.10"  # SHA-256 hashing for receipt signatures
+hmac = "0.12"  # HMAC for cryptographic signatures
+hex = "0.4"  # Hex encoding for digests
+pqcrypto-mldsa = "0.1"  # Post-quantum cryptography
+indexmap = "2.2"  # Ordered hash map for deterministic iteration
+
+# OpenTelemetry for instrumentation
+opentelemetry = { workspace = true }
+tracing-opentelemetry = { workspace = true }
+
+# Testing
+proptest = { workspace = true }
+
+ggen-domain = { path = "../ggen-domain", version = "2.7.1" }
+ggen-core = { path = "../ggen-core", version = "2.7.1" }
+
+[lints]
+workspace = true
