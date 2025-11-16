@@ -30,11 +30,13 @@ jobs:
 
       - name: Build API documentation
         run: |
+          set -euo pipefail
           cargo doc --no-deps
           echo "✅ API documentation built successfully"
 
       - name: Build mdBook
         run: |
+          set -euo pipefail
           cd docs
           mdbook build
           echo "✅ mdBook built successfully"
@@ -54,6 +56,7 @@ jobs:
 
       - name: Deployment Summary
         run: |
+          set -euo pipefail
           echo "📚 Documentation deployed successfully!"
           echo ""
           echo "📍 API Docs: https://seanchatmangpt.github.io/ggen/target/doc/"

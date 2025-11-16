@@ -180,6 +180,7 @@ jobs:
 
       - name: Enforce minimum coverage
         run: |
+          set -euo pipefail
           COVERAGE=$(grep -oP 'line-rate="\K[0-9.]+' coverage/cobertura.xml | head -1)
           COVERAGE_PCT=$(echo "$COVERAGE * 100" | bc)
 
@@ -220,6 +221,7 @@ jobs:
 
       - name: Check for hardcoded paths
         run: |
+          set -euo pipefail
           echo "🔍 Checking for hardcoded paths..."
 
           # Check Cargo.toml files for hardcoded paths
