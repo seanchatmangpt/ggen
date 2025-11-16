@@ -287,24 +287,146 @@ pub struct PublishOutput {
     pub registry_path: String,
 }
 
-/// Validate package manifest
+/// Validate package manifest with strict field validation
+///
+/// This addresses FM3 (RPN 280): Manifest missing required fields
+///
+/// Validates:
+/// - All required fields are present and non-empty
+/// - Field lengths are reasonable (prevent excessively long values)
+/// - Name follows valid package naming conventions
+/// - Version follows semantic versioning format
 fn validate_package(manifest: &PackageManifest) -> Result<()> {
+    // Validate package name
     if manifest.name.is_empty() {
-        return Err(ggen_utils::error::Error::new("Package name is required"));
+        return Err(ggen_utils::error::Error::new("❌ Package name is required"));
     }
 
+    if manifest.name.len() > 100 {
+        return Err(ggen_utils::error::Error::new(
+            "❌ Package name must be 100 characters or less",
+        ));
+    }
+
+    // Validate name format: alphanumeric, hyphens, underscores, slashes (for scopes)
+    if !manifest.name.chars().all(|c| c.is_alphanumeric() || c == '-' || c == '_' || c == '/') {
+        return Err(ggen_utils::error::Error::new(
+            "❌ Package name must contain only alphanumeric characters, hyphens, underscores, and slashes",
+        ));
+    }
+
+    // Validate version (must be valid semver: X.Y.Z)
     if manifest.version.is_empty() {
-        return Err(ggen_utils::error::Error::new("Package version is required"));
+        return Err(ggen_utils::error::Error::new(
+            "❌ Package version is required",
+        ));
     }
 
+    if manifest.version.len() > 50 {
+        return Err(ggen_utils::error::Error::new(
+            "❌ Package version must be 50 characters or less",
+        ));
+    }
+
+    // Basic semantic versioning validation (X.Y.Z format)
+    let version_parts: Vec<&str> = manifest.version.split('.').collect();
+    if version_parts.len() < 3 {
+        return Err(ggen_utils::error::Error::new(&format!(
+            "❌ Package version '{}' must follow semantic versioning (e.g., 1.0.0)",
+            manifest.version
+        )));
+    }
+
+    // Validate each version component is numeric
+    for (idx, part) in version_parts.iter().enumerate() {
+        if part.parse::<u32>().is_err() {
+            return Err(ggen_utils::error::Error::new(&format!(
+                "❌ Invalid version component '{}' at position {}. Expected numeric value",
+                part, idx
+            )));
+        }
+    }
+
+    // Validate title
     if manifest.title.is_empty() {
-        return Err(ggen_utils::error::Error::new("Package title is required"));
+        return Err(ggen_utils::error::Error::new(
+            "❌ Package title is required",
+        ));
     }
 
+    if manifest.title.len() > 200 {
+        return Err(ggen_utils::error::Error::new(
+            "❌ Package title must be 200 characters or less",
+        ));
+    }
+
+    // Validate description
     if manifest.description.is_empty() {
         return Err(ggen_utils::error::Error::new(
-            "Package description is required",
+            "❌ Package description is required",
         ));
+    }
+
+    if manifest.description.len() > 2000 {
+        return Err(ggen_utils::error::Error::new(
+            "❌ Package description must be 2000 characters or less",
+        ));
+    }
+
+    if manifest.description.len() < 10 {
+        return Err(ggen_utils::error::Error::new(
+            "❌ Package description must be at least 10 characters",
+        ));
+    }
+
+    // Validate categories (if provided)
+    if !manifest.categories.is_empty() {
+        if manifest.categories.len() > 10 {
+            return Err(ggen_utils::error::Error::new(
+                "❌ Package may have at most 10 categories",
+            ));
+        }
+
+        for category in &manifest.categories {
+            if category.is_empty() {
+                return Err(ggen_utils::error::Error::new(
+                    "❌ Category names cannot be empty",
+                ));
+            }
+            if category.len() > 50 {
+                return Err(ggen_utils::error::Error::new(
+                    "❌ Category names must be 50 characters or less",
+                ));
+            }
+        }
+    }
+
+    // Validate tags (if provided)
+    if !manifest.tags.is_empty() {
+        if manifest.tags.len() > 20 {
+            return Err(ggen_utils::error::Error::new(
+                "❌ Package may have at most 20 tags",
+            ));
+        }
+
+        for tag in &manifest.tags {
+            if tag.is_empty() {
+                return Err(ggen_utils::error::Error::new(
+                    "❌ Tag names cannot be empty",
+                ));
+            }
+            if tag.len() > 30 {
+                return Err(ggen_utils::error::Error::new(
+                    "❌ Tag names must be 30 characters or less",
+                ));
+            }
+            // Tag format validation
+            if !tag.chars().all(|c| c.is_alphanumeric() || c == '-' || c == '_') {
+                return Err(ggen_utils::error::Error::new(
+                    "❌ Tags must contain only alphanumeric characters, hyphens, and underscores",
+                ));
+            }
+        }
     }
 
     Ok(())

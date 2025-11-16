@@ -289,7 +289,15 @@ impl Registry {
         })
     }
 
-    /// Load registry index from filesystem
+    /// Load registry index from filesystem with strict validation
+    ///
+    /// **DETERMINISTIC**: Fails fast on any error to maintain determinism
+    /// - Registry file MUST exist
+    /// - JSON MUST be valid
+    /// - Structure MUST be correct
+    /// - Corruption is detected and reported (not silently fixed)
+    ///
+    /// This ensures predictable behavior and early failure detection.
     #[instrument(skip(self))]
     pub async fn load(&self) -> Result<()> {
         info!("Loading registry index from: {}", self.index_path.display());
@@ -299,14 +307,30 @@ impl Registry {
             fs::create_dir_all(parent).await?;
         }
 
-        // Load or create index file
+        // Load index file - FAIL if missing or corrupted
         let index = if self.index_path.exists() {
-            let contents = fs::read_to_string(&self.index_path).await?;
-            serde_json::from_str::<RegistryIndex>(&contents)
-                .map_err(|e| Error::new(&format!("Failed to parse registry index: {}", e)))?
+            // Try to load and parse the index
+            let contents = fs::read_to_string(&self.index_path).await.map_err(|e| {
+                Error::new(&format!(
+                    "Failed to read registry index from {}: {}. Registry may be corrupted.",
+                    self.index_path.display(),
+                    e
+                ))
+            })?;
+
+            serde_json::from_str::<RegistryIndex>(&contents).map_err(|e| {
+                Error::new(&format!(
+                    "Failed to parse registry index from {} - invalid JSON: {}. Registry is corrupted. Delete {} and re-sync.",
+                    self.index_path.display(),
+                    e,
+                    self.index_path.display()
+                ))
+            })?
         } else {
-            warn!("Registry index not found, creating new index");
-            RegistryIndex::new()
+            return Err(Error::new(&format!(
+                "Registry index not found at {}. Run 'ggen marketplace sync' to download the registry.",
+                self.index_path.display()
+            )));
         };
 
         // Store in memory
@@ -445,6 +469,65 @@ impl Registry {
     /// Get the index path
     pub fn index_path(&self) -> &Path {
         &self.index_path
+    }
+
+    /// Validate registry index integrity with strict checks
+    ///
+    /// **DETERMINISTIC**: Fails fast if registry is invalid
+    ///
+    /// Checks for:
+    /// - Registry is loaded
+    /// - Packages array exists and is not empty
+    /// - All package metadata is valid (name, versions, download URLs, checksums)
+    /// - No invalid state
+    ///
+    /// Returns error on ANY validation failure - no silent degradation
+    pub async fn validate(&self) -> Result<()> {
+        let guard = self
+            .index
+            .read()
+            .map_err(|e| Error::new(&format!("Failed to acquire index read lock: {}", e)))?;
+
+        let index = guard
+            .as_ref()
+            .ok_or_else(|| Error::new("Registry index not loaded"))?;
+
+        // STRICT: Empty registry is an error, not just a warning
+        if index.packages.is_empty() {
+            return Err(Error::new(
+                "Registry index is empty. Run 'ggen marketplace sync' to download the registry."
+            ));
+        }
+
+        // Validate package metadata integrity - STRICT
+        for (name, metadata) in &index.packages {
+            if metadata.versions.is_empty() {
+                return Err(Error::new(&format!(
+                    "Package {} has no versions defined - registry is corrupted",
+                    name
+                )));
+            }
+
+            for version in &metadata.versions {
+                // STRICT: Download URL MUST exist
+                if version.download_url.is_empty() {
+                    return Err(Error::new(&format!(
+                        "Package {}@{} has empty download URL - registry is corrupted",
+                        name, version.version
+                    )));
+                }
+
+                // STRICT: Checksum MUST exist
+                if version.checksum.is_empty() {
+                    return Err(Error::new(&format!(
+                        "Package {}@{} has empty checksum - registry is corrupted",
+                        name, version.version
+                    )));
+                }
+            }
+        }
+
+        Ok(())
     }
 }
 
@@ -761,5 +844,78 @@ mod tests {
         assert!(!loaded.versions[0].dependencies[0].optional);
         assert_eq!(loaded.versions[0].dependencies[1].name, "dep2");
         assert!(loaded.versions[0].dependencies[1].optional);
+    }
+
+    #[tokio::test]
+    async fn test_registry_load_corrupted_index_fails() {
+        let temp_dir = TempDir::new().unwrap();
+        let index_path = temp_dir.path().join("index.json");
+
+        // Write corrupted JSON to index file
+        std::fs::write(&index_path, "{ invalid json }").unwrap();
+
+        // DETERMINISTIC: Should FAIL, not silently fallback
+        let registry = Registry::with_path(index_path);
+        assert!(registry.load().await.is_err());
+    }
+
+    #[tokio::test]
+    async fn test_registry_load_missing_index_fails() {
+        let temp_dir = TempDir::new().unwrap();
+        let index_path = temp_dir.path().join("index.json");
+
+        // DETERMINISTIC: Missing index should FAIL
+        let registry = Registry::with_path(index_path);
+        assert!(registry.load().await.is_err());
+    }
+
+    #[tokio::test]
+    async fn test_registry_validate_empty_fails() {
+        let temp_dir = TempDir::new().unwrap();
+        let registry = Registry::with_path(temp_dir.path().join("index.json"));
+
+        // Create valid (but empty) registry
+        let index = RegistryIndex::new();
+        let mut guard = registry.index.write().unwrap();
+        *guard = Some(index);
+        drop(guard);
+
+        // DETERMINISTIC: Empty registry FAILS validation
+        assert!(registry.validate().await.is_err());
+    }
+
+    #[tokio::test]
+    async fn test_registry_validate_success_with_valid_packages() {
+        let temp_dir = TempDir::new().unwrap();
+        let registry = Registry::with_path(temp_dir.path().join("index.json"));
+
+        // Create valid registry with packages
+        let mut index = RegistryIndex::new();
+        let package = create_test_package("test-pkg", "1.0.0");
+        index.add_package(package);
+        let mut guard = registry.index.write().unwrap();
+        *guard = Some(index);
+        drop(guard);
+
+        // Should validate successfully
+        assert!(registry.validate().await.is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_registry_validate_detects_missing_checksum() {
+        let temp_dir = TempDir::new().unwrap();
+        let registry = Registry::with_path(temp_dir.path().join("index.json"));
+
+        // Create registry with invalid package (empty checksum)
+        let mut index = RegistryIndex::new();
+        let mut package = create_test_package("invalid-pkg", "1.0.0");
+        package.versions[0].checksum = String::new();
+        index.add_package(package);
+        let mut guard = registry.index.write().unwrap();
+        *guard = Some(index);
+        drop(guard);
+
+        // DETERMINISTIC: FAILS on missing checksum
+        assert!(registry.validate().await.is_err());
     }
 }

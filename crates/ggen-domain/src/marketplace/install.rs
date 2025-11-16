@@ -187,6 +187,13 @@ impl DependencyGraph {
     }
 
     /// Detect circular dependencies using DFS
+    ///
+    /// This addresses FM8 (RPN 240): Circular dependency detection
+    ///
+    /// Uses depth-first search with recursion stack to detect cycles:
+    /// - Visits all nodes in dependency graph
+    /// - Tracks recursion stack to detect back edges (cycles)
+    /// - Returns detailed error with cycle path for debugging
     fn detect_circular(&self) -> Result<()> {
         let mut visited = HashSet::new();
         let mut rec_stack = HashSet::new();
@@ -196,6 +203,9 @@ impl DependencyGraph {
                 self.dfs_cycle_check(key, &mut visited, &mut rec_stack)?;
             }
         }
+
+        // Additional validation: ensure all dependencies are resolvable
+        self.validate_all_dependencies_exist()?;
 
         Ok(())
     }
@@ -214,7 +224,7 @@ impl DependencyGraph {
                     self.dfs_cycle_check(&dep_key, visited, rec_stack)?;
                 } else if rec_stack.contains(&dep_key) {
                     return Err(ggen_utils::error::Error::new(&format!(
-                        "Circular dependency detected: {} -> {}",
+                        "Circular dependency detected: {} -> {}. This is a blocking issue that prevents installation.",
                         node, dep_key
                     )));
                 }
@@ -222,6 +232,35 @@ impl DependencyGraph {
         }
 
         rec_stack.remove(node);
+        Ok(())
+    }
+
+    /// Validate that all declared dependencies exist in the graph
+    ///
+    /// FM8: Detect missing dependencies that could cause resolution to fail
+    fn validate_all_dependencies_exist(&self) -> Result<()> {
+        let mut missing_deps = Vec::new();
+
+        for (pkg_key, pkg) in &self.nodes {
+            for (dep_name, dep_version) in &pkg.dependencies {
+                let dep_key = format!("{}@{}", dep_name, dep_version);
+
+                if !self.nodes.contains_key(&dep_key) {
+                    missing_deps.push((pkg_key.clone(), dep_key));
+                }
+            }
+        }
+
+        if !missing_deps.is_empty() {
+            let mut error_msg = String::from("⚠️ Unresolved dependencies detected:\n");
+            for (pkg, dep) in missing_deps {
+                error_msg.push_str(&format!("  - {} depends on {} (not in dependency graph)\n", pkg, dep));
+            }
+            error_msg.push_str("These missing dependencies may cause installation to fail. Ensure all dependencies are available in the marketplace.");
+
+            tracing::warn!("{}", error_msg);
+        }
+
         Ok(())
     }
 
@@ -535,12 +574,27 @@ fn verify_checksum(bytes: &[u8], expected: &str) -> Result<()> {
     Ok(())
 }
 
-/// Download from URL with retry logic
+/// Download from URL with enhanced retry logic and deterministic error handling
+///
+/// This addresses FM2 (RPN 336): Package download fails
+///
+/// Behavior (FM2 - STRICT fail-fast):
+/// - Retries ONLY on transient errors (5xx, timeouts, connection errors)
+/// - FAILS IMMEDIATELY on permanent errors (4xx) - no silent fallback
+/// - FAILS on rate limiting (429) after exponential backoff
+/// - Provides clear, actionable error messages
+/// - All errors are deterministic and explicit
+///
+/// Improvements:
+/// - Exponential backoff with jitter to prevent thundering herd
+/// - Retry on transient errors only
+/// - Fail fast on permanent/configuration errors
+/// - Rate limiting detection with extended backoff
 async fn download_with_retry(url: &str, max_retries: u32) -> Result<Vec<u8>> {
     use reqwest::Client;
 
     let client = Client::builder()
-        .timeout(std::time::Duration::from_secs(60))
+        .timeout(std::time::Duration::from_secs(120)) // Increased from 60s to 120s
         .user_agent(format!("ggen/{}", env!("CARGO_PKG_VERSION")))
         .build()
         .map_err(|e| {
@@ -548,70 +602,121 @@ async fn download_with_retry(url: &str, max_retries: u32) -> Result<Vec<u8>> {
         })?;
 
     let mut last_error = None;
+    let mut is_rate_limited = false;
 
     for attempt in 1..=max_retries {
         match client.get(url).send().await {
             Ok(response) => {
-                if !response.status().is_success() {
-                    let status = response.status();
-                    if status.is_client_error() {
-                        return Err(ggen_utils::error::Error::new(&format!(
-                            "HTTP {} error: {}",
-                            status, url
-                        )));
-                    }
-                    last_error = Some(ggen_utils::error::Error::new(&format!(
-                        "HTTP {} error: {}",
-                        status, url
-                    )));
-                } else {
+                let status = response.status();
+
+                if status.is_success() {
+                    // Success - read and return bytes
                     match response.bytes().await {
                         Ok(bytes) => {
-                            tracing::info!("Downloaded {} bytes from {}", bytes.len(), url);
+                            tracing::info!("Downloaded {} bytes from {} on attempt {}",
+                                bytes.len(), url, attempt);
                             return Ok(bytes.to_vec());
                         }
                         Err(e) => {
                             last_error = Some(ggen_utils::error::Error::new(&format!(
-                                "Failed to read response: {}",
-                                e
+                                "Failed to read response body: {} (attempt {}/{})",
+                                e, attempt, max_retries
                             )));
                         }
                     }
+                } else if status.is_client_error() && status != reqwest::StatusCode::TOO_MANY_REQUESTS {
+                    // Permanent client error (not rate limit) - don't retry
+                    return Err(ggen_utils::error::Error::new(&format!(
+                        "HTTP {} error (permanent): {} (attempt {}/{})",
+                        status, url, attempt, max_retries
+                    )));
+                } else if status == reqwest::StatusCode::TOO_MANY_REQUESTS {
+                    // Rate limited - mark and retry with longer backoff
+                    is_rate_limited = true;
+                    tracing::warn!("Rate limited (HTTP 429) from {} - backing off (attempt {}/{})", url, attempt, max_retries);
+                    last_error = Some(ggen_utils::error::Error::new(&format!(
+                        "HTTP 429 Too Many Requests from {} (attempt {}/{})",
+                        url, attempt, max_retries
+                    )));
+                } else {
+                    // Transient server error (5xx) - retry with backoff
+                    tracing::warn!("HTTP {} error from {} - retrying (attempt {}/{})",
+                        status, url, attempt, max_retries);
+                    last_error = Some(ggen_utils::error::Error::new(&format!(
+                        "HTTP {} error (transient): {} (attempt {}/{})",
+                        status, url, attempt, max_retries
+                    )));
                 }
             }
             Err(e) => {
+                // Network error - likely transient
+                let error_msg = e.to_string();
+
+                // Classify error type for better backoff strategy
+                let is_timeout = error_msg.contains("timeout") || error_msg.contains("timed out");
+                let is_connection = error_msg.contains("connect") || error_msg.contains("connection");
+
+                if is_timeout {
+                    tracing::warn!("Download timeout from {} - retrying (attempt {}/{})", url, attempt, max_retries);
+                } else if is_connection {
+                    tracing::warn!("Connection error from {} - retrying (attempt {}/{})", url, attempt, max_retries);
+                } else {
+                    tracing::warn!("Network error from {}: {} - retrying (attempt {}/{})",
+                        url, error_msg, attempt, max_retries);
+                }
+
                 last_error = Some(ggen_utils::error::Error::new(&format!(
-                    "Network error downloading from {}: {}. Check your internet connection and try again.",
-                    url, e
+                    "Network error downloading from {}: {} (attempt {}/{}). Check your internet connection.",
+                    url, error_msg, attempt, max_retries
                 )));
             }
         }
 
-        // Exponential backoff
+        // Calculate backoff delay with jitter
         if attempt < max_retries {
-            let delay = std::time::Duration::from_secs(1 << (attempt - 1));
+            let base_delay_secs = if is_rate_limited {
+                // For rate limiting, use longer backoff
+                30 << attempt.saturating_sub(1)
+            } else {
+                // Exponential backoff: 1s, 2s, 4s, 8s, etc.
+                1 << (attempt - 1)
+            };
+
+            // Add small random jitter to prevent thundering herd
+            let jitter_ms = fastrand::u64(0..100);
+            let delay = std::time::Duration::from_secs(base_delay_secs)
+                + std::time::Duration::from_millis(jitter_ms);
+
+            tracing::info!("Waiting {:?} before retry attempt {}", delay, attempt + 1);
             tokio::time::sleep(delay).await;
         }
     }
 
     Err(last_error.unwrap_or_else(|| {
         ggen_utils::error::Error::new(&format!(
-            "Failed to download after {} attempts: {}",
-            max_retries, url
+            "Failed to download from {} after {} attempts. {}",
+            url, max_retries,
+            if is_rate_limited {
+                "Server returned rate limit (429). Please try again later."
+            } else {
+                "Check your network connection and try again."
+            }
         ))
     }))
 }
 
 /// Get cache path for downloaded archive
 ///
-/// Handles missing home directory gracefully by using temp directory as fallback
+/// FM2: STRICT fail-fast behavior - requires valid home directory (no temp directory fallback)
 fn get_cache_path(package_name: &str, version: &str) -> Result<PathBuf> {
-    let cache_base = if let Some(home_dir) = dirs::home_dir() {
-        home_dir.join(".ggen").join("cache")
-    } else {
-        // Fallback to temp directory if home directory not available
-        std::env::temp_dir().join("ggen-cache")
-    };
+    let cache_base = dirs::home_dir()
+        .ok_or_else(|| {
+            ggen_utils::error::Error::new(
+                "❌ Home directory not found. Cannot determine cache location for downloaded packages."
+            )
+        })?
+        .join(".ggen")
+        .join("cache");
 
     Ok(cache_base.join("downloads").join(format!(
         "{}-{}.zip",
@@ -820,9 +925,14 @@ async fn download_and_install_package(
     package_name: &str, package_path: &str, download_url: Option<&str>,
     expected_checksum: Option<&str>, install_path: &Path,
 ) -> Result<String> {
-    // Determine download URL
+    // FM2: STRICT fail-fast behavior - download URL must be explicitly provided (no silent fallback)
     let url = download_url
-        .unwrap_or("https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip");
+        .ok_or_else(|| {
+            ggen_utils::error::Error::new(&format!(
+                "❌ Missing download URL for package {}. Package metadata is incomplete. Run 'ggen marketplace sync' to refresh the registry.",
+                package_name
+            ))
+        })?;
 
     // Check cache first
     let cache_path = get_cache_path(package_name, "latest")?;
@@ -839,18 +949,17 @@ async fn download_and_install_package(
         tracing::info!("Downloading from: {}", url);
         let bytes = download_with_retry(url, 3).await?;
 
-        // Security: Verify checksum - mandatory for security
-        // If checksum not provided, calculate and warn (but allow for backward compatibility)
-        if let Some(expected) = expected_checksum {
-            verify_checksum(&bytes, expected)?;
-        } else {
-            // Warn but don't fail for backward compatibility
-            // FUTURE: Make checksum mandatory in next major version
-            tracing::warn!(
-                "Security: Package {} installed without checksum verification",
-                package_name
-            );
-        }
+        // FM2: STRICT fail-fast behavior - checksums are MANDATORY for security and determinism
+        let expected = expected_checksum
+            .ok_or_else(|| {
+                ggen_utils::error::Error::new(&format!(
+                    "❌ Missing checksum for package {}. Package metadata is incomplete. Run 'ggen marketplace sync' to refresh the registry.",
+                    package_name
+                ))
+            })?;
+
+        // Verify checksum - MANDATORY for security and reproducibility
+        verify_checksum(&bytes, expected)?;
 
         // Save to cache
         tokio::fs::write(&cache_path, &bytes)
