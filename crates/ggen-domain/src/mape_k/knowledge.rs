@@ -292,15 +292,15 @@ impl KnowledgeStore {
         let finding_cutoff =
             current_time - (self.compaction_policy.finding_retention_days as u64 * 86_400_000);
 
-        let mut archived_obs = 0;
-        let mut archived_findings = 0;
+        let mut _archived_obs = 0;
+        let mut _archived_findings = 0;
 
         // Archive old observations
         let (keep_obs, archive_obs): (Vec<_>, Vec<_>) = self
             .observations
             .drain(..)
             .partition(|o| o.timestamp > obs_cutoff);
-        archived_obs = archive_obs.len();
+        _archived_obs = archive_obs.len();
         self.observations = keep_obs;
 
         // Archive old findings
@@ -308,7 +308,7 @@ impl KnowledgeStore {
             .findings
             .drain(..)
             .partition(|f| f.timestamp > finding_cutoff);
-        archived_findings = archive_findings.len();
+        _archived_findings = archive_findings.len();
         self.findings = keep_findings;
 
         // Store archive
@@ -327,8 +327,8 @@ impl KnowledgeStore {
         }
 
         CompactionResult {
-            archived_observations: archived_obs,
-            archived_findings: archived_findings,
+            archived_observations: _archived_obs,
+            archived_findings: _archived_findings,
             archived_overlays: 0,
         }
     }
@@ -580,8 +580,8 @@ mod tests {
         assert_eq!(store.mape_metrics().overlays_promoted, 1);
 
         // Old snapshot should be inactive
-        let old_snapshot = store
-            .snapshot_history()
+        let snapshot_history = store.snapshot_history();
+        let old_snapshot = snapshot_history
             .iter()
             .find(|s| s.id == old_snapshot_id);
         assert!(old_snapshot.is_some());

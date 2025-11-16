@@ -373,7 +373,7 @@ impl ExecuteEngine {
     }
 
     /// Get validation results for overlay
-    pub fn get_validation_results(&self, overlay: &OntologyOverlay) -> Vec<&ValidationResult> {
+    pub fn get_validation_results<'a>(&self, overlay: &'a OntologyOverlay) -> Vec<&'a ValidationResult> {
         overlay.validation_results.iter().collect()
     }
 

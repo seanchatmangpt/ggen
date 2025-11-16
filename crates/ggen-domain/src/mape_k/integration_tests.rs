@@ -354,7 +354,7 @@ mod tests {
 
     #[test]
     fn test_policy_priority_ordering() {
-        let mut planner = PlanEngine::new();
+        let planner = PlanEngine::new();
 
         // Default policies should be ordered by priority
         let policies = planner.policies();

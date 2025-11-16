@@ -38,6 +38,15 @@ pub mod rdf;
 pub mod shell;
 pub mod template;
 pub mod utils;
+pub mod mape_k;
+
+// AHI (Autonomic Hyper-Intelligence) subsystem
+pub mod ahi_contract;
+pub mod doctrine_engine;
+pub mod ontology_proposal_engine;
+pub mod marketplace_scorer;
+pub mod proof_carrier;
+pub mod auto_promotion_pipeline;
 
 // Re-export commonly used types for convenience
 pub use ggen_utils::error::{Error, Result};

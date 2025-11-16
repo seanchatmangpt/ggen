@@ -77,9 +77,12 @@ impl PlanEngine {
     pub fn plan(&mut self, findings: &[Finding]) -> Vec<OverlayProposal> {
         let mut proposals = Vec::new();
 
+        // Clone policies to avoid borrow checker issues
+        let policies = self.policies.clone();
+
         for finding in findings {
             // Match finding against policies
-            for policy in &self.policies {
+            for policy in &policies {
                 if !policy.enabled {
                     continue;
                 }
