@@ -1,3 +1,40 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Rust Documentation Website Tools - Complete Survey](#rust-documentation-website-tools---complete-survey)
+  - [Overview](#overview)
+  - [Official Rust Tools](#official-rust-tools)
+    - [1. Rustdoc (cargo doc)](#1-rustdoc-cargo-doc)
+    - [2. mdBook](#2-mdbook)
+  - [Static Site Generators (Language-Agnostic)](#static-site-generators-language-agnostic)
+    - [3. MkDocs](#3-mkdocs)
+    - [4. Sphinx](#4-sphinx)
+    - [5. Docusaurus](#5-docusaurus)
+  - [Hosting Platforms](#hosting-platforms)
+    - [6. docs.rs](#6-docsrs)
+    - [7. Read the Docs](#7-read-the-docs)
+    - [8. GitHub Pages](#8-github-pages)
+    - [9. Netlify](#9-netlify)
+    - [10. Vercel](#10-vercel)
+  - [Specialized Tools](#specialized-tools)
+    - [11. ROBODoc](#11-robodoc)
+    - [12. Pandoc](#12-pandoc)
+  - [Comparison Matrix](#comparison-matrix)
+  - [Recommendations by Use Case](#recommendations-by-use-case)
+    - [API Documentation Only](#api-documentation-only)
+    - [Comprehensive Documentation (API + Guides)](#comprehensive-documentation-api--guides)
+    - [Modern Documentation Site](#modern-documentation-site)
+    - [Large, Complex Documentation](#large-complex-documentation)
+    - [Simple, Fast Setup](#simple-fast-setup)
+  - [Integration Examples](#integration-examples)
+    - [Rustdoc + mdBook Combined](#rustdoc--mdbook-combined)
+    - [GitHub Actions Workflow](#github-actions-workflow)
+  - [Conclusion](#conclusion)
+  - [References](#references)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Rust Documentation Website Tools - Complete Survey
 
 Comprehensive survey of tools for compiling Rust module documentation into websites.

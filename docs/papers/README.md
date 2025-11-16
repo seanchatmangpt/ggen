@@ -1,3 +1,44 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Academic Paper Lifecycle Documentation](#academic-paper-lifecycle-documentation)
+  - [📚 Documentation Index](#-documentation-index)
+    - [Getting Started](#getting-started)
+    - [Core Guides](#core-guides)
+    - [Reference Documentation](#reference-documentation)
+    - [Marketplace](#marketplace)
+    - [Examples](#examples)
+    - [Tutorials](#tutorials)
+    - [How-To Guides](#how-to-guides)
+    - [Troubleshooting](#troubleshooting)
+    - [Advanced Topics](#advanced-topics)
+  - [Quick Navigation](#quick-navigation)
+    - [By Use Case](#by-use-case)
+    - [By Role](#by-role)
+  - [Key Features](#key-features)
+    - [📄 Paper Management](#-paper-management)
+    - [📝 LaTeX Generation](#-latex-generation)
+    - [📚 Bibliography Management](#-bibliography-management)
+    - [👥 Peer Review Workflow](#-peer-review-workflow)
+    - [📤 Publishing Integration](#-publishing-integration)
+    - [🏪 Marketplace Integration](#-marketplace-integration)
+  - [System Requirements](#system-requirements)
+    - [Required](#required)
+    - [Optional](#optional)
+  - [Common Commands](#common-commands)
+  - [File Structure](#file-structure)
+  - [Getting Help](#getting-help)
+    - [Documentation](#documentation)
+    - [Online Resources](#online-resources)
+    - [Support](#support)
+  - [Contributing](#contributing)
+  - [License](#license)
+  - [Acknowledgments](#acknowledgments)
+  - [Version History](#version-history)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Academic Paper Lifecycle Documentation
 
 Complete documentation for the ggen Academic Paper Lifecycle system for creating, managing, and publishing research papers using RDF ontologies and LaTeX generation.

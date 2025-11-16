@@ -1,3 +1,46 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Dark Matter/Energy Insights: The Hidden 80% of Knowledge Work](#dark-matterenergy-insights-the-hidden-80-of-knowledge-work)
+  - [Overview](#overview)
+  - [The Core Insight: Knowledge Work Decomposition](#the-core-insight-knowledge-work-decomposition)
+    - [Before Understanding Dark Matter](#before-understanding-dark-matter)
+    - [After Understanding Dark Matter](#after-understanding-dark-matter)
+  - [The Five Components of Dark Matter](#the-five-components-of-dark-matter)
+    - [1. Shadow Processes (22% of dark matter)](#1-shadow-processes-22-of-dark-matter)
+    - [2. Reconciliation (28% of dark matter)](#2-reconciliation-28-of-dark-matter)
+    - [3. Rework (24% of dark matter)](#3-rework-24-of-dark-matter)
+    - [4. Meeting Overhead (18% of dark matter)](#4-meeting-overhead-18-of-dark-matter)
+    - [5. Context Switching (8% of dark matter)](#5-context-switching-8-of-dark-matter)
+  - [The Economics of Dark Matter Elimination](#the-economics-of-dark-matter-elimination)
+    - [Cost Structure (Before Hooks)](#cost-structure-before-hooks)
+    - [Overhead After Knowledge Hooks](#overhead-after-knowledge-hooks)
+    - [ROI Calculation](#roi-calculation)
+  - [Why This Was Never Visible Before](#why-this-was-never-visible-before)
+    - [The Invisibility Problem](#the-invisibility-problem)
+    - [Why Traditional Tools Miss It](#why-traditional-tools-miss-it)
+    - [Why Knowledge Hooks Make It Visible](#why-knowledge-hooks-make-it-visible)
+  - [The Four Equations of Dark Matter](#the-four-equations-of-dark-matter)
+    - [Equation 9: Work Decomposition](#equation-9-work-decomposition)
+    - [Equation 9a: Dark Matter Components](#equation-9a-dark-matter-components)
+    - [Equation 9b: Dark Matter Elimination](#equation-9b-dark-matter-elimination)
+    - [Equation 9c: Overhead Reduction](#equation-9c-overhead-reduction)
+  - [Production Evidence: Measured Dark Matter Elimination](#production-evidence-measured-dark-matter-elimination)
+    - [Enterprise Deployment 1: Claims Processing](#enterprise-deployment-1-claims-processing)
+    - [Enterprise Deployment 2: Regulatory Compliance](#enterprise-deployment-2-regulatory-compliance)
+    - [Enterprise Deployment 3: Financial Services](#enterprise-deployment-3-financial-services)
+  - [The Dark Matter Paradox](#the-dark-matter-paradox)
+  - [The Strategic Implication](#the-strategic-implication)
+    - [Before Knowledge Hooks](#before-knowledge-hooks)
+    - [After Knowledge Hooks](#after-knowledge-hooks)
+  - [The Question Knowledge Hooks Answer](#the-question-knowledge-hooks-answer)
+  - [Files in v3 Demonstration](#files-in-v3-demonstration)
+  - [Key Takeaways](#key-takeaways)
+  - [Deeper Reading](#deeper-reading)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Dark Matter/Energy Insights: The Hidden 80% of Knowledge Work
 
 ## Overview

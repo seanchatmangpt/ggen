@@ -1,3 +1,43 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [ggen Documentation Structure: Diátaxis Compliance Analysis](#ggen-documentation-structure-di%C3%A1taxis-compliance-analysis)
+  - [Executive Summary](#executive-summary)
+    - [Compliance Score: 55/100](#compliance-score-55100)
+  - [Quick Issue Reference](#quick-issue-reference)
+  - [Key Findings](#key-findings)
+    - [Finding 1: FMEA Information Exists But Is Completely Invisible](#finding-1-fmea-information-exists-but-is-completely-invisible)
+    - [Finding 2: Main README.md Disconnects Users from Documentation](#finding-2-main-readmemd-disconnects-users-from-documentation)
+    - [Finding 3: Zero Signposting on Which Type of Documentation Users Are Reading](#finding-3-zero-signposting-on-which-type-of-documentation-users-are-reading)
+    - [Finding 4: Some Documents Mix Diátaxis Types](#finding-4-some-documents-mix-di%C3%A1taxis-types)
+      - [Issue A: `how-to-guides/cicd-workflows.md`](#issue-a-how-to-guidescicd-workflowsmd)
+      - [Issue B: `how-to-guides/DOGFOODING_QUICKSTART.md`](#issue-b-how-to-guidesdogfooding_quickstartmd)
+      - [Issue C: `DEVELOPMENT_WORKFLOW.md`](#issue-c-development_workflowmd)
+      - [Issue D: `FMEA_ANALYSIS.md` (Wrong Location)](#issue-d-fmea_analysismd-wrong-location)
+    - [Finding 5: DOCUMENTATION_INDEX.md References Non-Existent Files](#finding-5-documentation_indexmd-references-non-existent-files)
+  - [Properly Categorized Documents ✅](#properly-categorized-documents-)
+    - [Tutorials (4 files) - CORRECT](#tutorials-4-files---correct)
+    - [How-to Guides (6 files) - CORRECT](#how-to-guides-6-files---correct)
+    - [Reference (4 files) - CORRECT](#reference-4-files---correct)
+    - [Explanations (5 files) - CORRECT](#explanations-5-files---correct)
+  - [Current Documentation Structure](#current-documentation-structure)
+  - [Specific File Actions Required](#specific-file-actions-required)
+    - [Priority 1 - CRITICAL (fixes 80% of user discovery issues)](#priority-1---critical-fixes-80-of-user-discovery-issues)
+    - [Priority 2 - HIGH (fixes type compliance)](#priority-2---high-fixes-type-compliance)
+    - [Priority 3 - MEDIUM (cleanup and maintenance)](#priority-3---medium-cleanup-and-maintenance)
+  - [Cross-Reference Analysis](#cross-reference-analysis)
+    - [Good References ✅](#good-references-)
+    - [Missing References ❌](#missing-references-)
+  - [Templates for Implementation](#templates-for-implementation)
+    - [Template 1: Add Type Signposting](#template-1-add-type-signposting)
+    - [Template 2: Update Main README "Learn More" Section](#template-2-update-main-readme-learn-more-section)
+  - [Summary of Recommendations](#summary-of-recommendations)
+  - [Expected User Impact After Fixes](#expected-user-impact-after-fixes)
+  - [Conclusion](#conclusion)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # ggen Documentation Structure: Diátaxis Compliance Analysis
 
 **Date**: November 15, 2025

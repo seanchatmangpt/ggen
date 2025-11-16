@@ -1,3 +1,47 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [CLI Reference](#cli-reference)
+  - [Global Options](#global-options)
+  - [Commands Overview](#commands-overview)
+  - [Marketplace Commands](#marketplace-commands)
+    - [ggen marketplace search](#ggen-marketplace-search)
+    - [ggen marketplace install](#ggen-marketplace-install)
+    - [ggen marketplace list](#ggen-marketplace-list)
+    - [ggen marketplace publish](#ggen-marketplace-publish)
+  - [AI Commands](#ai-commands)
+    - [ggen ai generate-ontology](#ggen-ai-generate-ontology)
+    - [ggen ai chat](#ggen-ai-chat)
+    - [ggen ai analyze](#ggen-ai-analyze)
+  - [Template Commands](#template-commands)
+    - [ggen template generate-rdf](#ggen-template-generate-rdf)
+    - [ggen template list](#ggen-template-list)
+    - [ggen template lint](#ggen-template-lint)
+  - [Graph Commands](#graph-commands)
+    - [ggen graph load](#ggen-graph-load)
+    - [ggen graph query](#ggen-graph-query)
+    - [ggen graph validate](#ggen-graph-validate)
+    - [ggen graph export](#ggen-graph-export)
+  - [Hook Commands](#hook-commands)
+    - [ggen hook create](#ggen-hook-create)
+    - [ggen hook list](#ggen-hook-list)
+    - [ggen hook remove](#ggen-hook-remove)
+    - [ggen hook monitor](#ggen-hook-monitor)
+  - [Project Commands](#project-commands)
+    - [ggen project new](#ggen-project-new)
+    - [ggen project gen](#ggen-project-gen)
+  - [Utils Commands](#utils-commands)
+    - [ggen utils doctor](#ggen-utils-doctor)
+    - [ggen utils env](#ggen-utils-env)
+  - [Command Examples](#command-examples)
+    - [Complete Workflow](#complete-workflow)
+    - [Marketplace Workflow](#marketplace-workflow)
+  - [Exit Codes](#exit-codes)
+  - [See Also](#see-also)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # CLI Reference
 
 Complete reference for all `ggen` command-line interface commands.
