@@ -127,6 +127,7 @@ pub mod inject;
 pub mod lifecycle;
 pub mod lockfile;
 pub mod merge;
+pub mod ontology;
 pub mod pipeline;
 pub mod poc;
 pub mod pqc;
@@ -187,4 +188,26 @@ pub use template::Template;
 pub use templates::{
     generate_file_tree, FileTreeGenerator, FileTreeNode, FileTreeTemplate, GenerationResult,
     NodeType, TemplateContext, TemplateFormat, TemplateParser,
+};
+
+// Re-export autonomous ontology system types
+pub use ontology::{
+    SigmaSnapshotId, SigmaSnapshot, SnapshotMetadata,
+    SigmaOverlay, SigmaReceipt, SigmaRuntime,
+    ValidationResult, TestResult, PerformanceMetrics,
+    Pattern, PatternType, PatternMiner, MinerConfig,
+    Observation, ObservationSource, ProposedChange,
+    OntologyStats,
+    DeltaSigmaProposal, DeltaSigmaProposer, ProposerConfig,
+    MockLLMProposer, RealLLMProposer,
+    ValidationEvidence, Invariant, ValidationContext,
+    StaticValidator, DynamicValidator, PerformanceValidator,
+    CompositeValidator, ValidatorResult,
+    MockStaticValidator, MockDynamicValidator, MockPerformanceValidator,
+    AtomicSnapshotPromoter, SnapshotGuard, PromotionResult, PromotionMetrics,
+    AutonomousControlLoop, ControlLoopConfig, LoopState, IterationTelemetry,
+    InvariantCheck, InvariantResult, Constitution, ConstitutionValidation,
+    NoRetrocausationCheck, TypeSoundnessCheck, GuardSoundnessCheck,
+    ProjectionDeterminismCheck, SLOPreservationCheck, ImmutabilityCheck,
+    AtomicPromotionCheck,
 };
