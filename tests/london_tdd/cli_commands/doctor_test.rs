@@ -1,4 +1,4 @@
-#![cfg(feature = "london-tdd")]
+#![cfg(feature = "london_tdd")]
 //! London TDD tests for `ggen doctor` command
 //!
 //! README.md §User-Friendly Features - Environment Health Check
@@ -23,31 +23,31 @@ fn test_doctor_checks_all_prerequisites() {
     // Expect checks for all tools
     mock_executor
         .expect_execute()
-        .with(eq("rustc"), eq(vec!["--version"]))
+        .with(eq("rustc"), eq(vec!["--version".to_string()]))
         .times(1)
         .returning(|_, _| Ok("rustc 1.90.0".to_string()));
 
     mock_executor
         .expect_execute()
-        .with(eq("cargo"), eq(vec!["--version"]))
+        .with(eq("cargo"), eq(vec!["--version".to_string()]))
         .times(1)
         .returning(|_, _| Ok("cargo 1.90.0".to_string()));
 
     mock_executor
         .expect_execute()
-        .with(eq("git"), eq(vec!["--version"]))
+        .with(eq("git"), eq(vec!["--version".to_string()]))
         .times(1)
         .returning(|_, _| Ok("git version 2.51.0".to_string()));
 
     mock_executor
         .expect_execute()
-        .with(eq("ollama"), eq(vec!["--version"]))
+        .with(eq("ollama"), eq(vec!["--version".to_string()]))
         .times(1)
         .returning(|_, _| Ok("ollama version 0.12.3".to_string()));
 
     mock_executor
         .expect_execute()
-        .with(eq("docker"), eq(vec!["--version"]))
+        .with(eq("docker"), eq(vec!["--version".to_string()]))
         .times(1)
         .returning(|_, _| Ok("Docker version 28.0.4".to_string()));
 
@@ -155,7 +155,7 @@ fn test_doctor_creates_otel_span() {
 
 #[automock]
 trait SystemCommandExecutor: Send + Sync {
-    fn execute(&self, command: &str, args: Vec<&str>) -> Result<String, anyhow::Error>;
+    fn execute(&self, command: &str, args: Vec<String>) -> Result<String, anyhow::Error>;
 }
 
 #[derive(Debug)]
@@ -195,7 +195,7 @@ fn run_doctor_command_with_platform(
     let mut checks = vec![];
 
     // Check Rust
-    let rust_check = match executor.execute("rustc", vec!["--version"]) {
+    let rust_check = match executor.execute("rustc", vec!["--version".to_string()]) {
         Ok(output) => PrerequisiteCheck {
             name: "Rust toolchain".to_string(),
             passed: true,

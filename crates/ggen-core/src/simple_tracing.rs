@@ -359,7 +359,7 @@ mod tests {
         timer.finish(); // Should not panic
     });
 
-    test!(test_tracing_methods, {
+    chicago_tdd_tools::test!(test_tracing_methods, {
         let temp_dir = TempDir::new().unwrap();
         let test_path = temp_dir.path().join("test.tmpl");
         fs::write(&test_path, "test content").unwrap();
@@ -388,7 +388,7 @@ mod tests {
         SimpleTracer::warning("Test warning", None);
     });
 
-    test!(test_tracing_environment_variables, {
+    chicago_tdd_tools::test!(test_tracing_environment_variables, {
         // Test different GGEN_TRACE values
         let test_values = [
             "error", "warn", "info", "debug", "trace", "1", "0", "true", "false",
@@ -408,7 +408,7 @@ mod tests {
         }
     });
 
-    test!(test_time_operation_macro, {
+    chicago_tdd_tools::test!(test_time_operation_macro, {
         let result = crate::time_operation!("test_op", {
             std::thread::sleep(std::time::Duration::from_millis(2));
             42

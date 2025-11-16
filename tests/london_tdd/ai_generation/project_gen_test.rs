@@ -1,4 +1,4 @@
-#![cfg(feature = "london-tdd")]
+#![cfg(feature = "london_tdd")]
 //! London TDD tests for `ggen ai project` command
 //!
 //! README.md §AI-Powered Generation - Project Scaffolding

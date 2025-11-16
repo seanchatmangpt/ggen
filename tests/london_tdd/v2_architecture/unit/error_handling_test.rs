@@ -1,4 +1,4 @@
-#![cfg(feature = "london-tdd")]
+#![cfg(feature = "london_tdd")]
 //! London TDD unit tests for error handling utilities
 //!
 //! Tests error propagation, transformation, and formatting across the async/sync boundary.

@@ -268,10 +268,10 @@ pub struct UpdateOutput {
 
 /// Update status enum (defined before use in check_for_updates)
 enum UpdateStatus {
-    Available(String),                            // New version available (compatible)
-    CompatibilityWarning(String, String),         // New version available but may break compatibility (version, reason)
-    UpToDate,                                     // Already at latest version
-    NotFound,                                     // Package not found in registry
+    Available(String),                    // New version available (compatible)
+    CompatibilityWarning(String, String), // New version available but may break compatibility (version, reason)
+    UpToDate,                             // Already at latest version
+    NotFound,                             // Package not found in registry
 }
 
 /// Check for package updates with compatibility validation
@@ -294,9 +294,7 @@ async fn check_for_updates(
 
     // FM5: Check registry freshness (file modification time)
     // Warn if registry is older than 7 days
-    let metadata = tokio::fs::metadata(&index_path)
-        .await
-        .ok();
+    let metadata = tokio::fs::metadata(&index_path).await.ok();
 
     if let Some(meta) = metadata {
         if let Ok(modified) = meta.modified() {
@@ -362,7 +360,10 @@ async fn check_for_updates(
                         }
                         Err(e) => {
                             // Version parsing error - allow update but warn
-                            tracing::warn!("Could not verify compatibility: {}. Proceeding with caution.", e);
+                            tracing::warn!(
+                                "Could not verify compatibility: {}. Proceeding with caution.",
+                                e
+                            );
                             Ok(UpdateStatus::Available(latest_version.to_string()))
                         }
                     }
@@ -389,12 +390,8 @@ fn check_version_compatibility(current: &str, latest: &str) -> Result<bool> {
         return Ok(true);
     }
 
-    let current_major = current_parts[0]
-        .parse::<u32>()
-        .unwrap_or(0);
-    let latest_major = latest_parts[0]
-        .parse::<u32>()
-        .unwrap_or(0);
+    let current_major = current_parts[0].parse::<u32>().unwrap_or(0);
+    let latest_major = latest_parts[0].parse::<u32>().unwrap_or(0);
 
     // Prevent major version downgrades
     if latest_major < current_major {

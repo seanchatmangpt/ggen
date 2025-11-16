@@ -309,7 +309,11 @@ fn validate_package(manifest: &PackageManifest) -> Result<()> {
     }
 
     // Validate name format: alphanumeric, hyphens, underscores, slashes (for scopes)
-    if !manifest.name.chars().all(|c| c.is_alphanumeric() || c == '-' || c == '_' || c == '/') {
+    if !manifest
+        .name
+        .chars()
+        .all(|c| c.is_alphanumeric() || c == '-' || c == '_' || c == '/')
+    {
         return Err(ggen_utils::error::Error::new(
             "❌ Package name must contain only alphanumeric characters, hyphens, underscores, and slashes",
         ));
@@ -421,7 +425,10 @@ fn validate_package(manifest: &PackageManifest) -> Result<()> {
                 ));
             }
             // Tag format validation
-            if !tag.chars().all(|c| c.is_alphanumeric() || c == '-' || c == '_') {
+            if !tag
+                .chars()
+                .all(|c| c.is_alphanumeric() || c == '-' || c == '_')
+            {
                 return Err(ggen_utils::error::Error::new(
                     "❌ Tags must contain only alphanumeric characters, hyphens, and underscores",
                 ));

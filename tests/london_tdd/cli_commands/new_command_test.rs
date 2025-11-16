@@ -445,7 +445,7 @@ anyhow = "1.0"
         );
 
         let main_rs = format!(
-            r#"use ggen_utils::error::{Error, Result};
+            r#"use ggen_utils::error::{{Error, Result}};
 use {}::*;
 
 #[tokio::main]

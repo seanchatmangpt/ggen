@@ -593,7 +593,7 @@ impl SnapshotManager {
 mod tests {
     use super::*;
     use crate::graph::Graph;
-    use chicago_tdd_tools::prelude::*;
+    use chicago_tdd_tools::test;
     use std::fs;
     use tempfile::tempdir;
 

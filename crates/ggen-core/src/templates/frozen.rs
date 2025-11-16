@@ -488,7 +488,7 @@ impl FrozenMerger {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::prelude::*;
+    use chicago_tdd_tools::test;
 
     test!(test_parse_simple_frozen_section, {
         let content = r#"

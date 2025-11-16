@@ -173,7 +173,7 @@ macro_rules! telemetry_context {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::prelude::*;
+    use chicago_tdd_tools::test;
 
     test!(test_telemetry_config_default, {
         let config = TelemetryConfig::default();

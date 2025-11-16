@@ -5,10 +5,8 @@
 
 use ggen_core::telemetry::{init_telemetry, shutdown_telemetry, TelemetryConfig};
 use ggen_utils::error::{Error, Result};
-use opentelemetry::{global, trace::Tracer, KeyValue};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
-use std::time::Duration;
 use tracing::{info, instrument, warn};
 
 pub mod capabilities;
@@ -17,6 +15,7 @@ pub mod validators;
 
 /// Trace collector for validation
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 pub struct TraceCollector {
     spans: Arc<Mutex<Vec<SpanRecord>>>,
     metrics: Arc<Mutex<HashMap<String, f64>>>,
@@ -31,6 +30,7 @@ pub struct SpanRecord {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+#[allow(dead_code)]
 pub enum SpanStatus {
     Ok,
     Error,
@@ -50,6 +50,7 @@ impl TraceCollector {
         }
     }
 
+    #[allow(dead_code)]
     pub fn record_metric(&self, name: String, value: f64) {
         if let Ok(mut metrics) = self.metrics.lock() {
             metrics.insert(name, value);
@@ -60,6 +61,7 @@ impl TraceCollector {
         self.spans.lock().unwrap().clone()
     }
 
+    #[allow(dead_code)]
     pub fn get_metrics(&self) -> HashMap<String, f64> {
         self.metrics.lock().unwrap().clone()
     }
@@ -107,6 +109,7 @@ impl TraceCollector {
         Ok(())
     }
 
+    #[allow(dead_code)]
     pub fn clear(&self) {
         if let Ok(mut spans) = self.spans.lock() {
             spans.clear();

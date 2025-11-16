@@ -158,7 +158,6 @@ impl TemplateConfig {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::prelude::*;
 
     chicago_tdd_tools::test!(test_default_config, {
         let config = TemplateConfig::default();

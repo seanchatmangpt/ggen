@@ -514,7 +514,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::prelude::*;
+    use chicago_tdd_tools::test;
     use ggen_utils::error::{Error, Result};
     use std::{io::Write, path::Path};
     use tempfile::NamedTempFile;

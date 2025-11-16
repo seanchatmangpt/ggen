@@ -70,6 +70,7 @@ const RUST_VERSION: &str = "1.83.0";
 
 /// Project structure snapshot for host isolation validation
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 struct ProjectSnapshot {
     file_count: usize,
     dir_count: usize,

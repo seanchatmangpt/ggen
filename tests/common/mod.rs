@@ -141,19 +141,19 @@ fn load_config() -> TestConfig {
             .get("default_http_port")
             .and_then(|v| v.as_integer())
         {
-            config.default_http_port = port.max(1).min(65535) as u16;
+            config.default_http_port = port.clamp(1, 65535) as u16;
         }
         if let Some(port) = tc_table
             .get("default_https_port")
             .and_then(|v| v.as_integer())
         {
-            config.default_https_port = port.max(1).min(65535) as u16;
+            config.default_https_port = port.clamp(1, 65535) as u16;
         }
         if let Some(port) = tc_table
             .get("default_http_alt_port")
             .and_then(|v| v.as_integer())
         {
-            config.default_http_alt_port = port.max(1).min(65535) as u16;
+            config.default_http_alt_port = port.clamp(1, 65535) as u16;
         }
         if let Some(count) = tc_table
             .get("concurrent_containers_count")
@@ -328,6 +328,7 @@ pub fn max_batch_size() -> usize {
 /// # Returns
 ///
 /// `true` if the Docker daemon is running and responding, `false` otherwise.
+#[allow(dead_code)]
 pub fn docker_available() -> bool {
     use std::process::Command;
     use std::sync::mpsc;
@@ -425,6 +426,7 @@ pub fn docker_available() -> bool {
 ///     // Test code here...
 /// }
 /// ```
+#[allow(dead_code)]
 pub fn require_docker() {
     if !docker_available() {
         panic!(
@@ -437,6 +439,68 @@ pub fn require_docker() {
         );
     }
     // ✅ Docker is available, test can proceed
+}
+
+/// Find ggen binary in container at common locations
+///
+/// **Root Cause Prevention**: Helper function to find binary instead of hardcoded path assumption.
+/// Pattern: Always search for binary in common locations, don't assume path.
+///
+/// # Arguments
+///
+/// * `container` - Container to search in
+/// * `workspace_root` - Root directory of workspace (e.g., "/workspace")
+///
+/// # Returns
+///
+/// Path to binary if found, or error if not found
+#[allow(dead_code)]
+pub fn find_ggen_binary_in_container(
+    container: &chicago_tdd_tools::testcontainers::GenericContainer, workspace_root: &str,
+) -> Result<String, String> {
+    use chicago_tdd_tools::testcontainers::exec::SUCCESS_EXIT_CODE;
+
+    // Try common locations
+    let locations = vec![
+        format!("{}/target/release/ggen", workspace_root),
+        format!("{}/target/debug/ggen", workspace_root),
+        format!("{}/ggen/target/release/ggen", workspace_root),
+        format!("{}/ggen/target/debug/ggen", workspace_root),
+    ];
+
+    for location in &locations {
+        let check = container.exec("test", &["-f", location]).ok();
+        if let Some(result) = check {
+            if result.exit_code == SUCCESS_EXIT_CODE {
+                return Ok(location.clone());
+            }
+        }
+    }
+
+    // If not found, search for any ggen binary
+    let search = container
+        .exec(
+            "sh",
+            &[
+                "-c",
+                &format!(
+                    "find {} -name 'ggen' -type f 2>/dev/null | head -1",
+                    workspace_root
+                ),
+            ],
+        )
+        .ok();
+
+    if let Some(result) = search {
+        if result.exit_code == SUCCESS_EXIT_CODE && !result.stdout.trim().is_empty() {
+            return Ok(result.stdout.trim().to_string());
+        }
+    }
+
+    Err(format!(
+        "ggen binary not found in any common location. Searched: {:?}",
+        locations
+    ))
 }
 
 #[cfg(test)]

@@ -268,7 +268,7 @@ fn bench_cli_simulation(c: &mut Criterion) {
     // Simulate complete CLI command execution
     async fn complete_cli_command() -> String {
         // Parse args (synchronous)
-        let _args = vec!["ggen", "template", "create"];
+        let _args = ["ggen", "template", "create"];
 
         // Load template (async I/O)
         tokio::time::sleep(Duration::from_micros(200)).await;
@@ -326,7 +326,7 @@ fn bench_thread_pool(c: &mut Criterion) {
                         .build()
                         .unwrap();
 
-                    black_box(rt.block_on(async {
+                    rt.block_on(async {
                         // Spawn multiple concurrent tasks
                         let tasks: Vec<_> = (0..10)
                             .map(|_| tokio::spawn(simulate_template_generation()))
@@ -335,7 +335,8 @@ fn bench_thread_pool(c: &mut Criterion) {
                         for task in tasks {
                             task.await.unwrap();
                         }
-                    }));
+                    });
+                    black_box(());
                 });
             },
         );

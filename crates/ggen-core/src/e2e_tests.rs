@@ -41,7 +41,7 @@ use tempfile::TempDir;
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::prelude::*;
+    use chicago_tdd_tools::test;
 
     test!(test_end_to_end_template_generation, {
         // Create a temporary directory for testing

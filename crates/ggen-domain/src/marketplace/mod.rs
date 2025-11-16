@@ -7,6 +7,7 @@ pub mod list;
 pub mod publish;
 pub mod registry;
 pub mod search;
+pub mod types; // Poka-yoke types for error prevention
 pub mod update;
 pub mod validate;
 
@@ -18,6 +19,7 @@ pub use registry::{
     CacheManager, Dependency, PackageMetadata, Registry, RegistryIndex, VersionMetadata,
 };
 pub use search::{execute_search, SearchFilters, SearchInput, SearchResult};
+pub use types::{Checksum, NonEmptyQuery, SemanticVersion, ValidatedPackageName};
 pub use update::{execute_update, UpdateInput, UpdateOutput};
 pub use validate::{
     validate_all_packages, validate_package, CheckResult, PackageValidation, QualityCheck,

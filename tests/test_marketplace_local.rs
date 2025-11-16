@@ -14,7 +14,7 @@ fn test_registry_client_creation() -> Result<()> {
 
     // Verify the client was created successfully (we can't access private fields)
     // This test just ensures the client creation doesn't fail
-    assert!(std::ptr::addr_of!(client) != std::ptr::null());
+    assert!(!std::ptr::addr_of!(client).is_null());
 
     Ok(())
 }
@@ -33,7 +33,7 @@ fn test_registry_client_with_file_url() -> Result<()> {
 
     // Verify the client was created with file URL (we can't access private fields)
     // This test just ensures the client creation doesn't fail
-    assert!(std::ptr::addr_of!(client) != std::ptr::null());
+    assert!(!std::ptr::addr_of!(client).is_null());
 
     Ok(())
 }

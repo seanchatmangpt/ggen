@@ -13,3 +13,7 @@ pub mod template_versioning;
 
 // Shared test utilities
 pub mod test_helpers;
+
+// Shared test configuration (loaded once to avoid duplicate module error)
+#[path = "../common/mod.rs"]
+pub mod common;

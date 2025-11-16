@@ -19,9 +19,8 @@
 //! - **Build**: <25s
 //! - **Fake publish**: <5s
 
-use anyhow::{Context, Result};
+use anyhow::Result;
 use assert_cmd::Command;
-use predicates::prelude::*;
 use serial_test::serial;
 use std::path::{Path, PathBuf};
 use std::time::{Duration, Instant};
@@ -216,7 +215,7 @@ impl UltraDeployTester {
 
     fn generate_project(&self, template: &str, project_name: &str) -> Result<()> {
         Command::new(&self.ggen_bin)
-            .args(&["project", "init", project_name, "--template", template])
+            .args(["project", "init", project_name, "--template", template])
             .current_dir(self.work_dir())
             .assert()
             .success();
@@ -234,7 +233,7 @@ impl UltraDeployTester {
 
         // Validate with cargo check
         Command::new("cargo")
-            .args(&["check"])
+            .args(["check"])
             .current_dir(project_dir)
             .assert()
             .success();
@@ -244,7 +243,7 @@ impl UltraDeployTester {
 
     fn run_tests(&self, project_dir: &Path) -> Result<()> {
         Command::new("cargo")
-            .args(&["test", "--", "--nocapture"])
+            .args(["test", "--", "--nocapture"])
             .current_dir(project_dir)
             .assert()
             .success();
@@ -253,7 +252,7 @@ impl UltraDeployTester {
 
     fn build_project(&self, project_dir: &Path) -> Result<()> {
         Command::new("cargo")
-            .args(&["build", "--release"])
+            .args(["build", "--release"])
             .current_dir(project_dir)
             .assert()
             .success();
@@ -263,7 +262,7 @@ impl UltraDeployTester {
     fn fake_publish(&self, project_dir: &Path) -> Result<()> {
         // Simulate publish by running cargo package
         Command::new("cargo")
-            .args(&["package", "--no-verify", "--allow-dirty"])
+            .args(["package", "--no-verify", "--allow-dirty"])
             .current_dir(project_dir)
             .assert()
             .success();
@@ -281,7 +280,7 @@ impl UltraDeployTester {
         if target_dir.exists() {
             for entry in std::fs::read_dir(&target_dir)? {
                 let entry = entry?;
-                if entry.path().is_file() && !entry.path().extension().is_some() {
+                if entry.path().is_file() && entry.path().extension().is_none() {
                     artifacts.push(entry.path());
                     break; // Just collect first binary
                 }
@@ -381,7 +380,7 @@ async fn test_ggen_cleanroom_integration() -> Result<()> {
     let result = environment
         .execute_test("cargo_check", || {
             Command::new("cargo")
-                .args(&["check"])
+                .args(["check"])
                 .current_dir(&project_dir)
                 .output()
                 .map_err(|e| clnrm::Error::io_error(format!("Cargo check failed: {}", e)))
@@ -427,7 +426,7 @@ async fn test_stage_performance_breakdown() -> Result<()> {
     // Stage 3: Test
     let start = Instant::now();
     Command::new("cargo")
-        .args(&["test"])
+        .args(["test"])
         .current_dir(&project_dir)
         .assert()
         .success();
@@ -437,7 +436,7 @@ async fn test_stage_performance_breakdown() -> Result<()> {
     // Stage 4: Build
     let start = Instant::now();
     Command::new("cargo")
-        .args(&["build", "--release"])
+        .args(["build", "--release"])
         .current_dir(&project_dir)
         .assert()
         .success();
@@ -549,7 +548,7 @@ async fn test_fake_publish_validation() -> Result<()> {
     // Fake publish
     let start = Instant::now();
     Command::new("cargo")
-        .args(&["package", "--no-verify", "--allow-dirty"])
+        .args(["package", "--no-verify", "--allow-dirty"])
         .current_dir(&project_dir)
         .assert()
         .success();

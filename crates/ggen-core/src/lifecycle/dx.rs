@@ -486,7 +486,7 @@ fn format_timestamp(timestamp_ms: u128) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::prelude::*;
+    use chicago_tdd_tools::test;
 
     test!(test_execution_mode_defaults, {
         let mode = ExecutionMode::default();

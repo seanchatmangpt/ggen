@@ -132,9 +132,9 @@ fn bench_template_rendering_scale(c: &mut Criterion) {
         let loop_content: Vec<String> = (0..loops)
             .map(|i| {
                 format!(
-                    r#"{% for item{} in items{} %}
+                    r#"{{% for item{} in items{} %}}
     // Loop {}: {{{{ item{} }}}}
-{% endfor %}"#,
+{{% endfor %}}"#,
                     i, i, i, i
                 )
             })
@@ -143,9 +143,9 @@ fn bench_template_rendering_scale(c: &mut Criterion) {
         let conditional_content: Vec<String> = (0..conditionals)
             .map(|i| {
                 format!(
-                    r#"{% if condition{} %}
+                    r#"{{% if condition{} %}}
     // Conditional {}
-{% endif %}"#,
+{{% endif %}}"#,
                     i, i
                 )
             })
@@ -678,8 +678,7 @@ fn bench_concurrent_operations(c: &mut Criterion) {
             |projects| {
                 let handles: Vec<_> = projects
                     .iter()
-                    .enumerate()
-                    .map(|(i, project)| {
+                    .map(|project| {
                         let binary = binary_path.clone();
                         let project_path = project.path().to_path_buf();
 

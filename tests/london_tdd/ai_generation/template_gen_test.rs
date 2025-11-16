@@ -1,5 +1,5 @@
 #![cfg(feature = "london_tdd")]
-#![cfg(feature = "london-tdd")]
+#![cfg(feature = "london_tdd")]
 //! London TDD tests for `ggen ai generate` command
 //!
 //! README.md §AI-Powered Generation - Template Generation
@@ -24,7 +24,7 @@ fn test_ai_generate_creates_template_from_description() {
 
     mock_llm
         .expect_generate()
-        .with(predicate::str::contains("REST API module"), eq("gpt-4o"))
+        .with(str::contains("REST API module"), eq("gpt-4o"))
         .times(1)
         .returning(|_, _| {
             Ok(r#"---

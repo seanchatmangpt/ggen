@@ -26,6 +26,7 @@ struct TestPackage {
 struct TestRegistry {
     packages: Vec<TestPackage>,
     index_path: PathBuf,
+    #[allow(dead_code)]
     cache_dir: PathBuf,
 }
 
@@ -315,7 +316,7 @@ fn bench_installation_performance(c: &mut Criterion) {
                 .unwrap();
 
                 // Install dependencies
-                for (dep_name, _version) in &pkg.dependencies {
+                for dep_name in pkg.dependencies.keys() {
                     let dep_dir = install_dir.join(dep_name);
                     std::fs::create_dir_all(&dep_dir).unwrap();
                 }
@@ -352,7 +353,7 @@ fn bench_installation_performance(c: &mut Criterion) {
                 .unwrap();
 
                 // Install all dependencies
-                for (dep_name, _version) in &pkg.dependencies {
+                for dep_name in pkg.dependencies.keys() {
                     let dep_dir = install_dir.join(dep_name);
                     std::fs::create_dir_all(&dep_dir).unwrap();
 
@@ -536,10 +537,8 @@ fn bench_cache_performance(c: &mut Criterion) {
         b.iter(|| {
             let entries = std::fs::read_dir(&cache_dir).unwrap();
             let mut count = 0;
-            for entry in entries {
-                if let Ok(_entry) = entry {
-                    count += 1;
-                }
+            for _entry in entries.flatten() {
+                count += 1;
             }
             black_box(count)
         });

@@ -147,12 +147,6 @@ workspace = false
 command = "timeout"
 args = ["20m", "cargo", "test", "--test", "marketplace_nextjs_ontology_e2e", "--", "--ignored", "--nocapture"]
 
-[tasks.test-ignored-nextjs]
-description = "Run Next.js ontology E2E test (long-running, requires Docker, ~10-15 minutes)"
-workspace = false
-command = "timeout"
-args = ["20m", "cargo", "test", "--test", "marketplace_nextjs_ontology_e2e", "test_nextjs_ontology_package_complete_lifecycle", "--", "--ignored", "--nocapture"]
-
 [tasks.test-doc]
 description = "Run doctests (CRITICAL: Verifies all doctests compile and run)"
 workspace = false
@@ -401,434 +395,9 @@ description = "Validate Ollama integration (checks service, model, and runs test
 workspace = false
 command = "./scripts/validate-ollama.sh"
 
-# GitHub Actions local testing with act
-[tasks.act-list]
-description = "List available GitHub Actions workflows"
-workspace = false
-command = "act"
-args = ["--list"]
-
-[tasks.act-lint]
-description = "Run lint workflow locally with act"
-workspace = false
-command = "act"
-args = [
-  "--container-architecture",
-  "${ACT_CONTAINER_ARCH}",
-  "--platform",
-  "${ACT_PLATFORM}",
-  "-j",
-  "lint",
-]
-
-[tasks.act-test]
-description = "Run test workflow locally with act"
-workspace = false
-command = "act"
-args = [
-  "--container-architecture",
-  "${ACT_CONTAINER_ARCH}",
-  "--platform",
-  "${ACT_PLATFORM}",
-  "-j",
-  "test",
-]
-
-[tasks.act-build]
-description = "Run build workflow locally with act"
-workspace = false
-command = "act"
-args = [
-  "--container-architecture",
-  "${ACT_CONTAINER_ARCH}",
-  "--platform",
-  "${ACT_PLATFORM}",
-  "-j",
-  "build",
-]
-
-[tasks.act-audit]
-description = "Run security audit workflow locally with act"
-workspace = false
-command = "act"
-args = [
-  "--container-architecture",
-  "${ACT_CONTAINER_ARCH}",
-  "--platform",
-  "${ACT_PLATFORM}",
-  "-j",
-  "audit",
-]
-
-[tasks.act-all]
-description = "Run all workflows locally with act (lightweight)"
-workspace = false
-command = "act"
-args = [
-  "--container-architecture",
-  "${ACT_CONTAINER_ARCH}",
-  "--platform",
-  "${ACT_PLATFORM}",
-  "--matrix",
-]
-
-[tasks.act-release]
-description = "Run release workflows locally with act (parallel execution)"
-workspace = false
-script_runner = "@shell"
-script = '''
-./scripts/act-release.sh
-'''
-
-[tasks.act-release-dry-run]
-description = "Show what act-release would execute without running"
-workspace = false
-script_runner = "@shell"
-script = '''
-./scripts/act-release.sh --dry-run
-'''
-
-[tasks.act-release-workflow-only]
-description = "Run only the release workflow with act"
-workspace = false
-script_runner = "@shell"
-script = '''
-./scripts/act-release.sh --workflow-only
-'''
-
-[tasks.act-release-homebrew-only]
-description = "Run only the homebrew-release workflow with act"
-workspace = false
-script_runner = "@shell"
-script = '''
-./scripts/act-release.sh --homebrew-only
-'''
-
-[tasks.act-release-debug]
-description = "Run release workflows with debug output"
-workspace = false
-script_runner = "@shell"
-script = '''
-DEBUG=true ./scripts/act-release.sh
-'''
-
-[tasks.act-release-json]
-description = "Run release workflows with JSON output"
-workspace = false
-script_runner = "@shell"
-script = '''
-./scripts/act-release.sh --json
-'''
-
-[tasks.act-release-retry]
-description = "Run release workflows with retry logic"
-workspace = false
-script_runner = "@shell"
-script = '''
-./scripts/act-release.sh --retry-failed
-'''
-
-[tasks.act-release-metrics]
-description = "Run release workflows with metrics collection"
-workspace = false
-script_runner = "@shell"
-script = '''
-./scripts/act-release.sh --metrics
-'''
-
-[tasks.act-release-timeout]
-description = "Run release workflows with custom timeout"
-workspace = false
-script_runner = "@shell"
-script = '''
-./scripts/act-release.sh --timeout 3600
-'''
-
-[tasks.act-release-verbose]
-description = "Run release workflows with verbose output"
-workspace = false
-script_runner = "@shell"
-script = '''
-./scripts/act-release.sh --verbose
-'''
-
-[tasks.act-parallel]
-description = "Run multiple workflows in parallel"
-workspace = false
-dependencies = ["act-lint", "act-test", "act-build"]
-
-[tasks.act-cleanup]
-description = "Clean up act containers and images"
-workspace = false
-script = '''
-echo "🧹 Cleaning up act containers..."
-docker ps -a --filter "label=act" --format "table {{.ID}}\t{{.Status}}\t{{.Names}}" | grep act || true
-docker container prune -f --filter "label=act" || true
-docker image prune -f --filter "label=act" || true
-echo "✅ Act cleanup complete"
-'''
-
-[tasks.act-lint-light]
-description = "Run lint workflow locally with act (lightweight, no cargo-make)"
-workspace = false
-command = "act"
-args = [
-  "--container-architecture",
-  "${ACT_CONTAINER_ARCH}",
-  "--platform",
-  "${ACT_PLATFORM}",
-  "-W",
-  ".github/workflows/lint.yml",
-  "-j",
-  "lint",
-  "--artifact-server-path",
-  "/tmp/act-artifacts",
-]
-
-[tasks.act-test-light]
-description = "Run test workflow locally with act (lightweight)"
-workspace = false
-command = "act"
-args = [
-  "--container-architecture",
-  "${ACT_CONTAINER_ARCH}",
-  "--platform",
-  "${ACT_PLATFORM}",
-  "-W",
-  ".github/workflows/test.yml",
-  "-j",
-  "test",
-  "--artifact-server-path",
-  "/tmp/act-artifacts",
-]
-
-[tasks.act-build-light]
-description = "Run build workflow locally with act (lightweight)"
-workspace = false
-command = "act"
-args = [
-  "--container-architecture",
-  "${ACT_CONTAINER_ARCH}",
-  "--platform",
-  "${ACT_PLATFORM}",
-  "-W",
-  ".github/workflows/build.yml",
-  "-j",
-  "build",
-  "--artifact-server-path",
-  "/tmp/act-artifacts",
-]
-
-[tasks.act-dry-run]
-description = "Dry run all workflows (no execution)"
-workspace = false
-command = "act"
-args = [
-  "--container-architecture",
-  "${ACT_CONTAINER_ARCH}",
-  "--platform",
-  "${ACT_PLATFORM}",
-  "--dryrun",
-]
-
-[tasks.act-status]
-description = "Check act installation and Docker status"
-workspace = false
-script = '''
-echo "🔍 Checking act installation..."
-act --version || echo "❌ act not installed"
-echo ""
-echo "🐳 Checking Docker status..."
-docker --version || echo "❌ Docker not available"
-docker ps > /dev/null 2>&1 && echo "✅ Docker daemon running" || echo "❌ Docker daemon not running"
-echo ""
-echo "📊 Docker resource usage:"
-docker system df
-'''
-
-[tasks.act-install-check]
-description = "Verify act is installed and provide installation instructions if missing"
-workspace = false
-script = '''
-#!/bin/bash
-set -e
-
-if command -v act &> /dev/null; then
-    echo "✅ act is installed"
-    act --version
-    echo ""
-    echo "✅ Docker check:"
-    if docker ps > /dev/null 2>&1; then
-        echo "✅ Docker daemon is running"
-    else
-        echo "❌ Docker daemon is not running"
-        echo "   Start Docker Desktop or Docker daemon"
-        exit 1
-    fi
-else
-    echo "❌ act is not installed"
-    echo ""
-    echo "📦 Installation instructions:"
-    echo ""
-    echo "macOS (Homebrew):"
-    echo "  brew install act"
-    echo ""
-    echo "Linux (using install script):"
-    echo "  curl https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash"
-    echo ""
-    echo "Or download from: https://github.com/nektos/act/releases"
-    echo ""
-    exit 1
-fi
-'''
-
-[tasks.act-ci]
-description = "Run CI workflow locally with act"
-workspace = false
-command = "act"
-args = [
-  "--container-architecture",
-  "${ACT_CONTAINER_ARCH}",
-  "--platform",
-  "${ACT_PLATFORM}",
-  "-W",
-  ".github/workflows/ci.yml",
-  "-j",
-  "file-organization",
-]
-
-[tasks.act-ci-test]
-description = "Run CI test job locally with act"
-workspace = false
-command = "act"
-args = [
-  "--container-architecture",
-  "${ACT_CONTAINER_ARCH}",
-  "--platform",
-  "${ACT_PLATFORM}",
-  "-W",
-  ".github/workflows/ci.yml",
-  "-j",
-  "test",
-]
-
-[tasks.act-ci-fmt]
-description = "Run CI fmt job locally with act"
-workspace = false
-command = "act"
-args = [
-  "--container-architecture",
-  "${ACT_CONTAINER_ARCH}",
-  "--platform",
-  "${ACT_PLATFORM}",
-  "-W",
-  ".github/workflows/ci.yml",
-  "-j",
-  "fmt",
-]
-
-[tasks.act-ci-clippy]
-description = "Run CI clippy job locally with act"
-workspace = false
-command = "act"
-args = [
-  "--container-architecture",
-  "${ACT_CONTAINER_ARCH}",
-  "--platform",
-  "${ACT_PLATFORM}",
-  "-W",
-  ".github/workflows/ci.yml",
-  "-j",
-  "clippy",
-]
-
-[tasks.act-marketplace-test]
-description = "Run marketplace-test workflow locally with act"
-workspace = false
-command = "act"
-args = [
-  "--container-architecture",
-  "${ACT_CONTAINER_ARCH}",
-  "--platform",
-  "${ACT_PLATFORM}",
-  "-W",
-  ".github/workflows/marketplace-test.yml",
-  "-j",
-  "test-marketplace",
-]
-
-[tasks.act-marketplace]
-description = "Run marketplace workflow locally with act"
-workspace = false
-command = "act"
-args = [
-  "--container-architecture",
-  "${ACT_CONTAINER_ARCH}",
-  "--platform",
-  "${ACT_PLATFORM}",
-  "-W",
-  ".github/workflows/marketplace.yml",
-]
-
-[tasks.act-security-audit]
-description = "Run security-audit workflow locally with act"
-workspace = false
-command = "act"
-args = [
-  "--container-architecture",
-  "${ACT_CONTAINER_ARCH}",
-  "--platform",
-  "${ACT_PLATFORM}",
-  "-W",
-  ".github/workflows/security-audit.yml",
-]
-
-[tasks.act-quality-gates]
-description = "Run quality-gates workflow locally with act"
-workspace = false
-command = "act"
-args = [
-  "--container-architecture",
-  "${ACT_CONTAINER_ARCH}",
-  "--platform",
-  "${ACT_PLATFORM}",
-  "-W",
-  ".github/workflows/quality-gates.yml",
-]
-
-[tasks.act-london-tdd]
-description = "Run london-tdd-tests workflow locally with act"
-workspace = false
-command = "act"
-args = [
-  "--container-architecture",
-  "${ACT_CONTAINER_ARCH}",
-  "--platform",
-  "${ACT_PLATFORM}",
-  "-W",
-  ".github/workflows/london-tdd-tests.yml",
-  "-j",
-  "london-tdd",
-]
-
-[tasks.act-deploy-docs]
-description = "Run deploy-docs workflow locally with act (dry-run, no actual deployment)"
-workspace = false
-command = "act"
-args = [
-  "--container-architecture",
-  "${ACT_CONTAINER_ARCH}",
-  "--platform",
-  "${ACT_PLATFORM}",
-  "-W",
-  ".github/workflows/deploy-docs.yml",
-  "-j",
-  "deploy-docs",
-  "--dryrun",
-]
-
-[tasks.act-workflow]
-description = "Run a specific workflow with act (usage: cargo make act-workflow WORKFLOW=ci.yml JOB=test)"
+# GitHub Actions local testing with act (80/20: minimal essential tasks)
+[tasks.act]
+description = "Run a GitHub Actions workflow locally with act (usage: cargo make act WORKFLOW=ci.yml JOB=fmt)"
 workspace = false
 script_runner = "@shell"
 script = '''
@@ -853,6 +422,12 @@ else
     -j "${JOB}"
 fi
 '''
+
+[tasks.act-list]
+description = "List available GitHub Actions workflows"
+workspace = false
+command = "act"
+args = ["--list"]
 
 [tasks.act-validate]
 description = "Validate all workflows can be parsed by act (dry-run)"
@@ -903,6 +478,53 @@ else
   echo "❌ Found ${ERRORS} workflow(s) with errors"
   exit 1
 fi
+'''
+
+[tasks.act-status]
+description = "Check act installation and Docker status"
+workspace = false
+script = '''
+#!/bin/bash
+set -e
+
+echo "🔍 Checking act installation..."
+if command -v act &> /dev/null; then
+    echo "✅ act is installed"
+    act --version
+else
+    echo "❌ act is not installed"
+    echo ""
+    echo "📦 Installation instructions:"
+    echo "  macOS: brew install act"
+    echo "  Linux: curl https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash"
+    echo "  Or: https://github.com/nektos/act/releases"
+    exit 1
+fi
+
+echo ""
+echo "🐳 Checking Docker status..."
+if docker ps > /dev/null 2>&1; then
+    echo "✅ Docker daemon is running"
+    docker --version
+    echo ""
+    echo "📊 Docker resource usage:"
+    docker system df
+else
+    echo "❌ Docker daemon is not running"
+    echo "   Start Docker Desktop or Docker daemon"
+    exit 1
+fi
+'''
+
+[tasks.act-cleanup]
+description = "Clean up act containers and images"
+workspace = false
+script = '''
+echo "🧹 Cleaning up act containers..."
+docker ps -a --filter "label=act" --format "table {{.ID}}\t{{.Status}}\t{{.Names}}" | grep act || true
+docker container prune -f --filter "label=act" || true
+docker image prune -f --filter "label=act" || true
+echo "✅ Act cleanup complete"
 '''
 
 [tasks.test-bdd]

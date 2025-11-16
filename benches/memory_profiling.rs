@@ -42,6 +42,7 @@ mod memory_tests {
     #[allow(unused_imports)]
     use super::*;
 
+    #[allow(dead_code)]
     async fn sample_async_work() -> String {
         let mut result = String::new();
         for i in 0..100 {

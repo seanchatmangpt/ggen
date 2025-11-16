@@ -7,7 +7,6 @@
 use ggen_utils::error::Error as GgenError;
 use mockall::predicate::*;
 use mockall::*;
-use std::collections::HashMap;
 use std::path::PathBuf;
 
 // Re-export common test dependencies

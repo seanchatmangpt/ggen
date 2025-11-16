@@ -232,7 +232,7 @@ pub struct CacheStats {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chicago_tdd_tools::prelude::*;
+    use chicago_tdd_tools::test;
     use std::io::Write;
     use tempfile::NamedTempFile;
 

@@ -6,7 +6,7 @@
 #[cfg(test)]
 mod tests {
     use super::super::core::Graph;
-    use chicago_tdd_tools::prelude::*;
+    use chicago_tdd_tools::test;
     use chicago_tdd_tools::testcontainers::{
         exec::SUCCESS_EXIT_CODE, ContainerClient, GenericContainer,
     };

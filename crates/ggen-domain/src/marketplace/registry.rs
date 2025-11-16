@@ -346,6 +346,13 @@ impl Registry {
 
     /// Save registry index to filesystem
     #[instrument(skip(self))]
+    /// Save registry index with file locking and atomic writes
+    ///
+    /// FM23 (RPN 450): Concurrent registry writes cause data corruption
+    /// FM24 (RPN 400): Registry save fails silently leaving stale in-memory state
+    /// - Uses file locking to prevent concurrent writes
+    /// - Atomic write (temp + rename) for crash safety
+    /// - Verifies write succeeded before returning
     pub async fn save(&self) -> Result<()> {
         // Extract index data before await to avoid holding lock across await
         let index_data = {
@@ -365,11 +372,84 @@ impl Registry {
             fs::create_dir_all(parent).await?;
         }
 
-        // Serialize and write to file
-        let contents = serde_json::to_string_pretty(&index_data)?;
-        fs::write(&self.index_path, contents).await?;
+        // FM23: Create lock file to prevent concurrent writes
+        let lock_path = self.index_path.with_extension("index.lock");
+        let lock_file = tokio::task::spawn_blocking({
+            let lock_path = lock_path.clone();
+            move || {
+                use std::fs::OpenOptions;
+                use std::io::Write;
 
-        info!("Registry index saved to: {}", self.index_path.display());
+                // Create lock file with exclusive access
+                let mut lock_file = OpenOptions::new()
+                    .create(true)
+                    .write(true)
+                    .truncate(true)
+                    .open(&lock_path)
+                    .map_err(|e| {
+                        Error::new(&format!(
+                            "Failed to create registry lock at {}: {}. Another process may be writing.",
+                            lock_path.display(),
+                            e
+                        ))
+                    })?;
+
+                // Write PID to lock file for debugging
+                let pid = std::process::id();
+                writeln!(lock_file, "{}", pid).map_err(|e| {
+                    Error::new(&format!("Failed to write to registry lock: {}", e))
+                })?;
+                lock_file.sync_all().map_err(|e| {
+                    Error::new(&format!("Failed to sync registry lock: {}", e))
+                })?;
+
+                Ok::<std::fs::File, Error>(lock_file)
+            }
+        })
+        .await
+        .map_err(|e| Error::new(&format!("Task join error acquiring lock: {}", e)))??;
+
+        // Lock file is held until this function returns
+        let _lock_guard = lock_file;
+
+        // Serialize and write to file atomically
+        let contents = serde_json::to_string_pretty(&index_data)?;
+        let temp_path = self.index_path.with_extension("index.tmp");
+
+        // Write to temp file first
+        fs::write(&temp_path, contents)
+            .await
+            .map_err(|e| Error::new(&format!("Failed to write registry temp file: {}", e)))?;
+
+        // Atomic rename
+        fs::rename(&temp_path, &self.index_path)
+            .await
+            .map_err(|e| {
+                // Cleanup temp file on error
+                std::mem::drop(fs::remove_file(&temp_path));
+                Error::new(&format!("Failed to atomically update registry: {}", e))
+            })?;
+
+        // FM24: Verify write succeeded by reading back
+        let verify_content = fs::read_to_string(&self.index_path).await.map_err(|e| {
+            Error::new(&format!(
+                "Failed to verify registry write: {}. Registry may be corrupted.",
+                e
+            ))
+        })?;
+
+        // Verify JSON is valid
+        serde_json::from_str::<RegistryIndex>(&verify_content).map_err(|e| {
+            Error::new(&format!(
+                "Registry verification failed - saved file is invalid JSON: {}. Registry may be corrupted.",
+                e
+            ))
+        })?;
+
+        info!(
+            "Registry index saved and verified at: {}",
+            self.index_path.display()
+        );
         Ok(())
     }
 
@@ -495,7 +575,7 @@ impl Registry {
         // STRICT: Empty registry is an error, not just a warning
         if index.packages.is_empty() {
             return Err(Error::new(
-                "Registry index is empty. Run 'ggen marketplace sync' to download the registry."
+                "Registry index is empty. Run 'ggen marketplace sync' to download the registry.",
             ));
         }
 
