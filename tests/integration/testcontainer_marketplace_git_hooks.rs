@@ -12,6 +12,8 @@
 ///
 /// Run with: cargo test --test testcontainer_marketplace_git_hooks -- --ignored
 use std::process::Command;
+// Note: This test uses testcontainers crate directly
+// For chicago-tdd-tools testcontainers, see marketplace_nextjs_ontology_e2e.rs
 use testcontainers::{core::WaitFor, runners::SyncRunner, GenericImage, ImageExt};
 
 /// Configuration constants

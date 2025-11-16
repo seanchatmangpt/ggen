@@ -1,14 +1,17 @@
 {
   "version": "1.0.0",
   "registry_url": "https://github.com/seanchatmangpt/ggen",
-  "updated_at": "2025-11-10T17:49:18.363517Z",
-  "package_count": 48,
+  "updated_at": "2025-11-16T02:07:56.549355Z",
+  "package_count": 55,
   "categories": {
+    "academic-tools": 1,
+    "academic-workflow": 1,
     "showcase": 2,
     "ai-agents": 5,
     "ai": 2,
     "microservices": 1,
     "templates": 1,
+    "academic-paper": 4,
     "Enterprise": 5,
     "finance": 4,
     "ai-tools": 1,
@@ -19,9 +22,69 @@
     "api": 1,
     "starter": 1,
     "ecommerce": 3,
+    "web": 1,
     "architecture": 1
   },
   "packages": [
+    {
+      "name": "academic-bibliography-manager",
+      "version": "1.0.0",
+      "category": "academic-tools",
+      "description": "Bibliography management system with BibTeX support, citation validation, duplicate detection, and multi-format export",
+      "tags": [
+        "bibliography",
+        "bibtex",
+        "citations",
+        "academic"
+      ],
+      "keywords": [
+        "bibliography",
+        "bibtex",
+        "citations",
+        "references",
+        "doi",
+        "orcid"
+      ],
+      "author": "ggen-team",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/academic-bibliography-manager",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "3d6ff6ca7b8324829b40cd18dab6a9e5dbe6d843ca8a9a02a15289ec218440cc"
+    },
+    {
+      "name": "academic-peer-review-workflow",
+      "version": "1.0.0",
+      "category": "academic-workflow",
+      "description": "Integrated peer review workflow with reviewer comments, author responses, revision tracking, and decision management",
+      "tags": [
+        "workflow",
+        "peer-review",
+        "academic",
+        "collaboration"
+      ],
+      "keywords": [
+        "peer-review",
+        "workflow",
+        "academic-publishing",
+        "revision-tracking",
+        "collaboration"
+      ],
+      "author": "ggen-team",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [
+        "academic-paper-lifecycle"
+      ],
+      "path": "marketplace/packages/academic-peer-review-workflow",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "6fcdb1f128e218be85f64f894f2ad993950fc6c825d4b9ab9a24bf8d0a234cea"
+    },
     {
       "name": "advanced-rust-project",
       "version": "1.0.0",
@@ -49,7 +112,10 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/advanced-rust-project",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "b72761373f68dccb5ac210c5caf4456d83facf1b93f1548f61d51e25734805a8"
     },
     {
       "name": "agent-cli-copilot",
@@ -63,7 +129,10 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/agent-cli-copilot",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "3a1c64846c6e157685a851882d292c30d5c17e5d32520a99cc5dd996a8bed364"
     },
     {
       "name": "agent-context-crafter",
@@ -79,7 +148,10 @@
       "production_ready": false,
       "dependencies": [
         "agent-memory-forge"
-      ]
+      ],
+      "path": "marketplace/packages/agent-context-crafter",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "c30868b721a831290d43831e1c1a9ac1fe4c917c1755076723c8ebed7fe6cd1b"
     },
     {
       "name": "agent-editor",
@@ -93,7 +165,10 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/agent-editor",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "6ffbc65a362862efbc03634dea134913b85c6fb2a69e2ca3b24b95f8ba7d7dc5"
     },
     {
       "name": "agent-memory-forge",
@@ -107,7 +182,10 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/agent-memory-forge",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "8fbe8b192d9cfcac1521583aa78fcac83785b4becf1b7aa5ad924a58fde18936"
     },
     {
       "name": "agent-reasoning-mcp",
@@ -124,7 +202,10 @@
       "dependencies": [
         "agent-memory-forge",
         "agent-context-crafter"
-      ]
+      ],
+      "path": "marketplace/packages/agent-reasoning-mcp",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "637166a0c393199a73e440daad2390a1a9c0232262f35ddda48f792fd4b9a70c"
     },
     {
       "name": "ai-code-generation",
@@ -150,7 +231,10 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/ai-code-generation",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "133a945702054e5dff23a3de38d0e9d7127be650f18e116a196abfdd9e8849d8"
     },
     {
       "name": "ai-microservice",
@@ -176,7 +260,10 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/ai-microservice",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "987d6865f0b8565ba6f4e618edc25f0b1f07d6f0051dec900018d6b131a7e34e"
     },
     {
       "name": "api-endpoint",
@@ -202,7 +289,39 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/api-endpoint",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "1fbf999ea7f73965eda54300ccdb1f81e48a5e6302c329b236f6a3d99df9063c"
+    },
+    {
+      "name": "arxiv-paper-template",
+      "version": "1.0.0",
+      "category": "academic-paper",
+      "description": "arXiv-compatible preprint format with automatic metadata extraction and submission support",
+      "tags": [
+        "paper",
+        "arxiv",
+        "preprint",
+        "latex",
+        "academic"
+      ],
+      "keywords": [
+        "arxiv",
+        "preprint",
+        "latex",
+        "open-access",
+        "academic-writing"
+      ],
+      "author": "ggen-team",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/arxiv-paper-template",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "85c6271e2b1d8cd829efc4901738e71a6a57e9a888d12f2a0843cfc39fd9ca3d"
     },
     {
       "name": "asset-management",
@@ -225,7 +344,10 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/asset-management",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "af44545e65f991713b32b6bb6e905c571fc7c100153adcd94419df766461214b"
     },
     {
       "name": "banking-core",
@@ -246,7 +368,10 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/banking-core",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "f8883cf6b174a3a93bf29d90701d62ade0f103797f1f41d607adabc5d913392a"
     },
     {
       "name": "business-intelligence-reporting",
@@ -269,7 +394,10 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/business-intelligence-reporting",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "b78d38454350ebf1454f16b48d0c8ad556b53cb83485e8f6ae9bce5b556a70ba"
     },
     {
       "name": "chatman-cli",
@@ -283,7 +411,10 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/chatman-cli",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "d248b0ca7de9d5b715604f729ef8f758290bc7a17dd0a6f0df84c2e1ebeee20b"
     },
     {
       "name": "cli-application-template",
@@ -297,7 +428,10 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/cli-application-template",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "0ab0616f2dc84597c0a9698cc3868622670766c0682b50192cf0b9285c3dbc1d"
     },
     {
       "name": "clinical-trials-management",
@@ -317,7 +451,10 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/clinical-trials-management",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "19a16bb5a0f816e763410ff286d9a84bffb4161e136786b307e0121b29b87ebf"
     },
     {
       "name": "comprehensive-rust-showcase",
@@ -347,7 +484,10 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/comprehensive-rust-showcase",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "73e7bf8da64a1c97a56f93555de0d26fe07eeaaff07c37e05be81ba80cb963dd"
     },
     {
       "name": "crm-customer-management",
@@ -367,7 +507,10 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/crm-customer-management",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "2d4407d0c10cb96c5fe2abe58b65a81cb71b839a3dbee705b8fd7e3b93a04958"
     },
     {
       "name": "cryptocurrency-exchange",
@@ -388,7 +531,10 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/cryptocurrency-exchange",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "71b67a46335ce8b777a7bc9d871c934d418d6ea06c92c5e1cbbffe83cbb5bcde"
     },
     {
       "name": "data-pipeline-cli",
@@ -409,7 +555,10 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/data-pipeline-cli",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "c2e356e18e8384abfc0eddfd408b32f93f480b3b09a1e09b4702809374d39fc4"
     },
     {
       "name": "database-schema-generator",
@@ -433,7 +582,10 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/database-schema-generator",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "26a3ecc6fbbced7a9cc4e5676a7dd34085724500db3e37885fe707835824d3fd"
     },
     {
       "name": "document-management-system",
@@ -455,7 +607,10 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/document-management-system",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "4b240cdef750d1a4917429c424952d50edae36373a6ce74eba9a5620923d52ff"
     },
     {
       "name": "ehr-integration",
@@ -476,7 +631,10 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/ehr-integration",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "0732ce314a7855e4037ed95ee77e7411e956736d9ae1c3e45dbe7c5a3565bd49"
     },
     {
       "name": "enterprise-erp-core",
@@ -496,7 +654,10 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/enterprise-erp-core",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "5932af95483b358e2c25ea2141d5a24a1f4cab3267175304d2e937215c9225e9"
     },
     {
       "name": "graphql-api-template",
@@ -517,7 +678,10 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/graphql-api-template",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "050e4fc41473d06564786d94f95700f3c0d6f790f6f8468e7fd4350da9a67999"
     },
     {
       "name": "healthcare-analytics",
@@ -537,7 +701,10 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/healthcare-analytics",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "46369b83f328299d0716cc5e0930cb23496b14341123cd02a29f53238b96d928"
     },
     {
       "name": "hello-world",
@@ -561,7 +728,10 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/hello-world",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "6068cc14c09af5e0503395ba081989d0ffb4567db60e404a482671275abfd71c"
     },
     {
       "name": "human-resources-management",
@@ -584,7 +754,39 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/human-resources-management",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "c2ee0d0cab99765a12511803bba79260e3de6f930702e191b2b7fdb59c4beca9"
+    },
+    {
+      "name": "ieee-paper-template",
+      "version": "1.0.0",
+      "category": "academic-paper",
+      "description": "IEEE conference paper generation with two-column layout, automatic bibliography, and figure/table support",
+      "tags": [
+        "paper",
+        "ieee",
+        "conference",
+        "latex",
+        "academic"
+      ],
+      "keywords": [
+        "ieee",
+        "conference-paper",
+        "two-column",
+        "latex",
+        "academic-writing"
+      ],
+      "author": "ggen-team",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/ieee-paper-template",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "1e4368b2797b3d365209e0caf7fbc3a3b6564ca7524b8c13a8c4dae6f1c6b8db"
     },
     {
       "name": "inventory-management",
@@ -598,7 +800,35 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/inventory-management",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "53c2e8c3831cffc613aa0e66a0192a33c06ab304e58a397c9e3937abc069da6b"
+    },
+    {
+      "name": "io.ggen.nextjs.ontology-crud",
+      "version": "1.0.0",
+      "category": "web",
+      "description": "Full-stack Next.js application with shadcn/ui where CRUD tables auto-sync with RDF ontology via git hooks",
+      "tags": [
+        "nextjs",
+        "typescript",
+        "shadcn",
+        "ontology",
+        "crud",
+        "rdf",
+        "fullstack"
+      ],
+      "keywords": [],
+      "author": "ggen",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/io.ggen.nextjs.ontology-crud",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "4cee5f0f1d94fe5466add07aa8142f385f2ffa3ea01430f42e194eb9f27ceed9"
     },
     {
       "name": "knowledge-graph-cli",
@@ -618,7 +848,10 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/knowledge-graph-cli",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "23dbc75153d53ce5099b44d3f617ed70112b75cb1d2bcec1cd4c35392005a231"
     },
     {
       "name": "laboratory-information-system",
@@ -638,7 +871,10 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/laboratory-information-system",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "47f6ef8b504a8472b769a9e6e235a1447682acb316d217e25c49c85a57cc6551"
     },
     {
       "name": "medical-billing",
@@ -658,7 +894,10 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/medical-billing",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "2ef64c7e63df58e8755d3d760b47c9d223be1ee7bec304fa045b52f24bd1e825"
     },
     {
       "name": "microservices-architecture",
@@ -684,7 +923,10 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/microservices-architecture",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "e9c95d091317edc21da93616eb21d5da3ff4918b612efd1be2c57bf9e6ce7330"
     },
     {
       "name": "microservices-architecture-template",
@@ -705,7 +947,10 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/microservices-architecture-template",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "16ec5f345c10b546decda831adfa380e0889f8219a908d5adac18ff84de63f94"
     },
     {
       "name": "multi-tenant-saas",
@@ -719,7 +964,39 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/multi-tenant-saas",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "03f2f7fd66eeb662c1a9ba2d4aa1df3aaf3ebe68506a379c397e22b9a1a3f2e2"
+    },
+    {
+      "name": "neurips-paper-template",
+      "version": "1.0.0",
+      "category": "academic-paper",
+      "description": "NeurIPS conference paper generation with double-blind review, appendices, and neural networks focus",
+      "tags": [
+        "paper",
+        "neurips",
+        "conference",
+        "machine-learning",
+        "latex"
+      ],
+      "keywords": [
+        "neurips",
+        "conference-paper",
+        "machine-learning",
+        "neural-networks",
+        "deep-learning"
+      ],
+      "author": "ggen-team",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/neurips-paper-template",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "4d529152d3e5439b932139576b231c433966750c339f6a88590c1e5fb5e6dff4"
     },
     {
       "name": "pharmacy-management",
@@ -739,7 +1016,39 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/pharmacy-management",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "c0718ad90f22165c55b7ad4f29b52365324f3e8c50ef972531d2025c02249693"
+    },
+    {
+      "name": "phd-thesis-template",
+      "version": "1.0.0",
+      "category": "academic-paper",
+      "description": "PhD thesis template with chapters, appendices, TOC/LOF/LOT, and customizable university requirements",
+      "tags": [
+        "thesis",
+        "phd",
+        "dissertation",
+        "latex",
+        "academic"
+      ],
+      "keywords": [
+        "phd-thesis",
+        "dissertation",
+        "chapter-based",
+        "academic-writing",
+        "latex"
+      ],
+      "author": "ggen-team",
+      "license": "MIT",
+      "downloads": 0,
+      "stars": 0,
+      "production_ready": false,
+      "dependencies": [],
+      "path": "marketplace/packages/phd-thesis-template",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "6724a18d4f8ba8290c9438fed087e3c553958628d78e441f5b99ae6481c8dd0a"
     },
     {
       "name": "product-recommendations",
@@ -753,7 +1062,10 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/product-recommendations",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "08ba6c6722b0737fd4eb5dc8bc1d57ddaf3aa5e503587a7da8116c9555064c99"
     },
     {
       "name": "project-management",
@@ -776,7 +1088,10 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/project-management",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "02e39ac61b2de354c2bdedde2cdca09be9332b783e08cb77ccd16b8a2c2c957f"
     },
     {
       "name": "reasoner-cli",
@@ -797,7 +1112,10 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/reasoner-cli",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "0fe467c9310288b27d20f4fe71350af784566d1c109a67076b80c59681da6541"
     },
     {
       "name": "rig-mcp",
@@ -824,7 +1142,10 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/rig-mcp",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "2f1c5f8327d6bf0cf35f488d631a6f9ca5f45b76c9fab665a0d4420548327363"
     },
     {
       "name": "risk-management",
@@ -845,7 +1166,10 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/risk-management",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "b9305e4556d065e206fadc6648bb0b491a5b726c7ba9135e233ca7ee9fe3d797"
     },
     {
       "name": "robo-advisor",
@@ -865,7 +1189,10 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/robo-advisor",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "0ca2c0db192b04adf0cfbb7d8dbbcf4b732bc4a18c5d8a9f63768a9640a85f2d"
     },
     {
       "name": "schema-forge-cli",
@@ -885,7 +1212,10 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/schema-forge-cli",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "c7612abd88f2264b44f83f057e5986333e8a5f6b6de4a96b3135e337eba6dc2c"
     },
     {
       "name": "semantic-cli",
@@ -906,7 +1236,10 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/semantic-cli",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "40b1e47fbc2cd806011f9bece59345a8b421d9c3657a4520c4452c4538babdc5"
     },
     {
       "name": "shacl-cli",
@@ -927,7 +1260,10 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/shacl-cli",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "dfa22fc3678381d52fa759e8a0b5989a69ffbe5c66a98ab101fe4612f03ae8a9"
     },
     {
       "name": "sparql-cli",
@@ -948,7 +1284,10 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/sparql-cli",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "b1b30fd1846a6f879d835f06cb7b57c521b0261544de488bbd6110548a43600c"
     },
     {
       "name": "supply-chain-management",
@@ -968,7 +1307,10 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/supply-chain-management",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "2975d0b073c9db986b9a56bed3fab23b84f3c6bd0c43db9e3a14c5f2adc483fc"
     },
     {
       "name": "telemedicine-platform",
@@ -988,7 +1330,10 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/telemedicine-platform",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "4cd828d545e166bc43ecbda65b64ef7d165c640a2e37f2c6a8e76e8d1301a50d"
     },
     {
       "name": "workflow-engine-cli",
@@ -1009,10 +1354,70 @@
       "downloads": 0,
       "stars": 0,
       "production_ready": false,
-      "dependencies": []
+      "dependencies": [],
+      "path": "marketplace/packages/workflow-engine-cli",
+      "download_url": "https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip",
+      "checksum": "73e570bde012f32a63a84820dd42bdc6c42219b9a2cec070806cb4c042369619"
     }
   ],
   "search_index": {
+    "bibliography": [
+      "academic-bibliography-manager"
+    ],
+    "bibtex": [
+      "academic-bibliography-manager"
+    ],
+    "citations": [
+      "academic-bibliography-manager"
+    ],
+    "academic": [
+      "academic-bibliography-manager",
+      "academic-peer-review-workflow",
+      "arxiv-paper-template",
+      "ieee-paper-template",
+      "phd-thesis-template"
+    ],
+    "references": [
+      "academic-bibliography-manager"
+    ],
+    "doi": [
+      "academic-bibliography-manager"
+    ],
+    "orcid": [
+      "academic-bibliography-manager"
+    ],
+    "academic-tools": [
+      "academic-bibliography-manager"
+    ],
+    "manager": [
+      "academic-bibliography-manager"
+    ],
+    "workflow": [
+      "academic-peer-review-workflow",
+      "document-management-system",
+      "workflow-engine-cli"
+    ],
+    "peer-review": [
+      "academic-peer-review-workflow"
+    ],
+    "collaboration": [
+      "academic-peer-review-workflow"
+    ],
+    "academic-publishing": [
+      "academic-peer-review-workflow"
+    ],
+    "revision-tracking": [
+      "academic-peer-review-workflow"
+    ],
+    "academic-workflow": [
+      "academic-peer-review-workflow"
+    ],
+    "peer": [
+      "academic-peer-review-workflow"
+    ],
+    "review": [
+      "academic-peer-review-workflow"
+    ],
     "rust": [
       "advanced-rust-project",
       "comprehensive-rust-showcase",
@@ -1148,15 +1553,20 @@
     ],
     "template": [
       "ai-microservice",
+      "arxiv-paper-template",
       "cli-application-template",
       "graphql-api-template",
-      "microservices-architecture-template"
+      "ieee-paper-template",
+      "microservices-architecture-template",
+      "neurips-paper-template",
+      "phd-thesis-template"
     ],
     "refactoring": [
       "ai-microservice"
     ],
     "ontology": [
       "ai-microservice",
+      "io.ggen.nextjs.ontology-crud",
       "reasoner-cli",
       "semantic-cli"
     ],
@@ -1180,6 +1590,37 @@
     ],
     "endpoint": [
       "api-endpoint"
+    ],
+    "paper": [
+      "arxiv-paper-template",
+      "ieee-paper-template",
+      "neurips-paper-template"
+    ],
+    "arxiv": [
+      "arxiv-paper-template"
+    ],
+    "preprint": [
+      "arxiv-paper-template"
+    ],
+    "latex": [
+      "arxiv-paper-template",
+      "ieee-paper-template",
+      "neurips-paper-template",
+      "phd-thesis-template"
+    ],
+    "open-access": [
+      "arxiv-paper-template"
+    ],
+    "academic-writing": [
+      "arxiv-paper-template",
+      "ieee-paper-template",
+      "phd-thesis-template"
+    ],
+    "academic-paper": [
+      "arxiv-paper-template",
+      "ieee-paper-template",
+      "neurips-paper-template",
+      "phd-thesis-template"
     ],
     "assets": [
       "asset-management"
@@ -1422,6 +1863,7 @@
     ],
     "rdf": [
       "database-schema-generator",
+      "io.ggen.nextjs.ontology-crud",
       "knowledge-graph-cli",
       "semantic-cli",
       "shacl-cli",
@@ -1450,10 +1892,6 @@
     ],
     "versioning": [
       "document-management-system"
-    ],
-    "workflow": [
-      "document-management-system",
-      "workflow-engine-cli"
     ],
     "ocr": [
       "document-management-system"
@@ -1572,6 +2010,20 @@
       "human-resources-management",
       "project-management"
     ],
+    "ieee": [
+      "ieee-paper-template"
+    ],
+    "conference": [
+      "ieee-paper-template",
+      "neurips-paper-template"
+    ],
+    "conference-paper": [
+      "ieee-paper-template",
+      "neurips-paper-template"
+    ],
+    "two-column": [
+      "ieee-paper-template"
+    ],
     "ecommerce": [
       "inventory-management",
       "multi-tenant-saas",
@@ -1579,6 +2031,27 @@
     ],
     "inventory": [
       "inventory-management"
+    ],
+    "nextjs": [
+      "io.ggen.nextjs.ontology-crud"
+    ],
+    "typescript": [
+      "io.ggen.nextjs.ontology-crud"
+    ],
+    "shadcn": [
+      "io.ggen.nextjs.ontology-crud"
+    ],
+    "crud": [
+      "io.ggen.nextjs.ontology-crud"
+    ],
+    "fullstack": [
+      "io.ggen.nextjs.ontology-crud"
+    ],
+    "web": [
+      "io.ggen.nextjs.ontology-crud"
+    ],
+    "io.ggen.nextjs.ontology": [
+      "io.ggen.nextjs.ontology-crud"
     ],
     "knowledge-graph": [
       "knowledge-graph-cli"
@@ -1659,6 +2132,18 @@
     "saas": [
       "multi-tenant-saas"
     ],
+    "neurips": [
+      "neurips-paper-template"
+    ],
+    "machine-learning": [
+      "neurips-paper-template"
+    ],
+    "neural-networks": [
+      "neurips-paper-template"
+    ],
+    "deep-learning": [
+      "neurips-paper-template"
+    ],
     "pharmacy": [
       "pharmacy-management"
     ],
@@ -1670,6 +2155,21 @@
     ],
     "dispensing": [
       "pharmacy-management"
+    ],
+    "thesis": [
+      "phd-thesis-template"
+    ],
+    "phd": [
+      "phd-thesis-template"
+    ],
+    "dissertation": [
+      "phd-thesis-template"
+    ],
+    "phd-thesis": [
+      "phd-thesis-template"
+    ],
+    "chapter-based": [
+      "phd-thesis-template"
     ],
     "product": [
       "product-recommendations"

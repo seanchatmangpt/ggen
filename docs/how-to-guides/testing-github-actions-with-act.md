@@ -43,7 +43,7 @@ docker ps
 Verify `act` is installed and Docker is running:
 
 ```bash
-cargo make act-install-check
+cargo make act-status
 ```
 
 Or manually:
@@ -65,112 +65,38 @@ cargo make act-list
 
 ### Run a Specific Workflow
 
-Run a specific workflow job:
+Run any workflow using the generic `act` task:
 
 ```bash
+# Run entire workflow (all jobs)
+cargo make act WORKFLOW=ci.yml
+
+# Run specific job from workflow
+cargo make act WORKFLOW=ci.yml JOB=fmt
+
 # Run lint workflow
-cargo make act-lint
+cargo make act WORKFLOW=lint.yml JOB=lint
 
 # Run test workflow
-cargo make act-test
+cargo make act WORKFLOW=test.yml JOB=test
 
 # Run build workflow
-cargo make act-build
-
-# Run CI workflow (file organization check)
-cargo make act-ci
-```
-
-### Run a Specific Job from a Workflow
-
-Run a specific job from a workflow:
-
-```bash
-# Run CI test job
-cargo make act-ci-test
-
-# Run CI fmt job
-cargo make act-ci-fmt
-
-# Run CI clippy job
-cargo make act-ci-clippy
-```
-
-### Generic Workflow Runner
-
-Run any workflow with a generic task:
-
-```bash
-# Run entire workflow
-cargo make act-workflow WORKFLOW=ci.yml
-
-# Run specific job
-cargo make act-workflow WORKFLOW=ci.yml JOB=test
+cargo make act WORKFLOW=build.yml JOB=build
 ```
 
 ## Available Act Tasks
 
-### Core Workflows
+The act tasks have been consolidated using 80/20 principles - only essential tasks remain:
 
-| Task | Description |
-|------|-------------|
-| `act-lint` | Run lint workflow |
-| `act-test` | Run test workflow |
-| `act-build` | Run build workflow |
-| `act-ci` | Run CI workflow (file organization) |
-| `act-ci-test` | Run CI test job |
-| `act-ci-fmt` | Run CI fmt job |
-| `act-ci-clippy` | Run CI clippy job |
+| Task | Description | Usage |
+|------|-------------|-------|
+| `act` | Run any GitHub Actions workflow | `cargo make act WORKFLOW=ci.yml JOB=fmt` |
+| `act-list` | List all available workflows | `cargo make act-list` |
+| `act-validate` | Validate all workflows can be parsed | `cargo make act-validate` |
+| `act-status` | Check act installation and Docker status | `cargo make act-status` |
+| `act-cleanup` | Clean up act containers and images | `cargo make act-cleanup` |
 
-### Marketplace Workflows
-
-| Task | Description |
-|------|-------------|
-| `act-marketplace-test` | Run marketplace-test workflow |
-| `act-marketplace` | Run marketplace workflow |
-
-### Quality & Security
-
-| Task | Description |
-|------|-------------|
-| `act-security-audit` | Run security-audit workflow |
-| `act-quality-gates` | Run quality-gates workflow |
-| `act-audit` | Run security audit workflow |
-
-### Testing Workflows
-
-| Task | Description |
-|------|-------------|
-| `act-london-tdd` | Run london-tdd-tests workflow |
-
-### Documentation
-
-| Task | Description |
-|------|-------------|
-| `act-deploy-docs` | Run deploy-docs workflow (dry-run, no deployment) |
-
-### Utility Tasks
-
-| Task | Description |
-|------|-------------|
-| `act-list` | List all available workflows |
-| `act-status` | Check act installation and Docker status |
-| `act-install-check` | Verify act is installed with installation instructions |
-| `act-dry-run` | Dry run all workflows (no execution) |
-| `act-validate` | Validate all workflows can be parsed by act |
-| `act-workflow` | Run a specific workflow (generic task) |
-| `act-cleanup` | Clean up act containers and images |
-| `act-parallel` | Run multiple workflows in parallel |
-
-### Lightweight Versions
-
-For faster testing with reduced resources:
-
-| Task | Description |
-|------|-------------|
-| `act-lint-light` | Run lint workflow (lightweight, 1GB RAM, 1 CPU) |
-| `act-test-light` | Run test workflow (lightweight) |
-| `act-build-light` | Run build workflow (lightweight) |
+**Note**: All specific workflow tasks have been consolidated into the generic `act` task. Use `cargo make act WORKFLOW=<workflow> JOB=<job>` to run any workflow or job.
 
 ## Configuration
 
@@ -203,12 +129,12 @@ Before pushing workflow changes to GitHub:
 cargo make act-validate
 
 # 2. Test the specific workflow
-cargo make act-lint
+cargo make act WORKFLOW=lint.yml JOB=lint
 
 # 3. If workflow has multiple jobs, test each job
-cargo make act-ci-test
-cargo make act-ci-fmt
-cargo make act-ci-clippy
+cargo make act WORKFLOW=ci.yml JOB=test
+cargo make act WORKFLOW=ci.yml JOB=fmt
+cargo make act WORKFLOW=ci.yml JOB=clippy
 ```
 
 ### Debugging Workflow Failures
@@ -233,7 +159,7 @@ When creating a new workflow:
 cargo make act-validate
 
 # 3. Test it
-cargo make act-workflow WORKFLOW=my-new-workflow.yml
+cargo make act WORKFLOW=my-new-workflow.yml
 ```
 
 ### Quick Feedback Loop
@@ -241,9 +167,9 @@ cargo make act-workflow WORKFLOW=my-new-workflow.yml
 For quick feedback during development:
 
 ```bash
-# Use lightweight versions for faster execution
-cargo make act-lint-light
-cargo make act-test-light
+# Run specific fast jobs
+cargo make act WORKFLOW=lint.yml JOB=lint
+cargo make act WORKFLOW=ci.yml JOB=fmt
 ```
 
 ## Limitations
@@ -294,20 +220,12 @@ cargo make act-validate
 For workflows with multiple jobs, test each job individually:
 
 ```bash
-cargo make act-ci-test
-cargo make act-ci-fmt
-cargo make act-ci-clippy
+cargo make act WORKFLOW=ci.yml JOB=test
+cargo make act WORKFLOW=ci.yml JOB=fmt
+cargo make act WORKFLOW=ci.yml JOB=clippy
 ```
 
-### 3. Use Lightweight Versions for Quick Checks
-
-For quick feedback during development:
-
-```bash
-cargo make act-lint-light
-```
-
-### 4. Clean Up Regularly
+### 3. Clean Up Regularly
 
 Clean up act containers and images periodically:
 
@@ -315,15 +233,15 @@ Clean up act containers and images periodically:
 cargo make act-cleanup
 ```
 
-### 5. Test Before Pushing
+### 4. Test Before Pushing
 
 Always test workflows locally before pushing to GitHub:
 
 ```bash
 # Before pushing workflow changes
 cargo make act-validate
-cargo make act-lint
-cargo make act-test
+cargo make act WORKFLOW=lint.yml JOB=lint
+cargo make act WORKFLOW=test.yml JOB=test
 ```
 
 ## Troubleshooting
@@ -395,7 +313,7 @@ Or modify `Makefile.toml` to increase default memory.
 cargo make act-validate
 
 # 3. Test the workflow
-cargo make act-lint
+cargo make act WORKFLOW=lint.yml JOB=lint
 
 # 4. If successful, commit and push
 git add .github/workflows/lint.yml
@@ -407,10 +325,10 @@ git push
 
 ```bash
 # Test all CI jobs individually
-cargo make act-ci              # File organization
-cargo make act-ci-test         # Tests
-cargo make act-ci-fmt          # Formatting
-cargo make act-ci-clippy       # Clippy
+cargo make act WORKFLOW=ci.yml JOB=file-organization  # File organization
+cargo make act WORKFLOW=ci.yml JOB=test                # Tests
+cargo make act WORKFLOW=ci.yml JOB=fmt                 # Formatting
+cargo make act WORKFLOW=ci.yml JOB=clippy              # Clippy
 ```
 
 ### Example 3: Quick Validation
@@ -419,8 +337,8 @@ cargo make act-ci-clippy       # Clippy
 # Quick check of all workflows
 cargo make act-validate
 
-# Quick test of lint (lightweight)
-cargo make act-lint-light
+# Quick test of lint
+cargo make act WORKFLOW=lint.yml JOB=lint
 ```
 
 ## Integration with Development Workflow

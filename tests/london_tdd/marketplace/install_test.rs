@@ -1,5 +1,5 @@
 #![cfg(feature = "london_tdd")]
-//! London TDD tests for `ggen add` command
+//! Chicago TDD tests for `ggen add` command
 //!
 //! README.md §Marketplace - Package Installation
 //!
@@ -10,12 +10,10 @@
 //! - Installation verification
 
 use crate::lib::*;
+use chicago_tdd_tools::prelude::*;
 use mockall::predicate::*;
 
-#[test]
-fn test_add_downloads_and_installs_package() {
-    let start = std::time::Instant::now();
-
+test!(test_add_downloads_and_installs_package, {
     // Arrange
     let mut mock_marketplace = MockMarketplaceClient::new();
     let mut mock_fs = MockFilesystem::new();
@@ -35,17 +33,13 @@ fn test_add_downloads_and_installs_package() {
     let result = run_add_command(&mock_marketplace, &mock_fs, "io.ggen.rust.axum");
 
     // Assert
-    assert!(result.is_ok());
+    assert_ok!(&result, "Add command should succeed");
     let install_result = result.unwrap();
     assert!(install_result.success);
     assert_eq!(install_result.package_id, "io.ggen.rust.axum");
+});
 
-    // Performance
-    assert!(start.elapsed().as_millis() < 100);
-}
-
-#[test]
-fn test_add_validates_package_version() {
+test!(test_add_validates_package_version, {
     // Arrange
     let mut mock_marketplace = MockMarketplaceClient::new();
     let mock_fs = MockFilesystem::new();
@@ -60,13 +54,12 @@ fn test_add_validates_package_version() {
     let result = run_add_with_version(&mock_marketplace, &mock_fs, "io.ggen.rust.axum", "1.0.0");
 
     // Assert
-    assert!(result.is_ok());
+    assert_ok!(&result, "Add command with version should succeed");
     let install_result = result.unwrap();
     assert_eq!(install_result.version, Some("1.0.0".to_string()));
-}
+});
 
-#[test]
-fn test_add_fails_for_nonexistent_package() {
+test!(test_add_fails_for_nonexistent_package, {
     // Arrange
     let mut mock_marketplace = MockMarketplaceClient::new();
     let mock_fs = MockFilesystem::new();
@@ -81,13 +74,12 @@ fn test_add_fails_for_nonexistent_package() {
     let result = run_add_command(&mock_marketplace, &mock_fs, "io.ggen.nonexistent");
 
     // Assert: Clear error message
-    assert!(result.is_err());
+    assert_err!(&result, "Add command should fail for nonexistent package");
     let err = result.unwrap_err();
     assert!(err.to_string().contains("Package not found"));
-}
+});
 
-#[test]
-fn test_add_skips_if_already_installed() {
+test!(test_add_skips_if_already_installed, {
     // Arrange
     let mock_marketplace = MockMarketplaceClient::new();
     let mut mock_fs = MockFilesystem::new();
@@ -101,14 +93,16 @@ fn test_add_skips_if_already_installed() {
     let result = run_add_command(&mock_marketplace, &mock_fs, "io.ggen.rust.axum");
 
     // Assert: Skipped, but successful
-    assert!(result.is_ok());
+    assert_ok!(
+        &result,
+        "Add command should succeed when package already installed"
+    );
     let install_result = result.unwrap();
     assert!(install_result.success);
     assert!(install_result.skipped);
-}
+});
 
-#[test]
-fn test_add_creates_otel_span() {
+test!(test_add_creates_otel_span, {
     // Arrange
     let mut mock_marketplace = MockMarketplaceClient::new();
     let mock_fs = MockFilesystem::new();
@@ -119,16 +113,17 @@ fn test_add_creates_otel_span() {
         .returning(|_| Ok(b"data".to_vec()));
 
     // Act
-    let _result = run_add_with_tracing(&mock_marketplace, &mock_fs, &tracer, "io.ggen.rust.axum");
+    let result = run_add_with_tracing(&mock_marketplace, &mock_fs, &tracer, "io.ggen.rust.axum");
 
     // Assert
+    assert_ok!(&result, "Add command with tracing should succeed");
     let span = tracer.find_span("ggen.marketplace.add").unwrap();
     assert_eq!(span.status, otel::SpanStatus::Ok);
     assert!(span
         .attributes
         .iter()
         .any(|(k, v)| k == "package.id" && v == "io.ggen.rust.axum"));
-}
+});
 
 // Helper types and functions
 

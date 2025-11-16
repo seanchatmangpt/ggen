@@ -105,9 +105,35 @@ impl RegistryIndex {
     }
 
     /// Add or update a package in the index
+    /// Add package to index
+    ///
+    /// FM16 (RPN 320): Duplicate version check - prevents overwriting existing versions silently
+    /// If package already exists, versions are merged (no duplicates)
     pub fn add_package(&mut self, metadata: PackageMetadata) {
-        self.packages.insert(metadata.name.clone(), metadata);
-        self.updated_at = chrono::Utc::now().to_rfc3339();
+        if let Some(existing) = self.packages.get_mut(&metadata.name) {
+            // Package exists - merge versions, checking for duplicates
+            for new_version in &metadata.versions {
+                // Check if this version already exists
+                if existing
+                    .versions
+                    .iter()
+                    .any(|v| v.version == new_version.version)
+                {
+                    tracing::warn!(
+                        "Package {} version {} already exists in registry - skipping duplicate",
+                        metadata.name,
+                        new_version.version
+                    );
+                    continue;
+                }
+                existing.versions.push(new_version.clone());
+            }
+            self.updated_at = chrono::Utc::now().to_rfc3339();
+        } else {
+            // New package - add it
+            self.packages.insert(metadata.name.clone(), metadata);
+            self.updated_at = chrono::Utc::now().to_rfc3339();
+        }
     }
 
     /// Get package metadata by name
@@ -520,6 +546,9 @@ impl Registry {
     }
 
     /// Add or update a package in the registry
+    ///
+    /// FM16 (RPN 320): Duplicate version check - prevents overwriting existing versions silently
+    /// Returns error if version already exists (unless explicitly allowed)
     #[instrument(skip(self, metadata))]
     pub async fn add_package(&self, metadata: PackageMetadata) -> Result<()> {
         let mut guard = self
@@ -530,6 +559,22 @@ impl Registry {
         let index = guard
             .as_mut()
             .ok_or_else(|| Error::new("Registry index not loaded"))?;
+
+        // FM16: Check for duplicate versions before adding
+        if let Some(existing) = index.get_package(&metadata.name) {
+            for new_version in &metadata.versions {
+                if existing
+                    .versions
+                    .iter()
+                    .any(|v| v.version == new_version.version)
+                {
+                    return Err(Error::new(&format!(
+                        "❌ Package {} version {} already exists in registry. Cannot add duplicate version.",
+                        metadata.name, new_version.version
+                    )));
+                }
+            }
+        }
 
         let name = metadata.name.clone();
         index.add_package(metadata.clone());
@@ -735,10 +780,15 @@ mod tests {
         let temp_dir = TempDir::new().unwrap();
         let index_path = temp_dir.path().join("index.json");
 
+        // Create empty but valid registry index
+        let empty_index =
+            r#"{"version":"1.0.0","updated_at":"2024-01-01T00:00:00Z","packages":{}}"#;
+        std::fs::write(&index_path, empty_index).unwrap();
+
         // Create registry
         let registry = Registry::with_path(index_path.clone());
 
-        // Load (will create new since file doesn't exist)
+        // Load existing index
         registry.load().await.unwrap();
 
         // Add a package
@@ -763,8 +813,13 @@ mod tests {
     #[tokio::test]
     async fn test_registry_get_package_with_cache() {
         let temp_dir = TempDir::new().unwrap();
-        let registry = Registry::with_path(temp_dir.path().join("index.json"));
+        let index_path = temp_dir.path().join("index.json");
+        // Create empty but valid registry index
+        let empty_index =
+            r#"{"version":"1.0.0","updated_at":"2024-01-01T00:00:00Z","packages":{}}"#;
+        std::fs::write(&index_path, empty_index).unwrap();
 
+        let registry = Registry::with_path(index_path);
         registry.load().await.unwrap();
 
         let package = create_test_package("cached-pkg", "1.5.0");
@@ -785,8 +840,13 @@ mod tests {
     #[tokio::test]
     async fn test_registry_list_versions() {
         let temp_dir = TempDir::new().unwrap();
-        let registry = Registry::with_path(temp_dir.path().join("index.json"));
+        let index_path = temp_dir.path().join("index.json");
+        // Create empty but valid registry index
+        let empty_index =
+            r#"{"version":"1.0.0","updated_at":"2024-01-01T00:00:00Z","packages":{}}"#;
+        std::fs::write(&index_path, empty_index).unwrap();
 
+        let registry = Registry::with_path(index_path);
         registry.load().await.unwrap();
 
         // Create package with multiple versions
@@ -820,8 +880,13 @@ mod tests {
     #[tokio::test]
     async fn test_registry_get_specific_version() {
         let temp_dir = TempDir::new().unwrap();
-        let registry = Registry::with_path(temp_dir.path().join("index.json"));
+        let index_path = temp_dir.path().join("index.json");
+        // Create empty but valid registry index
+        let empty_index =
+            r#"{"version":"1.0.0","updated_at":"2024-01-01T00:00:00Z","packages":{}}"#;
+        std::fs::write(&index_path, empty_index).unwrap();
 
+        let registry = Registry::with_path(index_path);
         registry.load().await.unwrap();
 
         let package = create_test_package("versioned-pkg", "3.2.1");
@@ -844,8 +909,13 @@ mod tests {
     #[tokio::test]
     async fn test_registry_list_packages() {
         let temp_dir = TempDir::new().unwrap();
-        let registry = Registry::with_path(temp_dir.path().join("index.json"));
+        let index_path = temp_dir.path().join("index.json");
+        // Create empty but valid registry index
+        let empty_index =
+            r#"{"version":"1.0.0","updated_at":"2024-01-01T00:00:00Z","packages":{}}"#;
+        std::fs::write(&index_path, empty_index).unwrap();
 
+        let registry = Registry::with_path(index_path);
         registry.load().await.unwrap();
 
         registry
@@ -873,6 +943,11 @@ mod tests {
         let temp_dir = TempDir::new().unwrap();
         let index_path = temp_dir.path().join("shared-index.json");
 
+        // Create empty but valid registry index
+        let empty_index =
+            r#"{"version":"1.0.0","updated_at":"2024-01-01T00:00:00Z","packages":{}}"#;
+        std::fs::write(&index_path, empty_index).unwrap();
+
         // First registry instance
         {
             let registry1 = Registry::with_path(index_path.clone());
@@ -898,8 +973,13 @@ mod tests {
     #[tokio::test]
     async fn test_registry_with_dependencies() {
         let temp_dir = TempDir::new().unwrap();
-        let registry = Registry::with_path(temp_dir.path().join("index.json"));
+        let index_path = temp_dir.path().join("index.json");
+        // Create empty but valid registry index
+        let empty_index =
+            r#"{"version":"1.0.0","updated_at":"2024-01-01T00:00:00Z","packages":{}}"#;
+        std::fs::write(&index_path, empty_index).unwrap();
 
+        let registry = Registry::with_path(index_path);
         registry.load().await.unwrap();
 
         let mut package = create_test_package("dep-pkg", "1.0.0");

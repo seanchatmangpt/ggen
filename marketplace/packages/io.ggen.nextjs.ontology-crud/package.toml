@@ -14,16 +14,18 @@ repository = "https://github.com/seanchatmangpt/ggen"
 documentation = "https://seanchatmangpt.github.io/ggen/"
 
 [features]
-- "Next.js 14 with App Router"
-- "TypeScript strict mode"
-- "shadcn/ui components (DataTable, Dialog, Form)"
-- "Zod validation from SHACL constraints"
-- "Auto-generated TypeScript types from RDF"
-- "Auto-generated API routes"
-- "Auto-generated CRUD components"
-- "Git hooks for automatic regeneration"
-- "Zero drift between ontology and UI"
-- "Production-ready validation"
+features = [
+  "Next.js 14 with App Router",
+  "TypeScript strict mode",
+  "shadcn/ui components (DataTable, Dialog, Form)",
+  "Zod validation from SHACL constraints",
+  "Auto-generated TypeScript types from RDF",
+  "Auto-generated API routes",
+  "Auto-generated CRUD components",
+  "Git hooks for automatic regeneration",
+  "Zero drift between ontology and UI",
+  "Production-ready validation"
+]
 
 [dependencies]
 ggen = ">=2.6.0"
@@ -43,13 +45,10 @@ templates = [
 hooks = ["pre-commit", "post-merge"]
 
 [examples]
-- name = "Task Management"
-  description = "Complete task management system with Projects, Tasks, Users"
-  ontology = "ontology/task-management.ttl"
-  
-- name = "Add Property"
-  description = "Add estimatedHours property to Task entity"
-  command = "Edit ontology → Run npm run regenerate → See UI update"
+examples = [
+  { name = "Task Management", description = "Complete task management system with Projects, Tasks, Users", ontology = "ontology/task-management.ttl" },
+  { name = "Add Property", description = "Add estimatedHours property to Task entity", command = "Edit ontology → Run npm run regenerate → See UI update" }
+]
 
 [installation]
 post_install = """

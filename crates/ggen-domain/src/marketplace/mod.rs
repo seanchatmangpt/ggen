@@ -11,6 +11,10 @@ pub mod types; // Poka-yoke types for error prevention
 pub mod update;
 pub mod validate;
 
+#[cfg(test)]
+#[path = "expert_tests.rs"]
+mod expert_tests;
+
 // Re-export commonly used types and functions
 pub use install::{execute_install, InstallInput, InstallOptions, InstallResult};
 pub use list::{execute_list, ListInput, ListOutput};

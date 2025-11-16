@@ -22,6 +22,39 @@ except ImportError:
         sys.exit(1)
 
 
+def calculate_sha256_checksum(package_dir: Path) -> str:
+    """Calculate SHA256 checksum of package directory."""
+    import hashlib
+    import os
+    
+    sha256 = hashlib.sha256()
+    
+    # Walk through all files in package directory
+    for root, dirs, files in os.walk(package_dir):
+        # Skip hidden directories and files
+        dirs[:] = [d for d in dirs if not d.startswith('.')]
+        
+        for file in sorted(files):
+            if file.startswith('.'):
+                continue
+                
+            file_path = os.path.join(root, file)
+            rel_path = os.path.relpath(file_path, package_dir)
+            
+            # Hash the relative path
+            sha256.update(rel_path.encode('utf-8'))
+            
+            # Hash the file content
+            try:
+                with open(file_path, 'rb') as f:
+                    sha256.update(f.read())
+            except Exception:
+                # Skip files that can't be read
+                pass
+    
+    return sha256.hexdigest()
+
+
 def parse_package_toml(package_dir: Path) -> dict:
     """Parse a package.toml file and extract metadata."""
     package_toml = package_dir / "package.toml"
@@ -41,19 +74,37 @@ def parse_package_toml(package_dir: Path) -> dict:
     package_keywords = data.get("package.keywords", {})
     package_metadata = data.get("package.metadata", {})
     
-    # Extract tags
-    tags = package_tags.get("tags", [])
-    if not tags and "tags" in package:
-        tags = package["tags"] if isinstance(package["tags"], list) else []
+    # Extract tags - handle both array format and dict format
+    tags = []
+    if "tags" in package and isinstance(package["tags"], list):
+        tags = package["tags"]
+    elif package_tags and isinstance(package_tags, dict) and "tags" in package_tags:
+        tags = package_tags["tags"] if isinstance(package_tags["tags"], list) else []
     
     # Extract keywords
-    keywords = package_keywords.get("keywords", [])
-    if not keywords and "keywords" in package:
-        keywords = package["keywords"] if isinstance(package["keywords"], list) else []
+    keywords = []
+    if "keywords" in package and isinstance(package["keywords"], list):
+        keywords = package["keywords"]
+    elif package_keywords and isinstance(package_keywords, dict) and "keywords" in package_keywords:
+        keywords = package_keywords["keywords"] if isinstance(package_keywords["keywords"], list) else []
     
-    # Build package info
+    # Get package name - use id if available, otherwise use directory name
+    package_name = package.get("id") or package.get("name") or package_dir.name
+    
+    # Generate download URL (GitHub archive format)
+    # For local development, we'll use a placeholder that can be replaced
+    download_url = f"https://github.com/seanchatmangpt/ggen/archive/refs/heads/master.zip"
+    
+    # Calculate checksum for the package directory
+    try:
+        checksum = calculate_sha256_checksum(package_dir)
+    except Exception as e:
+        print(f"Warning: Failed to calculate checksum for {package_dir}: {e}", file=sys.stderr)
+        checksum = ""  # Will be calculated at runtime if missing
+    
+    # Build package info with required fields
     package_info = {
-        "name": package.get("name", package_dir.name),
+        "name": package_name,
         "version": package.get("version", "1.0.0"),
         "category": package.get("category", "uncategorized"),
         "description": package.get("description", ""),
@@ -63,8 +114,11 @@ def parse_package_toml(package_dir: Path) -> dict:
         "license": package.get("license"),
         "downloads": 0,  # Default values
         "stars": 0,
-        "production_ready": package_metadata.get("production_ready", False),
-        "dependencies": package.get("dependencies", []),
+        "production_ready": package_metadata.get("production_ready", False) if isinstance(package_metadata, dict) else False,
+        "dependencies": package.get("dependencies", []) if isinstance(package.get("dependencies"), list) else [],
+        "path": f"marketplace/packages/{package_name}",
+        "download_url": download_url,
+        "checksum": checksum,
     }
     
     return package_info

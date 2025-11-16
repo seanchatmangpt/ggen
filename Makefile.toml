@@ -397,7 +397,7 @@ command = "./scripts/validate-ollama.sh"
 
 # GitHub Actions local testing with act (80/20: minimal essential tasks)
 [tasks.act]
-description = "Run a GitHub Actions workflow locally with act (usage: cargo make act WORKFLOW=ci.yml JOB=fmt)"
+description = "Run a GitHub Actions workflow locally with act (usage: cargo make act WORKFLOW=ci.yml JOB=fmt). Examples: 'cargo make act WORKFLOW=lint.yml JOB=lint', 'cargo make act WORKFLOW=ci.yml' (runs all jobs)"
 workspace = false
 script_runner = "@shell"
 script = '''

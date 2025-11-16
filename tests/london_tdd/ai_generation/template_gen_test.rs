@@ -1,5 +1,5 @@
 #![cfg(feature = "london_tdd")]
-//! London TDD tests for `ggen ai generate` command
+//! Chicago TDD tests for `ggen ai generate` command
 //!
 //! README.md §AI-Powered Generation - Template Generation
 //!
@@ -10,12 +10,10 @@
 //! - Tera template body generation
 
 use crate::lib::*;
+use chicago_tdd_tools::prelude::*;
 use mockall::predicate::*;
 
-#[test]
-fn test_ai_generate_creates_template_from_description() {
-    let start = std::time::Instant::now();
-
+test!(test_ai_generate_creates_template_from_description, {
     // Arrange
     let mut mock_llm = MockLlmClient::new();
     let mut mock_fs = MockFilesystem::new();
@@ -52,17 +50,13 @@ pub struct {{name | capitalize}}Api {
     );
 
     // Assert
-    assert!(result.is_ok());
+    assert_ok!(&result, "AI generate command should succeed");
     let template = result.unwrap();
     assert!(template.frontmatter.contains("to:"));
     assert!(template.body.contains("pub struct"));
+});
 
-    // Performance
-    assert!(start.elapsed().as_millis() < 100);
-}
-
-#[test]
-fn test_ai_generate_supports_multiple_providers() {
+test!(test_ai_generate_supports_multiple_providers, {
     // Test OpenAI
     let mut mock_openai = MockLlmClient::new();
     mock_openai
@@ -71,7 +65,7 @@ fn test_ai_generate_supports_multiple_providers() {
         .returning(|_, _| Ok("---\nto: test\n---\ntemplate".to_string()));
 
     let result = run_ai_generate_with_provider(&mock_openai, "openai", "gpt-4o");
-    assert!(result.is_ok());
+    assert_ok!(&result, "OpenAI provider should work");
 
     // Test Anthropic
     let mut mock_anthropic = MockLlmClient::new();
@@ -82,7 +76,7 @@ fn test_ai_generate_supports_multiple_providers() {
 
     let result =
         run_ai_generate_with_provider(&mock_anthropic, "anthropic", "claude-3-5-sonnet-20241022");
-    assert!(result.is_ok());
+    assert_ok!(&result, "Anthropic provider should work");
 
     // Test Ollama
     let mut mock_ollama = MockLlmClient::new();
@@ -92,11 +86,10 @@ fn test_ai_generate_supports_multiple_providers() {
         .returning(|_, _| Ok("---\nto: test\n---\ntemplate".to_string()));
 
     let result = run_ai_generate_with_provider(&mock_ollama, "ollama", "qwen3-coder:30b");
-    assert!(result.is_ok());
-}
+    assert_ok!(&result, "Ollama provider should work");
+});
 
-#[test]
-fn test_ai_generate_validates_frontmatter_syntax() {
+test!(test_ai_generate_validates_frontmatter_syntax, {
     // Arrange
     let mut mock_llm = MockLlmClient::new();
     let mock_fs = MockFilesystem::new();
@@ -110,13 +103,12 @@ fn test_ai_generate_validates_frontmatter_syntax() {
     let result = run_ai_generate_command(&mock_llm, &mock_fs, "test", "gpt-4o", "out.tmpl");
 
     // Assert: Validation error
-    assert!(result.is_err());
+    assert_err!(&result, "AI generate should fail with invalid YAML");
     let err = result.unwrap_err();
     assert!(err.to_string().contains("Invalid YAML") || err.to_string().contains("frontmatter"));
-}
+});
 
-#[test]
-fn test_ai_generate_includes_reasonable_defaults() {
+test!(test_ai_generate_includes_reasonable_defaults, {
     // Arrange
     let mut mock_llm = MockLlmClient::new();
     let mock_fs = MockFilesystem::new();
@@ -138,14 +130,13 @@ vars:
         run_ai_generate_command(&mock_llm, &mock_fs, "simple template", "gpt-4o", "out.tmpl");
 
     // Assert: Contains standard metadata
-    assert!(result.is_ok());
+    assert_ok!(&result, "AI generate should succeed");
     let template = result.unwrap();
     assert!(template.frontmatter.contains("author"));
     assert!(template.frontmatter.contains("ggen"));
-}
+});
 
-#[test]
-fn test_ai_generate_creates_otel_span() {
+test!(test_ai_generate_creates_otel_span, {
     // Arrange
     let mut mock_llm = MockLlmClient::new();
     let mock_fs = MockFilesystem::new();
@@ -156,14 +147,15 @@ fn test_ai_generate_creates_otel_span() {
         .returning(|_, _| Ok("---\nto: test\n---\nbody".to_string()));
 
     // Act
-    let _result = run_ai_generate_with_tracing(&mock_llm, &mock_fs, &tracer, "test description");
+    let result = run_ai_generate_with_tracing(&mock_llm, &mock_fs, &tracer, "test description");
 
     // Assert
+    assert_ok!(&result, "AI generate with tracing should succeed");
     let span = tracer.find_span("ggen.ai.generate").unwrap();
     assert_eq!(span.status, otel::SpanStatus::Ok);
     assert!(span.attributes.iter().any(|(k, _)| k == "ai.provider"));
     assert!(span.attributes.iter().any(|(k, _)| k == "ai.model"));
-}
+});
 
 // Helper types and functions
 

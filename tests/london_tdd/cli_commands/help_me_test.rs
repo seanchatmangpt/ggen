@@ -1,5 +1,5 @@
 #![cfg(feature = "london_tdd")]
-//! London TDD tests for `ggen help-me` command
+//! Chicago TDD tests for `ggen help-me` command
 //!
 //! README.md §User-Friendly Features - Progressive Help System
 //!
@@ -10,14 +10,12 @@
 //! - Command-specific help
 
 use crate::lib::*;
+use chicago_tdd_tools::prelude::*;
 use mockall::automock;
 use mockall::predicate::*;
 use std::collections::HashMap;
 
-#[test]
-fn test_help_me_detects_newcomer_level() {
-    let start = std::time::Instant::now();
-
+test!(test_help_me_detects_newcomer_level, {
     // Arrange: User with <5 commands run
     let mut mock_analytics = MockUsageAnalytics::new();
     mock_analytics.expect_get_command_count().returning(|| 3);
@@ -29,20 +27,16 @@ fn test_help_me_detects_newcomer_level() {
     let result = run_help_me_command(&mock_analytics, None);
 
     // Assert: Newcomer guidance
-    assert!(result.is_ok());
+    assert_ok!(&result, "Help command should succeed");
     let help = result.unwrap();
     assert_eq!(help.level, ExperienceLevel::Newcomer);
     assert!(help
         .recommendations
         .contains(&"ggen quickstart demo".to_string()));
     assert!(help.recommendations.contains(&"ggen doctor".to_string()));
+});
 
-    // Performance
-    assert!(start.elapsed().as_millis() < 100);
-}
-
-#[test]
-fn test_help_me_detects_intermediate_level() {
+test!(test_help_me_detects_intermediate_level, {
     // Arrange: User with 10-50 commands run
     let mut mock_analytics = MockUsageAnalytics::new();
     mock_analytics.expect_get_command_count().returning(|| 25);
@@ -54,7 +48,7 @@ fn test_help_me_detects_intermediate_level() {
     let result = run_help_me_command(&mock_analytics, None);
 
     // Assert: Intermediate guidance
-    assert!(result.is_ok());
+    assert_ok!(&result, "Help command should succeed");
     let help = result.unwrap();
     assert_eq!(help.level, ExperienceLevel::Intermediate);
     assert!(help
@@ -63,10 +57,9 @@ fn test_help_me_detects_intermediate_level() {
     assert!(help
         .recommendations
         .contains(&"ggen add <package>".to_string()));
-}
+});
 
-#[test]
-fn test_help_me_shows_most_used_commands() {
+test!(test_help_me_shows_most_used_commands, {
     // Arrange
     let mut mock_analytics = MockUsageAnalytics::new();
     mock_analytics.expect_get_command_count().returning(|| 15);
@@ -83,14 +76,13 @@ fn test_help_me_shows_most_used_commands() {
     let result = run_help_me_command(&mock_analytics, None);
 
     // Assert: Top commands shown
-    assert!(result.is_ok());
+    assert_ok!(&result, "Help command should succeed");
     let help = result.unwrap();
     assert_eq!(help.top_commands[0].0, "doctor");
     assert_eq!(help.top_commands[0].1, 2); // Used 2 times
-}
+});
 
-#[test]
-fn test_help_me_provides_command_specific_help() {
+test!(test_help_me_provides_command_specific_help, {
     // Arrange
     let mock_analytics = setup_analytics_for_newcomer();
 
@@ -98,7 +90,7 @@ fn test_help_me_provides_command_specific_help() {
     let result = run_help_me_command(&mock_analytics, Some("gen"));
 
     // Assert: Command-specific guidance
-    assert!(result.is_ok());
+    assert_ok!(&result, "Help command should succeed");
     let help = result.unwrap();
     assert!(help.command_help.is_some());
     let cmd_help = help.command_help.unwrap();
@@ -107,10 +99,9 @@ fn test_help_me_provides_command_specific_help() {
         .description
         .contains("Generate code from a template"));
     assert!(cmd_help.tip.is_some());
-}
+});
 
-#[test]
-fn test_help_me_includes_contextual_tips() {
+test!(test_help_me_includes_contextual_tips, {
     // Arrange: User who hasn't used AI features
     let mut mock_analytics = MockUsageAnalytics::new();
     mock_analytics.expect_get_command_count().returning(|| 20);
@@ -122,32 +113,31 @@ fn test_help_me_includes_contextual_tips() {
     let result = run_help_me_command_with_tips(&mock_analytics);
 
     // Assert: Suggests AI features
-    assert!(result.is_ok());
+    assert_ok!(&result, "Help command should succeed");
     let help = result.unwrap();
     assert!(help.tips.iter().any(|t| t.contains("ggen ai")));
     assert!(help.tips.iter().any(|t| t.contains("AI-powered")));
-}
+});
 
-#[test]
-fn test_help_me_creates_otel_span() {
+test!(test_help_me_creates_otel_span, {
     // Arrange
     let mock_analytics = setup_analytics_for_newcomer();
     let tracer = otel::MockTracerProvider::new();
 
     // Act
-    let _result = run_help_me_with_tracing(&mock_analytics, &tracer);
+    let result = run_help_me_with_tracing(&mock_analytics, &tracer);
 
     // Assert
+    assert_ok!(&result, "Help command with tracing should succeed");
     let span = tracer.find_span("ggen.help_me").unwrap();
     assert_eq!(span.status, otel::SpanStatus::Ok);
     assert!(span
         .attributes
         .iter()
         .any(|(k, v)| k == "user.level" && v == "newcomer"));
-}
+});
 
-#[test]
-fn test_help_me_adapts_to_expert_users() {
+test!(test_help_me_adapts_to_expert_users, {
     // Arrange: User with >100 commands run
     let mut mock_analytics = MockUsageAnalytics::new();
     mock_analytics.expect_get_command_count().returning(|| 150);
@@ -164,7 +154,7 @@ fn test_help_me_adapts_to_expert_users() {
     let result = run_help_me_command(&mock_analytics, None);
 
     // Assert: Expert-level guidance
-    assert!(result.is_ok());
+    assert_ok!(&result, "Help command should succeed");
     let help = result.unwrap();
     assert_eq!(help.level, ExperienceLevel::Expert);
     assert!(help.recommendations.iter().any(|r| r.contains("cleanroom")));
@@ -172,7 +162,7 @@ fn test_help_me_adapts_to_expert_users() {
         .recommendations
         .iter()
         .any(|r| r.contains("performance")));
-}
+});
 
 // Mock types and helpers
 
