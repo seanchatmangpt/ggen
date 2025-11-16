@@ -259,7 +259,8 @@ mod tests {
     fn test_bundle_docs_generation() {
         let bundle = BundleRegistry::academic_papers();
         let docs = generate_bundle_docs(&bundle);
-        assert!(docs.contains("Academic Papers"));
-        assert!(docs.contains("sector-academic-papers"));
+        assert!(docs.contains("sector-academic-papers Sector Bundle"));
+        assert!(docs.contains("Complete lifecycle for academic paper development"));
+        assert!(docs.contains("academic-paper-lifecycle"));
     }
 }

@@ -17,6 +17,8 @@ pub mod receipt_emitter;
 pub mod bundles;
 pub mod artifact_generator;
 pub mod quality_autopilot;
+pub mod observability;
+pub mod production_readiness;
 
 #[cfg(test)]
 #[path = "expert_tests.rs"]
@@ -65,6 +67,12 @@ pub use search_advanced::{
 pub use recommender::{
     Recommendation, RecommendationReason, RecommendationSet, Recommender,
     RecommenderConfig, PackageInfo,
+};
+pub use observability::{
+    ObservabilitySystem, HealthStatus, PerformanceMetric, HealthCheck, MetricsSnapshot,
+};
+pub use production_readiness::{
+    ReadinessChecker, ReadinessAssessment, ReadinessCheck, CheckStatus, DeploymentGuide,
 };
 
 // Legacy types for backwards compatibility
