@@ -789,6 +789,34 @@ description = "Generate validation reports for all marketplace packages"
 workspace = false
 command = "./marketplace/scripts/generate_validation_report.sh"
 
+[tasks.marketplace-emit-receipts]
+description = "Emit validation receipts for all marketplace packages (Track A)"
+workspace = false
+command = "cargo"
+args = ["run", "--release", "--bin", "ggen", "--", "marketplace", "emit-receipts", "--report"]
+
+[tasks.marketplace-health]
+description = "Generate marketplace health report from validation receipts"
+workspace = false
+command = "cargo"
+args = ["run", "--release", "--bin", "ggen", "--", "marketplace", "report", "--output", "marketplace/MARKETPLACE_HEALTH.json"]
+
+[tasks.marketplace-validate-with-receipts]
+description = "Validate all packages and emit receipts (combined Track A)"
+workspace = false
+dependencies = ["marketplace-validate", "marketplace-emit-receipts"]
+
+[tasks.marketplace-generate-artifacts]
+description = "Generate JSON registry and Markdown from receipts (Track B)"
+workspace = false
+command = "cargo"
+args = ["run", "--release", "--bin", "ggen", "--", "marketplace", "generate-artifacts"]
+
+[tasks.marketplace-full-pipeline]
+description = "Complete marketplace pipeline: validate → emit receipts → generate artifacts (Track A+B)"
+workspace = false
+dependencies = ["marketplace-validate", "marketplace-emit-receipts", "marketplace-generate-artifacts"]
+
 # ============================================================================
 # Compilation Validation Tasks (Root Cause Prevention)
 # ============================================================================
