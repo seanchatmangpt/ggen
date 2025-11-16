@@ -5,6 +5,27 @@ All notable changes to ggen will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.1] - 2025-11-15
+
+### Fixed
+
+#### Compilation Errors
+- **Version Mismatch**: Fixed `ggen-cli` dependency on `ggen-domain` (was `^3.1.0`, now `2.7.1`)
+  - Resolves compilation error: `failed to select a version for the requirement ggen-domain = "^3.1.0"`
+  - File: `crates/ggen-cli/Cargo.toml`
+- **KeyPair Clone Issue**: Removed invalid `.clone()` call on `KeyPair` type
+  - `KeyPair` doesn't implement `Clone` trait
+  - Fixed test: `test_verify_invalid_signature_returns_false`
+  - File: `crates/ggen-marketplace/tests/crypto_ed25519.rs`
+- **Package Type Mismatch**: Fixed conversion from `UnvalidatedPackage` to `Package`
+  - Added proper validation chain: `.build()?.validate()?.package().clone()`
+  - Fixed test helper: `create_test_package`
+  - File: `crates/ggen-marketplace/tests/integration_critical_paths.rs`
+- **KeyPair Move Issue**: Fixed move out of `KeyPair` when accessing `public_key`
+  - Changed to clone `public_key` instead: `keypair2.public_key.clone()`
+  - Fixed test: `test_signature_verification_with_wrong_public_key_fails`
+  - File: `crates/ggen-marketplace/tests/crypto_ed25519.rs`
+
 ## [2.7.0] - 2025-11-15
 
 ### Changed
