@@ -10,6 +10,39 @@ use std::path::{Path, PathBuf};
 use ggen_core::graph::Graph;
 use ggen_utils::error::{Error, Result};
 
+/// Configuration for package validation behavior
+#[derive(Debug, Clone)]
+pub struct ValidationConfig {
+    /// Weight for required checks (default: 0.6)
+    pub required_checks_weight: f64,
+    /// Weight for quality checks (default: 0.4)
+    pub quality_checks_weight: f64,
+    /// Minimum score for production readiness (default: 95.0)
+    pub production_ready_threshold: f64,
+    /// Minimum README length in characters (default: 100)
+    pub readme_min_length: usize,
+    /// Minimum ontology file lines (default: 200)
+    pub ontology_min_lines: usize,
+    /// Minimum RDF triples in ontology (default: 1)
+    pub ontology_min_triples: usize,
+    /// Treat warnings in required checks as failures (default: true)
+    pub required_warnings_fail: bool,
+}
+
+impl Default for ValidationConfig {
+    fn default() -> Self {
+        Self {
+            required_checks_weight: REQUIRED_CHECKS_WEIGHT,
+            quality_checks_weight: QUALITY_CHECKS_WEIGHT,
+            production_ready_threshold: PRODUCTION_READY_THRESHOLD,
+            readme_min_length: README_MIN_LENGTH,
+            ontology_min_lines: ONTOLOGY_MIN_LINES,
+            ontology_min_triples: ONTOLOGY_MIN_TRIPLES,
+            required_warnings_fail: true,
+        }
+    }
+}
+
 // ============================================================================
 // VALIDATION CONSTANTS - Configurable thresholds and weights
 // ============================================================================
@@ -118,8 +151,8 @@ impl PackageValidation {
         }
     }
 
-    /// Calculate final score and production readiness
-    pub fn calculate_score(&mut self) {
+    /// Calculate final score and production readiness with given configuration
+    pub fn calculate_score_with_config(&mut self, config: &ValidationConfig) {
         // Required checks: weighted portion, all must pass for production_ready
         let required_score = self.calculate_required_score();
 
@@ -127,15 +160,44 @@ impl PackageValidation {
         let quality_score = self.calculate_quality_score();
 
         // Final score: weighted combination
-        self.score = (required_score * REQUIRED_CHECKS_WEIGHT) + (quality_score * QUALITY_CHECKS_WEIGHT);
+        self.score = (required_score * config.required_checks_weight) + (quality_score * config.quality_checks_weight);
 
-        // Production ready if score >= threshold AND all required checks pass
-        let all_required_pass = self
-            .required_checks
-            .iter()
-            .all(|(_, result)| result.is_pass());
+        // Check if all required checks pass (warnings can optionally fail)
+        let all_required_pass = if config.required_warnings_fail {
+            self.required_checks
+                .iter()
+                .all(|(_, result)| result.is_pass())
+        } else {
+            self.required_checks
+                .iter()
+                .all(|(_, result)| !result.is_fail())
+        };
 
-        self.production_ready = self.score >= PRODUCTION_READY_THRESHOLD && all_required_pass;
+        self.production_ready = self.score >= config.production_ready_threshold && all_required_pass;
+    }
+
+    /// Calculate final score and production readiness with default configuration
+    pub fn calculate_score(&mut self) {
+        let config = ValidationConfig::default();
+        self.calculate_score_with_config(&config);
+    }
+
+    /// Generate a human-readable validation summary
+    pub fn summary(&self) -> String {
+        let required_pass = self.required_checks.iter().filter(|(_, r)| r.is_pass()).count();
+        let quality_pass = self.quality_checks.iter().filter(|(_, r)| r.is_pass()).count();
+
+        format!(
+            "Package: {} | Score: {:.1}% | Production Ready: {} | Required: {}/{} | Quality: {}/{} | Errors: {}",
+            self.package_name,
+            self.score,
+            if self.production_ready { "✓" } else { "✗" },
+            required_pass,
+            self.required_checks.len(),
+            quality_pass,
+            self.quality_checks.len(),
+            self.errors.len()
+        )
     }
 
     fn calculate_required_score(&self) -> f64 {
@@ -157,24 +219,96 @@ impl PackageValidation {
             return 0.0;
         }
 
-        let applicable = self
+        // Count applicable checks (exclude NotApplicable)
+        let applicable: Vec<_> = self
             .quality_checks
             .iter()
             .filter(|(_, result)| !matches!(result, CheckResult::NotApplicable(_)))
-            .count();
+            .collect();
 
-        if applicable == 0 {
-            return 0.0;
+        if applicable.is_empty() {
+            // If no applicable quality checks, score is neutral (100%)
+            // This means packages without optional features aren't penalized
+            return 100.0;
         }
 
-        let passed = self
-            .quality_checks
+        let passed = applicable
             .iter()
             .filter(|(_, result)| result.is_pass())
             .count();
 
-        (passed as f64 / applicable as f64) * 100.0
+        (passed as f64 / applicable.len() as f64) * 100.0
     }
+}
+
+// ============================================================================
+// HELPER FUNCTIONS
+// ============================================================================
+
+/// Validate TOML file has required fields with proper parsing
+fn validate_toml_file(path: &Path, required_fields: &[&str]) -> bool {
+    if !path.exists() {
+        return false;
+    }
+
+    match fs::read_to_string(path) {
+        Ok(content) => {
+            // Try parsing as TOML
+            match content.parse::<toml::Value>() {
+                Ok(toml_value) => {
+                    // Check all required fields exist and are non-empty
+                    // Look for fields at both top level and in a [package] section
+                    required_fields.iter().all(|field| {
+                        // Try top-level first
+                        toml_value
+                            .get(field)
+                            .and_then(|v| v.as_str())
+                            .map(|s| !s.trim().is_empty())
+                            // Try [package] section fallback
+                            .or_else(|| {
+                                toml_value
+                                    .get("package")
+                                    .and_then(|pkg| pkg.get(field))
+                                    .and_then(|v| v.as_str())
+                                    .map(|s| !s.trim().is_empty())
+                            })
+                            .unwrap_or(false)
+                    })
+                }
+                Err(_) => {
+                    // Fallback: Try simple string matching if TOML parsing fails
+                    // This handles edge cases where content might be malformed
+                    required_fields.iter().all(|field| {
+                        content.contains(&format!("{}\\s*=", field)) || content.contains(&format!("{} =", field))
+                    })
+                }
+            }
+        }
+        Err(_) => false, // Cannot read file
+    }
+}
+
+/// Find files in directory with specific extensions
+fn find_files_with_extensions(dir: &Path, extensions: &[&str]) -> Result<Vec<PathBuf>> {
+    if !dir.exists() || !dir.is_dir() {
+        return Ok(Vec::new());
+    }
+
+    let files: Vec<_> = fs::read_dir(dir)?
+        .filter_map(|e| e.ok())
+        .filter(|e| {
+            let path = e.path();
+            path.is_file()
+                && path
+                    .extension()
+                    .and_then(|ext| ext.to_str())
+                    .map(|ext| extensions.contains(&ext))
+                    .unwrap_or(false)
+        })
+        .map(|e| e.path())
+        .collect();
+
+    Ok(files)
 }
 
 /// Validate a single package
@@ -216,39 +350,32 @@ pub fn validate_package(package_path: &Path) -> Result<PackageValidation> {
 
 /// Validate all required checks (critical - 60% weight)
 fn validate_required_checks(validation: &mut PackageValidation, package_path: &Path) -> Result<()> {
-    // Check package.toml
+    // Check package.toml with proper TOML parsing
     let package_toml = package_path.join("package.toml");
     if package_toml.exists() {
-        // Validate it's valid TOML and has required fields
-        if let Ok(content) = fs::read_to_string(&package_toml) {
-            if content.contains("name =")
-                && content.contains("version =")
-                && content.contains("description =")
-            {
-                validation.required_checks.push((
-                    RequiredCheck::PackageToml,
-                    CheckResult::Pass("package.toml exists with required fields".to_string()),
-                ));
-            } else {
-                validation.required_checks.push((
-                    RequiredCheck::PackageToml,
-                    CheckResult::Fail(
-                        "package.toml missing required fields (name, version, description)"
-                            .to_string(),
-                    ),
-                ));
-                validation
-                    .errors
-                    .push("package.toml missing required fields".to_string());
-            }
-        } else {
+        // Validate using proper TOML parsing with required fields
+        if validate_toml_file(&package_toml, &["name", "version", "description"]) {
             validation.required_checks.push((
                 RequiredCheck::PackageToml,
-                CheckResult::Fail("Cannot read package.toml".to_string()),
+                CheckResult::Pass("package.toml exists with all required fields (name, version, description)".to_string()),
             ));
-            validation
-                .errors
-                .push("Cannot read package.toml".to_string());
+        } else {
+            // Determine if it's invalid TOML or missing required fields
+            let error_msg = match fs::read_to_string(&package_toml) {
+                Ok(content) => {
+                    match content.parse::<toml::Value>() {
+                        Ok(_) => "package.toml has invalid or missing required fields (name, version, description)".to_string(),
+                        Err(e) => format!("package.toml has invalid TOML syntax: {}", e),
+                    }
+                }
+                Err(e) => format!("Cannot read package.toml: {}", e),
+            };
+
+            validation.required_checks.push((
+                RequiredCheck::PackageToml,
+                CheckResult::Fail(error_msg.clone()),
+            ));
+            validation.errors.push(error_msg);
         }
     } else {
         validation.required_checks.push((
@@ -349,23 +476,22 @@ fn validate_required_checks(validation: &mut PackageValidation, package_path: &P
     Ok(())
 }
 
-/// Validate quality checks (bonus - 40% weight)
-fn validate_quality_checks(validation: &mut PackageValidation, package_path: &Path) -> Result<()> {
-    // Check RDF ontology
+// ============================================================================
+// QUALITY CHECK HELPER FUNCTIONS - Each check in its own focused function
+// ============================================================================
+
+/// Check for RDF ontology in the package
+fn check_rdf_ontology(validation: &mut PackageValidation, package_path: &Path) -> Result<()> {
     let rdf_dir = package_path.join("rdf");
     let ontology_ttl = package_path.join("rdf/ontology.ttl");
     let ontology_dir = package_path.join("ontology");
 
     if ontology_ttl.exists() {
-        // Use new graph API to validate RDF ontology
         match Graph::new() {
             Ok(graph) => {
-                // Try to load the ontology using the graph API
                 match graph.load_path(&ontology_ttl) {
                     Ok(()) => {
-                        // Get triple count using graph.len() method (simpler than querying)
                         let triple_count = graph.len();
-
                         let lines = fs::read_to_string(&ontology_ttl)
                             .map(|c| c.lines().count())
                             .unwrap_or(0);
@@ -424,7 +550,6 @@ fn validate_quality_checks(validation: &mut PackageValidation, package_path: &Pa
             }
         }
     } else if rdf_dir.exists() || ontology_dir.exists() {
-        // RDF directory exists but no ontology.ttl
         validation.quality_checks.push((
             QualityCheck::RdfOntology,
             CheckResult::Warning("RDF directory exists but ontology.ttl not found".to_string()),
@@ -438,46 +563,38 @@ fn validate_quality_checks(validation: &mut PackageValidation, package_path: &Pa
         ));
     }
 
-    // Check SPARQL queries
+    Ok(())
+}
+
+/// Check for SPARQL queries in the package
+fn check_sparql_queries(validation: &mut PackageValidation, package_path: &Path) -> Result<()> {
     let sparql_dir = package_path.join("sparql");
     let queries_dir = package_path.join("queries");
 
-    if sparql_dir.exists() && sparql_dir.is_dir() {
-        let queries: Vec<_> = fs::read_dir(&sparql_dir)?
-            .filter_map(|e| e.ok())
-            .filter(|e| {
-                let path = e.path();
-                path.extension()
-                    .map(|ext| ext == "rq" || ext == "sparql")
-                    .unwrap_or(false)
-            })
-            .collect();
-
-        if !queries.is_empty() {
+    // Check sparql/ directory
+    match find_files_with_extensions(&sparql_dir, &["rq", "sparql"]) {
+        Ok(queries) if !queries.is_empty() => {
             validation.quality_checks.push((
                 QualityCheck::SparqlQueries,
                 CheckResult::Pass(format!("Found {} SPARQL query file(s)", queries.len())),
             ));
-        } else {
+            return Ok(());
+        }
+        Ok(_) if sparql_dir.exists() => {
             validation.quality_checks.push((
                 QualityCheck::SparqlQueries,
                 CheckResult::Warning(
                     "sparql/ directory exists but no .rq or .sparql files found".to_string(),
                 ),
             ));
+            return Ok(());
         }
-    } else if queries_dir.exists() && queries_dir.is_dir() {
-        let queries: Vec<_> = fs::read_dir(&queries_dir)?
-            .filter_map(|e| e.ok())
-            .filter(|e| {
-                let path = e.path();
-                path.extension()
-                    .map(|ext| ext == "rq" || ext == "sparql")
-                    .unwrap_or(false)
-            })
-            .collect();
+        _ => {}
+    }
 
-        if !queries.is_empty() {
+    // Check queries/ directory
+    match find_files_with_extensions(&queries_dir, &["rq", "sparql"]) {
+        Ok(queries) if !queries.is_empty() => {
             validation.quality_checks.push((
                 QualityCheck::SparqlQueries,
                 CheckResult::Pass(format!(
@@ -485,114 +602,122 @@ fn validate_quality_checks(validation: &mut PackageValidation, package_path: &Pa
                     queries.len()
                 )),
             ));
-        } else {
+            return Ok(());
+        }
+        Ok(_) if queries_dir.exists() => {
             validation.quality_checks.push((
                 QualityCheck::SparqlQueries,
                 CheckResult::Warning(
                     "queries/ directory exists but no .rq or .sparql files found".to_string(),
                 ),
             ));
+            return Ok(());
         }
-    } else {
-        validation.quality_checks.push((
-            QualityCheck::SparqlQueries,
-            CheckResult::NotApplicable(
-                "No SPARQL queries (not required for all packages)".to_string(),
-            ),
-        ));
+        _ => {}
     }
 
-    // Check examples
-    let examples_dir = package_path.join("examples");
-    if examples_dir.exists() && examples_dir.is_dir() {
-        let examples: Vec<_> = fs::read_dir(&examples_dir)?
-            .filter_map(|e| e.ok())
-            .filter(|e| {
-                let path = e.path();
-                path.is_file() && path.extension().is_some()
-            })
-            .collect();
+    validation.quality_checks.push((
+        QualityCheck::SparqlQueries,
+        CheckResult::NotApplicable(
+            "No SPARQL queries (not required for all packages)".to_string(),
+        ),
+    ));
 
-        if !examples.is_empty() {
+    Ok(())
+}
+
+/// Check for examples in the package
+fn check_examples(validation: &mut PackageValidation, package_path: &Path) -> Result<()> {
+    let examples_dir = package_path.join("examples");
+
+    match find_files_with_extensions(&examples_dir, &["rs", "py", "ts", "js", "go", "java"]) {
+        Ok(examples) if !examples.is_empty() => {
             validation.quality_checks.push((
                 QualityCheck::Examples,
                 CheckResult::Pass(format!("Found {} example file(s)", examples.len())),
             ));
-        } else {
+        }
+        Ok(_) if examples_dir.exists() => {
             validation.quality_checks.push((
                 QualityCheck::Examples,
                 CheckResult::Warning("examples/ directory exists but is empty".to_string()),
             ));
         }
-    } else {
-        validation.quality_checks.push((
-            QualityCheck::Examples,
-            CheckResult::Warning("No examples/ directory found".to_string()),
-        ));
+        _ => {
+            validation.quality_checks.push((
+                QualityCheck::Examples,
+                CheckResult::Warning("No examples/ directory found".to_string()),
+            ));
+        }
     }
 
-    // Check tests
-    let tests_dir = package_path.join("tests");
-    if tests_dir.exists() && tests_dir.is_dir() {
-        let tests: Vec<_> = fs::read_dir(&tests_dir)?
-            .filter_map(|e| e.ok())
-            .filter(|e| {
-                let path = e.path();
-                path.is_file()
-                    && (path
-                        .extension()
-                        .map(|ext| ext == "rs" || ext == "py" || ext == "ts")
-                        .unwrap_or(false))
-            })
-            .collect();
+    Ok(())
+}
 
-        if !tests.is_empty() {
+/// Check for tests in the package
+fn check_tests(validation: &mut PackageValidation, package_path: &Path) -> Result<()> {
+    let tests_dir = package_path.join("tests");
+
+    match find_files_with_extensions(&tests_dir, &["rs", "py", "ts"]) {
+        Ok(tests) if !tests.is_empty() => {
             validation.quality_checks.push((
                 QualityCheck::Tests,
                 CheckResult::Pass(format!("Found {} test file(s)", tests.len())),
             ));
-        } else {
+        }
+        Ok(_) if tests_dir.exists() => {
             validation.quality_checks.push((
                 QualityCheck::Tests,
                 CheckResult::Warning("tests/ directory exists but no test files found".to_string()),
             ));
         }
-    } else {
-        validation.quality_checks.push((
-            QualityCheck::Tests,
-            CheckResult::Warning("No tests/ directory found".to_string()),
-        ));
+        _ => {
+            validation.quality_checks.push((
+                QualityCheck::Tests,
+                CheckResult::Warning("No tests/ directory found".to_string()),
+            ));
+        }
     }
 
-    // Check documentation
-    let docs_dir = package_path.join("docs");
-    if docs_dir.exists() && docs_dir.is_dir() {
-        let docs: Vec<_> = fs::read_dir(&docs_dir)?
-            .filter_map(|e| e.ok())
-            .filter(|e| {
-                let path = e.path();
-                path.is_file() && path.extension().map(|ext| ext == "md").unwrap_or(false)
-            })
-            .collect();
+    Ok(())
+}
 
-        if !docs.is_empty() {
+/// Check for documentation in the package
+fn check_documentation(validation: &mut PackageValidation, package_path: &Path) -> Result<()> {
+    let docs_dir = package_path.join("docs");
+
+    match find_files_with_extensions(&docs_dir, &["md"]) {
+        Ok(docs) if !docs.is_empty() => {
             validation.quality_checks.push((
                 QualityCheck::Documentation,
                 CheckResult::Pass(format!("Found {} documentation file(s)", docs.len())),
             ));
-        } else {
+        }
+        Ok(_) if docs_dir.exists() => {
             validation.quality_checks.push((
                 QualityCheck::Documentation,
                 CheckResult::Warning("docs/ directory exists but no .md files found".to_string()),
             ));
         }
-    } else {
-        validation.quality_checks.push((
-            QualityCheck::Documentation,
-            CheckResult::NotApplicable("No docs/ directory (README.md is sufficient)".to_string()),
-        ));
+        _ => {
+            validation.quality_checks.push((
+                QualityCheck::Documentation,
+                CheckResult::NotApplicable("No docs/ directory (README.md is sufficient)".to_string()),
+            ));
+        }
     }
 
+    Ok(())
+}
+
+/// Validate quality checks (bonus - 40% weight)
+/// Delegates to specialized helper functions for each quality check
+fn validate_quality_checks(validation: &mut PackageValidation, package_path: &Path) -> Result<()> {
+    check_rdf_ontology(validation, package_path)?;
+    check_sparql_queries(validation, package_path)?;
+    check_examples(validation, package_path)?;
+    check_tests(validation, package_path)?;
+    check_documentation(validation, package_path)?;
     Ok(())
 }
 
