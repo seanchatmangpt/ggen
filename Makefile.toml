@@ -145,7 +145,16 @@ args = ["30s", "cargo", "test", "--test"]
 description = "Run ignored integration tests (long-running, requires Docker)"
 workspace = false
 command = "timeout"
-args = ["20m", "cargo", "test", "--test", "marketplace_nextjs_ontology_e2e", "--", "--ignored", "--nocapture"]
+args = [
+  "20m",
+  "cargo",
+  "test",
+  "--test",
+  "marketplace_nextjs_ontology_e2e",
+  "--",
+  "--ignored",
+  "--nocapture",
+]
 
 [tasks.test-doc]
 description = "Run doctests (CRITICAL: Verifies all doctests compile and run)"
