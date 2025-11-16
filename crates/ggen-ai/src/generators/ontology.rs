@@ -181,27 +181,32 @@ impl OntologyGenerator {
     /// - Any code block containing RDF-like patterns
     /// - Plain text responses with RDF content
     ///
-    /// After extraction, validates the Turtle syntax using oxigraph parser
-    /// to ensure the LLM generated valid RDF.
+    /// After extraction, attempts auto-repair for common issues (missing prefixes),
+    /// then validates the Turtle syntax using oxigraph parser to ensure the LLM generated valid RDF.
     ///
     /// # Core Team Best Practices Applied
     /// - **Lenient Parsing**: Accepts many response formats
+    /// - **Auto-Repair**: Attempts to fix common issues (missing prefixes) before failing
     /// - **Strict Validation**: Validates extracted content is syntactically valid Turtle
     /// - **Defensive**: Never trusts LLM output without validation
     /// - **Fail Fast**: Catches syntax errors at generation time, not later
     /// - **Clear Errors**: Returns descriptive error with response preview and suggestions
     fn extract_ontology_content(&self, response: &str) -> Result<String> {
         // Step 1: Lenient extraction - try to find Turtle content in varied formats
-        let content = crate::parsing_utils::extract_turtle_content(response).ok_or_else(|| {
-            crate::error_utils::no_valid_content_error::<String>(
-                "Turtle/RDF content (@prefix declarations or RDF triples)",
-                response,
-                crate::error_utils::ErrorContext::OntologyGeneration,
-            )
-            .unwrap_err()
-        })?;
+        let mut content =
+            crate::parsing_utils::extract_turtle_content(response).ok_or_else(|| {
+                crate::error_utils::no_valid_content_error::<String>(
+                    "Turtle/RDF content (@prefix declarations or RDF triples)",
+                    response,
+                    crate::error_utils::ErrorContext::OntologyGeneration,
+                )
+                .unwrap_err()
+            })?;
 
-        // Step 2: Strict validation - verify the extracted content is valid Turtle
+        // Step 2: Auto-repair - attempt to fix common issues (missing prefixes)
+        content = self.auto_repair_turtle(&content);
+
+        // Step 3: Strict validation - verify the extracted content is valid Turtle
         crate::parsing_utils::validate_turtle_syntax(&content).map_err(|validation_error| {
             crate::error_utils::turtle_validation_error::<String>(
                 &validation_error,
@@ -211,8 +216,128 @@ impl OntologyGenerator {
             .unwrap_err()
         })?;
 
-        // Content is both extracted and validated
+        // Content is both extracted, repaired, and validated
         Ok(content)
+    }
+
+    /// Auto-repair common Turtle syntax issues
+    ///
+    /// Attempts to fix:
+    /// - Missing common prefix declarations (rdf:, rdfs:, owl:, xsd:)
+    /// - Missing default prefix (:) declaration
+    ///
+    /// This follows the "lenient parsing, defensive validation" principle by
+    /// attempting to fix common LLM mistakes before failing validation.
+    fn auto_repair_turtle(&self, content: &str) -> String {
+        let mut repaired = content.to_string();
+
+        // Common RDF prefixes that are often used but not declared
+        let common_prefixes = vec![
+            (
+                "rdf:",
+                "@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .",
+            ),
+            (
+                "rdfs:",
+                "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .",
+            ),
+            ("owl:", "@prefix owl: <http://www.w3.org/2002/07/owl#> ."),
+            ("xsd:", "@prefix xsd: <http://www.w3.org/2001/XMLSchema#> ."),
+        ];
+
+        // Check if content uses prefixes that aren't declared
+        let mut prefixes_to_add = Vec::new();
+
+        for (prefix, declaration) in &common_prefixes {
+            // Check if prefix is used in content
+            if repaired.contains(prefix) {
+                // Check if it's already declared
+                if !repaired.contains(&format!("@prefix {}", prefix.trim_end_matches(':'))) {
+                    prefixes_to_add.push(declaration.to_string());
+                }
+            }
+        }
+
+        // Check for default prefix (:) usage
+        // Look for patterns like ":Product" or ":hasName" that aren't part of a prefix declaration
+        if repaired.contains(":") && !repaired.contains("@prefix :") {
+            // Check if there's a colon followed by a letter (likely a default prefix usage)
+            // Simple heuristic: if we see ":Product" or similar, we likely need a default prefix
+            // But we need to be careful - only add if we see actual usage patterns
+            let has_default_prefix_usage = repaired.lines().any(|line| {
+                let trimmed = line.trim();
+                // Look for lines that start with : or have : followed by identifier
+                (trimmed.starts_with(':')
+                    && trimmed.len() > 1
+                    && trimmed
+                        .chars()
+                        .nth(1)
+                        .map_or(false, |c| c.is_alphanumeric()))
+                    || (trimmed.contains(" :") && !trimmed.contains("@prefix"))
+            });
+
+            if has_default_prefix_usage {
+                // Try to infer a reasonable default namespace from the content
+                // Look for existing namespace patterns
+                let default_ns = if let Some(existing_prefix) = repaired.lines().find_map(|line| {
+                    if line.contains("@prefix") && line.contains("http://") {
+                        // Extract namespace and use it as default
+                        if let Some(start) = line.find('<') {
+                            if let Some(end) = line[start..].find('>') {
+                                let ns = &line[start + 1..start + end];
+                                // Convert to default namespace format
+                                if ns.ends_with('#') {
+                                    Some(ns.to_string())
+                                } else if ns.ends_with('/') {
+                                    Some(format!("{}#", ns))
+                                } else {
+                                    Some(format!("{}/#", ns))
+                                }
+                            } else {
+                                None
+                            }
+                        } else {
+                            None
+                        }
+                    } else {
+                        None
+                    }
+                }) {
+                    existing_prefix
+                } else {
+                    // Default fallback namespace
+                    "http://example.org/domain#".to_string()
+                };
+
+                prefixes_to_add.push(format!("@prefix : <{}> .", default_ns));
+            }
+        }
+
+        // Add missing prefixes at the beginning (after any existing @prefix declarations)
+        if !prefixes_to_add.is_empty() {
+            let mut lines: Vec<&str> = repaired.lines().collect();
+            let mut insert_pos = 0;
+
+            // Find where to insert (after existing @prefix lines)
+            for (i, line) in lines.iter().enumerate() {
+                if line.trim().starts_with("@prefix") {
+                    insert_pos = i + 1;
+                } else if !line.trim().is_empty() && !line.trim().starts_with('#') {
+                    // Stop at first non-prefix, non-comment line
+                    break;
+                }
+            }
+
+            // Insert new prefix declarations
+            let new_prefixes: Vec<String> = prefixes_to_add.iter().map(|s| s.to_string()).collect();
+            for (i, prefix) in new_prefixes.iter().enumerate() {
+                lines.insert(insert_pos + i, prefix);
+            }
+
+            repaired = lines.join("\n");
+        }
+
+        repaired
     }
 }
 

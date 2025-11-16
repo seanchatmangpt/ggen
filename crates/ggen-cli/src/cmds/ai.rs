@@ -6,8 +6,8 @@
 use clap_noun_verb::Result;
 use clap_noun_verb_macros::verb;
 use futures::StreamExt;
+use ggen_ai::config::get_global_config;
 use serde::Serialize;
-use std::collections::HashMap;
 use std::path::PathBuf;
 
 // ============================================================================
@@ -73,28 +73,30 @@ pub struct AnalyzeOutput {
 #[verb]
 fn generate(
     prompt: String, code: Option<String>, model: Option<String>, _api_key: Option<String>,
-    suggestions: bool, language: Option<String>, max_tokens: u32, temperature: f32,
+    suggestions: bool, language: Option<String>, max_tokens: i64, temperature: f64,
 ) -> Result<GenerateOutput> {
-    use ggen_ai::{GenAiClient, LlmClient, LlmConfig};
-
     crate::runtime::block_on(async move {
-        // Build configuration
-        let config = LlmConfig {
-            model: model.unwrap_or_else(|| "gpt-3.5-turbo".to_string()),
-            max_tokens: Some(max_tokens),
-            temperature: Some(temperature),
-            top_p: Some(0.9),
-            stop: None,
-            extra: HashMap::new(),
-        };
+        let mut global_config = get_global_config().clone();
 
-        // Validate configuration
-        config.validate().map_err(|e| {
-            clap_noun_verb::NounVerbError::execution_error(format!("Invalid configuration: {}", e))
-        })?;
+        // Override model if provided
+        if let Some(model_name) = &model {
+            global_config.settings.default_model = Some(model_name.clone());
+            if let Some(provider_config) = global_config.providers.get_mut(&global_config.provider)
+            {
+                provider_config.model = model_name.clone();
+            }
+        }
 
-        // Create client
-        let client = GenAiClient::new(config).map_err(|e| {
+        // Override max_tokens and temperature
+        global_config.settings.default_max_tokens = Some(max_tokens as u32);
+        global_config.settings.default_temperature = Some(temperature as f32);
+        if let Some(provider_config) = global_config.providers.get_mut(&global_config.provider) {
+            provider_config.max_tokens = Some(max_tokens as u32);
+            provider_config.temperature = Some(temperature as f32);
+        }
+
+        // Create client using global config
+        let client = global_config.create_contextual_client().map_err(|e| {
             clap_noun_verb::NounVerbError::execution_error(format!(
                 "Failed to create AI client: {}",
                 e
@@ -125,7 +127,7 @@ fn generate(
             generated_code: response.content,
             language: language.clone(),
             tokens_used: response.usage.map(|u| u.total_tokens as usize),
-            model: response.model,
+            model: client.get_config().model.clone(),
             finish_reason: response.finish_reason,
         })
     })
@@ -152,24 +154,32 @@ fn generate(
 #[verb]
 fn chat(
     message: Option<String>, model: Option<String>, _api_key: Option<String>, interactive: bool,
-    stream: bool, max_tokens: u32, temperature: f32,
+    stream: bool, max_tokens: i64, temperature: f64,
 ) -> Result<ChatOutput> {
-    use ggen_ai::{GenAiClient, LlmClient, LlmConfig};
     use std::io::Write;
 
     crate::runtime::block_on(async move {
-        // Build configuration
-        let config = LlmConfig {
-            model: model.unwrap_or_else(|| "gpt-3.5-turbo".to_string()),
-            max_tokens: Some(max_tokens),
-            temperature: Some(temperature),
-            top_p: Some(0.9),
-            stop: None,
-            extra: HashMap::new(),
-        };
+        let mut global_config = get_global_config().clone();
 
-        // Create client
-        let client = GenAiClient::new(config).map_err(|e| {
+        // Override model if provided
+        if let Some(model_name) = &model {
+            global_config.settings.default_model = Some(model_name.clone());
+            if let Some(provider_config) = global_config.providers.get_mut(&global_config.provider)
+            {
+                provider_config.model = model_name.clone();
+            }
+        }
+
+        // Override max_tokens and temperature
+        global_config.settings.default_max_tokens = Some(max_tokens as u32);
+        global_config.settings.default_temperature = Some(temperature as f32);
+        if let Some(provider_config) = global_config.providers.get_mut(&global_config.provider) {
+            provider_config.max_tokens = Some(max_tokens as u32);
+            provider_config.temperature = Some(temperature as f32);
+        }
+
+        // Create client using global config
+        let client = global_config.create_contextual_client().map_err(|e| {
             clap_noun_verb::NounVerbError::execution_error(format!(
                 "Failed to create AI client: {}",
                 e
@@ -358,10 +368,8 @@ fn chat(
 #[verb]
 fn analyze(
     code: Option<String>, file: Option<PathBuf>, project: Option<PathBuf>, model: Option<String>,
-    api_key: Option<String>, complexity: bool, security: bool, performance: bool, max_tokens: u32,
+    api_key: Option<String>, complexity: bool, security: bool, performance: bool, max_tokens: i64,
 ) -> Result<AnalyzeOutput> {
-    use ggen_ai::{GenAiClient, LlmClient, LlmConfig};
-
     crate::runtime::block_on(async move {
         // Determine what to analyze
         let (code_content, file_path) = if let Some(code_str) = code {
@@ -376,25 +384,34 @@ fn analyze(
             (content, Some(file_path.display().to_string()))
         } else if let Some(project_path) = &project {
             // For project analysis, we'll provide a summary prompt
-            return analyze_project(project_path, model, api_key, max_tokens).await;
+            return analyze_project(project_path, model, api_key, max_tokens as u32).await;
         } else {
             return Err(clap_noun_verb::NounVerbError::execution_error(
                 "Provide code, --file, or --project to analyze",
             ));
         };
 
-        // Build configuration
-        let config = LlmConfig {
-            model: model.unwrap_or_else(|| "gpt-3.5-turbo".to_string()),
-            max_tokens: Some(max_tokens),
-            temperature: Some(0.3), // Lower temperature for analysis
-            top_p: Some(0.9),
-            stop: None,
-            extra: HashMap::new(),
-        };
+        let mut global_config = get_global_config().clone();
 
-        // Create client
-        let client = GenAiClient::new(config).map_err(|e| {
+        // Override model if provided
+        if let Some(model_name) = &model {
+            global_config.settings.default_model = Some(model_name.clone());
+            if let Some(provider_config) = global_config.providers.get_mut(&global_config.provider)
+            {
+                provider_config.model = model_name.clone();
+            }
+        }
+
+        // Override max_tokens and temperature (lower for analysis)
+        global_config.settings.default_max_tokens = Some(max_tokens as u32);
+        global_config.settings.default_temperature = Some(0.3);
+        if let Some(provider_config) = global_config.providers.get_mut(&global_config.provider) {
+            provider_config.max_tokens = Some(max_tokens as u32);
+            provider_config.temperature = Some(0.3);
+        }
+
+        // Create client using global config
+        let client = global_config.create_contextual_client().map_err(|e| {
             clap_noun_verb::NounVerbError::execution_error(format!(
                 "Failed to create AI client: {}",
                 e
@@ -443,7 +460,7 @@ fn analyze(
             insights,
             suggestions,
             complexity_score,
-            model: response.model,
+            model: client.get_config().model.clone(),
             tokens_used: response.usage.map(|u| u.total_tokens as usize),
         })
     })
@@ -457,7 +474,6 @@ fn analyze(
 async fn analyze_project(
     project_path: &PathBuf, model: Option<String>, _api_key: Option<String>, max_tokens: u32,
 ) -> Result<AnalyzeOutput> {
-    use ggen_ai::{GenAiClient, LlmClient, LlmConfig};
     use walkdir::WalkDir;
 
     // Collect source files
@@ -477,18 +493,27 @@ async fn analyze_project(
         }
     }
 
-    // Build configuration
-    let config = LlmConfig {
-        model: model.unwrap_or_else(|| "gpt-3.5-turbo".to_string()),
-        max_tokens: Some(max_tokens),
-        temperature: Some(0.3),
-        top_p: Some(0.9),
-        stop: None,
-        extra: HashMap::new(),
-    };
+    // Use global config system
+    let mut global_config = get_global_config().clone();
 
-    // Create client
-    let client = GenAiClient::new(config).map_err(|e| {
+    // Override model if provided
+    if let Some(model_name) = &model {
+        global_config.settings.default_model = Some(model_name.clone());
+        if let Some(provider_config) = global_config.providers.get_mut(&global_config.provider) {
+            provider_config.model = model_name.clone();
+        }
+    }
+
+    // Override max_tokens and temperature
+    global_config.settings.default_max_tokens = Some(max_tokens);
+    global_config.settings.default_temperature = Some(0.3);
+    if let Some(provider_config) = global_config.providers.get_mut(&global_config.provider) {
+        provider_config.max_tokens = Some(max_tokens);
+        provider_config.temperature = Some(0.3);
+    }
+
+    // Create client using global config
+    let client = global_config.create_contextual_client().map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(format!("Failed to create AI client: {}", e))
     })?;
 
@@ -522,7 +547,7 @@ async fn analyze_project(
         insights,
         suggestions,
         complexity_score: None,
-        model: response.model,
+        model: client.get_config().model.clone(),
         tokens_used: response.usage.map(|u| u.total_tokens as usize),
     })
 }

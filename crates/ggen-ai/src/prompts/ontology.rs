@@ -86,7 +86,54 @@ impl OntologyPromptBuilder {
             prompt.push_str(&format!("Output format: {}\n\n", format));
         }
 
-        prompt.push_str("Please generate a complete RDF/OWL ontology in Turtle format with appropriate classes, properties, and relationships.");
+        // Add explicit Turtle syntax requirements and example
+        prompt.push_str("CRITICAL: You must generate valid Turtle syntax. Every triple must have subject-predicate-object.\n\n");
+        prompt.push_str("Example of valid Turtle ontology:\n");
+        prompt.push_str("```turtle\n");
+        prompt.push_str("@prefix : <http://example.org/domain#> .\n");
+        prompt.push_str("@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n");
+        prompt.push_str("@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n");
+        prompt.push_str("@prefix owl: <http://www.w3.org/2002/07/owl#> .\n");
+        prompt.push_str("@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n");
+        prompt.push_str("\n");
+        prompt.push_str("# Class declarations\n");
+        prompt.push_str(":Product a rdfs:Class ;\n");
+        prompt.push_str("    rdfs:label \"Product\" ;\n");
+        prompt.push_str("    rdfs:comment \"A product in the domain\" .\n");
+        prompt.push_str("\n");
+        prompt.push_str(":Order a rdfs:Class ;\n");
+        prompt.push_str("    rdfs:label \"Order\" ;\n");
+        prompt.push_str("    rdfs:comment \"An order\" .\n");
+        prompt.push_str("\n");
+        prompt.push_str("# Property declarations\n");
+        prompt.push_str(":hasName a rdf:Property ;\n");
+        prompt.push_str("    rdfs:domain :Product ;\n");
+        prompt.push_str("    rdfs:range rdfs:Literal .\n");
+        prompt.push_str("```\n\n");
+        prompt.push_str("IMPORTANT RULES:\n");
+        prompt.push_str("1. Every triple must have subject-predicate-object (e.g., ':Product a rdfs:Class .')\n");
+        prompt.push_str(
+            "2. Class declarations use 'a rdfs:Class' (e.g., ':Product a rdfs:Class .')\n",
+        );
+        prompt.push_str(
+            "3. Property declarations use 'a rdf:Property' (e.g., ':hasName a rdf:Property .')\n",
+        );
+        prompt.push_str("4. All triples must end with a period (.)\n");
+        prompt.push_str("5. Use semicolons (;) to continue triples with the same subject\n");
+        prompt.push_str(
+            "6. CRITICAL: Declare ALL prefixes you will use with @prefix BEFORE using them\n",
+        );
+        prompt.push_str("   - If you use rdf:, declare @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n");
+        prompt.push_str("   - If you use rdfs:, declare @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n");
+        prompt.push_str(
+            "   - If you use owl:, declare @prefix owl: <http://www.w3.org/2002/07/owl#> .\n",
+        );
+        prompt.push_str(
+            "   - If you use xsd:, declare @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n",
+        );
+        prompt.push_str("   - NEVER use a prefix without declaring it first\n");
+        prompt.push_str("7. NEVER write just a subject followed by a period (e.g., ':Product .' is INVALID)\n\n");
+        prompt.push_str("Generate ONLY valid Turtle syntax. Output the complete ontology wrapped in ```turtle code blocks.");
 
         Ok(prompt)
     }
