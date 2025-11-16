@@ -429,12 +429,119 @@ cargo test --lib guards::tests::test_validated_run_compile_error
 # - Next: Complete ValidatedTickBudget
 ```
 
+---
+
+## Kaizen - Continuous Incremental Improvement
+
+**CRITICAL**: Improvements should be incremental (many small improvements), not big rewrites. This prevents risk and enables fast feedback.
+
+### PDCA Cycle (Plan-Do-Check-Act)
+
+1. **Plan** - Identify small improvement opportunity
+   - Code clarity improvement (better names, clearer logic)
+   - Performance improvement (remove unnecessary allocation, use reference)
+   - Maintainability improvement (extract repeated pattern, simplify expression)
+   - Error prevention (add type safety, add validation)
+
+2. **Do** - Implement the improvement
+   - Minimal change (only what's necessary)
+   - Focused (one improvement at a time)
+   - Safe to revert
+
+3. **Check** - Verify improvement works
+   - Tests pass: `cargo make test`
+   - Code compiles: `cargo make check`
+   - Improvement achieved goal: code more readable, faster, safer
+   - No regressions introduced
+
+4. **Act** - Standardize the improvement
+   - Apply pattern to similar code
+   - Document pattern for future use
+   - Add to coding standards if broadly applicable
+
+### Kaizen Mindset
+
+**Principles**:
+- **Small improvements** - Don't wait for perfect solutions, improve now
+- **Continuous** - Make improvements regularly, not just once
+- **Everyone** - Anyone can suggest improvements
+- **Safe** - Small changes lower risk
+- **Low cost** - Improvements take minutes, not hours
+
+**Benefits**:
+- **Risk reduction** - Small changes are safer than big rewrites
+- **Fast feedback** - See results immediately
+- **Compound effect** - Small improvements add up over time
+- **Sustainability** - Easier to maintain than big changes
+
+### Common Improvement Types
+
+**Code Clarity**:
+- Extract magic number to named constant
+- Rename variable for clarity
+- Add clarifying comment
+
+**Performance**:
+- Use reference instead of clone
+- Remove unnecessary allocation
+- Optimize hot path
+
+**Maintainability**:
+- Extract repeated pattern to function
+- Simplify complex expression
+- Remove dead code
+
+**Error Prevention**:
+- Add type safety (newtype for IDs, enums for states)
+- Add validation
+- Handle edge case
+
+**Consistency**:
+- Match naming convention
+- Match code style
+- Match error handling pattern
+
+### Kaizen in Action
+
+```rust
+// Step 1: Identify opportunity
+// Notice: Magic number 42 not explained
+
+fn connect() -> Result<Connection, Error> {
+    tokio::time::timeout(Duration::from_secs(42), async_connect()).await?
+}
+
+// Step 2: Plan improvement
+// Extract magic number to named constant for clarity
+
+// Step 3: Do (implement)
+const DEFAULT_TIMEOUT_SECONDS: u64 = 42;
+
+fn connect() -> Result<Connection, Error> {
+    tokio::time::timeout(
+        Duration::from_secs(DEFAULT_TIMEOUT_SECONDS),
+        async_connect()
+    ).await?
+}
+
+// Step 4: Check (verify)
+// cargo make check  # Compiles ✅
+// cargo make test   # Tests pass ✅
+
+// Step 5: Act (standardize)
+// Apply pattern to other constants:
+const MAX_RETRY_ATTEMPTS: u64 = 3;
+const CONNECTION_POOL_SIZE: usize = 10;
+```
+
+---
+
 ## Integration with Other Commands
 
-- **[Gemba Walk](./gemba-walk.md)** - Use to verify actual behavior before finishing capabilities
-- **[Poka-Yoke Design](./poka-yoke-design.md)** - Use to complete type safety capabilities
+- **[Problem Solving](./problem-solving.md)** - Use 5 Whys and DMAIC to systematically identify and fix incomplete capabilities
+- **[Type Safety Patterns](./type-safety-patterns.md)** - Use to complete type safety capabilities
 - **[Expert Testing Patterns](./expert-testing-patterns.md)** - Use to complete testing capabilities
-- **[DMAIC Problem Solving](./dmaic-problem-solving.md)** - Use to systematically complete complex capabilities
+- **[ACP](./acp.md)** - Use for add/commit/push workflow after completing capabilities
 
 ## Expert Insights
 

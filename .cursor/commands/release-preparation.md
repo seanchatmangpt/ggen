@@ -1,1027 +1,271 @@
-# v2.7.0 Release Preparation - Multi-Step Workflow
+# Release Preparation - Essential Checklist
 
 ## Purpose
 
-This command guides agents through comprehensive release preparation for v2.7.0. It systematically validates all components necessary for production release, identifies gaps based on actual codebase state, and creates actionable release artifacts. Uses 80/20 thinking to focus on critical release blockers.
+This command guides agents through release preparation. It verifies code is production-ready, updates version, creates release artifacts, and validates everything before release.
 
-## Current State Summary
+---
 
-**Version**: Currently set to `2.6.0` in `Cargo.toml` (line 3) - needs update to `2.7.0`
-**Test Status**: 257 passed, 0 timed out, 10 skipped (testcontainers when Docker not running)
-**Code Status**: No TODOs/FIXMEs found in source code
-**Documentation**: Readiness reports exist; CHANGELOG.md missing; release notes missing
-**Build System**: Uses `cargo make` with timeout protection (never use `cargo` directly)
+## Release Checklist
 
-## Workflow Overview
+### Pre-Release: Code Ready?
 
-```
-Step 1: Verify Release Scope → Step 2: Measure Current State → Step 3: Analyze Gaps → Step 4: Prepare Release Artifacts → Step 5: Final Validation
-```
+**Action**: Verify code is production-ready.
 
-## Step-by-Step Instructions
+**Checklist**:
+- [ ] No uncommitted changes: `git status --porcelain` (should be empty)
+- [ ] No TODOs/FIXMEs in production code: `grep -r "TODO\|FIXME" src/`
+- [ ] No unimplemented!() calls: `grep -r "unimplemented\|todo!" src/`
+- [ ] All tests pass: `cargo make test`
+- [ ] Linting passes: `cargo make lint`
+- [ ] Code compiles: `cargo make check`
 
-### Step 1: Verify Release Scope
+**CRITICAL**: Fix any issues before proceeding. Don't release broken code.
 
-**Action**: Verify what's included in v2.7.0 release.
+---
 
-#### 1.1: Confirm Version
+### Step 1: Update Version
 
-**Action**: Verify version is set to 2.7.0.
+**Action**: Update version in Cargo.toml and workspace crates.
 
-**Current state**: Version is currently `2.6.0` in `Cargo.toml` (line 3) - needs update to `2.7.0`.
-
-**Action**: Verify and update version
-
+**Process**:
 ```bash
-# Check version in Cargo.toml
+# Current version
 grep "^version" Cargo.toml
-# Current: version = "2.6.0"
-# Target: version = "2.7.0"
 
-# Update version in Cargo.toml and all workspace crates
-# Update: Cargo.toml, crates/*/Cargo.toml
-```
+# Update version in Cargo.toml (change to new version)
+# Also update: crates/*/Cargo.toml
 
-**Version status**:
-- ⚠️ Version needs update from `2.6.0` to `2.7.0` in `Cargo.toml`
-- ⚠️ CHANGELOG.md needs v2.7.0 section
-- ⚠️ Release notes need creation for v2.7.0
-
-#### 1.2: Identify v2.7.0 Features
-
-**Action**: Document key features for v2.7.0 release.
-
-**Key features** (from `README.md`, `CHANGELOG.md`, codebase analysis):
-
-**Action**: Identify v2.7.0 features by analyzing changes since v2.6.0
-
-```bash
-# Check CHANGELOG.md for v2.7.0 section
-grep -A 50 "## \[2.7.0\]" CHANGELOG.md
-
-# Check git log for changes since v2.6.0
-git log --oneline v2.6.0..HEAD
-
-# Check for new features in codebase
-find crates/ -name "*.rs" -newer VERSION -exec grep -l "pub fn\|pub struct\|pub enum" {} \;
-```
-
-**Feature identification checklist**:
-- [ ] Review CHANGELOG.md for v2.7.0 section
-- [ ] Review git commits since v2.6.0 tag
-- [ ] Identify new commands, features, or improvements
-- [ ] Verify all features are complete (no TODOs/FIXMEs)
-- [ ] Document breaking changes (if any)
-
-**Action**: Verify features are complete
-
-```bash
-# Verify no placeholders
-grep -r "TODO\|FIXME\|unimplemented!" crates/ --include="*.rs" | grep -v "test\|example"
-
-# Check for incomplete implementations
-grep -r "unimplemented!\|todo!\|panic!" crates/ --include="*.rs" | grep -v "test\|example"
-
-# Should return no matches in production code
-```
-
----
-
-### Step 2: Measure Current State
-
-**Action**: Measure all components that must be ready for release.
-
-#### 2.1: Git State Verification (CRITICAL BLOCKER)
-
-**Action**: Verify git repository state is clean before proceeding.
-
-**Current state**: Must verify git state is clean (no uncommitted changes, no WIP work).
-
-**Action**: Check git state
-
-```bash
-# Check for uncommitted changes
-git status --porcelain
-# Expected: No output (clean state)
-
-# Count uncommitted modified files
-git status --porcelain | grep "^ M" | wc -l
-# Expected: 0
-
-# Count untracked files (excluding build artifacts)
-git status --porcelain | grep "^??" | wc -l
-# Expected: 0 (or only build artifacts in target/)
-
-# Count deleted files
-git status --porcelain | grep "^ D" | wc -l
-# Expected: 0
-
-# Check for incomplete work files
-find . -name "*.new" -o -name "*WIP*" -o -name "*.tmp" | grep -v "target\|node_modules\|\.git"
-# Expected: No matches (no incomplete work)
-```
-
-**Git state status**:
-- ✅ **READY**: Git state is clean (no uncommitted changes, no WIP work)
-- ❌ **BLOCKER**: Uncommitted modified files present
-- ❌ **BLOCKER**: Untracked files present (except build artifacts)
-- ❌ **BLOCKER**: Deleted files present
-- ❌ **BLOCKER**: Incomplete work files present
-
-**Why this matters**: Releasing uncommitted changes risks:
-- Incomplete code being released
-- Uncommitted fixes not included
-- WIP work accidentally released
-- Broken production releases
-
-**Action**: If git state is not clean, commit or stash all changes before proceeding with release.
-
-#### 2.2: Code Completeness
-
-**Action**: Verify all code is complete and production-ready.
-
-**Current state**: No TODOs/FIXMEs found in source code.
-
-**Action**: Scan for incomplete code
-
-```bash
-# Scan for incomplete code
-grep -r "TODO\|FIXME\|unimplemented\|incomplete\|placeholder" src/ --include="*.rs"
-# Expected: No matches found
-
-# Verify Weaver implementation is complete
-grep -A 5 "pub fn send_test_span_to_weaver" src/observability/weaver/mod.rs
-# Should show full implementation, not placeholder
-```
-
-**Completeness metrics**:
-- **TODOs found**: 0 (none found)
-- **Unimplemented found**: 0 (none found)
-- **Placeholder code**: 0 (none found)
-- **Status**: ✅ All code complete
-
-#### 2.2: Test Coverage
-
-**Action**: Verify test coverage is adequate.
-
-**Current state**: 257 passed, 0 timed out, 10 skipped.
-
-**Action**: Run test suite
-
-```bash
-# Run all tests (excludes testcontainers by default)
-timeout 10s cargo make test
-
-# Expected output summary:
-# - Total tests: 257
-# - Passed: 257
-# - Timed out: 0
-# - Skipped: 10 (testcontainers tests when Docker not running)
-```
-
-**Test metrics**:
-- **Total tests**: 257
-- **Passed**: 257 (100% pass rate)
-- **Timed out**: 0
-- **Skipped**: 10 (testcontainers tests - expected when Docker not running)
-- **Status**: ✅ All tests passing
-
-**Known test issues**:
-- None - all tests pass successfully
-- Testcontainers tests skipped when Docker not running (expected behavior via `require_docker()`)
-
-#### 2.3: Documentation Completeness
-
-**Action**: Verify all documentation is complete and accurate.
-
-**Current state**: Readiness reports exist; CHANGELOG.md missing; release notes missing.
-
-**Action**: Check documentation files
-
-```bash
-# Check for documentation files
-ls -la README.md
-# ✅ Exists and up to date
-
-ls -la docs/V1_1_0_READINESS_REPORT.md
-# ✅ Exists
-
-ls -la docs/V1_1_0_ROOT_CAUSE_ANALYSIS.md
-# ✅ Exists
-
-ls -la OTEL_WEAVER_PRODUCTION_READINESS_REPORT.md
-# ✅ Exists
-
-ls -la CHANGELOG.md
-# ❌ Does not exist (needs creation)
-
-# Check for release notes
-ls -la RELEASE_NOTES.md RELEASE_NOTES_v2.7.0.md
-# ❌ Do not exist (need creation)
-```
-
-**Documentation metrics**:
-- **README status**: ✅ Up to date (recently validated via DMAIC)
-- **API docs status**: ✅ Complete (from `src/lib.rs`)
-- **Examples status**: ✅ Working (9 examples in `examples/`)
-- **CHANGELOG status**: ❌ Missing (needs creation)
-- **Release notes status**: ❌ Missing (need creation)
-- **Readiness reports**: ✅ Exist (`docs/V1_1_0_READINESS_REPORT.md`, `docs/V1_1_0_ROOT_CAUSE_ANALYSIS.md`)
-
-#### 2.4: Version Consistency
-
-**Action**: Verify version numbers are consistent.
-
-**Current state**: Version is `2.6.0` in `Cargo.toml`; needs update to `2.7.0`.
-
-**Action**: Check and update version consistency
-
-```bash
-# Check version in Cargo.toml
+# Verify update
 grep "^version" Cargo.toml
-# Current: version = "2.6.0"
-# Target: version = "2.7.0"
-
-# Check all workspace crates
-grep "^version" crates/*/Cargo.toml
-# All should be updated to 2.7.0
-
-# Check for hardcoded old versions in code
-grep -r "2\.6\.0\|2\.5\.0" crates/ --include="*.rs" | grep -v "dependency\|dep:"
-# Expected: No matches (only dependency versions)
-
-# Verify version consistency across workspace
-VERSION_MAIN=$(grep "^version" Cargo.toml | cut -d'"' -f2)
-for crate in crates/*/Cargo.toml; do
-  VERSION_CRATE=$(grep "^version" "$crate" | cut -d'"' -f2)
-  if [ "$VERSION_MAIN" != "$VERSION_CRATE" ]; then
-    echo "❌ Version mismatch in $crate: $VERSION_CRATE (expected $VERSION_MAIN)"
-  fi
-done
 ```
 
-**Version metrics**:
-- **Cargo.toml version**: ⚠️ Needs update from `2.6.0` to `2.7.0`
-- **Workspace crates**: ⚠️ Need to verify all match `2.7.0`
-- **Documentation versions**: ⚠️ Need to verify references
-- **Code versions**: ✅ Should have no hardcoded crate versions (only dependency versions)
-
-#### 2.5: Build System
-
-**Action**: Verify build system works correctly.
-
-**Current state**: Uses `cargo make` with timeout protection.
-
-**Action**: Verify build
-
-```bash
-# Compile check (5s timeout)
-timeout 10s cargo make check
-# Expected: Compiles successfully
-
-# Lint check (5s timeout)
-timeout 10s cargo make lint
-# Expected: Linting passes (may have warnings, but no errors)
-
-# Format check
-timeout 5s cargo make fmt
-# Expected: Formatting is consistent
-```
-
-**Build metrics**:
-- **Compilation**: ✅ Success (verified)
-- **Linting**: ✅ Passes (warnings acceptable)
-- **Formatting**: ✅ Consistent
-- **Features**: ✅ All features compile
-
-#### 2.6: Git State Verification
-
-**Action**: Verify git repository state is clean (no uncommitted changes, no WIP work).
-
-**Critical**: A clean git state is a release blocker. Uncommitted changes indicate incomplete work that shouldn't be released.
-
-**Action**: Check git state
-
-```bash
-# Check for uncommitted changes
-git status --porcelain
-# Expected: No output (clean state)
-# If output exists: NOT READY FOR RELEASE
-
-# Count modified files
-git status --porcelain | grep "^ M" | wc -l
-# Expected: 0 modified files
-
-# Count untracked files
-git status --porcelain | grep "^??" | wc -l
-# Expected: 0 untracked files (or only expected files like build artifacts)
-
-# Check for incomplete work indicators
-find . -name "*.new" -o -name "*WIP*" -o -name "*.tmp" | grep -v "target\|node_modules\|\.git"
-# Expected: No matches (no incomplete work files)
-
-# Check for deleted files not staged
-git status --porcelain | grep "^ D" | wc -l
-# Expected: 0 deleted files (or all deletions are intentional and staged)
-```
-
-**Git state metrics**:
-- **Modified files**: Must be 0 (all changes committed)
-- **Untracked files**: Must be 0 (or only expected files like build artifacts)
-- **Deleted files**: Must be 0 (or all deletions staged/committed)
-- **Incomplete work**: Must be 0 (no `.new`, `WIP`, `.tmp` files)
-- **Status**: ⚠️ Check git state before declaring release readiness
-
-**Release blocker criteria**:
-- ❌ **BLOCKER**: Uncommitted modified files present
-- ❌ **BLOCKER**: Untracked files present (except build artifacts)
-- ❌ **BLOCKER**: Incomplete work files present (`.new`, `WIP`, `.tmp`)
-- ❌ **BLOCKER**: Deleted files not staged/committed
-
-**Why this matters**: Releasing uncommitted changes risks:
-- Releasing incomplete work
-- Releasing WIP code
-- Releasing untested changes
-- Breaking reproducibility (can't recreate exact release state)
-
-**Action**: If git state is not clean, commit or stash all changes before proceeding with release.
-
-#### 2.7: Dependencies
-
-**Action**: Verify dependencies are appropriate.
-
-**Current state**: Dependencies are stable and properly feature-gated.
-
-**Action**: Check dependencies
-
-```bash
-# Check Cargo.toml for dependency versions
-grep -A 30 "^\[dependencies\]" Cargo.toml
-# Review dependency versions
-
-# Key dependencies:
-# - OpenTelemetry 0.31 (stable)
-# - testcontainers 0.25 (stable)
-# - tokio 1.0 (stable)
-```
-
-**Dependency metrics**:
-- **Total dependencies**: ~20 (including optional)
-- **Outdated dependencies**: 0 (all stable versions)
-- **Security issues**: None known
-- **License compatibility**: ✅ MIT license, compatible dependencies
-- **Feature gating**: ✅ All optional dependencies properly gated
+**Checklist**:
+- [ ] Update version in Cargo.toml
+- [ ] Update version in workspace crates (crates/*/Cargo.toml)
+- [ ] Verify all version updates applied
+- [ ] Code still compiles: `cargo make check`
 
 ---
 
-### Step 3: Analyze Gaps
+### Step 2: Create/Update Artifacts
 
-**Action**: Identify what's missing or incomplete for v2.7.0 release.
+**Action**: Create release artifacts (CHANGELOG, release notes).
 
-#### 3.1: Categorize Gaps
+**Artifacts**:
 
-**Action**: Categorize identified gaps by severity.
-
-**Gap inventory** (based on actual state):
-
-**Blockers (Must Fix Before Release)**:
-- [ ] Git state is clean (no uncommitted changes, no WIP work)
-- [ ] Update version to `2.7.0` in `Cargo.toml` and all workspace crates
-- [ ] Create/update `CHANGELOG.md` with v2.7.0 section
-- [ ] Create v2.7.0 release notes
-
-**High Priority (Should Fix Before Release)**:
-- [ ] Verify all documentation references are accurate
-- [ ] Verify version consistency in all documentation
-
-**Medium Priority (Nice to Have)**:
-- [ ] Verify all examples work with v2.7.0
-- [ ] Update documentation references to v2.7.0
-
-**Low Priority (Can Fix Later)**:
-- [x] Fix weaver test timeout (known issue, not blocker) ✅ (No longer needed - all tests pass)
-- [ ] Update any outdated report references
-
-**No Blockers**:
-- ✅ Code completeness: All code complete, no TODOs
-- ✅ Test coverage: 257/257 tests pass (100%)
-- ✅ Build system: All builds succeed
-- ✅ Dependencies: All stable and compatible
-
-#### 3.2: Prioritize by 80/20
-
-**Action**: Use 80/20 thinking to prioritize gaps.
-
-**80/20 analysis**: 20% of gaps (CHANGELOG and release notes) block 80% of release readiness.
-
-**Prioritized gaps**:
-
-**Quick Wins (High Impact, Low Effort)**:
-1. Update version to `2.7.0` in all Cargo.toml files (10 min)
-2. Create/update `CHANGELOG.md` with v2.7.0 section (15 min)
-3. Create v2.7.0 release notes (20 min)
-
-**High-Value (High Impact, Medium Effort)**:
-3. Verify documentation consistency (30 min)
-4. Verify all examples work (15 min)
-
-**Defer (Low Impact)**:
-5. Fix weaver test timeout (can do post-release)
-6. Update outdated report references (can do post-release)
-
----
-
-### Step 4: Prepare Release Artifacts
-
-**Action**: Create missing release artifacts.
-
-#### 4.1: Update Version Numbers
-
-**Action**: Update version to 2.7.0 in all Cargo.toml files.
-
-```bash
-# Update root Cargo.toml
-sed -i '' 's/^version = "2\.6\.0"/version = "2.7.0"/' Cargo.toml
-
-# Update all workspace crates
-find crates/ -name "Cargo.toml" -exec sed -i '' 's/^version = "2\.6\.0"/version = "2.7.0"/' {} \;
-
-# Verify updates
-grep "^version" Cargo.toml crates/*/Cargo.toml
-# All should show version = "2.7.0"
-```
-
-#### 4.2: Create/Update CHANGELOG.md
-
-**Action**: Create or update CHANGELOG.md with v2.7.0 section.
-
-**CHANGELOG format** (Keep a Changelog style):
-
+#### CHANGELOG.md
 ```markdown
-# Changelog
-
-All notable changes to this project will be documented in this file.
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
-## [2.7.0] - 2025-XX-XX
+## [X.Y.Z] - YYYY-MM-DD
 
 ### Added
-- [List new features added in v2.7.0]
-  - Feature 1: Description
-  - Feature 2: Description
-  - Feature 3: Description
+- New features
 
 ### Changed
-- [List changes made in v2.7.0]
-  - Change 1: Description
-  - Change 2: Description
+- Changes to existing functionality
 
 ### Fixed
-- [List bug fixes in v2.7.0]
-  - Fix 1: Description
-  - Fix 2: Description
-
-### Deprecated
-- [List deprecated features, if any]
+- Bug fixes
 
 ### Removed
-- [List removed features, if any]
-
-### Security
-- [List security fixes, if any]
-
-## [2.6.0] - 2025-11-12
-
-**Action**: Create CHANGELOG.md
-
-```bash
-# Create CHANGELOG.md in project root
-# Use the format above, filling in actual dates
+- Removed features
 ```
 
-#### 4.3: Create Release Notes
+**Process**:
+1. Add new version section to CHANGELOG.md
+2. List features, changes, fixes, removals
+3. Verify format matches existing entries
 
-**Action**: Create v2.7.0 release notes.
+**Checklist**:
+- [ ] CHANGELOG.md has new version section
+- [ ] Features documented
+- [ ] Changes documented
+- [ ] Fixes documented
+- [ ] Format matches existing entries
 
-**Before creating**: Verify release notes match actual codebase features
-
-```bash
-# Verify release notes features exist in codebase
-grep -i "feature\|improvement\|fix" RELEASE_NOTES_v2.7.0.md
-# Check each feature mentioned exists in crates/
-
-# Verify no features claimed that don't exist
-# Manual review: Compare release notes features with actual codebase
-```
-
-**Release notes content**:
-
+#### Release Notes (Optional)
 ```markdown
-# Release Notes: v2.7.0
+# Release v2.7.0
 
-## Summary
+**Key Highlights**:
+- Feature 1
+- Feature 2
+- Important fix
 
-v2.7.0 [Summary of key changes and improvements]. All features are production-ready with full test coverage.
+**Download**: [crates.io](https://crates.io/crates/ggen)
 
-## New Features
-
-### [Feature Name 1]
-
-[Description of feature 1]
-
-**Key capabilities**:
-- Capability 1
-- Capability 2
-- Capability 3
-
-**Usage**:
-```rust
-// Example usage code
+**Changelog**: [Full changelog](./CHANGELOG.md)
 ```
 
-### [Feature Name 2]
+**Process**:
+1. Create release notes summarizing key points
+2. Link to detailed changelog
+3. Include download/installation info
 
-[Description of feature 2]
-
-**Key capabilities**:
-- Capability 1
-- Capability 2
-
-## Improvements
-
-- [List improvements made in v2.7.0]
-  - Improvement 1
-  - Improvement 2
-
-## Bug Fixes
-
-- [List bug fixes in v2.7.0]
-  - Bug fix 1
-  - Bug fix 2
-
-## Breaking Changes
-
-None. This is a minor release with backward compatibility maintained.
-
-## Migration Guide
-
-No migration needed. All existing code continues to work. New features are opt-in via feature flags.
-
-## Requirements
-
-- Rust 1.70+ (Edition 2021)
-- `cargo-make` for build system
-- [List any additional requirements for v2.7.0]
-
-## Documentation
-
-- [Quick Guide](docs/QUICK_GUIDE.md)
-- [Getting Started](docs/GETTING_STARTED.md)
-- [User Guide](docs/USER_GUIDE.md)
-- [Architecture](docs/ARCHITECTURE.md)
-- [Dog Fooding](docs/DOG_FOODING.md)
-```
-
-**Action**: Create release notes
-
-```bash
-# Create RELEASE_NOTES_v2.7.0.md in project root
-# Or add to existing release notes file
-```
-
-#### 4.4: Verify Version Consistency
-
-**Action**: Verify version is consistent everywhere.
-
-**Current state**: Version should be `2.7.0` in all Cargo.toml files.
-
-**Action**: Verify version consistency
-
-```bash
-# Check version in root Cargo.toml
-grep "^version" Cargo.toml
-# Expected: version = "2.7.0"
-
-# Check all workspace crates
-grep "^version" crates/*/Cargo.toml
-# Expected: All show version = "2.7.0"
-
-# Verify versions match across workspace
-VERSION_MAIN=$(grep "^version" Cargo.toml | cut -d'"' -f2)
-for crate in crates/*/Cargo.toml; do
-  VERSION_CRATE=$(grep "^version" "$crate" | cut -d'"' -f2)
-  if [ "$VERSION_MAIN" != "$VERSION_CRATE" ]; then
-    echo "❌ Version mismatch in $crate: $VERSION_CRATE (expected $VERSION_MAIN)"
-    exit 1
-  fi
-done
-# Expected: All versions match
-
-# Verify no hardcoded old versions
-grep -r "2\.6\.0\|2\.5\.0" crates/ --include="*.rs" | grep -v "dependency\|dep:"
-# Expected: No matches (only dependency versions)
-```
-
-**Version status**: ⚠️ Verify all versions are `2.7.0` after update
-
-#### 4.5: Verify Release Artifacts Are Committed
-
-**Action**: Verify release artifacts are committed to git.
-
-**Action**: Check artifact commit status
-
-```bash
-# Check if CHANGELOG.md is committed
-git ls-files --error-unmatch CHANGELOG.md 2>&1
-# Expected: File is tracked (no error)
-
-# Check if release notes are committed
-git ls-files --error-unmatch RELEASE_NOTES_v2.7.0.md 2>&1
-# Expected: File is tracked (no error)
-
-# Verify artifacts are not in git status
-git status --porcelain | grep -E "CHANGELOG|RELEASE_NOTES|Cargo.toml"
-# Expected: No matches (artifacts are committed)
-```
-
-**Artifact commit status**: ⚠️ Verify all release artifacts are committed
-
-#### 4.6: Verify Documentation Consistency
-
-**Action**: Verify all documentation is accurate.
-
-**Action**: Check documentation references
-
-```bash
-# Verify README is accurate
-grep -i "version\|2\.7\|2\.6" README.md
-# Check for version references (should show 2.7.0)
-
-# Verify documentation references are accurate
-grep -i "ready\|complete\|production" docs/*.md | head -20
-# Should show code is ready
-
-# Verify no outdated claims
-grep -i "placeholder\|incomplete\|todo" docs/*.md | grep -v "test\|example" | head -10
-# Should show no outdated claims in production docs
-```
-
-**Documentation status**: ⚠️ Verify all documentation references are accurate for v2.7.0
-
-**Action**: Verify documentation links
-
-```bash
-# Verify all markdown links in README/docs point to valid files
-grep -oE '\[.*?\]\([^)]+\)' README.md docs/*.md 2>/dev/null | sed 's/.*(\(.*\))/\1/' | while read link; do
-  if [[ "$link" =~ ^http ]]; then continue; fi  # Skip external links
-  if [[ ! -f "$link" ]] && [[ ! -d "$link" ]]; then
-    echo "❌ Broken link: $link"
-  fi
-done
-# Expected: No broken links
-```
-
-**Link validation status**: ✅ All links valid (or broken links documented)
+**Checklist**:
+- [ ] Release notes created (or confirm not needed)
+- [ ] Key features highlighted
+- [ ] Download/installation info included
 
 ---
 
-### Step 5: Final Validation
+### Step 3: Final Validation
 
-**Action**: Final validation that v2.7.0 release is ready.
+**Action**: Validate everything is ready for release.
 
-#### 5.1: Pre-Release Checklist
-
-**Action**: Verify all release checklist items are complete.
-
-**v2.7.0 Release Checklist**:
-
-**Code**:
-- [x] All code compiles (`cargo make check`) ✅
-- ✅ All tests pass (`cargo make test`) ✅ (257/257, 100%)
-- [x] Linting passes (`cargo make lint`) ✅
-- [x] No TODOs or FIXMEs in production code ✅
-- [x] No `unimplemented!` calls ✅
-- [x] All error paths handled ✅
-- [ ] Examples work (`cargo test --examples`) ⚠️ Verify
-
-**Git State**:
-- [ ] Git state is clean (`git status --porcelain` returns no output) ⚠️ CRITICAL BLOCKER
-- [ ] No uncommitted modified files ⚠️ CRITICAL BLOCKER
-- [ ] No untracked files (except build artifacts) ⚠️ CRITICAL BLOCKER
-- [ ] No incomplete work files (`.new`, `WIP`, `.tmp`) ⚠️ CRITICAL BLOCKER
-- [ ] All changes committed or stashed ⚠️ CRITICAL BLOCKER
-
-**Version**:
-- [ ] Version set to 2.7.0 in `Cargo.toml` ⚠️ Update needed
-- [ ] Version consistent in all workspace crates ⚠️ Verify
-- [ ] No hardcoded old versions in code ⚠️ Verify
-- [ ] Version referenced in documentation ⚠️ Verify (README.md updated)
-
-**Documentation**:
-- [x] README updated ✅
-- [x] API documentation complete ✅
-- [x] User guides updated ✅
-- [x] Examples documented ✅
-- [ ] CHANGELOG.md updated with v2.7.0 section ⚠️ TODO
-- [ ] Release notes created for v2.7.0 ⚠️ TODO
-- [ ] Documentation consistency verified ⚠️ TODO
-
-**Dependencies**:
-- [x] Dependencies stable and compatible ✅
-- [x] No known security vulnerabilities ✅
-- [x] License compatibility verified ✅
-
-**Final Validation**:
-- [ ] Git state clean (CRITICAL BLOCKER) ⚠️ Verify first (`cargo make release-validate-git-state`)
-- [ ] Version consistent ⚠️ Verify (`cargo make release-validate-version`)
-- [ ] Release artifacts exist ⚠️ Verify (`cargo make release-validate-artifacts`)
-- [ ] Clean build successful ⚠️ Verify
-- [x] Full test suite passes ✅ (261/261, 100%)
-- [ ] All features tested with feature flags enabled ⚠️ Verify (`cargo test --all-features`)
-- [ ] Examples work (`cargo test --examples`) ⚠️ Verify
-- [ ] Documentation builds ⚠️ Verify
-- [ ] Documentation links validated ⚠️ Verify
-- [ ] Dead code check passed ⚠️ Verify (`cargo make dead-code-check`)
-- [ ] All checklist items complete ⚠️ In progress
-
-**Action**: Run final validation
-
+**Full Validation**:
 ```bash
-# 0. Git state verification (CRITICAL - CHECK FIRST)
+# Clean build
+cargo clean
+cargo make check
+
+# All tests pass
+cargo make test
+
+# Linting clean
+cargo make lint
+
+# Format correct
+cargo make fmt
+
+# No uncommitted changes
 git status --porcelain
-# Expected: No output (clean state)
-# If output exists: NOT READY FOR RELEASE - STOP HERE
 
-# Check for incomplete work files
-find . -name "*.new" -o -name "*WIP*" -o -name "*.tmp" | grep -v "target\|node_modules\|\.git"
-# Expected: No matches (no incomplete work)
-
-# 1. Clean build
-timeout 5s cargo make clean
-timeout 10s cargo make check
-
-# 2. Full test suite
-timeout 10s cargo make test
-# Expected: All tests pass (check actual count)
-
-# 3. Lint
-timeout 10s cargo make lint
-
-# 4. Verify examples
-timeout 10s cargo test --examples
-
-# 5. Test all feature combinations
-timeout 10s cargo test --all-features
-# Expected: All tests pass with all features
-
-# 6. Verify examples
-timeout 10s cargo test --examples
-# Expected: All examples work
-
-# 7. Verify documentation
-timeout 10s cargo doc --no-deps
-# Expected: Documentation builds successfully
-
-# 8. Verify documentation links
-grep -oE '\[.*?\]\([^)]+\)' README.md docs/*.md 2>/dev/null | sed 's/.*(\(.*\))/\1/' | while read link; do
-  if [[ "$link" =~ ^http ]]; then continue; fi
-  if [[ ! -f "$link" ]] && [[ ! -d "$link" ]]; then
-    echo "❌ Broken link: $link"
-  fi
-done
-# Expected: No broken links
+# Expected: All pass, no output from git status
 ```
 
-#### 5.2: Create Todo List for Release Blockers
-
-**CRITICAL**: Do NOT create reports or documents. Create todos and execute them.
-
-**Action**: Create 10+ item todo list for all release blockers and execute fixes.
-
-**Todo list creation**:
-1. Identify all release blockers from Step 3 (Analyze Gaps)
-2. Create todos for each blocker (minimum 10 items)
-3. Prioritize by severity (blockers first)
-4. Include verification steps in todos
-5. Execute todos systematically
-
-**Example todo list**:
-```markdown
-## Release Preparation Todos (10+ items)
-
-**Blockers (Must Fix Before Release)**:
-- [ ] Git state is clean (no uncommitted changes, no WIP work)
-- [ ] Update version to 2.7.0 in Cargo.toml and all workspace crates
-- [ ] Create/update CHANGELOG.md with v2.7.0 section
-- [ ] Create RELEASE_NOTES_v2.7.0.md
-- [ ] Verify git status is clean
-- [ ] Verify CHANGELOG.md exists and is complete
-- [ ] Verify release notes exist and are complete
-- [ ] Verify README.md updated to v2.7.0
-
-**High Priority**:
-- [ ] Verify all documentation references are accurate
-- [ ] Verify version consistency in all documentation
-- [ ] Verify all examples work with v2.7.0
-
-**Final Validation**:
-- [ ] Clean build successful
-- [ ] Full test suite passes (100% pass rate)
-- [ ] Documentation builds successfully
-- [ ] Examples work correctly
-- [ ] All checklist items complete
-```
-
-**Execution**:
-1. Create todos using `todo_write` tool (10+ items minimum)
-2. Execute todos one by one (fix blockers)
-3. Mark todos as completed as fixes are implemented
-4. Verify each fix works before moving to next
-5. Continue until all blockers resolved
-
-**Principle**: Execute fixes, don't document readiness. Todos track progress, fixes enable release.
-
-#### 5.3: Final Verification
-
-**Action**: Run final verification before release.
-
-**Final verification steps**:
-
-```bash
-# 0. Comprehensive release validation (all FMEA failure mode checks) - AUTOMATED
-cargo make release-validate
-# Expected: All validation checks pass
-# Includes: git state, artifacts, version, compilation (release mode), examples, pre-commit, security, testcontainers
-# If fails: NOT READY FOR RELEASE - STOP HERE
-
-# 1. Full test suite
-timeout 10s cargo make test
-# Expected: 257 passed, 0 timed out, 10 skipped
-
-# 2. Documentation build
-timeout 10s cargo doc --no-deps
-# Expected: Builds successfully
-```
-
-**Note**: The `release-validate` task automatically checks:
-- ✅ Git state is clean (no uncommitted changes, no WIP files) - **CRITICAL BLOCKER**
-- ✅ Release artifacts exist (CHANGELOG.md, release notes)
-- ✅ Version consistency (all Cargo.toml files match)
-- ✅ Release mode compilation (code compiles in release mode)
-- ✅ Examples compile
-- ✅ Pre-commit checks pass
-- ✅ Security audit (if available)
-- ✅ Testcontainers tests (if Docker available)
-
-**Success criteria**:
-- ✅ All steps complete without errors
-- ✅ Tests pass (257/257, 100%)
-- ✅ No critical warnings
-- ✅ Documentation builds successfully
-- ✅ Examples work
-- ✅ CHANGELOG.md exists
-- ✅ Release notes exist
-- ✅ **Git state is clean (CRITICAL BLOCKER)** - no uncommitted changes, no WIP work
+**Checklist**:
+- [ ] Code compiles: `cargo make check`
+- [ ] All tests pass: `cargo make test`
+- [ ] No warnings: `cargo make lint`
+- [ ] Format correct: `cargo make fmt`
+- [ ] Git clean: `git status --porcelain`
+- [ ] Version updated
+- [ ] CHANGELOG updated
+- [ ] No TODOs/FIXMEs in production code
 
 ---
 
-## Complete Workflow Example
+### Step 4: Create Release Tag
 
+**Action**: Tag release in git.
+
+**Process**:
 ```bash
-# Step 1: Verify Release Scope
-grep "^version" Cargo.toml
-# Current: version = "2.6.0"
-# Target: version = "2.7.0" ⚠️
+# Create tag
+git tag -a vX.Y.Z -m "Release vX.Y.Z"
 
-# Step 2: Measure Current State
-timeout 10s cargo make test
-# Output: Check actual test results ✅
+# Example
+git tag -a v2.7.0 -m "Release v2.7.0"
 
-grep -r "TODO\|FIXME" crates/ --include="*.rs" | grep -v "test\|example"
-# Output: No matches ✅
+# Verify tag created
+git tag -l v2.7.0 -n1
 
-test -f CHANGELOG.md || echo "Missing"
-# Output: Check if exists ⚠️
-
-# Step 3: Analyze Gaps
-# Blockers: Version update needed, CHANGELOG.md needs v2.7.0 section, release notes missing
-
-# Step 4: Prepare Release Artifacts
-# Update version to 2.7.0 in all Cargo.toml files
-# Create/update CHANGELOG.md with v2.7.0 section
-# Create RELEASE_NOTES_v2.7.0.md
-# Update README.md to v2.7.0
-
-# Step 5: Final Validation
-timeout 10s cargo make check  # ✅
-timeout 10s cargo make test   # ✅ (all tests pass)
-test -f CHANGELOG.md           # ✅
-test -f RELEASE_NOTES_v2.7.0.md  # ✅
-grep "^version" Cargo.toml     # ✅ Should show 2.7.0
-git status --porcelain         # ✅ Must be clean (no output)
-find . -name "*.new" | grep -v "target\|\.git"  # ✅ No incomplete work
+# Show what's in tag
+git show v2.7.0
 ```
 
-## Integration with Other Commands
+**Checklist**:
+- [ ] Tag created: `git tag -a vX.Y.Z -m "Release vX.Y.Z"`
+- [ ] Tag verified: `git tag -l vX.Y.Z -n1`
+- [ ] Tag points to correct commit
 
-- **[DMAIC Problem Solving](./dmaic-problem-solving.md)** - Use for systematic gap fixing
-- **[Root Cause Analysis](./root-cause-analysis.md)** - Use to identify root causes of blockers
-- **[80/20 Fill Gaps](./80-20-fill-gaps.md)** - Use to prioritize and complete missing capabilities
-- **[Verify Tests](./verify-tests.md)** - Use to ensure all tests pass
-- **[Kaizen Improvement](./kaizen-improvement.md)** - Use for small improvements during release prep
+---
+
+### Step 5: Create Release
+
+**Action**: Create release (publish to crates.io, GitHub, etc).
+
+**For Crates.io**:
+```bash
+# Verify package
+cargo package --allow-dirty
+
+# Publish (requires authentication)
+cargo publish
+
+# Verify on crates.io
+# Visit: https://crates.io/crates/ggen/vX.Y.Z
+```
+
+**Checklist**:
+- [ ] Package verified: `cargo package --allow-dirty`
+- [ ] Published: `cargo publish`
+- [ ] Visible on crates.io after ~1 minute
+- [ ] Version correctly published
+
+---
+
+### Step 6: Post-Release
+
+**Action**: Complete post-release tasks.
+
+**Tasks**:
+1. **Update docs**: Ensure documentation is current
+2. **Announce**: Announce release (if applicable)
+3. **Verify installation**: Test installing from crates.io
+4. **Tag pushed**: Push tag to remote: `git push origin vX.Y.Z`
+
+**Checklist**:
+- [ ] Documentation updated
+- [ ] Announcement made (if applicable)
+- [ ] Installation tested
+- [ ] Tag pushed to remote
+- [ ] Release is live and working
+
+---
+
+## Quick Reference: Release Workflow
+
+```bash
+# Pre-release checks
+cargo make test
+cargo make lint
+cargo make check
+git status
+
+# Update version
+# - Edit Cargo.toml version
+# - Edit crates/*/Cargo.toml version
+
+# Update CHANGELOG.md
+# - Add new version section
+# - Document changes
+
+# Final validation
+cargo clean && cargo make test
+git status  # Should be empty
+
+# Create tag
+git tag -a vX.Y.Z -m "Release vX.Y.Z"
+
+# Publish
+cargo publish
+
+# Push tag
+git push origin vX.Y.Z
+
+# Verify
+# - Check crates.io for new version
+# - Verify documentation updated
+```
+
+---
 
 ## Expert Insights
 
-**Why this matters**: Incomplete releases damage user trust. Systematic release preparation ensures quality and reduces post-release issues.
+**Why this matters**: Releases are critical. Incomplete releases cause problems for users.
 
-**Key principle**: "Release when ready, not when scheduled" - Don't release with known blockers. Better to delay than to release broken code.
+**Key principles**:
+- **Quality first** - Don't release broken code
+- **Complete process** - Follow all steps, don't skip
+- **Verify everything** - Test installation, verify version, confirm visibility
+- **Document changes** - Update CHANGELOG and release notes
 
-**80/20 thinking**: Focus on the 20% of gaps (CHANGELOG, release notes) that block 80% of release readiness. Fix blockers first.
+**Remember**:
+- **Pre-release checks are critical** - Catch issues before release
+- **Version updates must be complete** - Update all files with version
+- **CHANGELOG is documentation** - Users rely on it to understand changes
+- **Tag is permanent** - Double-check before creating tag
+- **Publish is final** - Can't un-publish to crates.io
 
-**Current state**: Code should be ready. Release artifacts (CHANGELOG, release notes) need to be created/updated for v2.7.0.
-
-**Remember**: 
-- **Git state first** - Clean git state is a CRITICAL BLOCKER (no uncommitted changes, no WIP work)
-- **Version update first** - Update version to 2.7.0 in all Cargo.toml files before proceeding
-- **Blockers first** - Update CHANGELOG and create release notes before release
-- **Verify everything** - Don't assume, verify
-- **Document changes** - CHANGELOG and release notes are critical
-- ✅ Test thoroughly - All tests must pass (100%)
-- **Version consistently** - Version must be 2.7.0 in all Cargo.toml files
-
-**Release readiness criteria**: Git state clean (CRITICAL), code compiles, tests pass (100%), docs complete, version correct (2.7.0 in all Cargo.toml files), CHANGELOG updated with v2.7.0 section, release notes created. Only release when all criteria met, including clean git state.
-
-**DfLSS alignment**: Release preparation supports DfLSS (Design for Lean Six Sigma) by ensuring both efficiency (no rework from incomplete releases) AND quality (thorough testing prevents defects). Don't conflate DfLSS with DFSS (Design for Six Sigma) - DFSS only addresses quality, missing critical waste elimination. See [Root Cause Analysis - DfLSS vs DFSS](./root-cause-analysis.md#dflss-vs-dfss-critical-distinction) for why conflating DfLSS with DFSS is a huge error.
-
----
-
-## Command Execution Pattern
-
-**CRITICAL**: Release preparation commands must:
-1. **Create 10+ item todo list** - Not documents/reports
-2. **Execute todos** - Implement fixes, not document readiness
-3. **Verify fixes** - Test that fixes work
-4. **Complete todos** - Mark todos as done as fixes complete
-
-**Principle**: Execute fixes, don't document readiness. Todos track progress, fixes enable release.
-
----
-
-## v2.7.0 Release Checklist
-
-```markdown
-# v2.7.0 Release Checklist
-
-## Code
-- [x] All code compiles (`cargo make check`) ✅
-- ✅ All tests pass (`cargo make test`) ✅ (257/257, 100%)
-- [x] Linting passes (`cargo make lint`) ✅
-- [x] No TODOs or FIXMEs in production code ✅
-- [x] No `unimplemented!` calls ✅
-- [x] All error paths handled ✅
-- [ ] Examples work (`cargo test --examples`) ⚠️ Verify
-
-## Git State (CRITICAL BLOCKER)
-- [ ] Git state is clean (`git status --porcelain` returns no output) ⚠️ CRITICAL BLOCKER
-- [ ] No uncommitted modified files ⚠️ CRITICAL BLOCKER
-- [ ] No untracked files (except build artifacts) ⚠️ CRITICAL BLOCKER
-- [ ] No incomplete work files (`.new`, `WIP`, `.tmp`) ⚠️ CRITICAL BLOCKER
-- [ ] All changes committed or stashed ⚠️ CRITICAL BLOCKER
-
-## Version
-- [ ] Version set to 2.7.0 in `Cargo.toml` ⚠️ Update needed
-- [ ] Version consistent in all workspace crates ⚠️ Verify
-- [ ] No hardcoded old versions in code ⚠️ Verify
-
-## Documentation
-- [x] README updated ✅
-- [x] API documentation complete ✅
-- [x] User guides updated ✅
-- [x] Examples documented ✅
-- [ ] CHANGELOG.md updated with v2.7.0 section ⚠️ TODO
-- [ ] Release notes created for v2.7.0 ⚠️ TODO
-- [ ] Documentation consistency verified ⚠️ TODO
-
-## Dependencies
-- [x] Dependencies stable and compatible ✅
-- [x] No known security vulnerabilities ✅
-- [x] License compatibility verified ✅
-
-## Final Validation
-- [ ] Clean build successful ⚠️ Verify
-- [ ] Full test suite passes ⚠️ Verify (100% pass rate)
-- [ ] Documentation builds ⚠️ Verify
-- [ ] Version updated to 2.7.0 ⚠️ Verify
-- [ ] README.md updated to v2.7.0 ⚠️ Verify
-- [ ] All checklist items complete ⚠️ In progress
-
-## Release Status
-- [ ] ✅ READY FOR RELEASE (after version update, CHANGELOG, and release notes created)
-- [ ] ⚠️ NOT READY - Reason: ___________
-```
-
----
-
-End Command ---
