@@ -300,6 +300,70 @@ jobs:
       - name: Build
         run: cargo build --workspace --all-features --verbose
 
+  # GATE 7: Documentation Consistency (Mura Control)
+  documentation-consistency:
+    name: "GATE 7: Documentation Consistency"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Verify doctests compile and run
+        run: |
+          set -euo pipefail
+          echo "🔍 Verifying doctests compile and run..."
+
+          # Verify all doctests compile
+          if ! cargo test --doc --workspace 2>&1 | grep -q "test result"; then
+            echo "❌ Doctests failed to compile"
+            cargo test --doc --workspace
+            exit 1
+          fi
+
+          echo "✅ All doctests compile and run successfully"
+
+      - name: Verify documentation builds
+        run: |
+          set -euo pipefail
+          echo "🔍 Verifying documentation builds..."
+
+          # Build documentation
+          if ! cargo doc --workspace --no-deps 2>&1; then
+            echo "❌ Documentation build failed"
+            exit 1
+          fi
+
+          echo "✅ Documentation builds successfully"
+
+      - name: Check for undocumented public APIs
+        run: |
+          set -euo pipefail
+          echo "🔍 Checking for undocumented public APIs..."
+
+          # Get list of public items without documentation
+          # This is a soft warning for now (not blocking)
+          UNDOCUMENTED=$(find crates -name "*.rs" -not -path "*/tests/*" | \
+            xargs grep -l "^pub fn\|^pub struct\|^pub enum" | \
+            while read file; do
+              grep -B1 "^pub fn\|^pub struct\|^pub enum" "$file" | \
+              grep -v "^--$" | \
+              grep -v "^///" | \
+              grep -v "^pub" | \
+              grep -v "^$" | \
+              wc -l
+            done | awk '{sum+=$1} END {print sum}')
+
+          if [ "$UNDOCUMENTED" -gt 10 ]; then
+            echo "⚠️  Warning: Found $UNDOCUMENTED undocumented public items"
+            echo "    Please add documentation to improve consistency"
+          else
+            echo "✅ Documentation coverage is good"
+          fi
+
   # Summary: All Gates Must Pass
   quality-gates-summary:
     name: "Quality Gates Summary"
@@ -311,6 +375,7 @@ jobs:
       - hardcoded-path-detection
       - all-tests
       - build-all-platforms
+      - documentation-consistency
 
     steps:
       - name: All quality gates passed
@@ -325,5 +390,7 @@ jobs:
           echo "✅ Gate 4: No hardcoded paths"
           echo "✅ Gate 5: All tests pass"
           echo "✅ Gate 6: Builds on all platforms"
+          echo "✅ Gate 7: Documentation consistent (doctests, docs)"
           echo ""
-          echo "This PR meets all quality standards and is ready to merge."
+          echo "Code meets all quality standards per docs/CODING_STANDARDS.md"
+          echo "and is ready to merge."
