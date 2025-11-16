@@ -1,0 +1,62 @@
+---
+ontology: observability_v1.0.0.ttl
+sparql_query: |
+  PREFIX obs: <http://ggen.dev/observability/1.0.0#>
+  SELECT ?serviceName ?metricsPort ?tracesPort ?logsPort
+  WHERE {
+    ?service a obs:Service .
+    ?service obs:serviceName ?serviceName .
+    ?service obs:metricsPort ?metricsPort .
+    ?service obs:tracesPort ?tracesPort .
+    ?service obs:logsPort ?logsPort .
+  }
+---
+
+# OpenTelemetry Initialization Configuration
+# Generated from observability ontology
+# Dark Matter Reduction: Eliminates manual OTEL setup (from 4 hours to 30 minutes)
+
+[otel]
+# Service identification
+service_name = "{{ service_name }}"
+service_namespace = "{{ namespace }}"
+service_instance_id = "{{ instance_id }}"
+
+# Metrics exporter configuration
+[otel.metrics]
+enabled = true
+exporter = "otlp"
+endpoint = "{{ metrics_endpoint }}"
+port = {{ metrics_port }}
+interval_ms = 60000
+
+# Traces (spans) exporter configuration
+[otel.traces]
+enabled = true
+exporter = "otlp"
+endpoint = "{{ traces_endpoint }}"
+port = {{ traces_port }}
+sampler = "always_on"  # Use probabilistic sampler in production
+sample_ratio = 0.1
+
+# Logs exporter configuration
+[otel.logs]
+enabled = true
+exporter = "otlp"
+endpoint = "{{ logs_endpoint }}"
+port = {{ logs_port }}
+
+# Resource attributes (metadata about the service)
+[otel.resource]
+environment = "{{ environment }}"
+version = "{{ app_version }}"
+region = "{{ region }}"
+
+# Instrumentation libraries to auto-enable
+[otel.instrumentation]
+http = true
+database = true
+grpc = true
+messaging = true
+cache = true
+rpc = true

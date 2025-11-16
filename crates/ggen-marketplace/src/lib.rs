@@ -94,6 +94,9 @@ pub mod storage;
 // Template integration
 pub mod template_search;
 
+// 8020 Innovation: Guards and validation
+pub mod guards;
+
 // Re-exports for convenience
 pub use backend::LocalRegistry;
 
@@ -115,6 +118,9 @@ pub mod prelude {
     };
     pub use crate::crypto::{DefaultVerifier, Ed25519Verifier};
     pub use crate::error::{MarketplaceError, Result};
+    pub use crate::guards::{
+        Guard8020Coverage, Guard8020Result, ValidationReceipt, ValidationReceiptBuilder,
+    };
     pub use crate::maturity::{
         AdoptionScore, DocumentationScore, MaintenanceScore, MaturityAssessment, MaturityLevel,
         PerformanceScore, SecurityScore, TestingScore,
