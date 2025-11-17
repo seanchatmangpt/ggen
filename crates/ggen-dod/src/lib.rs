@@ -41,6 +41,12 @@ pub mod binding_completeness;
 pub mod decision_closure;
 pub mod replay;
 
+// Gap closure modules: extending architecture to trillion-agent scale
+pub mod concurrency;    // Gap #1: Formal concurrency control (locks, channels, causality)
+pub mod real_time;      // Gap #2: Real-time systems (hard/firm/soft deadlines, scheduling)
+pub mod emergence;      // Gap #3: Emergence detection and constraint synthesis
+pub mod formal_proofs;  // Gap #4 & #5: MAPE-K correctness and projection determinism
+
 // Re-export commonly used types
 pub use error::{DoDError, DoDResult};
 pub use observation::{Observation, ObservationType, ObservationId, ObservationSchema};
