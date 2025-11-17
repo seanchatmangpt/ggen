@@ -1,8 +1,8 @@
 class Ggen < Formula
   desc "Deterministic, language-agnostic code generation framework"
   homepage "https://github.com/seanchatmangpt/ggen"
-  url "https://github.com/seanchatmangpt/ggen/archive/refs/tags/v2.5.0.tar.gz"
-  sha256 "faaccded2180c337404eb66bded839690a006a9dafbc729fbc8af3844f5ea504"
+  url "https://github.com/seanchatmangpt/ggen/archive/refs/tags/v3.0.0.tar.gz"
+  sha256 "PLACEHOLDER_SHA256_WILL_BE_UPDATED_ON_RELEASE"
   license "MIT"
   head "https://github.com/seanchatmangpt/ggen.git", branch: "master"
 
