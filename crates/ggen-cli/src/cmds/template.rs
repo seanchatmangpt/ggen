@@ -106,6 +106,12 @@ fn show(template: String) -> NounVerbResult<ShowOutput> {
     })
 }
 
+/// Alias for show - common CLI pattern
+#[verb]
+fn get(template: String) -> NounVerbResult<ShowOutput> {
+    show(template)
+}
+
 /// Create new template
 #[verb]
 fn new(name: String, template_type: Option<String>) -> NounVerbResult<NewOutput> {
@@ -220,14 +226,18 @@ fn lint(template: String) -> NounVerbResult<LintOutput> {
 /// Generate from template (basic version without Vec support)
 #[verb]
 fn generate(
-    template: Option<PathBuf>, output: Option<PathBuf>, force: bool,
+    template: Option<String>, output: Option<String>, force: bool,
 ) -> NounVerbResult<GenerateOutput> {
     use ggen_domain::template;
     use std::collections::BTreeMap;
 
     let options = template::GenerateFileOptions {
-        template_path: template.unwrap_or_else(|| PathBuf::from("template.tmpl")),
-        output_path: output.unwrap_or_else(|| PathBuf::from("output")),
+        template_path: template
+            .map(PathBuf::from)
+            .unwrap_or_else(|| PathBuf::from("template.tmpl")),
+        output_path: output
+            .map(PathBuf::from)
+            .unwrap_or_else(|| PathBuf::from("output")),
         variables: BTreeMap::new(),
         force_overwrite: force,
     };
@@ -248,7 +258,7 @@ fn generate(
 /// Generate file tree from template
 #[verb]
 fn generate_tree(
-    template: Option<PathBuf>, output: Option<PathBuf>,
+    template: Option<String>, output: Option<String>,
 ) -> NounVerbResult<GenerateTreeOutput> {
     use ggen_domain::template::generate_tree;
     use std::collections::HashMap;
@@ -261,46 +271,47 @@ fn generate_tree(
         clap_noun_verb::NounVerbError::argument_error("Output path required for generate-tree")
     })?;
 
-    let output_display = output_path.display().to_string();
+    let template_pb = PathBuf::from(&template_path);
+    let output_pb = PathBuf::from(&output_path);
 
     // For now, use empty variables - full implementation needs var support
     let variables: HashMap<String, String> = HashMap::new();
 
-    generate_tree::generate_file_tree(&template_path, &output_path, &variables, false).map_err(
-        |e| {
-            clap_noun_verb::NounVerbError::execution_error(format!(
-                "Failed to generate file tree: {}",
-                e
-            ))
-        },
-    )?;
+    generate_tree::generate_file_tree(&template_pb, &output_pb, &variables, false).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!(
+            "Failed to generate file tree: {}",
+            e
+        ))
+    })?;
 
     Ok(GenerateTreeOutput {
-        output_directory: output_display,
+        output_directory: output_path,
     })
 }
 
 /// Regenerate from template
 #[verb]
-fn regenerate(template: Option<PathBuf>) -> NounVerbResult<GenerateTreeOutput> {
-    let default_template = PathBuf::from("template.tmpl");
-    let template_path = template.as_ref().unwrap_or(&default_template);
-    let template_display = template_path.display().to_string();
+fn regenerate(template: Option<String>) -> NounVerbResult<GenerateTreeOutput> {
+    let template_path = template.unwrap_or_else(|| "template.tmpl".to_string());
 
     // For now, return placeholder - merge strategies not yet fully implemented
     Ok(GenerateTreeOutput {
-        output_directory: template_display,
+        output_directory: template_path,
     })
 }
 
 /// Generate CLI project from RDF/TTL file
 #[verb]
 fn generate_rdf(
-    ttl_file: PathBuf, output: PathBuf, templates: PathBuf,
+    ttl_file: String, output: String, templates: String,
 ) -> NounVerbResult<GenerateRdfOutput> {
     use ggen_domain::template::generate_rdf;
 
-    let options = generate_rdf::GenerateFromRdfOptions::new(ttl_file, output, templates);
+    let options = generate_rdf::GenerateFromRdfOptions::new(
+        PathBuf::from(ttl_file),
+        PathBuf::from(output),
+        PathBuf::from(templates),
+    );
 
     let result = generate_rdf::generate_cli_from_rdf(&options).map_err(|e| {
         clap_noun_verb::NounVerbError::execution_error(format!(
