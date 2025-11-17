@@ -27,9 +27,14 @@ pub fn execute<F>(future: F) -> Result<()>
 where
     F: Future<Output = Result<()>>,
 {
-    let runtime = tokio::runtime::Runtime::new().map_err(|e| {
-        ggen_utils::error::Error::new_fmt(format_args!("Failed to create Tokio runtime: {}", e))
-    })?;
+    let runtime = match tokio::runtime::Runtime::new() {
+        Ok(rt) => rt,
+        Err(e) => {
+            let msg = format!("Failed to create Tokio runtime: {}", e);
+            log::error!("{}", msg);
+            return Err(ggen_utils::error::Error::new(&msg));
+        }
+    };
 
     runtime.block_on(future)
 }
@@ -50,7 +55,7 @@ where
 ///     })
 /// }
 /// ```
-pub fn block_on<F, T>(future: F) -> T
+pub fn block_on<F, T>(future: F) -> Result<T, String>
 where
     F: Future<Output = T> + Send,
     T: Send,
@@ -61,18 +66,30 @@ where
             // Already in runtime - spawn new thread with new runtime to avoid nesting
             std::thread::scope(|s| {
                 s.spawn(move || {
-                    let rt =
-                        tokio::runtime::Runtime::new().expect("Failed to create Tokio runtime");
-                    rt.block_on(future)
+                    let rt = match tokio::runtime::Runtime::new() {
+                        Ok(runtime) => runtime,
+                        Err(e) => {
+                            let msg = format!("Failed to create Tokio runtime: {}", e);
+                            log::error!("{}", msg);
+                            return Err(msg);
+                        }
+                    };
+                    Ok(rt.block_on(future))
                 })
                 .join()
-                .expect("Runtime thread panicked")
+                .map_err(|_| "Runtime thread panicked".to_string())?
             })
         }
         Err(_) => {
             // Not in runtime - create one on current thread
-            let runtime = tokio::runtime::Runtime::new().expect("Failed to create Tokio runtime");
-            runtime.block_on(future)
+            match tokio::runtime::Runtime::new() {
+                Ok(runtime) => Ok(runtime.block_on(future)),
+                Err(e) => {
+                    let msg = format!("Failed to create Tokio runtime: {}", e);
+                    log::error!("{}", msg);
+                    Err(msg)
+                }
+            }
         }
     }
 }
