@@ -1,19 +1,205 @@
-//! Workflow Quality Methodology Commands
+//! Workflow Quality Methodology Commands - LLM-Powered Analysis
 //!
-//! Real implementations using LLM-powered analysis for quality improvement methodologies:
-//! - FMEA: Failure Mode and Effects Analysis with RPN calculation
-//! - Poka-Yoke: Error Prevention/Mistake-Proofing design assistance
-//! - TRIZ: Theory of Inventive Problem Solving with principle discovery
-//! - Kaizen: Continuous Improvement with PDCA cycle tracking
-//! - Gemba Walk: Direct Observation and improvement identification
-//! - Root Cause Analysis: 5 Whys problem-solving
-//! - DMAIC: Define-Measure-Analyze-Improve-Control Six Sigma framework
-//! - Eliminate Muda: Waste elimination analysis
-//! - Eliminate Mura: Variation standardization
-//! - Andon: Visual signals for problem detection
+//! This module provides comprehensive quality improvement commands powered by LLM analysis.
+//! All commands integrate with ggen-ai for intelligent problem-solving across 10 methodologies.
 //!
-//! All commands use LLM integration via ggen-ai for intelligent analysis,
-//! with results persisted to JSON files for tracking and reporting.
+//! ## Overview
+//!
+//! These commands implement proven quality improvement methodologies from Lean Six Sigma,
+//! Toyota Production System, and TRIZ. Each command uses LLM analysis to generate
+//! actionable insights, then persists results to JSON files for tracking and reporting.
+//!
+//! ## Available Commands
+//!
+//! ### FMEA - Failure Mode and Effects Analysis
+//! **Purpose**: Identify and prioritize potential failures before they occur
+//! **LLM Role**: Analyzes processes and identifies failure modes
+//! **Output**: Risk Priority Numbers (RPN), critical/high failures, mitigation strategies
+//!
+//! ```bash
+//! ggen workflow fmea --name "code-gen" --process "code generation system" --output fmea.json
+//! ```
+//!
+//! ### Poka-Yoke - Error Prevention
+//! **Purpose**: Design controls to prevent errors at source
+//! **LLM Role**: Designs elimination, prevention, and detection controls
+//! **Output**: Control matrix with effectiveness ratings and implementation status
+//!
+//! ```bash
+//! ggen workflow poka-yoke --name "api-validation" --control-type prevention --output controls.json
+//! ```
+//!
+//! ### TRIZ - Theory of Inventive Problem Solving
+//! **Purpose**: Find innovative solutions to contradictions
+//! **LLM Role**: Identifies contradictions and applies TRIZ principles 1-40
+//! **Output**: Ranked principles, innovative solutions, implementation roadmap
+//!
+//! ```bash
+//! ggen workflow triz --problem "Increase speed without reducing quality" --top-principles 5
+//! ```
+//!
+//! ### Kaizen - Continuous Improvement
+//! **Purpose**: Incremental improvement through PDCA cycles
+//! **LLM Role**: Plans complete Plan-Do-Check-Act cycles with owners and metrics
+//! **Output**: PDCA phases, sustainability controls, estimated savings
+//!
+//! ```bash
+//! ggen workflow kaizen --name "test-coverage" --baseline 65 --target 95 --output kaizen.json
+//! ```
+//!
+//! ### Gemba Walk - Direct Observation
+//! **Purpose**: Observe actual work to find improvement opportunities
+//! **LLM Role**: Identifies Muda (waste), Mura (variation), Muri (overburden)
+//! **Output**: Observations by category, critical issues, immediate actions
+//!
+//! ```bash
+//! ggen workflow gemba-walk --area "testing-pipeline" --date 2024-01-15 --output gemba.json
+//! ```
+//!
+//! ### Root Cause Analysis - 5 Whys
+//! **Purpose**: Find root causes, not symptoms
+//! **LLM Role**: Conducts iterative "Why?" questioning with DfLSS alignment
+//! **Output**: Analysis chain, identified root cause, corrective actions
+//!
+//! ```bash
+//! ggen workflow root-cause-analysis --problem "High defect rate" --levels 5 --output rca.json
+//! ```
+//!
+//! ### DMAIC - Six Sigma Problem Solving
+//! **Purpose**: Systematic improvement using statistical methods
+//! **LLM Role**: Plans complete Define-Measure-Analyze-Improve-Control project
+//! **Output**: All 5 phases with activities, deliverables, metrics, and expected savings
+//!
+//! ```bash
+//! ggen workflow dmaic --project "throughput" --problem "High latency" --current-phase measure
+//! ```
+//!
+//! ### Eliminate Muda - Waste Elimination
+//! **Purpose**: Identify and eliminate non-value-adding activities
+//! **LLM Role**: Analyzes 8 waste types with elimination strategies
+//! **Output**: Waste items by type, high-impact targets, elimination roadmap
+//!
+//! ```bash
+//! ggen workflow eliminate-muda --project "code-gen" --waste-type waiting --output muda.json
+//! ```
+//!
+//! ### Eliminate Mura - Variation Elimination
+//! **Purpose**: Standardize processes to reduce inconsistencies
+//! **LLM Role**: Identifies input/process/output variations and standardization methods
+//! **Output**: Variations, standardization roadmap, control mechanisms
+//!
+//! ```bash
+//! ggen workflow eliminate-mura --project "build-pipeline" --variation-type output --output mura.json
+//! ```
+//!
+//! ### Andon - Visual Signals
+//! **Purpose**: Detect and respond to problems immediately
+//! **LLM Role**: Designs Red/Yellow/Green signal system with escalation paths
+//! **Output**: Signal types, detection rates, SLAs, implementation timeline
+//!
+//! ```bash
+//! ggen workflow andon --name "deployment-system" --signal-level high --output andon.json
+//! ```
+//!
+//! ## Global Features
+//!
+//! ### LLM Integration
+//! - All commands use `ggen-ai::config::get_global_config().create_contextual_client()`
+//! - Environment-based configuration: `GGEN_LLM_PROVIDER`, `GGEN_LLM_MODEL`
+//! - Support for OpenAI, Anthropic, Ollama, and mock providers
+//! - Automatic retries with exponential backoff
+//!
+//! ### Data Persistence
+//! - Optional `--output` flag to write results to JSON files
+//! - Automatic directory creation if path doesn't exist
+//! - Pretty-printed JSON for readability
+//! - Timestamps included for tracking
+//!
+//! ### Error Handling
+//! - LLM failures include context about what was being analyzed
+//! - JSON parsing errors show the LLM response for debugging
+//! - File I/O errors with clear path information
+//! - All errors propagate with proper error context
+//!
+//! ## Architecture
+//!
+//! ```text
+//! User Command
+//!   ↓
+//! CLI Router (clap-noun-verb auto-discovery)
+//!   ↓
+//! [verb] function (e.g., fn fmea(...))
+//!   ↓
+//! Get global LLM config
+//!   ↓
+//! Create client (provider-agnostic)
+//!   ↓
+//! Send structured JSON prompt
+//!   ↓
+//! Parse LLM response (extract JSON from markdown)
+//!   ↓
+//! Create output struct
+//!   ↓
+//! Optional: Write to JSON file
+//!   ↓
+//! Return JSON output
+//! ```
+//!
+//! ## Integration Points
+//!
+//! - **CLI Discovery**: Auto-discovered via clap-noun-verb `#[verb]` macros
+//! - **Configuration**: Uses global LLM config from `ggen-ai`
+//! - **Error Handling**: Integrates with `clap_noun_verb::NounVerbError`
+//! - **Runtime**: Uses `crate::runtime::block_on()` for async/sync bridge
+//! - **Output**: All outputs are JSON-serializable and CLI-friendly
+//!
+//! ## Examples
+//!
+//! ### Full Workflow: Code Generation Quality Improvement
+//!
+//! ```bash
+//! # 1. Identify failures
+//! ggen workflow fmea --name "codegen" --process "code generation" --output 1-fmea.json
+//!
+//! # 2. Design error prevention
+//! ggen workflow poka-yoke --name "codegen" --output 2-controls.json
+//!
+//! # 3. Observe actual work
+//! ggen workflow gemba-walk --area "code-generation" --output 3-gemba.json
+//!
+//! # 4. Find root causes
+//! ggen workflow root-cause-analysis --problem "Low test coverage" --output 4-rca.json
+//!
+//! # 5. Plan improvement project
+//! ggen workflow dmaic --project "codegen-quality" --problem "Low test coverage" --output 5-dmaic.json
+//!
+//! # 6. Eliminate waste
+//! ggen workflow eliminate-muda --project "codegen" --output 6-muda.json
+//!
+//! # 7. Standardize processes
+//! ggen workflow eliminate-mura --project "codegen" --output 7-mura.json
+//!
+//! # 8. Setup monitoring
+//! ggen workflow andon --name "codegen-quality" --output 8-andon.json
+//! ```
+//!
+//! ## Environment Configuration
+//!
+//! ```bash
+//! # Use Claude as LLM provider
+//! export GGEN_LLM_PROVIDER=anthropic
+//! export GGEN_LLM_MODEL=claude-opus-4-1
+//! export ANTHROPIC_API_KEY=sk-ant-...
+//!
+//! # Use OpenAI
+//! export GGEN_LLM_PROVIDER=openai
+//! export GGEN_LLM_MODEL=gpt-4-turbo
+//! export OPENAI_API_KEY=sk-...
+//!
+//! # Use local Ollama
+//! export GGEN_LLM_PROVIDER=ollama
+//! export GGEN_LLM_MODEL=mistral
+//! ```
 
 use clap_noun_verb::Result as ClapResult;
 use clap_noun_verb_macros::verb;
@@ -347,7 +533,7 @@ fn event(
 /// Generate workflow report
 #[verb]
 fn report(
-    workflow_file: String,
+    _workflow_file: String,
     format: Option<String>,
     output: Option<String>,
 ) -> ClapResult<serde_json::Value> {
