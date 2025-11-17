@@ -1,0 +1,891 @@
+{
+  "version": "1.0",
+  "generated_at": "2025-11-17T00:50:00Z",
+  "evidence_relationships": [
+    {
+      "relationship_id": "rel_001",
+      "from_evidence_id": "ggen.kernel.rs.392-421",
+      "to_evidence_id": "ggen.kernel.rs.424-442",
+      "relationship_type": "enables",
+      "strength": 1.0,
+      "description": "Kernel determinism hash computation enables receipt hash verification",
+      "conceptual_link": "compute_determinism_hash generates hash that verify_determinism uses to prove determinism"
+    },
+    {
+      "relationship_id": "rel_002",
+      "from_evidence_id": "ggen.timing.rs.106",
+      "to_evidence_id": "ggen.kernel.rs.332-337",
+      "relationship_type": "enforces",
+      "strength": 1.0,
+      "description": "CHATMAN_CONSTANT defined in timing.rs, checked/enforced in kernel.rs",
+      "conceptual_link": "Timing bound instantiation: CHATMAN_CONSTANT_MS = 8 is enforced in kernel timing check"
+    },
+    {
+      "relationship_id": "rel_003",
+      "from_evidence_id": "ggen.kernel.rs.424-442",
+      "to_evidence_id": "ggen.replay.rs.182",
+      "relationship_type": "enables",
+      "strength": 0.98,
+      "description": "verify_determinism is called by replay system to enforce hash equality",
+      "conceptual_link": "Replay verification depends on kernel determinism verification"
+    },
+    {
+      "relationship_id": "rel_004",
+      "from_evidence_id": "ggen.validation_receipt.rs.184-205",
+      "to_evidence_id": "ggen.validation_receipt.rs.207-226",
+      "relationship_type": "proves",
+      "strength": 1.0,
+      "description": "calculate_signature produces HMAC that verify_signature validates",
+      "conceptual_link": "Cryptographic proof chain: signature generation enables verification"
+    },
+    {
+      "relationship_id": "rel_005",
+      "from_evidence_id": "ggen.ahi_contract.rs.27-47",
+      "to_evidence_id": "ggen.ahi_contract.rs.126-137",
+      "relationship_type": "depends_on",
+      "strength": 1.0,
+      "description": "AHIDecisionCycle::cycle method requires AHIInput as parameter",
+      "conceptual_link": "Input structure defines contract for governance cycle"
+    },
+    {
+      "relationship_id": "rel_006",
+      "from_evidence_id": "ggen.ahi_contract.rs.49-69",
+      "to_evidence_id": "ggen.ahi_contract.rs.147-156",
+      "relationship_type": "depends_on",
+      "strength": 1.0,
+      "description": "validate_invariants checks AHIOutput for invariant preservation",
+      "conceptual_link": "Output validation ensures governance correctness"
+    },
+    {
+      "relationship_id": "rel_007",
+      "from_evidence_id": "ggen.proof_carrier.rs.216-225",
+      "to_evidence_id": "ggen.proof_carrier.rs.341-371",
+      "relationship_type": "enables",
+      "strength": 0.95,
+      "description": "add_evidence builds evidence chain that validate_for_promotion checks",
+      "conceptual_link": "Evidence accumulation enables promotion validation"
+    },
+    {
+      "relationship_id": "rel_008",
+      "from_evidence_id": "ggen.mape_k.mod.rs.24",
+      "to_evidence_id": "ggen.mape_k.mod.rs.25",
+      "relationship_type": "enables",
+      "strength": 0.95,
+      "description": "MonitorEngine produces observations that AnalyzeEngine consumes",
+      "conceptual_link": "MAPE-K sequential flow: Monitor -> Analyze"
+    },
+    {
+      "relationship_id": "rel_009",
+      "from_evidence_id": "ggen.mape_k.mod.rs.25",
+      "to_evidence_id": "ggen.mape_k.mod.rs.26",
+      "relationship_type": "enables",
+      "strength": 0.95,
+      "description": "AnalyzeEngine produces findings that PlanEngine converts to proposals",
+      "conceptual_link": "MAPE-K sequential flow: Analyze -> Plan"
+    },
+    {
+      "relationship_id": "rel_010",
+      "from_evidence_id": "ggen.mape_k.mod.rs.26",
+      "to_evidence_id": "ggen.mape_k.mod.rs.27",
+      "relationship_type": "enables",
+      "strength": 0.95,
+      "description": "PlanEngine produces proposals that ExecuteEngine validates and executes",
+      "conceptual_link": "MAPE-K sequential flow: Plan -> Execute"
+    },
+    {
+      "relationship_id": "rel_011",
+      "from_evidence_id": "ggen.kernel.rs.285-346",
+      "to_evidence_id": "ggen.error.rs.26-27",
+      "relationship_type": "enforces",
+      "strength": 1.0,
+      "description": "kernel.decide() raises TimingViolation error on timing constraint breach",
+      "conceptual_link": "Runtime enforcement of timing bounds via fatal error"
+    },
+    {
+      "relationship_id": "rel_012",
+      "from_evidence_id": "ggen.test_determinism.rs.16-30",
+      "to_evidence_id": "ggen.kernel.rs.392-421",
+      "relationship_type": "demonstrates",
+      "strength": 0.90,
+      "description": "test_deterministic_generation validates hash-based determinism",
+      "conceptual_link": "Test verifies kernel determinism implementation"
+    },
+    {
+      "relationship_id": "rel_013",
+      "from_evidence_id": "ggen.DEFINITION_OF_DONE.md.1-50",
+      "to_evidence_id": "ggen.kernel.rs.1-10",
+      "relationship_type": "implements",
+      "strength": 1.0,
+      "description": "Kernel implementation realizes DoD specification for μ-kernel",
+      "conceptual_link": "Code implements specification: A = μ(O)"
+    },
+    {
+      "relationship_id": "rel_014",
+      "from_evidence_id": "ggen.AUTONOMOUS_ONTOLOGY_SYSTEM.md.1-50",
+      "to_evidence_id": "ggen.ahi_contract.rs.1-11",
+      "relationship_type": "implements",
+      "strength": 0.95,
+      "description": "AHI contract implements autonomous ontology system specification",
+      "conceptual_link": "AHI realizes autonomous governance architecture"
+    },
+    {
+      "relationship_id": "rel_015",
+      "from_evidence_id": "ggen.GGEN_8020_ROADMAP.md.1-50",
+      "to_evidence_id": "ggen.meta-ontology.ttl.1-end",
+      "relationship_type": "refines",
+      "strength": 0.90,
+      "description": "Roadmap refines meta-ontology with concrete implementation path",
+      "conceptual_link": "Strategic roadmap instantiates ontology-primary architecture"
+    },
+    {
+      "relationship_id": "rel_016",
+      "from_evidence_id": "ggen.timing.rs.166-203",
+      "to_evidence_id": "ggen.timing.rs.232-235",
+      "relationship_type": "enables",
+      "strength": 0.90,
+      "description": "TimingStats computation enables Chatman constant validation",
+      "conceptual_link": "Statistical analysis validates timing bounds"
+    },
+    {
+      "relationship_id": "rel_017",
+      "from_evidence_id": "ggen.ahi_contract.rs.71-88",
+      "to_evidence_id": "ggen.proof_carrier.rs.340-371",
+      "relationship_type": "enforces",
+      "strength": 0.95,
+      "description": "AHI invariants enforced through ProofCarrier validation",
+      "conceptual_link": "Governance invariants validated before promotion"
+    },
+    {
+      "relationship_id": "rel_018",
+      "from_evidence_id": "ggen.guards.mod.rs.28-39",
+      "to_evidence_id": "ggen.validation_receipt.rs.33-70",
+      "relationship_type": "enables",
+      "strength": 0.95,
+      "description": "Guard validation results populate validation receipts",
+      "conceptual_link": "Guard checks produce signed receipts"
+    }
+  ],
+  "system_dependencies": [
+    {
+      "from_system": "ggen",
+      "to_system": "ggen-dod",
+      "dependency_type": "direct_dependency",
+      "evidence_location": "/home/user/ggen/Cargo.toml (workspace member)",
+      "integration_point": "ggen orchestrates μ.decide(O, Q) → A via DoD substrate",
+      "data_flow": "O (observations) → μ-kernel → A (actions) + receipts",
+      "strength": 1.0,
+      "criticality": "required"
+    },
+    {
+      "from_system": "ggen",
+      "to_system": "ggen-domain",
+      "dependency_type": "direct_dependency",
+      "evidence_location": "/home/user/ggen/Cargo.toml (workspace member)",
+      "integration_point": "ggen uses domain layer for business logic",
+      "data_flow": "CLI commands → domain layer → core operations",
+      "strength": 1.0,
+      "criticality": "required"
+    },
+    {
+      "from_system": "ggen",
+      "to_system": "ggen-core",
+      "dependency_type": "direct_dependency",
+      "evidence_location": "/home/user/ggen/Cargo.toml:132",
+      "integration_point": "ggen uses core for graph-aware code generation",
+      "data_flow": "Ontology (Σ) + Query → ggen-core → generated code",
+      "strength": 1.0,
+      "criticality": "required"
+    },
+    {
+      "from_system": "ggen",
+      "to_system": "ggen-marketplace",
+      "dependency_type": "direct_dependency",
+      "evidence_location": "/home/user/ggen/Cargo.toml:189",
+      "integration_point": "ggen uses marketplace for package validation",
+      "data_flow": "Package → guards → validation receipt",
+      "strength": 0.95,
+      "criticality": "required"
+    },
+    {
+      "from_system": "ggen-dod",
+      "to_system": "ggen-domain",
+      "dependency_type": "direct_dependency",
+      "evidence_location": "/home/user/ggen/crates/ggen-dod/Cargo.toml:40",
+      "integration_point": "DoD uses domain types and AHI contracts",
+      "data_flow": "Kernel decisions → AHI governance → ΔΣ proposals",
+      "strength": 1.0,
+      "criticality": "required"
+    },
+    {
+      "from_system": "ggen-dod",
+      "to_system": "ggen-core",
+      "dependency_type": "direct_dependency",
+      "evidence_location": "/home/user/ggen/crates/ggen-dod/Cargo.toml:41",
+      "integration_point": "DoD uses core utilities and types",
+      "data_flow": "Core types → DoD kernel → decisions",
+      "strength": 0.90,
+      "criticality": "required"
+    },
+    {
+      "from_system": "ggen-domain",
+      "to_system": "ggen-core",
+      "dependency_type": "direct_dependency",
+      "evidence_location": "/home/user/ggen/crates/ggen-domain/Cargo.toml:25",
+      "integration_point": "Domain uses core for graph operations",
+      "data_flow": "Core graph operations → domain logic",
+      "strength": 1.0,
+      "criticality": "required"
+    },
+    {
+      "from_system": "ggen-domain",
+      "to_system": "ggen-marketplace",
+      "dependency_type": "direct_dependency",
+      "evidence_location": "/home/user/ggen/crates/ggen-domain/Cargo.toml:27",
+      "integration_point": "Domain orchestrates marketplace guards",
+      "data_flow": "Domain logic → marketplace guards → validation",
+      "strength": 0.95,
+      "criticality": "required"
+    },
+    {
+      "from_system": "ggen-domain",
+      "to_system": "ggen-ai",
+      "dependency_type": "direct_dependency",
+      "evidence_location": "/home/user/ggen/crates/ggen-domain/Cargo.toml:26",
+      "integration_point": "Domain uses AI for intelligent operations",
+      "data_flow": "Domain queries → AI services → intelligent responses",
+      "strength": 0.85,
+      "criticality": "optional"
+    },
+    {
+      "from_system": "ggen-marketplace",
+      "to_system": "ggen-utils",
+      "dependency_type": "direct_dependency",
+      "evidence_location": "/home/user/ggen/crates/ggen-marketplace/Cargo.toml:32",
+      "integration_point": "Marketplace uses utility functions",
+      "data_flow": "Utils → marketplace operations",
+      "strength": 0.80,
+      "criticality": "required"
+    },
+    {
+      "from_system": "ggen-core",
+      "to_system": "ggen-utils",
+      "dependency_type": "direct_dependency",
+      "evidence_location": "/home/user/ggen/crates/ggen-core/Cargo.toml:17",
+      "integration_point": "Core uses utility functions",
+      "data_flow": "Utils → core operations",
+      "strength": 0.80,
+      "criticality": "required"
+    },
+    {
+      "from_system": "ggen",
+      "to_system": "AHI",
+      "dependency_type": "governance_integration",
+      "evidence_location": "/home/user/ggen/crates/ggen-domain/src/ahi_contract.rs",
+      "integration_point": "ahi.cycle(Σ, Γ, policy) → ΔΣ",
+      "data_flow": "Σ (ontology) + Γ (observations) → AHI → ΔΣ (changes)",
+      "strength": 0.95,
+      "criticality": "required"
+    },
+    {
+      "from_system": "ggen",
+      "to_system": "MAPE-K",
+      "dependency_type": "autonomic_integration",
+      "evidence_location": "/home/user/ggen/crates/ggen-domain/src/mape_k/mod.rs",
+      "integration_point": "Monitor → Analyze → Plan → Execute → Knowledge loop",
+      "data_flow": "Observations → Findings → Proposals → Actions → Knowledge",
+      "strength": 0.95,
+      "criticality": "required"
+    },
+    {
+      "from_system": "μ-kernel",
+      "to_system": "Receipts",
+      "dependency_type": "provenance_integration",
+      "evidence_location": "/home/user/ggen/crates/ggen-dod/src/kernel.rs",
+      "integration_point": "kernel.decide() → KernelDecision with timing + hash",
+      "data_flow": "Decision → Receipt with cryptographic proof",
+      "strength": 1.0,
+      "criticality": "required"
+    },
+    {
+      "from_system": "Guards",
+      "to_system": "Receipts",
+      "dependency_type": "validation_integration",
+      "evidence_location": "/home/user/ggen/crates/ggen-marketplace/src/guards",
+      "integration_point": "Guard validation → ValidationReceipt",
+      "data_flow": "Guard checks → Signed receipt with HMAC",
+      "strength": 1.0,
+      "criticality": "required"
+    },
+    {
+      "from_system": "CTT",
+      "to_system": "μ-kernel",
+      "dependency_type": "verification_integration",
+      "evidence_location": "/home/user/ggen/tests/chicago_tdd",
+      "integration_point": "CTT validates kernel determinism and timing",
+      "data_flow": "Test suite → kernel verification → pass/fail",
+      "strength": 0.90,
+      "criticality": "required"
+    }
+  ],
+  "concept_dependencies": [
+    {
+      "from_concept": "C_UNIVERSE_PROJECTION_AXIOM",
+      "to_concept": "C_MU_KERNEL_PHYSICS",
+      "relationship": "depends_on",
+      "explanation": "A = μ(O) axiom depends on μ being a well-defined, deterministic decision function with timing guarantees",
+      "strength": 1.0
+    },
+    {
+      "from_concept": "C_TIMING_BOUNDS_ENFORCED",
+      "to_concept": "C_MU_KERNEL_PHYSICS",
+      "relationship": "refines",
+      "explanation": "Timing bounds (τ ≤ 8ms) refine the μ-kernel physics with specific quantitative constraints",
+      "strength": 1.0
+    },
+    {
+      "from_concept": "C_RECEIPTS_AND_PROOFS",
+      "to_concept": "C_UNIVERSE_PROJECTION_AXIOM",
+      "relationship": "proves",
+      "explanation": "Receipts with hash(A) = hash(μ(O)) provide cryptographic proof of projection correctness",
+      "strength": 0.98
+    },
+    {
+      "from_concept": "C_AHI_GOVERNANCE",
+      "to_concept": "C_RECEIPTS_AND_PROOFS",
+      "relationship": "requires",
+      "explanation": "AHI policies must be justified by evidence (Γ); receipts provide that evidence chain",
+      "strength": 0.95
+    },
+    {
+      "from_concept": "C_AHI_GOVERNANCE",
+      "to_concept": "C_GRAPH_UNIVERSE_PRIMARY",
+      "relationship": "depends_on",
+      "explanation": "AHI operates on Σ (ontology snapshots) which are primary in graph-universe architecture",
+      "strength": 1.0
+    },
+    {
+      "from_concept": "C_INVARIANT_ENFORCEMENT",
+      "to_concept": "C_GRAPH_UNIVERSE_PRIMARY",
+      "relationship": "enforces",
+      "explanation": "Invariants from ontology (Q) are enforced at runtime to maintain graph-universe integrity",
+      "strength": 0.95
+    },
+    {
+      "from_concept": "C_CTT_12_PHASE_VERIFICATION",
+      "to_concept": "C_TIMING_BOUNDS_ENFORCED",
+      "relationship": "validates",
+      "explanation": "Chicago TDD 12-phase pipeline validates timing bounds through performance tests",
+      "strength": 0.90
+    },
+    {
+      "from_concept": "C_CTT_12_PHASE_VERIFICATION",
+      "to_concept": "C_UNIVERSE_PROJECTION_AXIOM",
+      "relationship": "validates",
+      "explanation": "CTT verifies A = μ(O) through determinism tests and replay validation",
+      "strength": 0.90
+    },
+    {
+      "from_concept": "C_AGENTS_ONLY_ARCHITECTURE",
+      "to_concept": "C_AHI_GOVERNANCE",
+      "relationship": "enables",
+      "explanation": "Agent-only architecture is enabled by AHI autonomous governance (no human arbitration)",
+      "strength": 0.95
+    },
+    {
+      "from_concept": "C_RECEIPT_CHAIN_VERIFICATION",
+      "to_concept": "C_RECEIPTS_AND_PROOFS",
+      "relationship": "refines",
+      "explanation": "Receipt chain verification refines general receipts/proofs with immutability and signature chains",
+      "strength": 1.0
+    },
+    {
+      "from_concept": "C_GGEN_PROJECTION_ENGINE",
+      "to_concept": "C_CODE_AS_PROJECTION",
+      "relationship": "implements",
+      "explanation": "ggen projection engine implements code-as-projection via Σ + Q → code generation",
+      "strength": 1.0
+    },
+    {
+      "from_concept": "C_CODE_AS_PROJECTION",
+      "to_concept": "C_GRAPH_UNIVERSE_PRIMARY",
+      "relationship": "depends_on",
+      "explanation": "Code projection depends on ontology (Σ) being primary source of truth",
+      "strength": 1.0
+    },
+    {
+      "from_concept": "C_KNHK_GRAPH_PRIMARY",
+      "to_concept": "C_GRAPH_UNIVERSE_PRIMARY",
+      "relationship": "refines",
+      "explanation": "KNHK (Kinetic Network Hypergraph Kernel) refines graph-universe with kinetic evolution",
+      "strength": 0.90
+    },
+    {
+      "from_concept": "C_CNV_AGENT_CLI",
+      "to_concept": "C_AGENTS_ONLY_ARCHITECTURE",
+      "relationship": "enables",
+      "explanation": "Clap-noun-verb agent CLI enables agent-grade interactions (no human UI needed)",
+      "strength": 0.85
+    },
+    {
+      "from_concept": "C_CLNRM_HERMETIC_TESTING",
+      "to_concept": "C_CTT_12_PHASE_VERIFICATION",
+      "relationship": "implements",
+      "explanation": "Cleanroom hermetic testing implements CTT verification in isolated containers",
+      "strength": 0.80
+    }
+  ],
+  "concept_refinements": {
+    "C_UNIVERSE_PROJECTION_AXIOM": {
+      "parent": "C_GRAPH_UNIVERSE_PRIMARY",
+      "sub_concepts": [
+        {
+          "sub_concept_id": "C_UNIVERSE_PROJECTION_AXIOM.determinism",
+          "name": "Deterministic Projection",
+          "claim": "μ(O) always produces identical output for identical input",
+          "evidence_count": 5,
+          "max_strength": 1.0,
+          "evidence_ids": [
+            "ggen.kernel.rs.392-421",
+            "ggen.kernel.rs.424-442",
+            "ggen.kernel.rs.285-346",
+            "ggen.test_determinism.rs.16-30",
+            "ggen.DEFINITION_OF_DONE.md.88-93"
+          ]
+        },
+        {
+          "sub_concept_id": "C_UNIVERSE_PROJECTION_AXIOM.immutability",
+          "name": "A is Immutable",
+          "claim": "Code (A) cannot be edited directly; all changes via O mutations",
+          "evidence_count": 3,
+          "max_strength": 0.95,
+          "evidence_ids": [
+            "ggen.ahi_contract.rs.1-11",
+            "ggen.AUTONOMOUS_ONTOLOGY_SYSTEM.md.1-50",
+            "ggen.DEFINITION_OF_DONE.md.1-50"
+          ]
+        },
+        {
+          "sub_concept_id": "C_UNIVERSE_PROJECTION_AXIOM.replay",
+          "name": "Replay Property",
+          "claim": "Rerunning μ(O) produces identical A (reproducibility)",
+          "evidence_count": 4,
+          "max_strength": 0.98,
+          "evidence_ids": [
+            "ggen.replay.rs.182",
+            "ggen.kernel.rs.424-442",
+            "ggen.kernel.rs.437-438",
+            "ggen.DEFINITION_OF_DONE.md.88-93"
+          ]
+        },
+        {
+          "sub_concept_id": "C_UNIVERSE_PROJECTION_AXIOM.hash_equivalence",
+          "name": "Hash Equivalence",
+          "claim": "hash(A) = hash(μ(O)) proves projection integrity",
+          "evidence_count": 4,
+          "max_strength": 0.98,
+          "evidence_ids": [
+            "ggen.kernel.rs.392-421",
+            "ggen.kernel.rs.424-442",
+            "ggen.DEFINITION_OF_DONE.md.88-93",
+            "ggen.kernel.rs.1-10"
+          ]
+        }
+      ]
+    },
+    "C_TIMING_BOUNDS_ENFORCED": {
+      "parent": "C_MU_KERNEL_PHYSICS",
+      "sub_concepts": [
+        {
+          "sub_concept_id": "C_TIMING_BOUNDS_ENFORCED.definition",
+          "name": "Timing Constant Definition",
+          "claim": "CHATMAN_CONSTANT_MS = 8 is explicitly defined as hard constant",
+          "evidence_count": 3,
+          "max_strength": 1.0,
+          "evidence_ids": [
+            "ggen.timing.rs.106",
+            "ggen.lib.rs.60",
+            "ggen.timing.rs.272-274"
+          ]
+        },
+        {
+          "sub_concept_id": "C_TIMING_BOUNDS_ENFORCED.runtime_check",
+          "name": "Runtime Enforcement",
+          "claim": "τ ≤ 8ms is checked at runtime with fatal violations",
+          "evidence_count": 4,
+          "max_strength": 1.0,
+          "evidence_ids": [
+            "ggen.kernel.rs.328-329",
+            "ggen.kernel.rs.332-337",
+            "ggen.timing.rs.92-102",
+            "ggen.error.rs.26-27"
+          ]
+        },
+        {
+          "sub_concept_id": "C_TIMING_BOUNDS_ENFORCED.statistical",
+          "name": "Statistical Validation",
+          "claim": "P99 latency < 8ms, verified via performance tests",
+          "evidence_count": 3,
+          "max_strength": 0.90,
+          "evidence_ids": [
+            "ggen.timing.rs.166-203",
+            "ggen.timing.rs.232-235",
+            "ggen.timing.rs.238-243"
+          ]
+        },
+        {
+          "sub_concept_id": "C_TIMING_BOUNDS_ENFORCED.test_validation",
+          "name": "Test Coverage",
+          "claim": "Timing bounds validated in kernel tests",
+          "evidence_count": 2,
+          "max_strength": 1.0,
+          "evidence_ids": [
+            "ggen.kernel.rs.486-501",
+            "ggen.timing.rs.272-274"
+          ]
+        }
+      ]
+    },
+    "C_RECEIPTS_AND_PROOFS": {
+      "parent": "C_GRAPH_UNIVERSE_PRIMARY",
+      "sub_concepts": [
+        {
+          "sub_concept_id": "C_RECEIPTS_AND_PROOFS.cryptography",
+          "name": "Cryptographic Signatures",
+          "claim": "HMAC-SHA256 signatures provide tamper-proof receipts",
+          "evidence_count": 3,
+          "max_strength": 1.0,
+          "evidence_ids": [
+            "ggen.validation_receipt.rs.184-205",
+            "ggen.validation_receipt.rs.207-226",
+            "ggen.validation_receipt.rs.268-280"
+          ]
+        },
+        {
+          "sub_concept_id": "C_RECEIPTS_AND_PROOFS.structure",
+          "name": "Receipt Structure",
+          "claim": "Receipts contain package, version, timestamp, guards, score, signature",
+          "evidence_count": 2,
+          "max_strength": 1.0,
+          "evidence_ids": [
+            "ggen.validation_receipt.rs.33-70",
+            "ggen.validation_receipt.rs.159-182"
+          ]
+        },
+        {
+          "sub_concept_id": "C_RECEIPTS_AND_PROOFS.proof_carrier",
+          "name": "Proof Carrier",
+          "claim": "ProofCarrier links evidence chain, tests, impact, risk mitigations",
+          "evidence_count": 3,
+          "max_strength": 0.95,
+          "evidence_ids": [
+            "ggen.proof_carrier.rs.104-142",
+            "ggen.proof_carrier.rs.216-225",
+            "ggen.proof_carrier.rs.340-371"
+          ]
+        },
+        {
+          "sub_concept_id": "C_RECEIPTS_AND_PROOFS.audit_trail",
+          "name": "Audit Trail Generation",
+          "claim": "Audit trail generated from proof carrier with complete evidence lineage",
+          "evidence_count": 2,
+          "max_strength": 0.85,
+          "evidence_ids": [
+            "ggen.proof_carrier.rs.373-409",
+            "ggen.proof_carrier.rs.603-636"
+          ]
+        }
+      ]
+    },
+    "C_AHI_GOVERNANCE": {
+      "parent": "C_AGENTS_ONLY_ARCHITECTURE",
+      "sub_concepts": [
+        {
+          "sub_concept_id": "C_AHI_GOVERNANCE.contract",
+          "name": "AHI Decision Cycle Contract",
+          "claim": "AHIDecisionCycle trait defines formal contract for autonomic intelligence",
+          "evidence_count": 3,
+          "max_strength": 1.0,
+          "evidence_ids": [
+            "ggen.ahi_contract.rs.90-163",
+            "ggen.ahi_contract.rs.27-47",
+            "ggen.ahi_contract.rs.49-69"
+          ]
+        },
+        {
+          "sub_concept_id": "C_AHI_GOVERNANCE.invariants",
+          "name": "AHI Invariants",
+          "claim": "Invariants enforce traceability, grounding, doctrine alignment, immutability",
+          "evidence_count": 2,
+          "max_strength": 0.95,
+          "evidence_ids": [
+            "ggen.ahi_contract.rs.71-88",
+            "ggen.ahi_contract.rs.147-156"
+          ]
+        },
+        {
+          "sub_concept_id": "C_AHI_GOVERNANCE.mape_k",
+          "name": "MAPE-K Loop",
+          "claim": "MAPE-K implements Monitor-Analyze-Plan-Execute-Knowledge phases",
+          "evidence_count": 2,
+          "max_strength": 0.95,
+          "evidence_ids": [
+            "ggen.mape_k.mod.rs.1-29",
+            "ggen.mape_k.mod.rs.42-90"
+          ]
+        },
+        {
+          "sub_concept_id": "C_AHI_GOVERNANCE.state_machine",
+          "name": "Proposal State Machine",
+          "claim": "State machine enforces Candidate → Validated → Approved → Promoted",
+          "evidence_count": 3,
+          "max_strength": 0.98,
+          "evidence_ids": [
+            "ggen.ahi_contract.rs.285-305",
+            "ggen.ahi_contract.rs.323-371",
+            "ggen.ahi_contract.rs.392-444"
+          ]
+        }
+      ]
+    },
+    "C_INVARIANT_ENFORCEMENT": {
+      "parent": "C_GRAPH_UNIVERSE_PRIMARY",
+      "sub_concepts": [
+        {
+          "sub_concept_id": "C_INVARIANT_ENFORCEMENT.checker",
+          "name": "Invariant Checker",
+          "claim": "InvariantChecker validates constraints before actions are committed",
+          "evidence_count": 2,
+          "max_strength": 0.90,
+          "evidence_ids": [
+            "ggen.lib.rs.48",
+            "ggen.DEFINITION_OF_DONE.md.35-39"
+          ]
+        },
+        {
+          "sub_concept_id": "C_INVARIANT_ENFORCEMENT.guards",
+          "name": "Package Guards",
+          "claim": "Guards validate package quality with 8020 coverage and Chatman compliance",
+          "evidence_count": 2,
+          "max_strength": 0.95,
+          "evidence_ids": [
+            "ggen.guards.mod.rs.28-39",
+            "ggen.guards.mod.rs.8-20"
+          ]
+        },
+        {
+          "sub_concept_id": "C_INVARIANT_ENFORCEMENT.decision_closure",
+          "name": "Decision Closure",
+          "claim": "All decisions derive from (O, Σ, Q, Γ) with no external mutable state",
+          "evidence_count": 2,
+          "max_strength": 0.80,
+          "evidence_ids": [
+            "ggen.lib.rs.41",
+            "ggen.DEFINITION_OF_DONE.md.42-46"
+          ]
+        }
+      ]
+    },
+    "C_MU_KERNEL_PHYSICS": {
+      "parent": "C_GRAPH_UNIVERSE_PRIMARY",
+      "sub_concepts": [
+        {
+          "sub_concept_id": "C_MU_KERNEL_PHYSICS.determinism",
+          "name": "Kernel Determinism",
+          "claim": "μ-kernel produces deterministic decisions with hash verification",
+          "evidence_count": 4,
+          "max_strength": 1.0,
+          "evidence_ids": [
+            "ggen.kernel.rs.1-100",
+            "ggen.kernel.rs.392-421",
+            "ggen.kernel.rs.424-442",
+            "ggen.DEFINITION_OF_DONE.md.1-50"
+          ]
+        },
+        {
+          "sub_concept_id": "C_MU_KERNEL_PHYSICS.timing",
+          "name": "Timing Guarantees",
+          "claim": "μ-kernel enforces timing bounds τ ≤ 8ms with fatal violations",
+          "evidence_count": 5,
+          "max_strength": 1.0,
+          "evidence_ids": [
+            "ggen.timing.rs.106",
+            "ggen.kernel.rs.328-329",
+            "ggen.kernel.rs.332-337",
+            "ggen.timing.rs.92-102",
+            "ggen.DEFINITION_OF_DONE.md.76-79"
+          ]
+        },
+        {
+          "sub_concept_id": "C_MU_KERNEL_PHYSICS.decision_function",
+          "name": "Decision Function",
+          "claim": "decide(observations, tenant_id) → KernelDecision is core operation",
+          "evidence_count": 2,
+          "max_strength": 1.0,
+          "evidence_ids": [
+            "ggen.kernel.rs.285-346",
+            "ggen.kernel.rs.1-10"
+          ]
+        }
+      ]
+    }
+  },
+  "cross_cutting_concerns": [
+    {
+      "concern": "Determinism",
+      "systems": ["ggen", "μ-kernel", "CTT", "Receipts"],
+      "concepts": ["C_UNIVERSE_PROJECTION_AXIOM", "C_MU_KERNEL_PHYSICS", "C_RECEIPTS_AND_PROOFS"],
+      "integration_points": [
+        "kernel.rs computes SHA256 determinism hash over (O, Σ*, Q, A)",
+        "CTT verification pipeline validates determinism via replay tests",
+        "receipt.rs verifies hash(A) = hash(μ(O)) equivalence",
+        "test_determinism.rs validates identical inputs produce identical outputs"
+      ],
+      "evidence_strength": 1.0
+    },
+    {
+      "concern": "Timing Bounds",
+      "systems": ["μ-kernel", "ggen", "CTT"],
+      "concepts": ["C_TIMING_BOUNDS_ENFORCED", "C_MU_KERNEL_PHYSICS"],
+      "integration_points": [
+        "timing.rs defines CHATMAN_CONSTANT_MS = 8",
+        "kernel.rs enforces τ ≤ 8ms with fatal TimingViolation",
+        "timing.rs computes p99 statistics for validation",
+        "CTT validates timing via performance tests"
+      ],
+      "evidence_strength": 1.0
+    },
+    {
+      "concern": "Cryptographic Proofs",
+      "systems": ["Receipts", "Guards", "AHI", "ProofCarrier"],
+      "concepts": ["C_RECEIPTS_AND_PROOFS", "C_RECEIPT_CHAIN_VERIFICATION"],
+      "integration_points": [
+        "validation_receipt.rs implements HMAC-SHA256 signatures",
+        "proof_carrier.rs links evidence chains with Ed25519 attestation",
+        "guards validate packages and produce signed receipts",
+        "AHI justification requires receipt-backed evidence (Γ)"
+      ],
+      "evidence_strength": 0.98
+    },
+    {
+      "concern": "Governance",
+      "systems": ["AHI", "MAPE-K", "ProofCarrier", "Guards"],
+      "concepts": ["C_AHI_GOVERNANCE", "C_AGENTS_ONLY_ARCHITECTURE", "C_INVARIANT_ENFORCEMENT"],
+      "integration_points": [
+        "ahi_contract.rs defines AHIDecisionCycle trait",
+        "mape_k implements Monitor→Analyze→Plan→Execute→Knowledge flow",
+        "proof_carrier validates proposals before promotion",
+        "guards enforce quality standards (8020, Chatman compliance)"
+      ],
+      "evidence_strength": 0.95
+    },
+    {
+      "concern": "Ontology Primacy",
+      "systems": ["ggen", "ggen-core", "AHI", "KNHK"],
+      "concepts": ["C_GRAPH_UNIVERSE_PRIMARY", "C_CODE_AS_PROJECTION", "C_UNIVERSE_PROJECTION_AXIOM"],
+      "integration_points": [
+        "meta-ontology.ttl defines ontology as source of truth",
+        "ggen-core projects Σ + Q → code via SPARQL queries",
+        "AHI operates on Σ* (immutable ontology snapshots)",
+        "ahi_contract.rs enforces ΔΣ justification from observations (Γ)"
+      ],
+      "evidence_strength": 1.0
+    },
+    {
+      "concern": "Verification",
+      "systems": ["CTT", "μ-kernel", "Guards", "Invariants"],
+      "concepts": ["C_CTT_12_PHASE_VERIFICATION", "C_INVARIANT_ENFORCEMENT", "C_CLNRM_HERMETIC_TESTING"],
+      "integration_points": [
+        "chicago_tdd implements 12-phase verification pipeline",
+        "cleanroom provides hermetic container testing",
+        "guards validate packages before certification",
+        "invariant.rs enforces hard-blocking constraints"
+      ],
+      "evidence_strength": 0.90
+    },
+    {
+      "concern": "Agent Autonomy",
+      "systems": ["AHI", "CNV CLI", "MAPE-K", "ggen"],
+      "concepts": ["C_AGENTS_ONLY_ARCHITECTURE", "C_AHI_GOVERNANCE", "C_CNV_AGENT_CLI"],
+      "integration_points": [
+        "ahi_contract.rs operates without human code editing",
+        "clap-noun-verb provides agent-grade CLI interface",
+        "MAPE-K implements closed-loop autonomic governance",
+        "DEFINITION_OF_DONE.md specifies no human arbitration"
+      ],
+      "evidence_strength": 0.95
+    },
+    {
+      "concern": "Provenance Tracking",
+      "systems": ["Receipts", "μ-kernel", "ProofCarrier", "AHI"],
+      "concepts": ["C_RECEIPTS_AND_PROOFS", "C_RECEIPT_CHAIN_VERIFICATION", "C_AHI_GOVERNANCE"],
+      "integration_points": [
+        "kernel decisions include timing measurements and determinism hash",
+        "receipts form immutable cryptographic chains",
+        "proof_carrier maintains complete evidence lineage",
+        "AHI requires justification traced to observations (Γ)"
+      ],
+      "evidence_strength": 0.98
+    }
+  ],
+  "summary": {
+    "total_evidence_relationships": 18,
+    "total_system_dependencies": 16,
+    "total_concept_dependencies": 15,
+    "total_concept_refinements": 6,
+    "total_sub_concepts": 22,
+    "cross_cutting_concerns": 8,
+    "key_insights": [
+      "Determinism is enforced at multiple layers: kernel hash computation, replay verification, and CTT testing",
+      "Timing bounds (τ ≤ 8ms) are defined as constants, checked at runtime, and validated statistically",
+      "Cryptographic proofs (HMAC-SHA256, Ed25519) provide tamper-proof receipts and evidence chains",
+      "AHI governance operates autonomously via MAPE-K loop with formal invariant enforcement",
+      "Ontology (Σ) is primary source of truth; all code is projection A = μ(O)",
+      "Agent-only architecture eliminates human arbitration in critical path",
+      "Complete provenance tracking from observations to decisions to receipts",
+      "System dependencies form layered architecture: utils → core → domain → dod/marketplace"
+    ],
+    "relationship_patterns": [
+      "enables (7 relationships): A provides capability for B",
+      "enforces (4 relationships): A validates/checks B",
+      "depends_on (4 relationships): A requires B to function",
+      "implements (2 relationships): A realizes specification B",
+      "proves (1 relationship): A provides proof for B",
+      "demonstrates (1 relationship): A shows B in action",
+      "refines (2 relationships): A adds detail to B",
+      "validates (2 relationships): A verifies B correctness"
+    ],
+    "strongest_relationships": [
+      {
+        "relationship": "CHATMAN_CONSTANT → kernel timing check",
+        "strength": 1.0,
+        "type": "enforces"
+      },
+      {
+        "relationship": "compute_determinism_hash → verify_determinism",
+        "strength": 1.0,
+        "type": "enables"
+      },
+      {
+        "relationship": "calculate_signature → verify_signature",
+        "strength": 1.0,
+        "type": "proves"
+      },
+      {
+        "relationship": "AHIInput → AHIDecisionCycle::cycle",
+        "strength": 1.0,
+        "type": "depends_on"
+      },
+      {
+        "relationship": "kernel.decide() → TimingViolation error",
+        "strength": 1.0,
+        "type": "enforces"
+      }
+    ],
+    "critical_paths": [
+      "Observations → μ-kernel → Actions → Receipts → Evidence (Γ) → AHI → ΔΣ",
+      "Σ (ontology) → ggen-core projection → A (code) → hash verification",
+      "Monitor → Analyze → Plan → Execute → Knowledge (MAPE-K loop)",
+      "Proposal → ProofCarrier → Guards → ValidationReceipt → Promotion"
+    ]
+  }
+}
