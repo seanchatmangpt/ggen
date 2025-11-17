@@ -1,0 +1,37 @@
+{
+  "summary": {
+    "total_concepts": 17,
+    "fully_supported": 16,
+    "partially_supported": 0,
+    "weakly_supported": 1,
+    "unsupported": 0,
+    "overall_coverage": 0.94
+  },
+  "gaps": [
+    {
+      "concept_id": "C_NOMRG_GRAPH_OVERLAY",
+      "category": "interface",
+      "description": "nomrg removes textual merges; only graph overlays with proofs exist",
+      "evidence_count": 1,
+      "max_strength": 0.3,
+      "status": "weak_evidence",
+      "investigation_notes": "Only contextual reference found with very weak strength (0.3). nomrg system not discovered as implemented. May be conceptual or out of scope.",
+      "remediation_suggestions": [
+        "Search for nomrg repository or implementation in organization",
+        "If nomrg doesn't exist, document as future work or architectural vision",
+        "Consider whether graph overlay algebra is essential for current phase",
+        "Interview architects about nomrg design status and timeline"
+      ]
+    }
+  ],
+  "recommendations": {
+    "immediate_priorities": [
+      "Address weak evidence for C_NOMRG_GRAPH_OVERLAY: nomrg removes textual merges; only graph overlays with proofs exist"
+    ],
+    "medium_term": [],
+    "long_term": [
+      "Create nomrg graph overlay algebra system if strategic value confirmed",
+      "Expand hermetic testing to all subsystems with full OTEL integration"
+    ]
+  }
+}
