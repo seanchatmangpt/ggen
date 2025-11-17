@@ -75,6 +75,25 @@ fn generate(
     prompt: String, code: Option<String>, model: Option<String>, _api_key: Option<String>,
     suggestions: bool, language: Option<String>, max_tokens: i64, temperature: f64,
 ) -> Result<GenerateOutput> {
+    // Validate input parameters
+    if prompt.is_empty() {
+        return Err(clap_noun_verb::NounVerbError::execution_error(
+            "Prompt cannot be empty".to_string(),
+        ));
+    }
+
+    if max_tokens <= 0 || max_tokens > 4_000_000 {
+        return Err(clap_noun_verb::NounVerbError::execution_error(
+            "max_tokens must be between 1 and 4,000,000".to_string(),
+        ));
+    }
+
+    if temperature < 0.0 || temperature > 2.0 {
+        return Err(clap_noun_verb::NounVerbError::execution_error(
+            "temperature must be between 0.0 and 2.0".to_string(),
+        ));
+    }
+
     crate::runtime::block_on(async move {
         let mut global_config = get_global_config().clone();
 
@@ -131,6 +150,7 @@ fn generate(
             finish_reason: response.finish_reason,
         })
     })
+    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e))
 }
 
 /// Interactive AI chat session
@@ -157,6 +177,19 @@ fn chat(
     stream: bool, max_tokens: i64, temperature: f64,
 ) -> Result<ChatOutput> {
     use std::io::Write;
+
+    // Validate input parameters
+    if max_tokens <= 0 || max_tokens > 4_000_000 {
+        return Err(clap_noun_verb::NounVerbError::execution_error(
+            "max_tokens must be between 1 and 4,000,000".to_string(),
+        ));
+    }
+
+    if temperature < 0.0 || temperature > 2.0 {
+        return Err(clap_noun_verb::NounVerbError::execution_error(
+            "temperature must be between 0.0 and 2.0".to_string(),
+        ));
+    }
 
     crate::runtime::block_on(async move {
         let mut global_config = get_global_config().clone();
@@ -344,6 +377,7 @@ fn chat(
             tokens_used: total_tokens,
         })
     })
+    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e))
 }
 
 /// Analyze code with AI insights
@@ -370,6 +404,13 @@ fn analyze(
     code: Option<String>, file: Option<PathBuf>, project: Option<PathBuf>, model: Option<String>,
     api_key: Option<String>, complexity: bool, security: bool, performance: bool, max_tokens: i64,
 ) -> Result<AnalyzeOutput> {
+    // Validate input parameters
+    if max_tokens <= 0 || max_tokens > 4_000_000 {
+        return Err(clap_noun_verb::NounVerbError::execution_error(
+            "max_tokens must be between 1 and 4,000,000".to_string(),
+        ));
+    }
+
     crate::runtime::block_on(async move {
         // Determine what to analyze
         let (code_content, file_path) = if let Some(code_str) = code {
@@ -464,6 +505,7 @@ fn analyze(
             tokens_used: response.usage.map(|u| u.total_tokens as usize),
         })
     })
+    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e))
 }
 
 // ============================================================================

@@ -129,8 +129,26 @@ pub async fn run_for_node(args: Vec<String>) -> ggen_utils::error::Result<RunRes
                 let _ = so.read_to_end(&mut captured_stdout);
                 let _ = se.read_to_end(&mut captured_stderr);
 
-                *stdout_clone.lock().unwrap() = captured_stdout;
-                *stderr_clone.lock().unwrap() = captured_stderr;
+                // Store captured output, handle mutex poisoning gracefully
+                match stdout_clone.lock() {
+                    Ok(mut guard) => *guard = captured_stdout,
+                    Err(poisoned) => {
+                        // Recover from poisoned lock
+                        log::warn!("Stdout mutex was poisoned, recovering");
+                        let mut guard = poisoned.into_inner();
+                        *guard = captured_stdout;
+                    }
+                }
+
+                match stderr_clone.lock() {
+                    Ok(mut guard) => *guard = captured_stderr,
+                    Err(poisoned) => {
+                        // Recover from poisoned lock
+                        log::warn!("Stderr mutex was poisoned, recovering");
+                        let mut guard = poisoned.into_inner();
+                        *guard = captured_stderr;
+                    }
+                }
 
                 code_val
             }
@@ -151,8 +169,22 @@ pub async fn run_for_node(args: Vec<String>) -> ggen_utils::error::Result<RunRes
     .await
     .map_err(|e| ggen_utils::error::Error::new(&format!("Failed to execute CLI: {}", e)))?;
 
-    let stdout = String::from_utf8_lossy(&stdout_buffer.lock().unwrap()).to_string();
-    let stderr = String::from_utf8_lossy(&stderr_buffer.lock().unwrap()).to_string();
+    // Retrieve captured output, handle mutex poisoning gracefully
+    let stdout = match stdout_buffer.lock() {
+        Ok(guard) => String::from_utf8_lossy(&*guard).to_string(),
+        Err(poisoned) => {
+            log::warn!("Stdout buffer mutex was poisoned when reading, using empty string");
+            String::new()
+        }
+    };
+
+    let stderr = match stderr_buffer.lock() {
+        Ok(guard) => String::from_utf8_lossy(&*guard).to_string(),
+        Err(poisoned) => {
+            log::warn!("Stderr buffer mutex was poisoned when reading, using empty string");
+            String::new()
+        }
+    };
 
     Ok(RunResult {
         code: result,
