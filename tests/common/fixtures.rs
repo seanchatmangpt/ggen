@@ -10,6 +10,7 @@ use std::sync::Arc;
 use tempfile::TempDir;
 
 /// Creates a sample Phase for lifecycle testing
+#[allow(dead_code)]
 pub fn sample_phase_init() -> Phase {
     PhaseBuilder::new("init")
         .description("Initialize project".to_string())
@@ -21,6 +22,7 @@ pub fn sample_phase_init() -> Phase {
 }
 
 /// Creates a sample Phase for build testing
+#[allow(dead_code)]
 pub fn sample_phase_build() -> Phase {
     PhaseBuilder::new("build")
         .description("Build project".to_string())
@@ -32,6 +34,7 @@ pub fn sample_phase_build() -> Phase {
 }
 
 /// Creates a sample Phase for test execution
+#[allow(dead_code)]
 pub fn sample_phase_test() -> Phase {
     PhaseBuilder::new("test")
         .description("Run tests".to_string())
@@ -43,6 +46,7 @@ pub fn sample_phase_test() -> Phase {
 }
 
 /// Creates a complete Make configuration for testing
+#[allow(dead_code)]
 pub fn sample_make() -> Make {
     let mut lifecycle = BTreeMap::new();
     lifecycle.insert("init".to_string(), sample_phase_init());
@@ -63,6 +67,7 @@ pub fn sample_make() -> Make {
 }
 
 /// Creates a Context for lifecycle testing
+#[allow(dead_code)]
 pub fn sample_context(temp_dir: &TempDir) -> Context {
     let make = Arc::new(sample_make());
     let root = temp_dir.path().to_path_buf();

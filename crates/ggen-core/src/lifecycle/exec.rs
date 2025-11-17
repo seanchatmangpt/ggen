@@ -72,10 +72,13 @@ pub struct Context {
     pub env: Vec<(String, String)>,
     /// Hook recursion guard (thread-safe for parallel execution)
     hook_guard: Arc<Mutex<HashSet<String>>>,
+    /// Call chain tracking for better error messages (thread-safe)
+    /// **DfLSS Fix**: Tracks full call chain to show complete cycle path in error messages
+    call_chain: Arc<Mutex<Vec<String>>>,
 }
 
 impl Context {
-    /// Create new context with empty hook guard
+    /// Create new context with empty hook guard and call chain
     pub fn new(
         root: PathBuf, make: Arc<Make>, state_path: PathBuf, env: Vec<(String, String)>,
     ) -> Self {
@@ -85,10 +88,13 @@ impl Context {
             state_path,
             env,
             hook_guard: Arc::new(Mutex::new(HashSet::new())),
+            call_chain: Arc::new(Mutex::new(Vec::new())),
         }
     }
 
     /// Check for hook recursion and add to guard
+    ///
+    /// **DfLSS Fix**: Now tracks full call chain for better error messages
     fn enter_phase(&self, phase: &str) -> Result<()> {
         let mut guard = self
             .hook_guard
@@ -97,14 +103,33 @@ impl Context {
                 phase: phase.to_string(),
             })?;
 
+        let mut chain = self
+            .call_chain
+            .lock()
+            .map_err(|_| LifecycleError::MutexPoisoned {
+                phase: phase.to_string(),
+            })?;
+
         if guard.contains(phase) {
-            return Err(LifecycleError::hook_recursion(phase));
+            // Build cycle chain: find where cycle starts and build full path
+            let cycle_start = chain.iter().position(|p| p == phase).unwrap_or(0);
+            let mut cycle = chain[cycle_start..].to_vec();
+            cycle.push(phase.to_string());
+
+            return Err(LifecycleError::hook_recursion_with_chain(
+                phase.to_string(),
+                cycle,
+            ));
         }
+
         guard.insert(phase.to_string());
+        chain.push(phase.to_string());
         Ok(())
     }
 
     /// Remove phase from guard after completion
+    ///
+    /// **DfLSS Fix**: Also removes phase from call chain
     fn exit_phase(&self, phase: &str) {
         match self.hook_guard.lock() {
             Ok(mut guard) => {
@@ -117,6 +142,22 @@ impl Context {
                     phase = %phase,
                     error = %e,
                     "CRITICAL: Hook guard mutex poisoned - system may be in inconsistent state"
+                );
+            }
+        }
+
+        // Remove from call chain
+        match self.call_chain.lock() {
+            Ok(mut chain) => {
+                if chain.last().map(|s| s.as_str()) == Some(phase) {
+                    chain.pop();
+                }
+            }
+            Err(e) => {
+                tracing::error!(
+                    phase = %phase,
+                    error = %e,
+                    "CRITICAL: Call chain mutex poisoned - system may be in inconsistent state"
                 );
             }
         }
@@ -331,6 +372,9 @@ fn create_workspace_context(
 }
 
 /// Run before hooks for a phase
+///
+/// **DfLSS Fix**: Now supports both predefined phases (backward compatibility)
+/// and custom phases via dynamic HashMap lookup.
 fn run_before_hooks(ctx: &Context, phase_name: &str) -> Result<()> {
     if let Some(hooks) = &ctx.make.hooks {
         // Global before_all
@@ -341,16 +385,23 @@ fn run_before_hooks(ctx: &Context, phase_name: &str) -> Result<()> {
         }
 
         // Phase-specific before hooks
+        // First check explicit fields (backward compatibility)
         let before_hooks = match phase_name {
-            "init" => &hooks.before_init,
-            "setup" => &hooks.before_setup,
-            "build" => &hooks.before_build,
-            "test" => &hooks.before_test,
-            "deploy" => &hooks.before_deploy,
-            _ => &None,
+            "init" => hooks.before_init.as_ref(),
+            "setup" => hooks.before_setup.as_ref(),
+            "build" => hooks.before_build.as_ref(),
+            "test" => hooks.before_test.as_ref(),
+            "deploy" => hooks.before_deploy.as_ref(),
+            _ => None,
         };
 
-        if let Some(hooks_list) = before_hooks {
+        // If not found in explicit fields, try dynamic lookup (supports custom phases)
+        let hooks_list = before_hooks.or_else(|| {
+            let hook_key = format!("before_{}", phase_name);
+            hooks.phase_hooks.get(&hook_key)
+        });
+
+        if let Some(hooks_list) = hooks_list {
             for hook_phase in hooks_list {
                 run_phase(ctx, hook_phase)?;
             }
@@ -361,19 +412,29 @@ fn run_before_hooks(ctx: &Context, phase_name: &str) -> Result<()> {
 }
 
 /// Run after hooks for a phase
+///
+/// **DfLSS Fix**: Now supports both predefined phases (backward compatibility)
+/// and custom phases via dynamic HashMap lookup.
 fn run_after_hooks(ctx: &Context, phase_name: &str) -> Result<()> {
     if let Some(hooks) = &ctx.make.hooks {
         // Phase-specific after hooks
+        // First check explicit fields (backward compatibility)
         let after_hooks = match phase_name {
-            "init" => &hooks.after_init,
-            "setup" => &hooks.after_setup,
-            "build" => &hooks.after_build,
-            "test" => &hooks.after_test,
-            "deploy" => &hooks.after_deploy,
-            _ => &None,
+            "init" => hooks.after_init.as_ref(),
+            "setup" => hooks.after_setup.as_ref(),
+            "build" => hooks.after_build.as_ref(),
+            "test" => hooks.after_test.as_ref(),
+            "deploy" => hooks.after_deploy.as_ref(),
+            _ => None,
         };
 
-        if let Some(hooks_list) = after_hooks {
+        // If not found in explicit fields, try dynamic lookup (supports custom phases)
+        let hooks_list = after_hooks.or_else(|| {
+            let hook_key = format!("after_{}", phase_name);
+            hooks.phase_hooks.get(&hook_key)
+        });
+
+        if let Some(hooks_list) = hooks_list {
             for hook_phase in hooks_list {
                 run_phase(ctx, hook_phase)?;
             }

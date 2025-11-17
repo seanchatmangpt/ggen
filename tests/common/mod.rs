@@ -12,7 +12,10 @@ pub mod fixtures;
 pub mod helpers;
 
 // Re-export commonly used items
+// These re-exports enable the `use common::{...}` pattern in tests
+#[allow(unused_imports)]
 pub use fixtures::*;
+#[allow(unused_imports)]
 pub use helpers::*;
 
 use std::sync::OnceLock;

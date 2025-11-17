@@ -51,7 +51,7 @@
 //! ```
 
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashMap};
 
 /// Default configuration constants
 ///
@@ -135,6 +135,12 @@ pub struct Phase {
 }
 
 /// Hook definitions for lifecycle phases
+///
+/// Supports both predefined phase hooks (for backward compatibility) and
+/// dynamic custom phase hooks via `phase_hooks` HashMap.
+///
+/// **DfLSS Fix**: Added dynamic hook support to prevent hardcoded phase names
+/// and support extensibility for custom phases.
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct Hooks {
     // Global hooks
@@ -143,7 +149,7 @@ pub struct Hooks {
     #[serde(default)]
     pub after_all: Option<Vec<String>>,
 
-    // Phase-specific hooks
+    // Phase-specific hooks (predefined for backward compatibility)
     #[serde(default)]
     pub before_init: Option<Vec<String>>,
     #[serde(default)]
@@ -168,6 +174,12 @@ pub struct Hooks {
     pub before_deploy: Option<Vec<String>>,
     #[serde(default)]
     pub after_deploy: Option<Vec<String>>,
+
+    // Dynamic hooks for custom phases (and predefined phases via TOML)
+    // Uses #[serde(flatten)] to allow TOML keys like "before_custom" to be deserialized
+    // while maintaining backward compatibility with explicit fields above
+    #[serde(flatten)]
+    pub phase_hooks: HashMap<String, Vec<String>>,
     // Future: Error handling hooks (80/20 - not implemented yet, fail fast for now)
     // #[serde(default)]
     // pub on_error: Option<String>,
