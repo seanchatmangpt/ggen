@@ -34,7 +34,6 @@
   - [References](#references)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # ggen Coding Standards - Eliminate Mura
 
 ## Philosophy

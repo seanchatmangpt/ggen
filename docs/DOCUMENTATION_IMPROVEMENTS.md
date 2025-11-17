@@ -35,7 +35,6 @@
   - [Integration with Standards](#integration-with-standards)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # Documentation Improvements Plan - v2.7.0
 
 ## Overview
