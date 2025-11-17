@@ -402,6 +402,101 @@ docker build -t ggen:latest .
 docker run ggen:latest ggen --version
 ```
 
+## Implementation Guide
+
+### 5-Day Implementation Plan
+
+If you need to implement or improve CI/CD infrastructure, follow this structured 5-day approach:
+
+#### Day 1: Fix Critical Blockers
+
+Focus on blocking issues that prevent compilation or testing:
+
+```bash
+# Check for hardcoded paths
+grep -r "path = \"/Users/" Cargo.toml
+
+# Verify fresh clone builds
+git clone <repo> /tmp/test && cd /tmp/test && cargo build
+```
+
+#### Day 2: Enable Quality Gates
+
+Add comprehensive quality gates:
+
+```yaml
+# .github/workflows/quality-gates.yml structure:
+- Gate 1: No Panic Points (clippy -D clippy::panic)
+- Gate 2: Clippy Strict (all clippy warnings)
+- Gate 3: Code Coverage ≥80%
+- Gate 4: No Hardcoded Paths
+- Gate 5: All Tests Pass
+- Gate 6: Build All Platforms
+```
+
+Configure branch protection to require these checks.
+
+#### Day 3: Cleanup & Optimization
+
+```bash
+# Delete obsolete workflows
+git rm .github/workflows/deprecated-workflow.yml
+
+# Archive old release docs
+mkdir docs/archive/
+git mv releases/old-version.md docs/archive/
+```
+
+#### Day 4: Fix Production Panic Points
+
+Eliminate panic points from production code:
+
+```bash
+# Find all panics
+cargo clippy -- -D clippy::panic
+
+# Replace with Result types
+# Instead of: panic!("error")
+# Use: return Err(Error::new("error"))
+```
+
+#### Day 5: Enable Coverage Enforcement
+
+```bash
+# Generate baseline coverage
+cargo install cargo-tarpaulin
+cargo tarpaulin --fail-under 80
+
+# Configure codecov
+# Create .codecov.yml with targets and thresholds
+```
+
+### Verification Checklist
+
+After implementation, verify all areas:
+
+#### Critical (Must Pass)
+- [ ] Fresh clone builds: `git clone <repo> /tmp/test && cd /tmp/test && cargo build`
+- [ ] All tests pass: `cargo test --workspace`
+- [ ] No panics: `cargo clippy -- -D clippy::panic`
+- [ ] Coverage ≥80%: `cargo tarpaulin --fail-under 80`
+
+#### Quality Gates
+- [ ] Quality gates workflow exists and runs
+- [ ] Branch protection enforces required checks
+- [ ] Test PRs fail with violations and pass after fixes
+
+#### Cleanup
+- [ ] Obsolete workflows deleted
+- [ ] Old releases archived
+- [ ] Deprecated code removed
+
+#### Monitoring
+- [ ] CI duration < 15 minutes for main CI
+- [ ] No flaky tests
+- [ ] Coverage trends visible
+- [ ] All secrets configured
+
 ## Best Practices
 
 ### For Developers
@@ -425,6 +520,7 @@ docker run ggen:latest ggen --version
 2. **Update action versions** - Keep actions up to date
 3. **Monitor secrets** - Rotate credentials periodically
 4. **Archive old releases** - Clean up old GitHub releases
+5. **Monitor metrics** - Track CI speed, flakiness, coverage trends
 
 ## Related Documentation
 
