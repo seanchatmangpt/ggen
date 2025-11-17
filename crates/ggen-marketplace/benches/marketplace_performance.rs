@@ -7,7 +7,7 @@
 //! - Registry queries
 //! - Package installation
 
-use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId};
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
 use std::collections::HashMap;
 
 fn benchmark_package_discovery(c: &mut Criterion) {
@@ -26,10 +26,8 @@ fn benchmark_package_discovery(c: &mut Criterion) {
                     }
 
                     // Search for packages matching criteria
-                    let matches: Vec<_> = packages
-                        .iter()
-                        .filter(|p| p.contains("package"))
-                        .collect();
+                    let matches: Vec<_> =
+                        packages.iter().filter(|p| p.contains("package")).collect();
 
                     let _result = black_box(matches.len());
                 })

@@ -10,10 +10,10 @@
 #![allow(clippy::unwrap_used)]
 
 use crate::marketplace::{
-    receipt_emitter::{emit_receipt_for_package, generate_validation_report},
-    artifact_generator::{generate_registry_index, generate_packages_markdown},
-    quality_autopilot::generate_improvement_plan,
+    artifact_generator::{generate_packages_markdown, generate_registry_index},
     bundles::BundleRegistry,
+    quality_autopilot::generate_improvement_plan,
+    receipt_emitter::{emit_receipt_for_package, generate_validation_report},
 };
 use tempfile::TempDir;
 
@@ -34,22 +34,21 @@ fn test_receipt_emission_single_package() {
     create_test_package(&test_pkg_dir);
 
     // Act: Emit receipt for the package
-    let result = emit_receipt_for_package(
-        &test_pkg_dir,
-        "test-package",
-        "1.0.0",
-        marketplace_root,
-    );
+    let result = emit_receipt_for_package(&test_pkg_dir, "test-package", "1.0.0", marketplace_root);
 
     // Assert: Receipt should be created successfully
     assert!(result.is_ok(), "Receipt emission should succeed");
     let receipt_path = result.unwrap();
-    assert!(receipt_path.exists(), "Receipt file should exist at: {:?}", receipt_path);
+    assert!(
+        receipt_path.exists(),
+        "Receipt file should exist at: {:?}",
+        receipt_path
+    );
 
     // Verify receipt is valid JSON
     let content = std::fs::read_to_string(&receipt_path).unwrap();
-    let receipt: serde_json::Value = serde_json::from_str(&content)
-        .expect("Receipt should be valid JSON");
+    let receipt: serde_json::Value =
+        serde_json::from_str(&content).expect("Receipt should be valid JSON");
     assert_eq!(receipt["package_id"], "test-package");
     assert_eq!(receipt["version"], "1.0.0");
     assert!(receipt["overall_score"].is_number());
@@ -79,9 +78,15 @@ fn test_receipt_has_guard_results() {
     let content = std::fs::read_to_string(&receipt_path).unwrap();
     let receipt: serde_json::Value = serde_json::from_str(&content).unwrap();
 
-    assert!(receipt["guard_results"].is_array(), "Should have guard results");
+    assert!(
+        receipt["guard_results"].is_array(),
+        "Should have guard results"
+    );
     let guard_results = receipt["guard_results"].as_array().unwrap();
-    assert!(!guard_results.is_empty(), "Should have at least one guard result");
+    assert!(
+        !guard_results.is_empty(),
+        "Should have at least one guard result"
+    );
 
     // Verify guard result structure
     for result in guard_results {
@@ -118,7 +123,10 @@ fn test_receipt_checksum_immutability() {
 
     let checksum = receipt["checksum"].as_str();
     assert!(checksum.is_some(), "Receipt should have checksum");
-    assert!(checksum.unwrap().len() == 64, "Checksum should be SHA256 (64 hex chars)");
+    assert!(
+        checksum.unwrap().len() == 64,
+        "Checksum should be SHA256 (64 hex chars)"
+    );
 }
 
 // ============================================================================
@@ -216,12 +224,7 @@ fn test_improvement_plan_generation() {
     create_test_package(&test_pkg_dir);
 
     // Emit receipt
-    let _ = emit_receipt_for_package(
-        &test_pkg_dir,
-        "low-quality-pkg",
-        "1.0.0",
-        marketplace_root,
-    );
+    let _ = emit_receipt_for_package(&test_pkg_dir, "low-quality-pkg", "1.0.0", marketplace_root);
 
     // Act: Generate improvement plan
     let plan_result = generate_improvement_plan("low-quality-pkg", marketplace_root);
@@ -248,18 +251,16 @@ fn test_improvement_suggestions_with_efforts() {
     std::fs::create_dir_all(&test_pkg_dir).unwrap();
     create_minimal_package(&test_pkg_dir); // Missing features
 
-    let _ = emit_receipt_for_package(
-        &test_pkg_dir,
-        "improvement-test",
-        "1.0.0",
-        marketplace_root,
-    );
+    let _ = emit_receipt_for_package(&test_pkg_dir, "improvement-test", "1.0.0", marketplace_root);
 
     // Act
     let plan = generate_improvement_plan("improvement-test", marketplace_root).unwrap();
 
     // Assert: Should have suggestions with valid effort levels
-    assert!(!plan.suggestions.is_empty(), "Should have improvement suggestions");
+    assert!(
+        !plan.suggestions.is_empty(),
+        "Should have improvement suggestions"
+    );
 
     for suggestion in &plan.suggestions {
         assert!(!suggestion.guard_name.is_empty());
@@ -364,16 +365,26 @@ fn test_complete_marketplace_pipeline() {
     // Create 3 packages
     let packages = vec!["pkg-a", "pkg-b", "pkg-c"];
     for pkg in &packages {
-        let pkg_dir = marketplace_root.join("marketplace").join("packages").join(pkg);
+        let pkg_dir = marketplace_root
+            .join("marketplace")
+            .join("packages")
+            .join(pkg);
         std::fs::create_dir_all(&pkg_dir).unwrap();
         create_test_package(&pkg_dir);
     }
 
     // Step 1: Emit receipts
     for pkg in &packages {
-        let pkg_dir = marketplace_root.join("marketplace").join("packages").join(pkg);
+        let pkg_dir = marketplace_root
+            .join("marketplace")
+            .join("packages")
+            .join(pkg);
         let result = emit_receipt_for_package(&pkg_dir, pkg, "1.0.0", marketplace_root);
-        assert!(result.is_ok(), "Receipt emission should succeed for {}", pkg);
+        assert!(
+            result.is_ok(),
+            "Receipt emission should succeed for {}",
+            pkg
+        );
     }
 
     // Step 2: Generate artifacts
@@ -462,7 +473,10 @@ fn setup_test_marketplace_with_receipts(marketplace_root: &std::path::Path) {
     // Create test packages and emit receipts
     for i in 1..=3 {
         let pkg_name = format!("artifact-test-{}", i);
-        let pkg_dir = marketplace_root.join("marketplace").join("packages").join(&pkg_name);
+        let pkg_dir = marketplace_root
+            .join("marketplace")
+            .join("packages")
+            .join(&pkg_name);
         std::fs::create_dir_all(&pkg_dir).unwrap();
         create_test_package(&pkg_dir);
 

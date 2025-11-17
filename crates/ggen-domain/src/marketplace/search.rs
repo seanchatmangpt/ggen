@@ -169,6 +169,21 @@ impl SearchFilters {
     }
 
     /// Filter by sector
+    ///
+    /// # FMEA FM13: Sector Validation
+    ///
+    /// **Valid sectors** (examples from marketplace):
+    /// - `"observability"` - Observability and monitoring packages
+    /// - `"microservice"` - Microservice architecture packages
+    /// - `"paper"` or `"academic"` - Academic paper lifecycle packages
+    /// - `"enterprise"` - Enterprise SaaS packages
+    /// - `"data"` - Data pipeline packages
+    /// - `"healthcare"` - Healthcare system packages
+    /// - `"finance"` or `"fintech"` - Financial services packages
+    ///
+    /// **Note**: Sector names are case-insensitive when filtering. Invalid sector names
+    /// will simply return no results (silent failure). Consider adding validation
+    /// if strict sector checking is required.
     pub fn with_sector(mut self, sector: impl Into<String>) -> Self {
         self.sector = Some(sector.into());
         self
@@ -260,10 +275,19 @@ struct PackageMetadata {
     downloads: u32,
     stars: u32,
     license: Option<String>,
+    /// 8020 Innovation: Is this package certified as 8020?
+    is_8020_certified: bool,
+    /// 8020 Innovation: Sector classification
+    sector: Option<String>,
+    /// 8020 Innovation: Dark matter reduction target
+    dark_matter_reduction_target: Option<String>,
 }
 
 impl From<PackageInfo> for PackageMetadata {
     fn from(info: PackageInfo) -> Self {
+        // FMEA FM15: id is cloned from name - this is intentional
+        // Package id and name are the same in the registry (name is the unique identifier)
+        // If name changes, id should change too (they represent the same package identity)
         Self {
             id: info.name.clone(),
             name: info.name,
@@ -271,11 +295,17 @@ impl From<PackageInfo> for PackageMetadata {
             tags: info.tags,
             keywords: info.keywords,
             category: info.category,
+            // FMEA FM11: Author defaults to "unknown" if None - this is intentional for search
+            // PackageMetadata.author is String (not Option) to simplify search/filtering
+            // SearchResult.author is Option<String> to preserve None if needed
             author: info.author.unwrap_or_else(|| "unknown".to_string()),
             latest_version: info.version,
             downloads: info.downloads,
             stars: info.stars,
             license: info.license,
+            is_8020_certified: info.is_8020_certified,
+            sector: info.sector,
+            dark_matter_reduction_target: info.dark_matter_reduction_target,
         }
     }
 }
@@ -723,10 +753,18 @@ pub async fn search_packages(query: &str, filters: &SearchFilters) -> Result<Vec
     let index = load_registry_index().await?;
 
     // Convert PackageInfo to PackageMetadata and score/filter packages
+    // FMEA FM6: Validate packages before conversion to prevent invalid data propagation
     let mut scored_packages: Vec<(PackageMetadata, f64)> = index
         .packages
         .into_iter()
-        .map(PackageMetadata::from)
+        .filter_map(|info| {
+            // Validate before conversion (defense in depth - also validated in load_registry_index)
+            if let Err(e) = validate_package_for_search(&info) {
+                tracing::warn!("Skipping invalid package in search: {}", e);
+                return None;
+            }
+            Some(PackageMetadata::from(info))
+        })
         .filter_map(|pkg| {
             // Apply filters
             if let Some(ref category) = filters.category {
@@ -766,17 +804,29 @@ pub async fn search_packages(query: &str, filters: &SearchFilters) -> Result<Vec
 
             // 8020 Innovation: Filter by 8020 certification
             if filters.only_8020 {
-                // This filter would be applied here
-                // For now, we skip packages that explicitly mark is_8020_certified as false
-                // In a real implementation, this would come from PackageInfo
-                // Until we have full 8020 certification data in packages, skip this check
+                if !pkg.is_8020_certified {
+                    return None;
+                }
             }
 
             // 8020 Innovation: Filter by sector
+            // FMEA FM7: Current behavior - packages without sector are excluded when filtering by sector
+            // This is intentional: if user filters by sector, they want packages WITH that sector
+            // Packages without sector classification are not included in sector-filtered results
+            // FMEA FM2: eq_ignore_ascii_case only handles ASCII - Unicode sectors may not match correctly
+            // This is acceptable for current use case (sectors are ASCII), but should be noted
             if let Some(ref sector) = filters.sector {
-                // This would filter by the sector field from PackageInfo
-                // Until we have sector data in all packages, this is a no-op
-                // In the future, packages would be tagged with sectors
+                // Filter packages where sector matches (case-insensitive, ASCII only)
+                // If package has no sector, it doesn't match (excluded from results)
+                match &pkg.sector {
+                    Some(pkg_sector) if pkg_sector.eq_ignore_ascii_case(sector) => {
+                        // Sector matches, continue
+                    }
+                    _ => {
+                        // Sector doesn't match or package has no sector - exclude from results
+                        return None;
+                    }
+                }
             }
 
             if let Some(ref keyword) = filters.keyword {
@@ -832,18 +882,33 @@ pub async fn search_packages(query: &str, filters: &SearchFilters) -> Result<Vec
         }
         _ => {
             // Default: sort by relevance
-            // Note: Scores should never be NaN (calculated from relevance function),
-            // but we handle None explicitly for robustness
+            // FMEA FM4: Explicit NaN check before comparison to prevent hiding real issues
             scored_packages.sort_by(|a, b| {
-                let cmp = b.1.partial_cmp(&a.1).unwrap_or_else(|| {
-                    // If somehow we get NaN values, log warning and treat as equal
+                // Check for NaN explicitly before comparison
+                let a_nan = a.1.is_nan();
+                let b_nan = b.1.is_nan();
+
+                let cmp = if a_nan || b_nan {
+                    // Log warning only for actual NaN values
                     tracing::warn!(
-                        "Unexpected NaN in relevance score comparison: {:?} vs {:?}",
+                        "NaN detected in relevance score comparison: a={:?} b={:?}",
                         a.1,
                         b.1
                     );
                     std::cmp::Ordering::Equal
-                });
+                } else {
+                    // Safe to use partial_cmp when neither is NaN
+                    b.1.partial_cmp(&a.1).unwrap_or_else(|| {
+                        // This should never happen if NaN check above is correct
+                        tracing::error!(
+                            "Unexpected partial_cmp failure (not NaN): a={:?} b={:?}",
+                            a.1,
+                            b.1
+                        );
+                        std::cmp::Ordering::Equal
+                    })
+                };
+
                 if filters.order == "asc" {
                     cmp.reverse()
                 } else {
@@ -868,9 +933,10 @@ pub async fn search_packages(query: &str, filters: &SearchFilters) -> Result<Vec
             stars: pkg.stars,
             downloads: pkg.downloads,
             // 8020 Innovation: Include certification and sector info in results
-            is_8020_certified: false, // Will be populated from package registry data
-            sector: None,              // Will be populated from package registry data
-            dark_matter_reduction_target: None, // Will be populated from package registry data
+            is_8020_certified: pkg.is_8020_certified,
+            // FMEA FM3: Use cloned() instead of clone() for Option<String> - more efficient
+            sector: pkg.sector.as_ref().cloned(),
+            dark_matter_reduction_target: pkg.dark_matter_reduction_target.as_ref().cloned(),
         })
         .collect();
 
@@ -880,17 +946,32 @@ pub async fn search_packages(query: &str, filters: &SearchFilters) -> Result<Vec
 /// Search for packages and display results
 ///
 /// This function bridges the CLI to the domain layer.
+///
+/// # FMEA FM5: Known Limitations
+///
+/// **Current limitations**:
+/// - `only_8020` filter is hardcoded to `false` (CLI doesn't support `--only-8020` flag yet)
+/// - `sector` filter is hardcoded to `None` (CLI doesn't support `--sector` flag yet)
+///
+/// **Workaround**: Use `search_and_display_with_input()` directly with `SearchInput` struct
+/// to access full filtering capabilities including `only_8020` and `sector` filters.
+///
+/// **Planned enhancement**: Add CLI parameters when CLI interface is extended to support these filters.
 #[allow(clippy::too_many_arguments)] // Bridge function - parameters match CLI interface
 pub async fn search_and_display(
     query: &str, category: Option<&str>, keyword: Option<&str>, author: Option<&str>, fuzzy: bool,
     detailed: bool, json: bool, limit: usize,
 ) -> Result<()> {
     // Build search input from parameters
+    // FMEA FM5: only_8020 and sector are hardcoded due to CLI bridge limitations
+    // See function documentation for workaround using search_and_display_with_input()
     let input = SearchInput {
         query: query.to_string(),
         category: category.map(|s| s.to_string()),
         keyword: keyword.map(|s| s.to_string()),
         author: author.map(|s| s.to_string()),
+        only_8020: false, // Note: Will be added when CLI supports --only-8020 flag
+        sector: None,     // Note: Will be added when CLI supports --sector flag
         fuzzy,
         detailed,
         json,
@@ -915,6 +996,12 @@ pub async fn search_and_display_with_input(input: &SearchInput) -> Result<()> {
     }
     if let Some(ref auth) = input.author {
         filters.author = Some(auth.clone());
+    }
+    if input.only_8020 {
+        filters = filters.only_8020();
+    }
+    if let Some(ref sector) = input.sector {
+        filters = filters.with_sector(sector);
     }
 
     // Search packages
@@ -1030,6 +1117,114 @@ mod tests {
     }
 
     #[test]
+    fn test_package_metadata_conversion_preserves_8020_fields() {
+        // FMEA FM9: Test data consistency from PackageInfo → PackageMetadata → SearchResult
+        let info = PackageInfo {
+            name: "test-package".to_string(),
+            version: "1.0.0".to_string(),
+            category: "rust".to_string(),
+            description: "Test package".to_string(),
+            tags: vec!["test".to_string()],
+            keywords: vec![],
+            author: Some("test-author".to_string()),
+            license: Some("MIT".to_string()),
+            downloads: 100,
+            stars: 10,
+            production_ready: true,
+            dependencies: vec![],
+            path: None,
+            download_url: None,
+            checksum: None,
+            is_8020_certified: true,
+            sector: Some("observability".to_string()),
+            dark_matter_reduction_target: Some("reduce-logs".to_string()),
+        };
+
+        // Convert to PackageMetadata
+        let metadata = PackageMetadata::from(info.clone());
+        assert_eq!(metadata.is_8020_certified, info.is_8020_certified);
+        assert_eq!(metadata.sector, info.sector);
+        assert_eq!(
+            metadata.dark_matter_reduction_target,
+            info.dark_matter_reduction_target
+        );
+
+        // Simulate SearchResult construction
+        let search_result = SearchResult {
+            id: metadata.id.clone(),
+            name: metadata.name.clone(),
+            version: metadata.latest_version.clone(),
+            description: metadata.description.clone(),
+            author: Some(metadata.author.clone()),
+            category: Some(metadata.category.clone()),
+            tags: metadata.tags.clone(),
+            stars: metadata.stars,
+            downloads: metadata.downloads,
+            is_8020_certified: metadata.is_8020_certified,
+            sector: metadata.sector.as_ref().cloned(),
+            dark_matter_reduction_target: metadata.dark_matter_reduction_target.as_ref().cloned(),
+        };
+
+        // Verify end-to-end consistency
+        assert_eq!(search_result.is_8020_certified, info.is_8020_certified);
+        assert_eq!(search_result.sector, info.sector);
+        assert_eq!(
+            search_result.dark_matter_reduction_target,
+            info.dark_matter_reduction_target
+        );
+
+        // FMEA FM15: Verify id consistency - id should match name
+        assert_eq!(search_result.id, info.name);
+        assert_eq!(search_result.name, info.name);
+    }
+
+    #[test]
+    fn test_sector_filter_case_insensitive_ascii() {
+        // FMEA FM2: Test that sector filtering works with ASCII case-insensitive matching
+        let pkg1 = PackageMetadata {
+            id: "test1".to_string(),
+            name: "test1".to_string(),
+            description: "Test".to_string(),
+            tags: vec![],
+            keywords: vec![],
+            category: "test".to_string(),
+            author: "test".to_string(),
+            latest_version: "1.0.0".to_string(),
+            downloads: 0,
+            stars: 0,
+            license: None,
+            is_8020_certified: false,
+            sector: Some("Observability".to_string()), // Mixed case
+            dark_matter_reduction_target: None,
+        };
+
+        let pkg2 = PackageMetadata {
+            id: "test2".to_string(),
+            name: "test2".to_string(),
+            description: "Test".to_string(),
+            tags: vec![],
+            keywords: vec![],
+            category: "test".to_string(),
+            author: "test".to_string(),
+            latest_version: "1.0.0".to_string(),
+            downloads: 0,
+            stars: 0,
+            license: None,
+            is_8020_certified: false,
+            sector: Some("observability".to_string()), // Lower case
+            dark_matter_reduction_target: None,
+        };
+
+        // Both should match "observability" filter (case-insensitive)
+        let filter = "observability";
+        assert!(pkg1.sector.as_ref().unwrap().eq_ignore_ascii_case(filter));
+        assert!(pkg2.sector.as_ref().unwrap().eq_ignore_ascii_case(filter));
+
+        // Note: eq_ignore_ascii_case only handles ASCII - Unicode sectors may not match
+        // This is acceptable for current use case (sectors are ASCII)
+    }
+
+    #[test]
     fn test_relevance_calculation_fuzzy_match() {
         let pkg = PackageMetadata {
             id: "test".to_string(),
@@ -1043,6 +1238,9 @@ mod tests {
             downloads: 500,
             stars: 25,
             license: Some("MIT".to_string()),
+            is_8020_certified: false,
+            sector: None,
+            dark_matter_reduction_target: None,
         };
 
         // Fuzzy match with typo should still match

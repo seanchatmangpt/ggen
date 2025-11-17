@@ -174,7 +174,7 @@ impl WorkflowLog {
         let average = durations.iter().sum::<i64>() as f64 / durations.len() as f64;
 
         durations.sort();
-        let median = if durations.len() % 2 == 0 {
+        let median = if durations.len().is_multiple_of(2) {
             (durations[durations.len() / 2 - 1] + durations[durations.len() / 2]) as f64 / 2.0
         } else {
             durations[durations.len() / 2] as f64

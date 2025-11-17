@@ -12,10 +12,10 @@
 //! 6. Validation guards defined (≥1)
 //! 7. Bundle integration (links to ≥1 other 8020 package)
 
+use ggen_utils::error::Result;
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 use tracing::info;
-use ggen_utils::error::Result;
 
 /// Guard8020Coverage validation result
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -216,13 +216,22 @@ impl Guard8020Coverage {
 
                 while let Ok(Some(entry)) = entries.next_entry().await {
                     if let Some(filename) = entry.file_name().to_str() {
-                        if filename.contains("model") || filename.contains("struct") || filename.contains("type") {
+                        if filename.contains("model")
+                            || filename.contains("struct")
+                            || filename.contains("type")
+                        {
                             has_models = true;
                         }
-                        if filename.contains("api") || filename.contains("endpoint") || filename.contains("rest") {
+                        if filename.contains("api")
+                            || filename.contains("endpoint")
+                            || filename.contains("rest")
+                        {
                             has_apis = true;
                         }
-                        if filename.contains("doc") || filename.contains("readme") || filename.contains("guide") {
+                        if filename.contains("doc")
+                            || filename.contains("readme")
+                            || filename.contains("guide")
+                        {
                             has_docs = true;
                         }
                     }
@@ -236,7 +245,7 @@ impl Guard8020Coverage {
                         20,
                     )
                 } else {
-                    let missing = vec![
+                    let missing = [
                         if !has_models { "models" } else { "" },
                         if !has_apis { "APIs" } else { "" },
                         if !has_docs { "docs" } else { "" },
@@ -399,7 +408,7 @@ impl Guard8020Coverage {
                 10,
             )
         } else {
-            let missing = vec![
+            let missing = [
                 if !has_readme { "README.md" } else { "" },
                 if !has_examples { "examples/" } else { "" },
                 if !has_arch_docs { "docs/" } else { "" },
@@ -475,14 +484,14 @@ impl Guard8020Coverage {
                     "bundle_integration",
                     "Bundle integration (optional, doesn't block certification)",
                     "Package declares dependencies or sector classification",
-                    0,  // Weight 0 - doesn't affect score
+                    0, // Weight 0 - doesn't affect score
                 )
             } else {
                 Guard8020Check::fail(
                     "bundle_integration",
                     "Bundle integration (optional, doesn't block certification)",
                     "Package doesn't declare bundle dependencies",
-                    0,  // Weight 0 - doesn't affect score
+                    0, // Weight 0 - doesn't affect score
                 )
             }
         } else {
@@ -490,7 +499,7 @@ impl Guard8020Coverage {
                 "bundle_integration",
                 "Bundle integration (optional, doesn't block certification)",
                 "Could not read package.toml",
-                0,  // Weight 0 - doesn't affect score
+                0, // Weight 0 - doesn't affect score
             )
         }
     }
@@ -514,10 +523,7 @@ impl Guard8020Coverage {
         };
 
         // Certified if all critical checks pass (weight > 0)
-        let all_critical_pass = checks
-            .iter()
-            .filter(|c| c.weight > 0)
-            .all(|c| c.passed);
+        let all_critical_pass = checks.iter().filter(|c| c.weight > 0).all(|c| c.passed);
 
         (score, all_critical_pass)
     }

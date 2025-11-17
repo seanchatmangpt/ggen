@@ -387,7 +387,7 @@ async_test_with_timeout!(test_span_export_does_not_block_operation, 30, async {
     // Run without OTEL
     let start_no_otel = std::time::Instant::now();
     let _output1 = Command::new("cargo")
-        .args(["run", "--bin", "ggen", "--", "marketplace", "search", "perf-test"])
+        .args(["run", "--bin", "ggen", "--", "marketplace", "search", "--query", "perf-test"])
         .output()
         .expect("Failed to run search without OTEL");
     let duration_no_otel = start_no_otel.elapsed();

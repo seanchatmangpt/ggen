@@ -95,7 +95,7 @@ Immutable audit record stored as JSON in `marketplace/receipts/<package_id>/<ver
   "package_id": "data-pipeline-cli",
   "version": "2.1.0",
   "validated_at": "2025-11-16T12:34:56Z",
-  "ggen_version": "2.7.1",
+  "ggen_version": "3.0.0",
   "guard_results": [
     {
       "guard_name": "Metadata Guard",

@@ -179,8 +179,7 @@ pub struct SearchEngine;
 impl SearchEngine {
     /// Perform advanced search with multiple filters and scoring
     pub fn search(
-        query: &AdvancedSearchQuery,
-        packages: Vec<SearchResultEntry>,
+        query: &AdvancedSearchQuery, packages: Vec<SearchResultEntry>,
     ) -> AdvancedSearchResults {
         let mut filtered = packages
             .into_iter()
@@ -296,7 +295,11 @@ impl SearchEngine {
     fn sort_results(results: &mut [SearchResultEntry], sort_by: SortField) {
         match sort_by {
             SortField::Score => {
-                results.sort_by(|a, b| b.score.partial_cmp(&a.score).unwrap_or(std::cmp::Ordering::Equal));
+                results.sort_by(|a, b| {
+                    b.score
+                        .partial_cmp(&a.score)
+                        .unwrap_or(std::cmp::Ordering::Equal)
+                });
             }
             SortField::Name => {
                 results.sort_by(|a, b| a.package_id.cmp(&b.package_id));
@@ -308,7 +311,11 @@ impl SearchEngine {
                 results.sort_by(|a, b| b.downloads.cmp(&a.downloads));
             }
             SortField::Relevance => {
-                results.sort_by(|a, b| b.relevance.partial_cmp(&a.relevance).unwrap_or(std::cmp::Ordering::Equal));
+                results.sort_by(|a, b| {
+                    b.relevance
+                        .partial_cmp(&a.relevance)
+                        .unwrap_or(std::cmp::Ordering::Equal)
+                });
             }
         }
     }

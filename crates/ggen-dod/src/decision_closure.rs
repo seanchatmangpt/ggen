@@ -96,8 +96,7 @@ pub struct ClosureViolation {
 impl ClosureViolation {
     /// Create a new closure violation
     pub fn new(
-        decision_name: impl Into<String>,
-        forbidden_source: impl Into<String>,
+        decision_name: impl Into<String>, forbidden_source: impl Into<String>,
         explanation: impl Into<String>,
     ) -> Self {
         Self {
@@ -137,8 +136,7 @@ impl DecisionClosureChecker {
 
     /// Register a decision point
     pub fn register_decision(mut self, point: DecisionPoint) -> Self {
-        self.decision_points
-            .insert(point.name().to_string(), point);
+        self.decision_points.insert(point.name().to_string(), point);
         self
     }
 
@@ -182,18 +180,11 @@ impl DecisionClosureChecker {
             let explanation = self
                 .violations
                 .iter()
-                .map(|v| {
-                    format!(
-                        "{}: depends on {}",
-                        v.decision_name, v.forbidden_source
-                    )
-                })
+                .map(|v| format!("{}: depends on {}", v.decision_name, v.forbidden_source))
                 .collect::<Vec<_>>()
                 .join("; ");
 
-            return Err(crate::error::DoDError::DecisionClosureViolated(
-                explanation,
-            ));
+            return Err(crate::error::DoDError::DecisionClosureViolated(explanation));
         }
 
         Ok(())
@@ -235,16 +226,14 @@ mod tests {
 
     #[test]
     fn test_decision_point_allowed_source() {
-        let point = DecisionPoint::new("test", "lib.rs:10")
-            .with_input_source("observation");
+        let point = DecisionPoint::new("test", "lib.rs:10").with_input_source("observation");
 
         assert!(point.is_closed_world());
     }
 
     #[test]
     fn test_decision_point_forbidden_source() {
-        let point = DecisionPoint::new("test", "lib.rs:20")
-            .with_input_source("external_api");
+        let point = DecisionPoint::new("test", "lib.rs:20").with_input_source("external_api");
 
         assert!(!point.is_closed_world());
     }
@@ -253,8 +242,7 @@ mod tests {
     fn test_closure_checker() -> DoDResult<()> {
         let checker = DecisionClosureChecker::new()
             .register_decision(
-                DecisionPoint::new("kernel", "kernel.rs:42")
-                    .with_input_source("observation"),
+                DecisionPoint::new("kernel", "kernel.rs:42").with_input_source("observation"),
             )
             .register_decision(
                 DecisionPoint::new("decision", "decision.rs:50")
@@ -273,8 +261,7 @@ mod tests {
             "depends on non-deterministic RNG",
         );
 
-        let checker =
-            DecisionClosureChecker::new().record_violation(violation);
+        let checker = DecisionClosureChecker::new().record_violation(violation);
 
         assert!(!checker.violations.is_empty());
     }

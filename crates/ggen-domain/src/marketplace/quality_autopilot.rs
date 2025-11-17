@@ -53,13 +53,15 @@ impl ImprovementPlan {
 
 /// Generate improvement plan for a package based on its receipt
 pub fn generate_improvement_plan(
-    package_id: &str,
-    marketplace_root: &Path,
+    package_id: &str, marketplace_root: &Path,
 ) -> Result<ImprovementPlan, String> {
     // Get latest receipt first
-    let receipt = crate::marketplace::ValidationReceipt::latest_for_package(marketplace_root, package_id)
-        .map_err(|e| format!("Failed to read receipt: {}", e))?
-        .ok_or_else(|| "No receipt found for package. Run marketplace-emit-receipts first.".to_string())?;
+    let receipt =
+        crate::marketplace::ValidationReceipt::latest_for_package(marketplace_root, package_id)
+            .map_err(|e| format!("Failed to read receipt: {}", e))?
+            .ok_or_else(|| {
+                "No receipt found for package. Run marketplace-emit-receipts first.".to_string()
+            })?;
 
     let mut plan = ImprovementPlan::new(package_id.to_string(), receipt.overall_score);
     plan.projected_new_score = receipt.overall_score; // Ensure projected score starts at current
@@ -147,8 +149,7 @@ pub fn generate_improvement_plan(
 
 /// Apply improvement template files to a package
 pub fn apply_template_improvements(
-    package_path: &Path,
-    template_type: &str,
+    package_path: &Path, template_type: &str,
 ) -> Result<String, String> {
     match template_type {
         "license-mit" => create_license_file(package_path, "MIT"),
@@ -162,7 +163,8 @@ pub fn apply_template_improvements(
 /// Create LICENSE file
 fn create_license_file(package_path: &Path, license_type: &str) -> Result<String, String> {
     let license_content = match license_type {
-        "MIT" => r#"MIT License
+        "MIT" => {
+            r#"MIT License
 
 Copyright (c) 2025 ggen contributors
 
@@ -179,8 +181,10 @@ copies or substantial portions of the Software.
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-"#,
-        "Apache-2.0" => r#"Apache License
+"#
+        }
+        "Apache-2.0" => {
+            r#"Apache License
 Version 2.0, January 2004
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -192,7 +196,8 @@ You may obtain a copy of the License at
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-"#,
+"#
+        }
         _ => return Err(format!("Unknown license type: {}", license_type)),
     };
 
@@ -309,7 +314,10 @@ fn test_error_handling() {
     std::fs::write(&test_file, test_file_content)
         .map_err(|e| format!("Failed to create test file: {}", e))?;
 
-    Ok(format!("Created test structure in: {}", tests_dir.display()))
+    Ok(format!(
+        "Created test structure in: {}",
+        tests_dir.display()
+    ))
 }
 
 #[cfg(test)]

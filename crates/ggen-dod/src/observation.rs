@@ -13,9 +13,7 @@ use std::fmt;
 use uuid::Uuid;
 
 /// Unique identifier for observations
-#[derive(
-    Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize,
-)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct ObservationId(Uuid);
 
 impl ObservationId {
@@ -256,11 +254,8 @@ pub struct Observation {
 impl Observation {
     /// Create a new observation
     pub fn new(
-        obs_type: ObservationType,
-        data: serde_json::Value,
-        source: impl Into<String>,
-        schema_version: impl Into<String>,
-        tenant_id: impl Into<String>,
+        obs_type: ObservationType, data: serde_json::Value, source: impl Into<String>,
+        schema_version: impl Into<String>, tenant_id: impl Into<String>,
     ) -> DoDResult<Self> {
         let obs = Self {
             id: ObservationId::new(),
@@ -319,8 +314,8 @@ impl Observation {
     /// Sign the observation with HMAC-SHA256
     pub fn with_signature(mut self, key: &[u8]) -> Self {
         use hmac::Mac;
-        let mut mac = hmac::Hmac::<sha2::Sha256>::new_from_slice(key)
-            .expect("HMAC key length is valid");
+        let mut mac =
+            hmac::Hmac::<sha2::Sha256>::new_from_slice(key).expect("HMAC key length is valid");
 
         let payload = format!(
             "{}{}{}{}{}",
@@ -334,13 +329,14 @@ impl Observation {
 
     /// Verify the observation's signature
     pub fn verify_signature(&self, key: &[u8]) -> DoDResult<bool> {
-        let sig = self.signature.as_ref().ok_or_else(|| {
-            DoDError::Receipt("observation has no signature".to_string())
-        })?;
+        let sig = self
+            .signature
+            .as_ref()
+            .ok_or_else(|| DoDError::Receipt("observation has no signature".to_string()))?;
 
         use hmac::Mac;
-        let mut mac = hmac::Hmac::<sha2::Sha256>::new_from_slice(key)
-            .expect("HMAC key length is valid");
+        let mut mac =
+            hmac::Hmac::<sha2::Sha256>::new_from_slice(key).expect("HMAC key length is valid");
 
         let payload = format!(
             "{}{}{}{}{}",
@@ -403,8 +399,7 @@ mod tests {
 
     #[test]
     fn test_schema_validation() {
-        let schema = ObservationSchema::new("1.0")
-            .with_required_field("value", FieldType::Number);
+        let schema = ObservationSchema::new("1.0").with_required_field("value", FieldType::Number);
 
         let obs = Observation::new(
             ObservationType::Metric(MetricType::Latency),
@@ -420,8 +415,8 @@ mod tests {
 
     #[test]
     fn test_schema_validation_missing_field() {
-        let schema = ObservationSchema::new("1.0")
-            .with_required_field("required_field", FieldType::String);
+        let schema =
+            ObservationSchema::new("1.0").with_required_field("required_field", FieldType::String);
 
         let obs = Observation::new(
             ObservationType::Metric(MetricType::Latency),
@@ -437,8 +432,7 @@ mod tests {
 
     #[test]
     fn test_field_type_validation() {
-        let schema = ObservationSchema::new("1.0")
-            .with_required_field("value", FieldType::Integer);
+        let schema = ObservationSchema::new("1.0").with_required_field("value", FieldType::Integer);
 
         let obs = Observation::new(
             ObservationType::Metric(MetricType::Latency),

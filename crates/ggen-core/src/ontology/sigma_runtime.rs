@@ -1,17 +1,76 @@
+use ggen_utils::error::{Error, Result};
+use oxigraph::model::{Dataset, GraphName, NamedNode, Quad};
 /// Σ (Sigma) Runtime: Autonomous ontology versioning and snapshot management
 ///
 /// This module implements the immutable snapshot system that allows ontologies to change
 /// at hardware speed through atomic pointer swaps, while maintaining hard invariants (Q).
-
 use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, HashMap};
+use sha2::{Digest, Sha256};
+use std::collections::BTreeMap;
 use std::sync::Arc;
-use std::time::{SystemTime, UNIX_EPOCH};
-use oxigraph::model::{Dataset, NamedNode, Statement};
-use sha2::{Sha256, Digest};
+use std::time::SystemTime;
+
+// In oxigraph 0.5.1, Statement is replaced with Quad
+// We'll define a custom serializable wrapper around Quad
+//
+// **Limitation**: Statement only handles NamedNode objects, not Literals or BlankNodes.
+// The `object` field is a String that must be a valid IRI when converting back to Quad.
+// RDF objects that are Literals or BlankNodes will cause `as_dataset()` to fail with
+// an "Invalid object IRI" error. This is intentional for the ontology use case where
+// all objects are expected to be NamedNodes (class/property IRIs).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Statement {
+    subject: String,
+    predicate: String,
+    object: String,
+    graph: Option<String>,
+}
+
+impl From<oxigraph::model::Quad> for Statement {
+    fn from(quad: oxigraph::model::Quad) -> Self {
+        let graph = match &quad.graph_name {
+            oxigraph::model::GraphName::DefaultGraph => None,
+            oxigraph::model::GraphName::NamedNode(nn) => Some(nn.to_string()),
+            oxigraph::model::GraphName::BlankNode(bn) => Some(bn.to_string()),
+        };
+        Self {
+            subject: quad.subject.to_string(),
+            predicate: quad.predicate.to_string(),
+            object: quad.object.to_string(),
+            graph,
+        }
+    }
+}
+
+// Custom serialization for Arc<Vec<Statement>>
+// Arc doesn't implement Serialize/Deserialize by default, so we serialize the inner Vec
+mod arc_vec_serde {
+    use super::*;
+    use serde::{Deserializer, Serializer};
+
+    pub fn serialize<S>(
+        arc: &Arc<Vec<Statement>>, serializer: S,
+    ) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        use serde::Serialize;
+        (*arc).serialize(serializer)
+    }
+
+    pub fn deserialize<'de, D>(
+        deserializer: D,
+    ) -> std::result::Result<Arc<Vec<Statement>>, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        use serde::Deserialize;
+        Vec::<Statement>::deserialize(deserializer).map(Arc::new)
+    }
+}
 
 /// 128-bit hash-based identifier for a Σ snapshot
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, PartialOrd, Ord, Default)]
 pub struct SigmaSnapshotId(String);
 
 impl SigmaSnapshotId {
@@ -45,6 +104,7 @@ pub struct SigmaSnapshot {
     pub parent_id: Option<SigmaSnapshotId>,
 
     /// RDF triples (immutable store)
+    #[serde(with = "arc_vec_serde")]
     pub triples: Arc<Vec<Statement>>,
 
     /// Semantic version of this snapshot
@@ -78,14 +138,10 @@ pub struct SnapshotMetadata {
 impl SigmaSnapshot {
     /// Create a new snapshot
     pub fn new(
-        parent_id: Option<SigmaSnapshotId>,
-        triples: Vec<Statement>,
-        version: String,
-        signature: String,
-        metadata: SnapshotMetadata,
+        parent_id: Option<SigmaSnapshotId>, triples: Vec<Statement>, version: String,
+        signature: String, metadata: SnapshotMetadata,
     ) -> Self {
-        let serialized = serde_json::to_vec(&triples)
-            .unwrap_or_default();
+        let serialized = serde_json::to_vec(&triples).unwrap_or_default();
         let id = SigmaSnapshotId::from_digest(&serialized);
 
         Self {
@@ -100,12 +156,27 @@ impl SigmaSnapshot {
     }
 
     /// Get the snapshot as an RDF dataset
-    pub fn as_dataset(&self) -> Dataset {
+    pub fn as_dataset(&self) -> Result<Dataset> {
         let mut dataset = Dataset::default();
         for stmt in self.triples.iter() {
-            dataset.insert(stmt);
+            let subject = NamedNode::new(&stmt.subject)
+                .map_err(|e| Error::new(&format!("Invalid subject IRI: {}", e)))?;
+            let predicate = NamedNode::new(&stmt.predicate)
+                .map_err(|e| Error::new(&format!("Invalid predicate IRI: {}", e)))?;
+            let object = NamedNode::new(&stmt.object)
+                .map_err(|e| Error::new(&format!("Invalid object IRI: {}", e)))?;
+            let graph_name = if let Some(graph) = &stmt.graph {
+                GraphName::NamedNode(
+                    NamedNode::new(graph)
+                        .map_err(|e| Error::new(&format!("Invalid graph IRI: {}", e)))?,
+                )
+            } else {
+                GraphName::DefaultGraph
+            };
+            let quad = Quad::new(subject, predicate, object, graph_name);
+            dataset.insert(&quad);
         }
-        dataset
+        Ok(dataset)
     }
 }
 
@@ -131,10 +202,8 @@ pub struct SigmaOverlay {
 impl SigmaOverlay {
     /// Create a new overlay
     pub fn new(
-        base_id: SigmaSnapshotId,
-        additions: Vec<Statement>,
-        removals: Vec<(Option<String>, Option<String>, Option<String>)>,
-        description: String,
+        base_id: SigmaSnapshotId, additions: Vec<Statement>,
+        removals: Vec<(Option<String>, Option<String>, Option<String>)>, description: String,
     ) -> Self {
         let id = format!("{}_overlay_{}", base_id, uuid::Uuid::new_v4());
         Self {
@@ -167,8 +236,7 @@ impl SigmaOverlay {
             true // Keep this triple
         });
 
-        let serialized = serde_json::to_vec(&new_triples)
-            .unwrap_or_default();
+        let serialized = serde_json::to_vec(&new_triples).unwrap_or_default();
         let new_id = SigmaSnapshotId::from_digest(&serialized);
 
         SigmaSnapshot {
@@ -253,8 +321,7 @@ pub struct PerformanceMetrics {
 impl SigmaReceipt {
     /// Create a new receipt
     pub fn new(
-        snapshot_id: SigmaSnapshotId,
-        parent_snapshot_id: Option<SigmaSnapshotId>,
+        snapshot_id: SigmaSnapshotId, parent_snapshot_id: Option<SigmaSnapshotId>,
         delta_description: String,
     ) -> Self {
         Self {
@@ -294,14 +361,15 @@ impl SigmaReceipt {
 
 /// Σ Runtime: Manages snapshots, overlays, and promotion
 pub struct SigmaRuntime {
-    /// All known snapshots
-    snapshots: HashMap<SigmaSnapshotId, Arc<SigmaSnapshot>>,
+    /// All known snapshots (BTreeMap for deterministic iteration order)
+    snapshots: BTreeMap<SigmaSnapshotId, Arc<SigmaSnapshot>>,
 
     /// Currently active snapshot for projections
     current_snapshot: Arc<SigmaSnapshotId>,
 
-    /// All overlays
-    overlays: HashMap<String, SigmaOverlay>,
+    /// All overlays (BTreeMap for deterministic iteration order)
+    #[allow(dead_code)] // Reserved for overlay functionality (not yet implemented)
+    overlays: BTreeMap<String, SigmaOverlay>,
 
     /// Append-only receipt log
     receipt_log: Vec<Arc<SigmaReceipt>>,
@@ -311,13 +379,13 @@ impl SigmaRuntime {
     /// Create a new runtime with an initial snapshot
     pub fn new(initial_snapshot: SigmaSnapshot) -> Self {
         let snapshot_id = initial_snapshot.id.clone();
-        let mut snapshots = HashMap::new();
+        let mut snapshots = BTreeMap::new();
         snapshots.insert(snapshot_id.clone(), Arc::new(initial_snapshot));
 
         Self {
             snapshots,
             current_snapshot: Arc::new(snapshot_id),
-            overlays: HashMap::new(),
+            overlays: BTreeMap::new(),
             receipt_log: Vec::new(),
         }
     }
@@ -334,17 +402,17 @@ impl SigmaRuntime {
 
     /// Store a new snapshot
     pub fn store_snapshot(&mut self, snapshot: SigmaSnapshot) {
-        self.snapshots.insert(snapshot.id.clone(), Arc::new(snapshot));
+        self.snapshots
+            .insert(snapshot.id.clone(), Arc::new(snapshot));
     }
 
     /// Apply an overlay to a snapshot, creating a new composite
     pub fn apply_overlay(
-        &mut self,
-        base_id: &SigmaSnapshotId,
-        overlay: SigmaOverlay,
-    ) -> Result<SigmaSnapshot, String> {
-        let base = self.get_snapshot(base_id)
-            .ok_or("Base snapshot not found")?;
+        &mut self, base_id: &SigmaSnapshotId, overlay: SigmaOverlay,
+    ) -> Result<SigmaSnapshot> {
+        let base = self
+            .get_snapshot(base_id)
+            .ok_or_else(|| Error::new("Base snapshot not found"))?;
 
         let new_snapshot = overlay.apply_to(&base);
         Ok(new_snapshot)
@@ -352,9 +420,9 @@ impl SigmaRuntime {
 
     /// Validate and promote a snapshot to be the current one (atomic operation)
     /// In a real system, this would be synchronized with a lock and use atomic ptr swap
-    pub fn promote_snapshot(&mut self, id: &SigmaSnapshotId) -> Result<(), String> {
+    pub fn promote_snapshot(&mut self, id: &SigmaSnapshotId) -> Result<()> {
         if !self.snapshots.contains_key(id) {
-            return Err(format!("Snapshot {} not found", id));
+            return Err(Error::new(&format!("Snapshot {} not found", id)));
         }
 
         // Atomic pointer swap (in real system: ATOMIC_PTR.store(...))
@@ -468,11 +536,7 @@ mod tests {
     #[test]
     fn test_receipt_signing() {
         let snap_id = SigmaSnapshotId::from_digest(b"test");
-        let mut receipt = SigmaReceipt::new(
-            snap_id,
-            None,
-            "Test change".to_string(),
-        );
+        let mut receipt = SigmaReceipt::new(snap_id, None, "Test change".to_string());
 
         receipt.sign("ml_dsa_signature_here".to_string());
         assert_eq!(receipt.signature, "ml_dsa_signature_here");
@@ -483,14 +547,163 @@ mod tests {
         let snap = create_test_snapshot();
         let mut runtime = SigmaRuntime::new(snap.clone());
 
-        let mut receipt = SigmaReceipt::new(
-            snap.id.clone(),
-            None,
-            "Change".to_string(),
-        );
+        let mut receipt = SigmaReceipt::new(snap.id.clone(), None, "Change".to_string());
         receipt.mark_valid();
 
         runtime.record_receipt(receipt);
         assert_eq!(runtime.receipt_log().len(), 1);
+    }
+
+    #[test]
+    fn test_as_dataset_empty() {
+        let snap = create_test_snapshot();
+        let dataset = snap.as_dataset().unwrap();
+        assert_eq!(dataset.len(), 0);
+    }
+
+    #[test]
+    fn test_as_dataset_with_triples() {
+        use oxigraph::model::{GraphName, NamedNode, Quad};
+
+        // Create a quad and convert to Statement
+        let subject = NamedNode::new("http://example.org/subject").unwrap();
+        let predicate = NamedNode::new("http://example.org/predicate").unwrap();
+        let object = NamedNode::new("http://example.org/object").unwrap();
+        let quad = Quad::new(subject, predicate, object, GraphName::DefaultGraph);
+        let statement = Statement::from(quad.clone());
+
+        let metadata = SnapshotMetadata {
+            backward_compatible: true,
+            description: "Test snapshot with triples".to_string(),
+            sectors: vec!["test".to_string()],
+            tags: BTreeMap::new(),
+        };
+
+        let snap = SigmaSnapshot::new(
+            None,
+            vec![statement],
+            "0.1.0".to_string(),
+            "test_signature".to_string(),
+            metadata,
+        );
+
+        let dataset = snap.as_dataset().unwrap();
+        assert_eq!(dataset.len(), 1);
+    }
+
+    #[test]
+    fn test_statement_round_trip_default_graph() {
+        use oxigraph::model::{GraphName, NamedNode, Quad};
+
+        // Create quad with DefaultGraph
+        let subject = NamedNode::new("http://example.org/subject").unwrap();
+        let predicate = NamedNode::new("http://example.org/predicate").unwrap();
+        let object = NamedNode::new("http://example.org/object").unwrap();
+        let original_quad = Quad::new(
+            subject.clone(),
+            predicate.clone(),
+            object.clone(),
+            GraphName::DefaultGraph,
+        );
+
+        // Convert to Statement
+        let statement = Statement::from(original_quad.clone());
+
+        // Verify graph is None for DefaultGraph
+        assert!(statement.graph.is_none());
+
+        // Convert back via as_dataset
+        let metadata = SnapshotMetadata {
+            backward_compatible: true,
+            description: "Test".to_string(),
+            sectors: vec!["test".to_string()],
+            tags: BTreeMap::new(),
+        };
+        let snap = SigmaSnapshot::new(
+            None,
+            vec![statement],
+            "0.1.0".to_string(),
+            "test_signature".to_string(),
+            metadata,
+        );
+
+        let dataset = snap.as_dataset().unwrap();
+        assert_eq!(dataset.len(), 1);
+    }
+
+    #[test]
+    fn test_statement_round_trip_named_graph() {
+        use oxigraph::model::{GraphName, NamedNode, Quad};
+
+        // Create quad with NamedGraph
+        let subject = NamedNode::new("http://example.org/subject").unwrap();
+        let predicate = NamedNode::new("http://example.org/predicate").unwrap();
+        let object = NamedNode::new("http://example.org/object").unwrap();
+        let graph_name = NamedNode::new("http://example.org/graph").unwrap();
+        let original_quad = Quad::new(
+            subject.clone(),
+            predicate.clone(),
+            object.clone(),
+            GraphName::NamedNode(graph_name.clone()),
+        );
+
+        // Convert to Statement
+        let statement = Statement::from(original_quad.clone());
+
+        // Verify graph is Some for NamedGraph
+        assert!(statement.graph.is_some());
+        assert_eq!(
+            statement.graph.as_ref().unwrap(),
+            "http://example.org/graph"
+        );
+
+        // Convert back via as_dataset
+        let metadata = SnapshotMetadata {
+            backward_compatible: true,
+            description: "Test".to_string(),
+            sectors: vec!["test".to_string()],
+            tags: BTreeMap::new(),
+        };
+        let snap = SigmaSnapshot::new(
+            None,
+            vec![statement],
+            "0.1.0".to_string(),
+            "test_signature".to_string(),
+            metadata,
+        );
+
+        let dataset = snap.as_dataset().unwrap();
+        assert_eq!(dataset.len(), 1);
+    }
+
+    #[test]
+    fn test_as_dataset_invalid_iri() {
+        // Create Statement with invalid IRI
+        let invalid_statement = Statement {
+            subject: "not a valid IRI".to_string(),
+            predicate: "http://example.org/predicate".to_string(),
+            object: "http://example.org/object".to_string(),
+            graph: None,
+        };
+
+        let metadata = SnapshotMetadata {
+            backward_compatible: true,
+            description: "Test".to_string(),
+            sectors: vec!["test".to_string()],
+            tags: BTreeMap::new(),
+        };
+
+        let snap = SigmaSnapshot::new(
+            None,
+            vec![invalid_statement],
+            "0.1.0".to_string(),
+            "test_signature".to_string(),
+            metadata,
+        );
+
+        let result = snap.as_dataset();
+        assert!(result.is_err());
+        let error_msg = result.unwrap_err().to_string();
+        assert!(error_msg.contains("Invalid subject IRI"));
     }
 }

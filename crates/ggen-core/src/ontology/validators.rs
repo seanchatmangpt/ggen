@@ -4,15 +4,21 @@
 /// - Static validation (SHACL, OWL constraints, Σ² rules)
 /// - Dynamic validation (shadow projections, test execution)
 /// - Performance validation (operator latency SLOs, memory bounds)
-
 use async_trait::async_trait;
-use std::sync::Arc;
-use tokio::task::JoinHandle;
-use std::time::Instant;
 use serde::{Deserialize, Serialize};
+use std::sync::Arc;
+use std::time::Instant;
+use tokio::task::JoinHandle;
 
-use crate::ontology::sigma_runtime::{SigmaSnapshot, SigmaReceipt, ValidationResult, PerformanceMetrics, TestResult};
 use crate::ontology::delta_proposer::DeltaSigmaProposal;
+use crate::ontology::sigma_runtime::{PerformanceMetrics, SigmaReceipt, SigmaSnapshot, TestResult};
+
+// Local ValidationResult type - different from sigma_runtime's ValidationResult
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ValidationResult {
+    pub passed: bool,
+    pub evidence: Vec<ValidationEvidence>,
+}
 
 /// Validation evidence for each layer
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -96,8 +102,7 @@ pub struct CompositeValidator {
 
 impl CompositeValidator {
     pub fn new(
-        static_validator: Arc<dyn StaticValidator>,
-        dynamic_validator: Arc<dyn DynamicValidator>,
+        static_validator: Arc<dyn StaticValidator>, dynamic_validator: Arc<dyn DynamicValidator>,
         performance_validator: Arc<dyn PerformanceValidator>,
     ) -> Self {
         Self {
@@ -109,8 +114,7 @@ impl CompositeValidator {
 
     /// Run all three validators in parallel
     pub async fn validate_all(
-        &self,
-        ctx: &ValidationContext,
+        &self, ctx: &ValidationContext,
     ) -> Result<(ValidationEvidence, ValidationEvidence, ValidationEvidence), String> {
         let ctx1 = ctx.clone();
         let ctx2 = ctx.clone();
@@ -198,10 +202,7 @@ impl StaticValidator for MockStaticValidator {
             checks_performed: checks,
             checks_passed: passed,
             duration_ms: start.elapsed().as_millis() as u64,
-            details: format!(
-                "SHACL validation passed for proposal: {}",
-                ctx.proposal.id
-            ),
+            details: format!("SHACL validation passed for proposal: {}", ctx.proposal.id),
         })
     }
 }
@@ -223,10 +224,7 @@ impl DynamicValidator for MockDynamicValidator {
             checks_performed: 3,
             checks_passed: 3,
             duration_ms: start.elapsed().as_millis() as u64,
-            details: format!(
-                "Shadow projection tests passed for sector: {}",
-                ctx.sector
-            ),
+            details: format!("Shadow projection tests passed for sector: {}", ctx.sector),
         })
     }
 }
@@ -248,7 +246,7 @@ impl MockPerformanceValidator {
 
 #[async_trait]
 impl PerformanceValidator for MockPerformanceValidator {
-    async fn validate(&self, ctx: &ValidationContext) -> Result<ValidationEvidence, String> {
+    async fn validate(&self, _ctx: &ValidationContext) -> Result<ValidationEvidence, String> {
         let start = Instant::now();
 
         // Mock microbenchmark

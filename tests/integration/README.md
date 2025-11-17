@@ -133,3 +133,84 @@ docker-compose -f tests/integration/docker-compose.otel-test.yml down -v
 - [Test Execution Plan](../../docs/validation/TEST_EXECUTION_PLAN.md)
 - [OTEL Validation Guide](../../scripts/validate-otel.sh)
 - [clnrm OTEL Reference](../../../clnrm/.cursor/commands-archive/validate-otel-integration.md)
+
+---
+
+# ggen Integration Tests (Chicago TDD Tools v1.4.0)
+
+Comprehensive integration test suite for testing critical workflows in ggen using chicago-tdd-tools.
+
+## Test Organization
+
+```
+tests/
+├── integration/
+│   ├── lifecycle_tests.rs          # Lifecycle phase execution
+│   ├── code_generation_tests.rs    # Template generation workflow
+│   ├── cache_tests.rs              # Cache validation
+│   ├── package_scoring_tests.rs    # Marketplace scoring
+│   └── cross_crate_tests.rs        # Multi-crate coordination
+└── common/
+    ├── mod.rs                      # Test configuration
+    ├── fixtures.rs                 # Test data and fixtures
+    └── helpers.rs                  # Helper functions
+```
+
+## Running Tests
+
+```bash
+# Run all integration tests
+cargo test --test lifecycle_tests
+cargo test --test code_generation_tests
+cargo test --test cache_tests
+cargo test --test package_scoring_tests
+cargo test --test cross_crate_tests
+
+# Run specific test
+cargo test --test lifecycle_tests test_single_phase_execution
+```
+
+## Test Coverage (~100 tests, ~2,500 LOC)
+
+### Lifecycle Tests (~25 tests)
+- Phase execution, state management, hooks, dependencies
+- Performance: < 5s for simple pipeline
+
+### Code Generation Tests (~20 tests)
+- Template rendering, file tree generation, RDF integration
+- Performance: < 100ms rendering, < 2s file tree
+
+### Cache Tests (~20 tests)
+- Pack caching, validation, cleanup, statistics
+- Performance: < 500ms write 1MB, < 100ms read
+
+### Package Scoring Tests (~20 tests)
+- Marketplace scoring, maturity assessment, filtering
+- Performance: < 50ms single, < 1s batch 100
+
+### Cross-Crate Tests (~15 tests)
+- ggen-core + ggen-marketplace + ggen-ai integration
+- Performance: < 200ms end-to-end workflow
+
+## Why Tests are in `tests/` Directory
+
+Tests are in the `tests/` directory to avoid Result type conflicts with ggen's custom Result type.
+
+**Problem (inline tests):**
+```rust
+// ❌ Conflict between ggen::Result and std::result::Result
+test!(test_example, {
+    let result = function()?;
+    Ok(())
+});
+```
+
+**Solution (integration tests):**
+```rust
+// ✅ Uses standard Rust error handling
+use chicago_tdd_tools::prelude::*;
+test!(test_example, {
+    let result = function()?;
+    Ok(())
+});
+```

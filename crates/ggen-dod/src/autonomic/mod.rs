@@ -7,6 +7,6 @@
 pub mod mape_k;
 
 pub use mape_k::{
-    MAPEKLoop, ObservationPhase, AnalysisPhase, PlanningPhase, ExecutionPhase, KnowledgePhase,
-    Finding, SchemaProposal, ExecutionResult,
+    AnalysisPhase, ExecutionPhase, ExecutionResult, Finding, KnowledgePhase, MAPEKLoop,
+    ObservationPhase, PlanningPhase, SchemaProposal,
 };

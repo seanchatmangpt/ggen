@@ -8,8 +8,8 @@
 //!
 //! The type system guides execution; the runtime follows.
 
-use std::sync::Arc;
 use serde::{Deserialize, Serialize};
+use std::sync::Arc;
 
 // ============================================================================
 // SCHEDULING HINTS: Type-Indexed Priority & Latency
@@ -288,9 +288,7 @@ pub struct ScheduledTask {
 
 impl ScheduledTask {
     pub fn new(
-        task_id: impl Into<String>,
-        hint: SchedulingHint,
-        description: impl Into<String>,
+        task_id: impl Into<String>, hint: SchedulingHint, description: impl Into<String>,
     ) -> Self {
         Self {
             task_id: task_id.into(),
@@ -398,8 +396,7 @@ impl SwarmMetrics {
         if self.total_merges_successful == 0 {
             return 0.0;
         }
-        self.total_conflicts as f64
-            / (self.total_merges_successful + self.total_conflicts) as f64
+        self.total_conflicts as f64 / (self.total_merges_successful + self.total_conflicts) as f64
     }
 }
 
@@ -415,7 +412,8 @@ mod tests {
 
     #[test]
     fn test_scheduling_hint_sort_key() {
-        let hint1 = SchedulingHint::new(Priority::Critical, LatencyTier::Hot, ResourceCost::Minimal);
+        let hint1 =
+            SchedulingHint::new(Priority::Critical, LatencyTier::Hot, ResourceCost::Minimal);
         let hint2 = SchedulingHint::new(Priority::Low, LatencyTier::Cold, ResourceCost::Heavy);
 
         let key1 = hint1.sort_key();

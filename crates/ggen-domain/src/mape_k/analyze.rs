@@ -3,8 +3,8 @@
 //! Detects drift, SLO breaches, patterns, and opportunities.
 //! Transforms Γ(O) into findings F through SPARQL rules and heuristics.
 
-use super::types::{Finding, FindingKind, Observation};
-use super::monitor::{MonitorEngine, MetricTrend};
+use super::monitor::{MetricTrend, MonitorEngine};
+use super::types::{Finding, FindingKind};
 use std::collections::HashMap;
 
 /// Analyze engine: generates findings from observations
@@ -32,7 +32,7 @@ pub struct SLOConfig {
 impl Default for SLOConfig {
     fn default() -> Self {
         Self {
-            max_ticks_p99: 8.0,     // Chatman constant
+            max_ticks_p99: 8.0, // Chatman constant
             max_guard_failure_rate: 1.0,
             max_avg_latency_ms: 100.0,
             slo_increase_threshold: 10.0,

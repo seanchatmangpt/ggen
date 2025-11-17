@@ -202,36 +202,30 @@ impl MaturityEvaluator {
     fn evaluate_security(
         vulnerabilities: u32, has_dependency_audit: bool, unsafe_code_percent: f32,
     ) -> SecurityScore {
-        let mut score = SecurityScore::default();
-
-        // Vulnerability scan: 0-10 points
-        score.vulnerability_scan = match vulnerabilities {
-            0 => 10,
-            1..=2 => 8,
-            3..=5 => 6,
-            6..=10 => 4,
-            _ => 2,
-        };
-
-        // Dependency audit: 0-5 points
-        if has_dependency_audit {
-            score.dependency_audit = 5;
+        SecurityScore {
+            // Vulnerability scan: 0-10 points
+            vulnerability_scan: match vulnerabilities {
+                0 => 10,
+                1..=2 => 8,
+                3..=5 => 6,
+                6..=10 => 4,
+                _ => 2,
+            },
+            // Dependency audit: 0-5 points
+            dependency_audit: if has_dependency_audit { 5 } else { 0 },
+            // Safe code: 0-5 points
+            safe_code: if unsafe_code_percent == 0.0 {
+                5
+            } else if unsafe_code_percent < 2.0 {
+                4
+            } else if unsafe_code_percent < 5.0 {
+                3
+            } else if unsafe_code_percent < 10.0 {
+                2
+            } else {
+                1
+            },
         }
-
-        // Safe code: 0-5 points
-        score.safe_code = if unsafe_code_percent == 0.0 {
-            5
-        } else if unsafe_code_percent < 2.0 {
-            4
-        } else if unsafe_code_percent < 5.0 {
-            3
-        } else if unsafe_code_percent < 10.0 {
-            2
-        } else {
-            1
-        };
-
-        score
     }
 
     /// Evaluate performance dimension
@@ -257,49 +251,43 @@ impl MaturityEvaluator {
     fn evaluate_adoption(
         downloads: u64, academic_citations: u32, active_contributors: u32,
     ) -> AdoptionScore {
-        let mut score = AdoptionScore::default();
-
-        // Downloads: 0-6 points
-        score.downloads = match downloads {
-            0..=10 => 0,
-            11..=50 => 1,
-            51..=100 => 2,
-            101..=500 => 3,
-            501..=1000 => 4,
-            1001..=5000 => 5,
-            _ => 6,
-        };
-
-        // Academic citations: 0-5 points
-        score.citations = match academic_citations {
-            0 => 0,
-            1..=2 => 1,
-            3..=5 => 2,
-            6..=10 => 3,
-            11..=20 => 4,
-            _ => 5,
-        };
-
-        // Community: 0-4 points
-        score.community = match active_contributors {
-            0 => 0,
-            1 => 1,
-            2..=3 => 2,
-            4..=5 => 3,
-            _ => 4,
-        };
-
-        score
+        AdoptionScore {
+            // Downloads: 0-6 points
+            downloads: match downloads {
+                0..=10 => 0,
+                11..=50 => 1,
+                51..=100 => 2,
+                101..=500 => 3,
+                501..=1000 => 4,
+                1001..=5000 => 5,
+                _ => 6,
+            },
+            // Academic citations: 0-5 points
+            citations: match academic_citations {
+                0 => 0,
+                1..=2 => 1,
+                3..=5 => 2,
+                6..=10 => 3,
+                11..=20 => 4,
+                _ => 5,
+            },
+            // Community: 0-4 points
+            community: match active_contributors {
+                0 => 0,
+                1 => 1,
+                2..=3 => 2,
+                4..=5 => 3,
+                _ => 4,
+            },
+        }
     }
 
     /// Evaluate maintenance dimension
     fn evaluate_maintenance(
         days_since_last_release: u32, active_contributors: u32, avg_issue_response_hours: f32,
     ) -> MaintenanceScore {
-        let mut score = MaintenanceScore::default();
-
         // Release cadence: 0-5 points
-        score.release_cadence = match days_since_last_release {
+        let release_cadence = match days_since_last_release {
             0..=30 => 5,
             31..=90 => 4,
             91..=180 => 3,
@@ -309,7 +297,7 @@ impl MaturityEvaluator {
         };
 
         // Responsiveness: 0-3 points
-        score.responsiveness = if avg_issue_response_hours > 0.0 {
+        let responsiveness = if avg_issue_response_hours > 0.0 {
             match avg_issue_response_hours {
                 0.0..=24.0 => 3,
                 24.1..=48.0 => 2,
@@ -321,9 +309,13 @@ impl MaturityEvaluator {
         };
 
         // Active maintenance: 0-2 points
-        score.active_maintenance = if active_contributors > 0 { 2 } else { 0 };
+        let active_maintenance = if active_contributors > 0 { 2 } else { 0 };
 
-        score
+        MaintenanceScore {
+            release_cadence,
+            responsiveness,
+            active_maintenance,
+        }
     }
 
     /// Batch evaluate multiple packages
@@ -422,12 +414,12 @@ impl MaturityDashboard {
                 MaturityLevel::Enterprise => level_distribution.enterprise += 1,
             }
 
-            sum_documentation += assessment.documentation.total() as u32;
-            sum_testing += assessment.testing.total() as u32;
-            sum_security += assessment.security.total() as u32;
-            sum_performance += assessment.performance.total() as u32;
-            sum_adoption += assessment.adoption.total() as u32;
-            sum_maintenance += assessment.maintenance.total() as u32;
+            sum_documentation += assessment.documentation.total();
+            sum_testing += assessment.testing.total();
+            sum_security += assessment.security.total();
+            sum_performance += assessment.performance.total();
+            sum_adoption += assessment.adoption.total();
+            sum_maintenance += assessment.maintenance.total();
         }
 
         DashboardStatistics {
@@ -456,7 +448,7 @@ impl MaturityDashboard {
     /// Get top packages by score
     pub fn top_packages(&self, count: usize) -> Vec<&MaturityAssessment> {
         let mut packages: Vec<_> = self.assessments.iter().collect();
-        packages.sort_by(|a, b| b.total_score().cmp(&a.total_score()));
+        packages.sort_by_key(|b| std::cmp::Reverse(b.total_score()));
         packages.into_iter().take(count).collect()
     }
 

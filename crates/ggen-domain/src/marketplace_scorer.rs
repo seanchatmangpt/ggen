@@ -68,7 +68,8 @@ impl SLOMetrics {
             (25.0 / overage).min(25.0)
         };
 
-        let throughput_score = if self.throughput_ops_per_sec >= self.target_throughput_ops_per_sec {
+        let throughput_score = if self.throughput_ops_per_sec >= self.target_throughput_ops_per_sec
+        {
             25.0
         } else {
             let shortfall = self.throughput_ops_per_sec / self.target_throughput_ops_per_sec;
@@ -153,7 +154,9 @@ impl EconomicMetrics {
         // Cost efficiency component (0-50 points)
         // Lower cost = higher score (logarithmic scale)
         let cost_score = if self.cost_per_op_usd > 0.0 {
-            (50.0 - (self.cost_per_op_usd.log10() + 2.0) * 10.0).min(50.0).max(0.0)
+            (50.0 - (self.cost_per_op_usd.log10() + 2.0) * 10.0)
+                .min(50.0)
+                .max(0.0)
         } else {
             25.0
         };
@@ -296,9 +299,9 @@ pub struct MarketplaceScorer {
     risk_weight: f64,
 
     // Thresholds for recommendations
-    promoted_threshold: f64,       // >= 85
-    active_threshold: f64,         // >= 60
-    deprecated_threshold: f64,     // >= 30
+    promoted_threshold: f64,        // >= 85
+    active_threshold: f64,          // >= 60
+    deprecated_threshold: f64,      // >= 30
     quarantine_risk_threshold: f64, // risk >= 80
 
     scores: HashMap<PackageId, PackageScore>,
@@ -324,13 +327,8 @@ impl MarketplaceScorer {
 
     /// Score a package based on all metrics
     pub fn score_package(
-        &mut self,
-        package_id: PackageId,
-        slo: &SLOMetrics,
-        guards: &GuardMetrics,
-        economic: &EconomicMetrics,
-        adoption: &AdoptionMetrics,
-        risk: &RiskMetrics,
+        &mut self, package_id: PackageId, slo: &SLOMetrics, guards: &GuardMetrics,
+        economic: &EconomicMetrics, adoption: &AdoptionMetrics, risk: &RiskMetrics,
     ) -> PackageScore {
         let slo_score = slo.compliance_score();
         let guard_score = guards.compliance_score();

@@ -4,7 +4,7 @@
 //! Provides query interface and knowledge compaction for long-running systems.
 
 use super::types::{
-    Finding, Observation, OntologyOverlay, ValidationResult, SnapshotMetadata, MAPEMetrics,
+    Finding, MAPEMetrics, Observation, OntologyOverlay, SnapshotMetadata, ValidationResult,
 };
 use std::collections::HashMap;
 
@@ -288,7 +288,8 @@ impl KnowledgeStore {
         }
 
         let current_time = get_timestamp();
-        let obs_cutoff = current_time - (self.compaction_policy.observation_retention_days as u64 * 86_400_000);
+        let obs_cutoff =
+            current_time - (self.compaction_policy.observation_retention_days as u64 * 86_400_000);
         let finding_cutoff =
             current_time - (self.compaction_policy.finding_retention_days as u64 * 86_400_000);
 
@@ -350,22 +351,16 @@ impl KnowledgeStore {
 
     /// Get statistics about stored data
     pub fn statistics(&self) -> KnowledgeStatistics {
-        let findings_by_severity = self.findings.iter().fold(
-            HashMap::new(),
-            |mut acc, f| {
-                *acc.entry(f.severity.clone()).or_insert(0) += 1;
-                acc
-            },
-        );
+        let findings_by_severity = self.findings.iter().fold(HashMap::new(), |mut acc, f| {
+            *acc.entry(f.severity.clone()).or_insert(0) += 1;
+            acc
+        });
 
-        let overlays_by_proposer = self.overlays.iter().fold(
-            HashMap::new(),
-            |mut acc, o| {
-                let proposer = format!("{:?}", o.proposer);
-                *acc.entry(proposer).or_insert(0) += 1;
-                acc
-            },
-        );
+        let overlays_by_proposer = self.overlays.iter().fold(HashMap::new(), |mut acc, o| {
+            let proposer = format!("{:?}", o.proposer);
+            *acc.entry(proposer).or_insert(0) += 1;
+            acc
+        });
 
         KnowledgeStatistics {
             total_observations: self.observations.len(),
@@ -581,9 +576,7 @@ mod tests {
 
         // Old snapshot should be inactive
         let snapshot_history = store.snapshot_history();
-        let old_snapshot = snapshot_history
-            .iter()
-            .find(|s| s.id == old_snapshot_id);
+        let old_snapshot = snapshot_history.iter().find(|s| s.id == old_snapshot_id);
         assert!(old_snapshot.is_some());
         assert!(!old_snapshot.unwrap().is_active);
     }

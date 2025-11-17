@@ -7,6 +7,14 @@
 //! Configuration is cached after first read to avoid repeated file I/O.
 //! Default values are used if config file is missing or values are invalid.
 
+// Submodules for test utilities
+pub mod fixtures;
+pub mod helpers;
+
+// Re-export commonly used items
+pub use fixtures::*;
+pub use helpers::*;
+
 use std::sync::OnceLock;
 use std::time::Duration;
 

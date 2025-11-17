@@ -291,18 +291,126 @@ pub struct InstalledPackage {
 }
 
 fn build_package_metadata(path: &Path) -> Result<PackageMetadata> {
-    // Implementation: Parse Cargo.toml, package.json, etc.
-    todo!()
+    use std::fs;
+    
+    // Try Cargo.toml first (Rust projects)
+    let cargo_toml = path.join("Cargo.toml");
+    if cargo_toml.exists() {
+        let content = fs::read_to_string(&cargo_toml)?;
+        let cargo: toml::Value = toml::from_str(&content)?;
+        
+        let package = cargo.get("package")
+            .ok_or_else(|| anyhow::anyhow!("No [package] section in Cargo.toml"))?;
+        
+        return Ok(PackageMetadata {
+            title: package.get("name")
+                .and_then(|v| v.as_str())
+                .unwrap_or("Unknown")
+                .to_string(),
+            description: package.get("description")
+                .and_then(|v| v.as_str())
+                .unwrap_or("")
+                .to_string(),
+            long_description: package.get("readme")
+                .and_then(|v| v.as_str())
+                .map(|s| fs::read_to_string(path.join(s)).unwrap_or_default()),
+            license: package.get("license")
+                .and_then(|v| v.as_str())
+                .unwrap_or("UNLICENSED")
+                .to_string(),
+            authors: package.get("authors")
+                .and_then(|v| v.as_array())
+                .map(|arr| arr.iter()
+                    .filter_map(|v| v.as_str())
+                    .map(|s| Identity { name: s.to_string(), email: None })
+                    .collect())
+                .unwrap_or_default(),
+            repository: package.get("repository")
+                .and_then(|v| v.as_str())
+                .map(|s| s.to_string()),
+            homepage: package.get("homepage")
+                .and_then(|v| v.as_str())
+                .map(|s| s.to_string()),
+            ..Default::default()
+        });
+    }
+    
+    // Try package.json (Node.js projects)
+    let package_json = path.join("package.json");
+    if package_json.exists() {
+        let content = fs::read_to_string(&package_json)?;
+        let package: serde_json::Value = serde_json::from_str(&content)?;
+        
+        return Ok(PackageMetadata {
+            title: package.get("name")
+                .and_then(|v| v.as_str())
+                .unwrap_or("Unknown")
+                .to_string(),
+            description: package.get("description")
+                .and_then(|v| v.as_str())
+                .unwrap_or("")
+                .to_string(),
+            license: package.get("license")
+                .and_then(|v| v.as_str())
+                .unwrap_or("UNLICENSED")
+                .to_string(),
+            repository: package.get("repository")
+                .and_then(|v| v.as_object())
+                .and_then(|obj| obj.get("url"))
+                .and_then(|v| v.as_str())
+                .map(|s| s.to_string()),
+            homepage: package.get("homepage")
+                .and_then(|v| v.as_str())
+                .map(|s| s.to_string()),
+            ..Default::default()
+        });
+    }
+    
+    // Fallback: Use directory name
+    Ok(PackageMetadata {
+        title: path.file_name()
+            .and_then(|n| n.to_str())
+            .unwrap_or("Unknown")
+            .to_string(),
+        description: format!("Package from {}", path.display()),
+        ..Default::default()
+    })
 }
 
 fn create_tarball(path: &Path) -> Result<Bytes> {
-    // Implementation: Create tar.gz archive
-    todo!()
+    use std::io::Write;
+    use flate2::write::GzEncoder;
+    use flate2::Compression;
+    use tar::Builder;
+    
+    let mut buffer = Vec::new();
+    {
+        let encoder = GzEncoder::new(&mut buffer, Compression::default());
+        let mut tar = Builder::new(encoder);
+        
+        // Add all files in the directory
+        tar.append_dir_all(".", path)?;
+        tar.finish()?;
+    }
+    
+    Ok(Bytes::from(buffer))
 }
 
 fn extract_tarball(bytes: &[u8], dest: &Path) -> Result<()> {
-    // Implementation: Extract tar.gz archive
-    todo!()
+    use std::io::Read;
+    use flate2::read::GzDecoder;
+    use tar::Archive;
+    
+    let decoder = GzDecoder::new(bytes);
+    let mut archive = Archive::new(decoder);
+    
+    // Ensure destination exists
+    std::fs::create_dir_all(dest)?;
+    
+    // Extract all entries
+    archive.unpack(dest)?;
+    
+    Ok(())
 }
 ```
 
@@ -488,7 +596,33 @@ async fn publish_package(marketplace: &GgenMarketplace, path: &Path) -> Result<(
 
 async fn update_packages(marketplace: &GgenMarketplace, package: Option<&str>) -> Result<()> {
     // Implementation: Update one or all packages
-    todo!()
+    if let Some(package_name) = package {
+        // Update specific package
+        let query = Query::new(package_name);
+        let packages = marketplace.search(&query).await?;
+        
+        if let Some(latest) = packages.first() {
+            println!("Updating {} to version {}", package_name, latest.version);
+            // Install latest version
+            install_package(marketplace, package_name, None).await?;
+        } else {
+            anyhow::bail!("Package {} not found", package_name);
+        }
+    } else {
+        // Update all installed packages
+        let installed = marketplace.list_installed().await?;
+        for pkg in installed {
+            let query = Query::new(&pkg.name);
+            let packages = marketplace.search(&query).await?;
+            if let Some(latest) = packages.first() {
+                if latest.version > pkg.version {
+                    println!("Updating {}: {} -> {}", pkg.name, pkg.version, latest.version);
+                    install_package(marketplace, &pkg.name, None).await?;
+                }
+            }
+        }
+    }
+    Ok(())
 }
 
 async fn remove_package(
@@ -497,12 +631,48 @@ async fn remove_package(
     version: Option<&str>,
 ) -> Result<()> {
     // Implementation: Remove package
-    todo!()
+    let install_path = if let Some(v) = version {
+        marketplace.config.packages_path.join(name).join(v)
+    } else {
+        marketplace.config.packages_path.join(name)
+    };
+    
+    if install_path.exists() {
+        std::fs::remove_dir_all(&install_path)?;
+        println!("Removed package: {} {}", name, version.unwrap_or("(all versions)"));
+    } else {
+        anyhow::bail!("Package {} not found", name);
+    }
+    Ok(())
 }
 
 async fn show_package_info(marketplace: &GgenMarketplace, name: &str) -> Result<()> {
     // Implementation: Display detailed package information
-    todo!()
+    let query = Query::new(name);
+    let packages = marketplace.search(&query).await?;
+    
+    if let Some(pkg) = packages.first() {
+        println!("Package: {}", pkg.id);
+        println!("Version: {}", pkg.version);
+        println!("Description: {}", pkg.metadata.description);
+        if let Some(repo) = &pkg.metadata.repository {
+            println!("Repository: {}", repo);
+        }
+        if let Some(homepage) = &pkg.metadata.homepage {
+            println!("Homepage: {}", homepage);
+        }
+        println!("License: {}", pkg.metadata.license);
+        if !pkg.metadata.authors.is_empty() {
+            println!("Authors: {}", 
+                pkg.metadata.authors.iter()
+                    .map(|a| &a.name)
+                    .collect::<Vec<_>>()
+                    .join(", "));
+        }
+    } else {
+        anyhow::bail!("Package {} not found", name);
+    }
+    Ok(())
 }
 ```
 
@@ -691,13 +861,13 @@ pub struct ValidatorMetadata {
 }
 
 fn extract_validator(bytes: &[u8], dest: &Path) -> Result<()> {
-    // Implementation
-    todo!()
+    // Implementation: Extract validator binary (same as extract_tarball)
+    extract_tarball(bytes, dest)
 }
 
 fn create_validator_tarball(path: &Path) -> Result<Bytes> {
-    // Implementation
-    todo!()
+    // Implementation: Create tarball for validator (same as create_tarball)
+    create_tarball(path)
 }
 ```
 
@@ -868,9 +1038,24 @@ impl SearchEngine for ElasticsearchEngine {
             .await?;
 
         // Parse response and convert to SearchResult
-        // ... implementation
-
-        todo!()
+        let response_text = response.text().await?;
+        let json: serde_json::Value = serde_json::from_str(&response_text)?;
+        
+        // Convert JSON response to SearchResults
+        let packages: Vec<Package> = json.get("packages")
+            .and_then(|v| v.as_array())
+            .map(|arr| arr.iter()
+                .filter_map(|v| serde_json::from_value(v.clone()).ok())
+                .collect())
+            .unwrap_or_default();
+        
+        Ok(SearchResults {
+            packages: packages.into_iter()
+                .map(|pkg| ScoredPackage { package: pkg, score: 1.0 })
+                .collect(),
+            total: packages.len(),
+            query_time_ms: 0,
+        })
     }
 
     // Implement other required methods...

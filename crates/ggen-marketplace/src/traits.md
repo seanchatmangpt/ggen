@@ -943,13 +943,28 @@ pub struct CustomRegistry {
 
 #[async_trait]
 impl Registry for CustomRegistry {
-    async fn register(
-        &self,
-        metadata: &PackageMetadata,
-        content_hash: ContentHash,
-    ) -> Result<PackageId> {
-        // Your custom implementation
-        todo!()
+    async fn search(&self, query: &Query) -> Result<Vec<Package>> {
+        // Your custom implementation: Search packages in your storage backend
+        // Example: Query your database, filter by query terms, return matching packages
+        let _ = query;
+        Ok(Vec::new())
+    }
+
+    async fn get_package(&self, id: &PackageId) -> Result<Package> {
+        // Your custom implementation: Retrieve package from your storage
+        // Example: Look up package in your database by ID
+        let _ = id;
+        Err(MarketplaceError::package_not_found(
+            &id.to_string(),
+            "Package not found in custom registry",
+        ))
+    }
+
+    async fn publish(&self, package: Package) -> Result<()> {
+        // Your custom implementation: Store package in your backend
+        // Example: Save package metadata to your database, index for search
+        let _ = package;
+        Ok(())
     }
 
     // Implement other required methods...

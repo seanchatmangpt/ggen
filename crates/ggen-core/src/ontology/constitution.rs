@@ -1,19 +1,20 @@
+use serde::{Deserialize, Serialize};
 /// Hard Invariants (Q): Executable Constitution of the Autonomous System
 ///
 /// This module encodes Q (hard invariants) as runtime checks that must pass
 /// for any ontology change to be accepted. These are enforceable, deterministic,
 /// and cannot be circumvented.
-
 use std::sync::Arc;
-use serde::{Deserialize, Serialize};
 
-use crate::ontology::{SigmaSnapshot, SigmaReceipt, ValidationResult, DeltaSigmaProposal};
+use crate::ontology::{DeltaSigmaProposal, SigmaReceipt, SigmaSnapshot};
 
 /// Executable invariant check
 #[async_trait::async_trait]
 pub trait InvariantCheck: Send + Sync {
     /// Check if the invariant holds
-    async fn check(&self, proposal: &DeltaSigmaProposal, current: &SigmaSnapshot, proposed: &SigmaSnapshot) -> InvariantResult;
+    async fn check(
+        &self, proposal: &DeltaSigmaProposal, current: &SigmaSnapshot, proposed: &SigmaSnapshot,
+    ) -> InvariantResult;
 
     /// Name of this invariant
     fn name(&self) -> &str;
@@ -34,10 +35,7 @@ pub struct NoRetrocausationCheck;
 #[async_trait::async_trait]
 impl InvariantCheck for NoRetrocausationCheck {
     async fn check(
-        &self,
-        _proposal: &DeltaSigmaProposal,
-        current: &SigmaSnapshot,
-        proposed: &SigmaSnapshot,
+        &self, _proposal: &DeltaSigmaProposal, current: &SigmaSnapshot, proposed: &SigmaSnapshot,
     ) -> InvariantResult {
         InvariantResult {
             invariant_name: "NoRetrocausation".to_string(),
@@ -58,10 +56,7 @@ pub struct TypeSoundnessCheck;
 #[async_trait::async_trait]
 impl InvariantCheck for TypeSoundnessCheck {
     async fn check(
-        &self,
-        proposal: &DeltaSigmaProposal,
-        _current: &SigmaSnapshot,
-        _proposed: &SigmaSnapshot,
+        &self, proposal: &DeltaSigmaProposal, _current: &SigmaSnapshot, _proposed: &SigmaSnapshot,
     ) -> InvariantResult {
         // Simple check: proposed triples have valid RDF syntax
         let all_valid = proposal.triples_to_add.iter().all(|triple| {
@@ -72,7 +67,10 @@ impl InvariantCheck for TypeSoundnessCheck {
         InvariantResult {
             invariant_name: "TypeSoundness".to_string(),
             passed: all_valid,
-            evidence: format!("All {} triples have valid RDF syntax", proposal.triples_to_add.len()),
+            evidence: format!(
+                "All {} triples have valid RDF syntax",
+                proposal.triples_to_add.len()
+            ),
         }
     }
 
@@ -88,10 +86,7 @@ pub struct GuardSoundnessCheck;
 #[async_trait::async_trait]
 impl InvariantCheck for GuardSoundnessCheck {
     async fn check(
-        &self,
-        _proposal: &DeltaSigmaProposal,
-        _current: &SigmaSnapshot,
-        _proposed: &SigmaSnapshot,
+        &self, _proposal: &DeltaSigmaProposal, _current: &SigmaSnapshot, _proposed: &SigmaSnapshot,
     ) -> InvariantResult {
         // In real implementation: validate guard definitions in Σ²
         InvariantResult {
@@ -113,10 +108,7 @@ pub struct ProjectionDeterminismCheck;
 #[async_trait::async_trait]
 impl InvariantCheck for ProjectionDeterminismCheck {
     async fn check(
-        &self,
-        _proposal: &DeltaSigmaProposal,
-        _current: &SigmaSnapshot,
-        _proposed: &SigmaSnapshot,
+        &self, _proposal: &DeltaSigmaProposal, _current: &SigmaSnapshot, _proposed: &SigmaSnapshot,
     ) -> InvariantResult {
         // In real implementation: run projections twice and compare outputs
         InvariantResult {
@@ -140,10 +132,7 @@ pub struct SLOPreservationCheck {
 #[async_trait::async_trait]
 impl InvariantCheck for SLOPreservationCheck {
     async fn check(
-        &self,
-        proposal: &DeltaSigmaProposal,
-        _current: &SigmaSnapshot,
-        _proposed: &SigmaSnapshot,
+        &self, proposal: &DeltaSigmaProposal, _current: &SigmaSnapshot, _proposed: &SigmaSnapshot,
     ) -> InvariantResult {
         // Check: estimated impact doesn't exceed SLO
         let impact_latency_estimate = (proposal.estimated_impact_bytes / 10) as u64; // ~100 bytes per μs
@@ -171,10 +160,7 @@ pub struct ImmutabilityCheck;
 #[async_trait::async_trait]
 impl InvariantCheck for ImmutabilityCheck {
     async fn check(
-        &self,
-        _proposal: &DeltaSigmaProposal,
-        current: &SigmaSnapshot,
-        proposed: &SigmaSnapshot,
+        &self, _proposal: &DeltaSigmaProposal, current: &SigmaSnapshot, proposed: &SigmaSnapshot,
     ) -> InvariantResult {
         // Check: IDs differ (content-addressed means different content = different ID)
         let passed = current.id != proposed.id;
@@ -198,10 +184,7 @@ pub struct AtomicPromotionCheck;
 #[async_trait::async_trait]
 impl InvariantCheck for AtomicPromotionCheck {
     async fn check(
-        &self,
-        _proposal: &DeltaSigmaProposal,
-        _current: &SigmaSnapshot,
-        _proposed: &SigmaSnapshot,
+        &self, _proposal: &DeltaSigmaProposal, _current: &SigmaSnapshot, _proposed: &SigmaSnapshot,
     ) -> InvariantResult {
         InvariantResult {
             invariant_name: "AtomicPromotion".to_string(),
@@ -220,28 +203,29 @@ pub struct Constitution {
     checks: Vec<Arc<dyn InvariantCheck>>,
 }
 
-impl Constitution {
+impl Default for Constitution {
     /// Create the default constitution (all 7 invariants)
-    pub fn default() -> Self {
+    fn default() -> Self {
         Self {
             checks: vec![
                 Arc::new(NoRetrocausationCheck) as Arc<dyn InvariantCheck>,
                 Arc::new(TypeSoundnessCheck),
                 Arc::new(GuardSoundnessCheck),
                 Arc::new(ProjectionDeterminismCheck),
-                Arc::new(SLOPreservationCheck { max_latency_us: 5000 }),
+                Arc::new(SLOPreservationCheck {
+                    max_latency_us: 5000,
+                }),
                 Arc::new(ImmutabilityCheck),
                 Arc::new(AtomicPromotionCheck),
             ],
         }
     }
+}
 
+impl Constitution {
     /// Validate a proposal against all invariants
     pub async fn validate_proposal(
-        &self,
-        proposal: &DeltaSigmaProposal,
-        current: &SigmaSnapshot,
-        proposed: &SigmaSnapshot,
+        &self, proposal: &DeltaSigmaProposal, current: &SigmaSnapshot, proposed: &SigmaSnapshot,
     ) -> ConstitutionValidation {
         let mut results = Vec::new();
         let mut all_passed = true;
@@ -348,7 +332,9 @@ mod tests {
         let current = create_test_snapshot("1.0.0");
         let proposed = create_test_snapshot("2.0.0");
 
-        let validation = constitution.validate_proposal(&proposal, &current, &proposed).await;
+        let validation = constitution
+            .validate_proposal(&proposal, &current, &proposed)
+            .await;
         assert!(validation.all_invariants_satisfied);
         assert_eq!(validation.results.len(), 7);
     }
@@ -360,7 +346,9 @@ mod tests {
         let current = create_test_snapshot("1.0.0");
         let proposed = create_test_snapshot("2.0.0");
 
-        let validation = constitution.validate_proposal(&proposal, &current, &proposed).await;
+        let validation = constitution
+            .validate_proposal(&proposal, &current, &proposed)
+            .await;
 
         for result in &validation.results {
             assert!(!result.invariant_name.is_empty());
@@ -375,7 +363,9 @@ mod tests {
         let current = create_test_snapshot("1.0.0");
         let proposed = create_test_snapshot("2.0.0");
 
-        let validation = constitution.validate_proposal(&proposal, &current, &proposed).await;
+        let validation = constitution
+            .validate_proposal(&proposal, &current, &proposed)
+            .await;
         let receipt = validation.to_receipt();
 
         assert_eq!(receipt.result, crate::ontology::ValidationResult::Valid);

@@ -9,8 +9,8 @@
 //! This makes it IMPOSSIBLE to construct an action that violates doctrine.
 //! The compiler enforces all governance; runtime checks are defense-in-depth only.
 
-use std::marker::PhantomData;
 use serde::{Deserialize, Serialize};
+use std::marker::PhantomData;
 
 /// Risk classification for an action
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -194,8 +194,7 @@ impl ReadOnlyActionBuilder {
     /// Create a read-only action with 0 ticks
     /// These actions are always hot-path eligible
     pub fn create(
-        id: impl Into<String>,
-        description: impl Into<String>,
+        id: impl Into<String>, description: impl Into<String>,
     ) -> Action<ReadOnlyMarker, 0, ImmutableReadMarker> {
         Action {
             id: id.into(),
@@ -225,8 +224,7 @@ impl LowRiskActionBuilder {
     /// Create a low-risk action (max 6 ticks to stay safely under Chatman constant)
     /// Requires basic doctrine alignment proof
     pub fn create<const TICKS: usize>(
-        id: impl Into<String>,
-        description: impl Into<String>,
+        id: impl Into<String>, description: impl Into<String>,
     ) -> Result<Action<LowRiskMarker, TICKS, SnapshotWriteMarker>, String>
     where
         // Compile-time constraint: max 6 ticks on hot path
@@ -267,8 +265,7 @@ impl MediumRiskActionBuilder {
     /// Create a medium-risk action (max 100 ticks for warm path)
     /// Requires intermediate doctrine proof
     pub fn create<const TICKS: usize>(
-        id: impl Into<String>,
-        description: impl Into<String>,
+        id: impl Into<String>, description: impl Into<String>,
     ) -> Result<Action<MediumRiskMarker, TICKS, SnapshotWriteMarker>, String>
     where
         [(); TICKS]:,
@@ -309,9 +306,7 @@ impl HighRiskActionBuilder {
     /// Create a high-risk action (must go cold path, unlimited ticks)
     /// REQUIRES proof object that this action is doctrine-aligned
     pub fn create_with_proof<const TICKS: usize, P: DoctrineProof>(
-        id: impl Into<String>,
-        description: impl Into<String>,
-        _proof: &P,
+        id: impl Into<String>, description: impl Into<String>, _proof: &P,
     ) -> Result<Action<HighRiskMarker, TICKS, OntologyMutateMarker>, String> {
         Ok(Action {
             id: id.into(),
@@ -498,7 +493,10 @@ impl<const TICKS: usize> HotPathEligible for Action<LowRiskMarker, TICKS, Snapsh
         if TICKS <= 6 {
             Ok(())
         } else {
-            Err(format!("Low-risk action with {} ticks exceeds hot path budget of 6", TICKS))
+            Err(format!(
+                "Low-risk action with {} ticks exceeds hot path budget of 6",
+                TICKS
+            ))
         }
     }
 }
@@ -526,7 +524,10 @@ impl<const TICKS: usize> WarmPathEligible for Action<MediumRiskMarker, TICKS, Sn
         if TICKS <= 100 {
             Ok(())
         } else {
-            Err(format!("Medium-risk action with {} ticks exceeds warm path budget of 100", TICKS))
+            Err(format!(
+                "Medium-risk action with {} ticks exceeds warm path budget of 100",
+                TICKS
+            ))
         }
     }
 }
@@ -547,32 +548,23 @@ mod tests {
     #[test]
     fn test_low_risk_action() {
         // Can construct action with ≤6 ticks
-        let action = LowRiskActionBuilder::create::<4>(
-            "test-low-risk",
-            "Low-risk 4-tick action",
-        );
+        let action = LowRiskActionBuilder::create::<4>("test-low-risk", "Low-risk 4-tick action");
         assert!(action.is_ok());
 
         // Should fail if exceeding budget
-        let over_budget = LowRiskActionBuilder::create::<8>(
-            "test-over-budget",
-            "This exceeds 6-tick limit",
-        );
+        let over_budget =
+            LowRiskActionBuilder::create::<8>("test-over-budget", "This exceeds 6-tick limit");
         assert!(over_budget.is_err());
     }
 
     #[test]
     fn test_medium_risk_action() {
-        let action = MediumRiskActionBuilder::create::<50>(
-            "test-medium",
-            "Medium-risk 50-tick action",
-        );
+        let action =
+            MediumRiskActionBuilder::create::<50>("test-medium", "Medium-risk 50-tick action");
         assert!(action.is_ok());
 
-        let over_budget = MediumRiskActionBuilder::create::<150>(
-            "test-over",
-            "Over 100-tick limit",
-        );
+        let over_budget =
+            MediumRiskActionBuilder::create::<150>("test-over", "Over 100-tick limit");
         assert!(over_budget.is_err());
     }
 

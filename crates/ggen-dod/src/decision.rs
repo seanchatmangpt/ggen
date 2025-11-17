@@ -8,9 +8,7 @@ use std::collections::BTreeMap;
 use uuid::Uuid;
 
 /// Unique identifier for decisions
-#[derive(
-    Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize,
-)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct DecisionId(Uuid);
 
 impl DecisionId {
@@ -67,8 +65,7 @@ pub struct Decision {
 impl Decision {
     /// Create a new decision
     pub fn new(
-        kernel_decision: KernelDecision,
-        tenant_id: impl Into<String>,
+        kernel_decision: KernelDecision, tenant_id: impl Into<String>,
         explanation: impl Into<String>,
     ) -> Self {
         Self {
@@ -180,20 +177,13 @@ impl DecisionStore {
     pub fn get_by_tenant(&self, tenant_id: &str) -> Vec<&Decision> {
         self.by_tenant
             .get(tenant_id)
-            .map(|ids| {
-                ids.iter()
-                    .filter_map(|id| self.decisions.get(id))
-                    .collect()
-            })
+            .map(|ids| ids.iter().filter_map(|id| self.decisions.get(id)).collect())
             .unwrap_or_default()
     }
 
     /// Get successful decisions
     pub fn get_successful(&self) -> Vec<&Decision> {
-        self.decisions
-            .values()
-            .filter(|d| d.is_success())
-            .collect()
+        self.decisions.values().filter(|d| d.is_success()).collect()
     }
 
     /// Query decisions
@@ -201,10 +191,7 @@ impl DecisionStore {
     where
         F: Fn(&Decision) -> bool,
     {
-        self.decisions
-            .values()
-            .filter(|d| predicate(d))
-            .collect()
+        self.decisions.values().filter(|d| predicate(d)).collect()
     }
 
     /// Get all decisions

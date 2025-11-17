@@ -182,7 +182,13 @@ async fn error_empty_query_string() {
         .build()
         .expect("build failed");
 
-    registry.publish(pkg).await.expect("publish failed");
+    let validated = pkg.validate().expect("package validation failed");
+    let validated_pkg = validated.package().clone();
+
+    registry
+        .publish(validated_pkg)
+        .await
+        .expect("publish failed");
 
     // Search with empty query
     let results = registry

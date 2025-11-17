@@ -112,19 +112,25 @@ async fn test_critical_journey_version_management() -> Result<()> {
     let pkg_id = PackageId::new("test", "versioned");
 
     // Act: Publish multiple versions
-    let v1 = Package::builder(pkg_id.clone(), Version::new(1, 0, 0))
+    let unvalidated_v1 = Package::builder(pkg_id.clone(), Version::new(1, 0, 0))
         .title("Version 1")
         .description("First version")
         .license("MIT")
         .content_id(ContentId::new("hash_v1", HashAlgorithm::Sha256))
         .build()?;
 
-    let v2 = Package::builder(pkg_id.clone(), Version::new(2, 0, 0))
+    let validated_v1 = unvalidated_v1.validate()?;
+    let v1 = validated_v1.package().clone();
+
+    let unvalidated_v2 = Package::builder(pkg_id.clone(), Version::new(2, 0, 0))
         .title("Version 2")
         .description("Second version")
         .license("MIT")
         .content_id(ContentId::new("hash_v2", HashAlgorithm::Sha256))
         .build()?;
+
+    let validated_v2 = unvalidated_v2.validate()?;
+    let v2 = validated_v2.package().clone();
 
     registry.publish(v1).await?;
     registry.publish(v2.clone()).await?;
@@ -355,19 +361,25 @@ async fn test_critical_delete_package_version() -> Result<()> {
     let (registry, _temp) = setup_local_registry().await;
     let pkg_id = PackageId::new("test", "deletable");
 
-    let v1 = Package::builder(pkg_id.clone(), Version::new(1, 0, 0))
+    let unvalidated_v1 = Package::builder(pkg_id.clone(), Version::new(1, 0, 0))
         .title("V1")
         .description("Version 1")
         .license("MIT")
         .content_id(ContentId::new("hash_v1", HashAlgorithm::Sha256))
         .build()?;
 
-    let v2 = Package::builder(pkg_id.clone(), Version::new(2, 0, 0))
+    let validated_v1 = unvalidated_v1.validate()?;
+    let v1 = validated_v1.package().clone();
+
+    let unvalidated_v2 = Package::builder(pkg_id.clone(), Version::new(2, 0, 0))
         .title("V2")
         .description("Version 2")
         .license("MIT")
         .content_id(ContentId::new("hash_v2", HashAlgorithm::Sha256))
         .build()?;
+
+    let validated_v2 = unvalidated_v2.validate()?;
+    let v2 = validated_v2.package().clone();
 
     registry.publish(v1).await?;
     registry.publish(v2).await?;

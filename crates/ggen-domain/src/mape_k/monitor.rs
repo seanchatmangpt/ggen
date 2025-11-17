@@ -91,13 +91,17 @@ impl MonitorEngine {
         for obs in &self.observations {
             if obs.obs_type == ObservationType::Metric {
                 if let Some(value) = obs.data.get("value").and_then(|v| v.as_f64()) {
-                    let metric_name = obs.data
+                    let metric_name = obs
+                        .data
                         .get("name")
                         .and_then(|n| n.as_str())
                         .unwrap_or("unknown")
                         .to_string();
 
-                    metrics_by_name.entry(metric_name).or_insert_with(Vec::new).push(value);
+                    metrics_by_name
+                        .entry(metric_name)
+                        .or_insert_with(Vec::new)
+                        .push(value);
                 }
             }
         }
@@ -119,7 +123,8 @@ impl MonitorEngine {
             if obs.obs_type == ObservationType::Receipt {
                 if let Some(guard_id) = obs.data.get("guard_id").and_then(|g| g.as_str()) {
                     if let Some(passed) = obs.data.get("passed").and_then(|p| p.as_bool()) {
-                        let (failed, total) = guard_failures.entry(guard_id.to_string()).or_insert((0, 0));
+                        let (failed, total) =
+                            guard_failures.entry(guard_id.to_string()).or_insert((0, 0));
                         *total += 1;
                         if !passed {
                             *failed += 1;
@@ -232,7 +237,8 @@ impl MonitorEngine {
             .filter(|agg| agg.name.contains("failure_rate"))
             .filter(|agg| agg.avg > 1.0)
             .map(|agg| {
-                let guard_id = agg.name
+                let guard_id = agg
+                    .name
                     .strip_prefix("guard.")
                     .and_then(|s| s.strip_suffix(".failure_rate"))
                     .unwrap_or(&agg.name)

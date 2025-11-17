@@ -7,7 +7,7 @@
 //! - Path utilities
 //! - Hashing operations
 
-use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId};
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
 use std::collections::HashMap;
 
 fn benchmark_file_path_handling(c: &mut Criterion) {
@@ -108,11 +108,7 @@ fn benchmark_yaml_parsing(c: &mut Criterion) {
     c.bench_function("yaml_config_parsing", |b| {
         b.iter(|| {
             // Simulate YAML config parsing
-            let config_lines = vec![
-                "key1: value1",
-                "key2: value2",
-                "key3: value3",
-            ];
+            let config_lines = vec!["key1: value1", "key2: value2", "key3: value3"];
 
             let mut config = HashMap::new();
             for line in config_lines {
@@ -172,10 +168,7 @@ fn benchmark_file_glob_expansion(c: &mut Criterion) {
                     }
 
                     // Match against pattern
-                    let matches: Vec<_> = files
-                        .iter()
-                        .filter(|f| f.ends_with(".rs"))
-                        .collect();
+                    let matches: Vec<_> = files.iter().filter(|f| f.ends_with(".rs")).collect();
 
                     let _result = black_box(matches.len());
                 })
@@ -189,24 +182,20 @@ fn benchmark_directory_traversal(c: &mut Criterion) {
     let mut group = c.benchmark_group("directory_traversal");
 
     for depth in [1, 3, 5].iter() {
-        group.bench_with_input(
-            BenchmarkId::from_parameter(depth),
-            depth,
-            |b, &depth| {
-                b.iter(|| {
-                    // Simulate directory tree traversal
-                    let mut paths = vec![black_box("root")];
+        group.bench_with_input(BenchmarkId::from_parameter(depth), depth, |b, &depth| {
+            b.iter(|| {
+                // Simulate directory tree traversal
+                let mut paths = vec![black_box("root")];
 
-                    for level in 0..depth {
-                        for parent in paths.clone() {
-                            let _child = black_box(format!("{}/child_{}", parent, level));
-                        }
+                for level in 0..depth {
+                    for parent in paths.clone() {
+                        let _child = black_box(format!("{}/child_{}", parent, level));
                     }
+                }
 
-                    let _count = black_box(paths.len());
-                })
-            },
-        );
+                let _count = black_box(paths.len());
+            })
+        });
     }
     group.finish();
 }

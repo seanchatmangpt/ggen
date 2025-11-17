@@ -77,10 +77,7 @@ impl MockP2PRegistry {
         let packages = self.packages.read().await;
         let key = format!("{}:{}", package_id.namespace, package_id.name);
         packages.get(&key).cloned().ok_or_else(|| {
-            MarketplaceError::not_found(
-                format!("Package not found: {}", package_id.name),
-                "p2p network",
-            )
+            MarketplaceError::not_found(format!("Package not found: {}", package_id.name))
         })
     }
 
@@ -196,7 +193,7 @@ async fn create_signed_package(
     let verifier = Ed25519Verifier::new();
     let content_hash = verifier.hash_content(content)?;
 
-    let package = Package::builder(
+    let unvalidated = Package::builder(
         PackageId::new("test", name),
         Version::new(major, minor, patch),
     )
@@ -208,7 +205,8 @@ async fn create_signed_package(
     .content_id(ContentId::new(content_hash, HashAlgorithm::Sha256))
     .build()?;
 
-    Ok((package, content.to_vec()))
+    let validated = unvalidated.validate()?;
+    Ok((validated.package().clone(), content.to_vec()))
 }
 
 /// Setup test environment with P2P network and GraphQL server
@@ -371,20 +369,23 @@ async fn test_p2p_publish_and_discover() {
     let p2p_registry = MockP2PRegistry::new();
 
     // Create test package
-    let package = Package::builder(PackageId::new("test", "p2p-package"), Version::new(1, 0, 0))
-        .title("P2P Test Package")
-        .description("A package for P2P testing")
-        .license("MIT")
-        .tag("p2p")
-        .content_id(ContentId::new(
-            "test-hash".to_string(),
-            HashAlgorithm::Sha256,
-        ))
-        .build()
-        .expect("package should build");
+    let unvalidated_package =
+        Package::builder(PackageId::new("test", "p2p-package"), Version::new(1, 0, 0))
+            .title("P2P Test Package")
+            .description("A package for P2P testing")
+            .license("MIT")
+            .tag("p2p")
+            .content_id(ContentId::new(
+                "test-hash".to_string(),
+                HashAlgorithm::Sha256,
+            ))
+            .build()
+            .expect("package should build");
 
     // Validate package before publishing (Poka-yoke: ensures package meets requirements)
-    let validated = package.validate().expect("Failed to validate package");
+    let validated = unvalidated_package
+        .validate()
+        .expect("Failed to validate package");
     let validated_package = validated.package().clone();
 
     // Publish to P2P network
@@ -411,7 +412,7 @@ async fn test_p2p_publish_and_discover() {
 async fn test_p2p_retrieve_package() {
     let p2p_registry = MockP2PRegistry::new();
 
-    let package = Package::builder(
+    let unvalidated = Package::builder(
         PackageId::new("test", "retrieve-test"),
         Version::new(1, 0, 0),
     )
@@ -421,6 +422,9 @@ async fn test_p2p_retrieve_package() {
     .content_id(ContentId::new("hash123".to_string(), HashAlgorithm::Sha256))
     .build()
     .expect("package should build");
+
+    let validated = unvalidated.validate().expect("package should validate");
+    let package = validated.package().clone();
 
     p2p_registry
         .publish(package.clone())
@@ -470,7 +474,7 @@ async fn test_p2p_discover_multiple_packages() {
 
     // Publish multiple packages
     for i in 0..5 {
-        let package = Package::builder(
+        let unvalidated = Package::builder(
             PackageId::new("test", &format!("web-package-{}", i)),
             Version::new(1, 0, 0),
         )
@@ -481,6 +485,9 @@ async fn test_p2p_discover_multiple_packages() {
         .content_id(ContentId::new(format!("hash-{}", i), HashAlgorithm::Sha256))
         .build()
         .expect("package should build");
+
+        let validated = unvalidated.validate().expect("package should validate");
+        let package = validated.package().clone();
 
         p2p_registry
             .publish(package)
@@ -506,7 +513,7 @@ async fn test_graphql_search_query() {
     let (p2p_registry, graphql_server) = setup_test_environment().await;
 
     // Publish test packages
-    let package = Package::builder(
+    let unvalidated = Package::builder(
         PackageId::new("test", "graphql-test"),
         Version::new(1, 0, 0),
     )
@@ -520,6 +527,9 @@ async fn test_graphql_search_query() {
     ))
     .build()
     .expect("package should build");
+
+    let validated = unvalidated.validate().expect("package should validate");
+    let package = validated.package().clone();
 
     p2p_registry
         .publish(package)
@@ -556,7 +566,7 @@ async fn test_graphql_search_query() {
 async fn test_graphql_package_query() {
     let (p2p_registry, graphql_server) = setup_test_environment().await;
 
-    let package = Package::builder(
+    let unvalidated = Package::builder(
         PackageId::new("test", "specific-package"),
         Version::new(2, 1, 0),
     )
@@ -569,6 +579,9 @@ async fn test_graphql_package_query() {
     ))
     .build()
     .expect("package should build");
+
+    let validated = unvalidated.validate().expect("package should validate");
+    let package = validated.package().clone();
 
     p2p_registry
         .publish(package)
@@ -775,7 +788,7 @@ async fn test_p2p_network_resilience() {
 
     // Publish packages across network
     for i in 0..20 {
-        let package = Package::builder(
+        let unvalidated = Package::builder(
             PackageId::new("test", &format!("resilient-pkg-{}", i)),
             Version::new(1, 0, 0),
         )
@@ -786,6 +799,9 @@ async fn test_p2p_network_resilience() {
         .content_id(ContentId::new(format!("hash-{}", i), HashAlgorithm::Sha256))
         .build()
         .expect("package should build");
+
+        let validated = unvalidated.validate().expect("package should validate");
+        let package = validated.package().clone();
 
         p2p_registry
             .publish(package)
@@ -816,7 +832,7 @@ async fn test_p2p_concurrent_operations() {
     for i in 0..10 {
         let registry = p2p_registry.clone();
         let handle = tokio::spawn(async move {
-            let package = Package::builder(
+            let unvalidated = Package::builder(
                 PackageId::new("test", &format!("concurrent-{}", i)),
                 Version::new(1, 0, 0),
             )
@@ -826,6 +842,9 @@ async fn test_p2p_concurrent_operations() {
             .content_id(ContentId::new(format!("hash-{}", i), HashAlgorithm::Sha256))
             .build()
             .expect("package should build");
+
+            let validated = unvalidated.validate().expect("package should validate");
+            let package = validated.package().clone();
 
             registry
                 .publish(package)
@@ -884,7 +903,7 @@ async fn test_large_scale_p2p_discovery() {
 
     // Publish 100 packages
     for i in 0..100 {
-        let package = Package::builder(
+        let unvalidated = Package::builder(
             PackageId::new("test", &format!("scale-test-{}", i)),
             Version::new(1, 0, 0),
         )
@@ -895,6 +914,9 @@ async fn test_large_scale_p2p_discovery() {
         .content_id(ContentId::new(format!("hash-{}", i), HashAlgorithm::Sha256))
         .build()
         .expect("package should build");
+
+        let validated = unvalidated.validate().expect("package should validate");
+        let package = validated.package().clone();
 
         p2p_registry
             .publish(package)
@@ -925,7 +947,7 @@ async fn test_integration_with_local_registry() {
         .expect("should create local registry");
 
     // Create and publish package
-    let package = Package::builder(
+    let unvalidated = Package::builder(
         PackageId::new("test", "integration-test"),
         Version::new(1, 0, 0),
     )
@@ -938,6 +960,9 @@ async fn test_integration_with_local_registry() {
     ))
     .build()
     .expect("package should build");
+
+    let validated = unvalidated.validate().expect("package should validate");
+    let package = validated.package().clone();
 
     local_registry
         .publish(package.clone())

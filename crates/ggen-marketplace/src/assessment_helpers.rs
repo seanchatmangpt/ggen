@@ -137,7 +137,7 @@ pub fn sample_packages() -> Vec<EvaluationInput> {
 pub fn generate_all_assessments() -> Vec<MaturityAssessment> {
     sample_packages()
         .into_iter()
-        .map(|input| MaturityEvaluator::evaluate(input))
+        .map(MaturityEvaluator::evaluate)
         .collect()
 }
 
@@ -253,7 +253,7 @@ pub fn compare_assessments(a: &MaturityAssessment, b: &MaturityAssessment) -> se
             "level": format!("{:?}", b.level()),
         },
         "comparison": {
-            "winner": winner.map(|w| w.clone()),
+            "winner": winner.cloned(),
             "score_difference": (a_score as i32 - b_score as i32).abs(),
         }
     })
@@ -278,11 +278,11 @@ pub fn export_as_csv(assessments: &[MaturityAssessment]) -> String {
 
     for a in assessments {
         csv.push_str(&format!(
-            "{},{},{},{},{},{},{},{},{},{}\n",
+            "{},{},{},{:?},{},{},{},{},{},{}\n",
             a.package_id,
             a.package_name,
             a.total_score(),
-            format!("{:?}", a.level()),
+            a.level(),
             a.documentation.total(),
             a.testing.total(),
             a.security.total(),

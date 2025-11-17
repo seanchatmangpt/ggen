@@ -1,12 +1,26 @@
 //! Integration tests for ggen-macros procedural macros
 //!
-//! These tests verify that the derive macros (#[derive(Guard)], #[derive(Bundle)])
-//! correctly generate code for marketplace package validation.
+//! These tests verify that the derive macro #[derive(Guard)] correctly generates code
+//! for marketplace package validation.
 //!
-//! Note: Full procedural macro testing typically requires trybuild or macrotest crates.
+//! Note: Full procedural macro testing typically requires trybuild or macrotest crates.                                                                        
 //! These tests verify the macro metadata and helper functions.
+//!
+//! Note: Bundle macro tests are not yet implemented.
+
+#![allow(missing_docs, unused_comparisons, dead_code, unused)]
 
 use ggen_macros::Guard;
+
+// Re-export real dependencies to match macro expectations
+// The macro generates code that uses crate::guards::Guard and crate::error::MarketplaceError
+mod guards {
+    pub use ggen_marketplace::guards::{Guard, GuardCheck, GuardValidationResult};
+}
+
+mod error {
+    pub use ggen_marketplace::error::MarketplaceError;
+}
 
 /// Test structure for Guard macro
 #[derive(Guard)]
@@ -21,7 +35,7 @@ pub struct TestGuard {
 /// Test: Guard derive macro generates correct metadata
 #[test]
 fn test_guard_metadata() {
-    let guard = TestGuard {
+    let _guard = TestGuard {
         ontology_valid: true,
         projections_complete: true,
         templates_present: true,
@@ -38,7 +52,7 @@ fn test_guard_metadata() {
 /// Test: Guard validation returns expected structure
 #[test]
 fn test_guard_validation_structure() {
-    let guard = TestGuard {
+    let _guard = TestGuard {
         ontology_valid: true,
         projections_complete: true,
         templates_present: false,
@@ -64,8 +78,8 @@ fn test_multiple_guards() {
         pub is_complete: bool,
     }
 
-    let ontology = OntologyCheckGuard { is_valid: true };
-    let projection = ProjectionCheckGuard { is_complete: true };
+    let _ontology = OntologyCheckGuard { is_valid: true };
+    let _projection = ProjectionCheckGuard { is_complete: true };
 
     assert_eq!(OntologyCheckGuard::guard_name(), "OntologyGuard");
     assert_eq!(ProjectionCheckGuard::guard_name(), "ProjectionGuard");
@@ -127,7 +141,7 @@ fn test_guard_multiple_fields() {
         pub examples: bool,
     }
 
-    let guard = MultiFieldGuard {
+    let _guard = MultiFieldGuard {
         ontology: true,
         templates: true,
         tests: false,
@@ -160,12 +174,10 @@ fn test_guard_trait_implementation() {
         pub check_passed: bool,
     }
 
-    let guard = TraitTestGuard {
-        check_passed: true,
-    };
+    let guard = TraitTestGuard { check_passed: true };
 
     // Guard trait should have been implemented
-    let name = guard.guard_name();
+    let name = TraitTestGuard::guard_name();
     assert!(!name.is_empty());
 }
 
@@ -208,7 +220,6 @@ fn test_guard_scoring_available() {
 
     // Score should be available in result
     if let Ok(result) = validation {
-        assert!(result.score >= 0);
         assert!(result.score <= 100);
     }
 }
@@ -234,10 +245,10 @@ fn test_combined_guard_suite() {
         pub passing: bool,
     }
 
-    let guards = vec![
-        OntologyGuard { valid: true },
-        ProjectionGuard { complete: true },
-        TestGuard { passing: true },
+    let guards: Vec<Box<dyn guards::Guard>> = vec![
+        Box::new(OntologyGuard { valid: true }),
+        Box::new(ProjectionGuard { complete: true }),
+        Box::new(TestGuard { passing: true }),
     ];
 
     assert_eq!(guards.len(), 3);
@@ -246,11 +257,11 @@ fn test_combined_guard_suite() {
     assert_eq!(TestGuard::guard_name(), "TestGuard");
 }
 
-/// Test: Bundle-like guard composition
+/// Test: Guard with multiple fields (comprehensive validation)
 #[test]
 fn test_bundle_guard_composition() {
     #[derive(Guard)]
-    #[guard_name = "BundleGuard")]
+    #[guard_name = "BundleGuard"]
     #[guard_description = "Comprehensive bundle validation"]
     pub struct BundleGuard {
         pub ontology: bool,
@@ -261,7 +272,7 @@ fn test_bundle_guard_composition() {
         pub examples: bool,
     }
 
-    let bundle_guard = BundleGuard {
+    let _bundle_guard = BundleGuard {
         ontology: true,
         projections: true,
         templates: true,
@@ -279,14 +290,69 @@ fn test_bundle_guard_composition() {
 #[test]
 fn test_macro_hygiene() {
     #[derive(Guard)]
-    #[guard_name = "HygieneTestGuard")]
+    #[guard_name = "HygieneTestGuard"]
     pub struct HygieneTestGuard {
         pub value: bool,
     }
 
-    let guard = HygieneTestGuard { value: true };
+    let _guard = HygieneTestGuard { value: true };
 
     // Methods should be accessible with proper namespacing
     let name = HygieneTestGuard::guard_name();
     assert!(name.contains("HygieneTestGuard") || name.contains("Hygiene"));
+}
+
+/// Test: Empty guard_description uses default
+#[test]
+fn test_empty_guard_description_default() {
+    #[derive(Guard)]
+    #[guard_name = "TestGuard"]
+    #[guard_description = ""]
+    pub struct EmptyDescGuard {
+        pub value: bool,
+    }
+
+    // Empty description should use default
+    let desc = EmptyDescGuard::guard_description();
+    assert!(desc.contains("TestGuard") || desc.contains("Validates"));
+}
+
+/// Test: Default guard_name from struct name
+#[test]
+fn test_default_guard_name_from_struct() {
+    #[derive(Guard)]
+    pub struct DefaultNameGuard {
+        pub value: bool,
+    }
+
+    // Should use struct name as default
+    assert_eq!(DefaultNameGuard::guard_name(), "DefaultNameGuard");
+}
+
+/// Test: Special characters in guard_name are handled
+#[test]
+fn test_special_characters_in_guard_name() {
+    #[derive(Guard)]
+    #[guard_name = "Guard-With-Special_Chars"]
+    pub struct SpecialCharGuard {
+        pub value: bool,
+    }
+
+    // Special characters should be preserved
+    assert_eq!(SpecialCharGuard::guard_name(), "Guard-With-Special_Chars");
+}
+
+/// Test: Long guard_description is handled
+#[test]
+fn test_long_guard_description() {
+    #[derive(Guard)]
+    #[guard_name = "LongDescGuard"]
+    #[guard_description = "This is a very long description that contains multiple words and should be handled correctly by the macro system without any issues"]
+    pub struct LongDescGuard {
+        pub value: bool,
+    }
+
+    let desc = LongDescGuard::guard_description();
+    assert!(desc.len() > 50);
+    assert!(desc.contains("very long description"));
 }

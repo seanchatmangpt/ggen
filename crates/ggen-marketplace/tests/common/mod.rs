@@ -114,7 +114,7 @@ pub fn create_custom_package(
     let minor = version_parts.get(1).and_then(|v| v.parse().ok()).unwrap_or(0);
     let patch = version_parts.get(2).and_then(|v| v.parse().ok()).unwrap_or(0);
 
-    Package::builder(
+    let unvalidated = Package::builder(
         PackageId::new("test", name),
         Version::new(major, minor, patch),
     )
@@ -125,7 +125,11 @@ pub fn create_custom_package(
         format!("hash_{}_{}", name, version),
         HashAlgorithm::Sha256,
     ))
-    .build()
+    .build()?;
+
+    // Validate package before returning (Poka-yoke: ensures package meets requirements)
+    let validated = unvalidated.validate()?;
+    Ok(validated.package().clone())
 }
 
 /// Create multiple test packages at once.

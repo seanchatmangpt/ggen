@@ -6,7 +6,6 @@
 /// - Sector-specific policies
 ///
 /// All proposals are instances of Σ² (never raw text patches).
-
 use async_trait::async_trait;
 use futures::stream::{Stream, StreamExt};
 use serde::{Deserialize, Serialize};
@@ -62,18 +61,12 @@ pub type ProposalStream = Pin<Box<dyn Stream<Item = DeltaSigmaProposal> + Send>>
 pub trait DeltaSigmaProposer: Send + Sync {
     /// Propose changes based on patterns and current snapshot
     async fn propose_deltas(
-        &self,
-        patterns: Vec<Pattern>,
-        current_snapshot: Arc<SigmaSnapshot>,
-        sector: &str,
+        &self, patterns: Vec<Pattern>, current_snapshot: Arc<SigmaSnapshot>, sector: &str,
     ) -> Result<Vec<DeltaSigmaProposal>, String>;
 
     /// Stream proposals as they are generated (for real-time feedback)
     async fn stream_proposals(
-        &self,
-        patterns: Vec<Pattern>,
-        current_snapshot: Arc<SigmaSnapshot>,
-        sector: &str,
+        &self, patterns: Vec<Pattern>, current_snapshot: Arc<SigmaSnapshot>, sector: &str,
     ) -> Result<ProposalStream, String>;
 }
 
@@ -96,12 +89,13 @@ pub struct ProposerConfig {
     pub min_confidence: f64,
 
     /// Sector-specific policies
-    pub sector_policies: std::collections::HashMap<String, String>,
+    /// **FMEA Fix**: Use BTreeMap for deterministic iteration order
+    pub sector_policies: std::collections::BTreeMap<String, String>,
 }
 
 impl Default for ProposerConfig {
     fn default() -> Self {
-        let mut policies = std::collections::HashMap::new();
+        let mut policies = std::collections::BTreeMap::new();
         policies.insert(
             "support".to_string(),
             "Prioritize ticket tracking and customer communication".to_string(),
@@ -127,15 +121,16 @@ impl Default for ProposerConfig {
 }
 
 /// In-memory cache for proposals (keyed by pattern signature)
+/// **FMEA Fix**: Use BTreeMap for deterministic iteration order
 #[derive(Debug, Clone)]
 struct ProposalCache {
-    entries: Arc<RwLock<std::collections::HashMap<String, Vec<DeltaSigmaProposal>>>>,
+    entries: Arc<RwLock<std::collections::BTreeMap<String, Vec<DeltaSigmaProposal>>>>,
 }
 
 impl ProposalCache {
     fn new() -> Self {
         Self {
-            entries: Arc::new(RwLock::new(std::collections::HashMap::new())),
+            entries: Arc::new(RwLock::new(std::collections::BTreeMap::new())),
         }
     }
 
@@ -148,11 +143,8 @@ impl ProposalCache {
     }
 
     fn compute_key(patterns: &[Pattern], sector: &str) -> String {
-        let pattern_names = patterns
-            .iter()
-            .map(|p| &p.name)
-            .collect::<Vec<_>>()
-            .join("|");
+        let pattern_names: Vec<&str> = patterns.iter().map(|p| p.name.as_str()).collect();
+        let pattern_names = pattern_names.join("|");
         format!("{}_{}", sector, pattern_names)
     }
 }
@@ -173,9 +165,7 @@ impl MockLLMProposer {
 
     /// Generate mock proposals from patterns
     fn generate_proposals_from_patterns(
-        &self,
-        patterns: Vec<Pattern>,
-        sector: &str,
+        &self, patterns: Vec<Pattern>, sector: &str,
     ) -> Vec<DeltaSigmaProposal> {
         patterns
             .iter()
@@ -190,7 +180,8 @@ impl MockLLMProposer {
                     _ => "RefineConstraint",
                 };
 
-                let target = pattern.affected_entities
+                let target = pattern
+                    .affected_entities
                     .first()
                     .cloned()
                     .unwrap_or_else(|| format!("element_{}", idx));
@@ -205,7 +196,7 @@ impl MockLLMProposer {
                     triples_to_remove: vec![],
                     sector: sector.to_string(),
                     justification: pattern.description.clone(),
-                    estimated_impact_bytes: (50..500).min(pattern.occurrences * 100),
+                    estimated_impact_bytes: (pattern.occurrences * 100).clamp(50, 500),
                     compatibility: "compatible".to_string(),
                 }
             })
@@ -224,9 +215,9 @@ impl MockLLMProposer {
                 format!("<{}> rdf:type owl:ObjectProperty .", target),
                 format!("<{}> rdfs:label \"{}\" .", target, target),
             ],
-            "TightenConstraint" => vec![
-                format!("<{}> meta:hasConstraint _:constraint_1 .", target),
-            ],
+            "TightenConstraint" => {
+                vec![format!("<{}> meta:hasConstraint _:constraint_1 .", target)]
+            }
             _ => vec![format!("<{}> meta:refined true .", target)],
         }
     }
@@ -235,10 +226,7 @@ impl MockLLMProposer {
 #[async_trait]
 impl DeltaSigmaProposer for MockLLMProposer {
     async fn propose_deltas(
-        &self,
-        patterns: Vec<Pattern>,
-        _current_snapshot: Arc<SigmaSnapshot>,
-        sector: &str,
+        &self, patterns: Vec<Pattern>, _current_snapshot: Arc<SigmaSnapshot>, sector: &str,
     ) -> Result<Vec<DeltaSigmaProposal>, String> {
         if patterns.is_empty() {
             return Ok(vec![]);
@@ -264,12 +252,11 @@ impl DeltaSigmaProposer for MockLLMProposer {
     }
 
     async fn stream_proposals(
-        &self,
-        patterns: Vec<Pattern>,
-        current_snapshot: Arc<SigmaSnapshot>,
-        sector: &str,
+        &self, patterns: Vec<Pattern>, current_snapshot: Arc<SigmaSnapshot>, sector: &str,
     ) -> Result<ProposalStream, String> {
-        let proposals = self.propose_deltas(patterns, current_snapshot, sector).await?;
+        let proposals = self
+            .propose_deltas(patterns, current_snapshot, sector)
+            .await?;
 
         let stream = futures::stream::iter(proposals)
             .then(|proposal| async move { proposal })
@@ -296,10 +283,7 @@ impl RealLLMProposer {
 
     /// Build the prompt for the LLM
     fn build_prompt(
-        &self,
-        patterns: &[Pattern],
-        current_snapshot: &SigmaSnapshot,
-        sector: &str,
+        &self, patterns: &[Pattern], current_snapshot: &SigmaSnapshot, sector: &str,
     ) -> String {
         let sector_policy = self
             .config
@@ -344,10 +328,7 @@ Output ONLY valid JSON objects, one per line.
 #[async_trait]
 impl DeltaSigmaProposer for RealLLMProposer {
     async fn propose_deltas(
-        &self,
-        patterns: Vec<Pattern>,
-        current_snapshot: Arc<SigmaSnapshot>,
-        sector: &str,
+        &self, patterns: Vec<Pattern>, current_snapshot: Arc<SigmaSnapshot>, sector: &str,
     ) -> Result<Vec<DeltaSigmaProposal>, String> {
         if patterns.is_empty() {
             return Ok(vec![]);
@@ -361,8 +342,8 @@ impl DeltaSigmaProposer for RealLLMProposer {
             }
         }
 
-        // Build prompt
-        let prompt = self.build_prompt(&patterns, &current_snapshot, sector);
+        // Build prompt (currently unused in mock implementation)
+        let _prompt = self.build_prompt(&patterns, &current_snapshot, sector);
 
         // In production: call genai with streaming
         // For now, return mock proposals
@@ -396,12 +377,11 @@ impl DeltaSigmaProposer for RealLLMProposer {
     }
 
     async fn stream_proposals(
-        &self,
-        patterns: Vec<Pattern>,
-        current_snapshot: Arc<SigmaSnapshot>,
-        sector: &str,
+        &self, patterns: Vec<Pattern>, current_snapshot: Arc<SigmaSnapshot>, sector: &str,
     ) -> Result<ProposalStream, String> {
-        let proposals = self.propose_deltas(patterns, current_snapshot, sector).await?;
+        let proposals = self
+            .propose_deltas(patterns, current_snapshot, sector)
+            .await?;
 
         let stream = futures::stream::iter(proposals)
             .then(|proposal| async move { proposal })

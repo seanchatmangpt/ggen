@@ -171,11 +171,7 @@ pub struct TestingProof {
 }
 
 impl TestingProof {
-    pub fn new(
-        proof_id: impl Into<String>,
-        doctrine_distance: f64,
-        tests_passed: usize,
-    ) -> Self {
+    pub fn new(proof_id: impl Into<String>, doctrine_distance: f64, tests_passed: usize) -> Self {
         Self {
             proof_id: proof_id.into(),
             doctrine_distance,
@@ -233,11 +229,7 @@ pub struct EvidenceProof {
 }
 
 impl EvidenceProof {
-    pub fn new(
-        proof_id: impl Into<String>,
-        doctrine_distance: f64,
-        evidence_count: usize,
-    ) -> Self {
+    pub fn new(proof_id: impl Into<String>, doctrine_distance: f64, evidence_count: usize) -> Self {
         Self {
             proof_id: proof_id.into(),
             doctrine_distance,
@@ -396,9 +388,7 @@ pub struct WeakDecision<P: WeakProof> {
 impl<P: WeakProof> WeakDecision<P> {
     /// Construct a decision with proof
     pub fn make(
-        decision_id: impl Into<String>,
-        description: impl Into<String>,
-        proof: P,
+        decision_id: impl Into<String>, description: impl Into<String>, proof: P,
     ) -> Result<Self, String> {
         proof.can_use()?;
 
@@ -425,9 +415,7 @@ pub struct StandardDecision<P: StandardProof> {
 
 impl<P: StandardProof> StandardDecision<P> {
     pub fn make(
-        decision_id: impl Into<String>,
-        description: impl Into<String>,
-        proof: P,
+        decision_id: impl Into<String>, description: impl Into<String>, proof: P,
     ) -> Result<Self, String> {
         proof.can_use()?;
 
@@ -454,9 +442,7 @@ pub struct StrongDecision<P: StrongProof> {
 
 impl<P: StrongProof> StrongDecision<P> {
     pub fn make(
-        decision_id: impl Into<String>,
-        description: impl Into<String>,
-        proof: P,
+        decision_id: impl Into<String>, description: impl Into<String>, proof: P,
     ) -> Result<Self, String> {
         proof.can_use()?;
 
@@ -483,9 +469,7 @@ pub struct CriticalDecision<P: CriticalProof> {
 
 impl<P: CriticalProof> CriticalDecision<P> {
     pub fn make(
-        decision_id: impl Into<String>,
-        description: impl Into<String>,
-        proof: P,
+        decision_id: impl Into<String>, description: impl Into<String>, proof: P,
     ) -> Result<Self, String> {
         proof.can_use()?;
 

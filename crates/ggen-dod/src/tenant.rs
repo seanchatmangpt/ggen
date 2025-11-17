@@ -7,9 +7,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::BTreeSet;
 
 /// Tenant identifier
-#[derive(
-    Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize,
-)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct TenantId(String);
 
 impl TenantId {
@@ -116,9 +114,7 @@ impl TenantIsolation {
 
     /// Verify isolation: all items must belong to same tenant
     pub fn verify_isolation(
-        &self,
-        tenant_id: &TenantId,
-        items: &[&str],
+        &self, tenant_id: &TenantId, items: &[&str],
     ) -> crate::error::DoDResult<()> {
         if !self.exists(tenant_id) {
             return Err(crate::error::DoDError::TenantIsolation(

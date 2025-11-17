@@ -17,9 +17,7 @@ use std::collections::BTreeMap;
 use uuid::Uuid;
 
 /// Unique identifier for receipts
-#[derive(
-    Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize,
-)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct ReceiptId(Uuid);
 
 impl ReceiptId {
@@ -74,10 +72,13 @@ pub struct Receipt {
 
 impl Receipt {
     /// Create a new receipt from a kernel decision
-    pub fn from_decision(decision: &KernelDecision, tenant_id: &str, key: &[u8]) -> DoDResult<Self> {
+    pub fn from_decision(
+        decision: &KernelDecision, tenant_id: &str, key: &[u8],
+    ) -> DoDResult<Self> {
         let obs_hash = Self::compute_observation_hash(decision.observations());
         let action_hash = Self::compute_action_hash(decision.actions());
-        let decision_hash = decision.determinism_hash()
+        let decision_hash = decision
+            .determinism_hash()
             .ok_or_else(|| {
                 crate::error::DoDError::Receipt("no determinism hash in decision".to_string())
             })?
@@ -86,11 +87,7 @@ impl Receipt {
         let mut receipt = Self {
             id: ReceiptId::new(),
             decision_id: decision.decision_id().to_string(),
-            observation_ids: decision
-                .observations()
-                .iter()
-                .map(|o| o.id())
-                .collect(),
+            observation_ids: decision.observations().iter().map(|o| o.id()).collect(),
             action_ids: decision.actions().iter().map(|a| a.id()).collect(),
             observation_hash: obs_hash,
             action_hash,
@@ -132,8 +129,8 @@ impl Receipt {
     /// Sign the receipt
     fn sign(&mut self, key: &[u8]) {
         use hmac::Mac;
-        let mut mac = hmac::Hmac::<sha2::Sha256>::new_from_slice(key)
-            .expect("HMAC key length is valid");
+        let mut mac =
+            hmac::Hmac::<sha2::Sha256>::new_from_slice(key).expect("HMAC key length is valid");
 
         let payload = format!(
             "{}{}{}{}",
@@ -146,8 +143,8 @@ impl Receipt {
     /// Verify the receipt's signature
     pub fn verify(&self, key: &[u8]) -> DoDResult<bool> {
         use hmac::Mac;
-        let mut mac = hmac::Hmac::<sha2::Sha256>::new_from_slice(key)
-            .expect("HMAC key length is valid");
+        let mut mac =
+            hmac::Hmac::<sha2::Sha256>::new_from_slice(key).expect("HMAC key length is valid");
 
         let payload = format!(
             "{}{}{}{}",
@@ -265,11 +262,7 @@ impl ReceiptStore {
     pub fn get_by_tenant(&self, tenant_id: &str) -> Vec<&Receipt> {
         self.by_tenant_id
             .get(tenant_id)
-            .map(|ids| {
-                ids.iter()
-                    .filter_map(|id| self.receipts.get(id))
-                    .collect()
-            })
+            .map(|ids| ids.iter().filter_map(|id| self.receipts.get(id)).collect())
             .unwrap_or_default()
     }
 
@@ -278,10 +271,7 @@ impl ReceiptStore {
     where
         F: Fn(&Receipt) -> bool,
     {
-        self.receipts
-            .values()
-            .filter(|r| predicate(r))
-            .collect()
+        self.receipts.values().filter(|r| predicate(r)).collect()
     }
 
     /// Get all receipts

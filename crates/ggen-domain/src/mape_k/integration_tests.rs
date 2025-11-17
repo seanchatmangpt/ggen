@@ -6,8 +6,8 @@
 mod tests {
     use crate::mape_k::{
         AnalyzeEngine, ExecuteEngine, FindingKind, KnowledgeStore as KStore, MonitorEngine,
-        Observation, ObservationType, OverlayKind, OverlayProposal, PlanEngine, PolicyRule,
-        PolicyAction, ValidationStatus, SLOConfig,
+        Observation, ObservationType, OverlayKind, OverlayProposal, PlanEngine, PolicyAction,
+        PolicyRule, SLOConfig, ValidationStatus,
     };
     use std::collections::HashMap;
 
@@ -141,8 +141,7 @@ mod tests {
         assert!(!findings.is_empty());
 
         // Should have different finding kinds
-        let finding_kinds: std::collections::HashSet<_> =
-            findings.iter().map(|f| f.kind).collect();
+        let finding_kinds: std::collections::HashSet<_> = findings.iter().map(|f| f.kind).collect();
         assert!(finding_kinds.len() > 0);
     }
 
@@ -209,9 +208,7 @@ mod tests {
 
         // Old snapshot should be inactive
         let history = knowledge.snapshot_history();
-        let old = history
-            .iter()
-            .find(|s| s.id == "snapshot-0");
+        let old = history.iter().find(|s| s.id == "snapshot-0");
         assert!(old.is_some());
         assert!(!old.unwrap().is_active);
     }

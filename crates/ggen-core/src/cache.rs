@@ -584,7 +584,8 @@ mod tests {
     use std::fs;
     use tempfile::TempDir;
 
-    chicago_tdd_tools::test!(test_cache_manager_creation, {
+    #[test]
+    fn test_cache_manager_creation() {
         let temp_dir = TempDir::new()
             .map_err(|e| Error::with_context("Failed to create temp dir", &e.to_string()))
             .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
@@ -594,9 +595,10 @@ mod tests {
             .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
         assert_eq!(cache_manager.cache_dir(), cache_dir);
         Ok::<(), Box<dyn std::error::Error>>(())
-    });
+    }
 
-    chicago_tdd_tools::test!(test_sha256_calculation, {
+    #[test]
+    fn test_sha256_calculation() {
         let temp_dir = TempDir::new()
             .map_err(|e| Error::with_context("Failed to create temp dir", &e.to_string()))
             .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
@@ -623,9 +625,10 @@ mod tests {
         assert_eq!(sha256.len(), 64);
         assert!(sha256.chars().all(|c| c.is_ascii_hexdigit()));
         Ok::<(), Box<dyn std::error::Error>>(())
-    });
+    }
 
-    chicago_tdd_tools::test!(test_list_cached_empty, {
+    #[test]
+    fn test_list_cached_empty() {
         let temp_dir = TempDir::new()
             .map_err(|e| Error::with_context("Failed to create temp dir", &e.to_string()))
             .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
@@ -637,5 +640,5 @@ mod tests {
             .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
         assert!(cached.is_empty());
         Ok::<(), Box<dyn std::error::Error>>(())
-    });
+    }
 }

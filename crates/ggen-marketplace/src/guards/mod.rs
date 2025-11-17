@@ -22,7 +22,7 @@
 pub mod guard_8020;
 pub mod validation_receipt;
 
-pub use guard_8020::{Guard8020Coverage, Guard8020Result, Guard8020Check};
+pub use guard_8020::{Guard8020Check, Guard8020Coverage, Guard8020Result};
 pub use validation_receipt::{ValidationReceipt, ValidationReceiptBuilder};
 
 /// Trait for guard implementations
@@ -35,7 +35,9 @@ pub trait Guard: Send + Sync {
 
     /// Run the guard validation
     /// Returns Ok(validation_result) if guard can validate, Err if not applicable
-    fn validate(&self, package_path: &str) -> Result<GuardValidationResult, crate::error::MarketplaceError>;
+    fn validate(
+        &self, package_path: &str,
+    ) -> Result<GuardValidationResult, crate::error::MarketplaceError>;
 }
 
 /// Result of a single guard validation check

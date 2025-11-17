@@ -7,7 +7,7 @@
 //! - Action execution
 //! - Feedback loop timing
 
-use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId};
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
 use std::collections::HashMap;
 
 fn benchmark_observation_creation(c: &mut Criterion) {

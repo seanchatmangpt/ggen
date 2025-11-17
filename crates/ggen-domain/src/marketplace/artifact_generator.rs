@@ -3,9 +3,9 @@
 //! Generates JSON registry and Markdown documentation from validation receipts.
 //! Implements the μ_market projection layer: ontology → JSON/Markdown artifacts.
 
+use chrono::Utc;
 use serde_json::{json, Value};
 use std::path::Path;
-use chrono::Utc;
 
 /// Generate registry index.json from marketplace receipts and ontology
 pub fn generate_registry_index(marketplace_root: &Path) -> Result<Value, String> {
@@ -13,7 +13,9 @@ pub fn generate_registry_index(marketplace_root: &Path) -> Result<Value, String>
     let mut packages = Vec::new();
 
     if !receipts_dir.exists() {
-        return Err("No receipts directory found. Run marketplace-emit-receipts first.".to_string());
+        return Err(
+            "No receipts directory found. Run marketplace-emit-receipts first.".to_string(),
+        );
     }
 
     // Collect all package receipts
@@ -24,7 +26,10 @@ pub fn generate_registry_index(marketplace_root: &Path) -> Result<Value, String>
                 if let Some(pkg_id) = pkg_dir.file_name().and_then(|n| n.to_str()) {
                     // Get latest receipt for this package
                     if let Ok(Some(receipt)) =
-                        crate::marketplace::ValidationReceipt::latest_for_package(marketplace_root, pkg_id)
+                        crate::marketplace::ValidationReceipt::latest_for_package(
+                            marketplace_root,
+                            pkg_id,
+                        )
                     {
                         packages.push(json!({
                             "name": pkg_id,
@@ -86,7 +91,9 @@ pub fn generate_packages_markdown(marketplace_root: &Path) -> Result<String, Str
         std::collections::BTreeMap::new();
 
     if !receipts_dir.exists() {
-        return Err("No receipts directory found. Run marketplace-emit-receipts first.".to_string());
+        return Err(
+            "No receipts directory found. Run marketplace-emit-receipts first.".to_string(),
+        );
     }
 
     // Collect packages by category
@@ -96,13 +103,20 @@ pub fn generate_packages_markdown(marketplace_root: &Path) -> Result<String, Str
             if pkg_dir.is_dir() {
                 if let Some(pkg_id) = pkg_dir.file_name().and_then(|n| n.to_str()) {
                     if let Ok(Some(receipt)) =
-                        crate::marketplace::ValidationReceipt::latest_for_package(marketplace_root, pkg_id)
+                        crate::marketplace::ValidationReceipt::latest_for_package(
+                            marketplace_root,
+                            pkg_id,
+                        )
                     {
                         let category = categorize_package(pkg_id).to_string();
                         packages_by_category
                             .entry(category)
                             .or_insert_with(Vec::new)
-                            .push((pkg_id.to_string(), receipt.overall_score, receipt.production_ready));
+                            .push((
+                                pkg_id.to_string(),
+                                receipt.overall_score,
+                                receipt.production_ready,
+                            ));
                     }
                 }
             }
@@ -111,14 +125,19 @@ pub fn generate_packages_markdown(marketplace_root: &Path) -> Result<String, Str
 
     let mut markdown = String::new();
     markdown.push_str("# Complete Package Directory\n\n");
-    markdown.push_str("Comprehensive documentation of all packages available in the ggen marketplace.\n\n");
+    markdown.push_str(
+        "Comprehensive documentation of all packages available in the ggen marketplace.\n\n",
+    );
     markdown.push_str(&format!(
         "**Last Updated**: {}\n",
         chrono::Local::now().format("%Y-%m-%d")
     ));
     markdown.push_str(&format!(
         "**Total Packages**: {}\n",
-        packages_by_category.values().map(|v| v.len()).sum::<usize>()
+        packages_by_category
+            .values()
+            .map(|v| v.len())
+            .sum::<usize>()
     ));
     markdown.push_str("**Version**: 1.0.0\n\n");
 
@@ -135,7 +154,11 @@ pub fn generate_packages_markdown(marketplace_root: &Path) -> Result<String, Str
     // Package sections by category
     for (category, packages) in packages_by_category {
         let _safe_category = category.replace(" ", "-").to_lowercase();
-        markdown.push_str(&format!("## {} {}\n\n", category_emoji(&category), category));
+        markdown.push_str(&format!(
+            "## {} {}\n\n",
+            category_emoji(&category),
+            category
+        ));
 
         for (pkg_id, score, prod_ready) in packages {
             let status_badge = if prod_ready {
@@ -175,8 +198,7 @@ pub fn write_registry_index(index_json: &Value, output_path: &Path) -> Result<()
 
 /// Write packages markdown to file
 pub fn write_packages_markdown(markdown: &str, output_path: &Path) -> Result<(), String> {
-    std::fs::write(output_path, markdown)
-        .map_err(|e| format!("Failed to write PACKAGES.md: {}", e))
+    std::fs::write(output_path, markdown).map_err(|e| format!("Failed to write PACKAGES.md: {}", e))
 }
 
 /// Categorize a package based on its name

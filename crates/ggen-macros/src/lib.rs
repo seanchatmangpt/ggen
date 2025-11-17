@@ -10,37 +10,57 @@ extern crate proc_macro;
 
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{parse_macro_input, DeriveInput};
+use syn::{parse_macro_input, DeriveInput, Error as SynError, Meta};
 
 /// Derive macro for Guard definitions
 ///
 /// Automatically generates:
 /// - Guard trait implementation
-/// - Async validation method
-/// - Scoring calculation
-/// - Result aggregation
+/// - Validation method with default implementation (always passes - override for real validation)
+/// - Helper methods for guard name and description
+///
+/// # Requirements
+///
+/// The consuming crate must have the following modules:
+/// - `crate::guards::Guard` trait
+/// - `crate::guards::GuardValidationResult` struct
+/// - `crate::guards::GuardCheck` struct
+/// - `crate::error::MarketplaceError` error type
 ///
 /// # Example
 /// ```ignore
 /// #[derive(Guard)]
 /// #[guard_name = "Guard8020Coverage"]
+/// #[guard_description = "Validates 80/20 coverage requirements"]
 /// pub struct Guard8020 {
-///     #[check(name = "ontology_valid", weight = 20)]
-///     pub ontology: OntologyCheck,
-///
-///     #[check(name = "projections_complete", weight = 20)]
-///     pub projections: ProjectionsCheck,
+///     pub ontology_valid: bool,
+///     pub projections_complete: bool,
 /// }
 /// ```
-#[proc_macro_derive(Guard, attributes(guard_name, guard_description, check))]
+#[proc_macro_derive(Guard, attributes(guard_name, guard_description))]
 pub fn derive_guard(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
 
     let name = &input.ident;
-    let guard_name = get_attr_value(&input.attrs, "guard_name")
-        .unwrap_or_else(|| name.to_string());
+    let guard_name = get_attr_value(&input.attrs, "guard_name").unwrap_or_else(|| name.to_string());
+
+    // Validate guard_name is not empty
+    if guard_name.is_empty() {
+        return SynError::new(
+            name.span(),
+            "guard_name cannot be empty. Provide a non-empty string or omit the attribute to use the struct name."
+        ).to_compile_error().into();
+    }
+
     let guard_description = get_attr_value(&input.attrs, "guard_description")
         .unwrap_or_else(|| format!("Validates {}", guard_name));
+
+    // Validate guard_description is not empty (use default if empty)
+    let guard_description = if guard_description.is_empty() {
+        format!("Validates {}", guard_name)
+    } else {
+        guard_description
+    };
 
     // Generate Guard trait implementation and helper methods
     // Uses fully-qualified paths since this code runs in the context of the consuming crate
@@ -58,6 +78,10 @@ pub fn derive_guard(input: TokenStream) -> TokenStream {
             }
 
             /// Validate this guard (internal implementation)
+            ///
+            /// **Note**: This is a default stub implementation that always passes.
+            /// For actual validation logic, you should override this method or implement
+            /// custom validation in your guard struct.
             pub fn validate_internal(
                 &self,
                 _package_path: &str,
@@ -65,9 +89,9 @@ pub fn derive_guard(input: TokenStream) -> TokenStream {
                 ::std::result::Result::Ok(crate::guards::GuardValidationResult {
                     guard_name: Self::guard_name().to_string(),
                     passed: true,
-                    checks: vec![],
+                    checks: Vec::<crate::guards::GuardCheck>::new(),
                     message: Self::guard_description().to_string(),
-                    score: 100,
+                    score: 100u32,
                 })
             }
         }
@@ -94,45 +118,26 @@ pub fn derive_guard(input: TokenStream) -> TokenStream {
 /// Derive macro for Bundle definitions
 ///
 /// Automatically generates:
-/// - Bundle struct with lazy loading
-/// - Dependency resolution
-/// - Metadata
-/// - Validation pipeline
+/// - Helper methods for bundle name, sector, and dark matter target
+/// - Dependency method (currently returns empty vector)
+///
+/// Note: Full bundle functionality (lazy loading, dependency resolution, validation pipeline)
+/// is not yet implemented.
 #[proc_macro_derive(Bundle, attributes(bundle_name, bundle_sector, dark_matter_target))]
 pub fn derive_bundle(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
 
     let name = &input.ident;
-    let bundle_name = get_attr_value(&input.attrs, "bundle_name")
-        .unwrap_or_else(|| name.to_string());
-    let bundle_sector = get_attr_value(&input.attrs, "bundle_sector")
-        .unwrap_or_default();
-    let dark_matter_target = get_attr_value(&input.attrs, "dark_matter_target")
-        .unwrap_or_default();
+    let bundle_name =
+        get_attr_value(&input.attrs, "bundle_name").unwrap_or_else(|| name.to_string());
+    let bundle_sector = get_attr_value(&input.attrs, "bundle_sector").unwrap_or_default();
+    let dark_matter_target = get_attr_value(&input.attrs, "dark_matter_target").unwrap_or_default();
 
     // Generate Bundle helper methods and metadata
     let expanded = quote! {
         impl #name {
-            /// Get bundle metadata
-            pub fn metadata(&self) -> BundleMetadata {
-                BundleMetadata {
-                    name: #bundle_name.to_string(),
-                    sector: if #bundle_sector.is_empty() {
-                        None
-                    } else {
-                        Some(#bundle_sector.to_string())
-                    },
-                    dark_matter_reduction_target: if #dark_matter_target.is_empty() {
-                        None
-                    } else {
-                        Some(#dark_matter_target.to_string())
-                    },
-                    is_8020: true,
-                    is_8020_certified: false,
-                }
-            }
-
             /// Get bundle dependencies
+            /// Note: Currently returns empty vector. Dependency resolution not yet implemented.
             pub fn dependencies(&self) -> Vec<String> {
                 vec![]
             }
@@ -169,6 +174,26 @@ pub fn derive_bundle(input: TokenStream) -> TokenStream {
 fn get_attr_value(attrs: &[syn::Attribute], attr_name: &str) -> Option<String> {
     attrs.iter().find_map(|attr| {
         if attr.path().is_ident(attr_name) {
+            // Try parsing as meta item (supports both #[attr = "value"] and #[attr("value")])
+            match &attr.meta {
+                Meta::NameValue(name_value) => {
+                    if let syn::Expr::Lit(syn::ExprLit {
+                        lit: syn::Lit::Str(lit_str),
+                        ..
+                    }) = &name_value.value
+                    {
+                        return Some(lit_str.value());
+                    }
+                }
+                Meta::List(list) => {
+                    // Try parsing as #[attr("value")]
+                    if let Ok(lit_str) = syn::parse2::<syn::LitStr>(list.tokens.clone()) {
+                        return Some(lit_str.value());
+                    }
+                }
+                _ => {}
+            }
+            // Fallback: try parse_args for #[attr("value")] syntax
             attr.parse_args::<syn::LitStr>().ok().map(|lit| lit.value())
         } else {
             None
@@ -201,7 +226,7 @@ pub fn include_templates(input: TokenStream) -> TokenStream {
     let expanded = quote! {
         {
             const TEMPLATES_PATH: &str = #path;
-            std::collections::HashMap::new()
+            std::collections::BTreeMap::new()
         }
     };
 

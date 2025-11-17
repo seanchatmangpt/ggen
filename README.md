@@ -28,7 +28,7 @@ ggen template generate-rdf --ontology domain.ttl --template python-pydantic
 
 **Install**: `brew tap seanchatmangpt/tap && brew install ggen` or `cargo install ggen` or `git clone https://github.com/seanchatmangpt/ggen && cargo install --path crates/ggen-cli --bin ggen --force`
 
-**Verify**: `ggen --version` (should output: ggen 2.7.0). If using `asdf`: `asdf reshim rust`
+**Verify**: `ggen --version` (should output: ggen 3.0.0). If using `asdf`: `asdf reshim rust`
 
 **First Generation**:
 - **AI-Powered**: `ggen ai generate-ontology --prompt "Blog: User, Post, Comment" --output blog.ttl` → `ggen template generate-rdf --ontology blog.ttl --template rust-graphql-api`

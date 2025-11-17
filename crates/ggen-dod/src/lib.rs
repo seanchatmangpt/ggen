@@ -26,33 +26,35 @@
 //! - **Provenance**: Every action has cryptographically signed receipt
 //! - **Timing**: Performance guarantees (τ ≤ 8ms) enforced at compile and runtime
 
-pub mod observation;
+pub mod autonomic;
+pub mod binding_completeness;
 pub mod contract;
+pub mod decision;
+pub mod decision_closure;
+pub mod doctrine;
+pub mod error;
 pub mod invariant;
 pub mod kernel;
+pub mod observation;
 pub mod receipt;
-pub mod decision;
-pub mod timing;
-pub mod autonomic;
-pub mod doctrine;
-pub mod tenant;
-pub mod error;
-pub mod binding_completeness;
-pub mod decision_closure;
 pub mod replay;
+pub mod tenant;
+pub mod timing;
 
 // Re-export commonly used types
-pub use error::{DoDError, DoDResult};
-pub use observation::{Observation, ObservationType, ObservationId, ObservationSchema};
-pub use contract::{Contract, ContractVersion, ContractId, Ontology};
-pub use invariant::{Invariant, InvariantId, InvariantChecker};
-pub use kernel::{Kernel, KernelDecision, KernelAction};
-pub use receipt::{Receipt, ReceiptId, ReceiptStore};
+pub use autonomic::mape_k::{
+    AnalysisPhase, ExecutionPhase, MAPEKLoop, ObservationPhase, PlanningPhase,
+};
+pub use contract::{Contract, ContractId, ContractVersion, Ontology};
 pub use decision::{Decision, DecisionId, DecisionStore};
-pub use timing::{TimingGuarantee, TimingMeasurement, TimingEnforcer};
-pub use autonomic::mape_k::{MAPEKLoop, ObservationPhase, AnalysisPhase, PlanningPhase, ExecutionPhase};
-pub use tenant::{TenantId, TenantContext, TenantIsolation};
 pub use doctrine::DoctrineCompliance;
+pub use error::{DoDError, DoDResult};
+pub use invariant::{Invariant, InvariantChecker, InvariantId};
+pub use kernel::{Kernel, KernelAction, KernelDecision};
+pub use observation::{Observation, ObservationId, ObservationSchema, ObservationType};
+pub use receipt::{Receipt, ReceiptId, ReceiptStore};
+pub use tenant::{TenantContext, TenantId, TenantIsolation};
+pub use timing::{TimingEnforcer, TimingGuarantee, TimingMeasurement};
 
 /// Core constants for DoD
 pub mod constants {
@@ -92,16 +94,13 @@ mod tests {
     fn test_constants_consistency() {
         // Verify proof threshold ordering
         assert!(
-            constants::proof_thresholds::WEAK_PROOF
-                < constants::proof_thresholds::STANDARD_PROOF
+            constants::proof_thresholds::WEAK_PROOF < constants::proof_thresholds::STANDARD_PROOF
         );
         assert!(
-            constants::proof_thresholds::STANDARD_PROOF
-                < constants::proof_thresholds::STRONG_PROOF
+            constants::proof_thresholds::STANDARD_PROOF < constants::proof_thresholds::STRONG_PROOF
         );
         assert!(
-            constants::proof_thresholds::STRONG_PROOF
-                < constants::proof_thresholds::CRITICAL_PROOF
+            constants::proof_thresholds::STRONG_PROOF < constants::proof_thresholds::CRITICAL_PROOF
         );
     }
 }

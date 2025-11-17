@@ -3,13 +3,17 @@
 //! Extends the validation system to emit immutable, checksummed ValidationReceipt JSON files
 //! for audit trail and downstream artifact generation.
 
+use crate::marketplace::guards::factories::{
+    GuardChicagoCompliance, GuardLicense, GuardMetadata, GuardReadme, GuardTests,
+};
 use crate::marketplace::guards::{Guard, ValidationReceipt};
-use crate::marketplace::guards::factories::{GuardMetadata, GuardLicense, GuardReadme, GuardTests, GuardChicagoCompliance};
-use std::path::{Path, PathBuf};
 use chrono::Utc;
+use std::path::{Path, PathBuf};
 
 /// Emit validation receipts for all packages in the marketplace
-pub fn emit_receipts_for_marketplace(marketplace_root: &Path) -> Vec<(String, Result<PathBuf, String>)> {
+pub fn emit_receipts_for_marketplace(
+    marketplace_root: &Path,
+) -> Vec<(String, Result<PathBuf, String>)> {
     let packages_dir = marketplace_root.join("marketplace").join("packages");
     let mut results = Vec::new();
 
@@ -25,7 +29,8 @@ pub fn emit_receipts_for_marketplace(marketplace_root: &Path) -> Vec<(String, Re
                 if let Some(pkg_name) = path.file_name().and_then(|n| n.to_str()) {
                     // Try to extract version from package.toml
                     if let Ok(version) = extract_version_from_package(&path) {
-                        match emit_receipt_for_package(&path, pkg_name, &version, marketplace_root) {
+                        match emit_receipt_for_package(&path, pkg_name, &version, marketplace_root)
+                        {
                             Ok(receipt_path) => {
                                 results.push((pkg_name.to_string(), Ok(receipt_path)));
                             }
@@ -83,16 +88,13 @@ fn extract_version_from_package(package_path: &Path) -> Result<String, String> {
 
 /// Emit a validation receipt for a single package
 pub fn emit_receipt_for_package(
-    package_path: &Path,
-    package_id: &str,
-    version: &str,
-    marketplace_root: &Path,
+    package_path: &Path, package_id: &str, version: &str, marketplace_root: &Path,
 ) -> Result<PathBuf, String> {
     // Create validation receipt
     let mut receipt = ValidationReceipt::new(
         package_id.to_string(),
         version.to_string(),
-        "2.7.1".to_string(), // ggen version
+        "3.0.0".to_string(), // ggen version
     );
 
     // Instantiate and execute standard guards
@@ -135,8 +137,7 @@ pub fn emit_receipt_for_package(
 
 /// Update production_ready flags in index.json based on receipts
 pub fn update_production_flags(
-    registry_index_path: &Path,
-    receipts_root: &Path,
+    registry_index_path: &Path, receipts_root: &Path,
 ) -> Result<(), String> {
     // Read current index.json
     let index_json = std::fs::read_to_string(registry_index_path)
@@ -149,7 +150,8 @@ pub fn update_production_flags(
     if let Some(packages) = index.get_mut("packages").and_then(|p| p.as_array_mut()) {
         for package in packages.iter_mut() {
             if let Some(name) = package.get("name").and_then(|n| n.as_str()) {
-                if let Ok(Some(receipt)) = ValidationReceipt::latest_for_package(receipts_root, name)
+                if let Ok(Some(receipt)) =
+                    ValidationReceipt::latest_for_package(receipts_root, name)
                 {
                     package["production_ready"] = serde_json::json!(receipt.production_ready);
                     package["validation_score"] = serde_json::json!(receipt.overall_score);
@@ -168,9 +170,7 @@ pub fn update_production_flags(
 }
 
 /// Generate validation report showing receipt statistics
-pub fn generate_validation_report(
-    marketplace_root: &Path,
-) -> Result<ValidationReport, String> {
+pub fn generate_validation_report(marketplace_root: &Path) -> Result<ValidationReport, String> {
     let receipts_dir = marketplace_root.join("marketplace").join("receipts");
 
     if !receipts_dir.exists() {

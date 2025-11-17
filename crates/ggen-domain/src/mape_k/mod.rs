@@ -3,29 +3,33 @@
 //! Monitor-Analyze-Plan-Execute-Knowledge feedback loop for self-managing marketplace.
 //! Implements the full autonomic control system defined in MAPE-K_AUTONOMIC_INTEGRATION.md
 
-pub mod types;
-pub mod monitor;
 pub mod analyze;
-pub mod plan;
 pub mod execute;
 pub mod knowledge;
+pub mod monitor;
+pub mod plan;
+pub mod types;
 
 #[cfg(test)]
 #[path = "integration_tests.rs"]
 mod integration_tests;
 
 // Re-export public API
-pub use types::{
-    Finding, FindingKind, OntologyOverlay, OverlayProposal,
-    PolicyRule, PolicyAction, PromotionGate, ValidationResult, ValidationStatus,
-    ValidationStage, SnapshotMetadata, MAPEMetrics, OverlayKind, OverlayProposer,
-    Observation, ObservationType,
+pub use analyze::{AnalyzeEngine, SLOConfig};
+pub use execute::{
+    ExecuteEngine, ExecutionResult, PromotionResult, Validator, ValidatorOrchestrator,
+};
+pub use knowledge::{
+    CompactionPolicy, CompactionResult, HistoryQuery, KnowledgeStatistics, KnowledgeStore,
+    KnowledgeStore as KStore,
 };
 pub use monitor::MonitorEngine;
-pub use analyze::{AnalyzeEngine, SLOConfig};
 pub use plan::PlanEngine;
-pub use execute::{ExecuteEngine, Validator, ValidatorOrchestrator, PromotionResult, ExecutionResult};
-pub use knowledge::{KnowledgeStore, KnowledgeStore as KStore, HistoryQuery, CompactionPolicy, CompactionResult, KnowledgeStatistics};
+pub use types::{
+    Finding, FindingKind, MAPEMetrics, Observation, ObservationType, OntologyOverlay, OverlayKind,
+    OverlayProposal, OverlayProposer, PolicyAction, PolicyRule, PromotionGate, SnapshotMetadata,
+    ValidationResult, ValidationStage, ValidationStatus,
+};
 
 #[cfg(test)]
 mod integration_tests_inline {
@@ -71,9 +75,7 @@ mod integration_tests_inline {
         let mut executor = ExecuteEngine::new();
         let mut proposal = proposals[0].clone();
         let result = executor.execute(&mut proposal);
-        assert!(
-            result.success || result.validation_status == ValidationStatus::ReviewNeeded
-        );
+        assert!(result.success || result.validation_status == ValidationStatus::ReviewNeeded);
 
         // Knowledge: Store all data
         let mut knowledge = KStore::new();
@@ -96,10 +98,7 @@ mod integration_tests_inline {
 
         knowledge.record_promotion("overlay-1".to_string(), "snapshot-1".to_string());
         assert_eq!(knowledge.snapshot_history().len(), 2);
-        assert_eq!(
-            knowledge.active_snapshot().unwrap().id,
-            "snapshot-1"
-        );
+        assert_eq!(knowledge.active_snapshot().unwrap().id, "snapshot-1");
     }
 
     #[test]

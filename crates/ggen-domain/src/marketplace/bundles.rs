@@ -33,9 +33,7 @@ impl BundleRegistry {
 
     /// Get a bundle by ID
     pub fn get_bundle(id: &str) -> Option<SectorBundle> {
-        Self::list_bundles()
-            .into_iter()
-            .find(|b| b.id == id)
+        Self::list_bundles().into_iter().find(|b| b.id == id)
     }
 
     /// Academic Papers Bundle
@@ -66,7 +64,8 @@ impl BundleRegistry {
         SectorBundle {
             id: "sector-enterprise-saas".to_string(),
             version: "1.0.0".to_string(),
-            description: "Multi-tenant SaaS architectures with CRM, ERP, and enterprise features".to_string(),
+            description: "Multi-tenant SaaS architectures with CRM, ERP, and enterprise features"
+                .to_string(),
             domain: "enterprise".to_string(),
             minimum_score: 80.0,
             packages: vec![
@@ -90,7 +89,9 @@ impl BundleRegistry {
         SectorBundle {
             id: "sector-data-pipelines".to_string(),
             version: "1.0.0".to_string(),
-            description: "Data engineering stack for ETL, transformation, schema management, and analytics".to_string(),
+            description:
+                "Data engineering stack for ETL, transformation, schema management, and analytics"
+                    .to_string(),
             domain: "data".to_string(),
             minimum_score: 80.0,
             packages: vec![
@@ -138,7 +139,9 @@ impl BundleRegistry {
         SectorBundle {
             id: "sector-fintech".to_string(),
             version: "1.0.0".to_string(),
-            description: "Financial services stack including banking, payments, KYC/AML, and trading systems".to_string(),
+            description:
+                "Financial services stack including banking, payments, KYC/AML, and trading systems"
+                    .to_string(),
             domain: "finance".to_string(),
             minimum_score: 90.0,
             packages: vec![
@@ -228,12 +231,14 @@ ggen marketplace info <package-name>
         bundle.domain,
         bundle.minimum_score as u32,
         bundle.description,
-        bundle.packages
+        bundle
+            .packages
             .iter()
             .map(|p| format!("- `{}`", p))
             .collect::<Vec<_>>()
             .join("\n"),
-        bundle.features
+        bundle
+            .features
             .iter()
             .map(|f| format!("- {}", f))
             .collect::<Vec<_>>()

@@ -5,7 +5,7 @@
 
 use super::types::{
     Finding, FindingKind, OntologyOverlay, OverlayKind, OverlayProposal, OverlayProposer,
-    PolicyRule, PolicyAction, ValidationStatus,
+    PolicyAction, PolicyRule, ValidationStatus,
 };
 use std::collections::HashMap;
 
@@ -88,9 +88,7 @@ impl PlanEngine {
                 }
 
                 if self.policy_matches_finding(policy, finding) {
-                    if let Some(proposal) =
-                        self.generate_proposal_from_policy(policy, finding)
-                    {
+                    if let Some(proposal) = self.generate_proposal_from_policy(policy, finding) {
                         proposals.push(proposal);
                     }
                 }
@@ -107,9 +105,7 @@ impl PlanEngine {
 
     /// Generate overlay proposal from policy and finding
     fn generate_proposal_from_policy(
-        &mut self,
-        policy: &PolicyRule,
-        finding: &Finding,
+        &mut self, policy: &PolicyRule, finding: &Finding,
     ) -> Option<OverlayProposal> {
         match &policy.action {
             PolicyAction::ProposeOverlay {
@@ -120,11 +116,8 @@ impl PlanEngine {
                 let overlay_id = format!("overlay-{:04}", self.overlay_counter);
 
                 // Generate RDF patch based on action
-                let rdf_patch = self.generate_rdf_patch(
-                    finding.kind,
-                    &finding.component,
-                    parameters,
-                );
+                let rdf_patch =
+                    self.generate_rdf_patch(finding.kind, &finding.component, parameters);
 
                 let overlay = OntologyOverlay {
                     id: overlay_id.clone(),
@@ -164,9 +157,7 @@ impl PlanEngine {
 
     /// Generate RDF patch for overlay
     fn generate_rdf_patch(
-        &self,
-        finding_kind: FindingKind,
-        component: &str,
+        &self, finding_kind: FindingKind, component: &str,
         parameters: &HashMap<String, serde_json::Value>,
     ) -> String {
         match finding_kind {

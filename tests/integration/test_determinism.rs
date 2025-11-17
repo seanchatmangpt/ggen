@@ -1,144 +1,66 @@
 use chicago_tdd_tools::prelude::*;
+use ggen_core::{GenContext, Generator, Pipeline};
 use std::collections::BTreeMap;
-use std::process::Command;
-use std::str;
+use std::fs;
+use std::path::PathBuf;
+use tempfile::TempDir;
 
-// Helper function to simulate deterministic generation
-fn simulate_deterministic_generation(input: &str) -> String {
-    use std::collections::hash_map::DefaultHasher;
-    use std::hash::{Hash, Hasher};
-    
-    let mut hasher = DefaultHasher::new();
-    input.hash(&mut hasher);
-    format!("hash_{}", hasher.finish())
-}
+// Import common test utilities
+#[path = "../common/mod.rs"]
+mod common;
+use common::{create_temp_dir, write_file_in_temp};
 
 test!(test_deterministic_generation, {
-    // Arrange
-    let input1 = "cmd=hello";
-    let input2 = "cmd=hello";
-    let input3 = "cmd=world";
-    
-    // Act
-    let output1 = simulate_deterministic_generation(input1);
-    let output2 = simulate_deterministic_generation(input2);
-    let output3 = simulate_deterministic_generation(input3);
-    
-    // Assert
-    assert_eq!(output1, output2, "Identical inputs should produce identical outputs");
-    assert_ne!(output1, output3, "Different inputs should produce different outputs");
-});
-
-test!(test_matrix_generation, {
-    // Arrange
-    let matrix_vars = vec!["rust", "python"];
-    let mut outputs = Vec::new();
-    
-    // Act
-    for lang in &matrix_vars {
-        let output = simulate_deterministic_generation(&format!("cmd=test,lang={}", lang));
-        outputs.push(output);
-    }
-    
-    // Assert
-    assert_eq!(outputs.len(), 2);
-    assert_ne!(outputs[0], outputs[1], "Different matrix values should produce different outputs");
-});
-
-test!(test_shacl_validation, {
-    // Arrange
-    let valid_input = "cmd=test";
-    let invalid_input = "";
-    
-    // Act
-    let valid_output = simulate_deterministic_generation(valid_input);
-    let invalid_output = simulate_deterministic_generation(invalid_input);
-    
-    // Assert
-    assert!(!valid_output.is_empty());
-    assert!(!invalid_output.is_empty());
-    assert_ne!(valid_output, invalid_output);
-});
-
-test!(test_sparql_order_by_enforcement, {
-    // Arrange
-    let ordered_query = "SELECT * WHERE { ?s ?p ?o } ORDER BY ?s";
-    let unordered_query = "SELECT * WHERE { ?s ?p ?o }";
-    
-    // Act
-    let ordered_output = simulate_deterministic_generation(ordered_query);
-    let unordered_output = simulate_deterministic_generation(unordered_query);
-    
-    // Assert
-    assert!(!ordered_output.is_empty());
-    assert!(!unordered_output.is_empty());
-    assert_ne!(ordered_output, unordered_output);
-});
-
-test!(test_invalid_sparql_rejection, {
-    use std::fs;
-    use tempfile::TempDir;
-    
-    // Arrange
-    let temp_dir = TempDir::new().expect("Failed to create temp dir");
-    let template_dir = temp_dir.path().join("templates");
-    fs::create_dir_all(&template_dir).expect("Failed to create template dir");
-    
-    let invalid_template = r#"---
-to: "invalid_test.rs"
-vars:
-  name: "InvalidTest"
-rdf_inline:
-  - "@prefix ex: <http://example.org/> . ex:test a ex:Test ."
-sparql:
-  invalid_query: "INVALID SPARQL SYNTAX HERE"
+    // Arrange: Create template with same inputs
+    let temp_dir = create_temp_dir();
+    let template_content = r#"---
+to: "output.txt"
 ---
-// This template should fail during generation due to invalid SPARQL
-
-pub struct {{name}} {
-    // Invalid SPARQL should cause an error
-}
-"#;
+Hello, {{ name }}!
+Version: {{ version }}"#;
     
-    let template_path = template_dir.join("invalid.tmpl");
-    fs::write(&template_path, invalid_template).expect("Failed to write template");
+    let template_path = write_file_in_temp(&temp_dir, "template.tmpl", template_content);
+    let output_dir = temp_dir.path().join("output");
     
-    let valid_sparql = "SELECT * WHERE { ?s ?p ?o }";
-    let invalid_sparql = "INVALID SPARQL SYNTAX HERE";
+    let mut vars1 = BTreeMap::new();
+    vars1.insert("name".to_string(), "World".to_string());
+    vars1.insert("version".to_string(), "1.0.0".to_string());
     
-    // Act
-    let valid_output = simulate_deterministic_generation(valid_sparql);
-    let invalid_output = simulate_deterministic_generation(invalid_sparql);
+    let mut vars2 = BTreeMap::new();
+    vars2.insert("name".to_string(), "World".to_string());
+    vars2.insert("version".to_string(), "1.0.0".to_string());
     
-    // Assert
-    assert!(!valid_output.is_empty());
-    assert!(!invalid_output.is_empty());
-    assert_ne!(valid_output, invalid_output);
+    // Act: Generate twice with same inputs
+    let pipeline1 = Pipeline::new()?;
+    let ctx1 = GenContext::new(
+        PathBuf::from(&template_path),
+        output_dir.join("run1"),
+    )
+    .with_vars(vars1);
+    
+    let mut generator1 = Generator::new(pipeline1, ctx1);
+    let output_path1 = generator1.generate()?;
+    let output1 = fs::read_to_string(&output_path1)?;
+    
+    let pipeline2 = Pipeline::new()?;
+    let ctx2 = GenContext::new(
+        PathBuf::from(&template_path),
+        output_dir.join("run2"),
+    )
+    .with_vars(vars2);
+    
+    let mut generator2 = Generator::new(pipeline2, ctx2);
+    let output_path2 = generator2.generate()?;
+    let output2 = fs::read_to_string(&output_path2)?;
+    
+    // Assert: Outputs must be byte-identical
+    assert_eq!(output1, output2, "Identical inputs should produce identical outputs");
+    assert_eq!(output1, "Hello, World!\nVersion: 1.0.0", "Output should match expected content");
+    
+    Ok::<(), ggen_utils::error::Error>(())
 });
 
-test!(test_variable_precedence, {
-    // Arrange
-    let cli_vars = "cmd=cli_value";
-    let sparql_vars = "cmd=sparql_value";
-    let default_vars = "cmd=default_value";
-    
-    // Act
-    let cli_output = simulate_deterministic_generation(cli_vars);
-    let sparql_output = simulate_deterministic_generation(sparql_vars);
-    let default_output = simulate_deterministic_generation(default_vars);
-    
-    // Assert
-    assert!(!cli_output.is_empty());
-    assert!(!sparql_output.is_empty());
-    assert!(!default_output.is_empty());
-    assert_ne!(cli_output, sparql_output);
-    assert_ne!(sparql_output, default_output);
-    assert_ne!(cli_output, default_output);
-});
-
-fn extract_manifest_key(output: &str) -> &str {
-    output.lines()
-        .find(|line| line.starts_with("manifest:"))
-        .and_then(|line| line.split(": ").nth(1))
-        .unwrap_or("")
-}
+// Note: Removed mock tests that used simulate_deterministic_generation
+// These tests didn't actually verify determinism. Real determinism tests
+// should use actual generation code paths. See test_deterministic_generation
+// above for a proper example.

@@ -164,11 +164,7 @@ impl DoctrineEngine {
 
     /// Add a rule
     fn add_rule(
-        &mut self,
-        id: &str,
-        name: &str,
-        doctrine: &str,
-        severity: DoctrineSeverity,
+        &mut self, id: &str, name: &str, doctrine: &str, severity: DoctrineSeverity,
         rule_kind: RuleKind,
     ) {
         self.rules.insert(
@@ -184,7 +180,9 @@ impl DoctrineEngine {
     }
 
     /// Check all rules against a subject
-    pub fn check_all(&mut self, subject: &str, kind: ElementKind, context: &str) -> Result<(), Vec<AHIError>> {
+    pub fn check_all(
+        &mut self, subject: &str, kind: ElementKind, context: &str,
+    ) -> Result<(), Vec<AHIError>> {
         let mut errors = Vec::new();
 
         for (id, rule) in &self.rules.clone() {
@@ -286,11 +284,13 @@ impl Default for DoctrineEngine {
 impl DoctrineConstraint for DoctrineEngine {
     fn check(&self, subject: &str, kind: ElementKind, context: &str) -> Result<(), AHIError> {
         let mut engine_clone = self.clone();
-        engine_clone.check_all(subject, kind, context).map_err(|mut errs| {
-            errs.pop().unwrap_or_else(|| {
-                AHIError::DoctrineViolation("Unknown doctrine violation".to_string())
+        engine_clone
+            .check_all(subject, kind, context)
+            .map_err(|mut errs| {
+                errs.pop().unwrap_or_else(|| {
+                    AHIError::DoctrineViolation("Unknown doctrine violation".to_string())
+                })
             })
-        })
     }
 
     fn name(&self) -> &str {
@@ -315,11 +315,7 @@ mod tests {
     #[test]
     fn test_doctrine_immutability_check() {
         let mut engine = DoctrineEngine::new();
-        let result = engine.check_all(
-            "normal_update",
-            ElementKind::Concept,
-            "Σ update via ΔΣ",
-        );
+        let result = engine.check_all("normal_update", ElementKind::Concept, "Σ update via ΔΣ");
         assert!(result.is_ok());
     }
 
@@ -363,13 +359,8 @@ mod tests {
         let mut engine = DoctrineEngine::new();
         assert_eq!(engine.violations().len(), 0);
 
-        let _ = engine.check_all(
-            "direct_edit_sigma_mutation",
-            ElementKind::Concept,
-            "test",
-        );
+        let _ = engine.check_all("direct_edit_sigma_mutation", ElementKind::Concept, "test");
 
         assert!(!engine.violations().is_empty());
     }
 }
-

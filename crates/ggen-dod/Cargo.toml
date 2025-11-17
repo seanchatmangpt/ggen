@@ -1,6 +1,6 @@
 [package]
 name = "ggen-dod"
-version = "2.7.1"
+version = "3.0.0"
 edition = "2021"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "Definition of Done: Type-safe observation system, deterministic kernel, provenance tracking, and MAPE-K autonomic governance"
@@ -37,8 +37,8 @@ tracing-opentelemetry = { workspace = true }
 # Testing
 proptest = { workspace = true }
 
-ggen-domain = { path = "../ggen-domain", version = "2.7.1" }
-ggen-core = { path = "../ggen-core", version = "2.7.1" }
+ggen-domain = { path = "../ggen-domain", version = "3.0.0" }
+ggen-core = { path = "../ggen-core", version = "3.0.0" }
 
 [lints]
 workspace = true

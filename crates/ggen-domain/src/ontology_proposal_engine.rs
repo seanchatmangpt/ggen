@@ -119,20 +119,14 @@ impl Proposal for OntologySigmaProposal {
 
 /// Proposal mining strategy
 pub trait ProposalMiningStrategy: Send + Sync {
-    fn mine(
-        &self,
-        observations: &[OntologyMiningObservation],
-    ) -> Vec<OntologySigmaProposal>;
+    fn mine(&self, observations: &[OntologyMiningObservation]) -> Vec<OntologySigmaProposal>;
 }
 
 /// Pattern-based mining: look for repeated patterns in observations
 pub struct PatternMiningStrategy;
 
 impl ProposalMiningStrategy for PatternMiningStrategy {
-    fn mine(
-        &self,
-        observations: &[OntologyMiningObservation],
-    ) -> Vec<OntologySigmaProposal> {
+    fn mine(&self, observations: &[OntologyMiningObservation]) -> Vec<OntologySigmaProposal> {
         let mut proposals = Vec::new();
 
         // Group observations by (component, metric)
@@ -154,11 +148,8 @@ impl ProposalMiningStrategy for PatternMiningStrategy {
             // Calculate statistics
             let values: Vec<f64> = obs_group.iter().map(|o| o.value).collect();
             let avg = values.iter().sum::<f64>() / values.len() as f64;
-            let variance = values
-                .iter()
-                .map(|v| (v - avg).powi(2))
-                .sum::<f64>()
-                / values.len() as f64;
+            let variance =
+                values.iter().map(|v| (v - avg).powi(2)).sum::<f64>() / values.len() as f64;
 
             // If consistent high variance, propose a new pattern or guard
             if variance > 100.0 || avg > 1000.0 {
@@ -191,10 +182,7 @@ impl ProposalMiningStrategy for PatternMiningStrategy {
 pub struct AnomalyMiningStrategy;
 
 impl ProposalMiningStrategy for AnomalyMiningStrategy {
-    fn mine(
-        &self,
-        observations: &[OntologyMiningObservation],
-    ) -> Vec<OntologySigmaProposal> {
+    fn mine(&self, observations: &[OntologyMiningObservation]) -> Vec<OntologySigmaProposal> {
         let mut proposals = Vec::new();
 
         // Look for anomalies (high values, sudden spikes)
@@ -237,10 +225,7 @@ impl SectorSpecificMiningStrategy {
 }
 
 impl ProposalMiningStrategy for SectorSpecificMiningStrategy {
-    fn mine(
-        &self,
-        observations: &[OntologyMiningObservation],
-    ) -> Vec<OntologySigmaProposal> {
+    fn mine(&self, observations: &[OntologyMiningObservation]) -> Vec<OntologySigmaProposal> {
         let mut proposals = Vec::new();
 
         // Filter observations relevant to this sector
@@ -262,7 +247,9 @@ impl ProposalMiningStrategy for SectorSpecificMiningStrategy {
                     element_name: "financial_compliance_pattern".to_string(),
                     element_type: "Pattern".to_string(),
                     current_definition: None,
-                    proposed_definition: "Pattern enforcing regulatory compliance in financial transactions".to_string(),
+                    proposed_definition:
+                        "Pattern enforcing regulatory compliance in financial transactions"
+                            .to_string(),
                     justification_evidence: sector_obs.iter().map(|o| o.id.clone()).collect(),
                     estimated_coverage_improvement: 25.0,
                     estimated_performance_delta: 20.0, // Slight cost for compliance
@@ -279,7 +266,8 @@ impl ProposalMiningStrategy for SectorSpecificMiningStrategy {
                     element_name: "hipaa_compliant_workflow".to_string(),
                     element_type: "Pattern".to_string(),
                     current_definition: None,
-                    proposed_definition: "Workflow ensuring HIPAA compliance for healthcare data".to_string(),
+                    proposed_definition: "Workflow ensuring HIPAA compliance for healthcare data"
+                        .to_string(),
                     justification_evidence: sector_obs.iter().map(|o| o.id.clone()).collect(),
                     estimated_coverage_improvement: 30.0,
                     estimated_performance_delta: 15.0,
@@ -321,8 +309,7 @@ impl OntologyProposalEngine {
 
     /// Mine proposals from observations
     pub fn mine_proposals(
-        &mut self,
-        observations: &[OntologyMiningObservation],
+        &mut self, observations: &[OntologyMiningObservation],
     ) -> Vec<OntologySigmaProposal> {
         let mut proposals = Vec::new();
 
