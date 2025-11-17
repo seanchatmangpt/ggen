@@ -54,7 +54,7 @@ brew install ggen
 **Verification:**
 ```bash
 ggen --version
-# Output: ggen 2.7.0
+# Output: ggen 3.0.0
 ```
 
 ### Cargo (Rust Package Manager)
