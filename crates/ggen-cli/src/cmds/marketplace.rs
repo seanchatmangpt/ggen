@@ -895,12 +895,22 @@ fn compare(
     let pkg_a = assessments
         .iter()
         .find(|a| a.package_id == package_a)
-        .ok_or_else(|| anyhow::anyhow!("Package {} not found", package_a))?;
+        .ok_or_else(|| {
+            clap_noun_verb::NounVerbError::execution_error(format!(
+                "Package {} not found",
+                package_a
+            ))
+        })?;
 
     let pkg_b = assessments
         .iter()
         .find(|a| a.package_id == package_b)
-        .ok_or_else(|| anyhow::anyhow!("Package {} not found", package_b))?;
+        .ok_or_else(|| {
+            clap_noun_verb::NounVerbError::execution_error(format!(
+                "Package {} not found",
+                package_b
+            ))
+        })?;
 
     // Get scores
     let pkg_a_score = pkg_a.total_score();
@@ -990,9 +1000,15 @@ fn compare(
     // Export if requested
     if let Some(output_path) = output {
         use std::fs;
-        let json = serde_json::to_string_pretty(&comparison)
-            .map_err(|e| anyhow::anyhow!("JSON serialization failed: {}", e))?;
-        fs::write(output_path, json).map_err(|e| anyhow::anyhow!("Failed to write file: {}", e))?;
+        let json = serde_json::to_string_pretty(&comparison).map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!(
+                "JSON serialization failed: {}",
+                e
+            ))
+        })?;
+        fs::write(output_path, json).map_err(|e| {
+            clap_noun_verb::NounVerbError::execution_error(format!("Failed to write file: {}", e))
+        })?;
     }
 
     Ok(comparison)
@@ -1144,8 +1160,12 @@ fn export(
         "csv" => ggen_marketplace::prelude::export_as_csv(&assessments),
         "json" => {
             let json_val = ggen_marketplace::prelude::export_as_json(&assessments);
-            serde_json::to_string_pretty(&json_val)
-                .map_err(|e| anyhow::anyhow!("JSON serialization failed: {}", e))?
+            serde_json::to_string_pretty(&json_val).map_err(|e| {
+                clap_noun_verb::NounVerbError::execution_error(format!(
+                    "JSON serialization failed: {}",
+                    e
+                ))
+            })?
         }
         "html" => {
             // Generate basic HTML report
@@ -1174,14 +1194,21 @@ fn export(
             html
         }
         _ => {
-            return Err(anyhow::anyhow!("Unknown export format: {}", format_str));
+            return Err(clap_noun_verb::NounVerbError::execution_error(format!(
+                "Unknown export format: {}",
+                format_str
+            )));
         }
     };
 
     // Write file
     use std::fs;
-    fs::write(&output_path, &export_content)
-        .map_err(|e| anyhow::anyhow!("Failed to write export file: {}", e))?;
+    fs::write(&output_path, &export_content).map_err(|e| {
+        clap_noun_verb::NounVerbError::execution_error(format!(
+            "Failed to write export file: {}",
+            e
+        ))
+    })?;
 
     Ok(serde_json::json!({
         "status": "success",

@@ -73,6 +73,7 @@ tokio-test = "0.4"
 tempfile = "3"
 testcontainers = "0.25"
 rand = "0.9"
+chicago-tdd-tools = { version = "1.4.0", features = ["testing-extras"] }
 
 [lib]
 name = "ggen_ai"

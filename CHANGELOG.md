@@ -318,14 +318,14 @@ All new documentation follows the **Diataxis Framework**:
    - Template rendering: Frontmatter structure issue (non-blocking)
 
 **RDF/SPARQL Type Mapping Validated**:
-| RDF Type | Rust Type | Test Evidence |
-|----------|-----------|---------------|
-| `xsd:string` | `String` | name, description, sku fields |
-| `xsd:decimal` | `f64` | price, rating fields |
-| `xsd:integer` | `i32` | inventory_count field |
-| `rdfs:Class` | `pub struct` | Product, Category, Supplier structs |
-| `rdf:Property` (data) | `pub field` | All struct fields generated |
-| `rdf:Property` (object) | `fn get_*()` | Supplier relationship method |
+| RDF Type                | Rust Type    | Test Evidence                       |
+| ----------------------- | ------------ | ----------------------------------- |
+| `xsd:string`            | `String`     | name, description, sku fields       |
+| `xsd:decimal`           | `f64`        | price, rating fields                |
+| `xsd:integer`           | `i32`        | inventory_count field               |
+| `rdfs:Class`            | `pub struct` | Product, Category, Supplier structs |
+| `rdf:Property` (data)   | `pub field`  | All struct fields generated         |
+| `rdf:Property` (object) | `fn get_*()` | Supplier relationship method        |
 
 **Key Findings**:
 - ✅ **Real Oxigraph Integration**: Production-ready in-memory RDF triple store
@@ -763,14 +763,14 @@ Each pattern includes complete workflow, real commands, use cases, and impact me
 
 ### Performance Improvements
 
-| Metric | v1.x | v2.0.0 | Improvement |
-|--------|------|--------|-------------|
-| Full compilation | 60-90s | 30-45s | **50% faster** |
-| Incremental build | 10-15s | 5-8s | **50% faster** |
-| Generation speed | <3s | <2s | **33% faster** |
-| Binary size | 25MB | 18MB | **28% smaller** |
-| Memory usage | 150MB | 100MB | **33% less** |
-| Test suite | 120s | 60s | **50% faster** |
+| Metric            | v1.x   | v2.0.0 | Improvement     |
+| ----------------- | ------ | ------ | --------------- |
+| Full compilation  | 60-90s | 30-45s | **50% faster**  |
+| Incremental build | 10-15s | 5-8s   | **50% faster**  |
+| Generation speed  | <3s    | <2s    | **33% faster**  |
+| Binary size       | 25MB   | 18MB   | **28% smaller** |
+| Memory usage      | 150MB  | 100MB  | **33% less**    |
+| Test suite        | 120s   | 60s    | **50% faster**  |
 
 ### Testing Enhancements
 

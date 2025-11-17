@@ -88,6 +88,7 @@ criterion = { version = "0.5", features = [
 ] } # Benchmarking framework
 tokio-test = "0.4" # Tokio testing utilities
 notify = "6.1" # File system watcher for watch mode tests
+chicago-tdd-tools = { version = "1.4.0", features = ["testing-extras"] }
 
 [[bench]]
 name = "marketplace_benchmark"
