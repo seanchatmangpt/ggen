@@ -26,6 +26,7 @@ ggen-core = { path = "../ggen-core", version = "3.0.0" }
 ggen-ai = { path = "../ggen-ai", version = "3.0.0" }
 ggen-marketplace = { path = "../ggen-marketplace", version = "3.0.0" }
 ggen-utils = { path = "../ggen-utils", version = "3.0.0" }
+ggen-marketplace-v2 = { path = "../ggen-marketplace-v2", version = "0.1.0", optional = true }
 
 # Crate-specific dependencies
 tera = { workspace = true }
@@ -53,7 +54,13 @@ fastrand = "2.3"                 # Lightweight RNG for jitter in retry logic
 # Domain must be CLI-agnostic
 
 [features]
-default = []
+# Marketplace backend selection (for gradual v1→v2 migration)
+marketplace-v1 = []                           # Legacy marketplace (default)
+marketplace-v2 = ["ggen-marketplace-v2"]     # RDF-backed marketplace (new)
+marketplace-parallel = ["marketplace-v1", "marketplace-v2"]  # Both for A/B testing
+
+# Default to v1 for backward compatibility
+default = ["marketplace-v1"]
 
 [dev-dependencies]
 assert_cmd = "2"
