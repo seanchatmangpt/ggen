@@ -1,6 +1,6 @@
 [package]
 name = "ggen-marketplace"
-version = "3.0.0"
+version = "3.2.0"
 edition = "2021"
 authors = ["Ggen Contributors"]
 description = "Core trait system for distributed package marketplace"
@@ -29,7 +29,7 @@ rand = { version = "0.8", optional = true }
 
 # Error handling
 thiserror = "1.0"
-ggen-utils = { path = "../ggen-utils", version = "3.0.0" }
+ggen-utils = { path = "../ggen-utils", version = "3.2.0" }
 
 # Machine Learning / Recommendations
 ndarray = "0.16"
@@ -75,7 +75,7 @@ tokio-test = "0.4"
 tempfile = "3.23"
 mockall = "0.13"
 chicago-tdd-tools = { version = "1.4.0", features = ["testing-extras"] }
-ggen-macros = { path = "../ggen-macros", version = "3.0.0" }
+ggen-macros = { path = "../ggen-macros", version = "3.2.0" }
 
 [lib]
 name = "ggen_marketplace"
