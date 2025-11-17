@@ -82,6 +82,7 @@ proptest = { workspace = true }
 tracing-subscriber = { version = "0.3", features = ["json", "env-filter"] }
 testcontainers = "0.25"
 uuid = { version = "1.18", features = ["v4"] }
+chicago-tdd-tools = { version = "1.4.0", features = ["testing-extras"] }
 
 [[bench]]
 name = "lifecycle_benchmarks"
