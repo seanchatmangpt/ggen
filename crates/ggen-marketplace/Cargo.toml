@@ -1,6 +1,6 @@
 [package]
 name = "ggen-marketplace"
-version = "2.7.1"
+version = "3.0.0"
 edition = "2021"
 authors = ["Ggen Contributors"]
 description = "Core trait system for distributed package marketplace"
@@ -29,7 +29,7 @@ rand = { version = "0.8", optional = true }
 
 # Error handling
 thiserror = "1.0"
-ggen-utils = { path = "../ggen-utils", version = "2.7.1" }
+ggen-utils = { path = "../ggen-utils", version = "3.0.0" }
 
 # Machine Learning / Recommendations
 ndarray = "0.16"

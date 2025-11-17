@@ -147,7 +147,13 @@ async fn property_versions_ordered_newest_first() {
             .build()
             .expect("package build failed");
 
-        registry.publish(pkg).await.expect("publish failed");
+        let validated = pkg.validate().expect("package validation failed");
+        let validated_pkg = validated.package().clone();
+
+        registry
+            .publish(validated_pkg)
+            .await
+            .expect("publish failed");
     }
 
     // Get all versions
@@ -216,7 +222,13 @@ async fn property_search_returns_subset() {
             .build()
             .expect("package build failed");
 
-        registry.publish(pkg).await.expect("publish failed");
+        let validated = pkg.validate().expect("package validation failed");
+        let validated_pkg = validated.package().clone();
+
+        registry
+            .publish(validated_pkg)
+            .await
+            .expect("publish failed");
     }
 
     // Search for "web"

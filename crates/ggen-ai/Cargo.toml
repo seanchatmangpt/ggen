@@ -1,6 +1,6 @@
 [package]
 name = "ggen-ai"
-version = "2.7.1"
+version = "3.0.0"
 edition = "2021"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 description = "Thin wrapper around genai for ggen - LLM integration with environment support"
@@ -12,8 +12,8 @@ categories = ["development-tools", "command-line-utilities"]
 
 [dependencies]
 # Core ggen dependencies
-ggen-core = { path = "../ggen-core", version = "2.7.1" }
-ggen-utils = { path = "../ggen-utils", version = "2.7.1" }
+ggen-core = { path = "../ggen-core", version = "3.0.0" }
+ggen-utils = { path = "../ggen-utils", version = "3.0.0" }
 
 # HTTP client and async runtime
 tokio = { workspace = true }

@@ -138,9 +138,7 @@ pub struct Recommender;
 impl Recommender {
     /// Generate recommendations for a user
     pub fn recommend(
-        config: &RecommenderConfig,
-        installed: Vec<String>,
-        preferred_bundles: Vec<String>,
+        config: &RecommenderConfig, installed: Vec<String>, preferred_bundles: Vec<String>,
         all_packages: Vec<PackageInfo>,
     ) -> RecommendationSet {
         let mut recommendations = Vec::new();
@@ -202,9 +200,7 @@ impl Recommender {
 
     /// Calculate recommendation score using weighted factors
     fn calculate_recommendation_score(
-        pkg: &PackageInfo,
-        installed: &[String],
-        preferred_bundles: &[String],
+        pkg: &PackageInfo, installed: &[String], preferred_bundles: &[String],
         config: &RecommenderConfig,
     ) -> f64 {
         let mut score = 0.0;
@@ -221,11 +217,7 @@ impl Recommender {
         }
 
         // Complementarity: related packages installed
-        let complementary = pkg
-            .related
-            .iter()
-            .filter(|r| installed.contains(r))
-            .count();
+        let complementary = pkg.related.iter().filter(|r| installed.contains(r)).count();
         if complementary > 0 {
             score += (complementary as f64 / pkg.related.len().max(1) as f64)
                 * config.complementarity_weight;
@@ -240,18 +232,17 @@ impl Recommender {
         score += popularity_normalized * config.popularity_weight;
 
         // Normalize to 0-100
-        (score / (config.bundle_affinity_weight
-            + config.complementarity_weight
-            + config.quality_weight
-            + config.popularity_weight))
+        (score
+            / (config.bundle_affinity_weight
+                + config.complementarity_weight
+                + config.quality_weight
+                + config.popularity_weight))
             * 100.0
     }
 
     /// Determine the primary reason for recommendation
     fn determine_reason(
-        pkg: &PackageInfo,
-        installed: &[String],
-        preferred_bundles: &[String],
+        pkg: &PackageInfo, installed: &[String], preferred_bundles: &[String],
     ) -> RecommendationReason {
         // Check for bundle affinity
         for bundle in &pkg.bundles {
@@ -279,10 +270,7 @@ impl Recommender {
     }
 
     /// Get complementary packages for a given package
-    pub fn get_complements(
-        package_id: &str,
-        all_packages: Vec<PackageInfo>,
-    ) -> Vec<String> {
+    pub fn get_complements(package_id: &str, all_packages: Vec<PackageInfo>) -> Vec<String> {
         all_packages
             .iter()
             .find(|p| p.id == package_id)
@@ -291,21 +279,14 @@ impl Recommender {
     }
 
     /// Find packages in same bundle
-    pub fn find_bundle_peers(
-        package_id: &str,
-        all_packages: Vec<PackageInfo>,
-    ) -> Vec<String> {
+    pub fn find_bundle_peers(package_id: &str, all_packages: Vec<PackageInfo>) -> Vec<String> {
         let pkg = all_packages.iter().find(|p| p.id == package_id);
 
         if let Some(pkg) = pkg {
             all_packages
                 .iter()
                 .filter(|other| {
-                    other.id != package_id
-                        && other
-                            .bundles
-                            .iter()
-                            .any(|b| pkg.bundles.contains(b))
+                    other.id != package_id && other.bundles.iter().any(|b| pkg.bundles.contains(b))
                 })
                 .map(|p| p.id.clone())
                 .collect()
@@ -336,7 +317,8 @@ mod tests {
         let installed = vec!["crm-tool".to_string()];
         let bundles = vec!["sector-enterprise-saas".to_string()];
 
-        let score = Recommender::calculate_recommendation_score(&pkg, &installed, &bundles, &config);
+        let score =
+            Recommender::calculate_recommendation_score(&pkg, &installed, &bundles, &config);
         assert!(score > 0.0 && score <= 100.0);
     }
 

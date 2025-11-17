@@ -128,7 +128,8 @@ impl ReadinessChecker {
             name: "Data Encryption".to_string(),
             description: "Validate data encryption at rest and in transit".to_string(),
             status: CheckStatus::Warning,
-            details: "Receipts are checksummed but not encrypted; enable TLS for registry".to_string(),
+            details: "Receipts are checksummed but not encrypted; enable TLS for registry"
+                .to_string(),
             category: "Security".to_string(),
             priority: "High".to_string(),
         });
@@ -138,7 +139,9 @@ impl ReadinessChecker {
             name: "Database Performance".to_string(),
             description: "Registry and receipts performance validated".to_string(),
             status: CheckStatus::Passed,
-            details: "File-based registry suitable for <10K packages; consider database for larger scale".to_string(),
+            details:
+                "File-based registry suitable for <10K packages; consider database for larger scale"
+                    .to_string(),
             category: "Performance".to_string(),
             priority: "High".to_string(),
         });
@@ -166,7 +169,8 @@ impl ReadinessChecker {
             name: "Data Validation".to_string(),
             description: "Validate receipt checksums and metadata".to_string(),
             status: CheckStatus::Passed,
-            details: "ValidationReceipt with SHA256 checksums provides integrity verification".to_string(),
+            details: "ValidationReceipt with SHA256 checksums provides integrity verification"
+                .to_string(),
             category: "Data".to_string(),
             priority: "Critical".to_string(),
         });
@@ -176,7 +180,9 @@ impl ReadinessChecker {
             name: "Monitoring & Alerting".to_string(),
             description: "Setup monitoring and alerting for production".to_string(),
             status: CheckStatus::Passed,
-            details: "ObservabilitySystem provides metrics and health checks; integrate with monitoring".to_string(),
+            details:
+                "ObservabilitySystem provides metrics and health checks; integrate with monitoring"
+                    .to_string(),
             category: "Operations".to_string(),
             priority: "High".to_string(),
         });
@@ -185,7 +191,8 @@ impl ReadinessChecker {
             name: "Logging".to_string(),
             description: "Structured logging for troubleshooting".to_string(),
             status: CheckStatus::Passed,
-            details: "All operations logged with timestamps; receipts provide audit trail".to_string(),
+            details: "All operations logged with timestamps; receipts provide audit trail"
+                .to_string(),
             category: "Operations".to_string(),
             priority: "Medium".to_string(),
         });
@@ -213,16 +220,26 @@ impl ReadinessChecker {
             name: "Graceful Degradation".to_string(),
             description: "System handles failures gracefully".to_string(),
             status: CheckStatus::Passed,
-            details: "Missing receipts don't crash system; operations continue with available data".to_string(),
+            details: "Missing receipts don't crash system; operations continue with available data"
+                .to_string(),
             category: "Reliability".to_string(),
             priority: "High".to_string(),
         });
 
         // Calculate score
         let total = checks.len();
-        let passed = checks.iter().filter(|c| c.status == CheckStatus::Passed).count();
-        let warnings = checks.iter().filter(|c| c.status == CheckStatus::Warning).count();
-        let critical = checks.iter().filter(|c| c.priority == "Critical" && c.status == CheckStatus::Failed).count();
+        let passed = checks
+            .iter()
+            .filter(|c| c.status == CheckStatus::Passed)
+            .count();
+        let warnings = checks
+            .iter()
+            .filter(|c| c.status == CheckStatus::Warning)
+            .count();
+        let critical = checks
+            .iter()
+            .filter(|c| c.priority == "Critical" && c.status == CheckStatus::Failed)
+            .count();
 
         let overall_score = (passed as f64 / total as f64) * 100.0 - (warnings as f64 * 5.0);
 
@@ -253,7 +270,9 @@ impl ReadinessChecker {
             command: Some("cp -r marketplace marketplace.backup".to_string()),
             verify: Some("ls -la marketplace.backup".to_string()),
             estimated_time: 5,
-            rollback_command: Some("rm -rf marketplace && mv marketplace.backup marketplace".to_string()),
+            rollback_command: Some(
+                "rm -rf marketplace && mv marketplace.backup marketplace".to_string(),
+            ),
         });
 
         steps.push(DeploymentStep {

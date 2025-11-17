@@ -9,8 +9,8 @@
 //! Every invocation of the AHI cycle produces a proof-carrying state that only
 //! advances if all prior phases succeeded.
 
-use std::marker::PhantomData;
 use serde::{Deserialize, Serialize};
+use std::marker::PhantomData;
 
 // ============================================================================
 // LOGICAL TIME: Monotonic indexing for causality
@@ -91,7 +91,9 @@ pub struct CausalEffect<T: Timed> {
 
 impl<T: Timed> CausalEffect<T> {
     /// Create a causal effect (fails if written into past)
-    pub fn new(object: T, written_at: LogicalTime, affects_at: LogicalTime) -> Result<Self, String> {
+    pub fn new(
+        object: T, written_at: LogicalTime, affects_at: LogicalTime,
+    ) -> Result<Self, String> {
         if affects_at.0 < written_at.0 {
             return Err(format!(
                 "Causality violation: trying to affect past (written at {}, affects at {})",

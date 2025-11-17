@@ -8,10 +8,10 @@
 //! - Severity (critical vs bonus)
 //! - Service Level Objective (SLO) for runtime
 
-use serde::{Deserialize, Serialize};
-use std::path::{Path, PathBuf};
-use std::fs;
 use chrono::Utc;
+use serde::{Deserialize, Serialize};
+use std::fs;
+use std::path::{Path, PathBuf};
 
 /// Result type for guard operations
 pub type GuardResult<T> = Result<T, GuardError>;
@@ -71,11 +71,7 @@ pub struct GuardCheckResult {
 
 impl GuardCheckResult {
     pub fn new(
-        guard_name: String,
-        guard_type: String,
-        passed: bool,
-        message: String,
-        weight: u32,
+        guard_name: String, guard_type: String, passed: bool, message: String, weight: u32,
         severity: Severity,
     ) -> Self {
         Self {
@@ -130,11 +126,7 @@ pub struct ValidationReceipt {
 }
 
 impl ValidationReceipt {
-    pub fn new(
-        package_id: String,
-        version: String,
-        ggen_version: String,
-    ) -> Self {
+    pub fn new(package_id: String, version: String, ggen_version: String) -> Self {
         Self {
             package_id,
             version,
@@ -195,16 +187,16 @@ impl ValidationReceipt {
         }
 
         // Production ready: all critical guards must pass AND score >= 95
-        let all_critical_pass = self.critical_total == 0 || self.critical_passed == self.critical_total;
+        let all_critical_pass =
+            self.critical_total == 0 || self.critical_passed == self.critical_total;
         self.production_ready = all_critical_pass && self.overall_score >= 95.0;
     }
 
     /// Compute a deterministic checksum for the receipt
     pub fn compute_checksum(&mut self) {
-        use sha2::{Sha256, Digest};
+        use sha2::{Digest, Sha256};
 
-        let json = serde_json::to_string(&self.guard_results)
-            .unwrap_or_else(|_| String::new());
+        let json = serde_json::to_string(&self.guard_results).unwrap_or_else(|_| String::new());
 
         let mut hasher = Sha256::new();
         hasher.update(self.package_id.as_bytes());
@@ -224,16 +216,18 @@ impl ValidationReceipt {
             .join("receipts")
             .join(&self.package_id);
 
-        fs::create_dir_all(&receipts_dir)
-            .map_err(|e| GuardError::ReceiptWrite(format!("Failed to create receipts dir: {}", e)))?;
+        fs::create_dir_all(&receipts_dir).map_err(|e| {
+            GuardError::ReceiptWrite(format!("Failed to create receipts dir: {}", e))
+        })?;
 
         let file_path = receipts_dir.join(format!("{}.json", self.version));
 
         let json = serde_json::to_string_pretty(&self)
             .map_err(|e| GuardError::ReceiptWrite(format!("JSON serialization failed: {}", e)))?;
 
-        fs::write(&file_path, json)
-            .map_err(|e| GuardError::ReceiptWrite(format!("Failed to write receipt file: {}", e)))?;
+        fs::write(&file_path, json).map_err(|e| {
+            GuardError::ReceiptWrite(format!("Failed to write receipt file: {}", e))
+        })?;
 
         Ok(file_path)
     }
@@ -292,8 +286,14 @@ impl ValidationReceipt {
         let b_parts: Vec<&str> = b.split('.').collect();
 
         for i in 0..std::cmp::max(a_parts.len(), b_parts.len()) {
-            let a_part = a_parts.get(i).and_then(|p| p.parse::<u32>().ok()).unwrap_or(0);
-            let b_part = b_parts.get(i).and_then(|p| p.parse::<u32>().ok()).unwrap_or(0);
+            let a_part = a_parts
+                .get(i)
+                .and_then(|p| p.parse::<u32>().ok())
+                .unwrap_or(0);
+            let b_part = b_parts
+                .get(i)
+                .and_then(|p| p.parse::<u32>().ok())
+                .unwrap_or(0);
 
             if a_part > b_part {
                 return 1;
@@ -485,8 +485,8 @@ pub mod factories {
                 ));
             }
 
-            let content = fs::read_to_string(&readme_path)
-                .map_err(|e| GuardError::IoError(e.to_string()))?;
+            let content =
+                fs::read_to_string(&readme_path).map_err(|e| GuardError::IoError(e.to_string()))?;
 
             let min_length = 500;
             let passed = content.len() >= min_length;
@@ -532,8 +532,8 @@ pub mod factories {
 
         fn execute(&self, package_path: &Path) -> GuardResult<GuardCheckResult> {
             let has_test_dir = package_path.join("tests").exists();
-            let has_test_file = package_path.join("test.rs").exists()
-                || package_path.join("tests.rs").exists();
+            let has_test_file =
+                package_path.join("test.rs").exists() || package_path.join("tests.rs").exists();
 
             let passed = has_test_dir || has_test_file;
 
@@ -608,7 +608,12 @@ pub mod factories {
                     if path.extension().and_then(|s| s.to_str()) == Some("rs") {
                         if let Ok(content) = fs::read_to_string(&path) {
                             // Skip test modules and code
-                            if path.file_name().and_then(|n| n.to_str()).map(|n| n.ends_with("_test.rs") || n.ends_with("test.rs")).unwrap_or(false) {
+                            if path
+                                .file_name()
+                                .and_then(|n| n.to_str())
+                                .map(|n| n.ends_with("_test.rs") || n.ends_with("test.rs"))
+                                .unwrap_or(false)
+                            {
                                 continue;
                             }
 
@@ -629,9 +634,10 @@ pub mod factories {
 
             // Check for test files with AAA structure
             let tests_dir = package_path.join("tests");
-            let has_tests = tests_dir.exists() && fs::read_dir(&tests_dir)
-                .map(|entries| entries.count() > 0)
-                .unwrap_or(false);
+            let has_tests = tests_dir.exists()
+                && fs::read_dir(&tests_dir)
+                    .map(|entries| entries.count() > 0)
+                    .unwrap_or(false);
 
             let passed = forbidden_found.is_empty() && has_tests;
 
@@ -669,12 +675,12 @@ mod tests {
         let receipt = ValidationReceipt::new(
             "test-pkg".to_string(),
             "1.0.0".to_string(),
-            "2.7.0".to_string(),
+            "3.0.0".to_string(),
         );
 
         assert_eq!(receipt.package_id, "test-pkg");
         assert_eq!(receipt.version, "1.0.0");
-        assert_eq!(receipt.ggen_version, "2.7.0");
+        assert_eq!(receipt.ggen_version, "3.0.0");
         assert_eq!(receipt.overall_score, 0.0);
         assert!(!receipt.production_ready);
     }

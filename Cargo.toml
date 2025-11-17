@@ -1,6 +1,6 @@
 [package]
 name = "ggen"
-version = "2.7.1"
+version = "3.0.0"
 authors = ["Sean Chatman <sean@chatmangpt.com>"]
 edition = "2021"
 repository = "https://github.com/seanchatmangpt/ggen"
@@ -125,10 +125,10 @@ syslog = ["ggen-utils/syslog"]
 london_tdd = []
 
 [dependencies]
-ggen-utils = { path = "crates/ggen-utils", version = "2.7.1" }
-ggen-cli-lib = { path = "crates/ggen-cli", version = "2.7.1" }
-ggen-core = { path = "crates/ggen-core", version = "2.7.1" }
-ggen-ai = { path = "crates/ggen-ai", version = "2.7.1" }
+ggen-utils = { path = "crates/ggen-utils", version = "3.0.0" }
+ggen-cli-lib = { path = "crates/ggen-cli", version = "3.0.0" }
+ggen-core = { path = "crates/ggen-core", version = "3.0.0" }
+ggen-ai = { path = "crates/ggen-ai", version = "3.0.0" }
 human-panic = "2.0.3"
 better-panic = "0.3.0"
 log = "0.4.28"
@@ -184,7 +184,7 @@ opentelemetry.workspace = true
 opentelemetry-otlp.workspace = true
 opentelemetry_sdk.workspace = true
 futures.workspace = true
-ggen-marketplace = { path = "crates/ggen-marketplace", version = "2.7.1" }
+ggen-marketplace = { path = "crates/ggen-marketplace", version = "3.0.0" }
 tracing.workspace = true
 tracing-subscriber.workspace = true
 tracing-opentelemetry.workspace = true
@@ -281,4 +281,34 @@ required-features = []
 [[test]]
 name = "marketplace_package_e2e"
 path = "tests/integration/marketplace_package_e2e.rs"
+required-features = []
+
+[[test]]
+name = "lifecycle_tests"
+path = "tests/integration/lifecycle_tests.rs"
+required-features = []
+
+[[test]]
+name = "code_generation_tests"
+path = "tests/integration/code_generation_tests.rs"
+required-features = []
+
+[[test]]
+name = "cache_tests"
+path = "tests/integration/cache_tests.rs"
+required-features = []
+
+[[test]]
+name = "package_scoring_tests"
+path = "tests/integration/package_scoring_tests.rs"
+required-features = []
+
+[[test]]
+name = "cross_crate_tests"
+path = "tests/integration/cross_crate_tests.rs"
+required-features = []
+
+[[test]]
+name = "lifecycle_simple_tests"
+path = "tests/integration/lifecycle_simple_tests.rs"
 required-features = []

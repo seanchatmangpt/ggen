@@ -1,12 +1,11 @@
+use serde::{Deserialize, Serialize};
+use std::ptr::NonNull;
 /// Atomic Snapshot Promotion: Lock-Free, Picosecond-Level Ontology Switching
 ///
 /// This module implements zero-copy, lock-free snapshot promotion using atomic operations.
 /// The cost of promoting a new ontology is just a few CPU ticks (atomic pointer swap).
-
 use std::sync::atomic::{AtomicPtr, AtomicUsize, Ordering};
 use std::sync::Arc;
-use std::ptr::NonNull;
-use serde::{Deserialize, Serialize};
 
 use crate::ontology::SigmaSnapshot;
 
@@ -78,9 +77,7 @@ impl AtomicSnapshotPromoter {
         let new_handle = Box::into_raw(Box::new(SnapshotHandle::new(new_snapshot)));
 
         // Atomic pointer swap (this is the critical operation)
-        let old_ptr = self
-            .current
-            .swap(new_handle, Ordering::SeqCst);
+        let old_ptr = self.current.swap(new_handle, Ordering::SeqCst);
 
         let end_ns = get_time_ns();
 
@@ -134,19 +131,17 @@ pub struct SnapshotGuard {
 impl SnapshotGuard {
     /// Get a reference to the snapshot
     pub fn snapshot(&self) -> Arc<SigmaSnapshot> {
-        // Safety: handle is always valid
-        unsafe {
-            self.handle.as_ref().unwrap().snapshot.clone()
-        }
+        // Safety: handle is always valid (NonNull guarantees non-null)
+        unsafe { self.handle.as_ref().snapshot.clone() }
     }
 }
 
 impl Drop for SnapshotGuard {
     fn drop(&mut self) {
-        // Safety: handle is valid
+        // Safety: handle is valid (NonNull guarantees non-null)
         unsafe {
-            if self.handle.as_ref().unwrap().decrement_refs() == 1 {
-                let _ = Box::from_raw(self.handle.as_mut().unwrap() as *mut SnapshotHandle);
+            if self.handle.as_ref().decrement_refs() == 1 {
+                let _ = Box::from_raw(self.handle.as_mut() as *mut SnapshotHandle);
             }
         }
     }

@@ -70,9 +70,7 @@ impl ReceiptObserver {
 
     /// Create performance metric observation
     pub fn create_metric_observation(
-        component: &str,
-        metric_name: &str,
-        value: f64,
+        component: &str, metric_name: &str, value: f64,
     ) -> MarketplaceObservation {
         let now = get_timestamp();
 
@@ -90,7 +88,9 @@ impl ReceiptObserver {
     }
 
     /// Create anomaly observation
-    pub fn create_anomaly_observation(component: &str, anomaly_type: &str) -> MarketplaceObservation {
+    pub fn create_anomaly_observation(
+        component: &str, anomaly_type: &str,
+    ) -> MarketplaceObservation {
         let now = get_timestamp();
 
         MarketplaceObservation {
@@ -307,7 +307,8 @@ mod tests {
 
     #[test]
     fn test_anomaly_observation() {
-        let obs = ReceiptObserver::create_anomaly_observation("guard-validator", "high_failure_rate");
+        let obs =
+            ReceiptObserver::create_anomaly_observation("guard-validator", "high_failure_rate");
         assert_eq!(obs.obs_type, MarketplaceObservationType::Anomaly);
         assert_eq!(obs.source, "marketplace-anomaly-detector");
     }

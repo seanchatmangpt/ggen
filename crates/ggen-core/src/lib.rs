@@ -127,6 +127,7 @@ pub mod inject;
 pub mod lifecycle;
 pub mod lockfile;
 pub mod merge;
+// Ontology system - re-enabled after oxigraph API compatibility fixes
 pub mod ontology;
 pub mod pipeline;
 pub mod poc;
@@ -190,24 +191,65 @@ pub use templates::{
     NodeType, TemplateContext, TemplateFormat, TemplateParser,
 };
 
-// Re-export autonomous ontology system types
+// Ontology system re-exports
+// Re-enabled after oxigraph API compatibility fixes (Statement::From<Quad> and as_dataset)
 pub use ontology::{
-    SigmaSnapshotId, SigmaSnapshot, SnapshotMetadata,
-    SigmaOverlay, SigmaReceipt, SigmaRuntime,
-    ValidationResult, TestResult, PerformanceMetrics,
-    Pattern, PatternType, PatternMiner, MinerConfig,
-    Observation, ObservationSource, ProposedChange,
-    OntologyStats,
-    DeltaSigmaProposal, DeltaSigmaProposer, ProposerConfig,
-    MockLLMProposer, RealLLMProposer,
-    ValidationEvidence, Invariant, ValidationContext,
-    StaticValidator, DynamicValidator, PerformanceValidator,
-    CompositeValidator, ValidatorResult,
-    MockStaticValidator, MockDynamicValidator, MockPerformanceValidator,
-    AtomicSnapshotPromoter, SnapshotGuard, PromotionResult, PromotionMetrics,
-    AutonomousControlLoop, ControlLoopConfig, LoopState, IterationTelemetry,
-    InvariantCheck, InvariantResult, Constitution, ConstitutionValidation,
-    NoRetrocausationCheck, TypeSoundnessCheck, GuardSoundnessCheck,
-    ProjectionDeterminismCheck, SLOPreservationCheck, ImmutabilityCheck,
     AtomicPromotionCheck,
+    // Promotion
+    AtomicSnapshotPromoter,
+    // Control loop
+    AutonomousControlLoop,
+    CompositeValidator,
+    Constitution,
+    ConstitutionValidation,
+    ControlLoopConfig,
+    // Delta proposer
+    DeltaSigmaProposal,
+    DeltaSigmaProposer,
+    DynamicValidator,
+    GuardSoundnessCheck,
+    ImmutabilityCheck,
+    Invariant,
+    // Constitution
+    InvariantCheck,
+    InvariantResult,
+    IterationTelemetry,
+    LoopState,
+    MinerConfig,
+    MockDynamicValidator,
+    MockLLMProposer,
+    MockPerformanceValidator,
+    MockStaticValidator,
+    NoRetrocausationCheck,
+    Observation,
+    ObservationSource,
+    OntologyStats,
+    // Pattern mining
+    Pattern,
+    PatternMiner,
+    PatternType,
+    PerformanceMetrics,
+    PerformanceValidator,
+    ProjectionDeterminismCheck,
+    PromotionMetrics,
+    PromotionResult,
+    ProposedChange,
+    ProposerConfig,
+    RealLLMProposer,
+    SLOPreservationCheck,
+    SigmaOverlay,
+    SigmaReceipt,
+    SigmaRuntime,
+    SigmaSnapshot,
+    // Sigma runtime
+    SigmaSnapshotId,
+    SnapshotGuard,
+    SnapshotMetadata,
+    StaticValidator,
+    TestResult,
+    TypeSoundnessCheck,
+    ValidationContext,
+    // Validators
+    ValidationEvidence,
+    ValidatorResult,
 };

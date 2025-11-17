@@ -77,8 +77,7 @@ pub struct Finding {
 impl Finding {
     /// Create a new finding
     pub fn new(
-        finding_type: impl Into<String>,
-        severity: impl Into<String>,
+        finding_type: impl Into<String>, severity: impl Into<String>,
         description: impl Into<String>,
     ) -> Self {
         Self {
@@ -271,7 +270,9 @@ impl ExecutionPhase {
     }
 
     /// Record an execution result
-    pub fn record_result(mut self, proposal_id: impl Into<String>, result: ExecutionResult) -> Self {
+    pub fn record_result(
+        mut self, proposal_id: impl Into<String>, result: ExecutionResult,
+    ) -> Self {
         self.results.push((proposal_id.into(), result));
         self
     }

@@ -6,7 +6,7 @@
 //! - No external state leaked in
 
 use crate::error::DoDResult;
-use crate::kernel::{KernelDecision, Kernel};
+use crate::kernel::{Kernel, KernelDecision};
 use crate::observation::Observation;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -29,9 +29,7 @@ pub struct ExecutionRecord {
 impl ExecutionRecord {
     /// Create a new execution record
     pub fn new(
-        observations: Vec<Observation>,
-        tenant_id: impl Into<String>,
-        decision: KernelDecision,
+        observations: Vec<Observation>, tenant_id: impl Into<String>, decision: KernelDecision,
     ) -> Self {
         Self {
             record_id: uuid::Uuid::new_v4().to_string(),
@@ -136,10 +134,7 @@ impl ReplayEngine {
             .records
             .get(record_id)
             .ok_or_else(|| {
-                crate::error::DoDError::Internal(format!(
-                    "record not found: {}",
-                    record_id
-                ))
+                crate::error::DoDError::Internal(format!("record not found: {}", record_id))
             })?
             .clone();
 
@@ -153,26 +148,18 @@ impl ReplayEngine {
         let original_hash = record
             .decision()
             .determinism_hash()
-            .ok_or_else(|| {
-                crate::error::DoDError::DeterminismViolation
-            })?
+            .ok_or_else(|| crate::error::DoDError::DeterminismViolation)?
             .to_string();
 
         let replay_hash = replay_decision
             .determinism_hash()
-            .ok_or_else(|| {
-                crate::error::DoDError::DeterminismViolation
-            })?
+            .ok_or_else(|| crate::error::DoDError::DeterminismViolation)?
             .to_string();
 
         let result = if original_hash == replay_hash {
             ReplayResult::successful(original_hash)
         } else {
-            ReplayResult::failed(
-                original_hash,
-                replay_hash,
-                "determinism hash mismatch",
-            )
+            ReplayResult::failed(original_hash, replay_hash, "determinism hash mismatch")
         };
 
         self.results.push(result.clone());
@@ -189,11 +176,7 @@ impl ReplayEngine {
 
     /// Replay all recorded executions
     pub fn replay_all(&mut self, kernel: &mut Kernel) -> DoDResult<()> {
-        let record_ids: Vec<_> = self
-            .records
-            .keys()
-            .map(|k| k.clone())
-            .collect();
+        let record_ids: Vec<_> = self.records.keys().map(|k| k.clone()).collect();
 
         for record_id in record_ids {
             self.replay(kernel, &record_id)?;
@@ -248,11 +231,7 @@ mod tests {
 
     #[test]
     fn test_replay_result_failure() {
-        let result = ReplayResult::failed(
-            "hash123".to_string(),
-            "hash456".to_string(),
-            "mismatch",
-        );
+        let result = ReplayResult::failed("hash123".to_string(), "hash456".to_string(), "mismatch");
 
         assert!(!result.is_deterministic());
     }

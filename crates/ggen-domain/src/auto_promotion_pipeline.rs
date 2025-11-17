@@ -6,9 +6,9 @@
 //! - Suggests ontology improvements based on package health
 //! - Ensures all promotions are justified by Γ signals and doctrine-aligned
 
-use super::marketplace_scorer::{MarketplaceScorer, PackageScore, PackageRecommendation};
-use super::ontology_proposal_engine::OntologySigmaProposal;
 use super::ahi_contract::AHIError;
+use super::marketplace_scorer::{MarketplaceScorer, PackageRecommendation, PackageScore};
+use super::ontology_proposal_engine::OntologySigmaProposal;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -23,8 +23,8 @@ pub struct PromotionDecision {
     pub metrics_snapshot: DecisionMetrics,
     pub previous_status: String,
     pub new_status: String,
-    pub confidence: f64,        // 0-1, how confident in this decision
-    pub reversible: bool,       // Can this decision be reverted?
+    pub confidence: f64,                  // 0-1, how confident in this decision
+    pub reversible: bool,                 // Can this decision be reverted?
     pub revert_condition: Option<String>, // Condition to trigger revert
     pub timestamp: u64,
 }
@@ -72,7 +72,7 @@ pub struct DecisionMetrics {
 pub struct AutoPromotionPipeline {
     #[allow(dead_code)]
     scorer: MarketplaceScorer,
-    promotion_threshold: f64,  // Composite score ≥ this to promote
+    promotion_threshold: f64,   // Composite score ≥ this to promote
     deprecation_threshold: f64, // Composite score ≤ this to deprecate
     quarantine_threshold: f64,  // Risk score ≥ this to quarantine
     decisions: Vec<PromotionDecision>,
@@ -85,7 +85,7 @@ impl AutoPromotionPipeline {
     pub fn new() -> Self {
         Self {
             scorer: MarketplaceScorer::new(),
-            promotion_threshold: 80.0,  // 80+ = promote
+            promotion_threshold: 80.0,   // 80+ = promote
             deprecation_threshold: 40.0, // 40- = deprecate
             quarantine_threshold: 80.0,  // Risk 80+ = quarantine
             decisions: Vec::new(),
@@ -95,11 +95,7 @@ impl AutoPromotionPipeline {
     }
 
     /// Set custom thresholds
-    pub fn with_thresholds(
-        promotion: f64,
-        deprecation: f64,
-        quarantine: f64,
-    ) -> Self {
+    pub fn with_thresholds(promotion: f64, deprecation: f64, quarantine: f64) -> Self {
         let mut pipeline = Self::new();
         pipeline.promotion_threshold = promotion;
         pipeline.deprecation_threshold = deprecation;
@@ -109,10 +105,7 @@ impl AutoPromotionPipeline {
 
     /// Evaluate package and generate decision
     pub fn evaluate_package(
-        &mut self,
-        package_name: &str,
-        package_version: &str,
-        score: &PackageScore,
+        &mut self, package_name: &str, package_version: &str, score: &PackageScore,
         observation_ids: Vec<String>,
     ) -> Result<Option<PromotionDecision>, AHIError> {
         let current_recommendation = &score.recommendation;
@@ -163,13 +156,8 @@ impl AutoPromotionPipeline {
 
     /// Create a decision with full justification
     fn create_decision(
-        &self,
-        package_name: &str,
-        package_version: &str,
-        decision_type: DecisionType,
-        previous_status: String,
-        score: &PackageScore,
-        observation_ids: Vec<String>,
+        &self, package_name: &str, package_version: &str, decision_type: DecisionType,
+        previous_status: String, score: &PackageScore, observation_ids: Vec<String>,
     ) -> PromotionDecision {
         let now = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
@@ -184,10 +172,7 @@ impl AutoPromotionPipeline {
         };
 
         PromotionDecision {
-            decision_id: format!(
-                "decision-{}-{}-{}",
-                package_name, package_version, now
-            ),
+            decision_id: format!("decision-{}-{}-{}", package_name, package_version, now),
             package_name: package_name.to_string(),
             package_version: package_version.to_string(),
             decision_type,
@@ -198,26 +183,20 @@ impl AutoPromotionPipeline {
                 adoption_score: score.adoption_score,
                 risk_score: score.risk_score,
                 composite_score: score.composite_score,
-                uptime_percent: 0.0,      // Would be extracted from SLOMetrics
-                error_rate: 0.0,          // Would be extracted from SLOMetrics
-                active_tenants: 0,        // Would be extracted from AdoptionMetrics
-                growth_trend: 0.0,        // Would be calculated from adoption history
+                uptime_percent: 0.0, // Would be extracted from SLOMetrics
+                error_rate: 0.0,     // Would be extracted from SLOMetrics
+                active_tenants: 0,   // Would be extracted from AdoptionMetrics
+                growth_trend: 0.0,   // Would be calculated from adoption history
             },
             previous_status,
             new_status,
             confidence: self.calculate_confidence(score, decision_type),
             reversible: decision_type != DecisionType::Quarantine,
             revert_condition: match decision_type {
-                DecisionType::Promote => {
-                    Some("Composite score drops below 60".to_string())
-                }
-                DecisionType::Deprecate => {
-                    Some("Composite score recovers above 60".to_string())
-                }
+                DecisionType::Promote => Some("Composite score drops below 60".to_string()),
+                DecisionType::Deprecate => Some("Composite score recovers above 60".to_string()),
                 DecisionType::Quarantine => None,
-                DecisionType::Restore => {
-                    Some("Risk score rises above 75 again".to_string())
-                }
+                DecisionType::Restore => Some("Risk score rises above 75 again".to_string()),
             },
             timestamp: now,
         }
@@ -244,8 +223,7 @@ impl AutoPromotionPipeline {
 
     /// Generate ontology suggestions based on package performance patterns
     pub fn suggest_ontology_improvements(
-        &mut self,
-        package_scores: &[PackageScore],
+        &mut self, package_scores: &[PackageScore],
     ) -> Vec<OntologySigmaProposal> {
         let mut suggestions = Vec::new();
 
@@ -324,9 +302,7 @@ impl AutoPromotionPipeline {
 
     /// Get decisions for specific package
     pub fn package_decision_history(
-        &self,
-        package_name: &str,
-        package_version: &str,
+        &self, package_name: &str, package_version: &str,
     ) -> Option<&Vec<PromotionDecision>> {
         self.decision_history
             .get(&format!("{}-{}", package_name, package_version))
@@ -334,9 +310,7 @@ impl AutoPromotionPipeline {
 
     /// Get latest decision for package
     pub fn latest_decision_for_package(
-        &self,
-        package_name: &str,
-        package_version: &str,
+        &self, package_name: &str, package_version: &str,
     ) -> Option<&PromotionDecision> {
         self.decision_history
             .get(&format!("{}-{}", package_name, package_version))
@@ -357,8 +331,14 @@ impl AutoPromotionPipeline {
             self.decisions.len()
         ));
         report.push(format!("Promotion threshold: {}", self.promotion_threshold));
-        report.push(format!("Deprecation threshold: {}", self.deprecation_threshold));
-        report.push(format!("Quarantine threshold: {}", self.quarantine_threshold));
+        report.push(format!(
+            "Deprecation threshold: {}",
+            self.deprecation_threshold
+        ));
+        report.push(format!(
+            "Quarantine threshold: {}",
+            self.quarantine_threshold
+        ));
 
         let promote_count = self
             .decisions

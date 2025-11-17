@@ -7,8 +7,8 @@
 //! - Risk assessment and mitigation strategies
 //! - Doctrine alignment verification
 
-use super::ontology_proposal_engine::OntologySigmaProposal;
 use super::ahi_contract::{AHIError, Proposal};
+use super::ontology_proposal_engine::OntologySigmaProposal;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -94,8 +94,8 @@ pub struct ImpactProjection {
 pub struct RiskMitigation {
     pub risk_id: String,
     pub risk_description: String,
-    pub risk_probability: f64,     // 0-1
-    pub risk_impact: f64,           // 0-100
+    pub risk_probability: f64, // 0-1
+    pub risk_impact: f64,      // 0-100
     pub mitigation_strategy: String,
     pub rollback_plan: String,
     pub monitoring_alerts: Vec<String>,
@@ -331,9 +331,10 @@ impl ProofCarrier {
                 .filter(|t| !t.passed)
                 .map(|t| t.test_name.clone())
                 .collect();
-            Err(AHIError::InsufficientJustification(
-                format!("Tests failed: {:?}", failed_tests),
-            ))
+            Err(AHIError::InsufficientJustification(format!(
+                "Tests failed: {:?}",
+                failed_tests
+            )))
         }
     }
 
@@ -362,9 +363,10 @@ impl ProofCarrier {
         // Calculate final risk score
         self.calculate_risk_score();
         if self.total_risk_score > 75.0 {
-            return Err(AHIError::InvalidConfig(
-                format!("Risk score too high: {}", self.total_risk_score),
-            ));
+            return Err(AHIError::InvalidConfig(format!(
+                "Risk score too high: {}",
+                self.total_risk_score
+            )));
         }
 
         Ok(())
@@ -374,10 +376,7 @@ impl ProofCarrier {
     pub fn audit_trail(&self) -> Vec<String> {
         let mut trail = Vec::new();
 
-        trail.push(format!(
-            "Proof ID: {} (Status: {})",
-            self.id, self.status
-        ));
+        trail.push(format!("Proof ID: {} (Status: {})", self.id, self.status));
         trail.push(format!("Proposal: {}", self.proposal.what()));
         trail.push(format!(
             "Evidence chain: {} links (total weight: {})",
@@ -393,10 +392,7 @@ impl ProofCarrier {
             "Risk score: {} (base: {})",
             self.total_risk_score, self.proposal.risk_score
         ));
-        trail.push(format!(
-            "Doctrine aligned: {}",
-            self.is_doctrine_aligned()
-        ));
+        trail.push(format!("Doctrine aligned: {}", self.is_doctrine_aligned()));
 
         for approval in &self.approvals {
             trail.push(format!(
@@ -592,9 +588,7 @@ mod tests {
         assert!(carrier.finalize_tests().is_ok());
 
         // Add approval
-        assert!(carrier
-            .approve("reviewer-1", "Code review passed")
-            .is_ok());
+        assert!(carrier.approve("reviewer-1", "Code review passed").is_ok());
         assert_eq!(carrier.status, ProofStatus::Approved);
         assert_eq!(carrier.approvals.len(), 1);
     }

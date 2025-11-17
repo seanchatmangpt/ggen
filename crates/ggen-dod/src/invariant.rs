@@ -9,9 +9,7 @@ use std::collections::BTreeMap;
 use uuid::Uuid;
 
 /// Unique identifier for invariants
-#[derive(
-    Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize,
-)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct InvariantId(Uuid);
 
 impl InvariantId {
@@ -81,9 +79,7 @@ pub enum InvariantCategory {
 impl Invariant {
     /// Create a new invariant
     pub fn new(
-        name: impl Into<String>,
-        predicate: impl Into<String>,
-        severity: InvariantSeverity,
+        name: impl Into<String>, predicate: impl Into<String>, severity: InvariantSeverity,
         category: InvariantCategory,
     ) -> Self {
         Self {
@@ -144,9 +140,7 @@ pub struct InvariantViolation {
 impl InvariantViolation {
     /// Create a new violation
     pub fn new(
-        invariant_id: InvariantId,
-        invariant_name: impl Into<String>,
-        severity: InvariantSeverity,
+        invariant_id: InvariantId, invariant_name: impl Into<String>, severity: InvariantSeverity,
         explanation: impl Into<String>,
     ) -> Self {
         Self {
@@ -234,14 +228,8 @@ impl InvariantChecker {
     }
 
     /// Check for violations
-    pub fn check_violations(
-        &self,
-        violations: &[InvariantViolation],
-    ) -> DoDResult<()> {
-        let blocking_violations: Vec<_> = violations
-            .iter()
-            .filter(|v| v.is_blocking())
-            .collect();
+    pub fn check_violations(&self, violations: &[InvariantViolation]) -> DoDResult<()> {
+        let blocking_violations: Vec<_> = violations.iter().filter(|v| v.is_blocking()).collect();
 
         if !blocking_violations.is_empty() {
             let explanation = blocking_violations
@@ -295,9 +283,7 @@ mod tests {
             InvariantCategory::Performance,
         );
 
-        let checker = InvariantChecker::new()
-            .register(inv1)
-            .register(inv2);
+        let checker = InvariantChecker::new().register(inv1).register(inv2);
 
         assert_eq!(checker.all().len(), 2);
         assert_eq!(checker.blocking().len(), 1);

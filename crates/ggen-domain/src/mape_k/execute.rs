@@ -4,8 +4,8 @@
 //! and manages promotion to active ontology snapshot (Σ*) via promotion gate.
 
 use super::types::{
-    OntologyOverlay, OverlayProposal, ValidationStatus, ValidationResult, ValidationStage,
-    PromotionGate,
+    OntologyOverlay, OverlayProposal, PromotionGate, ValidationResult, ValidationStage,
+    ValidationStatus,
 };
 
 /// Validator implementation with custom logic
@@ -359,16 +359,11 @@ impl ExecuteEngine {
         let mut promotion = None;
 
         if should_promote {
-            promotion = Some(
-                self
-                    .orchestrator
-                    .promote_overlay(&proposal.overlay)
-                    .clone(),
-            );
+            promotion = Some(self.orchestrator.promote_overlay(&proposal.overlay).clone());
         }
 
-        let execution_succeeded =
-            validation_status == ValidationStatus::Approved || validation_status == ValidationStatus::ReviewNeeded;
+        let execution_succeeded = validation_status == ValidationStatus::Approved
+            || validation_status == ValidationStatus::ReviewNeeded;
 
         ExecutionResult {
             proposal_id: proposal.overlay.id.clone(),
@@ -380,7 +375,9 @@ impl ExecuteEngine {
     }
 
     /// Get validation results for overlay
-    pub fn get_validation_results<'a>(&self, overlay: &'a OntologyOverlay) -> Vec<&'a ValidationResult> {
+    pub fn get_validation_results<'a>(
+        &self, overlay: &'a OntologyOverlay,
+    ) -> Vec<&'a ValidationResult> {
         overlay.validation_results.iter().collect()
     }
 

@@ -917,7 +917,7 @@ fn compare(
     let pkg_b_score = pkg_b.total_score();
 
     // Build comparison
-    let mut comparison = serde_json::json!({
+    let comparison = serde_json::json!({
         "package_a": {
             "id": pkg_a.package_id.clone(),
             "name": pkg_a.package_name.clone(),
@@ -1292,12 +1292,11 @@ fn list_bundles(detailed: bool) -> Result<serde_json::Value> {
 /// ```
 #[verb]
 fn bundle_info(bundle_id: String, docs: bool) -> Result<serde_json::Value> {
-    use ggen_domain::marketplace::{BundleRegistry, generate_bundle_docs};
+    use ggen_domain::marketplace::{generate_bundle_docs, BundleRegistry};
 
-    let bundle = BundleRegistry::get_bundle(&bundle_id)
-        .ok_or_else(|| clap_noun_verb::NounVerbError::execution_error(
-            format!("Bundle not found: {}", bundle_id)
-        ))?;
+    let bundle = BundleRegistry::get_bundle(&bundle_id).ok_or_else(|| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Bundle not found: {}", bundle_id))
+    })?;
 
     println!(
         "\n📦 {} Sector Bundle\n\
@@ -1356,12 +1355,11 @@ fn bundle_info(bundle_id: String, docs: bool) -> Result<serde_json::Value> {
 /// ```
 #[verb]
 fn install_bundle(bundle_id: String, dry_run: bool) -> Result<serde_json::Value> {
-    use ggen_domain::marketplace::{BundleRegistry, BundleInstallManifest};
+    use ggen_domain::marketplace::{BundleInstallManifest, BundleRegistry};
 
-    let bundle = BundleRegistry::get_bundle(&bundle_id)
-        .ok_or_else(|| clap_noun_verb::NounVerbError::execution_error(
-            format!("Bundle not found: {}", bundle_id)
-        ))?;
+    let bundle = BundleRegistry::get_bundle(&bundle_id).ok_or_else(|| {
+        clap_noun_verb::NounVerbError::execution_error(format!("Bundle not found: {}", bundle_id))
+    })?;
 
     let mut manifest = BundleInstallManifest::new(bundle_id.clone());
     manifest.total_packages = bundle.packages.len();
@@ -1391,8 +1389,7 @@ fn install_bundle(bundle_id: String, dry_run: bool) -> Result<serde_json::Value>
         println!(
             "\n✅ Bundle installation complete!\n\
              Packages installed: {}/{}",
-            manifest.successful_installs,
-            manifest.total_packages
+            manifest.successful_installs, manifest.total_packages
         );
 
         // Create bundle manifest file
@@ -1561,16 +1558,19 @@ fn report(output: Option<PathBuf>) -> Result<serde_json::Value> {
 /// ```
 #[verb]
 fn generate_artifacts(
-    json_output: Option<PathBuf>,
-    md_output: Option<PathBuf>,
+    json_output: Option<PathBuf>, md_output: Option<PathBuf>,
 ) -> Result<serde_json::Value> {
-    use ggen_domain::marketplace::{generate_registry_index, generate_packages_markdown, write_registry_index, write_packages_markdown};
+    use ggen_domain::marketplace::{
+        generate_packages_markdown, generate_registry_index, write_packages_markdown,
+        write_registry_index,
+    };
     use std::path::PathBuf;
 
     let marketplace_root = PathBuf::from(".");
 
     // Generate JSON registry
-    let json_output_path = json_output.unwrap_or_else(|| PathBuf::from("marketplace/registry/index.json"));
+    let json_output_path =
+        json_output.unwrap_or_else(|| PathBuf::from("marketplace/registry/index.json"));
     let registry_json = generate_registry_index(&marketplace_root)
         .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e))?;
 
@@ -1612,16 +1612,20 @@ fn generate_artifacts(
 /// ```
 #[verb]
 fn improve(package_id: String, apply: Option<String>) -> Result<serde_json::Value> {
-    use ggen_domain::marketplace::{generate_improvement_plan, apply_template_improvements};
+    use ggen_domain::marketplace::{apply_template_improvements, generate_improvement_plan};
     use std::path::PathBuf;
 
     let marketplace_root = PathBuf::from(".");
-    let package_path = marketplace_root.join("marketplace").join("packages").join(&package_id);
+    let package_path = marketplace_root
+        .join("marketplace")
+        .join("packages")
+        .join(&package_id);
 
     if !package_path.exists() {
-        return Err(clap_noun_verb::NounVerbError::execution_error(
-            format!("Package not found: {}", package_id)
-        ));
+        return Err(clap_noun_verb::NounVerbError::execution_error(format!(
+            "Package not found: {}",
+            package_id
+        )));
     }
 
     // Generate improvement plan
@@ -1636,11 +1640,19 @@ fn improve(package_id: String, apply: Option<String>) -> Result<serde_json::Valu
          Estimated Effort: {:.1} hours\n\
          \n\
          Suggestions:\n",
-        package_id, plan.current_score, plan.target_score, plan.projected_new_score, plan.estimated_effort_hours
+        package_id,
+        plan.current_score,
+        plan.target_score,
+        plan.projected_new_score,
+        plan.estimated_effort_hours
     );
 
     for (i, suggestion) in plan.suggestions.iter().enumerate() {
-        let status = if suggestion.guard_failed { "❌" } else { "✨" };
+        let status = if suggestion.guard_failed {
+            "❌"
+        } else {
+            "✨"
+        };
         println!(
             "{}. {} ({})\n\
              • {}\n\
@@ -1652,7 +1664,11 @@ fn improve(package_id: String, apply: Option<String>) -> Result<serde_json::Valu
             suggestion.suggestion,
             suggestion.effort_level,
             suggestion.potential_score_gain,
-            if suggestion.template_available { "yes" } else { "no" }
+            if suggestion.template_available {
+                "yes"
+            } else {
+                "no"
+            }
         );
     }
 

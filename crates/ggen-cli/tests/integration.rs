@@ -13,6 +13,7 @@ use assert_cmd::Command;
 use assert_fs::prelude::*;
 use assert_fs::TempDir;
 use chicago_tdd_tools::prelude::*;
+use chicago_tdd_tools::test;
 use predicates::prelude::*;
 
 // ============================================================================

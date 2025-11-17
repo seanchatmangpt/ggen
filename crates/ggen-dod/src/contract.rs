@@ -12,9 +12,7 @@ use std::fmt;
 use uuid::Uuid;
 
 /// Unique identifier for contracts
-#[derive(
-    Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize,
-)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct ContractId(Uuid);
 
 impl ContractId {
@@ -37,9 +35,7 @@ impl fmt::Display for ContractId {
 }
 
 /// Semantic version for contracts (major.minor.patch)
-#[derive(
-    Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize,
-)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct ContractVersion {
     major: u32,
     minor: u32,
@@ -49,7 +45,11 @@ pub struct ContractVersion {
 impl ContractVersion {
     /// Create a new contract version
     pub fn new(major: u32, minor: u32, patch: u32) -> Self {
-        Self { major, minor, patch }
+        Self {
+            major,
+            minor,
+            patch,
+        }
     }
 
     /// Increment major version (breaking change)
@@ -240,9 +240,7 @@ impl fmt::Display for ConstraintSeverity {
 impl Contract {
     /// Create a new contract
     pub fn new(
-        name: impl Into<String>,
-        description: impl Into<String>,
-        stability: StabilityLevel,
+        name: impl Into<String>, description: impl Into<String>, stability: StabilityLevel,
     ) -> Self {
         Self {
             id: ContractId::new(),
@@ -280,9 +278,7 @@ impl Contract {
 
     /// Add observation schema
     pub fn with_observation_schema(
-        mut self,
-        name: impl Into<String>,
-        schema: ObservationSchema,
+        mut self, name: impl Into<String>, schema: ObservationSchema,
     ) -> Self {
         self.observation_schemas.insert(name.into(), schema);
         self
@@ -297,11 +293,8 @@ impl Contract {
 
     /// Add invariant constraint
     pub fn with_invariant(
-        mut self,
-        name: impl Into<String>,
-        constraint: impl Into<String>,
-        severity: ConstraintSeverity,
-        blocking: bool,
+        mut self, name: impl Into<String>, constraint: impl Into<String>,
+        severity: ConstraintSeverity, blocking: bool,
     ) -> Self {
         self.invariants.push(InvariantConstraint {
             name: name.into(),
@@ -345,8 +338,8 @@ impl Contract {
     /// Sign the contract (makes it immutable)
     pub fn sign(mut self, key: &[u8]) -> Self {
         use hmac::Mac;
-        let mut mac = hmac::Hmac::<sha2::Sha256>::new_from_slice(key)
-            .expect("HMAC key length is valid");
+        let mut mac =
+            hmac::Hmac::<sha2::Sha256>::new_from_slice(key).expect("HMAC key length is valid");
 
         let payload = format!("{}{}{}", self.id, self.version, self.name);
         mac.update(payload.as_bytes());
@@ -418,7 +411,10 @@ impl Ontology {
 
     /// Find contracts by name
     pub fn find_by_name(&self, name: &str) -> Vec<&Contract> {
-        self.contracts.values().filter(|c| c.name() == name).collect()
+        self.contracts
+            .values()
+            .filter(|c| c.name() == name)
+            .collect()
     }
 
     /// Get ontology ID

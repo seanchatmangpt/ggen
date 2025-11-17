@@ -186,10 +186,7 @@ impl ValidationReceiptBuilder {
         // Create a canonical representation for signing
         let to_sign = format!(
             "{}|{}|{}|{}",
-            receipt.package_name,
-            receipt.version,
-            receipt.validated_at,
-            receipt.quality_score
+            receipt.package_name, receipt.version, receipt.validated_at, receipt.quality_score
         );
 
         // Use HMAC-SHA256
@@ -208,10 +205,7 @@ impl ValidationReceiptBuilder {
     pub fn verify_signature(receipt: &ValidationReceipt, key: &str) -> Result<bool, String> {
         let to_sign = format!(
             "{}|{}|{}|{}",
-            receipt.package_name,
-            receipt.version,
-            receipt.validated_at,
-            receipt.quality_score
+            receipt.package_name, receipt.version, receipt.validated_at, receipt.quality_score
         );
 
         use hmac::{Hmac, Mac};

@@ -2,24 +2,24 @@
 //!
 //! This module contains domain models and logic for marketplace operations.
 
+pub mod artifact_generator;
+pub mod bundles;
+pub mod guards;
 pub mod install;
 pub mod list;
+pub mod mape_k_integration;
+pub mod observability;
+pub mod production_readiness;
 pub mod publish;
+pub mod quality_autopilot;
+pub mod receipt_emitter;
+pub mod recommender;
 pub mod registry;
 pub mod search;
 pub mod search_advanced;
-pub mod recommender;
 pub mod types; // Poka-yoke types for error prevention
 pub mod update;
 pub mod validate;
-pub mod guards;
-pub mod receipt_emitter;
-pub mod bundles;
-pub mod artifact_generator;
-pub mod quality_autopilot;
-pub mod observability;
-pub mod production_readiness;
-pub mod mape_k_integration;
 
 #[cfg(test)]
 #[path = "expert_tests.rs"]
@@ -30,54 +30,49 @@ mod expert_tests;
 mod integration_tests;
 
 // Re-export commonly used types and functions
+pub use artifact_generator::{
+    generate_packages_markdown, generate_registry_index, write_packages_markdown,
+    write_registry_index,
+};
+pub use bundles::{generate_bundle_docs, BundleInstallManifest, BundleRegistry, SectorBundle};
+pub use guards::{Guard, GuardCheckResult, GuardError, GuardResult, Severity, ValidationReceipt};
 pub use install::{execute_install, InstallInput, InstallOptions, InstallResult};
 pub use list::{execute_list, ListInput, ListOutput};
+pub use mape_k_integration::{
+    AutonomicMarketplace, AutonomicStatus, MarketplaceHealth, MarketplaceObservation,
+    MarketplaceObservationType, ObservationStats, ReceiptObserver,
+};
+pub use observability::{
+    HealthCheck, HealthStatus, MetricsSnapshot, ObservabilitySystem, PerformanceMetric,
+};
+pub use production_readiness::{
+    CheckStatus, DeploymentGuide, ReadinessAssessment, ReadinessCheck, ReadinessChecker,
+};
 pub use publish::{execute_publish, PublishInput, PublishOutput};
-pub use registry::{
-    CacheManager, Dependency, PackageMetadata, Registry, RegistryIndex, VersionMetadata,
-};
-pub use search::{execute_search, SearchFilters, SearchInput, SearchResult};
-pub use types::{Checksum, NonEmptyQuery, SemanticVersion, ValidatedPackageName};
-pub use update::{execute_update, UpdateInput, UpdateOutput};
-pub use validate::{
-    validate_all_packages, validate_package, CheckResult, PackageValidation, QualityCheck,
-    RequiredCheck,
-};
-pub use guards::{
-    Guard, GuardCheckResult, GuardError, GuardResult, Severity, ValidationReceipt,
+pub use quality_autopilot::{
+    apply_template_improvements, generate_improvement_plan, ImprovementPlan, ImprovementSuggestion,
 };
 pub use receipt_emitter::{
     emit_receipt_for_package, emit_receipts_for_marketplace, generate_validation_report,
     update_production_flags, PackageReport, ValidationReport,
 };
-pub use bundles::{
-    BundleRegistry, SectorBundle, BundleInstallManifest, generate_bundle_docs,
-};
-pub use artifact_generator::{
-    generate_registry_index, generate_packages_markdown, write_registry_index,
-    write_packages_markdown,
-};
-pub use quality_autopilot::{
-    ImprovementPlan, ImprovementSuggestion, generate_improvement_plan,
-    apply_template_improvements,
-};
-pub use search_advanced::{
-    AdvancedSearchQuery, AdvancedSearchResults, SearchEngine, SearchResultEntry,
-    SearchStatistics, SortField,
-};
 pub use recommender::{
-    Recommendation, RecommendationReason, RecommendationSet, Recommender,
-    RecommenderConfig, PackageInfo,
+    PackageInfo, Recommendation, RecommendationReason, RecommendationSet, Recommender,
+    RecommenderConfig,
 };
-pub use observability::{
-    ObservabilitySystem, HealthStatus, PerformanceMetric, HealthCheck, MetricsSnapshot,
+pub use registry::{
+    CacheManager, Dependency, PackageMetadata, Registry, RegistryIndex, VersionMetadata,
 };
-pub use production_readiness::{
-    ReadinessChecker, ReadinessAssessment, ReadinessCheck, CheckStatus, DeploymentGuide,
+pub use search::{execute_search, SearchFilters, SearchInput, SearchResult};
+pub use search_advanced::{
+    AdvancedSearchQuery, AdvancedSearchResults, SearchEngine, SearchResultEntry, SearchStatistics,
+    SortField,
 };
-pub use mape_k_integration::{
-    AutonomicMarketplace, ReceiptObserver, MarketplaceObservation, MarketplaceObservationType,
-    AutonomicStatus, MarketplaceHealth, ObservationStats,
+pub use types::{Checksum, NonEmptyQuery, SemanticVersion, ValidatedPackageName};
+pub use update::{execute_update, UpdateInput, UpdateOutput};
+pub use validate::{
+    validate_all_packages, validate_package, CheckResult, PackageValidation, QualityCheck,
+    RequiredCheck,
 };
 
 // Legacy types for backwards compatibility

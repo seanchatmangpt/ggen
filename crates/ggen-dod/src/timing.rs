@@ -169,7 +169,11 @@ impl TimingEnforcer {
             return TimingStats::default();
         }
 
-        let times: Vec<u64> = self.measurements.iter().map(|(_, m)| m.elapsed_ms).collect();
+        let times: Vec<u64> = self
+            .measurements
+            .iter()
+            .map(|(_, m)| m.elapsed_ms)
+            .collect();
         let sum: u64 = times.iter().sum();
         let count = times.len() as u64;
         let mean = sum / count;
@@ -275,13 +279,10 @@ mod tests {
 
     #[test]
     fn test_timing_enforcer() -> DoDResult<()> {
-        let mut enforcer = TimingEnforcer::new()
-            .with_constraint("kernel", kernel_timing_constraint());
+        let mut enforcer =
+            TimingEnforcer::new().with_constraint("kernel", kernel_timing_constraint());
 
-        enforcer.record_measurement(
-            "test",
-            TimingMeasurement::new().finished(5),
-        );
+        enforcer.record_measurement("test", TimingMeasurement::new().finished(5));
 
         enforcer.verify()?;
         Ok(())

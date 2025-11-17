@@ -24,8 +24,7 @@ pub struct Projection {
 impl Projection {
     /// Create a new projection
     pub fn new(
-        construct_name: impl Into<String>,
-        source_id: impl Into<String>,
+        construct_name: impl Into<String>, source_id: impl Into<String>,
         executable_form: serde_json::Value,
     ) -> Self {
         Self {
@@ -76,9 +75,7 @@ pub struct MuBinding {
 impl MuBinding {
     /// Create a new μ binding
     pub fn new(
-        name: impl Into<String>,
-        projection_name: impl Into<String>,
-        mu_function: impl Into<String>,
+        name: impl Into<String>, projection_name: impl Into<String>, mu_function: impl Into<String>,
     ) -> Self {
         Self {
             name: name.into(),
@@ -144,7 +141,13 @@ impl BindingCompleteness {
         self.projections
             .insert(projection.construct_name().to_string(), projection);
         self.total_constructs += 1;
-        if self.projections.values().last().map(|p| p.is_complete()).unwrap_or(false) {
+        if self
+            .projections
+            .values()
+            .last()
+            .map(|p| p.is_complete())
+            .unwrap_or(false)
+        {
             self.projected_constructs += 1;
         }
         self
@@ -153,8 +156,7 @@ impl BindingCompleteness {
     /// Register a μ binding
     pub fn register_binding(mut self, binding: MuBinding) -> Self {
         let projection_exists = self.projections.contains_key(binding.projection_name());
-        self.bindings
-            .insert(binding.name().to_string(), binding);
+        self.bindings.insert(binding.name().to_string(), binding);
         if projection_exists {
             self.bound_constructs += 1;
         }

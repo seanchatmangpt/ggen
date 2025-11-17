@@ -59,12 +59,8 @@ mod e2e_tests {
             },
         };
 
-        let control_loop = AutonomousControlLoop::new(
-            config,
-            initial_snapshot.clone(),
-            proposer,
-            validator,
-        );
+        let control_loop =
+            AutonomousControlLoop::new(config, initial_snapshot.clone(), proposer, validator);
 
         // 4. OBSERVATION: Simulate data arriving
         println!("\n--- Phase 1: Observation ---");
@@ -144,7 +140,10 @@ mod e2e_tests {
         let patterns = miner.mine().unwrap();
         println!("Patterns detected: {}", patterns.len());
         for p in &patterns {
-            println!("  - {} ({:?}): confidence={:.2}", p.name, p.pattern_type, p.confidence);
+            println!(
+                "  - {} ({:?}): confidence={:.2}",
+                p.name, p.pattern_type, p.confidence
+            );
         }
 
         // 2. Generate proposals
@@ -268,13 +267,37 @@ mod e2e_tests {
         // Run all validators
         let (static_ev, dynamic_ev, perf_ev) = validator.validate_all(&ctx).await.unwrap();
 
-        println!("Static validation: {}", if static_ev.passed { "✓ PASS" } else { "✗ FAIL" });
-        println!("Dynamic validation: {}", if dynamic_ev.passed { "✓ PASS" } else { "✗ FAIL" });
-        println!("Performance validation: {}", if perf_ev.passed { "✓ PASS" } else { "✗ FAIL" });
+        println!(
+            "Static validation: {}",
+            if static_ev.passed {
+                "✓ PASS"
+            } else {
+                "✗ FAIL"
+            }
+        );
+        println!(
+            "Dynamic validation: {}",
+            if dynamic_ev.passed {
+                "✓ PASS"
+            } else {
+                "✗ FAIL"
+            }
+        );
+        println!(
+            "Performance validation: {}",
+            if perf_ev.passed {
+                "✓ PASS"
+            } else {
+                "✗ FAIL"
+            }
+        );
 
         // Check invariants
         let invariants_ok = validator.check_invariants(&ctx).await.unwrap();
-        println!("Invariants preserved: {}", if invariants_ok { "✓ YES" } else { "✗ NO" });
+        println!(
+            "Invariants preserved: {}",
+            if invariants_ok { "✓ YES" } else { "✗ NO" }
+        );
 
         assert!(static_ev.passed);
         assert!(dynamic_ev.passed);
@@ -295,7 +318,7 @@ mod e2e_tests {
             "Test proposal: AddClass UserProfile".to_string(),
         );
 
-        receipt.mark_valid();
+        receipt = receipt.mark_valid();
         receipt.sign("ml_dsa_signature_abc123".to_string());
 
         println!("Snapshot ID: {}", receipt.snapshot_id);
@@ -322,8 +345,14 @@ mod e2e_tests {
                 entity: format!("resource_{}", i),
                 properties: [
                     ("id".to_string(), i.to_string()),
-                    ("type".to_string(), if i % 2 == 0 { "A" } else { "B" }.to_string()),
-                    ("status".to_string(), if i % 3 == 0 { "active" } else { "inactive" }.to_string()),
+                    (
+                        "type".to_string(),
+                        if i % 2 == 0 { "A" } else { "B" }.to_string(),
+                    ),
+                    (
+                        "status".to_string(),
+                        if i % 3 == 0 { "active" } else { "inactive" }.to_string(),
+                    ),
                 ]
                 .iter()
                 .cloned()

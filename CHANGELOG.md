@@ -5,6 +5,63 @@ All notable changes to ggen will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.0] - 2025-01-XX
+
+### Changed
+
+#### Major Version Bump
+- **Version**: Updated from 2.7.1 to 3.0.0
+- **Rationale**: Significant architectural changes and improvements since 1.2.0 warrant a major version bump
+- **Breaking Changes**: See migration guide below
+
+### Breaking Changes
+
+#### Command Structure (from 2.0.0)
+- All commands now use noun-verb pattern (e.g., `ggen template generate` instead of flat structure)
+- `ggen market` → `ggen marketplace` (full word for clarity)
+- All commands require explicit noun-verb format
+
+#### API Changes (from 2.0.0)
+- `MarketClient` → `MarketplaceClient`
+- Domain layer moved to `cli/src/domain/`
+- Builder pattern for client creation
+
+#### Removed Features
+- **P2P Marketplace**: Removed in 2.6.0 (breaking for P2P users)
+  - Removed `p2p` feature flag from all crates
+  - Deleted P2P implementation files
+  - Removed `libp2p` and `bs58` dependencies
+  - Marketplace now uses centralized/local registries only
+
+### Migration Guide
+
+#### For CLI Users
+1. Update installation: `brew upgrade ggen` or `cargo install ggen`
+2. Update scripts: Replace `ggen market` with `ggen marketplace`
+3. Update command structure: Use noun-verb pattern for all commands
+4. Run: `ggen utils doctor --migrate-config` (if available)
+
+#### For Library Users
+1. Update `Cargo.toml`: `ggen = "3.0"`
+2. Update imports: `use ggen::marketplace::MarketplaceClient`
+3. Use builder pattern for client creation
+4. Review API changes in domain layer
+
+### Added
+
+#### Features Since 2.7.1
+- All improvements from 2.7.1 are included in 3.0.0
+- See [2.7.1] section below for details
+
+### Technical Details
+
+- **Version Bump**: 2.7.1 → 3.0.0 (major release)
+- **Breaking Changes**: Command structure, API changes, P2P removal
+- **Backward Compatibility**: None - major version bump
+- **Deprecations**: All 2.x APIs are superseded by 3.0.0 APIs
+
+---
+
 ## [2.7.1] - 2025-11-15
 
 ### Fixed

@@ -104,15 +104,22 @@ impl TemplateSearchEngine {
     }
 
     /// Search for template packages
+    ///
+    /// **Current Implementation**: Placeholder that returns empty results.
+    /// **Planned Enhancement**: Will integrate with Registry and SearchEngine to:
+    /// 1. Query the search index for packages matching the query
+    /// 2. Filter results by template-specific criteria (category, framework, type)
+    /// 3. Extract TemplatePackage metadata from Package custom_fields
+    /// 4. Rank results by relevance score
+    /// 5. Return matched template packages with scores
     pub async fn search(
         &self, query: &str, filters: TemplateSearchFilters,
     ) -> Result<TemplateSearchResults> {
-        // Placeholder implementation
-        // In real implementation, this would:
-        // 1. Query the search index
-        // 2. Apply template-specific filters
-        // 3. Rank results by relevance
-        // 4. Return matched template packages
+        // Placeholder: Returns empty results until Registry integration is complete
+        // Note: Will integrate with Registry trait to search for template packages
+        // Note: Will extract TemplatePackage from Package.custom_fields
+        // Note: Will apply template-specific filters (category, framework, type, examples)
+        // Note: Will rank by relevance using search engine scores
 
         let _ = (query, filters);
 
@@ -124,39 +131,69 @@ impl TemplateSearchEngine {
     }
 
     /// Find templates by category
+    ///
+    /// **Current Implementation**: Placeholder that returns empty results.
+    /// **Planned Enhancement**: Will search Registry for packages with matching category.
     pub async fn find_by_category(&self, category: &str) -> Result<Vec<TemplatePackage>> {
-        // Placeholder implementation
+        // Placeholder: Returns empty results until Registry integration
+        // Note: Will query Registry with category filter
+        // Note: Will extract TemplatePackage from matching packages
         let _ = category;
         Ok(Vec::new())
     }
 
     /// Find templates by framework
+    ///
+    /// **Current Implementation**: Placeholder that returns empty results.
+    /// **Planned Enhancement**: Will search Registry for packages supporting the framework.
     pub async fn find_by_framework(&self, framework: &str) -> Result<Vec<TemplatePackage>> {
-        // Placeholder implementation
+        // Placeholder: Returns empty results until Registry integration
+        // Note: Will query Registry with framework filter
+        // Note: Will extract TemplatePackage from matching packages
         let _ = framework;
         Ok(Vec::new())
     }
 
     /// Get template package details
+    ///
+    /// **Current Implementation**: Returns error (package not found).
+    /// **Planned Enhancement**: Will retrieve package from Registry and extract TemplatePackage.
     pub async fn get_template_package(&self, package_id: &str) -> Result<TemplatePackage> {
-        // Placeholder implementation
+        // Placeholder: Returns error until Registry integration
+        // Note: Will retrieve package from Registry by ID
+        // Note: Will extract TemplatePackage from Package.custom_fields
+        // Note: Will return TemplatePackage or error if not a template package
         let _ = package_id;
         Err(MarketplaceError::package_not_found(
             package_id,
-            "Template package not found",
+            "Template package not found (placeholder implementation)",
         ))
     }
 
     /// List popular templates
+    ///
+    /// **Current Implementation**: Placeholder that returns empty results.
+    /// **Planned Enhancement**: Will query Registry sorted by download count/rating.
     pub async fn list_popular(&self, limit: usize) -> Result<Vec<TemplatePackageResult>> {
-        // Placeholder implementation
+        // Placeholder: Returns empty results until Registry integration
+        // Note: Will query Registry sorted by downloads/rating descending
+        // Note: Will filter to template packages only
+        // Note: Will extract TemplatePackage and create TemplatePackageResult
+        // Note: Will apply limit
         let _ = limit;
         Ok(Vec::new())
     }
 
     /// List recently updated templates
+    ///
+    /// **Current Implementation**: Placeholder that returns empty results.
+    /// **Planned Enhancement**: Will query Registry sorted by updated_at timestamp.
     pub async fn list_recent(&self, limit: usize) -> Result<Vec<TemplatePackageResult>> {
-        // Placeholder implementation
+        // Placeholder: Returns empty results until Registry integration
+        // Note: Will query Registry sorted by updated_at descending
+        // Note: Will filter to template packages only
+        // Note: Will extract TemplatePackage and create TemplatePackageResult
+        // Note: Will apply limit
         let _ = limit;
         Ok(Vec::new())
     }

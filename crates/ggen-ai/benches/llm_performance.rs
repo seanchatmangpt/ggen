@@ -6,7 +6,7 @@
 //! - Prompt engineering
 //! - Agent task processing
 
-use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId};
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
 use std::collections::HashMap;
 
 fn benchmark_agent_initialization(c: &mut Criterion) {
@@ -23,20 +23,16 @@ fn benchmark_task_submission(c: &mut Criterion) {
     let mut group = c.benchmark_group("task_submission");
 
     for size in [1, 10, 100].iter() {
-        group.bench_with_input(
-            BenchmarkId::from_parameter(size),
-            size,
-            |b, &size| {
-                b.iter(|| {
-                    // Simulate task submission
-                    let mut tasks = Vec::new();
-                    for i in 0..size {
-                        tasks.push(black_box(format!("task_{}", i)));
-                    }
-                    let _count = black_box(tasks.len());
-                })
-            },
-        );
+        group.bench_with_input(BenchmarkId::from_parameter(size), size, |b, &size| {
+            b.iter(|| {
+                // Simulate task submission
+                let mut tasks = Vec::new();
+                for i in 0..size {
+                    tasks.push(black_box(format!("task_{}", i)));
+                }
+                let _count = black_box(tasks.len());
+            })
+        });
     }
     group.finish();
 }

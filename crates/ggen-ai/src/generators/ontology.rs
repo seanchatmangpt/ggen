@@ -269,10 +269,7 @@ impl OntologyGenerator {
                 // Look for lines that start with : or have : followed by identifier
                 (trimmed.starts_with(':')
                     && trimmed.len() > 1
-                    && trimmed
-                        .chars()
-                        .nth(1)
-                        .map_or(false, |c| c.is_alphanumeric()))
+                    && trimmed.chars().nth(1).is_some_and(|c| c.is_alphanumeric()))
                     || (trimmed.contains(" :") && !trimmed.contains("@prefix"))
             });
 

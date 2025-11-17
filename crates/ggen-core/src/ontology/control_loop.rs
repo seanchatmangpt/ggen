@@ -1,21 +1,19 @@
+use serde::{Deserialize, Serialize};
 /// Autonomous Control Loop: Closed-Loop Ontology Evolution
 ///
 /// Implements the complete feedback loop:
 /// Observe → Detect → Propose → Validate → Promote → Record → Repeat
 ///
 /// Runs autonomously without human intervention in the editing loop.
-
-use async_trait::async_trait;
 use std::sync::Arc;
-use tokio::sync::{mpsc, RwLock};
 use std::time::Duration;
-use serde::{Deserialize, Serialize};
+use tokio::sync::RwLock;
 
-use crate::ontology::sigma_runtime::{SigmaRuntime, SigmaSnapshot, SigmaReceipt};
-use crate::ontology::pattern_miner::{PatternMiner, MinerConfig, Observation, ObservationSource};
-use crate::ontology::delta_proposer::{DeltaSigmaProposer, DeltaSigmaProposal};
-use crate::ontology::validators::{CompositeValidator, ValidationContext, Invariant};
+use crate::ontology::delta_proposer::DeltaSigmaProposer;
+use crate::ontology::pattern_miner::{MinerConfig, Observation, PatternMiner};
 use crate::ontology::promotion::AtomicSnapshotPromoter;
+use crate::ontology::sigma_runtime::{SigmaReceipt, SigmaRuntime, SigmaSnapshot};
+use crate::ontology::validators::{CompositeValidator, Invariant, ValidationContext};
 
 /// Telemetry for a control loop iteration
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -92,21 +90,18 @@ pub struct AutonomousControlLoop {
 
 impl AutonomousControlLoop {
     pub fn new(
-        config: ControlLoopConfig,
-        initial_snapshot: SigmaSnapshot,
-        proposer: Arc<dyn DeltaSigmaProposer>,
-        validator: Arc<CompositeValidator>,
+        config: ControlLoopConfig, initial_snapshot: SigmaSnapshot,
+        proposer: Arc<dyn DeltaSigmaProposer>, validator: Arc<CompositeValidator>,
     ) -> Self {
         let sigma_runtime = SigmaRuntime::new(initial_snapshot.clone());
+        let miner_config = config.miner_config.clone();
 
         Self {
             config,
             state: Arc::new(RwLock::new(LoopState::Idle)),
             sigma_runtime: Arc::new(RwLock::new(sigma_runtime)),
             promoter: Arc::new(AtomicSnapshotPromoter::new(Arc::new(initial_snapshot))),
-            pattern_miner: Arc::new(RwLock::new(PatternMiner::new(
-                config.miner_config.clone(),
-            ))),
+            pattern_miner: Arc::new(RwLock::new(PatternMiner::new(miner_config))),
             proposer,
             validator,
             telemetry: Arc::new(RwLock::new(Vec::new())),
@@ -145,13 +140,15 @@ impl AutonomousControlLoop {
 
         // 1. OBSERVE: Already done via .observe() calls
         let miner = self.pattern_miner.read().await;
-        telemetry.observation_count = miner.observations.len();
+        telemetry.observation_count = miner.observation_count();
         drop(miner);
 
         // 2. DETECT: Run pattern mining
         *self.state.write().await = LoopState::Detecting;
         let mut miner = self.pattern_miner.write().await;
-        let patterns = miner.mine().map_err(|e| format!("Pattern mining failed: {}", e))?;
+        let patterns = miner
+            .mine()
+            .map_err(|e| format!("Pattern mining failed: {}", e))?;
         telemetry.patterns_detected = patterns.len();
         drop(miner);
 
@@ -165,11 +162,7 @@ impl AutonomousControlLoop {
         let current_snapshot = self.promoter.get_current();
         let proposals = self
             .proposer
-            .propose_deltas(
-                patterns,
-                current_snapshot.snapshot(),
-                &self.config.sector,
-            )
+            .propose_deltas(patterns, current_snapshot.snapshot(), &self.config.sector)
             .await
             .map_err(|e| format!("Proposal generation failed: {}", e))?;
 
@@ -222,15 +215,17 @@ impl AutonomousControlLoop {
                 *self.state.write().await = LoopState::Promoting;
 
                 if self.config.auto_promote {
-                    let promotion_result = self.promoter.promote(Arc::new(
-                        SigmaSnapshot::new(
-                            Some(current_snap.snapshot().id.clone()),
-                            vec![],
-                            format!("{}_v{}", current_snap.snapshot().version, telemetry.iteration),
-                            "promoted_sig".to_string(),
-                            current_snap.snapshot().metadata.clone(),
+                    let _promotion_result = self.promoter.promote(Arc::new(SigmaSnapshot::new(
+                        Some(current_snap.snapshot().id.clone()),
+                        vec![],
+                        format!(
+                            "{}_v{}",
+                            current_snap.snapshot().version,
+                            telemetry.iteration
                         ),
-                    ));
+                        "promoted_sig".to_string(),
+                        current_snap.snapshot().metadata.clone(),
+                    )));
 
                     telemetry.proposals_promoted += 1;
 
@@ -281,8 +276,7 @@ impl AutonomousControlLoop {
             iteration += 1;
 
             // Wait before next iteration
-            tokio::time::sleep(Duration::from_millis(self.config.iteration_interval_ms))
-                .await;
+            tokio::time::sleep(Duration::from_millis(self.config.iteration_interval_ms)).await;
         }
 
         *self.state.write().await = LoopState::Idle;
@@ -291,7 +285,6 @@ impl AutonomousControlLoop {
 
     /// Run with bounded iterations
     pub async fn run_bounded(&self, max_iters: usize) -> Result<(), String> {
-        let original_max = self.config.max_iterations;
         // Note: we can't modify self.config (it's not mutable), so we'll track manually
 
         for _ in 0..max_iters {
@@ -305,8 +298,7 @@ impl AutonomousControlLoop {
                 }
             }
 
-            tokio::time::sleep(Duration::from_millis(self.config.iteration_interval_ms))
-                .await;
+            tokio::time::sleep(Duration::from_millis(self.config.iteration_interval_ms)).await;
         }
 
         *self.state.write().await = LoopState::Idle;
@@ -333,7 +325,9 @@ fn get_time_ms() -> u64 {
 mod tests {
     use super::*;
     use crate::ontology::delta_proposer::MockLLMProposer;
-    use crate::ontology::validators::{MockStaticValidator, MockDynamicValidator, MockPerformanceValidator};
+    use crate::ontology::validators::{
+        MockDynamicValidator, MockPerformanceValidator, MockStaticValidator,
+    };
 
     fn create_test_loop() -> AutonomousControlLoop {
         let snapshot = SigmaSnapshot::new(

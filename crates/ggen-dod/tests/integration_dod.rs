@@ -8,9 +8,9 @@
 //! - Receipt generation and verification
 
 use ggen_dod::{
-    constants, DoDError, DoDResult, Invariant, InvariantChecker, InvariantId, Kernel,
-    KernelAction, KernelDecision, Observation, ObservationId, ObservationSchema, ObservationType,
-    Receipt, ReceiptId, ReceiptStore, TimingEnforcer, TimingGuarantee, TimingMeasurement,
+    constants, DoDError, DoDResult, Invariant, InvariantChecker, InvariantId, Kernel, KernelAction,
+    KernelDecision, Observation, ObservationId, ObservationSchema, ObservationType, Receipt,
+    ReceiptId, ReceiptStore, TimingEnforcer, TimingGuarantee, TimingMeasurement,
 };
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
@@ -32,7 +32,10 @@ fn test_observation_creation_and_validation() {
     );
 
     // Verify observation creation
-    assert_eq!(observation.observation_type, ObservationType::QueryExecution);
+    assert_eq!(
+        observation.observation_type,
+        ObservationType::QueryExecution
+    );
     assert!(observation.timestamp_ns > 0);
 
     // Verify observation size is within limits
@@ -124,10 +127,7 @@ fn test_timing_enforcement() {
 fn test_schema_validation() {
     let schema = ObservationSchema::new(
         "complex_schema",
-        vec![
-            "required_field1".to_string(),
-            "required_field2".to_string(),
-        ],
+        vec!["required_field1".to_string(), "required_field2".to_string()],
     );
 
     // Valid observation with all required fields
@@ -163,9 +163,18 @@ fn test_observation_pipeline() {
 
     // Verify observations can be created and tracked
     assert_eq!(observations.len(), 3);
-    assert_eq!(observations[0].observation_type, ObservationType::FileChange);
-    assert_eq!(observations[1].observation_type, ObservationType::ValidationCheck);
-    assert_eq!(observations[2].observation_type, ObservationType::CodeGeneration);
+    assert_eq!(
+        observations[0].observation_type,
+        ObservationType::FileChange
+    );
+    assert_eq!(
+        observations[1].observation_type,
+        ObservationType::ValidationCheck
+    );
+    assert_eq!(
+        observations[2].observation_type,
+        ObservationType::CodeGeneration
+    );
 }
 
 /// Test: Constraint checking across multiple constraints
@@ -231,10 +240,7 @@ fn test_large_observation_handling() {
 
     // Build a moderately large observation (but under 1MB limit)
     for i in 0..100 {
-        data.insert(
-            format!("key_{}", i),
-            format!("value_{}", "x".repeat(100)),
-        );
+        data.insert(format!("key_{}", i), format!("value_{}", "x".repeat(100)));
     }
 
     let observation = Observation::new(ObservationType::SystemMetrics, data);

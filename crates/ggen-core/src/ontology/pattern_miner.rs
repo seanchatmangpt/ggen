@@ -1,3 +1,4 @@
+use serde::{Deserialize, Serialize};
 /// Pattern Miner: Automated ontology evolution via anomaly and drift detection
 ///
 /// This module scans observation data (O) and generated artifacts (A) to detect:
@@ -5,13 +6,10 @@
 /// - Schema mismatches (type errors or missing constraints)
 /// - Performance anomalies (degradation in operator latency)
 /// - Usage patterns (candidate refactorings and new projections)
-
-use std::collections::{BTreeMap, HashMap, HashSet};
-use oxigraph::model::{Statement, NamedNode};
-use serde::{Deserialize, Serialize};
+use std::collections::{BTreeMap, HashSet};
 
 /// A detected pattern in the ontology or data
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Pattern {
     /// Name of the pattern
     pub name: String,
@@ -62,7 +60,7 @@ pub enum PatternType {
     GuardNearMiss,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct ProposedChange {
     pub change_type: String,
     pub target: String,
@@ -97,13 +95,20 @@ pub struct OntologyStats {
 /// Pattern mining engine
 pub struct PatternMiner {
     /// Collected observations from (O, A)
-    observations: Vec<Observation>,
+    pub(crate) observations: Vec<Observation>,
 
     /// Detected patterns
     patterns: Vec<Pattern>,
 
     /// Configuration
     config: MinerConfig,
+}
+
+impl PatternMiner {
+    /// Get the number of observations
+    pub fn observation_count(&self) -> usize {
+        self.observations.len()
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -200,9 +205,15 @@ impl PatternMiner {
 
         // Filter by min occurrences and sort by confidence
         let mut patterns = self.patterns.clone();
-        patterns.retain(|p| p.occurrences >= self.config.min_occurrences &&
-                           p.confidence >= self.config.min_confidence);
-        patterns.sort_by(|a, b| b.confidence.partial_cmp(&a.confidence).unwrap_or(std::cmp::Ordering::Equal));
+        patterns.retain(|p| {
+            p.occurrences >= self.config.min_occurrences
+                && p.confidence >= self.config.min_confidence
+        });
+        patterns.sort_by(|a, b| {
+            b.confidence
+                .partial_cmp(&a.confidence)
+                .unwrap_or(std::cmp::Ordering::Equal)
+        });
 
         patterns.truncate(self.config.max_patterns);
         self.patterns = patterns.clone();
@@ -212,7 +223,8 @@ impl PatternMiner {
 
     /// Mine repeated structures (candidate for new classes)
     fn mine_repeated_structures(&mut self) -> Result<(), String> {
-        let mut structure_counts: HashMap<String, Vec<String>> = HashMap::new();
+        // FMEA Fix: Use BTreeMap for deterministic iteration order
+        let mut structure_counts: BTreeMap<String, Vec<String>> = BTreeMap::new();
 
         // Group observations by property signature
         for obs in &self.observations {
@@ -220,7 +232,9 @@ impl PatternMiner {
             props.sort();
             let signature = props.join("|");
 
-            structure_counts.entry(signature).or_insert_with(Vec::new)
+            structure_counts
+                .entry(signature)
+                .or_default()
                 .push(obs.entity.clone());
         }
 
@@ -240,15 +254,11 @@ impl PatternMiner {
                     ),
                     confidence,
                     occurrences: entities.len(),
-                    proposed_changes: vec![
-                        ProposedChange {
-                            change_type: "AddClass".to_string(),
-                            target: format!("Class_{}", signature.replace("|", "_")),
-                            rationale: format!(
-                                "Consolidate repeated structure into a new class"
-                            ),
-                        }
-                    ],
+                    proposed_changes: vec![ProposedChange {
+                        change_type: "AddClass".to_string(),
+                        target: format!("Class_{}", signature.replace("|", "_")),
+                        rationale: "Consolidate repeated structure into a new class".to_string(),
+                    }],
                     affected_entities: entities,
                 };
 
@@ -265,7 +275,8 @@ impl PatternMiner {
             return Ok(());
         }
 
-        let mut type_violations: HashMap<String, Vec<String>> = HashMap::new();
+        // FMEA Fix: Use BTreeMap for deterministic iteration order
+        let mut type_violations: BTreeMap<String, Vec<String>> = BTreeMap::new();
 
         // Simple heuristic: detect value inconsistencies
         for (key, values) in self.group_by_property() {
@@ -277,8 +288,9 @@ impl PatternMiner {
 
             if value_types.len() > 1 {
                 let types: Vec<_> = value_types.iter().cloned().collect();
-                type_violations.entry(key.clone())
-                    .or_insert_with(Vec::new)
+                type_violations
+                    .entry(key.clone())
+                    .or_default()
                     .extend(types);
             }
         }
@@ -294,13 +306,11 @@ impl PatternMiner {
                     ),
                     confidence: 0.85,
                     occurrences: types.len(),
-                    proposed_changes: vec![
-                        ProposedChange {
-                            change_type: "TightenConstraint".to_string(),
-                            target: property.clone(),
-                            rationale: "Add type constraint to prevent mixed types".to_string(),
-                        }
-                    ],
+                    proposed_changes: vec![ProposedChange {
+                        change_type: "TightenConstraint".to_string(),
+                        target: property.clone(),
+                        rationale: "Add type constraint to prevent mixed types".to_string(),
+                    }],
                     affected_entities: vec![property],
                 };
 
@@ -323,8 +333,9 @@ impl PatternMiner {
         for obs in &self.observations {
             if let Some(latency_str) = obs.properties.get("latency_us") {
                 if let Ok(latency) = latency_str.parse::<f64>() {
-                    latencies.entry(obs.entity.clone())
-                        .or_insert_with(Vec::new)
+                    latencies
+                        .entry(obs.entity.clone())
+                        .or_default()
                         .push((obs.timestamp, latency));
                 }
             }
@@ -350,15 +361,13 @@ impl PatternMiner {
                         ),
                         confidence: 0.90,
                         occurrences: latency_samples.len(),
-                        proposed_changes: vec![
-                            ProposedChange {
-                                change_type: "OptimizeOperator".to_string(),
-                                target: entity.clone(),
-                                rationale: format!(
-                                    "Operator latency degraded; recommend profiling and optimization"
-                                ),
-                            }
-                        ],
+                        proposed_changes: vec![ProposedChange {
+                            change_type: "OptimizeOperator".to_string(),
+                            target: entity.clone(),
+                            rationale:
+                                "Operator latency degraded; recommend profiling and optimization"
+                                    .to_string(),
+                        }],
                         affected_entities: vec![entity],
                     };
 
@@ -376,7 +385,8 @@ impl PatternMiner {
             return Ok(());
         }
 
-        let mut usage_counts: HashMap<String, usize> = HashMap::new();
+        // FMEA Fix: Use BTreeMap for deterministic iteration order
+        let mut usage_counts: BTreeMap<String, usize> = BTreeMap::new();
 
         for obs in &self.observations {
             for key in obs.properties.keys() {
@@ -388,23 +398,23 @@ impl PatternMiner {
         for (element, count) in usage_counts {
             let usage_ratio = count as f64 / self.observations.len() as f64;
 
-            if usage_ratio < 0.1 { // Less than 10% usage
+            if usage_ratio < 0.1 {
+                // Less than 10% usage
                 let pattern = Pattern {
                     name: format!("Orphaned_{}", element),
                     pattern_type: PatternType::OrphanedElement,
                     description: format!(
                         "Element '{}' used in only {:.1}% of observations",
-                        element, usage_ratio * 100.0
+                        element,
+                        usage_ratio * 100.0
                     ),
                     confidence: 0.7,
                     occurrences: count,
-                    proposed_changes: vec![
-                        ProposedChange {
-                            change_type: "Review".to_string(),
-                            target: element.clone(),
-                            rationale: "Low usage; consider removal or deprecation".to_string(),
-                        }
-                    ],
+                    proposed_changes: vec![ProposedChange {
+                        change_type: "Review".to_string(),
+                        target: element.clone(),
+                        rationale: "Low usage; consider removal or deprecation".to_string(),
+                    }],
                     affected_entities: vec![element],
                 };
 
@@ -421,7 +431,8 @@ impl PatternMiner {
 
         for obs in &self.observations {
             for (key, val) in &obs.properties {
-                grouped.entry(key.clone())
+                grouped
+                    .entry(key.clone())
                     .or_insert_with(Vec::new)
                     .push(val.clone());
             }
@@ -489,22 +500,37 @@ mod tests {
         vec![
             Observation {
                 entity: "entity_1".to_string(),
-                properties: [("type".to_string(), "user".to_string()),
-                             ("name".to_string(), "Alice".to_string())].iter().cloned().collect(),
+                properties: [
+                    ("type".to_string(), "user".to_string()),
+                    ("name".to_string(), "Alice".to_string()),
+                ]
+                .iter()
+                .cloned()
+                .collect(),
                 timestamp: 1000,
                 source: ObservationSource::Data,
             },
             Observation {
                 entity: "entity_2".to_string(),
-                properties: [("type".to_string(), "user".to_string()),
-                             ("name".to_string(), "Bob".to_string())].iter().cloned().collect(),
+                properties: [
+                    ("type".to_string(), "user".to_string()),
+                    ("name".to_string(), "Bob".to_string()),
+                ]
+                .iter()
+                .cloned()
+                .collect(),
                 timestamp: 2000,
                 source: ObservationSource::Data,
             },
             Observation {
                 entity: "entity_3".to_string(),
-                properties: [("type".to_string(), "user".to_string()),
-                             ("name".to_string(), "Charlie".to_string())].iter().cloned().collect(),
+                properties: [
+                    ("type".to_string(), "user".to_string()),
+                    ("name".to_string(), "Charlie".to_string()),
+                ]
+                .iter()
+                .cloned()
+                .collect(),
                 timestamp: 3000,
                 source: ObservationSource::Data,
             },
@@ -536,7 +562,8 @@ mod tests {
         let patterns = miner.mine().unwrap();
 
         assert!(!patterns.is_empty());
-        let repeated = patterns.iter()
+        let repeated = patterns
+            .iter()
             .find(|p| p.pattern_type == PatternType::RepeatedStructure);
         assert!(repeated.is_some());
     }

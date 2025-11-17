@@ -22,9 +22,7 @@ pub struct DoctrinePrinciple {
 impl DoctrinePrinciple {
     /// Create a new doctrine principle
     pub fn new(
-        name: impl Into<String>,
-        description: impl Into<String>,
-        predicate: impl Into<String>,
+        name: impl Into<String>, description: impl Into<String>, predicate: impl Into<String>,
         blocks_release: bool,
     ) -> Self {
         Self {
@@ -76,17 +74,23 @@ impl DoctrineCompliance {
 
     /// Register a principle
     pub fn register_principle(mut self, principle: DoctrinePrinciple) -> Self {
-        self.principles.insert(principle.name().to_string(), principle);
+        self.principles
+            .insert(principle.name().to_string(), principle);
         self
     }
 
     /// Record a violation
-    pub fn record_violation(&mut self, principle_name: impl Into<String>, explanation: impl Into<String>) -> crate::error::DoDResult<()> {
+    pub fn record_violation(
+        &mut self, principle_name: impl Into<String>, explanation: impl Into<String>,
+    ) -> crate::error::DoDResult<()> {
         let principle_name = principle_name.into();
         let explanation = explanation.into();
 
         let principle = self.principles.get(&principle_name).ok_or_else(|| {
-            crate::error::DoDError::DoctrineViolation(format!("unknown principle: {}", principle_name))
+            crate::error::DoDError::DoctrineViolation(format!(
+                "unknown principle: {}",
+                principle_name
+            ))
         })?;
 
         self.violations.push(DoctrineViolation {
@@ -100,11 +104,7 @@ impl DoctrineCompliance {
 
     /// Check compliance
     pub fn check(&self) -> crate::error::DoDResult<()> {
-        let blocking_violations: Vec<_> = self
-            .violations
-            .iter()
-            .filter(|v| v.blocking)
-            .collect();
+        let blocking_violations: Vec<_> = self.violations.iter().filter(|v| v.blocking).collect();
 
         if !blocking_violations.is_empty() {
             let explanation = blocking_violations

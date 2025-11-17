@@ -17,9 +17,7 @@ use std::time::Instant;
 use uuid::Uuid;
 
 /// Unique identifier for kernel actions
-#[derive(
-    Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize,
-)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub struct KernelActionId(Uuid);
 
 impl KernelActionId {
@@ -85,9 +83,7 @@ pub struct KernelAction {
 impl KernelAction {
     /// Create a new kernel action
     pub fn new(
-        action_type: ActionType,
-        payload: serde_json::Value,
-        tenant_id: impl Into<String>,
+        action_type: ActionType, payload: serde_json::Value, tenant_id: impl Into<String>,
     ) -> Self {
         Self {
             id: KernelActionId::new(),
@@ -127,8 +123,7 @@ impl KernelAction {
 
     /// Add triggering observation
     pub fn with_triggering_observation(
-        mut self,
-        obs_id: crate::observation::ObservationId,
+        mut self, obs_id: crate::observation::ObservationId,
     ) -> Self {
         self.triggering_observations.push(obs_id);
         self
@@ -263,9 +258,7 @@ impl Kernel {
 
     /// Update schema (ΔΣ)
     pub fn update_schema(
-        &mut self,
-        name: impl Into<String>,
-        schema: serde_json::Value,
+        &mut self, name: impl Into<String>, schema: serde_json::Value,
     ) -> DoDResult<()> {
         self.contracts.insert(name.into(), schema);
         Ok(())
@@ -273,9 +266,7 @@ impl Kernel {
 
     /// Add invariant
     pub fn add_invariant(
-        &mut self,
-        name: impl Into<String>,
-        constraint: impl Into<String>,
+        &mut self, name: impl Into<String>, constraint: impl Into<String>,
     ) -> DoDResult<()> {
         self.invariants.insert(name.into(), constraint.into());
         Ok(())
@@ -283,9 +274,7 @@ impl Kernel {
 
     /// Execute decision with timing enforcement
     pub fn decide(
-        &mut self,
-        observations: Vec<Observation>,
-        tenant_id: &str,
+        &mut self, observations: Vec<Observation>, tenant_id: &str,
     ) -> DoDResult<KernelDecision> {
         let start = Instant::now();
         let decision_start = TimingMeasurement::new();
@@ -352,28 +341,22 @@ impl Kernel {
         // Analyze observations and create corresponding actions
         for obs in decision.observations() {
             let action = match obs.obs_type() {
-                crate::observation::ObservationType::Metric(_) => {
-                    KernelAction::new(
-                        ActionType::StateUpdate,
-                        serde_json::json!({"type": "metric_update"}),
-                        obs.tenant_id(),
-                    )
-                }
-                crate::observation::ObservationType::Anomaly(_) => {
-                    KernelAction::new(
-                        ActionType::AutonomicAction,
-                        serde_json::json!({"type": "anomaly_response"}),
-                        obs.tenant_id(),
-                    )
-                    .idempotent()
-                }
-                crate::observation::ObservationType::SLOBreach(_) => {
-                    KernelAction::new(
-                        ActionType::SchemaEvolution,
-                        serde_json::json!({"type": "slo_response"}),
-                        obs.tenant_id(),
-                    )
-                }
+                crate::observation::ObservationType::Metric(_) => KernelAction::new(
+                    ActionType::StateUpdate,
+                    serde_json::json!({"type": "metric_update"}),
+                    obs.tenant_id(),
+                ),
+                crate::observation::ObservationType::Anomaly(_) => KernelAction::new(
+                    ActionType::AutonomicAction,
+                    serde_json::json!({"type": "anomaly_response"}),
+                    obs.tenant_id(),
+                )
+                .idempotent(),
+                crate::observation::ObservationType::SLOBreach(_) => KernelAction::new(
+                    ActionType::SchemaEvolution,
+                    serde_json::json!({"type": "slo_response"}),
+                    obs.tenant_id(),
+                ),
                 _ => KernelAction::new(
                     ActionType::Custom("unknown".to_string()),
                     serde_json::json!({"observation": obs.data()}),
@@ -422,17 +405,15 @@ impl Kernel {
 
     /// Verify determinism: replay should produce identical hash
     pub fn verify_determinism(
-        &self,
-        original_decision: &KernelDecision,
-        replay_decision: &KernelDecision,
+        &self, original_decision: &KernelDecision, replay_decision: &KernelDecision,
     ) -> DoDResult<()> {
-        let original_hash = original_decision.determinism_hash().ok_or_else(|| {
-            crate::error::DoDError::DeterminismViolation
-        })?;
+        let original_hash = original_decision
+            .determinism_hash()
+            .ok_or_else(|| crate::error::DoDError::DeterminismViolation)?;
 
-        let replay_hash = replay_decision.determinism_hash().ok_or_else(|| {
-            crate::error::DoDError::DeterminismViolation
-        })?;
+        let replay_hash = replay_decision
+            .determinism_hash()
+            .ok_or_else(|| crate::error::DoDError::DeterminismViolation)?;
 
         if original_hash != replay_hash {
             return Err(crate::error::DoDError::DeterminismViolation);
@@ -468,9 +449,7 @@ mod tests {
     fn test_kernel_decision() -> DoDResult<()> {
         let mut kernel = Kernel::new();
         let obs = crate::observation::Observation::new(
-            crate::observation::ObservationType::Metric(
-                crate::observation::MetricType::Latency,
-            ),
+            crate::observation::ObservationType::Metric(crate::observation::MetricType::Latency),
             serde_json::json!({"value": 42}),
             "test",
             "1.0",
@@ -486,9 +465,7 @@ mod tests {
     fn test_kernel_timing() -> DoDResult<()> {
         let mut kernel = Kernel::new();
         let obs = crate::observation::Observation::new(
-            crate::observation::ObservationType::Metric(
-                crate::observation::MetricType::Latency,
-            ),
+            crate::observation::ObservationType::Metric(crate::observation::MetricType::Latency),
             serde_json::json!({"value": 1}),
             "test",
             "1.0",

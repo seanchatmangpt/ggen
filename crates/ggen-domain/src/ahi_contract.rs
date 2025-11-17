@@ -138,9 +138,7 @@ pub trait AHIDecisionCycle: Send + Sync + Debug {
 
     /// Justify a ΔΣ proposal - must cite observations from Γ
     fn justify_delta_sigma(
-        &self,
-        proposal: &Self::DeltaSigma,
-        observations: &[Self::Observation],
+        &self, proposal: &Self::DeltaSigma, observations: &[Self::Observation],
     ) -> Result<Self::Justification, AHIError>;
 
     /// Validate that output preserves invariants
@@ -191,12 +189,16 @@ impl std::fmt::Display for AHIError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             AHIError::DoctrineViolation(msg) => write!(f, "Doctrine violation: {}", msg),
-            AHIError::InsufficientJustification(msg) => write!(f, "Insufficient justification: {}", msg),
+            AHIError::InsufficientJustification(msg) => {
+                write!(f, "Insufficient justification: {}", msg)
+            }
             AHIError::InvariantBreach(msg) => write!(f, "Invariant breach: {}", msg),
             AHIError::InvalidConfig(msg) => write!(f, "Invalid config: {}", msg),
             AHIError::InvalidSnapshot(msg) => write!(f, "Invalid snapshot: {}", msg),
             AHIError::ProjectionError(msg) => write!(f, "Projection error: {}", msg),
-            AHIError::InvalidMarketplaceAction(msg) => write!(f, "Invalid marketplace action: {}", msg),
+            AHIError::InvalidMarketplaceAction(msg) => {
+                write!(f, "Invalid marketplace action: {}", msg)
+            }
         }
     }
 }

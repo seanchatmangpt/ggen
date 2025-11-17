@@ -8,8 +8,8 @@
 //!
 //! This turns "no ungoverned IO" into a compile-time property of Rust's type system.
 
-use std::marker::PhantomData;
 use serde::{Deserialize, Serialize};
+use std::marker::PhantomData;
 
 // ============================================================================
 // CAPABILITY TOKENS
@@ -284,17 +284,13 @@ pub type ModifyDoctrineEffect = Effect<ModifyDoctrineCapability>;
 /// Handler for read-only effects
 pub trait ReadOnlyEffectHandler {
     fn handle_read_observation(
-        &self,
-        _cap: &ReadObservationCapability,
-        effect: &ReadObservationEffect,
+        &self, _cap: &ReadObservationCapability, effect: &ReadObservationEffect,
     ) -> Result<String, String> {
         Ok(format!("Read: {}", effect.description()))
     }
 
     fn handle_read_snapshot(
-        &self,
-        _cap: &ReadSnapshotCapability,
-        effect: &ReadSnapshotEffect,
+        &self, _cap: &ReadSnapshotCapability, effect: &ReadSnapshotEffect,
     ) -> Result<String, String> {
         Ok(format!("Read: {}", effect.description()))
     }
@@ -303,17 +299,13 @@ pub trait ReadOnlyEffectHandler {
 /// Handler for write effects
 pub trait WritableEffectHandler {
     fn handle_write_snapshot(
-        &self,
-        _cap: &WriteSnapshotCapability,
-        effect: &WriteSnapshotEffect,
+        &self, _cap: &WriteSnapshotCapability, effect: &WriteSnapshotEffect,
     ) -> Result<String, String> {
         Ok(format!("Staged write: {}", effect.description()))
     }
 
     fn handle_write_ontology(
-        &self,
-        cap: &WriteOntologyCapability,
-        effect: &WriteOntologyEffect,
+        &self, cap: &WriteOntologyCapability, effect: &WriteOntologyEffect,
     ) -> Result<String, String> {
         if !cap.is_doctrine_verified() {
             return Err("Ontology write capability not doctrine-verified".to_string());
@@ -325,9 +317,7 @@ pub trait WritableEffectHandler {
 /// Handler for marketplace effects
 pub trait MarketplaceEffectHandler {
     fn handle_promote_package(
-        &self,
-        cap: &PromoteMarketplaceCapability,
-        effect: &PromoteMarketplaceEffect,
+        &self, cap: &PromoteMarketplaceCapability, effect: &PromoteMarketplaceEffect,
     ) -> Result<String, String> {
         Ok(format!(
             "Promote package (proof {}): {}",
@@ -340,9 +330,7 @@ pub trait MarketplaceEffectHandler {
 /// Handler for doctrine effects
 pub trait DoctrineEffectHandler {
     fn handle_modify_doctrine(
-        &self,
-        cap: &ModifyDoctrineCapability,
-        effect: &ModifyDoctrineEffect,
+        &self, cap: &ModifyDoctrineCapability, effect: &ModifyDoctrineEffect,
     ) -> Result<String, String> {
         if !cap.allows_tightening_only() {
             return Err("Doctrine modification must be tightening-only".to_string());
@@ -461,8 +449,7 @@ impl CapabilityGrantor {
 
     /// Only grant marketplace promotion with proof
     pub fn grant_promote_marketplace(
-        grant_id: impl Into<String>,
-        proof_id: impl Into<String>,
+        grant_id: impl Into<String>, proof_id: impl Into<String>,
     ) -> PromoteMarketplaceCapability {
         PromoteMarketplaceCapability::grant_with_proof(grant_id, proof_id)
     }
@@ -526,8 +513,7 @@ mod tests {
     #[test]
     fn test_capability_grantor() {
         let read_cap = CapabilityGrantor::grant_read_observation("grant-1");
-        let promote_cap =
-            CapabilityGrantor::grant_promote_marketplace("grant-2", "proof-123");
+        let promote_cap = CapabilityGrantor::grant_promote_marketplace("grant-2", "proof-123");
 
         assert_eq!(read_cap.grant_id(), "grant-1");
         assert_eq!(promote_cap.proof_id(), "proof-123");

@@ -127,7 +127,11 @@ impl ObservabilitySystem {
 
     /// Get success rate for operation
     pub fn success_rate(&self, operation: &str) -> Option<f64> {
-        let ops: Vec<_> = self.metrics.iter().filter(|m| m.operation == operation).collect();
+        let ops: Vec<_> = self
+            .metrics
+            .iter()
+            .filter(|m| m.operation == operation)
+            .collect();
 
         if ops.is_empty() {
             None
@@ -139,11 +143,7 @@ impl ObservabilitySystem {
 
     /// Record health check result
     pub fn record_health_check(
-        &mut self,
-        component: String,
-        status: HealthStatus,
-        latency: Duration,
-        details: String,
+        &mut self, component: String, status: HealthStatus, latency: Duration, details: String,
     ) {
         let check = HealthCheck {
             component,
@@ -161,9 +161,17 @@ impl ObservabilitySystem {
             return HealthStatus::Healthy;
         }
 
-        if self.health_checks.iter().any(|c| c.status == HealthStatus::Unhealthy) {
+        if self
+            .health_checks
+            .iter()
+            .any(|c| c.status == HealthStatus::Unhealthy)
+        {
             HealthStatus::Unhealthy
-        } else if self.health_checks.iter().any(|c| c.status == HealthStatus::Degraded) {
+        } else if self
+            .health_checks
+            .iter()
+            .any(|c| c.status == HealthStatus::Degraded)
+        {
             HealthStatus::Degraded
         } else {
             HealthStatus::Healthy
@@ -247,11 +255,7 @@ mod tests {
     #[test]
     fn test_performance_metric_recording() {
         let mut obs = ObservabilitySystem::new();
-        obs.record_metric(
-            "test_op".to_string(),
-            Duration::from_millis(100),
-            true,
-        );
+        obs.record_metric("test_op".to_string(), Duration::from_millis(100), true);
 
         assert_eq!(obs.metrics.len(), 1);
         assert_eq!(obs.metrics[0].duration_ms, 100);
