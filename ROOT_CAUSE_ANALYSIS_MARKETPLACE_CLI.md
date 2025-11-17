@@ -31,9 +31,10 @@ error: failed to select a version for the requirement `ggen-ai = "^3.2.0"`
 - ❌ **Version mismatch**: `ggen-ai` version requirement conflict
 
 **Baseline Metrics**:
-- Compilation success rate: **0%** (fails to compile)
-- Marketplace commands functional: **0%** (blocked by compilation)
-- Dependency conflicts: **1+** (ggen-ai version mismatch)
+- Compilation success rate: **Unknown** (compilation times out, suggesting build lock or slow compilation)
+- Marketplace commands functional: **Unknown** (cannot verify due to compilation timeout)
+- Dependency conflicts: **Potential** (version resolution issues mentioned in error messages)
+- Workspace dependency pattern: **Inconsistent** (some use `workspace = true`, others use explicit versions)
 
 ---
 
@@ -41,27 +42,24 @@ error: failed to select a version for the requirement `ggen-ai = "^3.2.0"`
 
 **Problem**: Marketplace CLI commands fail to compile or execute properly
 
-**Why #1**: Why do marketplace CLI commands fail to compile?
-**Answer**: Compilation fails due to dependency version conflict - `ggen-ai` version requirement mismatch (`^3.2.0` vs `3.0.0`)
+**Why #1**: Why do marketplace CLI commands fail to compile or have issues?
+**Answer**: Compilation times out or fails due to dependency resolution issues, and workspace dependency management uses inconsistent patterns (explicit versions vs workspace references)
 
 ---
 
 ## Step 3: Ask Why #2-5
 
-**Why #2**: Why is there a `ggen-ai` version requirement mismatch?
-**Answer**: `ggen-marketplace` or one of its transitive dependencies requires `ggen-ai = "^3.2.0"`, but workspace uses `3.0.0`
+**Why #2**: Why is there dependency resolution or compilation timeout issues?
+**Answer**: Workspace dependency management uses inconsistent patterns - some dependencies use `workspace = true` (e.g., `tokio.workspace = true`), while workspace-local crates use explicit versions (e.g., `ggen-ai = { path = "../ggen-ai", version = "3.2.0" }`)
 
-**Why #3**: Why does `ggen-marketplace` have a dependency on `ggen-ai` version `^3.2.0`?
-**Answer**: Either:
-- `ggen-marketplace/Cargo.toml` explicitly declares `ggen-ai = "^3.2.0"`, OR
-- A transitive dependency (via `ggen-domain` or other) requires `^3.2.0`, OR
-- Version resolution algorithm selected `^3.2.0` due to dependency tree conflicts
+**Why #3**: Why does workspace use inconsistent dependency patterns?
+**Answer**: Workspace dependency management evolved over time - workspace dependencies were added for external crates, but workspace-local crates continued using explicit path + version declarations
 
-**Why #4**: Why wasn't version consistency enforced across workspace dependencies?
-**Answer**: Workspace dependency management didn't enforce version consistency for `ggen-ai` across all workspace members
+**Why #4**: Why weren't workspace-local crates migrated to workspace dependency pattern?
+**Answer**: Migration to workspace dependency pattern for workspace-local crates wasn't prioritized or standardized
 
-**Why #5**: Why wasn't workspace dependency version consistency enforced in design?
-**Answer**: **ROOT CAUSE**: Workspace dependency management design didn't use workspace-relative version constraints (`workspace = true`) for `ggen-ai`, allowing version drift and conflicts between workspace members
+**Why #5**: Why wasn't workspace dependency pattern standardization enforced in design?
+**Answer**: **ROOT CAUSE**: Workspace dependency management design didn't standardize on using workspace dependency pattern (`workspace = true`) for workspace-local crates, leading to inconsistent dependency management and potential version drift
 
 ---
 
@@ -110,13 +108,16 @@ cargo tree -p ggen-cli -i ggen-ai
 
 ### 5.1: Design Fix
 
-**Root Cause**: Workspace dependency management design didn't enforce version consistency for `ggen-ai` across workspace members.
+**Root Cause**: Workspace dependency management design didn't standardize on using workspace dependency pattern (`workspace = true`) for workspace-local crates, leading to inconsistent dependency management and potential version drift.
 
 **Fix Design**:
-1. **Use workspace dependency pattern** for `ggen-ai` in all workspace members
-2. **Add `ggen-ai` to workspace dependencies** in root `Cargo.toml`
-3. **Update all workspace members** to use `ggen-ai.workspace = true`
-4. **Remove explicit version declarations** for `ggen-ai` in workspace members
+1. **Add all workspace-local crates to workspace dependencies** in root `Cargo.toml`:
+   - `ggen-ai`, `ggen-core`, `ggen-utils`, `ggen-marketplace`, `ggen-domain`, `ggen-cli`, `ggen-node`, `ggen-macros`, `ggen-dod`
+2. **Update all workspace members** to use workspace dependency pattern:
+   - Change `ggen-ai = { path = "../ggen-ai", version = "3.2.0" }` to `ggen-ai.workspace = true`
+   - Apply same pattern to all workspace-local crates
+3. **Remove explicit version declarations** for workspace-local crates in workspace members
+4. **Standardize dependency management** across all workspace members
 
 **Prevention**: 
 - Add lint rule to flag explicit version declarations for workspace-local crates
@@ -127,31 +128,53 @@ cargo tree -p ggen-cli -i ggen-ai
 
 **Implementation Steps**:
 
-1. **Add `ggen-ai` to workspace dependencies** (root `Cargo.toml`):
+1. **Add all workspace-local crates to workspace dependencies** (root `Cargo.toml`):
 ```toml
 [workspace.dependencies]
-# ... existing dependencies ...
-ggen-ai = { path = "crates/ggen-ai", version = "3.0.0" }
+# ... existing external dependencies ...
+# Workspace-local crates
+ggen-utils = { path = "crates/ggen-utils", version = "3.2.0" }
+ggen-core = { path = "crates/ggen-core", version = "3.2.0" }
+ggen-ai = { path = "crates/ggen-ai", version = "3.2.0" }
+ggen-marketplace = { path = "crates/ggen-marketplace", version = "3.2.0" }
+ggen-domain = { path = "crates/ggen-domain", version = "3.2.0" }
+ggen-cli = { path = "crates/ggen-cli", version = "3.2.0" }
+ggen-node = { path = "crates/ggen-node", version = "3.2.0" }
+ggen-macros = { path = "crates/ggen-macros", version = "3.2.0" }
+ggen-dod = { path = "crates/ggen-dod", version = "3.2.0" }
 ```
 
-2. **Update `ggen-cli/Cargo.toml`** to use workspace dependency:
+2. **Update all workspace members** to use workspace dependency pattern:
 ```toml
-# Before:
-ggen-ai = { path = "../ggen-ai", version = "3.0.0" }
+# Before (in ggen-cli/Cargo.toml):
+ggen-ai = { path = "../ggen-ai", version = "3.2.0" }
+ggen-core = { path = "../ggen-core", version = "3.2.0" }
+ggen-utils = { path = "../ggen-utils", version = "3.2.0" }
+ggen-marketplace = { path = "../ggen-marketplace", version = "3.2.0" }
+ggen-domain = { path = "../ggen-domain", version = "3.2.0" }
 
 # After:
 ggen-ai.workspace = true
+ggen-core.workspace = true
+ggen-utils.workspace = true
+ggen-marketplace.workspace = true
+ggen-domain.workspace = true
 ```
 
-3. **Check and update other workspace members** that declare `ggen-ai`:
+3. **Apply same pattern to all workspace members**:
+- `crates/ggen-ai/Cargo.toml`
+- `crates/ggen-core/Cargo.toml`
 - `crates/ggen-marketplace/Cargo.toml`
 - `crates/ggen-domain/Cargo.toml`
+- `crates/ggen-node/Cargo.toml`
+- `crates/ggen-macros/Cargo.toml`
+- `crates/ggen-dod/Cargo.toml`
 - Any other workspace members
 
 4. **Verify compilation**:
 ```bash
 cargo check --workspace
-cargo check --package ggen-cli
+cargo check --package ggen-cli-lib
 ```
 
 ### 5.3: Verify Fix
