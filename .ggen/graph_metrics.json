@@ -1,0 +1,54 @@
+{
+  "nodes": {
+    "concepts": 39,
+    "systems": 9,
+    "evidence": 150,
+    "total": 198
+  },
+  "edges": {
+    "supports": 47,
+    "implements": 30,
+    "composed_with": 5,
+    "refines": 4,
+    "depends_on": 4,
+    "proves": 1,
+    "requires": 1,
+    "enforces": 1,
+    "validates": 2,
+    "enables": 2,
+    "decomposes": 22,
+    "total": 119
+  },
+  "coverage": {
+    "concepts_with_evidence": 17,
+    "concepts_total": 39,
+    "average_concept_strength": 0.909,
+    "percent_direct_evidence": 94.0
+  },
+  "evidence_by_type": {
+    "implementation": 55,
+    "code_comment": 13,
+    "function_signature": 9,
+    "test": 18,
+    "quantitative": 18,
+    "verification": 5,
+    "specification": 5,
+    "documentation": 4,
+    "architecture": 1,
+    "enforcement": 3,
+    "constant_definition": 2,
+    "error_type": 1,
+    "statistical_analysis": 1,
+    "data_structure": 4,
+    "trait_definition": 2,
+    "invariant_definition": 1,
+    "trait_method": 1,
+    "module_definition": 1,
+    "integration_test": 1,
+    "state_machine": 1,
+    "state_transitions": 1,
+    "re_export": 1,
+    "module_import": 1,
+    "guarantee": 1
+  }
+}
