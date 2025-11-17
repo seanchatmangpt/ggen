@@ -29,18 +29,16 @@ futures-util = { workspace = true }
 chrono = { workspace = true }
 uuid = { workspace = true }
 
+# RDF & Semantic Data (Primary Data Store)
+oxigraph = { workspace = true }      # RDF triplestore (knowledge graph backend)
+
 # Advanced data structures
-dashmap = "5.5"                      # Concurrent hashmap
 parking_lot = "0.12"                 # Fast locks
 rayon = { workspace = true }          # Data parallelism
 smallvec = "1.11"                    # Stack-allocated vectors
 tinyvec = "1.6"                      # Tiny vectors
 indexmap = { version = "2.0", features = ["serde"] }  # Ordered hash maps with serde
 ahash = "0.8"                        # Fast hashing
-
-# Type-level programming
-typenum = "1.17"                     # Compile-time numbers
-generic-array = "0.14"               # Fixed-size arrays
 
 # Cryptography & security
 ed25519-dalek = "2.1"                # Ed25519 signatures
