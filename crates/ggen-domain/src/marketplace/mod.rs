@@ -1,7 +1,19 @@
 //! Marketplace domain models
 //!
 //! This module contains domain models and logic for marketplace operations.
+//!
+//! # Architecture
+//!
+//! The marketplace supports both legacy (v1) and RDF-backed (v2) implementations
+//! through the `MarketplaceRegistry` adapter trait, enabling gradual migration
+//! and parallel execution for validation.
+//!
+//! - `adapter`: Unified trait for multiple backend implementations
+//! - `registry`: Legacy v1 marketplace registry
+//! - `search`: Legacy v1 search implementation
+//! - Future: `adapter_v2`: RDF-backed v2 implementation
 
+pub mod adapter;
 pub mod artifact_generator;
 pub mod bundles;
 pub mod guards;
@@ -30,6 +42,11 @@ mod expert_tests;
 mod integration_tests;
 
 // Re-export commonly used types and functions
+pub use adapter::{
+    MarketplaceRegistry, PackageInfo, PackagePublish, SearchMatch, VersionInfo,
+    ValidationResult, Recommendation, ComparisonResult, DependencyInfo, InstallationManifest,
+    PublishSuccess,
+};
 pub use artifact_generator::{
     generate_packages_markdown, generate_registry_index, write_packages_markdown,
     write_registry_index,
