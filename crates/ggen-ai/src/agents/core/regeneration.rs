@@ -559,13 +559,61 @@ impl Agent for RegenerationAgent {
         tracing::info!("Starting RegenerationAgent");
 
         // Start regeneration queue processor
-        let agent = unsafe { std::ptr::read(self as *const Self) };
+        // We clone the Arc-wrapped shared state to pass to the spawned task.
+        // This is safe because all shared state is already wrapped in Arc<RwLock<>>,
+        // allowing safe concurrent access without unsafe code.
+        let artifact_registry = self.artifact_registry.clone();
+        let regeneration_queue = self.regeneration_queue.clone();
+        let regeneration_history = self.regeneration_history.clone();
+        let shutdown_notify = self.shutdown_notify.clone();
+        let watch_interval = Duration::from_secs(self.regeneration_config.watch_interval_secs);
+
         tokio::spawn(async move {
-            agent.run_regeneration_loop().await;
+            Self::run_regeneration_loop_spawned(
+                artifact_registry,
+                regeneration_queue,
+                regeneration_history,
+                shutdown_notify,
+                watch_interval,
+            )
+            .await;
         });
 
         self.status = AgentStatus::Healthy;
         Ok(())
+    }
+
+    /// Run the regeneration loop in a spawned task
+    ///
+    /// This is separated from the main run_regeneration_loop to allow spawning
+    /// without requiring ownership of the entire agent. All necessary state is
+    /// passed as Arc-wrapped parameters, which are safe to share across threads.
+    async fn run_regeneration_loop_spawned(
+        artifact_registry: Arc<RwLock<HashMap<PathBuf, ArtifactDependency>>>,
+        regeneration_queue: Arc<RwLock<Vec<RegenerationTrigger>>>,
+        regeneration_history: Arc<RwLock<Vec<RegenerationResult>>>,
+        shutdown_notify: Arc<Notify>,
+        watch_interval: Duration,
+    ) {
+        loop {
+            tokio::select! {
+                _ = shutdown_notify.notified() => {
+                    tracing::info!("RegenerationAgent loop shutting down");
+                    break;
+                }
+                _ = tokio::time::sleep(watch_interval) => {
+                    // Process any pending regenerations
+                    let queue_len = {
+                        let queue = regeneration_queue.read().await;
+                        queue.len()
+                    };
+
+                    if queue_len > 0 {
+                        tracing::debug!("RegenerationAgent processing {} pending triggers", queue_len);
+                    }
+                }
+            }
+        }
     }
 
     async fn stop(&mut self) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>> {

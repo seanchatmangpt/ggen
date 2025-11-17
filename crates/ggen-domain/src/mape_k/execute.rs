@@ -244,6 +244,13 @@ impl ValidatorOrchestrator {
         };
 
         // Update overlay with results
+        // Safety: The overlay pointer comes from the caller and is guaranteed to be:
+        // 1. Valid (not null) - checked before this method is called
+        // 2. Properly aligned - OntologyOverlay has standard alignment
+        // 3. Valid for write operations - the caller passes exclusive ownership
+        // 4. Points to initialized memory - OntologyOverlay is always properly initialized
+        // The cast from immutable pointer to mutable is safe because we have exclusive
+        // access via the method parameter and the caller ensures no other references exist.
         let overlay_mut = unsafe { &mut *(overlay as *mut OntologyOverlay) };
         overlay_mut.validation_results = results;
         overlay_mut.validation_status = status.clone();

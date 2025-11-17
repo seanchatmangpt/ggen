@@ -9,6 +9,8 @@ pub mod core;
 pub mod cleanroom;
 
 use std::sync::Arc;
+use once_cell::sync::Lazy;
+use tokio::sync::Mutex;
 
 use crate::error::GgenAiError;
 use crate::error::Result;
@@ -64,22 +66,40 @@ impl UltrathinkSystem {
     }
 }
 
-/// Global ultrathink system instance
-static mut ULTRATHINK_SYSTEM: Option<UltrathinkSystem> = None;
+/// Global ultrathink system instance using thread-safe lazy initialization
+///
+/// Safety: This uses Lazy from once_cell which provides thread-safe, one-time initialization.
+/// The Mutex ensures safe concurrent access to the system instance.
+static ULTRATHINK_SYSTEM: Lazy<Mutex<Option<Arc<UltrathinkSystem>>>> = Lazy::new(|| Mutex::new(None));
 
 /// Initialize the global ultrathink system
+///
+/// This function initializes the global ultrathink system on first call. Subsequent calls
+/// will reuse the already-initialized system. This is thread-safe due to the Lazy and Mutex
+/// synchronization primitives.
 pub async fn init_ultrathink_system() -> Result<()> {
-    unsafe {
-        if ULTRATHINK_SYSTEM.is_none() {
-            ULTRATHINK_SYSTEM = Some(UltrathinkSystem::new().await?);
-        }
+    let mut system_guard = ULTRATHINK_SYSTEM.lock().await;
+
+    // Only initialize if not already done
+    if system_guard.is_none() {
+        let system = UltrathinkSystem::new().await?;
+        *system_guard = Some(Arc::new(system));
     }
+
     Ok(())
 }
 
-/// Get the global ultrathink system instance
-pub fn get_ultrathink_system() -> Option<&'static UltrathinkSystem> {
-    unsafe { ULTRATHINK_SYSTEM.as_ref() }
+/// Get a reference to the global ultrathink system instance
+///
+/// Returns `None` if the system hasn't been initialized yet with `init_ultrathink_system()`.
+///
+/// # Thread Safety
+///
+/// This function is thread-safe. The returned reference is behind an Arc, allowing it to be
+/// safely shared across threads. However, to use the system, you'll need to call async methods
+/// which acquire the Mutex lock.
+pub async fn get_ultrathink_system() -> Option<Arc<UltrathinkSystem>> {
+    ULTRATHINK_SYSTEM.lock().await.as_ref().cloned()
 }
 
 /// Submit a task to the ultrathink system
@@ -87,6 +107,7 @@ pub async fn submit_ultrathink_task(
     task_type: core::TaskType, description: String, priority: core::TaskPriority,
 ) -> Result<Uuid> {
     let system = get_ultrathink_system()
+        .await
         .ok_or_else(|| GgenAiError::configuration("Ultrathink system not initialized"))?;
 
     let task = create_task(task_type, description, priority);
@@ -96,6 +117,7 @@ pub async fn submit_ultrathink_task(
 /// Synchronize with WIP systems
 pub async fn sync_ultrathink_wip() -> Result<()> {
     let system = get_ultrathink_system()
+        .await
         .ok_or_else(|| GgenAiError::configuration("Ultrathink system not initialized"))?;
 
     system.sync_with_wip().await
@@ -104,6 +126,7 @@ pub async fn sync_ultrathink_wip() -> Result<()> {
 /// Get ultrathink system status
 pub async fn get_ultrathink_status() -> Result<CoreMetrics> {
     let system = get_ultrathink_system()
+        .await
         .ok_or_else(|| GgenAiError::configuration("Ultrathink system not initialized"))?;
 
     system.get_status().await
@@ -112,6 +135,7 @@ pub async fn get_ultrathink_status() -> Result<CoreMetrics> {
 /// Process WIP entries
 pub async fn process_ultrathink_wip_entries() -> Result<Vec<WipOperation>> {
     let system = get_ultrathink_system()
+        .await
         .ok_or_else(|| GgenAiError::configuration("Ultrathink system not initialized"))?;
 
     system.process_wip_entries().await
