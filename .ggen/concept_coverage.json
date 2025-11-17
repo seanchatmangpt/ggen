@@ -1,0 +1,321 @@
+{
+  "C_GRAPH_UNIVERSE_PRIMARY": {
+    "evidence_count": 4,
+    "systems": [
+      "ggen"
+    ],
+    "min_strength": 0.9,
+    "max_strength": 1.0,
+    "avg_strength": 0.96,
+    "evidence_ids": [
+      "ggen.AUTONOMOUS_ONTOLOGY_SYSTEM.md.1-50",
+      "ggen.meta-ontology.ttl.1-end",
+      "ggen.GGEN_8020_ROADMAP.md.1-50",
+      "ggen.ahi_contract.rs.1-50"
+    ],
+    "support_types": {
+      "direct": 4,
+      "indirect": 0,
+      "contextual": 0
+    }
+  },
+  "C_CODE_AS_PROJECTION": {
+    "evidence_count": 3,
+    "systems": [
+      "ggen"
+    ],
+    "min_strength": 0.9,
+    "max_strength": 1.0,
+    "avg_strength": 0.95,
+    "evidence_ids": [
+      "ggen.AUTONOMOUS_ONTOLOGY_SYSTEM.md.1-50",
+      "ggen.GGEN_8020_ROADMAP.md.1-50",
+      "ggen.PHASE_3_IMPLEMENTATION_SUMMARY.md.1-50"
+    ],
+    "support_types": {
+      "direct": 3,
+      "indirect": 0,
+      "contextual": 0
+    }
+  },
+  "C_RECEIPTS_AND_PROOFS": {
+    "evidence_count": 4,
+    "systems": [
+      "ggen"
+    ],
+    "min_strength": 0.9,
+    "max_strength": 1.0,
+    "avg_strength": 0.96,
+    "evidence_ids": [
+      "ggen.DEFINITION_OF_DONE.md.1-50",
+      "ggen.validation_receipt.rs.1-200",
+      "ggen.proof_carrier.rs.1-end",
+      "ggen.AUTONOMOUS_ONTOLOGY_SYSTEM.md.1-50"
+    ],
+    "support_types": {
+      "direct": 4,
+      "indirect": 0,
+      "contextual": 0
+    }
+  },
+  "C_MU_KERNEL_PHYSICS": {
+    "evidence_count": 3,
+    "systems": [
+      "ggen"
+    ],
+    "min_strength": 0.95,
+    "max_strength": 1.0,
+    "avg_strength": 0.98,
+    "evidence_ids": [
+      "ggen.DEFINITION_OF_DONE.md.1-50",
+      "ggen.kernel.rs.1-100",
+      "ggen.lib.rs.1-60"
+    ],
+    "support_types": {
+      "direct": 3,
+      "indirect": 0,
+      "contextual": 0
+    }
+  },
+  "C_TIMING_BOUNDS_ENFORCED": {
+    "evidence_count": 3,
+    "systems": [
+      "ggen"
+    ],
+    "min_strength": 0.95,
+    "max_strength": 1.0,
+    "avg_strength": 0.98,
+    "evidence_ids": [
+      "ggen.DEFINITION_OF_DONE.md.1-50",
+      "ggen.timing.rs.1-120",
+      "ggen.kernel.rs.330-340"
+    ],
+    "support_types": {
+      "direct": 3,
+      "indirect": 0,
+      "contextual": 0
+    }
+  },
+  "C_KNHK_GRAPH_PRIMARY": {
+    "evidence_count": 3,
+    "systems": [
+      "ggen"
+    ],
+    "min_strength": 0.7,
+    "max_strength": 0.9,
+    "avg_strength": 0.82,
+    "evidence_ids": [
+      "ggen.AUTONOMOUS_ONTOLOGY_SYSTEM.md.1-50",
+      "ggen.ahi_contract.rs.38-40",
+      "ggen.EVIDENCE_GRAPH_SCHEMA.md.1-50"
+    ],
+    "support_types": {
+      "direct": 2,
+      "indirect": 1,
+      "contextual": 0
+    }
+  },
+  "C_DFLSS_FLOW": {
+    "evidence_count": 2,
+    "systems": [
+      "ggen"
+    ],
+    "min_strength": 0.75,
+    "max_strength": 0.8,
+    "avg_strength": 0.78,
+    "evidence_ids": [
+      "ggen.dflss-dmedi-design-process.md.1-end",
+      "ggen.dflss-80-20-fill-gaps.md.1-end"
+    ],
+    "support_types": {
+      "direct": 0,
+      "indirect": 2,
+      "contextual": 0
+    }
+  },
+  "C_AHI_GOVERNANCE": {
+    "evidence_count": 3,
+    "systems": [
+      "ggen"
+    ],
+    "min_strength": 0.9,
+    "max_strength": 1.0,
+    "avg_strength": 0.95,
+    "evidence_ids": [
+      "ggen.ahi_contract.rs.1-100",
+      "ggen.mod.rs.1-30",
+      "ggen.DEFINITION_OF_DONE.md.1-50"
+    ],
+    "support_types": {
+      "direct": 3,
+      "indirect": 0,
+      "contextual": 0
+    }
+  },
+  "C_CTT_12_PHASE_VERIFICATION": {
+    "evidence_count": 3,
+    "systems": [
+      "ggen"
+    ],
+    "min_strength": 0.8,
+    "max_strength": 0.9,
+    "avg_strength": 0.85,
+    "evidence_ids": [
+      "ggen.DEFINITION_OF_DONE.md.1-50",
+      "ggen.FINAL_REPORT_INSTALL_TESTS.md.1-end",
+      "ggen.domain_logic_tests.rs.1-end"
+    ],
+    "support_types": {
+      "direct": 2,
+      "indirect": 1,
+      "contextual": 0
+    }
+  },
+  "C_CLNRM_HERMETIC_TESTING": {
+    "evidence_count": 2,
+    "systems": [
+      "ggen"
+    ],
+    "min_strength": 0.7,
+    "max_strength": 0.8,
+    "avg_strength": 0.75,
+    "evidence_ids": [
+      "ggen.README.md.1-end",
+      "ggen.ci-pipeline.tmpl.1-end"
+    ],
+    "support_types": {
+      "direct": 0,
+      "indirect": 2,
+      "contextual": 0
+    }
+  },
+  "C_CNV_AGENT_CLI": {
+    "evidence_count": 2,
+    "systems": [
+      "ggen"
+    ],
+    "min_strength": 0.75,
+    "max_strength": 0.9,
+    "avg_strength": 0.82,
+    "evidence_ids": [
+      "ggen.clap-noun-verb_v3.3.0.ttl.1-end",
+      "ggen.capability_system.rs.1-end"
+    ],
+    "support_types": {
+      "direct": 1,
+      "indirect": 1,
+      "contextual": 0
+    }
+  },
+  "C_NOMRG_GRAPH_OVERLAY": {
+    "evidence_count": 1,
+    "systems": [
+      "ggen"
+    ],
+    "min_strength": 0.3,
+    "max_strength": 0.3,
+    "avg_strength": 0.3,
+    "evidence_ids": [
+      "ggen.EXAMPLES.md.1-50"
+    ],
+    "support_types": {
+      "direct": 0,
+      "indirect": 0,
+      "contextual": 1
+    }
+  },
+  "C_GGEN_PROJECTION_ENGINE": {
+    "evidence_count": 3,
+    "systems": [
+      "ggen"
+    ],
+    "min_strength": 0.8,
+    "max_strength": 1.0,
+    "avg_strength": 0.92,
+    "evidence_ids": [
+      "ggen.GGEN_8020_ROADMAP.md.1-50",
+      "ggen.PHASE_3_IMPLEMENTATION_SUMMARY.md.1-50",
+      "ggen.academic-paper_v1.0.0.ttl.1-end"
+    ],
+    "support_types": {
+      "direct": 2,
+      "indirect": 1,
+      "contextual": 0
+    }
+  },
+  "C_UNIVERSE_PROJECTION_AXIOM": {
+    "evidence_count": 3,
+    "systems": [
+      "ggen"
+    ],
+    "min_strength": 0.95,
+    "max_strength": 1.0,
+    "avg_strength": 0.98,
+    "evidence_ids": [
+      "ggen.GGEN_8020_ROADMAP.md.1-50",
+      "ggen.DEFINITION_OF_DONE.md.1-50",
+      "ggen.kernel.rs.1-10"
+    ],
+    "support_types": {
+      "direct": 3,
+      "indirect": 0,
+      "contextual": 0
+    }
+  },
+  "C_RECEIPT_CHAIN_VERIFICATION": {
+    "evidence_count": 2,
+    "systems": [
+      "ggen"
+    ],
+    "min_strength": 0.95,
+    "max_strength": 1.0,
+    "avg_strength": 0.97,
+    "evidence_ids": [
+      "ggen.DEFINITION_OF_DONE.md.1-50",
+      "ggen.validation_receipt.rs.1-end"
+    ],
+    "support_types": {
+      "direct": 2,
+      "indirect": 0,
+      "contextual": 0
+    }
+  },
+  "C_AGENTS_ONLY_ARCHITECTURE": {
+    "evidence_count": 3,
+    "systems": [
+      "ggen"
+    ],
+    "min_strength": 0.9,
+    "max_strength": 1.0,
+    "avg_strength": 0.95,
+    "evidence_ids": [
+      "ggen.DEFINITION_OF_DONE.md.1-50",
+      "ggen.AUTONOMOUS_ONTOLOGY_SYSTEM.md.1-50",
+      "ggen.ahi_contract.rs.1-15"
+    ],
+    "support_types": {
+      "direct": 3,
+      "indirect": 0,
+      "contextual": 0
+    }
+  },
+  "C_INVARIANT_ENFORCEMENT": {
+    "evidence_count": 3,
+    "systems": [
+      "ggen"
+    ],
+    "min_strength": 0.9,
+    "max_strength": 1.0,
+    "avg_strength": 0.95,
+    "evidence_ids": [
+      "ggen.DEFINITION_OF_DONE.md.1-50",
+      "ggen.lib.rs.40-50",
+      "ggen.mod.rs.1-end"
+    ],
+    "support_types": {
+      "direct": 3,
+      "indirect": 0,
+      "contextual": 0
+    }
+  }
+}

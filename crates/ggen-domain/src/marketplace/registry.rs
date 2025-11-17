@@ -44,6 +44,28 @@ pub struct PackageMetadata {
 
     /// Homepage URL
     pub homepage: Option<String>,
+
+    /// 8020 Innovation: Whether this package is a critical 20% bundle
+    /// Packages marked as 8020 cover 80% of real-world use cases with minimal hand-editing
+    #[serde(default)]
+    pub is_8020: bool,
+
+    /// 8020 Innovation: Whether this package has passed all Guard8020Coverage checks
+    /// Only true if is_8020 is true AND all 6+ validation checks pass
+    #[serde(default)]
+    pub is_8020_certified: bool,
+
+    /// 8020 Innovation: Dark matter reduction target
+    /// Measurable claim about what % of manual work this package eliminates
+    /// Example: "Eliminates 70% of observability setup work (from 8 hours to 2.4 hours)"
+    #[serde(default)]
+    pub dark_matter_reduction_target: Option<String>,
+
+    /// 8020 Innovation: Sector classification for bundle composition
+    /// Examples: "observability", "microservice", "paper", "support", "api-gateway"
+    /// Allows filtering and discovering sector-specific bundles
+    #[serde(default)]
+    pub sector: Option<String>,
 }
 
 /// Version-specific metadata

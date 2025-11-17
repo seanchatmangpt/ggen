@@ -1,0 +1,26 @@
+[package]
+name = "sector-paper-lifecycle-8020"
+version = "1.0.0"
+edition = "2021"
+authors = ["ggen Contributors"]
+description = "8020 Bundle: Academic paper lifecycle management covering 80% of submission and formatting needs"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/seanchatmangpt/ggen"
+
+# 8020 Innovation: Critical fields for bundle curation
+is_8020 = true
+is_8020_certified = false  # Certification pending completion of Guard8020Coverage validation
+sector = "paper"
+dark_matter_reduction_target = "Eliminates ~80% of paper formatting work (from 10 hours to 2 hours per submission)"
+
+[dependencies]
+# This bundle composes these core packages
+latex-templates = "1.0.0"
+submission-checklist-patterns = "1.0.0"
+
+[features]
+default = []
+
+[metadata]
+keywords = ["academic", "paper", "latex", "publishing", "research", "submission", "formatting"]
+categories = ["development-tools", "academic", "publishing"]

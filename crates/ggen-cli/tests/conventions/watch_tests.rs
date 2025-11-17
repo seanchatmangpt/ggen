@@ -133,8 +133,12 @@ impl WatchTestFixture {
 // TEST 1: Detect RDF file changes
 // =============================================================================
 
+/// # Phase 2: Watch Service Implementation
+///
+/// This test defines the expected behavior for detecting RDF file changes.
+/// Implementation will require WatchService infrastructure and file system monitoring.
 #[tokio::test]
-#[should_panic(expected = "not yet implemented")]
+#[ignore = "Phase 2: WatchService not yet implemented"]
 async fn test_watch_detects_rdf_file_changes() {
     // ARRANGE: Set up mock watcher and dependency graph
     let fixture = WatchTestFixture::new();
@@ -171,8 +175,8 @@ async fn test_watch_detects_rdf_file_changes() {
         });
 
     // ACT: Start watching and simulate RDF file change
-    // This will fail until implementation exists
-    panic!("not yet implemented: WatchService::start() does not exist");
+    // TODO: Implement WatchService and integrate with mocks
+    unimplemented!("WatchService::start() not yet implemented");
 
     // ASSERT: Verify event was detected
     // assert!(*event_triggered.lock().unwrap(), "RDF file change should trigger event");
@@ -182,8 +186,11 @@ async fn test_watch_detects_rdf_file_changes() {
 // TEST 2: Detect template file changes
 // =============================================================================
 
+/// # Phase 2: Template Watch Implementation
+///
+/// This test defines the expected behavior for detecting and regenerating template files.
 #[tokio::test]
-#[should_panic(expected = "not yet implemented")]
+#[ignore = "Phase 2: Template watch not yet implemented"]
 async fn test_watch_detects_template_file_changes() {
     // ARRANGE: Set up mocks for template watching
     let fixture = WatchTestFixture::new();
@@ -209,7 +216,7 @@ async fn test_watch_detects_template_file_changes() {
     mock_watcher.expect_watch().times(1).returning(|| Ok(()));
 
     // ACT: Start watching and trigger template change
-    panic!("not yet implemented: WatchService does not exist");
+    unimplemented!("WatchService not yet implemented");
 
     // ASSERT: Verify regeneration was triggered
 }
@@ -218,8 +225,11 @@ async fn test_watch_detects_template_file_changes() {
 // TEST 3: Detect query file changes
 // =============================================================================
 
+/// # Phase 2: Query File Watch Implementation
+///
+/// This test defines the expected behavior for detecting SPARQL query file changes.
 #[tokio::test]
-#[should_panic(expected = "not yet implemented")]
+#[ignore = "Phase 2: Query file watching not yet implemented"]
 async fn test_watch_detects_query_file_changes() {
     // ARRANGE: Set up mocks for query watching
     let fixture = WatchTestFixture::new();
@@ -244,7 +254,7 @@ async fn test_watch_detects_query_file_changes() {
     mock_watcher.expect_watch().times(1).returning(|| Ok(()));
 
     // ACT: Start watching and trigger query change
-    panic!("not yet implemented: Query file watching not implemented");
+    unimplemented!("Query file watching not yet implemented");
 
     // ASSERT: Verify affected templates identified
 }
@@ -253,8 +263,11 @@ async fn test_watch_detects_query_file_changes() {
 // TEST 4: Trigger only affected templates
 // =============================================================================
 
+/// # Phase 2: Selective Regeneration Implementation
+///
+/// This test verifies that only affected templates are regenerated when dependencies change.
 #[tokio::test]
-#[should_panic(expected = "not yet implemented")]
+#[ignore = "Phase 2: Selective regeneration not yet implemented"]
 async fn test_watch_triggers_affected_templates_only() {
     // ARRANGE: Multiple templates, only some depend on changed RDF
     let fixture = WatchTestFixture::new();
@@ -286,7 +299,7 @@ async fn test_watch_triggers_affected_templates_only() {
         .times(0);
 
     // ACT: Trigger RDF file change
-    panic!("not yet implemented: Selective regeneration not implemented");
+    unimplemented!("Selective regeneration not yet implemented");
 
     // ASSERT: Verify only affected templates regenerated
 }
@@ -295,8 +308,11 @@ async fn test_watch_triggers_affected_templates_only() {
 // TEST 5: Handle rapid sequential changes (debouncing)
 // =============================================================================
 
+/// # Phase 2: Event Debouncing Implementation
+///
+/// This test verifies that rapid sequential file changes are debounced to avoid redundant regeneration.
 #[tokio::test]
-#[should_panic(expected = "not yet implemented")]
+#[ignore = "Phase 2: Event debouncing not yet implemented"]
 async fn test_watch_handles_rapid_sequential_changes() {
     // ARRANGE: Set up for multiple rapid changes
     let fixture = WatchTestFixture::new();
@@ -331,7 +347,7 @@ async fn test_watch_handles_rapid_sequential_changes() {
     // Debounce completes: t=180ms
     // Should regenerate once at t=180ms
 
-    panic!("not yet implemented: Debouncing not implemented");
+    unimplemented!("Debouncing not yet implemented");
 
     // ASSERT: Verify regeneration happened exactly once
     // assert_eq!(*regen_count.lock().unwrap(), 1, "Should regenerate exactly once after debounce");
@@ -342,7 +358,7 @@ async fn test_watch_handles_rapid_sequential_changes() {
 // =============================================================================
 
 #[tokio::test]
-#[should_panic(expected = "not yet implemented")]
+#[ignore = "Phase 2: Feature not yet implemented"]
 async fn test_watch_respects_debounce_period() {
     // ARRANGE: Configure specific debounce period
     let fixture = WatchTestFixture::new();
@@ -360,7 +376,7 @@ async fn test_watch_respects_debounce_period() {
     mock_watcher.expect_watch().times(1).returning(|| Ok(()));
 
     // ACT: Configure and start watcher
-    panic!("not yet implemented: Debounce configuration not implemented");
+    unimplemented!("Debounce configuration not yet implemented");
 
     // ASSERT: Verify debounce was set correctly
 }
@@ -370,7 +386,7 @@ async fn test_watch_respects_debounce_period() {
 // =============================================================================
 
 #[tokio::test]
-#[should_panic(expected = "not yet implemented")]
+#[ignore = "Phase 2: Feature not yet implemented"]
 async fn test_watch_handles_file_deletion() {
     // ARRANGE: Set up for file deletion event
     let fixture = WatchTestFixture::new();
@@ -400,7 +416,7 @@ async fn test_watch_handles_file_deletion() {
     mock_watcher.expect_watch().times(1).returning(|| Ok(()));
 
     // ACT: Start watching and trigger deletion
-    panic!("not yet implemented: File deletion handling not implemented");
+    unimplemented!("File deletion handling not yet implemented");
 
     // ASSERT: Verify deletion was handled
     // assert!(*deletion_handled.lock().unwrap(), "Deletion event should be handled");
@@ -411,7 +427,7 @@ async fn test_watch_handles_file_deletion() {
 // =============================================================================
 
 #[tokio::test]
-#[should_panic(expected = "not yet implemented")]
+#[ignore = "Phase 2: Feature not yet implemented"]
 async fn test_watch_handles_new_file_creation() {
     // ARRANGE: Set up for file creation event
     let fixture = WatchTestFixture::new();
@@ -451,7 +467,7 @@ async fn test_watch_handles_new_file_creation() {
     mock_watcher.expect_watch().times(1).returning(|| Ok(()));
 
     // ACT: Start watching and trigger file creation
-    panic!("not yet implemented: File creation handling not implemented");
+    unimplemented!("File creation handling not yet implemented");
 
     // ASSERT: Verify new file was processed
 }
@@ -461,7 +477,7 @@ async fn test_watch_handles_new_file_creation() {
 // =============================================================================
 
 #[tokio::test]
-#[should_panic(expected = "not yet implemented")]
+#[ignore = "Phase 2: Feature not yet implemented"]
 async fn test_watch_handles_directory_creation() {
     // ARRANGE: Set up for directory creation event
     let fixture = WatchTestFixture::new();
@@ -487,7 +503,7 @@ async fn test_watch_handles_directory_creation() {
     mock_watcher.expect_watch().times(1).returning(|| Ok(()));
 
     // ACT: Start watching and trigger directory creation
-    panic!("not yet implemented: Directory watching not implemented");
+    unimplemented!("Directory watching not yet implemented");
 
     // ASSERT: Verify new directory is being watched
 }
@@ -497,7 +513,7 @@ async fn test_watch_handles_directory_creation() {
 // =============================================================================
 
 #[tokio::test]
-#[should_panic(expected = "not yet implemented")]
+#[ignore = "Phase 2: Feature not yet implemented"]
 async fn test_watch_ignores_generated_directory() {
     // ARRANGE: Set up event filter for generated directory
     let fixture = WatchTestFixture::new();
@@ -525,7 +541,7 @@ async fn test_watch_ignores_generated_directory() {
     mock_regen.expect_regenerate_affected().times(0);
 
     // ACT: Trigger change in generated directory
-    panic!("not yet implemented: Event filtering not implemented");
+    unimplemented!("Event filtering not yet implemented");
 
     // ASSERT: Verify generated files were ignored
 }
@@ -536,7 +552,7 @@ async fn test_watch_ignores_generated_directory() {
 
 #[tokio::test]
 #[ignore = "Integration test - run separately"]
-#[should_panic(expected = "not yet implemented")]
+#[ignore = "Phase 2: Feature not yet implemented"]
 async fn integration_test_watch_full_workflow() {
     // ARRANGE: Real file system, no mocks
     let fixture = WatchTestFixture::new();
@@ -546,7 +562,7 @@ async fn integration_test_watch_full_workflow() {
     let template_file = fixture.create_template_file("output.md");
 
     // ACT: Start real watcher, modify RDF, wait for regeneration
-    panic!("not yet implemented: Full watch integration not ready");
+    unimplemented!("Full watch integration not yet implemented");
 
     // ASSERT: Verify template was regenerated with new RDF data
     // assert!(fixture.project_root.join("generated/output.md").exists());
@@ -557,7 +573,7 @@ async fn integration_test_watch_full_workflow() {
 // =============================================================================
 
 #[test]
-#[should_panic(expected = "not yet implemented")]
+#[ignore = "Phase 2: Feature not yet implemented"]
 fn test_event_filter_patterns() {
     // ARRANGE: Create event filter with patterns
     let mut filter = MockEventFilter::new();
@@ -577,7 +593,7 @@ fn test_event_filter_patterns() {
     filter.expect_should_ignore().times(2).returning(|_| true);
 
     // ACT: Add ignore patterns
-    panic!("not yet implemented: EventFilter not implemented");
+    unimplemented!("EventFilter not yet implemented");
 
     // ASSERT: Verify patterns work correctly
     // assert!(filter.should_ignore("generated/output.md"));
@@ -585,7 +601,7 @@ fn test_event_filter_patterns() {
 }
 
 #[test]
-#[should_panic(expected = "not yet implemented")]
+#[ignore = "Phase 2: Feature not yet implemented"]
 fn test_dependency_graph_build() {
     // ARRANGE: Create dependency graph
     let fixture = WatchTestFixture::new();
@@ -598,7 +614,7 @@ fn test_dependency_graph_build() {
         .returning(|_| Ok(()));
 
     // ACT: Build dependency graph
-    panic!("not yet implemented: DependencyGraph::build_graph not implemented");
+    unimplemented!("DependencyGraph::build_graph not yet implemented");
 
     // ASSERT: Verify graph was built
 }
@@ -609,7 +625,7 @@ fn test_dependency_graph_build() {
 
 #[tokio::test]
 #[ignore = "Performance test - run separately"]
-#[should_panic(expected = "not yet implemented")]
+#[ignore = "Phase 2: Feature not yet implemented"]
 async fn perf_test_watch_handles_high_frequency_changes() {
     // ARRANGE: Many files changing rapidly
     let fixture = WatchTestFixture::new();
@@ -620,7 +636,7 @@ async fn perf_test_watch_handles_high_frequency_changes() {
     }
 
     // ACT: Trigger 1000 changes in 1 second
-    panic!("not yet implemented: Performance testing not ready");
+    unimplemented!("Performance testing not yet implemented");
 
     // ASSERT: Verify all changes handled without crashes
     // Verify memory usage stays reasonable

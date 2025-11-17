@@ -128,13 +128,15 @@ impl EventRouter {
     pub async fn start_monitoring(&self) -> Result<()> {
         // Start all event sources
         for (name, source) in &self.event_sources {
-            let source_clone = source.as_ref() as *const dyn EventSource;
+            // Clone the Arc<Box<dyn EventSource>> for safe sharing across the task boundary.
+            // This ensures the EventSource lives for the entire duration of the monitoring task.
+            let source_clone = source.clone();
             let event_tx = self.event_broadcaster.clone();
+            let name_clone = name.clone();
 
             tokio::spawn(async move {
-                let source = unsafe { &*source_clone };
-                if let Err(e) = Self::monitor_event_source(source, event_tx).await {
-                    log::error!("Error monitoring event source {}: {}", name, e);
+                if let Err(e) = Self::monitor_event_source(source_clone.as_ref(), event_tx).await {
+                    log::error!("Error monitoring event source {}: {}", name_clone, e);
                 }
             });
         }
