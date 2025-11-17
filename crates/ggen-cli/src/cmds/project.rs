@@ -136,6 +136,7 @@ fn new(
             next_steps: result.next_steps,
         })
     })
+    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e))
 }
 
 /// Generate project plan from template with variable substitution
@@ -162,8 +163,25 @@ fn new(
 fn plan(
     template_ref: String, vars: Option<String>, output: Option<String>, format: Option<String>,
 ) -> Result<PlanOutput> {
+    // Validate and sanitize variables
     let vars: Vec<String> = vars
-        .map(|v| v.split(',').map(String::from).collect())
+        .map(|v| {
+            v.split(',')
+                .map(|part| {
+                    let trimmed = part.trim();
+                    if !trimmed.contains('=') {
+                        // Variables should be in KEY=VALUE format
+                        return trimmed.to_string();
+                    }
+                    let (key, value) = trimmed.split_once('=').unwrap_or(("", ""));
+                    // Validate key is alphanumeric + underscore
+                    if !key.chars().all(|c| c.is_alphanumeric() || c == '_') {
+                        log::warn!("Variable key contains non-alphanumeric characters, may be filtered by template engine: {}", key);
+                    }
+                    trimmed.to_string()
+                })
+                .collect()
+        })
         .unwrap_or_default();
     let format = format.unwrap_or_else(|| "json".to_string());
     use ggen_domain::project;
@@ -188,6 +206,7 @@ fn plan(
             operations_count: 0, // PlanResult doesn't have operations_count field
         })
     })
+    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e))
 }
 
 /// Generate code from template with RDF/SPARQL integration
@@ -213,8 +232,25 @@ fn plan(
 /// ```
 #[verb]
 fn gen(template_ref: String, vars: Option<String>, dry_run: bool) -> Result<GenOutput> {
+    // Validate and sanitize variables
     let vars: Vec<String> = vars
-        .map(|v| v.split(',').map(String::from).collect())
+        .map(|v| {
+            v.split(',')
+                .map(|part| {
+                    let trimmed = part.trim();
+                    if !trimmed.contains('=') {
+                        // Variables should be in KEY=VALUE format
+                        return trimmed.to_string();
+                    }
+                    let (key, value) = trimmed.split_once('=').unwrap_or(("", ""));
+                    // Validate key is alphanumeric + underscore
+                    if !key.chars().all(|c| c.is_alphanumeric() || c == '_') {
+                        log::warn!("Variable key contains non-alphanumeric characters, may be filtered by template engine: {}", key);
+                    }
+                    trimmed.to_string()
+                })
+                .collect()
+        })
         .unwrap_or_default();
     use ggen_domain::project;
 
@@ -258,6 +294,7 @@ fn gen(template_ref: String, vars: Option<String>, dry_run: bool) -> Result<GenO
             dry_run,
         })
     })
+    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e))
 }
 
 /// Apply generation plan to create/modify files
@@ -302,6 +339,7 @@ fn apply(plan_file: String, yes: bool, dry_run: bool) -> Result<ApplyOutput> {
             dry_run,
         })
     })
+    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e))
 }
 
 /// Initialize project with file-based routing conventions
@@ -327,13 +365,49 @@ fn init(path: PathBuf, name: Option<String>, preset: Option<String>) -> Result<I
     use crate::conventions::presets;
     use std::fs;
 
+    // Validate project name
+    if let Some(ref n) = name {
+        if n.is_empty() {
+            return Err(clap_noun_verb::NounVerbError::execution_error(
+                "Project name cannot be empty".to_string(),
+            ));
+        }
+        if n.contains(char::is_whitespace) {
+            return Err(clap_noun_verb::NounVerbError::execution_error(
+                "Project name cannot contain whitespace".to_string(),
+            ));
+        }
+    }
+
     crate::runtime::block_on(async move {
         let project_name = name.as_deref().unwrap_or("my-project").to_string();
         let mut files_created = Vec::new();
         let mut directories_created = Vec::new();
 
+        // Canonicalize and validate path (prevent path traversal)
+        let canonical_path = match std::fs::canonicalize(&path) {
+            Ok(p) => p,
+            Err(_) => {
+                // Path doesn't exist, create parent and validate
+                if let Some(parent) = path.parent() {
+                    match std::fs::canonicalize(parent) {
+                        Ok(p) => p.join(path.file_name().unwrap_or_default()),
+                        Err(_) => {
+                            return Err(clap_noun_verb::NounVerbError::execution_error(
+                                format!("Invalid path: {}", path.display()),
+                            ));
+                        }
+                    }
+                } else {
+                    return Err(clap_noun_verb::NounVerbError::execution_error(
+                        format!("Invalid path: {}", path.display()),
+                    ));
+                }
+            }
+        };
+
         // Create base project structure
-        fs::create_dir_all(&path).map_err(|e| {
+        fs::create_dir_all(&canonical_path).map_err(|e| {
             clap_noun_verb::NounVerbError::execution_error(format!(
                 "Failed to create project directory: {}",
                 e
@@ -341,7 +415,7 @@ fn init(path: PathBuf, name: Option<String>, preset: Option<String>) -> Result<I
         })?;
 
         // Create .ggen directory
-        let ggen_dir = path.join(".ggen");
+        let ggen_dir = canonical_path.join(".ggen");
         fs::create_dir_all(&ggen_dir).map_err(|e| {
             clap_noun_verb::NounVerbError::execution_error(format!(
                 "Failed to create .ggen directory: {}",
@@ -361,7 +435,7 @@ fn init(path: PathBuf, name: Option<String>, preset: Option<String>) -> Result<I
             })?;
 
             // Create project structure
-            preset.create_structure(&path).map_err(|e| {
+            preset.create_structure(&canonical_path).map_err(|e| {
                 clap_noun_verb::NounVerbError::execution_error(format!(
                     "Failed to apply preset: {}",
                     e
@@ -396,7 +470,7 @@ fn init(path: PathBuf, name: Option<String>, preset: Option<String>) -> Result<I
                 })?;
 
                 let relative_path = file_path
-                    .strip_prefix(&path)
+                    .strip_prefix(&canonical_path)
                     .unwrap_or(&file_path)
                     .display()
                     .to_string();
@@ -431,7 +505,7 @@ fn init(path: PathBuf, name: Option<String>, preset: Option<String>) -> Result<I
                 })?;
 
                 let relative_path = file_path
-                    .strip_prefix(&path)
+                    .strip_prefix(&canonical_path)
                     .unwrap_or(&file_path)
                     .display()
                     .to_string();
@@ -451,7 +525,7 @@ fn init(path: PathBuf, name: Option<String>, preset: Option<String>) -> Result<I
             // Create basic structure without preset
             let dirs = ["domain", "templates", "queries", "generated"];
             for dir in &dirs {
-                let dir_path = path.join(dir);
+                let dir_path = canonical_path.join(dir);
                 fs::create_dir_all(&dir_path).map_err(|e| {
                     clap_noun_verb::NounVerbError::execution_error(format!(
                         "Failed to create directory: {}",
@@ -470,13 +544,14 @@ fn init(path: PathBuf, name: Option<String>, preset: Option<String>) -> Result<I
 
         Ok(InitOutput {
             project_name,
-            project_path: path.display().to_string(),
+            project_path: canonical_path.display().to_string(),
             preset,
             files_created,
             directories_created,
             next_steps,
         })
     })
+    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e))
 }
 
 /// Generate code using zero-config conventions
@@ -609,6 +684,7 @@ fn generate(
             output_paths,
         })
     })
+    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e))
 }
 
 /// Watch for changes and auto-regenerate
