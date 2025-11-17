@@ -11,7 +11,8 @@
 //! - `adapter`: Unified trait for multiple backend implementations
 //! - `registry`: Legacy v1 marketplace registry
 //! - `search`: Legacy v1 search implementation
-//! - Future: `adapter_v2`: RDF-backed v2 implementation
+//! - `packs`: GGEN Packs command implementation
+//! - `packs_services`: Core services for package management
 
 pub mod adapter;
 pub mod artifact_generator;
@@ -21,6 +22,8 @@ pub mod install;
 pub mod list;
 pub mod mape_k_integration;
 pub mod observability;
+pub mod packs;
+pub mod packs_services;
 pub mod production_readiness;
 pub mod publish;
 pub mod quality_autopilot;
@@ -62,6 +65,8 @@ pub use mape_k_integration::{
 pub use observability::{
     HealthCheck, HealthStatus, MetricsSnapshot, ObservabilitySystem, PerformanceMetric,
 };
+pub use packs::{ListPackagesOutput};
+pub use packs_services::{PackageDiscoveryService};
 pub use production_readiness::{
     CheckStatus, DeploymentGuide, ReadinessAssessment, ReadinessCheck, ReadinessChecker,
 };
