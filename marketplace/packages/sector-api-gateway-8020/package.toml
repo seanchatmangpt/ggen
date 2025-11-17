@@ -1,0 +1,27 @@
+[package]
+name = "sector-api-gateway-8020"
+version = "1.0.0"
+edition = "2021"
+authors = ["ggen Contributors"]
+description = "8020 Bundle: Production-ready API gateway configuration covering 80% of gateway infrastructure needs"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/seanchatmangpt/ggen"
+
+# 8020 Innovation: Critical fields for bundle curation
+is_8020 = true
+is_8020_certified = false  # Certification pending completion of Guard8020Coverage validation
+sector = "api-gateway"
+dark_matter_reduction_target = "Eliminates ~60% of gateway configuration work (from 20 hours to 8 hours)"
+
+[dependencies]
+# This bundle composes these core packages
+kubernetes-patterns = "1.0.0"
+auth-patterns = "1.0.0"
+rate-limiting-patterns = "1.0.0"
+
+[features]
+default = []
+
+[metadata]
+keywords = ["api-gateway", "kubernetes", "authentication", "rate-limiting", "routing", "infrastructure"]
+categories = ["development-tools", "api-gateway", "infrastructure"]

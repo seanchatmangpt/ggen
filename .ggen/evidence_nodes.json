@@ -1,0 +1,734 @@
+[
+  {
+    "evidence_id": "ggen.AUTONOMOUS_ONTOLOGY_SYSTEM.md.1-50",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/AUTONOMOUS_ONTOLOGY_SYSTEM.md",
+    "lines": "1-50",
+    "concept_id": "C_GRAPH_UNIVERSE_PRIMARY",
+    "support_type": "direct",
+    "claim_summary": "Implements ontology-primary architecture via ontology is primary, \u03a3 (Ontology Plane), immutable versioned snapshots",
+    "key_phrases": [
+      "ontology is primary",
+      "\u03a3 (Ontology Plane)",
+      "immutable versioned snapshots",
+      "knowledge hypergraph",
+      "graph-driven"
+    ],
+    "strength": 1.0
+  },
+  {
+    "evidence_id": "ggen.GGEN_8020_ROADMAP.md.1-50",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/GGEN_8020_ROADMAP.md",
+    "lines": "1-50",
+    "concept_id": "C_GRAPH_UNIVERSE_PRIMARY",
+    "support_type": "direct",
+    "claim_summary": "Implements ontology-primary architecture via A = \u03bc(O), ontology centralized, O explicit (RDF)",
+    "key_phrases": [
+      "A = \u03bc(O)",
+      "ontology centralized",
+      "O explicit (RDF)",
+      "graph-driven"
+    ],
+    "strength": 0.95
+  },
+  {
+    "evidence_id": "ggen.meta-ontology.ttl.1-end",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/ontologies/meta-ontology.ttl",
+    "lines": "1-end",
+    "concept_id": "C_GRAPH_UNIVERSE_PRIMARY",
+    "support_type": "direct",
+    "claim_summary": "Implements ontology-primary architecture via ontology as source of truth, KNHK, projection engine",
+    "key_phrases": [
+      "ontology as source of truth",
+      "KNHK",
+      "projection engine"
+    ],
+    "strength": 1.0
+  },
+  {
+    "evidence_id": "ggen.ahi_contract.rs.1-50",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/crates/ggen-domain/src/ahi_contract.rs",
+    "lines": "1-50",
+    "concept_id": "C_GRAPH_UNIVERSE_PRIMARY",
+    "support_type": "direct",
+    "claim_summary": "Defines ontology-primary architecture via \u03a3 (ontologies), ontology snapshot, knowledge hypergraph",
+    "key_phrases": [
+      "\u03a3 (ontologies)",
+      "ontology snapshot",
+      "knowledge hypergraph"
+    ],
+    "strength": 0.9
+  },
+  {
+    "evidence_id": "ggen.AUTONOMOUS_ONTOLOGY_SYSTEM.md.1-50",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/AUTONOMOUS_ONTOLOGY_SYSTEM.md",
+    "lines": "1-50",
+    "concept_id": "C_CODE_AS_PROJECTION",
+    "support_type": "direct",
+    "claim_summary": "Implements code as projection from ontology via deterministic code generation, projection, immutable",
+    "key_phrases": [
+      "deterministic code generation",
+      "projection",
+      "immutable",
+      "from ontology"
+    ],
+    "strength": 1.0
+  },
+  {
+    "evidence_id": "ggen.GGEN_8020_ROADMAP.md.1-50",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/GGEN_8020_ROADMAP.md",
+    "lines": "1-50",
+    "concept_id": "C_CODE_AS_PROJECTION",
+    "support_type": "direct",
+    "claim_summary": "Implements code as projection from ontology via projection, derived, no manual synchronization",
+    "key_phrases": [
+      "projection",
+      "derived",
+      "no manual synchronization",
+      "SPARQL-driven"
+    ],
+    "strength": 0.95
+  },
+  {
+    "evidence_id": "ggen.PHASE_3_IMPLEMENTATION_SUMMARY.md.1-50",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/PHASE_3_IMPLEMENTATION_SUMMARY.md",
+    "lines": "1-50",
+    "concept_id": "C_CODE_AS_PROJECTION",
+    "support_type": "direct",
+    "claim_summary": "Defines code as projection from ontology via projection, derived surface, everything is a projection",
+    "key_phrases": [
+      "projection",
+      "derived surface",
+      "everything is a projection"
+    ],
+    "strength": 0.9
+  },
+  {
+    "evidence_id": "ggen.AUTONOMOUS_ONTOLOGY_SYSTEM.md.1-50",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/AUTONOMOUS_ONTOLOGY_SYSTEM.md",
+    "lines": "1-50",
+    "concept_id": "C_RECEIPTS_AND_PROOFS",
+    "support_type": "direct",
+    "claim_summary": "Defines receipt and proof systems via receipt logging, audit trails, ML-DSA signature",
+    "key_phrases": [
+      "receipt logging",
+      "audit trails",
+      "ML-DSA signature",
+      "SHA-256 hash"
+    ],
+    "strength": 0.9
+  },
+  {
+    "evidence_id": "ggen.DEFINITION_OF_DONE.md.1-50",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/crates/ggen-dod/DEFINITION_OF_DONE.md",
+    "lines": "1-50",
+    "concept_id": "C_RECEIPTS_AND_PROOFS",
+    "support_type": "direct",
+    "claim_summary": "Implements receipt and proof systems via hash(A) = hash(\u03bc(O)), receipt, cryptographic chain",
+    "key_phrases": [
+      "hash(A) = hash(\u03bc(O))",
+      "receipt",
+      "cryptographic chain",
+      "proof",
+      "audit trail"
+    ],
+    "strength": 1.0
+  },
+  {
+    "evidence_id": "ggen.validation_receipt.rs.1-200",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/crates/ggen-marketplace/src/guards/validation_receipt.rs",
+    "lines": "1-200",
+    "concept_id": "C_RECEIPTS_AND_PROOFS",
+    "support_type": "direct",
+    "claim_summary": "Implements receipt and proof systems via HMAC-SHA256, receipt, signature verification",
+    "key_phrases": [
+      "HMAC-SHA256",
+      "receipt",
+      "signature verification",
+      "proof-carrying"
+    ],
+    "strength": 1.0
+  },
+  {
+    "evidence_id": "ggen.proof_carrier.rs.1-end",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/crates/ggen-domain/src/proof_carrier.rs",
+    "lines": "1-end",
+    "concept_id": "C_RECEIPTS_AND_PROOFS",
+    "support_type": "direct",
+    "claim_summary": "Implements receipt and proof systems via proof, Ed25519, attestation",
+    "key_phrases": [
+      "proof",
+      "Ed25519",
+      "attestation",
+      "verifiable"
+    ],
+    "strength": 0.95
+  },
+  {
+    "evidence_id": "ggen.DEFINITION_OF_DONE.md.1-50",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/crates/ggen-dod/DEFINITION_OF_DONE.md",
+    "lines": "1-50",
+    "concept_id": "C_MU_KERNEL_PHYSICS",
+    "support_type": "direct",
+    "claim_summary": "Implements \u03bc-kernel timing physics via \u03bc-kernel, deterministic decision engine, timing \u03c4 \u2264 8ms",
+    "key_phrases": [
+      "\u03bc-kernel",
+      "deterministic decision engine",
+      "timing \u03c4 \u2264 8ms",
+      "cycle-accurate"
+    ],
+    "strength": 1.0
+  },
+  {
+    "evidence_id": "ggen.kernel.rs.1-100",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/crates/ggen-dod/src/kernel.rs",
+    "lines": "1-100",
+    "concept_id": "C_MU_KERNEL_PHYSICS",
+    "support_type": "direct",
+    "claim_summary": "Implements \u03bc-kernel timing physics via \u03bc-Kernel, deterministic decision engine, timing guarantees",
+    "key_phrases": [
+      "\u03bc-Kernel",
+      "deterministic decision engine",
+      "timing guarantees",
+      "ISA"
+    ],
+    "strength": 1.0
+  },
+  {
+    "evidence_id": "ggen.lib.rs.1-60",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/crates/ggen-dod/src/lib.rs",
+    "lines": "1-60",
+    "concept_id": "C_MU_KERNEL_PHYSICS",
+    "support_type": "direct",
+    "claim_summary": "Implements \u03bc-kernel timing physics via \u03bc (Kernel), deterministic decision kernel, timing guarantees",
+    "key_phrases": [
+      "\u03bc (Kernel)",
+      "deterministic decision kernel",
+      "timing guarantees"
+    ],
+    "strength": 0.95
+  },
+  {
+    "evidence_id": "ggen.DEFINITION_OF_DONE.md.1-50",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/crates/ggen-dod/DEFINITION_OF_DONE.md",
+    "lines": "1-50",
+    "concept_id": "C_TIMING_BOUNDS_ENFORCED",
+    "support_type": "direct",
+    "claim_summary": "Implements enforced timing bounds via \u03c4 \u2264 8ms, KERNEL_MAX_TIME_MS, timing bound",
+    "key_phrases": [
+      "\u03c4 \u2264 8ms",
+      "KERNEL_MAX_TIME_MS",
+      "timing bound",
+      "enforced"
+    ],
+    "strength": 1.0
+  },
+  {
+    "evidence_id": "ggen.timing.rs.1-120",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/crates/ggen-dod/src/timing.rs",
+    "lines": "1-120",
+    "concept_id": "C_TIMING_BOUNDS_ENFORCED",
+    "support_type": "direct",
+    "claim_summary": "Implements enforced timing bounds via CHATMAN_CONSTANT, <= 8 ticks, timing bound",
+    "key_phrases": [
+      "CHATMAN_CONSTANT",
+      "<= 8 ticks",
+      "timing bound",
+      "enforced",
+      "timing constraint"
+    ],
+    "strength": 1.0
+  },
+  {
+    "evidence_id": "ggen.kernel.rs.330-340",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/crates/ggen-dod/src/kernel.rs",
+    "lines": "330-340",
+    "concept_id": "C_TIMING_BOUNDS_ENFORCED",
+    "support_type": "direct",
+    "claim_summary": "Implements enforced timing bounds via timing constraint, KERNEL_MAX_TIME_MS, timing violation",
+    "key_phrases": [
+      "timing constraint",
+      "KERNEL_MAX_TIME_MS",
+      "timing violation"
+    ],
+    "strength": 0.95
+  },
+  {
+    "evidence_id": "ggen.AUTONOMOUS_ONTOLOGY_SYSTEM.md.1-50",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/AUTONOMOUS_ONTOLOGY_SYSTEM.md",
+    "lines": "1-50",
+    "concept_id": "C_KNHK_GRAPH_PRIMARY",
+    "support_type": "direct",
+    "claim_summary": "Defines knowledge hypergraph primacy via ontology evolution, kinetic, knowledge kernel",
+    "key_phrases": [
+      "ontology evolution",
+      "kinetic",
+      "knowledge kernel",
+      "hypergraph"
+    ],
+    "strength": 0.9
+  },
+  {
+    "evidence_id": "ggen.EVIDENCE_GRAPH_SCHEMA.md.1-50",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/EVIDENCE_GRAPH_SCHEMA.md",
+    "lines": "1-50",
+    "concept_id": "C_KNHK_GRAPH_PRIMARY",
+    "support_type": "indirect",
+    "claim_summary": "Demonstrates knowledge hypergraph primacy via KNHK, knowledge hypergraph",
+    "key_phrases": [
+      "KNHK",
+      "knowledge hypergraph"
+    ],
+    "strength": 0.7
+  },
+  {
+    "evidence_id": "ggen.ahi_contract.rs.38-40",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/crates/ggen-domain/src/ahi_contract.rs",
+    "lines": "38-40",
+    "concept_id": "C_KNHK_GRAPH_PRIMARY",
+    "support_type": "direct",
+    "claim_summary": "Defines knowledge hypergraph primacy via KNHK, observations, receipts",
+    "key_phrases": [
+      "KNHK",
+      "observations",
+      "receipts"
+    ],
+    "strength": 0.85
+  },
+  {
+    "evidence_id": "ggen.dflss-dmedi-design-process.md.1-end",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/.claude/commands/dflss-dmedi-design-process.md",
+    "lines": "1-end",
+    "concept_id": "C_DFLSS_FLOW",
+    "support_type": "indirect",
+    "claim_summary": "Demonstrates DFLSS optimization flow via DFLSS, DMEDI, Design for Lean Six Sigma",
+    "key_phrases": [
+      "DFLSS",
+      "DMEDI",
+      "Design for Lean Six Sigma"
+    ],
+    "strength": 0.8
+  },
+  {
+    "evidence_id": "ggen.dflss-80-20-fill-gaps.md.1-end",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/.claude/commands/dflss-80-20-fill-gaps.md",
+    "lines": "1-end",
+    "concept_id": "C_DFLSS_FLOW",
+    "support_type": "indirect",
+    "claim_summary": "Demonstrates DFLSS optimization flow via DFLSS, closed-world optimization",
+    "key_phrases": [
+      "DFLSS",
+      "closed-world optimization"
+    ],
+    "strength": 0.75
+  },
+  {
+    "evidence_id": "ggen.ahi_contract.rs.1-100",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/crates/ggen-domain/src/ahi_contract.rs",
+    "lines": "1-100",
+    "concept_id": "C_AHI_GOVERNANCE",
+    "support_type": "direct",
+    "claim_summary": "Implements AHI autonomic governance via AHI, Autonomic Hyper Intelligence, MAPE-K",
+    "key_phrases": [
+      "AHI",
+      "Autonomic Hyper Intelligence",
+      "MAPE-K",
+      "\u0394\u03a3 application logic",
+      "policy adapter"
+    ],
+    "strength": 1.0
+  },
+  {
+    "evidence_id": "ggen.mod.rs.1-30",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/crates/ggen-domain/src/mape_k/mod.rs",
+    "lines": "1-30",
+    "concept_id": "C_AHI_GOVERNANCE",
+    "support_type": "direct",
+    "claim_summary": "Implements AHI autonomic governance via MAPE-K, Monitor-Analyze-Plan-Execute, autonomic",
+    "key_phrases": [
+      "MAPE-K",
+      "Monitor-Analyze-Plan-Execute",
+      "autonomic",
+      "knowledge loop"
+    ],
+    "strength": 0.95
+  },
+  {
+    "evidence_id": "ggen.DEFINITION_OF_DONE.md.1-50",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/crates/ggen-dod/DEFINITION_OF_DONE.md",
+    "lines": "1-50",
+    "concept_id": "C_AHI_GOVERNANCE",
+    "support_type": "direct",
+    "claim_summary": "Defines AHI autonomic governance via autonomic, MAPE-K, Monitor",
+    "key_phrases": [
+      "autonomic",
+      "MAPE-K",
+      "Monitor",
+      "Analyze",
+      "Plan",
+      "Execute"
+    ],
+    "strength": 0.9
+  },
+  {
+    "evidence_id": "ggen.DEFINITION_OF_DONE.md.1-50",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/crates/ggen-dod/DEFINITION_OF_DONE.md",
+    "lines": "1-50",
+    "concept_id": "C_CTT_12_PHASE_VERIFICATION",
+    "support_type": "direct",
+    "claim_summary": "Defines Chicago TDD 12-phase verification via Chicago TDD, 12 phases, CTT",
+    "key_phrases": [
+      "Chicago TDD",
+      "12 phases",
+      "CTT",
+      "verification pipeline"
+    ],
+    "strength": 0.9
+  },
+  {
+    "evidence_id": "ggen.FINAL_REPORT_INSTALL_TESTS.md.1-end",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/tests/chicago_tdd/FINAL_REPORT_INSTALL_TESTS.md",
+    "lines": "1-end",
+    "concept_id": "C_CTT_12_PHASE_VERIFICATION",
+    "support_type": "direct",
+    "claim_summary": "Defines Chicago TDD 12-phase verification via Chicago TDD, verification, enforcement",
+    "key_phrases": [
+      "Chicago TDD",
+      "verification",
+      "enforcement"
+    ],
+    "strength": 0.85
+  },
+  {
+    "evidence_id": "ggen.domain_logic_tests.rs.1-end",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/tests/chicago_tdd/marketplace/domain_logic_tests.rs",
+    "lines": "1-end",
+    "concept_id": "C_CTT_12_PHASE_VERIFICATION",
+    "support_type": "indirect",
+    "claim_summary": "Demonstrates Chicago TDD 12-phase verification via Chicago TDD, verification",
+    "key_phrases": [
+      "Chicago TDD",
+      "verification"
+    ],
+    "strength": 0.8
+  },
+  {
+    "evidence_id": "ggen.README.md.1-end",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/templates/cleanroom/README.md",
+    "lines": "1-end",
+    "concept_id": "C_CLNRM_HERMETIC_TESTING",
+    "support_type": "indirect",
+    "claim_summary": "Demonstrates hermetic cleanroom testing via cleanroom, hermetic",
+    "key_phrases": [
+      "cleanroom",
+      "hermetic"
+    ],
+    "strength": 0.8
+  },
+  {
+    "evidence_id": "ggen.ci-pipeline.tmpl.1-end",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/templates/cleanroom/ci-pipeline.tmpl",
+    "lines": "1-end",
+    "concept_id": "C_CLNRM_HERMETIC_TESTING",
+    "support_type": "indirect",
+    "claim_summary": "Demonstrates hermetic cleanroom testing via hermetic, container test",
+    "key_phrases": [
+      "hermetic",
+      "container test"
+    ],
+    "strength": 0.7
+  },
+  {
+    "evidence_id": "ggen.clap-noun-verb_v3.3.0.ttl.1-end",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/ontologies/clap-noun-verb_v3.3.0.ttl",
+    "lines": "1-end",
+    "concept_id": "C_CNV_AGENT_CLI",
+    "support_type": "direct",
+    "claim_summary": "Defines agent-grade capability CLI via clap-noun-verb, CNV, capability contract",
+    "key_phrases": [
+      "clap-noun-verb",
+      "CNV",
+      "capability contract"
+    ],
+    "strength": 0.9
+  },
+  {
+    "evidence_id": "ggen.capability_system.rs.1-end",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/crates/ggen-domain/src/capability_system.rs",
+    "lines": "1-end",
+    "concept_id": "C_CNV_AGENT_CLI",
+    "support_type": "indirect",
+    "claim_summary": "Demonstrates agent-grade capability CLI via capability, agent",
+    "key_phrases": [
+      "capability",
+      "agent"
+    ],
+    "strength": 0.75
+  },
+  {
+    "evidence_id": "ggen.EXAMPLES.md.1-50",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/marketplace/packages/cli-application-template/docs/EXAMPLES.md",
+    "lines": "1-50",
+    "concept_id": "C_NOMRG_GRAPH_OVERLAY",
+    "support_type": "contextual",
+    "claim_summary": "References no-merge graph overlays via overlay, no-merge",
+    "key_phrases": [
+      "overlay",
+      "no-merge"
+    ],
+    "strength": 0.3
+  },
+  {
+    "evidence_id": "ggen.GGEN_8020_ROADMAP.md.1-50",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/GGEN_8020_ROADMAP.md",
+    "lines": "1-50",
+    "concept_id": "C_GGEN_PROJECTION_ENGINE",
+    "support_type": "direct",
+    "claim_summary": "Implements ggen projection engine via ggen, projection engine, \u03a3 + Q \u2192 code",
+    "key_phrases": [
+      "ggen",
+      "projection engine",
+      "\u03a3 + Q \u2192 code",
+      "universal generator",
+      "multi-language"
+    ],
+    "strength": 1.0
+  },
+  {
+    "evidence_id": "ggen.PHASE_3_IMPLEMENTATION_SUMMARY.md.1-50",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/PHASE_3_IMPLEMENTATION_SUMMARY.md",
+    "lines": "1-50",
+    "concept_id": "C_GGEN_PROJECTION_ENGINE",
+    "support_type": "direct",
+    "claim_summary": "Implements ggen projection engine via ggen, projection profile, code projection",
+    "key_phrases": [
+      "ggen",
+      "projection profile",
+      "code projection"
+    ],
+    "strength": 0.95
+  },
+  {
+    "evidence_id": "ggen.academic-paper_v1.0.0.ttl.1-end",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/ontologies/academic-paper_v1.0.0.ttl",
+    "lines": "1-end",
+    "concept_id": "C_GGEN_PROJECTION_ENGINE",
+    "support_type": "indirect",
+    "claim_summary": "Demonstrates ggen projection engine via projection, ontology-driven code",
+    "key_phrases": [
+      "projection",
+      "ontology-driven code"
+    ],
+    "strength": 0.8
+  },
+  {
+    "evidence_id": "ggen.GGEN_8020_ROADMAP.md.1-50",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/GGEN_8020_ROADMAP.md",
+    "lines": "1-50",
+    "concept_id": "C_UNIVERSE_PROJECTION_AXIOM",
+    "support_type": "direct",
+    "claim_summary": "Implements A = \u03bc(O) projection axiom via A = \u03bc(O), projection axiom, code is derived",
+    "key_phrases": [
+      "A = \u03bc(O)",
+      "projection axiom",
+      "code is derived",
+      "from ontology"
+    ],
+    "strength": 1.0
+  },
+  {
+    "evidence_id": "ggen.DEFINITION_OF_DONE.md.1-50",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/crates/ggen-dod/DEFINITION_OF_DONE.md",
+    "lines": "1-50",
+    "concept_id": "C_UNIVERSE_PROJECTION_AXIOM",
+    "support_type": "direct",
+    "claim_summary": "Implements A = \u03bc(O) projection axiom via A = \u03bc(O), deterministic, verifiable",
+    "key_phrases": [
+      "A = \u03bc(O)",
+      "deterministic",
+      "verifiable",
+      "\u03bc maps ontology"
+    ],
+    "strength": 1.0
+  },
+  {
+    "evidence_id": "ggen.kernel.rs.1-10",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/crates/ggen-dod/src/kernel.rs",
+    "lines": "1-10",
+    "concept_id": "C_UNIVERSE_PROJECTION_AXIOM",
+    "support_type": "direct",
+    "claim_summary": "Implements A = \u03bc(O) projection axiom via \u03bc(O) \u2192 A, deterministic, hash(\u03bc(O)) = hash(A)",
+    "key_phrases": [
+      "\u03bc(O) \u2192 A",
+      "deterministic",
+      "hash(\u03bc(O)) = hash(A)"
+    ],
+    "strength": 0.95
+  },
+  {
+    "evidence_id": "ggen.DEFINITION_OF_DONE.md.1-50",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/crates/ggen-dod/DEFINITION_OF_DONE.md",
+    "lines": "1-50",
+    "concept_id": "C_RECEIPT_CHAIN_VERIFICATION",
+    "support_type": "direct",
+    "claim_summary": "Implements immutable receipt chain verification via receipt chain, immutable receipt, Ed25519",
+    "key_phrases": [
+      "receipt chain",
+      "immutable receipt",
+      "Ed25519",
+      "signature verification",
+      "provenance"
+    ],
+    "strength": 1.0
+  },
+  {
+    "evidence_id": "ggen.validation_receipt.rs.1-end",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/crates/ggen-marketplace/src/guards/validation_receipt.rs",
+    "lines": "1-end",
+    "concept_id": "C_RECEIPT_CHAIN_VERIFICATION",
+    "support_type": "direct",
+    "claim_summary": "Implements immutable receipt chain verification via receipt, signature verification, immutable",
+    "key_phrases": [
+      "receipt",
+      "signature verification",
+      "immutable",
+      "hash chain"
+    ],
+    "strength": 0.95
+  },
+  {
+    "evidence_id": "ggen.AUTONOMOUS_ONTOLOGY_SYSTEM.md.1-50",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/AUTONOMOUS_ONTOLOGY_SYSTEM.md",
+    "lines": "1-50",
+    "concept_id": "C_AGENTS_ONLY_ARCHITECTURE",
+    "support_type": "direct",
+    "claim_summary": "Implements agent-only architecture via human-free, autonomous, agent-driven",
+    "key_phrases": [
+      "human-free",
+      "autonomous",
+      "agent-driven",
+      "closed-loop"
+    ],
+    "strength": 0.95
+  },
+  {
+    "evidence_id": "ggen.DEFINITION_OF_DONE.md.1-50",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/crates/ggen-dod/DEFINITION_OF_DONE.md",
+    "lines": "1-50",
+    "concept_id": "C_AGENTS_ONLY_ARCHITECTURE",
+    "support_type": "direct",
+    "claim_summary": "Implements agent-only architecture via no human arbitration, autonomous, agent-driven",
+    "key_phrases": [
+      "no human arbitration",
+      "autonomous",
+      "agent-driven",
+      "no humans in critical path"
+    ],
+    "strength": 1.0
+  },
+  {
+    "evidence_id": "ggen.ahi_contract.rs.1-15",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/crates/ggen-domain/src/ahi_contract.rs",
+    "lines": "1-15",
+    "concept_id": "C_AGENTS_ONLY_ARCHITECTURE",
+    "support_type": "direct",
+    "claim_summary": "Defines agent-only architecture via autonomous, without human code editing, agent system",
+    "key_phrases": [
+      "autonomous",
+      "without human code editing",
+      "agent system"
+    ],
+    "strength": 0.9
+  },
+  {
+    "evidence_id": "ggen.DEFINITION_OF_DONE.md.1-50",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/crates/ggen-dod/DEFINITION_OF_DONE.md",
+    "lines": "1-50",
+    "concept_id": "C_INVARIANT_ENFORCEMENT",
+    "support_type": "direct",
+    "claim_summary": "Implements invariant enforcement via invariant, enforcement, CTT",
+    "key_phrases": [
+      "invariant",
+      "enforcement",
+      "CTT",
+      "verified",
+      "constraint"
+    ],
+    "strength": 1.0
+  },
+  {
+    "evidence_id": "ggen.lib.rs.40-50",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/crates/ggen-dod/src/lib.rs",
+    "lines": "40-50",
+    "concept_id": "C_INVARIANT_ENFORCEMENT",
+    "support_type": "direct",
+    "claim_summary": "Implements invariant enforcement via Invariant, InvariantChecker, enforcement",
+    "key_phrases": [
+      "Invariant",
+      "InvariantChecker",
+      "enforcement"
+    ],
+    "strength": 0.95
+  },
+  {
+    "evidence_id": "ggen.mod.rs.1-end",
+    "repo_id": "ggen",
+    "path": "/home/user/ggen/crates/ggen-marketplace/src/guards/mod.rs",
+    "lines": "1-end",
+    "concept_id": "C_INVARIANT_ENFORCEMENT",
+    "support_type": "direct",
+    "claim_summary": "Defines invariant enforcement via guard, invariant, enforcement",
+    "key_phrases": [
+      "guard",
+      "invariant",
+      "enforcement",
+      "validation"
+    ],
+    "strength": 0.9
+  }
+]

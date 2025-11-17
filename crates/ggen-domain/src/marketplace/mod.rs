@@ -7,13 +7,27 @@ pub mod list;
 pub mod publish;
 pub mod registry;
 pub mod search;
+pub mod search_advanced;
+pub mod recommender;
 pub mod types; // Poka-yoke types for error prevention
 pub mod update;
 pub mod validate;
+pub mod guards;
+pub mod receipt_emitter;
+pub mod bundles;
+pub mod artifact_generator;
+pub mod quality_autopilot;
+pub mod observability;
+pub mod production_readiness;
+pub mod mape_k_integration;
 
 #[cfg(test)]
 #[path = "expert_tests.rs"]
 mod expert_tests;
+
+#[cfg(test)]
+#[path = "integration_tests.rs"]
+mod integration_tests;
 
 // Re-export commonly used types and functions
 pub use install::{execute_install, InstallInput, InstallOptions, InstallResult};
@@ -28,6 +42,42 @@ pub use update::{execute_update, UpdateInput, UpdateOutput};
 pub use validate::{
     validate_all_packages, validate_package, CheckResult, PackageValidation, QualityCheck,
     RequiredCheck,
+};
+pub use guards::{
+    Guard, GuardCheckResult, GuardError, GuardResult, Severity, ValidationReceipt,
+};
+pub use receipt_emitter::{
+    emit_receipt_for_package, emit_receipts_for_marketplace, generate_validation_report,
+    update_production_flags, PackageReport, ValidationReport,
+};
+pub use bundles::{
+    BundleRegistry, SectorBundle, BundleInstallManifest, generate_bundle_docs,
+};
+pub use artifact_generator::{
+    generate_registry_index, generate_packages_markdown, write_registry_index,
+    write_packages_markdown,
+};
+pub use quality_autopilot::{
+    ImprovementPlan, ImprovementSuggestion, generate_improvement_plan,
+    apply_template_improvements,
+};
+pub use search_advanced::{
+    AdvancedSearchQuery, AdvancedSearchResults, SearchEngine, SearchResultEntry,
+    SearchStatistics, SortField,
+};
+pub use recommender::{
+    Recommendation, RecommendationReason, RecommendationSet, Recommender,
+    RecommenderConfig, PackageInfo,
+};
+pub use observability::{
+    ObservabilitySystem, HealthStatus, PerformanceMetric, HealthCheck, MetricsSnapshot,
+};
+pub use production_readiness::{
+    ReadinessChecker, ReadinessAssessment, ReadinessCheck, CheckStatus, DeploymentGuide,
+};
+pub use mape_k_integration::{
+    AutonomicMarketplace, ReceiptObserver, MarketplaceObservation, MarketplaceObservationType,
+    AutonomicStatus, MarketplaceHealth, ObservationStats,
 };
 
 // Legacy types for backwards compatibility

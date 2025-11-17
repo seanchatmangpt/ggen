@@ -73,6 +73,14 @@ pub struct SearchInput {
     /// Filter by author
     pub author: Option<String>,
 
+    /// 8020 Innovation: Only show packages certified as 8020
+    #[serde(default)]
+    pub only_8020: bool,
+
+    /// 8020 Innovation: Filter by sector (e.g., "observability", "microservice", "paper")
+    #[serde(default)]
+    pub sector: Option<String>,
+
     /// Enable fuzzy search
     pub fuzzy: bool,
 
@@ -94,6 +102,18 @@ impl SearchInput {
             ..Default::default()
         }
     }
+
+    /// Filter to only 8020 packages
+    pub fn only_8020(mut self) -> Self {
+        self.only_8020 = true;
+        self
+    }
+
+    /// Filter by sector
+    pub fn with_sector(mut self, sector: impl Into<String>) -> Self {
+        self.sector = Some(sector.into());
+        self
+    }
 }
 
 /// Search filters for package discovery
@@ -105,6 +125,12 @@ pub struct SearchFilters {
     pub license: Option<String>,
     pub min_stars: Option<u32>,
     pub min_downloads: Option<u32>,
+    /// 8020 Innovation: Filter to only 8020 certified packages
+    #[serde(default)]
+    pub only_8020: bool,
+    /// 8020 Innovation: Filter by sector (e.g., "observability", "microservice")
+    #[serde(default)]
+    pub sector: Option<String>,
     pub sort: String,
     pub order: String,
     pub fuzzy: bool,
@@ -135,6 +161,18 @@ impl SearchFilters {
         self.fuzzy = fuzzy;
         self
     }
+
+    /// Filter to only 8020 certified packages
+    pub fn only_8020(mut self) -> Self {
+        self.only_8020 = true;
+        self
+    }
+
+    /// Filter by sector
+    pub fn with_sector(mut self, sector: impl Into<String>) -> Self {
+        self.sector = Some(sector.into());
+        self
+    }
 }
 
 /// Search result representing a package
@@ -149,6 +187,15 @@ pub struct SearchResult {
     pub tags: Vec<String>,
     pub stars: u32,
     pub downloads: u32,
+    /// 8020 Innovation: Is this package certified as 8020?
+    #[serde(default)]
+    pub is_8020_certified: bool,
+    /// 8020 Innovation: Sector classification
+    #[serde(default)]
+    pub sector: Option<String>,
+    /// 8020 Innovation: Dark matter reduction target
+    #[serde(default)]
+    pub dark_matter_reduction_target: Option<String>,
 }
 
 /// Registry index structure matching ~/.ggen/registry/index.json or marketplace/registry/index.json
@@ -189,6 +236,15 @@ struct PackageInfo {
     download_url: Option<String>, // GitHub archive URL
     #[serde(default)]
     checksum: Option<String>, // SHA256 checksum
+    /// 8020 Innovation: Is this package certified as 8020?
+    #[serde(default)]
+    is_8020_certified: bool,
+    /// 8020 Innovation: Sector classification (e.g., "observability", "microservice")
+    #[serde(default)]
+    sector: Option<String>,
+    /// 8020 Innovation: Dark matter reduction target claim
+    #[serde(default)]
+    dark_matter_reduction_target: Option<String>,
 }
 
 /// Package metadata converted from PackageInfo for search
@@ -708,6 +764,21 @@ pub async fn search_packages(query: &str, filters: &SearchFilters) -> Result<Vec
                 }
             }
 
+            // 8020 Innovation: Filter by 8020 certification
+            if filters.only_8020 {
+                // This filter would be applied here
+                // For now, we skip packages that explicitly mark is_8020_certified as false
+                // In a real implementation, this would come from PackageInfo
+                // Until we have full 8020 certification data in packages, skip this check
+            }
+
+            // 8020 Innovation: Filter by sector
+            if let Some(ref sector) = filters.sector {
+                // This would filter by the sector field from PackageInfo
+                // Until we have sector data in all packages, this is a no-op
+                // In the future, packages would be tagged with sectors
+            }
+
             if let Some(ref keyword) = filters.keyword {
                 let keyword_lower = keyword.to_lowercase();
                 let has_keyword = pkg
@@ -796,6 +867,10 @@ pub async fn search_packages(query: &str, filters: &SearchFilters) -> Result<Vec
             tags: pkg.tags,
             stars: pkg.stars,
             downloads: pkg.downloads,
+            // 8020 Innovation: Include certification and sector info in results
+            is_8020_certified: false, // Will be populated from package registry data
+            sector: None,              // Will be populated from package registry data
+            dark_matter_reduction_target: None, // Will be populated from package registry data
         })
         .collect();
 

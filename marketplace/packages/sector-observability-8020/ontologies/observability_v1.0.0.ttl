@@ -1,0 +1,219 @@
+@prefix obs: <http://ggen.dev/observability/1.0.0#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+# Base Observability Ontology for 8020 Bundle
+# This ontology defines the core concepts for complete observability:
+# - Metrics, Spans, Logs (the observability triad)
+# - SLOs and SLIs for service level objectives
+# - Instrumentation patterns and best practices
+# - Deployment and monitoring architecture
+
+# ============ Core Observability Concepts ============
+
+obs:Observability a rdfs:Class ;
+  rdfs:label "Observability" ;
+  rdfs:comment "The property of a system to make itself visible and understandable through its external outputs (metrics, logs, traces)" ;
+  rdfs:subClassOf obs:SystemProperty .
+
+obs:ObservabilityTriad a rdfs:Class ;
+  rdfs:label "Observability Triad" ;
+  rdfs:comment "The three pillars of observability: metrics, logs, and traces (spans)" .
+
+# ============ Metrics ============
+
+obs:Metric a rdfs:Class ;
+  rdfs:label "Metric" ;
+  rdfs:comment "A quantitative measurement of system behavior" ;
+  rdfs:subClassOf obs:ObservabilitySignal .
+
+obs:MetricType a rdfs:Class ;
+  rdfs:label "Metric Type" ;
+  rdfs:comment "The type of metric (counter, gauge, histogram, summary)" .
+
+obs:Counter a obs:MetricType ;
+  rdfs:label "Counter" ;
+  rdfs:comment "A metric that only increases (monotonic)" .
+
+obs:Gauge a obs:MetricType ;
+  rdfs:label "Gauge" ;
+  rdfs:comment "A metric that can go up or down" .
+
+obs:Histogram a obs:MetricType ;
+  rdfs:label "Histogram" ;
+  rdfs:comment "Distribution of measurements across buckets" .
+
+obs:Summary a obs:MetricType ;
+  rdfs:label "Summary" ;
+  rdfs:comment "Quantile distributions of measurements" .
+
+obs:metricType a rdf:Property ;
+  rdfs:label "metric type" ;
+  rdfs:domain obs:Metric ;
+  rdfs:range obs:MetricType .
+
+# ============ Spans and Traces ============
+
+obs:Span a rdfs:Class ;
+  rdfs:label "Span" ;
+  rdfs:comment "A unit of work in a distributed trace" ;
+  rdfs:subClassOf obs:ObservabilitySignal .
+
+obs:Trace a rdfs:Class ;
+  rdfs:label "Trace" ;
+  rdfs:comment "A collection of spans representing a complete request path" .
+
+obs:SpanKind a rdfs:Class ;
+  rdfs:label "Span Kind" ;
+  rdfs:comment "The role of a span in a trace" .
+
+obs:SERVER a obs:SpanKind ;
+  rdfs:label "Server" ;
+  rdfs:comment "Span on the server side of an RPC" .
+
+obs:CLIENT a obs:SpanKind ;
+  rdfs:label "Client" ;
+  rdfs:comment "Span on the client side of an RPC" .
+
+obs:PRODUCER a obs:SpanKind ;
+  rdfs:label "Producer" ;
+  rdfs:comment "Span on the producer side of a message queue" .
+
+obs:CONSUMER a obs:SpanKind ;
+  rdfs:label "Consumer" ;
+  rdfs:comment "Span on the consumer side of a message queue" .
+
+obs:INTERNAL a obs:SpanKind ;
+  rdfs:label "Internal" ;
+  rdfs:comment "Span representing internal operations" .
+
+obs:spanKind a rdf:Property ;
+  rdfs:label "span kind" ;
+  rdfs:domain obs:Span ;
+  rdfs:range obs:SpanKind .
+
+# ============ Logs ============
+
+obs:LogEntry a rdfs:Class ;
+  rdfs:label "Log Entry" ;
+  rdfs:comment "A single log message with timestamp and context" ;
+  rdfs:subClassOf obs:ObservabilitySignal .
+
+obs:LogLevel a rdfs:Class ;
+  rdfs:label "Log Level" ;
+  rdfs:comment "Severity level of a log entry" .
+
+obs:DEBUG a obs:LogLevel ;
+  rdfs:label "Debug" .
+
+obs:INFO a obs:LogLevel ;
+  rdfs:label "Info" .
+
+obs:WARN a obs:LogLevel ;
+  rdfs:label "Warn" .
+
+obs:ERROR a obs:LogLevel ;
+  rdfs:label "Error" .
+
+obs:FATAL a obs:LogLevel ;
+  rdfs:label "Fatal" .
+
+# ============ Service Level Objectives (SLOs) ============
+
+obs:ServiceLevelObjective a rdfs:Class ;
+  rdfs:label "Service Level Objective" ;
+  rdfs:comment "A target for a measurable aspect of service level" .
+
+obs:ServiceLevelIndicator a rdfs:Class ;
+  rdfs:label "Service Level Indicator" ;
+  rdfs:comment "A measurable indicator that approximates a service level objective" ;
+  rdfs:seeAlso obs:ServiceLevelObjective .
+
+obs:targetAchievement a rdf:Property ;
+  rdfs:label "target achievement" ;
+  rdfs:comment "The target percentage for achieving this SLO (e.g., 99.9%)" ;
+  rdfs:domain obs:ServiceLevelObjective ;
+  rdfs:range xsd:decimal .
+
+obs:window a rdf:Property ;
+  rdfs:label "window" ;
+  rdfs:comment "Time window for measuring SLO (e.g., 30 days, 1 year)" ;
+  rdfs:domain obs:ServiceLevelObjective ;
+  rdfs:range xsd:string .
+
+# ============ Error Budget ============
+
+obs:ErrorBudget a rdfs:Class ;
+  rdfs:label "Error Budget" ;
+  rdfs:comment "The acceptable amount of downtime or errors within a time window" .
+
+obs:remainingBudget a rdf:Property ;
+  rdfs:label "remaining budget" ;
+  rdfs:domain obs:ErrorBudget ;
+  rdfs:range xsd:decimal .
+
+# ============ Instrumentation ============
+
+obs:InstrumentationPoint a rdfs:Class ;
+  rdfs:label "Instrumentation Point" ;
+  rdfs:comment "A location in code where observability data is collected" .
+
+obs:InstrumentationType a rdfs:Class ;
+  rdfs:label "Instrumentation Type" .
+
+obs:AUTOMATIC a obs:InstrumentationType ;
+  rdfs:label "Automatic" ;
+  rdfs:comment "Instrumentation that happens automatically (middleware, agents)" .
+
+obs:MANUAL a obs:InstrumentationType ;
+  rdfs:label "Manual" ;
+  rdfs:comment "Instrumentation explicitly added to code" .
+
+obs:instrumentationType a rdf:Property ;
+  rdfs:domain obs:InstrumentationPoint ;
+  rdfs:range obs:InstrumentationType .
+
+# ============ Observability Signal Base Class ============
+
+obs:ObservabilitySignal a rdfs:Class ;
+  rdfs:label "Observability Signal" ;
+  rdfs:comment "Base class for all observability data (metrics, logs, spans)" .
+
+obs:timestamp a rdf:Property ;
+  rdfs:label "timestamp" ;
+  rdfs:domain obs:ObservabilitySignal ;
+  rdfs:range xsd:dateTime .
+
+obs:attributes a rdf:Property ;
+  rdfs:label "attributes" ;
+  rdfs:comment "Key-value pairs providing context" ;
+  rdfs:domain obs:ObservabilitySignal ;
+  rdfs:range rdf:Property .
+
+# ============ System Property Base Class ============
+
+obs:SystemProperty a rdfs:Class ;
+  rdfs:label "System Property" ;
+  rdfs:comment "Base class for properties that systems can have" .
+
+# ============ Query Examples ============
+# Find all counter metrics:
+# SELECT ?metric WHERE {
+#   ?metric a obs:Metric .
+#   ?metric obs:metricType obs:Counter .
+# }
+
+# Find all server-side spans:
+# SELECT ?span WHERE {
+#   ?span a obs:Span .
+#   ?span obs:spanKind obs:SERVER .
+# }
+
+# Find all SLOs with target achievement > 99.5%:
+# SELECT ?slo WHERE {
+#   ?slo a obs:ServiceLevelObjective .
+#   ?slo obs:targetAchievement ?target .
+#   FILTER (?target > 99.5) .
+# }
