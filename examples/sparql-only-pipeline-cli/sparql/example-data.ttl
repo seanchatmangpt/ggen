@@ -1,0 +1,196 @@
+@prefix data: <http://ggen.dev/ontology/data-orchestration#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# EXAMPLE DATA: Sample RDF facts for demonstration
+# ============================================================================
+# This file demonstrates how actual pipeline and task data would be
+# represented in the RDF graph. All queries in operations.sparql
+# operate on facts like these.
+# ============================================================================
+
+# ============================================================================
+# Pipeline 1: user-import
+# ============================================================================
+
+<http://ggen.dev/pipelines/550e8400-e29b-41d4-a716-446655440000> a data:Pipeline ;
+  data:pipelineId "pipe-001"@en ;
+  data:name "user-import"@en ;
+  data:status "SUCCESS"@en ;
+  data:source "s3://raw-data/users"@en ;
+  data:target "postgresql://warehouse/users"@en ;
+  data:createdAt "2025-11-10T08:00:00Z"^^xsd:dateTime ;
+  data:lastRunAt "2025-11-17T14:32:00Z"^^xsd:dateTime ;
+  data:healthScore 95 ;
+  data:successRate 98.0 ;
+  data:isRunning false ;
+  data:hasTasks <http://ggen.dev/pipelines/550e8400-e29b-41d4-a716-446655440000/tasks/1> ;
+  data:hasTasks <http://ggen.dev/pipelines/550e8400-e29b-41d4-a716-446655440000/tasks/2> ;
+  data:hasTasks <http://ggen.dev/pipelines/550e8400-e29b-41d4-a716-446655440000/tasks/3> ;
+  data:hasTasks <http://ggen.dev/pipelines/550e8400-e29b-41d4-a716-446655440000/tasks/4> .
+
+# Task 1: Extract
+<http://ggen.dev/pipelines/550e8400-e29b-41d4-a716-446655440000/tasks/1> a data:Task ;
+  data:taskId "task-001"@en ;
+  data:taskName "extract"@en ;
+  data:taskStatus "SUCCESS"@en ;
+  data:taskOrder 1 ;
+  data:executionDuration 1200 ;
+  data:lastExecutedAt "2025-11-17T14:32:01Z"^^xsd:dateTime ;
+  data:retryCount 0 .
+
+# Task 2: Transform
+<http://ggen.dev/pipelines/550e8400-e29b-41d4-a716-446655440000/tasks/2> a data:Task ;
+  data:taskId "task-002"@en ;
+  data:taskName "transform"@en ;
+  data:taskStatus "SUCCESS"@en ;
+  data:taskOrder 2 ;
+  data:executionDuration 2100 ;
+  data:lastExecutedAt "2025-11-17T14:32:03Z"^^xsd:dateTime ;
+  data:retryCount 0 .
+
+# Task 3: Validate
+<http://ggen.dev/pipelines/550e8400-e29b-41d4-a716-446655440000/tasks/3> a data:Task ;
+  data:taskId "task-003"@en ;
+  data:taskName "validate"@en ;
+  data:taskStatus "SUCCESS"@en ;
+  data:taskOrder 3 ;
+  data:executionDuration 900 ;
+  data:lastExecutedAt "2025-11-17T14:32:05Z"^^xsd:dateTime ;
+  data:retryCount 0 .
+
+# Task 4: Load
+<http://ggen.dev/pipelines/550e8400-e29b-41d4-a716-446655440000/tasks/4> a data:Task ;
+  data:taskId "task-004"@en ;
+  data:taskName "load"@en ;
+  data:taskStatus "SUCCESS"@en ;
+  data:taskOrder 4 ;
+  data:executionDuration 832 ;
+  data:lastExecutedAt "2025-11-17T14:32:07Z"^^xsd:dateTime ;
+  data:retryCount 0 .
+
+# ============================================================================
+# Pipeline 2: data-validation (currently running)
+# ============================================================================
+
+<http://ggen.dev/pipelines/550e8400-e29b-41d4-a716-446655440001> a data:Pipeline ;
+  data:pipelineId "pipe-002"@en ;
+  data:name "data-validation"@en ;
+  data:status "RUNNING"@en ;
+  data:source "s3://processed-data"@en ;
+  data:target "s3://validated-data"@en ;
+  data:createdAt "2025-11-12T10:00:00Z"^^xsd:dateTime ;
+  data:lastRunAt "2025-11-17T15:00:00Z"^^xsd:dateTime ;
+  data:healthScore 82 ;
+  data:successRate 92.0 ;
+  data:isRunning true ;
+  data:hasTasks <http://ggen.dev/pipelines/550e8400-e29b-41d4-a716-446655440001/tasks/1> ;
+  data:hasTasks <http://ggen.dev/pipelines/550e8400-e29b-41d4-a716-446655440001/tasks/2> .
+
+# Task 1: Schema Validation
+<http://ggen.dev/pipelines/550e8400-e29b-41d4-a716-446655440001/tasks/1> a data:Task ;
+  data:taskId "task-005"@en ;
+  data:taskName "schema-validation"@en ;
+  data:taskStatus "SUCCESS"@en ;
+  data:taskOrder 1 ;
+  data:executionDuration 3200 ;
+  data:lastExecutedAt "2025-11-17T15:00:01Z"^^xsd:dateTime ;
+  data:retryCount 0 .
+
+# Task 2: Data Quality Checks (currently running)
+<http://ggen.dev/pipelines/550e8400-e29b-41d4-a716-446655440001/tasks/2> a data:Task ;
+  data:taskId "task-006"@en ;
+  data:taskName "data-quality-checks"@en ;
+  data:taskStatus "RUNNING"@en ;
+  data:taskOrder 2 ;
+  data:executionDuration 0 ;
+  data:lastExecutedAt "2025-11-17T15:00:04Z"^^xsd:dateTime ;
+  data:retryCount 0 .
+
+# ============================================================================
+# Pipeline 3: report-generation (failed)
+# ============================================================================
+
+<http://ggen.dev/pipelines/550e8400-e29b-41d4-a716-446655440002> a data:Pipeline ;
+  data:pipelineId "pipe-003"@en ;
+  data:name "report-generation"@en ;
+  data:status "FAILED"@en ;
+  data:source "s3://analytics-data"@en ;
+  data:target "s3://reports"@en ;
+  data:createdAt "2025-11-14T12:00:00Z"^^xsd:dateTime ;
+  data:lastRunAt "2025-11-17T13:45:00Z"^^xsd:dateTime ;
+  data:healthScore 45 ;
+  data:successRate 62.0 ;
+  data:isRunning false ;
+  data:hasTasks <http://ggen.dev/pipelines/550e8400-e29b-41d4-a716-446655440002/tasks/1> ;
+  data:hasTasks <http://ggen.dev/pipelines/550e8400-e29b-41d4-a716-446655440002/tasks/2> ;
+  data:hasTasks <http://ggen.dev/pipelines/550e8400-e29b-41d4-a716-446655440002/tasks/3> .
+
+# Task 1: Aggregate (Success)
+<http://ggen.dev/pipelines/550e8400-e29b-41d4-a716-446655440002/tasks/1> a data:Task ;
+  data:taskId "task-007"@en ;
+  data:taskName "aggregate"@en ;
+  data:taskStatus "SUCCESS"@en ;
+  data:taskOrder 1 ;
+  data:executionDuration 4100 ;
+  data:lastExecutedAt "2025-11-17T13:45:01Z"^^xsd:dateTime ;
+  data:retryCount 0 .
+
+# Task 2: Generate Charts (Failed)
+<http://ggen.dev/pipelines/550e8400-e29b-41d4-a716-446655440002/tasks/2> a data:Task ;
+  data:taskId "task-008"@en ;
+  data:taskName "generate-charts"@en ;
+  data:taskStatus "FAILED"@en ;
+  data:taskOrder 2 ;
+  data:executionDuration 8900 ;
+  data:lastExecutedAt "2025-11-17T13:45:05Z"^^xsd:dateTime ;
+  data:retryCount 2 ;
+  data:lastRetryAt "2025-11-17T14:15:00Z"^^xsd:dateTime .
+
+# Task 3: Export PDF (Failed - dependent on task 2)
+<http://ggen.dev/pipelines/550e8400-e29b-41d4-a716-446655440002/tasks/3> a data:Task ;
+  data:taskId "task-009"@en ;
+  data:taskName "export-pdf"@en ;
+  data:taskStatus "FAILED"@en ;
+  data:taskOrder 3 ;
+  data:executionDuration 0 ;
+  data:lastExecutedAt "2025-11-17T13:45:14Z"^^xsd:dateTime ;
+  data:retryCount 1 .
+
+# ============================================================================
+# Execution Logs (Audit Trail)
+# ============================================================================
+
+<http://ggen.dev/pipelines/550e8400-e29b-41d4-a716-446655440000/log/550e8400-e29b-41d4-a716-446655440010> a data:ExecutionLog ;
+  data:pipelineId "pipe-001"@en ;
+  data:startTime "2025-11-17T14:32:00Z"^^xsd:dateTime ;
+  data:endTime "2025-11-17T14:32:05Z"^^xsd:dateTime ;
+  data:totalDuration 5032 ;
+  data:tasksCompleted 4 ;
+  data:tasksFailed 0 ;
+  data:executionMode "EXECUTION"@en .
+
+<http://ggen.dev/pipelines/550e8400-e29b-41d4-a716-446655440002/log/550e8400-e29b-41d4-a716-446655440011> a data:ExecutionLog ;
+  data:pipelineId "pipe-003"@en ;
+  data:startTime "2025-11-17T13:45:00Z"^^xsd:dateTime ;
+  data:endTime "2025-11-17T13:45:14Z"^^xsd:dateTime ;
+  data:totalDuration 14000 ;
+  data:tasksCompleted 1 ;
+  data:tasksFailed 2 ;
+  data:executionMode "EXECUTION"@en .
+
+# ============================================================================
+# Retry Attempts (State Machine History)
+# ============================================================================
+
+<http://ggen.dev/pipelines/550e8400-e29b-41d4-a716-446655440002/tasks/2/retry/1> a data:RetryAttempt ;
+  data:attemptNumber 1 ;
+  data:initiatedAt "2025-11-17T13:52:00Z"^^xsd:dateTime ;
+  data:reason "Previous execution failed; retrying"@en ;
+  data:maxAttempts 3 .
+
+<http://ggen.dev/pipelines/550e8400-e29b-41d4-a716-446655440002/tasks/2/retry/2> a data:RetryAttempt ;
+  data:attemptNumber 2 ;
+  data:initiatedAt "2025-11-17T14:15:00Z"^^xsd:dateTime ;
+  data:reason "Previous execution failed; retrying"@en ;
+  data:maxAttempts 3 .

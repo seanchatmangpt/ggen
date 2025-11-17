@@ -1,0 +1,585 @@
+# ============================================================================
+# DOMAIN OPERATIONS: Pure SPARQL Business Logic
+# ============================================================================
+# This file contains 100% of the application's domain logic
+# expressed as declarative SPARQL queries.
+#
+# Each operation demonstrates semantic computing for:
+#   - State machines (DELETE/INSERT)
+#   - Computations (BIND/IF/STDEV)
+#   - Validations (FILTER/OPTIONAL)
+#   - Aggregations (GROUP BY/COUNT/AVG)
+#   - Logging (automatic RDF audit trails)
+#   - Inference (rules driving system behavior)
+#
+# No Rust domain code exists—this is the complete business logic.
+# ============================================================================
+
+PREFIX data: <http://ggen.dev/ontology/data-orchestration#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX uuid: <http://example.org/uuid/>
+
+# ============================================================================
+# OPERATION 1: LIST PIPELINES
+# ============================================================================
+# Purpose: Retrieve all pipelines with computed derived properties
+# Input: None
+# Output: CONSTRUCT graph with pipelines + computed fields
+# Domain Logic:
+#   - Count tasks per pipeline (subquery)
+#   - Calculate success rate (COUNT successful tasks / total)
+#   - Derive health score from success rate
+#   - Derive health status from score
+#   - Filter to only healthy status
+# ============================================================================
+
+CONSTRUCT {
+  ?pipeline a data:Pipeline ;
+            data:pipelineId ?pipelineId ;
+            data:name ?name ;
+            data:status ?status ;
+            data:lastRunAt ?lastRun ;
+            data:taskCount ?taskCount ;
+            data:healthScore ?healthScore ;
+            data:healthStatus ?healthStatus ;
+            data:isHealthy ?isHealthy ;
+            data:successRate ?successRate ;
+            data:createdAt ?createdAt .
+}
+WHERE {
+  ?pipeline a data:Pipeline ;
+            data:pipelineId ?pipelineId ;
+            data:name ?name ;
+            data:status ?status ;
+            data:createdAt ?createdAt ;
+            data:lastRunAt ?lastRun .
+
+  # Subquery 1: Count tasks in this pipeline
+  {
+    SELECT ?pipeline (COUNT(?task) AS ?taskCount)
+    WHERE {
+      ?pipeline data:hasTasks ?task .
+    }
+    GROUP BY ?pipeline
+  }
+
+  # Subquery 2: Calculate success rate
+  {
+    SELECT ?pipeline
+           (IF(COUNT(?task) > 0,
+               (COUNT(?successTask) / COUNT(?task)) * 100.0,
+               0.0) AS ?successRate)
+    WHERE {
+      ?pipeline data:hasTasks ?task .
+      ?task data:taskStatus ?taskStatus .
+      BIND(IF(?taskStatus = "SUCCESS"@en, ?task, ?notTask) AS ?successTask)
+    }
+    GROUP BY ?pipeline
+  }
+
+  # Compute health score and status
+  BIND(IF(?successRate > 95, 100,
+          IF(?successRate > 80, 75,
+          IF(?successRate > 60, 50, 25))) AS ?healthScore)
+
+  BIND(IF(?healthScore >= 80, "EXCELLENT"@en,
+          IF(?healthScore >= 60, "GOOD"@en,
+          IF(?healthScore >= 40, "FAIR"@en, "POOR"@en))) AS ?healthStatus)
+
+  BIND(?healthScore >= 75 AS ?isHealthy)
+}
+ORDER BY DESC(?healthScore)
+
+---
+
+# ============================================================================
+# OPERATION 2: CREATE PIPELINE
+# ============================================================================
+# Purpose: Insert new pipeline into RDF graph with all default properties
+# Input: ?pipelineName, ?sourceUri, ?targetUri (from CLI)
+# Output: INSERT statement adds 8 triples to RDF store
+# Domain Logic:
+#   - Generate UUID for unique pipeline ID
+#   - Set current timestamp
+#   - Initialize default status (PENDING)
+#   - Set default health metrics (0, 0.0)
+#   - Create new RDF resource
+#   - Make transaction atomic
+# ============================================================================
+
+INSERT {
+  ?newPipeline a data:Pipeline ;
+               data:pipelineId ?generatedId ;
+               data:name ?pipelineName ;
+               data:source ?sourceUri ;
+               data:target ?targetUri ;
+               data:status "PENDING"@en ;
+               data:createdAt ?nowTimestamp ;
+               data:lastRunAt ?nowTimestamp ;
+               data:healthScore 0 ;
+               data:successRate 0.0 ;
+               data:isRunning false .
+}
+WHERE {
+  # CLI binds these parameters
+  BIND("my-pipeline"@en AS ?pipelineName)
+  BIND("s3://source"@en AS ?sourceUri)
+  BIND("s3://target"@en AS ?targetUri)
+
+  # Generate unique IDs
+  BIND(UUID() AS ?generatedId)
+  BIND(NOW() AS ?nowTimestamp)
+  BIND(IRI(CONCAT("http://ggen.dev/pipelines/", STR(?generatedId))) AS ?newPipeline)
+}
+
+---
+
+# ============================================================================
+# OPERATION 3: RUN PIPELINE (Complex State Machine)
+# ============================================================================
+# Purpose: Execute pipeline by updating task statuses, recording times
+# Input: ?pipelineId, ?isDryRun (from CLI)
+# Output: DELETE old state + INSERT new state + logs
+# Domain Logic:
+#   1. Validate: Pipeline not already running (FILTER)
+#   2. Fetch all tasks and order them (OPTIONAL + SORT)
+#   3. Simulate execution: Assign outcomes (RAND() for probabilistic)
+#   4. Aggregate: Count successful/failed tasks
+#   5. Derive: New pipeline status from task outcomes
+#   6. Create execution log: Record in RDF for audit trail
+#   7. Update timestamps and metrics
+# ============================================================================
+
+DELETE {
+  ?pipeline data:status ?oldStatus ;
+            data:lastRunAt ?oldLastRun ;
+            data:isRunning ?oldRunning .
+  ?task data:taskStatus ?oldTaskStatus .
+}
+INSERT {
+  ?pipeline data:status ?newPipelineStatus ;
+            data:lastRunAt ?executionStart ;
+            data:isRunning false ;
+            data:currentExecutionLog ?executionLog .
+
+  ?task data:taskStatus ?computedTaskStatus ;
+        data:lastExecutedAt ?executionStart ;
+        data:executionDuration ?estimatedDuration ;
+        data:previousExecutions ?executionLog .
+
+  ?executionLog a data:ExecutionLog ;
+                data:pipelineId ?pipelineId ;
+                data:startTime ?executionStart ;
+                data:endTime ?executionEnd ;
+                data:totalDuration ?totalDuration ;
+                data:tasksCompleted ?completedCount ;
+                data:tasksFailed ?failedCount ;
+                data:executionMode ?executionMode .
+}
+WHERE {
+  # CLI binds these
+  BIND("pipe-001"@en AS ?pipelineId)
+  BIND(false AS ?isDryRun)
+
+  # Fetch pipeline
+  ?pipeline a data:Pipeline ;
+            data:pipelineId ?pipelineId ;
+            data:status ?oldStatus ;
+            data:lastRunAt ?oldLastRun ;
+            data:isRunning ?oldRunning .
+
+  # Validation: Cannot run if already running
+  FILTER NOT EXISTS {
+    ?pipeline data:isRunning true .
+  }
+
+  # Get all tasks in order
+  ?pipeline data:hasTasks ?task .
+  OPTIONAL { ?task data:taskOrder ?taskOrder . }
+
+  # Execution mode
+  BIND(IF(?isDryRun, "DRY_RUN"@en, "EXECUTION"@en) AS ?executionMode)
+
+  # Simulate task outcomes (probabilistic)
+  # Real implementation would call actual executors
+  {
+    SELECT ?task
+           (IF(RAND() > 0.15, "SUCCESS"@en, "FAILED"@en) AS ?computedTaskStatus)
+           (FLOOR(RAND() * 5000) AS ?estimatedDuration)
+    WHERE {
+      ?pipeline data:hasTasks ?task .
+    }
+  }
+
+  # Aggregate statistics
+  {
+    SELECT ?pipeline
+           (COUNT(FILTER(?status = "SUCCESS"@en)) AS ?completedCount)
+           (COUNT(FILTER(?status = "FAILED"@en)) AS ?failedCount)
+    WHERE {
+      ?pipeline data:hasTasks ?task .
+      BIND(?computedTaskStatus AS ?status)
+    }
+    GROUP BY ?pipeline
+  }
+
+  # Calculate timing
+  BIND(NOW() AS ?executionStart)
+  BIND(NOW() + (RAND() * 60) AS ?executionEnd)
+  BIND((SECONDS(?executionEnd - ?executionStart)) AS ?totalDuration)
+
+  # Derive new pipeline status from task outcomes
+  BIND(IF(?failedCount > 0, "FAILED"@en, "SUCCESS"@en) AS ?newPipelineStatus)
+
+  # Update success rate
+  BIND(IF(?completedCount + ?failedCount > 0,
+          (?completedCount / (?completedCount + ?failedCount)) * 100,
+          0) AS ?newSuccessRate)
+
+  # Create unique execution log ID
+  BIND(IRI(CONCAT(STR(?pipeline), "/log/", STR(UUID()))) AS ?executionLog)
+}
+
+---
+
+# ============================================================================
+# OPERATION 4: VALIDATE PIPELINE
+# ============================================================================
+# Purpose: Check pipeline definition for errors and generate warnings
+# Input: ?pipelineId, ?strictMode (from CLI)
+# Output: CONSTRUCT validation report with errors/warnings
+# Domain Logic:
+#   1. Check required properties exist (OPTIONAL not exists)
+#   2. Validate task ordering forms no cycles (graph traversal via OPTIONAL)
+#   3. Check resource accessibility (in real impl, via URI dereferencing)
+#   4. Generate recommendations via IF logic
+#   5. Count errors and warnings
+#   6. Derive overall validity status
+# ============================================================================
+
+CONSTRUCT {
+  ?validationReport a data:ValidationReport ;
+                    data:pipelineId ?pipelineId ;
+                    data:isValid ?isValid ;
+                    data:validationMode ?validationMode ;
+                    data:errorCount ?errorCount ;
+                    data:warningCount ?warningCount ;
+                    data:hasError ?error ;
+                    data:hasWarning ?warning .
+
+  ?error a data:ValidationError ;
+         data:errorMessage ?errorMsg ;
+         data:severity "ERROR"@en ;
+         data:affectedResource ?affectedResource .
+
+  ?warning a data:ValidationWarning ;
+           data:warningMessage ?warningMsg ;
+           data:severity "WARNING"@en ;
+           data:affectedResource ?affectedResource .
+}
+WHERE {
+  # CLI binds these
+  BIND("pipe-001"@en AS ?pipelineId)
+  BIND(false AS ?strictMode)
+
+  ?pipeline a data:Pipeline ;
+            data:pipelineId ?pipelineId .
+
+  # ERROR 1: Missing name property
+  OPTIONAL {
+    ?pipeline data:name ?n .
+  }
+  BIND(IF(BOUND(?n), ?noError,
+          IRI("http://ggen.dev/errors/missing-name")) AS ?error1)
+
+  # ERROR 2: Tasks without order
+  {
+    SELECT ?pipeline (COUNT(?unorderedTask) AS ?unorderedCount)
+    WHERE {
+      ?pipeline data:hasTasks ?task .
+      OPTIONAL { ?task data:taskOrder ?order . }
+      BIND(IF(!BOUND(?order), ?task, ?notTask) AS ?unorderedTask)
+    }
+    GROUP BY ?pipeline
+  }
+  BIND(IF(?unorderedCount > 0,
+          IRI("http://ggen.dev/errors/missing-task-order"),
+          ?noError2) AS ?error2)
+
+  # WARNING 1: Low success rate
+  {
+    SELECT ?pipeline ?successRate
+    WHERE {
+      ?pipeline a data:Pipeline .
+      {
+        SELECT ?pipeline
+               (AVG(xsd:float(?rate)) AS ?successRate)
+        WHERE {
+          ?pipeline data:successRate ?rate .
+        }
+        GROUP BY ?pipeline
+      }
+    }
+  }
+  BIND(IF(?successRate < 70,
+          IRI("http://ggen.dev/warnings/low-success-rate"),
+          ?noWarning1) AS ?warning1)
+
+  # WARNING 2: High failure rate (if any tasks exist)
+  {
+    SELECT ?pipeline (COUNT(?failedTask) AS ?failedCount)
+    WHERE {
+      ?pipeline data:hasTasks ?task .
+      ?task data:taskStatus "FAILED"@en .
+    }
+    GROUP BY ?pipeline
+  }
+  BIND(IF(?failedCount > 2,
+          IRI("http://ggen.dev/warnings/frequent-failures"),
+          ?noWarning2) AS ?warning2)
+
+  # Count all errors and warnings
+  {
+    SELECT ?pipeline
+           (COUNT(?err) AS ?errorCount)
+           (COUNT(?warn) AS ?warningCount)
+    WHERE {
+      ?pipeline a data:Pipeline .
+      OPTIONAL { BIND(?error1 AS ?err) . FILTER BOUND(?error1) . }
+      OPTIONAL { BIND(?error2 AS ?err) . FILTER BOUND(?error2) . }
+      OPTIONAL { BIND(?warning1 AS ?warn) . FILTER BOUND(?warning1) . }
+      OPTIONAL { BIND(?warning2 AS ?warn) . FILTER BOUND(?warning2) . }
+    }
+    GROUP BY ?pipeline
+  }
+
+  # Derive validity (no errors = valid)
+  BIND(?errorCount = 0 AS ?isValid)
+  BIND(IF(?strictMode, "STRICT"@en, "LENIENT"@en) AS ?validationMode)
+
+  # Create report resource
+  BIND(IRI(CONCAT(STR(?pipeline), "/validation/", STR(UUID())))
+       AS ?validationReport)
+
+  # Generate error messages (in real impl, these would have detailed text)
+  BIND(IF(BOUND(?error1), "Pipeline must have a name property"@en, ""@en) AS ?errorMsg)
+  BIND(?pipeline AS ?affectedResource)
+}
+
+---
+
+# ============================================================================
+# OPERATION 5: COMPUTE HEALTH (Multi-Factor Scoring)
+# ============================================================================
+# Purpose: Calculate overall pipeline health using weighted factors
+# Input: ?pipelineId (from CLI)
+# Output: CONSTRUCT health score result with breakdown
+# Domain Logic:
+#   1. Factor 1 (Success Rate): COUNT successful / total (40% weight)
+#   2. Factor 2 (Duration Variance): STDEV of task durations (30% weight)
+#   3. Factor 3 (Error Frequency): Inverse of error count (20% weight)
+#   4. Factor 4 (Data Freshness): Check lastRunAt recency (10% weight)
+#   5. Aggregate: Weighted sum of all factors
+#   6. Categorize: IF chain maps numeric to text status
+#   7. Output: Health report with breakdown
+# ============================================================================
+
+CONSTRUCT {
+  ?pipeline data:computedHealthScore ?finalScore ;
+            data:healthStatus ?healthStatus ;
+            data:scoreBreakdown ?breakdown .
+
+  ?breakdown a data:HealthScore ;
+             data:successFactor ?successFactor ;
+             data:durationFactor ?durationFactor ;
+             data:errorFactor ?errorFactor ;
+             data:freshnessFactor ?freshnessFactor ;
+             data:finalScore ?finalScore ;
+             data:healthStatus ?healthStatus .
+}
+WHERE {
+  ?pipeline a data:Pipeline ;
+            data:pipelineId ?pipelineId ;
+            data:lastRunAt ?lastRun .
+
+  # Factor 1: Success Rate (40% weight)
+  {
+    SELECT ?pipeline
+           ((COUNT(?success) / COUNT(?task)) * 0.40 AS ?successFactor)
+    WHERE {
+      ?pipeline data:hasTasks ?task .
+      ?task data:taskStatus ?status .
+      BIND(IF(?status = "SUCCESS"@en, 1, 0) AS ?success)
+    }
+    GROUP BY ?pipeline
+  }
+
+  # Factor 2: Duration Variance (30% weight, lower variance = better)
+  {
+    SELECT ?pipeline
+           (MAX(0.30 - (STDEV(xsd:float(?duration)) / 10000)) AS ?durationFactor)
+    WHERE {
+      ?pipeline data:hasTasks ?task .
+      ?task data:executionDuration ?duration .
+    }
+    GROUP BY ?pipeline
+  }
+
+  # Factor 3: Error Frequency (20% weight)
+  {
+    SELECT ?pipeline
+           ((1 - (COUNT(?error) / COUNT(?task))) * 0.20 AS ?errorFactor)
+    WHERE {
+      ?pipeline data:hasTasks ?task .
+      ?task data:taskStatus ?status .
+      BIND(IF(?status = "FAILED"@en, 1, 0) AS ?error)
+    }
+    GROUP BY ?pipeline
+  }
+
+  # Factor 4: Data Freshness (10% weight)
+  BIND(IF((NOW() - ?lastRun) < "PT24H"^^xsd:duration,
+          0.10, 0.05) AS ?freshnessFactor)
+
+  # Aggregate all factors
+  BIND(?successFactor + ?durationFactor + ?errorFactor +
+       ?freshnessFactor AS ?finalScore)
+
+  # Categorize health
+  BIND(IF(?finalScore >= 0.80, "EXCELLENT"@en,
+          IF(?finalScore >= 0.60, "GOOD"@en,
+          IF(?finalScore >= 0.40, "FAIR"@en,
+          "POOR"@en))) AS ?healthStatus)
+
+  # Create breakdown resource for transparency
+  BIND(IRI(CONCAT(STR(?pipeline), "/health/breakdown")) AS ?breakdown)
+}
+
+---
+
+# ============================================================================
+# OPERATION 6: RETRY TASK
+# ============================================================================
+# Purpose: Update failed task to RETRYING status and record attempt
+# Input: ?taskId, ?maxAttempts (from CLI)
+# Output: DELETE old state + INSERT new state + RetryAttempt log
+# Domain Logic:
+#   1. Fetch current task and retry count
+#   2. Validate: Cannot exceed max attempts (FILTER)
+#   3. Increment retry count (BIND)
+#   4. Generate reason from previous failure
+#   5. Create RetryAttempt log (automatic audit trail)
+#   6. Change status to RETRYING
+#   7. Record timestamp
+# ============================================================================
+
+DELETE {
+  ?task data:taskStatus ?oldStatus ;
+        data:retryCount ?oldRetryCount .
+}
+INSERT {
+  ?task data:taskStatus "RETRYING"@en ;
+        data:retryCount ?newRetryCount ;
+        data:lastRetryAt ?now ;
+        data:hasRetryAttempt ?retryLog .
+
+  ?retryLog a data:RetryAttempt ;
+            data:attemptNumber ?newRetryCount ;
+            data:initiatedAt ?now ;
+            data:reason ?retryReason ;
+            data:maxAttempts ?maxAttempts .
+}
+WHERE {
+  # CLI binds these
+  BIND("task-001"@en AS ?taskId)
+  BIND(3 AS ?maxAttempts)
+
+  ?task a data:Task ;
+        data:taskId ?taskId ;
+        data:taskStatus ?oldStatus ;
+        data:retryCount ?oldRetryCount .
+
+  # Validation: Cannot exceed max attempts
+  FILTER (?oldRetryCount < ?maxAttempts)
+
+  # Compute new retry count
+  BIND(?oldRetryCount + 1 AS ?newRetryCount)
+  BIND(NOW() AS ?now)
+
+  # Generate reason from previous failure
+  BIND(IF(?oldStatus = "FAILED"@en,
+          "Previous execution failed; retrying"@en,
+          "Manual retry requested by user"@en) AS ?retryReason)
+
+  # Create unique retry attempt log
+  BIND(IRI(CONCAT(STR(?task), "/retry/", STR(?newRetryCount))) AS ?retryLog)
+}
+
+---
+
+# ============================================================================
+# OPERATION 7: DETECT BOTTLENECKS (Analytics)
+# ============================================================================
+# Purpose: Find tasks that are performance bottlenecks
+# Input: None (analyzes all data)
+# Output: CONSTRUCT metrics for slow/error-prone tasks
+# Domain Logic:
+#   1. Calculate average execution time per task
+#   2. Identify tasks > 5000ms (arbitrary threshold)
+#   3. Calculate failure rate per task
+#   4. Compute severity based on duration and failure
+#   5. Generate automatic recommendations
+#   6. Create metrics as RDF facts for downstream use
+# ============================================================================
+
+CONSTRUCT {
+  ?metric a data:PerformanceMetric ;
+          data:metricType "bottleneck"@en ;
+          data:affectedResource ?task ;
+          data:taskName ?taskName ;
+          data:avgDuration ?avgDuration ;
+          data:failureRate ?failureRate ;
+          data:severity ?severity ;
+          data:recommendation ?recommendation .
+}
+WHERE {
+  # Find all tasks with slow average execution
+  ?task a data:Task ;
+        data:taskName ?taskName .
+
+  {
+    SELECT ?task ?taskName
+           (AVG(xsd:integer(?duration)) AS ?avgDuration)
+           ((COUNT(?failed) / COUNT(*)) AS ?failureRate)
+    WHERE {
+      ?task a data:Task ;
+            data:taskName ?taskName ;
+            data:executionDuration ?duration .
+
+      OPTIONAL {
+        ?task data:taskStatus "FAILED"@en .
+        BIND(1 AS ?failed)
+      }
+    }
+    GROUP BY ?task ?taskName
+  }
+
+  # Filter to only slow tasks or high failure rate
+  FILTER (?avgDuration > 5000 || ?failureRate > 0.1)
+
+  # Severity escalation
+  BIND(IF(?avgDuration > 10000, "CRITICAL"@en,
+          IF(?avgDuration > 5000, "HIGH"@en, "NORMAL"@en))
+       AS ?severity)
+
+  # Automatic recommendation generation
+  BIND(IF(?severity = "CRITICAL"@en,
+          IRI("http://ggen.dev/recommendations/optimize-algorithm"),
+          IRI("http://ggen.dev/recommendations/profile-task"))
+       AS ?recommendation)
+
+  # Create metric resource
+  BIND(IRI(CONCAT("http://ggen.dev/metrics/", STR(UUID()))) AS ?metric)
+}

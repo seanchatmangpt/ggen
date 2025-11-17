@@ -1,0 +1,394 @@
+@prefix data: <http://ggen.dev/ontology/data-orchestration#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# ============================================================================
+# ONTOLOGY: Data Orchestration
+# ============================================================================
+# Purpose: Semantic model for ETL pipeline management
+# Demonstrates: RDF schema for domain modeling
+# ============================================================================
+
+# ============================================================================
+# CLASSES
+# ============================================================================
+
+data:Pipeline a rdfs:Class ;
+  rdfs:label "Pipeline"@en ;
+  rdfs:comment "An ETL pipeline that orchestrates data tasks"@en ;
+  rdfs:isDefinedBy data: .
+
+data:Task a rdfs:Class ;
+  rdfs:label "Task"@en ;
+  rdfs:comment "An executable unit of work within a pipeline"@en ;
+  rdfs:isDefinedBy data: .
+
+data:ExecutionLog a rdfs:Class ;
+  rdfs:label "Execution Log"@en ;
+  rdfs:comment "Record of a pipeline or task execution"@en ;
+  rdfs:isDefinedBy data: .
+
+data:RetryAttempt a rdfs:Class ;
+  rdfs:label "Retry Attempt"@en ;
+  rdfs:comment "Record of a retry for a failed task"@en ;
+  rdfs:isDefinedBy data: .
+
+data:ValidationReport a rdfs:Class ;
+  rdfs:label "Validation Report"@en ;
+  rdfs:comment "Results of validating a pipeline definition"@en ;
+  rdfs:isDefinedBy data: .
+
+data:ValidationError a rdfs:Class ;
+  rdfs:label "Validation Error"@en ;
+  rdfs:comment "An error found during validation"@en ;
+  rdfs:isDefinedBy data: .
+
+data:ValidationWarning a rdfs:Class ;
+  rdfs:label "Validation Warning"@en ;
+  rdfs:comment "A warning found during validation"@en ;
+  rdfs:isDefinedBy data: .
+
+data:PerformanceMetric a rdfs:Class ;
+  rdfs:label "Performance Metric"@en ;
+  rdfs:comment "Computed performance metric for analysis"@en ;
+  rdfs:isDefinedBy data: .
+
+data:HealthScore a rdfs:Class ;
+  rdfs:label "Health Score"@en ;
+  rdfs:comment "Multi-factor health calculation result"@en ;
+  rdfs:isDefinedBy data: .
+
+# ============================================================================
+# PROPERTIES: Pipeline Properties
+# ============================================================================
+
+data:pipelineId a rdf:Property ;
+  rdfs:label "Pipeline ID"@en ;
+  rdfs:domain data:Pipeline ;
+  rdfs:range xsd:string .
+
+data:name a rdf:Property ;
+  rdfs:label "Name"@en ;
+  rdfs:domain data:Pipeline ;
+  rdfs:range xsd:string .
+
+data:status a rdf:Property ;
+  rdfs:label "Status"@en ;
+  rdfs:domain data:Pipeline ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Pipeline status: PENDING, RUNNING, SUCCESS, FAILED"@en .
+
+data:createdAt a rdf:Property ;
+  rdfs:label "Created At"@en ;
+  rdfs:domain data:Pipeline ;
+  rdfs:range xsd:dateTime .
+
+data:lastRunAt a rdf:Property ;
+  rdfs:label "Last Run At"@en ;
+  rdfs:domain data:Pipeline ;
+  rdfs:range xsd:dateTime .
+
+data:source a rdf:Property ;
+  rdfs:label "Source"@en ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Source URI for data extraction"@en .
+
+data:target a rdf:Property ;
+  rdfs:label "Target"@en ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Target URI for data loading"@en .
+
+data:hasTasks a rdf:Property ;
+  rdfs:label "Has Tasks"@en ;
+  rdfs:domain data:Pipeline ;
+  rdfs:range data:Task .
+
+data:isRunning a rdf:Property ;
+  rdfs:label "Is Running"@en ;
+  rdfs:domain data:Pipeline ;
+  rdfs:range xsd:boolean .
+
+data:currentExecutionLog a rdf:Property ;
+  rdfs:label "Current Execution Log"@en ;
+  rdfs:domain data:Pipeline ;
+  rdfs:range data:ExecutionLog .
+
+# ============================================================================
+# PROPERTIES: Task Properties
+# ============================================================================
+
+data:taskId a rdf:Property ;
+  rdfs:label "Task ID"@en ;
+  rdfs:domain data:Task ;
+  rdfs:range xsd:string .
+
+data:taskName a rdf:Property ;
+  rdfs:label "Task Name"@en ;
+  rdfs:domain data:Task ;
+  rdfs:range xsd:string .
+
+data:taskStatus a rdf:Property ;
+  rdfs:label "Task Status"@en ;
+  rdfs:domain data:Task ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Task status: PENDING, RUNNING, SUCCESS, FAILED, RETRYING"@en .
+
+data:taskOrder a rdf:Property ;
+  rdfs:label "Task Order"@en ;
+  rdfs:domain data:Task ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Execution sequence number for task ordering"@en .
+
+data:executionDuration a rdf:Property ;
+  rdfs:label "Execution Duration"@en ;
+  rdfs:domain data:Task ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Duration in milliseconds"@en .
+
+data:lastExecutedAt a rdf:Property ;
+  rdfs:label "Last Executed At"@en ;
+  rdfs:domain data:Task ;
+  rdfs:range xsd:dateTime .
+
+data:retryCount a rdf:Property ;
+  rdfs:label "Retry Count"@en ;
+  rdfs:domain data:Task ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Number of times this task has been retried"@en .
+
+data:lastRetryAt a rdf:Property ;
+  rdfs:label "Last Retry At"@en ;
+  rdfs:domain data:Task ;
+  rdfs:range xsd:dateTime .
+
+data:hasRetryAttempt a rdf:Property ;
+  rdfs:label "Has Retry Attempt"@en ;
+  rdfs:domain data:Task ;
+  rdfs:range data:RetryAttempt .
+
+data:previousExecutions a rdf:Property ;
+  rdfs:label "Previous Executions"@en ;
+  rdfs:domain data:Task ;
+  rdfs:range data:ExecutionLog .
+
+# ============================================================================
+# PROPERTIES: Computed Properties
+# ============================================================================
+
+data:taskCount a rdf:Property ;
+  rdfs:label "Task Count"@en ;
+  rdfs:domain data:Pipeline ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Computed: Total number of tasks in pipeline"@en .
+
+data:healthScore a rdf:Property ;
+  rdfs:label "Health Score"@en ;
+  rdfs:domain data:Pipeline ;
+  rdfs:range xsd:float ;
+  rdfs:comment "Computed: 0-100 health metric (computed from multi-factor formula)"@en .
+
+data:computedHealthScore a rdf:Property ;
+  rdfs:label "Computed Health Score"@en ;
+  rdfs:domain data:Pipeline ;
+  rdfs:range xsd:float .
+
+data:healthStatus a rdf:Property ;
+  rdfs:label "Health Status"@en ;
+  rdfs:domain data:Pipeline ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Derived status: EXCELLENT, GOOD, FAIR, POOR"@en .
+
+data:isHealthy a rdf:Property ;
+  rdfs:label "Is Healthy"@en ;
+  rdfs:domain data:Pipeline ;
+  rdfs:range xsd:boolean ;
+  rdfs:comment "Computed: True if health score > 75"@en .
+
+data:successRate a rdf:Property ;
+  rdfs:label "Success Rate"@en ;
+  rdfs:domain data:Pipeline ;
+  rdfs:range xsd:float ;
+  rdfs:comment "Computed: Percentage of successful task executions (0-100)"@en .
+
+# ============================================================================
+# PROPERTIES: Execution Log Properties
+# ============================================================================
+
+data:startTime a rdf:Property ;
+  rdfs:label "Start Time"@en ;
+  rdfs:domain data:ExecutionLog ;
+  rdfs:range xsd:dateTime .
+
+data:endTime a rdf:Property ;
+  rdfs:label "End Time"@en ;
+  rdfs:domain data:ExecutionLog ;
+  rdfs:range xsd:dateTime .
+
+data:totalDuration a rdf:Property ;
+  rdfs:label "Total Duration"@en ;
+  rdfs:domain data:ExecutionLog ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Duration in milliseconds"@en .
+
+data:tasksCompleted a rdf:Property ;
+  rdfs:label "Tasks Completed"@en ;
+  rdfs:domain data:ExecutionLog ;
+  rdfs:range xsd:integer .
+
+data:tasksFailed a rdf:Property ;
+  rdfs:label "Tasks Failed"@en ;
+  rdfs:domain data:ExecutionLog ;
+  rdfs:range xsd:integer .
+
+data:executionMode a rdf:Property ;
+  rdfs:label "Execution Mode"@en ;
+  rdfs:domain data:ExecutionLog ;
+  rdfs:range xsd:string ;
+  rdfs:comment "EXECUTION or DRY_RUN"@en .
+
+# ============================================================================
+# PROPERTIES: Retry Attempt Properties
+# ============================================================================
+
+data:attemptNumber a rdf:Property ;
+  rdfs:label "Attempt Number"@en ;
+  rdfs:domain data:RetryAttempt ;
+  rdfs:range xsd:integer .
+
+data:initiatedAt a rdf:Property ;
+  rdfs:label "Initiated At"@en ;
+  rdfs:domain data:RetryAttempt ;
+  rdfs:range xsd:dateTime .
+
+data:reason a rdf:Property ;
+  rdfs:label "Reason"@en ;
+  rdfs:domain data:RetryAttempt ;
+  rdfs:range xsd:string ;
+  rdfs:comment "Why the retry was initiated"@en .
+
+data:maxAttempts a rdf:Property ;
+  rdfs:label "Max Attempts"@en ;
+  rdfs:domain data:RetryAttempt ;
+  rdfs:range xsd:integer .
+
+# ============================================================================
+# PROPERTIES: Validation Report Properties
+# ============================================================================
+
+data:isValid a rdf:Property ;
+  rdfs:label "Is Valid"@en ;
+  rdfs:domain data:ValidationReport ;
+  rdfs:range xsd:boolean .
+
+data:validationMode a rdf:Property ;
+  rdfs:label "Validation Mode"@en ;
+  rdfs:domain data:ValidationReport ;
+  rdfs:range xsd:string ;
+  rdfs:comment "STRICT or LENIENT"@en .
+
+data:errorCount a rdf:Property ;
+  rdfs:label "Error Count"@en ;
+  rdfs:domain data:ValidationReport ;
+  rdfs:range xsd:integer .
+
+data:warningCount a rdf:Property ;
+  rdfs:label "Warning Count"@en ;
+  rdfs:domain data:ValidationReport ;
+  rdfs:range xsd:integer .
+
+data:hasError a rdf:Property ;
+  rdfs:label "Has Error"@en ;
+  rdfs:domain data:ValidationReport ;
+  rdfs:range data:ValidationError .
+
+data:hasWarning a rdf:Property ;
+  rdfs:label "Has Warning"@en ;
+  rdfs:domain data:ValidationReport ;
+  rdfs:range data:ValidationWarning .
+
+# ============================================================================
+# PROPERTIES: Validation Error/Warning Properties
+# ============================================================================
+
+data:errorMessage a rdf:Property ;
+  rdfs:label "Error Message"@en ;
+  rdfs:domain data:ValidationError ;
+  rdfs:range xsd:string .
+
+data:warningMessage a rdf:Property ;
+  rdfs:label "Warning Message"@en ;
+  rdfs:domain data:ValidationWarning ;
+  rdfs:range xsd:string .
+
+data:severity a rdf:Property ;
+  rdfs:label "Severity"@en ;
+  rdfs:range xsd:string ;
+  rdfs:comment "ERROR or WARNING"@en .
+
+data:affectedResource a rdf:Property ;
+  rdfs:label "Affected Resource"@en ;
+  rdfs:range rdf:Resource ;
+  rdfs:comment "The resource that has the error or warning"@en .
+
+# ============================================================================
+# PROPERTIES: Performance Metric Properties
+# ============================================================================
+
+data:metricType a rdf:Property ;
+  rdfs:label "Metric Type"@en ;
+  rdfs:domain data:PerformanceMetric ;
+  rdfs:range xsd:string ;
+  rdfs:comment "bottleneck, anomaly, trend"@en .
+
+data:recommendation a rdf:Property ;
+  rdfs:label "Recommendation"@en ;
+  rdfs:domain data:PerformanceMetric ;
+  rdfs:range rdf:Resource .
+
+data:failureRate a rdf:Property ;
+  rdfs:label "Failure Rate"@en ;
+  rdfs:range xsd:float ;
+  rdfs:comment "Proportion of failed executions (0.0-1.0)"@en .
+
+data:avgDuration a rdf:Property ;
+  rdfs:label "Average Duration"@en ;
+  rdfs:range xsd:integer ;
+  rdfs:comment "Average execution time in milliseconds"@en .
+
+data:minDuration a rdf:Property ;
+  rdfs:label "Minimum Duration"@en ;
+  rdfs:range xsd:integer .
+
+data:maxDuration a rdf:Property ;
+  rdfs:label "Maximum Duration"@en ;
+  rdfs:range xsd:integer .
+
+# ============================================================================
+# CONSTRAINTS & INFERENCE RULES (Documented as comments)
+# ============================================================================
+
+# Rule 1: Pipeline cannot be running and have no tasks
+# IF: ?pipeline data:isRunning true .
+# THEN: ?pipeline data:hasTasks ?task . (at least one task must exist)
+
+# Rule 2: Task status determines pipeline status
+# IF: ?pipeline data:hasTasks ?task .
+#     ?task data:taskStatus "FAILED"@en .
+# THEN: ?pipeline data:status "FAILED"@en .
+
+# Rule 3: Health score derives health status
+# IF: ?pipeline data:healthScore ?score .
+#     ?score >= 80 .
+# THEN: ?pipeline data:healthStatus "EXCELLENT"@en .
+
+# Rule 4: Execution log created on each pipeline run
+# IF: ?pipeline data:lastRunAt ?time . (updated)
+# THEN: ?executionLog data:startTime ?time . (automatic creation)
+
+# Rule 5: Retry count cannot exceed max attempts
+# IF: ?task data:retryCount ?count .
+#     ?task data:hasRetryAttempt ?attempt .
+#     ?attempt data:maxAttempts ?max .
+# THEN: ?count <= ?max . (enforced via SPARQL FILTER)
