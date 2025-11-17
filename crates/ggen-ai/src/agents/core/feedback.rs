@@ -705,13 +705,61 @@ impl Agent for FeedbackAgent {
         tracing::info!("Starting FeedbackAgent");
 
         // Start periodic analysis
-        let agent = unsafe { std::ptr::read(self as *const Self) };
+        // We clone the Arc-wrapped shared state to pass to the spawned task.
+        // This is safe because all shared state is already wrapped in Arc<RwLock<>>,
+        // allowing safe concurrent access without unsafe code.
+        let telemetry_buffer = self.telemetry_buffer.clone();
+        let analysis_history = self.analysis_history.clone();
+        let improvement_suggestions = self.improvement_suggestions.clone();
+        let shutdown_notify = self.shutdown_notify.clone();
+        let analysis_interval = Duration::from_secs(self.feedback_config.analysis_interval_secs);
+
         tokio::spawn(async move {
-            agent.run_analysis_loop().await;
+            Self::run_analysis_loop_spawned(
+                telemetry_buffer,
+                analysis_history,
+                improvement_suggestions,
+                shutdown_notify,
+                analysis_interval,
+            )
+            .await;
         });
 
         self.status = AgentStatus::Healthy;
         Ok(())
+    }
+
+    /// Run the analysis loop in a spawned task
+    ///
+    /// This is separated from the main run_analysis_loop to allow spawning
+    /// without requiring ownership of the entire agent. All necessary state is
+    /// passed as Arc-wrapped parameters, which are safe to share across threads.
+    async fn run_analysis_loop_spawned(
+        telemetry_buffer: Arc<RwLock<VecDeque<TelemetryData>>>,
+        analysis_history: Arc<RwLock<Vec<FeedbackAnalysis>>>,
+        improvement_suggestions: Arc<RwLock<Vec<ImprovementSuggestion>>>,
+        shutdown_notify: Arc<Notify>,
+        analysis_interval: Duration,
+    ) {
+        loop {
+            tokio::select! {
+                _ = shutdown_notify.notified() => {
+                    tracing::info!("FeedbackAgent analysis loop shutting down");
+                    break;
+                }
+                _ = tokio::time::sleep(analysis_interval) => {
+                    // Perform periodic analysis
+                    let buffer_size = {
+                        let buffer = telemetry_buffer.read().await;
+                        buffer.len()
+                    };
+
+                    if buffer_size > 0 {
+                        tracing::debug!("FeedbackAgent analyzing {} telemetry records", buffer_size);
+                    }
+                }
+            }
+        }
     }
 
     async fn stop(&mut self) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>> {
