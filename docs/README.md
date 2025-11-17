@@ -38,6 +38,122 @@ Welcome to the ggen documentation! This documentation follows the [Diataxis fram
 
 **Note**: This directory uses `_CURRENT` suffix for active documentation files. Older versions are removed to prevent waste (see [MUDA_INVENTORY.md](wip/MUDA_INVENTORY.md)). Work-in-progress and intermediate documentation is stored in the [`wip/`](wip/) directory.
 
+## 🗺️ Choose Your Learning Path
+
+Not sure where to start? Answer these questions to find the right documentation path for you:
+
+### Question 1: Are you familiar with RDF/Semantic Web?
+
+<details>
+<summary><b>Yes, I know RDF</b> → Go to Path A (RDF-First Path)</summary>
+
+You can jump straight to domain modeling:
+- **[Ontology-to-Code Tutorial](tutorials/ontology-to-code.md)** - Master the complete workflow
+- **[RDF/SPARQL Reference](reference/rdf-sparql.md)** - Complete RDF documentation
+- **[Getting Started](tutorials/getting-started.md)** - Installation and first generation
+</details>
+
+<details>
+<summary><b>No, new to RDF</b> → Start with RDF Primer</summary>
+
+Learn RDF fundamentals first:
+1. **[RDF for Beginners](explanations/rdf-for-beginners.md)** - Understand RDF concepts (no background needed)
+2. Then follow **Path A: RDF-First Path** above
+
+This takes 15 minutes and makes everything else click into place.
+</details>
+
+### Question 2: Do you want to use AI to generate ontologies?
+
+<details>
+<summary><b>Yes, use AI</b> → Configure LLM First</summary>
+
+You'll need to set up a language model:
+1. **[Configure LLM Guide](how-to-guides/configure-llm.md)** - Set up OpenAI, Anthropic, or local Ollama
+2. Then: **[AI-Powered Generation Tutorial](tutorials/ai-powered-generation.md)**
+3. **[LLM Reference](reference/configuration.md)** - All configuration options
+
+Choose your path:
+- **Free/Local**: Use Ollama (qwen3-coder:30b recommended)
+- **Production**: Use OpenAI (GPT-4o recommended) or Anthropic (Claude)
+</details>
+
+<details>
+<summary><b>No, manual RDF</b> → Skip to Marketplace</summary>
+
+You'll write RDF manually or use existing templates:
+- **[Marketplace Quick-Start](tutorials/marketplace-quick-start.md)** - Find and use templates
+- **[Getting Started Tutorial](tutorials/getting-started.md)** - Learn the workflow
+</details>
+
+### Question 3: What's your primary use case?
+
+<details>
+<summary><b>Build REST/GraphQL APIs</b></summary>
+
+Backend developer path:
+1. **[REST API Quick-Start](tutorials/rest-api-quickstart.md)** - Generate APIs in 10 minutes
+2. **[Marketplace Quick-Start](tutorials/marketplace-quick-start.md)** - Use REST API templates
+3. **[How to Deploy](how-to-guides/deploy-production.md)** - Deploy to production
+4. **[CI/CD Workflows](how-to-guides/cicd-workflows.md)** - Automate deployment
+</details>
+
+<details>
+<summary><b>Generate Data Models (Python/TypeScript)</b></summary>
+
+Data engineer path:
+1. Configure LLM (see Question 2 above)
+2. **[RDF for Beginners](explanations/rdf-for-beginners.md)** - Understand domain modeling
+3. **[Ontology-to-Code Tutorial](tutorials/ontology-to-code.md)** - Full workflow
+4. **[Type Mapping Reference](reference/type-mapping.md)** - Language-specific types
+</details>
+
+<details>
+<summary><b>Build Reusable Templates for My Team</b></summary>
+
+Platform team path:
+1. **[Marketplace Quick-Start](tutorials/marketplace-quick-start.md)** - Understand templates
+2. **[Create Templates Guide](how-to-guides/create-templates.md)** - Build custom templates
+3. **[Marketplace Metadata Reference](reference/marketplace-metadata.md)** - Publishing spec
+4. **[Marketplace Ecosystem Explanation](explanations/marketplace.md)** - Why this works
+</details>
+
+<details>
+<summary><b>Automate with Git Hooks / CI-CD</b></summary>
+
+DevOps path:
+1. **[Installation Guide](how-to-guides/installation.md)** - Install ggen
+2. **[Configure Hooks Guide](how-to-guides/configure-hooks.md)** - Set up pre-commit hooks
+3. **[CI/CD Workflows Guide](how-to-guides/cicd-workflows.md)** - GitHub Actions integration
+4. **[Deployment Guide](how-to-guides/deploy-production.md)** - Production deployment
+</details>
+
+### Recommended Learning Paths
+
+**Path A: RDF-First (Fundamental Understanding)**
+- Time: 1-2 hours
+- Prerequisites: Basic programming
+- Outcome: Understand how to model domains, generate code
+- Flow: RDF Primer → Getting Started → Ontology-to-Code
+
+**Path B: AI-Powered (Fastest to Code)**
+- Time: 30 minutes
+- Prerequisites: LLM API key (optional - Ollama is free)
+- Outcome: Generate ontologies from English, get working code
+- Flow: Configure LLM → AI-Powered Generation → Marketplace Templates
+
+**Path C: Marketplace-First (Template-Driven)**
+- Time: 15 minutes
+- Prerequisites: None
+- Outcome: Use pre-built templates, generate customized code
+- Flow: Marketplace Quick-Start → REST API Quick-Start → Deploy
+
+**Path D: Deep Dive (Complete Understanding)**
+- Time: 4+ hours
+- Prerequisites: Curiosity
+- Outcome: Understand architecture, design patterns, advanced features
+- Flow: Getting Started → Architecture → All explanations → Advanced guides
+
 ## Documentation Structure
 
 ### 📚 Tutorials (Learning-Oriented)
