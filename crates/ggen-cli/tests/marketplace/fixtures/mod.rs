@@ -4,6 +4,9 @@
 
 use ggen_marketplace::prelude::*;
 
+// V2 test fixtures
+pub mod package_fixtures;
+
 /// Create a test package with known maturity scores
 pub fn create_experimental_package() -> MaturityAssessment {
     MaturityAssessment::new("test.experimental", "Experimental Package")

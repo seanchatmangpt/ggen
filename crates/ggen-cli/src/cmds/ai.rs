@@ -150,7 +150,7 @@ fn generate(
             finish_reason: response.finish_reason,
         })
     })
-    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e))
+    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
 }
 
 /// Interactive AI chat session
@@ -377,7 +377,7 @@ fn chat(
             tokens_used: total_tokens,
         })
     })
-    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e))
+    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
 }
 
 /// Analyze code with AI insights
@@ -505,7 +505,7 @@ fn analyze(
             tokens_used: response.usage.map(|u| u.total_tokens as usize),
         })
     })
-    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e))
+    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
 }
 
 // ============================================================================

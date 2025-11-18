@@ -53,7 +53,7 @@ pub enum ActionType {
 }
 
 /// Idempotence mode of an action
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum IdempotenceMode {
     /// μ ∘ μ = μ (safe to apply multiple times)
     Idempotent,

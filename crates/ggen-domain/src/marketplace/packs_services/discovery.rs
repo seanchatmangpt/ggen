@@ -324,7 +324,7 @@ mod tests {
 
     #[test]
     fn test_discovery_filter_name_pattern() {
-        let filter = DiscoveryFilter::new().with_name_pattern("database");
+        let filter = DiscoveryFilter::new().with_name_pattern("database".to_string());
 
         let mut pkg = create_test_package("db", 80, true);
         pkg.name = "Database ORM".to_string();
@@ -336,7 +336,7 @@ mod tests {
     fn test_sort_by_name() {
         let service = PackageDiscoveryService::new();
 
-        let mut packages = vec![
+        let packages = vec![
             create_test_package("zebra", 80, true),
             create_test_package("apple", 85, true),
             create_test_package("mango", 90, true),

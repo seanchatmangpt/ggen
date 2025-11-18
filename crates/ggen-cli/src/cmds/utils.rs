@@ -58,13 +58,15 @@ fn doctor(all: bool, _fix: bool, format: Option<String>) -> Result<DoctorOutput>
         env: format == "env",
     };
 
-    let result =
-        crate::runtime::block_on(async move { execute_doctor(input).await }).map_err(|e| {
-            clap_noun_verb::NounVerbError::execution_error(format!(
-                "System diagnostics failed: {}",
-                e
-            ))
-        })?;
+    let result = crate::runtime::block_on(async move {
+        Ok(execute_doctor(input).await.map_err(|e| {
+            ggen_utils::error::Error::new(&format!("System diagnostics failed: {}", e))
+        })?)
+    })
+    .map_err(|e: ggen_utils::Error| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
+    .map_err(|e: ggen_utils::Error| {
+        clap_noun_verb::NounVerbError::execution_error(e.to_string())
+    })?;
 
     let results = result
         .checks
@@ -102,22 +104,31 @@ fn env(list: bool, get: Option<String>, set: Option<String>, _system: bool) -> R
 
     let variables = if list || (get.is_none() && set.is_none()) {
         // List all GGEN_ variables
-        crate::runtime::block_on(async move { execute_env_list().await }).map_err(|e| {
-            clap_noun_verb::NounVerbError::execution_error(format!(
-                "Failed to list environment: {}",
-                e
-            ))
+        crate::runtime::block_on(async move {
+            Ok(execute_env_list().await.map_err(|e| {
+                ggen_utils::error::Error::new(&format!("Failed to list environment: {}", e))
+            })?)
+        })
+        .map_err(|e: ggen_utils::Error| {
+            clap_noun_verb::NounVerbError::execution_error(e.to_string())
+        })?
+        .map_err(|e: ggen_utils::Error| {
+            clap_noun_verb::NounVerbError::execution_error(e.to_string())
         })?
     } else if let Some(key) = get {
         // Get specific variable
         let key_clone = key.clone();
-        let value = crate::runtime::block_on(async move { execute_env_get(key_clone).await })
-            .map_err(|e| {
-                clap_noun_verb::NounVerbError::execution_error(format!(
-                    "Failed to get variable: {}",
-                    e
-                ))
-            })?;
+        let value = crate::runtime::block_on(async move {
+            Ok(execute_env_get(key_clone).await.map_err(|e| {
+                ggen_utils::error::Error::new(&format!("Failed to get variable: {}", e))
+            })?)
+        })
+        .map_err(|e: ggen_utils::Error| {
+            clap_noun_verb::NounVerbError::execution_error(e.to_string())
+        })?
+        .map_err(|e: ggen_utils::Error| {
+            clap_noun_verb::NounVerbError::execution_error(e.to_string())
+        })?;
 
         let mut vars = std::collections::HashMap::new();
         if let Some(v) = value {
@@ -128,13 +139,19 @@ fn env(list: bool, get: Option<String>, set: Option<String>, _system: bool) -> R
         // Set variable (format: KEY=VALUE)
         if let Some((key, value)) = set_str.split_once('=') {
             crate::runtime::block_on(async move {
-                execute_env_set(key.to_string(), value.to_string()).await
+                Ok::<(), ggen_utils::Error>(
+                    execute_env_set(key.to_string(), value.to_string())
+                        .await
+                        .map_err(|e| {
+                            ggen_utils::error::Error::new(&format!("Failed to set variable: {}", e))
+                        })?,
+                )
             })
-            .map_err(|e| {
-                clap_noun_verb::NounVerbError::execution_error(format!(
-                    "Failed to set variable: {}",
-                    e
-                ))
+            .map_err(|e: ggen_utils::Error| {
+                clap_noun_verb::NounVerbError::execution_error(e.to_string())
+            })?
+            .map_err(|e: ggen_utils::Error| {
+                clap_noun_verb::NounVerbError::execution_error(e.to_string())
             })?;
 
             let mut vars = std::collections::HashMap::new();

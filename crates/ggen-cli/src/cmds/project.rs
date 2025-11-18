@@ -149,7 +149,7 @@ fn new(
         output,
         skip_install,
     ))
-    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))
+    .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
 }
 
 /// Generate project plan from template with variable substitution
@@ -188,7 +188,7 @@ fn plan(
                         // Variables should be in KEY=VALUE format
                         return trimmed.to_string();
                     }
-                    let (key, value) = trimmed.split_once('=').unwrap_or(("", ""));
+                    let (key, _value) = trimmed.split_once('=').unwrap_or(("", ""));
                     // Validate key is alphanumeric + underscore
                     if !key.chars().all(|c| c.is_alphanumeric() || c == '_') {
                         log::warn!("Variable key contains non-alphanumeric characters, may be filtered by template engine: {}", key);
@@ -226,7 +226,7 @@ fn plan(
 
     // Execute the async function and convert errors
     crate::runtime::block_on(plan_impl(template_ref, vars, output, format))
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
 }
 
 /// Generate code from template with RDF/SPARQL integration
@@ -264,7 +264,7 @@ fn gen(template_ref: String, vars: Option<String>, dry_run: bool) -> Result<GenO
                         // Variables should be in KEY=VALUE format
                         return trimmed.to_string();
                     }
-                    let (key, value) = trimmed.split_once('=').unwrap_or(("", ""));
+                    let (key, _value) = trimmed.split_once('=').unwrap_or(("", ""));
                     // Validate key is alphanumeric + underscore
                     if !key.chars().all(|c| c.is_alphanumeric() || c == '_') {
                         log::warn!("Variable key contains non-alphanumeric characters, may be filtered by template engine: {}", key);
@@ -319,7 +319,7 @@ fn gen(template_ref: String, vars: Option<String>, dry_run: bool) -> Result<GenO
 
     // Execute the async function and convert errors
     crate::runtime::block_on(gen_impl(template_ref, vars, dry_run))
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
 }
 
 /// Apply generation plan to create/modify files
@@ -368,7 +368,7 @@ fn apply(plan_file: String, yes: bool, dry_run: bool) -> Result<ApplyOutput> {
 
     // Execute the async function and convert errors
     crate::runtime::block_on(apply_impl(plan_file, yes, dry_run))
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
 }
 
 /// Initialize project with file-based routing conventions
@@ -588,7 +588,7 @@ fn init(path: PathBuf, name: Option<String>, preset: Option<String>) -> Result<I
 
     // Execute the async function and convert errors
     crate::runtime::block_on(init_impl(path, name, preset))
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
 }
 
 /// Generate code using zero-config conventions
@@ -727,7 +727,7 @@ fn generate(
 
     // Execute the async function and convert errors
     crate::runtime::block_on(generate_impl(template, path, output, force))
-        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))
+        .map_err(|e| clap_noun_verb::NounVerbError::execution_error(e.to_string()))?
 }
 
 /// Watch for changes and auto-regenerate

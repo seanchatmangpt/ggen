@@ -84,6 +84,20 @@ instant = "0.1"
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["full"] }
-criterion = "0.7"
+criterion = { version = "0.7", features = ["html_reports", "async_tokio"] }
 proptest = { workspace = true }
 mockall = "0.13"
+rand = "0.8"
+tempfile = "3.23"
+
+[[bench]]
+name = "comprehensive_performance"
+harness = false
+
+[[bench]]
+name = "v1_vs_v2_comparison"
+harness = false
+
+[[bench]]
+name = "slo_validation"
+harness = false

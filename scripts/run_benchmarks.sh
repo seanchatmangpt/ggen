@@ -1,0 +1,161 @@
+#!/bin/bash
+set -euo pipefail
+
+# Marketplace V2 Performance Benchmark Runner
+# Runs comprehensive benchmarks and generates performance reports
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+BENCH_DIR="$PROJECT_ROOT/crates/ggen-marketplace-v2"
+REPORT_DIR="$PROJECT_ROOT/target/benchmark-reports"
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+echo -e "${BLUE}╔════════════════════════════════════════════════════════════╗${NC}"
+echo -e "${BLUE}║   Marketplace V2 Performance Benchmark Suite              ║${NC}"
+echo -e "${BLUE}╚════════════════════════════════════════════════════════════╝${NC}"
+echo ""
+
+# Create report directory
+mkdir -p "$REPORT_DIR"
+
+# Function to run a benchmark
+run_benchmark() {
+    local bench_name="$1"
+    local description="$2"
+
+    echo -e "${YELLOW}Running: ${description}${NC}"
+    echo "Benchmark: $bench_name"
+    echo ""
+
+    cd "$BENCH_DIR"
+
+    if cargo bench --bench "$bench_name" -- --save-baseline "${bench_name}_baseline"; then
+        echo -e "${GREEN}✅ $bench_name completed successfully${NC}"
+        echo ""
+    else
+        echo -e "${RED}❌ $bench_name failed${NC}"
+        echo ""
+        return 1
+    fi
+}
+
+# Function to compare baselines
+compare_baselines() {
+    local bench_name="$1"
+    local old_baseline="${2:-}"
+
+    if [ -n "$old_baseline" ] && [ -d "target/criterion/$bench_name" ]; then
+        echo -e "${YELLOW}Comparing with baseline: $old_baseline${NC}"
+        cargo bench --bench "$bench_name" -- --baseline "$old_baseline"
+    fi
+}
+
+# Main execution
+main() {
+    echo "📊 Starting benchmark suite..."
+    echo ""
+
+    # 1. Comprehensive Performance Benchmarks
+    echo -e "${BLUE}═══ Phase 1: Comprehensive Performance ═══${NC}"
+    run_benchmark "comprehensive_performance" \
+        "Lookup, Search, Scalability, Cache, Installation benchmarks"
+
+    # 2. V1 vs V2 Comparison
+    echo -e "${BLUE}═══ Phase 2: V1 vs V2 Comparison ═══${NC}"
+    run_benchmark "v1_vs_v2_comparison" \
+        "Performance comparison between v1 and v2 implementations"
+
+    # 3. SLO Validation
+    echo -e "${BLUE}═══ Phase 3: SLO Validation ═══${NC}"
+    run_benchmark "slo_validation" \
+        "Validate production SLOs (latency, cache hit rate, install time)"
+
+    echo ""
+    echo -e "${GREEN}╔════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${GREEN}║   All Benchmarks Completed Successfully                   ║${NC}"
+    echo -e "${GREEN}╚════════════════════════════════════════════════════════════╝${NC}"
+    echo ""
+
+    # Generate summary report
+    echo "📄 Generating performance report..."
+
+    # Copy criterion reports to central location
+    if [ -d "target/criterion" ]; then
+        cp -r target/criterion "$REPORT_DIR/"
+        echo -e "${GREEN}✅ Criterion reports copied to: $REPORT_DIR/criterion${NC}"
+    fi
+
+    # Generate summary
+    cat > "$REPORT_DIR/BENCHMARK_SUMMARY.md" << EOF
+# Marketplace V2 Benchmark Summary
+
+**Date:** $(date '+%Y-%m-%d %H:%M:%S')
+**Platform:** $(uname -s) $(uname -m)
+**Rust Version:** $(rustc --version)
+
+## Benchmark Results
+
+### 1. Comprehensive Performance
+- **Location:** \`criterion/comprehensive_performance\`
+- **Categories:** Lookup, Search, Scalability, Cache, Installation
+- **View:** Open \`criterion/comprehensive_performance/report/index.html\`
+
+### 2. V1 vs V2 Comparison
+- **Location:** \`criterion/v1_vs_v2_comparison\`
+- **Metrics:** Lookup, Search, Batch Operations, Memory
+- **View:** Open \`criterion/v1_vs_v2_comparison/report/index.html\`
+
+### 3. SLO Validation
+- **Location:** \`criterion/slo_validation\`
+- **SLOs Tested:**
+  - Lookup latency: <100ms (p95)
+  - Search latency: <200ms (p95)
+  - Cache hit rate: >80%
+  - Installation time: <5s
+  - Dashboard generation: <2s
+- **View:** Open \`criterion/slo_validation/report/index.html\`
+
+## Quick Links
+
+- [Comprehensive Performance Report](criterion/comprehensive_performance/report/index.html)
+- [V1 vs V2 Comparison Report](criterion/v1_vs_v2_comparison/report/index.html)
+- [SLO Validation Report](criterion/slo_validation/report/index.html)
+
+## Viewing Reports
+
+1. Navigate to the report directory:
+   \`\`\`bash
+   cd $REPORT_DIR
+   \`\`\`
+
+2. Open the HTML reports in your browser:
+   \`\`\`bash
+   open criterion/*/report/index.html
+   \`\`\`
+
+## Next Steps
+
+1. Review SLO validation results
+2. Analyze performance regressions
+3. Implement recommended optimizations
+4. Re-run benchmarks to validate improvements
+
+---
+*Generated by ggen marketplace v2 benchmark suite*
+EOF
+
+    echo -e "${GREEN}✅ Summary report saved to: $REPORT_DIR/BENCHMARK_SUMMARY.md${NC}"
+    echo ""
+    echo "📖 To view HTML reports, run:"
+    echo "   cd $REPORT_DIR && open criterion/*/report/index.html"
+    echo ""
+}
+
+# Run main function
+main "$@"
