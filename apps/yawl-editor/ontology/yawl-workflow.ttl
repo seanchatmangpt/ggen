@@ -1,0 +1,398 @@
+@prefix ex: <http://yawlfoundation.org/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# YAWL Ontology for Workflow Management
+# Defines concepts for workflow specification and execution
+
+# ============================================================================
+# CLASSES - Core Workflow Concepts
+# ============================================================================
+
+ex:Process a owl:Class ;
+    rdfs:label "Process" ;
+    rdfs:comment "A workflow process specification" .
+
+ex:Task a owl:Class ;
+    rdfs:label "Task" ;
+    rdfs:comment "An activity/task in a workflow process" .
+
+ex:Case a owl:Class ;
+    rdfs:label "Case" ;
+    rdfs:comment "An instance of a workflow process" .
+
+ex:Workitem a owl:Class ;
+    rdfs:label "Workitem" ;
+    rdfs:comment "An instance of a task assignment to a resource" .
+
+ex:Resource a owl:Class ;
+    rdfs:label "Resource" ;
+    rdfs:comment "A user or role that performs tasks" .
+
+ex:Role a owl:Class ;
+    rdfs:subClassOf ex:Resource ;
+    rdfs:label "Role" ;
+    rdfs:comment "A role that users can be assigned to" .
+
+ex:User a owl:Class ;
+    rdfs:subClassOf ex:Resource ;
+    rdfs:label "User" ;
+    rdfs:comment "A user in the system" .
+
+ex:DataElement a owl:Class ;
+    rdfs:label "Data Element" ;
+    rdfs:comment "A data variable in a workflow" .
+
+ex:Constraint a owl:Class ;
+    rdfs:label "Constraint" ;
+    rdfs:comment "A constraint on workflow execution" .
+
+ex:TaskType a owl:Class ;
+    rdfs:label "Task Type" ;
+    rdfs:comment "Enumeration of task types" .
+
+ex:CaseStatus a owl:Class ;
+    rdfs:label "Case Status" ;
+    rdfs:comment "Status values for cases" .
+
+ex:WorkitemStatus a owl:Class ;
+    rdfs:label "Workitem Status" ;
+    rdfs:comment "Status values for workitems" .
+
+# ============================================================================
+# PROPERTIES - Process Definition
+# ============================================================================
+
+ex:processName a owl:DatatypeProperty ;
+    rdfs:domain ex:Process ;
+    rdfs:range xsd:string ;
+    rdfs:label "Process Name" ;
+    sh:minLength 1 ;
+    sh:maxLength 255 .
+
+ex:processDescription a owl:DatatypeProperty ;
+    rdfs:domain ex:Process ;
+    rdfs:range xsd:string ;
+    rdfs:label "Process Description" .
+
+ex:processVersion a owl:DatatypeProperty ;
+    rdfs:domain ex:Process ;
+    rdfs:range xsd:string ;
+    rdfs:label "Process Version" .
+
+ex:processIdentifier a owl:DatatypeProperty ;
+    rdfs:domain ex:Process ;
+    rdfs:range xsd:string ;
+    rdfs:label "Process Identifier" ;
+    sh:minLength 1 .
+
+# ============================================================================
+# PROPERTIES - Task Definition
+# ============================================================================
+
+ex:taskName a owl:DatatypeProperty ;
+    rdfs:domain ex:Task ;
+    rdfs:range xsd:string ;
+    rdfs:label "Task Name" ;
+    sh:minLength 1 ;
+    sh:maxLength 255 .
+
+ex:taskDescription a owl:DatatypeProperty ;
+    rdfs:domain ex:Task ;
+    rdfs:range xsd:string ;
+    rdfs:label "Task Description" .
+
+ex:taskType a owl:ObjectProperty ;
+    rdfs:domain ex:Task ;
+    rdfs:range ex:TaskType ;
+    rdfs:label "Task Type" .
+
+ex:isMultiInstance a owl:DatatypeProperty ;
+    rdfs:domain ex:Task ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Is Multi-Instance" .
+
+ex:splitType a owl:DatatypeProperty ;
+    rdfs:domain ex:Task ;
+    rdfs:range xsd:string ;
+    rdfs:label "Split Type (AND/OR/XOR)" ;
+    sh:in ("AND" "OR" "XOR") .
+
+ex:joinType a owl:DatatypeProperty ;
+    rdfs:domain ex:Task ;
+    rdfs:range xsd:string ;
+    rdfs:label "Join Type (AND/OR/XOR)" ;
+    sh:in ("AND" "OR" "XOR") .
+
+ex:belongsToProcess a owl:ObjectProperty ;
+    rdfs:domain ex:Task ;
+    rdfs:range ex:Process ;
+    rdfs:label "Belongs To Process" .
+
+ex:canBeAllocatedTo a owl:ObjectProperty ;
+    rdfs:domain ex:Task ;
+    rdfs:range ex:Resource ;
+    rdfs:label "Can Be Allocated To" .
+
+# ============================================================================
+# PROPERTIES - Case Execution
+# ============================================================================
+
+ex:caseID a owl:DatatypeProperty ;
+    rdfs:domain ex:Case ;
+    rdfs:range xsd:string ;
+    rdfs:label "Case ID" ;
+    sh:minLength 1 .
+
+ex:caseStatus a owl:DatatypeProperty ;
+    rdfs:domain ex:Case ;
+    rdfs:range xsd:string ;
+    rdfs:label "Case Status" ;
+    sh:in ("Created" "Running" "Suspended" "Completed" "Cancelled") .
+
+ex:caseCreatedDate a owl:DatatypeProperty ;
+    rdfs:domain ex:Case ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Case Created Date" .
+
+ex:caseCompletedDate a owl:DatatypeProperty ;
+    rdfs:domain ex:Case ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Case Completed Date" .
+
+ex:instanceOfProcess a owl:ObjectProperty ;
+    rdfs:domain ex:Case ;
+    rdfs:range ex:Process ;
+    rdfs:label "Instance Of Process" .
+
+ex:caseOwner a owl:ObjectProperty ;
+    rdfs:domain ex:Case ;
+    rdfs:range ex:Resource ;
+    rdfs:label "Case Owner" .
+
+# ============================================================================
+# PROPERTIES - Workitem Execution
+# ============================================================================
+
+ex:workitemID a owl:DatatypeProperty ;
+    rdfs:domain ex:Workitem ;
+    rdfs:range xsd:string ;
+    rdfs:label "Workitem ID" ;
+    sh:minLength 1 .
+
+ex:workitemStatus a owl:DatatypeProperty ;
+    rdfs:domain ex:Workitem ;
+    rdfs:range xsd:string ;
+    rdfs:label "Workitem Status" ;
+    sh:in ("Created" "Enabled" "Offered" "Allocated" "Executing" "Completed" "Cancelled" "Suspended") .
+
+ex:workitemCreatedDate a owl:DatatypeProperty ;
+    rdfs:domain ex:Workitem ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Workitem Created Date" .
+
+ex:workitemCompletedDate a owl:DatatypeProperty ;
+    rdfs:domain ex:Workitem ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Workitem Completed Date" .
+
+ex:priority a owl:DatatypeProperty ;
+    rdfs:domain ex:Workitem ;
+    rdfs:range xsd:integer ;
+    rdfs:label "Priority" ;
+    sh:minInclusive 1 ;
+    sh:maxInclusive 5 .
+
+ex:dueDate a owl:DatatypeProperty ;
+    rdfs:domain ex:Workitem ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "Due Date" .
+
+ex:relatedToCase a owl:ObjectProperty ;
+    rdfs:domain ex:Workitem ;
+    rdfs:range ex:Case ;
+    rdfs:label "Related To Case" .
+
+ex:relatedToTask a owl:ObjectProperty ;
+    rdfs:domain ex:Workitem ;
+    rdfs:range ex:Task ;
+    rdfs:label "Related To Task" .
+
+ex:allocatedTo a owl:ObjectProperty ;
+    rdfs:domain ex:Workitem ;
+    rdfs:range ex:Resource ;
+    rdfs:label "Allocated To" .
+
+# ============================================================================
+# PROPERTIES - Resource Management
+# ============================================================================
+
+ex:resourceName a owl:DatatypeProperty ;
+    rdfs:domain ex:Resource ;
+    rdfs:range xsd:string ;
+    rdfs:label "Resource Name" ;
+    sh:minLength 1 ;
+    sh:maxLength 255 .
+
+ex:resourceEmail a owl:DatatypeProperty ;
+    rdfs:domain ex:Resource ;
+    rdfs:range xsd:string ;
+    rdfs:label "Resource Email" ;
+    sh:pattern "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$" .
+
+ex:roleName a owl:DatatypeProperty ;
+    rdfs:domain ex:Role ;
+    rdfs:range xsd:string ;
+    rdfs:label "Role Name" ;
+    sh:minLength 1 ;
+    sh:maxLength 255 .
+
+ex:roleDescription a owl:DatatypeProperty ;
+    rdfs:domain ex:Role ;
+    rdfs:range xsd:string ;
+    rdfs:label "Role Description" .
+
+ex:userId a owl:DatatypeProperty ;
+    rdfs:domain ex:User ;
+    rdfs:range xsd:string ;
+    rdfs:label "User ID" ;
+    sh:minLength 1 .
+
+ex:userName a owl:DatatypeProperty ;
+    rdfs:domain ex:User ;
+    rdfs:range xsd:string ;
+    rdfs:label "User Name" ;
+    sh:minLength 1 .
+
+ex:hasRole a owl:ObjectProperty ;
+    rdfs:domain ex:User ;
+    rdfs:range ex:Role ;
+    rdfs:label "Has Role" .
+
+# ============================================================================
+# PROPERTIES - Data Elements
+# ============================================================================
+
+ex:elementName a owl:DatatypeProperty ;
+    rdfs:domain ex:DataElement ;
+    rdfs:range xsd:string ;
+    rdfs:label "Element Name" ;
+    sh:minLength 1 .
+
+ex:elementType a owl:DatatypeProperty ;
+    rdfs:domain ex:DataElement ;
+    rdfs:range xsd:string ;
+    rdfs:label "Element Type" ;
+    sh:in ("String" "Integer" "Float" "Boolean" "Date" "Document") .
+
+ex:elementValue a owl:DatatypeProperty ;
+    rdfs:domain ex:DataElement ;
+    rdfs:range xsd:string ;
+    rdfs:label "Element Value" .
+
+ex:isRequired a owl:DatatypeProperty ;
+    rdfs:domain ex:DataElement ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "Is Required" .
+
+ex:usedInTask a owl:ObjectProperty ;
+    rdfs:domain ex:DataElement ;
+    rdfs:range ex:Task ;
+    rdfs:label "Used In Task" .
+
+# ============================================================================
+# PROPERTIES - Constraints
+# ============================================================================
+
+ex:constraintName a owl:DatatypeProperty ;
+    rdfs:domain ex:Constraint ;
+    rdfs:range xsd:string ;
+    rdfs:label "Constraint Name" ;
+    sh:minLength 1 .
+
+ex:constraintExpression a owl:DatatypeProperty ;
+    rdfs:domain ex:Constraint ;
+    rdfs:range xsd:string ;
+    rdfs:label "Constraint Expression" .
+
+ex:constraintType a owl:DatatypeProperty ;
+    rdfs:domain ex:Constraint ;
+    rdfs:range xsd:string ;
+    rdfs:label "Constraint Type" ;
+    sh:in ("PreCondition" "PostCondition" "ResourceConstraint" "TimingConstraint") .
+
+ex:appliesToTask a owl:ObjectProperty ;
+    rdfs:domain ex:Constraint ;
+    rdfs:range ex:Task ;
+    rdfs:label "Applies To Task" .
+
+# ============================================================================
+# SHAPE DEFINITIONS for Validation
+# ============================================================================
+
+ex:ProcessShape a sh:NodeShape ;
+    sh:targetClass ex:Process ;
+    sh:property [
+        sh:path ex:processName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ex:processVersion ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] .
+
+ex:TaskShape a sh:NodeShape ;
+    sh:targetClass ex:Task ;
+    sh:property [
+        sh:path ex:taskName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ex:belongsToProcess ;
+        sh:nodeKind sh:IRI ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] .
+
+ex:CaseShape a sh:NodeShape ;
+    sh:targetClass ex:Case ;
+    sh:property [
+        sh:path ex:caseID ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ex:caseStatus ;
+        sh:in ("Created" "Running" "Suspended" "Completed" "Cancelled") ;
+        sh:minCount 1 ;
+    ] .
+
+ex:WorkitemShape a sh:NodeShape ;
+    sh:targetClass ex:Workitem ;
+    sh:property [
+        sh:path ex:workitemID ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ex:workitemStatus ;
+        sh:in ("Created" "Enabled" "Offered" "Allocated" "Executing" "Completed" "Cancelled" "Suspended") ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ex:priority ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 5 ;
+    ] .
