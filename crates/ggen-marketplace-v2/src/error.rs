@@ -127,6 +127,34 @@ pub enum Error {
     #[error("Operation timed out: {0}")]
     Timeout(String),
 
+    /// RDF/SPARQL error
+    #[error("SPARQL error in query: {query}, reason: {reason}")]
+    SparqlError { query: String, reason: String },
+
+    /// RDF store error
+    #[error("RDF store error during {operation}: {reason}")]
+    RdfStoreError { operation: String, reason: String },
+
+    /// Invalid state transition
+    #[error("Invalid state transition from {from} to {to}")]
+    InvalidStateTransition { from: String, to: String },
+
+    /// Unknown state
+    #[error("Unknown state: {state}")]
+    UnknownState { state: String },
+
+    /// Package not found (POKA YOKE version)
+    #[error("Package not found: {id}")]
+    PackageNotFound { id: crate::poka_yoke::PackageId },
+
+    /// Configuration error (from Turtle config)
+    #[error("Configuration error: {message}")]
+    ConfigurationError { message: String },
+
+    /// Feature not implemented
+    #[error("Feature not implemented: {feature}")]
+    NotImplemented { feature: String },
+
     /// Generic error with context
     #[error("{0}")]
     Other(String),

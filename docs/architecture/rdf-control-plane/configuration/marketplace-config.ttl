@@ -1,0 +1,495 @@
+@prefix mp: <https://ggen.io/marketplace/> .
+@prefix ggen: <https://ggen.io/> .
+@prefix : <https://ggen.io/config/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ============================================================================
+# MARKETPLACE CONFIGURATION - Turtle Control Plane
+# ============================================================================
+# Version: 3.0.0
+# Description: Complete marketplace configuration in RDF/Turtle format
+# Architecture: 100% Semantic - No JSON files, No YAML, No TOML
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# MARKETPLACE INSTANCE CONFIGURATION
+# ----------------------------------------------------------------------------
+
+:marketplace a mp:Marketplace ;
+    mp:marketplaceName "ggen-marketplace-v3" ;
+    mp:marketplaceVersion "3.0.0" ;
+    mp:storageBackend :storage ;
+    mp:searchEngine :search ;
+    mp:cacheConfiguration :caches ;
+    mp:enableTelemetry true ;
+    mp:enableAudit true ;
+    mp:enableFMEA true .
+
+# ----------------------------------------------------------------------------
+# STORAGE BACKEND CONFIGURATION
+# ----------------------------------------------------------------------------
+
+:storage a mp:StorageBackend ;
+    mp:backendType mp:OxigraphStore ;
+    mp:storagePath "/var/lib/ggen/marketplace/store" ;
+    mp:persistenceMode mp:Disk ;
+    mp:transactional true ;
+    mp:sparqlCompliant true ;
+    mp:enableWAL true ;
+    mp:walPath "/var/lib/ggen/marketplace/wal" ;
+    mp:maxConnections 100 ;
+    mp:connectionTimeout 30 ;
+    mp:queryTimeout 300 ;
+    mp:bulkInsertBatchSize 1000 ;
+    mp:vacuumInterval 86400 ;  # 24 hours
+    mp:backupInterval 3600 ;   # 1 hour
+    mp:backupPath "/var/lib/ggen/marketplace/backups" ;
+    mp:retentionDays 30 .
+
+# Alternative storage backends (commented out)
+# :storage a mp:StorageBackend ;
+#     mp:backendType mp:AllegroGraphStore ;
+#     mp:endpoint "http://localhost:10035/repositories/marketplace" ;
+#     mp:username "admin" ;
+#     mp:passwordRef :storage-password .
+
+# :storage a mp:StorageBackend ;
+#     mp:backendType mp:InMemoryStore ;
+#     mp:persistenceMode mp:Memory ;
+#     mp:snapshotInterval 3600 ;
+#     mp:snapshotPath "/var/lib/ggen/marketplace/snapshots" .
+
+# ----------------------------------------------------------------------------
+# SEARCH ENGINE CONFIGURATION
+# ----------------------------------------------------------------------------
+
+:search a mp:SearchEngine ;
+    mp:indexType mp:HybridIndex ;
+    mp:indexPath "/var/lib/ggen/marketplace/search-index" ;
+    mp:language "en" ;
+    mp:enableStemming true ;
+    mp:enableStopwords true ;
+    mp:enableSynonyms true ;
+    mp:synonymsPath "/etc/ggen/marketplace/synonyms.txt" ;
+    mp:maxResultsPerQuery 100 ;
+    mp:defaultPageSize 20 ;
+    mp:enableFuzzySearch true ;
+    mp:fuzzyEditDistance 2 ;
+    mp:minRelevanceScore 0.1 ;
+    mp:enableSemanticSearch true ;
+    mp:embeddingModel "sentence-transformers/all-MiniLM-L6-v2" ;
+    mp:embeddingDimension 384 ;
+    mp:indexUpdateInterval 300 ; # 5 minutes
+    mp:rebuildIndexDaily true .
+
+# Full-text index configuration
+:fullTextIndex a mp:FullTextIndex ;
+    mp:indexFields ( mp:packageName mp:description mp:tags mp:categoryName ) ;
+    mp:boostFactors [
+        mp:field mp:packageName ;
+        mp:boost 2.0
+    ] , [
+        mp:field mp:description ;
+        mp:boost 1.0
+    ] , [
+        mp:field mp:tags ;
+        mp:boost 1.5
+    ] .
+
+# Semantic index configuration
+:semanticIndex a mp:SemanticIndex ;
+    mp:vectorStore mp:FAISSStore ;
+    mp:distanceMetric mp:CosineSimilarity ;
+    mp:indexType mp:HNSW ;
+    mp:hnswM 16 ;
+    mp:hnswEfConstruction 200 .
+
+# ----------------------------------------------------------------------------
+# CACHE CONFIGURATION (MULTI-TIER)
+# ----------------------------------------------------------------------------
+
+:caches a mp:CacheConfiguration ;
+    mp:hotCache :hotCache ;
+    mp:metadataCache :metadataCache ;
+    mp:queryCache :queryCache ;
+    mp:searchCache :searchCache .
+
+# Hot cache (L1) - Recent packages
+:hotCache a mp:CacheLayer ;
+    mp:cacheName "hot" ;
+    mp:ttl 300 ;              # 5 minutes
+    mp:capacity 1000 ;
+    mp:maxSize 104857600 ;    # 100 MB
+    mp:evictionPolicy mp:LRU ;
+    mp:enableCompression false ;
+    mp:enableMetrics true .
+
+# Metadata cache (L2) - Package metadata
+:metadataCache a mp:CacheLayer ;
+    mp:cacheName "metadata" ;
+    mp:ttl 3600 ;             # 1 hour
+    mp:capacity 5000 ;
+    mp:maxSize 524288000 ;    # 500 MB
+    mp:evictionPolicy mp:LFU ;
+    mp:enableCompression true ;
+    mp:compressionAlgorithm mp:ZSTD ;
+    mp:enableMetrics true .
+
+# Query cache (L3) - SPARQL query results
+:queryCache a mp:CacheLayer ;
+    mp:cacheName "query" ;
+    mp:ttl 1800 ;             # 30 minutes
+    mp:capacity 2000 ;
+    mp:maxSize 209715200 ;    # 200 MB
+    mp:evictionPolicy mp:TTL ;
+    mp:enableCompression true ;
+    mp:enableMetrics true .
+
+# Search cache - Search results
+:searchCache a mp:CacheLayer ;
+    mp:cacheName "search" ;
+    mp:ttl 600 ;              # 10 minutes
+    mp:capacity 500 ;
+    mp:maxSize 52428800 ;     # 50 MB
+    mp:evictionPolicy mp:LRU ;
+    mp:enableMetrics true .
+
+# ----------------------------------------------------------------------------
+# SECURITY CONFIGURATION
+# ----------------------------------------------------------------------------
+
+:security a mp:SecurityConfiguration ;
+    mp:enableSignatureVerification true ;
+    mp:enableChecksumVerification true ;
+    mp:signatureAlgorithm "Ed25519" ;
+    mp:checksumAlgorithm "SHA-256" ;
+    mp:requireSignedPackages true ;
+    mp:trustedPublishers :trustedPublishers ;
+    mp:keyRotationInterval 7776000 ; # 90 days
+    mp:enableRateLimiting true ;
+    mp:rateLimitPerMinute 60 ;
+    mp:enableAccessControl true ;
+    mp:defaultPermissions mp:ReadOnly .
+
+:trustedPublishers a mp:TrustedPublisherList ;
+    mp:publisher [
+        mp:publisherId "ggen-official" ;
+        mp:publicKeyFingerprint "a1b2c3d4e5f6..." ;
+        mp:verificationRequired true
+    ] ;
+    mp:publisher [
+        mp:publisherId "verified-authors" ;
+        mp:publicKeyFingerprint "f6e5d4c3b2a1..." ;
+        mp:verificationRequired true
+    ] .
+
+# ----------------------------------------------------------------------------
+# QUALITY THRESHOLDS
+# ----------------------------------------------------------------------------
+
+:qualityThresholds a mp:QualityConfiguration ;
+    mp:minOverallScore 60.0 ;
+    mp:minTestCoverageScore 70.0 ;
+    mp:minDocumentationScore 50.0 ;
+    mp:minCodeQualityScore 60.0 ;
+    mp:minSecurityScore 80.0 ;
+    mp:enableAutomaticQualityChecks true ;
+    mp:rejectBelowThreshold false ;
+    mp:warnBelowThreshold true .
+
+# Maturity level configurations
+:maturityConfigs a mp:MaturityConfiguration ;
+    mp:experimental [
+        mp:level mp:Experimental ;
+        mp:minQualityScore 0.0 ;
+        mp:requiresTests false ;
+        mp:requiresDocs false ;
+        mp:allowProduction false
+    ] ;
+    mp:alpha [
+        mp:level mp:Alpha ;
+        mp:minQualityScore 20.0 ;
+        mp:requiresTests false ;
+        mp:requiresDocs false ;
+        mp:allowProduction false
+    ] ;
+    mp:beta [
+        mp:level mp:Beta ;
+        mp:minQualityScore 40.0 ;
+        mp:requiresTests true ;
+        mp:requiresDocs false ;
+        mp:allowProduction false
+    ] ;
+    mp:stable [
+        mp:level mp:Stable ;
+        mp:minQualityScore 60.0 ;
+        mp:requiresTests true ;
+        mp:requiresDocs true ;
+        mp:allowProduction true
+    ] ;
+    mp:mature [
+        mp:level mp:Mature ;
+        mp:minQualityScore 80.0 ;
+        mp:requiresTests true ;
+        mp:requiresDocs true ;
+        mp:requiresExamples true ;
+        mp:allowProduction true
+    ] ;
+    mp:production [
+        mp:level mp:Production ;
+        mp:minQualityScore 90.0 ;
+        mp:requiresTests true ;
+        mp:requiresDocs true ;
+        mp:requiresExamples true ;
+        mp:requiresBenchmarks true ;
+        mp:requiresSecurityAudit true ;
+        mp:allowProduction true
+    ] .
+
+# ----------------------------------------------------------------------------
+# TELEMETRY & OBSERVABILITY
+# ----------------------------------------------------------------------------
+
+:telemetry a mp:TelemetryConfiguration ;
+    mp:enableOpenTelemetry true ;
+    mp:otlpEndpoint "http://localhost:4317" ;
+    mp:serviceName "ggen-marketplace" ;
+    mp:serviceVersion "3.0.0" ;
+    mp:enableTracing true ;
+    mp:enableMetrics true ;
+    mp:enableLogs true ;
+    mp:samplingRate 1.0 ;
+    mp:exportInterval 5 ;
+    mp:exportTimeout 30 ;
+    mp:maxQueueSize 2048 ;
+    mp:maxExportBatchSize 512 .
+
+# Metrics configuration
+:metrics a mp:MetricsConfiguration ;
+    mp:enablePrometheus true ;
+    mp:prometheusPort 9090 ;
+    mp:metricsPath "/metrics" ;
+    mp:enableHistograms true ;
+    mp:enableSummaries true ;
+    mp:histogramBuckets ( 0.001 0.005 0.01 0.05 0.1 0.5 1.0 5.0 10.0 ) ;
+    mp:collectInterval 15 ;
+    mp:enableSystemMetrics true ;
+    mp:enableRuntimeMetrics true .
+
+# Logging configuration
+:logging a mp:LoggingConfiguration ;
+    mp:logLevel mp:INFO ;
+    mp:logFormat mp:JSON ;
+    mp:enableFileLogging true ;
+    mp:logPath "/var/log/ggen/marketplace" ;
+    mp:maxFileSize 104857600 ;  # 100 MB
+    mp:maxBackupFiles 10 ;
+    mp:enableConsoleLogging true ;
+    mp:enableStructuredLogging true ;
+    mp:enableContextPropagation true .
+
+# ----------------------------------------------------------------------------
+# FAILURE MODE & EFFECTS ANALYSIS (FMEA)
+# ----------------------------------------------------------------------------
+
+:fmeaConfig a mp:FMEAConfiguration ;
+    mp:enableAutomaticDetection true ;
+    mp:enableAutomaticMitigation true ;
+    mp:detectionInterval 60 ; # 1 minute
+    mp:failureDetectors :failureDetectors ;
+    mp:mitigationStrategies :mitigationStrategies .
+
+:failureDetectors a mp:FailureDetectorSet ;
+    mp:detector :signatureFailureDetector ;
+    mp:detector :checksumFailureDetector ;
+    mp:detector :dependencyFailureDetector ;
+    mp:detector :stateFailureDetector .
+
+:signatureFailureDetector a mp:FailureDetector ;
+    mp:detectorName "signature-verification-failed" ;
+    mp:detectorType mp:SignatureVerificationFailed ;
+    mp:severity 9 ;
+    mp:sparqlQuery """
+        SELECT ?pkg WHERE {
+            ?pkg a mp:Package ;
+                mp:signature ?sig .
+            ?sig mp:signatureVerified false .
+        }
+    """ ;
+    mp:mitigation :signatureMitigation .
+
+:checksumFailureDetector a mp:FailureDetector ;
+    mp:detectorName "checksum-mismatch" ;
+    mp:detectorType mp:ChecksumMismatch ;
+    mp:severity 10 ;
+    mp:sparqlQuery """
+        SELECT ?pkg WHERE {
+            ?pkg a mp:Package ;
+                mp:checksum ?cs .
+            ?cs mp:checksumValid false .
+        }
+    """ ;
+    mp:mitigation :checksumMitigation .
+
+:dependencyFailureDetector a mp:FailureDetector ;
+    mp:detectorName "dependency-not-found" ;
+    mp:detectorType mp:DependencyNotFound ;
+    mp:severity 7 ;
+    mp:sparqlQuery """
+        SELECT ?pkg ?dep WHERE {
+            ?pkg a mp:Package ;
+                mp:hasDependency ?dependency .
+            ?dependency mp:dependsOnPackage ?dep .
+            FILTER NOT EXISTS { ?dep a mp:Package }
+        }
+    """ ;
+    mp:mitigation :dependencyMitigation .
+
+:stateFailureDetector a mp:FailureDetector ;
+    mp:detectorName "invalid-state-transition" ;
+    mp:detectorType mp:InvalidState ;
+    mp:severity 6 ;
+    mp:sparqlQuery """
+        SELECT ?pkg ?currentState ?attemptedState WHERE {
+            ?pkg a mp:Package ;
+                mp:state ?currentState ;
+                mp:attemptedTransition ?attemptedState .
+            FILTER NOT EXISTS {
+                ?currentState mp:canTransitionTo ?attemptedState
+            }
+        }
+    """ ;
+    mp:mitigation :stateMitigation .
+
+:mitigationStrategies a mp:MitigationStrategySet ;
+    mp:strategy :signatureMitigation ;
+    mp:strategy :checksumMitigation ;
+    mp:strategy :dependencyMitigation ;
+    mp:strategy :stateMitigation .
+
+:signatureMitigation a mp:Mitigation ;
+    mp:mitigationStrategy mp:Retry ;
+    mp:maxRetries 3 ;
+    mp:backoffMultiplier 2.0 ;
+    mp:fallbackAction mp:Alert ;
+    mp:alertSeverity mp:High .
+
+:checksumMitigation a mp:Mitigation ;
+    mp:mitigationStrategy mp:Rollback ;
+    mp:maxRetries 0 ;
+    mp:fallbackAction mp:Alert ;
+    mp:alertSeverity mp:Critical .
+
+:dependencyMitigation a mp:Mitigation ;
+    mp:mitigationStrategy mp:Fallback ;
+    mp:maxRetries 2 ;
+    mp:fallbackAction mp:SuggestAlternative ;
+    mp:alertSeverity mp:Medium .
+
+:stateMitigation a mp:Mitigation ;
+    mp:mitigationStrategy mp:Rollback ;
+    mp:maxRetries 0 ;
+    mp:fallbackAction mp:Alert ;
+    mp:alertSeverity mp:High .
+
+# ----------------------------------------------------------------------------
+# AUDIT CONFIGURATION
+# ----------------------------------------------------------------------------
+
+:auditConfig a mp:AuditConfiguration ;
+    mp:enableAuditTrail true ;
+    mp:auditStoragePath "/var/lib/ggen/marketplace/audit" ;
+    mp:retentionDays 365 ;
+    mp:auditLevel mp:Comprehensive ;
+    mp:enableImmutableLog true ;
+    mp:enableSignedAudit true ;
+    mp:auditSigningKey :audit-signing-key ;
+    mp:enableRealtimeAudit true ;
+    mp:auditBufferSize 1000 .
+
+# Audit event types to capture
+:auditEvents a mp:AuditEventTypes ;
+    mp:capture mp:PackagePublished ;
+    mp:capture mp:PackageUpdated ;
+    mp:capture mp:PackageDeprecated ;
+    mp:capture mp:PackageWithdrawn ;
+    mp:capture mp:PackageInstalled ;
+    mp:capture mp:SignatureVerified ;
+    mp:capture mp:SearchPerformed ;
+    mp:capture mp:ConfigurationChanged .
+
+# ----------------------------------------------------------------------------
+# PERFORMANCE TUNING
+# ----------------------------------------------------------------------------
+
+:performance a mp:PerformanceConfiguration ;
+    mp:maxConcurrentQueries 100 ;
+    mp:queryQueueSize 1000 ;
+    mp:enableQueryOptimization true ;
+    mp:enableQueryCaching true ;
+    mp:enableParallelExecution true ;
+    mp:maxParallelDegree 8 ;
+    mp:enableBulkOperations true ;
+    mp:bulkOperationBatchSize 1000 ;
+    mp:enableAsyncProcessing true ;
+    mp:workerThreads 4 ;
+    mp:enableConnectionPooling true ;
+    mp:minConnectionsPerPool 5 ;
+    mp:maxConnectionsPerPool 50 .
+
+# SPARQL query optimization
+:sparqlOptimization a mp:SPARQLOptimization ;
+    mp:enableCostBasedOptimizer true ;
+    mp:enableJoinReordering true ;
+    mp:enableFilterPushdown true ;
+    mp:enableIndexScans true ;
+    mp:enableMaterializationHints true ;
+    mp:maxQueryComplexity 1000 ;
+    mp:queryTimeoutSeconds 300 .
+
+# ----------------------------------------------------------------------------
+# NETWORK & API CONFIGURATION
+# ----------------------------------------------------------------------------
+
+:network a mp:NetworkConfiguration ;
+    mp:enableHTTP false ;  # CLI-only, no HTTP API
+    mp:enableGraphQL false ;
+    mp:enableREST false ;
+    mp:sparqlEndpoint "local://oxigraph" ;
+    mp:enableLocalSockets true ;
+    mp:socketPath "/var/run/ggen/marketplace.sock" ;
+    mp:enableIPC true ;
+    mp:ipcProtocol mp:MessagePack .
+
+# ----------------------------------------------------------------------------
+# DEVELOPMENT & DEBUG CONFIGURATION
+# ----------------------------------------------------------------------------
+
+:development a mp:DevelopmentConfiguration ;
+    mp:enableDebugMode false ;
+    mp:enableVerboseLogging false ;
+    mp:enableQueryLogging false ;
+    mp:enablePerformanceProfiling false ;
+    mp:enableMemoryProfiling false ;
+    mp:enableTraceLogging false ;
+    mp:enableDeveloperAPI false .
+
+# ----------------------------------------------------------------------------
+# BACKUP & DISASTER RECOVERY
+# ----------------------------------------------------------------------------
+
+:backupConfig a mp:BackupConfiguration ;
+    mp:enableAutomaticBackup true ;
+    mp:backupInterval 3600 ;  # 1 hour
+    mp:backupPath "/var/lib/ggen/marketplace/backups" ;
+    mp:retentionDays 30 ;
+    mp:enableIncrementalBackup true ;
+    mp:compressionEnabled true ;
+    mp:compressionAlgorithm mp:ZSTD ;
+    mp:enableEncryption true ;
+    mp:encryptionAlgorithm mp:AES256GCM ;
+    mp:enableReplication false .
+
+# ----------------------------------------------------------------------------
+# END OF CONFIGURATION
+# ----------------------------------------------------------------------------

@@ -5,8 +5,8 @@
 //!
 //! Test Count: 250+ tests
 
-use ggen_marketplace_v2::prelude::*;
 use ggen_marketplace_v2::ontology::*;
+use ggen_marketplace_v2::prelude::*;
 use oxigraph::model::{NamedNode, Quad, Subject, Term};
 use oxigraph::store::Store;
 
@@ -22,10 +22,9 @@ fn test_turtle_parse_simple_triple() {
     "#;
 
     let store = Store::new().unwrap();
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     assert_eq!(store.len().unwrap(), 1);
 }
@@ -40,10 +39,9 @@ fn test_turtle_parse_multiple_triples() {
     "#;
 
     let store = Store::new().unwrap();
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     assert_eq!(store.len().unwrap(), 3);
 }
@@ -58,10 +56,7 @@ fn test_turtle_prefix_declaration() {
     "#;
 
     let store = Store::new().unwrap();
-    let result = store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    );
+    let result = store.load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes());
 
     assert!(result.is_ok());
 }
@@ -74,10 +69,9 @@ fn test_turtle_base_declaration() {
     "#;
 
     let store = Store::new().unwrap();
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     assert_eq!(store.len().unwrap(), 1);
 }
@@ -90,10 +84,9 @@ fn test_turtle_literal_string() {
     "#;
 
     let store = Store::new().unwrap();
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     assert_eq!(store.len().unwrap(), 1);
 }
@@ -106,10 +99,9 @@ fn test_turtle_literal_integer() {
     "#;
 
     let store = Store::new().unwrap();
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     assert_eq!(store.len().unwrap(), 1);
 }
@@ -122,10 +114,9 @@ fn test_turtle_literal_boolean() {
     "#;
 
     let store = Store::new().unwrap();
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     assert_eq!(store.len().unwrap(), 1);
 }
@@ -138,10 +129,9 @@ fn test_turtle_literal_with_language() {
     "#;
 
     let store = Store::new().unwrap();
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     assert_eq!(store.len().unwrap(), 1);
 }
@@ -155,10 +145,9 @@ fn test_turtle_literal_with_datatype() {
     "#;
 
     let store = Store::new().unwrap();
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     assert_eq!(store.len().unwrap(), 1);
 }
@@ -171,10 +160,9 @@ fn test_turtle_blank_node() {
     "#;
 
     let store = Store::new().unwrap();
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     assert_eq!(store.len().unwrap(), 1);
 }
@@ -187,10 +175,9 @@ fn test_turtle_collection() {
     "#;
 
     let store = Store::new().unwrap();
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     // Collections expand to multiple triples
     assert!(store.len().unwrap() >= 1);
@@ -207,10 +194,9 @@ fn test_turtle_semicolon_separator() {
     "#;
 
     let store = Store::new().unwrap();
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     assert_eq!(store.len().unwrap(), 3);
 }
@@ -223,10 +209,9 @@ fn test_turtle_comma_separator() {
     "#;
 
     let store = Store::new().unwrap();
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     assert_eq!(store.len().unwrap(), 3);
 }
@@ -243,10 +228,9 @@ fn test_turtle_multiline_literal() {
     "#;
 
     let store = Store::new().unwrap();
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     assert_eq!(store.len().unwrap(), 1);
 }
@@ -260,10 +244,9 @@ fn test_turtle_comment() {
     "#;
 
     let store = Store::new().unwrap();
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     assert_eq!(store.len().unwrap(), 1);
 }
@@ -318,10 +301,9 @@ fn test_triple_with_literal_object() {
         ex:package ex:version "1.0.0" .
     "#;
 
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     assert_eq!(store.len().unwrap(), 1);
 }
@@ -336,10 +318,9 @@ fn test_rdf_type_triple() {
         ex:myPackage rdf:type ex:Package .
     "#;
 
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     assert_eq!(store.len().unwrap(), 1);
 }
@@ -392,10 +373,9 @@ fn test_prefix_expansion() {
     "#;
 
     let store = Store::new().unwrap();
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     assert!(store.len().unwrap() >= 1);
 }
@@ -465,10 +445,9 @@ fn test_graph_single_triple() {
         ex:s ex:p ex:o .
     "#;
 
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     assert_eq!(store.len().unwrap(), 1);
 }
@@ -483,10 +462,9 @@ fn test_graph_duplicate_triple_ignored() {
         ex:s ex:p ex:o .
     "#;
 
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     assert_eq!(store.len().unwrap(), 1);
 }
@@ -500,10 +478,9 @@ fn test_graph_insert_and_query() {
         ex:package1 ex:version "1.0.0" .
     "#;
 
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     // Query for the triple
     let query = r#"
@@ -531,10 +508,9 @@ fn test_graph_transitive_relationships() {
         ex:pkg2 ex:dependsOn ex:pkg3 .
     "#;
 
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     assert_eq!(store.len().unwrap(), 2);
 }
@@ -550,10 +526,9 @@ fn test_graph_multiple_predicates_same_subject() {
                     ex:author "Alice" .
     "#;
 
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     assert_eq!(store.len().unwrap(), 3);
 }
@@ -569,10 +544,9 @@ fn test_graph_query_by_type() {
         ex:pkg2 rdf:type ex:Package .
     "#;
 
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     let query = r#"
         PREFIX ex: <http://example.org/>
@@ -599,10 +573,9 @@ fn test_turtle_escaped_quotes() {
     "#;
 
     let store = Store::new().unwrap();
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     assert_eq!(store.len().unwrap(), 1);
 }
@@ -615,10 +588,9 @@ fn test_turtle_unicode_literal() {
     "#;
 
     let store = Store::new().unwrap();
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     assert_eq!(store.len().unwrap(), 1);
 }
@@ -631,10 +603,9 @@ fn test_turtle_decimal_literal() {
     "#;
 
     let store = Store::new().unwrap();
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     assert_eq!(store.len().unwrap(), 1);
 }
@@ -643,7 +614,8 @@ fn test_turtle_decimal_literal() {
 fn test_marketplace_package_rdf() {
     let store = Store::new().unwrap();
 
-    let turtle = format!(r#"
+    let turtle = format!(
+        r#"
         @prefix ggen: <{}> .
         @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 
@@ -651,12 +623,13 @@ fn test_marketplace_package_rdf() {
             ggen:packageName "test-package" ;
             ggen:packageVersion "1.0.0" ;
             ggen:description "A test package" .
-    "#, GGEN_NAMESPACE);
+    "#,
+        GGEN_NAMESPACE
+    );
 
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     assert_eq!(store.len().unwrap(), 4);
 }
@@ -670,10 +643,9 @@ fn test_turtle_empty_string() {
     "#;
 
     let store = Store::new().unwrap();
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     assert_eq!(store.len().unwrap(), 1);
 }
@@ -686,10 +658,9 @@ fn test_turtle_newline_in_literal() {
     "#;
 
     let store = Store::new().unwrap();
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        turtle.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, turtle.as_bytes())
+        .unwrap();
 
     assert_eq!(store.len().unwrap(), 1);
 }
@@ -699,7 +670,8 @@ fn test_rdf_ontology_schema() {
     let store = Store::new().unwrap();
 
     // Load ggen ontology
-    let ontology = format!(r#"
+    let ontology = format!(
+        r#"
         @prefix ggen: <{}> .
         @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
         @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
@@ -707,12 +679,13 @@ fn test_rdf_ontology_schema() {
         ggen:Package rdf:type rdfs:Class ;
             rdfs:label "Package" ;
             rdfs:comment "A ggen package" .
-    "#, GGEN_NAMESPACE);
+    "#,
+        GGEN_NAMESPACE
+    );
 
-    store.load_from_reader(
-        oxigraph::io::DatasetFormat::Turtle,
-        ontology.as_bytes(),
-    ).unwrap();
+    store
+        .load_from_reader(oxigraph::io::DatasetFormat::Turtle, ontology.as_bytes())
+        .unwrap();
 
     assert_eq!(store.len().unwrap(), 3);
 }

@@ -252,17 +252,19 @@ mod tests {
     }
 
     #[test]
-    fn test_get_or_parse() {
+    fn test_get_or_parse() -> Result<()> {
         let cache = TemplateCache::new(10);
 
-        let mut temp = NamedTempFile::new()?;
+        let mut temp = NamedTempFile::new()
+            .map_err(|e| Error::with_source("Failed to create temp file", Box::new(e)))?;
         writeln!(
             temp,
             r#"---
 to: "output.rs"
 ---
 fn main() {{}}"#
-        )?;
+        )
+        .map_err(|e| Error::with_source("Failed to write temp file", Box::new(e)))?;
 
         // First access - should parse
         let template1 = cache.get_or_parse(temp.path())?;
@@ -279,17 +281,19 @@ fn main() {{}}"#
     }
 
     #[test]
-    fn test_cache_clear() {
+    fn test_cache_clear() -> Result<()> {
         let cache = TemplateCache::new(10);
 
-        let mut temp = NamedTempFile::new()?;
+        let mut temp = NamedTempFile::new()
+            .map_err(|e| Error::with_source("Failed to create temp file", Box::new(e)))?;
         writeln!(
             temp,
             r#"---
 to: "output.rs"
 ---
 fn main() {{}}"#
-        )?;
+        )
+        .map_err(|e| Error::with_source("Failed to write temp file", Box::new(e)))?;
 
         cache.get_or_parse(temp.path())?;
         assert_eq!(cache.stats()?.size, 1);
@@ -301,17 +305,23 @@ fn main() {{}}"#
     }
 
     #[test]
-    fn test_cache_eviction() {
+    fn test_cache_eviction() -> Result<()> {
         let cache = TemplateCache::new(2);
 
         // Create 3 temp files
-        let mut temp1 = NamedTempFile::new()?;
-        let mut temp2 = NamedTempFile::new()?;
-        let mut temp3 = NamedTempFile::new()?;
+        let mut temp1 = NamedTempFile::new()
+            .map_err(|e| Error::with_source("Failed to create temp file 1", Box::new(e)))?;
+        let mut temp2 = NamedTempFile::new()
+            .map_err(|e| Error::with_source("Failed to create temp file 2", Box::new(e)))?;
+        let mut temp3 = NamedTempFile::new()
+            .map_err(|e| Error::with_source("Failed to create temp file 3", Box::new(e)))?;
 
-        writeln!(temp1, "---\nto: '1.rs'\n---\nfile1")?;
-        writeln!(temp2, "---\nto: '2.rs'\n---\nfile2")?;
-        writeln!(temp3, "---\nto: '3.rs'\n---\nfile3")?;
+        writeln!(temp1, "---\nto: '1.rs'\n---\nfile1")
+            .map_err(|e| Error::with_source("Failed to write temp file 1", Box::new(e)))?;
+        writeln!(temp2, "---\nto: '2.rs'\n---\nfile2")
+            .map_err(|e| Error::with_source("Failed to write temp file 2", Box::new(e)))?;
+        writeln!(temp3, "---\nto: '3.rs'\n---\nfile3")
+            .map_err(|e| Error::with_source("Failed to write temp file 3", Box::new(e)))?;
 
         // Fill cache
         cache.get_or_parse(temp1.path())?;
