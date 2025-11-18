@@ -21,6 +21,7 @@ members = [
   "crates/ggen-core",
   "crates/ggen-ai",
   "crates/ggen-marketplace",
+  "crates/ggen-marketplace-v2",
   "examples/frontmatter-cli",
   "examples/natural-market-search",
   "examples/ai-template-project",

@@ -6,7 +6,6 @@
 use clap_noun_verb::Result;
 use clap_noun_verb_macros::verb;
 use serde::Serialize;
-use std::path::PathBuf;
 
 // ============================================================================
 // Output Types (all must derive Serialize for JSON output)
@@ -125,14 +124,14 @@ struct SubmissionInfo {
 /// ```
 #[verb]
 fn new(
-    name: String, template: Option<String>, _discipline: Option<String>, output: Option<PathBuf>,
+    name: String, template: Option<String>, _discipline: Option<String>, output: Option<String>,
 ) -> Result<NewPaperOutput> {
     let template = template.unwrap_or_else(|| "arxiv".to_string());
-    let output_path = output.unwrap_or_else(|| PathBuf::from("."));
+    let output_path = output.unwrap_or_else(|| ".".to_string());
 
     Ok(NewPaperOutput {
         paper_name: name.clone(),
-        paper_path: format!("{}/{}", output_path.display(), name),
+        paper_path: format!("{}/{}", output_path, name),
         template: template.clone(),
         ontology_file: format!("{}.rdf", name),
         next_steps: vec![
@@ -164,19 +163,22 @@ fn new(
 /// ```
 #[verb]
 fn generate(
-    paper_file: PathBuf, style: Option<String>, _template: Option<PathBuf>, output: Option<PathBuf>,
+    paper_file: String, style: Option<String>, _template: Option<String>, output: Option<String>,
 ) -> Result<GenerateOutput> {
     let style = style.unwrap_or_else(|| "arxiv".to_string());
     let output_path = output.unwrap_or_else(|| {
-        let mut path = paper_file.clone();
-        path.set_extension("tex");
-        path
+        let mut output_str = paper_file.clone();
+        if let Some(pos) = output_str.rfind('.') {
+            output_str.truncate(pos);
+        }
+        output_str.push_str(".tex");
+        output_str
     });
 
     Ok(GenerateOutput {
-        paper_file: paper_file.display().to_string(),
+        paper_file,
         output_format: "latex".to_string(),
-        output_path: output_path.display().to_string(),
+        output_path,
         style,
         page_count: None,
         file_size: "0 KB".to_string(),
@@ -202,13 +204,14 @@ fn generate(
 /// ggen paper validate thesis.rdf --strict
 /// ```
 #[verb]
-fn validate(paper_file: PathBuf, _check: Option<String>, strict: bool) -> Result<ValidateOutput> {
+fn validate(paper_file: String, _check: Option<String>, strict: bool) -> Result<ValidateOutput> {
+    use std::path::Path;
     let mut errors = vec![];
     let mut warnings = vec![];
 
     // Basic validation checks
-    if !paper_file.exists() {
-        errors.push(format!("Paper file not found: {}", paper_file.display()));
+    if !Path::new(&paper_file).exists() {
+        errors.push(format!("Paper file not found: {}", paper_file));
     }
 
     if strict && errors.is_empty() {
@@ -217,7 +220,7 @@ fn validate(paper_file: PathBuf, _check: Option<String>, strict: bool) -> Result
     }
 
     Ok(ValidateOutput {
-        paper_file: paper_file.display().to_string(),
+        paper_file,
         is_valid: errors.is_empty(),
         checks_passed: if errors.is_empty() { 5 } else { 0 },
         checks_failed: errors.len(),
@@ -245,17 +248,21 @@ fn validate(paper_file: PathBuf, _check: Option<String>, strict: bool) -> Result
 /// ggen paper export paper.rdf --format json-ld
 /// ```
 #[verb]
-fn export(paper_file: PathBuf, format: String, output: Option<PathBuf>) -> Result<ExportOutput> {
+fn export(paper_file: String, format: String, output: Option<String>) -> Result<ExportOutput> {
     let output_path = output.unwrap_or_else(|| {
-        let mut path = paper_file.clone();
-        path.set_extension(&format);
-        path
+        let mut output_str = paper_file.clone();
+        if let Some(pos) = output_str.rfind('.') {
+            output_str.truncate(pos);
+        }
+        output_str.push('.');
+        output_str.push_str(&format);
+        output_str
     });
 
     Ok(ExportOutput {
-        source_file: paper_file.display().to_string(),
+        source_file: paper_file,
         export_format: format,
-        output_path: output_path.display().to_string(),
+        output_path,
         file_size: "0 KB".to_string(),
         metadata_exported: true,
     })
@@ -334,14 +341,17 @@ fn list_templates(filter: Option<String>) -> Result<ListTemplatesOutput> {
 /// ggen paper compile research.tex --bibtex
 /// ```
 #[verb]
-fn compile(tex_file: PathBuf, engine: Option<String>, bibtex: bool) -> Result<CompileOutput> {
+fn compile(tex_file: String, engine: Option<String>, bibtex: bool) -> Result<CompileOutput> {
     let _engine = engine.unwrap_or_else(|| "pdflatex".to_string());
     let mut output_pdf = tex_file.clone();
-    output_pdf.set_extension("pdf");
+    if let Some(pos) = output_pdf.rfind('.') {
+        output_pdf.truncate(pos);
+    }
+    output_pdf.push_str(".pdf");
 
     Ok(CompileOutput {
-        source_file: tex_file.display().to_string(),
-        output_pdf: output_pdf.display().to_string(),
+        source_file: tex_file,
+        output_pdf,
         compilation_time_ms: 0,
         page_count: 10,
         file_size: "0 KB".to_string(),
@@ -368,17 +378,20 @@ fn compile(tex_file: PathBuf, engine: Option<String>, bibtex: bool) -> Result<Co
 /// ```
 #[verb]
 fn init_bibliography(
-    paper_file: PathBuf, output: Option<PathBuf>,
+    paper_file: String, output: Option<String>,
 ) -> Result<InitBibliographyOutput> {
     let bibtex_file = output.unwrap_or_else(|| {
-        let mut path = paper_file.clone();
-        path.set_extension("bib");
-        path
+        let mut bib_str = paper_file.clone();
+        if let Some(pos) = bib_str.rfind('.') {
+            bib_str.truncate(pos);
+        }
+        bib_str.push_str(".bib");
+        bib_str
     });
 
     Ok(InitBibliographyOutput {
-        paper_file: paper_file.display().to_string(),
-        bibtex_file: bibtex_file.display().to_string(),
+        paper_file,
+        bibtex_file,
         entries_count: 0,
         total_entries: 0,
     })
@@ -403,9 +416,9 @@ fn init_bibliography(
 /// ggen paper submit paper.pdf --venue journal --metadata paper.rdf
 /// ```
 #[verb]
-fn submit(paper_file: PathBuf, venue: String, _metadata: Option<PathBuf>) -> Result<SubmitOutput> {
+fn submit(paper_file: String, venue: String, _metadata: Option<String>) -> Result<SubmitOutput> {
     Ok(SubmitOutput {
-        paper_file: paper_file.display().to_string(),
+        paper_file,
         venue,
         submission_id: "PENDING".to_string(),
         submission_date: chrono::Local::now().format("%Y-%m-%d").to_string(),
@@ -428,9 +441,9 @@ fn submit(paper_file: PathBuf, venue: String, _metadata: Option<PathBuf>) -> Res
 /// ggen paper track research.rdf --venue neurips-2024
 /// ```
 #[verb]
-fn track(paper_file: PathBuf, _venue: Option<String>) -> Result<TrackOutput> {
+fn track(paper_file: String, _venue: Option<String>) -> Result<TrackOutput> {
     Ok(TrackOutput {
-        paper_file: paper_file.display().to_string(),
+        paper_file,
         current_status: "draft".to_string(),
         submissions: vec![],
         latest_decision: None,

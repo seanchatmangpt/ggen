@@ -6,8 +6,16 @@
 use ggen_cli_lib;
 
 #[tokio::main]
-async fn main() -> anyhow::Result<()> {
-    ggen_cli_lib::cli_match()
-        .await
-        .map_err(|e| anyhow::anyhow!("CLI error: {}", e))
+async fn main() {
+    match ggen_cli_lib::cli_match().await {
+        Ok(()) => {
+            // Successful execution
+            std::process::exit(0);
+        }
+        Err(e) => {
+            // Error occurred - print error and exit with code 1
+            eprintln!("ERROR: {}", e);
+            std::process::exit(1);
+        }
+    }
 }
