@@ -922,3 +922,4 @@ claude-flow
 hive-mind-prompt-*.txt
 
 backups/  
+vendors/editor/
