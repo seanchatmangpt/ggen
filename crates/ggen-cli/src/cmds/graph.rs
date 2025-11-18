@@ -48,11 +48,11 @@ struct VisualizeOutput {
 
 /// Load RDF data into graph
 #[verb]
-fn load(file: PathBuf, format: Option<String>) -> Result<LoadOutput> {
+fn load(file: String, format: Option<String>) -> Result<LoadOutput> {
     use ggen_domain::graph::{execute_load, LoadInput};
 
     let input = LoadInput {
-        file,
+        file: PathBuf::from(file),
         format,
         base_iri: None,
         merge: false,
@@ -74,13 +74,13 @@ fn load(file: PathBuf, format: Option<String>) -> Result<LoadOutput> {
 /// Query graph with SPARQL
 #[verb]
 fn query(
-    sparql_query: String, graph_file: Option<PathBuf>, format: Option<String>,
+    sparql_query: String, graph_file: Option<String>, format: Option<String>,
 ) -> Result<QueryOutput> {
     use ggen_domain::graph::{execute_query, QueryInput};
 
     let input = QueryInput {
         query: sparql_query,
-        graph_file,
+        graph_file: graph_file.map(PathBuf::from),
         format: format.unwrap_or_else(|| "json".to_string()),
     };
 
@@ -98,12 +98,12 @@ fn query(
 
 /// Export graph to file
 #[verb]
-fn export(input_file: PathBuf, output: PathBuf, format: String) -> Result<ExportOutput> {
+fn export(input_file: String, output: String, format: String) -> Result<ExportOutput> {
     use ggen_domain::graph::{execute_export, ExportInput};
 
     let input_data = ExportInput {
-        input: input_file,
-        output,
+        input: PathBuf::from(input_file),
+        output: PathBuf::from(output),
         format,
         pretty: false,
     };
@@ -123,11 +123,11 @@ fn export(input_file: PathBuf, output: PathBuf, format: String) -> Result<Export
 
 /// Visualize graph structure
 #[verb]
-fn visualize(input_file: PathBuf, format: Option<String>) -> Result<VisualizeOutput> {
+fn visualize(input_file: String, format: Option<String>) -> Result<VisualizeOutput> {
     use ggen_domain::graph::{execute_visualize, VisualizeInput};
 
     let input_data = VisualizeInput {
-        input: input_file,
+        input: PathBuf::from(input_file),
         output: None,
         format: format.unwrap_or_else(|| "dot".to_string()),
         labels: false,
