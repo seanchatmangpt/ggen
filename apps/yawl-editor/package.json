@@ -28,6 +28,7 @@
     "@radix-ui/react-dialog": "^1.1.1",
     "@radix-ui/react-tabs": "^1.0.4",
     "@radix-ui/react-toast": "^1.2.1",
+    "@radix-ui/react-scroll-area": "^1.0.5",
     "bpmn-js": "^14.2.0",
     "diagram-js": "^14.2.0",
     "ai": "^3.1.0",
