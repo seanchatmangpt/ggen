@@ -13,10 +13,17 @@ import {
   Sparkles,
   CheckCircle2,
   Boxes,
+  Code2,
 } from 'lucide-react'
 
 export default function Home() {
   const features = [
+    {
+      icon: Code2,
+      title: 'Monaco AI Studio',
+      description: 'AI-powered code editor with generation, analysis, and refactoring',
+      href: '/monaco-studio',
+    },
     {
       icon: Boxes,
       title: 'Backstage IDP',
@@ -202,6 +209,16 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
             {[
+              {
+                icon: Code2,
+                title: 'AI Code Studio (Monaco Editor)',
+                items: [
+                  'AI-powered code generation',
+                  'Real-time code analysis & suggestions',
+                  'Automatic refactoring & optimization',
+                  'Multiple language support',
+                ],
+              },
               {
                 icon: Boxes,
                 title: 'Developer Platform (Backstage IDP)',
